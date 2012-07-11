@@ -1,0 +1,28 @@
+
+
+datas, materials, preparation, experiment temperature, experiment pressure, experiment duration, experiment properties {
+	display: list-item;
+	list-style-type: circle;
+	margin-bottom:20pt;
+	margin-left:20pt;
+	}
+
+	id, type, comment, measuredParameters , constituents, phases, bulkComposition , container, samplePreparationMethod, samplePreparationSteps {
+		display: block;
+		}
+
+		constituent, phase {
+			display: inline;
+			margin-right:20pt;
+			}
+	
+		name, crystalStructure, bulkFraction, materialPurity, materialForm, samplePreparationStep temperature, samplePreparationStep pressure, samplePreparationStep duration, samplePreparationStep method, samplePreparationStep container {
+			display: inline;
+			margin-right:10pt;
+			}
+			
+			samplePreparationStep {
+				margin-left:20pt;
+				display: list-item;
+				list-style-type: decimal;
+				}

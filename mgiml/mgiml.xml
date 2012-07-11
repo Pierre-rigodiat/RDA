@@ -1,0 +1,89 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/css" href="draft.css"?>
+
+<experiment xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="mgiml.xsd">
+	<datas>
+		<id>1</id>
+		<type>self-diffusion</type>
+		<comment>Radioactive tracer experiment</comment>
+		<measuredParameters>self-diffusion of Ni in Ni; D* Ni</measuredParameters>
+	</datas>
+	<materials>
+		<constituents>
+			<constituent>Ni</constituent>
+		</constituents>
+		<phases>
+			<phase>
+				<name>FCC</name>
+				<bulkFraction>1</bulkFraction>
+				<crystalStructure>FCC</crystalStructure>
+			</phase>
+		</phases>
+		<bulkComposition>
+			<constituent>Ni</constituent>
+			<bulkFraction>1</bulkFraction>
+			<materialPurity>0.99997</materialPurity>
+			<materialForm>single crystal</materialForm>
+		</bulkComposition>
+	</materials>
+	<preparation>
+		<container>Horizontal furnace with an at;osphere of pure Ar with 2% H2</container>
+		<samplePreparationMethod>Radioactive tracer experiment with Ni63</samplePreparationMethod>
+		<samplePreparationSteps>
+			<samplePreparationStep>
+				<comment>Producing single crystals</comment>
+				<surround>
+					<constituent>Ni</constituent>
+					<bulkFraction>1</bulkFraction>
+					<materialPurity>0.99997</materialPurity>
+					<materialForm>single crystal</materialForm>
+				</surround>
+				<method>Bridgman</method>
+				<container>5mm diameter cylinders</container>
+			</samplePreparationStep>
+			<samplePreparationStep>
+				<comment>Anneal single crystal</comment>
+				<surround>
+					<constituent>Ni</constituent>
+					<bulkFraction>1</bulkFraction>
+					<materialPurity>0.99997</materialPurity>
+					<materialForm>single crystal</materialForm>
+				</surround>
+				<temperature>
+					<unit>K</unit>
+					<value>1623</value>
+				</temperature>
+				<pressure>
+					<unit>atm</unit>
+					<value>1</value>
+				</pressure>
+				<method>annealing</method>
+				<container>3mm thick disks</container>
+			</samplePreparationStep>
+			<samplePreparationStep>
+				<comment>Apply thin layer of radioactive tracer</comment>
+				<surround>
+					<constituent>Ni63</constituent>
+					<bulkFraction>1</bulkFraction>
+					<materialForm>sputter deposited</materialForm>
+				</surround>
+				<method>iom-beam sputtering</method>
+			</samplePreparationStep>
+		</samplePreparationSteps>
+	</preparation>
+	<temperature>
+		<unit>K</unit>
+		<value>815.15</value>
+		<error type="amount">0.2</error>
+	</temperature>
+	<pressure>
+		<unit>atm</unit>
+		<value>1</value>
+	</pressure>
+	<duration>
+		<unit>s</unit>
+		<value>945000</value>
+		<error type="percentage">10</error>
+	</duration>
+	<properties>{Direct, serial sectioning, penetration profiles;2.5704E-22,m2/s,5%}</properties>
+</experiment>
