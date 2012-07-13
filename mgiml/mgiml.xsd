@@ -31,9 +31,9 @@
 				<xs:element name="datas" type="datas" />
 				<xs:element name="materials" type="materials" />
 				<xs:element name="preparation" type="preparation" />
-				<xs:element name="temperature" type="unit" />
-				<xs:element name="pressure" type="unit" />
-				<xs:element name="duration" type="unit" />
+				<xs:element name="temperature" type="unit" />
+                <xs:element name="pressure" type="unit" />
+                <xs:element name="duration" type="unit" />
 				<xs:element name="properties" type="xs:string" />
 			</xs:sequence>
 		</xs:complexType>

@@ -1,0 +1,328 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:xt="http://ns.inria.org/xtiger" xml:lang="en">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=8;" />
+<meta name="description"
+	content="Curriculum Vitae XTiger XML document template" />
+<meta name="keywords" content="employment" />
+
+<title>MGIML Format</title>
+
+<xt:head version="0.1" templateVersion="0.1" label="experiment">
+
+	<xt:component name="training">
+		<dl>
+			<dt class="date">
+				<xt:use types="text" param="type=input;shape=self" label="date">Start year - End year</xt:use>
+				<xt:menu-marker />
+			</dt>
+			<dd class="content">
+				<strong class="label"> <xt:use types="text"
+						label="description">Activity description</xt:use>
+				</strong> <span class="comment"><xt:use types="text" label="comment"
+						option="unset">Comments</xt:use></span> <span class="location"><xt:use
+						types="text" label="location">Location</xt:use></span>
+			</dd>
+		</dl>
+	</xt:component>
+
+	<xt:component name="employment">
+		<dl>
+			<dt class="date">
+				<xt:attribute types="text" name="start" default="Start" />
+				<span> - </span>
+				<xt:attribute types="text" name="end" default="End" />
+				<xt:menu-marker />
+			</dt>
+			<dd class="content">
+				<strong class="label"> <xt:use types="text"
+						label="description" param="type=input">Job description</xt:use>
+				</strong>
+				<xt:use types="text" label="location">Location</xt:use>
+				,
+				<xt:use types="text" label="url" option="unset">Associated URL</xt:use>
+				<!-- FIXME: should be replaced by a "url" plugin -->
+			</dd>
+		</dl>
+	</xt:component>
+
+	<xt:component name="practice">
+		<dl>
+			<dt>
+				<xt:use types="text" label="language">English</xt:use>
+				<xt:menu-marker />
+			</dt>
+			<dd>
+				<xt:use types="text" label="pratice_level">Level's description</xt:use>
+			</dd>
+		</dl>
+	</xt:component>
+
+	<xt:component name="preparationStep">
+		<xt:menu-marker />
+    	Name: <xt:use types="text" label="">...</xt:use>
+		<ul>
+			<li>Surround: <xt:use types="stepSurround" label="" /></li>
+			<li>Temperature: <xt:use types="unitDescription" label="" /></li>
+			<li>Pressure: <xt:use types="unitDescription" label="" /></li>
+			<li>Duration: <xt:use types="unitDescription" label="" /></li>
+			<li>Method: <xt:use types="text" label="">...</xt:use></li>
+			<li>Container: <xt:use types="text" label="">...</xt:use></li>
+		</ul>
+	</xt:component>
+
+	<xt:component name="stepSurround">
+		<xt:menu-marker />
+		<ul>
+			<li>Constituent: <xt:use types="text" label="">...</xt:use></li>
+			<li>Bulk Fraction: <xt:use types="text" label="">...</xt:use></li>
+			<li>Purity: <xt:use types="text" label="">...</xt:use></li>
+			<li>Form: <xt:use types="text" label="">...</xt:use></li>
+		</ul>
+	</xt:component>
+
+	<xt:component name="unitDescription">
+		<ul>
+			<li>Unit: <xt:use types="text" label="">...</xt:use></li>
+			<li>Value: <xt:use types="text" label="">...</xt:use></li>
+			<li><xt:repeat minOccurs="0" maxOccurs="1" label="">
+					<xt:menu-marker />
+					Error: +/- 
+					<xt:use types="text" label="">...</xt:use>
+				</xt:repeat></li>
+		</ul>
+	</xt:component>
+
+</xt:head>
+
+<!-- AXEL Preview Mode -->
+<link rel="stylesheet" type="text/css" href="Preview.css" />
+
+<style type="text/css">
+/*body
+   {            
+    margin-top: 20px;
+    padding: 10px;
+    color: #6d5858;
+    background-color: #f9f8ea;
+    font-family: Times, "Times New Roman", serif;
+    font-size: 14px;
+   }
+
+  span
+   {
+   display: inline;
+   }   */
+
+/***************** XTiger Forms *****************/
+
+/* .xtt-editable:hover {
+    border: 1.5px dashed blue !important;
+    padding: 2px;
+  }*/
+
+/************** Top ***************/
+
+/*.info 
+   { 
+    text-align: left;
+   }
+
+  .name
+   { 
+    font-weight: bold;
+    font-size: 140%;
+   }  
+
+  address
+   { 
+    text-align: left;  
+    margin-left: 4%;
+   }*/
+
+/***************** Body *****************/
+/*.body
+  { 
+    width: 70%;
+  }
+
+  .field
+  { 
+    padding: 10px;
+    margin: 10px;
+    border-style: solid;
+    border-color: #353175;
+    border-width: 1px 4px 4px 1px;
+    }
+
+  .label
+  { 
+    font-weight: bold;
+    display:block;
+    }
+
+  .comment:after
+  { 
+    content: ", "
+    }
+
+  .location:after
+  { 
+    content: ". "
+    }
+
+  p.list > span:after
+  {
+    content: ","
+    }
+
+  p.list > span:last-of-type:after, p.list > span:only-of-type:after
+  {
+      content: "."
+  }   
+  dd.content, dd.span {
+    vertical-align: bottom;
+  }
+*/
+
+/***************** Menu ******************/
+/* .menu 
+  { 
+    top: 0;
+    right: 4px;
+    position: absolute;
+    margin-top: 20px;
+    text-align: left;
+    color: #6d5858;
+    padding: 10px;
+    width: 20%;
+    }
+
+  .entry
+  { 
+    display: block;
+    color: #353175;
+    font-weight:normal;
+    font-size : 130%;
+    text-decoration: none;
+    text-align: center;
+    background-color: #f8ebc4;
+    margin: 4px;
+    border-style: solid;
+    border-color: #353175;
+    border-width: 1px 4px 4px 1px;
+   }
+*/
+/**************** Page foot **********/
+
+/*  .footer
+  { 
+    clear:both;
+  }
+
+  h1 
+  {
+    padding: 2px;
+    border-style: solid;
+    border-color: #353175;
+    border-width: thin;
+    font-size : 130%;
+    font-family: Arial, Helvetica, sans-serif;
+    }
+
+  h2
+  { 
+    padding-left: 17px;
+    font-size : 120%;
+    font-family: Arial, Helvetica, sans-serif;
+   }
+
+  p { margin-left: 4% }
+
+  dt { margin-left: 0px }
+  dd { margin-left: 30px}
+
+  img
+  { 
+    border: none;
+    }*/
+</style>
+
+<!-- Place here optional AXEL code for making the template auto-editable -->
+
+</head>
+<body>
+	<h1>Experiment</h1>
+
+	<h2>Main datas</h2>
+	<ul>
+		<li>Experiment ID: <xt:use types="text" param="layout=placed"
+				label="">...</xt:use></li>
+		<li>Experiment Type: <xt:use types="text" param="layout=placed"
+				label="">...</xt:use></li>
+		<li>Comment: <xt:use types="text" param="layout=placed" label="">...</xt:use></li>
+		<li>Measured parameters: <xt:use types="text"
+				param="layout=placed" label="">...</xt:use></li>
+		<li>Experiment temperature<xt:use types="unitDescription"
+				label="" /></li>
+		<li>Experiment pressure<xt:use types="unitDescription" label="" /></li>
+		<li>Experiment duration<xt:use types="unitDescription" label="" /></li>
+		<li>Measurement properties: <xt:use types="text"
+				param="layout=placed" label="">...</xt:use></li>
+	</ul>
+
+	<h2>Material</h2>
+	<h3>Constituents</h3>
+	<ul>
+		<xt:repeat minOccurs="1" label="">
+			<li><xt:menu-marker />Element: <xt:use types="text" label="">...</xt:use></li>
+		</xt:repeat>
+	</ul>
+	<h3>Phases</h3>
+	<ul>
+		<xt:repeat minOccurs="1" label="">
+			<li>
+				<xt:menu-marker />Name: <xt:use types="text" label="">...</xt:use>
+				<ul>
+					<li>Bulk fraction: <xt:use types="text" label="">...</xt:use></li>
+					<li>Crystal structure: <xt:use types="text" label="">...</xt:use></li>
+				</ul>	
+			</li>
+		</xt:repeat>
+	</ul>
+	<h3>Bulk composition</h3>
+	<ul>
+		<xt:repeat minOccurs="1" label="">
+			<li>
+				<xt:menu-marker /> Bulk
+				<ul>
+					<li>Constituent: <xt:use types="text" label="">...</xt:use></li>
+					<li>Bulk fraction: <xt:use types="text" label="">...</xt:use></li>
+					<li>Material purity: <xt:use types="text" label="">...</xt:use></li>
+					<li>Material form: <xt:use types="text" label="">...</xt:use></li>
+				</ul>
+				
+			</li>
+		</xt:repeat>
+	</ul>
+	
+	
+	<h2>Preparation</h2>
+	<p>
+		Container:
+		<xt:use types="text" param="layout=placed" label="">...</xt:use>
+		<br /> Sample Preparation Method:
+		<xt:use types="text" param="layout=placed" label="">...</xt:use>
+	</p>
+	<h3>Steps</h3>
+	<ul>
+		<xt:repeat minOccurs="1" label="preparationStep">
+			<li><xt:use types="preparationStep" label="" /></li>
+		</xt:repeat>
+	</ul>
+</body>
+</html>
