@@ -4,8 +4,8 @@
 	<!-- GENERIC ELEMENTS -->
 	<xs:complexType name="unit">
 		<xs:sequence>
-			<xs:element name="unit" type="xs:string" />
 			<xs:element name="value" type="xs:double" />
+			<xs:element name="unit" type="xs:string" />
 			<xs:element name="error" type="error" minOccurs="0"/>
 		</xs:sequence>
 	</xs:complexType>
@@ -52,6 +52,7 @@
 	<xs:complexType name="materials">
 		<xs:sequence>
 			<xs:element name="constituents" type="constituents" />
+			<xs:element name="diffusingSpecie" type="diffusingSpecie" />
 			<xs:element name="phases" type="phases" />
 			<xs:element name="bulkComposition" type="bulkComposition" />
 		</xs:sequence>
@@ -72,6 +73,12 @@
 		</xs:sequence>
 	</xs:complexType>
 
+	<xs:complexType name="diffusingSpecie">
+		<xs:sequence>
+			<xs:element name="diffusingSpecie" type="xs:string" maxOccurs="1" />
+		</xs:sequence>
+	</xs:complexType>
+	
 	<xs:complexType name="phases">
 		<xs:sequence>
 			<xs:element name="phase" type="phase" maxOccurs="unbounded" />
@@ -100,7 +107,7 @@
 		<xs:sequence>
 			<xs:element name="name" type="xs:string" />
 			<xs:element name="bulkFraction" type="xs:positiveInteger" />
-			<xs:element name="crystalStructure" type="xs:string" />
+			<xs:element name="crystalStructure" type="crystalStructure" />
 		</xs:sequence>
 	</xs:complexType>
 
@@ -118,6 +125,15 @@
 				up ahead -->
 			<xs:element name="method" type="xs:string" />
 			<xs:element name="container" type="xs:string" minOccurs="0" />
+			<xs:element name="sampleGeometry" type="xs:string" minOccurs="0" />
+		</xs:sequence>
+	</xs:complexType>
+	
+	<!-- LEVEL 4 (materials/phases/phase/crystalStructure) -->
+	<xs:complexType name="crystalStructure">
+		<xs:sequence>
+			<xs:element name="spaceGroup" type="xs:string" />
+			<xs:element name="wyckoffSequence" type="xs:string" />
 		</xs:sequence>
 	</xs:complexType>
 </xs:schema>

@@ -12,11 +12,15 @@
 		<constituents>
 			<constituent>Ni</constituent>
 		</constituents>
+		<diffusingSpecie>Ni</diffusingSpecie>
 		<phases>
 			<phase>
 				<name>FCC</name>
 				<bulkFraction>1</bulkFraction>
-				<crystalStructure>FCC</crystalStructure>
+				<crystalStructure>
+					<spaceGroup>Fm3m</spaceGroup>
+					<wyckoffSequence>4a</wyckoffSequence>
+				</crystalStructure>
 			</phase>
 		</phases>
 		<bulkComposition>
@@ -27,7 +31,7 @@
 		</bulkComposition>
 	</materials>
 	<preparation>
-		<container>Horizontal furnace with an at;osphere of pure Ar with 2% H2</container>
+		<container>Horizontal furnace with an atmosphere of pure Ar with 2% H2</container>
 		<samplePreparationMethod>Radioactive tracer experiment with Ni63</samplePreparationMethod>
 		<samplePreparationSteps>
 			<samplePreparationStep>
@@ -50,12 +54,12 @@
 					<materialForm>single crystal</materialForm>
 				</surround>
 				<temperature>
-					<unit>K</unit>
 					<value>1623</value>
+					<unit>K</unit>
 				</temperature>
 				<pressure>
-					<unit>atm</unit>
 					<value>1</value>
+					<unit>atm</unit>
 				</pressure>
 				<method>annealing</method>
 				<container>3mm thick disks</container>
@@ -72,17 +76,17 @@
 		</samplePreparationSteps>
 	</preparation>
 	<temperature>
-		<unit>K</unit>
 		<value>815.15</value>
+		<unit>K</unit>
 		<error type="amount">0.2</error>
 	</temperature>
 	<pressure>
-		<unit>atm</unit>
 		<value>1</value>
+		<unit>atm</unit>
 	</pressure>
 	<duration>
-		<unit>s</unit>
 		<value>945000</value>
+		<unit>s</unit>
 		<error type="percentage">10</error>
 	</duration>
 	<properties>{Direct, serial sectioning, penetration profiles;2.5704E-22,m2/s,5%}</properties>
