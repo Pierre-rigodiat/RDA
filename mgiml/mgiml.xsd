@@ -52,7 +52,7 @@
 	<xs:complexType name="materials">
 		<xs:sequence>
 			<xs:element name="constituents" type="constituents" />
-			<xs:element name="diffusingSpecie" type="diffusingSpecie" />
+			<xs:element name="diffusingSpecie" type="xs:string" />
 			<xs:element name="phases" type="phases" />
 			<xs:element name="bulkComposition" type="bulkComposition" />
 		</xs:sequence>
@@ -70,12 +70,6 @@
 	<xs:complexType name="constituents">
 		<xs:sequence>
 			<xs:element name="constituent" type="xs:string" maxOccurs="unbounded" />
-		</xs:sequence>
-	</xs:complexType>
-
-	<xs:complexType name="diffusingSpecie">
-		<xs:sequence>
-			<xs:element name="diffusingSpecie" type="xs:string" maxOccurs="1" />
 		</xs:sequence>
 	</xs:complexType>
 	
