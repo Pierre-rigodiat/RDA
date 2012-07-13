@@ -1,0 +1,38 @@
+body {
+	padding: 0;
+	margin: 0;
+	min-width: 650px;
+}
+
+div#menu {
+	background: lightgray;
+	min-width: 600px;
+	margin: 0 auto;
+	padding: 5px 10px;
+}
+
+#document {
+	border: none;
+	background: white;
+	position: fixed;
+	top: 2em;
+	right: 10px;
+	bottom: 10px;
+	left: 10px;
+	margin: 0;
+	padding: 0;
+	z-index: 2;
+}
+
+#container {
+	border: none;
+	position: static;
+	width: 100%;
+	height: 100%;
+}
+
+#feedback {
+	padding: 0;
+	margin: 0;
+	text-align: center;
+}

@@ -43,8 +43,11 @@ Editor.prototype = {
 			iframeDoc = iframe.contentDocument;
 		} else if (iframe.contentWindow) {
 			iframeDoc = iframe.contentWindow.document;			
-		}		
-		this.form = new xtiger.util.Form(this.libPath + '/bundles');
+		}	
+		
+		//alert('page:'+this.libPath);
+		
+		this.form = new xtiger.util.Form('../'+this.libPath + '/bundles');
 		this.form.setTemplateSource(iframeDoc);
 	  	this.form.enableTabGroupNavigation();
 		if (this.form.transform(result)) { 

@@ -1,0 +1,122 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:xt="http://ns.inria.org/xtiger" xml:lang="en">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=8;" />
+<meta name="description" content="MGIML Template 0.1" />
+<meta name="keywords" content="mgiml" />
+
+<title>MGIML Format</title>
+
+<xt:head version="0.1" templateVersion="0.1" label="experiment">
+	<xt:component name="preparationStep">
+		<xt:menu-marker />
+    	Name: <xt:use types="text" label="">...</xt:use>
+		<ul>
+			<li>Surround: <xt:use types="stepSurround" label="" /></li>
+			<li>Temperature: <xt:use types="unitDescription" label="" /></li>
+			<li>Pressure: <xt:use types="unitDescription" label="" /></li>
+			<li>Duration: <xt:use types="unitDescription" label="" /></li>
+			<li>Method: <xt:use types="text" label="">...</xt:use></li>
+			<li>Container: <xt:use types="text" label="">...</xt:use></li>
+		</ul>
+	</xt:component>
+
+	<xt:component name="stepSurround">
+		<xt:menu-marker />
+		<ul>
+			<li>Constituent: <xt:use types="text" label="">...</xt:use></li>
+			<li>Bulk Fraction: <xt:use types="text" label="">...</xt:use></li>
+			<li>Purity: <xt:use types="text" label="">...</xt:use></li>
+			<li>Form: <xt:use types="text" label="">...</xt:use></li>
+		</ul>
+	</xt:component>
+
+	<xt:component name="unitDescription">
+		<ul>
+			<li>Unit: <xt:use types="text" label="">...</xt:use></li>
+			<li>Value: <xt:use types="text" label="">...</xt:use></li>
+			<li><xt:repeat minOccurs="0" maxOccurs="1" label="">
+					<xt:menu-marker />
+					Error: +/- 
+					<xt:use types="text" label="">...</xt:use>
+				</xt:repeat></li>
+		</ul>
+	</xt:component>
+
+</xt:head>
+
+<!-- AXEL Preview Mode -->
+<link rel="stylesheet" type="text/css" href="../css/preview.css" />
+<link rel="stylesheet" type="text/css" href="../css/template.css" />
+
+</head>
+<body>
+	<h1>Experiment</h1>
+
+	<h2>Main datas</h2>
+	<ul>
+		<li>Experiment ID: <xt:use types="text" param="layout=placed"
+				label="">...</xt:use></li>
+		<li>Experiment Type: <xt:use types="text" param="layout=placed"
+				label="">...</xt:use></li>
+		<li>Comment: <xt:use types="text" param="layout=placed" label="">...</xt:use></li>
+		<li>Measured parameters: <xt:use types="text"
+				param="layout=placed" label="">...</xt:use></li>
+		<li>Experiment temperature<xt:use types="unitDescription"
+				label="" /></li>
+		<li>Experiment pressure<xt:use types="unitDescription" label="" /></li>
+		<li>Experiment duration<xt:use types="unitDescription" label="" /></li>
+		<li>Measurement properties: <xt:use types="text"
+				param="layout=placed" label="">...</xt:use></li>
+	</ul>
+
+	<h2>Material</h2>
+	<h3>Constituents</h3>
+	<ul>
+		<xt:repeat minOccurs="1" label="">
+			<li><xt:menu-marker />Element: <xt:use types="text" label="">...</xt:use></li>
+		</xt:repeat>
+	</ul>
+	<h3>Phases</h3>
+	<ul>
+		<xt:repeat minOccurs="1" label="">
+			<li><xt:menu-marker />Name: <xt:use types="text" label="">...</xt:use>
+				<ul>
+					<li>Bulk fraction: <xt:use types="text" label="">...</xt:use></li>
+					<li>Crystal structure: <xt:use types="text" label="">...</xt:use></li>
+				</ul></li>
+		</xt:repeat>
+	</ul>
+	<h3>Bulk composition</h3>
+	<ul>
+		<xt:repeat minOccurs="1" label="">
+			<li><xt:menu-marker /> Bulk
+				<ul>
+					<li>Constituent: <xt:use types="text" label="">...</xt:use></li>
+					<li>Bulk fraction: <xt:use types="text" label="">...</xt:use></li>
+					<li>Material purity: <xt:use types="text" label="">...</xt:use></li>
+					<li>Material form: <xt:use types="text" label="">...</xt:use></li>
+				</ul></li>
+		</xt:repeat>
+	</ul>
+
+
+	<h2>Preparation</h2>
+	<p>
+		Container:
+		<xt:use types="text" param="layout=placed" label="">...</xt:use>
+		<br /> Sample Preparation Method:
+		<xt:use types="text" param="layout=placed" label="">...</xt:use>
+	</p>
+	<h3>Steps</h3>
+	<ul>
+		<xt:repeat minOccurs="1" label="preparationStep">
+			<li><xt:use types="preparationStep" label="" /></li>
+		</xt:repeat>
+	</ul>
+</body>
+</html>
