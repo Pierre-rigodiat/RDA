@@ -3,6 +3,7 @@
 <xsl:stylesheet version="1.0"
 xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
+
 <!-- LEVEL 0 -->
 <!-- Display the title then call the required templates -->
 <xsl:template match="/">
@@ -17,6 +18,7 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 	<xsl:apply-templates select="experiment/duration"/>
 	<xsl:apply-templates select="experiment/properties"/>
 	</body>
+	<LINK REL="stylesheet" TYPE="text/css" HREF="draft.css"/>
 	</html>
 </xsl:template>
 
@@ -55,8 +57,8 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
 <!-- Display the experiment temperature title then display its value in the required format -->
 <xsl:template match="experiment/temperature">
-	<p>
 	<h3>Experiment Temperature: </h3>
+	<p>
 	temperature = <xsl:value-of select="value"/>, <xsl:value-of select="unit"/>
 	<!-- Call the error template -->
 	<xsl:apply-templates select="error"/>
@@ -65,8 +67,8 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
 <!-- Display the experiment pressure title then display its value in the required format -->
 <xsl:template match="experiment/pressure">
-	<p>
 	<h3>Experiment Pressure: </h3>
+	<p>
 	pressure = <xsl:value-of select="value"/>, <xsl:value-of select="unit"/>
 	<!-- Call the error template -->
 	<xsl:apply-templates select="error"/>
@@ -75,8 +77,8 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
 <!-- Display the experiment duration title then display its value in the required format -->
 <xsl:template match="experiment/duration">
-	<p>
 	<h3>Experiment Duration: </h3>
+	<p>
 	duration = <xsl:value-of select="value"/>, <xsl:value-of select="unit"/>
 	<!-- Call the error template -->
 	<xsl:apply-templates select="error"/>
@@ -85,8 +87,8 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
 <!-- Display the experiment properties title then display its value -->
 <xsl:template match="experiment/properties">
-	<p>
 	<h3>Measurement Properties: </h3>
+	<p>
 	<xsl:value-of select="."/>
 	</p>
 </xsl:template>
@@ -164,8 +166,10 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
 <!-- Display the samplePreparationSteps value in the required format -->
 <xsl:template match="samplePreparationSteps">
+	<ol>
 	<!-- For each samplePreparationStep tag -->
 	<xsl:for-each select="samplePreparationStep">
+	<li>
 	<!-- Display the comment value then call the surround template -->
 	<xsl:value-of select="comment"/> {<xsl:apply-templates select="surround"/>
 	<!-- Test if the temperature tag is present. If yes, call its template. If not, display NA instead. -->
@@ -222,8 +226,8 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
           <xsl:apply-templates select="sampleGeometry"/>
 		</xsl:otherwise>
 	</xsl:choose>
-	 }
-	<br /></xsl:for-each>
+	 }</li>
+	</xsl:for-each></ol>
 </xsl:template>
 
 <!-- ./samplePreparationStep/Surround -->
@@ -279,7 +283,7 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 <xsl:template match="error">
 	, +/- <xsl:value-of select="."/>
 	<!-- Test either the attribute type equals 'percentage'. If yes, display its value with '%'.-->
-	<xsl:if test=".[@type='percentage']">%</xsl:if>
+	<xsl:if test="@type='percentage'">%</xsl:if>
 </xsl:template>
 
 </xsl:stylesheet>
