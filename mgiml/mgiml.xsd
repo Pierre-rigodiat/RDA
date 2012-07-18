@@ -28,7 +28,7 @@
 	<xs:element name="experiment">
 		<xs:complexType>
 			<xs:sequence>
-				<xs:element name="datas" type="datas" />
+				<xs:element name="data" type="data" />
 				<xs:element name="materials" type="materials" />
 				<xs:element name="preparation" type="preparation" />
 				<xs:element name="temperature" type="unit" />
@@ -40,7 +40,7 @@
 	</xs:element>
 
 	<!-- LEVEL 1 -->
-	<xs:complexType name="datas">
+	<xs:complexType name="data">
 		<xs:sequence>
 			<xs:element name="id" type="xs:integer" />
 			<xs:element name="type" type="xs:string" />

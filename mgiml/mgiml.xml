@@ -2,12 +2,12 @@
 <?xml-stylesheet type="text/xsl" href="draft.xsl"?>
 
 <experiment xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="mgiml.xsd">
-	<datas>
+	<data>
 		<id>1</id>
 		<type>self-diffusion</type>
 		<description>Radioactive tracer experiment</description>
 		<measuredParameters>self-diffusion of Ni in Ni; D* Ni</measuredParameters>
-	</datas>
+	</data>
 	<materials>
 		<constituents>
 			<constituent>Ni</constituent>

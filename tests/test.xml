@@ -1,33 +1,35 @@
 <?xml version="1.0"?>
 <?xtiger template="templates/mgiml_template.xhtml" version="1.0" ?>
 <experiment>
-  <datas>
+  <data>
     <id>...</id>
     <type>...</type>
     <comment>...</comment>
     <measuredParameters>...</measuredParameters>
-  </datas>
+  </data>
   <materials>
-    <elements>
-      <element>...</element>
-    </elements>
+    <constituents>
+      <constituent>...</constituent>
+    </constituents>
     <phases>
-      <name>...</name>
-      <bulFraction>...</bulFraction>
-      <crystalStructure>...</crystalStructure>
+      <phase>
+        <name>...</name>
+        <bulFraction>...</bulFraction>
+        <crystalStructure>...</crystalStructure>
+      </phase>
     </phases>
     <bulkComposition>
       <constituent>...</constituent>
       <bulkFraction>...</bulkFraction>
-      <purity>...</purity>
-      <form>...</form>
+      <materialPurity>...</materialPurity>
+      <materialForm>...</materialForm>
     </bulkComposition>
   </materials>
   <preparation>
     <container>...</container>
     <samplePreparationMethod>...</samplePreparationMethod>
-    <preparationStep>
-      <preparationStep>
+    <samplePreparationSteps>
+      <samplePreparationStep>
         <name>...</name>
         <surround>
           <constituent>...</constituent>
@@ -49,8 +51,8 @@
         </durtation>
         <method>...</method>
         <container>...</container>
-      </preparationStep>
-    </preparationStep>
+      </samplePreparationStep>
+    </samplePreparationSteps>
   </preparation>
   <temperature>
     <value>...</value>
@@ -64,5 +66,5 @@
     <value>...</value>
     <unit>...</unit>
   </duration>
-  <measuredProperties>...</measuredProperties>
+  <properties>...</properties>
 </experiment>
