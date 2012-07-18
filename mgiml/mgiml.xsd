@@ -44,7 +44,7 @@
 		<xs:sequence>
 			<xs:element name="id" type="xs:integer" />
 			<xs:element name="type" type="xs:string" />
-			<xs:element name="comment" type="xs:string" />
+			<xs:element name="description" type="xs:string" />
 			<xs:element name="measuredParameters" type="xs:string" />
 		</xs:sequence>
 	</xs:complexType>
@@ -60,7 +60,7 @@
 
 	<xs:complexType name="preparation">
 		<xs:sequence>
-			<xs:element name="container" type="xs:string" />
+			<xs:element name="preparationContainer" type="xs:string" />
 			<xs:element name="samplePreparationMethod" type="xs:string" />
 			<xs:element name="samplePreparationSteps" type="samplePreparationSteps" />
 		</xs:sequence>

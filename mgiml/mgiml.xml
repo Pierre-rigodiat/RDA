@@ -1,11 +1,11 @@
 <?xml version="1.0"?>
-<?xml-stylesheet type="text/css" href="draft.css"?>
+<?xml-stylesheet type="text/xsl" href="draft.xsl"?>
 
 <experiment xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="mgiml.xsd">
 	<datas>
 		<id>1</id>
 		<type>self-diffusion</type>
-		<comment>Radioactive tracer experiment</comment>
+		<description>Radioactive tracer experiment</description>
 		<measuredParameters>self-diffusion of Ni in Ni; D* Ni</measuredParameters>
 	</datas>
 	<materials>
@@ -31,7 +31,7 @@
 		</bulkComposition>
 	</materials>
 	<preparation>
-		<container>Horizontal furnace with an atmosphere of pure Ar with 2% H2</container>
+		<preparationContainer>Horizontal furnace with an atmosphere of pure Ar with 2% H2</preparationContainer>
 		<samplePreparationMethod>Radioactive tracer experiment with Ni63</samplePreparationMethod>
 		<samplePreparationSteps>
 			<samplePreparationStep>
