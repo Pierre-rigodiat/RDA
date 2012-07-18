@@ -19,13 +19,13 @@
 	  <![endif]-->
 <script type="text/javascript" src="../lib/axel/axel/axel.js"></script>
 <script type="text/javascript" src="../lib/axel/src/util/debug.js"></script>
-<script type="text/javascript" src="../lib/axel/src/util/davmenubar.js"></script>
+<script type="text/javascript" src="scripts/mgiml_topbar.js"></script>
 <script type="text/javascript" src="scripts/launch.js"></script>
 <script type="text/javascript">
 			function init () { 
 				new Editor('../lib/axel/axel');  // for axel.css and resource folder bundles/
 			}		
-			xtdom.addEventListener(window,  'load', init, false);
+			xtdom.addEventListener(window,'load', init, false);
 		</script>
 </head>
 <body>
