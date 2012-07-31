@@ -1,0 +1,7 @@
+
+syntax: regexp
+^tests$
+syntax: regexp
+^tests$
+syntax: regexp
+^tests$
