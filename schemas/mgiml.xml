@@ -14,6 +14,10 @@
     </measuredParameters>
     <value>
       <value>0.0</value>
+      <uncertainty>
+        <type>amount|fraction</type>
+        <value>0.0</value>
+      </uncertainty>
       <unit>
         <name>name</name>
         <unitOfMeasureType>
@@ -25,9 +29,28 @@
   <materials>
     <material>
       <phases>
+        <temperature>
+          <value>0.0</value>
+          <uncertainty>
+            <type>amount|fraction</type>
+            <value>0.0</value>
+          </uncertainty>
+          <unit>
+            <name>name</name>
+            <unitOfMeasureType>
+              <name>name</name>
+            </unitOfMeasureType>
+          </unit>
+        </temperature>
         <phase>
           <name>name</name>
           <crystalStructure>
+            <spaceGroup>
+              <name>name</name>
+            </spaceGroup>
+            <wyckoffSequence>
+              <name>name</name>
+            </wyckoffSequence>
             <name>name</name>
           </crystalStructure>
         </phase>
@@ -35,6 +58,7 @@
       <materialName>materialName</materialName>
       <bulkComposition>
         <constituents>
+          <materialPurity>0.0</materialPurity>
           <chemicalSubstance>
             <chemicalFormula>chemicalFormula</chemicalFormula>
             <name>name</name>
@@ -51,6 +75,10 @@
         </constituents>
         <bulkFraction>
           <value>0.0</value>
+          <uncertainty>
+            <type>amount|fraction</type>
+            <value>0.0</value>
+          </uncertainty>
           <unit>
             <name>name</name>
             <unitOfMeasureType>
@@ -71,9 +99,28 @@
         <comment>comment</comment>
         <surround>
           <phases>
+            <temperature>
+              <value>0.0</value>
+              <uncertainty>
+                <type>amount|fraction</type>
+                <value>0.0</value>
+              </uncertainty>
+              <unit>
+                <name>name</name>
+                <unitOfMeasureType>
+                  <name>name</name>
+                </unitOfMeasureType>
+              </unit>
+            </temperature>
             <phase>
               <name>name</name>
               <crystalStructure>
+                <spaceGroup>
+                  <name>name</name>
+                </spaceGroup>
+                <wyckoffSequence>
+                  <name>name</name>
+                </wyckoffSequence>
                 <name>name</name>
               </crystalStructure>
             </phase>
@@ -81,6 +128,7 @@
           <materialName>materialName</materialName>
           <bulkComposition>
             <constituents>
+              <materialPurity>0.0</materialPurity>
               <chemicalSubstance>
                 <chemicalFormula>chemicalFormula</chemicalFormula>
                 <name>name</name>
@@ -97,6 +145,10 @@
             </constituents>
             <bulkFraction>
               <value>0.0</value>
+              <uncertainty>
+                <type>amount|fraction</type>
+                <value>0.0</value>
+              </uncertainty>
               <unit>
                 <name>name</name>
                 <unitOfMeasureType>
@@ -109,7 +161,48 @@
             </materialForm>
           </bulkComposition>
         </surround>
+        <temperature>
+          <value>0.0</value>
+          <uncertainty>
+            <type>amount|fraction</type>
+            <value>0.0</value>
+          </uncertainty>
+          <unit>
+            <name>name</name>
+            <unitOfMeasureType>
+              <name>name</name>
+            </unitOfMeasureType>
+          </unit>
+        </temperature>
+        <pressure>
+          <value>0.0</value>
+          <uncertainty>
+            <type>amount|fraction</type>
+            <value>0.0</value>
+          </uncertainty>
+          <unit>
+            <name>name</name>
+            <unitOfMeasureType>
+              <name>name</name>
+            </unitOfMeasureType>
+          </unit>
+        </pressure>
+        <duration>
+          <value>0.0</value>
+          <uncertainty>
+            <type>amount|fraction</type>
+            <value>0.0</value>
+          </uncertainty>
+          <unit>
+            <name>name</name>
+            <unitOfMeasureType>
+              <name>name</name>
+            </unitOfMeasureType>
+          </unit>
+        </duration>
         <method>method</method>
+        <container>container</container>
+        <sampleGeometry>sampleGeometry</sampleGeometry>
       </samplePreparationStep>
     </samplePreparationSteps>
   </preparation>
