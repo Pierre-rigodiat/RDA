@@ -551,14 +551,11 @@
         <packagedElement xmi:type="uml:Association" xmi:id="_XYVCkuVZEeGdWtr-mkIx7g" memberEnd="_XYVCkOVZEeGdWtr-mkIx7g _XYVCk-VZEeGdWtr-mkIx7g">
           <ownedEnd xmi:id="_XYVCk-VZEeGdWtr-mkIx7g" type="_R7SLEOVZEeGdWtr-mkIx7g" association="_XYVCkuVZEeGdWtr-mkIx7g"/>
         </packagedElement>
-        <packagedElement xmi:type="uml:Class" xmi:id="_G9IeoOVdEeGdWtr-mkIx7g" name="RowKey">
-          <generalization xmi:id="_IPuH4OVdEeGdWtr-mkIx7g" general="_Z3lxMOJiEeG3p4NxXjMbqA"/>
-          <ownedAttribute xmi:id="_Nj_d4OVdEeGdWtr-mkIx7g" name="value">
-            <type xmi:type="uml:DataType" href="pathmap://XMLmodeling_LIBRARIES/XSDDataTypes.library.uml#_3RzJH0tXEdqhPYJq3sEkGA"/>
-          </ownedAttribute>
+        <packagedElement xmi:type="uml:Class" xmi:id="_G9IeoOVdEeGdWtr-mkIx7g" name="RowKeyColumn">
+          <generalization xmi:id="_d6JEUOh7EeGEzMwBlLHJbw" general="_Yxx_sOJiEeG3p4NxXjMbqA"/>
         </packagedElement>
-        <packagedElement xmi:type="uml:Class" xmi:id="_WeTGcOVdEeGdWtr-mkIx7g" name="RowKeyfunction">
-          <generalization xmi:id="_W_S6sOVdEeGdWtr-mkIx7g" general="_Z3lxMOJiEeG3p4NxXjMbqA"/>
+        <packagedElement xmi:type="uml:Class" xmi:id="_WeTGcOVdEeGdWtr-mkIx7g" name="RowKeyFunctionColumn">
+          <generalization xmi:id="_-h0hIOh7EeGEzMwBlLHJbw" general="_Yxx_sOJiEeG3p4NxXjMbqA"/>
           <ownedAttribute xmi:id="_YVyzkOVdEeGdWtr-mkIx7g" name="function">
             <type xmi:type="uml:DataType" href="pathmap://XMLmodeling_LIBRARIES/XSDDataTypes.library.uml#_3RzJWUtXEdqhPYJq3sEkGA"/>
           </ownedAttribute>
