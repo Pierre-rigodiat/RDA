@@ -379,8 +379,8 @@
           <type xmi:type="uml:DataType" href="pathmap://XMLmodeling_LIBRARIES/XSDDataTypes.library.uml#_3RzJWUtXEdqhPYJq3sEkGA"/>
         </ownedAttribute>
         <ownedAttribute xmi:id="_g8SPMNwQEeGylJ60vDoYdA" name="catalogNumber" type="_9bHcwNwPEeGylJ60vDoYdA" aggregation="composite" association="_g8YV0dwQEeGylJ60vDoYdA">
-          <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_3WtN0NwQEeGylJ60vDoYdA" value="1"/>
-          <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_3WtN0dwQEeGylJ60vDoYdA" value="1"/>
+          <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_erfRYO4QEeGthc_-iftRTA" value="*"/>
+          <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_erfRYe4QEeGthc_-iftRTA"/>
         </ownedAttribute>
         <ownedAttribute xmi:id="_wiUv8NwQEeGylJ60vDoYdA" name="elements" type="_nFAg8NwQEeGylJ60vDoYdA" aggregation="composite" association="_wiVXANwQEeGylJ60vDoYdA">
           <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_0fmd0NwQEeGylJ60vDoYdA" value="*"/>
@@ -389,7 +389,7 @@
       </packagedElement>
       <packagedElement xmi:type="uml:Class" xmi:id="_9bHcwNwPEeGylJ60vDoYdA" name="CatalogNumber">
         <ownedAttribute xmi:id="_-UPdINwPEeGylJ60vDoYdA" name="id">
-          <type xmi:type="uml:DataType" href="pathmap://XMLmodeling_LIBRARIES/XSDDataTypes.library.uml#_3RzI-0tXEdqhPYJq3sEkGA"/>
+          <type xmi:type="uml:DataType" href="pathmap://XMLmodeling_LIBRARIES/XSDDataTypes.library.uml#_3RzJWUtXEdqhPYJq3sEkGA"/>
         </ownedAttribute>
         <ownedAttribute xmi:id="_bF5qoNwQEeGylJ60vDoYdA" name="catalogTitle" type="_XeuvoNwQEeGylJ60vDoYdA" aggregation="composite" association="_bF6RsdwQEeGylJ60vDoYdA">
           <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_5KqewNwQEeGylJ60vDoYdA" value="1"/>
@@ -568,7 +568,6 @@
           <ownedEnd xmi:id="_d6GJo-VdEeGdWtr-mkIx7g" type="_WeTGcOVdEeGdWtr-mkIx7g" association="_d6GJouVdEeGdWtr-mkIx7g"/>
         </packagedElement>
         <packagedElement xmi:type="uml:Class" xmi:id="_sgc5kOVeEeGdWtr-mkIx7g" name="ChemicalHeader">
-          <generalization xmi:id="_tAu8IOVeEeGdWtr-mkIx7g" general="_Z3lxMOJiEeG3p4NxXjMbqA"/>
           <ownedAttribute xmi:id="_uolqwOVeEeGdWtr-mkIx7g" name="chemicalSubstance" type="_skF1QNwPEeGylJ60vDoYdA" aggregation="composite" association="_uolqwuVeEeGdWtr-mkIx7g">
             <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_vaIccOVeEeGdWtr-mkIx7g" value="1"/>
             <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_vaIcceVeEeGdWtr-mkIx7g" value="1"/>
@@ -588,7 +587,6 @@
           <ownedEnd xmi:id="_DJN2M-VfEeGdWtr-mkIx7g" type="_BDnboOVfEeGdWtr-mkIx7g" association="_DJN2MuVfEeGdWtr-mkIx7g"/>
         </packagedElement>
         <packagedElement xmi:type="uml:Class" xmi:id="_P7HbYOVfEeGdWtr-mkIx7g" name="UnitOfMeasureHeader">
-          <generalization xmi:id="_QgdkIOVfEeGdWtr-mkIx7g" general="_Z3lxMOJiEeG3p4NxXjMbqA"/>
           <ownedAttribute xmi:id="_R7Nq4OVfEeGdWtr-mkIx7g" name="unitOfMeasure" type="_fad_gNwCEeGylJ60vDoYdA" aggregation="composite" association="_R7Nq4uVfEeGdWtr-mkIx7g">
             <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_S4z7kOVfEeGdWtr-mkIx7g" value="1"/>
             <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_S4z7keVfEeGdWtr-mkIx7g" value="1"/>
@@ -667,6 +665,30 @@
         </packagedElement>
         <packagedElement xmi:type="uml:Association" xmi:id="_uTdBAuZKEeGUB4q_V543-w" memberEnd="_uTdBAOZKEeGUB4q_V543-w _uTdBA-ZKEeGUB4q_V543-w">
           <ownedEnd xmi:id="_uTdBA-ZKEeGUB4q_V543-w" type="_xyfgkOJhEeG3p4NxXjMbqA" association="_uTdBAuZKEeGUB4q_V543-w"/>
+        </packagedElement>
+        <packagedElement xmi:type="uml:Class" xmi:id="_lgG1QO4PEeGthc_-iftRTA" name="CommentRow">
+          <generalization xmi:id="_mF8tQO4PEeGthc_-iftRTA" general="_W90HsOJiEeG3p4NxXjMbqA"/>
+        </packagedElement>
+        <packagedElement xmi:type="uml:Class" xmi:id="_-reRgO4PEeGthc_-iftRTA" name="DataColumn">
+          <generalization xmi:id="__FabgO4PEeGthc_-iftRTA" general="_Yxx_sOJiEeG3p4NxXjMbqA"/>
+        </packagedElement>
+        <packagedElement xmi:type="uml:Class" xmi:id="_b2P3sO4SEeGxRLjtgHY5Yw" name="ElementTypeHeader">
+          <generalization xmi:id="_clEskO4SEeGxRLjtgHY5Yw" general="_Z3lxMOJiEeG3p4NxXjMbqA"/>
+          <ownedAttribute xmi:id="_ow_24O4SEeGxRLjtgHY5Yw" name="chemicalHeader" type="_sgc5kOVeEeGdWtr-mkIx7g" association="_oxF9gO4SEeGxRLjtgHY5Yw">
+            <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_ow_24e4SEeGxRLjtgHY5Yw"/>
+          </ownedAttribute>
+          <ownedAttribute xmi:id="_qiGoIO4SEeGxRLjtgHY5Yw" name="unitOfMeasureHeader" type="_P7HbYOVfEeGdWtr-mkIx7g" association="_qiGoIu4SEeGxRLjtgHY5Yw">
+            <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_qiGoIe4SEeGxRLjtgHY5Yw"/>
+          </ownedAttribute>
+        </packagedElement>
+        <packagedElement xmi:type="uml:Association" xmi:id="_oxF9gO4SEeGxRLjtgHY5Yw" memberEnd="_ow_24O4SEeGxRLjtgHY5Yw _oxF9ge4SEeGxRLjtgHY5Yw">
+          <ownedEnd xmi:id="_oxF9ge4SEeGxRLjtgHY5Yw" type="_b2P3sO4SEeGxRLjtgHY5Yw" association="_oxF9gO4SEeGxRLjtgHY5Yw"/>
+        </packagedElement>
+        <packagedElement xmi:type="uml:Association" xmi:id="_qiGoIu4SEeGxRLjtgHY5Yw" memberEnd="_qiGoIO4SEeGxRLjtgHY5Yw _qiGoI-4SEeGxRLjtgHY5Yw">
+          <ownedEnd xmi:id="_qiGoI-4SEeGxRLjtgHY5Yw" type="_b2P3sO4SEeGxRLjtgHY5Yw" association="_qiGoIu4SEeGxRLjtgHY5Yw"/>
+        </packagedElement>
+        <packagedElement xmi:type="uml:Class" xmi:id="_TznBgO4TEeGxRLjtgHY5Yw" name="CommentHeader">
+          <generalization xmi:id="_URjhwO4TEeGxRLjtgHY5Yw" general="_Z3lxMOJiEeG3p4NxXjMbqA"/>
         </packagedElement>
       </packagedElement>
     </packagedElement>
