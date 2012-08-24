@@ -460,7 +460,7 @@
         <ownedEnd xmi:id="_1uVektzQEeGBfq3QhBtbtA" type="_SZg7gNzPEeGBfq3QhBtbtA" association="_1uVekdzQEeGBfq3QhBtbtA"/>
       </packagedElement>
       <packagedElement xmi:type="uml:Package" xmi:id="_-0Oq0OJcEeG3p4NxXjMbqA" name="table">
-        <packagedElement xmi:type="uml:Class" xmi:id="_xyfgkOJhEeG3p4NxXjMbqA" name="TableCell">
+        <packagedElement xmi:type="uml:Class" xmi:id="_xyfgkOJhEeG3p4NxXjMbqA" name="TableCell" isAbstract="true">
           <ownedAttribute xmi:id="_yuMSgOZAEeGUB4q_V543-w" name="chemicalSubstance" type="_skF1QNwPEeGylJ60vDoYdA" aggregation="composite" association="_yuSZIeZAEeGUB4q_V543-w">
             <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_yuSZIOZAEeGUB4q_V543-w"/>
           </ownedAttribute>
@@ -479,7 +479,7 @@
             <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_wrX6oeZKEeGUB4q_V543-w" value="1"/>
           </ownedAttribute>
         </packagedElement>
-        <packagedElement xmi:type="uml:Class" xmi:id="_W90HsOJiEeG3p4NxXjMbqA" name="Row">
+        <packagedElement xmi:type="uml:Class" xmi:id="_W90HsOJiEeG3p4NxXjMbqA" name="Row" isAbstract="true">
           <ownedAttribute xmi:id="_wkkF4OV3EeGdWtr-mkIx7g" name="rowNumber">
             <type xmi:type="uml:DataType" href="pathmap://XMLmodeling_LIBRARIES/XSDDataTypes.library.uml#_3RzI-0tXEdqhPYJq3sEkGA"/>
             <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_u8VdYOYzEeGUB4q_V543-w" value="1"/>
@@ -490,7 +490,7 @@
             <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_4KIfIOYyEeGUB4q_V543-w" value="1"/>
           </ownedAttribute>
         </packagedElement>
-        <packagedElement xmi:type="uml:Class" xmi:id="_Yxx_sOJiEeG3p4NxXjMbqA" name="Column">
+        <packagedElement xmi:type="uml:Class" xmi:id="_Yxx_sOJiEeG3p4NxXjMbqA" name="Column" isAbstract="true">
           <ownedAttribute xmi:id="_8XaB0OV3EeGdWtr-mkIx7g" name="columnNumber">
             <type xmi:type="uml:DataType" href="pathmap://XMLmodeling_LIBRARIES/XSDDataTypes.library.uml#_3RzI-0tXEdqhPYJq3sEkGA"/>
             <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_vt1LwOYzEeGUB4q_V543-w" value="1"/>
@@ -505,7 +505,7 @@
             <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_31nD0eY2EeGUB4q_V543-w"/>
           </ownedAttribute>
         </packagedElement>
-        <packagedElement xmi:type="uml:Class" xmi:id="_Z3lxMOJiEeG3p4NxXjMbqA" name="Header">
+        <packagedElement xmi:type="uml:Class" xmi:id="_Z3lxMOJiEeG3p4NxXjMbqA" name="Header" isAbstract="true">
           <ownedAttribute xmi:id="_wNJmQOMYEeGjAMHAMC1TsA" name="columns" type="_Yxx_sOJiEeG3p4NxXjMbqA" aggregation="composite" association="_wNKNUeMYEeGjAMHAMC1TsA">
             <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_x_peoOMYEeGjAMHAMC1TsA" value="*"/>
             <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_x_peoeMYEeGjAMHAMC1TsA" value="1"/>
