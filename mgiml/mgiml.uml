@@ -581,6 +581,7 @@
           <ownedEnd xmi:id="_d6GJo-VdEeGdWtr-mkIx7g" type="_WeTGcOVdEeGdWtr-mkIx7g" association="_d6GJouVdEeGdWtr-mkIx7g"/>
         </packagedElement>
         <packagedElement xmi:type="uml:Class" xmi:id="_sgc5kOVeEeGdWtr-mkIx7g" name="ChemicalHeader">
+          <generalization xmi:id="_97WhUPBuEeGJxcXp0jrAQA" general="_b2P3sO4SEeGxRLjtgHY5Yw"/>
           <ownedAttribute xmi:id="_uolqwOVeEeGdWtr-mkIx7g" name="chemicalSubstance" type="_skF1QNwPEeGylJ60vDoYdA" aggregation="composite" association="_uolqwuVeEeGdWtr-mkIx7g">
             <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_vaIccOVeEeGdWtr-mkIx7g" value="1"/>
             <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_vaIcceVeEeGdWtr-mkIx7g" value="1"/>
@@ -600,6 +601,7 @@
           <ownedEnd xmi:id="_DJN2M-VfEeGdWtr-mkIx7g" type="_BDnboOVfEeGdWtr-mkIx7g" association="_DJN2MuVfEeGdWtr-mkIx7g"/>
         </packagedElement>
         <packagedElement xmi:type="uml:Class" xmi:id="_P7HbYOVfEeGdWtr-mkIx7g" name="UnitOfMeasureHeader">
+          <generalization xmi:id="_7SdMcPBuEeGJxcXp0jrAQA" general="_b2P3sO4SEeGxRLjtgHY5Yw"/>
           <ownedAttribute xmi:id="_R7Nq4OVfEeGdWtr-mkIx7g" name="unitOfMeasure" type="_fad_gNwCEeGylJ60vDoYdA" aggregation="composite" association="_R7Nq4uVfEeGdWtr-mkIx7g">
             <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_S4z7kOVfEeGdWtr-mkIx7g" value="1"/>
             <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_S4z7keVfEeGdWtr-mkIx7g" value="1"/>
@@ -649,6 +651,18 @@
             <type xmi:type="uml:DataType" href="pathmap://XMLmodeling_LIBRARIES/XSDDataTypes.library.uml#_3RzJWUtXEdqhPYJq3sEkGA"/>
             <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_wakYgPBQEeGJxcXp0jrAQA"/>
             <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_wakYgfBQEeGJxcXp0jrAQA"/>
+          </ownedAttribute>
+          <ownedAttribute xmi:id="_mpcd4PBqEeGJxcXp0jrAQA" name="unitOfMeasure" type="_fad_gNwCEeGylJ60vDoYdA" association="_mpcd4vBqEeGJxcXp0jrAQA">
+            <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_nfO2YPBqEeGJxcXp0jrAQA"/>
+            <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_nfO2YfBqEeGJxcXp0jrAQA"/>
+          </ownedAttribute>
+          <ownedAttribute xmi:id="_pxz9APBqEeGJxcXp0jrAQA" name="chemicalSubstance" type="_skF1QNwPEeGylJ60vDoYdA" association="_pxz9AvBqEeGJxcXp0jrAQA">
+            <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_qk7cAPBqEeGJxcXp0jrAQA"/>
+            <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_qk7cAfBqEeGJxcXp0jrAQA"/>
+          </ownedAttribute>
+          <ownedAttribute xmi:id="_stx-4PBqEeGJxcXp0jrAQA" name="materialProperty" type="_ANvvsNwAEeGylJ60vDoYdA" association="_stx-4vBqEeGJxcXp0jrAQA">
+            <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_tnq0QPBqEeGJxcXp0jrAQA"/>
+            <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_tnq0QfBqEeGJxcXp0jrAQA"/>
           </ownedAttribute>
         </packagedElement>
         <packagedElement xmi:type="uml:Class" xmi:id="_SOXAkOY0EeGUB4q_V543-w" name="NumericTableCell">
@@ -731,18 +745,6 @@
         </packagedElement>
         <packagedElement xmi:type="uml:Class" xmi:id="_b2P3sO4SEeGxRLjtgHY5Yw" name="ElementTypeHeader">
           <generalization xmi:id="_clEskO4SEeGxRLjtgHY5Yw" general="_Z3lxMOJiEeG3p4NxXjMbqA"/>
-          <ownedAttribute xmi:id="_ow_24O4SEeGxRLjtgHY5Yw" name="chemicalHeader" type="_sgc5kOVeEeGdWtr-mkIx7g" association="_oxF9gO4SEeGxRLjtgHY5Yw">
-            <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_ow_24e4SEeGxRLjtgHY5Yw"/>
-          </ownedAttribute>
-          <ownedAttribute xmi:id="_qiGoIO4SEeGxRLjtgHY5Yw" name="unitOfMeasureHeader" type="_P7HbYOVfEeGdWtr-mkIx7g" association="_qiGoIu4SEeGxRLjtgHY5Yw">
-            <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_qiGoIe4SEeGxRLjtgHY5Yw"/>
-          </ownedAttribute>
-        </packagedElement>
-        <packagedElement xmi:type="uml:Association" xmi:id="_oxF9gO4SEeGxRLjtgHY5Yw" memberEnd="_ow_24O4SEeGxRLjtgHY5Yw _oxF9ge4SEeGxRLjtgHY5Yw">
-          <ownedEnd xmi:id="_oxF9ge4SEeGxRLjtgHY5Yw" type="_b2P3sO4SEeGxRLjtgHY5Yw" association="_oxF9gO4SEeGxRLjtgHY5Yw"/>
-        </packagedElement>
-        <packagedElement xmi:type="uml:Association" xmi:id="_qiGoIu4SEeGxRLjtgHY5Yw" memberEnd="_qiGoIO4SEeGxRLjtgHY5Yw _qiGoI-4SEeGxRLjtgHY5Yw">
-          <ownedEnd xmi:id="_qiGoI-4SEeGxRLjtgHY5Yw" type="_b2P3sO4SEeGxRLjtgHY5Yw" association="_qiGoIu4SEeGxRLjtgHY5Yw"/>
         </packagedElement>
         <packagedElement xmi:type="uml:Class" xmi:id="_TznBgO4TEeGxRLjtgHY5Yw" name="CommentHeader">
           <generalization xmi:id="_URjhwO4TEeGxRLjtgHY5Yw" general="_Z3lxMOJiEeG3p4NxXjMbqA"/>
@@ -764,6 +766,15 @@
         </packagedElement>
         <packagedElement xmi:type="uml:Association" xmi:id="_0065YPBPEeGJxcXp0jrAQA" memberEnd="_0065YvBPEeGJxcXp0jrAQA _0065YfBPEeGJxcXp0jrAQA">
           <ownedEnd xmi:id="_0065YfBPEeGJxcXp0jrAQA" type="_UsmdQOY3EeGUB4q_V543-w" association="_0065YPBPEeGJxcXp0jrAQA"/>
+        </packagedElement>
+        <packagedElement xmi:type="uml:Association" xmi:id="_mpcd4vBqEeGJxcXp0jrAQA" memberEnd="_mpcd4PBqEeGJxcXp0jrAQA _mpikgPBqEeGJxcXp0jrAQA">
+          <ownedEnd xmi:id="_mpikgPBqEeGJxcXp0jrAQA" type="_OVc1UOY0EeGUB4q_V543-w" association="_mpcd4vBqEeGJxcXp0jrAQA"/>
+        </packagedElement>
+        <packagedElement xmi:type="uml:Association" xmi:id="_pxz9AvBqEeGJxcXp0jrAQA" memberEnd="_pxz9APBqEeGJxcXp0jrAQA _pxz9A_BqEeGJxcXp0jrAQA">
+          <ownedEnd xmi:id="_pxz9A_BqEeGJxcXp0jrAQA" type="_OVc1UOY0EeGUB4q_V543-w" association="_pxz9AvBqEeGJxcXp0jrAQA"/>
+        </packagedElement>
+        <packagedElement xmi:type="uml:Association" xmi:id="_stx-4vBqEeGJxcXp0jrAQA" memberEnd="_stx-4PBqEeGJxcXp0jrAQA _stx-4_BqEeGJxcXp0jrAQA">
+          <ownedEnd xmi:id="_stx-4_BqEeGJxcXp0jrAQA" type="_OVc1UOY0EeGUB4q_V543-w" association="_stx-4vBqEeGJxcXp0jrAQA"/>
         </packagedElement>
       </packagedElement>
       <packagedElement xmi:type="uml:Association" xmi:id="_TDD_Qu4cEeGxRLjtgHY5Yw" memberEnd="_TDD_QO4cEeGxRLjtgHY5Yw _TDD_Q-4cEeGxRLjtgHY5Yw">
