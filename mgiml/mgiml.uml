@@ -132,6 +132,10 @@
           <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_Ra_K69c2EeGqj6dbAaQw_w" value="1"/>
           <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_Ra_K7Nc2EeGqj6dbAaQw_w" value="1"/>
         </ownedAttribute>
+        <ownedAttribute xmi:id="_GwstwP0aEeGZGsQdVxOQnQ" name="phaseComposition" type="_Ra_x99c2EeGqj6dbAaQw_w" aggregation="composite" association="_Gwstwv0aEeGZGsQdVxOQnQ">
+          <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_IhzfAP0aEeGZGsQdVxOQnQ" value="1"/>
+          <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_IhzfAf0aEeGZGsQdVxOQnQ" value="1"/>
+        </ownedAttribute>
       </packagedElement>
       <packagedElement xmi:type="uml:Class" xmi:id="_Ra_K5Nc2EeGqj6dbAaQw_w" name="CrystalStructure">
         <ownedAttribute xmi:id="_Gl9toNwOEeGylJ60vDoYdA" name="spaceGroup" type="_pU61cNwNEeGylJ60vDoYdA" aggregation="composite" association="_Gl9totwOEeGylJ60vDoYdA">
@@ -153,17 +157,13 @@
         <ownedEnd xmi:id="_Ra_x8dc2EeGqj6dbAaQw_w" type="_Ra-j2dc2EeGqj6dbAaQw_w" association="_Ra_x8Nc2EeGqj6dbAaQw_w"/>
       </packagedElement>
       <packagedElement xmi:type="uml:Class" xmi:id="_Ra_x99c2EeGqj6dbAaQw_w" name="BulkComposition">
-        <ownedAttribute xmi:id="_-7E-MNwQEeGylJ60vDoYdA" name="constituents" type="_pWR8kNyrEeGBfq3QhBtbtA" aggregation="composite" association="_-7E-MtwQEeGylJ60vDoYdA">
-          <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_B4SWMNwREeGylJ60vDoYdA" value="*"/>
-          <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_B4Yc0NwREeGylJ60vDoYdA" value="1"/>
-        </ownedAttribute>
-        <ownedAttribute xmi:id="_boUQoNwPEeGylJ60vDoYdA" name="bulkFraction" type="_Ra32Idc2EeGqj6dbAaQw_w" aggregation="composite" association="_boUQotwPEeGylJ60vDoYdA">
-          <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_ZsCNUNwTEeGylJ60vDoYdA" value="1"/>
-          <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_ZsC0YNwTEeGylJ60vDoYdA" value="1"/>
-        </ownedAttribute>
         <ownedAttribute xmi:id="_Syam8NwPEeGylJ60vDoYdA" name="materialForm" type="_IjFFINwPEeGylJ60vDoYdA" aggregation="composite" association="_Syam8twPEeGylJ60vDoYdA">
           <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_WLWRoNwPEeGylJ60vDoYdA" value="1"/>
           <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_WLW4sNwPEeGylJ60vDoYdA" value="1"/>
+        </ownedAttribute>
+        <ownedAttribute xmi:id="_iQs7kP0ZEeGZGsQdVxOQnQ" name="chemicalSubstance" type="_skF1QNwPEeGylJ60vDoYdA" aggregation="composite" association="_iQ5I0f0ZEeGZGsQdVxOQnQ">
+          <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_jIll0P0ZEeGZGsQdVxOQnQ" value="*"/>
+          <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_jIll0f0ZEeGZGsQdVxOQnQ" value="1"/>
         </ownedAttribute>
       </packagedElement>
       <packagedElement xmi:type="uml:Association" xmi:id="_RbAZBdc2EeGqj6dbAaQw_w" memberEnd="_RbAZBtc2EeGqj6dbAaQw_w _Ra_x9tc2EeGqj6dbAaQw_w">
@@ -371,9 +371,6 @@
       <packagedElement xmi:type="uml:Association" xmi:id="_Syam8twPEeGylJ60vDoYdA" memberEnd="_Syam8NwPEeGylJ60vDoYdA _Syam89wPEeGylJ60vDoYdA">
         <ownedEnd xmi:id="_Syam89wPEeGylJ60vDoYdA" type="_Ra_x99c2EeGqj6dbAaQw_w" association="_Syam8twPEeGylJ60vDoYdA"/>
       </packagedElement>
-      <packagedElement xmi:type="uml:Association" xmi:id="_boUQotwPEeGylJ60vDoYdA" memberEnd="_boUQoNwPEeGylJ60vDoYdA _boUQo9wPEeGylJ60vDoYdA">
-        <ownedEnd xmi:id="_boUQo9wPEeGylJ60vDoYdA" type="_Ra_x99c2EeGqj6dbAaQw_w" association="_boUQotwPEeGylJ60vDoYdA"/>
-      </packagedElement>
       <packagedElement xmi:type="uml:Class" xmi:id="_skF1QNwPEeGylJ60vDoYdA" name="ChemicalSubstance">
         <ownedAttribute xmi:id="_tV5ssNwPEeGylJ60vDoYdA" name="chemicalFormula">
           <type xmi:type="uml:DataType" href="pathmap://XMLmodeling_LIBRARIES/XSDDataTypes.library.uml#_3RzJWUtXEdqhPYJq3sEkGA"/>
@@ -388,6 +385,9 @@
         <ownedAttribute xmi:id="_wiUv8NwQEeGylJ60vDoYdA" name="elements" type="_nFAg8NwQEeGylJ60vDoYdA" aggregation="composite" association="_wiVXANwQEeGylJ60vDoYdA">
           <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_0fmd0NwQEeGylJ60vDoYdA" value="*"/>
           <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_0fmd0dwQEeGylJ60vDoYdA" value="1"/>
+        </ownedAttribute>
+        <ownedAttribute xmi:id="_9TUNUP0ZEeGZGsQdVxOQnQ" name="bulkFraction" type="_Ra32Idc2EeGqj6dbAaQw_w" aggregation="composite" association="_9TUNUv0ZEeGZGsQdVxOQnQ">
+          <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_9TUNUf0ZEeGZGsQdVxOQnQ"/>
         </ownedAttribute>
       </packagedElement>
       <packagedElement xmi:type="uml:Class" xmi:id="_9bHcwNwPEeGylJ60vDoYdA" name="CatalogNumber">
@@ -418,9 +418,6 @@
       <packagedElement xmi:type="uml:Association" xmi:id="_wiVXANwQEeGylJ60vDoYdA" memberEnd="_wiUv8NwQEeGylJ60vDoYdA _wiVXAdwQEeGylJ60vDoYdA">
         <ownedEnd xmi:id="_wiVXAdwQEeGylJ60vDoYdA" type="_skF1QNwPEeGylJ60vDoYdA" association="_wiVXANwQEeGylJ60vDoYdA"/>
       </packagedElement>
-      <packagedElement xmi:type="uml:Association" xmi:id="_-7E-MtwQEeGylJ60vDoYdA" memberEnd="_-7E-MNwQEeGylJ60vDoYdA _-7E-M9wQEeGylJ60vDoYdA">
-        <ownedEnd xmi:id="_-7E-M9wQEeGylJ60vDoYdA" type="_Ra_x99c2EeGqj6dbAaQw_w" association="_-7E-MtwQEeGylJ60vDoYdA"/>
-      </packagedElement>
       <packagedElement xmi:type="uml:Class" xmi:id="_reRx0NwREeGylJ60vDoYdA" name="DiffusionPreparationStep">
         <generalization xmi:id="_HxxN4NwYEeGylJ60vDoYdA" general="_RbBAF9c2EeGqj6dbAaQw_w"/>
         <ownedAttribute xmi:id="_0as6QNwREeGylJ60vDoYdA" name="diffusingSpecies" type="_nFAg8NwQEeGylJ60vDoYdA" aggregation="composite" association="_0athUdwREeGylJ60vDoYdA">
@@ -437,20 +434,6 @@
       </packagedElement>
       <packagedElement xmi:type="uml:Association" xmi:id="_7HBoUdwREeGylJ60vDoYdA" memberEnd="_7HBBQNwREeGylJ60vDoYdA _7HCPYNwREeGylJ60vDoYdA">
         <ownedEnd xmi:id="_7HCPYNwREeGylJ60vDoYdA" type="_reRx0NwREeGylJ60vDoYdA" association="_7HBoUdwREeGylJ60vDoYdA"/>
-      </packagedElement>
-      <packagedElement xmi:type="uml:Class" xmi:id="_pWR8kNyrEeGBfq3QhBtbtA" name="ConstituentMaterial">
-        <ownedAttribute xmi:id="_Ra_x_tc2EeGqj6dbAaQw_w" name="materialPurity">
-          <type xmi:type="uml:DataType" href="pathmap://XMLmodeling_LIBRARIES/XSDDataTypes.library.uml#_3RzJH0tXEdqhPYJq3sEkGA"/>
-          <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_Ra_x_9c2EeGqj6dbAaQw_w" value="1"/>
-          <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_Ra_yANc2EeGqj6dbAaQw_w"/>
-        </ownedAttribute>
-        <ownedAttribute xmi:id="_0apB4NyrEeGBfq3QhBtbtA" name="chemicalSubstance" type="_skF1QNwPEeGylJ60vDoYdA" aggregation="composite" association="_0apB4tyrEeGBfq3QhBtbtA">
-          <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_lkpzINytEeGBfq3QhBtbtA" value="1"/>
-          <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lkpzIdytEeGBfq3QhBtbtA" value="1"/>
-        </ownedAttribute>
-      </packagedElement>
-      <packagedElement xmi:type="uml:Association" xmi:id="_0apB4tyrEeGBfq3QhBtbtA" memberEnd="_0apB4NyrEeGBfq3QhBtbtA _0apB49yrEeGBfq3QhBtbtA">
-        <ownedEnd xmi:id="_0apB49yrEeGBfq3QhBtbtA" type="_pWR8kNyrEeGBfq3QhBtbtA" association="_0apB4tyrEeGBfq3QhBtbtA"/>
       </packagedElement>
       <packagedElement xmi:type="uml:Class" xmi:id="_SZg7gNzPEeGBfq3QhBtbtA" name="DiffusionExperiment">
         <generalization xmi:id="_Uk8RQNzPEeGBfq3QhBtbtA" general="_Ra5ERtc2EeGqj6dbAaQw_w"/>
@@ -473,11 +456,11 @@
           <ownedAttribute xmi:id="_3LDfYOZAEeGUB4q_V543-w" name="unitOfMeasure" type="_fad_gNwCEeGylJ60vDoYdA" aggregation="composite" association="_3LDfYuZAEeGUB4q_V543-w">
             <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_3LDfYeZAEeGUB4q_V543-w"/>
           </ownedAttribute>
-          <ownedAttribute xmi:id="_uTdBAOZKEeGUB4q_V543-w" name="row" type="_W90HsOJiEeG3p4NxXjMbqA" aggregation="composite" association="_uTdBAuZKEeGUB4q_V543-w">
+          <ownedAttribute xmi:id="_uTdBAOZKEeGUB4q_V543-w" name="row" type="_W90HsOJiEeG3p4NxXjMbqA" aggregation="shared" association="_uTdBAuZKEeGUB4q_V543-w">
             <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_wPhsIOZKEeGUB4q_V543-w" value="1"/>
             <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_wPnywOZKEeGUB4q_V543-w" value="1"/>
           </ownedAttribute>
-          <ownedAttribute xmi:id="_rDpdIOZKEeGUB4q_V543-w" name="column" type="_Yxx_sOJiEeG3p4NxXjMbqA" aggregation="composite" association="_rDpdIuZKEeGUB4q_V543-w">
+          <ownedAttribute xmi:id="_rDpdIOZKEeGUB4q_V543-w" name="column" type="_Yxx_sOJiEeG3p4NxXjMbqA" aggregation="shared" association="_rDpdIuZKEeGUB4q_V543-w">
             <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_wrX6oOZKEeGUB4q_V543-w" value="1"/>
             <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_wrX6oeZKEeGUB4q_V543-w" value="1"/>
           </ownedAttribute>
@@ -498,7 +481,7 @@
             <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_u8VdYOYzEeGUB4q_V543-w" value="1"/>
             <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_u8VdYeYzEeGUB4q_V543-w" value="1"/>
           </ownedAttribute>
-          <ownedAttribute xmi:id="_3oRvQOYyEeGUB4q_V543-w" name="tableCell" type="_xyfgkOJhEeG3p4NxXjMbqA" aggregation="shared" association="_3oRvQuYyEeGUB4q_V543-w">
+          <ownedAttribute xmi:id="_3oRvQOYyEeGUB4q_V543-w" name="tableCell" type="_xyfgkOJhEeG3p4NxXjMbqA" aggregation="composite" association="_3oRvQuYyEeGUB4q_V543-w">
             <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_4KCYgOYyEeGUB4q_V543-w" value="*"/>
             <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_4KIfIOYyEeGUB4q_V543-w" value="1"/>
           </ownedAttribute>
@@ -509,7 +492,7 @@
             <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_vt1LwOYzEeGUB4q_V543-w" value="1"/>
             <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_vt1LweYzEeGUB4q_V543-w" value="1"/>
           </ownedAttribute>
-          <ownedAttribute xmi:id="_0n02AOYyEeGUB4q_V543-w" name="tableCell" type="_xyfgkOJhEeG3p4NxXjMbqA" aggregation="shared" association="_0n02AuYyEeGUB4q_V543-w">
+          <ownedAttribute xmi:id="_0n02AOYyEeGUB4q_V543-w" name="tableCell" type="_xyfgkOJhEeG3p4NxXjMbqA" aggregation="composite" association="_0n02AuYyEeGUB4q_V543-w">
             <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_2EPJoOYyEeGUB4q_V543-w" value="*"/>
             <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_2EPJoeYyEeGUB4q_V543-w" value="1"/>
           </ownedAttribute>
@@ -779,6 +762,15 @@
       </packagedElement>
       <packagedElement xmi:type="uml:Association" xmi:id="_TDD_Qu4cEeGxRLjtgHY5Yw" memberEnd="_TDD_QO4cEeGxRLjtgHY5Yw _TDD_Q-4cEeGxRLjtgHY5Yw">
         <ownedEnd xmi:id="_TDD_Q-4cEeGxRLjtgHY5Yw" type="_Ra5ERtc2EeGqj6dbAaQw_w" association="_TDD_Qu4cEeGxRLjtgHY5Yw"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Association" xmi:id="_iQ5I0f0ZEeGZGsQdVxOQnQ" memberEnd="_iQs7kP0ZEeGZGsQdVxOQnQ _iQ5I0v0ZEeGZGsQdVxOQnQ">
+        <ownedEnd xmi:id="_iQ5I0v0ZEeGZGsQdVxOQnQ" type="_Ra_x99c2EeGqj6dbAaQw_w" association="_iQ5I0f0ZEeGZGsQdVxOQnQ"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Association" xmi:id="_9TUNUv0ZEeGZGsQdVxOQnQ" memberEnd="_9TUNUP0ZEeGZGsQdVxOQnQ _9TUNU_0ZEeGZGsQdVxOQnQ">
+        <ownedEnd xmi:id="_9TUNU_0ZEeGZGsQdVxOQnQ" type="_skF1QNwPEeGylJ60vDoYdA" association="_9TUNUv0ZEeGZGsQdVxOQnQ"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Association" xmi:id="_Gwstwv0aEeGZGsQdVxOQnQ" memberEnd="_GwstwP0aEeGZGsQdVxOQnQ _Gwstw_0aEeGZGsQdVxOQnQ">
+        <ownedEnd xmi:id="_Gwstw_0aEeGZGsQdVxOQnQ" type="_Ra-j29c2EeGqj6dbAaQw_w" association="_Gwstwv0aEeGZGsQdVxOQnQ"/>
       </packagedElement>
     </packagedElement>
     <profileApplication xmi:id="_RafboNc2EeGqj6dbAaQw_w">
