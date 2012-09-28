@@ -270,11 +270,9 @@
         <ownedEnd xmi:id="_Ec9SQ9soEeG4nL-0zQ4x_w" type="_n-lNINsnEeG4nL-0zQ4x_w" association="_Ec9SQtsoEeG4nL-0zQ4x_w"/>
       </packagedElement>
       <packagedElement xmi:type="uml:Class" xmi:id="_L1I1MNsyEeG4nL-0zQ4x_w" name="Uncertainty">
-        <ownedAttribute xmi:id="_iNdiENsyEeG4nL-0zQ4x_w" name="type">
-          <type xmi:type="uml:DataType" href="pathmap://XMLmodeling_LIBRARIES/XSDDataTypes.library.uml#_3RzJWUtXEdqhPYJq3sEkGA"/>
+        <ownedAttribute xmi:id="_iNdiENsyEeG4nL-0zQ4x_w" name="type" type="__XI8EAmXEeKVQ9LIca-Nug">
           <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_DHj-wNyrEeGBfq3QhBtbtA" value="1"/>
           <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_DHj-wdyrEeGBfq3QhBtbtA" value="1"/>
-          <defaultValue xmi:type="uml:LiteralString" xmi:id="_FqNhsNyrEeGBfq3QhBtbtA" value="amount|fraction"/>
         </ownedAttribute>
         <ownedAttribute xmi:id="_q-IGcNsyEeG4nL-0zQ4x_w" name="value">
           <type xmi:type="uml:DataType" href="pathmap://XMLmodeling_LIBRARIES/XSDDataTypes.library.uml#_3RzJH0tXEdqhPYJq3sEkGA"/>
@@ -771,6 +769,13 @@
       </packagedElement>
       <packagedElement xmi:type="uml:Association" xmi:id="_Gwstwv0aEeGZGsQdVxOQnQ" memberEnd="_GwstwP0aEeGZGsQdVxOQnQ _Gwstw_0aEeGZGsQdVxOQnQ">
         <ownedEnd xmi:id="_Gwstw_0aEeGZGsQdVxOQnQ" type="_Ra-j29c2EeGqj6dbAaQw_w" association="_Gwstwv0aEeGZGsQdVxOQnQ"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Enumeration" xmi:id="__XI8EAmXEeKVQ9LIca-Nug" name="UncertaintyType" visibility="private">
+        <generalization xmi:id="_McV3wAmYEeKVQ9LIca-Nug">
+          <general xmi:type="uml:DataType" href="pathmap://XMLmodeling_LIBRARIES/XSDDataTypes.library.uml#_3RzJWUtXEdqhPYJq3sEkGA"/>
+        </generalization>
+        <ownedLiteral xmi:id="_NChG8AmYEeKVQ9LIca-Nug" name="amount"/>
+        <ownedLiteral xmi:id="_PK5IsAmYEeKVQ9LIca-Nug" name="fraction"/>
       </packagedElement>
     </packagedElement>
     <profileApplication xmi:id="_RafboNc2EeGqj6dbAaQw_w">
