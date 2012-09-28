@@ -5,3 +5,5 @@ syntax: regexp
 ^tests$
 syntax: regexp
 ^tests$
+syntax: regexp
+^mgiml_editor/logs$

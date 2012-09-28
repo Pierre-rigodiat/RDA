@@ -1,0 +1,11 @@
+@CHARSET "utf-8";
+
+.unavailable
+{
+	color: gray;
+}
+
+.addItem, .removeItem
+{
+	cursor:pointer;
+}
