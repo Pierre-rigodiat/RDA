@@ -1,12 +1,12 @@
 <?php
-	define("DEBUG", false);
+	define("DEBUG", true);
 	define("CACHED", false);
 		
-	define("DOCUMENT_TITLE", "Form Generator");
-	define("DOCUMENT_VERSION", "0.1a");
+	define("PROJECT_NAME", "Material Genome Initiative");
+	
+	define("TOOL_NAME", "XML Form Editor");
+	define("TOOL_TITLE", "Form Generator");
+	define("TOOL_VERSION", "0.2a");
 	
 	define("_ROOT_", dirname(dirname(dirname(__FILE__))));
-	/*set_include_path(get_include_path() . PATH_SEPARATOR . _ROOT_);*/
-	echo 'Root folder: ' . _ROOT_ . '<br/>';
-
 ?>

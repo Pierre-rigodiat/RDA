@@ -2,9 +2,9 @@
 	echo "Start including ".__FILE__.'<br/>';
 	echo _ROOT_;
 
-	require_once _ROOT_ . '/lib/ImageFunctions.php';
+	require_once _ROOT_ . '/inc/lib/ImageFunctions.php';
 
-	define('ICON_FILENAME', _ROOT_ . "/resources/icons.png");
+	define('ICON_FILENAME', _ROOT_ . "/resources/img/icons.png");
 	define('CROPPED_ICON', _ROOT_ . "/temp/.icon.png");
 	define('ICON_WIDTH', 16);
 	define('ICON_WIDTH_PADDING', 4);
