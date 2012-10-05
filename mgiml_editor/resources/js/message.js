@@ -39,7 +39,7 @@ if(!window.dhtmlx)
 			modality.cover.className = "dhx_modal_cover";
 			document.body.appendChild(modality.cover);
 		}
-		// XXX var height =  document.body.scrollHeight;
+		var height =  document.body.scrollHeight;
 		modality.cover.style.display = mode?"inline-block":"none";
 	}
 
@@ -48,8 +48,6 @@ if(!window.dhtmlx)
 	}
 
 	function info(text){
-		var t = null; // XXX Watchout...
-		
 		if (!t.area){
 			t.area = document.createElement("DIV");
 			t.area.className = "dhtmlx_message_area";
@@ -173,7 +171,7 @@ if(!window.dhtmlx)
 		}
 		return text;
 	}
-	function params(text, type, expire, id){		
+	function params(text, type, expire, id){
 		if (typeof text != "object")
 			text = {text:text, type:type, expire:expire, id:id};
 		text.id = text.id||t.uid();

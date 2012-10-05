@@ -5,7 +5,7 @@ $(document).ready(function(){
 	// Adding the event on all the - buttons
 	$('.removeItem').on('click', removeItem);
 	
-	$('#tostep1').on('click', {page: 1}, moveTo)
+	$('#tostep1').on('click', {page: 1}, moveTo);
 });
 
 /**
@@ -340,7 +340,8 @@ editionUnavailableBox = function(elementName, element)
 		callback:function(index){
 			if(index==1)
 			{
-				element.find('.addItem').get(0).trigger('click');				
+				console.log(element.find('.addItem:first'));
+				element.find('.addItem:first').trigger('click');				
 				dhtmlx.message(/*{
 							type:"error",
 							text:*/"Element "+elementName+" was enabled"

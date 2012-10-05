@@ -81,7 +81,7 @@ function URLReceiveCallback(httpRequest,xmlHolderElement)
         }	
 }
 function RequestURL(url,callback,ExtraData) { // based on: http://developer.mozilla.org/en/docs/AJAX:Getting_Started
-        var httpRequest;
+        var httpRequest=null;
         if (window.XMLHttpRequest) { // Mozilla, Safari, ...
             httpRequest = new XMLHttpRequest();
             if (httpRequest.overrideMimeType) { httpRequest.overrideMimeType('text/xml'); }
@@ -145,7 +145,7 @@ function ShowXML(xmlHolderElement,RootNode,indent)
 	else { // mo child nodes
     
     var ClickableElement = addImageNode(TagEmptyElement,'add','Clickable') ; // XXX Remplacer par une image
-    ClickableElement.onclick  = function() {ToggleElementVisibility(this); }
+    ClickableElement.onclick  = function() {ToggleElementVisibility(this); };
     ClickableElement.id = 'div_empty_' + IDCounter;	
 		
     AddTextNode(TagEmptyElement,'<','Utility') ;

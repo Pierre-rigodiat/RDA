@@ -128,7 +128,7 @@ if(isset($_SESSION['elementList']))
 	echo '-------<br/>';
 }*/
 
-$start = (float) array_sum(explode(' ',microtime()));
+//$start = (float) array_sum(explode(' ',microtime()));
 
 $xsd = "resources/files/mgiml_a.xsd";
 //$xsd = "files/mgiml_light.xsd";
@@ -161,11 +161,11 @@ $_SESSION['elementList']=$xsd_parser->getElementList();
 $_SESSION['rootElement']=$xsd_parser->getRoot();
 $_SESSION['namespace']=$xsd_parser->getNamespace();
 
-$end = (float) array_sum(explode(' ',microtime()));
+/*$end = (float) array_sum(explode(' ',microtime()));
 
 echo '<hr/>';
 echo "Processing time: <b>".sprintf("%.4f", ($end-$start))."</b> seconds<br/>";
-echo "Allocating memory: <b>".memory_get_usage().'</b> bytes';
+echo "Allocating memory: <b>".memory_get_usage().'</b> bytes';*/
 
 ?>
 

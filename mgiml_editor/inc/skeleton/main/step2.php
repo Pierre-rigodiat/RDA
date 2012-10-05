@@ -3,7 +3,7 @@
 </center>
 
 <?php
-	$start = (float) array_sum(explode(' ',microtime()));
+	//$start = (float) array_sum(explode(' ',microtime()));
 
 	$xsd_parser = new XsdParser($_SESSION['elementList'], $_SESSION['rootElement'], $_SESSION['namespace']);
 ?>
@@ -32,9 +32,9 @@
 		<input type="submit" class="button" value="Submit" />
 	</form>
 	<?php 
-	$end = (float) array_sum(explode(' ',microtime()));
+	/*$end = (float) array_sum(explode(' ',microtime()));
 	
 	echo '<hr/>';
 	echo "Processing time: <b>".sprintf("%.4f", ($end-$start))."</b> seconds<br/>";
-	echo "Allocating memory: <b>".memory_get_usage().'</b> bytes';
+	echo "Allocating memory: <b>".memory_get_usage().'</b> bytes';*/
 	?>
