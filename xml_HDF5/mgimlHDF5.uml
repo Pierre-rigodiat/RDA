@@ -4,7 +4,7 @@
     <packageImport xmi:id="_RanXcNc2EeGqj6dbAaQw_w">
       <importedPackage xmi:type="uml:Model" href="pathmap://XMLmodeling_LIBRARIES/XSDDataTypes.library.uml#_3RzIoEtXEdqhPYJq3sEkGA"/>
     </packageImport>
-    <packagedElement xmi:type="uml:Package" xmi:id="_Ra3PENc2EeGqj6dbAaQw_w" name="mgimlchoice">
+    <packagedElement xmi:type="uml:Package" xmi:id="_Ra3PENc2EeGqj6dbAaQw_w" name="mgimlhdf5">
       <packagedElement xmi:type="uml:Class" xmi:id="_Ra32Idc2EeGqj6dbAaQw_w" name="Quantity">
         <ownedAttribute xmi:id="_Ra32Itc2EeGqj6dbAaQw_w" name="value">
           <type xmi:type="uml:DataType" href="pathmap://XMLmodeling_LIBRARIES/XSDDataTypes.library.uml#_3RzJH0tXEdqhPYJq3sEkGA"/>

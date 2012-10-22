@@ -81,8 +81,6 @@ if(DEBUG)
    		});
 	</script>
 	
-	
-	
 	<title><?php echo TOOL_TITLE.' '.TOOL_VERSION; ?></title>
 </head>
 <body id="top">
@@ -93,17 +91,16 @@ if(DEBUG)
 
 	require_once 'inc/classes/XsdParser.php';
 
-	require_once 'inc/global/images.php'; // XXX Regroupe in the head.php file
+	require_once 'inc/global/images.php'; // XXX Regroup in the head.php file
 	?>
+	
 	<div id="header-wrapper">
 		<div id="header-wrapper-2">
 			<div class="center-wrapper">
-
 				<div id="header">
-
 					<?php 
-					require_once 'inc/skeleton/header/logo.php';
-					require_once 'inc/skeleton/header/menu.php';
+						require_once 'inc/skeleton/header/logo.php';
+						require_once 'inc/skeleton/header/menu.php';
 					?>
 				</div>
 
@@ -114,48 +111,38 @@ if(DEBUG)
 	<div id="navigation-wrapper">
 		<div id="navigation-wrapper-2">
 			<div class="center-wrapper">
-
 				<div id="navigation">
-
 					<?php require_once 'inc/skeleton/menu/main_menu.php' ?>
-
 					<div class="clearer">&nbsp;</div>
-
 				</div>
-
 			</div>
 		</div>
 	</div>
 
 	<?php 
-	if(isset($_GET['menu']) && $_GET['menu']=='full')
-	{
-		?>
+		// FIXME Condition not good
+		if(isset($_GET['menu']) && $_GET['menu']=='full')
+		{
+	?>
 	<div id="subnav-wrapper">
 		<div id="subnav-wrapper-2">
-
 			<div class="center-wrapper">
-
 				<div id="subnav">
-
 					<?php require_once 'inc/skeleton/menu/sub_menu.php'; ?>
-
 					<div class="clearer">&nbsp;</div>
-
 				</div>
-
 			</div>
 		</div>
 	</div>
 	<?php 
-	}
+		}
 	?>
 
 	<div id="content-wrapper">
 		<?php 
-		if(DEBUG)
-		{
-			?>
+			if(DEBUG)
+			{
+		?>
 		<div class="debug-wrapper">
 			<h2>
 				Debug panel
@@ -169,43 +156,46 @@ if(DEBUG)
 			</ul>
 		</div>
 		<?php 
-		}
+			}
 		?>
 
 		<div class="center-wrapper">
 			<div class="content">
 				<div id="main">
-
 					<?php 
-					require_once 'inc/skeleton/message.php';
-
-					$file = 'step1.php';
-
-					if(isset($_GET['step']))
-					{
-						switch($_GET['step'])
+						require_once 'inc/skeleton/message.php';
+	
+						// TODO Build a function loadContent($getParam, $rule) or smth
+						$file = 'step1.php';
+	
+						if(isset($_GET['step']))
 						{
-							case '10':
-								$file = 'step1.demo.php';
-								break;
-							case '2':
-								$file = 'step2.php';
-								break;
-							case '20':
-								$file = 'step2.demo.php';
-								break;
-							case '3':
-								$file = 'step3.php';
-								break;
-							case '30':
-								$file = 'step3.demo.php';
-								break;
-							default:
-								break;
+							switch($_GET['step'])
+							{
+								case '10':
+									$file = 'step1.demo.php';
+									break;
+								case '2':
+									$file = 'step2.php';
+									break;
+								case '20':
+									$file = 'step2.demo.php';
+									break;
+								case '3':
+									$file = 'step3.php';
+									break;
+								case '30':
+									$file = 'step3.demo.php';
+									break;
+								case 'debug':
+									$file = 'debug.php';
+									break;
+								default:
+									break;
+							}
 						}
-					}
-
-					require_once 'inc/skeleton/main/'.$file;
+	
+						require_once 'inc/skeleton/main/'.$file;
 					?>
 
 					<div class="clearer">&nbsp;</div>
@@ -221,8 +211,8 @@ if(DEBUG)
 		<div class="center-wrapper">
 			<div id="footer">
 				<?php 
-				require_once 'inc/skeleton/footer/left.php';
-				require_once 'inc/skeleton/footer/right.php';
+					require_once 'inc/skeleton/footer/left.php';
+					require_once 'inc/skeleton/footer/right.php';
 				?>
 				<div class="clearer">&nbsp;</div>
 			</div>
@@ -230,14 +220,14 @@ if(DEBUG)
 	</div>
 
 	<?php 
-	if(DEBUG)
-	{
-		$endTime = (float) array_sum(explode(' ',microtime()));
-
-		echo '<input type="hidden" id="php_exec_time" value="'.round(($endTime-$startTime)*1000).'"/>';
-		echo '<input type="hidden" id="php_mem" value="'.memory_get_usage().'"/>';
-		echo '<input type="hidden" id="php_mem_peak" value="'.memory_get_peak_usage().'"/>';
-	}
+		if(DEBUG)
+		{
+			$endTime = (float) array_sum(explode(' ',microtime()));
+	
+			echo '<input type="hidden" id="php_exec_time" value="'.round(($endTime-$startTime)*1000).'"/>';
+			echo '<input type="hidden" id="php_mem" value="'.memory_get_usage().'"/>';
+			echo '<input type="hidden" id="php_mem_peak" value="'.memory_get_peak_usage().'"/>';
+		}
 	?>
 </body>
 </html>
