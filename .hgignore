@@ -1,6 +1,0 @@
-syntax: regexp
-^test.*$
-syntax: regexp
-^\..*$
-syntax: regexp
-^mgiml_editor/logs$
