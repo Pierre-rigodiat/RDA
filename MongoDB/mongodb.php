@@ -158,8 +158,10 @@ private $databaseObject;
 				$collectionObject = new MongoCollection($this->databaseObject, $collectionName);
 				//Check if the element already exists
 				$cursor = $collectionObject->find(array("0" => $jsonString));
-				if (!$cursor->hasNext())
+				if (!$cursor->hasNext()) {
 					$collectionObject->insert($jsonContents, array("safe" => 1));
+					echo "Document inserted";
+				}
 				else
 				{
 					echo "Cannot insert an already stored document\n";
