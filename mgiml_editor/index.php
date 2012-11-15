@@ -1,44 +1,44 @@
 <?php 
-session_start();
-require_once 'inc/global/config.php';
-
-if(DEBUG)
-	$startTime = (float) array_sum(explode(' ',microtime()));
+	session_start();
+	require_once 'inc/global/config.php';
+	
+	if(DEBUG) $startTime = (float) array_sum(explode(' ',microtime()));
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" dir="ltr">
 <head>
+	<?php 
+		// TODO Organize all the imports
+		// TODO Reduce code generation if debug is disabled
+	?>
+	
 	<script>
 		var startTime = (new Date()).getTime();
 	</script>
+	
 	<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
 	<meta name="description" content="" />
 	<meta name="keywords" content="" />
 	<meta name="author" content="" />
 	
-	<link rel="stylesheet" type="text/css" href="resources/css/style.css"
-		media="screen" />
-	<link rel="stylesheet" type="text/css" href="resources/css/add.css"
-		media="screen" />
-	<link rel="stylesheet" type="text/css"
-		href="resources/css/xml_display.css" media="screen" />
-	
-	<?php 
-	// TODO Organize all the imports
-	?>
+	<link rel="stylesheet" type="text/css" href="resources/css/style.css" media="screen" />
+	<link rel="stylesheet" type="text/css" href="resources/css/add.css"	media="screen" />
+	<link rel="stylesheet" type="text/css" href="resources/css/xml_display.css" media="screen" />
 	
 	<script type="text/javascript" src="resources/js/xml_display.js"></script>
 	
 	<!-- script src="http://code.jquery.com/jquery-latest.js"></script-->
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
 	<script src="resources/js/util.js"></script>
 	<script src="resources/js/step3.js"></script>
 	<script src="resources/js/step2.js"></script>
 	<script src="resources/js/step1.js"></script>
+	<script src="resources/js/upload.js"></script>
+	<script src="resources/js/actionHandler.js"></script>
+	<script src="resources/js/schemaConfig.js"></script>
 	
 	<script type="text/javascript" src='resources/js/message.js'></script>
-	<link rel="stylesheet" type="text/css"
-		href="resources/css/themes/message_growl_shiny.css" />
+	<link rel="stylesheet" type="text/css" href="resources/css/themes/message_growl_shiny.css" />
 	
 	<script src="resources/js/popup.js"></script>
 	<link rel="stylesheet" href="resources/css/popup.css" />
@@ -85,13 +85,12 @@ if(DEBUG)
 </head>
 <body id="top">
 	<?php
-
-	// TODO Work on all those requires
-	require_once 'inc/lib/StringFunctions.php';
-
-	require_once 'inc/classes/XsdParser.php';
-
-	require_once 'inc/global/images.php'; // XXX Regroup in the head.php file
+		// TODO Work on all those requires
+		require_once 'inc/lib/StringFunctions.php';
+	
+		require_once 'inc/classes/XsdParser.php';
+	
+		require_once 'inc/global/images.php'; // XXX Regroup in the head.php file
 	?>
 	
 	<div id="header-wrapper">
@@ -121,8 +120,8 @@ if(DEBUG)
 
 	<?php 
 		// FIXME Condition not good
-		if(isset($_GET['menu']) && $_GET['menu']=='full')
-		{
+		/*if(isset($_GET['menu']) && $_GET['menu']=='full')
+		{*/
 	?>
 	<div id="subnav-wrapper">
 		<div id="subnav-wrapper-2">
@@ -135,7 +134,7 @@ if(DEBUG)
 		</div>
 	</div>
 	<?php 
-		}
+		//}
 	?>
 
 	<div id="content-wrapper">
@@ -144,16 +143,12 @@ if(DEBUG)
 			{
 		?>
 		<div class="debug-wrapper">
-			<h2>
-				Debug panel
-				<!-- img src="resources/img/debug-loader.gif" alt="Loading..."/-->
-			</h2>
-			<ul>
-				<li><?php echo '<u>Root folder:</u> <b>' . _ROOT_ . '</b><br/>'; ?>
-				</li>
-				<li id="php_mem_debug"></li>
-				<li id="exec_time"></li>
-			</ul>
+			<div class="debug-panel">
+				<?php require_once 'inc/skeleton/debug/info.php'; ?>
+			</div>
+			<div class="debug-panel">
+				<?php require_once 'inc/skeleton/debug/console.php'; ?>
+			</div>
 		</div>
 		<?php 
 			}
@@ -166,26 +161,45 @@ if(DEBUG)
 						require_once 'inc/skeleton/message.php';
 	
 						// TODO Build a function loadContent($getParam, $rule) or smth
-						$file = 'step1.php';
+						$file = 'public/home.php';
+						
+						if(isset($_GET['p']))
+						{	
+							switch($_GET['p'])
+							{
+								case 'admin':
+									if(isset($_GET['sp']) && $_GET['sp']=='schemas') $file = 'xsd_cfg.inc.php';
+									else $file = 'other/wip.php';
+									break;
+								default:
+									break;
+							}
+						}
 	
 						if(isset($_GET['step']))
 						{
 							switch($_GET['step'])
 							{
+								case '1':
+									$file = 'step1.php';
+									break;
 								case '10':
-									$file = 'step1.demo.php';
+									$file = 'demo/step1.php';
 									break;
 								case '2':
 									$file = 'step2.php';
 									break;
 								case '20':
-									$file = 'step2.demo.php';
+									$file = 'demo/step2.php';
 									break;
 								case '3':
 									$file = 'step3.php';
 									break;
-								case '30':
-									$file = 'step3.demo.php';
+								case '4':
+									$file = 'step4.php';
+									break;
+								case '40':
+									$file = 'demo/step3.php';
 									break;
 								case 'debug':
 									$file = 'debug.php';
@@ -229,5 +243,6 @@ if(DEBUG)
 			echo '<input type="hidden" id="php_mem_peak" value="'.memory_get_peak_usage().'"/>';
 		}
 	?>
+	<div id="invisible_message"></div>
 </body>
 </html>

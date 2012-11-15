@@ -7,9 +7,28 @@
 		
 		foreach($session_keys as $key)
 		{
-			echo '<h5>'.ucfirst($key).'</h5>';
-			//var_dump($_SESSION[$key]);
-			echo gettype($_SESSION[$key]);
+			$session = $_SESSION[$key];
+			$type = gettype($session);
+			
+			echo '<h5>'.ucfirst($key).' ('.$type.')</h5>';
+			
+			if($type=='array')
+			{
+				echo '<ul>';
+				
+				foreach($session as $sess_elem)
+				{
+					echo '<li>';
+					print_r($sess_elem);
+					echo '</li>';
+				}	
+							
+				echo '</ul>';
+			}
+			else
+			{
+				echo '<p>'.htmlspecialchars($session).'</p>';
+			}
 		}
 	}
 ?>

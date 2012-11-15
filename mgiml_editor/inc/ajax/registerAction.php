@@ -3,46 +3,29 @@
 
 session_start();
 
-if(isset($_GET['id']) && isset($_GET['action']))
+// todo make it compliant with the default number of element (MINOCCURS)
+// XXX Will not work if the number of starting element differs from 1
+// todo use better path (to be able to determinate if we are violating MIN or MAXOCCURS rules)
+if(isset($_GET['action']) && isset($_GET['path']))
 {
-	$elementId = 'e'.$_GET['id'];
+	if(!isset($_SESSION['app']['actions'])) $_SESSION['app']['actions'] = array();
 	
-	if(isset($_SESSION[$elementId]))
+	switch($_GET['action']) 
 	{
-		switch($_GET['action'])
-		{
-			case 'add':
-				$_SESSION[$elementId] += 1;
-				break;
-			case 'delete':
-				$_SESSION[$elementId] -= 1;
-				break;
-			default:
-				break;
-		}
-	}
-	else
-	{
-		// XXX Will not work if the number of starting element differs from 1
-		switch($_GET['action'])
-		{
-			case 'add':
-				$_SESSION[$elementId] = 2;
-				break;
-			case 'delete':
-				$_SESSION[$elementId] = 0;
-				break;
-			default:
-				break;
-		}
+		case 'a': // Add
+			array_push($_SESSION['app']['actions'], 'add|'.$_GET['path']);
+			//$_SESSION['app']['multiplicity'][$_GET['path']] += 1;
+			break;
+		case 'r': // Remove
+			array_push($_SESSION['app']['actions'], 'remove|'.$_GET['path']);
+			break;
+		default:
+			echo 'ERROR'; // TODO try to be more explicit
+			break;
 	}
 }
-
-/*$fileName = '../logs/test.log';
-
-$handler = fopen($fileName, 'a');
-
-fwrite($handler, $_SERVER['QUERY_STRING'].PHP_EOL);
-
-fclose($handler);*/
+else 
+{
+	echo 'ERROR'; // TODO try to be more explicit
+}
 ?>

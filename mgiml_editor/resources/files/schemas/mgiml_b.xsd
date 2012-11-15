@@ -1,0 +1,133 @@
+<?xml version="1.0"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+	<!-- GENERIC ELEMENTS -->
+	<xs:complexType name="unit">
+		<xs:sequence>
+			<xs:element name="value" type="xs:double" />
+			<xs:element name="unit" type="xs:string" />
+			<xs:element name="error" type="error" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="error">
+		<xs:simpleContent>
+			<xs:extension base="xs:string">
+				<xs:attribute name="type">
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:pattern value="amount|percentage" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:attribute>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+
+	<!-- LEVEL 0 (root node) -->
+	<xs:element name="experiment">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="data" type="data" />
+				<xs:element name="materials" type="materials" />
+				<xs:element name="preparation" type="preparation" />
+				<xs:element name="temperature" type="unit" />
+                <xs:element name="pressure" type="unit" />
+                <xs:element name="duration" type="unit" />
+				<xs:element name="properties" type="xs:string" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<!-- LEVEL 1 -->
+	<xs:complexType name="data">
+		<xs:sequence>
+			<xs:element name="id" type="xs:integer" />
+			<xs:element name="type" type="xs:string" />
+			<xs:element name="description" type="xs:string" />
+			<xs:element name="measuredParameters" type="xs:string" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="materials">
+		<xs:sequence>
+			<xs:element name="constituents" type="constituents" />
+			<xs:element name="diffusingSpecie" type="xs:string" />
+			<xs:element name="phases" type="phases" />
+			<xs:element name="bulkComposition" type="bulkComposition" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="preparation">
+		<xs:sequence>
+			<xs:element name="preparationContainer" type="xs:string" />
+			<xs:element name="samplePreparationMethod" type="xs:string" />
+			<xs:element name="samplePreparationSteps" type="samplePreparationSteps" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<!-- LEVEL 2 (materials) -->
+	<xs:complexType name="constituents">
+		<xs:sequence>
+			<xs:element name="constituent" type="xs:string" maxOccurs="unbounded" />
+		</xs:sequence>
+	</xs:complexType>
+	
+	<xs:complexType name="phases">
+		<xs:sequence>
+			<xs:element name="phase" type="phase" maxOccurs="unbounded" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="bulkComposition">
+		<xs:sequence>
+			<xs:element name="constituent" type="xs:string" />
+			<xs:element name="bulkFraction" type="xs:integer" />
+			<xs:element name="materialPurity" type="xs:double" minOccurs="0" />
+			<xs:element name="materialForm" type="xs:string" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<!-- LEVEL 2 (preparation) -->
+	<xs:complexType name="samplePreparationSteps">
+		<xs:sequence>
+			<xs:element name="samplePreparationStep" type="samplePreparationStep"
+				maxOccurs="unbounded" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<!-- LEVEL 3 (materials/phases) -->
+	<xs:complexType name="phase">
+		<xs:sequence>
+			<xs:element name="name" type="xs:string" />
+			<xs:element name="bulkFraction" type="xs:positiveInteger" />
+			<xs:element name="crystalStructure" type="crystalStructure" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<!-- LEVEL 3 (preparation/samplePreparationSteps) -->
+	<xs:complexType name="samplePreparationStep">
+		<xs:sequence>
+			<xs:element name="comment" type="xs:string" />
+			<xs:element name="surround" type="bulkComposition" /><!-- Already 
+				define up ahead -->
+			<xs:element name="temperature" type="unit" minOccurs="0" /><!-- Already define 
+				up ahead -->
+			<xs:element name="pressure" type="unit" minOccurs="0" /><!-- Already define 
+				up ahead -->
+			<xs:element name="duration" type="unit" minOccurs="0" /><!-- Already define 
+				up ahead -->
+			<xs:element name="method" type="xs:string" />
+			<xs:element name="container" type="xs:string" minOccurs="0" />
+			<xs:element name="sampleGeometry" type="xs:string" minOccurs="0" />
+		</xs:sequence>
+	</xs:complexType>
+	
+	<!-- LEVEL 4 (materials/phases/phase/crystalStructure) -->
+	<xs:complexType name="crystalStructure">
+		<xs:sequence>
+			<xs:element name="spaceGroup" type="xs:string" />
+			<xs:element name="wyckoffSequence" type="xs:string" />
+		</xs:sequence>
+	</xs:complexType>
+</xs:schema>

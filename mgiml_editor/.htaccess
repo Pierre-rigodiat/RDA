@@ -1,0 +1,9 @@
+RewriteEngine on
+RewriteBase /mgi/
+
+RewriteRule admin/resources/(.*) resources/$1 [L]
+RewriteRule admin/inc/(.*) inc/$1 [L]
+
+RewriteRule ^admin$ index.php?p=admin [L]
+RewriteRule ^(admin/.*)/$ $1 [R=301]
+RewriteRule ^admin/(.*)$ index.php?p=admin&sp=$1 [L]

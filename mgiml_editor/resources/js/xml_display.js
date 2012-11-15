@@ -168,7 +168,7 @@ function ShowXML(xmlHolderElement,RootNode,indent)
     TagElement.className = 'Element';
     TagElement.style.position = 'relative';
     TagElement.style.left = NestingIndent+'px';
-    ClickableElement = addImageNode(TagElement,'remove','Clickable'); // XXX Replace by image
+    ClickableElement = addImageNode(TagElement,'remove','Clickable'); // XXX Remplacer par une image
     ClickableElement.onclick  = function() {ToggleElementVisibility(this); };
     ClickableElement.id = 'div_content_' + IDCounter;		
     ++IDCounter;

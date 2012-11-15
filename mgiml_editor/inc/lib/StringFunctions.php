@@ -10,4 +10,12 @@ function startsWith($string, $needle)
 	$length = strlen($needle);
 	return (substr($string, 0, $length) === $needle);
 }
+
+function endsWith($string, $needle)
+{
+	$length = strlen($needle);
+    if ($length == 0) return true;
+
+    return (substr($string, -$length) === $needle);
+}
 ?>

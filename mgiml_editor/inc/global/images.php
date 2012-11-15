@@ -1,6 +1,6 @@
 <?php
-	echo "Start including ".__FILE__.'<br/>';
-	echo _ROOT_;
+	// XXX File status must be displayed by the caller
+	//echo 'Start including <i>images.php</i> ('.__FILE__.')...<br/>';
 
 	require_once _ROOT_ . '/inc/lib/ImageFunctions.php';
 
@@ -25,5 +25,5 @@
 		return $base64;
 	}
 	
-	echo __FILE__.' included<br/>';
+	//echo 'File <i>images.php</i> included<br/>.';
 ?>

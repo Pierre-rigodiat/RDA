@@ -1,20 +1,16 @@
-/*
- * TODO Use JQuery and the JMessage lib to generate pop-ups
- */
-
-function configurePopUp(attributes)
+/*function configurePopUp(attributes)
 {
 	maxValue=1;
 	minValue=1;
 	elementId=-1;
 	type=null;
 	
-	attrArray = unserialize(attributes);
+	attrArray = unserialize(attributes);*/
 	
 	/**
 	 * Reads the attribute list and store element into propers value
 	 */
-	for(attrName in attrArray)
+	/*for(attrName in attrArray)
 	{
 		attrValue = attrArray[attrName];
 
@@ -104,8 +100,10 @@ function configurePopUp(attributes)
 function changePopUpName(name)
 {
 	document.getElementById('popup_title').innerHTML=name+' configuration';
-}
+}*/
 
+
+// TODO Change it to jQuery
 function changeEditionStatus(elementId)
 {
 	if(document.getElementById(elementId).hasAttribute("disabled"))

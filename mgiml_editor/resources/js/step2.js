@@ -4,156 +4,87 @@ $(document).ready(function(){
 
 	// Adding the event on all the - buttons
 	$('.removeItem').on('click', removeItem);
+	/*$('#tostep1').on('click', {page: 1}, moveTo); xxx not needed anymore... */
 	
-	$('#tostep1').on('click', {page: 1}, moveTo);
+	$('.autogen').on('click', generateRandomValue);
+	
+	$('.reset').on('click', resetForm);
 });
 
-/**
- * Add item function
- */
-addItem = function()
-{
-	var htmlToCopy = $(this).parent().parent();
-	var maxoccurs = 1;
-	var minoccurs = 1;
+resetForm = function() {
+	alert("Not yet implemented");
+};
+
+// TODO make it server-side
+function generate(length, number, lower, upper, special) {
+	var result = "";
 	
-	console.log($(this).parent());
-
-	$(this).parent().find(':hidden').each(function() {
-		switch($(this).attr('name'))
+	if(number || lower || upper || special)
+	{
+		var iteration = 0;
+		var randomNumber;
+		
+		if(special == undefined)
 		{
-		case 'minoccurs':
-			minoccurs = $(this).val();
-			break;
-		case 'maxoccurs':
-			if($(this).val() == 'unbounded')
-			{
-				maxoccurs = -1;
-			}
-			else
-			{
-				maxoccurs = $(this).val;
-			}
-			break;
-		default:
-			break;
-		}			
-	});
-
-	console.log('maxoccurs='+maxoccurs+'; minoccurs='+minoccurs);
-
-	// XXX If we have reached the max occurs allowed all the + button need to disappear
-	//htmlToCopy.find('.')
-
-	if($(this).css("color")!='rgb(128, 128, 128)' || (htmlToCopy.hasClass("unavailable") && htmlToCopy.parent().css("color")!='rgb(128, 128, 128)')) // XXX Color is not really reliable...
-	{	
-		console.log('-- Add item --');		
-		console.log(htmlToCopy);
-
-		var elementId = htmlToCopy.children().attr('class');
-		var siblingsNumber = htmlToCopy.parent().find('.'+elementId).length;
-
-		console.log(siblingsNumber+' brother(s) before adding');
-
-		if((siblingsNumber < maxoccurs || (siblingsNumber == maxoccurs && htmlToCopy.hasClass("unavailable"))) || maxoccurs == -1)
+			var special = false;
+		}
+		
+		while(iteration < length)
 		{
-			// XXX We need to add the - button
-			if($(this).parent().find('.removeItem').length==0)
-			{
-				console.log('The - button need to be add');
-
-				// TODO Figure out how to store the base64 into a variable
-				$(this).after(' <img src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAACJ0lEQVQokZVSS28SYRS9MzDQwgAVEhBoS9Q2JkRpF7UGWkWNj4XUP+CiC2Ncd92dGxNXxrgxLnysfC9MbdKa4INgIjRpusEQoQgIFjqD5TWvj+/7XEhqIV3o3d3knJxzzz0MpRT+Z/R7FyRst9aS9cRnVBMJJToLbw3O2E6EjM6DuxhmV6G9sb794qnZ4+InJlmblSoKqpbF6LsmJsNXrx2YCvUQ2hvr1SeP7LMzfCDQyaVopQCaxvB2dmRUWH5b+lk8dH3BMX2qawkJgvD8mWN6ynzcjz68lmSFwcho4BipiX+kh0JBbbW5+fieyXdk0OVhAaCV/GI0603H/Ci2jFWZqBInNciOiBs1okhafNUZPsdWypXYStdS/uaiY8Kv7yhSIY1S2b5YjE4b6xxt1+XvQjZ496UeANQdUW8ywbc0qKrrwas+Qnk+wrXQwGRQ/hoHABYAqIZwo0GadQNW9s2+0yEAQBjUPZq12eRCbtBs7RTF8nykH86yRq+vnts0WOxdBevJkLCWAPc4bqgcz+0FY0ox1XG+8Xwq6j4b6RKGgrOa2y18ihovRIjGMjodAGBgMKZA9Lbzc/n3Sx2e95y58vdxtWQ8e/+2neOd4YtaPqPmsgSRgbExw/DhYvRNsVUILNzyhC71VENMxDIP70Bta+Ro0ODyAoBUzmdSH4nV4r+x+AfdQwAAeatUia2UYkvqryrVkM5h94bnPKcvm92+fcr3j/MbY+YNcy1xI5AAAAAASUVORK5CYII=" alt="remove" class="removeItem">');
-				$(this).parent().find('.removeItem').on('click', removeItem);
-			}
-
-			if(htmlToCopy.hasClass("unavailable"))
-			{
-				console.log('Element has to be set available');
-				console.log(htmlToCopy.find(':input').length + ' input(s) to enable');
-
-				// Displaying the remove button
-				// XXX This is done up
-				/*$(this).after(' ', removeButtons[0]);
-				removeButtons.splice(0,1);*/
-
-				// Input are enabled
-				htmlToCopy.find(':input').removeAttr('disabled');
-				htmlToCopy.replaceWith(htmlToCopy.contents());
-			}
-			else
-			{
-				// TODO Increment the of id and name in the input
-				var newHTMLCode = htmlToCopy.clone(true);
-
-				newHTMLCode.find(':input').each(function(){
-					if($(this).attr('name').match(/[0-9\/]+\-[0-9]+/))
-					{
-						console.log($(this).attr('name')+' needs to be upgraded');
-
-						var index = $(this).attr('name').lastIndexOf('-');
-						var elementId = $(this).attr('name').slice(0, index);
-
-						var maxId = -1;
-
-						$('body :input[name|="'+elementId+'"]').each(function(){
-							var iterationNumber = parseInt($(this).attr('name').slice(index+1));
-
-							if(iterationNumber > maxId)
-							{
-								maxId = iterationNumber;
-							}
-						});
-
-						maxId += 1;
-
-						console.log('new id='+maxId);
-
-						$(this).attr('name',elementId + '-' + maxId);
-						$(this).attr('id',elementId + '-' + maxId);
-					}
-				});			
-
-				console.log('A new element has to be added');
-				htmlToCopy.after(newHTMLCode[0]); // clone(true) also copy all the events into the new variable
-			}
-
-			if(siblingsNumber + 1 >= maxoccurs && maxoccurs != -1)
-			{
-				$(this).parent().parent().find('.'+elementId).each(function() {
-					$(this).find('.addItem').remove();
-
-				});
+			randomNumber = (Math.floor((Math.random() * 100)) % 94) + 33;
+			
+			if(!special){
+				if ((randomNumber >=33) && (randomNumber <=47)) { continue; }
+				if ((randomNumber >=58) && (randomNumber <=64)) { continue; }
+				if ((randomNumber >=91) && (randomNumber <=96)) { continue; }
+				if ((randomNumber >=123) && (randomNumber <=126)) { continue; }
 			}
 			
-			registerAction(elementId, 'add');
-		}
-		else
-		{
-			console.log('Max limit reached. You cannot add more items');
+			if(!number) 
+			{
+				if ((randomNumber >=48) && (randomNumber <=57)) { continue; }
+			}
+			
+			if(!lower)
+			{
+				if ((randomNumber >=97) && (randomNumber <=122)) { continue; }
+			}
+			
+			if(!upper)
+			{
+				if ((randomNumber >=65) && (randomNumber <=90)) { continue; }
+			}
+			
+			iteration++;
+			result += String.fromCharCode(randomNumber);
 		}
 	}
-	else
-	{
-		var unavailableElement = $(this).parent().parent().parent();
-		//var unavailableElement = $(this).parent().parent().parent().parent();
+	
+	return result;
+}
 
-		while(!unavailableElement.hasClass('unavailable'))
+generateRandomValue = function() {
+	var inputs = $(this).parent().children('input');
+	//console.log(inputs);
+	
+	var inputClass = $(this).attr('class').split(' ');
+	//console.log(inputClass[1]);
+	
+	var nbr = true;
+	var chr = false;
+	var spe = false;
+	
+	if(inputClass[1]=='string') chr = true;
+	
+	var value = generate(10, nbr, chr, chr);
+	
+	// Modify the 2 first inputs
+	inputs.each(function(index) {
+		if(index<2)
 		{
-			console.log(unavailableElement);
-			unavailableElement = unavailableElement.parent();
+			$(this).attr('value', value);
 		}
-
-		console.log(unavailableElement);
-
-		//var elementId = unavailableElement.children().attr('class'));
-
-		var index = unavailableElement.text().indexOf(' ');
-
-		editionUnavailableBox(unavailableElement.text().slice(0, index), unavailableElement);
-		
-		//registerAction(51, 'add');
-	}
+	});
 };
 
 /**
@@ -163,12 +94,30 @@ removeItem = function()
 {	
 	if($(this).css("color")!='rgb(128, 128, 128)') // XXX Not really reliable...
 	{
-		console.log('-- Remove item --');
+		//console.log('-- Remove item --');
 
 		// XXX We need to add the + button
 
 		var htmlToRemove = $(this).parent().parent();
-		console.log(htmlToRemove[0]);
+		
+		// Parse the xpath to get to the ajax script
+		var clickXpath = getElementXPath(htmlToRemove.get(0));
+		clickXpath = clickXpath.split("/form")[1];
+		
+		var treeArray = clickXpath.split('/ul/li');
+		
+		for(index in treeArray)
+		{
+			if(treeArray[index]=='') treeArray[index]=0;
+			else
+			{
+				treeArray[index] = parseInt(treeArray[index].slice(1, treeArray[index].length-1))-1;
+			}
+		}
+		
+		var clickPath = treeArray.toString().replace(/,/g, '/');
+		
+		//console.log(htmlToRemove[0]);
 
 		var maxoccurs = 1;
 		var minoccurs = 1;
@@ -176,21 +125,15 @@ removeItem = function()
 		$(this).parent().find(':hidden').each(function() {
 			switch($(this).attr('name'))
 			{
-			case 'minoccurs':
-				minoccurs = $(this).val();
-				break;
-			case 'maxoccurs':
-				if($(this).val() == 'unbounded')
-				{
-					maxoccurs = -1;
-				}
-				else
-				{
-					maxoccurs = $(this).val;
-				}
-				break;
-			default:
-				break;
+				case 'minoccurs':
+					minoccurs = $(this).attr('value');
+					break;
+				case 'maxoccurs':
+					if($(this).attr('value') == 'unbounded') maxoccurs = -1;
+					else maxoccurs = $(this).attr('value');
+					break;
+				default:
+					break;
 			}			
 		});
 
@@ -199,8 +142,8 @@ removeItem = function()
 		var elementXPath = getElementXPath(htmlToRemove.get(0));
 		var elementId = $(this).parent().attr('class');
 
-		console.log('Element ID = '+elementId);
-		console.log('Element XPath = '+elementXPath);
+		/*console.log('Element ID = '+elementId);
+		console.log('Element XPath = '+elementXPath);*/
 
 		var previousElement = null;
 		var previousId = -1;
@@ -215,13 +158,13 @@ removeItem = function()
 			var index1 = elementXPath.lastIndexOf(']');
 
 			var elementIndex = parseInt(elementXPath.slice(index0+1, index1));			
-			console.log('Element is the '+elementIndex+' one of the list');
+			//console.log('Element is the '+elementIndex+' one of the list');
 
 			var previousXPath = elementXPath.slice(0, index0)+'['+(elementIndex-1)+']';
 			var nextXPath = elementXPath.slice(0, index0)+'['+(elementIndex+1)+']';
 
-			console.log('Previous XPath: '+previousXPath);
-			console.log('Next XPath: '+nextXPath);
+			/*console.log('Previous XPath: '+previousXPath);
+			console.log('Next XPath: '+nextXPath);*/
 
 			previousElement = $(getElementsByXPath($(document).get(0), previousXPath));
 			nextElement = $(getElementsByXPath($(document).get(0), nextXPath));
@@ -231,37 +174,37 @@ removeItem = function()
 		else
 		{
 			// For the first element of the list we only need to check the next element
-			console.log('This is the first element of the list');
+			//console.log('This is the first element of the list');
 
 			nextElement = $(getElementsByXPath($(document).get(0), elementXPath+'[2]'));
 
 			allElement = $(getElementsByXPath($(document).get(0), elementXPath));
 		}
 
-		console.log(previousElement);
-		console.log(nextElement);
+		/*console.log(previousElement);
+		console.log(nextElement);*/
 
 		var siblingElementNumber = allElement.find('.'+elementId).length;
 
-		console.log(siblingElementNumber+' brother(s) before deleting');
+		//console.log(siblingElementNumber+' brother(s) before deleting');
 
 		if(siblingElementNumber > minoccurs)
 		{
 			if(previousElement!=null)
 			{
 				previousId = previousElement.children().attr('class');
-				console.log('Previous ID = '+previousId);
+				//console.log('Previous ID = '+previousId);
 			}
 
 			if(nextElement!=null)
 			{
 				nextId = nextElement.children().attr('class');
-				console.log('Next ID = '+nextId);
+				//console.log('Next ID = '+nextId);
 			}
 
 			if(nextId == elementId || previousId == elementId)
 			{
-				console.log('Another similar element exists');
+				//console.log('Another similar element exists');
 
 				if(siblingElementNumber - 1 == minoccurs)
 				{
@@ -284,7 +227,7 @@ removeItem = function()
 
 				if(parent.find('.addItem').length==0)
 				{
-					console.log('Adding the + button...');
+					//console.log('Adding the + button...');
 
 					parent.append(' <img src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAACUUlEQVQokZWSX2hScRTHz9W5uZlzms02nH82wv3PKFeO5qAYQqOHHlrPg156ihZE0J/XInqKvQhBDwU9VC+VyCzb+rNyNEJxstqmd7pdU3N679V7U3/3Tw+7SMIe6rwd+J7z+XK+BxNFEf6nGv5uSDYXTS2Hk0GSLfACr1So7CbnEZNTrzbUNFiNsJYOz0Wf6zTttg57c+O+Kl/Nlogv64Eyg84fmz5qcdYNrKXDr8KPD3ePHjIMx6i1NLuNBKRp1LS3GBd/+NY34xddl0e6T0qWSDbnjz4bsDis7f2BbS/LsEjklMomBpU2i7Eh8/Hib/rRh1nT/u6Dmk4ZAKwQXxuUSsuBvk+pt2VUZhF7ZeTWpeFrVCWfp9LB1PwJ2ykSZRdW/QAgA4BwcslssH0vRHJ0jmYpiins2iXwZLXMMPTONoWP9o75V7ySpTyT61eoEjSOhPJ1593aQWanngLAjHeKIGODekeaCkgEjucYRJeqFJKjPW8v8gIGIsdzEqGlSU3kE6omNcnmZ95NM79oz4UXu7sBQIbJO1vNyQyubdFJBLvJGcKDJpVVRBWM57RtqtpugQdMxLo0Vl/ozcTgpJRDrpi557upVMsdPeOLuI8XOF7gBB4DEBVy+XjP5FzodZxIeaafGHUmKbhl/LNn/r5e3zbWO7FF4gQZFwXBqO0xasy+0MvIxsbtc3dOD7jrXmMp9vHh+wc7lYyrz2Vo7QCArXzC/y3QiKmunrmxq64bAICfJLGw6p+LeLN0hhdQa7PWPXTWPTzZpTPv8Xz/WH8AA8ItNSarPAgAAAAASUVORK5CYII=" alt="add" class="addItem">');
 					parent.find('.addItem').on('click', addItem);
@@ -297,7 +240,8 @@ removeItem = function()
 				$(this).remove();
 			}
 			
-			registerAction(elementId, 'delete');
+			console.log('Register new - click -> '+clickPath);
+			registerAction('r', clickPath);
 		}
 		else
 		{
@@ -322,8 +266,6 @@ removeItem = function()
 		var index = unavailableElement.text().indexOf(' ');
 
 		editionUnavailableBox(unavailableElement.text().slice(0, index), unavailableElement);
-		
-		//registerAction(51, 'delete');
 	}
 };
 
@@ -354,7 +296,7 @@ editionUnavailableBox = function(elementName, element)
 /**
  * Register the number of element in a session variable
  */
-registerAction = function(elementId, actionTag)
+registerAction = function(actionTag, clickPath)
 {
 	if (window.XMLHttpRequest)
 	{
@@ -367,14 +309,7 @@ registerAction = function(elementId, actionTag)
 		xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
 	}
 	
-	/*xmlhttp.onreadystatechange=function()
-	{
-		if (xmlhttp.readyState==4 && xmlhttp.status==200)
-		{
-			document.getElementById("txtHint").innerHTML=xmlhttp.responseText;
-		}
-	}*/
-	
-	xmlhttp.open("GET","inc/ajax/registerAction.php?id="+elementId+"&action="+actionTag, true);
+	//xmlhttp.open("GET","inc/ajax/registerAction.php?id="+elementId+"&action="+actionTag+"&parent_path="+parentXPath+"&current_path="+currentXPath, true);
+	xmlhttp.open("GET","inc/ajax/registerAction.php?action="+actionTag+"&path="+clickPath, true);
 	xmlhttp.send();
 };

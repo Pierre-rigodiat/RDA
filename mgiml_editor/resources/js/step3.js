@@ -2,25 +2,25 @@ $(document).ready(function(){
 	// Linking the event on all the + buttons
 	$('#download').on('click', download);
 	
-	$('#tostep2').on('click', {page: 2}, moveTo);
+	$('#tostep3').on('click', {page: 3}, moveTo);
 });
 
 download = function()
-{
-	/*if (window.XMLHttpRequest)
-	{
-		// Code for IE7+, Firefox, Chrome, Opera, Safari
-		xmlhttp=new XMLHttpRequest();
-	}
-	else
-	{
-		// Code for IE6, IE5
-		xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
-	}
-	
-	xmlhttp.open("GET","download.php", true);
-	xmlhttp.send();*/
+{	
+	// todo implement the name parameter
+	/*dhtmlx.modalbox({ 
+		type:"confirm",
+		title:"Download XML", 
+		text:'Your download will start shortly, please enter the name of your xml file <div id="form_in_box"><div class="center"><input type="text" class="inform small" id="filename" name="filename" /><label class="main" for="filename">.xml</label></div></div>',
+		buttons:["Cancel", "Download"],
+		callback:function(index){
+			if(index==1)
+			{
+				console.log('Downloading...');
+				window.location = 'inc/ajax/download.php';
+			}
+		}
+	});*/
 	
 	window.location = 'inc/ajax/download.php';
-
 };

@@ -1,5 +1,6 @@
 <?php
 // TODO More debug info & log
+// TODO more control (to avoid bug )
 // XXX Bug on Chrome (warning in the JavaScript console)
 
 session_start();
