@@ -199,37 +199,39 @@ private $databaseObject;
 		else
 			{
 			// Get the XML file content
-			$xmlContents = file_get_contents($doc, FILE_USE_INCLUDE_PATH);
-			$patterns = array();
+			$xmlContents = file_get_contents($doc);
+			/*$patterns = array();
 			$patterns[0] = '/xsd:/';
 			$patterns[1] = '/hdf5:/';
 			$replacements = array();
-			$replacements[0] = 'xsd%';
-			$replacements[1] = 'hdf5%';
+			$replacements[0] = 'xsd_';
+			$replacements[1] = 'hdf5_';
 			$insertedXml = preg_replace($patterns, $replacements, $xmlContents);
-			if (!$xmlContents || !insertedXml) {
+			if (!$xmlContents || !$insertedXml) {
 				echo "Cannot load {$doc} file\n";
 				return;
-			}
+			}*/
 			
 			// Translate the XML content into JSON content
-			
-			$jsonContents = xml2json::transformXmlStringToJson($insertedXml);
+			$jsonContents = xml2json::transformXmlStringToJson($xmlContents);
 			if (!$jsonContents) {
-				echo "Could not transform xml to json";
+				echo "Could not transform xml to json\n";
 				return;
 			}
-			$jsonString = str_split($jsonContents);
+			$jsonArray = array();
+			$jsonArray = str_split($jsonContents, strlen($jsonContents));
 
 			// Insert it into the collection
 			try
-			{
+			{ 
 				if (isset($this->databaseObject)) {
 				$collectionObject = new MongoCollection($this->databaseObject, $collectionName);
 				//Check if the element already exists
-				$cursor = $collectionObject->find(array("0" => $jsonString));
-				if (!$cursor->hasNext())
-					$collectionObject->insert($jsonContents, array("safe" => 1));
+				$cursor = $collectionObject->find(array("0" => $jsonContents));
+				if (!$cursor->hasNext()){
+					$collectionObject->insert($jsonArray, array("safe" => 1));
+					echo "Insert successful\n";
+					}
 				else
 				{
 					echo "Cannot insert an already stored document\n";

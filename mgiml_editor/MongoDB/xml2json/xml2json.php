@@ -27,7 +27,7 @@ Oct/07/2006
 require_once 'json/JSON.php';
 
 // Internal program-specific Debug option.
-define ("DEBUG", false);
+define ("DEBUG", true);
 // Maximum Recursion Depth that we can allow.
 define ("MAX_RECURSION_DEPTH_ALLOWED", 25);
 // An empty string
@@ -81,7 +81,7 @@ class xml2json {
 		contains an instance variable which itself is an associative array of 
 		several SimpleXMLElement objects.	
 		*/
-		$simpleXmlElementObject = simplexml_load_string($xmlStringContents, 'SimpleXMLElement', 0, "hdf5", true);	
+		$simpleXmlElementObject = simplexml_load_string($xmlStringContents, SIMPLE_XML_ELEMENT_PHP_CLASS, 0, "hdf5", true);	
 		
 		if ($simpleXmlElementObject == null) {
 			return(EMPTY_STR);
@@ -108,7 +108,6 @@ class xml2json {
 				//var_dump($jsonOutput);
 			}	
 		} // End of if (($array1 != null) && (sizeof($array1) > 0))
-		
 		return($jsonOutput);					
 	} // End of function transformXmlStringToJson
 		
@@ -168,7 +167,7 @@ class xml2json {
 		}
 
 		if ($recursionDepth == 0) {
-			if (get_class($simpleXmlElementObject) != SIMPLE_XML_ELEMENT_PHP_CLASS) {
+			if ((is_object($simpleXmlElementObject)) ? (get_class($simpleXmlElementObject) != SIMPLE_XML_ELEMENT_PHP_CLASS) : false) {
 				// If the external caller doesn't call this function initially  
 				// with a SimpleXMLElement object, return now.				
 				return(null);				
@@ -179,7 +178,7 @@ class xml2json {
 			}
 		} // End of if ($recursionDepth == 0) {		
 				
-		if (get_class($simpleXmlElementObject) == SIMPLE_XML_ELEMENT_PHP_CLASS) {
+		if ((is_object($simpleXmlElementObject)) ? (get_class($simpleXmlElementObject) == SIMPLE_XML_ELEMENT_PHP_CLASS) : false) {
 			// Get a copy of the simpleXmlElementObject
 			$copyOfsimpleXmlElementObject = $simpleXmlElementObject;
       		// Get the object variables in the SimpleXmlElement object for us to iterate.
