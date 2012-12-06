@@ -19,8 +19,8 @@ loadSubPage = function(event)
 	}
 	else
 	{
-		console.log('click');
-		pageUrl = "inc/skeleton/main/admin/xsd_mgr.inc.php";
+		//pageUrl = "inc/skeleton/main/admin/xsd_mgr.inc.php";
+		pageUrl = "inc/skeleton/main/demo/xsd_mgr.inc.php";
 	}
 	
 	$.ajax({
