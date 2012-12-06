@@ -8,6 +8,7 @@
 	cursor: pointer;
 	width: 16px;
 	height: 16px;
+	margin-left: 5px;
 	background-image: url('../img/icons.png');
 	display: inline-block;
 }

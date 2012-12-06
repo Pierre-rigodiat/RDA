@@ -16,8 +16,8 @@ require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/core/XsdElement
 // Logger implementation
 $LOGGER = null;
  
-if(DEBUG_XML_LIB) $LOGGER = new Logger('notice', 'logs/xml_lib.log', 'XmlParserFunctions.php');
-else $LOGGER = new Logger('info', 'logs/xml_lib.log', 'XmlParserFunctions.php');
+if(DEBUG_XML_LIB) $LOGGER = new Logger('notice', $_SESSION['xsd_parser']['conf']['dirname'].'/logs/xml_lib.log', 'XmlParserFunctions.php');
+else $LOGGER = new Logger('info', $_SESSION['xsd_parser']['conf']['dirname'].'/logs/xml_lib.log', 'XmlParserFunctions.php');
  
 // Attributes
 $level = 0;

@@ -106,6 +106,21 @@ class XsdDisplay {
 	{
 		$result = '';
 		
+		$result .= '<div id="dialog" title="Create new user">
+					    <p class="validateTips">All form fields are required.</p>
+					 
+					    <form>
+					    <fieldset>
+					        <label for="name">Name</label>
+					        <input type="text" name="name" id="name" class="text ui-widget-content ui-corner-all" />
+					        <label for="email">Email</label>
+					        <input type="text" name="email" id="email" value="" class="text ui-widget-content ui-corner-all" />
+					        <label for="password">Password</label>
+					        <input type="password" name="password" id="password" value="" class="text ui-widget-content ui-corner-all" />
+					    </fieldset>
+					    </form>
+					</div>';
+		
 		$result .= '<ul>';
 		$result .= $this->displayElement(0, self::$STEPS['config']);
 		$result .= '</ul>';
@@ -196,36 +211,39 @@ class XsdDisplay {
 
 		$elementAttrName = array_filter(array_keys($elementAttr), "filter_attribute");		
 
-		$result .= '<li>'.$elementAttr['NAME'].' ';
+		$result .= '<li>'.$elementAttr['NAME'];
 		
 		// Displays all attributes we want to display
 		$hasAttribute = false;
+		$attrString = '';
 		foreach($elementAttrName as $attrName)
 		{
 			$hasAttribute = true;
 			
-			$result .=  $attrName.': ';
+			$attrString .=  $attrName.': ';
 			// Display arrays nicely (as "item1, item2...")
 			if(is_array($elementAttr[$attrName])) 
 			{
 				foreach($elementAttr[$attrName] as $attrElement)
 				{
-					$result .=  $attrElement;
+					$attrString .=  $attrElement;
 					
-					if(end($elementAttr[$attrName])!=$attrElement) $result .=  ', ';
+					if(end($elementAttr[$attrName])!=$attrElement) $attrString .=  ', ';
 				}
 			}
-			else $result .=  $elementAttr[$attrName];
+			else $attrString .=  $elementAttr[$attrName];
 			
-			if(end($elementAttrName)!=$attrName) $result .=  ' | ';
+			if(end($elementAttrName)!=$attrName) $attrString .=  ' | ';
 		}
 		
 		if(isset($elementAttr['TYPE']) && startsWith($elementAttr['TYPE'], 'xsd')) // todo put xsd into a variable
 		{
 				$type = explode(':', $elementAttr['TYPE']);
-				if($hasAttribute) $result .=  ' | ';
-				$result .= 'TYPE: '.$type[1];
+				if($hasAttribute) $attrString .=  ' | ';
+				$attrString .= 'TYPE: '.$type[1];
 		}
+		
+		if($attrString!='') $result .= '<span class="attr">'.$attrString.'</span>';
 		
 		$result .=  '<span class="icon edit"></span>';
 		
@@ -250,7 +268,7 @@ class XsdDisplay {
 		
 		if(isset($elementAttr['TYPE']) && startsWith($elementAttr['TYPE'], 'xsd')) // todo put xsd into a variable
 		{
-			$result .= '<input type="text" />';
+			$result .= '<input type="text" class="text"/>';
 		}
 		
 		if(isset($elementAttr['RESTRICTION']))
