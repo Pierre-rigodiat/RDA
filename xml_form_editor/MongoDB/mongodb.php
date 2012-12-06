@@ -199,7 +199,7 @@ private $databaseObject;
 		else
 			{
 			// Get the XML file content
-			$xmlContents = file_get_contents($doc);
+			//$xmlContents = file_get_contents($doc);
 			/*$patterns = array();
 			$patterns[0] = '/xsd:/';
 			$patterns[1] = '/hdf5:/';
@@ -211,9 +211,10 @@ private $databaseObject;
 				echo "Cannot load {$doc} file\n";
 				return;
 			}*/
-			
+			$dom=DOMDocument::load($doc);
 			// Translate the XML content into JSON content
-			$jsonContents = xml2json::transformXmlStringToJson($xmlContents);
+			//$jsonContents = xml2jsonIBM::transformXmlStringToJson($xmlContents);
+			$jsonContents = Parker::encode($dom);
 			if (!$jsonContents) {
 				echo "Could not transform xml to json\n";
 				return;
@@ -222,7 +223,9 @@ private $databaseObject;
 			$jsonArray = str_split($jsonContents, strlen($jsonContents));
 
 			// Insert it into the collection
-			try
+			var_dump($jsonContents);
+			echo $jsonContents."\n";
+			/*try
 			{ 
 				if (isset($this->databaseObject)) {
 				$collectionObject = new MongoCollection($this->databaseObject, $collectionName);
@@ -247,7 +250,7 @@ private $databaseObject;
 			catch(MongoCursorException $e)
 			{
 				echo "Cannot insert an already stored document\n";
-			}
+			}*/
 			}
 	}
 	
