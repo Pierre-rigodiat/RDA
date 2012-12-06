@@ -1,0 +1,527 @@
+[12-05-2012 21:17:58][127.0.0.1][XmlParserFunctions.php][notice][Logger::__construct] Logger instantiation OK (level:notice, file:logs/xml_lib.log)
+[12-05-2012 21:19:23][127.0.0.1][XmlParserFunctions.php][notice][Logger::__construct] Logger instantiation OK (level:notice, file:logs/xml_lib.log)
+[12-05-2012 21:19:23][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:SCHEMA inserted
+[12-05-2012 21:19:23][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:ELEMENT inserted
+[12-05-2012 21:19:23][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:ELEMENT
+[12-05-2012 21:19:23][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:COMPLEXTYPE inserted
+[12-05-2012 21:19:23][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:SEQUENCE inserted
+[12-05-2012 21:19:23][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:ELEMENT inserted
+[12-05-2012 21:19:23][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:ELEMENT
+[12-05-2012 21:19:23][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:SEQUENCE
+[12-05-2012 21:19:23][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:COMPLEXTYPE
+[12-05-2012 21:19:23][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:COMPLEXTYPE inserted
+[12-05-2012 21:19:23][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:SEQUENCE inserted
+[12-05-2012 21:19:23][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:ELEMENT inserted
+[12-05-2012 21:19:23][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:ELEMENT
+[12-05-2012 21:19:23][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:SEQUENCE
+[12-05-2012 21:19:23][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:COMPLEXTYPE
+[12-05-2012 21:19:23][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:SCHEMA
+[12-05-2012 21:47:14][127.0.0.1][XmlParserFunctions.php][notice][Logger::__construct] Logger instantiation OK (level:notice, file:logs/xml_lib.log)
+[12-05-2012 21:47:14][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:SCHEMA inserted
+[12-05-2012 21:47:14][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:ELEMENT inserted
+[12-05-2012 21:47:14][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:ELEMENT
+[12-05-2012 21:47:14][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:COMPLEXTYPE inserted
+[12-05-2012 21:47:14][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:SEQUENCE inserted
+[12-05-2012 21:47:14][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:ELEMENT inserted
+[12-05-2012 21:47:14][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:ELEMENT
+[12-05-2012 21:47:14][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:SEQUENCE
+[12-05-2012 21:47:14][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:COMPLEXTYPE
+[12-05-2012 21:47:14][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:COMPLEXTYPE inserted
+[12-05-2012 21:47:14][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:SEQUENCE inserted
+[12-05-2012 21:47:14][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:ELEMENT inserted
+[12-05-2012 21:47:14][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:ELEMENT
+[12-05-2012 21:47:14][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:SEQUENCE
+[12-05-2012 21:47:14][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:COMPLEXTYPE
+[12-05-2012 21:47:14][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:SCHEMA
+[12-05-2012 22:00:35][127.0.0.1][XmlParserFunctions.php][notice][Logger::__construct] Logger instantiation OK (level:notice, file:logs/xml_lib.log)
+[12-05-2012 22:00:35][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:SCHEMA inserted
+[12-05-2012 22:00:35][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:ELEMENT inserted
+[12-05-2012 22:00:35][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:ELEMENT
+[12-05-2012 22:00:35][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:COMPLEXTYPE inserted
+[12-05-2012 22:00:35][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:SEQUENCE inserted
+[12-05-2012 22:00:35][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:ELEMENT inserted
+[12-05-2012 22:00:35][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:ELEMENT
+[12-05-2012 22:00:35][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:SEQUENCE
+[12-05-2012 22:00:35][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:COMPLEXTYPE
+[12-05-2012 22:00:35][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:COMPLEXTYPE inserted
+[12-05-2012 22:00:35][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:SEQUENCE inserted
+[12-05-2012 22:00:35][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:ELEMENT inserted
+[12-05-2012 22:00:35][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:ELEMENT
+[12-05-2012 22:00:35][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:SEQUENCE
+[12-05-2012 22:00:35][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:COMPLEXTYPE
+[12-05-2012 22:00:35][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:SCHEMA
+[12-05-2012 22:02:25][127.0.0.1][XmlParserFunctions.php][notice][Logger::__construct] Logger instantiation OK (level:notice, file:logs/xml_lib.log)
+[12-05-2012 22:02:25][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:SCHEMA inserted
+[12-05-2012 22:02:25][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:ELEMENT inserted
+[12-05-2012 22:02:25][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:ELEMENT
+[12-05-2012 22:02:25][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:COMPLEXTYPE inserted
+[12-05-2012 22:02:25][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:SEQUENCE inserted
+[12-05-2012 22:02:25][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:ELEMENT inserted
+[12-05-2012 22:02:25][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:ELEMENT
+[12-05-2012 22:02:25][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:SEQUENCE
+[12-05-2012 22:02:25][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:COMPLEXTYPE
+[12-05-2012 22:02:25][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:COMPLEXTYPE inserted
+[12-05-2012 22:02:25][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:SEQUENCE inserted
+[12-05-2012 22:02:25][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:ELEMENT inserted
+[12-05-2012 22:02:25][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:ELEMENT
+[12-05-2012 22:02:25][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:SEQUENCE
+[12-05-2012 22:02:25][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:COMPLEXTYPE
+[12-05-2012 22:02:25][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:SCHEMA
+[12-05-2012 22:03:03][127.0.0.1][XmlParserFunctions.php][notice][Logger::__construct] Logger instantiation OK (level:notice, file:logs/xml_lib.log)
+[12-05-2012 22:03:03][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:SCHEMA inserted
+[12-05-2012 22:03:03][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:ELEMENT inserted
+[12-05-2012 22:03:03][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:ELEMENT
+[12-05-2012 22:03:03][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:COMPLEXTYPE inserted
+[12-05-2012 22:03:03][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:SEQUENCE inserted
+[12-05-2012 22:03:03][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:ELEMENT inserted
+[12-05-2012 22:03:03][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:ELEMENT
+[12-05-2012 22:03:03][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:SEQUENCE
+[12-05-2012 22:03:03][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:COMPLEXTYPE
+[12-05-2012 22:03:03][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:COMPLEXTYPE inserted
+[12-05-2012 22:03:03][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:SEQUENCE inserted
+[12-05-2012 22:03:03][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:ELEMENT inserted
+[12-05-2012 22:03:03][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:ELEMENT
+[12-05-2012 22:03:03][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:SEQUENCE
+[12-05-2012 22:03:03][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:COMPLEXTYPE
+[12-05-2012 22:03:03][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:SCHEMA
+[12-06-2012 19:55:11][127.0.0.1][XmlParserFunctions.php][notice][Logger::__construct] Logger instantiation OK (level:notice, file:logs/xml_lib.log)
+[12-06-2012 19:55:11][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:SCHEMA inserted
+[12-06-2012 19:55:11][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:ELEMENT inserted
+[12-06-2012 19:55:11][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:ELEMENT
+[12-06-2012 19:55:11][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:COMPLEXTYPE inserted
+[12-06-2012 19:55:11][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:SEQUENCE inserted
+[12-06-2012 19:55:11][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:ELEMENT inserted
+[12-06-2012 19:55:11][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:ELEMENT
+[12-06-2012 19:55:11][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:SEQUENCE
+[12-06-2012 19:55:11][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:COMPLEXTYPE
+[12-06-2012 19:55:11][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:COMPLEXTYPE inserted
+[12-06-2012 19:55:11][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:SEQUENCE inserted
+[12-06-2012 19:55:11][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:ELEMENT inserted
+[12-06-2012 19:55:11][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:ELEMENT
+[12-06-2012 19:55:11][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:SEQUENCE
+[12-06-2012 19:55:11][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:COMPLEXTYPE
+[12-06-2012 19:55:11][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:SCHEMA
+[12-06-2012 19:55:11][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:SCHEMA inserted
+[12-06-2012 19:55:11][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:ELEMENT inserted
+[12-06-2012 19:55:11][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:ELEMENT
+[12-06-2012 19:55:11][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:COMPLEXTYPE inserted
+[12-06-2012 19:55:11][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:SEQUENCE inserted
+[12-06-2012 19:55:11][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:ELEMENT inserted
+[12-06-2012 19:55:11][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:ELEMENT
+[12-06-2012 19:55:11][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:SEQUENCE
+[12-06-2012 19:55:11][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:COMPLEXTYPE
+[12-06-2012 19:55:11][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:COMPLEXTYPE inserted
+[12-06-2012 19:55:11][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:SEQUENCE inserted
+[12-06-2012 19:55:11][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:ELEMENT inserted
+[12-06-2012 19:55:11][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:ELEMENT
+[12-06-2012 19:55:11][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:SEQUENCE
+[12-06-2012 19:55:11][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:COMPLEXTYPE
+[12-06-2012 19:55:11][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:SCHEMA
+[12-06-2012 19:56:07][127.0.0.1][XmlParserFunctions.php][notice][Logger::__construct] Logger instantiation OK (level:notice, file:logs/xml_lib.log)
+[12-06-2012 19:56:07][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:SCHEMA inserted
+[12-06-2012 19:56:07][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:ELEMENT inserted
+[12-06-2012 19:56:07][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:ELEMENT
+[12-06-2012 19:56:07][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:COMPLEXTYPE inserted
+[12-06-2012 19:56:07][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:SEQUENCE inserted
+[12-06-2012 19:56:07][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:ELEMENT inserted
+[12-06-2012 19:56:07][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:ELEMENT
+[12-06-2012 19:56:07][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:SEQUENCE
+[12-06-2012 19:56:07][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:COMPLEXTYPE
+[12-06-2012 19:56:07][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:COMPLEXTYPE inserted
+[12-06-2012 19:56:07][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:SEQUENCE inserted
+[12-06-2012 19:56:07][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:ELEMENT inserted
+[12-06-2012 19:56:07][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:ELEMENT
+[12-06-2012 19:56:07][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:SEQUENCE
+[12-06-2012 19:56:07][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:COMPLEXTYPE
+[12-06-2012 19:56:07][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:SCHEMA
+[12-06-2012 19:56:10][127.0.0.1][XmlParserFunctions.php][notice][Logger::__construct] Logger instantiation OK (level:notice, file:logs/xml_lib.log)
+[12-06-2012 19:56:10][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:SCHEMA inserted
+[12-06-2012 19:56:10][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:ELEMENT inserted
+[12-06-2012 19:56:10][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:ELEMENT
+[12-06-2012 19:56:10][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:COMPLEXTYPE inserted
+[12-06-2012 19:56:10][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:SEQUENCE inserted
+[12-06-2012 19:56:10][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:ELEMENT inserted
+[12-06-2012 19:56:10][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:ELEMENT
+[12-06-2012 19:56:10][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:SEQUENCE
+[12-06-2012 19:56:10][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:COMPLEXTYPE
+[12-06-2012 19:56:10][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:COMPLEXTYPE inserted
+[12-06-2012 19:56:10][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:SEQUENCE inserted
+[12-06-2012 19:56:10][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:ELEMENT inserted
+[12-06-2012 19:56:10][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:ELEMENT
+[12-06-2012 19:56:10][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:SEQUENCE
+[12-06-2012 19:56:10][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:COMPLEXTYPE
+[12-06-2012 19:56:10][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:SCHEMA
+[12-06-2012 19:56:10][127.0.0.1][XmlParserFunctions.php][notice][Logger::__construct] Logger instantiation OK (level:notice, file:logs/xml_lib.log)
+[12-06-2012 19:56:10][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:SCHEMA inserted
+[12-06-2012 19:56:10][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:ELEMENT inserted
+[12-06-2012 19:56:10][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:ELEMENT
+[12-06-2012 19:56:10][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:COMPLEXTYPE inserted
+[12-06-2012 19:56:10][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:SEQUENCE inserted
+[12-06-2012 19:56:10][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:ELEMENT inserted
+[12-06-2012 19:56:10][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:ELEMENT
+[12-06-2012 19:56:10][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:SEQUENCE
+[12-06-2012 19:56:10][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:COMPLEXTYPE
+[12-06-2012 19:56:10][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:COMPLEXTYPE inserted
+[12-06-2012 19:56:10][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:SEQUENCE inserted
+[12-06-2012 19:56:10][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:ELEMENT inserted
+[12-06-2012 19:56:10][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:ELEMENT
+[12-06-2012 19:56:10][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:SEQUENCE
+[12-06-2012 19:56:10][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:COMPLEXTYPE
+[12-06-2012 19:56:10][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:SCHEMA
+[12-06-2012 19:56:10][127.0.0.1][XmlParserFunctions.php][notice][Logger::__construct] Logger instantiation OK (level:notice, file:logs/xml_lib.log)
+[12-06-2012 19:56:10][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:SCHEMA inserted
+[12-06-2012 19:56:10][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:ELEMENT inserted
+[12-06-2012 19:56:10][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:ELEMENT
+[12-06-2012 19:56:10][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:COMPLEXTYPE inserted
+[12-06-2012 19:56:10][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:SEQUENCE inserted
+[12-06-2012 19:56:10][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:ELEMENT inserted
+[12-06-2012 19:56:10][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:ELEMENT
+[12-06-2012 19:56:10][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:SEQUENCE
+[12-06-2012 19:56:10][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:COMPLEXTYPE
+[12-06-2012 19:56:10][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:COMPLEXTYPE inserted
+[12-06-2012 19:56:10][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:SEQUENCE inserted
+[12-06-2012 19:56:10][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:ELEMENT inserted
+[12-06-2012 19:56:10][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:ELEMENT
+[12-06-2012 19:56:10][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:SEQUENCE
+[12-06-2012 19:56:10][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:COMPLEXTYPE
+[12-06-2012 19:56:10][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:SCHEMA
+[12-06-2012 19:56:12][127.0.0.1][XmlParserFunctions.php][notice][Logger::__construct] Logger instantiation OK (level:notice, file:logs/xml_lib.log)
+[12-06-2012 19:56:12][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:SCHEMA inserted
+[12-06-2012 19:56:12][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:ELEMENT inserted
+[12-06-2012 19:56:12][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:ELEMENT
+[12-06-2012 19:56:12][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:COMPLEXTYPE inserted
+[12-06-2012 19:56:12][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:SEQUENCE inserted
+[12-06-2012 19:56:12][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:ELEMENT inserted
+[12-06-2012 19:56:12][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:ELEMENT
+[12-06-2012 19:56:12][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:SEQUENCE
+[12-06-2012 19:56:12][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:COMPLEXTYPE
+[12-06-2012 19:56:12][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:COMPLEXTYPE inserted
+[12-06-2012 19:56:12][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:SEQUENCE inserted
+[12-06-2012 19:56:12][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:ELEMENT inserted
+[12-06-2012 19:56:12][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:ELEMENT
+[12-06-2012 19:56:12][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:SEQUENCE
+[12-06-2012 19:56:12][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:COMPLEXTYPE
+[12-06-2012 19:56:12][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:SCHEMA
+[12-06-2012 19:56:13][127.0.0.1][XmlParserFunctions.php][notice][Logger::__construct] Logger instantiation OK (level:notice, file:logs/xml_lib.log)
+[12-06-2012 19:56:13][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:SCHEMA inserted
+[12-06-2012 19:56:13][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:ELEMENT inserted
+[12-06-2012 19:56:13][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:ELEMENT
+[12-06-2012 19:56:13][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:COMPLEXTYPE inserted
+[12-06-2012 19:56:13][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:SEQUENCE inserted
+[12-06-2012 19:56:13][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:ELEMENT inserted
+[12-06-2012 19:56:13][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:ELEMENT
+[12-06-2012 19:56:13][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:SEQUENCE
+[12-06-2012 19:56:13][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:COMPLEXTYPE
+[12-06-2012 19:56:13][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:COMPLEXTYPE inserted
+[12-06-2012 19:56:13][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:SEQUENCE inserted
+[12-06-2012 19:56:13][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:ELEMENT inserted
+[12-06-2012 19:56:13][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:ELEMENT
+[12-06-2012 19:56:13][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:SEQUENCE
+[12-06-2012 19:56:13][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:COMPLEXTYPE
+[12-06-2012 19:56:13][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:SCHEMA
+[12-06-2012 19:56:14][127.0.0.1][XmlParserFunctions.php][notice][Logger::__construct] Logger instantiation OK (level:notice, file:logs/xml_lib.log)
+[12-06-2012 19:56:14][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:SCHEMA inserted
+[12-06-2012 19:56:14][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:ELEMENT inserted
+[12-06-2012 19:56:14][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:ELEMENT
+[12-06-2012 19:56:14][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:COMPLEXTYPE inserted
+[12-06-2012 19:56:14][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:SEQUENCE inserted
+[12-06-2012 19:56:14][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:ELEMENT inserted
+[12-06-2012 19:56:14][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:ELEMENT
+[12-06-2012 19:56:14][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:SEQUENCE
+[12-06-2012 19:56:14][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:COMPLEXTYPE
+[12-06-2012 19:56:14][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:COMPLEXTYPE inserted
+[12-06-2012 19:56:14][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:SEQUENCE inserted
+[12-06-2012 19:56:14][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:ELEMENT inserted
+[12-06-2012 19:56:14][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:ELEMENT
+[12-06-2012 19:56:14][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:SEQUENCE
+[12-06-2012 19:56:14][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:COMPLEXTYPE
+[12-06-2012 19:56:14][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:SCHEMA
+[12-06-2012 19:56:14][127.0.0.1][XmlParserFunctions.php][notice][Logger::__construct] Logger instantiation OK (level:notice, file:logs/xml_lib.log)
+[12-06-2012 19:56:14][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:SCHEMA inserted
+[12-06-2012 19:56:14][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:ELEMENT inserted
+[12-06-2012 19:56:14][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:ELEMENT
+[12-06-2012 19:56:14][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:COMPLEXTYPE inserted
+[12-06-2012 19:56:14][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:SEQUENCE inserted
+[12-06-2012 19:56:14][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:ELEMENT inserted
+[12-06-2012 19:56:14][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:ELEMENT
+[12-06-2012 19:56:14][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:SEQUENCE
+[12-06-2012 19:56:14][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:COMPLEXTYPE
+[12-06-2012 19:56:14][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:COMPLEXTYPE inserted
+[12-06-2012 19:56:14][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:SEQUENCE inserted
+[12-06-2012 19:56:14][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:ELEMENT inserted
+[12-06-2012 19:56:14][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:ELEMENT
+[12-06-2012 19:56:14][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:SEQUENCE
+[12-06-2012 19:56:14][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:COMPLEXTYPE
+[12-06-2012 19:56:14][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:SCHEMA
+[12-06-2012 19:56:15][127.0.0.1][XmlParserFunctions.php][notice][Logger::__construct] Logger instantiation OK (level:notice, file:logs/xml_lib.log)
+[12-06-2012 19:56:15][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:SCHEMA inserted
+[12-06-2012 19:56:15][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:ELEMENT inserted
+[12-06-2012 19:56:15][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:ELEMENT
+[12-06-2012 19:56:15][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:COMPLEXTYPE inserted
+[12-06-2012 19:56:15][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:SEQUENCE inserted
+[12-06-2012 19:56:15][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:ELEMENT inserted
+[12-06-2012 19:56:15][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:ELEMENT
+[12-06-2012 19:56:15][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:SEQUENCE
+[12-06-2012 19:56:15][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:COMPLEXTYPE
+[12-06-2012 19:56:15][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:COMPLEXTYPE inserted
+[12-06-2012 19:56:15][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:SEQUENCE inserted
+[12-06-2012 19:56:15][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:ELEMENT inserted
+[12-06-2012 19:56:15][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:ELEMENT
+[12-06-2012 19:56:15][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:SEQUENCE
+[12-06-2012 19:56:15][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:COMPLEXTYPE
+[12-06-2012 19:56:15][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:SCHEMA
+[12-06-2012 19:56:15][127.0.0.1][XmlParserFunctions.php][notice][Logger::__construct] Logger instantiation OK (level:notice, file:logs/xml_lib.log)
+[12-06-2012 19:56:15][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:SCHEMA inserted
+[12-06-2012 19:56:15][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:ELEMENT inserted
+[12-06-2012 19:56:15][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:ELEMENT
+[12-06-2012 19:56:15][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:COMPLEXTYPE inserted
+[12-06-2012 19:56:15][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:SEQUENCE inserted
+[12-06-2012 19:56:15][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:ELEMENT inserted
+[12-06-2012 19:56:15][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:ELEMENT
+[12-06-2012 19:56:15][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:SEQUENCE
+[12-06-2012 19:56:15][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:COMPLEXTYPE
+[12-06-2012 19:56:15][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:COMPLEXTYPE inserted
+[12-06-2012 19:56:15][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:SEQUENCE inserted
+[12-06-2012 19:56:15][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:ELEMENT inserted
+[12-06-2012 19:56:15][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:ELEMENT
+[12-06-2012 19:56:15][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:SEQUENCE
+[12-06-2012 19:56:15][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:COMPLEXTYPE
+[12-06-2012 19:56:15][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:SCHEMA
+[12-06-2012 19:56:16][127.0.0.1][XmlParserFunctions.php][notice][Logger::__construct] Logger instantiation OK (level:notice, file:logs/xml_lib.log)
+[12-06-2012 19:56:16][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:SCHEMA inserted
+[12-06-2012 19:56:16][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:ELEMENT inserted
+[12-06-2012 19:56:16][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:ELEMENT
+[12-06-2012 19:56:16][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:COMPLEXTYPE inserted
+[12-06-2012 19:56:16][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:SEQUENCE inserted
+[12-06-2012 19:56:16][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:ELEMENT inserted
+[12-06-2012 19:56:16][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:ELEMENT
+[12-06-2012 19:56:16][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:SEQUENCE
+[12-06-2012 19:56:16][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:COMPLEXTYPE
+[12-06-2012 19:56:16][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:COMPLEXTYPE inserted
+[12-06-2012 19:56:16][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:SEQUENCE inserted
+[12-06-2012 19:56:16][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:ELEMENT inserted
+[12-06-2012 19:56:16][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:ELEMENT
+[12-06-2012 19:56:16][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:SEQUENCE
+[12-06-2012 19:56:16][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:COMPLEXTYPE
+[12-06-2012 19:56:16][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:SCHEMA
+[12-06-2012 19:56:21][127.0.0.1][XmlParserFunctions.php][notice][Logger::__construct] Logger instantiation OK (level:notice, file:logs/xml_lib.log)
+[12-06-2012 19:56:21][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:SCHEMA inserted
+[12-06-2012 19:56:21][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:ELEMENT inserted
+[12-06-2012 19:56:21][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:ELEMENT
+[12-06-2012 19:56:21][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:COMPLEXTYPE inserted
+[12-06-2012 19:56:21][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:SEQUENCE inserted
+[12-06-2012 19:56:21][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:ELEMENT inserted
+[12-06-2012 19:56:21][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:ELEMENT
+[12-06-2012 19:56:21][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:SEQUENCE
+[12-06-2012 19:56:21][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:COMPLEXTYPE
+[12-06-2012 19:56:21][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:COMPLEXTYPE inserted
+[12-06-2012 19:56:21][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:SEQUENCE inserted
+[12-06-2012 19:56:21][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:ELEMENT inserted
+[12-06-2012 19:56:21][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:ELEMENT
+[12-06-2012 19:56:21][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:SEQUENCE
+[12-06-2012 19:56:21][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:COMPLEXTYPE
+[12-06-2012 19:56:21][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:SCHEMA
+[12-06-2012 20:02:53][127.0.0.1][XmlParserFunctions.php][notice][Logger::__construct] Logger instantiation OK (level:notice, file:logs/xml_lib.log)
+[12-06-2012 20:02:53][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:SCHEMA inserted
+[12-06-2012 20:02:53][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:ELEMENT inserted
+[12-06-2012 20:02:53][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:ELEMENT
+[12-06-2012 20:02:53][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:COMPLEXTYPE inserted
+[12-06-2012 20:02:53][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:SEQUENCE inserted
+[12-06-2012 20:02:53][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:ELEMENT inserted
+[12-06-2012 20:02:53][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:ELEMENT
+[12-06-2012 20:02:53][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:SEQUENCE
+[12-06-2012 20:02:53][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:COMPLEXTYPE
+[12-06-2012 20:02:53][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:COMPLEXTYPE inserted
+[12-06-2012 20:02:53][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:SEQUENCE inserted
+[12-06-2012 20:02:53][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:ELEMENT inserted
+[12-06-2012 20:02:53][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:ELEMENT
+[12-06-2012 20:02:53][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:SEQUENCE
+[12-06-2012 20:02:53][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:COMPLEXTYPE
+[12-06-2012 20:02:53][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:SCHEMA
+[12-06-2012 20:03:41][127.0.0.1][XmlParserFunctions.php][notice][Logger::__construct] Logger instantiation OK (level:notice, file:logs/xml_lib.log)
+[12-06-2012 20:03:41][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:SCHEMA inserted
+[12-06-2012 20:03:41][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:ELEMENT inserted
+[12-06-2012 20:03:41][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:ELEMENT
+[12-06-2012 20:03:41][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:COMPLEXTYPE inserted
+[12-06-2012 20:03:41][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:SEQUENCE inserted
+[12-06-2012 20:03:41][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:ELEMENT inserted
+[12-06-2012 20:03:41][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:ELEMENT
+[12-06-2012 20:03:41][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:SEQUENCE
+[12-06-2012 20:03:41][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:COMPLEXTYPE
+[12-06-2012 20:03:41][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:COMPLEXTYPE inserted
+[12-06-2012 20:03:41][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:SEQUENCE inserted
+[12-06-2012 20:03:41][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:ELEMENT inserted
+[12-06-2012 20:03:41][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:ELEMENT
+[12-06-2012 20:03:41][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:SEQUENCE
+[12-06-2012 20:03:41][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:COMPLEXTYPE
+[12-06-2012 20:03:41][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:SCHEMA
+[12-06-2012 20:21:24][127.0.0.1][XmlParserFunctions.php][notice][Logger::__construct] Logger instantiation OK (level:notice, file:logs/xml_lib.log)
+[12-06-2012 20:21:24][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:SCHEMA inserted
+[12-06-2012 20:21:24][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:ELEMENT inserted
+[12-06-2012 20:21:24][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:ELEMENT
+[12-06-2012 20:21:24][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:COMPLEXTYPE inserted
+[12-06-2012 20:21:24][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:SEQUENCE inserted
+[12-06-2012 20:21:24][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:ELEMENT inserted
+[12-06-2012 20:21:24][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:ELEMENT
+[12-06-2012 20:21:24][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:SEQUENCE
+[12-06-2012 20:21:24][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:COMPLEXTYPE
+[12-06-2012 20:21:24][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:COMPLEXTYPE inserted
+[12-06-2012 20:21:24][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:SEQUENCE inserted
+[12-06-2012 20:21:24][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:ELEMENT inserted
+[12-06-2012 20:21:24][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:ELEMENT
+[12-06-2012 20:21:24][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:SEQUENCE
+[12-06-2012 20:21:24][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:COMPLEXTYPE
+[12-06-2012 20:21:24][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:SCHEMA
+[12-06-2012 20:21:33][127.0.0.1][XmlParserFunctions.php][notice][Logger::__construct] Logger instantiation OK (level:notice, file:logs/xml_lib.log)
+[12-06-2012 20:21:33][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:SCHEMA inserted
+[12-06-2012 20:21:33][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:ELEMENT inserted
+[12-06-2012 20:21:33][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:ELEMENT
+[12-06-2012 20:21:33][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:COMPLEXTYPE inserted
+[12-06-2012 20:21:33][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:SEQUENCE inserted
+[12-06-2012 20:21:33][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:ELEMENT inserted
+[12-06-2012 20:21:33][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:ELEMENT
+[12-06-2012 20:21:33][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:SEQUENCE
+[12-06-2012 20:21:33][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:COMPLEXTYPE
+[12-06-2012 20:21:33][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:COMPLEXTYPE inserted
+[12-06-2012 20:21:33][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:SEQUENCE inserted
+[12-06-2012 20:21:33][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:ELEMENT inserted
+[12-06-2012 20:21:33][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:ELEMENT
+[12-06-2012 20:21:33][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:SEQUENCE
+[12-06-2012 20:21:33][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:COMPLEXTYPE
+[12-06-2012 20:21:33][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:SCHEMA
+[12-06-2012 20:22:04][127.0.0.1][XmlParserFunctions.php][notice][Logger::__construct] Logger instantiation OK (level:notice, file:logs/xml_lib.log)
+[12-06-2012 20:22:04][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:SCHEMA inserted
+[12-06-2012 20:22:04][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:ELEMENT inserted
+[12-06-2012 20:22:04][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:ELEMENT
+[12-06-2012 20:22:04][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:COMPLEXTYPE inserted
+[12-06-2012 20:22:04][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:SEQUENCE inserted
+[12-06-2012 20:22:04][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:ELEMENT inserted
+[12-06-2012 20:22:04][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:ELEMENT
+[12-06-2012 20:22:04][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:SEQUENCE
+[12-06-2012 20:22:04][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:COMPLEXTYPE
+[12-06-2012 20:22:04][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:COMPLEXTYPE inserted
+[12-06-2012 20:22:04][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:SEQUENCE inserted
+[12-06-2012 20:22:04][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:ELEMENT inserted
+[12-06-2012 20:22:04][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:ELEMENT
+[12-06-2012 20:22:04][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:SEQUENCE
+[12-06-2012 20:22:04][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:COMPLEXTYPE
+[12-06-2012 20:22:04][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:SCHEMA
+[12-06-2012 20:22:39][127.0.0.1][XmlParserFunctions.php][notice][Logger::__construct] Logger instantiation OK (level:notice, file:logs/xml_lib.log)
+[12-06-2012 20:22:39][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:SCHEMA inserted
+[12-06-2012 20:22:39][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:ELEMENT inserted
+[12-06-2012 20:22:39][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:ELEMENT
+[12-06-2012 20:22:39][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:COMPLEXTYPE inserted
+[12-06-2012 20:22:39][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:SEQUENCE inserted
+[12-06-2012 20:22:39][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:ELEMENT inserted
+[12-06-2012 20:22:39][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:ELEMENT
+[12-06-2012 20:22:39][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:SEQUENCE
+[12-06-2012 20:22:39][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:COMPLEXTYPE
+[12-06-2012 20:22:39][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:COMPLEXTYPE inserted
+[12-06-2012 20:22:39][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:SEQUENCE inserted
+[12-06-2012 20:22:39][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:ELEMENT inserted
+[12-06-2012 20:22:39][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:ELEMENT
+[12-06-2012 20:22:39][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:SEQUENCE
+[12-06-2012 20:22:39][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:COMPLEXTYPE
+[12-06-2012 20:22:39][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:SCHEMA
+[12-06-2012 20:24:07][127.0.0.1][XmlParserFunctions.php][notice][Logger::__construct] Logger instantiation OK (level:notice, file:logs/xml_lib.log)
+[12-06-2012 20:24:07][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:SCHEMA inserted
+[12-06-2012 20:24:07][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:ELEMENT inserted
+[12-06-2012 20:24:07][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:ELEMENT
+[12-06-2012 20:24:07][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:COMPLEXTYPE inserted
+[12-06-2012 20:24:07][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:SEQUENCE inserted
+[12-06-2012 20:24:07][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:ELEMENT inserted
+[12-06-2012 20:24:07][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:ELEMENT
+[12-06-2012 20:24:07][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:SEQUENCE
+[12-06-2012 20:24:07][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:COMPLEXTYPE
+[12-06-2012 20:24:07][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:COMPLEXTYPE inserted
+[12-06-2012 20:24:07][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:SEQUENCE inserted
+[12-06-2012 20:24:07][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:ELEMENT inserted
+[12-06-2012 20:24:07][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:ELEMENT
+[12-06-2012 20:24:07][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:SEQUENCE
+[12-06-2012 20:24:07][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:COMPLEXTYPE
+[12-06-2012 20:24:07][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:SCHEMA
+[12-06-2012 20:28:12][127.0.0.1][XmlParserFunctions.php][notice][Logger::__construct] Logger instantiation OK (level:notice, file:logs/xml_lib.log)
+[12-06-2012 20:28:12][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:SCHEMA inserted
+[12-06-2012 20:28:12][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:ELEMENT inserted
+[12-06-2012 20:28:12][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:ELEMENT
+[12-06-2012 20:28:12][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:COMPLEXTYPE inserted
+[12-06-2012 20:28:12][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:SEQUENCE inserted
+[12-06-2012 20:28:12][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:ELEMENT inserted
+[12-06-2012 20:28:12][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:ELEMENT
+[12-06-2012 20:28:12][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:SEQUENCE
+[12-06-2012 20:28:12][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:COMPLEXTYPE
+[12-06-2012 20:28:12][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:COMPLEXTYPE inserted
+[12-06-2012 20:28:12][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:SEQUENCE inserted
+[12-06-2012 20:28:12][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:ELEMENT inserted
+[12-06-2012 20:28:12][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:ELEMENT
+[12-06-2012 20:28:12][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:SEQUENCE
+[12-06-2012 20:28:12][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:COMPLEXTYPE
+[12-06-2012 20:28:12][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:SCHEMA
+[12-06-2012 20:29:40][127.0.0.1][XmlParserFunctions.php][notice][Logger::__construct] Logger instantiation OK (level:notice, file:logs/xml_lib.log)
+[12-06-2012 20:29:40][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:SCHEMA inserted
+[12-06-2012 20:29:40][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:ELEMENT inserted
+[12-06-2012 20:29:40][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:ELEMENT
+[12-06-2012 20:29:40][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:COMPLEXTYPE inserted
+[12-06-2012 20:29:40][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:SEQUENCE inserted
+[12-06-2012 20:29:40][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:ELEMENT inserted
+[12-06-2012 20:29:40][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:ELEMENT
+[12-06-2012 20:29:40][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:SEQUENCE
+[12-06-2012 20:29:40][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:COMPLEXTYPE
+[12-06-2012 20:29:40][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:COMPLEXTYPE inserted
+[12-06-2012 20:29:40][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:SEQUENCE inserted
+[12-06-2012 20:29:40][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:ELEMENT inserted
+[12-06-2012 20:29:40][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:ELEMENT
+[12-06-2012 20:29:40][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:SEQUENCE
+[12-06-2012 20:29:40][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:COMPLEXTYPE
+[12-06-2012 20:29:40][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:SCHEMA
+[12-06-2012 20:32:09][127.0.0.1][XmlParserFunctions.php][notice][Logger::__construct] Logger instantiation OK (level:notice, file:logs/xml_lib.log)
+[12-06-2012 20:32:09][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:SCHEMA inserted
+[12-06-2012 20:32:09][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:ELEMENT inserted
+[12-06-2012 20:32:09][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:ELEMENT
+[12-06-2012 20:32:09][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:COMPLEXTYPE inserted
+[12-06-2012 20:32:09][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:SEQUENCE inserted
+[12-06-2012 20:32:09][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:ELEMENT inserted
+[12-06-2012 20:32:09][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:ELEMENT
+[12-06-2012 20:32:09][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:SEQUENCE
+[12-06-2012 20:32:09][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:COMPLEXTYPE
+[12-06-2012 20:32:09][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:COMPLEXTYPE inserted
+[12-06-2012 20:32:09][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:SEQUENCE inserted
+[12-06-2012 20:32:09][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:ELEMENT inserted
+[12-06-2012 20:32:09][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:ELEMENT
+[12-06-2012 20:32:09][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:SEQUENCE
+[12-06-2012 20:32:09][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:COMPLEXTYPE
+[12-06-2012 20:32:09][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:SCHEMA
+[12-06-2012 20:48:52][127.0.0.1][XmlParserFunctions.php][notice][Logger::__construct] Logger instantiation OK (level:notice, file:logs/xml_lib.log)
+[12-06-2012 20:48:52][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:SCHEMA inserted
+[12-06-2012 20:48:52][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:ELEMENT inserted
+[12-06-2012 20:48:52][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:ELEMENT
+[12-06-2012 20:48:52][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:COMPLEXTYPE inserted
+[12-06-2012 20:48:52][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:SEQUENCE inserted
+[12-06-2012 20:48:52][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:ELEMENT inserted
+[12-06-2012 20:48:52][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:ELEMENT
+[12-06-2012 20:48:52][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:SEQUENCE
+[12-06-2012 20:48:52][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:COMPLEXTYPE
+[12-06-2012 20:48:52][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:COMPLEXTYPE inserted
+[12-06-2012 20:48:52][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:SEQUENCE inserted
+[12-06-2012 20:48:52][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:ELEMENT inserted
+[12-06-2012 20:48:52][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:ELEMENT
+[12-06-2012 20:48:52][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:SEQUENCE
+[12-06-2012 20:48:52][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:COMPLEXTYPE
+[12-06-2012 20:48:52][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:SCHEMA
+[12-06-2012 20:48:54][127.0.0.1][XmlParserFunctions.php][notice][Logger::__construct] Logger instantiation OK (level:notice, file:logs/xml_lib.log)
+[12-06-2012 20:48:54][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:SCHEMA inserted
+[12-06-2012 20:48:54][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:ELEMENT inserted
+[12-06-2012 20:48:54][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:ELEMENT
+[12-06-2012 20:48:54][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:COMPLEXTYPE inserted
+[12-06-2012 20:48:54][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:SEQUENCE inserted
+[12-06-2012 20:48:54][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:ELEMENT inserted
+[12-06-2012 20:48:54][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:ELEMENT
+[12-06-2012 20:48:54][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:SEQUENCE
+[12-06-2012 20:48:54][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:COMPLEXTYPE
+[12-06-2012 20:48:54][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:COMPLEXTYPE inserted
+[12-06-2012 20:48:54][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:SEQUENCE inserted
+[12-06-2012 20:48:54][127.0.0.1][XmlParserFunctions.php][debug][start] New element XSD:ELEMENT inserted
+[12-06-2012 20:48:54][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:ELEMENT
+[12-06-2012 20:48:54][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:SEQUENCE
+[12-06-2012 20:48:54][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:COMPLEXTYPE
+[12-06-2012 20:48:54][127.0.0.1][XmlParserFunctions.php][debug][stop] End reading XSD:SCHEMA

@@ -1,0 +1,248 @@
+[12-05-2012 21:19:23][127.0.0.1][XsdParser.php][notice][Logger::__construct] Logger instantiation OK (level:notice, file:logs/parser.log)
+[12-05-2012 21:19:23][127.0.0.1][XsdParser.php][debug][XsdParser::__construct] Parser created for file resources/files/demo.xsd
+[12-05-2012 21:19:23][127.0.0.1][XsdParser.php][debug][XsdParser::parse] resources/files/demo.xsd will be read...
+[12-05-2012 21:19:23][127.0.0.1][XsdParser.php][debug][XsdParser::parse] resources/files/demo.xsd has been read and its content is stored in the tree
+[12-05-2012 21:19:23][127.0.0.1][XsdParser.php][debug][XsdParser::__construct] Namespace HDF5 registered
+[12-05-2012 21:19:23][127.0.0.1][XsdParser.php][debug][XsdParser::__construct] Namespace XSD registered as the default namespace
+[12-05-2012 21:19:23][127.0.0.1][XsdParser.php][debug][XsdParser::buildTree] One root element found with ID 1
+[12-05-2012 21:19:23][127.0.0.1][XsdParser.php][notice][XsdParser::getXmlFormTree] Function called
+[12-05-2012 21:47:14][127.0.0.1][XsdParser.php][notice][Logger::__construct] Logger instantiation OK (level:notice, file:logs/parser.log)
+[12-05-2012 21:47:14][127.0.0.1][XsdParser.php][debug][XsdParser::__construct] Parser created for file resources/files/demo.xsd
+[12-05-2012 21:47:14][127.0.0.1][XsdParser.php][debug][XsdParser::parse] resources/files/demo.xsd will be read...
+[12-05-2012 21:47:14][127.0.0.1][XsdParser.php][debug][XsdParser::parse] resources/files/demo.xsd has been read and its content is stored in the tree
+[12-05-2012 21:47:14][127.0.0.1][XsdParser.php][debug][XsdParser::__construct] Namespace HDF5 registered
+[12-05-2012 21:47:14][127.0.0.1][XsdParser.php][debug][XsdParser::__construct] Namespace XSD registered as the default namespace
+[12-05-2012 21:47:14][127.0.0.1][XsdParser.php][debug][XsdParser::buildTree] One root element found with ID 1
+[12-05-2012 21:47:14][127.0.0.1][XsdParser.php][notice][XsdParser::getXmlFormTree] Function called
+[12-05-2012 22:00:35][127.0.0.1][XsdParser.php][notice][Logger::__construct] Logger instantiation OK (level:notice, file:logs/parser.log)
+[12-05-2012 22:00:35][127.0.0.1][XsdParser.php][debug][XsdParser::__construct] Parser created for file resources/files/demo.xsd
+[12-05-2012 22:00:35][127.0.0.1][XsdParser.php][debug][XsdParser::parse] resources/files/demo.xsd will be read...
+[12-05-2012 22:00:35][127.0.0.1][XsdParser.php][debug][XsdParser::parse] resources/files/demo.xsd has been read and its content is stored in the tree
+[12-05-2012 22:00:35][127.0.0.1][XsdParser.php][debug][XsdParser::__construct] Namespace HDF5 registered
+[12-05-2012 22:00:35][127.0.0.1][XsdParser.php][debug][XsdParser::__construct] Namespace XSD registered as the default namespace
+[12-05-2012 22:00:35][127.0.0.1][XsdParser.php][debug][XsdParser::buildTree] One root element found with ID 1
+[12-05-2012 22:00:35][127.0.0.1][XsdParser.php][notice][XsdParser::getXmlFormTree] Function called
+[12-05-2012 22:02:25][127.0.0.1][XsdParser.php][notice][Logger::__construct] Logger instantiation OK (level:notice, file:C:\Users\pnd\Documents\Workspaces\aptana\XsdParserImplementation/logs/parser.log)
+[12-05-2012 22:02:25][127.0.0.1][XsdParser.php][debug][XsdParser::__construct] Parser created for file resources/files/demo.xsd
+[12-05-2012 22:02:25][127.0.0.1][XsdParser.php][debug][XsdParser::parse] resources/files/demo.xsd will be read...
+[12-05-2012 22:02:25][127.0.0.1][XsdParser.php][debug][XsdParser::parse] resources/files/demo.xsd has been read and its content is stored in the tree
+[12-05-2012 22:02:25][127.0.0.1][XsdParser.php][debug][XsdParser::__construct] Namespace HDF5 registered
+[12-05-2012 22:02:25][127.0.0.1][XsdParser.php][debug][XsdParser::__construct] Namespace XSD registered as the default namespace
+[12-05-2012 22:02:25][127.0.0.1][XsdParser.php][debug][XsdParser::buildTree] One root element found with ID 1
+[12-05-2012 22:02:25][127.0.0.1][XsdParser.php][notice][XsdParser::getXmlFormTree] Function called
+[12-05-2012 22:03:03][127.0.0.1][XsdParser.php][notice][Logger::__construct] Logger instantiation OK (level:notice, file:C:\Users\pnd\Documents\Workspaces\aptana\XsdParserImplementation/logs/parser.log)
+[12-05-2012 22:03:03][127.0.0.1][XsdParser.php][debug][XsdParser::__construct] Parser created for file resources/files/demo.xsd
+[12-05-2012 22:03:03][127.0.0.1][XsdParser.php][debug][XsdParser::parse] resources/files/demo.xsd will be read...
+[12-05-2012 22:03:03][127.0.0.1][XsdParser.php][debug][XsdParser::parse] resources/files/demo.xsd has been read and its content is stored in the tree
+[12-05-2012 22:03:03][127.0.0.1][XsdParser.php][debug][XsdParser::__construct] Namespace HDF5 registered
+[12-05-2012 22:03:03][127.0.0.1][XsdParser.php][debug][XsdParser::__construct] Namespace XSD registered as the default namespace
+[12-05-2012 22:03:03][127.0.0.1][XsdParser.php][debug][XsdParser::buildTree] One root element found with ID 1
+[12-05-2012 22:03:03][127.0.0.1][XsdParser.php][notice][XsdParser::getXmlFormTree] Function called
+[12-06-2012 19:55:11][127.0.0.1][XsdParser.php][notice][Logger::__construct] Logger instantiation OK (level:notice, file:C:\Users\pnd\Documents\Workspaces\aptana\XsdParserImplementation/logs/parser.log)
+[12-06-2012 19:55:11][127.0.0.1][XsdParser.php][debug][XsdParser::__construct] Parser created for file resources/files/demo.xsd
+[12-06-2012 19:55:11][127.0.0.1][XsdParser.php][debug][XsdParser::parse] resources/files/demo.xsd will be read...
+[12-06-2012 19:55:11][127.0.0.1][XsdParser.php][debug][XsdParser::parse] resources/files/demo.xsd has been read and its content is stored in the tree
+[12-06-2012 19:55:11][127.0.0.1][XsdParser.php][debug][XsdParser::__construct] Namespace HDF5 registered
+[12-06-2012 19:55:11][127.0.0.1][XsdParser.php][debug][XsdParser::__construct] Namespace XSD registered as the default namespace
+[12-06-2012 19:55:11][127.0.0.1][XsdParser.php][debug][XsdParser::buildTree] One root element found with ID 1
+[12-06-2012 19:55:11][127.0.0.1][XsdParser.php][notice][XsdParser::getXmlFormTree] Function called
+[12-06-2012 19:55:11][127.0.0.1][XsdParser.php][notice][Logger::__construct] Logger instantiation OK (level:notice, file:C:\Users\pnd\Documents\Workspaces\aptana\XsdParserImplementation/logs/parser.log)
+[12-06-2012 19:55:11][127.0.0.1][XsdParser.php][debug][XsdParser::__construct] Parser created for file resources/files/demo.xsd
+[12-06-2012 19:55:11][127.0.0.1][XsdParser.php][debug][XsdParser::parse] resources/files/demo.xsd will be read...
+[12-06-2012 19:55:11][127.0.0.1][XsdParser.php][debug][XsdParser::parse] resources/files/demo.xsd has been read and its content is stored in the tree
+[12-06-2012 19:55:11][127.0.0.1][XsdParser.php][debug][XsdParser::__construct] Namespace HDF5 registered
+[12-06-2012 19:55:11][127.0.0.1][XsdParser.php][debug][XsdParser::__construct] Namespace XSD registered as the default namespace
+[12-06-2012 19:55:11][127.0.0.1][XsdParser.php][debug][XsdParser::buildTree] One root element found with ID 1
+[12-06-2012 19:55:11][127.0.0.1][XsdParser.php][notice][XsdParser::getXmlFormTree] Function called
+[12-06-2012 19:56:07][127.0.0.1][XsdParser.php][notice][Logger::__construct] Logger instantiation OK (level:notice, file:C:\Users\pnd\Documents\Workspaces\aptana\XsdParserImplementation/logs/parser.log)
+[12-06-2012 19:56:07][127.0.0.1][XsdParser.php][debug][XsdParser::__construct] Parser created for file resources/files/demo.xsd
+[12-06-2012 19:56:07][127.0.0.1][XsdParser.php][debug][XsdParser::parse] resources/files/demo.xsd will be read...
+[12-06-2012 19:56:07][127.0.0.1][XsdParser.php][debug][XsdParser::parse] resources/files/demo.xsd has been read and its content is stored in the tree
+[12-06-2012 19:56:07][127.0.0.1][XsdParser.php][debug][XsdParser::__construct] Namespace HDF5 registered
+[12-06-2012 19:56:07][127.0.0.1][XsdParser.php][debug][XsdParser::__construct] Namespace XSD registered as the default namespace
+[12-06-2012 19:56:07][127.0.0.1][XsdParser.php][debug][XsdParser::buildTree] One root element found with ID 1
+[12-06-2012 19:56:07][127.0.0.1][XsdParser.php][notice][XsdParser::getXmlFormTree] Function called
+[12-06-2012 19:56:10][127.0.0.1][XsdParser.php][notice][Logger::__construct] Logger instantiation OK (level:notice, file:C:\Users\pnd\Documents\Workspaces\aptana\XsdParserImplementation/logs/parser.log)
+[12-06-2012 19:56:10][127.0.0.1][XsdParser.php][debug][XsdParser::__construct] Parser created for file resources/files/demo.xsd
+[12-06-2012 19:56:10][127.0.0.1][XsdParser.php][debug][XsdParser::parse] resources/files/demo.xsd will be read...
+[12-06-2012 19:56:10][127.0.0.1][XsdParser.php][debug][XsdParser::parse] resources/files/demo.xsd has been read and its content is stored in the tree
+[12-06-2012 19:56:10][127.0.0.1][XsdParser.php][debug][XsdParser::__construct] Namespace HDF5 registered
+[12-06-2012 19:56:10][127.0.0.1][XsdParser.php][debug][XsdParser::__construct] Namespace XSD registered as the default namespace
+[12-06-2012 19:56:10][127.0.0.1][XsdParser.php][debug][XsdParser::buildTree] One root element found with ID 1
+[12-06-2012 19:56:10][127.0.0.1][XsdParser.php][notice][XsdParser::getXmlFormTree] Function called
+[12-06-2012 19:56:10][127.0.0.1][XsdParser.php][notice][Logger::__construct] Logger instantiation OK (level:notice, file:C:\Users\pnd\Documents\Workspaces\aptana\XsdParserImplementation/logs/parser.log)
+[12-06-2012 19:56:10][127.0.0.1][XsdParser.php][debug][XsdParser::__construct] Parser created for file resources/files/demo.xsd
+[12-06-2012 19:56:10][127.0.0.1][XsdParser.php][debug][XsdParser::parse] resources/files/demo.xsd will be read...
+[12-06-2012 19:56:10][127.0.0.1][XsdParser.php][debug][XsdParser::parse] resources/files/demo.xsd has been read and its content is stored in the tree
+[12-06-2012 19:56:10][127.0.0.1][XsdParser.php][debug][XsdParser::__construct] Namespace HDF5 registered
+[12-06-2012 19:56:10][127.0.0.1][XsdParser.php][debug][XsdParser::__construct] Namespace XSD registered as the default namespace
+[12-06-2012 19:56:10][127.0.0.1][XsdParser.php][debug][XsdParser::buildTree] One root element found with ID 1
+[12-06-2012 19:56:10][127.0.0.1][XsdParser.php][notice][XsdParser::getXmlFormTree] Function called
+[12-06-2012 19:56:10][127.0.0.1][XsdParser.php][notice][Logger::__construct] Logger instantiation OK (level:notice, file:C:\Users\pnd\Documents\Workspaces\aptana\XsdParserImplementation/logs/parser.log)
+[12-06-2012 19:56:10][127.0.0.1][XsdParser.php][debug][XsdParser::__construct] Parser created for file resources/files/demo.xsd
+[12-06-2012 19:56:10][127.0.0.1][XsdParser.php][debug][XsdParser::parse] resources/files/demo.xsd will be read...
+[12-06-2012 19:56:10][127.0.0.1][XsdParser.php][debug][XsdParser::parse] resources/files/demo.xsd has been read and its content is stored in the tree
+[12-06-2012 19:56:10][127.0.0.1][XsdParser.php][debug][XsdParser::__construct] Namespace HDF5 registered
+[12-06-2012 19:56:10][127.0.0.1][XsdParser.php][debug][XsdParser::__construct] Namespace XSD registered as the default namespace
+[12-06-2012 19:56:10][127.0.0.1][XsdParser.php][debug][XsdParser::buildTree] One root element found with ID 1
+[12-06-2012 19:56:10][127.0.0.1][XsdParser.php][notice][XsdParser::getXmlFormTree] Function called
+[12-06-2012 19:56:12][127.0.0.1][XsdParser.php][notice][Logger::__construct] Logger instantiation OK (level:notice, file:C:\Users\pnd\Documents\Workspaces\aptana\XsdParserImplementation/logs/parser.log)
+[12-06-2012 19:56:12][127.0.0.1][XsdParser.php][debug][XsdParser::__construct] Parser created for file resources/files/demo.xsd
+[12-06-2012 19:56:12][127.0.0.1][XsdParser.php][debug][XsdParser::parse] resources/files/demo.xsd will be read...
+[12-06-2012 19:56:12][127.0.0.1][XsdParser.php][debug][XsdParser::parse] resources/files/demo.xsd has been read and its content is stored in the tree
+[12-06-2012 19:56:12][127.0.0.1][XsdParser.php][debug][XsdParser::__construct] Namespace HDF5 registered
+[12-06-2012 19:56:12][127.0.0.1][XsdParser.php][debug][XsdParser::__construct] Namespace XSD registered as the default namespace
+[12-06-2012 19:56:12][127.0.0.1][XsdParser.php][debug][XsdParser::buildTree] One root element found with ID 1
+[12-06-2012 19:56:12][127.0.0.1][XsdParser.php][notice][XsdParser::getXmlFormTree] Function called
+[12-06-2012 19:56:13][127.0.0.1][XsdParser.php][notice][Logger::__construct] Logger instantiation OK (level:notice, file:C:\Users\pnd\Documents\Workspaces\aptana\XsdParserImplementation/logs/parser.log)
+[12-06-2012 19:56:13][127.0.0.1][XsdParser.php][debug][XsdParser::__construct] Parser created for file resources/files/demo.xsd
+[12-06-2012 19:56:13][127.0.0.1][XsdParser.php][debug][XsdParser::parse] resources/files/demo.xsd will be read...
+[12-06-2012 19:56:13][127.0.0.1][XsdParser.php][debug][XsdParser::parse] resources/files/demo.xsd has been read and its content is stored in the tree
+[12-06-2012 19:56:13][127.0.0.1][XsdParser.php][debug][XsdParser::__construct] Namespace HDF5 registered
+[12-06-2012 19:56:13][127.0.0.1][XsdParser.php][debug][XsdParser::__construct] Namespace XSD registered as the default namespace
+[12-06-2012 19:56:13][127.0.0.1][XsdParser.php][debug][XsdParser::buildTree] One root element found with ID 1
+[12-06-2012 19:56:13][127.0.0.1][XsdParser.php][notice][XsdParser::getXmlFormTree] Function called
+[12-06-2012 19:56:14][127.0.0.1][XsdParser.php][notice][Logger::__construct] Logger instantiation OK (level:notice, file:C:\Users\pnd\Documents\Workspaces\aptana\XsdParserImplementation/logs/parser.log)
+[12-06-2012 19:56:14][127.0.0.1][XsdParser.php][debug][XsdParser::__construct] Parser created for file resources/files/demo.xsd
+[12-06-2012 19:56:14][127.0.0.1][XsdParser.php][debug][XsdParser::parse] resources/files/demo.xsd will be read...
+[12-06-2012 19:56:14][127.0.0.1][XsdParser.php][debug][XsdParser::parse] resources/files/demo.xsd has been read and its content is stored in the tree
+[12-06-2012 19:56:14][127.0.0.1][XsdParser.php][debug][XsdParser::__construct] Namespace HDF5 registered
+[12-06-2012 19:56:14][127.0.0.1][XsdParser.php][debug][XsdParser::__construct] Namespace XSD registered as the default namespace
+[12-06-2012 19:56:14][127.0.0.1][XsdParser.php][debug][XsdParser::buildTree] One root element found with ID 1
+[12-06-2012 19:56:14][127.0.0.1][XsdParser.php][notice][XsdParser::getXmlFormTree] Function called
+[12-06-2012 19:56:14][127.0.0.1][XsdParser.php][notice][Logger::__construct] Logger instantiation OK (level:notice, file:C:\Users\pnd\Documents\Workspaces\aptana\XsdParserImplementation/logs/parser.log)
+[12-06-2012 19:56:14][127.0.0.1][XsdParser.php][debug][XsdParser::__construct] Parser created for file resources/files/demo.xsd
+[12-06-2012 19:56:14][127.0.0.1][XsdParser.php][debug][XsdParser::parse] resources/files/demo.xsd will be read...
+[12-06-2012 19:56:14][127.0.0.1][XsdParser.php][debug][XsdParser::parse] resources/files/demo.xsd has been read and its content is stored in the tree
+[12-06-2012 19:56:14][127.0.0.1][XsdParser.php][debug][XsdParser::__construct] Namespace HDF5 registered
+[12-06-2012 19:56:14][127.0.0.1][XsdParser.php][debug][XsdParser::__construct] Namespace XSD registered as the default namespace
+[12-06-2012 19:56:14][127.0.0.1][XsdParser.php][debug][XsdParser::buildTree] One root element found with ID 1
+[12-06-2012 19:56:14][127.0.0.1][XsdParser.php][notice][XsdParser::getXmlFormTree] Function called
+[12-06-2012 19:56:15][127.0.0.1][XsdParser.php][notice][Logger::__construct] Logger instantiation OK (level:notice, file:C:\Users\pnd\Documents\Workspaces\aptana\XsdParserImplementation/logs/parser.log)
+[12-06-2012 19:56:15][127.0.0.1][XsdParser.php][debug][XsdParser::__construct] Parser created for file resources/files/demo.xsd
+[12-06-2012 19:56:15][127.0.0.1][XsdParser.php][debug][XsdParser::parse] resources/files/demo.xsd will be read...
+[12-06-2012 19:56:15][127.0.0.1][XsdParser.php][debug][XsdParser::parse] resources/files/demo.xsd has been read and its content is stored in the tree
+[12-06-2012 19:56:15][127.0.0.1][XsdParser.php][debug][XsdParser::__construct] Namespace HDF5 registered
+[12-06-2012 19:56:15][127.0.0.1][XsdParser.php][debug][XsdParser::__construct] Namespace XSD registered as the default namespace
+[12-06-2012 19:56:15][127.0.0.1][XsdParser.php][debug][XsdParser::buildTree] One root element found with ID 1
+[12-06-2012 19:56:15][127.0.0.1][XsdParser.php][notice][XsdParser::getXmlFormTree] Function called
+[12-06-2012 19:56:15][127.0.0.1][XsdParser.php][notice][Logger::__construct] Logger instantiation OK (level:notice, file:C:\Users\pnd\Documents\Workspaces\aptana\XsdParserImplementation/logs/parser.log)
+[12-06-2012 19:56:15][127.0.0.1][XsdParser.php][debug][XsdParser::__construct] Parser created for file resources/files/demo.xsd
+[12-06-2012 19:56:15][127.0.0.1][XsdParser.php][debug][XsdParser::parse] resources/files/demo.xsd will be read...
+[12-06-2012 19:56:15][127.0.0.1][XsdParser.php][debug][XsdParser::parse] resources/files/demo.xsd has been read and its content is stored in the tree
+[12-06-2012 19:56:15][127.0.0.1][XsdParser.php][debug][XsdParser::__construct] Namespace HDF5 registered
+[12-06-2012 19:56:15][127.0.0.1][XsdParser.php][debug][XsdParser::__construct] Namespace XSD registered as the default namespace
+[12-06-2012 19:56:15][127.0.0.1][XsdParser.php][debug][XsdParser::buildTree] One root element found with ID 1
+[12-06-2012 19:56:15][127.0.0.1][XsdParser.php][notice][XsdParser::getXmlFormTree] Function called
+[12-06-2012 19:56:16][127.0.0.1][XsdParser.php][notice][Logger::__construct] Logger instantiation OK (level:notice, file:C:\Users\pnd\Documents\Workspaces\aptana\XsdParserImplementation/logs/parser.log)
+[12-06-2012 19:56:16][127.0.0.1][XsdParser.php][debug][XsdParser::__construct] Parser created for file resources/files/demo.xsd
+[12-06-2012 19:56:16][127.0.0.1][XsdParser.php][debug][XsdParser::parse] resources/files/demo.xsd will be read...
+[12-06-2012 19:56:16][127.0.0.1][XsdParser.php][debug][XsdParser::parse] resources/files/demo.xsd has been read and its content is stored in the tree
+[12-06-2012 19:56:16][127.0.0.1][XsdParser.php][debug][XsdParser::__construct] Namespace HDF5 registered
+[12-06-2012 19:56:16][127.0.0.1][XsdParser.php][debug][XsdParser::__construct] Namespace XSD registered as the default namespace
+[12-06-2012 19:56:16][127.0.0.1][XsdParser.php][debug][XsdParser::buildTree] One root element found with ID 1
+[12-06-2012 19:56:16][127.0.0.1][XsdParser.php][notice][XsdParser::getXmlFormTree] Function called
+[12-06-2012 19:56:21][127.0.0.1][XsdParser.php][notice][Logger::__construct] Logger instantiation OK (level:notice, file:C:\Users\pnd\Documents\Workspaces\aptana\XsdParserImplementation/logs/parser.log)
+[12-06-2012 19:56:21][127.0.0.1][XsdParser.php][debug][XsdParser::__construct] Parser created for file resources/files/demo.xsd
+[12-06-2012 19:56:21][127.0.0.1][XsdParser.php][debug][XsdParser::parse] resources/files/demo.xsd will be read...
+[12-06-2012 19:56:21][127.0.0.1][XsdParser.php][debug][XsdParser::parse] resources/files/demo.xsd has been read and its content is stored in the tree
+[12-06-2012 19:56:21][127.0.0.1][XsdParser.php][debug][XsdParser::__construct] Namespace HDF5 registered
+[12-06-2012 19:56:21][127.0.0.1][XsdParser.php][debug][XsdParser::__construct] Namespace XSD registered as the default namespace
+[12-06-2012 19:56:21][127.0.0.1][XsdParser.php][debug][XsdParser::buildTree] One root element found with ID 1
+[12-06-2012 19:56:21][127.0.0.1][XsdParser.php][notice][XsdParser::getXmlFormTree] Function called
+[12-06-2012 20:02:53][127.0.0.1][XsdParser.php][notice][Logger::__construct] Logger instantiation OK (level:notice, file:C:\Users\pnd\Documents\Workspaces\aptana\XsdParserImplementation/logs/parser.log)
+[12-06-2012 20:02:53][127.0.0.1][XsdParser.php][debug][XsdParser::__construct] Parser created for file resources/files/demo.xsd
+[12-06-2012 20:02:53][127.0.0.1][XsdParser.php][debug][XsdParser::parse] resources/files/demo.xsd will be read...
+[12-06-2012 20:02:53][127.0.0.1][XsdParser.php][debug][XsdParser::parse] resources/files/demo.xsd has been read and its content is stored in the tree
+[12-06-2012 20:02:53][127.0.0.1][XsdParser.php][debug][XsdParser::__construct] Namespace HDF5 registered
+[12-06-2012 20:02:53][127.0.0.1][XsdParser.php][debug][XsdParser::__construct] Namespace XSD registered as the default namespace
+[12-06-2012 20:02:53][127.0.0.1][XsdParser.php][debug][XsdParser::buildTree] One root element found with ID 1
+[12-06-2012 20:02:53][127.0.0.1][XsdParser.php][notice][XsdParser::getXmlFormTree] Function called
+[12-06-2012 20:03:41][127.0.0.1][XsdParser.php][notice][Logger::__construct] Logger instantiation OK (level:notice, file:C:\Users\pnd\Documents\Workspaces\aptana\XsdParserImplementation/logs/parser.log)
+[12-06-2012 20:03:41][127.0.0.1][XsdParser.php][debug][XsdParser::__construct] Parser created for file resources/files/demo.xsd
+[12-06-2012 20:03:41][127.0.0.1][XsdParser.php][debug][XsdParser::parse] resources/files/demo.xsd will be read...
+[12-06-2012 20:03:41][127.0.0.1][XsdParser.php][debug][XsdParser::parse] resources/files/demo.xsd has been read and its content is stored in the tree
+[12-06-2012 20:03:41][127.0.0.1][XsdParser.php][debug][XsdParser::__construct] Namespace HDF5 registered
+[12-06-2012 20:03:41][127.0.0.1][XsdParser.php][debug][XsdParser::__construct] Namespace XSD registered as the default namespace
+[12-06-2012 20:03:41][127.0.0.1][XsdParser.php][debug][XsdParser::buildTree] One root element found with ID 1
+[12-06-2012 20:03:41][127.0.0.1][XsdParser.php][notice][XsdParser::getXmlFormTree] Function called
+[12-06-2012 20:21:24][127.0.0.1][XsdParser.php][notice][Logger::__construct] Logger instantiation OK (level:notice, file:C:\Users\pnd\Documents\Workspaces\aptana\XsdParserImplementation/logs/parser.log)
+[12-06-2012 20:21:24][127.0.0.1][XsdParser.php][debug][XsdParser::__construct] Parser created for file resources/files/demo.xsd
+[12-06-2012 20:21:24][127.0.0.1][XsdParser.php][debug][XsdParser::parse] resources/files/demo.xsd will be read...
+[12-06-2012 20:21:24][127.0.0.1][XsdParser.php][debug][XsdParser::parse] resources/files/demo.xsd has been read and its content is stored in the tree
+[12-06-2012 20:21:24][127.0.0.1][XsdParser.php][debug][XsdParser::__construct] Namespace HDF5 registered
+[12-06-2012 20:21:24][127.0.0.1][XsdParser.php][debug][XsdParser::__construct] Namespace XSD registered as the default namespace
+[12-06-2012 20:21:24][127.0.0.1][XsdParser.php][debug][XsdParser::buildTree] One root element found with ID 1
+[12-06-2012 20:21:24][127.0.0.1][XsdParser.php][notice][XsdParser::getXmlFormTree] Function called
+[12-06-2012 20:21:33][127.0.0.1][XsdParser.php][notice][Logger::__construct] Logger instantiation OK (level:notice, file:C:\Users\pnd\Documents\Workspaces\aptana\XsdParserImplementation/logs/parser.log)
+[12-06-2012 20:21:33][127.0.0.1][XsdParser.php][debug][XsdParser::__construct] Parser created for file resources/files/demo.xsd
+[12-06-2012 20:21:33][127.0.0.1][XsdParser.php][debug][XsdParser::parse] resources/files/demo.xsd will be read...
+[12-06-2012 20:21:33][127.0.0.1][XsdParser.php][debug][XsdParser::parse] resources/files/demo.xsd has been read and its content is stored in the tree
+[12-06-2012 20:21:33][127.0.0.1][XsdParser.php][debug][XsdParser::__construct] Namespace HDF5 registered
+[12-06-2012 20:21:33][127.0.0.1][XsdParser.php][debug][XsdParser::__construct] Namespace XSD registered as the default namespace
+[12-06-2012 20:21:33][127.0.0.1][XsdParser.php][debug][XsdParser::buildTree] One root element found with ID 1
+[12-06-2012 20:21:33][127.0.0.1][XsdParser.php][notice][XsdParser::getXmlFormTree] Function called
+[12-06-2012 20:22:04][127.0.0.1][XsdParser.php][notice][Logger::__construct] Logger instantiation OK (level:notice, file:C:\Users\pnd\Documents\Workspaces\aptana\XsdParserImplementation/logs/parser.log)
+[12-06-2012 20:22:04][127.0.0.1][XsdParser.php][debug][XsdParser::__construct] Parser created for file resources/files/demo.xsd
+[12-06-2012 20:22:04][127.0.0.1][XsdParser.php][debug][XsdParser::parse] resources/files/demo.xsd will be read...
+[12-06-2012 20:22:04][127.0.0.1][XsdParser.php][debug][XsdParser::parse] resources/files/demo.xsd has been read and its content is stored in the tree
+[12-06-2012 20:22:04][127.0.0.1][XsdParser.php][debug][XsdParser::__construct] Namespace HDF5 registered
+[12-06-2012 20:22:04][127.0.0.1][XsdParser.php][debug][XsdParser::__construct] Namespace XSD registered as the default namespace
+[12-06-2012 20:22:04][127.0.0.1][XsdParser.php][debug][XsdParser::buildTree] One root element found with ID 1
+[12-06-2012 20:22:04][127.0.0.1][XsdParser.php][notice][XsdParser::getXmlFormTree] Function called
+[12-06-2012 20:22:39][127.0.0.1][XsdParser.php][notice][Logger::__construct] Logger instantiation OK (level:notice, file:C:\Users\pnd\Documents\Workspaces\aptana\XsdParserImplementation/logs/parser.log)
+[12-06-2012 20:22:39][127.0.0.1][XsdParser.php][debug][XsdParser::__construct] Parser created for file resources/files/demo.xsd
+[12-06-2012 20:22:39][127.0.0.1][XsdParser.php][debug][XsdParser::parse] resources/files/demo.xsd will be read...
+[12-06-2012 20:22:39][127.0.0.1][XsdParser.php][debug][XsdParser::parse] resources/files/demo.xsd has been read and its content is stored in the tree
+[12-06-2012 20:22:39][127.0.0.1][XsdParser.php][debug][XsdParser::__construct] Namespace HDF5 registered
+[12-06-2012 20:22:39][127.0.0.1][XsdParser.php][debug][XsdParser::__construct] Namespace XSD registered as the default namespace
+[12-06-2012 20:22:39][127.0.0.1][XsdParser.php][debug][XsdParser::buildTree] One root element found with ID 1
+[12-06-2012 20:22:39][127.0.0.1][XsdParser.php][notice][XsdParser::getXmlFormTree] Function called
+[12-06-2012 20:24:07][127.0.0.1][XsdParser.php][notice][Logger::__construct] Logger instantiation OK (level:notice, file:C:\Users\pnd\Documents\Workspaces\aptana\XsdParserImplementation/logs/parser.log)
+[12-06-2012 20:24:07][127.0.0.1][XsdParser.php][debug][XsdParser::__construct] Parser created for file resources/files/demo.xsd
+[12-06-2012 20:24:07][127.0.0.1][XsdParser.php][debug][XsdParser::parse] resources/files/demo.xsd will be read...
+[12-06-2012 20:24:07][127.0.0.1][XsdParser.php][debug][XsdParser::parse] resources/files/demo.xsd has been read and its content is stored in the tree
+[12-06-2012 20:24:07][127.0.0.1][XsdParser.php][debug][XsdParser::__construct] Namespace HDF5 registered
+[12-06-2012 20:24:07][127.0.0.1][XsdParser.php][debug][XsdParser::__construct] Namespace XSD registered as the default namespace
+[12-06-2012 20:24:07][127.0.0.1][XsdParser.php][debug][XsdParser::buildTree] One root element found with ID 1
+[12-06-2012 20:24:07][127.0.0.1][XsdParser.php][notice][XsdParser::getXmlFormTree] Function called
+[12-06-2012 20:28:12][127.0.0.1][XsdParser.php][notice][Logger::__construct] Logger instantiation OK (level:notice, file:C:\Users\pnd\Documents\Workspaces\aptana\XsdParserImplementation/logs/parser.log)
+[12-06-2012 20:28:12][127.0.0.1][XsdParser.php][debug][XsdParser::__construct] Parser created for file resources/files/demo.xsd
+[12-06-2012 20:28:12][127.0.0.1][XsdParser.php][debug][XsdParser::parse] resources/files/demo.xsd will be read...
+[12-06-2012 20:28:12][127.0.0.1][XsdParser.php][debug][XsdParser::parse] resources/files/demo.xsd has been read and its content is stored in the tree
+[12-06-2012 20:28:12][127.0.0.1][XsdParser.php][debug][XsdParser::__construct] Namespace HDF5 registered
+[12-06-2012 20:28:12][127.0.0.1][XsdParser.php][debug][XsdParser::__construct] Namespace XSD registered as the default namespace
+[12-06-2012 20:28:12][127.0.0.1][XsdParser.php][debug][XsdParser::buildTree] One root element found with ID 1
+[12-06-2012 20:28:12][127.0.0.1][XsdParser.php][notice][XsdParser::getXmlFormTree] Function called
+[12-06-2012 20:29:40][127.0.0.1][XsdParser.php][notice][Logger::__construct] Logger instantiation OK (level:notice, file:C:\Users\pnd\Documents\Workspaces\aptana\XsdParserImplementation/logs/parser.log)
+[12-06-2012 20:29:40][127.0.0.1][XsdParser.php][debug][XsdParser::__construct] Parser created for file resources/files/demo.xsd
+[12-06-2012 20:29:40][127.0.0.1][XsdParser.php][debug][XsdParser::parse] resources/files/demo.xsd will be read...
+[12-06-2012 20:29:40][127.0.0.1][XsdParser.php][debug][XsdParser::parse] resources/files/demo.xsd has been read and its content is stored in the tree
+[12-06-2012 20:29:40][127.0.0.1][XsdParser.php][debug][XsdParser::__construct] Namespace HDF5 registered
+[12-06-2012 20:29:40][127.0.0.1][XsdParser.php][debug][XsdParser::__construct] Namespace XSD registered as the default namespace
+[12-06-2012 20:29:40][127.0.0.1][XsdParser.php][debug][XsdParser::buildTree] One root element found with ID 1
+[12-06-2012 20:29:40][127.0.0.1][XsdParser.php][notice][XsdParser::getXmlFormTree] Function called
+[12-06-2012 20:32:09][127.0.0.1][XsdParser.php][notice][Logger::__construct] Logger instantiation OK (level:notice, file:C:\Users\pnd\Documents\Workspaces\aptana\mgi\xml_form_editor\xfe/logs/parser.log)
+[12-06-2012 20:32:09][127.0.0.1][XsdParser.php][debug][XsdParser::__construct] Parser created for file resources/files/demo.xsd
+[12-06-2012 20:32:09][127.0.0.1][XsdParser.php][debug][XsdParser::parse] resources/files/demo.xsd will be read...
+[12-06-2012 20:32:09][127.0.0.1][XsdParser.php][debug][XsdParser::parse] resources/files/demo.xsd has been read and its content is stored in the tree
+[12-06-2012 20:32:09][127.0.0.1][XsdParser.php][debug][XsdParser::__construct] Namespace HDF5 registered
+[12-06-2012 20:32:09][127.0.0.1][XsdParser.php][debug][XsdParser::__construct] Namespace XSD registered as the default namespace
+[12-06-2012 20:32:09][127.0.0.1][XsdParser.php][debug][XsdParser::buildTree] One root element found with ID 1
+[12-06-2012 20:32:09][127.0.0.1][XsdParser.php][notice][XsdParser::getXmlFormTree] Function called
+[12-06-2012 20:48:52][127.0.0.1][XsdParser.php][notice][Logger::__construct] Logger instantiation OK (level:notice, file:C:\Users\pnd\Documents\Workspaces\aptana\mgi\xml_form_editor\xfe/logs/parser.log)
+[12-06-2012 20:48:52][127.0.0.1][XsdParser.php][debug][XsdParser::__construct] Parser created for file resources/files/demo.xsd
+[12-06-2012 20:48:52][127.0.0.1][XsdParser.php][debug][XsdParser::parse] resources/files/demo.xsd will be read...
+[12-06-2012 20:48:52][127.0.0.1][XsdParser.php][debug][XsdParser::parse] resources/files/demo.xsd has been read and its content is stored in the tree
+[12-06-2012 20:48:52][127.0.0.1][XsdParser.php][debug][XsdParser::__construct] Namespace HDF5 registered
+[12-06-2012 20:48:52][127.0.0.1][XsdParser.php][debug][XsdParser::__construct] Namespace XSD registered as the default namespace
+[12-06-2012 20:48:52][127.0.0.1][XsdParser.php][debug][XsdParser::buildTree] One root element found with ID 1
+[12-06-2012 20:48:52][127.0.0.1][XsdParser.php][notice][XsdParser::getXmlFormTree] Function called
+[12-06-2012 20:48:54][127.0.0.1][XsdParser.php][notice][Logger::__construct] Logger instantiation OK (level:notice, file:C:\Users\pnd\Documents\Workspaces\aptana\mgi\xml_form_editor\xfe/logs/parser.log)
+[12-06-2012 20:48:54][127.0.0.1][XsdParser.php][debug][XsdParser::__construct] Parser created for file resources/files/demo.xsd
+[12-06-2012 20:48:54][127.0.0.1][XsdParser.php][debug][XsdParser::parse] resources/files/demo.xsd will be read...
+[12-06-2012 20:48:54][127.0.0.1][XsdParser.php][debug][XsdParser::parse] resources/files/demo.xsd has been read and its content is stored in the tree
+[12-06-2012 20:48:54][127.0.0.1][XsdParser.php][debug][XsdParser::__construct] Namespace HDF5 registered
+[12-06-2012 20:48:54][127.0.0.1][XsdParser.php][debug][XsdParser::__construct] Namespace XSD registered as the default namespace
+[12-06-2012 20:48:54][127.0.0.1][XsdParser.php][debug][XsdParser::buildTree] One root element found with ID 1
+[12-06-2012 20:48:54][127.0.0.1][XsdParser.php][notice][XsdParser::getXmlFormTree] Function called
