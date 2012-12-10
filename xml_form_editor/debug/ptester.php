@@ -5,10 +5,12 @@
 
 	<link rel="stylesheet" type="text/css" href="resources/css/style.css" media="screen" />
 	<link rel="stylesheet" type="text/css" href="resources/css/icons.css" media="screen" />
-	<link rel="stylesheet" type="text/css" href="resources/css/add.css" media="screen" />
+	<link rel="stylesheet" type="text/css" href="resources/css/style.add.css" media="screen" />
 	<link rel="stylesheet" type="text/css" href="resources/css/ptester.css" media="screen" />
+	<link rel="stylesheet" type="text/css" href="resources/css/dialog.css" media="screen" />
 	
 	<link rel="stylesheet" type="text/css" href="http://code.jquery.com/ui/1.9.2/themes/base/jquery-ui.css" />
+	
 	
 	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
 	<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/jquery-ui.min.js"></script>

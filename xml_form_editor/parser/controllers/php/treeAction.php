@@ -8,7 +8,6 @@ require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/view/XsdDisplay
 //todo secure script
 //todo factorize code
 /**
- * todo Implement this structure
  * Return object for the script
  * {"result":(string)html_code or error_message, "code":(int)return_code}
  * 
@@ -66,6 +65,8 @@ if(isset($_GET['action']) && isset($_GET['id']) && isset($_SESSION['xsd_parser']
 	// Create main variable
 	$tree = unserialize($_SESSION['xsd_parser']['tree']);
 	$element = $tree->getObject($_GET['id']);
+	
+	// Check that we actually got an existing element
 	if($element) $elementAttr = $element->getAttributes();
 	else // $tree->getObject() returns null
 	{
@@ -73,6 +74,7 @@ if(isset($_GET['action']) && isset($_GET['id']) && isset($_SESSION['xsd_parser']
 		exit;
 	}
 	
+	// Other variables
 	$parentId = $tree->getParent($_GET['id']);
 	$grandParentId = $tree->getParent($parentId);
 	
@@ -163,15 +165,15 @@ if(isset($_GET['action']) && isset($_GET['id']) && isset($_SESSION['xsd_parser']
 			 */
 			// todo rename removeResult with computationResult 
 			
-			if($minOccurs!=0 && $siblingCount>$minOccurs) $removeResult = $tree->removeElement($_GET['id'], true);
-			else if($minOccurs==0 && $siblingCount>$minOccurs+1) $removeResult = $tree->removeElement($_GET['id'], true);
+			if($minOccurs!=0 && $siblingCount>$minOccurs) $computationResult = $tree->removeElement($_GET['id'], true);
+			else if($minOccurs==0 && $siblingCount>$minOccurs+1) $computationResult = $tree->removeElement($_GET['id'], true);
 			else // minOccurs is reached, no element must be removed but the XsdElement must be updated
 			{
 				$availabilityAttr = array('AVAILABLE'=>false);
-				$removeResult = $tree->getObject($_GET['id'])->addAttributes($availabilityAttr);
+				$computationResult = $tree->getObject($_GET['id'])->addAttributes($availabilityAttr);
 			} 
 			
-			if($removeResult==0)
+			if($computationResult==0)
 			{
 				$htmlCode = htmlspecialchars(displayTree($tree, $grandParentId));
 				echo buildJSON($htmlCode, 0);

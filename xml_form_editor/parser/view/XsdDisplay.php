@@ -106,21 +106,7 @@ class XsdDisplay {
 	{
 		$result = '';
 		
-		$result .= '<div id="dialog" title="Create new user">
-					    <p class="validateTips">All form fields are required.</p>
-					 
-					    <form>
-					    <fieldset>
-					        <label for="name">Name</label>
-					        <input type="text" name="name" id="name" class="text ui-widget-content ui-corner-all" />
-					        <label for="email">Email</label>
-					        <input type="text" name="email" id="email" value="" class="text ui-widget-content ui-corner-all" />
-					        <label for="password">Password</label>
-					        <input type="password" name="password" id="password" value="" class="text ui-widget-content ui-corner-all" />
-					    </fieldset>
-					    </form>
-					</div>';
-		
+		$result .= $this->displayPopUp();
 		$result .= '<ul>';
 		$result .= $this->displayElement(0, self::$STEPS['config']);
 		$result .= '</ul>';
@@ -145,6 +131,54 @@ class XsdDisplay {
 	public function displayXMLTree()
 	{
 		/* Not yet implemented */
+	}
+	
+	private function displayPopUp()
+	{
+		$result = '';
+		
+		$result .= '<div id="dialog" title="">
+						<p class="elementId"></p>
+					    <p class="tip"></p>
+						
+					    <form>
+					    <fieldset class="dialog fieldset">
+					    	<div class="dialog subpart" id="minoccurs-part">
+						        <label for="minoccurs">MinOccurs</label>
+						        <input type="number" name="minoccurs" id="minoccurs" min="0" class="popup-text ui-widget-content ui-corner-all" />
+					        </div>
+					        <div class="dialog subpart" id="maxoccurs-part">
+						        <label for="maxoccurs">MaxOccurs</label>
+						        <input type="number" name="maxoccurs" id="maxoccurs" min="0" class="popup-text ui-widget-content ui-corner-all" />
+						        <span class="dialog subitem">
+						        	<label for="unbounded">Unbounded ?</label>
+						        	<input type="checkbox" id="unbounded" name="unbounded" />
+						        </span>
+					        </div>
+					        <div class="dialog subpart" id="datatype-part">
+						        <label for="datatype">Data-type</label>
+						        <select id="datatype" name="datatype" class="ui-widget-content ui-corner-all">
+						        	<option value="str">String</option>
+						        	<option value="int">Integer</option>
+						        	<option value="dbl">Double</option>
+						        </select>
+					        </div>
+					        <div class="dialog subpart" id="autogen-part">
+						        <label for="autogen">Auto-generate</label>
+						        <select id="autogen" name="autogen" class="ui-widget-content ui-corner-all">
+						        	<option value="true">Enable</option>
+						        	<option value="false">Disable</option>
+						        </select>
+						        <span class="dialog subitem">
+						        	<label for="pattern">Pattern</label>
+						        	<input type="text" name="pattern" id="pattern" value="Not yet implemented" class="popup-text ui-widget-content ui-corner-all" disabled="disabled"/>
+						        </span>
+					        </div>
+					    </fieldset>
+					    </form>
+				    </div>';
+			
+		return $result;
 	}
 	
 	private function displayElement($elementId, $stepId)
@@ -177,9 +211,7 @@ class XsdDisplay {
 			$result .= '</ul>';
 		}
 		
-		// todo change it to be more modular
-		/*if($stepId==self::$STEPS['config'])*/ $result .= '</li>';
-		//else if($stepId==self::$STEPS['html_form']) $result .= '</div></li>';
+		$result .= '</li>';
 		
 		return $result;
 	}
@@ -187,7 +219,7 @@ class XsdDisplay {
 	/**
 	 * 
 	 */
-	private function displayConfigurationElement($elementId)
+	public function displayConfigurationElement($elementId, $withoutList = false)
 	{
 		$element = $this->originalTree->getObject($elementId);
 		$elementAttr = $element->getAttributes();
@@ -195,8 +227,6 @@ class XsdDisplay {
 		
 		// TODO check that the element contains at least what we want...
 		// TODO check the type of element
-		
-		
 		// Function to filter attribute we do not want to display
 		if(!defined("filter_attribute")) // Avoid to redefine the function (i.e. avoid the error)
 		{
@@ -208,10 +238,11 @@ class XsdDisplay {
 				return !in_array($var, $attr_not_disp);
 			}
 		}
-
-		$elementAttrName = array_filter(array_keys($elementAttr), "filter_attribute");		
-
-		$result .= '<li>'.$elementAttr['NAME'];
+		
+		$elementAttrName = array_filter(array_keys($elementAttr), "filter_attribute");
+	
+		if(!$withoutList) $result .= '<li id="'.$elementId.'">';
+		$result .= '<span class="element_name">'.$elementAttr['NAME'].'</span>';
 		
 		// Displays all attributes we want to display
 		$hasAttribute = false;

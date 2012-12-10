@@ -14,6 +14,8 @@
 	<h1>Debugging tools</h1>
 	<ul>
 		<li><a href="ptester">Parser implementation tester</a></li>
+		<li><!--a href="ptester"-->Tree tester<!--/a--></li>
+		<li><!--a href="ptester"-->XsdElement tester<!--/a--></li>
 		<li><!--a href="ptester"-->Session variable explorer<!--/a--></li>
 	</ul>
 </body>
