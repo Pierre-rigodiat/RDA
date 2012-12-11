@@ -1,3 +1,6 @@
+<?php
+	session_start();
+?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -18,6 +21,7 @@
 	<script src="parser/controllers/js/addRemove.js"></script>
 	<script src="parser/controllers/js/edit.js"></script>
 	<script src="resources/js/php.js"></script>
+	<script src="resources/js/ptester.js"></script>
 	
 	<title>Parser Impl Tester</title>
 </head>
@@ -38,7 +42,7 @@
 		displayConfiguration();
 	?>
 	<hr/>
-	<h2>HTML Form View</h2>
+	<h2>HTML Form View <span class="icon refresh"></span></h2>
 	<?php
 		displayHTMLForm();
 	?>

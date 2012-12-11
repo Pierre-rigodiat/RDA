@@ -1,5 +1,10 @@
 <?php
-session_start();
+if(session_id()=='') // If the session has not been started, it is impossible to play with the parser
+{
+	echo '<div class="error">A session must be started to use the parser</div>';
+	exit;	
+}
+
 require_once dirname(__FILE__).'/parser.conf.php';
 
 require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/core/XsdParser.php';

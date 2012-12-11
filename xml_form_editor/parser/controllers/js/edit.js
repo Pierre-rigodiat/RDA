@@ -85,7 +85,7 @@ editElement = function()
 	/*
 	 * Datatype configuration
 	 */
-	if(elementAttr.indexOf('TYPE')==-1)
+	if((typeIndex = elementAttr.indexOf('TYPE'))==-1)
 	{
 		$('#datatype-part').hide();
 		$('#autogen-part').hide();
@@ -96,6 +96,13 @@ editElement = function()
 	{
 		$('#datatype-part').show();
 		$('#autogen-part').show();
+		
+		// Set the data type value
+		var dataTypeValue = elementAttr.substring(typeIndex+5);
+		var separatorIndex = dataTypeValue.indexOf(' |');
+		if(separatorIndex!=-1) dataTypeValue = dataTypeValue.substring(0, separatorIndex);
+		
+		$('#datatype').val(dataTypeValue);
 		
 		$("#dialog").dialog( "option", "height", 330 );
 	}
@@ -143,6 +150,14 @@ editElement = function()
 		{
 			$('#maxoccurs').val(maxValue);
 		}
+	}
+	
+	/*
+	 * Auto-generate configuration
+	 */
+	if(elementAttr.indexOf('AUTO_GENERATE')==-1)
+	{
+		$('#autogen').val('false');
 	}
 	
 	// Opens the dialog

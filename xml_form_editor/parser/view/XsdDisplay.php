@@ -158,9 +158,9 @@ class XsdDisplay {
 					        <div class="dialog subpart" id="datatype-part">
 						        <label for="datatype">Data-type</label>
 						        <select id="datatype" name="datatype" class="ui-widget-content ui-corner-all">
-						        	<option value="str">String</option>
-						        	<option value="int">Integer</option>
-						        	<option value="dbl">Double</option>
+						        	<option value="string">String</option>
+						        	<option value="integer">Integer</option>
+						        	<option value="double">Double</option>
 						        </select>
 					        </div>
 					        <div class="dialog subpart" id="autogen-part">

@@ -1,4 +1,6 @@
 <?php
+session_start();
+require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/lib/PhpControllersFunctions.php';
 /**
  * 
  *	Return code:
@@ -6,8 +8,8 @@
  * 	* 1 OK, do not rewrite attributes
  * 	* n (n<0) An error occured
  */
-session_start();
-require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/lib/PhpControllersFunctions.php';
+//TODO Avoid to directly use 'xsd' into the code
+
 
 if(isset($_GET['id']) && isset($_GET['minOccurs']) && isset($_GET['maxOccurs']))
 {
@@ -28,18 +30,30 @@ if(isset($_GET['id']) && isset($_GET['minOccurs']) && isset($_GET['maxOccurs']))
 	if(!isset($elementAttr['MAXOCCURS'])) $maxOccurs = 1;
 	else $maxOccurs = $elementAttr['MAXOCCURS'];
 	
+	if(!isset($elementAttr['TYPE'])) $dataType = null;
+	else $dataType = $elementAttr['TYPE'];
+	
+	if(!isset($elementAttr['AUTO_GENERATE'])) $autoGen = null;
+	else $autoGen = $elementAttr['AUTO_GENERATE'];
+	
 	if($_GET['maxOccurs']==-1) $_GET['maxOccurs'] = "unbounded";
 	
 	// Determine wether or not we have to rewrite the attributes
 	$hasAttrChanged = false;
 	if($_GET['minOccurs']!=$minOccurs) $hasAttrChanged=true;
 	if(!$hasAttrChanged && $_GET['maxOccurs']!=$maxOccurs) $hasAttrChanged=true;
-	
+	if(!$hasAttrChanged && isset($_GET['dataType']) && 'xsd:'.$_GET['dataType']!=$dataType) $hasAttrChanged=true;
+	if(!$hasAttrChanged && isset($_GET['autoGen']) && $_GET['autoGen']!=$autoGen) $hasAttrChanged=true; //TODO Use autogenerate with the pattern like $attr['AUTO_GENERATE']=$pattern
 	
 	if($hasAttrChanged)
 	{
 		$elementAttr['MINOCCURS'] = $_GET['minOccurs'];
 		$elementAttr['MAXOCCURS'] = $_GET['maxOccurs'];
+		
+		if(isset($_GET['dataType'])) $elementAttr['TYPE'] = 'xsd:'.$_GET['dataType'];
+		if(isset($_GET['autoGen']) /*&& isset($_GET['pattern'])*/) $elementAttr['AUTO_GENERATE'] = $_GET['autoGen'];
+		
+		if($elementAttr['AUTO_GENERATE']=='false') unset($elementAttr['AUTO_GENERATE']);
 		
 		$tree->getObject($_GET['id'])->setAttributes($elementAttr);
 		$_SESSION['xsd_parser']['tree'] = serialize($tree);
