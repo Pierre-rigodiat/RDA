@@ -21,37 +21,54 @@ function loadSchema($schemaFilename)
 	
 	$parser->buildTree($rootElementsArray[0]);
 		
+	$_SESSION['xsd_parser']['parser'] = serialize($parser);
+	
 	$tree = $parser->getXmlFormTree();
 	$_SESSION['xsd_parser']['tree'] = serialize($tree);
 	
-	$display = new XsdDisplay($tree, $debug);
-	$_SESSION['xsd_parser']['display'] = serialize($display);
+	/*$display = new XsdDisplay($tree, $debug);
+	$_SESSION['xsd_parser']['display'] = serialize($display);*/
 }
 
+function computeMinOccurs()
+{
+	if(isset($_SESSION['xsd_parser']['parser']))
+	{
+		$parser = unserialize($_SESSION['xsd_parser']['parser']);
+		$parser->computeMinOccurs();
+		
+		$tree = $parser->getXmlFormTree();
+		$_SESSION['xsd_parser']['tree'] = serialize($tree);
+		
+		$_SESSION['xsd_parser']['parser'] = serialize($parser);
+	}
+}
 
 function displayConfiguration()
 {
-	if(isset($_SESSION['xsd_parser']['display']))
+	if(isset($_SESSION['xsd_parser']['tree']))
 	{
-		$display = unserialize($_SESSION['xsd_parser']['display']);
+		$display = new XsdDisplay(unserialize($_SESSION['xsd_parser']['tree']), true); // todo use the variable for debug
 		echo $display->displayConfiguration();
 	}
 }
 
 function displayHTMLForm()
 {
-	if(isset($_SESSION['xsd_parser']['display']))
+	if(isset($_SESSION['xsd_parser']['tree']))
 	{
-		$display = unserialize($_SESSION['xsd_parser']['display']);
+		computeMinOccurs();
+		$display = new XsdDisplay(unserialize($_SESSION['xsd_parser']['tree']), true); // todo use the variable for debug
+		
 		echo $display->displayHTMLForm();
 	}
 }
 
 function displayXmlTree()
 {
-	if(isset($_SESSION['xsd_parser']['display']))
+	if(isset($_SESSION['xsd_parser']['tree']))
 	{
-		$display = unserialize($_SESSION['xsd_parser']['display']);
+		$display = new XsdDisplay(unserialize($_SESSION['xsd_parser']['tree']), true); // todo use the variable for debug
 		echo $display->displayXMLTree();
 	}
 }

@@ -20,7 +20,8 @@ if(isset($_GET['id']) && isset($_GET['minOccurs']) && isset($_GET['maxOccurs']))
 	if($element) $elementAttr = $element->getAttributes();
 	else 
 	{
-		//todo display an error message
+		echo buildJSON('Element with ID '.$_GET['id'].' does not exist in the current tree', -1);
+		exit;
 	}
 	
 	// Pre-computing to avoid undefined error and such things
@@ -51,9 +52,11 @@ if(isset($_GET['id']) && isset($_GET['minOccurs']) && isset($_GET['maxOccurs']))
 		$elementAttr['MAXOCCURS'] = $_GET['maxOccurs'];
 		
 		if(isset($_GET['dataType'])) $elementAttr['TYPE'] = 'xsd:'.$_GET['dataType'];
-		if(isset($_GET['autoGen']) /*&& isset($_GET['pattern'])*/) $elementAttr['AUTO_GENERATE'] = $_GET['autoGen'];
-		
-		if($elementAttr['AUTO_GENERATE']=='false') unset($elementAttr['AUTO_GENERATE']);
+		if(isset($_GET['autoGen']) /*&& isset($_GET['pattern'])*/)
+		{
+			$elementAttr['AUTO_GENERATE'] = $_GET['autoGen'];
+			if($elementAttr['AUTO_GENERATE']=='false') unset($elementAttr['AUTO_GENERATE']);
+		}
 		
 		$tree->getObject($_GET['id'])->setAttributes($elementAttr);
 		$_SESSION['xsd_parser']['tree'] = serialize($tree);
@@ -63,7 +66,7 @@ if(isset($_GET['id']) && isset($_GET['minOccurs']) && isset($_GET['maxOccurs']))
 	}
 	else
 	{
-		// todo send 1->nothing has to be rewrite
+		echo buildJSON('ID '.$_GET['id'].' does not need to be rewritten', 1);
 	}
 }
 

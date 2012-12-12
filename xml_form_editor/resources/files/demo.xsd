@@ -11,7 +11,7 @@
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
   <xsd:complexType name="Experiment">
     <xsd:sequence>
-      <xsd:element maxOccurs="unbounded" name="experimentType" type="ExperimentType"/>
+      <xsd:element maxOccurs="unbounded" minOccurs="2" name="experimentType" type="ExperimentType"/>
     </xsd:sequence>
   </xsd:complexType>
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
@@ -19,7 +19,7 @@
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
   <xsd:complexType name="ExperimentType">
     <xsd:sequence>
-      <xsd:element maxOccurs="unbounded" minOccurs="0" name="name" type="xsd:string"/>
+      <xsd:element maxOccurs="unbounded" minOccurs="2" name="name" type="xsd:string"/>
       <xsd:element maxOccurs="unbounded" minOccurs="0" name="value" type="xsd:string"/>
     </xsd:sequence>
   </xsd:complexType>

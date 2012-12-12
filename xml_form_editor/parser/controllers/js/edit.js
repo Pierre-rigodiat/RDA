@@ -29,8 +29,8 @@ $(document).ready(function(){
 					pattern = $('#pattern').val();
             	        	            	
             	valid = checkOccurence(parseInt(minOccurs), parseInt(maxOccurs));
-            	console.log(minOccurs+' <= '+maxOccurs+' ? '+valid);
-            	console.log(dataType+' '+autoGen+' '+pattern);
+            	/*console.log(minOccurs+' <= '+maxOccurs+' ? '+valid);
+            	console.log(dataType+' '+autoGen+' '+pattern);*/
             	
             	if(valid)
             	{
@@ -45,7 +45,7 @@ $(document).ready(function(){
             			allFields['pattern'] = pattern;
             		}
             		
-            		console.log(allFields);
+            		//console.log(allFields);
             		saveConfiguration($('.elementId').text(), allFields);
             		  		
             		$( this ).dialog("close");
@@ -203,7 +203,7 @@ clearFormData = function()
 }
 
 /**
- * 
+ *
  */
 saveConfiguration = function(elementId, fieldArray)
 {
@@ -218,7 +218,7 @@ saveConfiguration = function(elementId, fieldArray)
 		if(length>0) qString += '&';
 	}
 	
-	console.log(qString);
+	//console.log(qString);
 	
 	$.ajax({
         url: 'parser/controllers/php/editSchema.php',
@@ -227,16 +227,19 @@ saveConfiguration = function(elementId, fieldArray)
         	var jsonObject = $.parseJSON(data);
         	
         	// Copy the new data inside the current form (after where we clicked)
-        	if(jsonObject.code>=0)
+        	if(jsonObject.code==0)
         	{
-        		$('li#'+elementId).html(htmlspecialchars_decode(jsonObject.result));
-        		/*clickedElement.remove();
-        		clickedElementParent.html(htmlspecialchars_decode(jsonObject.result));
+        		$('li#'+elementId).children().not('ul').remove();
         		
-        		if(jsonObject.code>0) alert('Another object (ID '+jsonObject.code+') is inactive. Please activate it to use the current object');*/
+        		if($('li#'+elementId).children(':first').length!=0) $('li#'+elementId).children(':first').before(htmlspecialchars_decode(jsonObject.result));
+        		else $('li#'+elementId).html(htmlspecialchars_decode(jsonObject.result));
+        		
+        		console.log('[saveConfiguration] Element '+elementId+' successfully modified');
         	}
-        	
-        	console.log('[saveConfiguration] Element '+elementId+' successfully modified');
+        	else if(jsonObject.code<0)
+        	{
+        		console.error('[saveConfiguration] Error '+jsonObject.code+' ('+jsonObject.result+') occured while saving configuration of ID'+elementId);
+        	}
         },
         error: function() {
             console.error("[saveConfiguration] Problem with ID "+elementId);

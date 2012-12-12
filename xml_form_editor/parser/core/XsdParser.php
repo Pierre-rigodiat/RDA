@@ -200,7 +200,7 @@ class XsdParser {
 			$this->insertTreeElement($rootElement);
 			$this->optimizeTree();
 			
-			$this->computeMinOccurs(0);
+			//$this->computeMinOccurs(0);
 		}
 		else
 		{
@@ -339,7 +339,7 @@ class XsdParser {
 		}
 	}
 
-	private function computeMinOccurs($elementId)
+	public function computeMinOccurs($elementId = 0)
 	{
 		$elementObject = $this->xmlFormTree->getObject($elementId);
 		$elementChildren = $this->xmlFormTree->getChildren($elementId);
