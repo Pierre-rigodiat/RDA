@@ -1,6 +1,71 @@
 li
 {
-	margin:7px;
+	/*margin:7px;*/
+}
+
+#main_prop
+{
+	float: left;
+}
+
+#main_prop>.menu
+{
+	/*margin: 5px;
+	margin-bottom: 120px;*/
+	margin-top:3px;
+	padding: 3px;
+	background-color: #f2f2f2;
+	border: 1px solid gray;
+	border-radius: 5px;
+}
+
+#misc_prop
+{
+	text-align:right;
+}
+
+#schema_prop
+{
+	border-bottom: 1px solid black;
+	padding-bottom: 15px;
+	margin-bottom: 7px;
+}
+
+.prop>.fieldname
+{
+	font-weight: bold;
+	text-decoration:underline;
+}
+
+#schema_content
+{
+	margin: 7px;
+	/*padding: 5px;*/
+	/*border: 1px solid gray;
+	max-height: 300px;
+	overflow:auto;
+	background-color: #f2f2f2;*/
+}
+
+#schema_elements
+{
+	margin: 3px;
+	padding: 5px;
+	border: 1px solid gray;
+	max-height: 300px;
+	overflow:auto;
+	background-color: #f2f2f2;
+}
+
+#schema_modules
+{
+	margin: 3px;
+	margin-bottom: 10px;
+}
+
+#schema_modules>.module
+{
+	display: block;
 }
 
 .attr

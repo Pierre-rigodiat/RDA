@@ -9,10 +9,10 @@
 	<link rel="stylesheet" type="text/css" href="resources/css/style.css" media="screen" />
 	<link rel="stylesheet" type="text/css" href="resources/css/icons.css" media="screen" />
 	<link rel="stylesheet" type="text/css" href="resources/css/style.add.css" media="screen" />
-	<link rel="stylesheet" type="text/css" href="resources/css/ptester.css" media="screen" />
 	<link rel="stylesheet" type="text/css" href="resources/css/dialog.css" media="screen" />
 	
 	<link rel="stylesheet" type="text/css" href="http://code.jquery.com/ui/1.9.2/themes/base/jquery-ui.css" />
+	<link rel="stylesheet" type="text/css" href="resources/css/ptester.css" media="screen" />
 	
 	
 	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
@@ -25,11 +25,11 @@
 	
 	<title>Parser Impl Tester</title>
 </head>
-<body>
+<body id="content-wrapper">
 	<?php
 		require_once '../parser/parser.inc.php';
 		
-		$schemaFile = '../resources/files/demo.xsd';
+		$schemaFile = '../resources/files/demo_2.xsd';
 		loadSchema($schemaFile);
 	?>
 	<h1>Parser Implementation Tester</h1>

@@ -23,7 +23,7 @@
 		{
 ?>
 
-<form>
+<!--form>
 	<select id="xsdFile">
 		<?php
 			echo $htmlSelectOptionsString;
@@ -32,21 +32,7 @@
 	
 	<input type="button" class="button" id="loadXsd" value="Load schema" />
 	<input type="button" class="button" id="importXsd" value="Import new schema" />
-</form>
-
-<?php
-	/*echo '<a href=""><<</a> ';
-	echo '<a href=""><</a> ';
-
-	for($i=1; $i<6; $i++)
-	{
-		echo '<a href="">'.$i.'</a> ';
-	}
-
-	echo '<a href="">></a> ';
-	echo '<a href="">>></a> ';*/
-?>
-
+</form-->
 <div id="loadSchemaInfo"></div>
 <?php
 		}

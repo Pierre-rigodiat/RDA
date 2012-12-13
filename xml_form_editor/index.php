@@ -2,6 +2,8 @@
 	session_start();
 	require_once 'inc/global/config.php';
 	
+	// todo load the parser here
+	
 	if(DEBUG) $startTime = (float) array_sum(explode(' ',microtime()));
 ?>
 <!DOCTYPE html>
@@ -22,13 +24,20 @@
 	<meta name="author" content="" />
 	
 	<link rel="stylesheet" type="text/css" href="resources/css/style.css" media="screen" />
-	<link rel="stylesheet" type="text/css" href="resources/css/add.css"	media="screen" />
+	<link rel="stylesheet" type="text/css" href="resources/css/style.add.css"	media="screen" />
 	<link rel="stylesheet" type="text/css" href="resources/css/xml_display.css" media="screen" />
+	<link rel="stylesheet" type="text/css" href="resources/css/icons.css" media="screen" />
 	
 	<script type="text/javascript" src="resources/js/xml_display.js"></script>
-	
-	<!-- script src="http://code.jquery.com/jquery-latest.js"></script-->
+	<script type="text/javascript" src="resources/js/php.js"></script>
+	<link rel="stylesheet" type="text/css" href="http://code.jquery.com/ui/1.9.2/themes/base/jquery-ui.css" />
+
 	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+	<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/jquery-ui.min.js"></script>
+	
+	<!--script src="parser/controllers/js/addRemove.js"></script-->
+	<script src="parser/controllers/js/edit.js"></script>
+	
 	<script src="resources/js/util.js"></script>
 	<script src="resources/js/step3.js"></script>
 	<script src="resources/js/step2.js"></script>
@@ -41,7 +50,7 @@
 	<link rel="stylesheet" type="text/css" href="resources/css/themes/message_growl_shiny.css" />
 	
 	<script src="resources/js/popup.js"></script>
-	<link rel="stylesheet" href="resources/css/popup.css" />
+	<link rel="stylesheet" href="resources/css/dialog.css" />
 	
 	<script>
 		$(window).load(function () {
@@ -88,9 +97,9 @@
 		// TODO Work on all those requires
 		require_once 'inc/lib/StringFunctions.php';
 	
-		require_once 'inc/classes/XsdParser.php';
+		//require_once 'inc/classes/XsdParser.php';
 	
-		require_once 'inc/global/images.php'; // XXX Regroup in the head.php file
+		//require_once 'inc/global/images.php'; // XXX Regroup in the head.php file
 	?>
 	
 	<div id="header-wrapper">
@@ -168,7 +177,7 @@
 							switch($_GET['p'])
 							{
 								case 'admin':
-									if(isset($_GET['sp']) && $_GET['sp']=='schemas') $file = 'xsd_cfg.inc.php';
+									if(isset($_GET['sp']) && $_GET['sp']=='schemas') $file = 'admin/xsd_cfg.inc.php';
 									else $file = 'other/wip.php';
 									break;
 								default:

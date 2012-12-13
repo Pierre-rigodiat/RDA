@@ -278,7 +278,7 @@ class XsdDisplay
 
 		if (!$withoutList)
 			$result .= '<li id="' . $elementId . '">';
-		$result .= '<span class="element_name">' . $elementAttr['NAME'] . '</span>';
+		$result .= '<span class="element_name">' . ucfirst($elementAttr['NAME']) . '</span>';
 
 		// Displays all attributes we want to display
 		$hasAttribute = false;

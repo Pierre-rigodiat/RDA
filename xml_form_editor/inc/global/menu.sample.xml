@@ -1,0 +1,14 @@
+<menu>
+	<item>
+		<name>Item 1</name>
+		<link>/item1.php</link>
+		<subitem>
+			<name>item11</name>
+			<link>/item11.php</link>
+		</subitem>
+	</item>
+	<item>
+		<name>Item 2</name>
+		<link>/item2.php</link>
+	</item>
+<menu>

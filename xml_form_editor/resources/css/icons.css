@@ -2,6 +2,7 @@
  * 	CSS to display icons
  * 	Each image is 20x20px
  * 
+ * 
  */
 .icon
 {
@@ -13,31 +14,66 @@
 	
 	vertical-align: text-top;
 	background-image: url('../img/icons.png');
+	background-repeat: no-repeat;
 	
 	display: inline-block;
 	
 }
 
-.add
+.icon.legend
+{
+	text-indent: 20px;
+	margin-right: 50px;
+	white-space: nowrap; /* Prevent extra text to go on the next line */
+}
+
+.icon.new
+{
+	background-position:  0px -260px;
+}
+
+.icon.add
 {
 	background-position:  -20px 0px;
-	background-repeat: no-repeat;
 }
 
-.remove
+.icon.remove
 {
 	background-position:  -280px -140px;
-	background-repeat: no-repeat;
 }
 
-.edit
+.icon.edit
 {
 	background-position:  -60px -260px;
-	background-repeat: no-repeat;
 }
 
-.refresh
+.icon.refresh
 {
 	background-position:  -60px -20px;
-	background-repeat: no-repeat;
+}
+
+.icon.save
+{
+	background-position:  -20px -160px;
+}
+
+.icon.on
+{
+	background-position:  -120px -460px;
+}
+
+.icon.off
+{
+	background-position:  -180px -460px;
+}
+
+.icon.off:hover
+{
+	background-position:  -100px -460px;
+}
+
+.icon.disable
+{
+	background-position:  -200px -460px;
+	color: orange;
 }
