@@ -214,7 +214,7 @@ private $databaseObject;
 			$dom=DOMDocument::load($doc);
 			// Translate the XML content into JSON content
 			//$jsonContents = xml2jsonIBM::transformXmlStringToJson($xmlContents);
-			$jsonContents = Parker::encode($dom);
+			$jsonContents = JSONML::encode($dom);
 			if (!$jsonContents) {
 				echo "Could not transform xml to json\n";
 				return;
