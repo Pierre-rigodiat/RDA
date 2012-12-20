@@ -3,7 +3,12 @@ RewriteBase /mgi/
 
 RewriteRule admin/resources/(.*) resources/$1 [L]
 RewriteRule admin/inc/(.*) inc/$1 [L]
+RewriteRule admin/parser/(.*) parser/$1 [L]
 
 RewriteRule ^admin$ index.php?p=admin [L]
 RewriteRule ^(admin/.*)/$ $1 [R=301]
 RewriteRule ^admin/(.*)$ index.php?p=admin&sp=$1 [L]
+
+RewriteRule ^debug/resources/(.*) resources/$1 [R=301]
+RewriteRule ^debug/ptester$ ptester [R=301]
+RewriteRule ^ptester$ debug/ptester.php [L]

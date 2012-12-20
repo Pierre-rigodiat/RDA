@@ -1,0 +1,7 @@
+/**
+ * 	Parser Implementation Tester additional CSS properties
+ */
+body#content-wrapper {
+	background: white;
+	margin: 7px;
+}
