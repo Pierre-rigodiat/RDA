@@ -19,6 +19,21 @@ li
 	border-radius: 5px;
 }
 
+.right-side
+{
+	text-align:right;
+	margin:7px;
+}
+
+.ctx_menu
+{
+	
+	padding: 3px;
+	background-color: #f2f2f2;
+	border: 1px solid gray;
+	border-radius: 5px;
+}
+
 #misc_prop
 {
 	text-align:right;
@@ -218,12 +233,16 @@ textarea.inform{
 	cursor: pointer;
 }
 
-
 .submenu
 {
 	color: #666;
 	display: block;
 	font: bold 1.1em sans-serif;
-	padding: 12px 12px;
+	padding: 10px 10px;
 	
+}
+
+.submenu.current
+{
+	color: #111;
 }

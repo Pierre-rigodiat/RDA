@@ -5,11 +5,11 @@ $(document).ready(function(){
 	$('#importXsd').on('click', importSchema);
 	$('#setRoot').on('click', continueLoading);
 	
-	$('#currentModel').on('click', {part: '1'}, loadSubPage);
-	$('#manageSchemas').on('click', {part: '2'}, loadSubPage);
+	/*$('#currentModel').on('click', {part: '1'}, loadSubPage);
+	$('#manageSchemas').on('click', {part: '2'}, loadSubPage);*/
 });
 
-loadSubPage = function(event)
+/*loadSubPage = function(event)
 {
 	var pageUrl = "";
 	
@@ -20,7 +20,7 @@ loadSubPage = function(event)
 	else
 	{
 		//pageUrl = "inc/skeleton/main/admin/xsd_mgr.inc.php";
-		pageUrl = "inc/skeleton/main/demo/xsd_mgr.inc.php";
+		pageUrl = "inc/skeleton/main/demo/admin.xsd_mgr.inc.php";
 	}
 	
 	$.ajax({
@@ -34,7 +34,7 @@ loadSubPage = function(event)
 	            /*return myXhr;
 	        },*/
 	        //Ajax events
-	        success: function(data) {
+	       /* success: function(data) {
 	        	$("#main").html(data);
 	        	//todo link events
 	        },
@@ -44,11 +44,11 @@ loadSubPage = function(event)
 	        // Form data
 	        /*data: qString,*/
 	        //Options to tell JQuery not to process data or worry about content-type
-	        cache: false,
+	     /*   cache: false,
 	        contentType: false,
 	        processData: false
     });
-}
+}*/
 
 loadSchema = function(caller, rootElement)
 {

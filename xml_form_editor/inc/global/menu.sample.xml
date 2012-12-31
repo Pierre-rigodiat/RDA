@@ -1,14 +1,41 @@
-<menu>
-	<item>
-		<name>Item 1</name>
-		<link>/item1.php</link>
-		<subitem>
-			<name>item11</name>
-			<link>/item11.php</link>
-		</subitem>
-	</item>
-	<item>
-		<name>Item 2</name>
-		<link>/item2.php</link>
-	</item>
-<menu>
+<website>
+	<section>
+		<sectionName>admin</sectionName>
+		<sectionMenu>
+			<item>
+				<itemName>Home</itemName>
+				<itemUrl>home</itemUrl>
+				<itemView>item2.php</itemView>
+			</item>
+			<item>
+				<itemName>Item 2</itemName>
+				<itemUrl>schemas</itemUrl>
+				<itemView>/item2.php</itemView>
+			</item>
+			<item>
+				<itemName>XML Schemas</itemName>
+				<itemUrl>schemas</itemUrl>
+				<subItems>
+					<item>
+						<itemName>Current Model</itemName>
+						<itemUrl>currentModel</itemUrl>
+						<itemView>xsd_cfg.inc.php</itemView>
+					</item>
+					<item>
+						<itemName>Item 2</itemName>
+						<itemView>/item2.php</itemView>
+					</item>					
+				</subItems>
+			</item>
+			<item>
+				<itemName>Home</itemName>
+				<itemUrl>schemas</itemUrl>
+				<itemView>item2.php</itemView>
+			</item>
+		</sectionMenu>
+	</section>
+	<section>
+		<sectionName>client</sectionName>
+		
+	</section>
+<website>

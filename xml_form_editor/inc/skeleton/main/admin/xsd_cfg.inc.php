@@ -1,3 +1,8 @@
+<script src="parser/controllers/js/edit.js"></script>
+<script>
+	loadEditController();
+</script>
+
 <h2>Schema configuration</h2>
 <div id="schema_prop">
 	<div id="main_prop">
@@ -24,9 +29,9 @@
 	<h3>Elements</h3>
 	<div id="schema_elements">
 		<?php
-			require_once 'parser/parser.inc.php';
+			require_once $_SESSION['config']['_ROOT_'].'/parser/parser.inc.php';
 		
-			$schemaFile = 'resources/files/demo_2.xsd';
+			$schemaFile = $_SESSION['config']['_ROOT_'].'/resources/files/demo.xsd';
 			loadSchema($schemaFile);
 		
 			displayConfiguration();

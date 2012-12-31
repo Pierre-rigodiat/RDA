@@ -29,27 +29,33 @@
 	<link rel="stylesheet" type="text/css" href="resources/css/icons.css" media="screen" />
 	
 	<script type="text/javascript" src="resources/js/xml_display.js"></script>
-	<script type="text/javascript" src="resources/js/php.js"></script>
+	<script type="text/javascript" src="resources/js.new/php.js"></script>
+	
 	<link rel="stylesheet" type="text/css" href="http://code.jquery.com/ui/1.9.2/themes/base/jquery-ui.css" />
 
 	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
 	<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/jquery-ui.min.js"></script>
+	<script type="text/javascript" src="resources/js.new/pageLoader.js"></script>
 	
-	<!--script src="parser/controllers/js/addRemove.js"></script-->
-	<script src="parser/controllers/js/edit.js"></script>
+	<!--script src="parser/controllers/js/addRemove.js"></script>
+	<script src="parser/controllers/js/edit.js"></script-->
 	
-	<script src="resources/js/util.js"></script>
+	<!--script src="resources/js/util.js"></script>
 	<script src="resources/js/step3.js"></script>
 	<script src="resources/js/step2.js"></script>
 	<script src="resources/js/step1.js"></script>
 	<script src="resources/js/upload.js"></script>
 	<script src="resources/js/actionHandler.js"></script>
-	<script src="resources/js/schemaConfig.js"></script>
+	<script src="resources/js/schemaConfig.js"></script-->
+	
+	
+	
+	
 	
 	<script type="text/javascript" src='resources/js/message.js'></script>
 	<link rel="stylesheet" type="text/css" href="resources/css/themes/message_growl_shiny.css" />
 	
-	<script src="resources/js/popup.js"></script>
+	<!--script src="resources/js/popup.js"></script-->
 	<link rel="stylesheet" href="resources/css/dialog.css" />
 	
 	<script>
@@ -167,7 +173,7 @@
 			<div class="content">
 				<div id="main">
 					<?php 
-						require_once 'inc/skeleton/message.php';
+						/*require_once 'inc/skeleton/message.php';
 	
 						// TODO Build a function loadContent($getParam, $rule) or smth
 						$file = 'public/home.php';
@@ -218,7 +224,7 @@
 							}
 						}
 	
-						require_once 'inc/skeleton/main/'.$file;
+						require_once 'inc/skeleton/main/'.$file;*/
 					?>
 
 					<div class="clearer">&nbsp;</div>

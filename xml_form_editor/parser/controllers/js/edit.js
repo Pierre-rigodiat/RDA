@@ -4,7 +4,10 @@
  * Author: P.Dessauw
  * 
  */
-$(document).ready(function(){
+
+
+loadEditController = function()
+{
 	/**
 	 * Dialog basic configuration 
 	 */
@@ -65,7 +68,7 @@ $(document).ready(function(){
 	$('#unbounded').on('click', changeUnboundedState);
 	$('#minoccurs').on('focus', removeErrorDisplay);
 	$('#maxoccurs').on('focus', removeErrorDisplay);
-});
+}
 
 /**
  * Function to call the PHP script and replace the current element 

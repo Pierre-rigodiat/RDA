@@ -30,11 +30,17 @@
 	if(isset($_GET['p']) && $_GET['p']=="admin")
 	{
 ?>
+<!--ul class="tabbed">
+	<li class="menu<?php if($cursor=='home') echo ' current_page_item'; ?>" id="home"><a href="home">Home</a></li>
+	<li class="menu<?php if($cursor=='website') echo ' current_page_item current_page_parent'; ?>" id="website"><a href="website">Website</a></li>
+	<li class="menu<?php if($cursor=='schemas') echo ' current_page_item current_page_parent'; ?>" id="schema"><a href="schemas">XML Schemas</a></li>
+	<li class="menu<?php if($cursor=='users') echo ' current_page_item current_page_parent'; ?>" id="users"><a href="users">User management</a></li>
+</ul-->
 <ul class="tabbed">
-	<li <?php if($cursor=='home') echo 'class="current_page_item"'; ?>><a href="home">Home</a></li>
-	<li <?php if($cursor=='website') echo 'class="current_page_item current_page_parent"'; ?>><a href="website">Website</a></li>
-	<li <?php if($cursor=='schemas') echo 'class="current_page_item current_page_parent"'; ?>><a href="schemas">XML Schemas</a></li>
-	<li <?php if($cursor=='users') echo 'class="current_page_item current_page_parent"'; ?>><a href="users">User management</a></li>
+	<li class="<?php if($cursor=='home') echo ' current_page_item'; ?>"><a href="home">Home</a></li>
+	<li class="<?php if($cursor=='website') echo ' current_page_item current_page_parent'; ?>"><a href="website">Website</a></li>
+	<li class="<?php if($cursor=='schemas') echo ' current_page_item current_page_parent'; ?>"><a href="schemas">XML Schemas</a></li>
+	<li class="<?php if($cursor=='users') echo ' current_page_item current_page_parent'; ?>"><a href="users">User management</a></li>
 </ul>
 <?php	
 	}
