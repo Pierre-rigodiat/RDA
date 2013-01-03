@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<website>
+	<websiteInfo>
+		<websiteName></websiteName>
+		<productName></productName>
+		<productVersion></productVersion>
+		<releaseDate></releaseDate>
+	</websiteInfo>
+	<websiteTools>
+		<debug>false</debug>
+		<cache>false</cache>
+	</websiteTools>
+	<websiteSections>
+		<section>
+			<sectionName>admin</sectionName>
+			<sectionFilesDirectory>inc/skeleton/main/admin</sectionFilesDirectory>
+			<sectionMenu>
+				<item>
+					<itemName>Home</itemName>
+					<itemUrl>home</itemUrl>
+					<itemView>item2.php</itemView>
+				</item>
+				<item>
+					<itemName>Item 2</itemName>
+					<itemUrl>schemas</itemUrl>
+					<itemView>/item2.php</itemView>
+				</item>
+				<item>
+					<itemName>XML Schemas</itemName>
+					<itemUrl>schemas</itemUrl>
+					<subItems>
+						<item>
+							<itemName>Current Model</itemName>
+							<itemUrl>currentModel</itemUrl>
+							<itemView>xsd_cfg.inc.php</itemView>
+						</item>
+						<item>
+							<itemName>Item 2</itemName>
+							<itemView>/item2.php</itemView>
+						</item>					
+					</subItems>
+				</item>
+				<item>
+					<itemName>Home</itemName>
+					<itemUrl>schemas</itemUrl>
+					<itemView>item2.php</itemView>
+				</item>
+			</sectionMenu>
+		</section>
+		<section>
+			<sectionName>public</sectionName>
+			
+		</section>
+	</websiteSections>
+</website>

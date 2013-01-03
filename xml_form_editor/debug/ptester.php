@@ -1,5 +1,7 @@
 <?php
 	session_start();
+	require_once '../inc/lib/StringFunctions.php';
+	require_once '../parser/parser.inc.php';
 ?>
 <!DOCTYPE html>
 <html>
@@ -20,17 +22,17 @@
 	
 	<script src="parser/controllers/js/addRemove.js"></script>
 	<script src="parser/controllers/js/edit.js"></script>
-	<script src="resources/js/php.js"></script>
+	<script src="resources/js.new/php.js"></script>
 	<script src="resources/js/ptester.js"></script>
 	
-	<title>Parser Impl Tester</title>
+	<title>Parser Tester</title>
 </head>
 <body id="content-wrapper">
 	<?php
-		require_once '../parser/parser.inc.php';
 		
-		$schemaFile = '../resources/files/demo_2.xsd';
-		loadSchema($schemaFile);
+		
+		//$schemaFile = '../resources/files/demo.xsd';
+		//loadSchema($schemaFile);
 	?>
 	<h1>Parser Implementation Tester</h1>
 	<div class="warn">
@@ -38,18 +40,68 @@
 		This is a debug page, not meant for production purposes. 
 	</div>
 	<h2>Configuration view</h2>
-	<?php
-		displayConfiguration();
-	?>
+	<div class="block">
+		<h3>Configuration</h3>
+		<div>
+			<label for="schema_file">Choose file:</label>
+			<select id="schema_file">
+				<?php
+					$schemaFolder = '../resources/files/schemas';
+					$schemaFolderFiles = scandir($schemaFolder);
+					
+					var_dump($schemaFolderFiles);
+					
+					foreach($schemaFolderFiles as $file)
+					{
+						if(endsWith($file, '.xsd')) echo '<option>'.$file.'</option>';
+					}
+				?>
+			</select>
+			<div class="icon refresh file"></div>
+		</div>
+		<div>
+			Modules
+			<ul>
+			<?php
+				$moduleList = getModuleList();
+				
+				foreach($moduleList as $module)
+				{
+					echo '<li>'.ucfirst($module).'</li>';
+				}
+			?>
+			</ul>
+		</div>
+	</div>
+	
+	<div class="block" id="cfg_view">
+		<h3>Elements</h3>
+		<?php
+			if(isset($_SESSION['xsd_parser']['tree']) && isset($_SESSION['xsd_parser']['parser']))
+				displayConfiguration();
+			else
+				echo '<i>No schema file loaded</i>';
+		?>
+	</div>
+	
 	<hr/>
-	<h2>HTML Form View <span class="icon refresh"></span></h2>
+	<h2>HTML Form View <span class="icon refresh form"></span></h2>
 	<?php
-		displayHTMLForm();
+		if(isset($_SESSION['xsd_parser']['tree']) && isset($_SESSION['xsd_parser']['parser']))
+			displayHTMLForm();
+		else
+			echo '<i>No schema file loaded</i>';
 	?>
 	<hr/>
 	<h2>XML View</h2>
 	<?php
-		//displayXMLTree();
+		if(isset($_SESSION['xsd_parser']['tree']) && isset($_SESSION['xsd_parser']['parser']))
+			displayXMLTree();
+		else
+			echo '<i>No schema file loaded</i>';
 	?>
+	<script>
+		loadEditController();
+	</script>
 </body>
 </html>

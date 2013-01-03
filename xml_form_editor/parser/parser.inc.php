@@ -5,10 +5,14 @@ if(session_id()=='') // If the session has not been started, it is impossible to
 	exit;	
 }
 
+// Loading configuration and useful classes
 require_once dirname(__FILE__).'/parser.conf.php';
-
 require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/core/XsdParser.php';
 require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/view/XsdDisplay.php';
+
+/**
+ * General function to call the parser
+ */
 
 //Define a global variable to avoid to reload the parser each time
 function loadSchema($schemaFilename)
@@ -30,6 +34,7 @@ function loadSchema($schemaFilename)
 	$_SESSION['xsd_parser']['display'] = serialize($display);*/
 }
 
+// ???
 function computeMinOccurs()
 {
 	if(isset($_SESSION['xsd_parser']['parser']))
@@ -44,6 +49,7 @@ function computeMinOccurs()
 	}
 }
 
+// Displays the configuration view of the parser
 function displayConfiguration()
 {
 	if(isset($_SESSION['xsd_parser']['tree']))
@@ -53,6 +59,8 @@ function displayConfiguration()
 	}
 }
 
+// Displays the form view of the parser
+// TODO Pagination handling
 function displayHTMLForm()
 {
 	if(isset($_SESSION['xsd_parser']['tree']))
@@ -64,6 +72,8 @@ function displayHTMLForm()
 	}
 }
 
+// Displays the XML tree
+// TODO Implement it
 function displayXmlTree()
 {
 	if(isset($_SESSION['xsd_parser']['tree']))
@@ -76,6 +86,35 @@ function displayXmlTree()
 /**
  * Function to call modules
  */
-// TODO automatically include a PHP script in the module
+// TODO automatically include all module functions
+
+function getModuleList()
+{
+	$result = array();
+	
+	if(isset($_SESSION['xsd_parser']['conf']['modules_dirname']))
+	{
+		$module_dir = $_SESSION['xsd_parser']['conf']['modules_dirname'];
+		
+		if(is_dir($module_dir))
+		{
+			$fileList = scandir($module_dir);
+			
+			foreach($fileList as $file)
+			{
+				if(is_dir($module_dir.'/'.$file) && !startsWith($file, '.'))
+					array_push($result,$file);
+			}
+
+			return $result;
+		}
+		else {
+			return null;
+		}
+	}
+	else {
+		return null;
+	}
+}
  
 ?>

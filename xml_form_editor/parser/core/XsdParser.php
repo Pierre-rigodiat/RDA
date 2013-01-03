@@ -216,7 +216,15 @@ class XsdParser {
 		$this->LOGGER->log_notice('Function called', 'XsdParser::getXmlFormTree');
 		return $this->xmlFormTree;
 	}
-	 
+	
+	/**
+	 * Getter for the XSD file name
+	 */
+	public function getSchemaFileName()
+	{
+		$this->LOGGER->log_notice('Function called', 'XsdParser::getSchemaFileName');
+		return $this->getSchemaFileName();
+	}
 	 
 	/**
 	 * Parse the schema as a regular XML document
@@ -254,6 +262,9 @@ class XsdParser {
 		$this->LOGGER->log_debug($this->xsdFile.' has been read and its content is stored in the tree', 'XsdParser::parse');
 	}
 	
+	/**
+	 * 
+	 */
 	private function insertTreeElement($elementId, $parentId = -1)
 	{
 		$elementObject = clone $this->xsdTree->getObject($elementId);
@@ -339,6 +350,9 @@ class XsdParser {
 		}
 	}
 
+	/**
+	 * 
+	 */
 	public function computeMinOccurs($elementId = 0)
 	{
 		$elementObject = $this->xmlFormTree->getObject($elementId);

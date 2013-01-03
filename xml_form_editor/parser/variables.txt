@@ -1,0 +1,18 @@
+* List of all $_SESSION variables used in the parser *
+------------------------------------------------------
+
+$_SESSION['xsd_parser'] The array containing all the current parser information
+
+	['conf'] Configuration of the parser
+			['dirname'] The directory of the parser within the app
+			['modules_dirname'] The directory where all the modules are stored
+			['debug'] To use debug or not
+			
+			
+	['parser'] The parser object (serialized)
+	
+	['tree'] The schema tree object (serialized)
+	
+TODO list
+	['modules'] An object with all the modules configuration and datas within itself
+	[]

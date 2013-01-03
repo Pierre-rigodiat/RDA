@@ -1,14 +1,28 @@
 RewriteEngine on
 RewriteBase /mgi/
 
+# NORMAL REWRITE
+RewriteCond %{REQUEST_URI} !^/mgi/admin/?.*$
+RewriteCond %{REQUEST_URI} !^/mgi/debug/?.*$
+RewriteCond %{REQUEST_URI} !^/mgi/ptester/?.*$
+RewriteRule ^([^/]+)/$ $1 [R=301]
+
+RewriteCond %{REQUEST_URI} !^/mgi/admin/?.*$
+RewriteCond %{REQUEST_URI} !^/mgi/debug/?.*$
+RewriteCond %{REQUEST_URI} !^/mgi/ptester/?.*$
+RewriteCond %{REQUEST_URI} !^/mgi/index\.php.*$
+RewriteRule ^([^/]*)$ index.php?p=public&sp=$1 [L]
+
+# ADMIN REWRITE
 RewriteRule admin/resources/(.*) resources/$1 [L]
 RewriteRule admin/inc/(.*) inc/$1 [L]
 RewriteRule admin/parser/(.*) parser/$1 [L]
 
 RewriteRule ^admin$ index.php?p=admin [L]
-RewriteRule ^(admin/.*)/$ $1 [R=301]
-RewriteRule ^admin/(.*)$ index.php?p=admin&sp=$1 [L]
+RewriteRule ^(admin/[^/]+)/$ $1 [R=301]
+RewriteRule ^admin/([^/]*)$ index.php?p=admin&sp=$1 [L]
 
+# DEBBUGGING REWRITE
 RewriteRule ^debug/resources/(.*) resources/$1 [R=301]
 RewriteRule ^debug/ptester$ ptester [R=301]
 RewriteRule ^ptester$ debug/ptester.php [L]

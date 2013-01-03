@@ -2,7 +2,11 @@
 	Schema Configuration View
 	Version 0.2 (12-13-2012)
 -->
-<h2>Schema configuration [DEMO]</h2>
+<div id="featured-wrapper"><div id="featured">
+	<h1>Schema configuration [DEMO]</h1>
+</div></div>
+
+<div id="main">
 <div id="schema_prop">
 	<div id="main_prop">
 		<div class="prop"><span class="fieldname">Filename:</span> test.xsd</div>
@@ -134,5 +138,6 @@
 				<li id="148"><span class="element_name">Field</span><span class="icon edit"></span></li></ul></li></ul></li></ul></li>
 		</ul>
 	</div>
+</div>
 </div>
 

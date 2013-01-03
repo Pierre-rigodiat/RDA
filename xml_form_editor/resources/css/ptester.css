@@ -5,3 +5,13 @@ body#content-wrapper {
 	background: white;
 	margin: 7px;
 }
+
+.block
+{
+	margin: 2px;
+	margin-bottom: 10px;
+	padding: 3px;
+	
+	background: #eFeFeF;
+	border: 1px grey solid;
+}

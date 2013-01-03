@@ -8,30 +8,49 @@ li
 	float: left;
 }
 
-#main_prop>.menu
+/*#main_prop>.menu
 {
 	/*margin: 5px;
 	margin-bottom: 120px;*/
-	margin-top:3px;
+	/*margin-top:3px;
 	padding: 3px;
 	background-color: #f2f2f2;
 	border: 1px solid gray;
 	border-radius: 5px;
+}*/
+
+.left-side
+{
+	float: left;
+	text-align:left;
+	margin:7px;
 }
 
 .right-side
 {
+	/*float:right;*/
 	text-align:right;
 	margin:7px;
 }
 
 .ctx_menu
 {
-	
 	padding: 3px;
 	background-color: #f2f2f2;
 	border: 1px solid gray;
 	border-radius: 5px;
+}
+
+.ctx_menu.button
+{
+	cursor:pointer;	
+}
+
+.ctx_menu.selected
+{
+	background-color: #92C8DE;
+	font-weight: bold;
+	color: white;
 }
 
 #misc_prop
@@ -122,28 +141,13 @@ b
 	color: gray;
 }
 
-.remove {
+/*.remove {
 	cursor:pointer;
 }
 
 .addItem, .removeItem
 {
 	cursor:pointer;
-}
-
-/* todo use this to load icon more easily (avoiding use of GD) */
-/**.icon
-{
-	cursor: pointer;
-	width: 16px;
-	height: 16px;
-	background-image: url(../img/icons_2.png);
-}
-
-.add_button
-{
-	background-position:  -40px -20px;
-	background-repeat: no-repeat;
 }*/
 
 #content-wrapper li
@@ -181,9 +185,9 @@ b
 /**
  * 	DHTMLX form additional css
  */
-.dhtmlx_button{
+/*.dhtmlx_button{
 	margin-top:10px;
-}
+}*/
 
 .inform{
 	

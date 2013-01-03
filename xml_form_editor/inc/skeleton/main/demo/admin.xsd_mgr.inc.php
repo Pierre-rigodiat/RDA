@@ -1,9 +1,12 @@
 <!--
-	Schema Manager view v0.1
-	
+	Schema Manager view 
+	v0.1 (01-02-2013)
 -->
-<h2>Schema manager [DEMO]</h2>
+<div id="featured-wrapper"><div id="featured">
+	<h1>Schema manager [DEMO]</h1>
+</div></div>
 
+<div id="main">
 <div class="right-side">
 	<span class="ctx_menu">
 		<div class="icon legend long upload">Upload schema</div>
@@ -27,7 +30,7 @@
 	<tr>
 		<td>schema.xsd</td>
 		<td>Experiment</td>
-		<td style="color:green; font-weight:bold">Current model</td>
+		<td style="color:blue; font-weight:bold">Current model</td>
 		<td><div class="icon legend delete">Delete</div></td>
 	</tr>
 	<tr class="even">
@@ -43,4 +46,5 @@
 		<div class="icon legend long upload">Upload schema</div>
 		<div class="icon legend long blank">Create new file</div>
 	</span>
+</div>
 </div>

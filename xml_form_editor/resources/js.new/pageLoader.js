@@ -5,7 +5,6 @@
  * 
  * 
  */
-
 $(document).ready(function(){	
 	loadPage($(location).attr('href'));
 	
@@ -24,7 +23,7 @@ loadPage = function(url)
         type: 'GET',
         success: function(data) {
         	// Change content
-        	$('#main').html(data);
+        	$('.content').html(data);
         	
         	console.log('[loadPage] '+url+' loaded');
         },

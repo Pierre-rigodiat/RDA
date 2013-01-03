@@ -1,6 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <website>
+	<websiteTools>
+		<debug>false</debug>
+		<cache>false</cache>
+		
+	</websiteTools>
 	<section>
 		<sectionName>admin</sectionName>
+		<sectionFilesDirectory>inc/skeleton/main/admin</sectionFilesDirectory>
 		<sectionMenu>
 			<item>
 				<itemName>Home</itemName>
@@ -35,7 +42,7 @@
 		</sectionMenu>
 	</section>
 	<section>
-		<sectionName>client</sectionName>
+		<sectionName>public</sectionName>
 		
 	</section>
-<website>
+</website>

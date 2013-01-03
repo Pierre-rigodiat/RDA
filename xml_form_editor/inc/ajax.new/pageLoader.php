@@ -7,7 +7,9 @@
  * 
  */
 session_start();
- 
+
+$_SESSION['config']['menu_desc'] = $_SESSION['config']['_ROOT_'] . '/inc/global/menu.sample.xml';
+
 // TODO use another way to store the menus
 $universe = array('admin', 'public');
 
@@ -22,6 +24,10 @@ $sub['admin']['website'] = array();
 $sub['admin']['schemas'] = array('current_model', 'manage_schemas');
 $sub['admin']['users'] = array();
 
+
+$defaultText = '<div id="featured-wrapper"><div id="featured">
+					<h1>Not yet implemented</h1>
+				</div></div>';
  
 if(isset($_GET['url']))
 {
@@ -34,14 +40,40 @@ if(isset($_GET['url']))
 	
 	$urlParts = explode('/', $urlParts[0]);
 	
-	$menu['main'] = $urlParts[count($urlParts)-1];
-	$menu['universe'] = $urlParts[count($urlParts)-2];
+	$menu['page'] = $urlParts[count($urlParts)-1];
+	$menu['section'] = $urlParts[count($urlParts)-2];
+	
+	if($menu['section']=='admin')
+	{
+		if($menu['page']=='schemas')
+		{
+			if(!isset($menu['sub']) || $menu['sub']=='currentModel') require_once $_SESSION['config']['_ROOT_'].'/inc/skeleton/main/admin/xsd_cfg.inc.php';
+			else if($menu['sub']=='manageSchemas') require_once $_SESSION['config']['_ROOT_'].'/inc/skeleton/main/demo/admin.xsd_mgr.inc.php';
+		}
+		else
+		{
+			echo $defaultText.'<div id="main">';
+			
+			print_r($menu);
+			
+			echo '</div>';
+		}
+	}
+	else
+	{
+		if($menu['page']=='home' || $menu['page']=='') require_once $_SESSION['config']['_ROOT_'].'/inc/skeleton/main/demo/public.home.inc.php';
+		else if($menu['page']=='register') require_once $_SESSION['config']['_ROOT_'].'/inc/skeleton/main/demo/public.register_form.inc.php';
+		else
+		{
+			echo $defaultText.'<div id="main">';
+			
+			print_r($menu);
+			
+			echo '</div>';
+		}
+	}
 	
 	
-	if($menu['main']=='schemas')
-		require_once $_SESSION['config']['_ROOT_'].'/inc/skeleton/main/admin/xsd_cfg.inc.php';
-	
-	print_r($menu);
 	
 	
 }
