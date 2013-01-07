@@ -14,8 +14,8 @@ require_once $_SESSION['xsd_parser']['conf']['dirname'].'/inc/lib/StringFunction
  */ 
 class XsdParser {
 	private $xsdFile;
-	private $xsdTree;
-	private $xmlFormTree;
+	private $xsdTree; // The tree as it should be represented
+	private $xmlTree; // The tree as it should be in the form
 	private $rootElements;
 	private $namespaces;
 	
@@ -46,13 +46,13 @@ class XsdParser {
 				{
 					$this->xsdFile = $argv[0];
 					$this->xsdTree = new Tree();
-					$this->xmlFormTree = new Tree();
+					$this->xmlTree = new Tree();
 				}
 				else 
 				{
 					$this->xsdFile = null;
 					$this->xsdTree = null;
-					$this->xmlFormTree = null;
+					$this->xmlTree = null;
 				}
 				
 				$level = self::$LEVELS['NO_DBG'];	
@@ -66,13 +66,13 @@ class XsdParser {
 					if($argv[1])
 					{
 						$this->xsdTree = new Tree(true);
-						$this->xmlFormTree = new Tree(true);
+						$this->xmlTree = new Tree(true);
 						$level = self::$LEVELS['DBG'];
 					}
 					else 
 					{
 						$this->xsdTree = new Tree();
-						$this->xmlFormTree = new Tree();
+						$this->xmlTree = new Tree();
 						$level = self::$LEVELS['NO_DBG'];
 					}
 				}
@@ -80,7 +80,7 @@ class XsdParser {
 				{
 					$this->xsdFile = null;
 					$this->xsdTree = null;
-					$this->xmlFormTree = null;
+					$this->xmlTree = null;
 					$level = self::$LEVELS['NO_DBG'];
 				}
 				
@@ -88,7 +88,7 @@ class XsdParser {
 			default:
 				$this->xsdFile = null;
 				$this->xsdTree = null;
-				$this->xmlFormTree = null;
+				$this->xmlTree = null;
 				$level = self::$LEVELS['NO_DBG'];
 				break;
 		}
@@ -102,7 +102,7 @@ class XsdParser {
 			echo '<b>Impossible to build the Logger:</b><br/>'.$ex->getMessage();
 		}
 		
-		if($this->xsdFile==null && $this->xsdTree==null && $this->xmlFormTree==null)
+		if($this->xsdFile==null && $this->xsdTree==null && $this->xmlTree==null)
 		{
 			$log_mess = '';
 			
@@ -211,10 +211,28 @@ class XsdParser {
 	/**
 	 * 
 	 */
-	public function getXmlFormTree()
+	public function getXmlTree()
 	{
-		$this->LOGGER->log_notice('Function called', 'XsdParser::getXmlFormTree');
-		return $this->xmlFormTree;
+		$this->LOGGER->log_notice('Function called', 'XsdParser::getxmlTree');
+		return $this->xmlTree;
+	}
+
+	/**
+	 * 
+	 */
+	public function setXmlTree($newXmlTree)
+	{
+		$this->LOGGER->log_notice('Function called', 'XsdParser::setXmlTree');
+		$this->xmlTree = $newXmlTree;
+	}
+	
+	/**
+	 * 
+	 */
+	public function getXsdTree()
+	{
+		$this->LOGGER->log_notice('Function called', 'XsdParser::getXsdTree');
+		return $this->xsdTree;
 	}
 	
 	/**
@@ -263,12 +281,12 @@ class XsdParser {
 	}
 	
 	/**
-	 * 
+	 * NB: Recursive function
 	 */
 	private function insertTreeElement($elementId, $parentId = -1)
 	{
 		$elementObject = clone $this->xsdTree->getObject($elementId);
-		$newParentId = $this->xmlFormTree->insertElement($elementObject, $parentId);
+		$newParentId = $this->xmlTree->insertElement($elementObject, $parentId);
 		
 		if($newParentId<0)
 		{
@@ -320,7 +338,7 @@ class XsdParser {
 	// todo create an array of element to remove
 	private function optimizeTree()
 	{
-		$tree = $this->xmlFormTree->getTree();
+		$tree = $this->xmlTree->getTree();
 		
 		foreach ($tree as $id=>$element) 
 		{
@@ -328,24 +346,24 @@ class XsdParser {
 			
 			if($object->getType()==$this->namespaces['default'].':COMPLEXTYPE' || $object->getType()==$this->namespaces['default'].':SEQUENCE' || $object->getType()==$this->namespaces['default'].':SIMPLETYPE')
 			{
-				$this->xmlFormTree->removeElement($id);
+				$this->xmlTree->removeElement($id);
 			}
 			
 			//XXX Does not work for all the restriction
 			if($object->getType()==$this->namespaces['default'].':RESTRICTION')
 			{
-				$parentId = $this->xmlFormTree->getParent($id);
-				$children = $this->xmlFormTree->getChildren($id);
+				$parentId = $this->xmlTree->getParent($id);
+				$children = $this->xmlTree->getChildren($id);
 				
 				$values = array();
 				foreach($children as $child)
 				{
-					$attributes = $this->xmlFormTree->getObject($child)->getAttributes();
+					$attributes = $this->xmlTree->getObject($child)->getAttributes();
 					array_push($values, $attributes['VALUE']);
 				}
 							
-				$this->xmlFormTree->getObject($parentId)->addAttributes(array('RESTRICTION'=>$values));
-				$this->xmlFormTree->removeElement($id, true);
+				$this->xmlTree->getObject($parentId)->addAttributes(array('RESTRICTION'=>$values));
+				$this->xmlTree->removeElement($id, true);
 			}
 		}
 	}
@@ -355,8 +373,8 @@ class XsdParser {
 	 */
 	public function computeMinOccurs($elementId = 0)
 	{
-		$elementObject = $this->xmlFormTree->getObject($elementId);
-		$elementChildren = $this->xmlFormTree->getChildren($elementId);
+		$elementObject = $this->xmlTree->getObject($elementId);
+		$elementChildren = $this->xmlTree->getChildren($elementId);
 		$elementAttr = $elementObject->getAttributes();
 		
 		foreach($elementChildren as $childId)
@@ -368,7 +386,7 @@ class XsdParser {
 		{
 			for($i=0; $i<$elementAttr['MINOCCURS']-1; $i++)
 			{
-				$this->xmlFormTree->copyTreeBranch($elementId);
+				$this->xmlTree->copyTreeBranch($elementId);
 			}
 		}
 	}

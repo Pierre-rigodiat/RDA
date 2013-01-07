@@ -1,5 +1,10 @@
 <?php
 	session_start();
+	if(isset($_SESSION['xsd_parser']))
+	{
+		require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/core/Tree.php';
+		require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/core/XsdElement.php';
+	}
 ?>
 <!DOCTYPE html>
 <html>
@@ -21,5 +26,21 @@
 		if(isset($_SESSION['xsd_parser'])) var_dump($_SESSION['xsd_parser']);
 		else echo 'Parser variables not set';
 	?>
+	<hr/>
+	<h3>Current tree</h3>
+	<ul>
+	<?php
+		if(isset($_SESSION['xsd_parser']) && isset($_SESSION['xsd_parser']['tree']))
+		{
+			$treeObj = unserialize($_SESSION['xsd_parser']['tree']);
+			foreach($treeObj->getTree() as $id=>$element)
+			{
+				echo '<li>ID '.$id.': '.$element['object'].'</li>';
+			}
+		}
+		else echo 'Tree not set';
+	
+	?>
+	</ul>
 </body>
 </html>

@@ -36,8 +36,15 @@ refreshFile = function()
         url: 'debug/back/loadFile.php',
         type: 'GET',
         success: function(data) {
-        	$('#cfg_view').children(':first').next().remove();
+        	// Destroy and remove the dialog to avoid to rewrite on it
+        	$( "#dialog" ).dialog("destroy");
+        	$( "#dialog" ).remove();
+        	// Destroy all element written
+			$('#cfg_view').children(':first').next().remove();
+        	
+        	// Write the new content after the header  	
         	$('#cfg_view').children('h3').after(data);
+        	
         	loadEditController();
         },
         error: function() {

@@ -217,22 +217,22 @@ class XsdElement {
 						
 						if(!$sameAttr)
 						{
-							$this->LOGGER->log_debug('Comparison failed at key '.$otherKey.' for elements '.serialize($otherXsdElement).' and '.serialize($this), 'XsdElement::compare');
+							$this->LOGGER->log_debug('Comparison failed at key '.$otherKey.' for elements '.$otherXsdElement.' and '.$this, 'XsdElement::compare');
 							return false;
 						}
 					}
 					else
 					{
-						$this->LOGGER->log_debug('Comparison failed at key '.$otherKey.' for elements '.serialize($otherXsdElement).' and '.serialize($this), 'XsdElement::compare');
+						$this->LOGGER->log_debug('Comparison failed at key '.$otherKey.' for elements '.$otherXsdElement.' and '.$this, 'XsdElement::compare');
 						return false;
 					}
 				}
 				
-				$this->LOGGER->log_debug('Element comparison return true for '.serialize($otherXsdElement).' and '.serialize($this), 'XsdElement::compare');
+				$this->LOGGER->log_debug('Element comparison return true for '.$otherXsdElement.' and '.$this, 'XsdElement::compare');
 				return true;
 			}
 			else {
-				$this->LOGGER->log_debug('Type are not matching for elements '.serialize($otherXsdElement).' and '.serialize($this), 'XsdElement::compare');
+				$this->LOGGER->log_debug('Type are not matching for elements '.$otherXsdElement.' and '.$this, 'XsdElement::compare');
 				return false;
 			}
 		}
@@ -244,6 +244,31 @@ class XsdElement {
 			$this->LOGGER->log_debug('XsdElement cannot be compared with '.$type.$class, 'XsdElement::compare');
 			return false;
 		}
+	}
+
+	public function __toString()
+	{
+		$resultString = $this->elementType.'{ ';
+		foreach($this->elementAttributes as $attrName=>$attrValue)
+		{
+			if(!is_array($attrValue)) $resultString.=$attrName.' = '.$attrValue;
+			else {
+				$resultString.=$attrName.' = (';
+				foreach($attrValue as $value)
+				{
+					$resultString.=$value;
+					if(end($attrValue)!=$value) $resultString.=',';
+				}
+				$resultString.=')';
+			}
+			if(end($this->elementAttributes)!=$attrValue) $resultString.=' | ';
+		}
+		
+		$resultString.=' }';
+		
+		$this->LOGGER->log_debug('Function returned '.$resultString, 'XsdElement::toString');
+		
+		return $resultString;
 	}
 }
 

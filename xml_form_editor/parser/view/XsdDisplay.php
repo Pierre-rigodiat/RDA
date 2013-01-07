@@ -254,6 +254,8 @@ class XsdDisplay
 		$element = $this -> tree -> getObject($elementId);
 		$elementAttr = $element -> getAttributes();
 		$result = '';
+		
+		$this->LOGGER->log_debug('Display ID '.$elementId.'; Object: '.$element, 'XsdDisplay::displayConfigurationElement');
 
 		// TODO check that the element contains at least what we want...
 		// TODO check the type of element
@@ -331,6 +333,8 @@ class XsdDisplay
 		$element = $this -> tree -> getObject($elementId);
 		$elementAttr = $element -> getAttributes();
 		$result = '';
+		
+		$this->LOGGER->log_debug('Display ID '.$elementId.'; Object: '.$element, 'XsdDisplay::displayHTMLFormElement');
 
 		$liClass = '';
 		if (isset($elementAttr['AVAILABLE']) && !$elementAttr['AVAILABLE'])

@@ -3,6 +3,7 @@ session_start();
 require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/core/Tree.php';
 require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/core/XsdElement.php';
 require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/view/XsdDisplay.php';
+require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/lib/PhpControllersFunctions.php';
 
 //todo optimize script
 //todo secure script
@@ -25,7 +26,7 @@ require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/view/XsdDisplay
  * 
  * @return (string)
  */
-function displayTree($tree, $grandParentId)
+/*function displayTree($tree, $grandParentId)
 {
 	$result = '';
 	
@@ -45,7 +46,7 @@ function displayTree($tree, $grandParentId)
 	}
 	
 	return $result;
-}
+}*/
 
 /**
  * Function to build a JSON string compliant with the format read in the addRemove.js script
@@ -54,16 +55,16 @@ function displayTree($tree, $grandParentId)
  * 
  * @return (string)
  */
-function buildJSON($message, $code)
+/*function buildJSON($message, $code)
 {
 	if(is_string($message) && is_integer($code)) return '{"result":"'.$message.'", "code":'.$code.'}';
 	else return '{"result":"Wrong parameter given to the function. Impossible to build the JSON", "code":-9999}';
-}
+}*/
 
-if(isset($_GET['action']) && isset($_GET['id']) && isset($_SESSION['xsd_parser']['tree']))
+if(isset($_GET['action']) && isset($_GET['id']) && isset($_SESSION['xsd_parser']['xml_tree']))
 {
 	// Create main variable
-	$tree = unserialize($_SESSION['xsd_parser']['tree']);
+	$tree = unserialize($_SESSION['xsd_parser']['xml_tree']);
 	$element = $tree->getObject($_GET['id']);
 	
 	// Check that we actually got an existing element
@@ -187,6 +188,10 @@ if(isset($_GET['action']) && isset($_GET['id']) && isset($_SESSION['xsd_parser']
 		default:
 	}
 	
-	$_SESSION['xsd_parser']['tree'] = serialize($tree);
+	$_SESSION['xsd_parser']['xml_tree'] = serialize($tree);
+}
+else
+{
+	echo buildJSON('Variables not set in the $_SESSION environment', -2);
 }
 ?>

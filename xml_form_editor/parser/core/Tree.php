@@ -148,11 +148,30 @@ class Tree {
 	
 	public function getChildren($elementId)
 	{
+		if (!defined("print_array"))// Avoid to redefine the function (i.e. avoid the error)
+		{
+			define("print_array", true);
+
+			function print_array($array)
+			{
+				$result = '';
+				foreach($array as $item)
+				{
+					$result.=$item;
+					if(end($array)!=$item) $result.=', ';
+				}
+				
+				return $result;
+			}
+		}
+		
 		if(isset($this->tree[$elementId]))
 		{
 			$children = $this->tree[$elementId]['children'];
 			
-			$this->LOGGER->log_debug('Chidren of ID '.$elementId.' are '.serialize($children), 'Tree::getChildren');
+			if(count($children)>0) $this->LOGGER->log_debug('Chidren of ID '.$elementId.' are '.print_array($children), 'Tree::getChildren');
+			else $this->LOGGER->log_debug('ID '.$elementId.' has no child', 'Tree::getChildren');
+				
 			return $children;
 		} 
 		else 
@@ -168,7 +187,7 @@ class Tree {
 		{
 			$object = $this->tree[$elementId]['object'];
 			
-			$this->LOGGER->log_debug('ID '.$elementId.' contains '.serialize($object), 'Tree::getParent');
+			$this->LOGGER->log_debug('ID '.$elementId.' contains '.$object, 'Tree::getParent');
 			return $object;
 		} 
 		else 
@@ -204,7 +223,7 @@ class Tree {
 				}
 				else if($objectType=='resource')
 				{
-					// TODO Implement this part
+					// TODO Implement the resource comparison
 				}
 			}
 		}

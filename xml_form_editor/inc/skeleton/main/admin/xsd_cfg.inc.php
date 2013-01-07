@@ -32,7 +32,7 @@
 		<?php
 			require_once $_SESSION['config']['_ROOT_'].'/parser/parser.inc.php';
 		
-			$schemaFile = $_SESSION['config']['_ROOT_'].'/resources/files/demo.xsd';
+			$schemaFile = $_SESSION['config']['_ROOT_'].'/resources/files/schemas/demo.light.xsd';
 			loadSchema($schemaFile);
 		
 			displayConfiguration();

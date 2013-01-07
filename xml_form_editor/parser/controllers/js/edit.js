@@ -48,7 +48,7 @@ loadEditController = function()
             			allFields['pattern'] = pattern;
             		}
             		
-            		//console.log(allFields);
+            		console.log(allFields);
             		saveConfiguration($('.elementId').text(), allFields);
             		  		
             		$( this ).dialog("close");
@@ -81,9 +81,13 @@ editElement = function()
 	var elementName = $(this).siblings('.element_name').text();
 	var elementAttr = $(this).siblings('.attr').text();
 
+	console.log('[editElement] Editing ID '+elementId);
+
 	// Title configuration	
 	$('.ui-dialog-title').text('Edit '+elementName);
 	$('.elementId').text(elementId);
+	
+	console.log('[editElement] Element ID set '+$('.elementId').text());
 	
 	/*
 	 * Datatype configuration

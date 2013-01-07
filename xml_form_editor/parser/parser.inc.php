@@ -9,6 +9,16 @@ if(session_id()=='') // If the session has not been started, it is impossible to
 require_once dirname(__FILE__).'/parser.conf.php';
 require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/core/XsdParser.php';
 require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/view/XsdDisplay.php';
+require_once $_SESSION['xsd_parser']['conf']['dirname'].'/inc/helpers/Logger.php';
+
+// TODO put some data in the configuration file
+
+// Debug and logger configuration for the file
+$debug = $_SESSION['xsd_parser']['conf']['debug'];
+if($debug) $logger_level = 'notice';
+else $logger_level = 'info';
+
+$logger = new Logger($logger_level, $_SESSION['xsd_parser']['conf']['dirname'].'/logs/parser.inc.log', 'parser.inc.php');
 
 /**
  * General function to call the parser
@@ -17,68 +27,104 @@ require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/view/XsdDisplay
 //Define a global variable to avoid to reload the parser each time
 function loadSchema($schemaFilename)
 {
-	$debug = $_SESSION['xsd_parser']['conf']['debug'];
+	global $logger, $debug;
+	$logger->log_debug('Function called w/ file '.$schemaFilename, 'loadSchema');
 	
 	$parser = new XsdParser($schemaFilename, $debug);
-	
 	$rootElementsArray = $parser->parseXsdFile();
-	
 	$parser->buildTree($rootElementsArray[0]);
-		
+	
 	$_SESSION['xsd_parser']['parser'] = serialize($parser);
 	
-	$tree = $parser->getXmlFormTree();
-	$_SESSION['xsd_parser']['tree'] = serialize($tree);
+	$tree = $parser->getXmlTree();
+	//$_SESSION['xsd_parser']['tree'] = serialize($tree);
+	$_SESSION['xsd_parser']['xsd_tree'] = serialize($tree);
 	
 	/*$display = new XsdDisplay($tree, $debug);
 	$_SESSION['xsd_parser']['display'] = serialize($display);*/
 }
 
 // ???
-function computeMinOccurs()
+/*function computeMinOccurs()
 {
 	if(isset($_SESSION['xsd_parser']['parser']))
 	{
 		$parser = unserialize($_SESSION['xsd_parser']['parser']);
 		$parser->computeMinOccurs();
 		
-		$tree = $parser->getXmlFormTree();
+		$tree = $parser->getXmlTree();
 		$_SESSION['xsd_parser']['tree'] = serialize($tree);
 		
 		$_SESSION['xsd_parser']['parser'] = serialize($parser);
 	}
-}
+}*/
 
 // Displays the configuration view of the parser
 function displayConfiguration()
 {
-	if(isset($_SESSION['xsd_parser']['tree']))
+	global $logger, $debug;
+	$logger->log_debug('Function called', 'displayConfiguration');
+	
+	if(isset($_SESSION['xsd_parser']['xsd_tree']))
 	{
-		$display = new XsdDisplay(unserialize($_SESSION['xsd_parser']['tree']), true); // todo use the variable for debug
+		$display = new XsdDisplay(unserialize($_SESSION['xsd_parser']['xsd_tree']), $debug);
 		echo $display->displayConfiguration();
+	}
+	else
+	{
+		echo '<i>No schema file loaded</i>';
 	}
 }
 
 // Displays the form view of the parser
 // TODO Pagination handling
 function displayHTMLForm()
-{
-	if(isset($_SESSION['xsd_parser']['tree']))
+{	
+	global $logger, $debug;
+	$logger->log_debug('Function called', 'displayHTMLForm');
+	
+	if(!isset($_SESSION['xsd_parser']['xml_tree']))
 	{
-		computeMinOccurs();
-		$display = new XsdDisplay(unserialize($_SESSION['xsd_parser']['tree']), true); // todo use the variable for debug
-		
+		if(isset($_SESSION['xsd_parser']['xsd_tree']))
+		{
+			// Computing MINOCCURS
+			if(isset($_SESSION['xsd_parser']['parser']))
+			{
+				$parser = unserialize($_SESSION['xsd_parser']['parser']);
+				$parser->computeMinOccurs();
+				
+				$tree = $parser->getXmlTree();
+				$_SESSION['xsd_parser']['xml_tree'] = serialize($tree);
+				
+				$_SESSION['xsd_parser']['parser'] = serialize($parser);
+			}
+			
+			$display = new XsdDisplay(unserialize($_SESSION['xsd_parser']['xml_tree']), $debug);
+			echo $display->displayHTMLForm();
+		}
+		else 
+		{
+			$logger->log_debug('No schema loaded', 'displayHTMLForm');
+			echo '<i>No schema file loaded</i>';
+		}
+	}
+	else
+	{
+		$display = new XsdDisplay(unserialize($_SESSION['xsd_parser']['xml_tree']), $debug);
 		echo $display->displayHTMLForm();
 	}
 }
 
 // Displays the XML tree
-// TODO Implement it
+// TODO Implement it in the display view
 function displayXmlTree()
 {
+	global $logger, $debug;
+	$logger->log_debug('Function called', 'displayXmlTree');
+	
 	if(isset($_SESSION['xsd_parser']['tree']))
 	{
-		$display = new XsdDisplay(unserialize($_SESSION['xsd_parser']['tree']), true); // todo use the variable for debug
+		$display = new XsdDisplay(unserialize($_SESSION['xsd_parser']['tree']), $debug);
 		echo $display->displayXMLTree();
 	}
 }

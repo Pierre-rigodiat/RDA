@@ -1,5 +1,6 @@
 <?php
 session_start();
+require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/core/XsdParser.php';
 require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/lib/PhpControllersFunctions.php';
 /**
  * 
@@ -14,7 +15,7 @@ require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/lib/PhpControll
 if(isset($_GET['id']) && isset($_GET['minOccurs']) && isset($_GET['maxOccurs']))
 {
 	// Create main variable
-	$tree = unserialize($_SESSION['xsd_parser']['tree']);
+	$tree = unserialize($_SESSION['xsd_parser']['xsd_tree']);
 	$element = $tree->getObject($_GET['id']);
 	
 	if($element) $elementAttr = $element->getAttributes();
@@ -59,7 +60,15 @@ if(isset($_GET['id']) && isset($_GET['minOccurs']) && isset($_GET['maxOccurs']))
 		}
 		
 		$tree->getObject($_GET['id'])->setAttributes($elementAttr);
-		$_SESSION['xsd_parser']['tree'] = serialize($tree);
+		$_SESSION['xsd_parser']['xsd_tree'] = serialize($tree);
+		
+		// Updates the xml tree within the parser
+		$parser = unserialize($_SESSION['xsd_parser']['parser']);
+		$parser->setXmlTree($tree);
+		$_SESSION['xsd_parser']['parser'] = serialize($parser);
+		
+		// Unset the xml tree to allow update
+		unset($_SESSION['xsd_parser']['xml_tree']);
 		
 		$html = htmlspecialchars(displayAttributes($tree, $_GET['id']));
 		echo buildJSON($html, 0);

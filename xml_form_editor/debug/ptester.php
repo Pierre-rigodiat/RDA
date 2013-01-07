@@ -28,12 +28,6 @@
 	<title>Parser Tester</title>
 </head>
 <body id="content-wrapper">
-	<?php
-		
-		
-		//$schemaFile = '../resources/files/demo.xsd';
-		//loadSchema($schemaFile);
-	?>
 	<h1>Parser Implementation Tester</h1>
 	<div class="warn">
 		The purpose of this tool is to test all parser features and verify that all is working good.	
@@ -49,7 +43,7 @@
 					$schemaFolder = '../resources/files/schemas';
 					$schemaFolderFiles = scandir($schemaFolder);
 					
-					var_dump($schemaFolderFiles);
+					//var_dump($schemaFolderFiles);
 					
 					foreach($schemaFolderFiles as $file)
 					{
@@ -77,28 +71,19 @@
 	<div class="block" id="cfg_view">
 		<h3>Elements</h3>
 		<?php
-			if(isset($_SESSION['xsd_parser']['tree']) && isset($_SESSION['xsd_parser']['parser']))
-				displayConfiguration();
-			else
-				echo '<i>No schema file loaded</i>';
+			displayConfiguration();
 		?>
 	</div>
 	
 	<hr/>
 	<h2>HTML Form View <span class="icon refresh form"></span></h2>
 	<?php
-		if(isset($_SESSION['xsd_parser']['tree']) && isset($_SESSION['xsd_parser']['parser']))
-			displayHTMLForm();
-		else
-			echo '<i>No schema file loaded</i>';
+		displayHTMLForm();
 	?>
 	<hr/>
 	<h2>XML View</h2>
 	<?php
-		if(isset($_SESSION['xsd_parser']['tree']) && isset($_SESSION['xsd_parser']['parser']))
-			displayXMLTree();
-		else
-			echo '<i>No schema file loaded</i>';
+		displayXMLTree();
 	?>
 	<script>
 		loadEditController();
