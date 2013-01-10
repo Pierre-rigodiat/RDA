@@ -9,7 +9,10 @@ if(isset($_GET['f'])/* && isset($_GET['d'])*/)
 		$schemaFilename = $_SESSION['xsd_parser']['conf']['dirname'].'/resources/files/schemas/'.$_GET['f'];
 		loadSchema($schemaFilename);
 		
-		displayConfiguration();
+		// Unset the current xml tree as it should be reloaded 
+		if(isset($_SESSION['xsd_parser']['xml_tree'])) unset($_SESSION['xsd_parser']['xml_tree']);
 	}
 }
+
+displayConfiguration();
 ?>

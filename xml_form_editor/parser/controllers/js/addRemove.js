@@ -44,9 +44,10 @@ addRemoveItem = function(event)
         		clickedElementParent.html(htmlspecialchars_decode(jsonObject.result));
         		
         		if(jsonObject.code>0) alert('Another object (ID '+jsonObject.code+') is inactive. Please activate it to use the current object');
+        		console.log('[addRemoveItem] Element '+elementId+' successfully modified');
         	}
-        	
-        	console.log('[addRemoveItem] Element '+elementId+' successfully modified');
+        	else // An error happened
+        		console.error('[addRemoveItem] Error '+jsonObject.code+' ('+jsonObject.result+')')
         },
         error: function() {
             console.error("[addRemoveItem] Problem with ID "+elementId);

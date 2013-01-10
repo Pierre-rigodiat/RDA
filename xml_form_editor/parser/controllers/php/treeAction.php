@@ -139,7 +139,9 @@ if(isset($_GET['action']) && isset($_GET['id']) && isset($_SESSION['xsd_parser']
 					if($elementId>=0)
 					{						
 						$htmlCode = htmlspecialchars(displayTree($tree, $grandParentId));
-						echo buildJSON($htmlCode, 0);
+						
+						if($htmlCode) echo buildJSON($htmlCode, 0);
+						else echo buildJSON('No ModuleHandler set', -3);
 					}
 					else
 					{

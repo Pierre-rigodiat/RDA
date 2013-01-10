@@ -22,6 +22,7 @@
 	
 	<script src="parser/controllers/js/addRemove.js"></script>
 	<script src="parser/controllers/js/edit.js"></script>
+	<script src="parser/controllers/js/module.js"></script>
 	<script src="resources/js.new/php.js"></script>
 	<script src="resources/js/ptester.js"></script>
 	
@@ -54,22 +55,23 @@
 			<div class="icon refresh file"></div>
 		</div>
 		<div>
-			Modules
-			<ul>
+			<p style="font-weight: bold">Modules</p>
+			<div id="schema_modules">
 			<?php
-				$moduleList = getModuleList();
+				/*$moduleList = getModuleList();
 				
 				foreach($moduleList as $module)
 				{
-					echo '<li>'.ucfirst($module).'</li>';
-				}
+					echo '<div class="module"><span class="icon legend off">'.ucfirst($module['name']).'</span></div>';
+				}*/
+				displayModuleChooser();
 			?>
-			</ul>
+			</div>
 		</div>
 	</div>
 	
 	<div class="block" id="cfg_view">
-		<h3>Elements</h3>
+		<h3>Elements <div class="icon refresh conf"></div></h3>
 		<?php
 			displayConfiguration();
 		?>
@@ -87,6 +89,7 @@
 	?>
 	<script>
 		loadEditController();
+		loadModuleController();
 	</script>
 </body>
 </html>

@@ -8,10 +8,13 @@ if(session_id()=='') // If the session has not been started, it is impossible to
 // Loading configuration and useful classes
 require_once dirname(__FILE__).'/parser.conf.php';
 require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/core/XsdParser.php';
+require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/core/ModuleHandler.php';
 require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/view/XsdDisplay.php';
+require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/view/ModuleDisplay.php';
 require_once $_SESSION['xsd_parser']['conf']['dirname'].'/inc/helpers/Logger.php';
 
 // TODO put some data in the configuration file
+// TODO Use the display as a configuration variable (use XsdDisplay::setTree to update the current tree after modification)
 
 // Debug and logger configuration for the file
 $debug = $_SESSION['xsd_parser']['conf']['debug'];
@@ -24,7 +27,9 @@ $logger = new Logger($logger_level, $_SESSION['xsd_parser']['conf']['dirname'].'
  * General function to call the parser
  */
 
-//Define a global variable to avoid to reload the parser each time
+ /**
+  * 
+  */
 function loadSchema($schemaFilename)
 {
 	global $logger, $debug;
@@ -32,32 +37,38 @@ function loadSchema($schemaFilename)
 	
 	$parser = new XsdParser($schemaFilename, $debug);
 	$rootElementsArray = $parser->parseXsdFile();
-	$parser->buildTree($rootElementsArray[0]);
+	$parser->buildTree($rootElementsArray[0]); // TODO Split at this point on 2 function (to be able to choose the root element)
 	
 	$_SESSION['xsd_parser']['parser'] = serialize($parser);
 	
 	$tree = $parser->getXmlTree();
-	//$_SESSION['xsd_parser']['tree'] = serialize($tree);
 	$_SESSION['xsd_parser']['xsd_tree'] = serialize($tree);
 	
 	/*$display = new XsdDisplay($tree, $debug);
 	$_SESSION['xsd_parser']['display'] = serialize($display);*/
 }
 
-// ???
-/*function computeMinOccurs()
+/**
+ * Load every module using the module handler
+ */
+function loadModules()
 {
-	if(isset($_SESSION['xsd_parser']['parser']))
+	global $logger, $debug;
+	$logger->log_debug('Function called', 'loadModules');
+	
+	// Build the module handler object
+	if(isset($_SESSION['xsd_parser']['conf']['modules_dirname']))
 	{
-		$parser = unserialize($_SESSION['xsd_parser']['parser']);
-		$parser->computeMinOccurs();
+		$mHandler = new ModuleHandler($_SESSION['xsd_parser']['conf']['modules_dirname'], true);
 		
-		$tree = $parser->getXmlTree();
-		$_SESSION['xsd_parser']['tree'] = serialize($tree);
-		
-		$_SESSION['xsd_parser']['parser'] = serialize($parser);
+		// Store it into a $_SESSION variable
+		$_SESSION['xsd_parser']['mhandler']	= serialize($mHandler);
 	}
-}*/
+	else 
+	{
+		$logger->log_error('Configuration variable $_SESSION[\'xsd_parser\'][\'conf\'][\'modules_dirname\'] missing', 'loadSchema');
+	}	
+}
 
 // Displays the configuration view of the parser
 function displayConfiguration()
@@ -67,12 +78,30 @@ function displayConfiguration()
 	
 	if(isset($_SESSION['xsd_parser']['xsd_tree']))
 	{
-		$display = new XsdDisplay(unserialize($_SESSION['xsd_parser']['xsd_tree']), $debug);
+		if(isset($_SESSION['xsd_parser']['mhandler']))
+		{
+			$mHandler = unserialize($_SESSION['xsd_parser']['mhandler']);
+			$moduleDisplay = new ModuleDisplay($mHandler, $debug);
+			
+			$logger->log_debug('ModuleDisplay created', 'displayConfiguration');
+		}
+		else { // If the module handler is not set, it loaded it automatically
+			$logger->log_debug('Need to create the module handler first', 'displayConfiguration');
+			loadModules();
+			return displayConfiguration();
+		}		
+		
+		$display = new XsdDisplay(unserialize($_SESSION['xsd_parser']['xsd_tree']), $moduleDisplay, $debug);
 		echo $display->displayConfiguration();
+		
+		return;
 	}
 	else
 	{
+		$logger->log_debug('No schema loaded', 'displayConfiguration');
 		echo '<i>No schema file loaded</i>';
+		
+		return;
 	}
 }
 
@@ -83,11 +112,25 @@ function displayHTMLForm()
 	global $logger, $debug;
 	$logger->log_debug('Function called', 'displayHTMLForm');
 	
-	if(!isset($_SESSION['xsd_parser']['xml_tree']))
+	if(isset($_SESSION['xsd_parser']['mhandler']))
 	{
-		if(isset($_SESSION['xsd_parser']['xsd_tree']))
+		$mHandler = unserialize($_SESSION['xsd_parser']['mhandler']);
+		$moduleDisplay = new ModuleDisplay($mHandler, $debug);
+		
+		$logger->log_debug('ModuleDisplay created and module chooser displayed', 'displayModuleChooser');
+	}
+	else { // If the module handler is not set, it loaded it automatically
+		$logger->log_debug('Need to create the module handler first', 'displayConfiguration');
+		loadModules();
+		return displayHTMLForm();
+	}
+	
+	if(!isset($_SESSION['xsd_parser']['xml_tree'])) // If the xml_tree is not set, it built it
+	{
+		if(isset($_SESSION['xsd_parser']['xsd_tree'])) // Need a basis to build the form
 		{
-			// Computing MINOCCURS
+			// Computing MINOCCURS using the parser function
+			// Allows to display the right number of element
 			if(isset($_SESSION['xsd_parser']['parser']))
 			{
 				$parser = unserialize($_SESSION['xsd_parser']['parser']);
@@ -99,18 +142,19 @@ function displayHTMLForm()
 				$_SESSION['xsd_parser']['parser'] = serialize($parser);
 			}
 			
-			$display = new XsdDisplay(unserialize($_SESSION['xsd_parser']['xml_tree']), $debug);
+			// Build the form
+			$display = new XsdDisplay(unserialize($_SESSION['xsd_parser']['xml_tree']), $moduleDisplay, $debug);
 			echo $display->displayHTMLForm();
 		}
-		else 
+		else // No schema has been loaded ($_SESSION['xsd_parser']['xsd_tree'] does not exist)
 		{
 			$logger->log_debug('No schema loaded', 'displayHTMLForm');
 			echo '<i>No schema file loaded</i>';
 		}
 	}
-	else
+	else // An XML tree already exists
 	{
-		$display = new XsdDisplay(unserialize($_SESSION['xsd_parser']['xml_tree']), $debug);
+		$display = new XsdDisplay(unserialize($_SESSION['xsd_parser']['xml_tree']), $moduleDisplay, $debug);
 		echo $display->displayHTMLForm();
 	}
 }
@@ -133,33 +177,30 @@ function displayXmlTree()
  * Function to call modules
  */
 // TODO automatically include all module functions
+// XXX try to hide to module handling from the website and from this file
 
-function getModuleList()
+
+/**
+ * 
+ */
+function displayModuleChooser()
 {
-	$result = array();
+	global $logger, $debug;
 	
-	if(isset($_SESSION['xsd_parser']['conf']['modules_dirname']))
+	if(isset($_SESSION['xsd_parser']['mhandler']))
 	{
-		$module_dir = $_SESSION['xsd_parser']['conf']['modules_dirname'];
+		$mHandler = unserialize($_SESSION['xsd_parser']['mhandler']);
+		$moduleDisplay = new ModuleDisplay($mHandler, $debug);
+		echo $moduleDisplay -> displayModuleChooser();
 		
-		if(is_dir($module_dir))
-		{
-			$fileList = scandir($module_dir);
-			
-			foreach($fileList as $file)
-			{
-				if(is_dir($module_dir.'/'.$file) && !startsWith($file, '.'))
-					array_push($result,$file);
-			}
-
-			return $result;
-		}
-		else {
-			return null;
-		}
+		$logger->log_debug('ModuleDisplay created and module chooser displayed', 'displayModuleChooser');
+		
+		return;
 	}
-	else {
-		return null;
+	else { // If the module handler is not set, it loaded it automatically
+		$logger->log_debug('Need to create the module handler first', 'displayModuleChooser');
+		loadModules();
+		return displayModuleChooser();
 	}
 }
  

@@ -1,4 +1,5 @@
 <?php
+// TODO Rewrite the debug part using the parser configuration
 define("DEBUG_XML_LIB", true);
 require_once $_SESSION['xsd_parser']['conf']['dirname'].'/inc/helpers/Logger.php';
 require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/core/XsdElement.php';
@@ -15,7 +16,7 @@ require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/core/XsdElement
  
 // Logger implementation
 $LOGGER = null;
- 
+
 if(DEBUG_XML_LIB) $LOGGER = new Logger('notice', $_SESSION['xsd_parser']['conf']['dirname'].'/logs/xml_lib.log', 'XmlParserFunctions.php');
 else $LOGGER = new Logger('info', $_SESSION['xsd_parser']['conf']['dirname'].'/logs/xml_lib.log', 'XmlParserFunctions.php');
  
@@ -26,25 +27,9 @@ $stack = array();
 $elementList = array();
 $elementTree = new Tree(DEBUG_XML_LIB);
 
-//Function to use at the end of an element
-function stop($parser,$element_name)
-{
-	global $id, $level, $stack, $elementList, $elementTree, $LOGGER;
-
-	/**
-	 * Updating the stack
-	 */
-
-	// Decrease the level
-	$level -= 1;
-
-	// Remove the stack element
-	$stack[$level] = null;
-	
-	$LOGGER->log_debug('End reading '.$element_name, 'stop');
-}
-
-//Function to use at the start of an element
+/**
+ * Function used on a start tag (<element>)
+ */
 function start($parser,$element_name,$element_attrs)
 {
 	global $id, $level, $stack, $elementList, $elementTree, $LOGGER;
@@ -75,10 +60,34 @@ function start($parser,$element_name,$element_attrs)
 	$level += 1;
 }
 
-// Function to use when finding character data
+/**
+ * Function used reading a character
+ */
 function char($parser,$data) {}
 
-// Make the XML readable in a HTML page
+/**
+ * Function used at the end of an element (</element>)
+ */
+function stop($parser,$element_name)
+{
+	global $id, $level, $stack, $elementList, $elementTree, $LOGGER;
+
+	/**
+	 * Updating the stack
+	 */
+
+	// Decrease the level
+	$level -= 1;
+
+	// Remove the stack element
+	$stack[$level] = null;
+	
+	$LOGGER->log_debug('End reading '.$element_name, 'stop');
+}
+
+/**
+ * Make the XML readable in a HTML page
+ */
 function displayXMLContent($content)
 {
 	$old = array(htmlspecialchars('<br />'), htmlspecialchars(' '));

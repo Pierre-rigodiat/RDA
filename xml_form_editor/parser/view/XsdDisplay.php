@@ -4,27 +4,28 @@ require_once $_SESSION['xsd_parser']['conf']['dirname'] . '/inc/lib/StringFuncti
 
 /**
  * XsdDisplay class allow to display element the way you want.
- * todo build the class
  * xxx Handle templates, etc...
  *
  */
 class XsdDisplay
 {
 	private $tree;
-
+	private $moduleDisplay;
+	
+	private static $STEPS = array(
+		'config' => 0,
+		'html_form' => 1,
+		'xml_tree' => 2
+	);
+	
+	// Debug and logging variables
 	private $LOGGER;
-
 	private static $LEVELS = array(
 		'DBG' => 'notice',
 		'NO_DBG' => 'info'
 	);
 	private static $LOG_FILE;
 	private static $FILE_NAME = 'XsdDisplay.php';
-	private static $STEPS = array(
-		'config' => 0,
-		'html_form' => 1,
-		'xml_tree' => 2
-	);
 
 	/**
 	 *
@@ -38,26 +39,33 @@ class XsdDisplay
 
 		switch($argc)
 		{
-			case 1 :
-				// new XsdDisplay(treeObject)
-				if (is_object($argv[0]) && get_class($argv[0]) == 'Tree')
+			case 2 :
+				// new XsdDisplay(treeObject, moduleDisplay)
+				if (is_object($argv[0]) && get_class($argv[0]) == 'Tree' 
+					&& is_object($argv[1]) && get_class($argv[1]) == 'ModuleDisplay')
 				{
 					$this -> tree = $argv[0];
+					$this -> moduleDisplay = $argv[1];
+					
 					$level = self::$LEVELS['NO_DBG'];
 				}
 				else
 				{
 					$this -> tree = null;
+					$this -> moduleDisplay = null;
 					$level = self::$LEVELS['NO_DBG'];
 				}
 				break;
-			case 2 :
-				// new XsdDisplay(treeObject, debugBoolean)
-				if (is_object($argv[0]) && get_class($argv[0]) == 'Tree' && is_bool($argv[1]))
+			case 3 :
+				// new XsdDisplay(treeObject, moduleDisplay, debugBoolean)
+				if (is_object($argv[0]) && get_class($argv[0]) == 'Tree' 
+					&& is_object($argv[1]) && get_class($argv[1]) == 'ModuleDisplay'
+					&& is_bool($argv[2]))
 				{
 					$this -> tree = $argv[0];
+					$this -> moduleDisplay = $argv[1];
 
-					if ($argv[1])
+					if ($argv[2])
 						$level = self::$LEVELS['DBG'];
 					else
 						$level = self::$LEVELS['NO_DBG'];
@@ -65,11 +73,13 @@ class XsdDisplay
 				else
 				{
 					$this -> tree = null;
+					$this -> moduleDisplay = null;
 					$level = self::$LEVELS['NO_DBG'];
 				}
 				break;
 			default :
 				$this -> tree = null;
+				$this -> moduleDisplay = null;
 				$level = self::$LEVELS['NO_DBG'];
 				break;
 		}
@@ -84,40 +94,63 @@ class XsdDisplay
 			return;
 		}
 
-		if ($this -> tree == null)
+		if ($this -> tree == null && $this -> moduleDisplay == null)
 		{
 			$log_mess = '';
 
 			switch($argc)
 			{
-				case 1 :
-					$log_mess .= 'Supports Tree (object) as parameter (' . gettype($argv[0]) . ' given)';
-					break;
 				case 2 :
-					$log_mess .= 'Supports {Tree(object), boolean} as parameters ({' . gettype($argv[0]) . ',' . gettype($argv[1]) . '} given)';
+					if(is_object($argv[0])) $argv0 = get_class($argv[0]);
+					else $argv0 = gettype($argv[0]);
+					if(is_object($argv[1])) $argv1 = get_class($argv[1]);
+					else $argv1 = gettype($argv[1]);
+								
+					$log_mess .= 'Supports {Tree,ModuleDisplay} as parameter ({' . $argv0 . ',' . $argv1 . '} given)';
+					break;
+				case 3 :
+					if(is_object($argv[0])) $argv0 = get_class($argv[0]);
+					else $argv0 = gettype($argv[0]);
+					if(is_object($argv[1])) $argv1 = get_class($argv[1]);
+					else $argv1 = gettype($argv[1]);
+					if(is_object($argv[2])) $argv1 = get_class($argv[2]);
+					else $argv1 = gettype($argv[2]);
+					
+					$log_mess .= 'Supports {Tree,ModuleDisplay,boolean} as parameters ({' . $argv0 . ',' . $argv1 . ',' . $argv2 . '} given)';
 					break;
 				default :
-					$log_mess .= '1 or 2 parameters must be entered (' . $argc . 'given)';
+					$log_mess .= 'Supports 2 or 3 parameter at input (' . $argc . 'given)';
 					break;
 			}
 
 			$this -> LOGGER -> log_error($log_mess, 'XsdDisplay::__construct');
 		}
 		else
-			$this -> LOGGER -> log_debug('Display element successfully built', 'XsdDisplay::__construct');
+			$this -> LOGGER -> log_debug('XsdDisplay successfully built', 'XsdDisplay::__construct');
 	}
 
+	/**
+	 * 
+	 */
 	public function setTree($newTree)
 	{
 		if (is_object($newTree) && get_class($newTree) == 'Tree')
 		{
 			$this -> tree = $newTree;
-			$this -> LOGGER -> log_info('A new tree has been set', 'XsdDisplay::setTree');
+			$this -> LOGGER -> log_info('New tree set', 'XsdDisplay::setTree');
 		}
 		else
-			$this -> LOGGER -> log_error('Impossible to set the new tree: first parameter is not an instance of Tree', 'XsdDisplay::setTree');
+			$this -> LOGGER -> log_error('First parameter is not an instance of Tree', 'XsdDisplay::setTree');
 	}
-
+	
+	/**
+	 * 
+	 */
+	public function setModuleDisplay($moduleDisplay)
+	{
+		/* Not yet implemented */
+	}
+	 
 	/**
 	 *
 	 */
@@ -158,13 +191,12 @@ class XsdDisplay
 	}
 
 	/**
-	 *
+	 * Displays the jQueryUI pop-up for the configuration view
+	 * @return {String} The pop-up code
 	 */
 	private function displayPopUp()
 	{
-		$result = '';
-
-		$result .= '<div id="dialog" title="">
+		$result = '	<div id="dialog" title="">
 						<p class="elementId"></p>
 					    <p class="tip"></p>
 						
@@ -200,8 +232,23 @@ class XsdDisplay
 						        	<label for="pattern">Pattern</label>
 						        	<input type="text" name="pattern" id="pattern" value="Not yet implemented" class="popup-text ui-widget-content ui-corner-all" disabled="disabled"/>
 						        </span>
-					        </div>
-					    </fieldset>
+					        </div>';
+		
+		// Module select display
+		if($this->moduleDisplay) // If the ModuleDisplay object has been set
+		{
+			$result .= '    <div class="dialog subpart" id="module-part">
+						        <label for="module">Apply module</label>
+						        <select id="module" name="module" class="ui-widget-content ui-corner-all">
+						        	<option value="false"">No module</option>';
+						
+			$result .= $this->moduleDisplay->displayPopUpModuleSelect();
+							
+			$result .= '        </select>
+					        </div>';
+		}
+		
+		$result .= '	</fieldset>
 					    </form>
 				    </div>';
 

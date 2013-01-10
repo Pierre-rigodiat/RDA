@@ -6,11 +6,13 @@
  */
 require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/core/Tree.php';
 require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/core/XsdElement.php';
+require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/view/ModuleDisplay.php';
 require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/view/XsdDisplay.php';
-
+// TODO Setup debug using the session variable
 
 /**
- * Function to display the every brother of the father of the element we have clicked on
+ * Function to display the every brother of the father of the element we have clicked on.
+ * A ModuleHandler object should have been configured before.
  * @param $tree
  * @param $grandParentId
  * 
@@ -18,30 +20,47 @@ require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/view/XsdDisplay
  */
 function displayTree($tree, $grandParentId)
 {
-	$result = '';
-	
-	$display = new XsdDisplay($tree, true);
-						
-	if($grandParentId>=0)
+	if(isset($_SESSION['xsd_parser']['mhandler']))
 	{
-		$children = $tree->getChildren($grandParentId);
-		foreach($children as $childId)
+		$mHandler = unserialize($_SESSION['xsd_parser']['mhandler']);
+		$moduleDisplay = new ModuleDisplay($mHandler, true);
+		
+		$result = '';
+	
+		$display = new XsdDisplay($tree, $moduleDisplay, true);
+							
+		if($grandParentId>=0)
 		{
-			$result .= $display->displayHTMLForm($childId, true);
+			$children = $tree->getChildren($grandParentId);
+			foreach($children as $childId)
+			{
+				$result .= $display->displayHTMLForm($childId, true);
+			}
 		}
+		else $result .= $display->displayHTMLForm(0, true);
+		
+		return $result;
 	}
-	else
-	{
-		$result .= $display->displayHTMLForm(0, true);
-	}
-	
-	return $result;
+	else return null;
 }
 
+/**
+ * 
+ * A ModuleHandler object should have been configured before.
+ * 
+ * 
+ */
 function displayAttributes($tree, $elementId)
 {
-	$display = new XsdDisplay($tree, true);	
-	return $display->displayConfigurationElement($elementId, true);
+	if(isset($_SESSION['xsd_parser']['mhandler']))
+	{
+		$mHandler = unserialize($_SESSION['xsd_parser']['mhandler']);
+		$moduleDisplay = new ModuleDisplay($mHandler, true);
+		
+		$display = new XsdDisplay($tree, $moduleDisplay, true);	
+		return $display->displayConfigurationElement($elementId, true);
+	}
+	else return null;
 }
 
 /**
@@ -49,7 +68,7 @@ function displayAttributes($tree, $elementId)
  * @param $message
  * @param $code
  * 
- * @return (string)
+ * @return (string) The actua
  */
 function buildJSON($message, $code)
 {
