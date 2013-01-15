@@ -15,11 +15,12 @@
 	
 	<link rel="stylesheet" type="text/css" href="http://code.jquery.com/ui/1.9.2/themes/base/jquery-ui.css" />
 	<link rel="stylesheet" type="text/css" href="resources/css/ptester.css" media="screen" />
-	
+	<link rel="stylesheet" type="text/css" href="ontology/auto-complete.css" media="screen" />
 	
 	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
 	<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/jquery-ui.min.js"></script>
 	
+	<script src="ontology/auto-complete.js"></script>
 	<script src="parser/controllers/js/addRemove.js"></script>
 	<script src="parser/controllers/js/edit.js"></script>
 	<script src="parser/controllers/js/module.js"></script>
@@ -90,6 +91,8 @@
 	<script>
 		loadEditController();
 		loadModuleController();
+
+		loadAutocomplete();
 	</script>
 </body>
 </html>

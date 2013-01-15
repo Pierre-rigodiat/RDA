@@ -20,6 +20,9 @@
     </style>
     <script>
     $(function() {
+	var node;
+	var parent;
+
         function split( val ) {
             return val.split( /,\s*/ );
         }
@@ -27,11 +30,15 @@
             return split( term ).pop();
         }*/
  
-        $( "#material" )
+        $( ".text" )
             // don't navigate away from the field on tab when selecting an item
             .bind( "keydown", function( event ) {
+		node=$(this).prev().html();
+		parent=$(this).parent().parent().prev().html();
+
                 if ( event.keyCode === $.ui.keyCode.TAB &&
-                        $( this ).data( "autocomplete" ).menu.active ) {
+                        $( this ).data( "autocomplete" ).menu.active )
+		{
                     event.preventDefault();
                 }
             })
@@ -62,6 +69,8 @@
 						"Scala",
 						"Scheme"
 					]);*/
+					
+
 					$.ajax({
 					   url: "cwm.php",  //server script to process data
 					   type: 'GET',
@@ -76,7 +85,7 @@
 						   console.error("Problem importing the file");
 					   },
 					   // Form data
-					   data: 'term='+request.term,
+					   data: 'term='+request.term+'&node='+node+'&parent='+parent,
 					   //Options to tell JQuery not to process data or worry about content-type
 					   cache: false,
 					   contentType: false,
@@ -110,8 +119,11 @@
 <body>
  
 <div class="ui-widget">
-    <label for="material">MaterialSubstance: </label>
-    <input id="material" size="50" />
+	<!--<span class="elementName">name</span> <input type="text" class="text"/>-->
+	<li id="132"><span class="elementName">materialForm</span> 
+	<ul><li id="135"><span class="elementName">name</span> <input type="text" class="text"/></li></ul></li>
+    <!--<label for="material">MaterialSubstance: </label>
+    <input id="material" size="50" />-->
 </div>
  
  
