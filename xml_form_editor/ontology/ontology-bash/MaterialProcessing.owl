@@ -1,0 +1,2306 @@
+@prefix daml: <http://www.daml.org/2001/03/daml+oil#> .
+@prefix umbel: <http://umbel.org/umbel/sc/#> .
+@prefix exp: <http://www.nist.gov/itl/ssd/Experiments#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix bc: <http://www.nist.gov/itl/ssd/Biochem#> .
+@prefix : <http://www.nist.gov/itl/ssd/MaterialProcessing#> .
+@prefix or: <http://www.nist.gov/itl/ssd/OntologyRequirements.owl#> .
+@prefix mat: <http://www.nist.gov/itl/ssd/Materials.owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix doc: <http://www.nist.gov/itl/ssd/Document.n3#> .
+@base <http://www.nist.gov/itl/ssd/MaterialProcessing.owl> .
+
+<http://www.nist.gov/itl/ssd/MaterialProcessing.owl> rdf:type owl:Ontology ;
+                                                     
+                                                     owl:imports <http://www.nist.gov/itl/ssd/Experiments> ,
+                                                                 <http://www.nist.gov/itl/ssd/Materials> .
+
+
+#################################################################
+#
+#    Annotation properties
+#
+#################################################################
+
+
+or:nickName rdf:type owl:AnnotationProperty .
+
+
+
+
+
+#################################################################
+#
+#    Datatypes
+#
+#################################################################
+
+
+
+
+#################################################################
+#
+#    Object Properties
+#
+#################################################################
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#outputCreated
+
+exp:outputCreated rdf:type owl:ObjectProperty .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#hadProcessingStep
+
+:hadProcessingStep rdf:type owl:ObjectProperty ;
+                   
+                   rdfs:comment "The property 'had Processing Step' relates a Material Object to a Material Processing Type that was performed as it was being produced/prepared."@en ;
+                   
+                   rdfs:range :MaterialProcessingType ;
+                   
+                   rdfs:domain mat:MaterialObject .
+
+
+
+
+
+#################################################################
+#
+#    Classes
+#
+#################################################################
+
+
+###  http://www.nist.gov/itl/ssd/Document.n3#ExtrapolationOfData
+
+doc:ExtrapolationOfData owl:disjointWith exp:Experiment .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#Experiment
+
+exp:Experiment rdf:type owl:Class .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#ScanningProbeMicroscope
+
+exp:ScanningProbeMicroscope rdfs:subClassOf <http://www.nist.gov/itl/ssd/OntologyRequirements#Profilometer> .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#AlloyDesign
+
+:AlloyDesign rdf:type owl:Class ;
+             
+             rdfs:subClassOf :MaterialsDesign .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#AlloyDesigning
+
+:AlloyDesigning rdf:type owl:Class ;
+                
+                owl:equivalentClass [ rdf:type owl:Class ;
+                                      owl:intersectionOf ( :MaterialsDesigning
+                                                           [ rdf:type owl:Restriction ;
+                                                             owl:onProperty exp:outputCreated ;
+                                                             owl:someValuesFrom :AlloyDesign
+                                                           ]
+                                                         )
+                                    ] ;
+                
+                rdfs:subClassOf :MaterialsDesigning ;
+                
+                rdfs:comment "Alloy Designing is the activity of designing a new type of alloy"@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#Annealing
+
+:Annealing rdf:type owl:Class ;
+           
+           rdfs:subClassOf :HeatTreating ;
+           
+           owl:disjointWith :ArcMelting ,
+                            :Quenching ;
+           
+           rdfs:comment "Annealing is a heat treatment wherein a material is altered, causing changes in its properties such as strength and hardness. It is a process that produces conditions by heating to above the critical temperature, maintaining a suitable temperature, and then cooling."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#ArcMelting
+
+:ArcMelting rdf:type owl:Class ;
+            
+            rdfs:subClassOf :HeatTreating ;
+            
+            rdfs:comment "Arc Melting is the process of melting a substance with the use of an electric arck. This may or may not be performed in an Electric Arc Furnace."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#AtomicCompositionMeasuring
+
+:AtomicCompositionMeasuring rdf:type owl:Class ;
+                            
+                            rdfs:subClassOf exp:Measuring ;
+                            
+                            rdfs:comment "Atomic Composition Measuring is the action of measuring the atomic composition of some object."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#AugerSpectroscopy
+
+:AugerSpectroscopy rdf:type owl:Class ;
+                   
+                   rdfs:subClassOf :DirectCompositionMeasuring ,
+                                   :SpectroscopicAnalysis ;
+                   
+                   owl:disjointWith :ElectronProbeMicroanalysis ,
+                                    :NuclearReactionAnalysis ,
+                                    :Resistometry ,
+                                    :RutherfordBackscattering ,
+                                    :SecondaryIonMassSpectroscopy ,
+                                    :XrayDiffractionAnalysis .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#BinaryPhaseDiagram
+
+:BinaryPhaseDiagram rdf:type owl:Class ;
+                    
+                    rdfs:subClassOf :PhaseDiagram ;
+                    
+                    owl:disjointWith :HigherOrderPhaseDiagram ,
+                                     :PressureTemperaturePhaseDiagram ,
+                                     :TernaryPhaseDiagram ;
+                    
+                    rdfs:comment "A Binary Phase Diagram is a Phase Diagram for a two component system.  The most common binary phase diagrams are  Temperature-Concentration Phase Diagrams at a constant pressure."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#Casting_MaterialProcessing
+
+:Casting_MaterialProcessing rdf:type owl:Class ;
+                            
+                            rdfs:subClassOf <http://www.nist.gov/itl/ssd/MaterialProcessing.owl#ShapingMaterial> ;
+                            
+                            owl:disjointWith :ChannelDieCompression ,
+                                             :ColdCompaction ,
+                                             :Extrusion ,
+                                             :Forging_MaterialProcessing ,
+                                             :HeatTreating ,
+                                             :Hydroforming ,
+                                             :Quenching ,
+                                             :Rolling_MaterialProcessing ,
+                                             :Sectioning ,
+                                             :SheetForming ,
+                                             :Sintering ,
+                                             <http://www.nist.gov/itl/ssd/MaterialProcessing.owl#AttachingMaterials> ;
+                            
+                            rdfs:comment "In metalworking, casting involves pouring liquid metal into a mold, which contains a hollow cavity of the desired shape, and then allowing it to cool and solidify. The solidified part is also known as a casting, which is ejected or broken out of the mold to complete the process. Casting is most often used for making complex shapes that would be difficult or uneconomical to make by other methods."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#ChannelDieCompression
+
+:ChannelDieCompression rdf:type owl:Class ;
+                       
+                       rdfs:subClassOf <http://www.nist.gov/itl/ssd/MaterialProcessing.owl#ShapingMaterial> ;
+                       
+                       owl:disjointWith :ColdCompaction ,
+                                        :Extrusion ,
+                                        :Forging_MaterialProcessing ,
+                                        :HeatTreating ,
+                                        :Hydroforming ,
+                                        :Quenching ,
+                                        :Rolling_MaterialProcessing ,
+                                        :Sectioning ,
+                                        :SheetForming ,
+                                        :Sintering ,
+                                        <http://www.nist.gov/itl/ssd/MaterialProcessing.owl#AttachingMaterials> ;
+                       
+                       rdfs:seeAlso "Francillette et al, Acta Materialia, Volume 46, Issue 12, 24 July 1998, Pages 4131–4142 http://www.sciencedirect.com/science/article/pii/S1359645498001219"@en ;
+                       
+                       rdfs:comment "In Channel Die Compression, a sample is placed in a rectangular channel with one side open.  The sample is compressed from the open side and expansion is allowed in both directions along the channel, but restricted in the transverse direction."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#ColdCompaction
+
+:ColdCompaction rdf:type owl:Class ;
+                
+                rdfs:subClassOf <http://www.nist.gov/itl/ssd/MaterialProcessing.owl#ShapingMaterial> ;
+                
+                owl:disjointWith :Extrusion ,
+                                 :Forging_MaterialProcessing ,
+                                 :HeatTreating ,
+                                 :Hydroforming ,
+                                 :Quenching ,
+                                 :Rolling_MaterialProcessing ,
+                                 :Sectioning ,
+                                 :SheetForming ,
+                                 :Sintering ,
+                                 <http://www.nist.gov/itl/ssd/MaterialProcessing.owl#AttachingMaterials> ,
+                                 <http://www.nist.gov/itl/ssd/MaterialProcessing.owl#AttachingWithConnector> ;
+                
+                rdfs:comment "Cold Compaction is the process of pressing fine powdered materials into a desired shape or form, removing gaps from within and expelling gas from the powder without heating.  If the powder is a mixture of multiple substances, they would normally be blended very well before compaction."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#CompositionMeasuringThroughAutoradiography
+
+:CompositionMeasuringThroughAutoradiography rdf:type owl:Class ;
+                                            
+                                            rdfs:subClassOf :RadiotracerCompositionMeasuring ;
+                                            
+                                            owl:disjointWith :RadiotracerCompositionMeasuringThroughResidualActivity ,
+                                                             :RadiotracerCompositionMeasuringThroughSerialSectioning ,
+                                                             :RadiotracerCompositionMeasuringThroughSurfaceActivity .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#CoolingDevice
+
+:CoolingDevice rdf:type owl:Class ;
+               
+               rdfs:subClassOf <http://www.nist.gov/itl/ssd/OntologyRequirements#PhysicalDevice> ;
+               
+               rdfs:comment "A Cooling Device is a device for intentionally cooling some type of material down.  A device that turns off a Heating Device or allows generated heat to escape is not considered a cooling device."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#CrystallographicData
+
+:CrystallographicData rdf:type owl:Class ;
+                      
+                      rdfs:subClassOf <http://www.nist.gov/itl/ssd/OntologyRequirements#DataObject> ,
+                                      [ rdf:type owl:Restriction ;
+                                        owl:onProperty <http://www.nist.gov/itl/ssd/OntologyRequirements#storesInformationAbout> ;
+                                        owl:someValuesFrom mat:CrystalStructure
+                                      ] ;
+                      
+                      owl:disjointWith :PhaseEquilibriumData ,
+                                       :ThermochemicalData ,
+                                       :ThermodynamicData ;
+                      
+                      rdfs:comment "Crystallographic Data is a Data Object that stores crystallographic information."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#DiffractionData
+
+:DiffractionData rdf:type owl:Class ;
+                 
+                 rdfs:subClassOf <http://www.nist.gov/itl/ssd/OntologyRequirements#DataObject> ;
+                 
+                 owl:disjointWith :PhaseEquilibriumData ,
+                                  :ThermochemicalData .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#DiffusionDataFile
+
+:DiffusionDataFile rdf:type owl:Class ;
+                   
+                   rdfs:subClassOf <http://www.nist.gov/itl/ssd/OntologyRequirements#ComputerFile> ,
+                                   [ rdf:type owl:Restriction ;
+                                     owl:onProperty <http://www.nist.gov/itl/ssd/OntologyRequirements#storesInformationAbout> ;
+                                     owl:someValuesFrom mat:Diffusion
+                                   ] ;
+                   
+                   owl:disjointWith :MolarVolumeDataFile ,
+                                    :ThermodynamicDataFile ,
+                                    <http://www.nist.gov/itl/ssd/OntologyRequirements#ComputerImageFile> ;
+                   
+                   rdfs:comment "A file which maintains diffusion data."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#DiffusionMatrixTable
+
+:DiffusionMatrixTable rdf:type owl:Class ;
+                      
+                      rdfs:subClassOf <http://www.nist.gov/itl/ssd/OntologyRequirements#DataTable> .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#DiffusionMobilityDatabase
+
+:DiffusionMobilityDatabase rdf:type owl:Class ;
+                           
+                           rdfs:subClassOf :ThermodynamicDatabase ,
+                                           [ rdf:type owl:Restriction ;
+                                             owl:onProperty <http://www.nist.gov/itl/ssd/OntologyRequirements#storesInformationAbout> ;
+                                             owl:someValuesFrom mat:Diffusion
+                                           ] ;
+                           
+                           rdfs:comment "A Diffusion Mobility Database is a Data Base with diffusion mobility data."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#DirectCompositionMeasuring
+
+:DirectCompositionMeasuring rdf:type owl:Class ;
+                            
+                            rdfs:subClassOf :AtomicCompositionMeasuring ;
+                            
+                            owl:disjointWith :IndirectCompositionMeasuring ;
+                            
+                            rdfs:comment "Direct Composition Measuring is a type of measuring the composition of an object through direct measurment of the component species."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#ElectricArcFurnace
+
+:ElectricArcFurnace rdf:type owl:Class ;
+                    
+                    rdfs:subClassOf :IndustrialFurnace .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#ElectricBeamFurnace
+
+:ElectricBeamFurnace rdf:type owl:Class ;
+                     
+                     rdfs:subClassOf :IndustrialFurnace .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#ElectricalIndirectCompositionMeasuring
+
+:ElectricalIndirectCompositionMeasuring rdf:type owl:Class ;
+                                        
+                                        rdfs:subClassOf :IndirectCompositionMeasuring ;
+                                        
+                                        owl:disjointWith :MechanicalSpectroscopy ,
+                                                         :NuclearIndirectCompositionMeasuring .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#ElectronProbeMicroanalysis
+
+:ElectronProbeMicroanalysis rdf:type owl:Class ;
+                            
+                            rdfs:subClassOf :DirectCompositionMeasuring ;
+                            
+                            owl:disjointWith :NuclearReactionAnalysis ,
+                                             :Resistometry ,
+                                             :RutherfordBackscattering ,
+                                             :SecondaryIonMassSpectroscopy ,
+                                             :XrayDiffractionAnalysis .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#Extrusion
+
+:Extrusion rdf:type owl:Class ;
+           
+           rdfs:subClassOf <http://www.nist.gov/itl/ssd/MaterialProcessing.owl#ShapingMaterial> ;
+           
+           owl:disjointWith :Forging_MaterialProcessing ,
+                            :HeatTreating ,
+                            :Hydroforming ,
+                            :Quenching ,
+                            :Rolling_MaterialProcessing ,
+                            :Sectioning ,
+                            :SheetForming ,
+                            :Sintering ,
+                            <http://www.nist.gov/itl/ssd/MaterialProcessing.owl#AttachingWithConnector> ;
+           
+           rdfs:comment "Extrusion is a process used to create objects of a fixed, cross-sectional profile. A material is pushed or drawn through a die of the desired cross-section."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#FieldGradientNMRAnalysis
+
+:FieldGradientNMRAnalysis rdf:type owl:Class ;
+                          
+                          rdfs:subClassOf :NuclearMagneticResonanceAnalysis ;
+                          
+                          owl:disjointWith :NMRRelaxationAnalysis .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#Forging_MaterialProcessing
+
+:Forging_MaterialProcessing rdf:type owl:Class ;
+                            
+                            rdfs:subClassOf <http://www.nist.gov/itl/ssd/MaterialProcessing.owl#ShapingMaterial> ;
+                            
+                            owl:disjointWith :Hydroforming ,
+                                             :Quenching ,
+                                             :Rolling_MaterialProcessing ,
+                                             :Sectioning ,
+                                             :SheetForming ,
+                                             :Sintering ,
+                                             <http://www.nist.gov/itl/ssd/MaterialProcessing.owl#AttachingWithConnector> ;
+                            
+                            rdfs:comment "Forging is a manufacturing process involving the shaping of metal using localized compressive forces. Forging is often classified according to the temperature at which it is performed: \"cold\", \"warm\", or \"hot\" forging."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#FracturePrediction
+
+:FracturePrediction rdf:type owl:Class ;
+                    
+                    rdfs:subClassOf <http://www.nist.gov/itl/ssd/Document#MakingAPrediction> .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#FurnaceHeating
+
+:FurnaceHeating rdf:type owl:Class ;
+                
+                rdfs:subClassOf :HeatTreating ,
+                                mat:HeatingProcess ;
+                
+                rdfs:comment "Furnace Heating is the heating of a substance in a Furnace."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#GorskiRelaxationAnalysis
+
+:GorskiRelaxationAnalysis rdf:type owl:Class ;
+                          
+                          rdfs:subClassOf :MechanicalSpectroscopy ;
+                          
+                          owl:disjointWith :MagneticRelaxationAnalysis ,
+                                           :SnoekRelaxationAnalysis ,
+                                           :ZenerRelaxationAnalysis ;
+                          
+                          rdfs:comment "Mechanical Spectroscopy through analysis of Gorski relaxation."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#HeatTreating
+
+:HeatTreating rdf:type owl:Class ;
+              
+              rdfs:subClassOf :MaterialProcessing ;
+              
+              owl:disjointWith :Hydroforming ,
+                               :IonBeamSputtering ,
+                               :Welding ,
+                               <http://www.nist.gov/itl/ssd/MaterialProcessing.owl#AttachingMaterials> ,
+                               <http://www.nist.gov/itl/ssd/MaterialProcessing.owl#ShapingMaterial> ,
+                               <http://www.nist.gov/itl/ssd/MaterialProcessing.owl#Soldering> ;
+              
+              rdfs:comment "Heat treatment involves the use of heating or chilling, normally to extreme temperatures, to achieve a desired result such as hardening or softening of a material. Heat treatment techniques include annealing, case hardening, precipitation strengthening, tempering and quenching."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#HeatingDevice
+
+:HeatingDevice rdf:type owl:Class ;
+               
+               rdfs:subClassOf <http://www.nist.gov/itl/ssd/OntologyRequirements#PhysicalDevice> ;
+               
+               rdfs:comment "A Heating Device is a device for intentionally warming some type of material up through the addition of energy.  An insulating layer that allows something to warm up by preventing generated heat to escape is not considered a heating device."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#HigherOrderPhaseDiagram
+
+:HigherOrderPhaseDiagram rdf:type owl:Class ;
+                         
+                         rdfs:subClassOf :PhaseDiagram ;
+                         
+                         owl:disjointWith :PressureTemperaturePhaseDiagram ,
+                                          :TernaryPhaseDiagram ;
+                         
+                         rdfs:comment "Higher Order Phase Diagrams are Phase Diagrams for systems of a least four components..  Since they are calculated as binary phase diagrams with an additional constraint added for each component, there is a wide variety of such diagrams.."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#Hydroforming
+
+:Hydroforming rdf:type owl:Class ;
+              
+              rdfs:subClassOf <http://www.nist.gov/itl/ssd/MaterialProcessing.owl#ShapingMaterial> ;
+              
+              owl:disjointWith :Quenching ,
+                               :Rolling_MaterialProcessing ,
+                               :Sectioning ,
+                               :SheetForming ,
+                               :Sintering ,
+                               <http://www.nist.gov/itl/ssd/MaterialProcessing.owl#AttachingWithConnector> ;
+              
+              rdfs:comment "To hydroform a material, a sheet of the material is placed inside a negative mold that has the shape of the desired result. High pressure hydraulic pumps then inject fluid at very high pressure inside the tube which causes it to expand until it matches the mold. The hydroformed material is then removed from the mold. Hydroforming allows complex shapes with concavities to be formed, which would be difficult or impossible with standard solid die stamping."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#ImpedanceSpectroscopy
+
+:ImpedanceSpectroscopy rdf:type owl:Class ;
+                       
+                       rdfs:subClassOf :ElectricalIndirectCompositionMeasuring ,
+                                       :SpectroscopicAnalysis ;
+                       
+                       owl:disjointWith :MechanicalSpectroscopy ,
+                                        :QuasielasticMoessbauserSpectroscopy ,
+                                        :SpreadingResistanceProfiling .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#IndirectCompositionMeasuring
+
+:IndirectCompositionMeasuring rdf:type owl:Class ;
+                              
+                              rdfs:subClassOf :AtomicCompositionMeasuring .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#IndustrialFurnace
+
+:IndustrialFurnace rdf:type owl:Class ;
+                   
+                   rdfs:subClassOf :HeatingDevice ;
+                   
+                   rdfs:comment "An Industrial Furnace is a Heating Device that is used to heat up its contents for Materials Processing.  "@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#IonBeamSputtering
+
+:IonBeamSputtering rdf:type owl:Class ;
+                   
+                   rdfs:subClassOf :Sputtering ,
+                                   <http://www.nist.gov/itl/ssd/MaterialProcessing.owl#BondingMaterials> ;
+                   
+                   owl:disjointWith :Sectioning ,
+                                    :Sintering ,
+                                    :Welding ,
+                                    <http://www.nist.gov/itl/ssd/MaterialProcessing.owl#Brazing> ,
+                                    <http://www.nist.gov/itl/ssd/MaterialProcessing.owl#ShapingMaterial> ,
+                                    <http://www.nist.gov/itl/ssd/MaterialProcessing.owl#Soldering> .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#KryukovCompositionMeasuring
+
+:KryukovCompositionMeasuring rdf:type owl:Class ;
+                             
+                             rdfs:subClassOf :RadiotracerCompositionMeasuringThroughSurfaceActivity .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#Lapping
+
+:Lapping rdf:type owl:Class ;
+         
+         rdfs:subClassOf :NormalSectioning ;
+         
+         owl:disjointWith :LatheSectioning ,
+                          :MicrotomeSectioning ,
+                          :SectioningByGrinding ;
+         
+         rdfs:comment "Lapping is a machining operation, in which two surfaces are rubbed together with an abrasive between them, by hand movement or by way of a machine.  Lapping includes both grinding (with an abrasive between the grinder and the surface being machined) and other polishing techniques."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#LatheSectioning
+
+:LatheSectioning rdf:type owl:Class ;
+                 
+                 rdfs:subClassOf :NormalSectioning ;
+                 
+                 owl:disjointWith :MicrotomeSectioning ,
+                                  :SectioningByGrinding .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#LatticeParameterData
+
+:LatticeParameterData rdf:type owl:Class ;
+                      
+                      rdfs:subClassOf :CrystallographicData ,
+                                      [ rdf:type owl:Restriction ;
+                                        owl:onProperty <http://www.nist.gov/itl/ssd/OntologyRequirements#storesInformationAbout> ;
+                                        owl:someValuesFrom mat:CrystalLattice
+                                      ] ;
+                      
+                      rdfs:comment "Lattice Parameter Data is a Data Object that stores Crystal Lattice information."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#MagneticRelaxationAnalysis
+
+:MagneticRelaxationAnalysis rdf:type owl:Class ;
+                            
+                            rdfs:subClassOf :MechanicalSpectroscopy ;
+                            
+                            owl:disjointWith :SnoekRelaxationAnalysis ,
+                                             :ZenerRelaxationAnalysis .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#MassSpectroscopy
+
+:MassSpectroscopy rdf:type owl:Class ;
+                  
+                  rdfs:subClassOf :SpectroscopicAnalysis .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#MaterialProcessing
+
+:MaterialProcessing rdf:type owl:Class ;
+                    
+                    rdfs:subClassOf <http://www.nist.gov/itl/ssd/OntologyRequirements#PurposefulAction> .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#MaterialProcessingTechnique
+
+:MaterialProcessingTechnique rdf:type owl:Class ;
+                             
+                             rdfs:subClassOf <http://www.nist.gov/itl/ssd/OntologyRequirements#Technique> ;
+                             
+                             rdfs:comment "A Material Processing Technique is a technique for processing or preparing a physical material"@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#MaterialProcessingType
+
+:MaterialProcessingType rdf:type owl:Class ;
+                        
+                        rdfs:subClassOf <http://www.nist.gov/itl/ssd/OntologyRequirements#EventType> .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#MaterialSourceOrganization
+
+:MaterialSourceOrganization rdf:type owl:Class ;
+                            
+                            rdfs:subClassOf <http://www.nist.gov/itl/ssd/OntologyRequirements#Organization> ;
+                            
+                            rdfs:comment "A Material Source Organization is an Organization that is a source for certain kinds of materials."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#MaterialsDesign
+
+:MaterialsDesign rdf:type owl:Class ;
+                 
+                 rdfs:subClassOf <http://www.nist.gov/itl/ssd/OntologyRequirements#Design> ;
+                 
+                 rdfs:comment "A Materials Design is a Design of the composition and possibly paramaters of the manufacturing process of a new type of material."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#MaterialsDesigning
+
+:MaterialsDesigning rdf:type owl:Class ;
+                    
+                    rdfs:subClassOf <http://www.nist.gov/itl/ssd/OntologyRequirements#Designing> ,
+                                    [ rdf:type owl:Restriction ;
+                                      owl:onProperty exp:outputCreated ;
+                                      owl:someValuesFrom :MaterialsDesign
+                                    ] ;
+                    
+                    rdfs:comment "Materials Designing is the activity of designing a new type of physical material."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#MaterialsPropertiesPredictionTool
+
+:MaterialsPropertiesPredictionTool rdf:type owl:Class ;
+                                   
+                                   rdfs:subClassOf exp:PredictionTool .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#MechanicalSpectroscopy
+
+:MechanicalSpectroscopy rdf:type owl:Class ;
+                        
+                        rdfs:subClassOf :IndirectCompositionMeasuring ,
+                                        :SpectroscopicAnalysis ;
+                        
+                        owl:disjointWith :NuclearIndirectCompositionMeasuring ,
+                                         :QuasielasticMoessbauserSpectroscopy .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#Microsectioning
+
+:Microsectioning rdf:type owl:Class ;
+                 
+                 rdfs:subClassOf :Sectioning .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#MicrosectioningThroughAnodizing
+
+:MicrosectioningThroughAnodizing rdf:type owl:Class ;
+                                 
+                                 rdfs:subClassOf :Microsectioning ;
+                                 
+                                 owl:disjointWith :MicrosectioningThroughChemicalDissolution ,
+                                                  :MicrosectioningThroughSputtering .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#MicrosectioningThroughChemicalDissolution
+
+:MicrosectioningThroughChemicalDissolution rdf:type owl:Class ;
+                                           
+                                           rdfs:subClassOf :Microsectioning ;
+                                           
+                                           owl:disjointWith :MicrosectioningThroughSputtering .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#MicrosectioningThroughSputtering
+
+:MicrosectioningThroughSputtering rdf:type owl:Class ;
+                                  
+                                  rdfs:subClassOf :Microsectioning ,
+                                                  :Sputtering ;
+                                  
+                                  rdfs:comment "Microsectioning Through Sputtering is the microsectioning of an object by the use of sputtering to remove the surface layer."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#MicrostructurePrediction
+
+:MicrostructurePrediction rdf:type owl:Class ;
+                          
+                          rdfs:subClassOf <http://www.nist.gov/itl/ssd/Document#Prediction> ;
+                          
+                          rdfs:comment "Microstructure Prediction is the prediction of the Microstructure of a material based on its component materials and method of production."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#MicrostructurePredictionTool
+
+:MicrostructurePredictionTool rdf:type owl:Class ;
+                              
+                              rdfs:subClassOf exp:PredictionTool .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#MicrotomeSectioning
+
+:MicrotomeSectioning rdf:type owl:Class ;
+                     
+                     rdfs:subClassOf :NormalSectioning ;
+                     
+                     owl:disjointWith :SectioningByGrinding .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#Mixer
+
+:Mixer rdf:type owl:Class ;
+       
+       rdfs:subClassOf <http://www.nist.gov/itl/ssd/OntologyRequirements#PhysicalDevice> ;
+       
+       rdfs:comment "A Mixer is a Physical Device for mixing different substances together."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#MolarVolumeDataFile
+
+:MolarVolumeDataFile rdf:type owl:Class ;
+                     
+                     rdfs:subClassOf <http://www.nist.gov/itl/ssd/OntologyRequirements#ComputerFile> ;
+                     
+                     owl:disjointWith :ThermodynamicDataFile ,
+                                      <http://www.nist.gov/itl/ssd/OntologyRequirements#ComputerImageFile> ;
+                     
+                     rdfs:comment "A file which maintains molar volume data."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#MolecularSimulationModel
+
+:MolecularSimulationModel rdf:type owl:Class ;
+                          
+                          rdfs:subClassOf <http://www.nist.gov/itl/ssd/OntologyRequirements#SimulationModel> ;
+                          
+                          rdfs:comment "Molecular Simulation Model is a model of the behaviour of a molecular system as a function of time."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#NMRRelaxationAnalysis
+
+:NMRRelaxationAnalysis rdf:type owl:Class ;
+                       
+                       rdfs:subClassOf :NuclearMagneticResonanceAnalysis .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#NormalSectioning
+
+:NormalSectioning rdf:type owl:Class ;
+                  
+                  rdfs:subClassOf :Sectioning ;
+                  
+                  rdfs:comment "Normal Sectioning is the Sectioning of a Material normal to an internal gradient."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#NuclearIndirectCompositionMeasuring
+
+:NuclearIndirectCompositionMeasuring rdf:type owl:Class ;
+                                     
+                                     rdfs:subClassOf :IndirectCompositionMeasuring ;
+                                     
+                                     rdfs:comment "Indirect Composition Measuring using nuclear methods"@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#NuclearMagneticResonanceAnalysis
+
+:NuclearMagneticResonanceAnalysis rdf:type owl:Class ;
+                                  
+                                  rdfs:subClassOf :NuclearIndirectCompositionMeasuring ;
+                                  
+                                  owl:disjointWith :QuasielasticMoessbauserSpectroscopy ,
+                                                   :QuasielasticNeutronScatteringAnalysis ,
+                                                   :SpinSpinRelaxationAndMotionNarrowingAnalysis .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#NuclearReactionAnalysis
+
+:NuclearReactionAnalysis rdf:type owl:Class ;
+                         
+                         rdfs:subClassOf :DirectCompositionMeasuring ;
+                         
+                         owl:disjointWith :Resistometry ,
+                                          :RutherfordBackscattering ,
+                                          :SecondaryIonMassSpectroscopy ,
+                                          :XrayDiffractionAnalysis .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#PaulingFile
+
+:PaulingFile rdf:type owl:Class ;
+             
+             rdfs:subClassOf <http://www.nist.gov/itl/ssd/OntologyRequirements#ComputerFile> ,
+                             [ rdf:type owl:Restriction ;
+                               owl:onProperty <http://www.nist.gov/itl/ssd/OntologyRequirements#storesInformationAbout> ;
+                               owl:someValuesFrom :DiffractionData
+                             ] ,
+                             [ rdf:type owl:Restriction ;
+                               owl:onProperty <http://www.nist.gov/itl/ssd/OntologyRequirements#storesInformationAbout> ;
+                               owl:someValuesFrom :PhaseDiagram
+                             ] ,
+                             [ rdf:type owl:Restriction ;
+                               owl:onProperty <http://www.nist.gov/itl/ssd/OntologyRequirements#storesInformationAbout> ;
+                               owl:someValuesFrom mat:CrystalStructure
+                             ] ;
+             
+             rdfs:comment "A Pauling File stores data on chemical constitution, structural data, diffraction data, and a variety of physical property data on binary phases of inorganic compounds."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#PeritecticInvariantReactionExperiment
+
+:PeritecticInvariantReactionExperiment rdf:type owl:Class ;
+                                       
+                                       rdfs:subClassOf exp:Experiment ;
+                                       
+                                       rdfs:comment "A Peritectic Invariant Reaction Experiment is an Experiment that determines the temperature of a peritectic invariant reaction in some material."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#PhaseDiagram
+
+:PhaseDiagram rdf:type owl:Class ;
+              
+              rdfs:subClassOf <http://www.nist.gov/itl/ssd/OntologyRequirements#AreaChart> ,
+                              [ rdf:type owl:Restriction ;
+                                owl:onProperty doc:depictsInformationAbout ;
+                                owl:someValuesFrom mat:ThermodynamicPhase
+                              ] ,
+                              [ rdf:type owl:Restriction ;
+                                owl:onProperty doc:depictsInformationAbout ;
+                                owl:someValuesFrom mat:MaterialPhaseComposition
+                              ] ;
+              
+              rdfs:comment "A Phase Diagram is a type of chart used to show conditions at which thermodynamically distinct phases can occur at equilibrium."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#PhaseEquilibriumData
+
+:PhaseEquilibriumData rdf:type owl:Class ;
+                      
+                      rdfs:subClassOf <http://www.nist.gov/itl/ssd/OntologyRequirements#DataObject> ;
+                      
+                      owl:disjointWith :ThermochemicalData ;
+                      
+                      rdfs:comment "Phase Equilibrium Data  is a Data Object that stores phase equilibrium information."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#PhaseFieldModel
+
+:PhaseFieldModel rdf:type owl:Class ;
+                 
+                 rdfs:subClassOf <http://www.nist.gov/itl/ssd/Document#SystemModel> ;
+                 
+                 rdfs:comment "A phase field model is a mathematical model for solving interfacial problems by substituting boundary conditions at the interface between parts of a meterial at different phases by a partial differential equation for the evolution of an auxiliary field (the phase field) that takes the role of an order parameter."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#PressureTemperaturePhaseDiagram
+
+:PressureTemperaturePhaseDiagram rdf:type owl:Class ;
+                                 
+                                 rdfs:subClassOf :PhaseDiagram ;
+                                 
+                                 owl:disjointWith :TernaryPhaseDiagram ;
+                                 
+                                 rdfs:comment "A Pressure Temperature Phase Diagram shows, in pressure-temperature space, phase boundaries between the three phases of solid, liquid, and gas of a pure substance.  It will normally show a 'triple-point' (the point at which solid, liquid, and gasseous states are in equilbrium and a 'critical point' (the point beyond which there is no distinction between liquid and gas)."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#ProcessModelingTool
+
+:ProcessModelingTool rdf:type owl:Class ;
+                     
+                     rdfs:subClassOf <http://www.nist.gov/itl/ssd/OntologyRequirements#Software> .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#ProfileEvaluationMethod
+
+:ProfileEvaluationMethod rdf:type owl:Class ;
+                         
+                         rdfs:subClassOf <http://www.nist.gov/itl/ssd/OntologyRequirements#Technique> .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#QuasielasticMoessbauserSpectroscopy
+
+:QuasielasticMoessbauserSpectroscopy rdf:type owl:Class ;
+                                     
+                                     rdfs:subClassOf :NuclearIndirectCompositionMeasuring ,
+                                                     :SpectroscopicAnalysis ;
+                                     
+                                     owl:disjointWith :QuasielasticNeutronScatteringAnalysis ,
+                                                      :SpinSpinRelaxationAndMotionNarrowingAnalysis .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#QuasielasticNeutronScatteringAnalysis
+
+:QuasielasticNeutronScatteringAnalysis rdf:type owl:Class ;
+                                       
+                                       rdfs:subClassOf :NuclearIndirectCompositionMeasuring ;
+                                       
+                                       owl:disjointWith :SpinSpinRelaxationAndMotionNarrowingAnalysis .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#Quenching
+
+:Quenching rdf:type owl:Class ;
+           
+           rdfs:subClassOf :HeatTreating ,
+                           mat:CoolingProcess ;
+           
+           owl:disjointWith :Sintering ;
+           
+           rdfs:comment "Quenching is the rapid cooling of a workpiece to obtain certain material properties. It prevents low-temperature processes, such as phase transformations, from occurring by only providing a narrow window of time in which the reaction is both thermodynamically favorable and kinetically accessible. For instance, it can reduce crystallinity and thereby increase toughness of both alloys and plastics (produced through polymerization)."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#RadiotracerCompositionMeasuring
+
+:RadiotracerCompositionMeasuring rdf:type owl:Class ;
+                                 
+                                 rdfs:subClassOf :AtomicCompositionMeasuring .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#RadiotracerCompositionMeasuringThroughMacroSectioning
+
+:RadiotracerCompositionMeasuringThroughMacroSectioning rdf:type owl:Class ;
+                                                       
+                                                       rdfs:subClassOf :RadiotracerCompositionMeasuringThroughSerialSectioning ;
+                                                       
+                                                       owl:disjointWith :RadiotracerCompositionMeasuringThroughMicroSectioning .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#RadiotracerCompositionMeasuringThroughMicroSectioning
+
+:RadiotracerCompositionMeasuringThroughMicroSectioning rdf:type owl:Class ;
+                                                       
+                                                       rdfs:subClassOf :RadiotracerCompositionMeasuringThroughSerialSectioning .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#RadiotracerCompositionMeasuringThroughResidualActivity
+
+:RadiotracerCompositionMeasuringThroughResidualActivity rdf:type owl:Class ;
+                                                        
+                                                        rdfs:subClassOf :RadiotracerCompositionMeasuring ;
+                                                        
+                                                        owl:disjointWith :RadiotracerCompositionMeasuringThroughSerialSectioning ,
+                                                                         :RadiotracerCompositionMeasuringThroughSurfaceActivity .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#RadiotracerCompositionMeasuringThroughSerialSectioning
+
+:RadiotracerCompositionMeasuringThroughSerialSectioning rdf:type owl:Class ;
+                                                        
+                                                        rdfs:subClassOf :RadiotracerCompositionMeasuring ;
+                                                        
+                                                        owl:disjointWith :RadiotracerCompositionMeasuringThroughSurfaceActivity .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#RadiotracerCompositionMeasuringThroughSurfaceActivity
+
+:RadiotracerCompositionMeasuringThroughSurfaceActivity rdf:type owl:Class ;
+                                                       
+                                                       rdfs:subClassOf :RadiotracerCompositionMeasuring ;
+                                                       
+                                                       rdfs:comment "This is a method of composition measuring through analysis of surface activity decrease."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#Resistometry
+
+:Resistometry rdf:type owl:Class ;
+              
+              rdfs:subClassOf :DirectCompositionMeasuring ;
+              
+              owl:disjointWith :RutherfordBackscattering ,
+                               :SecondaryIonMassSpectroscopy ,
+                               :XrayDiffractionAnalysis .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#Rolling_MaterialProcessing
+
+:Rolling_MaterialProcessing rdf:type owl:Class ;
+                            
+                            rdfs:subClassOf <http://www.nist.gov/itl/ssd/MaterialProcessing.owl#ShapingMaterial> ;
+                            
+                            owl:disjointWith :Sintering ,
+                                             <http://www.nist.gov/itl/ssd/MaterialProcessing.owl#AttachingWithConnector> ;
+                            
+                            rdfs:comment "Rolling, or roll forming -- also spelled rollforming, is a continuous bending operation in which a long strip of sheet metal (typically coiled steel) is passed through sets of rolls mounted on consecutive stands, each set performing only an incremental part of the bend, until the desired cross-section profile is obtained. Roll forming is ideal for producing constant-profile parts with long lengths and in large quantities."@en ;
+                            
+                            <http://sw.opencyc.org/concept/en/#cyclistNotes> """Types of Rolling include:
+    1 Roll bending
+    2 Roll forming
+    3 Flat rolling
+      3.1 Foil rolling
+    4 Ring rolling
+    5 Structural shape rolling
+    6 Controlled rolling
+"""@en ,
+                                                                             """Types of Rolling include:
+    3.1 Roll bending
+    3.2 Roll forming
+    3.3 Flat rolling
+        3.3.1 Foil rolling
+    3.4 Ring rolling
+    3.5 Structural shape rolling
+    3.6 Controlled rolling
+"""@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#RotaryMixer
+
+:RotaryMixer rdf:type owl:Class ;
+             
+             rdfs:subClassOf :Mixer ;
+             
+             rdfs:comment "A Rotary Mixer is a Mixer that rotates as it mixes.  internal components may be stationary or move in a different fashion than the main mixer body."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#RutherfordBackscattering
+
+:RutherfordBackscattering rdf:type owl:Class ;
+                          
+                          rdfs:subClassOf :DirectCompositionMeasuring ;
+                          
+                          owl:disjointWith :SecondaryIonMassSpectroscopy ,
+                                           :XrayDiffractionAnalysis .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#SecondaryIonMassSpectroscopy
+
+:SecondaryIonMassSpectroscopy rdf:type owl:Class ;
+                              
+                              rdfs:subClassOf :DirectCompositionMeasuring ,
+                                              :MassSpectroscopy ,
+                                              :RadiotracerCompositionMeasuringThroughMicroSectioning ;
+                              
+                              owl:disjointWith :XrayDiffractionAnalysis ;
+                              
+                              rdfs:comment "Secondary ion mass spectrometry (SIMS) is a technique for analyzing the composition of solid surfaces and thin films by sputtering the surface of the specimen with a focused primary ion beam and collecting and analyzing ejected secondary ions."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#Sectioning
+
+:Sectioning rdf:type owl:Class ;
+            
+            rdfs:subClassOf <http://www.nist.gov/itl/ssd/MaterialProcessing.owl#RemovingMaterial> ,
+                            <http://www.nist.gov/itl/ssd/OntologyRequirements#MechanicalProcess> ;
+            
+            owl:disjointWith <http://www.nist.gov/itl/ssd/MaterialProcessing.owl#AttachingMaterials> ;
+            
+            rdfs:comment "The process of cutting a material into thin sections."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#SectioningByGrinding
+
+:SectioningByGrinding rdf:type owl:Class ;
+                      
+                      rdfs:subClassOf :NormalSectioning .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#SelfDiffusionExperiment
+
+:SelfDiffusionExperiment rdf:type owl:Class ;
+                         
+                         rdfs:subClassOf exp:Experiment ;
+                         
+                         rdfs:comment "A self-diffusion experiment is an experiment in which an isotope of one element diffuses into a mass of the same element."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#SharpInterfaceModel
+
+:SharpInterfaceModel rdf:type owl:Class ;
+                     
+                     rdfs:subClassOf <http://www.nist.gov/itl/ssd/Document#SystemModel> .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#SheetForming
+
+:SheetForming rdf:type owl:Class ;
+              
+              rdfs:subClassOf <http://www.nist.gov/itl/ssd/MaterialProcessing.owl#ShapingMaterial> ;
+              
+              owl:disjointWith :Sintering ,
+                               <http://www.nist.gov/itl/ssd/MaterialProcessing.owl#AttachingWithConnector> .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#Sintering
+
+:Sintering rdf:type owl:Class ;
+           
+           rdfs:subClassOf <http://www.nist.gov/itl/ssd/MaterialProcessing.owl#BondingMaterials> ,
+                           <http://www.nist.gov/itl/ssd/MaterialProcessing.owl#ShapingMaterial> ;
+           
+           owl:disjointWith :Welding ,
+                            <http://www.nist.gov/itl/ssd/MaterialProcessing.owl#AttachingWithConnector> ,
+                            <http://www.nist.gov/itl/ssd/MaterialProcessing.owl#Soldering> ;
+           
+           rdfs:comment "Sintering is a method used to create objects from powders based on atomic diffusion. The powdered material is held in a mold and then heated to a temperature below the melting point. The atoms in the powder particles diffuse across the boundaries of the particles, fusing the particles together and creating one solid piece"@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#SnoekRelaxationAnalysis
+
+:SnoekRelaxationAnalysis rdf:type owl:Class ;
+                         
+                         rdfs:subClassOf :MechanicalSpectroscopy ;
+                         
+                         owl:disjointWith :ZenerRelaxationAnalysis ;
+                         
+                         rdfs:comment "Mechanical Spectroscopy through analysis of Snoek relaxation."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#SolidDiffusionData
+
+:SolidDiffusionData rdf:type owl:Class ;
+                    
+                    rdfs:subClassOf <http://www.nist.gov/itl/ssd/OntologyRequirements#DataObject> ,
+                                    [ rdf:type owl:Restriction ;
+                                      owl:onProperty <http://www.nist.gov/itl/ssd/OntologyRequirements#storesInformationAbout> ;
+                                      owl:someValuesFrom mat:SolidDiffusion
+                                    ] .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#SpectroscopicAnalysis
+
+:SpectroscopicAnalysis rdf:type owl:Class ;
+                       
+                       owl:equivalentClass [ rdf:type owl:Class ;
+                                             owl:intersectionOf ( :AtomicCompositionMeasuring
+                                                                  :Spectroscopy
+                                                                )
+                                           ] ;
+                       
+                       rdfs:subClassOf :Spectroscopy ;
+                       
+                       rdfs:comment "Spectroscopic Analysis is the use of spectroscopy in determining the chemical or physical constitution of substances."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#Spectroscopy
+
+:Spectroscopy rdf:type owl:Class ;
+              
+              rdfs:subClassOf exp:Measuring ;
+              
+              rdfs:comment "Spectroscopy is the technique of analyzing the spectrum of detected electromagnetic radiation."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#SpinSpinRelaxationAndMotionNarrowingAnalysis
+
+:SpinSpinRelaxationAndMotionNarrowingAnalysis rdf:type owl:Class ;
+                                              
+                                              rdfs:subClassOf :NuclearIndirectCompositionMeasuring .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#SpreadingResistanceProfiling
+
+:SpreadingResistanceProfiling rdf:type owl:Class ;
+                              
+                              rdfs:subClassOf :ElectricalIndirectCompositionMeasuring .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#Sputtering
+
+:Sputtering rdf:type owl:Class ;
+            
+            rdfs:subClassOf <http://www.nist.gov/itl/ssd/OntologyRequirements#MechanicalProcess> ;
+            
+            rdfs:comment "Sputtering is a process whereby atoms are ejected from a solid target material due to bombardment of the target by energetic particles.  Sputter deposition is a physical vapor deposition (PVD) method of depositing thin films by sputtering."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#SurfaceCounting
+
+:SurfaceCounting rdf:type owl:Class ;
+                 
+                 rdfs:subClassOf exp:Measuring ;
+                 
+                 rdfs:comment "Surface Counting is a measurement technique for radioactive substances."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#TemperatureConcentrationPhaseDiagram
+
+:TemperatureConcentrationPhaseDiagram rdf:type owl:Class ;
+                                      
+                                      rdfs:subClassOf :BinaryPhaseDiagram ;
+                                      
+                                      rdfs:comment "A Temperature-Concentration Phase Diagram is a Phase Diagram of a mixture of two substances which depicts boundaries between combination of the phases of the two substances (at a given pressure) as a function of temperature and the relative concentration of the two substances."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#Tempering
+
+:Tempering rdf:type owl:Class ;
+           
+           rdfs:subClassOf :HeatTreating ;
+           
+           rdfs:comment "Tempering is a process of heat treating, which is used to increase the toughness of a material. For metals, tempering is usually performed after quenching, to reduce some of the excess hardness, and is done by heating the metal to below the critical temperature (a much lower temperature than was used for hardening). The exact temperature determines the amount of hardness removed, and depends on both the specific composition of the alloy and on the desired properties in the finished product. For instance, very hard tools are often tempered at low temperatures, while springs are tempered to much higher temperatures. In glass, tempering is performed by heating the glass and then quickly cooling the surface, increasing the toughness."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#TernaryPhaseDiagram
+
+:TernaryPhaseDiagram rdf:type owl:Class ;
+                     
+                     rdfs:subClassOf :PhaseDiagram ;
+                     
+                     rdfs:comment "A Ternary Phase Diagram shows phase boundaries in three component systems.  There are a variety of types of ternary phase diagrams, but a common variety is with temperature and pressure held constant and the ratio of component A:B on the Y axis and the ratio of A+B:C on the X axis."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#ThermochemicalData
+
+:ThermochemicalData rdf:type owl:Class ;
+                    
+                    rdfs:subClassOf <http://www.nist.gov/itl/ssd/OntologyRequirements#DataObject> ;
+                    
+                    rdfs:comment "Thermochemical Data is a Data Object that stores thermochemical  information."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#ThermoconductivityData
+
+:ThermoconductivityData rdf:type owl:Class ;
+                        
+                        rdfs:subClassOf <http://www.nist.gov/itl/ssd/OntologyRequirements#DataObject> .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#ThermodynamicData
+
+:ThermodynamicData rdf:type owl:Class ;
+                   
+                   rdfs:subClassOf <http://www.nist.gov/itl/ssd/OntologyRequirements#DataObject> ;
+                   
+                   rdfs:comment "Lattice Parameter Data is a Data Object that stores data on the types of Crystal Lattice in a substance."@en ,
+                                "Thermodynamic Data  is a Data Object that stores thermodynamic information."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#ThermodynamicDataFile
+
+:ThermodynamicDataFile rdf:type owl:Class ;
+                       
+                       rdfs:subClassOf <http://www.nist.gov/itl/ssd/OntologyRequirements#ComputerFile> ;
+                       
+                       owl:disjointWith <http://www.nist.gov/itl/ssd/OntologyRequirements#ComputerImageFile> ;
+                       
+                       rdfs:comment "A file which maintains thermodynamic data."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#ThermodynamicDatabase
+
+:ThermodynamicDatabase rdf:type owl:Class ;
+                       
+                       owl:equivalentClass [ rdf:type owl:Class ;
+                                             owl:intersectionOf ( :ThermodynamicData
+                                                                  <http://www.nist.gov/itl/ssd/OntologyRequirements#DataBase>
+                                                                )
+                                           ] ;
+                       
+                       rdfs:subClassOf <http://www.nist.gov/itl/ssd/OntologyRequirements#DataBase> ;
+                       
+                       rdfs:comment "A Thermodynamic Database  is a Database that stores thermodynamic information."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#ThermodynamicModel
+
+:ThermodynamicModel rdf:type owl:Class ;
+                    
+                    rdfs:subClassOf <http://www.nist.gov/itl/ssd/Document#SystemModel> ;
+                    
+                    rdfs:comment "A Thermodynamic Model is a model of some aspects of a thermodynamic system."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#TubeFurnace
+
+:TubeFurnace rdf:type owl:Class ;
+             
+             rdfs:subClassOf :IndustrialFurnace ;
+             
+             rdfs:comment "A tube furnace is an electric heating device that consists of a cylindrical cavity with one or more heating zones surrounded by heating coils that are embedded in a thermally insulating matrix. Temperature is controlled via feedback from a thermocouple. "@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#Welding
+
+:Welding rdf:type owl:Class ;
+         
+         rdfs:subClassOf <http://www.nist.gov/itl/ssd/MaterialProcessing.owl#BondingMaterials> ;
+         
+         owl:disjointWith <http://www.nist.gov/itl/ssd/MaterialProcessing.owl#Brazing> ,
+                          <http://www.nist.gov/itl/ssd/MaterialProcessing.owl#ShapingMaterial> ,
+                          <http://www.nist.gov/itl/ssd/MaterialProcessing.owl#Soldering> ;
+         
+         rdfs:comment "Welding is aprocess that joins materials, usually metals or thermoplastics by melting the workpieces and adding a filler material to form a pool of molten material that cools to become a strong joint, with pressure sometimes used in conjunction with heat, or by itself, to produce the weld."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#XrayDiffractionAnalysis
+
+:XrayDiffractionAnalysis rdf:type owl:Class ;
+                         
+                         rdfs:subClassOf :DirectCompositionMeasuring .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#ZenerRelaxationAnalysis
+
+:ZenerRelaxationAnalysis rdf:type owl:Class ;
+                         
+                         rdfs:subClassOf :MechanicalSpectroscopy ;
+                         
+                         rdfs:comment "Mechanical Spectroscopy through analysis of Zener relaxation."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing.owl#AttachingMaterials
+
+<http://www.nist.gov/itl/ssd/MaterialProcessing.owl#AttachingMaterials> rdf:type owl:Class ;
+                                                                        
+                                                                        rdfs:subClassOf :MaterialProcessing ;
+                                                                        
+                                                                        rdfs:comment "Attaching Materials is the process of physically connecting two materials so that they remain attached."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing.owl#AttachingWithConnector
+
+<http://www.nist.gov/itl/ssd/MaterialProcessing.owl#AttachingWithConnector> rdf:type owl:Class ;
+                                                                            
+                                                                            rdfs:subClassOf <http://www.nist.gov/itl/ssd/MaterialProcessing.owl#AttachingMaterials> ;
+                                                                            
+                                                                            owl:disjointWith <http://www.nist.gov/itl/ssd/MaterialProcessing.owl#BondingMaterials> ;
+                                                                            
+                                                                            rdfs:comment "Attaching With Connector is a process of connecting two or more objects together with a connecting object (bolt, screw, nail, staple, lace, etc.) that in most types of attaching penetrates both objects.  Removing the connecting object would cause the connected objects to be no longer connected."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing.owl#BondingMaterials
+
+<http://www.nist.gov/itl/ssd/MaterialProcessing.owl#BondingMaterials> rdf:type owl:Class ;
+                                                                      
+                                                                      rdfs:subClassOf <http://www.nist.gov/itl/ssd/MaterialProcessing.owl#AttachingMaterials> ;
+                                                                      
+                                                                      rdfs:seeAlso "Bonding Materials is the process of forming a permanent bond between materials, e.g., by welding, soldering, or gluing."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing.owl#Brazing
+
+<http://www.nist.gov/itl/ssd/MaterialProcessing.owl#Brazing> rdf:type owl:Class ;
+                                                             
+                                                             rdfs:subClassOf <http://www.nist.gov/itl/ssd/MaterialProcessing.owl#BondingMaterials> ;
+                                                             
+                                                             owl:disjointWith <http://www.nist.gov/itl/ssd/MaterialProcessing.owl#Soldering> ;
+                                                             
+                                                             rdfs:comment "Brazing is a metal-joining process whereby a filler metal is heated above melting point and distributed between two or more close-fitting parts by capillary action. The filler metal is brought slightly above its melting (liquidus) temperature while protected by a suitable atmosphere, usually a flux. It then flows over the base metal (known as wetting) and is then cooled to join the workpieces together."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing.owl#ContinuousCasting
+
+<http://www.nist.gov/itl/ssd/MaterialProcessing.owl#ContinuousCasting> rdf:type owl:Class ;
+                                                                       
+                                                                       rdfs:subClassOf :Casting_MaterialProcessing ;
+                                                                       
+                                                                       rdfs:comment "Continuous casting, also called strand casting, is the process whereby molten metal is solidified into a \"semifinished\" billet, bloom, or slab for subsequent rolling in the finishing mills. Molten metal is poured into an open-ended, water-cooled copper mold, which allows a skin of solid metal to form over the still-liquid centre. The strand, as it is now called, is withdrawn from the mold and passed into a chamber of rollers and water sprays; the rollers support the thin skin of the strand while the sprays remove heat from the strand, gradually solidifying the strand from the outside in. After solidification, predetermined lengths of the strand are cut off."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing.owl#Drying
+
+<http://www.nist.gov/itl/ssd/MaterialProcessing.owl#Drying> rdf:type owl:Class ;
+                                                            
+                                                            rdfs:subClassOf <http://www.nist.gov/itl/ssd/OntologyRequirements#MechanicalProcess> ;
+                                                            
+                                                            rdfs:comment "Drying is a mass transfer process consisting of the removal of water or another solvent from a solid, semi-solid or liquid.  Drying may be evaporative, freeze drying, or supercritical drying."@en ;
+                                                            
+                                                            or:termString "drying"@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing.owl#EvaporativeDrying
+
+<http://www.nist.gov/itl/ssd/MaterialProcessing.owl#EvaporativeDrying> rdf:type owl:Class ;
+                                                                       
+                                                                       rdfs:subClassOf <http://www.nist.gov/itl/ssd/MaterialProcessing.owl#Drying> ,
+                                                                                       [ rdf:type owl:Restriction ;
+                                                                                         owl:onProperty <http://www.nist.gov/itl/ssd/OntologyRequirements#subEvents> ;
+                                                                                         owl:someValuesFrom mat:Evaporating
+                                                                                       ] ;
+                                                                       
+                                                                       owl:disjointWith <http://www.nist.gov/itl/ssd/MaterialProcessing.owl#FreezeDrying> ,
+                                                                                        <http://www.nist.gov/itl/ssd/MaterialProcessing.owl#SupercriticalDrying> ;
+                                                                       
+                                                                       rdfs:comment "Evaporative Drying is the process of some object drying through the evaporation of a contained fluid."@en ;
+                                                                       
+                                                                       or:termString "evaporative drying"@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing.owl#ExpendableMoldCasting
+
+<http://www.nist.gov/itl/ssd/MaterialProcessing.owl#ExpendableMoldCasting> rdf:type owl:Class ;
+                                                                           
+                                                                           rdfs:subClassOf :Casting_MaterialProcessing ;
+                                                                           
+                                                                           owl:disjointWith <http://www.nist.gov/itl/ssd/MaterialProcessing.owl#PermanentMoldCasting> ;
+                                                                           
+                                                                           rdfs:comment "Expendable Mold Casting uses of temporary, non-reusable molds.  Methods of expendable mold casting can be divided into those using a permanent pattern and those with expendable patterns (such as lost wax casting)."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing.owl#FreezeDrying
+
+<http://www.nist.gov/itl/ssd/MaterialProcessing.owl#FreezeDrying> rdf:type owl:Class ;
+                                                                  
+                                                                  rdfs:subClassOf <http://www.nist.gov/itl/ssd/MaterialProcessing.owl#Drying> ,
+                                                                                  [ rdf:type owl:Restriction ;
+                                                                                    owl:onProperty <http://www.nist.gov/itl/ssd/OntologyRequirements#subEvents> ;
+                                                                                    owl:someValuesFrom mat:CoolingProcess
+                                                                                  ] ,
+                                                                                  [ rdf:type owl:Restriction ;
+                                                                                    owl:onProperty <http://www.nist.gov/itl/ssd/OntologyRequirements#subEvents> ;
+                                                                                    owl:someValuesFrom mat:Freezing
+                                                                                  ] ,
+                                                                                  [ rdf:type owl:Restriction ;
+                                                                                    owl:onProperty <http://www.nist.gov/itl/ssd/OntologyRequirements#subEvents> ;
+                                                                                    owl:someValuesFrom mat:Sublimating
+                                                                                  ] ;
+                                                                  
+                                                                  owl:disjointWith <http://www.nist.gov/itl/ssd/MaterialProcessing.owl#SupercriticalDrying> ;
+                                                                  
+                                                                  rdfs:comment "Freeze-drying, also known as lyophilisation, lyophilization, or cryodesiccation, is a dehydration process that works by freezing some material and then reducing the surrounding pressure to allow the frozen water in the material to sublimate directly from the solid phase to the gas phase.  Freeze-drying may occur naturally, but is commonly a material proccessing technique."@en ;
+                                                                  
+                                                                  or:termString "cryodesiccation"@en ,
+                                                                                "freeze-drying"@en ,
+                                                                                "lyophilisation"@en ,
+                                                                                "lyophilization"@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing.owl#PermanentMoldCasting
+
+<http://www.nist.gov/itl/ssd/MaterialProcessing.owl#PermanentMoldCasting> rdf:type owl:Class ;
+                                                                          
+                                                                          rdfs:subClassOf :Casting_MaterialProcessing ;
+                                                                          
+                                                                          rdfs:comment "Permanent Mold Casting is a metal casting process that employs reusable molds."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing.owl#RemovalFinishing
+
+<http://www.nist.gov/itl/ssd/MaterialProcessing.owl#RemovalFinishing> rdf:type owl:Class ;
+                                                                      
+                                                                      rdfs:subClassOf <http://www.nist.gov/itl/ssd/MaterialProcessing.owl#RemovingMaterial> ;
+                                                                      
+                                                                      rdfs:comment "Removal finishing is a process that removes part of the surface of an item to achieve a certain property.  This includes buffing, polishing, sandblasting, among other processes."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing.owl#RemovingMaterial
+
+<http://www.nist.gov/itl/ssd/MaterialProcessing.owl#RemovingMaterial> rdf:type owl:Class ;
+                                                                      
+                                                                      rdfs:subClassOf :MaterialProcessing ;
+                                                                      
+                                                                      rdfs:comment "RemovingMaterial is the physical process of separating part of a material from the rest of the material."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing.owl#ShapingMaterial
+
+<http://www.nist.gov/itl/ssd/MaterialProcessing.owl#ShapingMaterial> rdf:type owl:Class ;
+                                                                     
+                                                                     rdfs:subClassOf :MaterialProcessing ;
+                                                                     
+                                                                     owl:disjointWith <http://www.nist.gov/itl/ssd/MaterialProcessing.owl#Soldering> ;
+                                                                     
+                                                                     rdfs:seeAlso "Shaping Material is an event in which some material is given a definite shape, or has its shape changed, through purposeful actions. Polishing is not Shaping Material, as it does not affect the basic shape of the object being polished."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing.owl#Soldering
+
+<http://www.nist.gov/itl/ssd/MaterialProcessing.owl#Soldering> rdf:type owl:Class ;
+                                                               
+                                                               rdfs:subClassOf <http://www.nist.gov/itl/ssd/MaterialProcessing.owl#BondingMaterials> ;
+                                                               
+                                                               rdfs:comment "Soldering is a process in which two or more metal items are joined together by melting and flowing a filler metal (solder) into the joint, the filler metal having a lower melting point than the workpiece."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing.owl#StylusProfilometer
+
+<http://www.nist.gov/itl/ssd/MaterialProcessing.owl#StylusProfilometer> rdf:type owl:Class ;
+                                                                        
+                                                                        rdfs:subClassOf <http://www.nist.gov/itl/ssd/OntologyRequirements#Profilometer> ;
+                                                                        
+                                                                        rdfs:comment "In a Stylus Profilometer, a diamond stylus is moved vertically in contact with a sample and then moved laterally across the sample for a specified distance and specified contact force. Such a profilometer can measure surface variations in vertical stylus displacement as a function of position ranging in height from 10 nanometres to 1 millimetre."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing.owl#SupercriticalDrying
+
+<http://www.nist.gov/itl/ssd/MaterialProcessing.owl#SupercriticalDrying> rdf:type owl:Class ;
+                                                                         
+                                                                         rdfs:subClassOf :HeatTreating ,
+                                                                                         <http://www.nist.gov/itl/ssd/MaterialProcessing.owl#Drying> ,
+                                                                                         [ rdf:type owl:Restriction ;
+                                                                                           owl:onProperty <http://www.nist.gov/itl/ssd/OntologyRequirements#subEvents> ;
+                                                                                           owl:someValuesFrom mat:Vaporization
+                                                                                         ] ,
+                                                                                         [ rdf:type owl:Restriction ;
+                                                                                           owl:onProperty <http://www.nist.gov/itl/ssd/OntologyRequirements#subEvents> ;
+                                                                                           owl:someValuesFrom mat:HeatingProcess
+                                                                                         ] ,
+                                                                                         [ rdf:type owl:Restriction ;
+                                                                                           owl:onProperty <http://www.nist.gov/itl/ssd/OntologyRequirements#subEvents> ;
+                                                                                           owl:someValuesFrom mat:CoolingProcess
+                                                                                         ] ;
+                                                                         
+                                                                         rdfs:comment "Supercritical Drying is an action of raising the pressure of something above the pressure of the critical point of a contained solvant, raising the temperature past the temperture of the critical point, reducing the pressure to below the pressure of the critical point, and then colling the temperatue to below that of the critical point.  In this process, the fluid changes to a gas and leaves the remaining solid matter behind. "@en ;
+                                                                         
+                                                                         or:termString "supercritical drying"@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Materials.owl#Viscosity
+
+mat:Viscosity rdfs:subClassOf mat:RheologicalProperty .
+
+
+
+###  http://www.nist.gov/itl/ssd/OntologyRequirements#ComputerImageFile
+
+
+
+
+
+
+#################################################################
+#
+#    Individuals
+#
+#################################################################
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#Annealing
+
+:Annealing rdf:type :MaterialProcessingTechnique ,
+                    owl:NamedIndividual ;
+           
+           rdfs:comment "Annealing is a heat treatment wherein a material is altered, causing changes in its properties such as strength and hardness. It is a process that produces conditions by heating to above the critical temperature, maintaining a suitable temperature, and then cooling."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#ArcMelting
+
+:ArcMelting rdf:type :MaterialProcessingTechnique ,
+                     owl:NamedIndividual ;
+            
+            rdfs:comment "Arc Melting is the process of melting a substance with the use of an electric arck. This may or may not be performed in an Electric Arc Furnace."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#CALAPHAD
+
+:CALAPHAD rdf:type <http://www.nist.gov/itl/ssd/OntologyRequirements#PredictionMethod> ,
+                   owl:NamedIndividual ;
+          
+          rdfs:comment "CALPHAD is a method for the CALculation of PHAse Diagrams of multi-phase mixtures such as alloys."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#Casting_MaterialProcessing
+
+:Casting_MaterialProcessing rdf:type :MaterialProcessingType ,
+                                     owl:NamedIndividual ;
+                            
+                            rdfs:comment "In metalworking, casting involves pouring liquid metal into a mold, which contains a hollow cavity of the desired shape, and then allowing it to cool and solidify. The solidified part is also known as a casting, which is ejected or broken out of the mold to complete the process. Casting is most often used for making complex shapes that would be difficult or uneconomical to make by other methods."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#ChannelDieCompression
+
+:ChannelDieCompression rdf:type :MaterialProcessingType ,
+                                owl:NamedIndividual ;
+                       
+                       rdfs:seeAlso "Francillette et al, Acta Materialia, Volume 46, Issue 12, 24 July 1998, Pages 4131–4142 http://www.sciencedirect.com/science/article/pii/S1359645498001219"@en ;
+                       
+                       rdfs:comment "In Channel Die Compression, a sample is placed in a rectangular channel with one side open.  The sample is compressed from the open side and expansion is allowed in both directions along the channel, but restricted in the transverse direction."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#ColdCompaction
+
+:ColdCompaction rdf:type :MaterialProcessingTechnique ,
+                         owl:NamedIndividual ;
+                
+                rdfs:comment "Cold Compaction is the process of pressing fine powdered materials into a desired shape or form, removing gaps from within and expelling gas from the powder without heating.  If the powder is a mixture of multiple substances, they would normally be blended very well before compaction."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#DebyeHuckelLimitingLaw
+
+:DebyeHuckelLimitingLaw rdf:type :ThermodynamicModel ,
+                                 owl:NamedIndividual ;
+                        
+                        or:nickName "DHLL" ;
+                        
+                        rdfs:comment "The Debye-Hückel Limiting Lawl is a Thermodynamic Model for dilute aqueous solutions."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#DebyeModel
+
+:DebyeModel rdf:type exp:EstimationMethod ,
+                     owl:NamedIndividual ;
+            
+            rdfs:comment "The Debye model is a method for estimating the phonon contribution to the specific heat (heat capacity) in a solid by treating the vibrations of the atomic lattice (heat) as phonons in a box.  The Debye model correctly predicts low and high temperature dependence of the heat capacity, but is rather inaccurate at intermediate temperatures."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#FACTQuasichemicalModelForLiquid
+
+:FACTQuasichemicalModelForLiquid rdf:type :ThermodynamicModel ,
+                                          owl:NamedIndividual ;
+                                 
+                                 or:nickName "Quasichem_FACT100" ;
+                                 
+                                 rdfs:comment "The F*A*C*T Quasichemical Model for Liquid is a Thermodynamic Model for Liquid Slag."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#Flory-HugginsPolymerModel
+
+:Flory-HugginsPolymerModel rdf:type :ThermodynamicModel ,
+                                    owl:NamedIndividual ;
+                           
+                           or:nickName "FHP" ;
+                           
+                           rdfs:comment "The Flory-Huggins Polymer Model is a Thermodynamic Model for polymers."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#Forging_MaterialProcessing
+
+:Forging_MaterialProcessing rdf:type :MaterialProcessingType ,
+                                     owl:NamedIndividual ;
+                            
+                            rdfs:comment "Forging is a manufacturing process involving the shaping of metal using localized compressive forces. Forging is often classified according to the temperature at which it is performed: \"cold\", \"warm\", or \"hot\" forging."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#FurnaceHeating
+
+:FurnaceHeating rdf:type :MaterialProcessingTechnique ,
+                         owl:NamedIndividual ;
+                
+                rdfs:comment "Furnace Heating is the heating of a substance in a Furnace."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#GeneralizedPVTModel
+
+:GeneralizedPVTModel rdf:type :ThermodynamicModel ,
+                              owl:NamedIndividual ;
+                     
+                     or:nickName "GPVT" ;
+                     
+                     rdfs:comment "The Generalized PVT Model is a Thermodynamic Model for alloys, liquids, minerals, etc."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#GeneralizedPitzersFormulation
+
+:GeneralizedPitzersFormulation rdf:type :ThermodynamicModel ,
+                                        owl:NamedIndividual ;
+                               
+                               or:nickName "PITZ" ;
+                               
+                               rdfs:comment "The Generalized Pitz's Formalism is a Thermodynamic Model for concentrated aqueous solutions."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#GeneralizedTwoStateLiquidModel
+
+:GeneralizedTwoStateLiquidModel rdf:type :ThermodynamicModel ,
+                                         owl:NamedIndividual ;
+                                
+                                or:nickName "G2SLM" ;
+                                
+                                rdfs:comment "The Generalized Two-State Liquid Model is a Thermodynamic Model for amorphous phases."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#IRSIDModelForLiquid
+
+:IRSIDModelForLiquid rdf:type :ThermodynamicModel ,
+                              owl:NamedIndividual ;
+                     
+                     or:nickName "Quasichem_IRSID" ;
+                     
+                     rdfs:comment "The IRSiD Model for Liquid (also called the Kooper-Frohberg-Gaye Cell Model) is a Thermodynamic Model for Liquid Slag."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#IdealSustitutionModel
+
+:IdealSustitutionModel rdf:type doc:GenericScientificModel ,
+                                :ThermodynamicModel ,
+                                owl:NamedIndividual ;
+                       
+                       rdfs:comment "An Ideal Substitution Model is a Thermodynamic Model for Ideal Gasses."@en ;
+                       
+                       or:nickName "Ideal" .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#IndenMagneticOrderingModel
+
+:IndenMagneticOrderingModel rdf:type :ThermodynamicModel ,
+                                     owl:NamedIndividual ;
+                            
+                            or:nickName "MO" ;
+                            
+                            rdfs:comment "The Inden Magnetic Ordering Model is a Thermodynamic Model for Alloys."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#IonBeamSputtering
+
+:IonBeamSputtering rdf:type :MaterialProcessingType ,
+                            owl:NamedIndividual .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#IonicTwoSublatticeLiquidModel
+
+:IonicTwoSublatticeLiquidModel rdf:type :ThermodynamicModel ,
+                                        owl:NamedIndividual ;
+                               
+                               or:nickName "ITSLM" ;
+                               
+                               rdfs:comment "The Ionic Two-Sublattice Liquid Model is a Thermodynamic Mode for Liquid Slag."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#KohlerTernaryExcessModel
+
+:KohlerTernaryExcessModel rdf:type doc:GenericScientificModel ,
+                                   :ThermodynamicModel ,
+                                   owl:NamedIndividual ;
+                          
+                          or:nickName "Redlich-Kister_Kohler" ;
+                          
+                          rdfs:comment "The Kohler Ternary Excess Model is a Thermodynamic Mode for ternary or higher order Alloys."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#KohlerTernaryExtrapolationModel
+
+:KohlerTernaryExtrapolationModel rdf:type :ThermodynamicModel ,
+                                          owl:NamedIndividual ;
+                                 
+                                 or:nickName "Kohler-All" ;
+                                 
+                                 rdfs:comment "The Kohler Ternary Extrapolation Model is a Thermodynamic Mode for ternary or higher order Alloys."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#LAMMPS
+
+:LAMMPS rdf:type <http://www.nist.gov/itl/ssd/OntologyRequirements#ApplicationProgram> ,
+                 owl:NamedIndividual ;
+        
+        rdfs:comment "LAMMPS (Large-scale Atomic/Molecular Massively Parallel Simulator) is an open-source molecular dynamics program from Sandia National Laboratories"@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#Lapping
+
+:Lapping rdf:type :MaterialProcessingType ,
+                  owl:NamedIndividual ;
+         
+         rdfs:comment "Lapping is a machining operation, in which two surfaces are rubbed together with an abrasive between them, by hand movement or by way of a machine.  Lapping includes both grinding (with an abrasive between the grinder and the surface being machined) and other polishing techniques."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#LatheSectioning
+
+:LatheSectioning rdf:type :MaterialProcessingType ,
+                          owl:NamedIndividual .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#LegendrePolynomialThermodynamicModel
+
+:LegendrePolynomialThermodynamicModel rdf:type doc:GenericScientificModel ,
+                                               :ThermodynamicModel ,
+                                               owl:NamedIndividual ;
+                                      
+                                      or:nickName "Legendre" ;
+                                      
+                                      rdfs:comment "The Legendre Polynomial Thermodynamic Model is a Thermodynamic model for Binary Phases with no Sublattice."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#Microsectioning
+
+:Microsectioning rdf:type :MaterialProcessingTechnique ,
+                          :MaterialProcessingType ,
+                          owl:NamedIndividual .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#MicrosectioningThroughAnodizing
+
+:MicrosectioningThroughAnodizing rdf:type :MaterialProcessingType ,
+                                          owl:NamedIndividual .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#MicrosectioningThroughChemicalDissolution
+
+:MicrosectioningThroughChemicalDissolution rdf:type :MaterialProcessingType ,
+                                                    owl:NamedIndividual .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#MicrosectioningThroughSputtering
+
+:MicrosectioningThroughSputtering rdf:type :MaterialProcessingType ,
+                                           owl:NamedIndividual ;
+                                  
+                                  rdfs:comment "Microsectioning Through Sputtering is the microsectioning of an object by the use of sputtering to remove the surface layer."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#MicrotomeSectioning
+
+:MicrotomeSectioning rdf:type :MaterialProcessingType ,
+                              owl:NamedIndividual .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#MuggianuTernaryExcessModel
+
+:MuggianuTernaryExcessModel rdf:type doc:GenericScientificModel ,
+                                     :ThermodynamicModel ,
+                                     owl:NamedIndividual ;
+                            
+                            or:nickName "Redlich-Kister_Muggianu" ;
+                            
+                            rdfs:comment "The Muggianu Ternary Excess Model is a Thermodynamic Mode for ternary or higher order Alloys."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#MugginauTernaryExtrapolationModel
+
+:MugginauTernaryExtrapolationModel rdf:type :ThermodynamicModel ,
+                                            owl:NamedIndividual ;
+                                   
+                                   or:nickName "Mugginau_Restor" ;
+                                   
+                                   rdfs:comment "The Muggianu Ternary Extrapolation Model is a Thermodynamic Mode for ternary or higher order Alloys."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#MurnaghanModel
+
+:MurnaghanModel rdf:type :ThermodynamicModel ,
+                         owl:NamedIndividual ;
+                
+                or:nickName "Murnaghan" ;
+                
+                rdfs:comment "The Murnaghan Model is a Thermodynamic Model for high P/T minerals and Alloys."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#NormalSectioning
+
+:NormalSectioning rdf:type :MaterialProcessingTechnique ,
+                           owl:NamedIndividual ;
+                  
+                  rdfs:comment "Normal Sectioning is the Sectioning of a Material normal to an internal gradient."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#Polishing
+
+:Polishing rdf:type :MaterialProcessingType ,
+                    owl:NamedIndividual .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#QuasichemicalModelOfIonicLiquid
+
+:QuasichemicalModelOfIonicLiquid rdf:type :ThermodynamicModel ,
+                                          owl:NamedIndividual ;
+                                 
+                                 or:nickName "Quasichem-Ionic" ;
+                                 
+                                 rdfs:comment "The Quasichemical Model of Ionic Liquid is a Thermodynamic Model for Liquid Slag."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#Quenching
+
+:Quenching rdf:type :MaterialProcessingTechnique ,
+                    owl:NamedIndividual ;
+           
+           rdfs:comment "Quenching is the rapid cooling of a workpiece to obtain certain material properties. It prevents low-temperature processes, such as phase transformations, from occurring by only providing a narrow window of time in which the reaction is both thermodynamically favorable and kinetically accessible. For instance, it can reduce crystallinity and thereby increase toughness of both alloys and plastics (produced through polymerization)."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#RedlichKisterModel
+
+:RedlichKisterModel rdf:type doc:GenericScientificModel ,
+                             :ThermodynamicModel ,
+                             owl:NamedIndividual ;
+                    
+                    or:nickName "Redlich-Kister" ;
+                    
+                    rdfs:comment "The Redlich-Kester (or 'subregular') Model is of Thermodynamic Model for Binary Alloys."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#RegularSolutionModel
+
+:RegularSolutionModel rdf:type doc:GenericScientificModel ,
+                               :ThermodynamicModel ,
+                               owl:NamedIndividual ;
+                      
+                      or:nickName "Regular" ;
+                      
+                      rdfs:comment "The Regular Solution Model is a Thermodynamic Model for Binary Alloys."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#RevisedHelgesonKirkhamFlowersModel
+
+:RevisedHelgesonKirkhamFlowersModel rdf:type :ThermodynamicModel ,
+                                             owl:NamedIndividual ;
+                                    
+                                    rdfs:comment "The Revised Helgeson-Kirkham-Flowers Model is a Thermodynamic Model for concentrated aqueous solutions."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#Rinsing
+
+:Rinsing rdf:type :MaterialProcessingType ,
+                  owl:NamedIndividual .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#Rolling_MaterialProcessing
+
+:Rolling_MaterialProcessing rdf:type :MaterialProcessingType ,
+                                     owl:NamedIndividual ;
+                            
+                            rdfs:comment "Rolling, or roll forming -- also spelled rollforming, is a continuous bending operation in which a long strip of sheet metal (typically coiled steel) is passed through sets of rolls mounted on consecutive stands, each set performing only an incremental part of the bend, until the desired cross-section profile is obtained. Roll forming is ideal for producing constant-profile parts with long lengths and in large quantities."@en ;
+                            
+                            <http://sw.opencyc.org/concept/en/#cyclistNotes> """Types of Rolling include:
+    1 Roll bending
+    2 Roll forming
+    3 Flat rolling
+      3.1 Foil rolling
+    4 Ring rolling
+    5 Structural shape rolling
+    6 Controlled rolling
+"""@en ,
+                                                                             """Types of Rolling include:
+    3.1 Roll bending
+    3.2 Roll forming
+    3.3 Flat rolling
+        3.3.1 Foil rolling
+    3.4 Ring rolling
+    3.5 Structural shape rolling
+    3.6 Controlled rolling
+"""@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#SUPERFLUIDModel
+
+:SUPERFLUIDModel rdf:type :ThermodynamicModel ,
+                          owl:NamedIndividual ;
+                 
+                 or:nickName "SUPERFLUID" ;
+                 
+                 rdfs:comment "The SUPERFLUID Model is a Thermodynamic Model for gases and gaseous mixtures."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#Sectioning
+
+:Sectioning rdf:type :MaterialProcessingTechnique ,
+                     :MaterialProcessingType ,
+                     owl:NamedIndividual ;
+            
+            rdfs:comment "The process of cutting a material into thin sections."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#SectioningByGrinding
+
+:SectioningByGrinding rdf:type :MaterialProcessingType ,
+                               owl:NamedIndividual .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#SheetForming
+
+:SheetForming rdf:type :MaterialProcessingType ,
+                       owl:NamedIndividual .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#SigworthElliotHilbertModel
+
+:SigworthElliotHilbertModel rdf:type :ThermodynamicModel ,
+                                     owl:NamedIndividual ;
+                            
+                            or:nickName "SEHM" ;
+                            
+                            rdfs:comment "The Sigworth-Elliot_Hilbert Model is a Thermodynamic Model for dilute iron-rich liquid."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#SimplePolynomialThermodynamicModel
+
+:SimplePolynomialThermodynamicModel rdf:type doc:GenericScientificModel ,
+                                             :ThermodynamicModel ,
+                                             owl:NamedIndividual ;
+                                    
+                                    or:nickName "Polynom" ;
+                                    
+                                    rdfs:comment "The Simple Polynomial Thermodynamic Model is a Thermodynamic model for Binary Phases with no sublatice."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#Sintering
+
+:Sintering rdf:type :MaterialProcessingType ,
+                    owl:NamedIndividual ;
+           
+           rdfs:comment "Sintering is a method used to create objects from powders based on atomic diffusion. The powdered material is held in a mold and then heated to a temperature below the melting point. The atoms in the powder particles diffuse across the boundaries of the particles, fusing the particles together and creating one solid piece"@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#Tempering
+
+:Tempering rdf:type :MaterialProcessingTechnique ,
+                    owl:NamedIndividual ;
+           
+           rdfs:comment "Tempering is a process of heat treating, which is used to increase the toughness of a material. For metals, tempering is usually performed after quenching, to reduce some of the excess hardness, and is done by heating the metal to below the critical temperature (a much lower temperature than was used for hardening). The exact temperature determines the amount of hardness removed, and depends on both the specific composition of the alloy and on the desired properties in the finished product. For instance, very hard tools are often tempered at low temperatures, while springs are tempered to much higher temperatures. In glass, tempering is performed by heating the glass and then quickly cooling the surface, increasing the toughness."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#ToopKohlerTernaryExtrapolationModel
+
+:ToopKohlerTernaryExtrapolationModel rdf:type :ThermodynamicModel ,
+                                              owl:NamedIndividual ;
+                                     
+                                     or:nickName "Toop-Kohler" ;
+                                     
+                                     rdfs:comment "The Toop-Kohler Ternary Extrapolation Model is a Thermodynamic Mode for ternary or higher order Alloys."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#Washing
+
+:Washing rdf:type :MaterialProcessingType ,
+                  owl:NamedIndividual .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing#Welding
+
+:Welding rdf:type :MaterialProcessingType ,
+                  owl:NamedIndividual ;
+         
+         rdfs:comment "Welding is aprocess that joins materials, usually metals or thermoplastics by melting the workpieces and adding a filler material to form a pool of molten material that cools to become a strong joint, with pressure sometimes used in conjunction with heat, or by itself, to produce the weld."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing.owl#AssociateModelForLiquid
+
+<http://www.nist.gov/itl/ssd/MaterialProcessing.owl#AssociateModelForLiquid> rdf:type :ThermodynamicModel ,
+                                                                                      owl:NamedIndividual ;
+                                                                             
+                                                                             or:nickName "AM" ;
+                                                                             
+                                                                             rdfs:comment "The Associate Model for Liquid is a Thermodynamic Model for Liquid Slag"@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing.owl#BirchMurnaghanModel
+
+<http://www.nist.gov/itl/ssd/MaterialProcessing.owl#BirchMurnaghanModel> rdf:type :ThermodynamicModel ,
+                                                                                  owl:NamedIndividual ;
+                                                                         
+                                                                         or:nickName "Birch-Murnaghan" ;
+                                                                         
+                                                                         rdfs:comment "The Birch-Murnaghan Model is a Thermodynamic Model for extra-high P/T minerals."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing.owl#CentralAtomModel
+
+<http://www.nist.gov/itl/ssd/MaterialProcessing.owl#CentralAtomModel> rdf:type :ThermodynamicModel ,
+                                                                               owl:NamedIndividual ;
+                                                                      
+                                                                      or:nickName "CAM" ;
+                                                                      
+                                                                      rdfs:comment "The Central Atom Model is a Thermodynamic Model for Liquid Slag."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing.owl#ChemicalOrderingViaCVMApproach
+
+<http://www.nist.gov/itl/ssd/MaterialProcessing.owl#ChemicalOrderingViaCVMApproach> rdf:type :ThermodynamicModel ,
+                                                                                             owl:NamedIndividual ;
+                                                                                    
+                                                                                    or:nickName "CVM" ;
+                                                                                    
+                                                                                    rdfs:comment "The Chemical Modeling Via CVM Approach is a Thermodynamic Model for Alloys."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing.owl#CompoundEnergyFormulationSublatticeModel
+
+<http://www.nist.gov/itl/ssd/MaterialProcessing.owl#CompoundEnergyFormulationSublatticeModel> rdf:type :ThermodynamicModel ,
+                                                                                                       owl:NamedIndividual ;
+                                                                                              
+                                                                                              or:nickName "CEF" ;
+                                                                                              
+                                                                                              rdfs:comment "The Compound Energy Formalism (Sublattice Model) is a Thermodynamic Model for alloys, liquids, gasses, oxides, etc."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing.owl#Extrusion
+
+<http://www.nist.gov/itl/ssd/MaterialProcessing.owl#Extrusion> rdf:type :MaterialProcessingType ,
+                                                                        owl:NamedIndividual .
+
+
+
+###  http://www.nist.gov/itl/ssd/MaterialProcessing.owl#SpecificIonicInteractionTheory
+
+<http://www.nist.gov/itl/ssd/MaterialProcessing.owl#SpecificIonicInteractionTheory> rdf:type :ThermodynamicModel ,
+                                                                                             owl:NamedIndividual ;
+                                                                                    
+                                                                                    or:nickName "SIT" ;
+                                                                                    
+                                                                                    rdfs:comment "The Specific Ionic Interaction Theory is a Thermodynamic model for dilute aqueus solutions"@en .
+
+
+
+
+
+#################################################################
+#
+#    Annotations
+#
+#################################################################
+
+
+bc:ActiviationEnergyForDiffusion rdfs:seeAlso "Definitions of terms for diffusion in the solid state (IUPAC Recommendations 1999), Pure Appl. Chem. 71, 1307-1325."@en .
+
+
+
+
+###  Generated by the OWL API (version 3.2.3.1824) http://owlapi.sourceforge.net
+

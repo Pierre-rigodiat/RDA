@@ -1,0 +1,3449 @@
+@prefix daml: <http://www.daml.org/2001/03/daml+oil#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix bc: <http://www.nist.gov/itl/ssd/Biochem#> .
+@prefix exp: <http://www.nist.gov/itl/ssd/Experiments#> .
+@prefix : <http://www.nist.gov/itl/ssd/Experiments#> .
+@prefix or: <http://www.nist.gov/itl/ssd/OntologyRequirements#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix doc: <http://www.nist.gov/itl/ssd/Document#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix gf: <http://www.nist.gov/itl/ssd/GenomeFormats#> .
+@base <http://www.nist.gov/itl/ssd/Experiments.n3> .
+
+<http://www.nist.gov/itl/ssd/Experiments.n3> rdf:type owl:Ontology ;
+                                             
+                                             <http://purl.org/dc/elements/1.1/date> "12 October 2012"@en ;
+                                             
+                                             <http://purl.org/dc/elements/1.1/title> "Experiments Ontology"@en ;
+                                             
+                                             <http://purl.org/dc/elements/1.1/subject> "Ontology for general concepts related to experiments.  "@en ;
+                                             
+                                             <http://www.w3.org/2004/02/skos/core#note> "This ontology is incomplete, having been developed to cover general features of experiments to be used in recording information stored in genomic and materials science files."@en ;
+                                             
+                                             <http://www.co-ode.org/ontologies/ont.owl#creator> "doug foxvog" ;
+                                             
+                                             owl:imports <http://www.nist.gov/itl/ssd/Biochem.owl> ,
+                                                         <http://www.nist.gov/itl/ssd/Document.n3> .
+
+
+#################################################################
+#
+#    Annotation properties
+#
+#################################################################
+
+
+exp:defaultFileExtension rdf:type owl:AnnotationProperty .
+
+
+
+exp:uncertaintyOfProperty rdf:type owl:AnnotationProperty ;
+                          
+                          rdfs:domain <http://www.nist.gov/itl/ssd/OntologyRequirements.owl#MaterialProperty> .
+
+
+
+exp:specializedTypeOf rdf:type owl:AnnotationProperty .
+
+
+
+exp:catalogNumber rdf:type owl:AnnotationProperty .
+
+
+
+
+
+#################################################################
+#
+#    Datatypes
+#
+#################################################################
+
+
+
+
+#################################################################
+#
+#    Object Properties
+#
+#################################################################
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#assayChamberFormat
+
+exp:assayChamberFormat rdf:type owl:ObjectProperty ;
+                       
+                       rdfs:comment "The type of chamber format that is being used for cell assay"@en ;
+                       
+                       rdfs:range exp:CellAssayChamberFormat ;
+                       
+                       rdfs:domain exp:CellImagingExperiment .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#assayChamberSubstrate
+
+exp:assayChamberSubstrate rdf:type owl:ObjectProperty ;
+                          
+                          rdfs:comment "The material used to prepare the cell adhesion substrate of the assay chamber."@en ;
+                          
+                          rdfs:domain exp:CellImagingExperiment ;
+                          
+                          rdfs:range or:MaterialType ;
+                          
+                          rdfs:subPropertyOf owl:topObjectProperty .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#cellTypeOfCulture
+
+exp:cellTypeOfCulture rdf:type owl:ObjectProperty ;
+                      
+                      rdfs:comment "'cell Type Of Culture' maps a Cell Type to a Cell Culture which is composed of cells of the given type."@en ;
+                      
+                      rdfs:domain bc:CellType ;
+                      
+                      rdfs:range exp:CellCulture .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#cultureMediumAminoAcidSupplement
+
+exp:cultureMediumAminoAcidSupplement rdf:type owl:ObjectProperty ;
+                                     
+                                     rdfs:comment "The `culture Medium Amino Acid Supplement' is an Amino Acid Supplement Type used in the maintenance Cell Culture.  A given Cell Culture may use more than one type of amino acid supplement."@en ;
+                                     
+                                     rdfs:range exp:AminoAcidSupplementType ;
+                                     
+                                     rdfs:domain exp:CultureMedium .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#cultureMediumAntibioticSupplement
+
+exp:cultureMediumAntibioticSupplement rdf:type owl:ObjectProperty ;
+                                      
+                                      rdfs:comment "The `culture Medium Antibiotic Supplement' is an Antibiotic Type used in the maintenance Cell Culture.  A given Cell Culture may use more than one type of antibiotic."@en ;
+                                      
+                                      rdfs:range exp:AntibioticType ;
+                                      
+                                      rdfs:domain exp:CellCulture .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#cultureMediumHormoneSupplement
+
+exp:cultureMediumHormoneSupplement rdf:type owl:ObjectProperty ;
+                                   
+                                   rdfs:comment "The `culture Medium Hormone Supplement' is an Hormone Type used in the maintenance Cell Culture.  A given Cell Culture may use more than one type of hormone."@en ;
+                                   
+                                   rdfs:domain exp:CultureMedium ;
+                                   
+                                   rdfs:range exp:HormoneType .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#cultureMediumSerumType
+
+exp:cultureMediumSerumType rdf:type owl:FunctionalProperty ,
+                                    owl:ObjectProperty ;
+                           
+                           rdfs:comment "The `culture Medium Serum Supplement' is a Serum Type used in the maintenance Cell Culture.  A given Cell Culture uses a single type of serum."@en ;
+                           
+                           rdfs:domain exp:CellCulture ;
+                           
+                           rdfs:range exp:SerumType .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#cultureMediumUsed
+
+exp:cultureMediumUsed rdf:type owl:ObjectProperty ;
+                      
+                      rdfs:domain exp:CellCulture ;
+                      
+                      rdfs:range exp:CultureMediumType .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#cultureSubstrate
+
+exp:cultureSubstrate rdf:type owl:FunctionalProperty ,
+                              owl:ObjectProperty ;
+                     
+                     rdfs:comment "The property `culture Substrate' specifies the type of adhesion surface for routine passaging of the maintenance culture (e.g., Tissue Culture Polystyrene of Gelatin)."@en ;
+                     
+                     rdfs:range exp:AdhesionSurfaceType ;
+                     
+                     rdfs:domain exp:CellCulture .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#extracellularMatrixDepositionSolvent
+
+exp:extracellularMatrixDepositionSolvent rdf:type owl:ObjectProperty ;
+                                         
+                                         rdfs:comment "The solvent used in extracellular matrix deposition."@en ;
+                                         
+                                         rdfs:domain exp:BiologicalAssay ;
+                                         
+                                         rdfs:range exp:SolventType .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#extracellularMatrixMolecularStructure
+
+exp:extracellularMatrixMolecularStructure rdf:type owl:ObjectProperty ;
+                                          
+                                          rdfs:comment "the structure of the proteins that are used to form the extracellular matrix"@en ;
+                                          
+                                          rdfs:range bc:ProteinTypeByStructure ;
+                                          
+                                          rdfs:domain exp:BiologicalAssay .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#extracellularMatrixOtherComponents
+
+exp:extracellularMatrixOtherComponents rdf:type owl:ObjectProperty ;
+                                       
+                                       <http://www.w3.org/2004/02/skos/core#note> "``protein, nonprotein additives'' used for Cell Assays."@en ;
+                                       
+                                       rdfs:domain exp:BiologicalAssay ;
+                                       
+                                       rdfs:range or:MaterialType .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#extracellularMatrixPatterning
+
+exp:extracellularMatrixPatterning rdf:type owl:ObjectProperty ;
+                                  
+                                  <http://www.w3.org/2004/02/skos/core#note> "What does this mean?"@en ;
+                                  
+                                  rdfs:domain exp:BiologicalAssay ;
+                                  
+                                  rdfs:range exp:ExtracellularMatrixPatterningType .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#extracellularMatrixTreatment
+
+exp:extracellularMatrixTreatment rdf:type owl:ObjectProperty ;
+                                 
+                                 <http://www.w3.org/2004/02/skos/core#note> "what does this mean?"@en ;
+                                 
+                                 rdfs:domain exp:BiologicalAssay ;
+                                 
+                                 rdfs:range exp:ExtracellularMatrixTreatmentType .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#imageProducedByStudy
+
+exp:imageProducedByStudy rdf:type owl:ObjectProperty ;
+                         
+                         rdfs:range exp:ExperimentalStudy ;
+                         
+                         rdfs:domain or:Image .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#imagingDeviceUsedInStudy
+
+exp:imagingDeviceUsedInStudy rdf:type owl:ObjectProperty ;
+                             
+                             rdfs:range exp:ExperimentalStudy ;
+                             
+                             rdfs:domain or:ImagingDevice .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#investigator
+
+exp:investigator rdf:type owl:ObjectProperty ;
+                 
+                 rdfs:comment "Any researcher for a research study.  Use the property 'principal Investigator' if appropriate."@en ;
+                 
+                 rdfs:domain exp:Research ;
+                 
+                 rdfs:range or:Human .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#measurementResult
+
+exp:measurementResult rdf:type owl:ObjectProperty ;
+                      
+                      rdfs:comment "The property 'measurement Result' relates an act of Measuring to an Expressed Quantity."@en ;
+                      
+                      rdfs:domain exp:Measuring ;
+                      
+                      rdfs:range or:ExpressedQuantity .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#measurementTechniqueUsed
+
+exp:measurementTechniqueUsed rdf:type owl:ObjectProperty ;
+                             
+                             rdfs:comment "The property 'measurement Technique Used' relates an act of Measuring something to the Measurement Technique that it implemented."@en ;
+                             
+                             rdfs:range exp:MeasurementTechnique ;
+                             
+                             rdfs:domain exp:Measuring .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#numOfSignificantDigits
+
+exp:numOfSignificantDigits rdf:type owl:FunctionalProperty ,
+                                    owl:ObjectProperty ;
+                           
+                           rdfs:comment "The property 'num Of Significant Digits' specifies the Number Of Significant Digits of a measurement or computed value."@en ;
+                           
+                           rdfs:range exp:NumberOfSignificantDigits ;
+                           
+                           rdfs:subPropertyOf exp:uncertaintyOfQuantity ;
+                           
+                           rdfs:domain or:ExpressedQuantity .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#organismTypeOfCulture
+
+exp:organismTypeOfCulture rdf:type owl:FunctionalProperty ,
+                                   owl:ObjectProperty ;
+                          
+                          rdfs:comment "The `organism Type Of Culture' for some Cell Culture is the species of organism from which the cells were obtained.  This may be either s species of Single-Celled Organisms or Multi-Celled Organism."@en ;
+                          
+                          rdfs:range bc:BiologicalSpecies ;
+                          
+                          rdfs:domain exp:CellCulture .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#preseedingDissociationMethod
+
+exp:preseedingDissociationMethod rdf:type owl:ObjectProperty ;
+                                 
+                                 rdfs:comment "The dissociation method used immediately prior to seeding for experiment."@en ;
+                                 
+                                 rdfs:domain exp:BiologicalAssay ;
+                                 
+                                 rdfs:range exp:CellDissociationType .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#principalInvestigator
+
+exp:principalInvestigator rdf:type owl:ObjectProperty ;
+                          
+                          rdfs:comment "The designer of a research study."@en ;
+                          
+                          rdfs:domain exp:Research ;
+                          
+                          rdfs:subPropertyOf exp:investigator ;
+                          
+                          rdfs:range or:Human .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#principleProteinComponent
+
+exp:principleProteinComponent rdf:type owl:ObjectProperty ;
+                              
+                              rdfs:comment "The prinicple protein component of the extracellular matrix."@en ;
+                              
+                              rdfs:range bc:ProteinTypeBySpecies ;
+                              
+                              rdfs:domain exp:ExtracellularMatrix .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#researchUsesSoftware
+
+exp:researchUsesSoftware rdf:type owl:ObjectProperty ;
+                         
+                         rdfs:comment "The specified research uses the specified software for data processing.  If it merely is performing research on the software, this predicate does not apply."@en ;
+                         
+                         rdfs:domain exp:Research ;
+                         
+                         rdfs:range or:Software ;
+                         
+                         rdfs:subPropertyOf owl:topObjectProperty .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#sampleFromPatient
+
+exp:sampleFromPatient rdf:type owl:ObjectProperty ;
+                      
+                      rdfs:comment "The specified sample is from the body of the patient.  It may be tissue or a blood sample that was formerly part of the patient, tissue that was grown from the patient's tissue, an infectious agent, or other matter.  The ``sample' ' may also be an existing part of the patient that was x-rayed or otherwise imaged."@en ;
+                      
+                      rdfs:range or:Human ;
+                      
+                      rdfs:domain or:PhysicalObject ;
+                      
+                      rdfs:subPropertyOf owl:topObjectProperty .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#standardDeviation
+
+exp:standardDeviation rdf:type owl:FunctionalProperty ,
+                               owl:ObjectProperty ;
+                      
+                      rdfs:comment "The standard Deviation of an Uncertainty is a quantity with the same units as the Uncertainty itself."@en ;
+                      
+                      rdfs:domain exp:Uncertainty ;
+                      
+                      rdfs:range or:Quantity .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#technician
+
+exp:technician rdf:type owl:ObjectProperty ;
+               
+               rdfs:comment "The person who performs a technical task as part of some scientific study or similar technical activity."@en ;
+               
+               rdfs:range or:Human ;
+               
+               rdfs:domain or:PurposefulAction ;
+               
+               rdfs:subPropertyOf owl:topObjectProperty .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#uncertaintyOfProperty
+
+exp:uncertaintyOfProperty rdf:type owl:ObjectProperty ;
+                          
+                          rdfs:range exp:Uncertainty .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#uncertaintyOfQuantity
+
+exp:uncertaintyOfQuantity rdf:type owl:ObjectProperty ;
+                          
+                          rdfs:comment "The property 'uncertainty Of Quantity' relates a Quantity to its associated Uncertainty."@en ;
+                          
+                          rdfs:range exp:Uncertainty ;
+                          
+                          rdfs:domain or:MeasurableQuantity .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments.n3#hasUncertaintyDistributionType
+
+<http://www.nist.gov/itl/ssd/Experiments.n3#hasUncertaintyDistributionType> rdf:type owl:FunctionalProperty ,
+                                                                                     owl:ObjectProperty ;
+                                                                            
+                                                                            rdfs:comment "The property 'has Uncertainty Distribution Type' relates an Uncertainty to its Uncertainty Distribution Type, e.g., Gaussian Distribution."@en ;
+                                                                            
+                                                                            rdfs:domain exp:Uncertainty ;
+                                                                            
+                                                                            rdfs:range <http://www.nist.gov/itl/ssd/Experiments.n3#UncertaintyDistributionType> .
+
+
+
+###  http://www.nist.gov/itl/ssd/OntologyRequirements#implementsAlgorithm
+
+or:implementsAlgorithm rdf:type owl:ObjectProperty .
+
+
+
+###  http://www.nist.gov/itl/ssd/OntologyRequirements#outputData
+
+or:outputData rdf:type owl:ObjectProperty .
+
+
+
+
+
+#################################################################
+#
+#    Data properties
+#
+#################################################################
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#assayChamberTemperatureC
+
+exp:assayChamberTemperatureC rdf:type owl:DatatypeProperty ;
+                             
+                             rdfs:comment "The temperature (in degrees C) of the Assay Chamber temperature in a Cell Imaging Experiment."@en ;
+                             
+                             rdfs:domain exp:CellImagingExperiment ;
+                             
+                             rdfs:range xsd:decimal .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#assayPassageNumber
+
+exp:assayPassageNumber rdf:type owl:DatatypeProperty ;
+                       
+                       rdfs:comment "The number of times the cells have been passaged at the time they are used in the experiment."@en ;
+                       
+                       rdfs:domain exp:BiologicalAssay ;
+                       
+                       rdfs:range xsd:nonNegativeInteger .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#assaySeedingDensityPerCm2
+
+exp:assaySeedingDensityPerCm2 rdf:type owl:DatatypeProperty ;
+                              
+                              rdfs:comment "The cell seeding density for the experiment in terms of cells per square cm."@en ;
+                              
+                              rdfs:domain exp:BiologicalAssay ;
+                              
+                              rdfs:range xsd:positiveInteger .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#cellDesignatiion
+
+exp:cellDesignatiion rdf:type owl:DatatypeProperty ;
+                     
+                     rdfs:comment "A `cell Designation' names the cell line  (?) in a Cell Culture."@en ;
+                     
+                     rdfs:domain exp:CellCulture ;
+                     
+                     rdfs:range xsd:NMTOKEN .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#cellModification
+
+exp:cellModification rdf:type owl:DatatypeProperty ;
+                     
+                     rdfs:comment """`cell Modification' names a type of modification done on a cell culture.  Types include electroporation, iontophoresis, pneumatic injectors, and mechanical
+injectors, and use of liposomes."""@en ;
+                     
+                     rdfs:domain exp:CellCulture ;
+                     
+                     rdfs:range xsd:NMTOKEN .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#cultureCO2Percent
+
+exp:cultureCO2Percent rdf:type owl:DatatypeProperty ;
+                      
+                      rdfs:comment "The `culture CO2 Percent' is the percentage of CO2 in the maintenance culture's cell incubator."@en ;
+                      
+                      rdfs:domain exp:CellCulture ;
+                      
+                      rdfs:range xsd:decimal .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#cultureMaintenanceTemperatureC
+
+exp:cultureMaintenanceTemperatureC rdf:type owl:DatatypeProperty ;
+                                   
+                                   rdfs:comment "The `culture Maintenance Temperature C' is the temperature (in degrees C) at which the maintenace culture was incubated."@en ;
+                                   
+                                   rdfs:domain exp:CellCulture ;
+                                   
+                                   rdfs:range xsd:decimal .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#cultureMediumName
+
+exp:cultureMediumName rdf:type owl:DatatypeProperty ;
+                      
+                      rdfs:comment "? Is there a limited number of cell cultures, so that they should be reified instead of merely their names being specified."@en ,
+                                   "The `culture Medium Name' of a Cell Culture is the name of the culture used in a maintenance Cell Culture.  "@en ;
+                      
+                      rdfs:domain exp:CellCulture ;
+                      
+                      rdfs:range xsd:NMTOKEN .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#cultureMediumSerumPercent
+
+exp:cultureMediumSerumPercent rdf:type owl:DatatypeProperty ;
+                              
+                              rdfs:comment "The percent of volume of serum in the maintenance culture media"@en ;
+                              
+                              rdfs:domain exp:CultureMedium ;
+                              
+                              rdfs:range xsd:decimal .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#cultureVesselName
+
+exp:cultureVesselName rdf:type owl:DatatypeProperty ,
+                               owl:FunctionalProperty ;
+                      
+                      rdfs:comment "The `culture Vessel Name' is the name of the container (type) used for routine passaging of the maintenance culture."@en ;
+                      
+                      rdfs:domain exp:MaintenanceCellCulture ;
+                      
+                      rdfs:range xsd:NMTOKEN .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#depositionExtracellularMatrixSolutionConcGPL
+
+exp:depositionExtracellularMatrixSolutionConcGPL rdf:type owl:DatatypeProperty ;
+                                                 
+                                                 rdfs:comment "The extracellular matrix solution concentration during deposition in mg/ml."@en ;
+                                                 
+                                                 rdfs:domain exp:BiologicalAssay ;
+                                                 
+                                                 rdfs:range xsd:decimal .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#extracellularMatrixIncubationTimeInHours
+
+exp:extracellularMatrixIncubationTimeInHours rdf:type owl:DatatypeProperty ;
+                                             
+                                             rdfs:comment "The number of hours of incubation for an extracellular matrix."@en ;
+                                             
+                                             rdfs:domain exp:BiologicalAssay ;
+                                             
+                                             rdfs:range xsd:decimal .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#extracellularMatrixSolutionConcMgPerMl
+
+exp:extracellularMatrixSolutionConcMgPerMl rdf:type owl:DatatypeProperty ;
+                                           
+                                           rdfs:domain exp:BiologicalAssay ;
+                                           
+                                           rdfs:range xsd:decimal .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#extracellulrMatrixIncubationTemperatureC
+
+exp:extracellulrMatrixIncubationTemperatureC rdf:type owl:DatatypeProperty ;
+                                             
+                                             <http://www.w3.org/2004/02/skos/core#note> "Does this temperature have to be an integer?  Or can it be, e.g. 36.5 C?"@en ;
+                                             
+                                             rdfs:comment "The temperature (in degrees C) at which the extracellular  matrix was incubated."@en ;
+                                             
+                                             rdfs:domain exp:BiologicalAssay ;
+                                             
+                                             rdfs:range xsd:decimal .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#frozenStorageDate
+
+exp:frozenStorageDate rdf:type owl:DatatypeProperty ;
+                      
+                      rdfs:comment "The `frozen Storage Date' is the date the culture was frozen."@en ;
+                      
+                      rdfs:domain exp:CellCulture ;
+                      
+                      rdfs:range xsd:dateTime .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#geneticID
+
+exp:geneticID rdf:type owl:DatatypeProperty ;
+              
+              rdfs:comment "Genetic tag information that provides a genetic ID of the type of cells in a Cell Culture."@en ;
+              
+              rdfs:range xsd:NMTOKEN ;
+              
+              rdfs:domain [ rdf:type owl:Class ;
+                            owl:unionOf ( bc:BiologicalCell
+                                          exp:CellCulture
+                                        )
+                          ] .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#lotNumber
+
+exp:lotNumber rdf:type owl:DatatypeProperty ;
+              
+              rdfs:comment "The lot number of some product."@en ;
+              
+              rdfs:domain or:Artifact ;
+              
+              rdfs:subPropertyOf or:nameString ;
+              
+              rdfs:range xsd:NMTOKEN .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#maintenancePlatingDensity
+
+exp:maintenancePlatingDensity rdf:type owl:DatatypeProperty ;
+                              
+                              rdfs:comment "The `maintenance Plating Density' is the density (in cells/sq cm) at which cells in the maintenance culture were plated for routine passage."@en ;
+                              
+                              rdfs:domain exp:MaintenanceCellCulture ;
+                              
+                              rdfs:range xsd:unsignedInt .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#meanCellDoublingTimeInHours
+
+exp:meanCellDoublingTimeInHours rdf:type owl:DatatypeProperty ;
+                                
+                                rdfs:comment "The measured mean cell doubling time (in hours)"@en ;
+                                
+                                rdfs:domain exp:CellCulture ;
+                                
+                                rdfs:range xsd:decimal .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#meanCellSpreadAreaInSqMicrons
+
+exp:meanCellSpreadAreaInSqMicrons rdf:type owl:DatatypeProperty ;
+                                  
+                                  rdfs:comment "The mean spread area of the cell adhered to tissue culture polystyrene (TCPS)."@en ;
+                                  
+                                  rdfs:domain exp:CellCulture ;
+                                  
+                                  rdfs:range xsd:decimal .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#meanCellVolumeInCubicMicrons
+
+exp:meanCellVolumeInCubicMicrons rdf:type owl:DatatypeProperty ;
+                                 
+                                 rdfs:domain exp:CellCulture ;
+                                 
+                                 rdfs:range xsd:decimal .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#passBandCenterNM
+
+exp:passBandCenterNM rdf:type owl:DatatypeProperty ;
+                     
+                     rdfs:comment "The property `pass Band Center NM' specifies the center of a Band Pass Light Filter in nanometers."@en ;
+                     
+                     rdfs:domain exp:BandPassLightFilter ;
+                     
+                     rdfs:range xsd:decimal .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#passBandHalfWidthNM
+
+exp:passBandHalfWidthNM rdf:type owl:DatatypeProperty ;
+                        
+                        rdfs:comment "The property `pass Band Half Width NM' specifies the half-width in nanometers of a Band Pass Light Filter.  I.e., the band is the pass Band Center NM +/- the half-width."@en ;
+                        
+                        rdfs:domain exp:BandPassLightFilter ;
+                        
+                        rdfs:range xsd:decimal .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#passageFreqInDays
+
+exp:passageFreqInDays rdf:type owl:DatatypeProperty ;
+                      
+                      rdfs:comment "The `passage Freq In Days' is the frequency (number of days) at which cells in the maintenance culture were routinely passaged."@en ;
+                      
+                      rdfs:domain exp:MaintenanceCellCulture ;
+                      
+                      rdfs:range xsd:decimal .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#passageNumber
+
+exp:passageNumber rdf:type owl:DatatypeProperty ;
+                  
+                  rdfs:comment "The `passage number' is to the number of times the cells in the culture have been subcultured."@en ;
+                  
+                  rdfs:domain exp:CellCulture ;
+                  
+                  rdfs:range xsd:unsignedInt .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#productLotNumber
+
+exp:productLotNumber rdf:type owl:DatatypeProperty ;
+                     
+                     rdfs:comment "A `product Lot Number' is a code that designates the place and time of origin of some physical product which it shares with similar products produced around the same time and location, whether the product is an artifact or an agricultureal product." ;
+                     
+                     rdfs:domain or:PhysicalObject ;
+                     
+                     rdfs:range xsd:NMTOKEN .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#receiptDate
+
+exp:receiptDate rdf:type owl:DatatypeProperty ;
+                
+                rdfs:comment "The `receipt Date' of some material is the date it was received from the source."@en ;
+                
+                rdfs:domain or:PhysicalObject ;
+                
+                rdfs:range xsd:dateTime .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#receiptPassageNumber
+
+exp:receiptPassageNumber rdf:type owl:DatatypeProperty ;
+                         
+                         rdfs:comment "The `receipt Passage Number' is to the number of times the cells in the culture had been subcultured at the time of receipt."@en ;
+                         
+                         rdfs:domain exp:CellCulture ;
+                         
+                         rdfs:range xsd:unsignedInt .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#storagePassageNumber
+
+exp:storagePassageNumber rdf:type owl:DatatypeProperty ;
+                         
+                         rdfs:comment "The `storage Passage Number' is to the number of times the cells in the culture had been subcultured at the time of being frozen."@en ;
+                         
+                         rdfs:domain exp:CellCulture ;
+                         
+                         rdfs:range xsd:unsignedInt .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#storageTemeratureInCelsius
+
+exp:storageTemeratureInCelsius rdf:type owl:DatatypeProperty ;
+                               
+                               rdfs:comment "The temperature at which frozen cells were stored (in Celsius)."@en ;
+                               
+                               rdfs:domain exp:CellCulture ;
+                               
+                               rdfs:range xsd:decimal .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#supplySourceName
+
+exp:supplySourceName rdf:type owl:DatatypeProperty ;
+                     
+                     rdfs:comment "The `supply Source Name' of some object is the name of the source of the supply.  This may be the name (or acronym) of the vendor or the location where the item / material was obtained."@en ;
+                     
+                     rdfs:domain or:PhysicalObject ;
+                     
+                     rdfs:range xsd:NMTOKEN .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#thawDate
+
+exp:thawDate rdf:type owl:DatatypeProperty ;
+             
+             rdfs:comment "The `thaw Date' is the date the current culture was thawed."@en ;
+             
+             rdfs:domain exp:CellCulture ;
+             
+             rdfs:range xsd:dateTime .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#uncertaintyConfidenceLevel
+
+exp:uncertaintyConfidenceLevel rdf:type owl:DatatypeProperty ,
+                                        owl:FunctionalProperty ;
+                               
+                               rdfs:domain exp:Uncertainty ;
+                               
+                               rdfs:range xsd:float .
+
+
+
+###  http://www.nist.gov/itl/ssd/OntologyRequirements#referenceURI
+
+or:referenceURI rdf:type owl:DatatypeProperty .
+
+
+
+
+
+#################################################################
+#
+#    Classes
+#
+#################################################################
+
+
+###  http://www.nist.gov/itl/ssd/Biochem#BiologicalCell
+
+bc:BiologicalCell owl:disjointWith exp:CellCulture .
+
+
+
+###  http://www.nist.gov/itl/ssd/Biochem#CellType
+
+bc:CellType owl:disjointWith exp:CellAssayChamberFormat ,
+                             exp:CellAssayChamberPosition .
+
+
+
+###  http://www.nist.gov/itl/ssd/Biochem#ChemicalSubstance
+
+bc:ChemicalSubstance owl:disjointWith exp:CellCulture .
+
+
+
+###  http://www.nist.gov/itl/ssd/Biochem#Organism
+
+bc:Organism owl:disjointWith exp:CellCulture .
+
+
+
+###  http://www.nist.gov/itl/ssd/Biochem#OrganismPart
+
+bc:OrganismPart owl:disjointWith exp:CellCulture .
+
+
+
+###  http://www.nist.gov/itl/ssd/Biochem#OrganismPartType
+
+bc:OrganismPartType owl:disjointWith exp:CellAssayChamberPosition .
+
+
+
+###  http://www.nist.gov/itl/ssd/Biochem#ProteinTypeBySpecies
+
+bc:ProteinTypeBySpecies owl:disjointWith exp:AdhesionSurfaceType ,
+                                         exp:AminoAcidSupplementType ,
+                                         exp:AntibioticType ,
+                                         exp:CultureMediumType ,
+                                         exp:HormoneType .
+
+
+
+###  http://www.nist.gov/itl/ssd/Biochem#ProteinTypeByStructure
+
+bc:ProteinTypeByStructure owl:disjointWith exp:AdhesionSurfaceType ,
+                                           exp:AminoAcidSupplementType ,
+                                           exp:AntibioticType ,
+                                           exp:CultureMediumType ,
+                                           exp:HormoneType .
+
+
+
+###  http://www.nist.gov/itl/ssd/Document#MakingAPrediction
+
+doc:MakingAPrediction rdfs:subClassOf exp:Analysis .
+
+
+
+###  http://www.nist.gov/itl/ssd/Document.n3#RefiningAConcept
+
+<http://www.nist.gov/itl/ssd/Document.n3#RefiningAConcept> owl:disjointWith exp:Experiment ,
+                                                                            exp:Measuring .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#AdhesionSurfaceType
+
+exp:AdhesionSurfaceType rdf:type owl:Class ;
+                        
+                        rdfs:subClassOf or:MaterialType ;
+                        
+                        owl:disjointWith exp:AminoAcidSupplementType ,
+                                         exp:AntibioticType ,
+                                         exp:CultureMediumType ,
+                                         exp:HormoneType ,
+                                         exp:SerumType .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#AminoAcidSupplementType
+
+exp:AminoAcidSupplementType rdf:type owl:Class ;
+                            
+                            rdfs:subClassOf or:MaterialType ;
+                            
+                            owl:disjointWith exp:AntibioticType ,
+                                             exp:CultureMediumType ,
+                                             exp:HormoneType ,
+                                             exp:SerumType .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#Analysis
+
+exp:Analysis rdf:type owl:Class ;
+             
+             rdfs:subClassOf or:PurposefulAction ;
+             
+             rdfs:comment "Analysis is the Purposeful Action of considering something  in detail in order to understand some of its features. "@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#AnimalCellLine
+
+exp:AnimalCellLine rdf:type owl:Class ;
+                   
+                   rdfs:subClassOf exp:CellLine ;
+                   
+                   owl:disjointWith exp:PlantCellLine ;
+                   
+                   rdfs:comment "Cell Line of animal cells"@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#AntibioticType
+
+exp:AntibioticType rdf:type owl:Class ;
+                   
+                   rdfs:subClassOf or:MaterialType ;
+                   
+                   owl:disjointWith exp:CultureMediumType ,
+                                    exp:HormoneType ,
+                                    exp:SerumType ;
+                   
+                   rdfs:comment "Type of antibiotic"@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#ArtificialLens
+
+exp:ArtificialLens rdf:type owl:Class ;
+                   
+                   rdfs:subClassOf exp:Lens ,
+                                   or:PhysicalDevice ;
+                   
+                   owl:disjointWith exp:BeamSplitter ,
+                                    exp:DNAMicroarray ,
+                                    exp:Incubator ,
+                                    exp:MicroscopeStage ,
+                                    exp:RadiationOutputDevice ,
+                                    or:Computer ,
+                                    or:ImagingDevice .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#BandPassEmissionFilter
+
+exp:BandPassEmissionFilter rdf:type owl:Class ;
+                           
+                           rdfs:subClassOf exp:BandPassLightFilter .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#BandPassExcitationFilter
+
+exp:BandPassExcitationFilter rdf:type owl:Class ;
+                             
+                             rdfs:subClassOf exp:BandPassLightFilter .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#BandPassImageFilteringAlgorithm
+
+exp:BandPassImageFilteringAlgorithm rdf:type owl:Class ;
+                                    
+                                    rdfs:subClassOf exp:ImageFilteringAlgorithm ;
+                                    
+                                    owl:disjointWith exp:HighPassImageFilteringAlgorithm ,
+                                                     exp:LowPassImageFilteringAlgorithm .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#BandPassLightFilter
+
+exp:BandPassLightFilter rdf:type owl:Class ;
+                        
+                        rdfs:subClassOf exp:LightFilter .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#BeamSplitter
+
+exp:BeamSplitter rdf:type owl:Class ;
+                 
+                 rdfs:subClassOf or:LaboratoryEquipment ;
+                 
+                 owl:disjointWith exp:DNAMicroarray ,
+                                  exp:Incubator ,
+                                  exp:LightFilter ,
+                                  exp:LightShutter ,
+                                  exp:MicroscopeStage ,
+                                  or:Computer ,
+                                  or:ImagingDevice .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#BiologicalAssay
+
+exp:BiologicalAssay rdf:type owl:Class ;
+                    
+                    rdfs:subClassOf exp:ExperimentalStudy .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#BiologicalMaterialPreparationStep
+
+exp:BiologicalMaterialPreparationStep rdf:type owl:Class ;
+                                      
+                                      rdfs:subClassOf or:PurposefulAction .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#BiologicalSampleFixation
+
+exp:BiologicalSampleFixation rdf:type owl:Class ;
+                             
+                             rdfs:subClassOf exp:BiologicalMaterialPreparationStep ;
+                             
+                             rdfs:comment "Biological Sample Fxation is a technique to kill cells while preserving the shape of the cells or tissue (if applicable) as much as possible.  The fixing process may consist of several steps."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#BiologicalSampleMounting
+
+exp:BiologicalSampleMounting rdf:type owl:Class ;
+                             
+                             rdfs:subClassOf exp:BiologicalMaterialPreparationStep ;
+                             
+                             rdfs:comment "Biological Sample Mounting usually involves attaching the samples to a microscope slide for observation and analysis.Cells may be grown directly on a slide or smeared directly applied to it. For larger pieces of tissue, thin sections are often made using a microtome, which are then be mounted."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#Biomarker
+
+exp:Biomarker rdf:type owl:Class ;
+              
+              rdfs:subClassOf bc:ChemicalSubstance ,
+                              or:Artifact ;
+              
+              owl:disjointWith exp:CultureMedium ,
+                               exp:DMSO ;
+              
+              rdfs:comment "A Biomarker is ia Chemical Substance used as an indicator of a Biological State. The presence, location, and amount of a Biomarker can be objectively measured and evaluated as an indicator of specific cell types, Biological Processes, or responses to pharmaceutical intervention." .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#BreastCancerCellLine
+
+exp:BreastCancerCellLine rdf:type owl:Class ;
+                         
+                         rdfs:subClassOf exp:HumanCancerCellLine .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#CCDCamera
+
+exp:CCDCamera rdf:type owl:Class ;
+              
+              rdfs:subClassOf or:Camera .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#CancerCellLine
+
+exp:CancerCellLine rdf:type owl:Class ;
+                   
+                   rdfs:subClassOf exp:AnimalCellLine ;
+                   
+                   rdfs:comment "Cell Line of cacerous cells"@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#CellAssayChamberFormat
+
+exp:CellAssayChamberFormat rdf:type owl:Class ;
+                           
+                           rdfs:subClassOf or:ObjectType ;
+                           
+                           owl:disjointWith exp:CellAssayChamberPosition ;
+                           
+                           <http://www.w3.org/2004/02/skos/core#note> "A definition and set of instances are needed." .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#CellAssayChamberPosition
+
+exp:CellAssayChamberPosition rdf:type owl:Class ;
+                             
+                             rdfs:subClassOf or:ObjectType ;
+                             
+                             owl:disjointWith or:MaterialType ,
+                                              or:MeasurementRole ;
+                             
+                             <http://www.w3.org/2004/02/skos/core#note> "Standard positions in the assay chamber ( plate, well position)"@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#CellColony
+
+exp:CellColony rdf:type owl:Class ;
+               
+               rdfs:subClassOf bc:BiologicalLivingObject ;
+               
+               rdfs:comment "A Cell Colony  is an in vitro group of cells of the same species growing together.  Cell Colonies are used for biomedical experiments." .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#CellCulture
+
+exp:CellCulture rdf:type owl:Class ;
+                
+                rdfs:subClassOf bc:OrganicMaterial ,
+                                or:Artifact ;
+                
+                owl:disjointWith or:PhysicalDevice ;
+                
+                rdfs:comment "Cell cultures are produced by inoculating living cells to a nutritious Culture Medium and incubating to allow the cells to grow and divide.  Cell cultures are normally intended to contain only cells of a certain type.  The cells in the cultures may be single-celled organisms (e.g., in a bacterial culture) or may be from a cell line of a multicellular organism.  Many cell varieties have particular media and conditions needed to assure optimum growth. "@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#CellCultureAdhesionState
+
+exp:CellCultureAdhesionState rdf:type owl:Class ;
+                             
+                             rdfs:subClassOf or:StateOfBeing ;
+                             
+                             rdfs:comment "A `Cell Culture Adhesion State' specifies the type of adhesion that cells in a Cell Culture have relative to each other."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#CellDissociationType
+
+exp:CellDissociationType rdf:type owl:Class ;
+                         
+                         rdfs:subClassOf or:EventType ;
+                         
+                         owl:disjointWith exp:ExperimentType ,
+                                          exp:ExtracellularMatrixPatterningType ,
+                                          exp:ExtracellularMatrixTreatmentType ;
+                         
+                         rdfs:comment "Types of events for cell dissociation."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#CellImagingExperiment
+
+exp:CellImagingExperiment rdf:type owl:Class ;
+                          
+                          rdfs:subClassOf exp:ExperimentalStudy .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#CellLine
+
+exp:CellLine rdf:type owl:Class ;
+             
+             rdfs:subClassOf bc:CellType ;
+             
+             rdfs:comment "An immortalised cell line is a population of cells of a specific Cell Type from a single multicellular organism which can keep undergoing division."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#CellPermeabilization
+
+exp:CellPermeabilization rdf:type owl:Class ;
+                         
+                         rdfs:subClassOf exp:BiologicalMaterialPreparationStep ;
+                         
+                         rdfs:comment "Cell Permeabilization involves treatment of cells with (usually) a mild surfactant. This treatment will dissolve the cell membranes, and allow larger dye molecules access to the cell's interior."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#CellPreparation
+
+exp:CellPreparation rdf:type owl:Class ;
+                    
+                    rdfs:subClassOf exp:BiologicalMaterialPreparationStep ;
+                    
+                    rdfs:comment "Cell Preparation is the activity of preparing Cell Colonies or sets of Biological Cells for microscopy.  Steps taken in Cell Preparation may include Fixation, Permeabilization, and Mounting"@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#CellProliferation
+
+exp:CellProliferation rdf:type owl:Class ;
+                      
+                      rdfs:subClassOf exp:CellularBiologicalProcess ,
+                                      or:CreationEvent ;
+                      
+                      owl:disjointWith or:IntentionalCreation ;
+                      
+                      rdfs:comment "The process in which a Biological Cell, or group of Biological Cells, produces more cells."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#CellStain
+
+exp:CellStain rdf:type owl:Class ;
+              
+              rdfs:subClassOf exp:Biomarker ;
+              
+              rdfs:comment "A Cell Stain colors different SubCellular Components to enable better observation of cells in a Microscope or microscopic Image." .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#CellStaining
+
+exp:CellStaining rdf:type owl:Class ;
+                 
+                 rdfs:subClassOf exp:BiologicalMaterialPreparationStep ;
+                 
+                 rdfs:comment "Those Events in which a cell culture is stained. The property ``objectActedOn' ' relates the Cell Staining event to both the CellColony and the indiviidual Biological Cells which are stained.  Staining is used for identification and detection of cells and cellular components. Dyes or other materials are applied to a thin film of cells on a microscope slide and subsequently observed for changes." .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#CellTypeBiomarker
+
+exp:CellTypeBiomarker rdf:type owl:Class ;
+                      
+                      rdfs:subClassOf exp:Biomarker ;
+                      
+                      rdfs:comment "A Cell Type Biomarker enables detection and isolation of a particular cell type." .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#CellularBiologicalProcess
+
+exp:CellularBiologicalProcess rdf:type owl:Class ;
+                              
+                              rdfs:subClassOf bc:InvolutaryBiologicalProcess ;
+                              
+                              rdfs:comment """Those instances of Biological Process that occur at the cellular level (i.e., an instance of Biological Cell plays the doneBy role). Most instances of Biological Process have instances of Cellular Biological Process as subEvents.
+
+Same as cyc#BiologicalProcess-CellularLevel."""@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#CellularShapeChange
+
+exp:CellularShapeChange rdf:type owl:Class ;
+                        
+                        rdfs:subClassOf exp:CellularBiologicalProcess ;
+                        
+                        rdfs:comment "The Process in which a Biological Cell changes its shape."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#ChemicalFixation
+
+exp:ChemicalFixation rdf:type owl:Class ;
+                     
+                     rdfs:subClassOf exp:BiologicalSampleFixation ;
+                     
+                     rdfs:comment "In Chemical Fixation, cellular structures are preserved in a state (both chemically and structurally) as close to living tissue as possible. This requires a chemical fixative that can stabilise the proteins, nucleic acids and mucosubstances of the tissue by making them insoluble."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#ChemicalFixative
+
+exp:ChemicalFixative rdf:type owl:Class ;
+                     
+                     rdfs:subClassOf or:MaterialType ;
+                     
+                     rdfs:comment "A Chemical Fixative is a type of chemical such that when portions of it react with cells and Biological Tissue, proteins, nucleic acids, and other biological substances are stabilized in place. "@en ;
+                     
+                     <http://www.w3.org/2004/02/skos/core#note> "See http://en.wikipedia.org/wiki/Fixation_(histology)"@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#ComputationalModeling
+
+exp:ComputationalModeling rdf:type owl:Class ;
+                          
+                          rdfs:subClassOf <http://www.nist.gov/itl/ssd/OntologyRequirements.owl#Modeling> ;
+                          
+                          rdfs:comment "Computational Modeling is the process of intentionally creating a Computational Model."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#CultureMedium
+
+exp:CultureMedium rdf:type owl:Class ;
+                  
+                  rdfs:subClassOf bc:ChemicalSubstance ,
+                                  or:Artifact ;
+                  
+                  owl:disjointWith exp:DMSO ;
+                  
+                  rdfs:comment "A `Culture Medium' is a liquid or gel designed to support the growth of cells or small plants.  Different varieties of Culture Media are used for micro-organisms or cell lines from animals or plants."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#CultureMediumType
+
+exp:CultureMediumType rdf:type owl:Class ;
+                      
+                      rdfs:subClassOf or:MaterialType ;
+                      
+                      owl:disjointWith exp:HormoneType ,
+                                       exp:SerumType ;
+                      
+                      rdfs:comment "A `Culture Medium Type' is the specific type of culture medium used, for example, 95% default culture medium + 5% DMSO."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#CytotoxicityTesting
+
+exp:CytotoxicityTesting rdf:type owl:Class ;
+                        
+                        rdfs:subClassOf exp:ToxicityTesting .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#DMSO
+
+exp:DMSO rdf:type owl:Class ;
+         
+         rdfs:subClassOf bc:ChemicalSubstance ,
+                         or:Artifact .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#DNAMicroarray
+
+exp:DNAMicroarray rdf:type owl:Class ;
+                  
+                  rdfs:subClassOf or:LaboratoryEquipment ;
+                  
+                  owl:disjointWith exp:Incubator ,
+                                   exp:LightFilter ,
+                                   exp:LightShutter ,
+                                   exp:MicroscopeStage ,
+                                   exp:RadiationOutputDevice ,
+                                   or:Computer ,
+                                   or:ImagingDevice ;
+                  
+                  rdfs:comment "A DNA microarrayis surface with an attached set of microscopic DNA spots. Researchers use DNA microarrays to measure the expression levels of large numbers of genes simultaneously or to genotype multiple regions of a genome."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#DataAnalysis
+
+exp:DataAnalysis rdf:type owl:Class ;
+                 
+                 rdfs:subClassOf exp:Analysis ;
+                 
+                 rdfs:comment "Data Analysis is the Analysis of a set of data"@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#EdgeDetectionAlgorithm
+
+exp:EdgeDetectionAlgorithm rdf:type owl:Class ;
+                           
+                           rdfs:subClassOf exp:ImageProcessingAlgorithm ;
+                           
+                           owl:disjointWith exp:HistogramAlgorithm ,
+                                            exp:ImageArithmeticAlgorithm ,
+                                            exp:ImageClassificationAlgorithm ,
+                                            exp:ImageConstructionFromMultipleImages ,
+                                            exp:ImageNoiseReductionAlgorithm ,
+                                            exp:ImageScalingAlgorithm ,
+                                            exp:ImageSegmentationAlgorithm ,
+                                            exp:ImageSharpeningAlgorithm ,
+                                            exp:ImageShiftingAlgorithm ,
+                                            exp:ImageTextureAlgorithm ,
+                                            exp:ImageWarpingAlgorithm ,
+                                            exp:LowPassImageFilteringAlgorithm ,
+                                            exp:PixelClassificationAlgorithm ;
+                           
+                           rdfs:comment "Algorithms for detecting visual edges in images."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#ElectronMicroscope
+
+exp:ElectronMicroscope rdf:type owl:Class ;
+                       
+                       rdfs:subClassOf exp:Microscope ;
+                       
+                       rdfs:comment "An Electron Microscope is a Microscope that uses a beam of electrons to examine objects on a very small scale.\""@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#EstimationMethod
+
+exp:EstimationMethod rdf:type owl:Class ;
+                     
+                     rdfs:subClassOf or:Technique ;
+                     
+                     rdfs:comment "An Estimation Method is a Technique for estimating a physical or statistical property." .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#Experiment
+
+exp:Experiment rdf:type owl:Class ;
+               
+               rdfs:subClassOf or:IntentionalCreation ,
+                               [ rdf:type owl:Restriction ;
+                                 owl:onProperty or:subEvents ;
+                                 owl:someValuesFrom or:DataCollection
+                               ] ;
+               
+               owl:disjointWith or:Designing ,
+                                or:Development ,
+                                or:Manufacturing ;
+               
+               rdfs:comment "Each instance of Experiment is an event in which one performs tests to determine whether an hypothesis is true or to determine physical (or other) features of something."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#ExperimentParameters
+
+exp:ExperimentParameters rdf:type owl:Class ;
+                         
+                         rdfs:subClassOf or:Metadata .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#ExperimentType
+
+exp:ExperimentType rdf:type owl:Class ;
+                   
+                   rdfs:subClassOf or:EventType ;
+                   
+                   owl:disjointWith exp:ExtracellularMatrixPatterningType ,
+                                    exp:ExtracellularMatrixTreatmentType ;
+                   
+                   rdfs:comment "General category of scientific experiment."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#ExperimentalStudy
+
+exp:ExperimentalStudy rdf:type owl:Class ;
+                      
+                      rdfs:subClassOf exp:Research .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#ExtracellularMatrix
+
+exp:ExtracellularMatrix rdf:type owl:Class ;
+                        
+                        rdfs:subClassOf bc:ChemicalSubstance ;
+                        
+                        <http://www.w3.org/2004/02/skos/core#note> "What is this supposed to mean?  Its use seems to be different from that of GO:0031012 `extracellular matrix'."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#ExtracellularMatrixPatterningType
+
+exp:ExtracellularMatrixPatterningType rdf:type owl:Class ;
+                                      
+                                      rdfs:subClassOf or:EventType ;
+                                      
+                                      owl:disjointWith exp:ExtracellularMatrixTreatmentType ;
+                                      
+                                      rdfs:comment "Varieties of extracellular matrix patterning."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#ExtracellularMatrixTreatmentType
+
+exp:ExtracellularMatrixTreatmentType rdf:type owl:Class ;
+                                     
+                                     rdfs:subClassOf or:EventType ;
+                                     
+                                     rdfs:comment "Types of treatment for extracellular matrices in Cell Assays."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#FlatFieldCorrection
+
+exp:FlatFieldCorrection rdf:type owl:Class ;
+                        
+                        rdfs:subClassOf exp:ImageProcessingAlgorithm ;
+                        
+                        rdfs:comment "Flat-field correction is a technique used to improve quality in digital imaging.  A flat-field consists of two numbers for each pixel, the pixel's gain and its dark current (or dark frame). The pixel's gain is how the amount of signal given by the detector varies as a function of the amount of light (or equivalent). The gain is almost always a linear variable, as such the gain is given simply as the ratio of the input and output signals. The dark-current is the amount of signal given out by the detector when there is no incident light (hence dark frame)."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#FluorescenceImage
+
+exp:FluorescenceImage rdf:type owl:Class ;
+                      
+                      rdfs:subClassOf or:Image .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#GenomicMotifAnalysis
+
+exp:GenomicMotifAnalysis rdf:type owl:Class ;
+                         
+                         rdfs:subClassOf or:PurposefulAction ;
+                         
+                         rdfs:comment "Analysis of genomic motifs, including discovery, identification, prediction, structure prediction, and search."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#GramStaining
+
+exp:GramStaining rdf:type owl:Class ;
+                 
+                 rdfs:subClassOf exp:CellStaining .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#HaematoxylinAndEosinStaining
+
+exp:HaematoxylinAndEosinStaining rdf:type owl:Class ;
+                                 
+                                 rdfs:subClassOf exp:CellStaining .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#HeatFixation
+
+exp:HeatFixation rdf:type owl:Class ;
+                 
+                 rdfs:subClassOf exp:BiologicalSampleFixation ;
+                 
+                 rdfs:comment "Heat Fixation of cells or tissue is used to kill, adhere, and alter the specimen so it will accept stains."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#HighPassImageFilteringAlgorithm
+
+exp:HighPassImageFilteringAlgorithm rdf:type owl:Class ;
+                                    
+                                    rdfs:subClassOf exp:ImageFilteringAlgorithm ;
+                                    
+                                    owl:disjointWith exp:LowPassImageFilteringAlgorithm .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#HistogramAlgorithm
+
+exp:HistogramAlgorithm rdf:type owl:Class ;
+                       
+                       rdfs:subClassOf exp:ImageProcessingAlgorithm ;
+                       
+                       owl:disjointWith exp:ImageArithmeticAlgorithm ,
+                                        exp:ImageClassificationAlgorithm ,
+                                        exp:ImageConstructionFromMultipleImages ,
+                                        exp:ImageFilteringAlgorithm ,
+                                        exp:ImageNoiseReductionAlgorithm ,
+                                        exp:ImageScalingAlgorithm ,
+                                        exp:ImageSegmentationAlgorithm ,
+                                        exp:ImageShiftingAlgorithm ,
+                                        exp:ImageTextureAlgorithm ,
+                                        exp:ImageWarpingAlgorithm ,
+                                        exp:PixelClassificationAlgorithm ;
+                       
+                       rdfs:comment "Algorithms for calculating the histogram of an image or a region within an image."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#HistogramBasedImageSegmentationAlgorithm
+
+exp:HistogramBasedImageSegmentationAlgorithm rdf:type owl:Class ;
+                                             
+                                             rdfs:subClassOf exp:ImageSegmentationAlgorithm ;
+                                             
+                                             rdfs:comment "Image Segmentation Algorithm based on histograms"@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#HormoneType
+
+exp:HormoneType rdf:type owl:Class ;
+                
+                rdfs:subClassOf or:MaterialType ;
+                
+                owl:disjointWith exp:SerumType ;
+                
+                rdfs:comment "A type of hormone."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#HumanCancerCellLine
+
+exp:HumanCancerCellLine rdf:type owl:Class ;
+                        
+                        rdfs:subClassOf exp:CancerCellLine ,
+                                        exp:HumanCellLine .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#HumanCellLine
+
+exp:HumanCellLine rdf:type owl:Class ;
+                  
+                  rdfs:subClassOf exp:AnimalCellLine ;
+                  
+                  owl:disjointWith exp:MouseCellLine ,
+                                   exp:PrimateCellLine ,
+                                   exp:RatCellLine ;
+                  
+                  rdfs:comment "Cell Line of human cells"@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#ImageAquisitionSoftware
+
+exp:ImageAquisitionSoftware rdf:type owl:Class ;
+                            
+                            rdfs:subClassOf or:Software ;
+                            
+                            owl:disjointWith or:OperatingSystem ;
+                            
+                            rdfs:comment "Image Aquistion Software is Software (ranging from a subroutine, through a program, to a Software Package) designed to be used in conjunction with Image Aquistion Devices for the aquisistion of images from Physical Objects."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#ImageArithmeticAlgorithm
+
+exp:ImageArithmeticAlgorithm rdf:type owl:Class ;
+                             
+                             rdfs:subClassOf exp:ImageProcessingAlgorithm ;
+                             
+                             owl:disjointWith exp:ImageClassificationAlgorithm ,
+                                              exp:ImageDifferentiationAlgorithm ,
+                                              exp:ImageFilteringAlgorithm ,
+                                              exp:ImageNoiseReductionAlgorithm ,
+                                              exp:ImageScalingAlgorithm ,
+                                              exp:ImageSegmentationAlgorithm ,
+                                              exp:ImageSharpeningAlgorithm ,
+                                              exp:ImageShiftingAlgorithm ,
+                                              exp:ImageTextureAlgorithm ,
+                                              exp:ImageWarpingAlgorithm ,
+                                              exp:PixelClassificationAlgorithm ;
+                             
+                             rdfs:comment "Algorithms to arithmetically combine two images: by summing or subtracting them."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#ImageBinarization
+
+exp:ImageBinarization rdf:type owl:Class ;
+                      
+                      rdfs:subClassOf exp:ImageSegmentationAlgorithm ;
+                      
+                      rdfs:comment "An image segmentation algorithm which produces images with only two pixel values."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#ImageBinaryThresholdingAlgorithm
+
+exp:ImageBinaryThresholdingAlgorithm rdf:type owl:Class ;
+                                     
+                                     rdfs:subClassOf exp:ImageBinarization ;
+                                     
+                                     rdfs:comment "Algorithms for segmenting an image using binary thresholding;  all pixels above a certain value called a threshold are set to one value, while all below that threshold are set to a second value.  Depending on the algorithm, the threshold value may vary over different regions of the image.  See http://www.cellprofiler.org/CPmanual/IdentifyPrimaryObjects.html for a discussion of six binary thresholding algorithms."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#ImageClassificationAlgorithm
+
+exp:ImageClassificationAlgorithm rdf:type owl:Class ;
+                                 
+                                 rdfs:subClassOf exp:ImageProcessingAlgorithm ;
+                                 
+                                 owl:disjointWith exp:ImageConstructionFromMultipleImages ,
+                                                  exp:ImageConvolution ,
+                                                  exp:ImageDifferentiationAlgorithm ,
+                                                  exp:ImageFilteringAlgorithm ,
+                                                  exp:ImageNoiseReductionAlgorithm ,
+                                                  exp:ImageScalingAlgorithm ,
+                                                  exp:ImageSharpeningAlgorithm ,
+                                                  exp:ImageShiftingAlgorithm ,
+                                                  exp:ImageWarpingAlgorithm ,
+                                                  exp:PixelClassificationAlgorithm ;
+                                 
+                                 rdfs:comment "An algorithm for classifying portions of an image as representing certain types of physical objects." .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#ImageConstructionFromMultipleImages
+
+exp:ImageConstructionFromMultipleImages rdf:type owl:Class ;
+                                        
+                                        rdfs:subClassOf exp:ImageProcessingAlgorithm ;
+                                        
+                                        owl:disjointWith exp:ImageConvolution ,
+                                                         exp:ImageDifferentiationAlgorithm ,
+                                                         exp:ImageFilteringAlgorithm ,
+                                                         exp:ImageNoiseReductionAlgorithm ,
+                                                         exp:ImageScalingAlgorithm ,
+                                                         exp:ImageSegmentationAlgorithm ,
+                                                         exp:ImageSharpeningAlgorithm ,
+                                                         exp:ImageShiftingAlgorithm ,
+                                                         exp:ImageTextureAlgorithm ,
+                                                         exp:ImageWarpingAlgorithm ,
+                                                         exp:PixelClassificationAlgorithm ;
+                                        
+                                        rdfs:comment "Algorithms for constructing images from sets of images.  These may be images that cover the same area, but were made by different techniques or at different times, or images of adjacent regions that are to be stitched together."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#ImageContrastAlgorithm
+
+exp:ImageContrastAlgorithm rdf:type owl:Class ;
+                           
+                           rdfs:subClassOf exp:ImageProcessingAlgorithm ;
+                           
+                           rdfs:comment "Algorithms for adjusting image contrast"@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#ImageConvolution
+
+exp:ImageConvolution rdf:type owl:Class ;
+                     
+                     rdfs:subClassOf exp:ImageProcessingAlgorithm ;
+                     
+                     owl:disjointWith exp:ImageScalingAlgorithm ,
+                                      exp:ImageWarpingAlgorithm ,
+                                      exp:PixelClassificationAlgorithm ;
+                     
+                     rdfs:comment "Algorithms for convolving a pixelated image with a N x M matrix."@en ;
+                     
+                     <http://www.w3.org/2004/02/skos/core#note> "Convolution can be used for smoothing, sharpening, edge detection, filtering, and texture detection."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#ImageDifferentiationAlgorithm
+
+exp:ImageDifferentiationAlgorithm rdf:type owl:Class ;
+                                  
+                                  rdfs:subClassOf exp:ImageProcessingAlgorithm ;
+                                  
+                                  owl:disjointWith exp:ImageNoiseReductionAlgorithm ,
+                                                   exp:ImageScalingAlgorithm ,
+                                                   exp:ImageShiftingAlgorithm ,
+                                                   exp:ImageWarpingAlgorithm ,
+                                                   exp:PixelClassificationAlgorithm ;
+                                  
+                                  rdfs:comment "Algorithms for calculating a first- or second-order differential over an image"@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#ImageFilteringAlgorithm
+
+exp:ImageFilteringAlgorithm rdf:type owl:Class ;
+                            
+                            rdfs:subClassOf exp:ImageProcessingAlgorithm ;
+                            
+                            owl:disjointWith exp:ImageScalingAlgorithm ,
+                                             exp:ImageShiftingAlgorithm ,
+                                             exp:ImageWarpingAlgorithm ,
+                                             exp:PixelClassificationAlgorithm .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#ImageNoiseReductionAlgorithm
+
+exp:ImageNoiseReductionAlgorithm rdf:type owl:Class ;
+                                 
+                                 rdfs:subClassOf exp:ImageProcessingAlgorithm ;
+                                 
+                                 owl:disjointWith exp:ImageSegmentationAlgorithm ,
+                                                  exp:ImageShiftingAlgorithm ,
+                                                  exp:ImageTextureAlgorithm ,
+                                                  exp:ImageWarpingAlgorithm ,
+                                                  exp:PixelClassificationAlgorithm ;
+                                 
+                                 rdfs:comment "Algorithms for reducing and removing noise in images."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#ImageProcessingAlgorithm
+
+exp:ImageProcessingAlgorithm rdf:type owl:Class ;
+                             
+                             rdfs:subClassOf or:Algorithm ;
+                             
+                             rdfs:comment "An algorithm for processing electronic images by computer."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#ImageScalingAlgorithm
+
+exp:ImageScalingAlgorithm rdf:type owl:Class ;
+                          
+                          rdfs:subClassOf exp:ImageProcessingAlgorithm ;
+                          
+                          owl:disjointWith exp:ImageSegmentationAlgorithm ,
+                                           exp:ImageShiftingAlgorithm ,
+                                           exp:ImageTextureAlgorithm ,
+                                           exp:ImageWarpingAlgorithm ,
+                                           exp:PixelClassificationAlgorithm ;
+                          
+                          <http://www.w3.org/2004/02/skos/core#note> "Algorithms for enlarging or shrinking images."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#ImageSegmentationAlgorithm
+
+exp:ImageSegmentationAlgorithm rdf:type owl:Class ;
+                               
+                               rdfs:subClassOf exp:ImageProcessingAlgorithm ;
+                               
+                               owl:disjointWith exp:ImageSharpeningAlgorithm ,
+                                                exp:ImageShiftingAlgorithm ,
+                                                exp:ImageWarpingAlgorithm ,
+                                                exp:PixelClassificationAlgorithm ;
+                               
+                               rdfs:comment "An algorithm for segmenting an image into multiple significant regions"@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#ImageSharpeningAlgorithm
+
+exp:ImageSharpeningAlgorithm rdf:type owl:Class ;
+                             
+                             rdfs:subClassOf exp:ImageProcessingAlgorithm ;
+                             
+                             owl:disjointWith exp:ImageShiftingAlgorithm ,
+                                              exp:ImageTextureAlgorithm ,
+                                              exp:LowPassImageFilteringAlgorithm ,
+                                              exp:PixelClassificationAlgorithm ;
+                             
+                             rdfs:comment "Algorithms for sharpening blury images"@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#ImageShiftingAlgorithm
+
+exp:ImageShiftingAlgorithm rdf:type owl:Class ;
+                           
+                           rdfs:subClassOf exp:ImageProcessingAlgorithm ;
+                           
+                           owl:disjointWith exp:ImageTextureAlgorithm ,
+                                            exp:ImageWarpingAlgorithm .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#ImageStitchingAlgorithm
+
+exp:ImageStitchingAlgorithm rdf:type owl:Class ;
+                            
+                            rdfs:subClassOf exp:ImageConstructionFromMultipleImages ;
+                            
+                            rdfs:comment "Algorithms for combining adjacent, but overlapping images into a single image."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#ImageTextureAlgorithm
+
+exp:ImageTextureAlgorithm rdf:type owl:Class ;
+                          
+                          rdfs:subClassOf exp:ImageProcessingAlgorithm ;
+                          
+                          owl:disjointWith exp:ImageWarpingAlgorithm ,
+                                           exp:PixelClassificationAlgorithm ;
+                          
+                          rdfs:comment "Algorithms for defining the visual texture of regions of an image."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#ImageWarpingAlgorithm
+
+exp:ImageWarpingAlgorithm rdf:type owl:Class ;
+                          
+                          rdfs:subClassOf exp:ImageProcessingAlgorithm ;
+                          
+                          owl:disjointWith exp:PixelClassificationAlgorithm ;
+                          
+                          rdfs:comment "Algorithms for warping an image,  They can be useful for constructing single images from multiple overlapping images."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#ImmersionFixation
+
+exp:ImmersionFixation rdf:type owl:Class ;
+                      
+                      rdfs:subClassOf exp:BiologicalSampleFixation ;
+                      
+                      rdfs:comment "In Immersion fixation, the sample to be fixed is immersed in fixative at least 20 times greater in volume than the sample. The fixative must diffuse through the tissue to fix; a larger sample means it takes longer for the fixative to reach the deeper tissue."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#Incubator
+
+exp:Incubator rdf:type owl:Class ;
+              
+              rdfs:subClassOf bc:Container ,
+                              or:PhysicalDevice ;
+              
+              owl:disjointWith exp:LightFilter ,
+                               exp:LightShutter ,
+                               exp:MicroscopeStage ,
+                               exp:RadiationOutputDevice ;
+              
+              rdfs:comment "A physical device designed to be used for incubating living material.  Different types of incubator are designed for cell cultures, bird eggs, and premature infants (for example)."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#InfraredEmissionDevice
+
+exp:InfraredEmissionDevice rdf:type owl:Class ;
+                           
+                           rdfs:subClassOf exp:RadiationOutputDevice .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#Lens
+
+exp:Lens rdf:type owl:Class ;
+         
+         rdfs:subClassOf or:PhysicalObject ;
+         
+         rdfs:comment "Lenses, whether natural (e.g. in an eye) or artificial."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#LightEmissionDevice
+
+exp:LightEmissionDevice rdf:type owl:Class ;
+                        
+                        rdfs:subClassOf exp:RadiationOutputDevice .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#LightFilter
+
+exp:LightFilter rdf:type owl:Class ;
+                
+                rdfs:subClassOf or:PhysicalDevice ;
+                
+                owl:disjointWith exp:MicroscopeStage ,
+                                 exp:RadiationOutputDevice ;
+                
+                rdfs:comment "A transparent or transluscent piece of material that transmits some of the light impinging on it from the other side.  The filter may block or transmit certain frequencies preferentially or may polarize the light passing through."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#LightShutter
+
+exp:LightShutter rdf:type owl:Class ;
+                 
+                 rdfs:subClassOf or:PhysicalDevice ;
+                 
+                 owl:disjointWith exp:MicroscopeStage ,
+                                  exp:RadiationOutputDevice ;
+                 
+                 rdfs:comment "A shutter that lets light in to an Imaging Device or out from a Radiation Output Device."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#LongPassLightFilter
+
+exp:LongPassLightFilter rdf:type owl:Class ;
+                        
+                        rdfs:subClassOf exp:LightFilter .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#LowPassImageFilteringAlgorithm
+
+exp:LowPassImageFilteringAlgorithm rdf:type owl:Class ;
+                                   
+                                   rdfs:subClassOf exp:ImageFilteringAlgorithm .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#MaintenanceCellCulture
+
+exp:MaintenanceCellCulture rdf:type owl:Class ;
+                           
+                           rdfs:subClassOf exp:CellCulture .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#MeasurementTechnique
+
+exp:MeasurementTechnique rdf:type owl:Class ;
+                         
+                         rdfs:subClassOf or:Technique ;
+                         
+                         owl:disjointWith or:Algorithm ;
+                         
+                         rdfs:comment "A Measurement Technique is a specified method of making a measurement.  It may or may not conform to an existing Specification."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#Measuring
+
+exp:Measuring rdf:type owl:Class ;
+              
+              rdfs:subClassOf or:PurposefulAction ;
+              
+              owl:disjointWith or:ComputerProcessExecution ,
+                               or:DatabaseSearch ;
+              
+              rdfs:comment "The action of making measurements"@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#Microscope
+
+exp:Microscope rdf:type owl:Class ;
+               
+               rdfs:subClassOf or:ImageInputDevice ;
+               
+               rdfs:comment """A Microscope is a Image Input Device designed for viewing small biological objects or parts of objects.  Optical Microscopes, Electron Microscopes, and Scanning Probe Micrescopes are different varieties of Microscope.
+
+Same as cyc:Microscope ."""@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#MicroscopeStage
+
+exp:MicroscopeStage rdf:type owl:Class ;
+                    
+                    rdfs:subClassOf or:PhysicalDevice ;
+                    
+                    owl:disjointWith exp:RadiationOutputDevice .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#MouseCellLine
+
+exp:MouseCellLine rdf:type owl:Class ;
+                  
+                  rdfs:subClassOf exp:AnimalCellLine ;
+                  
+                  owl:disjointWith exp:PrimateCellLine ,
+                                   exp:RatCellLine ;
+                  
+                  rdfs:comment "Cell Line of mouse cells"@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#MovingImageInputDevice
+
+exp:MovingImageInputDevice rdf:type owl:Class ;
+                           
+                           rdfs:subClassOf or:ImageInputDevice ;
+                           
+                           owl:disjointWith exp:StillImageInputDevice .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#NegativeSampleStaining
+
+exp:NegativeSampleStaining rdf:type owl:Class ;
+                           
+                           rdfs:subClassOf exp:BiologicalMaterialPreparationStep ;
+                           
+                           rdfs:comment "One staining method for bacteria is a negative stain. This can be achieved by smearing the sample on to the slide, followed by an applying a black dyeor ink to the surface. After drying, the microorganisms may be viewed in bright field microscopy as lighter inclusions contrasted against the dark suround."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#NumberOfSignificantDigits
+
+exp:NumberOfSignificantDigits rdf:type owl:Class ;
+                              
+                              rdfs:subClassOf exp:Uncertainty .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#OpticalMicroscope
+
+exp:OpticalMicroscope rdf:type owl:Class ;
+                      
+                      rdfs:subClassOf exp:Microscope ;
+                      
+                      rdfs:comment """An Optical Microscope is a Microscope that uses a refractive lens and/or mirrors to magnify the visual image of a small object
+
+Same as cyc:Microscope-Optical ."""@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#PassagingDissociationMethod
+
+exp:PassagingDissociationMethod rdf:type owl:Class ;
+                                
+                                rdfs:subClassOf or:Technique ;
+                                
+                                rdfs:comment "A method used to dissociate the cells from the maintenance culture flask during passage (trypsin, EDTA, etc.)."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#PixelClassificationAlgorithm
+
+exp:PixelClassificationAlgorithm rdf:type owl:Class ;
+                                 
+                                 rdfs:subClassOf exp:ImageProcessingAlgorithm ;
+                                 
+                                 rdfs:comment "Algorithms for classifying the type of region or object that a pixel represents a region of."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#PlantCellLine
+
+exp:PlantCellLine rdf:type owl:Class ;
+                  
+                  rdfs:subClassOf exp:CellLine ;
+                  
+                  rdfs:comment "Cell Line of plant cells."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#PolarizingLightFilter
+
+exp:PolarizingLightFilter rdf:type owl:Class ;
+                          
+                          rdfs:subClassOf exp:LightFilter ;
+                          
+                          rdfs:comment "A filter that polarizes the light passing through.  "@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#PredictionTool
+
+exp:PredictionTool rdf:type owl:Class ;
+                   
+                   rdfs:subClassOf or:Software .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#PrimateCellLine
+
+exp:PrimateCellLine rdf:type owl:Class ;
+                    
+                    rdfs:subClassOf exp:AnimalCellLine ;
+                    
+                    owl:disjointWith exp:RatCellLine ;
+                    
+                    rdfs:comment "Non-human primate Cell Lines"@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#ProcessModelingTool
+
+exp:ProcessModelingTool rdf:type owl:Class ;
+                        
+                        rdfs:subClassOf or:Software .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#ProstateCancerCellLine
+
+exp:ProstateCancerCellLine rdf:type owl:Class ;
+                           
+                           rdfs:subClassOf exp:HumanCancerCellLine .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#RadiationOutputDevice
+
+exp:RadiationOutputDevice rdf:type owl:Class ;
+                          
+                          rdfs:subClassOf or:PhysicalDevice ;
+                          
+                          rdfs:comment "A device that generates and emits radiati0on.  A mirror, lens, or filter that transmits, reflects, or refracts radiation is not considered to be a Radiation output device."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#RatCellLine
+
+exp:RatCellLine rdf:type owl:Class ;
+                
+                rdfs:subClassOf exp:AnimalCellLine ;
+                
+                rdfs:comment "Cell line of rat cells"@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#Research
+
+exp:Research rdf:type owl:Class ;
+             
+             rdfs:subClassOf or:PurposefulAction ;
+             
+             rdfs:comment "Event in which an agent or group of agents gathers information about a particular subject, with the aim of learning things about that subject that the agent or agents did not previously know. In some cases, the agents in question (e.g., professional scientists) aim to learn things that no one knows, in other cases the agents (e.g., high school students) merely aim to find published knowledge which they did not know before. In some cases research may involve doing experiments (see Experimenting) or building systems (see ResearchProject), in other cases it may involve strictly document search. [This is the same as cyc:Research.]"@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#ScanningProbeMicroscope
+
+exp:ScanningProbeMicroscope rdf:type owl:Class ;
+                            
+                            rdfs:subClassOf exp:Microscope ;
+                            
+                            rdfs:comment """A Scanning Probe Microscope is a Microscope that generates a micrograph by rastering a physical probe across the surface of a sample.
+
+Same as cyc:ScanningProbeMicroscope ."""@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#SerumType
+
+exp:SerumType rdf:type owl:Class ;
+              
+              rdfs:subClassOf or:MaterialType .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#ShapeAnalysisAlgorithm
+
+exp:ShapeAnalysisAlgorithm rdf:type owl:Class ;
+                           
+                           rdfs:subClassOf exp:ImageProcessingAlgorithm ;
+                           
+                           rdfs:comment "Image Processing Algorithms for analyzing shapes of regions segmented out of images."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#SolventType
+
+exp:SolventType rdf:type owl:Class ;
+                
+                rdfs:subClassOf or:MaterialType ;
+                
+                rdfs:comment "Type of solvent"@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#StillImageInputDevice
+
+exp:StillImageInputDevice rdf:type owl:Class ;
+                          
+                          rdfs:subClassOf or:ImageInputDevice .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#ToxicityTesting
+
+exp:ToxicityTesting rdf:type owl:Class ;
+                    
+                    rdfs:subClassOf exp:Research ;
+                    
+                    rdfs:comment "Research on the toxicity of a substance.  This can be at the cellular level or the organism level."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#UltravioletEmissionDevice
+
+exp:UltravioletEmissionDevice rdf:type owl:Class ;
+                              
+                              rdfs:subClassOf exp:RadiationOutputDevice .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#Uncertainty
+
+exp:Uncertainty rdf:type owl:Class ;
+                
+                rdfs:subClassOf or:GenericProperty .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#XRayEmissionDevice
+
+exp:XRayEmissionDevice rdf:type owl:Class ;
+                       
+                       rdfs:subClassOf exp:RadiationOutputDevice .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments.n3#BaconianExperiment
+
+<http://www.nist.gov/itl/ssd/Experiments.n3#BaconianExperiment> rdf:type owl:Class ;
+                                                                
+                                                                rdfs:subClassOf <http://www.nist.gov/itl/ssd/Experiments.n3#PhysicalExperiment> ;
+                                                                
+                                                                rdfs:comment "A Baconian experiment is a scientific experiment which involves no explicit hypothesis."@en ;
+                                                                
+                                                                rdfs:seeAlso "http://www.nationmaster.com/encyclopedia/EXPOpropositions#Baconian_experiment" ,
+                                                                             "Medawar, P.B. Advice to a Young Scientist. Pan Books Ltd, London, 1981"@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments.n3#ComputationalExperiment
+
+<http://www.nist.gov/itl/ssd/Experiments.n3#ComputationalExperiment> rdf:type owl:Class ;
+                                                                     
+                                                                     rdfs:subClassOf exp:Experiment ;
+                                                                     
+                                                                     owl:disjointWith <http://www.nist.gov/itl/ssd/Experiments.n3#PhysicalExperiment> ;
+                                                                     
+                                                                     rdfs:comment "A Computational Experiment is a scientific experiment which investigates cause-effect relations between known and unknown (target) variables by manipulating the computational (non-physical) domain adequate to the real-world domain."@en ;
+                                                                     
+                                                                     rdfs:seeAlso "http://www.nationmaster.com/encyclopedia/EXPOpropositions#computational_experiment" .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments.n3#ExperimentTypeByDomain
+
+<http://www.nist.gov/itl/ssd/Experiments.n3#ExperimentTypeByDomain> rdf:type owl:Class ;
+                                                                    
+                                                                    rdfs:subClassOf exp:ExperimentType .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments.n3#ExperimentTypeByGenericMethod
+
+<http://www.nist.gov/itl/ssd/Experiments.n3#ExperimentTypeByGenericMethod> rdf:type owl:Class ;
+                                                                           
+                                                                           rdfs:subClassOf exp:ExperimentType .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments.n3#GalileanExperiment
+
+<http://www.nist.gov/itl/ssd/Experiments.n3#GalileanExperiment> rdf:type owl:Class ;
+                                                                
+                                                                rdfs:subClassOf <http://www.nist.gov/itl/ssd/Experiments.n3#PhysicalExperiment> ;
+                                                                
+                                                                rdfs:seeAlso "http://www.nationmaster.com/encyclopedia/EXPOpropositions#Galilean_experiment" ;
+                                                                
+                                                                rdfs:comment "A Galilean experiment is a scientific experiment which involves explicit hypotheses."@en ;
+                                                                
+                                                                rdfs:seeAlso "Medawar, P.B. Advice to a Young Scientist. Pan Books Ltd, London, 1981"@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments.n3#HypothosisDrivenExperiment
+
+<http://www.nist.gov/itl/ssd/Experiments.n3#HypothosisDrivenExperiment> rdf:type owl:Class ;
+                                                                        
+                                                                        rdfs:subClassOf <http://www.nist.gov/itl/ssd/Experiments.n3#GalileanExperiment> ;
+                                                                        
+                                                                        rdfs:seeAlso "http://www.nationmaster.com/encyclopedia/EXPOpropositions#hypothesis-driven_experiment" ;
+                                                                        
+                                                                        rdfs:comment "A hypothesis-driven experiment is a Galilean experiment designed to confirm or reject a given hypothesis. The deductive consequences of the hypothesis are compared with the experimental result, and the probability of the hypothesis increased (confirmed) or decreased (rejected)."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments.n3#HypothosisFormingExperiment
+
+<http://www.nist.gov/itl/ssd/Experiments.n3#HypothosisFormingExperiment> rdf:type owl:Class ;
+                                                                         
+                                                                         rdfs:subClassOf <http://www.nist.gov/itl/ssd/Experiments.n3#GalileanExperiment> ;
+                                                                         
+                                                                         rdfs:seeAlso "www.nationmaster.com/encyclopedia/EXPOpropositions#hypothesis-forming_experiment" ;
+                                                                         
+                                                                         rdfs:comment "A hypothesis-forming experiment is a Galilean experiment that includes a hypotheses formation stage in which one or more hypotheses are formed using abduction or induction."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments.n3#MicrofluidicExperiment
+
+<http://www.nist.gov/itl/ssd/Experiments.n3#MicrofluidicExperiment> rdf:type owl:Class ;
+                                                                    
+                                                                    rdfs:subClassOf exp:Experiment .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments.n3#PhysicalExperiment
+
+<http://www.nist.gov/itl/ssd/Experiments.n3#PhysicalExperiment> rdf:type owl:Class ;
+                                                                
+                                                                rdfs:subClassOf exp:Experiment ;
+                                                                
+                                                                rdfs:seeAlso "http://www.nationmaster.com/encyclopedia/EXPOpropositions#physical_experiment" ;
+                                                                
+                                                                rdfs:comment "A Physical Experiment is a scientific experiment which investigates cause-effect relations between known and unknown variables by manipulating the real-world (physical) domain."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments.n3#TimeCourseExperiment
+
+<http://www.nist.gov/itl/ssd/Experiments.n3#TimeCourseExperiment> rdf:type owl:Class ;
+                                                                  
+                                                                  rdfs:subClassOf exp:Experiment .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments.n3#UncertaintyDistributionType
+
+<http://www.nist.gov/itl/ssd/Experiments.n3#UncertaintyDistributionType> rdf:type owl:Class ;
+                                                                         
+                                                                         rdfs:subClassOf or:NonTangibleThing .
+
+
+
+###  http://www.nist.gov/itl/ssd/OntologyRequirements#Algorithm
+
+or:Algorithm rdf:type owl:Class .
+
+
+
+###  http://www.nist.gov/itl/ssd/OntologyRequirements#Artifact
+
+or:Artifact rdf:type owl:Class .
+
+
+
+###  http://www.nist.gov/itl/ssd/OntologyRequirements#Camera
+
+or:Camera rdf:type owl:Class .
+
+
+
+###  http://www.nist.gov/itl/ssd/OntologyRequirements#Computer
+
+or:Computer rdf:type owl:Class .
+
+
+
+###  http://www.nist.gov/itl/ssd/OntologyRequirements#ComputerProcessExecution
+
+
+
+
+###  http://www.nist.gov/itl/ssd/OntologyRequirements#DatabaseSearch
+
+
+
+
+###  http://www.nist.gov/itl/ssd/OntologyRequirements#Designing
+
+
+
+
+###  http://www.nist.gov/itl/ssd/OntologyRequirements#Development
+
+
+
+
+###  http://www.nist.gov/itl/ssd/OntologyRequirements#EventType
+
+or:EventType rdf:type owl:Class .
+
+
+
+###  http://www.nist.gov/itl/ssd/OntologyRequirements#ImageInputDevice
+
+or:ImageInputDevice rdf:type owl:Class .
+
+
+
+###  http://www.nist.gov/itl/ssd/OntologyRequirements#ImagingDevice
+
+or:ImagingDevice rdf:type owl:Class .
+
+
+
+###  http://www.nist.gov/itl/ssd/OntologyRequirements#IntentionalCreation
+
+
+
+
+###  http://www.nist.gov/itl/ssd/OntologyRequirements#Manufacturer
+
+or:Manufacturer rdf:type owl:Class .
+
+
+
+###  http://www.nist.gov/itl/ssd/OntologyRequirements#Manufacturing
+
+
+
+
+###  http://www.nist.gov/itl/ssd/OntologyRequirements#MaterialType
+
+
+
+
+###  http://www.nist.gov/itl/ssd/OntologyRequirements#MeasurementRole
+
+
+
+
+###  http://www.nist.gov/itl/ssd/OntologyRequirements#Metadata
+
+or:Metadata rdf:type owl:Class .
+
+
+
+###  http://www.nist.gov/itl/ssd/OntologyRequirements#MicroscopyImageFileFormat
+
+or:MicroscopyImageFileFormat rdf:type owl:Class .
+
+
+
+###  http://www.nist.gov/itl/ssd/OntologyRequirements#OperatingSystem
+
+or:OperatingSystem rdf:type owl:Class .
+
+
+
+###  http://www.nist.gov/itl/ssd/OntologyRequirements#PhysicalDevice
+
+
+
+
+###  http://www.nist.gov/itl/ssd/OntologyRequirements#PurposefulAction
+
+or:PurposefulAction rdfs:comment "A Purposeful Action is an action taken on purpose by some entity."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/OntologyRequirements#Software
+
+or:Software rdf:type owl:Class .
+
+
+
+###  http://www.nist.gov/itl/ssd/OntologyRequirements#SoftwareObjectWithVersions
+
+or:SoftwareObjectWithVersions rdf:type owl:Class .
+
+
+
+###  http://www.nist.gov/itl/ssd/OntologyRequirements#SoftwarePackage
+
+or:SoftwarePackage rdf:type owl:Class .
+
+
+
+###  http://www.nist.gov/itl/ssd/OntologyRequirements#SpecializedMeasurableQuantityType
+
+or:SpecializedMeasurableQuantityType rdf:type owl:Class .
+
+
+
+###  http://www.nist.gov/itl/ssd/OntologyRequirements#StateOfBeing
+
+or:StateOfBeing rdf:type owl:Class .
+
+
+
+###  http://www.nist.gov/itl/ssd/OntologyRequirements#Technique
+
+or:Technique rdf:type owl:Class .
+
+
+
+###  http://www.nist.gov/itl/ssd/OntologyRequirements#TemporalThing
+
+or:TemporalThing rdf:type owl:Class .
+
+
+
+###  http://www.nist.gov/itl/ssd/OntologyRequirements.owl#Modeling
+
+<http://www.nist.gov/itl/ssd/OntologyRequirements.owl#Modeling> rdf:type owl:Class ;
+                                                                
+                                                                rdfs:subClassOf exp:Analysis .
+
+
+
+
+
+#################################################################
+#
+#    Individuals
+#
+#################################################################
+
+
+###  gc#OrganismType
+
+<gc#OrganismType> rdf:type owl:NamedIndividual .
+
+
+
+###  http://www.daml.org/2001/03/daml+oil#Ontology
+
+daml:Ontology rdf:type owl:NamedIndividual .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#3T3Cell
+
+exp:3T3Cell rdf:type exp:MouseCellLine ,
+                     owl:NamedIndividual ;
+            
+            rdfs:comment "MC3T3 is a fibroblast cell line derived from Mus musculus (mouse)."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#A10
+
+exp:A10 rdf:type exp:RatCellLine ,
+                 owl:NamedIndividual ;
+        
+        rdfs:comment "A10 embryo rat aortic vascular smooth muscle cells"@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#AdheredCellsInCulture
+
+exp:AdheredCellsInCulture rdf:type exp:CellCultureAdhesionState ,
+                                   owl:NamedIndividual ;
+                          
+                          rdfs:comment "A Cell Culture in the Adhered Cells In Culture state has its cells adhering to each other, not suspended in the culture media."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#AmericanTypeCultureCollection
+
+exp:AmericanTypeCultureCollection rdf:type or:Manufacturer ,
+                                           owl:NamedIndividual ;
+                                  
+                                  rdfs:label "ATCC"@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#CannyEdgeDetectionSegmentation
+
+exp:CannyEdgeDetectionSegmentation rdf:type exp:EdgeDetectionAlgorithm ,
+                                            exp:ImageSegmentationAlgorithm ,
+                                            owl:NamedIndividual .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#CellArea
+
+exp:CellArea rdf:type or:SpecializedMeasurableQuantityType ,
+                      owl:NamedIndividual ;
+             
+             exp:specializedTypeOf exp:Area .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#CellMorphologyExperiment
+
+exp:CellMorphologyExperiment rdf:type <http://www.nist.gov/itl/ssd/Experiments.n3#ExperimentTypeByDomain> ,
+                                      owl:NamedIndividual .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#ChromaTechnologyCorporation
+
+exp:ChromaTechnologyCorporation rdf:type or:Manufacturer ,
+                                         owl:NamedIndividual ;
+                                
+                                rdfs:label "Chroma Technology Corporation"@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#DMEM
+
+exp:DMEM rdf:type exp:CultureMediumType ,
+                  owl:NamedIndividual ;
+         
+         rdfs:comment "Dulbecco's Modified Eagles Medium"@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#DNAMicroarray
+
+exp:DNAMicroarray rdf:type owl:NamedIndividual ;
+                  
+                  rdfs:comment "A DNA microarrayis surface with an attached set of microscopic DNA spots. Researchers use DNA microarrays to measure the expression levels of large numbers of genes simultaneously or to genotype multiple regions of a genome."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#DU145
+
+exp:DU145 rdf:type exp:ProstateCancerCellLine ,
+                   owl:NamedIndividual ;
+          
+          rdfs:comment "DU145 prostate cancer Cell Line"@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#EDTADissociationMethod
+
+exp:EDTADissociationMethod rdf:type exp:PassagingDissociationMethod ,
+                                    owl:NamedIndividual .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#EMEM
+
+exp:EMEM rdf:type exp:CultureMediumType ,
+                  owl:NamedIndividual ;
+         
+         rdfs:comment """Eagle's minimal essential medium (EMEM) is a cell culture medium developed by Harry Eagle that can be used to maintain cells in tissue culture.  It contains amino acids, glucose, salts (calcium chloride, potassium chloride, magnesium sulfate, sodium chloride, and monosodium phosphate), and vitamins (folic acid, nicotinamide, riboflavin, B12).
+"""@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#ExperimentalSampleRole
+
+exp:ExperimentalSampleRole rdf:type or:MeasurementRole ,
+                                    owl:NamedIndividual .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#FetalBovineSerum
+
+exp:FetalBovineSerum rdf:type exp:SerumType ,
+                              owl:NamedIndividual ;
+                     
+                     rdfs:comment "Fetal Bovine Serum (FBS) (also called fetal calf serum) is the portion of plasma remaining after coagulation of blood. Fetal bovine serum comes from the blood drawn from a bovine fetus.  FBS is a widely used serum-supplement for the in vitro cell culture of eukaryotic cells. It has a very low level of antibodies and has a high concentration of growth factors."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#Formaldehyde
+
+exp:Formaldehyde rdf:type exp:ChemicalFixative ,
+                          owl:NamedIndividual ;
+                 
+                 rdfs:comment "Formaldehyde, the simplest aldehyde, is an organic compound with the formula CH2O.  Formaldehyde is a Chemical Fixitive and a carcinogen."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#GH3
+
+exp:GH3 rdf:type exp:CancerCellLine ,
+                 exp:RatCellLine ,
+                 owl:NamedIndividual ;
+        
+        rdfs:comment "GH3 rat pituitary tumor cell line"@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#Gelatin
+
+exp:Gelatin rdf:type exp:AdhesionSurfaceType ,
+                     owl:NamedIndividual .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#GlobalThresholdSegmentation
+
+exp:GlobalThresholdSegmentation rdf:type exp:ImageSegmentationAlgorithm ,
+                                         owl:NamedIndividual .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#GlutaMAXSupplement
+
+exp:GlutaMAXSupplement rdf:type exp:AminoAcidSupplementType ,
+                                owl:NamedIndividual ;
+                       
+                       exp:catalogNumber "10567-014" ,
+                                         "61870-036" ,
+                                         "10564-011" ,
+                                         "31980-030" ,
+                                         "41090-036" ,
+                                         "32571-036" ,
+                                         "72400-047" ,
+                                         "10566-016" ,
+                                         "31765-035" ,
+                                         "10565-018" ,
+                                         "51985-034" ,
+                                         "10569-010" ;
+                       
+                       rdfs:comment "GlutaMAX is a cell culture mediaum with amino acid supplements.  It is sold in formulations with and without DMEM, MEM, RPMI, OptiMEM, Pyruvate, and high and low levels of Glucose.  Product numbers from Invitrogen include 10564-011, 10565-018, 10566-016, 10567-014, 10569-010, 31765-035, 31980-030, 32561-037, 32571-036, 35050-061, 41090-036, 42360-032, 51985-034, 61870-036, and 72400-047."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#Glutaraldehyde
+
+exp:Glutaraldehyde rdf:type exp:ChemicalFixative ,
+                            owl:NamedIndividual ;
+                   
+                   rdfs:comment "Glutaraldehyde is a Chemical Fixative which causes rapid and irreversible changes, fixes quickly, is well suited for electron microscopy, fixes well at 4oC, and gives good overall cytoplasmic and nuclear detail."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#HEPES
+
+exp:HEPES rdf:type exp:CultureMediumType ,
+                   owl:NamedIndividual ;
+          
+          rdfs:comment "HEPES (4-(2-HydroxyEthyl)-1-PiperazineEthaneSulfonic acid ) is a zwitterionic organic chemical buffering agent; one of the twelve Good's buffers. HEPES is widely used in cell culture, largely because it is better at maintaining physiological pH despite changes in carbon dioxide concentration."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#HeLa
+
+exp:HeLa rdf:type exp:HumanCellLine ,
+                  owl:NamedIndividual .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#HysteresisThresholodingAlgorithm
+
+exp:HysteresisThresholodingAlgorithm rdf:type exp:ImageBinaryThresholdingAlgorithm ,
+                                              owl:NamedIndividual ;
+                                     
+                                     rdfs:comment """An image thresholding algorithm with two thresholds.  Those pixels above the high threshold are turned white, while those below the low threshold are turned black.  Regions of intermediate pixels adjacent to white pixels are turned white, while isolated regions of intermediate pixels are turned black.
+
+This is especially used in edge detection to connect more faintly detected parts of edges with well-detected parts."""@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#IMDM
+
+exp:IMDM rdf:type exp:CultureMediumType ,
+                  owl:NamedIndividual ;
+         
+         exp:catalogNumber "I3390" ,
+                           "51471C" ,
+                           "I7633" ,
+                           "I6529" ;
+         
+         rdfs:comment "IMDM has varient formulations -- products # I3390,, I7633, I6529, & 51471C.  Ref: http://www.sigmaaldrich.com/life-science/cell-culture/cell-culture-products.html?TablePage=9630454 ."@en ,
+                      "Iscove�_Ts Modified Dulbecco�_Ts Medium is a modification of Dulbecco�_�s Modified Eagle�_�s Medium (DME) containing selenium, additional amino acids and vitamins, sodium pyruvate, HEPES buffer, and potassium nitrate instead of ferric nitrate.  It supports precursor cells of erythrocytes and macrophages, murine B lymphocytes, hemopoietic tissue from bone marrow, B cells stimulated with lipopolysaccharide, T lymphocytes, and a variety of hybrid cells."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#ImageCytometryStandard
+
+exp:ImageCytometryStandard rdf:type or:MicroscopyImageFileFormat ,
+                                    owl:NamedIndividual ;
+                           
+                           exp:defaultFileExtension "ics"^^xsd:Name ,
+                                                    "ids"^^xsd:Name ;
+                           
+                           rdfs:comment "The Image Cytometry Standard (ICS) is a digital multidimensional image file format that stores image data from multiple images and image acquisition parameters for the  microscope.  ICS verion 1.0 has plaintext metadata in aa .ics file and pixel data in a .ids file.  ICS verion 2.0 stores both pixel and metadata in an .ics file."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#ImageHistogramEqualization
+
+exp:ImageHistogramEqualization rdf:type exp:ImageContrastAlgorithm ,
+                                        owl:NamedIndividual ;
+                               
+                               rdfs:comment "An Image Contrast Algorithm for images with more than one pixel value in which the pixel values are changed to range over the full set of possible intensities such that the new histogram when blurred is as level as possible."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#ImageHistogramNormalization
+
+exp:ImageHistogramNormalization rdf:type exp:ImageContrastAlgorithm ,
+                                         owl:NamedIndividual ;
+                                
+                                rdfs:comment "An Image Contrast Algorithm for images with more than one pixel value in which the pixel values are linearly changed [ p1 = (p0 - p_min) * MaxIntensity/(p_max - p_min) ] to range over the full set of possible intensities."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#ImageJ
+
+exp:ImageJ rdf:type or:SoftwareObjectWithVersions ,
+                    or:SoftwarePackage ,
+                    owl:NamedIndividual ;
+           
+           or:referenceURI "http://rsbweb.nih.gov/ij/"^^xsd:anyURI ;
+           
+           rdfs:comment "ImageJ image processing and analysis software package"@en ;
+           
+           or:implementsAlgorithm exp:IsodataSegmentation ,
+                                  exp:MaximumEntropySegmentation ,
+                                  exp:OtsuThresholdingSegmentation .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#ImmunohistochemistryExperiment
+
+exp:ImmunohistochemistryExperiment rdf:type <http://www.nist.gov/itl/ssd/Experiments.n3#ExperimentTypeByDomain> ,
+                                            owl:NamedIndividual .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#IntensityBenchmarkRole
+
+exp:IntensityBenchmarkRole rdf:type or:MeasurementRole ,
+                                    owl:NamedIndividual .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#IsodataSegmentation
+
+exp:IsodataSegmentation rdf:type exp:HistogramBasedImageSegmentationAlgorithm ,
+                                 owl:NamedIndividual .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#K2MeansClustering
+
+exp:K2MeansClustering rdf:type exp:ImageSegmentationAlgorithm ,
+                               owl:NamedIndividual .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#K3MeansClustering
+
+exp:K3MeansClustering rdf:type exp:ImageSegmentationAlgorithm ,
+                               owl:NamedIndividual .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#K4MeansClustering
+
+exp:K4MeansClustering rdf:type exp:ImageSegmentationAlgorithm ,
+                               owl:NamedIndividual .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#K5MeansClustering
+
+exp:K5MeansClustering rdf:type exp:ImageSegmentationAlgorithm ,
+                               owl:NamedIndividual .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#Lncap
+
+exp:Lncap rdf:type exp:ProstateCancerCellLine ,
+                   owl:NamedIndividual ;
+          
+          rdfs:comment "Lncap prostate Cancer Cell Line"@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#MCF7
+
+exp:MCF7 rdf:type exp:BreastCancerCellLine ,
+                  owl:NamedIndividual ;
+         
+         rdfs:comment "MCF-7 breast Cancer Cell Line"@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#MardinDarbyCanineKidneyCellLine
+
+exp:MardinDarbyCanineKidneyCellLine rdf:type exp:AnimalCellLine ,
+                                             owl:NamedIndividual ;
+                                    
+                                    rdfs:comment "Cell Line of Mardin-Darby canine kidney (MDCK) epithelial cells"@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#MaximumEntropySegmentation
+
+exp:MaximumEntropySegmentation rdf:type exp:HistogramBasedImageSegmentationAlgorithm ,
+                                        owl:NamedIndividual ;
+                               
+                               or:referenceURI "http://www.cellprofiler.org/CPmanual/IdentifyPrimaryObjects.html"^^xsd:anyURI ;
+                               
+                               rdfs:comment "Kapur Maximum Entropy Segmentation computes the threshold of an image by log-transforming its values, then searching for the threshold that maximizes the sum of entropies of the foreground and background pixel values, when treated as separate distributions."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#Mediatech
+
+exp:Mediatech rdf:type or:Manufacturer ,
+                       owl:NamedIndividual ;
+              
+              rdfs:comment "Mediatech manufactures and sells molecular biology reagents including cell culture media, basal salt solutions, antibiotics, sera, specialty media, and flexible packaging systems."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#MicrofluidicExperiment
+
+exp:MicrofluidicExperiment rdf:type <http://www.nist.gov/itl/ssd/Experiments.n3#ExperimentTypeByDomain> ,
+                                    owl:NamedIndividual .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#OMEM
+
+exp:OMEM rdf:type exp:CultureMediumType ,
+                  owl:NamedIndividual ;
+         
+         rdfs:comment "o-Minimal. Essential Medium"@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#Olympus
+
+exp:Olympus rdf:type or:Manufacturer ,
+                     owl:NamedIndividual .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#OtsuThresholdingSegmentation
+
+exp:OtsuThresholdingSegmentation rdf:type exp:HistogramBasedImageSegmentationAlgorithm ,
+                                          exp:ImageBinaryThresholdingAlgorithm ,
+                                          owl:NamedIndividual .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#PC12
+
+exp:PC12 rdf:type exp:CancerCellLine ,
+                  exp:RatCellLine ,
+                  owl:NamedIndividual ;
+         
+         rdfs:comment "PC12 rat pheochromocytoma Cell Line"@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#PC3
+
+exp:PC3 rdf:type exp:BreastCancerCellLine ,
+                 owl:NamedIndividual ;
+        
+        rdfs:comment "PC3 prostate Cancer Cell Line"@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#Penicillin
+
+exp:Penicillin rdf:type exp:AntibioticType ,
+                        owl:NamedIndividual .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#PrewittEdgeDetectionAlgorithm
+
+exp:PrewittEdgeDetectionAlgorithm rdf:type exp:EdgeDetectionAlgorithm ,
+                                           owl:NamedIndividual .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#RidlerCalvardImageSegmentation
+
+exp:RidlerCalvardImageSegmentation rdf:type exp:HistogramBasedImageSegmentationAlgorithm ,
+                                            exp:ImageBinaryThresholdingAlgorithm ,
+                                            owl:NamedIndividual ;
+                                   
+                                   or:referenceURI "http://www.cellprofiler.org/CPmanual/IdentifyPrimaryObjects.html"^^xsd:anyURI ;
+                                   
+                                   rdfs:comment "Ridler-Calvard Image Segmentation chooses an initial threshold and iteratively calculates a new threshold as the mean of the average intensities of the background and foreground pixels determined by the current threshold, iterating until the threshold converges."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#RobertsEdgeDetectionAlgorithm
+
+exp:RobertsEdgeDetectionAlgorithm rdf:type exp:EdgeDetectionAlgorithm ,
+                                           owl:NamedIndividual .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#RoperScientific
+
+exp:RoperScientific rdf:type or:Manufacturer ,
+                             owl:NamedIndividual ;
+                    
+                    rdfs:label "Roper Scientific"@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#SHSY5Y
+
+exp:SHSY5Y rdf:type exp:HumanCancerCellLine ,
+                    owl:NamedIndividual ;
+           
+           rdfs:comment "SHSY5Y human neuroblastoma Cell Line"@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#SKBR3
+
+exp:SKBR3 rdf:type exp:BreastCancerCellLine ,
+                   owl:NamedIndividual ;
+          
+          rdfs:comment "SK-BR-3 -- a line of human breast cancer cells."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#Saos2
+
+exp:Saos2 rdf:type exp:HumanCancerCellLine ,
+                   owl:NamedIndividual ;
+          
+          rdfs:comment "Saos 2 bone cancer Cell Line"@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#SixWellPlate
+
+exp:SixWellPlate rdf:type exp:CellAssayChamberFormat ,
+                          owl:NamedIndividual .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#SobelEdgeDetectionAlgorithm
+
+exp:SobelEdgeDetectionAlgorithm rdf:type exp:EdgeDetectionAlgorithm ,
+                                         owl:NamedIndividual .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#Streptomycin
+
+exp:Streptomycin rdf:type exp:AntibioticType ,
+                          owl:NamedIndividual .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#SuspendedCellsInCulture
+
+exp:SuspendedCellsInCulture rdf:type exp:CellCultureAdhesionState ,
+                                     owl:NamedIndividual ;
+                            
+                            rdfs:comment "A Cell Culture in the Suspended Cells In Culture state has its cells suspended in the culture media, not adhered to each other."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#T47D
+
+exp:T47D rdf:type exp:BreastCancerCellLine ,
+                  owl:NamedIndividual ;
+         
+         rdfs:comment "T47D breast Cancer Cell Line"@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#THP1
+
+exp:THP1 rdf:type exp:HumanCancerCellLine ,
+                  owl:NamedIndividual ;
+         
+         rdfs:comment "THP-1 acute myeloid leukemia Cell Line"@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#TimeCourseExperiment
+
+exp:TimeCourseExperiment rdf:type <http://www.nist.gov/itl/ssd/Experiments.n3#ExperimentTypeByGenericMethod> ,
+                                  owl:NamedIndividual .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#TissueCulturePolystyrene
+
+exp:TissueCulturePolystyrene rdf:type exp:AdhesionSurfaceType ,
+                                      owl:NamedIndividual ;
+                             
+                             rdfs:comment "Tissue Culture Polystyrene (TCPS) is a polystyrene that has been treated so that cell cultures attach well."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#TobaccoBY2CellLine
+
+exp:TobaccoBY2CellLine rdf:type exp:PlantCellLine ,
+                                owl:NamedIndividual ;
+                       
+                       rdfs:comment "Cell line of tobacco BY-2 cells"@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#TripsinDissociationMethod
+
+exp:TripsinDissociationMethod rdf:type exp:PassagingDissociationMethod ,
+                                       owl:NamedIndividual .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#TrypsinCellDissociation
+
+exp:TrypsinCellDissociation rdf:type exp:CellDissociationType ,
+                                     owl:NamedIndividual ;
+                            
+                            rdfs:comment "The method of dissociating cells in a cell cluster (or from a surface) by the use of Trypsin for detatching the connections."@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#TwelveWellPlate
+
+exp:TwelveWellPlate rdf:type exp:CellAssayChamberFormat ,
+                             owl:NamedIndividual .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#TwoBit_GenomicFileFormat
+
+exp:TwoBit_GenomicFileFormat rdf:type owl:NamedIndividual .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#U87
+
+exp:U87 rdf:type exp:HumanCancerCellLine ,
+                 owl:NamedIndividual ;
+        
+        rdfs:comment "U878 glioblastoma brain tumor Cell Line"@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#VeroCellLine
+
+exp:VeroCellLine rdf:type exp:PrimateCellLine ,
+                          owl:NamedIndividual ;
+                 
+                 rdfs:comment "Vero is an African green monkey Chlorocebus kidney epithelial Cell Line"@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#Well1
+
+exp:Well1 rdf:type exp:CellAssayChamberPosition ,
+                   owl:NamedIndividual ;
+          
+          rdfs:label "Well 1" .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#Well10
+
+exp:Well10 rdf:type exp:CellAssayChamberPosition ,
+                    owl:NamedIndividual ;
+           
+           rdfs:label "Well 10" .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#Well11
+
+exp:Well11 rdf:type exp:CellAssayChamberPosition ,
+                    owl:NamedIndividual ;
+           
+           rdfs:label "Well 11" .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#Well12
+
+exp:Well12 rdf:type exp:CellAssayChamberPosition ,
+                    owl:NamedIndividual ;
+           
+           rdfs:label "Well 12" .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#Well2
+
+exp:Well2 rdf:type exp:CellAssayChamberPosition ,
+                   owl:NamedIndividual ;
+          
+          rdfs:label "Well 2" .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#Well3
+
+exp:Well3 rdf:type exp:CellAssayChamberPosition ,
+                   owl:NamedIndividual ;
+          
+          rdfs:label "Well 3" .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#Well4
+
+exp:Well4 rdf:type exp:CellAssayChamberPosition ,
+                   owl:NamedIndividual ;
+          
+          rdfs:label "Well 4" .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#Well5
+
+exp:Well5 rdf:type exp:CellAssayChamberPosition ,
+                   owl:NamedIndividual ;
+          
+          rdfs:label "Well 5" .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#Well6
+
+exp:Well6 rdf:type exp:CellAssayChamberPosition ,
+                   owl:NamedIndividual ;
+          
+          rdfs:label "Well 6" .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#Well7
+
+exp:Well7 rdf:type exp:CellAssayChamberPosition ,
+                   owl:NamedIndividual ;
+          
+          rdfs:label "Well 7" .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#Well8
+
+exp:Well8 rdf:type exp:CellAssayChamberPosition ,
+                   owl:NamedIndividual ;
+          
+          rdfs:label "Well 8" .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#Well9
+
+exp:Well9 rdf:type exp:CellAssayChamberPosition ,
+                   owl:NamedIndividual ;
+          
+          rdfs:label "Well 9" .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#XenopusA6CellLine
+
+exp:XenopusA6CellLine rdf:type exp:AnimalCellLine ,
+                               owl:NamedIndividual ;
+                      
+                      rdfs:comment "A6 Cell Line from kidney epithelial cells from Xenopus frogs"@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#ZebrafishAB9CellLine
+
+exp:ZebrafishAB9CellLine rdf:type exp:AnimalCellLine ,
+                                  owl:NamedIndividual ;
+                         
+                         rdfs:comment "AB9 Cell Line from Zebrafish"@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments#ZebrafishZF4CellLine
+
+exp:ZebrafishZF4CellLine rdf:type exp:AnimalCellLine ,
+                                  owl:NamedIndividual ;
+                         
+                         rdfs:comment "ZF4 Cell Line from zebrafisn"@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments.n3#GaussianDistribution
+
+<http://www.nist.gov/itl/ssd/Experiments.n3#GaussianDistribution> rdf:type <http://www.nist.gov/itl/ssd/Experiments.n3#UncertaintyDistributionType> ,
+                                                                           owl:NamedIndividual ;
+                                                                  
+                                                                  rdfs:comment "A Gaussian distribution"@en .
+
+
+
+###  http://www.nist.gov/itl/ssd/Experiments.n3#LinearDistribution
+
+<http://www.nist.gov/itl/ssd/Experiments.n3#LinearDistribution> rdf:type <http://www.nist.gov/itl/ssd/Experiments.n3#UncertaintyDistributionType> ,
+                                                                         owl:NamedIndividual ;
+                                                                
+                                                                rdfs:comment "A linear distribution"@en .
+
+
+
+
+
+#################################################################
+#
+#    Annotations
+#
+#################################################################
+
+
+<http://www.nist.gov/itl/ssd/OntologyRequirements.owl#DesignMethod> rdfs:comment "A Design Method is a method for designing an Experiment, a Material, an Artifact, or an Algorithm."@en .
+
+
+
+
+###  Generated by the OWL API (version 3.2.3.1824) http://owlapi.sourceforge.net
+
