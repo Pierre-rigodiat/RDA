@@ -523,6 +523,7 @@ Enthalpy is not directly measured, Changes in enthalpy are.</rdfs:comment>
     <!-- http://www.nist.gov/itl/ssd/Materials.owl#uncertaintyConfidenceLevel -->
 
     <owl:DatatypeProperty rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#uncertaintyConfidenceLevel">
+        <rdfs:domain rdf:resource="&or;MeasurableQuantity"/>
         <rdfs:range rdf:resource="&xsd;float"/>
     </owl:DatatypeProperty>
     
@@ -565,6 +566,15 @@ Enthalpy is not directly measured, Changes in enthalpy are.</rdfs:comment>
 
     <owl:Class rdf:about="&bc;Americium">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ElementalMetal"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#Atom -->
+
+    <owl:Class rdf:about="&bc;Atom">
+        <owl:disjointWith rdf:resource="&bc;Polymer"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#Fullerine"/>
     </owl:Class>
     
 
@@ -639,6 +649,12 @@ Enthalpy is not directly measured, Changes in enthalpy are.</rdfs:comment>
     <owl:Class rdf:about="&bc;Californium">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ElementalMetal"/>
     </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#Carbon -->
+
+    <owl:Class rdf:about="&bc;Carbon"/>
     
 
 
@@ -1047,6 +1063,7 @@ The more specific class, Chemical Object Type By Chemical Species, denotes the f
     <!-- http://www.nist.gov/itl/ssd/Biochem#Oxide -->
 
     <owl:Class rdf:about="&bc;Oxide">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#PureSubstance"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#Clathrate"/>
     </owl:Class>
     
@@ -1295,7 +1312,21 @@ The more specific class, Chemical Object Type By Chemical Species, denotes the f
     <!-- http://www.nist.gov/itl/ssd/Biochem#UnitOfConcentration -->
 
     <owl:Class rdf:about="&bc;UnitOfConcentration">
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#UnitOfElectricalConductance"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#UnitOfElectricalConductivity"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#UnitOfElectricalResistance"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#UnitOfElectricalResistivity"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#UnitOfEnergyPerMass"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#UnitOfForcePerVolume"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#UnitOfInverseAreaPerTime"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#UnitOfInverseTime"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#UnitOfTemperatureDifference"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#UnitOfThermalConductivity"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#UnitOfToughness"/>
+        <owl:disjointWith rdf:resource="&or;UnitOfAcceleration"/>
+        <owl:disjointWith rdf:resource="&or;UnitOfPressure"/>
+        <owl:disjointWith rdf:resource="&OntologyRequirements;DimensionlessUnit"/>
+        <owl:disjointWith rdf:resource="&OntologyRequirements;UnitOfVelocitySquared"/>
     </owl:Class>
     
 
@@ -1413,6 +1444,17 @@ The more specific class, Chemical Object Type By Chemical Species, denotes the f
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Aerogel -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Aerogel">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#Ceramic"/>
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#EngineeredMaterial"/>
+        <rdfs:comment xml:lang="en">Aerogel is a synthetic porous ultralight solid with extremely low density and thermal conductivity derived from a gel through supercritical drying, in which the liquid component of the gel has been replaced with a gas.</rdfs:comment>
+        <OntologyRequirements:termString xml:lang="en">aerogel</OntologyRequirements:termString>
+    </owl:Class>
+    
+
+
     <!-- http://www.nist.gov/itl/ssd/Materials.owl#Aerosol -->
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Aerosol">
@@ -1506,9 +1548,21 @@ The more specific class, Chemical Object Type By Chemical Species, denotes the f
     
 
 
-    <!-- http://www.nist.gov/itl/ssd/Materials.owl#AmbipolarDIffusion -->
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#AluminumOxide -->
 
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#AmbipolarDIffusion">
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#AluminumOxide">
+        <rdfs:subClassOf rdf:resource="&bc;Oxide"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MagnesiumOxide"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#SiliconOxide"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#TitaniumOxide"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ZirconiumOxide"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#AmbipolarDiffusion -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#AmbipolarDiffusion">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#SolidDiffusion"/>
         <rdfs:comment xml:lang="en">Ambipolar diffusion is diffusion in systems with two or more diffusion species with opposite electrical charge.</rdfs:comment>
         <rdfs:seeAlso xml:lang="en">Definitions of terms for diffusion in the solid state (IUPAC Recommendations 1999), Pure Appl. Chem. 71, 1307-1325.</rdfs:seeAlso>
@@ -1690,6 +1744,18 @@ The more specific class, Chemical Object Type By Chemical Species, denotes the f
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Boride -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Boride">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#PureSubstance"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#Carbide"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#Halide"/>
+        <rdfs:comment xml:lang="en">A  boride is a chemical compound between boron and a less electronegative element.</rdfs:comment>
+        <OntologyRequirements:termString xml:lang="en">boride</OntologyRequirements:termString>
+    </owl:Class>
+    
+
+
     <!-- http://www.nist.gov/itl/ssd/Materials.owl#BorideBasedCeramic -->
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#BorideBasedCeramic">
@@ -1746,10 +1812,66 @@ The more specific class, Chemical Object Type By Chemical Species, denotes the f
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Carbide -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Carbide">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#PureSubstance"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#Halide"/>
+        <rdfs:comment xml:lang="en">A carbide is a chemical compound composed of carbon and a less electronegative element.</rdfs:comment>
+        <OntologyRequirements:termString xml:lang="en">carbide</OntologyRequirements:termString>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#CarbideBasedCeramic -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#CarbideBasedCeramic">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#Ceramic"/>
+    </owl:Class>
+    
+
+
     <!-- http://www.nist.gov/itl/ssd/Materials.owl#CarbideBasedCermet -->
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#CarbideBasedCermet">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#CarbideBasedCeramic"/>
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#Cermet"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#CarbonBlack -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#CarbonBlack">
+        <rdfs:subClassOf rdf:resource="&bc;Carbon"/>
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#PolycrystallineMaterial"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#CarbonFiber"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#Diamond"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#Fullerine"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#Graphite"/>
+        <rdfs:comment xml:lang="en">Carbon black (also known as acetylene black, channel black, furnace black, lamp black or thermal black) is a material produced by the incomplete combustion of heavy petroleum products such as FCC tar, coal tar, ethylene cracking tar, and a small amount from vegetable oil. Carbon black is a form of amorphous carbon that has a high surface-area-to-volume ratio, although its surface-area-to-volume ratio is low compared to that of activated carbon. It is dissimilar to soot in its much higher surface-area-to-volume ratio and significantly lower (negligible and non-bioavailable) PAH (polycyclic aromatic hydrocarbon) content.</rdfs:comment>
+        <OntologyRequirements:termString xml:lang="en">acetylene black</OntologyRequirements:termString>
+        <OntologyRequirements:termString xml:lang="en">carbon fiber</OntologyRequirements:termString>
+        <OntologyRequirements:termString xml:lang="en">channel black</OntologyRequirements:termString>
+        <OntologyRequirements:termString xml:lang="en">furnace black</OntologyRequirements:termString>
+        <OntologyRequirements:termString xml:lang="en">lamp black</OntologyRequirements:termString>
+        <OntologyRequirements:termString xml:lang="en">thermal black</OntologyRequirements:termString>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#CarbonFiber -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#CarbonFiber">
+        <rdfs:subClassOf rdf:resource="&bc;Carbon"/>
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#PolycrystallineMaterial"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#Diamond"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#Graphite"/>
+        <OntologyRequirements:termString xml:lang="en">CF</OntologyRequirements:termString>
+        <rdfs:comment xml:lang="en">Carbon fiber, alternatively graphite fiber, carbon graphite or CF, is a material consisting of fibers about 5–10 μm in diameter and composed mostly of carbon atoms. The carbon atoms are bonded together in crystals that are more or less aligned parallel to the long axis of the fiber.</rdfs:comment>
+        <OntologyRequirements:termString xml:lang="en">carbon fiber</OntologyRequirements:termString>
+        <OntologyRequirements:termString xml:lang="en">carbon graphite</OntologyRequirements:termString>
+        <OntologyRequirements:termString xml:lang="en">graphite fiber</OntologyRequirements:termString>
     </owl:Class>
     
 
@@ -1905,7 +2027,6 @@ The more specific class, Chemical Object Type By Chemical Species, denotes the f
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Ceramic">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#SolidSubstance"/>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#CrystallineSubstance"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#PolymerSubstance"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#SolidFoam"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#SolidSol"/>
@@ -1942,6 +2063,8 @@ The more specific class, Chemical Object Type By Chemical Species, denotes the f
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#Ceramic"/>
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#CompositeMaterial"/>
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#EngineeredMaterial"/>
+        <rdfs:comment xml:lang="en">Cermet is a composite material composed of ceramic and metallic materials.</rdfs:comment>
+        <OntologyRequirements:termString xml:lang="en">cermet</OntologyRequirements:termString>
     </owl:Class>
     
 
@@ -2306,6 +2429,17 @@ A colloidal system consists of two separate phases: a dispersed phase (or intern
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#LatticeDistortivePhaseTransformation"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#DilationDominantPhaseTransformation"/>
         <rdfs:comment xml:lang="en">A deviatonic Dominant Phase Transformation is dominated in a sheer distortion in the lattice, with cutting plates perpendicular to the sheer undistorted.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Diamond -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Diamond">
+        <rdfs:subClassOf rdf:resource="&bc;Carbon"/>
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#SolidCrystallineSubstance"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#Graphite"/>
+        <OntologyRequirements:termString xml:lang="en">diamond</OntologyRequirements:termString>
     </owl:Class>
     
 
@@ -2966,6 +3100,26 @@ Elastomers are usually thermosets but may also be thermoplastic.</rdfs:comment>
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Graphite -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Graphite">
+        <rdfs:subClassOf rdf:resource="&bc;Carbon"/>
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#SolidCrystallineSubstance"/>
+        <OntologyRequirements:termString xml:lang="en">graphite</OntologyRequirements:termString>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Halide -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Halide">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#PureSubstance"/>
+        <rdfs:comment xml:lang="en">A Halide is a binary compound, of which one part is a halogen atom and the other part is an element or radical that is less electronegative (or more electropositive) than the halogen, to make a fluoride, chloride, bromide, iodide, or astatide compound. Many salts are halides.</rdfs:comment>
+        <OntologyRequirements:termString xml:lang="en">halide</OntologyRequirements:termString>
+    </owl:Class>
+    
+
+
     <!-- http://www.nist.gov/itl/ssd/Materials.owl#HalideMineral -->
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#HalideMineral">
@@ -3382,6 +3536,17 @@ Kirkendall plane is an example of a lattice fixed frame. The frame is in the gen
         </rdfs:subClassOf>
         <rdfs:comment xml:lang="en">An alloy that contains Magnesium but not Iron.</rdfs:comment>
         <bc:primaryConstituentType rdf:resource="&bc;Magnesium"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#MagnesiumOxide -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#MagnesiumOxide">
+        <rdfs:subClassOf rdf:resource="&bc;Oxide"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#SiliconOxide"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#TitaniumOxide"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ZirconiumOxide"/>
     </owl:Class>
     
 
@@ -4189,13 +4354,13 @@ Depending on the chemical structure, polyester can be a thermoplastic or thermos
         <rdfs:subClassOf>
             <owl:Restriction>
                 <owl:onProperty rdf:resource="&or;objectActedOn"/>
-                <owl:someValuesFrom rdf:resource="&bc;Metal"/>
+                <owl:someValuesFrom rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#PolymerSubstance"/>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:subClassOf>
             <owl:Restriction>
                 <owl:onProperty rdf:resource="&or;objectActedOn"/>
-                <owl:someValuesFrom rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#PolymerSubstance"/>
+                <owl:someValuesFrom rdf:resource="&bc;Metal"/>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:comment xml:lang="en">A Polymer-Metal Interaction is a Chemical Process in which a Polymer and metallic particles interact.</rdfs:comment>
@@ -4494,6 +4659,16 @@ There is only one rhombohedral Bravais lattice.</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Silicate">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#Mineral"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#SiliconOxide -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#SiliconOxide">
+        <rdfs:subClassOf rdf:resource="&bc;Oxide"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#TitaniumOxide"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ZirconiumOxide"/>
     </owl:Class>
     
 
@@ -4899,6 +5074,15 @@ There are two tetragonal Bravais lattices: the simple (or primitive) tetragonal 
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#TitaniumOxide -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#TitaniumOxide">
+        <rdfs:subClassOf rdf:resource="&bc;Oxide"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ZirconiumOxide"/>
+    </owl:Class>
+    
+
+
     <!-- http://www.nist.gov/itl/ssd/Materials.owl#ToolSteel -->
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#ToolSteel">
@@ -5296,6 +5480,14 @@ Tool steel has a carbon content between 0.7% and 1.5%. The manganese content is 
         </rdfs:subClassOf>
         <rdfs:comment xml:lang="en">An alloy that contains Zinc but not Iron.</rdfs:comment>
         <bc:primaryConstituentType rdf:resource="&bc;Zinc"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#ZirconiumOxide -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#ZirconiumOxide">
+        <rdfs:subClassOf rdf:resource="&bc;Oxide"/>
     </owl:Class>
     
 
@@ -5785,6 +5977,12 @@ Tool steel has a carbon content between 0.7% and 1.5%. The manganese content is 
     <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#DimensionlessUnit -->
 
     <rdf:Description rdf:about="&OntologyRequirements;DimensionlessUnit"/>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#UnitOfVelocitySquared -->
+
+    <rdf:Description rdf:about="&OntologyRequirements;UnitOfVelocitySquared"/>
     
 
 
@@ -8565,7 +8763,7 @@ There are two tetragonal Bravais lattices: the simple (or primitive) tetragonal 
         <rdf:type rdf:resource="&owl;AllDifferent"/>
         <owl:distinctMembers rdf:parseType="Collection">
             <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#CelsiusDegree"/>
-            <rdf:Description rdf:about="&or;DegreeCelsius"/>
+            <rdf:Description rdf:about="&or;DegreeKelvin"/>
         </owl:distinctMembers>
     </rdf:Description>
     <rdf:Description>
@@ -8586,7 +8784,7 @@ There are two tetragonal Bravais lattices: the simple (or primitive) tetragonal 
         <rdf:type rdf:resource="&owl;AllDifferent"/>
         <owl:distinctMembers rdf:parseType="Collection">
             <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#CelsiusDegree"/>
-            <rdf:Description rdf:about="&or;DegreeKelvin"/>
+            <rdf:Description rdf:about="&or;DegreeCelsius"/>
         </owl:distinctMembers>
     </rdf:Description>
 </rdf:RDF>
