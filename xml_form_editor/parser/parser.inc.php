@@ -9,6 +9,7 @@ if(session_id()=='') // If the session has not been started, it is impossible to
 require_once dirname(__FILE__).'/parser.conf.php';
 require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/core/XsdParser.php';
 require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/core/ModuleHandler.php';
+require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/core/PageHandler.php';
 require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/view/XsdDisplay.php';
 require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/view/ModuleDisplay.php';
 require_once $_SESSION['xsd_parser']['conf']['dirname'].'/inc/helpers/Logger.php';
@@ -30,10 +31,13 @@ $logger = new Logger($logger_level, $_SESSION['xsd_parser']['conf']['dirname'].'
  /**
   * 
   */
-function loadSchema($schemaFilename)
+function loadSchema($schemaFilename, $numberOfPage = 1)
 {
 	global $logger, $debug;
 	$logger->log_debug('Function called w/ file '.$schemaFilename, 'loadSchema');
+	
+	$pageHandler = new PageHandler($numberOfPage, $debug);
+	$_SESSION['xsd_parser']['phandler'] = serialize($pageHandler);
 	
 	$parser = new XsdParser($schemaFilename, $debug);
 	$rootElementsArray = $parser->parseXsdFile();
@@ -76,7 +80,7 @@ function displayConfiguration()
 	global $logger, $debug;
 	$logger->log_debug('Function called', 'displayConfiguration');
 	
-	if(isset($_SESSION['xsd_parser']['xsd_tree']))
+	if(isset($_SESSION['xsd_parser']['xsd_tree']) && isset($_SESSION['xsd_parser']['phandler']))
 	{
 		if(isset($_SESSION['xsd_parser']['mhandler']))
 		{
@@ -91,14 +95,14 @@ function displayConfiguration()
 			return displayConfiguration();
 		}		
 		
-		$display = new XsdDisplay(unserialize($_SESSION['xsd_parser']['xsd_tree']), $moduleDisplay, $debug);
+		$display = new XsdDisplay(unserialize($_SESSION['xsd_parser']['xsd_tree']), unserialize($_SESSION['xsd_parser']['phandler']), $moduleDisplay, $debug);
 		echo $display->displayConfiguration();
 		
 		return;
 	}
 	else
 	{
-		$logger->log_debug('No schema loaded', 'displayConfiguration');
+		$logger->log_debug('No schema loaded/page handler configured', 'displayConfiguration');
 		echo '<i>No schema file loaded</i>';
 		
 		return;
@@ -107,10 +111,10 @@ function displayConfiguration()
 
 // Displays the form view of the parser
 // TODO Pagination handling
-function displayHTMLForm()
-{	
+function displayHTMLForm($page = 1)
+{
 	global $logger, $debug;
-	$logger->log_debug('Function called', 'displayHTMLForm');
+	$logger->log_debug('Function called w/ page '.$page, 'displayHTMLForm');
 	
 	if(isset($_SESSION['xsd_parser']['mhandler']))
 	{
@@ -127,7 +131,7 @@ function displayHTMLForm()
 	
 	if(!isset($_SESSION['xsd_parser']['xml_tree'])) // If the xml_tree is not set, it built it
 	{
-		if(isset($_SESSION['xsd_parser']['xsd_tree'])) // Need a basis to build the form
+		if(isset($_SESSION['xsd_parser']['xsd_tree']) && isset($_SESSION['xsd_parser']['phandler'])) // Need a basis to build the form
 		{
 			// Computing MINOCCURS using the parser function
 			// Allows to display the right number of element
@@ -143,19 +147,27 @@ function displayHTMLForm()
 			}
 			
 			// Build the form
-			$display = new XsdDisplay(unserialize($_SESSION['xsd_parser']['xml_tree']), $moduleDisplay, $debug);
+			$display = new XsdDisplay(unserialize($_SESSION['xsd_parser']['xml_tree']), unserialize($_SESSION['xsd_parser']['phandler']), $moduleDisplay, $debug);
 			echo $display->displayHTMLForm();
 		}
 		else // No schema has been loaded ($_SESSION['xsd_parser']['xsd_tree'] does not exist)
 		{
-			$logger->log_debug('No schema loaded', 'displayHTMLForm');
+			$logger->log_debug('No schema/page hanlder loaded', 'displayHTMLForm');
 			echo '<i>No schema file loaded</i>';
 		}
 	}
 	else // An XML tree already exists
 	{
-		$display = new XsdDisplay(unserialize($_SESSION['xsd_parser']['xml_tree']), $moduleDisplay, $debug);
-		echo $display->displayHTMLForm();
+		if(isset($_SESSION['xsd_parser']['phandler']))
+		{
+			$display = new XsdDisplay(unserialize($_SESSION['xsd_parser']['xml_tree']), unserialize($_SESSION['xsd_parser']['phandler']), $moduleDisplay, $debug);
+			echo $display->displayHTMLForm();
+		}
+		else 
+		{
+			$logger->log_debug('No page handler initialized', 'displayHTMLForm');
+			echo '<i>No schema file loaded</i>';
+		}
 	}
 }
 
@@ -202,6 +214,14 @@ function displayModuleChooser()
 		loadModules();
 		return displayModuleChooser();
 	}
+}
+
+/**
+ * 
+ */
+function displayPageChooser()
+{
+	
 }
  
 ?>

@@ -6,6 +6,7 @@
  */
 require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/core/Tree.php';
 require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/core/XsdElement.php';
+require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/core/PageHandler.php';
 require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/view/ModuleDisplay.php';
 require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/view/XsdDisplay.php';
 // TODO Setup debug using the session variable
@@ -20,14 +21,14 @@ require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/view/XsdDisplay
  */
 function displayTree($tree, $grandParentId)
 {
-	if(isset($_SESSION['xsd_parser']['mhandler']))
+	if(isset($_SESSION['xsd_parser']['mhandler']) && isset($_SESSION['xsd_parser']['phandler']))
 	{
 		$mHandler = unserialize($_SESSION['xsd_parser']['mhandler']);
 		$moduleDisplay = new ModuleDisplay($mHandler, true);
 		
 		$result = '';
 	
-		$display = new XsdDisplay($tree, $moduleDisplay, true);
+		$display = new XsdDisplay($tree, unserialize($_SESSION['xsd_parser']['phandler']), $moduleDisplay, true);
 							
 		if($grandParentId>=0)
 		{
@@ -52,12 +53,12 @@ function displayTree($tree, $grandParentId)
  */
 function displayAttributes($tree, $elementId)
 {
-	if(isset($_SESSION['xsd_parser']['mhandler']))
+	if(isset($_SESSION['xsd_parser']['mhandler']) && isset($_SESSION['xsd_parser']['phandler']))
 	{
 		$mHandler = unserialize($_SESSION['xsd_parser']['mhandler']);
 		$moduleDisplay = new ModuleDisplay($mHandler, true);
 		
-		$display = new XsdDisplay($tree, $moduleDisplay, true);	
+		$display = new XsdDisplay($tree, unserialize($_SESSION['xsd_parser']['phandler']), $moduleDisplay, true);	
 		return $display->displayConfigurationElement($elementId, true);
 	}
 	else return null;

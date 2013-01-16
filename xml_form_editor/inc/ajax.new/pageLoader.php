@@ -49,6 +49,7 @@ if(isset($_GET['url']))
 		{
 			if(!isset($menu['sub']) || $menu['sub']=='currentModel') require_once $_SESSION['config']['_ROOT_'].'/inc/skeleton/main/admin/xsd_cfg.inc.php';
 			else if($menu['sub']=='manageSchemas') require_once $_SESSION['config']['_ROOT_'].'/inc/skeleton/main/demo/admin.xsd_mgr.inc.php';
+			else if($menu['sub']=='manageModules') require_once $_SESSION['config']['_ROOT_'].'/inc/skeleton/main/admin/mod_mgr.inc.php';
 		}
 		else
 		{
@@ -62,7 +63,11 @@ if(isset($_GET['url']))
 	else
 	{
 		if($menu['page']=='home' || $menu['page']=='') require_once $_SESSION['config']['_ROOT_'].'/inc/skeleton/main/demo/public.home.inc.php';
-		else if($menu['page']=='register') require_once $_SESSION['config']['_ROOT_'].'/inc/skeleton/main/demo/public.register_form.inc.php';
+		else if($menu['page']=='register')
+		{
+			if(!isset($menu['sub']) || $menu['sub']=='form') require_once $_SESSION['config']['_ROOT_'].'/inc/skeleton/main/public/register_form.inc.php';
+			else if($menu['sub']=='xml') require_once $_SESSION['config']['_ROOT_'].'/inc/skeleton/main/demo/public.view_xml.inc.php';
+		}
 		else
 		{
 			echo $defaultText.'<div id="main">';

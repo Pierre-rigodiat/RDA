@@ -15,7 +15,7 @@ loadEditController = function()
         autoOpen: false,
         show: "blind",
         hide: "blind",
-        height: 330,
+        height: 360,
         width: 300,
         modal: true,
         resizable: false,
@@ -29,7 +29,9 @@ loadEditController = function()
 					maxOccurs = $('#maxoccurs').is(':disabled')?'-1':$('#maxoccurs').val(),
 					dataType = $('#datatype').val(),
 					autoGen = $('#autogen').val(),
-					pattern = $('#pattern').val();
+					pattern = $('#pattern').val(),
+					page = $('#page').val(),
+					module = $('#module').val();
             	        	            	
             	valid = checkOccurence(parseInt(minOccurs), parseInt(maxOccurs));
             	/*console.log(minOccurs+' <= '+maxOccurs+' ? '+valid);
@@ -47,6 +49,9 @@ loadEditController = function()
             			allFields['autoGen'] = autoGen;
             			allFields['pattern'] = pattern;
             		}
+            		
+            		if(page) allFields['page'] = page;
+            		allFields['module'] = module;
             		
             		console.log(allFields);
             		saveConfiguration($('.elementId').text(), allFields);
@@ -97,7 +102,7 @@ editElement = function()
 		$('#datatype-part').hide();
 		$('#autogen-part').hide();
 		
-		$("#dialog").dialog( "option", "height", 260 );
+		$("#dialog").dialog( "option", "height", 280 );
 	}
 	else
 	{
@@ -111,7 +116,7 @@ editElement = function()
 		
 		$('#datatype').val(dataTypeValue);
 		
-		$("#dialog").dialog( "option", "height", 330 );
+		$("#dialog").dialog( "option", "height", 360 );
 	}
 	
 	/*
@@ -167,6 +172,41 @@ editElement = function()
 		$('#autogen').val('false');
 	}
 	
+	/*
+	 * Page configuration
+	 */
+	if($('#page').length > 0)
+	{
+		if((page = elementAttr.indexOf('PAGE'))==-1)
+		{
+			$('#page').val('1');
+		}
+		else
+		{
+			var pageValue = elementAttr.substring(page+6);
+			var separatorIndex = pageValue.indexOf(' |');
+			if(separatorIndex!=-1) pageValue = pageValue.substring(0, separatorIndex);
+			
+			$('#page').val(pageValue);
+		}	
+	}
+	
+	/*
+	 * Module configuration
+	 */
+	if((module = elementAttr.indexOf('MODULE'))==-1)
+	{
+		$('#module').val('false');
+	}
+	else
+	{
+		var moduleValue = elementAttr.substring(module+8);
+		var separatorIndex = moduleValue.indexOf(' |');
+		if(separatorIndex!=-1) moduleValue = moduleValue.substring(0, separatorIndex);
+		
+		$('#module').val(moduleValue);
+	}
+	
 	// Opens the dialog
 	$("#dialog").dialog( "open" );
 }
@@ -210,7 +250,8 @@ clearFormData = function()
 }
 
 /**
- *
+ * Saves the new configuration of the element edited
+ * This function is called when the user clicks on "Save element"
  */
 saveConfiguration = function(elementId, fieldArray)
 {
@@ -225,7 +266,7 @@ saveConfiguration = function(elementId, fieldArray)
 		if(length>0) qString += '&';
 	}
 	
-	//console.log(qString);
+	console.log('[saveConfiguration] editSchema.php called with query string '+qString);
 	
 	$.ajax({
         url: 'parser/controllers/php/editSchema.php',

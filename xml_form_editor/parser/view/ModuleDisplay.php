@@ -2,9 +2,12 @@
 /**
  * 
  */
+// TODO Change class name as HandlerDisplay 
+// TODO Add a PageHandler to the class
 class ModuleDisplay 
 {
 	private $moduleHandler;
+	//xxx private $pageHandler;
 	
 	// Debug and logging variables
 	private $LOGGER;
@@ -132,7 +135,7 @@ class ModuleDisplay
 		$moduleList = $this -> moduleHandler -> getModuleList('enable');
 		foreach($moduleList as $module)
 		{
-			$result .= '<option value="module">'.ucfirst($module['name']).'</option>';
+			$result .= '<option value="'.$module['name'].'">'.ucfirst($module['name']).'</option>';
 		}
 		
 		return $result;		

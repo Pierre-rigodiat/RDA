@@ -22,6 +22,12 @@ loadPage = function(url)
         url: 'inc/ajax.new/pageLoader.php',
         type: 'GET',
         success: function(data) {
+        	// Destroy and remove the dialog to avoid to rewrite on it        	
+        	$( "#dialog" ).dialog("destroy");
+        	$( "#dialog" ).remove();
+        	
+        	$('.content').children().remove();
+        	
         	// Change content
         	$('.content').html(data);
         	

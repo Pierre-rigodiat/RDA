@@ -9,7 +9,7 @@
  */
 /* NIST Modification brought
  * 	- No "commercial" link after the tree display
- * © NIST 2012
+ * ï¿½ NIST 2012
  */
 
 function LoadXML(ParentElementID,URL) 
@@ -220,6 +220,7 @@ function AddTextNode(ParentNode,Text,Class)
 	return NewNode;		
 }
 
+// TODO Change for div element add/remove
 // XXX Adding by NIST
 function addImageNode(parentNode, type, className)
 {	

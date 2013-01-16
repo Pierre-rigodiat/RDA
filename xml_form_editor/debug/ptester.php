@@ -24,8 +24,9 @@
 	<script src="parser/controllers/js/addRemove.js"></script>
 	<script src="parser/controllers/js/edit.js"></script>
 	<script src="parser/controllers/js/module.js"></script>
+	<script src="parser/controllers/js/pagination.js"></script>
 	<script src="resources/js.new/php.js"></script>
-	<script src="resources/js/ptester.js"></script>
+	<script src="debug/front/ptester.js"></script>
 	
 	<title>Parser Tester</title>
 </head>
@@ -39,13 +40,11 @@
 	<div class="block">
 		<h3>Configuration</h3>
 		<div>
-			<label for="schema_file">Choose file:</label>
+			<label for="schema_file">Load</label>
 			<select id="schema_file">
 				<?php
 					$schemaFolder = '../resources/files/schemas';
 					$schemaFolderFiles = scandir($schemaFolder);
-					
-					//var_dump($schemaFolderFiles);
 					
 					foreach($schemaFolderFiles as $file)
 					{
@@ -53,18 +52,15 @@
 					}
 				?>
 			</select>
+			<label for="page_number">with</label>
+			<input class="text" type="number" id="page_number" name="page_number" value="<?php echo isset($_SESSION['xsd_parser']['phandler'])? unserialize($_SESSION['xsd_parser']['phandler'])->getNumberOfPage():'1'; ?>"/>
+			page(s)
 			<div class="icon refresh file"></div>
 		</div>
 		<div>
 			<p style="font-weight: bold">Modules</p>
 			<div id="schema_modules">
 			<?php
-				/*$moduleList = getModuleList();
-				
-				foreach($moduleList as $module)
-				{
-					echo '<div class="module"><span class="icon legend off">'.ucfirst($module['name']).'</span></div>';
-				}*/
 				displayModuleChooser();
 			?>
 			</div>
@@ -72,7 +68,7 @@
 	</div>
 	
 	<div class="block" id="cfg_view">
-		<h3>Elements <div class="icon refresh conf"></div></h3>
+		<h3>Elements <span class="icon refresh conf"></span></h3>
 		<?php
 			displayConfiguration();
 		?>
@@ -80,6 +76,17 @@
 	
 	<hr/>
 	<h2>HTML Form View <span class="icon refresh form"></span></h2>
+	<div>
+		<span class="ctx_menu"><span class="icon begin"></span></span>
+		<span class="ctx_menu"><span class="icon previous"></span></span>
+		<span class="ctx_menu button">1</span>
+		<span class="ctx_menu selected">2</span>
+		<span class="ctx_menu button">3</span>
+		<span class="ctx_menu button">4</span>
+		<span class="ctx_menu button">5</span>
+		<span class="ctx_menu"><span class="icon next"></span></span>
+		<span class="ctx_menu"><span class="icon end"></span></span>
+	</div>
 	<?php
 		displayHTMLForm();
 	?>
@@ -91,7 +98,8 @@
 	<script>
 		loadEditController();
 		loadModuleController();
-
+		loadPaginationController();
+		
 		loadAutocomplete();
 	</script>
 </body>

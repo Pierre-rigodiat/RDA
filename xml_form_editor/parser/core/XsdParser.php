@@ -14,7 +14,7 @@ require_once $_SESSION['xsd_parser']['conf']['dirname'].'/inc/lib/StringFunction
  */ 
 class XsdParser {
 	private $xsdFile;
-	private $xsdTree; // The tree as it should be represented
+	private $xsdTree; // The tree as it is in the xsd file
 	private $xmlTree; // The tree as it should be in the form
 	private $rootElements;
 	private $namespaces;

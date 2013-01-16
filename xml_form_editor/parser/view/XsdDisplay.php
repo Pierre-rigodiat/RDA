@@ -7,10 +7,12 @@ require_once $_SESSION['xsd_parser']['conf']['dirname'] . '/inc/lib/StringFuncti
  * xxx Handle templates, etc...
  *
  */
+// TODO Change ModuleDisplay to module handler
 class XsdDisplay
 {
 	private $tree;
-	private $moduleDisplay;
+	private $moduleDisplay; // A ModuleDisplay object
+	private $pageHandler; // A PageHandler object
 	
 	private static $STEPS = array(
 		'config' => 0,
@@ -39,31 +41,36 @@ class XsdDisplay
 
 		switch($argc)
 		{
-			case 2 :
-				// new XsdDisplay(treeObject, moduleDisplay)
+			case 3 :
+				// new XsdDisplay(treeObject, pageHandler, moduleDisplay)
 				if (is_object($argv[0]) && get_class($argv[0]) == 'Tree' 
-					&& is_object($argv[1]) && get_class($argv[1]) == 'ModuleDisplay')
+					&& is_object($argv[1]) && get_class($argv[1]) == 'PageHandler' 
+					&& is_object($argv[2]) && get_class($argv[2]) == 'ModuleDisplay')
 				{
 					$this -> tree = $argv[0];
-					$this -> moduleDisplay = $argv[1];
+					$this -> pageHandler = $argv[1];
+					$this -> moduleDisplay = $argv[2];
 					
 					$level = self::$LEVELS['NO_DBG'];
 				}
 				else
 				{
 					$this -> tree = null;
+					$this -> pageHandler = null;
 					$this -> moduleDisplay = null;
 					$level = self::$LEVELS['NO_DBG'];
 				}
 				break;
-			case 3 :
-				// new XsdDisplay(treeObject, moduleDisplay, debugBoolean)
+			case 4 :
+				// new XsdDisplay(treeObject, pageHandler, moduleDisplay, debugBoolean)
 				if (is_object($argv[0]) && get_class($argv[0]) == 'Tree' 
-					&& is_object($argv[1]) && get_class($argv[1]) == 'ModuleDisplay'
-					&& is_bool($argv[2]))
+					&& is_object($argv[1]) && get_class($argv[1]) == 'PageHandler' 
+					&& is_object($argv[2]) && get_class($argv[2]) == 'ModuleDisplay'
+					&& is_bool($argv[3]))
 				{
 					$this -> tree = $argv[0];
-					$this -> moduleDisplay = $argv[1];
+					$this -> pageHandler = $argv[1];
+					$this -> moduleDisplay = $argv[2];
 
 					if ($argv[2])
 						$level = self::$LEVELS['DBG'];
@@ -73,12 +80,14 @@ class XsdDisplay
 				else
 				{
 					$this -> tree = null;
+					$this -> pageHandler = null;
 					$this -> moduleDisplay = null;
 					$level = self::$LEVELS['NO_DBG'];
 				}
 				break;
 			default :
 				$this -> tree = null;
+				$this -> pageHandler = null;
 				$this -> moduleDisplay = null;
 				$level = self::$LEVELS['NO_DBG'];
 				break;
@@ -94,32 +103,36 @@ class XsdDisplay
 			return;
 		}
 
-		if ($this -> tree == null && $this -> moduleDisplay == null)
+		if ($this -> tree == null && $this -> pageHandler == null && $this -> moduleDisplay == null)
 		{
 			$log_mess = '';
 
 			switch($argc)
 			{
-				case 2 :
-					if(is_object($argv[0])) $argv0 = get_class($argv[0]);
-					else $argv0 = gettype($argv[0]);
-					if(is_object($argv[1])) $argv1 = get_class($argv[1]);
-					else $argv1 = gettype($argv[1]);
-								
-					$log_mess .= 'Supports {Tree,ModuleDisplay} as parameter ({' . $argv0 . ',' . $argv1 . '} given)';
-					break;
 				case 3 :
 					if(is_object($argv[0])) $argv0 = get_class($argv[0]);
 					else $argv0 = gettype($argv[0]);
 					if(is_object($argv[1])) $argv1 = get_class($argv[1]);
 					else $argv1 = gettype($argv[1]);
-					if(is_object($argv[2])) $argv1 = get_class($argv[2]);
-					else $argv1 = gettype($argv[2]);
+					if(is_object($argv[2])) $argv2 = get_class($argv[2]);
+					else $argv2 = gettype($argv[2]);
+								
+					$log_mess .= 'Supports {Tree,PageHandler,ModuleDisplay} as parameter ({' . $argv0 . ',' . $argv1 . ',' . $argv2 . '} given)';
+					break;
+				case 4 :
+					if(is_object($argv[0])) $argv0 = get_class($argv[0]);
+					else $argv0 = gettype($argv[0]);
+					if(is_object($argv[1])) $argv1 = get_class($argv[1]);
+					else $argv1 = gettype($argv[1]);
+					if(is_object($argv[2])) $argv2 = get_class($argv[2]);
+					else $argv2 = gettype($argv[2]);
+					if(is_object($argv[3])) $argv3 = get_class($argv[3]);
+					else $argv3 = gettype($argv[3]);
 					
-					$log_mess .= 'Supports {Tree,ModuleDisplay,boolean} as parameters ({' . $argv0 . ',' . $argv1 . ',' . $argv2 . '} given)';
+					$log_mess .= 'Supports {Tree,PageHandler,ModuleDisplay,boolean} as parameters ({' . $argv0 . ',' . $argv1 . ',' . $argv2 . ',' . $argv3 . '} given)';
 					break;
 				default :
-					$log_mess .= 'Supports 2 or 3 parameter at input (' . $argc . 'given)';
+					$log_mess .= 'Supports 3 or 4 parameter at input (' . $argc . 'given)';
 					break;
 			}
 
@@ -150,6 +163,14 @@ class XsdDisplay
 	{
 		/* Not yet implemented */
 	}
+	
+	/**
+	 * 
+	 */
+	public function setPageHandler($pageHandler)
+	{
+		/* Not yet implemented */
+	}
 	 
 	/**
 	 *
@@ -164,6 +185,33 @@ class XsdDisplay
 		$result .= '</ul>';
 
 		return $result;
+	}
+	
+	/**
+	 * 
+	 * 
+	 * The PageHandler will know which element you have to Display
+	 * The Tree will allow you to know if it is a module
+	 * The ModuleHandler will know which page to display
+	 */
+	public function displayHTMLFormPage($page = 1)
+	{
+		// XXX Way to follow
+		// pageHandler -> getElementsIdForPage($page)
+		// foreach element
+		//		if element -> hasAttributes('MODULE') display moduleHandler -> displayModule(moduleName, id)
+		//		else this->displayElement(id)
+		
+		
+		/*$result = '';
+
+		if (!$partial)
+			$result .= '<ul>';
+		$result .= $this -> displayElement($elementId, self::$STEPS['html_form']);
+		if (!$partial)
+			$result .= '</ul>';*/
+
+		return 'page '.$page;
 	}
 
 	/**
@@ -235,12 +283,27 @@ class XsdDisplay
 					        </div>';
 		
 		// Module select display
-		if($this->moduleDisplay) // If the ModuleDisplay object has been set
+		if($this->pageHandler && $this->moduleDisplay) // If the ModuleDisplay object has been set
 		{
-			$result .= '    <div class="dialog subpart" id="module-part">
-						        <label for="module">Apply module</label>
+			$maxPages = $this->pageHandler->getNumberOfPage();
+			
+			
+			$result .= '    <div class="dialog subpart" id="module-part">';
+			
+			if($maxPages > 1)
+			{
+				$result .= '<label for="page">In page</label>
+						        <select id="page" name="page" class="ui-widget-content ui-corner-all">';
+		
+			
+				for($i=1; $i<=$maxPages; $i++) $result .= '<option value="'.$i.'">'.$i.'</option>';
+							        	
+				$result .= '    </select>';
+			}
+						        
+			$result .= '        <label for="module">As</label>							
 						        <select id="module" name="module" class="ui-widget-content ui-corner-all">
-						        	<option value="false"">No module</option>';
+						        	<option value="false">No module</option>';
 						
 			$result .= $this->moduleDisplay->displayPopUpModuleSelect();
 							
@@ -275,7 +338,7 @@ class XsdDisplay
 				exit ;
 				break;
 		}
-
+		
 		$children = $this -> tree -> getChildren($elementId);
 
 		if (count($children) > 0)
@@ -362,6 +425,11 @@ class XsdDisplay
 				$attrString .= ' | ';
 			$attrString .= 'TYPE: ' . $type[1];
 		}
+		
+		/*if(isset($this->pageHandler) && $this->pageHandler->getNumberOfPage() > 1)
+		{
+			$attrString .= ' | PAGE: '.$this->pageHandler->getPageForId($elementId);
+		}*/
 
 		if ($attrString != '')
 			$result .= '<span class="attr">' . $attrString . '</span>';

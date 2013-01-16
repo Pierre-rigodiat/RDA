@@ -9,10 +9,20 @@
 	<websiteTools>
 		<debug>false</debug>
 		<cache>false</cache>
+		<database>
+			<dbIp>127.0.0.1</dbIp>
+			<dbUser>root</dbUser>
+			<dbPwd>_test</dbPwd>
+			<dbName>website_db</dbName>
+		</database>
 	</websiteTools>
 	<websiteSections>
 		<section>
 			<sectionName>admin</sectionName>
+			<sectionAuth>
+				<authEnable>true</authEnable>
+				<authMode>htaccess</authMode>
+			</sectionAuth>
 			<sectionFilesDirectory>inc/skeleton/main/admin</sectionFilesDirectory>
 			<sectionMenu>
 				<item>
@@ -49,7 +59,38 @@
 		</section>
 		<section>
 			<sectionName>public</sectionName>
-			
+			<sectionAuth>
+				<authEnable>true</authEnable>
+				<authMode>database</authMode>
+			</sectionAuth>
+			<sectionFilesDirectory>inc/skeleton/main/public</sectionFilesDirectory>
+			<sectionMenu>
+				<item>
+					<itemName>Home</itemName>
+					<itemUrl>home</itemUrl>
+					<itemView>item2.php</itemView>
+				</item>
+				<item>
+					<itemName>Item 2</itemName>
+					<itemUrl>schemas</itemUrl>
+					<itemView>/item2.php</itemView>
+				</item>
+				<item>
+					<itemName>XML Schemas</itemName>
+					<itemUrl>schemas</itemUrl>
+					<subItems>
+						<item>
+							<itemName>Current Model</itemName>
+							<itemUrl>currentModel</itemUrl>
+							<itemView>xsd_cfg.inc.php</itemView>
+						</item>
+						<item>
+							<itemName>Item 2</itemName>
+							<itemView>/item2.php</itemView>
+						</item>					
+					</subItems>
+				</item>
+			</sectionMenu>
 		</section>
 	</websiteSections>
 </website>

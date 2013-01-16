@@ -36,11 +36,11 @@ toggleModule = function()
 
 cancelChanges = function()
 {
-	
+	console.warn('[cancelChanges] Not yet implemented');
 }
 
 saveChanges = function()
 {
-	
+	console.warn('[saveChanges] Not yet implemented');
 }
 

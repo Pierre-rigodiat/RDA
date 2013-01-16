@@ -4,14 +4,17 @@
  * Author: P.Dessauw
  * 
  */
-$(document).ready(function(){
+/**
+ * 
+ */
+loadAddRemoveController = function(){
 	// We need to use .live() method here because of the newly created elements
 	// Linking the event on all the + buttons
 	$('.add').live('click', {action: 0}, addRemoveItem);
 
 	// Linking the event on all the - buttons
 	$('.remove').live('click', {action: 1}, addRemoveItem);
-});
+}
 
 /**
  * Function to call the PHP script and replace the current element 

@@ -12,17 +12,10 @@
 		<div class="prop"><span class="fieldname">Size:</span> 120 Mo</div>
 	</div>
 </div>
-<div id="schema_content">
-	<h3>Modules</h3>
-	<div id="schema_modules">
-		<div class="module"><span class="icon legend off">Pagination<span class="icon new"></span></span></div>
-		<div class="module"><span class="icon legend off">HDF-5</span></div>
-		<div class="module"><span class="icon legend disable">Images (Coming soon)</span></div>
-		<div class="module"><span class="icon legend disable">Videos (Coming soon)</span></div>
-	</div>
-	
+<div id="schema_content">	
 	<h3 style="float:left">Elements</h3>
 	<div class="right-side">
+		<span class="fieldname">Split into</span> <input class="text" type="number" value="1"/> <span class="fieldname">page(s)</span>
 		<span class="ctx_menu">
 			<div class="icon legend refresh">Reload</div>
 			<div class="icon legend save">Save</div>

@@ -8,8 +8,8 @@
 <div id="main">
 <div class="separator-vertical">
 	<div class="col2 left">
-		<h2 class="left">Featured Products</h2>
-		<div class="right more large"><a href="#">All Products &#187;</a></div>
+		<h2 class="left">Enter data of your experiment</h2>
+		<!--div class="right more large"><a href="#">All Products &#187;</a></div-->
 		
 		<div class="clearer">&nbsp;</div>
 		
@@ -37,7 +37,7 @@
 		
 		<img src="sample-thumbnail.jpg" width="64" height="64" alt="" class="left bordered" />
 		
-		<h3><a href="#">Browse repository</a></h3>
+		<h3><a href="search">Browse repository</a></h3>
 		
 		<p>Sed tempus interdum ligula adipiscing blandit. Aliquam tempor, rhoncus lacinia mauris metus suscipit sem.</p>
 		
@@ -47,7 +47,7 @@
 	
 	<div class="col2 right">
 		<h2 class="left">New experiments</h2>
-		<div class="right more large"><a href="#">Browse Archives &#187;</a></div>
+		<div class="right more large"><a href="search">Browse Archives &#187;</a></div>
 		
 		<div class="clearer">&nbsp;</div>
 
@@ -64,7 +64,6 @@
 		
 		<div class="clearer">&nbsp;</div>
 		
-		<!-- TODO Use a bulleted list -->
 		<ul class="nice-list">
 			<li>Praesent vulputate sodales</li>
 			<li>Eget pretium ante egestas</li>

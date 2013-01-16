@@ -53,7 +53,7 @@
 	
 	
 	<script type="text/javascript" src='resources/js/message.js'></script>
-	<link rel="stylesheet" type="text/css" href="resources/css/themes/message_growl_shiny.css" />
+	<!--link rel="stylesheet" type="text/css" href="resources/css/themes/message_growl_shiny.css" /-->
 	
 	<!--script src="resources/js/popup.js"></script-->
 	<link rel="stylesheet" href="resources/css/dialog.css" />

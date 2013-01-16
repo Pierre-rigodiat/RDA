@@ -17,8 +17,8 @@ refreshForm = function()
         url: 'debug/back/generateForm.php',
         type: 'GET',
         success: function(data) {
-        	htmlFormTitle.next().remove();
-        	htmlFormTitle.after(data);
+        	htmlFormTitle.next().next().remove();
+        	htmlFormTitle.next().after(data);
         	
         	console.log('[refreshForm] Form successfully refreshed...');
         },
@@ -39,8 +39,10 @@ refreshForm = function()
  */
 refreshFile = function()
 {
-	var fileName = $(this).prev().children(':selected').text();
-	console.log('[refreshFile] Loading '+fileName+'...');
+	var fileName = $(this).parent().children('#schema_file').find(':selected').text();
+	var pageNumber = $(this).parent().children('#page_number').attr('value');
+	
+	console.log('[refreshFile] Loading '+fileName+' (in '+pageNumber+' page(s))...');
 	
 	$.ajax({
         url: 'debug/back/loadFile.php',
@@ -61,7 +63,7 @@ refreshFile = function()
             console.error("[refreshFile] Problem with the AJAX call");
         },
         // Form data
-        data: 'f='+fileName,
+        data: 'f='+fileName+'&p='+pageNumber,
         //Options to tell JQuery not to process data or worry about content-type
         cache: false,
         contentType: false,
