@@ -2,62 +2,47 @@
 
 
 <!DOCTYPE rdf:RDF [
-    <!ENTITY terms "http://purl.org/dc/terms/" >
-    <!ENTITY umbel "http://umbel.org/umbel/sc/#" >
-    <!ENTITY dbpedia "http://dbpedia.org/resource/#" >
+    <!ENTITY dcterms "http://purl.org/dc/terms/" >
+    <!ENTITY sc "http://umbel.org/umbel/sc/#" >
+    <!ENTITY resource "http://dbpedia.org/resource/#" >
     <!ENTITY owl "http://www.w3.org/2002/07/owl#" >
     <!ENTITY dc "http://purl.org/dc/elements/1.1/" >
-    <!ENTITY dc "http://purl.org/dc/elements/1.1/#" >
+    <!ENTITY en "http://www.freebase.com/view/en/#" >
     <!ENTITY xsd "http://www.w3.org/2001/XMLSchema#" >
-    <!ENTITY fbase "http://www.freebase.com/view/en/#" >
     <!ENTITY cyc "http://sw.opencyc.org/concept/en/#" >
-    <!ENTITY xml "http://www.w3.org/XML/1998/namespace" >
     <!ENTITY skos "http://www.w3.org/2004/02/skos/core#" >
-    <!ENTITY daml "http://www.daml.org/2001/03/daml+oil#" >
+    <!ENTITY oil "http://www.daml.org/2001/03/daml+oil#" >
     <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#" >
-    <!ENTITY SO "http://purl.obolibrary.org/obo/so.owl#" >
-    <!ENTITY GO "http://www.geneontology.org/dtd/go.dtd#" >
-    <!ENTITY Biochem "http://www.nist.gov/itl/ssd/Biochem.owl#" >
+    <!ENTITY so "http://purl.obolibrary.org/obo/so.owl#" >
     <!ENTITY ont "http://www.co-ode.org/ontologies/ont.owl#" >
-    <!ENTITY tml "http://www.iupac.org/namespaces/ThermoML#" >
-    <!ENTITY Materials "http://www.nist.gov/itl/ssd/Materials.owl#" >
-    <!ENTITY n3 "http://www.w3.org/2000/10/swap/grammar/n3#" >
     <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#" >
     <!ENTITY or "http://www.nist.gov/itl/ssd/OntologyRequirements#" >
-    <!ENTITY OntologyRequirements "http://www.nist.gov/itl/ssd/OntologyRequirements.owl#" >
 ]>
 
 
 <rdf:RDF xmlns="http://www.nist.gov/itl/ssd/Biochem#"
      xml:base="http://www.nist.gov/itl/ssd/Biochem"
-     xmlns:dc="&dc;#"
-     xmlns:fbase="http://www.freebase.com/view/en/#"
-     xmlns:Materials="http://www.nist.gov/itl/ssd/Materials.owl#"
+     xmlns:dc="http://purl.org/dc/elements/1.1/"
+     xmlns:so="http://purl.obolibrary.org/obo/so.owl#"
      xmlns:or="http://www.nist.gov/itl/ssd/OntologyRequirements#"
-     xmlns:n3="http://www.w3.org/2000/10/swap/grammar/n3#"
-     xmlns:terms="http://purl.org/dc/terms/"
-     xmlns:xml="http://www.w3.org/XML/1998/namespace"
-     xmlns:Biochem="http://www.nist.gov/itl/ssd/Biochem.owl#"
-     xmlns:daml="http://www.daml.org/2001/03/daml+oil#"
-     xmlns:OntologyRequirements="http://www.nist.gov/itl/ssd/OntologyRequirements.owl#"
-     xmlns:SO="http://purl.obolibrary.org/obo/so.owl#"
+     xmlns:dcterms="http://purl.org/dc/terms/"
+     xmlns:resource="http://dbpedia.org/resource/#"
+     xmlns:sc="http://umbel.org/umbel/sc/#"
+     xmlns:oil="http://www.daml.org/2001/03/daml+oil#"
      xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
-     xmlns:umbel="http://umbel.org/umbel/sc/#"
      xmlns:ont="http://www.co-ode.org/ontologies/ont.owl#"
-     xmlns:GO="http://www.geneontology.org/dtd/go.dtd#"
-     xmlns:dbpedia="http://dbpedia.org/resource/#"
-     xmlns:owl="http://www.w3.org/2002/07/owl#"
      xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:owl="http://www.w3.org/2002/07/owl#"
      xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:en="http://www.freebase.com/view/en/#"
      xmlns:cyc="http://sw.opencyc.org/concept/en/#"
-     xmlns:tml="http://www.iupac.org/namespaces/ThermoML#"
      xmlns:skos="http://www.w3.org/2004/02/skos/core#">
-    <owl:Ontology rdf:about="http://www.nist.gov/itl/ssd/Biochem.owl">
-        <ont:creator>doug foxvog</ont:creator>
+    <owl:Ontology rdf:about="http://www.nist.gov/itl/ssd/Biochem">
         <dc:date>12 October 2012</dc:date>
-        <terms:title xml:lang="en">Bio-chem ontology</terms:title>
+        <ont:creator>doug foxvog</ont:creator>
+        <dcterms:title xml:lang="en">Bio-chem ontology</dcterms:title>
         <dc:subject xml:lang="en">Ontology for concepts in biochemistry.</dc:subject>
-        <owl:imports rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements.owl"/>
+        <owl:imports rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements"/>
     </owl:Ontology>
     
 
@@ -72,9 +57,9 @@
 
     <owl:AnnotationProperty rdf:about="&ont;creator"/>
     <owl:AnnotationProperty rdf:about="&cyc;cyclistNotes"/>
-    <owl:AnnotationProperty rdf:about="&daml;restrictedBy"/>
-    <owl:AnnotationProperty rdf:about="&terms;description"/>
-    <owl:AnnotationProperty rdf:about="&terms;hasVersion"/>
+    <owl:AnnotationProperty rdf:about="&oil;restrictedBy"/>
+    <owl:AnnotationProperty rdf:about="&dcterms;description"/>
+    <owl:AnnotationProperty rdf:about="&dcterms;hasVersion"/>
     <owl:AnnotationProperty rdf:about="http://www.nist.gov/itl/ssd/Biochem#sequenceIDString">
         <rdfs:comment xml:lang="en">ID of a polymer string</rdfs:comment>
         <rdfs:domain rdf:resource="http://www.nist.gov/itl/ssd/Biochem#PolymerSequence"/>
@@ -83,31 +68,31 @@
         <rdfs:comment xml:lang="en">iUPACAminoAcidCode identifies the IUPAC/IUB code for a type of amino acid.</rdfs:comment>
         <rdfs:domain rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcidType_Generic"/>
     </owl:AnnotationProperty>
-    <owl:AnnotationProperty rdf:about="&terms;publisher"/>
-    <owl:AnnotationProperty rdf:about="&terms;modified"/>
+    <owl:AnnotationProperty rdf:about="&dcterms;publisher"/>
     <owl:AnnotationProperty rdf:about="&skos;note"/>
-    <owl:AnnotationProperty rdf:about="&terms;issued"/>
+    <owl:AnnotationProperty rdf:about="&dcterms;modified"/>
+    <owl:AnnotationProperty rdf:about="&dcterms;issued"/>
     <owl:AnnotationProperty rdf:about="&dc;date">
         <rdfs:label xml:lang="en-us">Date</rdfs:label>
-        <terms:issued>1999-07-02</terms:issued>
-        <terms:modified>2008-01-14</terms:modified>
+        <dcterms:issued>1999-07-02</dcterms:issued>
+        <dcterms:modified>2008-01-14</dcterms:modified>
         <rdfs:comment xml:lang="en-us">A point or period of time associated with an event in the lifecycle of the resource.</rdfs:comment>
         <skos:note xml:lang="en-us">A second property with the same name as this property has been declared in the dcterms: namespace (http://purl.org/dc/terms/).  See the Introduction to the document &#39;DCMI Metadata Terms&#39; (http://dublincore.org/documents/dcmi-terms/) for an explanation.</skos:note>
-        <terms:description xml:lang="en-us">Date may be used to express temporal information at any level of granularity.  Recommended best practice is to use an encoding scheme, such as the W3CDTF profile of ISO 8601 [W3CDTF].</terms:description>
-        <terms:hasVersion rdf:resource="http://dublincore.org/usage/terms/history/#date-006"/>
+        <dcterms:description xml:lang="en-us">Date may be used to express temporal information at any level of granularity.  Recommended best practice is to use an encoding scheme, such as the W3CDTF profile of ISO 8601 [W3CDTF].</dcterms:description>
+        <dcterms:hasVersion rdf:resource="http://dublincore.org/usage/terms/history/#date-006"/>
         <rdfs:isDefinedBy rdf:resource="http://purl.org/dc/elements/1.1/"/>
     </owl:AnnotationProperty>
-    <owl:AnnotationProperty rdf:about="&daml;disjointWith"/>
+    <owl:AnnotationProperty rdf:about="&oil;disjointWith"/>
     <owl:AnnotationProperty rdf:about="&dc;title">
         <rdfs:label xml:lang="en-us">Title</rdfs:label>
-        <terms:issued>1999-07-02</terms:issued>
-        <terms:modified>2008-01-14</terms:modified>
+        <dcterms:issued>1999-07-02</dcterms:issued>
+        <dcterms:modified>2008-01-14</dcterms:modified>
         <rdfs:comment xml:lang="en-us">A name given to the resource.</rdfs:comment>
         <skos:note xml:lang="en-us">A second property with the same name as this property has been declared in the dcterms: namespace (http://purl.org/dc/terms/).  See the Introduction to the document &#39;DCMI Metadata Terms&#39; (http://dublincore.org/documents/dcmi-terms/) for an explanation.</skos:note>
-        <terms:hasVersion rdf:resource="http://dublincore.org/usage/terms/history/#title-006"/>
+        <dcterms:hasVersion rdf:resource="http://dublincore.org/usage/terms/history/#title-006"/>
         <rdfs:isDefinedBy rdf:resource="http://purl.org/dc/elements/1.1/"/>
     </owl:AnnotationProperty>
-    <owl:AnnotationProperty rdf:about="&terms;title"/>
+    <owl:AnnotationProperty rdf:about="&dcterms;title"/>
     
 
 
@@ -150,19 +135,10 @@
     
 
 
-    <!-- http://www.nist.gov/itl/ssd/Biochem#cellularDoer -->
-
-    <owl:ObjectProperty rdf:about="http://www.nist.gov/itl/ssd/Biochem#cellularDoer">
-        <rdfs:comment xml:lang="en">If CELL (a Biological Cell) is the Cellular Doer of a given Biological Process, then the process is both doneBy CELLand the event occurs at the cell.  Same as cyc#locusOfCellularProcess-Cell.</rdfs:comment>
-        <rdfs:range rdf:resource="http://www.nist.gov/itl/ssd/Biochem#LivingBiologicalCell"/>
-        <rdfs:subPropertyOf rdf:resource="&or;doneBy"/>
-    </owl:ObjectProperty>
-    
-
-
     <!-- http://www.nist.gov/itl/ssd/Biochem#componentElement -->
 
     <owl:ObjectProperty rdf:about="http://www.nist.gov/itl/ssd/Biochem#componentElement">
+        <rdfs:range rdf:resource="http://www.nist.gov/itl/ssd/Biochem#ChemicalElement"/>
         <rdfs:subPropertyOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#constituentType"/>
         <rdfs:domain rdf:resource="&or;MaterialType"/>
     </owl:ObjectProperty>
@@ -175,28 +151,11 @@
         <rdf:type rdf:resource="&owl;AsymmetricProperty"/>
         <rdf:type rdf:resource="&owl;TransitiveProperty"/>
         <rdfs:comment xml:lang="en">The property &#39;constituent Type&#39; relates one type of material to a type of material which is a constituent.</rdfs:comment>
+        <rdfs:domain rdf:resource="&or;MaterialType"/>
+        <rdfs:range rdf:resource="&or;MaterialType"/>
     </owl:ObjectProperty>
     
 
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem#deathOf -->
-
-    <owl:ObjectProperty rdf:about="http://www.nist.gov/itl/ssd/Biochem#deathOf">
-        <rdfs:comment xml:lang="en">The property ``death Of&#39; &#39; relates a Death event to the Biological Living Object (BLO) which died.  The object could be a cell, a tumor, an organ, an organism, or any other BLO which has died.</rdfs:comment>
-        <rdfs:range rdf:resource="http://www.nist.gov/itl/ssd/Biochem#BiologicalLivingObject"/>
-        <rdfs:domain rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Death"/>
-        <rdfs:subPropertyOf rdf:resource="&or;doneBy"/>
-    </owl:ObjectProperty>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem#hasMolecularStructure -->
-
-    <owl:ObjectProperty rdf:about="http://www.nist.gov/itl/ssd/Biochem#hasMolecularStructure">
-        <rdfs:domain rdf:resource="http://www.nist.gov/itl/ssd/Biochem#ChemicalSubstance"/>
-        <rdfs:range rdf:resource="http://www.nist.gov/itl/ssd/Biochem#ProteinTypeByStructure"/>
-    </owl:ObjectProperty>
-    
 
 
     <!-- http://www.nist.gov/itl/ssd/Biochem#primaryConstituentType -->
@@ -296,17 +255,7 @@
         <rdfs:range rdf:resource="&xsd;string"/>
     </owl:DatatypeProperty>
     
-
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem#enzymeCommissionNumber -->
-
-    <owl:DatatypeProperty rdf:about="http://www.nist.gov/itl/ssd/Biochem#enzymeCommissionNumber">
-        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
-        <rdfs:comment xml:lang="en">Enzyme Commission number for enzyme product of sequence, e.g., ``1.1.2.4&#39;&#39;.  Valid values for EC numbers are defined in the list prepared by the  Nomenclature Committee of the International Union of Biochemistry and Molecular Biology (NC-IUBMB) (published in Enzyme Nomenclature 1992, Academic Press, San Diego, or a more recent revision thereof).  The format represents a string of four numbers separated by full stops; up to three numbers starting from the end of the string can be replaced by dash (e.g., ``1.1.2.-&#39;&#39;) to indicate uncertain assignment.  The symbol `n&#39; can be used in the last position instead of a number where the EC number is awaiting assignment (e.g., `1.1.2.n&#39;.  Please note that such incomplete EC numbers are not approved by NC-IUBMB. Equivalent to ThermoML&#39;s sECNumber</rdfs:comment>
-        <rdfs:range rdf:resource="&xsd;string"/>
-    </owl:DatatypeProperty>
     
-
 
     <!-- http://www.nist.gov/itl/ssd/Biochem#hasChemicalFormula -->
 
@@ -363,17 +312,6 @@
     
 
 
-    <!-- http://www.nist.gov/itl/ssd/Biochem#iUPACAminoAcidCode -->
-
-    <owl:DatatypeProperty rdf:about="http://www.nist.gov/itl/ssd/Biochem#iUPACAminoAcidCode">
-        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
-        <rdfs:comment xml:lang="en">iUPACAminoAcidCode identifies the IUPAC/IUB code for a type of amino acid.</rdfs:comment>
-        <rdfs:subPropertyOf rdf:resource="&or;idString"/>
-        <rdfs:range rdf:resource="&xsd;string"/>
-    </owl:DatatypeProperty>
-    
-
-
     <!-- http://www.nist.gov/itl/ssd/Biochem#monomerLength -->
 
     <owl:DatatypeProperty rdf:about="http://www.nist.gov/itl/ssd/Biochem#monomerLength">
@@ -384,30 +322,14 @@
     
 
 
-    <!-- http://www.nist.gov/itl/ssd/Biochem#proteinID -->
-
-    <owl:DatatypeProperty rdf:about="http://www.nist.gov/itl/ssd/Biochem#proteinID">
-        <rdfs:comment xml:lang="en">Identifies the protein coded for by a standard protein identifier, issued by International collaborators.  The identifier consists of a stable ID portion (3 letters + 5 digits format) plus a version number after a decimal point.  Same as ThermML&#39;s sPDBIdentifier.</rdfs:comment>
-        <rdfs:domain rdf:resource="http://www.nist.gov/itl/ssd/Biochem#ProteinTypeBySpecies"/>
-        <rdfs:subPropertyOf rdf:resource="&or;idString"/>
-        <rdfs:range rdf:resource="&xsd;string"/>
-    </owl:DatatypeProperty>
-    
-
-
     <!-- http://www.nist.gov/itl/ssd/Biochem#startsAtMonomerNumber -->
 
     <owl:DatatypeProperty rdf:about="http://www.nist.gov/itl/ssd/Biochem#startsAtMonomerNumber">
         <cyc:cyclistNotes xml:lang="en">Note that some systems count monomers from 0, others count them from 1.  Either care must be taken, or two predicates, startsAtMonomerNumber_0Based and startsAtMonomerNumber_1Based are needed</cyc:cyclistNotes>
         <rdfs:comment xml:lang="en">The specified position starts at the specifed position number in its reference polymer.</rdfs:comment>
+        <rdfs:domain rdf:resource="http://www.nist.gov/itl/ssd/Biochem#PositionInPolymer"/>
         <rdfs:range rdf:resource="&xsd;integer"/>
     </owl:DatatypeProperty>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#idString -->
-
-    <owl:DatatypeProperty rdf:about="&or;idString"/>
     
 
 
@@ -420,277 +342,14 @@
      -->
 
     
-
-
-    <!-- http://dbpedia.org/resource/#Alanine -->
-
-    <owl:Class rdf:about="&dbpedia;Alanine">
-        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Alanine"/>
-        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
-    </owl:Class>
-    
-
-
-    <!-- http://dbpedia.org/resource/#Amino_acid -->
-
-    <owl:Class rdf:about="&dbpedia;Amino_acid">
-        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcid"/>
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Monomer"/>
-    </owl:Class>
-    
-
-
-    <!-- http://dbpedia.org/resource/#Asparagine -->
-
-    <owl:Class rdf:about="&dbpedia;Asparagine">
-        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Asparagine"/>
-        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
-    </owl:Class>
-    
-
-
-    <!-- http://dbpedia.org/resource/#Aspartic_acid -->
-
-    <owl:Class rdf:about="&dbpedia;Aspartic_acid">
-        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Aspartate"/>
-        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
-    </owl:Class>
-    
-
-
-    <!-- http://dbpedia.org/resource/#Chromosome -->
-
-    <owl:Class rdf:about="&dbpedia;Chromosome">
-        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Chromosome"/>
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#DNAMolecule"/>
-    </owl:Class>
-    
-
-
-    <!-- http://dbpedia.org/resource/#Cysteine -->
-
-    <owl:Class rdf:about="&dbpedia;Cysteine">
-        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Cysteine"/>
-        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
-    </owl:Class>
-    
-
-
-    <!-- http://dbpedia.org/resource/#Cystine -->
-
-    <owl:Class rdf:about="&dbpedia;Cystine">
-        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Cystine"/>
-        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
-    </owl:Class>
-    
-
-
-    <!-- http://dbpedia.org/resource/#Glutamic_acid -->
-
-    <owl:Class rdf:about="&dbpedia;Glutamic_acid">
-        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Glutamate"/>
-        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
-    </owl:Class>
-    
-
-
-    <!-- http://dbpedia.org/resource/#Glutamine -->
-
-    <owl:Class rdf:about="&dbpedia;Glutamine">
-        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Glutamine"/>
-        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
-    </owl:Class>
-    
-
-
-    <!-- http://dbpedia.org/resource/#Glycine -->
-
-    <owl:Class rdf:about="&dbpedia;Glycine">
-        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Glycine"/>
-        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
-    </owl:Class>
-    
-
-
-    <!-- http://dbpedia.org/resource/#Histidine -->
-
-    <owl:Class rdf:about="&dbpedia;Histidine">
-        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Histidine"/>
-        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
-    </owl:Class>
-    
-
-
-    <!-- http://dbpedia.org/resource/#Isoleucine -->
-
-    <owl:Class rdf:about="&dbpedia;Isoleucine">
-        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Isoleucine"/>
-        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
-    </owl:Class>
-    
-
-
-    <!-- http://dbpedia.org/resource/#Leucine -->
-
-    <owl:Class rdf:about="&dbpedia;Leucine">
-        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Leucine"/>
-        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
-    </owl:Class>
-    
-
-
-    <!-- http://dbpedia.org/resource/#Lysine -->
-
-    <owl:Class rdf:about="&dbpedia;Lysine">
-        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Lysine"/>
-        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
-    </owl:Class>
-    
-
-
-    <!-- http://dbpedia.org/resource/#Methionine -->
-
-    <owl:Class rdf:about="&dbpedia;Methionine">
-        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Methionine"/>
-        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
-    </owl:Class>
-    
-
-
-    <!-- http://dbpedia.org/resource/#Phenylalanine -->
-
-    <owl:Class rdf:about="&dbpedia;Phenylalanine">
-        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Phenylalanine"/>
-        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
-    </owl:Class>
-    
-
-
-    <!-- http://dbpedia.org/resource/#Proline -->
-
-    <owl:Class rdf:about="&dbpedia;Proline">
-        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Proline"/>
-        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
-    </owl:Class>
-    
-
-
     <!-- http://dbpedia.org/resource/#Protein -->
 
-    <owl:Class rdf:about="&dbpedia;Protein">
+    <owl:Class rdf:about="&resource;Protein">
         <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Protein"/>
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Polymer"/>
     </owl:Class>
     
 
-
-    <!-- http://dbpedia.org/resource/#Selenocysteine -->
-
-    <owl:Class rdf:about="&dbpedia;Selenocysteine">
-        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Selenocysteine"/>
-        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
-    </owl:Class>
-    
-
-
-    <!-- http://dbpedia.org/resource/#Serine -->
-
-    <owl:Class rdf:about="&dbpedia;Serine">
-        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Serine"/>
-        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
-    </owl:Class>
-    
-
-
-    <!-- http://dbpedia.org/resource/#Threonine -->
-
-    <owl:Class rdf:about="&dbpedia;Threonine">
-        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Threonine"/>
-        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
-    </owl:Class>
-    
-
-
-    <!-- http://dbpedia.org/resource/#Tryptophan -->
-
-    <owl:Class rdf:about="&dbpedia;Tryptophan">
-        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Tryptophan"/>
-        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
-    </owl:Class>
-    
-
-
-    <!-- http://dbpedia.org/resource/#Tyrosine -->
-
-    <owl:Class rdf:about="&dbpedia;Tyrosine">
-        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Tyrosine"/>
-        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
-    </owl:Class>
-    
-
-
-    <!-- http://dbpedia.org/resource/#Valine -->
-
-    <owl:Class rdf:about="&dbpedia;Valine">
-        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Valine"/>
-        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
-    </owl:Class>
-    
-
-
-    <!-- http://purl.obolibrary.org/obo/so.owl#SO_0000340 -->
-
-    <owl:Class rdf:about="&SO;SO_0000340">
-        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Chromosome"/>
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#DNAMolecule"/>
-    </owl:Class>
-    
-
-
-    <!-- http://sw.opencyc.org/concept/en/#Alanine -->
-
-    <owl:Class rdf:about="&cyc;Alanine">
-        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Alanine"/>
-        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
-    </owl:Class>
-    
-
-
-    <!-- http://sw.opencyc.org/concept/en/#AminoAcid -->
-
-    <owl:Class rdf:about="&cyc;AminoAcid">
-        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcid"/>
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Monomer"/>
-    </owl:Class>
-    
-
-
-    <!-- http://sw.opencyc.org/concept/en/#AminoAcidTypeByChemicalSpecies -->
-
-    <owl:Class rdf:about="&cyc;AminoAcidTypeByChemicalSpecies">
-        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcidType"/>
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcidType_Generic"/>
-    </owl:Class>
-    
-
-
-    <!-- http://sw.opencyc.org/concept/en/#Asparagine -->
-
-    <owl:Class rdf:about="&cyc;Asparagine">
-        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Asparagine"/>
-        <rdfs:subClassOf rdf:resource="&dbpedia;Asparagine"/>
-        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
-    </owl:Class>
-    
-
-
-    <!-- http://sw.opencyc.org/concept/en/#AsparticAcid -->
-
-    <owl:Class rdf:about="&cyc;AsparticAcid">
-        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Aspartate"/>
-        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
-    </owl:Class>
-    
 
 
     <!-- http://sw.opencyc.org/concept/en/#ChemicalObjectTypeByChemicalSpecies -->
@@ -698,96 +357,6 @@
     <owl:Class rdf:about="&cyc;ChemicalObjectTypeByChemicalSpecies">
         <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#ChemicalObjectTypeByChemicalSpecies"/>
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#ChemicalObjectType"/>
-    </owl:Class>
-    
-
-
-    <!-- http://sw.opencyc.org/concept/en/#Cysetine -->
-
-    <owl:Class rdf:about="&cyc;Cysetine">
-        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Cysteine"/>
-        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
-    </owl:Class>
-    
-
-
-    <!-- http://sw.opencyc.org/concept/en/#Deoxyribonucleotide_GIS -->
-
-    <owl:Class rdf:about="&cyc;Deoxyribonucleotide_GIS">
-        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Deoxyribonucleotide"/>
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Nucleotide"/>
-    </owl:Class>
-    
-
-
-    <!-- http://sw.opencyc.org/concept/en/#GlutamicAcid -->
-
-    <owl:Class rdf:about="&cyc;GlutamicAcid">
-        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Glutamate"/>
-        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
-    </owl:Class>
-    
-
-
-    <!-- http://sw.opencyc.org/concept/en/#Glutamine -->
-
-    <owl:Class rdf:about="&cyc;Glutamine">
-        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Glutamine"/>
-        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
-    </owl:Class>
-    
-
-
-    <!-- http://sw.opencyc.org/concept/en/#Glycine -->
-
-    <owl:Class rdf:about="&cyc;Glycine">
-        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Glycine"/>
-        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
-    </owl:Class>
-    
-
-
-    <!-- http://sw.opencyc.org/concept/en/#Histidine -->
-
-    <owl:Class rdf:about="&cyc;Histidine">
-        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Histidine"/>
-        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
-    </owl:Class>
-    
-
-
-    <!-- http://sw.opencyc.org/concept/en/#Isoleucine -->
-
-    <owl:Class rdf:about="&cyc;Isoleucine">
-        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Isoleucine"/>
-        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
-    </owl:Class>
-    
-
-
-    <!-- http://sw.opencyc.org/concept/en/#Leucine -->
-
-    <owl:Class rdf:about="&cyc;Leucine">
-        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Leucine"/>
-        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
-    </owl:Class>
-    
-
-
-    <!-- http://sw.opencyc.org/concept/en/#Lysine -->
-
-    <owl:Class rdf:about="&cyc;Lysine">
-        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Lysine"/>
-        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
-    </owl:Class>
-    
-
-
-    <!-- http://sw.opencyc.org/concept/en/#Methionine -->
-
-    <owl:Class rdf:about="&cyc;Methionine">
-        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Methionine"/>
-        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
     </owl:Class>
     
 
@@ -802,16 +371,6 @@
     
 
 
-    <!-- http://sw.opencyc.org/concept/en/#NucleotideTypeByBase -->
-
-    <owl:Class rdf:about="&cyc;NucleotideTypeByBase">
-        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#NucleotideType"/>
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#MonomerType"/>
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#NucleotideType"/>
-        <rdfs:comment xml:lang="en">Each instance of NucleotideTypeByBase is a collection of instances of Nucleotide that have an instance of NitrogenBaseType in common.</rdfs:comment>
-    </owl:Class>
-    
-
 
     <!-- http://sw.opencyc.org/concept/en/#OrganismClassificationType -->
 
@@ -821,346 +380,18 @@
         <rdfs:subClassOf rdf:resource="&or;ObjectType"/>
     </owl:Class>
     
-
-
-    <!-- http://sw.opencyc.org/concept/en/#PhenotypeFeatureType -->
-
-    <owl:Class rdf:about="&cyc;PhenotypeFeatureType">
-        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Phenotype"/>
-        <rdfs:subClassOf rdf:resource="&or;FirstOrderClass"/>
-    </owl:Class>
-    
-
-
-    <!-- http://sw.opencyc.org/concept/en/#Phenylalanine -->
-
-    <owl:Class rdf:about="&cyc;Phenylalanine">
-        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Phenylalanine"/>
-        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
-    </owl:Class>
-    
-
-
-    <!-- http://sw.opencyc.org/concept/en/#Proline -->
-
-    <owl:Class rdf:about="&cyc;Proline">
-        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Proline"/>
-        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
-    </owl:Class>
-    
-
-
-    <!-- http://sw.opencyc.org/concept/en/#ProteinMolecule -->
-
-    <owl:Class rdf:about="&cyc;ProteinMolecule">
-        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Protein"/>
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Polymer"/>
-    </owl:Class>
-    
-
-
-    <!-- http://sw.opencyc.org/concept/en/#Ribonucleotide_GIS -->
-
-    <owl:Class rdf:about="&cyc;Ribonucleotide_GIS">
-        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Ribonucleotide"/>
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Nucleotide"/>
-    </owl:Class>
-    
-
-
-    <!-- http://sw.opencyc.org/concept/en/#Series -->
-
-    <owl:Class rdf:about="&cyc;Series"/>
-    
-
-
-    <!-- http://sw.opencyc.org/concept/en/#Serine -->
-
-    <owl:Class rdf:about="&cyc;Serine">
-        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Serine"/>
-        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
-    </owl:Class>
-    
-
-
-    <!-- http://sw.opencyc.org/concept/en/#Threonine -->
-
-    <owl:Class rdf:about="&cyc;Threonine">
-        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Threonine"/>
-        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
-    </owl:Class>
-    
-
-
-    <!-- http://sw.opencyc.org/concept/en/#Tryptophan -->
-
-    <owl:Class rdf:about="&cyc;Tryptophan">
-        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Tryptophan"/>
-        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
-    </owl:Class>
-    
-
-
-    <!-- http://sw.opencyc.org/concept/en/#Tyrosine -->
-
-    <owl:Class rdf:about="&cyc;Tyrosine">
-        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Tyrosine"/>
-        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
-    </owl:Class>
-    
-
-
-    <!-- http://sw.opencyc.org/concept/en/#Valine -->
-
-    <owl:Class rdf:about="&cyc;Valine">
-        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Valine"/>
-        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
-    </owl:Class>
-    
-
-
-    <!-- http://umbel.org/umbel/sc/#Alanine -->
-
-    <owl:Class rdf:about="&umbel;Alanine">
-        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Alanine"/>
-        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
-    </owl:Class>
-    
-
-
-    <!-- http://umbel.org/umbel/sc/#AminoAcid -->
-
-    <owl:Class rdf:about="&umbel;AminoAcid">
-        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcid"/>
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Monomer"/>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Nucleotide"/>
-    </owl:Class>
-    
-
-
-    <!-- http://umbel.org/umbel/sc/#Asparagine -->
-
-    <owl:Class rdf:about="&umbel;Asparagine">
-        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Asparagine"/>
-        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
-    </owl:Class>
-    
-
-
-    <!-- http://umbel.org/umbel/sc/#AsparticAcid -->
-
-    <owl:Class rdf:about="&umbel;AsparticAcid">
-        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Aspartate"/>
-        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
-    </owl:Class>
     
 
 
     <!-- http://umbel.org/umbel/sc/#Color -->
 
-    <owl:Class rdf:about="&umbel;Color">
+    <owl:Class rdf:about="&sc;Color">
         <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Color"/>
         <rdfs:subClassOf rdf:resource="&or;NonTangibleThing"/>
     </owl:Class>
     
 
 
-    <!-- http://umbel.org/umbel/sc/#Cysetine -->
-
-    <owl:Class rdf:about="&umbel;Cysetine">
-        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Cysteine"/>
-        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
-    </owl:Class>
-    
-
-
-    <!-- http://umbel.org/umbel/sc/#Deoxyribonucleotide_GIS -->
-
-    <owl:Class rdf:about="&umbel;Deoxyribonucleotide_GIS">
-        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Deoxyribonucleotide"/>
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Nucleotide"/>
-    </owl:Class>
-    
-
-
-    <!-- http://umbel.org/umbel/sc/#GlutamicAcid -->
-
-    <owl:Class rdf:about="&umbel;GlutamicAcid">
-        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Glutamate"/>
-        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
-    </owl:Class>
-    
-
-
-    <!-- http://umbel.org/umbel/sc/#Glutamine -->
-
-    <owl:Class rdf:about="&umbel;Glutamine">
-        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Glutamine"/>
-        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
-    </owl:Class>
-    
-
-
-    <!-- http://umbel.org/umbel/sc/#Glycine -->
-
-    <owl:Class rdf:about="&umbel;Glycine">
-        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Glycine"/>
-        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
-    </owl:Class>
-    
-
-
-    <!-- http://umbel.org/umbel/sc/#Histidine -->
-
-    <owl:Class rdf:about="&umbel;Histidine">
-        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Histidine"/>
-        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
-    </owl:Class>
-    
-
-
-    <!-- http://umbel.org/umbel/sc/#Isoleucine -->
-
-    <owl:Class rdf:about="&umbel;Isoleucine">
-        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Isoleucine"/>
-        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
-    </owl:Class>
-    
-
-
-    <!-- http://umbel.org/umbel/sc/#Leucine -->
-
-    <owl:Class rdf:about="&umbel;Leucine">
-        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Leucine"/>
-        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
-    </owl:Class>
-    
-
-
-    <!-- http://umbel.org/umbel/sc/#Lysine -->
-
-    <owl:Class rdf:about="&umbel;Lysine">
-        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Lysine"/>
-        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
-    </owl:Class>
-    
-
-
-    <!-- http://umbel.org/umbel/sc/#Methionine -->
-
-    <owl:Class rdf:about="&umbel;Methionine">
-        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Methionine"/>
-        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
-    </owl:Class>
-    
-
-
-    <!-- http://umbel.org/umbel/sc/#Nucleotide_GIS -->
-
-    <owl:Class rdf:about="&umbel;Nucleotide_GIS">
-        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Nucleotide"/>
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Monomer"/>
-    </owl:Class>
-    
-
-
-    <!-- http://umbel.org/umbel/sc/#Phenylalanine -->
-
-    <owl:Class rdf:about="&umbel;Phenylalanine">
-        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Phenylalanine"/>
-        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
-    </owl:Class>
-    
-
-
-    <!-- http://umbel.org/umbel/sc/#Proline -->
-
-    <owl:Class rdf:about="&umbel;Proline">
-        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Proline"/>
-        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
-    </owl:Class>
-    
-
-
-    <!-- http://umbel.org/umbel/sc/#ProteinMolecule -->
-
-    <owl:Class rdf:about="&umbel;ProteinMolecule">
-        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Protein"/>
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Polymer"/>
-    </owl:Class>
-    
-
-
-    <!-- http://umbel.org/umbel/sc/#Ribonucleotide_GIS -->
-
-    <owl:Class rdf:about="&umbel;Ribonucleotide_GIS">
-        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Ribonucleotide"/>
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Nucleotide"/>
-    </owl:Class>
-    
-
-
-    <!-- http://umbel.org/umbel/sc/#Serine -->
-
-    <owl:Class rdf:about="&umbel;Serine">
-        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Serine"/>
-        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
-    </owl:Class>
-    
-
-
-    <!-- http://umbel.org/umbel/sc/#Threonine -->
-
-    <owl:Class rdf:about="&umbel;Threonine">
-        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Threonine"/>
-        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
-    </owl:Class>
-    
-
-
-    <!-- http://umbel.org/umbel/sc/#Tryptophan -->
-
-    <owl:Class rdf:about="&umbel;Tryptophan">
-        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Tryptophan"/>
-        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
-    </owl:Class>
-    
-
-
-    <!-- http://umbel.org/umbel/sc/#Tyrosine -->
-
-    <owl:Class rdf:about="&umbel;Tyrosine">
-        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Tyrosine"/>
-        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
-    </owl:Class>
-    
-
-
-    <!-- http://umbel.org/umbel/sc/#Valine -->
-
-    <owl:Class rdf:about="&umbel;Valine">
-        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Valine"/>
-        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.freebase.com/view/en/#Cystine -->
-
-    <owl:Class rdf:about="&fbase;Cystine">
-        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Cystine"/>
-        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.geneontology.org/dtd/go.dtd#0005694 -->
-
-    <owl:Class rdf:about="&GO;0005694">
-        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Chromosome"/>
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#DNAMolecule"/>
-    </owl:Class>
-    
 
 
     <!-- http://www.nist.gov/itl/ssd/Biochem#Actinide -->
@@ -1184,31 +415,10 @@
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Actinium">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Metal"/>
+        <rdfs:comment xml:lang="en-us">The element actinium</rdfs:comment>
     </owl:Class>
     
 
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem#AdenineNucleotide -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#AdenineNucleotide">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Nucleotide"/>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Biochem#CytosineNucleotide"/>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Biochem#GuanineNucleotide"/>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Biochem#ThymineDeoxyribonucleotide"/>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Biochem#UracilRibonucleotide"/>
-        <rdfs:comment xml:lang="en">Adenine nucleotide, whether a ribonucleotide or a deoxyribonucleotide.</rdfs:comment>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem#Alanine -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Alanine">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcid"/>
-        <iUPACAminoAcidCode>A</iUPACAminoAcidCode>
-        <rdfs:comment xml:lang="en">The amino acid, alanine.</rdfs:comment>
-    </owl:Class>
-    
 
 
     <!-- http://www.nist.gov/itl/ssd/Biochem#AlkaliMetal -->
@@ -1246,6 +456,7 @@
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Aluminum">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Metal"/>
+        <rdfs:comment xml:lang="en-us">The element aluminum</rdfs:comment>
     </owl:Class>
     
 
@@ -1254,52 +465,17 @@
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Americium">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Metal"/>
+        <rdfs:comment xml:lang="en-us">The element americium</rdfs:comment>
     </owl:Class>
     
 
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem#AminoAcid -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#AminoAcid">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Monomer"/>
-        <iUPACAminoAcidCode>X</iUPACAminoAcidCode>
-        <rdfs:comment xml:lang="en">A collection of organic compounds that are the building blocks for ProteinMolecules.</rdfs:comment>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem#AminoAcidSequence -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#AminoAcidSequence">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#PolymerSequence"/>
-        <rdfs:comment xml:lang="en">A chemical sequence of amino acids.</rdfs:comment>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem#AminoAcidType -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#AminoAcidType">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcidType_Generic"/>
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#ChemicalObjectTypeByChemicalSpecies"/>
-        <rdfs:comment xml:lang="en">A specific type of amino acid (alanine, cysteine, ...).</rdfs:comment>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem#AminoAcidType_Generic -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#AminoAcidType_Generic">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#MonomerType"/>
-        <rdfs:comment xml:lang="en">A type of amino acid -- either a specific type (alanine, cysteine, ...) or the union of several specific types.</rdfs:comment>
-    </owl:Class>
-    
 
 
     <!-- http://www.nist.gov/itl/ssd/Biochem#Antimony -->
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Antimony">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#ElementalSubstance"/>
+        <rdfs:comment xml:lang="en-us">The element antimony</rdfs:comment>
     </owl:Class>
     
 
@@ -1308,6 +484,7 @@
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Argon">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#ElementalSubstance"/>
+        <rdfs:comment xml:lang="en-us">The element argon</rdfs:comment>
     </owl:Class>
     
 
@@ -1325,44 +502,18 @@
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Arsenic">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#ElementalSubstance"/>
+        <rdfs:comment xml:lang="en-us">The element arsenic</rdfs:comment>
     </owl:Class>
     
 
 
-    <!-- http://www.nist.gov/itl/ssd/Biochem#Asparagine -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Asparagine">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AspartateOrAsparagine"/>
-        <iUPACAminoAcidCode>N</iUPACAminoAcidCode>
-        <rdfs:comment xml:lang="en">The amino acid, asparagine.</rdfs:comment>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem#Aspartate -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Aspartate">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AspartateOrAsparagine"/>
-        <iUPACAminoAcidCode>D</iUPACAminoAcidCode>
-        <rdfs:comment xml:lang="en">The amino acid, aspartate.</rdfs:comment>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem#AspartateOrAsparagine -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#AspartateOrAsparagine">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcid"/>
-        <iUPACAminoAcidCode>B</iUPACAminoAcidCode>
-        <rdfs:comment xml:lang="en">either aspartate or asparagine</rdfs:comment>
-    </owl:Class>
-    
 
 
     <!-- http://www.nist.gov/itl/ssd/Biochem#Astatine -->
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Astatine">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#ElementalSubstance"/>
+        <rdfs:comment xml:lang="en-us">The element astatine</rdfs:comment>
     </owl:Class>
     
 
@@ -1380,6 +531,7 @@
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Barium">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#ElementalSubstance"/>
+        <rdfs:comment xml:lang="en-us">The element barium</rdfs:comment>
     </owl:Class>
     
 
@@ -1388,6 +540,7 @@
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Berkelium">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Metal"/>
+        <rdfs:comment xml:lang="en-us">The element berkelium</rdfs:comment>
     </owl:Class>
     
 
@@ -1396,43 +549,10 @@
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Beryllium">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Metal"/>
+        <rdfs:comment xml:lang="en-us">The element beryllium</rdfs:comment>
     </owl:Class>
     
 
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem#BiologicalCell -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#BiologicalCell">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#BiologicalObject"/>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Biochem#BiologicalCellSubunit"/>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Biochem#BiologicalTissue"/>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Biochem#ChemicalObject"/>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Biochem#ChemicalSubstance"/>
-        <owl:disjointWith rdf:resource="&or;Human"/>
-        <owl:disjointWith rdf:resource="&or;IntelligentAgent"/>
-        <owl:disjointWith rdf:resource="&or;PhysicalDevice"/>
-        <owl:disjointWith rdf:resource="&or;StructuredInformationStore"/>
-        <rdfs:comment xml:lang="en">Biological cells whether living or not.  See LivingBiologicalCell.</rdfs:comment>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem#BiologicalCellSubunit -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#BiologicalCellSubunit">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#OrganismPart"/>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Biochem#BiologicalTissue"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem#BiologicalGenus -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#BiologicalGenus">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#BiologicalTaxon"/>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Biochem#BiologicalSpecies"/>
-    </owl:Class>
-    
 
 
     <!-- http://www.nist.gov/itl/ssd/Biochem#BiologicalLivingObject -->
@@ -1454,6 +574,7 @@
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#OrganicMaterial"/>
         <rdfs:subClassOf rdf:resource="&or;PhysicalObject"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Oxide"/>
+        <rdfs:comment xml:lang="en">A Biological Object is an object composed of Organic Material.</rdfs:comment>
     </owl:Class>
     
 
@@ -1461,7 +582,7 @@
     <!-- http://www.nist.gov/itl/ssd/Biochem#BiologicalProcess -->
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#BiologicalProcess">
-        <rdfs:subClassOf rdf:resource="&OntologyRequirements;PhysicalEvent"/>
+        <rdfs:subClassOf rdf:resource="&or;PhysicalEvent"/>
         <owl:disjointWith rdf:resource="&or;ComputerProcessExecution"/>
         <rdfs:comment xml:lang="en">Each instance of BiologicalProcess is an event done by some Biological Living Object(s).  An instance may be a process within a single cell, an involuntary action by one or more organs of the organism (e.g., a reflex), or an intended bodily action taken by an animal (e.g., biting or vocalizing).  Complex actions performed by people, (talking, playing tag) may have Biological Processes as subEvents, but are not themselves Biological Processes.</rdfs:comment>
     </owl:Class>
@@ -1472,26 +593,6 @@
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#BiologicalProperty">
         <rdfs:subClassOf rdf:resource="&or;GenericProperty"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem#BiologicalSpecies -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#BiologicalSpecies">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#BiologicalTaxon"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem#BiologicalTaxon -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#BiologicalTaxon">
-        <rdfs:subClassOf rdf:resource="&or;ObjectType"/>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Biochem#OrganismPartType"/>
-        <owl:disjointWith rdf:resource="&or;MaterialType"/>
-        <owl:disjointWith rdf:resource="&or;MeasurementRole"/>
-        <rdfs:comment>same as biotaxonomy#Taxon</rdfs:comment>
     </owl:Class>
     
 
@@ -1513,6 +614,7 @@ Equivalent to cyc:BiologicalTissue </rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Bismuth">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Metal"/>
+        <rdfs:comment xml:lang="en-us">The element bismuth</rdfs:comment>
     </owl:Class>
     
 
@@ -1521,6 +623,7 @@ Equivalent to cyc:BiologicalTissue </rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Bohrium">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Metal"/>
+        <rdfs:comment xml:lang="en-us">The element bohrium</rdfs:comment>
     </owl:Class>
     
 
@@ -1529,6 +632,7 @@ Equivalent to cyc:BiologicalTissue </rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Boron">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#ElementalSubstance"/>
+        <rdfs:comment xml:lang="en-us">The element boron</rdfs:comment>
     </owl:Class>
     
 
@@ -1537,6 +641,7 @@ Equivalent to cyc:BiologicalTissue </rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Bromine">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#ElementalSubstance"/>
+        <rdfs:comment xml:lang="en-us">The element bromine</rdfs:comment>
     </owl:Class>
     
 
@@ -1545,6 +650,7 @@ Equivalent to cyc:BiologicalTissue </rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Cadmium">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Metal"/>
+        <rdfs:comment xml:lang="en-us">The element cadmium</rdfs:comment>
     </owl:Class>
     
 
@@ -1553,6 +659,7 @@ Equivalent to cyc:BiologicalTissue </rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Calcium">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Metal"/>
+        <rdfs:comment xml:lang="en-us">The element calcium</rdfs:comment>
     </owl:Class>
     
 
@@ -1561,6 +668,7 @@ Equivalent to cyc:BiologicalTissue </rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Californium">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Metal"/>
+        <rdfs:comment xml:lang="en-us">The element californium</rdfs:comment>
     </owl:Class>
     
 
@@ -1579,31 +687,7 @@ Equivalent to cyc:BiologicalTissue </rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Carbon">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#ElementalSubstance"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem#CellNucleus -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#CellNucleus">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Organelle"/>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Chloroplast"/>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Biochem#EndoplasmicReticulum"/>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Biochem#GolgiApparatus"/>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Mitochondrion"/>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Vacuole"/>
-        <rdfs:comment xml:lang="en">The nucleus of a eukaryotic cell contains the chromosomes and is the site of transcription.</rdfs:comment>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem#CellType -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#CellType">
-        <rdfs:subClassOf rdf:resource="&or;ObjectType"/>
-        <owl:disjointWith rdf:resource="&or;MaterialType"/>
-        <owl:disjointWith rdf:resource="&or;MeasurementRole"/>
-        <rdfs:comment xml:lang="en">The type of chamber format that is being used for cell assay.</rdfs:comment>
+        <rdfs:comment xml:lang="en-us">The element carbon</rdfs:comment>
     </owl:Class>
     
 
@@ -1612,6 +696,7 @@ Equivalent to cyc:BiologicalTissue </rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Cerium">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Metal"/>
+        <rdfs:comment xml:lang="en-us">The element cerium</rdfs:comment>
     </owl:Class>
     
 
@@ -1620,6 +705,7 @@ Equivalent to cyc:BiologicalTissue </rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Cesium">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Metal"/>
+        <rdfs:comment xml:lang="en-us">The element cesium</rdfs:comment>
     </owl:Class>
     
 
@@ -1636,10 +722,7 @@ Equivalent to cyc:BiologicalTissue </rdfs:comment>
     <!-- http://www.nist.gov/itl/ssd/Biochem#ChemicalElement -->
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#ChemicalElement">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#ChemicalSubstanceType"/>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Biochem#ProteinTypeBySpecies"/>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Biochem#ProteinTypeByStructure"/>
-        <rdfs:comment xml:lang="en">A Chemical Element is defined only by the atomic composition of its instances.  The isotopic composition, combination in a chemical compound, physical state of the substances, and any other feature are irrelevent to membership in this class.</rdfs:comment>
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#ChemicalSubstanceType"/>        <rdfs:comment xml:lang="en">A Chemical Element is defined only by the atomic composition of its instances.  The isotopic composition, combination in a chemical compound, physical state of the substances, and any other feature are irrelevent to membership in this class.</rdfs:comment>
     </owl:Class>
     
 
@@ -1672,11 +755,31 @@ Equivalent to cyc:BiologicalTissue </rdfs:comment>
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/Biochem#ChemicalProcess -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#ChemicalProcess">
+        <rdfs:subClassOf rdf:resource="&or;PhysicalEvent"/>
+        <owl:disjointWith rdf:resource="&or;MechanicalProcess"/>
+        <owl:disjointWith rdf:resource="&or;PurposefulAction"/>
+        <rdfs:comment xml:lang="en">A Chemical Process is a process composed of one or more inter-related chemical reactions.</rdfs:comment>
+    </owl:Class>
+    
+
+
     <!-- http://www.nist.gov/itl/ssd/Biochem#ChemicalProperty -->
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#ChemicalProperty">
         <rdfs:subClassOf rdf:resource="&or;GenericProperty"/>
         <rdfs:comment xml:lang="en">A Chemical Property is a property of some physical material or object, related to its chemical composition or reactivity.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#ChemicalReaction -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#ChemicalReaction">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#ChemicalProcess"/>
+        <rdfs:comment xml:lang="en">A Chemical Reaction is an event in which one or more substances undergo a chemical change, i.e., some portions of the substances involved are transformed into different Chemical Substance Types. The transformations are brought about by purely chemical (including biochemical) means which affect chemical bonds between atoms, whether in molecules or crystals.</rdfs:comment>
     </owl:Class>
     
 
@@ -1709,7 +812,6 @@ Equivalent to cyc:BiologicalTissue </rdfs:comment>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Lanthanide"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Metalloid"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Post_TransitionMetal"/>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Biochem#ProteinTypeByStructure"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Biochem#TransitionMetal"/>
         <rdfs:comment xml:lang="en">A Chemical Substance Type by Chemical Species is a type of chemical, completely uniform with each other in terms of chemical structure, such as Dimethyl Ether.  Instnaces of Chemical Substance Type by Chemical Species are types of Chemical Substance; they are not restricted to being types of atom, molecule, or chemical radical.</rdfs:comment>
     </owl:Class>
@@ -1720,35 +822,17 @@ Equivalent to cyc:BiologicalTissue </rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Chlorine">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#ElementalSubstance"/>
+        <rdfs:comment xml:lang="en-us">The element chlorine</rdfs:comment>
     </owl:Class>
     
 
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem#Chloroplast -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Chloroplast">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Organelle"/>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Biochem#EndoplasmicReticulum"/>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Biochem#GolgiApparatus"/>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Mitochondrion"/>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Vacuole"/>
-    </owl:Class>
-    
 
 
     <!-- http://www.nist.gov/itl/ssd/Biochem#Chromium -->
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Chromium">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Metal"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem#Chromosome -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Chromosome">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#DNAMolecule"/>
-        <rdfs:comment xml:lang="en">A chromosome as an information structure, not as a physical object.</rdfs:comment>
+        <rdfs:comment xml:lang="en-us">The element chromium</rdfs:comment>
     </owl:Class>
     
 
@@ -1757,6 +841,7 @@ Equivalent to cyc:BiologicalTissue </rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Cobalt">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Metal"/>
+        <rdfs:comment xml:lang="en-us">The element cobalt</rdfs:comment>
     </owl:Class>
     
 
@@ -1773,8 +858,29 @@ Equivalent to cyc:BiologicalTissue </rdfs:comment>
     <!-- http://www.nist.gov/itl/ssd/Biochem#Concentration -->
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Concentration">
+        <rdfs:subClassOf rdf:resource="&or;PropertyWithValue"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&or;propertyIs"/>
+                <owl:allValuesFrom rdf:resource="http://www.nist.gov/itl/ssd/Biochem#ConcentrationProperty"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&or;propertyIs"/>
+                <owl:someValuesFrom rdf:resource="http://www.nist.gov/itl/ssd/Biochem#ConcentrationProperty"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:comment xml:lang="en">A substance Concentration is a concentration of one type of material.  Any mixture has a Chemical Composition which is comprised a group of Substance Concentrations with the total concentration adding up to 100%.  For example, Admiralty brass contains 69% copper by mass, 30% zinc, and 1% tin.  69% copper by mass would be one Substance Concentration; 30% zinc would be a second, and 1% tin would be a third.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#ConcentrationProperty -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#ConcentrationProperty">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#MeasurableChemicalProperty"/>
-        <rdfs:comment xml:lang="en">A substance Concentration is a concentration of one type of material.  Any mixture has a Chemical Composition which is comprised a group of Substance Concentrations with the total concentration adding up to 100%.  For example, Admiralty brass contains 69% copper, 30% zinc, and 1% tin.  69% copper would be one Substance Concentration; 30% zinc would be a second, and 1% tin would be a third.</rdfs:comment>
+        <rdfs:comment xml:lang="en">A Concentration Property is a property of some physical material or object, related to the relative concentration of one or more constituents to the whole.</rdfs:comment>
     </owl:Class>
     
 
@@ -1792,6 +898,7 @@ Equivalent to cyc:BiologicalTissue </rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Copper">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Metal"/>
+        <rdfs:comment xml:lang="en-us">The element copper</rdfs:comment>
     </owl:Class>
     
 
@@ -1800,76 +907,18 @@ Equivalent to cyc:BiologicalTissue </rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Curium">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Metal"/>
+        <rdfs:comment xml:lang="en-us">The element curium</rdfs:comment>
     </owl:Class>
     
 
 
-    <!-- http://www.nist.gov/itl/ssd/Biochem#Cysteine -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Cysteine">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcid"/>
-        <iUPACAminoAcidCode>C</iUPACAminoAcidCode>
-        <rdfs:comment xml:lang="en">The amino acid, cysteine.  Not to be confused with cystine.</rdfs:comment>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem#Cystine -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Cystine">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcid"/>
-        <rdfs:comment xml:lang="en">The amino acid, cystine.  Not to be confused with cysteine.</rdfs:comment>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem#CytosineNucleotide -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#CytosineNucleotide">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Nucleotide"/>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Biochem#GuanineNucleotide"/>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Biochem#ThymineDeoxyribonucleotide"/>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Biochem#UracilRibonucleotide"/>
-        <rdfs:comment xml:lang="en">Cytosine nucleotide, whether a ribonucleotide or a deoxyribonucleotide.</rdfs:comment>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem#DNAMolecule -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#DNAMolecule">
-        <rdfs:subClassOf rdf:resource="&Biochem;NucleicAcidMolecule"/>
-        <owl:disjointWith rdf:resource="&Biochem;RNAMolecule"/>
-        <rdfs:comment xml:lang="en">Complete double-stranded DNA molecules.</rdfs:comment>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem#Death -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Death">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#InvolutaryBiologicalProcess"/>
-        <rdfs:comment xml:lang="en">``Death&#39; &#39; is the class of the dying of any Biological Living Object, be it a cell, tumor, organ, or organism.  Death is considered to be an involuntary process: although some organisms might take actions (or cells engage in processes) that will result in their deaths, the dying event, even though it might be the ``intended&#39; &#39; result of the action taken, is not itself voluntary.
-
-Same as cyc:DyingOfBLO</rdfs:comment>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem#Deoxyribonucleotide -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Deoxyribonucleotide">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Nucleotide"/>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Ribonucleotide"/>
-        <rdfs:comment xml:lang="en">The class of deoxyribonucleotides viewed as information structures, not physical monomers.</rdfs:comment>
-    </owl:Class>
-    
 
 
     <!-- http://www.nist.gov/itl/ssd/Biochem#Dubnium -->
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Dubnium">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Metal"/>
+        <rdfs:comment xml:lang="en-us">The element dubnium</rdfs:comment>
     </owl:Class>
     
 
@@ -1878,6 +927,7 @@ Same as cyc:DyingOfBLO</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Dysprosium">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Metal"/>
+        <rdfs:comment xml:lang="en-us">The element dysprosium</rdfs:comment>
     </owl:Class>
     
 
@@ -1886,6 +936,7 @@ Same as cyc:DyingOfBLO</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Einsteinium">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Metal"/>
+        <rdfs:comment xml:lang="en-us">The element einsteinium</rdfs:comment>
     </owl:Class>
     
 
@@ -1895,17 +946,7 @@ Same as cyc:DyingOfBLO</rdfs:comment>
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#ElementalSubstance">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#MaterialSubstance"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Oxide"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem#EndoplasmicReticulum -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#EndoplasmicReticulum">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Organelle"/>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Biochem#GolgiApparatus"/>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Mitochondrion"/>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Vacuole"/>
+        <rdfs:comment xml:lang="en">An Elemental Substance is a substance composed of a single element.</rdfs:comment>
     </owl:Class>
     
 
@@ -1914,6 +955,7 @@ Same as cyc:DyingOfBLO</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Erbium">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Metal"/>
+        <rdfs:comment xml:lang="en-us">The element erbium</rdfs:comment>
     </owl:Class>
     
 
@@ -1922,6 +964,7 @@ Same as cyc:DyingOfBLO</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Europium">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Metal"/>
+        <rdfs:comment xml:lang="en-us">The element europium</rdfs:comment>
     </owl:Class>
     
 
@@ -1930,6 +973,7 @@ Same as cyc:DyingOfBLO</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Fermium">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Metal"/>
+        <rdfs:comment xml:lang="en-us">The element fermium</rdfs:comment>
     </owl:Class>
     
 
@@ -1938,6 +982,7 @@ Same as cyc:DyingOfBLO</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Fluorine">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#ElementalSubstance"/>
+        <rdfs:comment xml:lang="en-us">The element fluorine</rdfs:comment>
     </owl:Class>
     
 
@@ -1946,6 +991,7 @@ Same as cyc:DyingOfBLO</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Francium">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Metal"/>
+        <rdfs:comment xml:lang="en-us">The element francium</rdfs:comment>
     </owl:Class>
     
 
@@ -1954,6 +1000,7 @@ Same as cyc:DyingOfBLO</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Gadolinium">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Metal"/>
+        <rdfs:comment xml:lang="en-us">The element gadolinium</rdfs:comment>
     </owl:Class>
     
 
@@ -1962,6 +1009,7 @@ Same as cyc:DyingOfBLO</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Gallium">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Metal"/>
+        <rdfs:comment xml:lang="en-us">The element gallium</rdfs:comment>
     </owl:Class>
     
 
@@ -1970,46 +1018,7 @@ Same as cyc:DyingOfBLO</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Germanium">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#ElementalSubstance"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem#Glutamate -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Glutamate">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#GlutamateOrGlutamine"/>
-        <iUPACAminoAcidCode>E</iUPACAminoAcidCode>
-        <rdfs:comment xml:lang="en">The amino acid, glutamate.</rdfs:comment>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem#GlutamateOrGlutamine -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#GlutamateOrGlutamine">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcid"/>
-        <iUPACAminoAcidCode>Z</iUPACAminoAcidCode>
-        <rdfs:comment xml:lang="en">Either glutamate or glutamine.</rdfs:comment>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem#Glutamine -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Glutamine">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#GlutamateOrGlutamine"/>
-        <iUPACAminoAcidCode>Q</iUPACAminoAcidCode>
-        <rdfs:comment xml:lang="en">The amino acid, glutamine.</rdfs:comment>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem#Glycine -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Glycine">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcid"/>
-        <iUPACAminoAcidCode>G</iUPACAminoAcidCode>
-        <rdfs:comment xml:lang="en">The amino acid, glycine.</rdfs:comment>
+        <rdfs:comment xml:lang="en-us">The element germanium</rdfs:comment>
     </owl:Class>
     
 
@@ -2018,28 +1027,7 @@ Same as cyc:DyingOfBLO</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Gold">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Metal"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem#GolgiApparatus -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#GolgiApparatus">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Organelle"/>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Mitochondrion"/>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Vacuole"/>
-        <rdfs:comment xml:lang="en">The Golgi apparatus (Golgi complex) is an organelle found in most eukaryotic cells that processes and packages proteins inside of the cell before they make their way to their destination.  The Golgi apparatus is involved in the transport of lipids around the cell and the synthesis of proteoglycans and lysosomes.</rdfs:comment>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem#GuanineNucleotide -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#GuanineNucleotide">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Nucleotide"/>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Biochem#ThymineDeoxyribonucleotide"/>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Biochem#UracilRibonucleotide"/>
-        <rdfs:comment xml:lang="en">Guanine nucleotide, whether a ribonucleotide or a deoxyribonucleotide.</rdfs:comment>
+        <rdfs:comment xml:lang="en-us">The element gold</rdfs:comment>
     </owl:Class>
     
 
@@ -2048,6 +1036,7 @@ Same as cyc:DyingOfBLO</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Hafnium">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Metal"/>
+        <rdfs:comment xml:lang="en-us">The element hafnium</rdfs:comment>
     </owl:Class>
     
 
@@ -2069,6 +1058,7 @@ Same as cyc:DyingOfBLO</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Hassium">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Metal"/>
+        <rdfs:comment xml:lang="en-us">The element hassium</rdfs:comment>
     </owl:Class>
     
 
@@ -2077,24 +1067,18 @@ Same as cyc:DyingOfBLO</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Helium">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#ElementalSubstance"/>
+        <rdfs:comment xml:lang="en-us">The element helium</rdfs:comment>
     </owl:Class>
     
 
 
-    <!-- http://www.nist.gov/itl/ssd/Biochem#Histidine -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Histidine">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcid"/>
-        <iUPACAminoAcidCode>H</iUPACAminoAcidCode>
-        <rdfs:comment xml:lang="en">The amino acid, histidine.</rdfs:comment>
-    </owl:Class>
-    
 
 
     <!-- http://www.nist.gov/itl/ssd/Biochem#Holmium -->
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Holmium">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Metal"/>
+        <rdfs:comment xml:lang="en-us">The element holmium</rdfs:comment>
     </owl:Class>
     
 
@@ -2103,6 +1087,7 @@ Same as cyc:DyingOfBLO</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Hydrogen">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#ElementalSubstance"/>
+        <rdfs:comment xml:lang="en-us">The element hydrogen</rdfs:comment>
     </owl:Class>
     
 
@@ -2111,24 +1096,17 @@ Same as cyc:DyingOfBLO</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Indium">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Metal"/>
+        <rdfs:comment xml:lang="en-us">The element indium</rdfs:comment>
     </owl:Class>
     
 
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem#InvolutaryBiologicalProcess -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#InvolutaryBiologicalProcess">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#BiologicalProcess"/>
-        <owl:disjointWith rdf:resource="&or;PurposefulAction"/>
-        <rdfs:comment xml:lang="en">A specialization of Biological Process, instances of which are non-deliberately done by biological organisms.  This includes processes done by organ systems (e.g., digestion), single organs (e.g., heartbeat), and Cellular Biological Processes. </rdfs:comment>
-    </owl:Class>
-    
 
 
     <!-- http://www.nist.gov/itl/ssd/Biochem#Iodine -->
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Iodine">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#ElementalSubstance"/>
+        <rdfs:comment xml:lang="en-us">The element iodine</rdfs:comment>
     </owl:Class>
     
 
@@ -2146,6 +1124,7 @@ Same as cyc:DyingOfBLO</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Iridium">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Metal"/>
+        <rdfs:comment xml:lang="en-us">The element iridium</rdfs:comment>
     </owl:Class>
     
 
@@ -2154,16 +1133,7 @@ Same as cyc:DyingOfBLO</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Iron">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Metal"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem#Isoleucine -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Isoleucine">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcid"/>
-        <iUPACAminoAcidCode>I</iUPACAminoAcidCode>
-        <rdfs:comment xml:lang="en">The amino acid, isoleucine.</rdfs:comment>
+        <rdfs:comment xml:lang="en-us">The element iron</rdfs:comment>
     </owl:Class>
     
 
@@ -2180,6 +1150,7 @@ Same as cyc:DyingOfBLO</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Krypton">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#ElementalSubstance"/>
+        <rdfs:comment xml:lang="en-us">The element krypton</rdfs:comment>
     </owl:Class>
     
 
@@ -2199,6 +1170,7 @@ Same as cyc:DyingOfBLO</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Lanthanum">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Metal"/>
+        <rdfs:comment xml:lang="en-us">The element lanthanum</rdfs:comment>
     </owl:Class>
     
 
@@ -2207,6 +1179,7 @@ Same as cyc:DyingOfBLO</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Lawrencium">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Metal"/>
+        <rdfs:comment xml:lang="en-us">The element lawrencium</rdfs:comment>
     </owl:Class>
     
 
@@ -2215,16 +1188,7 @@ Same as cyc:DyingOfBLO</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Lead">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Metal"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem#Leucine -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Leucine">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcid"/>
-        <iUPACAminoAcidCode>L</iUPACAminoAcidCode>
-        <rdfs:comment xml:lang="en">The amino acid, leucine.</rdfs:comment>
+        <rdfs:comment xml:lang="en-us">The element lead</rdfs:comment>
     </owl:Class>
     
 
@@ -2233,41 +1197,28 @@ Same as cyc:DyingOfBLO</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Lithium">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Metal"/>
+        <rdfs:comment xml:lang="en-us">The element lithium</rdfs:comment>
     </owl:Class>
     
 
 
-    <!-- http://www.nist.gov/itl/ssd/Biochem#LivingBiologicalCell -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#LivingBiologicalCell">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#BiologicalCell"/>
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#BiologicalLivingObject"/>
-    </owl:Class>
-    
 
 
     <!-- http://www.nist.gov/itl/ssd/Biochem#Lutetium -->
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Lutetium">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Metal"/>
+        <rdfs:comment xml:lang="en-us">The element lutetium</rdfs:comment>
     </owl:Class>
     
 
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem#Lysine -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Lysine">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcid"/>
-        <iUPACAminoAcidCode>K</iUPACAminoAcidCode>
-        <rdfs:comment xml:lang="en">The amino acid, lysine.</rdfs:comment>
-    </owl:Class>
-    
 
 
     <!-- http://www.nist.gov/itl/ssd/Biochem#Magnesium -->
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Magnesium">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Metal"/>
+        <rdfs:comment xml:lang="en-us">The element magnesium</rdfs:comment>
     </owl:Class>
     
 
@@ -2276,6 +1227,7 @@ Same as cyc:DyingOfBLO</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Manganese">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Metal"/>
+        <rdfs:comment xml:lang="en-us">The element manganese</rdfs:comment>
     </owl:Class>
     
 
@@ -2310,6 +1262,7 @@ Same as cyc:DyingOfBLO</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Meitnerium">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#ElementalSubstance"/>
+        <rdfs:comment xml:lang="en-us">The element meitnerium</rdfs:comment>
     </owl:Class>
     
 
@@ -2318,6 +1271,7 @@ Same as cyc:DyingOfBLO</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Mendelevium">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Metal"/>
+        <rdfs:comment xml:lang="en-us">The element mendelevium</rdfs:comment>
     </owl:Class>
     
 
@@ -2326,6 +1280,7 @@ Same as cyc:DyingOfBLO</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Mercury">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Metal"/>
+        <rdfs:comment xml:lang="en-us">The element mercury</rdfs:comment>
     </owl:Class>
     
 
@@ -2350,26 +1305,6 @@ Same as cyc:DyingOfBLO</rdfs:comment>
     
 
 
-    <!-- http://www.nist.gov/itl/ssd/Biochem#Methionine -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Methionine">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcid"/>
-        <iUPACAminoAcidCode>M</iUPACAminoAcidCode>
-        <rdfs:comment xml:lang="en">The amino acid, methionine.</rdfs:comment>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem#Mitochondrion -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Mitochondrion">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Organelle"/>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Vacuole"/>
-        <rdfs:comment xml:lang="en">Mitochondria are organelles that generate ATP (supplying energy to the cell) and are invol ved in celll growth, differentiation, and death.</rdfs:comment>
-    </owl:Class>
-    
-
-
     <!-- http://www.nist.gov/itl/ssd/Biochem#Molecule -->
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Molecule">
@@ -2383,6 +1318,7 @@ Same as cyc:DyingOfBLO</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Molybdenum">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Metal"/>
+        <rdfs:comment xml:lang="en-us">The element molybdenum</rdfs:comment>
     </owl:Class>
     
 
@@ -2408,6 +1344,7 @@ Same as cyc:DyingOfBLO</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Neodymium">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Metal"/>
+        <rdfs:comment xml:lang="en-us">The element neodymium</rdfs:comment>
     </owl:Class>
     
 
@@ -2416,6 +1353,7 @@ Same as cyc:DyingOfBLO</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Neon">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#ElementalSubstance"/>
+        <rdfs:comment xml:lang="en-us">The element neon</rdfs:comment>
     </owl:Class>
     
 
@@ -2424,6 +1362,7 @@ Same as cyc:DyingOfBLO</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Neptunium">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Metal"/>
+        <rdfs:comment xml:lang="en-us">The element neptunium</rdfs:comment>
     </owl:Class>
     
 
@@ -2432,6 +1371,7 @@ Same as cyc:DyingOfBLO</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Nickel">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Metal"/>
+        <rdfs:comment xml:lang="en-us">The element nickel</rdfs:comment>
     </owl:Class>
     
 
@@ -2440,6 +1380,7 @@ Same as cyc:DyingOfBLO</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Niobium">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Metal"/>
+        <rdfs:comment xml:lang="en-us">The element niobium</rdfs:comment>
     </owl:Class>
     
 
@@ -2448,6 +1389,7 @@ Same as cyc:DyingOfBLO</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Nitrogen">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#ElementalSubstance"/>
+        <rdfs:comment xml:lang="en-us">The element nitrogen</rdfs:comment>
     </owl:Class>
     
 
@@ -2456,6 +1398,7 @@ Same as cyc:DyingOfBLO</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Nobelium">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Metal"/>
+        <rdfs:comment xml:lang="en-us">The element nobelium</rdfs:comment>
     </owl:Class>
     
 
@@ -2466,43 +1409,6 @@ Same as cyc:DyingOfBLO</rdfs:comment>
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#ChemicalElement"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Post_TransitionMetal"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Biochem#TransitionMetal"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem#Nucleotide -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Nucleotide">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Monomer"/>
-        <rdfs:comment xml:lang="en">The class of nucleotides viewed as information structures, not physical monomers.</rdfs:comment>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem#NucleotideByChemicalSpecies -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#NucleotideByChemicalSpecies">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#ChemicalObjectTypeByChemicalSpecies"/>
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#NucleotideType"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem#NucleotideType -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#NucleotideType">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#MonomerType"/>
-        <rdfs:comment xml:lang="en">Type of nucleotide -- a meta-class.  Instances are subclasses of Nucleotide.</rdfs:comment>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem#Organelle -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Organelle">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#BiologicalCellSubunit"/>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Ribosome"/>
-        <rdfs:comment xml:lang="en">An organelle is a subunit within a cell that is separately enclosed within a lipid membrane.</rdfs:comment>
     </owl:Class>
     
 
@@ -2518,33 +1424,7 @@ Same as cyc:DyingOfBLO</rdfs:comment>
     <!-- http://www.nist.gov/itl/ssd/Biochem#Organism -->
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Organism">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#BiologicalLivingObject"/>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Biochem#OrganismPart"/>
-        <rdfs:comment xml:lang="en">A specialization of BiologicalLivingObject. Each instance of Organism_Whole is a biological living object (BLO) that is a whole, and not part of some other BLO. Most instances of Organism_Whole are capable of existing and reproducing while physically separate from other organisms (with allowances for eating and mating). Abnormal BLOs which are nonetheless considered to be instances of Organism_Whole include instances of Virus, as well as sterile hybrids and colony organisms, like those in slime molds or the instances of PortugueseManOfWar.</rdfs:comment>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem#OrganismPart -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#OrganismPart">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#BiologicalLivingObject"/>
-        <owl:disjointWith rdf:resource="&or;IntelligentAgent"/>
-        <owl:disjointWith rdf:resource="&or;NonTangibleThing"/>
-        <owl:disjointWith rdf:resource="&or;StructuredInformationStore"/>
-        <rdfs:comment xml:lang="en">A living part of an organism, that is not itself an organism.  This includes cell parts, individual cells of a multi-cellular organism, organs, limbs, etc.   </rdfs:comment>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem#OrganismPartType -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#OrganismPartType">
-        <rdfs:subClassOf rdf:resource="&or;ObjectType"/>
-        <owl:disjointWith rdf:resource="&or;MeasurementRole"/>
-        <rdfs:comment xml:lang="en">An Organism Part Type is a characterization of body parts of Animals, Plant Parts, or parts of other organisms by structure and/or function.  Instances of Organism Part Type include types of organ and types of tissue.
-
-Same as cyc#OrganismPartType.</rdfs:comment>
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#BiologicalLivingObject"/>        <rdfs:comment xml:lang="en">A specialization of BiologicalLivingObject. Each instance of Organism_Whole is a biological living object (BLO) that is a whole, and not part of some other BLO. Most instances of Organism_Whole are capable of existing and reproducing while physically separate from other organisms (with allowances for eating and mating). Abnormal BLOs which are nonetheless considered to be instances of Organism include instances of Virus, as well as sterile hybrids and colony organisms, like those in slime molds or the instances of Portuguese Man of War.</rdfs:comment>
     </owl:Class>
     
 
@@ -2562,6 +1442,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Osmium">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Metal"/>
+        <rdfs:comment xml:lang="en-us">The element osmium</rdfs:comment>
     </owl:Class>
     
 
@@ -2579,6 +1460,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Oxygen">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#ElementalSubstance"/>
+        <rdfs:comment xml:lang="en-us">The element oxygen</rdfs:comment>
     </owl:Class>
     
 
@@ -2587,25 +1469,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Palladium">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Metal"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem#Phenotype -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Phenotype">
-        <rdfs:subClassOf rdf:resource="&or;FirstOrderClass"/>
-        <rdfs:comment xml:lang="en">A phenotype is a purely observable physical feature of an organism. Hair color, blood type, cell structure, etc. all count as types of phenotypes. Definitive of phenotypes is that they are features of organisms that are the physical manifestations of the gene patterns and environment of the organism.</rdfs:comment>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem#Phenylalanine -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Phenylalanine">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcid"/>
-        <iUPACAminoAcidCode>F</iUPACAminoAcidCode>
-        <rdfs:comment xml:lang="en">The amino acid, phenylalanine.</rdfs:comment>
+        <rdfs:comment xml:lang="en-us">The element palladium</rdfs:comment>
     </owl:Class>
     
 
@@ -2614,6 +1478,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Phosphorus">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#ElementalSubstance"/>
+        <rdfs:comment xml:lang="en-us">The element phosphorus</rdfs:comment>
     </owl:Class>
     
 
@@ -2631,6 +1496,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Platinum">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Metal"/>
+        <rdfs:comment xml:lang="en-us">The element platinum</rdfs:comment>
     </owl:Class>
     
 
@@ -2639,6 +1505,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Plutonium">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Metal"/>
+        <rdfs:comment xml:lang="en-us">The element plutonium</rdfs:comment>
     </owl:Class>
     
 
@@ -2647,6 +1514,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Polonium">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#ElementalSubstance"/>
+        <rdfs:comment xml:lang="en-us">The element polonium</rdfs:comment>
     </owl:Class>
     
 
@@ -2691,6 +1559,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Potassium">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Metal"/>
+        <rdfs:comment xml:lang="en-us">The element potassium</rdfs:comment>
     </owl:Class>
     
 
@@ -2699,16 +1568,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Praseodymium">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Metal"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem#Proline -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Proline">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcid"/>
-        <iUPACAminoAcidCode>L</iUPACAminoAcidCode>
-        <rdfs:comment xml:lang="en">The amino acid, proline.</rdfs:comment>
+        <rdfs:comment xml:lang="en-us">The element praseodymium</rdfs:comment>
     </owl:Class>
     
 
@@ -2717,6 +1577,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Promethium">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Metal"/>
+        <rdfs:comment xml:lang="en-us">The element promethium</rdfs:comment>
     </owl:Class>
     
 
@@ -2725,6 +1586,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Protactinium">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Metal"/>
+        <rdfs:comment xml:lang="en-us">The element protactinium</rdfs:comment>
     </owl:Class>
     
 
@@ -2733,34 +1595,17 @@ Same as cyc#OrganismPartType.</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Protein">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Polymer"/>
-        <owl:disjointWith rdf:resource="&Biochem;NucleicAcidMolecule"/>
         <rdfs:comment xml:lang="en">Protein as a chemical sequence of amino acids.</rdfs:comment>
     </owl:Class>
     
 
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem#ProteinTypeBySpecies -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#ProteinTypeBySpecies">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#ChemicalSubstanceTypeByChemicalSpecies"/>
-        <rdfs:comment xml:lang="en">Variety of protein</rdfs:comment>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem#ProteinTypeByStructure -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#ProteinTypeByStructure">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#ChemicalSubstanceType"/>
-        <rdfs:comment xml:lang="en">The type of a protein distinguished by its structure of the proteins, e.g.fibril.</rdfs:comment>
-    </owl:Class>
-    
 
 
     <!-- http://www.nist.gov/itl/ssd/Biochem#Radium -->
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Radium">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Metal"/>
+        <rdfs:comment xml:lang="en-us">The element radium</rdfs:comment>
     </owl:Class>
     
 
@@ -2769,6 +1614,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Radon">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#ElementalSubstance"/>
+        <rdfs:comment xml:lang="en-us">The element radon</rdfs:comment>
     </owl:Class>
     
 
@@ -2777,6 +1623,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Rhenium">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Metal"/>
+        <rdfs:comment xml:lang="en-us">The element rhenium</rdfs:comment>
     </owl:Class>
     
 
@@ -2785,24 +1632,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Rhodium">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Metal"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem#Ribonucleotide -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Ribonucleotide">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Nucleotide"/>
-        <rdfs:comment xml:lang="en">The class of ribonucleotides viewed as information structures, not physical monomers.</rdfs:comment>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem#Ribosome -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Ribosome">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#BiologicalCellSubunit"/>
-        <rdfs:comment xml:lang="en">A ribosome is a component of cells that synthesizes protein chains. It assembles the twenty specific amino acid molecules to form the particular protein molecule determined by the nucleotide sequence of an RNA molecule.  A ribosome is not encased in a membrane and so is not considered an organelle.</rdfs:comment>
+        <rdfs:comment xml:lang="en-us">The element rhodium</rdfs:comment>
     </owl:Class>
     
 
@@ -2811,6 +1641,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Rubidium">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Metal"/>
+        <rdfs:comment xml:lang="en-us">The element rubidium</rdfs:comment>
     </owl:Class>
     
 
@@ -2819,6 +1650,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Ruthenium">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Metal"/>
+        <rdfs:comment xml:lang="en-us">The element ruthenium</rdfs:comment>
     </owl:Class>
     
 
@@ -2827,6 +1659,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Rutherfordium">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Metal"/>
+        <rdfs:comment xml:lang="en-us">The element rutherfordium</rdfs:comment>
     </owl:Class>
     
 
@@ -2835,6 +1668,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Samarium">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Metal"/>
+        <rdfs:comment xml:lang="en-us">The element samarium</rdfs:comment>
     </owl:Class>
     
 
@@ -2843,6 +1677,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Scandium">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Metal"/>
+        <rdfs:comment xml:lang="en-us">The element scandium</rdfs:comment>
     </owl:Class>
     
 
@@ -2851,6 +1686,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Seaborgium">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Metal"/>
+        <rdfs:comment xml:lang="en-us">The element seborgium</rdfs:comment>
     </owl:Class>
     
 
@@ -2859,34 +1695,17 @@ Same as cyc#OrganismPartType.</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Selenium">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#ElementalSubstance"/>
+        <rdfs:comment xml:lang="en-us">The element selenium</rdfs:comment>
     </owl:Class>
     
 
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem#Selenocysteine -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Selenocysteine">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcid"/>
-        <iUPACAminoAcidCode>S</iUPACAminoAcidCode>
-        <rdfs:comment xml:lang="en">Selenocysteine is an amino acid that is present in several enzymes.  It is not coded for directly in the genetic code.  Instead, it is encoded in a special way by a UGA codon, which is normally a stop codon.  When cells are grown in the absence of selenium, translation of selenoproteins terminates at the UGA codon, resulting in a truncated, nonfunctional enzyme.  The UGA codon is made to encode selenocysteine by the presence of a SECIS element (SElenoCysteine Insertion Sequence) in the mRNA.</rdfs:comment>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem#Serine -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Serine">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcid"/>
-        <iUPACAminoAcidCode>S</iUPACAminoAcidCode>
-        <rdfs:comment xml:lang="en">The amino acid, serine.</rdfs:comment>
-    </owl:Class>
-    
 
 
     <!-- http://www.nist.gov/itl/ssd/Biochem#Silicon -->
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Silicon">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#ElementalSubstance"/>
+        <rdfs:comment xml:lang="en-us">The element silicon</rdfs:comment>
     </owl:Class>
     
 
@@ -2895,15 +1714,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Silver">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Metal"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem#SingleCelledOrganism -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#SingleCelledOrganism">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#LivingBiologicalCell"/>
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Organism"/>
+        <rdfs:comment xml:lang="en-us">The element silver</rdfs:comment>
     </owl:Class>
     
 
@@ -2912,6 +1723,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Sodium">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Metal"/>
+        <rdfs:comment xml:lang="en-us">The element sodium</rdfs:comment>
     </owl:Class>
     
 
@@ -2920,6 +1732,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Strontium">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Metal"/>
+        <rdfs:comment xml:lang="en-us">The element strontium</rdfs:comment>
     </owl:Class>
     
 
@@ -2928,6 +1741,8 @@ Same as cyc#OrganismPartType.</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Sulfur">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#ElementalSubstance"/>
+        <rdfs:comment xml:lang="en-uk">The element sulphur</rdfs:comment>
+        <rdfs:comment xml:lang="en-us">The element sulfur</rdfs:comment>
     </owl:Class>
     
 
@@ -2936,6 +1751,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Tantalum">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Metal"/>
+        <rdfs:comment xml:lang="en-us">The element tantalum</rdfs:comment>
     </owl:Class>
     
 
@@ -2944,6 +1760,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Technetium">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Metal"/>
+        <rdfs:comment xml:lang="en-us">The element technetium</rdfs:comment>
     </owl:Class>
     
 
@@ -2952,6 +1769,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Tellurium">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#ElementalSubstance"/>
+        <rdfs:comment xml:lang="en-us">The element tellurium</rdfs:comment>
     </owl:Class>
     
 
@@ -2960,6 +1778,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Terbium">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Metal"/>
+        <rdfs:comment xml:lang="en-us">The element terbium</rdfs:comment>
     </owl:Class>
     
 
@@ -2968,6 +1787,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Thallium">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Metal"/>
+        <rdfs:comment xml:lang="en-us">The element thallium</rdfs:comment>
     </owl:Class>
     
 
@@ -2976,34 +1796,17 @@ Same as cyc#OrganismPartType.</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Thorium">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Metal"/>
+        <rdfs:comment xml:lang="en-us">The element thorium</rdfs:comment>
     </owl:Class>
     
 
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem#Threonine -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Threonine">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcid"/>
-        <iUPACAminoAcidCode>T</iUPACAminoAcidCode>
-        <rdfs:comment xml:lang="en">The amino acid, threonine.</rdfs:comment>
-    </owl:Class>
-    
 
 
     <!-- http://www.nist.gov/itl/ssd/Biochem#Thulium -->
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Thulium">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Metal"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem#ThymineDeoxyribonucleotide -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#ThymineDeoxyribonucleotide">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Deoxyribonucleotide"/>
-        <rdfs:comment xml:lang="en">Thymine deoxyribonucleotide viewed as an an information structure, not a physical monomer.</rdfs:comment>
-        <rdfs:comment xml:lang="en">Thymine deoxyribonucleotide.</rdfs:comment>
+        <rdfs:comment xml:lang="en-us">The element thulium</rdfs:comment>
     </owl:Class>
     
 
@@ -3012,6 +1815,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Tin">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Metal"/>
+        <rdfs:comment xml:lang="en-us">The element tin</rdfs:comment>
     </owl:Class>
     
 
@@ -3020,6 +1824,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Titanium">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Metal"/>
+        <rdfs:comment xml:lang="en-us">The element titanium</rdfs:comment>
     </owl:Class>
     
 
@@ -3032,30 +1837,11 @@ Same as cyc#OrganismPartType.</rdfs:comment>
     
 
 
-    <!-- http://www.nist.gov/itl/ssd/Biochem#Tryptophan -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Tryptophan">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcid"/>
-        <iUPACAminoAcidCode>W</iUPACAminoAcidCode>
-        <rdfs:comment xml:lang="en">The amino acid, tryptophan.</rdfs:comment>
-    </owl:Class>
-    
-
-
     <!-- http://www.nist.gov/itl/ssd/Biochem#Tungsten -->
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Tungsten">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Metal"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem#Tyrosine -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Tyrosine">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcid"/>
-        <rdfs:comment xml:lang="en">The amino acid, tyrosine</rdfs:comment>
-        <iUPACAminoAcidCode>Y</iUPACAminoAcidCode>
+        <rdfs:comment xml:lang="en-us">The element tungsten</rdfs:comment>
     </owl:Class>
     
 
@@ -3095,38 +1881,11 @@ Same as cyc#OrganismPartType.</rdfs:comment>
     
 
 
-    <!-- http://www.nist.gov/itl/ssd/Biochem#UracilRibonucleotide -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#UracilRibonucleotide">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Ribonucleotide"/>
-        <rdfs:comment xml:lang="en">Uracil ribonucleotide viewed as an information structure, not a physical monomer.</rdfs:comment>
-        <rdfs:comment xml:lang="en">Uracil ribonucleotide.</rdfs:comment>
-    </owl:Class>
-    
-
-
     <!-- http://www.nist.gov/itl/ssd/Biochem#Uranium -->
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Uranium">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Metal"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem#Vacuole -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Vacuole">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Organelle"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem#Valine -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Valine">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcid"/>
-        <rdfs:comment xml:lang="en">The amino acid, valine.</rdfs:comment>
-        <iUPACAminoAcidCode>V</iUPACAminoAcidCode>
+        <rdfs:comment xml:lang="en-us">The element uranium</rdfs:comment>
     </owl:Class>
     
 
@@ -3135,6 +1894,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Vanadium">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Metal"/>
+        <rdfs:comment xml:lang="en-us">The element vanadium</rdfs:comment>
     </owl:Class>
     
 
@@ -3143,6 +1903,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Water">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Oxide"/>
+        <rdfs:comment xml:lang="en">Water is an instance of ChemicalSubstanceTypeByChemicalSpecies. Each instance of Water is one piece of some (pure or impure) portion of the chemical compound H2O. Instances of Water may be in a gaseous, liquid, or solid state; they may be salty or not, drinkable or not.</rdfs:comment>
     </owl:Class>
     
 
@@ -3151,6 +1912,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Xenon">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#ElementalSubstance"/>
+        <rdfs:comment xml:lang="en-us">The element xenon</rdfs:comment>
     </owl:Class>
     
 
@@ -3159,6 +1921,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Ytterbium">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Metal"/>
+        <rdfs:comment xml:lang="en-us">The element ytterbium</rdfs:comment>
     </owl:Class>
     
 
@@ -3167,6 +1930,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Yttrium">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Metal"/>
+        <rdfs:comment xml:lang="en-us">The element yttrium</rdfs:comment>
     </owl:Class>
     
 
@@ -3175,6 +1939,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Zinc">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Metal"/>
+        <rdfs:comment xml:lang="en-us">The element zinc</rdfs:comment>
     </owl:Class>
     
 
@@ -3183,132 +1948,10 @@ Same as cyc#OrganismPartType.</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Zirconium">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Metal"/>
+        <rdfs:comment xml:lang="en-us">The element zirconium</rdfs:comment>
     </owl:Class>
     
 
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem.owl#AdenineDeoxyribonucleotide -->
-
-    <owl:Class rdf:about="&Biochem;AdenineDeoxyribonucleotide">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AdenineNucleotide"/>
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Deoxyribonucleotide"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem.owl#AdenineRibonucleotide -->
-
-    <owl:Class rdf:about="&Biochem;AdenineRibonucleotide">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AdenineNucleotide"/>
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Ribonucleotide"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem.owl#ChemicalProcess -->
-
-    <owl:Class rdf:about="&Biochem;ChemicalProcess">
-        <rdfs:subClassOf rdf:resource="&OntologyRequirements;PhysicalEvent"/>
-        <owl:disjointWith rdf:resource="&or;MechanicalProcess"/>
-        <owl:disjointWith rdf:resource="&or;PurposefulAction"/>
-        <rdfs:comment xml:lang="en">A Chemical Process is a process composed of one or more inter-related chemical reactions.</rdfs:comment>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem.owl#ChemicalReaction -->
-
-    <owl:Class rdf:about="&Biochem;ChemicalReaction">
-        <rdfs:subClassOf rdf:resource="&Biochem;ChemicalProcess"/>
-        <rdfs:comment xml:lang="en">A Chemical Reaction is an event in which one or more substances undergo a chemical change, i.e., some portions of the substances involved are transformed into different Chemical Substance Types. The transformations are brought about by purely chemical (including biochemical) means which affect chemical bonds between atoms, whether in molecules or crystals.</rdfs:comment>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem.owl#CytosineDeoxyribonucleotide -->
-
-    <owl:Class rdf:about="&Biochem;CytosineDeoxyribonucleotide">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#CytosineNucleotide"/>
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Deoxyribonucleotide"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem.owl#CytosineRibonucleotide -->
-
-    <owl:Class rdf:about="&Biochem;CytosineRibonucleotide">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#CytosineNucleotide"/>
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Ribonucleotide"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem.owl#GuanineDeoxyribonucleotide -->
-
-    <owl:Class rdf:about="&Biochem;GuanineDeoxyribonucleotide">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Deoxyribonucleotide"/>
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#GuanineNucleotide"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem.owl#GuanineRibonucleotide -->
-
-    <owl:Class rdf:about="&Biochem;GuanineRibonucleotide">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#GuanineNucleotide"/>
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Ribonucleotide"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem.owl#NucleicAcidMolecule -->
-
-    <owl:Class rdf:about="&Biochem;NucleicAcidMolecule">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Polymer"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem.owl#RNAMolecule -->
-
-    <owl:Class rdf:about="&Biochem;RNAMolecule">
-        <rdfs:subClassOf rdf:resource="&Biochem;NucleicAcidMolecule"/>
-        <rdfs:comment xml:lang="en">Ribonucleic acid (RNA) is a type of Nucleic Acid Molecule that performs vital roles in cells including (depending upon the type of RNA) coding, decoding, regulation, and expression of genes.  RNA is comprised of Ribonucleotides, while DNA is composed of Deoxyribonucleotides.</rdfs:comment>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem.owl#Ribozyme -->
-
-    <owl:Class rdf:about="&Biochem;Ribozyme">
-        <rdfs:subClassOf rdf:resource="&Biochem;RNAMolecule"/>
-        <rdfs:comment xml:lang="en">A ribozyme is an RNA molecule with a well defined tertiary structure that enables it to perform a chemical reaction. Many ribozymes are catalytic, but some such as self-cleaving ribozymes are consumed by their reactions. Ribozyme means ribonucleic acid enzyme. It may also be called an RNA enzyme or catalytic RNA.</rdfs:comment>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Materials.owl#ThermalProperty -->
-
-    <owl:Class rdf:about="&Materials;ThermalProperty"/>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#ComputerProcessExecution -->
-
-    <rdf:Description rdf:about="&or;ComputerProcessExecution"/>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#FirstOrderClass -->
-
-    <owl:Class rdf:about="&or;FirstOrderClass"/>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#GenericProperty -->
-
-    <owl:Class rdf:about="&or;GenericProperty"/>
-    
 
 
     <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#Human -->
@@ -3319,51 +1962,9 @@ Same as cyc#OrganismPartType.</rdfs:comment>
     
 
 
-    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#Image -->
-
-    <rdf:Description rdf:about="&or;Image"/>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#IntelligentAgent -->
-
-    <rdf:Description rdf:about="&or;IntelligentAgent"/>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#InterconvertibleUnitType -->
-
-    <owl:Class rdf:about="&or;InterconvertibleUnitType"/>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#LineChart -->
-
-    <owl:Class rdf:about="&or;LineChart"/>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#MaterialType -->
-
-    <rdf:Description rdf:about="&or;MaterialType"/>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#MeasurableProperty -->
-
-    <owl:Class rdf:about="&or;MeasurableProperty"/>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#MeasurementRole -->
-
-    <owl:Class rdf:about="&or;MeasurementRole"/>
-    
-
-
     <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#MechanicalProcess -->
 
-    <owl:Class rdf:about="&or;MechanicalProcess"/>
+    <rdf:Description rdf:about="&or;MechanicalProcess"/>
     
 
 
@@ -3379,14 +1980,6 @@ Same as cyc#OrganismPartType.</rdfs:comment>
     
 
 
-    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#ProteinTypeByChemicalSpecies -->
-
-    <owl:Class rdf:about="&or;ProteinTypeByChemicalSpecies">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#ChemicalObjectTypeByChemicalSpecies"/>
-    </owl:Class>
-    
-
-
     <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#PurposefulAction -->
 
     <rdf:Description rdf:about="&or;PurposefulAction"/>
@@ -3395,7 +1988,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
 
     <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#RigidPortableObject -->
 
-    <owl:Class rdf:about="&or;RigidPortableObject"/>
+    <rdf:Description rdf:about="&or;RigidPortableObject"/>
     
 
 
@@ -3431,13 +2024,13 @@ Same as cyc#OrganismPartType.</rdfs:comment>
 
     <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#UnitOfEnergy -->
 
-    <owl:Class rdf:about="&or;UnitOfEnergy"/>
+    <rdf:Description rdf:about="&or;UnitOfEnergy"/>
     
 
 
     <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#UnitOfForce -->
 
-    <owl:Class rdf:about="&or;UnitOfForce"/>
+    <rdf:Description rdf:about="&or;UnitOfForce"/>
     
 
 
@@ -3449,7 +2042,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
 
     <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#UnitOfSpreadRate -->
 
-    <owl:Class rdf:about="&or;UnitOfSpreadRate"/>
+    <rdf:Description rdf:about="&or;UnitOfSpreadRate"/>
     
 
 
@@ -3461,19 +2054,13 @@ Same as cyc#OrganismPartType.</rdfs:comment>
 
     <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#UnitOfVoltage -->
 
-    <owl:Class rdf:about="&or;UnitOfVoltage"/>
+    <rdf:Description rdf:about="&or;UnitOfVoltage"/>
     
 
 
     <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#UnitOfVolume -->
 
     <rdf:Description rdf:about="&or;UnitOfVolume"/>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#PhysicalEvent -->
-
-    <owl:Class rdf:about="&OntologyRequirements;PhysicalEvent"/>
     
 
 
@@ -3494,20 +2081,13 @@ Same as cyc#OrganismPartType.</rdfs:comment>
     
 
 
-    <!-- http://sw.opencyc.org/concept/en/#HomoSapiens -->
-
-    <owl:NamedIndividual rdf:about="&cyc;HomoSapiens">
-        <owl:sameAs rdf:resource="&or;Human"/>
-    </owl:NamedIndividual>
-    
-
-
     <!-- http://www.nist.gov/itl/ssd/Biochem#Actinium -->
 
     <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Biochem#Actinium">
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Actinide"/>
         <atomicNumber rdf:datatype="&owl;integer">89</atomicNumber>
         <atomicSymbol>Ac</atomicSymbol>
+        <rdfs:comment xml:lang="en-us">The element actinium</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -3521,25 +2101,6 @@ Same as cyc#OrganismPartType.</rdfs:comment>
     
 
 
-    <!-- http://www.nist.gov/itl/ssd/Biochem#AdenineNucleotide -->
-
-    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Biochem#AdenineNucleotide">
-        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#NucleotideType"/>
-        <rdfs:comment xml:lang="en">Adenine nucleotide, whether a ribonucleotide or a deoxyribonucleotide.</rdfs:comment>
-    </owl:NamedIndividual>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem#Alanine -->
-
-    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Biochem#Alanine">
-        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcidType"/>
-        <iUPACAminoAcidCode>A</iUPACAminoAcidCode>
-        <hasSummaryChemicalFormula>C3H7NO2</hasSummaryChemicalFormula>
-        <rdfs:comment xml:lang="en">The amino acid, alanine.</rdfs:comment>
-    </owl:NamedIndividual>
-    
-
 
     <!-- http://www.nist.gov/itl/ssd/Biochem#Aluminum -->
 
@@ -3547,6 +2108,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Post_TransitionMetal"/>
         <atomicNumber rdf:datatype="&owl;integer">13</atomicNumber>
         <atomicSymbol>Al</atomicSymbol>
+        <rdfs:comment xml:lang="en-us">The element aluminum</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -3557,17 +2119,10 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Actinide"/>
         <atomicNumber rdf:datatype="&owl;integer">95</atomicNumber>
         <atomicSymbol>Am</atomicSymbol>
+        <rdfs:comment xml:lang="en-us">The element americium</rdfs:comment>
     </owl:NamedIndividual>
     
 
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem#AminoAcid -->
-
-    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Biochem#AminoAcid">
-        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcidType_Generic"/>
-        <iUPACAminoAcidCode>X</iUPACAminoAcidCode>
-        <rdfs:comment xml:lang="en">A collection of organic compounds that are the building blocks for ProteinMolecules.</rdfs:comment>
-    </owl:NamedIndividual>
     
 
 
@@ -3577,6 +2132,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Metalloid"/>
         <atomicNumber rdf:datatype="&owl;integer">51</atomicNumber>
         <atomicSymbol>Sb</atomicSymbol>
+        <rdfs:comment xml:lang="en-us">The element antimony</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -3587,6 +2143,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#NobleGas"/>
         <atomicNumber rdf:datatype="&owl;integer">18</atomicNumber>
         <atomicSymbol>Ar</atomicSymbol>
+        <rdfs:comment xml:lang="en-us">The element argon</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -3597,38 +2154,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Metalloid"/>
         <atomicNumber rdf:datatype="&owl;integer">33</atomicNumber>
         <atomicSymbol>As</atomicSymbol>
-    </owl:NamedIndividual>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem#Asparagine -->
-
-    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Biochem#Asparagine">
-        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcidType"/>
-        <iUPACAminoAcidCode>N</iUPACAminoAcidCode>
-        <hasSummaryChemicalFormula>C4H8N2O3</hasSummaryChemicalFormula>
-        <rdfs:comment xml:lang="en">The amino acid, asparagine.</rdfs:comment>
-    </owl:NamedIndividual>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem#Aspartate -->
-
-    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Biochem#Aspartate">
-        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcidType"/>
-        <iUPACAminoAcidCode>D</iUPACAminoAcidCode>
-        <hasSummaryChemicalFormula>C4H7NO4</hasSummaryChemicalFormula>
-        <rdfs:comment xml:lang="en">The amino acid, aspartate.</rdfs:comment>
-    </owl:NamedIndividual>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem#AspartateOrAsparagine -->
-
-    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Biochem#AspartateOrAsparagine">
-        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcidType_Generic"/>
-        <iUPACAminoAcidCode>B</iUPACAminoAcidCode>
-        <rdfs:comment xml:lang="en">either aspartate or asparagine</rdfs:comment>
+        <rdfs:comment xml:lang="en-us">The element arsenic</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -3639,6 +2165,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Halogen"/>
         <atomicNumber rdf:datatype="&owl;integer">85</atomicNumber>
         <atomicSymbol>At</atomicSymbol>
+        <rdfs:comment xml:lang="en-us">The element astatine</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -3649,6 +2176,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#ChemicalElement"/>
         <atomicNumber rdf:datatype="&owl;integer">56</atomicNumber>
         <atomicSymbol>Ba</atomicSymbol>
+        <rdfs:comment xml:lang="en-us">The element barium</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -3659,6 +2187,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Actinide"/>
         <atomicNumber rdf:datatype="&owl;integer">97</atomicNumber>
         <atomicSymbol>Bk</atomicSymbol>
+        <rdfs:comment xml:lang="en-us">The element berkelium</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -3669,6 +2198,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AlkalineEarthMetal"/>
         <atomicNumber rdf:datatype="&owl;integer">4</atomicNumber>
         <atomicSymbol>Be</atomicSymbol>
+        <rdfs:comment xml:lang="en-us">The element beryllium</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -3679,6 +2209,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Post_TransitionMetal"/>
         <atomicNumber rdf:datatype="&owl;integer">83</atomicNumber>
         <atomicSymbol>Bi</atomicSymbol>
+        <rdfs:comment xml:lang="en-us">The element bismuth</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -3689,6 +2220,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#TransitionMetal"/>
         <atomicNumber rdf:datatype="&owl;integer">107</atomicNumber>
         <atomicSymbol>Bh</atomicSymbol>
+        <rdfs:comment xml:lang="en-us">The element bohrium</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -3699,6 +2231,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Metalloid"/>
         <atomicNumber rdf:datatype="&owl;integer">5</atomicNumber>
         <atomicSymbol>Bo</atomicSymbol>
+        <rdfs:comment xml:lang="en-us">The element boron</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -3709,6 +2242,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Halogen"/>
         <atomicNumber rdf:datatype="&owl;integer">35</atomicNumber>
         <atomicSymbol>Br</atomicSymbol>
+        <rdfs:comment xml:lang="en-us">The element bromine</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -3719,6 +2253,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#TransitionMetal"/>
         <atomicNumber rdf:datatype="&owl;integer">48</atomicNumber>
         <atomicSymbol>Cd</atomicSymbol>
+        <rdfs:comment xml:lang="en-us">The element cadmium</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -3729,6 +2264,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AlkalineEarthMetal"/>
         <atomicNumber rdf:datatype="&owl;integer">20</atomicNumber>
         <atomicSymbol>Ca</atomicSymbol>
+        <rdfs:comment xml:lang="en-us">The element calcium</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -3739,6 +2275,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Actinide"/>
         <atomicNumber rdf:datatype="&owl;integer">98</atomicNumber>
         <atomicSymbol>Cf</atomicSymbol>
+        <rdfs:comment xml:lang="en-us">The element californium</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -3749,6 +2286,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#ChemicalElement"/>
         <atomicNumber rdf:datatype="&owl;integer">6</atomicNumber>
         <atomicSymbol>C</atomicSymbol>
+        <rdfs:comment xml:lang="en-us">The element carbon</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -3767,6 +2305,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Lanthanide"/>
         <atomicNumber rdf:datatype="&owl;integer">58</atomicNumber>
         <atomicSymbol>Ce</atomicSymbol>
+        <rdfs:comment xml:lang="en-us">The element cerium</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -3777,6 +2316,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AlkaliMetal"/>
         <atomicNumber rdf:datatype="&owl;integer">55</atomicNumber>
         <atomicSymbol>Cs</atomicSymbol>
+        <rdfs:comment xml:lang="en-us">The element cesium</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -3787,6 +2327,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Halogen"/>
         <atomicNumber rdf:datatype="&owl;integer">17</atomicNumber>
         <atomicSymbol>Cl</atomicSymbol>
+        <rdfs:comment xml:lang="en-us">The element chlorine</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -3797,6 +2338,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#TransitionMetal"/>
         <atomicNumber rdf:datatype="&owl;integer">24</atomicNumber>
         <atomicSymbol>Cr</atomicSymbol>
+        <rdfs:comment xml:lang="en-us">The element chromium</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -3807,6 +2349,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#TransitionMetal"/>
         <atomicNumber rdf:datatype="&owl;integer">27</atomicNumber>
         <atomicSymbol>Co</atomicSymbol>
+        <rdfs:comment xml:lang="en-us">The element cobalt</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -3815,7 +2358,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
 
     <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Biochem#Concentration">
         <rdf:type rdf:resource="&or;MeasurableQuantityType"/>
-        <rdfs:comment xml:lang="en">A substance Concentration is a concentration of one type of material.  Any mixture has a Chemical Composition which is comprised a group of Substance Concentrations with the total concentration adding up to 100%.  For example, Admiralty brass contains 69% copper, 30% zinc, and 1% tin.  69% copper would be one Substance Concentration; 30% zinc would be a second, and 1% tin would be a third.</rdfs:comment>
+        <rdfs:comment xml:lang="en">A substance Concentration is a concentration of one type of material.  Any mixture has a Chemical Composition which is comprised a group of Substance Concentrations with the total concentration adding up to 100%.  For example, Admiralty brass contains 69% copper by mass, 30% zinc, and 1% tin.  69% copper by mass would be one Substance Concentration; 30% zinc would be a second, and 1% tin would be a third.</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -3823,7 +2366,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
     <!-- http://www.nist.gov/itl/ssd/Biochem#ConcentrationByMass -->
 
     <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Biochem#ConcentrationByMass">
-        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Concentration"/>
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#ConcentrationProperty"/>
         <rdfs:comment xml:lang="en">A concentration caluclated by mass, e.g., milligrams/gram.</rdfs:comment>
     </owl:NamedIndividual>
     
@@ -3832,7 +2375,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
     <!-- http://www.nist.gov/itl/ssd/Biochem#ConcentrationByVolume -->
 
     <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Biochem#ConcentrationByVolume">
-        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Concentration"/>
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#ConcentrationProperty"/>
         <rdfs:comment xml:lang="en">A Concentration calculated by volume, e.g. cc/Liter .</rdfs:comment>
     </owl:NamedIndividual>
     
@@ -3842,6 +2385,9 @@ Same as cyc#OrganismPartType.</rdfs:comment>
 
     <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Biochem#Copernicium">
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#TransitionMetal"/>
+        <atomicNumber rdf:datatype="&owl;integer">112</atomicNumber>
+        <atomicSymbol>Cn</atomicSymbol>
+        <rdfs:comment xml:lang="en-us">The element copernicium</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -3852,6 +2398,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#TransitionMetal"/>
         <atomicNumber rdf:datatype="&owl;integer">29</atomicNumber>
         <atomicSymbol>Cu</atomicSymbol>
+        <rdfs:comment xml:lang="en-us">The element copper</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -3862,38 +2409,10 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Actinide"/>
         <atomicNumber rdf:datatype="&owl;integer">96</atomicNumber>
         <atomicSymbol>Cm</atomicSymbol>
+        <rdfs:comment xml:lang="en-us">The element curium</rdfs:comment>
     </owl:NamedIndividual>
     
 
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem#Cysteine -->
-
-    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Biochem#Cysteine">
-        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcidType"/>
-        <iUPACAminoAcidCode>C</iUPACAminoAcidCode>
-        <hasSummaryChemicalFormula>C3H7NO2S</hasSummaryChemicalFormula>
-        <rdfs:comment xml:lang="en">The amino acid, cysteine.  Not to be confused with cystine.</rdfs:comment>
-    </owl:NamedIndividual>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem#Cystine -->
-
-    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Biochem#Cystine">
-        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcidType"/>
-        <hasSummaryChemicalFormula>C6H12N2O4S2</hasSummaryChemicalFormula>
-        <rdfs:comment xml:lang="en">The amino acid, cystine.  Not to be confused with cysteine.</rdfs:comment>
-    </owl:NamedIndividual>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem#CytosineNucleotide -->
-
-    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Biochem#CytosineNucleotide">
-        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#NucleotideType"/>
-        <rdfs:comment xml:lang="en">Cytosine nucleotide, whether a ribonucleotide or a deoxyribonucleotide.</rdfs:comment>
-    </owl:NamedIndividual>
-    
 
 
     <!-- http://www.nist.gov/itl/ssd/Biochem#Dubnium -->
@@ -3902,6 +2421,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#TransitionMetal"/>
         <atomicNumber rdf:datatype="&owl;integer">105</atomicNumber>
         <atomicSymbol>Db</atomicSymbol>
+        <rdfs:comment xml:lang="en-us">The element dubnium</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -3912,6 +2432,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Lanthanide"/>
         <atomicNumber rdf:datatype="&owl;integer">66</atomicNumber>
         <atomicSymbol>Dy</atomicSymbol>
+        <rdfs:comment xml:lang="en-us">The element dysprosium</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -3922,6 +2443,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Actinide"/>
         <atomicNumber rdf:datatype="&owl;integer">99</atomicNumber>
         <atomicSymbol>Es</atomicSymbol>
+        <rdfs:comment xml:lang="en-us">The element einsteinium</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -3932,6 +2454,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Lanthanide"/>
         <atomicNumber rdf:datatype="&owl;integer">68</atomicNumber>
         <atomicSymbol>Er</atomicSymbol>
+        <rdfs:comment xml:lang="en-us">The element erbium</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -3942,6 +2465,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Lanthanide"/>
         <atomicNumber rdf:datatype="&owl;integer">63</atomicNumber>
         <atomicSymbol>Eu</atomicSymbol>
+        <rdfs:comment xml:lang="en-us">The element europium</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -3952,16 +2476,9 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Actinide"/>
         <atomicNumber rdf:datatype="&owl;integer">100</atomicNumber>
         <atomicSymbol>Fm</atomicSymbol>
+        <rdfs:comment xml:lang="en-us">The element fermium</rdfs:comment>
     </owl:NamedIndividual>
     
-
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem#Fibril -->
-
-    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Biochem#Fibril">
-        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#ProteinTypeByStructure"/>
-        <rdfs:comment xml:lang="en">Fibrils are fibers approximately 1 nm in diameter</rdfs:comment>
-    </owl:NamedIndividual>
     
 
 
@@ -3971,6 +2488,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Halogen"/>
         <atomicNumber rdf:datatype="&owl;integer">9</atomicNumber>
         <atomicSymbol>F</atomicSymbol>
+        <rdfs:comment xml:lang="en-us">The element fluorine</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -3981,6 +2499,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AlkaliMetal"/>
         <atomicNumber rdf:datatype="&owl;integer">87</atomicNumber>
         <atomicSymbol>Fr</atomicSymbol>
+        <rdfs:comment xml:lang="en-us">The element francium</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -3988,8 +2507,10 @@ Same as cyc#OrganismPartType.</rdfs:comment>
     <!-- http://www.nist.gov/itl/ssd/Biochem#Gadolinium -->
 
     <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Biochem#Gadolinium">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Lanthanide"/>
         <atomicNumber rdf:datatype="&owl;integer">64</atomicNumber>
         <atomicSymbol>Gd</atomicSymbol>
+        <rdfs:comment xml:lang="en-us">The element gadolinium</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -4000,14 +2521,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Post_TransitionMetal"/>
         <atomicNumber rdf:datatype="&owl;integer">31</atomicNumber>
         <atomicSymbol>Ga</atomicSymbol>
-    </owl:NamedIndividual>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem#Galolinium -->
-
-    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Biochem#Galolinium">
-        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Lanthanide"/>
+        <rdfs:comment xml:lang="en-us">The element gallium</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -4018,49 +2532,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Metalloid"/>
         <atomicNumber rdf:datatype="&owl;integer">32</atomicNumber>
         <atomicSymbol>Ge</atomicSymbol>
-    </owl:NamedIndividual>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem#Glutamate -->
-
-    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Biochem#Glutamate">
-        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcidType"/>
-        <hasSummaryChemicalFormula>C5H9NO4</hasSummaryChemicalFormula>
-        <iUPACAminoAcidCode>E</iUPACAminoAcidCode>
-        <rdfs:comment xml:lang="en">The amino acid, glutamate.</rdfs:comment>
-    </owl:NamedIndividual>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem#GlutamateOrGlutamine -->
-
-    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Biochem#GlutamateOrGlutamine">
-        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcidType_Generic"/>
-        <iUPACAminoAcidCode>Z</iUPACAminoAcidCode>
-        <rdfs:comment xml:lang="en">Either glutamate or glutamine.</rdfs:comment>
-    </owl:NamedIndividual>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem#Glutamine -->
-
-    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Biochem#Glutamine">
-        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcidType"/>
-        <hasSummaryChemicalFormula>C5H10N2O3</hasSummaryChemicalFormula>
-        <iUPACAminoAcidCode>Q</iUPACAminoAcidCode>
-        <rdfs:comment xml:lang="en">The amino acid, glutamine.</rdfs:comment>
-    </owl:NamedIndividual>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem#Glycine -->
-
-    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Biochem#Glycine">
-        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcidType"/>
-        <hasSummaryChemicalFormula>C2H5NO2</hasSummaryChemicalFormula>
-        <iUPACAminoAcidCode>G</iUPACAminoAcidCode>
-        <rdfs:comment xml:lang="en">The amino acid, glycine.</rdfs:comment>
+        <rdfs:comment xml:lang="en-us">The element germanium</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -4071,6 +2543,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#TransitionMetal"/>
         <atomicNumber rdf:datatype="&owl;integer">79</atomicNumber>
         <atomicSymbol>Au</atomicSymbol>
+        <rdfs:comment xml:lang="en-us">The element gold</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -4083,14 +2556,6 @@ Same as cyc#OrganismPartType.</rdfs:comment>
     
 
 
-    <!-- http://www.nist.gov/itl/ssd/Biochem#GuanineNucleotide -->
-
-    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Biochem#GuanineNucleotide">
-        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#NucleotideType"/>
-        <rdfs:comment xml:lang="en">Guanine nucleotide, whether a ribonucleotide or a deoxyribonucleotide.</rdfs:comment>
-    </owl:NamedIndividual>
-    
-
 
     <!-- http://www.nist.gov/itl/ssd/Biochem#Hafnium -->
 
@@ -4098,6 +2563,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#TransitionMetal"/>
         <atomicNumber rdf:datatype="&owl;integer">72</atomicNumber>
         <atomicSymbol>Hf</atomicSymbol>
+        <rdfs:comment xml:lang="en-us">The element hafnium</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -4108,6 +2574,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#TransitionMetal"/>
         <atomicNumber rdf:datatype="&owl;integer">108</atomicNumber>
         <atomicSymbol>Hs</atomicSymbol>
+        <rdfs:comment xml:lang="en-us">The element hassium</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -4118,19 +2585,10 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#NobleGas"/>
         <atomicNumber rdf:datatype="&owl;integer">2</atomicNumber>
         <atomicSymbol>He</atomicSymbol>
+        <rdfs:comment xml:lang="en-us">The element helium</rdfs:comment>
     </owl:NamedIndividual>
     
 
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem#Histidine -->
-
-    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Biochem#Histidine">
-        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcidType"/>
-        <hasSummaryChemicalFormula>C6H9N3O2</hasSummaryChemicalFormula>
-        <iUPACAminoAcidCode>H</iUPACAminoAcidCode>
-        <rdfs:comment xml:lang="en">The amino acid, histidine.</rdfs:comment>
-    </owl:NamedIndividual>
-    
 
 
     <!-- http://www.nist.gov/itl/ssd/Biochem#Holmium -->
@@ -4139,6 +2597,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Lanthanide"/>
         <atomicNumber rdf:datatype="&owl;integer">67</atomicNumber>
         <atomicSymbol>Ho</atomicSymbol>
+        <rdfs:comment xml:lang="en-us">The element holmium</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -4149,6 +2608,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#ChemicalElement"/>
         <atomicNumber rdf:datatype="&owl;integer">1</atomicNumber>
         <atomicSymbol>H</atomicSymbol>
+        <rdfs:comment xml:lang="en-us">The element hydrogen</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -4159,6 +2619,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Post_TransitionMetal"/>
         <atomicNumber rdf:datatype="&owl;integer">49</atomicNumber>
         <atomicSymbol>In</atomicSymbol>
+        <rdfs:comment xml:lang="en-us">The element indium</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -4169,6 +2630,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Halogen"/>
         <atomicNumber rdf:datatype="&owl;integer">53</atomicNumber>
         <atomicSymbol>I</atomicSymbol>
+        <rdfs:comment xml:lang="en-us">The element iodine</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -4179,6 +2641,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#TransitionMetal"/>
         <atomicNumber rdf:datatype="&owl;integer">77</atomicNumber>
         <atomicSymbol>Ir</atomicSymbol>
+        <rdfs:comment xml:lang="en-us">The element iridium</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -4189,18 +2652,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#TransitionMetal"/>
         <atomicNumber rdf:datatype="&owl;integer">26</atomicNumber>
         <atomicSymbol>Fe</atomicSymbol>
-    </owl:NamedIndividual>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem#Isoleucine -->
-
-    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Biochem#Isoleucine">
-        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcidType"/>
-        <hasSummaryChemicalFormula>C6H13NO2</hasSummaryChemicalFormula>
-        <iUPACAminoAcidCode>I</iUPACAminoAcidCode>
-        <hasStructuralChemicalFormula>HO2CCH(NH2)CH(CH3)CH2CH3</hasStructuralChemicalFormula>
-        <rdfs:comment xml:lang="en">The amino acid, isoleucine.</rdfs:comment>
+        <rdfs:comment xml:lang="en-us">The element iron</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -4211,6 +2663,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#NobleGas"/>
         <atomicNumber rdf:datatype="&owl;integer">36</atomicNumber>
         <atomicSymbol>Kr</atomicSymbol>
+        <rdfs:comment xml:lang="en-us">The element krypton</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -4221,6 +2674,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Lanthanide"/>
         <atomicNumber rdf:datatype="&owl;integer">57</atomicNumber>
         <atomicSymbol>La</atomicSymbol>
+        <rdfs:comment xml:lang="en-us">The element lanthanum</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -4231,6 +2685,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Actinide"/>
         <atomicNumber rdf:datatype="&owl;integer">103</atomicNumber>
         <atomicSymbol>Lr</atomicSymbol>
+        <rdfs:comment xml:lang="en-us">The element lawrencium</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -4241,18 +2696,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Post_TransitionMetal"/>
         <atomicNumber rdf:datatype="&owl;integer">82</atomicNumber>
         <atomicSymbol>Pb</atomicSymbol>
-    </owl:NamedIndividual>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem#Leucine -->
-
-    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Biochem#Leucine">
-        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcidType"/>
-        <hasSummaryChemicalFormula>C6H13NO2</hasSummaryChemicalFormula>
-        <iUPACAminoAcidCode>L</iUPACAminoAcidCode>
-        <hasStructuralChemicalFormula>HO2CCH(NH2)CH2CH(CH3)2</hasStructuralChemicalFormula>
-        <rdfs:comment xml:lang="en">The amino acid, leucine.</rdfs:comment>
+        <rdfs:comment xml:lang="en-us">The element lead</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -4263,6 +2707,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AlkaliMetal"/>
         <atomicNumber rdf:datatype="&owl;integer">3</atomicNumber>
         <atomicSymbol>Li</atomicSymbol>
+        <rdfs:comment xml:lang="en-us">The element lithium</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -4273,28 +2718,10 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Lanthanide"/>
         <atomicNumber rdf:datatype="&owl;integer">71</atomicNumber>
         <atomicSymbol>Lu</atomicSymbol>
+        <rdfs:comment xml:lang="en-us">The element lutetium</rdfs:comment>
     </owl:NamedIndividual>
     
 
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem#Lysine -->
-
-    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Biochem#Lysine">
-        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcidType"/>
-        <iUPACAminoAcidCode>K</iUPACAminoAcidCode>
-        <hasSummaryChemicalFormula>C6H14N2O2</hasSummaryChemicalFormula>
-        <hasStructuralChemicalFormula>HO2CCH(NH2)(CH2)4NH2</hasStructuralChemicalFormula>
-        <rdfs:comment xml:lang="en">The amino acid, lysine.</rdfs:comment>
-    </owl:NamedIndividual>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem#Magnanese -->
-
-    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Biochem#Magnanese">
-        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#TransitionMetal"/>
-    </owl:NamedIndividual>
-    
 
 
     <!-- http://www.nist.gov/itl/ssd/Biochem#Magnesium -->
@@ -4303,6 +2730,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AlkalineEarthMetal"/>
         <atomicNumber rdf:datatype="&owl;integer">12</atomicNumber>
         <atomicSymbol>Mg</atomicSymbol>
+        <rdfs:comment xml:lang="en-us">The element magnesium</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -4312,6 +2740,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
     <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Biochem#Manganese">
         <atomicNumber rdf:datatype="&owl;integer">25</atomicNumber>
         <atomicSymbol>Mn</atomicSymbol>
+        <rdfs:comment xml:lang="en-us">The element manganese</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -4322,6 +2751,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#ChemicalElement"/>
         <atomicNumber rdf:datatype="&owl;integer">109</atomicNumber>
         <atomicSymbol>Mt</atomicSymbol>
+        <rdfs:comment xml:lang="en-us">The element meitnerium</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -4332,6 +2762,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Actinide"/>
         <atomicNumber rdf:datatype="&owl;integer">101</atomicNumber>
         <atomicSymbol>Md</atomicSymbol>
+        <rdfs:comment xml:lang="en-us">The element mendelevium</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -4342,17 +2773,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#TransitionMetal"/>
         <atomicNumber rdf:datatype="&owl;integer">80</atomicNumber>
         <atomicSymbol>Hg</atomicSymbol>
-    </owl:NamedIndividual>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem#Methionine -->
-
-    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Biochem#Methionine">
-        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcidType"/>
-        <iUPACAminoAcidCode>M</iUPACAminoAcidCode>
-        <hasSummaryChemicalFormula>C5H11NO2S</hasSummaryChemicalFormula>
-        <rdfs:comment xml:lang="en">The amino acid, methionine.</rdfs:comment>
+        <rdfs:comment xml:lang="en-us">The element mercury</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -4363,6 +2784,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#TransitionMetal"/>
         <atomicNumber rdf:datatype="&owl;integer">42</atomicNumber>
         <atomicSymbol>Mo</atomicSymbol>
+        <rdfs:comment xml:lang="en-us">The element molybdenum</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -4373,6 +2795,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Lanthanide"/>
         <atomicNumber rdf:datatype="&owl;integer">60</atomicNumber>
         <atomicSymbol>Nd</atomicSymbol>
+        <rdfs:comment xml:lang="en-us">The element neodymium</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -4383,6 +2806,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#NobleGas"/>
         <atomicNumber rdf:datatype="&owl;integer">10</atomicNumber>
         <atomicSymbol>Ne</atomicSymbol>
+        <rdfs:comment xml:lang="en-us">The element neon</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -4393,6 +2817,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Actinide"/>
         <atomicNumber rdf:datatype="&owl;integer">93</atomicNumber>
         <atomicSymbol>Np</atomicSymbol>
+        <rdfs:comment xml:lang="en-us">The element neptunium</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -4403,6 +2828,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#TransitionMetal"/>
         <atomicNumber rdf:datatype="&owl;integer">28</atomicNumber>
         <atomicSymbol>Ni</atomicSymbol>
+        <rdfs:comment xml:lang="en-us">The element nickel</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -4413,6 +2839,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#TransitionMetal"/>
         <atomicNumber rdf:datatype="&owl;integer">41</atomicNumber>
         <atomicSymbol>Nb</atomicSymbol>
+        <rdfs:comment xml:lang="en-us">The element niobium</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -4423,6 +2850,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#ChemicalElement"/>
         <atomicNumber rdf:datatype="&owl;integer">6</atomicNumber>
         <atomicSymbol>N</atomicSymbol>
+        <rdfs:comment xml:lang="en-us">The element nitrogen</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -4433,6 +2861,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Actinide"/>
         <atomicNumber rdf:datatype="&owl;integer">102</atomicNumber>
         <atomicSymbol>Nb</atomicSymbol>
+        <rdfs:comment xml:lang="en-us">The element nobelium</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -4452,6 +2881,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#TransitionMetal"/>
         <atomicNumber rdf:datatype="&owl;integer">76</atomicNumber>
         <atomicSymbol>Os</atomicSymbol>
+        <rdfs:comment xml:lang="en-us">The element osmium</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -4471,6 +2901,17 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#ChemicalElement"/>
         <atomicNumber rdf:datatype="&owl;integer">8</atomicNumber>
         <atomicSymbol>O</atomicSymbol>
+        <rdfs:comment xml:lang="en-us">The element oxygen</rdfs:comment>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#PH -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Biochem#PH">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#MeasurableChemicalProperty"/>
+        <rdfs:comment xml:lang="en">The property, pH, is a measure of the acidity or alkalinity of a solution on a logarithmic scale on which 7 is neutral, lower values are more acid and higher values more alkaline. The pH is equal to −log10 c, where c is the hydrogen ion concentration in moles per litre.</rdfs:comment>
+        <or:termString xml:lang="en">pH</or:termString>
     </owl:NamedIndividual>
     
 
@@ -4481,6 +2922,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#TransitionMetal"/>
         <atomicNumber rdf:datatype="&owl;integer">46</atomicNumber>
         <atomicSymbol>Pd</atomicSymbol>
+        <rdfs:comment xml:lang="en-us">The element palladium</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -4501,16 +2943,6 @@ Same as cyc#OrganismPartType.</rdfs:comment>
     
 
 
-    <!-- http://www.nist.gov/itl/ssd/Biochem#Phenylalanine -->
-
-    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Biochem#Phenylalanine">
-        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcidType"/>
-        <iUPACAminoAcidCode>F</iUPACAminoAcidCode>
-        <hasSummaryChemicalFormula>C9H11NO2</hasSummaryChemicalFormula>
-        <rdfs:comment xml:lang="en">The amino acid, phenylalanine.</rdfs:comment>
-    </owl:NamedIndividual>
-    
-
 
     <!-- http://www.nist.gov/itl/ssd/Biochem#Phosphorus -->
 
@@ -4518,6 +2950,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#ChemicalElement"/>
         <atomicNumber rdf:datatype="&owl;integer">15</atomicNumber>
         <atomicSymbol>P</atomicSymbol>
+        <rdfs:comment xml:lang="en-us">The element phosphorus</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -4528,6 +2961,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#TransitionMetal"/>
         <atomicNumber rdf:datatype="&owl;integer">78</atomicNumber>
         <atomicSymbol>Pt</atomicSymbol>
+        <rdfs:comment xml:lang="en-us">The element platinum</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -4538,6 +2972,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Actinide"/>
         <atomicNumber rdf:datatype="&owl;integer">94</atomicNumber>
         <atomicSymbol>Pu</atomicSymbol>
+        <rdfs:comment xml:lang="en-us">The element plutonium</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -4548,6 +2983,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Metalloid"/>
         <atomicNumber rdf:datatype="&owl;integer">84</atomicNumber>
         <atomicSymbol>Po</atomicSymbol>
+        <rdfs:comment xml:lang="en-us">The element polonium</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -4558,6 +2994,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AlkaliMetal"/>
         <atomicNumber rdf:datatype="&owl;integer">19</atomicNumber>
         <atomicSymbol>K</atomicSymbol>
+        <rdfs:comment xml:lang="en-us">The element potassium</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -4568,17 +3005,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Lanthanide"/>
         <atomicNumber rdf:datatype="&owl;integer">59</atomicNumber>
         <atomicSymbol>Pr</atomicSymbol>
-    </owl:NamedIndividual>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem#Proline -->
-
-    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Biochem#Proline">
-        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcidType"/>
-        <hasSummaryChemicalFormula>C5H9NO2</hasSummaryChemicalFormula>
-        <iUPACAminoAcidCode>L</iUPACAminoAcidCode>
-        <rdfs:comment xml:lang="en">The amino acid, proline.</rdfs:comment>
+        <rdfs:comment xml:lang="en-us">The element praseodymium</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -4589,6 +3016,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Lanthanide"/>
         <atomicNumber rdf:datatype="&owl;integer">61</atomicNumber>
         <atomicSymbol>Pm</atomicSymbol>
+        <rdfs:comment xml:lang="en-us">The element promethium</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -4599,6 +3027,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Actinide"/>
         <atomicNumber rdf:datatype="&owl;integer">91</atomicNumber>
         <atomicSymbol>Pa</atomicSymbol>
+        <rdfs:comment xml:lang="en-us">The element protactinium</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -4609,6 +3038,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AlkalineEarthMetal"/>
         <atomicNumber rdf:datatype="&owl;integer">88</atomicNumber>
         <atomicSymbol>Ra</atomicSymbol>
+        <rdfs:comment xml:lang="en-us">The element radium</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -4619,6 +3049,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#NobleGas"/>
         <atomicNumber rdf:datatype="&owl;integer">86</atomicNumber>
         <atomicSymbol>Rn</atomicSymbol>
+        <rdfs:comment xml:lang="en-us">The element radon</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -4629,6 +3060,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#TransitionMetal"/>
         <atomicNumber rdf:datatype="&owl;integer">75</atomicNumber>
         <atomicSymbol>Re</atomicSymbol>
+        <rdfs:comment xml:lang="en-us">The element rhenium</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -4639,6 +3071,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#TransitionMetal"/>
         <atomicNumber rdf:datatype="&owl;integer">45</atomicNumber>
         <atomicSymbol>Rh</atomicSymbol>
+        <rdfs:comment xml:lang="en-us">The element rhodium</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -4649,6 +3082,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AlkaliMetal"/>
         <atomicNumber rdf:datatype="&owl;integer">37</atomicNumber>
         <atomicSymbol>Rb</atomicSymbol>
+        <rdfs:comment xml:lang="en-us">The element rubidium</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -4659,6 +3093,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#TransitionMetal"/>
         <atomicNumber rdf:datatype="&owl;integer">44</atomicNumber>
         <atomicSymbol>Ru</atomicSymbol>
+        <rdfs:comment xml:lang="en-us">The element ruthenium</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -4669,6 +3104,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#TransitionMetal"/>
         <atomicNumber rdf:datatype="&owl;integer">104</atomicNumber>
         <atomicSymbol>Rf</atomicSymbol>
+        <rdfs:comment xml:lang="en-us">The element rutherfordium</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -4679,6 +3115,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Lanthanide"/>
         <atomicNumber rdf:datatype="&owl;integer">62</atomicNumber>
         <atomicSymbol>Sm</atomicSymbol>
+        <rdfs:comment xml:lang="en-us">The element samarium</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -4689,6 +3126,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#TransitionMetal"/>
         <atomicNumber rdf:datatype="&owl;integer">21</atomicNumber>
         <atomicSymbol>Sc</atomicSymbol>
+        <rdfs:comment xml:lang="en-us">The element scandium</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -4696,16 +3134,10 @@ Same as cyc#OrganismPartType.</rdfs:comment>
     <!-- http://www.nist.gov/itl/ssd/Biochem#Seaborgium -->
 
     <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Biochem#Seaborgium">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#TransitionMetal"/>
         <atomicNumber rdf:datatype="&owl;integer">106</atomicNumber>
         <atomicSymbol>Sg</atomicSymbol>
-    </owl:NamedIndividual>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem#Seborgium -->
-
-    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Biochem#Seborgium">
-        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#TransitionMetal"/>
+        <rdfs:comment xml:lang="en-us">The element seborgium</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -4716,28 +3148,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#ChemicalElement"/>
         <atomicNumber rdf:datatype="&owl;integer">34</atomicNumber>
         <atomicSymbol>Se</atomicSymbol>
-    </owl:NamedIndividual>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem#Selenocysteine -->
-
-    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Biochem#Selenocysteine">
-        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcidType"/>
-        <iUPACAminoAcidCode>S</iUPACAminoAcidCode>
-        <hasSummaryChemicalFormula>C3H7NO2Se</hasSummaryChemicalFormula>
-        <rdfs:comment xml:lang="en">Selenocysteine is an amino acid that is present in several enzymes.  It is not coded for directly in the genetic code.  Instead, it is encoded in a special way by a UGA codon, which is normally a stop codon.  When cells are grown in the absence of selenium, translation of selenoproteins terminates at the UGA codon, resulting in a truncated, nonfunctional enzyme.  The UGA codon is made to encode selenocysteine by the presence of a SECIS element (SElenoCysteine Insertion Sequence) in the mRNA.</rdfs:comment>
-    </owl:NamedIndividual>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem#Serine -->
-
-    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Biochem#Serine">
-        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcidType"/>
-        <iUPACAminoAcidCode>S</iUPACAminoAcidCode>
-        <hasSummaryChemicalFormula>C3H7NO3</hasSummaryChemicalFormula>
-        <rdfs:comment xml:lang="en">The amino acid, serine.</rdfs:comment>
+        <rdfs:comment xml:lang="en-us">The element selenium</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -4748,6 +3159,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Metalloid"/>
         <atomicNumber rdf:datatype="&owl;integer">14</atomicNumber>
         <atomicSymbol>Si</atomicSymbol>
+        <rdfs:comment xml:lang="en-us">The element silicon</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -4758,6 +3170,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#TransitionMetal"/>
         <atomicNumber rdf:datatype="&owl;integer">47</atomicNumber>
         <atomicSymbol>Ag</atomicSymbol>
+        <rdfs:comment xml:lang="en-us">The element silver</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -4768,6 +3181,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AlkaliMetal"/>
         <atomicNumber rdf:datatype="&owl;integer">11</atomicNumber>
         <atomicSymbol>Na</atomicSymbol>
+        <rdfs:comment xml:lang="en-us">The element sodium</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -4778,6 +3192,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AlkalineEarthMetal"/>
         <atomicNumber rdf:datatype="&owl;integer">38</atomicNumber>
         <atomicSymbol>Sr</atomicSymbol>
+        <rdfs:comment xml:lang="en-us">The element strontium</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -4788,6 +3203,8 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#ChemicalElement"/>
         <atomicNumber rdf:datatype="&owl;integer">16</atomicNumber>
         <atomicSymbol>S</atomicSymbol>
+        <rdfs:comment xml:lang="en-uk">The element sulphur</rdfs:comment>
+        <rdfs:comment xml:lang="en-us">The element sulfur</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -4798,6 +3215,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#TransitionMetal"/>
         <atomicNumber rdf:datatype="&owl;integer">73</atomicNumber>
         <atomicSymbol>Ta</atomicSymbol>
+        <rdfs:comment xml:lang="en-us">The element tantalum</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -4808,6 +3226,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#TransitionMetal"/>
         <atomicNumber rdf:datatype="&xsd;positiveInteger">43</atomicNumber>
         <atomicSymbol rdf:datatype="&xsd;string">Tc</atomicSymbol>
+        <rdfs:comment xml:lang="en-us">The element technetium</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -4818,6 +3237,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Metalloid"/>
         <atomicNumber rdf:datatype="&owl;integer">52</atomicNumber>
         <atomicSymbol>Te</atomicSymbol>
+        <rdfs:comment xml:lang="en-us">The element tellurium</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -4828,6 +3248,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Lanthanide"/>
         <atomicNumber rdf:datatype="&owl;integer">65</atomicNumber>
         <atomicSymbol>Tb</atomicSymbol>
+        <rdfs:comment xml:lang="en-us">The element terbium</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -4838,6 +3259,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Post_TransitionMetal"/>
         <atomicNumber rdf:datatype="&owl;integer">81</atomicNumber>
         <atomicSymbol>Tl</atomicSymbol>
+        <rdfs:comment xml:lang="en-us">The element thallium</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -4848,17 +3270,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Actinide"/>
         <atomicNumber rdf:datatype="&owl;integer">90</atomicNumber>
         <atomicSymbol>Th</atomicSymbol>
-    </owl:NamedIndividual>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem#Threonine -->
-
-    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Biochem#Threonine">
-        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcidType"/>
-        <iUPACAminoAcidCode>T</iUPACAminoAcidCode>
-        <hasSummaryChemicalFormula>C4H9NO3</hasSummaryChemicalFormula>
-        <rdfs:comment xml:lang="en">The amino acid, threonine.</rdfs:comment>
+        <rdfs:comment xml:lang="en-us">The element thorium</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -4869,16 +3281,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Lanthanide"/>
         <atomicNumber rdf:datatype="&owl;integer">69</atomicNumber>
         <atomicSymbol>Tm</atomicSymbol>
-    </owl:NamedIndividual>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem#ThymineDeoxyribonucleotide -->
-
-    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Biochem#ThymineDeoxyribonucleotide">
-        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#NucleotideByChemicalSpecies"/>
-        <rdfs:comment xml:lang="en">Thymine deoxyribonucleotide viewed as an an information structure, not a physical monomer.</rdfs:comment>
-        <rdfs:comment xml:lang="en">Thymine deoxyribonucleotide.</rdfs:comment>
+        <rdfs:comment xml:lang="en-us">The element thulium</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -4889,6 +3292,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Post_TransitionMetal"/>
         <atomicNumber rdf:datatype="&owl;integer">50</atomicNumber>
         <atomicSymbol>Sn</atomicSymbol>
+        <rdfs:comment xml:lang="en-us">The element tin</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -4899,26 +3303,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#TransitionMetal"/>
         <atomicNumber rdf:datatype="&owl;integer">22</atomicNumber>
         <atomicSymbol>Ti</atomicSymbol>
-    </owl:NamedIndividual>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem#Trypsin -->
-
-    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Biochem#Trypsin">
-        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#ProteinTypeBySpecies"/>
-        <rdfs:comment xml:lang="en">Trypsin is an enzyme that hydrolyzes (other) proteins.</rdfs:comment>
-    </owl:NamedIndividual>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem#Tryptophan -->
-
-    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Biochem#Tryptophan">
-        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcidType"/>
-        <iUPACAminoAcidCode>W</iUPACAminoAcidCode>
-        <hasSummaryChemicalFormula>C11H12N2O2</hasSummaryChemicalFormula>
-        <rdfs:comment xml:lang="en">The amino acid, tryptophan.</rdfs:comment>
+        <rdfs:comment xml:lang="en-us">The element titanium</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -4928,18 +3313,8 @@ Same as cyc#OrganismPartType.</rdfs:comment>
     <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Biochem#Tungsten">
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#TransitionMetal"/>
         <atomicNumber rdf:datatype="&owl;integer">74</atomicNumber>
+        <rdfs:comment xml:lang="en-us">The element tungsten</rdfs:comment>
         <atomicSymbol>W</atomicSymbol>
-    </owl:NamedIndividual>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem#Tyrosine -->
-
-    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Biochem#Tyrosine">
-        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcidType"/>
-        <hasSummaryChemicalFormula>C9H11NO3</hasSummaryChemicalFormula>
-        <rdfs:comment xml:lang="en">The amino acid, tyrosine</rdfs:comment>
-        <iUPACAminoAcidCode>Y</iUPACAminoAcidCode>
     </owl:NamedIndividual>
     
 
@@ -4960,33 +3335,13 @@ Same as cyc#OrganismPartType.</rdfs:comment>
     
 
 
-    <!-- http://www.nist.gov/itl/ssd/Biochem#UracilRibonucleotide -->
-
-    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Biochem#UracilRibonucleotide">
-        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#NucleotideByChemicalSpecies"/>
-        <rdfs:comment xml:lang="en">Uracil ribonucleotide viewed as an information structure, not a physical monomer.</rdfs:comment>
-        <rdfs:comment xml:lang="en">Uracil ribonucleotide.</rdfs:comment>
-    </owl:NamedIndividual>
-    
-
-
     <!-- http://www.nist.gov/itl/ssd/Biochem#Uranium -->
 
     <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Biochem#Uranium">
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Actinide"/>
         <atomicNumber rdf:datatype="&owl;integer">92</atomicNumber>
+        <rdfs:comment xml:lang="en-us">The element uranium</rdfs:comment>
         <atomicSymbol>U</atomicSymbol>
-    </owl:NamedIndividual>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem#Valine -->
-
-    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Biochem#Valine">
-        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcidType"/>
-        <hasSummaryChemicalFormula>C5H11NO2</hasSummaryChemicalFormula>
-        <rdfs:comment xml:lang="en">The amino acid, valine.</rdfs:comment>
-        <iUPACAminoAcidCode>V</iUPACAminoAcidCode>
     </owl:NamedIndividual>
     
 
@@ -4996,16 +3351,8 @@ Same as cyc#OrganismPartType.</rdfs:comment>
     <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Biochem#Vanadium">
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#TransitionMetal"/>
         <atomicNumber rdf:datatype="&owl;integer">23</atomicNumber>
+        <rdfs:comment xml:lang="en-us">The element vanadium</rdfs:comment>
         <atomicSymbol>V</atomicSymbol>
-    </owl:NamedIndividual>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem#VaporPressure -->
-
-    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Biochem#VaporPressure">
-        <rdf:type rdf:resource="&Materials;ThermalProperty"/>
-        <rdfs:comment xml:lang="en">The (equilibrium) Vapor Pressure of an object or substance is the pressure exerted by a vapor in thermodynamic equilibrium with its condensed phases (solid or liquid) at a given temperature in a closed system.  This property is dependent upon the material(s) comprising the object or substance and its temperature.  It is not dependent upon the external pressure.</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -5015,6 +3362,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
     <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Biochem#Water">
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#ChemicalSubstanceTypeByChemicalSpecies"/>
         <atomicMass rdf:datatype="&owl;real">18.015</atomicMass>
+        <rdfs:comment xml:lang="en">Water is an instance of ChemicalSubstanceTypeByChemicalSpecies. Each instance of Water is one piece of some (pure or impure) portion of the chemical compound H2O. Instances of Water may be in a gaseous, liquid, or solid state; they may be salty or not, drinkable or not.</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -5025,6 +3373,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#NobleGas"/>
         <atomicNumber rdf:datatype="&owl;integer">54</atomicNumber>
         <atomicSymbol>Xe</atomicSymbol>
+        <rdfs:comment xml:lang="en-us">The element xenon</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -5035,6 +3384,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Lanthanide"/>
         <atomicNumber rdf:datatype="&owl;integer">70</atomicNumber>
         <atomicSymbol>Yb</atomicSymbol>
+        <rdfs:comment xml:lang="en-us">The element ytterbium</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -5045,6 +3395,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#TransitionMetal"/>
         <atomicNumber rdf:datatype="&owl;integer">39</atomicNumber>
         <atomicSymbol>Y</atomicSymbol>
+        <rdfs:comment xml:lang="en-us">The element yttrium</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -5055,6 +3406,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#TransitionMetal"/>
         <atomicNumber rdf:datatype="&owl;integer">30</atomicNumber>
         <atomicSymbol>Zn</atomicSymbol>
+        <rdfs:comment xml:lang="en-us">The element zinc</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -5064,23 +3416,8 @@ Same as cyc#OrganismPartType.</rdfs:comment>
     <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Biochem#Zirconium">
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#TransitionMetal"/>
         <atomicNumber rdf:datatype="&owl;integer">40</atomicNumber>
+        <rdfs:comment xml:lang="en-us">The element zirconium</rdfs:comment>
         <atomicSymbol>Zr</atomicSymbol>
-    </owl:NamedIndividual>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem#enzymeCommissionNumber -->
-
-    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Biochem#enzymeCommissionNumber">
-        <rdfs:comment xml:lang="en">Enzyme Commission number for enzyme product of sequence, e.g., ``1.1.2.4&#39;&#39;.  Valid values for EC numbers are defined in the list prepared by the  Nomenclature Committee of the International Union of Biochemistry and Molecular Biology (NC-IUBMB) (published in Enzyme Nomenclature 1992, Academic Press, San Diego, or a more recent revision thereof).  The format represents a string of four numbers separated by full stops; up to three numbers starting from the end of the string can be replaced by dash (e.g., ``1.1.2.-&#39;&#39;) to indicate uncertain assignment.  The symbol `n&#39; can be used in the last position instead of a number where the EC number is awaiting assignment (e.g., `1.1.2.n&#39;.  Please note that such incomplete EC numbers are not approved by NC-IUBMB. Equivalent to ThermoML&#39;s sECNumber</rdfs:comment>
-    </owl:NamedIndividual>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem#proteinID -->
-
-    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Biochem#proteinID">
-        <rdfs:comment xml:lang="en">Identifies the protein coded for by a standard protein identifier, issued by International collaborators.  The identifier consists of a stable ID portion (3 letters + 5 digits format) plus a version number after a decimal point.  Same as ThermML&#39;s sPDBIdentifier.</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -5088,32 +3425,8 @@ Same as cyc#OrganismPartType.</rdfs:comment>
     <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#Human -->
 
     <owl:NamedIndividual rdf:about="&or;Human">
-        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#BiologicalSpecies"/>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#OrganismType"/>
     </owl:NamedIndividual>
-    
-
-
-    <!-- 
-    ///////////////////////////////////////////////////////////////////////////////////////
-    //
-    // Annotations
-    //
-    ///////////////////////////////////////////////////////////////////////////////////////
-     -->
-
-    <rdf:Description rdf:about="&Biochem;Water">
-        <rdfs:comment xml:lang="en">Water is an instance of ChemicalSubstanceTypeByChemicalSpecies. Each instance of Water is one piece of some (pure or impure) portion of the chemical compound H2O. Instances of Water may be in a gaseous, liquid, or solid state; they may be salty or not, drinkable or not.</rdfs:comment>
-    </rdf:Description>
-    <rdf:Description rdf:about="&Biochem;BiologicalObject">
-        <rdfs:comment xml:lang="en">A Biological Object is an object composed of Organic Material.</rdfs:comment>
-    </rdf:Description>
-    <rdf:Description rdf:about="&Biochem;Oxide">
-        <rdfs:comment xml:lang="en">An Oxide is a portion of similar molecules in which each molecule consists of a combination of oxygen atoms with one or more atoms of another element.</rdfs:comment>
-    </rdf:Description>
-    <rdf:Description rdf:about="&Biochem;ElementalSubstance">
-        <rdfs:comment xml:lang="en">An Elemental Substance is a substance composed of a single element.</rdfs:comment>
-    </rdf:Description>
     
 
 
@@ -5128,23 +3441,6 @@ Same as cyc#OrganismPartType.</rdfs:comment>
     <rdf:Description>
         <rdf:type rdf:resource="&owl;AllDifferent"/>
         <owl:distinctMembers rdf:parseType="Collection">
-            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Biochem#Bismuth"/>
-            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Biochem#Tin"/>
-        </owl:distinctMembers>
-    </rdf:Description>
-    <rdf:Description>
-        <rdf:type rdf:resource="&owl;AllDifferent"/>
-        <owl:distinctMembers rdf:parseType="Collection">
-            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Biochem#AdenineNucleotide"/>
-            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Biochem#CytosineNucleotide"/>
-            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Biochem#GuanineNucleotide"/>
-            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Biochem#ThymineDeoxyribonucleotide"/>
-            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Biochem#UracilRibonucleotide"/>
-        </owl:distinctMembers>
-    </rdf:Description>
-    <rdf:Description>
-        <rdf:type rdf:resource="&owl;AllDifferent"/>
-        <owl:distinctMembers rdf:parseType="Collection">
             <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Biochem#Thallium"/>
             <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Biochem#Tin"/>
         </owl:distinctMembers>
@@ -5152,14 +3448,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
     <rdf:Description>
         <rdf:type rdf:resource="&owl;AllDifferent"/>
         <owl:distinctMembers rdf:parseType="Collection">
-            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Biochem#Gallium"/>
-            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Biochem#Tin"/>
-        </owl:distinctMembers>
-    </rdf:Description>
-    <rdf:Description>
-        <rdf:type rdf:resource="&owl;AllDifferent"/>
-        <owl:distinctMembers rdf:parseType="Collection">
-            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Biochem#Indium"/>
+            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Biochem#Bismuth"/>
             <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Biochem#Tin"/>
         </owl:distinctMembers>
     </rdf:Description>
@@ -5174,6 +3463,13 @@ Same as cyc#OrganismPartType.</rdfs:comment>
         <rdf:type rdf:resource="&owl;AllDifferent"/>
         <owl:distinctMembers rdf:parseType="Collection">
             <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Biochem#Aluminum"/>
+            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Biochem#Tin"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Biochem#Gallium"/>
             <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Biochem#Tin"/>
         </owl:distinctMembers>
     </rdf:Description>
