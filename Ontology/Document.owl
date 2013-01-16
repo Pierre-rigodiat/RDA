@@ -3,12 +3,15 @@
 
 <!DOCTYPE rdf:RDF [
     <!ENTITY owl "http://www.w3.org/2002/07/owl#" >
+    <!ENTITY dc "http://purl.org/dc/elements/1.1/" >
+    <!ENTITY dc "http://purl.org/dc/elements/1.1/#" >
     <!ENTITY xsd "http://www.w3.org/2001/XMLSchema#" >
+    <!ENTITY skos "http://www.w3.org/2004/02/skos/core#" >
     <!ENTITY xml "http://www.w3.org/XML/1998/namespace" >
     <!ENTITY oil "http://www.daml.org/2001/03/daml+oil#" >
-    <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#" >
     <!ENTITY doc "http://www.nist.gov/itl/ssd/Document#" >
-    <!ENTITY Document "http://www.nist.gov/itl/ssd/Document.owl#" >
+    <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#" >
+    <!ENTITY ont "http://www.co-ode.org/ontologies/ont.owl#" >
     <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#" >
     <!ENTITY cyc "http://sw.opencyc.org/2009/04/07/concept/en/#" >
     <!ENTITY or "http://www.nist.gov/itl/ssd/OntologyRequirements#" >
@@ -18,18 +21,25 @@
 
 <rdf:RDF xmlns="http://www.nist.gov/itl/ssd/Document#"
      xml:base="http://www.nist.gov/itl/ssd/Document"
-     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
-     xmlns:Document="http://www.nist.gov/itl/ssd/Document.owl#"
+     xmlns:dc="&dc;#"
      xmlns:or="http://www.nist.gov/itl/ssd/OntologyRequirements#"
-     xmlns:owl="http://www.w3.org/2002/07/owl#"
+     xmlns:xml="http://www.w3.org/XML/1998/namespace"
+     xmlns:OntologyRequirements="http://www.nist.gov/itl/ssd/OntologyRequirements.owl#"
+     xmlns:oil="http://www.daml.org/2001/03/daml+oil#"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+     xmlns:ont="http://www.co-ode.org/ontologies/ont.owl#"
      xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:owl="http://www.w3.org/2002/07/owl#"
      xmlns:doc="http://www.nist.gov/itl/ssd/Document#"
      xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-     xmlns:xml="http://www.w3.org/XML/1998/namespace"
      xmlns:cyc="http://sw.opencyc.org/2009/04/07/concept/en/#"
-     xmlns:OntologyRequirements="http://www.nist.gov/itl/ssd/OntologyRequirements.owl#"
-     xmlns:oil="http://www.daml.org/2001/03/daml+oil#">
-    <owl:Ontology rdf:about="http://www.nist.gov/itl/ssd/Document.owl">
+     xmlns:skos="http://www.w3.org/2004/02/skos/core#">
+    <owl:Ontology rdf:about="http://www.nist.gov/itl/ssd/Document">
+        <dc:date>12 October 2012</dc:date>
+        <ont:creator>doug foxvog</ont:creator>
+        <dc:title xml:lang="en">Document Ontology</dc:title>
+        <dc:subject xml:lang="en">Ontology for basic documentation concepts.</dc:subject>
+        <skos:note xml:lang="en">This ontology is incomplete, having been developed to cover general features of experiments to be used in recording information stored in genomic and materials science files.</skos:note>
         <owl:imports rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements.owl"/>
     </owl:Ontology>
     
@@ -44,7 +54,6 @@
      -->
 
     
-
 
     <!-- 
     ///////////////////////////////////////////////////////////////////////////////////////
@@ -68,89 +77,151 @@
     
 
 
-    <!-- http://www.nist.gov/itl/ssd/Document#authorOf -->
+    <!-- http://www.nist.gov/itl/ssd/Document#degreeIn -->
 
-    <owl:ObjectProperty rdf:about="&doc;authorOf">
-        <rdfs:comment xml:lang="en">The &#39;author Of&#39; a Document, System Model, or other piece of information is a person or organization which created the work.  A work may have  more than one author.</rdfs:comment>
+    <owl:ObjectProperty rdf:about="&doc;degreeIn">
+        <rdfs:comment xml:lang="en">The predicate ``degreeIn&#39;&#39; relates an academic degree to its field of study.  A single degree may be in multiple fields of study, such as a bachelor&#39;s degree in electrical engineering and computer science.</rdfs:comment>
+        <rdfs:domain rdf:resource="&doc;AcademicDegree"/>
+        <rdfs:range rdf:resource="&or;FieldOfStudy"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document#hasAuthor -->
+
+    <owl:ObjectProperty rdf:about="&doc;hasAuthor">
+        <rdfs:comment xml:lang="en">The relation dc:author relates the first argument to the name of the second argument.</rdfs:comment>
+        <rdfs:subPropertyOf rdf:resource="&doc;hasContributor"/>
         <rdfs:domain rdf:resource="&or;AbstractStructuredInformationStore"/>
         <rdfs:range rdf:resource="&or;IntelligentAgent"/>
     </owl:ObjectProperty>
     
 
 
-    <!-- http://www.nist.gov/itl/ssd/Document#publisherOf -->
+    <!-- http://www.nist.gov/itl/ssd/Document#hasBinder -->
 
-    <owl:ObjectProperty rdf:about="&doc;publisherOf">
-        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
-        <rdfs:comment xml:lang="en">The relation &#39;publisher Of&#39; specifies the Organization which originally published a Document, System Model, or other such work.</rdfs:comment>
-        <rdfs:domain rdf:resource="&Document;PublishedInformation"/>
+    <owl:ObjectProperty rdf:about="&doc;hasBinder">
+        <rdfs:comment xml:lang="en">The property hasBinder links a work to a person or organization that binds physical copies of the work</rdfs:comment>
+        <rdfs:subPropertyOf rdf:resource="&doc;hasContributor"/>
+        <rdfs:domain rdf:resource="&or;AbstractStructuredInformationStore"/>
+        <rdfs:range rdf:resource="&or;IntelligentAgent"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document#hasContributor -->
+
+    <owl:ObjectProperty rdf:about="&doc;hasContributor">
+        <rdfs:comment xml:lang="en">The relation dc:contributor relates the first argument to the name of the second argument.</rdfs:comment>
+        <rdfs:domain rdf:resource="&or;AbstractStructuredInformationStore"/>
+        <rdfs:range rdf:resource="&or;IntelligentAgent"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document#hasEditor -->
+
+    <owl:ObjectProperty rdf:about="&doc;hasEditor">
+        <rdfs:subPropertyOf rdf:resource="&doc;hasContributor"/>
+        <rdfs:domain rdf:resource="&or;AbstractStructuredInformationStore"/>
+        <rdfs:range rdf:resource="&or;Human"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document#hasIllustrator -->
+
+    <owl:ObjectProperty rdf:about="&doc;hasIllustrator">
+        <rdfs:subPropertyOf rdf:resource="&doc;hasContributor"/>
+        <rdfs:domain rdf:resource="&or;AbstractStructuredInformationStore"/>
+        <rdfs:range rdf:resource="&or;IntelligentAgent"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document#hasPublisher -->
+
+    <owl:ObjectProperty rdf:about="&doc;hasPublisher">
+        <rdfs:subPropertyOf rdf:resource="&doc;hasContributor"/>
+        <rdfs:domain rdf:resource="&or;AbstractStructuredInformationStore"/>
         <rdfs:range rdf:resource="&or;Organization"/>
     </owl:ObjectProperty>
     
 
 
-    <!-- http://www.nist.gov/itl/ssd/Document.owl#doiLink -->
+    <!-- http://www.nist.gov/itl/ssd/Document#issueOfPeriodical -->
 
-    <owl:ObjectProperty rdf:about="&Document;doiLink">
+    <owl:ObjectProperty rdf:about="&doc;issueOfPeriodical">
         <rdf:type rdf:resource="&owl;FunctionalProperty"/>
-        <rdfs:comment xml:lang="en">A digital object identifier (DOI) is a character string (a &quot;digital identifier&quot;) used to uniquely identify an object such as an electronic document. Metadata about the object is stored in association with the DOI name and this metadata may include a location, such as a URL, where the object can be found. The DOI for a document is permanent, whereas its location and other metadata may change. Referring to an online document by its DOI provides more stable linking than simply referring to it by its URL, because if its URL changes, the publisher need only update the metadata for the DOI to link to the new URL</rdfs:comment>
+        <rdfs:comment xml:lang="en">The property ``issueOfPeriodical&#39;&#39; relates a Journal Issue to the Periodical Series of which it is an issue.</rdfs:comment>
+        <rdfs:domain rdf:resource="&doc;JournalIssue"/>
+        <rdfs:range rdf:resource="&doc;PeriodicalSeries"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document#languageOfDocument -->
+
+    <owl:ObjectProperty rdf:about="&doc;languageOfDocument">
         <rdfs:domain rdf:resource="&doc;Document"/>
-        <rdfs:range rdf:resource="&Document;DigitalObjectIdentifier"/>
+        <rdfs:range rdf:resource="&or;Language"/>
     </owl:ObjectProperty>
     
 
 
-    <!-- http://www.nist.gov/itl/ssd/Document.owl#issueOfPeriodical -->
+    <!-- http://www.nist.gov/itl/ssd/Document#proofreader -->
 
-    <owl:ObjectProperty rdf:about="&Document;issueOfPeriodical">
-        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
-        <rdf:type rdf:resource="&owl;IrreflexiveProperty"/>
-        <rdfs:range rdf:resource="&Document;Periodical"/>
-        <rdfs:domain rdf:resource="&Document;PeriodicalIssue"/>
-        <rdfs:subPropertyOf rdf:resource="&Document;subWorkOf"/>
+    <owl:ObjectProperty rdf:about="&doc;proofreader">
+        <rdfs:subPropertyOf rdf:resource="&doc;hasContributor"/>
+        <rdfs:domain rdf:resource="&or;AbstractStructuredInformationStore"/>
+        <rdfs:range rdf:resource="&or;Human"/>
     </owl:ObjectProperty>
     
 
 
-    <!-- http://www.nist.gov/itl/ssd/Document.owl#publicationDate -->
+    <!-- http://www.nist.gov/itl/ssd/Document#publicationMonth -->
 
-    <owl:ObjectProperty rdf:about="&Document;publicationDate">
-        <rdfs:comment xml:lang="en">The publication Date of some Published Information is the Date Time that it was officially published, even if copies were first distributed before or after that date. The publication Date may be given as a Calendar Day, a Calendar Month, a Calendar Quarter, a Calendar Year, or possibly at some other degree of granularity.</rdfs:comment>
-        <rdfs:domain rdf:resource="&Document;PublishedInformation"/>
-        <rdfs:range rdf:resource="&or;DateTime"/>
+    <owl:ObjectProperty rdf:about="&doc;publicationMonth">
+        <rdfs:domain rdf:resource="&doc;Document"/>
+        <rdfs:range rdf:resource="&OntologyRequirements;MonthOfYearType"/>
     </owl:ObjectProperty>
     
 
 
-    <!-- http://www.nist.gov/itl/ssd/Document.owl#specificModelOfGenericType -->
+    <!-- http://www.nist.gov/itl/ssd/Document#reviewedBy -->
 
-    <owl:ObjectProperty rdf:about="&Document;specificModelOfGenericType">
-        <rdfs:comment xml:lang="en">The property &#39;specific Model Of Generic Type&#39; relates a Specific System Model to a Generic System Model of which it is a more specific form.</rdfs:comment>
-        <rdfs:range rdf:resource="&doc;GenericSystemModel"/>
-        <rdfs:domain rdf:resource="&doc;SpecificSystemModel"/>
+    <owl:ObjectProperty rdf:about="&doc;reviewedBy">
+        <rdfs:subPropertyOf rdf:resource="&doc;hasContributor"/>
+        <rdfs:domain rdf:resource="&or;AbstractStructuredInformationStore"/>
+        <rdfs:range rdf:resource="&or;Human"/>
     </owl:ObjectProperty>
     
 
 
-    <!-- http://www.nist.gov/itl/ssd/Document.owl#subWorkOf -->
+    <!-- http://www.nist.gov/itl/ssd/Document#translatedBy -->
 
-    <owl:ObjectProperty rdf:about="&Document;subWorkOf">
-        <rdfs:comment xml:lang="en">One Data Object is a subWork of another if all the data in the first is present in the same form in the second Data Object.</rdfs:comment>
-        <rdfs:range rdf:resource="&OntologyRequirements;DataObject"/>
-        <rdfs:domain rdf:resource="&OntologyRequirements;DataObject"/>
+    <owl:ObjectProperty rdf:about="&doc;translatedBy">
+        <rdfs:comment xml:lang="en">The property translatedBy links a work to a person or organization that translated the work into another language.  A ternary relation or reification of either the translated work or the act of translation would be necessary to link the translator to language into which the work was translated.</rdfs:comment>
+        <rdfs:subPropertyOf rdf:resource="&doc;hasContributor"/>
+        <rdfs:domain rdf:resource="&or;AbstractStructuredInformationStore"/>
+        <rdfs:range rdf:resource="&or;IntelligentAgent"/>
     </owl:ObjectProperty>
     
 
 
-    <!-- http://www.nist.gov/itl/ssd/Document.owl#volumeOfPeriodical -->
+    <!-- http://www.nist.gov/itl/ssd/Document#translatedInto -->
 
-    <owl:ObjectProperty rdf:about="&Document;volumeOfPeriodical">
-        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
-        <rdf:type rdf:resource="&owl;IrreflexiveProperty"/>
-        <rdfs:range rdf:resource="&Document;Periodical"/>
-        <rdfs:domain rdf:resource="&Document;PeriodicalVolume"/>
-        <rdfs:subPropertyOf rdf:resource="&Document;subWorkOf"/>
+    <owl:ObjectProperty rdf:about="&doc;translatedInto">
+        <rdfs:comment xml:lang="en">The property translatedInto specifies a language into which a work was translated.  Note that a work may be translated into multiple languages.</rdfs:comment>
+        <rdfs:domain rdf:resource="&or;AbstractStructuredInformationStore"/>
+        <rdfs:range rdf:resource="&or;Language"/>
     </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#outputCreated -->
+
+    <owl:ObjectProperty rdf:about="&or;outputCreated"/>
     
 
 
@@ -165,25 +236,85 @@
     
 
 
-    <!-- http://www.nist.gov/itl/ssd/Document.owl#bibliographicInformation -->
+    <!-- http://www.nist.gov/itl/ssd/Document#cODEN -->
 
-    <owl:DatatypeProperty rdf:about="&Document;bibliographicInformation">
-        <rdfs:comment xml:lang="en">bibliographic Information about a document</rdfs:comment>
+    <owl:DatatypeProperty rdf:about="&doc;cODEN">
+        <rdfs:comment xml:lang="en">The CODEN id for a document</rdfs:comment>
         <rdfs:domain rdf:resource="&doc;Document"/>
-        <rdfs:range rdf:resource="&xsd;string"/>
+        <rdfs:subPropertyOf rdf:resource="&OntologyRequirements;idString"/>
+        <rdfs:range rdf:resource="&xsd;Name"/>
     </owl:DatatypeProperty>
     
 
 
-    <!-- http://www.nist.gov/itl/ssd/Document.owl#documentTitle -->
+    <!-- http://www.nist.gov/itl/ssd/Document#copyrightYear -->
 
-    <owl:DatatypeProperty rdf:about="&Document;documentTitle">
-        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
-        <rdfs:comment xml:lang="en">The title of the document</rdfs:comment>
+    <owl:DatatypeProperty rdf:about="&doc;copyrightYear">
         <rdfs:domain rdf:resource="&doc;Document"/>
-        <rdfs:subPropertyOf rdf:resource="&or;nameString"/>
-        <rdfs:range rdf:resource="&xsd;string"/>
+        <rdfs:range rdf:resource="&xsd;integer"/>
     </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document#doi -->
+
+    <owl:DatatypeProperty rdf:about="&doc;doi">
+        <rdfs:domain rdf:resource="&doc;Document"/>
+        <rdfs:subPropertyOf rdf:resource="&OntologyRequirements;idString"/>
+        <rdfs:range rdf:resource="&xsd;Name"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document#iSBN -->
+
+    <owl:DatatypeProperty rdf:about="&doc;iSBN">
+        <rdfs:domain rdf:resource="&doc;Document"/>
+        <rdfs:subPropertyOf rdf:resource="&OntologyRequirements;idString"/>
+        <rdfs:range rdf:resource="&xsd;Name"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document#iSSN -->
+
+    <owl:DatatypeProperty rdf:about="&doc;iSSN">
+        <rdfs:domain rdf:resource="&doc;Document"/>
+        <rdfs:subPropertyOf rdf:resource="&OntologyRequirements;idString"/>
+        <rdfs:range rdf:resource="&xsd;Name"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document#patentNumber -->
+
+    <owl:DatatypeProperty rdf:about="&doc;patentNumber">
+        <rdfs:subPropertyOf rdf:resource="&OntologyRequirements;idString"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document#publicationYear -->
+
+    <owl:DatatypeProperty rdf:about="&doc;publicationYear">
+        <rdfs:domain rdf:resource="&doc;Document"/>
+        <rdfs:range rdf:resource="&xsd;integer"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document#volumeNumber -->
+
+    <owl:DatatypeProperty rdf:about="&doc;volumeNumber">
+        <rdfs:domain rdf:resource="&doc;DocumentSeries"/>
+        <rdfs:range rdf:resource="&xsd;integer"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#idString -->
+
+    <owl:DatatypeProperty rdf:about="&OntologyRequirements;idString"/>
     
 
 
@@ -207,6 +338,82 @@
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/Document#AcademicDegree -->
+
+    <owl:Class rdf:about="&doc;AcademicDegree">
+        <rdfs:subClassOf rdf:resource="&or;AbstractStructuredInformationStore"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document#AssociatesDegree -->
+
+    <owl:Class rdf:about="&doc;AssociatesDegree">
+        <rdfs:subClassOf rdf:resource="&doc;AcademicDegree"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document#BachelorOfArtsDegree -->
+
+    <owl:Class rdf:about="&doc;BachelorOfArtsDegree">
+        <rdfs:subClassOf rdf:resource="&doc;BachelorsDegree"/>
+        <rdfs:comment xml:lang="en">A Bachelor&#39;s of Arts (BA) degree</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document#BachelorOfScienceDegree -->
+
+    <owl:Class rdf:about="&doc;BachelorOfScienceDegree">
+        <rdfs:subClassOf rdf:resource="&doc;BachelorsDegree"/>
+        <rdfs:comment xml:lang="en">A Bachelor&#39;s of Science (BS) degree</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document#BachelorsDegree -->
+
+    <owl:Class rdf:about="&doc;BachelorsDegree">
+        <rdfs:subClassOf rdf:resource="&doc;AcademicDegree"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document#Book -->
+
+    <owl:Class rdf:about="&doc;Book">
+        <rdfs:subClassOf rdf:resource="&doc;Document"/>
+        <owl:disjointWith rdf:resource="&doc;TechnicalArticle"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document#BookSeries -->
+
+    <owl:Class rdf:about="&doc;BookSeries">
+        <rdfs:subClassOf rdf:resource="&doc;DocumentSeries"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document#ConferencePaper -->
+
+    <owl:Class rdf:about="&doc;ConferencePaper">
+        <rdfs:subClassOf rdf:resource="&doc;TechnicalArticle"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document#DDSDegree -->
+
+    <owl:Class rdf:about="&doc;DDSDegree">
+        <rdfs:subClassOf rdf:resource="&doc;DoctoralDegree"/>
+        <rdfs:comment xml:lang="en">A Doctor of Dental Science or Doctor of Dental Surgery (DDS) degree</rdfs:comment>
+    </owl:Class>
+    
+
+
     <!-- http://www.nist.gov/itl/ssd/Document#DatabaseEntry -->
 
     <owl:Class rdf:about="&doc;DatabaseEntry">
@@ -218,6 +425,42 @@
         <owl:disjointWith rdf:resource="&or;DataFormat"/>
         <owl:disjointWith rdf:resource="&or;ImageSequence"/>
         <rdfs:comment xml:lang="en">A Database Entry is a single entry in a Database.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document#Dissertation -->
+
+    <owl:Class rdf:about="&doc;Dissertation">
+        <rdfs:subClassOf rdf:resource="&doc;Document"/>
+        <owl:disjointWith rdf:resource="&doc;SpecificationDocument"/>
+        <rdfs:comment xml:lang="en">A dissertation or thesis.  Often publishted as a book.  It may include previously published technical articles in appendices.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document#DoctorOfJurisprudenceDegree -->
+
+    <owl:Class rdf:about="&doc;DoctorOfJurisprudenceDegree">
+        <rdfs:subClassOf rdf:resource="&doc;DoctoralDegree"/>
+        <rdfs:comment xml:lang="en">A doctor of jurisprudence (JD - Juris Doctor) degree</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document#DoctorOfOsteopothyDegree -->
+
+    <owl:Class rdf:about="&doc;DoctorOfOsteopothyDegree">
+        <rdfs:subClassOf rdf:resource="&doc;DoctoralDegree"/>
+        <rdfs:comment xml:lang="en">A Doctor of Osteopothy (DO) degree</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document#DoctoralDegree -->
+
+    <owl:Class rdf:about="&doc;DoctoralDegree">
+        <rdfs:subClassOf rdf:resource="&doc;GraduateDegree"/>
     </owl:Class>
     
 
@@ -238,6 +481,26 @@ Same as cyc:Document-CW</rdfs:comment>
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/Document#DocumentCompilation -->
+
+    <owl:Class rdf:about="&doc;DocumentCompilation">
+        <rdfs:subClassOf rdf:resource="&doc;Document"/>
+        <owl:disjointWith rdf:resource="&doc;Standard"/>
+        <owl:disjointWith rdf:resource="&doc;TechnicalArticle"/>
+        <owl:disjointWith rdf:resource="&doc;TechnicalReport"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document#DocumentSeries -->
+
+    <owl:Class rdf:about="&doc;DocumentSeries">
+        <rdfs:subClassOf rdf:resource="&or;AbstractStructuredInformationStore"/>
+        <rdfs:comment xml:lang="en">A document series may be a book series or a periodical series.</rdfs:comment>
+    </owl:Class>
+    
+
+
     <!-- http://www.nist.gov/itl/ssd/Document#GenericSystemModel -->
 
     <owl:Class rdf:about="&doc;GenericSystemModel">
@@ -249,13 +512,127 @@ Same as cyc:Document-CW</rdfs:comment>
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/Document#GraduateDegree -->
+
+    <owl:Class rdf:about="&doc;GraduateDegree">
+        <rdfs:subClassOf rdf:resource="&doc;AcademicDegree"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document#JournalArticle -->
+
+    <owl:Class rdf:about="&doc;JournalArticle">
+        <rdfs:subClassOf rdf:resource="&doc;Document"/>
+        <owl:disjointWith rdf:resource="&doc;SpecificationDocument"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document#JournalIssue -->
+
+    <owl:Class rdf:about="&doc;JournalIssue">
+        <rdfs:subClassOf rdf:resource="&doc;DocumentCompilation"/>
+        <owl:disjointWith rdf:resource="&doc;Standard"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document#LicentiateDegree -->
+
+    <owl:Class rdf:about="&doc;LicentiateDegree">
+        <rdfs:subClassOf rdf:resource="&doc;GraduateDegree"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document#MDDegree -->
+
+    <owl:Class rdf:about="&doc;MDDegree">
+        <rdfs:subClassOf rdf:resource="&doc;DoctoralDegree"/>
+        <rdfs:comment xml:lang="en">A Doctor of Medicine (MD) degree</rdfs:comment>
+    </owl:Class>
+    
+
+
     <!-- http://www.nist.gov/itl/ssd/Document#MakingAPrediction -->
 
     <owl:Class rdf:about="&doc;MakingAPrediction">
-        <rdfs:subClassOf rdf:resource="&or;IntentionalCreation"/>
-        <rdfs:comment xml:lang="en">Each instance of MakingAPrediction is an Action in which an agent makes an assertion about what will be the case at some point in the future if some certain initial state exists.
+        <owl:equivalentClass>
+            <owl:Class>
+                <owl:intersectionOf rdf:parseType="Collection">
+                    <rdf:Description rdf:about="&or;IntentionalCreation"/>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&or;outputCreated"/>
+                        <owl:someValuesFrom rdf:resource="&doc;Prediction"/>
+                    </owl:Restriction>
+                </owl:intersectionOf>
+            </owl:Class>
+        </owl:equivalentClass>
+        <rdfs:subClassOf rdf:resource="&or;PurposefulAction"/>
+        <rdfs:comment xml:lang="en">Each instance of MakingAPrediction is an Action in which an agent makes an assertion about what will be the case at some point in the future if some certain initial state exists. 
 
 Same as cyc:MakingAPrediction.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document#MasterOfArtsDegree -->
+
+    <owl:Class rdf:about="&doc;MasterOfArtsDegree">
+        <rdfs:subClassOf rdf:resource="&doc;MastersDegree"/>
+        <rdfs:comment xml:lang="en">A Master of Arts (MA) degree</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document#MasterOfBusinessAdministrationDegree -->
+
+    <owl:Class rdf:about="&doc;MasterOfBusinessAdministrationDegree">
+        <rdfs:subClassOf rdf:resource="&doc;MastersDegree"/>
+        <rdfs:comment xml:lang="en">A Master of Business Administration (MBA) degree</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document#MasterOfScienceDegree -->
+
+    <owl:Class rdf:about="&doc;MasterOfScienceDegree">
+        <rdfs:subClassOf rdf:resource="&doc;MastersDegree"/>
+        <rdfs:comment xml:lang="en">A Master of Science (MS) degree</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document#MastersDegree -->
+
+    <owl:Class rdf:about="&doc;MastersDegree">
+        <rdfs:subClassOf rdf:resource="&doc;GraduateDegree"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document#NaturalLanguage -->
+
+    <owl:Class rdf:about="&doc;NaturalLanguage">
+        <rdfs:subClassOf rdf:resource="&or;Language"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document#PeriodicalSeries -->
+
+    <owl:Class rdf:about="&doc;PeriodicalSeries">
+        <rdfs:subClassOf rdf:resource="&doc;DocumentSeries"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document#PhDDegree -->
+
+    <owl:Class rdf:about="&doc;PhDDegree">
+        <rdfs:subClassOf rdf:resource="&doc;DoctoralDegree"/>
+        <rdfs:comment xml:lang="en">A Doctor of Philosophy (PhD) degree</rdfs:comment>
     </owl:Class>
     
 
@@ -263,11 +640,18 @@ Same as cyc:MakingAPrediction.</rdfs:comment>
     <!-- http://www.nist.gov/itl/ssd/Document#Prediction -->
 
     <owl:Class rdf:about="&doc;Prediction">
-        <rdfs:subClassOf rdf:resource="&OntologyRequirements;Information"/>
-        <owl:disjointWith rdf:resource="&or;AbstractStructuredInformationStore"/>
+        <rdfs:subClassOf rdf:resource="&or;AbstractStructuredInformationStore"/>
         <rdfs:comment xml:lang="en">Each instance of Prediction is the information resulting from MakingAPrediction. Instances are forecasts of future events or situations proposed by some agent.
 
 Same as cyc:Prediction-CW.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document#Proceedings -->
+
+    <owl:Class rdf:about="&doc;Proceedings">
+        <rdfs:subClassOf rdf:resource="&doc;DocumentCompilation"/>
     </owl:Class>
     
 
@@ -281,6 +665,24 @@ Same as cyc:Prediction-CW.</rdfs:comment>
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/Document#ScDDegree -->
+
+    <owl:Class rdf:about="&doc;ScDDegree">
+        <rdfs:subClassOf rdf:resource="&doc;DoctoralDegree"/>
+        <rdfs:comment xml:lang="en">A Doctor of Science (ScD) Degree</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document#ScientificConference -->
+
+    <owl:Class rdf:about="&doc;ScientificConference">
+        <rdfs:subClassOf rdf:resource="&or;PurposefulAction"/>
+        <rdfs:comment xml:lang="en">A scientific conferenceis a meeting for researchers to present and discuss their work.  Conferences provide an important channel for exchange of information between researchers.</rdfs:comment>
+    </owl:Class>
+    
+
+
     <!-- http://www.nist.gov/itl/ssd/Document#SpecificSystemModel -->
 
     <owl:Class rdf:about="&doc;SpecificSystemModel">
@@ -290,13 +692,12 @@ Same as cyc:Prediction-CW.</rdfs:comment>
     
 
 
-    <!-- http://www.nist.gov/itl/ssd/Document#Specification -->
+    <!-- http://www.nist.gov/itl/ssd/Document#SpecificationDocument -->
 
-    <owl:Class rdf:about="&doc;Specification">
+    <owl:Class rdf:about="&doc;SpecificationDocument">
         <rdfs:subClassOf rdf:resource="&doc;Document"/>
         <owl:disjointWith rdf:resource="&doc;TechnicalArticle"/>
         <owl:disjointWith rdf:resource="&doc;TechnicalReport"/>
-        <rdfs:comment xml:lang="en">A Specification is an abstract work that constitutes a description of the properties of an individual or type of Temporal Thing. Things are made, bought, and searched for according to specifications, which can be instantiated as printed instructions or as diagrams.</rdfs:comment>
     </owl:Class>
     
 
@@ -314,8 +715,7 @@ Same as cyc:Prediction-CW.</rdfs:comment>
     <!-- http://www.nist.gov/itl/ssd/Document#SystemModel -->
 
     <owl:Class rdf:about="&doc;SystemModel">
-        <rdfs:subClassOf rdf:resource="&OntologyRequirements;Information"/>
-        <owl:disjointWith rdf:resource="&Document;Objective"/>
+        <rdfs:subClassOf rdf:resource="&OntologyRequirements;ConceptualModel"/>
         <owl:disjointWith rdf:resource="&or;ComputerFile"/>
         <owl:disjointWith rdf:resource="&or;DataBase"/>
         <owl:disjointWith rdf:resource="&or;DataFormat"/>
@@ -334,121 +734,35 @@ Same as cyc:Prediction-CW.</rdfs:comment>
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/Document#TechnicalJournalArticle -->
+
+    <owl:Class rdf:about="&doc;TechnicalJournalArticle">
+        <owl:equivalentClass>
+            <owl:Class>
+                <owl:intersectionOf rdf:parseType="Collection">
+                    <rdf:Description rdf:about="&doc;JournalArticle"/>
+                    <rdf:Description rdf:about="&doc;TechnicalArticle"/>
+                </owl:intersectionOf>
+            </owl:Class>
+        </owl:equivalentClass>
+        <rdfs:subClassOf rdf:resource="&doc;JournalArticle"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document#TechnicalJournalSeries -->
+
+    <owl:Class rdf:about="&doc;TechnicalJournalSeries">
+        <rdfs:subClassOf rdf:resource="&doc;PeriodicalSeries"/>
+    </owl:Class>
+    
+
+
     <!-- http://www.nist.gov/itl/ssd/Document#TechnicalReport -->
 
     <owl:Class rdf:about="&doc;TechnicalReport">
         <rdfs:subClassOf rdf:resource="&doc;Document"/>
     </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Document.owl#DigitalObjectIdentifier -->
-
-    <owl:Class rdf:about="&Document;DigitalObjectIdentifier">
-        <rdfs:subClassOf rdf:resource="&or;AbstractStructuredInformationStore"/>
-        <rdfs:comment xml:lang="en">A Digital Object Identifier (DOI) is a character string (a &quot;digital identifier&quot;) is used to uniquely identify an object such as an electronic document. Metadata about the object is stored in association with the DOI name and this metadata may include a location, such as a URL, where the object can be found. The DOI for a document is permanent, whereas its location and other metadata may change. Referring to an online document by its DOI provides more stable linking than simply referring to it by its URL, because if its URL changes, the publisher need only update the metadata for the DOI to link to the new URL</rdfs:comment>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Document.owl#EventProceedings -->
-
-    <owl:Class rdf:about="&Document;EventProceedings">
-        <rdfs:subClassOf rdf:resource="&Document;PublishedCompilation"/>
-        <rdfs:comment xml:lang="en">A publication of papers and/or presentations at a conference, workshop, or other similar event.  An Event Proceedings normally has multiple Technical Articles as subworks.</rdfs:comment>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Document.owl#ExtrapolationOfData -->
-
-    <owl:Class rdf:about="&Document;ExtrapolationOfData">
-        <rdfs:subClassOf rdf:resource="&or;IntentionalCreation"/>
-        <rdfs:comment xml:lang="en">Extrapolation Of Data is an action in which a  set of measured data points are fitted to some model form (often a curve) and the resulting model is extended beyond the range of the input data.</rdfs:comment>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Document.owl#Objective -->
-
-    <owl:Class rdf:about="&Document;Objective">
-        <rdfs:subClassOf rdf:resource="&OntologyRequirements;Information"/>
-        <owl:disjointWith rdf:resource="&or;AbstractStructuredInformationStore"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Document.owl#Periodical -->
-
-    <owl:Class rdf:about="&Document;Periodical">
-        <rdfs:subClassOf rdf:resource="&Document;PublishedCompilation"/>
-        <rdfs:comment xml:lang="en">A periodically published work with multiple articles in each issue.</rdfs:comment>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Document.owl#PeriodicalIssue -->
-
-    <owl:Class rdf:about="&Document;PeriodicalIssue">
-        <rdfs:subClassOf rdf:resource="&doc;Document"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Document.owl#PeriodicalVolume -->
-
-    <owl:Class rdf:about="&Document;PeriodicalVolume">
-        <rdfs:subClassOf rdf:resource="&Document;Periodical"/>
-        <rdfs:comment xml:lang="en">A Periodical Volume is a series of continuous issues of the same Periodical grouped into a logical volume by the issuer of the periodical.  There may be one or two volumes a year, with each issue of the periodical being an issue of the volume for the same time period and each issue of a periodical volume being an issue of the periodical, as well.</rdfs:comment>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Document.owl#PublishedCompilation -->
-
-    <owl:Class rdf:about="&Document;PublishedCompilation">
-        <rdfs:subClassOf rdf:resource="&Document;PublishedInformation"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Document.owl#PublishedDataObject -->
-
-    <owl:Class rdf:about="&Document;PublishedDataObject">
-        <owl:equivalentClass>
-            <owl:Class>
-                <owl:intersectionOf rdf:parseType="Collection">
-                    <rdf:Description rdf:about="&Document;PublishedInformation"/>
-                    <rdf:Description rdf:about="&OntologyRequirements;DataObject"/>
-                </owl:intersectionOf>
-            </owl:Class>
-        </owl:equivalentClass>
-        <rdfs:subClassOf rdf:resource="&Document;PublishedInformation"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Document.owl#PublishedInformation -->
-
-    <owl:Class rdf:about="&Document;PublishedInformation">
-        <rdfs:subClassOf rdf:resource="&doc;Document"/>
-        <rdfs:comment xml:lang="en">Published Information consists of any information that is published, be it a published document or published data.</rdfs:comment>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Document.owl#TechnicalJournal -->
-
-    <owl:Class rdf:about="&Document;TechnicalJournal">
-        <rdfs:subClassOf rdf:resource="&Document;Periodical"/>
-        <rdfs:comment xml:lang="en">A Periodical with multiple Technical Articles in each issue as subworks.</rdfs:comment>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#AbstractStructuredInformationStore -->
-
-    <rdf:Description rdf:about="&or;AbstractStructuredInformationStore"/>
     
 
 
@@ -482,15 +796,112 @@ Same as cyc:Prediction-CW.</rdfs:comment>
     
 
 
-    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#DataObject -->
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#ConceptualModel -->
 
-    <owl:Class rdf:about="&OntologyRequirements;DataObject"/>
+    <owl:Class rdf:about="&OntologyRequirements;ConceptualModel"/>
     
 
 
-    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#Information -->
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#MonthOfYearType -->
 
-    <owl:Class rdf:about="&OntologyRequirements;Information"/>
+    <owl:Class rdf:about="&OntologyRequirements;MonthOfYearType"/>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Individuals
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document#Chinese-MandarinLanguage -->
+
+    <owl:NamedIndividual rdf:about="&doc;Chinese-MandarinLanguage">
+        <rdf:type rdf:resource="&doc;NaturalLanguage"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document#EnglishLanguage -->
+
+    <owl:NamedIndividual rdf:about="&doc;EnglishLanguage">
+        <rdf:type rdf:resource="&doc;NaturalLanguage"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document#FinnishLanguage -->
+
+    <owl:NamedIndividual rdf:about="&doc;FinnishLanguage">
+        <rdf:type rdf:resource="&doc;NaturalLanguage"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document#FrenchLanguage -->
+
+    <owl:NamedIndividual rdf:about="&doc;FrenchLanguage">
+        <rdf:type rdf:resource="&doc;NaturalLanguage"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document#GermanLanguage -->
+
+    <owl:NamedIndividual rdf:about="&doc;GermanLanguage">
+        <rdf:type rdf:resource="&doc;NaturalLanguage"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document#JapaneseLanguage -->
+
+    <owl:NamedIndividual rdf:about="&doc;JapaneseLanguage">
+        <rdf:type rdf:resource="&doc;NaturalLanguage"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document#KoreanLanguage -->
+
+    <owl:NamedIndividual rdf:about="&doc;KoreanLanguage">
+        <rdf:type rdf:resource="&doc;NaturalLanguage"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document#RussianLanguage -->
+
+    <owl:NamedIndividual rdf:about="&doc;RussianLanguage">
+        <rdf:type rdf:resource="&doc;NaturalLanguage"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document#SpanishLanguage -->
+
+    <owl:NamedIndividual rdf:about="&doc;SpanishLanguage">
+        <rdf:type rdf:resource="&doc;NaturalLanguage"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Annotations
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    <rdf:Description rdf:about="&OntologyRequirements;endingDate">
+        <rdfs:comment xml:lang="en">The date on which an event ends.  A short event may have the same initiationDate and endingDate.</rdfs:comment>
+    </rdf:Description>
 </rdf:RDF>
 
 
