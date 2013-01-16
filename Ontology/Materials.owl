@@ -57,16 +57,16 @@
      -->
 
     <owl:AnnotationProperty rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#hasSubstanceConcentration">
-        <rdfs:comment xml:lang="en">The property &#39;has Substance Concentration&#39; specifies for each Chemical Composition the specific concentration of one of its substances (called Substance Concentration).  Unless there is only a single substance type, a given Chemical Composition has multiple Substance Concentrations.</rdfs:comment>
+        <rdfs:comment xml:lang="en">The property &#39;has Substance Concentration&#39; specifies for each Chemical Composition the specific concentration of one of its substances (called a Material Portion).  Unless there is only a single substance type, a given Chemical Composition has multiple substance concentrations.</rdfs:comment>
         <rdfs:domain rdf:resource="&bc;ChemicalComposition"/>
     </owl:AnnotationProperty>
     <owl:AnnotationProperty rdf:about="&or;UnitTypeFor"/>
     <owl:AnnotationProperty rdf:about="&or;referenceURL"/>
     <owl:AnnotationProperty rdf:about="&or;unitTypeFor"/>
-    <owl:AnnotationProperty rdf:about="&bc;primaryConstituentType"/>
     <owl:AnnotationProperty rdf:about="&bc;constituentType">
         <rdfs:domain rdf:resource="&or;MaterialType"/>
     </owl:AnnotationProperty>
+    <owl:AnnotationProperty rdf:about="&bc;primaryConstituentType"/>
     <owl:AnnotationProperty rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#ionicCharge">
         <or:referenceURL rdf:datatype="&xsd;anyURI">http://www.iupac.org/namespaces/ThermoML#nCharge</or:referenceURL>
         <rdfs:domain rdf:resource="&bc;Ion"/>
@@ -177,7 +177,7 @@
 
     <owl:ObjectProperty rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#concentrationOfMaterialType">
         <rdf:type rdf:resource="&owl;FunctionalProperty"/>
-        <rdfs:comment xml:lang="en">The property &#39;concentration Of Material Type&#39; links a Substance Concentration to the type of material (Material Type) for which it is a concentration.</rdfs:comment>
+        <rdfs:comment xml:lang="en">The property &#39;concentration Of Material Type&#39; links a substance Concentration to the type of material (Material Type) for which it is a concentration.</rdfs:comment>
         <rdfs:domain rdf:resource="&bc;Concentration"/>
         <rdfs:range rdf:resource="&or;MaterialType"/>
     </owl:ObjectProperty>
@@ -310,7 +310,7 @@ Enthalpy is not directly measured, Changes in enthalpy are.</rdfs:comment>
     <!-- http://www.nist.gov/itl/ssd/Materials.owl#hasSubstanceConcentration -->
 
     <owl:ObjectProperty rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#hasSubstanceConcentration">
-        <rdfs:comment xml:lang="en">The property &#39;has Substance Concentration&#39; specifies for each Chemical Composition the specific concentration of one of its substances (called Substance Concentration).  Unless there is only a single substance type, a given Chemical Composition has multiple Substance Concentrations.</rdfs:comment>
+        <rdfs:comment xml:lang="en">The property &#39;has Substance Concentration&#39; specifies for each Chemical Composition the specific concentration of one of its substances (called a Material Portion).  Unless there is only a single substance type, a given Chemical Composition has multiple substance concentrations.</rdfs:comment>
         <rdfs:range rdf:resource="&bc;Concentration"/>
     </owl:ObjectProperty>
     
@@ -591,6 +591,19 @@ Enthalpy is not directly measured, Changes in enthalpy are.</rdfs:comment>
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#ecNumber -->
+
+    <owl:DatatypeProperty rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#ecNumber">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <or:referenceURL rdf:datatype="&xsd;anyURI">http://www.iupac.org/namespaces/ThermoML#sECNumber</or:referenceURL>
+        <OntologyRequirements:termString xml:lang="en">EC number</OntologyRequirements:termString>
+        <rdfs:domain rdf:resource="&bc;ChemicalSubstanceTypeByChemicalSpecies"/>
+        <rdfs:subPropertyOf rdf:resource="&or;idString"/>
+        <rdfs:range rdf:resource="&xsd;string"/>
+    </owl:DatatypeProperty>
+    
+
+
     <!-- http://www.nist.gov/itl/ssd/Materials.owl#iUPACName -->
 
     <owl:DatatypeProperty rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#iUPACName">
@@ -641,6 +654,23 @@ Enthalpy is not directly measured, Changes in enthalpy are.</rdfs:comment>
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#molarMassDispersity -->
+
+    <owl:DatatypeProperty rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#molarMassDispersity">
+        <or:referenceURL rdf:datatype="&xsd;anyURI">http://www.iupac.org/namespaces/ThermoML#nMolarMassDispersity</or:referenceURL>
+        <rdfs:range rdf:resource="&owl;real"/>
+        <rdfs:domain>
+            <owl:Class>
+                <owl:unionOf rdf:parseType="Collection">
+                    <rdf:Description rdf:about="&bc;Polymer"/>
+                    <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#PolymerSubstance"/>
+                </owl:unionOf>
+            </owl:Class>
+        </rdfs:domain>
+    </owl:DatatypeProperty>
+    
+
+
     <!-- http://www.nist.gov/itl/ssd/Materials.owl#numberAverageMolarMass -->
 
     <owl:DatatypeProperty rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#numberAverageMolarMass">
@@ -656,6 +686,21 @@ Enthalpy is not directly measured, Changes in enthalpy are.</rdfs:comment>
                 </owl:unionOf>
             </owl:Class>
         </rdfs:domain>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#pdbID -->
+
+    <owl:DatatypeProperty rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#pdbID">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <or:referenceURL rdf:datatype="&xsd;anyURI">http://www.iupac.org/namespaces/ThermoML#sPDBIdentifier</or:referenceURL>
+        <OntologyRequirements:termString xml:lang="en">PDB ID</OntologyRequirements:termString>
+        <OntologyRequirements:termString xml:lang="en">Protein Databank ID</OntologyRequirements:termString>
+        <rdfs:comment xml:lang="en">The property `pdbID&#39; specifies the Protein Data Bank ID for a compound</rdfs:comment>
+        <rdfs:domain rdf:resource="&bc;ChemicalSubstanceTypeByChemicalSpecies"/>
+        <rdfs:subPropertyOf rdf:resource="&or;idString"/>
+        <rdfs:range rdf:resource="&xsd;string"/>
     </owl:DatatypeProperty>
     
 
@@ -947,7 +992,6 @@ The more specific class, Chemical Object Type By Chemical Species, denotes the f
     <!-- http://www.nist.gov/itl/ssd/Biochem#ChemicalProperty -->
 
     <owl:Class rdf:about="&bc;ChemicalProperty">
-        <rdfs:subClassOf rdf:resource="&or;MeasurableProperty"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MeasurableMechanicalProperty"/>
         <skos:note xml:lang="en">Similar to &quot;Chemical&quot; in Ashino&#39;s 2010 Minerals Ontology.</skos:note>
     </owl:Class>
@@ -966,6 +1010,7 @@ The more specific class, Chemical Object Type By Chemical Species, denotes the f
     <!-- http://www.nist.gov/itl/ssd/Biochem#ChemicalSubstanceTypeByChemicalSpecies -->
 
     <rdf:Description rdf:about="&bc;ChemicalSubstanceTypeByChemicalSpecies">
+        <or:referenceURL rdf:datatype="&xsd;anyURI">http://sw.opencyc.org/2012/05/10/concept/en/ChemicalCompoundTypeByChemicalSpecies</or:referenceURL>
         <or:referenceURL rdf:datatype="&xsd;anyURI">http://www.iupac.org/namespaces/ThermoML#Compound</or:referenceURL>
     </rdf:Description>
     
@@ -1128,6 +1173,12 @@ The more specific class, Chemical Object Type By Chemical Species, denotes the f
     <owl:Class rdf:about="&bc;Holmium">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ElementalMetal"/>
     </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#Hydrogen -->
+
+    <owl:Class rdf:about="&bc;Hydrogen"/>
     
 
 
@@ -1577,6 +1628,20 @@ The more specific class, Chemical Object Type By Chemical Species, denotes the f
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/Biochem#UnitOfConcentrationByMass -->
+
+    <owl:Class rdf:about="&bc;UnitOfConcentrationByMass">
+        <owl:disjointWith rdf:resource="&bc;UnitOfConcentrationByVolume"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#UnitOfConcentrationByVolume -->
+
+    <owl:Class rdf:about="&bc;UnitOfConcentrationByVolume"/>
+    
+
+
     <!-- http://www.nist.gov/itl/ssd/Biochem#Uranium -->
 
     <owl:Class rdf:about="&bc;Uranium">
@@ -1640,6 +1705,12 @@ The more specific class, Chemical Object Type By Chemical Species, denotes the f
     <!-- http://www.nist.gov/itl/ssd/Biochem.owl#ChemicalProcess -->
 
     <owl:Class rdf:about="&Biochem;ChemicalProcess"/>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem.owl#ConcentrationProperty -->
+
+    <owl:Class rdf:about="&Biochem;ConcentrationProperty"/>
     
 
 
@@ -2648,6 +2719,7 @@ The more specific class, Chemical Object Type By Chemical Species, denotes the f
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Clathrate">
         <rdfs:subClassOf rdf:resource="&bc;ChemicalSubstance"/>
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#PhysicalMixture"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#Vacuum"/>
         <rdfs:comment xml:lang="en">A clathrate is a chemical substance consisting of a lattice of one type of molecule trapping and containing a second type of molecule.</rdfs:comment>
     </owl:Class>
@@ -2828,6 +2900,15 @@ A colloidal system consists of two separate phases: a dispersed phase (or intern
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#Solidification"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#Vaporization"/>
         <rdfs:comment xml:lang="en">Condensing is the Phase Change from a gasseous state to a liquid state.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#CoolingCurve -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#CoolingCurve">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#HeatingCoolingCurve"/>
+        <OntologyRequirements:termString xml:lang="en">cooling curve</OntologyRequirements:termString>
     </owl:Class>
     
 
@@ -3224,6 +3305,15 @@ A colloidal system consists of two separate phases: a dispersed phase (or intern
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Duterium -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Duterium">
+        <rdfs:subClassOf rdf:resource="&bc;Hydrogen"/>
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#RadioactiveMaterial"/>
+    </owl:Class>
+    
+
+
     <!-- http://www.nist.gov/itl/ssd/Materials.owl#ElasticModulus -->
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#ElasticModulus">
@@ -3387,6 +3477,12 @@ Elastomers are usually thermosets but may also be thermoplastic.</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Entropy">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MeasurableMechanicalProperty"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&or;unitTypeFor"/>
+                <owl:someValuesFrom rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#UnitOfEnergyPerTemperatureDifference"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#Strength"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#TransportProperty"/>
     </owl:Class>
@@ -3730,6 +3826,24 @@ Elastomers are usually thermosets but may also be thermoplastic.</rdfs:comment>
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#GenericThermodynamicModel -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#GenericThermodynamicModel">
+        <owl:equivalentClass>
+            <owl:Class>
+                <owl:intersectionOf rdf:parseType="Collection">
+                    <rdf:Description rdf:about="&Document;GenericScientificModel"/>
+                    <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#ThermodynamicModel"/>
+                </owl:intersectionOf>
+            </owl:Class>
+        </owl:equivalentClass>
+        <rdfs:subClassOf rdf:resource="&Document;GenericScientificModel"/>
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ThermodynamicModel"/>
+        <rdfs:comment xml:lang="en">A Generic Thermodynamic Model is a scientific System Model (law, principle, or theory) of how thermodynamic systems act in given types of circumstances.</rdfs:comment>
+    </owl:Class>
+    
+
+
     <!-- http://www.nist.gov/itl/ssd/Materials.owl#GlassCeramic -->
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#GlassCeramic">
@@ -3856,6 +3970,27 @@ Elastomers are usually thermosets but may also be thermoplastic.</rdfs:comment>
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#HeatResistingSteel">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#Steel"/>
         <or:referenceURL rdf:datatype="&xsd;anyURI">http://www.matweb.com/index.aspx</or:referenceURL>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#HeatingCoolingCurve -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#HeatingCoolingCurve">
+        <rdfs:subClassOf rdf:resource="&or;Curve"/>
+        <or:referenceURL rdf:datatype="&xsd;anyURI">http://www.iupac.org/namespaces/ThermoML</or:referenceURL>
+        <OntologyRequirements:termString xml:lang="en">A heating or cooling curve graphs the temperature of a substance being heated or cooled vs. either time or the amount of heat added/removed from the system.  Such curves often span phase transitions.</OntologyRequirements:termString>
+        <OntologyRequirements:termString xml:lang="en">heating or cooling curve</OntologyRequirements:termString>
+        <OntologyRequirements:termString xml:lang="en">heating/cooling curve</OntologyRequirements:termString>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#HeatingCurve -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#HeatingCurve">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#HeatingCoolingCurve"/>
+        <OntologyRequirements:termString xml:lang="en">heating curve</OntologyRequirements:termString>
     </owl:Class>
     
 
@@ -4161,6 +4296,16 @@ Kirkendall plane is an example of a lattice fixed frame. The frame is in the gen
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#LawOfThermodynamics -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#LawOfThermodynamics">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#GenericThermodynamicModel"/>
+        <rdfs:comment xml:lang="en">The four laws of thermodynamics define fundamental physical quantities (temperature, energy, and entropy) that characterize thermodynamic systems. The laws describe how these quantities behave under various circumstances, and forbid certain phenomena (such as perpetual motion).</rdfs:comment>
+        <OntologyRequirements:termString xml:lang="en">law of thermodynamics</OntologyRequirements:termString>
+    </owl:Class>
+    
+
+
     <!-- http://www.nist.gov/itl/ssd/Materials.owl#LeadAlloy -->
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#LeadAlloy">
@@ -4372,7 +4517,6 @@ Kirkendall plane is an example of a lattice fixed frame. The frame is in the gen
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MechanicalProperty"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#OpticalProperty"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#RadiologicalProperty"/>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ThermalProperty"/>
     </owl:Class>
     
 
@@ -4512,9 +4656,9 @@ Kirkendall plane is an example of a lattice fixed frame. The frame is in the gen
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#MaterialPortion">
         <rdfs:subClassOf rdf:resource="&bc;MaterialSubstance"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#Vacuum"/>
-        <rdfs:comment xml:lang="en">A &#39;Material Portion&#39; is part of a heterogeneous portion of a Material Substance that has a certain property.  It is normally diffused throughout an object, but it may be in multiple pieces.  It could be all the grains of one type in a piece of granite, all the zinc in a piece of brass, all the Carbon Dioxide in a room, etc.  
+        <daml:disjointWith xml:lang="en">A &#39;Material Portion&#39; is part of a portion of a Material Substance that has a certain property.  It is normally diffused throughout an object, but it may be in multiple pieces.  It could be all the grains of one type in a piece of granite, all the zinc in a piece of brass, all the Carbon Dioxide in a room, etc.  
 
-A Material Portion comprises some percentage of the object of which it is a portion by volume and likely a different percentage of the same object by mass (weight).  The Material Portion has different properties than the object as a whole and different properties from other Material Portions of the same Physical Object.</rdfs:comment>
+A Material Portion comprises some percentage of the object of which it is a portion by volume and likely a different percentage of the same object by mass (weight).  The Material Portion has different properties than the object as a whole and different properties from other Material Portions of the same Physical Object.</daml:disjointWith>
     </owl:Class>
     
 
@@ -4765,6 +4909,15 @@ everywhere and at all times  The frame is also called number-fixed frame.</rdfs:
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#TetragonalCrystalStructure"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#TriclinicCrystalStructure"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#TrigonalCrystalStructure"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#MonotecticPhaseChange -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#MonotecticPhaseChange">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#PhaseChange"/>
+        <rdfs:comment xml:lang="en">A Monotectic Phase Change is a phase change in which  in which one liquid phase decomposes with decreasing temperature into a solid phase and a new liquid phase.</rdfs:comment>
     </owl:Class>
     
 
@@ -5229,6 +5382,7 @@ everywhere and at all times  The frame is also called number-fixed frame.</rdfs:
         <rdfs:subClassOf rdf:resource="&bc;MaterialSubstance"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#PureSubstance"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#Vacuum"/>
+        <or:referenceURL rdf:datatype="&xsd;anyURI">http://www.iupac.org/namespaces/ThermoML#MulticomponentSubstance</or:referenceURL>
         <rdfs:comment xml:lang="en">A Physical Mixture is a material made up by two or more different substances which are mixed but are not combined chemically.  In the physical combination, the identities of the constituant substances are retained.  Types of mixture include alloys, solutions, suspensions, and colloids.</rdfs:comment>
     </owl:Class>
     
@@ -5633,6 +5787,15 @@ Depending on the chemical structure, polyester can be a thermoplastic or thermos
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#PressureDependentProperty -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#PressureDependentProperty">
+        <rdfs:subClassOf rdf:resource="&or;MaterialProperty"/>
+        <rdfs:comment xml:lang="en">A Pressure Dependent Property is one whose value depends upon the ambient pressure, such as a liquid&#39;s boiling point.</rdfs:comment>
+    </owl:Class>
+    
+
+
     <!-- http://www.nist.gov/itl/ssd/Materials.owl#PressureVesselSteel -->
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#PressureVesselSteel">
@@ -6026,7 +6189,6 @@ There is only one rhombohedral Bravais lattice.</rdfs:comment>
     <!-- http://www.nist.gov/itl/ssd/Materials.owl#SpecificHeatCapacity -->
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#SpecificHeatCapacity">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ThermalProperty"/>
         <rdfs:comment xml:lang="en">The Specific Heat Capacity (or specific heat) is the heat capacity per unit mass of a material, measured in Joules/(kg K)  (in SI units). </rdfs:comment>
         <OntologyRequirements:termString xml:lang="en">specific heat</OntologyRequirements:termString>
         <OntologyRequirements:termString xml:lang="en">specific heat capacity</OntologyRequirements:termString>
@@ -6309,6 +6471,15 @@ There is only one rhombohedral Bravais lattice.</rdfs:comment>
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#TemperatureDependentProperty -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#TemperatureDependentProperty">
+        <rdfs:subClassOf rdf:resource="&or;MaterialProperty"/>
+        <rdfs:comment xml:lang="en">A Temperature Dependent Property is one whose value depends upon the ambient pressure, such as a vapor pressure.</rdfs:comment>
+    </owl:Class>
+    
+
+
     <!-- http://www.nist.gov/itl/ssd/Materials.owl#TetragonalCrystalStructure -->
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#TetragonalCrystalStructure">
@@ -6344,6 +6515,15 @@ There are two tetragonal Bravais lattices: the simple (or primitive) tetragonal 
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#ThermochemicalProperty">
         <rdfs:subClassOf rdf:resource="&or;MeasurableMaterialProperty"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#ThermodynamicModel -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#ThermodynamicModel">
+        <rdfs:subClassOf rdf:resource="&doc;SystemModel"/>
+        <rdfs:comment xml:lang="en">A Thermodynamic Model is a model of some aspects of a thermodynamic system.</rdfs:comment>
     </owl:Class>
     
 
@@ -6509,6 +6689,15 @@ Tool steel has a carbon content between 0.7% and 1.5%. The manganese content is 
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Tritium -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Tritium">
+        <rdfs:subClassOf rdf:resource="&bc;Hydrogen"/>
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#RadioactiveMaterial"/>
+    </owl:Class>
+    
+
+
     <!-- http://www.nist.gov/itl/ssd/Materials.owl#TungstenAlloy -->
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#TungstenAlloy">
@@ -6520,6 +6709,14 @@ Tool steel has a carbon content between 0.7% and 1.5%. The manganese content is 
             </owl:Restriction>
         </rdfs:subClassOf>
         <or:referenceURL rdf:datatype="&xsd;anyURI">http://www.matweb.com/index.aspx</or:referenceURL>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#UnitOfAreaPerForce -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#UnitOfAreaPerForce">
+        <rdfs:subClassOf rdf:resource="&or;UnitOfMeasure"/>
     </owl:Class>
     
 
@@ -6734,6 +6931,14 @@ Tool steel has a carbon content between 0.7% and 1.5%. The manganese content is 
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#UnitOfEnergyPerAmount -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#UnitOfEnergyPerAmount">
+        <rdfs:subClassOf rdf:resource="&or;UnitOfMeasure"/>
+    </owl:Class>
+    
+
+
     <!-- http://www.nist.gov/itl/ssd/Materials.owl#UnitOfEnergyPerMass -->
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#UnitOfEnergyPerMass">
@@ -6927,6 +7132,14 @@ Tool steel has a carbon content between 0.7% and 1.5%. The manganese content is 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#UnitOfToughness">
         <rdfs:subClassOf rdf:resource="&or;UnitOfMeasure"/>
         <owl:disjointWith rdf:resource="&or;UnitOfSpreadRate"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#UnitOfVolumePerMass -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#UnitOfVolumePerMass">
+        <rdfs:subClassOf rdf:resource="&or;UnitOfMeasure"/>
     </owl:Class>
     
 
@@ -7857,6 +8070,7 @@ Tool steel has a carbon content between 0.7% and 1.5%. The manganese content is 
     <!-- http://www.nist.gov/itl/ssd/Biochem#GramsPerLiter -->
 
     <owl:NamedIndividual rdf:about="&bc;GramsPerLiter">
+        <rdf:type rdf:resource="&or;UnitOfDensity"/>
         <rdf:type rdf:resource="&OntologyRequirements;MetricUnit"/>
     </owl:NamedIndividual>
     
@@ -8058,6 +8272,17 @@ Tool steel has a carbon content between 0.7% and 1.5%. The manganese content is 
 
     <owl:NamedIndividual rdf:about="&bc;PercentByVolume">
         <rdf:type rdf:resource="&OntologyRequirements;DimensionlessUnit"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#PercentByWeight -->
+
+    <owl:NamedIndividual rdf:about="&bc;PercentByWeight">
+        <rdf:type rdf:resource="&OntologyRequirements;DimensionlessUnit"/>
+        <OntologyRequirements:termString xml:lang="en">mass percent</OntologyRequirements:termString>
+        <OntologyRequirements:termString xml:lang="en">percent by weight</OntologyRequirements:termString>
+        <OntologyRequirements:termString xml:lang="en">weight percent</OntologyRequirements:termString>
     </owl:NamedIndividual>
     
 
@@ -8266,6 +8491,19 @@ Tool steel has a carbon content between 0.7% and 1.5%. The manganese content is 
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/Biochem#VaporPressure -->
+
+    <owl:NamedIndividual rdf:about="&bc;VaporPressure">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#TemperatureDependentProperty"/>
+        <or:referenceURL rdf:datatype="&xsd;anyURI">http://www.iupac.org/namespaces/ThermoML</or:referenceURL>
+        <OntologyRequirements:termString xml:lang="en">sublimation pressure</OntologyRequirements:termString>
+        <OntologyRequirements:termString xml:lang="en">vapor pressure</OntologyRequirements:termString>
+        <OntologyRequirements:termString xml:lang="en">vapour pressure</OntologyRequirements:termString>
+        <or:unitTypeFor rdf:resource="&or;UnitOfPressure"/>
+    </owl:NamedIndividual>
+    
+
+
     <!-- http://www.nist.gov/itl/ssd/Biochem#Water -->
 
     <owl:NamedIndividual rdf:about="&bc;Water"/>
@@ -8309,16 +8547,6 @@ Tool steel has a carbon content between 0.7% and 1.5%. The manganese content is 
         <rdfs:seeAlso xml:lang="en">Definitions of terms for diffusion in the solid state (IUPAC Recommendations 1999), Pure Appl. Chem. 71, 1307-1325.</rdfs:seeAlso>
         <rdfs:comment xml:lang="en">The Activiation Volume for Diffusion is a parameter for a diffusiive system </rdfs:comment>
         <or:unitTypeFor rdf:resource="&or;UnitOfVolume"/>
-    </owl:NamedIndividual>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Activity_Chemical -->
-
-    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Activity_Chemical">
-        <rdf:type rdf:resource="&bc;MeasurableChemicalProperty"/>
-        <rdfs:comment xml:lang="en">In chemical thermodynamics, activity (symbol a) is a measure of the &#39;effective concentration&#39; of a species in a mixture, meaning that the species&#39;s chemical potential depends on the activity of a real solution in the same way that it would depend on concentration for an ideal solution.</rdfs:comment>
-        <or:unitTypeFor rdf:resource="&OntologyRequirements;DimensionlessUnit"/>
     </owl:NamedIndividual>
     
 
@@ -8402,6 +8630,31 @@ Tool steel has a carbon content between 0.7% and 1.5%. The manganese content is 
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#AziotropicPressure -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#AziotropicPressure">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ThermalProperty"/>
+        <or:referenceURL rdf:datatype="&xsd;anyURI">http://www.iupac.org/namespaces/ThermoML</or:referenceURL>
+        <rdfs:comment xml:lang="en">The aziotropic pressure of an aziotrope (a liquid mixture in which the composition is the same for a boiling liquid and the gas boiling off) is the pressure at which boiling occurs at a given temperature.</rdfs:comment>
+        <OntologyRequirements:termString xml:lang="en">aziotropic pressure</OntologyRequirements:termString>
+        <or:unitTypeFor rdf:resource="&or;UnitOfPressure"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#AziotropicTemperature -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#AziotropicTemperature">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#PressureDependentProperty"/>
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ThermalProperty"/>
+        <or:referenceURL rdf:datatype="&xsd;anyURI">http://www.iupac.org/namespaces/ThermoML</or:referenceURL>
+        <rdfs:comment xml:lang="en">The aziotropic temperature of an aziotrope (a liquid mixture in which the composition is the same for a boiling liquid and the gas boiling off) is the temperature at which boiling occurs at a given pressure.</rdfs:comment>
+        <OntologyRequirements:termString xml:lang="en">aziotropic temperature</OntologyRequirements:termString>
+        <or:unitTypeFor rdf:resource="&or;UnitOfTemperature"/>
+    </owl:NamedIndividual>
+    
+
+
     <!-- http://www.nist.gov/itl/ssd/Materials.owl#BTUperFtHourFahrenheit -->
 
     <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#BTUperFtHourFahrenheit">
@@ -8416,6 +8669,35 @@ Tool steel has a carbon content between 0.7% and 1.5%. The manganese content is 
     <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#BodyCenteredCubicCrystalStructure">
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#CrystalStructure"/>
         <or:nickName>bcc</or:nickName>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#BoilingTemperature -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#BoilingTemperature">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#PressureDependentProperty"/>
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ThermalProperty"/>
+        <or:referenceURL rdf:datatype="&xsd;anyURI">http://www.iupac.org/namespaces/ThermoML</or:referenceURL>
+        <OntologyRequirements:termString xml:lang="en">boiling point</OntologyRequirements:termString>
+        <OntologyRequirements:termString xml:lang="en">boiling temperature</OntologyRequirements:termString>
+        <or:unitTypeFor rdf:resource="&or;UnitOfTemperature"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#BoilingTemperatureAt1Atmosphere -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#BoilingTemperatureAt1Atmosphere">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ThermalProperty"/>
+        <or:referenceURL rdf:datatype="&xsd;anyURI">http://www.iupac.org/namespaces/ThermoML</or:referenceURL>
+        <OntologyRequirements:termString xml:lang="en">boiling temperature at 1.0 atmospheres</OntologyRequirements:termString>
+        <OntologyRequirements:termString xml:lang="en">boiling temperature at 101.325 kPa</OntologyRequirements:termString>
+        <OntologyRequirements:termString xml:lang="en">boiling temperature at P=10132.5 Pa</OntologyRequirements:termString>
+        <OntologyRequirements:termString xml:lang="en">boiling temperature at standard pressure</OntologyRequirements:termString>
+        <OntologyRequirements:termString xml:lang="en">normal boiling temperature</OntologyRequirements:termString>
+        <OntologyRequirements:termString xml:lang="en">normal melting temperature</OntologyRequirements:termString>
+        <or:unitTypeFor rdf:resource="&or;UnitOfTemperature"/>
     </owl:NamedIndividual>
     
 
@@ -8495,6 +8777,17 @@ Tool steel has a carbon content between 0.7% and 1.5%. The manganese content is 
     <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#CALAPHAD">
         <rdf:type rdf:resource="&or;PredictionMethod"/>
         <rdfs:comment xml:lang="en">CALPHAD is a method for the CALculation of PHAse Diagrams of multi-phase mixtures such as alloys.</rdfs:comment>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#CaloriePerMole -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#CaloriePerMole">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#UnitOfEnergyPerAmount"/>
+        <rdf:type rdf:resource="&OntologyRequirements;NonMetricUnit"/>
+        <OntologyRequirements:termString xml:lang="en">cal/mol</OntologyRequirements:termString>
+        <OntologyRequirements:termString xml:lang="en">calorie per mole</OntologyRequirements:termString>
     </owl:NamedIndividual>
     
 
@@ -8654,7 +8947,22 @@ Tool steel has a carbon content between 0.7% and 1.5%. The manganese content is 
 
     <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#CriticalDensity">
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MeasurableMechanicalProperty"/>
+        <or:referenceURL rdf:datatype="&xsd;anyURI">http://www.iupac.org/namespaces/ThermoML/ThermoML.xsd</or:referenceURL>
+        <rdfs:comment xml:lang="en">The Critical Density of a substance is the density of that substance at the critical point.</rdfs:comment>
+        <OntologyRequirements:termString xml:lang="en">critical density</OntologyRequirements:termString>
         <or:unitTypeFor rdf:resource="&or;UnitOfDensity"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#CriticalMolarVolume -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#CriticalMolarVolume">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MeasurableMechanicalProperty"/>
+        <or:referenceURL rdf:datatype="&xsd;anyURI">http://www.iupac.org/namespaces/ThermoML/ThermoML.xsd</or:referenceURL>
+        <rdfs:comment xml:lang="en">The `critical Molar Volume&#39; of a substance is the volume of one mole of that substance at the critical point.</rdfs:comment>
+        <OntologyRequirements:termString xml:lang="en">critical molar volume</OntologyRequirements:termString>
+        <or:unitTypeFor rdf:resource="&or;UnitOfVolume"/>
     </owl:NamedIndividual>
     
 
@@ -8662,7 +8970,9 @@ Tool steel has a carbon content between 0.7% and 1.5%. The manganese content is 
     <!-- http://www.nist.gov/itl/ssd/Materials.owl#CriticalPressure -->
 
     <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#CriticalPressure">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MeasurableMechanicalProperty"/>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ThermalProperty"/>
+        <or:referenceURL rdf:datatype="&xsd;anyURI">http://www.iupac.org/namespaces/ThermoML/ThermoML.xsd</or:referenceURL>
         <rdfs:comment xml:lang="en">A critical point for a substance is defined as the  temperature (Critical Temperature) and  pressure (Critical Pressure) at which phase boundaries cease to exist.</rdfs:comment>
         <OntologyRequirements:termString xml:lang="en">critical temperature</OntologyRequirements:termString>
         <or:unitTypeFor rdf:resource="&or;UnitOfPressure"/>
@@ -8670,10 +8980,23 @@ Tool steel has a carbon content between 0.7% and 1.5%. The manganese content is 
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#CriticalSpecificVolume -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#CriticalSpecificVolume">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MeasurableMechanicalProperty"/>
+        <rdfs:comment xml:lang="en">The Critical Specific Volume is the ratio of a substance&#39;s volume to its mass (Specific Volume) at its Critical Temperature.</rdfs:comment>
+        <OntologyRequirements:termString xml:lang="en">critical specific volume</OntologyRequirements:termString>
+        <or:unitTypeFor rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#UnitOfVolumePerMass"/>
+    </owl:NamedIndividual>
+    
+
+
     <!-- http://www.nist.gov/itl/ssd/Materials.owl#CriticalTemperature -->
 
     <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#CriticalTemperature">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MeasurableMechanicalProperty"/>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ThermalProperty"/>
+        <or:referenceURL rdf:datatype="&xsd;anyURI">http://www.iupac.org/namespaces/ThermoML/ThermoML.xsd</or:referenceURL>
         <rdfs:comment xml:lang="en">A critical point for a substance is defined as the  temperature (Critical Temperature) and  pressure (Critical Pressure) at which phase boundaries cease to exist.</rdfs:comment>
         <OntologyRequirements:termString xml:lang="en">critical temperature</OntologyRequirements:termString>
         <or:unitTypeFor rdf:resource="&or;UnitOfTemperature"/>
@@ -8698,6 +9021,30 @@ Tool steel has a carbon content between 0.7% and 1.5%. The manganese content is 
     <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#CrystallineSubstance">
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MaterialPhaseComposition"/>
         <rdfs:comment xml:lang="en">Material in a crystalline phase</rdfs:comment>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#CubicInch -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#CubicInch">
+        <rdf:type rdf:resource="&or;UnitOfVolume"/>
+        <rdf:type rdf:resource="&OntologyRequirements;NonMetricUnit"/>
+        <OntologyRequirements:termString xml:lang="en">cubic inch</OntologyRequirements:termString>
+        <OntologyRequirements:termString xml:lang="en">in^3</OntologyRequirements:termString>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#CurieTemperature -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#CurieTemperature">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MagneticProperty"/>
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ThermalProperty"/>
+        <OntologyRequirements:termString xml:lang="en">Curie point</OntologyRequirements:termString>
+        <OntologyRequirements:termString xml:lang="en">Curie temperature</OntologyRequirements:termString>
+        <rdfs:comment xml:lang="en">The Curie temperature (Tc), or Curie point, is the temperature at which a ferromagnetic or a ferrimagnetic material becomes paramagnetic on heating.</rdfs:comment>
+        <or:unitTypeFor rdf:resource="&or;UnitOfTemperature"/>
     </owl:NamedIndividual>
     
 
@@ -8893,11 +9240,31 @@ Tool steel has a carbon content between 0.7% and 1.5%. The manganese content is 
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Duterium -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Duterium">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#Radioisotope"/>
+    </owl:NamedIndividual>
+    
+
+
     <!-- http://www.nist.gov/itl/ssd/Materials.owl#Dyne -->
 
     <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Dyne">
         <rdf:type rdf:resource="&or;UnitOfForce"/>
         <rdf:type rdf:resource="&OntologyRequirements;CGS_Unit"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#EffectiveBohrMagnetonNumber -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#EffectiveBohrMagnetonNumber">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MagneticProperty"/>
+        <OntologyRequirements:termString xml:lang="en">Bohr magneton number</OntologyRequirements:termString>
+        <rdfs:comment xml:lang="en">The effective Bohr magneton number is a dimensionless quantity specifying a paramagnetic property of a material.</rdfs:comment>
+        <OntologyRequirements:termString xml:lang="en">effective Bohr magneton number</OntologyRequirements:termString>
+        <or:unitTypeFor rdf:resource="&OntologyRequirements;DimensionlessUnit"/>
     </owl:NamedIndividual>
     
 
@@ -9059,6 +9426,7 @@ Electrical Resistivity is the inverse of Electrical Conductivity.</rdfs:comment>
         <OntologyRequirements:termString xml:lang="en">Enthalpy of transformation is the heat released or absorbed by a body or a thermodynamic system during a phase transition such as the melting (Latent Heat of Fusion) or boiling (Latent Heat of Vaporization).  </OntologyRequirements:termString>
         <OntologyRequirements:termString xml:lang="en">enthalpy of transformation</OntologyRequirements:termString>
         <OntologyRequirements:termString xml:lang="en">latent heat</OntologyRequirements:termString>
+        <or:unitTypeFor rdf:resource="&or;UnitOfEnergy"/>
     </owl:NamedIndividual>
     
 
@@ -9075,6 +9443,19 @@ Electrical Resistivity is the inverse of Electrical Conductivity.</rdfs:comment>
 
     <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#EuroCent">
         <rdf:type rdf:resource="&or;SecondaryCurrencyUnit"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#EutecticTemperature -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#EutecticTemperature">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#PressureDependentProperty"/>
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ThermalProperty"/>
+        <or:referenceURL rdf:datatype="&xsd;anyURI">http://www.iupac.org/namespaces/ThermoML</or:referenceURL>
+        <rdfs:comment xml:lang="en">The Eutectic Temperature for a mixture is the temperature of the eutectic point of that mixture at a given pressure.</rdfs:comment>
+        <OntologyRequirements:termString xml:lang="en">eutectic temperature</OntologyRequirements:termString>
+        <or:unitTypeFor rdf:resource="&or;UnitOfTemperature"/>
     </owl:NamedIndividual>
     
 
@@ -9168,6 +9549,16 @@ Electrical Resistivity is the inverse of Electrical Conductivity.</rdfs:comment>
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#FirstLawOfThermodynamics -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#FirstLawOfThermodynamics">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#LawOfThermodynamics"/>
+        <rdfs:comment xml:lang="en">The First Law of Thermodynamics states that the increase in internal energy of a body equals the heat supplied to the body (which may be negative) minus the work done by the body (which also may be negative).  Heat and work are thus forms of energy transfer.  Energy is conserved in an isolated closed system, but the internal energy of a system changes as heat and work are transferred into or out of it.</rdfs:comment>
+        <OntologyRequirements:termString xml:lang="en">first law of thermodynamics</OntologyRequirements:termString>
+    </owl:NamedIndividual>
+    
+
+
     <!-- http://www.nist.gov/itl/ssd/Materials.owl#FiveFrequencyDiffusionModel -->
 
     <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#FiveFrequencyDiffusionModel">
@@ -9246,6 +9637,20 @@ Electrical Resistivity is the inverse of Electrical Conductivity.</rdfs:comment>
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#GibbsFreeEnergy -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#GibbsFreeEnergy">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ThermalProperty"/>
+        <OntologyRequirements:termString xml:lang="en">Gibbs energy</OntologyRequirements:termString>
+        <OntologyRequirements:termString xml:lang="en">Gibbs free energy</OntologyRequirements:termString>
+        <OntologyRequirements:termString xml:lang="en">Gibbs function</OntologyRequirements:termString>
+        <rdfs:comment xml:lang="en">The property `Gibbs Free Energy&#39;  specifies the Gibbs free energy of a Thermodynamic System, which specifies the “useful” work obtainable from a closed thermodynamic system at a constant temperature and pressure.</rdfs:comment>
+        <OntologyRequirements:termString xml:lang="en">free enthalpy</OntologyRequirements:termString>
+        <or:unitTypeFor rdf:resource="&or;UnitOfEnergy"/>
+    </owl:NamedIndividual>
+    
+
+
     <!-- http://www.nist.gov/itl/ssd/Materials.owl#GlassTemperature -->
 
     <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#GlassTemperature">
@@ -9278,6 +9683,20 @@ Electrical Resistivity is the inverse of Electrical Conductivity.</rdfs:comment>
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#HelmholtzFreeEnergy -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#HelmholtzFreeEnergy">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ThermalProperty"/>
+        <OntologyRequirements:termString xml:lang="en">Helmholtz energy</OntologyRequirements:termString>
+        <OntologyRequirements:termString xml:lang="en">Helmholtz free energy</OntologyRequirements:termString>
+        <OntologyRequirements:termString xml:lang="en">Helmholtz function</OntologyRequirements:termString>
+        <rdfs:comment xml:lang="en">Tthe Helmholtz free energy is a thermodynamic potential that measures the “useful” work obtainable from a closed thermodynamic system at a constant temperature and volume.</rdfs:comment>
+        <OntologyRequirements:termString xml:lang="en">free energy</OntologyRequirements:termString>
+        <or:unitTypeFor rdf:resource="&or;UnitOfEnergy"/>
+    </owl:NamedIndividual>
+    
+
+
     <!-- http://www.nist.gov/itl/ssd/Materials.owl#Henry -->
 
     <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Henry">
@@ -9298,6 +9717,17 @@ Electrical Resistivity is the inverse of Electrical Conductivity.</rdfs:comment>
     <!-- http://www.nist.gov/itl/ssd/Materials.owl#Hydroforming -->
 
     <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Hydroforming"/>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#InHg -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#InHg">
+        <rdf:type rdf:resource="&or;UnitOfPressure"/>
+        <rdfs:comment xml:lang="en">in Hg</rdfs:comment>
+        <rdfs:comment xml:lang="en">inch of mercury</rdfs:comment>
+        <rdfs:comment xml:lang="en">inches of mercury</rdfs:comment>
+    </owl:NamedIndividual>
     
 
 
@@ -9344,6 +9774,25 @@ Electrical Resistivity is the inverse of Electrical Conductivity.</rdfs:comment>
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#InversePSI -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#InversePSI">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#UnitOfAreaPerForce"/>
+        <OntologyRequirements:termString xml:lang="en">PSI^-1</OntologyRequirements:termString>
+        <OntologyRequirements:termString xml:lang="en">square inch per pound</OntologyRequirements:termString>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#InversePascal -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#InversePascal">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#UnitOfAreaPerForce"/>
+        <OntologyRequirements:termString xml:lang="en">Pascal^-1</OntologyRequirements:termString>
+    </owl:NamedIndividual>
+    
+
+
     <!-- http://www.nist.gov/itl/ssd/Materials.owl#InverseSecond -->
 
     <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#InverseSecond">
@@ -9363,6 +9812,17 @@ Electrical Resistivity is the inverse of Electrical Conductivity.</rdfs:comment>
 
     <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#IsothermalCompressibility">
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#Compressibility"/>
+        <or:unitTypeFor rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#UnitOfAreaPerForce"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#JoulePerKelvin -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#JoulePerKelvin">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#UnitOfEnergyPerTemperatureDifference"/>
+        <OntologyRequirements:termString xml:lang="en">Joule/Celsius</OntologyRequirements:termString>
+        <OntologyRequirements:termString xml:lang="en">Joule/Kelvin</OntologyRequirements:termString>
     </owl:NamedIndividual>
     
 
@@ -9394,6 +9854,17 @@ Electrical Resistivity is the inverse of Electrical Conductivity.</rdfs:comment>
         <rdf:type rdf:resource="&or;UnitOfDensity"/>
         <rdf:type rdf:resource="&OntologyRequirements;MetricUnit"/>
         <rdfs:comment xml:lang="en">Kilograms per cubic meter</rdfs:comment>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Kilobar -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Kilobar">
+        <rdf:type rdf:resource="&or;UnitOfPressure"/>
+        <rdfs:comment xml:lang="en">A kilobar is 1000 bars.</rdfs:comment>
+        <OntologyRequirements:termString xml:lang="en">kbar</OntologyRequirements:termString>
+        <OntologyRequirements:termString xml:lang="en">kilobar</OntologyRequirements:termString>
     </owl:NamedIndividual>
     
 
@@ -9450,6 +9921,7 @@ Electrical Resistivity is the inverse of Electrical Conductivity.</rdfs:comment>
     <!-- http://www.nist.gov/itl/ssd/Materials.owl#LatentHeatOfVaporization -->
 
     <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#LatentHeatOfVaporization">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#PressureDependentProperty"/>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ThermalProperty"/>
         <rdfs:comment xml:lang="en">The latent heat of vaporization (or ``enthalpy of vaporization&#39;&#39; or ``heat of evaporation&#39;&#39;) is the energy required to transform a given quantity of a substance from a liquid into a gas at a given pressure (often atmospheric pressure).</rdfs:comment>
         <OntologyRequirements:termString xml:lang="en">enthalpy of vaporization</OntologyRequirements:termString>
@@ -9501,6 +9973,18 @@ Electrical Resistivity is the inverse of Electrical Conductivity.</rdfs:comment>
     <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#LiquidusTemperature">
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ThermalProperty"/>
         <rdfs:comment xml:lang="en">The liquidus temperature, TL or Tliq, is mostly used for glasses, alloys and rocks. It specifies the maximum temperature at which crystals can co-exist with liquid in thermodynamic equilibrium.  For a mixture the solidus temperature depends upon the relative concentration of the substances in the liquid   Above the liquidus temperature the material is homogeneous and liquid at equilibrium. Below the liquidus temperature  crystals form in the liquid..</rdfs:comment>
+        <or:unitTypeFor rdf:resource="&or;UnitOfTemperature"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#LongTon -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#LongTon">
+        <rdf:type rdf:resource="&or;UnitOfForce"/>
+        <rdf:type rdf:resource="&OntologyRequirements;NonMetricUnit"/>
+        <rdfs:comment xml:lang="en">A Long Ton is a unit of weight/force equal to 2240 pounds.</rdfs:comment>
+        <OntologyRequirements:termString xml:lang="en">long ton</OntologyRequirements:termString>
     </owl:NamedIndividual>
     
 
@@ -9566,6 +10050,16 @@ In SI units, permeability is measured in henrys per meter (H·m−1), or newtons
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#MassFraction -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#MassFraction">
+        <rdf:type rdf:resource="&bc;UnitOfConcentrationByMass"/>
+        <rdf:type rdf:resource="&OntologyRequirements;DimensionlessUnit"/>
+        <OntologyRequirements:termString xml:lang="en">mass fraction</OntologyRequirements:termString>
+    </owl:NamedIndividual>
+    
+
+
     <!-- http://www.nist.gov/itl/ssd/Materials.owl#MassOfObject -->
 
     <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#MassOfObject">
@@ -9618,7 +10112,13 @@ In SI units, permeability is measured in henrys per meter (H·m−1), or newtons
     <!-- http://www.nist.gov/itl/ssd/Materials.owl#MeltingPoint -->
 
     <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#MeltingPoint">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#PressureDependentProperty"/>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ThermalProperty"/>
+        <or:referenceURL rdf:datatype="&xsd;anyURI">http://www.iupac.org/namespaces/ThermoML</or:referenceURL>
+        <rdfs:comment xml:lang="en">Melting or freezing point</rdfs:comment>
+        <OntologyRequirements:termString xml:lang="en">freezing point</OntologyRequirements:termString>
+        <OntologyRequirements:termString xml:lang="en">melting point</OntologyRequirements:termString>
+        <OntologyRequirements:termString xml:lang="en">melting temperature</OntologyRequirements:termString>
         <or:unitTypeFor rdf:resource="&or;UnitOfTemperature"/>
     </owl:NamedIndividual>
     
@@ -9660,8 +10160,9 @@ In SI units, permeability is measured in henrys per meter (H·m−1), or newtons
     <!-- http://www.nist.gov/itl/ssd/Materials.owl#Molality -->
 
     <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Molality">
-        <rdf:type rdf:resource="&bc;Concentration"/>
+        <rdf:type rdf:resource="&Biochem;ConcentrationProperty"/>
         <rdfs:comment xml:lang="en">In chemistry, Molality of a solvent/solute combination is defined as the amount of solute, (in moles), divided by the mass of the solvent (in kg), (not the mass of the solution).</rdfs:comment>
+        <or:unitTypeFor rdf:resource="&OntologyRequirements;DimensionlessUnit"/>
     </owl:NamedIndividual>
     
 
@@ -9678,8 +10179,41 @@ In SI units, permeability is measured in henrys per meter (H·m−1), or newtons
     <!-- http://www.nist.gov/itl/ssd/Materials.owl#Molarity -->
 
     <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Molarity">
-        <rdf:type rdf:resource="&bc;Concentration"/>
+        <rdf:type rdf:resource="&Biochem;ConcentrationProperty"/>
         <rdfs:comment xml:lang="en">In chemistry, the Molarity (or molar concentration), is defined as the amount of a mixture constituent (in moles) divided by the volume of the mixture.</rdfs:comment>
+        <OntologyRequirements:termString xml:lang="en">molar concentration</OntologyRequirements:termString>
+        <OntologyRequirements:termString xml:lang="en">molarity</OntologyRequirements:termString>
+        <or:unitTypeFor rdf:resource="&OntologyRequirements;DimensionlessUnit"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#MoleFraction -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#MoleFraction">
+        <rdf:type rdf:resource="&bc;UnitOfConcentration"/>
+        <rdf:type rdf:resource="&OntologyRequirements;DimensionlessUnit"/>
+        <rdfs:comment xml:lang="en">A concentration in Mole Fraction is the number of molecules of a constituent in a mixture divided by the number of molecules of all constituents in the mixture.  This is 0.01 times the Mole Percent of the substance in the mixture.</rdfs:comment>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#MolePercent -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#MolePercent">
+        <rdf:type rdf:resource="&bc;UnitOfConcentration"/>
+        <rdf:type rdf:resource="&OntologyRequirements;DimensionlessUnit"/>
+        <rdfs:comment xml:lang="en">A concentration in Mole Percent is 100 times the number of molecules of a constituent in a mixture divided by the number of molecules of all constituents in the mixture.  This is 100 times the Mole Fraction of the substance in the mixture.</rdfs:comment>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Mole_Unit -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Mole_Unit">
+        <rdf:type rdf:resource="&OntologyRequirements;DimensionlessUnit"/>
+        <rdfs:comment xml:lang="en">A Mole is a Unit of Measure used to measure amounts of matter in terms of the number of atoms present. One mole of a given substance is a portion of the substance consisting of as many atoms as the number of atoms in twelve grams of carbon-12. This number, known as AvogadrosNumber, is equal to 6.0221421 x 10^23. </rdfs:comment>
+        <OntologyRequirements:termString xml:lang="en">mole</OntologyRequirements:termString>
     </owl:NamedIndividual>
     
 
@@ -9703,6 +10237,19 @@ In SI units, permeability is measured in henrys per meter (H·m−1), or newtons
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#MonotecticTemperature -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#MonotecticTemperature">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#PressureDependentProperty"/>
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ThermalProperty"/>
+        <or:referenceURL rdf:datatype="&xsd;anyURI">http://www.iupac.org/namespaces/ThermoML</or:referenceURL>
+        <rdfs:comment xml:lang="en">The Monotectic Temperature for a mixture is the temperature of the monotectic point of that mixture at a given pressure.</rdfs:comment>
+        <OntologyRequirements:termString xml:lang="en">monotectic temperature</OntologyRequirements:termString>
+        <or:unitTypeFor rdf:resource="&or;UnitOfTemperature"/>
+    </owl:NamedIndividual>
+    
+
+
     <!-- http://www.nist.gov/itl/ssd/Materials.owl#NernstPlanckEquation -->
 
     <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#NernstPlanckEquation">
@@ -9719,15 +10266,6 @@ In SI units, permeability is measured in henrys per meter (H·m−1), or newtons
         <rdf:type rdf:resource="&Document;GenericScientificModel"/>
         <rdfs:seeAlso xml:lang="en">Definitions of terms for diffusion in the solid state (IUPAC Recommendations 1999), Pure Appl. Chem. 71, 1307-1325.</rdfs:seeAlso>
         <rdfs:comment xml:lang="en">Neumann’s principle (also known as Curie principle or Curie–Neumann’s principle) states that if a coordinate transformation follows the symmetry operations of the crystalline lattice in question, then that transformation leaves the diffusivity tensor invariant.</rdfs:comment>
-    </owl:NamedIndividual>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Newton -->
-
-    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Newton">
-        <rdf:type rdf:resource="&or;UnitOfForce"/>
-        <rdf:type rdf:resource="&OntologyRequirements;SI_Unit"/>
     </owl:NamedIndividual>
     
 
@@ -9817,6 +10355,19 @@ In SI units, permeability is measured in henrys per meter (H·m−1), or newtons
     <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#PasteSubstance">
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MaterialPhaseComposition"/>
         <rdfs:comment xml:lang="en">A Paste is a substance that behaves as a solid until a sufficiently large load or stress is applied, at which point it flows like a fluid.  Pastes typically consist of a suspension of granular material in a background fluid.  Pastes are distinct from gels, whose particles interconnect.</rdfs:comment>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#PeritecticTemperature -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#PeritecticTemperature">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#PressureDependentProperty"/>
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ThermalProperty"/>
+        <or:referenceURL rdf:datatype="&xsd;anyURI">http://www.iupac.org/namespaces/ThermoML</or:referenceURL>
+        <rdfs:comment xml:lang="en">The Peritectic Temperature for a mixture is the temperature of the peritectic point of that mixture at a given pressure.</rdfs:comment>
+        <OntologyRequirements:termString xml:lang="en">peritectic temperature</OntologyRequirements:termString>
+        <or:unitTypeFor rdf:resource="&or;UnitOfTemperature"/>
     </owl:NamedIndividual>
     
 
@@ -10029,6 +10580,16 @@ There is only one rhombohedral Bravais lattice.</rdfs:comment>
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#SecondLawOfThermodynamics -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#SecondLawOfThermodynamics">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#LawOfThermodynamics"/>
+        <rdfs:comment xml:lang="en">The Second Law of Thermodynamics states that the entropy of any isolated system not in thermal equilibrium almost always increases.</rdfs:comment>
+        <OntologyRequirements:termString xml:lang="en">second law of thermodynamics</OntologyRequirements:termString>
+    </owl:NamedIndividual>
+    
+
+
     <!-- http://www.nist.gov/itl/ssd/Materials.owl#SectioningByGrinding -->
 
     <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#SectioningByGrinding"/>
@@ -10071,6 +10632,18 @@ There is only one rhombohedral Bravais lattice.</rdfs:comment>
 
     <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#ShoreHardness">
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#IndentationHardness"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#ShortTon -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#ShortTon">
+        <rdf:type rdf:resource="&or;UnitOfForce"/>
+        <rdf:type rdf:resource="&OntologyRequirements;NonMetricUnit"/>
+        <rdfs:comment xml:lang="en">A Short Ton, or `ton&#39; is a unit of weight/force equal to 2000 pounds.</rdfs:comment>
+        <OntologyRequirements:termString xml:lang="en">short ton</OntologyRequirements:termString>
+        <OntologyRequirements:termString xml:lang="en">ton</OntologyRequirements:termString>
     </owl:NamedIndividual>
     
 
@@ -10142,8 +10715,9 @@ There is only one rhombohedral Bravais lattice.</rdfs:comment>
     <!-- http://www.nist.gov/itl/ssd/Materials.owl#SolidusTemperature -->
 
     <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#SolidusTemperature">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#PressureDependentProperty"/>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ThermalProperty"/>
-        <rdfs:comment xml:lang="en">The solidus temperature is the temperature (below which a given substance is completely solid and above which it it a mxture of a liquid of one composition and solid crystals of a different compostion.</rdfs:comment>
+        <rdfs:comment xml:lang="en">The solidus temperature is the temperature (at a given temperature) below which a given substance is completely solid and above which it it a mxture of a liquid of one composition and solid crystals of a different compostion.</rdfs:comment>
         <or:unitTypeFor rdf:resource="&or;UnitOfTemperature"/>
     </owl:NamedIndividual>
     
@@ -10177,6 +10751,8 @@ There is only one rhombohedral Bravais lattice.</rdfs:comment>
     <!-- http://www.nist.gov/itl/ssd/Materials.owl#SpecificHeatCapacity -->
 
     <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#SpecificHeatCapacity">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#PressureDependentProperty"/>
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#TemperatureDependentProperty"/>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ThermalProperty"/>
         <rdfs:comment xml:lang="en">The Specific Heat Capacity (or specific heat) is the heat capacity per unit mass of a material, measured in Joules/(kg K)  (in SI units). </rdfs:comment>
         <OntologyRequirements:termString xml:lang="en">specific heat</OntologyRequirements:termString>
@@ -10262,6 +10838,7 @@ There are two tetragonal Bravais lattices: the simple (or primitive) tetragonal 
     <!-- http://www.nist.gov/itl/ssd/Materials.owl#ThermalConductivity -->
 
     <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#ThermalConductivity">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#TemperatureDependentProperty"/>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ThermalProperty"/>
         <rdfs:comment xml:lang="en">Thermal conductivity, (symbol: lambda or kappa), is the property of a material&#39;s ability to conduct heat, normally measured in W/(m·K).</rdfs:comment>
         <OntologyRequirements:termString xml:lang="en">thermal conductivity</OntologyRequirements:termString>
@@ -10273,8 +10850,14 @@ There are two tetragonal Bravais lattices: the simple (or primitive) tetragonal 
     <!-- http://www.nist.gov/itl/ssd/Materials.owl#ThermalExpansionCoefficient -->
 
     <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#ThermalExpansionCoefficient">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#PressureDependentProperty"/>
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#TemperatureDependentProperty"/>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ThermalProperty"/>
+        <OntologyRequirements:termString xml:lang="en"> temperature coefficient of linear expansion</OntologyRequirements:termString>
         <rdfs:comment xml:lang="en">The Thermal Expansion Coefficient of a material is the relative amount it expands per unit increase in temperature.  In SI units it is measured in inverse Celsius degrees.</rdfs:comment>
+        <OntologyRequirements:termString xml:lang="en">isobaric coefficient of linear expansion</OntologyRequirements:termString>
+        <OntologyRequirements:termString xml:lang="en">linear thermal expansion coefficient</OntologyRequirements:termString>
+        <OntologyRequirements:termString xml:lang="en">thermal expansion coefficient</OntologyRequirements:termString>
         <or:unitTypeFor rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#UnitOfInverseTemperatureDifference"/>
     </owl:NamedIndividual>
     
@@ -10287,6 +10870,28 @@ There are two tetragonal Bravais lattices: the simple (or primitive) tetragonal 
         <rdfs:comment xml:lang="en">Thermal Shock Resistance is a measure of the resistance of an object to the initiation of thermal fracturing, measured as the maximum temperature difference to allow a steady heat flow.</rdfs:comment>
         <OntologyRequirements:termString xml:lang="en">thermal shock resistance</OntologyRequirements:termString>
         <or:unitTypeFor rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#UnitOfTemperatureDifference"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#ThermodynamicActivity -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#ThermodynamicActivity">
+        <rdf:type rdf:resource="&bc;MeasurableChemicalProperty"/>
+        <rdfs:comment xml:lang="en">In chemical thermodynamics, activity (symbol a) is a measure of the &#39;effective concentration&#39; of a species in a mixture, meaning that the species&#39;s chemical potential depends on the activity of a real solution in the same way that it would depend on concentration for an ideal solution.</rdfs:comment>
+        <OntologyRequirements:termString xml:lang="en">activity</OntologyRequirements:termString>
+        <OntologyRequirements:termString xml:lang="en">thermodynamic activity</OntologyRequirements:termString>
+        <or:unitTypeFor rdf:resource="&OntologyRequirements;DimensionlessUnit"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#ThirdLawOfThermodynamics -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#ThirdLawOfThermodynamics">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#LawOfThermodynamics"/>
+        <rdfs:comment xml:lang="en">The Third Law of Thermodynamics states that the entropy of a system approaches a constant value as the temperature approaches absolute zero.</rdfs:comment>
+        <OntologyRequirements:termString xml:lang="en">third law of thermodynamics</OntologyRequirements:termString>
     </owl:NamedIndividual>
     
 
@@ -10308,6 +10913,19 @@ There are two tetragonal Bravais lattices: the simple (or primitive) tetragonal 
         <rdf:type rdf:resource="&bc;ChemicalSubstanceTypeByChemicalSpecies"/>
         <or:referenceURL rdf:datatype="&xsd;anyURI">http://www.matweb.com/index.aspx</or:referenceURL>
         <OntologyRequirements:termString xml:lang="en">titanium oxide</OntologyRequirements:termString>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Tonne -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Tonne">
+        <rdf:type rdf:resource="&or;UnitOfMass"/>
+        <rdfs:comment xml:lang="en">1000 kg is called a Tonne, sometimes inaccurately a &quot;ton&quot;.</rdfs:comment>
+        <OntologyRequirements:termString xml:lang="en">megagram</OntologyRequirements:termString>
+        <OntologyRequirements:termString xml:lang="en">metric ton</OntologyRequirements:termString>
+        <OntologyRequirements:termString xml:lang="en">ton</OntologyRequirements:termString>
+        <OntologyRequirements:termString xml:lang="en">tonne</OntologyRequirements:termString>
     </owl:NamedIndividual>
     
 
@@ -10367,6 +10985,36 @@ There are two tetragonal Bravais lattices: the simple (or primitive) tetragonal 
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#TriplePointPressure -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#TriplePointPressure">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ThermalProperty"/>
+        <or:referenceURL rdf:datatype="&xsd;anyURI">http://www.iupac.org/namespaces/ThermoML</or:referenceURL>
+        <OntologyRequirements:termString xml:lang="en">triple point pressure</OntologyRequirements:termString>
+        <or:unitTypeFor rdf:resource="&or;UnitOfPressure"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#TriplePointTemperature -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#TriplePointTemperature">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ThermalProperty"/>
+        <or:referenceURL rdf:datatype="&xsd;anyURI">http://www.iupac.org/namespaces/ThermoML</or:referenceURL>
+        <OntologyRequirements:termString xml:lang="en">triple point pressure</OntologyRequirements:termString>
+        <or:unitTypeFor rdf:resource="&or;UnitOfTemperature"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Tritium -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Tritium">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#Radioisotope"/>
+    </owl:NamedIndividual>
+    
+
+
     <!-- http://www.nist.gov/itl/ssd/Materials.owl#UKPenny -->
 
     <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#UKPenny">
@@ -10392,6 +11040,14 @@ There are two tetragonal Bravais lattices: the simple (or primitive) tetragonal 
         <rdfs:comment xml:lang="en">ultimate strength</rdfs:comment>
         <OntologyRequirements:termString xml:lang="en">ultimate tensile strength</OntologyRequirements:termString>
         <or:unitTypeFor rdf:resource="&or;UnitOfPressure"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#UnitOfAreaPerForce -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#UnitOfAreaPerForce">
+        <rdf:type rdf:resource="&or;InterconvertibleUnitType"/>
     </owl:NamedIndividual>
     
 
@@ -10512,6 +11168,14 @@ There are two tetragonal Bravais lattices: the simple (or primitive) tetragonal 
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#UnitOfVolumePerMass -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#UnitOfVolumePerMass">
+        <rdf:type rdf:resource="&or;InterconvertibleUnitType"/>
+    </owl:NamedIndividual>
+    
+
+
     <!-- http://www.nist.gov/itl/ssd/Materials.owl#VacancyDiffusionCoefficient -->
 
     <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#VacancyDiffusionCoefficient">
@@ -10554,6 +11218,21 @@ There are two tetragonal Bravais lattices: the simple (or primitive) tetragonal 
     <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#VolumeOfObject">
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MeasurableMechanicalProperty"/>
         <or:unitTypeFor rdf:resource="&or;UnitOfVolume"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#VolumetricExpansionCoefficient -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#VolumetricExpansionCoefficient">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#PressureDependentProperty"/>
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#TemperatureDependentProperty"/>
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ThermalProperty"/>
+        <OntologyRequirements:termString xml:lang="en">thermal expansion coefficient</OntologyRequirements:termString>
+        <OntologyRequirements:termString xml:lang="en">thermal expansivity</OntologyRequirements:termString>
+        <OntologyRequirements:termString xml:lang="en">volume thermal expansion coefficient</OntologyRequirements:termString>
+        <OntologyRequirements:termString xml:lang="en">volumetric expansion coefficient</OntologyRequirements:termString>
+        <or:unitTypeFor rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#UnitOfInverseTemperatureDifference"/>
     </owl:NamedIndividual>
     
 
@@ -10615,6 +11294,16 @@ There are two tetragonal Bravais lattices: the simple (or primitive) tetragonal 
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#ZerothLawOfThermodynamics -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#ZerothLawOfThermodynamics">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#LawOfThermodynamics"/>
+        <rdfs:comment xml:lang="en">The Zeroth Law of Thermodynamics states that if two systems are in thermal equilibrium with a third system, they must be in thermal equilibrium with each other.</rdfs:comment>
+        <OntologyRequirements:termString xml:lang="en">zeroth law of thermodynamics</OntologyRequirements:termString>
+    </owl:NamedIndividual>
+    
+
+
     <!-- http://www.nist.gov/itl/ssd/Materials.owl#ZincAlloy -->
 
     <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#ZincAlloy">
@@ -10653,6 +11342,15 @@ There are two tetragonal Bravais lattices: the simple (or primitive) tetragonal 
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#CubicMeter -->
+
+    <rdf:Description rdf:about="&or;CubicMeter">
+        <OntologyRequirements:termString xml:lang="en">cubic meter</OntologyRequirements:termString>
+        <OntologyRequirements:termString xml:lang="en">cubic metre</OntologyRequirements:termString>
+    </rdf:Description>
+    
+
+
     <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#DegreeCelsius -->
 
     <rdf:Description rdf:about="&or;DegreeCelsius">
@@ -10665,6 +11363,83 @@ There are two tetragonal Bravais lattices: the simple (or primitive) tetragonal 
 
     <rdf:Description rdf:about="&or;DegreeKelvin">
         <rdfs:comment xml:lang="en">A Degree Kelvin is a Unit of Temperature that specifies an an absolute temperature.-- how many Celsius Degrees the temperature is above Absolute Zero.  Subtracting 273.15 from a temperature specified in Degrees Kelvin gives the value of the temperature in Degrees Celsius.  To refer to temperature differences, use the Unit Of Temperature Difference, Celsius Degree.</rdfs:comment>
+    </rdf:Description>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#Femtoliter -->
+
+    <rdf:Description rdf:about="&or;Femtoliter">
+        <OntologyRequirements:termString xml:lang="en">femtoliter</OntologyRequirements:termString>
+        <OntologyRequirements:termString xml:lang="en">femtolitre</OntologyRequirements:termString>
+    </rdf:Description>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#GramCalorie -->
+
+    <rdf:Description rdf:about="&or;GramCalorie">
+        <rdfs:comment xml:lang="en">A Gram-Calorie is the amount of heat needed to raise 1 Gram of water 1 Degree Celsius at 1 Atmosphere Pressure.</rdfs:comment>
+        <OntologyRequirements:termString xml:lang="en">cal.</OntologyRequirements:termString>
+        <OntologyRequirements:termString xml:lang="en">calorie</OntologyRequirements:termString>
+        <OntologyRequirements:termString xml:lang="en">gram-calorie</OntologyRequirements:termString>
+    </rdf:Description>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#Kilocalorie -->
+
+    <rdf:Description rdf:about="&or;Kilocalorie">
+        <rdfs:comment xml:lang="en">A Kilocalorie is the amount of heat needed to raise 1 Kilogram of water 1 DegreeCelsius at 1 Atmosphere-UnitOfPressure.  It is equal to 1000 gram-calories.  In the US, the kilocalorie is called a `calorie&#39; when refering to the energy content of foodstuffs.  The abbreviation, `Cal.&#39;, for kilocalorie is capitalized while that of a gram-calorie, `cal.&#39; is lower case.</rdfs:comment>
+        <OntologyRequirements:termString xml:lang="en">Cal.</OntologyRequirements:termString>
+        <OntologyRequirements:termString xml:lang="en">Calorie</OntologyRequirements:termString>
+        <OntologyRequirements:termString xml:lang="en">kilocalorie</OntologyRequirements:termString>
+    </rdf:Description>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#Liter -->
+
+    <rdf:Description rdf:about="&or;Liter">
+        <OntologyRequirements:termString xml:lang="en">cubic decimeter</OntologyRequirements:termString>
+        <OntologyRequirements:termString xml:lang="en">dm^3</OntologyRequirements:termString>
+        <OntologyRequirements:termString xml:lang="en">l</OntologyRequirements:termString>
+        <OntologyRequirements:termString xml:lang="en">liter</OntologyRequirements:termString>
+        <OntologyRequirements:termString xml:lang="en">litre</OntologyRequirements:termString>
+    </rdf:Description>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#Microliter -->
+
+    <rdf:Description rdf:about="&or;Microliter">
+        <OntologyRequirements:termString xml:lang="en">cubic millimeter</OntologyRequirements:termString>
+        <OntologyRequirements:termString xml:lang="en">microliter</OntologyRequirements:termString>
+        <OntologyRequirements:termString xml:lang="en">microlitre</OntologyRequirements:termString>
+        <OntologyRequirements:termString xml:lang="en">mm^3</OntologyRequirements:termString>
+    </rdf:Description>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#Milliliter -->
+
+    <rdf:Description rdf:about="&or;Milliliter">
+        <OntologyRequirements:termString xml:lang="en">cc</OntologyRequirements:termString>
+        <OntologyRequirements:termString xml:lang="en">cubic centimeter</OntologyRequirements:termString>
+        <OntologyRequirements:termString xml:lang="en">cubic centimetre</OntologyRequirements:termString>
+        <OntologyRequirements:termString xml:lang="en">milliliter</OntologyRequirements:termString>
+        <OntologyRequirements:termString xml:lang="en">millilitre</OntologyRequirements:termString>
+        <OntologyRequirements:termString xml:lang="en">ml</OntologyRequirements:termString>
+    </rdf:Description>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#Nanoliter -->
+
+    <rdf:Description rdf:about="&or;Nanoliter">
+        <OntologyRequirements:termString xml:lang="en">nanoliter</OntologyRequirements:termString>
+        <OntologyRequirements:termString xml:lang="en">nanolitre</OntologyRequirements:termString>
+        <OntologyRequirements:termString xml:lang="en">nl</OntologyRequirements:termString>
     </rdf:Description>
     
 
@@ -10686,6 +11461,20 @@ There are two tetragonal Bravais lattices: the simple (or primitive) tetragonal 
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#AvogadrosNumber -->
+
+    <rdf:Description rdf:about="&OntologyRequirements;AvogadrosNumber">
+        <OntologyRequirements:termString xml:lang="en">Avogadro&#39;s number</OntologyRequirements:termString>
+    </rdf:Description>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#Newton -->
+
+    <owl:NamedIndividual rdf:about="&OntologyRequirements;Newton"/>
+    
+
+
     <!-- 
     ///////////////////////////////////////////////////////////////////////////////////////
     //
@@ -10694,37 +11483,16 @@ There are two tetragonal Bravais lattices: the simple (or primitive) tetragonal 
     ///////////////////////////////////////////////////////////////////////////////////////
      -->
 
-    <rdf:Description rdf:about="&or;Nanoliter">
-        <OntologyRequirements:termString xml:lang="en">nanoliter</OntologyRequirements:termString>
-        <OntologyRequirements:termString xml:lang="en">nanolitre</OntologyRequirements:termString>
-        <OntologyRequirements:termString xml:lang="en">nl</OntologyRequirements:termString>
-    </rdf:Description>
-    <rdf:Description rdf:about="&or;Liter">
-        <OntologyRequirements:termString xml:lang="en">l</OntologyRequirements:termString>
-        <OntologyRequirements:termString xml:lang="en">liter</OntologyRequirements:termString>
-        <OntologyRequirements:termString xml:lang="en">litre</OntologyRequirements:termString>
-    </rdf:Description>
-    <rdf:Description rdf:about="&or;CubicMeter">
-        <OntologyRequirements:termString xml:lang="en">cubic meter</OntologyRequirements:termString>
-        <OntologyRequirements:termString xml:lang="en">cubic metre</OntologyRequirements:termString>
-    </rdf:Description>
     <rdf:Description rdf:about="&bc;Ion">
         <or:referenceURL rdf:datatype="&xsd;anyURI">http://www.iupac.org/namespaces/ThermoML#ion</or:referenceURL>
     </rdf:Description>
+    <rdf:Description rdf:about="&or;Gram">
+        <rdfs:comment xml:lang="en">g</rdfs:comment>
+        <rdfs:comment xml:lang="en">gram</rdfs:comment>
+        <rdfs:comment xml:lang="en">gramme</rdfs:comment>
+    </rdf:Description>
     <rdf:Description rdf:about="&or;Pascal-UnitOfPressure">
         <OntologyRequirements:termString xml:lang="en">pascal</OntologyRequirements:termString>
-    </rdf:Description>
-    <rdf:Description rdf:about="&or;Microliter">
-        <OntologyRequirements:termString xml:lang="en">microliter</OntologyRequirements:termString>
-        <OntologyRequirements:termString xml:lang="en">microlitre</OntologyRequirements:termString>
-    </rdf:Description>
-    <rdf:Description rdf:about="&or;Milliliter">
-        <OntologyRequirements:termString xml:lang="en">cc</OntologyRequirements:termString>
-        <OntologyRequirements:termString xml:lang="en">cubic centimeter</OntologyRequirements:termString>
-        <OntologyRequirements:termString xml:lang="en">cubic centimetre</OntologyRequirements:termString>
-        <OntologyRequirements:termString xml:lang="en">milliliter</OntologyRequirements:termString>
-        <OntologyRequirements:termString xml:lang="en">millilitre</OntologyRequirements:termString>
-        <OntologyRequirements:termString xml:lang="en">ml</OntologyRequirements:termString>
     </rdf:Description>
     <rdf:Description rdf:about="&or;Meter">
         <OntologyRequirements:termString xml:lang="en">meter</OntologyRequirements:termString>
@@ -10748,6 +11516,7 @@ There are two tetragonal Bravais lattices: the simple (or primitive) tetragonal 
     <rdf:Description rdf:about="&or;MmHg">
         <OntologyRequirements:termString xml:lang="en">millimeter of mercury</OntologyRequirements:termString>
         <OntologyRequirements:termString xml:lang="en">mm Hg</OntologyRequirements:termString>
+        <OntologyRequirements:termString xml:lang="en">torr</OntologyRequirements:termString>
     </rdf:Description>
     <rdf:Description rdf:about="&or;Millimeter">
         <OntologyRequirements:termString xml:lang="en">millimeter</OntologyRequirements:termString>
@@ -10756,13 +11525,19 @@ There are two tetragonal Bravais lattices: the simple (or primitive) tetragonal 
     <rdf:Description rdf:about="&or;DegreeFahrenheit">
         <rdfs:comment xml:lang="en">A Degree Fahrenheit is a Unit of Temperature that specifies an an absolute temperature.-- how many Fahrenheit Degrees the temperature is above (or if negative, below) 32 Fahrenheit Degrees below the freezing point of water.  To refer to temperature differences, use the Unit Of Temperature Difference, Fahrenheit Degree.</rdfs:comment>
     </rdf:Description>
-    <rdf:Description rdf:about="&bc;VaporPressure">
-        <OntologyRequirements:termString xml:lang="en">vapor pressure</OntologyRequirements:termString>
+    <rdf:Description rdf:about="&bc;OrganicMaterial">
+        <or:referenceURL rdf:datatype="&xsd;anyURI">http://www.iupac.org/namespaces/ThermoML#biomaterial</or:referenceURL>
     </rdf:Description>
     <rdf:Description rdf:about="&or;Bar-UnitOfPressure">
         <OntologyRequirements:termString xml:lang="en">10^5 Pascals</OntologyRequirements:termString>
         <OntologyRequirements:termString xml:lang="en">Pa*10^5</OntologyRequirements:termString>
         <OntologyRequirements:termString xml:lang="en">bar</OntologyRequirements:termString>
+    </rdf:Description>
+    <rdf:Description rdf:about="&or;Kilogram">
+        <rdfs:comment xml:lang="en">kg</rdfs:comment>
+        <rdfs:comment xml:lang="en">kilo</rdfs:comment>
+        <rdfs:comment xml:lang="en">kilogram</rdfs:comment>
+        <rdfs:comment xml:lang="en">kilogramme</rdfs:comment>
     </rdf:Description>
     <rdf:Description rdf:about="&or;catalogNumber">
         <skos:note xml:lang="en">Something can have different catalog numbers in different catalogs.  To be functional, a ternary relation that specifies the catalog is needed.  Specializations of this relation (XCatalogNumber) can be functional.</skos:note>
@@ -10770,13 +11545,6 @@ There are two tetragonal Bravais lattices: the simple (or primitive) tetragonal 
     <rdf:Description rdf:about="&or;BritishThermalUnit">
         <OntologyRequirements:termString xml:lang="en">BTU</OntologyRequirements:termString>
         <OntologyRequirements:termString xml:lang="en">British thermal unit</OntologyRequirements:termString>
-    </rdf:Description>
-    <rdf:Description rdf:about="&OntologyRequirements;AvogadrosNumber">
-        <OntologyRequirements:termString xml:lang="en">Avodadro&#39;s number</OntologyRequirements:termString>
-    </rdf:Description>
-    <rdf:Description rdf:about="&or;Femtoliter">
-        <OntologyRequirements:termString xml:lang="en">femtoliter</OntologyRequirements:termString>
-        <OntologyRequirements:termString xml:lang="en">femtolitre</OntologyRequirements:termString>
     </rdf:Description>
     <rdf:Description rdf:about="&or;PSI">
         <OntologyRequirements:termString xml:lang="en">PSI</OntologyRequirements:termString>
@@ -10798,15 +11566,57 @@ There are two tetragonal Bravais lattices: the simple (or primitive) tetragonal 
     <rdf:Description>
         <rdf:type rdf:resource="&owl;AllDifferent"/>
         <owl:distinctMembers rdf:parseType="Collection">
-            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Opaque"/>
-            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Translucent"/>
+            <rdf:Description rdf:about="&or;Liter"/>
+            <rdf:Description rdf:about="&or;Nanoliter"/>
         </owl:distinctMembers>
     </rdf:Description>
     <rdf:Description>
         <rdf:type rdf:resource="&owl;AllDifferent"/>
         <owl:distinctMembers rdf:parseType="Collection">
-            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Opaque"/>
-            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Transparent"/>
+            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#PoundForce"/>
+            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#ShortTon"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="&or;Microliter"/>
+            <rdf:Description rdf:about="&or;Nanoliter"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Dyne"/>
+            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#LongTon"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="&or;Liter"/>
+            <rdf:Description rdf:about="&or;Microliter"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#ShortTon"/>
+            <rdf:Description rdf:about="&OntologyRequirements;Newton"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="&or;CubicMeter"/>
+            <rdf:Description rdf:about="&or;Liter"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="&or;Liter"/>
+            <rdf:Description rdf:about="&or;Milliliter"/>
         </owl:distinctMembers>
     </rdf:Description>
     <rdf:Description>
@@ -10821,8 +11631,260 @@ There are two tetragonal Bravais lattices: the simple (or primitive) tetragonal 
     <rdf:Description>
         <rdf:type rdf:resource="&owl;AllDifferent"/>
         <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="&or;Femtoliter"/>
+            <rdf:Description rdf:about="&or;Milliliter"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="&or;Microliter"/>
+            <rdf:Description rdf:about="&or;Milliliter"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="&or;Milliliter"/>
+            <rdf:Description rdf:about="&or;Nanoliter"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#LongTon"/>
+            <rdf:Description rdf:about="&OntologyRequirements;Newton"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Dyne"/>
+            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#PoundForce"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="&bc;CcsPerLiter"/>
+            <rdf:Description rdf:about="&bc;PercentByVolume"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="&bc;CcsPerLiter"/>
+            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Mole_Unit"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#MoleFraction"/>
+            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#MolePercent"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="&bc;CcsPerLiter"/>
+            <rdf:Description rdf:about="&bc;PercentByWeight"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#CubicInch"/>
+            <rdf:Description rdf:about="&or;CubicMeter"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Opaque"/>
+            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Translucent"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#CubicInch"/>
+            <rdf:Description rdf:about="&or;Femtoliter"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#CubicInch"/>
+            <rdf:Description rdf:about="&or;Microliter"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="&bc;GramsPerLiter"/>
+            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#KgPerM3"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="&or;Femtoliter"/>
+            <rdf:Description rdf:about="&or;Nanoliter"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#LongTon"/>
+            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#PoundForce"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#CubicInch"/>
+            <rdf:Description rdf:about="&or;Liter"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="&bc;PercentByWeight"/>
+            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#MassFraction"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="&or;Femtoliter"/>
+            <rdf:Description rdf:about="&or;Liter"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#CubicInch"/>
+            <rdf:Description rdf:about="&or;Nanoliter"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="&bc;GramsPerLiter"/>
+            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#MolePercent"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="&or;CubicMeter"/>
+            <rdf:Description rdf:about="&or;Milliliter"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="&bc;GramsPerLiter"/>
+            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#MoleFraction"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="&or;GramCalorie"/>
+            <rdf:Description rdf:about="&or;Kilocalorie"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Dyne"/>
+            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#ShortTon"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="&or;CubicMeter"/>
+            <rdf:Description rdf:about="&or;Microliter"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Dyne"/>
+            <rdf:Description rdf:about="&OntologyRequirements;Newton"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="&or;CubicMeter"/>
+            <rdf:Description rdf:about="&or;Femtoliter"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="&or;Femtoliter"/>
+            <rdf:Description rdf:about="&or;Microliter"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#LongTon"/>
+            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#ShortTon"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Opaque"/>
+            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Transparent"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
             <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Translucent"/>
             <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Transparent"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#CubicInch"/>
+            <rdf:Description rdf:about="&or;Milliliter"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="&or;CubicMeter"/>
+            <rdf:Description rdf:about="&or;Nanoliter"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="&bc;CcsPerLiter"/>
+            <rdf:Description rdf:about="&OntologyRequirements;Percent"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#PoundForce"/>
+            <rdf:Description rdf:about="&OntologyRequirements;Newton"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="&bc;CcsPerLiter"/>
+            <rdf:Description rdf:about="&OntologyRequirements;AvogadrosNumber"/>
         </owl:distinctMembers>
     </rdf:Description>
 </rdf:RDF>
