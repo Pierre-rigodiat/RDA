@@ -1,0 +1,499 @@
+<?xml version="1.0"?>
+
+
+<!DOCTYPE rdf:RDF [
+    <!ENTITY owl "http://www.w3.org/2002/07/owl#" >
+    <!ENTITY xsd "http://www.w3.org/2001/XMLSchema#" >
+    <!ENTITY xml "http://www.w3.org/XML/1998/namespace" >
+    <!ENTITY oil "http://www.daml.org/2001/03/daml+oil#" >
+    <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#" >
+    <!ENTITY doc "http://www.nist.gov/itl/ssd/Document#" >
+    <!ENTITY Document "http://www.nist.gov/itl/ssd/Document.owl#" >
+    <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#" >
+    <!ENTITY cyc "http://sw.opencyc.org/2009/04/07/concept/en/#" >
+    <!ENTITY or "http://www.nist.gov/itl/ssd/OntologyRequirements#" >
+    <!ENTITY OntologyRequirements "http://www.nist.gov/itl/ssd/OntologyRequirements.owl#" >
+]>
+
+
+<rdf:RDF xmlns="http://www.nist.gov/itl/ssd/Document#"
+     xml:base="http://www.nist.gov/itl/ssd/Document"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+     xmlns:Document="http://www.nist.gov/itl/ssd/Document.owl#"
+     xmlns:or="http://www.nist.gov/itl/ssd/OntologyRequirements#"
+     xmlns:owl="http://www.w3.org/2002/07/owl#"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:doc="http://www.nist.gov/itl/ssd/Document#"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:xml="http://www.w3.org/XML/1998/namespace"
+     xmlns:cyc="http://sw.opencyc.org/2009/04/07/concept/en/#"
+     xmlns:OntologyRequirements="http://www.nist.gov/itl/ssd/OntologyRequirements.owl#"
+     xmlns:oil="http://www.daml.org/2001/03/daml+oil#">
+    <owl:Ontology rdf:about="http://www.nist.gov/itl/ssd/Document.owl">
+        <owl:imports rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements.owl"/>
+    </owl:Ontology>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Annotation properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Datatypes
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Object Properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document#authorOf -->
+
+    <owl:ObjectProperty rdf:about="&doc;authorOf">
+        <rdfs:comment xml:lang="en">The &#39;author Of&#39; a Document, System Model, or other piece of information is a person or organization which created the work.  A work may have  more than one author.</rdfs:comment>
+        <rdfs:domain rdf:resource="&or;AbstractStructuredInformationStore"/>
+        <rdfs:range rdf:resource="&or;IntelligentAgent"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document#publisherOf -->
+
+    <owl:ObjectProperty rdf:about="&doc;publisherOf">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:comment xml:lang="en">The relation &#39;publisher Of&#39; specifies the Organization which originally published a Document, System Model, or other such work.</rdfs:comment>
+        <rdfs:domain rdf:resource="&Document;PublishedInformation"/>
+        <rdfs:range rdf:resource="&or;Organization"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document.owl#doiLink -->
+
+    <owl:ObjectProperty rdf:about="&Document;doiLink">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:comment xml:lang="en">A digital object identifier (DOI) is a character string (a &quot;digital identifier&quot;) used to uniquely identify an object such as an electronic document. Metadata about the object is stored in association with the DOI name and this metadata may include a location, such as a URL, where the object can be found. The DOI for a document is permanent, whereas its location and other metadata may change. Referring to an online document by its DOI provides more stable linking than simply referring to it by its URL, because if its URL changes, the publisher need only update the metadata for the DOI to link to the new URL</rdfs:comment>
+        <rdfs:domain rdf:resource="&doc;Document"/>
+        <rdfs:range rdf:resource="&Document;DigitalObjectIdentifier"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document.owl#issueOfPeriodical -->
+
+    <owl:ObjectProperty rdf:about="&Document;issueOfPeriodical">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdf:type rdf:resource="&owl;IrreflexiveProperty"/>
+        <rdfs:range rdf:resource="&Document;Periodical"/>
+        <rdfs:domain rdf:resource="&Document;PeriodicalIssue"/>
+        <rdfs:subPropertyOf rdf:resource="&Document;subWorkOf"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document.owl#publicationDate -->
+
+    <owl:ObjectProperty rdf:about="&Document;publicationDate">
+        <rdfs:comment xml:lang="en">The publication Date of some Published Information is the Date Time that it was officially published, even if copies were first distributed before or after that date. The publication Date may be given as a Calendar Day, a Calendar Month, a Calendar Quarter, a Calendar Year, or possibly at some other degree of granularity.</rdfs:comment>
+        <rdfs:domain rdf:resource="&Document;PublishedInformation"/>
+        <rdfs:range rdf:resource="&or;DateTime"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document.owl#specificModelOfGenericType -->
+
+    <owl:ObjectProperty rdf:about="&Document;specificModelOfGenericType">
+        <rdfs:comment xml:lang="en">The property &#39;specific Model Of Generic Type&#39; relates a Specific System Model to a Generic System Model of which it is a more specific form.</rdfs:comment>
+        <rdfs:range rdf:resource="&doc;GenericSystemModel"/>
+        <rdfs:domain rdf:resource="&doc;SpecificSystemModel"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document.owl#subWorkOf -->
+
+    <owl:ObjectProperty rdf:about="&Document;subWorkOf">
+        <rdfs:comment xml:lang="en">One Data Object is a subWork of another if all the data in the first is present in the same form in the second Data Object.</rdfs:comment>
+        <rdfs:range rdf:resource="&OntologyRequirements;DataObject"/>
+        <rdfs:domain rdf:resource="&OntologyRequirements;DataObject"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document.owl#volumeOfPeriodical -->
+
+    <owl:ObjectProperty rdf:about="&Document;volumeOfPeriodical">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdf:type rdf:resource="&owl;IrreflexiveProperty"/>
+        <rdfs:range rdf:resource="&Document;Periodical"/>
+        <rdfs:domain rdf:resource="&Document;PeriodicalVolume"/>
+        <rdfs:subPropertyOf rdf:resource="&Document;subWorkOf"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Data properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document.owl#bibliographicInformation -->
+
+    <owl:DatatypeProperty rdf:about="&Document;bibliographicInformation">
+        <rdfs:comment xml:lang="en">bibliographic Information about a document</rdfs:comment>
+        <rdfs:domain rdf:resource="&doc;Document"/>
+        <rdfs:range rdf:resource="&xsd;string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document.owl#documentTitle -->
+
+    <owl:DatatypeProperty rdf:about="&Document;documentTitle">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:comment xml:lang="en">The title of the document</rdfs:comment>
+        <rdfs:domain rdf:resource="&doc;Document"/>
+        <rdfs:subPropertyOf rdf:resource="&or;nameString"/>
+        <rdfs:range rdf:resource="&xsd;string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Classes
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://www.daml.org/2001/03/daml+oil#Ontology -->
+
+    <rdf:Description rdf:about="&oil;Ontology">
+        <owl:disjointWith rdf:resource="&doc;DatabaseEntry"/>
+        <owl:disjointWith rdf:resource="&doc;Document"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document#DatabaseEntry -->
+
+    <owl:Class rdf:about="&doc;DatabaseEntry">
+        <rdfs:subClassOf rdf:resource="&or;AbstractStructuredInformationStore"/>
+        <owl:disjointWith rdf:resource="&doc;Prediction"/>
+        <owl:disjointWith rdf:resource="&doc;SystemModel"/>
+        <owl:disjointWith rdf:resource="&or;ComputerFile"/>
+        <owl:disjointWith rdf:resource="&or;DataBase"/>
+        <owl:disjointWith rdf:resource="&or;DataFormat"/>
+        <owl:disjointWith rdf:resource="&or;ImageSequence"/>
+        <rdfs:comment xml:lang="en">A Database Entry is a single entry in a Database.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document#Document -->
+
+    <owl:Class rdf:about="&doc;Document">
+        <rdfs:subClassOf rdf:resource="&or;AbstractStructuredInformationStore"/>
+        <owl:disjointWith rdf:resource="&doc;SystemModel"/>
+        <owl:disjointWith rdf:resource="&or;ComputerFile"/>
+        <owl:disjointWith rdf:resource="&or;DataBase"/>
+        <owl:disjointWith rdf:resource="&or;DataFormat"/>
+        <owl:disjointWith rdf:resource="&or;ImageSequence"/>
+        <rdfs:comment xml:lang="en">The class of documents as abstract informational entities.  A single document may be instantiated into an unlimited number of copies, which may have different characteristics (font, hand-written notes, physical locations, owners, ...) which are not characteristics of the abstract document. 
+
+Same as cyc:Document-CW</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document#GenericSystemModel -->
+
+    <owl:Class rdf:about="&doc;GenericSystemModel">
+        <rdfs:subClassOf rdf:resource="&doc;SystemModel"/>
+        <owl:disjointWith rdf:resource="&doc;Prediction"/>
+        <owl:disjointWith rdf:resource="&doc;SpecificSystemModel"/>
+        <rdfs:comment xml:lang="en">A Generic System Model is a model for a general class of situations, contrasting with a Specific System Model which models a specific (type of) situation.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document#MakingAPrediction -->
+
+    <owl:Class rdf:about="&doc;MakingAPrediction">
+        <rdfs:subClassOf rdf:resource="&or;IntentionalCreation"/>
+        <rdfs:comment xml:lang="en">Each instance of MakingAPrediction is an Action in which an agent makes an assertion about what will be the case at some point in the future if some certain initial state exists.
+
+Same as cyc:MakingAPrediction.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document#Prediction -->
+
+    <owl:Class rdf:about="&doc;Prediction">
+        <rdfs:subClassOf rdf:resource="&OntologyRequirements;Information"/>
+        <owl:disjointWith rdf:resource="&or;AbstractStructuredInformationStore"/>
+        <rdfs:comment xml:lang="en">Each instance of Prediction is the information resulting from MakingAPrediction. Instances are forecasts of future events or situations proposed by some agent.
+
+Same as cyc:Prediction-CW.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document#Publisher -->
+
+    <owl:Class rdf:about="&doc;Publisher">
+        <rdfs:subClassOf rdf:resource="&or;Organization"/>
+        <rdfs:comment xml:lang="en">A Publisher is an organization which publishes material.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document#SpecificSystemModel -->
+
+    <owl:Class rdf:about="&doc;SpecificSystemModel">
+        <rdfs:subClassOf rdf:resource="&doc;SystemModel"/>
+        <rdfs:comment xml:lang="en">A Specific System Model is a model for a specific (type of) situation, contrasting with a Generic System Model which models a general class of situations.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document#Specification -->
+
+    <owl:Class rdf:about="&doc;Specification">
+        <rdfs:subClassOf rdf:resource="&doc;Document"/>
+        <owl:disjointWith rdf:resource="&doc;TechnicalArticle"/>
+        <owl:disjointWith rdf:resource="&doc;TechnicalReport"/>
+        <rdfs:comment xml:lang="en">A Specification is an abstract work that constitutes a description of the properties of an individual or type of Temporal Thing. Things are made, bought, and searched for according to specifications, which can be instantiated as printed instructions or as diagrams.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document#Standard -->
+
+    <owl:Class rdf:about="&doc;Standard">
+        <rdfs:subClassOf rdf:resource="&doc;Document"/>
+        <owl:disjointWith rdf:resource="&doc;TechnicalArticle"/>
+        <owl:disjointWith rdf:resource="&doc;TechnicalReport"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document#SystemModel -->
+
+    <owl:Class rdf:about="&doc;SystemModel">
+        <rdfs:subClassOf rdf:resource="&OntologyRequirements;Information"/>
+        <owl:disjointWith rdf:resource="&Document;Objective"/>
+        <owl:disjointWith rdf:resource="&or;ComputerFile"/>
+        <owl:disjointWith rdf:resource="&or;DataBase"/>
+        <owl:disjointWith rdf:resource="&or;DataFormat"/>
+        <owl:disjointWith rdf:resource="&or;ImageSequence"/>
+        <rdfs:comment xml:lang="en">A System Model is a conceptual model of how a physical, social, or computaional system acts, describing the types of things which are modeled, relationships among things which are modeled, and results to be expected from different types of events.  Specific models may describe other classes of information as well.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document#TechnicalArticle -->
+
+    <owl:Class rdf:about="&doc;TechnicalArticle">
+        <rdfs:subClassOf rdf:resource="&doc;Document"/>
+        <owl:disjointWith rdf:resource="&doc;TechnicalReport"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document#TechnicalReport -->
+
+    <owl:Class rdf:about="&doc;TechnicalReport">
+        <rdfs:subClassOf rdf:resource="&doc;Document"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document.owl#DigitalObjectIdentifier -->
+
+    <owl:Class rdf:about="&Document;DigitalObjectIdentifier">
+        <rdfs:subClassOf rdf:resource="&or;AbstractStructuredInformationStore"/>
+        <rdfs:comment xml:lang="en">A Digital Object Identifier (DOI) is a character string (a &quot;digital identifier&quot;) is used to uniquely identify an object such as an electronic document. Metadata about the object is stored in association with the DOI name and this metadata may include a location, such as a URL, where the object can be found. The DOI for a document is permanent, whereas its location and other metadata may change. Referring to an online document by its DOI provides more stable linking than simply referring to it by its URL, because if its URL changes, the publisher need only update the metadata for the DOI to link to the new URL</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document.owl#EventProceedings -->
+
+    <owl:Class rdf:about="&Document;EventProceedings">
+        <rdfs:subClassOf rdf:resource="&Document;PublishedCompilation"/>
+        <rdfs:comment xml:lang="en">A publication of papers and/or presentations at a conference, workshop, or other similar event.  An Event Proceedings normally has multiple Technical Articles as subworks.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document.owl#ExtrapolationOfData -->
+
+    <owl:Class rdf:about="&Document;ExtrapolationOfData">
+        <rdfs:subClassOf rdf:resource="&or;IntentionalCreation"/>
+        <rdfs:comment xml:lang="en">Extrapolation Of Data is an action in which a  set of measured data points are fitted to some model form (often a curve) and the resulting model is extended beyond the range of the input data.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document.owl#Objective -->
+
+    <owl:Class rdf:about="&Document;Objective">
+        <rdfs:subClassOf rdf:resource="&OntologyRequirements;Information"/>
+        <owl:disjointWith rdf:resource="&or;AbstractStructuredInformationStore"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document.owl#Periodical -->
+
+    <owl:Class rdf:about="&Document;Periodical">
+        <rdfs:subClassOf rdf:resource="&Document;PublishedCompilation"/>
+        <rdfs:comment xml:lang="en">A periodically published work with multiple articles in each issue.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document.owl#PeriodicalIssue -->
+
+    <owl:Class rdf:about="&Document;PeriodicalIssue">
+        <rdfs:subClassOf rdf:resource="&doc;Document"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document.owl#PeriodicalVolume -->
+
+    <owl:Class rdf:about="&Document;PeriodicalVolume">
+        <rdfs:subClassOf rdf:resource="&Document;Periodical"/>
+        <rdfs:comment xml:lang="en">A Periodical Volume is a series of continuous issues of the same Periodical grouped into a logical volume by the issuer of the periodical.  There may be one or two volumes a year, with each issue of the periodical being an issue of the volume for the same time period and each issue of a periodical volume being an issue of the periodical, as well.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document.owl#PublishedCompilation -->
+
+    <owl:Class rdf:about="&Document;PublishedCompilation">
+        <rdfs:subClassOf rdf:resource="&Document;PublishedInformation"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document.owl#PublishedDataObject -->
+
+    <owl:Class rdf:about="&Document;PublishedDataObject">
+        <owl:equivalentClass>
+            <owl:Class>
+                <owl:intersectionOf rdf:parseType="Collection">
+                    <rdf:Description rdf:about="&Document;PublishedInformation"/>
+                    <rdf:Description rdf:about="&OntologyRequirements;DataObject"/>
+                </owl:intersectionOf>
+            </owl:Class>
+        </owl:equivalentClass>
+        <rdfs:subClassOf rdf:resource="&Document;PublishedInformation"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document.owl#PublishedInformation -->
+
+    <owl:Class rdf:about="&Document;PublishedInformation">
+        <rdfs:subClassOf rdf:resource="&doc;Document"/>
+        <rdfs:comment xml:lang="en">Published Information consists of any information that is published, be it a published document or published data.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document.owl#TechnicalJournal -->
+
+    <owl:Class rdf:about="&Document;TechnicalJournal">
+        <rdfs:subClassOf rdf:resource="&Document;Periodical"/>
+        <rdfs:comment xml:lang="en">A Periodical with multiple Technical Articles in each issue as subworks.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#AbstractStructuredInformationStore -->
+
+    <rdf:Description rdf:about="&or;AbstractStructuredInformationStore"/>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#ComputerFile -->
+
+    <rdf:Description rdf:about="&or;ComputerFile"/>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#DataBase -->
+
+    <rdf:Description rdf:about="&or;DataBase"/>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#DataFormat -->
+
+    <rdf:Description rdf:about="&or;DataFormat"/>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#ImageSequence -->
+
+    <rdf:Description rdf:about="&or;ImageSequence"/>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#IntentionalCreation -->
+
+    <owl:Class rdf:about="&or;IntentionalCreation"/>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#DataObject -->
+
+    <owl:Class rdf:about="&OntologyRequirements;DataObject"/>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#Information -->
+
+    <owl:Class rdf:about="&OntologyRequirements;Information"/>
+</rdf:RDF>
+
+
+
+<!-- Generated by the OWL API (version 3.2.3.1824) http://owlapi.sourceforge.net -->
+
