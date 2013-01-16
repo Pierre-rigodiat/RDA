@@ -11,20 +11,20 @@
     <!ENTITY oil "http://www.daml.org/2001/03/daml+oil#" >
     <!ENTITY doc "http://www.nist.gov/itl/ssd/Document#" >
     <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#" >
+    <!ENTITY Document "http://www.nist.gov/itl/ssd/Document" >
     <!ENTITY ont "http://www.co-ode.org/ontologies/ont.owl#" >
     <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#" >
     <!ENTITY cyc "http://sw.opencyc.org/2009/04/07/concept/en/#" >
     <!ENTITY or "http://www.nist.gov/itl/ssd/OntologyRequirements#" >
-    <!ENTITY OntologyRequirements "http://www.nist.gov/itl/ssd/OntologyRequirements.owl#" >
 ]>
 
 
 <rdf:RDF xmlns="http://www.nist.gov/itl/ssd/Document#"
      xml:base="http://www.nist.gov/itl/ssd/Document"
      xmlns:dc="&dc;#"
+     xmlns:Document="http://www.nist.gov/itl/ssd/Document#"
      xmlns:or="http://www.nist.gov/itl/ssd/OntologyRequirements#"
      xmlns:xml="http://www.w3.org/XML/1998/namespace"
-     xmlns:OntologyRequirements="http://www.nist.gov/itl/ssd/OntologyRequirements.owl#"
      xmlns:oil="http://www.daml.org/2001/03/daml+oil#"
      xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
      xmlns:ont="http://www.co-ode.org/ontologies/ont.owl#"
@@ -40,7 +40,7 @@
         <dc:title xml:lang="en">Document Ontology</dc:title>
         <dc:subject xml:lang="en">Ontology for basic documentation concepts.</dc:subject>
         <skos:note xml:lang="en">This ontology is incomplete, having been developed to cover general features of experiments to be used in recording information stored in genomic and materials science files.</skos:note>
-        <owl:imports rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements.owl"/>
+        <owl:imports rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements"/>
     </owl:Ontology>
     
 
@@ -54,6 +54,7 @@
      -->
 
     
+
 
     <!-- 
     ///////////////////////////////////////////////////////////////////////////////////////
@@ -183,7 +184,7 @@
 
     <owl:ObjectProperty rdf:about="&doc;publicationMonth">
         <rdfs:domain rdf:resource="&doc;Document"/>
-        <rdfs:range rdf:resource="&OntologyRequirements;MonthOfYearType"/>
+        <rdfs:range rdf:resource="&or;MonthOfYearType"/>
     </owl:ObjectProperty>
     
 
@@ -219,6 +220,46 @@
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/Document#depictsInformationAbout -->
+
+    <owl:ObjectProperty rdf:about="&Document;depictsInformationAbout">
+        <rdfs:comment xml:lang="en">The property &#39;depicts Information About&#39; is used to relate an Image to the thing(s) that it maintains information about.</rdfs:comment>
+        <rdfs:subPropertyOf rdf:resource="&Document;providesInformationAbout"/>
+        <rdfs:domain rdf:resource="&or;Image"/>
+        <rdfs:domain rdf:resource="&or;Information"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document#modelsInformationAbout -->
+
+    <owl:ObjectProperty rdf:about="&Document;modelsInformationAbout">
+        <rdfs:comment xml:lang="en">The property &#39;models Information About&#39; is used to relate a model to the thing(s) that it maintains information about.</rdfs:comment>
+        <rdfs:domain rdf:resource="&doc;SystemModel"/>
+        <rdfs:subPropertyOf rdf:resource="&Document;providesInformationAbout"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document#providesInformationAbout -->
+
+    <owl:ObjectProperty rdf:about="&Document;providesInformationAbout">
+        <rdfs:comment xml:lang="en">The property provides Information About&#39; is used to relate a piece of information to the thing(s) that it maintains information about.</rdfs:comment>
+        <rdfs:domain rdf:resource="&or;Information"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document#specificationAuthority -->
+
+    <owl:ObjectProperty rdf:about="&Document;specificationAuthority">
+        <rdfs:comment xml:lang="en">The property specification Authority relates a Specification to the Authority Organization that maintains the specification.</rdfs:comment>
+        <rdfs:range rdf:resource="&Document;AuthorityOrganization"/>
+        <rdfs:domain rdf:resource="&Document;Specification"/>
+    </owl:ObjectProperty>
+    
+
+
     <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#outputCreated -->
 
     <owl:ObjectProperty rdf:about="&or;outputCreated"/>
@@ -241,7 +282,7 @@
     <owl:DatatypeProperty rdf:about="&doc;cODEN">
         <rdfs:comment xml:lang="en">The CODEN id for a document</rdfs:comment>
         <rdfs:domain rdf:resource="&doc;Document"/>
-        <rdfs:subPropertyOf rdf:resource="&OntologyRequirements;idString"/>
+        <rdfs:subPropertyOf rdf:resource="&or;idString"/>
         <rdfs:range rdf:resource="&xsd;Name"/>
     </owl:DatatypeProperty>
     
@@ -260,7 +301,7 @@
 
     <owl:DatatypeProperty rdf:about="&doc;doi">
         <rdfs:domain rdf:resource="&doc;Document"/>
-        <rdfs:subPropertyOf rdf:resource="&OntologyRequirements;idString"/>
+        <rdfs:subPropertyOf rdf:resource="&or;idString"/>
         <rdfs:range rdf:resource="&xsd;Name"/>
     </owl:DatatypeProperty>
     
@@ -270,7 +311,7 @@
 
     <owl:DatatypeProperty rdf:about="&doc;iSBN">
         <rdfs:domain rdf:resource="&doc;Document"/>
-        <rdfs:subPropertyOf rdf:resource="&OntologyRequirements;idString"/>
+        <rdfs:subPropertyOf rdf:resource="&or;idString"/>
         <rdfs:range rdf:resource="&xsd;Name"/>
     </owl:DatatypeProperty>
     
@@ -280,7 +321,7 @@
 
     <owl:DatatypeProperty rdf:about="&doc;iSSN">
         <rdfs:domain rdf:resource="&doc;Document"/>
-        <rdfs:subPropertyOf rdf:resource="&OntologyRequirements;idString"/>
+        <rdfs:subPropertyOf rdf:resource="&or;idString"/>
         <rdfs:range rdf:resource="&xsd;Name"/>
     </owl:DatatypeProperty>
     
@@ -289,7 +330,7 @@
     <!-- http://www.nist.gov/itl/ssd/Document#patentNumber -->
 
     <owl:DatatypeProperty rdf:about="&doc;patentNumber">
-        <rdfs:subPropertyOf rdf:resource="&OntologyRequirements;idString"/>
+        <rdfs:subPropertyOf rdf:resource="&or;idString"/>
     </owl:DatatypeProperty>
     
 
@@ -314,7 +355,7 @@
 
     <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#idString -->
 
-    <owl:DatatypeProperty rdf:about="&OntologyRequirements;idString"/>
+    <owl:DatatypeProperty rdf:about="&or;idString"/>
     
 
 
@@ -569,7 +610,10 @@ Same as cyc:Document-CW</rdfs:comment>
                 </owl:intersectionOf>
             </owl:Class>
         </owl:equivalentClass>
-        <rdfs:subClassOf rdf:resource="&or;PurposefulAction"/>
+        <rdfs:subClassOf rdf:resource="&or;IntentionalCreation"/>
+        <owl:disjointWith rdf:resource="&Document;RefiningAConcept"/>
+        <owl:disjointWith rdf:resource="&or;Designing"/>
+        <owl:disjointWith rdf:resource="&or;Manufacturing"/>
         <rdfs:comment xml:lang="en">Each instance of MakingAPrediction is an Action in which an agent makes an assertion about what will be the case at some point in the future if some certain initial state exists. 
 
 Same as cyc:MakingAPrediction.</rdfs:comment>
@@ -715,7 +759,7 @@ Same as cyc:Prediction-CW.</rdfs:comment>
     <!-- http://www.nist.gov/itl/ssd/Document#SystemModel -->
 
     <owl:Class rdf:about="&doc;SystemModel">
-        <rdfs:subClassOf rdf:resource="&OntologyRequirements;ConceptualModel"/>
+        <rdfs:subClassOf rdf:resource="&or;ConceptualModel"/>
         <owl:disjointWith rdf:resource="&or;ComputerFile"/>
         <owl:disjointWith rdf:resource="&or;DataBase"/>
         <owl:disjointWith rdf:resource="&or;DataFormat"/>
@@ -766,6 +810,51 @@ Same as cyc:Prediction-CW.</rdfs:comment>
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/Document#AuthorityOrganization -->
+
+    <owl:Class rdf:about="&Document;AuthorityOrganization">
+        <rdfs:subClassOf rdf:resource="&or;Organization"/>
+        <rdfs:comment xml:lang="en">An organization that is the authoritative source of information about something, such as a Specification.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document#ExtrapolationOfData -->
+
+    <owl:Class rdf:about="&Document;ExtrapolationOfData">
+        <rdfs:subClassOf rdf:resource="&or;IntentionalCreation"/>
+        <owl:disjointWith rdf:resource="&or;Designing"/>
+        <owl:disjointWith rdf:resource="&or;Manufacturing"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document#Protocol -->
+
+    <owl:Class rdf:about="&Document;Protocol">
+        <rdfs:subClassOf rdf:resource="&Document;Specification"/>
+        <rdfs:comment xml:lang="en">A Protocol specifies how one or more agents should behave, in order to be considered to form part of, or to participate in, some larger system.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document#RefiningAConcept -->
+
+    <owl:Class rdf:about="&Document;RefiningAConcept">
+        <rdfs:subClassOf rdf:resource="&or;PurposefulAction"/>
+        <rdfs:comment xml:lang="en">Refining A Concept is a process of improving a model, prediction, plan, or other conceptual work by providing additional information or slightly modifying existing information.  The result is a modified version of the existing work, not a totally new work.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document#Specification -->
+
+    <owl:Class rdf:about="&Document;Specification">
+        <rdfs:subClassOf rdf:resource="&or;ConceptualModel"/>
+    </owl:Class>
+    
+
+
     <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#ComputerFile -->
 
     <rdf:Description rdf:about="&or;ComputerFile"/>
@@ -798,13 +887,31 @@ Same as cyc:Prediction-CW.</rdfs:comment>
 
     <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#ConceptualModel -->
 
-    <owl:Class rdf:about="&OntologyRequirements;ConceptualModel"/>
+    <owl:Class rdf:about="&or;ConceptualModel"/>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#Designing -->
+
+    <owl:Class rdf:about="&or;Designing"/>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#Information -->
+
+    <owl:Class rdf:about="&or;Information"/>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#Manufacturing -->
+
+    <owl:Class rdf:about="&or;Manufacturing"/>
     
 
 
     <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#MonthOfYearType -->
 
-    <owl:Class rdf:about="&OntologyRequirements;MonthOfYearType"/>
+    <owl:Class rdf:about="&or;MonthOfYearType"/>
     
 
 
@@ -891,6 +998,26 @@ Same as cyc:Prediction-CW.</rdfs:comment>
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/Document#NationalInstituteOfStandardsAndTechnology -->
+
+    <owl:NamedIndividual rdf:about="&Document;NationalInstituteOfStandardsAndTechnology">
+        <rdf:type rdf:resource="&Document;AuthorityOrganization"/>
+        <rdf:type rdf:resource="&or;GovernmentalOrganization"/>
+        <rdf:type rdf:resource="&or;ResearchOrganization"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document#NationalInstitutesOfHealth -->
+
+    <owl:NamedIndividual rdf:about="&Document;NationalInstitutesOfHealth">
+        <rdf:type rdf:resource="&Document;AuthorityOrganization"/>
+        <rdf:type rdf:resource="&or;GovernmentalOrganization"/>
+        <rdf:type rdf:resource="&or;ResearchOrganization"/>
+    </owl:NamedIndividual>
+    
+
+
     <!-- 
     ///////////////////////////////////////////////////////////////////////////////////////
     //
@@ -899,7 +1026,7 @@ Same as cyc:Prediction-CW.</rdfs:comment>
     ///////////////////////////////////////////////////////////////////////////////////////
      -->
 
-    <rdf:Description rdf:about="&OntologyRequirements;endingDate">
+    <rdf:Description rdf:about="&or;endingDate">
         <rdfs:comment xml:lang="en">The date on which an event ends.  A short event may have the same initiationDate and endingDate.</rdfs:comment>
     </rdf:Description>
 </rdf:RDF>
