@@ -1,0 +1,2261 @@
+<?xml version="1.0"?>
+
+
+<!DOCTYPE rdf:RDF [
+    <!ENTITY terms "http://purl.org/dc/terms/" >
+    <!ENTITY umbel "http://umbel.org/umbel/sc/#" >
+    <!ENTITY dbpedia "http://dbpedia.org/resource/#" >
+    <!ENTITY owl "http://www.w3.org/2002/07/owl#" >
+    <!ENTITY dc "http://purl.org/dc/elements/1.1/" >
+    <!ENTITY dc "http://purl.org/dc/elements/1.1/#" >
+    <!ENTITY fbase "http://www.freebase.com/view/en/#" >
+    <!ENTITY xsd "http://www.w3.org/2001/XMLSchema#" >
+    <!ENTITY cyc "http://sw.opencyc.org/concept/en/#" >
+    <!ENTITY skos "http://www.w3.org/2004/02/skos/core#" >
+    <!ENTITY xml "http://www.w3.org/XML/1998/namespace" >
+    <!ENTITY daml "http://www.daml.org/2001/03/daml+oil#" >
+    <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#" >
+    <!ENTITY SO "http://purl.obolibrary.org/obo/so.owl#" >
+    <!ENTITY GO "http://www.geneontology.org/dtd/go.dtd#" >
+    <!ENTITY ont "http://www.co-ode.org/ontologies/ont.owl#" >
+    <!ENTITY n3 "http://www.w3.org/2000/10/swap/grammar/n3#" >
+    <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#" >
+    <!ENTITY or "http://www.nist.gov/itl/ssd/OntologyRequirements#" >
+]>
+
+
+<rdf:RDF xmlns="http://www.nist.gov/itl/ssd/Biochem#"
+     xml:base="http://www.nist.gov/itl/ssd/Biochem"
+     xmlns:dc="&dc;#"
+     xmlns:fbase="http://www.freebase.com/view/en/#"
+     xmlns:or="http://www.nist.gov/itl/ssd/OntologyRequirements#"
+     xmlns:n3="http://www.w3.org/2000/10/swap/grammar/n3#"
+     xmlns:terms="http://purl.org/dc/terms/"
+     xmlns:xml="http://www.w3.org/XML/1998/namespace"
+     xmlns:daml="http://www.daml.org/2001/03/daml+oil#"
+     xmlns:SO="http://purl.obolibrary.org/obo/so.owl#"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+     xmlns:umbel="http://umbel.org/umbel/sc/#"
+     xmlns:ont="http://www.co-ode.org/ontologies/ont.owl#"
+     xmlns:GO="http://www.geneontology.org/dtd/go.dtd#"
+     xmlns:owl="http://www.w3.org/2002/07/owl#"
+     xmlns:dbpedia="http://dbpedia.org/resource/#"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:cyc="http://sw.opencyc.org/concept/en/#"
+     xmlns:skos="http://www.w3.org/2004/02/skos/core#">
+    <owl:Ontology rdf:about="http://www.nist.gov/itl/ssd/Biochem">
+        <ont:creator>doug foxvog</ont:creator>
+        <dc:date>6 March, 2012</dc:date>
+        <terms:title xml:lang="en">Bio-chem ontology</terms:title>
+        <dc:subject xml:lang="en">Ontology for concepts in biochemistry.</dc:subject>
+        <owl:imports rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements"/>
+    </owl:Ontology>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Annotation properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    <owl:AnnotationProperty rdf:about="&ont;creator"/>
+    <owl:AnnotationProperty rdf:about="&cyc;cyclistNotes"/>
+    <owl:AnnotationProperty rdf:about="&daml;restrictedBy"/>
+    <owl:AnnotationProperty rdf:about="&terms;description"/>
+    <owl:AnnotationProperty rdf:about="&terms;hasVersion"/>
+    <owl:AnnotationProperty rdf:about="http://www.nist.gov/itl/ssd/Biochem#sequenceIDString">
+        <rdfs:comment xml:lang="en">ID of a polymer string</rdfs:comment>
+        <rdfs:domain rdf:resource="http://www.nist.gov/itl/ssd/Biochem#PolymerSequence"/>
+    </owl:AnnotationProperty>
+    <owl:AnnotationProperty rdf:about="http://www.nist.gov/itl/ssd/Biochem#iUPACAminoAcidCode">
+        <rdfs:comment xml:lang="en">iUPACAminoAcidCode identifies the IUPAC/IUB code for a type of amino acid.</rdfs:comment>
+        <rdfs:domain rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcidType_Generic"/>
+    </owl:AnnotationProperty>
+    <owl:AnnotationProperty rdf:about="&terms;publisher"/>
+    <owl:AnnotationProperty rdf:about="&terms;modified"/>
+    <owl:AnnotationProperty rdf:about="&skos;note"/>
+    <owl:AnnotationProperty rdf:about="&terms;issued"/>
+    <owl:AnnotationProperty rdf:about="&dc;date">
+        <rdfs:label xml:lang="en-us">Date</rdfs:label>
+        <terms:issued>1999-07-02</terms:issued>
+        <terms:modified>2008-01-14</terms:modified>
+        <rdfs:comment xml:lang="en-us">A point or period of time associated with an event in the lifecycle of the resource.</rdfs:comment>
+        <skos:note xml:lang="en-us">A second property with the same name as this property has been declared in the dcterms: namespace (http://purl.org/dc/terms/).  See the Introduction to the document &#39;DCMI Metadata Terms&#39; (http://dublincore.org/documents/dcmi-terms/) for an explanation.</skos:note>
+        <terms:description xml:lang="en-us">Date may be used to express temporal information at any level of granularity.  Recommended best practice is to use an encoding scheme, such as the W3CDTF profile of ISO 8601 [W3CDTF].</terms:description>
+        <terms:hasVersion rdf:resource="http://dublincore.org/usage/terms/history/#date-006"/>
+        <rdfs:isDefinedBy rdf:resource="http://purl.org/dc/elements/1.1/"/>
+    </owl:AnnotationProperty>
+    <owl:AnnotationProperty rdf:about="&daml;disjointWith"/>
+    <owl:AnnotationProperty rdf:about="&dc;title">
+        <rdfs:label xml:lang="en-us">Title</rdfs:label>
+        <terms:issued>1999-07-02</terms:issued>
+        <terms:modified>2008-01-14</terms:modified>
+        <rdfs:comment xml:lang="en-us">A name given to the resource.</rdfs:comment>
+        <skos:note xml:lang="en-us">A second property with the same name as this property has been declared in the dcterms: namespace (http://purl.org/dc/terms/).  See the Introduction to the document &#39;DCMI Metadata Terms&#39; (http://dublincore.org/documents/dcmi-terms/) for an explanation.</skos:note>
+        <terms:hasVersion rdf:resource="http://dublincore.org/usage/terms/history/#title-006"/>
+        <rdfs:isDefinedBy rdf:resource="http://purl.org/dc/elements/1.1/"/>
+    </owl:AnnotationProperty>
+    <owl:AnnotationProperty rdf:about="&terms;title"/>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Datatypes
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Object Properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#atPositionInPolymer -->
+
+    <owl:ObjectProperty rdf:about="http://www.nist.gov/itl/ssd/Biochem#atPositionInPolymer">
+        <rdfs:comment xml:lang="en">The specified polymer sequence is located at the specified position in a larger polymer.</rdfs:comment>
+        <skos:note xml:lang="en">This is not a functional property since the same sequence can occur multiple timeswithin the larger sequence.</skos:note>
+        <rdfs:domain rdf:resource="http://www.nist.gov/itl/ssd/Biochem#PolymerSequence"/>
+        <rdfs:range rdf:resource="http://www.nist.gov/itl/ssd/Biochem#PositionInPolymer"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#cellularDoer -->
+
+    <owl:ObjectProperty rdf:about="http://www.nist.gov/itl/ssd/Biochem#cellularDoer">
+        <rdfs:comment xml:lang="en">If CELL (a Biological Cell) is the Cellular Doer of a given Biological Process, then the process is both doneBy CELLand the event occurs at the cell.  Same as cyc#locusOfCellularProcess-Cell.</rdfs:comment>
+        <rdfs:range rdf:resource="http://www.nist.gov/itl/ssd/Biochem#LivingBiologicalCell"/>
+        <rdfs:subPropertyOf rdf:resource="&or;doneBy"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#deathOf -->
+
+    <owl:ObjectProperty rdf:about="http://www.nist.gov/itl/ssd/Biochem#deathOf">
+        <rdfs:comment xml:lang="en">The property ``death Of&#39; &#39; relates a Death event to the Biological Living Object (BLO) which died.  The object could be a cell, a tumor, an organ, an organism, or any other BLO which has died.</rdfs:comment>
+        <rdfs:range rdf:resource="http://www.nist.gov/itl/ssd/Biochem#BiologicalLivingObject"/>
+        <rdfs:domain rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Death"/>
+        <rdfs:subPropertyOf rdf:resource="&or;doneBy"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#hasMolecularStructure -->
+
+    <owl:ObjectProperty rdf:about="http://www.nist.gov/itl/ssd/Biochem#hasMolecularStructure">
+        <rdfs:domain rdf:resource="http://www.nist.gov/itl/ssd/Biochem#ChemicalSubstance"/>
+        <rdfs:range rdf:resource="http://www.nist.gov/itl/ssd/Biochem#ProteinTypeByStructure"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#sequenceMonomerType -->
+
+    <owl:ObjectProperty rdf:about="http://www.nist.gov/itl/ssd/Biochem#sequenceMonomerType">
+        <rdfs:comment xml:lang="en">Monomers of this polymer are of the specified type.</rdfs:comment>
+        <rdfs:range rdf:resource="http://www.nist.gov/itl/ssd/Biochem#MonomerType"/>
+        <rdfs:domain rdf:resource="http://www.nist.gov/itl/ssd/Biochem#PolymerSequence"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#doneBy -->
+
+    <owl:ObjectProperty rdf:about="&or;doneBy"/>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Data properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#dbXRef -->
+
+    <owl:DatatypeProperty rdf:about="http://www.nist.gov/itl/ssd/Biochem#dbXRef">
+        <rdfs:comment xml:lang="en">the name of the database containing related information, and  identifier is the internal identifier of the related information according to the naming conventions of the cross-referenced database.  E.g., ``UniProtKB/Swiss-Prot:P28763&#39;&#39;.  The complete list of allowed database types is kept at http://www.insdc.org/db_xref.htm </rdfs:comment>
+        <rdfs:domain rdf:resource="http://www.nist.gov/itl/ssd/Biochem#PolymerSequence"/>
+        <rdfs:range rdf:resource="&xsd;string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#iUPACAminoAcidCode -->
+
+    <owl:DatatypeProperty rdf:about="http://www.nist.gov/itl/ssd/Biochem#iUPACAminoAcidCode">
+        <rdfs:comment xml:lang="en">iUPACAminoAcidCode identifies the IUPAC/IUB code for a type of amino acid.</rdfs:comment>
+        <rdfs:subPropertyOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#nameString"/>
+        <rdfs:range rdf:resource="&xsd;string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#monomerLength -->
+
+    <owl:DatatypeProperty rdf:about="http://www.nist.gov/itl/ssd/Biochem#monomerLength">
+        <rdfs:comment xml:lang="en">The number of monomers in the specified Polymer Sequence.</rdfs:comment>
+        <rdfs:domain rdf:resource="http://www.nist.gov/itl/ssd/Biochem#PolymerSequence"/>
+        <rdfs:range rdf:resource="&xsd;integer"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#nameString -->
+
+    <owl:DatatypeProperty rdf:about="http://www.nist.gov/itl/ssd/Biochem#nameString"/>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#startsAtMonomerNumber -->
+
+    <owl:DatatypeProperty rdf:about="http://www.nist.gov/itl/ssd/Biochem#startsAtMonomerNumber">
+        <cyc:cyclistNotes xml:lang="en">Note that some systems count monomers from 0, others count them from 1.  Either care must be taken, or two predicates, startsAtMonomerNumber_0Based and startsAtMonomerNumber_1Based are needed</cyc:cyclistNotes>
+        <rdfs:comment xml:lang="en">The specified position starts at the specifed position number in its reference polymer.</rdfs:comment>
+        <rdfs:range rdf:resource="&xsd;integer"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Classes
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://dbpedia.org/resource/#Alanine -->
+
+    <owl:Class rdf:about="&dbpedia;Alanine">
+        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Alanine"/>
+        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
+    </owl:Class>
+    
+
+
+    <!-- http://dbpedia.org/resource/#Amino_acid -->
+
+    <owl:Class rdf:about="&dbpedia;Amino_acid">
+        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcid"/>
+        <rdfs:subClassOf rdf:resource="&cyc;Monomer"/>
+    </owl:Class>
+    
+
+
+    <!-- http://dbpedia.org/resource/#Asparagine -->
+
+    <owl:Class rdf:about="&dbpedia;Asparagine">
+        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Asparagine"/>
+        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
+    </owl:Class>
+    
+
+
+    <!-- http://dbpedia.org/resource/#Aspartic_acid -->
+
+    <owl:Class rdf:about="&dbpedia;Aspartic_acid">
+        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Aspartate"/>
+        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
+    </owl:Class>
+    
+
+
+    <!-- http://dbpedia.org/resource/#Chromosome -->
+
+    <owl:Class rdf:about="&dbpedia;Chromosome">
+        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Chromosome"/>
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#DNAMolecule"/>
+    </owl:Class>
+    
+
+
+    <!-- http://dbpedia.org/resource/#Cysteine -->
+
+    <owl:Class rdf:about="&dbpedia;Cysteine">
+        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Cysteine"/>
+        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
+    </owl:Class>
+    
+
+
+    <!-- http://dbpedia.org/resource/#Cystine -->
+
+    <owl:Class rdf:about="&dbpedia;Cystine">
+        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Cystine"/>
+        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
+    </owl:Class>
+    
+
+
+    <!-- http://dbpedia.org/resource/#Glutamic_acid -->
+
+    <owl:Class rdf:about="&dbpedia;Glutamic_acid">
+        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Glutamate"/>
+        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
+    </owl:Class>
+    
+
+
+    <!-- http://dbpedia.org/resource/#Glutamine -->
+
+    <owl:Class rdf:about="&dbpedia;Glutamine">
+        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Glutamine"/>
+        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
+    </owl:Class>
+    
+
+
+    <!-- http://dbpedia.org/resource/#Glycine -->
+
+    <owl:Class rdf:about="&dbpedia;Glycine">
+        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Glycine"/>
+        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
+    </owl:Class>
+    
+
+
+    <!-- http://dbpedia.org/resource/#Histidine -->
+
+    <owl:Class rdf:about="&dbpedia;Histidine">
+        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Histidine"/>
+        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
+    </owl:Class>
+    
+
+
+    <!-- http://dbpedia.org/resource/#Isoleucine -->
+
+    <owl:Class rdf:about="&dbpedia;Isoleucine">
+        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Isoleucine"/>
+        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
+    </owl:Class>
+    
+
+
+    <!-- http://dbpedia.org/resource/#Leucine -->
+
+    <owl:Class rdf:about="&dbpedia;Leucine">
+        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Leucine"/>
+        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
+    </owl:Class>
+    
+
+
+    <!-- http://dbpedia.org/resource/#Lysine -->
+
+    <owl:Class rdf:about="&dbpedia;Lysine">
+        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Lysine"/>
+        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
+    </owl:Class>
+    
+
+
+    <!-- http://dbpedia.org/resource/#Methionine -->
+
+    <owl:Class rdf:about="&dbpedia;Methionine">
+        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Methionine"/>
+        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
+    </owl:Class>
+    
+
+
+    <!-- http://dbpedia.org/resource/#Phenylalanine -->
+
+    <owl:Class rdf:about="&dbpedia;Phenylalanine">
+        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Phenylalanine"/>
+        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
+    </owl:Class>
+    
+
+
+    <!-- http://dbpedia.org/resource/#Proline -->
+
+    <owl:Class rdf:about="&dbpedia;Proline">
+        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Proline"/>
+        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
+    </owl:Class>
+    
+
+
+    <!-- http://dbpedia.org/resource/#Protein -->
+
+    <owl:Class rdf:about="&dbpedia;Protein">
+        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Protein"/>
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Molecule"/>
+    </owl:Class>
+    
+
+
+    <!-- http://dbpedia.org/resource/#Selenocysteine -->
+
+    <owl:Class rdf:about="&dbpedia;Selenocysteine">
+        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Selenocysteine"/>
+        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
+    </owl:Class>
+    
+
+
+    <!-- http://dbpedia.org/resource/#Serine -->
+
+    <owl:Class rdf:about="&dbpedia;Serine">
+        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Serine"/>
+        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
+    </owl:Class>
+    
+
+
+    <!-- http://dbpedia.org/resource/#Threonine -->
+
+    <owl:Class rdf:about="&dbpedia;Threonine">
+        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Threonine"/>
+        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
+    </owl:Class>
+    
+
+
+    <!-- http://dbpedia.org/resource/#Tryptophan -->
+
+    <owl:Class rdf:about="&dbpedia;Tryptophan">
+        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Tryptophan"/>
+        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
+    </owl:Class>
+    
+
+
+    <!-- http://dbpedia.org/resource/#Tyrosine -->
+
+    <owl:Class rdf:about="&dbpedia;Tyrosine">
+        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Tyrosine"/>
+        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
+    </owl:Class>
+    
+
+
+    <!-- http://dbpedia.org/resource/#Valine -->
+
+    <owl:Class rdf:about="&dbpedia;Valine">
+        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Valine"/>
+        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
+    </owl:Class>
+    
+
+
+    <!-- http://purl.obolibrary.org/obo/so.owl#SO_0000340 -->
+
+    <owl:Class rdf:about="&SO;SO_0000340">
+        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Chromosome"/>
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#DNAMolecule"/>
+    </owl:Class>
+    
+
+
+    <!-- http://sw.opencyc.org/concept/en/#Alanine -->
+
+    <owl:Class rdf:about="&cyc;Alanine">
+        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Alanine"/>
+        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
+    </owl:Class>
+    
+
+
+    <!-- http://sw.opencyc.org/concept/en/#AminoAcid -->
+
+    <owl:Class rdf:about="&cyc;AminoAcid">
+        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcid"/>
+        <rdfs:subClassOf rdf:resource="&cyc;Monomer"/>
+    </owl:Class>
+    
+
+
+    <!-- http://sw.opencyc.org/concept/en/#AminoAcidTypeByChemicalSpecies -->
+
+    <owl:Class rdf:about="&cyc;AminoAcidTypeByChemicalSpecies">
+        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcidType"/>
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcidType_Generic"/>
+    </owl:Class>
+    
+
+
+    <!-- http://sw.opencyc.org/concept/en/#Asparagine -->
+
+    <owl:Class rdf:about="&cyc;Asparagine">
+        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Asparagine"/>
+        <rdfs:subClassOf rdf:resource="&dbpedia;Asparagine"/>
+        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
+    </owl:Class>
+    
+
+
+    <!-- http://sw.opencyc.org/concept/en/#AsparticAcid -->
+
+    <owl:Class rdf:about="&cyc;AsparticAcid">
+        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Aspartate"/>
+        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
+    </owl:Class>
+    
+
+
+    <!-- http://sw.opencyc.org/concept/en/#ChemicalObjectTypeByChemicalSpecies -->
+
+    <owl:Class rdf:about="&cyc;ChemicalObjectTypeByChemicalSpecies">
+        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#ChemicalObjectTypeByChemicalSpecies"/>
+        <rdfs:subClassOf rdf:resource="&or;SecondOrderClass"/>
+    </owl:Class>
+    
+
+
+    <!-- http://sw.opencyc.org/concept/en/#Cysetine -->
+
+    <owl:Class rdf:about="&cyc;Cysetine">
+        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Cysteine"/>
+        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
+    </owl:Class>
+    
+
+
+    <!-- http://sw.opencyc.org/concept/en/#Deoxyribonucleotide_GIS -->
+
+    <owl:Class rdf:about="&cyc;Deoxyribonucleotide_GIS">
+        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Deoxyribonucleotide"/>
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Nucleotide"/>
+    </owl:Class>
+    
+
+
+    <!-- http://sw.opencyc.org/concept/en/#GlutamicAcid -->
+
+    <owl:Class rdf:about="&cyc;GlutamicAcid">
+        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Glutamate"/>
+        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
+    </owl:Class>
+    
+
+
+    <!-- http://sw.opencyc.org/concept/en/#Glutamine -->
+
+    <owl:Class rdf:about="&cyc;Glutamine">
+        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Glutamine"/>
+        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
+    </owl:Class>
+    
+
+
+    <!-- http://sw.opencyc.org/concept/en/#Glycine -->
+
+    <owl:Class rdf:about="&cyc;Glycine">
+        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Glycine"/>
+        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
+    </owl:Class>
+    
+
+
+    <!-- http://sw.opencyc.org/concept/en/#Histidine -->
+
+    <owl:Class rdf:about="&cyc;Histidine">
+        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Histidine"/>
+        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
+    </owl:Class>
+    
+
+
+    <!-- http://sw.opencyc.org/concept/en/#Isoleucine -->
+
+    <owl:Class rdf:about="&cyc;Isoleucine">
+        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Isoleucine"/>
+        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
+    </owl:Class>
+    
+
+
+    <!-- http://sw.opencyc.org/concept/en/#Leucine -->
+
+    <owl:Class rdf:about="&cyc;Leucine">
+        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Leucine"/>
+        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
+    </owl:Class>
+    
+
+
+    <!-- http://sw.opencyc.org/concept/en/#Lysine -->
+
+    <owl:Class rdf:about="&cyc;Lysine">
+        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Lysine"/>
+        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
+    </owl:Class>
+    
+
+
+    <!-- http://sw.opencyc.org/concept/en/#Methionine -->
+
+    <owl:Class rdf:about="&cyc;Methionine">
+        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Methionine"/>
+        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
+    </owl:Class>
+    
+
+
+    <!-- http://sw.opencyc.org/concept/en/#Monomer -->
+
+    <owl:Class rdf:about="&cyc;Monomer">
+        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Monomer"/>
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#ChemicalObject"/>
+    </owl:Class>
+    
+
+
+    <!-- http://sw.opencyc.org/concept/en/#NucleotideTypeByBase -->
+
+    <owl:Class rdf:about="&cyc;NucleotideTypeByBase">
+        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#NucleotideType"/>
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#MonomerType"/>
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#NucleotideType"/>
+        <rdfs:comment xml:lang="en">Each instance of NucleotideTypeByBase is a collection of instances of Nucleotide that have an instance of NitrogenBaseType in common.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://sw.opencyc.org/concept/en/#OrganismClassificationType -->
+
+    <owl:Class rdf:about="&cyc;OrganismClassificationType">
+        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#OrganismType"/>
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#OrganismType"/>
+        <rdfs:subClassOf rdf:resource="&or;ObjectType"/>
+    </owl:Class>
+    
+
+
+    <!-- http://sw.opencyc.org/concept/en/#PhenotypeFeatureType -->
+
+    <owl:Class rdf:about="&cyc;PhenotypeFeatureType">
+        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Phenotype"/>
+        <rdfs:subClassOf rdf:resource="&or;SecondOrderClass"/>
+    </owl:Class>
+    
+
+
+    <!-- http://sw.opencyc.org/concept/en/#Phenylalanine -->
+
+    <owl:Class rdf:about="&cyc;Phenylalanine">
+        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Phenylalanine"/>
+        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
+    </owl:Class>
+    
+
+
+    <!-- http://sw.opencyc.org/concept/en/#Proline -->
+
+    <owl:Class rdf:about="&cyc;Proline">
+        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Proline"/>
+        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
+    </owl:Class>
+    
+
+
+    <!-- http://sw.opencyc.org/concept/en/#ProteinMolecule -->
+
+    <owl:Class rdf:about="&cyc;ProteinMolecule">
+        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Protein"/>
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Molecule"/>
+    </owl:Class>
+    
+
+
+    <!-- http://sw.opencyc.org/concept/en/#Ribonucleotide_GIS -->
+
+    <owl:Class rdf:about="&cyc;Ribonucleotide_GIS">
+        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Ribonucleotide"/>
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Nucleotide"/>
+    </owl:Class>
+    
+
+
+    <!-- http://sw.opencyc.org/concept/en/#Series -->
+
+    <owl:Class rdf:about="&cyc;Series"/>
+    
+
+
+    <!-- http://sw.opencyc.org/concept/en/#Serine -->
+
+    <owl:Class rdf:about="&cyc;Serine">
+        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Serine"/>
+        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
+    </owl:Class>
+    
+
+
+    <!-- http://sw.opencyc.org/concept/en/#Threonine -->
+
+    <owl:Class rdf:about="&cyc;Threonine">
+        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Threonine"/>
+        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
+    </owl:Class>
+    
+
+
+    <!-- http://sw.opencyc.org/concept/en/#Tryptophan -->
+
+    <owl:Class rdf:about="&cyc;Tryptophan">
+        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Tryptophan"/>
+        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
+    </owl:Class>
+    
+
+
+    <!-- http://sw.opencyc.org/concept/en/#Tyrosine -->
+
+    <owl:Class rdf:about="&cyc;Tyrosine">
+        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Tyrosine"/>
+        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
+    </owl:Class>
+    
+
+
+    <!-- http://sw.opencyc.org/concept/en/#Valine -->
+
+    <owl:Class rdf:about="&cyc;Valine">
+        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Valine"/>
+        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
+    </owl:Class>
+    
+
+
+    <!-- http://umbel.org/umbel/sc/#Alanine -->
+
+    <owl:Class rdf:about="&umbel;Alanine">
+        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Alanine"/>
+        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
+    </owl:Class>
+    
+
+
+    <!-- http://umbel.org/umbel/sc/#AminoAcid -->
+
+    <owl:Class rdf:about="&umbel;AminoAcid">
+        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcid"/>
+        <rdfs:subClassOf rdf:resource="&cyc;Monomer"/>
+    </owl:Class>
+    
+
+
+    <!-- http://umbel.org/umbel/sc/#Asparagine -->
+
+    <owl:Class rdf:about="&umbel;Asparagine">
+        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Asparagine"/>
+        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
+    </owl:Class>
+    
+
+
+    <!-- http://umbel.org/umbel/sc/#AsparticAcid -->
+
+    <owl:Class rdf:about="&umbel;AsparticAcid">
+        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Aspartate"/>
+        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
+    </owl:Class>
+    
+
+
+    <!-- http://umbel.org/umbel/sc/#Color -->
+
+    <owl:Class rdf:about="&umbel;Color">
+        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Color"/>
+        <rdfs:subClassOf rdf:resource="&or;NonTangibleThing"/>
+    </owl:Class>
+    
+
+
+    <!-- http://umbel.org/umbel/sc/#Cysetine -->
+
+    <owl:Class rdf:about="&umbel;Cysetine">
+        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Cysteine"/>
+        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
+    </owl:Class>
+    
+
+
+    <!-- http://umbel.org/umbel/sc/#Deoxyribonucleotide_GIS -->
+
+    <owl:Class rdf:about="&umbel;Deoxyribonucleotide_GIS">
+        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Deoxyribonucleotide"/>
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Nucleotide"/>
+    </owl:Class>
+    
+
+
+    <!-- http://umbel.org/umbel/sc/#GlutamicAcid -->
+
+    <owl:Class rdf:about="&umbel;GlutamicAcid">
+        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Glutamate"/>
+        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
+    </owl:Class>
+    
+
+
+    <!-- http://umbel.org/umbel/sc/#Glutamine -->
+
+    <owl:Class rdf:about="&umbel;Glutamine">
+        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Glutamine"/>
+        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
+    </owl:Class>
+    
+
+
+    <!-- http://umbel.org/umbel/sc/#Glycine -->
+
+    <owl:Class rdf:about="&umbel;Glycine">
+        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Glycine"/>
+        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
+    </owl:Class>
+    
+
+
+    <!-- http://umbel.org/umbel/sc/#Histidine -->
+
+    <owl:Class rdf:about="&umbel;Histidine">
+        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Histidine"/>
+        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
+    </owl:Class>
+    
+
+
+    <!-- http://umbel.org/umbel/sc/#Isoleucine -->
+
+    <owl:Class rdf:about="&umbel;Isoleucine">
+        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Isoleucine"/>
+        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
+    </owl:Class>
+    
+
+
+    <!-- http://umbel.org/umbel/sc/#Leucine -->
+
+    <owl:Class rdf:about="&umbel;Leucine">
+        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Leucine"/>
+        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
+    </owl:Class>
+    
+
+
+    <!-- http://umbel.org/umbel/sc/#Lysine -->
+
+    <owl:Class rdf:about="&umbel;Lysine">
+        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Lysine"/>
+        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
+    </owl:Class>
+    
+
+
+    <!-- http://umbel.org/umbel/sc/#Methionine -->
+
+    <owl:Class rdf:about="&umbel;Methionine">
+        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Methionine"/>
+        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
+    </owl:Class>
+    
+
+
+    <!-- http://umbel.org/umbel/sc/#Nucleotide_GIS -->
+
+    <owl:Class rdf:about="&umbel;Nucleotide_GIS">
+        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Nucleotide"/>
+        <rdfs:subClassOf rdf:resource="&cyc;Monomer"/>
+    </owl:Class>
+    
+
+
+    <!-- http://umbel.org/umbel/sc/#Phenylalanine -->
+
+    <owl:Class rdf:about="&umbel;Phenylalanine">
+        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Phenylalanine"/>
+        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
+    </owl:Class>
+    
+
+
+    <!-- http://umbel.org/umbel/sc/#Proline -->
+
+    <owl:Class rdf:about="&umbel;Proline">
+        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Proline"/>
+        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
+    </owl:Class>
+    
+
+
+    <!-- http://umbel.org/umbel/sc/#ProteinMolecule -->
+
+    <owl:Class rdf:about="&umbel;ProteinMolecule">
+        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Protein"/>
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Molecule"/>
+    </owl:Class>
+    
+
+
+    <!-- http://umbel.org/umbel/sc/#Ribonucleotide_GIS -->
+
+    <owl:Class rdf:about="&umbel;Ribonucleotide_GIS">
+        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Ribonucleotide"/>
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Nucleotide"/>
+    </owl:Class>
+    
+
+
+    <!-- http://umbel.org/umbel/sc/#Serine -->
+
+    <owl:Class rdf:about="&umbel;Serine">
+        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Serine"/>
+        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
+    </owl:Class>
+    
+
+
+    <!-- http://umbel.org/umbel/sc/#Threonine -->
+
+    <owl:Class rdf:about="&umbel;Threonine">
+        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Threonine"/>
+        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
+    </owl:Class>
+    
+
+
+    <!-- http://umbel.org/umbel/sc/#Tryptophan -->
+
+    <owl:Class rdf:about="&umbel;Tryptophan">
+        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Tryptophan"/>
+        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
+    </owl:Class>
+    
+
+
+    <!-- http://umbel.org/umbel/sc/#Tyrosine -->
+
+    <owl:Class rdf:about="&umbel;Tyrosine">
+        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Tyrosine"/>
+        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
+    </owl:Class>
+    
+
+
+    <!-- http://umbel.org/umbel/sc/#Valine -->
+
+    <owl:Class rdf:about="&umbel;Valine">
+        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Valine"/>
+        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.freebase.com/view/en/#Cystine -->
+
+    <owl:Class rdf:about="&fbase;Cystine">
+        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Cystine"/>
+        <rdfs:subClassOf rdf:resource="&cyc;AminoAcid"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.geneontology.org/dtd/go.dtd#0005694 -->
+
+    <owl:Class rdf:about="&GO;0005694">
+        <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Chromosome"/>
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#DNAMolecule"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#AdenineNucleotide -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#AdenineNucleotide">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Nucleotide"/>
+        <rdfs:comment xml:lang="en">Adenine nucleotide, whether a ribonucleotide or a deoxyribonucleotide.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#Alanine -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Alanine">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcid"/>
+        <iUPACAminoAcidCode>A</iUPACAminoAcidCode>
+        <rdfs:comment xml:lang="en">The amino acid, alanine.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#AminoAcid -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#AminoAcid">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Monomer"/>
+        <iUPACAminoAcidCode>X</iUPACAminoAcidCode>
+        <rdfs:comment xml:lang="en">A collection of organic compounds that are the building blocks for ProteinMolecules.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#AminoAcidSequence -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#AminoAcidSequence">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#PolymerSequence"/>
+        <rdfs:comment xml:lang="en">A chemical sequence of amino acids.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#AminoAcidType -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#AminoAcidType">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcidType_Generic"/>
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#ChemicalObjectTypeByChemicalSpecies"/>
+        <rdfs:comment xml:lang="en">A specific type of amino acid (alanine, cysteine, ...).</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#AminoAcidType_Generic -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#AminoAcidType_Generic">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#MonomerType"/>
+        <rdfs:comment xml:lang="en">A type of amino acid -- either a specific type (alanine, cysteine, ...) or the union of several specific types.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#Asparagine -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Asparagine">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AspartateOrAsparagine"/>
+        <iUPACAminoAcidCode>N</iUPACAminoAcidCode>
+        <rdfs:comment xml:lang="en">The amino acid, asparagine.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#Aspartate -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Aspartate">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AspartateOrAsparagine"/>
+        <iUPACAminoAcidCode>D</iUPACAminoAcidCode>
+        <rdfs:comment xml:lang="en">The amino acid, aspartate.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#AspartateOrAsparagine -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#AspartateOrAsparagine">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcid"/>
+        <iUPACAminoAcidCode>B</iUPACAminoAcidCode>
+        <rdfs:comment xml:lang="en">either aspartate or asparagine</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#BiologicalCell -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#BiologicalCell">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#OrganicMaterial"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Biochem#BiologicalTissue"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Biochem#ChemicalSubstance"/>
+        <owl:disjointWith rdf:resource="&or;Human"/>
+        <owl:disjointWith rdf:resource="&or;IntelligentAgent"/>
+        <owl:disjointWith rdf:resource="&or;PhysicalDevice"/>
+        <owl:disjointWith rdf:resource="&or;StructuredInformationStore"/>
+        <rdfs:comment xml:lang="en">Biological cells whether living or not.  See LivingBiologicalCell.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#BiologicalCellSubunit -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#BiologicalCellSubunit">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#OrganismPart"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Biochem#BiologicalTissue"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#BiologicalGenus -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#BiologicalGenus">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#BiologicalTaxon"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Biochem#BiologicalSpecies"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#BiologicalLivingObject -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#BiologicalLivingObject">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#OrganicMaterial"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Biochem#ChemicalSubstance"/>
+        <owl:disjointWith rdf:resource="&or;Image"/>
+        <owl:disjointWith rdf:resource="&or;PhysicalDevice"/>
+        <owl:disjointWith rdf:resource="&or;StructuredInformationStore"/>
+        <rdfs:comment xml:lang="en">All physical structures that are composed of one or more interacting living cells (see Cell) plus living parts of cells and viruses.  Connected dead tissue (hair, skin) and connected biologically produced parts (horn, teeth) are parts of a BiologicallivingObject (BLO) even though they are not, themselves living (and thus not BLOs). BLOs might either be instances of Organism (like dogs or pine trees) or living components of such whole living organisms (like noses, tails, and pine needles).</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#BiologicalProcess -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#BiologicalProcess">
+        <rdfs:subClassOf rdf:resource="&or;Event"/>
+        <owl:disjointWith rdf:resource="&or;ComputerProcessExecution"/>
+        <rdfs:comment xml:lang="en">Each instance of BiologicalProcess is an event done by some Biological Living Object(s).  An instance may be a process within a single cell, an involuntary action by one or more organs of the organism (e.g., a reflex), or an intended bodily action taken by an animal (e.g., biting or vocalizing).  Complex actions performed by people, (talking, playing tag) may have Biological Processes as subEvents, but are not themselves Biological Processes.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#BiologicalSpecies -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#BiologicalSpecies">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#BiologicalTaxon"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#BiologicalTaxon -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#BiologicalTaxon">
+        <rdfs:subClassOf rdf:resource="&or;ObjectType"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Biochem#OrganismPartType"/>
+        <owl:disjointWith rdf:resource="&or;MaterialType"/>
+        <owl:disjointWith rdf:resource="&or;MeasurementRole"/>
+        <rdfs:comment>same as biotaxonomy#Taxon</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#BiologicalTissue -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#BiologicalTissue">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#BiologicalLivingObject"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Organism"/>
+        <rdfs:comment xml:lang="en">The class of biological tissue -- functional groups of cells from a common organism that, though not suffice to define an organ (see Organ), are specific to an organ and used by that organ in performing one or more of its biological functions.  The tissue may be either n vivo orn vitro.
+
+Equivalent to cyc:BiologicalTissue </rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#CellNucleus -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#CellNucleus">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Organelle"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Chloroplast"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Biochem#EndoplasmicReticulum"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Biochem#GolgiApparatus"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Mitochondrion"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Vacuole"/>
+        <rdfs:comment xml:lang="en">The nucleus of a eukaryotic cell contains the chromosomes and is the site of transcription.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#CellType -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#CellType">
+        <rdfs:subClassOf rdf:resource="&or;ObjectType"/>
+        <owl:disjointWith rdf:resource="&or;InterconvertableUnitType"/>
+        <owl:disjointWith rdf:resource="&or;MaterialType"/>
+        <owl:disjointWith rdf:resource="&or;MeasurementRole"/>
+        <rdfs:comment xml:lang="en">The type of chamber format that is being used for cell assay.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#ChemicalObject -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#ChemicalObject">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#ChemicalObject"/>
+        <rdfs:subClassOf rdf:resource="&or;PhysicalObject"/>
+        <rdfs:comment xml:lang="en">The class of chemical objects such as molecules, molecular radicals, atoms, and ions.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#ChemicalObjectType -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#ChemicalObjectType">
+        <rdfs:subClassOf rdf:resource="&or;MaterialType"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#ChemicalObjectTypeByChemicalSpecies -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#ChemicalObjectTypeByChemicalSpecies">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#ChemicalObjectType"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#ChemicalSubstance -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#ChemicalSubstance">
+        <rdfs:subClassOf rdf:resource="&or;PhysicalObject"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#Chloroplast -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Chloroplast">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Organelle"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Biochem#EndoplasmicReticulum"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Biochem#GolgiApparatus"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Mitochondrion"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Vacuole"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#Chromosome -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Chromosome">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#DNAMolecule"/>
+        <rdfs:comment xml:lang="en">A chromosome as an information structure, not as a physical object.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#Color -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Color">
+        <rdfs:subClassOf rdf:resource="&or;NonTangibleThing"/>
+        <rdfs:comment xml:lang="en">Color, a quality of an object representing its visual appearance due to the proportion of wavelengths of visible light either emitted, reflected, transmitted, or which would become visible if white light impinged on a portion of an object with the specified color.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#Cysteine -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Cysteine">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcid"/>
+        <iUPACAminoAcidCode>C</iUPACAminoAcidCode>
+        <rdfs:comment xml:lang="en">The amino acid, cysteine.  Not to be confused with cystine.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#Cystine -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Cystine">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcid"/>
+        <rdfs:comment xml:lang="en">The amino acid, cystine.  Not to be confused with cysteine.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#CytosineNucleotide -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#CytosineNucleotide">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Nucleotide"/>
+        <rdfs:comment xml:lang="en">Cytosine nucleotide, whether a ribonucleotide or a deoxyribonucleotide.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#DNAMolecule -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#DNAMolecule">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Molecule"/>
+        <rdfs:comment xml:lang="en">Complete double-stranded DNA molecules.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#Death -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Death">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#InvolutaryBiologicalProcess"/>
+        <rdfs:comment xml:lang="en">``Death&#39; &#39; is the class of the dying of any Biological Living Object, be it a cell, tumor, organ, or organism.  Death is considered to be an involuntary process: although some organisms might take actions (or cells engage in processes) that will result in their deaths, the dying event, even though it might be the ``intended&#39; &#39; result of the action taken, is not itself voluntary.
+
+Same as cyc:DyingOfBLO</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#Deoxyribonucleotide -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Deoxyribonucleotide">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Nucleotide"/>
+        <rdfs:comment xml:lang="en">The class of deoxyribonucleotides viewed as information structures, not physical monomers.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#EndoplasmicReticulum -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#EndoplasmicReticulum">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Organelle"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Biochem#GolgiApparatus"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Mitochondrion"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Vacuole"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#Glutamate -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Glutamate">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#GlutamateOrGlutamine"/>
+        <iUPACAminoAcidCode>E</iUPACAminoAcidCode>
+        <rdfs:comment xml:lang="en">The amino acid, glutamate.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#GlutamateOrGlutamine -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#GlutamateOrGlutamine">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcid"/>
+        <iUPACAminoAcidCode>Z</iUPACAminoAcidCode>
+        <rdfs:comment xml:lang="en">Either glutamate or glutamine.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#Glutamine -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Glutamine">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#GlutamateOrGlutamine"/>
+        <iUPACAminoAcidCode>Q</iUPACAminoAcidCode>
+        <rdfs:comment xml:lang="en">The amino acid, glutamine.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#Glycine -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Glycine">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcid"/>
+        <iUPACAminoAcidCode>G</iUPACAminoAcidCode>
+        <rdfs:comment xml:lang="en">The amino acid, glycine.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#GolgiApparatus -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#GolgiApparatus">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Organelle"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Mitochondrion"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Vacuole"/>
+        <rdfs:comment xml:lang="en">The Golgi apparatus (Golgi complex) is an organelle found in most eukaryotic cells that processes and packages proteins inside of the cell before they make their way to their destination.  The Golgi apparatus is involved in the transport of lipids around the cell and the synthesis of proteoglycans and lysosomes.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#GuanineNucleotide -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#GuanineNucleotide">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Nucleotide"/>
+        <rdfs:comment xml:lang="en">Guanine nucleotide, whether a ribonucleotide or a deoxyribonucleotide.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#Histidine -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Histidine">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcid"/>
+        <iUPACAminoAcidCode>H</iUPACAminoAcidCode>
+        <rdfs:comment xml:lang="en">The amino acid, histidine.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#InvolutaryBiologicalProcess -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#InvolutaryBiologicalProcess">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#BiologicalProcess"/>
+        <owl:disjointWith rdf:resource="&or;PurposefulAction"/>
+        <rdfs:comment xml:lang="en">A specialization of Biological Process, instances of which are non-deliberately done by biological organisms.  This includes processes done by organ systems (e.g., digestion), single organs (e.g., heartbeat), and Cellular Biological Processes. </rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#Isoleucine -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Isoleucine">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcid"/>
+        <iUPACAminoAcidCode>I</iUPACAminoAcidCode>
+        <rdfs:comment xml:lang="en">The amino acid, isoleucine.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#Leucine -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Leucine">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcid"/>
+        <iUPACAminoAcidCode>L</iUPACAminoAcidCode>
+        <rdfs:comment xml:lang="en">The amino acid, leucine.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#LivingBiologicalCell -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#LivingBiologicalCell">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#BiologicalCell"/>
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#BiologicalLivingObject"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#Lysine -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Lysine">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcid"/>
+        <iUPACAminoAcidCode>K</iUPACAminoAcidCode>
+        <rdfs:comment xml:lang="en">The amino acid, lysine.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#Methionine -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Methionine">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcid"/>
+        <iUPACAminoAcidCode>M</iUPACAminoAcidCode>
+        <rdfs:comment xml:lang="en">The amino acid, methionine.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#Mitochondrion -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Mitochondrion">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Organelle"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Vacuole"/>
+        <rdfs:comment xml:lang="en">Mitochondria are organelles that generate ATP (supplying energy to the cell) and are invol ved in celll growth, differentiation, and death.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#Molecule -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Molecule">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#ChemicalObject"/>
+        <rdfs:comment xml:lang="en">The structure of a complete molecule.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#Monomer -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Monomer">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#ChemicalObject"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#MonomerType -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#MonomerType">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#ChemicalObjectType"/>
+        <rdfs:comment xml:lang="en">Instances are various types of monomer, e.g., amino acids and nucleotides.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#Nucleotide -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Nucleotide">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Monomer"/>
+        <rdfs:comment xml:lang="en">The class of nucleotides viewed as information structures, not physical monomers.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#NucleotideByChemicalSpecies -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#NucleotideByChemicalSpecies">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#ChemicalObjectTypeByChemicalSpecies"/>
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#NucleotideType"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#NucleotideType -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#NucleotideType">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#MonomerType"/>
+        <rdfs:comment xml:lang="en">Type of nucleotide -- a meta-class.  Instances are subclasses of Nucleotide.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#Organelle -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Organelle">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#BiologicalCellSubunit"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Ribosome"/>
+        <rdfs:comment xml:lang="en">An organelle is a subunit within a cell that is separately enclosed within a lipid membrane.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#OrganicMaterial -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#OrganicMaterial">
+        <rdfs:subClassOf rdf:resource="&or;PhysicalObject"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#Organism -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Organism">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#BiologicalLivingObject"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Biochem#OrganismPart"/>
+        <rdfs:comment xml:lang="en">A specialization of BiologicalLivingObject. Each instance of Organism_Whole is a biological living object (BLO) that is a whole, and not part of some other BLO. Most instances of Organism_Whole are capable of existing and reproducing while physically separate from other organisms (with allowances for eating and mating). Abnormal BLOs which are nonetheless considered to be instances of Organism_Whole include instances of Virus, as well as sterile hybrids and colony organisms, like those in slime molds or the instances of PortugueseManOfWar.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#OrganismPart -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#OrganismPart">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#BiologicalLivingObject"/>
+        <owl:disjointWith rdf:resource="&or;IntelligentAgent"/>
+        <owl:disjointWith rdf:resource="&or;NonTangibleThing"/>
+        <owl:disjointWith rdf:resource="&or;StructuredInformationStore"/>
+        <rdfs:comment xml:lang="en">A living part of an organism, that is not itself an organism.  This includes cell parts, individual cells of a multi-cellular organism, organs, limbs, etc.   </rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#OrganismPartType -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#OrganismPartType">
+        <rdfs:subClassOf rdf:resource="&or;ObjectType"/>
+        <owl:disjointWith rdf:resource="&or;MeasurementRole"/>
+        <rdfs:comment xml:lang="en">An Organism Part Type is a characterization of body parts of Animals, Plant Parts, or parts of other organisms by structure and/or function.  Instances of Organism Part Type include types of organ and types of tissue.
+
+Same as cyc#OrganismPartType.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#OrganismType -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#OrganismType">
+        <rdfs:subClassOf rdf:resource="&or;ObjectType"/>
+        <rdfs:comment xml:lang="en">Each instance of OrganismType is a type of organism whose membership is determined by some set of classificatory criteria accepted by some scientific community.  An organism type may be a biological taxon or defined by some other property such as herbivores.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#Phenotype -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Phenotype">
+        <rdfs:subClassOf rdf:resource="&or;SecondOrderClass"/>
+        <rdfs:comment xml:lang="en">A phenotype is a purely observable physical feature of an organism. Hair color, blood type, cell structure, etc. all count as types of phenotypes. Definitive of phenotypes is that they are features of organisms that are the physical manifestations of the gene patterns and environment of the organism.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#Phenylalanine -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Phenylalanine">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcid"/>
+        <iUPACAminoAcidCode>F</iUPACAminoAcidCode>
+        <rdfs:comment xml:lang="en">The amino acid, phenylalanine.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#PolymerSequence -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#PolymerSequence">
+        <rdfs:subClassOf rdf:resource="&cyc;Series"/>
+        <rdfs:comment xml:lang="en">A poymer sequence is the sequence of monomers in a polymer.  It is a conceptual structure, not a physical object, nor a type of physical objects.  A polymer sequence can be considered to be instantiated in a physical molecule.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#PositionInPolymer -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#PositionInPolymer">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#PolymerSequence"/>
+        <rdfs:comment xml:lang="en">A position located in a polymer -- starting a given number of monomers from one end of the polymer and extending a certain number of monomer positions.  A position in a polymer has a length in monomers, just as a Polymer Sequence does, but the identity of the monomers in the position are undefined.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#Proline -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Proline">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcid"/>
+        <iUPACAminoAcidCode>L</iUPACAminoAcidCode>
+        <rdfs:comment xml:lang="en">The amino acid, proline.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#Protein -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Protein">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Molecule"/>
+        <rdfs:comment xml:lang="en">Protein as a chemical sequence of amino acids.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#ProteinTypeBySpecies -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#ProteinTypeBySpecies">
+        <rdfs:subClassOf rdf:resource="&or;MaterialType"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Biochem#ProteinTypeByStructure"/>
+        <rdfs:comment xml:lang="en">Variety of protein</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#ProteinTypeByStructure -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#ProteinTypeByStructure">
+        <rdfs:subClassOf rdf:resource="&or;MaterialType"/>
+        <rdfs:comment xml:lang="en">The type of a protein distinguished by its structure of the proteins, e.g.fibril.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#Ribonucleotide -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Ribonucleotide">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Nucleotide"/>
+        <rdfs:comment xml:lang="en">The class of ribonucleotides viewed as information structures, not physical monomers.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#Ribosome -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Ribosome">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#BiologicalCellSubunit"/>
+        <rdfs:comment xml:lang="en">A ribosome is a component of cells that synthesizes protein chains. It assembles the twenty specific amino acid molecules to form the particular protein molecule determined by the nucleotide sequence of an RNA molecule.  A ribosome is not encased in a membrane and so is not considered an organelle.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#Selenocysteine -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Selenocysteine">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcid"/>
+        <iUPACAminoAcidCode>S</iUPACAminoAcidCode>
+        <rdfs:comment xml:lang="en">Selenocysteine is an amino acid that is present in several enzymes.  It is not coded for directly in the genetic code.  Instead, it is encoded in a special way by a UGA codon, which is normally a stop codon.  When cells are grown in the absence of selenium, translation of selenoproteins terminates at the UGA codon, resulting in a truncated, nonfunctional enzyme.  The UGA codon is made to encode selenocysteine by the presence of a SECIS element (SElenoCysteine Insertion Sequence) in the mRNA.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#Serine -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Serine">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcid"/>
+        <iUPACAminoAcidCode>S</iUPACAminoAcidCode>
+        <rdfs:comment xml:lang="en">The amino acid, serine.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#SingleCelledOrganism -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#SingleCelledOrganism">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#LivingBiologicalCell"/>
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Organism"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#Threonine -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Threonine">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcid"/>
+        <iUPACAminoAcidCode>T</iUPACAminoAcidCode>
+        <rdfs:comment xml:lang="en">The amino acid, threonine.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#ThymineDeoxyribonucleotide -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#ThymineDeoxyribonucleotide">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Deoxyribonucleotide"/>
+        <rdfs:comment xml:lang="en">Thymine deoxyribonucleotide viewed as an an information structure, not a physical monomer.</rdfs:comment>
+        <rdfs:comment xml:lang="en">Thymine deoxyribonucleotide.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#Tryptophan -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Tryptophan">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcid"/>
+        <iUPACAminoAcidCode>W</iUPACAminoAcidCode>
+        <rdfs:comment xml:lang="en">The amino acid, tryptophan.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#Tyrosine -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Tyrosine">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcid"/>
+        <rdfs:comment xml:lang="en">The amino acid, tyrosine</rdfs:comment>
+        <iUPACAminoAcidCode>Y</iUPACAminoAcidCode>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#UracilRibonucleotide -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#UracilRibonucleotide">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Ribonucleotide"/>
+        <rdfs:comment xml:lang="en">Uracil ribonucleotide viewed as an information structure, not a physical monomer.</rdfs:comment>
+        <rdfs:comment xml:lang="en">Uracil ribonucleotide.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#Vacuole -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Vacuole">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Organelle"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#Valine -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Valine">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcid"/>
+        <rdfs:comment xml:lang="en">The amino acid, valine.</rdfs:comment>
+        <iUPACAminoAcidCode>V</iUPACAminoAcidCode>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#ComputerProcessExecution -->
+
+    <owl:Class rdf:about="&or;ComputerProcessExecution"/>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#Event -->
+
+    <owl:Class rdf:about="&or;Event"/>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#Human -->
+
+    <owl:Class rdf:about="&or;Human">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Organism"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#Image -->
+
+    <owl:Class rdf:about="&or;Image"/>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#IntelligentAgent -->
+
+    <owl:Class rdf:about="&or;IntelligentAgent"/>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#InterconvertableUnitType -->
+
+    <owl:Class rdf:about="&or;InterconvertableUnitType"/>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#MaterialType -->
+
+    <owl:Class rdf:about="&or;MaterialType"/>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#MeasurementRole -->
+
+    <owl:Class rdf:about="&or;MeasurementRole"/>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#NonTangibleThing -->
+
+    <owl:Class rdf:about="&or;NonTangibleThing"/>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#ObjectType -->
+
+    <owl:Class rdf:about="&or;ObjectType"/>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#PhysicalDevice -->
+
+    <owl:Class rdf:about="&or;PhysicalDevice"/>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#PhysicalObject -->
+
+    <owl:Class rdf:about="&or;PhysicalObject"/>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#ProteinTypeByChemicalSpecies -->
+
+    <owl:Class rdf:about="&or;ProteinTypeByChemicalSpecies">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#ChemicalObjectTypeByChemicalSpecies"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#PurposefulAction -->
+
+    <owl:Class rdf:about="&or;PurposefulAction"/>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#SecondOrderClass -->
+
+    <owl:Class rdf:about="&or;SecondOrderClass"/>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#StructuredInformationStore -->
+
+    <owl:Class rdf:about="&or;StructuredInformationStore"/>
+    
+
+
+    <!-- http://www.w3.org/1999/02/22-rdf-syntax-ns#Class -->
+
+    <owl:Class rdf:about="&rdf;Class"/>
+    
+
+
+    <!-- http://www.w3.org/2000/01/rdf-schema#Property -->
+
+    <owl:Class rdf:about="&rdfs;Property"/>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Individuals
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://sw.opencyc.org/concept/en/#HomoSapiens -->
+
+    <owl:NamedIndividual rdf:about="&cyc;HomoSapiens">
+        <owl:sameAs rdf:resource="&or;Human"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#AdenineNucleotide -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Biochem#AdenineNucleotide">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#NucleotideType"/>
+        <rdfs:comment xml:lang="en">Adenine nucleotide, whether a ribonucleotide or a deoxyribonucleotide.</rdfs:comment>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#Alanine -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Biochem#Alanine">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcidType"/>
+        <iUPACAminoAcidCode>A</iUPACAminoAcidCode>
+        <rdfs:comment xml:lang="en">The amino acid, alanine.</rdfs:comment>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#AminoAcid -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Biochem#AminoAcid">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcidType_Generic"/>
+        <iUPACAminoAcidCode>X</iUPACAminoAcidCode>
+        <rdfs:comment xml:lang="en">A collection of organic compounds that are the building blocks for ProteinMolecules.</rdfs:comment>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#Asparagine -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Biochem#Asparagine">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcidType"/>
+        <iUPACAminoAcidCode>N</iUPACAminoAcidCode>
+        <rdfs:comment xml:lang="en">The amino acid, asparagine.</rdfs:comment>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#Aspartate -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Biochem#Aspartate">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcidType"/>
+        <iUPACAminoAcidCode>D</iUPACAminoAcidCode>
+        <rdfs:comment xml:lang="en">The amino acid, aspartate.</rdfs:comment>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#AspartateOrAsparagine -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Biochem#AspartateOrAsparagine">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcidType_Generic"/>
+        <iUPACAminoAcidCode>B</iUPACAminoAcidCode>
+        <rdfs:comment xml:lang="en">either aspartate or asparagine</rdfs:comment>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#Cysteine -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Biochem#Cysteine">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcidType"/>
+        <iUPACAminoAcidCode>C</iUPACAminoAcidCode>
+        <rdfs:comment xml:lang="en">The amino acid, cysteine.  Not to be confused with cystine.</rdfs:comment>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#Cystine -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Biochem#Cystine">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcidType"/>
+        <rdfs:comment xml:lang="en">The amino acid, cystine.  Not to be confused with cysteine.</rdfs:comment>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#CytosineNucleotide -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Biochem#CytosineNucleotide">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#NucleotideType"/>
+        <rdfs:comment xml:lang="en">Cytosine nucleotide, whether a ribonucleotide or a deoxyribonucleotide.</rdfs:comment>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#Fibril -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Biochem#Fibril">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#ProteinTypeByStructure"/>
+        <rdfs:comment xml:lang="en">Fibrils are fibers approximately 1 nm in diameter</rdfs:comment>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#Glutamate -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Biochem#Glutamate">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcidType"/>
+        <iUPACAminoAcidCode>E</iUPACAminoAcidCode>
+        <rdfs:comment xml:lang="en">The amino acid, glutamate.</rdfs:comment>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#GlutamateOrGlutamine -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Biochem#GlutamateOrGlutamine">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcidType_Generic"/>
+        <iUPACAminoAcidCode>Z</iUPACAminoAcidCode>
+        <rdfs:comment xml:lang="en">Either glutamate or glutamine.</rdfs:comment>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#Glutamine -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Biochem#Glutamine">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcidType"/>
+        <iUPACAminoAcidCode>Q</iUPACAminoAcidCode>
+        <rdfs:comment xml:lang="en">The amino acid, glutamine.</rdfs:comment>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#Glycine -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Biochem#Glycine">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcidType"/>
+        <iUPACAminoAcidCode>G</iUPACAminoAcidCode>
+        <rdfs:comment xml:lang="en">The amino acid, glycine.</rdfs:comment>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#GuanineNucleotide -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Biochem#GuanineNucleotide">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#NucleotideType"/>
+        <rdfs:comment xml:lang="en">Guanine nucleotide, whether a ribonucleotide or a deoxyribonucleotide.</rdfs:comment>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#Histidine -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Biochem#Histidine">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcidType"/>
+        <iUPACAminoAcidCode>H</iUPACAminoAcidCode>
+        <rdfs:comment xml:lang="en">The amino acid, histidine.</rdfs:comment>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#Isoleucine -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Biochem#Isoleucine">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcidType"/>
+        <iUPACAminoAcidCode>I</iUPACAminoAcidCode>
+        <rdfs:comment xml:lang="en">The amino acid, isoleucine.</rdfs:comment>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#Leucine -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Biochem#Leucine">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcidType"/>
+        <iUPACAminoAcidCode>L</iUPACAminoAcidCode>
+        <rdfs:comment xml:lang="en">The amino acid, leucine.</rdfs:comment>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#Lysine -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Biochem#Lysine">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcidType"/>
+        <iUPACAminoAcidCode>K</iUPACAminoAcidCode>
+        <rdfs:comment xml:lang="en">The amino acid, lysine.</rdfs:comment>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#Methionine -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Biochem#Methionine">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcidType"/>
+        <iUPACAminoAcidCode>M</iUPACAminoAcidCode>
+        <rdfs:comment xml:lang="en">The amino acid, methionine.</rdfs:comment>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#OrganismType -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Biochem#OrganismType">
+        <rdf:type rdf:resource="&rdf;Class"/>
+        <rdfs:comment xml:lang="en">Each instance of OrganismType is a type of organism whose membership is determined by some set of classificatory criteria accepted by some scientific community.  An organism type may be a biological taxon or defined by some other property such as herbivores.</rdfs:comment>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#Phenylalanine -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Biochem#Phenylalanine">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcidType"/>
+        <iUPACAminoAcidCode>F</iUPACAminoAcidCode>
+        <rdfs:comment xml:lang="en">The amino acid, phenylalanine.</rdfs:comment>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#Proline -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Biochem#Proline">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcidType"/>
+        <iUPACAminoAcidCode>L</iUPACAminoAcidCode>
+        <rdfs:comment xml:lang="en">The amino acid, proline.</rdfs:comment>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#Selenocysteine -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Biochem#Selenocysteine">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcidType"/>
+        <iUPACAminoAcidCode>S</iUPACAminoAcidCode>
+        <rdfs:comment xml:lang="en">Selenocysteine is an amino acid that is present in several enzymes.  It is not coded for directly in the genetic code.  Instead, it is encoded in a special way by a UGA codon, which is normally a stop codon.  When cells are grown in the absence of selenium, translation of selenoproteins terminates at the UGA codon, resulting in a truncated, nonfunctional enzyme.  The UGA codon is made to encode selenocysteine by the presence of a SECIS element (SElenoCysteine Insertion Sequence) in the mRNA.</rdfs:comment>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#Serine -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Biochem#Serine">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcidType"/>
+        <iUPACAminoAcidCode>S</iUPACAminoAcidCode>
+        <rdfs:comment xml:lang="en">The amino acid, serine.</rdfs:comment>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#Threonine -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Biochem#Threonine">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcidType"/>
+        <iUPACAminoAcidCode>T</iUPACAminoAcidCode>
+        <rdfs:comment xml:lang="en">The amino acid, threonine.</rdfs:comment>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#ThymineDeoxyribonucleotide -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Biochem#ThymineDeoxyribonucleotide">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#NucleotideByChemicalSpecies"/>
+        <rdfs:comment xml:lang="en">Thymine deoxyribonucleotide viewed as an an information structure, not a physical monomer.</rdfs:comment>
+        <rdfs:comment xml:lang="en">Thymine deoxyribonucleotide.</rdfs:comment>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#Trypsin -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Biochem#Trypsin">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#ProteinTypeBySpecies"/>
+        <rdfs:comment xml:lang="en">Trypsin is an enzyme that hydrolyzes (other) proteins.</rdfs:comment>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#Tryptophan -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Biochem#Tryptophan">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcidType"/>
+        <iUPACAminoAcidCode>W</iUPACAminoAcidCode>
+        <rdfs:comment xml:lang="en">The amino acid, tryptophan.</rdfs:comment>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#Tyrosine -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Biochem#Tyrosine">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcidType"/>
+        <rdfs:comment xml:lang="en">The amino acid, tyrosine</rdfs:comment>
+        <iUPACAminoAcidCode>Y</iUPACAminoAcidCode>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#UracilRibonucleotide -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Biochem#UracilRibonucleotide">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#NucleotideByChemicalSpecies"/>
+        <rdfs:comment xml:lang="en">Uracil ribonucleotide viewed as an information structure, not a physical monomer.</rdfs:comment>
+        <rdfs:comment xml:lang="en">Uracil ribonucleotide.</rdfs:comment>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#Valine -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Biochem#Valine">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcidType"/>
+        <rdfs:comment xml:lang="en">The amino acid, valine.</rdfs:comment>
+        <iUPACAminoAcidCode>V</iUPACAminoAcidCode>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#enzymeCommissionNumber -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Biochem#enzymeCommissionNumber">
+        <rdf:type rdf:resource="&rdfs;Property"/>
+        <rdfs:comment xml:lang="en">Enzyme Commission number for enzyme product of sequence, e.g., ``1.1.2.4&#39;&#39;.  Valid values for EC numbers are defined in the list prepared by the  Nomenclature Committee of the International Union of Biochemistry and Molecular Biology (NC-IUBMB) (published in Enzyme Nomenclature 1992, Academic Press, San Diego, or a more recent revision thereof).  The format represents a string of four numbers separated by full stops; up to three numbers starting from the end of the string can be replaced by dash (e.g., ``1.1.2.-&#39;&#39;) to indicate uncertain assignment.  The symbol `n&#39; can be used in the last position instead of a number where the EC number is awaiting assignment (e.g., `1.1.2.n&#39;.  Please note that such incomplete EC numbers are not approved by NC-IUBMB.</rdfs:comment>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#proteinID -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Biochem#proteinID">
+        <rdf:type rdf:resource="&rdfs;Property"/>
+        <rdfs:comment xml:lang="en">Identifies the protein coded for by a standard protein identifier, issued by International collaborators.  The identifier consists of a stable ID portion (3 letters + 5 digits format) plus a version number after a decimal point.</rdfs:comment>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#Human -->
+
+    <owl:NamedIndividual rdf:about="&or;Human">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Biochem#BiologicalSpecies"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // General axioms
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Biochem#AdenineNucleotide"/>
+            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Biochem#CytosineNucleotide"/>
+            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Biochem#GuanineNucleotide"/>
+            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Biochem#ThymineDeoxyribonucleotide"/>
+            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Biochem#UracilRibonucleotide"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+</rdf:RDF>
+
+
+
+<!-- Generated by the OWL API (version 3.2.3.1824) http://owlapi.sourceforge.net -->
+
