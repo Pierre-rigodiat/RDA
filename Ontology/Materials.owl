@@ -1,0 +1,2537 @@
+<?xml version="1.0"?>
+
+
+<!DOCTYPE rdf:RDF [
+    <!ENTITY umbel "http://umbel.org/umbel/sc/#" >
+    <!ENTITY dbpedia "http://dbpedia.org/resource/#" >
+    <!ENTITY owl "http://www.w3.org/2002/07/owl#" >
+    <!ENTITY xsd "http://www.w3.org/2001/XMLSchema#" >
+    <!ENTITY bc "http://www.nist.gov/itl/ssd/Biochem#" >
+    <!ENTITY xml "http://www.w3.org/XML/1998/namespace" >
+    <!ENTITY daml "http://www.daml.org/2001/03/daml+oil#" >
+    <!ENTITY doc "http://www.nist.gov/itl/ssd/Document#" >
+    <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#" >
+    <!ENTITY GO "http://www.geneontology.org/dtd/go.dtd#" >
+    <!ENTITY Biochem "http://www.nist.gov/itl/ssd/Biochem.owl#" >
+    <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#" >
+    <!ENTITY or "http://www.nist.gov/itl/ssd/OntologyRequirements#" >
+    <!ENTITY OntologyRequirements "http://www.nist.gov/itl/ssd/OntologyRequirements.owl#" >
+]>
+
+
+<rdf:RDF xmlns="http://www.nist.gov/itl/ssd/Materials.owl#"
+     xml:base="http://www.nist.gov/itl/ssd/Materials.owl"
+     xmlns:or="http://www.nist.gov/itl/ssd/OntologyRequirements#"
+     xmlns:xml="http://www.w3.org/XML/1998/namespace"
+     xmlns:daml="http://www.daml.org/2001/03/daml+oil#"
+     xmlns:Biochem="http://www.nist.gov/itl/ssd/Biochem.owl#"
+     xmlns:OntologyRequirements="http://www.nist.gov/itl/ssd/OntologyRequirements.owl#"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+     xmlns:umbel="http://umbel.org/umbel/sc/#"
+     xmlns:GO="http://www.geneontology.org/dtd/go.dtd#"
+     xmlns:dbpedia="http://dbpedia.org/resource/#"
+     xmlns:doc="http://www.nist.gov/itl/ssd/Document#"
+     xmlns:owl="http://www.w3.org/2002/07/owl#"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:bc="http://www.nist.gov/itl/ssd/Biochem#">
+    <owl:Ontology rdf:about="http://www.nist.gov/itl/ssd/Materials.owl">
+        <owl:imports rdf:resource="http://www.nist.gov/itl/ssd/Biochem.owl"/>
+        <owl:imports rdf:resource="http://www.nist.gov/itl/ssd/Document.owl"/>
+        <owl:imports rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements.owl"/>
+    </owl:Ontology>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Annotation properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Datatypes
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Object Properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#classOfMaterial -->
+
+    <owl:ObjectProperty rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#classOfMaterial">
+        <rdfs:comment xml:lang="en">OBJECT classOfMaterial MATERIAL_TYPE means that OBJECT is made out of the general type of material MATERIAL_TYPE.  Use subclassOfMaterial, if referring to a more specific type.</rdfs:comment>
+        <rdfs:domain rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MaterialObject"/>
+        <rdfs:range rdf:resource="&or;MaterialType"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#coatingOf -->
+
+    <owl:ObjectProperty rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#coatingOf">
+        <rdf:type rdf:resource="&owl;AsymmetricProperty"/>
+        <rdf:type rdf:resource="&owl;IrreflexiveProperty"/>
+        <rdfs:comment xml:lang="en">The property &#39;coating Of&#39; relates a coating material to the object which it coats.</rdfs:comment>
+        <rdfs:domain rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MaterialObject"/>
+        <rdfs:range rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MaterialObject"/>
+        <owl:propertyDisjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#embeddedIn"/>
+        <owl:propertyDisjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#substrate"/>
+        <owl:propertyDisjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#weldedTo"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#componentElement -->
+
+    <owl:ObjectProperty rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#componentElement">
+        <rdfs:domain rdf:resource="&bc;ChemicalObjectTypeByChemicalSpecies"/>
+        <rdfs:range rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#compositionSpecification -->
+
+    <owl:ObjectProperty rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#compositionSpecification">
+        <rdfs:comment xml:lang="en">The property composition Secification relates an object to a specification of the type of material (e.g., an alloy) of which it is composed.</rdfs:comment>
+        <rdfs:domain rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MaterialObject"/>
+        <rdfs:range rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#Specification"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#concentrationLevel -->
+
+    <owl:ObjectProperty rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#concentrationLevel">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:comment xml:lang="en">The property &#39;concentration Level&#39; specifies what the concentration of the specified Material Type is for a given Substance Concentration.</rdfs:comment>
+        <rdfs:range rdf:resource="&bc;Concentration"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#concentrationOfMaterialType -->
+
+    <owl:ObjectProperty rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#concentrationOfMaterialType">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:comment xml:lang="en">The property &#39;concentration Of Material Type&#39; links a Substance Concentration to the type of material (Material Type) for which it is a concentration.</rdfs:comment>
+        <rdfs:range rdf:resource="&or;MaterialType"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#embeddedIn -->
+
+    <owl:ObjectProperty rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#embeddedIn">
+        <rdf:type rdf:resource="&owl;AsymmetricProperty"/>
+        <rdf:type rdf:resource="&owl;IrreflexiveProperty"/>
+        <rdfs:domain rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MaterialObject"/>
+        <rdfs:range rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MaterialObject"/>
+        <owl:propertyDisjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#substrate"/>
+        <owl:propertyDisjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#weldedTo"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#hadProcessingStep -->
+
+    <owl:ObjectProperty rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#hadProcessingStep">
+        <rdfs:comment xml:lang="en">The property &#39;had Processing Step&#39; relates a Material Object to a Material Processing Type that was performed as it was being produced/prepared.</rdfs:comment>
+        <rdfs:domain rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MaterialObject"/>
+        <rdfs:range rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MaterialProcessingType"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#hasLatticeConstant -->
+
+    <owl:ObjectProperty rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#hasLatticeConstant">
+        <rdfs:comment xml:lang="en">The lattice Constant of a Crystal Lattice is the constant distance between unit cells.  A cubic lattice has a single lattice constant, while other forms of crystal have three.  The constant may be temperature dependant.</rdfs:comment>
+        <rdfs:domain rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#CrystalLattice"/>
+        <rdfs:range rdf:resource="&or;Distance"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#hasMaterialForm -->
+
+    <owl:ObjectProperty rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#hasMaterialForm">
+        <rdfs:comment xml:lang="en">The predicate &#39;has Material Form&#39; relates a Material Object to its Material Form.</rdfs:comment>
+        <rdfs:range rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MaterialForm"/>
+        <rdfs:domain rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MaterialObject"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#hasSubstanceConcentration -->
+
+    <owl:ObjectProperty rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#hasSubstanceConcentration">
+        <rdfs:comment xml:lang="en">The property &#39;has Substance Concentration&#39; specifies for each Chemical Composition the specific concentration of one of its substances (called Substance Concentration).  Unless there is only a single substance type, a given Chemical Composition has multiple Substance Concentrations.</rdfs:comment>
+        <rdfs:domain rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalComposition"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#hasUncertaintyDistributionType -->
+
+    <owl:ObjectProperty rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#hasUncertaintyDistributionType">
+        <rdfs:comment xml:lang="en">The property &#39;has Uncertainty Distribution Type&#39; relates an Uncertainty to its Uncertainty Distribution Type, e.g., Gaussian Distribution.</rdfs:comment>
+        <rdfs:domain rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#Uncertainty"/>
+        <rdfs:range rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#UncertaintyDistributionType"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#measurementResult -->
+
+    <owl:ObjectProperty rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#measurementResult">
+        <rdfs:domain rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#Measuring"/>
+        <rdfs:range rdf:resource="&or;ExpressedQuantity"/>
+        <rdfs:range rdf:resource="&or;MeasurableQuantity"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#measurementTechniqueUsed -->
+
+    <owl:ObjectProperty rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#measurementTechniqueUsed">
+        <rdfs:comment xml:lang="en">The property &#39;measurement Technique Used&#39; relates an act of Measuring something to the Measurement Technique that it implemented.</rdfs:comment>
+        <rdfs:range rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MeasurementTechnique"/>
+        <rdfs:domain rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#Measuring"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#numOfSignificantDigits -->
+
+    <owl:ObjectProperty rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#numOfSignificantDigits">
+        <rdfs:comment xml:lang="en">The property &#39;num Of Significant Digits&#39; specifies the Number Of Significant Digits of a measurement or computed value.</rdfs:comment>
+        <rdfs:range rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#NumberOfSignificantDigits"/>
+        <rdfs:subPropertyOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#uncertaintyOfQuantity"/>
+        <rdfs:domain rdf:resource="&or;ExpressedQuantity"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#parameterValue -->
+
+    <owl:ObjectProperty rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#parameterValue">
+        <rdfs:domain rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MaterialProperty"/>
+        <rdfs:range rdf:resource="&or;Quantity"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#phaseOfMaterial -->
+
+    <owl:ObjectProperty rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#phaseOfMaterial">
+        <rdfs:comment xml:lang="en">The property &#39;phase Of Material&#39; relates a Material Object to its Material Phase (e.g., crystalline, gel, liquid, ...).</rdfs:comment>
+        <rdfs:domain rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MaterialObject"/>
+        <rdfs:range rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MaterialPhaseComposition"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#physicalDecompositions -->
+
+    <owl:ObjectProperty rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#physicalDecompositions">
+        <rdfs:comment xml:lang="en">(physicalDecompositions WHOLE PART) means that PART is a spatial part or component of WHOLE, in a very broad sense of &#39;part&#39; whereby PART might or might not be spatially continuous or discrete. Thus PART might be discontinuous, or diffused throughout WHOLE.&quot; </rdfs:comment>
+        <rdfs:range rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MaterialObject"/>
+        <rdfs:domain rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MaterialObject"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#physicallyAssociatedComponent -->
+
+    <owl:ObjectProperty rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#physicallyAssociatedComponent">
+        <rdfs:comment xml:lang="en">The property, &#39;physically Associated Component&#39; relates one Material Object to another one to which it is attached, is adjacent to, encloses or is enclosed by, or is related to by some similar relationship.</rdfs:comment>
+        <rdfs:range rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MaterialObject"/>
+        <rdfs:domain rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MaterialObject"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#sourcesMaterialType -->
+
+    <owl:ObjectProperty rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#sourcesMaterialType">
+        <rdfs:comment xml:lang="en">The property &#39;sources Material Type&#39; relates a Material Source Organization to a Material Type that it regularly can provide to others.</rdfs:comment>
+        <rdfs:domain rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MaterialSourceOrganization"/>
+        <rdfs:range rdf:resource="&or;MaterialType"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#specificationAuthority -->
+
+    <owl:ObjectProperty rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#specificationAuthority">
+        <rdfs:comment xml:lang="en">The property specification Authority relates a Specification to the Authority Organization that maintains the specification.</rdfs:comment>
+        <rdfs:range rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#AuthorityOrganization"/>
+        <rdfs:domain rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#Specification"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#standardDeviation -->
+
+    <owl:ObjectProperty rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#standardDeviation">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:comment xml:lang="en">The standard Deviation of an Uncertainty is a quantity with the same units as the Uncertainty itself.</rdfs:comment>
+        <rdfs:domain rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#Uncertainty"/>
+        <rdfs:range rdf:resource="&or;Quantity"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#structuralIsomers -->
+
+    <owl:ObjectProperty rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#structuralIsomers">
+        <rdf:type rdf:resource="&owl;IrreflexiveProperty"/>
+        <rdf:type rdf:resource="&owl;SymmetricProperty"/>
+        <rdfs:comment xml:lang="en">Two chemical compounds are stereoisomers if they have the same simple chemical formula, but have different arrangements of the bonds between theiir atoms.</rdfs:comment>
+        <rdfs:range rdf:resource="&bc;ChemicalObjectTypeByChemicalSpecies"/>
+        <rdfs:domain rdf:resource="&bc;ChemicalObjectTypeByChemicalSpecies"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#subclassOfMaterial -->
+
+    <owl:ObjectProperty rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#subclassOfMaterial">
+        <rdfs:comment xml:lang="en">OBJECT subclassOfMaterial MATERIAL_TYPE means that OBJECT is made of of the specific type of material MATERIAL_TYPE.  Use classOfMaterial, if referring to a more general type.</rdfs:comment>
+        <rdfs:domain rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MaterialObject"/>
+        <rdfs:range rdf:resource="&or;MaterialType"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#substrate -->
+
+    <owl:ObjectProperty rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#substrate">
+        <rdf:type rdf:resource="&owl;AsymmetricProperty"/>
+        <rdf:type rdf:resource="&owl;IrreflexiveProperty"/>
+        <rdfs:range rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MaterialObject"/>
+        <rdfs:domain rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MaterialObject"/>
+        <owl:propertyDisjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#weldedTo"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#uncertaintyOfProperty -->
+
+    <owl:ObjectProperty rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#uncertaintyOfProperty">
+        <rdfs:domain rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MaterialProperty"/>
+        <rdfs:range rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#Uncertainty"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#uncertaintyOfQuantity -->
+
+    <owl:ObjectProperty rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#uncertaintyOfQuantity">
+        <rdfs:comment xml:lang="en">The property &#39;uncertainty Of Quantity&#39; relates a Quantity to its associated Uncertainty.</rdfs:comment>
+        <rdfs:range rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#Uncertainty"/>
+        <rdfs:domain rdf:resource="&or;Quantity"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#weldedTo -->
+
+    <owl:ObjectProperty rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#weldedTo">
+        <rdf:type rdf:resource="&owl;IrreflexiveProperty"/>
+        <rdf:type rdf:resource="&owl;SymmetricProperty"/>
+        <rdfs:range rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MaterialObject"/>
+        <rdfs:domain rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MaterialObject"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Data properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#atomicNumber -->
+
+    <owl:DatatypeProperty rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#atomicNumber">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:comment xml:lang="en">The atomic Number of an element specifies the number of protons in a single atom of that element.</rdfs:comment>
+        <rdfs:domain rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <rdfs:range rdf:resource="&xsd;positiveInteger"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#atomicSymbol -->
+
+    <owl:DatatypeProperty rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#atomicSymbol">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:comment xml:lang="en">The one or two letter atomic Symbol for a Chemical Element</rdfs:comment>
+        <rdfs:domain rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <rdfs:range rdf:resource="&xsd;Name"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#hasChemicalFormula -->
+
+    <owl:DatatypeProperty rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#hasChemicalFormula">
+        <rdfs:comment xml:lang="en">The chemical Formula of a given chemical compound.  For simple formulae, this is functional, but for complex formulae, there are structural and semi-structural systems for distinguishing among isomers, some of which are functional.</rdfs:comment>
+        <rdfs:domain rdf:resource="&bc;ChemicalObjectType"/>
+        <rdfs:range rdf:resource="&xsd;string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#uncertaintyConfidenceLevel -->
+
+    <owl:DatatypeProperty rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#uncertaintyConfidenceLevel">
+        <rdfs:domain rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#Uncertainty"/>
+        <rdfs:range rdf:resource="&xsd;float"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Classes
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://www.daml.org/2001/03/daml+oil#Ontology -->
+
+    <rdf:Description rdf:about="&daml;Ontology">
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#Specification"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#ChemicalObjectType -->
+
+    <owl:Class rdf:about="&bc;ChemicalObjectType">
+        <rdfs:subClassOf rdf:resource="&or;MaterialType"/>
+        <rdfs:comment xml:lang="en">A Chemical Object Type is a class of chemicals defined by their chemical structure.  Instances include fully specified chemical compounds, such as H2O and generic types such as Ketone and DNA.
+
+The more specific class, Chemical Object Type By Chemical Species, denotes the fully-specified compounds (other than stereoisomers).</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#ChemicalObjectTypeByChemicalSpecies -->
+
+    <owl:Class rdf:about="&bc;ChemicalObjectTypeByChemicalSpecies">
+        <rdfs:subClassOf rdf:resource="&bc;ChemicalObjectType"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#Concentration -->
+
+    <owl:Class rdf:about="&bc;Concentration"/>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem.owl#Concentration -->
+
+    <owl:Class rdf:about="&Biochem;Concentration">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MeasureableMaterialProperty"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#BulkModulus"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalPotential"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#Enthalpy"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#Entropy"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#GibbsEnergy"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#HeatCapacity"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#IntrinsicDiffusivity"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#IsothermalCompressibility"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ThermalExpansion"/>
+        <owl:disjointWith rdf:resource="&or;Temperature"/>
+        <rdfs:comment xml:lang="en">A substance Concentration is a concentration of one type of material.  Any mixture has a Chemical Composition which is comprised a group of Substance Concentrations with the total concentration adding up to 100%.  For example, Admiralty brass contains 69% copper, 30% zinc, and 1% tin.  69% copper would be one Substance Concentration; 30% zinc would be a second, and 1% tin would be a third.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem.owl#UnitOfConcentration -->
+
+    <owl:Class rdf:about="&Biochem;UnitOfConcentration">
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#UnitOfPrecision"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#AuthorityOrganization -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#AuthorityOrganization">
+        <rdfs:subClassOf rdf:resource="&or;Organization"/>
+        <rdfs:comment xml:lang="en">An organization that is the authoritative source of information about something, such as a Specification.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#BulkModulus -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#BulkModulus">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MeasureableMaterialProperty"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalPotential"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#Enthalpy"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#Entropy"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#GibbsEnergy"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#HeatCapacity"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#IntrinsicDiffusivity"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#IsothermalCompressibility"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ThermalExpansion"/>
+        <owl:disjointWith rdf:resource="&or;Mass"/>
+        <owl:disjointWith rdf:resource="&or;Temperature"/>
+        <owl:disjointWith rdf:resource="&or;Volume"/>
+        <rdfs:comment xml:lang="en">The Bulk Modulus is the inverse of the Isothermal Compressibility.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Certification -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Certification">
+        <rdfs:subClassOf rdf:resource="&or;PurposefulAction"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#ChemicalComposition -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalComposition">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MaterialProperty"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ThermalExpansion"/>
+        <rdfs:comment xml:lang="en">Any substance has a Chemical Composition which comprises a group of Substance Concentrations with the total concentration adding up to 100%.  For example, Admiralty brass contains 69% copper, 30% zinc, and 1% tin.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement">
+        <rdfs:subClassOf rdf:resource="&bc;ChemicalObjectTypeByChemicalSpecies"/>
+        <rdfs:comment xml:lang="en">A Chemical Element is defined only by the atomic composition of its instances.  The isotopic composition, combination in a chemical compound, physical state of the substances, and any other feature are irrelevent to membership in this class.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#ChemicalPotential -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalPotential">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MeasureableMaterialProperty"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#Enthalpy"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#Entropy"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#GibbsEnergy"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#HeatCapacity"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#IntrinsicDiffusivity"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#IsothermalCompressibility"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ThermalExpansion"/>
+        <owl:disjointWith rdf:resource="&or;Mass"/>
+        <owl:disjointWith rdf:resource="&or;Temperature"/>
+        <owl:disjointWith rdf:resource="&or;Volume"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#CrystalLattice -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#CrystalLattice">
+        <rdfs:subClassOf rdf:resource="&or;PhysicalObject"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#CrystalStructure -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#CrystalStructure">
+        <rdfs:subClassOf rdf:resource="&or;MaterialType"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#DataGenerationTool -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#DataGenerationTool">
+        <rdfs:subClassOf rdf:resource="&or;Software"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#DataStorageAndGenerationTool -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#DataStorageAndGenerationTool">
+        <owl:equivalentClass>
+            <owl:Class>
+                <owl:intersectionOf rdf:parseType="Collection">
+                    <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#DataGenerationTool"/>
+                    <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#DataStorageTool"/>
+                </owl:intersectionOf>
+            </owl:Class>
+        </owl:equivalentClass>
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#DataStorageTool"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#DataStorageTool -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#DataStorageTool">
+        <rdfs:subClassOf rdf:resource="&or;Software"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#DiffusionDataFile -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#DiffusionDataFile">
+        <rdfs:subClassOf rdf:resource="&or;ComputerFile"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MolarVolumeDataFile"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ThermodynamicDataFile"/>
+        <owl:disjointWith rdf:resource="&or;ComputerImageFile"/>
+        <rdfs:comment xml:lang="en">A file which maintains diffusion data.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#DiffusionMatrixTable -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#DiffusionMatrixTable">
+        <rdfs:subClassOf rdf:resource="&OntologyRequirements;DataTable"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#ElectricalProperty -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#ElectricalProperty">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MaterialProperty"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ThermalExpansion"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Enthalpy -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Enthalpy">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MeasureableMaterialProperty"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#Entropy"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#GibbsEnergy"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#HeatCapacity"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#IntrinsicDiffusivity"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#IsothermalCompressibility"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ThermalExpansion"/>
+        <owl:disjointWith rdf:resource="&or;Mass"/>
+        <owl:disjointWith rdf:resource="&or;Temperature"/>
+        <owl:disjointWith rdf:resource="&or;Volume"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Entropy -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Entropy">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MeasureableMaterialProperty"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#GibbsEnergy"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#HeatCapacity"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#IntrinsicDiffusivity"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#IsothermalCompressibility"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ThermalExpansion"/>
+        <owl:disjointWith rdf:resource="&or;Mass"/>
+        <owl:disjointWith rdf:resource="&or;Temperature"/>
+        <owl:disjointWith rdf:resource="&or;Volume"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Evaluation -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Evaluation">
+        <rdfs:subClassOf rdf:resource="&or;PurposefulAction"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#ExperimentPlanning -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#ExperimentPlanning">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#Planning"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#GibbsEnergy -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#GibbsEnergy">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MeasureableMaterialProperty"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#HeatCapacity"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#IntrinsicDiffusivity"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#IsothermalCompressibility"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ThermalExpansion"/>
+        <owl:disjointWith rdf:resource="&or;Mass"/>
+        <owl:disjointWith rdf:resource="&or;Temperature"/>
+        <owl:disjointWith rdf:resource="&or;Volume"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#HeatCapacity -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#HeatCapacity">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MeasureableMaterialProperty"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#IntrinsicDiffusivity"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#IsothermalCompressibility"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ThermalExpansion"/>
+        <owl:disjointWith rdf:resource="&or;Mass"/>
+        <owl:disjointWith rdf:resource="&or;Temperature"/>
+        <owl:disjointWith rdf:resource="&or;Volume"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#IntrinsicDiffusivity -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#IntrinsicDiffusivity">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MeasureableMaterialProperty"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#IsothermalCompressibility"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ThermalExpansion"/>
+        <owl:disjointWith rdf:resource="&or;Mass"/>
+        <owl:disjointWith rdf:resource="&or;Temperature"/>
+        <owl:disjointWith rdf:resource="&or;Volume"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#IsothermalCompressibility -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#IsothermalCompressibility">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MeasureableMaterialProperty"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ThermalExpansion"/>
+        <owl:disjointWith rdf:resource="&or;Mass"/>
+        <owl:disjointWith rdf:resource="&or;Temperature"/>
+        <owl:disjointWith rdf:resource="&or;Volume"/>
+        <rdfs:comment xml:lang="en">The Isothermal Compressibility is the inverse of the Bulk Modulus.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#MagneticProperty -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#MagneticProperty">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MaterialProperty"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ThermalExpansion"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#MaterialForm -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#MaterialForm">
+        <rdfs:subClassOf rdf:resource="&or;ObjectType"/>
+        <rdfs:comment xml:lang="en">A Material Form designates a type of material by its form, e.g., CompositeMaterial, Alloy, Suspension, PureSubstance, Crystaline.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#MaterialObject -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#MaterialObject">
+        <rdfs:subClassOf rdf:resource="&or;PhysicalObject"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#MaterialPhaseComposition -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#MaterialPhaseComposition">
+        <rdfs:subClassOf rdf:resource="&or;ObjectType"/>
+        <rdfs:comment xml:lang="en">The class of Material Phases.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#MaterialPortion -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#MaterialPortion">
+        <rdfs:subClassOf rdf:resource="&or;PhysicalObject"/>
+        <rdfs:comment xml:lang="en">A &#39;Material Portion&#39; is part of a heterogeneous Physical Object that has a certain property.  It is normally diffused throughout the object, but it may be in multiple pieces.  It could be all the grains of one type in a piece of granite, all the zinc in a piece of brass, all the Carbon Dioxide in a room, etc.  
+
+A Material Portion comprises some percentage of the object of which it is a portion by volume and likely a different percentage of the same object by mass (weight).  The Material Portion has different properties than the object as a whole and different properties from other Material Portions of the same Physical Object.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#MaterialProcessing -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#MaterialProcessing">
+        <rdfs:subClassOf rdf:resource="&or;PurposefulAction"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#MaterialProcessingType -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#MaterialProcessingType">
+        <rdfs:subClassOf rdf:resource="&or;EventType"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#MaterialProperty -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#MaterialProperty">
+        <rdfs:subClassOf rdf:resource="&or;Quantity"/>
+        <rdfs:subClassOf rdf:resource="&or;StateOfBeing"/>
+        <rdfs:comment xml:lang="en">A Material Property is a physical property of some physical material or object, such as mass, melting point, or temperature.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#MaterialSourceOrganization -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#MaterialSourceOrganization">
+        <rdfs:subClassOf rdf:resource="&or;Organization"/>
+        <rdfs:comment xml:lang="en">A Material Source Organization is an Organization that is a source for certain kinds of materials.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#MaterialsPropertiesPredictionTool -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#MaterialsPropertiesPredictionTool">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#PredictionTool"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#MeasureableMaterialProperty -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#MeasureableMaterialProperty">
+        <owl:equivalentClass>
+            <owl:Class>
+                <owl:intersectionOf rdf:parseType="Collection">
+                    <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#MaterialProperty"/>
+                    <rdf:Description rdf:about="&or;MeasurableQuantity"/>
+                </owl:intersectionOf>
+            </owl:Class>
+        </owl:equivalentClass>
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MaterialProperty"/>
+        <rdfs:subClassOf rdf:resource="&or;MeasurableQuantity"/>
+        <rdfs:comment xml:lang="en">A Measureable Material Proparty is any Material Property that has a numerically measurable component.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#MeasurementTechnique -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#MeasurementTechnique">
+        <rdfs:subClassOf rdf:resource="&or;Technique"/>
+        <owl:disjointWith rdf:resource="&or;Algorithm"/>
+        <rdfs:comment xml:lang="en">A Measurement Technique is a specified method of making a measurement.  It may or may not conform to an existing Specification.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Measuring -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Measuring">
+        <rdfs:subClassOf rdf:resource="&or;PurposefulAction"/>
+        <owl:disjointWith rdf:resource="&or;ComputerProcessExecution"/>
+        <owl:disjointWith rdf:resource="&or;DatabaseSearch"/>
+        <rdfs:comment xml:lang="en">The action of making measurements</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#MechanicalProperty -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#MechanicalProperty">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MaterialProperty"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#MicrostructurePredictionTool -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#MicrostructurePredictionTool">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#PredictionTool"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#MolarVolumeDataFile -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#MolarVolumeDataFile">
+        <rdfs:subClassOf rdf:resource="&or;ComputerFile"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ThermodynamicDataFile"/>
+        <owl:disjointWith rdf:resource="&or;ComputerImageFile"/>
+        <rdfs:comment xml:lang="en">A file which maintains molar volume data.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#MultiphaseMaterialType -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#MultiphaseMaterialType">
+        <rdfs:subClassOf rdf:resource="&or;MaterialType"/>
+        <rdfs:comment xml:lang="en">A multiphase material consists of more than one material phases, with specified concentration (by volume) for each phase.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#NumberOfSignificantDigits -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#NumberOfSignificantDigits">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#Uncertainty"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Optimization -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Optimization">
+        <rdfs:subClassOf rdf:resource="&or;PurposefulAction"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#PhaseDiagram -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#PhaseDiagram">
+        <rdfs:subClassOf rdf:resource="&OntologyRequirements;GraphicalImage"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Planning -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Planning">
+        <rdfs:subClassOf rdf:resource="&or;PurposefulAction"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#PredictionMethod -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#PredictionMethod">
+        <rdfs:subClassOf rdf:resource="&or;Technique"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#PredictionTool -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#PredictionTool">
+        <rdfs:subClassOf rdf:resource="&or;Software"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#ProcessModelingTool -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#ProcessModelingTool">
+        <rdfs:subClassOf rdf:resource="&or;Software"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Reccommending -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Reccommending">
+        <rdfs:subClassOf rdf:resource="&or;PurposefulAction"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#SinglePhaseMaterialPortion -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#SinglePhaseMaterialPortion">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MaterialPortion"/>
+        <rdfs:comment xml:lang="en">A Single Phase Material Portion is a portion of an object all of which has the same Material Phase Composition.  For example, it might be the portion of an alloy consisting of all grains of a single metal that have a specific crystalline structure.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Specification -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Specification">
+        <rdfs:subClassOf rdf:resource="&or;AbstractStructuredInformationStore"/>
+        <owl:disjointWith rdf:resource="&or;ComputerFile"/>
+        <owl:disjointWith rdf:resource="&or;DataBase"/>
+        <owl:disjointWith rdf:resource="&or;DataFormat"/>
+        <owl:disjointWith rdf:resource="&or;ImageSequence"/>
+        <rdfs:comment xml:lang="en">A Specification is an abstract work that constitutes a description of the properties of an individual or type of Temporal Thing. Things are made, bought, and searched for according to specifications, which can be instantiated as printed instructions or as diagrams.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#ThermalExpansion -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#ThermalExpansion">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MeasureableMaterialProperty"/>
+        <owl:disjointWith rdf:resource="&or;Mass"/>
+        <owl:disjointWith rdf:resource="&or;Temperature"/>
+        <owl:disjointWith rdf:resource="&or;Volume"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#ThermodynamicDataFile -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#ThermodynamicDataFile">
+        <rdfs:subClassOf rdf:resource="&or;ComputerFile"/>
+        <owl:disjointWith rdf:resource="&or;ComputerImageFile"/>
+        <rdfs:comment xml:lang="en">A file which maintains thermodynamic data.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Uncertainty -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Uncertainty">
+        <rdfs:subClassOf rdf:resource="&or;Quantity"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#UncertaintyDistributionType -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#UncertaintyDistributionType">
+        <rdfs:subClassOf rdf:resource="&or;NonTangibleThing"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#UnitOfPrecision -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#UnitOfPrecision">
+        <rdfs:subClassOf rdf:resource="&or;UnitOfMeasure"/>
+        <owl:disjointWith rdf:resource="&or;UnitOfArea"/>
+        <owl:disjointWith rdf:resource="&or;UnitOfComputerStorageCapacity"/>
+        <owl:disjointWith rdf:resource="&or;UnitOfDistance"/>
+        <owl:disjointWith rdf:resource="&or;UnitOfDuration"/>
+        <owl:disjointWith rdf:resource="&or;UnitOfMass"/>
+        <owl:disjointWith rdf:resource="&or;UnitOfTemperature"/>
+        <owl:disjointWith rdf:resource="&or;UnitOfVolume"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#Algorithm -->
+
+    <rdf:Description rdf:about="&or;Algorithm"/>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#ComputerFile -->
+
+    <rdf:Description rdf:about="&or;ComputerFile"/>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#ComputerImageFile -->
+
+    <rdf:Description rdf:about="&or;ComputerImageFile"/>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#ComputerProcessExecution -->
+
+    <rdf:Description rdf:about="&or;ComputerProcessExecution"/>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#DataBase -->
+
+    <rdf:Description rdf:about="&or;DataBase"/>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#DataFormat -->
+
+    <rdf:Description rdf:about="&or;DataFormat"/>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#DatabaseSearch -->
+
+    <owl:Class rdf:about="&or;DatabaseSearch"/>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#ImageSequence -->
+
+    <rdf:Description rdf:about="&or;ImageSequence"/>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#Mass -->
+
+    <rdf:Description rdf:about="&or;Mass">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MeasureableMaterialProperty"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#Temperature -->
+
+    <rdf:Description rdf:about="&or;Temperature">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MeasureableMaterialProperty"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#UnitOfArea -->
+
+    <rdf:Description rdf:about="&or;UnitOfArea"/>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#UnitOfComputerStorageCapacity -->
+
+    <rdf:Description rdf:about="&or;UnitOfComputerStorageCapacity"/>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#UnitOfDistance -->
+
+    <rdf:Description rdf:about="&or;UnitOfDistance"/>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#UnitOfDuration -->
+
+    <rdf:Description rdf:about="&or;UnitOfDuration"/>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#UnitOfMass -->
+
+    <rdf:Description rdf:about="&or;UnitOfMass"/>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#UnitOfTemperature -->
+
+    <rdf:Description rdf:about="&or;UnitOfTemperature"/>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#UnitOfVolume -->
+
+    <rdf:Description rdf:about="&or;UnitOfVolume"/>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#Volume -->
+
+    <rdf:Description rdf:about="&or;Volume">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MeasureableMaterialProperty"/>
+    </rdf:Description>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#DataTable -->
+
+    <owl:Class rdf:about="&OntologyRequirements;DataTable"/>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#GraphicalImage -->
+
+    <owl:Class rdf:about="&OntologyRequirements;GraphicalImage"/>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Individuals
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Actinium -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Actinium">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">89</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">Ac</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Alloy -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Alloy">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MaterialForm"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Aluminum -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Aluminum">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">13</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">Al</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Americium -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Americium">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">95</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">Am</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#AmorphousSubstance -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#AmorphousSubstance">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MaterialPhaseComposition"/>
+        <rdfs:comment xml:lang="en">Material in a sloid amorphous (non-crystallie) phase.</rdfs:comment>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Antimony -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Antimony">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">51</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">Sb</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Argon -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Argon">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">18</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">Ar</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Arsenic -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Arsenic">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">33</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">As</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Astatine -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Astatine">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">85</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">At</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Barium -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Barium">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">56</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">Ba</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Berkelium -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Berkelium">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">97</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">Bk</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Beryllium -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Beryllium">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">4</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">Be</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Bismuth -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Bismuth">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">83</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">Bi</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#BodyCenteredCubicCrystalStructure -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#BodyCenteredCubicCrystalStructure">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#CrystalStructure"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Bohrium -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Bohrium">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">107</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">Bh</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Boron -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Boron">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">5</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">B</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Bromine -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Bromine">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">35</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">Br</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Cadmium -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Cadmium">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">48</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">Cd</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Calcium -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Calcium">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">20</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">Ca</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Californium -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Californium">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">98</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">Cf</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Carbon -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Carbon">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">6</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">C</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Cerium -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Cerium">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">58</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">Ce</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Cesium -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Cesium">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">55</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">Cs</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Chlorine -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Chlorine">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">17</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">Cl</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Chromium -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Chromium">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">24</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">Cr</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Coating -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Coating">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MaterialProcessingType"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Cobalt -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Cobalt">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">27</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">Co</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#CompositeSubstance -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#CompositeSubstance">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MaterialForm"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Copper -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Copper">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">29</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">Cu</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#CrystallineSubstance -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#CrystallineSubstance">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MaterialPhaseComposition"/>
+        <rdfs:comment xml:lang="en">Material in a crystalline phase</rdfs:comment>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Curium -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Curium">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">96</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">Cm</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#DistortedHexagonalCrystalStructure -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#DistortedHexagonalCrystalStructure">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#CrystalStructure"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#DoubleHexagonalClosePackedCrystalStructure -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#DoubleHexagonalClosePackedCrystalStructure">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#CrystalStructure"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Dubnium -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Dubnium">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">105</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">Db</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Dysprosium -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Dysprosium">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">66</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">Dy</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Einsteinium -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Einsteinium">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">99</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">Es</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Erbium -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Erbium">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">68</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">Er</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Europium -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Europium">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">63</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">Eu</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#FaceCenteredCubicCrystalStructure -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#FaceCenteredCubicCrystalStructure">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#CrystalStructure"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Fermium -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Fermium">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">100</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">Fm</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Fluorine -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Fluorine">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">9</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">F</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Francium -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Francium">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">87</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">Fr</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Gadolinium -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Gadolinium">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">64</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">Gd</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Gallium -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Gallium">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">31</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">Ga</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#GaseousSubstance -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#GaseousSubstance">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MaterialPhaseComposition"/>
+        <rdfs:comment xml:lang="en">Material in a gasseous phase.</rdfs:comment>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#GaussianDistribution -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#GaussianDistribution">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#UncertaintyDistributionType"/>
+        <rdfs:comment xml:lang="en">A Gaussian Distribution.</rdfs:comment>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#GelSubstance -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#GelSubstance">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MaterialPhaseComposition"/>
+        <rdfs:comment xml:lang="en">Material in a gel phase.</rdfs:comment>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Germanium -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Germanium">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">32</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">Ge</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Gold -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Gold">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">79</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">Au</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Hafnium -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Hafnium">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">72</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">Hf</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Hassium -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Hassium">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">108</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">Hs</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Helium -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Helium">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">2</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">He</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#HexagonalClosePackedCrystalStructure -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#HexagonalClosePackedCrystalStructure">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#CrystalStructure"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Holmium -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Holmium">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">67</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">Ho</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Hydrogen -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Hydrogen">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">1</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">H</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Indium -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Indium">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">49</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">In</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Iodine -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Iodine">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">53</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">I</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Iridium -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Iridium">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">77</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">Ir</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Iron -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Iron">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">26</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">Fe</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Krypton -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Krypton">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">36</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">Kr</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Lanthanum -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Lanthanum">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">57</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">La</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Lawrencium -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Lawrencium">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">103</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">Lr</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Lead -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Lead">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">82</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">Pb</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#LinearDistribution -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#LinearDistribution">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#UncertaintyDistributionType"/>
+        <rdfs:comment xml:lang="en">A Linear Distribution.</rdfs:comment>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#LiquidSubstance -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#LiquidSubstance">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MaterialPhaseComposition"/>
+        <rdfs:comment xml:lang="en">Material in a liquid phase.</rdfs:comment>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Lithium -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Lithium">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">3</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">Li</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Lutetium -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Lutetium">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">71</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">Lu</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Magnesium -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Magnesium">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">12</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">Mg</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Manganese -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Manganese">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">25</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">Mn</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#MaterialSuspension -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#MaterialSuspension">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MaterialForm"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Meitnerium -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Meitnerium">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">109</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">Mt</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Mendelevium -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Mendelevium">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">101</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">Md</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Mercury -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Mercury">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">80</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">Hg</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Molybdenum -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Molybdenum">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">42</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">Mo</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#MonoclinicCrystalStructure -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#MonoclinicCrystalStructure">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#CrystalStructure"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Neodymium -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Neodymium">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">60</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">Nd</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Neon -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Neon">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">10</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">Ne</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Neptunium -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Neptunium">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">93</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">Np</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Nickel -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Nickel">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">28</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">Ni</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Niobium -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Niobium">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">41</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">Nb</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Nitrogen -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Nitrogen">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">6</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">N</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Nobelium -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Nobelium">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">102</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">No</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#OrthorhombicCrystalStructure -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#OrthorhombicCrystalStructure">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#CrystalStructure"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Osmium -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Osmium">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">76</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">Os</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Oxygen -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Oxygen">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">8</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">O</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Palladium -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Palladium">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">46</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">Pd</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#PasteSubstance -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#PasteSubstance">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MaterialPhaseComposition"/>
+        <rdfs:comment xml:lang="en">Material in a paste phase.</rdfs:comment>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Phosphorus -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Phosphorus">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">15</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">P</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Platinum -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Platinum">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">78</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">Pt</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Plutonium -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Plutonium">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">94</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">Pu</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Polishing -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Polishing">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MaterialProcessingType"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Polonium -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Polonium">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">84</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">Po</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Potassium -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Potassium">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">19</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">K</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#PowderySubstance -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#PowderySubstance">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MaterialPhaseComposition"/>
+        <rdfs:comment xml:lang="en">material in a solid powdery phase</rdfs:comment>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Praseodymium -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Praseodymium">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">59</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">Pr</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Promethium -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Promethium">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">61</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">Pm</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Protactinium -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Protactinium">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">91</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">Pa</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#PureSubstance -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#PureSubstance">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MaterialForm"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Radium -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Radium">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">88</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">Ra</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Radon -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Radon">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">86</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">Rn</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Rhenium -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Rhenium">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">75</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">Re</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Rhodium -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Rhodium">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">45</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">Rh</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#RhombohedralCrystalStructure -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#RhombohedralCrystalStructure">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#CrystalStructure"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Rinsing -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Rinsing">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MaterialProcessingType"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Rubidium -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Rubidium">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">37</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">Rb</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Ruthenium -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Ruthenium">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">44</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">Ru</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Rutherfordium -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Rutherfordium">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">104</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">Rf</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Samarium -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Samarium">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">62</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">Sm</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Scandium -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Scandium">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">21</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">Sc</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Seaborgium -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Seaborgium">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">106</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">Sg</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Selenium -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Selenium">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">34</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">Se</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#SignificantDigits -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#SignificantDigits">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#UnitOfPrecision"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Silicon -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Silicon">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">14</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">Si</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Silver -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Silver">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">47</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">Ag</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Sodium -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Sodium">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">11</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">Na</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#SolidSubstance -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#SolidSubstance">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MaterialPhaseComposition"/>
+        <rdfs:comment xml:lang="en">Material in a solid phase.</rdfs:comment>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Strontium -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Strontium">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">38</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">Sr</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Sulfur -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Sulfur">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">16</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">S</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Tantalum -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Tantalum">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">73</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">Ta</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Technetium -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Technetium">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">43</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">Tc</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Tellurium -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Tellurium">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">52</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">Te</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Terbium -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Terbium">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">65</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">Tb</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#TetragonalCrystalStructure -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#TetragonalCrystalStructure">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#CrystalStructure"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Thallium -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Thallium">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">81</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">Tl</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Thorium -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Thorium">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">90</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">Th</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Thulium -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Thulium">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">69</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">Tm</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Tin -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Tin">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">50</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">Sn</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Titanium -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Titanium">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">22</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">Ti</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#TriclinicCrystalStructure -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#TriclinicCrystalStructure">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#CrystalStructure"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#TrigonalCrystalStructure -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#TrigonalCrystalStructure">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#CrystalStructure"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Tungsten -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Tungsten">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">74</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">W</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Uranium -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Uranium">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">92</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">U</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Vanadium -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Vanadium">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">23</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">V</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Washing -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Washing">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MaterialProcessingType"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Welding -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Welding">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MaterialProcessingType"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Xenon -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Xenon">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">54</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">Xe</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Ytterbium -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Ytterbium">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">70</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">Yb</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Yttrium -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Yttrium">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">39</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">Y</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Zinc -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Zinc">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">30</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">Zn</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Zirconium -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Zirconium">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
+        <atomicNumber rdf:datatype="&xsd;positiveInteger">40</atomicNumber>
+        <atomicSymbol rdf:datatype="&xsd;string">Zr</atomicSymbol>
+    </owl:NamedIndividual>
+</rdf:RDF>
+
+
+
+<!-- Generated by the OWL API (version 3.2.3.1824) http://owlapi.sourceforge.net -->
+
