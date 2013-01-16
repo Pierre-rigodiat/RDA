@@ -17,10 +17,12 @@
     <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#" >
     <!ENTITY SO "http://purl.obolibrary.org/obo/so.owl#" >
     <!ENTITY GO "http://www.geneontology.org/dtd/go.dtd#" >
+    <!ENTITY Biochem "http://www.nist.gov/itl/ssd/Biochem.owl#" >
     <!ENTITY ont "http://www.co-ode.org/ontologies/ont.owl#" >
     <!ENTITY n3 "http://www.w3.org/2000/10/swap/grammar/n3#" >
     <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#" >
     <!ENTITY or "http://www.nist.gov/itl/ssd/OntologyRequirements#" >
+    <!ENTITY OntologyRequirements "http://www.nist.gov/itl/ssd/OntologyRequirements.owl#" >
 ]>
 
 
@@ -32,7 +34,9 @@
      xmlns:n3="http://www.w3.org/2000/10/swap/grammar/n3#"
      xmlns:terms="http://purl.org/dc/terms/"
      xmlns:xml="http://www.w3.org/XML/1998/namespace"
+     xmlns:Biochem="http://www.nist.gov/itl/ssd/Biochem.owl#"
      xmlns:daml="http://www.daml.org/2001/03/daml+oil#"
+     xmlns:OntologyRequirements="http://www.nist.gov/itl/ssd/OntologyRequirements.owl#"
      xmlns:SO="http://purl.obolibrary.org/obo/so.owl#"
      xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
      xmlns:umbel="http://umbel.org/umbel/sc/#"
@@ -44,12 +48,12 @@
      xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
      xmlns:cyc="http://sw.opencyc.org/concept/en/#"
      xmlns:skos="http://www.w3.org/2004/02/skos/core#">
-    <owl:Ontology rdf:about="http://www.nist.gov/itl/ssd/Biochem">
+    <owl:Ontology rdf:about="http://www.nist.gov/itl/ssd/Biochem.owl">
         <ont:creator>doug foxvog</ont:creator>
         <dc:date>6 March, 2012</dc:date>
         <terms:title xml:lang="en">Bio-chem ontology</terms:title>
         <dc:subject xml:lang="en">Ontology for concepts in biochemistry.</dc:subject>
-        <owl:imports rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements"/>
+        <owl:imports rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements.owl"/>
     </owl:Ontology>
     
 
@@ -176,12 +180,6 @@
     
 
 
-    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#doneBy -->
-
-    <owl:ObjectProperty rdf:about="&or;doneBy"/>
-    
-
-
     <!-- 
     ///////////////////////////////////////////////////////////////////////////////////////
     //
@@ -206,8 +204,9 @@
     <!-- http://www.nist.gov/itl/ssd/Biochem#iUPACAminoAcidCode -->
 
     <owl:DatatypeProperty rdf:about="http://www.nist.gov/itl/ssd/Biochem#iUPACAminoAcidCode">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
         <rdfs:comment xml:lang="en">iUPACAminoAcidCode identifies the IUPAC/IUB code for a type of amino acid.</rdfs:comment>
-        <rdfs:subPropertyOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#nameString"/>
+        <rdfs:subPropertyOf rdf:resource="&or;nameString"/>
         <rdfs:range rdf:resource="&xsd;string"/>
     </owl:DatatypeProperty>
     
@@ -220,12 +219,6 @@
         <rdfs:domain rdf:resource="http://www.nist.gov/itl/ssd/Biochem#PolymerSequence"/>
         <rdfs:range rdf:resource="&xsd;integer"/>
     </owl:DatatypeProperty>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem#nameString -->
-
-    <owl:DatatypeProperty rdf:about="http://www.nist.gov/itl/ssd/Biochem#nameString"/>
     
 
 
@@ -263,7 +256,7 @@
 
     <owl:Class rdf:about="&dbpedia;Amino_acid">
         <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcid"/>
-        <rdfs:subClassOf rdf:resource="&cyc;Monomer"/>
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Monomer"/>
     </owl:Class>
     
 
@@ -407,7 +400,7 @@
 
     <owl:Class rdf:about="&dbpedia;Protein">
         <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Protein"/>
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Molecule"/>
+        <rdfs:subClassOf rdf:resource="&Biochem;Polymer"/>
     </owl:Class>
     
 
@@ -488,7 +481,7 @@
 
     <owl:Class rdf:about="&cyc;AminoAcid">
         <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcid"/>
-        <rdfs:subClassOf rdf:resource="&cyc;Monomer"/>
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Monomer"/>
     </owl:Class>
     
 
@@ -525,7 +518,7 @@
 
     <owl:Class rdf:about="&cyc;ChemicalObjectTypeByChemicalSpecies">
         <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#ChemicalObjectTypeByChemicalSpecies"/>
-        <rdfs:subClassOf rdf:resource="&or;SecondOrderClass"/>
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#ChemicalObjectType"/>
     </owl:Class>
     
 
@@ -625,6 +618,7 @@
     <owl:Class rdf:about="&cyc;Monomer">
         <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Monomer"/>
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#ChemicalObject"/>
+        <owl:disjointWith rdf:resource="&Biochem;Polymer"/>
     </owl:Class>
     
 
@@ -681,7 +675,7 @@
 
     <owl:Class rdf:about="&cyc;ProteinMolecule">
         <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Protein"/>
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Molecule"/>
+        <rdfs:subClassOf rdf:resource="&Biochem;Polymer"/>
     </owl:Class>
     
 
@@ -759,7 +753,7 @@
 
     <owl:Class rdf:about="&umbel;AminoAcid">
         <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#AminoAcid"/>
-        <rdfs:subClassOf rdf:resource="&cyc;Monomer"/>
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Monomer"/>
     </owl:Class>
     
 
@@ -885,7 +879,7 @@
 
     <owl:Class rdf:about="&umbel;Nucleotide_GIS">
         <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Nucleotide"/>
-        <rdfs:subClassOf rdf:resource="&cyc;Monomer"/>
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Monomer"/>
     </owl:Class>
     
 
@@ -912,7 +906,7 @@
 
     <owl:Class rdf:about="&umbel;ProteinMolecule">
         <owl:equivalentClass rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Protein"/>
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Molecule"/>
+        <rdfs:subClassOf rdf:resource="&Biochem;Polymer"/>
     </owl:Class>
     
 
@@ -1212,6 +1206,7 @@ Equivalent to cyc:BiologicalTissue </rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#ChemicalObjectTypeByChemicalSpecies">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#ChemicalObjectType"/>
+        <rdfs:comment xml:lang="en">Specific chemical compounds.  Excludes those with different numbers or arrangements of atoms, but accepts stereoisomers.</rdfs:comment>
     </owl:Class>
     
 
@@ -1285,7 +1280,7 @@ Equivalent to cyc:BiologicalTissue </rdfs:comment>
     <!-- http://www.nist.gov/itl/ssd/Biochem#DNAMolecule -->
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#DNAMolecule">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Molecule"/>
+        <rdfs:subClassOf rdf:resource="&Biochem;Polymer"/>
         <rdfs:comment xml:lang="en">Complete double-stranded DNA molecules.</rdfs:comment>
     </owl:Class>
     
@@ -1625,7 +1620,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
     <!-- http://www.nist.gov/itl/ssd/Biochem#Protein -->
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Protein">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Molecule"/>
+        <rdfs:subClassOf rdf:resource="&Biochem;Polymer"/>
         <rdfs:comment xml:lang="en">Protein as a chemical sequence of amino acids.</rdfs:comment>
     </owl:Class>
     
@@ -1634,7 +1629,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
     <!-- http://www.nist.gov/itl/ssd/Biochem#ProteinTypeBySpecies -->
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#ProteinTypeBySpecies">
-        <rdfs:subClassOf rdf:resource="&or;MaterialType"/>
+        <rdfs:subClassOf rdf:resource="&Biochem;ChemicalSubstanceTypeByChemicalSpecies"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Biochem#ProteinTypeByStructure"/>
         <rdfs:comment xml:lang="en">Variety of protein</rdfs:comment>
     </owl:Class>
@@ -1644,7 +1639,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
     <!-- http://www.nist.gov/itl/ssd/Biochem#ProteinTypeByStructure -->
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#ProteinTypeByStructure">
-        <rdfs:subClassOf rdf:resource="&or;MaterialType"/>
+        <rdfs:subClassOf rdf:resource="&Biochem;ChemicalSubstanceType"/>
         <rdfs:comment xml:lang="en">The type of a protein distinguished by its structure of the proteins, e.g.fibril.</rdfs:comment>
     </owl:Class>
     
@@ -1765,47 +1760,202 @@ Same as cyc#OrganismPartType.</rdfs:comment>
     
 
 
-    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#ComputerProcessExecution -->
+    <!-- http://www.nist.gov/itl/ssd/Biochem.owl#Atom -->
 
-    <owl:Class rdf:about="&or;ComputerProcessExecution"/>
+    <owl:Class rdf:about="&Biochem;Atom">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#ChemicalObject"/>
+        <rdfs:comment xml:lang="en">The class of all atoms, whether ionized, in a molecule, or not.</rdfs:comment>
+    </owl:Class>
     
 
 
-    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#Event -->
+    <!-- http://www.nist.gov/itl/ssd/Biochem.owl#ChemicalSubstanceType -->
 
-    <owl:Class rdf:about="&or;Event"/>
+    <owl:Class rdf:about="&Biochem;ChemicalSubstanceType">
+        <rdfs:subClassOf rdf:resource="&or;MaterialType"/>
+        <rdfs:comment xml:lang="en">A Chemical Substance Type is an Element or type of chemical, either generic (e.g. Ether) or specific (e.g., Dimethyl Ether).  Instnaces of Chemical Type are types of Chemical Substance; they are not restricted to being types of atom, molecule, or chemical radical..</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem.owl#ChemicalSubstanceTypeByChemicalSpecies -->
+
+    <owl:Class rdf:about="&Biochem;ChemicalSubstanceTypeByChemicalSpecies">
+        <rdfs:subClassOf rdf:resource="&Biochem;ChemicalSubstanceType"/>
+        <rdfs:comment xml:lang="en">A Chemical Substance Type by Chemical Species is a type of chemical, completely uniform with each other in terms of chemical structure, such as Dimethyl Ether.  Instnaces of Chemical Substance Type by Chemical Species are types of Chemical Substance; they are not restricted to being types of atom, molecule, or chemical radical..</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem.owl#Concentration -->
+
+    <owl:Class rdf:about="&Biochem;Concentration">
+        <rdfs:subClassOf rdf:resource="&or;MeasurableQuantity"/>
+        <owl:disjointWith rdf:resource="&or;Area"/>
+        <owl:disjointWith rdf:resource="&or;ComputerStorageCapacity"/>
+        <owl:disjointWith rdf:resource="&or;Distance"/>
+        <owl:disjointWith rdf:resource="&or;Duration"/>
+        <owl:disjointWith rdf:resource="&or;Mass"/>
+        <owl:disjointWith rdf:resource="&or;Temperature"/>
+        <owl:disjointWith rdf:resource="&or;Volume"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem.owl#ConcentrationByMass -->
+
+    <owl:Class rdf:about="&Biochem;ConcentrationByMass">
+        <rdfs:subClassOf rdf:resource="&Biochem;Concentration"/>
+        <rdfs:comment xml:lang="en">A Concentration calculated by volume, e.g. cc/Liter .</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem.owl#ConcentrationByVolume -->
+
+    <owl:Class rdf:about="&Biochem;ConcentrationByVolume">
+        <rdfs:subClassOf rdf:resource="&Biochem;Concentration"/>
+        <rdfs:comment xml:lang="en">A concentration caluclated by mass, e.g., milligrams/gram.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem.owl#Container -->
+
+    <owl:Class rdf:about="&Biochem;Container">
+        <rdfs:subClassOf rdf:resource="&or;PhysicalDevice"/>
+        <rdfs:comment xml:lang="en">A Container is a Physical Device whose primary function is to contain something.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem.owl#Ion -->
+
+    <owl:Class rdf:about="&Biochem;Ion">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#ChemicalObject"/>
+        <rdfs:comment xml:lang="en">An Ion is an ionized Atom, Molecule, or Chemical Radical.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem.owl#PhysicalTool -->
+
+    <owl:Class rdf:about="&Biochem;PhysicalTool">
+        <rdfs:subClassOf rdf:resource="&or;PhysicalDevice"/>
+        <rdfs:comment xml:lang="en">A Physical Tool is a user-controlled PhysicalDevice that is designed to be used  to manipulate or alter other objects or the immediate environment in some way. </rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem.owl#Polymer -->
+
+    <owl:Class rdf:about="&Biochem;Polymer">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Molecule"/>
+        <rdfs:comment xml:lang="en">A Polymer is a Molecule that is composed of a string of Monomers.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem.owl#UnitOfConcentration -->
+
+    <owl:Class rdf:about="&Biochem;UnitOfConcentration">
+        <rdfs:subClassOf rdf:resource="&or;UnitOfMeasure"/>
+        <owl:disjointWith rdf:resource="&or;UnitOfArea"/>
+        <owl:disjointWith rdf:resource="&or;UnitOfComputerStorageCapacity"/>
+        <owl:disjointWith rdf:resource="&or;UnitOfDistance"/>
+        <owl:disjointWith rdf:resource="&or;UnitOfDuration"/>
+        <owl:disjointWith rdf:resource="&or;UnitOfMass"/>
+        <owl:disjointWith rdf:resource="&or;UnitOfTemperature"/>
+        <owl:disjointWith rdf:resource="&or;UnitOfVolume"/>
+        <owl:disjointWith rdf:resource="&OntologyRequirements;UnitOfEnergy"/>
+        <owl:disjointWith rdf:resource="&OntologyRequirements;UnitOfForce"/>
+        <owl:disjointWith rdf:resource="&OntologyRequirements;UnitOfSpreadRate"/>
+        <owl:disjointWith rdf:resource="&OntologyRequirements;UnitOfVoltage"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem.owl#UnitOfConcentrationByMass -->
+
+    <owl:Class rdf:about="&Biochem;UnitOfConcentrationByMass">
+        <rdfs:subClassOf rdf:resource="&Biochem;UnitOfConcentration"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem.owl#UnitOfConcentrationByVolume -->
+
+    <owl:Class rdf:about="&Biochem;UnitOfConcentrationByVolume">
+        <rdfs:subClassOf rdf:resource="&Biochem;UnitOfConcentration"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#Area -->
+
+    <rdf:Description rdf:about="&or;Area"/>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#ComputerProcessExecution -->
+
+    <rdf:Description rdf:about="&or;ComputerProcessExecution"/>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#ComputerStorageCapacity -->
+
+    <rdf:Description rdf:about="&or;ComputerStorageCapacity"/>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#Distance -->
+
+    <rdf:Description rdf:about="&or;Distance"/>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#Duration -->
+
+    <rdf:Description rdf:about="&or;Duration"/>
     
 
 
     <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#Human -->
 
-    <owl:Class rdf:about="&or;Human">
+    <rdf:Description rdf:about="&or;Human">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#Organism"/>
-    </owl:Class>
+    </rdf:Description>
     
 
 
     <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#Image -->
 
-    <owl:Class rdf:about="&or;Image"/>
+    <rdf:Description rdf:about="&or;Image"/>
     
 
 
     <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#IntelligentAgent -->
 
-    <owl:Class rdf:about="&or;IntelligentAgent"/>
+    <rdf:Description rdf:about="&or;IntelligentAgent"/>
     
 
 
     <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#InterconvertableUnitType -->
 
-    <owl:Class rdf:about="&or;InterconvertableUnitType"/>
+    <rdf:Description rdf:about="&or;InterconvertableUnitType"/>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#Mass -->
+
+    <rdf:Description rdf:about="&or;Mass"/>
     
 
 
     <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#MaterialType -->
 
-    <owl:Class rdf:about="&or;MaterialType"/>
+    <rdf:Description rdf:about="&or;MaterialType"/>
     
 
 
@@ -1817,25 +1967,13 @@ Same as cyc#OrganismPartType.</rdfs:comment>
 
     <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#NonTangibleThing -->
 
-    <owl:Class rdf:about="&or;NonTangibleThing"/>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#ObjectType -->
-
-    <owl:Class rdf:about="&or;ObjectType"/>
+    <rdf:Description rdf:about="&or;NonTangibleThing"/>
     
 
 
     <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#PhysicalDevice -->
 
-    <owl:Class rdf:about="&or;PhysicalDevice"/>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#PhysicalObject -->
-
-    <owl:Class rdf:about="&or;PhysicalObject"/>
+    <rdf:Description rdf:about="&or;PhysicalDevice"/>
     
 
 
@@ -1849,19 +1987,91 @@ Same as cyc#OrganismPartType.</rdfs:comment>
 
     <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#PurposefulAction -->
 
-    <owl:Class rdf:about="&or;PurposefulAction"/>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#SecondOrderClass -->
-
-    <owl:Class rdf:about="&or;SecondOrderClass"/>
+    <rdf:Description rdf:about="&or;PurposefulAction"/>
     
 
 
     <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#StructuredInformationStore -->
 
-    <owl:Class rdf:about="&or;StructuredInformationStore"/>
+    <rdf:Description rdf:about="&or;StructuredInformationStore"/>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#Temperature -->
+
+    <rdf:Description rdf:about="&or;Temperature"/>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#UnitOfArea -->
+
+    <rdf:Description rdf:about="&or;UnitOfArea"/>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#UnitOfComputerStorageCapacity -->
+
+    <rdf:Description rdf:about="&or;UnitOfComputerStorageCapacity"/>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#UnitOfDistance -->
+
+    <rdf:Description rdf:about="&or;UnitOfDistance"/>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#UnitOfDuration -->
+
+    <rdf:Description rdf:about="&or;UnitOfDuration"/>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#UnitOfMass -->
+
+    <rdf:Description rdf:about="&or;UnitOfMass"/>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#UnitOfTemperature -->
+
+    <rdf:Description rdf:about="&or;UnitOfTemperature"/>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#UnitOfVolume -->
+
+    <rdf:Description rdf:about="&or;UnitOfVolume"/>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#Volume -->
+
+    <rdf:Description rdf:about="&or;Volume"/>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#UnitOfEnergy -->
+
+    <owl:Class rdf:about="&OntologyRequirements;UnitOfEnergy"/>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#UnitOfForce -->
+
+    <owl:Class rdf:about="&OntologyRequirements;UnitOfForce"/>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#UnitOfSpreadRate -->
+
+    <owl:Class rdf:about="&OntologyRequirements;UnitOfSpreadRate"/>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#UnitOfVoltage -->
+
+    <owl:Class rdf:about="&OntologyRequirements;UnitOfVoltage"/>
     
 
 
@@ -2223,6 +2433,38 @@ Same as cyc#OrganismPartType.</rdfs:comment>
     <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Biochem#proteinID">
         <rdf:type rdf:resource="&rdfs;Property"/>
         <rdfs:comment xml:lang="en">Identifies the protein coded for by a standard protein identifier, issued by International collaborators.  The identifier consists of a stable ID portion (3 letters + 5 digits format) plus a version number after a decimal point.</rdfs:comment>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem.owl#CcsPerLiter -->
+
+    <owl:NamedIndividual rdf:about="&Biochem;CcsPerLiter">
+        <rdf:type rdf:resource="&Biochem;UnitOfConcentrationByVolume"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem.owl#GramsPerLiter -->
+
+    <owl:NamedIndividual rdf:about="&Biochem;GramsPerLiter">
+        <rdf:type rdf:resource="&Biochem;UnitOfConcentration"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem.owl#PercentByVolume -->
+
+    <owl:NamedIndividual rdf:about="&Biochem;PercentByVolume">
+        <rdf:type rdf:resource="&Biochem;UnitOfConcentrationByVolume"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem.owl#PercentByWeight -->
+
+    <owl:NamedIndividual rdf:about="&Biochem;PercentByWeight">
+        <rdf:type rdf:resource="&Biochem;UnitOfConcentrationByMass"/>
     </owl:NamedIndividual>
     
 
