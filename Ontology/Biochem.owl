@@ -201,6 +201,16 @@
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/Biochem#enzymeCommissionNumber -->
+
+    <owl:DatatypeProperty rdf:about="http://www.nist.gov/itl/ssd/Biochem#enzymeCommissionNumber">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:comment xml:lang="en">Enzyme Commission number for enzyme product of sequence, e.g., ``1.1.2.4&#39;&#39;.  Valid values for EC numbers are defined in the list prepared by the  Nomenclature Committee of the International Union of Biochemistry and Molecular Biology (NC-IUBMB) (published in Enzyme Nomenclature 1992, Academic Press, San Diego, or a more recent revision thereof).  The format represents a string of four numbers separated by full stops; up to three numbers starting from the end of the string can be replaced by dash (e.g., ``1.1.2.-&#39;&#39;) to indicate uncertain assignment.  The symbol `n&#39; can be used in the last position instead of a number where the EC number is awaiting assignment (e.g., `1.1.2.n&#39;.  Please note that such incomplete EC numbers are not approved by NC-IUBMB.</rdfs:comment>
+        <rdfs:range rdf:resource="&xsd;string"/>
+    </owl:DatatypeProperty>
+    
+
+
     <!-- http://www.nist.gov/itl/ssd/Biochem#iUPACAminoAcidCode -->
 
     <owl:DatatypeProperty rdf:about="http://www.nist.gov/itl/ssd/Biochem#iUPACAminoAcidCode">
@@ -218,6 +228,16 @@
         <rdfs:comment xml:lang="en">The number of monomers in the specified Polymer Sequence.</rdfs:comment>
         <rdfs:domain rdf:resource="http://www.nist.gov/itl/ssd/Biochem#PolymerSequence"/>
         <rdfs:range rdf:resource="&xsd;integer"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem#proteinID -->
+
+    <owl:DatatypeProperty rdf:about="http://www.nist.gov/itl/ssd/Biochem#proteinID">
+        <rdfs:comment xml:lang="en">Identifies the protein coded for by a standard protein identifier, issued by International collaborators.  The identifier consists of a stable ID portion (3 letters + 5 digits format) plus a version number after a decimal point.</rdfs:comment>
+        <rdfs:domain rdf:resource="http://www.nist.gov/itl/ssd/Biochem#ProteinTypeBySpecies"/>
+        <rdfs:range rdf:resource="&xsd;string"/>
     </owl:DatatypeProperty>
     
 
@@ -1176,7 +1196,6 @@ Equivalent to cyc:BiologicalTissue </rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#CellType">
         <rdfs:subClassOf rdf:resource="&or;ObjectType"/>
-        <owl:disjointWith rdf:resource="&or;InterconvertableUnitType"/>
         <owl:disjointWith rdf:resource="&or;MaterialType"/>
         <owl:disjointWith rdf:resource="&or;MeasurementRole"/>
         <rdfs:comment xml:lang="en">The type of chamber format that is being used for cell assay.</rdfs:comment>
@@ -1630,7 +1649,6 @@ Same as cyc#OrganismPartType.</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#ProteinTypeBySpecies">
         <rdfs:subClassOf rdf:resource="&Biochem;ChemicalSubstanceTypeByChemicalSpecies"/>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Biochem#ProteinTypeByStructure"/>
         <rdfs:comment xml:lang="en">Variety of protein</rdfs:comment>
     </owl:Class>
     
@@ -1790,32 +1808,8 @@ Same as cyc#OrganismPartType.</rdfs:comment>
     <!-- http://www.nist.gov/itl/ssd/Biochem.owl#Concentration -->
 
     <owl:Class rdf:about="&Biochem;Concentration">
-        <rdfs:subClassOf rdf:resource="&or;MeasurableQuantity"/>
-        <owl:disjointWith rdf:resource="&or;Area"/>
+        <rdfs:subClassOf rdf:resource="&OntologyRequirements;MeasurableProperty"/>
         <owl:disjointWith rdf:resource="&or;ComputerStorageCapacity"/>
-        <owl:disjointWith rdf:resource="&or;Distance"/>
-        <owl:disjointWith rdf:resource="&or;Duration"/>
-        <owl:disjointWith rdf:resource="&or;Mass"/>
-        <owl:disjointWith rdf:resource="&or;Temperature"/>
-        <owl:disjointWith rdf:resource="&or;Volume"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem.owl#ConcentrationByMass -->
-
-    <owl:Class rdf:about="&Biochem;ConcentrationByMass">
-        <rdfs:subClassOf rdf:resource="&Biochem;Concentration"/>
-        <rdfs:comment xml:lang="en">A Concentration calculated by volume, e.g. cc/Liter .</rdfs:comment>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem.owl#ConcentrationByVolume -->
-
-    <owl:Class rdf:about="&Biochem;ConcentrationByVolume">
-        <rdfs:subClassOf rdf:resource="&Biochem;Concentration"/>
-        <rdfs:comment xml:lang="en">A concentration caluclated by mass, e.g., milligrams/gram.</rdfs:comment>
     </owl:Class>
     
 
@@ -1891,12 +1885,6 @@ Same as cyc#OrganismPartType.</rdfs:comment>
     
 
 
-    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#Area -->
-
-    <rdf:Description rdf:about="&or;Area"/>
-    
-
-
     <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#ComputerProcessExecution -->
 
     <rdf:Description rdf:about="&or;ComputerProcessExecution"/>
@@ -1906,18 +1894,6 @@ Same as cyc#OrganismPartType.</rdfs:comment>
     <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#ComputerStorageCapacity -->
 
     <rdf:Description rdf:about="&or;ComputerStorageCapacity"/>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#Distance -->
-
-    <rdf:Description rdf:about="&or;Distance"/>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#Duration -->
-
-    <rdf:Description rdf:about="&or;Duration"/>
     
 
 
@@ -1941,15 +1917,9 @@ Same as cyc#OrganismPartType.</rdfs:comment>
     
 
 
-    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#InterconvertableUnitType -->
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#InterconvertibleUnitType -->
 
-    <rdf:Description rdf:about="&or;InterconvertableUnitType"/>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#Mass -->
-
-    <rdf:Description rdf:about="&or;Mass"/>
+    <owl:Class rdf:about="&or;InterconvertibleUnitType"/>
     
 
 
@@ -1997,12 +1967,6 @@ Same as cyc#OrganismPartType.</rdfs:comment>
     
 
 
-    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#Temperature -->
-
-    <rdf:Description rdf:about="&or;Temperature"/>
-    
-
-
     <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#UnitOfArea -->
 
     <rdf:Description rdf:about="&or;UnitOfArea"/>
@@ -2045,9 +2009,9 @@ Same as cyc#OrganismPartType.</rdfs:comment>
     
 
 
-    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#Volume -->
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#MeasurableProperty -->
 
-    <rdf:Description rdf:about="&or;Volume"/>
+    <owl:Class rdf:about="&OntologyRequirements;MeasurableProperty"/>
     
 
 
@@ -2422,7 +2386,6 @@ Same as cyc#OrganismPartType.</rdfs:comment>
     <!-- http://www.nist.gov/itl/ssd/Biochem#enzymeCommissionNumber -->
 
     <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Biochem#enzymeCommissionNumber">
-        <rdf:type rdf:resource="&rdfs;Property"/>
         <rdfs:comment xml:lang="en">Enzyme Commission number for enzyme product of sequence, e.g., ``1.1.2.4&#39;&#39;.  Valid values for EC numbers are defined in the list prepared by the  Nomenclature Committee of the International Union of Biochemistry and Molecular Biology (NC-IUBMB) (published in Enzyme Nomenclature 1992, Academic Press, San Diego, or a more recent revision thereof).  The format represents a string of four numbers separated by full stops; up to three numbers starting from the end of the string can be replaced by dash (e.g., ``1.1.2.-&#39;&#39;) to indicate uncertain assignment.  The symbol `n&#39; can be used in the last position instead of a number where the EC number is awaiting assignment (e.g., `1.1.2.n&#39;.  Please note that such incomplete EC numbers are not approved by NC-IUBMB.</rdfs:comment>
     </owl:NamedIndividual>
     
@@ -2431,7 +2394,6 @@ Same as cyc#OrganismPartType.</rdfs:comment>
     <!-- http://www.nist.gov/itl/ssd/Biochem#proteinID -->
 
     <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Biochem#proteinID">
-        <rdf:type rdf:resource="&rdfs;Property"/>
         <rdfs:comment xml:lang="en">Identifies the protein coded for by a standard protein identifier, issued by International collaborators.  The identifier consists of a stable ID portion (3 letters + 5 digits format) plus a version number after a decimal point.</rdfs:comment>
     </owl:NamedIndividual>
     
@@ -2441,6 +2403,32 @@ Same as cyc#OrganismPartType.</rdfs:comment>
 
     <owl:NamedIndividual rdf:about="&Biochem;CcsPerLiter">
         <rdf:type rdf:resource="&Biochem;UnitOfConcentrationByVolume"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem.owl#Concentration -->
+
+    <owl:NamedIndividual rdf:about="&Biochem;Concentration">
+        <rdf:type rdf:resource="&or;MeasurableQuantityType"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem.owl#ConcentrationByMass -->
+
+    <owl:NamedIndividual rdf:about="&Biochem;ConcentrationByMass">
+        <rdf:type rdf:resource="&Biochem;Concentration"/>
+        <rdfs:comment xml:lang="en">A concentration caluclated by mass, e.g., milligrams/gram.</rdfs:comment>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem.owl#ConcentrationByVolume -->
+
+    <owl:NamedIndividual rdf:about="&Biochem;ConcentrationByVolume">
+        <rdf:type rdf:resource="&Biochem;Concentration"/>
+        <rdfs:comment xml:lang="en">A Concentration calculated by volume, e.g. cc/Liter .</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -2465,6 +2453,22 @@ Same as cyc#OrganismPartType.</rdfs:comment>
 
     <owl:NamedIndividual rdf:about="&Biochem;PercentByWeight">
         <rdf:type rdf:resource="&Biochem;UnitOfConcentrationByMass"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem.owl#UnitOfConcentrationByMass -->
+
+    <owl:NamedIndividual rdf:about="&Biochem;UnitOfConcentrationByMass">
+        <rdf:type rdf:resource="&or;InterconvertibleUnitType"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Biochem.owl#UnitOfConcentrationByVolume -->
+
+    <owl:NamedIndividual rdf:about="&Biochem;UnitOfConcentrationByVolume">
+        <rdf:type rdf:resource="&or;InterconvertibleUnitType"/>
     </owl:NamedIndividual>
     
 

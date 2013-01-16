@@ -58,8 +58,8 @@
     <owl:AnnotationProperty rdf:about="&terms;description"/>
     <owl:AnnotationProperty rdf:about="&terms;hasVersion"/>
     <owl:AnnotationProperty rdf:about="&terms;publisher"/>
-    <owl:AnnotationProperty rdf:about="&skos;note"/>
     <owl:AnnotationProperty rdf:about="&terms;modified"/>
+    <owl:AnnotationProperty rdf:about="&skos;note"/>
     <owl:AnnotationProperty rdf:about="&terms;issued"/>
     <owl:AnnotationProperty rdf:about="&terms;title"/>
     
@@ -507,16 +507,6 @@ The property subEvents is transitive (a subEvent of a subEvent is a subEvnt of t
     
 
 
-    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#unitsFor -->
-
-    <owl:ObjectProperty rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#unitsFor">
-        <rdfs:comment xml:lang="en">The property &#39;units For&#39; specifies Units Of Measurement that can be used for an Expressed  Quantity.</rdfs:comment>
-        <rdfs:domain rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#MeasurableQuantity"/>
-        <rdfs:range rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#MeasurableQuantity"/>
-    </owl:ObjectProperty>
-    
-
-
     <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#extendsFormat -->
 
     <owl:ObjectProperty rdf:about="&OntologyRequirements;extendsFormat">
@@ -869,16 +859,9 @@ The same Quantity has represenations as two different Expressed Quantities in th
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#Area">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#MeasurableQuantity"/>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#unitsFor"/>
-                <owl:allValuesFrom rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#UnitOfArea"/>
-            </owl:Restriction>
-        </rdfs:subClassOf>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#ComputerStorageCapacity"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#Distance"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#Duration"/>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#Energy"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#Mass"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#Temperature"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#Volume"/>
@@ -1223,14 +1206,7 @@ Same as cyc:Date .</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#Distance">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#MeasurableQuantity"/>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#unitsFor"/>
-                <owl:allValuesFrom rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#UnitOfDistance"/>
-            </owl:Restriction>
-        </rdfs:subClassOf>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#Duration"/>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#Energy"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#Mass"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#Temperature"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#Volume"/>
@@ -1242,13 +1218,6 @@ Same as cyc:Date .</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#Duration">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#MeasurableQuantity"/>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#unitsFor"/>
-                <owl:allValuesFrom rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#UnitOfDuration"/>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#Energy"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#Mass"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#Temperature"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#Volume"/>
@@ -1264,34 +1233,6 @@ Same as cyc:Time-Quantity.</rdfs:comment>
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#ElectronicFileFormat">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#DataFormat"/>
         <rdfs:comment xml:lang="en">An Electronic File Format is a Data Format that is specific for Computer Files.</rdfs:comment>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#Energy -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#Energy">
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#unitsFor"/>
-                <owl:allValuesFrom rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#UnitOfEnergy"/>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#EnergyPerMass"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#EnergyPerMass -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#EnergyPerMass">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#MeasurableQuantity"/>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#unitsFor"/>
-                <owl:allValuesFrom rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#UnitOfEnergyPerMass"/>
-            </owl:Restriction>
-        </rdfs:subClassOf>
     </owl:Class>
     
 
@@ -1326,6 +1267,9 @@ Same as cyc:Time-Quantity.</rdfs:comment>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#InterconvertibleUnitType"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#MeasurableQuantityType"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#ObjectType"/>
+        <rdfs:comment xml:lang="en">Each instance of InterconvertibleUnitType is a subclass of UnitOfMeasure, such   that quantities expressed using one of the units may also be expressed using any other unit in that subclass. 
+
+Examples of InterconvertibleUnitTypes include UnitOfTime, UnitOfDistance and UnitOfComputerStorageCapacity. Thus, UnitOfTime includes HoursDuration and MinutesDuration, and any duration denoted as a quantity of HoursDuration can be expressed as a (different) quantity of MinutesDurationand vice versa.. </rdfs:comment>
     </owl:Class>
     
 
@@ -1334,13 +1278,6 @@ Same as cyc:Time-Quantity.</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#ExpressedQuantity">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#MeasurableQuantity"/>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#unitsFor"/>
-                <owl:onClass rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#UnitOfMeasure"/>
-                <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
-            </owl:Restriction>
-        </rdfs:subClassOf>
     </owl:Class>
     
 
@@ -1361,19 +1298,6 @@ Same as cyc:Time-Quantity.</rdfs:comment>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#StructuredInformationStore"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#Technique"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#UnitOfMeasure"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#Force -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#Force">
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#unitsFor"/>
-                <owl:allValuesFrom rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#UnitOfForce"/>
-            </owl:Restriction>
-        </rdfs:subClassOf>
     </owl:Class>
     
 
@@ -1566,14 +1490,7 @@ Same as cyc:Language.</rdfs:comment>
     <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#Mass -->
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#Mass">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#MeasurableMechanicalProperty"/>
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#MeasurableQuantity"/>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#unitsFor"/>
-                <owl:allValuesFrom rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#UnitOfMass"/>
-            </owl:Restriction>
-        </rdfs:subClassOf>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#Temperature"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#Volume"/>
     </owl:Class>
@@ -1586,12 +1503,6 @@ Same as cyc:Language.</rdfs:comment>
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#ObjectType"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#MeasurementRole"/>
     </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#MeasurableMechanicalProperty -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#MeasurableMechanicalProperty"/>
     
 
 
@@ -1762,7 +1673,6 @@ Same as cyc:ResearchOrganization.</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#SecondOrderClass">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#NonTangibleThing"/>
-        <rdfs:subClassOf rdf:resource="&owl;Class"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#Software"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#TemporalThing"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#UnitOfMeasure"/>
@@ -1980,24 +1890,6 @@ See cyc:StructuredInformationStore.</rdfs:comment>
         <owl:disjointWith rdf:resource="&OntologyRequirements;UnitOfSpreadRate"/>
         <owl:disjointWith rdf:resource="&OntologyRequirements;UnitOfVoltage"/>
     </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#UnitOfEnergy -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#UnitOfEnergy"/>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#UnitOfEnergyPerMass -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#UnitOfEnergyPerMass"/>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#UnitOfForce -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#UnitOfForce"/>
     
 
 
@@ -3878,6 +3770,14 @@ Same as cyc:Time-Quantity.</rdfs:comment>
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#UnitOfDensity -->
+
+    <owl:NamedIndividual rdf:about="&OntologyRequirements;UnitOfDensity">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#InterconvertibleUnitType"/>
+    </owl:NamedIndividual>
+    
+
+
     <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#UnitOfEnergy -->
 
     <owl:NamedIndividual rdf:about="&OntologyRequirements;UnitOfEnergy">
@@ -4104,15 +4004,15 @@ Same as cyc:Time-Quantity.</rdfs:comment>
     <rdf:Description>
         <rdf:type rdf:resource="&owl;AllDifferent"/>
         <owl:distinctMembers rdf:parseType="Collection">
-            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#Kilogram"/>
-            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#Nanogram"/>
+            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#EMEM"/>
+            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#IMDM"/>
         </owl:distinctMembers>
     </rdf:Description>
     <rdf:Description>
         <rdf:type rdf:resource="&owl;AllDifferent"/>
         <owl:distinctMembers rdf:parseType="Collection">
-            <rdf:Description rdf:about="&OntologyRequirements;Bar-UnitOfPressure"/>
-            <rdf:Description rdf:about="&OntologyRequirements;Pascal-UnitOfPressure"/>
+            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#Milligram"/>
+            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#Nanogram"/>
         </owl:distinctMembers>
     </rdf:Description>
     <rdf:Description>
@@ -4125,14 +4025,35 @@ Same as cyc:Time-Quantity.</rdfs:comment>
     <rdf:Description>
         <rdf:type rdf:resource="&owl;AllDifferent"/>
         <owl:distinctMembers rdf:parseType="Collection">
-            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#EMEM"/>
-            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#HEPES"/>
+            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#AtomicMassUnit"/>
+            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#Nanogram"/>
         </owl:distinctMembers>
     </rdf:Description>
     <rdf:Description>
         <rdf:type rdf:resource="&owl;AllDifferent"/>
         <owl:distinctMembers rdf:parseType="Collection">
-            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#AtomicMassUnit"/>
+            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#Microgram"/>
+            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#Nanogram"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="&OntologyRequirements;Atmosphere-UnitOfPressure"/>
+            <rdf:Description rdf:about="&OntologyRequirements;Bar-UnitOfPressure"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="&OntologyRequirements;Bar-UnitOfPressure"/>
+            <rdf:Description rdf:about="&OntologyRequirements;Pascal-UnitOfPressure"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#Kilogram"/>
             <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#Nanogram"/>
         </owl:distinctMembers>
     </rdf:Description>
@@ -4141,6 +4062,13 @@ Same as cyc:Time-Quantity.</rdfs:comment>
         <owl:distinctMembers rdf:parseType="Collection">
             <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#EMEM"/>
             <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#OMEM"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#EMEM"/>
+            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#HEPES"/>
         </owl:distinctMembers>
     </rdf:Description>
     <rdf:Description>
@@ -4160,27 +4088,6 @@ Same as cyc:Time-Quantity.</rdfs:comment>
     <rdf:Description>
         <rdf:type rdf:resource="&owl;AllDifferent"/>
         <owl:distinctMembers rdf:parseType="Collection">
-            <rdf:Description rdf:about="&OntologyRequirements;Atmosphere-UnitOfPressure"/>
-            <rdf:Description rdf:about="&OntologyRequirements;Bar-UnitOfPressure"/>
-        </owl:distinctMembers>
-    </rdf:Description>
-    <rdf:Description>
-        <rdf:type rdf:resource="&owl;AllDifferent"/>
-        <owl:distinctMembers rdf:parseType="Collection">
-            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#EMEM"/>
-            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#IMDM"/>
-        </owl:distinctMembers>
-    </rdf:Description>
-    <rdf:Description>
-        <rdf:type rdf:resource="&owl;AllDifferent"/>
-        <owl:distinctMembers rdf:parseType="Collection">
-            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#AtomicMassUnit"/>
-            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#Milligram"/>
-        </owl:distinctMembers>
-    </rdf:Description>
-    <rdf:Description>
-        <rdf:type rdf:resource="&owl;AllDifferent"/>
-        <owl:distinctMembers rdf:parseType="Collection">
             <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#HEPES"/>
             <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#IMDM"/>
         </owl:distinctMembers>
@@ -4188,22 +4095,8 @@ Same as cyc:Time-Quantity.</rdfs:comment>
     <rdf:Description>
         <rdf:type rdf:resource="&owl;AllDifferent"/>
         <owl:distinctMembers rdf:parseType="Collection">
-            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#Microgram"/>
-            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#Nanogram"/>
-        </owl:distinctMembers>
-    </rdf:Description>
-    <rdf:Description>
-        <rdf:type rdf:resource="&owl;AllDifferent"/>
-        <owl:distinctMembers rdf:parseType="Collection">
-            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#Milligram"/>
-            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#Nanogram"/>
-        </owl:distinctMembers>
-    </rdf:Description>
-    <rdf:Description>
-        <rdf:type rdf:resource="&owl;AllDifferent"/>
-        <owl:distinctMembers rdf:parseType="Collection">
             <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#AtomicMassUnit"/>
-            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#Microgram"/>
+            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#Milligram"/>
         </owl:distinctMembers>
     </rdf:Description>
     <rdf:Description>
@@ -4211,6 +4104,13 @@ Same as cyc:Time-Quantity.</rdfs:comment>
         <owl:distinctMembers rdf:parseType="Collection">
             <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#IMDM"/>
             <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#OMEM"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#AtomicMassUnit"/>
+            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#Microgram"/>
         </owl:distinctMembers>
     </rdf:Description>
 </rdf:RDF>

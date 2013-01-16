@@ -56,6 +56,9 @@
     ///////////////////////////////////////////////////////////////////////////////////////
      -->
 
+    <owl:AnnotationProperty rdf:about="&or;UnitTypeFor"/>
+    <owl:AnnotationProperty rdf:about="&OntologyRequirements;unitTypeFor"/>
+    <owl:AnnotationProperty rdf:about="&or;unitTypeFor"/>
     
 
 
@@ -249,7 +252,6 @@ Enthalpy is not directly measured, Changes in enthalpy are.</rdfs:comment>
     <!-- http://www.nist.gov/itl/ssd/Materials.owl#hasHeatCapacity -->
 
     <owl:ObjectProperty rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#hasHeatCapacity">
-        <rdfs:range rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#HeatCapacity"/>
         <rdfs:domain rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MaterialObject"/>
     </owl:ObjectProperty>
     
@@ -374,7 +376,6 @@ Enthalpy is not directly measured, Changes in enthalpy are.</rdfs:comment>
     <owl:ObjectProperty rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#molarHeatCapacity">
         <rdfs:comment xml:lang="en">The molar heat capacity is the heat capacity per mole of a pure substance.</rdfs:comment>
         <rdfs:domain rdf:resource="&bc;ChemicalSubstance"/>
-        <rdfs:range rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#HeatCapacity"/>
         <rdfs:domain rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#PureSubstance"/>
     </owl:ObjectProperty>
     
@@ -641,6 +642,7 @@ Enthalpy is not directly measured, Changes in enthalpy are.</rdfs:comment>
 
     <owl:DatatypeProperty rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#atomicMass">
         <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <skos:note xml:lang="en">Also called molecular weight, when referring to molecular substances.</skos:note>
         <rdfs:comment xml:lang="en">The property &#39;atomic Mass&#39; specifies the atomic mass of an Isotope, Chemical Element, Chemical Substance Type By Chemical Species, or Chemical Object Type By Chemical Species.</rdfs:comment>
         <rdfs:range rdf:resource="&owl;real"/>
         <rdfs:domain>
@@ -784,12 +786,7 @@ The more specific class, Chemical Object Type By Chemical Species, denotes the f
 
     <owl:Class rdf:about="&bc;Concentration">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MeasurableMechanicalProperty"/>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#BulkModulus"/>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalPotential"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#Entropy"/>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#HeatCapacity"/>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#IntrinsicDiffusivity"/>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#IsothermalCompressibility"/>
         <owl:disjointWith rdf:resource="&or;Temperature"/>
         <owl:disjointWith rdf:resource="&OntologyRequirements;Energy"/>
         <rdfs:comment xml:lang="en">A substance Concentration is a concentration of one type of material.  Any mixture has a Chemical Composition which is comprised a group of Substance Concentrations with the total concentration adding up to 100%.  For example, Admiralty brass contains 69% copper, 30% zinc, and 1% tin.  69% copper would be one Substance Concentration; 30% zinc would be a second, and 1% tin would be a third.</rdfs:comment>
@@ -817,32 +814,6 @@ The more specific class, Chemical Object Type By Chemical Species, denotes the f
 
     <rdf:Description rdf:about="&Biochem;ChemicalSubstanceTypeByChemicalSpecies">
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
-    </rdf:Description>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem.owl#ConcentrationByMass -->
-
-    <rdf:Description rdf:about="&Biochem;ConcentrationByMass">
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#unitsFor"/>
-                <owl:someValuesFrom rdf:resource="&Biochem;UnitOfConcentrationByMass"/>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-    </rdf:Description>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Biochem.owl#ConcentrationByVolume -->
-
-    <rdf:Description rdf:about="&Biochem;ConcentrationByVolume">
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#unitsFor"/>
-                <owl:someValuesFrom rdf:resource="&Biochem;UnitOfConcentrationByVolume"/>
-            </owl:Restriction>
-        </rdfs:subClassOf>
     </rdf:Description>
     
 
@@ -879,10 +850,10 @@ The more specific class, Chemical Object Type By Chemical Species, denotes the f
     
 
 
-    <!-- http://www.nist.gov/itl/ssd/Materials.owl#AcousticalProperty -->
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#AcousticProperty -->
 
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#AcousticalProperty">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MeasureableMaterialProperty"/>
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#AcousticProperty">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MeasurableMaterialProperty"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalProperty"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ElectricalProperty"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MagneticProperty"/>
@@ -906,15 +877,6 @@ The more specific class, Chemical Object Type By Chemical Species, denotes the f
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Actinium">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ElementalMetal"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Activity_Chemical -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Activity_Chemical">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MeasurableChemicalProperty"/>
-        <rdfs:comment xml:lang="en">In chemical thermodynamics, activity (symbol a) is a measure of the &#39;effective concentration&#39; of a species in a mixture, meaning that the species&#39;s chemical potential depends on the activity of a real solution in the same way that it would depend on concentration for an ideal solution.</rdfs:comment>
     </owl:Class>
     
 
@@ -1081,6 +1043,23 @@ The more specific class, Chemical Object Type By Chemical Species, denotes the f
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#AreaPerTime">
         <rdfs:subClassOf rdf:resource="&or;MeasurableQuantity"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#unitsFor"/>
+                <owl:allValuesFrom rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#UnitOfAreaPerTime"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#EnergyPerMass"/>
+        <owl:disjointWith rdf:resource="&or;Area"/>
+        <owl:disjointWith rdf:resource="&or;ComputerStorageCapacity"/>
+        <owl:disjointWith rdf:resource="&or;Distance"/>
+        <owl:disjointWith rdf:resource="&or;Duration"/>
+        <owl:disjointWith rdf:resource="&or;Mass"/>
+        <owl:disjointWith rdf:resource="&or;Temperature"/>
+        <owl:disjointWith rdf:resource="&or;Volume"/>
+        <owl:disjointWith rdf:resource="&OntologyRequirements;Energy"/>
+        <owl:disjointWith rdf:resource="&OntologyRequirements;Force"/>
+        <owl:disjointWith rdf:resource="&OntologyRequirements;Pressure"/>
     </owl:Class>
     
 
@@ -1143,7 +1122,7 @@ The more specific class, Chemical Object Type By Chemical Species, denotes the f
     <!-- http://www.nist.gov/itl/ssd/Materials.owl#BiologicalProperty -->
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#BiologicalProperty">
-        <rdfs:subClassOf rdf:resource="&or;Quantity"/>
+        <rdfs:subClassOf rdf:resource="&OntologyRequirements;GenericProperty"/>
     </owl:Class>
     
 
@@ -1182,14 +1161,6 @@ The more specific class, Chemical Object Type By Chemical Species, denotes the f
     
 
 
-    <!-- http://www.nist.gov/itl/ssd/Materials.owl#BreakdownPotential -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#BreakdownPotential">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#DielectricProperty"/>
-    </owl:Class>
-    
-
-
     <!-- http://www.nist.gov/itl/ssd/Materials.owl#Buckling -->
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Buckling">
@@ -1205,51 +1176,6 @@ The more specific class, Chemical Object Type By Chemical Species, denotes the f
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#Fullerine"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#CarbonNanotube"/>
         <rdfs:comment xml:lang="en">A Buckyball is a Fullerene in the shape of a ball with at least 60 carbon atoms.  Buckyballs have been discovered in soot with 60, 70, 76, 80, and 84 carbon atoms.</rdfs:comment>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Materials.owl#BulkDensity -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#BulkDensity">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MeasurableMechanicalProperty"/>
-        <owl:disjointWith rdf:resource="&or;Area"/>
-        <owl:disjointWith rdf:resource="&or;Temperature"/>
-        <owl:disjointWith rdf:resource="&OntologyRequirements;Energy"/>
-        <rdfs:comment xml:lang="en">Bulk density is a property of powders, granules and other particulate matter. It is defined as the mass of the particles of the material divided by the total volume they occupy. The total volume includes particle volume, inter-particle void volume and internal pore volume.</rdfs:comment>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Materials.owl#BulkModulus -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#BulkModulus">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ElasticModulus"/>
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#Stiffness"/>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalPotential"/>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#Entropy"/>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#HeatCapacity"/>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#IntrinsicDiffusivity"/>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#IsothermalCompressibility"/>
-        <owl:disjointWith rdf:resource="&or;Mass"/>
-        <owl:disjointWith rdf:resource="&or;Temperature"/>
-        <owl:disjointWith rdf:resource="&or;Volume"/>
-        <rdfs:comment xml:lang="en">The Bulk Modulus is the inverse of the Isothermal Compressibility.</rdfs:comment>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Materials.owl#BulkModulusPressureDerivitive -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#BulkModulusPressureDerivitive">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#DeformationProperty"/>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#CompressiveStrength"/>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#PoissonRatio"/>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#UltimateTensileStrength"/>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#YieldStrength"/>
-        <owl:disjointWith rdf:resource="&or;Area"/>
-        <owl:disjointWith rdf:resource="&or;Temperature"/>
-        <owl:disjointWith rdf:resource="&OntologyRequirements;Energy"/>
     </owl:Class>
     
 
@@ -1336,21 +1262,6 @@ The more specific class, Chemical Object Type By Chemical Species, denotes the f
     
 
 
-    <!-- http://www.nist.gov/itl/ssd/Materials.owl#ChemicalPotential -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalPotential">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MeasurableChemicalProperty"/>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#Entropy"/>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#HeatCapacity"/>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#IntrinsicDiffusivity"/>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#IsothermalCompressibility"/>
-        <owl:disjointWith rdf:resource="&or;Mass"/>
-        <owl:disjointWith rdf:resource="&or;Temperature"/>
-        <owl:disjointWith rdf:resource="&or;Volume"/>
-    </owl:Class>
-    
-
-
     <!-- http://www.nist.gov/itl/ssd/Materials.owl#ChemicalProcess -->
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalProcess">
@@ -1365,10 +1276,9 @@ The more specific class, Chemical Object Type By Chemical Species, denotes the f
     <!-- http://www.nist.gov/itl/ssd/Materials.owl#ChemicalProperty -->
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalProperty">
-        <rdfs:subClassOf rdf:resource="&or;Quantity"/>
+        <rdfs:subClassOf rdf:resource="&OntologyRequirements;GenericProperty"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ElectricalProperty"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MagneticProperty"/>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MechanicalProperty"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#OpticalProperty"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#RadiologicalProperty"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ThermalProperty"/>
@@ -1510,30 +1420,9 @@ A colloidal system consists of two separate phases: a dispersed phase (or intern
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Compressibility">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#DeformationProperty"/>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#PoissonRatio"/>
         <owl:disjointWith rdf:resource="&or;Area"/>
         <owl:disjointWith rdf:resource="&or;Temperature"/>
         <owl:disjointWith rdf:resource="&OntologyRequirements;Energy"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Materials.owl#CompressiveStrength -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#CompressiveStrength">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#DeformationProperty"/>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#unitsFor"/>
-                <owl:someValuesFrom rdf:resource="&OntologyRequirements;UnitOfPressure"/>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ElasticModulus"/>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#PoissonRatio"/>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#Stiffness"/>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#UltimateTensileStrength"/>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#YieldStrength"/>
-        <rdfs:comment xml:lang="en">Compressive strength is the capacity of a material or structure to withstand axially directed pushing forces before being crushed.</rdfs:comment>
     </owl:Class>
     
 
@@ -1588,18 +1477,6 @@ A colloidal system consists of two separate phases: a dispersed phase (or intern
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Cracking">
         <rdfs:subClassOf rdf:resource="&OntologyRequirements;MechanicalProcess"/>
         <rdfs:comment xml:lang="en">Cracking is a Mechanical Process in which some solid object is cracked -- at either a macroscopic or microscopic level.  The cracked material need not be broken into separate pieces.</rdfs:comment>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Creep -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Creep">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MeasurableMechanicalProperty"/>
-        <owl:disjointWith rdf:resource="&or;Area"/>
-        <owl:disjointWith rdf:resource="&or;Temperature"/>
-        <owl:disjointWith rdf:resource="&OntologyRequirements;Energy"/>
-        <rdfs:comment xml:lang="en">Creep is the tendency of a solid material to move slowly or deform (via Material Creep) permanently under the influence of stresses. </rdfs:comment>
     </owl:Class>
     
 
@@ -1730,14 +1607,6 @@ A colloidal system consists of two separate phases: a dispersed phase (or intern
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#DeformationProperty">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MeasurableMechanicalProperty"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Materials.owl#DielectricConstant -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#DielectricConstant">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#DielectricProperty"/>
     </owl:Class>
     
 
@@ -1885,16 +1754,9 @@ A colloidal system consists of two separate phases: a dispersed phase (or intern
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#ElasticModulus">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#DeformationProperty"/>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#unitsFor"/>
-                <owl:someValuesFrom rdf:resource="&OntologyRequirements;UnitOfPressure"/>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#PoissonRatio"/>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#UltimateTensileStrength"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#YieldStrength"/>
         <rdfs:comment xml:lang="en">An elastic modulus is defined as the slope of its stress–strain curve of a substance within the range where the deformation is elastic.  Three varieties of this are Young&#39;s modulus, the sheer modulus, and the bulk modulus.</rdfs:comment>
+        <or:unitTypeFor rdf:resource="&OntologyRequirements;UnitOfPressure"/>
     </owl:Class>
     
 
@@ -1918,19 +1780,8 @@ A colloidal system consists of two separate phases: a dispersed phase (or intern
     <!-- http://www.nist.gov/itl/ssd/Materials.owl#ElectricPolarizability -->
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#ElectricPolarizability">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#DielectricProperty"/>
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MaterialProperty"/>
         <rdfs:comment xml:lang="en">Electric Polarizability is the tendency of a substance&#39;s charge distribution to be distorted from its normal shape by an external electric field.  It is specified by the material&#39;s relative permittivity (dielectric constant).</rdfs:comment>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Materials.owl#ElectricalConductivity -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#ElectricalConductivity">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ElectricalProperty"/>
-        <rdfs:comment xml:lang="en">Electrical Conductivity is a measure of how easily electric current flows through a material. High conductivity indicates a material readily allows the movement of electric charge. 
-
-The inverse of Electrical Conductivity is Electrical Resistivity.</rdfs:comment>
     </owl:Class>
     
 
@@ -1938,25 +1789,11 @@ The inverse of Electrical Conductivity is Electrical Resistivity.</rdfs:comment>
     <!-- http://www.nist.gov/itl/ssd/Materials.owl#ElectricalProperty -->
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#ElectricalProperty">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MeasureableMaterialProperty"/>
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MeasurableMaterialProperty"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MechanicalProperty"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#OpticalProperty"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#RadiologicalProperty"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ThermalProperty"/>
-        <owl:disjointWith rdf:resource="&or;Area"/>
-        <owl:disjointWith rdf:resource="&or;Temperature"/>
-        <owl:disjointWith rdf:resource="&OntologyRequirements;Energy"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Materials.owl#ElectricalResistivity -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#ElectricalResistivity">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ElectricalProperty"/>
-        <rdfs:comment xml:lang="en">Electrical Resistivity is a measure of how strongly a material opposes the flow of electric current. Low resistivity indicates a material readily allows the movement of electric charge. The SI unit of electrical resistivity is the ohm⋅metre (Ω⋅m).
-
-Electrical Resistivity is the inverse of Electrical Conductivity.</rdfs:comment>
     </owl:Class>
     
 
@@ -1994,7 +1831,16 @@ Electrical Resistivity is the inverse of Electrical Conductivity.</rdfs:comment>
                 <owl:someValuesFrom rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#UnitOfEnergyPerMass"/>
             </owl:Restriction>
         </rdfs:subClassOf>
+        <owl:disjointWith rdf:resource="&or;Area"/>
+        <owl:disjointWith rdf:resource="&or;ComputerStorageCapacity"/>
+        <owl:disjointWith rdf:resource="&or;Distance"/>
+        <owl:disjointWith rdf:resource="&or;Duration"/>
+        <owl:disjointWith rdf:resource="&or;Mass"/>
+        <owl:disjointWith rdf:resource="&or;Temperature"/>
+        <owl:disjointWith rdf:resource="&or;Volume"/>
         <owl:disjointWith rdf:resource="&OntologyRequirements;Energy"/>
+        <owl:disjointWith rdf:resource="&OntologyRequirements;Force"/>
+        <owl:disjointWith rdf:resource="&OntologyRequirements;Pressure"/>
         <rdfs:comment xml:lang="en">Energy Per Mass is an amount of Energy divided by an amount of Mass.  It is used to specify the amount of energy that enters or leaves a system dependent upon the mass of the system that results in, or is caused by, some type of change.</rdfs:comment>
     </owl:Class>
     
@@ -2004,14 +1850,6 @@ Electrical Resistivity is the inverse of Electrical Conductivity.</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Entropy">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MeasurableMechanicalProperty"/>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#HeatCapacity"/>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#IntrinsicDiffusivity"/>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#IsothermalCompressibility"/>
-        <owl:disjointWith rdf:resource="&or;Area"/>
-        <owl:disjointWith rdf:resource="&or;Mass"/>
-        <owl:disjointWith rdf:resource="&or;Temperature"/>
-        <owl:disjointWith rdf:resource="&or;Volume"/>
-        <owl:disjointWith rdf:resource="&OntologyRequirements;Energy"/>
     </owl:Class>
     
 
@@ -2085,22 +1923,6 @@ Electrical Resistivity is the inverse of Electrical Conductivity.</rdfs:comment>
     
 
 
-    <!-- http://www.nist.gov/itl/ssd/Materials.owl#FatigueEnduranceLimit -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#FatigueEnduranceLimit">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#DeformationProperty"/>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#unitsFor"/>
-                <owl:someValuesFrom rdf:resource="&OntologyRequirements;UnitOfPressure"/>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#PoissonRatio"/>
-        <rdfs:comment xml:lang="en">Fatigue endurance limit (atigue limit, endurance limit,  fatigue strength) is the amplitude (or range) of cyclic stress that can be applied to the material without causing fatigue failure.</rdfs:comment>
-    </owl:Class>
-    
-
-
     <!-- http://www.nist.gov/itl/ssd/Materials.owl#Fermium -->
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Fermium">
@@ -2144,21 +1966,7 @@ Electrical Resistivity is the inverse of Electrical Conductivity.</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#FractureStrength">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#DeformationProperty"/>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#PoissonRatio"/>
-        <owl:disjointWith rdf:resource="&or;Area"/>
-        <owl:disjointWith rdf:resource="&or;Temperature"/>
-        <owl:disjointWith rdf:resource="&OntologyRequirements;Energy"/>
         <rdfs:comment xml:lang="en">Fracture Strength,or breaking strength, is the stress at which a specimen fails via fracture</rdfs:comment>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Materials.owl#FractureToughness -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#FractureToughness">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#DeformationProperty"/>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#PoissonRatio"/>
-        <rdfs:comment xml:lang="en">Fracture Toughness is a measure of a substance&#39;s ability to resist Fracturing.</rdfs:comment>
     </owl:Class>
     
 
@@ -2176,14 +1984,6 @@ Electrical Resistivity is the inverse of Electrical Conductivity.</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Francium">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ElementalMetal"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Materials.owl#FreeElectronDensity -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#FreeElectronDensity">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ElectricalProperty"/>
     </owl:Class>
     
 
@@ -2293,20 +2093,6 @@ Electrical Resistivity is the inverse of Electrical Conductivity.</rdfs:comment>
     
 
 
-    <!-- http://www.nist.gov/itl/ssd/Materials.owl#GlassTemperature -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#GlassTemperature">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ThermalProperty"/>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#unitsFor"/>
-                <owl:someValuesFrom rdf:resource="&or;UnitOfTemperature"/>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-    </owl:Class>
-    
-
-
     <!-- http://www.nist.gov/itl/ssd/Materials.owl#Gold -->
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Gold">
@@ -2335,7 +2121,6 @@ Electrical Resistivity is the inverse of Electrical Conductivity.</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Hardness">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#DeformationProperty"/>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#PoissonRatio"/>
         <owl:disjointWith rdf:resource="&or;Temperature"/>
         <owl:disjointWith rdf:resource="&OntologyRequirements;Energy"/>
     </owl:Class>
@@ -2356,22 +2141,6 @@ Electrical Resistivity is the inverse of Electrical Conductivity.</rdfs:comment>
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#Superalloy"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#Waspaloy"/>
         <rdfs:comment xml:lang="en">Hastelloys are Nickel-based Superalloys produced by Haynes International, Inc.  &quot;Hastelloy&quot; is a trademarked name for more than 10 different alloys, which are further distinguished with alphanumeric designations.</rdfs:comment>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Materials.owl#HeatCapacity -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#HeatCapacity">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ThermalProperty"/>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#IntrinsicDiffusivity"/>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#IsothermalCompressibility"/>
-        <owl:disjointWith rdf:resource="&or;Area"/>
-        <owl:disjointWith rdf:resource="&or;Mass"/>
-        <owl:disjointWith rdf:resource="&or;Temperature"/>
-        <owl:disjointWith rdf:resource="&or;Volume"/>
-        <owl:disjointWith rdf:resource="&OntologyRequirements;Energy"/>
-        <rdfs:comment xml:lang="en">Heat capacity (thermal capacity) is the measurable physical quantity that characterizes the amount of heat required to change a substance&#39;s temperature by a given amount.  It is commonly expressed in expressed in units of joule(s) (J) per degree kelvin (K).</rdfs:comment>
     </owl:Class>
     
 
@@ -2431,17 +2200,6 @@ Electrical Resistivity is the inverse of Electrical Conductivity.</rdfs:comment>
     
 
 
-    <!-- http://www.nist.gov/itl/ssd/Materials.owl#IndentationHardness -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#IndentationHardness">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#Hardness"/>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ReboundHardness"/>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ScratchHardness"/>
-        <rdfs:comment xml:lang="en">Indentation hardness measures the resistance of a sample to permanent plastic deformation due to a constant compression load.  Scales used (depending upon hardness of material) are Vickers, Shore, Rockwell, and Brinell</rdfs:comment>
-    </owl:Class>
-    
-
-
     <!-- http://www.nist.gov/itl/ssd/Materials.owl#Indium -->
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Indium">
@@ -2455,20 +2213,6 @@ Electrical Resistivity is the inverse of Electrical Conductivity.</rdfs:comment>
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#IndustrialFurnace">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#HeatingDevice"/>
         <rdfs:comment xml:lang="en">An Industrial Furnace is a Heating Device that is used to heat up its contents for Materials Processing.  </rdfs:comment>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Materials.owl#IntrinsicDiffusivity -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#IntrinsicDiffusivity">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MeasurableMechanicalProperty"/>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#IsothermalCompressibility"/>
-        <owl:disjointWith rdf:resource="&or;Area"/>
-        <owl:disjointWith rdf:resource="&or;Mass"/>
-        <owl:disjointWith rdf:resource="&or;Temperature"/>
-        <owl:disjointWith rdf:resource="&or;Volume"/>
-        <owl:disjointWith rdf:resource="&OntologyRequirements;Energy"/>
     </owl:Class>
     
 
@@ -2511,18 +2255,6 @@ Electrical Resistivity is the inverse of Electrical Conductivity.</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Iron">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ElementalMetal"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Materials.owl#IsothermalCompressibility -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#IsothermalCompressibility">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#Compressibility"/>
-        <owl:disjointWith rdf:resource="&or;Mass"/>
-        <owl:disjointWith rdf:resource="&or;Temperature"/>
-        <owl:disjointWith rdf:resource="&or;Volume"/>
-        <rdfs:comment xml:lang="en">The Isothermal Compressibility is the inverse of the Bulk Modulus.</rdfs:comment>
     </owl:Class>
     
 
@@ -2595,14 +2327,6 @@ Electrical Resistivity is the inverse of Electrical Conductivity.</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Lead">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ElementalMetal"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Materials.owl#LinearCompressibility -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#LinearCompressibility">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#Compressibility"/>
     </owl:Class>
     
 
@@ -2733,14 +2457,11 @@ Electrical Resistivity is the inverse of Electrical Conductivity.</rdfs:comment>
     <!-- http://www.nist.gov/itl/ssd/Materials.owl#MagneticProperty -->
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#MagneticProperty">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MeasureableMaterialProperty"/>
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MeasurableMaterialProperty"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MechanicalProperty"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#OpticalProperty"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#RadiologicalProperty"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ThermalProperty"/>
-        <owl:disjointWith rdf:resource="&or;Area"/>
-        <owl:disjointWith rdf:resource="&or;Temperature"/>
-        <owl:disjointWith rdf:resource="&OntologyRequirements;Energy"/>
     </owl:Class>
     
 
@@ -2838,9 +2559,9 @@ A Material Portion comprises some percentage of the object of which it is a port
     <!-- http://www.nist.gov/itl/ssd/Materials.owl#MaterialProperty -->
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#MaterialProperty">
-        <rdfs:subClassOf rdf:resource="&or;Quantity"/>
         <rdfs:subClassOf rdf:resource="&or;StateOfBeing"/>
-        <rdfs:comment xml:lang="en">A Material Property is a physical property of some physical material or object, such as mass, melting point, or temperature.</rdfs:comment>
+        <rdfs:subClassOf rdf:resource="&OntologyRequirements;GenericProperty"/>
+        <rdfs:comment xml:lang="en">A Material Property is a physical property of some physical material or object, such as its mass, melting point, or temperature.</rdfs:comment>
     </owl:Class>
     
 
@@ -2896,20 +2617,6 @@ A Material Portion comprises some percentage of the object of which it is a port
     
 
 
-    <!-- http://www.nist.gov/itl/ssd/Materials.owl#MaximumServiceTemperature -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#MaximumServiceTemperature">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ThermalProperty"/>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#unitsFor"/>
-                <owl:someValuesFrom rdf:resource="&or;UnitOfTemperature"/>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-    </owl:Class>
-    
-
-
     <!-- http://www.nist.gov/itl/ssd/Materials.owl#MeasurableChemicalProperty -->
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#MeasurableChemicalProperty">
@@ -2917,35 +2624,18 @@ A Material Portion comprises some percentage of the object of which it is a port
             <owl:Class>
                 <owl:intersectionOf rdf:parseType="Collection">
                     <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalProperty"/>
-                    <rdf:Description rdf:about="&or;MeasurableQuantity"/>
+                    <rdf:Description rdf:about="&OntologyRequirements;MeasurableProperty"/>
                 </owl:intersectionOf>
             </owl:Class>
         </owl:equivalentClass>
-        <rdfs:subClassOf rdf:resource="&or;MeasurableQuantity"/>
+        <rdfs:subClassOf rdf:resource="&OntologyRequirements;MeasurableProperty"/>
     </owl:Class>
     
 
 
-    <!-- http://www.nist.gov/itl/ssd/Materials.owl#MeasurableMechanicalProperty -->
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#MeasurableMaterialProperty -->
 
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#MeasurableMechanicalProperty">
-        <owl:equivalentClass>
-            <owl:Class>
-                <owl:intersectionOf rdf:parseType="Collection">
-                    <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#MeasureableMaterialProperty"/>
-                    <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#MechanicalProperty"/>
-                </owl:intersectionOf>
-            </owl:Class>
-        </owl:equivalentClass>
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MechanicalProperty"/>
-        <rdfs:comment xml:lang="en">A Measureable Mechanical Property is any Mechanical Property of some physical material or object that has a numeric value.  This includes properties as mass, melting point, and temperature.  A Mechanical Property is distinguished from a Chemical Property, Electrical Property, or Magnetic Property. </rdfs:comment>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Materials.owl#MeasureableMaterialProperty -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#MeasureableMaterialProperty">
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#MeasurableMaterialProperty">
         <owl:equivalentClass>
             <owl:Class>
                 <owl:intersectionOf rdf:parseType="Collection">
@@ -2956,7 +2646,24 @@ A Material Portion comprises some percentage of the object of which it is a port
         </owl:equivalentClass>
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MaterialProperty"/>
         <rdfs:subClassOf rdf:resource="&or;MeasurableQuantity"/>
-        <rdfs:comment xml:lang="en">A Measureable Material Proparty is any Material Property that has a numerically measurable component.</rdfs:comment>
+        <rdfs:comment xml:lang="en">A Measurable Material Proparty is any Material Property that has a numerically measurable component.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#MeasurableMechanicalProperty -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#MeasurableMechanicalProperty">
+        <owl:equivalentClass>
+            <owl:Class>
+                <owl:intersectionOf rdf:parseType="Collection">
+                    <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#MeasurableMaterialProperty"/>
+                    <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#MechanicalProperty"/>
+                </owl:intersectionOf>
+            </owl:Class>
+        </owl:equivalentClass>
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MechanicalProperty"/>
+        <rdfs:comment xml:lang="en">A Measurable Mechanical Property is any Mechanical Property of some physical material or object that has a numeric value with a unit of measure.  This includes properties as mass, melting point, and temperature.  A Mechanical Property is distinguished from a Chemical Property, Electrical Property, or Magnetic Property. </rdfs:comment>
     </owl:Class>
     
 
@@ -3002,20 +2709,6 @@ A Material Portion comprises some percentage of the object of which it is a port
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#PeritecticDecomposition"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#Sublimating"/>
         <rdfs:comment xml:lang="en">Melting is the Phase Change from a solid state to a liquid state.</rdfs:comment>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Materials.owl#MeltingPoint -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#MeltingPoint">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ThermalProperty"/>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#unitsFor"/>
-                <owl:someValuesFrom rdf:resource="&or;UnitOfTemperature"/>
-            </owl:Restriction>
-        </rdfs:subClassOf>
     </owl:Class>
     
 
@@ -3125,25 +2818,6 @@ A Material Portion comprises some percentage of the object of which it is a port
     
 
 
-    <!-- http://www.nist.gov/itl/ssd/Materials.owl#MohsHardness -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#MohsHardness">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ScratchHardness"/>
-        <rdfs:comment xml:lang="en">The Mohs scale of mineral hardness characterizes the scratch resistance of various minerals through the ability of a harder material to scratch a softer material.  On the scale Talc is 1; Gypsum is 2; Calcite is 3; Fluorite is 4; Apatite is 5; Orthoclase Feldspar is 6; Quartz is 7; Topaz is 8; Corundum is 9; and Diamond is 10.</rdfs:comment>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Molality -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Molality">
-        <rdfs:subClassOf rdf:resource="&Biochem;Concentration"/>
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MeasurableChemicalProperty"/>
-        <rdfs:comment xml:lang="en">In chemistry, Molality of a solvent/solute combination is defined as the amount of solute, (in moles), divided by the mass of the solvent (in kg), (not the mass of the solution).</rdfs:comment>
-    </owl:Class>
-    
-
-
     <!-- http://www.nist.gov/itl/ssd/Materials.owl#MolarVolumeDataFile -->
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#MolarVolumeDataFile">
@@ -3151,16 +2825,6 @@ A Material Portion comprises some percentage of the object of which it is a port
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ThermodynamicDataFile"/>
         <owl:disjointWith rdf:resource="&or;ComputerImageFile"/>
         <rdfs:comment xml:lang="en">A file which maintains molar volume data.</rdfs:comment>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Molarity -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Molarity">
-        <rdfs:subClassOf rdf:resource="&Biochem;Concentration"/>
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MeasurableChemicalProperty"/>
-        <rdfs:comment xml:lang="en">In chemistry, the Molarity (or molar concentration), is defined as the amount of a mixture constituent (in moles) divided by the volume of the mixture.</rdfs:comment>
     </owl:Class>
     
 
@@ -3301,7 +2965,7 @@ A Material Portion comprises some percentage of the object of which it is a port
     <!-- http://www.nist.gov/itl/ssd/Materials.owl#OpticalProperty -->
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#OpticalProperty">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MeasureableMaterialProperty"/>
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MeasurableMaterialProperty"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#RadiologicalProperty"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ThermalProperty"/>
         <owl:disjointWith rdf:resource="&or;Area"/>
@@ -3405,6 +3069,12 @@ A Material Portion comprises some percentage of the object of which it is a port
         <rdfs:subClassOf>
             <owl:Restriction>
                 <owl:onProperty rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#storesInformationAbout"/>
+                <owl:someValuesFrom rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#CrystalStructure"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#storesInformationAbout"/>
                 <owl:someValuesFrom rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#PhaseDiagram"/>
             </owl:Restriction>
         </rdfs:subClassOf>
@@ -3412,12 +3082,6 @@ A Material Portion comprises some percentage of the object of which it is a port
             <owl:Restriction>
                 <owl:onProperty rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#storesInformationAbout"/>
                 <owl:someValuesFrom rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#DiffractionData"/>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#storesInformationAbout"/>
-                <owl:someValuesFrom rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#CrystalStructure"/>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:comment xml:lang="en">A Pauling File stores data on chemical constitution, structural data, diffraction data, and a variety of physical property data on binary phases of inorganic compounds.</rdfs:comment>
@@ -3480,13 +3144,13 @@ A Material Portion comprises some percentage of the object of which it is a port
         <rdfs:subClassOf>
             <owl:Restriction>
                 <owl:onProperty rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#depictsInformationAbout"/>
-                <owl:someValuesFrom rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ThermodynamicPhase"/>
+                <owl:someValuesFrom rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MaterialPhaseComposition"/>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:subClassOf>
             <owl:Restriction>
                 <owl:onProperty rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#depictsInformationAbout"/>
-                <owl:someValuesFrom rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MaterialPhaseComposition"/>
+                <owl:someValuesFrom rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ThermodynamicPhase"/>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:comment xml:lang="en">A Phase Diagram is a type of chart used to show conditions at which thermodynamically distinct phases can occur at equilibrium.</rdfs:comment>
@@ -3536,29 +3200,6 @@ A Material Portion comprises some percentage of the object of which it is a port
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Plutonium">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ElementalMetal"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Materials.owl#PoissonRatio -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#PoissonRatio">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#DeformationProperty"/>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#SpecificStrength"/>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#Stiffness"/>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#UltimateTensileStrength"/>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#YieldStrength"/>
-        <rdfs:comment xml:lang="en">The Poisson Ratio of a material is the ratio, when an object composed of that material is stretched, of the transverse contraction or strain (perpendicular to the applied load), to the extension or axial strain in the direction of the applied load.</rdfs:comment>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Materials.owl#PoissonRation -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#PoissonRation">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MeasurableMechanicalProperty"/>
-        <owl:disjointWith rdf:resource="&OntologyRequirements;Energy"/>
-        <rdfs:comment xml:lang="en"> The Poisson&#39; Ratio is the ratio, when a sample is stretched, of the contraction or transverse strain (perpendicular to the applied load) of an object, to its extension or axial strain (in the direction of the applied load).</rdfs:comment>
     </owl:Class>
     
 
@@ -3721,7 +3362,7 @@ A Material Portion comprises some percentage of the object of which it is a port
     <!-- http://www.nist.gov/itl/ssd/Materials.owl#RadiologicalProperty -->
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#RadiologicalProperty">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MeasureableMaterialProperty"/>
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MeasurableMaterialProperty"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ThermalProperty"/>
     </owl:Class>
     
@@ -3731,15 +3372,6 @@ A Material Portion comprises some percentage of the object of which it is a port
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Radium">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ElementalMetal"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Materials.owl#ReboundHardness -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#ReboundHardness">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#Hardness"/>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ScratchHardness"/>
     </owl:Class>
     
 
@@ -3759,14 +3391,6 @@ A Material Portion comprises some percentage of the object of which it is a port
         <owl:disjointWith rdf:resource="&OntologyRequirements;MechanicalProcess"/>
         <owl:disjointWith rdf:resource="&OntologyRequirements;Recommending"/>
         <rdfs:comment xml:lang="en">Refining A Concept is a process of improving a model, prediction, plan, or other conceptual work by providing additional information or slightly modifying existing information.  The result is a modified version of the existing work, not a totally new work.</rdfs:comment>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Materials.owl#RefractiveIndex -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#RefractiveIndex">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#OpticalProperty"/>
     </owl:Class>
     
 
@@ -3899,16 +3523,6 @@ There is only one rhombohedral Bravais lattice.</rdfs:comment>
     
 
 
-    <!-- http://www.nist.gov/itl/ssd/Materials.owl#ShearModulus -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#ShearModulus">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ElasticModulus"/>
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#Stiffness"/>
-        <rdfs:comment xml:lang="en">The Shear Modulus (modulus of rigidity) describes a material&#39;s response to shearing strains. It is defined as the ratio of shear stress to the shear strain</rdfs:comment>
-    </owl:Class>
-    
-
-
     <!-- http://www.nist.gov/itl/ssd/Materials.owl#Silver -->
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Silver">
@@ -4037,31 +3651,11 @@ There is only one rhombohedral Bravais lattice.</rdfs:comment>
     
 
 
-    <!-- http://www.nist.gov/itl/ssd/Materials.owl#SoundVelocity -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#SoundVelocity">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MeasurableMechanicalProperty"/>
-        <owl:disjointWith rdf:resource="&OntologyRequirements;Energy"/>
-    </owl:Class>
-    
-
-
     <!-- http://www.nist.gov/itl/ssd/Materials.owl#SpecificHeatCapacity -->
 
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#SpecificHeatCapacity">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ThermalProperty"/>
-        <owl:disjointWith rdf:resource="&or;Area"/>
-        <rdfs:comment xml:lang="en">The Specific Heat Capacity, (or specific heat) is the heat capacity per unit mass of a material, measured in Joules/(kg K)  (in SI units). </rdfs:comment>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Materials.owl#SpecificStrength -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#SpecificStrength">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#DeformationProperty"/>
-        <rdfs:comment xml:lang="en">The specific strength is a material&#39;s ultimate tensile strength (force per unit area at failure) divided by its density. It is also known as the strength-to-weight ratio or strength/weight ratio. The SI unit for specific strength is N·m/kg which is equivalent to (m/s)^2.</rdfs:comment>
-    </owl:Class>
+    <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#SpecificHeatCapacity">
+        <rdfs:comment xml:lang="en">The Specific Heat Capacity (or specific heat) is the heat capacity per unit mass of a material, measured in Joules/(kg K)  (in SI units). </rdfs:comment>
+    </rdf:Description>
     
 
 
@@ -4086,7 +3680,6 @@ There is only one rhombohedral Bravais lattice.</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Stiffness">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#DeformationProperty"/>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#UltimateTensileStrength"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#YieldStrength"/>
         <owl:disjointWith rdf:resource="&or;Area"/>
         <owl:disjointWith rdf:resource="&OntologyRequirements;Energy"/>
@@ -4175,16 +3768,6 @@ There is only one rhombohedral Bravais lattice.</rdfs:comment>
     
 
 
-    <!-- http://www.nist.gov/itl/ssd/Materials.owl#TensileModulus -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#TensileModulus">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ElasticModulus"/>
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#Stiffness"/>
-        <rdfs:comment xml:lang="en">The Tensile Modulus (or Young&#39;s modulus) is a measure of the stiffness of an elastic material and is a quantity used to characterize materials. It is defined as the ratio of the uniaxial stress over the uniaxial strain in the range of stress in which Hooke&#39;s Law holds.[</rdfs:comment>
-    </owl:Class>
-    
-
-
     <!-- http://www.nist.gov/itl/ssd/Materials.owl#Terbium -->
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Terbium">
@@ -4223,21 +3806,6 @@ There are two tetragonal Bravais lattices: the simple (or primitive) tetragonal 
     
 
 
-    <!-- http://www.nist.gov/itl/ssd/Materials.owl#ThermalConductivity -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#ThermalConductivity">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ThermalProperty"/>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#unitsFor"/>
-                <owl:someValuesFrom rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#UnitOfThermalConductivity"/>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-        <rdfs:comment xml:lang="en">Thermal conductivity, ( λ or κ), is the property of a material&#39;s ability to conduct heat, normally measured in W/(m·K).</rdfs:comment>
-    </owl:Class>
-    
-
-
     <!-- http://www.nist.gov/itl/ssd/Materials.owl#ThermalExpansion -->
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#ThermalExpansion">
@@ -4247,28 +3815,11 @@ There are two tetragonal Bravais lattices: the simple (or primitive) tetragonal 
     
 
 
-    <!-- http://www.nist.gov/itl/ssd/Materials.owl#ThermalExpansionCoefficient -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#ThermalExpansionCoefficient">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ThermalProperty"/>
-        <rdfs:comment xml:lang="en">The Thermal Expansion Coefficient of a material is the relative amount it expands per unit increase in temperature.  In SI units it is measured in inverse Celsius degrees.</rdfs:comment>
-    </owl:Class>
-    
-
-
     <!-- http://www.nist.gov/itl/ssd/Materials.owl#ThermalProperty -->
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#ThermalProperty">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MeasureableMaterialProperty"/>
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MeasurableMaterialProperty"/>
         <skos:note xml:lang="en">Similar to &quot;Thermal&quot; in Ashino&#39;s 2010 Minerals Ontology.</skos:note>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Materials.owl#ThermalShockResistance -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#ThermalShockResistance">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ThermalProperty"/>
     </owl:Class>
     
 
@@ -4420,26 +3971,10 @@ There are two tetragonal Bravais lattices: the simple (or primitive) tetragonal 
     
 
 
-    <!-- http://www.nist.gov/itl/ssd/Materials.owl#UltimateTensileStrength -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#UltimateTensileStrength">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#DeformationProperty"/>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#unitsFor"/>
-                <owl:someValuesFrom rdf:resource="&OntologyRequirements;UnitOfPressure"/>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#YieldStrength"/>
-        <rdfs:comment xml:lang="en">Ultimate tensile strength (UTS), often shortened to tensile strength (TS) or ultimate strength, is the maximum stress that a material can withstand while being stretched or pulled before necking, which is when the specimen&#39;s cross-section starts to significantly contract. Tensile strength is the opposite of compressive strength and the values can be quite different.</rdfs:comment>
-    </owl:Class>
-    
-
-
     <!-- http://www.nist.gov/itl/ssd/Materials.owl#Uncertainty -->
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Uncertainty">
-        <rdfs:subClassOf rdf:resource="&or;Quantity"/>
+        <rdfs:subClassOf rdf:resource="&OntologyRequirements;GenericProperty"/>
     </owl:Class>
     
 
@@ -4455,6 +3990,22 @@ There are two tetragonal Bravais lattices: the simple (or primitive) tetragonal 
     <!-- http://www.nist.gov/itl/ssd/Materials.owl#UnitOfAreaPerTime -->
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#UnitOfAreaPerTime">
+        <rdfs:subClassOf rdf:resource="&or;UnitOfMeasure"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#UnitOfElectricalConductivity -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#UnitOfElectricalConductivity">
+        <rdfs:subClassOf rdf:resource="&or;UnitOfMeasure"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#UnitOfElectricalResistivity -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#UnitOfElectricalResistivity">
         <rdfs:subClassOf rdf:resource="&or;UnitOfMeasure"/>
     </owl:Class>
     
@@ -4556,15 +4107,7 @@ There are two tetragonal Bravais lattices: the simple (or primitive) tetragonal 
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Viscosity">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#DeformationProperty"/>
-        <rdfs:comment xml:lang="en">Viscosity is a measure of the resistance of a fluid which is being deformed by stress.  The viscosity of a liquid or gas is a function of its temperature, normally becoming more viscous as the fluid heats up..</rdfs:comment>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Materials.owl#VolumeCompressibility -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#VolumeCompressibility">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#Compressibility"/>
+        <rdfs:comment xml:lang="en">Viscosity is a measure of the resistance of a fluid which is being deformed by stress.  The viscosity of a liquid or gas is a function of its temperature, normally becoming more viscous as the fluid heats up.</rdfs:comment>
     </owl:Class>
     
 
@@ -4582,14 +4125,7 @@ There are two tetragonal Bravais lattices: the simple (or primitive) tetragonal 
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Water">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#Oxide"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Materials.owl#WearRateCoefficient -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#WearRateCoefficient">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MeasurableMechanicalProperty"/>
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#PureSubstance"/>
     </owl:Class>
     
 
@@ -4597,14 +4133,8 @@ There are two tetragonal Bravais lattices: the simple (or primitive) tetragonal 
     <!-- http://www.nist.gov/itl/ssd/Materials.owl#YieldStrength -->
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#YieldStrength">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#DeformationProperty"/>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#unitsFor"/>
-                <owl:someValuesFrom rdf:resource="&OntologyRequirements;UnitOfPressure"/>
-            </owl:Restriction>
-        </rdfs:subClassOf>
         <rdfs:comment xml:lang="en">The yield strength or yield point of a material is defined as the stress at which a material begins to deform plastically. Below the yield point the material will deform elastically and will return to its original shape when the applied stress is removed. Once the yield point is passed, some fraction of the deformation will be permanent and non-reversible.</rdfs:comment>
+        <OntologyRequirements:unitTypeFor rdf:resource="&OntologyRequirements;UnitOfPressure"/>
     </owl:Class>
     
 
@@ -4653,7 +4183,7 @@ There are two tetragonal Bravais lattices: the simple (or primitive) tetragonal 
         <rdfs:subClassOf>
             <owl:Restriction>
                 <owl:onProperty rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#unitsFor"/>
-                <owl:someValuesFrom rdf:resource="&or;UnitOfArea"/>
+                <owl:allValuesFrom rdf:resource="&or;UnitOfArea"/>
             </owl:Restriction>
         </rdfs:subClassOf>
         <owl:disjointWith rdf:resource="&OntologyRequirements;Energy"/>
@@ -4685,10 +4215,13 @@ There are two tetragonal Bravais lattices: the simple (or primitive) tetragonal 
         <rdfs:subClassOf>
             <owl:Restriction>
                 <owl:onProperty rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#unitsFor"/>
-                <owl:someValuesFrom rdf:resource="&or;UnitOfComputerStorageCapacity"/>
+                <owl:allValuesFrom rdf:resource="&or;UnitOfComputerStorageCapacity"/>
             </owl:Restriction>
         </rdfs:subClassOf>
         <owl:disjointWith rdf:resource="&OntologyRequirements;Energy"/>
+        <owl:disjointWith rdf:resource="&OntologyRequirements;Force"/>
+        <owl:disjointWith rdf:resource="&OntologyRequirements;Pressure"/>
+        <or:unitTypeFor rdf:resource="&or;UnitOfComputerStorageCapacity"/>
     </rdf:Description>
     
 
@@ -4711,10 +4244,12 @@ There are two tetragonal Bravais lattices: the simple (or primitive) tetragonal 
         <rdfs:subClassOf>
             <owl:Restriction>
                 <owl:onProperty rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#unitsFor"/>
-                <owl:someValuesFrom rdf:resource="&or;UnitOfDistance"/>
+                <owl:allValuesFrom rdf:resource="&or;UnitOfDistance"/>
             </owl:Restriction>
         </rdfs:subClassOf>
         <owl:disjointWith rdf:resource="&OntologyRequirements;Energy"/>
+        <owl:disjointWith rdf:resource="&OntologyRequirements;Force"/>
+        <owl:disjointWith rdf:resource="&OntologyRequirements;Pressure"/>
     </rdf:Description>
     
 
@@ -4725,10 +4260,12 @@ There are two tetragonal Bravais lattices: the simple (or primitive) tetragonal 
         <rdfs:subClassOf>
             <owl:Restriction>
                 <owl:onProperty rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#unitsFor"/>
-                <owl:someValuesFrom rdf:resource="&or;UnitOfDuration"/>
+                <owl:allValuesFrom rdf:resource="&or;UnitOfDuration"/>
             </owl:Restriction>
         </rdfs:subClassOf>
         <owl:disjointWith rdf:resource="&OntologyRequirements;Energy"/>
+        <owl:disjointWith rdf:resource="&OntologyRequirements;Force"/>
+        <owl:disjointWith rdf:resource="&OntologyRequirements;Pressure"/>
     </rdf:Description>
     
 
@@ -4765,18 +4302,25 @@ There are two tetragonal Bravais lattices: the simple (or primitive) tetragonal 
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#InterconvertibleUnitType -->
+
+    <owl:Class rdf:about="&or;InterconvertibleUnitType"/>
+    
+
+
     <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#Mass -->
 
     <rdf:Description rdf:about="&or;Mass">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MeasurableMechanicalProperty"/>
         <rdfs:subClassOf>
             <owl:Restriction>
                 <owl:onProperty rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#unitsFor"/>
-                <owl:someValuesFrom rdf:resource="&or;UnitOfMass"/>
+                <owl:allValuesFrom rdf:resource="&or;UnitOfMass"/>
             </owl:Restriction>
         </rdfs:subClassOf>
         <owl:disjointWith rdf:resource="&or;Temperature"/>
         <owl:disjointWith rdf:resource="&OntologyRequirements;Energy"/>
+        <owl:disjointWith rdf:resource="&OntologyRequirements;Force"/>
+        <owl:disjointWith rdf:resource="&OntologyRequirements;Pressure"/>
     </rdf:Description>
     
 
@@ -4830,8 +4374,15 @@ There are two tetragonal Bravais lattices: the simple (or primitive) tetragonal 
     <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#Temperature -->
 
     <rdf:Description rdf:about="&or;Temperature">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MeasurableMechanicalProperty"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#unitsFor"/>
+                <owl:allValuesFrom rdf:resource="&or;UnitOfTemperature"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
         <owl:disjointWith rdf:resource="&OntologyRequirements;Energy"/>
+        <owl:disjointWith rdf:resource="&OntologyRequirements;Force"/>
+        <owl:disjointWith rdf:resource="&OntologyRequirements;Pressure"/>
     </rdf:Description>
     
 
@@ -4885,8 +4436,15 @@ There are two tetragonal Bravais lattices: the simple (or primitive) tetragonal 
     <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#Volume -->
 
     <rdf:Description rdf:about="&or;Volume">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MeasurableMechanicalProperty"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#unitsFor"/>
+                <owl:allValuesFrom rdf:resource="&or;UnitOfVolume"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
         <owl:disjointWith rdf:resource="&OntologyRequirements;Energy"/>
+        <owl:disjointWith rdf:resource="&OntologyRequirements;Force"/>
+        <owl:disjointWith rdf:resource="&OntologyRequirements;Pressure"/>
     </rdf:Description>
     
 
@@ -4951,9 +4509,11 @@ There are two tetragonal Bravais lattices: the simple (or primitive) tetragonal 
         <rdfs:subClassOf>
             <owl:Restriction>
                 <owl:onProperty rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#unitsFor"/>
-                <owl:someValuesFrom rdf:resource="&OntologyRequirements;UnitOfEnergy"/>
+                <owl:allValuesFrom rdf:resource="&OntologyRequirements;UnitOfEnergy"/>
             </owl:Restriction>
         </rdfs:subClassOf>
+        <owl:disjointWith rdf:resource="&OntologyRequirements;Force"/>
+        <owl:disjointWith rdf:resource="&OntologyRequirements;Pressure"/>
     </owl:Class>
     
 
@@ -4983,10 +4543,17 @@ There are two tetragonal Bravais lattices: the simple (or primitive) tetragonal 
         <rdfs:subClassOf>
             <owl:Restriction>
                 <owl:onProperty rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#unitsFor"/>
-                <owl:someValuesFrom rdf:resource="&OntologyRequirements;UnitOfForce"/>
+                <owl:allValuesFrom rdf:resource="&OntologyRequirements;UnitOfForce"/>
             </owl:Restriction>
         </rdfs:subClassOf>
+        <owl:disjointWith rdf:resource="&OntologyRequirements;Pressure"/>
     </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#GenericProperty -->
+
+    <owl:Class rdf:about="&OntologyRequirements;GenericProperty"/>
     
 
 
@@ -5004,6 +4571,12 @@ There are two tetragonal Bravais lattices: the simple (or primitive) tetragonal 
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#MeasurableProperty -->
+
+    <owl:Class rdf:about="&OntologyRequirements;MeasurableProperty"/>
+    
+
+
     <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#MechanicalProcess -->
 
     <owl:Class rdf:about="&OntologyRequirements;MechanicalProcess"/>
@@ -5016,15 +4589,39 @@ There are two tetragonal Bravais lattices: the simple (or primitive) tetragonal 
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#Pressure -->
+
+    <owl:Class rdf:about="&OntologyRequirements;Pressure"/>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#PrimaryCurrencyUnit -->
+
+    <owl:Class rdf:about="&OntologyRequirements;PrimaryCurrencyUnit"/>
+    
+
+
     <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#Recommending -->
 
     <owl:Class rdf:about="&OntologyRequirements;Recommending"/>
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#SecondaryCurrencyUnit -->
+
+    <owl:Class rdf:about="&OntologyRequirements;SecondaryCurrencyUnit"/>
+    
+
+
     <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#SimulationModel -->
 
     <owl:Class rdf:about="&OntologyRequirements;SimulationModel"/>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#UnitOfDensity -->
+
+    <owl:Class rdf:about="&OntologyRequirements;UnitOfDensity"/>
     
 
 
@@ -5039,12 +4636,6 @@ There are two tetragonal Bravais lattices: the simple (or primitive) tetragonal 
     <rdf:Description rdf:about="&OntologyRequirements;UnitOfForce">
         <rdfs:comment xml:lang="en">A Unit Of Force is a Unit Of Measure for measuring force.  It is the product of Unit Of Mass times a Unit Of Acceleration. The SI unit is the Newton.</rdfs:comment>
     </rdf:Description>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#UnitOfPressure -->
-
-    <owl:Class rdf:about="&OntologyRequirements;UnitOfPressure"/>
     
 
 
@@ -5103,6 +4694,15 @@ There are two tetragonal Bravais lattices: the simple (or primitive) tetragonal 
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#Actinide"/>
         <atomicNumber rdf:datatype="&xsd;positiveInteger">89</atomicNumber>
         <atomicSymbol rdf:datatype="&xsd;string">Ac</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Activity_Chemical -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Activity_Chemical">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MeasurableChemicalProperty"/>
+        <rdfs:comment xml:lang="en">In chemical thermodynamics, activity (symbol a) is a measure of the &#39;effective concentration&#39; of a species in a mixture, meaning that the species&#39;s chemical potential depends on the activity of a real solution in the same way that it would depend on concentration for an ideal solution.</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -5172,6 +4772,15 @@ There are two tetragonal Bravais lattices: the simple (or primitive) tetragonal 
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#AreaOfSurface -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#AreaOfSurface">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MeasurableMechanicalProperty"/>
+        <OntologyRequirements:unitTypeFor rdf:resource="&or;UnitOfArea"/>
+    </owl:NamedIndividual>
+    
+
+
     <!-- http://www.nist.gov/itl/ssd/Materials.owl#AreaPerTime -->
 
     <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#AreaPerTime">
@@ -5216,6 +4825,14 @@ There are two tetragonal Bravais lattices: the simple (or primitive) tetragonal 
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#Halogen"/>
         <atomicNumber rdf:datatype="&xsd;positiveInteger">85</atomicNumber>
         <atomicSymbol rdf:datatype="&xsd;string">At</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#BTUperFtHourFahrenheit -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#BTUperFtHourFahrenheit">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#UnitOfThermalConductivity"/>
     </owl:NamedIndividual>
     
 
@@ -5299,12 +4916,48 @@ There are two tetragonal Bravais lattices: the simple (or primitive) tetragonal 
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#BreakdownPotential -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#BreakdownPotential">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#DielectricProperty"/>
+    </owl:NamedIndividual>
+    
+
+
     <!-- http://www.nist.gov/itl/ssd/Materials.owl#Bromine -->
 
     <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Bromine">
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#Halogen"/>
         <atomicNumber rdf:datatype="&xsd;positiveInteger">35</atomicNumber>
         <atomicSymbol rdf:datatype="&xsd;string">Br</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#BulkDensity -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#BulkDensity">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MeasurableMechanicalProperty"/>
+        <rdfs:comment xml:lang="en">Bulk density is a property of powders, granules and other particulate matter. It is defined as the mass of the particles of the material divided by the total volume they occupy. The total volume includes particle volume, inter-particle void volume and internal pore volume.</rdfs:comment>
+        <OntologyRequirements:unitTypeFor rdf:resource="&OntologyRequirements;UnitOfDensity"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#BulkModulus -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#BulkModulus">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ElasticModulus"/>
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#Stiffness"/>
+        <rdfs:comment xml:lang="en">The Bulk Modulus is the inverse of the Isothermal Compressibility.</rdfs:comment>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#BulkModulusPressureDerivitive -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#BulkModulusPressureDerivitive">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#DeformationProperty"/>
     </owl:NamedIndividual>
     
 
@@ -5407,6 +5060,14 @@ There are two tetragonal Bravais lattices: the simple (or primitive) tetragonal 
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#ChemicalPotential -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalPotential">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MeasurableChemicalProperty"/>
+    </owl:NamedIndividual>
+    
+
+
     <!-- http://www.nist.gov/itl/ssd/Materials.owl#Chlorine -->
 
     <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Chlorine">
@@ -5472,6 +5133,16 @@ There are two tetragonal Bravais lattices: the simple (or primitive) tetragonal 
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#CompressiveStrength -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#CompressiveStrength">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#DeformationProperty"/>
+        <rdfs:comment xml:lang="en">Compressive strength is the capacity of a material or structure to withstand axially directed pushing forces before being crushed.</rdfs:comment>
+        <OntologyRequirements:unitTypeFor rdf:resource="&OntologyRequirements;UnitOfPressure"/>
+    </owl:NamedIndividual>
+    
+
+
     <!-- http://www.nist.gov/itl/ssd/Materials.owl#Copernicium -->
 
     <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Copernicium">
@@ -5486,6 +5157,42 @@ There are two tetragonal Bravais lattices: the simple (or primitive) tetragonal 
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#TransitionMetal"/>
         <atomicNumber rdf:datatype="&xsd;positiveInteger">29</atomicNumber>
         <atomicSymbol rdf:datatype="&xsd;string">Cu</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Creep -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Creep">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#DeformationProperty"/>
+        <rdfs:comment xml:lang="en">Creep is the tendency of a solid material to move slowly or deform (via Material Creep) permanently under the influence of stresses. </rdfs:comment>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#CriticalDensity -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#CriticalDensity">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MeasurableMechanicalProperty"/>
+        <OntologyRequirements:unitTypeFor rdf:resource="&OntologyRequirements;UnitOfDensity"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#CriticalPressure -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#CriticalPressure">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MeasurableMechanicalProperty"/>
+        <OntologyRequirements:unitTypeFor rdf:resource="&OntologyRequirements;UnitOfPressure"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#CriticalTemperature -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#CriticalTemperature">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ThermalProperty"/>
+        <OntologyRequirements:unitTypeFor rdf:resource="&or;UnitOfTemperature"/>
     </owl:NamedIndividual>
     
 
@@ -5528,10 +5235,26 @@ There are two tetragonal Bravais lattices: the simple (or primitive) tetragonal 
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#DielectricConstant -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#DielectricConstant">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#DielectricProperty"/>
+    </owl:NamedIndividual>
+    
+
+
     <!-- http://www.nist.gov/itl/ssd/Materials.owl#DistortedHexagonalCrystalStructure -->
 
     <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#DistortedHexagonalCrystalStructure">
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#CrystalStructure"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#DollarUS -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#DollarUS">
+        <rdf:type rdf:resource="&OntologyRequirements;PrimaryCurrencyUnit"/>
     </owl:NamedIndividual>
     
 
@@ -5551,6 +5274,14 @@ There are two tetragonal Bravais lattices: the simple (or primitive) tetragonal 
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#TransitionMetal"/>
         <atomicNumber rdf:datatype="&xsd;positiveInteger">105</atomicNumber>
         <atomicSymbol rdf:datatype="&xsd;string">Db</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Dyne -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Dyne">
+        <rdf:type rdf:resource="&OntologyRequirements;UnitOfForce"/>
     </owl:NamedIndividual>
     
 
@@ -5586,6 +5317,7 @@ There are two tetragonal Bravais lattices: the simple (or primitive) tetragonal 
     <!-- http://www.nist.gov/itl/ssd/Materials.owl#ElectricPolarizability -->
 
     <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#ElectricPolarizability">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#DielectricProperty"/>
         <rdf:type rdf:resource="&or;MeasurableQuantityType"/>
         <rdfs:comment xml:lang="en">Electric Polarizability is the tendency of a substance&#39;s charge distribution to be distorted from its normal shape by an external electric field.  It is specified by the material&#39;s relative permittivity (dielectric constant).</rdfs:comment>
     </owl:NamedIndividual>
@@ -5595,10 +5327,24 @@ There are two tetragonal Bravais lattices: the simple (or primitive) tetragonal 
     <!-- http://www.nist.gov/itl/ssd/Materials.owl#ElectricalConductivity -->
 
     <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#ElectricalConductivity">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ElectricalProperty"/>
         <rdf:type rdf:resource="&or;MeasurableQuantityType"/>
-        <rdfs:comment xml:lang="en">Electrical Conductivity is a measure of how easily electric current flows through a material. High conductivity indicates a material readily allows the movement of electric charge. 
+        <rdfs:comment xml:lang="en">Electrical Conductivity is a measure of how easily electric current flows through a material. High conductivity indicates a material readily allows the movement of electric charge.  The  SI unit of electrical conductivity is siemens per metre (S/m).
 
 The inverse of Electrical Conductivity is Electrical Resistivity.</rdfs:comment>
+        <OntologyRequirements:unitTypeFor rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#UnitOfElectricalConductivity"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#ElectricalResistivity -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#ElectricalResistivity">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ElectricalProperty"/>
+        <rdfs:comment xml:lang="en">Electrical Resistivity is a measure of how strongly a material opposes the flow of electric current. Low resistivity indicates a material readily allows the movement of electric charge. The SI unit of electrical resistivity is the ohm⋅metre (Ω⋅m).
+
+Electrical Resistivity is the inverse of Electrical Conductivity.</rdfs:comment>
+        <OntologyRequirements:unitTypeFor rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#UnitOfElectricalResistivity"/>
     </owl:NamedIndividual>
     
 
@@ -5618,6 +5364,22 @@ The inverse of Electrical Conductivity is Electrical Resistivity.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#Lanthanide"/>
         <atomicNumber rdf:datatype="&xsd;positiveInteger">68</atomicNumber>
         <atomicSymbol rdf:datatype="&xsd;string">Er</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Euro -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Euro">
+        <rdf:type rdf:resource="&OntologyRequirements;PrimaryCurrencyUnit"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#EuroCent -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#EuroCent">
+        <rdf:type rdf:resource="&OntologyRequirements;SecondaryCurrencyUnit"/>
     </owl:NamedIndividual>
     
 
@@ -5660,6 +5422,15 @@ The inverse of Electrical Conductivity is Electrical Resistivity.</rdfs:comment>
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#FatigueEnduranceLimit -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#FatigueEnduranceLimit">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#DeformationProperty"/>
+        <or:unitTypeFor xml:lang="en">Fatigue endurance limit (fatigue limit, endurance limit,  fatigue strength) is the amplitude (or range) of cyclic stress that can be applied to the material without causing fatigue failure.</or:unitTypeFor>
+    </owl:NamedIndividual>
+    
+
+
     <!-- http://www.nist.gov/itl/ssd/Materials.owl#Fermium -->
 
     <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Fermium">
@@ -5690,6 +5461,15 @@ The inverse of Electrical Conductivity is Electrical Resistivity.</rdfs:comment>
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#FractureToughness -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#FractureToughness">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#DeformationProperty"/>
+        <rdfs:comment xml:lang="en">Fracture Toughness is a measure of a substance&#39;s ability to resist Fracturing.</rdfs:comment>
+    </owl:NamedIndividual>
+    
+
+
     <!-- http://www.nist.gov/itl/ssd/Materials.owl#Francium -->
 
     <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Francium">
@@ -5703,6 +5483,7 @@ The inverse of Electrical Conductivity is Electrical Resistivity.</rdfs:comment>
     <!-- http://www.nist.gov/itl/ssd/Materials.owl#FreeElectronDensity -->
 
     <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#FreeElectronDensity">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ElectricalProperty"/>
         <rdf:type rdf:resource="&or;MeasurableQuantityType"/>
     </owl:NamedIndividual>
     
@@ -5804,6 +5585,15 @@ The inverse of Electrical Conductivity is Electrical Resistivity.</rdfs:comment>
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#GlassTemperature -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#GlassTemperature">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ThermalProperty"/>
+        <OntologyRequirements:unitTypeFor rdf:resource="&or;UnitOfTemperature"/>
+    </owl:NamedIndividual>
+    
+
+
     <!-- http://www.nist.gov/itl/ssd/Materials.owl#Gold -->
 
     <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Gold">
@@ -5830,6 +5620,15 @@ The inverse of Electrical Conductivity is Electrical Resistivity.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#TransitionMetal"/>
         <atomicNumber rdf:datatype="&xsd;positiveInteger">108</atomicNumber>
         <atomicSymbol rdf:datatype="&xsd;string">Hs</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#HeatCapacity -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#HeatCapacity">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ThermalProperty"/>
+        <rdfs:comment>Heat capacity (thermal capacity) is the measurable physical quantity that characterizes the amount of heat required to change a substance&#39;s temperature by a given amount.  It is commonly expressed in expressed in units of joule(s) (J) per degree kelvin (K).</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -5903,12 +5702,29 @@ The inverse of Electrical Conductivity is Electrical Resistivity.</rdfs:comment>
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#IndentationHardness -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#IndentationHardness">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#Hardness"/>
+        <rdfs:comment xml:lang="en">Indentation hardness measures the resistance of a sample to permanent plastic deformation due to a constant compression load.  Scales used (depending upon hardness of material) are Vickers, Shore, Rockwell, and Brinell</rdfs:comment>
+    </owl:NamedIndividual>
+    
+
+
     <!-- http://www.nist.gov/itl/ssd/Materials.owl#Indium -->
 
     <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Indium">
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#Post_TransitionMetal"/>
         <atomicNumber rdf:datatype="&xsd;positiveInteger">49</atomicNumber>
         <atomicSymbol rdf:datatype="&xsd;string">In</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#IntrinsicDiffusivity -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#IntrinsicDiffusivity">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MeasurableMechanicalProperty"/>
     </owl:NamedIndividual>
     
 
@@ -5949,6 +5765,32 @@ The inverse of Electrical Conductivity is Electrical Resistivity.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#TransitionMetal"/>
         <atomicNumber rdf:datatype="&xsd;positiveInteger">26</atomicNumber>
         <atomicSymbol rdf:datatype="&xsd;string">Fe</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#IsothermalCompressibility -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#IsothermalCompressibility">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#Compressibility"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#JoulePerKg -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#JoulePerKg">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#UnitOfEnergyPerMass"/>
+        <rdfs:comment xml:lang="en">Joules per kilogram</rdfs:comment>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#KgPerM3 -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#KgPerM3">
+        <rdf:type rdf:resource="&OntologyRequirements;UnitOfDensity"/>
+        <rdfs:comment xml:lang="en">Kilograms per cubic meter</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -6034,6 +5876,14 @@ The inverse of Electrical Conductivity is Electrical Resistivity.</rdfs:comment>
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#LinearCompressibility -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#LinearCompressibility">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#Compressibility"/>
+    </owl:NamedIndividual>
+    
+
+
     <!-- http://www.nist.gov/itl/ssd/Materials.owl#LinearDistribution -->
 
     <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#LinearDistribution">
@@ -6092,10 +5942,28 @@ The inverse of Electrical Conductivity is Electrical Resistivity.</rdfs:comment>
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#MassOfObject -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#MassOfObject">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MeasurableMechanicalProperty"/>
+        <OntologyRequirements:unitTypeFor rdf:resource="&or;UnitOfMass"/>
+    </owl:NamedIndividual>
+    
+
+
     <!-- http://www.nist.gov/itl/ssd/Materials.owl#MaterialSuspension -->
 
     <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#MaterialSuspension">
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MaterialForm"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#MaximumServiceTemperature -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#MaximumServiceTemperature">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ThermalProperty"/>
+        <OntologyRequirements:unitTypeFor rdf:resource="&or;UnitOfTemperature"/>
     </owl:NamedIndividual>
     
 
@@ -6106,6 +5974,15 @@ The inverse of Electrical Conductivity is Electrical Resistivity.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ChemicalElement"/>
         <atomicNumber rdf:datatype="&xsd;positiveInteger">109</atomicNumber>
         <atomicSymbol rdf:datatype="&xsd;string">Mt</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#MeltingPoint -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#MeltingPoint">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ThermalProperty"/>
+        <OntologyRequirements:unitTypeFor rdf:resource="&or;UnitOfTemperature"/>
     </owl:NamedIndividual>
     
 
@@ -6134,6 +6011,44 @@ The inverse of Electrical Conductivity is Electrical Resistivity.</rdfs:comment>
 
     <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Microsectioning">
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MaterialProcessingTechnique"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#MohsHardness -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#MohsHardness">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ScratchHardness"/>
+        <rdfs:comment xml:lang="en">The Mohs scale of mineral hardness characterizes the scratch resistance of various minerals through the ability of a harder material to scratch a softer material.  On the scale Talc is 1; Gypsum is 2; Calcite is 3; Fluorite is 4; Apatite is 5; Orthoclase Feldspar is 6; Quartz is 7; Topaz is 8; Corundum is 9; and Diamond is 10.</rdfs:comment>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Molality -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Molality">
+        <rdf:type rdf:resource="&Biochem;Concentration"/>
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MeasurableChemicalProperty"/>
+        <rdfs:comment xml:lang="en">In chemistry, Molality of a solvent/solute combination is defined as the amount of solute, (in moles), divided by the mass of the solvent (in kg), (not the mass of the solution).</rdfs:comment>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#MolarHeatCapacity -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#MolarHeatCapacity">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ThermalProperty"/>
+        <rdfs:comment xml:lang="en">The Molar Heat Capacity is the heat capacity per unit mass of a material, measured in Joules/(mole K)  (in SI units). </rdfs:comment>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Molarity -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Molarity">
+        <rdf:type rdf:resource="&Biochem;Concentration"/>
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MeasurableChemicalProperty"/>
+        <rdfs:comment xml:lang="en">In chemistry, the Molarity (or molar concentration), is defined as the amount of a mixture constituent (in moles) divided by the volume of the mixture.</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -6237,6 +6152,14 @@ The inverse of Electrical Conductivity is Electrical Resistivity.</rdfs:comment>
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Newton -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Newton">
+        <rdf:type rdf:resource="&OntologyRequirements;UnitOfForce"/>
+    </owl:NamedIndividual>
+    
+
+
     <!-- http://www.nist.gov/itl/ssd/Materials.owl#Nickel -->
 
     <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Nickel">
@@ -6282,6 +6205,14 @@ The inverse of Electrical Conductivity is Electrical Resistivity.</rdfs:comment>
     <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#NormalSectioning">
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MaterialProcessingTechnique"/>
         <rdfs:comment xml:lang="en">Normal Sectioning is the Sectioning of a Material normal to an internal gradient.</rdfs:comment>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#OhmMeter -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#OhmMeter">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#UnitOfElectricalResistivity"/>
     </owl:NamedIndividual>
     
 
@@ -6371,6 +6302,15 @@ The inverse of Electrical Conductivity is Electrical Resistivity.</rdfs:comment>
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#PoissonRatio -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#PoissonRatio">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#DeformationProperty"/>
+        <or:unitTypeFor xml:lang="en">The Poisson Ratio of a material is the ratio, when an object composed of that material is stretched, of the transverse contraction or strain (perpendicular to the applied load), to the extension or axial strain in the direction of the applied load.</or:unitTypeFor>
+    </owl:NamedIndividual>
+    
+
+
     <!-- http://www.nist.gov/itl/ssd/Materials.owl#Polishing -->
 
     <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Polishing">
@@ -6395,6 +6335,14 @@ The inverse of Electrical Conductivity is Electrical Resistivity.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#AlkaliMetal"/>
         <atomicNumber rdf:datatype="&xsd;positiveInteger">19</atomicNumber>
         <atomicSymbol rdf:datatype="&xsd;string">K</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#PoundSterling -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#PoundSterling">
+        <rdf:type rdf:resource="&OntologyRequirements;PrimaryCurrencyUnit"/>
     </owl:NamedIndividual>
     
 
@@ -6485,6 +6433,14 @@ The inverse of Electrical Conductivity is Electrical Resistivity.</rdfs:comment>
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#ReboundHardness -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#ReboundHardness">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#Hardness"/>
+    </owl:NamedIndividual>
+    
+
+
     <!-- http://www.nist.gov/itl/ssd/Materials.owl#RedlichKisterModel -->
 
     <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#RedlichKisterModel">
@@ -6492,6 +6448,14 @@ The inverse of Electrical Conductivity is Electrical Resistivity.</rdfs:comment>
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ThermodynamicModel"/>
         <OntologyRequirements:nickName>Redlich-Kister</OntologyRequirements:nickName>
         <rdfs:comment xml:lang="en">The Redlich-Kester (or &#39;subregular&#39;) Model is of Thermodynamic Model for Binary Alloys.</rdfs:comment>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#RefractiveIndex -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#RefractiveIndex">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#OpticalProperty"/>
     </owl:NamedIndividual>
     
 
@@ -6652,6 +6616,24 @@ There is only one rhombohedral Bravais lattice.</rdfs:comment>
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#ShearModulus -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#ShearModulus">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ElasticModulus"/>
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#Stiffness"/>
+        <rdfs:comment xml:lang="en">The Shear Modulus (modulus of rigidity) describes a material&#39;s response to shearing strains. It is defined as the ratio of shear stress to the shear strain</rdfs:comment>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#SiemensPerMeter -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#SiemensPerMeter">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#UnitOfElectricalConductivity"/>
+    </owl:NamedIndividual>
+    
+
+
     <!-- http://www.nist.gov/itl/ssd/Materials.owl#SignificantDigits -->
 
     <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#SignificantDigits">
@@ -6720,12 +6702,56 @@ There is only one rhombohedral Bravais lattice.</rdfs:comment>
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#SoundVelocity -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#SoundVelocity">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#AcousticProperty"/>
+        <rdfs:comment xml:lang="en">Sound Velocity for a substance depends on temperature and to a greater or lesser extent on frequency.  For a gas or vapor it depends on temperature and pressure. For a solid, there are two speeds of sound at the same temperature and frequency, that of a longitudinal (compression) wave, and that of a transverse wave.  In thin rods, the interaction of these two types of waves results in a third sound velocity intermediate between the transverse and longitudinal velocities.</rdfs:comment>
+        <OntologyRequirements:unitTypeFor rdf:resource="&or;UnitOfVelocity"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#SpecificHeatCapacity -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#SpecificHeatCapacity">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ThermalProperty"/>
+        <rdfs:comment xml:lang="en">The Specific Heat Capacity (or specific heat) is the heat capacity per unit mass of a material, measured in Joules/(kg K)  (in SI units). </rdfs:comment>
+    </owl:NamedIndividual>
+    
+
+
     <!-- http://www.nist.gov/itl/ssd/Materials.owl#SpecificIonicInteractionTheory -->
 
     <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#SpecificIonicInteractionTheory">
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ThermodynamicModel"/>
         <OntologyRequirements:nickName>SIT</OntologyRequirements:nickName>
         <rdfs:comment xml:lang="en">The Specific Ionic Interaction Theory is a Thermodynamic Model for dilute aqueous solutions.</rdfs:comment>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#SpecificStrength -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#SpecificStrength">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#DeformationProperty"/>
+        <rdfs:comment xml:lang="en">The specific strength is a material&#39;s ultimate tensile strength (force per unit area at failure) divided by its density. It is also known as the strength-to-weight ratio or strength/weight ratio. The SI unit for specific strength is N·m/kg which is equivalent to (m/s)^2.</rdfs:comment>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#SquareCmPerSecond -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#SquareCmPerSecond">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#UnitOfAreaPerTime"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#SquareMeterPerSecond -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#SquareMeterPerSecond">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#UnitOfAreaPerTime"/>
     </owl:NamedIndividual>
     
 
@@ -6781,6 +6807,25 @@ There is only one rhombohedral Bravais lattice.</rdfs:comment>
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#TemperatureOfObject -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#TemperatureOfObject">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ThermalProperty"/>
+        <OntologyRequirements:unitTypeFor rdf:resource="&or;UnitOfTemperature"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#TensileModulus -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#TensileModulus">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ElasticModulus"/>
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#Stiffness"/>
+        <rdfs:comment xml:lang="en">The Tensile Modulus (or Young&#39;s modulus) is a measure of the stiffness of an elastic material and is a quantity used to characterize materials. It is defined as the ratio of the uniaxial stress over the uniaxial strain in the range of stress in which Hooke&#39;s Law holds.[</rdfs:comment>
+    </owl:NamedIndividual>
+    
+
+
     <!-- http://www.nist.gov/itl/ssd/Materials.owl#Terbium -->
 
     <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Terbium">
@@ -6808,6 +6853,33 @@ There are two tetragonal Bravais lattices: the simple (or primitive) tetragonal 
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#Post_TransitionMetal"/>
         <atomicNumber rdf:datatype="&xsd;positiveInteger">81</atomicNumber>
         <atomicSymbol rdf:datatype="&xsd;string">Tl</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#ThermalConductivity -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#ThermalConductivity">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ThermalProperty"/>
+        <rdfs:comment xml:lang="en">Thermal conductivity, (symbol: lambda or kappa), is the property of a material&#39;s ability to conduct heat, normally measured in W/(m·K).</rdfs:comment>
+        <OntologyRequirements:unitTypeFor rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#UnitOfThermalConductivity"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#ThermalExpansionCoefficient -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#ThermalExpansionCoefficient">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ThermalProperty"/>
+        <rdfs:comment xml:lang="en">The Thermal Expansion Coefficient of a material is the relative amount it expands per unit increase in temperature.  In SI units it is measured in inverse Celsius degrees.</rdfs:comment>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#ThermalShockResistance -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#ThermalShockResistance">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#ThermalProperty"/>
     </owl:NamedIndividual>
     
 
@@ -6890,6 +6962,82 @@ There are two tetragonal Bravais lattices: the simple (or primitive) tetragonal 
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#UKPenny -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#UKPenny">
+        <rdf:type rdf:resource="&OntologyRequirements;SecondaryCurrencyUnit"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#USCent -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#USCent">
+        <rdf:type rdf:resource="&OntologyRequirements;SecondaryCurrencyUnit"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#UltimateTensileStrength -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#UltimateTensileStrength">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#DeformationProperty"/>
+        <or:unitTypeFor xml:lang="en">Ultimate tensile strength (UTS), often shortened to tensile strength (TS) or ultimate strength, is the maximum stress that a material can withstand while being stretched or pulled before necking, which is when the specimen&#39;s cross-section starts to significantly contract. Tensile strength is the opposite of compressive strength and the values can be quite different.</or:unitTypeFor>
+        <OntologyRequirements:unitTypeFor rdf:resource="&OntologyRequirements;UnitOfPressure"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#UnitOfAreaPerTime -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#UnitOfAreaPerTime">
+        <rdf:type rdf:resource="&or;InterconvertibleUnitType"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#UnitOfElectricalConductivity -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#UnitOfElectricalConductivity">
+        <rdf:type rdf:resource="&or;InterconvertibleUnitType"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#UnitOfElectricalResistivity -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#UnitOfElectricalResistivity">
+        <rdf:type rdf:resource="&or;InterconvertibleUnitType"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#UnitOfEnergyPerMass -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#UnitOfEnergyPerMass">
+        <rdf:type rdf:resource="&or;InterconvertibleUnitType"/>
+        <rdfs:comment xml:lang="en">A Unit Of Energy Per Mass is a Unit Of Energy divided by a Unit Of Mass.  E.g., Joules per Gram.</rdfs:comment>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#UnitOfTemperatureDifference -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#UnitOfTemperatureDifference">
+        <rdf:type rdf:resource="&or;InterconvertibleUnitType"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#UnitOfThermalConductivity -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#UnitOfThermalConductivity">
+        <rdf:type rdf:resource="&or;InterconvertibleUnitType"/>
+        <rdfs:comment xml:lang="en">Units Of Thermal Conductivity have the dimension Mass * Distance / (Temperature * Duration^3) .  The SI unit is Watts/(m K).</rdfs:comment>
+    </owl:NamedIndividual>
+    
+
+
     <!-- http://www.nist.gov/itl/ssd/Materials.owl#Uranium -->
 
     <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Uranium">
@@ -6910,10 +7058,52 @@ There are two tetragonal Bravais lattices: the simple (or primitive) tetragonal 
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#VolumeCompressibility -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#VolumeCompressibility">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#Compressibility"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#VolumeOfObject -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#VolumeOfObject">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MeasurableMechanicalProperty"/>
+        <OntologyRequirements:unitTypeFor rdf:resource="&or;UnitOfVolume"/>
+    </owl:NamedIndividual>
+    
+
+
     <!-- http://www.nist.gov/itl/ssd/Materials.owl#Washing -->
 
     <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Washing">
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MaterialProcessingType"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#Water -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#Water">
+        <rdf:type rdf:resource="&Biochem;ChemicalSubstanceTypeByChemicalSpecies"/>
+        <atomicMass>18.015</atomicMass>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#WattsPerMeterKelvin -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#WattsPerMeterKelvin">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#UnitOfThermalConductivity"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#WearRateCoefficient -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#WearRateCoefficient">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#MeasurableMechanicalProperty"/>
     </owl:NamedIndividual>
     
 
@@ -6932,6 +7122,16 @@ There are two tetragonal Bravais lattices: the simple (or primitive) tetragonal 
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#NobleGas"/>
         <atomicNumber rdf:datatype="&xsd;positiveInteger">54</atomicNumber>
         <atomicSymbol rdf:datatype="&xsd;string">Xe</atomicSymbol>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#YieldStrength -->
+
+    <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Materials.owl#YieldStrength">
+        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Materials.owl#DeformationProperty"/>
+        <rdfs:comment xml:lang="en">The yield strength or yield point of a material is defined as the stress at which a material begins to deform plastically. Below the yield point the material will deform elastically and will return to its original shape when the applied stress is removed. Once the yield point is passed, some fraction of the deformation will be permanent and non-reversible.</rdfs:comment>
+        <OntologyRequirements:unitTypeFor rdf:resource="&OntologyRequirements;UnitOfPressure"/>
     </owl:NamedIndividual>
     
 
@@ -6990,6 +7190,12 @@ There are two tetragonal Bravais lattices: the simple (or primitive) tetragonal 
     <rdf:Description rdf:about="&or;DegreeFahrenheit">
         <rdfs:comment xml:lang="en">A Degree Fahrenheit is a Unit of Temperature that specifies an an absolute temperature.-- how many Fahrenheit Degrees the temperature is above (or if negative, below) 32 Fahrenheit Degrees below the freezing point of water.  To refer to temperature differences, use the Unit Of Temperature Difference, Fahrenheit Degree.</rdfs:comment>
     </rdf:Description>
+    <rdf:Description rdf:about="&Biochem;ConcentrationByVolume">
+        <or:unitTypeFor rdf:resource="&Biochem;UnitOfConcentrationByVolume"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="&Biochem;ConcentrationByMass">
+        <or:unitTypeFor rdf:resource="&Biochem;UnitOfConcentrationByMass"/>
+    </rdf:Description>
     <rdf:Description rdf:about="&or;DegreeKelvin">
         <rdfs:comment xml:lang="en">A Degree Kelvin is a Unit of Temperature that specifies an an absolute temperature.-- how many Celsius Degrees the temperature is above Absolute Zero.  Subtracting 273.15 from a temperature specified in Degrees Kelvin gives the value of the temperature in Degrees Celsius.  To refer to temperature differences, use the Unit Of Temperature Difference, Celsius Degree.</rdfs:comment>
     </rdf:Description>
@@ -7015,6 +7221,7 @@ There are two tetragonal Bravais lattices: the simple (or primitive) tetragonal 
         </owl:distinctMembers>
     </rdf:Description>
 </rdf:RDF>
+
 
 
 <!-- Generated by the OWL API (version 3.2.3.1824) http://owlapi.sourceforge.net -->
