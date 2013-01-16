@@ -60,6 +60,9 @@
      -->
 
     <owl:AnnotationProperty rdf:about="http://www.nist.gov/itl/ssd/Experiments#defaultFileExtension"/>
+    <owl:AnnotationProperty rdf:about="&Experiments;uncertaintyOfProperty">
+        <rdfs:domain rdf:resource="&OntologyRequirements;MaterialProperty"/>
+    </owl:AnnotationProperty>
     <owl:AnnotationProperty rdf:about="http://www.nist.gov/itl/ssd/Experiments#specializedTypeOf"/>
     <owl:AnnotationProperty rdf:about="http://www.nist.gov/itl/ssd/Experiments#catalogNumber"/>
     
@@ -321,6 +324,38 @@
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/Experiments#measurementResult -->
+
+    <owl:ObjectProperty rdf:about="&Experiments;measurementResult">
+        <rdfs:comment xml:lang="en">The property &#39;measurement Result&#39; relates an act of Measuring to an Expressed Quantity.</rdfs:comment>
+        <rdfs:domain rdf:resource="&Experiments;Measuring"/>
+        <rdfs:range rdf:resource="&or;ExpressedQuantity"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Experiments#measurementTechniqueUsed -->
+
+    <owl:ObjectProperty rdf:about="&Experiments;measurementTechniqueUsed">
+        <rdfs:comment xml:lang="en">The property &#39;measurement Technique Used&#39; relates an act of Measuring something to the Measurement Technique that it implemented.</rdfs:comment>
+        <rdfs:range rdf:resource="&Experiments;MeasurementTechnique"/>
+        <rdfs:domain rdf:resource="&Experiments;Measuring"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Experiments#numOfSignificantDigits -->
+
+    <owl:ObjectProperty rdf:about="&Experiments;numOfSignificantDigits">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:comment xml:lang="en">The property &#39;num Of Significant Digits&#39; specifies the Number Of Significant Digits of a measurement or computed value.</rdfs:comment>
+        <rdfs:range rdf:resource="&Experiments;NumberOfSignificantDigits"/>
+        <rdfs:subPropertyOf rdf:resource="&Experiments;uncertaintyOfQuantity"/>
+        <rdfs:domain rdf:resource="&or;ExpressedQuantity"/>
+    </owl:ObjectProperty>
+    
+
+
     <!-- http://www.nist.gov/itl/ssd/Experiments#outputCreated -->
 
     <owl:ObjectProperty rdf:about="&Experiments;outputCreated">
@@ -337,6 +372,35 @@
         <rdfs:domain rdf:resource="http://www.nist.gov/itl/ssd/Experiments#Research"/>
         <rdfs:subPropertyOf rdf:resource="http://www.nist.gov/itl/ssd/Experiments#investigator"/>
         <rdfs:range rdf:resource="&or;Human"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Experiments#standardDeviation -->
+
+    <owl:ObjectProperty rdf:about="&Experiments;standardDeviation">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:comment xml:lang="en">The standard Deviation of an Uncertainty is a quantity with the same units as the Uncertainty itself.</rdfs:comment>
+        <rdfs:domain rdf:resource="&Experiments;Uncertainty"/>
+        <rdfs:range rdf:resource="&or;Quantity"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Experiments#uncertaintyOfProperty -->
+
+    <owl:ObjectProperty rdf:about="&Experiments;uncertaintyOfProperty">
+        <rdfs:range rdf:resource="&Experiments;Uncertainty"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Experiments#uncertaintyOfQuantity -->
+
+    <owl:ObjectProperty rdf:about="&Experiments;uncertaintyOfQuantity">
+        <rdfs:comment xml:lang="en">The property &#39;uncertainty Of Quantity&#39; relates a Quantity to its associated Uncertainty.</rdfs:comment>
+        <rdfs:range rdf:resource="&Experiments;Uncertainty"/>
+        <rdfs:domain rdf:resource="&or;MeasurableQuantity"/>
     </owl:ObjectProperty>
     
 
@@ -696,6 +760,16 @@ injectors, and use of liposomes.</rdfs:comment>
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/Experiments#uncertaintyConfidenceLevel -->
+
+    <owl:DatatypeProperty rdf:about="&Experiments;uncertaintyConfidenceLevel">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:domain rdf:resource="&Experiments;Uncertainty"/>
+        <rdfs:range rdf:resource="&xsd;float"/>
+    </owl:DatatypeProperty>
+    
+
+
     <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#referenceURI -->
 
     <owl:DatatypeProperty rdf:about="&or;referenceURI"/>
@@ -815,6 +889,15 @@ injectors, and use of liposomes.</rdfs:comment>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Experiments#CultureMediumType"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Experiments#HormoneType"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Experiments#SerumType"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Experiments#Analysis -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Experiments#Analysis">
+        <rdfs:subClassOf rdf:resource="&or;PurposefulAction"/>
+        <rdfs:comment xml:lang="en">Analysis is the Purposeful Action of considering something  in detail in order to understand some of its features. </rdfs:comment>
     </owl:Class>
     
 
@@ -1079,6 +1162,7 @@ injectors, and use of liposomes.</rdfs:comment>
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Experiments#CellProliferation">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Experiments#CellularBiologicalProcess"/>
         <rdfs:subClassOf rdf:resource="&or;CreationEvent"/>
+        <owl:disjointWith rdf:resource="&or;IntentionalCreation"/>
         <rdfs:comment xml:lang="en">The process in which a Biological Cell, or group of Biological Cells, produces more cells.</rdfs:comment>
     </owl:Class>
     
@@ -1891,10 +1975,7 @@ Same as cyc:ScanningProbeMicroscope .</rdfs:comment>
 
     <!-- http://www.nist.gov/itl/ssd/Experiments#Analysis -->
 
-    <owl:Class rdf:about="&Experiments;Analysis">
-        <rdfs:subClassOf rdf:resource="&or;PurposefulAction"/>
-        <rdfs:comment xml:lang="en">Analysis is the Purposeful Action of considering something  in detail in order to understand some of its features. </rdfs:comment>
-    </owl:Class>
+    <owl:Class rdf:about="&Experiments;Analysis"/>
     
 
 
@@ -1929,8 +2010,17 @@ Same as cyc:ScanningProbeMicroscope .</rdfs:comment>
     <!-- http://www.nist.gov/itl/ssd/Experiments#DataAnalysis -->
 
     <owl:Class rdf:about="&Experiments;DataAnalysis">
-        <rdfs:subClassOf rdf:resource="&Experiments;Analysis"/>
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Experiments#Analysis"/>
         <rdfs:comment xml:lang="en">Data Analysis is the Analysis of a set of data</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Experiments#EstimationMethod -->
+
+    <owl:Class rdf:about="&Experiments;EstimationMethod">
+        <rdfs:subClassOf rdf:resource="&or;Technique"/>
+        <rdfs:comment>An Estimation Method is a Technique for estimating a physical or statistical property.</rdfs:comment>
     </owl:Class>
     
 
@@ -1939,6 +2029,16 @@ Same as cyc:ScanningProbeMicroscope .</rdfs:comment>
 
     <owl:Class rdf:about="&Experiments;Experiment">
         <rdfs:subClassOf rdf:resource="&or;IntentionalCreation"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&or;subEvents"/>
+                <owl:someValuesFrom rdf:resource="&OntologyRequirements;DataCollection"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <owl:disjointWith rdf:resource="&Experiments;RefiningAConcept"/>
+        <owl:disjointWith rdf:resource="&OntologyRequirements;Designing"/>
+        <owl:disjointWith rdf:resource="&OntologyRequirements;Development"/>
+        <owl:disjointWith rdf:resource="&OntologyRequirements;Manufacturing"/>
         <rdfs:comment xml:lang="en">Each instance of Experiment is an event in which one performs tests to determine whether an hypothesis is true or to determine physical (or other) features of something.</rdfs:comment>
     </owl:Class>
     
@@ -1980,11 +2080,74 @@ Same as cyc:ScanningProbeMicroscope .</rdfs:comment>
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/Experiments#MeasurementTechnique -->
+
+    <owl:Class rdf:about="&Experiments;MeasurementTechnique">
+        <rdfs:subClassOf rdf:resource="&or;Technique"/>
+        <owl:disjointWith rdf:resource="&or;Algorithm"/>
+        <rdfs:comment xml:lang="en">A Measurement Technique is a specified method of making a measurement.  It may or may not conform to an existing Specification.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Experiments#Measuring -->
+
+    <owl:Class rdf:about="&Experiments;Measuring">
+        <rdfs:subClassOf rdf:resource="&or;PurposefulAction"/>
+        <owl:disjointWith rdf:resource="&Experiments;RefiningAConcept"/>
+        <owl:disjointWith rdf:resource="&or;ComputerProcessExecution"/>
+        <owl:disjointWith rdf:resource="&or;DatabaseSearch"/>
+        <rdfs:comment xml:lang="en">The action of making measurements</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Experiments#NumberOfSignificantDigits -->
+
+    <owl:Class rdf:about="&Experiments;NumberOfSignificantDigits">
+        <rdfs:subClassOf rdf:resource="&Experiments;Uncertainty"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Experiments#PredictionTool -->
+
+    <owl:Class rdf:about="&Experiments;PredictionTool">
+        <rdfs:subClassOf rdf:resource="&or;Software"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Experiments#ProcessModelingTool -->
+
+    <owl:Class rdf:about="&Experiments;ProcessModelingTool">
+        <rdfs:subClassOf rdf:resource="&or;Software"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Experiments#RefiningAConcept -->
+
+    <owl:Class rdf:about="&Experiments;RefiningAConcept">
+        <rdfs:subClassOf rdf:resource="&or;PurposefulAction"/>
+        <rdfs:comment xml:lang="en">Refining A Concept is a process of improving a model, prediction, plan, or other conceptual work by providing additional information or slightly modifying existing information.  The result is a modified version of the existing work, not a totally new work.</rdfs:comment>
+    </owl:Class>
+    
+
+
     <!-- http://www.nist.gov/itl/ssd/Experiments#ShapeAnalysisAlgorithm -->
 
     <owl:Class rdf:about="&Experiments;ShapeAnalysisAlgorithm">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Experiments#ImageProcessingAlgorithm"/>
         <rdfs:comment xml:lang="en">Image Processing Algorithms for analyzing shapes of regions segmented out of images.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Experiments#Uncertainty -->
+
+    <owl:Class rdf:about="&Experiments;Uncertainty">
+        <rdfs:subClassOf rdf:resource="&OntologyRequirements;GenericProperty"/>
     </owl:Class>
     
 
@@ -2013,9 +2176,21 @@ Same as cyc:ScanningProbeMicroscope .</rdfs:comment>
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#ComputerProcessExecution -->
+
+    <rdf:Description rdf:about="&or;ComputerProcessExecution"/>
+    
+
+
     <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#CreationEvent -->
 
     <owl:Class rdf:about="&or;CreationEvent"/>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#DatabaseSearch -->
+
+    <owl:Class rdf:about="&or;DatabaseSearch"/>
     
 
 
@@ -2034,6 +2209,12 @@ Same as cyc:ScanningProbeMicroscope .</rdfs:comment>
     <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#ImagingDevice -->
 
     <owl:Class rdf:about="&or;ImagingDevice"/>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#IntentionalCreation -->
+
+    <rdf:Description rdf:about="&or;IntentionalCreation"/>
     
 
 
@@ -2129,6 +2310,36 @@ Same as cyc:ScanningProbeMicroscope .</rdfs:comment>
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#DataCollection -->
+
+    <owl:Class rdf:about="&OntologyRequirements;DataCollection"/>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#Designing -->
+
+    <owl:Class rdf:about="&OntologyRequirements;Designing"/>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#Development -->
+
+    <owl:Class rdf:about="&OntologyRequirements;Development"/>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#GenericProperty -->
+
+    <owl:Class rdf:about="&OntologyRequirements;GenericProperty"/>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#Manufacturing -->
+
+    <owl:Class rdf:about="&OntologyRequirements;Manufacturing"/>
+    
+
+
     <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#Modeling -->
 
     <owl:Class rdf:about="&OntologyRequirements;Modeling">
@@ -2160,9 +2371,9 @@ Same as cyc:ScanningProbeMicroscope .</rdfs:comment>
     
 
 
-    <!-- http://www.nist.gov/itl/ssd/Experiments#3T3Cell -->
+    <!-- http://www.nist.gov/itl/ssd/Experiments#MC3T3Cell -->
 
-    <owl:NamedIndividual rdf:about="&Experiments;3T3Cell">
+    <owl:NamedIndividual rdf:about="&Experiments;MC3T3Cell">
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Experiments#MouseCellLine"/>
         <rdfs:comment xml:lang="en">MC3T3 is a fibroblast cell line derived from Mus musculus (mouse).</rdfs:comment>
     </owl:NamedIndividual>
