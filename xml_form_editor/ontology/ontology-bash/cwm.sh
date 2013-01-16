@@ -1,11 +1,11 @@
 #!/bin/bash
 
-DOC_ROOT="$HOME"/Documents/repository
-FILE_LOC=$DOC_ROOT/xml_form_editor/ontology/ontology-bash/Filter.n3
+DOC_ROOT=`pwd`
+FILE_LOC=$DOC_ROOT/ontology-bash/Filter.n3
 FILE_DEST=/var/tmp/
-ONTO=$DOC_ROOT/xml_form_editor/ontology/ontology-bash/
+ONTO=$DOC_ROOT/ontology-bash/
 CWM=/usr/lib/pymodules/python2.7/swap/cwm.py
-RESULT=$DOC_ROOT/xml_form_editor/ontology/
+RESULT=$DOC_ROOT/
 ONTO_LOC=`echo $3 | perl -pe 's/([^\.]+)\.[^\.]+/$1/g'`
 
 if [ $# -eq 4 ]
