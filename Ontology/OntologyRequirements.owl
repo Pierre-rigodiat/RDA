@@ -6,6 +6,7 @@
     <!ENTITY umbel "http://umbel.org/umbel/sc.#" >
     <!ENTITY dbpedia "http://dbpedia.org/resource/#" >
     <!ENTITY owl "http://www.w3.org/2002/07/owl#" >
+    <!ENTITY dc "http://purl.org/dc/elements/1.1/" >
     <!ENTITY dc "http://purl.org/dc/elements/1.1/#" >
     <!ENTITY xsd "http://www.w3.org/2001/XMLSchema#" >
     <!ENTITY log "http://www.w3.org/2000/10/swap/log#" >
@@ -16,6 +17,7 @@
     <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#" >
     <!ENTITY SO "http://purl.obolibrary.org/obo/so.owl#" >
     <!ENTITY GO "http://www.geneontology.org/dtd/go.dtd#" >
+    <!ENTITY ont "http://www.co-ode.org/ontologies/ont.owl#" >
     <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#" >
     <!ENTITY cyc "http://sw.opencyc.org/2009/04/07/concept/en/#" >
     <!ENTITY OntologyRequirements "http://www.nist.gov/itl/ssd/OntologyRequirements.owl#" >
@@ -24,7 +26,7 @@
 
 <rdf:RDF xmlns="http://www.nist.gov/itl/ssd/OntologyRequirements#"
      xml:base="http://www.nist.gov/itl/ssd/OntologyRequirements"
-     xmlns:dc="http://purl.org/dc/elements/1.1/#"
+     xmlns:dc="&dc;#"
      xmlns:terms="http://purl.org/dc/terms/"
      xmlns:XMLSchema="http://www.w3.org/2000/10/XMLSchema#"
      xmlns:xml="http://www.w3.org/XML/1998/namespace"
@@ -34,6 +36,7 @@
      xmlns:SO="http://purl.obolibrary.org/obo/so.owl#"
      xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
      xmlns:umbel="http://umbel.org/umbel/sc.#"
+     xmlns:ont="http://www.co-ode.org/ontologies/ont.owl#"
      xmlns:GO="http://www.geneontology.org/dtd/go.dtd#"
      xmlns:owl="http://www.w3.org/2002/07/owl#"
      xmlns:dbpedia="http://dbpedia.org/resource/#"
@@ -42,6 +45,9 @@
      xmlns:cyc="http://sw.opencyc.org/2009/04/07/concept/en/#"
      xmlns:skos="http://www.w3.org/2004/02/skos/core#">
     <owl:Ontology rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements.owl">
+        <dc:date>12 October 2012</dc:date>
+        <terms:title>Ontology Requirements Ontology</terms:title>
+        <ont:creator>doug foxvog</ont:creator>
         <owl:imports rdf:resource="http://www.daml.org/2001/03/daml+oil"/>
     </owl:Ontology>
     
@@ -61,6 +67,16 @@
     <owl:AnnotationProperty rdf:about="&terms;modified"/>
     <owl:AnnotationProperty rdf:about="&skos;note"/>
     <owl:AnnotationProperty rdf:about="&terms;issued"/>
+    <rdf:Description rdf:about="&dc;date">
+        <rdfs:label xml:lang="en-us">Date</rdfs:label>
+        <terms:issued>1999-07-02</terms:issued>
+        <terms:modified>2008-01-14</terms:modified>
+        <rdfs:comment xml:lang="en-us">A point or period of time associated with an event in the lifecycle of the resource.</rdfs:comment>
+        <skos:note xml:lang="en-us">A second property with the same name as this property has been declared in the dcterms: namespace (http://purl.org/dc/terms/).  See the Introduction to the document &#39;DCMI Metadata Terms&#39; (http://dublincore.org/documents/dcmi-terms/) for an explanation.</skos:note>
+        <terms:description xml:lang="en-us">Date may be used to express temporal information at any level of granularity.  Recommended best practice is to use an encoding scheme, such as the W3CDTF profile of ISO 8601 [W3CDTF].</terms:description>
+        <terms:hasVersion rdf:resource="http://dublincore.org/usage/terms/history/#date-006"/>
+        <rdfs:isDefinedBy rdf:resource="http://purl.org/dc/elements/1.1/"/>
+    </rdf:Description>
     <owl:AnnotationProperty rdf:about="&terms;title"/>
     
 
@@ -447,8 +463,8 @@ Same as cyc:versionOfSoftware.</rdfs:comment>
         <rdf:type rdf:resource="&owl;TransitiveProperty"/>
         <rdfs:comment xml:lang="en">A `specialized Type Of&#39; an instance of Second Order Class is a subclass of that second class.</rdfs:comment>
         <skos:note xml:lang="en">A `specialized Type&#39; would be modeled as a subClass relation if OWL handled metaclasses.</skos:note>
-        <rdfs:domain rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#SecondOrderClass"/>
-        <rdfs:range rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#SecondOrderClass"/>
+        <rdfs:domain rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#FirstOrderClass"/>
+        <rdfs:range rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#FirstOrderClass"/>
     </owl:ObjectProperty>
     
 
@@ -507,6 +523,17 @@ The property subEvents is transitive (a subEvent of a subEvent is a subEvnt of t
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#eventInSeries -->
+
+    <owl:ObjectProperty rdf:about="&OntologyRequirements;eventInSeries">
+        <rdfs:comment xml:lang="en">The property ``eventInSeries&#39;&#39; relates an event to an event series of which it is a member.  For example, an inning in a baseball game, a presentation in a conference session, and a conference in a conference series.</rdfs:comment>
+        <rdfs:domain rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#Event"/>
+        <owl:inverseOf rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#subEvents"/>
+        <rdfs:range rdf:resource="&OntologyRequirements;EventSeries"/>
+    </owl:ObjectProperty>
+    
+
+
     <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#extendsFormat -->
 
     <owl:ObjectProperty rdf:about="&OntologyRequirements;extendsFormat">
@@ -525,7 +552,14 @@ The property subEvents is transitive (a subEvent of a subEvent is a subEvnt of t
     <owl:ObjectProperty rdf:about="&OntologyRequirements;unitTypeFor">
         <rdfs:comment xml:lang="en">The property &#39;unit Type For&#39; specifies the type of Unit Of Measure that can be used for a given Measurable Property.</rdfs:comment>
         <rdfs:range rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#InterconvertibleUnitType"/>
-        <rdfs:domain rdf:resource="&OntologyRequirements;MeasurableProperty"/>
+        <rdfs:domain>
+            <owl:Class>
+                <owl:unionOf rdf:parseType="Collection">
+                    <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#MeasurableQuantity"/>
+                    <rdf:Description rdf:about="&OntologyRequirements;MeasurableProperty"/>
+                </owl:unionOf>
+            </owl:Class>
+        </rdfs:domain>
     </owl:ObjectProperty>
     
 
@@ -709,6 +743,27 @@ The same Quantity has represenations as two different Expressed Quantities in th
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#acronym -->
+
+    <owl:DatatypeProperty rdf:about="&OntologyRequirements;acronym">
+        <rdfs:comment xml:lang="en">The relation ``acronym&#39;&#39; relates something (organization, conference, ...) to an acronym -- a string of (normally) letters that are the first (few) letters in the name of the thing.
+
+Normally something will have only a single acronym.</rdfs:comment>
+        <rdfs:subPropertyOf rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#nameString"/>
+        <rdfs:range rdf:resource="&xsd;Name"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#aka -->
+
+    <owl:DatatypeProperty rdf:about="&OntologyRequirements;aka">
+        <rdfs:subPropertyOf rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#nameString"/>
+        <rdfs:range rdf:resource="&xsd;Name"/>
+    </owl:DatatypeProperty>
+    
+
+
     <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#contactInformation -->
 
     <owl:DatatypeProperty rdf:about="&OntologyRequirements;contactInformation">
@@ -724,6 +779,16 @@ The same Quantity has represenations as two different Expressed Quantities in th
         <rdfs:domain rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#IntelligentAgent"/>
         <rdfs:subPropertyOf rdf:resource="&OntologyRequirements;contactInformation"/>
         <rdfs:range rdf:resource="&xsd;anyURI"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#endingDate -->
+
+    <owl:DatatypeProperty rdf:about="&OntologyRequirements;endingDate">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:domain rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#Event"/>
+        <rdfs:range rdf:resource="&xsd;dateTime"/>
     </owl:DatatypeProperty>
     
 
@@ -928,7 +993,8 @@ Same as cyc:Artifact.</rdfs:comment>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#CalendarNanosecond"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#CalendarWeek"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#CalendarYear"/>
-        <rdfs:comment xml:lang="en">A specialization  of Date  Time, Calendar Century is the class of 100 year intervals that make up the calendar. Each Calendar Century is divided into one thousand contiguous Calendar Years. Note that a given instance of Calendar Century is a temporally continuous individual that occurs only once.
+        <owl:disjointWith rdf:resource="&OntologyRequirements;CalendarMonth"/>
+        <rdfs:comment xml:lang="en">A specialization of Date  Time, Calendar Century is the class of 100 year intervals that make up the calendar. Each Calendar Century is divided into one thousand contiguous Calendar Years. Note that a given instance of Calendar Century is a temporally continuous individual that occurs only once.
 
 Note that different Calendar Centuries in the same calendary system can have different durations due to having different numbers of leap years.
 
@@ -949,6 +1015,7 @@ Same as cyc:CalendarCentury.</rdfs:comment>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#CalendarNanosecond"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#CalendarWeek"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#CalendarYear"/>
+        <owl:disjointWith rdf:resource="&OntologyRequirements;CalendarMonth"/>
         <rdfs:comment xml:lang="en">A specialization  of Date  Time, Calendar Day is the class of 24-hour periods that make up the calendar. Each Calendar Day is divided into 24 contiguous Calendar Hours. Note that a given instance of Calendar Day is a temporally continuous individual that occurs only once.
 
 Same as cyc:CalendarDay.</rdfs:comment>
@@ -965,6 +1032,7 @@ Same as cyc:CalendarDay.</rdfs:comment>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#CalendarNanosecond"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#CalendarWeek"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#CalendarYear"/>
+        <owl:disjointWith rdf:resource="&OntologyRequirements;CalendarMonth"/>
         <rdfs:comment xml:lang="en">A specialization  of Date  Time, Calendar Hour is the class of 60 minute periods that make up the calendar. The sixty-minute interval from  9:00 through 9:59 AM GMT on May 4, 2013, is an instance of Calendar Minute, while the 60-minute interval from 8:54 through 9:53 AM of the same day is not.
 
 Each Calendar Hour divided into sixty contiguous Calendar Minutes. Note that a given instance of Calendar Hour is a temporally continuous individual that occurs only once.
@@ -982,6 +1050,7 @@ Same as cyc:CalendarHour.</rdfs:comment>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#CalendarNanosecond"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#CalendarWeek"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#CalendarYear"/>
+        <owl:disjointWith rdf:resource="&OntologyRequirements;CalendarMonth"/>
         <rdfs:comment xml:lang="en">A specialization  of Date  Time, Calendar Millisecond is the class of milliseconds that make up the calendar. Each Calendar Secondis divided into one thousand contiguous Calendar Milliseconds. Note that a given instance of Calendar Millisecond is a temporally continuous individual that occurs only once.
 
 Same as cyc:CalendarMilliSecond.</rdfs:comment>
@@ -996,6 +1065,7 @@ Same as cyc:CalendarMilliSecond.</rdfs:comment>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#CalendarNanosecond"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#CalendarWeek"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#CalendarYear"/>
+        <owl:disjointWith rdf:resource="&OntologyRequirements;CalendarMonth"/>
         <rdfs:comment xml:lang="en">A specialization  of Date  Time, Calendar Minute is the class of 60-second periods that make up the calendar.  9:53 AM GMT on May 4, 2013 is an instance of Calendar Minute, while the 60-second interval from 9:53:16 through 9:54:15 of the same day is not.
 
 Each Calendar Minute is divided into sixty contiguous Calendar Seconds. Note that a given instance of Calendar Minute is a temporally continuous individual that occurs only once.
@@ -1011,6 +1081,7 @@ Same as cyc:CalendarMinute.</rdfs:comment>
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#DateTime"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#CalendarWeek"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#CalendarYear"/>
+        <owl:disjointWith rdf:resource="&OntologyRequirements;CalendarMonth"/>
         <rdfs:comment xml:lang="en">A specialization  of Date  Time, Calendar Nanosecond is the class of  one nanosecond periods that make up the calendar.  Each Calendar Millisecond divided into one thousand contiguous Calendar Nanoseconds. Note that a given instance of Calendar Nanosecond is a temporally continuous individual that occurs only once.</rdfs:comment>
     </owl:Class>
     
@@ -1021,6 +1092,7 @@ Same as cyc:CalendarMinute.</rdfs:comment>
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#CalendarWeek">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#DateTime"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#CalendarYear"/>
+        <owl:disjointWith rdf:resource="&OntologyRequirements;CalendarMonth"/>
         <rdfs:comment xml:lang="en">A specialization  of Date  Time, Calendar Week is the class of 7-day intervals that make up some calendar. Each Calendar Week is divided into seven contiguous Calendar Days. Note that a given instance of Calendar Week is a temporally continuous individual that occurs only once.
 
 Note that Calendar Weeks defined by different systems can overlap.  European calendars often define weeks as beginning with a Monday, while US calendars often define weeks as beginning with a Sunday.
@@ -1034,6 +1106,7 @@ Same as cyc:CalendarCentury.</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#CalendarYear">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#DateTime"/>
+        <owl:disjointWith rdf:resource="&OntologyRequirements;CalendarMonth"/>
         <rdfs:comment xml:lang="en">A specialization  of Date  Time, Calendar Year is the class of one year long periods that make up a calendar. The year 1953 on the Gregorian Calendar is an instance of Calendar Year, while the Time Interval from May 4, 1953s through May 3, 1954, is not.
 
 Note that a given instance of Calendar Year is a temporally continuous individual that occurs only once. Note also, that due to leap years, different calendar years on the same calendar can have different durations.
@@ -1263,7 +1336,7 @@ Same as cyc:Time-Quantity.</rdfs:comment>
     <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#EventType -->
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#EventType">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#SecondOrderClass"/>
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#FirstOrderClass"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#InterconvertibleUnitType"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#MeasurableQuantityType"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#ObjectType"/>
@@ -1286,6 +1359,7 @@ Examples of InterconvertibleUnitTypes include UnitOfTime, UnitOfDistance and Uni
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#FieldOfStudy">
         <rdfs:subClassOf rdf:resource="&OntologyRequirements;IntangibleCreatedThing"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#FirstOrderClass"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#Image"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#IntelligentAgent"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#Language"/>
@@ -1293,11 +1367,28 @@ Examples of InterconvertibleUnitTypes include UnitOfTime, UnitOfDistance and Uni
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#Metadata"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#Quantity"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#RuleSet"/>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#SecondOrderClass"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#Software"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#StructuredInformationStore"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#Technique"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#UnitOfMeasure"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#FirstOrderClass -->
+
+    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#FirstOrderClass">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#NonTangibleThing"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#Language"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#LogicalRule"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#Quantity"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#RuleSet"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#Software"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#TemporalThing"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#UnitOfMeasure"/>
+        <owl:disjointWith rdf:resource="&OntologyRequirements;Curve"/>
+        <owl:disjointWith rdf:resource="&OntologyRequirements;Information"/>
+        <rdfs:comment xml:lang="en">First Order Classes are metaclasses that have as instances classes which are not metaclasses.  For example, Species and Cell Type have as instances, not individual animals and cells, but TYPES of animals and cells.</rdfs:comment>
     </owl:Class>
     
 
@@ -1434,7 +1525,7 @@ Same as cyc:GovernmentalOrganization.</rdfs:comment>
     <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#InterconvertibleUnitType -->
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#InterconvertibleUnitType">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#SecondOrderClass"/>
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#FirstOrderClass"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#MeasurableQuantityType"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#ObjectType"/>
     </owl:Class>
@@ -1450,7 +1541,6 @@ Same as cyc:GovernmentalOrganization.</rdfs:comment>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#PhysicalObject"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#Quantity"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#RuleSet"/>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#SecondOrderClass"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#Software"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#StructuredInformationStore"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#Technique"/>
@@ -1471,7 +1561,6 @@ Same as cyc:Language.</rdfs:comment>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#Metadata"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#Quantity"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#RuleSet"/>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#SecondOrderClass"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#Software"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#StructuredInformationStore"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#UnitOfMeasure"/>
@@ -1520,7 +1609,7 @@ Same as cyc:Language.</rdfs:comment>
     <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#MeasurableQuantityType -->
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#MeasurableQuantityType">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#SecondOrderClass"/>
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#FirstOrderClass"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#ObjectType"/>
         <rdfs:comment xml:lang="en">A type quantity that can be measured, such as area, distance, duration, temperature, or volume.  Specific quantities (1.0 square cm, 3.14 kg, etc.) are NOT instances.  See `Specialized Measurable Quantity Type&#39; for restrictions of such quantity types to specific object types (such as cell area).</rdfs:comment>
     </owl:Class>
@@ -1577,7 +1666,7 @@ Same as cyc:Language.</rdfs:comment>
     <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#ObjectType -->
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#ObjectType">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#SecondOrderClass"/>
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#FirstOrderClass"/>
     </owl:Class>
     
 
@@ -1635,7 +1724,6 @@ Same as cyc:PhysicalDevice.</rdfs:comment>
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#Quantity">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#NonTangibleThing"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#RuleSet"/>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#SecondOrderClass"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#Software"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#StructuredInformationStore"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#Technique"/>
@@ -1661,23 +1749,9 @@ Same as cyc:ResearchOrganization.</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#RuleSet">
         <rdfs:subClassOf rdf:resource="&OntologyRequirements;IntangibleCreatedThing"/>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#SecondOrderClass"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#Software"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#Technique"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#UnitOfMeasure"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#SecondOrderClass -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#SecondOrderClass">
-        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#NonTangibleThing"/>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#Software"/>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#TemporalThing"/>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#UnitOfMeasure"/>
-        <owl:disjointWith rdf:resource="&OntologyRequirements;Curve"/>
-        <rdfs:comment xml:lang="en">Second Order Classes are metaclasses that have as instances classes which are not metaclasses.  For example, Species and Cell Type have as instances, not individual animals and cells, but TYPES of animals and cells.</rdfs:comment>
     </owl:Class>
     
 
@@ -1752,6 +1826,7 @@ Same as cyc:VersionedSoftwareObject.</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#StateOfBeing">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#NonTangibleThing"/>
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#TemporalThing"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#StructuredInformationStore"/>
         <owl:disjointWith rdf:resource="&OntologyRequirements;Curve"/>
         <rdfs:comment xml:lang="en">A `State Of Being&#39; is a state which something is in.  Something may be in multiple states if the states are of different types.</rdfs:comment>
@@ -1830,10 +1905,12 @@ See cyc:StructuredInformationStore.</rdfs:comment>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#UnitOfTemperature"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#UnitOfVolume"/>
         <owl:disjointWith rdf:resource="&OntologyRequirements;CurrencyUnit"/>
+        <owl:disjointWith rdf:resource="&OntologyRequirements;UnitOfAcceleration"/>
         <owl:disjointWith rdf:resource="&OntologyRequirements;UnitOfEnergy"/>
         <owl:disjointWith rdf:resource="&OntologyRequirements;UnitOfForce"/>
         <owl:disjointWith rdf:resource="&OntologyRequirements;UnitOfPressure"/>
         <owl:disjointWith rdf:resource="&OntologyRequirements;UnitOfSpreadRate"/>
+        <owl:disjointWith rdf:resource="&OntologyRequirements;UnitOfVelocity"/>
         <owl:disjointWith rdf:resource="&OntologyRequirements;UnitOfVoltage"/>
     </owl:Class>
     
@@ -1849,10 +1926,12 @@ See cyc:StructuredInformationStore.</rdfs:comment>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#UnitOfTemperature"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#UnitOfVolume"/>
         <owl:disjointWith rdf:resource="&OntologyRequirements;CurrencyUnit"/>
+        <owl:disjointWith rdf:resource="&OntologyRequirements;UnitOfAcceleration"/>
         <owl:disjointWith rdf:resource="&OntologyRequirements;UnitOfEnergy"/>
         <owl:disjointWith rdf:resource="&OntologyRequirements;UnitOfForce"/>
         <owl:disjointWith rdf:resource="&OntologyRequirements;UnitOfPressure"/>
         <owl:disjointWith rdf:resource="&OntologyRequirements;UnitOfSpreadRate"/>
+        <owl:disjointWith rdf:resource="&OntologyRequirements;UnitOfVelocity"/>
         <owl:disjointWith rdf:resource="&OntologyRequirements;UnitOfVoltage"/>
     </owl:Class>
     
@@ -1867,10 +1946,12 @@ See cyc:StructuredInformationStore.</rdfs:comment>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#UnitOfTemperature"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#UnitOfVolume"/>
         <owl:disjointWith rdf:resource="&OntologyRequirements;CurrencyUnit"/>
+        <owl:disjointWith rdf:resource="&OntologyRequirements;UnitOfAcceleration"/>
         <owl:disjointWith rdf:resource="&OntologyRequirements;UnitOfEnergy"/>
         <owl:disjointWith rdf:resource="&OntologyRequirements;UnitOfForce"/>
         <owl:disjointWith rdf:resource="&OntologyRequirements;UnitOfPressure"/>
         <owl:disjointWith rdf:resource="&OntologyRequirements;UnitOfSpreadRate"/>
+        <owl:disjointWith rdf:resource="&OntologyRequirements;UnitOfVelocity"/>
         <owl:disjointWith rdf:resource="&OntologyRequirements;UnitOfVoltage"/>
     </owl:Class>
     
@@ -1884,10 +1965,12 @@ See cyc:StructuredInformationStore.</rdfs:comment>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#UnitOfTemperature"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#UnitOfVolume"/>
         <owl:disjointWith rdf:resource="&OntologyRequirements;CurrencyUnit"/>
+        <owl:disjointWith rdf:resource="&OntologyRequirements;UnitOfAcceleration"/>
         <owl:disjointWith rdf:resource="&OntologyRequirements;UnitOfEnergy"/>
         <owl:disjointWith rdf:resource="&OntologyRequirements;UnitOfForce"/>
         <owl:disjointWith rdf:resource="&OntologyRequirements;UnitOfPressure"/>
         <owl:disjointWith rdf:resource="&OntologyRequirements;UnitOfSpreadRate"/>
+        <owl:disjointWith rdf:resource="&OntologyRequirements;UnitOfVelocity"/>
         <owl:disjointWith rdf:resource="&OntologyRequirements;UnitOfVoltage"/>
     </owl:Class>
     
@@ -1900,11 +1983,13 @@ See cyc:StructuredInformationStore.</rdfs:comment>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#UnitOfTemperature"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#UnitOfVolume"/>
         <owl:disjointWith rdf:resource="&OntologyRequirements;CurrencyUnit"/>
+        <owl:disjointWith rdf:resource="&OntologyRequirements;UnitOfAcceleration"/>
         <owl:disjointWith rdf:resource="&OntologyRequirements;UnitOfDensity"/>
         <owl:disjointWith rdf:resource="&OntologyRequirements;UnitOfEnergy"/>
         <owl:disjointWith rdf:resource="&OntologyRequirements;UnitOfForce"/>
         <owl:disjointWith rdf:resource="&OntologyRequirements;UnitOfPressure"/>
         <owl:disjointWith rdf:resource="&OntologyRequirements;UnitOfSpreadRate"/>
+        <owl:disjointWith rdf:resource="&OntologyRequirements;UnitOfVelocity"/>
         <owl:disjointWith rdf:resource="&OntologyRequirements;UnitOfVoltage"/>
     </owl:Class>
     
@@ -1925,11 +2010,13 @@ See cyc:StructuredInformationStore.</rdfs:comment>
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#UnitOfMeasure"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#UnitOfVolume"/>
         <owl:disjointWith rdf:resource="&OntologyRequirements;CurrencyUnit"/>
+        <owl:disjointWith rdf:resource="&OntologyRequirements;UnitOfAcceleration"/>
         <owl:disjointWith rdf:resource="&OntologyRequirements;UnitOfDensity"/>
         <owl:disjointWith rdf:resource="&OntologyRequirements;UnitOfEnergy"/>
         <owl:disjointWith rdf:resource="&OntologyRequirements;UnitOfForce"/>
         <owl:disjointWith rdf:resource="&OntologyRequirements;UnitOfPressure"/>
         <owl:disjointWith rdf:resource="&OntologyRequirements;UnitOfSpreadRate"/>
+        <owl:disjointWith rdf:resource="&OntologyRequirements;UnitOfVelocity"/>
         <owl:disjointWith rdf:resource="&OntologyRequirements;UnitOfVoltage"/>
     </owl:Class>
     
@@ -1940,11 +2027,13 @@ See cyc:StructuredInformationStore.</rdfs:comment>
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#UnitOfVolume">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#UnitOfMeasure"/>
         <owl:disjointWith rdf:resource="&OntologyRequirements;CurrencyUnit"/>
+        <owl:disjointWith rdf:resource="&OntologyRequirements;UnitOfAcceleration"/>
         <owl:disjointWith rdf:resource="&OntologyRequirements;UnitOfDensity"/>
         <owl:disjointWith rdf:resource="&OntologyRequirements;UnitOfEnergy"/>
         <owl:disjointWith rdf:resource="&OntologyRequirements;UnitOfForce"/>
         <owl:disjointWith rdf:resource="&OntologyRequirements;UnitOfPressure"/>
         <owl:disjointWith rdf:resource="&OntologyRequirements;UnitOfSpreadRate"/>
+        <owl:disjointWith rdf:resource="&OntologyRequirements;UnitOfVelocity"/>
     </owl:Class>
     
 
@@ -1999,6 +2088,14 @@ See cyc:StructuredInformationStore.</rdfs:comment>
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#April -->
+
+    <owl:Class rdf:about="&OntologyRequirements;April">
+        <rdfs:subClassOf rdf:resource="&OntologyRequirements;CalendarMonth"/>
+    </owl:Class>
+    
+
+
     <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#AreaChart -->
 
     <owl:Class rdf:about="&OntologyRequirements;AreaChart">
@@ -2018,10 +2115,27 @@ The (non-list) positions in an Array are called cells.  Cells may have numbers, 
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#August -->
+
+    <owl:Class rdf:about="&OntologyRequirements;August">
+        <rdfs:subClassOf rdf:resource="&OntologyRequirements;CalendarMonth"/>
+    </owl:Class>
+    
+
+
     <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#BarGraph -->
 
     <owl:Class rdf:about="&OntologyRequirements;BarGraph">
         <rdfs:subClassOf rdf:resource="&OntologyRequirements;GraphicalImage"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#CalendarMonth -->
+
+    <owl:Class rdf:about="&OntologyRequirements;CalendarMonth">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#DateTime"/>
+        <rdfs:comment xml:lang="en">A specialization of DateTime. Each instance of CalendarMonth is a month in a particular calendar, and as such have durations ranging from 28 to 31 days. An example sub-collection of CalendarMonth is February, the collection of all months of February. One instance of the collection February (and thus one instance of the collection CalendarMonth) is February of 2012.</rdfs:comment>
     </owl:Class>
     
 
@@ -2069,10 +2183,12 @@ The (non-list) positions in an Array are called cells.  Cells may have numbers, 
 
     <owl:Class rdf:about="&OntologyRequirements;CurrencyUnit">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#UnitOfMeasure"/>
+        <owl:disjointWith rdf:resource="&OntologyRequirements;UnitOfAcceleration"/>
         <owl:disjointWith rdf:resource="&OntologyRequirements;UnitOfEnergy"/>
         <owl:disjointWith rdf:resource="&OntologyRequirements;UnitOfForce"/>
         <owl:disjointWith rdf:resource="&OntologyRequirements;UnitOfPressure"/>
         <owl:disjointWith rdf:resource="&OntologyRequirements;UnitOfSpreadRate"/>
+        <owl:disjointWith rdf:resource="&OntologyRequirements;UnitOfVelocity"/>
         <owl:disjointWith rdf:resource="&OntologyRequirements;UnitOfVoltage"/>
         <rdfs:comment xml:lang="en">A unit of currency such as Euro, USDollar, ChineseYuan, EuroCent, and USCent.See subclasses PrimaryCurrencyUnit and SecondaryCurrencyUnit to distinuish the basic unit (e.g., Euro) from secondary units (e.g., EuroCent).</rdfs:comment>
     </owl:Class>
@@ -2132,6 +2248,14 @@ The (non-list) positions in an Array are called cells.  Cells may have numbers, 
 
     <owl:Class rdf:about="&OntologyRequirements;DataTable">
         <rdfs:subClassOf rdf:resource="&OntologyRequirements;DataObject"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#December -->
+
+    <owl:Class rdf:about="&OntologyRequirements;December">
+        <rdfs:subClassOf rdf:resource="&OntologyRequirements;CalendarMonth"/>
     </owl:Class>
     
 
@@ -2242,10 +2366,27 @@ The (non-list) positions in an Array are called cells.  Cells may have numbers, 
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#EventSeries -->
+
+    <owl:Class rdf:about="&OntologyRequirements;EventSeries">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#Event"/>
+        <rdfs:comment xml:lang="en">An event series, such as a conference series, bi-annual elections, winter olympics, publications of journal issues, and a person&#39;s heartbeats.</rdfs:comment>
+    </owl:Class>
+    
+
+
     <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#ExperimentPlanning -->
 
     <owl:Class rdf:about="&OntologyRequirements;ExperimentPlanning">
         <rdfs:subClassOf rdf:resource="&OntologyRequirements;Planning"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#February -->
+
+    <owl:Class rdf:about="&OntologyRequirements;February">
+        <rdfs:subClassOf rdf:resource="&OntologyRequirements;CalendarMonth"/>
     </owl:Class>
     
 
@@ -2290,7 +2431,7 @@ The (non-list) positions in an Array are called cells.  Cells may have numbers, 
 
     <owl:Class rdf:about="&OntologyRequirements;Information">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#NonTangibleThing"/>
-        <rdfs:comment xml:lang="en">Abstract Informationt. Some types of information are structured (see Abstract Information Store and its subclasses), while others (such as Plans and Objectives) need not be.</rdfs:comment>
+        <rdfs:comment xml:lang="en">Abstract Information. Some types of information are structured (see Abstract Information Store and its subclasses), while others (such as Plans and Objectives) need not be.</rdfs:comment>
     </owl:Class>
     
 
@@ -2307,6 +2448,30 @@ The (non-list) positions in an Array are called cells.  Cells may have numbers, 
             </owl:Class>
         </owl:equivalentClass>
         <rdfs:subClassOf rdf:resource="&OntologyRequirements;CreatedThing"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#January -->
+
+    <owl:Class rdf:about="&OntologyRequirements;January">
+        <rdfs:subClassOf rdf:resource="&OntologyRequirements;CalendarMonth"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#July -->
+
+    <owl:Class rdf:about="&OntologyRequirements;July">
+        <rdfs:subClassOf rdf:resource="&OntologyRequirements;CalendarMonth"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#June -->
+
+    <owl:Class rdf:about="&OntologyRequirements;June">
+        <rdfs:subClassOf rdf:resource="&OntologyRequirements;CalendarMonth"/>
     </owl:Class>
     
 
@@ -2361,6 +2526,14 @@ The (non-list) positions in an Array are called cells.  Cells may have numbers, 
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#March -->
+
+    <owl:Class rdf:about="&OntologyRequirements;March">
+        <rdfs:subClassOf rdf:resource="&OntologyRequirements;CalendarMonth"/>
+    </owl:Class>
+    
+
+
     <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#MathematicalExpression -->
 
     <owl:Class rdf:about="&OntologyRequirements;MathematicalExpression">
@@ -2375,6 +2548,14 @@ The (non-list) positions in an Array are called cells.  Cells may have numbers, 
     <owl:Class rdf:about="&OntologyRequirements;MathematicalFormula">
         <rdfs:subClassOf rdf:resource="&OntologyRequirements;MathematicalExpression"/>
         <rdfs:comment xml:lang="en">A Mathematical Formula is a fact, rule, or principle that is expressed in terms of mathematical symbols. These include equations, inequalities, and expressions that can be evaluated. </rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#May -->
+
+    <owl:Class rdf:about="&OntologyRequirements;May">
+        <rdfs:subClassOf rdf:resource="&OntologyRequirements;CalendarMonth"/>
     </owl:Class>
     
 
@@ -2400,6 +2581,17 @@ The (non-list) positions in an Array are called cells.  Cells may have numbers, 
     <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#Modeling -->
 
     <owl:Class rdf:about="&OntologyRequirements;Modeling">
+        <owl:equivalentClass>
+            <owl:Class>
+                <owl:intersectionOf rdf:parseType="Collection">
+                    <rdf:Description rdf:about="&OntologyRequirements;Development"/>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#outputCreated"/>
+                        <owl:someValuesFrom rdf:resource="&OntologyRequirements;ConceptualModel"/>
+                    </owl:Restriction>
+                </owl:intersectionOf>
+            </owl:Class>
+        </owl:equivalentClass>
         <rdfs:subClassOf rdf:resource="&OntologyRequirements;Development"/>
         <rdfs:subClassOf>
             <owl:Restriction>
@@ -2408,6 +2600,23 @@ The (non-list) positions in an Array are called cells.  Cells may have numbers, 
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:comment xml:lang="en">Modeling is a Purposeful Acition in which a Conceputal Model is created and developed for the way something works or is structured.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#MonthOfYearType -->
+
+    <owl:Class rdf:about="&OntologyRequirements;MonthOfYearType">
+        <rdfs:subClassOf rdf:resource="&OntologyRequirements;TimeOfYearType"/>
+        <rdfs:comment xml:lang="en">A named month type in a Gregorian (or Julian) calendar.  I.e., January, February, March, April, ... December.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#November -->
+
+    <owl:Class rdf:about="&OntologyRequirements;November">
+        <rdfs:subClassOf rdf:resource="&OntologyRequirements;CalendarMonth"/>
     </owl:Class>
     
 
@@ -2425,6 +2634,14 @@ The (non-list) positions in an Array are called cells.  Cells may have numbers, 
 
     <owl:Class rdf:about="&OntologyRequirements;NumericalSimulationModel">
         <rdfs:subClassOf rdf:resource="&OntologyRequirements;SimulationModel"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#October -->
+
+    <owl:Class rdf:about="&OntologyRequirements;October">
+        <rdfs:subClassOf rdf:resource="&OntologyRequirements;CalendarMonth"/>
     </owl:Class>
     
 
@@ -2525,6 +2742,14 @@ The (non-list) positions in an Array are called cells.  Cells may have numbers, 
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#September -->
+
+    <owl:Class rdf:about="&OntologyRequirements;September">
+        <rdfs:subClassOf rdf:resource="&OntologyRequirements;CalendarMonth"/>
+    </owl:Class>
+    
+
+
     <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#Simulating -->
 
     <owl:Class rdf:about="&OntologyRequirements;Simulating">
@@ -2583,6 +2808,15 @@ The (non-list) positions in an Array are called cells.  Cells may have numbers, 
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#TimeOfYearType -->
+
+    <owl:Class rdf:about="&OntologyRequirements;TimeOfYearType">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#FirstOrderClass"/>
+        <rdfs:comment xml:lang="en">A time of year type is a metaclass.  It&#39;s intances are types of time periods, such as a named month (October), season (Summer), fiscal quarter (ThirdQuarterOfYear), or named day (Thanksgiving, NewYearsDay, MarchFourth).  Any instance of TimeOfYearType would have a single instance in any given year (October of 2012, Summer of 1998, ...).</rdfs:comment>
+    </owl:Class>
+    
+
+
     <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#TwoDimensionalArray -->
 
     <owl:Class rdf:about="&OntologyRequirements;TwoDimensionalArray">
@@ -2601,6 +2835,21 @@ The (non-list) positions in an Array are called cells.  Cells may have numbers, 
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#UnitOfAcceleration -->
+
+    <owl:Class rdf:about="&OntologyRequirements;UnitOfAcceleration">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#UnitOfMeasure"/>
+        <owl:disjointWith rdf:resource="&OntologyRequirements;UnitOfDensity"/>
+        <owl:disjointWith rdf:resource="&OntologyRequirements;UnitOfEnergy"/>
+        <owl:disjointWith rdf:resource="&OntologyRequirements;UnitOfForce"/>
+        <owl:disjointWith rdf:resource="&OntologyRequirements;UnitOfPressure"/>
+        <owl:disjointWith rdf:resource="&OntologyRequirements;UnitOfSpreadRate"/>
+        <owl:disjointWith rdf:resource="&OntologyRequirements;UnitOfVelocity"/>
+        <owl:disjointWith rdf:resource="&OntologyRequirements;UnitOfVoltage"/>
+    </owl:Class>
+    
+
+
     <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#UnitOfDensity -->
 
     <owl:Class rdf:about="&OntologyRequirements;UnitOfDensity">
@@ -2609,14 +2858,9 @@ The (non-list) positions in an Array are called cells.  Cells may have numbers, 
         <owl:disjointWith rdf:resource="&OntologyRequirements;UnitOfForce"/>
         <owl:disjointWith rdf:resource="&OntologyRequirements;UnitOfPressure"/>
         <owl:disjointWith rdf:resource="&OntologyRequirements;UnitOfSpreadRate"/>
+        <owl:disjointWith rdf:resource="&OntologyRequirements;UnitOfVelocity"/>
         <owl:disjointWith rdf:resource="&OntologyRequirements;UnitOfVoltage"/>
     </owl:Class>
-    <rdf:Description>
-        <rdf:type rdf:resource="&owl;AllDisjointClasses"/>
-        <owl:members rdf:parseType="Collection">
-            <rdf:Description rdf:about="&OntologyRequirements;UnitOfDensity"/>
-        </owl:members>
-    </rdf:Description>
     
 
 
@@ -2627,6 +2871,7 @@ The (non-list) positions in an Array are called cells.  Cells may have numbers, 
         <owl:disjointWith rdf:resource="&OntologyRequirements;UnitOfForce"/>
         <owl:disjointWith rdf:resource="&OntologyRequirements;UnitOfPressure"/>
         <owl:disjointWith rdf:resource="&OntologyRequirements;UnitOfSpreadRate"/>
+        <owl:disjointWith rdf:resource="&OntologyRequirements;UnitOfVelocity"/>
         <owl:disjointWith rdf:resource="&OntologyRequirements;UnitOfVoltage"/>
     </owl:Class>
     
@@ -2638,6 +2883,7 @@ The (non-list) positions in an Array are called cells.  Cells may have numbers, 
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#UnitOfMeasure"/>
         <owl:disjointWith rdf:resource="&OntologyRequirements;UnitOfPressure"/>
         <owl:disjointWith rdf:resource="&OntologyRequirements;UnitOfSpreadRate"/>
+        <owl:disjointWith rdf:resource="&OntologyRequirements;UnitOfVelocity"/>
         <owl:disjointWith rdf:resource="&OntologyRequirements;UnitOfVoltage"/>
     </owl:Class>
     
@@ -2648,6 +2894,7 @@ The (non-list) positions in an Array are called cells.  Cells may have numbers, 
     <owl:Class rdf:about="&OntologyRequirements;UnitOfPressure">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#UnitOfMeasure"/>
         <owl:disjointWith rdf:resource="&OntologyRequirements;UnitOfSpreadRate"/>
+        <owl:disjointWith rdf:resource="&OntologyRequirements;UnitOfVelocity"/>
         <owl:disjointWith rdf:resource="&OntologyRequirements;UnitOfVoltage"/>
     </owl:Class>
     
@@ -2657,8 +2904,18 @@ The (non-list) positions in an Array are called cells.  Cells may have numbers, 
 
     <owl:Class rdf:about="&OntologyRequirements;UnitOfSpreadRate">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#UnitOfMeasure"/>
+        <owl:disjointWith rdf:resource="&OntologyRequirements;UnitOfVelocity"/>
         <owl:disjointWith rdf:resource="&OntologyRequirements;UnitOfVoltage"/>
         <rdfs:comment xml:lang="en">A Unit of Spread Rate is a Unit Of Measure specifying an amout of area per unit of duration, for example square centimeters per second.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#UnitOfVelocity -->
+
+    <owl:Class rdf:about="&OntologyRequirements;UnitOfVelocity">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#UnitOfMeasure"/>
+        <owl:disjointWith rdf:resource="&OntologyRequirements;UnitOfVoltage"/>
     </owl:Class>
     
 
@@ -3643,11 +3900,27 @@ Same as cyc:Time-Quantity.</rdfs:comment>
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#April -->
+
+    <owl:NamedIndividual rdf:about="&OntologyRequirements;April">
+        <rdf:type rdf:resource="&OntologyRequirements;MonthOfYearType"/>
+    </owl:NamedIndividual>
+    
+
+
     <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#Atmosphere-UnitOfPressure -->
 
     <owl:NamedIndividual rdf:about="&OntologyRequirements;Atmosphere-UnitOfPressure">
         <rdf:type rdf:resource="&OntologyRequirements;UnitOfPressure"/>
         <rdfs:comment xml:lang="en">One Atmosphere is the average pressure of the Earth&#39;s atmosphere at sea level,  It is defined as equal to 101,325 Pascals.</rdfs:comment>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#August -->
+
+    <owl:NamedIndividual rdf:about="&OntologyRequirements;August">
+        <rdf:type rdf:resource="&OntologyRequirements;MonthOfYearType"/>
     </owl:NamedIndividual>
     
 
@@ -3669,6 +3942,14 @@ Same as cyc:Time-Quantity.</rdfs:comment>
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#December -->
+
+    <owl:NamedIndividual rdf:about="&OntologyRequirements;December">
+        <rdf:type rdf:resource="&OntologyRequirements;MonthOfYearType"/>
+    </owl:NamedIndividual>
+    
+
+
     <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#ElectronVolt -->
 
     <owl:NamedIndividual rdf:about="&OntologyRequirements;ElectronVolt">
@@ -3681,6 +3962,14 @@ Same as cyc:Time-Quantity.</rdfs:comment>
 
     <owl:NamedIndividual rdf:about="&OntologyRequirements;Energy">
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#MeasurableQuantityType"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#February -->
+
+    <owl:NamedIndividual rdf:about="&OntologyRequirements;February">
+        <rdf:type rdf:resource="&OntologyRequirements;MonthOfYearType"/>
     </owl:NamedIndividual>
     
 
@@ -3702,10 +3991,34 @@ Same as cyc:Time-Quantity.</rdfs:comment>
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#January -->
+
+    <owl:NamedIndividual rdf:about="&OntologyRequirements;January">
+        <rdf:type rdf:resource="&OntologyRequirements;MonthOfYearType"/>
+    </owl:NamedIndividual>
+    
+
+
     <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#Joule -->
 
     <owl:NamedIndividual rdf:about="&OntologyRequirements;Joule">
         <rdf:type rdf:resource="&OntologyRequirements;UnitOfEnergy"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#July -->
+
+    <owl:NamedIndividual rdf:about="&OntologyRequirements;July">
+        <rdf:type rdf:resource="&OntologyRequirements;MonthOfYearType"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#June -->
+
+    <owl:NamedIndividual rdf:about="&OntologyRequirements;June">
+        <rdf:type rdf:resource="&OntologyRequirements;MonthOfYearType"/>
     </owl:NamedIndividual>
     
 
@@ -3726,11 +4039,43 @@ Same as cyc:Time-Quantity.</rdfs:comment>
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#March -->
+
+    <owl:NamedIndividual rdf:about="&OntologyRequirements;March">
+        <rdf:type rdf:resource="&OntologyRequirements;MonthOfYearType"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#May -->
+
+    <owl:NamedIndividual rdf:about="&OntologyRequirements;May">
+        <rdf:type rdf:resource="&OntologyRequirements;MonthOfYearType"/>
+    </owl:NamedIndividual>
+    
+
+
     <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#MmHg -->
 
     <owl:NamedIndividual rdf:about="&OntologyRequirements;MmHg">
         <rdf:type rdf:resource="&OntologyRequirements;UnitOfPressure"/>
         <rdfs:comment xml:lang="en">The pressure of a column of one mm of mercury (at 1.0 g, 20 C).</rdfs:comment>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#November -->
+
+    <owl:NamedIndividual rdf:about="&OntologyRequirements;November">
+        <rdf:type rdf:resource="&OntologyRequirements;MonthOfYearType"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#October -->
+
+    <owl:NamedIndividual rdf:about="&OntologyRequirements;October">
+        <rdf:type rdf:resource="&OntologyRequirements;MonthOfYearType"/>
     </owl:NamedIndividual>
     
 
@@ -3757,6 +4102,14 @@ Same as cyc:Time-Quantity.</rdfs:comment>
     <owl:NamedIndividual rdf:about="&OntologyRequirements;Pressure">
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements#MeasurableQuantityType"/>
         <rdfs:comment xml:lang="en">Pressure is the force per unit area perpendicular to the surface of an object.</rdfs:comment>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#September -->
+
+    <owl:NamedIndividual rdf:about="&OntologyRequirements;September">
+        <rdf:type rdf:resource="&OntologyRequirements;MonthOfYearType"/>
     </owl:NamedIndividual>
     
 
@@ -3835,7 +4188,7 @@ Same as cyc:Time-Quantity.</rdfs:comment>
     ///////////////////////////////////////////////////////////////////////////////////////
      -->
 
-    <rdf:Description rdf:about="http://purl.org/dc/elements/1.1/format">
+    <rdf:Description rdf:about="&dc;format">
         <rdfs:label xml:lang="en-us">Format</rdfs:label>
         <terms:modified>2008-01-14</terms:modified>
         <terms:issued>1999-07-02</terms:issued>
@@ -3845,7 +4198,7 @@ Same as cyc:Time-Quantity.</rdfs:comment>
         <terms:hasVersion rdf:resource="http://dublincore.org/usage/terms/history/#format-007"/>
         <rdfs:isDefinedBy rdf:resource="http://purl.org/dc/elements/1.1/"/>
     </rdf:Description>
-    <rdf:Description rdf:about="http://purl.org/dc/elements/1.1/creator">
+    <rdf:Description rdf:about="&dc;creator">
         <rdfs:label xml:lang="en-us">Creator</rdfs:label>
         <terms:issued>1999-07-02</terms:issued>
         <terms:modified>2008-01-14</terms:modified>
@@ -3855,7 +4208,7 @@ Same as cyc:Time-Quantity.</rdfs:comment>
         <terms:hasVersion rdf:resource="http://dublincore.org/usage/terms/history/#creator-006"/>
         <rdfs:isDefinedBy rdf:resource="http://purl.org/dc/elements/1.1/"/>
     </rdf:Description>
-    <rdf:Description rdf:about="http://purl.org/dc/elements/1.1/description">
+    <rdf:Description rdf:about="&dc;description">
         <rdfs:label xml:lang="en-us">Description</rdfs:label>
         <terms:modified>2008-01-14</terms:modified>
         <terms:issued>1999-07-02</terms:issued>
@@ -3865,7 +4218,7 @@ Same as cyc:Time-Quantity.</rdfs:comment>
         <terms:hasVersion rdf:resource="http://dublincore.org/usage/terms/history/#description-006"/>
         <rdfs:isDefinedBy rdf:resource="http://purl.org/dc/elements/1.1/"/>
     </rdf:Description>
-    <rdf:Description rdf:about="http://purl.org/dc/elements/1.1/contributor">
+    <rdf:Description rdf:about="&dc;contributor">
         <rdfs:label xml:lang="en-us">Contributor</rdfs:label>
         <terms:issued>1999-07-02</terms:issued>
         <terms:modified>2008-01-14</terms:modified>
@@ -3875,7 +4228,7 @@ Same as cyc:Time-Quantity.</rdfs:comment>
         <terms:hasVersion rdf:resource="http://dublincore.org/usage/terms/history/#contributor-006"/>
         <rdfs:isDefinedBy rdf:resource="http://purl.org/dc/elements/1.1/"/>
     </rdf:Description>
-    <rdf:Description rdf:about="http://purl.org/dc/elements/1.1/language">
+    <rdf:Description rdf:about="&dc;language">
         <rdfs:label xml:lang="en-us">Language</rdfs:label>
         <terms:issued>1999-07-02</terms:issued>
         <terms:modified>2008-01-14</terms:modified>
@@ -3886,7 +4239,7 @@ Same as cyc:Time-Quantity.</rdfs:comment>
         <rdfs:isDefinedBy rdf:resource="http://purl.org/dc/elements/1.1/"/>
         <rdfs:seeAlso rdf:resource="http://www.ietf.org/rfc/rfc4646.txt"/>
     </rdf:Description>
-    <rdf:Description rdf:about="http://purl.org/dc/elements/1.1/identifier">
+    <rdf:Description rdf:about="&dc;identifier">
         <rdfs:label xml:lang="en-us">Identifier</rdfs:label>
         <terms:modified>2008-01-14</terms:modified>
         <terms:issued>1999-07-02</terms:issued>
@@ -3901,7 +4254,7 @@ Same as cyc:Time-Quantity.</rdfs:comment>
         <terms:title xml:lang="en-us">Dublin Core Metadata Element Set, Version 1.1</terms:title>
         <terms:publisher rdf:resource="http://purl.org/dc/aboutdcmi#DCMI"/>
     </rdf:Description>
-    <rdf:Description rdf:about="http://purl.org/dc/elements/1.1/publisher">
+    <rdf:Description rdf:about="&dc;publisher">
         <rdfs:label xml:lang="en-us">Publisher</rdfs:label>
         <terms:issued>1999-07-02</terms:issued>
         <terms:modified>2008-01-14</terms:modified>
@@ -3911,7 +4264,7 @@ Same as cyc:Time-Quantity.</rdfs:comment>
         <terms:hasVersion rdf:resource="http://dublincore.org/usage/terms/history/#publisher-006"/>
         <rdfs:isDefinedBy rdf:resource="http://purl.org/dc/elements/1.1/"/>
     </rdf:Description>
-    <rdf:Description rdf:about="http://purl.org/dc/elements/1.1/source">
+    <rdf:Description rdf:about="&dc;source">
         <rdfs:label xml:lang="en-us">Source</rdfs:label>
         <terms:issued>1999-07-02</terms:issued>
         <terms:modified>2008-01-14</terms:modified>
@@ -3921,7 +4274,7 @@ Same as cyc:Time-Quantity.</rdfs:comment>
         <terms:hasVersion rdf:resource="http://dublincore.org/usage/terms/history/#source-006"/>
         <rdfs:isDefinedBy rdf:resource="http://purl.org/dc/elements/1.1/"/>
     </rdf:Description>
-    <rdf:Description rdf:about="http://purl.org/dc/elements/1.1/rights">
+    <rdf:Description rdf:about="&dc;rights">
         <rdfs:label xml:lang="en-us">Rights</rdfs:label>
         <terms:modified>2008-01-14</terms:modified>
         <terms:issued>1999-07-02</terms:issued>
@@ -3931,7 +4284,7 @@ Same as cyc:Time-Quantity.</rdfs:comment>
         <terms:hasVersion rdf:resource="http://dublincore.org/usage/terms/history/#rights-006"/>
         <rdfs:isDefinedBy rdf:resource="http://purl.org/dc/elements/1.1/"/>
     </rdf:Description>
-    <rdf:Description rdf:about="http://purl.org/dc/elements/1.1/coverage">
+    <rdf:Description rdf:about="&dc;coverage">
         <rdfs:label xml:lang="en-us">Coverage</rdfs:label>
         <terms:modified>2008-01-14</terms:modified>
         <terms:issued>1999-07-02</terms:issued>
@@ -3941,7 +4294,7 @@ Same as cyc:Time-Quantity.</rdfs:comment>
         <terms:hasVersion rdf:resource="http://dublincore.org/usage/terms/history/#coverage-006"/>
         <rdfs:isDefinedBy rdf:resource="http://purl.org/dc/elements/1.1/"/>
     </rdf:Description>
-    <rdf:Description rdf:about="http://purl.org/dc/elements/1.1/subject">
+    <rdf:Description rdf:about="&dc;subject">
         <rdfs:label xml:lang="en-us">Subject</rdfs:label>
         <terms:modified>2008-01-14</terms:modified>
         <terms:issued>1999-07-02</terms:issued>
@@ -3951,7 +4304,7 @@ Same as cyc:Time-Quantity.</rdfs:comment>
         <terms:hasVersion rdf:resource="http://dublincore.org/usage/terms/history/#subject-006"/>
         <rdfs:isDefinedBy rdf:resource="http://purl.org/dc/elements/1.1/"/>
     </rdf:Description>
-    <rdf:Description rdf:about="http://purl.org/dc/elements/1.1/type">
+    <rdf:Description rdf:about="&dc;type">
         <rdfs:label xml:lang="en-us">Type</rdfs:label>
         <terms:modified>2008-01-14</terms:modified>
         <terms:issued>1999-07-02</terms:issued>
@@ -3961,17 +4314,7 @@ Same as cyc:Time-Quantity.</rdfs:comment>
         <terms:hasVersion rdf:resource="http://dublincore.org/usage/terms/history/#type-006"/>
         <rdfs:isDefinedBy rdf:resource="http://purl.org/dc/elements/1.1/"/>
     </rdf:Description>
-    <rdf:Description rdf:about="http://purl.org/dc/elements/1.1/date">
-        <rdfs:label xml:lang="en-us">Date</rdfs:label>
-        <terms:issued>1999-07-02</terms:issued>
-        <terms:modified>2008-01-14</terms:modified>
-        <rdfs:comment xml:lang="en-us">A point or period of time associated with an event in the lifecycle of the resource.</rdfs:comment>
-        <skos:note xml:lang="en-us">A second property with the same name as this property has been declared in the dcterms: namespace (http://purl.org/dc/terms/).  See the Introduction to the document &#39;DCMI Metadata Terms&#39; (http://dublincore.org/documents/dcmi-terms/) for an explanation.</skos:note>
-        <terms:description xml:lang="en-us">Date may be used to express temporal information at any level of granularity.  Recommended best practice is to use an encoding scheme, such as the W3CDTF profile of ISO 8601 [W3CDTF].</terms:description>
-        <terms:hasVersion rdf:resource="http://dublincore.org/usage/terms/history/#date-006"/>
-        <rdfs:isDefinedBy rdf:resource="http://purl.org/dc/elements/1.1/"/>
-    </rdf:Description>
-    <rdf:Description rdf:about="http://purl.org/dc/elements/1.1/relation">
+    <rdf:Description rdf:about="&dc;relation">
         <rdfs:label xml:lang="en-us">Relation</rdfs:label>
         <terms:modified>2008-01-14</terms:modified>
         <terms:issued>1999-07-02</terms:issued>
@@ -3981,7 +4324,7 @@ Same as cyc:Time-Quantity.</rdfs:comment>
         <terms:hasVersion rdf:resource="http://dublincore.org/usage/terms/history/#relation-006"/>
         <rdfs:isDefinedBy rdf:resource="http://purl.org/dc/elements/1.1/"/>
     </rdf:Description>
-    <rdf:Description rdf:about="http://purl.org/dc/elements/1.1/title">
+    <rdf:Description rdf:about="&dc;title">
         <rdfs:label xml:lang="en-us">Title</rdfs:label>
         <terms:issued>1999-07-02</terms:issued>
         <terms:modified>2008-01-14</terms:modified>
@@ -4004,36 +4347,15 @@ Same as cyc:Time-Quantity.</rdfs:comment>
     <rdf:Description>
         <rdf:type rdf:resource="&owl;AllDifferent"/>
         <owl:distinctMembers rdf:parseType="Collection">
-            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#EMEM"/>
             <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#IMDM"/>
+            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#OMEM"/>
         </owl:distinctMembers>
     </rdf:Description>
     <rdf:Description>
         <rdf:type rdf:resource="&owl;AllDifferent"/>
         <owl:distinctMembers rdf:parseType="Collection">
-            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#Milligram"/>
-            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#Nanogram"/>
-        </owl:distinctMembers>
-    </rdf:Description>
-    <rdf:Description>
-        <rdf:type rdf:resource="&owl;AllDifferent"/>
-        <owl:distinctMembers rdf:parseType="Collection">
-            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#Gram"/>
-            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#Nanogram"/>
-        </owl:distinctMembers>
-    </rdf:Description>
-    <rdf:Description>
-        <rdf:type rdf:resource="&owl;AllDifferent"/>
-        <owl:distinctMembers rdf:parseType="Collection">
-            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#AtomicMassUnit"/>
-            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#Nanogram"/>
-        </owl:distinctMembers>
-    </rdf:Description>
-    <rdf:Description>
-        <rdf:type rdf:resource="&owl;AllDifferent"/>
-        <owl:distinctMembers rdf:parseType="Collection">
-            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#Microgram"/>
-            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#Nanogram"/>
+            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#EMEM"/>
+            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#HEPES"/>
         </owl:distinctMembers>
     </rdf:Description>
     <rdf:Description>
@@ -4046,7 +4368,7 @@ Same as cyc:Time-Quantity.</rdfs:comment>
     <rdf:Description>
         <rdf:type rdf:resource="&owl;AllDifferent"/>
         <owl:distinctMembers rdf:parseType="Collection">
-            <rdf:Description rdf:about="&OntologyRequirements;Bar-UnitOfPressure"/>
+            <rdf:Description rdf:about="&OntologyRequirements;Atmosphere-UnitOfPressure"/>
             <rdf:Description rdf:about="&OntologyRequirements;Pascal-UnitOfPressure"/>
         </owl:distinctMembers>
     </rdf:Description>
@@ -4060,29 +4382,22 @@ Same as cyc:Time-Quantity.</rdfs:comment>
     <rdf:Description>
         <rdf:type rdf:resource="&owl;AllDifferent"/>
         <owl:distinctMembers rdf:parseType="Collection">
-            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#EMEM"/>
-            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#OMEM"/>
+            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#Microgram"/>
+            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#Nanogram"/>
         </owl:distinctMembers>
     </rdf:Description>
     <rdf:Description>
         <rdf:type rdf:resource="&owl;AllDifferent"/>
         <owl:distinctMembers rdf:parseType="Collection">
-            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#EMEM"/>
-            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#HEPES"/>
-        </owl:distinctMembers>
-    </rdf:Description>
-    <rdf:Description>
-        <rdf:type rdf:resource="&owl;AllDifferent"/>
-        <owl:distinctMembers rdf:parseType="Collection">
-            <rdf:Description rdf:about="&OntologyRequirements;Atmosphere-UnitOfPressure"/>
+            <rdf:Description rdf:about="&OntologyRequirements;Bar-UnitOfPressure"/>
             <rdf:Description rdf:about="&OntologyRequirements;Pascal-UnitOfPressure"/>
         </owl:distinctMembers>
     </rdf:Description>
     <rdf:Description>
         <rdf:type rdf:resource="&owl;AllDifferent"/>
         <owl:distinctMembers rdf:parseType="Collection">
-            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#HEPES"/>
-            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#OMEM"/>
+            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#Gram"/>
+            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#Nanogram"/>
         </owl:distinctMembers>
     </rdf:Description>
     <rdf:Description>
@@ -4096,14 +4411,42 @@ Same as cyc:Time-Quantity.</rdfs:comment>
         <rdf:type rdf:resource="&owl;AllDifferent"/>
         <owl:distinctMembers rdf:parseType="Collection">
             <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#AtomicMassUnit"/>
-            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#Milligram"/>
+            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#Nanogram"/>
         </owl:distinctMembers>
     </rdf:Description>
     <rdf:Description>
         <rdf:type rdf:resource="&owl;AllDifferent"/>
         <owl:distinctMembers rdf:parseType="Collection">
-            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#IMDM"/>
+            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#HEPES"/>
             <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#OMEM"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#Milligram"/>
+            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#Nanogram"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#EMEM"/>
+            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#IMDM"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#EMEM"/>
+            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#OMEM"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#AtomicMassUnit"/>
+            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/OntologyRequirements#Milligram"/>
         </owl:distinctMembers>
     </rdf:Description>
     <rdf:Description>

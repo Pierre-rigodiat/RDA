@@ -4,6 +4,7 @@
 <!DOCTYPE rdf:RDF [
     <!ENTITY gc "gc#" >
     <!ENTITY owl "http://www.w3.org/2002/07/owl#" >
+    <!ENTITY dc "http://purl.org/dc/elements/1.1/" >
     <!ENTITY xsd "http://www.w3.org/2001/XMLSchema#" >
     <!ENTITY skos "http://www.w3.org/2004/02/skos/core#" >
     <!ENTITY bc "http://www.nist.gov/itl/ssd/Biochem#" >
@@ -11,32 +12,41 @@
     <!ENTITY daml "http://www.daml.org/2001/03/daml+oil#" >
     <!ENTITY doc "http://www.nist.gov/itl/ssd/Document#" >
     <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#" >
+    <!ENTITY ont "http://www.co-ode.org/ontologies/ont.owl#" >
     <!ENTITY gf "http://www.nist.gov/itl/ssd/GenomeFormats#" >
     <!ENTITY Experiments "http://www.nist.gov/itl/ssd/Experiments#" >
     <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#" >
     <!ENTITY or "http://www.nist.gov/itl/ssd/OntologyRequirements#" >
+    <!ENTITY OntologyRequirements "http://www.nist.gov/itl/ssd/OntologyRequirements.owl#" >
 ]>
 
 
 <rdf:RDF xmlns="http://www.nist.gov/itl/ssd/Experiments#"
      xml:base="http://www.nist.gov/itl/ssd/Experiments"
      xmlns:Experiments="http://www.nist.gov/itl/ssd/Experiments#"
+     xmlns:dc="http://purl.org/dc/elements/1.1/"
      xmlns:or="http://www.nist.gov/itl/ssd/OntologyRequirements#"
      xmlns:gc="gc#"
      xmlns:xml="http://www.w3.org/XML/1998/namespace"
      xmlns:daml="http://www.daml.org/2001/03/daml+oil#"
      xmlns:gf="http://www.nist.gov/itl/ssd/GenomeFormats#"
+     xmlns:OntologyRequirements="http://www.nist.gov/itl/ssd/OntologyRequirements.owl#"
      xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+     xmlns:ont="http://www.co-ode.org/ontologies/ont.owl#"
      xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
      xmlns:owl="http://www.w3.org/2002/07/owl#"
      xmlns:doc="http://www.nist.gov/itl/ssd/Document#"
      xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-     xmlns:bc="http://www.nist.gov/itl/ssd/Biochem#"
-     xmlns:skos="http://www.w3.org/2004/02/skos/core#">
+     xmlns:skos="http://www.w3.org/2004/02/skos/core#"
+     xmlns:bc="http://www.nist.gov/itl/ssd/Biochem#">
     <owl:Ontology rdf:about="http://www.nist.gov/itl/ssd/Experiments">
+        <dc:date xml:lang="en">12 October 2012</dc:date>
+        <dc:title xml:lang="en">Experiments Ontology</dc:title>
+        <dc:subject xml:lang="en">Ontology for general concepts related to experiments.  </dc:subject>
+        <skos:note xml:lang="en">This ontology is incomplete, having been developed to cover general features of experiments to be used in recording information stored in genomic and materials science files.</skos:note>
+        <ont:creator>doug foxvog</ont:creator>
         <owl:imports rdf:resource="http://www.nist.gov/itl/ssd/Biochem.owl"/>
-        <owl:imports rdf:resource="http://www.nist.gov/itl/ssd/Document.owl"/>
-        <owl:imports rdf:resource="http://www.nist.gov/itl/ssd/OntologyRequirements.owl"/>
+        <owl:imports rdf:resource="http://www.nist.gov/itl/ssd/Document"/>
     </owl:Ontology>
     
 
@@ -315,7 +325,6 @@
 
     <owl:ObjectProperty rdf:about="&Experiments;outputCreated">
         <rdfs:comment xml:lang="en">The property &#39;output Created&#39; specifies something that was created in a Creation Event.  There may be many outputs of a single Creation Event.</rdfs:comment>
-        <rdfs:domain rdf:resource="&Experiments;CreationEvent"/>
         <rdfs:range rdf:resource="&or;TemporalThing"/>
     </owl:ObjectProperty>
     
@@ -332,11 +341,17 @@
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#implementsAlgorithm -->
+
+    <owl:ObjectProperty rdf:about="&or;implementsAlgorithm"/>
+    
+
+
     <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#outputData -->
 
-    <rdf:Description rdf:about="&or;outputData">
+    <owl:ObjectProperty rdf:about="&or;outputData">
         <rdfs:subPropertyOf rdf:resource="&Experiments;outputCreated"/>
-    </rdf:Description>
+    </owl:ObjectProperty>
     
 
 
@@ -681,6 +696,12 @@ injectors, and use of liposomes.</rdfs:comment>
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#referenceURI -->
+
+    <owl:DatatypeProperty rdf:about="&or;referenceURI"/>
+    
+
+
     <!-- 
     ///////////////////////////////////////////////////////////////////////////////////////
     //
@@ -768,19 +789,7 @@ injectors, and use of liposomes.</rdfs:comment>
     <!-- http://www.nist.gov/itl/ssd/Document#MakingAPrediction -->
 
     <rdf:Description rdf:about="&doc;MakingAPrediction">
-        <owl:equivalentClass>
-            <owl:Class>
-                <owl:intersectionOf rdf:parseType="Collection">
-                    <rdf:Description rdf:about="&Experiments;IntentionalCreation"/>
-                    <owl:Restriction>
-                        <owl:onProperty rdf:resource="&Experiments;outputCreated"/>
-                        <owl:someValuesFrom rdf:resource="&doc;Prediction"/>
-                    </owl:Restriction>
-                </owl:intersectionOf>
-            </owl:Class>
-        </owl:equivalentClass>
         <rdfs:subClassOf rdf:resource="&Experiments;Analysis"/>
-        <rdfs:subClassOf rdf:resource="&Experiments;IntentionalCreation"/>
     </rdf:Description>
     
 
@@ -1069,7 +1078,7 @@ injectors, and use of liposomes.</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Experiments#CellProliferation">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Experiments#CellularBiologicalProcess"/>
-        <rdfs:subClassOf rdf:resource="&Experiments;CreationEvent"/>
+        <rdfs:subClassOf rdf:resource="&or;CreationEvent"/>
         <rdfs:comment xml:lang="en">The process in which a Biological Cell, or group of Biological Cells, produces more cells.</rdfs:comment>
     </owl:Class>
     
@@ -1911,17 +1920,8 @@ Same as cyc:ScanningProbeMicroscope .</rdfs:comment>
     <!-- http://www.nist.gov/itl/ssd/Experiments#ComputationalModeling -->
 
     <owl:Class rdf:about="&Experiments;ComputationalModeling">
-        <rdfs:subClassOf rdf:resource="&Experiments;Modeling"/>
+        <rdfs:subClassOf rdf:resource="&OntologyRequirements;Modeling"/>
         <rdfs:comment xml:lang="en">Computational Modeling is the process of intentionally creating a Computational Model.</rdfs:comment>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Experiments#CreationEvent -->
-
-    <owl:Class rdf:about="&Experiments;CreationEvent">
-        <rdfs:subClassOf rdf:resource="&or;Event"/>
-        <rdfs:comment xml:lang="en">A Creation Event is an Event in which something comes into existence.</rdfs:comment>
     </owl:Class>
     
 
@@ -1935,11 +1935,11 @@ Same as cyc:ScanningProbeMicroscope .</rdfs:comment>
     
 
 
-    <!-- http://www.nist.gov/itl/ssd/Experiments#DesignMethod -->
+    <!-- http://www.nist.gov/itl/ssd/Experiments#Experiment -->
 
-    <owl:Class rdf:about="&Experiments;DesignMethod">
-        <rdfs:subClassOf rdf:resource="&or;Technique"/>
-        <rdfs:comment xml:lang="en">A Design Method is a method for designing an Experiment, a Material, an Artifact, or an Algorithm.</rdfs:comment>
+    <owl:Class rdf:about="&Experiments;Experiment">
+        <rdfs:subClassOf rdf:resource="&or;IntentionalCreation"/>
+        <rdfs:comment xml:lang="en">Each instance of Experiment is an event in which one performs tests to determine whether an hypothesis is true or to determine physical (or other) features of something.</rdfs:comment>
     </owl:Class>
     
 
@@ -1980,37 +1980,6 @@ Same as cyc:ScanningProbeMicroscope .</rdfs:comment>
     
 
 
-    <!-- http://www.nist.gov/itl/ssd/Experiments#IntentionalCreation -->
-
-    <owl:Class rdf:about="&Experiments;IntentionalCreation">
-        <rdfs:subClassOf rdf:resource="&Experiments;CreationEvent"/>
-        <rdfs:subClassOf rdf:resource="&or;PurposefulAction"/>
-        <rdfs:comment xml:lang="en">Intentional Creation is the purposeful creation of a physical or information object.</rdfs:comment>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Experiments#Modeling -->
-
-    <owl:Class rdf:about="&Experiments;Modeling">
-        <owl:equivalentClass>
-            <owl:Class>
-                <owl:intersectionOf rdf:parseType="Collection">
-                    <rdf:Description rdf:about="&Experiments;IntentionalCreation"/>
-                    <owl:Restriction>
-                        <owl:onProperty rdf:resource="&Experiments;outputCreated"/>
-                        <owl:someValuesFrom rdf:resource="&doc;SystemModel"/>
-                    </owl:Restriction>
-                </owl:intersectionOf>
-            </owl:Class>
-        </owl:equivalentClass>
-        <rdfs:subClassOf rdf:resource="&Experiments;Analysis"/>
-        <rdfs:subClassOf rdf:resource="&Experiments;IntentionalCreation"/>
-        <rdfs:comment xml:lang="en">Modeling is type of Analysis and Intentional Creation of a System Model.</rdfs:comment>
-    </owl:Class>
-    
-
-
     <!-- http://www.nist.gov/itl/ssd/Experiments#ShapeAnalysisAlgorithm -->
 
     <owl:Class rdf:about="&Experiments;ShapeAnalysisAlgorithm">
@@ -2020,15 +1989,57 @@ Same as cyc:ScanningProbeMicroscope .</rdfs:comment>
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#Algorithm -->
+
+    <owl:Class rdf:about="&or;Algorithm"/>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#Artifact -->
+
+    <owl:Class rdf:about="&or;Artifact"/>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#Camera -->
+
+    <owl:Class rdf:about="&or;Camera"/>
+    
+
+
     <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#Computer -->
 
-    <rdf:Description rdf:about="&or;Computer"/>
+    <owl:Class rdf:about="&or;Computer"/>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#CreationEvent -->
+
+    <owl:Class rdf:about="&or;CreationEvent"/>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#EventType -->
+
+    <owl:Class rdf:about="&or;EventType"/>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#ImageInputDevice -->
+
+    <owl:Class rdf:about="&or;ImageInputDevice"/>
     
 
 
     <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#ImagingDevice -->
 
-    <rdf:Description rdf:about="&or;ImagingDevice"/>
+    <owl:Class rdf:about="&or;ImagingDevice"/>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#Manufacturer -->
+
+    <owl:Class rdf:about="&or;Manufacturer"/>
     
 
 
@@ -2044,9 +2055,21 @@ Same as cyc:ScanningProbeMicroscope .</rdfs:comment>
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#Metadata -->
+
+    <owl:Class rdf:about="&or;Metadata"/>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#MicroscopyImageFileFormat -->
+
+    <owl:Class rdf:about="&or;MicroscopyImageFileFormat"/>
+    
+
+
     <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#OperatingSystem -->
 
-    <rdf:Description rdf:about="&or;OperatingSystem"/>
+    <owl:Class rdf:about="&or;OperatingSystem"/>
     
 
 
@@ -2061,6 +2084,56 @@ Same as cyc:ScanningProbeMicroscope .</rdfs:comment>
     <rdf:Description rdf:about="&or;PurposefulAction">
         <rdfs:comment xml:lang="en">A Purposeful Action is an action taken on purpose by some entity.</rdfs:comment>
     </rdf:Description>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#Software -->
+
+    <owl:Class rdf:about="&or;Software"/>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#SoftwareObjectWithVersions -->
+
+    <owl:Class rdf:about="&or;SoftwareObjectWithVersions"/>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#SoftwarePackage -->
+
+    <owl:Class rdf:about="&or;SoftwarePackage"/>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#SpecializedMeasurableQuantityType -->
+
+    <owl:Class rdf:about="&or;SpecializedMeasurableQuantityType"/>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#StateOfBeing -->
+
+    <owl:Class rdf:about="&or;StateOfBeing"/>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#Technique -->
+
+    <owl:Class rdf:about="&or;Technique"/>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#TemporalThing -->
+
+    <owl:Class rdf:about="&or;TemporalThing"/>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#Modeling -->
+
+    <owl:Class rdf:about="&OntologyRequirements;Modeling">
+        <rdfs:subClassOf rdf:resource="&Experiments;Analysis"/>
+    </owl:Class>
     
 
 
@@ -2853,6 +2926,20 @@ This is especially used in edge detection to connect more faintly detected parts
         <or:referenceURI rdf:datatype="&xsd;anyURI">http://www.cellprofiler.org/CPmanual/IdentifyPrimaryObjects.html</or:referenceURI>
         <rdfs:comment xml:lang="en">Ridler-Calvard Image Segmentation chooses an initial threshold and iteratively calculates a new threshold as the mean of the average intensities of the background and foreground pixels determined by the current threshold, iterating until the threshold converges.</rdfs:comment>
     </owl:NamedIndividual>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Annotations
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    <rdf:Description rdf:about="&OntologyRequirements;DesignMethod">
+        <rdfs:comment xml:lang="en">A Design Method is a method for designing an Experiment, a Material, an Artifact, or an Algorithm.</rdfs:comment>
+    </rdf:Description>
 </rdf:RDF>
 
 
