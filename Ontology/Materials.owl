@@ -45,7 +45,7 @@
      xmlns:bc="http://www.nist.gov/itl/ssd/Biochem#">
     <owl:Ontology rdf:about="http://www.nist.gov/itl/ssd/Materials.owl">
         <owl:imports rdf:resource="http://www.nist.gov/itl/ssd/Biochem.owl"/>
-        <owl:imports rdf:resource="http://www.nist.gov/itl/ssd/Document.n3"/>
+        <owl:imports rdf:resource="http://www.nist.gov/itl/ssd/Document"/>
     </owl:Ontology>
     
 
