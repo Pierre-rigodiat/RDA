@@ -55,6 +55,7 @@
      -->
 
     <owl:AnnotationProperty rdf:about="&or;nickName"/>
+    <owl:AnnotationProperty rdf:about="&or;termString"/>
     
 
 
@@ -886,12 +887,6 @@
         <rdfs:subClassOf>
             <owl:Restriction>
                 <owl:onProperty rdf:resource="&OntologyRequirements;storesInformationAbout"/>
-                <owl:someValuesFrom rdf:resource="http://www.nist.gov/itl/ssd/MaterialProcessing#DiffractionData"/>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="&OntologyRequirements;storesInformationAbout"/>
                 <owl:someValuesFrom rdf:resource="&mat;CrystalStructure"/>
             </owl:Restriction>
         </rdfs:subClassOf>
@@ -899,6 +894,12 @@
             <owl:Restriction>
                 <owl:onProperty rdf:resource="&OntologyRequirements;storesInformationAbout"/>
                 <owl:someValuesFrom rdf:resource="http://www.nist.gov/itl/ssd/MaterialProcessing#PhaseDiagram"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&OntologyRequirements;storesInformationAbout"/>
+                <owl:someValuesFrom rdf:resource="http://www.nist.gov/itl/ssd/MaterialProcessing#DiffractionData"/>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:comment xml:lang="en">A Pauling File stores data on chemical constitution, structural data, diffraction data, and a variety of physical property data on binary phases of inorganic compounds.</rdfs:comment>
@@ -922,13 +923,13 @@
         <rdfs:subClassOf>
             <owl:Restriction>
                 <owl:onProperty rdf:resource="&doc;depictsInformationAbout"/>
-                <owl:someValuesFrom rdf:resource="&mat;MaterialPhaseComposition"/>
+                <owl:someValuesFrom rdf:resource="&mat;ThermodynamicPhase"/>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:subClassOf>
             <owl:Restriction>
                 <owl:onProperty rdf:resource="&doc;depictsInformationAbout"/>
-                <owl:someValuesFrom rdf:resource="&mat;ThermodynamicPhase"/>
+                <owl:someValuesFrom rdf:resource="&mat;MaterialPhaseComposition"/>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:comment xml:lang="en">A Phase Diagram is a type of chart used to show conditions at which thermodynamically distinct phases can occur at equilibrium.</rdfs:comment>
@@ -1454,12 +1455,72 @@
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/MaterialProcessing.owl#Drying -->
+
+    <owl:Class rdf:about="&MaterialProcessing;Drying">
+        <rdfs:subClassOf rdf:resource="&OntologyRequirements;MechanicalProcess"/>
+        <rdfs:comment xml:lang="en">Drying is a mass transfer process consisting of the removal of water or another solvent from a solid, semi-solid or liquid.  Drying may be evaporative, freeze drying, or supercritical drying.</rdfs:comment>
+        <or:termString xml:lang="en">drying</or:termString>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/MaterialProcessing.owl#EvaporativeDrying -->
+
+    <owl:Class rdf:about="&MaterialProcessing;EvaporativeDrying">
+        <rdfs:subClassOf rdf:resource="&MaterialProcessing;Drying"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&OntologyRequirements;subEvents"/>
+                <owl:someValuesFrom rdf:resource="&mat;Evaporating"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <owl:disjointWith rdf:resource="&MaterialProcessing;FreezeDrying"/>
+        <owl:disjointWith rdf:resource="&MaterialProcessing;SupercriticalDrying"/>
+        <rdfs:comment xml:lang="en">Evaporative Drying is the process of some object drying through the evaporation of a contained fluid.</rdfs:comment>
+        <or:termString xml:lang="en">evaporative drying</or:termString>
+    </owl:Class>
+    
+
+
     <!-- http://www.nist.gov/itl/ssd/MaterialProcessing.owl#ExpendableMoldCasting -->
 
     <owl:Class rdf:about="&MaterialProcessing;ExpendableMoldCasting">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/MaterialProcessing#Casting_MaterialProcessing"/>
         <owl:disjointWith rdf:resource="&MaterialProcessing;PermanentMoldCasting"/>
         <rdfs:comment xml:lang="en">Expendable Mold Casting uses of temporary, non-reusable molds.  Methods of expendable mold casting can be divided into those using a permanent pattern and those with expendable patterns (such as lost wax casting).</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/MaterialProcessing.owl#FreezeDrying -->
+
+    <owl:Class rdf:about="&MaterialProcessing;FreezeDrying">
+        <rdfs:subClassOf rdf:resource="&MaterialProcessing;Drying"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&OntologyRequirements;subEvents"/>
+                <owl:someValuesFrom rdf:resource="&mat;Sublimating"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&OntologyRequirements;subEvents"/>
+                <owl:someValuesFrom rdf:resource="&mat;Freezing"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&OntologyRequirements;subEvents"/>
+                <owl:someValuesFrom rdf:resource="&mat;CoolingProcess"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <owl:disjointWith rdf:resource="&MaterialProcessing;SupercriticalDrying"/>
+        <rdfs:comment xml:lang="en">Freeze-drying, also known as lyophilisation, lyophilization, or cryodesiccation, is a dehydration process that works by freezing some material and then reducing the surrounding pressure to allow the frozen water in the material to sublimate directly from the solid phase to the gas phase.  Freeze-drying may occur naturally, but is commonly a material proccessing technique.</rdfs:comment>
+        <or:termString xml:lang="en">cryodesiccation</or:termString>
+        <or:termString xml:lang="en">freeze-drying</or:termString>
+        <or:termString xml:lang="en">lyophilisation</or:termString>
+        <or:termString xml:lang="en">lyophilization</or:termString>
     </owl:Class>
     
 
@@ -1515,6 +1576,35 @@
     <owl:Class rdf:about="&MaterialProcessing;StylusProfilometer">
         <rdfs:subClassOf rdf:resource="&OntologyRequirements;Profilometer"/>
         <rdfs:comment xml:lang="en">In a Stylus Profilometer, a diamond stylus is moved vertically in contact with a sample and then moved laterally across the sample for a specified distance and specified contact force. Such a profilometer can measure surface variations in vertical stylus displacement as a function of position ranging in height from 10 nanometres to 1 millimetre.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/MaterialProcessing.owl#SupercriticalDrying -->
+
+    <owl:Class rdf:about="&MaterialProcessing;SupercriticalDrying">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/MaterialProcessing#HeatTreating"/>
+        <rdfs:subClassOf rdf:resource="&MaterialProcessing;Drying"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&OntologyRequirements;subEvents"/>
+                <owl:someValuesFrom rdf:resource="&mat;Vaporization"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&OntologyRequirements;subEvents"/>
+                <owl:someValuesFrom rdf:resource="&mat;CoolingProcess"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&OntologyRequirements;subEvents"/>
+                <owl:someValuesFrom rdf:resource="&mat;HeatingProcess"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:comment xml:lang="en">Supercritical Drying is an action of raising the pressure of something above the pressure of the critical point of a contained solvant, raising the temperature past the temperture of the critical point, reducing the pressure to below the pressure of the critical point, and then colling the temperatue to below that of the critical point.  In this process, the fluid changes to a gas and leaves the remaining solid matter behind. </rdfs:comment>
+        <or:termString xml:lang="en">supercritical drying</or:termString>
     </owl:Class>
     
 

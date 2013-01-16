@@ -8,18 +8,19 @@
     <!ENTITY owl "http://www.w3.org/2002/07/owl#" >
     <!ENTITY dc "http://purl.org/dc/elements/1.1/" >
     <!ENTITY dc "http://purl.org/dc/elements/1.1/#" >
-    <!ENTITY fbase "http://www.freebase.com/view/en/#" >
     <!ENTITY xsd "http://www.w3.org/2001/XMLSchema#" >
+    <!ENTITY fbase "http://www.freebase.com/view/en/#" >
     <!ENTITY cyc "http://sw.opencyc.org/concept/en/#" >
-    <!ENTITY skos "http://www.w3.org/2004/02/skos/core#" >
     <!ENTITY xml "http://www.w3.org/XML/1998/namespace" >
+    <!ENTITY skos "http://www.w3.org/2004/02/skos/core#" >
     <!ENTITY daml "http://www.daml.org/2001/03/daml+oil#" >
     <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#" >
     <!ENTITY SO "http://purl.obolibrary.org/obo/so.owl#" >
     <!ENTITY GO "http://www.geneontology.org/dtd/go.dtd#" >
     <!ENTITY Biochem "http://www.nist.gov/itl/ssd/Biochem.owl#" >
-    <!ENTITY tml "http://www.iupac.org/namespaces/ThermoML#" >
     <!ENTITY ont "http://www.co-ode.org/ontologies/ont.owl#" >
+    <!ENTITY tml "http://www.iupac.org/namespaces/ThermoML#" >
+    <!ENTITY Materials "http://www.nist.gov/itl/ssd/Materials.owl#" >
     <!ENTITY n3 "http://www.w3.org/2000/10/swap/grammar/n3#" >
     <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#" >
     <!ENTITY or "http://www.nist.gov/itl/ssd/OntologyRequirements#" >
@@ -31,6 +32,7 @@
      xml:base="http://www.nist.gov/itl/ssd/Biochem"
      xmlns:dc="&dc;#"
      xmlns:fbase="http://www.freebase.com/view/en/#"
+     xmlns:Materials="http://www.nist.gov/itl/ssd/Materials.owl#"
      xmlns:or="http://www.nist.gov/itl/ssd/OntologyRequirements#"
      xmlns:n3="http://www.w3.org/2000/10/swap/grammar/n3#"
      xmlns:terms="http://purl.org/dc/terms/"
@@ -2372,7 +2374,7 @@ Same as cyc:DyingOfBLO</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Biochem#Molecule">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Biochem#ChemicalObject"/>
-        <rdfs:comment xml:lang="en">The structure of a complete molecule.</rdfs:comment>
+        <rdfs:comment xml:lang="en">A complete molecule, composed of one or more atoms, whether ionizzed or not.  A molecule of a noble gas comprises a single atom.</rdfs:comment>
     </owl:Class>
     
 
@@ -3285,6 +3287,12 @@ Same as cyc#OrganismPartType.</rdfs:comment>
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/Materials.owl#ThermalProperty -->
+
+    <owl:Class rdf:about="&Materials;ThermalProperty"/>
+    
+
+
     <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#ComputerProcessExecution -->
 
     <rdf:Description rdf:about="&or;ComputerProcessExecution"/>
@@ -3338,12 +3346,6 @@ Same as cyc#OrganismPartType.</rdfs:comment>
     <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#MaterialType -->
 
     <rdf:Description rdf:about="&or;MaterialType"/>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#MeasurableMaterialProperty -->
-
-    <owl:Class rdf:about="&or;MeasurableMaterialProperty"/>
     
 
 
@@ -5002,7 +5004,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
     <!-- http://www.nist.gov/itl/ssd/Biochem#VaporPressure -->
 
     <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Biochem#VaporPressure">
-        <rdf:type rdf:resource="&or;MeasurableMaterialProperty"/>
+        <rdf:type rdf:resource="&Materials;ThermalProperty"/>
         <rdfs:comment xml:lang="en">The (equilibrium) Vapor Pressure of an object or substance is the pressure exerted by a vapor in thermodynamic equilibrium with its condensed phases (solid or liquid) at a given temperature in a closed system.  This property is dependent upon the material(s) comprising the object or substance and its temperature.  It is not dependent upon the external pressure.</rdfs:comment>
     </owl:NamedIndividual>
     
@@ -5126,35 +5128,7 @@ Same as cyc#OrganismPartType.</rdfs:comment>
     <rdf:Description>
         <rdf:type rdf:resource="&owl;AllDifferent"/>
         <owl:distinctMembers rdf:parseType="Collection">
-            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Biochem#Thallium"/>
-            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Biochem#Tin"/>
-        </owl:distinctMembers>
-    </rdf:Description>
-    <rdf:Description>
-        <rdf:type rdf:resource="&owl;AllDifferent"/>
-        <owl:distinctMembers rdf:parseType="Collection">
-            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Biochem#Gallium"/>
-            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Biochem#Tin"/>
-        </owl:distinctMembers>
-    </rdf:Description>
-    <rdf:Description>
-        <rdf:type rdf:resource="&owl;AllDifferent"/>
-        <owl:distinctMembers rdf:parseType="Collection">
-            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Biochem#Lead"/>
-            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Biochem#Tin"/>
-        </owl:distinctMembers>
-    </rdf:Description>
-    <rdf:Description>
-        <rdf:type rdf:resource="&owl;AllDifferent"/>
-        <owl:distinctMembers rdf:parseType="Collection">
-            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Biochem#Aluminum"/>
-            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Biochem#Tin"/>
-        </owl:distinctMembers>
-    </rdf:Description>
-    <rdf:Description>
-        <rdf:type rdf:resource="&owl;AllDifferent"/>
-        <owl:distinctMembers rdf:parseType="Collection">
-            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Biochem#Indium"/>
+            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Biochem#Bismuth"/>
             <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Biochem#Tin"/>
         </owl:distinctMembers>
     </rdf:Description>
@@ -5171,7 +5145,35 @@ Same as cyc#OrganismPartType.</rdfs:comment>
     <rdf:Description>
         <rdf:type rdf:resource="&owl;AllDifferent"/>
         <owl:distinctMembers rdf:parseType="Collection">
-            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Biochem#Bismuth"/>
+            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Biochem#Thallium"/>
+            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Biochem#Tin"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Biochem#Gallium"/>
+            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Biochem#Tin"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Biochem#Indium"/>
+            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Biochem#Tin"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Biochem#Lead"/>
+            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Biochem#Tin"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Biochem#Aluminum"/>
             <rdf:Description rdf:about="http://www.nist.gov/itl/ssd/Biochem#Tin"/>
         </owl:distinctMembers>
     </rdf:Description>
