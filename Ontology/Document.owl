@@ -11,19 +11,22 @@
     <!ENTITY oil "http://www.daml.org/2001/03/daml+oil#" >
     <!ENTITY doc "http://www.nist.gov/itl/ssd/Document#" >
     <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#" >
-    <!ENTITY tml "http://www.iupac.org/namespaces/ThermoML#" >
+    <!ENTITY Document "http://www.nist.gov/itl/ssd/Document.n3#" >
     <!ENTITY ont "http://www.co-ode.org/ontologies/ont.owl#" >
     <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#" >
     <!ENTITY cyc "http://sw.opencyc.org/2009/04/07/concept/en/#" >
     <!ENTITY or "http://www.nist.gov/itl/ssd/OntologyRequirements#" >
+    <!ENTITY OntologyRequirements "http://www.nist.gov/itl/ssd/OntologyRequirements.owl#" >
 ]>
 
 
 <rdf:RDF xmlns="http://www.nist.gov/itl/ssd/Document#"
      xml:base="http://www.nist.gov/itl/ssd/Document"
      xmlns:dc="&dc;#"
+     xmlns:Document="http://www.nist.gov/itl/ssd/Document.n3#"
      xmlns:or="http://www.nist.gov/itl/ssd/OntologyRequirements#"
      xmlns:xml="http://www.w3.org/XML/1998/namespace"
+     xmlns:OntologyRequirements="http://www.nist.gov/itl/ssd/OntologyRequirements.owl#"
      xmlns:oil="http://www.daml.org/2001/03/daml+oil#"
      xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
      xmlns:ont="http://www.co-ode.org/ontologies/ont.owl#"
@@ -32,7 +35,6 @@
      xmlns:doc="http://www.nist.gov/itl/ssd/Document#"
      xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
      xmlns:cyc="http://sw.opencyc.org/2009/04/07/concept/en/#"
-     xmlns:tml="http://www.iupac.org/namespaces/ThermoML#"
      xmlns:skos="http://www.w3.org/2004/02/skos/core#">
     <owl:Ontology rdf:about="http://www.nist.gov/itl/ssd/Document.n3">
         <dc:date>12 October 2012</dc:date>
@@ -53,10 +55,6 @@
     ///////////////////////////////////////////////////////////////////////////////////////
      -->
 
-    <owl:AnnotationProperty rdf:about="&doc;providesInformationAbout">
-        <rdfs:comment xml:lang="en">The property provides Information About&#39; is used to relate a piece of information to the thing(s) that it maintains information about.</rdfs:comment>
-        <rdfs:domain rdf:resource="&or;Information"/>
-    </owl:AnnotationProperty>
     
 
 
@@ -92,21 +90,10 @@
     
 
 
-    <!-- http://www.nist.gov/itl/ssd/Document#depictsInformationAbout -->
-
-    <owl:ObjectProperty rdf:about="&doc;depictsInformationAbout">
-        <rdfs:comment xml:lang="en">The property &#39;depicts Information About&#39; is used to relate an Image to the thing(s) that it maintains information about.</rdfs:comment>
-        <rdfs:subPropertyOf rdf:resource="&doc;providesInformationAbout"/>
-        <rdfs:domain rdf:resource="&or;Image"/>
-        <rdfs:domain rdf:resource="&or;Information"/>
-    </owl:ObjectProperty>
-    
-
-
     <!-- http://www.nist.gov/itl/ssd/Document#hasAuthor -->
 
     <owl:ObjectProperty rdf:about="&doc;hasAuthor">
-        <rdfs:comment xml:lang="en">The relation dc:author relates the first argument to the name of the second argument.</rdfs:comment>
+        <rdfs:comment xml:lang="en">The relation dc:author relates the first argument to the name of the second argument.  See http://www.iupac.org/namespaces/ThermoML#sAuthor.</rdfs:comment>
         <rdfs:subPropertyOf rdf:resource="&doc;hasContributor"/>
         <rdfs:domain rdf:resource="&or;AbstractStructuredInformationStore"/>
         <rdfs:range rdf:resource="&or;IntelligentAgent"/>
@@ -138,7 +125,6 @@
     <!-- http://www.nist.gov/itl/ssd/Document#hasEditor -->
 
     <owl:ObjectProperty rdf:about="&doc;hasEditor">
-        <rdfs:comment xml:lang="en">The relation between a publication and one of its editors.</rdfs:comment>
         <rdfs:subPropertyOf rdf:resource="&doc;hasContributor"/>
         <rdfs:domain rdf:resource="&or;AbstractStructuredInformationStore"/>
         <rdfs:range rdf:resource="&or;Human"/>
@@ -186,30 +172,12 @@
     
 
 
-    <!-- http://www.nist.gov/itl/ssd/Document#modelsInformationAbout -->
-
-    <owl:ObjectProperty rdf:about="&doc;modelsInformationAbout">
-        <rdfs:comment xml:lang="en">The property &#39;models Information About&#39; is used to relate a model to the thing(s) that it maintains information about.</rdfs:comment>
-        <rdfs:domain rdf:resource="&doc;SystemModel"/>
-        <rdfs:subPropertyOf rdf:resource="&doc;providesInformationAbout"/>
-    </owl:ObjectProperty>
-    
-
-
     <!-- http://www.nist.gov/itl/ssd/Document#proofreader -->
 
     <owl:ObjectProperty rdf:about="&doc;proofreader">
         <rdfs:subPropertyOf rdf:resource="&doc;hasContributor"/>
         <rdfs:domain rdf:resource="&or;AbstractStructuredInformationStore"/>
         <rdfs:range rdf:resource="&or;Human"/>
-    </owl:ObjectProperty>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Document#providesInformationAbout -->
-
-    <owl:ObjectProperty rdf:about="&doc;providesInformationAbout">
-        <rdfs:comment xml:lang="en">The property provides Information About&#39; is used to relate a piece of information to the thing(s) that it maintains information about.</rdfs:comment>
     </owl:ObjectProperty>
     
 
@@ -233,16 +201,6 @@
     
 
 
-    <!-- http://www.nist.gov/itl/ssd/Document#specificationAuthority -->
-
-    <owl:ObjectProperty rdf:about="&doc;specificationAuthority">
-        <rdfs:comment xml:lang="en">The property specification Authority relates a Specification to the Authority Organization that maintains the specification.</rdfs:comment>
-        <rdfs:range rdf:resource="&doc;AuthorityOrganization"/>
-        <rdfs:domain rdf:resource="&doc;Specification"/>
-    </owl:ObjectProperty>
-    
-
-
     <!-- http://www.nist.gov/itl/ssd/Document#translatedBy -->
 
     <owl:ObjectProperty rdf:about="&doc;translatedBy">
@@ -260,6 +218,46 @@
         <rdfs:comment xml:lang="en">The property translatedInto specifies a language into which a work was translated.  Note that a work may be translated into multiple languages.</rdfs:comment>
         <rdfs:domain rdf:resource="&or;AbstractStructuredInformationStore"/>
         <rdfs:range rdf:resource="&or;Language"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document.n3#depictsInformationAbout -->
+
+    <owl:ObjectProperty rdf:about="&Document;depictsInformationAbout">
+        <rdfs:comment xml:lang="en">The property &#39;depicts Information About&#39; is used to relate an Image to the thing(s) that it maintains information about.</rdfs:comment>
+        <rdfs:subPropertyOf rdf:resource="&Document;providesInformationAbout"/>
+        <rdfs:domain rdf:resource="&or;Image"/>
+        <rdfs:domain rdf:resource="&or;Information"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document.n3#modelsInformationAbout -->
+
+    <owl:ObjectProperty rdf:about="&Document;modelsInformationAbout">
+        <rdfs:comment xml:lang="en">The property &#39;models Information About&#39; is used to relate a model to the thing(s) that it maintains information about.</rdfs:comment>
+        <rdfs:domain rdf:resource="&doc;SystemModel"/>
+        <rdfs:subPropertyOf rdf:resource="&Document;providesInformationAbout"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document.n3#providesInformationAbout -->
+
+    <owl:ObjectProperty rdf:about="&Document;providesInformationAbout">
+        <rdfs:comment xml:lang="en">The property provides Information About&#39; is used to relate a piece of information to the thing(s) that it maintains information about.</rdfs:comment>
+        <rdfs:domain rdf:resource="&or;Information"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document.n3#specificationAuthority -->
+
+    <owl:ObjectProperty rdf:about="&Document;specificationAuthority">
+        <rdfs:comment xml:lang="en">The property specification Authority relates a Specification to the Authority Organization that maintains the specification.</rdfs:comment>
+        <rdfs:range rdf:resource="&Document;AuthorityOrganization"/>
+        <rdfs:domain rdf:resource="&Document;Specification"/>
     </owl:ObjectProperty>
     
 
@@ -298,20 +296,9 @@
     
 
 
-    <!-- http://www.nist.gov/itl/ssd/Document#chapterNumber -->
-
-    <owl:DatatypeProperty rdf:about="&doc;chapterNumber">
-        <rdfs:comment xml:lang="en">The property ``chapter Number&#39;&#39; references the number (or, if appropriate, name) of a chapter that is referenced.</rdfs:comment>
-        <rdfs:domain rdf:resource="&doc;Document"/>
-        <rdfs:range rdf:resource="&xsd;string"/>
-    </owl:DatatypeProperty>
-    
-
-
     <!-- http://www.nist.gov/itl/ssd/Document#copyrightYear -->
 
     <owl:DatatypeProperty rdf:about="&doc;copyrightYear">
-        <rdfs:comment xml:lang="en">The year of publication of a document</rdfs:comment>
         <rdfs:domain rdf:resource="&doc;Document"/>
         <rdfs:range rdf:resource="&xsd;integer"/>
     </owl:DatatypeProperty>
@@ -328,23 +315,13 @@
     
 
 
-    <!-- http://www.nist.gov/itl/ssd/Document#editionNumber -->
-
-    <owl:DatatypeProperty rdf:about="&doc;editionNumber">
-        <rdfs:comment xml:lang="en">The property ``edition Number&#39;&#39; specifies the edition number of a publication such as a book, specification, etc..  The value is normally a number, but specifications, for example might indicate sub-editions with something other than an integer.</rdfs:comment>
-        <rdfs:domain rdf:resource="&doc;Document"/>
-        <rdfs:range rdf:resource="&xsd;string"/>
-    </owl:DatatypeProperty>
-    
-
-
     <!-- http://www.nist.gov/itl/ssd/Document#iSBN -->
 
     <owl:DatatypeProperty rdf:about="&doc;iSBN">
         <rdfs:comment xml:lang="en">The International Standard Book Number (ISBN) maps a commercial book to a iunique 9-digit identifier.</rdfs:comment>
         <rdfs:domain rdf:resource="&doc;Book"/>
         <rdfs:subPropertyOf rdf:resource="&or;idString"/>
-        <rdfs:range rdf:resource="&xsd;string"/>
+        <rdfs:range rdf:resource="&xsd;Name"/>
     </owl:DatatypeProperty>
     
 
@@ -353,19 +330,9 @@
 
     <owl:DatatypeProperty rdf:about="&doc;iSSN">
         <rdfs:comment xml:lang="en">The International Standard Subscription Number of a document.</rdfs:comment>
-        <rdfs:domain rdf:resource="&doc;PeriodicalSeries"/>
-        <rdfs:subPropertyOf rdf:resource="&or;idString"/>
-        <rdfs:range rdf:resource="&xsd;string"/>
-    </owl:DatatypeProperty>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Document#onPages -->
-
-    <owl:DatatypeProperty rdf:about="&doc;onPages">
-        <rdfs:comment xml:lang="en">The property ``on Pages&#39;&#39; lists the page or page range of a Document in a Document Compilation.</rdfs:comment>
         <rdfs:domain rdf:resource="&doc;Document"/>
-        <rdfs:range rdf:resource="&xsd;string"/>
+        <rdfs:subPropertyOf rdf:resource="&or;idString"/>
+        <rdfs:range rdf:resource="&xsd;Name"/>
     </owl:DatatypeProperty>
     
 
@@ -396,6 +363,36 @@
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/Document.n3#chapterNumber -->
+
+    <owl:DatatypeProperty rdf:about="&Document;chapterNumber">
+        <rdfs:comment xml:lang="en">The property ``chapter Number&#39;&#39; references the number (or, if appropriate, name) of a chapter that is referenced.</rdfs:comment>
+        <rdfs:domain rdf:resource="&doc;Document"/>
+        <rdfs:range rdf:resource="&xsd;string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document.n3#editionNumber -->
+
+    <owl:DatatypeProperty rdf:about="&Document;editionNumber">
+        <rdfs:comment xml:lang="en">The property ``edition Number&#39;&#39; specifies the edition number of a publication such as a book, specification, etc..  The value is normally a number, but specifications, for example might indicate sub-editions with something other than an integer.</rdfs:comment>
+        <rdfs:domain rdf:resource="&doc;Document"/>
+        <rdfs:range rdf:resource="&xsd;string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document.n3#onPages -->
+
+    <owl:DatatypeProperty rdf:about="&Document;onPages">
+        <rdfs:comment xml:lang="en">The property ``on Pages&#39;&#39; lists the page or page range of a Document in a Document Compilation.</rdfs:comment>
+        <rdfs:domain rdf:resource="&doc;Document"/>
+        <rdfs:range rdf:resource="&xsd;string"/>
+    </owl:DatatypeProperty>
+    
+
+
     <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#idString -->
 
     <owl:DatatypeProperty rdf:about="&or;idString"/>
@@ -416,9 +413,9 @@
     <!-- http://www.daml.org/2001/03/daml+oil#Ontology -->
 
     <rdf:Description rdf:about="&oil;Ontology">
-        <owl:disjointWith rdf:resource="&doc;Agreement"/>
         <owl:disjointWith rdf:resource="&doc;DatabaseEntry"/>
         <owl:disjointWith rdf:resource="&doc;Document"/>
+        <owl:disjointWith rdf:resource="&Document;Agreement"/>
     </rdf:Description>
     
 
@@ -427,22 +424,7 @@
 
     <owl:Class rdf:about="&doc;AcademicDegree">
         <rdfs:subClassOf rdf:resource="&or;AbstractStructuredInformationStore"/>
-        <owl:disjointWith rdf:resource="&doc;Agreement"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Document#Agreement -->
-
-    <owl:Class rdf:about="&doc;Agreement">
-        <rdfs:subClassOf rdf:resource="&doc;Specification"/>
-        <owl:disjointWith rdf:resource="&doc;Document"/>
-        <owl:disjointWith rdf:resource="&doc;DocumentSeries"/>
-        <owl:disjointWith rdf:resource="&or;Array"/>
-        <owl:disjointWith rdf:resource="&or;DataFormat"/>
-        <owl:disjointWith rdf:resource="&or;ImageSequence"/>
-        <owl:disjointWith rdf:resource="&or;MathematicalExpression"/>
-        <rdfs:comment xml:lang="en">An Agreement is a Specification by two or more parties that a set of proposition should be true.  An agreement may be documented, but the document is not the agreement.</rdfs:comment>
+        <owl:disjointWith rdf:resource="&Document;Agreement"/>
     </owl:Class>
     
 
@@ -451,15 +433,6 @@
 
     <owl:Class rdf:about="&doc;AssociatesDegree">
         <rdfs:subClassOf rdf:resource="&doc;AcademicDegree"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Document#AuthorityOrganization -->
-
-    <owl:Class rdf:about="&doc;AuthorityOrganization">
-        <rdfs:subClassOf rdf:resource="&or;Organization"/>
-        <rdfs:comment xml:lang="en">An organization that is the authoritative source of information about something, such as a Specification.</rdfs:comment>
     </owl:Class>
     
 
@@ -507,34 +480,10 @@
     
 
 
-    <!-- http://www.nist.gov/itl/ssd/Document#Citation -->
-
-    <owl:Class rdf:about="&doc;Citation">
-        <rdfs:subClassOf rdf:resource="&or;DataObject"/>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="&or;storesInformationAbout"/>
-                <owl:someValuesFrom rdf:resource="&doc;Document"/>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-        <rdfs:comment xml:lang="en">A citation identifies some document or some portion of a document.  A citation inculded within a document is used to reference the source of some information within the document within which it is included. </rdfs:comment>
-    </owl:Class>
-    
-
-
     <!-- http://www.nist.gov/itl/ssd/Document#ConferencePaper -->
 
     <owl:Class rdf:about="&doc;ConferencePaper">
         <rdfs:subClassOf rdf:resource="&doc;TechnicalArticle"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Document#Correspondence -->
-
-    <owl:Class rdf:about="&doc;Correspondence">
-        <rdfs:subClassOf rdf:resource="&doc;Document"/>
-        <rdfs:comment xml:lang="en">Correspondence is a document used for non-concurrent, remote communication between people, including letters, and electronic communications to one or multiple people that is not designed for publication.  </rdfs:comment>
     </owl:Class>
     
 
@@ -604,6 +553,7 @@
     <owl:Class rdf:about="&doc;Document">
         <rdfs:subClassOf rdf:resource="&or;AbstractStructuredInformationStore"/>
         <owl:disjointWith rdf:resource="&doc;SystemModel"/>
+        <owl:disjointWith rdf:resource="&Document;Agreement"/>
         <owl:disjointWith rdf:resource="&or;ComputerFile"/>
         <owl:disjointWith rdf:resource="&or;DataBase"/>
         <owl:disjointWith rdf:resource="&or;DataFormat"/>
@@ -630,26 +580,8 @@ Same as cyc:Document-CW</rdfs:comment>
 
     <owl:Class rdf:about="&doc;DocumentSeries">
         <rdfs:subClassOf rdf:resource="&or;AbstractStructuredInformationStore"/>
+        <owl:disjointWith rdf:resource="&Document;Agreement"/>
         <rdfs:comment xml:lang="en">A document series may be a book series or a periodical series.</rdfs:comment>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Document#ExtrapolationOfData -->
-
-    <owl:Class rdf:about="&doc;ExtrapolationOfData">
-        <rdfs:subClassOf rdf:resource="&or;IntentionalCreation"/>
-        <owl:disjointWith rdf:resource="&or;Designing"/>
-        <owl:disjointWith rdf:resource="&or;Manufacturing"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Document#GenericScientificModel -->
-
-    <owl:Class rdf:about="&doc;GenericScientificModel">
-        <rdfs:subClassOf rdf:resource="&doc;GenericSystemModel"/>
-        <rdfs:comment xml:lang="en">A Generic Scientific Model is a scientific System Model (law, principle, or theory) of how things act in given types of circumstances.</rdfs:comment>
     </owl:Class>
     
 
@@ -723,7 +655,7 @@ Same as cyc:Document-CW</rdfs:comment>
             </owl:Class>
         </owl:equivalentClass>
         <rdfs:subClassOf rdf:resource="&or;IntentionalCreation"/>
-        <owl:disjointWith rdf:resource="&doc;RefiningAConcept"/>
+        <owl:disjointWith rdf:resource="&Document;RefiningAConcept"/>
         <owl:disjointWith rdf:resource="&or;Designing"/>
         <owl:disjointWith rdf:resource="&or;Manufacturing"/>
         <rdfs:comment xml:lang="en">Each instance of MakingAPrediction is an Action in which an agent makes an assertion about what will be the case at some point in the future if some certain initial state exists. 
@@ -776,25 +708,6 @@ Same as cyc:MakingAPrediction.</rdfs:comment>
     
 
 
-    <!-- http://www.nist.gov/itl/ssd/Document#Patent -->
-
-    <owl:Class rdf:about="&doc;Patent">
-        <rdfs:subClassOf rdf:resource="&doc;Agreement"/>
-        <rdfs:comment xml:lang="en">A Patent is a set of legal rights over the design of a tangible device or method which is legally granted to an agent controls for a certain period of time.</rdfs:comment>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Document#PatentSpecification -->
-
-    <owl:Class rdf:about="&doc;PatentSpecification">
-        <rdfs:subClassOf rdf:resource="&doc;Document"/>
-        <rdfs:subClassOf rdf:resource="&doc;Specification"/>
-        <rdfs:comment xml:lang="en">A Patent Specification is a Document describing the invention for which a patent is sought and setting out the scope of the protection of the patent. As such, a specification generally contains a section detailing the background and overview of the invention, a description of the invention and embodiments of the invention and claims, which set out the scope of the protection.</rdfs:comment>
-    </owl:Class>
-    
-
-
     <!-- http://www.nist.gov/itl/ssd/Document#PeriodicalSeries -->
 
     <owl:Class rdf:about="&doc;PeriodicalSeries">
@@ -831,43 +744,11 @@ Same as cyc:Prediction-CW.</rdfs:comment>
     
 
 
-    <!-- http://www.nist.gov/itl/ssd/Document#Protocol -->
-
-    <owl:Class rdf:about="&doc;Protocol">
-        <rdfs:subClassOf rdf:resource="&doc;Specification"/>
-        <rdfs:comment xml:lang="en">A Protocol specifies how one or more agents should behave, in order to be considered to form part of, or to participate in, some larger system.</rdfs:comment>
-    </owl:Class>
-    
-
-
     <!-- http://www.nist.gov/itl/ssd/Document#Publisher -->
 
     <owl:Class rdf:about="&doc;Publisher">
         <rdfs:subClassOf rdf:resource="&or;Organization"/>
         <rdfs:comment xml:lang="en">A Publisher is an organization which publishes material.</rdfs:comment>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Document#RefiningAConcept -->
-
-    <owl:Class rdf:about="&doc;RefiningAConcept">
-        <rdfs:subClassOf rdf:resource="&or;PurposefulAction"/>
-        <owl:disjointWith rdf:resource="&doc;ScientificConference"/>
-        <owl:disjointWith rdf:resource="&or;Certifying"/>
-        <owl:disjointWith rdf:resource="&or;ComputerProcessExecution"/>
-        <owl:disjointWith rdf:resource="&or;DataCollection"/>
-        <owl:disjointWith rdf:resource="&or;DatabaseSearch"/>
-        <owl:disjointWith rdf:resource="&or;DeployingAProduct"/>
-        <owl:disjointWith rdf:resource="&or;Evaluation"/>
-        <owl:disjointWith rdf:resource="&or;IntentionalCreation"/>
-        <owl:disjointWith rdf:resource="&or;Manufacturing"/>
-        <owl:disjointWith rdf:resource="&or;MechanicalProcess"/>
-        <owl:disjointWith rdf:resource="&or;MovementEvent"/>
-        <owl:disjointWith rdf:resource="&or;Recommending"/>
-        <owl:disjointWith rdf:resource="&or;Simulating"/>
-        <owl:disjointWith rdf:resource="&or;Validating"/>
-        <rdfs:comment xml:lang="en">Refining A Concept is a process of improving a model, prediction, plan, or other conceptual work by providing additional information or slightly modifying existing information.  The result is a modified version of the existing work, not a totally new work.</rdfs:comment>
     </owl:Class>
     
 
@@ -885,6 +766,8 @@ Same as cyc:Prediction-CW.</rdfs:comment>
 
     <owl:Class rdf:about="&doc;ScientificConference">
         <rdfs:subClassOf rdf:resource="&or;PurposefulAction"/>
+        <rdfs:subClassOf rdf:resource="&OntologyRequirements;PhysicalEvent"/>
+        <owl:disjointWith rdf:resource="&Document;RefiningAConcept"/>
         <owl:disjointWith rdf:resource="&or;Recommending"/>
         <rdfs:comment xml:lang="en">A scientific conferenceis a meeting for researchers to present and discuss their work.  Conferences provide an important channel for exchange of information between researchers.</rdfs:comment>
     </owl:Class>
@@ -896,14 +779,6 @@ Same as cyc:Prediction-CW.</rdfs:comment>
     <owl:Class rdf:about="&doc;SpecificSystemModel">
         <rdfs:subClassOf rdf:resource="&doc;SystemModel"/>
         <rdfs:comment xml:lang="en">A Specific System Model is a model for a specific (type of) situation, contrasting with a Generic System Model which models a general class of situations.</rdfs:comment>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Document#Specification -->
-
-    <owl:Class rdf:about="&doc;Specification">
-        <rdfs:subClassOf rdf:resource="&or;ConceptualModel"/>
     </owl:Class>
     
 
@@ -982,6 +857,138 @@ Same as cyc:Prediction-CW.</rdfs:comment>
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/Document.n3#Agreement -->
+
+    <owl:Class rdf:about="&Document;Agreement">
+        <rdfs:subClassOf rdf:resource="&Document;Specification"/>
+        <owl:disjointWith rdf:resource="&or;Array"/>
+        <owl:disjointWith rdf:resource="&or;DataFormat"/>
+        <owl:disjointWith rdf:resource="&or;ImageSequence"/>
+        <owl:disjointWith rdf:resource="&or;MathematicalExpression"/>
+        <rdfs:comment xml:lang="en">An Agreement is a Specification by two or more parties that a set of proposition should be true.  An agreement may be documented, but the document is not the agreement.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document.n3#AuthorityOrganization -->
+
+    <owl:Class rdf:about="&Document;AuthorityOrganization">
+        <rdfs:subClassOf rdf:resource="&or;Organization"/>
+        <rdfs:comment xml:lang="en">An organization that is the authoritative source of information about something, such as a Specification.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document.n3#Citation -->
+
+    <owl:Class rdf:about="&Document;Citation">
+        <rdfs:subClassOf rdf:resource="&or;DataObject"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&or;storesInformationAbout"/>
+                <owl:someValuesFrom rdf:resource="&doc;Document"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:comment xml:lang="en">A citation identifies some document or some portion of a document.  A citation inculded within a document is used to reference the source of some information within the document within which it is included. </rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document.n3#Correspondence -->
+
+    <owl:Class rdf:about="&Document;Correspondence">
+        <rdfs:subClassOf rdf:resource="&doc;Document"/>
+        <rdfs:comment xml:lang="en">Correspondence is a document used for non-concurrent, remote communication between people, including letters, and electronic communications to one or multiple people that is not designed for publication.  </rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document.n3#DocumentCopy -->
+
+    <owl:Class rdf:about="&Document;DocumentCopy">
+        <rdfs:subClassOf rdf:resource="&or;Artifact"/>
+        <rdfs:comment xml:lang="en">A Document Copy is a physical object (from a book in hand to a set of magnetic domains on a zip drive) which stores the information of an abstract Document in a manner in which the content of the document can be retrieved.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document.n3#ExtrapolationOfData -->
+
+    <owl:Class rdf:about="&Document;ExtrapolationOfData">
+        <rdfs:subClassOf rdf:resource="&or;IntentionalCreation"/>
+        <owl:disjointWith rdf:resource="&or;Designing"/>
+        <owl:disjointWith rdf:resource="&or;Manufacturing"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document.n3#GenericScientificModel -->
+
+    <owl:Class rdf:about="&Document;GenericScientificModel">
+        <rdfs:subClassOf rdf:resource="&doc;GenericSystemModel"/>
+        <rdfs:comment xml:lang="en">A Generic Scientific Model is a scientific System Model (law, principle, or theory) of how things act in given types of circumstances.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document.n3#Patent -->
+
+    <owl:Class rdf:about="&Document;Patent">
+        <rdfs:subClassOf rdf:resource="&Document;Agreement"/>
+        <rdfs:comment xml:lang="en">A Patent is a set of legal rights over the design of a tangible device or method which is legally granted to an agent controls for a certain period of time.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document.n3#PatentSpecification -->
+
+    <owl:Class rdf:about="&Document;PatentSpecification">
+        <rdfs:subClassOf rdf:resource="&doc;Document"/>
+        <rdfs:subClassOf rdf:resource="&Document;Specification"/>
+        <rdfs:comment xml:lang="en">A Patent Specification is a Document describing the invention for which a patent is sought and setting out the scope of the protection of the patent. As such, a specification generally contains a section detailing the background and overview of the invention, a description of the invention and embodiments of the invention and claims, which set out the scope of the protection.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document.n3#Protocol -->
+
+    <owl:Class rdf:about="&Document;Protocol">
+        <rdfs:subClassOf rdf:resource="&Document;Specification"/>
+        <rdfs:comment xml:lang="en">A Protocol specifies how one or more agents should behave, in order to be considered to form part of, or to participate in, some larger system.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document.n3#RefiningAConcept -->
+
+    <owl:Class rdf:about="&Document;RefiningAConcept">
+        <rdfs:subClassOf rdf:resource="&or;PurposefulAction"/>
+        <owl:disjointWith rdf:resource="&or;Certifying"/>
+        <owl:disjointWith rdf:resource="&or;ComputerProcessExecution"/>
+        <owl:disjointWith rdf:resource="&or;DataCollection"/>
+        <owl:disjointWith rdf:resource="&or;DatabaseSearch"/>
+        <owl:disjointWith rdf:resource="&or;DeployingAProduct"/>
+        <owl:disjointWith rdf:resource="&or;Evaluation"/>
+        <owl:disjointWith rdf:resource="&or;IntentionalCreation"/>
+        <owl:disjointWith rdf:resource="&or;Manufacturing"/>
+        <owl:disjointWith rdf:resource="&or;MechanicalProcess"/>
+        <owl:disjointWith rdf:resource="&or;MovementEvent"/>
+        <owl:disjointWith rdf:resource="&or;Recommending"/>
+        <owl:disjointWith rdf:resource="&or;Simulating"/>
+        <owl:disjointWith rdf:resource="&or;Validating"/>
+        <rdfs:comment xml:lang="en">Refining A Concept is a process of improving a model, prediction, plan, or other conceptual work by providing additional information or slightly modifying existing information.  The result is a modified version of the existing work, not a totally new work.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document.n3#Specification -->
+
+    <owl:Class rdf:about="&Document;Specification">
+        <rdfs:subClassOf rdf:resource="&or;ConceptualModel"/>
+    </owl:Class>
+    
+
+
     <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#Array -->
 
     <owl:Class rdf:about="&or;Array"/>
@@ -990,10 +997,7 @@ Same as cyc:Prediction-CW.</rdfs:comment>
 
     <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#Certifying -->
 
-    <owl:Class rdf:about="&or;Certifying">
-        <owl:disjointWith rdf:resource="&or;Evaluation"/>
-        <owl:disjointWith rdf:resource="&or;Recommending"/>
-    </owl:Class>
+    <owl:Class rdf:about="&or;Certifying"/>
     
 
 
@@ -1005,9 +1009,7 @@ Same as cyc:Prediction-CW.</rdfs:comment>
 
     <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#ComputerProcessExecution -->
 
-    <rdf:Description rdf:about="&or;ComputerProcessExecution">
-        <owl:disjointWith rdf:resource="&or;Recommending"/>
-    </rdf:Description>
+    <rdf:Description rdf:about="&or;ComputerProcessExecution"/>
     
 
 
@@ -1025,10 +1027,7 @@ Same as cyc:Prediction-CW.</rdfs:comment>
 
     <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#DataCollection -->
 
-    <owl:Class rdf:about="&or;DataCollection">
-        <owl:disjointWith rdf:resource="&or;Evaluation"/>
-        <owl:disjointWith rdf:resource="&or;Recommending"/>
-    </owl:Class>
+    <owl:Class rdf:about="&or;DataCollection"/>
     
 
 
@@ -1046,18 +1045,13 @@ Same as cyc:Prediction-CW.</rdfs:comment>
 
     <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#DatabaseSearch -->
 
-    <owl:Class rdf:about="&or;DatabaseSearch">
-        <owl:disjointWith rdf:resource="&or;Recommending"/>
-    </owl:Class>
+    <owl:Class rdf:about="&or;DatabaseSearch"/>
     
 
 
     <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#DeployingAProduct -->
 
-    <owl:Class rdf:about="&or;DeployingAProduct">
-        <owl:disjointWith rdf:resource="&or;Evaluation"/>
-        <owl:disjointWith rdf:resource="&or;Recommending"/>
-    </owl:Class>
+    <owl:Class rdf:about="&or;DeployingAProduct"/>
     
 
 
@@ -1069,11 +1063,7 @@ Same as cyc:Prediction-CW.</rdfs:comment>
 
     <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#Evaluation -->
 
-    <owl:Class rdf:about="&or;Evaluation">
-        <owl:disjointWith rdf:resource="&or;MechanicalProcess"/>
-        <owl:disjointWith rdf:resource="&or;MovementEvent"/>
-        <owl:disjointWith rdf:resource="&or;Recommending"/>
-    </owl:Class>
+    <owl:Class rdf:about="&or;Evaluation"/>
     
 
 
@@ -1091,9 +1081,7 @@ Same as cyc:Prediction-CW.</rdfs:comment>
 
     <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#IntentionalCreation -->
 
-    <owl:Class rdf:about="&or;IntentionalCreation">
-        <owl:disjointWith rdf:resource="&or;Recommending"/>
-    </owl:Class>
+    <owl:Class rdf:about="&or;IntentionalCreation"/>
     
 
 
@@ -1111,9 +1099,7 @@ Same as cyc:Prediction-CW.</rdfs:comment>
 
     <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#MechanicalProcess -->
 
-    <owl:Class rdf:about="&or;MechanicalProcess">
-        <owl:disjointWith rdf:resource="&or;Recommending"/>
-    </owl:Class>
+    <owl:Class rdf:about="&or;MechanicalProcess"/>
     
 
 
@@ -1125,17 +1111,7 @@ Same as cyc:Prediction-CW.</rdfs:comment>
 
     <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#MovementEvent -->
 
-    <owl:Class rdf:about="&or;MovementEvent">
-        <owl:disjointWith rdf:resource="&or;Recommending"/>
-    </owl:Class>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#Optimization -->
-
-    <owl:Class rdf:about="&or;Optimization">
-        <owl:disjointWith rdf:resource="&or;Recommending"/>
-    </owl:Class>
+    <owl:Class rdf:about="&or;MovementEvent"/>
     
 
 
@@ -1157,6 +1133,12 @@ Same as cyc:Prediction-CW.</rdfs:comment>
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#PhysicalEvent -->
+
+    <owl:Class rdf:about="&OntologyRequirements;PhysicalEvent"/>
+    
+
+
     <!-- 
     ///////////////////////////////////////////////////////////////////////////////////////
     //
@@ -1165,46 +1147,6 @@ Same as cyc:Prediction-CW.</rdfs:comment>
     ///////////////////////////////////////////////////////////////////////////////////////
      -->
 
-    
-
-
-    <!-- http://www.iupac.org/namespaces/ThermoML#journal -->
-
-    <owl:NamedIndividual rdf:about="&tml;journal">
-        <owl:sameAs rdf:resource="&doc;TechnicalJournalSeries"/>
-    </owl:NamedIndividual>
-    
-
-
-    <!-- http://www.iupac.org/namespaces/ThermoML#sChapter -->
-
-    <owl:NamedIndividual rdf:about="&tml;sChapter">
-        <owl:sameAs rdf:resource="&doc;chapterNumber"/>
-    </owl:NamedIndividual>
-    
-
-
-    <!-- http://www.iupac.org/namespaces/ThermoML#sEdition -->
-
-    <owl:NamedIndividual rdf:about="&tml;sEdition">
-        <owl:sameAs rdf:resource="&doc;editionNumber"/>
-    </owl:NamedIndividual>
-    
-
-
-    <!-- http://www.iupac.org/namespaces/ThermoML#sPage -->
-
-    <owl:NamedIndividual rdf:about="&tml;sPage">
-        <owl:sameAs rdf:resource="&doc;onPages"/>
-    </owl:NamedIndividual>
-    
-
-
-    <!-- http://www.iupac.org/namespaces/ThermoML#sVol -->
-
-    <owl:NamedIndividual rdf:about="&tml;sVol">
-        <owl:sameAs rdf:resource="&doc;volumeNumber"/>
-    </owl:NamedIndividual>
     
 
 
@@ -1264,34 +1206,6 @@ Same as cyc:Prediction-CW.</rdfs:comment>
     
 
 
-    <!-- http://www.nist.gov/itl/ssd/Document#NationalInstituteOfStandardsAndTechnology -->
-
-    <owl:NamedIndividual rdf:about="&doc;NationalInstituteOfStandardsAndTechnology">
-        <rdf:type rdf:resource="&doc;AuthorityOrganization"/>
-        <rdf:type rdf:resource="&or;GovernmentalOrganization"/>
-        <rdf:type rdf:resource="&or;ResearchOrganization"/>
-    </owl:NamedIndividual>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Document#NationalInstitutesOfHealth -->
-
-    <owl:NamedIndividual rdf:about="&doc;NationalInstitutesOfHealth">
-        <rdf:type rdf:resource="&doc;AuthorityOrganization"/>
-        <rdf:type rdf:resource="&or;GovernmentalOrganization"/>
-        <rdf:type rdf:resource="&or;ResearchOrganization"/>
-    </owl:NamedIndividual>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Document#PolishLanguage -->
-
-    <owl:NamedIndividual rdf:about="&doc;PolishLanguage">
-        <rdf:type rdf:resource="&doc;NaturalLanguage"/>
-    </owl:NamedIndividual>
-    
-
-
     <!-- http://www.nist.gov/itl/ssd/Document#RussianLanguage -->
 
     <owl:NamedIndividual rdf:about="&doc;RussianLanguage">
@@ -1308,39 +1222,31 @@ Same as cyc:Prediction-CW.</rdfs:comment>
     
 
 
-    <!-- http://www.nist.gov/itl/ssd/Document#TechnicalJournalSeries -->
+    <!-- http://www.nist.gov/itl/ssd/Document.n3#NationalInstituteOfStandardsAndTechnology -->
 
-    <owl:NamedIndividual rdf:about="&doc;TechnicalJournalSeries"/>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Document#chapterNumber -->
-
-    <owl:NamedIndividual rdf:about="&doc;chapterNumber">
-        <rdfs:comment xml:lang="en">The property ``chapter Number&#39;&#39; references the number (or, if appropriate, name) of a chapter that is referenced.</rdfs:comment>
+    <owl:NamedIndividual rdf:about="&Document;NationalInstituteOfStandardsAndTechnology">
+        <rdf:type rdf:resource="&Document;AuthorityOrganization"/>
+        <rdf:type rdf:resource="&or;GovernmentalOrganization"/>
+        <rdf:type rdf:resource="&or;ResearchOrganization"/>
     </owl:NamedIndividual>
     
 
 
-    <!-- http://www.nist.gov/itl/ssd/Document#editionNumber -->
+    <!-- http://www.nist.gov/itl/ssd/Document.n3#NationalInstitutesOfHealth -->
 
-    <owl:NamedIndividual rdf:about="&doc;editionNumber">
-        <rdfs:comment xml:lang="en">The property ``edition Number&#39;&#39; specifies the edition number of a publication such as a book, specification, etc..  The value is normally a number, but specifications, for example might indicate sub-editions with something other than an integer.</rdfs:comment>
+    <owl:NamedIndividual rdf:about="&Document;NationalInstitutesOfHealth">
+        <rdf:type rdf:resource="&Document;AuthorityOrganization"/>
+        <rdf:type rdf:resource="&or;GovernmentalOrganization"/>
+        <rdf:type rdf:resource="&or;ResearchOrganization"/>
     </owl:NamedIndividual>
     
 
 
-    <!-- http://www.nist.gov/itl/ssd/Document#onPages -->
+    <!-- http://www.nist.gov/itl/ssd/Document.n3#PolishLanguage -->
 
-    <owl:NamedIndividual rdf:about="&doc;onPages">
-        <rdfs:comment xml:lang="en">The property ``on Pages&#39;&#39; lists the page or page range of a Document in a Document Compilation.</rdfs:comment>
+    <owl:NamedIndividual rdf:about="&Document;PolishLanguage">
+        <rdf:type rdf:resource="&doc;NaturalLanguage"/>
     </owl:NamedIndividual>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/Document#volumeNumber -->
-
-    <owl:NamedIndividual rdf:about="&doc;volumeNumber"/>
     
 
 
@@ -1352,7 +1258,10 @@ Same as cyc:Prediction-CW.</rdfs:comment>
     ///////////////////////////////////////////////////////////////////////////////////////
      -->
 
-    <rdf:Description rdf:about="&or;endingDate">
+    <rdf:Description rdf:about="&or;DataOutputDevice">
+        <rdfs:comment xml:lang="en">A Data Output Device is a device that actively outputs data, e.g., by printing, displaying, projecting, making noise, or changing a physical arrangement of objects (including physical manufacturing).</rdfs:comment>
+    </rdf:Description>
+    <rdf:Description rdf:about="&OntologyRequirements;endingDate">
         <rdfs:comment xml:lang="en">The date on which an event ends.  A short event may have the same initiationDate and endingDate.</rdfs:comment>
     </rdf:Description>
     
@@ -1369,16 +1278,309 @@ Same as cyc:Prediction-CW.</rdfs:comment>
     <rdf:Description>
         <rdf:type rdf:resource="&owl;AllDifferent"/>
         <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="&doc;RussianLanguage"/>
+            <rdf:Description rdf:about="&Document;PolishLanguage"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="&doc;EnglishLanguage"/>
+            <rdf:Description rdf:about="&doc;GermanLanguage"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
             <rdf:Description rdf:about="&doc;Chinese-MandarinLanguage"/>
             <rdf:Description rdf:about="&doc;EnglishLanguage"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="&doc;EnglishLanguage"/>
+            <rdf:Description rdf:about="&doc;KoreanLanguage"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="&doc;Chinese-MandarinLanguage"/>
+            <rdf:Description rdf:about="&doc;RussianLanguage"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="&doc;JapaneseLanguage"/>
+            <rdf:Description rdf:about="&doc;SpanishLanguage"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="&doc;Chinese-MandarinLanguage"/>
+            <rdf:Description rdf:about="&doc;KoreanLanguage"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="&doc;EnglishLanguage"/>
+            <rdf:Description rdf:about="&doc;FrenchLanguage"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="&doc;Chinese-MandarinLanguage"/>
+            <rdf:Description rdf:about="&doc;GermanLanguage"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="&doc;EnglishLanguage"/>
+            <rdf:Description rdf:about="&doc;RussianLanguage"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="&doc;JapaneseLanguage"/>
+            <rdf:Description rdf:about="&doc;RussianLanguage"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
             <rdf:Description rdf:about="&doc;FinnishLanguage"/>
+            <rdf:Description rdf:about="&doc;KoreanLanguage"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="&doc;GermanLanguage"/>
+            <rdf:Description rdf:about="&doc;SpanishLanguage"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="&doc;FinnishLanguage"/>
+            <rdf:Description rdf:about="&Document;PolishLanguage"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="&doc;GermanLanguage"/>
+            <rdf:Description rdf:about="&doc;RussianLanguage"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="&doc;FrenchLanguage"/>
+            <rdf:Description rdf:about="&doc;RussianLanguage"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="&doc;Chinese-MandarinLanguage"/>
+            <rdf:Description rdf:about="&doc;FinnishLanguage"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="&doc;KoreanLanguage"/>
+            <rdf:Description rdf:about="&doc;SpanishLanguage"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="&doc;EnglishLanguage"/>
+            <rdf:Description rdf:about="&doc;JapaneseLanguage"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="&doc;GermanLanguage"/>
+            <rdf:Description rdf:about="&doc;KoreanLanguage"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="&doc;Chinese-MandarinLanguage"/>
+            <rdf:Description rdf:about="&doc;JapaneseLanguage"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="&doc;KoreanLanguage"/>
+            <rdf:Description rdf:about="&doc;RussianLanguage"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
             <rdf:Description rdf:about="&doc;FrenchLanguage"/>
             <rdf:Description rdf:about="&doc;GermanLanguage"/>
-            <rdf:Description rdf:about="&doc;JapaneseLanguage"/>
-            <rdf:Description rdf:about="&doc;KoreanLanguage"/>
-            <rdf:Description rdf:about="&doc;PolishLanguage"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
             <rdf:Description rdf:about="&doc;RussianLanguage"/>
             <rdf:Description rdf:about="&doc;SpanishLanguage"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="&doc;KoreanLanguage"/>
+            <rdf:Description rdf:about="&Document;PolishLanguage"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="&doc;FrenchLanguage"/>
+            <rdf:Description rdf:about="&doc;KoreanLanguage"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="&doc;FinnishLanguage"/>
+            <rdf:Description rdf:about="&doc;FrenchLanguage"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="&doc;JapaneseLanguage"/>
+            <rdf:Description rdf:about="&doc;KoreanLanguage"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="&doc;EnglishLanguage"/>
+            <rdf:Description rdf:about="&doc;FinnishLanguage"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="&doc;GermanLanguage"/>
+            <rdf:Description rdf:about="&Document;PolishLanguage"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="&doc;Chinese-MandarinLanguage"/>
+            <rdf:Description rdf:about="&doc;FrenchLanguage"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="&doc;FrenchLanguage"/>
+            <rdf:Description rdf:about="&doc;JapaneseLanguage"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="&doc;FrenchLanguage"/>
+            <rdf:Description rdf:about="&Document;PolishLanguage"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="&doc;EnglishLanguage"/>
+            <rdf:Description rdf:about="&doc;SpanishLanguage"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="&doc;EnglishLanguage"/>
+            <rdf:Description rdf:about="&Document;PolishLanguage"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="&doc;FinnishLanguage"/>
+            <rdf:Description rdf:about="&doc;JapaneseLanguage"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="&doc;Chinese-MandarinLanguage"/>
+            <rdf:Description rdf:about="&Document;PolishLanguage"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="&doc;JapaneseLanguage"/>
+            <rdf:Description rdf:about="&Document;PolishLanguage"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="&doc;FinnishLanguage"/>
+            <rdf:Description rdf:about="&doc;GermanLanguage"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="&doc;FrenchLanguage"/>
+            <rdf:Description rdf:about="&doc;SpanishLanguage"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="&doc;GermanLanguage"/>
+            <rdf:Description rdf:about="&doc;JapaneseLanguage"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="&doc;FinnishLanguage"/>
+            <rdf:Description rdf:about="&doc;RussianLanguage"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="&doc;FinnishLanguage"/>
+            <rdf:Description rdf:about="&doc;SpanishLanguage"/>
+        </owl:distinctMembers>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="&owl;AllDifferent"/>
+        <owl:distinctMembers rdf:parseType="Collection">
+            <rdf:Description rdf:about="&doc;SpanishLanguage"/>
+            <rdf:Description rdf:about="&Document;PolishLanguage"/>
         </owl:distinctMembers>
     </rdf:Description>
 </rdf:RDF>

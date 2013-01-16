@@ -12,39 +12,45 @@
     <!ENTITY daml "http://www.daml.org/2001/03/daml+oil#" >
     <!ENTITY doc "http://www.nist.gov/itl/ssd/Document#" >
     <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#" >
+    <!ENTITY Document "http://www.nist.gov/itl/ssd/Document.n3#" >
+    <!ENTITY Experiments2 "http://www.nist.gov/itl/ssd/Experiments#3" >
     <!ENTITY ont "http://www.co-ode.org/ontologies/ont.owl#" >
     <!ENTITY gf "http://www.nist.gov/itl/ssd/GenomeFormats#" >
-    <!ENTITY Experiments "http://www.nist.gov/itl/ssd/Experiments#" >
+    <!ENTITY Experiments "http://www.nist.gov/itl/ssd/Experiments.n3#" >
     <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#" >
     <!ENTITY or "http://www.nist.gov/itl/ssd/OntologyRequirements#" >
+    <!ENTITY OntologyRequirements "http://www.nist.gov/itl/ssd/OntologyRequirements.owl#" >
 ]>
 
 
 <rdf:RDF xmlns="http://www.nist.gov/itl/ssd/Experiments#"
      xml:base="http://www.nist.gov/itl/ssd/Experiments"
-     xmlns:Experiments="http://www.nist.gov/itl/ssd/Experiments#"
+     xmlns:Experiments="http://www.nist.gov/itl/ssd/Experiments.n3#"
      xmlns:dc="http://purl.org/dc/elements/1.1/"
+     xmlns:Document="http://www.nist.gov/itl/ssd/Document.n3#"
      xmlns:or="http://www.nist.gov/itl/ssd/OntologyRequirements#"
      xmlns:gc="gc#"
      xmlns:xml="http://www.w3.org/XML/1998/namespace"
      xmlns:daml="http://www.daml.org/2001/03/daml+oil#"
      xmlns:gf="http://www.nist.gov/itl/ssd/GenomeFormats#"
+     xmlns:OntologyRequirements="http://www.nist.gov/itl/ssd/OntologyRequirements.owl#"
      xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
      xmlns:ont="http://www.co-ode.org/ontologies/ont.owl#"
-     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
      xmlns:owl="http://www.w3.org/2002/07/owl#"
      xmlns:doc="http://www.nist.gov/itl/ssd/Document#"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
      xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:Experiments2="http://www.nist.gov/itl/ssd/Experiments#3"
      xmlns:skos="http://www.w3.org/2004/02/skos/core#"
      xmlns:bc="http://www.nist.gov/itl/ssd/Biochem#">
-    <owl:Ontology rdf:about="http://www.nist.gov/itl/ssd/Experiments">
+    <owl:Ontology rdf:about="http://www.nist.gov/itl/ssd/Experiments.n3">
         <dc:date xml:lang="en">12 October 2012</dc:date>
         <dc:title xml:lang="en">Experiments Ontology</dc:title>
         <dc:subject xml:lang="en">Ontology for general concepts related to experiments.  </dc:subject>
         <skos:note xml:lang="en">This ontology is incomplete, having been developed to cover general features of experiments to be used in recording information stored in genomic and materials science files.</skos:note>
         <ont:creator>doug foxvog</ont:creator>
-        <owl:imports rdf:resource="http://www.nist.gov/itl/ssd/Biochem"/>
-        <owl:imports rdf:resource="http://www.nist.gov/itl/ssd/Document"/>
+        <owl:imports rdf:resource="http://www.nist.gov/itl/ssd/Biochem.owl"/>
+        <owl:imports rdf:resource="http://www.nist.gov/itl/ssd/Document.n3"/>
     </owl:Ontology>
     
 
@@ -59,7 +65,7 @@
 
     <owl:AnnotationProperty rdf:about="http://www.nist.gov/itl/ssd/Experiments#defaultFileExtension"/>
     <owl:AnnotationProperty rdf:about="http://www.nist.gov/itl/ssd/Experiments#uncertaintyOfProperty">
-        <rdfs:domain rdf:resource="&or;MaterialProperty"/>
+        <rdfs:domain rdf:resource="&OntologyRequirements;MaterialProperty"/>
     </owl:AnnotationProperty>
     <owl:AnnotationProperty rdf:about="http://www.nist.gov/itl/ssd/Experiments#specializedTypeOf"/>
     <owl:AnnotationProperty rdf:about="http://www.nist.gov/itl/ssd/Experiments#catalogNumber"/>
@@ -301,15 +307,6 @@
     
 
 
-    <!-- http://www.nist.gov/itl/ssd/Experiments#outputCreated -->
-
-    <owl:ObjectProperty rdf:about="http://www.nist.gov/itl/ssd/Experiments#outputCreated">
-        <rdfs:comment xml:lang="en">The property &#39;output Created&#39; specifies something that was created in a Creation Event.  There may be many outputs of a single Creation Event.</rdfs:comment>
-        <rdfs:range rdf:resource="&or;TemporalThing"/>
-    </owl:ObjectProperty>
-    
-
-
     <!-- http://www.nist.gov/itl/ssd/Experiments#preseedingDissociationMethod -->
 
     <owl:ObjectProperty rdf:about="http://www.nist.gov/itl/ssd/Experiments#preseedingDissociationMethod">
@@ -403,7 +400,7 @@
     
 
 
-    <!-- http://www.nist.gov/itl/ssd/Experiments#hasUncertaintyDistributionType -->
+    <!-- http://www.nist.gov/itl/ssd/Experiments.n3#hasUncertaintyDistributionType -->
 
     <owl:ObjectProperty rdf:about="&Experiments;hasUncertaintyDistributionType">
         <rdf:type rdf:resource="&owl;FunctionalProperty"/>
@@ -422,9 +419,7 @@
 
     <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#outputData -->
 
-    <owl:ObjectProperty rdf:about="&or;outputData">
-        <rdfs:subPropertyOf rdf:resource="http://www.nist.gov/itl/ssd/Experiments#outputCreated"/>
-    </owl:ObjectProperty>
+    <owl:ObjectProperty rdf:about="&or;outputData"/>
     
 
 
@@ -821,6 +816,12 @@ injectors, and use of liposomes.</rdfs:comment>
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/Biochem#Container -->
+
+    <owl:Class rdf:about="&bc;Container"/>
+    
+
+
     <!-- http://www.nist.gov/itl/ssd/Biochem#Organism -->
 
     <rdf:Description rdf:about="&bc;Organism">
@@ -874,6 +875,15 @@ injectors, and use of liposomes.</rdfs:comment>
     <rdf:Description rdf:about="&doc;MakingAPrediction">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Experiments#Analysis"/>
     </rdf:Description>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Document.n3#RefiningAConcept -->
+
+    <owl:Class rdf:about="&Document;RefiningAConcept">
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Experiments#Experiment"/>
+        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Experiments#Measuring"/>
+    </owl:Class>
     
 
 
@@ -986,7 +996,7 @@ injectors, and use of liposomes.</rdfs:comment>
     <!-- http://www.nist.gov/itl/ssd/Experiments#BeamSplitter -->
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Experiments#BeamSplitter">
-        <rdfs:subClassOf rdf:resource="&or;PhysicalDevice"/>
+        <rdfs:subClassOf rdf:resource="&or;LaboratoryEquipment"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Experiments#DNAMicroarray"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Experiments#Incubator"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Experiments#LightFilter"/>
@@ -1246,7 +1256,7 @@ Same as cyc#BiologicalProcess-CellularLevel.</rdfs:comment>
     <!-- http://www.nist.gov/itl/ssd/Experiments#ComputationalModeling -->
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Experiments#ComputationalModeling">
-        <rdfs:subClassOf rdf:resource="&or;Modeling"/>
+        <rdfs:subClassOf rdf:resource="&OntologyRequirements;Modeling"/>
         <rdfs:comment xml:lang="en">Computational Modeling is the process of intentionally creating a Computational Model.</rdfs:comment>
     </owl:Class>
     
@@ -1294,7 +1304,7 @@ Same as cyc#BiologicalProcess-CellularLevel.</rdfs:comment>
     <!-- http://www.nist.gov/itl/ssd/Experiments#DNAMicroarray -->
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Experiments#DNAMicroarray">
-        <rdfs:subClassOf rdf:resource="&or;PhysicalDevice"/>
+        <rdfs:subClassOf rdf:resource="&or;LaboratoryEquipment"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Experiments#Incubator"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Experiments#LightFilter"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Experiments#LightShutter"/>
@@ -1366,7 +1376,6 @@ Same as cyc#BiologicalProcess-CellularLevel.</rdfs:comment>
                 <owl:someValuesFrom rdf:resource="&or;DataCollection"/>
             </owl:Restriction>
         </rdfs:subClassOf>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Experiments#RefiningAConcept"/>
         <owl:disjointWith rdf:resource="&or;Designing"/>
         <owl:disjointWith rdf:resource="&or;Development"/>
         <owl:disjointWith rdf:resource="&or;Manufacturing"/>
@@ -1800,6 +1809,7 @@ Same as cyc#BiologicalProcess-CellularLevel.</rdfs:comment>
     <!-- http://www.nist.gov/itl/ssd/Experiments#Incubator -->
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Experiments#Incubator">
+        <rdfs:subClassOf rdf:resource="&bc;Container"/>
         <rdfs:subClassOf rdf:resource="&or;PhysicalDevice"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Experiments#LightFilter"/>
         <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Experiments#LightShutter"/>
@@ -1895,7 +1905,6 @@ Same as cyc#BiologicalProcess-CellularLevel.</rdfs:comment>
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Experiments#Measuring">
         <rdfs:subClassOf rdf:resource="&or;PurposefulAction"/>
-        <owl:disjointWith rdf:resource="http://www.nist.gov/itl/ssd/Experiments#RefiningAConcept"/>
         <owl:disjointWith rdf:resource="&or;ComputerProcessExecution"/>
         <owl:disjointWith rdf:resource="&or;DatabaseSearch"/>
         <rdfs:comment xml:lang="en">The action of making measurements</rdfs:comment>
@@ -2059,15 +2068,6 @@ Same as cyc:Microscope-Optical .</rdfs:comment>
     
 
 
-    <!-- http://www.nist.gov/itl/ssd/Experiments#RefiningAConcept -->
-
-    <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Experiments#RefiningAConcept">
-        <rdfs:subClassOf rdf:resource="&or;PurposefulAction"/>
-        <rdfs:comment xml:lang="en">Refining A Concept is a process of improving a model, prediction, plan, or other conceptual work by providing additional information or slightly modifying existing information.  The result is a modified version of the existing work, not a totally new work.</rdfs:comment>
-    </owl:Class>
-    
-
-
     <!-- http://www.nist.gov/itl/ssd/Experiments#Research -->
 
     <owl:Class rdf:about="http://www.nist.gov/itl/ssd/Experiments#Research">
@@ -2155,7 +2155,102 @@ Same as cyc:ScanningProbeMicroscope .</rdfs:comment>
     
 
 
-    <!-- http://www.nist.gov/itl/ssd/Experiments#UncertaintyDistributionType -->
+    <!-- http://www.nist.gov/itl/ssd/Experiments.n3#BaconianExperiment -->
+
+    <owl:Class rdf:about="&Experiments;BaconianExperiment">
+        <rdfs:subClassOf rdf:resource="&Experiments;PhysicalExperiment"/>
+        <rdfs:comment xml:lang="en">A Baconian experiment is a scientific experiment which involves no explicit hypothesis.</rdfs:comment>
+        <rdfs:seeAlso>http://www.nationmaster.com/encyclopedia/EXPOpropositions#Baconian_experiment</rdfs:seeAlso>
+        <rdfs:seeAlso xml:lang="en">Medawar, P.B. Advice to a Young Scientist. Pan Books Ltd, London, 1981</rdfs:seeAlso>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Experiments.n3#ComputationalExperiment -->
+
+    <owl:Class rdf:about="&Experiments;ComputationalExperiment">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Experiments#Experiment"/>
+        <owl:disjointWith rdf:resource="&Experiments;PhysicalExperiment"/>
+        <rdfs:comment xml:lang="en">A Computational Experiment is a scientific experiment which investigates cause-effect relations between known and unknown (target) variables by manipulating the computational (non-physical) domain adequate to the real-world domain.</rdfs:comment>
+        <rdfs:seeAlso>http://www.nationmaster.com/encyclopedia/EXPOpropositions#computational_experiment</rdfs:seeAlso>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Experiments.n3#ExperimentTypeByDomain -->
+
+    <owl:Class rdf:about="&Experiments;ExperimentTypeByDomain">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Experiments#ExperimentType"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Experiments.n3#ExperimentTypeByGenericMethod -->
+
+    <owl:Class rdf:about="&Experiments;ExperimentTypeByGenericMethod">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Experiments#ExperimentType"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Experiments.n3#GalileanExperiment -->
+
+    <owl:Class rdf:about="&Experiments;GalileanExperiment">
+        <rdfs:subClassOf rdf:resource="&Experiments;PhysicalExperiment"/>
+        <rdfs:seeAlso>http://www.nationmaster.com/encyclopedia/EXPOpropositions#Galilean_experiment</rdfs:seeAlso>
+        <rdfs:comment xml:lang="en">A Galilean experiment is a scientific experiment which involves explicit hypotheses.</rdfs:comment>
+        <rdfs:seeAlso xml:lang="en">Medawar, P.B. Advice to a Young Scientist. Pan Books Ltd, London, 1981</rdfs:seeAlso>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Experiments.n3#HypothosisDrivenExperiment -->
+
+    <owl:Class rdf:about="&Experiments;HypothosisDrivenExperiment">
+        <rdfs:subClassOf rdf:resource="&Experiments;GalileanExperiment"/>
+        <rdfs:seeAlso>http://www.nationmaster.com/encyclopedia/EXPOpropositions#hypothesis-driven_experiment</rdfs:seeAlso>
+        <rdfs:comment xml:lang="en">A hypothesis-driven experiment is a Galilean experiment designed to confirm or reject a given hypothesis. The deductive consequences of the hypothesis are compared with the experimental result, and the probability of the hypothesis increased (confirmed) or decreased (rejected).</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Experiments.n3#HypothosisFormingExperiment -->
+
+    <owl:Class rdf:about="&Experiments;HypothosisFormingExperiment">
+        <rdfs:subClassOf rdf:resource="&Experiments;GalileanExperiment"/>
+        <rdfs:seeAlso>www.nationmaster.com/encyclopedia/EXPOpropositions#hypothesis-forming_experiment</rdfs:seeAlso>
+        <rdfs:comment xml:lang="en">A hypothesis-forming experiment is a Galilean experiment that includes a hypotheses formation stage in which one or more hypotheses are formed using abduction or induction.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Experiments.n3#MicrofluidicExperiment -->
+
+    <owl:Class rdf:about="&Experiments;MicrofluidicExperiment">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Experiments#Experiment"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Experiments.n3#PhysicalExperiment -->
+
+    <owl:Class rdf:about="&Experiments;PhysicalExperiment">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Experiments#Experiment"/>
+        <rdfs:seeAlso>http://www.nationmaster.com/encyclopedia/EXPOpropositions#physical_experiment</rdfs:seeAlso>
+        <rdfs:comment xml:lang="en">A Physical Experiment is a scientific experiment which investigates cause-effect relations between known and unknown variables by manipulating the real-world (physical) domain.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Experiments.n3#TimeCourseExperiment -->
+
+    <owl:Class rdf:about="&Experiments;TimeCourseExperiment">
+        <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Experiments#Experiment"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/Experiments.n3#UncertaintyDistributionType -->
 
     <owl:Class rdf:about="&Experiments;UncertaintyDistributionType">
         <rdfs:subClassOf rdf:resource="&or;NonTangibleThing"/>
@@ -2199,15 +2294,39 @@ Same as cyc:ScanningProbeMicroscope .</rdfs:comment>
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#DataCollection -->
+
+    <owl:Class rdf:about="&or;DataCollection"/>
+    
+
+
     <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#DatabaseSearch -->
 
     <owl:Class rdf:about="&or;DatabaseSearch"/>
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#Designing -->
+
+    <owl:Class rdf:about="&or;Designing"/>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#Development -->
+
+    <owl:Class rdf:about="&or;Development"/>
+    
+
+
     <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#EventType -->
 
     <owl:Class rdf:about="&or;EventType"/>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#GenericProperty -->
+
+    <owl:Class rdf:about="&or;GenericProperty"/>
     
 
 
@@ -2229,9 +2348,21 @@ Same as cyc:ScanningProbeMicroscope .</rdfs:comment>
     
 
 
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#LaboratoryEquipment -->
+
+    <owl:Class rdf:about="&or;LaboratoryEquipment"/>
+    
+
+
     <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#Manufacturer -->
 
     <owl:Class rdf:about="&or;Manufacturer"/>
+    
+
+
+    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements#Manufacturing -->
+
+    <owl:Class rdf:about="&or;Manufacturing"/>
     
 
 
@@ -2321,39 +2452,9 @@ Same as cyc:ScanningProbeMicroscope .</rdfs:comment>
     
 
 
-    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#DataCollection -->
-
-    <owl:Class rdf:about="&or;DataCollection"/>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#Designing -->
-
-    <owl:Class rdf:about="&or;Designing"/>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#Development -->
-
-    <owl:Class rdf:about="&or;Development"/>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#GenericProperty -->
-
-    <owl:Class rdf:about="&or;GenericProperty"/>
-    
-
-
-    <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#Manufacturing -->
-
-    <owl:Class rdf:about="&or;Manufacturing"/>
-    
-
-
     <!-- http://www.nist.gov/itl/ssd/OntologyRequirements.owl#Modeling -->
 
-    <owl:Class rdf:about="&or;Modeling">
+    <owl:Class rdf:about="&OntologyRequirements;Modeling">
         <rdfs:subClassOf rdf:resource="http://www.nist.gov/itl/ssd/Experiments#Analysis"/>
     </owl:Class>
     
@@ -2382,9 +2483,9 @@ Same as cyc:ScanningProbeMicroscope .</rdfs:comment>
     
 
 
-    <!-- http://www.nist.gov/itl/ssd/Experiments#MC3T3Cell -->
+    <!-- http://www.nist.gov/itl/ssd/Experiments#3T3Cell -->
 
-    <owl:NamedIndividual rdf:about="&Experiments;MC3T3Cell">
+    <owl:NamedIndividual rdf:about="&Experiments2;T3Cell">
         <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Experiments#MouseCellLine"/>
         <rdfs:comment xml:lang="en">MC3T3 is a fibroblast cell line derived from Mus musculus (mouse).</rdfs:comment>
     </owl:NamedIndividual>
@@ -2439,7 +2540,7 @@ Same as cyc:ScanningProbeMicroscope .</rdfs:comment>
     <!-- http://www.nist.gov/itl/ssd/Experiments#CellMorphologyExperiment -->
 
     <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Experiments#CellMorphologyExperiment">
-        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Experiments#ExperimentType"/>
+        <rdf:type rdf:resource="&Experiments;ExperimentTypeByDomain"/>
     </owl:NamedIndividual>
     
 
@@ -2667,7 +2768,7 @@ This is especially used in edge detection to connect more faintly detected parts
     <!-- http://www.nist.gov/itl/ssd/Experiments#ImmunohistochemistryExperiment -->
 
     <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Experiments#ImmunohistochemistryExperiment">
-        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Experiments#ExperimentType"/>
+        <rdf:type rdf:resource="&Experiments;ExperimentTypeByDomain"/>
     </owl:NamedIndividual>
     
 
@@ -2769,7 +2870,7 @@ This is especially used in edge detection to connect more faintly detected parts
     <!-- http://www.nist.gov/itl/ssd/Experiments#MicrofluidicExperiment -->
 
     <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Experiments#MicrofluidicExperiment">
-        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Experiments#ExperimentType"/>
+        <rdf:type rdf:resource="&Experiments;ExperimentTypeByDomain"/>
     </owl:NamedIndividual>
     
 
@@ -2944,7 +3045,7 @@ This is especially used in edge detection to connect more faintly detected parts
     <!-- http://www.nist.gov/itl/ssd/Experiments#TimeCourseExperiment -->
 
     <owl:NamedIndividual rdf:about="http://www.nist.gov/itl/ssd/Experiments#TimeCourseExperiment">
-        <rdf:type rdf:resource="http://www.nist.gov/itl/ssd/Experiments#ExperimentType"/>
+        <rdf:type rdf:resource="&Experiments;ExperimentTypeByGenericMethod"/>
     </owl:NamedIndividual>
     
 
@@ -3151,7 +3252,7 @@ This is especially used in edge detection to connect more faintly detected parts
     
 
 
-    <!-- http://www.nist.gov/itl/ssd/Experiments#GaussianDistribution -->
+    <!-- http://www.nist.gov/itl/ssd/Experiments.n3#GaussianDistribution -->
 
     <owl:NamedIndividual rdf:about="&Experiments;GaussianDistribution">
         <rdf:type rdf:resource="&Experiments;UncertaintyDistributionType"/>
@@ -3160,7 +3261,7 @@ This is especially used in edge detection to connect more faintly detected parts
     
 
 
-    <!-- http://www.nist.gov/itl/ssd/Experiments#LinearDistribution -->
+    <!-- http://www.nist.gov/itl/ssd/Experiments.n3#LinearDistribution -->
 
     <owl:NamedIndividual rdf:about="&Experiments;LinearDistribution">
         <rdf:type rdf:resource="&Experiments;UncertaintyDistributionType"/>
@@ -3177,7 +3278,7 @@ This is especially used in edge detection to connect more faintly detected parts
     ///////////////////////////////////////////////////////////////////////////////////////
      -->
 
-    <rdf:Description rdf:about="&or;DesignMethod">
+    <rdf:Description rdf:about="&OntologyRequirements;DesignMethod">
         <rdfs:comment xml:lang="en">A Design Method is a method for designing an Experiment, a Material, an Artifact, or an Algorithm.</rdfs:comment>
     </rdf:Description>
 </rdf:RDF>
