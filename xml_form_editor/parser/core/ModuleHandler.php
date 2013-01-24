@@ -22,7 +22,7 @@ class ModuleHandler
 	 * Takes 1 or 2 parameters
 	 */
 	public function __construct() {
-		self::$LOG_FILE = $_SESSION['xsd_parser']['conf']['dirname'] . '/logs/module_handler.log';
+		self::$LOG_FILE = $_SESSION['xsd_parser']['conf']['logs_dirname'].'/'.$_SESSION['xsd_parser']['conf']['log_file'];
 
 		$argc = func_num_args();
 		$argv = func_get_args();

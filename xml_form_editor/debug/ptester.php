@@ -93,10 +93,12 @@
 	<hr/>
 	<h2>XML View</h2>
 	<?php
-		displayXMLTree();
+		//displayXMLTree();
 	?>
 	<script>
 		loadEditController();
+		loadAddRemoveController();
+		
 		loadModuleController();
 		loadPaginationController();
 		

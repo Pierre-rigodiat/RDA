@@ -12,7 +12,7 @@ if(isset($_GET['f'])/* && isset($_GET['d'])*/)
 		else loadSchema($schemaFilename);
 		
 		// Unset the current xml tree as it should be reloaded 
-		if(isset($_SESSION['xsd_parser']['xml_tree'])) unset($_SESSION['xsd_parser']['xml_tree']);
+		//if(isset($_SESSION['xsd_parser']['xml_tree'])) unset($_SESSION['xsd_parser']['xml_tree']);
 	}
 }
 

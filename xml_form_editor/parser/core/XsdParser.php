@@ -2,6 +2,7 @@
 // XXX Avoid infinite includes in lib
 require_once $_SESSION['xsd_parser']['conf']['dirname'].'/inc/helpers/Logger.php';
 require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/core/Tree.php';
+require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/core/XsdElement.php';
 require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/lib/XmlParserFunctions.php';
 require_once $_SESSION['xsd_parser']['conf']['dirname'].'/inc/lib/StringFunctions.php';
 
@@ -14,8 +15,11 @@ require_once $_SESSION['xsd_parser']['conf']['dirname'].'/inc/lib/StringFunction
  */ 
 class XsdParser {
 	private $xsdFile;
-	private $xsdTree; // The tree as it is in the xsd file
-	private $xmlTree; // The tree as it should be in the form
+	
+	private $xsdOriginalTree; // The tree as it is in the xsd file
+	private $xsdOrganizedTree; // The tree reorganized as it should be shown in the configuration view
+	private $xsdCompleteTree; // The tree as it should be in the form (with proper occurence)
+	
 	private $rootElements;
 	private $namespaces;
 	
@@ -45,14 +49,16 @@ class XsdParser {
 				if(is_string($argv[0]))
 				{
 					$this->xsdFile = $argv[0];
-					$this->xsdTree = new Tree();
-					$this->xmlTree = new Tree();
+					$this->xsdOriginalTree = new Tree();
+					$this->xsdOrganizedTree = new Tree();
+					$this->xsdCompleteTree = new Tree();
 				}
 				else 
 				{
 					$this->xsdFile = null;
-					$this->xsdTree = null;
-					$this->xmlTree = null;
+					$this->xsdOriginalTree = null;
+					$this->xsdOrganizedTree = null;
+					$this->xsdCompleteTree = null;
 				}
 				
 				$level = self::$LEVELS['NO_DBG'];	
@@ -65,30 +71,34 @@ class XsdParser {
 					
 					if($argv[1])
 					{
-						$this->xsdTree = new Tree(true);
-						$this->xmlTree = new Tree(true);
+						$this->xsdOriginalTree = new Tree(true);
+						$this->xsdOrganizedTree = new Tree(true);
+						$this->xsdCompleteTree = new Tree(true);
 						$level = self::$LEVELS['DBG'];
 					}
 					else 
 					{
-						$this->xsdTree = new Tree();
-						$this->xmlTree = new Tree();
+						$this->xsdOriginalTree = new Tree();
+						$this->xsdOrganizedTree = new Tree();
+						$this->xsdCompleteTree = new Tree();
 						$level = self::$LEVELS['NO_DBG'];
 					}
 				}
 				else 
 				{
 					$this->xsdFile = null;
-					$this->xsdTree = null;
-					$this->xmlTree = null;
+					$this->xsdOriginalTree = null;
+					$this->xsdOrganizedTree = null;
+					$this->xsdCompleteTree = null;
 					$level = self::$LEVELS['NO_DBG'];
 				}
 				
 				break;
 			default:
 				$this->xsdFile = null;
-				$this->xsdTree = null;
-				$this->xmlTree = null;
+				$this->xsdOriginalTree = null;
+				$this->xsdOrganizedTree = null;
+				$this->xsdCompleteTree = null;
 				$level = self::$LEVELS['NO_DBG'];
 				break;
 		}
@@ -102,7 +112,7 @@ class XsdParser {
 			echo '<b>Impossible to build the Logger:</b><br/>'.$ex->getMessage();
 		}
 		
-		if($this->xsdFile==null && $this->xsdTree==null && $this->xmlTree==null)
+		if($this->xsdFile==null && $this->xsdOriginalTree==null && $this->xsdOrganizedTree==null && $this->xsdCompleteTree = null)
 		{
 			$log_mess = '';
 			
@@ -128,17 +138,55 @@ class XsdParser {
 	}
 
 	/**
+	 * Parse the schema as a regular XML document
+	 * Store the tree into $this->xsdOriginalTree
+	 * 
+	 */
+	private function parse() {
+		global $elementTree;
+		
+		
+
+		// Initialize the XML parser
+		$parser=xml_parser_create();
+
+		// Set handlers (see /lib/XmlParserFunctions)
+		xml_set_element_handler($parser,"start","stop");
+		xml_set_character_data_handler($parser,"char");
+
+		$fp=fopen($this->xsdFile,"r");
+
+		// Read data
+		while ($data=fread($fp,4096))
+		{
+			xml_parse($parser,$data,feof($fp)) or
+			die (sprintf("XML Error: %s at line %d",
+					xml_error_string(xml_get_error_code($parser)),
+					xml_get_current_line_number($parser)));
+		}
+
+		//Free the XML parser and close the file
+		xml_parser_free($parser);
+		fclose($fp);
+		
+		$this->xsdOriginalTree = $elementTree;
+		$this->LOGGER->log_debug($this->xsdFile.' has been parsed', 'XsdParser::parse');
+	}
+
+	/**
 	 * 
 	 * 
 	 */
 	public function parseXsdFile()
 	{
+		$this->LOGGER->log_debug('Reading '.$this->xsdFile.'...', 'XsdParser::parseXsdFile');
+		
 		// Parse xsd with the PHP DOM parser
 		$this->parse();
 		
 		// Find all the namespaces and register them
 		$this->namespaces = array();
-		$schemaElement = $this->xsdTree->getObject(0);
+		$schemaElement = $this->xsdOriginalTree->getObject(0);
 		$schemaAttributes = $schemaElement->getAttributes();
 		$attributesName = array_keys($schemaAttributes);
 		
@@ -163,9 +211,9 @@ class XsdParser {
 		
 		// Find the root element
 		$this->rootElements = array();
-		foreach($this->xsdTree->getChildren(0) as $child)
+		foreach($this->xsdOriginalTree->getChildren(0) as $child)
 		{
-			$childObject = 	$this->xsdTree->getObject($child);
+			$childObject = 	$this->xsdOriginalTree->getObject($child);
 			if($childObject->getType()==$this->namespaces['default'].':ELEMENT')
 			{
 				array_push($this->rootElements, $child);
@@ -193,100 +241,55 @@ class XsdParser {
 	/**
 	 * 
 	 */
-	public function buildTree($rootElement)
+	public function buildOrganizedTree($rootElement)
 	{
+		$this->LOGGER->log_debug('Building $xsdOrganizedTree with root '.$rootElement, 'XsdParser::buildOrganizedTree');
+		
 		if(in_array($rootElement, $this->rootElements))
 		{
 			$this->insertTreeElement($rootElement);
 			$this->optimizeTree();
-			
-			//$this->computeMinOccurs(0);
 		}
 		else
 		{
-			$this->LOGGER->log_error('ID '.$rootElement.' is not one of the possible root element', 'XsdParser::buildTree');
+			$this->LOGGER->log_error('ID '.$rootElement.' is not one of the possible root element', 'XsdParser::buildOrganizedTree');
 		}
 	}
 	
 	/**
 	 * 
 	 */
-	public function getXmlTree()
+	 // Computes minOccurs
+	public function buildCompleteTree($elementId = 0)
 	{
-		$this->LOGGER->log_notice('Function called', 'XsdParser::getxmlTree');
-		return $this->xmlTree;
-	}
-
-	/**
-	 * 
-	 */
-	public function setXmlTree($newXmlTree)
-	{
-		$this->LOGGER->log_notice('Function called', 'XsdParser::setXmlTree');
-		$this->xmlTree = $newXmlTree;
-	}
-	
-	/**
-	 * 
-	 */
-	public function getXsdTree()
-	{
-		$this->LOGGER->log_notice('Function called', 'XsdParser::getXsdTree');
-		return $this->xsdTree;
-	}
-	
-	/**
-	 * Getter for the XSD file name
-	 */
-	public function getSchemaFileName()
-	{
-		$this->LOGGER->log_notice('Function called', 'XsdParser::getSchemaFileName');
-		return $this->getSchemaFileName();
-	}
-	 
-	/**
-	 * Parse the schema as a regular XML document
-	 * Store the tree into $this->xsdTree
-	 * 
-	 */
-	private function parse() {
-		global $elementTree;
+		if(!$this -> xsdCompleteTree -> hasElement()) $this -> xsdCompleteTree = clone $this -> xsdOrganizedTree;
 		
-		$this->LOGGER->log_debug($this->xsdFile.' will be read...', 'XsdParser::parse');
-
-		// Initialize the XML parser
-		$parser=xml_parser_create();
-
-		// Set handlers (see /lib/XmlParserFunctions)
-		xml_set_element_handler($parser,"start","stop");
-		xml_set_character_data_handler($parser,"char");
-
-		$fp=fopen($this->xsdFile,"r");
-
-		// Read data
-		while ($data=fread($fp,4096))
+		$elementObject = $this->xsdCompleteTree->getObject($elementId);
+		$elementChildren = $this->xsdCompleteTree->getChildren($elementId);
+		$elementAttr = $elementObject->getAttributes();
+		
+		foreach($elementChildren as $childId)
 		{
-			xml_parse($parser,$data,feof($fp)) or
-			die (sprintf("XML Error: %s at line %d",
-					xml_error_string(xml_get_error_code($parser)),
-					xml_get_current_line_number($parser)));
+			$this->buildCompleteTree($childId);
 		}
-
-		//Free the XML parser and close the file
-		xml_parser_free($parser);
-		fclose($fp);
 		
-		$this->xsdTree = $elementTree;
-		$this->LOGGER->log_debug($this->xsdFile.' has been read and its content is stored in the tree', 'XsdParser::parse');
+		if(isset($elementAttr['MINOCCURS']) && $elementAttr['MINOCCURS']>1)
+		{
+			for($i=0; $i<$elementAttr['MINOCCURS']-1; $i++)
+			{
+				$this->xsdCompleteTree->copyTreeBranch($elementId);
+			}
+		}
 	}
+	
 	
 	/**
 	 * NB: Recursive function
 	 */
 	private function insertTreeElement($elementId, $parentId = -1)
 	{
-		$elementObject = clone $this->xsdTree->getObject($elementId);
-		$newParentId = $this->xmlTree->insertElement($elementObject, $parentId);
+		$elementObject = clone $this->xsdOriginalTree->getObject($elementId);
+		$newParentId = $this->xsdOrganizedTree->insertElement($elementObject, $parentId);
 		
 		if($newParentId<0)
 		{
@@ -295,7 +298,7 @@ class XsdParser {
 		}
 		else 
 		{
-			$children = $this->xsdTree->getChildren($elementId);
+			$children = $this->xsdOriginalTree->getChildren($elementId);
 			if(count($children) > 0)
 			{
 				foreach($children as $child)
@@ -314,7 +317,7 @@ class XsdParser {
 					if(!in_array(strtoupper($key_part[0]), $this->namespaces))
 					{
 						$comparisonElement = new XsdElement($this->namespaces['default'].':COMPLEXTYPE', array("NAME"=>$elementAttributes["TYPE"]));
-						$arrayID = $this->xsdTree->getId($comparisonElement);
+						$arrayID = $this->xsdOriginalTree->getId($comparisonElement);
 						
 						if(count($arrayID)==1)
 						{
@@ -338,7 +341,7 @@ class XsdParser {
 	// todo create an array of element to remove
 	private function optimizeTree()
 	{
-		$tree = $this->xmlTree->getTree();
+		$tree = $this->xsdOrganizedTree->getTree();
 		
 		foreach ($tree as $id=>$element) 
 		{
@@ -346,49 +349,89 @@ class XsdParser {
 			
 			if($object->getType()==$this->namespaces['default'].':COMPLEXTYPE' || $object->getType()==$this->namespaces['default'].':SEQUENCE' || $object->getType()==$this->namespaces['default'].':SIMPLETYPE')
 			{
-				$this->xmlTree->removeElement($id);
+				$this->xsdOrganizedTree->removeElement($id);
 			}
 			
 			//XXX Does not work for all the restriction
 			if($object->getType()==$this->namespaces['default'].':RESTRICTION')
 			{
-				$parentId = $this->xmlTree->getParent($id);
-				$children = $this->xmlTree->getChildren($id);
+				$parentId = $this->xsdOrganizedTree->getParent($id);
+				$children = $this->xsdOrganizedTree->getChildren($id);
 				
 				$values = array();
 				foreach($children as $child)
 				{
-					$attributes = $this->xmlTree->getObject($child)->getAttributes();
+					$attributes = $this->xsdOrganizedTree->getObject($child)->getAttributes();
 					array_push($values, $attributes['VALUE']);
 				}
 							
-				$this->xmlTree->getObject($parentId)->addAttributes(array('RESTRICTION'=>$values));
-				$this->xmlTree->removeElement($id, true);
+				$this->xsdOrganizedTree->getObject($parentId)->addAttributes(array('RESTRICTION'=>$values));
+				$this->xsdOrganizedTree->removeElement($id, true);
 			}
 		}
+	}
+	
+	/**
+	 * Getter for the XSD file name
+	 */
+	public function getSchemaFileName()
+	{
+		$this->LOGGER->log_notice('Function called', 'XsdParser::getSchemaFileName');
+		return $this->getSchemaFileName();
+	}
+	
+	/**
+	 * 
+	 */
+	public function getXsdOriginalTree()
+	{
+		$this->LOGGER->log_notice('Function called', 'XsdParser::getxsdOriginalTree');
+		return $this->xsdOriginalTree;
+	}
+	
+	
+	/**
+	 * 
+	 */
+	public function getXsdOrganizedTree()
+	{
+		$this->LOGGER->log_notice('Function called', 'XsdParser::getXsdOrganizedTree');
+		return $this->xsdOrganizedTree;
 	}
 
 	/**
 	 * 
 	 */
-	public function computeMinOccurs($elementId = 0)
+	public function setXsdOrganizedTree($newXsdOrganizedTree)
 	{
-		$elementObject = $this->xmlTree->getObject($elementId);
-		$elementChildren = $this->xmlTree->getChildren($elementId);
-		$elementAttr = $elementObject->getAttributes();
-		
-		foreach($elementChildren as $childId)
-		{
-			$this->computeMinOccurs($childId);
-		}
-		
-		if(isset($elementAttr['MINOCCURS']) && $elementAttr['MINOCCURS']>1)
-		{
-			for($i=0; $i<$elementAttr['MINOCCURS']-1; $i++)
-			{
-				$this->xmlTree->copyTreeBranch($elementId);
-			}
-		}
+		$this->LOGGER->log_notice('Function called', 'XsdParser::setXsdOrganizedTree');
+		$this->xsdOrganizedTree = $newXsdOrganizedTree;
+	}
+	
+	/**
+	 * 
+	 */
+	public function getXsdCompleteTree()
+	{
+		$this->LOGGER->log_notice('Function called', 'XsdParser::getXsdCompleteTree');
+		return $this->xsdCompleteTree;
+	}
+	
+	/**
+	 * 
+	 */
+	public function setXsdCompleteTree($newXsdCompleteTree)
+	{
+		$this->LOGGER->log_notice('Function called', 'XsdParser::setXsdCompleteTree');
+		$this->xsdCompleteTree = $newXsdCompleteTree;
+	}
+	
+	/**
+	 * 
+	 */
+	public function __toString()
+	{
+		return 'Parser string';
 	}
 }
 ?>

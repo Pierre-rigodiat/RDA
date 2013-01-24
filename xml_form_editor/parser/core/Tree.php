@@ -13,6 +13,8 @@ require_once $_SESSION['xsd_parser']['conf']['dirname'].'/inc/helpers/Logger.php
  * ** 0.2b **
  * clone object in copyTreeBranch to differentiate object
  * copyTreeBranch copies the object near his brother
+ * ** 0.2c **
+ * add a hasElement function
  * 
  */
 class Tree {
@@ -27,7 +29,7 @@ class Tree {
 	
 	public function __construct()
 	{
-		self::$LOG_FILE = $_SESSION['xsd_parser']['conf']['dirname'].'/logs/tree.log';
+		self::$LOG_FILE = $_SESSION['xsd_parser']['conf']['dirname'].'/logs/parser.log';
 		
 		$argc = func_num_args();
 		$argv = func_get_args();
@@ -197,6 +199,9 @@ class Tree {
 		}
 	}
 	
+	/**
+	 * 
+	 */
 	public function getId($elementObject)
 	{
 		$result = array();
@@ -234,6 +239,8 @@ class Tree {
 	
 	public function insertElement($elementObject, $parentElementId = -1)
 	{
+		$this->LOGGER->log_debug('insertElement('.$elementObject.', '.$parentElementId.')', 'Tree::insertElement');
+		
 		if(is_integer($parentElementId) && $elementObject!=null)
 		{
 			$elementString="";
@@ -267,19 +274,19 @@ class Tree {
 				}
 				else 
 				{
-					$this->LOGGER->log_error('2nd parameter must be a positive integer ('.gettype($parentElementId).' given)', 'Tree::insertElement');
+					$this->LOGGER->log_error('$parentElementId (2nd parameter) must be positive ('.$parentElementId.'<0)', 'Tree::insertElement');
 					return -3;
 				}
 			}
 		}
 		else if(!is_integer($parentElementId))
 		{
-			$this->LOGGER->log_error('2nd parameter must be a positive integer ('.gettype($parentElementId).' given)', 'Tree::insertElement');
+			$this->LOGGER->log_error('$parentElementId (2nd parameter) must be an integer ('.gettype($parentElementId).' given)', 'Tree::insertElement');
 			return -1;
 		}
 		else // $elementObject==null
 		{
-			$this->LOGGER->log_error('1st parameter cannot be NULL', 'Tree::insertElement');
+			$this->LOGGER->log_error('$elementObject (first parameter) cannot be null', 'Tree::insertElement');
 			return -2;
 		}
 	}
@@ -345,7 +352,18 @@ class Tree {
 			return -2;
 		}
 	}
+
+	/**
+	 * 
+	 */
+	public function hasElement()
+	{
+		count($this->tree)>0?true:false;
+	}
 	
+	/**
+	 * 
+	 */
 	public function copyTreeBranch($baseElementId, $destinationId = -1)
 	{
 		if(isset($this->tree[$baseElementId]) && $this->tree[$baseElementId]['parent']!=-1) // Check the existence of the element + the element is not the root (copy impossible)
@@ -419,6 +437,11 @@ class Tree {
 			$this->LOGGER->log_error('ID '.$elementId.' (set as $baseElementId) is not in the current tree', 'Tree::copyTreeBranch');
 			return -2;
 		}
+	}
+
+	public function __toString()
+	{
+		
 	}	
 }
 

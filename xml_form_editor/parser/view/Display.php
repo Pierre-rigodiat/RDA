@@ -1,17 +1,18 @@
 <?php
+require_once $_SESSION['xsd_parser']['conf']['dirname'] . '/parser/core/ModuleHandler.php';
+require_once $_SESSION['xsd_parser']['conf']['dirname'] . '/parser/core/PageHandler.php';
 require_once $_SESSION['xsd_parser']['conf']['dirname'] . '/inc/lib/StringFunctions.php';
 // xxx what if the $_SESSION doesn't exist
 
 /**
- * XsdDisplay class allow to display element the way you want.
+ * Display class allow to display element the way you want.
  * xxx Handle templates, etc...
  *
  */
-// TODO Change ModuleDisplay to module handler
-class XsdDisplay
+class Display
 {
-	private $tree;
-	private $moduleDisplay; // A ModuleDisplay object
+	private $parser;
+	private $moduleHandler; // A ModuleHandler object
 	private $pageHandler; // A PageHandler object
 	
 	private static $STEPS = array(
@@ -19,6 +20,7 @@ class XsdDisplay
 		'html_form' => 1,
 		'xml_tree' => 2
 	);
+	private static $CONF_FILE; // The configuration file to handle the display elements 
 	
 	// Debug and logging variables
 	private $LOGGER;
@@ -27,14 +29,14 @@ class XsdDisplay
 		'NO_DBG' => 'info'
 	);
 	private static $LOG_FILE;
-	private static $FILE_NAME = 'XsdDisplay.php';
+	private static $FILE_NAME = 'Display.php';
 
 	/**
 	 *
 	 */
 	public function __construct()
 	{
-		self::$LOG_FILE = $_SESSION['xsd_parser']['conf']['dirname'] . '/logs/display.log';
+		self::$LOG_FILE = $_SESSION['xsd_parser']['conf']['logs_dirname'].'/'.$_SESSION['xsd_parser']['conf']['log_file'];
 
 		$argc = func_num_args();
 		$argv = func_get_args();
@@ -42,35 +44,35 @@ class XsdDisplay
 		switch($argc)
 		{
 			case 3 :
-				// new XsdDisplay(treeObject, pageHandler, moduleDisplay)
-				if (is_object($argv[0]) && get_class($argv[0]) == 'Tree' 
+				// new Display(parserObject, pageHandler, moduleHandler)
+				if (is_object($argv[0]) && get_class($argv[0]) == 'XsdParser' 
 					&& is_object($argv[1]) && get_class($argv[1]) == 'PageHandler' 
-					&& is_object($argv[2]) && get_class($argv[2]) == 'ModuleDisplay')
+					&& is_object($argv[2]) && get_class($argv[2]) == 'ModuleHandler')
 				{
-					$this -> tree = $argv[0];
+					$this -> parser = $argv[0];
 					$this -> pageHandler = $argv[1];
-					$this -> moduleDisplay = $argv[2];
+					$this -> moduleHandler = $argv[2];
 					
 					$level = self::$LEVELS['NO_DBG'];
 				}
 				else
 				{
-					$this -> tree = null;
+					$this -> parser = null;
 					$this -> pageHandler = null;
-					$this -> moduleDisplay = null;
+					$this -> moduleHandler = null;
 					$level = self::$LEVELS['NO_DBG'];
 				}
 				break;
 			case 4 :
-				// new XsdDisplay(treeObject, pageHandler, moduleDisplay, debugBoolean)
-				if (is_object($argv[0]) && get_class($argv[0]) == 'Tree' 
+				// new Display(parserObject, pageHandler, moduleHandler, debugBoolean)
+				if (is_object($argv[0]) && get_class($argv[0]) == 'XsdParser' 
 					&& is_object($argv[1]) && get_class($argv[1]) == 'PageHandler' 
-					&& is_object($argv[2]) && get_class($argv[2]) == 'ModuleDisplay'
+					&& is_object($argv[2]) && get_class($argv[2]) == 'ModuleHandler'
 					&& is_bool($argv[3]))
 				{
-					$this -> tree = $argv[0];
+					$this -> parser = $argv[0];
 					$this -> pageHandler = $argv[1];
-					$this -> moduleDisplay = $argv[2];
+					$this -> moduleHandler = $argv[2];
 
 					if ($argv[2])
 						$level = self::$LEVELS['DBG'];
@@ -79,16 +81,16 @@ class XsdDisplay
 				}
 				else
 				{
-					$this -> tree = null;
+					$this -> parser = null;
 					$this -> pageHandler = null;
-					$this -> moduleDisplay = null;
+					$this -> moduleHandler = null;
 					$level = self::$LEVELS['NO_DBG'];
 				}
 				break;
 			default :
-				$this -> tree = null;
+				$this -> parser = null;
 				$this -> pageHandler = null;
-				$this -> moduleDisplay = null;
+				$this -> moduleHandler = null;
 				$level = self::$LEVELS['NO_DBG'];
 				break;
 		}
@@ -103,7 +105,7 @@ class XsdDisplay
 			return;
 		}
 
-		if ($this -> tree == null && $this -> pageHandler == null && $this -> moduleDisplay == null)
+		if ($this -> parser == null && $this -> pageHandler == null && $this -> moduleHandler == null)
 		{
 			$log_mess = '';
 
@@ -117,7 +119,7 @@ class XsdDisplay
 					if(is_object($argv[2])) $argv2 = get_class($argv[2]);
 					else $argv2 = gettype($argv[2]);
 								
-					$log_mess .= 'Supports {Tree,PageHandler,ModuleDisplay} as parameter ({' . $argv0 . ',' . $argv1 . ',' . $argv2 . '} given)';
+					$log_mess .= 'Supports {XsdParser,PageHandler,ModuleHandler} as parameter ({' . $argv0 . ',' . $argv1 . ',' . $argv2 . '} given)';
 					break;
 				case 4 :
 					if(is_object($argv[0])) $argv0 = get_class($argv[0]);
@@ -129,37 +131,51 @@ class XsdDisplay
 					if(is_object($argv[3])) $argv3 = get_class($argv[3]);
 					else $argv3 = gettype($argv[3]);
 					
-					$log_mess .= 'Supports {Tree,PageHandler,ModuleDisplay,boolean} as parameters ({' . $argv0 . ',' . $argv1 . ',' . $argv2 . ',' . $argv3 . '} given)';
+					$log_mess .= 'Supports {XsdParser,PageHandler,ModuleHandler,boolean} as parameters ({' . $argv0 . ',' . $argv1 . ',' . $argv2 . ',' . $argv3 . '} given)';
 					break;
 				default :
 					$log_mess .= 'Supports 3 or 4 parameter at input (' . $argc . 'given)';
 					break;
 			}
 
-			$this -> LOGGER -> log_error($log_mess, 'XsdDisplay::__construct');
+			$this -> LOGGER -> log_error($log_mess, 'Display::__construct');
 		}
 		else
-			$this -> LOGGER -> log_debug('XsdDisplay successfully built', 'XsdDisplay::__construct');
+			$this -> LOGGER -> log_debug('Display successfully built', 'Display::__construct');
 	}
-
+	
 	/**
 	 * 
 	 */
-	public function setTree($newTree)
+	public function setParser($newParser)
 	{
-		if (is_object($newTree) && get_class($newTree) == 'Tree')
+		if (is_object($newParser) && get_class($newParser) == 'XsdParser')
 		{
-			$this -> tree = $newTree;
-			$this -> LOGGER -> log_info('New tree set', 'XsdDisplay::setTree');
+			$this -> parser = $newParser;
+			$this -> LOGGER -> log_debug('New parser set', 'Display::setParser');
 		}
 		else
-			$this -> LOGGER -> log_error('First parameter is not an instance of Tree', 'XsdDisplay::setTree');
+			$this -> LOGGER -> log_error('First parameter is not an instance of XsdParser', 'Display::setParser');
 	}
 	
 	/**
 	 * 
 	 */
-	public function setModuleDisplay($moduleDisplay)
+	public function setModuleHandler($newModuleHandler)
+	{
+		if (is_object($newModuleHandler) && get_class($newModuleHandler) == 'ModuleHandler')
+		{
+			$this -> moduleHandler = $newModuleHandler;
+			$this -> LOGGER -> log_debug('New ModuleHandler set', 'Display::setModuleHandler');
+		}
+		else
+			$this -> LOGGER -> log_error('First parameter is not an instance of ModuleHandler', 'Display::setModuleHandler');
+	}
+	
+	/**
+	 * 
+	 */
+	public function setPageHandler($newPageHandler)
 	{
 		/* Not yet implemented */
 	}
@@ -167,9 +183,79 @@ class XsdDisplay
 	/**
 	 * 
 	 */
-	public function setPageHandler($pageHandler)
+	public function update()
+	{
+		$this -> updateParser();
+		$this -> updateModuleHandler();
+		$this -> updatePageHandler();
+		
+		// TODO add some logger stuff
+		
+		return;
+	}
+	
+	/**
+	 * 
+	 */
+	public function updateParser()
+	{		
+		if(isset($_SESSION['xsd_parser']['parser']))
+		{
+			$sessionParser = unserialize($_SESSION['xsd_parser']['parser']);
+			$this -> setParser($sessionParser);
+			
+			$this -> LOGGER ->log_debug('Parser updated', 'Display::updateParser');
+		}
+		else
+		{
+			$this -> LOGGER ->log_info('No parser to update', 'Display::updateParser');
+		}
+	}
+	
+	/**
+	 * 
+	 */
+	public function updateModuleHandler()
+	{
+		if(isset($_SESSION['xsd_parser']['mhandler']))
+		{
+			$sessionModuleHandler = unserialize($_SESSION['xsd_parser']['mhandler']);
+			$this -> setModuleHandler($sessionModuleHandler);
+			
+			$this -> LOGGER ->log_debug('ModuleHandler updated', 'Display::updateModuleHandler');
+		}
+		else
+		{
+			$this -> LOGGER ->log_info('No ModuleHandler to update', 'Display::updateModuleHandler');
+		}
+	}
+	
+	/**
+	 * 
+	 */
+	public function updatePageHandler()
 	{
 		/* Not yet implemented */
+		//$sessionPageHandler = $_SESSION['xsd_parser']['phandler'];
+	}
+	
+	/**
+	 * 
+	 */
+	public function displayModuleChooser()
+	{
+		$moduleChooser = '';
+		
+		$moduleList = $this -> moduleHandler -> getModuleList();
+		foreach($moduleList as $module)
+		{
+			$iconString = $this->moduleHandler->getModuleStatus($module['name'])==1?'on':'off';
+			$moduleChooser .= '<div class="module"><span class="icon legend '.$iconString.'">'.ucfirst($module['name']).'</span></div>';
+			
+			$this->LOGGER->log_debug('Display module '.$module['name'], 'Display::displayModuleChooser');
+		}
+		
+		return $moduleChooser;
 	}
 	 
 	/**
@@ -199,7 +285,10 @@ class XsdDisplay
 		// XXX Way to follow
 		// pageHandler -> getElementsIdForPage($page)
 		// foreach element
-		//		if element -> hasAttributes('MODULE') display moduleHandler -> displayModule(moduleName, id)
+		//		if element -> hasAttributes('MODULE') 
+		//			loadModuleView
+		//			displayModuleView
+		//			display moduleHandler -> displayPageForId(moduleName, id)
 		//		else this->displayElement(id)
 		
 		
@@ -238,6 +327,22 @@ class XsdDisplay
 		/* Not yet implemented */
 	}
 
+	/**
+	 * 
+	 */
+	private function displayPopUpModuleSelect()
+	{
+		$popUpSelection = '';
+		
+		$moduleList = $this -> moduleHandler -> getModuleList('enable');
+		foreach($moduleList as $module)
+		{
+			$popUpSelection .= '<option value="'.$module['name'].'">'.ucfirst($module['name']).'</option>';
+		}
+		
+		return $popUpSelection;
+	}
+	 
 	/**
 	 * Displays the jQueryUI pop-up for the configuration view
 	 * @return {String} The pop-up code
@@ -283,7 +388,7 @@ class XsdDisplay
 					        </div>';
 		
 		// Module select display
-		if($this->pageHandler && $this->moduleDisplay) // If the ModuleDisplay object has been set
+		if($this->pageHandler && $this->moduleHandler) // If the ModuleDisplay object has been set
 		{
 			$maxPages = $this->pageHandler->getNumberOfPage();
 			
@@ -305,7 +410,7 @@ class XsdDisplay
 						        <select id="module" name="module" class="ui-widget-content ui-corner-all">
 						        	<option value="false">No module</option>';
 						
-			$result .= $this->moduleDisplay->displayPopUpModuleSelect();
+			$result .= $this->displayPopUpModuleSelect();
 							
 			$result .= '        </select>
 					        </div>';
@@ -324,22 +429,23 @@ class XsdDisplay
 	private function displayElement($elementId, $stepId)
 	{
 		$result = '';
+		$children = array();
 
 		switch($stepId)
 		{
 			case self::$STEPS['config'] :
 				$result .= $this -> displayConfigurationElement($elementId);
+				$children = $this -> parser -> getXsdOrganizedTree() -> getChildren($elementId);
 				break;
 			case self::$STEPS['html_form'] :
 				$result .= $this -> displayHTMLFormElement($elementId);
+				$children = $this -> parser -> getXsdCompleteTree() -> getChildren($elementId);
 				break;
 			default :
 				//XXX provide a log error message
 				exit ;
 				break;
 		}
-		
-		$children = $this -> tree -> getChildren($elementId);
 
 		if (count($children) > 0)
 		{
@@ -361,11 +467,12 @@ class XsdDisplay
 	 */
 	public function displayConfigurationElement($elementId, $withoutList = false)
 	{
-		$element = $this -> tree -> getObject($elementId);
+		//$element = $this -> tree -> getObject($elementId);
+		$element = $this -> parser -> getXsdOrganizedTree() -> getObject($elementId);
 		$elementAttr = $element -> getAttributes();
 		$result = '';
 		
-		$this->LOGGER->log_debug('Display ID '.$elementId.'; Object: '.$element, 'XsdDisplay::displayConfigurationElement');
+		$this->LOGGER->log_debug('Display ID '.$elementId.'; Object: '.$element, 'Display::displayConfigurationElement');
 
 		// TODO check that the element contains at least what we want...
 		// TODO check the type of element
@@ -445,11 +552,11 @@ class XsdDisplay
 	 */
 	private function displayHTMLFormElement($elementId)
 	{
-		$element = $this -> tree -> getObject($elementId);
+		$element = $this -> parser -> getXsdCompleteTree() -> getObject($elementId);
 		$elementAttr = $element -> getAttributes();
 		$result = '';
 		
-		$this->LOGGER->log_debug('Display ID '.$elementId.'; Object: '.$element, 'XsdDisplay::displayHTMLFormElement');
+		$this->LOGGER->log_debug('Display ID '.$elementId.'; Object: '.$element, 'Display::displayHTMLFormElement');
 
 		$liClass = '';
 		if (isset($elementAttr['AVAILABLE']) && !$elementAttr['AVAILABLE'])
@@ -473,18 +580,16 @@ class XsdDisplay
 		}
 
 		// Gather sibling information and create useful variable to count them
-		$parentId = $this -> tree -> getParent($elementId);
-		$siblingsIdArray = $this -> tree -> getId($element);
+		$parentId = $this -> parser -> getXsdCompleteTree() -> getParent($elementId);
+		$siblingsIdArray = $this -> parser -> getXsdCompleteTree() -> getId($element);
 		$siblingsCount = 0;
-
-		//$removeButtonSet = false;
 
 		// Check the current number of siblings (to know if we need to display buttons)
 		foreach ($siblingsIdArray as $siblingId)
 		{
-			$siblingParentId = $this -> tree -> getParent($siblingId);
+			$siblingParentId = $this -> parser -> getXsdCompleteTree() -> getParent($siblingId);
 
-			$siblingObject = $this -> tree -> getObject($siblingId);
+			$siblingObject = $this -> parser -> getXsdCompleteTree() -> getObject($siblingId);
 			$siblingAttr = $siblingObject -> getAttributes();
 
 			// We compare the parent ID to know if this is a real sibling (and not just another similar element)

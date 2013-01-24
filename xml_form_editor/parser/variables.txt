@@ -8,13 +8,12 @@ $_SESSION['xsd_parser'] The array containing all the current parser information
 			['modules_dirname'] The directory where all the modules are stored
 			['debug'] To use debug or not
 			
-			
 	['parser'] The parser object (serialized)
 	
 	['tree'] The schema tree object (serialized)
 	
 	['mhandler'] The module handler (serialized)
 	
+	['phandler'] The page handler (serialized)
+	
 TODO list
-	['modules'] An object with all the modules configuration and datas within itself
-	[]

@@ -5,9 +5,7 @@
 class PageHandler
 {
 	private $numberOfPage;
-	private $pageArray; // An array linking page number with ID of XSD element
-	// private $moduleHandler;
-	// private $tree;
+	private $pageArray; // An array linking page number with a Tree of XSD element
 	// private static $modulePerPages = 1;
 	
 	// Debug and logging variables
@@ -21,13 +19,11 @@ class PageHandler
 	
 	/**
 	 * 
-	 * @param $tree {object}
-	 * @param $moduleHandler {object}
 	 * @param $numberOfPages {integer}
 	 * @param $isDebugEnable {boolean} Optional 
 	 */
 	public function __construct() {
-		self::$LOG_FILE = $_SESSION['xsd_parser']['conf']['dirname'] . '/logs/page_handler.log';
+		self::$LOG_FILE = $_SESSION['xsd_parser']['conf']['logs_dirname'].'/'.$_SESSION['xsd_parser']['conf']['log_file'];
 
 		$argc = func_num_args();
 		$argv = func_get_args();
@@ -35,7 +31,7 @@ class PageHandler
 		switch($argc)
 		{
 			case 1 :
-				// new XsdDisplay(numberOfPage)
+				// new PageHandler(numberOfPage)
 				if (is_int($argv[0]))
 				{
 					$this -> numberOfPage = $argv[0];
@@ -51,7 +47,7 @@ class PageHandler
 				}
 				break;
 			case 2 :
-				// new XsdDisplay(numberOfPage, debugBoolean)
+				// new PageHandler(numberOfPage, debugBoolean)
 				if (is_int($argv[0]) && is_bool($argv[1]))
 				{
 					$this -> numberOfPage = $argv[0];
@@ -124,10 +120,10 @@ class PageHandler
 		
 	}
 	
-	public function getPageForId($elementId)
+	/*public function getPageForId($elementId)
 	{
 		
-	}
+	}*/
 	
 	public function getNumberOfPage()
 	{

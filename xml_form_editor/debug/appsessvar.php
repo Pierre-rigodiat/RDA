@@ -10,6 +10,7 @@
 <html>
 <head>
 	<meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+	<meta http-equiv="refresh" content="5" />
 	
 	<link rel="stylesheet" type="text/css" href="resources/css/style.css" media="screen" />
 	<link rel="stylesheet" type="text/css" href="resources/css/icons.css" media="screen" />

@@ -1,13 +1,15 @@
 <?php
 session_start();
 require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/core/Tree.php';
+require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/core/XsdParser.php';
 require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/core/XsdElement.php';
-require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/view/XsdDisplay.php';
+require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/view/Display.php';
 require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/lib/PhpControllersFunctions.php';
 
 //todo optimize script
 //todo secure script
-//todo factorize code
+//todo add a logger
+//todo remove unused require_once
 /**
  * Return object for the script
  * {"result":(string)html_code or error_message, "code":(int)return_code}
@@ -18,54 +20,30 @@ require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/lib/PhpControll
  * 
  * 
  * */
-
-/**
- * Function to display the every brother of the father of the element we have clicked on
- * @param $tree
- * @param $grandParentId
- * 
- * @return (string)
- */
-/*function displayTree($tree, $grandParentId)
+function getJSONString($parser, $xsdCompleteTree, $elementId)
 {
-	$result = '';
+	$parser -> setXsdCompleteTree($xsdCompleteTree);
+	$_SESSION['xsd_parser']['parser'] = serialize($parser);
 	
-	$display = new XsdDisplay($tree, true);
-						
-	if($grandParentId>=0)
-	{
-		$children = $tree->getChildren($grandParentId);
-		foreach($children as $childId)
-		{
-			$result .= $display->displayHTMLForm($childId, true);
-		}
-	}
-	else
-	{
-		$result .= $display->displayHTMLForm(0, true);
-	}
+	$htmlCode = htmlspecialchars(displayTree($elementId));
 	
-	return $result;
-}*/
+	if($htmlCode)
+	{
+		return buildJSON($htmlCode, 0);
+	}
+	else 
+	{
+		return buildJSON('No display or parser configured', -3);
+	}
+}
 
-/**
- * Function to build a JSON string compliant with the format read in the addRemove.js script
- * @param $message
- * @param $code
- * 
- * @return (string)
- */
-/*function buildJSON($message, $code)
-{
-	if(is_string($message) && is_integer($code)) return '{"result":"'.$message.'", "code":'.$code.'}';
-	else return '{"result":"Wrong parameter given to the function. Impossible to build the JSON", "code":-9999}';
-}*/
-
-if(isset($_GET['action']) && isset($_GET['id']) && isset($_SESSION['xsd_parser']['xml_tree']))
+if(isset($_GET['action']) && isset($_GET['id']) && isset($_SESSION['xsd_parser']['parser']))
 {
 	// Create main variable
-	$tree = unserialize($_SESSION['xsd_parser']['xml_tree']);
-	$element = $tree->getObject($_GET['id']);
+	$parser = unserialize($_SESSION['xsd_parser']['parser']);
+	$xsdCompleteTree = $parser -> getXsdCompleteTree();
+	
+	$element = $xsdCompleteTree->getObject($_GET['id']);
 	
 	// Check that we actually got an existing element
 	if($element) $elementAttr = $element->getAttributes();
@@ -76,20 +54,20 @@ if(isset($_GET['action']) && isset($_GET['id']) && isset($_SESSION['xsd_parser']
 	}
 	
 	// Other variables
-	$parentId = $tree->getParent($_GET['id']);
-	$grandParentId = $tree->getParent($parentId);
+	$parentId = $xsdCompleteTree->getParent($_GET['id']);
+	$grandParentId = $xsdCompleteTree->getParent($parentId);
 	
 	// Check that this part of the tree is not unavailable
-	$elderId = $tree->getParent($_GET['id']);
-	$elderObject = $tree->getObject($elderId);
+	$elderId = $xsdCompleteTree->getParent($_GET['id']);
+	$elderObject = $xsdCompleteTree->getObject($elderId);
 	$elderAttributes = $elderObject->getAttributes();
 	
 	$isElderAvailable = !(isset($elderAttributes['AVAILABLE']) && !$elderAttributes['AVAILABLE']);
 	
 	while($isElderAvailable && $elderId!=0)
 	{
-		$elderId = $tree->getParent($elderId);
-		$elderObject = $tree->getObject($elderId);
+		$elderId = $xsdCompleteTree->getParent($elderId);
+		$elderObject = $xsdCompleteTree->getObject($elderId);
 		$elderAttributes = $elderObject->getAttributes();
 		
 		$isElderAvailable = !(isset($elderAttributes['AVAILABLE']) && !$elderAttributes['AVAILABLE']);
@@ -97,20 +75,19 @@ if(isset($_GET['action']) && isset($_GET['id']) && isset($_SESSION['xsd_parser']
 	
 	if(!$isElderAvailable) 
 	{
-		$htmlCode = htmlspecialchars(displayTree($tree, $grandParentId));
+		$htmlCode = htmlspecialchars(displayTree($grandParentId));
 		echo buildJSON($htmlCode, $elderId);
 		
 		exit;
-	}
-			
+	}		
 	
 	// Retrieving the number of current siblings
-	$siblingsIdArray = $tree->getId($element);
+	$siblingsIdArray = $xsdCompleteTree->getId($element);
 	$siblingCount = 0;
 	
 	foreach ($siblingsIdArray as $siblingId) 
 	{
-		$siblingParentId = $tree->getParent($siblingId);
+		$siblingParentId = $xsdCompleteTree->getParent($siblingId);
 		if($siblingParentId==$parentId)  $siblingCount += 1;
 	}
 	
@@ -120,10 +97,9 @@ if(isset($_GET['action']) && isset($_GET['id']) && isset($_SESSION['xsd_parser']
 			if(isset($elementAttr['AVAILABLE']) && !$elementAttr['AVAILABLE'])
 			{
 				$availabilityAttr = array('AVAILABLE'=>true);
-				$removeResult = $tree->getObject($_GET['id'])->addAttributes($availabilityAttr);
+				$removeResult = $xsdCompleteTree->getObject($_GET['id'])->addAttributes($availabilityAttr);
 				
-				$htmlCode = htmlspecialchars(displayTree($tree, $grandParentId));
-				echo buildJSON($htmlCode, 0);
+				echo getJSONString($parser, $xsdCompleteTree, $grandParentId);
 			}
 			else
 			{
@@ -134,23 +110,20 @@ if(isset($_GET['action']) && isset($_GET['id']) && isset($_SESSION['xsd_parser']
 				
 				if($maxOccurs==-1 || $maxOccurs>$siblingCount)
 				{
-					$elementId = $tree->copyTreeBranch($_GET['id']);
+					$elementId = $xsdCompleteTree->copyTreeBranch($_GET['id']);
 				
 					if($elementId>=0)
-					{						
-						$htmlCode = htmlspecialchars(displayTree($tree, $grandParentId));
-						
-						if($htmlCode) echo buildJSON($htmlCode, 0);
-						else echo buildJSON('No ModuleHandler set', -3);
-					}
-					else
 					{
-						//XXX An error occured during the copy
+						echo getJSONString($parser, $xsdCompleteTree, $grandParentId);
+					}
+					else // Copy failed
+					{
+						echo buildJSON('Copy of element '.$_GET['id'].' failed', -5);
 					}
 				}
 				else // maxOccurs is reached 
 				{
-					//todo return something
+					//TODO Use a logger to notify that maxOccurs has been reached
 				}
 			}
 						
@@ -160,40 +133,29 @@ if(isset($_GET['action']) && isset($_GET['id']) && isset($_SESSION['xsd_parser']
 			if(isset($elementAttr['MINOCCURS'])) $minOccurs = $elementAttr['MINOCCURS'];
 			else $minOccurs = 1;
 			
-			// Regarding the number of siblings we do different things (addRemove.js will handle the return code)
-			/* Returns:
-			 * -1 	|	Error on $tree->removeElement
-			 * 0  	|	$tree->removeElement OK and we can remove elements
-			 * n(>0)|  	$tree->removeElement OK but minOccurs is reached so we cannot remove more elements
-			 */
-			// todo rename removeResult with computationResult 
-			
-			if($minOccurs!=0 && $siblingCount>$minOccurs) $computationResult = $tree->removeElement($_GET['id'], true);
-			else if($minOccurs==0 && $siblingCount>$minOccurs+1) $computationResult = $tree->removeElement($_GET['id'], true);
+			if($minOccurs!=0 && $siblingCount>$minOccurs) $computationResult = $xsdCompleteTree->removeElement($_GET['id'], true);
+			else if($minOccurs==0 && $siblingCount>$minOccurs+1) // If minOccurs == 0 & is reached then, we do not want to erase the item but disable it
+				$computationResult = $xsdCompleteTree->removeElement($_GET['id'], true);
 			else // minOccurs is reached, no element must be removed but the XsdElement must be updated
 			{
 				$availabilityAttr = array('AVAILABLE'=>false);
-				$computationResult = $tree->getObject($_GET['id'])->addAttributes($availabilityAttr);
+				$computationResult = $xsdCompleteTree->getObject($_GET['id'])->addAttributes($availabilityAttr);
 			} 
 			
 			if($computationResult==0)
 			{
-				$htmlCode = htmlspecialchars(displayTree($tree, $grandParentId));
-				echo buildJSON($htmlCode, 0);
+				echo getJSONString($parser, $xsdCompleteTree, $grandParentId);
 			}
-			else 
+			else // Procedure has not went well
 			{
-				//xxx An error occured when removing ID
+				echo buildJSON('Removal of element '.$_GET['id'].' failed', -6);
 			}
 			
 			break;
 		default:
+			echo buildJSON('Bad command sent', -4);
+			break;
 	}
-	
-	$_SESSION['xsd_parser']['xml_tree'] = serialize($tree);
 }
-else
-{
-	echo buildJSON('Variables not set in the $_SESSION environment', -2);
-}
+else echo buildJSON('Variables not set in the $_SESSION environment', -2);
 ?>

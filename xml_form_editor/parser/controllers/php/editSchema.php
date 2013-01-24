@@ -12,18 +12,27 @@ require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/lib/PhpControll
  */
 // TODO Avoid to directly use 'xsd' into the code
 // TODO Implement the autogeneration pattern
+// todo check tree action to improve code
 
 
 if(isset($_GET['id']) && isset($_GET['minOccurs']) && isset($_GET['maxOccurs']))
 {
-	// Unserialize the tree to create a useful variable
-	$tree = unserialize($_SESSION['xsd_parser']['xsd_tree']);
-	$element = $tree->getObject($_GET['id']);
+	if(!isset($_SESSION['xsd_parser']['parser']))
+	{
+		buildJSON('Parser not set', -1);
+		exit;
+	}
+	
+	// Get the parser and modify the organized tree
+	$parser = unserialize($_SESSION['xsd_parser']['parser']);
+	$xsdOrganizedTree = $parser -> getXsdOrganizedTree();
+	
+	$element = $xsdOrganizedTree->getObject($_GET['id']);
 	
 	if($element) $elementAttr = $element->getAttributes();
-	else 
+	else // $xsdOrganizedTree -> getObject($_GET['id']) sent an error
 	{
-		echo buildJSON('Element with ID '.$_GET['id'].' does not exist in the current tree', -1);
+		echo buildJSON('Element with ID '.$_GET['id'].' does not exist in the current tree', -2);
 		exit;
 	}
 	
@@ -84,18 +93,12 @@ if(isset($_GET['id']) && isset($_GET['minOccurs']) && isset($_GET['maxOccurs']))
 			$elementAttr['PAGE'] = $_GET['page'];
 		}
 		
-		$tree->getObject($_GET['id'])->setAttributes($elementAttr);
-		$_SESSION['xsd_parser']['xsd_tree'] = serialize($tree);
+		$xsdOrganizedTree->getObject($_GET['id'])->setAttributes($elementAttr);
+		$parser -> setXsdOrganizedTree($xsdOrganizedTree);
 		
-		// Updates the xml tree within the parser
-		$parser = unserialize($_SESSION['xsd_parser']['parser']);
-		$parser->setXmlTree($tree);
 		$_SESSION['xsd_parser']['parser'] = serialize($parser);
 		
-		// Unset the xml tree to allow update
-		unset($_SESSION['xsd_parser']['xml_tree']);
-		
-		$html = htmlspecialchars(displayAttributes($tree, $_GET['id']));
+		$html = htmlspecialchars(displayAttributes($_GET['id']));
 		echo buildJSON($html, 0);
 	}
 	else
