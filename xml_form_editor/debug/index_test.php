@@ -48,16 +48,16 @@
 		/**
 		 * Parser tests
 		 */
-		require_once 'parser/core/XsdParser.php';
+		require_once 'parser/core/XsdManager.php';
 		require_once 'parser/view/XsdDisplay.php';
 	
 		$schemaFile = 'resources/files/demo.xsd';
 		
-		/*$parser = new XsdParser();
-		$parser = new XsdParser(0);
-		$parser = new XsdParser('test', 12);*/
+		/*$parser = new XsdManager();
+		$parser = new XsdManager(0);
+		$parser = new XsdManager('test', 12);*/
 		
-		$parser = new XsdParser($schemaFile, true);
+		$parser = new XsdManager($schemaFile, true);
 		
 		$rootElementsArray = $parser->parseXsdFile();
 		

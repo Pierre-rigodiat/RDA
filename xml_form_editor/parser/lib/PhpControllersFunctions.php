@@ -27,8 +27,8 @@ function displayTree($grandParentId)
 		$display = unserialize($_SESSION['xsd_parser']['display']);
 		$display -> update();
 		
-		$parser = unserialize($_SESSION['xsd_parser']['parser']);
-		$xsdCompleteTree = $parser -> getXsdCompleteTree();
+		$manager = unserialize($_SESSION['xsd_parser']['parser']);
+		$xsdCompleteTree = $manager -> getXsdCompleteTree();
 		
 		if($grandParentId>=0)
 		{

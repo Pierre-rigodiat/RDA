@@ -1,7 +1,7 @@
 <?php
 session_start();
 require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/core/Tree.php';
-require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/core/XsdParser.php';
+require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/core/XsdManager.php';
 require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/core/XsdElement.php';
 require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/view/Display.php';
 require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/lib/PhpControllersFunctions.php';
@@ -20,10 +20,10 @@ require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/lib/PhpControll
  * 
  * 
  * */
-function getJSONString($parser, $xsdCompleteTree, $elementId)
+function getJSONString(/*$parser, $xsdCompleteTree, */$elementId)
 {
-	$parser -> setXsdCompleteTree($xsdCompleteTree);
-	$_SESSION['xsd_parser']['parser'] = serialize($parser);
+	/*$parser -> setXsdCompleteTree($xsdCompleteTree);
+	$_SESSION['xsd_parser']['parser'] = serialize($parser);*/
 	
 	$htmlCode = htmlspecialchars(displayTree($elementId));
 	
@@ -40,10 +40,12 @@ function getJSONString($parser, $xsdCompleteTree, $elementId)
 if(isset($_GET['action']) && isset($_GET['id']) && isset($_SESSION['xsd_parser']['parser']))
 {
 	// Create main variable
-	$parser = unserialize($_SESSION['xsd_parser']['parser']);
-	$xsdCompleteTree = $parser -> getXsdCompleteTree();
+	$manager = unserialize($_SESSION['xsd_parser']['parser']);
+	$xsdCompleteTree = $manager -> getXsdCompleteTree();
+	$xsdOriginalTree = $manager -> getXsdOriginalTree();
 	
-	$element = $xsdCompleteTree->getObject($_GET['id']);
+	$originalTreeId = $xsdCompleteTree->getObject($_GET['id']);
+	$element = $xsdOriginalTree->getObject($originalTreeId);
 	
 	// Check that we actually got an existing element
 	if($element) $elementAttr = $element->getAttributes();
@@ -59,7 +61,9 @@ if(isset($_GET['action']) && isset($_GET['id']) && isset($_SESSION['xsd_parser']
 	
 	// Check that this part of the tree is not unavailable
 	$elderId = $xsdCompleteTree->getParent($_GET['id']);
-	$elderObject = $xsdCompleteTree->getObject($elderId);
+	$originalElderId = $xsdCompleteTree->getObject($elderId);
+	
+	$elderObject = $xsdOriginalTree->getObject($originalElderId);
 	$elderAttributes = $elderObject->getAttributes();
 	
 	$isElderAvailable = !(isset($elderAttributes['AVAILABLE']) && !$elderAttributes['AVAILABLE']);
@@ -67,7 +71,9 @@ if(isset($_GET['action']) && isset($_GET['id']) && isset($_SESSION['xsd_parser']
 	while($isElderAvailable && $elderId!=0)
 	{
 		$elderId = $xsdCompleteTree->getParent($elderId);
-		$elderObject = $xsdCompleteTree->getObject($elderId);
+		$originalElderId = $xsdCompleteTree->getObject($elderId);
+
+		$elderObject = $xsdOriginalTree->getObject($originalElderId);
 		$elderAttributes = $elderObject->getAttributes();
 		
 		$isElderAvailable = !(isset($elderAttributes['AVAILABLE']) && !$elderAttributes['AVAILABLE']);
@@ -82,7 +88,8 @@ if(isset($_GET['action']) && isset($_GET['id']) && isset($_SESSION['xsd_parser']
 	}		
 	
 	// Retrieving the number of current siblings
-	$siblingsIdArray = $xsdCompleteTree->getId($element);
+	//$siblingsIdArray = $xsdCompleteTree->getId($element);
+	$siblingsIdArray = $xsdCompleteTree->getId($originalTreeId);
 	$siblingCount = 0;
 	
 	foreach ($siblingsIdArray as $siblingId) 
@@ -97,9 +104,15 @@ if(isset($_GET['action']) && isset($_GET['id']) && isset($_SESSION['xsd_parser']
 			if(isset($elementAttr['AVAILABLE']) && !$elementAttr['AVAILABLE'])
 			{
 				$availabilityAttr = array('AVAILABLE'=>true);
-				$removeResult = $xsdCompleteTree->getObject($_GET['id'])->addAttributes($availabilityAttr);
+				//$removeResult = $xsdCompleteTree->getObject($_GET['id'])->addAttributes($availabilityAttr);
+				$removeResult = $xsdOriginalTree->getObject($originalTreeId)->addAttributes($availabilityAttr);
 				
-				echo getJSONString($parser, $xsdCompleteTree, $grandParentId);
+				// xxx change to original tree
+				$manager -> setXsdCompleteTree($xsdCompleteTree);
+				$manager -> setXsdOriginalTree($xsdOriginalTree);
+				$_SESSION['xsd_parser']['parser'] = serialize($manager);
+				
+				echo getJSONString($grandParentId);
 			}
 			else
 			{
@@ -114,19 +127,20 @@ if(isset($_GET['action']) && isset($_GET['id']) && isset($_SESSION['xsd_parser']
 				
 					if($elementId>=0)
 					{
-						echo getJSONString($parser, $xsdCompleteTree, $grandParentId);
+						$manager -> setXsdCompleteTree($xsdCompleteTree);
+						$manager -> setXsdOriginalTree($xsdOriginalTree);
+						$_SESSION['xsd_parser']['parser'] = serialize($manager);
+						
+						echo getJSONString($grandParentId);
 					}
 					else // Copy failed
-					{
 						echo buildJSON('Copy of element '.$_GET['id'].' failed', -5);
-					}
 				}
 				else // maxOccurs is reached 
 				{
 					//TODO Use a logger to notify that maxOccurs has been reached
 				}
 			}
-						
 			break;
 		case 'r': /*Removing an element*/
 			// Check the minimum of element we could have
@@ -139,12 +153,16 @@ if(isset($_GET['action']) && isset($_GET['id']) && isset($_SESSION['xsd_parser']
 			else // minOccurs is reached, no element must be removed but the XsdElement must be updated
 			{
 				$availabilityAttr = array('AVAILABLE'=>false);
-				$computationResult = $xsdCompleteTree->getObject($_GET['id'])->addAttributes($availabilityAttr);
+				$computationResult = $xsdOriginalTree->getObject($originalTreeId)->addAttributes($availabilityAttr);
 			} 
 			
 			if($computationResult==0)
 			{
-				echo getJSONString($parser, $xsdCompleteTree, $grandParentId);
+				$manager -> setXsdCompleteTree($xsdCompleteTree);
+				$manager -> setXsdOriginalTree($xsdOriginalTree);
+				$_SESSION['xsd_parser']['parser'] = serialize($manager);
+				
+				echo getJSONString($grandParentId);
 			}
 			else // Procedure has not went well
 			{
@@ -157,5 +175,6 @@ if(isset($_GET['action']) && isset($_GET['id']) && isset($_SESSION['xsd_parser']
 			break;
 	}
 }
-else echo buildJSON('Variables not set in the $_SESSION environment', -2);
+else 
+	echo buildJSON('Variables not set in the $_SESSION environment', -2);
 ?>

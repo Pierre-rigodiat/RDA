@@ -76,18 +76,8 @@
 	
 	<hr/>
 	<h2>HTML Form View <span class="icon refresh form"></span></h2>
-	<div>
-		<span class="ctx_menu"><span class="icon begin"></span></span>
-		<span class="ctx_menu"><span class="icon previous"></span></span>
-		<span class="ctx_menu button">1</span>
-		<span class="ctx_menu selected">2</span>
-		<span class="ctx_menu button">3</span>
-		<span class="ctx_menu button">4</span>
-		<span class="ctx_menu button">5</span>
-		<span class="ctx_menu"><span class="icon next"></span></span>
-		<span class="ctx_menu"><span class="icon end"></span></span>
-	</div>
 	<?php
+		displayPageChooser();
 		displayHTMLForm();
 	?>
 	<hr/>

@@ -1,5 +1,6 @@
 <?php
 session_start();
+require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/core/XsdManager.php';
 require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/core/ModuleHandler.php';
 require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/lib/PhpControllersFunctions.php';
 
@@ -8,9 +9,11 @@ require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/lib/PhpControll
  */
 if(isset($_GET['m']))
 {
-	if(isset($_SESSION['xsd_parser']['mhandler']))
+	if(isset($_SESSION['xsd_parser']['parser']))
 	{
-		$mHandler = unserialize($_SESSION['xsd_parser']['mhandler']);
+		//$mHandler = unserialize($_SESSION['xsd_parser']['mhandler']);
+		$manager = unserialize($_SESSION['xsd_parser']['parser']);
+		$mHandler = $manager -> getModuleHandler();
 		$mStatus = $mHandler->getModuleStatus($_GET['m']);
 		
 		// Configure the module status and send the status to display via JSON
@@ -31,9 +34,10 @@ if(isset($_GET['m']))
 		}
 		
 		// Register the new handler into session
-		$_SESSION['xsd_parser']['mhandler'] = serialize($mHandler);
+		$manager -> setModuleHandler($mHandler);
+		$_SESSION['xsd_parser']['parser'] = serialize($manager);
 	}
-	else echo buildJSON("Module handler not initialized", -2);
+	else echo buildJSON("XsdManager not initialized", -2);
 }
 else echo buildJSON("No module to toggle", -1);
 

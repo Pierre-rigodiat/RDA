@@ -37,25 +37,8 @@
 	<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/jquery-ui.min.js"></script>
 	<script type="text/javascript" src="resources/js.new/pageLoader.js"></script>
 	
-	<!--script src="parser/controllers/js/addRemove.js"></script>
-	<script src="parser/controllers/js/edit.js"></script-->
-	
-	<!--script src="resources/js/util.js"></script>
-	<script src="resources/js/step3.js"></script>
-	<script src="resources/js/step2.js"></script>
-	<script src="resources/js/step1.js"></script>
-	<script src="resources/js/upload.js"></script>
-	<script src="resources/js/actionHandler.js"></script>
-	<script src="resources/js/schemaConfig.js"></script-->
-	
-	
-	
-	
-	
 	<script type="text/javascript" src='resources/js/message.js'></script>
-	<!--link rel="stylesheet" type="text/css" href="resources/css/themes/message_growl_shiny.css" /-->
 	
-	<!--script src="resources/js/popup.js"></script-->
 	<link rel="stylesheet" href="resources/css/dialog.css" />
 	
 	<script>
@@ -103,7 +86,7 @@
 		// TODO Work on all those requires
 		require_once 'inc/lib/StringFunctions.php';
 	
-		//require_once 'inc/classes/XsdParser.php';
+		//require_once 'inc/classes/XsdManager.php';
 	
 		//require_once 'inc/global/images.php'; // XXX Regroup in the head.php file
 	?>
@@ -132,12 +115,6 @@
 			</div>
 		</div>
 	</div>
-
-	<?php 
-		// FIXME Condition not good
-		/*if(isset($_GET['menu']) && $_GET['menu']=='full')
-		{*/
-	?>
 	<div id="subnav-wrapper">
 		<div id="subnav-wrapper-2">
 			<div class="center-wrapper">
@@ -148,10 +125,7 @@
 			</div>
 		</div>
 	</div>
-	<?php 
-		//}
-	?>
-
+	
 	<div id="content-wrapper">
 		<?php 
 			if(DEBUG)
@@ -172,67 +146,9 @@
 		<div class="center-wrapper">
 			<div class="content">
 				<div id="main">
-					<?php 
-						/*require_once 'inc/skeleton/message.php';
-	
-						// TODO Build a function loadContent($getParam, $rule) or smth
-						$file = 'public/home.php';
-						
-						if(isset($_GET['p']))
-						{	
-							switch($_GET['p'])
-							{
-								case 'admin':
-									if(isset($_GET['sp']) && $_GET['sp']=='schemas') $file = 'admin/xsd_cfg.inc.php';
-									else $file = 'other/wip.php';
-									break;
-								default:
-									break;
-							}
-						}
-	
-						if(isset($_GET['step']))
-						{
-							switch($_GET['step'])
-							{
-								case '1':
-									$file = 'step1.php';
-									break;
-								case '10':
-									$file = 'demo/step1.php';
-									break;
-								case '2':
-									$file = 'step2.php';
-									break;
-								case '20':
-									$file = 'demo/step2.php';
-									break;
-								case '3':
-									$file = 'step3.php';
-									break;
-								case '4':
-									$file = 'step4.php';
-									break;
-								case '40':
-									$file = 'demo/step3.php';
-									break;
-								case 'debug':
-									$file = 'debug.php';
-									break;
-								default:
-									break;
-							}
-						}
-	
-						require_once 'inc/skeleton/main/'.$file;*/
-					?>
-
 					<div class="clearer">&nbsp;</div>
-
 				</div>
-
 			</div>
-
 		</div>
 	</div>
 

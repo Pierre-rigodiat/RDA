@@ -23,7 +23,7 @@ li
 {
 	float: left;
 	text-align:left;
-	margin:7px;
+	/*margin:7px;*/
 }
 
 .right-side
@@ -39,6 +39,17 @@ li
 	background-color: #f2f2f2;
 	border: 1px solid gray;
 	border-radius: 5px;
+}
+
+#page_content
+{
+	margin-top: 10px;
+	margin-bottom: 10px;
+}
+
+.ctx_menu
+{
+	margin: 2px;
 }
 
 .ctx_menu.button
@@ -74,11 +85,6 @@ li
 #schema_content
 {
 	margin: 7px;
-	/*padding: 5px;*/
-	/*border: 1px solid gray;
-	max-height: 300px;
-	overflow:auto;
-	background-color: #f2f2f2;*/
 }
 
 #schema_elements
@@ -140,15 +146,6 @@ b
 {
 	color: gray;
 }
-
-/*.remove {
-	cursor:pointer;
-}
-
-.addItem, .removeItem
-{
-	cursor:pointer;
-}*/
 
 #content-wrapper li
 {

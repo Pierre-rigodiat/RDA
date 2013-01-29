@@ -15,6 +15,7 @@ require_once $_SESSION['xsd_parser']['conf']['dirname'].'/inc/helpers/Logger.php
  * copyTreeBranch copies the object near his brother
  * ** 0.2c **
  * add a hasElement function
+ * improve copyTreeBranch in case the tree does not contain objects
  * 
  */
 class Tree {
@@ -126,6 +127,9 @@ class Tree {
 		else $this->LOGGER->log_debug('Tree has been created', 'Tree::__construct');
 	}
 	
+	/**
+	 * 
+	 */
 	public function getTree()
 	{
 		$this->LOGGER->log_notice('Function called', 'Tree::getTree');
@@ -358,7 +362,8 @@ class Tree {
 	 */
 	public function hasElement()
 	{
-		count($this->tree)>0?true:false;
+		$this -> LOGGER -> log_debug('Function called for a tree with '.count($this->tree).' element(s)', 'Tree::hasElement');
+		return count($this->tree)>0?true:false;
 	}
 	
 	/**
@@ -387,7 +392,11 @@ class Tree {
 				}
 			}
 			
-			$newElementId = $this->insertElement(clone $elementObject, $parentId);
+			// If the tree stores objects, we need to clone those to avoid multi-edition
+			if(is_object($elementObject)) $newElementObject = clone $elementObject;
+			else $newElementObject = $elementObject;
+			
+			$newElementId = $this->insertElement($newElementObject, $parentId);
 			
 			// Change the children list to set the new element next to his brother in the children list
 			// This feature is only applied at initial call
@@ -441,7 +450,7 @@ class Tree {
 
 	public function __toString()
 	{
-		
+		// TODO Implement it
 	}	
 }
 

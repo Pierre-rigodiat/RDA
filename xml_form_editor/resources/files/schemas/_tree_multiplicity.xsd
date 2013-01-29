@@ -13,6 +13,7 @@
   <xsd:complexType name="ExperimentType">
     <xsd:sequence>
       <xsd:element maxOccurs="unbounded" name="name" type="Name"/>
+      <xsd:element maxOccurs="unbounded" name="type" type="xsd:string"/>
     </xsd:sequence>
   </xsd:complexType>
   

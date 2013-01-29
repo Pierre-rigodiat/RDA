@@ -5,12 +5,14 @@
 class PageHandler
 {
 	private $numberOfPage;
+	private $currentPage;
 	private $pageArray; // An array linking page number with a Tree of XSD element
 	// private static $modulePerPages = 1;
 	
 	// Debug and logging variables
 	private $LOGGER;
 	private static $LEVELS = array(
+		'DEV' => 'notice',
 		'DBG' => 'notice',
 		'NO_DBG' => 'info'
 	);
@@ -32,10 +34,15 @@ class PageHandler
 		{
 			case 1 :
 				// new PageHandler(numberOfPage)
-				if (is_int($argv[0]))
+				if (is_int($argv[0]) && $argv[0] > 0)
 				{
 					$this -> numberOfPage = $argv[0];
+					$this -> currentPage = 1;
+					
+					// Creation of the page array structure
 					$this -> pageArray = array();
+					for($i=0; $i < $this->numberOfPage; $i++)
+						$this -> pageArray[$i] = array();
 					
 					$level = self::$LEVELS['NO_DBG'];
 				}
@@ -48,10 +55,15 @@ class PageHandler
 				break;
 			case 2 :
 				// new PageHandler(numberOfPage, debugBoolean)
-				if (is_int($argv[0]) && is_bool($argv[1]))
+				if (is_int($argv[0]) && $argv[0] > 0 && is_bool($argv[1]))
 				{
 					$this -> numberOfPage = $argv[0];
+					$this -> currentPage = 1;
+
+					// Creation of the page array structure
 					$this -> pageArray = array();
+					for($i=0; $i < $this->numberOfPage; $i++)
+						$this -> pageArray[$i] = array();
 
 					if ($argv[1])
 						$level = self::$LEVELS['DBG'];
@@ -88,6 +100,7 @@ class PageHandler
 
 			switch($argc)
 			{
+				// TODO Complete log message differentiating if integer is >0 or not
 				case 1 :								
 					$log_mess .= 'Supports {integer} as parameter ({' . gettype($argv[0]) . '} given)';
 					break;
@@ -104,26 +117,93 @@ class PageHandler
 		else
 			$this -> LOGGER -> log_debug('PageHandler built ('.$this->numberOfPage.' page(s))', 'PageHandler::__construct');
 	}
-
-	/*public function setModuleForPage($moduleName, $pageNumber)
-	{
-		
-	}*/
 	
-	public function setIdForPage($elementId, $pageNumber)
+	public function setPageForId($pageNumber, $elementId)
 	{
-		//$this->
+		//$this -> LOGGER -> log_debug('Setting page for ID ...', 'PageHandler::setPageForId');
+		
+		if(isset($this->pageArray[$pageNumber-1]))
+		{
+			array_push($this->pageArray[$pageNumber-1], $elementId);
+			$this -> LOGGER -> log_debug('ID '.$elementId.' set to page '.($pageNumber-1), 'PageHandler::setPageForId');
+		}
+		else 
+			$this -> LOGGER -> log_error('Page '.$pageNumber.' does not exist', 'PageHandler::setPageForId');
 	}
 	
-	public function getIdForPage($pageNumber)
+	public function removePageForId($pageNumber, $elementId)
+	{
+		$this -> pageArray[$pageNumber-1] = array_diff($this -> pageArray[$pageNumber-1], array($elementId));
+		$this -> pageArray[$pageNumber-1] = array_values($this -> pageArray[$pageNumber-1]);
+		
+		$this -> LOGGER -> log_debug('Page '.$pageNumber.' removed for ID '.$elementId, 'PageHandler::removePageForId');
+	}
+	
+	public function removePagesForId($elementId)
+	{
+		$this -> LOGGER -> log_debug('Removing pages for ID '.$elementId.'...', 'PageHandler::removePagesForId');
+		
+		for ($i=1; $i<=$this->numberOfPage; $i++) 
+		{
+			$this -> removePageForId($i, $elementId);
+		}
+		
+		$this -> LOGGER -> log_debug('Pages removed for ID '.$elementId, 'PageHandler::removePagesForId');
+	}
+	
+	/**
+	 * 
+	 */
+	public function getIdsForPage($pageNumber)
 	{
 		
 	}
 	
-	/*public function getPageForId($elementId)
+	
+	
+	/**
+	 * 
+	 */
+	public function getPageForId($elementId)
 	{
+		$this -> LOGGER -> log_debug('Getting pages for ID '.$elementId.'...', 'PageHandler::getPageForId');
 		
-	}*/
+		$pageArray = array();
+		
+		foreach ($this->pageArray as $pageNumber => $elementArray) {
+			if(in_array($elementId, $elementArray))
+			{
+				$this -> LOGGER -> log_debug('Page '.($pageNumber+1).' contains ID '.$elementId, 'PageHandler::getPageForId');
+				array_push($pageArray, $pageNumber+1);
+			}
+		}
+		
+		$this -> LOGGER -> log_debug('Pages got for ID '.$elementId, 'PageHandler::getPageForId');
+		
+		return $pageArray;
+	}
+	
+	/**
+	 * 
+	 */
+	public function setCurrentPage($newCurrentPage)
+	{
+		if(is_int($newCurrentPage) && $newCurrentPage > 0 && $newCurrentPage <= $this -> numberOfPage)
+		{
+			$this -> currentPage = $newCurrentPage;
+			$this -> LOGGER -> log_debug('$currentPage set to '.$newCurrentPage, 'PageHandler::setCurrentPage');
+		}
+		else if(!is_int($newCurrentPage))
+			$this -> LOGGER -> log_error('$newCurrentPage is not an integer', 'PageHandler::setCurrentPage');
+		else
+			$this -> LOGGER -> log_error('Invalid range for $newCurrentPage ($newCurrentPage = '.$newCurrentPage.', $numberOfPage = '.$this->numberOfPage.')', 'PageHandler::setCurrentPage');
+	}
+	
+	public function getCurrentPage()
+	{
+		$this -> LOGGER -> log_notice('Function called', 'PageHandler::getCurrentPage');
+		return $this -> currentPage;
+	}
 	
 	public function getNumberOfPage()
 	{

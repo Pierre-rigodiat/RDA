@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/core/XsdParser.php';
+require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/core/XsdManager.php';
 require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/core/PageHandler.php';
 require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/lib/PhpControllersFunctions.php';
 /**
@@ -14,6 +14,18 @@ require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/lib/PhpControll
 // TODO Implement the autogeneration pattern
 // todo check tree action to improve code
 
+function setUpChildrenToPage($pHandler, $tree, $elementId, $pageId)
+{	
+	$children = $tree -> getChildren($elementId);
+	
+	foreach($children as $child)
+	{
+		$pHandler -> removePagesForId($child);
+		$pHandler -> setPageForId($pageId, $child);
+		setUpChildrenToPage($pHandler, $tree, $child, $pageId);
+	}
+}
+
 
 if(isset($_GET['id']) && isset($_GET['minOccurs']) && isset($_GET['maxOccurs']))
 {
@@ -24,10 +36,12 @@ if(isset($_GET['id']) && isset($_GET['minOccurs']) && isset($_GET['maxOccurs']))
 	}
 	
 	// Get the parser and modify the organized tree
-	$parser = unserialize($_SESSION['xsd_parser']['parser']);
-	$xsdOrganizedTree = $parser -> getXsdOrganizedTree();
+	$manager = unserialize($_SESSION['xsd_parser']['parser']);
+	$xsdOrganizedTree = $manager -> getXsdOrganizedTree();
+	$xsdOriginalTree = $manager -> getXsdOriginalTree();
 	
-	$element = $xsdOrganizedTree->getObject($_GET['id']);
+	$originalTreeId = $xsdOrganizedTree->getObject($_GET['id']);
+	$element = $xsdOriginalTree->getObject($originalTreeId);
 	
 	if($element) $elementAttr = $element->getAttributes();
 	else // $xsdOrganizedTree -> getObject($_GET['id']) sent an error
@@ -52,8 +66,9 @@ if(isset($_GET['id']) && isset($_GET['minOccurs']) && isset($_GET['maxOccurs']))
 	if(!isset($elementAttr['MODULE'])) $module = 'false';
 	else $module = $elementAttr['MODULE'];
 	
-	if(!isset($elementAttr['PAGE'])) $page = 1;
-	else $page = $elementAttr['PAGE'];
+	// TODO Change the condition
+	/*if(!isset($elementAttr['PAGE'])) $page = 1;
+	else $page = $elementAttr['PAGE'];*/
 	
 	if($_GET['maxOccurs']==-1) $_GET['maxOccurs'] = "unbounded";
 	
@@ -64,7 +79,7 @@ if(isset($_GET['id']) && isset($_GET['minOccurs']) && isset($_GET['maxOccurs']))
 	if(!$hasAttrChanged && isset($_GET['dataType']) && 'xsd:'.$_GET['dataType']!=$dataType) $hasAttrChanged=true;
 	if(!$hasAttrChanged && isset($_GET['autoGen']) && $_GET['autoGen']!=$autoGen) $hasAttrChanged=true; //TODO Use autogenerate with the pattern like $attr['AUTO_GENERATE']=$pattern
 	if(!$hasAttrChanged && isset($_GET['module']) && $_GET['module']!=$module) $hasAttrChanged=true;
-	if(!$hasAttrChanged && isset($_GET['page']) && $_GET['page']!=$page) $hasAttrChanged=true;
+	if(!$hasAttrChanged && isset($_GET['page']) /*&& $_GET['page']!=$page*/) $hasAttrChanged=true;
 	
 	if($hasAttrChanged)
 	{
@@ -85,18 +100,53 @@ if(isset($_GET['id']) && isset($_GET['minOccurs']) && isset($_GET['maxOccurs']))
 		
 		if(isset($_GET['page']))
 		{
-			/*$pHandler = unserialize($_SESSION['xsd_parser']['pHandler']);
-			$pHandler -> setIdForPage($_GET['id'], $_GET['page']);
+			// FIXME Do that in the manager by using XsdManager::assignPageToId
+			/*** START ***/
+			$pHandler = $manager -> getPageHandler();
+			$pHandler -> removePagesForId($_GET['id']);
+			$pHandler -> setPageForId($_GET['page'], $_GET['id']);
 			
-			$_SESSION['xsd_parser']['pHandler'] = serialize($pHandler);*/
+			$elderId = $xsdOrganizedTree -> getParent($_GET['id']);
 			
-			$elementAttr['PAGE'] = $_GET['page'];
+			// Set up elder in the same page
+			while($elderId!=-1) // While we are not at the root position
+			{
+				$pHandler -> removePagesForId($elderId);
+				$children = $xsdOrganizedTree -> getChildren($elderId);
+				
+				$pageArray = array();
+				foreach($children as $child)
+				{
+					$childPageArray = $pHandler -> getPageForId($child);
+					if(count($childPageArray) > 0)
+					{
+						foreach ($childPageArray as $childPage) {
+							if(!in_array($childPage, $pageArray))
+								array_push($pageArray, $childPage);
+						}
+					}
+					else if(!in_array(1, $pageArray)) array_push($pageArray, 1);
+				}
+				
+				foreach($pageArray as $page)
+				{
+					$pHandler -> setPageForId($page, $elderId);
+				}
+				
+				$elderId = $xsdOrganizedTree -> getParent($elderId);
+			}
+			
+			// Set up the children
+			setUpChildrenToPage($pHandler, $xsdOrganizedTree, $_GET['id'], $_GET['page']);
+			
+			$manager -> setPageHandler($pHandler);
+			/*** END ***/
 		}
 		
-		$xsdOrganizedTree->getObject($_GET['id'])->setAttributes($elementAttr);
-		$parser -> setXsdOrganizedTree($xsdOrganizedTree);
+		$xsdOriginalTree->getObject($originalTreeId)->setAttributes($elementAttr);
+		$manager -> setXsdOriginalTree($xsdOriginalTree);
 		
-		$_SESSION['xsd_parser']['parser'] = serialize($parser);
+		$_SESSION['xsd_parser']['parser'] = serialize($manager);
 		
 		$html = htmlspecialchars(displayAttributes($_GET['id']));
 		echo buildJSON($html, 0);

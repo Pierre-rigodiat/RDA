@@ -10,7 +10,7 @@
 	
 	define("TOOL_NAME", "XML Form Editor");
 	define("TOOL_TITLE", "Form Generator");
-	define("TOOL_VERSION", "0.3a");
+	define("TOOL_VERSION", "0.3b");
 	define("TOOL_RELEASE_DATE", ""); // xxx unused...
 	
 	define("_ROOT_", dirname(dirname(dirname(__FILE__)))); // todo only use the session variable

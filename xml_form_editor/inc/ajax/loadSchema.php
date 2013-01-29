@@ -2,7 +2,7 @@
 	session_start();
 	//require_once $_SESSI'inc/global/config.php';
 	require_once $_SESSION['config']['_ROOT_'].'/inc/lib/StringFunctions.php';
-	require_once $_SESSION['config']['_ROOT_'].'/inc/classes/XsdParser.php';
+	require_once $_SESSION['config']['_ROOT_'].'/inc/classes/XsdManager.php';
 	
 	if(isset($_GET['file']) && trim($_GET['file'])!="")
 	{
@@ -11,7 +11,7 @@
 		usleep(600*MILLISECONDS);
 			
 		// We begin to parse the file
-		$xsd_parser = new XsdParser($_SESSION['config']['_XSDFOLDER_'].'/'.$_GET['file']/*, true*/); // xxx What if $_SESSION variable does not exist
+		$xsd_parser = new XsdManager($_SESSION['config']['_XSDFOLDER_'].'/'.$_GET['file']/*, true*/); // xxx What if $_SESSION variable does not exist
 		// todo implement XsdDisplay class
 		
 		if(isset($_GET['root']) && trim($_GET['root'])!="")

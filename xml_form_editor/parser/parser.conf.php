@@ -11,9 +11,14 @@ $_SESSION['xsd_parser']['conf']['dirname'] = dirname(dirname(__FILE__));
 $_SESSION['xsd_parser']['conf']['modules_dirname'] = dirname(__FILE__).'/_plugins';
 // TODO Define the directory where external lib are
 // $_SESSION['xsd_parser']['conf']['ext_lib_dirname']
-// TODO Define the log directory
+
+//TODO Define the log levels
+// $SESSION['xsd_parser']['conf']['log_levels'] = array("DEV"=>"notice", "DBG"=>"debug", PRD=>"info");
+//TODO Define the current application status
+// $SESSION['xsd_parser']['conf']['app_status'] = "DEV";
+
+// Define the log directory & the log file
 $_SESSION['xsd_parser']['conf']['logs_dirname'] = $_SESSION['xsd_parser']['conf']['dirname'] . '/logs';
-// TODO Define the log file
 $_SESSION['xsd_parser']['conf']['log_file'] = 'debug.log';
 
 

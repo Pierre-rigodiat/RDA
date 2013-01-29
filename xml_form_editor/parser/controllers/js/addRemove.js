@@ -1,6 +1,6 @@
 /**
  * JS to add or remove items in the html form
- * Script version: 1.0
+ * Version: 1.0
  * Author: P.Dessauw
  * 
  */
@@ -25,6 +25,8 @@ addRemoveItem = function(event)
 {
 	var elementId = $(this).parent().attr('id');
 	var clickedElement = $(this).parent().parent().parent();
+	clickedElement = clickedElement.attr('id')=='page_content'?clickedElement.children(':first'):clickedElement;
+	
 	var clickedElementParent = clickedElement.parent();
 	
 	var actionType = 'a';

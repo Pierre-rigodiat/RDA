@@ -10,10 +10,10 @@ $_SESSION['xsd_parser'] The array containing all the current parser information
 			
 	['parser'] The parser object (serialized)
 	
-	['tree'] The schema tree object (serialized)
-	
 	['mhandler'] The module handler (serialized)
 	
 	['phandler'] The page handler (serialized)
+	
+	['display'] The Display object
 	
 TODO list

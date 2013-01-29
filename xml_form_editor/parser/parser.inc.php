@@ -13,7 +13,8 @@ if(session_id()=='') // If the session has not been started, it is impossible to
 
 // Loading configuration and useful classes
 require_once dirname(__FILE__).'/parser.conf.php';
-require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/core/XsdParser.php';
+require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/core/XsdManager.php';
+//require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/core/Tree.php';
 require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/core/ModuleHandler.php';
 require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/core/PageHandler.php';
 require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/view/Display.php';
@@ -29,27 +30,27 @@ else $logger_level = 'info';
 
 $logger = new Logger($logger_level, $_SESSION['xsd_parser']['conf']['logs_dirname'].'/'.$_SESSION['xsd_parser']['conf']['log_file'], 'parser.inc.php');
 
- /**
-  * 
-  */
+/**
+ * 
+ */
 function loadSchema($schemaFilename, $numberOfPage = 1)
 {
 	global $logger, $debug;
 	
 	// Build the page handler
 	$pHandler = new PageHandler($numberOfPage, $debug);
-	$_SESSION['xsd_parser']['phandler'] = serialize($pHandler);
+	//$_SESSION['xsd_parser']['phandler'] = serialize($pHandler);
 	
 	// Build the module handler (if necessary)
 	if(!isset($_SESSION['xsd_parser']['mhandler'])) loadModuleHandler();
 	$mHandler = unserialize($_SESSION['xsd_parser']['mhandler']);
 	
 	// Parse the file
-	$parser = new XsdParser($schemaFilename, $debug);
-	$rootElementsArray = $parser->parseXsdFile();
-	$parser->buildOrganizedTree($rootElementsArray[0]); // TODO Split at this point on 2 function (to be able to choose the root element)
+	$manager = new XsdManager($schemaFilename, $pHandler, $mHandler, $debug);
+	$rootElementsArray = $manager->parseXsdFile();
+	$manager->buildOrganizedTree($rootElementsArray[0]); // TODO Split at this point on 2 function (to be able to choose the root element)
 	
-	$_SESSION['xsd_parser']['parser'] = serialize($parser);
+	$_SESSION['xsd_parser']['parser'] = serialize($manager);
 	
 	$logger->log_debug('Schema '.$schemaFilename.' loaded', 'loadSchema');
 	
@@ -62,7 +63,7 @@ function loadSchema($schemaFilename, $numberOfPage = 1)
 	}
 	else
 	{
-		$display = new Display($parser, $pHandler, $mHandler, $debug);
+		$display = new Display($manager, $debug);
 		$_SESSION['xsd_parser']['display'] = serialize($display);
 	}
 }
@@ -90,15 +91,28 @@ function loadModuleHandler()
 	}	
 }
 
-// Displays the configuration view of the parser
+/**
+ * Displays the configuration view of the parser
+ */
 function displayConfiguration()
 {
 	global $logger, $debug;
 	
-	if(isset($_SESSION['xsd_parser']['parser']) && isset($_SESSION['xsd_parser']['display']))
+	$logger->log_debug('Displaying configuration...', 'displayConfiguration');
+	
+	if(isset($_SESSION['xsd_parser']['parser']))
 	{
-		$display = unserialize($_SESSION['xsd_parser']['display']);
-		$display -> update();
+		if(isset($_SESSION['xsd_parser']['display']))
+		{
+			$display = unserialize($_SESSION['xsd_parser']['display']);
+			$display -> update();
+		}
+		else // If the display has not been created
+		{
+			$manager = unserialize($_SESSION['xsd_parser']['parser']);
+			$display = new Display($manager, $debug);
+			$_SESSION['xsd_parser']['display'] = serialize($display);
+		}
 		
 		echo $display -> displayConfiguration();
 		
@@ -106,36 +120,47 @@ function displayConfiguration()
 		
 		return;
 	}
-	else
+	else // If the manager do not exist
 	{
-		$logger->log_debug('No schema loaded/page handler configured', 'displayConfiguration');
+		$logger->log_debug('No schema configured', 'displayConfiguration');
 		echo '<i>No schema file loaded</i>';
 		
 		return;
 	}
 }
 
-// Displays the form view of the parser
-// TODO Pagination handling
-function displayHTMLForm($page = 1)
+/**
+ * Displays the form view of the parser
+ * 
+ */
+function displayHTMLForm(/*$page = 1*/)
 {
 	global $logger, $debug;
 	
-	// TODO Modify the XML tree when you modify the configuration
-	
-	if(!isset($_SESSION['xsd_parser']['parser']) || !isset($_SESSION['xsd_parser']['phandler']))
+	// If the XsdManager has not been created it is impossible to display something
+	if(!isset($_SESSION['xsd_parser']['parser']))
 	{
-		$logger->log_debug('No schema/page hanlder/parser loaded', 'displayHTMLForm');
+		$logger->log_debug('No schema loaded', 'displayHTMLForm');
 		echo '<i>No schema file loaded</i>';
 		return;
 	}
 	
-	if(!isset($_SESSION['xsd_parser']['mhandler'])) loadModuleHandler();
+	// Set up the module handler if needed
+	// XXX If the XsdManager is set so is the ModuleHandler
+	//if(!isset($_SESSION['xsd_parser']['mhandler'])) loadModuleHandler();
 	
 	// Set up the parser
-	$parser = unserialize($_SESSION['xsd_parser']['parser']);
-	$parser -> buildCompleteTree();
-	$_SESSION['xsd_parser']['parser'] = serialize($parser);
+	$manager = unserialize($_SESSION['xsd_parser']['parser']);
+	
+	if(!($manager -> getXsdCompleteTree() -> hasElement()))
+	{
+		$logger -> log_debug('Building complete tree...', 'displayHTMLForm');
+		
+		$manager -> buildCompleteTree();
+		$_SESSION['xsd_parser']['parser'] = serialize($manager);
+		
+		$logger -> log_debug('Complete tree built', 'displayHTMLForm');
+	}
 	
 	// Set up the display
 	if(isset($_SESSION['xsd_parser']['display']))
@@ -145,7 +170,8 @@ function displayHTMLForm($page = 1)
 	}
 	else
 	{
-		$display = new Display(unserialize($_SESSION['xsd_parser']['parser']), unserialize($_SESSION['xsd_parser']['phandler']), unserialize($_SESSION['xsd_parser']['mhandler']), $debug);
+		$display = new Display($manager, $debug);
+		$_SESSION['xsd_parser']['display'] = serialize($display);
 	}
 	
 	echo $display->displayHTMLForm();
@@ -153,8 +179,10 @@ function displayHTMLForm($page = 1)
 	$logger->log_debug('Page '.$page.' displayed', 'displayHTMLForm');
 }
 
-// Displays the XML tree
-// TODO Implement it in the display view
+/**
+ * Displays the XML tree
+ * TODO Implement it in the display view
+ */
 function displayXmlTree()
 {
 	global $logger, $debug;
@@ -164,11 +192,34 @@ function displayXmlTree()
 /**
  * 
  */
+function displayPageChooser()
+{
+	global $logger, $debug;
+	
+	if(isset($_SESSION['xsd_parser']['display']))
+	{
+		$display = unserialize($_SESSION['xsd_parser']['display']);
+		$display -> update();
+		
+		echo $display -> displayPageChooser();
+		
+		$logger->log_debug('Page chooser displayed', 'displayPageChooser');
+		
+		return;
+	}
+	else { // If the display is not set
+		$logger->log_error('No display element built', 'displayPageChooser');
+		return;
+	}
+}
+
+/**
+ * 
+ */
 function displayModuleChooser()
 {
 	global $logger, $debug;
 	
-	//if(isset($_SESSION['xsd_parser']['mhandler']))
 	if(isset($_SESSION['xsd_parser']['display']))
 	{
 		$display = unserialize($_SESSION['xsd_parser']['display']);
@@ -181,12 +232,14 @@ function displayModuleChooser()
 		return;
 	}
 	else { // If the module handler is not set, it loaded it automatically
-		$logger->log_debug('No display element built', 'displayModuleChooser');
+		$logger->log_debug('No display element', 'displayModuleChooser');
 		
 		loadModuleHandler();
 		$mHandler = unserialize($_SESSION['xsd_parser']['mhandler']);
 		
-		$display = new Display(/*new Tree()*/new XsdParser(""), new PageHandler(0), $mHandler, $debug);
+		$voidXsdManager = new XsdManager("undefined", new PageHandler(1), $mHandler, $debug);	
+		
+		$display = new Display($voidXsdManager, $debug);
 		$_SESSION['xsd_parser']['display'] = serialize($display);
 		
 		return displayModuleChooser();
