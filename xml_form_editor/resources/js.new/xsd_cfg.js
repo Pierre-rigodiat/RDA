@@ -9,12 +9,35 @@
  */
 loadXsdConfigHandler = function()
 {
-	$('.module').on('click', toggleModule);
+	//$('.module').on('click', toggleModule);
 	$('.refresh').on('click', cancelChanges);
 	$('.save').on('click', saveChanges);
+	
+	$('.clickable').on('click', goToPage);
 }
 
-toggleModule = function()
+goToPage = function()
+{
+	var defaultName = "clickable ",
+		baseUrl = $(location).attr('href'),
+		pageName = $(this).attr('class').substr(defaultName.length);
+	
+	pageName = pageName.split('-');
+	//console.log(pageName[0]+' '+pageName[1]);
+	
+	if((index = baseUrl.indexOf('/'+pageName[0]))==-1 || index!=baseUrl.length-(pageName[0].length+1))
+	{		
+		//console.log('Need to rewrite '+index+' '+(baseUrl.length-pageName[0].length));
+		var lastPathIndex = baseUrl.lastIndexOf('/');
+		baseUrl = baseUrl.substr(0, lastPathIndex) + pageName[0];
+	}
+	
+	loadPage(baseUrl + '?' + pageName[1]);
+	
+	//console.log(pageName);
+}
+
+/*toggleModule = function()
 {
 	var iconClass = $(this).children(':first').attr('class');
 	
@@ -32,7 +55,7 @@ toggleModule = function()
 			$(this).children(':first').attr('class', 'icon legend off');
 		}
 	}
-}
+}*/
 
 cancelChanges = function()
 {

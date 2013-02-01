@@ -46,16 +46,23 @@
 					$schemaFolder = '../resources/files/schemas';
 					$schemaFolderFiles = scandir($schemaFolder);
 					
+					$currentFilename =  '';
+					if(isset($_SESSION['xsd_parser']['xsd_filename'])) $currentFilename = $_SESSION['xsd_parser']['xsd_filename'];
+					
 					foreach($schemaFolderFiles as $file)
 					{
-						if(endsWith($file, '.xsd')) echo '<option>'.$file.'</option>';
+						if(endsWith($file, '.xsd')) echo '<option'.($currentFilename==$file?' selected="selected"':'').'>'.$file.'</option>';
 					}
 				?>
 			</select>
-			<label for="page_number">with</label>
-			<input class="text" type="number" id="page_number" name="page_number" value="<?php echo isset($_SESSION['xsd_parser']['phandler'])? unserialize($_SESSION['xsd_parser']['phandler'])->getNumberOfPage():'1'; ?>"/>
-			page(s)
-			<div class="icon refresh file"></div>
+		</div>
+		<div>
+			<p style="font-weight: bold">Pages</p>
+			<div id="schema_pages">
+			<?php
+				displayPageChooser();
+			?>
+			</div>
 		</div>
 		<div>
 			<p style="font-weight: bold">Modules</p>
@@ -65,6 +72,7 @@
 			?>
 			</div>
 		</div>
+		<div class="icon legend save file">Save configuration</div>
 	</div>
 	
 	<div class="block" id="cfg_view">
@@ -77,13 +85,13 @@
 	<hr/>
 	<h2>HTML Form View <span class="icon refresh form"></span></h2>
 	<?php
-		displayPageChooser();
+		displayPageNavigator();
 		displayHTMLForm();
 	?>
 	<hr/>
 	<h2>XML View</h2>
 	<?php
-		//displayXMLTree();
+		displayXMLTree();
 	?>
 	<script>
 		loadEditController();

@@ -39,7 +39,6 @@ function loadSchema($schemaFilename, $numberOfPage = 1)
 	
 	// Build the page handler
 	$pHandler = new PageHandler($numberOfPage, $debug);
-	//$_SESSION['xsd_parser']['phandler'] = serialize($pHandler);
 	
 	// Build the module handler (if necessary)
 	if(!isset($_SESSION['xsd_parser']['mhandler'])) loadModuleHandler();
@@ -66,6 +65,9 @@ function loadSchema($schemaFilename, $numberOfPage = 1)
 		$display = new Display($manager, $debug);
 		$_SESSION['xsd_parser']['display'] = serialize($display);
 	}
+	
+	$schemaPath = explode('/', $schemaFilename);
+	$_SESSION['xsd_parser']['xsd_filename'] = end($schemaPath);
 }
 
 /**
@@ -176,7 +178,7 @@ function displayHTMLForm(/*$page = 1*/)
 	
 	echo $display->displayHTMLForm();
 	
-	$logger->log_debug('Page '.$page.' displayed', 'displayHTMLForm');
+	//$logger->log_debug('Page '.$page.' displayed', 'displayHTMLForm');
 }
 
 /**
@@ -186,13 +188,16 @@ function displayHTMLForm(/*$page = 1*/)
 function displayXmlTree()
 {
 	global $logger, $debug;
+	
+	echo '<i>Not yet implemented</i>';
+	
 	$logger->log_info('Not yet implemented', 'displayXmlTree');
 }
 
 /**
  * 
  */
-function displayPageChooser()
+function displayPageNavigator()
 {
 	global $logger, $debug;
 	
@@ -201,14 +206,14 @@ function displayPageChooser()
 		$display = unserialize($_SESSION['xsd_parser']['display']);
 		$display -> update();
 		
-		echo $display -> displayPageChooser();
+		echo $display -> displayPageNavigator();
 		
-		$logger->log_debug('Page chooser displayed', 'displayPageChooser');
+		$logger->log_debug('Page navigator displayed', 'displayPageNavigator');
 		
 		return;
 	}
 	else { // If the display is not set
-		$logger->log_error('No display element built', 'displayPageChooser');
+		$logger->log_error('No display element built', 'displayPageNavigator');
 		return;
 	}
 }
@@ -245,4 +250,25 @@ function displayModuleChooser()
 		return displayModuleChooser();
 	}
 } 
+
+function displayPageChooser()
+{
+	global $logger, $debug;
+	
+	if(isset($_SESSION['xsd_parser']['display']))
+	{
+		$display = unserialize($_SESSION['xsd_parser']['display']);
+		$display -> update();
+		
+		echo $display -> displayPageChooser();
+		
+		$logger->log_debug('Page chooser displayed', 'displayPageChooser');
+		
+		return;
+	}
+	else { // If the display is not set
+		$logger->log_error('No display element built', 'displayPageChooser');
+		return;
+	}
+}
 ?>

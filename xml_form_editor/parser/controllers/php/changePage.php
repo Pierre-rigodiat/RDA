@@ -44,7 +44,7 @@ if(isset($_SESSION['xsd_parser']['display']) && isset($_SESSION['xsd_parser']['p
 			$display = unserialize($_SESSION['xsd_parser']['display']);
 			$display -> update();
 			
-			$pageChooser = htmlspecialchars($display -> displayPageChooser());
+			$pageChooser = htmlspecialchars($display -> displayPageNavigator());
 			
 			echo buildJSON($pageChooser, 0);
 		}

@@ -247,3 +247,14 @@ textarea.inform{
 {
 	color: #111;
 }
+
+.clickable
+{
+	text-decoration: underline;
+	cursor: pointer;
+}
+
+.clickable:hover
+{
+	font-weight:bold;
+}

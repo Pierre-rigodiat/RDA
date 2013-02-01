@@ -1,7 +1,7 @@
 $(document).ready(function(){
 	// Linking the click event the refresh button
 	$('.refresh.form').on('click', refreshForm);
-	$('.refresh.file').on('click', refreshFile);
+	$('.save.file').on('click', saveFile);
 	$('.refresh.conf').on('click', refreshConf);
 });
 
@@ -37,10 +37,10 @@ refreshForm = function()
 /**
  * 
  */
-refreshFile = function()
+saveFile = function()
 {
-	var fileName = $(this).parent().children('#schema_file').find(':selected').text();
-	var pageNumber = $(this).parent().children('#page_number').attr('value');
+	var fileName = $('#schema_file').find(':selected').text();
+	var pageNumber = $('#page_number').attr('value');
 	
 	console.log('[refreshFile] Loading '+fileName+' (in '+pageNumber+' page(s))...');
 	
@@ -58,6 +58,8 @@ refreshFile = function()
         	$('#cfg_view').children('h3').after(data);
         	
         	loadEditController();
+        	
+        	alert('Configuration saved!');
         },
         error: function() {
             console.error("[refreshFile] Problem with the AJAX call");

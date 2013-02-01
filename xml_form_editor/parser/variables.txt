@@ -16,4 +16,6 @@ $_SESSION['xsd_parser'] The array containing all the current parser information
 	
 	['display'] The Display object
 	
+	['xsd_filename'] name of the schema
+	
 TODO list

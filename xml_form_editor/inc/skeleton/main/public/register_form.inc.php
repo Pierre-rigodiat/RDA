@@ -15,7 +15,7 @@
 <div>
 	<div class="left-side">
 	<?php
-		displayPageChooser();
+		displayPageNavigator();
 	?>	
 	</div>
 		
@@ -34,7 +34,7 @@
 <div>
 	<div class="left-side">
 	<?php
-		displayPageChooser();
+		displayPageNavigator();
 	?>	
 	</div>
 		

@@ -176,11 +176,25 @@ class Display
 		
 		return $moduleChooser;
 	}
-
+	
 	/**
 	 * 
 	 */
 	public function displayPageChooser()
+	{
+		$pageHandler = $this -> xsdManager -> getPageHandler();
+		$totalPage = $pageHandler -> getNumberOfPage();
+		
+		$pageChooser = 'Split into <input type="number" min="1" value="'.$totalPage.'" class="text" id="page_number"/> page(s)';
+		$this->LOGGER->log_debug('Page display returns a total of '.$totalPage.' page(s)', 'Display::displayPageChooser');
+		
+		return $pageChooser;
+	}
+
+	/**
+	 * 
+	 */
+	public function displayPageNavigator()
 	{		
 		$pageChooser = '<div class="paginator">';
 		
