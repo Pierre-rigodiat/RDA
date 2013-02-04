@@ -50,8 +50,11 @@
 
 <script src="parser/controllers/js/addRemove.js"></script>
 <script src="parser/controllers/js/pagination.js"></script>
+<script src="ontology/auto-complete.js"></script>
 <script src="resources/js.new/mod_mgr.js"></script>
 <script>
 	loadAddRemoveController();
 	loadPaginationController();
+	
+	loadAutocomplete();
 </script>
