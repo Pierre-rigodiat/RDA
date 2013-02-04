@@ -186,7 +186,7 @@ private $databaseObject;
 	}
 
 	/**
-	 * Method tho insert a XML document into the database
+	 * Method to insert a XML document into the database
 	 * @param $doc: string that describe the path of the file
 	 * @param $collection: the collection in which the document is pushed
 	 */
@@ -214,7 +214,10 @@ private $databaseObject;
 			$dom=DOMDocument::load($doc);
 			// Translate the XML content into JSON content
 			//$jsonContents = xml2jsonIBM::transformXmlStringToJson($xmlContents);
-			$jsonContents = JSONML::encode($dom);
+			$jsonContents = BadgerFish::encode($dom);
+			
+			//file_put_contents("test_dump.txt", $dom->saveXML());
+			
 			if (!$jsonContents) {
 				echo "Could not transform xml to json\n";
 				return;
@@ -254,6 +257,19 @@ private $databaseObject;
 			}
 	}
 	
+	function retrieveXml($doc, $collectionName) {
+		$json_data = file_get_contents($doc);
+		
+		$xmlContents = BadgerFish::decode($json_data);
+		if (!$xmlContents) {
+			echo "Could not transform json to xml";
+			return;
+		}
+		
+		var_dump($xmlContents);
+		var_dump($xmlContents->saveXML());
+		return;
+	}
 	
 	
 }

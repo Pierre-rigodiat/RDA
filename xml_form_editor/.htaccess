@@ -5,12 +5,14 @@ RewriteBase /mgi/
 RewriteCond %{REQUEST_URI} !^/mgi/admin/?.*$
 RewriteCond %{REQUEST_URI} !^/mgi/debug/?.*$
 RewriteCond %{REQUEST_URI} !^/mgi/ptester/?.*$
+RewriteCond %{REQUEST_URI} !^/mgi/MongoDB/?.*$
 RewriteRule ^([^/]+)/$ $1 [R=301]
 
 RewriteCond %{REQUEST_URI} !^/mgi/admin/?.*$
 RewriteCond %{REQUEST_URI} !^/mgi/debug/?.*$
 RewriteCond %{REQUEST_URI} !^/mgi/ptester/?.*$
 RewriteCond %{REQUEST_URI} !^/mgi/index\.php.*$
+RewriteCond %{REQUEST_URI} !^/mgi/MongoDB/?.*$
 RewriteRule ^([^/]*)$ index.php?p=public&sp=$1 [L]
 
 # ADMIN REWRITE

@@ -20,12 +20,13 @@ class BadgerFish {
             $xpath = new DOMXPath($node);
         }
         $r = array();
-        if ($node->childNodes) {
+        
+        if ($node->childNodes) {       	
             $text = '';
             foreach ($node->childNodes as $child) {
                 $idx = $child->nodeName;
                 if (! is_null($cr = self::encode($child, $level+1))) {
-                    if (($child->nodeType == XML_TEXT_NODE)||($child->nodeType == XML_CDATA_SECTION_NODE)) {
+					if (($child->nodeType == XML_TEXT_NODE)||($child->nodeType == XML_CDATA_SECTION_NODE)) {
                         $text .= $cr;
                     } else {
                         $r[$idx][] = $cr;
@@ -42,21 +43,24 @@ class BadgerFish {
             
             // Any accumulated text that isn't just whitespace?
             if (strlen(trim($text))) { $r['$'] = $text; }
-
+            
             // Attributes?
             if ($node->attributes && $node->attributes->length) {
-                foreach ($node->attributes as $attr) {
-                    $r['@'.$attr->nodeName] = $attr->value;
-                }
+            	foreach ($node->attributes as $attr) { 
+            		$r['@'.$attr->nodeName] = $attr->value;
+            	}
             }
             
+            
             // Namespaces?
-            foreach ($xpath->query('namespace::*[name() != "xml"]', $node) as $ns) {
-                if ($ns->localName == 'xmlns') {
-                    $r['@xmlns']['$'] = $ns->namespaceURI;
-                } else {
-                    $r['@xmlns'][$ns->localName] = $ns->namespaceURI;
-                }
+            if ($elem=$xpath->query('namespace::*[name() != "xml"]', $node)) {
+            	foreach ($elem as $ns) {
+            		if ($ns->localName != 'xmlns') {
+            			$r['@xmlns'][$ns->localName] = $ns->namespaceURI;
+           			} else {
+           				$r['@xmlns']['$'] = $ns->namespaceURI;
+           			}
+            	}
             }
         }
         // No children -- just return text;
@@ -69,8 +73,59 @@ class BadgerFish {
             $json = new Services_Json();
             $xpath = null;
             return $json->encode($r);
+            /*var_dump($json->encode($r));
+            var_dump(json_encode($r));
+            return;*/
         } else {
             return $r;
         }
     }
+	
+    public function cleanTag($key) {
+    	return preg_replace('/[\@0-9]/', '', $key);
+    }
+    
+	public static function decode($array, $level = 0){
+	   	static $return;
+	   	$return = new DOMDocument();
+	   	$text = "";
+	   	if ($level == 0) {
+	   		//$json = new Services_Json();
+	   		$array = json_decode($array, true);
+	   		//$dom = new DOMDocument();
+	   		print_r($array);echo "<br/>";
+	   	}
+	   	//$return = $dom;
+	   	if (is_array($array)) {
+		   	foreach($array as $key => $child){
+		   		echo gettype($child)."<br/>";
+		   		if (! is_null($cr = self::decode($child, $level + 1))) {
+		   			$newKey=self::cleanTag($key);
+			   		if(is_array($child) && $newKey != '') {
+			   			echo $newKey;
+			   			$tag = $return->createElement($newKey);
+			   			$return->appendChild($tag);
+			   		}
+			   		elseif (gettype($child) == "string" || gettype($child) == "integer") {
+			   			$text .= $child;
+			   		}
+		   		}
+		   	}
+		   	
+		   	if (strlen(trim($text))) {
+		   		$textElem = $return->createTextNode($text);
+		   		$return->appendChild($textElem);
+		   	}
+	   	}
+	   	elseif (gettype($array) == "string" || gettype($array) == "integer") {
+	   		return ''.$array;
+	   	}
+	   	//if ($level != 0)
+			return $return;
+	   	/*else
+			return $dom;*/
+	}
+    
+    
+     
 }

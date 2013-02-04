@@ -22,7 +22,7 @@ loadAutocomplete = function() {
             .autocomplete({
                 source: function( request, response ) {
 					$.ajax({
-					   url: "ontology/cwm.php",  //server script to process data
+					   url: "ontology/neo4j.php",  //server script to process data
 					   type: 'GET',
 					   //Ajax events
 					   success: function(data){
