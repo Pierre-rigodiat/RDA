@@ -3,17 +3,14 @@
 	require_once 'inc/global/config.php';
 	
 	// todo load the parser here
+	// TODO Organize all the imports
+	// TODO Reduce code generation if debug is disabled
 	
 	if(DEBUG) $startTime = (float) array_sum(explode(' ',microtime()));
 ?>
 <!DOCTYPE html>
 <html>
-<head>
-	<?php 
-		// TODO Organize all the imports
-		// TODO Reduce code generation if debug is disabled
-	?>
-	
+<head>	
 	<script>
 		var startTime = (new Date()).getTime();
 	</script>
@@ -82,15 +79,6 @@
 	<title><?php echo TOOL_TITLE.' '.TOOL_VERSION; ?></title>
 </head>
 <body id="top">
-	<?php
-		// TODO Work on all those requires
-		require_once 'inc/lib/StringFunctions.php';
-	
-		//require_once 'inc/classes/XsdManager.php';
-	
-		//require_once 'inc/global/images.php'; // XXX Regroup in the head.php file
-	?>
-	
 	<div id="header-wrapper">
 		<div id="header-wrapper-2">
 			<div class="center-wrapper">

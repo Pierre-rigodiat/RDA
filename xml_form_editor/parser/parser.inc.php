@@ -267,8 +267,17 @@ function displayPageChooser()
 		return;
 	}
 	else { // If the display is not set
-		$logger->log_error('No display element built', 'displayPageChooser');
-		return;
+		$logger->log_debug('No display element built', 'displayPageChooser');
+		
+		loadModuleHandler();
+		$mHandler = unserialize($_SESSION['xsd_parser']['mhandler']);
+		
+		$voidXsdManager = new XsdManager("undefined", new PageHandler(1), $mHandler, $debug);	
+		
+		$display = new Display($voidXsdManager, $debug);
+		$_SESSION['xsd_parser']['display'] = serialize($display);
+		
+		return displayPageChooser();
 	}
 }
 ?>

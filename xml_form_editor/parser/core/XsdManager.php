@@ -387,11 +387,12 @@ class XsdManager {
 			if(in_array($id, array_keys($this->xsdOrganizedTree->getTree())))
 			{
 				$object = $this -> xsdOriginalTree -> getObject($originalTreeId);
+				$this -> LOGGER -> log_debug('OriginalID '.$originalTreeId.' has object '.$object, 'XsdManager::optimizeTree');
 
 				if($object->getType()==$this->namespaces['default'].':COMPLEXTYPE' || $object->getType()==$this->namespaces['default'].':SEQUENCE' || $object->getType()==$this->namespaces['default'].':SIMPLETYPE')
 				{
 					$this->xsdOrganizedTree->removeElement($id);
-					$this->xsdOriginalTree->removeElement($originalTreeId);
+					//$this->xsdOriginalTree->removeElement($originalTreeId);
 					
 					$this -> LOGGER -> log_debug('ID '.$id.' (orig) removed (unused type)', 'XsdManager::optimizeTree');
 				}
@@ -402,7 +403,7 @@ class XsdManager {
 					/*$parentId = $this->xsdOrganizedTree->getParent($id);
 					$children = $this->xsdOrganizedTree->getChildren($id);*/
 					
-					$parentId = $this->xsdOriginalTree->getParent($originalTreeId);
+					//$parentId = $this->xsdOriginalTree->getParent($originalTreeId);
 					$children = $this->xsdOriginalTree->getChildren($originalTreeId);
 					
 					$values = array();
@@ -411,17 +412,25 @@ class XsdManager {
 						$attributes = $this->xsdOriginalTree->getObject($child)->getAttributes();
 						array_push($values, $attributes['VALUE']);
 					}
-								
-					$this->xsdOriginalTree->getObject($parentId)->addAttributes(array('RESTRICTION'=>$values));
+
+					$parentId = $this -> xsdOrganizedTree -> getParent($id);
+					$originalParentId = $this -> xsdOrganizedTree -> getObject($parentId);
+					
+					$this->xsdOriginalTree->getObject($originalParentId)->addAttributes(array('RESTRICTION'=>$values));
+					
+					//$this->xsdOriginalTree->getObject($parentId)->addAttributes(array('RESTRICTION'=>$values));
 					$this -> LOGGER -> log_debug('ID '.$parentId.' (orig) contains restriction values '.$this->xsdOriginalTree->getObject($parentId), 'XsdManager::optimizeTree');
-					$this->xsdOriginalTree->removeElement($originalTreeId, true);
-					$this -> LOGGER -> log_debug('ID '.$originalTreeId.' (orig) removed (restriction)', 'XsdManager::optimizeTree');
+					
+					//$this->xsdOriginalTree->removeElement($originalTreeId, true);
+					//$this -> LOGGER -> log_debug('ID '.$originalTreeId.' (orig) removed (restriction)', 'XsdManager::optimizeTree');
 					
 					$this->xsdOrganizedTree->removeElement($id, true);
 					$this -> LOGGER -> log_debug('ID '.$id.' (orga) removed (restriction)', 'XsdManager::optimizeTree');
 					
 				}
 			}
+			else
+				$this -> LOGGER -> log_debug('ID '.$id.' not found', 'XsdManager::optimizeTree');
 			
 		}
 	}
