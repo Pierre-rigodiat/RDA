@@ -6,7 +6,7 @@
  */
 class ModuleHandler 
 {
-	private $moduleList;
+	private $moduleList; // The array containing all ID associated with a module
 	private $moduleDir;
 	
 	private $LOGGER;
@@ -35,6 +35,7 @@ class ModuleHandler
 				{
 					$this -> moduleDir = $argv[0];
 					$this -> moduleList = array();
+					
 					$level = self::$LEVELS['NO_DBG'];
 				}
 				else
@@ -106,7 +107,8 @@ class ModuleHandler
 			{
 				if(is_dir($this -> moduleDir.'/'.$file) && !startsWith($file, '.'))
 				{
-					array_push($this->moduleList, array('name' => strtolower($file), 'enable' => false));
+					array_push($this -> moduleList, array('name' => strtolower($file), 'enable' => false, 'ids' => array()));
+					
 					$this -> LOGGER -> log_debug('Adding '.$file.' to the module list', 'ModuleHandler::__construct');
 				}
 			}
@@ -188,6 +190,42 @@ class ModuleHandler
 			$this->LOGGER->log_info('Module '.$moduleName.' not found', 'ModuleHandler::setModuleStatus');
 			return -1;
 		}
+	}
+	
+	public function setIdWithModule($elementId, $moduleName)
+	{
+		$this->LOGGER->log_debug('Setting id '.$elementId.' with module '.$moduleName.'...', 'ModuleHandler::setIdWithModule');
+		if(($moduleIndex = $this->isInModuleList($moduleName)) != -1)
+		{
+			if(!in_array($elementId, $this -> moduleList[$moduleIndex]['ids']))
+				array_push($this -> moduleList[$moduleIndex]['ids'], $elementId);
+			
+			$this->LOGGER->log_debug('Id '.$elementId.' has been set with module'.$moduleName, 'ModuleHandler::setIdWithModule');
+			return 0;
+		}
+		else 
+		{
+			$this->LOGGER->log_info('Module '.$moduleName.' not found', 'ModuleHandler::setIdWithModule');
+			return -1;
+		}
+		
+	}
+	
+	public function getModuleForId($elementId)
+	{
+		$this->LOGGER->log_debug('Getting module for id '.$elementId, 'ModuleHandler::getModuleForId');
+		
+		foreach($this->moduleList as $module)
+		{
+			if(in_array($elementId, $module['ids']))
+			{
+				$this->LOGGER->log_debug('Id '.$elementId.' is associated with '.$module['name'], 'ModuleHandler::getModuleForId');
+				return $module['name'];
+			}
+		}
+
+		$this->LOGGER->log_debug('Id '.$elementId.' is not associated with any module', 'ModuleHandler::getModuleForId');
+		return '';
 	}
 	
 	

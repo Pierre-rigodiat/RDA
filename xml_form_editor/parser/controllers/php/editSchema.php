@@ -26,6 +26,17 @@ function setUpChildrenToPage($pHandler, $tree, $elementId, $pageId)
 	}
 }
 
+function setUpChildrenToModule($manager, $tree, $elementId, $moduleName)
+{
+	$children = $tree -> getChildren($elementId);
+	
+	foreach($children as $child)
+	{
+		$manager -> assignIdToModule($child, $moduleName);
+		setUpChildrenToModule($manager, $tree, $child, $moduleName);
+	}
+}
+
 
 if(isset($_GET['id']) && isset($_GET['minOccurs']) && isset($_GET['maxOccurs']))
 {
@@ -63,8 +74,9 @@ if(isset($_GET['id']) && isset($_GET['minOccurs']) && isset($_GET['maxOccurs']))
 	if(!isset($elementAttr['AUTO_GENERATE'])) $autoGen = null;
 	else $autoGen = $elementAttr['AUTO_GENERATE'];
 	
-	if(!isset($elementAttr['MODULE'])) $module = 'false';
-	else $module = $elementAttr['MODULE'];
+	// TODO Change the condition
+	/*if(!isset($elementAttr['MODULE'])) $module = 'false';
+	else $module = $elementAttr['MODULE'];*/
 	
 	// TODO Change the condition
 	/*if(!isset($elementAttr['PAGE'])) $page = 1;
@@ -78,7 +90,7 @@ if(isset($_GET['id']) && isset($_GET['minOccurs']) && isset($_GET['maxOccurs']))
 	if(!$hasAttrChanged && $_GET['maxOccurs']!=$maxOccurs) $hasAttrChanged=true;
 	if(!$hasAttrChanged && isset($_GET['dataType']) && 'xsd:'.$_GET['dataType']!=$dataType) $hasAttrChanged=true;
 	if(!$hasAttrChanged && isset($_GET['autoGen']) && $_GET['autoGen']!=$autoGen) $hasAttrChanged=true; //TODO Use autogenerate with the pattern like $attr['AUTO_GENERATE']=$pattern
-	if(!$hasAttrChanged && isset($_GET['module']) && $_GET['module']!=$module) $hasAttrChanged=true;
+	if(!$hasAttrChanged && isset($_GET['module'])/* && $_GET['module']!=$module*/) $hasAttrChanged=true;
 	if(!$hasAttrChanged && isset($_GET['page']) /*&& $_GET['page']!=$page*/) $hasAttrChanged=true;
 	
 	if($hasAttrChanged)
@@ -95,8 +107,8 @@ if(isset($_GET['id']) && isset($_GET['minOccurs']) && isset($_GET['maxOccurs']))
 			if($elementAttr['AUTO_GENERATE']=='false') unset($elementAttr['AUTO_GENERATE']);
 		}
 		
-		if($_GET['module'] == 'false') unset($elementAttr['MODULE']);
-		else $elementAttr['MODULE'] = $_GET['module'];
+		/*if($_GET['module'] == 'false') unset($elementAttr['MODULE']);
+		else $elementAttr['MODULE'] = $_GET['module'];*/
 		
 		if(isset($_GET['page']))
 		{
@@ -141,6 +153,20 @@ if(isset($_GET['id']) && isset($_GET['minOccurs']) && isset($_GET['maxOccurs']))
 			
 			$manager -> setPageHandler($pHandler);
 			/*** END ***/
+		}
+
+		if(isset($_GET['module']))
+		{
+			if($_GET['module']!='false')
+			{
+				$manager -> assignIdToModule($_GET['id'], $_GET['module']);
+				setUpChildrenToModule($manager, $xsdOrganizedTree, $_GET['id'], $_GET['module']);
+				
+			}
+			else
+			{
+				// XXX Remove the ID from the module
+			}
 		}
 		
 		$xsdOriginalTree->getObject($originalTreeId)->setAttributes($elementAttr);

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
+	Basic schema test
+	
+	* Test multi-line comments (1..*)
+	* Test basic schema tag (schema, element, complexType, sequence)
+	* Test basic element display
+-->
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" attributeFormDefault="unqualified" elementFormDefault="qualified">
+	<!-- The experiment name -->
+  	<xsd:element name="root" type="Root"/>
+  
+	<xsd:complexType name="Root">
+		<xsd:sequence>
+			<xsd:element name="name" type="xsd:string"/>
+		</xsd:sequence>
+	</xsd:complexType>
+</xsd:schema>

@@ -9,13 +9,16 @@
  */
 loadXsdConfigHandler = function()
 {
-	//$('.module').on('click', toggleModule);
 	$('.refresh').on('click', cancelChanges);
 	$('.save').on('click', saveChanges);
 	
 	$('.clickable').on('click', goToPage);
 }
 
+/**
+ * 
+ */
+// TODO put this function in the main configuration
 goToPage = function()
 {
 	var defaultName = "clickable ",
@@ -33,29 +36,7 @@ goToPage = function()
 	}
 	
 	loadPage(baseUrl + '?' + pageName[1]);
-	
-	//console.log(pageName);
 }
-
-/*toggleModule = function()
-{
-	var iconClass = $(this).children(':first').attr('class');
-	
-	console.log('[toggleModule] Clicked element class: '+iconClass);
-	
-	if(iconClass.indexOf('disable')==-1)
-	{
-		console.log('[toggleModule] Toggling '+$(this).text()+'...');
-		if(iconClass.indexOf('off')!=-1) // Enabling module
-		{
-			$(this).children(':first').attr('class', 'icon legend on');
-		}
-		else // Disabling module
-		{
-			$(this).children(':first').attr('class', 'icon legend off');
-		}
-	}
-}*/
 
 cancelChanges = function()
 {

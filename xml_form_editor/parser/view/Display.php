@@ -480,6 +480,12 @@ class Display
 			
 			$attrString .= ' | PAGE: '.$pageNumber;
 		}
+		
+		$moduleHandler = $this->xsdManager->getModuleHandler();
+		if(($moduleName = $moduleHandler -> getModuleForId($elementId)) != '')
+		{
+			$attrString .= ' | MODULE: '.ucfirst($moduleName);
+		}
 
 		if ($attrString != '')
 			$result .= '<span class="attr">' . $attrString . '</span>';
@@ -507,6 +513,12 @@ class Display
 		{
 			$this -> LOGGER -> log_debug('ID '.$elementId.' is not in the current page ('.$currentPage.')', 'Display::displayHTMLFormElement');
 			return;
+		}
+		
+		$moduleHandler = $this->xsdManager->getModuleHandler();
+		if(($moduleName = $moduleHandler -> getModuleForId($elementId)) != '')
+		{
+			return 'MODULE: '.ucfirst($moduleName);
 		}
 		
 		$element = $this -> xsdManager -> getXsdOriginalTree() -> getObject($originalTreeId);

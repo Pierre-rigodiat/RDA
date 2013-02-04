@@ -449,7 +449,8 @@ class XsdManager {
 	 */
 	public function assignIdToModule($elementId, $moduleName)
 	{
-		/* Not yet implemented */
+		$this->LOGGER->log_notice('Function called', 'XsdManager::assignIdToModule');
+		$this -> moduleHandler -> setIdWithModule($elementId, $moduleName);
 	}
 	
 	/**
