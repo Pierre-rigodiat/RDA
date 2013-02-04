@@ -28,8 +28,12 @@ loadAutocomplete = function() {
 					   success: function(data){
 						if (data == "")
 							response(data);
-						else
-							response(split(data));
+						else {
+							if (data[0] == "<")
+								console.error(data.toString());
+							else
+								response(split(data));
+						}
 						},
 					   error: function() {
 						   console.error("Problem importing the file");

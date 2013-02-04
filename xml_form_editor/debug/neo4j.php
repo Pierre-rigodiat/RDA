@@ -55,6 +55,7 @@
 				echo '<u>Result(s) for query :</u><b>'.$testQuery.'</b><br/>';
 				foreach ($resultSet as  $result) {
 					var_dump($result[0]);
+					var_dump($result[0]);
 				}
 				
 			}

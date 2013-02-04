@@ -1,9 +1,8 @@
 <?php
 
-$output = array();
-$name = "sessionid";
+require("../inc/db/neo4j/neo4jphp.phar");
+
 $search = "";
-$onto = "";
 $relation = "";
 
 $unit = array("unitOfMeasureType", "name");
@@ -15,39 +14,73 @@ $element = array($_GET["parent"], $_GET["node"]);
 
 if (array_diff($element, $crystal) == array()) {
 	$search = "CrystalLattice";
-	$onto = "Materials.owl";
-	$relation = "rdfs:subClassOf";
+	$relation = "subClassOf";
 }
 if (array_diff($element, $form) == array()) {
 	$search = "MaterialForm";
-	$onto = "Materials.owl";
-	$relation = "rdf:type";
+	$relation = "type";
 }
 if (array_diff($element, $phase) == array()) {
 	$search = "MaterialPhaseComposition";
-	$onto = "Materials.owl";
-	$relation = "rdfs:subClassOf";
+	$relation = "subClassOf";
 }
 if (array_diff($element, $unit) == array()) {
 	$search = "UnitOfMeasure";
-	$onto = "OntologyRequirements.owl";
-	$relation = "rdfs:subClassOf";
+	$relation = "subClassOf";
 }
 
-if ($search != "") {
-	exec('ontology-bash/cwm.sh'.' '.$search.' '.$name.' '.$onto.' '.$relation, $output,$val);
-	/*print_r($output);
-	echo $val;*/
-	$file = $name.".json";
+if ($search != "") {	
+		// Connecting to the default port 7474 on localhost
+		try
+		{
+			$client = new Everyman\Neo4j\Client();
+			
+			// Connecting to a different port or host
+			//$client = new Everyman\Neo4j\Client('host.example.com', 7575);
+			
+			// Connecting using HTTPS and Basic Auth
+			/*$client = new Everyman\Neo4j\Client();
+			$client->getTransport()
+			  ->useHttps()
+			  ->setAuth('username', 'password');*/
+			
+			$client->getServerInfo(); // Test to throw the exception if the client is not connected
+		}
+		catch(Exception $e)
+		{
+			echo '<div class="error">Impossible to connect to the server</div>';
+			exit;
+		}
+		
+		// The following query searches every node
+		$testQuery = "g.V.has('name','".$search."').in('".$relation."').name";
+		//$testQuery='fail';
+		$expectedNumberOfEntries=23;
+		
+		try
+		{
+			$query = new Everyman\Neo4j\Gremlin\Query($client, $testQuery);
+			$resultSet = $query->getResultSet();
+			
+			/*foreach ($resultSet as  $result) {
+				var_dump($result[0]);
+			}*/
+		}
+		catch(Exception $e)
+		{
+			echo '<div class="error">Gremlin query "'.$testQuery.'" failed</div>';
+			exit;
+		}
+
 	$pattern = $_GET["term"];
-	$handle = fopen($file,"r");
 	$match = array();
-	if ($handle) {
-	    while (($buffer = fgets($handle)) !== false) {
+	if ($resultSet) {
+	foreach($resultSet as  $result) {
+	   if (($buffer = $result[0]) !== false) {
 		if (stristr($buffer,$pattern) !== false)
 			array_push($match, trim($buffer));
-	    }
-	    fclose($handle);
+		}
+	   }
 	}
 	if ($match[0] != null)
 		echo implode(",", $match);
