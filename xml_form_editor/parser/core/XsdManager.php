@@ -482,6 +482,12 @@ class XsdManager
 		}
 		else $this -> LOGGER -> log_info('Id '.$elementId.' not found', 'XsdManager::setDataForId');
 	}
+	
+	public function clearData()
+	{
+		$this -> dataArray = array();
+		$this -> LOGGER -> log_debug('Data cleared', 'XsdManager::clearData');
+	}
 
 	public function getDataForId($elementId)
 	{

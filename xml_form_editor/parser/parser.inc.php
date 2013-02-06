@@ -320,6 +320,28 @@ function saveData($dataArray)
 /**
  * 
  */
+function clearData()
+{
+	global $logger, $debug;
+	$logger->log_notice('Clearing all data...', 'clearData');
+	
+	if(isset($_SESSION['xsd_parser']['parser']))
+	{
+		$manager = unserialize($_SESSION['xsd_parser']['parser']);
+		$manager -> clearData();
+
+		$_SESSION['xsd_parser']['parser'] = serialize($manager);
+		$logger->log_notice('All data cleared...', 'clearData');
+	}
+	else 
+	{
+		$logger->log_info('XsdManager not initialized', 'clearData');
+	}
+}
+
+/**
+ * 
+ */
 function getData()
 {
 	/* Not yet implemented */
