@@ -88,6 +88,7 @@
 		displayPageNavigator();
 		displayHTMLForm();
 	?>
+	<div class="icon legend save data">Save fields</div>
 	<hr/>
 	<h2>XML View</h2>
 	<?php

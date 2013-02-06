@@ -251,6 +251,9 @@ function displayModuleChooser()
 	}
 } 
 
+/**
+ * 
+ */
 function displayPageChooser()
 {
 	global $logger, $debug;
@@ -279,5 +282,46 @@ function displayPageChooser()
 		
 		return displayPageChooser();
 	}
+}
+
+/**
+ * Save data entered in the HTML Form
+ * @param {array} $dataArray The array containing tuples (id, value)
+ */
+function saveData($dataArray)
+{
+	global $logger, $debug;
+	
+	$logger->log_notice('Registering new data...', 'saveData');
+	
+	if(is_array($dataArray) && isset($_SESSION['xsd_parser']['parser']))
+	{
+		$manager = unserialize($_SESSION['xsd_parser']['parser']);
+		
+		foreach ($dataArray as $id => $value) 
+		{
+			if(is_int($id))
+			{
+				$manager -> setDataForId($value, $id);
+			}
+		}
+		
+		$_SESSION['xsd_parser']['parser'] = serialize($manager);
+		$logger->log_notice('Data registered', 'saveData');
+	}
+	else {
+		if(!is_array($dataArray))
+			$logger->log_debug('Parameter is not an array', 'saveData');
+		else
+			$logger->log_debug('XsdManager not initialized', 'saveData');
+	}
+}
+
+/**
+ * 
+ */
+function getData()
+{
+	/* Not yet implemented */
 }
 ?>

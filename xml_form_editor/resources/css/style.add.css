@@ -11,6 +11,11 @@
     background: white url('ui-anim_basic_16x16.gif') right center no-repeat;
 }
 
+#page_number
+{
+	width: 40px;
+}
+
 li
 {
 	/*margin:7px;*/

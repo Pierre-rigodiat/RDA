@@ -543,8 +543,14 @@ class Display
 		// todo study attributes
 
 		if (isset($elementAttr['TYPE']) && startsWith($elementAttr['TYPE'], 'xsd')) // todo put xsd into a variable (could use the manager)
-		{
-			$result .= '<input type="text" class="text"/>';
+		{			
+			$result .= '<input type="text" class="text"';
+			if(($data = $this->xsdManager->getDataForId($elementId)) != null)
+			{
+				$result .= ' value="'.$data.'"';
+			}
+			$result .= '/>';
+			
 			$this->LOGGER->log_debug('ID '.$elementId.' can be edited', 'Display::displayHTMLFormElement');
 		}
 

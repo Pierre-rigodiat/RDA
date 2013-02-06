@@ -11,7 +11,8 @@ loadXsdConfigHandler = function()
 {
 	$('.refresh').on('click', cancelChanges);
 	$('.save').on('click', saveChanges);
-	
+	$('#page_number').on('change', changePageNumber);
+		
 	$('.clickable').on('click', goToPage);
 }
 
@@ -46,5 +47,29 @@ cancelChanges = function()
 saveChanges = function()
 {
 	console.warn('[saveChanges] Not yet implemented');
+}
+
+changePageNumber = function()
+{
+	var pageNumber = $(this).attr('value');
+	
+	$.ajax({
+        url: 'inc/ajax.new/changePageNumber.php',
+        type: 'GET',
+        success: function(data) {
+        	// TODO Reload automatically the view
+        	
+        	console.log('[changePageNumber] '+pageNumber+' page(s) set');
+        },
+        error: function() {
+            console.error("[changePageNumber] A problem occured when changing the nuber of pages.");
+        },
+        // Form data
+        data: 'p='+pageNumber,
+        //Options to tell JQuery not to process data or worry about content-type
+        cache: false,
+        contentType: false,
+        processData: false
+    });
 }
 

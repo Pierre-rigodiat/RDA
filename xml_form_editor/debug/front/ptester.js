@@ -3,6 +3,7 @@ $(document).ready(function(){
 	$('.refresh.form').on('click', refreshForm);
 	$('.save.file').on('click', saveFile);
 	$('.refresh.conf').on('click', refreshConf);
+	$('.save.data').on('click', saveData);
 });
 
 /**
@@ -105,4 +106,48 @@ refreshConf = function()
         contentType: false,
         processData: false
     });
+}
+
+/**
+ * 
+ */
+saveData = function()
+{
+	console.log("[saveData] Saving fields...");
+	
+	var inputs = $('input.text'),
+		qString = '';
+	
+	inputs.each(function()
+	{
+		var inputId = $(this).parent().attr('id'),
+			inputValue = $(this).attr('value');
+		
+		if(inputValue != '' && !isNaN(parseInt(inputId)))
+		{
+			console.log('Id '+parseInt(inputId)+' = '+inputValue);
+			qString += parseInt(inputId)+'='+inputValue+'&';
+		}	
+	});
+	
+	qString = qString.substring(0, qString.length-1);
+	
+	$.ajax({
+        url: 'debug/back/saveData.php',
+        type: 'GET',
+        success: function(data) {
+        	
+        },
+        error: function() {
+            console.error("[saveData] Problem with the AJAX call");
+        },
+        // Form data
+        data: qString,
+        //Options to tell JQuery not to process data or worry about content-type
+        cache: false,
+        contentType: false,
+        processData: false
+    });
+	
+	console.log('qString = '+qString);
 }
