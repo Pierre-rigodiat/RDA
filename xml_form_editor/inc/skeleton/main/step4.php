@@ -23,7 +23,7 @@
 	$_SESSION['xml_content'] = $xmlContent;
 ?>
 <div id="XMLHolder" style="background-color:#FFFFFF;" ></div>
-<script>LoadXMLString('XMLHolder',"<?php echo $xmlContent; ?>");</script>
+<script>LoadXMLString('XMLHolder',"<root><element0>value0</element0></root>");</script>
 
 <input type="button" class="button" id="tostep3" value="Go back"/>
 <input type="button" class="button" id="download" value="Download the file"/>

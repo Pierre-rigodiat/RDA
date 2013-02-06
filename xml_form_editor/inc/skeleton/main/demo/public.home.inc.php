@@ -15,7 +15,7 @@
 		
 		<div class="content-separator"></div>
 		
-		<img src="sample-thumbnail.jpg" width="64" height="64" alt="" class="left bordered" />
+		<img src="resources/img/samples/thumbnail.jpg" width="64" height="64" alt="" class="left bordered" />
 		
 		<h3><a href="#">Create your account</a></h3>
 		
@@ -25,7 +25,7 @@
 		
 		<div class="content-separator"></div>
 		
-		<img src="sample-thumbnail.jpg" width="64" height="64" alt="" class="left bordered" />
+		<img src="resources/img/samples/thumbnail.jpg" width="64" height="64" alt="" class="left bordered" />
 		
 		<h3><a href="register">Register experiment</a></h3>
 		
@@ -35,7 +35,7 @@
 		
 		<div class="content-separator"></div>
 		
-		<img src="sample-thumbnail.jpg" width="64" height="64" alt="" class="left bordered" />
+		<img src="resources/img/samples/thumbnail.jpg" width="64" height="64" alt="" class="left bordered" />
 		
 		<h3><a href="search">Browse repository</a></h3>
 		

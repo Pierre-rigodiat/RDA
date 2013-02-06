@@ -1,5 +1,5 @@
 <div id="featured-wrapper"><div id="featured">
-	<h1>XML View [DEMO]</h1>
+	<h1>Data browser [DEMO]</h1>
 	<p>
 		In nunc et nibh rutrum volutpat. Sed tempus interdum ligula adipiscing blandit. 
 		Aliquam tempor, elit ac rhoncus lacinia, mauris metus suscipit sem.
@@ -7,10 +7,5 @@
 </div></div>
 
 <div id="main">
-	<div id="XMLHolder"></div>
-	<script>
-		var xmlContent = '<root><element0>value0</element0><element1>value1</element1></root>';
-	
-		LoadXMLString('XMLHolder', xmlContent);
-	</script>
+	<!-- TODO Implement the template -->
 </div>
