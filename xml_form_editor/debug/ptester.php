@@ -16,6 +16,8 @@
 	<link rel="stylesheet" type="text/css" href="http://code.jquery.com/ui/1.9.2/themes/base/jquery-ui.css" />
 	<link rel="stylesheet" type="text/css" href="resources/css/ptester.css" media="screen" />
 	<link rel="stylesheet" type="text/css" href="ontology/auto-complete.css" media="screen" />
+	<link rel="stylesheet" type="text/css" href="resources/css/xml_display.css" media="screen" />
+	<script type="text/javascript" src="resources/js/xml_display.js"></script>
 	
 	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
 	<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/jquery-ui.min.js"></script>
@@ -91,9 +93,10 @@
 	<div class="icon legend save data">Save fields</div>
 	<hr/>
 	<h2>XML View</h2>
-	<?php
-		displayXMLTree();
-	?>
+	<div id="XMLHolder"></div>
+	<script>	
+		LoadXMLString('XMLHolder', <?php displayXmlTree(); ?>);
+	</script>
 	<script>
 		loadEditController();
 		loadAddRemoveController();

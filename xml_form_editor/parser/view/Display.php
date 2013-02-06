@@ -18,6 +18,8 @@ class Display
 		'html_form' => 1,
 		'xml_tree' => 2
 	);
+	private static $XML_START = 0,
+					$XML_END = 1;
 	private static $CONF_FILE; // The configuration file to handle the display elements 
 	
 	// Debug and logging variables
@@ -261,8 +263,8 @@ class Display
 	 */
 	public function displayXMLTree()
 	{
-		/* Not yet implemented */
-		// TODO Implement it
+		$result = '"'.$this -> displayElement(0, self::$STEPS['xml_tree']).'"';
+		return $result;
 	}
 	 
 	/**
@@ -364,6 +366,10 @@ class Display
 				$result .= $this -> displayHTMLFormElement($elementId);
 				$children = $this -> xsdManager -> getXsdCompleteTree() -> getChildren($elementId);
 				break;
+			case self::$STEPS['xml_tree'] :
+				$result .= $this -> displayXMLElement($elementId, self::$XML_START);
+				$children = $this -> xsdManager -> getXsdCompleteTree() -> getChildren($elementId);
+				break;
 			default : // Unknown step ID
 				$this -> LOGGER -> log_error('Step ID '.$stepId.' is unknown', 'Display::displayElement');
 				exit ;
@@ -372,15 +378,18 @@ class Display
 
 		if (count($children) > 0)
 		{
-			$result .= '<ul>';
+			if($stepId != self::$STEPS['xml_tree'])	$result .= '<ul>';
 			foreach ($children as $child)
 			{
 				$result .= $this -> displayElement($child, $stepId);
 			}
-			$result .= '</ul>';
+			if($stepId != self::$STEPS['xml_tree'])	$result .= '</ul>';
 		}
 
-		$result .= '</li>';
+		if($stepId != self::$STEPS['xml_tree']) $result .= '</li>';
+		else {
+			$result .= $this -> displayXMLElement($elementId, self::$XML_END);
+		}
 
 		return $result;
 	}
@@ -617,9 +626,25 @@ class Display
 	/**
 	 *
 	 */
-	private function displayXMLElement($elementId, $elementAttr)
+	private function displayXMLElement($elementId, $tagType)
 	{
-
+		$xmlElement = '';
+		
+		$originalTreeId = $this -> xsdManager -> getXsdCompleteTree() -> getObject($elementId);
+		$element = $this -> xsdManager -> getXsdOriginalTree() -> getObject($originalTreeId);
+		$elementAttr = $element -> getAttributes();
+		
+		if($tagType == self::$XML_START)
+		{
+			$xmlElement .= '<'.$elementAttr['NAME'].'>';
+			if(($data = $this -> xsdManager -> getDataForId($elementId))!=null)
+			{
+				$xmlElement .= $data;
+			}
+		}
+		else $xmlElement .= '</'.$elementAttr['NAME'].'>';
+		
+		return $xmlElement;
 	}
 }
 ?>

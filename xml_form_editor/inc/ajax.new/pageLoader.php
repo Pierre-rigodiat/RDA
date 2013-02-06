@@ -66,7 +66,7 @@ if(isset($_GET['url']))
 		else if($menu['page']=='register')
 		{
 			if(!isset($menu['sub']) || $menu['sub']=='form') require_once $_SESSION['config']['_ROOT_'].'/inc/skeleton/main/public/register_form.inc.php';
-			else if($menu['sub']=='xml') require_once $_SESSION['config']['_ROOT_'].'/inc/skeleton/main/demo/public.view_xml.inc.php';
+			else if($menu['sub']=='xml') require_once $_SESSION['config']['_ROOT_'].'/inc/skeleton/main/public/view_xml.inc.php';
 		}
 		else if($menu['page']=='search')
 		{

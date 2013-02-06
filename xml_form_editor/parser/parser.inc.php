@@ -189,9 +189,16 @@ function displayXmlTree()
 {
 	global $logger, $debug;
 	
-	echo '<i>Not yet implemented</i>';
+	//echo '"<root><element0>value0</element0><element1>value1</element1></root>"';
+	if(isset($_SESSION['xsd_parser']['display']))
+	{
+		$display = unserialize($_SESSION['xsd_parser']['display']);
+		$display -> update();
+		
+		echo $display -> displayXMLTree();
+	}	
 	
-	$logger->log_info('Not yet implemented', 'displayXmlTree');
+	$logger->log_info('XmlTree displayed', 'displayXmlTree');
 }
 
 /**
