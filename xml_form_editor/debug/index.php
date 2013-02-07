@@ -27,5 +27,9 @@
 		<li><a href="neo4j.php">Neo4j</a></li>
 		<li><!--a href="ptester"-->MongoDB<!--/a--></li>
 	</ul>
+	<h1>Misc</h1>
+	<ul>
+		<li><a href="info.php">php.ini</a></li>
+	</ul>
 </body>
 </html>

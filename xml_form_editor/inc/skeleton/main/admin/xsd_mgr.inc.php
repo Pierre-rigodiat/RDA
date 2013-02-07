@@ -7,9 +7,14 @@
 
 <div id="main">
 <?php
+	$current_filename = null;
 	if(!isset($_SESSION['xsd_parser']['xsd_filename']))
 	{
 		echo '<div class="warn"><div class="icon warning"></div>The system has no schema loaded. Please set a current model to allow user to use the repository.</div>';	
+	}
+	else 
+	{
+		$current_filename = $_SESSION['xsd_parser']['xsd_filename'];
 	}
 ?>
 	
@@ -39,30 +44,18 @@
 				echo '	<tr'.($even?' class="even"':'').'>
 							<td>'.$file.'</td>
 							<td>'.'Experiment'.'</td>
-							<td style="color:'.'green'.'">'.'Registered'.'</td>
-							<td>'.'<div class="icon legend extra-long add">Set as current model</div><div class="icon legend delete">Delete</div>'.'</td>
+							<td style="color:'.($current_filename==$file?'blue;font-weight:bold">Current model':'green">Registered').'</td>
+							<td>'.($current_filename==$file?'':'<div class="icon legend extra-long add">Set as current model</div>').'<div class="icon legend delete">Delete</div></td>
 						</tr>';
 			}
 			$even = !$even;
 		}
 	?>
-	<tr class="even">
-		<td>file1.xsd</td>
+	<tr <?php echo ($even?' class="even"':'') ?>>
+		<td>file1.xsd (an example of not registered file)</td>
 		<td>Experiment</td>
 		<td style="color:orange">Uploaded</td>
 		<td><div class="icon legend save">Save</div><div class="icon legend edit">Edit</div><div class="icon legend delete">Delete</div></td>
-	</tr>
-	<tr>
-		<td>schema.xsd</td>
-		<td>Experiment</td>
-		<td style="color:blue; font-weight:bold">Current model</td>
-		<td><div class="icon legend delete">Delete</div></td>
-	</tr>
-	<tr class="even">
-		<td>demo3.xsd</td>
-		<td>Experiment</td>
-		<td style="color:green">Registered</td>
-		<td><div class="icon legend extra-long add">Set as current model</div><div class="icon legend delete">Delete</div></td>
 	</tr>
 </table>
 
