@@ -1,5 +1,5 @@
 <?php
-	if(isset($_FILES) && isset($_FILES['file']) && isset($_FILES['file']['error']))
+	/*if(isset($_FILES) && isset($_FILES['file']) && isset($_FILES['file']['error']))
 	{
 		if(end($_FILES['file']['error'])==0)
 		{
@@ -15,5 +15,5 @@
 	else
 	{
 		echo 'ERROR: Arrays have not been set';		
-	}
+	}*/
 ?>

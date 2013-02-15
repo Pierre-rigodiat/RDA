@@ -1,5 +1,5 @@
 $(document).ready(function(){
-	$(':input[name^=file]').on('change', createNewInput);
+	//$(':input[name^=file]').on('change', createNewInput);
 	$('body').on('click', ".remove", removeFile);
 });
 
@@ -10,7 +10,7 @@ removeFile = function() {
 	$(this).remove();
 }
 
-createNewInput = function()
+/*createNewInput = function()
 {
 	var formData = new FormData($("#file_upload")[0]);	
 	var fileName = $(this)[0].files[0].name
@@ -26,7 +26,7 @@ createNewInput = function()
 	/*console.log("#info\\["+id+"\\]");
 	console.log($("#info\\["+id+"\\]"));*/
 	
-	if(fileName.indexOf('.xls', fileName.length - 4)==-1 && fileName.indexOf('.xlsx', fileName.length - 5)==-1)
+	/*if(fileName.indexOf('.xls', fileName.length - 4)==-1 && fileName.indexOf('.xlsx', fileName.length - 5)==-1)
 	{
 		$(infoTag).append('File format is not good. Please upload a different file.');
 		return;
@@ -59,7 +59,7 @@ createNewInput = function()
                 /*if(myXhr.upload){ // if upload property exists
                     myXhr.upload.addEventListener('progress', progressHandlingFunction, false); // progressbar
                 }*/
-                return myXhr;
+               /* return myXhr;
             },
             //Ajax events
             success: function(data) {
@@ -92,7 +92,7 @@ convertFile = function(file, infoTag)
                 /*if(myXhr.upload){ // if upload property exists
                     myXhr.upload.addEventListener('progress', progressHandlingFunction, false); // progressbar
                 }*/
-                return myXhr;
+              /*  return myXhr;
             },
             //Ajax events
             success: function(data) {
@@ -115,4 +115,4 @@ convertFile = function(file, infoTag)
             contentType: false,
             processData: false
     });
-};
+};*/

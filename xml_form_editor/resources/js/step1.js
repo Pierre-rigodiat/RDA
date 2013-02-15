@@ -1,8 +1,8 @@
 $(document).ready(function(){
 	// Moving to the next page
-	// TODO Write generic function with AJAX loading...
-	$('#tostep2').on('click', {page: 2}, moveTo);
-	$('#tostep4').on('click', {page: 4}, moveTo);
+	//  Write generic function with AJAX loading...
+	//$('#tostep2').on('click', {page: 2}, moveTo);
+	//$('#tostep4').on('click', {page: 4}, moveTo);
 	
 	$('#invisible_message').on('change', null);
 });
@@ -28,7 +28,7 @@ parseAttr = function(attrString)
 };
 
 // todo improve code implementation
-moveTo = function(event)
+/*moveTo = function(event)
 {
 	if(event.data.page==3)
 	{
@@ -53,4 +53,4 @@ moveTo = function(event)
 		//console.log('--step1');
 		window.location = 'index.php?step=1';
 	}
-};
+};*/

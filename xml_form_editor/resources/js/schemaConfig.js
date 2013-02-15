@@ -2,7 +2,7 @@ $(document).ready(function(){
 	$('#loadXsd').on('click', function() {
 		loadSchema($(this));
 	});
-	$('#importXsd').on('click', importSchema);
+	//$('#importXsd').on('click', importSchema);
 	$('#setRoot').on('click', continueLoading);
 	
 	/*$('#currentModel').on('click', {part: '1'}, loadSubPage);
@@ -36,7 +36,7 @@ $(document).ready(function(){
 	        //Ajax events
 	       /* success: function(data) {
 	        	$("#main").html(data);
-	        	//todo link events
+	        	// link events
 	        },
 	        error: function() {
 	            console.error("Problem importing the file");
@@ -103,10 +103,10 @@ loadSchema = function(caller, rootElement)
     });
 }
 
-importSchema = function() {
-	// TODO implement it
+/*importSchema = function() {
+	//  implement it
 	alert('Not yet implemented');
-}
+}*/
 
 continueLoading = function() {
 	console.log($('#root :selected').text()+'('+$('#root :selected').attr('value')+') is the root of the file');

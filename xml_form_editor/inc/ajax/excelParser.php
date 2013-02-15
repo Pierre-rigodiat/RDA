@@ -1,5 +1,5 @@
 <?php
-	session_start();
+	/*session_start();
 	// todo add some security
 	// LIKE we will just call md5 of the file
 
@@ -35,5 +35,5 @@
 			
 			echo $ret_val;
 		}
-	}
+	}*/
 ?>

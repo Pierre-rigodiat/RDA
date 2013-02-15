@@ -33,7 +33,7 @@ if(isset($_SESSION['xsd_parser']['display']) && isset($_SESSION['xsd_parser']['p
 				break;
 		}
 		
-		if(/*is_int($currentPage) && */$currentPage>0 && $currentPage<=$pHandler->getNumberOfPage())
+		if($currentPage>0 && $currentPage<=$pHandler->getNumberOfPage())
 		{
 			$pHandler -> setCurrentPage($currentPage);
 			$manager -> setPageHandler($pHandler);
@@ -50,7 +50,7 @@ if(isset($_SESSION['xsd_parser']['display']) && isset($_SESSION['xsd_parser']['p
 		}
 		else
 		{
-			echo buildJSON('Wrong parameter given', -2);
+			echo buildJSON('Wrong parameter given ('.$currentPage.' is not a valid page number)', -2);
 		}
 	}
 	else

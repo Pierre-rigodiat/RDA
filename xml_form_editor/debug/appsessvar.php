@@ -21,7 +21,7 @@
 </head>
 <body id="content-wrapper">
 	<h1>Session variables explorer</h1>
-	
+	<a href="../debug">< Main menu</a>
 	<hr/>
 	<h3>Main variable: $_SESSION['xsd_parser']</h3>
 	<a href="back/clrsessvar.php?v=parser">Clear variables</a><br/>

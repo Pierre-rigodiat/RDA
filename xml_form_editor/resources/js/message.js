@@ -1,4 +1,4 @@
-if(!window.dhtmlx)
+/*if(!window.dhtmlx)
 	window.dhtmlx = {};
 
 (function(){
@@ -245,4 +245,4 @@ if(!window.dhtmlx)
 			delete t.pull[id];
 		}
 	};
-})();
+})();*/

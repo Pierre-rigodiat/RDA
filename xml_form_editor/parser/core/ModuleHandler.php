@@ -1,8 +1,8 @@
 <?php
-
-
 /**
- * The class handling every module	
+ * The class handling every module
+ * Version: 0.1a
+ * 	
  */
 class ModuleHandler 
 {
@@ -20,6 +20,7 @@ class ModuleHandler
 	/**
 	 * Constructor of the class
 	 * Takes 1 or 2 parameters
+	 * 
 	 */
 	public function __construct() {
 		self::$LOG_FILE = $_SESSION['xsd_parser']['conf']['logs_dirname'].'/'.$_SESSION['xsd_parser']['conf']['log_file'];
@@ -192,6 +193,9 @@ class ModuleHandler
 		}
 	}
 	
+	/**
+	 * 
+	 */
 	public function setIdWithModule($elementId, $moduleName)
 	{
 		$this->LOGGER->log_debug('Setting id '.$elementId.' with module '.$moduleName.'...', 'ModuleHandler::setIdWithModule');
@@ -211,6 +215,9 @@ class ModuleHandler
 		
 	}
 	
+	/**
+	 * 
+	 */
 	public function getModuleForId($elementId)
 	{
 		$this->LOGGER->log_debug('Getting module for id '.$elementId, 'ModuleHandler::getModuleForId');
@@ -231,6 +238,7 @@ class ModuleHandler
 	
 	/**
 	 * 
+	 * @return {array}
 	 */
 	public function getModuleList($filter = 'none')
 	{
@@ -261,6 +269,8 @@ class ModuleHandler
 	}
 	
 	/**
+	 * String representation of the ModuleHandler
+	 * @return {string} ModuleHandler representation
 	 * 
 	 */
 	public function __toString()
@@ -278,8 +288,6 @@ class ModuleHandler
 		else {
 			$return.='#error#';
 		}
-		
-		
 		
 		$return .= ' }';
 		

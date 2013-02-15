@@ -2,6 +2,8 @@
 require_once $_SESSION['xsd_parser']['conf']['dirname'] . '/parser/core/ModuleHandler.php';
 require_once $_SESSION['xsd_parser']['conf']['dirname'] . '/parser/core/PageHandler.php';
 require_once $_SESSION['xsd_parser']['conf']['dirname'] . '/inc/lib/StringFunctions.php';
+
+require_once $_SESSION['xsd_parser']['conf']['dirname'] . '/parser/moduleLoader.php';
 // xxx what if the $_SESSION doesn't exist
 
 /**
@@ -222,6 +224,16 @@ class Display
 		
 		return $pageChooser;
 	}
+	
+	/**
+	 * 
+	 */
+	// TODO Check if we can avoid to use the partial attribute
+	// TODO Use this function instead of the 3 others function
+	public function displayView($viewId, $elementId = 0/*, $partial = false*/)
+	{
+		
+	}
 	 
 	/**
 	 *
@@ -239,7 +251,6 @@ class Display
 	}
 	
 	/**
-	 * 
 	 * 
 	 * The PageHandler will know which element you have to Display
 	 * The Tree will allow you to know if it is a module
@@ -260,6 +271,7 @@ class Display
 
 	/**
 	 *
+	 * 
 	 */
 	public function displayXMLTree()
 	{
@@ -349,7 +361,9 @@ class Display
 	}
 
 	/**
-	 *
+	 * Display the HTML code of an element in a specific view
+	 * @param {integer} Id of the element to display
+	 * @param {integer} Id of the view to display (configuration, form or xml)
 	 */
 	private function displayElement($elementId, $stepId)
 	{
@@ -359,12 +373,23 @@ class Display
 		switch($stepId)
 		{
 			case self::$STEPS['config'] :
-				$result .= $this -> displayConfigurationElement($elementId);
-				$children = $this -> xsdManager -> getXsdOrganizedTree() -> getChildren($elementId);
+				$configElement = $this -> displayConfigurationElement($elementId);
+				
+				
+				
+				
+				if(strpos($configElement, 'MODULE: ')===FALSE) $children = $this -> xsdManager -> getXsdOrganizedTree() -> getChildren($elementId);
+				
+				$result .= $configElement;
 				break;
 			case self::$STEPS['html_form'] :
-				$result .= $this -> displayHTMLFormElement($elementId);
-				$children = $this -> xsdManager -> getXsdCompleteTree() -> getChildren($elementId);
+				$formElement = $this -> displayHTMLFormElement($elementId);
+				
+				// TODO find a better discriminant
+				// FIXME will not work for other modules
+				if(!startsWith($formElement, '<div class="table_module">')) $children = $this -> xsdManager -> getXsdCompleteTree() -> getChildren($elementId);
+				
+				$result .= $formElement;
 				break;
 			case self::$STEPS['xml_tree'] :
 				$result .= $this -> displayXMLElement($elementId, self::$XML_START);
@@ -527,7 +552,7 @@ class Display
 		$moduleHandler = $this->xsdManager->getModuleHandler();
 		if(($moduleName = $moduleHandler -> getModuleForId($elementId)) != '')
 		{
-			return 'MODULE: '.ucfirst($moduleName);
+			return displayModule($moduleName);
 		}
 		
 		$element = $this -> xsdManager -> getXsdOriginalTree() -> getObject($originalTreeId);

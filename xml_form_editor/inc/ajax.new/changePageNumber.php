@@ -1,4 +1,9 @@
 <?php
+/**
+ * Sets the number of page in the configuration view
+ * TODO Move this script into the schema manager folder
+ * 
+ */
 session_start();
 require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/parser.inc.php';
 require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/core/PageHandler.php';

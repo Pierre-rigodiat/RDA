@@ -1,7 +1,7 @@
 /**
  * Add item function
  */
-addItem = function()
+/*addItem = function()
 {
 	var htmlToCopy = $(this).parent().parent();
 	console.log(htmlToCopy.get(0));
@@ -59,7 +59,7 @@ addItem = function()
 
 				// Input are enabled
 				// xxx Not working well when we have an unable element inside
-				htmlToCopy.find(':input').removeAttr('disabled');
+		/*		htmlToCopy.find(':input').removeAttr('disabled');
 				htmlToCopy.replaceWith(htmlToCopy.contents());
 			}
 			else // A whole new part has to be written
@@ -75,7 +75,7 @@ addItem = function()
 						//console.log('Input '+$(this).attr('name')+' needs to be upgraded');
 						
 						/* Step 1: Upgrade name and id of the input */
-						var index = $(this).attr('name').lastIndexOf('[');
+			/*			var index = $(this).attr('name').lastIndexOf('[');
 						var elementPath = $(this).attr('name').slice(0, index);
 						
 						var regexp = new RegExp('/'+elementId+'[/\[]');
@@ -198,4 +198,4 @@ addItem = function()
 		var index = unavailableElement.text().indexOf(' ');
 		editionUnavailableBox(unavailableElement.text().slice(0, index), unavailableElement);
 	}
-};
+};*/

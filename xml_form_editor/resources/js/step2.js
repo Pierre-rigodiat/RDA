@@ -1,9 +1,9 @@
 $(document).ready(function(){
 	// Linking the event on all the + buttons
-	$('.addItem').on('click', addItem);
+	//$('.addItem').on('click', addItem);
 
 	// Adding the event on all the - buttons
-	$('.removeItem').on('click', removeItem);
+	//$('.removeItem').on('click', removeItem);
 	/*$('#tostep1').on('click', {page: 1}, moveTo); xxx not needed anymore... */
 	
 	$('.autogen').on('click', generateRandomValue);
@@ -90,7 +90,7 @@ generateRandomValue = function() {
 /**
  * Remove item function
  */
-removeItem = function()
+/*removeItem = function()
 {	
 	if($(this).css("color")!='rgb(128, 128, 128)') // XXX Not really reliable...
 	{
@@ -145,7 +145,7 @@ removeItem = function()
 		/*console.log('Element ID = '+elementId);
 		console.log('Element XPath = '+elementXPath);*/
 
-		var previousElement = null;
+		/*var previousElement = null;
 		var previousId = -1;
 		var nextElement = null;
 		var nextId = -1;
@@ -166,7 +166,7 @@ removeItem = function()
 			/*console.log('Previous XPath: '+previousXPath);
 			console.log('Next XPath: '+nextXPath);*/
 
-			previousElement = $(getElementsByXPath($(document).get(0), previousXPath));
+			/*previousElement = $(getElementsByXPath($(document).get(0), previousXPath));
 			nextElement = $(getElementsByXPath($(document).get(0), nextXPath));
 
 			allElement = $(getElementsByXPath($(document).get(0), elementXPath.slice(0, index0)));
@@ -184,7 +184,7 @@ removeItem = function()
 		/*console.log(previousElement);
 		console.log(nextElement);*/
 
-		var siblingElementNumber = allElement.find('.'+elementId).length;
+		/*var siblingElementNumber = allElement.find('.'+elementId).length;
 
 		//console.log(siblingElementNumber+' brother(s) before deleting');
 
@@ -216,7 +216,7 @@ removeItem = function()
 
 						removeButtons.push(removeButton.clone(true));
 						removeButton.remove();*/
-					});
+					/*});
 				}
 
 				htmlToRemove.remove();
