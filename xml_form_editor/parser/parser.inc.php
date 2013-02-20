@@ -195,7 +195,7 @@ function displayXmlTree()
 		$display = unserialize($_SESSION['xsd_parser']['display']);
 		$display -> update();
 		
-		echo $display -> displayXMLTree();
+		return $display -> displayXMLTree();
 	}	
 	
 	$logger->log_info('XmlTree displayed', 'displayXmlTree');

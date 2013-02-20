@@ -9,8 +9,20 @@
 </div></div>
 
 <div id="main">
+	<div>
+		<div class="right-side">
+			<span class="ctx_menu">
+				<span class="icon legend long download xml">Download file</span>
+			</span>
+		</div>
+	</div>
+	
 	<div id="XMLHolder"></div>
+	
+	<script src="resources/js.new/view_xml.js"></script>
 	<script>
-		LoadXMLString('XMLHolder', <?php displayXmlTree(); ?>);
+		LoadXMLString('XMLHolder', <?php echo "'".str_replace('"', '\\"', displayXmlTree())."'"; ?>);
+		
+		loadViewXmlController();
 	</script>
 </div>

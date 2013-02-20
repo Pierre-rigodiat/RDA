@@ -5,9 +5,8 @@ $(document).ready(function(){
 	$('#tostep3').on('click', {page: 3}, moveTo);
 });
 
-download = function()
+/*download = function()
 {	
-	// todo implement the name parameter
 	/*dhtmlx.modalbox({ 
 		type:"confirm",
 		title:"Download XML", 
@@ -22,5 +21,5 @@ download = function()
 		}
 	});*/
 	
-	window.location = 'inc/ajax/download.php';
-};
+	/*window.location = 'inc/ajax/download.php';
+};*/

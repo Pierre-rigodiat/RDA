@@ -276,7 +276,7 @@ class Display
 	public function displayXMLTree()
 	{
 		//$result = $this -> displayElement(0, self::$STEPS['xml_tree']);
-		$result = '"'.$this -> displayElement(0, self::$STEPS['xml_tree']).'"';
+		$result = $this -> displayElement(0, self::$STEPS['xml_tree']);
 		
 		return $result;
 	}
@@ -679,7 +679,7 @@ class Display
 					{
 						$this -> LOGGER -> log_debug($nsValue['name'].' will be included', 'Display::displayXMLElement');
 						
-						$xmlElement .= ' xmlns:'.strtolower($nsValue['name']).'=\\"'.$nsValue['url'].'\\"';
+						$xmlElement .= ' xmlns:'.strtolower($nsValue['name']).'="'.$nsValue['url'].'"';
 					}
 				}
 

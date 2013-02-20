@@ -11,12 +11,12 @@ if len(sys.argv)!=2:
     raise Exception('Invalid number of arguments: 1 expected, '+str(len(sys.argv)-1)+' given '+str(sys.argv))
 
 excelFile = str(sys.argv[1])
-#print \\">Opening \\"+excelFile
+#print ">Opening "+excelFile
 
 book = open_workbook(excelFile)
 sheetCount = book.nsheets
 
-#print \\">The book contains \\"+str(sheetCount)+\\" sheet(s)\\"
+#print ">The book contains "+str(sheetCount)+" sheet(s)"
 
 dataFromFile = ""
 columnName = []
@@ -36,9 +36,9 @@ for s in book.sheets():
             if isinstance(cellValue, unicode):
                 cellValue = str(cellValue)
             
-            # If the variable is a string and not a header name (row 0), we need to surround the element with \\"
+            # If the variable is a string and not a header name (row 0), we need to surround the element with "
             if isinstance(cellValue, str) and row != 0:
-                cellValue = '\\"' + cellValue + '\\"'
+                cellValue = '"' + cellValue + '"'
                 
             if row <= 1:
                 cellValueType = type(cellValue)
@@ -61,12 +61,12 @@ for s in book.sheets():
             # dataFromFile = dataFromFile + '\n'
 
 
-hdf5XmlCode = '<hDF5-File><hdf5:RootGroup OBJ-XID=\\"xid_96\\" H5Path=\\"/\\">'
-hdf5XmlCode += '<hdf5:Group Name=\\"Data\\" OBJ-XID=\\"xid_800\\" H5Path=\\"/Data\\" Parents=\\"xid_96\\" H5ParentPaths=\\"/\\" >'
-hdf5XmlCode += '<hdf5:Dataset Name=\\"'+ 'excelFile' +'\\" OBJ-XID=\\"xid_1832\\" H5Path= \\"/Data/table\\" Parents=\\"xid_800\\" H5ParentPaths=\\"/Data\\">'
-hdf5XmlCode += '<hdf5:StorageLayout><hdf5:ChunkedLayout Ndims=\\"1\\"><hdf5:ChunkDimension DimSize=\\"2\\" /><hdf5:RequiredFilter></hdf5:RequiredFilter></hdf5:ChunkedLayout></hdf5:StorageLayout>'
-hdf5XmlCode += '<hdf5:FillValueInfo FillTime=\\"FillIfSet\\" AllocationTime=\\"Incremental\\"><hdf5:FillValue><hdf5:NoFill/></hdf5:FillValue></hdf5:FillValueInfo>'
-hdf5XmlCode += '<hdf5:Dataspace><hdf5:SimpleDataspace Ndims=\\"1\\"><hdf5:Dimension  DimSize=\\"2\\" MaxDimSize=\\"UNLIMITED\\"/></hdf5:SimpleDataspace></hdf5:Dataspace>'
+hdf5XmlCode = '<hDF5-File><hdf5:RootGroup OBJ-XID="xid_96" H5Path="/">'
+hdf5XmlCode += '<hdf5:Group Name="Data" OBJ-XID="xid_800" H5Path="/Data" Parents="xid_96" H5ParentPaths="/" >'
+hdf5XmlCode += '<hdf5:Dataset Name="'+ 'excelFile' +'" OBJ-XID="xid_1832" H5Path= "/Data/table" Parents="xid_800" H5ParentPaths="/Data">'
+hdf5XmlCode += '<hdf5:StorageLayout><hdf5:ChunkedLayout Ndims="1"><hdf5:ChunkDimension DimSize="2" /><hdf5:RequiredFilter></hdf5:RequiredFilter></hdf5:ChunkedLayout></hdf5:StorageLayout>'
+hdf5XmlCode += '<hdf5:FillValueInfo FillTime="FillIfSet" AllocationTime="Incremental"><hdf5:FillValue><hdf5:NoFill/></hdf5:FillValue></hdf5:FillValueInfo>'
+hdf5XmlCode += '<hdf5:Dataspace><hdf5:SimpleDataspace Ndims="1"><hdf5:Dimension  DimSize="2" MaxDimSize="UNLIMITED"/></hdf5:SimpleDataspace></hdf5:Dataspace>'
 hdf5XmlCode += '<hdf5:DataType><hdf5:CompoundType>'
 
 hdf5UnitCode = ''
@@ -82,11 +82,11 @@ for i in range(len(columnName)):
     
     # Setting the type of data in the columns
     if columnType[i] == 'str':
-        fieldCode = '<hdf5:Field FieldName=\\"'+columnName[i]+'\\"><hdf5:DataType><hdf5:AtomicType><hdf5:StringType Cset=\\"H5T_CSET_ASCII\\" StrSize=\\"64\\" StrPad=\\"H5T_STR_NULLTERM\\"/>'
+        fieldCode = '<hdf5:Field FieldName="'+columnName[i]+'"><hdf5:DataType><hdf5:AtomicType><hdf5:StringType Cset="H5T_CSET_ASCII" StrSize="64" StrPad="H5T_STR_NULLTERM"/>'
         fieldCode += '</hdf5:AtomicType></hdf5:DataType></hdf5:Field>'
     elif columnType[i] == 'float':
-        fieldCode = '<hdf5:Field FieldName=\\"'+columnName[i]+'\\"><hdf5:DataType><hdf5:AtomicType>'
-        fieldCode += '<hdf5:FloatType ByteOrder=\\"LE\\" Size=\\"4\\" SignBitLocation=\\"31\\" ExponentBits=\\"8\\" ExponentLocation=\\"23\\" MantissaBits=\\"23\\" MantissaLocation=\\"0\\" />'
+        fieldCode = '<hdf5:Field FieldName="'+columnName[i]+'"><hdf5:DataType><hdf5:AtomicType>'
+        fieldCode += '<hdf5:FloatType ByteOrder="LE" Size="4" SignBitLocation="31" ExponentBits="8" ExponentLocation="23" MantissaBits="23" MantissaLocation="0" />'
         fieldCode += '</hdf5:AtomicType></hdf5:DataType></hdf5:Field>'
     else:
         ##Unknown data type##
