@@ -193,81 +193,78 @@ private $databaseObject;
 	function insertXml($doc, $collectionName) {
 		if (!preg_match('/.+\.xml/', $doc))
 		{
-			echo 'Please select an XML file for the insertion\n';
+			echo 'Please select an XML file for the insertion<br/>';
 			return;
 		}
 		else
 			{
-			// Get the XML file content
-			//$xmlContents = file_get_contents($doc);
-			/*$patterns = array();
-			$patterns[0] = '/xsd:/';
-			$patterns[1] = '/hdf5:/';
-			$replacements = array();
-			$replacements[0] = 'xsd_';
-			$replacements[1] = 'hdf5_';
-			$insertedXml = preg_replace($patterns, $replacements, $xmlContents);
-			if (!$xmlContents || !$insertedXml) {
-				echo "Cannot load {$doc} file\n";
-				return;
-			}*/
-			$dom=DOMDocument::load($doc);
-			// Translate the XML content into JSON content
-			//$jsonContents = xml2jsonIBM::transformXmlStringToJson($xmlContents);
-			$jsonContents = BadgerFish::encode($dom);
-			
-			//file_put_contents("test_dump.txt", $dom->saveXML());
-			
-			if (!$jsonContents) {
-				echo "Could not transform xml to json\n";
-				return;
-			}
-			$jsonArray = array();
-			$jsonArray = str_split($jsonContents, strlen($jsonContents));
-
-			// Insert it into the collection
-			var_dump($jsonContents);
-			echo $jsonContents."\n";
-			/*try
-			{ 
-				if (isset($this->databaseObject)) {
-				$collectionObject = new MongoCollection($this->databaseObject, $collectionName);
-				//Check if the element already exists
-				$cursor = $collectionObject->find(array("0" => $jsonContents));
-				if (!$cursor->hasNext()){
-					$collectionObject->insert($jsonArray, array("safe" => 1));
-					echo "Insert successful\n";
+				// Get the XML file content
+				//$xmlContents = file_get_contents($doc);
+				/*$patterns = array();
+				$patterns[0] = '/xsd:/';
+				$patterns[1] = '/hdf5:/';
+				$replacements = array();
+				$replacements[0] = 'xsd_';
+				$replacements[1] = 'hdf5_';
+				$insertedXml = preg_replace($patterns, $replacements, $xmlContents);
+				if (!$xmlContents || !$insertedXml) {
+					echo "Cannot load {$doc} file\n";
+					return;
+				}*/
+				$dom=DOMDocument::load($doc);
+				// Translate the XML content into JSON content
+				$jsonContents = encodeBadgerFish($dom);
+				
+				if (!$jsonContents) {
+					echo "Could not transform xml to json\n";
+					return;
+				}
+				$jsonArray = array();
+				$jsonArray = str_split($jsonContents, strlen($jsonContents));
+	
+				// Insert it into the collection
+				var_dump($jsonContents);
+				echo $jsonContents."\n";
+				/**try
+				{ 
+					if (isset($this->databaseObject)) {
+						$collectionObject = new MongoCollection($this->databaseObject, $collectionName);
+						//Check if the element already exists
+						$cursor = $collectionObject->find(array("0" => $jsonContents));
+						if (!$cursor->hasNext()){
+							$collectionObject->insert($jsonArray, array("safe" => 1));
+							echo "Insert successful\n";
+							}
+						else
+						{
+							echo "Cannot insert an already stored document\n";
+							return;
+						}
 					}
-				else
+					else
+					{
+						echo "Database Object not set\n";
+						return;
+					}
+				}
+				catch(MongoCursorException $e)
 				{
 					echo "Cannot insert an already stored document\n";
-					return;
-				}
-				}
-				else
-				{
-					echo "Database Object not set\n";
-					return;
-				}
-			}
-			catch(MongoCursorException $e)
-			{
-				echo "Cannot insert an already stored document\n";
-			}*/
+				}*/
 			}
 	}
 	
 	function retrieveXml($doc, $collectionName) {
 		$json_data = file_get_contents($doc);
 		
-		$xmlContents = BadgerFish::decode($json_data);
+		$xmlContents = decodeGData($json_data);
 		if (!$xmlContents) {
 			echo "Could not transform json to xml";
 			return;
 		}
 		
-		var_dump($xmlContents);
 		var_dump($xmlContents->saveXML());
+		file_put_contents("xmlBadger.xml", $xmlContents->saveXML());
 		return;
 	}
 	
