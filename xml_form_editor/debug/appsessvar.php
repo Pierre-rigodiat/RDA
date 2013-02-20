@@ -49,6 +49,10 @@
 	<hr/>
 	<h3>Parser: $_SESSION['xsd_parser']['parser']</h3>
 	<a href="back/clrsessvar.php?v=null">Clear variable</a><br/>
+	<?php
+		if(isset($_SESSION['xsd_parser']['parser'])) var_dump(unserialize($_SESSION['xsd_parser']['parser']));
+		else echo 'Parser variables not set';
+	?>
 	<hr/>
 	<h3>XSD Tree</h3>
 	<a href="back/clrsessvar.php?v=null">Clear variable</a><br/>

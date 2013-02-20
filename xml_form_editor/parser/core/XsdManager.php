@@ -25,12 +25,14 @@ class XsdManager
 {
 	private $xsdFile;
 
-	private $xsdOriginalTree;
 	// The tree as it is in the xsd file
-	private $xsdOrganizedTree;
+	private $xsdOriginalTree; 
 	// The tree reorganized as it should be shown in the configuration view
-	private $xsdCompleteTree;
+	private $xsdOrganizedTree;
 	// The tree as it should be in the form (with proper occurence)
+	private $xsdCompleteTree;
+	
+	// The array containing the values entered by the user
 	private $dataArray;
 
 	// Handlers
@@ -40,8 +42,13 @@ class XsdManager
 	private $rootElements;
 	private $namespaces;
 
+	private static $XSD_NS = 'http://www.w3.org/2001/XMLSchema';
+	private static $NS_DEFINE_PREFIX = 'XMLNS';
+	
+	/**
+	 * Logging information
+	 */
 	private $LOGGER;
-
 	private static $LEVELS = array(
 		'DBG' => 'notice',
 		'NO_DBG' => 'info'
@@ -49,11 +56,12 @@ class XsdManager
 	private static $LOG_FILE;
 	private static $FILE_NAME = 'XsdManager.php';
 
-	private static $XSD_NS = 'http://www.w3.org/2001/XMLSchema';
-	private static $NS_DEFINE_PREFIX = 'XMLNS';
-
 	/**
 	 * Parser constructor...
+	 * @param {string} Schema file name
+	 * @param {PageHandler} An initialized PageHandler object
+	 * @param {ModuleHandler} An initialized ModuleHandler object
+	 * @param {boolean} Debug (optional)
 	 *
 	 */
 	public function __construct()
@@ -247,12 +255,19 @@ class XsdManager
 
 				if ($schemaAttributes[$key] == self::$XSD_NS)
 				{
-					$this -> namespaces['default'] = $key_part[1];
+					$this -> namespaces['default']['name'] = $key_part[1];
+					$this -> namespaces['default']['url'] = $schemaAttributes[$key];
+					
 					$this -> LOGGER -> log_debug('Namespace ' . $key_part[1] . ' registered as the default namespace', 'XsdManager::__construct');
 				}
 				else
 				{
-					array_push($this -> namespaces, $key_part[1]);
+					$nsEntry = array(
+						'name' => $key_part[1],
+						'url' => $schemaAttributes[$key]
+					);
+					
+					array_push($this -> namespaces, $nsEntry);
 					$this -> LOGGER -> log_debug('Namespace ' . $key_part[1] . ' registered', 'XsdManager::__construct');
 				}
 			}
@@ -263,7 +278,7 @@ class XsdManager
 		foreach ($this->xsdOriginalTree->getChildren(0) as $child)
 		{
 			$childObject = $this -> xsdOriginalTree -> getObject($child);
-			if ($childObject -> getType() == $this -> namespaces['default'] . ':ELEMENT')
+			if ($childObject -> getType() == $this -> namespaces['default']['name'] . ':ELEMENT')
 			{
 				array_push($this -> rootElements, $child);
 			}
@@ -366,10 +381,20 @@ class XsdManager
 				if (in_array("TYPE", $attributesNames))
 				{
 					$key_part = explode(':', $elementAttributes['TYPE']);
-
-					if (!in_array(strtoupper($key_part[0]), $this -> namespaces))
+					
+					$isNamespaceDeclared = false;
+					foreach($this -> namespaces as $nsDefinition)
 					{
-						$comparisonElement = new XsdElement($this -> namespaces['default'] . ':COMPLEXTYPE', array("NAME" => $elementAttributes["TYPE"]));
+						if($nsDefinition['name'] == strtoupper($key_part[0]))
+						{
+							$isNamespaceDeclared = true;
+							break;
+						}
+					}
+
+					if (!$isNamespaceDeclared) // FIXME Document this part
+					{
+						$comparisonElement = new XsdElement($this -> namespaces['default']['name'] . ':COMPLEXTYPE', array("NAME" => $elementAttributes["TYPE"]));
 						$arrayID = $this -> xsdOriginalTree -> getId($comparisonElement);
 
 						if (count($arrayID) == 1)
@@ -409,7 +434,7 @@ class XsdManager
 				$object = $this -> xsdOriginalTree -> getObject($originalTreeId);
 				$this -> LOGGER -> log_debug('OriginalID ' . $originalTreeId . ' has object ' . $object, 'XsdManager::optimizeTree');
 
-				if ($object -> getType() == $this -> namespaces['default'] . ':COMPLEXTYPE' || $object -> getType() == $this -> namespaces['default'] . ':SEQUENCE' || $object -> getType() == $this -> namespaces['default'] . ':SIMPLETYPE')
+				if ($object -> getType() == $this -> namespaces['default']['name'] . ':COMPLEXTYPE' || $object -> getType() == $this -> namespaces['default']['name'] . ':SEQUENCE' || $object -> getType() == $this -> namespaces['default']['name'] . ':SIMPLETYPE')
 				{
 					$this -> xsdOrganizedTree -> removeElement($id);
 					//$this->xsdOriginalTree->removeElement($originalTreeId);
@@ -418,7 +443,7 @@ class XsdManager
 				}
 
 				//XXX Does not work for all the restriction
-				if ($object -> getType() == $this -> namespaces['default'] . ':RESTRICTION')
+				if ($object -> getType() == $this -> namespaces['default']['name'] . ':RESTRICTION')
 				{
 					/*$parentId = $this->xsdOrganizedTree->getParent($id);
 					 $children = $this->xsdOrganizedTree->getChildren($id);*/
@@ -498,8 +523,34 @@ class XsdManager
 		}
 		else 
 		{
-			$this -> LOGGER -> log_debug('No data for id '.$elementId, 'XsdManager::getDataForId');
-			return null;
+			// We check if there is a module attached to this id
+			if(($moduleName = $this -> moduleHandler -> getModuleForId($elementId))!='')
+			{
+				$dataArray = retrieveModuleDataForId($moduleName, $elementId);
+				
+				if($dataArray == null)
+				{
+					$this -> LOGGER -> log_error('Function returned NULL data array ', 'TableModule::getDataForId');
+					return null;
+				}
+				
+				$elementId = 0; // FIXME Condition not good
+				if(isset($dataArray[$elementId])) 
+				{
+					$this -> LOGGER -> log_debug('Data found for ID '.$elementId, 'TableModule::getDataForId');
+					return $dataArray[$elementId];
+				}
+				else {
+					$this -> LOGGER -> log_error('Data not inserted for ID '.$elementId, 'TableModule::getDataForId');
+					return null;
+				}
+			}
+			else 
+			{
+				$this -> LOGGER -> log_debug('No data for id '.$elementId, 'XsdManager::getDataForId');
+				return null;
+			}
+			
 		}
 	}
 
@@ -510,6 +561,11 @@ class XsdManager
 	{
 		$this -> LOGGER -> log_notice('Function called', 'XsdManager::getSchemaFileName');
 		return $this -> getSchemaFileName();
+	}
+	
+	public function getNamespaces()
+	{
+		return $this -> namespaces;
 	}
 
 	/**

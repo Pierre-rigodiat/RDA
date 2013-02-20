@@ -14,20 +14,25 @@ class Table implements __ModuleInterface {
 	
 	public static function initModule($tree)
 	{
-		// TODO Check the return codes
-		$tableModule = new TableModule($tree);
-		$tableDisplay = new TableDisplay($tableModule);
-		
-		$_SESSION['xsd_parser']['modules']['table'] = serialize($tableDisplay);
-		
-		return 0;
+		if(!isset($_SESSION['xsd_parser']['modules']['table']['model']) || !isset($_SESSION['xsd_parser']['modules']['table']['view']))
+		{
+			// TODO Check the return codes
+			$tableModule = new TableModule($tree, true);
+			$tableDisplay = new TableDisplay($tableModule, true);
+			
+			$_SESSION['xsd_parser']['modules']['table']['model'] = serialize($tableModule);
+			$_SESSION['xsd_parser']['modules']['table']['view'] = serialize($tableDisplay);
+			
+			return 0;
+		}
+		else return 1; // Module already loaded
 	}
 	
 	public static function displayModule()
 	{
-		if(isset($_SESSION['xsd_parser']['modules']['table']))
+		if(isset($_SESSION['xsd_parser']['modules']['table']['view']))
 		{
-			$moduleDisplay = unserialize($_SESSION['xsd_parser']['modules']['table']);
+			$moduleDisplay = unserialize($_SESSION['xsd_parser']['modules']['table']['view']);
 			
 			$module = '<div class="table_module">';
 			$module .= $moduleDisplay->display();
@@ -38,6 +43,19 @@ class Table implements __ModuleInterface {
 		else
 		{
 			return 'Module not initialized';
+		}
+	}
+	
+	public static function getModuleData()
+	{
+		if(isset($_SESSION['xsd_parser']['modules']['table']['model']))
+		{
+			$tableModule = unserialize($_SESSION['xsd_parser']['modules']['table']['model']);
+			return $tableModule -> getXmlData();
+		}
+		else
+		{
+			return null;
 		}
 	}
 }

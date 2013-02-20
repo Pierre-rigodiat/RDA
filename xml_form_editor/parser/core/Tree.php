@@ -245,7 +245,7 @@ class Tree {
 	{
 		$this->LOGGER->log_debug('insertElement('.$elementObject.', '.$parentElementId.')', 'Tree::insertElement');
 		
-		if(is_integer($parentElementId) && $elementObject!=null)
+		if(is_integer($parentElementId) && $elementObject!==null)
 		{
 			$elementString="";
 			$elementType = gettype($elementObject);

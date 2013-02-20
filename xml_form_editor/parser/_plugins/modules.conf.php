@@ -2,6 +2,7 @@
 /**
  * Configuration file of modules
  */
+// TODO Use the session storage
 $modules = array(
 	/* --- HOW TO REGISTER YOUR MODULE ---
 	 * 
@@ -28,5 +29,4 @@ $modules = array(
 		'published' => false
 	)
 );
-
 ?>

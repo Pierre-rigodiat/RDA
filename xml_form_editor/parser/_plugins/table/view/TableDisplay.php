@@ -96,7 +96,7 @@ class TableDisplay
 		}
 		else
 		{
-			$this -> LOGGER -> log_debug('Table module successfully built', 'TableDisplay::__construct');
+			$this -> LOGGER -> log_debug('Table display successfully built', 'TableDisplay::__construct');
 		}
 	}
 	
@@ -106,20 +106,40 @@ class TableDisplay
 	 */
 	public function display()
 	{
-		$moduleCode = '<div class="module_title">Table module</div>';
+		$fileInputIndex = 0;
 		
+		$moduleCode = '<div class="module_title">Table module</div>';
 		$moduleCode .= '<form id="file_upload" enctype="multipart/form-data">';
 		
+		$uploadedFiles = $this -> tableModule -> getFiles();
+		if(!empty($uploadedFiles))
+		{
+			foreach($uploadedFiles as $fileName)
+			{
+				$moduleCode .= '<div class="import"><input type="text" value="'.$fileName.'" id="table_name['.$fileInputIndex.']" disabled="disabled" class="text"/><span class="table_import_status"><span class="icon remove input"></span></div>';
+				$fileInputIndex += 1;
+			}
+		}
+		else { /*$moduleCode .= 'empty';*/ }
+		
 		/*' accept=".xlsx,.xls"'+*/
-		$moduleCode .= '<div class="import"><input type="file" name="table_input[0]" class="text"/><span class="table_import_status"></span></div>';
+		$moduleCode .= '<div class="import"><input type="file" name="table_input['.$fileInputIndex.']" class="text"/><span class="table_import_status"></span></div>';
+		$fileInputIndex += 1;
 		
 		$moduleCode .= '</form>';
-		
-		// $moduleCode .= <span class="icon delete"></span>
+
 		$moduleCode .= '<script src="parser/_plugins/table/controllers/js/addRemoveFile.js"></script>';
 		$moduleCode .= '<script>loadAddRemoveFileController();</script>';
 		
 		return $moduleCode;
+	}
+	
+	public function update()
+	{
+		$tableModule = unserialize($_SESSION['xsd_parser']['modules']['table']['model']);
+		$this -> tableModule = $tableModule;
+		
+		return $this -> display();
 	}
 	
 	/**

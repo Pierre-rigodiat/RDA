@@ -3,7 +3,12 @@
  * Configuration of the Table module
  * 
  */
- 
-// TODO Repository to store uploaded files
+
+// TODO Configure it
+$tableConfiguration = array(
+	// 'session_variable_name' => $variable
+	'repository' => 'path/to/repo'
+
+);
 
 ?>

@@ -3,8 +3,8 @@
  */
 loadAddRemoveFileController = function()
 {
-	$(':file').live('change', importFile);
-	$('.remove.input').live('click', removeFile);
+	$(':file').on('change', importFile);
+	$('.remove.input').on('click', removeFile);
 }
 
 /**
@@ -45,10 +45,8 @@ importFile = function()
 	console.log($("#file_upload")[0].files);
 	
 	var formData = new FormData($("#file_upload")[0]),
-		newFileInput = $(this).parent().clone(true),
+		/*newFileInput = $(this).parent().clone(true),*/
 		parent = $(this).parent();
-	
-	//formData.append('file', $('#file_upload')[0]);
 	
 	$.ajax({
         url: 'parser/_plugins/table/controllers/php/addRemoveFile.php',  //server script to process data
@@ -66,14 +64,8 @@ importFile = function()
         	
         	if(data.code == 0)
         	{
-        		// Display the new file input
-	        	newFileInput.find('.table_import_status').text('');
-	        	parent.after(newFileInput);
-	        	
-	        	
-	        	// Starting the conversion           	
-	           	statusField.text('Converting file...');
-	           	convertFile(fileName, statusField);
+        		$(".table_module").replaceWith('<div class="table_module">'+htmlspecialchars_decode(data.result)+'</div>');
+        		convertFile(fileName);
         	}
         	else
         	{
@@ -96,7 +88,7 @@ importFile = function()
 /**
  * 
  */
-convertFile = function(file, statusField)
+convertFile = function(file)
 {	
 	// Converting the file in xml
     $.ajax({
@@ -113,7 +105,13 @@ convertFile = function(file, statusField)
             success: function(data) {
             	var jsonData = $.parseJSON(data);
             	
-            	statusField.html(htmlspecialchars_decode(jsonData.result));
+            	if(jsonData.code!=0)
+            	{
+            		console.error('Conversion error '+jsonData.code+' ('+jsonData.result+')');
+            	}
+            	
+            	//statusField.html(htmlspecialchars_decode(jsonData.result));
+            	// TODO Do something to inform the user of a problem or the success of the action
             },
             error: function() {
                 console.error("Problem converting the file");
@@ -132,24 +130,40 @@ convertFile = function(file, statusField)
  */
 removeFile = function()
 {
-	var htmlToRemove = $(this).parent().parent(),
-		inputFileName = htmlToRemove.children('input').val(),
-		fileName;
+	var inputId = $(this).parent().parent().children(':text:first').attr('id');
 	
-	if(inputFileName.indexOf('/')!=-1) // UNIX file system
-	{
-		var splitFileName = inputFileName.split('/');
-		fileName = splitFileName.pop();
-	}
-	else if(inputFileName.indexOf('\\')!=-1) // Windows file system
-	{
-		var splitFileName = inputFileName.split('\\');
-		fileName = splitFileName.pop();
-	}
-	else // No path separator
-	{
-		fileName = inputFileName;
-	}
-	
-	htmlToRemove.remove();
+	$.ajax({
+        url: 'parser/_plugins/table/controllers/php/addRemoveFile.php',  //server script to process data
+        type: 'GET',
+        //xhr: function() {  // custom xhr
+            /*myXhr = $.ajaxSettings.xhr();
+	       	if(myXhr.upload){ // check if upload property exists
+	                myXhr.upload.addEventListener('progress',progressHandlingFunction, false); // for handling the progress of the upload
+            }
+            return myXhr;*/
+        //},
+        //Ajax events
+        success: function(data) {
+        	data = $.parseJSON(data);
+        	
+        	if(data.code == 0)
+        	{
+        		$(".table_module").replaceWith('<div class="table_module">'+htmlspecialchars_decode(data.result)+'</div>');
+        	}
+        	else
+        	{
+        		statusField.text('Impossible to remove file from the server. Try later or contact a system administrator');
+        		console.error("[removeFile] Error "+data.code+" :"+data.result);
+        	}
+        },
+        error: function() {
+            console.error("[removeFile] Problem when removing the file");
+        },
+        // Form data
+        data: 'name='+inputId,
+        //Options to tell JQuery not to process data or worry about content-type
+        cache: false,
+        contentType: false,
+        processData: false
+    });
 }

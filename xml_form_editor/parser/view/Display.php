@@ -275,7 +275,9 @@ class Display
 	 */
 	public function displayXMLTree()
 	{
+		//$result = $this -> displayElement(0, self::$STEPS['xml_tree']);
 		$result = '"'.$this -> displayElement(0, self::$STEPS['xml_tree']).'"';
+		
 		return $result;
 	}
 	 
@@ -393,7 +395,11 @@ class Display
 				break;
 			case self::$STEPS['xml_tree'] :
 				$result .= $this -> displayXMLElement($elementId, self::$XML_START);
-				$children = $this -> xsdManager -> getXsdCompleteTree() -> getChildren($elementId);
+				
+				// TODO Find a better way to store module data
+				if($this -> xsdManager -> getModuleHandler() -> getModuleForId($elementId) == '')
+					$children = $this -> xsdManager -> getXsdCompleteTree() -> getChildren($elementId);
+				
 				break;
 			default : // Unknown step ID
 				$this -> LOGGER -> log_error('Step ID '.$stepId.' is unknown', 'Display::displayElement');
@@ -661,7 +667,27 @@ class Display
 		
 		if($tagType == self::$XML_START)
 		{
-			$xmlElement .= '<'.$elementAttr['NAME'].'>';
+			$xmlElement .= '<'.$elementAttr['NAME'];
+			
+			if($elementId == 0) // If it is the root element
+			{
+				$nsArray = $this -> xsdManager -> getNamespaces();
+				$this -> LOGGER -> log_notice('Including namespaces to element '.$elementAttr['NAME'].'...', 'Display::displayXMLElement');
+				
+				foreach ($nsArray as $nsName => $nsValue) {					
+					if(!is_string($nsName) || $nsName!='default')
+					{
+						$this -> LOGGER -> log_debug($nsValue['name'].' will be included', 'Display::displayXMLElement');
+						
+						$xmlElement .= ' xmlns:'.strtolower($nsValue['name']).'=\\"'.$nsValue['url'].'\\"';
+					}
+				}
+
+				$this -> LOGGER -> log_notice('Namespaces included to element '.$elementAttr['NAME'], 'Display::displayXMLElement');
+			}
+			
+			$xmlElement .= '>';
+			
 			if(($data = $this -> xsdManager -> getDataForId($elementId))!=null)
 			{
 				$xmlElement .= $data;

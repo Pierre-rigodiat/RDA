@@ -3,7 +3,10 @@
  * Load every module in a variable session
  * 
  * 
- */
+ */ 
+ 
+// FIXME All these functions must be in the ModuleHandler class
+ 
 if(!isset($_SESSION['xsd_parser']['modules'])) $_SESSION['xsd_parser']['modules'] = array();
 
 // TODO Use the module configuration _plugins/modules.conf.php
@@ -24,14 +27,17 @@ foreach ($modules as $folderName => $moduleInitClass) {
  * Initialize a module
  * @param {string} $moduleName
  */
-function initModuleWithId($moduleName)
+function initModuleWithId($moduleName, $elementId=0)
 {
 	global $modules;
-	// TODO add a return value to know if the module has been properly initialize
 	
+	// TODO add a return value to know if the module has been properly initialized
 	$initModuleClass = $modules[$moduleName];
 	
-	$tree = 3;
+	// FIXME Send an actual tree
+	$tree = new Tree(true);
+	$tree -> insertElement($elementId);
+		
 	call_user_func($initModuleClass.'::initModule', $tree);
 }
 
@@ -44,11 +50,26 @@ function displayModule($moduleName)
 	global $modules;
 	
 	// TODO Check if the module has been initialze, otherwise do it
-	initModuleWithId($moduleName);
+	/*if(!isset($_SESSION[]))*/initModuleWithId($moduleName);
 	
 	$initModuleClass = $modules[$moduleName];
 	$moduleCode = call_user_func($initModuleClass.'::displayModule');
 	
 	return $moduleCode;
+}
+
+/**
+ * 
+ */
+function retrieveModuleDataForId($moduleName, $elementId)
+{
+	global $modules;
+	
+	// TODO Check if the module has been initialzed
+	$initModuleClass = $modules[$moduleName];
+	
+	$moduleDataArray = call_user_func($initModuleClass.'::getModuleData');
+	
+	return $moduleDataArray;
 }
 ?>

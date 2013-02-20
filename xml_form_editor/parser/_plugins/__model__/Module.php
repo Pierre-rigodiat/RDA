@@ -19,6 +19,11 @@ abstract class Module {
 		// TODO Implement it
 		return false;
 	}
+	
+	public function getXml()
+	{
+		
+	}
 }
 
 

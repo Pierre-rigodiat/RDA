@@ -20,5 +20,7 @@ interface ModuleInterface
 	 * @return {string} HTML code of the module
 	 */
 	public static function displayModule();
+	
+	public static function getModuleData();
 }
 ?>

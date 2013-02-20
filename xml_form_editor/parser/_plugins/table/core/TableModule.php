@@ -8,6 +8,7 @@ class TableModule {
 	 */
 	private $tree; // Elements used in the plugin
 	private static $referenceTree = null;
+	private $dataArray; 
 	
 	/**
 	 * Local variables
@@ -105,16 +106,14 @@ class TableModule {
 			if($this->isValid())
 			{
 				$this -> LOGGER -> log_debug('Table module successfully built', 'TableModule::__construct');
-				
 				$this -> files = array();
+				$this -> dataArray = array();
 			}
 			else 
 			{
 				$this -> tree = null;
 				$this -> LOGGER -> log_debug('Table module successfully built', 'TableModule::__construct');
 			}
-			
-			
 		}
 	}
 	
@@ -134,12 +133,60 @@ class TableModule {
 		array_push($this->files, $fileName);
 	}
 	
+	public function removeFile($fileId)
+	{
+		// TODO Check that the ID is in the array
+		unset($this -> files[$fileId]);
+		$this -> files = array_values($this -> files);
+	}
+	
+	public function parseFile($fileName)
+	{
+		// TODO Change to a configuration variable
+		$pythonExec = '"C:/Program Files (x86)/Python/273/python.exe"';
+		
+		// TODO Check if we cannot create a most practical session value
+		$pythonFile = $_SESSION['xsd_parser']['conf']['modules_dirname'].'/table/controllers/python/excelToHDF5.py';
+		
+		$excelFile = $_SESSION['xsd_parser']['conf']['dirname'].'/resources/files/tables/'.$fileName; // todo test if the file exists (if not it returns an error)
+		$output = array();
+		
+		exec($pythonExec.' '.$pythonFile.' "'.$excelFile.'"', $output, $ret_val);
+		
+		if($ret_val == 0) // No errors
+		{
+			$table = "";
+			foreach($output as $print_element)
+			{
+				$table.=/*htmlspecialchars(*/$print_element/*)*/;
+			}
+			
+			// FIXME Add data differently into the array
+			$elementId = $this -> tree -> getObject(0);
+			$currentData = '';
+			
+			if(isset($this -> dataArray[$elementId])) $currentData = $this -> dataArray[$elementId];
+			
+			$currentData .= $table;
+			//array_push($this -> dataArray[$elementId], $table);
+			
+			$this -> dataArray[$elementId] = $currentData;
+			
+			$this -> LOGGER -> log_debug('Data inserted for element '.$elementId, 'TableModule::parseFile');
+		}
+		
+		return $ret_val;
+	}
 	
 	public function getFiles()
 	{
 		return $this->files;
 	}
 	
+	public function getXmlData()
+	{
+		return $this->dataArray;
+	}
 	
 }
 
