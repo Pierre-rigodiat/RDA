@@ -377,9 +377,6 @@ class Display
 			case self::$STEPS['config'] :
 				$configElement = $this -> displayConfigurationElement($elementId);
 				
-				
-				
-				
 				if(strpos($configElement, 'MODULE: ')===FALSE) $children = $this -> xsdManager -> getXsdOrganizedTree() -> getChildren($elementId);
 				
 				$result .= $configElement;
@@ -389,7 +386,23 @@ class Display
 				
 				// TODO find a better discriminant
 				// FIXME will not work for other modules
-				if(!startsWith($formElement, '<div class="table_module">')) $children = $this -> xsdManager -> getXsdCompleteTree() -> getChildren($elementId);
+				if(!startsWith($formElement, '<div class="table_module">'))
+				{
+					$children = $this -> xsdManager -> getXsdCompleteTree() -> getChildren($elementId);
+					
+					// XXX See the two previous comments (it also applies here)
+					if(strpos($formElement, '<span class="elementName">Choice</span>')!==FALSE)
+					{
+						$childCount = count($children);
+						for ($index=1; $index<$childCount; $index++) 
+						{
+							unset($children[$index]);
+						}
+						
+						$children = array_values($children);
+					}
+					
+				}
 				
 				$result .= $formElement;
 				break;
@@ -460,10 +473,13 @@ class Display
 				// TYPE is first removed but if needed it will be pushed into the array
 				return !in_array($var, $attr_not_disp);
 			}
-
 		}
 
 		$elementAttrName = array_filter(array_keys($elementAttr), "filter_attribute");
+		
+		// Special display for choice element
+		$isChoiceElement = false;
+		if($elementAttr['NAME'] == 'choice') $isChoiceElement = true;
 
 		if (!$withoutList)
 			$result .= '<li id="' . $elementId . '">';
@@ -482,7 +498,15 @@ class Display
 			{
 				foreach ($elementAttr[$attrName] as $attrElement)
 				{
-					$attrString .= $attrElement;
+					if(!$isChoiceElement) $attrString .= $attrElement;
+					else
+					{
+						$childXsdElement = $this -> xsdManager -> getXsdOriginalTree() -> getObject($attrElement);
+						$childAttributes = $childXsdElement -> getAttributes();
+						
+						$attrString .= ucfirst($childAttributes['NAME']);
+					}
+						
 
 					if (end($elementAttr[$attrName]) != $attrElement)
 						$attrString .= ', ';
@@ -578,10 +602,11 @@ class Display
 		if (isset($elementAttr['AVAILABLE']) && !$elementAttr['AVAILABLE'])
 			$liClass = ' class="unavailable" ';
 
-		$result .= '<li id="' . $elementId . '"' . $liClass . '><span class="elementName">' . $elementAttr['NAME'] . '</span> ';
+		$result .= '<li id="' . $elementId . '"' . $liClass . '><span class="elementName">' . ucfirst($elementAttr['NAME']) . '</span> ';
 
 		// todo study attributes
 
+		
 		if (isset($elementAttr['TYPE']) && startsWith($elementAttr['TYPE'], 'xsd')) // todo put xsd into a variable (could use the manager)
 		{			
 			$result .= '<input type="text" class="text"';
@@ -594,6 +619,8 @@ class Display
 			$this->LOGGER->log_debug('ID '.$elementId.' can be edited', 'Display::displayHTMLFormElement');
 		}
 
+		// RESTRICTION are select
+		// TODO Implement other types of restriction
 		if (isset($elementAttr['RESTRICTION']))
 		{
 			$result .= '<select>';
@@ -602,6 +629,22 @@ class Display
 			$result .= '</select>';
 			$this->LOGGER->log_debug('ID '.$elementId.' is a restriction', 'Display::displayHTMLFormElement');
 		}
+
+		// CHOICE allow the user to choose which element they want to display using a <select>
+		if (isset($elementAttr['CHOICE']))
+		{
+			$result .= '<select class="xsdman choice">';
+			foreach ($elementAttr['CHOICE'] as $chooseElement)
+			{
+				$childXsdElement = $this -> xsdManager -> getXsdOriginalTree() -> getObject($chooseElement);
+				$childAttributes = $childXsdElement -> getAttributes();
+				
+				$result .= '<option value="' . $chooseElement . '">' . ucfirst($childAttributes['NAME']) . '</value>';
+			}
+			$result .= '</select>';
+			$this->LOGGER->log_debug('ID '.$elementId.' is a choice', 'Display::displayHTMLFormElement');
+		}
+
 
 		// Gather sibling information and create useful variable to count them
 		$parentId = $this -> xsdManager -> getXsdCompleteTree() -> getParent($elementId);

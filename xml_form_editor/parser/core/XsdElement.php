@@ -1,39 +1,96 @@
 <?php
-require_once $_SESSION['xsd_parser']['conf']['dirname'].'/inc/helpers/Logger.php';
-
 /**
- * The class managing the element data structure
+ * <XsdElement class>
  */
-/*
- * TODO define precisely an element
- * It has:
- * - A unique ID (automatically generated)
- * - A tagName
- * - Attributes
+/**
+ * <b>Class managing any schema tag parsed</b>
  * 
- * TODO define a function list
- * You can
- * - Get an Set the tagName
- * - 
+ * XsdElement object regroups tag name and attributes in the same structure. The code below explains how to use it
+ * <code>
+ * // Let's say we want to store the following schema element as an XsdElement
+ * // &lt;xs:element name="root" type="Root"/&gt;
+ * $xsdElement = new XsdElement(
+ * 		'xs:element', 
+ * 		array(
+ * 			'name'=>'root',
+ * 			'type'=>'Root'
+ * 		)
+ * );
+ * 
+ * // Then we want to add a new attribute
+ * 
+ * // Remove an attribute
+ * 
+ * // Compare to an attribute
+ * 
+ * // Display the
+ * echo $xsdElement; // Will return xs:element{ name = root | type = Root }
+ * 
+ * </code>
  *  
+ * @todo Change some function names (about attributes)
+ * @todo Improve the debugging
+ * 
+ * @author P. Dessauw <philippe.dessauw@nist.gov>
+ * @copyright NIST 2013
+ * @example debug/UnitTest/XsdElementUnitTest.php Unit tests for an XsdElement
+ * 
+ * @package XsdMan\Core
  */
-class XsdElement {
+class XsdElement {	
+	/** 
+	 * Name of the element tag 
+	 * @var string 
+	 */
 	private $elementType;
+	
+	/**
+	 * Every attributes of the tag stored as $attributeName => $attributeValue
+	 * @var array
+	 */
 	private $elementAttributes;
 	
+	/**
+	 * Logging information
+	 * TODO Improve it
+	 */
+	/** @ignore */
 	private $LOGGER;
-	
+	/** @ignore */
 	private static $LEVELS = array('DBG'=>'notice', 'NO_DBG'=>'info');
+	/** @ignore */
 	private static $LOG_FILE;
+	/** @ignore */
 	private static $FILE_NAME = 'XsdElement.php';
 	
+	/**
+	 * Build a new XsdElement
+	 * 
+	 * <u>Parameters:</u>
+	 * <ul>
+	 * 		<li><var>string</var> <b>tagName</b></li>
+	 * 		<li><var>array</var> <b>tagAttributes</b></li>
+	 * 		<li>[<var>boolean</var> <b>enableDebugging</b> = false]</li>
+	 * </ul>
+	 * 
+	 * <u>Sample code:</u>
+	 * <code>
+	 * $xsdElement= new XsdElement('XSD:ELEMENT', array('attrName_1' => 'attrValue_1', ..., 'attrName_n' => 'attrValue_n'));
+	 * </code>
+	 * 
+	 * @throws Exception Argument count not good or type of argument is not good
+	 */
 	public function __construct()
 	{
+		// Require the logger and configure the log file
+		require_once $_SESSION['xsd_parser']['conf']['dirname'].'/inc/helpers/Logger.php';
 		self::$LOG_FILE = $_SESSION['xsd_parser']['conf']['dirname'].'/logs/xsd_element.log';
 		
+		// Get args and the number of them
 		$argc = func_num_args();
 		$argv = func_get_args();
 		
+		// Initialize the object regarding the parameters given
 		switch($argc)
 		{
 			case 2: // new XsdElement(elementTypeString, attributesArray)
@@ -45,7 +102,6 @@ class XsdElement {
 				else
 				{
 					$this->elementType = null;
-					$this->elementAttributes = null;
 				}
 				
 				$level = self::$LEVELS['NO_DBG'];
@@ -62,31 +118,32 @@ class XsdElement {
 				else
 				{
 					$this->elementType = null;
-					$this->elementAttributes = null;
 					$level = self::$LEVELS['NO_DBG'];
 				}
 				break;
-			default:
+			default: // Number of args != 2 or 3
 				$this->elementType = null;
-				$this->elementAttributes = null;
 				$level = self::$LEVELS['NO_DBG'];
 				break;
 		}
 		
+		// Initialize the parser
 		try
 		{
-			$this->LOGGER = new Logger($level, self::$LOG_FILE, self::$FILE_NAME); // xxx what if the $_SESSION doesn't exist
+			$this->LOGGER = new Logger($level, self::$LOG_FILE, self::$FILE_NAME);
 		}
 		catch (Exception $ex)
 		{
+			// TODO return an exception an not a message
 			echo '<b>Impossible to build the Logger:</b><br/>'.$ex->getMessage();
 			return;
 		}
 		
-		if($this->elementType==null && $this->elementAttributes == null)
+		if($this->elementType==null) // If an error occured during the initalization of the object
 		{
 			$log_mess = '';
 			
+			// Build the log message according to the number of args
 			switch($argc)
 			{
 				case 2: 
@@ -96,30 +153,46 @@ class XsdElement {
 					$log_mess .= 'Supports {string, array, boolean} as parameters ({'.gettype($argv[0]).','.gettype($argv[1]).','.gettype($argv[2]).'} given)';
 					break;
 				default:
-					$log_mess .= '2 or 3 parameters must be entered ('.$argc.'given)';
+					$log_mess .= '2 or 3 parameters must be entered ('.$argc.' given)';
 					break;
 			}
 			
-			$this->LOGGER->log_error($log_mess, 'XsdElement::__construct');
+			$this->LOGGER->log_error($log_mess, 'XsdElement::__construct');			
+			throw new Exception('Invalid parameters given to XsdElement');
 		}
 		else
 		{
-			$this->LOGGER->log_debug('Element set with {type: '.$this->elementType.';attributes: '.serialize($this->elementAttributes).'} ', 'XsdElement::__construct');
+			$this->LOGGER->log_debug('Element set '.$this, 'XsdElement::__construct');
 		}
 	}
 	
+	/**
+	 * Return the name of an element
+	 * @return string Name of the tag
+	 */
 	public function getType()
 	{
 		$this->LOGGER->log_notice('Function called', 'XsdElement::getType');
 		return $this->elementType;
 	}
 	
+	/**
+	 * Return every attributes of an element 
+	 * @return array Associative array with couples attributeName => attributeValue
+	 */
 	public function getAttributes()
 	{
 		$this->LOGGER->log_notice('Function called', 'XsdElement::getAttributes');
 		return $this->elementAttributes;
 	}
 	
+	/**
+	 * Set the array of attributes
+	 * 
+	 * @todo Remove this function (redundant with addAttribute)
+	 * 
+	 * @param array $attrArray The array of attributes
+	 */
 	public function setAttributes($attrArray)
 	{
 		if(is_array($attrArray))
@@ -139,6 +212,14 @@ class XsdElement {
 		
 	}
 	
+	/**
+	 * Add new attributes to the current object
+	 * 
+	 * @todo Rename into addAtrribute and set param as $attrName, $attrValue
+	 * 
+	 * @param array $attrArray Array of attributes
+	 * @return int Error code (0=OK, -1=$attrArray is not an array)
+	 */
 	public function addAttributes($attrArray)
 	{
 		if(is_array($attrArray))
@@ -164,6 +245,12 @@ class XsdElement {
 		}
 	}
 	
+	/**
+	 * Remove an attribute from the attribute list
+	 * 
+	 * @param string $attrName Name of the attribute to remove
+	 * @return int 0 if everything is OK, -1 otherwise
+	 */
 	public function removeAttribute($attrName)
 	{
 		if(array_key_exists($attrName, $this->elementAttributes))
@@ -181,6 +268,13 @@ class XsdElement {
 		
 	}
 	
+	/**
+	 * Compare the current object with another XsdElement
+	 * 
+	 * @todo Rename to equalsTo(...)
+	 * 
+	 * @return boolean TRUE if the two objects are identical
+	 */
 	public function compare($otherXsdElement)
 	{
 		if(gettype($otherXsdElement)=='object' && get_class($otherXsdElement)=='XsdElement') // If we have two instance of the same class
@@ -246,6 +340,10 @@ class XsdElement {
 		}
 	}
 
+	/**
+	 * Return a string description of the object
+	 * @return string Description of the object
+	 */
 	public function __toString()
 	{
 		$resultString = $this->elementType.'{ ';

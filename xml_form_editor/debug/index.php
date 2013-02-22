@@ -14,7 +14,7 @@
 	<h1>Application</h1>
 	<ul>
 		<li><a href="ptester">Parser live tester</a></li>
-		<li><a href="http://www.simpletest.org/">Parser automatic tester [redirect]</a></li>
+		<li><a href="parserUnitTester.php">Parser automatic tester</a></li>
 		<li><a href="appsessvar.php">Session variables explorer</a></li>
 		<li><!--a href="ptester"-->Log analyzer<!--/a--></li>
 		<li><!--a href="ptester"-->Tree tester<!--/a--></li>

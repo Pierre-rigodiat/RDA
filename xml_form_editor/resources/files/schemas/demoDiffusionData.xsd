@@ -1,0 +1,810 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+
+<xsd:schema xmlns:hdf5="http://hdfgroup.org/HDF5/XML/schema/HDF5-File" xmlns:xsd="http://www.w3.org/2001/XMLSchema" attributeFormDefault="unqualified" elementFormDefault="qualified">
+  <xsd:include schemaLocation="HDF5-File.xsd"/>
+  <!-- ================================================== -->
+  <!-- =====  Element Declarations  -->
+  <!-- ================================================== -->
+  <xsd:element name="experiment" type="Experiment"/>
+  <!-- ================================================== -->
+  <!-- =====  Complex Type Definitions  -->
+  <!-- ================================================== -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!--  CatalogNumber  -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <xsd:complexType name="CatalogNumber">
+    <xsd:sequence>
+      <xsd:element name="id" type="xsd:string"/>
+      <xsd:element name="catalogTitle" type="CatalogTitle"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!--  CatalogTitle  -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <xsd:complexType name="CatalogTitle">
+    <xsd:sequence>
+      <xsd:element name="name" type="xsd:string"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!--  ChemicalElement  -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <xsd:complexType name="ChemicalElement">
+    <xsd:sequence>
+      <xsd:element name="chemicalSymbol" type="xsd:string"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!--  ChemicalSubstance  -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <xsd:complexType name="ChemicalSubstance">
+    <xsd:sequence>
+      <xsd:element name="chemicalFormula" type="xsd:string"/>
+      <xsd:element name="name" type="xsd:string"/>
+      <xsd:element maxOccurs="unbounded" minOccurs="0" name="catalogNumber" type="CatalogNumber"/>
+      <xsd:element maxOccurs="unbounded" name="elements" type="ChemicalElement"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!--  Citation TODO: Look for citation uml model to develop a schema -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <xsd:complexType name="CitationType">
+    <xsd:sequence>
+      <xsd:element name="citation" type="xsd:string"/>
+      <xsd:element name="doi" type="xsd:string"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!--  ColumnUnit  -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <xsd:complexType name="ColumnUnit">
+    <xsd:sequence>
+      <xsd:element name="unitOfMeasure" type="UnitOfMeasure"/>
+      <xsd:element name="field" type="hdf5:Field"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!--  Comments  -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <xsd:complexType name="Comments">
+    <xsd:sequence>
+      <xsd:element name="resultType" type="xsd:string"/>
+      <xsd:element maxOccurs="unbounded" name="comment" type="xsd:string"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!--  Composition  -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <xsd:complexType name="Composition">
+    <xsd:sequence>
+      <xsd:element maxOccurs="unbounded" name="constituents" type="ConstituentMaterial"/>
+      <xsd:element name="bulkFraction" type="Quantity"/>
+      <xsd:element name="materialForm" type="FormOfMatter"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!--  ConstituentMaterial  -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <xsd:complexType name="ConstituentMaterial">
+    <xsd:sequence>
+      <xsd:element minOccurs="0" name="materialPurity" type="xsd:double"/>
+      <xsd:element name="chemicalSubstance" type="ChemicalSubstance"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!--  CrystalStructure  -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <xsd:complexType name="CrystalStructure">
+    <xsd:sequence>
+      <xsd:element minOccurs="0" name="spaceGroup" type="SpaceGroup"/>
+      <xsd:element minOccurs="0" name="wyckoffSequence" type="WyckoffSequence"/>
+      <xsd:element name="name" type="xsd:string"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!--  Data Analysis  -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <xsd:complexType name="DataAnalysisType">
+    <xsd:sequence>
+      <xsd:element name="samplePreparation" type="xsd:string"/>
+      <xsd:element minOccurs="0" maxOccurs="unbounded" name="dataAnalysisMethod" type="DataAnalysisMethodType"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!--  Data Analysis Method -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <xsd:complexType name="DataAnalysisMethodType">
+    <xsd:sequence>
+      <xsd:element name="methodName" type="xsd:string"/>
+      <xsd:choice>
+        <xsd:element name="arrheniusFit" type="ArrheniusFitType"/>
+        <xsd:element name="otherEquation" type="xsd:string"/>
+      </xsd:choice>
+      <xsd:element minOccurs="0" maxOccurs="unbounded" name="results" type="ImageType"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!--  Data Analysis Method Type : Arrhenius Fit  -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <xsd:complexType name="ArrheniusFitType">
+    <xsd:annotation>
+      <xsd:documentation>
+        <div class="summary">Arrhenius Fit (D=D0*exp(-Q/RT)</div>
+        <div class="description">
+          <p>The dependence of the rate constant k of chemical reactions on the temperature T (in absolute temperature kelvin) and where 
+            -Q is the pre-exponential factor or simply the prefactor and R is the Universal gas constant.
+          </p> 
+        </div>
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="d0" type="xsd:double"/>
+      <xsd:element name="d0Unit" type="UnitOfMeasure"/>
+      <xsd:element name="q" type="xsd:double"/>
+      <xsd:element name="qUnit" type="UnitOfMeasure"/> 
+      <xsd:element minOccurs="1" maxOccurs="unbounded" name="temperature" type="TemperatureType"/> 
+    </xsd:sequence>
+  </xsd:complexType>
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!--  Datum  -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <xsd:complexType name="Datum">
+    <xsd:sequence>
+      <xsd:element name="id" type="xsd:integer"/>
+      <xsd:element name="type" type="xsd:string"/>
+      <xsd:element name="description" type="xsd:string"/>
+      <xsd:element name="properties" type="xsd:string"/>
+      <xsd:element maxOccurs="unbounded" minOccurs="0" name="comment" type="xsd:string"/>
+      <xsd:element name="measuredParameters" type="MaterialProperty"/>
+      <xsd:element maxOccurs="unbounded" name="value" type="Quantity"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!--  Derived Value  -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <xsd:complexType name="DerivedValueType">
+    <xsd:sequence>
+      <xsd:element name="equation" type="xsd:string"/>
+      <xsd:element name="value" type="Quantity"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!--  Diffusivity Experiment  -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <xsd:complexType name="DiffusivityExperiment">
+    <xsd:sequence>
+      <xsd:element maxOccurs="unbounded" name="experimentType" type="ExperimentType"/>
+      <xsd:element maxOccurs="unbounded" name="data" type="Datum"/>
+      <xsd:element minOccurs="2" maxOccurs="unbounded" name="materials" type="Materials"/>
+      <xsd:element name="id" type="xsd:integer"/>
+      <xsd:element maxOccurs="unbounded" minOccurs="0" name="table" type="Table"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!--  ElementType  -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <xsd:simpleType name="Element">   
+    <xsd:annotation>
+      <xsd:documentation>
+        <div class="summary">Allowed <tt>elementType</tt> values.</div>
+        <div class="description">
+          <p>Modified from Chemical Markup Language. The periodic table (up to
+            element number 118. In addition the following strings are allowed:
+          </p> 
+        </div>
+      </xsd:documentation>
+    </xsd:annotation>
+        <xsd:restriction base="xsd:string">
+          <xsd:enumeration value="Ac"/>
+          <xsd:enumeration value="Al"/>
+          <xsd:enumeration value="Ag"/>
+          <xsd:enumeration value="Am"/>
+          <xsd:enumeration value="Ar"/>
+          <xsd:enumeration value="As"/>
+          <xsd:enumeration value="At"/>
+          <xsd:enumeration value="Au"/>
+          <xsd:enumeration value="B"/>
+          <xsd:enumeration value="Ba"/>
+          <xsd:enumeration value="Bh"/>
+          <xsd:enumeration value="Bi"/>
+          <xsd:enumeration value="Be"/>
+          <xsd:enumeration value="Bk"/>
+          <xsd:enumeration value="Br"/>
+          <xsd:enumeration value="C"/>
+          <xsd:enumeration value="Ca"/>
+          <xsd:enumeration value="Cd"/>
+          <xsd:enumeration value="Ce"/>
+          <xsd:enumeration value="Cf"/>
+          <xsd:enumeration value="Cl"/>
+          <xsd:enumeration value="Cm"/>
+          <xsd:enumeration value="Co"/>
+          <xsd:enumeration value="Cr"/>
+          <xsd:enumeration value="Cs"/>
+          <xsd:enumeration value="Cu"/>
+          <xsd:enumeration value="Db"/>
+          <xsd:enumeration value="Dy"/>
+          <xsd:enumeration value="Er"/>
+          <xsd:enumeration value="Es"/>
+          <xsd:enumeration value="Eu"/>
+          <xsd:enumeration value="F"/>
+          <xsd:enumeration value="Fe"/>
+          <xsd:enumeration value="Fm"/>
+          <xsd:enumeration value="Fr"/>
+          <xsd:enumeration value="Ga"/>
+          <xsd:enumeration value="Gd"/>
+          <xsd:enumeration value="Ge"/>
+          <xsd:enumeration value="H"/>
+          <xsd:enumeration value="He"/>
+          <xsd:enumeration value="Hf"/>
+          <xsd:enumeration value="Hg"/>
+          <xsd:enumeration value="Ho"/>
+          <xsd:enumeration value="Hs"/>
+          <xsd:enumeration value="I"/>
+          <xsd:enumeration value="In"/>
+          <xsd:enumeration value="Ir"/>
+          <xsd:enumeration value="K"/>
+          <xsd:enumeration value="Kr"/>
+          <xsd:enumeration value="La"/>
+          <xsd:enumeration value="Li"/>
+          <xsd:enumeration value="Lr"/>
+          <xsd:enumeration value="Lu"/>
+          <xsd:enumeration value="Md"/>
+          <xsd:enumeration value="Mg"/>
+          <xsd:enumeration value="Mn"/>
+          <xsd:enumeration value="Mo"/>
+          <xsd:enumeration value="Mt"/>
+          <xsd:enumeration value="N"/>
+          <xsd:enumeration value="Na"/>
+          <xsd:enumeration value="Nb"/>
+          <xsd:enumeration value="Nd"/>
+          <xsd:enumeration value="Ne"/>
+          <xsd:enumeration value="Ni"/>
+          <xsd:enumeration value="No"/>
+          <xsd:enumeration value="Np"/>
+          <xsd:enumeration value="O"/>
+          <xsd:enumeration value="Os"/>
+          <xsd:enumeration value="P"/>
+          <xsd:enumeration value="Pa"/>
+          <xsd:enumeration value="Pb"/>
+          <xsd:enumeration value="Pd"/>
+          <xsd:enumeration value="Pm"/>
+          <xsd:enumeration value="Po"/>
+          <xsd:enumeration value="Pr"/>
+          <xsd:enumeration value="Pt"/>
+          <xsd:enumeration value="Pu"/>
+          <xsd:enumeration value="Ra"/>
+          <xsd:enumeration value="Rb"/>
+          <xsd:enumeration value="Re"/>
+          <xsd:enumeration value="Rf"/>
+          <xsd:enumeration value="Rh"/>
+          <xsd:enumeration value="Rn"/>
+          <xsd:enumeration value="Ru"/>
+          <xsd:enumeration value="S"/>
+          <xsd:enumeration value="Sb"/>
+          <xsd:enumeration value="Sc"/>
+          <xsd:enumeration value="Se"/>
+          <xsd:enumeration value="Sg"/>
+          <xsd:enumeration value="Si"/>
+          <xsd:enumeration value="Sm"/>
+          <xsd:enumeration value="Sn"/>
+          <xsd:enumeration value="Sr"/>
+          <xsd:enumeration value="Ta"/>
+          <xsd:enumeration value="Tb"/>
+          <xsd:enumeration value="Tc"/>
+          <xsd:enumeration value="Te"/>
+          <xsd:enumeration value="Th"/>
+          <xsd:enumeration value="Ti"/>
+          <xsd:enumeration value="Tl"/>
+          <xsd:enumeration value="Tm"/>
+          <xsd:enumeration value="U"/>
+          <xsd:enumeration value="Uun"/>
+          <xsd:enumeration value="Uuu"/>
+          <xsd:enumeration value="Uub"/>
+          <xsd:enumeration value="Uut"/>
+          <xsd:enumeration value="Uuq"/>
+          <xsd:enumeration value="Uup"/>
+          <xsd:enumeration value="Uuh"/>
+          <xsd:enumeration value="Uus"/>
+          <xsd:enumeration value="Uuo"/>
+          <xsd:enumeration value="V"/>
+          <xsd:enumeration value="W"/>
+          <xsd:enumeration value="Xe"/>
+          <xsd:enumeration value="Y"/>
+          <xsd:enumeration value="Yb"/>
+          <xsd:enumeration value="Zn"/>
+          <xsd:enumeration value="Zr"/>
+        </xsd:restriction>
+  </xsd:simpleType>
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!--  Environmental Condition  -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <xsd:complexType name="EnvironmentalConditionType">
+    <xsd:sequence>
+      <xsd:element name="environment" type="xsd:string"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!--  Experiment  -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <xsd:complexType name="Experiment">
+    <xsd:sequence>
+      <xsd:element name="experimentType" type="ExperimentType"/>
+      <xsd:element name="id" type="xsd:integer"/>
+      <xsd:element name="citation" type="CitationType"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!--  Experimental Conditions  -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <xsd:complexType name="ExperimentalConditionsType">
+    <xsd:sequence>
+      <xsd:element maxOccurs="unbounded" name="measurementConditions" type="MeasurementConditionType"/>
+      <xsd:element maxOccurs="1" name="environment" type="EnvironmentalConditionType"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!--  ExperimentType  -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <xsd:complexType name="ExperimentType">
+    <xsd:choice>
+      <xsd:element name="tracerDiffusivity" type="TracerDiffusivity"/>
+      <xsd:element name="intrinsicDiffusivity" type="IntrinsicDiffusivity"/>
+      <xsd:element name="chemicalDiffusivity" type="ChemicalDiffusivity"/>
+      
+      <xsd:element name="other" type="xsd:string"/>
+    </xsd:choice>
+  </xsd:complexType>
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!--  Experiment Type: Tracer Diffusivity Experiment  -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <xsd:complexType name="TracerDiffusivity">
+    <xsd:sequence>
+      
+      <xsd:element name="material" type="Materials"/>
+      <!--xsd:element name="diffusingSpecies" type="Element"/-->
+      
+      <xsd:element minOccurs="1" maxOccurs="1" name="experimentalConditions" type="ExperimentalConditionsType"/>
+      
+      <xsd:element maxOccurs="unbounded" name="sampleGeometry" type="SampleGeometryType"/>
+      <xsd:element maxOccurs="unbounded" name="samplePreparationProcedure" type="ProcedureType"/>
+      
+      <xsd:element minOccurs="1" maxOccurs="1" name="measurement" type="MeasurementType"/>
+      
+      <xsd:element minOccurs="0" maxOccurs="unbounded" name="measuredValues" type="MeasuredValuesType"/>
+      <xsd:element minOccurs="0" maxOccurs="unbounded" name="derivedValues"  type="DerivedValueType"/>
+      
+      <xsd:element name="dataAnalysis" type="DataAnalysisType"/>
+    </xsd:sequence>
+  </xsd:complexType>  
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!--  Experiment Type: Intrinsic Diffusivity Experiment  -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <xsd:complexType name="IntrinsicDiffusivity">
+    <xsd:sequence>
+      
+      <xsd:element name="startingMaterial" type="Materials"/>
+      <xsd:element name="material" type="Materials"/>
+      
+      <xsd:element name="interfaceMarkers" type="InterfaceMarkerType"/>
+      
+      <xsd:element name="experimentalConditions" type="ExperimentalConditionsType"/>
+      
+      <xsd:element maxOccurs="unbounded" name="sampleGeometry" type="SampleGeometryType"/>
+      <xsd:element maxOccurs="unbounded" name="samplePreparationProcedure" type="ProcedureType"/>
+      
+      <xsd:element minOccurs="1" maxOccurs="1" name="measurement" type="MeasurementType"/>
+      
+      <xsd:element name="measuredProperty" type="xsd:string"/>
+      <xsd:element name="measuredValues" type="MeasuredValuesType"/>
+      
+      <xsd:element name="dataAnalysis" type="DataAnalysisType"/>
+    </xsd:sequence>
+  </xsd:complexType>  
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!--  Experiment Type: Chemical Diffusivity Experiment  -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <xsd:complexType name="ChemicalDiffusivity">
+    <xsd:sequence>
+      
+      <xsd:element minOccurs="2" maxOccurs="unbounded" name="material" type="Materials"/>
+      
+      <xsd:element minOccurs="1" maxOccurs="1" name="experimentalConditions" type="ExperimentalConditionsType"/>
+      
+      <xsd:element maxOccurs="unbounded" name="sampleGeometry" type="SampleGeometryType"/>
+      <xsd:element maxOccurs="unbounded" name="samplePreparationProcedure" type="ProcedureType"/>
+      
+      <xsd:element minOccurs="1" maxOccurs="1" name="measurement" type="MeasurementType"/>
+      
+      <xsd:element name="measuredValues" type="MeasuredValuesType"/>
+      
+      <xsd:element name="dataAnalysis" type="DataAnalysisType"/>
+    </xsd:sequence>
+  </xsd:complexType>  
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!--  FormOfMatter  -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <xsd:complexType name="FormOfMatter">
+    <xsd:choice>
+      <xsd:element name="singlecrystal" type="SingleCrystallineType"/>
+      <xsd:element name="polycrystal" type="PolyCrystallineType"/>
+    </xsd:choice>
+  </xsd:complexType>
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!--  FormOfMatter:Polycrystalline -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <xsd:complexType name="PolyCrystallineType">
+    <xsd:sequence>
+      <xsd:element name="name" type="xsd:string"/>
+      <xsd:element name="averageGrainSize" type="xsd:double"/>
+      <xsd:element name="unit" type="UnitOfMeasure"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!--  FormOfMatter: Single Crystalline  -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <xsd:complexType name="SingleCrystallineType">
+    <xsd:sequence>
+      <xsd:element name="name" type="xsd:string"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!--  Image  -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <xsd:complexType name="ImageType">
+    <xsd:sequence>
+      <xsd:element name="fileExtension" type="xsd:string"/>
+      <xsd:element name="reference" type="xsd:anyURI"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!--  Interface Marker Type  -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <xsd:complexType name="InterfaceMarkerType">
+    <xsd:sequence>
+      <xsd:element name="type" type="xsd:string"/>
+      <xsd:element name="preparation" type="xsd:string"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!--  Material  -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <xsd:complexType name="Material">
+    <xsd:sequence>
+      <xsd:element name="materialName" type="xsd:string"/>
+      <xsd:element name="phase" type="Phase"/>
+      <xsd:element name="Composition" type="Composition"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!--  MaterialProperty  -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <xsd:complexType name="MaterialProperty">
+    <xsd:sequence>
+      <xsd:element name="name" type="xsd:string"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!--  Materials  -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <xsd:complexType name="Materials">
+    <xsd:sequence>
+      <xsd:element maxOccurs="unbounded" name="material" type="Material"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!--  Measured Value  -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <xsd:complexType name="MeasuredValueType">
+    <xsd:sequence>
+      <xsd:element name="sampleID" type="xsd:string"/>
+      <xsd:choice>
+        <xsd:element name="value" type="Quantity"/>
+        <xsd:element name="dataPoint" type="Point"/>
+        <xsd:element name="profile" type="Profile"/>        
+      </xsd:choice>
+    </xsd:sequence>
+  </xsd:complexType>
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!--  Measured Values  -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <xsd:complexType name="MeasuredValuesType">
+    <xsd:sequence>
+      <xsd:element name="condition" type="MeasurementConditionType"/>
+      <xsd:element minOccurs="0" maxOccurs="unbounded" name="value" type="MeasuredValueType"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!--  Measurement Condition  -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <xsd:complexType name="MeasurementConditionType">
+    <xsd:sequence>
+      <xsd:element minOccurs="0" maxOccurs="1" name="time" type="TimeType"/>
+      <xsd:element minOccurs="0" maxOccurs="1" name="temperature" type="TemperatureType"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!--  Measurement  -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <xsd:complexType name="MeasurementType">
+    <xsd:sequence>
+      <xsd:element name="measurementName" type="xsd:string"/>
+      <xsd:element name="experimentalMethod" type="ExperimentalMethodType"/>
+      <xsd:element name="dataCollectionMethod" type="xsd:string"/>      
+    </xsd:sequence>
+  </xsd:complexType>
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!--  Measurement Type: Direct Method  -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <xsd:complexType name="DirectMethodType">
+    <xsd:choice>
+      <xsd:element name="rbm" type="RutherfordBackscatteringMethodsType"/>
+      <xsd:element name="sims" type="SecondaryIonMassSpectroscopyType"/>
+    </xsd:choice>
+  </xsd:complexType> 
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!--  Measurement Type: Direct Method: RBM  -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <xsd:complexType name="RutherfordBackscatteringMethodsType">
+    <xsd:sequence>
+      <xsd:element name="rbmInstrument" type="xsd:string"/>
+      <xsd:element name="primaryBeamSource" type="xsd:string"/>
+      <xsd:element name="energy" type="xsd:double"/>
+      <xsd:element name="rasterArea" type="xsd:double"/>
+      <xsd:element name="detectionArea" type="xsd:double"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!--  Measurement Type: Direct Method: SIMS  -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <xsd:complexType name="SecondaryIonMassSpectroscopyType">
+    <xsd:sequence>
+      <xsd:element name="simsInstrument" type="xsd:string"/>
+      <xsd:element name="primaryBeamSource" type="xsd:string"/>
+      <xsd:element name="energy" type="xsd:double"/>
+      <xsd:element name="rasterArea" type="xsd:double"/>
+      <xsd:element name="detectionArea" type="xsd:double"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!--  Measurement Type: Indirect Method  -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <xsd:complexType name="IndirectMethodType">
+    <xsd:choice>
+      <xsd:element name="nuclearMethods" type="NuclearMethodsType"/>
+      <xsd:element name="mechanicalSpectroscopy" type="MechanicalSpectroscopyType"/>
+      <xsd:element name="electricalMethods" type="ElectricalMethodsType"/>
+    </xsd:choice>
+  </xsd:complexType> 
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!--  Measurement Type: Indirect Method: Nuclear Methods  -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <xsd:complexType name="NuclearMethodsType">
+    <xsd:sequence>
+      <xsd:element name="instrument" type="xsd:string"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!--  Measurement Type: Indirect Method: Mechanical Spectroscopy  -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <xsd:complexType name="MechanicalSpectroscopyType">
+    <xsd:sequence>
+      <xsd:element name="instrument" type="xsd:string"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!--  Measurement Type: Indirect Method: Electrical Methods  -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <xsd:complexType name="ElectricalMethodsType">
+    <xsd:sequence>
+      <xsd:element name="instrument" type="xsd:string"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!--  Measurement Type: Radiotracer Methods  -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <xsd:complexType name="RadiotracerType">
+    <xsd:choice>
+      <xsd:element name="serialSectioning" type="SerialSectioningType"/>
+      <xsd:element name="gruzinMethod" type="ResidualActivityMethodType"/>
+      <xsd:element name="surfaceActivityDecreaseMethod" type="SurfaceActivityDecreaseMethodType"/>
+    </xsd:choice>
+  </xsd:complexType> 
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!--  Measurement Type: Radiotracer Method: Serial Sectioning Methods  -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <xsd:complexType name="SerialSectioningType">
+    <xsd:choice>
+      <xsd:element name="macroSectioning" type="MacroSectioningType"/>
+      <xsd:element name="microSectioning" type="MicroSectioningType"/>
+    </xsd:choice>
+  </xsd:complexType>
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!--  Measurement Type: Radiotracer Method: Serial Sectioning Methods : Macro-Sectioning  --> 
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <xsd:complexType name="MacroSectioningType">
+    <xsd:sequence>
+      <xsd:element name="instrument" type="xsd:string"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!--  Measurement Type: Radiotracer Method: Serial Sectioning Methods : Micro-Sectioning  --> 
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <xsd:complexType name="MicroSectioningType">
+    <xsd:sequence>
+      <xsd:element name="instrument" type="xsd:string"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!--  Measurement Type: Radiotracer Method: Residual Activity Method  --> 
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <xsd:complexType name="ResidualActivityMethodType">
+    <xsd:sequence>
+      <xsd:element name="instrument" type="xsd:string"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!--  Measurement Type: Radiotracer Method: Surface Activity Decrease Method  --> 
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <xsd:complexType name="SurfaceActivityDecreaseMethodType">
+    <xsd:sequence>
+      <xsd:element name="instrument" type="xsd:string"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!--  Measurement Type Method  -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <xsd:complexType name="ExperimentalMethodType">
+    <xsd:choice>
+      <xsd:element minOccurs="1" maxOccurs="1" name="direct" type="DirectMethodType"/>
+      <xsd:element minOccurs="1" maxOccurs="1" name="indirect" type="IndirectMethodType"/>
+      <xsd:element minOccurs="1" maxOccurs="1" name="radiotracer" type="RadiotracerType"/>
+    </xsd:choice>
+  </xsd:complexType>  
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!--  Phase  -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <xsd:complexType name="Phase">
+    <xsd:sequence>
+      <xsd:element name="name" type="xsd:string"/>
+      <xsd:element name="crystalStructure" type="CrystalStructure"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!--  Phases  -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <xsd:complexType name="Phases">
+    <xsd:sequence>
+      <xsd:element minOccurs="0" name="temperature" type="Quantity"/>
+      <xsd:element maxOccurs="unbounded" name="phase" type="Phase"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!--  Procedures  -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <xsd:complexType name="ProcedureType">
+    <xsd:sequence>
+      <xsd:element minOccurs="1" maxOccurs="1" name="procedureName" type="xsd:string"/>
+      <xsd:element minOccurs="1" maxOccurs="1" name="procedureDescription" type="xsd:string"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!--  Point  -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <xsd:complexType name="Point">
+    <xsd:sequence>
+      <xsd:element name="x" type="xsd:double"/>
+      <xsd:element name="y" type="xsd:double"/>
+      
+      <xsd:element name="xUnit" type="UnitOfMeasure"/>
+      <xsd:element name="yUnit" type="UnitOfMeasure"/>
+      
+      <xsd:element minOccurs="0" name="uncertainty" type="Uncertainty"/>
+      
+    </xsd:sequence>
+  </xsd:complexType>
+  
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!--  Profile  -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <xsd:complexType name="Profile">
+    <xsd:sequence>
+      <xsd:element name="name" type="xsd:string"/>
+      <xsd:element minOccurs="1" maxOccurs="unbounded" name="value" type="xsd:double"/>
+      <xsd:element minOccurs="0" name="uncertainty" type="Uncertainty"/>
+      <xsd:element name="unit" type="UnitOfMeasure"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!--  Quantity  -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <xsd:complexType name="Quantity">
+    <xsd:sequence>
+      <xsd:element name="value" type="xsd:double"/>
+      <xsd:element minOccurs="0" name="uncertainty" type="Uncertainty"/>
+      <xsd:element name="unit" type="UnitOfMeasure"/>
+    </xsd:sequence>
+  </xsd:complexType>
+
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!--  Sample Geometry -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <xsd:complexType name="SampleGeometryType">
+    <xsd:sequence>
+      <xsd:element name="materialName" type="xsd:string"/>
+      <xsd:element name="geometry" type="xsd:string"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!--  SpaceGroup  -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <xsd:complexType name="SpaceGroup">
+    <xsd:sequence>
+      <xsd:element name="name" type="xsd:string"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!--  Table  -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <xsd:complexType name="Table">
+    <xsd:sequence>
+      <xsd:element name="hDF5-File" type="hdf5:HDF5-File"/>
+      <xsd:element maxOccurs="unbounded" name="columnUnit" type="ColumnUnit"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!--  Temperature  -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <xsd:complexType name="TemperatureType">
+    <xsd:sequence>
+      <xsd:element name="temperature" type="xsd:float"/>
+      <xsd:element name="unit" type="UnitOfMeasure"/>
+      <xsd:element minOccurs="0" name="uncertainty" type="Uncertainty"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!--  Time  -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <xsd:complexType name="TimeType">
+    <xsd:sequence>
+      <xsd:element name="duration" type="xsd:double"/>
+      <xsd:element name="unit" type="UnitOfMeasure"/>
+      <xsd:element minOccurs="0" name="uncertainty" type="Uncertainty"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!--  Uncertainty  -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <xsd:complexType name="Uncertainty">
+    <xsd:sequence>
+      <xsd:element name="type">
+        <xsd:simpleType>
+          <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="amount"/>
+            <xsd:enumeration value="fraction"/>
+          </xsd:restriction>
+        </xsd:simpleType>
+      </xsd:element>
+      <xsd:element name="value" type="xsd:double"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!--  UnitOfMeasure  -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <xsd:complexType name="UnitOfMeasure">
+    <xsd:sequence>
+      <xsd:element minOccurs="0" maxOccurs="1" name="name" type="xsd:string"/>
+      <xsd:element name="unit" type="xsd:string"/>
+    </xsd:sequence>
+  </xsd:complexType>
+
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!--  WyckoffSequence  -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <xsd:complexType name="WyckoffSequence">
+    <xsd:sequence>
+      <xsd:element name="name" type="xsd:string"/>
+    </xsd:sequence>
+  </xsd:complexType>
+</xsd:schema>
