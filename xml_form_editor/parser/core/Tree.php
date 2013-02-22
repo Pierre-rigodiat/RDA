@@ -1,9 +1,25 @@
 <?php
+/**
+ * Class managing the tree structure
+ * 
+ * @uses core\XsdElement.php
+ * 
+ * @package XsdMan\Core
+ */
+
+
 require_once $_SESSION['xsd_parser']['conf']['dirname'].'/inc/helpers/Logger.php';
 
-/**
- * The class managing the tree data structure
- * v0.2b 12/04/2012
+
+
+
+
+/*
+ * 
+ * 
+ * 
+ * 
+ * <v0.2b 12/04/2012
  * 
  * Changelog
  * ** 0.1b **
@@ -15,7 +31,7 @@ require_once $_SESSION['xsd_parser']['conf']['dirname'].'/inc/helpers/Logger.php
  * copyTreeBranch copies the object near his brother
  * ** 0.2c **
  * add a hasElement function
- * improve copyTreeBranch in case the tree does not contain objects
+ * improve copyTreeBranch in case the tree does not contain objects>
  * 
  */
 class Tree {
@@ -184,6 +200,22 @@ class Tree {
 		{
 			$this->LOGGER->log_error('ID '.$elementId.' is not in the current tree', 'Tree::getChildren');
 			return null;
+		}
+	}
+
+	public function setObject($elementId, $object)
+	{
+		if(isset($this->tree[$elementId]))
+		{
+			$this->tree[$elementId]['object'] = $object;
+			
+			$this->LOGGER->log_debug('ID '.$elementId.' is now set with '.$object, 'Tree::setObject');
+			return 0;
+		} 
+		else 
+		{
+			$this->LOGGER->log_error('ID '.$elementId.' is not in the current tree', 'Tree::getParent');
+			return -1;
 		}
 	}
 	
