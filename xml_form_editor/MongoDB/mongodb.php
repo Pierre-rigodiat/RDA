@@ -134,55 +134,58 @@ private $databaseObject;
 	 * @param $doc: string that describe the path of the file
 	 * @param $collection: the collection in which the document is pushed
 	 */
-	function insertJson($doc, $collectionName) {
+	function insertJsonFromFile($doc, $collectionName) {
 		if (!preg_match('/.+\.json/', $doc))
 		{
-			echo 'Please select a JSON file for the insertion\n';
+			echo 'Please select a JSON file for the insertion<br/>';
 			return;
 		}
 		else
 			{
 			// Get the JSON file content
 			$jsonString = file_get_contents($doc);
-			$jsonContents = file($doc);
-			if (!$jsonContents || !$jsonString)
-				{
-					echo "Cannot load {$doc} file\n";
-					return;
-				}
-
-			// Insert it into the collection
-			try
-			{
-				if (isset($this->databaseObject)) {
+			insertJson($jsonString, $collectionName);
+			}
+	}
+	
+	/**
+	 * 
+	 * @param string $jsonString
+	 * @param string $collectionName
+	 */
+	function insertJson($jsonString, $collectionName) {
+		$jsonArray = str_split($jsonString, strlen($jsonString));
+		// Insert it into the collection
+		try
+		{
+			if (isset($this->databaseObject)) {
 				$collectionObject = new MongoCollection($this->databaseObject, $collectionName);
 				//Check if the element already exists
 				$cursor = $collectionObject->find(array("0" => $jsonString));
 				if (!$cursor->hasNext()) {
-					$collectionObject->insert($jsonContents, array("safe" => 1));
-					echo "Document inserted";
+					$collectionObject->insert($jsonArray, array("safe" => 1));
+					//echo "Document inserted<br/>";
 				}
 				else
 				{
-					echo "Cannot insert an already stored document\n";
+					echo "Cannot insert an already stored document<br/>";
 					return;
 				}
 				//Display the element of the query. Used for debugging
 				/*foreach ($cursor as $element)
-				var_dump($element);
+				 var_dump($element);
 				$collectionObject->remove($jsonContents);*/
-				}
-				else
-				{
-					echo "Database Object not set\n";
-					return;
-				}
 			}
-			catch(MongoCursorException $e)
+			else
 			{
-				echo "Cannot insert an already stored document\n";
+				echo "Database Object not set<br/>";
+				return;
 			}
-			}
+		}
+		catch(MongoCursorException $e)
+		{
+			echo "Cannot insert an already stored document<br/>";
+		}
 	}
 
 	/**
@@ -198,59 +201,21 @@ private $databaseObject;
 		}
 		else
 			{
-				// Get the XML file content
-				//$xmlContents = file_get_contents($doc);
-				/*$patterns = array();
-				$patterns[0] = '/xsd:/';
-				$patterns[1] = '/hdf5:/';
-				$replacements = array();
-				$replacements[0] = 'xsd_';
-				$replacements[1] = 'hdf5_';
-				$insertedXml = preg_replace($patterns, $replacements, $xmlContents);
-				if (!$xmlContents || !$insertedXml) {
-					echo "Cannot load {$doc} file\n";
-					return;
-				}*/
 				$dom=DOMDocument::load($doc);
 				// Translate the XML content into JSON content
-				$jsonContents = encodeBadgerFish($dom);
+				$jsonString = encodeBadgerFish($dom);
 				
-				if (!$jsonContents) {
-					echo "Could not transform xml to json\n";
+				if (!$jsonString) {
+					echo "Could not transform xml to json<br/>";
 					return;
 				}
 				$jsonArray = array();
-				$jsonArray = str_split($jsonContents, strlen($jsonContents));
+				$jsonArray = str_split($jsonString, strlen($jsonString));
 	
 				// Insert it into the collection
-				var_dump($jsonContents);
-				echo $jsonContents."\n";
-				/**try
-				{ 
-					if (isset($this->databaseObject)) {
-						$collectionObject = new MongoCollection($this->databaseObject, $collectionName);
-						//Check if the element already exists
-						$cursor = $collectionObject->find(array("0" => $jsonContents));
-						if (!$cursor->hasNext()){
-							$collectionObject->insert($jsonArray, array("safe" => 1));
-							echo "Insert successful\n";
-							}
-						else
-						{
-							echo "Cannot insert an already stored document\n";
-							return;
-						}
-					}
-					else
-					{
-						echo "Database Object not set\n";
-						return;
-					}
-				}
-				catch(MongoCursorException $e)
-				{
-					echo "Cannot insert an already stored document\n";
-				}*/
+				var_dump($jsonString);
+				echo $jsonString."<br/>";
+				//insertJson($jsonString, $collectionName);
 			}
 	}
 	
