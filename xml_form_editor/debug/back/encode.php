@@ -12,16 +12,16 @@ function encodeToJSON()
 	
 	switch ($type) {
 		case "encodeBadgerFish":
-			return encodeBadgerFish(DOMDocument::load('../../MongoDB/testXml.xml'));
+			return encodeBadgerFish(DOMDocument::load('../../MongoDB/migml.xml'));
 			break;
 		case "encodeGData":
-			return encodeGData(DOMDocument::load('../../MongoDB/testXml.xml'));
+			return encodeGData(DOMDocument::load('../../MongoDB/migml.xml'));
 			break;
 		case "encodeParker":
-			return encodeParker(DOMDocument::load('../../MongoDB/testXml.xml'));
+			return encodeParker(DOMDocument::load('../../MongoDB/migml.xml'));
 			break;
 		case "encodeSpark":
-			return encodeSpark(DOMDocument::load('../../MongoDB/testXml.xml'));
+			return encodeSpark(DOMDocument::load('../../MongoDB/migml.xml'));
 			break;
 	}
 }

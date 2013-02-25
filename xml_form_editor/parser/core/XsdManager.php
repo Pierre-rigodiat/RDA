@@ -441,6 +441,22 @@ class XsdManager
 
 					$this -> LOGGER -> log_debug('ID ' . $id . ' (orig) removed (unused type)', 'XsdManager::optimizeTree');
 				}
+				
+				// Every annotation is completely removed from the schema
+				if ($object -> getType() == $this -> namespaces['default']['name'] . ':ANNOTATION')
+				{
+					$this -> xsdOrganizedTree -> removeElement($id, true);
+					$this -> LOGGER -> log_debug('ID ' . $id . ' (orig) is removed as an annotation', 'XsdManager::optimizeTree');
+				}
+				
+				if($object -> getType() == $this -> namespaces['default']['name'] . ':CHOICE')
+				{
+					// Create a new XsdElement allowing choice between all elements
+					$children = $this -> xsdOriginalTree -> getChildren($originalTreeId);
+					$xsdElement = new XsdElement($this -> namespaces['default']['name'] . ':ELEMENT', array('NAME' => 'choice', 'CHOICE' => $children))
+					;
+					$this -> xsdOriginalTree -> setObject($originalTreeId,	$xsdElement);
+				}
 
 				//XXX Does not work for all the restriction
 				if ($object -> getType() == $this -> namespaces['default']['name'] . ':RESTRICTION')
