@@ -266,6 +266,8 @@ class Display
 		if (!$partial)
 			$result .= '</div>';
 
+		$this -> LOGGER -> log_debug('$result = '.$result, 'Display::displayHTMLForm');
+
 		return $result;
 	}
 
@@ -393,25 +395,61 @@ class Display
 					// XXX See the two previous comments (it also applies here)
 					if(strpos($formElement, '<span class="elementName">Choice</span>')!==FALSE)
 					{
-						$childCount = count($children);
-						for ($index=1; $index<$childCount; $index++) 
-						{
-							unset($children[$index]);
-						}
+						$originalElementId = $this -> xsdManager -> getXsdCompleteTree() -> getObject($elementId);	
+						$originalTree = $this -> xsdManager -> getXsdOriginalTree();
 						
-						$children = array_values($children);
+						$choiceElement = $originalTree -> getObject($originalElementId);
+						$choiceElementAttributes = $choiceElement -> getAttributes();
+						
+						foreach ($children as $child) 
+						{
+							$childOriginalId = $this -> xsdManager -> getXsdOrganizedTree() -> getObject($child);
+							if($childOriginalId == $choiceElementAttributes['CHOICE'][0])
+							{
+								$children = array($child);
+								break;
+							}
+						}						
 					}
-					
 				}
 				
 				$result .= $formElement;
 				break;
 			case self::$STEPS['xml_tree'] :
-				$result .= $this -> displayXMLElement($elementId, self::$XML_START);
+				$elementDisplay = $this -> displayXMLElement($elementId, self::$XML_START);
 				
+				// Case where no module is displayed
 				// TODO Find a better way to store module data
 				if($this -> xsdManager -> getModuleHandler() -> getModuleForId($elementId) == '')
+				{
 					$children = $this -> xsdManager -> getXsdCompleteTree() -> getChildren($elementId);
+					
+					if($elementDisplay=='');
+					{
+						$originalElementId = $this -> xsdManager -> getXsdOrganizedTree() -> getObject($elementId);	
+						$originalTree = $this -> xsdManager -> getXsdOriginalTree();
+						
+						$choiceElement = $originalTree -> getObject($originalElementId);
+						$choiceElementAttributes = $choiceElement -> getAttributes();
+						
+						// Avoid the case where there is no data entered ($elementDisplay will be equal to '')
+						if(isset($choiceElementAttributes['CHOICE']))
+						{
+							foreach ($children as $child) 
+							{
+								$childOriginalId = $this -> xsdManager -> getXsdOrganizedTree() -> getObject($child);
+								if($childOriginalId == $choiceElementAttributes['CHOICE'][0])
+								{
+									$children = array($child);
+									break;
+								}
+							}
+						}
+						
+					}
+				}
+				
+				$result .= $elementDisplay;
 				
 				break;
 			default : // Unknown step ID
@@ -586,7 +624,7 @@ class Display
 		}
 		
 		$element = $this -> xsdManager -> getXsdOriginalTree() -> getObject($originalTreeId);
-		$elementAttr = $element -> getAttributes();
+		$elementAttr = $element -> getAttributes(); // todo Do something if the element doesn't exist
 		$result = '';
 		
 		$this->LOGGER->log_debug('Display ID '.$elementId.'; Object: '.$element, 'Display::displayHTMLFormElement');
@@ -707,6 +745,8 @@ class Display
 		$originalTreeId = $this -> xsdManager -> getXsdCompleteTree() -> getObject($elementId);
 		$element = $this -> xsdManager -> getXsdOriginalTree() -> getObject($originalTreeId);
 		$elementAttr = $element -> getAttributes();
+		
+		if (isset($elementAttr['CHOICE'])) return $xmlElement;
 		
 		if($tagType == self::$XML_START)
 		{

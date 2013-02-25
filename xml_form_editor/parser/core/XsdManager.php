@@ -392,8 +392,11 @@ class XsdManager
 						}
 					}
 
+					// If the namespace is not a declared namespace (i.e. we have a complextype or simpletype reference)
+					// we are looking to link 2 elements
 					if (!$isNamespaceDeclared) // FIXME Document this part
 					{
+						// 1) Look for a COMPLEXTYPE element
 						$comparisonElement = new XsdElement($this -> namespaces['default']['name'] . ':COMPLEXTYPE', array("NAME" => $elementAttributes["TYPE"]));
 						$arrayID = $this -> xsdOriginalTree -> getId($comparisonElement);
 
@@ -403,8 +406,19 @@ class XsdManager
 						}
 						else
 						{
-							$this -> LOGGER -> log_error('The comparison found unusual number (!=1) of element like ' . $comparisonElement, 'XsdManager::insertTreeElement');
-							return;
+							// 2) Look for a SIMPLETYPE element
+							$comparisonElement = new XsdElement($this -> namespaces['default']['name'] . ':SIMPLETYPE', array("NAME" => $elementAttributes["TYPE"]));
+							$arrayID = $this -> xsdOriginalTree -> getId($comparisonElement);
+							
+							if (count($arrayID) == 1)
+							{
+								$this -> insertTreeElement($arrayID[0], $newParentId);
+							}
+							else
+							{
+								$this -> LOGGER -> log_error('The comparison found unusual number (!=1) of element like ' . $comparisonElement, 'XsdManager::insertTreeElement');
+								return;
+							}
 						}
 					}
 				}
@@ -423,9 +437,6 @@ class XsdManager
 
 		foreach ($tree as $id => $element)
 		{
-			/*$this -> LOGGER -> log_debug(serialize($tree), 'XsdManager::optimizeTree');
-			 $this -> LOGGER -> log_debug(serialize($this->xsdOrganizedTree->getTree()), 'XsdManager::optimizeTree');	*/
-
 			$originalTreeId = $element['object'];
 			$this -> LOGGER -> log_debug('Optimizing tree for ID ' . $id . ' (orig ID ' . $originalTreeId . ')', 'XsdManager::optimizeTree');
 
@@ -453,8 +464,7 @@ class XsdManager
 				{
 					// Create a new XsdElement allowing choice between all elements
 					$children = $this -> xsdOriginalTree -> getChildren($originalTreeId);
-					$xsdElement = new XsdElement($this -> namespaces['default']['name'] . ':ELEMENT', array('NAME' => 'choice', 'CHOICE' => $children))
-					;
+					$xsdElement = new XsdElement($this -> namespaces['default']['name'] . ':ELEMENT', array('NAME' => 'choice', 'CHOICE' => $children));
 					$this -> xsdOriginalTree -> setObject($originalTreeId,	$xsdElement);
 				}
 
