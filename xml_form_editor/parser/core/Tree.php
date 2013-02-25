@@ -225,12 +225,12 @@ class Tree {
 		{
 			$object = $this->tree[$elementId]['object'];
 			
-			$this->LOGGER->log_debug('ID '.$elementId.' contains '.$object, 'Tree::getParent');
+			$this->LOGGER->log_debug('ID '.$elementId.' contains '.$object, 'Tree::getObject');
 			return $object;
 		} 
 		else 
 		{
-			$this->LOGGER->log_error('ID '.$elementId.' is not in the current tree', 'Tree::getParent');
+			$this->LOGGER->log_error('ID '.$elementId.' is not in the current tree', 'Tree::getObject');
 			return null;
 		}
 	}
