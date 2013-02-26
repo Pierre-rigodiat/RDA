@@ -84,7 +84,7 @@
 			foreach ($originalTree as $elementId => $treeLeaf) {
 				echo '<li>';
 					
-				echo 'Element ID '.$elementId.': ';
+				//echo 'Element ID '.$elementId.': ';
 				
 				foreach($treeLeaf as $leafAttrName => $leafAttrValue)
 				{
@@ -115,11 +115,57 @@
 	<hr/>
 	<h3>XML Tree</h3>
 	<a href="back/clrsessvar.php?v=null">Clear variable</a><br/>
+	<?php
+	if($xsdManager)
+		{
+			$originalTree = $xsdManager -> getXsdCompleteTree() -> getTree();
+			
+			echo '<ul>';
+			
+			foreach ($originalTree as $elementId => $treeLeaf) {
+				echo '<li>';
+					
+				//echo 'Element ID '.$elementId.': ';
+				
+				foreach($treeLeaf as $leafAttrName => $leafAttrValue)
+				{
+					echo $leafAttrName.'=';
+					
+					if(!is_array($leafAttrValue)) echo $leafAttrValue;
+					else {
+						echo '{';
+						foreach ($leafAttrValue as $key => $value) {
+							echo $value;
+							
+							if(end($leafAttrValue)!=$value) echo ', ';
+						}
+						
+						echo '}';
+					}
+					
+					if(end($treeLeaf)!=$leafAttrValue) echo ' | ';
+				}
+				
+				echo '</li>';
+			}
+			
+			echo '</ul>';
+		}
+		else echo 'XsdManager not set';
+	?>
 	<hr/>
 	<h3>Module handler</h3>
 	<a href="back/clrsessvar.php?v=null">Clear variable</a><br/>
 	<hr/>
 	<h3>Page handler</h3>
 	<a href="back/clrsessvar.php?v=null">Clear variable</a><br/>
+	<?php
+		if($xsdManager)
+		{
+			$pageHandler = $xsdManager -> getPageHandler();
+			
+			echo nl2br($pageHandler);
+		}
+	?>
 </body>
 </html>

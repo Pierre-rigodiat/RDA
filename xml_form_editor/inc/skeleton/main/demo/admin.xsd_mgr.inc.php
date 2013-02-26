@@ -3,7 +3,7 @@
 	v0.1 (01-02-2013)
 -->
 <div id="featured-wrapper"><div id="featured">
-	<h1>Schema manager [DEMO]</h1>
+	<h1>Schema Manager [DEMO]</h1>
 </div></div>
 
 <div id="main">

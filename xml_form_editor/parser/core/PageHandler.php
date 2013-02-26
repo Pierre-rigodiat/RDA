@@ -7,7 +7,6 @@ class PageHandler
 	private $numberOfPage;
 	private $currentPage;
 	private $pageArray; // An array linking page number with a Tree of XSD element
-	// private static $modulePerPages = 1;
 	
 	// Debug and logging variables
 	private $LOGGER;
@@ -212,8 +211,23 @@ class PageHandler
 	
 	public function __toString()
 	{
-		// TODO Implement it
-		return null;
+		$pageHandlerString = '';
+		
+		foreach ($this -> pageArray as $pageNumber => $arrayOfElement) {
+			$pageHandlerString .= 'Page '.($pageNumber+1).' {';
+			
+			foreach ($arrayOfElement as $elementId) {
+				$pageHandlerString .= $elementId;
+				
+				if(end($arrayOfElement) != $elementId) $pageHandlerString.=', ';
+			}
+			
+			$pageHandlerString .= '}';
+			
+			if(count($this -> pageArray)!=$pageNumber+1) $pageHandlerString .= ' | ';
+		}
+		
+		return $pageHandlerString;
 	}
 }
 

@@ -1,7 +1,7 @@
 <?php
 if(isset($_GET['p']) && $_GET['p']=="admin")
 {
-	$submenus = array("website" => array("Workflow", "Pages", "Menus", "Modules"), "schemas" => array("Current model", "Manage schemas", "Manage modules"), "users" => array("New user", "New group", "Search"));
+	$submenus = array("website" => array("Workflow", "Pages", "Menus", "Modules"), "schemas" => array("Current Model", "Manage Schemas", "Manage Modules"), "users" => array("New User", "New Group", "Search"));
 	$submenusIds = array("website" => array("workflow", "pages", "menus", "modules"), "schemas" => array("currentModel", "manageSchemas", "manageModules"), "users" => array("newUser", "newGroup", "search"));
 	
 	if(isset($_GET['sp']) && isset($submenus[$_GET['sp']]))
@@ -32,7 +32,7 @@ if(isset($_GET['p']) && $_GET['p']=="admin")
 }
 else 
 {
-	$submenus = array("register" => array("Enter data", "View XML"));
+	$submenus = array("register" => array("Enter Data", "View XML"));
 	$submenusIds = array("register" => array("form", "xml"));
 	
 	// Include modules

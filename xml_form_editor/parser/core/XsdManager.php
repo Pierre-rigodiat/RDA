@@ -464,7 +464,7 @@ class XsdManager
 				{
 					// Create a new XsdElement allowing choice between all elements
 					$children = $this -> xsdOriginalTree -> getChildren($originalTreeId);
-					$xsdElement = new XsdElement($this -> namespaces['default']['name'] . ':ELEMENT', array('NAME' => 'choice', 'CHOICE' => $children));
+					$xsdElement = new XsdElement($this -> namespaces['default']['name'] . ':ELEMENT', array('NAME' => 'choose', 'CHOICE' => $children));
 					$this -> xsdOriginalTree -> setObject($originalTreeId,	$xsdElement);
 				}
 

@@ -32,7 +32,7 @@ if(isset($_SESSION['xsd_parser']['xsd_filename']))
 }
 ?>
 <div id="featured-wrapper"><div id="featured">
-	<h1>Schema configuration</h1>
+	<h1>Schema View Configuration</h1>
 </div></div>
 
 <div id="main">

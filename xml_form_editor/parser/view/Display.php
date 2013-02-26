@@ -393,7 +393,7 @@ class Display
 					$children = $this -> xsdManager -> getXsdCompleteTree() -> getChildren($elementId);
 					
 					// XXX See the two previous comments (it also applies here)
-					if(strpos($formElement, '<span class="elementName">Choice</span>')!==FALSE)
+					if(strpos($formElement, '<span class="elementName">Choose</span>')!==FALSE)
 					{
 						$originalElementId = $this -> xsdManager -> getXsdCompleteTree() -> getObject($elementId);	
 						$originalTree = $this -> xsdManager -> getXsdOriginalTree();
@@ -403,7 +403,7 @@ class Display
 						
 						foreach ($children as $child) 
 						{
-							$childOriginalId = $this -> xsdManager -> getXsdOrganizedTree() -> getObject($child);
+							$childOriginalId = $this -> xsdManager -> getXsdCompleteTree()/*getXsdOrganizedTree()*/ -> getObject($child);
 							if($childOriginalId == $choiceElementAttributes['CHOICE'][0])
 							{
 								$children = array($child);
@@ -426,7 +426,7 @@ class Display
 					
 					if($elementDisplay=='');
 					{
-						$originalElementId = $this -> xsdManager -> getXsdOrganizedTree() -> getObject($elementId);	
+						$originalElementId = $this -> xsdManager -> getXsdCompleteTree()/*getXsdOrganizedTree()*/ -> getObject($elementId);	
 						$originalTree = $this -> xsdManager -> getXsdOriginalTree();
 						
 						$choiceElement = $originalTree -> getObject($originalElementId);
@@ -437,7 +437,7 @@ class Display
 						{
 							foreach ($children as $child) 
 							{
-								$childOriginalId = $this -> xsdManager -> getXsdOrganizedTree() -> getObject($child);
+								$childOriginalId = $this -> xsdManager -> getXsdCompleteTree()/*getXsdOrganizedTree()*/ -> getObject($child);
 								if($childOriginalId == $choiceElementAttributes['CHOICE'][0])
 								{
 									$children = array($child);
@@ -517,7 +517,7 @@ class Display
 		
 		// Special display for choice element
 		$isChoiceElement = false;
-		if($elementAttr['NAME'] == 'choice') $isChoiceElement = true;
+		if($elementAttr['NAME'] == 'choose') $isChoiceElement = true;
 
 		if (!$withoutList)
 			$result .= '<li id="' . $elementId . '">';

@@ -1,5 +1,5 @@
 <div id="featured-wrapper"><div id="featured">
-	<h1>Data entering [DEMO]</h1>
+	<h1>Data Entry [DEMO]</h1>
 	<p>
 		In this step, you have to fill in the form. During the process you can save your work in order to complete it later.<br/>
 		Once you have fill every field, you can view the XML.

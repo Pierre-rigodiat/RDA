@@ -3,7 +3,7 @@
 	Version 0.2 (12-13-2012)
 -->
 <div id="featured-wrapper"><div id="featured">
-	<h1>Module manager [DEMO]</h1>
+	<h1>Module Manager [DEMO]</h1>
 	<p>
 		Here you can choose the module to enable or disable.
 	</p>

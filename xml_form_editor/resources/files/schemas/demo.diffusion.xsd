@@ -324,6 +324,7 @@
       <xsd:element name="experimentType" type="ExperimentType"/>
       <xsd:element name="id" type="xsd:integer"/>
       <xsd:element name="citation" type="CitationType"/>
+      <xsd:element maxOccurs="unbounded" minOccurs="0" name="table" type="Table"/>   
     </xsd:sequence>
   </xsd:complexType>
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
@@ -493,7 +494,7 @@
       <xsd:choice>
         <xsd:element name="value" type="Quantity"/>
         <xsd:element name="dataPoint" type="Point"/>
-        <xsd:element name="profile" type="Profile"/>        
+        <xsd:element name="profile" type="Profile"/>      
       </xsd:choice>
     </xsd:sequence>
   </xsd:complexType>

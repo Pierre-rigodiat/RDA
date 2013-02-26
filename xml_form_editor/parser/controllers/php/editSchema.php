@@ -151,6 +151,7 @@ if(isset($_GET['id']) && isset($_GET['minOccurs']) && isset($_GET['maxOccurs']))
 			// Set up the children
 			setUpChildrenToPage($pHandler, $xsdOrganizedTree, $_GET['id'], $_GET['page']);
 			
+			
 			$manager -> setPageHandler($pHandler);
 			/*** END ***/
 		}

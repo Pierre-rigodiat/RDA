@@ -2,7 +2,7 @@
 	require_once $_SESSION['config']['_ROOT_'].'/inc/lib/StringFunctions.php';
 ?>
 <div id="featured-wrapper"><div id="featured">
-	<h1>Schema manager</h1>
+	<h1>Schema Manager</h1>
 </div></div>
 
 <div id="main">

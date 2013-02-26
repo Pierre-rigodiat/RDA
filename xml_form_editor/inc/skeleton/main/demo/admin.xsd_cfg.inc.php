@@ -3,7 +3,7 @@
 	Version 0.2 (12-13-2012)
 -->
 <div id="featured-wrapper"><div id="featured">
-	<h1>Schema configuration [DEMO]</h1>
+	<h1>Schema View Configuration [DEMO]</h1>
 </div></div>
 
 <div id="main">

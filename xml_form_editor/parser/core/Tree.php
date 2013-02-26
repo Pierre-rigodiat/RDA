@@ -403,6 +403,8 @@ class Tree {
 	 */
 	public function copyTreeBranch($baseElementId, $destinationId = -1)
 	{
+		$this -> LOGGER -> log_debug('Copying tree branch from '.$baseElementId.'...', 'Tree::copyTreeBranch');
+		
 		if(isset($this->tree[$baseElementId]) && $this->tree[$baseElementId]['parent']!=-1) // Check the existence of the element + the element is not the root (copy impossible)
 		{
 			// Gathering useful information (to simplify the writing)
@@ -431,10 +433,11 @@ class Tree {
 			$newElementId = $this->insertElement($newElementObject, $parentId);
 			
 			// Change the children list to set the new element next to his brother in the children list
-			// This feature is only applied at initial call
+			// This feature is only applied at initial call (i.e for the parent element)
 			if($destinationId == -1)
 			{
-				$parentChildrenList = $this->tree[$parentId]['children'];
+				// FIXME Problem with invalid ids (array_values should not be used)
+				$parentChildrenList = array_values($this->tree[$parentId]['children']);
 				$index = -1;
 				
 				foreach($parentChildrenList as $id=>$parentChildrenId)
@@ -448,10 +451,11 @@ class Tree {
 				
 				if($index>=0)
 				{
+					$this -> LOGGER -> log_debug('Putting '.$baseElementId.' at '.($index+1), 'Tree::copyTreeBranch');
 					array_pop($this->tree[$parentId]['children']); // Delete the new element in the children list
 					
 					$newElementIdArray = array($newElementId);
-					array_splice($this->tree[$parentId]['children'], $index, 0, $newElementIdArray); // Add the element at the right index
+					array_splice($this->tree[$parentId]['children'], $index+1, 0, $newElementIdArray); // Add the element at the right index
 				}
 				else 
 				{
@@ -468,7 +472,7 @@ class Tree {
 			$this->LOGGER->log_debug('ID '.$baseElementId.' has been copied as a child of ID '.$parentId.' (new ID: '.$newElementId.')', 'Tree::copyTreeBranch');
 			return $newElementId;
 		}
-		else if($this->tree[$baseElementId]['parent']!=-1)
+		else if($this->tree[$baseElementId]['parent']==-1)
 		{
 			$this->LOGGER->log_error('Impossible to copy the root element', 'Tree::copyTreeBranch');
 			return -1;

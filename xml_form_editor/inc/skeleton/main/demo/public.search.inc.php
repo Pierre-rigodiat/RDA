@@ -1,5 +1,5 @@
 <div id="featured-wrapper"><div id="featured">
-	<h1>Data browser [DEMO]</h1>
+	<h1>Data Browser [DEMO]</h1>
 	<p>
 		In nunc et nibh rutrum volutpat. Sed tempus interdum ligula adipiscing blandit. 
 		Aliquam tempor, elit ac rhoncus lacinia, mauris metus suscipit sem.

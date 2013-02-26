@@ -1,15 +1,23 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <website>
 	<websiteInfo>
-		<websiteName></websiteName>
-		<productName></productName>
-		<productVersion></productVersion>
-		<releaseDate></releaseDate>
+		<websiteName>Material Genome Initiative</websiteName>
+		<productName>XML Form Editor</productName>
+		<productVersion>0.3d</productVersion>
+		<releaseDate>02-22-2013</releaseDate>
 	</websiteInfo>
 	<websiteTools>
 		<debug>false</debug>
 		<cache>false</cache>
 		<database>
+			<dbId>MongoDB</dbId>
+			<dbIp>127.0.0.1</dbIp>
+			<dbUser>root</dbUser>
+			<dbPwd>_test</dbPwd>
+			<dbName>website_db</dbName>
+		</database>
+		<database>
+			<dbId>Neo4j</dbId>
 			<dbIp>127.0.0.1</dbIp>
 			<dbUser>root</dbUser>
 			<dbPwd>_test</dbPwd>
@@ -22,6 +30,7 @@
 			<sectionAuth>
 				<authEnable>true</authEnable>
 				<authMode>htaccess</authMode>
+				<authFile></authFile>
 			</sectionAuth>
 			<sectionFilesDirectory>inc/skeleton/main/admin</sectionFilesDirectory>
 			<sectionMenu>
@@ -31,7 +40,7 @@
 					<itemView>item2.php</itemView>
 				</item>
 				<item>
-					<itemName>Item 2</itemName>
+					<itemName>Website</itemName>
 					<itemUrl>schemas</itemUrl>
 					<itemView>/item2.php</itemView>
 				</item>
@@ -45,13 +54,19 @@
 							<itemView>xsd_cfg.inc.php</itemView>
 						</item>
 						<item>
-							<itemName>Item 2</itemName>
-							<itemView>/item2.php</itemView>
-						</item>					
+							<itemName>Manage Schemas</itemName>
+							<itemUrl>manageSchemas</itemUrl>
+							<itemView>xsd_mgr.inc.php</itemView>
+						</item>
+						<item>
+							<itemName>Manage Module</itemName>
+							<itemUrl>currentModel</itemUrl>
+							<itemView>xsd_cfg.inc.php</itemView>
+						</item>				
 					</subItems>
 				</item>
 				<item>
-					<itemName>Home</itemName>
+					<itemName>User Management</itemName>
 					<itemUrl>schemas</itemUrl>
 					<itemView>item2.php</itemView>
 				</item>
