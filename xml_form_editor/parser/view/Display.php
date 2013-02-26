@@ -661,9 +661,12 @@ class Display
 		// TODO Implement other types of restriction
 		if (isset($elementAttr['RESTRICTION']))
 		{
-			$result .= '<select>';
+			$data = $this->xsdManager->getDataForId($elementId);				
+				
+			$result .= '<select class="xsdman restriction">';			
+			
 			foreach ($elementAttr['RESTRICTION'] as $chooseElement)
-				$result .= '<option value="' . $chooseElement . '">' . $chooseElement . '</value>';
+				$result .= '<option value="' . $chooseElement . '" '.($data==$chooseElement?'selected="selected"':'').'>' . $chooseElement . '</value>';
 			$result .= '</select>';
 			$this->LOGGER->log_debug('ID '.$elementId.' is a restriction', 'Display::displayHTMLFormElement');
 		}

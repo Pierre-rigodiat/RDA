@@ -50,6 +50,7 @@ saveFields = function()
 	console.log("[saveFields] Saving fields...");
 	
 	var inputs = $('input.text'),
+		selects = $('select.xsdman.restriction'),
 		qString = '';
 	
 	inputs.each(function()
@@ -62,6 +63,18 @@ saveFields = function()
 			console.log('Id '+parseInt(inputId)+' = '+inputValue);
 			qString += parseInt(inputId)+'='+inputValue+'&';
 		}	
+	});
+	
+	selects.each(function()
+	{
+		var selectId = $(this).parent().attr('id'),
+			selectValue = $(this).attr('value');
+			
+		if(!isNaN(parseInt(selectId)))
+		{
+			console.log('Id '+parseInt(selectId)+' = '+selectValue);
+			qString += parseInt(selectId)+'='+selectValue+'&';
+		}
 	});
 	
 	qString = qString.substring(0, qString.length-1);
