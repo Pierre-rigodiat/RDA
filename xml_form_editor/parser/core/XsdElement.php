@@ -52,7 +52,7 @@ class XsdElement {
 	
 	/**
 	 * Logging information
-	 * TODO Improve it
+	 * TODO Improve the logging management
 	 */
 	/** @ignore */
 	private $LOGGER;
@@ -127,17 +127,8 @@ class XsdElement {
 				break;
 		}
 		
-		// Initialize the parser
-		try
-		{
-			$this->LOGGER = new Logger($level, self::$LOG_FILE, self::$FILE_NAME);
-		}
-		catch (Exception $ex)
-		{
-			// TODO return an exception an not a message
-			echo '<b>Impossible to build the Logger:</b><br/>'.$ex->getMessage();
-			return;
-		}
+		// Initialize the logger (will throw an Exception if any problem occured)
+		$this->LOGGER = new Logger($level, self::$LOG_FILE, self::$FILE_NAME);
 		
 		if($this->elementType==null) // If an error occured during the initalization of the object
 		{
@@ -172,7 +163,7 @@ class XsdElement {
 	 */
 	public function getType()
 	{
-		$this->LOGGER->log_notice('Function called', 'XsdElement::getType');
+		$this->LOGGER->log_notice('Function called for '.$this, 'XsdElement::getType');
 		return $this->elementType;
 	}
 	
@@ -182,7 +173,7 @@ class XsdElement {
 	 */
 	public function getAttributes()
 	{
-		$this->LOGGER->log_notice('Function called', 'XsdElement::getAttributes');
+		$this->LOGGER->log_notice('Function called for '.$this, 'XsdElement::getAttributes');
 		return $this->elementAttributes;
 	}
 	
@@ -341,7 +332,7 @@ class XsdElement {
 	}
 
 	/**
-	 * Return a string description of the object
+	 * Return the description of the object
 	 * @return string Description of the object
 	 */
 	public function __toString()
@@ -369,5 +360,3 @@ class XsdElement {
 		return $resultString;
 	}
 }
-
-?>

@@ -6,6 +6,33 @@ require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/core/XsdElement
 require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/view/Display.php';
 require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/lib/PhpControllersFunctions.php';
 
+
+function setUpChildrenToPage($pageHandler, $tree, $origElementId, $destElementId)
+{
+	$origChildren = $tree -> getChildren($origElementId);
+	$destChildren = $tree -> getChildren($destElementId);
+	
+	// FIXME Those 2 line do not belong here, there must be a problem elsewhere
+	$origChildren = array_values($origChildren);
+	$destChildren = array_values($destChildren);
+	/*echo 'Orig: '.count($origChildren).'; Dest: '.count($destChildren);
+	print_r($origChildren);
+	print_r($destChildren);*/
+	
+	foreach($destChildren as $id => $child)
+	{
+		$pageArray = $pageHandler -> getPageForId($origChildren[$id]);
+		foreach($pageArray as $page)
+		{
+			$pageHandler -> setPageForId($page, $child);
+		}
+		
+		setUpChildrenToPage($pageHandler, $tree, $origChildren[$id], $child);
+	}
+}
+
+
+
 //todo optimize script
 //todo secure script
 //todo add a logger
@@ -101,7 +128,7 @@ if(isset($_GET['action']) && isset($_GET['id']) && isset($_SESSION['xsd_parser']
 	switch($_GET['action'])
 	{
 		case 'a': /*Adding an element*/
-			if(isset($elementAttr['AVAILABLE']) && !$elementAttr['AVAILABLE'])
+			if(isset($elementAttr['AVAILABLE']) && !$elementAttr['AVAILABLE']) // Element is not available (it needs to be set as available)
 			{
 				$availabilityAttr = array('AVAILABLE'=>true);
 				//$removeResult = $xsdCompleteTree->getObject($_GET['id'])->addAttributes($availabilityAttr);
@@ -114,7 +141,7 @@ if(isset($_GET['action']) && isset($_GET['id']) && isset($_SESSION['xsd_parser']
 				
 				echo getJSONString($grandParentId);
 			}
-			else
+			else // Element is available (it needs a new element)
 			{
 				// Check the maximum element we could have
 				if(isset($elementAttr['MAXOCCURS']) && is_numeric($elementAttr['MAXOCCURS'])) $maxOccurs = $elementAttr['MAXOCCURS'];
@@ -129,6 +156,19 @@ if(isset($_GET['action']) && isset($_GET['id']) && isset($_SESSION['xsd_parser']
 					{
 						$manager -> setXsdCompleteTree($xsdCompleteTree);
 						$manager -> setXsdOriginalTree($xsdOriginalTree);
+						
+						$pageHandler = $manager -> getPageHandler();
+						$pageArray = $pageHandler -> getPageForId($_GET['id']);
+						
+						foreach($pageArray as $page)
+						{
+							$pageHandler -> setPageForId($page, $elementId);
+						}
+						
+						setUpChildrenToPage($pageHandler, /*$xsdCompleteTree*/$manager -> getXsdCompleteTree(), $_GET['id'], $elementId);
+						
+						$manager -> setPageHandler($pageHandler);
+						
 						$_SESSION['xsd_parser']['parser'] = serialize($manager);
 						
 						echo getJSONString($grandParentId);
