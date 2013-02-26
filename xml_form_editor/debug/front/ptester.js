@@ -4,7 +4,55 @@ $(document).ready(function(){
 	$('.save.file').on('click', saveFile);
 	$('.refresh.conf').on('click', refreshConf);
 	$('.save.data').on('click', saveData);
+	$('.encode.data').on('click', encodeData);
+	$('.save.mongodb').on('click', saveMongodb);
 });
+
+/**
+ * 
+ */
+saveMongodb = function()
+{
+	var encodeType = $('#encode_data').find(':selected').attr('value');
+	$.ajax({
+		url: 'back/saveMongodb.php',
+		type: 'GET',
+		success: function(data) {
+		
+		},
+		error: function() {
+			console.error("[saveMongodb] Problem with AJAX call");
+		},
+		data: 'encode='+encodeType,
+		//Options to tell JQuery not to process data or worry about content-type
+        cache: false,
+        contentType: false,
+        processData: false
+	});
+}
+
+/**
+ * 
+ */
+encodeData = function()
+{
+	var encodeType = $('#encode_data').find(':selected').attr('value');
+	$.ajax({
+		url: 'back/encode.php',
+		type: 'GET',
+		success: function(data) {
+			$('#result').text(data);
+		},
+		error: function() {
+			console.error("[encodeData] Problem with AJAX call");
+		},
+		data: 'encode='+encodeType,
+		//Options to tell JQuery not to process data or worry about content-type
+        cache: false,
+        contentType: false,
+        processData: false
+	});
+}
 
 /**
  * 

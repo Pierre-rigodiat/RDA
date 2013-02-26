@@ -11,6 +11,6 @@ require_once 'xml2json/xml2jsonJSONML.php';
 
 $db = new MongoDBStream ("127.0.0.1","test");
 $db->openDB();
-$db->insertXml("testXml.xml","test");
+$db->retrieveXml("testBadgerFish.json","test");
 
 ?>

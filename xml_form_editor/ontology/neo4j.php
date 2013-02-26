@@ -2,34 +2,29 @@
 
 require("../inc/db/neo4j/neo4jphp.phar");
 
-$search = "";
-$relation = "";
+$testQuery = "";
 
-$unit = array("unitOfMeasureType", "name");
-$crystal = array("crystalStructure", "name");
-$form = array("materialForm", "name");
-$phase = array("phase", "name");
+$unitType = array("UnitOfMeasureType", "Name");
+$unit = array("Unit", "Name");
+//$crystal = array("CrystalStructure", "Name");
+//$form = array("MaterialForm", "Name");
 
 $element = array($_GET["parent"], $_GET["node"]);
 
-if (array_diff($element, $crystal) == array()) {
-	$search = "CrystalLattice";
-	$relation = "subClassOf";
-}
-if (array_diff($element, $form) == array()) {
-	$search = "MaterialForm";
-	$relation = "type";
-}
-if (array_diff($element, $phase) == array()) {
-	$search = "MaterialPhaseComposition";
-	$relation = "subClassOf";
+/*if (array_diff($element, $crystal) == array()) {
+	$testQuery = "g.V.has('name','CrystalLattice').in('subClassOf').name";
+}*/
+/*if (array_diff($element, $form) == array()) {
+	$testQuery = "g.V.has('name','MaterialForm').in('type').name";
+}*/
+if (array_diff($element, $unitType) == array()) {
+	$testQuery = "g.V.has('name','UnitOfMeasure').in('subClassOf').name";
 }
 if (array_diff($element, $unit) == array()) {
-	$search = "UnitOfMeasure";
-	$relation = "subClassOf";
+	$testQuery = "g.V.has('name','UnitOfMeasure').in('subClassOf').in('type').name";
 }
 
-if ($search != "") {	
+if ($testQuery != "") {	
 		// Connecting to the default port 7474 on localhost
 		try
 		{
@@ -53,7 +48,6 @@ if ($search != "") {
 		}
 		
 		// The following query searches every node
-		$testQuery = "g.V.has('name','".$search."').in('".$relation."').name";
 		//$testQuery='fail';
 		$expectedNumberOfEntries=23;
 		
