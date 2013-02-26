@@ -5,15 +5,17 @@ function encodeBadgerFish($domNode)
 	
 	$xpath = new DOMXPath($domNode);
 	$result = array();
+	$namespace = array();
+	$namespace['xmlns'] = '';
 	
 	//echo "<hr/>";
-	$result = encodeB($domNode, $xpath);
+	$result = encodeB($domNode, $xpath, $namespace);
 	
 	//echo "<hr/>";
 	return json_encode($result);
 }
 
-function encodeB($domNode, $xpath)
+function encodeB($domNode, $xpath, $namespace)
 {
 	$r = array();
 	if ($domNode->childNodes)
@@ -22,10 +24,19 @@ function encodeB($domNode, $xpath)
 		if ($elem=$xpath->query('namespace::*[name() != "xml"]', $domNode))
 		{
 			foreach ($elem as $ns) {
-				if ($ns->localName == 'xmlns') {
+				if ($ns->localName == 'xmlns' && $ns->namespaceURI != $namespace['xmlns']) {
 					$r['@xmlns']['$'] = $ns->namespaceURI;
+					$namespace['xmlns'] = $ns->namespaceURI;
 				} else {
-					$r['@xmlns'][$ns->localName] = $ns->namespaceURI;
+					$new = 1;
+					foreach ($namespace as $prefix => $uri){
+						if($prefix == $ns->localName && $new)
+							$new = 0;
+					}
+					if ($new) {
+						$r['@xmlns'][$ns->localName] = $ns->namespaceURI;
+						$namespace[$ns->localName] = $ns->namespaceURI;
+					}
 				}
 			}
 		}
@@ -58,7 +69,7 @@ function encodeB($domNode, $xpath)
 			{
 				//echo "[".$idx;
 				
-				$r[$idx][] = encodeB($child, $xpath);
+				$r[$idx][] = encodeB($child, $xpath, $namespace);
 
 				//echo "]";
 			}

@@ -222,14 +222,14 @@ private $databaseObject;
 	function retrieveXml($doc, $collectionName) {
 		$json_data = file_get_contents($doc);
 		
-		$xmlContents = decodeGData($json_data);
+		$xmlContents = decodeBadgerFish($json_data);
 		if (!$xmlContents) {
 			echo "Could not transform json to xml";
 			return;
 		}
 		
 		var_dump($xmlContents->saveXML());
-		file_put_contents("xmlBadger.xml", $xmlContents->saveXML());
+		//file_put_contents("xmlBadger.xml", $xmlContents->saveXML());
 		return;
 	}
 	
