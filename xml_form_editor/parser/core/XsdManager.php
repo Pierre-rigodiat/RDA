@@ -326,6 +326,7 @@ class XsdManager
 	// Computes minOccurs
 	public function buildCompleteTree($elementId = 0)
 	{
+		// Create the complete tree if it does not exist
 		if (!$this -> xsdCompleteTree -> hasElement())
 			$this -> xsdCompleteTree = clone $this -> xsdOrganizedTree;
 
@@ -344,9 +345,36 @@ class XsdManager
 		{
 			for ($i = 0; $i < $elementAttr['MINOCCURS'] - 1; $i++)
 			{
-				$this -> xsdCompleteTree -> copyTreeBranch($elementId);
+				$newElementId = $this -> xsdCompleteTree -> copyTreeBranch($elementId);
+				$this -> copyPageArray($elementId, $newElementId);
 			}
 		}
+	}
+	
+	/**
+	 * 
+	 */
+	private function copyPageArray($elementToCopy, $elementToModify)
+	{
+		$pageArray = $this -> pageHandler -> getPageForId($elementToCopy);
+		
+		foreach($pageArray as $pageNumber)
+		{
+			//$this -> assignIdToPage($elementToModify, $pageNumber);
+			
+			$this -> pageHandler -> setPageForId($pageNumber, $elementToModify);
+		}
+		
+		// FIXME array_values should not be needed there is a problem elsewhere
+		$childrenToCopy = array_values($this -> xsdCompleteTree -> getChildren($elementToCopy));
+		$childrenToModify = array_values($this -> xsdCompleteTree -> getChildren($elementToModify));
+		
+		foreach($childrenToModify as $childId => $childToModify)
+		{
+			$childToCopy = $childrenToCopy[$childId];
+			$this -> copyPageArray($childToCopy, $childToModify);
+		}
+		
 	}
 
 	/**
