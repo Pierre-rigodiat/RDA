@@ -742,7 +742,7 @@ class Display
 		
 		if(isset($elementAttr['AVAILABLE']) && $elementAttr['AVAILABLE']==false) // Set up add icon if an element is disabled (minOccurs = 0 reached)
 		{
-			$this->LOGGER->log_debug('ID '.$elementId.' maxOccurs = '.$elementAttr['MAXOCCURS'].'', 'Display::displayHTMLFormElement');
+			$this->LOGGER->log_debug('ID '.$elementId.' is unavailable', 'Display::displayHTMLFormElement');
 			if(!$addIconDisplayed) 
 				$result .= '<span class="icon add"></span>';
 		}

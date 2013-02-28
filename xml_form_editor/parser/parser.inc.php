@@ -7,6 +7,7 @@
 
 if(session_id()=='') // If the session has not been started, it is impossible to play with the parser
 {
+	// TODO Throw an exception rather than writing something
 	echo '<div class="error">A session must be started to use the parser</div>';
 	exit;	
 }
