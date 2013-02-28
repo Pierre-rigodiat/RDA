@@ -1,4 +1,12 @@
 <?php
+/**
+ * <TreeAction controller>
+ */
+/**
+ * 
+ * 
+ * @package XsdMan\Controllers
+ */
 session_start();
 require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/core/Tree.php';
 require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/core/XsdManager.php';
@@ -125,6 +133,9 @@ if(isset($_GET['action']) && isset($_GET['id']) && isset($_SESSION['xsd_parser']
 		if($siblingParentId==$parentId)  $siblingCount += 1;
 	}
 	
+	/**
+	 * 
+	 */
 	switch($_GET['action'])
 	{
 		case 'a': /*Adding an element*/
@@ -187,10 +198,11 @@ if(isset($_GET['action']) && isset($_GET['id']) && isset($_SESSION['xsd_parser']
 			if(isset($elementAttr['MINOCCURS'])) $minOccurs = $elementAttr['MINOCCURS'];
 			else $minOccurs = 1;
 			
-			if($minOccurs!=0 && $siblingCount>$minOccurs) $computationResult = $xsdCompleteTree->removeElement($_GET['id'], true);
-			else if($minOccurs==0 && $siblingCount>$minOccurs+1) // If minOccurs == 0 & is reached then, we do not want to erase the item but disable it
+			if($minOccurs!=0 && $siblingCount>$minOccurs) // minOccurs > 0, number of elements higher than minOccurs
 				$computationResult = $xsdCompleteTree->removeElement($_GET['id'], true);
-			else // minOccurs is reached, no element must be removed but the XsdElement must be updated
+			else if($minOccurs==0 && $siblingCount>$minOccurs+1) // minOccurs = 0, number of element higher than 1
+				$computationResult = $xsdCompleteTree->removeElement($_GET['id'], true);
+			else // minOccurs = 0, number of element = 0
 			{
 				$availabilityAttr = array('AVAILABLE'=>false);
 				$computationResult = $xsdOriginalTree->getObject($originalTreeId)->addAttributes($availabilityAttr);
@@ -211,10 +223,9 @@ if(isset($_GET['action']) && isset($_GET['id']) && isset($_SESSION['xsd_parser']
 			
 			break;
 		default:
-			echo buildJSON('Bad command sent', -4);
+			echo buildJSON('Unknown command sent', -4);
 			break;
 	}
 }
 else 
-	echo buildJSON('Variables not set in the $_SESSION environment', -2);
-?>
+	echo buildJSON('$_SESSION environment not set', -2);
