@@ -48,12 +48,15 @@ else
 	{
 		if(($start = strpos($_GET['name'], '[')) !== FALSE && ($end = strpos($_GET['name'], ']')) !== FALSE)
 		{
+			// Getting the correct index of the file in the module list
 			$start += 1; // To avoid having '[' in the substring
 			$inputId = substr($_GET['name'], $start, $end - $start);
 			
+			// Removing the file and saving session variable
 			$tableModule -> removeFile($inputId);
 			$_SESSION['xsd_parser']['modules']['table']['model'] = serialize($tableModule);
 		
+			// Getting the new display
 			$response = htmlspecialchars($tableDisplay -> update());
 			$_SESSION['xsd_parser']['modules']['table']['view'] = serialize($tableDisplay);
 			

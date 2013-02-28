@@ -1,4 +1,29 @@
 <?php
+/**
+ * <XsdManager class>
+ */
+/**
+ * <b>Handle the schema configuration and value. It is the backbone of the software</b>
+ * 
+ * XsdManager object instantiate a lot of different objects to be able to have all the schema information and the filling values.
+ * It deals with:
+ * <ul>
+ * 	<li>3 trees</li>
+ * 	<li>PageHandler</li>
+ * 	<li>ModuleHandler</li>
+ * </ul>
+ * 
+ * 
+ * 
+ * 
+ * @author P. Dessauw <philippe.dessauw@nist.gov>
+ * @copyright NIST 2013
+ * 
+ * @package XsdMan\Core
+ */
+ 
+ 
+ 
 // XXX Avoid infinite includes in lib
 require_once $_SESSION['xsd_parser']['conf']['dirname'] . '/inc/helpers/Logger.php';
 require_once $_SESSION['xsd_parser']['conf']['dirname'] . '/parser/core/Tree.php';
@@ -584,18 +609,18 @@ class XsdManager
 				
 				if($dataArray == null)
 				{
-					$this -> LOGGER -> log_error('Function returned NULL data array ', 'TableModule::getDataForId');
+					$this -> LOGGER -> log_error('Function returned NULL for ID '.$elementId, 'XsdManager::getDataForId');
 					return null;
 				}
 				
 				$elementId = 0; // FIXME Condition not good
 				if(isset($dataArray[$elementId])) 
 				{
-					$this -> LOGGER -> log_debug('Data found for ID '.$elementId, 'TableModule::getDataForId');
+					$this -> LOGGER -> log_debug('Data found for ID '.$elementId, 'XsdManager::getDataForId');
 					return $dataArray[$elementId];
 				}
 				else {
-					$this -> LOGGER -> log_error('Data not inserted for ID '.$elementId, 'TableModule::getDataForId');
+					$this -> LOGGER -> log_error('Data not inserted for ID '.$elementId, 'XsdManager::getDataForId');
 					return null;
 				}
 			}

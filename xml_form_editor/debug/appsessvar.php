@@ -27,7 +27,7 @@
 	
 		if(isset($_SESSION['xsd_parser'])) 
 		{
-			
+			//$managerAppSession = serialize()
 		}
 		
 		if(isset($_SESSION['xsd_parser']['parser'])) 
