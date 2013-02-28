@@ -134,6 +134,9 @@ class TableDisplay
 		return $moduleCode;
 	}
 	
+	/**
+	 * 
+	 */
 	public function update()
 	{
 		$tableModule = unserialize($_SESSION['xsd_parser']['modules']['table']['model']);

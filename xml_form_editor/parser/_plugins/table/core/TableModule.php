@@ -1,6 +1,8 @@
 <?php
 /**
  * 
+ * 
+ * @package plugins/table/core
  */ 
 class TableModule {
 	/**
@@ -133,15 +135,28 @@ class TableModule {
 		array_push($this->files, $fileName);
 	}
 	
+	/**
+	 * Remove the file and
+	 */
 	public function removeFile($fileId)
 	{
 		// TODO Check that the ID is in the array
+		// TODO Delete the file on the server
+		
+		// Delete the file
 		unset($this -> files[$fileId]);
 		$this -> files = array_values($this -> files);
+		
+		// Delete the data
+		$elementId = $this -> tree -> getObject(0); // FIXME Tree not treated as we wanted
+		unset($this -> dataArray[$elementId][$fileId]);
+		$this -> dataArray[$elementId] = array_values($this -> dataArray[$elementId]);
 	}
 	
 	public function parseFile($fileName)
 	{
+		$this -> LOGGER -> log_debug('Parsing '.$fileName.'...', 'TableModule::parseFile');
+		
 		// TODO Change to a configuration variable
 		$pythonExec = '"C:/Program Files (x86)/Python/273/python.exe"';
 		
@@ -155,37 +170,68 @@ class TableModule {
 		
 		if($ret_val == 0) // No errors
 		{
+			$this -> LOGGER -> log_debug($fileName.' parsed. Retrieving table structure...', 'TableModule::parseFile');
+			
 			$table = "";
 			foreach($output as $print_element)
 			{
 				$table.=/*htmlspecialchars(*/$print_element/*)*/;
 			}
 			
+			$this -> LOGGER -> log_debug('Data set = [[['.$table.']]]', 'TableModule::parseFile');
+			
 			// FIXME Add data differently into the array
 			$elementId = $this -> tree -> getObject(0);
-			$currentData = '';
+			//$currentData = '';
 			
-			if(isset($this -> dataArray[$elementId])) $currentData = $this -> dataArray[$elementId];
+			if(!isset($this -> dataArray[$elementId])) $this -> dataArray[$elementId] = array();
 			
-			$currentData .= $table;
+			array_push($this -> dataArray[$elementId], $table);
+			
+			//$currentData .= $table;
 			//array_push($this -> dataArray[$elementId], $table);
 			
-			$this -> dataArray[$elementId] = $currentData;
+			//$this -> dataArray[$elementId] = $currentData;
 			
 			$this -> LOGGER -> log_debug('Data inserted for element '.$elementId, 'TableModule::parseFile');
+		}
+		else
+		{
+			$this -> LOGGER -> log_error($fileName.' returned an error: '.$ret_val, 'TableModule::parseFile');
 		}
 		
 		return $ret_val;
 	}
 	
+	/**
+	 * 
+	 */
 	public function getFiles()
 	{
 		return $this->files;
 	}
 	
+	/**
+	 * 
+	 */
 	public function getXmlData()
-	{
-		return $this->dataArray;
+	{		
+		// FIXME The way to retrieve xml is should be changed
+		$elementId = $this -> tree -> getObject(0);
+		$xmlData = '';
+		
+		$this -> LOGGER -> log_debug('Retrieving data for element '.$elementId, 'TableModule::getXmlData');
+		
+		foreach($this -> dataArray[$elementId] as $table)
+		{
+			$this -> LOGGER -> log_notice('New table found', 'TableModule::getXmlData');
+			$xmlData .= $table;
+			$this -> LOGGER -> log_debug('Data set: '.$table, 'TableModule::getXmlData');
+			$this -> LOGGER -> log_notice('Table added', 'TableModule::getXmlData');
+		}
+		
+		$xmlDataArray = array($elementId => $xmlData);
+		return $xmlDataArray;
 	}
 	
 }

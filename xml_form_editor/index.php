@@ -13,6 +13,7 @@
 <head>	
 	<script>
 		var startTime = (new Date()).getTime();
+		var registerFormLibLoaded = false;
 	</script>
 	
 	<meta http-equiv="content-type" content="text/html; charset=UTF-8" />

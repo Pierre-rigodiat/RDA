@@ -27,7 +27,7 @@
 	
 		if(isset($_SESSION['xsd_parser'])) 
 		{
-			
+			//echo serialize($_SESSION['xsd_parser']);
 		}
 		
 		if(isset($_SESSION['xsd_parser']['parser'])) 

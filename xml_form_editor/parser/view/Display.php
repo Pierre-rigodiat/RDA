@@ -49,10 +49,7 @@ class Display
 				// new Display(xsdManagerObject)
 				if (is_object($argv[0]) && get_class($argv[0]) == 'XsdManager')
 				{
-					$this -> xsdManager = $argv[0];
-					/*$this -> pageHandler = $argv[1];
-					$this -> moduleHandler = $argv[2];*/
-					
+					$this -> xsdManager = $argv[0];					
 					$level = self::$LEVELS['NO_DBG'];
 				}
 				else
@@ -648,10 +645,20 @@ class Display
 		if (isset($elementAttr['TYPE']) && startsWith($elementAttr['TYPE'], 'xsd')) // todo put xsd into a variable (could use the manager)
 		{			
 			$result .= '<input type="text" class="text"';
-			if(($data = $this->xsdManager->getDataForId($elementId)) != null)
+			
+			if(isset($elementAttr['AVAILABLE']) && $elementAttr['AVAILABLE']==false) // Element not available => No value + Input disabled
 			{
-				$result .= ' value="'.$data.'"';
+				$result .= ' disabled="disabled"';
 			}
+			else // Element available
+			{
+				if(($data = $this->xsdManager->getDataForId($elementId)) != null) // Element has data
+				{
+					$result .= ' value="'.$data.'"';
+				}
+				
+			}
+			
 			$result .= '/>';
 			
 			$this->LOGGER->log_debug('ID '.$elementId.' can be edited', 'Display::displayHTMLFormElement');
@@ -721,10 +728,22 @@ class Display
 		
 		$this->LOGGER->log_debug('ID '.$elementId.' minOccurs = '.$minOccurs.'', 'Display::displayHTMLFormElement');
 
+		$addIconDisplayed = false;
+
 		if (isset($elementAttr['MAXOCCURS'])) // Set up the icons if there is a maxOccurs defined
 		{
 			$this->LOGGER->log_debug('ID '.$elementId.' maxOccurs = '.$elementAttr['MAXOCCURS'].'', 'Display::displayHTMLFormElement');
 			if ($elementAttr['MAXOCCURS'] == 'unbounded' || $siblingsCount < $elementAttr['MAXOCCURS'])
+			{
+				$result .= '<span class="icon add"></span>';
+				$addIconDisplayed = true;
+			}
+		}
+		
+		if(isset($elementAttr['AVAILABLE']) && $elementAttr['AVAILABLE']==false) // Set up add icon if an element is disabled (minOccurs = 0 reached)
+		{
+			$this->LOGGER->log_debug('ID '.$elementId.' is unavailable', 'Display::displayHTMLFormElement');
+			if(!$addIconDisplayed) 
 				$result .= '<span class="icon add"></span>';
 		}
 
@@ -749,7 +768,9 @@ class Display
 		$element = $this -> xsdManager -> getXsdOriginalTree() -> getObject($originalTreeId);
 		$elementAttr = $element -> getAttributes();
 		
-		if (isset($elementAttr['CHOICE'])) return $xmlElement;
+		if (isset($elementAttr['CHOICE'])) return $xmlElement; // Element CHOICE are not displayed (element created to be able to make the choice in the form)
+		if (isset($elementAttr['AVAILABLE']) && $elementAttr['AVAILABLE']==false) return $xmlElement; // Disabled element are not displayed
+		
 		
 		if($tagType == self::$XML_START)
 		{
