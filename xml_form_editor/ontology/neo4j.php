@@ -6,21 +6,21 @@ $testQuery = "";
 
 $unitType = array("UnitOfMeasureType", "Name");
 $unit = array("Unit", "Name");
-//$crystal = array("CrystalStructure", "Name");
-//$form = array("MaterialForm", "Name");
+$xUnit = array("XUnit", "Name");
+$yUnit = array("YUnit", "Name");
+$qUnit = array("QUnit", "Name");
+$d0Unit = array("D0Unit", "Name");
+$spaceGroup = array("SpaceGroup", "SymbolOrNumber");
 
 $element = array($_GET["parent"], $_GET["node"]);
 
-/*if (array_diff($element, $crystal) == array()) {
+if (array_diff($element, $spaceGroup) == array()) {
 	$testQuery = "g.V.has('name','CrystalLattice').in('subClassOf').name";
-}*/
-/*if (array_diff($element, $form) == array()) {
-	$testQuery = "g.V.has('name','MaterialForm').in('type').name";
-}*/
+}
 if (array_diff($element, $unitType) == array()) {
 	$testQuery = "g.V.has('name','UnitOfMeasure').in('subClassOf').name";
 }
-if (array_diff($element, $unit) == array()) {
+if (array_diff($element, $unit) == array() || array_diff($element, $xUnit) == array() || array_diff($element, $yUnit) == array() || array_diff($element, $qUnit) == array() ||array_diff($element, $d0Unit) == array()) {
 	$testQuery = "g.V.has('name','UnitOfMeasure').in('subClassOf').in('type').name";
 }
 
