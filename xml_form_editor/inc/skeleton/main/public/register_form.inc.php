@@ -54,11 +54,22 @@
 <script src="ontology/auto-complete.js"></script>
 <script src="resources/js.new/register_form.js"></script>
 <script>
-	loadAddRemoveController();
-	loadPaginationController();
-	loadChoiceController();
-	
-	loadAutocomplete();
-	
-	loadRegisterFormController();
+	/**
+	 * Load all the JavaScript events needed
+	 * Prevent addition of a listener to a same element
+	 */
+	if(!registerFormLibLoaded)
+	{
+		loadAddRemoveController();
+		loadPaginationController();
+		loadChoiceController();
+		
+		loadAutocomplete();
+		
+		loadRegisterFormController();
+		console.log('[/register] Libraries succefully loaded!');
+		
+		registerFormLibLoaded = true;
+	}
+	else console.log('[/register] Libraries already loaded');
 </script>

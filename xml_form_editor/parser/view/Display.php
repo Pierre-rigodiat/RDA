@@ -728,16 +728,23 @@ class Display
 		
 		$this->LOGGER->log_debug('ID '.$elementId.' minOccurs = '.$minOccurs.'', 'Display::displayHTMLFormElement');
 
+		$addIconDisplayed = false;
+
 		if (isset($elementAttr['MAXOCCURS'])) // Set up the icons if there is a maxOccurs defined
 		{
 			$this->LOGGER->log_debug('ID '.$elementId.' maxOccurs = '.$elementAttr['MAXOCCURS'].'', 'Display::displayHTMLFormElement');
 			if ($elementAttr['MAXOCCURS'] == 'unbounded' || $siblingsCount < $elementAttr['MAXOCCURS'])
+			{
 				$result .= '<span class="icon add"></span>';
+				$addIconDisplayed = true;
+			}
 		}
 		
-		if(isset($elementAttr['AVAILABLE']) && $elementAttr['AVAILABLE']==false)
+		if(isset($elementAttr['AVAILABLE']) && $elementAttr['AVAILABLE']==false) // Set up add icon if an element is disabled (minOccurs = 0 reached)
 		{
-			$result .= '<span class="icon add"></span>';
+			$this->LOGGER->log_debug('ID '.$elementId.' maxOccurs = '.$elementAttr['MAXOCCURS'].'', 'Display::displayHTMLFormElement');
+			if(!$addIconDisplayed) 
+				$result .= '<span class="icon add"></span>';
 		}
 
 		/*if(($minOccurs>0 && $siblingsCount>$minOccurs) ||
