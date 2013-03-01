@@ -64,6 +64,7 @@ updatePageContent = function()
         	if(jsonObject.code>=0)
         	{
         		$("#page_content").replaceWith(htmlspecialchars_decode(jsonObject.result));
+        		loadAutoComplete();
         		console.log('[updatePageContent] Content updated');
         	}
         	else
