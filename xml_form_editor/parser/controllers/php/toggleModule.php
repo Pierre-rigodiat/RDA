@@ -1,4 +1,10 @@
 <?php
+/**
+ * <ToggleModule controller>
+ * 
+ * 
+ * @package XsdMan\Controllers
+ */
 session_start();
 require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/core/XsdManager.php';
 require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/core/ModuleHandler.php';

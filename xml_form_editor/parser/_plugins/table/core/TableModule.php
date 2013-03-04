@@ -2,7 +2,7 @@
 /**
  * 
  * 
- * @package plugins/table/core
+ * @package Plugins\Table\Core
  */ 
 class TableModule {
 	/**

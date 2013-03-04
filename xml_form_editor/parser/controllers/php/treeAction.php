@@ -1,8 +1,6 @@
 <?php
 /**
  * <TreeAction controller>
- */
-/**
  * 
  * 
  * @package XsdMan\Controllers
@@ -14,7 +12,9 @@ require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/core/XsdElement
 require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/view/Display.php';
 require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/lib/PhpControllersFunctions.php';
 
-
+/**
+ * @ignore
+ */
 function setUpChildrenToPage($pageHandler, $tree, $origElementId, $destElementId)
 {
 	$origChildren = $tree -> getChildren($origElementId);
@@ -55,6 +55,9 @@ function setUpChildrenToPage($pageHandler, $tree, $origElementId, $destElementId
  * 
  * 
  * */
+ /**
+ * @ignore
+ */
 function getJSONString(/*$parser, $xsdCompleteTree, */$elementId)
 {
 	/*$parser -> setXsdCompleteTree($xsdCompleteTree);
@@ -208,7 +211,7 @@ if(isset($_GET['action']) && isset($_GET['id']) && isset($_SESSION['xsd_parser']
 				$computationResult = $xsdOriginalTree->getObject($originalTreeId)->addAttributes($availabilityAttr);
 			} 
 			
-			if($computationResult==0)
+			if($computationResult>=0) // ResultCode >= 0 do not break the app
 			{
 				$manager -> setXsdCompleteTree($xsdCompleteTree);
 				$manager -> setXsdOriginalTree($xsdOriginalTree);

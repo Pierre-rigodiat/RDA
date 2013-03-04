@@ -30,6 +30,7 @@
 		$element_5 = new XsdElement('Lol', array('/[0-9]+/'));
 		
 		// At this point elements 1, 3 and 5 are set
+		// Watch out: setAttributes does not exists anymore
 		$element_1->setAttributes(array(12, 13));
 		$element_1->setAttributes(array(14, 'ExperimentType'));
 		
@@ -41,9 +42,9 @@
 		var_dump($element_3);
 		var_dump($element_5);
 		
-		$element_1->compare(12);
-		$element_1->compare('test');
-		$element_1->compare($element_5);*/
+		$element_1->__equalsTo(12);
+		$element_1->__equalsTo('test');
+		$element_1->__equalsTo($element_5);*/
 		
 		/**
 		 * Parser tests

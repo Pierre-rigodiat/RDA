@@ -6,11 +6,11 @@
  * Author: 
  * 
  */
-require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/core/__ModuleInterface.php';
+require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/_plugins/__model__/ModuleInterface.php';
 require_once $_SESSION['xsd_parser']['conf']['modules_dirname'].'/table/core/TableModule.php';
 require_once $_SESSION['xsd_parser']['conf']['modules_dirname'].'/table/view/TableDisplay.php';
  
-class Table implements __ModuleInterface {
+class Table implements ModuleInterface {
 	
 	public static function initModule($tree)
 	{

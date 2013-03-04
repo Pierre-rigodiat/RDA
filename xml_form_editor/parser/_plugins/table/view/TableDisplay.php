@@ -2,7 +2,7 @@
 /**
  * Display the view of the plugin
  * 
- * 
+ * @package Plugins\Table\View
  */
 class TableDisplay 
 {

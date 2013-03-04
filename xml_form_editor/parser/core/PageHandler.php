@@ -1,6 +1,7 @@
 <?php
 /**
  * 
+ * @package XsdMan\Core
  */
 class PageHandler
 {

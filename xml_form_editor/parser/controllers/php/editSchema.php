@@ -1,4 +1,15 @@
 <?php
+/**
+ * <EditSchema controller>
+ * 
+ * Edit schema controller 
+ * 
+ * @author P.Dessauw
+ * @package XsdMan\Controllers
+ */
+/**
+ * 
+ */
 session_start();
 require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/core/XsdManager.php';
 require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/core/PageHandler.php';
@@ -14,6 +25,9 @@ require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/lib/PhpControll
 // TODO Implement the autogeneration pattern
 // todo check tree action to improve code
 
+/**
+ * @ignore
+ */
 function setUpChildrenToPage($pHandler, $tree, $elementId, $pageId)
 {	
 	$children = $tree -> getChildren($elementId);
@@ -26,6 +40,9 @@ function setUpChildrenToPage($pHandler, $tree, $elementId, $pageId)
 	}
 }
 
+/**
+ * @ignore
+ */
 function setUpChildrenToModule($manager, $tree, $elementId, $moduleName)
 {
 	$children = $tree -> getChildren($elementId);
@@ -93,6 +110,8 @@ if(isset($_GET['id']) && isset($_GET['minOccurs']) && isset($_GET['maxOccurs']))
 	if(!$hasAttrChanged && isset($_GET['module'])/* && $_GET['module']!=$module*/) $hasAttrChanged=true;
 	if(!$hasAttrChanged && isset($_GET['page']) /*&& $_GET['page']!=$page*/) $hasAttrChanged=true;
 	
+	// TODO see if we can optimize this function
+	// XXX use a diff between arrays, and just add new elements
 	if($hasAttrChanged)
 	{
 		if($_GET['minOccurs']==1) unset($elementAttr['MINOCCURS']);
@@ -170,7 +189,10 @@ if(isset($_GET['id']) && isset($_GET['minOccurs']) && isset($_GET['maxOccurs']))
 			}
 		}
 		
-		$xsdOriginalTree->getObject($originalTreeId)->setAttributes($elementAttr);
+		$xsdOriginalTree->getObject($originalTreeId)->removeAllAttributes();
+		$xsdOriginalTree->getObject($originalTreeId)->addAttributes($elementAttr);
+		
+		//$xsdOriginalTree->getObject($originalTreeId)->setAttributes($elementAttr);
 		$manager -> setXsdOriginalTree($xsdOriginalTree);
 		
 		$_SESSION['xsd_parser']['parser'] = serialize($manager);

@@ -1,15 +1,16 @@
 <?php
-require_once $_SESSION['xsd_parser']['conf']['dirname'] . '/parser/core/ModuleHandler.php';
-require_once $_SESSION['xsd_parser']['conf']['dirname'] . '/parser/core/PageHandler.php';
+/**
+ * <Display class>
+ */
 require_once $_SESSION['xsd_parser']['conf']['dirname'] . '/inc/lib/StringFunctions.php';
-
 require_once $_SESSION['xsd_parser']['conf']['dirname'] . '/parser/moduleLoader.php';
-// xxx what if the $_SESSION doesn't exist
-
 /**
  * Display class allow to display element the way you want.
  * xxx Handle templates, etc...
- *
+ * xxx what if the $_SESSION doesn't exist
+ * 
+ * 
+ * @package XsdMan\View
  */
 class Display
 {
@@ -38,6 +39,11 @@ class Display
 	 */
 	public function __construct()
 	{
+		// TODO Load just the XsdManager not the moduleHandler nor PageHandler
+		require_once $_SESSION['xsd_parser']['conf']['dirname'] . '/parser/core/ModuleHandler.php';
+		require_once $_SESSION['xsd_parser']['conf']['dirname'] . '/parser/core/PageHandler.php';
+		
+		
 		self::$LOG_FILE = $_SESSION['xsd_parser']['conf']['logs_dirname'].'/'.$_SESSION['xsd_parser']['conf']['log_file'];
 
 		$argc = func_num_args();

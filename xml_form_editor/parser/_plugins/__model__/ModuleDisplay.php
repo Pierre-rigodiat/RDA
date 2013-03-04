@@ -5,6 +5,8 @@
  * Date:
  * Author:
  * 
+ * @package Plugins\Model\View
+ * 
  */
 abstract class ModuleDisplay {
 }

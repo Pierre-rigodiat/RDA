@@ -1,7 +1,12 @@
 <?php
 /**
+ * <ChangeDisplayedElement controller>
  * 
- */
+ * This is a description of the controller
+ * 
+ * 
+ * @package XsdMan\Controllers
+ */ 
 session_start();
 
 // Require lib to write JSON message

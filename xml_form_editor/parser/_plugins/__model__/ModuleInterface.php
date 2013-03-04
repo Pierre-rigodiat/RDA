@@ -5,6 +5,7 @@
  * Date:
  * Author: 
  * 
+ * @package Plugins\Model\Core
  */
 interface ModuleInterface
 {

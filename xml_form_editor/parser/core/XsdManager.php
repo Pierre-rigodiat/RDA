@@ -2,6 +2,8 @@
 /**
  * <XsdManager class>
  */
+require_once $_SESSION['xsd_parser']['conf']['dirname'] . '/parser/lib/XmlParserFunctions.php';
+require_once $_SESSION['xsd_parser']['conf']['dirname'] . '/inc/lib/StringFunctions.php';
 /**
  * <b>Handle the schema configuration and value. It is the backbone of the software</b>
  * 
@@ -15,36 +17,25 @@
  * 
  * 
  * 
- * 
- * @author P. Dessauw <philippe.dessauw@nist.gov>
- * @copyright NIST 2013
- * 
- * @package XsdMan\Core
- */
- 
- 
- 
-// XXX Avoid infinite includes in lib
-require_once $_SESSION['xsd_parser']['conf']['dirname'] . '/inc/helpers/Logger.php';
-require_once $_SESSION['xsd_parser']['conf']['dirname'] . '/parser/core/Tree.php';
-require_once $_SESSION['xsd_parser']['conf']['dirname'] . '/parser/core/XsdElement.php';
-require_once $_SESSION['xsd_parser']['conf']['dirname'] . '/parser/core/PageHandler.php';
-require_once $_SESSION['xsd_parser']['conf']['dirname'] . '/parser/core/ModuleHandler.php';
-
-require_once $_SESSION['xsd_parser']['conf']['dirname'] . '/parser/lib/XmlParserFunctions.php';
-require_once $_SESSION['xsd_parser']['conf']['dirname'] . '/inc/lib/StringFunctions.php';
-
-/**
+ * --- REWRITE ----
  * An XSD Parser able to generate several element:
  *  - an XML form to fill in
  * 	- an XML file
  * TODO Clean the array from unused data (parent, SEQUENCE, COMPLEXTYPE, SCHEMA...)
  * TODO Handle several namespaces
  * TODO For getter and setter, verify the type of parameters
+ * --- END REWRITE --- 
+ * 
+ * 
+ * @uses core\ModuleHandler
  *
  *
  *
- *
+ * 
+ * @author P. Dessauw <philippe.dessauw@nist.gov>
+ * @copyright NIST 2013
+ * 
+ * @package XsdMan\Core
  */
 class XsdManager
 {
@@ -61,6 +52,10 @@ class XsdManager
 	private $dataArray;
 
 	// Handlers
+	/**
+	 * Page handler
+	 * @var XsdMan\Core\PageHandler
+	 */
 	private $pageHandler;
 	private $moduleHandler;
 
@@ -91,6 +86,14 @@ class XsdManager
 	 */
 	public function __construct()
 	{
+		require_once $_SESSION['xsd_parser']['conf']['dirname'] . '/inc/helpers/Logger.php';
+		require_once $_SESSION['xsd_parser']['conf']['dirname'] . '/parser/core/Tree.php';
+		require_once $_SESSION['xsd_parser']['conf']['dirname'] . '/parser/core/XsdElement.php';
+		require_once $_SESSION['xsd_parser']['conf']['dirname'] . '/parser/core/PageHandler.php';
+		require_once $_SESSION['xsd_parser']['conf']['dirname'] . '/parser/core/ModuleHandler.php';
+		
+		
+		
 		self::$LOG_FILE = $_SESSION['xsd_parser']['conf']['dirname'] . '/logs/parser.log';
 
 		$argc = func_num_args();

@@ -2,7 +2,9 @@
 /**
  * The class handling every module
  * Version: 0.1a
- * 	
+ * 
+ * 
+ * @package XsdMan\Core
  */
 class ModuleHandler 
 {

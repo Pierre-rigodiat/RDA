@@ -5,6 +5,8 @@
  * Date:
  * Author:
  * 
+ * @package Plugins\Model\Core
+ * 
  */
 abstract class Module {
 	private $moduleTree; // The tree which implement the module

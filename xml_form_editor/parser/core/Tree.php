@@ -260,7 +260,7 @@ class Tree {
 				}
 				else if($objectType=='object')
 				{
-					if(method_exists($treeObject, 'compare') && $treeObject->compare($elementObject)==true) array_push($result, $id);
+					if(method_exists($treeObject, '__equalsTo') && $treeObject->__equalsTo($elementObject)==true) array_push($result, $id);
 				}
 				else if($objectType=='resource')
 				{
