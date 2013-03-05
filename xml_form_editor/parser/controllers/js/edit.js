@@ -72,6 +72,25 @@ loadEditController = function()
 	$('#unbounded').on('click', changeUnboundedState);
 	$('#minoccurs').on('focus', removeErrorDisplay);
 	$('#maxoccurs').on('focus', removeErrorDisplay);
+	
+	// Linking an event to the change of pages
+	$('#page_number').on('click', changePageNumber);
+}
+
+/**
+ * 
+ */
+removeEditController = function()
+{
+	$('#page_number').off('click');
+	
+	$('#unbounded').off('click');
+	$('#minoccurs').off('focus');
+	$('#maxoccurs').off('focus');
+	
+	$('.edit').off('click');
+	
+	$('#dialog').dialog("destroy");
 }
 
 /**
@@ -356,4 +375,39 @@ checkOccurence = function(min, max)
 		
 		return false;
 	} 
+}
+
+changePageNumber = function()
+{
+	var pageNumber = $(this).siblings('input').attr('value'),
+		treePanel = $('#schema_elements');
+	
+	$.ajax({
+        url: 'parser/controllers/php/changePageNumber.php',
+        type: 'GET',
+        success: function(data) {
+        	// TODO Reload automatically the view
+        	var jsonData = $.parseJSON(data);
+        	
+        	if(jsonData.code == 0)
+        	{
+        		removeEditController();        		
+        		treePanel.html(htmlspecialchars_decode(jsonData.result));
+        		loadEditController();
+        	}
+        	
+        	
+        	
+        	console.log('[changePageNumber] '+pageNumber+' page(s) set');
+        },
+        error: function() {
+            console.error("[changePageNumber] A problem occured when changing the nuber of pages.");
+        },
+        // Form data
+        data: 'p='+pageNumber,
+        //Options to tell JQuery not to process data or worry about content-type
+        cache: false,
+        contentType: false,
+        processData: false
+    });
 }

@@ -3,6 +3,7 @@
 define("DEBUG_XML_LIB", true);
 require_once $_SESSION['xsd_parser']['conf']['dirname'].'/inc/helpers/Logger.php';
 require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/core/XsdElement.php';
+require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/core/Tree.php';
 
 /**
  * XML parser functions

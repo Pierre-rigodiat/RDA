@@ -11,15 +11,15 @@
     background: white url('ui-anim_basic_16x16.gif') right center no-repeat;
 }
 
-#page_number
+.text.small
 {
 	width: 40px;
 }
 
-li
+/*li
 {
-	/*margin:7px;*/
-}
+	*//*margin:7px;*/
+/*}*/
 
 #main_prop
 {

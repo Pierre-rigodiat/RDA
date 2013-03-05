@@ -20,8 +20,7 @@
 	
 <div class="right-side">
 	<span class="ctx_menu">
-		<div class="icon legend long upload">Upload schema</div>
-		<div class="icon legend long blank">Create new file</div>
+		<div class="icon legend long upload schema">Upload schema</div>
 	</span>
 </div>
 
@@ -61,8 +60,7 @@
 
 <div class="right-side">
 	<span class="ctx_menu">
-		<div class="icon legend long upload">Upload schema</div>
-		<div class="icon legend long blank">Create new file</div>
+		<div class="icon legend long upload schema">Upload schema</div>
 	</span>
 </div>
 </div>

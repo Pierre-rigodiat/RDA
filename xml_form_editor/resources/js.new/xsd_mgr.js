@@ -4,7 +4,7 @@
 loadXsdManagerHandler = function()
 {
 	$('.add').on('click', setCurrentModel);
-	
+	$('.upload.schema').on('click', uploadSchema);
 }
 
 /**
@@ -12,25 +12,22 @@ loadXsdManagerHandler = function()
  */
 setCurrentModel = function()
 {
-	var modelName = $(this).parent().siblings(':first').text();
+	var modelName = $(this).parent().siblings(':first').text(),
+		tdElement = $(this).parent();
+	
+	$('.add').off('click');
+		
+	tdElement.html('<img src="resources/img/ajax-loader.gif" alt="Loading..."/>');
+		
 	console.log('[setCurrentModel] Loading '+modelName+'...');
 	
 	$.ajax({
         url: 'inc/ajax.new/schemaLoader.php',
         type: 'GET',
         success: function(data) {
-        	// Destroy and remove the dialog to avoid to rewrite on it        	
-        	/*$( "#dialog" ).dialog("destroy");
-        	$( "#dialog" ).remove();
-        	
-        	$('.content').children().remove();
-        	
-        	// Change content
-        	$('.content').html(data);
-        	
-        	console.log('[loadPage] '+url+' loaded');*/
-        	
-        	
+        	// Refresh the page
+        	loadPage($(location).attr('href')+'?manageSchemas');
+        	console.log('[setCurrentModel] '+modelName+' loaded');
         },
         error: function() {
             console.error("[setCurrentModel] A problem occured during schema loading");
@@ -42,5 +39,13 @@ setCurrentModel = function()
         contentType: false,
         processData: false
     });
+}
+
+/**
+ * 
+ */
+uploadSchema = function()
+{
+	console.warn("[uploadSchema] Not yet implemented");
 }
 

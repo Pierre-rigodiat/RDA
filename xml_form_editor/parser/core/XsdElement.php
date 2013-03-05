@@ -2,6 +2,7 @@
 /**
  * <XsdElement class>
  */
+require_once $_SESSION['xsd_parser']['conf']['dirname'] . '/inc/helpers/Logger.php';
 /**
  * <b>Class managing any schema tag parsed</b>
  *
@@ -95,8 +96,6 @@ class XsdElement
 	 */
 	public function __construct()
 	{
-		// Require the logger and configure the log file
-		require_once $_SESSION['xsd_parser']['conf']['dirname'] . '/inc/helpers/Logger.php';
 		self::$LOG_FILE = $_SESSION['xsd_parser']['conf']['dirname'] . '/logs/xsd_element.log';
 
 		// Get args and the number of them

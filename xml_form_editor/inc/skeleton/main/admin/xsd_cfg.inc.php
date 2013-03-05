@@ -1,9 +1,5 @@
 <?php
 require_once $_SESSION['config']['_ROOT_'].'/parser/parser.inc.php';
-		
-// TODO Remove this part
-/*$schemaFile = $_SESSION['config']['_ROOT_'].'/resources/files/schemas/demo.light.xsd';
-loadSchema($schemaFile);*/
 
 $file = array(
 	"name" => "<i>undefined</i>",
@@ -60,7 +56,7 @@ if(isset($_SESSION['xsd_parser']['xsd_filename']))
 		?>
 		</span>
 		<span class="ctx_menu">
-			<div class="icon legend refresh">Reload</div>
+			<div class="icon legend refresh">Cancel</div>
 			<div class="icon legend save">Save</div>
 		</span>
 	</div>

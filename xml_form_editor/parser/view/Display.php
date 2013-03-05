@@ -4,6 +4,10 @@
  */
 require_once $_SESSION['xsd_parser']['conf']['dirname'] . '/inc/lib/StringFunctions.php';
 require_once $_SESSION['xsd_parser']['conf']['dirname'] . '/parser/moduleLoader.php';
+
+// TODO Load just the XsdManager not the moduleHandler nor PageHandler
+require_once $_SESSION['xsd_parser']['conf']['dirname'] . '/parser/core/ModuleHandler.php';
+require_once $_SESSION['xsd_parser']['conf']['dirname'] . '/parser/core/PageHandler.php';
 /**
  * Display class allow to display element the way you want.
  * xxx Handle templates, etc...
@@ -39,11 +43,6 @@ class Display
 	 */
 	public function __construct()
 	{
-		// TODO Load just the XsdManager not the moduleHandler nor PageHandler
-		require_once $_SESSION['xsd_parser']['conf']['dirname'] . '/parser/core/ModuleHandler.php';
-		require_once $_SESSION['xsd_parser']['conf']['dirname'] . '/parser/core/PageHandler.php';
-		
-		
 		self::$LOG_FILE = $_SESSION['xsd_parser']['conf']['logs_dirname'].'/'.$_SESSION['xsd_parser']['conf']['log_file'];
 
 		$argc = func_num_args();
@@ -192,8 +191,8 @@ class Display
 		$pageHandler = $this -> xsdManager -> getPageHandler();
 		$totalPage = $pageHandler -> getNumberOfPage();
 		
-		$pageChooser = 'Split into <input type="number" min="1" value="'.$totalPage.'" class="text" id="page_number"/> page(s)';
-		$this->LOGGER->log_debug('Page display returns a total of '.$totalPage.' page(s)', 'Display::displayPageChooser');
+		$pageChooser = 'Split into <input type="number" min="1" value="'.$totalPage.'" class="text small"/> page(s) <div class="icon" id="page_number"></div>';
+		$this->LOGGER->log_notice('Page chooser displayed w/ '.$totalPage.' page(s)', 'Display::displayPageChooser');
 		
 		return $pageChooser;
 	}
@@ -292,77 +291,70 @@ class Display
 	 */
 	private function displayPopUp()
 	{
-		$popUp = '	<div id="dialog" title="">
-						<p class="elementId"></p>
-					    <p class="tip"></p>
-						
-					    <form>
-					    <fieldset class="dialog fieldset">
-					    	<div class="dialog subpart" id="minoccurs-part">
-						        <label for="minoccurs">MinOccurs</label>
-						        <input type="number" name="minoccurs" id="minoccurs" min="0" class="popup-text ui-widget-content ui-corner-all" />
-					        </div>
-					        <div class="dialog subpart" id="maxoccurs-part">
-						        <label for="maxoccurs">MaxOccurs</label>
-						        <input type="number" name="maxoccurs" id="maxoccurs" min="0" class="popup-text ui-widget-content ui-corner-all" />
-						        <span class="dialog subitem">
-						        	<label for="unbounded">Unbounded ?</label>
-						        	<input type="checkbox" id="unbounded" name="unbounded" />
-						        </span>
-					        </div>
-					        <div class="dialog subpart" id="datatype-part">
-						        <label for="datatype">Data-type</label>
-						        <select id="datatype" name="datatype" class="ui-widget-content ui-corner-all">
-						        	<option value="string">String</option>
-						        	<option value="integer">Integer</option>
-						        	<option value="double">Double</option>
-						        </select>
-					        </div>
-					        <div class="dialog subpart" id="autogen-part">
-						        <label for="autogen">Auto-generate</label>
-						        <select id="autogen" name="autogen" class="ui-widget-content ui-corner-all">
-						        	<option value="true">Enable</option>
-						        	<option value="false">Disable</option>
-						        </select>
-						        <span class="dialog subitem">
-						        	<label for="pattern">Pattern</label>
-						        	<input type="text" name="pattern" id="pattern" value="Not yet implemented" class="popup-text ui-widget-content ui-corner-all" disabled="disabled"/>
-						        </span>
-					        </div>';
+		$popUp = '<div id="dialog" title=""><p class="elementId"></p><p class="tip"></p>';
+		$popUp .= '<form><fieldset class="dialog fieldset">';
 		
-		// Module select display
+		$popUp .= '<div class="dialog subpart" id="minoccurs-part">';
+		$popUp .= '<label for="minoccurs">MinOccurs</label><input type="number" name="minoccurs" id="minoccurs" min="0" class="popup-text ui-widget-content ui-corner-all" />';
+		$popUp .= '</div>';
+		
+		$popUp .= '<div class="dialog subpart" id="maxoccurs-part">';
+		$popUp .= '<label for="maxoccurs">MaxOccurs</label><input type="number" name="maxoccurs" id="maxoccurs" min="0" class="popup-text ui-widget-content ui-corner-all" />';
+		$popUp .= '<span class="dialog subitem"><label for="unbounded">Unbounded ?</label><input type="checkbox" id="unbounded" name="unbounded" /></span>';
+		$popUp .= '</div>';
+		
+		$popUp .= '<div class="dialog subpart" id="datatype-part">';
+		$popUp .= '<label for="datatype">Data-type</label>';
+		$popUp .= '<select id="datatype" name="datatype" class="ui-widget-content ui-corner-all">';
+		$popUp .= '<option value="string">String</option>';
+		$popUp .= '<option value="integer">Integer</option>';
+		$popUp .= '<option value="double">Double</option>';
+		$popUp .= '</select>';
+		$popUp .= '</div>';
+		
+		$popUp .= '<div class="dialog subpart" id="autogen-part">';
+		$popUp .= '<label for="autogen">Auto-generate</label>';
+		$popUp .= '<select id="autogen" name="autogen" class="ui-widget-content ui-corner-all">';
+		$popUp .= '<option value="true">Enable</option><option value="false">Disable</option>';
+		$popUp .= '</select>';
+		$popUp .= '<span class="dialog subitem">';
+		$popUp .= '<label for="pattern">Pattern</label><input type="text" name="pattern" id="pattern" value="Not yet implemented" class="popup-text ui-widget-content ui-corner-all" disabled="disabled"/>';
+		$popUp .= '</span>';
+		$popUp .= '</div>';
+
 		$pageHandler = $this -> xsdManager -> getPageHandler();
 		$totalPage = $pageHandler->getNumberOfPage();
+				
+		$popUp .= '<div class="dialog subpart" id="module-part">';
 		
-		$popUp .= '    <div class="dialog subpart" id="module-part">';
-		
+		/* Page chooser */
 		if($totalPage > 1)
 		{
-			$popUp .= '<label for="page">In page</label>
-					        <select id="page" name="page" class="ui-widget-content ui-corner-all">';
+			$popUp .= '<label for="page">In page</label>';
+			$popUp .= '<select id="page" name="page" class="ui-widget-content ui-corner-all">';
 		
 			for($i=1; $i<=$totalPage; $i++) $popUp .= '<option value="'.$i.'">'.$i.'</option>';
 						        	
-			$popUp .= '    </select>';
+			$popUp .= '</select>';
 		}
-					        
-		$popUp .= '        <label for="module">As</label>							
-					        <select id="module" name="module" class="ui-widget-content ui-corner-all">
-					        	<option value="false">No module</option>';
+		
+		/* Module chooser */			        
+		$popUp .= '<label for="module">As</label>';
+		$popUp .= '<select id="module" name="module" class="ui-widget-content ui-corner-all">';
+		$popUp .= '<option value="false">No module</option>';
 					
 		$moduleHandler = $this -> xsdManager -> getModuleHandler();
 		$moduleList = $moduleHandler -> getModuleList('enable');
 		foreach($moduleList as $module)
 		{
-			$popUp .= '			<option value="'.$module['name'].'">'.ucfirst($module['name']).'</option>';
+			$popUp .= '<option value="'.$module['name'].'">'.ucfirst($module['name']).'</option>';
 		}
-						
-		$popUp .= '        </select>
-				        </div>';
+			
+		$popUp .= '</select>';
+				        
+		$popUp .= '</div>';
 		
-		$popUp .= '	</fieldset>
-					    </form>
-				    </div>';
+		$popUp .= '</fieldset></form></div>';
 
 		return $popUp;
 	}

@@ -1,5 +1,6 @@
 <?php
-define("DEBUG_XML_LIB", false);
+/*define("DEBUG_XML_LIB", false);
+require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/core/Tree.php';*/
 
 /**
  * XML parser functions
@@ -12,22 +13,22 @@ define("DEBUG_XML_LIB", false);
  */
 
 // Attributes
-$level = 0;
+/*$level = 0;
 $id = -1;
 $stack = array();
-$elementList = array();
+$elementList = array();*/
 
 //Function to use at the end of an element
-function stop($parser,$element_name)
+/*function stop($parser,$element_name)
 {
-	global $id, $level, $stack, $elementList;
+	global $id, $level, $stack, $elementList;*/
 
 	/**
 	 * Updating the stack
 	 */
 
 	// Decrease the level
-	$level -= 1;
+	/*$level -= 1;
 
 	// Remove the stack element
 	$stack[$level] = null;
@@ -56,7 +57,7 @@ function start($parser,$element_name,$element_attrs)
 	 */
 
 	// Updating the identifier of the element
-	$id += 1;
+	/*$id += 1;
 
 	// Find the parent of the element
 	$parent = -1;
@@ -74,7 +75,7 @@ function start($parser,$element_name,$element_attrs)
 	 */
 
 	// Add the element to the stack
-	$stack[$level] = $id;
+	/*$stack[$level] = $id;
 
 	// Increment the level
 	$level += 1;
@@ -91,4 +92,4 @@ function displayXMLContent($content)
 	
 	return str_replace($old, $new, $content);
 }
-?>
+?>*/
