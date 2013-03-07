@@ -12,7 +12,7 @@ function encodeBadgerFish($domNode)
 	$result = encodeB($domNode, $xpath, $namespace);
 	
 	//echo "<hr/>";
-	return json_encode($result);
+	return $result;
 }
 
 function encodeB($domNode, $xpath, $namespace)
@@ -61,8 +61,10 @@ function encodeB($domNode, $xpath, $namespace)
 				if (strlen($text))
 				{
 					//echo '[$="'.$text.'"]';
-				
-					$r['$'] = $text;
+					if (is_numeric($text))
+						$r['$'] = $text + 0;
+					else
+						$r['$'] = $text;
 				}
 			}
 			else
@@ -100,18 +102,20 @@ function encodeB($domNode, $xpath, $namespace)
 	return $r;
 }
 
-function decodeBadgerFish($json_string)
+function decodeBadgerFish($array)
 {
-	$array = json_decode($json_string, true);
+	//$array = json_decode($json_string, true);
 	$domDocument = new DOMDocument();
 	$domDocument->formatOutput = true;
-	print_r($array);
-	echo "<hr/>";
+	//print_r($array);
+	//echo "<hr/>";
 	
 	decodeB($array, $domDocument, $domDocument);
 	
-	echo "<hr/>";
-	echo nl2br(htmlspecialchars($domDocument->saveXML()));
+	//echo "<hr/>";
+	//echo nl2br(htmlspecialchars($domDocument->saveXML()));
+	
+	return $domDocument;
 }
 
 function displayAttr($key, $value, $parent, $domDocument)
@@ -123,7 +127,7 @@ function displayAttr($key, $value, $parent, $domDocument)
 	$parent -> appendChild($attribute);
 	
 	
-	echo '('.$key.'='.$value.')';
+	//echo '('.$key.'='.$value.')';
 }
 
 function decodeB($array, $parent, $domDocument)
@@ -152,19 +156,19 @@ function decodeB($array, $parent, $domDocument)
 			$text = $domDocument->createTextNode($child);
 			$parent->appendChild($text);
 			
-			echo '"'.$child.'"';
+			//echo '"'.$child.'"';
 		}
 		else
 		{
 			if(is_array($child))
 			{
-				$result = '';
+				//$result = '';
 				if(is_string($key))
 				{
 					$newElement = $domDocument->createElement($key);
 					$parent->appendChild($newElement);
 					
-					$result.=$key;
+					//$result.=$key;
 				}
 				else
 				{
@@ -180,13 +184,13 @@ function decodeB($array, $parent, $domDocument)
 						$newElement = $parent;
 					}
 				}
-				echo $result.'[';
+				//echo $result.'[';
 					decodeB($child, $newElement, $domDocument);
-				echo ']';
+				//echo ']';
 			}
 			else
 			{
-				echo $key.'='.$child;
+				//echo $key.'='.$child;
 			}
 		}
 		

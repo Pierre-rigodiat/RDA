@@ -10,7 +10,7 @@ function encodeParker($domNode)
 	$result = encodeP($domNode);
 	
 	//echo "<hr/>";
-	return json_encode($result);
+	return $result;
 }
 
 function parkerText($text) {
@@ -99,13 +99,15 @@ function decodeParker($json_string)
 	$array = json_decode($json_string, true);
 	$domDocument = new DOMDocument();
 	$domDocument->formatOutput = true;
-	print_r($array);
-	echo "<hr/>";
+	//print_r($array);
+	//echo "<hr/>";
 
 	decodeP($array, $domDocument, $domDocument);
 
-	echo "<hr/>";
-	echo nl2br(htmlspecialchars($domDocument->saveXML()));
+	//echo "<hr/>";
+	//echo nl2br(htmlspecialchars($domDocument->saveXML()));
+	
+	return $domDocument;
 }
 
 function decodeP ($array, $parent, $domDocument) {
@@ -121,16 +123,16 @@ function decodeP ($array, $parent, $domDocument) {
 			if (is_array($child))
 			{
 				
-				echo $key.'[';
+				//echo $key.'[';
 				decodeP($child, $newElement, $domDocument);
-				echo ']';
+				//echo ']';
 			}
 			else // Text element
 			{
 			$text = $domDocument->createTextNode($child);
 			$newElement->appendChild($text);
 				
-			echo $key.'="'.$child.'"';
+			//echo $key.'="'.$child.'"';
 			}
 		}
 		else 
@@ -138,9 +140,9 @@ function decodeP ($array, $parent, $domDocument) {
 			$newElement = $domDocument->createElement('entry');
 			$parent->appendChild($newElement);
 			
-			echo 'entry[';
+			//echo 'entry[';
 			decodeP($child, $newElement, $domDocument);
-			echo ']';
+			//echo ']';
 		}
 	}
 }

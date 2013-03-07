@@ -9,7 +9,7 @@ function encodeGData($domNode)
 	$result = encodeG($domNode);
 	
 	//echo "<hr/>";
-	return json_encode($result);
+	return $result;
 }
 
 function encodeG($domNode)
@@ -76,13 +76,15 @@ function decodeGData($json_string)
 	$array = json_decode($json_string, true);
 	$domDocument = new DOMDocument();
 	$domDocument->formatOutput = true;
-	print_r($array);
-	echo "<hr/>";
+	//print_r($array);
+	//echo "<hr/>";
 
 	decodeG($array, $domDocument, $domDocument);
 
-	echo "<hr/>";
-	echo nl2br(htmlspecialchars($domDocument->saveXML()));
+	//echo "<hr/>";
+	//echo nl2br(htmlspecialchars($domDocument->saveXML()));
+	
+	return $domDocument;
 }
 
 function displayAttr2($key, $value, $parent, $domDocument)
@@ -93,7 +95,7 @@ function displayAttr2($key, $value, $parent, $domDocument)
 	$parent -> appendChild($attribute);
 
 
-	echo '('.$key.'='.$value.')';
+	//echo '('.$key.'='.$value.')';
 }
 
 function decodeG($array, $parent, $domDocument)
@@ -111,19 +113,19 @@ function decodeG($array, $parent, $domDocument)
 			$text = $domDocument->createTextNode($child);
 			$parent->appendChild($text);
 				
-			echo '"'.$child.'"';
+			//echo '"'.$child.'"';
 		}
 		else
 		{
 			if(is_array($child))
 			{
-				$result = '';
+				//$result = '';
 				if(is_string($key))
 				{
 					$newElement = $domDocument->createElement($key);
 					$parent->appendChild($newElement);
 						
-					$result.=$key;
+					//$result.=$key;
 				}
 				else
 				{
@@ -138,18 +140,16 @@ function decodeG($array, $parent, $domDocument)
 					{
 					$newElement = $parent;
 					}
-					}
-					echo $result.'[';
+				}
+					//echo $result.'[';
 					decodeG($child, $newElement, $domDocument);
-					echo ']';
-				}
-				else
-				{
-				echo $key.'='.$child;
-				}
-				}
-	
-	
-				}
+					//echo ']';
+			}
+			else
+			{
+				//echo $key.'='.$child;
+			}
+		}
+	}
 }
 
