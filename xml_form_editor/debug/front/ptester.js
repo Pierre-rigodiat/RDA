@@ -6,7 +6,31 @@ $(document).ready(function(){
 	$('.save.data').on('click', saveData);
 	$('.encode.data').on('click', encodeData);
 	$('.save.mongodb').on('click', saveMongodb);
+	$('.retrieve.data').on('click', retrieveData);
 });
+
+/**
+ * 
+ */
+retrieveData = function()
+{
+	var match = $('#query').val();
+	$.ajax({
+		url: 'back/queryData.php',
+		type: 'GET',
+		success: function(data) {
+			$('#query_result').html(data);
+		},
+		error: function() {
+			console.error("[retrieveData] Problem with AJAX call");
+		},
+		data: 'match='+match,
+		//Options to tell JQuery not to process data or worry about content-type
+        cache: false,
+        contentType: false,
+        processData: false
+	});
+}
 
 /**
  * 
@@ -41,7 +65,7 @@ encodeData = function()
 		url: 'back/encode.php',
 		type: 'GET',
 		success: function(data) {
-			$('#result').text(data);
+			$('#encode_result').text(data);
 		},
 		error: function() {
 			console.error("[encodeData] Problem with AJAX call");

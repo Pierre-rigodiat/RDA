@@ -13,7 +13,7 @@ function encodeSpark($domNode)
 	}
 	
 	//echo "<hr/>";
-	return json_encode($result);
+	return $result;
 }
 
 function encodeS($domNode)
@@ -100,13 +100,15 @@ function decodeSpark($json_string)
 	$domDocument->formatOutput = true;
 	$body = $domDocument->createElement('body');
 	$domDocument->appendChild($body);
-	print_r($array);
-	echo "<hr/>";
+	//print_r($array);
+	//echo "<hr/>";
 
 	decodeS($array, $body, $domDocument);
 
-	echo "<hr/>";
-	echo nl2br(htmlspecialchars($domDocument->saveXML()));
+	//echo "<hr/>";
+	//echo nl2br(htmlspecialchars($domDocument->saveXML()));
+	
+	return $domDocument;
 }
 
 function decodeS($array, $parent, $domDocument)
@@ -123,16 +125,16 @@ function decodeS($array, $parent, $domDocument)
 			if (is_array($child))
 			{
 	
-				echo $key.'[';
+				//echo $key.'[';
 				decodeS($child, $newElement, $domDocument);
-				echo ']';
+				//echo ']';
 			}
 			else // Text element
 			{
 				$text = $domDocument->createTextNode($child);
 				$newElement->appendChild($text);
 	
-				echo $key.'="'.$child.'"';
+				//echo $key.'="'.$child.'"';
 			}
 		}
 		else
@@ -143,16 +145,16 @@ function decodeS($array, $parent, $domDocument)
 			if (is_array($child))
 			{
 					
-				echo 'item[';
+				//echo 'item[';
 				decodeS($child, $newElement, $domDocument);
-				echo ']';
+				//echo ']';
 			}
 			else
 			{
 				$text = $domDocument->createTextNode($child);
 				$newElement->appendChild($text);
 				
-				echo $key.'="'.$child.'"';
+				//echo $key.'="'.$child.'"';
 			}
 		}
 	}

@@ -153,15 +153,14 @@ private $databaseObject;
 	 * @param string $jsonString
 	 * @param string $collectionName
 	 */
-	function insertJson($jsonString, $collectionName) {
-		$jsonArray = str_split($jsonString, strlen($jsonString));
+	function insertJson($jsonArray, $collectionName) {
 		// Insert it into the collection
 		try
 		{
 			if (isset($this->databaseObject)) {
 				$collectionObject = new MongoCollection($this->databaseObject, $collectionName);
 				//Check if the element already exists
-				$cursor = $collectionObject->find(array("0" => $jsonString));
+				$cursor = $collectionObject->find($jsonArray);
 				if (!$cursor->hasNext()) {
 					$collectionObject->insert($jsonArray, array("safe" => 1));
 					//echo "Document inserted<br/>";
@@ -189,7 +188,7 @@ private $databaseObject;
 	}
 
 	/**
-	 * Method to insert a XML document into the database
+	 * Method to insert a XML document into the database, used as a test function. Do not use in production.
 	 * @param $doc: string that describe the path of the file
 	 * @param $collection: the collection in which the document is pushed
 	 */
@@ -203,37 +202,64 @@ private $databaseObject;
 			{
 				$dom=DOMDocument::load($doc);
 				// Translate the XML content into JSON content
-				$jsonString = encodeBadgerFish($dom);
+				$jsonArray = encodeJSONML($dom);
 				
-				if (!$jsonString) {
+				if ($jsonArray == array()) {
 					echo "Could not transform xml to json<br/>";
 					return;
 				}
-				$jsonArray = array();
-				$jsonArray = str_split($jsonString, strlen($jsonString));
 	
 				// Insert it into the collection
-				var_dump($jsonString);
-				echo $jsonString."<br/>";
-				//insertJson($jsonString, $collectionName);
+				//print_r($jsonArray); echo "<br/>";
+				//echo json_encode($jsonArray)."<br/>";
+				//insertJson($jsonArray, $collectionName);
 			}
 	}
 	
 	function retrieveXml($doc, $collectionName) {
 		$json_data = file_get_contents($doc);
 		
-		$xmlContents = decodeBadgerFish($json_data);
+		$xmlContents = decodeJSONML($json_data);
 		if (!$xmlContents) {
 			echo "Could not transform json to xml";
 			return;
 		}
 		
-		var_dump($xmlContents->saveXML());
+		echo nl2br(htmlspecialchars($xmlContents->saveXML()));
 		//file_put_contents("xmlBadger.xml", $xmlContents->saveXML());
 		return;
 	}
 	
-	
+	function queryData($query, $collectionName) {
+		try
+		{
+			if (isset($this->databaseObject)) {
+				$collectionObject = new MongoCollection($this->databaseObject, $collectionName);
+				//Execute the query
+				$cursor = $collectionObject->find($query, array('_id' => 0));
+				if ($cursor->hasNext()) {
+					return $cursor;
+				}
+				else
+				{
+					return "Empty result for your query";
+				}
+				//Display the element of the query. Used for debugging
+				/*foreach ($cursor as $element)
+				 var_dump($element);
+				$collectionObject->remove($jsonContents);*/
+			}
+			else
+			{
+				return "Database Object not set";
+			}
+		}
+		catch(MongoCursorException $e)
+		{
+			echo "Issue with the query";
+		}
+	}
+
 }
 
 ?>
