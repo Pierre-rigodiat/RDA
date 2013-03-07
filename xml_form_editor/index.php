@@ -29,18 +29,23 @@
 	<script type="text/javascript" src="resources/js/xml_display.js"></script>
 	<script type="text/javascript" src="resources/js.new/php.js"></script>
 	
-	<link rel="stylesheet" type="text/css" href="http://code.jquery.com/ui/1.9.2/themes/base/jquery-ui.css" />
-
-	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
-	<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/jquery-ui.min.js"></script>
-	<script type="text/javascript" src="resources/js.new/pageLoader.js"></script>
+	<!--link rel="stylesheet" type="text/css" href="http://code.jquery.com/ui/1.9.2/themes/base/jquery-ui.css" /-->
+	<link rel="stylesheet" type="text/css" href="resources/css/lib/jquery-ui-1.10.1.custom.min.css" />
 	
+
+	<!--script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+	<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/jquery-ui.min.js"></script-->
+	
+	<script src="resources/js.new/lib/jquery-1.8.3.min.js"></script>
+	<script src="resources/js.new/lib/jquery-ui-1.10.1.min.js"></script>
+	
+	<script type="text/javascript" src="resources/js.new/pageLoader.js"></script>
 	<script type="text/javascript" src='resources/js/message.js'></script>
 	
 	<link rel="stylesheet" href="resources/css/dialog.css" />
 	
 	<script>
-		$(window).load(function () {
+		/*$(window).load(function () {
 			var unitArray = new Array("B", "kB", "MB", "GB");
 			var unitArrayIndex = 0;
 			   
@@ -74,7 +79,7 @@
 	
 	       	$('#exec_time').html("<u>Execution time:</u> <b>"+msLoadJS+" ms (JS) / "+msLoadPHP+" ms (PHP)</b>");
 	       	$('#php_mem_debug').html("<u>PHP Memory:</u> <b>"+memPHP+" (peak: "+memPHPPeak+")</b>");
-   		});
+   		});*/
 	</script>
 	
 	<title><?php echo TOOL_TITLE.' '.TOOL_VERSION; ?></title>

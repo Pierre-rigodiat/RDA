@@ -13,7 +13,7 @@ require_once $_SESSION['xsd_parser']['conf']['dirname'].'/debug/lib/loadingFunct
 require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/core/XsdManager.php';
 
 // Load the schema
-$fileToLoad = '/resources/files/schemas/demoDiffusionData.xsd';
+$fileToLoad = '/resources/files/schemas/demo.diffusion.xsd';
 $nbPages = 7;
 
 loadSchema($_SESSION['xsd_parser']['conf']['dirname'].$fileToLoad, $nbPages);
@@ -94,6 +94,7 @@ foreach($pageArray as $page => $idArray)
 
 // Set the module
 $moduleHandler -> setModuleStatus('table', true);
+$moduleHandler -> setIdWithModule(523, 'table');
 
 
 // Save the xsdManager

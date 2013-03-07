@@ -64,7 +64,7 @@
 		loadPaginationController();
 		loadChoiceController();
 		
-		loadAutocomplete();
+		loadAutoComplete();
 		
 		loadRegisterFormController();
 		console.log('[/register] Libraries succefully loaded!');
