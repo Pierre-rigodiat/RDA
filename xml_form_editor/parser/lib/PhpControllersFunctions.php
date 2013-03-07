@@ -66,7 +66,10 @@ function displayAttributes($elementId)
 		$display = unserialize($_SESSION['xsd_parser']['display']);
 		$display -> update();
 		
-		return $display->displayConfigurationElement($elementId, true);
+		
+		
+		//return $display->displayConfigurationElement($elementId, true);
+		return $display->displayConfiguration($elementId);
 		//return "\"tes|,\"";
 	}
 	else return null;

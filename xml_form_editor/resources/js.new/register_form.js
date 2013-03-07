@@ -4,6 +4,7 @@
 loadRegisterFormController = function()
 {
 	$(document).on('keyup', saveFields);
+	$(document).on('change', 'select.xsdman.restriction', saveFields);
 	
 	$('.blank').on('click', clearFields);
 	$('.save').on('click', saveFields);
@@ -12,7 +13,6 @@ loadRegisterFormController = function()
 clearFields = function()
 {
 	console.log("[clearFields] Clearing fields");
-
 	var inputs = $('input.text');
 	
 	inputs.each(function()

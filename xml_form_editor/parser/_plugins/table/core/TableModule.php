@@ -222,13 +222,17 @@ class TableModule {
 		
 		$this -> LOGGER -> log_debug('Retrieving data for element '.$elementId, 'TableModule::getXmlData');
 		
-		foreach($this -> dataArray[$elementId] as $table)
+		if(isset($this -> dataArray[$elementId]))
 		{
-			$this -> LOGGER -> log_notice('New table found', 'TableModule::getXmlData');
-			$xmlData .= $table;
-			$this -> LOGGER -> log_debug('Data set: '.$table, 'TableModule::getXmlData');
-			$this -> LOGGER -> log_notice('Table added', 'TableModule::getXmlData');
+			foreach($this -> dataArray[$elementId] as $table)
+			{
+				$this -> LOGGER -> log_notice('New table found', 'TableModule::getXmlData');
+				$xmlData .= $table;
+				$this -> LOGGER -> log_debug('Data set: '.$table, 'TableModule::getXmlData');
+				$this -> LOGGER -> log_notice('Table added', 'TableModule::getXmlData');
+			}
 		}
+		
 		
 		$xmlDataArray = array($elementId => $xmlData);
 		return $xmlDataArray;
