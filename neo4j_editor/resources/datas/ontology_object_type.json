@@ -7,19 +7,19 @@
 			{"name":"BinaryAlloy","children":[
 				{"name":"Auricupride"}
 			]},
-				{"name":"ElectronicMagneticAlloy"},
-				{"name":"EngineeredAlloy","children":[
-					{"name":"AmorphousMetal"}, {"name":"Brass"}, {"name":"Bronze"}, {"name":"CastAlloy"}, {"name":"CompactedPowderAlloy"}, {"name":"EutecticAlloy"},
-					{"name":"EutectoidAlloy","children":[
-						{"name":"EutectoidSteel"}
-					]},
-					{"name":"PeritecticAlloy"},
-					{"name":"Steel","children":[
-						{"name":"AlloySteel"}, {"name":"ASTMSteel"}, {"name":"AusteniticSteel"}, {"name":"CarbonSteel"}, {"name":"ChromMolySteel"}, {"name":"HeatResistingSteel"}, {"name":"MaragingSteel"}, {"name":"PressureVesselSteel"}, {"name":"StainlessSteel"}, {"name":"ToolSteel"}
-					]},
-					{"name":"Superalloy","children":[
-						{"name":"Hastelloy"}, {"name":"ReneAlloy"}, {"name":"Waspaloy"}
-					]},{"name":"WroughtAlloy"}
+			{"name":"ElectronicMagneticAlloy"},
+			{"name":"EngineeredAlloy","children":[
+				{"name":"AmorphousMetal"}, {"name":"Brass"}, {"name":"Bronze"}, {"name":"CastAlloy"}, {"name":"CompactedPowderAlloy"}, {"name":"EutecticAlloy"},
+				{"name":"EutectoidAlloy","children":[
+					{"name":"EutectoidSteel"}
+				]},
+				{"name":"PeritecticAlloy"},
+				{"name":"Steel","children":[
+					{"name":"AlloySteel"}, {"name":"ASTMSteel"}, {"name":"AusteniticSteel"}, {"name":"CarbonSteel"}, {"name":"ChromMolySteel"}, {"name":"HeatResistingSteel"}, {"name":"MaragingSteel"}, {"name":"PressureVesselSteel"}, {"name":"StainlessSteel"}, {"name":"ToolSteel"}
+				]},
+				{"name":"Superalloy","children":[
+					{"name":"Hastelloy"}, {"name":"ReneAlloy"}, {"name":"Waspaloy"}
+				]},{"name":"WroughtAlloy"}
 			]},
 			{"name":"FerrousAlloy","children":[
 				{"name":"CastIron"}, {"name":"Steel"}
@@ -41,7 +41,8 @@
 		]},
 		{"name":"LiquidSubstance","children":[
 			{"name":"ColloidalSol"}, {"name":"FluidLubricant"}, {"name":"IonicLiquid"}, {"name":"LiquidSlag"}, {"name":"LiquidSolution"}
-		]}, {"name":"MaterialSuspension"},
+		]}, 
+		{"name":"MaterialSuspension"},
 		{"name":"PureSubstance","children":[
 			{"name":"Boride"}, {"name":"Carbide"}, {"name":"Halide"}, {"name":"Oxide"}
 		]}, 

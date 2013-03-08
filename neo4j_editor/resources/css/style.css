@@ -1,3 +1,17 @@
+body
+{
+	font-family: Verdana,Arial,sans-serif;
+}
+
+h1
+{
+	font-size: 100%;
+}
+
+
+/**
+ * 	Node-link tree
+ */
 .node circle {
   fill: #fff;
   stroke: steelblue;
@@ -12,4 +26,48 @@
   fill: none;
   stroke: #ccc;
   stroke-width: 1.5px;
+}
+
+/**
+ * 	Edge bunding tree
+ */
+path.arc {
+  cursor: move;	
+  fill: #fff;
+}
+
+.node {
+  font-size: 10px;
+}
+
+.node:hover {
+  fill: #1f77b4;
+}
+
+.link {
+  fill: none;
+  stroke: #1f77b4;
+  stroke-opacity: .4;
+  pointer-events: none;
+}
+
+.link.source, .link.target {
+  stroke-opacity: 1;
+  stroke-width: 2px;
+}
+
+.node.target {
+  fill: #d62728 !important;
+}
+
+.link.source {
+  stroke: #d62728;
+}
+
+.node.source {
+  fill: #2ca02c;
+}
+
+.link.target {
+  stroke: #2ca02c;
 }
