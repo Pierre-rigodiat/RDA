@@ -51,6 +51,10 @@ if(isset($_GET['url']))
 			else if($menu['sub']=='manageSchemas') require_once $_SESSION['config']['_ROOT_'].'/inc/skeleton/main/admin/xsd_mgr.inc.php';
 			else if($menu['sub']=='manageModules') require_once $_SESSION['config']['_ROOT_'].'/inc/skeleton/main/admin/mod_mgr.inc.php';
 		}
+		else if($menu['page']=='home' || $menu['page']=='')
+		{
+			require_once $_SESSION['config']['_ROOT_'].'/inc/skeleton/main/demo/admin.home.inc.php';
+		}
 		else
 		{
 			echo $defaultText.'<div id="main">';

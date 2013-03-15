@@ -56,8 +56,9 @@ if(isset($_SESSION['xsd_parser']['xsd_filename']))
 		?>
 		</span>
 		<span class="ctx_menu">
-			<div class="icon legend refresh">Cancel</div>
+			<div class="icon legend blank">New</div>
 			<div class="icon legend save">Save</div>
+			<div class="icon legend refresh">Reset</div>
 		</span>
 	</div>
 	<div id="schema_elements">
@@ -65,13 +66,32 @@ if(isset($_SESSION['xsd_parser']['xsd_filename']))
 			displayConfiguration();
 		?>
 	</div>
+	<div id="schema_notif">
+		<div class="notif"><img alt"Loading..." src="resources/img/loader-circle.gif"/> Generating complete schema...</div>
+		<div class="notif"><span class="icon legend long">Complete schema generated</span></div>
+	</div>
 </div>
 </div>
 
 <script src="parser/controllers/js/edit.js"></script>
 <script src="resources/js.new/xsd_cfg.js"></script>
 <script>
-	loadEditController();
-	loadXsdConfigHandler();
+	/**
+	 * Load all the JavaScript events needed
+	 * Prevent addition of a listener to a same element
+	 */
+	loadEditController();	
+	
+	if(!schemaConfLibLoaded)
+	{
+		loadXsdConfigHandler();
+		
+		schemaConfLibLoaded = true;
+		console.log('[/schemas] Libraries successfully loaded');
+	}
+	else
+	{
+		console.log('[/schemas] Libraries already loaded');
+	}
 </script>
 

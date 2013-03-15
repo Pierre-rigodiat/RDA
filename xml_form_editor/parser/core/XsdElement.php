@@ -6,7 +6,7 @@ require_once $_SESSION['xsd_parser']['conf']['dirname'] . '/inc/helpers/Logger.p
 /**
  * <b>Class managing any schema tag parsed</b>
  *
- * XsdElement object regroups tag name and attributes in the same structure. The code below explains how to use it
+ * XsdElement object regroups tag name and attributes in the same structure. The sample code below explains the basics of it.
  * <code>
  * // Let's say we want to store the following schema element as an XsdElement
  * // &lt;xs:element name="root" type="Root"/&gt;
@@ -30,8 +30,6 @@ require_once $_SESSION['xsd_parser']['conf']['dirname'] . '/inc/helpers/Logger.p
  * 		"maxOccurs"
  * );
  * $xsdElement -> removeAttributes($attrToRemove); // Return code: 0
- *
- * // Compare to an attribute
  *
  * // Display the
  * echo $xsdElement; // Will return xs:element{ name = root | type = Root | minOccurs = 0 }
@@ -349,7 +347,7 @@ class XsdElement
 	}
 
 	/**
-	 * Compare the current object with another XsdElement
+	 * Compare the current object with another XsdElement.
 	 * 
 	 * @param XsdElement $otherXsdElement Another XsdElement object
 	 * @return boolean TRUE if the two objects are similar

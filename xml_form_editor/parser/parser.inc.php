@@ -136,7 +136,7 @@ function displayConfiguration()
  * Displays the form view of the parser
  * 
  */
-function displayHTMLForm(/*$page = 1*/)
+function displayHTMLForm()
 {
 	global $logger, $debug;
 	
@@ -155,11 +155,16 @@ function displayHTMLForm(/*$page = 1*/)
 	// Set up the parser
 	$manager = unserialize($_SESSION['xsd_parser']['parser']);
 	
-	if(!($manager -> getXsdCompleteTree() -> hasElement()))
+	// FIXME Condition not good
+	if(get_class($manager -> getXsdCompleteTree()) != 'ClosureTable')
 	{
 		$logger -> log_debug('Building complete tree...', 'displayHTMLForm');
 		
-		$manager -> buildCompleteTree();
+		
+		// FIXME Change the parameter in the function
+		//$rootElements = $manager -> getRootElements();
+		
+		$manager -> buildCompleteTree(/*$rootElements[0]*/);
 		$_SESSION['xsd_parser']['parser'] = serialize($manager);
 		
 		$logger -> log_debug('Complete tree built', 'displayHTMLForm');

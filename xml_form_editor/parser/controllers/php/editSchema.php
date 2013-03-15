@@ -1,20 +1,16 @@
 <?php
 /**
  * <EditSchema controller>
- * 
- * Edit schema controller 
- * 
- * @author P.Dessauw
- * @package XsdMan\Controllers
- */
-/**
- * 
  */
 session_start();
 require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/core/XsdManager.php';
 require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/core/PageHandler.php';
 require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/lib/PhpControllersFunctions.php';
 /**
+ * Edit schema controller 
+ * 
+ * @author P.Dessauw
+ * @package XsdMan\Controllers
  * 
  *	Return code:
  * 	* 0 OK, rewrite attributes
@@ -30,7 +26,7 @@ require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/lib/PhpControll
  */
 function setUpChildrenToPage($pHandler, $tree, $elementId, $pageId)
 {	
-	$children = $tree -> getChildren($elementId);
+	$children = $tree -> getChildrenId($elementId);
 	
 	foreach($children as $child)
 	{
@@ -45,7 +41,7 @@ function setUpChildrenToPage($pHandler, $tree, $elementId, $pageId)
  */
 function setUpChildrenToModule($manager, $tree, $elementId, $moduleName)
 {
-	$children = $tree -> getChildren($elementId);
+	$children = $tree -> getChildrenId($elementId);
 	
 	foreach($children as $child)
 	{
@@ -65,11 +61,11 @@ if(isset($_GET['id']) && isset($_GET['minOccurs']) && isset($_GET['maxOccurs']))
 	
 	// Get the parser and modify the organized tree
 	$manager = unserialize($_SESSION['xsd_parser']['parser']);
-	$xsdOrganizedTree = $manager -> getXsdOrganizedTree();
+	//$xsdOrganizedTree = $manager -> getXsdOrganizedTree();
 	$xsdOriginalTree = $manager -> getXsdOriginalTree();
 	
-	$originalTreeId = $xsdOrganizedTree->getObject($_GET['id']);
-	$element = $xsdOriginalTree->getObject($originalTreeId);
+	//$originalTreeId = $xsdOrganizedTree->getObject($_GET['id']);
+	$element = $xsdOriginalTree->getElement($_GET['id']/*$originalTreeId*/);
 	
 	if($element) $elementAttr = $element->getAttributes();
 	else // $xsdOrganizedTree -> getObject($_GET['id']) sent an error
@@ -137,13 +133,13 @@ if(isset($_GET['id']) && isset($_GET['minOccurs']) && isset($_GET['maxOccurs']))
 			$pHandler -> removePagesForId($_GET['id']);
 			$pHandler -> setPageForId($_GET['page'], $_GET['id']);
 			
-			$elderId = $xsdOrganizedTree -> getParent($_GET['id']);
+			$elderId = /*$xsdOrganizedTree*/$xsdOriginalTree -> getParentId($_GET['id']);
 			
 			// Set up elder in the same page
 			while($elderId!=-1) // While we are not at the root position
 			{
 				$pHandler -> removePagesForId($elderId);
-				$children = $xsdOrganizedTree -> getChildren($elderId);
+				$children = /*$xsdOrganizedTree*/$xsdOriginalTree -> getChildrenId($elderId);
 				
 				$pageArray = array();
 				foreach($children as $child)
@@ -164,11 +160,11 @@ if(isset($_GET['id']) && isset($_GET['minOccurs']) && isset($_GET['maxOccurs']))
 					$pHandler -> setPageForId($page, $elderId);
 				}
 				
-				$elderId = $xsdOrganizedTree -> getParent($elderId);
+				$elderId = /*$xsdOrganizedTree*/$xsdOriginalTree -> getParentId($elderId);
 			}
 			
 			// Set up the children
-			setUpChildrenToPage($pHandler, $xsdOrganizedTree, $_GET['id'], $_GET['page']);
+			setUpChildrenToPage($pHandler, /*$xsdOrganizedTree*/$xsdOriginalTree, $_GET['id'], $_GET['page']);
 			
 			
 			$manager -> setPageHandler($pHandler);
@@ -180,7 +176,7 @@ if(isset($_GET['id']) && isset($_GET['minOccurs']) && isset($_GET['maxOccurs']))
 			if($_GET['module']!='false')
 			{
 				$manager -> assignIdToModule($_GET['id'], $_GET['module']);
-				setUpChildrenToModule($manager, $xsdOrganizedTree, $_GET['id'], $_GET['module']);
+				setUpChildrenToModule($manager, /*$xsdOrganizedTree*/$xsdOriginalTree, $_GET['id'], $_GET['module']);
 				
 			}
 			else
@@ -189,8 +185,8 @@ if(isset($_GET['id']) && isset($_GET['minOccurs']) && isset($_GET['maxOccurs']))
 			}
 		}
 		
-		$xsdOriginalTree->getObject($originalTreeId)->removeAllAttributes();
-		$xsdOriginalTree->getObject($originalTreeId)->addAttributes($elementAttr);
+		$xsdOriginalTree->getElement(/*originalTreeId*/$_GET['id'])->removeAllAttributes();
+		$xsdOriginalTree->getElement(/*originalTreeId*/$_GET['id'])->addAttributes($elementAttr);
 		
 		//$xsdOriginalTree->getObject($originalTreeId)->setAttributes($elementAttr);
 		$manager -> setXsdOriginalTree($xsdOriginalTree);

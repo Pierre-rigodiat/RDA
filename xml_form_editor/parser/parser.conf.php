@@ -4,18 +4,20 @@
  * Define global parser variables and store them into $_SESSION['xsd_parser']['conf']
  */
 
-// TODO Define variable names and use it within the code
-//$_SESSION['xsd_parser']['conf']['sess_obj_name'] = array('tree'=>'tree', 'mHandler'=>'mHandler', 'pHandler'=>'pHandler')
- 
+// TODO Configure those variable to be more specific to the parser
 $_SESSION['xsd_parser']['conf']['dirname'] = dirname(dirname(__FILE__));
 $_SESSION['xsd_parser']['conf']['modules_dirname'] = dirname(__FILE__).'/_plugins';
 // TODO Define the directory where external lib are
 // $_SESSION['xsd_parser']['conf']['ext_lib_dirname']
 
-//TODO Define the log levels
-// $SESSION['xsd_parser']['conf']['log_levels'] = array("DEV"=>"notice", "DBG"=>"debug", PRD=>"info");
-//TODO Define the current application status
-// $SESSION['xsd_parser']['conf']['app_status'] = "DEV";
+//TODO Use this variable in the parser
+$appStatus = array(
+	"VRB",
+	"DEV",
+	"DBG",
+	"PRD"
+);
+$SESSION['xsd_parser']['conf']['app_status'] = $appStatus[1];
 
 // Define the log directory & the log file
 $_SESSION['xsd_parser']['conf']['logs_dirname'] = $_SESSION['xsd_parser']['conf']['dirname'] . '/logs';

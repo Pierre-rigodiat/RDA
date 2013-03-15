@@ -18,4 +18,23 @@ function endsWith($string, $needle)
 
     return (substr($string, -$length) === $needle);
 }
+
+function arrayToString($array)
+{
+	$arrayString = '';
+	if(is_array($array))
+	{
+		$arrayString .= '{';
+		
+		foreach ($array as $value) 
+		{
+			$arrayString .= $value;
+			if($value!=end($array)) $arrayString.=', ';
+		}
+		
+		$arrayString .= '}';
+	}
+	
+	return $arrayString;
+}
 ?>

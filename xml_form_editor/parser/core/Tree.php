@@ -9,6 +9,7 @@
 
 
 require_once $_SESSION['xsd_parser']['conf']['dirname'].'/inc/helpers/Logger.php';
+require_once $_SESSION['xsd_parser']['conf']['dirname'].'/inc/lib/StringFunctions.php';
 
 
 
@@ -152,6 +153,22 @@ class Tree {
 		return $this->tree;
 	}
 	
+	public function setParent($elementId, $parentId)
+	{
+		if(isset($this->tree[$elementId]) && (isset($this->tree[$parentId]) || $parentId == -1))
+		{
+			$this->tree[$elementId]['parent'] = $parentId;
+			
+			$this->LOGGER->log_debug('ID '.$elementId.' has ID '.$parentId.' as a parent', 'Tree::getParent');
+			return 0;
+		} 
+		else 
+		{
+			$this->LOGGER->log_error('ID '.$elementId.' or '.$parentId.' is not in the current tree', 'Tree::getParent');
+			return -1;
+		}
+	}
+	
 	public function getParent($elementId)
 	{
 		if(isset($this->tree[$elementId]))
@@ -165,6 +182,36 @@ class Tree {
 		{
 			$this->LOGGER->log_error('ID '.$elementId.' is not in the current tree', 'Tree::getParent');
 			return -2; // -1 value identifies the father of the root element
+		}
+	}
+
+	// TODO Reconfigure the log messages
+	public function setChildren($elementId, $childrenArray)
+	{
+		/* Check existence of all the children */
+		$childrenExist = true;
+		foreach($childrenArray as $child)
+		{
+			if(!isset($this->tree[$child]))
+			{
+				$childrenExist = false;
+				break;
+			}
+		}
+		
+		if(isset($this->tree[$elementId]) && $childrenExist)
+		{
+			$this->tree[$elementId]['children'] = $childrenArray;
+			
+			/*if(count($children)>0) $this->LOGGER->log_debug('Chidren of ID '.$elementId.' are '.print_array($children), 'Tree::getChildren');
+			else $this->LOGGER->log_debug('ID '.$elementId.' has no child', 'Tree::getChildren');*/
+				
+			return 0;
+		} 
+		else 
+		{
+			//$this->LOGGER->log_error('ID '.$elementId.' is not in the current tree', 'Tree::getChildren');
+			return -1;
 		}
 	}
 	
@@ -252,7 +299,7 @@ class Tree {
 			{
 				if($objectType=='boolean' || $objectType=='integer' || $objectType=='double' || $objectType=='string' || $objectType=='NULL')
 				{
-					if($treeObject==$elementObject) array_push($result, $id); 
+					if($treeObject==$elementObject) array_push($result, $id);
 				}
 				else if($objectType=='array') 
 				{
@@ -269,7 +316,7 @@ class Tree {
 			}
 		}
 		
-		$this->LOGGER->log_debug('Function returns the following ids: '.serialize($result), 'Tree::getId');
+		$this->LOGGER->log_debug('Searching for '.$elementObject.' returned: '.serialize($result), 'Tree::getId');
 		return $result;
 	}
 	
@@ -331,11 +378,15 @@ class Tree {
 	{
 		if(isset($this->tree[$elementId]) && is_bool($isRecursive))
 		{
+			$this->LOGGER->log_notice('Removing ID '.$elementId.'...', 'Tree::removeElement');
 			$parentId = $this->tree[$elementId]['parent'];
 			
 			if($parentId!=-1)
 			{
 				$this->tree[$parentId]['children'] = array_diff($this->tree[$parentId]['children'], array($elementId)); // The current element is deleted from the father (in the array 'children')
+				$this->LOGGER->log_notice('Parent ID '.$parentId.' now has child(ren):'.arrayToString($this->tree[$parentId]['children']), 'Tree::removeElement');
+				
+				
 				if(count($this->tree[$elementId]['children'])>0)
 				{
 					if($isRecursive)
@@ -358,18 +409,22 @@ class Tree {
 			}
 			else 
 			{
-				if(count($this->tree[$elementId]['children'])<=1)
-				{
+				// FIXME Removing the root element which has several children breaks the tree
+				
+				
+				
+				/*if(count($this->tree[$elementId]['children'])<=1)
+				{*/
 					foreach($this->tree[$elementId]['children'] as $child)
 					{
 						$this->tree[$child]['parent']=-1;
 					}
-				}
+				/*}
 				else
 				{
 					$this->LOGGER->log_error('Impossible to suppress the root element (ID '.$elementId.') if it has more than 1 child', 'Tree::removeElement');
 					return -3;
-				}
+				}*/
 			}
 			
 			unset($this->tree[$elementId]);

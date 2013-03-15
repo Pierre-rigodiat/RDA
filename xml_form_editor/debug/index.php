@@ -13,6 +13,7 @@
 <body id="content-wrapper">
 	<h1>Application</h1>
 	<ul>
+		<li><a href="xmlParser.php">XML Parser test</a></li>
 		<li><a href="ptester">Parser live tester</a></li>
 		<li><a href="parserUnitTester.php">Parser automatic tester</a></li>
 		<li><a href="appsessvar.php">Session variables explorer</a></li>

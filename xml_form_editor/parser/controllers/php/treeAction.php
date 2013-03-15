@@ -17,8 +17,8 @@ require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/lib/PhpControll
  */
 function setUpChildrenToPage($pageHandler, $tree, $origElementId, $destElementId)
 {
-	$origChildren = $tree -> getChildren($origElementId);
-	$destChildren = $tree -> getChildren($destElementId);
+	$origChildren = $tree -> getChildrenId($origElementId);
+	$destChildren = $tree -> getChildrenId($destElementId);
 	
 	// FIXME Those 2 line do not belong here, there must be a problem elsewhere
 	$origChildren = array_values($origChildren);
@@ -80,10 +80,10 @@ if(isset($_GET['action']) && isset($_GET['id']) && isset($_SESSION['xsd_parser']
 	// Create main variable
 	$manager = unserialize($_SESSION['xsd_parser']['parser']);
 	$xsdCompleteTree = $manager -> getXsdCompleteTree();
-	$xsdOriginalTree = $manager -> getXsdOriginalTree();
+	//$xsdOriginalTree = $manager -> getXsdOriginalTree();
 	
-	$originalTreeId = $xsdCompleteTree->getObject($_GET['id']);
-	$element = $xsdOriginalTree->getObject($originalTreeId);
+	$element = $xsdCompleteTree->getElement($_GET['id']);
+	//$element = $xsdOriginalTree->getObject($originalTreeId);
 	
 	// Check that we actually got an existing element
 	if($element) $elementAttr = $element->getAttributes();
@@ -94,24 +94,20 @@ if(isset($_GET['action']) && isset($_GET['id']) && isset($_SESSION['xsd_parser']
 	}
 	
 	// Other variables
-	$parentId = $xsdCompleteTree->getParent($_GET['id']);
-	$grandParentId = $xsdCompleteTree->getParent($parentId);
+	$parentId = $xsdCompleteTree->getParentId($_GET['id']);
+	$grandParentId = $xsdCompleteTree->getParentId($parentId);
 	
 	// Check that this part of the tree is not unavailable
-	$elderId = $xsdCompleteTree->getParent($_GET['id']);
-	$originalElderId = $xsdCompleteTree->getObject($elderId);
-	
-	$elderObject = $xsdOriginalTree->getObject($originalElderId);
+	$elderId = $xsdCompleteTree->getParentId($_GET['id']);
+	$elderObject = $xsdCompleteTree->getElement($elderId);
 	$elderAttributes = $elderObject->getAttributes();
 	
 	$isElderAvailable = !(isset($elderAttributes['AVAILABLE']) && !$elderAttributes['AVAILABLE']);
 	
 	while($isElderAvailable && $elderId!=0)
 	{
-		$elderId = $xsdCompleteTree->getParent($elderId);
-		$originalElderId = $xsdCompleteTree->getObject($elderId);
-
-		$elderObject = $xsdOriginalTree->getObject($originalElderId);
+		$elderId = $xsdCompleteTree->getParentId($elderId);
+		$elderObject = $xsdCompleteTree->getElement($elderId);
 		$elderAttributes = $elderObject->getAttributes();
 		
 		$isElderAvailable = !(isset($elderAttributes['AVAILABLE']) && !$elderAttributes['AVAILABLE']);
@@ -126,13 +122,12 @@ if(isset($_GET['action']) && isset($_GET['id']) && isset($_SESSION['xsd_parser']
 	}		
 	
 	// Retrieving the number of current siblings
-	//$siblingsIdArray = $xsdCompleteTree->getId($element);
-	$siblingsIdArray = $xsdCompleteTree->getId($originalTreeId);
+	$siblingsIdArray = $xsdCompleteTree->getIds($element);
 	$siblingCount = 0;
 	
 	foreach ($siblingsIdArray as $siblingId) 
 	{
-		$siblingParentId = $xsdCompleteTree->getParent($siblingId);
+		$siblingParentId = $xsdCompleteTree->getParentId($siblingId);
 		if($siblingParentId==$parentId)  $siblingCount += 1;
 	}
 	
@@ -145,12 +140,12 @@ if(isset($_GET['action']) && isset($_GET['id']) && isset($_SESSION['xsd_parser']
 			if(isset($elementAttr['AVAILABLE']) && !$elementAttr['AVAILABLE']) // Element is not available (it needs to be set as available)
 			{
 				$availabilityAttr = array('AVAILABLE'=>true);
-				//$removeResult = $xsdCompleteTree->getObject($_GET['id'])->addAttributes($availabilityAttr);
-				$removeResult = $xsdOriginalTree->getObject($originalTreeId)->addAttributes($availabilityAttr);
+				$removeResult = $xsdCompleteTree->getElement($_GET['id'])->addAttributes($availabilityAttr);
+				//$removeResult = $xsdOriginalTree->getObject($originalTreeId)->addAttributes($availabilityAttr);
 				
 				// xxx change to original tree
 				$manager -> setXsdCompleteTree($xsdCompleteTree);
-				$manager -> setXsdOriginalTree($xsdOriginalTree);
+				//$manager -> setXsdOriginalTree($xsdOriginalTree);
 				$_SESSION['xsd_parser']['parser'] = serialize($manager);
 				
 				echo getJSONString($grandParentId);
@@ -164,12 +159,13 @@ if(isset($_GET['action']) && isset($_GET['id']) && isset($_SESSION['xsd_parser']
 				
 				if($maxOccurs==-1 || $maxOccurs>$siblingCount)
 				{
-					$elementId = $xsdCompleteTree->copyTreeBranch($_GET['id']);
+					$elementId = $xsdCompleteTree->duplicateElement($_GET['id'], true);
+					$xsdCompleteTree -> setBrother($_GET['id'], $elementId);
 				
 					if($elementId>=0)
 					{
 						$manager -> setXsdCompleteTree($xsdCompleteTree);
-						$manager -> setXsdOriginalTree($xsdOriginalTree);
+						//$manager -> setXsdOriginalTree($xsdOriginalTree);
 						
 						$pageHandler = $manager -> getPageHandler();
 						$pageArray = $pageHandler -> getPageForId($_GET['id']);
@@ -202,19 +198,19 @@ if(isset($_GET['action']) && isset($_GET['id']) && isset($_SESSION['xsd_parser']
 			else $minOccurs = 1;
 			
 			if($minOccurs!=0 && $siblingCount>$minOccurs) // minOccurs > 0, number of elements higher than minOccurs
-				$computationResult = $xsdCompleteTree->removeElement($_GET['id'], true);
+				$computationResult = $xsdCompleteTree->delete($_GET['id'], true);
 			else if($minOccurs==0 && $siblingCount>$minOccurs+1) // minOccurs = 0, number of element higher than 1
-				$computationResult = $xsdCompleteTree->removeElement($_GET['id'], true);
+				$computationResult = $xsdCompleteTree->delete($_GET['id'], true);
 			else // minOccurs = 0, number of element = 0
 			{
 				$availabilityAttr = array('AVAILABLE'=>false);
-				$computationResult = $xsdOriginalTree->getObject($originalTreeId)->addAttributes($availabilityAttr);
+				$computationResult = $xsdCompleteTree->getElement($_GET['id'])->addAttributes($availabilityAttr);
 			} 
 			
 			if($computationResult>=0) // ResultCode >= 0 do not break the app
 			{
 				$manager -> setXsdCompleteTree($xsdCompleteTree);
-				$manager -> setXsdOriginalTree($xsdOriginalTree);
+				//$manager -> setXsdOriginalTree($xsdOriginalTree);
 				$_SESSION['xsd_parser']['parser'] = serialize($manager);
 				
 				echo getJSONString($grandParentId);

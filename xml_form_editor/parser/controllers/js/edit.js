@@ -7,6 +7,9 @@
 
 loadEditController = function()
 {
+	/* Remove the editController to avoid multi-event */
+	removeEditController();
+	
 	/**
 	 * Dialog basic configuration 
 	 */
@@ -66,7 +69,7 @@ loadEditController = function()
     });
 	
 	// Linking the event on all the edit buttons
-	$('.edit').live('click', editElement);
+	$(document).on('click', '.edit', editElement);
 	
 	// Event on the dialog element
 	$('#unbounded').on('click', changeUnboundedState);
@@ -88,9 +91,9 @@ removeEditController = function()
 	$('#minoccurs').off('focus');
 	$('#maxoccurs').off('focus');
 	
-	$('.edit').off('click');
+	$(document).off('click', '.edit');
 	
-	$('#dialog').dialog("destroy");
+	if($('#dialog').is(':ui-dialog')) $('#dialog').dialog("destroy");
 }
 
 /**

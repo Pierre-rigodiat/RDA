@@ -178,7 +178,7 @@ class Display
 		$pageHandler = $this -> xsdManager -> getPageHandler();
 		$totalPage = $pageHandler -> getNumberOfPage();
 		
-		$pageChooser = 'Split into <input type="number" min="1" value="'.$totalPage.'" class="text small"/> page(s) <div class="icon" id="page_number"></div>';
+		$pageChooser = 'Split into <input type="number" min="1" value="'.$totalPage.'" class="text small"/> page(s) <div class="icon next" id="page_number"></div>';
 		$this->LOGGER->log_notice('Page chooser displayed w/ '.$totalPage.' page(s)', 'Display::displayPageChooser');
 		
 		return $pageChooser;
@@ -226,23 +226,19 @@ class Display
 	 * )
 	 * 
 	 * 
+	 * @return array Description of the element
 	 */
-	private function getElementDescription($elementId)
+	private function getElementDescription($elementId, $fromCompleteTree = false)
 	{
 		$elementDesc = array();
 		
-		/* Retrieving the XsdElement */
-		// TODO Improve this tree administration
-		$completeTree = $this -> xsdManager -> getXsdCompleteTree();
-		if($completeTree -> hasElement()) $tree = $completeTree;
-		else $tree = $this -> xsdManager -> getXsdOrganizedTree();
-		
-		$originalTreeId = $tree -> getObject($elementId);
-		$xsdElement = $this -> xsdManager -> getXsdOriginalTree() -> getObject($originalTreeId);
+		/* Retrieve the XsdElement */
+		if($fromCompleteTree) $xsdElement = $this -> xsdManager -> getXsdCompleteTree() -> getElement($elementId);
+		else $xsdElement = $this -> xsdManager -> getXsdOriginalTree() -> getElement($elementId);
 		
 		$elementDesc['xsdElement'] = $xsdElement;
 		
-		/* Retrieving the page number */
+		/* Retrieve the page number */
 		$pageHandler = $this -> xsdManager -> getPageHandler();
 		if($pageHandler -> getNumberOfPage() > 1)
 		{
@@ -254,14 +250,42 @@ class Display
 		
 		$elementDesc['pages'] = $pages;
 		
-		/* Retrieving the module name */
+		/* Retrieve the module name */
 		$moduleHandler = $this -> xsdManager -> getModuleHandler();
 		$moduleName = $moduleHandler -> getModuleForId($elementId);
 		
 		$elementDesc['module'] = $moduleName;
 		
-		
 		return $elementDesc;
+	}
+	 
+	/**
+	 * Display the configuration view
+	 * 
+	 * @param int $elementId Id of the element
+	 * @return string Configuration view (HTML code)
+	 */
+	public function displayConfiguration($elementId = 0)
+	{
+		$configView = '';
+
+		if($elementId == 0) // Display the whole tree
+		{
+			// FIXME Change the parameter in the function
+			//$rootElements = $this -> xsdManager -> getRootElements();
+				
+			
+			$configView .= $this -> displayPopUp();
+			$configView .= '<div>';
+			$configView .= $this -> displayConfigurationElement(/*$rootElements[0]*/0);
+			$configView .= '</div>';
+		}
+		else // Display an element
+		{
+			$configView .= $this -> displayConfigurationElement($elementId, true);
+		}
+		
+		return $configView;
 	}
 	
 	/**
@@ -337,32 +361,7 @@ class Display
 
 		return $popUp;
 	}
-	 
-	/**
-	 * Display the configuration view
-	 * 
-	 * @param int $elementId Id of the element
-	 * @return string Configuration view (HTML code)
-	 */
-	public function displayConfiguration($elementId = 0)
-	{
-		$configView = '';
-
-		if($elementId == 0) // Display the whole tree
-		{
-			$configView .= $this -> displayPopUp();
-			$configView .= '<div>';
-			$configView .= $this -> displayConfigurationElement($elementId);
-			$configView .= '</div>';
-		}
-		else // Display an element
-		{
-			$configView .= $this -> displayConfigurationElement($elementId, true);
-		}
-		
-		return $configView;
-	}
-		
+	
 	/**
 	 * Display the configuration view of a single element.
 	 * 
@@ -375,12 +374,13 @@ class Display
 	private function displayConfigurationElement($elementId, $onlyElement = false)
 	{
 		/* Configuration element */
+		// TODO Populate the array
 		// TODO Move this to a file
 		$ELEMENT_NAME_TAG = array(
-			"root_start" => "<h5>",
-			"root_end" => "</h5>",
-			"elem_start" => "",
-			"elem_end" => ""
+			"root_start" => '<h5>',
+			"root_end" => '</h5>',
+			"elem_start" => '<span class="element_name">',
+			"elem_end" => '</span>'
 		);
 		
 		/* Get element attributes */
@@ -395,18 +395,19 @@ class Display
 		// Display the start li tag for everyone but the root
 		if (!$onlyElement && $elementId!=0) $configElement .= '<li id="' . $elementId . '">';
 		
+		// FIXME See if this condition work for multi root schemas
 		if($elementId == 0/*$this -> xsdManager -> getXsdOrganizedTree() -> getParent($elementId) == -1*/) // For root element, only the name is important
 		{
-			$configElement .= '<h5>'.ucfirst($elementAttr['NAME']).'</h5>';
+			$configElement .= $ELEMENT_NAME_TAG["root_start"] . ucfirst($elementAttr['NAME']) . $ELEMENT_NAME_TAG["root_end"];
 		}
 		else {
 			// Display element name and attributes
-			$configElement .= '<span class="element_name">' . ucfirst($elementAttr['NAME']) . '</span>';
+			$configElement .= $ELEMENT_NAME_TAG["elem_start"] . ucfirst($elementAttr['NAME']) . $ELEMENT_NAME_TAG["elem_end"];
 			$configElement .= $this -> displayConfigurationAttributes($elementAttr, $elementDesc['pages'], $elementDesc['module']);	
 		}
 
 		// No module assigned implies to display children
-		if($elementDesc['module'] == '') $children = $this -> xsdManager -> getXsdOrganizedTree() -> getChildren($elementId);
+		if($elementDesc['module'] == '') $children = $this -> xsdManager -> getXsdOriginalTree() -> getChildrenId($elementId);
 		
 		/* Display children (if it is not the only element to display) */
 		if (count($children) > 0 && !$onlyElement)
@@ -474,7 +475,7 @@ class Display
 					else
 					{
 						// FIXME doing that assumes that you just have one attribute in choices (or at least one array)
-						$childXsdElement = $this -> xsdManager -> getXsdOriginalTree() -> getObject($attrElement);
+						$childXsdElement = $this -> xsdManager -> getXsdOriginalTree() -> getElement($attrElement);
 						$childAttributes = $childXsdElement -> getAttributes();
 						
 						$attributeString .= ucfirst($childAttributes['NAME']);
@@ -540,10 +541,13 @@ class Display
 	public function displayHTMLForm($elementId = 0, $partial = false)
 	{
 		$result = '';
+		
+		// FIXME Change the parameter in the function
+		//$rootElements = $this -> xsdManager -> getRootElements();
 
 		if (!$partial)
 			$result .= '<div id="page_content">';
-		$result .= $this -> displayHTMLFormElement($elementId);
+		$result .= $this -> displayHTMLFormElement(/*$rootElements[0]*/$elementId);
 		if (!$partial)
 			$result .= '</div>';
 
@@ -559,7 +563,7 @@ class Display
 	{
 		$htmlFormElement = '';
 		
-		$elementDesc = $this -> getElementDescription($elementId);
+		$elementDesc = $this -> getElementDescription($elementId, true);
 		$currentPage = $this -> xsdManager -> getPageHandler() -> getCurrentPage();
 		
 		/* Check that the element should be display in this page */
@@ -638,7 +642,7 @@ class Display
 						$htmlFormElement .= '<select class="xsdman choice">';
 						foreach ($elementAttr['CHOICE'] as $chooseElement)
 						{
-							$childXsdElement = $this -> xsdManager -> getXsdOriginalTree() -> getObject($chooseElement);
+							$childXsdElement = $this -> xsdManager -> getXsdOriginalTree() -> getElement($chooseElement);
 							$childAttributes = $childXsdElement -> getAttributes();
 							
 							$htmlFormElement .= '<option value="' . $chooseElement . '">' . ucfirst($childAttributes['NAME']) . '</value>';
@@ -651,9 +655,9 @@ class Display
 					// TODO Improve this part
 					// XXX START XXX
 					// Gather sibling information and create useful variable to count them
-					$parentId = $this -> xsdManager -> getXsdCompleteTree() -> getParent($elementId);
-					$originalTreeId = $this -> xsdManager -> getXsdCompleteTree() -> getObject($elementId);
-					$siblingsIdArray = $this -> xsdManager -> getXsdCompleteTree() -> getId($originalTreeId);
+					$parentId = $this -> xsdManager -> getXsdCompleteTree() -> getParentId($elementId);
+					$originalTreeId = $this -> xsdManager -> getXsdCompleteTree() -> getElement($elementId);
+					$siblingsIdArray = $this -> xsdManager -> getXsdCompleteTree() -> getIds($originalTreeId);
 					
 					$this->LOGGER->log_debug('ID '.$elementId.' has '.count($siblingsIdArray).' possible sibling(s)', 'Display::displayHTMLFormElement');
 					$siblingsCount = 0;
@@ -661,10 +665,10 @@ class Display
 					// Check the current number of siblings (to know if we need to display buttons)
 					foreach ($siblingsIdArray as $siblingId)
 					{
-						$siblingParentId = $this -> xsdManager -> getXsdCompleteTree() -> getParent($siblingId);
+						$siblingParentId = $this -> xsdManager -> getXsdCompleteTree() -> getParentId($siblingId);
 
-						$siblingOriginalTreeId = $this -> xsdManager -> getXsdCompleteTree() -> getObject($siblingId);
-						$siblingObject = $this -> xsdManager -> getXsdOriginalTree() -> getObject($siblingOriginalTreeId);
+						$siblingObject = $this -> xsdManager -> getXsdCompleteTree() -> getElement($siblingId);
+						//$siblingObject = $this -> xsdManager -> getXsdOriginalTree() -> getObject($siblingOriginalTreeId);
 						$siblingAttr = $siblingObject -> getAttributes();
 			
 						// We compare the parent ID to know if this is a real sibling (and not just another similar element)
@@ -711,21 +715,21 @@ class Display
 				
 				if($elementDesc['module'] == '')
 				{
-					$children = $this -> xsdManager -> getXsdCompleteTree() -> getChildren($elementId);
+					$children = $this -> xsdManager -> getXsdCompleteTree() -> getChildrenId($elementId);
 					
 					// TODO choose should be a variable
 					if($elementAttr['NAME'] == 'choose')
 					{
-						$originalElementId = $this -> xsdManager -> getXsdCompleteTree() -> getObject($elementId);	
-						$originalTree = $this -> xsdManager -> getXsdOriginalTree();
+						/*$choiceElement = $this -> xsdManager -> getXsdCompleteTree() -> getElement($elementId);	
+						/*$originalTree = $this -> xsdManager -> getXsdOriginalTree();
 						
-						$choiceElement = $originalTree -> getObject($originalElementId);
-						$choiceElementAttributes = $choiceElement -> getAttributes();
+						$choiceElement = $originalTree -> getObject($originalElementId);*/
+						//$choiceElementAttributes = $choiceElement -> getAttributes();
 						
 						foreach ($children as $child) 
 						{
-							$childOriginalId = $this -> xsdManager -> getXsdCompleteTree() -> getObject($child);
-							if($childOriginalId == $choiceElementAttributes['CHOICE'][0])
+							//$childOriginalId = $this -> xsdManager -> getXsdCompleteTree() -> getObject($child);
+							if($child/*OriginalId*/ == /*$choiceElementAttributes*/$elementAttr['CHOICE'][0])
 							{
 								$children = array($child);
 								break;
@@ -776,7 +780,7 @@ class Display
 		$xmlElement = '';
 		$children = array();
 		
-		$elementDesc = $this -> getElementDescription($elementId);
+		$elementDesc = $this -> getElementDescription($elementId, true);
 		$elementAttr = $elementDesc['xsdElement'] -> getAttributes();		
 		
 		// Unavailable elements are not displayed
@@ -820,7 +824,7 @@ class Display
 		// TODO Find a better way to store module data
 		if($this -> xsdManager -> getModuleHandler() -> getModuleForId($elementId) == '')
 		{
-			$children = $this -> xsdManager -> getXsdCompleteTree() -> getChildren($elementId);
+			$children = $this -> xsdManager -> getXsdCompleteTree() -> getChildrenId($elementId);
 			
 			if($xmlElement=='') // Case of choice element 
 			{				
@@ -829,7 +833,7 @@ class Display
 				{
 					foreach ($children as $child) 
 					{
-						$childOriginalId = $this -> xsdManager -> getXsdCompleteTree() -> getObject($child);
+						$childOriginalId = $this -> xsdManager -> getXsdCompleteTree() -> getElement($child);
 						if($childOriginalId == $elementAttr['CHOICE'][0])
 						{
 							$children = array($child);

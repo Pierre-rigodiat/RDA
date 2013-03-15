@@ -1,9 +1,9 @@
 <?php
 // TODO Rewrite the debug part using the parser configuration
-define("DEBUG_XML_LIB", true);
+/*define("DEBUG_XML_LIB", true);
 require_once $_SESSION['xsd_parser']['conf']['dirname'].'/inc/helpers/Logger.php';
 require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/core/XsdElement.php';
-require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/core/Tree.php';
+require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/core/Tree.php';*/
 
 /**
  * XML parser functions
@@ -16,7 +16,7 @@ require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/core/Tree.php';
  */
  
 // Logger implementation
-$LOGGER = null;
+/*$LOGGER = null;
 
 if(DEBUG_XML_LIB) $LOGGER = new Logger('notice', $_SESSION['xsd_parser']['conf']['dirname'].'/logs/xml_lib.log', 'XmlParserFunctions.php');
 else $LOGGER = new Logger('info', $_SESSION['xsd_parser']['conf']['dirname'].'/logs/xml_lib.log', 'XmlParserFunctions.php');
@@ -26,12 +26,12 @@ $level = 0;
 $id = -1;
 $stack = array();
 $elementList = array();
-$elementTree = new Tree(DEBUG_XML_LIB);
+$elementTree = new Tree(DEBUG_XML_LIB);*/
 
 /**
  * Function used on a start tag (<element>)
  */
-function start($parser,$element_name,$element_attrs)
+/*function start($parser,$element_name,$element_attrs)
 {
 	global $id, $level, $stack, $elementList, $elementTree, $LOGGER;
 
@@ -39,7 +39,7 @@ function start($parser,$element_name,$element_attrs)
 	 * Store the element into the elementList
 	 */
 	// Find the parent of the element
-	$parent = -1;
+	/*$parent = -1;
 	if($level > 0) {
 		$parent = $stack[$level-1];
 	}
@@ -55,7 +55,7 @@ function start($parser,$element_name,$element_attrs)
 	 * Updating the stack
 	 */
 	// Add the element to the stack
-	$stack[$level] = $id;
+	/*$stack[$level] = $id;
 
 	// Increment the level
 	$level += 1;
@@ -64,12 +64,12 @@ function start($parser,$element_name,$element_attrs)
 /**
  * Function used reading a character
  */
-function char($parser,$data) {}
+/*function char($parser,$data) {}
 
 /**
  * Function used at the end of an element (</element>)
  */
-function stop($parser,$element_name)
+/*function stop($parser,$element_name)
 {
 	global $id, $level, $stack, $elementList, $elementTree, $LOGGER;
 
@@ -78,7 +78,7 @@ function stop($parser,$element_name)
 	 */
 
 	// Decrease the level
-	$level -= 1;
+	/*$level -= 1;
 
 	// Remove the stack element
 	$stack[$level] = null;
@@ -89,11 +89,11 @@ function stop($parser,$element_name)
 /**
  * Make the XML readable in a HTML page
  */
-function displayXMLContent($content)
+/*function displayXMLContent($content)
 {
 	$old = array(htmlspecialchars('<br />'), htmlspecialchars(' '));
 	$new = array('<br/>', '&nbsp;');
 	
 	return str_replace($old, $new, $content);
-}
+}*/
 ?>
