@@ -32,7 +32,7 @@ function displayTree($grandParentId)
 		
 		if($grandParentId>=0)
 		{
-			$children = $xsdCompleteTree->getChildren($grandParentId);
+			$children = $xsdCompleteTree->getChildrenId($grandParentId);
 			foreach($children as $childId)
 			{
 				$treeString .= $display->displayHTMLForm($childId, true);

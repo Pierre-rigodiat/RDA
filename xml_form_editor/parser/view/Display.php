@@ -178,7 +178,7 @@ class Display
 		$pageHandler = $this -> xsdManager -> getPageHandler();
 		$totalPage = $pageHandler -> getNumberOfPage();
 		
-		$pageChooser = 'Split into <input type="number" min="1" value="'.$totalPage.'" class="text small"/> page(s) <div class="icon next" id="page_number"></div>';
+		$pageChooser = 'Split into <input type="number" min="1" value="'.$totalPage.'" class="text small"/> page(s) <div class="icon" id="page_number"></div>';
 		$this->LOGGER->log_notice('Page chooser displayed w/ '.$totalPage.' page(s)', 'Display::displayPageChooser');
 		
 		return $pageChooser;
@@ -576,7 +576,8 @@ class Display
 				// XXX Use the XsdManager
 				$htmlFormElement .= displayModule($elementDesc['module']);
 			}
-			else {
+			else 
+			{
 				$elementAttr = $elementDesc['xsdElement'] -> getAttributes(); // TODO Do something if the element doesn't exist
 			
 				$this->LOGGER->log_debug('Display ID '.$elementId.'; Object: '.$elementDesc['xsdElement'], 'Display::displayHTMLFormElement');

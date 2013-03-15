@@ -58,4 +58,3 @@ toggleModule = function()
 		console.log('[toggleModule] Module '+moduleName+' is disable, it cannot be loaded!');
 	}
 }
-

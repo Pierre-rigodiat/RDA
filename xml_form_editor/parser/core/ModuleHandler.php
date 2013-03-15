@@ -1,7 +1,9 @@
 <?php
 /**
+ * <ModuleHandler class>
+ */
+/**
  * The class handling every module
- * Version: 0.1a
  * 
  * 
  * @package XsdMan\Core

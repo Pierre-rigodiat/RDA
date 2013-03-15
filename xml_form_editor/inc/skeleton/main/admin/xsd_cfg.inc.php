@@ -66,14 +66,12 @@ if(isset($_SESSION['xsd_parser']['xsd_filename']))
 			displayConfiguration();
 		?>
 	</div>
-	<div id="schema_notif">
-		<div class="notif"><img alt"Loading..." src="resources/img/loader-circle.gif"/> Generating complete schema...</div>
-		<div class="notif"><span class="icon legend long">Complete schema generated</span></div>
-	</div>
+	<div id="schema_notif"></div>
 </div>
 </div>
 
 <script src="parser/controllers/js/edit.js"></script>
+<script src="parser/controllers/js/generateCompleteTree.js"></script>
 <script src="resources/js.new/xsd_cfg.js"></script>
 <script>
 	/**
@@ -81,6 +79,7 @@ if(isset($_SESSION['xsd_parser']['xsd_filename']))
 	 * Prevent addition of a listener to a same element
 	 */
 	loadEditController();	
+	generateCompleteTree();
 	
 	if(!schemaConfLibLoaded)
 	{

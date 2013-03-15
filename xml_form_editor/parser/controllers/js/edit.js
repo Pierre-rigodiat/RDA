@@ -303,6 +303,8 @@ saveConfiguration = function(elementId, fieldArray)
         		if($('li#'+elementId).children(':first').length!=0) $('li#'+elementId).children(':first').before(htmlspecialchars_decode(jsonObject.result));
         		else $('li#'+elementId).html(htmlspecialchars_decode(jsonObject.result));
         		
+        		generateCompleteTree();
+        		
         		console.log('[saveConfiguration] Element '+elementId+' successfully modified');
         	}
         	else if(jsonObject.code<0)
@@ -397,6 +399,8 @@ changePageNumber = function()
         		removeEditController();        		
         		treePanel.html(htmlspecialchars_decode(jsonData.result));
         		loadEditController();
+        		
+        		generateCompleteTree();
         	}
         	
         	

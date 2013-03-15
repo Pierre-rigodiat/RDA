@@ -150,3 +150,13 @@
 {
 	background-position: -260px 0px;
 }
+
+.icon.valid
+{
+	background-position: -120px -420px;
+}
+
+.icon.invalid
+{
+	background-position: -120px -140px;
+}

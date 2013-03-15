@@ -3,31 +3,33 @@
  * <ClosureTable class>
  */
 /**
+ * Stores a tree in a closure table structure.
+ * 
+ * Closure tables are the better way to store trees if performances are at stake.
+ * 
  * 
  */
 class ClosureTable {
 	/**
-	 * 
+	 * Array containing all elements
 	 * @var array
 	 */
 	private $elementList;
 	
 	/**
-	 * 
-	 * 
+	 * Array linking all elements
 	 * @var array
 	 */
 	private $ancestorTable;
 	
 	/**
-	 * 
+	 * Id of the next element
 	 * @var int
 	 */
 	private $insertIndex;
 	
 	/**
-	 * 
-	 * 
+	 * An identifier for the tree (useful for logging purposes)
 	 * @var string
 	 */
 	private $__ID;

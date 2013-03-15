@@ -178,6 +178,7 @@ function displayHTMLForm()
 	}
 	else
 	{
+		//$manager = unserialize($_SESSION['xsd_parser']['parser']);
 		$display = new Display($manager, $debug);
 		$_SESSION['xsd_parser']['display'] = serialize($display);
 	}
