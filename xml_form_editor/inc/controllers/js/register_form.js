@@ -26,7 +26,7 @@ clearFields = function()
 	});
 	
 	$.ajax({
-        url: 'inc/ajax.new/manageData.php',
+        url: 'inc/controllers/php/manageData.php',
         type: 'GET',
         success: function(data) {
         	
@@ -80,7 +80,7 @@ saveFields = function()
 	qString = qString.substring(0, qString.length-1);
 	
 	$.ajax({
-        url: 'inc/ajax.new/manageData.php',
+        url: 'inc/controllers/php/manageData.php',
         type: 'GET',
         success: function(data) {
         	

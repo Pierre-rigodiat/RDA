@@ -4,7 +4,9 @@
  * 
  * 
  */
-require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/core/Tree.php';
+require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/core/Tree_.php';
+require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/core/ReferenceTree.php';
+
 require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/core/XsdElement.php';
 require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/core/PageHandler.php';
 require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/view/Display.php';

@@ -10,7 +10,17 @@
  */
 class ModuleHandler 
 {
-	private $moduleList; // The array containing all ID associated with a module
+	/**
+	 * Array containing all ID associated with a module
+	 * 
+	 * @var array
+	 */
+	private $moduleList;
+	
+	/**
+	 * Name of the directory containing all the modules 
+	 * @var string
+	 */
 	private $moduleDir;
 	
 	private $LOGGER;
@@ -132,6 +142,7 @@ class ModuleHandler
 	
 	/**
 	 * 
+	 * @param string $moduleName Name of the module the user searches
 	 */
 	public function isInModuleList($moduleName)
 	{
@@ -153,6 +164,8 @@ class ModuleHandler
 	}
 	
 	/**
+	 * 
+	 * 
 	 * 
 	 */
 	public function getModuleStatus($moduleName)
@@ -242,7 +255,8 @@ class ModuleHandler
 	
 	/**
 	 * 
-	 * @return {array}
+	 * @param string $filter Status of the module
+	 * @return array
 	 */
 	public function getModuleList($filter = 'none')
 	{
@@ -274,8 +288,7 @@ class ModuleHandler
 	
 	/**
 	 * String representation of the ModuleHandler
-	 * @return {string} ModuleHandler representation
-	 * 
+	 * @return string ModuleHandler representation
 	 */
 	public function __toString()
 	{

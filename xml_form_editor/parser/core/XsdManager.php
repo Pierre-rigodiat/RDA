@@ -5,12 +5,13 @@
 require_once $_SESSION['xsd_parser']['conf']['dirname'] . '/parser/lib/XmlParserFunctions.php';
 require_once $_SESSION['xsd_parser']['conf']['dirname'] . '/inc/lib/StringFunctions.php';
 require_once $_SESSION['xsd_parser']['conf']['dirname'] . '/inc/helpers/Logger.php';
-require_once $_SESSION['xsd_parser']['conf']['dirname'] . '/parser/core/Tree.php';
 require_once $_SESSION['xsd_parser']['conf']['dirname'] . '/parser/core/XsdElement.php';
 require_once $_SESSION['xsd_parser']['conf']['dirname'] . '/parser/core/PageHandler.php';
 require_once $_SESSION['xsd_parser']['conf']['dirname'] . '/parser/core/ModuleHandler.php';
 require_once $_SESSION['xsd_parser']['conf']['dirname'] . '/parser/core/XmlParser.php';
-require_once $_SESSION['xsd_parser']['conf']['dirname'] . '/parser/core/ClosureTable.php';
+
+require_once $_SESSION['xsd_parser']['conf']['dirname'] . '/parser/core/Tree_.php';
+require_once $_SESSION['xsd_parser']['conf']['dirname'] . '/parser/core/ReferenceTree.php';
 /**
  * <b>Handle the schema configuration and value. It is the backbone of the software</b>
  * 
@@ -46,14 +47,31 @@ require_once $_SESSION['xsd_parser']['conf']['dirname'] . '/parser/core/ClosureT
  */
 class XsdManager
 {
+	/**
+	 * 
+	 * @var string
+	 */
 	private $xsdFile;
 
-	// The tree as it is in the xsd file
+	/**
+	 * The tree as it is in the xsd file
+	 * 
+	 * @var Tree
+	 */
 	private $xsdOriginalTree;
-	// The tree as it should be in the form (with proper occurence)
+	
+	/**
+	 * The tree as it should be in the form (with proper occurence)
+	 * @var ReferenceTree
+	 */
 	private $xsdCompleteTree;
 	
 	// The array containing the values entered by the user
+	/**
+	 * 
+	 * 
+	 * @var array
+	 */
 	private $dataArray;
 
 	// Handlers
@@ -96,6 +114,8 @@ class XsdManager
 	public function __construct()
 	{
 		self::$LOG_FILE = $_SESSION['xsd_parser']['conf']['dirname'] . '/logs/parser.log';
+		$level = self::$LEVELS['DBG'];
+		$this -> LOGGER = new Logger($level, self::$LOG_FILE, self::$FILE_NAME);
 
 		$argc = func_num_args();
 		$argv = func_get_args();
@@ -108,9 +128,8 @@ class XsdManager
 				{
 					$this -> xsdFile = $argv[0];
 
-					$this -> xsdOriginalTree = new Tree();
-					//$this -> xsdOrganizedTree = new Tree();
-					$this -> xsdCompleteTree = new Tree();
+					$this -> xsdOriginalTree = new Tree("OriginalTree");
+					$this -> xsdCompleteTree = new ReferenceTree($this->xsdOriginalTree);
 					$this -> dataArray = array();
 
 					$this -> pageHandler = $argv[1];
@@ -118,10 +137,9 @@ class XsdManager
 				}
 				else
 				{
-					$this -> xsdFile = null;
+					//TODO Log
+					throw new Exception('Invalid param');
 				}
-
-				$level = self::$LEVELS['NO_DBG'];
 
 				break;
 			case 4 :
@@ -135,96 +153,36 @@ class XsdManager
 
 					if ($argv[1])
 					{
-						$this -> xsdOriginalTree = new Tree(true);
-						//$this -> xsdOrganizedTree = new Tree(true);
-						$this -> xsdCompleteTree = new Tree(true);
+						//TODO Set debug
+						$this -> xsdOriginalTree = new Tree("OriginalTree");
+						$this -> xsdCompleteTree = new ReferenceTree($this->xsdOriginalTree);
 						$this -> dataArray = array();
 						$level = self::$LEVELS['DBG'];
 					}
 					else
 					{
-						$this -> xsdOriginalTree = new Tree();
-						//$this -> xsdOrganizedTree = new Tree();
-						$this -> xsdCompleteTree = new Tree();
+						$this -> xsdOriginalTree = new Tree("OriginalTree");
+						$this -> xsdCompleteTree = new ReferenceTree($this->xsdOriginalTree);
 						$this -> dataArray = array();
 						$level = self::$LEVELS['NO_DBG'];
 					}
 				}
 				else
 				{
-					$this -> xsdFile = null;
-					$level = self::$LEVELS['NO_DBG'];
+					//TODO Log
+					throw new Exception('Invalid param');
+					/*$this -> xsdFile = null;
+					$level = self::$LEVELS['NO_DBG'];*/
 				}
 
 				break;
 			default :
-				$this -> xsdFile = null;
-				$level = self::$LEVELS['NO_DBG'];
+				//TODO Log
+				throw new Exception('Invalid param');
 				break;
 		}
 
-		try
-		{
-			$this -> LOGGER = new Logger($level, self::$LOG_FILE, self::$FILE_NAME);
-		}
-		catch (Exception $ex)
-		{
-			echo '<b>Impossible to build the Logger:</b><br/>' . $ex -> getMessage();
-		}
-
-		if ($this -> xsdFile == null)
-		{
-			$log_mess = '';
-
-			switch($argc)
-			{
-				case 3 :
-					if (is_object($argv[0]))
-						$argv0 = get_class($argv[0]);
-					else
-						$argv0 = gettype($argv[0]);
-					if (is_object($argv[1]))
-						$argv1 = get_class($argv[1]);
-					else
-						$argv1 = gettype($argv[1]);
-					if (is_object($argv[2]))
-						$argv2 = get_class($argv[2]);
-					else
-						$argv2 = gettype($argv[2]);
-
-					$log_mess .= 'Function accepts {string, PageHandler, ModuleHandler} ({' . $argv[0] . ', ' . $argv[1] . ', ' . $argv[2] . '} given)';
-					break;
-				case 4 :
-					if (is_object($argv[0]))
-						$argv0 = get_class($argv[0]);
-					else
-						$argv0 = gettype($argv[0]);
-					if (is_object($argv[1]))
-						$argv1 = get_class($argv[1]);
-					else
-						$argv1 = gettype($argv[1]);
-					if (is_object($argv[2]))
-						$argv2 = get_class($argv[2]);
-					else
-						$argv2 = gettype($argv[2]);
-					if (is_object($argv[3]))
-						$argv2 = get_class($argv[3]);
-					else
-						$argv2 = gettype($argv[3]);
-
-					$log_mess .= 'Function accepts {string, PageHandler, ModuleHandler, boolean} ({' . $argv[0] . ', ' . $argv[1] . ', ' . $argv[2] . ', ' . $argv[3] . '} given)';
-					break;
-				default :
-					$log_mess .= 'Incorrect number of args (3 or 4 needed, ' . $argc . ' given)';
-					break;
-			}
-
-			$this -> LOGGER -> log_error($log_mess, 'XsdManager::__construct');
-		}
-		else
-		{
-			$this -> LOGGER -> log_debug('Manager created for file ' . $this -> xsdFile, 'XsdManager::__construct');
-		}
+		$this -> LOGGER -> log_debug('Manager created for file ' . $this -> xsdFile, 'XsdManager::__construct');
 	}
 
 	/**
@@ -276,7 +234,7 @@ class XsdManager
 
 		// Find the root element
 		$this -> rootElements = array();
-		foreach ($this->xsdOriginalTree->getChildrenId(0) as $child)
+		foreach ($this->xsdOriginalTree->getChildren(0) as $child)
 		{
 			$childObject = $this -> xsdOriginalTree -> getElement($child);
 						
@@ -289,7 +247,7 @@ class XsdManager
 		// Returning the rootElement
 		if (count($this -> rootElements) > 1)
 		{
-			$this -> LOGGER -> log_info('Several root element found ' . serialize($this -> rootElements), 'XsdManager::buildTree');
+			$this -> LOGGER -> log_info('Several root element found ' . arrayToString($this -> rootElements), 'XsdManager::buildTree');
 			return $this -> rootElements;
 		}
 		else if (count($this -> rootElements) == 1)
@@ -316,9 +274,6 @@ class XsdManager
 		$xmlParser -> parse($this -> xsdFile);
 		
 		$this -> xsdOriginalTree = $xmlParser -> getParsingData();
-		
-		/*$this -> xsdOriginalTree = $schemaData["tree"];
-		$this -> xsdElementList = $schemaData["list"];*/
 		
 		$this -> LOGGER -> log_debug($this -> xsdFile . ' has been parsed', 'XsdManager::parse');
 	}
@@ -385,13 +340,14 @@ class XsdManager
 
 		if (in_array($rootElement, $this -> rootElements))
 		{
-			$tempTree = new ClosureTable("OrganizedTree");
+			$tempTree = new Tree("TempTree");
 			$this -> createOriginalTree($tempTree, $rootElement);
 			
 			$this -> xsdOriginalTree = clone $tempTree;
 			$tempTree = null;
 			
 			$this -> cleanXsdTree();
+			$this -> xsdCompleteTree -> setReferenceTree($this -> xsdOriginalTree);
 		}
 		else
 		{
@@ -411,7 +367,7 @@ class XsdManager
 	private function createOriginalTree($tempTree, $elementId = 0, $parentId = -1)
 	{
 		$xsdElement = $this -> xsdOriginalTree -> getElement($elementId);
-		$newParentId = $tempTree -> insertElement($xsdElement, $parentId);
+		$newParentId = $tempTree -> insert($xsdElement, $parentId);
 
 		if ($newParentId < 0)
 		{
@@ -423,7 +379,7 @@ class XsdManager
 			//$xsdElement = $this -> xsdElementList[$xsdElementId];
 			$xsdElementAttr = $xsdElement -> getAttributes();
 			
-			$children = $this -> xsdOriginalTree -> getChildrenId($elementId);
+			$children = $this -> xsdOriginalTree -> getChildren($elementId);
 			if (count($children) > 0)
 			{
 				foreach ($children as $child)
@@ -454,21 +410,21 @@ class XsdManager
 					{
 						/* Build a complexType element as comparison */
 						$comparisonElement = new XsdElement($this -> namespaces['default']['name'] . ':COMPLEXTYPE', array("NAME" => $xsdElementAttr["TYPE"]));
-						$arrayID = $this -> xsdOriginalTree -> getIds($comparisonElement);
+						$matchingIdArray = $this -> xsdOriginalTree -> find($comparisonElement);
 
-						if (count($arrayID) == 1)
+						if (count($matchingIdArray) == 1)
 						{
-							$this -> createOriginalTree($tempTree, $arrayID[0], $newParentId);
+							$this -> createOriginalTree($tempTree, $matchingIdArray[0], $newParentId);
 						}
 						else
 						{
 							/* Build a simpleType element as comparison */
 							$comparisonElement = new XsdElement($this -> namespaces['default']['name'] . ':SIMPLETYPE', array("NAME" => $xsdElementAttr["TYPE"]));
-							$arrayID = $this -> xsdOriginalTree -> getIds($comparisonElement);
+							$matchingIdArray = $this -> xsdOriginalTree -> find($comparisonElement);
 							
-							if (count($arrayID) == 1)
+							if (count($matchingIdArray) == 1)
 							{
-								$this -> createOriginalTree($tempTree, $arrayID[0], $newParentId);
+								$this -> createOriginalTree($tempTree, $matchingIdArray[0], $newParentId);
 							}
 							else
 							{
@@ -531,7 +487,7 @@ class XsdManager
 			if($xsdElement -> getType() == $defaultNS . 'CHOICE')
 			{
 				// Create a new XsdElement allowing choice between all elements
-				$children = $this -> xsdOriginalTree -> getChildrenId($elementId);
+				$children = $this -> xsdOriginalTree -> getChildren($elementId);
 				$xsdElement = new XsdElement($defaultNS . 'ELEMENT', array('NAME' => 'choose', 'CHOICE' => $children));
 				$this -> xsdOriginalTree -> setElement($elementId, $xsdElement);
 			}
@@ -540,7 +496,7 @@ class XsdManager
 			//FIXME Does not work for all the restriction
 			if ($xsdElement -> getType() == $defaultNS . 'RESTRICTION')
 			{
-				$children = $this -> xsdOriginalTree -> getChildrenId($elementId);
+				$children = $this -> xsdOriginalTree -> getChildren($elementId);
 
 				$values = array();
 				foreach ($children as $child)
@@ -549,7 +505,7 @@ class XsdManager
 					array_push($values, $attributes['VALUE']);
 				}
 				
-				$parentId = $this -> xsdOriginalTree -> getParentId($elementId);
+				$parentId = $this -> xsdOriginalTree -> getParent($elementId);
 				$this -> xsdOriginalTree -> getElement($parentId) -> addAttributes(array('RESTRICTION' => $values));
 
 				$this -> LOGGER -> log_debug('ID ' . $parentId . ' contains restriction values ' . $this -> xsdOriginalTree -> getElement($parentId), 'XsdManager::optimizeTree');
@@ -562,38 +518,39 @@ class XsdManager
 	}
 
 	/**
-	 *
+	 * Build the complete tree. Compute minOccurs
+	 * 
+	 * @param int $elementId Element index to build
 	 */
-	// Computes minOccurs
-	public function buildCompleteTree($elementId = 0)
+	public function buildCompleteTree($elementId = 0, $parentId = -1)
 	{
-		/* Create the complete tree if it does not exist */
-		if (/*!$this -> xsdCompleteTree -> hasElement()*/$elementId == 0)
-		{
-			$this -> xsdCompleteTree = clone $this -> xsdOriginalTree;
-		}
+		$insertedId = $this -> xsdCompleteTree -> insert(
+			$elementId, 
+			$parentId
+		);
+		$this -> LOGGER -> log_debug('ID '.$insertedId.' (father: '.$parentId.') inserted into the tree', 'XsdManager::buildCompleteTree');
 
-		$elementObject = $this -> xsdCompleteTree -> getElement($elementId);
-		$elementAttr = $elementObject -> getAttributes();
-
-		$childrenId = $this -> xsdCompleteTree -> getChildrenID($elementId);
-
+		$childrenId = $this -> xsdOriginalTree -> getChildren($elementId);
 		foreach ($childrenId as $childId)
 		{
-			$this -> buildCompleteTree($childId);
+			$this -> buildCompleteTree($childId, $insertedId);
 		}
 
 		/* Duplicate elements with minOccurs > 1 */
+		$this -> LOGGER -> log_notice('Analyzing ID '.$insertedId.'...', 'XsdManager::buildCompleteTree');
+		$elementObject = $this -> xsdCompleteTree -> getElement($insertedId);
+		$elementAttr = $elementObject -> getAttributes();
+		
 		if (isset($elementAttr['MINOCCURS']) && $elementAttr['MINOCCURS'] > 1)
 		{
-			$parentId = $this -> xsdCompleteTree -> getParentId($elementId);
+			$parentId = $this -> xsdCompleteTree -> getParent($insertedId);
 			
 			for ($i = 0; $i < $elementAttr['MINOCCURS'] - 1; $i++)
 			{
-				$newElementId = $this -> xsdCompleteTree -> duplicateElement($elementId, true);
-				$this -> xsdCompleteTree -> setBrother($elementId, $newElementId);
+				$newElementId = $this -> xsdCompleteTree -> duplicate($insertedId, true);
+				$this -> xsdCompleteTree -> setBrother($insertedId, $newElementId);
 				
-				$this -> copyPageArray($elementId, $newElementId);
+				$this -> copyPageArray($insertedId, $newElementId);
 			}
 		}
 	}
@@ -607,14 +564,12 @@ class XsdManager
 		
 		foreach($pageArray as $pageNumber)
 		{
-			//$this -> assignIdToPage($elementToModify, $pageNumber);
-			
 			$this -> pageHandler -> setPageForId($pageNumber, $elementToModify);
 		}
 		
 		// FIXME array_values should not be needed there is a problem elsewhere
-		$childrenToCopy = array_values($this -> xsdCompleteTree -> getChildrenId($elementToCopy));
-		$childrenToModify = array_values($this -> xsdCompleteTree -> getChildrenId($elementToModify));
+		$childrenToCopy = array_values($this -> xsdCompleteTree -> getChildren($elementToCopy));
+		$childrenToModify = array_values($this -> xsdCompleteTree -> getChildren($elementToModify));
 		
 		foreach($childrenToModify as $childId => $childToModify)
 		{

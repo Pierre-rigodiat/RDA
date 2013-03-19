@@ -19,7 +19,7 @@
 	
 	<div id="XMLHolder"></div>
 	
-	<script src="resources/js.new/view_xml.js"></script>
+	<script src="inc/controllers/js/view_xml.js"></script>
 	<script>
 		LoadXMLString('XMLHolder', <?php echo "'".str_replace('"', '\\"', displayXmlTree())."'"; ?>);
 		

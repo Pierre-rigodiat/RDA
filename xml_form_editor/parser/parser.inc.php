@@ -156,7 +156,7 @@ function displayHTMLForm()
 	$manager = unserialize($_SESSION['xsd_parser']['parser']);
 	
 	// FIXME Condition not good
-	if(get_class($manager -> getXsdCompleteTree()) != 'ClosureTable')
+	/*if(get_class($manager -> getXsdCompleteTree()) != 'ClosureTable')
 	{
 		$logger -> log_debug('Building complete tree...', 'displayHTMLForm');
 		
@@ -164,11 +164,11 @@ function displayHTMLForm()
 		// FIXME Change the parameter in the function
 		//$rootElements = $manager -> getRootElements();
 		
-		$manager -> buildCompleteTree(/*$rootElements[0]*/);
-		$_SESSION['xsd_parser']['parser'] = serialize($manager);
+		$manager -> buildCompleteTree(/*$rootElements[0]*///);
+		/*$_SESSION['xsd_parser']['parser'] = serialize($manager);
 		
 		$logger -> log_debug('Complete tree built', 'displayHTMLForm');
-	}
+	}*/
 	
 	// Set up the display
 	if(isset($_SESSION['xsd_parser']['display']))
@@ -178,6 +178,9 @@ function displayHTMLForm()
 	}
 	else
 	{
+		
+		// Set up the parser
+		$manager = unserialize($_SESSION['xsd_parser']['parser']);
 		//$manager = unserialize($_SESSION['xsd_parser']['parser']);
 		$display = new Display($manager, $debug);
 		$_SESSION['xsd_parser']['display'] = serialize($display);

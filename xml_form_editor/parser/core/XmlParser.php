@@ -2,8 +2,7 @@
 /**
  * <XmlParser class>
  */
-require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/core/Tree.php';
-require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/core/ClosureTable.php';
+require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/core/Tree_.php';
 require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/core/XsdElement.php';
 /**
  * 
@@ -23,7 +22,7 @@ class XmlParser
 	
 	public function __construct()
 	{	
-		$this -> tree = new ClosureTable("xmlParserTree");
+		$this -> tree = new Tree("XmlParserTree");
 		
 		$this -> stack = array();
 		$this -> level = 0;
@@ -75,8 +74,8 @@ class XmlParser
 		}
 		
 		// Create the element and insert it
-		$element = new XsdElement($elementName, $elementAttr/*, true*/);
-		$id = $this -> tree -> insertElement($element, $parent);
+		$element = new XsdElement($elementName, $elementAttr);
+		$id = $this -> tree -> insert($element, $parent);
 		
 		$this -> objectId += 1;
 		

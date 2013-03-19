@@ -1,4 +1,4 @@
-$(document).ready(function(){
+/*$(document).ready(function(){
 	// Linking the event on all the + buttons
 	//$('.addItem').on('click', addItem);
 
@@ -6,14 +6,14 @@ $(document).ready(function(){
 	//$('.removeItem').on('click', removeItem);
 	/*$('#tostep1').on('click', {page: 1}, moveTo); xxx not needed anymore... */
 	
-	$('.autogen').on('click', generateRandomValue);
+	/*$('.autogen').on('click', generateRandomValue);
 	
 	$('.reset').on('click', resetForm);
-});
+});*/
 
-resetForm = function() {
+/*resetForm = function() {
 	alert("Not yet implemented");
-};
+};*/
 
 // TODO make it server-side
 function generate(length, number, lower, upper, special) {

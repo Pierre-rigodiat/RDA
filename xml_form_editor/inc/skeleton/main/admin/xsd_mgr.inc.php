@@ -20,6 +20,7 @@
 	
 <div class="right-side">
 	<span class="ctx_menu">
+		<div class="icon legend long copy schema">Copy schema</div>
 		<div class="icon legend long upload schema">Upload schema</div>
 	</span>
 </div>
@@ -52,7 +53,12 @@
 	?>
 	<tr <?php echo ($even?' class="even"':'') ?>>
 		<td>file1.xsd (an example of not registered file)</td>
-		<td>Experiment</td>
+		<td>
+			<select>
+				<option>Experiment</option>
+				<option>Element</option>		
+			</select>
+		</td>
 		<td style="color:orange">Uploaded</td>
 		<td><div class="icon legend save">Save</div><div class="icon legend edit">Edit</div><div class="icon legend delete">Delete</div></td>
 	</tr>
@@ -60,12 +66,13 @@
 
 <div class="right-side">
 	<span class="ctx_menu">
+		<div class="icon legend long copy schema">Copy schema</div>
 		<div class="icon legend long upload schema">Upload schema</div>
 	</span>
 </div>
 </div>
 
-<script src="resources/js.new/xsd_mgr.js"></script>
+<script src="inc/controllers/js/xsd_mgr.js"></script>
 <script>
 	loadXsdManagerHandler();
 </script>

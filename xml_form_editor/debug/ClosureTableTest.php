@@ -1,10 +1,13 @@
 <?php
-require_once "../parser/core/ClosureTable.php";
+session_start();
+require_once "../inc/helpers/Logger.php";
+require_once "../parser/core/Tree_.php";
+require_once "../parser/core/ReferenceTree.php";
 
 $time = microtime(TRUE);
 $mem = memory_get_usage();
 
-$closureTable = new ClosureTable("testClosureTable");
+$closureTable = new Tree("testClosureTable");
 
 $elemRoot = "root";
 $elem1 = "A";
@@ -13,34 +16,55 @@ $elem3 = "C";
 $elem4 = "D";
 $elem5 = "E";
 
-$rootId = $closureTable -> insertElement($elemRoot);
-$e1Id = $closureTable -> insertElement($elem1, $rootId);
-$e2Id = $closureTable -> insertElement($elem2, $rootId);
-$e3Id = $closureTable -> insertElement($elem5, $rootId);
-$e4Id = $closureTable -> insertElement($elem3, $rootId);
-$e5Id = $closureTable -> insertElement($elem4, $e4Id);
+$rootId = $closureTable -> insert($elemRoot);
+$e1Id = $closureTable -> insert($elem1, $rootId);
+$e2Id = $closureTable -> insert($elem2, $rootId);
+$e3Id = $closureTable -> insert($elem5, $rootId);
+$e4Id = $closureTable -> insert($elem3, $rootId);
+$e5Id = $closureTable -> insert($elem4, $e4Id);
 
 // Attach C to A
 $closureTable -> setParent($e4Id, $e1Id);
-$childrenArray = $closureTable -> getChildrenId($rootId);
+$childrenArray = $closureTable -> getChildren($rootId);
 
-// Attach C' to B
-$e4_1Id = $closureTable -> duplicateElement($e4Id, true);
-$closureTable -> setParent($e4_1Id, $e2Id);
-
-// Attach A' to E
-$e1_1Id = $closureTable -> duplicateElement($e1Id, true);
-$closureTable -> setParent($e1_1Id, $e3Id);
-
-$closureTable -> delete($e1_1Id/*, true*/);
-
+// Change E to F
 $closureTable -> setElement($e3Id, "F");
 
-$cArrayId = $closureTable ->getIds("C"); 
-$cArrayId = $closureTable ->getIds("D"); 
+// Delete A
+$closureTable -> delete($e1Id);
+
+$cArrayId = $closureTable ->find("C"); 
+$cArrayId = $closureTable ->find("D"); 
 echo 'Memory: '.round((memory_get_usage() - $mem) / (1024 * 1024), 2).' Mb<br/>';
 echo 'Time: '.round(microtime(TRUE) - $time, 1). ' sec';
 
 echo $closureTable;
 var_dump($childrenArray);
 var_dump($cArrayId);
+
+$time = microtime(TRUE);
+$mem = memory_get_usage();
+
+$refTree = new ReferenceTree($closureTable);
+
+$rtRootId = $refTree -> insert($rootId);
+$rt1Id = $refTree -> insert($e2Id, $rtRootId);
+
+// Attach C to A
+/*$closureTable -> setParent($e4Id, $e1Id);
+$childrenArray = $closureTable -> getChildren($rootId);
+
+// Change E to F
+$closureTable -> setElement($e3Id, "F");
+
+// Delete A
+$closureTable -> delete($e1Id);
+
+$cArrayId = $closureTable ->find("C"); 
+$cArrayId = $closureTable ->find("D"); */
+echo 'Memory: '.round((memory_get_usage() - $mem) / (1024 * 1024), 2).' Mb<br/>';
+echo 'Time: '.round(microtime(TRUE) - $time, 1). ' sec';
+
+echo $refTree;
+echo 'getElement('.$rt1Id.')';
+var_dump($refTree -> getElement($rt1Id));

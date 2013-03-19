@@ -11,7 +11,7 @@ loadXsdConfigHandler = function()
 {
 	$('.refresh').on('click', cancelChanges);
 	$('.save').on('click', saveChanges);
-		
+	
 	$('.clickable').on('click', goToPage);
 }
 

@@ -94,7 +94,11 @@ class XsdElement
 	 */
 	public function __construct()
 	{
+		// Initialize the logger (will throw an Exception if any problem occurs)
+		//TODO Modify logging
 		self::$LOG_FILE = $_SESSION['xsd_parser']['conf']['dirname'] . '/logs/xsd_element.log';
+		$level = self::$LEVELS['NO_DBG'];
+		$this -> LOGGER = new Logger($level, self::$LOG_FILE, self::$FILE_NAME);
 
 		// Get args and the number of them
 		$argc = func_num_args();
@@ -112,7 +116,8 @@ class XsdElement
 				}
 				else
 				{
-					$this -> elementType = null;
+					//$this -> elementType = null;
+					throw new Exception('Invalid parameters given to XsdElement');
 				}
 
 				$level = self::$LEVELS['NO_DBG'];
@@ -131,45 +136,20 @@ class XsdElement
 				}
 				else
 				{
-					$this -> elementType = null;
-					$level = self::$LEVELS['NO_DBG'];
+					/*$this -> elementType = null;
+					$level = self::$LEVELS['NO_DBG'];*/
+					throw new Exception('Invalid parameters given to XsdElement');
 				}
 				break;
 			default :
 				// Number of args != 2 or 3
-				$this -> elementType = null;
-				$level = self::$LEVELS['NO_DBG'];
+				/*$this -> elementType = null;
+				$level = self::$LEVELS['NO_DBG'];*/
+				throw new Exception('Invalid parameters given to XsdElement');
 				break;
 		}
 
-		// Initialize the logger (will throw an Exception if any problem occurs)
-		$this -> LOGGER = new Logger($level, self::$LOG_FILE, self::$FILE_NAME);
-
-		if ($this -> elementType == null)// If an error occured during the initalization of the object
-		{
-			$log_mess = '';
-
-			// Build the log message according to the number of args
-			switch($argc)
-			{
-				case 2 :
-					$log_mess .= 'Supports {string, array} as parameters ({' . gettype($argv[0]) . ',' . gettype($argv[1]) . '} given)';
-					break;
-				case 3 :
-					$log_mess .= 'Supports {string, array, boolean} as parameters ({' . gettype($argv[0]) . ',' . gettype($argv[1]) . ',' . gettype($argv[2]) . '} given)';
-					break;
-				default :
-					$log_mess .= '2 or 3 parameters must be entered (' . $argc . ' given)';
-					break;
-			}
-
-			$this -> LOGGER -> log_error($log_mess, 'XsdElement::__construct');
-			throw new Exception('Invalid parameters given to XsdElement');
-		}
-		else
-		{
-			$this -> LOGGER -> log_debug('Element set ' . $this, 'XsdElement::__construct');
-		}
+		$this -> LOGGER -> log_debug('Element set ' . $this, 'XsdElement::__construct');
 	}
 
 	/**

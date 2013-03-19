@@ -72,7 +72,7 @@ if(isset($_SESSION['xsd_parser']['xsd_filename']))
 
 <script src="parser/controllers/js/edit.js"></script>
 <script src="parser/controllers/js/generateCompleteTree.js"></script>
-<script src="resources/js.new/xsd_cfg.js"></script>
+<script src="inc/controllers/js/xsd_cfg.js"></script>
 <script>
 	/**
 	 * Load all the JavaScript events needed

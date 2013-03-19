@@ -39,6 +39,9 @@ class Display
 	public function __construct()
 	{
 		self::$LOG_FILE = $_SESSION['xsd_parser']['conf']['logs_dirname'].'/'.$_SESSION['xsd_parser']['conf']['log_file'];
+		$level = self::$LEVELS['DBG'];
+		// Initialize the logger (will throw an Exception if any problem occurs)
+		$this -> LOGGER = new Logger($level, self::$LOG_FILE, self::$FILE_NAME);
 
 		$argc = func_num_args();
 		$argv = func_get_args();
@@ -54,8 +57,9 @@ class Display
 				}
 				else
 				{
-					$this -> xsdManager = null;
-					$level = self::$LEVELS['NO_DBG'];
+					throw new Exception('Invalid parameters given to the object');
+					/*$this -> xsdManager = null;
+					$level = self::$LEVELS['NO_DBG'];*/
 				}
 				break;
 			case 2 :
@@ -72,48 +76,19 @@ class Display
 				}
 				else
 				{
-					$this -> xsdManager = null;
-					$level = self::$LEVELS['NO_DBG'];
+					/*$this -> xsdManager = null;
+					$level = self::$LEVELS['NO_DBG'];*/
+					throw new Exception('Invalid parameters given to the object');
 				}
 				break;
 			default :
-				$this -> xsdManager = null;
-				$level = self::$LEVELS['NO_DBG'];
+				/*$this -> xsdManager = null;
+				$level = self::$LEVELS['NO_DBG'];*/
+				throw new Exception('Invalid parameters given to the object');
 				break;
 		}
-		
-		// Initialize the logger (will throw an Exception if any problem occurs)
-		$this -> LOGGER = new Logger($level, self::$LOG_FILE, self::$FILE_NAME);
 
-		if ($this -> xsdManager == null)
-		{
-			$log_mess = '';
-
-			switch($argc)
-			{
-				case 1 :
-					if(is_object($argv[0])) $argv0 = get_class($argv[0]);
-					else $argv0 = gettype($argv[0]);
-								
-					$log_mess .= 'Function accepts {XsdManager} ({' . $argv0 . '} given)';
-					break;
-				case 2 :
-					if(is_object($argv[0])) $argv0 = get_class($argv[0]);
-					else $argv0 = gettype($argv[0]);
-					if(is_object($argv[1])) $argv1 = get_class($argv[1]);
-					else $argv1 = gettype($argv[1]);
-					
-					$log_mess .= 'Function accepts  {XsdManager, boolean} ({' . $argv0 . ', ' . $argv1 . '} given)';
-					break;
-				default :
-					$log_mess .= 'Invalid number of args (1 or 2 needed, ' . $argc . 'given)';
-					break;
-			}
-
-			$this -> LOGGER -> log_error($log_mess, 'Display::__construct');
-		}
-		else
-			$this -> LOGGER -> log_notice('Display successfully built', 'Display::__construct');
+		$this -> LOGGER -> log_notice('Display successfully built', 'Display::__construct');
 	}
 	
 	/**
@@ -407,7 +382,7 @@ class Display
 		}
 
 		// No module assigned implies to display children
-		if($elementDesc['module'] == '') $children = $this -> xsdManager -> getXsdOriginalTree() -> getChildrenId($elementId);
+		if($elementDesc['module'] == '') $children = $this -> xsdManager -> getXsdOriginalTree() -> getChildren($elementId);
 		
 		/* Display children (if it is not the only element to display) */
 		if (count($children) > 0 && !$onlyElement)
@@ -541,13 +516,10 @@ class Display
 	public function displayHTMLForm($elementId = 0, $partial = false)
 	{
 		$result = '';
-		
-		// FIXME Change the parameter in the function
-		//$rootElements = $this -> xsdManager -> getRootElements();
 
 		if (!$partial)
 			$result .= '<div id="page_content">';
-		$result .= $this -> displayHTMLFormElement(/*$rootElements[0]*/$elementId);
+		$result .= $this -> displayHTMLFormElement($elementId);
 		if (!$partial)
 			$result .= '</div>';
 
@@ -656,9 +628,7 @@ class Display
 					// TODO Improve this part
 					// XXX START XXX
 					// Gather sibling information and create useful variable to count them
-					$parentId = $this -> xsdManager -> getXsdCompleteTree() -> getParentId($elementId);
-					$originalTreeId = $this -> xsdManager -> getXsdCompleteTree() -> getElement($elementId);
-					$siblingsIdArray = $this -> xsdManager -> getXsdCompleteTree() -> getIds($originalTreeId);
+					$siblingsIdArray = $this -> xsdManager -> getXsdCompleteTree() -> getSiblings($elementId);
 					
 					$this->LOGGER->log_debug('ID '.$elementId.' has '.count($siblingsIdArray).' possible sibling(s)', 'Display::displayHTMLFormElement');
 					$siblingsCount = 0;
@@ -666,15 +636,12 @@ class Display
 					// Check the current number of siblings (to know if we need to display buttons)
 					foreach ($siblingsIdArray as $siblingId)
 					{
-						$siblingParentId = $this -> xsdManager -> getXsdCompleteTree() -> getParentId($siblingId);
-
 						$siblingObject = $this -> xsdManager -> getXsdCompleteTree() -> getElement($siblingId);
-						//$siblingObject = $this -> xsdManager -> getXsdOriginalTree() -> getObject($siblingOriginalTreeId);
 						$siblingAttr = $siblingObject -> getAttributes();
 			
 						// We compare the parent ID to know if this is a real sibling (and not just another similar element)
-						// We also compare if the element is availabel
-						if ($parentId == $siblingParentId && !(isset($siblingAttr['AVAILABLE']) && !$siblingAttr['AVAILABLE']))
+						// We also compare if the element is available
+						if (!(isset($siblingAttr['AVAILABLE']) && !$siblingAttr['AVAILABLE']))
 							$siblingsCount = $siblingsCount + 1;
 					}
 					
@@ -716,21 +683,15 @@ class Display
 				
 				if($elementDesc['module'] == '')
 				{
-					$children = $this -> xsdManager -> getXsdCompleteTree() -> getChildrenId($elementId);
+					$children = $this -> xsdManager -> getXsdCompleteTree() -> getChildren($elementId);
 					
-					// TODO choose should be a variable
+					// TODO "choose" should be a variable
 					if($elementAttr['NAME'] == 'choose')
-					{
-						/*$choiceElement = $this -> xsdManager -> getXsdCompleteTree() -> getElement($elementId);	
-						/*$originalTree = $this -> xsdManager -> getXsdOriginalTree();
-						
-						$choiceElement = $originalTree -> getObject($originalElementId);*/
-						//$choiceElementAttributes = $choiceElement -> getAttributes();
-						
+					{						
 						foreach ($children as $child) 
 						{
-							//$childOriginalId = $this -> xsdManager -> getXsdCompleteTree() -> getObject($child);
-							if($child/*OriginalId*/ == /*$choiceElementAttributes*/$elementAttr['CHOICE'][0])
+							$referenceChild = $this -> xsdManager -> getXsdCompleteTree() -> getElement($child);
+							if($referenceChild == $elementAttr['CHOICE'][0])
 							{
 								$children = array($child);
 								break;

@@ -20,5 +20,5 @@ if(isset($_SESSION['xsd_parser']['parser']))
 }
 else
 {
-	echo buildJSON('Parser not initialized', -1);
+	echo buildJSON('parser not initialized', -1);
 }

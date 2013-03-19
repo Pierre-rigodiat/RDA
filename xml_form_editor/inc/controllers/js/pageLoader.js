@@ -19,7 +19,7 @@ $(document).ready(function(){
 loadPage = function(url)
 {
 	$.ajax({
-        url: 'inc/ajax.new/pageLoader.php',
+        url: 'inc/controllers/php/pageLoader.php',
         type: 'GET',
         success: function(data) {
         	// Destroy and remove the dialog to avoid to rewrite on it        	

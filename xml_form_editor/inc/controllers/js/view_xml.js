@@ -10,7 +10,7 @@ downloadXml = function()
 {
 	console.log('[downloadXml] Downloading XML...');
 	
-	window.location = 'inc/ajax.new/downloadXml.php';
+	window.location = 'inc/controllers/php/downloadXml.php';
 	
 	console.log('[downloadXml] XML downloaded');
 }

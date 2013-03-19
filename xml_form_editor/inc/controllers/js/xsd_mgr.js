@@ -22,7 +22,7 @@ setCurrentModel = function()
 	console.log('[setCurrentModel] Loading '+modelName+'...');
 	
 	$.ajax({
-        url: 'inc/ajax.new/schemaLoader.php',
+        url: 'inc/controllers/php/schemaLoader.php',
         type: 'GET',
         success: function(data) {
         	// Refresh the page

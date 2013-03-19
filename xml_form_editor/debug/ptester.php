@@ -17,7 +17,7 @@
 	<link rel="stylesheet" type="text/css" href="resources/css/ptester.css" media="screen" />
 	<link rel="stylesheet" type="text/css" href="ontology/auto-complete.css" media="screen" />
 	<link rel="stylesheet" type="text/css" href="resources/css/xml_display.css" media="screen" />
-	<script type="text/javascript" src="resources/js/xml_display.js"></script>
+	<script type="text/javascript" src="inc/controllers/js/xml_display.js"></script>
 	
 	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
 	<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/jquery-ui.min.js"></script>
@@ -27,7 +27,7 @@
 	<script src="parser/controllers/js/edit.js"></script>
 	<script src="parser/controllers/js/module.js"></script>
 	<script src="parser/controllers/js/pagination.js"></script>
-	<script src="resources/js.new/php.js"></script>
+	<script src="inc/controllers/js/php.js"></script>
 	<script src="debug/front/ptester.js"></script>
 	
 	<title>Parser Tester</title>
@@ -37,6 +37,10 @@
 	<div class="warn">
 		The purpose of this tool is to test all parser features and verify that all is working good.	
 		This is a debug page, not meant for production purposes. 
+	</div>
+	<div class="error">
+		This tool has not been maintained for a while. It may have some bugs that will be corrected in the
+		next versions. Sorry for the inconvenience.
 	</div>
 	<h2>Configuration view</h2>
 	<div class="block">

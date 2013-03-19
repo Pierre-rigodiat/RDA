@@ -36,7 +36,7 @@
 </div>
 
 <script src="parser/controllers/js/module.js"></script>
-<script src="resources/js.new/mod_mgr.js"></script>
+<script src="inc/controllers/js/mod_mgr.js"></script>
 <script>
 	loadModuleController();
 	loadModMgrController();

@@ -66,7 +66,7 @@ class ClosureTable {
 				}
 				else
 				{
-					throw new Exception('Invalid parameters given to ClosureTable');
+					throw new Exception('Invalid parameters given to the object');
 					//$level = self::$LEVELS['NO_DBG'];
 				}
 				

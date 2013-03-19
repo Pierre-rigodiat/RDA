@@ -1,4 +1,4 @@
-$(document).ready(function(){
+/*$(document).ready(function(){
 	//$(':input[name^=file]').on('change', createNewInput);
 	$('body').on('click', ".remove", removeFile);
 });
@@ -8,7 +8,7 @@ removeFile = function() {
 	$(this).prev().remove();
 	$(this).next().remove();
 	$(this).remove();
-}
+}*/
 
 /*createNewInput = function()
 {
