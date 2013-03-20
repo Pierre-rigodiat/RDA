@@ -31,32 +31,32 @@ if(isset($_GET['parent']) && isset($_GET['child']))
 	
 	// Build the necessary items
 	$xsdManager = unserialize($_SESSION['xsd_parser']['parser']);
-	$xsdOrganizedTree = $xsdManager -> getXsdCompleteTree();
+	$xsdCompleteTree = $xsdManager -> getXsdCompleteTree();
 	
 	// Modify the XsdElement choice (to specify the selected item)
 	// TODO Another possible way is to change element attribute without building another one
 	// XXX Possible way of lowering the use of resources
-	$choiceOriginalId = $xsdOrganizedTree -> getObject(intval($_GET['parent']));
-	$choiceElement = $xsdManager -> getXsdOriginalTree() -> getObject($choiceOriginalId);
+	$choiceElement = $xsdCompleteTree -> getElement($choiceElementID);
+	//$choiceElement = $xsdManager -> getXsdOriginalTree() -> getElement($choiceOriginalId);
 	$choiceElementAttribute = $choiceElement -> getAttributes();
 	
-	$choiceKey = array_search(intval($_GET['child']), $choiceElementAttribute['CHOICE']);
+	$choiceKey = array_search($choosenId, $choiceElementAttribute['CHOICE']);
 	unset($choiceElementAttribute['CHOICE'][$choiceKey]);
 	
 	array_unshift($choiceElementAttribute['CHOICE'], $choosenId);
 	$newChoiceElement = new XsdElement('XSD:ELEMENT', $choiceElementAttribute);
 	
-	$xsdManager -> getXsdOriginalTree() -> setObject($choiceOriginalId, $newChoiceElement);
+	$xsdManager -> getXsdOriginalTree() -> setElement($choiceElementID, $newChoiceElement);
 	
 	$_SESSION['xsd_parser']['parser'] = serialize($xsdManager);
 	
 	// Get the HTML code of the new element	
-	$childOrganizedId = $xsdOrganizedTree -> getId(intval($_GET['child']));
+	$childOrganizedId = $xsdCompleteTree -> find(intval($_GET['child']));
 	$childId = -1;
 	
 	foreach($childOrganizedId as $possibleChildId)
 	{
-		if($xsdOrganizedTree -> getParent($possibleChildId) == intval($_GET['parent']))
+		if($xsdCompleteTree -> getParent($possibleChildId) == intval($_GET['parent']))
 		{
 			$childId = $possibleChildId;
 			break;

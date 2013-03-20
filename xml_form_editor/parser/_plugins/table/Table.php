@@ -1,15 +1,22 @@
 <?php
 /**
+ * <Table class>
+ */
+/** @ignore */
+require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/_plugins/__model__/ModuleInterface.php';
+/** @ignore */
+require_once $_SESSION['xsd_parser']['conf']['modules_dirname'].'/table/core/TableModule.php';
+/** @ignore */
+require_once $_SESSION['xsd_parser']['conf']['modules_dirname'].'/table/view/TableDisplay.php';
+/**
  * Table module - Loading interface
  * Version: 
  * Date: 
  * Author: 
  * 
+ * 
+ * @package Plugins\Table
  */
-require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/_plugins/__model__/ModuleInterface.php';
-require_once $_SESSION['xsd_parser']['conf']['modules_dirname'].'/table/core/TableModule.php';
-require_once $_SESSION['xsd_parser']['conf']['modules_dirname'].'/table/view/TableDisplay.php';
- 
 class Table implements ModuleInterface {
 	
 	public static function initModule($tree)

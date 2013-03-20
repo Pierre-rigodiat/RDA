@@ -2,15 +2,23 @@
 /**
  * <XsdManager class>
  */
+/** @ignore */
 require_once $_SESSION['xsd_parser']['conf']['dirname'] . '/parser/lib/XmlParserFunctions.php';
+/** @ignore */
 require_once $_SESSION['xsd_parser']['conf']['dirname'] . '/inc/lib/StringFunctions.php';
+/** @ignore */
 require_once $_SESSION['xsd_parser']['conf']['dirname'] . '/inc/helpers/Logger.php';
+/** @ignore */
 require_once $_SESSION['xsd_parser']['conf']['dirname'] . '/parser/core/XsdElement.php';
+/** @ignore */
 require_once $_SESSION['xsd_parser']['conf']['dirname'] . '/parser/core/PageHandler.php';
+/** @ignore */
 require_once $_SESSION['xsd_parser']['conf']['dirname'] . '/parser/core/ModuleHandler.php';
+/** @ignore */
 require_once $_SESSION['xsd_parser']['conf']['dirname'] . '/parser/core/XmlParser.php';
-
-require_once $_SESSION['xsd_parser']['conf']['dirname'] . '/parser/core/Tree_.php';
+/** @ignore */
+require_once $_SESSION['xsd_parser']['conf']['dirname'] . '/parser/core/Tree.php';
+/** @ignore */
 require_once $_SESSION['xsd_parser']['conf']['dirname'] . '/parser/core/ReferenceTree.php';
 /**
  * <b>Handle the schema configuration and value. It is the backbone of the software</b>
@@ -29,14 +37,14 @@ require_once $_SESSION['xsd_parser']['conf']['dirname'] . '/parser/core/Referenc
  * An XSD Parser able to generate several element:
  *  - an XML form to fill in
  * 	- an XML file
- * TODO Clean the array from unused data (parent, SEQUENCE, COMPLEXTYPE, SCHEMA...)
- * TODO Handle several namespaces
- * TODO For getter and setter, verify the type of parameters
+ * 
  * --- END REWRITE --- 
  * 
  * 
  * @uses core\ModuleHandler
- *
+ * @TODO Clean the array from unused data (parent, SEQUENCE, COMPLEXTYPE, SCHEMA...)
+ * @TODO Handle several namespaces
+ * @TODO For getter and setter, verify the type of parameters
  *
  *
  * 
@@ -428,7 +436,7 @@ class XsdManager
 							}
 							else
 							{
-								$this -> LOGGER -> log_error('The comparison found unusual number (!=1) of element like ' . $comparisonElement, 'XsdManager::insertTreeElement');
+								$this -> LOGGER -> log_error('The comparison found unusual number ('.count($matchingIdArray).'!=1) of element like ' . $comparisonElement, 'XsdManager::insertTreeElement');
 								return;
 							}
 						}

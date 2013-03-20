@@ -6,7 +6,7 @@
  * A ReferenceTree is a Tree with another Tree object as reference.
  * 
  * 
- * 
+ * @package XsdMan\Core
  */
 class ReferenceTree extends Tree {
 	/**

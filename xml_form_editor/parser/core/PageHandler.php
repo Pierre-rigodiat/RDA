@@ -1,5 +1,8 @@
 <?php
 /**
+ * <PageHandler class>
+ */
+/**
  * 
  * @package XsdMan\Core
  */

@@ -17,8 +17,8 @@ require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/lib/PhpControll
  */
 function setUpChildrenToPage($pageHandler, $tree, $origElementId, $destElementId)
 {
-	$origChildren = $tree -> getChildrenId($origElementId);
-	$destChildren = $tree -> getChildrenId($destElementId);
+	$origChildren = $tree -> getChildren($origElementId);
+	$destChildren = $tree -> getChildren($destElementId);
 	
 	// FIXME Those 2 line do not belong here, there must be a problem elsewhere
 	$origChildren = array_values($origChildren);
@@ -94,11 +94,11 @@ if(isset($_GET['action']) && isset($_GET['id']) && isset($_SESSION['xsd_parser']
 	}
 	
 	// Other variables
-	$parentId = $xsdCompleteTree->getParentId($_GET['id']);
-	$grandParentId = $xsdCompleteTree->getParentId($parentId);
+	$parentId = $xsdCompleteTree->getParent($_GET['id']);
+	$grandParentId = $xsdCompleteTree->getParent($parentId);
 	
 	// Check that this part of the tree is not unavailable
-	$elderId = $xsdCompleteTree->getParentId($_GET['id']);
+	$elderId = $xsdCompleteTree->getParent($_GET['id']);
 	$elderObject = $xsdCompleteTree->getElement($elderId);
 	$elderAttributes = $elderObject->getAttributes();
 	
@@ -106,7 +106,7 @@ if(isset($_GET['action']) && isset($_GET['id']) && isset($_SESSION['xsd_parser']
 	
 	while($isElderAvailable && $elderId!=0)
 	{
-		$elderId = $xsdCompleteTree->getParentId($elderId);
+		$elderId = $xsdCompleteTree->getParent($elderId);
 		$elderObject = $xsdCompleteTree->getElement($elderId);
 		$elderAttributes = $elderObject->getAttributes();
 		
@@ -122,14 +122,7 @@ if(isset($_GET['action']) && isset($_GET['id']) && isset($_SESSION['xsd_parser']
 	}		
 	
 	// Retrieving the number of current siblings
-	$siblingsIdArray = $xsdCompleteTree->getIds($element);
-	$siblingCount = 0;
-	
-	foreach ($siblingsIdArray as $siblingId) 
-	{
-		$siblingParentId = $xsdCompleteTree->getParentId($siblingId);
-		if($siblingParentId==$parentId)  $siblingCount += 1;
-	}
+	$siblingCount = count($xsdCompleteTree -> getSiblings($_GET['id']));
 	
 	/**
 	 * 
@@ -159,7 +152,7 @@ if(isset($_GET['action']) && isset($_GET['id']) && isset($_SESSION['xsd_parser']
 				
 				if($maxOccurs==-1 || $maxOccurs>$siblingCount)
 				{
-					$elementId = $xsdCompleteTree->duplicateElement($_GET['id'], true);
+					$elementId = $xsdCompleteTree->duplicate($_GET['id'], true);
 					$xsdCompleteTree -> setBrother($_GET['id'], $elementId);
 				
 					if($elementId>=0)

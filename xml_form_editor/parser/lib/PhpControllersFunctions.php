@@ -4,7 +4,7 @@
  * 
  * 
  */
-require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/core/Tree_.php';
+require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/core/Tree.php';
 require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/core/ReferenceTree.php';
 
 require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/core/XsdElement.php';
@@ -34,7 +34,7 @@ function displayTree($grandParentId)
 		
 		if($grandParentId>=0)
 		{
-			$children = $xsdCompleteTree->getChildrenId($grandParentId);
+			$children = $xsdCompleteTree->getChildren($grandParentId);
 			foreach($children as $childId)
 			{
 				$treeString .= $display->displayHTMLForm($childId, true);

@@ -2,6 +2,7 @@
 /**
  * <XsdElement class>
  */
+/** @ignore */
 require_once $_SESSION['xsd_parser']['conf']['dirname'] . '/inc/helpers/Logger.php';
 /**
  * <b>Class managing any schema tag parsed</b>
@@ -82,7 +83,6 @@ class XsdElement
 	 * <ul>
 	 * 		<li><var>string</var> <b>tagName</b></li>
 	 * 		<li><var>array</var> <b>tagAttributes</b></li>
-	 * 		<li>[<var>boolean</var> <b>enableDebugging</b> = false]</li>
 	 * </ul>
 	 *
 	 * <u>Sample code:</u>

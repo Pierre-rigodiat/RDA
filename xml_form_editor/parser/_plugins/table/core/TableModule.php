@@ -1,5 +1,8 @@
 <?php
 /**
+ * <TableModule class>
+ */
+/**
  * 
  * 
  * @package Plugins\Table\Core

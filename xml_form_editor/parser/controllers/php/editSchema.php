@@ -26,7 +26,7 @@ require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/lib/PhpControll
  */
 function setUpChildrenToPage($pHandler, $tree, $elementId, $pageId)
 {	
-	$children = $tree -> getChildrenId($elementId);
+	$children = $tree -> getChildren($elementId);
 	
 	foreach($children as $child)
 	{
@@ -41,7 +41,7 @@ function setUpChildrenToPage($pHandler, $tree, $elementId, $pageId)
  */
 function setUpChildrenToModule($manager, $tree, $elementId, $moduleName)
 {
-	$children = $tree -> getChildrenId($elementId);
+	$children = $tree -> getChildren($elementId);
 	
 	foreach($children as $child)
 	{
@@ -133,13 +133,13 @@ if(isset($_GET['id']) && isset($_GET['minOccurs']) && isset($_GET['maxOccurs']))
 			$pHandler -> removePagesForId($_GET['id']);
 			$pHandler -> setPageForId($_GET['page'], $_GET['id']);
 			
-			$elderId = /*$xsdOrganizedTree*/$xsdOriginalTree -> getParentId($_GET['id']);
+			$elderId = /*$xsdOrganizedTree*/$xsdOriginalTree -> getParent($_GET['id']);
 			
 			// Set up elder in the same page
 			while($elderId!=-1) // While we are not at the root position
 			{
 				$pHandler -> removePagesForId($elderId);
-				$children = /*$xsdOrganizedTree*/$xsdOriginalTree -> getChildrenId($elderId);
+				$children = /*$xsdOrganizedTree*/$xsdOriginalTree -> getChildren($elderId);
 				
 				$pageArray = array();
 				foreach($children as $child)
@@ -160,7 +160,7 @@ if(isset($_GET['id']) && isset($_GET['minOccurs']) && isset($_GET['maxOccurs']))
 					$pHandler -> setPageForId($page, $elderId);
 				}
 				
-				$elderId = /*$xsdOrganizedTree*/$xsdOriginalTree -> getParentId($elderId);
+				$elderId = /*$xsdOrganizedTree*/$xsdOriginalTree -> getParent($elderId);
 			}
 			
 			// Set up the children

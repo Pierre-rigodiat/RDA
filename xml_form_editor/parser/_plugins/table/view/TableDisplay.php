@@ -1,5 +1,8 @@
 <?php
 /**
+ * <TableDisplay class>
+ */
+/**
  * Display the view of the plugin
  * 
  * @package Plugins\Table\View

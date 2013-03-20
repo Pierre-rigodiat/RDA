@@ -63,7 +63,7 @@ function loadSchema($schemaFilename, $numberOfPage = 1)
 	}
 	else
 	{
-		$display = new Display($manager, $debug);
+		$display = new Display($manager/*, $debug*/);
 		$_SESSION['xsd_parser']['display'] = serialize($display);
 	}
 	
@@ -113,7 +113,7 @@ function displayConfiguration()
 		else // If the display has not been created
 		{
 			$manager = unserialize($_SESSION['xsd_parser']['parser']);
-			$display = new Display($manager, $debug);
+			$display = new Display($manager/*, $debug*/);
 			$_SESSION['xsd_parser']['display'] = serialize($display);
 		}
 		
@@ -182,7 +182,7 @@ function displayHTMLForm()
 		// Set up the parser
 		$manager = unserialize($_SESSION['xsd_parser']['parser']);
 		//$manager = unserialize($_SESSION['xsd_parser']['parser']);
-		$display = new Display($manager, $debug);
+		$display = new Display($manager/*, $debug*/);
 		$_SESSION['xsd_parser']['display'] = serialize($display);
 	}
 	
@@ -261,7 +261,7 @@ function displayModuleChooser()
 		
 		$voidXsdManager = new XsdManager("undefined", new PageHandler(1), $mHandler, $debug);	
 		
-		$display = new Display($voidXsdManager, $debug);
+		$display = new Display($voidXsdManager/*, $debug*/);
 		$_SESSION['xsd_parser']['display'] = serialize($display);
 		
 		return displayModuleChooser();
@@ -294,7 +294,7 @@ function displayPageChooser()
 		
 		$voidXsdManager = new XsdManager("undefined", new PageHandler(1), $mHandler, $debug);	
 		
-		$display = new Display($voidXsdManager, $debug);
+		$display = new Display($voidXsdManager/*, $debug*/);
 		$_SESSION['xsd_parser']['display'] = serialize($display);
 		
 		return displayPageChooser();

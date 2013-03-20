@@ -2,13 +2,15 @@
 /**
  * <XmlParser class>
  */
-require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/core/Tree_.php';
+/** @ignore */
+require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/core/Tree.php';
+/** @ignore */
 require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/core/XsdElement.php';
 /**
+ * An implementation of the XML parser
  * 
  * 
- * 
- * 
+ * @package XsdMan\Core
  */
 class XmlParser
 {	

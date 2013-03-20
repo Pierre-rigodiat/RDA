@@ -3,7 +3,7 @@
 	if(isset($_SESSION['xsd_parser']))
 	{
 		require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/core/XsdManager.php';
-		require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/core/Tree_.php';
+		require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/core/Tree.php';
 		require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/core/XsdElement.php';
 	}
 ?>

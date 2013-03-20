@@ -1,5 +1,8 @@
 <?php
 /**
+ * <ModuleInterface interface>
+ */
+/**
  * The basic interface to load a module
  * Version:
  * Date:

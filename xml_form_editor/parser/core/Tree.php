@@ -12,7 +12,7 @@
  * 
  * 
  * 
- * 
+ * @package XsdMan\Core
  */
 class Tree {
 	/**
@@ -201,7 +201,7 @@ class Tree {
 				}
 				else if($elementType=='object')
 				{
-					if(method_exists($element, '__equalsTo') && $element->__equalsTo($elementRow)) array_push($matchingElement, $elementId);
+					if(method_exists($element, '__equalsTo') && $elementRow->__equalsTo($element)) array_push($matchingElement, $elementId);
 				}
 			}
 		}

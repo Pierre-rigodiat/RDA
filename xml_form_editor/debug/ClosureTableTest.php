@@ -1,7 +1,7 @@
 <?php
 session_start();
 require_once "../inc/helpers/Logger.php";
-require_once "../parser/core/Tree_.php";
+require_once "../parser/core/Tree.php";
 require_once "../parser/core/ReferenceTree.php";
 
 $time = microtime(TRUE);

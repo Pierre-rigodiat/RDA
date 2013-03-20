@@ -1,5 +1,8 @@
 <?php
 /**
+ * <ModuleDisplay class>
+ */
+/**
  * Module abstract class. Describe mandatory element for all the module classes.
  * Version:
  * Date:
