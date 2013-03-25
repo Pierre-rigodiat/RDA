@@ -193,6 +193,11 @@ class XsdManager
 		$this -> LOGGER -> log_debug('Manager created for file ' . $this -> xsdFile, 'XsdManager::__construct');
 	}
 
+	public function update()
+	{
+		$this -> xsdCompleteTree -> setReferenceTree($this -> xsdOriginalTree);
+	}
+
 	/**
 	 *
 	 *
@@ -667,12 +672,17 @@ class XsdManager
 	public function getSchemaFileName()
 	{
 		$this -> LOGGER -> log_notice('Function called', 'XsdManager::getSchemaFileName');
-		return $this -> getSchemaFileName();
+		return $this -> xsdFile;
 	}
 	
 	public function getNamespaces()
 	{
 		return $this -> namespaces;
+	}
+	
+	public function setNamespaces($namespaces)
+	{
+		$this -> namespaces = $namespaces;
 	}
 
 	/**

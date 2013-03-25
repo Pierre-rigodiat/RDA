@@ -77,27 +77,6 @@ class Tree {
 				}
 				
 				break;
-			/*case 2: // new Tree(idString, debug)
-				if(is_string($argv[0]) && is_bool($argv[1]))
-				{
-					$this->tree = $argv[0];
-				
-					if($argv[1])
-					{
-						$level = self::$LEVELS['DBG'];
-					}
-					else
-					{
-						$level = self::$LEVELS['NO_DBG'];
-					}
-				}
-				else 
-				{
-					$this->tree = null;
-					$level = self::$LEVELS['NO_DBG'];
-				}	
-					
-				break;*/
 			default:
 				throw new Exception('Invalid number of parameters given to the object');
 				//$level = self::$LEVELS['NO_DBG'];
@@ -302,10 +281,57 @@ class Tree {
 	
 	/**
 	 * 
+	 * @param array $elementList Element list
+	 * @param array $ancestorTable Ancestor table
+	 */
+	public function setTree($elementList, $ancestorTable)
+	{
+		$this -> elementList = $elementList;
+		$this -> ancestorTable = $ancestorTable;
+		
+		$this -> insertIndex = count($this->elementList);
+	}
+	
+	/**
+	 * 
+	 * 
+	 * @return array Description of the object
+	 */
+	public function __toArray()
+	{
+		$treeArray = array(
+			"elementList" => array(),
+			"ancestorTable" => $this -> ancestorTable
+		);
+		
+		foreach ($this -> elementList as $elementId => $element) {			
+			if(gettype($element) == "object")
+			{
+				if(method_exists($element, '__toArray')) $element = $element -> __toArray();
+				else {
+					// TODO Emit an INFO log message
+					$element = serialize($element);
+				}
+			}
+			
+			array_push(
+				$treeArray["elementList"],
+				array(
+					"_id" => $elementId,
+					"element" => $element
+				) 
+			);
+		}
+		
+		return $treeArray;
+	}
+	
+	/**
 	 * 
 	 * 
 	 * 
-	 * @return string A string (html) representing the ClosureTable class
+	 * 
+	 * @return string Description of the object
 	 */
 	public function __toString()
 	{

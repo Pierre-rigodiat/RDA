@@ -7,7 +7,7 @@ require_once '../../MongoDB/xml2json/spark.php';
 require_once '../../MongoDB/xml2json/gData.php';
 require_once '../../MongoDB/xml2json/jsonML.php';
 
-$db = new MongoDBStream ("127.0.0.1","test");
+$db = new MongoDBStream ("127.0.0.1","xsdmgr");
 $db->openDB();
 
 $match = $_GET['match'];

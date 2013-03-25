@@ -11,7 +11,6 @@ loadXsdConfigHandler = function()
 {
 	$('.refresh').on('click', cancelChanges);
 	$('.save').on('click', saveChanges);
-	
 	$('.clickable').on('click', goToPage);
 }
 
@@ -55,5 +54,32 @@ cancelChanges = function()
  */
 saveChanges = function()
 {
-	console.warn('[saveChanges] Not yet implemented');
+	console.log('[saveChanges] Saving configuration...');
+	$("#main").prepend('<div></div>');
+	
+	var successMessage = '<div class="success"><span class="icon valid"></span>Schema successfully saved!</div>',
+		errorMessage = '<div class="error"><span class="icon invalid"></span>An error occured during the save</div>',
+		messageSite = $("#main").children(":first");
+	
+	
+	$.ajax({
+        url: 'inc/controllers/php/saveConfig.php',
+        type: 'GET',
+        success: function(data) {
+        	messageSite.hide().html(successMessage).fadeIn(500);
+        	messageSite.delay(2000).fadeOut(500);
+        	        	
+        	console.log('[saveChanges] Configuration saved');
+        },
+        error: function() {
+        	messageSite.hide().html(errorMessage).fadeIn(500);
+        	messageSite.delay(2000).fadeOut(500);   
+        	   
+            console.error("[saveChanges] A problem occured during the save");
+        },
+        //Options to tell JQuery not to process data or worry about content-type
+        cache: false,
+        contentType: false,
+        processData: false
+    });
 }

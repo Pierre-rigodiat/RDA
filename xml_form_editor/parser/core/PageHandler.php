@@ -213,6 +213,23 @@ class PageHandler
 		return $this->numberOfPage;
 	}
 	
+	public function setPageHandler($currentPage, $pageArray)
+	{
+		$this -> currentPage = $currentPage;
+		$this -> pageArray = $pageArray;
+	}
+	
+	public function __toArray()
+	{
+		$pageHandlerArray = array(
+			"numberOfPage" => $this -> numberOfPage,
+			"currentPage" => $this -> currentPage,
+			"pageArray" => $this -> pageArray
+		);
+		
+		return $pageHandlerArray;
+	}
+	
 	public function __toString()
 	{
 		$pageHandlerString = '';
