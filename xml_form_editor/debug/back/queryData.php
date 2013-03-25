@@ -35,7 +35,7 @@ function selectQuery($queryPath) {
 }
 
 
-$db = new MongoDBStream ("127.0.0.1","test");
+$db = new MongoDBStream ("127.0.0.1","xsdmgr");
 $db->openDB();
 
 if (!isset($_GET['match'])) {
