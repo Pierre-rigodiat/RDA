@@ -30,6 +30,7 @@ private $databaseObject;
 			case 0:
 				$this->server = "127.0.0.1";
 				$this->port = 27017;
+				break;
 			case 1:
 				$this->server = $argv[0];
 				$this->port = 27017;

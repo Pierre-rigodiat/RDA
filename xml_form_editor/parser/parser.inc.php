@@ -15,12 +15,12 @@ if(session_id()=='') // If the session has not been started, it is impossible to
 // Loading configuration and useful classes
 require_once dirname(__FILE__).'/parser.conf.php';
 require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/core/XsdManager.php';
-//require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/core/Tree.php';
 require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/core/ModuleHandler.php';
 require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/core/PageHandler.php';
 require_once $_SESSION['xsd_parser']['conf']['dirname'] . '/parser/core/SearchHandler.php';
 require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/view/Display.php';
 require_once $_SESSION['xsd_parser']['conf']['dirname'].'/inc/helpers/Logger.php';
+require_once $_SESSION['xsd_parser']['conf']['dirname'].'/inc/db/mongodb/MongoDBStream.php';
 
 // TODO put some data in the configuration file
 // TODO Use the display as a configuration variable (use XsdDisplay::setTree to update the current tree after modification)
@@ -35,6 +35,75 @@ $logger = new Logger($logger_level, $_SESSION['xsd_parser']['conf']['logs_dirnam
 /**
  * 
  */
+function loadSchemaFromDB($schemaFileName)
+{
+	global $logger;
+	$mongoDbStream = null;
+	
+	// Connecting to the default port on localhost
+	try
+	{
+		$mongoDbStream = new MongoDBStream();
+		$mongoDbStream -> setDatabaseName("xsdmgr");
+		$mongoDbStream -> openDB();
+	}
+	catch(Exception $e)
+	{
+		//echo '<div class="error">Impossible to connect to the server</div>';
+		exit;
+	}
+	
+	$pathElements = explode('/', $schemaFileName);
+	$treeId = $pathElements[count($pathElements)-1];
+	
+	
+	$resultCursor = $mongoDbStream -> queryData(array("_id" => $treeId), "config");
+	$resultArray = iterator_to_array($resultCursor);
+	
+	if(count($resultArray) == 1)
+	{
+		/* Original tree setup */
+		$tree = $resultArray[0]["tree"];
+		$elementList = $tree["elementList"];
+		$ancestorTable = $tree["ancestorTable"];
+		
+		$trueElementList = array();
+		foreach ($elementList as $element) {
+			$trueElementList[$element["_id"]] = new XsdElement($element["element"]["type"], $element["element"]["attr"]);
+		}
+		
+		$originalTree = new Tree("originalTree");
+		$originalTree -> setTree($trueElementList, $ancestorTable);
+		
+		/* Page handler setup */
+		$pageHandlerArray = $resultArray[0]["pageHandler"];
+		$pageHandler = new PageHandler($pageHandlerArray["numberOfPage"]);
+		$pageHandler -> setPageHandler($pageHandlerArray["currentPage"], $pageHandlerArray["pageArray"]);
+		
+		/* Module handler setup */
+		$moduleHandlerArray = $resultArray[0]["moduleHandler"];
+		$moduleHandler = new ModuleHandler($moduleHandlerArray["moduleDir"]);
+		$moduleHandler -> setModuleHandler($moduleHandlerArray["moduleList"]);
+		
+		/* XsdManager setup */
+		$manager = new XsdManager($schemaFileName, $pageHandler, $moduleHandler);
+		$manager -> setXsdOriginalTree($originalTree);
+		$manager -> setNamespaces($resultArray[0]["namespaces"]);
+		$manager -> update();
+		
+		$logger -> log_debug('Element found in DB', 'loadSchemaFromDB');
+		return $manager;
+	}
+	else {
+		$logger -> log_info('Nothing in DB', 'loadSchemaFromDB');
+		return null;
+	}
+}
+
+
+/**
+ * 
+ */
 function loadSchema($schemaFilename, $numberOfPage = 1)
 {
 	global $logger, $debug;
@@ -43,13 +112,19 @@ function loadSchema($schemaFilename, $numberOfPage = 1)
 	$pHandler = new PageHandler($numberOfPage, $debug);
 	
 	// Build the module handler (if necessary)
+	// TODO Try to avoid this part
 	if(!isset($_SESSION['xsd_parser']['mhandler'])) loadModuleHandler();
 	$mHandler = unserialize($_SESSION['xsd_parser']['mhandler']);
 	
 	// Parse the file
-	$manager = new XsdManager($schemaFilename, $pHandler, $mHandler, $debug);
-	$rootElementsArray = $manager->parseXsdFile();
-	$manager->buildOrganizedTree($rootElementsArray[0]); // TODO Split at this point on 2 function (to be able to choose the root element)
+	$manager = loadSchemaFromDB($schemaFilename);
+	
+	if(!isset($manager))
+	{
+		$manager = new XsdManager($schemaFilename, $pHandler, $mHandler, $debug);
+		$rootElementsArray = $manager->parseXsdFile();
+		$manager->buildOrganizedTree($rootElementsArray[0]); // TODO Split at this point on 2 function (to be able to choose the root element)
+	}
 	
 	$_SESSION['xsd_parser']['parser'] = serialize($manager);
 	

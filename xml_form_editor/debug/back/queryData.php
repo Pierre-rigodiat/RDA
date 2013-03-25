@@ -35,7 +35,7 @@ function selectQuery($queryPath) {
 }
 
 
-$db = new MongoDBStream ("127.0.0.1","test");
+$db = new MongoDBStream ("127.0.0.1","xsdmgr");
 $db->openDB();
 
 if (!isset($_GET['match'])) {
@@ -61,8 +61,7 @@ if (!$cursor->hasNext()) {
 }
 else {
 	foreach ($cursor as $doc) {
-		$dom = decodeBadgerFish($doc);
-		$echo .= '<div class="block">'.nl2br(htmlspecialchars($dom->saveXml())).'</div>';
+		$echo .= '<div class="block">'.nl2br(htmlspecialchars(decodeBadgerFish($doc)->saveXml())).'</div>';
 	}
 	echo $echo;
 }

@@ -399,6 +399,21 @@ class XsdElement
 	}
 
 	/**
+	 * 
+	 * 
+	 * @return array Description of the object
+	 */
+	public function __toArray()
+	{
+		$resultArray = array(
+			"type" => $this -> elementType,
+			"attr" => $this -> elementAttributes
+		);		
+		
+		return $resultArray;
+	}
+
+	/**
 	 * Return the description of the object
 	 * 
 	 * The string is formatted like that:

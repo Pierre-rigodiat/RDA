@@ -65,7 +65,7 @@ function getJSONString(/*$parser, $xsdCompleteTree, */$elementId)
 	
 	$htmlCode = htmlspecialchars(displayTree($elementId));
 	
-	if($htmlCode)
+	if(isset($htmlCode))
 	{
 		return buildJSON($htmlCode, 0);
 	}

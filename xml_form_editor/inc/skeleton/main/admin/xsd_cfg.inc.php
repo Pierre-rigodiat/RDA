@@ -79,9 +79,12 @@ if(isset($_SESSION['xsd_parser']['xsd_filename']))
 	 * Prevent addition of a listener to a same element
 	 */
 	loadEditController();	
+	loadXsdConfigHandler();
 	generateCompleteTree();
 	
-	if(!schemaConfLibLoaded)
+	
+	
+	/*if(!schemaConfLibLoaded)
 	{
 		loadXsdConfigHandler();
 		
@@ -91,6 +94,6 @@ if(isset($_SESSION['xsd_parser']['xsd_filename']))
 	else
 	{
 		console.log('[/schemas] Libraries already loaded');
-	}
+	}*/
 </script>
 

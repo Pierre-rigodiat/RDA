@@ -286,6 +286,24 @@ class ModuleHandler
 		return $result;
 	}
 	
+	public function setModuleHandler($moduleList)
+	{
+		$this -> moduleList = $moduleList;
+	}
+	
+	/**
+	 * 
+	 */
+	public function __toArray()
+	{
+		$moduleHandlerArray = array(
+			"moduleDir" => $this -> moduleDir,
+			"moduleList" => $this -> moduleList
+		);
+		
+		return $moduleHandlerArray;
+	}
+	
 	/**
 	 * String representation of the ModuleHandler
 	 * @return string ModuleHandler representation
@@ -313,5 +331,3 @@ class ModuleHandler
 }
 
 
-
-?>
