@@ -61,7 +61,8 @@ if (!$cursor->hasNext()) {
 }
 else {
 	foreach ($cursor as $doc) {
-		$echo .= '<div class="block">'.nl2br(htmlspecialchars(decodeBadgerFish($doc)->saveXml())).'</div>';
+		$dom = decodeBadgerFish($doc);
+		$echo .= '<div class="block">'.nl2br(htmlspecialchars($dom->saveXml())).'</div>';
 	}
 	echo $echo;
 }
