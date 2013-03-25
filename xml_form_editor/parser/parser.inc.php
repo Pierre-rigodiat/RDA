@@ -17,6 +17,7 @@ require_once dirname(__FILE__).'/parser.conf.php';
 require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/core/XsdManager.php';
 require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/core/ModuleHandler.php';
 require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/core/PageHandler.php';
+require_once $_SESSION['xsd_parser']['conf']['dirname'] . '/parser/core/SearchHandler.php';
 require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/view/Display.php';
 require_once $_SESSION['xsd_parser']['conf']['dirname'].'/inc/helpers/Logger.php';
 require_once $_SESSION['xsd_parser']['conf']['dirname'].'/inc/db/mongodb/MongoDBStream.php';

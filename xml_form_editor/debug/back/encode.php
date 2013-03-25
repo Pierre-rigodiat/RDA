@@ -12,7 +12,7 @@ function encodeToJSON($type)
 	
 	switch ($type) {
 		case "encodeBadgerFish":
-			return json_encode(encodeBadgerFish(DOMDocument::load('../../MongoDB/testXml.xml')));
+			return json_encode(encodeBadgerFish(DOMDocument::load('../../MongoDB/experiment_data.xml')));
 			break;
 		case "encodeGData":
 			return json_encode(encodeGData(DOMDocument::load('../../MongoDB/testXml.xml')));
@@ -24,7 +24,7 @@ function encodeToJSON($type)
 			return json_encode(encodeSpark(DOMDocument::load('../../MongoDB/testXml.xml')));
 			break;
 		case "encodeJSONML":
-			return json_encode(encodeJSONML(DOMDocument::load('../../MongoDB/testXml.xml')));
+			return json_encode(encodeJSONML(DOMDocument::load('../../MongoDB/experiment_data.xml')));
 			break;
 	}
 }

@@ -15,6 +15,8 @@ require_once $_SESSION['xsd_parser']['conf']['dirname'] . '/parser/core/PageHand
 /** @ignore */
 require_once $_SESSION['xsd_parser']['conf']['dirname'] . '/parser/core/ModuleHandler.php';
 /** @ignore */
+require_once $_SESSION['xsd_parser']['conf']['dirname'] . '/parser/core/SearchHandler.php';
+/** @ignore */
 require_once $_SESSION['xsd_parser']['conf']['dirname'] . '/parser/core/XmlParser.php';
 /** @ignore */
 require_once $_SESSION['xsd_parser']['conf']['dirname'] . '/parser/core/Tree.php';
@@ -74,6 +76,12 @@ class XsdManager
 	 */
 	private $xsdCompleteTree;
 	
+	/**
+	 * The tree as it should be in the query form (with proper occurence)
+	 * @var ReferenceTree
+	 */
+	private $xsdQueryTree;
+	
 	// The array containing the values entered by the user
 	/**
 	 * 
@@ -89,6 +97,7 @@ class XsdManager
 	 */
 	private $pageHandler;
 	private $moduleHandler;
+	private $searchHandler;
 
 	private $rootElements;
 	private $namespaces;
@@ -138,10 +147,12 @@ class XsdManager
 
 					$this -> xsdOriginalTree = new Tree("OriginalTree");
 					$this -> xsdCompleteTree = new ReferenceTree($this->xsdOriginalTree);
+					$this -> xsdQueryTree = new ReferenceTree($this->xsdOriginalTree);
 					$this -> dataArray = array();
 
 					$this -> pageHandler = $argv[1];
 					$this -> moduleHandler = $argv[2];
+					$this -> searchHandler = new SearchHandler();
 				}
 				else
 				{
@@ -158,18 +169,21 @@ class XsdManager
 
 					$this -> pageHandler = $argv[1];
 					$this -> moduleHandler = $argv[2];
+					$this -> searchHandler = new SearchHandler();
 
 					if ($argv[1])
 					{
 						//TODO Set debug
 						$this -> xsdOriginalTree = new Tree("OriginalTree");
 						$this -> xsdCompleteTree = new ReferenceTree($this->xsdOriginalTree);
+						$this -> xsdQueryTree = new ReferenceTree($this->xsdOriginalTree);
 						$this -> dataArray = array();
 						$level = self::$LEVELS['DBG'];
 					}
 					else
 					{
 						$this -> xsdOriginalTree = new Tree("OriginalTree");
+						$this -> xsdQueryTree = new ReferenceTree($this->xsdOriginalTree);
 						$this -> xsdCompleteTree = new ReferenceTree($this->xsdOriginalTree);
 						$this -> dataArray = array();
 						$level = self::$LEVELS['NO_DBG'];
@@ -361,6 +375,8 @@ class XsdManager
 			
 			$this -> cleanXsdTree();
 			$this -> xsdCompleteTree -> setReferenceTree($this -> xsdOriginalTree);
+			$this -> xsdQueryTree -> setReferenceTree($this -> xsdOriginalTree);
+			
 		}
 		else
 		{
@@ -569,6 +585,43 @@ class XsdManager
 	}
 	
 	/**
+	 * Build the query tree. Compute minOccurs
+	 *
+	 * @param int $elementId Element index to build
+	 */
+	public function buildQueryTree($elementId = 0, $parentId = -1)
+	{
+		$insertedId = $this -> xsdQueryTree -> insert(
+				$elementId,
+				$parentId
+		);
+		$this -> LOGGER -> log_debug('ID '.$insertedId.' (father: '.$parentId.') inserted into the query tree', 'XsdManager::buildQueryTree');
+	
+		$childrenId = $this -> xsdOriginalTree -> getChildren($elementId);
+		foreach ($childrenId as $childId)
+		{
+			$this -> buildQueryTree($childId, $insertedId);
+		}
+	
+		/* Duplicate elements with minOccurs > 1 */
+		$this -> LOGGER -> log_notice('Analyzing ID '.$insertedId.'...', 'XsdManager::buildQueryTree');
+		$elementObject = $this -> xsdQueryTree -> getElement($insertedId);
+		$elementAttr = $elementObject -> getAttributes();
+	
+		if (isset($elementAttr['MINOCCURS']) && $elementAttr['MINOCCURS'] > 1)
+		{
+			$parentId = $this -> xsdQueryTree -> getParent($insertedId);
+				
+			for ($i = 0; $i < $elementAttr['MINOCCURS'] - 1; $i++)
+			{
+			$newElementId = $this -> xsdQueryTree -> duplicate($insertedId, true);
+			$this -> xsdQueryTree -> setBrother($insertedId, $newElementId);
+	
+			}
+		}
+	}
+	
+	/**
 	 * 
 	 */
 	private function copyPageArray($elementToCopy, $elementToModify)
@@ -737,6 +790,41 @@ class XsdManager
 	{
 		$this -> LOGGER -> log_notice('Function called', 'XsdManager::setXsdCompleteTree');
 		$this -> xsdCompleteTree = $newXsdCompleteTree;
+	}
+	
+	/**
+	 *
+	 */
+	public function getXsdQueryTree()
+	{
+		$this -> LOGGER -> log_notice('Function called', 'XsdManager::getXsdQueryTree');
+		return $this -> xsdQueryTree;
+	}
+	
+	/**
+	 *
+	 */
+	public function setXsdQueryTree($newXsdQueryTree)
+	{
+		$this -> LOGGER -> log_notice('Function called', 'XsdManager::setXsdQueryTree');
+		$this -> xsdQueryTree = $newXsdQueryTree;
+	}
+	
+	/**
+	 * 
+	 */
+	public function getSearchHandler()
+	{
+		return $this -> searchHandler;
+	}
+	
+	/**
+	 * 
+	 * @param $newSearchHandler
+	 */
+	public function setSearchHandler($newSearchHandler)
+	{
+		$this -> searchHandler = $newSearchHandler;
 	}
 
 	/**
