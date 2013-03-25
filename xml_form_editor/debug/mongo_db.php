@@ -35,7 +35,12 @@
 	<h1>Retrieve Data</h1>
 		<div id="block">
 			<label>MongoDB Query</label>
-			<textarea rows="1" id="query"></textarea>
+			<select id="query_element">
+				<option value="diffusingSpecies">Diffusing Species</option>
+				<option value="materialName">Material Name</option>
+				<option value="constituentElement">Constituent Element</option>
+			</select>
+			<textarea rows="1" id="query_target"></textarea>
 		<div class="icon legend retrieve data">Retrieve data</div>
 		</div>
 		

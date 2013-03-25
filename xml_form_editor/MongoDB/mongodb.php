@@ -237,13 +237,7 @@ private $databaseObject;
 				$collectionObject = new MongoCollection($this->databaseObject, $collectionName);
 				//Execute the query
 				$cursor = $collectionObject->find($query, array('_id' => 0));
-				if ($cursor->hasNext()) {
-					return $cursor;
-				}
-				else
-				{
-					return "Empty result for your query";
-				}
+				return $cursor;
 				//Display the element of the query. Used for debugging
 				/*foreach ($cursor as $element)
 				 var_dump($element);
@@ -251,12 +245,12 @@ private $databaseObject;
 			}
 			else
 			{
-				return "Database Object not set";
+				throw new Exception("Database Object not set", -2);
 			}
 		}
 		catch(MongoCursorException $e)
 		{
-			echo "Issue with the query";
+			throw new Exception("Issue with the query", -1);
 		}
 	}
 

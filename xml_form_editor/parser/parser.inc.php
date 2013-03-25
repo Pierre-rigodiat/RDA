@@ -18,6 +18,7 @@ require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/core/XsdManager
 //require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/core/Tree.php';
 require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/core/ModuleHandler.php';
 require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/core/PageHandler.php';
+require_once $_SESSION['xsd_parser']['conf']['dirname'] . '/parser/core/SearchHandler.php';
 require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/view/Display.php';
 require_once $_SESSION['xsd_parser']['conf']['dirname'].'/inc/helpers/Logger.php';
 

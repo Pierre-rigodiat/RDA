@@ -10,6 +10,8 @@ require_once $_SESSION['xsd_parser']['conf']['dirname'] . '/parser/moduleLoader.
 require_once $_SESSION['xsd_parser']['conf']['dirname'] . '/parser/core/ModuleHandler.php';
 /** @ignore */
 require_once $_SESSION['xsd_parser']['conf']['dirname'] . '/parser/core/PageHandler.php';
+/** @ignore */
+require_once $_SESSION['xsd_parser']['conf']['dirname'] . '/parser/core/SearchHandler.php';
 /**
  * Display class allow to display element the way you want.
  * 
@@ -801,7 +803,7 @@ class Display
 	}
 
 	/**
-	 * 
+	 *
 	 * @param int $elementId Element index
 	 * @return string XML view of the element
 	 */
@@ -809,59 +811,59 @@ class Display
 	{
 		$xmlElement = '';
 		$children = array();
-		
+	
 		$elementDesc = $this -> getElementDescription($elementId, true);
-		$elementAttr = $elementDesc['xsdElement'] -> getAttributes();		
-		
+		$elementAttr = $elementDesc['xsdElement'] -> getAttributes();
+	
 		// Unavailable elements are not displayed
 		if(isset($elementAttr['AVAILABLE']) && $elementAttr['AVAILABLE']==false)
 		{
 			return $xmlElement;
 		}
-		
+	
 		// Element CHOICE are not displayed (element created to be able to make the choice in the form)
 		// Disabled element are not displayed
 		if(!isset($elementAttr['CHOICE']))
 		{
 			$xmlElement .= '<'.$elementAttr['NAME'];
-		
+	
 			if($elementId == 0) // If it is the root element
 			{
 				$nsArray = $this -> xsdManager -> getNamespaces();
 				$this -> LOGGER -> log_notice('Including namespaces to element '.$elementAttr['NAME'].'...', 'Display::displayXMLElement');
-				
-				foreach ($nsArray as $nsName => $nsValue) {					
+	
+				foreach ($nsArray as $nsName => $nsValue) {
 					if(!is_string($nsName) || $nsName!='default')
 					{
 						$this -> LOGGER -> log_debug($nsValue['name'].' will be included', 'Display::displayXMLElement');
-						
+	
 						$xmlElement .= ' xmlns:'.strtolower($nsValue['name']).'="'.$nsValue['url'].'"';
 					}
 				}
 	
 				$this -> LOGGER -> log_notice('Namespaces included to element '.$elementAttr['NAME'], 'Display::displayXMLElement');
 			}
-			
+				
 			$xmlElement .= '>';
-			
+				
 			if(($data = $this -> xsdManager -> getDataForId($elementId))!=null)
 			{
 				$xmlElement .= $data;
 			}
 		}
-		
+	
 		// Case where no module is displayed
 		// TODO Find a better way to store module data
 		if($this -> xsdManager -> getModuleHandler() -> getModuleForId($elementId) == '')
 		{
 			$children = $this -> xsdManager -> getXsdCompleteTree() -> getChildren($elementId);
-			
-			if($xmlElement=='') // Case of choice element 
-			{				
+				
+			if($xmlElement=='') // Case of choice element
+			{
 				// Avoid the case where there is no data entered ($elementDisplay will be equal to '')
 				if(isset($elementAttr['CHOICE']))
 				{
-					foreach ($children as $child) 
+					foreach ($children as $child)
 					{
 						$childOriginalId = $this -> xsdManager -> getXsdCompleteTree() -> getElement($child);
 						if($childOriginalId == $elementAttr['CHOICE'][0])
@@ -873,7 +875,7 @@ class Display
 				}
 			}
 		}
-		
+	
 		/* Displaying children if possible */
 		if (count($children) > 0)
 		{
@@ -882,10 +884,213 @@ class Display
 				$xmlElement .= $this -> displayXmlElement($child);
 			}
 		}
-		
+	
 		if(!isset($elementAttr['CHOICE'])) $xmlElement .= '</'.$elementAttr['NAME'].'>';
+	
+		return $xmlElement;
+	}
+	
+	/**
+	 * 
+	 */
+	public function displayQuery() {
+		return $this->displayQueryChild();
+	}
+	
+	/**
+	 * 
+	 * @param integer $elementID
+	 * @return string
+	 */
+	private function displayQueryFirstChild($elementID) {
+		$manager = $this->xsdManager;
+		$queryTree = $manager -> getXsdQueryTree();
+		//var_dump($organizedTree);
+		//$recElement = $queryTree->getChildren($elementID);
+		//var_dump($recElement);
+		$xmlElement = '<ul style="list-style-type:disc">';
+		
+		//$childID = reset($recElement);
+		
+		$xmlElement .= $this->displayQueryElement($elementID);
+		/*$xmlChild = $this->displayQueryChild($childID);
+		$elementChild = $queryTree->getElement($childID);
+		//var_dump($elementChild);
+		$attr = $elementChild->getAttributes();
+		if ($xmlChild != '<ul style="list-style-type:disc"></ul>')
+		{
+			$xmlElement .= '<li id="'.$childID.'"><span class="elementName">'.ucfirst($attr['NAME']).'</span>'.$xmlChild.'</li>';
+		}*/
+		
+		return $xmlElement.'</ul>';
+	}
+	
+	/**
+	 * 
+	 * @param integer $elementID
+	 * @return string
+	 */
+	public function displayQueryChild($elementID = 0) {
+		$manager = $this->xsdManager;
+		$queryTree = $manager -> getXsdQueryTree();
+		//var_dump($organizedTree);
+		$recElement = $queryTree->getChildren($elementID);
+		//var_dump($recElement);
+		
+		$xmlElement = '<ul style="list-style-type:disc">';
+		
+		if (!$elementID) {
+			$mainElement = $queryTree->getElement($elementID)->getAttributes();
+			$xmlElement .= '<h3>'.ucfirst($mainElement['NAME']).'</h3>';
+		}
+		
+		foreach ($recElement as $childID) {
+			$xmlElement .= $this->displayQueryElement($childID);
+		}
+		
+		return $xmlElement.'</ul>';
+	}
+	
+	/**
+	 * 
+	 * @param $elementID
+	 */
+	private function displayQueryIcons($elementID) {
+		$manager = $this->xsdManager;
+		$queryTree = $manager -> getXsdQueryTree();
+		$attr = $queryTree->getElement($elementID)->getAttributes();
+		$xmlElement = '';
+		/* Print the add / remove buttons */
+		// Gather sibling information and create useful variable to count them
+		$siblingsIdArray = $this -> xsdManager -> getXsdQueryTree() -> getSiblings($elementID);
+			
+		$this->LOGGER->log_notice('ID '.$elementID.' has '.count($siblingsIdArray).' possible sibling(s)', 'Display::displayQueryChild');
+		$siblingsCount = 0;
+		// Check the current number of siblings (to know if we need to display buttons)
+		foreach ($siblingsIdArray as $siblingId)
+		{
+			$siblingObject = $this -> xsdManager -> getXsdQueryTree() -> getElement($siblingId);
+			$siblingAttr = $siblingObject -> getAttributes();
+			// We compare the parent ID to know if this is a real sibling (and not just another similar element)
+			// We also compare if the element is available
+			if (!(isset($siblingAttr['AVAILABLE']) && !$siblingAttr['AVAILABLE']))
+				$siblingsCount = $siblingsCount + 1;
+		}
+			
+		$this->LOGGER->log_debug('ID '.$elementID.' has '.$siblingsCount.' sibling(s)', 'Display::displayQueryChild');
+		$minOccurs = 1;
+		if (isset($attr['MINOCCURS']))
+			$minOccurs = $attr['MINOCCURS'];
+			
+		$this->LOGGER->log_notice('ID '.$elementID.' minOccurs = '.$minOccurs, 'Display::displayQueryChild');
+		$addIconDisplayed = false;
+		// Set up the add button for element with maxOccurs defined
+		if (isset($attr['MAXOCCURS']))
+		{
+			$this->LOGGER->log_notice('ID '.$elementID.' maxOccurs = '.$attr['MAXOCCURS'], 'Display::displayQueryChild');
+			if ($attr['MAXOCCURS'] == 'unbounded' || $siblingsCount < $attr['MAXOCCURS'])
+			{
+				$xmlElement .= self::$_CONF['FORM']['add_icon'];
+				$addIconDisplayed = true; // Avoid to have 2 add icon written for a same element
+				$this->LOGGER->log_debug('ID '.$elementID.' has add button', 'Display::displayQueryChild');
+			}
+		}
+			
+		// Set up the add button for unavailable elements
+		if(isset($attr['AVAILABLE']) && $attr['AVAILABLE']==false) // Set up add icon if an element is disabled (minOccurs = 0 reached)
+		{
+			$this->LOGGER->log_notice('ID '.$elementID.' is unavailable', 'Display::displayQueryChild');
+			if(!$addIconDisplayed) // Avoid to have 2 add icon written for a same element
+			{
+				$xmlElement .= self::$_CONF['FORM']['add_icon'];
+				$this->LOGGER->log_debug('ID '.$elementID.' has add button', 'Display::displayQueryChild');
+			}
+		}
+			
+		// Set up remove button for elements
+		if ($siblingsCount > $minOccurs)
+		{
+			$xmlElement .= self::$_CONF['FORM']['remove_icon'];
+			$this->LOGGER->log_debug('ID '.$elementID.' has remove button', 'Display::displayQueryChild');
+		}
 		
 		return $xmlElement;
 	}
+	
+	
+	/**
+	 * 
+	 * @param integer $elementID
+	 * @return string
+	 */
+	public function displayQueryElement($elementID) {
+		$manager = $this->xsdManager;
+		$queryTree = $manager -> getXsdQueryTree();
+		//var_dump($organizedTree);
+		$displayedIdArray = $this->xsdManager->getSearchHandler()->getIdArray();
+
+		$xmlElement = '';
+	
+		$elementChild = $queryTree->getElement($elementID);
+		//var_dump($elementChild);
+		
+		$attr = $elementChild->getAttributes();
+		$liClass = '';
+		$disabled = '';
+		if (isset($attr['AVAILABLE']) && !$attr['AVAILABLE']) {
+			$liClass = ' class="unavailable" ';
+			$disabled = ' disabled="disabled" ';
+		}
+		
+		if (in_array($elementID, $displayedIdArray)) {
+			
+			$xmlElement .= '<li id="'.$elementID.'"'.$liClass.'><span class="elementName">'.ucfirst($attr['NAME']).'</span>';
+			
+			if (isset($attr['RESTRICTION']))
+			{
+				$xmlElement .= '<select class="xsdman restriction query_element"'.$disabled.'>';
+				
+				$xmlElement .= '<option value ="empty"></option>';
+				foreach($attr['RESTRICTION'] as $restrictionElem) {
+					$xmlElement .= '<option value ="'.$restrictionElem.'">'.$restrictionElem.'</option>';
+				}
+				$xmlElement .= '</select>';
+			}
+			else {
+				$xmlElement .= '<input class="text query_element" type="text"'.$disabled.'>';
+			}
+		
+			$xmlElement .= $this->displayQueryIcons($elementID).'</li>';
+		}
+		
+		$children = $queryTree->getChildren($elementID);
+		if ($children != array())
+		{
+			$xmlChild = $this->displayQueryChild($elementID);
+			if ($xmlChild != '<ul style="list-style-type:disc"></ul>')
+			{
+				if (isset($attr['CHOICE']))
+				{
+					$xmlElement .= '<li id="'.$elementID.'"'.$liClass.'><span class="elementName">Choose</span><select class="xsdman choice">';
+					foreach ($attr['CHOICE'] as $choiceID) {
+						$choiceChild = $manager->getXsdOriginalTree()->getElement($choiceID);
+						$choiceAttr = $choiceChild->getAttributes();
+						$xmlElement .= '<option value="'.$choiceID.'">'.ucfirst($choiceAttr['NAME']).'</option>';
+					}
+					$xmlElement .= '</select>'.$this->displayQueryFirstChild($children[0]);
+					$xmlElement .= $this->displayQueryIcons($elementID);
+				}
+				else {
+					$xmlElement .= '<li id="'.$elementID.'"'.$liClass.'><span class="elementName">'.ucfirst($attr['NAME']).'</span>';
+					$xmlElement .= $this->displayQueryIcons($elementID).$xmlChild;
+				}
+				
+				$xmlElement .= '</li>';
+			}
+		}
+	
+		return $xmlElement;	
+	}
+	
 }
 ?>
