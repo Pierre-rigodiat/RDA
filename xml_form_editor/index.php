@@ -31,15 +31,14 @@
 	<script type="text/javascript" src="inc/controllers/js/xml_display.js"></script>
 	<script type="text/javascript" src="inc/controllers/js/php.js"></script>
 	
-	<!--link rel="stylesheet" type="text/css" href="http://code.jquery.com/ui/1.9.2/themes/base/jquery-ui.css" /-->
+	
 	<link rel="stylesheet" type="text/css" href="resources/css/lib/jquery-ui-1.10.1.custom.min.css" />
 	
-
-	<!--script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
-	<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/jquery-ui.min.js"></script-->
+	<!-- JQuery & JQuery UI -->
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+	<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.2/jquery-ui.min.js"></script>
+	<link rel="stylesheet" type="text/css" href="http://code.jquery.com/ui/1.10.2/themes/smoothness/jquery-ui.css" />
 	
-	<script src="inc/controllers/js/lib/jquery-1.8.3.min.js"></script>
-	<script src="inc/controllers/js/lib/jquery-ui-1.10.1.min.js"></script>
 	
 	<script type="text/javascript" src="inc/controllers/js/pageLoader.js"></script>
 	<!--script type="text/javascript" src='resources/js/message.js'></script-->
@@ -170,6 +169,5 @@
 			echo '<input type="hidden" id="php_mem_peak" value="'.memory_get_peak_usage().'"/>';
 		}
 	?>
-	<div id="invisible_message"></div>
 </body>
 </html>
