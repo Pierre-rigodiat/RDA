@@ -52,7 +52,7 @@ else {
 }
 
 
-$cursor = $db->queryData($query, "test");
+$cursor = $db->queryData($query, "experiment");
 
 $echo = '';
 

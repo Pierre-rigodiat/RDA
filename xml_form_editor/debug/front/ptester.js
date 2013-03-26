@@ -73,15 +73,17 @@ retrieveQuery = function()
 	
 	function unCapitaliseFirstLetter(string)
 	{
-	    return string.charAt(0).toLowerCase() + string.slice(1);
+		if (string != null)
+			return string.charAt(0).toLowerCase() + string.slice(1);
+		else
+			return '';
 	}
 	
 	inputs.each(function()
 	{
 		var queryPath = unCapitaliseFirstLetter($(this).prev().text()),
-			//match = '',
 		match = $(this).val(),
-			currentElement = $(this).prev();
+		currentElement = $(this).prev();
 		
 		/*if ($(this).attr('class') == 'xsdman restriction query') {
 			match = $(this).val();
@@ -93,9 +95,9 @@ retrieveQuery = function()
 		
 		if(match != '' && match != 'empty')
 		{
-			while (currentElement.parent().parent().prev().length) {
-				currentElement = currentElement.parent().parent().prev();
-				if (currentElement.attr('class') != 'xsdman choice')
+			while (currentElement.parent().parent().siblings(':first').length) {
+				currentElement = currentElement.parent().parent().siblings(':first');
+				if (currentElement.next().attr('class') != 'xsdman choice' && currentElement.attr('id') != 'top_page')
 					queryPath = unCapitaliseFirstLetter(currentElement.text())+'.'+queryPath;
 			}
 			
