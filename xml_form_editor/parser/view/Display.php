@@ -863,9 +863,11 @@ class Display
 				// Avoid the case where there is no data entered ($elementDisplay will be equal to '')
 				if(isset($elementAttr['CHOICE']))
 				{
+					$xsdCompleteTreeElementList = $this -> xsdManager -> getXsdCompleteTree() -> getElementList();
+					
 					foreach ($children as $child)
 					{
-						$childOriginalId = $this -> xsdManager -> getXsdCompleteTree() -> getElement($child);
+						$childOriginalId = $xsdCompleteTreeElementList[$child];
 						if($childOriginalId == $elementAttr['CHOICE'][0])
 						{
 							$children = array($child);
