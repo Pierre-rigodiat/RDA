@@ -17,6 +17,7 @@ class SearchHandler {
 				break;
 			default:
 				$this->idArray = array();
+				break;
 		}
 	}
 	

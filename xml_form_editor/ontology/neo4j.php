@@ -1,10 +1,22 @@
 <?php
 
 require("../inc/db/neo4j/neo4jphp.phar");
+require_once 'OntologyMapping.php';
 
 $testQuery = "";
 
-$unitType = array("UnitOfMeasureType", "Name");
+//TODO use a session variable to store the OntologyMapping
+$mapping = new OntologyMapping();
+$mapping->addElement("Unit", "g.V.has('name','UnitOfMeasure').in('subClassOf').in('type').name");
+$mapping->addElement("XUnit", "g.V.has('name','UnitOfMeasure').in('subClassOf').in('type').name");
+$mapping->addElement("YUnit", "g.V.has('name','UnitOfMeasure').in('subClassOf').in('type').name");
+$mapping->addElement("QUnit", "g.V.has('name','UnitOfMeasure').in('subClassOf').in('type').name");
+$mapping->addElement("D0Unit", "g.V.has('name','UnitOfMeasure').in('subClassOf').in('type').name");
+$mapping->addElement("UnitOfMeasureType", "g.V.has('name','UnitOfMeasure').in('subClassOf').name");
+$mapping->addElement("SpaceGroup", "g.V.has('name','CrystalLattice').in('subClassOf').name");
+
+
+/*$unitType = array("UnitOfMeasureType", "Name");
 $unit = array("Unit", "Name");
 $xUnit = array("XUnit", "Name");
 $yUnit = array("YUnit", "Name");
@@ -22,7 +34,10 @@ if (array_diff($element, $unitType) == array()) {
 }
 if (array_diff($element, $unit) == array() || array_diff($element, $xUnit) == array() || array_diff($element, $yUnit) == array() || array_diff($element, $qUnit) == array() ||array_diff($element, $d0Unit) == array()) {
 	$testQuery = "g.V.has('name','UnitOfMeasure').in('subClassOf').in('type').name";
-}
+}*/
+
+$xmlElement = $_GET["parent"];
+$testQuery = $mapping->getQueryForElement($xmlElement);
 
 if ($testQuery != "") {	
 		// Connecting to the default port 7474 on localhost

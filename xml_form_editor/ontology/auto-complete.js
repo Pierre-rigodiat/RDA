@@ -1,6 +1,6 @@
 loadAutoComplete = function()
 {
-	var node;
+	//var node;
 	var parent;
 	
 	function split(val)
@@ -12,8 +12,8 @@ loadAutoComplete = function()
 	$(".text").bind("keydown", function(event)
 	{
 		var test = $(this).parent().parent().prev();
-			node = $(this).prev().html();
-			parent = ((test.html() != "") ? test.html() : test.prev().html())
+			//node = $(this).prev().html(),
+			parent = ((test.html() != "") ? test.html() : test.prev().html());
 	
 		if (event.keyCode === $.ui.keyCode.TAB && $(this).data("autocomplete").menu.active)
 		{
@@ -47,7 +47,7 @@ loadAutoComplete = function()
 					console.error("Problem importing the file");
 				},
 				// Form data
-				data : 'term=' + request.term + '&node=' + node + '&parent=' + parent,
+				data : 'term=' + request.term /*+ '&node=' + node */+ '&parent=' + parent,
 				//Options to tell JQuery not to process data or worry about content-type
 				cache : false,
 				contentType : false,
