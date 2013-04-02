@@ -41,7 +41,8 @@ if(isset($_GET['parent']) && isset($_GET['child']))
 	array_unshift($choiceElementAttribute['CHOICE'], $choosenId);
 	$newChoiceElement = new XsdElement('XSD:ELEMENT', $choiceElementAttribute);
 	
-	$xsdManager -> getXsdOriginalTree() -> setElement($choiceElementID, $newChoiceElement);
+	$xsdQueryTreeElementList = $xsdManager -> getXsdQueryTree() -> getElementList();
+	$xsdManager -> getXsdOriginalTree() -> setElement($xsdQueryTreeElementList[$choiceElementID], $newChoiceElement);
 	
 	$_SESSION['xsd_parser']['parser'] = serialize($xsdManager);
 	

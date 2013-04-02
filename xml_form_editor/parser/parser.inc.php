@@ -420,11 +420,12 @@ function displayAdminQueryTree()
 		echo '<i>No schema file loaded</i>';
 		return;
 	}
-
-	/*if (!(isset($manager->getXsdQueryTree()->getElementList) && $manager->getXsdQueryTree()->getElementList != array()))
+	
+	$manager = unserialize($_SESSION['xsd_parser']['parser']);
+	if (!(isset($manager->getXsdQueryTree()->getElementList) && $manager->getXsdQueryTree()->getElementList != array()))
 		$manager -> buildQueryTree();
 
-	$_SESSION['xsd_parser']['parser'] = serialize($manager);*/
+	$_SESSION['xsd_parser']['parser'] = serialize($manager);
 
 	// Set up the display
 	if(isset($_SESSION['xsd_parser']['display']))
