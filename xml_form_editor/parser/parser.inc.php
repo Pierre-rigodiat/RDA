@@ -422,8 +422,11 @@ function displayAdminQueryTree()
 	}
 	
 	$manager = unserialize($_SESSION['xsd_parser']['parser']);
-	if (!(isset($manager->getXsdQueryTree()->getElementList) && $manager->getXsdQueryTree()->getElementList != array()))
+	if (!(isset($manager->getXsdQueryTree()->getElementList) && $manager->getXsdQueryTree()->getElementList != array())) {
+		$originalTree = $manager -> getXsdOriginalTree();
+		$manager -> setXsdQueryTree(new ReferenceTree($originalTree));
 		$manager -> buildQueryTree();
+	}
 
 	$_SESSION['xsd_parser']['parser'] = serialize($manager);
 
