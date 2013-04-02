@@ -71,7 +71,7 @@ if(isset($_SESSION['xsd_parser']['xsd_filename']))
 </div>
 
 <script src="parser/controllers/js/edit.js"></script>
-<script src="parser/controllers/js/generateCompleteTree.js"></script>
+<script src="parser/controllers/js/generateReferenceTrees.js"></script>
 <script src="inc/controllers/js/xsd_cfg.js"></script>
 <script>
 	/**
@@ -80,7 +80,7 @@ if(isset($_SESSION['xsd_parser']['xsd_filename']))
 	 */
 	loadEditController();	
 	loadXsdConfigHandler();
-	generateCompleteTree();
+	generateReferenceTrees();
 	
 	
 	

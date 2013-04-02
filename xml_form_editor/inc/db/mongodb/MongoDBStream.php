@@ -1,5 +1,7 @@
 <?php
 
+require_once $_SESSION['config']['_ROOT_'].'/inc/lib/JsonXmlFunctions.php';
+
 /**
  * Mongodb Class
  * @param $username: the user name to access the database
@@ -112,7 +114,7 @@ Class MongoDBStream
 		}
 		catch (MongoConnectionException $e)
 		{
-			echo "Cannot connect to {$this->server}:{$this->port}\n";
+			throw new Exception("Cannot connect to the database", -1);
 		}
 	}
 
@@ -128,14 +130,12 @@ Class MongoDBStream
 				$this -> databaseObject = new MongoDB($this -> connection, $this -> databaseName);
 			else
 			{
-				echo "Database Name not set\n";
-				return;
+				throw new Exception("Database Object not set", -2);
 			}
 		}
 		catch (Exception $e)
 		{
-			echo "Cannot connect to {$this->databaseName} database\n";
-			return;
+			throw new Exception("Issue with the MongoDB database", -1);
 		}
 	}
 
@@ -148,17 +148,9 @@ Class MongoDBStream
 	 */
 	function insertJsonFromFile($doc, $collectionName)
 	{
-		if (!preg_match('/.+\.json/', $doc))
-		{
-			echo 'Please select a JSON file for the insertion<br/>';
-			return;
-		}
-		else
-		{
-			// Get the JSON file content
-			$jsonString = file_get_contents($doc);
-			insertJson($jsonString, $collectionName);
-		}
+		// Get the JSON file content
+		$jsonString = file_get_contents($doc);
+		insertJson($jsonString, $collectionName);
 	}
 
 	/**
@@ -176,7 +168,7 @@ Class MongoDBStream
 		}
 		else
 		{
-			throw new Exception("Database Object not set", -1);
+			throw new Exception("Database Object not set", -2);
 		}
 	}
 
@@ -187,44 +179,31 @@ Class MongoDBStream
 	 */
 	function insertXml($doc, $collectionName)
 	{
-		if (!preg_match('/.+\.xml/', $doc))
+		$dom = DOMDocument::load($doc);
+		// Translate the XML content into JSON content
+		$jsonArray = encodeBadgerFish($dom);
+		
+		if ($jsonArray == array())
 		{
-			echo 'Please select an XML file for the insertion<br/>';
-			return;
+			throw new Exception("Could not proceed to the JSON comversion", -3);
 		}
-		else
-		{
-			$dom = DOMDocument::load($doc);
-			// Translate the XML content into JSON content
-			$jsonArray = encodeJSONML($dom);
+		
+		// Insert it into the collection
+		insertJson($jsonArray, $collectionName);
 
-			if ($jsonArray == array())
-			{
-				echo "Could not transform xml to json<br/>";
-				return;
-			}
-
-			// Insert it into the collection
-			//print_r($jsonArray); echo "<br/>";
-			//echo json_encode($jsonArray)."<br/>";
-			//insertJson($jsonArray, $collectionName);
-		}
 	}
 
 	function retrieveXml($doc, $collectionName)
 	{
 		$json_data = file_get_contents($doc);
 
-		$xmlContents = decodeJSONML($json_data);
+		$xmlContents = decodeBadgerFish($json_data);
 		if (!$xmlContents)
 		{
-			echo "Could not transform json to xml";
-			return;
+			throw new Exception("Could not proceed to the JSON comversion", -3);
 		}
-
-		echo nl2br(htmlspecialchars($xmlContents -> saveXML()));
-		//file_put_contents("xmlBadger.xml", $xmlContents->saveXML());
-		return;
+		
+		return htmlspecialchars($xmlContents -> saveXML());
 	}
 
 	function queryData($query, $collectionName)

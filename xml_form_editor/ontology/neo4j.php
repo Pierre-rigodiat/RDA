@@ -34,12 +34,12 @@ if (array_diff($element, $unitType) == array()) {
 }
 if (array_diff($element, $unit) == array() || array_diff($element, $xUnit) == array() || array_diff($element, $yUnit) == array() || array_diff($element, $qUnit) == array() ||array_diff($element, $d0Unit) == array()) {
 	$testQuery = "g.V.has('name','UnitOfMeasure').in('subClassOf').in('type').name";
-}*/
+}*/ 
 
 $xmlElement = $_GET["parent"];
 $testQuery = $mapping->getQueryForElement($xmlElement);
 
-if ($testQuery != "") {	
+if ($testQuery != "") {
 		// Connecting to the default port 7474 on localhost
 		try
 		{

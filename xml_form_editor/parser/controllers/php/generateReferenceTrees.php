@@ -1,6 +1,6 @@
 <?php
 /**
- * <generateCompleteSchema controller>
+ * <generateReferenceSchemas controller>
  */
 session_start();
 require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/core/XsdManager.php';
@@ -14,9 +14,12 @@ if(isset($_SESSION['xsd_parser']['parser']))
 	$manager = unserialize($_SESSION['xsd_parser']['parser']);
 	$manager -> buildCompleteTree();
 	
+	if (!(isset($manager->getXsdQueryTree()->getElementList) && $manager->getXsdQueryTree()->getElementList != array()))
+		$manager -> buildQueryTree();
+	
 	$_SESSION['xsd_parser']['parser'] = serialize($manager);
 	
-	echo buildJSON('Complete schema generated', 0);
+	echo buildJSON('Complete and Query schema generated', 0);
 }
 else
 {

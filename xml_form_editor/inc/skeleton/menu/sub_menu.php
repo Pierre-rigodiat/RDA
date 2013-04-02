@@ -1,8 +1,8 @@
 <?php
 if(isset($_GET['p']) && $_GET['p']=="admin")
 {
-	$submenus = array("website" => array("Workflow", "Pages", "Menus", "Modules"), "schemas" => array("Current Model", "Manage Schemas", "Manage Modules"), "users" => array("New User", "New Group", "Search"));
-	$submenusIds = array("website" => array("workflow", "pages", "menus", "modules"), "schemas" => array("currentModel", "manageSchemas", "manageModules"), "users" => array("newUser", "newGroup", "search"));
+	$submenus = array("website" => array("Workflow", "Pages", "Menus", "Modules"), "schemas" => array("Current Model", "Manage Schemas", "Manage Modules", "Manage Queries"), "users" => array("New User", "New Group", "Search"));
+	$submenusIds = array("website" => array("workflow", "pages", "menus", "modules"), "schemas" => array("currentModel", "manageSchemas", "manageModules", "manageQueries"), "users" => array("newUser", "newGroup", "search"));
 	
 	if(isset($_GET['sp']) && isset($submenus[$_GET['sp']]))
 	{

@@ -1,12 +1,12 @@
-generateCompleteTree = function()
+generateReferenceTrees = function()
 {	
-	console.log('[generateCompleteTree] Generating complete tree...');
+	console.log('[generateReferenceTrees] Generating complete and query trees...');
 	$('#schema_notif').html(
 		'<img alt"Loading..." src="resources/img/loader-circle.gif"/> Generating complete form...'
 	);
 	
 	$.ajax({
-        url: 'parser/controllers/php/generateCompleteTree.php',
+        url: 'parser/controllers/php/generateReferenceTrees.php',
         type: 'GET',
         success: function(data) {
         	try
@@ -15,7 +15,7 @@ generateCompleteTree = function()
         		
         		if(jsonObject.code>=0)
 	        	{
-					console.log('[generateCompleteTree] Complete tree generated');
+					console.log('[generateReferenceTrees] Reference trees generated');
 					
 					$('#schema_notif').html(
 						'<span class="icon valid legend long">'+jsonObject.result+'</span>'
@@ -23,7 +23,7 @@ generateCompleteTree = function()
 	        	}
 	        	else
 	        	{
-	        		console.error('[generateCompleteTree] Error '+jsonObject.code+'  ('+jsonObject.result+') occured while toggle module');
+	        		console.error('[generateReferenceTrees] Error '+jsonObject.code+'  ('+jsonObject.result+') occured while toggle module');
 	        		
 	        		$('#schema_notif').html(
 						'<span class="icon invalid legend long">Impossible to generate form: '+jsonObject.result+'</span>'
@@ -32,7 +32,7 @@ generateCompleteTree = function()
         	}
         	catch(ex)
         	{
-        		console.error('[generateCompleteTree] JSON parsing error');
+        		console.error('[generateReferenceTrees] JSON parsing error');
         		
         		$('#schema_notif').html(
 					'<span class="icon invalid legend long">Impossible to generate form: cannot parse response.</span>'
@@ -40,7 +40,7 @@ generateCompleteTree = function()
         	}
         },
         error: function() {
-            console.error("[generateCompleteTree] Problem with the AJAX call");
+            console.error("[generateReferenceTrees] Problem with the AJAX call");
             
             $('#schema_notif').html(
 				'<span class="icon invalid legend long">Impossible to generate form: background call error</span>'

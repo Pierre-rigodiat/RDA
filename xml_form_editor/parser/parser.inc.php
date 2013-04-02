@@ -378,6 +378,79 @@ function displayPageChooser()
 }
 
 /**
+ * 
+ */
+function displayQuery()
+{
+	global $logger, $debug;
+	
+	// If the XsdManager has not been created it is impossible to display something
+	if(!isset($_SESSION['xsd_parser']['parser']))
+	{
+		$logger->log_debug('No schema loaded', 'displayQuery');
+		echo '<i>No schema file loaded</i>';
+		return;
+	}
+	
+	// Set up the display
+	if(isset($_SESSION['xsd_parser']['display']))
+	{
+		$display = unserialize($_SESSION['xsd_parser']['display']);
+		$display -> update();
+	}
+	else
+	{
+		
+		// Set up the parser
+		$manager = unserialize($_SESSION['xsd_parser']['parser']);
+		//$manager = unserialize($_SESSION['xsd_parser']['parser']);
+		$display = new Display($manager/*, $debug*/);
+		$_SESSION['xsd_parser']['display'] = serialize($display);
+	}
+	
+	echo $display->displayQuery();
+}
+
+/**
+ *
+ */
+function displayAdminQueryTree()
+{
+	global $logger, $debug;
+
+	// If the XsdManager has not been created it is impossible to display something
+	if(!isset($_SESSION['xsd_parser']['parser']))
+	{
+		$logger->log_debug('No schema loaded', 'displayAdminQueryTree');
+		echo '<i>No schema file loaded</i>';
+		return;
+	}
+
+	/*if (!(isset($manager->getXsdQueryTree()->getElementList) && $manager->getXsdQueryTree()->getElementList != array()))
+		$manager -> buildQueryTree();
+
+	$_SESSION['xsd_parser']['parser'] = serialize($manager);*/
+
+	// Set up the display
+	if(isset($_SESSION['xsd_parser']['display']))
+	{
+		$display = unserialize($_SESSION['xsd_parser']['display']);
+		$display -> update();
+	}
+	else
+	{
+
+		// Set up the parser
+		$manager = unserialize($_SESSION['xsd_parser']['parser']);
+		//$manager = unserialize($_SESSION['xsd_parser']['parser']);
+		$display = new Display($manager/*, $debug*/);
+		$_SESSION['xsd_parser']['display'] = serialize($display);
+	}
+
+	echo $display->displayAdminQueryTree();
+}
+
+/**
  * Save data entered in the HTML Form
  * @param {array} $dataArray The array containing tuples (id, value)
  */

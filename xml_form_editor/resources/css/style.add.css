@@ -277,3 +277,18 @@ textarea.inform{
 {
 	font-weight:bold;
 }
+
+.query_element
+{
+	margin-left:5px;
+}
+
+.xsdman.choice
+{
+	margin-left:5px;
+}
+
+.checkbox
+{
+	margin-left:5px;
+}

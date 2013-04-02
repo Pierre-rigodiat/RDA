@@ -11,7 +11,7 @@ session_start();
 $_SESSION['config']['menu_desc'] = $_SESSION['config']['_ROOT_'] . '/inc/global/menu.sample.xml';
 
 // TODO use another way to store the menus
-$universe = array('admin', 'public');
+/*$universe = array('admin', 'public');
 
 $main['public'] = array('home', 'form');
 $main['admin'] = array('home', 'website', 'schemas', 'users');
@@ -22,7 +22,7 @@ $sub['public']['form'] = array('enter_data', 'view_xml');
 $sub['admin']['home'] = array();
 $sub['admin']['website'] = array();
 $sub['admin']['schemas'] = array('current_model', 'manage_schemas');
-$sub['admin']['users'] = array();
+$sub['admin']['users'] = array();*/
 
 
 $defaultText = '<div id="featured-wrapper"><div id="featured">
@@ -50,6 +50,7 @@ if(isset($_GET['url']))
 			if(!isset($menu['sub']) || $menu['sub']=='currentModel') require_once $_SESSION['config']['_ROOT_'].'/inc/skeleton/main/admin/xsd_cfg.inc.php';
 			else if($menu['sub']=='manageSchemas') require_once $_SESSION['config']['_ROOT_'].'/inc/skeleton/main/admin/xsd_mgr.inc.php';
 			else if($menu['sub']=='manageModules') require_once $_SESSION['config']['_ROOT_'].'/inc/skeleton/main/admin/mod_mgr.inc.php';
+			else if($menu['sub']=='manageQueries') require_once $_SESSION['config']['_ROOT_'].'/inc/skeleton/main/admin/search_mgr.inc.php';
 		}
 		else if($menu['page']=='home' || $menu['page']=='')
 		{
@@ -74,7 +75,7 @@ if(isset($_GET['url']))
 		}
 		else if($menu['page']=='search')
 		{
-			require_once $_SESSION['config']['_ROOT_'].'/inc/skeleton/main/demo/public.search.inc.php';
+			require_once $_SESSION['config']['_ROOT_'].'/inc/skeleton/main/public/search.inc.php';
 		}
 		else
 		{
