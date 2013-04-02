@@ -55,10 +55,10 @@ cancelChanges = function()
 saveChanges = function()
 {
 	console.log('[saveChanges] Saving configuration...');
-	$("#main").prepend('<div></div>');
+	$("#main").prepend('<div class="message"></div>');
 	
-	var successMessage = '<div class="success"><span class="icon valid"></span>Schema successfully saved!</div>',
-		errorMessage = '<div class="error"><span class="icon invalid"></span>An error occured during the save</div>',
+	var successMessage = '<div class="temp success"><span class="icon valid"></span>Schema successfully saved!</div>',
+		errorMessage = '<div class="temp error"><span class="icon invalid"></span>An error occured during the save</div>',
 		messageSite = $("#main").children(":first");
 	
 	

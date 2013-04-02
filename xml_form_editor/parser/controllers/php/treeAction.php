@@ -160,17 +160,17 @@ if(isset($_GET['action']) && isset($_GET['id']) && isset($_SESSION['xsd_parser']
 						$manager -> setXsdCompleteTree($xsdCompleteTree);
 						//$manager -> setXsdOriginalTree($xsdOriginalTree);
 						
-						$pageHandler = $manager -> getPageHandler();
+						/*$pageHandler = $manager -> getPageHandler();
 						$pageArray = $pageHandler -> getPageForId($_GET['id']);
 						
 						foreach($pageArray as $page)
 						{
-							$pageHandler -> setPageForId($page, $elementId);
+							//$pageHandler -> setPageForId($page, $elementId);
 						}
 						
-						setUpChildrenToPage($pageHandler, /*$xsdCompleteTree*/$manager -> getXsdCompleteTree(), $_GET['id'], $elementId);
+						//setUpChildrenToPage($pageHandler, /*$xsdCompleteTree*//*$manager -> getXsdCompleteTree(), $_GET['id'], $elementId);
 						
-						$manager -> setPageHandler($pageHandler);
+						$manager -> setPageHandler($pageHandler);*/
 						
 						$_SESSION['xsd_parser']['parser'] = serialize($manager);
 						
@@ -213,6 +213,8 @@ if(isset($_GET['action']) && isset($_GET['id']) && isset($_SESSION['xsd_parser']
 				echo buildJSON('Removal of element '.$_GET['id'].' failed', -6);
 			}
 			
+			break;
+		case 'g':
 			break;
 		default:
 			echo buildJSON('Unknown command sent', -4);

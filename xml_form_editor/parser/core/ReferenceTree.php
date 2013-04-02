@@ -13,14 +13,7 @@ class ReferenceTree extends Tree {
 	 * Tree containing the real data
 	 * @var Tree
 	 */
-	private $referenceTree;
-	
-	/**
-	 * Associative array of data
-	 * @var array
-	 */
-	private $dataArray;
-	
+	private $referenceTree;	
 	
 	private $LOGGER;
 	private static $LEVELS = array('DBG'=>'notice', 'NO_DBG'=>'info');
@@ -59,27 +52,6 @@ class ReferenceTree extends Tree {
 				}
 				
 				break;
-			/*case 2: // new ReferenceTree(refTree, debug)
-				if(is_string($argv[0]) && is_bool($argv[1]))
-				{
-					$this->tree = $argv[0];
-				
-					if($argv[1])
-					{
-						$level = self::$LEVELS['DBG'];
-					}
-					else
-					{
-						$level = self::$LEVELS['NO_DBG'];
-					}
-				}
-				else 
-				{
-					$this->tree = null;
-					$level = self::$LEVELS['NO_DBG'];
-				}	
-					
-				break;*/
 			default:
 				throw new Exception('Invalid number of parameters given to the object');
 				//$level = self::$LEVELS['NO_DBG'];
@@ -208,4 +180,8 @@ class ReferenceTree extends Tree {
 		return null;
 	}
 	
+	public function getElementReferenceId($elementId)
+	{
+		return isset($this -> elementList [$elementId])?$this->elementList[$elementId]:null;
+	}
 }

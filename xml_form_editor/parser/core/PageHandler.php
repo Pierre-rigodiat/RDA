@@ -156,10 +156,13 @@ class PageHandler
 	
 	/**
 	 * 
+	 * @param int $pageNumber Page number
+	 * @return array List of element ID
 	 */
 	public function getIdsForPage($pageNumber)
 	{
-		
+		// TODO add more control on type, etc
+		return $this -> pageArray [$pageNumber-1];
 	}
 	
 	

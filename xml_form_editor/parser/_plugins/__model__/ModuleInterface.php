@@ -27,4 +27,3 @@ interface ModuleInterface
 	
 	public static function getModuleData();
 }
-?>

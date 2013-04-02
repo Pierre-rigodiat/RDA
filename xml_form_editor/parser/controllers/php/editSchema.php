@@ -116,14 +116,15 @@ if(isset($_GET['id']) && isset($_GET['minOccurs']) && isset($_GET['maxOccurs']))
 		else $elementAttr['MAXOCCURS'] = $_GET['maxOccurs'];
 		
 		if(isset($_GET['dataType'])) $elementAttr['TYPE'] = 'xsd:'.$_GET['dataType'];
-		if(isset($_GET['autoGen']) /*&& isset($_GET['pattern'])*/) // TODO Implement the pattern
+		if(isset($_GET['autoGen']) && isset($_GET['pattern']))
 		{
-			$elementAttr['AUTO_GENERATE'] = $_GET['autoGen'];
-			if($elementAttr['AUTO_GENERATE']=='false') unset($elementAttr['AUTO_GENERATE']);
+			if($_GET['autoGen'] == 'true')
+			{
+				$elementAttr['AUTO_GENERATE'] = $_GET['pattern'];
+			}
+			else
+				unset($elementAttr['AUTO_GENERATE']);
 		}
-		
-		/*if($_GET['module'] == 'false') unset($elementAttr['MODULE']);
-		else $elementAttr['MODULE'] = $_GET['module'];*/
 		
 		if(isset($_GET['page']))
 		{
@@ -133,13 +134,13 @@ if(isset($_GET['id']) && isset($_GET['minOccurs']) && isset($_GET['maxOccurs']))
 			$pHandler -> removePagesForId($_GET['id']);
 			$pHandler -> setPageForId($_GET['page'], $_GET['id']);
 			
-			$elderId = /*$xsdOrganizedTree*/$xsdOriginalTree -> getParent($_GET['id']);
+			$elderId = $xsdOriginalTree -> getParent($_GET['id']);
 			
 			// Set up elder in the same page
 			while($elderId!=-1) // While we are not at the root position
 			{
 				$pHandler -> removePagesForId($elderId);
-				$children = /*$xsdOrganizedTree*/$xsdOriginalTree -> getChildren($elderId);
+				$children = $xsdOriginalTree -> getChildren($elderId);
 				
 				$pageArray = array();
 				foreach($children as $child)

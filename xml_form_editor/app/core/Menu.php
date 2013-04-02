@@ -3,7 +3,7 @@
  * <Menu class>
  */
 /** @ignore */
-require_once '../inc/db/mongodb/mongodb.php';
+require_once /*$_SESSION['app']['config']['_ROOT_'].*/'../inc/db/mongodb/MongoDBStream.php';
 /**
  * 
  * 

@@ -3,11 +3,68 @@
  */
 loadRegisterFormController = function()
 {
-	$(document).on('keyup', saveFields);
-	$(document).on('change', 'select.xsdman.restriction', saveFields);
+	var delay = 300;
+	
+	$(document).on('keyup', delayFunction(saveInSession, delay));
+	$(document).on('change', 'select.xsdman.restriction', delayFunction(saveInSession, delay));
+	
+	removeRegisterFormController();
+	
+	/**
+	 * Dialog basic configuration 
+	 */
+	$("#dialog").dialog({
+        autoOpen: false,
+        show: "blind",
+        hide: "blind",
+        height: 150,
+        width: 300,
+        modal: true,
+        resizable: false,
+        buttons: {
+            "Load form": function() {
+            	var formId = $('#form-id').val();
+            	
+            	loadForm(formId);
+            		  		
+            	$( this ).dialog("close");
+            },
+            Cancel: function() {
+                $(this).dialog("close");
+            }
+        }
+    });
 	
 	$('.blank').on('click', clearFields);
-	$('.save').on('click', saveFields);
+	$('.load').on('click', loadFormDialog);
+	$('.save').on('click', saveInDB);
+}
+
+removeRegisterFormController = function()
+{
+	$('.blank').off('click');
+	$('.load').off('click');
+	$('.save').off('click');
+	
+	if($('#dialog').is(':ui-dialog')) $('#dialog').dialog("destroy");
+}
+
+delayFunction = function(func, delay)
+{
+	var timer = null;
+	
+    return function(){
+        var context = this, 
+        	args = arguments;
+        
+        clearTimeout(timer);
+        timer = window.setTimeout(
+        	function(){
+            	func.apply(context, args);
+        	},
+        	delay
+        );
+    };
 }
 
 clearFields = function()
@@ -45,9 +102,43 @@ clearFields = function()
 	console.log("[clearFields] Fields cleared");
 }
 
-saveFields = function()
+loadFormDialog = function()
 {
-	console.log("[saveFields] Saving fields...");
+	$('#dialog').dialog('open');
+}
+
+loadForm = function(formId)
+{
+	console.log('[loadForm] Loading form '+formId+'...');
+	
+	$.ajax({
+        url: 'inc/controllers/php/manageData.php',
+        type: 'GET',
+        success: function(data) {
+        	var jsonData = $.parseJSON(data);
+        	
+        	$(document).find('#page_content').html(htmlspecialchars_decode(jsonData.result));
+        	
+        	removeRegisterFormController();
+        	loadRegisterFormController();
+        	
+        	console.log("[loadForm] Form saved");
+        },
+        error: function() {
+            console.error("[loadForm] Problem with the AJAX call");
+        },
+        // Form data
+        data: 'a=l&id='+formId,
+        //Options to tell JQuery not to process data or worry about content-type
+        cache: false,
+        contentType: false,
+        processData: false
+    });
+}
+
+saveInSession = function()
+{
+	console.log("[saveInSession] Saving fields...");
 	
 	var inputs = $('input.text'),
 		selects = $('select.xsdman.restriction'),
@@ -60,7 +151,7 @@ saveFields = function()
 		
 		if(inputValue != '' && !isNaN(parseInt(inputId)))
 		{
-			console.log('Id '+parseInt(inputId)+' = '+inputValue);
+			console.log('[saveInSession] Id '+parseInt(inputId)+' = '+inputValue);
 			qString += parseInt(inputId)+'='+inputValue+'&';
 		}	
 	});
@@ -72,7 +163,7 @@ saveFields = function()
 			
 		if(!isNaN(parseInt(selectId)))
 		{
-			console.log('Id '+parseInt(selectId)+' = '+selectValue);
+			console.log('[saveInSession] Id '+parseInt(selectId)+' = '+selectValue);
 			qString += parseInt(selectId)+'='+selectValue+'&';
 		}
 	});
@@ -83,10 +174,10 @@ saveFields = function()
         url: 'inc/controllers/php/manageData.php',
         type: 'GET',
         success: function(data) {
-        	
+        	console.log("[saveInSession] Form saved");
         },
         error: function() {
-            console.error("[saveFields] Problem with the AJAX call");
+            console.error("[saveInSession] Problem with the AJAX call");
         },
         // Form data
         data: 'a=s&'+qString,
@@ -95,7 +186,31 @@ saveFields = function()
         contentType: false,
         processData: false
     });
+}
+
+saveInDB = function()
+{
+	console.log("[saveInDB] Saving into db...");
 	
-	console.log('qString = '+qString);
+	saveInSession();
+	
+	$.ajax({
+        url: 'inc/controllers/php/manageData.php',
+        type: 'GET',
+        success: function(data) {
+        	console.log("[saveInDB] Form saved");
+        },
+        error: function() {
+            console.error("[saveInDB] Problem with the AJAX call");
+        },
+        // Form data
+        data: 'a=d',
+        //Options to tell JQuery not to process data or worry about content-type
+        cache: false,
+        contentType: false,
+        processData: false
+    });
+	
+	
 }
 

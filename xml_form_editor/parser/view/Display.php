@@ -58,6 +58,8 @@ class Display
 			"edit_icon" => '<span class="icon edit"></span>'
 		),
 		"FORM" => array(
+			"popup_start_tag" => '<div id="dialog" title="Load form">',
+			"popup_end_tag" => '</div>',
 			"view_start_tag" => '<div id="page_content">',
 			"view_end_tag" => '</div>',
 			"root_start_name_tag" => '<h5>',
@@ -65,7 +67,8 @@ class Display
 			"elem_start_name_tag" => '<span class="element_name">',
 			"elem_end_name_tag" => '</span>',
 			"add_icon" => '<span class="icon add"></span>',
-			"remove_icon" => '<span class="icon remove"></span>'
+			"remove_icon" => '<span class="icon remove"></span>',
+			"refresh_icon" => '<span class="icon refresh"></span>'
 		),
 		"XML" => array()
 	);
@@ -296,7 +299,7 @@ class Display
 		if($elementId == 0) // Display the whole tree
 		{
 			$configView .= self::$_CONF['CONFIG']['popup_start_tag'];		
-			$configView .= $this -> displayPopUp();
+			$configView .= $this -> displayConfigurationPopUp();
 			$configView .= self::$_CONF['CONFIG']['popup_end_tag'];
 			$configView .= self::$_CONF['CONFIG']['view_start_tag'];
 			$configView .= $this -> displayConfigurationElement(0);
@@ -315,7 +318,7 @@ class Display
 	 * 
 	 * @return string The pop-up code
 	 */
-	private function displayPopUp()
+	private function displayConfigurationPopUp()
 	{
 		$popUp = '<p class="elementId"></p><p class="tip"></p>';
 		$popUp .= '<form><fieldset class="dialog fieldset">';
@@ -344,7 +347,11 @@ class Display
 		$popUp .= '<option value="true">Enable</option><option value="false">Disable</option>';
 		$popUp .= '</select>';
 		$popUp .= '<span class="dialog subitem">';
-		$popUp .= '<label for="pattern">Pattern</label><input type="text" name="pattern" id="pattern" value="Not yet implemented" class="popup-text ui-widget-content ui-corner-all" disabled="disabled"/>';
+		$popUp .= '<label for="pattern">Pattern</label>';
+		$popUp .= '<select id="pattern" name="pattern" class="ui-widget-content ui-corner-all">';
+		$popUp .= '<option value="uid">Document UID</option>';
+		//$popUp .= '<option value="oth">Other</option>';
+		$popUp .= '</select>';
 		$popUp .= '</span>';
 		$popUp .= '</div>';
 
@@ -584,12 +591,42 @@ class Display
 		$htmlForm = '';
 
 		if (!$partial)
+		{
+			$htmlForm .= self::$_CONF['FORM']['popup_start_tag'];		
+			$htmlForm .= $this -> displayHTMLFormPopUp();
+			$htmlForm .= self::$_CONF['FORM']['popup_end_tag'];
 			$htmlForm .= self::$_CONF['FORM']['view_start_tag'];
+		}
 		$htmlForm .= $this -> displayHTMLFormElement($elementId);
 		if (!$partial)
 			$htmlForm .= self::$_CONF['FORM']['view_end_tag'];
 
 		return $htmlForm;
+	}
+	
+	/**
+	 * 
+	 */
+	private function displayHTMLFormPopUp()
+	{
+		$popUp = '<form><fieldset class="dialog fieldset">';
+		
+		$popUp .= '<div class="dialog subpart" id="form-part">';
+		$popUp .= '<label for="form-id">Form </label>';
+		$popUp .= '<select id="form-id" name="form-id" class="ui-widget-content ui-corner-all">';
+		
+		$formList = $this -> xsdManager -> retrieveForms();
+		
+		foreach ($formList as $formId) {
+			$popUp .= '<option value="'.$formId["_id"].'">'.$formId["_id"].'</option>';
+		}
+		
+		$popUp .= '</select>';
+		$popUp .= '</div>';
+		
+		$popUp .= '</fieldset></form>';
+		
+		return $popUp;
 	}
 	
 	/**
@@ -644,6 +681,11 @@ class Display
 		{
 			$htmlFormElement .= self::$_CONF['FORM']['elem_start_name_tag'] . ucfirst($elementAttr['NAME']) . self::$_CONF['FORM']['elem_end_name_tag']. ' ';
 			
+			/* Auto-generation configuration */
+			if(isset($elementAttr['AUTO_GENERATE']) && $elementAttr['AUTO_GENERATE']!='uid')
+				$htmlFormElement .= self::$_CONF['FORM']['refresh_icon'];
+			
+			
 			if (isset($elementAttr['TYPE']) && startsWith($elementAttr['TYPE'], 'xsd')) // todo put xsd into a variable (could use the manager)
 			{			
 				$htmlFormElement .= '<input type="text" class="text"';
@@ -657,6 +699,11 @@ class Display
 					if(($data = $this -> xsdManager -> getDataForId($elementId)) != null) // Element has data
 					{
 						$htmlFormElement .= ' value="'.$data.'"';
+					}
+					
+					if(isset($elementAttr['AUTO_GENERATE']) && $elementAttr['AUTO_GENERATE']=='uid')
+					{
+						$htmlFormElement .= ' value="'."doc_uid".'" disabled="disabled"';
 					}
 					
 				}

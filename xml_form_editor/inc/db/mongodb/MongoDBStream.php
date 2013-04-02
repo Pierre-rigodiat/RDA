@@ -99,7 +99,7 @@ Class MongoDBStream
 	/**
 	 * Method to connect to the mongod instance
 	 */
-	private function connect()
+	public function connect()
 	{
 		try
 		{
@@ -173,6 +173,10 @@ Class MongoDBStream
 		{
 			$collectionObject = new MongoCollection($this -> databaseObject, $collectionName);
 			$collectionObject -> save($jsonArray, array("w" => 1));
+			
+			//var_dump($jsonArray["_id"]);
+			
+			return $jsonArray["_id"];
 		}
 		else
 		{
@@ -227,7 +231,7 @@ Class MongoDBStream
 		return;
 	}
 
-	function queryData($query, $collectionName)
+	function queryData($query, $collectionName, $projection = array())
 	{
 		try
 		{
@@ -235,7 +239,7 @@ Class MongoDBStream
 			{
 				$collectionObject = new MongoCollection($this -> databaseObject, $collectionName);
 				//Execute the query
-				return $collectionObject -> find($query, array('_id' => 0));
+				return $collectionObject -> find($query, $projection);
 			}
 			else
 			{
