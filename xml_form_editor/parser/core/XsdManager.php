@@ -23,7 +23,7 @@ require_once $_SESSION['xsd_parser']['conf']['dirname'] . '/parser/core/Tree.php
 /** @ignore */
 require_once $_SESSION['xsd_parser']['conf']['dirname'] . '/parser/core/ReferenceTree.php';
 /** @ignore */
-require_once $_SESSION['xsd_parser']['conf']['dirname'] . '/inc/db/mongoDB/MongoDBStream.php';
+require_once $_SESSION['xsd_parser']['conf']['dirname'] . '/inc/db/mongodb/MongoDBStream.php';
 /**
  * <b>Handle the schema configuration and value. It is the backbone of the software</b>
  * 
