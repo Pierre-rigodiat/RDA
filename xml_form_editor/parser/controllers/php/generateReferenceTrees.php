@@ -17,8 +17,10 @@ if(isset($_SESSION['xsd_parser']['parser']))
 	$manager -> setXsdCompleteTree(new ReferenceTree($originalTree));
 	$manager -> buildCompleteTree();
 	
-	if (!(isset($manager->getXsdQueryTree()->getElementList) && $manager->getXsdQueryTree()->getElementList != array()))
+	if (!(isset($manager->getXsdQueryTree()->getElementList) && $manager->getXsdQueryTree()->getElementList != array())) {
+		$manager -> setXsdQueryTree(new ReferenceTree($originalTree));
 		$manager -> buildQueryTree();
+	}
 	
 	$_SESSION['xsd_parser']['parser'] = serialize($manager);
 	
