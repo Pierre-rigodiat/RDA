@@ -8,7 +8,7 @@ require_once '../../MongoDB/xml2json/spark.php';
 require_once '../../MongoDB/xml2json/gData.php';
 require_once '../../MongoDB/xml2json/jsonML.php';
 
-$db = new MongoDBStream ("127.0.0.1","test");
+$db = new MongoDBStream ("127.0.0.1","xsdmgr");
 $db->openDB();
 
 $type = '';
@@ -17,6 +17,6 @@ $jsonArray = encodeToJSON($type);
 //Include the translation name into the JSON array to push in MongoDB
 $jsonArray = json_decode($jsonArray);
 
-$db->insertJson($jsonArray, "test");
+$db->insertJson($jsonArray, "experiment");
 
 ?>

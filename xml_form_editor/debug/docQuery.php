@@ -15,6 +15,7 @@
 	<title>Query Tester</title>
 </head>
 <body id="content-wrapper">
+	<span id="top_page"></span>
 	<h1>Query Handler</h1>
 	<div id="page_content">
 	<div class="block">

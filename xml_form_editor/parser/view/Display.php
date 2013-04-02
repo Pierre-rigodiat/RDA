@@ -986,13 +986,14 @@ class Display
 		$recElement = $queryTree->getChildren($elementID);
 		//var_dump($recElement);
 		
-		$xmlElement = '<ul style="list-style-type:disc">';
+		$xmlElement = '';
 		
 		if (!$elementID) {
 			$mainElement = $queryTree->getElement($elementID)->getAttributes();
 			$xmlElement .= '<h3>'.ucfirst($mainElement['NAME']).'</h3>';
 		}
 		
+		$xmlElement .= '<ul style="list-style-type:disc">';
 		foreach ($recElement as $childID) {
 			$xmlElement .= $this->displayQueryElement($childID);
 		}
