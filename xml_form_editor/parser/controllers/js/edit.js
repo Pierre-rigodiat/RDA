@@ -164,6 +164,8 @@ editElement = function()
 	if((max = elementAttr.indexOf('MAXOCCURS'))==-1)
 	{
 		$('#maxoccurs').val('1');
+		$('#maxoccurs').removeAttr('disabled');
+		$('#unbounded').removeAttr('checked');
 	}
 	else
 	{

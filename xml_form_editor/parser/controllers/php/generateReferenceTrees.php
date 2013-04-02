@@ -12,6 +12,9 @@ require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/lib/PhpControll
 if(isset($_SESSION['xsd_parser']['parser']))
 {
 	$manager = unserialize($_SESSION['xsd_parser']['parser']);
+	
+	$originalTree = $manager -> getXsdOriginalTree();
+	$manager -> setXsdCompleteTree(new ReferenceTree($originalTree));
 	$manager -> buildCompleteTree();
 	
 	if (!(isset($manager->getXsdQueryTree()->getElementList) && $manager->getXsdQueryTree()->getElementList != array()))

@@ -22,6 +22,8 @@ require_once $_SESSION['xsd_parser']['conf']['dirname'] . '/parser/core/XmlParse
 require_once $_SESSION['xsd_parser']['conf']['dirname'] . '/parser/core/Tree.php';
 /** @ignore */
 require_once $_SESSION['xsd_parser']['conf']['dirname'] . '/parser/core/ReferenceTree.php';
+/** @ignore */
+require_once $_SESSION['xsd_parser']['conf']['dirname'] . '/inc/db/mongoDB/MongoDBStream.php';
 /**
  * <b>Handle the schema configuration and value. It is the backbone of the software</b>
  * 
@@ -61,6 +63,12 @@ class XsdManager
 	 * 
 	 * @var string
 	 */
+	private $xsdManagerId;
+	
+	/**
+	 * 
+	 * @var string
+	 */
 	private $xsdFile;
 
 	/**
@@ -89,6 +97,12 @@ class XsdManager
 	 * @var array
 	 */
 	private $dataArray;
+	
+	/**
+	 * List of db connection object
+	 * @var array
+	 */
+	private $dbConnection;
 
 	// Handlers
 	/**
@@ -149,6 +163,7 @@ class XsdManager
 					$this -> xsdCompleteTree = new ReferenceTree($this->xsdOriginalTree);
 					$this -> xsdQueryTree = new ReferenceTree($this->xsdOriginalTree);
 					$this -> dataArray = array();
+					
 
 					$this -> pageHandler = $argv[1];
 					$this -> moduleHandler = $argv[2];
@@ -203,6 +218,15 @@ class XsdManager
 				throw new Exception('Invalid param');
 				break;
 		}
+
+		$mongoDbStream = null;
+	
+		// Connecting to the default port on localhost
+		$mongoDbStream = new MongoDBStream();
+		$mongoDbStream -> setDatabaseName("xsdmgr");
+		$mongoDbStream -> openDB();
+		
+		$this -> dbConnection ["MongoDB"] = $mongoDbStream;
 
 		$this -> LOGGER -> log_debug('Manager created for file ' . $this -> xsdFile, 'XsdManager::__construct');
 	}
@@ -673,6 +697,11 @@ class XsdManager
 		else $this -> LOGGER -> log_info('Id '.$elementId.' not found', 'XsdManager::setDataForId');
 	}
 	
+	public function clearDataForId($elementId)
+	{
+		unset($this -> dataArray [$elementId]);
+	}
+	
 	public function clearData()
 	{
 		$this -> dataArray = array();
@@ -755,24 +784,6 @@ class XsdManager
 		$this -> LOGGER -> log_notice('Function called', 'XsdManager::setXsdOriginalTree');
 		$this -> xsdOriginalTree = $newOriginalTree;
 	}
-
-	/**
-	 *
-	 */
-	/*public function getXsdOrganizedTree()
-	{
-		$this -> LOGGER -> log_notice('Function called', 'XsdManager::getXsdOrganizedTree');
-		return $this -> xsdOrganizedTree;
-	}*/
-
-	/**
-	 *
-	 */
-	/*public function setXsdOrganizedTree($newXsdOrganizedTree)
-	{
-		$this -> LOGGER -> log_notice('Function called', 'XsdManager::setXsdOrganizedTree');
-		$this -> xsdOrganizedTree = $newXsdOrganizedTree;
-	}*/
 
 	/**
 	 *
@@ -878,6 +889,103 @@ class XsdManager
 	{
 		/* Not yet implemented */
 	}
+	
+	public function retrieveForms()
+	{
+		$pathElement = explode('/', $this -> xsdFile);
+		$schemaId = $pathElement[count($pathElement)-1];
+		
+		$this -> dbConnection ["MongoDB"] -> connect();
+		$this -> dbConnection ["MongoDB"] -> setDatabaseName("xsdmgr");
+		$this -> dbConnection ["MongoDB"] -> openDB();
+		
+		$formListCursor = $this -> dbConnection ["MongoDB"] -> queryData(array("schema" => $schemaId), 'exp-form');
+		
+		return iterator_to_array($formListCursor);
+	}
+	
+	public function retrieveFormData($formId)
+	{		
+		$pathElement = explode('/', $this -> xsdFile);
+		$schemaId = $pathElement[count($pathElement)-1];
+		
+		$this -> dbConnection ["MongoDB"] -> connect();
+		$this -> dbConnection ["MongoDB"] -> setDatabaseName("xsdmgr");
+		$this -> dbConnection ["MongoDB"] -> openDB();
+		
+		$query = array(
+			'$and' => array(
+				array("_id" => new MongoID($formId)),
+				array("schema" => $schemaId)
+			)
+		);
+		
+		$mongoDataCursor = $this -> dbConnection ["MongoDB"] -> queryData($query, 'exp-form');
+		
+		$mongoDataArray = iterator_to_array($mongoDataCursor);
+		
+		if(count($mongoDataArray)!=1)
+		{
+			// TODO Throw exception
+			$this -> LOGGER -> log_error('Query return '.count($mongoDataArray).' result', 'XsdManager::retrieveFormData');
+			return;
+		}
+		
+		$dataArray = array_pop($mongoDataArray);
+		
+		if(!isset($dataArray["data"]))
+		{
+			// TODO throw exception
+			$this -> LOGGER -> log_error('No existing data index', 'XsdManager::retrieveFormData');
+			return;
+		}
+		
+		/* Load complete tree */
+		$xsdCompleteTree = new ReferenceTree($this -> xsdOriginalTree);
+		
+		$elementList = array();
+		foreach($dataArray["tree"]["elementList"] as $elementRow)
+		{
+			$elementList[$elementRow["_id"]] = $elementRow["element"];
+		}
+		
+		$xsdCompleteTree -> setTree($elementList, $dataArray["tree"]["ancestorTable"]);
+		$this -> setXsdCompleteTree($xsdCompleteTree);		
+		
+		// Load save data
+		foreach($dataArray["data"] as $elementId => $elementData)
+		{
+			$this -> setDataForId($elementData, $elementId);
+		}		
+		
+		$this -> xsdManagerId = new MongoID($formId);
+	}
+	
+	public function saveFormData()
+	{
+		$this -> LOGGER -> log_notice('Saving form (ID '.(isset($this -> xsdManagerId)?''.$this -> xsdManagerId:'undefined').')', 'XsdManager::saveFormData');
+		
+		/* Build the array */
+		$pathElement = explode('/', $this -> xsdFile);
+		$schemaId = $pathElement[count($pathElement)-1];
+		
+		$jsonArray = array(
+			"schema" => $schemaId,
+			"tree" => $this -> xsdCompleteTree -> __toArray(),
+			"data" => $this -> dataArray
+		);
+		
+		if(isset($this -> xsdManagerId)) $jsonArray["_id"] = $this -> xsdManagerId;
+				
+		$this -> dbConnection ["MongoDB"] -> connect();
+		$this -> dbConnection ["MongoDB"] -> setDatabaseName("xsdmgr");
+		$this -> dbConnection ["MongoDB"] -> openDB();
+		
+		/* Save it into the db */
+		$this -> xsdManagerId = $this -> dbConnection ["MongoDB"] -> insertJson($jsonArray, 'exp-form');
+		
+		$this -> LOGGER -> log_debug('Form saved (ID '.$this -> xsdManagerId.')', 'XsdManager::saveFormData');
+	}
 
 	/**
 	 *
@@ -885,7 +993,7 @@ class XsdManager
 	public function __toString()
 	{
 		// TODO Implement it
-		return 'Parser string';
+		return 'Manager string';
 	}
 
 }

@@ -62,8 +62,10 @@ function loadSchemaFromDB($schemaFileName)
 	
 	if(count($resultArray) == 1)
 	{
+		$result = array_pop($resultArray);
+		
 		/* Original tree setup */
-		$tree = $resultArray[0]["tree"];
+		$tree = $result["tree"];
 		$elementList = $tree["elementList"];
 		$ancestorTable = $tree["ancestorTable"];
 		
@@ -76,19 +78,22 @@ function loadSchemaFromDB($schemaFileName)
 		$originalTree -> setTree($trueElementList, $ancestorTable);
 		
 		/* Page handler setup */
-		$pageHandlerArray = $resultArray[0]["pageHandler"];
+		$logger -> log_debug('PageHandler setup...', 'loadSchemaFromDB');
+		$pageHandlerArray = $result["pageHandler"];
 		$pageHandler = new PageHandler($pageHandlerArray["numberOfPage"]);
 		$pageHandler -> setPageHandler($pageHandlerArray["currentPage"], $pageHandlerArray["pageArray"]);
 		
 		/* Module handler setup */
-		$moduleHandlerArray = $resultArray[0]["moduleHandler"];
+		$logger -> log_debug('ModuleHandler setup...', 'loadSchemaFromDB');
+		$moduleHandlerArray = $result["moduleHandler"];
 		$moduleHandler = new ModuleHandler($moduleHandlerArray["moduleDir"]);
 		$moduleHandler -> setModuleHandler($moduleHandlerArray["moduleList"]);
 		
 		/* XsdManager setup */
+		$logger -> log_debug('XsdManager setup...', 'loadSchemaFromDB');
 		$manager = new XsdManager($schemaFileName, $pageHandler, $moduleHandler);
 		$manager -> setXsdOriginalTree($originalTree);
-		$manager -> setNamespaces($resultArray[0]["namespaces"]);
+		$manager -> setNamespaces($result["namespaces"]);
 		$manager -> update();
 		
 		$logger -> log_debug('Element found in DB', 'loadSchemaFromDB');
@@ -208,6 +213,11 @@ function displayConfiguration()
 	}
 }
 
+function registerForm()
+{
+	
+}
+
 /**
  * Displays the form view of the parser
  * 
@@ -224,27 +234,10 @@ function displayHTMLForm()
 		return;
 	}
 	
-	// Set up the module handler if needed
-	// XXX If the XsdManager is set so is the ModuleHandler
-	//if(!isset($_SESSION['xsd_parser']['mhandler'])) loadModuleHandler();
-	
 	// Set up the parser
 	$manager = unserialize($_SESSION['xsd_parser']['parser']);
 	
-	// FIXME Condition not good
-	/*if(get_class($manager -> getXsdCompleteTree()) != 'ClosureTable')
-	{
-		$logger -> log_debug('Building complete tree...', 'displayHTMLForm');
-		
-		
-		// FIXME Change the parameter in the function
-		//$rootElements = $manager -> getRootElements();
-		
-		$manager -> buildCompleteTree(/*$rootElements[0]*///);
-		/*$_SESSION['xsd_parser']['parser'] = serialize($manager);
-		
-		$logger -> log_debug('Complete tree built', 'displayHTMLForm');
-	}*/
+	
 	
 	// Set up the display
 	if(isset($_SESSION['xsd_parser']['display']))
@@ -254,13 +247,15 @@ function displayHTMLForm()
 	}
 	else
 	{
-		
 		// Set up the parser
-		$manager = unserialize($_SESSION['xsd_parser']['parser']);
 		//$manager = unserialize($_SESSION['xsd_parser']['parser']);
 		$display = new Display($manager/*, $debug*/);
 		$_SESSION['xsd_parser']['display'] = serialize($display);
 	}
+
+	/* Register the document into MongoDB */
+	$manager -> saveFormData();
+	$_SESSION['xsd_parser']['parser'] = serialize($manager);
 	
 	echo $display->displayHTMLForm();
 	
@@ -454,33 +449,78 @@ function displayAdminQueryTree()
  * Save data entered in the HTML Form
  * @param {array} $dataArray The array containing tuples (id, value)
  */
-function saveData($dataArray)
+function saveData($dataArray, $where = 'session')
 {
 	global $logger, $debug;
 	
-	$logger->log_notice('Registering new data...', 'saveData');
+	$logger->log_notice('Registering new data in '.$where.'...', 'saveData');
 	
-	if(is_array($dataArray) && isset($_SESSION['xsd_parser']['parser']))
+	if(!isset($_SESSION['xsd_parser']['parser']))
 	{
-		$manager = unserialize($_SESSION['xsd_parser']['parser']);
-		
-		foreach ($dataArray as $id => $value) 
-		{
-			if(is_int($id))
+		$logger -> log_warning('XsdManager undefined, function stops', 'saveData');
+		exit;
+	}
+	
+	if(!is_array($dataArray))
+	{
+		$logger -> log_warning('Input parameter $array is not an array, function stops', 'saveData');
+		exit;
+	}
+	
+	$manager = unserialize($_SESSION['xsd_parser']['parser']);
+	
+	switch($where)
+	{
+		case 'session':
+			$pageHandler = $manager -> getPageHandler();
+			$currentPage = $pageHandler -> getCurrentPage();
+			
+			
+			$elementList = $manager -> getXsdCompleteTree() -> getElementList();
+			
+			foreach($elementList as $elementId => $referenceId)
 			{
-				$manager -> setDataForId($value, $id);
+				// FIXME Element erased are not saved
+				/*if(in_array($currentPage, $pageHandler -> getPageForId($referenceId)))
+				{*/
+					if(isset($dataArray[$elementId]))
+					{
+						$manager -> setDataForId($dataArray[$elementId], $elementId);
+					}
+					/*else 
+					{
+						$manager -> clearDataForId($elementId);
+					}
+				}*/
+				
 			}
-		}
-		
-		$_SESSION['xsd_parser']['parser'] = serialize($manager);
-		$logger->log_notice('Data registered', 'saveData');
+			
+			$logger->log_notice('Data registered in session', 'saveData');
+			break;
+		case 'db':
+			$manager -> saveFormData();
+			
+			$logger->log_notice('Data registered in db', 'saveData');
+			break;
+		default:
+			$logger -> log_error('Input parameter $where is wrong (='.$where.')', 'saveData');
+			throw new Exception("Wrong input parameter", -1);
+			break;
 	}
-	else {
-		if(!is_array($dataArray))
-			$logger->log_debug('Parameter is not an array', 'saveData');
-		else
-			$logger->log_debug('XsdManager not initialized', 'saveData');
-	}
+	
+	$_SESSION['xsd_parser']['parser'] = serialize($manager);
+}
+
+function loadData($formId)
+{
+	$manager = unserialize($_SESSION['xsd_parser']['parser']);
+	$manager -> retrieveFormData($formId);
+	$_SESSION['xsd_parser']['parser'] = serialize($manager);
+	
+	$display = unserialize($_SESSION['xsd_parser']['display']);
+	$display -> update();
+	
+	return $display -> displayHTMLForm();
 }
 
 /**

@@ -1,15 +1,13 @@
-<?php 
-	$step = 1;
+<?php
+	/* TODO Implement it
+	
+	require_once $_SESSION['config']['_ROOT_'].'/app/core/Website.php';
+	require_once $_SESSION['config']['_ROOT_'].'/app/view/Display.php';
 
-	if(isset($_GET['step']))
-	{
-		$step = $_GET['step'];
-		
-		if($step<1 || $step>4)
-		{
-			$step = 1;
-		}
-	}
+	$website = new Website();
+	$display = new Display($website);
+	
+	$display -> displayMenu();*/
 	
 	// Subpart configuration
 	$defaultCursor = 'home'; // 'home' is the default configuration page
@@ -22,10 +20,6 @@
 		else $cursor = $defaultCursor;
 	}
 	else $cursor = $defaultCursor; 
-	
-	
-	
-
 ?>
 
 <?php

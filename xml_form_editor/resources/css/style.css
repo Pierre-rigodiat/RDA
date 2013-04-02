@@ -182,6 +182,12 @@ table.data-table tr.even td {background: #FCFCFC;}
 * New: .info
 **/
 
+.temp
+{
+	position:absolute;
+	z-index: 100;
+}
+
 .error, .warn, .success, .info {
 	border: 1px solid /*#DDD*/;
 	margin-bottom: 1em;

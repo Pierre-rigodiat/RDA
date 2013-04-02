@@ -29,7 +29,7 @@ loadFormPage = function()
         	
         	// 
         	if(jsonObject.code>=0)
-        	{
+        	{        		
         		$(".paginator").replaceWith(htmlspecialchars_decode(jsonObject.result));
         		//$("#page_content").replaceWith('<div id="page_content">[loadFormPage] Page '+page+' set</div>');
         		updatePageContent();
@@ -64,6 +64,7 @@ updatePageContent = function()
         	if(jsonObject.code>=0)
         	{
         		$("#page_content").replaceWith(htmlspecialchars_decode(jsonObject.result));
+        		loadRegisterFormController();
         		loadAutoComplete();
         		console.log('[updatePageContent] Content updated');
         	}

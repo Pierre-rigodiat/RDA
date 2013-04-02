@@ -22,6 +22,7 @@
 	<div class="right-side">
 		<span class="ctx_menu">
 			<span class="icon legend long blank">Clear all fields</span>
+			<span class="icon legend long load">Load form</span>
 			<span class="icon legend save">Save</span>
 		</span>
 	</div>
@@ -41,12 +42,12 @@
 	<div class="right-side">
 		<span class="ctx_menu">
 			<span class="icon legend long blank">Clear all fields</span>
+			<span class="icon legend long load">Load form</span>
 			<span class="icon legend save">Save</span>
 		</span>
 	</div>
 </div>	
 </div>
-
 
 <script src="parser/controllers/js/addRemove.js"></script>
 <script src="parser/controllers/js/pagination.js"></script>
@@ -58,6 +59,8 @@
 	 * Load all the JavaScript events needed
 	 * Prevent addition of a listener to a same element
 	 */
+	loadRegisterFormController();
+	
 	if(!registerFormLibLoaded)
 	{
 		loadAddRemoveController();
@@ -66,7 +69,7 @@
 		
 		loadAutoComplete();
 		
-		loadRegisterFormController();
+		
 		console.log('[/register] Libraries succefully loaded!');
 		
 		registerFormLibLoaded = true;

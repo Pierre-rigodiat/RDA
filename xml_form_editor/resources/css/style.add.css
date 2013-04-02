@@ -17,6 +17,13 @@
 	width: 40px;
 }
 
+.message
+{
+	width: 260px;
+	margin-left: auto;
+	margin-right: auto;
+}
+
 /*li
 {
 	*//*margin:7px;*/
@@ -196,6 +203,8 @@ b
 	
 	/*background: #BFBFBF;*/
 }
+
+
 
 
 /**
