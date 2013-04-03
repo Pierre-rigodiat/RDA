@@ -4,7 +4,7 @@
 loadExploreDataController = function()
 {
 	$('.xsdman.choice').live('change', changeChoiceQuery);
-	$('.retrieve.query').on('click', retrieveQuery);
+	$('.submit.query').on('click', retrieveQuery);
 	$('.add').live('click', {action: 0}, addRemoveItem);
 	$('.remove').live('click', {action: 1}, addRemoveItem);
 }
@@ -85,7 +85,7 @@ retrieveQuery = function()
 		{
 			while (currentElement.parent().parent().siblings(':first').length) {
 				currentElement = currentElement.parent().parent().siblings(':first');
-				if (currentElement.next().attr('class') != 'xsdman choice')
+				if (currentElement.next().attr('class') != 'xsdman choice' && currentElement.next().attr('id') != 'main')
 					queryPath = unCapitaliseFirstLetter(currentElement.text())+'.'+queryPath;
 			}
 			

@@ -1,9 +1,9 @@
 <?php
 session_start();
 require_once $_SESSION['config']['_ROOT_'] . '/parser/parser.inc.php';
-require_once  $_SESSION['config']['_ROOT_'] . '/MongoDB/mongodb.php';
-require_once  $_SESSION['config']['_ROOT_'] . '/MongoDB/xml2json/badgerFish.php';
-require_once  $_SESSION['config']['_ROOT_'] . '/MongoDB/xml2json/jsonML.php';
+require_once  $_SESSION['config']['_ROOT_'] . '/inc/db/mongoDB/MongoDBStream.php';
+require_once  $_SESSION['config']['_ROOT_'] . '/inc/lib/JsonXmlFunctions.php';
+//require_once  $_SESSION['config']['_ROOT_'] . '/MongoDB/xml2json/jsonML.php';
 
 
 
@@ -38,7 +38,7 @@ if (!$cursor->hasNext()) {
 }
 else {
 	foreach ($cursor as $doc) {
-		$echo .= '<div class="block">'.nl2br(htmlspecialchars(decodeBadgerFish($doc)->saveXml())).'</div>';
+		$echo .= nl2br(htmlspecialchars(decodeBadgerFish($doc)->saveXml()));
 	}
 	echo $echo;
 }

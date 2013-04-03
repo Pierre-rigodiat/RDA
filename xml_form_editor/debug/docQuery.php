@@ -55,7 +55,6 @@ $manager->buildQueryTree();
 // Build the search handler
 $search = $manager->getSearchHandler();
 $search->setIdArray(array(5,16,27,159,170,181,192,336,347,369,513,515));
-var_dump(in_array(1, array()));
 
 $_SESSION['xsd_parser']['parser'] = serialize($manager);
 
@@ -67,7 +66,7 @@ else echo 'Parser variables not set';*/
 if ($display) {
 $_SESSION['xsd_parser']['display'] = serialize($display);
 echo $display->displayQuery();
-echo $display->displayAdminQueryTree();
+//echo $display->displayAdminQueryTree();
 }
 
 /*if($manager)

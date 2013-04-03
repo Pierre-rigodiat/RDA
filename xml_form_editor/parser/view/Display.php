@@ -1174,7 +1174,7 @@ class Display
 					$xmlElement .= $this->displayQueryIcons($elementID);
 				}
 				else {
-					$xmlElement .= '<li id="'.$elementID.'"'.$liClass.'>'.self::$_CONF['QUERY']['elem_end_name_tag'].ucfirst($attr['NAME']).self::$_CONF['QUERY']['elem_end_name_tag'];
+					$xmlElement .= '<li id="'.$elementID.'"'.$liClass.'>'.self::$_CONF['QUERY']['elem_start_name_tag'].ucfirst($attr['NAME']).self::$_CONF['QUERY']['elem_end_name_tag'];
 					$xmlElement .= $this->displayQueryIcons($elementID).$xmlChild;
 				}
 				

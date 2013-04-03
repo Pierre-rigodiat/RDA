@@ -83,7 +83,7 @@ retrieveQuery = function()
 	{
 		var queryPath = unCapitaliseFirstLetter($(this).prev().text()),
 		match = $(this).val(),
-		currentElement = $(this).prev();
+		currentElement = $(this).parent();
 		
 		/*if ($(this).attr('class') == 'xsdman restriction query') {
 			match = $(this).val();

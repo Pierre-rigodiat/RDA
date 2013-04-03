@@ -12,7 +12,7 @@
 	<div>
 		<div class="right-side">
 			<span class="ctx_menu">
-				<span class="icon legend add id">Submit</span>
+				<span class="icon legend submit query">Submit</span>
 			</span>
 		</div>
 	</div>
@@ -24,7 +24,7 @@
 	<div>
 		<div class="right-side">
 			<span class="ctx_menu">
-				<span class="icon legend add id">Submit</span>
+				<span class="icon legend submit query">Submit</span>
 			</span>
 		</div>
 	</div>
