@@ -3,23 +3,14 @@
  */
 loadPaginationController = function()
 {
-	$('.begin').live('click', loadFormPage);
-	$('.end').live('click', loadFormPage);
-	$('.previous').live('click', loadFormPage);
-	$('.next').live('click', loadFormPage);
-	$('.ctx_menu.button').live('click', loadFormPage);
+	$(document).on('click', '.pagination>ul>li', loadFormPage);
 }
 
-loadFormPage = function()
+loadFormPage = function(event)
 {
-	var page='';
+	event.preventDefault(); // Prevent the "a" tag for doing its job
 	
-	if($(this).attr('class')!='ctx_menu button')
-		page = $(this).attr('class');
-	else
-		page = $(this).text();
-	
-	console.log('[loadFormPage] Changing page: '+page+'...');
+	console.log('[loadFormPage] Changing page...');
 		
 	$.ajax({
         url: 'parser/controllers/php/changePage.php',
@@ -30,8 +21,7 @@ loadFormPage = function()
         	// 
         	if(jsonObject.code>=0)
         	{        		
-        		$(".paginator").replaceWith(htmlspecialchars_decode(jsonObject.result));
-        		//$("#page_content").replaceWith('<div id="page_content">[loadFormPage] Page '+page+' set</div>');
+        		$(".pagination").html(htmlspecialchars_decode(jsonObject.result));
         		updatePageContent();
         		console.log('[loadFormPage] Page '+page+' set');
         	}
@@ -44,7 +34,7 @@ loadFormPage = function()
             console.error("[loadFormPage] Problem with page "+page);
         },
         // Form data
-        data: 'p='+page,
+        data: 'p='+$(this).text().toLowerCase(),
         //Options to tell JQuery not to process data or worry about content-type
         cache: false,
         contentType: false,

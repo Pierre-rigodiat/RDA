@@ -13,6 +13,11 @@ class Website {
 	private $menu;
 	private $currentUrl;
 	
+	//private $metaList;
+	//private $websiteTitle;
+	//private $cssFileList;
+	//private $controllersList;
+	
 	public function __construct() {
 		
 		$argc = func_num_args();
@@ -39,4 +44,6 @@ class Website {
 	{
 		return $this -> menu;
 	}
+	
+	// public function getControllers()
 }

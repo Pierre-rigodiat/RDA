@@ -34,6 +34,15 @@ class Display {
 		}
 	}
 	
+	/* TODO functions to write:
+	 * 	public displayHead
+	 * 		private displayMeta
+	 * 		private displayCss
+	 *
+	 * 
+	 * 
+	 */
+	
 	public function displayMenu()
 	{
 		$menu = $this -> website -> getMenu();

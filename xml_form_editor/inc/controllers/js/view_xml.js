@@ -3,7 +3,7 @@
  */
 loadViewXmlController = function()
 {
-	$('.download.xml').on('click', downloadXml);	
+	$('.btn.download-xml').on('click', downloadXml);	
 }
 
 downloadXml = function()

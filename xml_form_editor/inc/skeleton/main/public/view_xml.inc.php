@@ -9,20 +9,43 @@
 </div></div>
 
 <div id="main">
-	<div>
-		<div class="right-side">
-			<span class="ctx_menu">
-				<span class="icon legend long download xml">Download file</span>
-			</span>
-		</div>
+	
+	
+	<?php
+		if(($xmlTree = displayXmlTree()) == null)
+		{
+	?>
+	
+	<div class="alert alert-block">
+		<p>
+			<i class="icon warning"></i>
+			<strong>Warning:</strong> You have to select a template to be able to enter data.
+			
+			<button class="btn btn-small btn-warning pull-right">Select a template</button>
+		</p>
+	</div>
+	
+	<?php
+		}
+		else 
+		{
+	?>
+	
+	<div class="btn-group pull-right">
+		<button class="btn download-xml"><i class="icon-arrow-down"></i> Download XML</button>
+		<button class="btn"><i class="icon-star"></i> Save to repository</button>
 	</div>
 	
 	<div id="XMLHolder"></div>
 	
 	<script src="inc/controllers/js/view_xml.js"></script>
 	<script>
-		LoadXMLString('XMLHolder', <?php echo "'".str_replace('"', '\\"', displayXmlTree())."'"; ?>);
+		LoadXMLString('XMLHolder', <?php echo "'".str_replace('"', '\\"', $xmlTree)."'"; ?>);
 		
 		loadViewXmlController();
 	</script>
+	
+	<?php
+		}
+	?>
 </div>

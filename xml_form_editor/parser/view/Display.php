@@ -68,7 +68,8 @@ class Display
 			"elem_end_name_tag" => '</span>',
 			"add_icon" => '<span class="icon add"></span>',
 			"remove_icon" => '<span class="icon remove"></span>',
-			"refresh_icon" => '<span class="icon refresh"></span>'
+			"refresh_icon" => '<span class="icon refresh"></span>',
+			"edit_icon" => '<span class="icon edit"></span>'
 		),
 		"XML" => array(),
 		"QUERY" => array(
@@ -219,7 +220,8 @@ class Display
 	 */
 	public function displayPageNavigator()
 	{		
-		$pageNavigator = '<div class="paginator">';
+		//$pageNavigator = '<div class="paginator">';
+		$pageNavigator = '<ul>';
 		
 		$pageHandler = $this -> xsdManager -> getPageHandler();
 		
@@ -229,17 +231,21 @@ class Display
 		{
 			$currentPage = $pageHandler -> getCurrentPage();
 			
-			$pageNavigator .= '<span class="ctx_menu"><span class="icon begin"></span></span><span class="ctx_menu"><span class="icon previous"></span></span>';
+			//$pageNavigator .= '<span class="ctx_menu"><span class="icon begin"></span></span><span class="ctx_menu"><span class="icon previous"></span></span>';
+			$pageNavigator .= '<li'.($currentPage==1?' class="disabled"':'').'><a href="">Prev</a></li>';
 			
 			for($i=0; $i<$totalPage; $i++)
 			{
-				$pageNavigator .= '<span class="ctx_menu '.($currentPage==$i+1?'selected':'button').'">'.($i+1).'</span>';
+				//$pageNavigator .= '<span class="ctx_menu '.($currentPage==$i+1?'selected':'button').'">'.($i+1).'</span>';
+				$pageNavigator .= '<li'.($currentPage==$i+1?' class="active"':'').'><a href="">'.($i+1).'</a></li>';
 			}
 			
-			$pageNavigator .= '<span class="ctx_menu"><span class="icon next"></span></span><span class="ctx_menu"><span class="icon end"></span></span>';
+			//$pageNavigator .= '<span class="ctx_menu"><span class="icon next"></span></span><span class="ctx_menu"><span class="icon end"></span></span>';
+			$pageNavigator .= '<li'.($currentPage==$totalPage?' class="disabled"':'').'><a href="">Next</a></li>';
 		}
 		
-		$pageNavigator .= '</div>';
+		//$pageNavigator .= '</div>';
+		$pageNavigator .= '</ul>';
 		
 		return $pageNavigator;
 	}
@@ -760,6 +766,11 @@ class Display
 				}
 				
 				$htmlFormElement .= '/>';
+				
+				/*if(isset($elementAttr['AUTO_GENERATE']) && $elementAttr['AUTO_GENERATE']=='uid')
+				{
+					$htmlFormElement .= self::$_CONF['FORM']['edit_icon'];
+				}*/
 				
 				$this->LOGGER->log_notice('ID '.$elementId.' can be edited', 'Display::displayHTMLFormElement');
 			}

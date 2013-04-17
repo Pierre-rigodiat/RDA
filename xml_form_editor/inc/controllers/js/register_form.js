@@ -35,9 +35,9 @@ loadRegisterFormController = function()
         }
     });
 	
-	$('.blank').on('click', clearFields);
-	$('.load').on('click', loadFormDialog);
-	$('.save').on('click', saveInDB);
+	$('.btn.clear-fields').on('click', clearFields);
+	$('.btn.load-form').on('click', loadFormDialog);
+	$('.btn.save-form').on('click', saveInDB);
 }
 
 removeRegisterFormController = function()

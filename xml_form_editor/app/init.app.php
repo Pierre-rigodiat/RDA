@@ -1,4 +1,7 @@
 <?php
+	// TODO Use $_SESSION variables
+	// TODO Test that a session is active, otherwise, throw an error
+	
 	// todo add the display config
 
 	define("DEBUG", false);

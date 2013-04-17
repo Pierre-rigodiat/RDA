@@ -230,8 +230,8 @@ function displayHTMLForm()
 	if(!isset($_SESSION['xsd_parser']['parser']))
 	{
 		$logger->log_debug('No schema loaded', 'displayHTMLForm');
-		echo '<i>No schema file loaded</i>';
-		return;
+		//echo '<i>No schema file loaded</i>';
+		return null;
 	}
 	
 	// Set up the parser
@@ -257,7 +257,7 @@ function displayHTMLForm()
 	$manager -> saveFormData();
 	$_SESSION['xsd_parser']['parser'] = serialize($manager);
 	
-	echo $display->displayHTMLForm();
+	return $display->displayHTMLForm();
 	
 	//$logger->log_debug('Page '.$page.' displayed', 'displayHTMLForm');
 }
@@ -271,15 +271,17 @@ function displayXmlTree()
 	global $logger, $debug;
 	
 	//echo '"<root><element0>value0</element0><element1>value1</element1></root>"';
-	if(isset($_SESSION['xsd_parser']['display']))
+	if(isset($_SESSION['xsd_parser']['display']) && isset($_SESSION['xsd_parser']['parser']))
 	{
 		$display = unserialize($_SESSION['xsd_parser']['display']);
 		$display -> update();
 		
+		$logger->log_info('XmlTree displayed', 'displayXmlTree');
 		return $display -> displayXMLTree();
-	}	
-	
-	$logger->log_info('XmlTree displayed', 'displayXmlTree');
+	}
+	else {
+		return null;
+	}
 }
 
 /**
