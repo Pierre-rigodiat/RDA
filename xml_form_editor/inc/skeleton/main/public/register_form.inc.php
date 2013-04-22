@@ -5,7 +5,7 @@
 <div id="featured-wrapper"><div id="featured">
 	<h1>Data Entry</h1>
 	<p>
-		Here you can fill in the curation form. Once it is filled, you can view the data you entered.
+		Here you can fill in the Material Data form. Once it is completed, you can view the data you have entered.
 	</p>
 </div></div>
 

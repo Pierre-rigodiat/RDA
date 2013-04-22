@@ -8,8 +8,8 @@
 		
 	define("PROJECT_NAME", "Material Data Curator");
 	
-	define("TOOL_NAME", "Form Editor");
-	define("TOOL_TITLE", "Form Editor");
+	define("TOOL_NAME", "");
+	define("TOOL_TITLE", "");
 	define("TOOL_VERSION", "0.4a");
 	define("TOOL_RELEASE_DATE", ""); // xxx unused...
 	

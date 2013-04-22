@@ -4,7 +4,7 @@
 <div id="featured-wrapper"><div id="featured">
 	<h1>XML View</h1>
 	<p>
-		This a preview of the XML which will be generated. Each modification you make in the form will be written in this preview.
+		This is a preview of the curated data in XML format. As part of this demo, please save your data to the repository so that we can better evaluate our system. You can also click the download button for a copy on your local machine.
 	</p>
 </div></div>
 
@@ -27,7 +27,7 @@
 	
 	<?php
 		}
-		else 
+		else
 		{
 	?>
 	

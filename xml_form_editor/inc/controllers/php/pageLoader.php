@@ -78,6 +78,10 @@ if(isset($_GET['url']))
 		{
 			require_once $_SESSION['config']['_ROOT_'].'/inc/skeleton/main/public/search.inc.php';
 		}
+		else if($menu['page']=='next-features')
+		{
+			require_once $_SESSION['config']['_ROOT_'].'/inc/skeleton/main/demo/public.next-features.inc.php';
+		}
 		else
 		{
 			echo $defaultText.'<div id="main">';

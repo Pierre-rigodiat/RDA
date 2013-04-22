@@ -986,6 +986,11 @@ class XsdManager
 		
 		$this -> LOGGER -> log_debug('Form saved (ID '.$this -> xsdManagerId.')', 'XsdManager::saveFormData');
 	}
+	
+	public function getXsdManagerId()
+	{
+		return $this -> xsdManagerId; 
+	}
 
 	/**
 	 *

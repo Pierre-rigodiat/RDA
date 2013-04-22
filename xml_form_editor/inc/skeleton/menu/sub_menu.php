@@ -40,7 +40,7 @@ if(isset($_GET['p']) && $_GET['p']=="admin")
 else 
 {
 	$submenus = array(
-		"register" => array("Choose schema", "Enter Data", "View XML"));
+		"register" => array("Select Template", "Enter Data", "View Data"));
 	$submenusIds = array(
 		"register" => array("schema", "form", "xml"));
 	

@@ -53,7 +53,7 @@
 	<script type="text/javascript" src="inc/controllers/js/pageLoader.js"></script>
 	<!--script type="text/javascript" src='resources/js/message.js'></script-->
 	
-	<title><?php echo TOOL_TITLE.' '.TOOL_VERSION; ?></title>
+	<title><?php echo PROJECT_NAME.' '.TOOL_VERSION; ?></title>
 </head>
 <body id="top">
 	<div id="header-wrapper">

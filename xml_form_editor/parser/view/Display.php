@@ -69,7 +69,7 @@ class Display
 			"add_icon" => '<span class="icon add"></span>',
 			"remove_icon" => '<span class="icon remove"></span>',
 			"refresh_icon" => '<span class="icon refresh"></span>',
-			"edit_icon" => '<span class="icon edit"></span>'
+			"edit_icon" => '<a class="btn btn-mini edit" href="#"><i class="icon-edit"></i></a>'
 		),
 		"XML" => array(),
 		"QUERY" => array(
@@ -760,17 +760,17 @@ class Display
 					
 					if(isset($elementAttr['AUTO_GENERATE']) && $elementAttr['AUTO_GENERATE']=='uid')
 					{
-						$htmlFormElement .= ' value="'."doc_uid".'" disabled="disabled"';
+						$htmlFormElement .= ' value="'.$this -> xsdManager -> getXsdManagerId().'" disabled="disabled"';
 					}
 					
 				}
 				
 				$htmlFormElement .= '/>';
 				
-				/*if(isset($elementAttr['AUTO_GENERATE']) && $elementAttr['AUTO_GENERATE']=='uid')
+				if(isset($elementAttr['AUTO_GENERATE']) && $elementAttr['AUTO_GENERATE']=='uid')
 				{
-					$htmlFormElement .= self::$_CONF['FORM']['edit_icon'];
-				}*/
+					$htmlFormElement .= ' '.self::$_CONF['FORM']['edit_icon'];
+				}
 				
 				$this->LOGGER->log_notice('ID '.$elementId.' can be edited', 'Display::displayHTMLFormElement');
 			}

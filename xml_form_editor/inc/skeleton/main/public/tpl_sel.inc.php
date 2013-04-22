@@ -2,9 +2,9 @@
 	require_once $_SESSION['config']['_ROOT_'].'/inc/lib/StringFunctions.php';
 ?>
 <div id="featured-wrapper"><div id="featured">
-	<h1>Template Selection</h1>
+	<h1>Form Template Selection</h1>
 	<p>
-		Select a template in the following table. It will automatically load the appropriate form and display it in the next page.
+		Select a template from the following table. It will automatically load the appropriate form and display it in the next page.
 	</p>
 </div></div>
 
@@ -53,7 +53,7 @@ else
 				echo '	<tr'.($even?' class="even"':'').'>
 							<td>'.$file.'</td>
 							<!--td>'.'In nunc et nibh rutrum volutpat. Sed tempus interdum. Aliquam tempor.'.'</td-->
-							<td>'.($current_filename==$file?'<span style="color:green;font-weight:bold">Current template</span>':'<button class="btn set-template"><i class="icon-plus-sign"></i> Set as current model</button>').'</td>
+							<td>'.($current_filename==$file?'<span style="color:green;font-weight:bold">Current template</span>':'<button class="btn set-template"><i class="icon-plus-sign"></i> Set as current template</button>').'</td>
 						</tr>';
 			}
 			$even = !$even;

@@ -38,6 +38,8 @@ loadRegisterFormController = function()
 	$('.btn.clear-fields').on('click', clearFields);
 	$('.btn.load-form').on('click', loadFormDialog);
 	$('.btn.save-form').on('click', saveInDB);
+	
+	$('.btn.edit').on('click', editField);
 }
 
 removeRegisterFormController = function()
@@ -210,7 +212,43 @@ saveInDB = function()
         contentType: false,
         processData: false
     });
-	
-	
 }
 
+editField = function(event)
+{
+	event.preventDefault();
+	
+	var inputField = $(this).parent().children('input');
+	
+	if(inputField.attr('disabled'))
+	{
+		console.log('[editField] Edit mode ON');
+	
+		$(this).children(':first').attr('class', 'icon-ok')
+		inputField.removeAttr('disabled');
+	}
+	else
+	{
+		console.log('[editField] Edit mode OFF');
+		
+		$(this).children(':first').attr('class', 'icon-edit')
+		inputField.attr('disabled', 'disabled');
+		
+		$.ajax({
+	        url: 'inc/controllers/php/change.php',
+	        type: 'GET',
+	        success: function(data) {
+	        	console.log("[editField] Form saved");
+	        },
+	        error: function() {
+	            console.error("[editField] Problem with the AJAX call");
+	        },
+	        // Form data
+	        data: 'id='+inputField.attr('value'),
+	        //Options to tell JQuery not to process data or worry about content-type
+	        cache: false,
+	        contentType: false,
+	        processData: false
+	    });
+	}	
+}

@@ -3,12 +3,16 @@
 ?>
 <div id="featured-wrapper"><div id="featured">
 	<h1>Data Exploration</h1>
-	<p>
+	<!--p>
 		This page is dedicated to the data exploration. Fill out the form to retrieve the corresponding data.
+		
+	</p-->
+	<p>
+	In the future, this page will allow for the flexible querying of the repository. Please stay tuned!
 	</p>
 </div></div>
 
-<div id="main">
+<!--div id="main">
 	<div>
 		<div class="right-side">
 			<span class="ctx_menu">
@@ -35,4 +39,4 @@
 	<script>
 		loadExploreDataController();
 	</script>
-</div>
+</div-->
