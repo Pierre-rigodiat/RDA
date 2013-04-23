@@ -111,6 +111,10 @@ loadFormDialog = function()
 
 loadForm = function(formId)
 {
+	var successMessage = '<div class="temp success"><span class="icon valid"></span>Form successfully loaded!</div>',
+		errorMessage = '<div class="temp error"><span class="icon invalid"></span>An error occured during the save</div>',
+		messageLocation = $("#main").children(":first");
+	
 	console.log('[loadForm] Loading form '+formId+'...');
 	
 	$.ajax({
@@ -124,9 +128,15 @@ loadForm = function(formId)
         	removeRegisterFormController();
         	loadRegisterFormController();
         	
+        	messageLocation.hide().html(successMessage).fadeIn(500);
+        	messageLocation.delay(2000).fadeOut(500);
+        	
         	console.log("[loadForm] Form saved");
         },
         error: function() {
+        	messageLocation.hide().html(errorMessage).fadeIn(500);
+        	messageLocation.delay(2000).fadeOut(500);
+        	
             console.error("[loadForm] Problem with the AJAX call");
         },
         // Form data
@@ -192,6 +202,10 @@ saveInSession = function()
 
 saveInDB = function()
 {
+	var successMessage = '<div class="temp success"><span class="icon valid"></span>Form successfully saved!</div>',
+		errorMessage = '<div class="temp error"><span class="icon invalid"></span>An error occured during the save</div>',
+		messageLocation = $("#main").children(":first");
+	
 	console.log("[saveInDB] Saving into db...");
 	
 	saveInSession();
@@ -200,9 +214,16 @@ saveInDB = function()
         url: 'inc/controllers/php/manageData.php',
         type: 'GET',
         success: function(data) {
+        	messageLocation.hide().html(successMessage).fadeIn(500);
+        	messageLocation.delay(2000).fadeOut(500);
+        	
         	console.log("[saveInDB] Form saved");
+        	
         },
         error: function() {
+        	messageLocation.hide().html(errorMessage).fadeIn(500);
+        	messageLocation.delay(2000).fadeOut(500);   
+        	
             console.error("[saveInDB] Problem with the AJAX call");
         },
         // Form data

@@ -19,8 +19,6 @@
 		<li><a href="#node-link">Node link</a></li>
 		<li><a href="#edge-bunding">Edge bunding</a></li>
 	</ul>
-	
-	
 </div-->
 <script src="resources/js/lib/jquery-1.9.1.min.js"></script>
 <script src="resources/js/lib/jquery-ui-1.10.1.min.js"></script>

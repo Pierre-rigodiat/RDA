@@ -987,6 +987,15 @@ class XsdManager
 		$this -> LOGGER -> log_debug('Form saved (ID '.$this -> xsdManagerId.')', 'XsdManager::saveFormData');
 	}
 	
+	public function saveXmlData()
+	{
+		/*$this -> dbConnection ["MongoDB"] -> connect();
+		$this -> dbConnection ["MongoDB"] -> setDatabaseName("xsdmgr");
+		$this -> dbConnection ["MongoDB"] -> openDB();
+		
+		$this -> dbConnection ["MongoDB"] -> insertXmlWithId($this -> );*/
+	}
+	
 	public function getXsdManagerId()
 	{
 		return $this -> xsdManagerId; 

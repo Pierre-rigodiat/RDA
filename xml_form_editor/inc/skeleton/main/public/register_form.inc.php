@@ -27,13 +27,17 @@
 	else 
 	{
 ?>
-	
+<div class="message"></div>
 <div class="toolbar">
+	
+	
 	<div class="btn-group pull-right">
 		<button class="btn clear-fields"><i class="icon-file"></i> Clear fields</button>
 		<button class="btn load-form"><i class="icon-folder-open"></i> Load form</button>
 		<button class="btn save-form"><i class="icon-hdd"></i> Save form</button>
 	</div>
+	
+	
 	
 	<div class="pagination">
 	<?php

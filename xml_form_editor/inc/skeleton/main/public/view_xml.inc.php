@@ -30,10 +30,11 @@
 		else
 		{
 	?>
+	<div class="message"></div>
 	
 	<div class="btn-group pull-right">
 		<button class="btn download-xml"><i class="icon-arrow-down"></i> Download XML</button>
-		<button class="btn"><i class="icon-star"></i> Save to repository</button>
+		<button class="btn save-to-repo"><i class="icon-star"></i> Save to repository</button>
 	</div>
 	
 	<div id="XMLHolder"></div>

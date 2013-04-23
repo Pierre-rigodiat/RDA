@@ -181,21 +181,49 @@ Class MongoDBStream
 	 * @param $doc: string that describe the path of the file
 	 * @param $collection: the collection in which the document is pushed
 	 */
-	function insertXml($doc, $collectionName)
+	function insertXml($xmlString, $collectionName)
 	{
-		$dom = DOMDocument::load($doc);
+		$dom = DOMDocument::loadXML($xmlString);
+		
 		// Translate the XML content into JSON content
 		$jsonArray = encodeBadgerFish($dom);
 		
 		if ($jsonArray == array())
 		{
-			throw new Exception("Could not proceed to the JSON comversion", -3);
+			throw new Exception("Could not proceed to the JSON conversion", -3);
 		}
 		
 		// Insert it into the collection
-		insertJson($jsonArray, $collectionName);
+		$this -> insertJson($jsonArray, $collectionName);
 
 	}
+
+	/**
+	 * Method to insert a XML document into the database, used as a test function. Do not use in production.
+	 * @param $doc: string that describe the path of the file
+	 * @param $collection: the collection in which the document is pushed
+	 */
+	function insertXmlWithId($xmlString, $documentId, $collectionName)
+	{
+		$document = new DOMDocument();
+		$document->loadXML($xmlString);
+		
+		// Translate the XML content into JSON content
+		$jsonArray = encodeBadgerFish($document);
+		
+		if ($jsonArray == array())
+		{
+			throw new Exception("Could not proceed to the JSON conversion", -3);
+		}
+		
+		$jsonArray['_id'] = $documentId;
+		
+		// Insert it into the collection
+		$this -> insertJson($jsonArray, $collectionName);
+
+	}
+
+
 
 	function retrieveXml($doc, $collectionName)
 	{
