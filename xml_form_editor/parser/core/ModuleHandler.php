@@ -310,21 +310,26 @@ class ModuleHandler
 	 */
 	public function __toString()
 	{
-		$return = '{ moduleDir = '.$this->moduleDir.' | moduleList = ';
+		$return = 'moduleDir = '.$this->moduleDir.PHP_EOL/*.'moduleList = '*/;
 		
 		if(is_array($this->moduleList))
 		{
 			foreach ($this->moduleList as $module) {
-				$return .= $module['name'].'('.$module['enable'].')';
+				$return .= $module['name'];
 				
-				if(end($this->moduleList)!=$module) $return.=', ';
+				if($module['enable'])
+				{
+					$data = call_user_func(ucfirst($module['name']).'::getModuleData');
+					$return .= '{'.serialize($data).'}';
+				}
+				
+				
+				$return .= PHP_EOL;
 			}
 		}
 		else {
 			$return.='#error#';
 		}
-		
-		$return .= ' }';
 		
 		return $return;
 	}

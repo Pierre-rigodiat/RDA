@@ -151,7 +151,7 @@ class TableModule {
 		$this -> files = array_values($this -> files);
 		
 		// Delete the data
-		$elementId = $this -> tree -> getObject(0); // FIXME Tree not treated as we wanted
+		$elementId = $this -> tree -> getElement(0); // FIXME Tree not treated as we wanted
 		unset($this -> dataArray[$elementId][$fileId]);
 		$this -> dataArray[$elementId] = array_values($this -> dataArray[$elementId]);
 	}
@@ -184,7 +184,7 @@ class TableModule {
 			$this -> LOGGER -> log_debug('Data set = [[['.$table.']]]', 'TableModule::parseFile');
 			
 			// FIXME Add data differently into the array
-			$elementId = $this -> tree -> getObject(0);
+			$elementId = $this -> tree -> getElement(0);
 			//$currentData = '';
 			
 			if(!isset($this -> dataArray[$elementId])) $this -> dataArray[$elementId] = array();
@@ -220,7 +220,7 @@ class TableModule {
 	public function getXmlData()
 	{		
 		// FIXME The way to retrieve xml is should be changed
-		$elementId = $this -> tree -> getObject(0);
+		$elementId = $this -> tree -> getElement(0);
 		$xmlData = '';
 		
 		$this -> LOGGER -> log_debug('Retrieving data for element '.$elementId, 'TableModule::getXmlData');

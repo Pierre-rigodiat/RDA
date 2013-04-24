@@ -3,6 +3,7 @@
 	if(isset($_SESSION['xsd_parser']))
 	{
 		require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/core/XsdManager.php';
+		require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/_plugins/table/Table.php';
 		require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/core/Tree.php';
 		require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/core/XsdElement.php';
 	}
@@ -89,6 +90,14 @@
 	?>
 	<hr/>
 	<h3>Module handler</h3>
+	<?php
+		if($xsdManager)
+		{
+			$moduleHandler = $xsdManager -> getModuleHandler();
+			
+			echo nl2br($moduleHandler);
+		}
+	?>
 	<hr/>
 	<h3>Page handler</h3>
 	<?php

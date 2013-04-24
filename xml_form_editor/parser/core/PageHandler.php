@@ -248,7 +248,7 @@ class PageHandler
 			
 			$pageHandlerString .= '}';
 			
-			if(count($this -> pageArray)!=$pageNumber+1) $pageHandlerString .= ' | ';
+			if(count($this -> pageArray)!=$pageNumber+1) $pageHandlerString .= PHP_EOL;
 		}
 		
 		return $pageHandlerString;

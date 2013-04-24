@@ -35,8 +35,8 @@ function initModuleWithId($moduleName, $elementId=0)
 	$initModuleClass = $modules[$moduleName];
 	
 	// FIXME Send an actual tree
-	$tree = new Tree(true);
-	$tree -> insertElement($elementId);
+	$tree = new Tree("ModuleTree");
+	$tree -> insert($elementId);
 		
 	call_user_func($initModuleClass.'::initModule', $tree);
 }

@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 
 <xsd:schema xmlns:hdf5="http://hdfgroup.org/HDF5/XML/schema/HDF5-File" xmlns:xsd="http://www.w3.org/2001/XMLSchema" attributeFormDefault="unqualified" elementFormDefault="qualified">
-  <xsd:include schemaLocation="HDF5-File.xsd"/>
+  
+  <xsd:import namespace="http://hdfgroup.org/HDF5/XML/schema/HDF5-File" schemaLocation="HDF5-File.xsd"/>
   <!-- ================================================== -->
   <!-- =====  Element Declarations  -->
   <!-- ================================================== -->
@@ -15,7 +16,7 @@
   <xsd:complexType name="ColumnUnit">
     <xsd:sequence>
       <xsd:element name="unitOfMeasureType" type="UnitOfMeasureType"/>
-      <xsd:element name="field" type="hdf5:Field"/>
+      <xsd:element ref="hdf5:Field"/>
     </xsd:sequence>
   </xsd:complexType>
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
@@ -31,7 +32,7 @@
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
   <xsd:complexType name="Table">
     <xsd:sequence>
-      <xsd:element name="hDF5-File" type="hdf5:HDF5-File"/>
+      <xsd:element ref="hdf5:HDF5-File"/>
       <xsd:element maxOccurs="unbounded" name="columnUnit" type="ColumnUnit"/>
     </xsd:sequence>
   </xsd:complexType>

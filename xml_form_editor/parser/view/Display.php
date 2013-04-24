@@ -464,6 +464,20 @@ class Display
 		
 		$this->LOGGER->log_notice('Display ID '.$elementId.'; Object: '.$elementDesc['xsdElement'], 'Display::displayConfigurationElement');
 		
+		/* REF attribute workaround */
+		if(!isset($elementAttr['NAME']) && isset($elementAttr['REF']))
+		{
+			$elementAttr['NAME'] = '<i>'.$elementAttr['REF'].'</i>';
+			unset($elementAttr['REF']);
+		} 
+		
+		/* At this point, if attribute NAME has not been set, we have a problem */
+		if(!isset($elementAttr['NAME']))
+		{
+			// TODO log
+			throw new Exception("Attribute NAME undefined for element ID ".$elementId, -1);
+		}
+		
 		$configElement = '';
 		$children = array();
 		
@@ -720,6 +734,16 @@ class Display
 		
 		$elementAttr = $elementDesc['xsdElement'] -> getAttributes();
 		
+		/* REF attribute workaround */
+		if(!isset($elementAttr['NAME']) && isset($elementAttr['REF'])) $elementAttr['NAME'] = '<i>'.$elementAttr['REF'].'</i>';
+		
+		/* At this point, if attribute NAME has not been set, we have a problem */
+		if(!isset($elementAttr['NAME']))
+		{
+			// TODO log
+			throw new Exception("Attribute NAME undefined for element ID ".$elementId, -1);
+		}
+		
 		/* Display the start li tag for non root element */ 
 		if($elementId != 0)
 		{
@@ -928,6 +952,16 @@ class Display
 		if(isset($elementAttr['AVAILABLE']) && $elementAttr['AVAILABLE']==false)
 		{
 			return $xmlElement;
+		}
+		
+		/* REF attribute workaround */
+		if(!isset($elementAttr['NAME']) && isset($elementAttr['REF'])) $elementAttr['NAME'] = $elementAttr['REF'];
+		
+		/* At this point, if attribute NAME has not been set, we have a problem */
+		if(!isset($elementAttr['NAME']))
+		{
+			// TODO log
+			throw new Exception("Attribute NAME undefined for element ID ".$elementId, -1);
 		}
 	
 		// Element CHOICE are not displayed (element created to be able to make the choice in the form)
