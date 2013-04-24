@@ -429,7 +429,6 @@ class XsdManager
 		}
 		else
 		{
-			//$xsdElement = $this -> xsdElementList[$xsdElementId];
 			$xsdElementAttr = $xsdElement -> getAttributes();
 			
 			$children = $this -> xsdOriginalTree -> getChildren($elementId);
@@ -987,13 +986,31 @@ class XsdManager
 		$this -> LOGGER -> log_debug('Form saved (ID '.$this -> xsdManagerId.')', 'XsdManager::saveFormData');
 	}
 	
+	public function removeFormData()
+	{
+		$this -> LOGGER -> log_notice('Removing form (ID '.(isset($this -> xsdManagerId)?''.$this -> xsdManagerId:'undefined').')', 'XsdManager::saveFormData');
+		
+		if(!isset($this -> xsdManagerId)) return;
+		
+		$this -> dbConnection ["MongoDB"] -> connect();
+		$this -> dbConnection ["MongoDB"] -> setDatabaseName("xsdmgr");
+		$this -> dbConnection ["MongoDB"] -> openDB();
+		$this -> dbConnection ["MongoDB"] -> removeIdFromCollection($this -> xsdManagerId, 'exp-form');
+	}
+	
 	public function saveXmlData()
 	{
+		
 		/*$this -> dbConnection ["MongoDB"] -> connect();
 		$this -> dbConnection ["MongoDB"] -> setDatabaseName("xsdmgr");
 		$this -> dbConnection ["MongoDB"] -> openDB();
 		
 		$this -> dbConnection ["MongoDB"] -> insertXmlWithId($this -> );*/
+	}
+	
+	public function setXsdManagerId($xsdManagerId)
+	{
+		$this -> xsdManagerId = $xsdManagerId;
 	}
 	
 	public function getXsdManagerId()

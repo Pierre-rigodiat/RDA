@@ -223,7 +223,13 @@ Class MongoDBStream
 
 	}
 
-
+	function removeIdFromCollection($documentId, $collectionName)
+	{
+		$idArray = array('_id' => $documentId);
+		
+		$collectionObject = new MongoCollection($this -> databaseObject, $collectionName);
+		$collectionObject -> remove($idArray/*, true*/);
+	}
 
 	function retrieveXml($doc, $collectionName)
 	{
