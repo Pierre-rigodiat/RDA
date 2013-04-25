@@ -987,10 +987,23 @@ class XsdManager
 		$pathElement = explode('/', $this -> xsdFile);
 		$schemaId = $pathElement[count($pathElement)-1];
 		
+		// TODO Correct that part
+		$moduleList = $this -> moduleHandler -> getModuleList('enable');
+		$moduleDataArray = array();
+		
+		foreach ($moduleList as $module) {
+			$moduleClass = ucfirst($module);
+			
+			$moduleData = call_user_func($moduleClass.'::__toArray');
+			array_push($moduleDataArray, array($module => $moduleData));
+		}
+		
+		
 		$jsonArray = array(
 			"schema" => $schemaId,
 			"tree" => $this -> xsdCompleteTree -> __toArray(),
-			"data" => $this -> dataArray
+			"data" => $this -> dataArray,
+			"modules" => $moduleDataArray
 		);
 		
 		if(isset($this -> xsdManagerId)) $jsonArray["_id"] = $this -> xsdManagerId;

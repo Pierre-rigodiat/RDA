@@ -25,5 +25,13 @@ interface ModuleInterface
 	 */
 	public static function displayModule();
 	
+	/**
+	 * 
+	 */
 	public static function getModuleData();
+	
+	/**
+	 * 
+	 */
+	public static function __toArray();
 }

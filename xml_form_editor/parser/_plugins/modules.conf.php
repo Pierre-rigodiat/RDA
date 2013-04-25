@@ -18,9 +18,18 @@ $modules = array(
 	 * soon be integrated to the website
 	 */
 	// TABLE MODULE
-	'table' => array(
+	'hdf5Table' => array(
+		'name' => 'Excel tables',
 		'class' => 'Table', 
 		'published' => true
+	),
+	
+	// PERIODIC TABLE MODULE
+	'periodicTable' => array(
+		'name' => 'Periodic table',
+		'class' => 'PeriodicTable',
+		'published' => false
+	
 	),
 	
 	// IMAGE MODULE

@@ -65,8 +65,9 @@ class Table implements ModuleInterface {
 			return null;
 		}
 	}
+	
+	public static function __toArray()
+	{
+		
+	}
 }
-
-
-
-?>
