@@ -909,7 +909,9 @@ class XsdManager
 	}
 	
 	public function retrieveFormData($formId)
-	{		
+	{
+		$this -> LOGGER -> log_debug('Loading form '.$formId, 'XsdManager::retrieveFormData');
+				
 		$pathElement = explode('/', $this -> xsdFile);
 		$schemaId = $pathElement[count($pathElement)-1];
 		
@@ -918,9 +920,19 @@ class XsdManager
 		$this -> dbConnection ["MongoDB"] -> openDB();
 		
 		$query = array(
-			'$and' => array(
-				array("_id" => new MongoID($formId)),
-				array("schema" => $schemaId)
+			'$or' => array(
+				array(
+					'$and' => array(
+						array("_id" => new MongoID($formId)),
+						array("schema" => $schemaId)
+					)
+				),
+				array(
+					'$and' => array(
+						array("_id" => $formId),
+						array("schema" => $schemaId)
+					)
+				)
 			)
 		);
 		
@@ -957,8 +969,10 @@ class XsdManager
 		$this -> setXsdCompleteTree($xsdCompleteTree);		
 		
 		// Load save data
+		$this -> LOGGER -> log_debug("Number of item ".count($dataArray["data"]), 'XsdManager::retrieveFormData');
 		foreach($dataArray["data"] as $elementId => $elementData)
 		{
+			$this -> LOGGER -> log_debug("Element ".$elementId." contains ".$elementData, 'XsdManager::retrieveFormData');
 			$this -> setDataForId($elementData, $elementId);
 		}		
 		

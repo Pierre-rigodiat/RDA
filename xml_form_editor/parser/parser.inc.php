@@ -521,6 +521,8 @@ function loadData($formId)
 {
 	$manager = unserialize($_SESSION['xsd_parser']['parser']);
 	$manager -> retrieveFormData($formId);
+	$manager -> setXsdManagerId($formId);
+	
 	$_SESSION['xsd_parser']['parser'] = serialize($manager);
 	
 	$display = unserialize($_SESSION['xsd_parser']['display']);
