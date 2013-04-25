@@ -10,7 +10,7 @@
 	
 	define("TOOL_NAME", "");
 	define("TOOL_TITLE", "");
-	define("TOOL_VERSION", "0.4a");
+	define("TOOL_VERSION", "0.4b");
 	define("TOOL_RELEASE_DATE", ""); // xxx unused...
 	
 	define("_ROOT_", dirname(dirname(dirname(__FILE__)))); // todo only use the session variable
