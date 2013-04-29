@@ -1,29 +1,26 @@
 <div id="featured-wrapper"><div id="featured">
-	<h1>Next features</h1>
+	<h1>Future plans</h1>
 	<p>
-		Here you can have an overview of the work we have done so far. You can also view our plan about the future features.
+		Here is an overview of our current work as well as some of our future plans.
 	</p>
 </div></div>
 
 <div id="main">
-	<h3>Current model</h3>
+	<h3>Current architecture</h3>
 	<div class="content-separator"></div>
 	<p>
-		This demo gives you an overview of the work we have done so far. The software is working with a lot of other components.
-		Those components, almost invisible to the user are the following.
+		Our system consists of a number of components. Most of which are invisible to the users:
 		<ul>
-			<li>An ontology</li>
+			<li>A prototype ontology drive from multiple sources including materials litterature</li>
 			<li>
-				2 databases
+				Two databases
 				<ul>
-					<li>MongoDb to register all data from the ontology</li>
-					<li>Neo4j to store the ontology</li>
+					<li>A MongoDB document database to store all of the data from the forms</li>
+					<li>A Neo4j graph database to store all of the concepts and relationships of the ontology</li>
 				</ul>
 			</li>
+			<li>A flexible PHP framework</li>
 		</ul>
-		
-		Moreover, we have built the whole website using our own framework. So, the tool is flexible, performant and let us tune it without having to rewrite everything.
-		
 		<img src="resources/img/model.png">
 	</p>
 	
@@ -32,22 +29,25 @@
 	<div class="content-separator"></div>
 	
 	<p>
-		This software is not in its final form, it will evolve regarding <b><u>your</u></b> needs! Its modular design will allow us to work in parallel on several aspects.
-		That tool we have built has a great power, now it is our responsability to keep you on it.
-
-		<h5>Improving your experience</h5>
+		This software is a work in progress and can evolve to meet community needs. 
+		
+		<h5>Improve user experience</h5>
 		<ul>
 			<li>
-				<b>Better schema reading:</b><br/>
-				Any schema you want to upload will be converted as a form.
+				<b>Better schema handling:</b><br/>
+				Almost any XML schema can be uploaded and used as a form.
 			</li>
 			<li>
-				<b>Better table module:</b><br/>
-				You will no longer have to format your tables!
+				<b>Better table handling:</b><br/>
+				A wider variety of spreadsheet table formats will be accepted.
 			</li>
 			<li>
-				<b>Better data representation:</b><br/> 
-				We understand that XML view is not always the best one, so we are working on new ways of displaying your data.
+				<b>Improved data visualization:</b><br/> 
+				Use of advanced user interface elements to display hierarchical data.
+			</li>
+			<li>
+				<b>Simplified data entry:</b><br/>
+				Use of autocompletion and plugin modules to minimize data entry effort.
 			</li>
 		</ul>
 		
@@ -55,21 +55,17 @@
 		<ul>
 			<li>
 				<b>User management</b><br/>
-				This software is one of the multiple part composing the repository. With several tools, we do not want several authentications. So we are working on an unified way of managing users.
+				Implementation of unified authentication and user management.				
 			</li>
 			<li>
-				<b>Explore the repository</b><br/>
-				Find an experiment would never have been easier!
+				<b>Flexible query and retrieval of data from the repository</b><br/>
+				Will support form-based query by example.
 			</li>
 			<li>
-				<b>Simplify the form</b><br/>
-				Keep a low number of pages to keep users on our repository.
-			</li>
-			<li>
-				<b>Build more module</b><br/>
+				<b>More plugin modules</b><br/>
 				<ul>
-					<li>Images/videos upload</li>
-					<li>Display a periodic table instead of a list</li>
+					<li>Image/video upload,</li>
+					<li>Display periodic table instead of element list.</li>
 				</ul>
 			</li>
 			<li>
@@ -77,11 +73,9 @@
 				<ul>
 					<li>
 						<b>"Save as" function</b><br/>
-						To copy a data set and avoid repetitive job.
 					</li>
 					<li>
 						<b>Pre-filled fields</b><br/>
-						To let you know what kind of data we are waiting for.
 					</li>
 				</ul>
 			</li>

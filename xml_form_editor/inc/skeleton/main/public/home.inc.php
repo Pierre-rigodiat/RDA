@@ -7,7 +7,7 @@
 		This system allows for the curation of Material Data in a repository using predefined templates and a prototype <a href="" target="blank">ontology</a>.
 	</p>
 	<p>
-		This is a prototype being developped at the National Institute of Standards and Technology and is made available to sollicit comments from the Material Science community.
+		This is a prototype being developed at the National Institute of Standards and Technology and is made available to sollicit comments from the Material Science community.
 		Please do not enter any proprietary data into this system.
 	</p>
 </div></div>
@@ -43,7 +43,7 @@
 		
 		<img src="resources/img/help-big.png" width="64" height="64" alt="" class="left bordered" />
 		<h3><a href="next-features">Want to see more?</a></h3>
-		<p>Take a look at the <a href="admin-tour"><b>admin part</b></a> or see what the <a href="next-features"><b>next features</b></a> are.</p>
+		<p>Take a look at the <a href="admin-tour"><b>admin subsystem</b></a> or see what some of our <a href="next-features"><b>future plans</b></a> are.</p>
 	
 		<div class="clearer">&nbsp;</div>
 	</div>
