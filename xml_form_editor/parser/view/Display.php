@@ -1264,7 +1264,7 @@ class Display
 		$elementAttr = $elementDesc['xsdElement'] -> getAttributes();
 	
 		/* Display the start li tag for non root element */
-		if($elementId != 0 && $elementAttr['NAME'] != 'choose')
+		if($elementId != 0 && isset($elementAttr['NAME']) && $elementAttr['NAME'] != 'choose')
 		{		
 			$adminQueryElement .= '<li id="' . $elementId . '"' . '>';
 		}
@@ -1273,7 +1273,7 @@ class Display
 		{
 			$adminQueryElement .= self::$_CONF['FORM']['root_start_name_tag'] . ucfirst($elementAttr['NAME']) . self::$_CONF['FORM']['root_end_name_tag'];
 		}
-		elseif ($elementAttr['NAME'] != "choose")
+		elseif (isset($elementAttr['NAME']) && $elementAttr['NAME'] != "choose")
 		{
 			$adminQueryElement .= self::$_CONF['FORM']['elem_start_name_tag'] . ucfirst($elementAttr['NAME']) . self::$_CONF['FORM']['elem_end_name_tag'];
 				
@@ -1333,7 +1333,7 @@ class Display
 			}
 		}
 	
-		if($elementId != 0 && $elementAttr['NAME'] != 'choose') $adminQueryElement .= '</li>';
+		if($elementId != 0 && isset($elementAttr['NAME']) && $elementAttr['NAME'] != 'choose') $adminQueryElement .= '</li>';
 	
 		return $adminQueryElement;
 	}
