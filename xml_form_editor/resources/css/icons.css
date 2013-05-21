@@ -23,6 +23,11 @@
 	
 }
 
+.icon.disable-selection
+{
+	cursor: default;
+}
+
 .icon.legend
 {
 	text-indent: 20px;

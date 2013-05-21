@@ -15,6 +15,7 @@ RewriteCond %{REQUEST_URI} !^/mgi/index\.php.*$
 RewriteCond %{REQUEST_URI} !^/mgi/MongoDB/?.*$
 RewriteRule ^([^/]*)$ index.php?p=public&sp=$1 [L]
 
+
 # ADMIN REWRITE
 RewriteRule admin/resources/(.*) resources/$1 [L]
 RewriteRule admin/inc/(.*) inc/$1 [L]

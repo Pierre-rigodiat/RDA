@@ -22,18 +22,18 @@ if(isset($_SESSION['xsd_parser']['display']) && isset($_SESSION['xsd_parser']['p
 		
 		switch($_GET['p'])
 		{
-			case 'icon next':
+			case 'next':
 				if($currentPage<$pHandler->getNumberOfPage()) $currentPage += 1;
 				break;
-			case 'icon previous':
+			case 'prev':
 				if($currentPage>1) $currentPage -= 1;
 				break;
-			case 'icon begin':
+			/*case 'icon begin':
 				$currentPage = 1;
 				break;
 			case 'icon end':
 				$currentPage = $pHandler -> getNumberOfPage();
-				break;
+				break;*/
 			default:
 				$currentPage = intval($_GET['p']);
 				break;

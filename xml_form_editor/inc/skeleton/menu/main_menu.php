@@ -38,7 +38,7 @@
 ?>
 <ul class="tabbed">
 	<li <?php if($cursor=='home') echo 'class="current_page_item"'; ?>><a href="home">Home</a></li>
-	<li <?php if($cursor=='register') echo 'class="current_page_item current_page_parent"'; ?>><a href="register">Register Experiment</a></li>
+	<li <?php if($cursor=='register') echo 'class="current_page_item current_page_parent"'; ?>><a href="register">Data Curation</a></li>
 	<li <?php if($cursor=='search') echo 'class="current_page_item"'; ?>><a href="search">Data Exploration</a></li>
 </ul>
 <?php	

@@ -68,7 +68,8 @@ class Display
 			"elem_end_name_tag" => '</span>',
 			"add_icon" => '<span class="icon add"></span>',
 			"remove_icon" => '<span class="icon remove"></span>',
-			"refresh_icon" => '<span class="icon refresh"></span>'
+			"refresh_icon" => '<span class="icon refresh"></span>',
+			"edit_icon" => '<a class="btn btn-mini edit" href="#"><i class="icon-edit"></i></a>'
 		),
 		"XML" => array(),
 		"QUERY" => array(
@@ -219,7 +220,8 @@ class Display
 	 */
 	public function displayPageNavigator()
 	{		
-		$pageNavigator = '<div class="paginator">';
+		//$pageNavigator = '<div class="paginator">';
+		$pageNavigator = '<ul>';
 		
 		$pageHandler = $this -> xsdManager -> getPageHandler();
 		
@@ -229,17 +231,21 @@ class Display
 		{
 			$currentPage = $pageHandler -> getCurrentPage();
 			
-			$pageNavigator .= '<span class="ctx_menu"><span class="icon begin"></span></span><span class="ctx_menu"><span class="icon previous"></span></span>';
+			//$pageNavigator .= '<span class="ctx_menu"><span class="icon begin"></span></span><span class="ctx_menu"><span class="icon previous"></span></span>';
+			$pageNavigator .= '<li'.($currentPage==1?' class="disabled"':'').'><a href="">Prev</a></li>';
 			
 			for($i=0; $i<$totalPage; $i++)
 			{
-				$pageNavigator .= '<span class="ctx_menu '.($currentPage==$i+1?'selected':'button').'">'.($i+1).'</span>';
+				//$pageNavigator .= '<span class="ctx_menu '.($currentPage==$i+1?'selected':'button').'">'.($i+1).'</span>';
+				$pageNavigator .= '<li'.($currentPage==$i+1?' class="active"':'').'><a href="">'.($i+1).'</a></li>';
 			}
 			
-			$pageNavigator .= '<span class="ctx_menu"><span class="icon next"></span></span><span class="ctx_menu"><span class="icon end"></span></span>';
+			//$pageNavigator .= '<span class="ctx_menu"><span class="icon next"></span></span><span class="ctx_menu"><span class="icon end"></span></span>';
+			$pageNavigator .= '<li'.($currentPage==$totalPage?' class="disabled"':'').'><a href="">Next</a></li>';
 		}
 		
-		$pageNavigator .= '</div>';
+		//$pageNavigator .= '</div>';
+		$pageNavigator .= '</ul>';
 		
 		return $pageNavigator;
 	}
@@ -457,6 +463,20 @@ class Display
 		$elementAttr = $elementDesc['xsdElement'] -> getAttributes();
 		
 		$this->LOGGER->log_notice('Display ID '.$elementId.'; Object: '.$elementDesc['xsdElement'], 'Display::displayConfigurationElement');
+		
+		/* REF attribute workaround */
+		if(!isset($elementAttr['NAME']) && isset($elementAttr['REF']))
+		{
+			$elementAttr['NAME'] = '<i>'.$elementAttr['REF'].'</i>';
+			unset($elementAttr['REF']);
+		} 
+		
+		/* At this point, if attribute NAME has not been set, we have a problem */
+		if(!isset($elementAttr['NAME']))
+		{
+			// TODO log
+			throw new Exception("Attribute NAME undefined for element ID ".$elementId, -1);
+		}
 		
 		$configElement = '';
 		$children = array();
@@ -714,6 +734,16 @@ class Display
 		
 		$elementAttr = $elementDesc['xsdElement'] -> getAttributes();
 		
+		/* REF attribute workaround */
+		if(!isset($elementAttr['NAME']) && isset($elementAttr['REF'])) $elementAttr['NAME'] = '<i>'.$elementAttr['REF'].'</i>';
+		
+		/* At this point, if attribute NAME has not been set, we have a problem */
+		if(!isset($elementAttr['NAME']))
+		{
+			// TODO log
+			throw new Exception("Attribute NAME undefined for element ID ".$elementId, -1);
+		}
+		
 		/* Display the start li tag for non root element */ 
 		if($elementId != 0)
 		{
@@ -754,12 +784,17 @@ class Display
 					
 					if(isset($elementAttr['AUTO_GENERATE']) && $elementAttr['AUTO_GENERATE']=='uid')
 					{
-						$htmlFormElement .= ' value="'."doc_uid".'" disabled="disabled"';
+						$htmlFormElement .= ' value="'.$this -> xsdManager -> getXsdManagerId().'" disabled="disabled"';
 					}
 					
 				}
 				
 				$htmlFormElement .= '/>';
+				
+				if(isset($elementAttr['AUTO_GENERATE']) && $elementAttr['AUTO_GENERATE']=='uid')
+				{
+					$htmlFormElement .= ' '.self::$_CONF['FORM']['edit_icon'];
+				}
 				
 				$this->LOGGER->log_notice('ID '.$elementId.' can be edited', 'Display::displayHTMLFormElement');
 			}
@@ -917,6 +952,16 @@ class Display
 		if(isset($elementAttr['AVAILABLE']) && $elementAttr['AVAILABLE']==false)
 		{
 			return $xmlElement;
+		}
+		
+		/* REF attribute workaround */
+		if(!isset($elementAttr['NAME']) && isset($elementAttr['REF'])) $elementAttr['NAME'] = $elementAttr['REF'];
+		
+		/* At this point, if attribute NAME has not been set, we have a problem */
+		if(!isset($elementAttr['NAME']))
+		{
+			// TODO log
+			throw new Exception("Attribute NAME undefined for element ID ".$elementId, -1);
 		}
 	
 		// Element CHOICE are not displayed (element created to be able to make the choice in the form)

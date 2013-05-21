@@ -114,7 +114,7 @@ class XmlParser
 	/**
 	 * 
 	 */
-	public function getParsingData()
+	public function getParsedData()
 	{		
 		return $this -> tree;
 	}

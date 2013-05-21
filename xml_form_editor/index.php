@@ -23,16 +23,26 @@
 	<meta name="keywords" content="" />
 	<meta name="author" content="" />
 	
+	<!-- Twitter bootstrap -->
+	<!-- TODO Use a smaller version of the lib -->
+	<link href="resources/css/lib/bootstrap.min.css" rel="stylesheet" media="screen">
+	<!--link href="resources/css/lib/bootstrap-responsive.min.css" rel="stylesheet" media="screen"-->
+	
+	<!-- JQuery UI -->
+	<link rel="stylesheet" type="text/css" href="resources/css/lib/jquery-ui-1.10.1.custom.min.css" />
+	
 	<link rel="stylesheet" type="text/css" href="resources/css/style.css" media="screen" />
 	<link rel="stylesheet" type="text/css" href="resources/css/style.add.css"	media="screen" />
 	<link rel="stylesheet" type="text/css" href="resources/css/xml_display.css" media="screen" />
 	<link rel="stylesheet" type="text/css" href="resources/css/icons.css" media="screen" />
 	
+	<link rel="stylesheet" href="resources/css/dialog.css" />
+	
+	
+	<!-- TODO Put all JS calls at the end of the body tag -->
 	<script type="text/javascript" src="inc/controllers/js/xml_display.js"></script>
 	<script type="text/javascript" src="inc/controllers/js/php.js"></script>
 	
-	
-	<link rel="stylesheet" type="text/css" href="resources/css/lib/jquery-ui-1.10.1.custom.min.css" />
 	
 	<!-- JQuery & JQuery UI -->
 	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
@@ -43,47 +53,7 @@
 	<script type="text/javascript" src="inc/controllers/js/pageLoader.js"></script>
 	<!--script type="text/javascript" src='resources/js/message.js'></script-->
 	
-	<link rel="stylesheet" href="resources/css/dialog.css" />
-	
-	<script>
-		/*$(window).load(function () {
-			var unitArray = new Array("B", "kB", "MB", "GB");
-			var unitArrayIndex = 0;
-			   
-	       	var endTime = (new Date()).getTime();
-	      	var msLoadJS = endTime - startTime;
-
-	       	var msLoadPHP = $('#php_exec_time').attr('value');
-
-			var memPHP = $('#php_mem').attr('value');  
-			while(memPHP>1024 && unitArrayIndex<unitArray.length)
-			{
-				memPHP = memPHP / 1024;
-				unitArrayIndex += 1;
-			}
-
-			memPHP = Math.round(memPHP*100)/100;
-			memPHP = memPHP + ' ' + unitArray[unitArrayIndex];
-			
-
-			unitArrayIndex = 0;
-			
-	       	var memPHPPeak = $('#php_mem_peak').attr('value');
-	       	while(memPHPPeak>1024 && unitArrayIndex<unitArray.length)
-			{
-	       		memPHPPeak = memPHPPeak / 1024;
-				unitArrayIndex += 1;
-			}
-
-	       	memPHPPeak = Math.round(memPHPPeak*100)/100;
-	       	memPHPPeak = memPHPPeak + ' ' + unitArray[unitArrayIndex];
-	
-	       	$('#exec_time').html("<u>Execution time:</u> <b>"+msLoadJS+" ms (JS) / "+msLoadPHP+" ms (PHP)</b>");
-	       	$('#php_mem_debug').html("<u>PHP Memory:</u> <b>"+memPHP+" (peak: "+memPHPPeak+")</b>");
-   		});*/
-	</script>
-	
-	<title><?php echo TOOL_TITLE.' '.TOOL_VERSION; ?></title>
+	<title><?php echo PROJECT_NAME.' '.TOOL_VERSION; ?></title>
 </head>
 <body id="top">
 	<div id="header-wrapper">
@@ -92,7 +62,7 @@
 				<div id="header">
 					<?php 
 						require_once 'inc/skeleton/header/logo.php';
-						require_once 'inc/skeleton/header/menu.php';
+						//require_once 'inc/skeleton/header/menu.php';
 					?>
 				</div>
 
@@ -169,5 +139,7 @@
 			echo '<input type="hidden" id="php_mem_peak" value="'.memory_get_peak_usage().'"/>';
 		}
 	?>
+	
+	<script src="resources/js/bootstrap.min.js"></script>
 </body>
 </html>

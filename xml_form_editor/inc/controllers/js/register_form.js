@@ -35,9 +35,11 @@ loadRegisterFormController = function()
         }
     });
 	
-	$('.blank').on('click', clearFields);
-	$('.load').on('click', loadFormDialog);
-	$('.save').on('click', saveInDB);
+	$('.btn.clear-fields').on('click', clearFields);
+	$('.btn.load-form').on('click', loadFormDialog);
+	$('.btn.save-form').on('click', saveInDB);
+	
+	$('.btn.edit').on('click', editField);
 }
 
 removeRegisterFormController = function()
@@ -109,6 +111,10 @@ loadFormDialog = function()
 
 loadForm = function(formId)
 {
+	var successMessage = '<div class="temp success"><span class="icon valid"></span>Form successfully loaded!</div>',
+		errorMessage = '<div class="temp error"><span class="icon invalid"></span>An error occured during the save</div>',
+		messageLocation = $("#main").children(":first");
+	
 	console.log('[loadForm] Loading form '+formId+'...');
 	
 	$.ajax({
@@ -122,9 +128,15 @@ loadForm = function(formId)
         	removeRegisterFormController();
         	loadRegisterFormController();
         	
+        	messageLocation.hide().html(successMessage).fadeIn(500);
+        	messageLocation.delay(2000).fadeOut(500);
+        	
         	console.log("[loadForm] Form saved");
         },
         error: function() {
+        	messageLocation.hide().html(errorMessage).fadeIn(500);
+        	messageLocation.delay(2000).fadeOut(500);
+        	
             console.error("[loadForm] Problem with the AJAX call");
         },
         // Form data
@@ -190,6 +202,10 @@ saveInSession = function()
 
 saveInDB = function()
 {
+	var successMessage = '<div class="temp success"><span class="icon valid"></span>Form successfully saved!</div>',
+		errorMessage = '<div class="temp error"><span class="icon invalid"></span>An error occured during the save</div>',
+		messageLocation = $("#main").children(":first");
+	
 	console.log("[saveInDB] Saving into db...");
 	
 	saveInSession();
@@ -198,9 +214,16 @@ saveInDB = function()
         url: 'inc/controllers/php/manageData.php',
         type: 'GET',
         success: function(data) {
+        	messageLocation.hide().html(successMessage).fadeIn(500);
+        	messageLocation.delay(2000).fadeOut(500);
+        	
         	console.log("[saveInDB] Form saved");
+        	
         },
         error: function() {
+        	messageLocation.hide().html(errorMessage).fadeIn(500);
+        	messageLocation.delay(2000).fadeOut(500);   
+        	
             console.error("[saveInDB] Problem with the AJAX call");
         },
         // Form data
@@ -210,7 +233,43 @@ saveInDB = function()
         contentType: false,
         processData: false
     });
-	
-	
 }
 
+editField = function(event)
+{
+	event.preventDefault();
+	
+	var inputField = $(this).parent().children('input');
+	
+	if(inputField.attr('disabled'))
+	{
+		console.log('[editField] Edit mode ON');
+	
+		$(this).children(':first').attr('class', 'icon-ok')
+		inputField.removeAttr('disabled');
+	}
+	else
+	{
+		console.log('[editField] Edit mode OFF');
+		
+		$(this).children(':first').attr('class', 'icon-edit')
+		inputField.attr('disabled', 'disabled');
+		
+		$.ajax({
+	        url: 'inc/controllers/php/change.php',
+	        type: 'GET',
+	        success: function(data) {
+	        	console.log("[editField] Form saved");
+	        },
+	        error: function() {
+	            console.error("[editField] Problem with the AJAX call");
+	        },
+	        // Form data
+	        data: 'id='+inputField.attr('value'),
+	        //Options to tell JQuery not to process data or worry about content-type
+	        cache: false,
+	        contentType: false,
+	        processData: false
+	    });
+	}	
+}

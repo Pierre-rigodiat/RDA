@@ -29,6 +29,9 @@ thead, tr, th, td, textarea, input, select
 	font-size: 100%; 
 	font-family: inherit; 
 	vertical-align: baseline;
+
+	/* Added by NIST */
+	line-height: 23px;
 }
 table {border-collapse: collapse; border-spacing: 0;}
 caption, th, td {text-align: left; font-weight: normal;}
@@ -130,7 +133,7 @@ dd {margin-left: 1.5em;}
 
 table {margin-bottom: 1.4em; width: 100%;}
 th {font-weight: bold;}
-thead th {background: #C3D9FF;}
+/*thead th {background: #C3D9FF;}*/
 th,td,caption {padding: 4px 10px 4px 5px;}
 tr.even td {background: #F2F6FA;}
 tfoot {font-style: italic;}
@@ -454,7 +457,10 @@ div.comment-list {
 #header-wrapper-2 {background: url('../img/header-wrapper-2.gif') repeat-y center top;}
 #header {
 	background: #333 url('../img/header.gif') repeat-x left top;
-	padding: 32px 32px 0 46px;
+	padding: 20px 32px 0 46px; /* Original values 32px 32px 0 46px*/
+	
+	/* TODO Remove it when you want to add the right menu again */
+	height: 70px;
 }
 
 #help-wrapper {
@@ -486,6 +492,9 @@ div.comment-list {
 #site-slogan {
 	color: #B58361;
 	font-size: 1.3em;
+	
+	/* TODO Remove it when you want to add the right menu again */
+	margin-bottom: 0;
 }
 
 

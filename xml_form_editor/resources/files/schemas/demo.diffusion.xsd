@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 
 <xsd:schema xmlns:hdf5="http://hdfgroup.org/HDF5/XML/schema/HDF5-File" xmlns:xsd="http://www.w3.org/2001/XMLSchema" attributeFormDefault="unqualified" elementFormDefault="qualified">
-  <xsd:include schemaLocation="HDF5-File.xsd"/>
+  <xsd:import namespace="http://hdfgroup.org/HDF5/XML/schema/HDF5-File" schemaLocation="HDF5-File.xsd"/>
   <!-- ================================================== -->
   <!-- =====  Element Declarations  -->
   <!-- ================================================== -->
@@ -178,7 +178,7 @@
   <xsd:complexType name="CitationType">
         <xsd:choice>
             <xsd:element name="citation" type="CitationOnlyType"/>
-            <xsd:element name="doi" type="DOIOnlyType"/>
+            <xsd:element name="DOI" type="DOIOnlyType"/>
         </xsd:choice>
   </xsd:complexType>
   
@@ -188,7 +188,7 @@
   <xsd:complexType name="CitationOnlyType">
       <xsd:sequence>
         <xsd:element name="citation" type="xsd:string"/>
-        <xsd:element minOccurs="0" name="doi" type="xsd:string"/>
+        <xsd:element minOccurs="0" name="DOI" type="xsd:string"/>
       </xsd:sequence>
   </xsd:complexType>
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
@@ -196,7 +196,7 @@
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
   <xsd:complexType name="DOIOnlyType">
     <xsd:sequence>
-      <xsd:element name="doi" type="xsd:string"/>
+      <xsd:element name="DOI" type="xsd:string"/>
     </xsd:sequence>
   </xsd:complexType>
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
@@ -205,7 +205,7 @@
   <xsd:complexType name="ColumnUnit">
     <xsd:sequence>
       <xsd:element name="unitOfMeasureType" type="UnitOfMeasureType"/>
-      <xsd:element name="field" type="hdf5:Field"/>
+      <xsd:element ref="hdf5:Field"/>
     </xsd:sequence>
   </xsd:complexType>
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
@@ -225,6 +225,15 @@
       <xsd:element name="quantityUnit" type="ConstituentQuantityUnitType"/>
       <xsd:element maxOccurs="unbounded" name="constituents" type="ConstituentMaterial"/>
       <xsd:element minOccurs="1" maxOccurs="2" name="materialForm" type="FormOfMatter"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!--  ConstituentElement  -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <xsd:complexType name="ConstituentElement">
+    <xsd:sequence>
+      <xsd:element name="element" type="ChemicalElement"/>
+      <xsd:element name="subscript" type="xsd:double"/>
     </xsd:sequence>
   </xsd:complexType>
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
@@ -253,19 +262,45 @@
   <xsd:complexType name="DataAnalysisType">
     <xsd:sequence>
       <xsd:element minOccurs="0" maxOccurs="unbounded" name="dataAnalysisMethod" type="DataAnalysisMethodType"/>
+      <xsd:element minOccurs="0" maxOccurs="unbounded" name="micrographOfStructure" type="ImageType"/>
     </xsd:sequence>
   </xsd:complexType>
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
-  <!--  Data Analysis Method -->
+  <!--  Data Analysis : Intrinsic Diffusion -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <xsd:complexType name="IntrinsicDataAnalysisType">
+    <xsd:sequence>
+      <xsd:element minOccurs="0" maxOccurs="unbounded" name="dataAnalysisMethod" type="IntrinsicDataAnalysisMethodType"/>
+      <xsd:element minOccurs="0" maxOccurs="unbounded" name="micrographOfStructure" type="ImageType"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!--  Data Analysis Method :  -->
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
   <xsd:complexType name="DataAnalysisMethodType">
     <xsd:sequence>
-      <xsd:element minOccurs="1" maxOccurs="unbounded" name="method" type="xsd:string"/>
+      <xsd:element minOccurs="1" maxOccurs="unbounded" name="samplePreparation" type="xsd:string"/>
       <xsd:choice>
         <xsd:element name="arrheniusFit" type="ArrheniusFitType"/>
         <xsd:element name="otherEquation" type="xsd:string"/>
       </xsd:choice>
-      <xsd:element minOccurs="0" maxOccurs="unbounded" name="results" type="ImageType"/>
+      
+    </xsd:sequence>
+  </xsd:complexType>
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!--  Data Analysis Method :  Intrinsic Diffusion Data Analysis Type-->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <xsd:complexType name="IntrinsicDataAnalysisMethodType">
+    <xsd:sequence>
+      <xsd:element minOccurs="1" maxOccurs="unbounded" name="samplePreparation" type="xsd:string"/>
+      <xsd:choice>
+        <xsd:element minOccurs="0" name="kirkendallVelocity" type="KirkendallType"/>
+        <xsd:element minOccurs="0" name="vacancyWindFactor" type="xsd:string"/>
+        <xsd:element minOccurs="0" name="thermodynamicFactor" type="xsd:string"/>
+        <xsd:element name="arrheniusFit" type="ArrheniusFitType"/>
+        <xsd:element minOccurs="0" name="otherEquation" type="xsd:string"/>
+      </xsd:choice>
+     
     </xsd:sequence>
   </xsd:complexType>
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
@@ -292,6 +327,30 @@
       <xsd:element name="description" type="xsd:string"/> 
     </xsd:sequence>
   </xsd:complexType>
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!--  Data Analysis Method Type : Kirkendall Marker -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <xsd:complexType name="KirkendallType">
+    <xsd:annotation>
+      <xsd:documentation>
+        <div class="summary">Kirkendall</div>
+        <div class="description">
+          <p>The velocity and distance of interface marker. 
+          </p> 
+        </div>
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="kirkendallMarkerVelocity" type="xsd:double"/>
+      <xsd:element name="velocityUnit" type="VelocityUnitType"/> 
+      <xsd:element minOccurs="0" name="description" type="xsd:string"/>
+
+      <xsd:element name="kirkendallMarkerPlane" type="xsd:double"/>
+      <xsd:element name="distanceUnit" type="LengthUnitType"/> 
+      <xsd:element minOccurs="0" name="description" type="xsd:string"/> 
+    </xsd:sequence>
+  </xsd:complexType>
+
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
   <!--  Datum  -->
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
@@ -400,23 +459,21 @@
   <!--  Experiment Type: Intrinsic Diffusivity Experiment  -->
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
   <xsd:complexType name="IntrinsicDiffusivity">
-    <xsd:sequence>
-      
+    <xsd:sequence>  
       <xsd:element name="startingMaterial" type="Material"/>
       <xsd:element name="material" type="Material"/>
       
-      <xsd:element name="interfaceMarkers" type="InterfaceMarkerType"/>
+      <xsd:element minOccurs="1" maxOccurs="unbounded" name="interfaceMarkers" type="InterfaceMarkerType"/>
       
       <xsd:element name="experimentalConditions" type="ExperimentalConditionsType"/>
       
       <xsd:element minOccurs="1" maxOccurs="1" name="samplePreparations" type="SamplePreparationType"/>  
       
-      <xsd:element minOccurs="1" maxOccurs="1" name="measurement" type="MeasurementType"/>
+      <xsd:element minOccurs="1" maxOccurs="unbounded" name="measurement" type="MeasurementType"/>
       
       <xsd:element name="measuredProperty" type="xsd:string"/>
-      <xsd:element name="measuredValues" type="MeasuredValuesType"/>
+      <xsd:element minOccurs="1" maxOccurs="unbounded" name="measuredValues" type="MeasuredValuesType"/>
       
-      <xsd:element name="dataAnalysis" type="DataAnalysisType"/>
     </xsd:sequence>
   </xsd:complexType>  
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
@@ -431,9 +488,9 @@
       
       <xsd:element minOccurs="1" maxOccurs="1" name="samplePreparations" type="SamplePreparationType"/>  
       
-      <xsd:element minOccurs="1" maxOccurs="1" name="measurement" type="MeasurementType"/>
+      <xsd:element minOccurs="1" maxOccurs="unbounded"  name="measurement" type="MeasurementType"/>
       
-      <xsd:element name="measuredValues" type="MeasuredValuesType"/>
+      <xsd:element minOccurs="1" maxOccurs="unbounded" name="measuredValues" type="MeasuredValuesType"/>
       
       <xsd:element name="dataAnalysis" type="DataAnalysisType"/>
     </xsd:sequence>
@@ -475,8 +532,8 @@
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
   <xsd:complexType name="InterfaceMarkerType">
     <xsd:sequence>
-      <xsd:element name="type" type="xsd:string"/>
-      <xsd:element name="preparation" type="xsd:string"/>
+      <xsd:element minOccurs="1" maxOccurs="unbounded" name="interfaceMarker" type="MaterialCompound"/>
+   
     </xsd:sequence>
   </xsd:complexType>
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
@@ -487,6 +544,16 @@
       <xsd:element name="materialName" type="xsd:string"/>
       <xsd:element name="phase" type="Phase"/>
       <xsd:element name="Composition" type="Composition"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!--  Material Compound -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <xsd:complexType name="MaterialCompound">
+    <xsd:sequence>
+      <xsd:element name="materialName" type="xsd:string"/>
+      <xsd:element name="phase" type="Phase"/>
+      <xsd:element name="molecularFormula" type="MolecularFormula"/>
     </xsd:sequence>
   </xsd:complexType>
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
@@ -540,7 +607,7 @@
   <xsd:complexType name="MeasurementType">
     <xsd:sequence>
       <xsd:element name="type" type="xsd:string"/>
-      <xsd:element name="experimentalMethod" type="ExperimentalMethodType"/>
+      <xsd:element minOccurs="1" maxOccurs="1" name="experimentalMethod" type="ExperimentalMethodType"/>
       <xsd:element name="dataCollectionMethod" type="xsd:string"/>      
     </xsd:sequence>
   </xsd:complexType>
@@ -686,6 +753,14 @@
     </xsd:choice>
   </xsd:complexType>  
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!--  Molecular Formula  -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <xsd:complexType name="MolecularFormula">
+    <xsd:choice>
+      <xsd:element minOccurs="1" maxOccurs="unbounded" name="element" type="ConstituentElement"/>
+    </xsd:choice>
+  </xsd:complexType>  
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
   <!--  Phase  -->
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
   <xsd:complexType name="Phase">
@@ -810,7 +885,7 @@
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
   <xsd:complexType name="Table">
     <xsd:sequence>
-      <xsd:element name="hDF5-File" type="hdf5:HDF5-File"/>
+      <xsd:element ref="hdf5:HDF5-File"/>
       <xsd:element maxOccurs="unbounded" name="columnUnit" type="ColumnUnit"/>
     </xsd:sequence>
   </xsd:complexType>
@@ -858,10 +933,8 @@
     <xsd:restriction base="xsd:string">
       <xsd:enumeration value="mass fraction"/>
       <xsd:enumeration value="mass percent"/>
-      <xsd:enumeration value="mass concentration"/>
       <xsd:enumeration value="mole fraction"/>
       <xsd:enumeration value="mole percent"/>
-      <xsd:enumeration value="molar concentration"/>
     </xsd:restriction>
   </xsd:simpleType>
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
@@ -908,6 +981,15 @@
       <xsd:enumeration value="seconds"/>
       <xsd:enumeration value="milliseconds"/>
       <xsd:enumeration value="microseconds"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!--  Unit: Velocity Unit TODO Integrate UnitsML  -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <xsd:simpleType name="VelocityUnitType">   
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="m/s"/>
+      <xsd:enumeration value="mm/s"/>
     </xsd:restriction>
   </xsd:simpleType>
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
