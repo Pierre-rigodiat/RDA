@@ -10,23 +10,17 @@ require_once $_SESSION['config']['_ROOT_'].'/parser/parser.inc.php';
 
 <div id="main">
 	<div>
+		<h3 style="float:left">Elements</h3>
 		<div class="right-side">
 			<span class="ctx_menu">
 				<span class="icon legend add id">Submit</span>
 			</span>
 		</div>
 	</div>
-	
-<?php
-	displayAdminQueryTree();
-?>
-
-	<div>
-		<div class="right-side">
-			<span class="ctx_menu">
-				<span class="icon legend add id">Submit</span>
-			</span>
-		</div>
+	<div id="schema_elements">	
+	<?php
+		displayAdminQueryTree();
+	?>
 	</div>
 	
 	<script src="inc/controllers/js/search_mgr.js"></script>

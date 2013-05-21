@@ -106,7 +106,8 @@ function decodeBadgerFish($array)
 {
 	//$array = json_decode($json_string, true);
 	$domDocument = new DOMDocument();
-	$domDocument->formatOutput = true;
+	$domDocument->preservWhiteSpace = false;
+	$domDocument->formatOutput = false;
 	//print_r($array);
 	//echo "<hr/>";
 	

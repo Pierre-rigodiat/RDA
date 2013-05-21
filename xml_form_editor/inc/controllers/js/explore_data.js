@@ -67,29 +67,31 @@ retrieveQuery = function()
 	var inputs = $('.query_element'),
 		qString = '';
 	
-	function unCapitaliseFirstLetter(string)
+	/*function unCapitaliseFirstLetter(string)
 	{
 		if (string != null)
 			return string.charAt(0).toLowerCase() + string.slice(1);
 		else
 			return '';
-	}
+	}*/
 	
 	inputs.each(function()
 	{
-		var queryPath = unCapitaliseFirstLetter($(this).prev().text()),
+		var //queryPath = unCapitaliseFirstLetter($(this).prev().text()),
 		match = $(this).val(),
-		currentElement = $(this).prev();
+		//currentElement = $(this).prev();
+		elementId = $(this).parent().attr('id');
 		
 		if(match != '' && match != 'empty')
 		{
-			while (currentElement.parent().parent().siblings(':first').length) {
+			/*while (currentElement.parent().parent().siblings(':first').length) {
 				currentElement = currentElement.parent().parent().siblings(':first');
 				if (currentElement.next().attr('class') != 'xsdman choice' && currentElement.next().attr('id') != 'main')
 					queryPath = unCapitaliseFirstLetter(currentElement.text())+'.'+queryPath;
 			}
 			
-			qString += queryPath+'.$='+match+'&';
+			qString += queryPath+'.$='+match+'&';*/
+			qString += elementId+'='+match+'&';
 		}
 	});
 	
@@ -99,10 +101,23 @@ retrieveQuery = function()
         url: 'inc/controllers/php/queryData.php',
         type: 'GET',
         success: function(data) {
-        	$('#query_result').html(data);
+        	var xmlHolderElement = GetParentElement('XMLContainer');
+    		while (xmlHolderElement.childNodes.length) { 
+    			xmlHolderElement.removeChild(xmlHolderElement.childNodes.item(xmlHolderElement.childNodes.length-1));
+    		}
+        	if (data != "empty") {
+        		var jsonObject = $.parseJSON(data);
+        		$.each(jsonObject, function(index) {
+        			$('#XMLContainer').append('<div id="XMLHolder'+index+'"></div>');
+        			LoadXMLString('XMLHolder'+index, htmlspecialchars_decode($(this).get(0).data));
+        		});
+        	}
+        	else {
+        		$('#XMLContainer').html("<div class='icon invalid'></div><span>Empty result for the query</span>");
+        	}
         },
         error: function() {
-            console.error("[saveData] Problem with the AJAX call");
+            console.error("[retrieveQuery] Problem with the AJAX call");
         },
         // Form data
         data: qString,
@@ -142,10 +157,10 @@ changeChoiceQuery = function()
         		console.log('[changeChoiceElement] Element '+choiceId+' successfully changed!');
         	}
         	else // An error happened
-        		console.error('[changeChoiceElement] Error '+jsonObject.code+' ('+jsonObject.result+')')
+        		console.error('[changeChoiceQuery] Error '+jsonObject.code+' ('+jsonObject.result+')')
         },
         error: function() {
-            console.error("[changeChoiceElement] Problem with ID "+elementId);
+            console.error("[changeChoiceQuery] Problem with ID "+elementId);
         },
         // Form data
         data: 'parent='+choiceId+'&child='+chosenElementId,

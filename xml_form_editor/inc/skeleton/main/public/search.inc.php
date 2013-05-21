@@ -29,7 +29,7 @@
 		</div>
 	</div>
 	
-	<div id="query_result"></div>
+	<div id="XMLContainer"></div>
 	
 	<script src="inc/controllers/js/explore_data.js"></script>
 	<script>
