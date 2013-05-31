@@ -12,7 +12,7 @@ function getJSONString(/*$parser, $xsdCompleteTree, */$elementId)
 	/*$parser -> setXsdCompleteTree($xsdCompleteTree);
 	 $_SESSION['xsd_parser']['parser'] = serialize($parser);*/
 
-	$htmlCode = htmlspecialchars(displayQueryTree($elementId));
+	$htmlCode = htmlspecialchars(str_replace('\.', '\\\.', displayQueryTree($elementId)));
 	
 	if(isset($htmlCode))
 	{
@@ -111,7 +111,7 @@ if(isset($_GET['action']) && isset($_GET['id']) && isset($_SESSION['xsd_parser']
 
 	if(!$isElderAvailable)
 	{
-		$htmlCode = htmlspecialchars(displayQueryTree($grandParentId));
+		$htmlCode = htmlspecialchars(str_replace('\.', '\\\.', displayQueryTree($grandParentId)));
 		echo buildJSON($htmlCode, $elderId);
 
 		exit;
