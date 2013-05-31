@@ -85,6 +85,12 @@ class Display
 		)
 	);
 	
+	private static $_NUMERIC_TYPE = array(
+			'double' => '[0-9]*(\.[0-9]+)?',
+			'integer' => '[0-9]*',
+			'float' => '[0-9]*(\.[0-9]+)?'
+			);
+	
 	// Debug and logging variables
 	/** @ignore */
 	private $LOGGER;
@@ -1173,6 +1179,7 @@ class Display
 		//var_dump($elementChild);
 		
 		$attr = $elementChild->getAttributes();
+		$name = isset($attr['NAME']) ? $attr['NAME'] : $attr['REF'];
 		$liClass = '';
 		$disabled = '';
 		if (isset($attr['AVAILABLE']) && !$attr['AVAILABLE']) {
@@ -1182,7 +1189,7 @@ class Display
 		
 		if (in_array($elementID, $displayedIdArray)) {
 			
-			$xmlElement .= '<li id="'.$elementID.'"'.$liClass.'>'.self::$_CONF['QUERY']['elem_start_name_tag'].ucfirst($attr['NAME']).self::$_CONF['QUERY']['elem_end_name_tag'];
+			$xmlElement .= '<li id="'.$elementID.'"'.$liClass.'>'.self::$_CONF['QUERY']['elem_start_name_tag'].ucfirst($name).self::$_CONF['QUERY']['elem_end_name_tag'];
 			
 			if (isset($attr['RESTRICTION']))
 			{
@@ -1195,7 +1202,17 @@ class Display
 				$xmlElement .= '</select>';
 			}
 			else {
-				$xmlElement .= '<input class="text query_element" type="text"'.$disabled.'>';
+				if (isset($attr['TYPE'])) {
+					$explode = explode(':', $attr['TYPE']);
+					$type = $explode[1];
+					if (in_array($type, array_keys(self::$_NUMERIC_TYPE))) {
+						$xmlElement .= '<div class="inline"><input class="'.$type.' greater query_element" type="text" pattern ="'.self::$_NUMERIC_TYPE[$type].'"'.$disabled.'><span class="margin">&#8804;</span><span class="margin">&#8804;</span><input class="'.$type.' less query_element" type="text" pattern ="'.self::$_NUMERIC_TYPE[$type].'"'.$disabled.'></div>';
+					}
+					else
+						$xmlElement .= '<input class="text query_element" type="text"'.$disabled.'>';
+				}
+				else
+					$xmlElement .= '<input class="text query_element" type="text"'.$disabled.'>';
 			}
 		
 			$xmlElement .= $this->displayQueryIcons($elementID).'</li>';
@@ -1219,7 +1236,7 @@ class Display
 					$xmlElement .= $this->displayQueryIcons($elementID);
 				}
 				else {
-					$xmlElement .= '<li id="'.$elementID.'"'.$liClass.'>'.self::$_CONF['QUERY']['elem_start_name_tag'].ucfirst($attr['NAME']).self::$_CONF['QUERY']['elem_end_name_tag'];
+					$xmlElement .= '<li id="'.$elementID.'"'.$liClass.'>'.self::$_CONF['QUERY']['elem_start_name_tag'].ucfirst($name).self::$_CONF['QUERY']['elem_end_name_tag'];
 					$xmlElement .= $this->displayQueryIcons($elementID).$xmlChild;
 				}
 				
@@ -1262,31 +1279,32 @@ class Display
 		}
 	
 		$elementAttr = $elementDesc['xsdElement'] -> getAttributes();
+		$name = isset($elementAttr['NAME']) ? $elementAttr['NAME'] : $elementAttr['REF'];
 	
 		/* Display the start li tag for non root element */
-		if($elementId != 0 && isset($elementAttr['NAME']) && $elementAttr['NAME'] != 'choose')
+		if($elementId != 0 && $name != 'choose')
 		{		
 			$adminQueryElement .= '<li id="' . $elementId . '"' . '>';
 		}
 	
 		if($elementId == 0/*$this -> xsdManager -> getXsdOrganizedTree() -> getParent($elementId) == -1*/)
 		{
-			$adminQueryElement .= self::$_CONF['FORM']['root_start_name_tag'] . ucfirst($elementAttr['NAME']) . self::$_CONF['FORM']['root_end_name_tag'];
+			$adminQueryElement .= self::$_CONF['FORM']['root_start_name_tag'] . ucfirst($name) . self::$_CONF['FORM']['root_end_name_tag'];
 		}
-		elseif (isset($elementAttr['NAME']) && $elementAttr['NAME'] != "choose")
+		elseif ($name != "choose")
 		{
-			$adminQueryElement .= self::$_CONF['FORM']['elem_start_name_tag'] . ucfirst($elementAttr['NAME']) . self::$_CONF['FORM']['elem_end_name_tag'];
+			$adminQueryElement .= self::$_CONF['FORM']['elem_start_name_tag'] . ucfirst($name) . self::$_CONF['FORM']['elem_end_name_tag'];
 				
-			if (isset($elementAttr['TYPE']) && startsWith($elementAttr['TYPE'], 'xsd')) // todo put xsd into a variable (could use the manager)
+			if ((isset($elementAttr['TYPE']) && startsWith($elementAttr['TYPE'], 'xsd')) || isset($elementAttr['REF'])) // todo put xsd into a variable (could use the manager)
 			{
-				$adminQueryElement .= '<input type="checkbox" class="checkbox" '.$elementChecked;
+				$adminQueryElement .= '<input type="checkbox" class="checkbox" '.$elementChecked.'/>';
 	
-				if(($data = $this -> xsdManager -> getDataForId($elementId)) != null) // Element has data
+				/*if(($data = $this -> xsdManager -> getDataForId($elementId)) != null) // Element has data
 				{
 					$adminQueryElement .= ' value="'.$data.'"';
-				}
+				}*/
 	
-				$adminQueryElement .= '/>';
+				//$adminQueryElement .= '/>';
 	
 				$this->LOGGER->log_notice('ID '.$elementId.' can be edited', 'Display::displayAdminQueryElement');
 				
@@ -1296,16 +1314,14 @@ class Display
 			// TODO Implement other types of restriction
 			if (isset($elementAttr['RESTRICTION']))
 			{
-				$data = $this->xsdManager->getDataForId($elementId);
-					
-				$adminQueryElement .= '<input type="checkbox" class="checkbox" '.$elementChecked;
+				$adminQueryElement .= '<input type="checkbox" class="checkbox" '.$elementChecked.'/>';
 				
-				if(($data = $this -> xsdManager -> getDataForId($elementId)) != null) // Element has data
+				/*if(($data = $this -> xsdManager -> getDataForId($elementId)) != null) // Element has data
 				{
 					$adminQueryElement .= ' value="'.$data.'"';
-				}
+				}*/
 				
-				$adminQueryElement .= '/>';
+				//$adminQueryElement .= '/>';
 				
 				$this->LOGGER->log_debug('ID '.$elementId.' is a restriction', 'Display::displayAdminQueryElement');
 			}
@@ -1317,7 +1333,7 @@ class Display
 		
 		if (count($children) > 0)
 		{
-			if($elementAttr['NAME'] != 'choose')
+			if($name != 'choose')
 			{
 				$adminQueryElement .= '<ul>';
 			}
@@ -1327,13 +1343,13 @@ class Display
 				$adminQueryElement .= $this -> displayAdminQueryElement($child);
 			}
 			
-			if($elementAttr['NAME'] != 'choose')
+			if($name != 'choose')
 			{
 				$adminQueryElement .= '</ul>';
 			}
 		}
 	
-		if($elementId != 0 && isset($elementAttr['NAME']) && $elementAttr['NAME'] != 'choose') $adminQueryElement .= '</li>';
+		if($elementId != 0 && $name != 'choose') $adminQueryElement .= '</li>';
 	
 		return $adminQueryElement;
 	}

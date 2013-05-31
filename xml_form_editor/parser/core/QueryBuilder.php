@@ -94,9 +94,17 @@ class QueryBuilder {
 			}
 		}
 		else {
-			if (array_key_exists($elementId, $this->queryId) ) {
-				if ($this->queryId[$elementId] != '') {
+			if (array_key_exists($elementId, $this->queryId) && ($this->queryId[$elementId] != '')) {
+				if (!is_array($this->queryId[$elementId])) {
 					$childrenArray = array('$' => $this->queryId[$elementId]);
+				}
+				else {
+					$rangeArray = array();
+					foreach ($this->queryId[$elementId] as $range) {
+						$temp = preg_split('/ /', $range);
+						$rangeArray = array_merge($rangeArray, array('$'.$temp[0] => (double) $temp[1]));
+					}
+					$childrenArray = array('$' => $rangeArray);
 				}
 			}
 		}

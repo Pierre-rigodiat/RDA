@@ -67,31 +67,41 @@ retrieveQuery = function()
 	var inputs = $('.query_element'),
 		qString = '';
 	
-	/*function unCapitaliseFirstLetter(string)
-	{
-		if (string != null)
-			return string.charAt(0).toLowerCase() + string.slice(1);
-		else
-			return '';
-	}*/
-	
 	inputs.each(function()
 	{
-		var //queryPath = unCapitaliseFirstLetter($(this).prev().text()),
-		match = $(this).val(),
-		//currentElement = $(this).prev();
-		elementId = $(this).parent().attr('id');
+		var match = $(this).val(),
+			range = $(this).hasClass('less') ? 'lte' : ($(this).hasClass('greater') ? 'gte' : ''),
+			elementId = '';
+		
+		console.log(range);
+		
+		if (range == '') {
+			elementId = $(this).parent().attr('id');
+		}
+		else {
+			elementId = $(this).parent().parent().attr('id');
+		}
+		
 		
 		if(match != '' && match != 'empty')
 		{
-			/*while (currentElement.parent().parent().siblings(':first').length) {
-				currentElement = currentElement.parent().parent().siblings(':first');
-				if (currentElement.next().attr('class') != 'xsdman choice' && currentElement.next().attr('id') != 'main')
-					queryPath = unCapitaliseFirstLetter(currentElement.text())+'.'+queryPath;
+			if (range != '') {
+				switch (range) {
+				case 'lte':
+					qString += elementId+range+'='+match+'&';
+					console.log('less');
+					break;
+				case 'gte':
+					qString += elementId+range+'='+match+'&';
+					console.log('greater');
+					break;
+				default:
+					console.error("Undefined Id");
+				}
 			}
-			
-			qString += queryPath+'.$='+match+'&';*/
-			qString += elementId+'='+match+'&';
+			else {
+				qString += elementId+'='+match+'&';
+			}
 		}
 	});
 	

@@ -35,6 +35,10 @@ $db = new MongoDBStream ("127.0.0.1","xsdmgr");
 $db->openDB();
 
 $query = array();
+$pattern = array(
+		'lte' => '/([0-9]+)(lte)/',
+		'gte' => '/([0-9]+)(gte)/'
+		);
 
 if (isset($_GET)) {
 	$queryId = array();
@@ -43,15 +47,24 @@ if (isset($_GET)) {
 		if (is_numeric($key))
 		{
 			$value = is_numeric($value) ? $value+0 : $value;
-			$queryId[$key]=$value;
+			$queryId[$key] = $value;
+		}
+		else {
+			foreach ($pattern as $id => $idPattern) {
+				if (preg_match($idPattern, $key)) {
+					$temp = preg_split('/'.$id.'/', $key, -1, PREG_SPLIT_NO_EMPTY);
+					$newKey = $temp[0];
+					$queryId[$newKey][] = $id.' '.$value;
+					break;
+				}
+			}
 		}
 	}
 	//print_r($queryId);
 	$query = selectQuery($queryId);
 }
 
-
-
+//print_r($query);
 
 $cursor = $db->queryData($query, "experiment");
 
@@ -67,7 +80,4 @@ else {
 	}
 	echo substr($echo, 0, strlen($echo)-1).']';
 }
-
-//print_r($query);
-
 ?>

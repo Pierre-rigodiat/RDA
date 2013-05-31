@@ -206,7 +206,6 @@ b
 
 
 
-
 /**
  * 	DHTMLX form additional css
  */
@@ -224,7 +223,18 @@ b
 	width: 100px;
 }
 
-input.inform{
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    /* display: none; <- Crashes Chrome on hover */
+    -webkit-appearance: none;
+    margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
+}
+
+input.inform,
+input.double,
+input.float,
+input.integer
+{
 
 	/* nicer input for type=number */	
 	border: 1px inset #AAA;
@@ -300,4 +310,16 @@ textarea.inform{
 .checkbox
 {
 	margin-left:5px;
+	min-height:0px;
+}
+
+.inline
+{
+	display:inline-block;
+}
+
+.margin
+{
+	margin-left:10px;
+	margin-right:5px;
 }
