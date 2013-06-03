@@ -992,10 +992,10 @@ class XsdManager
 		$moduleDataArray = array();
 		
 		foreach ($moduleList as $module) {
-			$moduleClass = ucfirst($module);
+			$moduleClass = ucfirst($module['name']);
 			
 			$moduleData = call_user_func($moduleClass.'::__toArray');
-			array_push($moduleDataArray, array($module => $moduleData));
+			array_push($moduleDataArray, array($module['name'] => $moduleData));
 		}
 		
 		
