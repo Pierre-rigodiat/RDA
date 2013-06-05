@@ -34,7 +34,7 @@ require_once $_SESSION['xsd_parser']['conf']['dirname'].'/parser/view/Display.ph
 require_once $_SESSION['xsd_parser']['conf']['dirname'].'/inc/helpers/Logger.php';
 
 
-$numberOfPage = 1;
+/*$numberOfPage = 1;
 $debug = false;
 $moduleDir = null;
 $schemaFolder = '../resources/files/schemas';
@@ -56,21 +56,28 @@ $manager->buildQueryTree();
 $search = $manager->getSearchHandler();
 $search->setIdArray(array(5,16,27,159,170,181,192,336,347,369,513,515));
 
-$_SESSION['xsd_parser']['parser'] = serialize($manager);
+$_SESSION['xsd_parser']['parser'] = serialize($manager);*/
 
-$display = new Display($manager);
+$manager = null;
+if(isset($_SESSION['xsd_parser']['parser'])) {
+	$manager = unserialize($_SESSION['xsd_parser']['parser']);
+}
 
-/*if($manager) var_dump($manager);
-else echo 'Parser variables not set';*/
+$display = null;
+if ($manager) {
+	$display = new Display($manager);
+}
 
 if ($display) {
-$_SESSION['xsd_parser']['display'] = serialize($display);
-echo $display->displayQuery();
+//$_SESSION['xsd_parser']['display'] = serialize($display);
+/*echo $display->displayQueryElement(102);
+echo '<br/><br/><br/><br/><br/>';*/
 //echo $display->displayAdminQueryTree();
 }
 
-/*if($manager)
+if($manager)
 	{
+		$manager = unserialize($_SESSION['xsd_parser']['parser']);
 		$pre = '';
 		$queryTree = $manager->getXsdQueryTree();
 		$queryElements = $queryTree->getElementList();
@@ -114,7 +121,7 @@ echo $display->displayQuery();
 		
 		echo '</ul>';
 	}
-else echo 'XsdManager not set';*/
+else echo 'XsdManager not set';
 ?>
 	</div>
 	<div class="icon legend retrieve query">Submit Query</div>

@@ -65,7 +65,7 @@ if(isset($_GET['parent']) && isset($_GET['child']))
 		$display = unserialize($_SESSION['xsd_parser']['display']);
 		$display -> update();
 		
-		$jsonMessage = htmlspecialchars($display->displayQueryElement($childId));
+		$jsonMessage = htmlspecialchars(str_replace('\.', '\\\.',$display->displayQueryElement($childId)));
 		
 		echo buildJSON($jsonMessage, 0);
 	}

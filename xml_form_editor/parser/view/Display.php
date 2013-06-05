@@ -73,15 +73,17 @@ class Display
 		),
 		"XML" => array(),
 		"QUERY" => array(
-		"view_start_tag" => '<div id="page_content">',
-		"view_end_tag" => '</div>',
-		"root_start_name_tag" => '<h5>',
-		"root_end_name_tag" => '</h5>',
-		"elem_start_name_tag" => '<span class="element_name">',
-		"elem_end_name_tag" => '</span>',
-		"add_icon" => '<span class="icon add"></span>',
-		"remove_icon" => '<span class="icon remove"></span>',
-		"empty_option_tag" => '<option value ="empty"></option>'
+			"view_start_tag" => '<div id="page_content">',
+			"view_end_tag" => '</div>',
+			"root_start_name_tag" => '<h5>',
+			"root_end_name_tag" => '</h5>',
+			"elem_start_name_tag" => '<span class="element_name">',
+			"elem_end_name_tag" => '</span>',
+			"add_icon" => '<span class="icon add"></span>',
+			"remove_icon" => '<span class="icon remove"></span>',
+			"empty_option_tag" => '<option value ="empty"></option>',
+			"edit_icon" => '<span class="icon edit"></span>',
+			"empty_child" => '<ul></ul>'
 		)
 	);
 	
@@ -1057,7 +1059,7 @@ class Display
 	 * @param integer $elementID
 	 * @return string
 	 */
-	private function displayQueryFirstChild($elementID) {
+	public function displayQueryFirstChild($elementID) {
 		$manager = $this->xsdManager;
 		$queryTree = $manager -> getXsdQueryTree();
 
@@ -1097,7 +1099,8 @@ class Display
 	
 	/**
 	 * 
-	 * @param $elementID
+	 * @param integer $elementID
+	 * @return string
 	 */
 	private function displayQueryIcons($elementID) {
 		$manager = $this->xsdManager;
@@ -1204,8 +1207,11 @@ class Display
 			else {
 				if (isset($attr['TYPE'])) {
 					$explode = explode(':', $attr['TYPE']);
-					$type = $explode[1];
-					if (in_array($type, array_keys(self::$_NUMERIC_TYPE))) {
+					$type = '';
+					if (isset($explode[1])) {
+						$type = $explode[1];
+					}
+					if ($type != '' && in_array($type, array_keys(self::$_NUMERIC_TYPE))) {
 						$xmlElement .= '<div class="inline"><input class="'.$type.' greater query_element" type="text" pattern ="'.self::$_NUMERIC_TYPE[$type].'"'.$disabled.'><span class="margin">&#8804;</span><span class="margin">&#8804;</span><input class="'.$type.' less query_element" type="text" pattern ="'.self::$_NUMERIC_TYPE[$type].'"'.$disabled.'></div>';
 					}
 					else
@@ -1222,17 +1228,26 @@ class Display
 		if ($children != array())
 		{
 			$xmlChild = $this->displayQueryChild($elementID);
-			if ($xmlChild != '<ul></ul>')
+			if ($xmlChild != self::$_CONF['QUERY']['empty_child'])
 			{
 				if (isset($attr['CHOICE']))
 				{
+					$choice = $attr['CHOICE'];
 					$xmlElement .= '<li id="'.$elementID.'"'.$liClass.'>'.self::$_CONF['QUERY']['elem_start_name_tag'].'Choose'.self::$_CONF['QUERY']['elem_end_name_tag'].'<select class="xsdman choice">';
-					foreach ($attr['CHOICE'] as $choiceID) {
+					foreach ($choice as $choiceID) {
 						$choiceChild = $manager->getXsdOriginalTree()->getElement($choiceID);
 						$choiceAttr = $choiceChild->getAttributes();
 						$xmlElement .= '<option value="'.$choiceID.'">'.ucfirst($choiceAttr['NAME']).'</option>';
 					}
-					$xmlElement .= '</select>'.$this->displayQueryFirstChild($children[0]);
+					/*echo $name;
+					print_r($children);
+					echo '<br/>';*/
+					foreach($children as $childrenQueryId) {
+						if($queryTree->getElementReferenceId($childrenQueryId) == $choice[0]) {
+							$xmlElement .= '</select>'.$this->displayQueryFirstChild($childrenQueryId);
+							break;
+						}
+					}
 					$xmlElement .= $this->displayQueryIcons($elementID);
 				}
 				else {
@@ -1250,7 +1265,7 @@ class Display
 	/**
 	 *
 	 *
-	 * @param int $elementId Element index
+	 * @param integer $elementId Element index
 	 * @return string HTML code of the element
 	 */
 	private function displayAdminQueryElement($elementId = 0)
@@ -1270,34 +1285,34 @@ class Display
 		$this->LOGGER->log_notice('Displaying ID '.$elementId.'; Object: '.$elementDesc['xsdElement'].'...', 'Display::displayAdminQueryElement');
 	
 		/* Displaying a module implies that children will not be displayed */
-		if($elementDesc['module'] != '')
+		/*if($elementDesc['module'] != '')
 		{
 			$this -> LOGGER -> log_debug('ID '.$elementId.' is not in page '.$currentPage, 'Display::displayAdminQueryElement');
 			// TODO Find a better way to call the module view
 			// XXX Use the XsdManager
 			return displayModule($elementDesc['module']);
-		}
+		}*/
 	
 		$elementAttr = $elementDesc['xsdElement'] -> getAttributes();
 		$name = isset($elementAttr['NAME']) ? $elementAttr['NAME'] : $elementAttr['REF'];
 	
 		/* Display the start li tag for non root element */
-		if($elementId != 0 && $name != 'choose')
+		if($elementId != 0 && !isset($elementAttr['CHOICE']))
 		{		
 			$adminQueryElement .= '<li id="' . $elementId . '"' . '>';
 		}
 	
-		if($elementId == 0/*$this -> xsdManager -> getXsdOrganizedTree() -> getParent($elementId) == -1*/)
+		if($elementId == 0)
 		{
-			$adminQueryElement .= self::$_CONF['FORM']['root_start_name_tag'] . ucfirst($name) . self::$_CONF['FORM']['root_end_name_tag'];
+			$adminQueryElement .= self::$_CONF['QUERY']['root_start_name_tag'] . ucfirst($name) . self::$_CONF['QUERY']['root_end_name_tag'];
 		}
-		elseif ($name != "choose")
+		elseif (!isset($elementAttr['CHOICE']))
 		{
-			$adminQueryElement .= self::$_CONF['FORM']['elem_start_name_tag'] . ucfirst($name) . self::$_CONF['FORM']['elem_end_name_tag'];
+			$adminQueryElement .= self::$_CONF['QUERY']['elem_start_name_tag'] . ucfirst($name) . self::$_CONF['QUERY']['elem_end_name_tag'];
 				
 			if ((isset($elementAttr['TYPE']) && startsWith($elementAttr['TYPE'], 'xsd')) || isset($elementAttr['REF'])) // todo put xsd into a variable (could use the manager)
 			{
-				$adminQueryElement .= '<input type="checkbox" class="checkbox" '.$elementChecked.'/>';
+				$adminQueryElement .= '&nbsp;<input type="checkbox" class="checkbox" '.$elementChecked.'/>';
 	
 				/*if(($data = $this -> xsdManager -> getDataForId($elementId)) != null) // Element has data
 				{
@@ -1308,13 +1323,13 @@ class Display
 	
 				$this->LOGGER->log_notice('ID '.$elementId.' can be edited', 'Display::displayAdminQueryElement');
 				
-			}	
+			}
 				
 			/* Display RESTRICTION element */
 			// TODO Implement other types of restriction
 			if (isset($elementAttr['RESTRICTION']))
 			{
-				$adminQueryElement .= '<input type="checkbox" class="checkbox" '.$elementChecked.'/>';
+				$adminQueryElement .= '&nbsp;<input type="checkbox" class="checkbox" '.$elementChecked.'/>';
 				
 				/*if(($data = $this -> xsdManager -> getDataForId($elementId)) != null) // Element has data
 				{
@@ -1326,14 +1341,16 @@ class Display
 				$this->LOGGER->log_debug('ID '.$elementId.' is a restriction', 'Display::displayAdminQueryElement');
 			}
 
+			$adminQueryElement .= '&nbsp;'.self::$_CONF['QUERY']["edit_icon"];
+			
 		}
-	
+		
 		/* Display children */
 		$children = $this -> xsdManager -> getXsdQueryTree() -> getChildren($elementId);
 		
 		if (count($children) > 0)
 		{
-			if($name != 'choose')
+			if(!isset($elementAttr['CHOICE']))
 			{
 				$adminQueryElement .= '<ul>';
 			}
@@ -1343,13 +1360,13 @@ class Display
 				$adminQueryElement .= $this -> displayAdminQueryElement($child);
 			}
 			
-			if($name != 'choose')
+			if(!isset($elementAttr['CHOICE']))
 			{
 				$adminQueryElement .= '</ul>';
 			}
 		}
 	
-		if($elementId != 0 && $name != 'choose') $adminQueryElement .= '</li>';
+		if($elementId != 0 && !isset($elementAttr['CHOICE'])) $adminQueryElement .= '</li>';
 	
 		return $adminQueryElement;
 	}
