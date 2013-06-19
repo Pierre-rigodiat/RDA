@@ -56,7 +56,7 @@ class QueryBuilder {
 			return null;
 		}
 		elseif ($this->queryId == array()) {
-			return '';
+			return array();
 		}
 		if (!isset($this->queryTree)) {
 			throw new Exception('Query Tree not referenced in the Query Builder');

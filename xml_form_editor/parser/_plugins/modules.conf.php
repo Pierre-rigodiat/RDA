@@ -36,6 +36,13 @@ $modules = array(
 	'images' => array(
 		'class' => 'Images', 
 		'published' => false
+	),
+		
+	// QUERY TABLE MODULE
+	'queryTable' => array(
+			'name' => 'Query Table'
+			'class' => 'QueryTable',
+			'published' => false
 	)
 );
 ?>

@@ -161,7 +161,8 @@ class TableModule {
 		$this -> LOGGER -> log_debug('Parsing '.$fileName.'...', 'TableModule::parseFile');
 		
 		// TODO Change to a configuration variable
-		$pythonExec = '"C:/Program Files (x86)/Python/273/python.exe"';
+		//$pythonExec = '"C:/Program Files (x86)/Python/273/python.exe"';
+		$pythonExec = 'python';
 		
 		// TODO Check if we cannot create a most practical session value
 		$pythonFile = $_SESSION['xsd_parser']['conf']['modules_dirname'].'/table/controllers/python/excelToHDF5.py';
