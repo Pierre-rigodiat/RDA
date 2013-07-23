@@ -21,11 +21,22 @@ Class MongoDBStream
 	private $connection;
 	private $databaseObject;
 
+	// Logging variables
+	private $LOGGER;
+	private static $LEVELS = array(
+			'DBG' => 'notice',
+			'NO_DBG' => 'info'
+	);
+	private static $LOG_FILE;
+	private static $FILE_NAME = 'MongoDBStream.php';
+	
 	/**
 	 * Class constructor
 	 */
 	function __construct()
 	{
+		self::$LOG_FILE = $_SESSION['xsd_parser']['conf']['logs_dirname'].'/mongodb.log';
+		
 		$argc = func_num_args();
 		$argv = func_get_args();
 
@@ -34,22 +45,25 @@ Class MongoDBStream
 			case 0 :
 				$this -> server = "127.0.0.1";
 				$this -> port = 27017;
+				$level = self::$LEVELS['NO_DBG'];
 				break;
 			case 1 :
 				$this -> server = $argv[0];
 				$this -> port = 27017;
+				$level = self::$LEVELS['NO_DBG'];
 				break;
 			case 2 :
 				$this -> server = $argv[0];
 				$this -> port = 27017;
 				$this -> databaseName = $argv[1];
-				;
+				$level = self::$LEVELS['NO_DBG'];
 				break;
 			case 3 :
 				$this -> server = $argv[0];
 				$this -> port = 27017;
 				$this -> username = $argv[1];
 				$this -> password = $argv[2];
+				$level = self::$LEVELS['NO_DBG'];
 				break;
 			case 4 :
 				$this -> server = $argv[0];
@@ -57,6 +71,7 @@ Class MongoDBStream
 				$this -> databaseName = $argv[1];
 				$this -> username = $argv[2];
 				$this -> password = $argv[3];
+				$level = self::$LEVELS['NO_DBG'];
 				break;
 			case 5 :
 				$this -> server = $argv[0];
@@ -64,12 +79,23 @@ Class MongoDBStream
 				$this -> port = $argv[2];
 				$this -> username = $argv[3];
 				$this -> password = $argv[4];
+				$level = self::$LEVELS['NO_DBG'];
 				break;
 			default :
-				echo "Invalid argument number: Should be more than 5\n";
+				$this -> LOGGER -> log_error("Invalid argument number: Should be more than 5", 'MongoDBStream::__construct');
 				break;
 		}
-
+		
+		try
+		{
+			$this -> LOGGER = new Logger($level, self::$LOG_FILE, self::$FILE_NAME);
+		}
+		catch (Exception $ex)
+		{
+			echo '<b>Impossible to build the Logger:</b><br/>' . $ex -> getMessage();
+			return;
+		}
+		
 		$this -> connect();
 	}
 
@@ -114,7 +140,8 @@ Class MongoDBStream
 		}
 		catch (MongoConnectionException $e)
 		{
-			throw new Exception("Cannot connect to the database", -1);
+			throw new Exception("Cannot connect to the database",-1);
+			$this -> LOGGER -> log_error("Cannot connect to the database", 'MongoDBStream::connect');
 		}
 	}
 
@@ -130,12 +157,14 @@ Class MongoDBStream
 				$this -> databaseObject = new MongoDB($this -> connection, $this -> databaseName);
 			else
 			{
-				throw new Exception("Database Object not set", -2);
+				throw new Exception("Database Object not set",-2);
+				$this -> LOGGER -> log_error("Database Object not set", 'MongoDBStream::openDB');
 			}
 		}
 		catch (Exception $e)
 		{
-			throw new Exception("Issue with the MongoDB database", -1);
+			throw new Exception("Issue with the MongoDB database",-3);
+			$this -> LOGGER -> log_error("Issue with the MongoDB database", 'MongoDBStream::openDB');
 		}
 	}
 
@@ -172,7 +201,8 @@ Class MongoDBStream
 		}
 		else
 		{
-			throw new Exception("Database Object not set", -2);
+			throw new Exception("Database Object not set",-2);
+			$this -> LOGGER -> log_error("Database Object not set", 'MongoDBStream::insertJson');
 		}
 	}
 
@@ -190,7 +220,8 @@ Class MongoDBStream
 		
 		if ($jsonArray == array())
 		{
-			throw new Exception("Could not proceed to the JSON conversion", -3);
+			throw new Exception("Could not proceed to the JSON conversion",-4);
+			$this -> LOGGER -> log_error("Could not proceed to the JSON conversion", 'MongoDBStream::insertXml');
 		}
 		
 		// Insert it into the collection
@@ -213,7 +244,8 @@ Class MongoDBStream
 		
 		if ($jsonArray == array())
 		{
-			throw new Exception("Could not proceed to the JSON conversion", -3);
+			throw new Exception("Could not proceed to the JSON conversion",-4);
+			$this -> LOGGER -> log_error("Could not proceed to the JSON conversion", 'MongoDBStream::insertXmlWithId');
 		}
 		
 		$jsonArray['_id'] = $documentId;
@@ -238,7 +270,8 @@ Class MongoDBStream
 		$xmlContents = decodeBadgerFish($json_data);
 		if (!$xmlContents)
 		{
-			throw new Exception("Could not proceed to the JSON comversion", -3);
+			throw new Exception("Could not proceed to the JSON conversion",-4);
+			$this -> LOGGER -> log_error("Could not proceed to the JSON conversion", 'MongoDBStream::retrieveXml');
 		}
 		
 		return htmlspecialchars($xmlContents -> saveXML());
@@ -256,12 +289,14 @@ Class MongoDBStream
 			}
 			else
 			{
-				throw new Exception("Database Object not set", -2);
+				throw new Exception("Database Object not set",-2);
+				$this -> LOGGER -> log_error("Database Object not set", 'MongoDBStream::queryData');
 			}
 		}
 		catch(MongoCursorException $e)
 		{
-			throw new Exception("Issue with the query", -1);
+			throw new Exception("Issue with the query",-5);
+			$this -> LOGGER -> log_error("Issue with the query", 'MongoDBStream::queryData');
 		}
 	}
 

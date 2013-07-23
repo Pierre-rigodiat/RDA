@@ -23,6 +23,11 @@ class ModuleHandler
 	 */
 	private $moduleDir;
 	
+	private static $_CONF = array(
+			'schema',
+			'query'
+	);
+	
 	private $LOGGER;
 	private static $LEVELS = array(
 		'DBG' => 'notice',
@@ -121,8 +126,13 @@ class ModuleHandler
 			foreach($fileList as $file)
 			{
 				if(is_dir($this -> moduleDir.'/'.$file) && !startsWith($file, '.'))
-				{
-					array_push($this -> moduleList, array('name' => strtolower($file), 'enable' => false, 'ids' => array()));
+				{	
+					$init = array('name' => strtolower($file), 'enable' => false);
+					foreach (self::$_CONF as $config) {
+						$init[$config] = array ('ids' => array() );
+					}
+					
+					array_push($this -> moduleList, $init);
 					
 					$this -> LOGGER -> log_debug('Adding '.$file.' to the module list', 'ModuleHandler::__construct');
 				}
@@ -213,16 +223,22 @@ class ModuleHandler
 	/**
 	 * 
 	 */
-	public function setIdWithModule($elementId, $moduleName)
+	public function setIdWithModule($elementId, $moduleName, $config = 'schema')
 	{
-		$this->LOGGER->log_debug('Setting id '.$elementId.' with module '.$moduleName.'...', 'ModuleHandler::setIdWithModule');
+		$this->LOGGER->log_debug('Setting id '.$elementId.' with module '.$moduleName.'in the '.$config.' configuration'.'...', 'ModuleHandler::setIdWithModule');
 		if(($moduleIndex = $this->isInModuleList($moduleName)) != -1)
 		{
-			if(!in_array($elementId, $this -> moduleList[$moduleIndex]['ids']))
-				array_push($this -> moduleList[$moduleIndex]['ids'], $elementId);
-			
-			$this->LOGGER->log_debug('Id '.$elementId.' has been set with module'.$moduleName, 'ModuleHandler::setIdWithModule');
-			return 0;
+			if (in_array($config, self::$_CONF)) {
+				if($this -> moduleList[$moduleIndex][$config]['ids'] == array() || !in_array($elementId, $this -> moduleList[$moduleIndex][$config]['ids']))
+					array_push($this -> moduleList[$moduleIndex][$config]['ids'], $elementId);
+				
+				$this->LOGGER->log_debug('Id '.$elementId.' has been set with module'.$moduleName.'in the '.$config.' configuration', 'ModuleHandler::setIdWithModule');
+				return 0;
+			}
+			else {
+				$this->LOGGER->log_info('Configuration '.$config.' not set in the Module Handler', 'ModuleHandler::setIdWithModule');
+				return -1;
+			}
 		}
 		else 
 		{
@@ -235,20 +251,24 @@ class ModuleHandler
 	/**
 	 * 
 	 */
-	public function getModuleForId($elementId)
+	public function getModuleForId($elementId, $config = 'schema')
 	{
-		$this->LOGGER->log_debug('Getting module for id '.$elementId, 'ModuleHandler::getModuleForId');
+		$this->LOGGER->log_debug('Getting module for id '.$elementId.'in the '.$config.' configuration', 'ModuleHandler::getModuleForId');
 		
-		foreach($this->moduleList as $module)
-		{
-			if(in_array($elementId, $module['ids']))
+		if (in_array($config, self::$_CONF)) {
+			foreach($this->moduleList as $module)
 			{
-				$this->LOGGER->log_debug('Id '.$elementId.' is associated with '.$module['name'], 'ModuleHandler::getModuleForId');
-				return $module['name'];
+				//var_dump($module);
+				
+				if($module[$config]['ids'] != array() && in_array($elementId, $module[$config]['ids']))
+				{
+					$this->LOGGER->log_debug('Id '.$elementId.' is associated with '.$module['name'].'in the '.$config.' configuration', 'ModuleHandler::getModuleForId');
+					return $module['name'];
+				}
 			}
 		}
-
-		$this->LOGGER->log_debug('Id '.$elementId.' is not associated with any module', 'ModuleHandler::getModuleForId');
+		
+		$this->LOGGER->log_debug('Id '.$elementId.' is not associated with any module in the '.$config.' configuration', 'ModuleHandler::getModuleForId');
 		return '';
 	}
 	

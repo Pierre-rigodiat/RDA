@@ -322,3 +322,8 @@ textarea.inform{
 	margin-left:10px;
 	margin-right:5px;
 }
+
+.radio
+{
+	min-height:0px;
+}

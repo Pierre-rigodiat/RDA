@@ -73,6 +73,8 @@ class Display
 		),
 		"XML" => array(),
 		"QUERY" => array(
+			"popup_start_tag" => '<div id="dialog" title="">',
+			"popup_end_tag" => '</div>',
 			"view_start_tag" => '<div id="page_content">',
 			"view_end_tag" => '</div>',
 			"root_start_name_tag" => '<h5>',
@@ -83,7 +85,9 @@ class Display
 			"remove_icon" => '<span class="icon remove"></span>',
 			"empty_option_tag" => '<option value ="empty"></option>',
 			"edit_icon" => '<span class="icon edit"></span>',
-			"empty_child" => '<ul></ul>'
+			"empty_child" => '<ul></ul>',
+			"module_start" => '<span class="attr">',
+			"module_end" => '</span>'
 		)
 	);
 	
@@ -1090,8 +1094,16 @@ class Display
 		}
 		
 		$xmlElement .= '<ul>';
+		
+		//$searchType = '';
 		foreach ($recElement as $childID) {
-			$xmlElement .= $this->displayQueryElement($childID);
+			/*$siblings = $this -> xsdManager -> getXsdQueryTree() -> getSiblings($childID);
+			if (count($siblings) > 1) {
+				$grandChildren = $this -> xsdManager -> getXsdQueryTree() -> getChildren($childID);
+				if (count($grandChildren) == 0)
+					$searchType = '&nbsp;<input type="radio" class="radio" name="searchType" value="all" checked="checked"/>&nbsp;Containing&nbsp;any&nbsp;<input type="radio" class="radio" name="searchType" value="exact"/>&nbsp;Exact&nbsp;matching';
+			}*/
+			$xmlElement .= /*$searchType.*/$this->displayQueryElement($childID);
 		}
 		
 		return $xmlElement.'</ul>';
@@ -1190,10 +1202,29 @@ class Display
 			$disabled = ' disabled="disabled" ';
 		}
 		
-		if (in_array($elementID, $displayedIdArray)) {
+		$display = false;
+		$siblings = $this -> xsdManager -> getXsdQueryTree() -> getSiblings($elementID);
+		foreach ($siblings as $siblingsID) {
+			if (in_array($siblingsID, $displayedIdArray)) {
+				$display = true;
+				break;
+			}
+		}
+		
+		if ($display) {
 			
-			$xmlElement .= '<li id="'.$elementID.'"'.$liClass.'>'.self::$_CONF['QUERY']['elem_start_name_tag'].ucfirst($name).self::$_CONF['QUERY']['elem_end_name_tag'];
+			//Display the radio element if there are multiple siblings and they are leaves
+			$searchType = '';
+		
+			if (count($siblings) > 1 && $siblings[0] == $elementID) {
+				$grandChildren = $this -> xsdManager -> getXsdQueryTree() -> getChildren($elementID);
+				if (count($grandChildren) == 0)
+					$searchType = '&nbsp;<input type="radio" class="radio query_element" name="searchType'.$elementID.'" value="all" checked="checked"/>&nbsp;Containing&nbsp;any&nbsp;<input type="radio" class="radio query_element" name="searchType'.$elementID.'" value="exact"/>&nbsp;Exact&nbsp;matching';
+			}
 			
+			$xmlElement .= $searchType.'<li id="'.$elementID.'"'.$liClass.'>'.self::$_CONF['QUERY']['elem_start_name_tag'].ucfirst($name).self::$_CONF['QUERY']['elem_end_name_tag'];
+			
+			//Display the restriction attribute
 			if (isset($attr['RESTRICTION']))
 			{
 				$xmlElement .= '<select class="xsdman restriction query_element"'.$disabled.'>';
@@ -1205,6 +1236,7 @@ class Display
 				$xmlElement .= '</select>';
 			}
 			else {
+				//Display the type attribute
 				if (isset($attr['TYPE'])) {
 					$explode = explode(':', $attr['TYPE']);
 					$type = '';
@@ -1224,6 +1256,7 @@ class Display
 			$xmlElement .= $this->displayQueryIcons($elementID).'</li>';
 		}
 		
+		//Display the children
 		$children = $queryTree->getChildren($elementID);
 		if ($children != array())
 		{
@@ -1268,9 +1301,10 @@ class Display
 	 * @param integer $elementId Element index
 	 * @return string HTML code of the element
 	 */
-	private function displayAdminQueryElement($elementId = 0)
+	public function displayAdminQueryElement($elementId = 0)
 	{
 		$adminQueryElement = '';
+		$moduleName = $this->xsdManager->getModuleHandler()->getModuleForId($elementId, 'query');
 	
 		/* Get element info */
 		$elementDesc = $this -> getQueryElementDescription($elementId, true);
@@ -1309,17 +1343,10 @@ class Display
 		elseif (!isset($elementAttr['CHOICE']))
 		{
 			$adminQueryElement .= self::$_CONF['QUERY']['elem_start_name_tag'] . ucfirst($name) . self::$_CONF['QUERY']['elem_end_name_tag'];
-				
+
 			if ((isset($elementAttr['TYPE']) && startsWith($elementAttr['TYPE'], 'xsd')) || isset($elementAttr['REF'])) // todo put xsd into a variable (could use the manager)
 			{
 				$adminQueryElement .= '&nbsp;<input type="checkbox" class="checkbox" '.$elementChecked.'/>';
-	
-				/*if(($data = $this -> xsdManager -> getDataForId($elementId)) != null) // Element has data
-				{
-					$adminQueryElement .= ' value="'.$data.'"';
-				}*/
-	
-				//$adminQueryElement .= '/>';
 	
 				$this->LOGGER->log_notice('ID '.$elementId.' can be edited', 'Display::displayAdminQueryElement');
 				
@@ -1327,28 +1354,27 @@ class Display
 				
 			/* Display RESTRICTION element */
 			// TODO Implement other types of restriction
-			if (isset($elementAttr['RESTRICTION']))
+			elseif (isset($elementAttr['RESTRICTION']))
 			{
 				$adminQueryElement .= '&nbsp;<input type="checkbox" class="checkbox" '.$elementChecked.'/>';
 				
-				/*if(($data = $this -> xsdManager -> getDataForId($elementId)) != null) // Element has data
-				{
-					$adminQueryElement .= ' value="'.$data.'"';
-				}*/
-				
-				//$adminQueryElement .= '/>';
-				
 				$this->LOGGER->log_debug('ID '.$elementId.' is a restriction', 'Display::displayAdminQueryElement');
 			}
-
+			
+			elseif ($moduleName != '')
+				$adminQueryElement .= '&nbsp;<input type="checkbox" class="checkbox" '.$elementChecked.'/>';
+			
 			$adminQueryElement .= '&nbsp;'.self::$_CONF['QUERY']["edit_icon"];
+			
+			if ($moduleName != '')
+				$adminQueryElement .= '&nbsp;'.self::$_CONF['QUERY']["module_start"].'MODULE: '.$moduleName.self::$_CONF['QUERY']["module_end"];
 			
 		}
 		
 		/* Display children */
 		$children = $this -> xsdManager -> getXsdQueryTree() -> getChildren($elementId);
 		
-		if (count($children) > 0)
+		if (count($children) > 0 && $moduleName == '')
 		{
 			if(!isset($elementAttr['CHOICE']))
 			{
@@ -1377,11 +1403,43 @@ class Display
 	 */
 	public function displayAdminQueryTree()
 	{
-		$queryTree = self::$_CONF['QUERY']['view_start_tag'];
+		
+		$queryTree = self::$_CONF['QUERY']['popup_start_tag'];
+		$queryTree .= $this -> displayModuleConfigurationPopUp();
+		$queryTree .= self::$_CONF['QUERY']['popup_end_tag'];
+		$queryTree .= self::$_CONF['QUERY']['view_start_tag'];
 		$queryTree .= $this -> displayAdminQueryElement();
 		$queryTree .= self::$_CONF['QUERY']['view_end_tag'];
 		
 		return $queryTree;
+	}
+	
+	private function displayModuleConfigurationPopUp()
+	{
+		$popUp = '<p class="elementId"></p><p class="tip"></p>';
+		$popUp .= '<form><fieldset class="dialog fieldset">';
+	
+		$popUp .= '<div class="dialog subpart" id="module-part">';
+	
+		/* Module chooser */
+		$popUp .= '<label for="module">As</label>';
+		$popUp .= '<select id="module" name="module" class="ui-widget-content ui-corner-all">';
+		$popUp .= '<option value="false">No module</option>';
+			
+		$moduleHandler = $this -> xsdManager -> getModuleHandler();
+		$moduleList = $moduleHandler -> getModuleList('enable');
+		foreach($moduleList as $module)
+		{
+			$popUp .= '<option value="'.$module['name'].'">'.ucfirst($module['name']).'</option>';
+		}
+			
+		$popUp .= '</select>';
+	
+		$popUp .= '</div>';
+	
+		$popUp .= '</fieldset></form>';
+	
+		return $popUp;
 	}
 	
 }

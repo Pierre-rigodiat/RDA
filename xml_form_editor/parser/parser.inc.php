@@ -451,6 +451,7 @@ function displayAdminQueryTree()
 	echo $display->displayAdminQueryTree();
 }
 
+
 /**
  * Save data entered in the HTML Form
  * @param {array} $dataArray The array containing tuples (id, value)

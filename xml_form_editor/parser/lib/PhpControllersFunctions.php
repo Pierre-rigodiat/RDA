@@ -77,6 +77,18 @@ function displayAttributes($elementId)
 	else return null;
 }
 
+function displayAdminQueryTree($elementId) {
+	
+	if(isset($_SESSION['xsd_parser']['display']))
+	{
+		$display = unserialize($_SESSION['xsd_parser']['display']);
+		$display -> update();
+	
+		return $display->displayAdminQueryElement($elementId);
+	}
+	else return null;
+}
+
 /**
  * Function to build a JSON string compliant with the format read in the addRemove.js script
  * @param $message
