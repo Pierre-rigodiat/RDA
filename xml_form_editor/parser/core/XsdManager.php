@@ -682,10 +682,11 @@ class XsdManager
 	/**
 	 *
 	 */
-	public function assignIdToModule($elementId, $moduleName)
+	public function assignIdToModule($elementId, $moduleName, $config = 'schema')
 	{
 		$this -> LOGGER -> log_notice('Function called', 'XsdManager::assignIdToModule');
-		$this -> moduleHandler -> setIdWithModule($elementId, $moduleName);
+		$this -> moduleHandler -> setIdWithModule($elementId, $moduleName, $config);
+	
 	}
 
 	public function setDataForId($dataValue, $elementId)

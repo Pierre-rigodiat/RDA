@@ -100,9 +100,9 @@ class QueryBuilder {
 				}
 				else {
 					$rangeArray = array();
-					foreach ($this->queryId[$elementId] as $range) {
-						$temp = preg_split('/ /', $range);
-						$rangeArray = array_merge($rangeArray, array('$'.$temp[0] => (double) $temp[1]));
+					foreach ($this->queryId[$elementId] as $range => $value) {
+						if ($range == 'lte' || $range == 'gte')
+							$rangeArray = array_merge($rangeArray, array('$'.$range => (double) $value));
 					}
 					$childrenArray = array('$' => $rangeArray);
 				}
@@ -155,6 +155,7 @@ class QueryBuilder {
 		$element = $queryTree->getElement($elementId);
 		$attr = $element->getAttributes();
 		$name = isset($attr['NAME']) ? lcfirst($attr['NAME']) : lcfirst($attr['REF']);
+		$attr = $element->getAttributes();
 		
 		if (!isset($attr['CHOICE']) && count($siblingsArray) > 0) {
 			if (count($siblingsArray) == 1) {
@@ -184,7 +185,18 @@ class QueryBuilder {
 			elseif (count($siblingsArray) > 1) {
 				$children = $queryTree->getChildren($elementId);
 				if ($children == array()) {
-					$siblingsArray = array($name => array('$all' => $siblingsArray));
+					if (array_key_exists('OPTION', $attr)) {
+						switch ($attr['OPTION']) {
+							case 'all':
+								$siblingsArray = array($name => array('$all' => $siblingsArray));
+								break;
+							case 'exact':
+								$siblingsArray = array($name => array('$exists' => true, '$size' => count($siblingsArray), '$all' => $siblingsArray));
+								break;
+							default:
+								break;
+						}
+					}
 				}
 				else {
 					//echo '1<br/>';print_r($siblingsArray);echo '<br/>';

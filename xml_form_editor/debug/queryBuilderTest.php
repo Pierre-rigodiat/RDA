@@ -50,18 +50,18 @@ $query = array();
 }*/
 
 $queryId = array();
-/*$queryId[16] = "Al";
-$queryId[516] = "Mg";
-$queryId[17] = 99.9;
+$queryId[16] = "Al";
+$queryId[496] = "Mg";
+/*$queryId[17] = 99.9;
 $queryId[5] = "Mg";
 $queryId[518] = "Ac";
 $queryId[519] = "Mg";*/
-//$query = selectQuery($queryId);
+$query = selectQuery($queryId);
 
 //$query = Array ( 'experiment.experimentType.tracerDiffusivity.material.composition.constituents.element' => Array ( '$all' => Array ( Array('$' => 'Al'), Array('$' => 'Mg') ) ) );
 //$query = Array ('$and' => Array( Array(/*'experiment.experimentType.tracerDiffusivity.material.composition.constituents.element' => Array ( '$all' => Array ( Array('$' => 'Ac'), Array('$' => 'Mg') ) )*/ /*), /*Array(*/'experiment.experimentType.tracerDiffusivity.material.composition.constituents.element.$' => 'Ac'), Array('experiment.experimentType.tracerDiffusivity.material.composition.constituents.element.$' => 'Mg') ) );
 //$query = Array ('$and' => Array( Array( 'experiment.experimentType.tracerDiffusivity.material.composition.constituents' => Array ( '$elemMatch' => Array ( 'element' => Array( '$all' =>( Array ( Array('$' => 'Al'), Array('$' => 'Mg')))), 'purity.$' => 99.9))),  Array( 'experiment.experimentType.tracerDiffusivity.material.composition.constituents' => Array( '$elemMatch' => Array ( 'element' => Array( '$all' =>( Array ( Array('$' => 'Ac'), Array('$' => 'Mg')))), 'purity.$' => 99.9)))));
-$query = Array ('experiment.experimentType.tracerDiffusivity.material.composition.constituents.quantity.$' => Array ('$lte' => 99.9, '$gte' => 99.9 ) );
+//$query = Array ('experiment.experimentType.tracerDiffusivity.material.composition.constituents.quantity.$' => Array ('$lte' => 99.9, '$gte' => 99.9 ) );
 print_r($query);
 
 $cursor = $db->queryData($query, "experiment");

@@ -176,8 +176,8 @@ if(isset($_GET['id']) && isset($_GET['minOccurs']) && isset($_GET['maxOccurs']))
 		{
 			if($_GET['module']!='false')
 			{
-				$manager -> assignIdToModule($_GET['id'], $_GET['module']);
-				setUpChildrenToModule($manager, /*$xsdOrganizedTree*/$xsdOriginalTree, $_GET['id'], $_GET['module']);
+				$manager -> assignIdToModule((integer) $_GET['id'], $_GET['module']);
+				setUpChildrenToModule($manager, /*$xsdOrganizedTree*/$xsdOriginalTree, (integer) $_GET['id'], $_GET['module']);
 				
 			}
 			else

@@ -23,8 +23,10 @@ require_once $_SESSION['config']['_ROOT_'].'/parser/parser.inc.php';
 	?>
 	</div>
 	
+	<script src="inc/controllers/js/editModule.js"></script>
 	<script src="inc/controllers/js/search_mgr.js"></script>
 	<script>
+		loadQueryEditController();
 		loadQueryManagerController();
 	</script>
 </div>

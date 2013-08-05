@@ -10,11 +10,7 @@
 
 <div id="main">
 	<div>
-		<div class="right-side">
-			<span class="ctx_menu">
-				<span class="icon legend submit query">Submit</span>
-			</span>
-		</div>
+		<button class="btn submit query pull-right"><i class="icon-search"></i> Submit</button>
 	</div>
 	
 <?php
@@ -22,14 +18,14 @@
 ?>
 
 	<div>
-		<div class="right-side">
-			<span class="ctx_menu">
-				<span class="icon legend submit query">Submit</span>
-			</span>
-		</div>
+		<button class="btn submit query pull-right"><i class="icon-search"></i> Submit</button>
 	</div>
 	
 	<div id="XMLContainer"></div>
+	
+	<div>
+		<div id="download"></div>
+	</div>
 	
 	<script src="inc/controllers/js/explore_data.js"></script>
 	<script>

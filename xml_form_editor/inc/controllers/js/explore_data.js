@@ -3,10 +3,13 @@
  */
 loadExploreDataController = function()
 {
+	//TODO Remove the live for a on to manage events
 	$('.xsdman.choice').live('change', changeChoiceQuery);
 	$('.submit.query').on('click', retrieveQuery);
 	$('.add').live('click', {action: 0}, addRemoveItem);
 	$('.remove').live('click', {action: 1}, addRemoveItem);
+	$(document).on('click', '.download', downloadXML);
+	
 }
 
 /**
@@ -69,13 +72,21 @@ retrieveQuery = function()
 	
 	inputs.each(function()
 	{
-		var match = $(this).val(),
+		var element = $(this),
+			match = $(this).val(),
 			range = $(this).hasClass('less') ? 'lte' : ($(this).hasClass('greater') ? 'gte' : ''),
-			elementId = '';
+			option = ($(this).hasClass('radio') ? ($(this).attr('checked') ? match : null) : ''),
+			elementId = null;
 		
-		console.log(range);
-		
-		if (range == '') {
+		//console.log(range);
+		if (option != '') {
+			while (elementId == null) {
+				element = element.next();
+				elementId = element.attr('id');
+			}
+			//console.log(elementId);
+		}
+		else if (range == '') {
 			elementId = $(this).parent().attr('id');
 		}
 		else {
@@ -83,21 +94,25 @@ retrieveQuery = function()
 		}
 		
 		
-		if(match != '' && match != 'empty')
+		if(match != '' && match != 'empty' && option != null)
 		{
 			if (range != '') {
 				switch (range) {
 				case 'lte':
-					qString += elementId+range+'='+match+'&';
+					qString += range+elementId+'='+match+'&';
 					console.log('less');
 					break;
 				case 'gte':
-					qString += elementId+range+'='+match+'&';
+					qString += range+elementId+'='+match+'&';
 					console.log('greater');
 					break;
 				default:
-					console.error("Undefined Id");
+					console.error("Undefined range "+range);
+					break;
 				}
+			}
+			else if (option != '') {
+				qString += match+'='+elementId+'&';
 			}
 			else {
 				qString += elementId+'='+match+'&';
@@ -121,6 +136,7 @@ retrieveQuery = function()
         			$('#XMLContainer').append('<div id="XMLHolder'+index+'"></div>');
         			LoadXMLString('XMLHolder'+index, htmlspecialchars_decode($(this).get(0).data));
         		});
+        		$('#download').html("<button class='btn download pull-right'><i class='icon-arrow-down'></i> Download XML</button>");
         	}
         	else {
         		$('#XMLContainer').html("<div class='icon invalid'></div><span>Empty result for the query</span>");
@@ -180,3 +196,16 @@ changeChoiceQuery = function()
         processData: false
     });
 }
+
+/**
+ * 
+ */
+downloadXML = function() {
+	
+	console.log('[downloadXML] Downloading XML for the previous query...');
+	
+	window.location = 'inc/controllers/php/downloadQuery.php';
+	
+	console.log('[downloadXML] XML downloaded');
+}
+
