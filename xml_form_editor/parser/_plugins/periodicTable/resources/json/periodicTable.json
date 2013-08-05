@@ -1,0 +1,655 @@
+{
+    "table": [
+        {
+            "elements": [
+                {
+                    "position": 0,
+                    "tag": "xs",
+                    "name": "H"
+                },
+                {
+                    "position": 17,
+                    "tag": "xp",
+                    "name": "He"
+                }
+            ]
+        },
+        {
+            "elements": [
+                {
+                    "position": 0,
+                    "tag": "xs",
+                    "name": "Li"
+                },
+                {
+                    "position": 1,
+                    "tag": "xs",
+                    "name": "Be"
+                },
+                {
+                    "position": 12,
+                    "tag": "xp",
+                    "name": "B"
+                },
+                {
+                    "position": 13,
+                    "tag": "xp",
+                    "name": "C"
+                },
+                {
+                    "position": 14,
+                    "tag": "xp",
+                    "name": "N"
+                },
+                {
+                    "position": 15,
+                    "tag": "xp",
+                    "name": "O"
+                },
+                {
+                    "position": 16,
+                    "tag": "xp",
+                    "name": "F"
+                },
+                {
+                    "position": 17,
+                    "tag": "xp",
+                    "name": "Ne"
+                }
+            ]
+        },
+        {
+            "elements": [
+                {
+                    "position": 0,
+                    "tag": "xs",
+                    "name": "Na"
+                },
+                {
+                    "position": 1,
+                    "tag": "xs",
+                    "name": "Mg"
+                },
+                {
+                    "position": 12,
+                    "tag": "xp",
+                    "name": "Al"
+                },
+                {
+                    "position": 13,
+                    "tag": "xp",
+                    "name": "Si"
+                },
+                {
+                    "position": 14,
+                    "tag": "xp",
+                    "name": "P"
+                },
+                {
+                    "position": 15,
+                    "tag": "xp",
+                    "name": "S"
+                },
+                {
+                    "position": 16,
+                    "tag": "xp",
+                    "name": "Cl"
+                },
+                {
+                    "position": 17,
+                    "tag": "xp",
+                    "name": "Ar"
+                }
+            ]
+        },
+        {
+            "elements": [
+                {
+                    "position": 0,
+                    "tag": "xs",
+                    "name": "K"
+                },
+                {
+                    "position": 1,
+                    "tag": "xs",
+                    "name": "Ca"
+                },
+                {
+                    "position": 2,
+                    "tag": "xd",
+                    "name": "Sc"
+                },
+                {
+                    "position": 3,
+                    "tag": "xd",
+                    "name": "Ti"
+                },
+                {
+                    "position": 4,
+                    "tag": "xd",
+                    "name": "V"
+                },
+                {
+                    "position": 5,
+                    "tag": "xd",
+                    "name": "Cr"
+                },
+                {
+                    "position": 6,
+                    "tag": "xd",
+                    "name": "Mn"
+                },
+                {
+                    "position": 7,
+                    "tag": "xd",
+                    "name": "Fe"
+                },
+                {
+                    "position": 8,
+                    "tag": "xd",
+                    "name": "Co"
+                },
+                {
+                    "position": 9,
+                    "tag": "xd",
+                    "name": "Ni"
+                },
+                {
+                    "position": 10,
+                    "tag": "xd",
+                    "name": "Cu"
+                },
+                {
+                    "position": 11,
+                    "tag": "xd",
+                    "name": "Zn"
+                },
+                {
+                    "position": 12,
+                    "tag": "xp",
+                    "name": "Ga"
+                },
+                {
+                    "position": 13,
+                    "tag": "xp",
+                    "name": "Ge"
+                },
+                {
+                    "position": 14,
+                    "tag": "xp",
+                    "name": "As"
+                },
+                {
+                    "position": 15,
+                    "tag": "xp",
+                    "name": "Se"
+                },
+                {
+                    "position": 16,
+                    "tag": "xp",
+                    "name": "Br"
+                },
+                {
+                    "position": 17,
+                    "tag": "xp",
+                    "name": "Kr"
+                }
+            ]
+        },
+        {
+            "elements": [
+                {
+                    "position": 0,
+                    "tag": "xs",
+                    "name": "Rb"
+                },
+                {
+                    "position": 1,
+                    "tag": "xs",
+                    "name": "Sr"
+                },
+                {
+
+                    "position": 2,
+                    "tag": "xd",
+                    "name": "Y"
+                },
+                {
+
+                    "position": 3,
+                    "tag": "xd",
+                    "name": "Zr"
+                },
+                {
+
+                    "position": 4,
+                    "tag": "xd",
+                    "name": "Nb"
+                },
+                {
+
+                    "position": 5,
+                    "tag": "xd",
+                    "name": "Mo"
+                },
+                {
+
+                    "position": 6,
+                    "tag": "xd",
+                    "name": "Tc"
+                },
+                {
+
+                    "position": 7,
+                    "tag": "xd",
+                    "name": "Ru"
+                },
+                {
+
+                    "position": 8,
+                    "tag": "xd",
+                    "name": "Rh"
+                },
+                {
+
+                    "position": 9,
+                    "tag": "xd",
+                    "name": "Pd"
+                },
+                {
+
+                    "position": 10,
+                    "tag": "xd",
+                    "name": "Ag"
+                },
+                {
+
+                    "position": 11,
+                    "tag": "xd",
+                    "name": "Cd"
+                },
+                {
+
+                    "position": 12,
+                    "tag": "xp",
+                    "name": "In"
+                },
+                {
+
+                    "position": 13,
+                    "tag": "xp",
+                    "name": "Sn"
+                },
+                {
+
+                    "position": 14,
+                    "tag": "xp",
+                    "name": "Sb"
+                },
+                {
+
+                    "position": 15,
+                    "tag": "xp",
+                    "name": "Te"
+                },
+                {
+
+                    "position": 16,
+                    "tag": "xp",
+                    "name": "I"
+                },
+                {
+
+                    "position": 17,
+                    "tag": "xp",
+                    "name": "Xe"
+                }
+            ]
+        },
+        {
+            "elements": [
+                {
+                    "position": 0,
+                    "tag": "xs",
+                    "name": "Cs"
+                },
+                {
+                    "position": 1,
+                    "tag": "xs",
+                    "name": "Ba"
+                },
+                {
+                    "position": 2,
+                    "tag": "",
+                    "name": "*"
+                },
+                {
+                    "position": 3,
+                    "tag": "xd",
+                    "name": "Hf"
+                },
+                {
+                    "position": 4,
+                    "tag": "xd",
+                    "name": "Ta"
+                },
+                {
+                    "position": 5,
+                    "tag": "xd",
+                    "name": "W"
+                },
+                {
+                    "position": 6,
+                    "tag": "xd",
+                    "name": "Re"
+                },
+                {
+                    "position": 7,
+                    "tag": "xd",
+                    "name": "Os"
+                },
+                {
+                    "position": 8,
+                    "tag": "xd",
+                    "name": "Ir"
+                },
+                {
+                    "position": 9,
+                    "tag": "xd",
+                    "name": "Pt"
+                },
+                {
+                    "position": 10,
+                    "tag": "xd",
+                    "name": "Au"
+                },
+                {
+                    "position": 11,
+                    "tag": "xd",
+                    "name": "Hg"
+                },
+                {
+                    "position": 12,
+                    "tag": "xp",
+                    "name": "Tl"
+                },
+                {
+                    "position": 13,
+                    "tag": "xp",
+                    "name": "Pb"
+                },
+                {
+                    "position": 14,
+                    "tag": "xp",
+                    "name": "Bi"
+                },
+                {
+                    "position": 15,
+                    "tag": "xp",
+                    "name": "Po"
+                },
+                {
+                    "position": 16,
+                    "tag": "xp",
+                    "name": "At"
+                },
+                {
+                    "position": 17,
+                    "tag": "xp",
+                    "name": "Rn"
+                }
+            ]
+        },
+        {
+            "elements": [
+                {
+                    "position": 0,
+                    "tag": "xs",
+                    "name": "Fr"
+                },
+                {
+                    "position": 1,
+                    "tag": "xs",
+                    "name": "Ra"
+                },
+                {
+                    "position": 2,
+                    "tag": "",
+                    "name": "**"
+                },
+                {
+                    "position": 3,
+                    "tag": "xd",
+                    "name": "Rf"
+                },
+                {
+                    "position": 4,
+                    "tag": "xd",
+                    "name": "Db"
+                },
+                {
+                    "position": 5,
+                    "tag": "xd",
+                    "name": "Sg"
+                },
+                {
+                    "position": 6,
+                    "tag": "xd",
+                    "name": "Bh"
+                },
+                {
+                    "position": 7,
+                    "tag": "xd",
+                    "name": "Hs"
+                },
+                {
+                    "position": 8,
+                    "tag": "xd",
+                    "name": "Mt"
+                },
+                {
+                    "position": 9,
+                    "tag": "xd",
+                    "name": "Ds"
+                },
+                {
+                    "position": 10,
+                    "tag": "xd",
+                    "name": "Rg"
+                },
+                {
+                    "position": 11,
+                    "tag": "xd",
+                    "name": "Cn"
+                },
+                {
+                    "position": 12,
+                    "tag": "xp",
+                    "name": "Uut"
+                },
+                {
+                    "position": 13,
+                    "tag": "xp",
+                    "name": "Fl"
+                },
+                {
+                    "position": 14,
+                    "tag": "xp",
+                    "name": "Uup"
+                },
+                {
+                    "position": 15,
+                    "tag": "xp",
+                    "name": "Lv"
+                },
+                {
+                    "position": 16,
+                    "tag": "xp",
+                    "name": "Uus"
+                },
+                {
+                    "position": 17,
+                    "tag": "xp",
+                    "name": "Uuo"
+                }
+            ]
+        },
+        {},
+        {
+            "lanthanoids": [
+            {
+                "position": 3,
+                "tag": "xf",
+                "name": "La"
+            },
+            {
+                "position": 4,
+                "tag": "xf",
+                "name": "Ce"
+            },
+            {
+                "position": 5,
+                "tag": "xf",
+                "name": "Pr"
+            },
+            {
+                "position": 6,
+                "tag": "xf",
+                "name": "Nd"
+            },
+            {
+                "position": 7,
+                "tag": "xf",
+                "name": "Pm"
+            },
+            {
+                "position": 8,
+                "tag": "xf",
+                "name": "Sm"
+            },
+            {
+                "position": 9,
+                "tag": "xf",
+                "name": "Eu"
+            },
+            {
+                "position": 10,
+                "tag": "xf",
+                "name": "Gd"
+            },
+            {
+                "position": 11,
+                "tag": "xf",
+                "name": "Tb"
+            },
+            {
+                "position": 12,
+                "tag": "xf",
+                "name": "Dy"
+            },
+            {
+                "position": 13,
+                "tag": "xf",
+                "name": "Ho"
+            },
+            {
+                "position": 14,
+                "tag": "xf",
+                "name": "Er"
+            },
+            {
+                "position": 15,
+                "tag": "xf",
+                "name": "Tm"
+            },
+            {
+                "position": 16,
+                "tag": "xf",
+                "name": "Yb"
+            },
+            {
+                "position": 17,
+                "tag": "xf",
+                "name": "Lu"
+            }
+        ]},
+        {
+            "actinoids": [
+            {
+                "position": 3,
+                "tag": "xf",
+                "name": "Ac"
+            },
+            {
+                "position": 4,
+                "tag": "xf",
+                "name": "Th"
+            },
+            {
+                "position": 5,
+                "tag": "xf",
+                "name": "Pa"
+            },
+            {
+                "position": 6,
+                "tag": "xf",
+                "name": "U"
+            },
+            {
+                "position": 7,
+                "tag": "xf",
+                "name": "Np"
+            },
+            {
+                "position": 8,
+                "tag": "xf",
+                "name": "Pu"
+            },
+            {
+                "position": 9,
+                "tag": "xf",
+                "name": "Am"
+            },
+            {
+                "position": 10,
+                "tag": "xf",
+                "name": "Cm"
+            },
+            {
+                "position": 11,
+                "tag": "xf",
+                "name": "Bk"
+            },
+            {
+                "position": 12,
+                "tag": "xf",
+                "name": "Cf"
+            },
+            {
+                "position": 13,
+                "tag": "xf",
+                "name": "Es"
+            },
+            {
+                "position": 14,
+                "tag": "xf",
+                "name": "Fm"
+            },
+            {
+                "position": 15,
+                "tag": "xf",
+                "name": "Md"
+            },
+            {
+                "position": 16,
+                "tag": "xf",
+                "name": "No"
+            },
+            {
+                "position": 17,
+                "tag": "xf",
+                "name": "Lr"
+            }
+        ]}
+    ]
+}

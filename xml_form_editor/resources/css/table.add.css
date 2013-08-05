@@ -1,0 +1,15 @@
+#pertable td[class^='x']:hover
+{
+    background-color: white;
+    cursor: pointer;
+}
+
+#pertable td.selected
+{
+    background-color: gray;
+}
+
+#pertable td.selected:hover
+{
+    background-color: #aaa;
+}
