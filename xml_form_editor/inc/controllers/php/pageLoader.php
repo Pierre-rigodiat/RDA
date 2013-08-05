@@ -1,10 +1,6 @@
 <?php
 /**
- * Page loader v0.1
- * 
- * 
- * 
- * 
+ * Page loader
  */
 session_start();
 
@@ -28,21 +24,21 @@ $sub['admin']['users'] = array();*/
 $defaultText = '<div id="featured-wrapper"><div id="featured">
 					<h1>Not yet implemented</h1>
 				</div></div>';
- 
+
 if(isset($_GET['url']))
 {
 	// Identifying website parts
 	$url = $_GET['url'];
 	$menu = array();
-	
+
 	$urlParts = explode('?', $url);
 	if(isset($urlParts[1])) $menu['sub'] = 	$urlParts[1];
-	
+
 	$urlParts = explode('/', $urlParts[0]);
-	
+
 	$menu['page'] = $urlParts[count($urlParts)-1];
 	$menu['section'] = $urlParts[count($urlParts)-2];
-	
+
 	if($menu['section']=='admin')
 	{
 		if($menu['page']=='schemas')
@@ -59,9 +55,9 @@ if(isset($_GET['url']))
 		else
 		{
 			echo $defaultText.'<div id="main">';
-			
+
 			print_r($menu);
-			
+
 			echo '</div>';
 		}
 	}
@@ -85,15 +81,10 @@ if(isset($_GET['url']))
 		else
 		{
 			echo $defaultText.'<div id="main">';
-			
+
 			print_r($menu);
-			
+
 			echo '</div>';
 		}
 	}
-	
-	
-	
-	
 }
-?>

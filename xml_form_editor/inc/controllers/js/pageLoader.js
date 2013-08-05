@@ -1,18 +1,14 @@
 /**
- *	Website page loader call
- *  v0.1
- * 
- * 
- * 
+ *	Website page loader
  */
-$(document).ready(function(){	
+$(document).ready(function(){
 	loadPage($(location).attr('href'));
-	
+
 	$('.submenu').on('click', changePage);
 });
 
 /**
- * Function to load the content of a page. It is called after a click on a link 
+ * Function to load the content of a page. It is called after a click on a link
  * @param {String} url
  * @return {String} JSON string with {"html": "htmlCode", "controller": "scriptName"}
  */
@@ -22,15 +18,15 @@ loadPage = function(url)
         url: 'inc/controllers/php/pageLoader.php',
         type: 'GET',
         success: function(data) {
-        	// Destroy and remove the dialog to avoid to rewrite on it        	
+        	// Destroy and remove the dialog to avoid to rewrite on it
         	$( "#dialog" ).dialog("destroy");
         	$( "#dialog" ).remove();
-        	
+
         	$('.content').children().remove();
-        	
+
         	// Change content
         	$('.content').html(data);
-        	
+
         	console.log('[loadPage] '+url+' loaded');
         },
         error: function() {
@@ -46,14 +42,14 @@ loadPage = function(url)
 }
 
 /**
- * 
+ * Function to laod a submenu page
  */
 changePage = function()
-{	
+{
 	// Update the submenu cursor
 	$(this).parent().children('.current').attr('class', 'submenu');
 	$(this).attr('class', 'submenu current');
-	
+
 	// Load content
 	loadPage($(location).attr('href')+'?'+$(this).attr('id'));
 }

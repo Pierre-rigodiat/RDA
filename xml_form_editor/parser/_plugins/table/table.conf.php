@@ -1,7 +1,7 @@
 <?php
 /**
  * Configuration of the Table module
- * 
+ *
  */
 
 // TODO Configure it
@@ -13,5 +13,3 @@ $tableConfiguration = array(
 	)
 
 );
-
-?>

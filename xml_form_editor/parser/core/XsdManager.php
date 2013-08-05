@@ -26,7 +26,7 @@ require_once $_SESSION['xsd_parser']['conf']['dirname'] . '/parser/core/Referenc
 require_once $_SESSION['xsd_parser']['conf']['dirname'] . '/inc/db/mongodb/MongoDBStream.php';
 /**
  * <b>Handle the schema configuration and value. It is the backbone of the software</b>
- * 
+ *
  * XsdManager object instantiate a lot of different objects to be able to have all the schema information and the filling values.
  * It deals with:
  * <ul>
@@ -34,70 +34,70 @@ require_once $_SESSION['xsd_parser']['conf']['dirname'] . '/inc/db/mongodb/Mongo
  * 	<li>PageHandler</li>
  * 	<li>ModuleHandler</li>
  * </ul>
- * 
- * 
- * 
+ *
+ *
+ *
  * --- REWRITE ----
  * An XSD Parser able to generate several element:
  *  - an XML form to fill in
  * 	- an XML file
- * 
- * --- END REWRITE --- 
- * 
- * 
+ *
+ * --- END REWRITE ---
+ *
+ *
  * @uses core\ModuleHandler
  * @TODO Clean the array from unused data (parent, SEQUENCE, COMPLEXTYPE, SCHEMA...)
  * @TODO Handle several namespaces
  * @TODO For getter and setter, verify the type of parameters
  *
  *
- * 
+ *
  * @author P. Dessauw <philippe.dessauw@nist.gov>
  * @copyright NIST 2013
- * 
+ *
  * @package XsdMan\Core
  */
 class XsdManager
 {
 	/**
-	 * 
+	 *
 	 * @var string
 	 */
 	private $xsdManagerId;
-	
+
 	/**
-	 * 
+	 *
 	 * @var string
 	 */
 	private $xsdFile;
 
 	/**
 	 * The tree as it is in the xsd file
-	 * 
+	 *
 	 * @var Tree
 	 */
 	private $xsdOriginalTree;
-	
+
 	/**
 	 * The tree as it should be in the form (with proper occurence)
 	 * @var ReferenceTree
 	 */
 	private $xsdCompleteTree;
-	
+
 	/**
 	 * The tree as it should be in the query form (with proper occurence)
 	 * @var ReferenceTree
 	 */
 	private $xsdQueryTree;
-	
+
 	// The array containing the values entered by the user
 	/**
-	 * 
-	 * 
+	 *
+	 *
 	 * @var array
 	 */
 	private $dataArray;
-	
+
 	/**
 	 * List of db connection object
 	 * @var array
@@ -118,7 +118,7 @@ class XsdManager
 
 	private static $XSD_NS = 'http://www.w3.org/2001/XMLSchema';
 	private static $NS_DEFINE_PREFIX = 'XMLNS';
-	
+
 	/**
 	 * Logging information
 	 */
@@ -163,7 +163,7 @@ class XsdManager
 					$this -> xsdCompleteTree = new ReferenceTree($this->xsdOriginalTree);
 					$this -> xsdQueryTree = new ReferenceTree($this->xsdOriginalTree);
 					$this -> dataArray = array();
-					
+
 
 					$this -> pageHandler = $argv[1];
 					$this -> moduleHandler = $argv[2];
@@ -220,12 +220,12 @@ class XsdManager
 		}
 
 		$mongoDbStream = null;
-	
+
 		// Connecting to the default port on localhost
 		$mongoDbStream = new MongoDBStream();
 		$mongoDbStream -> setDatabaseName("xsdmgr");
 		$mongoDbStream -> openDB();
-		
+
 		$this -> dbConnection ["MongoDB"] = $mongoDbStream;
 
 		$this -> LOGGER -> log_debug('Manager created for file ' . $this -> xsdFile, 'XsdManager::__construct');
@@ -250,11 +250,11 @@ class XsdManager
 		/* Find all the namespaces and register them */
 		$this -> namespaces = array();
 		$schemaElement = $this -> xsdOriginalTree -> getElement(0);
-		
+
 		$schemaAttributes = $schemaElement -> getAttributes();
 		$attributesName = array_keys($schemaAttributes);
 
-		
+
 		foreach ($attributesName as $key) // Go through every attribute
 		{
 			if (preg_match('/^' . self::$NS_DEFINE_PREFIX . '\:/', $key))
@@ -265,7 +265,7 @@ class XsdManager
 				{
 					$this -> namespaces['default']['name'] = $key_part[1];
 					$this -> namespaces['default']['url'] = $schemaAttributes[$key];
-					
+
 					$this -> LOGGER -> log_debug('Namespace ' . $key_part[1] . ' registered as the default namespace', 'XsdManager::parseXsdFile');
 				}
 				else
@@ -274,13 +274,13 @@ class XsdManager
 						'name' => $key_part[1],
 						'url' => $schemaAttributes[$key]
 					);
-					
+
 					array_push($this -> namespaces, $nsEntry);
 					$this -> LOGGER -> log_debug('Namespace ' . $key_part[1] . ' registered', 'XsdManager::parseXsdFile');
 				}
 			}
 		}
-		
+
 		/* Clean the tree for unwanted element */
 		$this -> cleanParsedData();
 
@@ -289,7 +289,7 @@ class XsdManager
 		foreach ($this->xsdOriginalTree->getChildren(0) as $child) // Going through the first element children
 		{
 			$childObject = $this -> xsdOriginalTree -> getElement($child);
-						
+
 			if ($childObject -> getType() == $this -> namespaces['default']['name'] . ':ELEMENT')
 			{
 				array_push($this -> rootElements, $child);
@@ -323,14 +323,14 @@ class XsdManager
 	{
 		$xmlParser = new XmlParser();
 		$xmlParser -> parse($this -> xsdFile);
-		
+
 		$this -> xsdOriginalTree = $xmlParser -> getParsedData();
-		
+
 		$this -> LOGGER -> log_debug($this -> xsdFile . ' has been parsed', 'XsdManager::parse');
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	private function cleanParsedData()
 	{
@@ -344,18 +344,18 @@ class XsdManager
 				"ANNOTATION"
 			)
 		);
-		
+
 		$elementList = $this -> xsdOriginalTree -> getElementList();
 		$defaultNS = $this -> namespaces['default']['name'].':';
 		$namespaceLength = strlen($defaultNS);
-		
-		
+
+
 		foreach ($elementList as $elementId => $xsdElement)
 		{
 			$this -> LOGGER -> log_debug('Optimizing tree for ID ' . $elementId . '('.$xsdElement.')...', 'XsdManager::cleanParsedData');
-			
+
 			$xsdElementType = substr($xsdElement -> getType(), $namespaceLength);
-			
+
 			if(startsWith($xsdElement -> getType(), $defaultNS))
 			{
 				if(in_array($xsdElementType, $elementToDelete["simply"]))
@@ -364,7 +364,7 @@ class XsdManager
 					$this -> xsdOriginalTree -> delete($elementId);
 					$this -> LOGGER -> log_debug('ID '.$elementId.' deleted', 'XsdManager::cleanParsedData');
 				}
-				
+
 				if(in_array($xsdElementType, $elementToDelete["recursively"]))
 				{
 					// TODO logging
@@ -376,7 +376,7 @@ class XsdManager
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public function getRootElements()
 	{
@@ -385,7 +385,7 @@ class XsdManager
 
 	/**
 	 *
-	 * 
+	 *
 	 * TODO Rename this function
 	 */
 	public function buildOrganizedTree($rootElement)
@@ -396,14 +396,14 @@ class XsdManager
 		{
 			$tempTree = new Tree("TempTree");
 			$this -> createOriginalTree($tempTree, $rootElement);
-			
+
 			$this -> xsdOriginalTree = clone $tempTree;
 			$tempTree = null;
-			
+
 			$this -> cleanXsdTree();
 			$this -> xsdCompleteTree -> setReferenceTree($this -> xsdOriginalTree);
 			$this -> xsdQueryTree -> setReferenceTree($this -> xsdOriginalTree);
-			
+
 		}
 		else
 		{
@@ -413,8 +413,8 @@ class XsdManager
 
 	/**
 	 * NB: Recursive function
-	 * 
-	 * 
+	 *
+	 *
 	 * @param ClosureTable $tempTree The new tree we are building
 	 * @param int $elementId Element ID to insert
 	 * @param int $parentId Parent ID of the current element
@@ -432,7 +432,7 @@ class XsdManager
 		else
 		{
 			$xsdElementAttr = $xsdElement -> getAttributes();
-			
+
 			$children = $this -> xsdOriginalTree -> getChildren($elementId);
 			if (count($children) > 0)
 			{
@@ -446,7 +446,7 @@ class XsdManager
 				if(isset($xsdElementAttr['TYPE']))
 				{
 					$typePart = explode(':', $xsdElementAttr['TYPE']);
-					
+
 					/* Try to find out if the namespace is declared */
 					$isNamespaceDeclared = false;
 					foreach($this -> namespaces as $nsDefinition)
@@ -457,7 +457,7 @@ class XsdManager
 							break;
 						}
 					}
-					
+
 					/* Undeclared namespace means that the element has to be linked */
 					// XXX An undeclared namespace will raise an error (element not found in the current tree)
 					if (!$isNamespaceDeclared)
@@ -475,7 +475,7 @@ class XsdManager
 							/* Build a simpleType element as comparison */
 							$comparisonElement = new XsdElement($this -> namespaces['default']['name'] . ':SIMPLETYPE', array("NAME" => $xsdElementAttr["TYPE"]));
 							$matchingIdArray = $this -> xsdOriginalTree -> find($comparisonElement);
-							
+
 							if (count($matchingIdArray) == 1)
 							{
 								$this -> createOriginalTree($tempTree, $matchingIdArray[0], $newParentId);
@@ -491,9 +491,9 @@ class XsdManager
 			}
 		}
 	}
-	
+
 	/**
-	 * 
+	 *
 	 */
 	private function cleanXsdTree()
 	{
@@ -509,19 +509,19 @@ class XsdManager
 				//"ANNOTATION"
 			)
 		);
-		
+
 		$elementList = $this -> xsdOriginalTree -> getElementList();
 		$defaultNS = $this -> namespaces['default']['name'].':';
 		$namespaceLength = strlen($defaultNS);
-		
-		
+
+
 		foreach ($elementList as $elementId => $xsdElement)
 		{
 			$this -> LOGGER -> log_debug('Optimizing tree for ID ' . $elementId . '...', 'XsdManager::cleanXsdTree');
-			
-			//$xsdElement = $this -> xsdElementList[$element['object']]; 
+
+			//$xsdElement = $this -> xsdElementList[$element['object']];
 			$xsdElementType = substr($xsdElement -> getType(), $namespaceLength);
-			
+
 			if(startsWith($xsdElement -> getType(), $defaultNS))
 			{
 				if(in_array($xsdElementType, $elementToDelete["simply"]))
@@ -529,14 +529,14 @@ class XsdManager
 					// TODO logging
 					$this -> xsdOriginalTree -> delete($elementId);
 				}
-				
+
 				if(in_array($xsdElementType, $elementToDelete["recursively"]))
 				{
 					// TODO logging
 					$this -> xsdOriginalTree -> delete($elementId, true);
 				}
 			}
-			
+
 			/* Choice element optimization */
 			if($xsdElement -> getType() == $defaultNS . 'CHOICE')
 			{
@@ -558,7 +558,7 @@ class XsdManager
 					$attributes = $this -> xsdOriginalTree -> getElement($child) -> getAttributes();
 					array_push($values, $attributes['VALUE']);
 				}
-				
+
 				$parentId = $this -> xsdOriginalTree -> getParent($elementId);
 				$this -> xsdOriginalTree -> getElement($parentId) -> addAttributes(array('RESTRICTION' => $values));
 
@@ -573,13 +573,13 @@ class XsdManager
 
 	/**
 	 * Build the complete tree. Compute minOccurs
-	 * 
+	 *
 	 * @param int $elementId Element index to build
 	 */
 	public function buildCompleteTree($elementId = 0, $parentId = -1)
 	{
 		$insertedId = $this -> xsdCompleteTree -> insert(
-			$elementId, 
+			$elementId,
 			$parentId
 		);
 		$this -> LOGGER -> log_debug('ID '.$insertedId.' (father: '.$parentId.') inserted into the tree', 'XsdManager::buildCompleteTree');
@@ -594,21 +594,21 @@ class XsdManager
 		$this -> LOGGER -> log_notice('Analyzing ID '.$insertedId.'...', 'XsdManager::buildCompleteTree');
 		$elementObject = $this -> xsdCompleteTree -> getElement($insertedId);
 		$elementAttr = $elementObject -> getAttributes();
-		
+
 		if (isset($elementAttr['MINOCCURS']) && $elementAttr['MINOCCURS'] > 1)
 		{
 			$parentId = $this -> xsdCompleteTree -> getParent($insertedId);
-			
+
 			for ($i = 0; $i < $elementAttr['MINOCCURS'] - 1; $i++)
 			{
 				$newElementId = $this -> xsdCompleteTree -> duplicate($insertedId, true);
 				$this -> xsdCompleteTree -> setBrother($insertedId, $newElementId);
-				
+
 				$this -> copyPageArray($insertedId, $newElementId);
 			}
 		}
 	}
-	
+
 	/**
 	 * Build the query tree. Compute minOccurs
 	 *
@@ -621,53 +621,53 @@ class XsdManager
 				$parentId
 		);
 		$this -> LOGGER -> log_debug('ID '.$insertedId.' (father: '.$parentId.') inserted into the query tree', 'XsdManager::buildQueryTree');
-	
+
 		$childrenId = $this -> xsdOriginalTree -> getChildren($elementId);
 		foreach ($childrenId as $childId)
 		{
 			$this -> buildQueryTree($childId, $insertedId);
 		}
-	
+
 		/* Duplicate elements with minOccurs > 1 */
 		$this -> LOGGER -> log_notice('Analyzing ID '.$insertedId.'...', 'XsdManager::buildQueryTree');
 		$elementObject = $this -> xsdQueryTree -> getElement($insertedId);
 		$elementAttr = $elementObject -> getAttributes();
-	
+
 		if (isset($elementAttr['MINOCCURS']) && $elementAttr['MINOCCURS'] > 1)
 		{
 			$parentId = $this -> xsdQueryTree -> getParent($insertedId);
-				
+
 			for ($i = 0; $i < $elementAttr['MINOCCURS'] - 1; $i++)
 			{
 			$newElementId = $this -> xsdQueryTree -> duplicate($insertedId, true);
 			$this -> xsdQueryTree -> setBrother($insertedId, $newElementId);
-	
+
 			}
 		}
 	}
-	
+
 	/**
-	 * 
+	 *
 	 */
 	private function copyPageArray($elementToCopy, $elementToModify)
 	{
 		$pageArray = $this -> pageHandler -> getPageForId($elementToCopy);
-		
+
 		foreach($pageArray as $pageNumber)
 		{
 			$this -> pageHandler -> setPageForId($pageNumber, $elementToModify);
 		}
-		
+
 		// FIXME array_values should not be needed there is a problem elsewhere
 		$childrenToCopy = array_values($this -> xsdCompleteTree -> getChildren($elementToCopy));
 		$childrenToModify = array_values($this -> xsdCompleteTree -> getChildren($elementToModify));
-		
+
 		foreach($childrenToModify as $childId => $childToModify)
 		{
 			$childToCopy = $childrenToCopy[$childId];
 			$this -> copyPageArray($childToCopy, $childToModify);
 		}
-		
+
 	}
 
 	/**
@@ -697,12 +697,12 @@ class XsdManager
 		}
 		else $this -> LOGGER -> log_info('Id '.$elementId.' not found', 'XsdManager::setDataForId');
 	}
-	
+
 	public function clearDataForId($elementId)
 	{
 		unset($this -> dataArray [$elementId]);
 	}
-	
+
 	public function clearData()
 	{
 		$this -> dataArray = array();
@@ -716,24 +716,24 @@ class XsdManager
 			$this -> LOGGER -> log_debug('Id '.$elementId.' has data '.$this -> dataArray[$elementId], 'XsdManager::getDataForId');
 			return $this -> dataArray[$elementId];
 		}
-		else 
+		else
 		{
 			$completeElementList = $this -> xsdCompleteTree -> getElementList();
-			
+
 			// We check if there is a module attached to this id
 			if(($moduleName = $this -> moduleHandler -> getModuleForId($completeElementList[$elementId]))!='')
 			{
 				$this -> LOGGER -> log_debug('Retrieving data for module '.$moduleName.'...', 'XsdManager::getDataForId');
 				$dataArray = retrieveModuleDataForId($moduleName, $elementId);
-				
+
 				if($dataArray == null)
 				{
 					$this -> LOGGER -> log_error('Function returned NULL for ID '.$elementId, 'XsdManager::getDataForId');
 					return null;
 				}
-				
+
 				$elementId = 0; // FIXME Condition not good
-				if(isset($dataArray[$elementId])) 
+				if(isset($dataArray[$elementId]))
 				{
 					$this -> LOGGER -> log_debug('Data found for ID '.$elementId, 'XsdManager::getDataForId');
 					return $dataArray[$elementId];
@@ -743,12 +743,12 @@ class XsdManager
 					return null;
 				}
 			}
-			else 
+			else
 			{
 				$this -> LOGGER -> log_debug('No data for id '.$elementId, 'XsdManager::getDataForId');
 				return null;
 			}
-			
+
 		}
 	}
 
@@ -760,12 +760,12 @@ class XsdManager
 		$this -> LOGGER -> log_notice('Function called', 'XsdManager::getSchemaFileName');
 		return $this -> xsdFile;
 	}
-	
+
 	public function getNamespaces()
 	{
 		return $this -> namespaces;
 	}
-	
+
 	public function setNamespaces($namespaces)
 	{
 		$this -> namespaces = $namespaces;
@@ -806,7 +806,7 @@ class XsdManager
 		$this -> LOGGER -> log_notice('Function called', 'XsdManager::setXsdCompleteTree');
 		$this -> xsdCompleteTree = $newXsdCompleteTree;
 	}
-	
+
 	/**
 	 *
 	 */
@@ -815,7 +815,7 @@ class XsdManager
 		$this -> LOGGER -> log_notice('Function called', 'XsdManager::getXsdQueryTree');
 		return $this -> xsdQueryTree;
 	}
-	
+
 	/**
 	 *
 	 */
@@ -824,17 +824,17 @@ class XsdManager
 		$this -> LOGGER -> log_notice('Function called', 'XsdManager::setXsdQueryTree');
 		$this -> xsdQueryTree = $newXsdQueryTree;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 */
 	public function getSearchHandler()
 	{
 		return $this -> searchHandler;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param $newSearchHandler
 	 */
 	public function setSearchHandler($newSearchHandler)
@@ -893,32 +893,32 @@ class XsdManager
 	{
 		/* Not yet implemented */
 	}
-	
+
 	public function retrieveForms()
 	{
 		$pathElement = explode('/', $this -> xsdFile);
 		$schemaId = $pathElement[count($pathElement)-1];
-		
+
 		$this -> dbConnection ["MongoDB"] -> connect();
 		$this -> dbConnection ["MongoDB"] -> setDatabaseName("xsdmgr");
 		$this -> dbConnection ["MongoDB"] -> openDB();
-		
+
 		$formListCursor = $this -> dbConnection ["MongoDB"] -> queryData(array("schema" => $schemaId), 'exp-form');
-		
+
 		return iterator_to_array($formListCursor);
 	}
-	
+
 	public function retrieveFormData($formId)
 	{
 		$this -> LOGGER -> log_debug('Loading form '.$formId, 'XsdManager::retrieveFormData');
-				
+
 		$pathElement = explode('/', $this -> xsdFile);
 		$schemaId = $pathElement[count($pathElement)-1];
-		
+
 		$this -> dbConnection ["MongoDB"] -> connect();
 		$this -> dbConnection ["MongoDB"] -> setDatabaseName("xsdmgr");
 		$this -> dbConnection ["MongoDB"] -> openDB();
-		
+
 		$query = array(
 			'$or' => array(
 				array(
@@ -935,119 +935,118 @@ class XsdManager
 				)
 			)
 		);
-		
+
 		$mongoDataCursor = $this -> dbConnection ["MongoDB"] -> queryData($query, 'exp-form');
-		
+
 		$mongoDataArray = iterator_to_array($mongoDataCursor);
-		
+
 		if(count($mongoDataArray)!=1)
 		{
 			// TODO Throw exception
 			$this -> LOGGER -> log_error('Query return '.count($mongoDataArray).' result', 'XsdManager::retrieveFormData');
 			return;
 		}
-		
+
 		$dataArray = array_pop($mongoDataArray);
-		
+
 		if(!isset($dataArray["data"]))
 		{
 			// TODO throw exception
 			$this -> LOGGER -> log_error('No existing data index', 'XsdManager::retrieveFormData');
 			return;
 		}
-		
+
 		/* Load complete tree */
 		$xsdCompleteTree = new ReferenceTree($this -> xsdOriginalTree);
-		
+
 		$elementList = array();
 		foreach($dataArray["tree"]["elementList"] as $elementRow)
 		{
 			$elementList[$elementRow["_id"]] = $elementRow["element"];
 		}
-		
+
 		$xsdCompleteTree -> setTree($elementList, $dataArray["tree"]["ancestorTable"]);
-		$this -> setXsdCompleteTree($xsdCompleteTree);		
-		
+		$this -> setXsdCompleteTree($xsdCompleteTree);
+
 		// Load save data
 		$this -> LOGGER -> log_debug("Number of item ".count($dataArray["data"]), 'XsdManager::retrieveFormData');
 		foreach($dataArray["data"] as $elementId => $elementData)
 		{
 			$this -> LOGGER -> log_debug("Element ".$elementId." contains ".$elementData, 'XsdManager::retrieveFormData');
 			$this -> setDataForId($elementData, $elementId);
-		}		
-		
+		}
+
 		$this -> xsdManagerId = new MongoID($formId);
 	}
-	
+
 	public function saveFormData()
 	{
 		$this -> LOGGER -> log_notice('Saving form (ID '.(isset($this -> xsdManagerId)?''.$this -> xsdManagerId:'undefined').')', 'XsdManager::saveFormData');
-		
+
 		/* Build the array */
 		$pathElement = explode('/', $this -> xsdFile);
 		$schemaId = $pathElement[count($pathElement)-1];
-		
+
 		// TODO Correct that part
 		$moduleList = $this -> moduleHandler -> getModuleList('enable');
 		$moduleDataArray = array();
-		
+
 		foreach ($moduleList as $module) {
 			$moduleClass = ucfirst($module['name']);
-			
+
 			$moduleData = call_user_func($moduleClass.'::__toArray');
 			array_push($moduleDataArray, array($module['name'] => $moduleData));
 		}
-		
-		
+
 		$jsonArray = array(
 			"schema" => $schemaId,
 			"tree" => $this -> xsdCompleteTree -> __toArray(),
 			"data" => $this -> dataArray,
 			"modules" => $moduleDataArray
 		);
-		
+
 		if(isset($this -> xsdManagerId)) $jsonArray["_id"] = $this -> xsdManagerId;
-				
+
 		$this -> dbConnection ["MongoDB"] -> connect();
 		$this -> dbConnection ["MongoDB"] -> setDatabaseName("xsdmgr");
 		$this -> dbConnection ["MongoDB"] -> openDB();
-		
+
 		/* Save it into the db */
 		$this -> xsdManagerId = $this -> dbConnection ["MongoDB"] -> insertJson($jsonArray, 'exp-form');
-		
+
 		$this -> LOGGER -> log_debug('Form saved (ID '.$this -> xsdManagerId.')', 'XsdManager::saveFormData');
 	}
-	
+
 	public function removeFormData()
 	{
 		$this -> LOGGER -> log_notice('Removing form (ID '.(isset($this -> xsdManagerId)?''.$this -> xsdManagerId:'undefined').')', 'XsdManager::saveFormData');
-		
+
 		if(!isset($this -> xsdManagerId)) return;
-		
+
 		$this -> dbConnection ["MongoDB"] -> connect();
 		$this -> dbConnection ["MongoDB"] -> setDatabaseName("xsdmgr");
 		$this -> dbConnection ["MongoDB"] -> openDB();
 		$this -> dbConnection ["MongoDB"] -> removeIdFromCollection($this -> xsdManagerId, 'exp-form');
 	}
-	
+
 	public function saveXmlData()
 	{
-		
+
 		/*$this -> dbConnection ["MongoDB"] -> connect();
 		$this -> dbConnection ["MongoDB"] -> setDatabaseName("xsdmgr");
 		$this -> dbConnection ["MongoDB"] -> openDB();
-		
+
 		$this -> dbConnection ["MongoDB"] -> insertXmlWithId($this -> );*/
 	}
-	
+
 	public function setXsdManagerId($xsdManagerId)
 	{
 		$this -> xsdManagerId = $xsdManagerId;
 	}
-	
+
 	public function getXsdManagerId()
 	{
-		return $this -> xsdManagerId; 
+		return $this -> xsdManagerId;
 	}
 
 	/**
