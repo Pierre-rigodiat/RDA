@@ -36,6 +36,7 @@ class PeriodicTableModule /*extends Module*/ {
             throw new Exception("Element not found");
 
         unset($this -> chemicalElementList [ $elementIndex ]);
+		unset($this -> dataArray [ $elementName ]);
     }
 
     /**
@@ -83,7 +84,27 @@ class PeriodicTableModule /*extends Module*/ {
 
 	public function getXmlData()
 	{
-		return array('<test>resteest</test>');
+		$xmlData = '';
+		foreach($this -> dataArray as $element => $data)
+		{
+			$xmlData .= '<element>';
+
+			$xmlData .= '<element>'.$element.'</element>';
+
+			$xmlData .= '<quantity>';
+
+			$xmlData .= '<quantity>'.$data['quantity'].'</quantity>';
+			$xmlData .= '<error>'.$data['error'].'</error>';
+
+			$xmlData .= '</quantity>';
+
+			if(isset($data['purity']))
+				$xmlData .= '<purity>'.$data['purity'].'</purity>';
+
+			$xmlData .= '</element>';
+		}
+
+		return array($xmlData);
 	}
 
 
