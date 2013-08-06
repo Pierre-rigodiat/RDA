@@ -686,7 +686,7 @@ class XsdManager
 	{
 		$this -> LOGGER -> log_notice('Function called', 'XsdManager::assignIdToModule');
 		$this -> moduleHandler -> setIdWithModule($elementId, $moduleName, $config);
-	
+
 	}
 
 	public function setDataForId($dataValue, $elementId)
@@ -724,7 +724,7 @@ class XsdManager
 			// We check if there is a module attached to this id
 			if(($moduleName = $this -> moduleHandler -> getModuleForId($completeElementList[$elementId]))!='')
 			{
-				$this -> LOGGER -> log_debug('Retrieving data for module '.$moduleName.'...', 'XsdManager::getDataForId');
+				$this -> LOGGER -> log_debug('Retrieving data ('.$elementId.') for module '.$moduleName.'...', 'XsdManager::getDataForId');
 				$dataArray = retrieveModuleDataForId($moduleName, $elementId);
 
 				if($dataArray == null)

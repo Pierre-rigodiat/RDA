@@ -14,12 +14,12 @@ require_once $_SESSION['xsd_parser']['conf']['dirname'] . '/parser/core/PageHand
 require_once $_SESSION['xsd_parser']['conf']['dirname'] . '/parser/core/SearchHandler.php';
 /**
  * Display class allow to display element the way you want.
- * 
+ *
  * @todo Handle templates
- * 
+ *
  * @author P. Dessauw <philippe.dessauw@nist.gov>, P. Savonitto <pierre.savonitto@nist.gov>
  * @copyright NIST 2013
- * 
+ *
  * @package XsdMan\View
  */
 class Display
@@ -29,13 +29,13 @@ class Display
 	 * @var XsdManager
 	 */
 	private $xsdManager;
-	
+
 	/**
 	 * The configuration file with all tags, icons and labels
 	 * @var string
 	 */
 	private static $CONF_FILE;
-	
+
 	/**
 	 * Configuration array
 	 * @todo Populate the array
@@ -92,13 +92,13 @@ class Display
 			"merge_icon" => '<span class="icon merge"></span>'
 		)
 	);
-	
+
 	private static $_NUMERIC_TYPE = array(
 			'double' => '[0-9]*(\.[0-9]+)?',
 			'integer' => '[0-9]*',
 			'float' => '[0-9]*(\.[0-9]+)?'
 			);
-	
+
 	// Debug and logging variables
 	/** @ignore */
 	private $LOGGER;
@@ -114,7 +114,7 @@ class Display
 
 	/**
 	 * Build an instance of Display.
-	 * 
+	 *
 	 * <u>Parameters:</u>
 	 * <ul>
 	 * 		<li><var>XsdManager</var> <b>manager</b></li>
@@ -143,7 +143,7 @@ class Display
 				// new Display(xsdManagerObject)
 				if (is_object($argv[0]) && get_class($argv[0]) == 'XsdManager')
 				{
-					$this -> xsdManager = $argv[0];					
+					$this -> xsdManager = $argv[0];
 					$level = self::$LEVELS['NO_DBG'];
 				}
 				else
@@ -160,9 +160,9 @@ class Display
 
 		$this -> LOGGER -> log_notice('Display set up', 'Display::__construct');
 	}
-	
+
 	/**
-	 * 
+	 *
 	 */
 	public function setXsdManager($newXsdManager)
 	{
@@ -174,107 +174,107 @@ class Display
 		else
 			$this -> LOGGER -> log_error('$newXsdManager is not a XsdManager', 'Display::setXsdManager');
 	}
-	
+
 	/**
-	 * 
+	 *
 	 */
 	public function update()
 	{
 		$this -> LOGGER -> log_debug('Updating display...', 'Display::update');
-		
+
 		if(isset($_SESSION['xsd_parser']['parser']))
 		{
 			$sessionXsdManager = unserialize($_SESSION['xsd_parser']['parser']);
 			$this -> setXsdManager($sessionXsdManager);
-			
+
 			$this -> LOGGER -> log_debug('Display updated', 'Display::update');
 		}
 		else $this -> LOGGER ->log_info('No XsdManager to update', 'Display::update');
-		
+
 		return;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 */
 	public function displayModuleChooser()
 	{
 		$moduleChooser = '';
-		
+
 		$moduleHandler = $this -> xsdManager -> getModuleHandler();
 		$moduleList = $moduleHandler -> getModuleList();
-		
+
 		foreach($moduleList as $module)
 		{
 			$iconString = $moduleHandler->getModuleStatus($module['name'])==1?'on':'off';
 			$moduleChooser .= '<div class="module"><span class="icon legend '.$iconString.'">'.ucfirst($module['name']).'</span></div>';
-			
+
 			$this->LOGGER->log_debug('Display module '.$module['name'], 'Display::displayModuleChooser');
 		}
-		
+
 		return $moduleChooser;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 */
 	public function displayPageChooser()
 	{
 		$pageHandler = $this -> xsdManager -> getPageHandler();
 		$totalPage = $pageHandler -> getNumberOfPage();
-		
+
 		$pageChooser = 'Split into <input type="number" min="1" value="'.$totalPage.'" class="text small"/> page(s) <div class="icon" id="page_number"></div>';
 		$this->LOGGER->log_notice('Page chooser displayed w/ '.$totalPage.' page(s)', 'Display::displayPageChooser');
-		
+
 		return $pageChooser;
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public function displayPageNavigator()
-	{		
+	{
 		//$pageNavigator = '<div class="paginator">';
 		$pageNavigator = '<ul>';
-		
+
 		$pageHandler = $this -> xsdManager -> getPageHandler();
-		
+
 		$totalPage = $pageHandler -> getNumberOfPage();
-		
+
 		if($totalPage > 1)
 		{
 			$currentPage = $pageHandler -> getCurrentPage();
-			
+
 			//$pageNavigator .= '<span class="ctx_menu"><span class="icon begin"></span></span><span class="ctx_menu"><span class="icon previous"></span></span>';
 			$pageNavigator .= '<li'.($currentPage==1?' class="disabled"':'').'><a href="">Prev</a></li>';
-			
+
 			for($i=0; $i<$totalPage; $i++)
 			{
 				//$pageNavigator .= '<span class="ctx_menu '.($currentPage==$i+1?'selected':'button').'">'.($i+1).'</span>';
 				$pageNavigator .= '<li'.($currentPage==$i+1?' class="active"':'').'><a href="">'.($i+1).'</a></li>';
 			}
-			
+
 			//$pageNavigator .= '<span class="ctx_menu"><span class="icon next"></span></span><span class="ctx_menu"><span class="icon end"></span></span>';
 			$pageNavigator .= '<li'.($currentPage==$totalPage?' class="disabled"':'').'><a href="">Next</a></li>';
 		}
-		
+
 		//$pageNavigator .= '</div>';
 		$pageNavigator .= '</ul>';
-		
+
 		return $pageNavigator;
 	}
-	
+
 	/**
 	 * Return a basic description of the element
-	 * 
+	 *
 	 * Return the following array
 	 * array(
 	 * 		"$element" => XsdElement
 	 * 		"page" => pageArray
 	 * 		"module" => moduleName
-	 * 
+	 *
 	 * )
-	 * 
+	 *
 	 * @param int $elementId Element index
 	 * @param boolean $fromCompleteTree Define the source tree to reach the element
 	 * @return array Description of the element
@@ -282,39 +282,40 @@ class Display
 	private function getElementDescription($elementId, $fromCompleteTree = false)
 	{
 		$elementDesc = array();
-		
+
 		/* Retrieve the XsdElement */
 		if($fromCompleteTree)
 		{
 			$elementList = $this -> xsdManager -> getXsdCompleteTree() -> getElementList();
 			$elementId = $elementList[$elementId];
 		}
-		
+
 		$xsdElement = $this -> xsdManager -> getXsdOriginalTree() -> getElement($elementId);
-		
+
+		$elementDesc['elementId'] = $elementId;
 		$elementDesc['xsdElement'] = $xsdElement;
-		
+
 		/* Retrieve the page number */
 		$pageHandler = $this -> xsdManager -> getPageHandler();
 		if($pageHandler -> getNumberOfPage() > 1)
-		{			
+		{
 			$pages = $pageHandler -> getPageForId($elementId);
 			if(count($pages) == 0)
 				$pages = array(1);
 		}
 		else $pages = null;
-		
+
 		$elementDesc['pages'] = $pages;
-		
+
 		/* Retrieve the module name */
 		$moduleHandler = $this -> xsdManager -> getModuleHandler();
 		$moduleName = $moduleHandler -> getModuleForId($elementId);
-		
+
 		$elementDesc['module'] = $moduleName;
-		
+
 		return $elementDesc;
 	}
-	
+
 	//TODO Merge with the getElementDescription
 	/**
 	 * Return a basic description of the element
@@ -334,33 +335,33 @@ class Display
 	private function getQueryElementDescription($elementId, $fromQueryTree = false)
 	{
 		$elementDesc = array();
-	
+
 		/* Retrieve the XsdElement */
 		if($fromQueryTree)
 		{
 			$elementList = $this -> xsdManager -> getXsdQueryTree() -> getElementList();
 			$elementId = $elementList[$elementId];
 		}
-	
+
 		$xsdElement = $this -> xsdManager -> getXsdOriginalTree() -> getElement($elementId);
-	
+
 		$elementDesc['xsdElement'] = $xsdElement;
-	
+
 		/* Retrieve the module name */
 		$moduleHandler = $this -> xsdManager -> getModuleHandler();
 		$moduleName = $moduleHandler -> getModuleForId($elementId);
-	
+
 		$elementDesc['module'] = $moduleName;
-	
+
 		return $elementDesc;
 	}
-	 
+
 	/**
 	 * Display the configuration view
-	 * 
+	 *
 	 * @param int $elementId Id of the element
 	 * @return string Configuration view (HTML code)
-	 * 
+	 *
 	 * FIXME Change the function parameter into a boolean
 	 */
 	public function displayConfiguration($elementId = 0)
@@ -369,7 +370,7 @@ class Display
 
 		if($elementId == 0) // Display the whole tree
 		{
-			$configView .= self::$_CONF['CONFIG']['popup_start_tag'];		
+			$configView .= self::$_CONF['CONFIG']['popup_start_tag'];
 			$configView .= $this -> displayConfigurationPopUp();
 			$configView .= self::$_CONF['CONFIG']['popup_end_tag'];
 			$configView .= self::$_CONF['CONFIG']['view_start_tag'];
@@ -380,29 +381,29 @@ class Display
 		{
 			$configView .= $this -> displayConfigurationElement($elementId, true);
 		}
-		
+
 		return $configView;
 	}
-	
+
 	/**
 	 * Displays the jQueryUI pop-up for the configuration view
-	 * 
+	 *
 	 * @return string The pop-up code
 	 */
 	private function displayConfigurationPopUp()
 	{
 		$popUp = '<p class="elementId"></p><p class="tip"></p>';
 		$popUp .= '<form><fieldset class="dialog fieldset">';
-		
+
 		$popUp .= '<div class="dialog subpart" id="minoccurs-part">';
 		$popUp .= '<label for="minoccurs">MinOccurs</label><input type="number" name="minoccurs" id="minoccurs" min="0" class="popup-text ui-widget-content ui-corner-all" />';
 		$popUp .= '</div>';
-		
+
 		$popUp .= '<div class="dialog subpart" id="maxoccurs-part">';
 		$popUp .= '<label for="maxoccurs">MaxOccurs</label><input type="number" name="maxoccurs" id="maxoccurs" min="0" class="popup-text ui-widget-content ui-corner-all" />';
 		$popUp .= '<span class="dialog subitem"><label for="unbounded">Unbounded ?</label><input type="checkbox" id="unbounded" name="unbounded" /></span>';
 		$popUp .= '</div>';
-		
+
 		$popUp .= '<div class="dialog subpart" id="datatype-part">';
 		$popUp .= '<label for="datatype">Data-type</label>';
 		$popUp .= '<select id="datatype" name="datatype" class="ui-widget-content ui-corner-all">';
@@ -411,7 +412,7 @@ class Display
 		$popUp .= '<option value="double">Double</option>';
 		$popUp .= '</select>';
 		$popUp .= '</div>';
-		
+
 		$popUp .= '<div class="dialog subpart" id="autogen-part">';
 		$popUp .= '<label for="autogen">Auto-generate</label>';
 		$popUp .= '<select id="autogen" name="autogen" class="ui-widget-content ui-corner-all">';
@@ -428,76 +429,76 @@ class Display
 
 		$pageHandler = $this -> xsdManager -> getPageHandler();
 		$totalPage = $pageHandler->getNumberOfPage();
-				
+
 		$popUp .= '<div class="dialog subpart" id="module-part">';
-		
+
 		/* Page chooser */
 		if($totalPage > 1)
 		{
 			$popUp .= '<label for="page">In page</label>';
 			$popUp .= '<select id="page" name="page" class="ui-widget-content ui-corner-all">';
-		
+
 			for($i=1; $i<=$totalPage; $i++) $popUp .= '<option value="'.$i.'">'.$i.'</option>';
-						        	
+
 			$popUp .= '</select>';
 		}
-		
-		/* Module chooser */			        
+
+		/* Module chooser */
 		$popUp .= '<label for="module">As</label>';
 		$popUp .= '<select id="module" name="module" class="ui-widget-content ui-corner-all">';
 		$popUp .= '<option value="false">No module</option>';
-					
+
 		$moduleHandler = $this -> xsdManager -> getModuleHandler();
 		$moduleList = $moduleHandler -> getModuleList('enable');
 		foreach($moduleList as $module)
 		{
 			$popUp .= '<option value="'.$module['name'].'">'.ucfirst($module['name']).'</option>';
 		}
-			
+
 		$popUp .= '</select>';
-				        
+
 		$popUp .= '</div>';
-		
+
 		$popUp .= '</fieldset></form>';
 
 		return $popUp;
 	}
-	
+
 	/**
 	 * Display the configuration view of a single element.
-	 * 
+	 *
 	 * @param int $elementId
 	 * @param boolean $onlyElement
 	 * @return string Configuration view of the element (HTML code)
 	 */
 	private function displayConfigurationElement($elementId, $onlyElement = false)
-	{				
+	{
 		/* Get element attributes */
-		$elementDesc = $this -> getElementDescription($elementId);		
+		$elementDesc = $this -> getElementDescription($elementId);
 		$elementAttr = $elementDesc['xsdElement'] -> getAttributes();
-		
+
 		$this->LOGGER->log_notice('Display ID '.$elementId.'; Object: '.$elementDesc['xsdElement'], 'Display::displayConfigurationElement');
-		
+
 		/* REF attribute workaround */
 		if(!isset($elementAttr['NAME']) && isset($elementAttr['REF']))
 		{
 			$elementAttr['NAME'] = '<i>'.$elementAttr['REF'].'</i>';
 			unset($elementAttr['REF']);
-		} 
-		
+		}
+
 		/* At this point, if attribute NAME has not been set, we have a problem */
 		if(!isset($elementAttr['NAME']))
 		{
 			// TODO log
 			throw new Exception("Attribute NAME undefined for element ID ".$elementId, -1);
 		}
-		
+
 		$configElement = '';
 		$children = array();
-		
+
 		// Display the start li tag for everyone but the root
 		if (!$onlyElement && $elementId!=0) $configElement .= '<li id="' . $elementId . '">';
-		
+
 		// XXX See if this condition work for multi root schemas
 		if($elementId == 0/*$this -> xsdManager -> getXsdOrganizedTree() -> getParent($elementId) == -1*/) // For root element, only the name is important
 		{
@@ -506,12 +507,12 @@ class Display
 		else {
 			// Display element name and attributes
 			$configElement .= self::$_CONF['CONFIG']["elem_start_name_tag"] . ucfirst($elementAttr['NAME']) . self::$_CONF['CONFIG']["elem_end_name_tag"];
-			$configElement .= $this -> displayConfigurationAttributes($elementAttr, $elementDesc['pages'], $elementDesc['module']);	
+			$configElement .= $this -> displayConfigurationAttributes($elementAttr, $elementDesc['pages'], $elementDesc['module']);
 		}
 
 		// No module assigned implies to display children
 		if($elementDesc['module'] == '') $children = $this -> xsdManager -> getXsdOriginalTree() -> getChildren($elementId);
-		
+
 		/* Display children (if it is not the only element to display) */
 		if (count($children) > 0 && !$onlyElement)
 		{
@@ -525,13 +526,13 @@ class Display
 
 		// Display the end li tag for everyone but the root
 		if (!$onlyElement && $elementId!=0) $configElement .= '</li>';
-		
+
 		return $configElement;
 	}
 
 	/**
 	 * Display the list of interesting attributes.
-	 * 
+	 *
 	 * @param array $elementAttr Array of element attributes
 	 * @param array $pageArray Pages attached to the element
 	 * @param string $moduleName Module attached to the element
@@ -540,10 +541,10 @@ class Display
 	private function displayConfigurationAttributes($elementAttr, $pageArray, $moduleName)
 	{
 		$attributeString = '';
-		
+
 		/* Filter attributes */
 		/** @ignore */
-		/*if (!defined("filter_attribute")) 
+		/*if (!defined("filter_attribute"))
 		{
 			/**
 			 * Avoid to redefine the function (i.e. avoid the error)
@@ -560,13 +561,13 @@ class Display
 					'NAME',
 					'TYPE'
 				);
-				
+
 				return !in_array($var, $attr_not_disp);
 			}
 		}*/
 
 		$elementAttrName = array_filter(array_keys($elementAttr), array($this, "filterAttribute"));
-		
+
 		// Special display for choice element
 		$isChoiceElement = false;
 		if($elementAttr['NAME'] == 'choose') $isChoiceElement = true;
@@ -578,7 +579,7 @@ class Display
 			$hasAttribute = true;
 
 			$attributeString .= $attrName . ': ';
-			
+
 			if (is_array($elementAttr[$attrName]))
 			{
 				// Display arrays nicely (as "item1, item2...")
@@ -590,7 +591,7 @@ class Display
 						// FIXME doing that assumes that you just have one attribute in choices (or at least one array)
 						$childXsdElement = $this -> xsdManager -> getXsdOriginalTree() -> getElement($attrElement);
 						$childAttributes = $childXsdElement -> getAttributes();
-						
+
 						$attributeString .= ucfirst($childAttributes['NAME']);
 					}
 
@@ -605,7 +606,7 @@ class Display
 				$attributeString .= self::$_CONF['CONFIG']["attr_separator"];
 		}
 
-		$namespaces = $this -> xsdManager -> getNamespaces();		
+		$namespaces = $this -> xsdManager -> getNamespaces();
 		if (isset($elementAttr['TYPE']) && startsWith($elementAttr['TYPE'], strtolower($namespaces['default']['name'])))
 		{
 			$type = explode(':', $elementAttr['TYPE']);
@@ -613,7 +614,7 @@ class Display
 				$attributeString .= self::$_CONF['CONFIG']["attr_separator"];
 			$attributeString .= 'TYPE: ' . $type[1];
 		}
-		
+
 		/* Display the page number */
 		if(count($pageArray)!=0)
 		{
@@ -623,11 +624,11 @@ class Display
 				$pageNumberString .= $page;
 				if(end($pageArray)!=$page) $pageNumberString .= ', ';
 			}
-			
+
 			if($attributeString != '') $attributeString .= self::$_CONF['CONFIG']["attr_separator"];
 			$attributeString .= 'PAGE: '.$pageNumberString;
 		}
-		
+
 		/* Display the module name */
 		if($moduleName != '')
 		{
@@ -641,7 +642,7 @@ class Display
 
 		/* Add the edit button */
 		$attributeString .= self::$_CONF['CONFIG']["edit_icon"];
-		
+
 		return $attributeString;
 	}
 
@@ -656,15 +657,15 @@ class Display
 			'NAME',
 			'TYPE'
 		);
-		
+
 		return !in_array($var, $attr_not_disp);
 	}
-	
+
 	/**
 	 * The PageHandler will know which element you have to Display
 	 * The Tree will allow you to know if it is a module
 	 * The ModuleHandler will know which page to display
-	 * 
+	 *
 	 * @param int $elementId Element index
 	 * @param bool $partial Set to TRUE to just print one element an not the tree
 	 * @return string HTML code of the view
@@ -672,12 +673,12 @@ class Display
 	public function displayHTMLForm($elementId = 0, $partial = false)
 	{
 		$this -> LOGGER -> log_notice(($partial?'Partially d':'D').'isplaying form for ID '.$elementId.' ', 'Display::displayHTMLForm');
-		
+
 		$htmlForm = '';
 
 		if (!$partial)
 		{
-			$htmlForm .= self::$_CONF['FORM']['popup_start_tag'];		
+			$htmlForm .= self::$_CONF['FORM']['popup_start_tag'];
 			$htmlForm .= $this -> displayHTMLFormPopUp();
 			$htmlForm .= self::$_CONF['FORM']['popup_end_tag'];
 			$htmlForm .= self::$_CONF['FORM']['view_start_tag'];
@@ -688,55 +689,55 @@ class Display
 
 		return $htmlForm;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 */
 	private function displayHTMLFormPopUp()
 	{
 		$popUp = '<form><fieldset class="dialog fieldset">';
-		
+
 		$popUp .= '<div class="dialog subpart" id="form-part">';
 		$popUp .= '<label for="form-id">Form </label>';
 		$popUp .= '<select id="form-id" name="form-id" class="ui-widget-content ui-corner-all">';
-		
+
 		$formList = $this -> xsdManager -> retrieveForms();
-		
+
 		foreach ($formList as $formId) {
 			$popUp .= '<option value="'.$formId["_id"].'">'.$formId["_id"].'</option>';
 		}
-		
+
 		$popUp .= '</select>';
 		$popUp .= '</div>';
-		
+
 		$popUp .= '</fieldset></form>';
-		
+
 		return $popUp;
 	}
-	
+
 	/**
-	 * 
-	 * 
+	 *
+	 *
 	 * @param int $elementId Element index
 	 * @return string HTML code of the element
 	 */
 	private function displayHTMLFormElement($elementId)
 	{
 		$htmlFormElement = '';
-		
+
 		/* Get element info */
 		$elementDesc = $this -> getElementDescription($elementId, true);
 		$currentPage = $this -> xsdManager -> getPageHandler() -> getCurrentPage();
-		
+
 		$this->LOGGER->log_notice('Displaying ID '.$elementId.'; Object: '.$elementDesc['xsdElement'].'...', 'Display::displayHTMLFormElement');
-		
+
 		/* Check that the element should be display in this page */
 		if($elementDesc['pages'] != null && !in_array($currentPage, $elementDesc['pages']))
 		{
 			$this -> LOGGER -> log_debug('ID '.$elementId.' is not in page '.$currentPage, 'Display::displayHTMLFormElement');
 			return $htmlFormElement;
 		}
-		
+
 		/* Displaying a module implies that children will not be displayed */
 		if($elementDesc['module'] != '')
 		{
@@ -745,29 +746,29 @@ class Display
 			// XXX Use the XsdManager
 			return displayModule($elementDesc['module']);
 		}
-		
+
 		$elementAttr = $elementDesc['xsdElement'] -> getAttributes();
-		
+
 		/* REF attribute workaround */
 		if(!isset($elementAttr['NAME']) && isset($elementAttr['REF'])) $elementAttr['NAME'] = '<i>'.$elementAttr['REF'].'</i>';
-		
+
 		/* At this point, if attribute NAME has not been set, we have a problem */
 		if(!isset($elementAttr['NAME']))
 		{
 			// TODO log
 			throw new Exception("Attribute NAME undefined for element ID ".$elementId, -1);
 		}
-		
-		/* Display the start li tag for non root element */ 
+
+		/* Display the start li tag for non root element */
 		if($elementId != 0)
 		{
 			$liClass = '';
 			if (isset($elementAttr['AVAILABLE']) && !$elementAttr['AVAILABLE'])
 				$liClass = ' class="unavailable" ';
-			
+
 			$htmlFormElement .= '<li id="' . $elementId . '"' . $liClass . '>';
 		}
-		
+
 		if($elementId == 0/*$this -> xsdManager -> getXsdOrganizedTree() -> getParent($elementId) == -1*/)
 		{
 			$htmlFormElement .= self::$_CONF['FORM']['root_start_name_tag'] . ucfirst($elementAttr['NAME']) . self::$_CONF['FORM']['root_end_name_tag'];
@@ -775,16 +776,16 @@ class Display
 		else
 		{
 			$htmlFormElement .= self::$_CONF['FORM']['elem_start_name_tag'] . ucfirst($elementAttr['NAME']) . self::$_CONF['FORM']['elem_end_name_tag']. ' ';
-			
+
 			/* Auto-generation configuration */
 			if(isset($elementAttr['AUTO_GENERATE']) && $elementAttr['AUTO_GENERATE']!='uid')
 				$htmlFormElement .= self::$_CONF['FORM']['refresh_icon'];
-			
-			
+
+
 			if (isset($elementAttr['TYPE']) && startsWith($elementAttr['TYPE'], 'xsd')) // todo put xsd into a variable (could use the manager)
-			{			
+			{
 				$htmlFormElement .= '<input type="text" class="text"';
-				
+
 				if(isset($elementAttr['AVAILABLE']) && $elementAttr['AVAILABLE']==false) // Element not available => No value + Input disabled
 				{
 					$htmlFormElement .= ' disabled="disabled"';
@@ -795,39 +796,39 @@ class Display
 					{
 						$htmlFormElement .= ' value="'.$data.'"';
 					}
-					
+
 					if(isset($elementAttr['AUTO_GENERATE']) && $elementAttr['AUTO_GENERATE']=='uid')
 					{
 						$htmlFormElement .= ' value="'.$this -> xsdManager -> getXsdManagerId().'" disabled="disabled"';
 					}
-					
+
 				}
-				
+
 				$htmlFormElement .= '/>';
-				
+
 				if(isset($elementAttr['AUTO_GENERATE']) && $elementAttr['AUTO_GENERATE']=='uid')
 				{
 					$htmlFormElement .= ' '.self::$_CONF['FORM']['edit_icon'];
 				}
-				
+
 				$this->LOGGER->log_notice('ID '.$elementId.' can be edited', 'Display::displayHTMLFormElement');
 			}
-			
+
 			/* Display RESTRICTION element */
 			// TODO Implement other types of restriction
 			if (isset($elementAttr['RESTRICTION']))
 			{
-				$data = $this->xsdManager->getDataForId($elementId);				
-					
-				$htmlFormElement .= '<select class="xsdman restriction">';			
-				
+				$data = $this->xsdManager->getDataForId($elementId);
+
+				$htmlFormElement .= '<select class="xsdman restriction">';
+
 				foreach ($elementAttr['RESTRICTION'] as $chooseElement)
 					$htmlFormElement .= '<option value="' . $chooseElement . '" '.($data==$chooseElement?'selected="selected"':'').'>' . $chooseElement . '</value>';
-				
+
 				$htmlFormElement .= '</select>';
 				$this->LOGGER->log_debug('ID '.$elementId.' is a restriction', 'Display::displayHTMLFormElement');
 			}
-	
+
 			/* CHOICE allow the user to choose which element they want to display using a <select> */
 			if (isset($elementAttr['CHOICE']))
 			{
@@ -836,7 +837,7 @@ class Display
 				{
 					$childXsdElement = $this -> xsdManager -> getXsdOriginalTree() -> getElement($chooseElement);
 					$childAttributes = $childXsdElement -> getAttributes();
-					
+
 					$htmlFormElement .= '<option value="' . $chooseElement . '">' . ucfirst($childAttributes['NAME']) . '</value>';
 				}
 				$htmlFormElement .= '</select>';
@@ -846,28 +847,28 @@ class Display
 			/* Print the add / remove buttons */
 			// Gather sibling information and create useful variable to count them
 			$siblingsIdArray = $this -> xsdManager -> getXsdCompleteTree() -> getSiblings($elementId);
-			
+
 			$this->LOGGER->log_notice('ID '.$elementId.' has '.count($siblingsIdArray).' possible sibling(s)', 'Display::displayHTMLFormElement');
 			$siblingsCount = 0;
-	
+
 			// Check the current number of siblings (to know if we need to display buttons)
 			foreach ($siblingsIdArray as $siblingId)
 			{
 				$siblingObject = $this -> xsdManager -> getXsdCompleteTree() -> getElement($siblingId);
 				$siblingAttr = $siblingObject -> getAttributes();
-	
+
 				// We compare the parent ID to know if this is a real sibling (and not just another similar element)
 				// We also compare if the element is available
 				if (!(isset($siblingAttr['AVAILABLE']) && !$siblingAttr['AVAILABLE']))
 					$siblingsCount = $siblingsCount + 1;
 			}
-			
+
 			$this->LOGGER->log_debug('ID '.$elementId.' has '.$siblingsCount.' sibling(s)', 'Display::displayHTMLFormElement');
-	
+
 			$minOccurs = 1;
 			if (isset($elementAttr['MINOCCURS']))
 				$minOccurs = $elementAttr['MINOCCURS'];
-			
+
 			$this->LOGGER->log_notice('ID '.$elementId.' minOccurs = '.$minOccurs, 'Display::displayHTMLFormElement');
 
 			$addIconDisplayed = false;
@@ -883,7 +884,7 @@ class Display
 					$this->LOGGER->log_debug('ID '.$elementId.' has add button', 'Display::displayHTMLFormElement');
 				}
 			}
-			
+
 			/* Set up the add button for unavailable elements */
 			if(isset($elementAttr['AVAILABLE']) && $elementAttr['AVAILABLE']==false) // Set up add icon if an element is disabled (minOccurs = 0 reached)
 			{
@@ -894,7 +895,7 @@ class Display
 					$this->LOGGER->log_debug('ID '.$elementId.' has add button', 'Display::displayHTMLFormElement');
 				}
 			}
-			
+
 			/* Set up remove button for elements */
 			if ($siblingsCount > $minOccurs)
 			{
@@ -902,28 +903,28 @@ class Display
 				$this->LOGGER->log_debug('ID '.$elementId.' has remove button', 'Display::displayHTMLFormElement');
 			}
 		}
-		
+
 		if($elementDesc['module'] == '')
 		{
 			$children = $this -> xsdManager -> getXsdCompleteTree() -> getChildren($elementId);
-			
+
 			// TODO "choose" should be a variable
 			if($elementAttr['NAME'] == 'choose')
 			{
 				$completeElementList = $this -> xsdManager -> getXsdCompleteTree() -> getElementList();
-										
-				foreach ($children as $child) 
+
+				foreach ($children as $child)
 				{
-					
+
 					if($completeElementList[$child] == $elementAttr['CHOICE'][0])
 					{
 						$children = array($child);
 						break;
 					}
-				}						
+				}
 			}
 		}
-		
+
 		/* Display children */
 		if (count($children) > 0)
 		{
@@ -936,7 +937,7 @@ class Display
 		}
 
 		if($elementId != 0) $htmlFormElement .= '</li>';
-		
+
 		return $htmlFormElement;
 	}
 
@@ -956,72 +957,78 @@ class Display
 	 */
 	private function displayXmlElement($elementId)
 	{
+		$this -> LOGGER -> log_debug('displayXmlElement('.$elementId.')', 'displayXmlElement');
+
 		$xmlElement = '';
 		$children = array();
-	
+
 		$elementDesc = $this -> getElementDescription($elementId, true);
 		$elementAttr = $elementDesc['xsdElement'] -> getAttributes();
-	
+
 		// Unavailable elements are not displayed
 		if(isset($elementAttr['AVAILABLE']) && $elementAttr['AVAILABLE']==false)
 		{
 			return $xmlElement;
 		}
-		
+
 		/* REF attribute workaround */
 		if(!isset($elementAttr['NAME']) && isset($elementAttr['REF'])) $elementAttr['NAME'] = $elementAttr['REF'];
-		
+
 		/* At this point, if attribute NAME has not been set, we have a problem */
 		if(!isset($elementAttr['NAME']))
 		{
 			// TODO log
+			$this -> LOGGER -> log_error('Attribute NAME undefined for element ID '.$elementId, 'displayXmlElement');
 			throw new Exception("Attribute NAME undefined for element ID ".$elementId, -1);
 		}
-	
+
 		// Element CHOICE are not displayed (element created to be able to make the choice in the form)
 		// Disabled element are not displayed
 		if(!isset($elementAttr['CHOICE']))
 		{
 			$xmlElement .= '<'.$elementAttr['NAME'];
-	
+
 			if($elementId == 0) // If it is the root element
 			{
 				$nsArray = $this -> xsdManager -> getNamespaces();
 				$this -> LOGGER -> log_notice('Including namespaces to element '.$elementAttr['NAME'].'...', 'Display::displayXMLElement');
-	
+
 				foreach ($nsArray as $nsName => $nsValue) {
 					if(!is_string($nsName) || $nsName!='default')
 					{
 						$this -> LOGGER -> log_debug($nsValue['name'].' will be included', 'Display::displayXMLElement');
-	
+
 						$xmlElement .= ' xmlns:'.strtolower($nsValue['name']).'="'.$nsValue['url'].'"';
 					}
 				}
-	
+
 				$this -> LOGGER -> log_notice('Namespaces included to element '.$elementAttr['NAME'], 'Display::displayXMLElement');
 			}
-				
+
 			$xmlElement .= '>';
-				
+
+			// Retrieve data for an ID (text data or module data)
 			if(($data = $this -> xsdManager -> getDataForId($elementId))!=null)
 			{
+				$this -> LOGGER -> log_debug('Data for Id '.$elementId.' = '.$data, 'Display::displayXMLElement');
 				$xmlElement .= $data;
 			}
+			else $this -> LOGGER -> log_debug('No Data for Id '.$elementId, 'Display::displayXMLElement');
 		}
-	
+
 		// Case where no module is displayed
 		// TODO Find a better way to store module data
-		if($this -> xsdManager -> getModuleHandler() -> getModuleForId($elementId) == '')
+		if($this -> xsdManager -> getModuleHandler() -> getModuleForId($elementDesc['elementId']) == '')
 		{
 			$children = $this -> xsdManager -> getXsdCompleteTree() -> getChildren($elementId);
-				
+
 			if($xmlElement=='') // Case of choice element
 			{
 				// Avoid the case where there is no data entered ($elementDisplay will be equal to '')
 				if(isset($elementAttr['CHOICE']))
 				{
 					$xsdCompleteTreeElementList = $this -> xsdManager -> getXsdCompleteTree() -> getElementList();
-					
+
 					foreach ($children as $child)
 					{
 						$childOriginalId = $xsdCompleteTreeElementList[$child];
@@ -1034,7 +1041,8 @@ class Display
 				}
 			}
 		}
-	
+		else $this -> LOGGER -> log_debug('Module found for ID '.$elementId, 'displayXmlElement');
+
 		/* Displaying children if possible */
 		if (count($children) > 0)
 		{
@@ -1043,25 +1051,26 @@ class Display
 				$xmlElement .= $this -> displayXmlElement($child);
 			}
 		}
-	
+
 		if(!isset($elementAttr['CHOICE'])) $xmlElement .= '</'.$elementAttr['NAME'].'>';
-	
+
+		$this -> LOGGER -> log_debug('END displayXmlElement('.$elementId.')', 'displayXmlElement');
 		return $xmlElement;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 */
 	public function displayQuery() {
 		$queryTree = self::$_CONF['QUERY']['view_start_tag'];
 		$queryTree .= $this->displayQueryChild();
 		$queryTree .= self::$_CONF['QUERY']['view_end_tag'];
-		
+
 		return $queryTree;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param integer $elementID
 	 * @return string
 	 */
@@ -1069,15 +1078,15 @@ class Display
 		$manager = $this->xsdManager;
 		$queryTree = $manager -> getXsdQueryTree();
 
-		$xmlElement = '<ul>';	
-		
+		$xmlElement = '<ul>';
+
 		$xmlElement .= $this->displayQueryElement($elementID);
-		
+
 		return $xmlElement.'</ul>';
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param integer $elementID
 	 * @return string
 	 */
@@ -1087,16 +1096,16 @@ class Display
 
 		$recElement = $queryTree->getChildren($elementID);
 		//var_dump($recElement);
-		
+
 		$xmlElement = '';
-		
+
 		if (!$elementID) {
 			$mainElement = $queryTree->getElement($elementID)->getAttributes();
 			$xmlElement .= self::$_CONF['QUERY']['root_start_name_tag'].ucfirst($mainElement['NAME']).self::$_CONF['QUERY']['root_end_name_tag'];
 		}
-		
+
 		$xmlElement .= '<ul>';
-		
+
 		//$searchType = '';
 		foreach ($recElement as $childID) {
 			/*$siblings = $this -> xsdManager -> getXsdQueryTree() -> getSiblings($childID);
@@ -1107,12 +1116,12 @@ class Display
 			}*/
 			$xmlElement .= /*$searchType.*/$this->displayQueryElement($childID);
 		}
-		
+
 		return $xmlElement.'</ul>';
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param integer $elementID
 	 * @return string
 	 */
@@ -1125,7 +1134,7 @@ class Display
 		/* Print the add / remove buttons */
 		// Gather sibling information and create useful variable to count them
 		$siblings = $queryTree->getSiblings($elementID);
-			
+
 		$this->LOGGER->log_notice('ID '.$elementID.' has '.count($siblings).' possible sibling(s)', 'Display::displayQueryChild');
 		$siblingsCount = 0;
 		// Check the current number of siblings (to know if we need to display buttons)
@@ -1138,12 +1147,12 @@ class Display
 			if (!(isset($siblingAttr['AVAILABLE']) && !$siblingAttr['AVAILABLE']))
 				$siblingsCount = $siblingsCount + 1;
 		}
-			
+
 		$this->LOGGER->log_debug('ID '.$elementID.' has '.$siblingsCount.' sibling(s)', 'Display::displayQueryChild');
 		$minOccurs = 1;
 		if (isset($attr['MINOCCURS']))
 			$minOccurs = $attr['MINOCCURS'];
-			
+
 		$this->LOGGER->log_notice('ID '.$elementID.' minOccurs = '.$minOccurs, 'Display::displayQueryChild');
 		$addIconDisplayed = false;
 		// Set up the add button for element with maxOccurs defined
@@ -1157,7 +1166,7 @@ class Display
 				$this->LOGGER->log_debug('ID '.$elementID.' has add button', 'Display::displayQueryChild');
 			}
 		}
-			
+
 		// Set up the add button for unavailable elements
 		if(isset($attr['AVAILABLE']) && $attr['AVAILABLE']==false) // Set up add icon if an element is disabled (minOccurs = 0 reached)
 		{
@@ -1168,26 +1177,26 @@ class Display
 				$this->LOGGER->log_debug('ID '.$elementID.' has add button', 'Display::displayQueryChild');
 			}
 		}
-			
+
 		// Set up remove button for elements
 		if ($siblingsCount > $minOccurs)
 		{
 			$xmlElement .= self::$_CONF['QUERY']['remove_icon'];
 			$this->LOGGER->log_debug('ID '.$elementID.' has remove button', 'Display::displayQueryChild');
 		}
-		
+
 		if (!isset($attr['CHOICE'])) {
 			if (reset($siblings) == $elementID && !(count($children) == 0 && $siblingsCount > 1)) {
 				$xmlElement .= self::$_CONF['QUERY']['duplicate_icon'];
 			}
 		}
-		
+
 		return $xmlElement;
 	}
-	
-	
+
+
 	/**
-	 * 
+	 *
 	 * @param integer $elementID
 	 * @return string
 	 */
@@ -1199,10 +1208,10 @@ class Display
 		$displayedIdArray = $this->xsdManager->getSearchHandler()->getIdArray();
 
 		$xmlElement = '';
-	
+
 		$elementChild = $queryTree->getElement($elementID);
 		//var_dump($elementChild);
-		
+
 		$attr = $elementChild->getAttributes();
 		$name = isset($attr['NAME']) ? $attr['NAME'] : $attr['REF'];
 		$liClass = '';
@@ -1211,7 +1220,7 @@ class Display
 			$liClass = ' class="unavailable" ';
 			$disabled = ' disabled="disabled" ';
 		}
-		
+
 		$display = false;
 		$siblings = $this -> xsdManager -> getXsdQueryTree() -> getSiblings($elementID);
 		foreach ($siblings as $siblingsID) {
@@ -1220,25 +1229,25 @@ class Display
 				break;
 			}
 		}
-		
+
 		if ($display) {
-			
+
 			//Display the radio element if there are multiple siblings and they are leaves
 			$searchType = '';
-		
+
 			if (count($siblings) > 1 && $siblings[0] == $elementID) {
 				//$grandChildren = $this -> xsdManager -> getXsdQueryTree() -> getChildren($elementID);
 				if (count($children) == 0)
 					$searchType = '&nbsp;<input type="radio" class="radio query_element" name="searchType'.$elementID.'" value="all" checked="checked"/>&nbsp;Containing&nbsp;any&nbsp;<input type="radio" class="radio query_element" name="searchType'.$elementID.'" value="exact"/>&nbsp;Exact&nbsp;matching'.self::$_CONF['QUERY']['duplicate_icon'];
 			}
-			
+
 			$xmlElement .= $searchType.'<li id="'.$elementID.'"'.$liClass.'>'.self::$_CONF['QUERY']['elem_start_name_tag'].ucfirst($name).self::$_CONF['QUERY']['elem_end_name_tag'];
-			
+
 			//Display the restriction attribute
 			if (isset($attr['RESTRICTION']))
 			{
 				$xmlElement .= '<select class="xsdman restriction query_element"'.$disabled.'>';
-				
+
 				$xmlElement .= self::$_CONF['QUERY']['empty_option_tag'];
 				foreach($attr['RESTRICTION'] as $restrictionElem) {
 					$xmlElement .= '<option value ="'.$restrictionElem.'">'.$restrictionElem.'</option>';
@@ -1262,10 +1271,10 @@ class Display
 				else
 					$xmlElement .= '<input class="text query_element" type="text"'.$disabled.'>';
 			}
-		
+
 			$xmlElement .= $this->displayQueryIcons($elementID).'</li>';
 		}
-		
+
 		//Display the children
 		if ($children != array())
 		{
@@ -1296,14 +1305,14 @@ class Display
 					$xmlElement .= '<li id="'.$elementID.'"'.$liClass.'>'.self::$_CONF['QUERY']['elem_start_name_tag'].ucfirst($name).self::$_CONF['QUERY']['elem_end_name_tag'];
 					$xmlElement .= $this->displayQueryIcons($elementID).$xmlChild;
 				}
-				
+
 				$xmlElement .= '</li>';
 			}
 		}
-	
-		return $xmlElement;	
+
+		return $xmlElement;
 	}
-	
+
 	/**
 	 *
 	 *
@@ -1314,19 +1323,19 @@ class Display
 	{
 		$adminQueryElement = '';
 		$moduleName = $this->xsdManager->getModuleHandler()->getModuleForId($elementId, 'query');
-	
+
 		/* Get element info */
 		$elementDesc = $this -> getQueryElementDescription($elementId, true);
 		$displayedIdArray = $this->xsdManager->getSearchHandler()->getIdArray();
-		
+
 		$elementChecked = '';
 		if (in_array($elementId, $displayedIdArray))
 		{
 			$elementChecked = 'checked="checked"';
 		}
-	
+
 		$this->LOGGER->log_notice('Displaying ID '.$elementId.'; Object: '.$elementDesc['xsdElement'].'...', 'Display::displayAdminQueryElement');
-	
+
 		/* Displaying a module implies that children will not be displayed */
 		/*if($elementDesc['module'] != '')
 		{
@@ -1335,16 +1344,16 @@ class Display
 			// XXX Use the XsdManager
 			return displayModule($elementDesc['module']);
 		}*/
-	
+
 		$elementAttr = $elementDesc['xsdElement'] -> getAttributes();
 		$name = isset($elementAttr['NAME']) ? $elementAttr['NAME'] : $elementAttr['REF'];
-	
+
 		/* Display the start li tag for non root element */
 		if($elementId != 0 && !isset($elementAttr['CHOICE']))
-		{		
+		{
 			$adminQueryElement .= '<li id="' . $elementId . '"' . '>';
 		}
-	
+
 		if($elementId == 0)
 		{
 			$adminQueryElement .= self::$_CONF['QUERY']['root_start_name_tag'] . ucfirst($name) . self::$_CONF['QUERY']['root_end_name_tag'];
@@ -1356,100 +1365,100 @@ class Display
 			if ((isset($elementAttr['TYPE']) && startsWith($elementAttr['TYPE'], 'xsd')) || isset($elementAttr['REF'])) // todo put xsd into a variable (could use the manager)
 			{
 				$adminQueryElement .= '&nbsp;<input type="checkbox" class="checkbox" '.$elementChecked.'/>';
-	
+
 				$this->LOGGER->log_notice('ID '.$elementId.' can be edited', 'Display::displayAdminQueryElement');
-				
+
 			}
-				
+
 			/* Display RESTRICTION element */
 			// TODO Implement other types of restriction
 			elseif (isset($elementAttr['RESTRICTION']))
 			{
 				$adminQueryElement .= '&nbsp;<input type="checkbox" class="checkbox" '.$elementChecked.'/>';
-				
+
 				$this->LOGGER->log_debug('ID '.$elementId.' is a restriction', 'Display::displayAdminQueryElement');
 			}
-			
+
 			elseif ($moduleName != '')
 				$adminQueryElement .= '&nbsp;<input type="checkbox" class="checkbox" '.$elementChecked.'/>';
-			
+
 			$adminQueryElement .= '&nbsp;'.self::$_CONF['QUERY']["edit_icon"];
-			
+
 			if ($moduleName != '')
 				$adminQueryElement .= '&nbsp;'.self::$_CONF['QUERY']["module_start"].'MODULE: '.$moduleName.self::$_CONF['QUERY']["module_end"];
-			
+
 		}
-		
+
 		/* Display children */
 		$children = $this -> xsdManager -> getXsdQueryTree() -> getChildren($elementId);
-		
+
 		if (count($children) > 0 && $moduleName == '')
 		{
 			if(!isset($elementAttr['CHOICE']))
 			{
 				$adminQueryElement .= '<ul>';
 			}
-			
+
 			foreach ($children as $child)
 			{
 				$adminQueryElement .= $this -> displayAdminQueryElement($child);
 			}
-			
+
 			if(!isset($elementAttr['CHOICE']))
 			{
 				$adminQueryElement .= '</ul>';
 			}
 		}
-	
+
 		if($elementId != 0 && !isset($elementAttr['CHOICE'])) $adminQueryElement .= '</li>';
-	
+
 		return $adminQueryElement;
 	}
-	
+
 	/**
 	 *
 	 * @return String which contains the admin query tree
 	 */
 	public function displayAdminQueryTree()
 	{
-		
+
 		$queryTree = self::$_CONF['QUERY']['popup_start_tag'];
 		$queryTree .= $this -> displayModuleConfigurationPopUp();
 		$queryTree .= self::$_CONF['QUERY']['popup_end_tag'];
 		$queryTree .= self::$_CONF['QUERY']['view_start_tag'];
 		$queryTree .= $this -> displayAdminQueryElement();
 		$queryTree .= self::$_CONF['QUERY']['view_end_tag'];
-		
+
 		return $queryTree;
 	}
-	
+
 	private function displayModuleConfigurationPopUp()
 	{
 		$popUp = '<p class="elementId"></p><p class="tip"></p>';
 		$popUp .= '<form><fieldset class="dialog fieldset">';
-	
+
 		$popUp .= '<div class="dialog subpart" id="module-part">';
-	
+
 		/* Module chooser */
 		$popUp .= '<label for="module">As</label>';
 		$popUp .= '<select id="module" name="module" class="ui-widget-content ui-corner-all">';
 		$popUp .= '<option value="false">No module</option>';
-			
+
 		$moduleHandler = $this -> xsdManager -> getModuleHandler();
 		$moduleList = $moduleHandler -> getModuleList('enable');
 		foreach($moduleList as $module)
 		{
 			$popUp .= '<option value="'.$module['name'].'">'.ucfirst($module['name']).'</option>';
 		}
-			
+
 		$popUp .= '</select>';
-	
+
 		$popUp .= '</div>';
-	
+
 		$popUp .= '</fieldset></form>';
-	
+
 		return $popUp;
 	}
-	
+
 }
 ?>
