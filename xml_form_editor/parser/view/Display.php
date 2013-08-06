@@ -87,7 +87,9 @@ class Display
 			"edit_icon" => '<span class="icon edit"></span>',
 			"empty_child" => '<ul></ul>',
 			"module_start" => '<span class="attr">',
-			"module_end" => '</span>'
+			"module_end" => '</span>',
+			"duplicate_icon" => '<span class="icon duplicate"></span>',
+			"merge_icon" => '<span class="icon merge"></span>'
 		)
 	);
 	
@@ -1117,16 +1119,17 @@ class Display
 	private function displayQueryIcons($elementID) {
 		$manager = $this->xsdManager;
 		$queryTree = $manager -> getXsdQueryTree();
+		$children = $queryTree->getChildren($elementID);
 		$attr = $queryTree->getElement($elementID)->getAttributes();
 		$xmlElement = '';
 		/* Print the add / remove buttons */
 		// Gather sibling information and create useful variable to count them
-		$siblingsIdArray = $this -> xsdManager -> getXsdQueryTree() -> getSiblings($elementID);
+		$siblings = $queryTree->getSiblings($elementID);
 			
-		$this->LOGGER->log_notice('ID '.$elementID.' has '.count($siblingsIdArray).' possible sibling(s)', 'Display::displayQueryChild');
+		$this->LOGGER->log_notice('ID '.$elementID.' has '.count($siblings).' possible sibling(s)', 'Display::displayQueryChild');
 		$siblingsCount = 0;
 		// Check the current number of siblings (to know if we need to display buttons)
-		foreach ($siblingsIdArray as $siblingId)
+		foreach ($siblings as $siblingId)
 		{
 			$siblingObject = $this -> xsdManager -> getXsdQueryTree() -> getElement($siblingId);
 			$siblingAttr = $siblingObject -> getAttributes();
@@ -1173,6 +1176,12 @@ class Display
 			$this->LOGGER->log_debug('ID '.$elementID.' has remove button', 'Display::displayQueryChild');
 		}
 		
+		if (!isset($attr['CHOICE'])) {
+			if (reset($siblings) == $elementID && !(count($children) == 0 && $siblingsCount > 1)) {
+				$xmlElement .= self::$_CONF['QUERY']['duplicate_icon'];
+			}
+		}
+		
 		return $xmlElement;
 	}
 	
@@ -1185,6 +1194,7 @@ class Display
 	public function displayQueryElement($elementID) {
 		$manager = $this->xsdManager;
 		$queryTree = $manager -> getXsdQueryTree();
+		$children = $queryTree->getChildren($elementID);
 		//var_dump($organizedTree);
 		$displayedIdArray = $this->xsdManager->getSearchHandler()->getIdArray();
 
@@ -1217,9 +1227,9 @@ class Display
 			$searchType = '';
 		
 			if (count($siblings) > 1 && $siblings[0] == $elementID) {
-				$grandChildren = $this -> xsdManager -> getXsdQueryTree() -> getChildren($elementID);
-				if (count($grandChildren) == 0)
-					$searchType = '&nbsp;<input type="radio" class="radio query_element" name="searchType'.$elementID.'" value="all" checked="checked"/>&nbsp;Containing&nbsp;any&nbsp;<input type="radio" class="radio query_element" name="searchType'.$elementID.'" value="exact"/>&nbsp;Exact&nbsp;matching';
+				//$grandChildren = $this -> xsdManager -> getXsdQueryTree() -> getChildren($elementID);
+				if (count($children) == 0)
+					$searchType = '&nbsp;<input type="radio" class="radio query_element" name="searchType'.$elementID.'" value="all" checked="checked"/>&nbsp;Containing&nbsp;any&nbsp;<input type="radio" class="radio query_element" name="searchType'.$elementID.'" value="exact"/>&nbsp;Exact&nbsp;matching'.self::$_CONF['QUERY']['duplicate_icon'];
 			}
 			
 			$xmlElement .= $searchType.'<li id="'.$elementID.'"'.$liClass.'>'.self::$_CONF['QUERY']['elem_start_name_tag'].ucfirst($name).self::$_CONF['QUERY']['elem_end_name_tag'];
@@ -1257,7 +1267,6 @@ class Display
 		}
 		
 		//Display the children
-		$children = $queryTree->getChildren($elementID);
 		if ($children != array())
 		{
 			$xmlChild = $this->displayQueryChild($elementID);

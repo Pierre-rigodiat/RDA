@@ -90,7 +90,7 @@ if(isset($_GET['id']))
 		
 		$_SESSION['xsd_parser']['parser'] = serialize($manager);
 		
-		$html = htmlspecialchars(displayAdminQueryTree((integer) $_GET['id']));
+		$html = htmlspecialchars(displayAdminQuerySubTree((integer) $_GET['id']));
 		echo buildJSON($html, 0);
 	}
 	else
