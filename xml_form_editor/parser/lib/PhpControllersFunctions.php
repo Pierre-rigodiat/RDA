@@ -77,7 +77,7 @@ function displayAttributes($elementId)
 	else return null;
 }
 
-function displayAdminQueryTree($elementId) {
+function displayAdminQuerySubTree($elementId) {
 	
 	if(isset($_SESSION['xsd_parser']['display']))
 	{

@@ -182,3 +182,13 @@
 {
 	background-position: -120px -140px;
 }
+
+.icon.duplicate
+{
+	background-position: -100px 0px;
+}
+
+.icon.merge
+{
+	background-position: -180px 0px;
+}
