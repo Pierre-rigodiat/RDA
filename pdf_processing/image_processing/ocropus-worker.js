@@ -71,7 +71,9 @@ catch (e) {
 function executeOcropusCommands(directory, workingDir) {
 
   var command = [
+    //"ocropus-nlbin -Q "+procesNum+" "+directory+"/*.png",
     "ocropus-sauvola -Q "+procesNum+" "+directory+"/*.png",
+
     "ocropus-gpageseg -Q "+procesNum+" "+directory+"/*.bin.png",
     "ocropus-rpred -Q "+procesNum+" "+directory+"/*/*.bin.png",
     "ocropus-hocr "+directory+"/*.bin.png -o "+directory+"/"+workingDir+"-hocr.html",
