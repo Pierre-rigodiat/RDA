@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+	<appenders>
+		<console name="console" target="SYSTEM_OUT">
+			<patternLayout pattern="[%d{yyyy-MM-dd HH:mm:ss}][%level][%c{5}|%M] %msg%n"/>
+		</console>
+		<!--file name="logFile" fileName="logs/test.log">
+			<thresholdFilter level="INFO"/>
+			<patternLayout pattern="[%d{yyyy-MM-dd HH:mm:ss}][%level][%c{5}|%M] %msg%n"/>
+		</file-->
+	</appenders>
+	<loggers>
+		<logger name="gov.nist.mgi.tc.tools.TextStatistics" level="debug" additivity="false">
+			<appenderRef ref="console"/>
+		</logger>
+		
+		<root level="all">
+			<appenderRef ref="console"/>
+			<!--appenderRef ref="logFile"/-->
+		</root>
+	</loggers>
+</configuration>

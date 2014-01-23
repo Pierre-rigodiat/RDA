@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rules lang="en" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<category>
+		<!--rule id="RULE" name="Rule01">
+		    <pattern>
+		        <token>si</token>
+		    </pattern>
+		    <message>Are you mean?</message>
+		    <example type="incorrect">This <marker>si</marker> an error</example>
+		    <example type="correct">This is an error</example>
+		</rule-->
+	</category>
+</rules>

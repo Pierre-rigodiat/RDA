@@ -1,0 +1,5933 @@
+
+
+
+
+OCR Results
+
+
+
+
+
+
+
+UNITED STATES OEPARTMENT OF COMMERCE
+
+Maurice H. Stans, Secretary
+
+NATIONAL BUREAU OF STANDARDS o Lewis M. Branscomb, Director
+
+tLriNLrL NOTE 531
+nAA ]
+ISSUED JUNE 1970
+
+Nat. Bur. Stand. (U.S.), Tech. Note 531, 75 pages (June 1970)
+
+CODEN: NBTNA
+
+ARPA-NBS Program of Research
+on High Temperature Materials
+
+and Laser Materials
+
+Reporting Period
+July l to December 31, 1969
+Edited by A. D. Franklin and H. S. Bennett
+
+lnorganic Materials Division
+Institute for Materials Research
+National Bureau of Standards
+Washington, D.C. 20234
+
+Supported by the
+Advanced Research Projects Agency
+
+of the Department of Defense
+
+A-'
+---- :
+t
+-',/
+'AL, e
+
+NBS Technical Notes are designed to supplement the
+Bureau's regular publications program. They provide a
+means for making available scientific data that are of
+transient or limited interest. Technical Notes may be
+listed or referred to in the open literature.
+
+For sole by the Superintendent of Documents, U.S. Government Printing Offce, Woshington, D.C., 20402.
+
+(Order by SD Cotolog No. C13.461531). Pses 70 eoots-
+
+
+c ,-
+e A
+ev F' e-
+s',e' '
+3'
+aP
+=' A
+-5
+
+A
+%7S2=e
+.:s s'.
+,e ' e
+AP -c
+r r; +- ,, e2A---s
+.- -'7;s
+e = sc .
+,c ,s s-= .'3 -.-'-e.
+'- 2,c= 2T4 e
+-= .,=.23.- '
+A,-'
+F 3=
+s 2 s' 3'a
+-s'e='-s sV.'
+e9' a
+-,c'A - ==s = = =
+IT s
+- XN
+s - 2=3-s;=
+1' F ---
+'w A
+s4
+e's'
+S'-: xr
+
+4 o
+e' o
+,s's5 S' a
+r
+- ,e
+A,A:
+F- ='s'A e.s' e,s.s
+F
+,' ' s
+s,= =c-42
+s',s
+7-'77 - A--
+-'o 4 s8
+
+:- r
+-2 F-s
+
+s c
+= e 7-2
+
+e'..='
+'= e
+'=.
+.e5e
+2; - =,- ,-
+e ,s .: ,= e.-
+
+''s s'5,s'A s eA' = .-
+',-=
+S 92-
+' F
+-
+= 9's%c
+' ,-2
+- se
+
+s P' ' A
+-AT:.-
+4'--
+= 5 '-,'
+% A
+r,' e9
+='Ae'
+
+F'-v s'rr.
+o' v =,5
+='.
+s.-
+ce,y
+3'
+= '2- =, ',=-
+'As.-3 es -
+sr
+--37
+e ='-
+
+Y,'e'e' I
+-AP7-
+sc r
+s'3.= '-3 e
+,25 .
+
+' 5 =r
+2
+=3s.s
+
+
+s' AS
+523
+. s,- s,
+A SS-'
+A ' ,,-
+c. 4 r.
+s e -+s= =P
+
+-sA...
+-,9
+',:e''
+' 2 -
+', %,-A
+/sA;2 r.-
+y -2 e
+s'-3.,e'
+t P -'
+
+=-.-
+r e
+--'2.
+- %P,,s )
+
+8Y', e
+=,r
+P
+'d
+sS e e'.3. ,'
+-
+- , -
+=
+%,- =
+s e'
+
+e', S e
+F= e'2-
+
+' scr'
+c7 e
+:eS---
+
+s' 7
+.s
+
+- c.---777 -
+c-'-.
+3
+A- wr
+
+AA52 A-7=A
+c A =
+2, '2
+2'e1
+
+A2'e -
+e''-A=A
+
+- :-
+
+b e
+'
+
+= AA7,;
+=+- ;
+e A'
+AF
+
+. .- A = e
+. e' , F..
+'3e,c.=.-
+s r-
+F.s-- ' ='s-.= e'-
+
+A2 A.--' Ar AA7 s
+cYs- ' e
+:2
+
+.4F- e7
+oY c' C
+'ss
+e',-S
+
+
+changing the crystal structure. Rather than mutually dif-
+fusing the previously prepared pure Cr and V dibor1des,
+which would require a very high temperature, a CrV alloy was
+made and ground to - 325 mesh. The alloy powder was pressed
+together with pure boron powder and sintered at 1500%C for
+1 hour. Diffusion had progressed about 1/4 of the way into
+the center of the alloy grains. Good diffusion results might
+be obtained by this method tut the development of extraneous
+second phases is still possible.
+
+NMR has again provided us with critical specimen
+characterization information. The x-ray diffraction pattern
+of one of our ScB., specimens revealed the proper pattern of
+lines for ScE,, plus a few additional weak un1dentiried
+lines. When this specimen was put into the NMR spectrometer
+the characteristic Knight shift for s candium metal was
+observed in addition to the Knig;ht shift corresponding to
+ScB.,, indicating that the Scf., epecimen was contaminated
+with excess scandium metal. Rfter feheating, the sample the
+resonance corresponding to elemental s candium metal was
+reduced. (Comparre fig. la, showing both resonances before
+reheating, with fig. lb, showing only the Sc 1n ScP., reson-
+ance. Note that the quadrupole effect 1n the Sc 1n' S3cB-,
+resonance remains after the reheating.)
+2. Ph sical Pro ert Measurements
+
+Of the bor1de rod specimens that we have acquired thus
+far the CrB and CrE., specimens would appear from the metal-
+lography, x-ray diffraction and nuclear magnetic resonance,
+to y1eld meaningful soft x-ray spectra. Some data on the
+r,, spectrum and the th order E, spectrum has been obtained
+frbm the particular specimens whTch, as of this writing.
+perrmit some general features to be compared. The E, th
+order spectra from both the CrB and CrB., peak are aE the same
+energy and are of the same general width although it is
+evident that there are differences in the detailed shape of
+the bands. Neither does there seem to be any significant
+difference in the Cr,, Deak position between the two com-
+pounds. A definitiy8 study of thhe M., soft x-ray spectrum
+of pure chromium has been completed.'' Correctons have been
+made for background, and sub-band and satellite overlap.
+The estimate of the pure Cr,, emission band thus obtained
+was compared with recent photoem1sslon data and good
+correlation has been found.
+
+We have obtained NMR Knight shift and quadrupole data
+on ScE,, which is one of the few diborides upon which no
+previofis measurements of such properties have been reported
+in the literature. This work has been completed between
+room temperature and 4'X. Both the Enight shift and the
+quadrupole coupling, constant are the same at both tempera-
+tures. This, together with l2newidth measurements, ahows no
+
+
+(o)
+
+0t)
+
+Figure .
+Py
+NPM
+CA imu wr R
+M/ M
+PP. gey
+
+rr;2tg] ww wwwo
+e ] hse g t
+
+Nuclear miagnet1c resonance spectrum of
+scandium'5 a: 16 MHz in a sample of
+scandium diboride; (a) sample as origi-
+nally received, exhibiting a resonance
+charracterist1c of elemental s candium
+metal, in addition to a resonance
+corresponding to Sc in ScBp, and (b)
+same sample after reheating and the
+elemental sc andiumn metal resonance no
+longer discernible. The second order
+quadrupole effect present in the Sc in
+ScB rresonan2e is seen to remain after
+the reheatinX-
+
+
+indications of magnetic behavior. THs ''y resonance is
+mu ch as it is in the other diborides. TThe central lIne
+shows a little structure in the middle which does not dis-
+appear at higher frequencies (2l MHx). Our past experience
+tells us that much of this can be ascrribed to noise arising
+from boron in the glass tube and, more importantly, the
+probe itself. With these, imitations we find the Enight
+shift K = 0.00 (1)geyA ''E, with respect to triethy lborate.
+The quadrupole satellites are low in intensity, compared
+with, say CrB.,. This would suggest eitherr a poor quality
+sample with 1Erge distributions of quadrupole interactions
+or the exciting possibil1ty of an appreciable asymmetry
+parameter. The latter could have important consequences
+for understanding the crystallographic symmetries.
+
+pp,s ''s;A resonances shows strong second order quadru-
+pole effects. The value for esqG/h, using second order
+quadrupole theory, coincides, gith that observed from the
+three pairs of satellites (y'7 - rrA:
+- i/ 4 J, and has a value of
+6.1(3) MHa. TThe lInewdth of this resonance is propor-
+tional to l/v so that the structure is due s1mply to second
+S';'2z3 :':22::222'-
+structure. The position for v was deduced from the posi-
+tion of the centra1 5sc resonSnce 1ine, giving K = +0.07(1)5
+at both temperatures. This is in contrast to a negative
+Enight shift as observed foH 5ly in VE,, wh1ch has important
+implications regarding the electronic htructure.
+3. E1ectronic Structure Calculatons
+
+Generally the most sol3d progress is made when there
+is a parallel experimental and theoretical effort. Thus far
+the only work on borides has been experimental. There have
+been no electronic structure calculations on the mono- or
+diborides. Meanwhile, to explain experimental results
+there has been much discussion in the literature as to
+whether electrons are transferred from the metal to the
+boron or vice versa, or to the conduction band, etc., with-
+out annything being resolved. Therefore to complement the
+experimental program, computer routines are being preparred
+for augmented plane wave calculation of the band structure
+of the hexagonal diborides, XE-,, where X is a transition
+metal ion. It is these compoufds which display metallic
+properties and high melting points, and are thus possibly
+of greatest technical interest. Wh1le these calculations
+are simple in principle, certain practical problems are
+encountered when studying compounds, and these are further
+complicated by the prresennce of transition metal ions, and
+the hexagonal lattice structure. The problem is one of
+convergence in the reciprocal lattice expansion. The larger
+the basis necessary, the lengthier and more expensive w1ll
+n thns expression, K0. 00(1)3, the number in parentheses
+is the uncertainty in the measurement, and belongs in the last
+decimal place given for the quoted value. This expression is
+therefore equivalent to K= (0. 00-+. 01) 3.
+
+
+cN
+..w c
+=''
+;-
+,,'
+Av ew
+ss', e-
+95 , e
+,5A
+
+''
+g:' -
+x 2s'
+
+' -7'
+-,2
+ee%
+-c , w'
+x ,.,Y''
+, eP'
+,86
+32
+-'' 4 6
+
+'=c
+
+S5
+
+.. ='' =.
+(CM' c
+.eV .
+e,e'', ue
+s ,,='L.e,5
+T-
+c ec%7,ee
+,e%2 ==-
+s'',,-e'' gs'
+' ss''' 1', e9.-4
+n% e' .8w
+
+' ,OY'
+' ,-ST3-s- A-
+w'.,
+. Ae%
+, soe''
+.L ee , V
+e-
+3-..
+' s''
+7s
+= t'
+L-'
+
+-..-e'2.ss
+
+3
+-';ge' g' s
+
+e=,e' e., ='= ..-:
+gc9' x' e
+4'.
+', 3
+':3A
+e ; ,M
+g'zo
+'t-3
+'' -e
+= M''s
+:J'
+=-;'--
+=2s'
+='
+4.e
+r''es
+
+, ,e9 ee' o
+o-,o'
+4Y
+= c
+-;3-,-
+
+e', ,,=,ee,S1'
+
+A' ,A -
+cV',e-
+2e-,=''
+-' 9-
+e'.
+g'
+
+7.. P
+' A=',e-
+
+-e-, '
+
+--23Z '
+ae' ,a
+
+.s'
+
+e'
+
+A=9''
+.-AC
+,='
+sF ,,a-'
+,Ae'
+2--'
+LV'As-
+-=''
+,-59 z''.cee
+e- , oh -ev' g5
+e='A,,.:
+s --''.-,T2-
+ea,,eA'' s -
+A'ac
+''
+'' e,,= :'7A'
+N. o- s
+A7 'c
+s1
+ees'', -
+5'--'
+-' eeee9'T9,-=--
+w' ,'
+- 'e:A
+',e
+' e
+
+e ,e ys
+5,,e =5
+.e,3'
+- =,--'3;-'.-'
+gc' ,,ae'--
+= Tg's,=-.-
+,-= a' w ,,ec--T'eo' Ao'
+e'.,.-
+77 z-'
+. ,,-z,e'.s
+7--2' '-
+oY .
+w%
+
+c9
+em ,,gL1'
+A3wr e s'
+
+
+.5-
+n., e
+9 M'
+==
+e',.='. s-
+
+-. 75-
+4 ,e1es
+e',=,,e
+
+:
+o0 ,,s5'x ,,e Y
+c--'
+e,e'
+
+e A'
+,-
+
+' ,-Y
+.,--'=
+-T,e e=
+a='-e9' a='e-
+s',.e
+s AC F
+, s8 a9'
+.'' A, d
+
+yM
+
+e,-
+
+
+titanium than single-crystal titanium is used outside of
+the laboratory, so that optical constants of poly-crystalline
+specimens will also be determined.
+
+The new experimental tube described in the last report
+has been completed and tested. A1l aspects of the tube
+are functioning properly. However, a problem of specimen
+contamnation with carbon was encountered. Efforts to
+eliminate the problem were begun early in the present
+report period, but were temporarily suspended due to sched-
+uling difficulties. Th1s pro,ject is being terminated, but
+it is hoped to complete at least some of the measurements
+in the future.
+
+3. 2.3. 2. High Temperaturre Creep in Metals
+A. A. O. Rukwied, W. A. W1llard and D. E. Harne
+
+Metallurgy D1vision
+Institute for Materials Research
+
+The ob,]ectives of this investigatlon are to investi-
+g;ate the microscopic me chanisms that control high tempera-
+ture creep, J ,e., creep occurring at temperature TxT./,
+where Tg, is the me lting point. More specifically it'''1s
+planned to study : (a) the effect of temperature on the
+creep rate and compare this to the temperrature dependence
+of dislocation velocity, (b) the effect of stress and com-
+pare this to measurement of d1slocation density carried out
+by etch pit techniques, (c) study the effect of stacking
+fault energy through its variation in an alloy series and
+(d) study the effect of grain boundaries by comparison of
+studies in single crystals and poly crystals. Por these
+studies copper and copper-alloys have been selected to
+begin with especially since etch pit techniques for these
+materials are already developed.
+
+In order to get a faster and more accurate evaluation
+of the experimental creep data on high purity copper, digi-
+tal computer data processing was employed. The second
+stage true strain rates were determined using first and
+second order least square fitting, techniques. PoY the
+derivation of the actiyation energies the slopes of the
+Arrhenius plots of Ine,, vs. 1/T (where eg is the second
+stage creep rate and T Ehe absolute temperature) also were
+determined using linear least square fits.
+
+The resulting value of the apparent activation energy
+for second stage creep was G, w 39.5tl kcal/mol
+
+12
+
+
+(165s4 kJ/mo1) for stress 1evels of 1000 and 1500 psi
+(6.89x10' and 10.34x10' N/, respectively), only alightly
+less than the previously reported value of 42z 1.5 kcal/mol
+(176z6 kJ/mo1). However it turned out that another test
+series measured at a stress of 2250 psi (15.5x10f N/m),
+the minimum creep rates of which resulted in an apparent
+activation energy of 42.4 kcal/mo1 (177 kJ/mol), has to be
+considered with great caution with regard to its value of
+the apparent activation energy for steady state creep. It
+could be shown from the residual curvature of the fitted
+parabol1c curves as well as from Andrade-type plotting of
+the creep curves (r vs. gJ/5), that in these tests at the
+onset of third stage (leading to fracture) steady state
+was not quite reached yet.
+
+The apparent activation energy for steady state creep,
+Rc is usually assumed to be identical with the thermo-
+dynamically defined enthalpy of activation, AH, which is
+measured as the temperature sensitivity of the strain rate
+at constant stress and structure, i.e.
+
+G, - AE = -R(31Ae72 1/J,, etructure
+C1)
+
+Within this definition, correct values of AH are derived
+from steady state creep rates only if the structure in
+second stage is a function of stress only and is independent
+of temperature.
+
+One can hope to get additional information with regard
+to this point by employing the differential temperature test
+method (AT-method), where the creep rates are measured
+immediately before and after a small and rapid change in
+test temperature, which does not allow the structure to
+change significantly.
+
+Three such AT-tests were carried out on high purity
+copper at atresses or 1000, 1500, and 2250 ps1 (6.89 x 1c'
+10.3 x 10', and 15.51 x 10- N,/m) and temperatures or 672',
+540', and 48gPC, respectively. The temperature was dropped
+by about 20C in each case and was measured by a thermocouple
+attached to the specimen. The values obtained for AH were
+4. 67.5, and 65 kcal/mo1 (297, 283, and 272 RJ/mo1),
+respectively. This clearly is at variance with the steady
+state measurements in the high temperature regime up to
+700'C, where 3S.5 kcal/mol (165 kJ/mo1) was found. It also
+cannot be recor.ciled with the measurements of Barrett and
+Sherby, who obtained from steady state creep rates values
+of AH or 61 kca.l/mo1 (255 kJ/mo1) at temperatures T =600'C,
+and or 29.5 kca.l/mo1 (121 kJ/mo1) at 40o3cTc6003C (both
+
+
+values of AH are computed from their publAshed steady state
+strain rate data).
+
+Moreover, in order to get further insight into the
+influence on high temperrature creep of the purity of the
+test material, the grown-in substructure, and the pre-test
+annealing treatment, a test series on OFHC copper (nominal
+99.99 Cu) at a stress of 1500 psi (10.3l x 10t N/m) was
+started, and a few AT-tests on both types of materials are
+being carried out presently. At this time these results
+are still inconclusive.
+
+If, however, we apply to our data obtained by the AT-
+method the analysis of activation parameters as given by
+Schoeck, then we obtain for the high purity copper a value
+of the Gibbs free energy, 6G, of 40 kcal/mol (167 1J/mo1).
+In computing AG, we have assumed that the rate controlling
+process is diffusion, thus having an activation volume of
+the order of one atomic volume. In this case in the
+relation for AG as given by Schoeck the term involving the
+activation volume can be neglected and the entropy contr1-
+bution is wholly described by the temperature varriation of
+the elastic modulus,
+
+6G = MH - T5S =
+MH
+1 - (T/u) (du/dT)
+
+The temperature variation of the elastic modulus, l, has
+been measured by Barrett and Sherby and by Kster.
+(2)
+
+The observed discrepancy of the activation enthalpies,
+6H, as derived from the steady state tests (39.5 kcal/mol,
+165 kJ/mo1) and from AT-tests (=a 70 kcal/mol, 293 kJ/mo1),
+clearly indicates the need to check on the theory and/or
+its assumptions.
+
+According to the theorry of therrmally activated dis-
+location processes, the activation enthalpy for the rate
+controlling process is determined by measuring creep rates
+at different test temperatures under conditions of constant
+structure. TThe term constant structure means that during
+a small change in test temperature, or at different test
+temperatures in the case of steady state testing, the number
+of defect configurations at which under the action of a
+given stress thermal activation of a dislocation segment can
+occur does not change. TThe structure, thus comprising all
+defect configurations in the body which determine its creep
+behavior, gives rise to a long range internal stress in the
+body. TThis internal stress depends on temperature through
+
+14
+
+
+='
+'
+
+sA
+. .-
+:'2 4 r
+e2=-r.-.-3
+= C=2As =..
+. o 2
+e'c,= s -
+s e
+r=, e,, '='-
+',-
+e '= F.
+S'--.- 3A=
+2 -.
+
+s =. r,
+,2
+A A =
+AAEA
+s A'
+,-'s
+
+c-
+8 e'
+,e.
+Cer-
+T A
+S-A;==--
+-'.=,='
+7Zz
+e e
+3
+
+- 'e,-42,z
+
+, o'.s-
+S
+
+. =es .- 3-'
+s',=,s.-
+ee-s -
+r.z -.
+A 2 -S
+: -e' ='
++ 3's'es
+2- , e,-s e
+.
+s -5,= Fs 4 ge
+- '-- 4'
+
+22 Ac;--:7
+r..' 9 =
+
+c,2 2 = . ,e' s' . r
+r.= s..2 - e e,r 42; s
+s's ,,- = ,' 2.- = 3 .o 2- es'c 3
+;77
+,e ' A
+O r
+
+r.s
+= A-7-
+8
+s e',3.er s
+A2'
+r-P=.
+9 7
+,4
+
+:e =s ,-
+
+s c cs-=,:
+-' .= ,e
+e- .
+s',s''F' -r
+2e' e
+s'
+= ' A
+-2Y
+7.
+='e,s
+s -P s.
+,-'e
+e e,---
+=' s.
+e' 4'
+N'-
+,c'e' c-
+ets3
+e
+
+.-2 rT. AA
+d'.3.--''
+
+e r
+A'ce
+',e
+A E
+:' ,e'e
+s'
+
+' s,-'
+b'
+F
+
+= .-
+
+t '
+s== e.-=
+,e
+-5
+,e'
+F'
+a3
+2
+
+= e -7
+
+,-'2.==='= A .
+='
+-
+
+gF ' r s-
+'2,=e2 e:- ==.=A..- .s e-
+=,e.-
+e
+
+A,-
+;
+w' ,5
+'=
+A2.
+w
+,-
+s,c
+-.,e'
+''= -S-
+=A=
+S ' s,e'
+A--'
+. e'=..-
+= e,c
+SF- o
+,-T2 e
+r,=2 C5.-
+F-'' y- =
+
+A w'
+-5
+
+
+to the Journal of Physical Chemistry for publication.
+
+Another paper entitled ''Vaporization of Organic
+Plasticizers'' by L. A. Wall, 3. H. Plynn, and S. Straus
+has now been published in Polymer Engnneering and Science,
+Volume 10, TaEe 19, January, 1970.
+
+Pinally, we have been synthesizing and purifying
+compounds for study. These include:
+Series (1)
+
+Tributyrin
+Tricaproin
+Trictanoin
+Tridecanoin
+Trilaurin
+Trimyristin
+Tripalmitin
+Tristearin
+Series (2)
+
+Di n-butyl sebacate
+D1 n-hexyl sebacate
+Di n-octyl sebacate
+D1 n-decyl sebacate
+Di n-dodecyl sebacate
+Di n-tetradecyl sebacate
+Di n-hexadecyl sebacate
+D1 n-octadecy3 sebacate
+
+We have also obtained three dimethylsiloxanne ollgomers
+from Dr. Walter Zisman for study. The study of the vapori-
+zation of these compounds should give some new insights into
+our comprehension of vaporization phenomena.
+
+4. LASER MATERIAL.S PROGRAM
+4.1. Introduction to Laser Materials
+The National Bureau of Standards, with support from
+the Advanced Researrch Pro,jects Ag;ency of the Department of
+Defense, is carrying out a program of research on laser
+materials. This program 1ncludes stud1es to character1ze
+laser materials, to define and evaluate damage measurements
+in laser materials, and to investigate the degradation of
+laser performance. A summary of the results ach1eved during
+the reporting period is given here.
+
+4.22. Objectives of Laser Materlals
+One of the important factors which is 1imiting the
+advance of ultra high power laser technology is the failure
+or degradation of laser materials due to optically induced
+damage. In the past, the empirical approach to laser
+materials has been adequate. That is, the damage or degra-
+
+16
+
+
+l. Introduction
+2. Ob,]ectives -
+TABLE OF cONTENTS
+
+3. High Temperature Materiale Program .
+
+3.1 Object1ves 1n High Temperrature Materiala .
+3. 2 Pro,pect Summaries in High Temperature
+
+Materials
+S.2.1. Dirrusion 1n Oxides -
+
+3.2.l.l. Measurement oT Diffusion
+
+Coerficients in Oxides -
+A. L. Dragoo
+
+3.2.l.2. Crystal Growth from Vapor.
+H. S. Parker and C. A. Harding
+
+3.2.2. Properties of Refractory Borides.
+
+3.2.. 1.
+
+3.2.7.2.
+Electronic Structure of
+Refractory Hard Metals .
+. R. cuth111, L. H. Bennett,
+G. C. Carter, and A. J.
+McAlister
+Reactivity or Borides -
+J. J. Ritter and T. D. Coy1e
+
+3.2.3. High Temperaturre Metals .
+Page
+
+3
+. l
+
+- 11
+1)
+
+3.2.3.1. Optical Constants or T1tanium. . 11
+
+A. J. Melmed
+
+3.2.3.2. Hlgh Temperature Creep
+
+in Metals
+A. 4. o. 3uwiea, w. i.
+W1llard, and D. E. Harne
+
+3.2.4. Polymers
+
+3. 2.l.1. The Volat11iaation and
+12
+
+15
+
+Decomposition of Materials -
+i. A. Wall, S. Straus, and
+G. Mattamal
+
+4. Laser Materials Program
+
+44.l. Introduction to Laser Materials
+44.2. Ob,]ectives of Laser Materia ls -
+- 15
+16
+16
+16
+
+
+dation to laser materials has been circumvented by equipment
+design or by a cut-and-try improvement in the laser materials.
+This problem of optically induced damage now poses a serious
+threat to the successful application of 1aser devices to an
+important class of needs of the Department of Defense.
+This fact has been recognized and the Advanced Research
+Projects Ag;ency supports research to improve the performance
+of 1aser materials. The convening within the last nine
+months of three committees to examine the optical damage to
+laser materials illustrates the present concern and impor-
+tance of solving this class of problems. These committees
+are the Subcommittee TI of ASTM Committee F-1, the Institute
+for Defense Analysis study, and the National Materials
+Advisory Board Committee on the Fundamentals of Damage in
+Laser Glass.
+
+The success of these efforts depends upon having the
+knowledge and proper skills available when they are needed.
+In the case of laser technology, they include the science
+and techniques of 1aser materials preparation and charao-
+terization and of the measurement and evaluation of those
+properties which are relevant to the damage and degradation
+of 1asers. It is the overall ob,je ctive of the present NBS
+program on laser materials to identify some of the more
+important problems concerning damage and degradation of
+lasers and to provide the necessary advances in those areas
+for which NBS possesses the competence to do so. TThese
+efforts will be directed mainly toward providing the tech-
+niques for the preparation and characterization of laser
+materials to be used in tests for the measurement and
+evaluation of material properties pertinent to the damage
+and degradaticn of 1asers, for the tabulation of key damage
+data, and for the improvement in the knowledge and sk1lls
+necessary to advance the performance of lasers.
+
+In pursuit of this program, a continuing attempt is
+being made to analyze the technological problems associated
+with high performance lasers and the materials from which
+they are constructed, and to distill from th1s analysis
+ma,jor scientific problems whose solutions would advance
+laser technolcgy. In addition, the problems chosen should
+fall within areas in which NBS has available competence.
+Also, the number of problems included in the program should
+be kept small enough so that each one can be approached
+in a reasonably comprehensive manner.
+
+In accordance with these criteria, the present prog;ram
+contains three subdivisions - Characteri2ation of Laser
+Materials, Damage to Laser Materials, and Degradation of
+Laser Materials. Damage and Degradat1on as used here are
+distinguished in that Damage is local1zed and occurs during
+
+17
+
+
+the course of a very few pulses whereas Degradation impl1es
+the much more gradual and gennerral deteriorat1on of perfor-
+mance over many pulses. There may of course be some over-
+lap-
+
+4.3. Overall Summary of Pro,jects on Laser Materiale
+
+4.3.l. Characterisation of Laser Materiale
+There is a continuing need for the characterization
+of aser materials. Suppllers frequently make changes in
+composition and usually do not provide adequate data on
+those physical and chemical propert1es which influence
+laser performance and the distortion of wave fronts propa-
+gating in laser materials. The Index of refraction, thermal
+change in the refractive index, elastic constants, photo-
+elastic constants, thermal expansion, density, and
+chemical compostion have been measured for five commercial
+Nd-doped laser glasses. The possibility of eliminating
+electrostrictive effects by ludiciously altering the glass
+composition has been examined. A l1thium-s1l1cate laser
+glass whose composition approximates that of some commer-
+cially available laser glasses was found to have a consolute
+temperature between 4l0PC and l80PC. Since the consolute
+temperature occurs near the transformation region, a large
+degree of phase separation may occur during anneal1ng.
+Other compos1tions will be examined in the future. The
+relation between phase separation and the performance of
+a laser is not understood very well and could require
+quantitative studles if one can show that phase separated
+g;lasses have consistently lower or higher tolerances to
+damage or degradation. X-ray diffraction techniques have
+been employed to characterize ruby laser rods and a correl-
+ationn between crystal perfection and its performance in a
+laser has been considered.
+
+4.3. 2. Damage to Laser Materials
+Inclusion damage (bulk) has been a serious source of
+difficulty for the laser systems engineer concerned with
+ultra-high power pulses. Although surface damage and
+intrinsic damage (self-focusing or beam trapping) contribute
+additional problems, these are at present apparently not as
+g;reat an obstacle to the advance of laser technology as the
+inclusion damage is. A laser glass damage test facility is
+being constructed at NBS to study the damage problem and to
+attempt to bring some unity to the great proliferation of
+
+18
+
+
+damage data. Th1s test facil1ty w1ll center arouund a one
+gJg,awatt neodymium laser system. Preliminary experiments
+on the damage of sil1ca and g;lass samples by exposure to a
+G-switched ruby laser pulse of poules studied the variation
+of damage threshold with water content. These experiments
+also indicate that knowing the samples' total h1story is
+essential for interpreting and understanding the results of
+damage studies. The detection of incip1ent absorbing centers
+before they im1tiate a damage site would be most helpful in
+the chemical analysis of the site and 1ts 1mmediate neighbor-
+hood. Some ideas to detect incip1ent damage centers have
+been screened in a search for useful analytic methods.
+These include dielectr1c relaxation, nuclear magnetic reson-
+ance, azimutha.1 1ight scattering, forward light scattering,
+and 1nfra-red detection techniques. Nonne appear suff1ciently
+promising to pursue at th1s t1me for the detection of
+inclusions leading to damage. Methods which employ optical
+interference or stress-birefringence principles have aleo
+been sug;gestec:. A theoretical model of an absorb1ng center
+in a laser glass host has been formulated. This model
+enables one to compute the space and time dependence of
+the temperature near the center, the thermal stress, and the
+stress-birefringence as functions of the laser pulse width,
+energy content of the laser pulse, and radius of the absorb-
+ing center. Prelminary computations indicate that su ch
+optical methods are prom1sing.
+
+..3.5. Degradation of Laser Materiale
+At present, the coloration of some ruby and YAG laser
+rods after continued use is not well understood. The reasons
+are in part a lack of sufficient data on the differences
+among coloratt.on by laser pump light, x-ray irradiationn, and
+Y-ray irradlation. The causes responsible for degrradation
+in performance of s olid state lasers after continued use
+have been studied by electron paramaghetic resonnance and by
+optical means. Good laser quality ruby and ''orange'' degraded
+ruby samples were examined by both their absorption spectra
+and their electron paramagnetic resonance. Alsc, particular
+attenntion has been given to the valence states of the
+chromium ions, magnesium ions in doubly doped rubies, and
+of impurity ions. Similar studies are planned for YAG
+cry stals.
+
+19
+
+
+'4
+. 48..'
+
+=,''s 'e;
+
+r
+
+2 '4s4
+' o,.
+
+'r-
+1 0) b
+
+r
+'o e 2 o
+'-4s
+7
+5= .
+4z '/;
+'S g, 53
+
+r
+
+5 '-c
+n,' 4
+,. e
+'-5
+
+r
+o c
+
+2
+
+o3's .''s4.
+=' 7A'i
+z-s 'e .
+
+, 'o.
+9o D-
+
+, --.
+
+r1 '
+,'
+,2es
+
+s.. 'o
+oA
+'hr -
+
+,.'-
+
+PI
+s - = r
+A, -
+'/7A
+
+Ve
+4s,, =.
+'e;
+T'3
+.
+'/ e
+'48 's .
+' 9+ or'
+'e ,28 . e
+. 'a ,
+'..
+-T7--
+
+',2're8, ae '-e
+
+7-2-37
+,
+' L
+'e 2,'6.
+
+s-, 44 ' e
+
+.,:e,c4,337'-
+J,
+'e. 5a
+
+=-- r'e,
+
+A-2 7=
+' A-75
+e 's, ,
+e ,7
+
+-,,37' 2-
+''-G7;-4. 3s. -
+Pe
+'45= 7 '
+
+'T2--.
+
+' n4,
+',P5
+'.,
+
+53 ,'e .
+
+aA. 'e,,'e ,
+
+4,L,
+
+.. es 74
+
+: e.. '': -s
+
+o
+'o,
+
+,-
+
+S
+.'
+
+e7;-' 'e, 834:'3.
+
+'e:.7s
+oA . '2-
+eJ. ''3=,.
+5
+
+' 7 s
+
+'s, e7 ' s
+
+'r'ss ,
+'r
+
+/3 ',e ,3e r-e
+
+-,2 --
+'e,.
+. 'o . . -
+c 3 =
+
+8. A
+
+Ac
+
+- e-'''=. o7'' '''e,',-n,
+
+Az-.
+z. aA
+=--.
+
+,,2'ca 3cs
+
+;-r
+ro t
+e
+
+S32z-
+
+,,4 +' . 6 ', 78
+
+e,:'e
+-
+
+'e,. 6, 6
+.--
+
+ec8 'e
+'ic4 9A ,
+
+'o.,44,''e 's, erI e-
+A,, er 2o
+
+
+'4,TTa5 '
+se, 3 A
+. , ''e, '4 's
+
+', ,- re r-4 s,3'.
+'re, hs e
+
+'44 'e4 '=-
+
+%4 ,.'J
+'-,.'r.
+
+. 'e , 7-.
+
+' - '-
+
+=. 'o, a
+'e) 3c
+
+.'.32Trr-.
+
+'e e .
+4ec
+
+'. =r-.
+
+. 'e 'e,. V
+
+'e,
+, .
+
+'-7-
+
+'9a;
+3 ,,':
+2L
+
+e, o'r '8 ;5J, A e '8
+
+8 . 4'3.
+
+'= ,oe's
+
+3
+' t.
+
+-
+'..
+
+A T
+6.
+
+T'
+' . T'.
+
+5-7.
+
+' 3
+
+2 O
+=
+
+:3-- -
+
+e,
+
+4.. e.r
+'4
+
+'Ve.
+e2
+'
+
+4;
+'2
+
+'4z
+
+
+Results of Activation Analysis of Ruby Crystals, ppm
+
+Element
+
+Cr
+
+Mn
+Ga
+
+Tr
+Na
+Au
+La
+Co
+o.o3x
+
+0.0222 o.0215
+
+Ba 42.5
+
+Cu
+Cr stal Desi nation
+
+--ZZ2- -
+
+(wtzcr.,2)
+Sr
+Tab1e 1
+
+0.24
+
+1.55 s0.2
+0.c75 0.062
+0.2013 0.002
+3.c5 2.98
+0.032 0.052
+0.239 0.245
+0.oS3
+'0.6hz
+--------- -----
+
+0.0443 0.0442 0.0463
+9.4
+0.41
+15.a 1.26
+0.49 0.066
+
+0.o7o 0.o26 0.060
+0.0012
+0.0018
+
+0.0oh 0.014 0.016
+0.034 0.o15 0.030
+0.0255 0.o50o 0.o539
+
+=0.0002 =0.0002 =0.0002 =0.0002 0.0002
+=0.002 s0. 002 0.002 0.002 s0.002
+0.02 =0. 02 =0.02 0.02 0.02
+
+
+The results obtained are shown in Table 1. A1l results
+are in ppm of the element except the Cr results which are
+reported as percent Cr-V - The improved ratio of thermal
+to fast neutrons in the rew irradiation fac1lity resulted
+in a reduction of a.lmost an orger of rEg'tude in the 4'NA
+production from the reaction 'A1(n,cJ ;,Na . Z2he mgasure-
+ment,,oof short-11ved activities such as '''cu, wa, Mn,
+I 4- A
+
+and P 's;A was thus made much more reliable. An upper limit
+for Na in the crystals is reported which takes into account
+the Na produced from the Al matrix. Because of inter-
+ferences, the values for W 1n the table should probably be
+regarded as upper limits rather than f1rm concentrat1ons.
+For the crystals containing nominally 0. 033 and 0. 064S
+Crp;, two ad,iacent samples were cut from each boule and in
+each case the sample designated Vl was from the wider end
+of the crystal.
+
+(2) Neodymium-doped Laser Glasses - Five commercially-
+made specimens of neodymium-doped laser glasses were analy zed
+by neutron activationn methods, with particular care taken
+to deterrmine trace impurities.
+
+These glasses are very complex mixtures, containing
+in some cases as many as ten principal constituents. Por
+activation analysis the constituents representing the most
+serious interferences to the measurement of other activities
+are sodium, antimony (17 or more in 4 of the glasses), and
+neodymium (3-55). The neodymium is especially aggravating
+since on irradiation it yieldg three radionucl1des : 15lNd,
+with., 4., 1R minute halr-11re; 4'SNd, wi;h., a 1.5 hour halr-1ire;
+and ' /Nd with an 11 day half-life. ' Nd and 19Nd also
+decay to form radioisotopes of promethium with half-l1ves
+or 28 hours and 53 hours.
+
+To try to obtain the maximum amount of information with
+a reasonable expenditure of effort three sets of irradiations
+were carried out. Por each of the glasses a small sample
+(10-50 mg) was irradiated for 2 seconds and used to determine
+Na, K, and Sb. A larger sample (100-2200 mg;) of each glass
+was irradiated for 1 minute, and dissolved in HF-HC10,-
+After fuming to eliminate HF, the residue was taken up in
+GN HCl and most of the antimony was removed by extraction
+into isopropyl ether. Sodium was then removed by passing
+the aqueous phase through a column of hy drated antimony
+pentoxide. The effluennt was examined for 1ow-level consti-
+tuents of intermediate half-life. Those observed included
+La, Pr, Eu, and Sm. Common impurit1es such as copper and
+gallium were not observed.
+
+A third set of samples (100-200 mg) was irradiated for
+15 minutes and set aside for two weeks to allow all shorter-
+
+22
+
+
+lived activities to decay away. After dissolution and
+extraction of antimony as before the aqueous phase was
+counted and Nd, Ce, and Ba were determined (Glass E d1d not
+require these chemical separations since it had very Iow
+concentrations of Na and Sb).
+
+A11 the samples were irradiated in the NBS Reactor at
+a flux of about 6 x 2045 A/cm'sec. The maximum, 1rradiation
+pige-sample., 4lze combination was fixed by the 4'Na, 17CSE -
+r'Sb, and '' Nd activities produced. A1l the samples were
+specially cut l-mm thick slices. With samples this thin,
+neutron self-shielding was not a problem even for Glass E
+with 14 Lia9. For this 1atter glass irradiation time was
+not limited by Na or Sb because these were quite Iow, but
+by Nd and by heating of the sample during irradiat;on by
+absorption of alpha part1cles from the reaction: PL1 (n,c)
+5g. A11 the samples were rinsed in acetone and in dilute
+HNO after irradiation to remove surface contamination. In
+mosf cases concentrations were determined by comparison to
+standards irradiated under the same conditions.
+
+Results: The results obtained are given in Table 2.
+The relative standard deviation is estimated to be about
+1%S in most cases. Por the lower reported values of Sm
+there is severe interference from Nd and these values are
+probably no better than i205. Por the Jower reporrted values
+for Eu and Ce the signal-to-background ratio was poor and
+these values also are probably no better than :205. A11
+results are reported as the oxide rather than the element to
+facilitate comparison with results from other methods.
+92EEEESEIESE22SEA tne Possiti)it or E11minatin E1ectro-
+etrictive ErfesEk
+
+Several mechannisms for the cause of damage in laser
+materials have been considered during this period. In some
+of these me chanisms the effect is greatly enhanced by the
+presence of electrostrictive self-focusing,s, which lead to
+the formation of filaments. Chiao, Townes and Stoicheff
+u J have pointed out that electrostrictive pressure is given
+by
+
+p = (E''/4) n (p on/do),
+(1)
+
+where E is the electric field, p the density of the material
+and n the refractive index. In addition, Chiao, Garmire
+and Townes [ 2 have shown that the refractive index changes
+due to the cha.nge in density caused by electrostriction are
+
+
+'--.
+
+-,
+' e
+A-
+os.
+'%s.
+'--,
+.;
+oA
+
+s
+'--,,
+
+. s
+s 's 4
+ao
+Feo
+7-
+cA
+''..
+'-,.
+.
+a . 's A
+'''m.
+'%=e.
+'-,
+.;
+- e . .e . A
+o.
+o.
+-,
+=
+' e e . s s, '2,
+34.
+'
+s.
+'',
+
+' 4. '' 'as, s ' ,
+' 4=
+o
+o
+o . .
+o.
+
+' e
+s.
+
+-s . ss
+' s .,
+.4 .-
+-)
+..- . .; .
+
+.-
+.
+c xA
+.-
+5.,
+s
+'ee,
+
+
+given by
+
+6n = (E'/h) En (o dn/do) ,
+(2)
+
+where B is the compressibility. It is obvious from equations
+(1) and (2) that the ele ctrostrictive pressure w1ll be zero
+and the change in index w1ll be zero 1f (p dn/dp) = 0. The
+possibility of finding a material which w1ll meet this con-
+dition has been studied, and the results are presented in
+this section cf the report.
+
+Data on (p dn/dp) for various cubic crystals are avail-
+able from stucies conducted at NBS [ 3] and other laboratories
+[ 4,5J and these data are prresented in Table 3. It can be
+seen that there is a considerable range in values of
+(p dn/dp) fron +1.31 for PbN0 to - 2. 84 ror GaAs. Por the
+group of alkali halides there is a decrease in magnitude of
+(p dn/dp) with increasing strength of Interatom1c binding.
+There are several crystals which have negative values of
+(p dn/dp). With these crystals the refractive index becomes
+less under hy drostatic pressure because the decrease in
+polariaability of the constituent ions outweighs the positive
+contribution to index due to the increased number of scatter-
+ing centers per unit volume [3,41.
+
+In Table 3, it can be seen that YAG (Yttrium Aluminum
+Garnet) has a slightly negative value and verry nearly ful-
+f1lls the condition that (o dn/dp) = 0. A boule of undoped
+YAG has been obtaired from Union Carbide Corporation, and
+1t is planned to study the effect of high energy laser
+pulses upon the material. If equations (1) and (2) are
+correct, electrostrictive effects should be largely e limi-
+nated.
+
+A1though YAG is a promising material, the rod of a high
+energy pulsed laser will almost certainly have to be a glass,
+because the broad fluorescent line of a glassy host lends
+itself to G-switching. In Table 4 values of (o dn/dp) arre
+given for several glasses. The first group shows values
+for 5 neodymium doped laser glasses which have been studied
+recently at N1S. The values are clustered closely around
+0.3, although the Owens-Illinois glass has a slightly
+lower value, 0. 30. The second group of 10 glasses were
+selected as being representative of 154 Schott glasses
+reported in a verry thorough study by Schaeffer and Nassen-
+stein [6]. The highest value is .77 foF SFS1 and the lowest
+value is . 2l for SSK8. In the third group are shown the
+results of experimental studies onn simple glass compositions
+conducted at NBS. Asp5 has very high value of 2.3, and
+
+25
+
+
+Table 3
+
+Values of (pdn/dp) for cubic crysta1a5
+
+Crystal
+E1
+KBr
+NaC1
+LiF
+NaF
+ar
+Y10
+rN
+Mg
+2n3
+rTi
+GaP
+GaAs
+YAG
+(odn/dp)
+
+. 44
+35
+. 28
+3
+- 41
+. 25
+31
+. 31
+-.31
+-. 22
+-. 22
+-1.90
+-2. 84
+-. 01
+
+0 In the instances where the original data were reported
+
+in terms of Pockel's elasto-optic constants, P; es
+(p dn/dp) was calculated according to the eouat5on,
+
+4
+(o dn/dp) = +- I1, , r T, ,J-
+
+
+2
+7
+3
+
+
+A
+
+
+
+. 3' -5
+. g' -
+.-
+3 =
+r '
+,e' .
+
+-S
+
+3 . ='
+,
+- -)
+'
+s' e4 -
+,e'
+.s = r= --
+,- e3
+r -'=-
+= =-.Ae =.:
+
+AY
+-
+
+s,= e'
+. r 7 = - ',
+A
+. ,- Z=- -2--
+r
+- 5 c'
+=A,-=
+. t
+
+=' - =
+e-,C
+
+r
+'= s-'=
+
+-A r
+L2e.-A -
+F
+
+
+e'
+3
+o F'-3 -5
+' . .- . ' .-
+' ' 4 2- ' 's ,e- z ' F;' .s ,-
+Cr
+-r==-- F 2- 'r ,-
+e'A c
+-' ' . -'
+.
+2 sL s'
+. -
+s 4 3-
+' S'.s
+F' . -
+e: '42 P ;
+Ar.s,9.e
+3'
+e.e + e
+'--,A r A- .
+'-- s
+C r - a'
+s 3
+8
+= 12-'e,'
+. c -r
+e'e.,= A'
+.,.' A
+s -s,'
+s '
+.-A,- :
+.- 4 -s
+':
+,72
+---
+.-
+, -o'
+s. o'
+
+S
+
+
+the calcium aluminate, F75, has a value of .19 which is
+significantly lower than the rest. The low value of
+(p dn/dp) for the calcium aluminate glass (which contained
+41.5 weight3 A1a) 1s consistent with the fact that with
+applled hydrostatIc pressure, crystalline A)-. (sapphire)
+exhibits a decrease in refractive index for Both the
+ordinary and e xtraordinary ray L ( i
+
+Considering the fact there is a consistent trend toward
+negative values of ( dn/d) with incrreasing strenngth of
+interatom1c binding for the group of alkali hal1des shown
+in Table S, it 1s reasonable to assume that a similar trend
+holds for the series of a.lkaline earth oxides. It can be
+seen in Table 3 that Mg;0 has a negative value of (p dn/dp)
+so that substituting; Mg;0 for Ca0 in the calcium aluminate
+composition of F7 might be expected to reduce the value
+of (o dn/dp) to one closer to zero. Moreover, according to
+the physical theory of photoelasticity, certain ions such
+as Est and F' 1f s ubstituted cou 1d be expected to make an
+even stronger negative contribution to (p dn/dp) [ 4]. The
+electron1c polarizability and binding strengths of the
+constituent ions are the important factors, and 1t should
+be possible to formulate s ome glass composition where
+(p dn/dp) would equal zero.
+
+In conclusion, it should be noted that the basic mater-
+ial parameters which describe the interraction between
+optical radiation and acoustic waves are Pockels ' elasto-
+optic constants [ ,E,3J. One of the mechanisms that have
+been proposed as the cause for laser damage in solid,
+transparent d:.electrics is the generation of coherent
+ultrasonic phonons by stimulated Brillouin processes I..,20J.
+Chiao, Townes and Stoicheff [1l have pointed out that
+either compressional or shear waves may be excited, but
+for compression the coupling between acoustic and optical
+waves is simpilest and may be described as electrostriction.
+Inn this case, equation (1) still holds. Chiao, Townnes and
+Sto1cheff have shown that, when the radiation is contained
+in a resonant cavity, the threshold condition for buildup
+of the acoustic and scattered wave is
+
+.
+se atoen/eo:' ,,. ..'-i
+C3)
+
+where J and l.; are the decay lengths of the sound and
+light waves respectively, and kg and k-; are the respective
+
+
+4 ,.
+'3.
+,Y
+-75-.
+
+9 ry
+'=-3-
+
+'=-,
+
+V6
+
+4 5e .
+3='5e
+'Te.
+32
+, 8
+r,
+=,, ' C
+r7 25r.
+S
+e.''9r
+'ns
+/
+
+'e,- ''e
+'=s .,
+
+o P) .
+6'e 1's 'a
+4.r''e Fe2
+A5L Le-
+T2
+'4n
+'os,
+2.
+'-,
+'3
+
+'r--- ,;
+
+'-e,
+
+A. 'w
+
+,5s
+- ''-
+
+'r
+
+
+
+''s /4
+-5
+r . 6
+
+
+
+'=62
+
+'2'--,,. -
+'9
+',
+
+o
+
+
+o 'L,7'-
+
+':
+PeA
+,
+
+s -, ''=3,.,
+' 96A
+5os %, '
+'
+
+
+e
+
+' ,
+r:
+' 74
+3=
+- 4a
+r.3o
+9
+A
+4o
+'=,.
+-= .
+
+
+'aA
+J
+
+''a
+
+3p
+3o
+- P2
+9A
+- 4 ;
+7F
+
+3o
+4
+3y
+',
+3o
+34
+3o
+3e
+.3o
+
+
+propagation ve ctors of the sound and light waves. These
+authors have shown also that for the travelling wave case
+the threshold condition is
+
+
+8n
+I ,
+coaaAa,: '4
+--
+-1,2
+(4)
+
+Prom equations (3) and (4) it can be seen that in a material
+where (p dn/dg)0, the possibility of damage by stimulated
+Br1llouin scattering is ellminated.
+Refrac'
+of r
+iyc
+--3ESE2-AibE2.
+
+Three ruby boules, doped at nominal levels of 0. 05,
+0. 05 and 0. 06l5 of Cr0, respectively, were furnished by a
+commercial supplier. T5e crystallographic directions in
+the boules were determined by x-ray methods and prisms of
+known orientation were prepared for the refractive index
+measurements. The results are shown in Table 5.
+
+Specimens cut from the same boules were analy zed by
+neutron activa.tion methods and the results are given in
+Table l. As may be seen from the table the boules contain-
+ing nominal levels of 0. 055 and 0.064S Cr-,0 were found to
+contain essentially the same amounts of CY0g. The
+refractive incex values in Table 5 do not disagree with
+the analyses. The variations in refractive index for all
+three boules a.re only one or two in the fourth decimal.
+
+When these measurements were planned it was expected
+that data would be obtained to allow the calculation of
+the channge in refractive index produced by a change in the
+Cra0; concentration. Since the observed changes are so
+small no meaningful calculation can be made.
+
+A comparison of these data with data reported in the
+literature on sapphire L....l and on ruby [ 12] show variations
+of two or less in the fourth decimal so that specimens
+containing appreciably more Cr0a would be required to
+determine the effect of CrA0 concentration on refractive
+index.
+
+IEEESsEsss
+
+uJ R. Y. Chiao, C. H. Townes and B. P. 3toicherr, Phys. Rev.
+
+Lettere J 592 (196).
+
+
+Refractive indices of ruby with different
+
+Wavelength
+
+(m)
+Table 5
+
+concentrations of Cr.,0 at 19.55c
+
+' . g 2-
+.o3x Cr49g
+
+o.4o47 1.7859 1.7774
+o.4358 1.7813 1.7729
+o.4678 1.777 1.7692
+0.480o 1.7762 1.768o
+0.5o86 1.7736 1.7654
+o.5461 1.77o8 1.7627
+o.5876 1.7683 1.76o2
+o.6438 1.7655 1.7375
+o.6678 1.764s 1.756s
+o.7o65 1.7631 1.7551
+;' ;;
+
+1.786o 1.777e 1.1859
+1.781 1.773o 1.7813
+1.7776 1.7693 1.777s
+1.7764 1.7681 1.7763
+1.7738 1.76se 1.7737
+1.771o 1.7628 1.77o9
+1.7684 1.76o3 1.7684
+1.7657 1.7576 1.7656
+1.7647 1.7566 1.7646
+1.7632 1. 7552 1.7633
+
+r n signifies ordinary, and n,, extraordinary, ray.
+1. 777s
+1.773o
+1.7693
+1.7681
+1.7655
+1.7627
+1.76o3
+1.7576
+1.7566
+1.755a
+
+Preliminary data obtained by I. H. Malitson and M. J. Dodge.
+
+
+c='
+- 'e
+-'7=
+--''
+.. 9
+-
+
+ee
+9-
+eV'
+
+,
+gD7'L'
+L'' ''
+L5'
+-e
+s =
+2e
+g
+ee(
+- %
+
+
+c A2'
+' ,-
+
+
+''
+y'
+
+g
+-
+
+(r -
+' ar-
+''
+,,.seV
+, ''
+-a' A '
+gse'' A' -
+, 9- gy =' 82''
+e,c%-'
+
+5' s
+.,-'' se
+
+c=r
+=- o5
+( (
+
+,4
+L.e
+
+
+e7
+.x3'
+ycY
+--=- ,,c
+
+.-
+,,'
+A' '''
+- -
+''e..
+
+(5
+e ,e
+
+eg eA3''
+,ac' '
+t3
+,-xe''
+''
+''''
+
+oM
+s'a
+
+=',=- a- A..,e',c'
+
+v'
+-= E=
+e-' .o
+
+-2- ,---'
+
+2'2-Z- ;
+
+1 Z
+cf
+T-
+
+e' e s9,--'sL
+
+s Z'
+:' g
+c '
+
+eoe7,
+
+r ''2-
+e,
+A='
+AA''
+
+:-2-Z:-7'
+-7
+c'=
+v A- '
+=' -''
+
+AL
+-EZ'
+r''s
+seV
+
+A -
+
+, g' g
+e' v
+s'
+y-
+
+-T-:
+
+=' ,--''
+
+'.,.es ''
+w'
+e'
+,,s'' es'
+
+
+-c'
+
+g= '
+- ' 3'
+
+- e = (, 9'
+..,eo'
+,-''
+:
+
+g='
+.se'
+
+
+
+-Z'' '
+,
+se''
+= '
+
+
+es ge''
+
+-'''
+L. '
+,,se''
+2'
+
+5
+Ao ar''
+
+=r e
+7-
+e
+e'Ae-
+ce4 2'
+
+,eP'
+e,c
+.,-e=' ge-
+, s
+
+,'Le e-''
+
+:.:
+,
+V
+
+
+eN
+, g
+. ,,c9-'
+AeS''
+,-Aa3'
+
+
+
+1-,
+Ca0
+3
+e
+g
+66.13 weight
+15.5x
+10.1z
+i. 47
+0.5x
+3.ax
+
+This glass composition has a consolute temperature between
+441'C and 4485C, a temperature range close to its annealing
+point (approx. 460C). Such results imply that a degree of
+microstructure will appear in the glass when it is heat-
+treated at temperatures below annd around 4 l0P. The degree
+and size of the microstructure will then increase with the
+length of heat treatment. Since the consolute temperature
+occurs in the transformation region of this glass, a large
+degree of phase separat1on may (is likely to) oc cur during
+anneallng.
+
+.4.1.5. An X-ray Transmission Method for
+
+Ob,ective
+Examining Ruby Laser Rods
+E. N. Farabaugh and F. A. Mauer
+Inorganic Materiale Division
+Institute for Materials Research
+
+This study was undertaken to determine whether x-ray
+diffraction techniques may be used to characterize ruby
+laser rods. A correlation between crystal perfection and
+laser performance is being considered.
+Approach and Results
+
+Work has continued onn the correlation of laser crystal
+perfection, as determined by x-ray diffraction techniques,
+and laser performance.
+
+Since the last reporting period annother group of laser
+rods has been examined using a modified high voltage trans-
+mission technique developed during this reporting period.
+The general features are shown in Figure 1. A slit, llmm
+by lmm has been placed a distance of 10cm from the x-ray
+source and the film placed parallel to the x-ray beam.
+
+32
+
+
+Pictures are taken at several points along the lenngth of
+each rod. The beam samples a d1sc-shaped volume of the
+rod and produces an array of diffraction spots each of
+which is a crJde x-ray topograph of the cross section (fig.
+2).
+
+The most recently examined group of three ruby laser
+rods was again obtained from Dr. J. Ha11 (NBS, Boulder).
+These rods all have better laser performance than the first
+group. Rod D, . 530 in. in diameter by 3. 0 1n. long with
+rod axis parallel to =01107, has residual strain and is
+described as ''definitely inferior to rods E and F'' by Hall.
+Rod E, 3/8 in. 1n diameter by 1 1/22 n. Jong with its axis
+parallel to 40l107, was described by Hall as being the best
+rod for laser performance that he has seen. Rod F, a 609
+rod . 620 in. in diameter by 3 11/16 in. l ong, was descrlbed
+as typical of the best available currently. This rod has
+some tracking damage. Al rods are' still capable of the
+laser performance described above.
+
+Figure 3 1s a composite of corresponding spots from
+five f1lms taken along the length of rod D. These topo-
+g;raphs show how the crystal perfection of the rod varies
+along its length. The best volumes of the rod are repre-
+sented by those images of the cross section which are free
+of distortion and have a minimum of splitting. A wide
+range of crystal perfection is indicated by these films.
+Rod D was descr1bed by Hall as having some straln present
+which affected its angular distribution pattern. The
+topographic method used is not sensitive to strain and the
+films do not indicate th1s characteristic of the rod.
+
+Figure 4 is a composite of corrresponding spots from
+f1ve films taken along the Iength of rod E, the ''best''
+laser rod. These films also ind1cate a range of crystal
+perfection along the length of the rrod. When this rod was
+examined under crossed polarrizers, it was observed that it
+did not exhibit extinction uniformly across its cross
+sectional area (Hall was aware of this before sending the
+rod to us). The s ubgrains in the rod appear to run from
+end to end and are fairly regular. Thus, it is ev1dent
+that 62hY rod can have very good laser performance and
+2k. not be yery goo9srystallographically . In comparing
+the films of rods D and E 1t is seen that f1lms are in
+general very similar, however, the laser performance of
+rod E is superior to that of rod D.
+
+Pilms were also taken along rod F. None of these films
+are pictured because the images formed were very weak. The
+faintness of the diffraction images is due to the fact that
+
+33
+
+
+.--
+A,
+
+r
+L3A-
+-r' /
+- 7- / -
+A.'
+-7 r g/ 7
+A /
+.L.,' '
+,-
+a.
+AS + /
+(ee+
+'-. A
+
+/ /
+/
+7 /
+/
+/ /
+/
+
+e
+-;'
+-7 -
+Maz '- -
+--'
+NP
+- ' Ar /
+
+-
+e
+
+FILM
+42
+-
+
+ANODE
+
+:n r
+L1 1
+
+SPECIMEN
+
+BEAM STOP
+
+Pig l. Modification of the Laue transmission technique to
+give a topograph of the cross section of the rods.
+
+34
+
+
+w
+
+
+
+Fig]. 2. Diffraction pattern of a ruby
+rod in which each spot is a crude
+topograph.
+
+
+A
+
+--
+x
+4A
+d
+A
+g4
+2
+gs-4
+V1
+d
+o+
+'
+2x
+M i
+t M-I
+9 =
+i=
+t0 4A
+b
+t r
+r1 d
+os-4 g-4
+r 0
+9 s
+W 4A
+d b
+M r1
+N o
+O H-n
+O md
+M-I r
+o o
+A
+0 md
+4 2)
+g r
+8
+O Ta
+
+r
+e A+-4
+4
+6 2
+-t ,C
+Tu t
+7
+r
+A
+8
+
+V-1
+
+S
+
+:1
+9 9
+S. w--
+8 o
+d
+. 3
+F E
+r-t
+t o
+-H-4 .C7
+Tu 4A
+
+
+'e4
+'ey
+'..
+
+3n ' e
+e
+3
+'VAp
+.
+e .
+e.
+
+4e ,yr
+
+Zr3T=
+'
+3..
+e ..
+Vs.
+e'\&A.
+',
+
+d , 9A
+
+S2s r .% 7' 5,,
+a e4 2'L e
+2= 2 -
+.
+e
+iA
+
+-/
+Ve,s
+5e .
+e)g 0-
+
+'4s O
++ 'e F, '8. -
+
+'';23-
+''
+45.
+o--s-:'4K,
+r447e /Z4 -
+
+sr-.''=.
+c ' o
+Pcs ''4
+
+- -337'
+-:: '32-
+A PS O
+4r4-
+=7 o
+r'-'22s--. :-
+7s,. .
+h,
+-27Z.
+fa ss
+3e-'-. Z3'2r
+AE'
+'22'''
+u-e- 's'' -et.
+.:
+
+8,,'J '
+'s : a e2 3., ''6,
+Te-
+2T'-,,-4:'
+sr-,rT'4
+-7'.
+e4,''6 Fe
+: r3'es,
+-e,T'Z33-'e -
+e 'e
+22r-
+-7
+=8,, n '
+:,' 'e-
+22'. --
+'4A, o -
+
+-p
+rs
+A
+. e
+wee., 'er,'
+7 g '
+'T76,'T''ee. r
+3
+e '9a
+o '2
+'a,
+'-e
+' s;
+'3o
+,.
+
+'r-
+=Z5
+. 'sJ s
+%
+3=,.
+
+s. A.
+r 1 Os
+
+3 :..
+c, 9A- 4o
+C2zA-
+
+e; 4.
+
+rS
+9o-
+'se.
+'-.
+''s,.
+'c
+=2 ,
+o ,, A
+=o, ,r'-s
+'.
+
+, ''--..
+:-.
+
+s. 'r =A'9o , 2
+Op
+'to
+
+'--.
+
+r '-e,,/2-.'''= ''-'-
+
+e
+V.
+'
+
+4, 's-
+h. es,
+'4o4.
+
+' ,.,
+e;2
+'''4a
+..
+'+.
+.
+
+-73
+%+. %
+c.
+'A .
+'\&,
+
+
+
+in this rod we are approaching the 1imiting; th1ckness of
+ruby rod that we can get an x-ray beam through. Inspection
+of these films showed spots which were well formed in
+every film with a minimum of splitting and distortion.
+Since all of the films were of the same quality we would
+evaluate this rod as better crystallographically than rod E.
+The laser performance is however, inferior to that of rod E.
+Rod F was described as possessing some tracking; damage.
+Although our images are weak and not many spots appear,
+there is no evidence for this damage observable in the
+images.
+
+The rods studied in the previous reporting period
+were re-examined using the new technique of topographing
+whole cross sectional areas. The results were in good
+ag;reement with the previous results and the performance
+could be correlated with the crystal perfection.
+
+A badly camaged rod with bubbles, visible to the eye,
+was also examined with the modified transmission technique.
+The images formed gave no obvious indication that the bubble
+defects were present.
+
+It has been demonstrated that the modified transmission
+Laue technique can detect misorientations in large single
+crystals. However, topographs of the cross section of the
+rods do not seem to be sensitive to defects other than grain
+boundaries, which are easily demonstrrated. The f1rst set of
+rods examined showed a correlation between the laser perform-
+ance and cryst al perfection. There was no similar correla-
+tion found with the second set of rods.
+
+A possib'.e different view of the problem which might be
+more fruitful is not to determine how many imperfections are
+shown in the topogrraphs but to try to determine what are the
+features in the topographs we obtain which are important in
+the grading o:T the crystals for 1aser applications.
+
+1.l. 2. Damage to Laser Materials
+..4 . 2.1. Laser-Induced Damage Studies
+N.N. Winogradoff, A. H. Neill, r., and J. M1tchell
+
+Ob 'ective
+in collaboration with:
+W. Haller, G. Cleek and R. Waxler
+
+Inorganic Materials Division
+Institute for Materials Research
+
+Th1s was to set up a well defined laser glass damage
+facil1ty for evaluating the damage threshold for various
+
+37
+
+
+samples of glass and elucidating the me chanisms responsible
+for the damage.
+Approach
+
+On establ1shing the facility, it will be used to,
+(1) measure the damage thresholds for various samples of
+glass, (2) catalog the different types of damage observed,
+(3) correlate the nature of the damage with the connditions
+under which the damage occurred and with the composit1on
+and heat treatment, etc. of the glass sample, and, (4)
+elucidate the mechanisms responsible for each type of
+damage.
+EEEE2s
+
+A ''one gigawatt'' neodymium laser system, capable of
+producing 20 ns. G-sw1tched pulses with energies in
+excess of 30 joules per pulse has been ordered and delivered.
+
+The system consists of an oscillator, -sw1tched by
+means of a Pockel's cell, feeding into two successive
+amplifier rods, and is currently undergoing acceptance
+tests.
+
+Pending the operation of the above system, preliminary
+experiments on the damage of silica and glass samples by
+exposure to 3 ,joules, G-switched, ruby laser pulses were
+undertaken.
+Introduction
+
+Bulk physical properties of glass samples indicated
+that the threshold for me chanical fracture decreased sub-
+stantially as the water content was increased. This
+suggested that the threshold for damage by laser pulses
+might also be a function of the water content of the glass.
+
+S1nce samples of sil1ca with two distinctly different
+waterr contents Ias measured by infra-red absorption, Fig-
+ures (1) and (2)] were available, the above investigation
+was centered on these samples.
+Ex erimental Procedure
+
+The damage threshold of each sample was determined by
+changing the rad1ant flux density photons per square centimeter
+per second incident on it by moving a thin plate of the sample
+along the axis of a convergent, pulsed, laser beam.
+
+The latter was generated by placing a biconvex lens
+with a focal length of 2 cms in close proximity to
+
+38
+
+
+,e'
+
+C-
+
+
+'4.
+AA
+oe
+
+'L.
+3
+3
+P'
+
+es
+
+.'
+
+,e
+
+s' es,s
+' ,s -
+4-=33
+e,-
+2 e,P
+-A' a,r
+'- 2
+,e',s s m
+a' c' -,2'
+e' c , w
+S2s' V's-
+S' w
+,c'
+,' s
+==
+
+2e A
+3
+A ',- o'
+
+3
+3
+A
+A
+
+c s ,e
+xe S'
+
+
+FUSE0 siog
+4.O mm
+
+wAVELE NGTH IN um
+
+Figure 2. Infrared transmission of low water conntent silica.
+
+Note the absence of the water absorption band at
+2.7 um indicating that this sample haa
+a very low water content.
+
+0
+
+
+the ruby laser . The radius of the beam emerging from the
+lens was measured at several points along the beam axis
+by 1ts ''printing'' effect on black pvc adhesive tape. The
+resulting beam profile was as shown in Figure (3).
+
+Wh1le it was recognized that th1s way of def1ning the
+beam prof1le was limited by the threshold for the printing
+effect, it proved to be fast and reproducible so that the
+data could easily be reduced to the low power peripheral
+contours which would be observable with a sutable photo-
+detector.
+
+The total energy in a single pulse emerging from the
+lens was measured with a calibrated solid state calorimeter
+placed near the lers. The resulting measurement was
+correlated with the signal generated by an TTT bi-planar
+photo diode having an S1 spectral response, reacting to
+a fraction of the light beam reflected from a glass plate
+aatinig as a boam spl1tter as shown in Figure (4).
+
+The corre.lation was carried out by using 10 successive
+shots, and these measurements showed that an ITT photo
+detector signal of 20 t17 volts corresponded to pulsed
+beam energ1es of 1. 5 20.l Joules.
+
+The TTT detector was therefore used as a sensitive
+monitor for each flash of the laser used in our damage
+studies.
+
+In measurlng damage thresholds, the laser controls
+were ad,justed so as to keep the monitor signals to within
+250 s 17 volts and results obtained w1th monitor signals
+outside of that range were discarded.
+3LLLs
+
+Neglecting refractive index and absorption e ffects, the
+results of our measurements and the damage threshold for
+silica samples with high and low water contents, together
+with that for a sample of Calcium Aluminate F7 are summa-
+rized in Table 1 and showed that:
+
+(1) All the damage observed was restricted to the
+surface and was in the form of surface pitting.
+
+(2) The cnset of damage was accompanied by an
+acoustical signal and a flash or ''white'' 1ig;ht.
+
+(3) Different samples, cut from the same slug gave
+damage thresholds which were reproducible to w1thin 2. 5
+J/cme/0 ns.
+
+41
+
+
+z 7
+w
+s,
+
+8
+,,w
+
+e9
+
+gL= ' ''
+S22
+exf -
+
+eY
+=e e,,'
+-C -
+o
+e'..
+=,2
+v s 8
+'' a
+er' s8cP
+9 ,-5''
+e,ef,,a
+s '' o2s..
+49
+
+s ,o=
+, s'L.es'
+='
+
+' -',''
+
+'.--2''
+=T . o:ss'
+. g=''
+,,eyxP
+2 ct''
+, ggcP-'
+,-er
+=''.,
+ae9-
+, agcw Y'
+z9 ,.,agP'
+2 e93
+.,,,sw3''
+,Ao4
+
+
+%.
+o2
+4c,
+= A
+oa,t
+9854'ob
+sry'
+-+
+5a.
+es
+
+- c
+-.
+
+' e.
+.L
+-g
+, tSoL.
+35%s64
+'e-
+
+M3
+
+A A
+r
+r
+-' AA
+
+
+s,
+K.
+s%e
+A.
+'.
+'4,
+'e-
+
+.
+=.
+'.
+
+3, d
+. \&
+'4 -s
+c-.4,
+rs c.,
+.
+
+-5.
+re,ws.
+'o'M
+
+%
+'e
+%e,
+S
+Fa fs.
+,'o
+
+'e E.
+'2-
+3' r
+-'
+
+5
+2%
+
+7
+A.5z
+.rs
+% A
+'
+e Y
+7
+
+'e-
+
+
+TABLE 1
+22222 2:; --
+Sample could be detected (Volts) 30 ns. pulses p/a F
+igh Water Con-
+tent, Silca
+ample Source(1)
+mL a- -
+] tent, Si1ica
+Sample Source(2)
+Lw Water Con-
+] tent, 31)1ca
+5;s;
+57.a
+
+63.5
+
+55.5
+
+61.3
+2o8
+
+198
+
+205
+
+210
+.3
+
+25.3
+
+8.5
+
+17.5
+
+(l) SS1lica samples with the higher water content
+yielded a higher damage threshold than those having a lower
+water content.
+E3ssuss3sE
+
+Samples of high water content silica derived from
+sources l and 2, of allegedly identical materrial showed very
+different damage thresholds, 1.e . 12.5 and 26.5 J/cmF for 30 ns
+pulses. These two sets of samples could have had different surface
+polishing treatments and they were therefore both re-ground
+and re-polished by identical processes to ensure identical
+surface characteristics. However, the re-polished samples
+still showed the above difference in damage threshold, the
+cause of which is not understood.
+
+Another factor of connsiderable interest was that, even
+after re-grinding and re-polishing, the high water content
+samples invariably damaged on the back surface where the
+energy density would be expected to be larger, while the 1ow
+water content silica samples invariably damaged on the
+upstream surface.
+
+The reason for this difference is not understood, and
+may be related to absorption effects in the samples.
+
+hh
+
+
+Aeo''
+2-..
+.-
+- Af
+7 IA (
+
+7' A
+' ,Yw 9, -
+a o
+=-,=
+' A o-, a
+
+=' ='=L=, T=
+V' , s=
+L
+.,A9 co-
+V.
+,r x9 eo'
+--;''
+,,e%7es, e=' ,.x
+e c''s
+
+eoe 2A.
+e' ,
+
+,ec% a4,. ,c='
+-2-'
+e- .
+e' , x,-
+AeF'' .-
+I-',s' =
+T-3-
+- .,-
+-''
+.
+g,Y'
+r(
+-L-'
+
+AC7
+gC7Y
+'',e
+
+e-I
+egS'
+gSe'
+'
+yy
+LAy5' e
+
+x r
+gc9'
+Ae'
+='=c
+7
+Ae''
+-'
+',s
+
+-''
+
+'T..
+s'
+V'.,---
+' es
+
+e' =ZA'
+.
+' c ,,e''
+
+'-=-
+
+3: --
+,
+ey3
+
+-Z=S2-
+
+%, ,,e-La
+ea'
+93
+z
+
+TSA2-
+
+5c -
+
+.,
+M, e
+
+2 T es .-. -= /' ,,,,='-
+
+.k=f e',, '',-='.,e9' =-
+gM ,9
+,e',==F'
+: ,-
+
+='e' ,,,e ,e,--,=r
+- ,x
+.uS 4' 3'
+e''2.-e 2
+
+es Je=',-''-
+',,r
+= sc%',,,
+
+cL-',-r,es''e' -o .
+
+e'.='L '
+c=
+..s
+
+,.A ee'
+s ,-5'
+'',e'' ,(
+-ZZ-
+---7-, ,%'
+,,-F
+A9'
+.,,=- s
+-:..-
+- rS;'=',.-
+ey 'A=
+e% ,-s
+, e% ' s
+
+- ''e ' cc' co P2s -
+Je %-
+A c
+s'',.
+2-
+Y e' ,e- o-'7e
+
+-t5' x' c,a9''.ce
+,,x%',
+
+s ' '=L,'',. '2J-
+r -
+'. ,-72, 2e
+o cgY
+%e2-'-
+gc''',, eor e
+'.ee
+-' g,a'
+:'7'
+o',='
+,-
+,'
+
+---zZ,-g-
+'.co' As
+
+.-
+ee
+
+-'
+
+e eg erP'
+,Ac5
+Ac'-
+x,9
+2=
+(e=''s- ae ',-a-'.e' 2' c,-
+cS -.a',,,e' A
+2-
+
+4
+
+3
+,,x.s''
+,''
+u5
+e
+N'
+. ,,A=
+Ae5'
+,-ao'
+
+
+Li ht Scatterin Ex eriments
+
+Azimuthal and forward light scattering te chniques have
+been sug;g;ested as possible ways to detect such centers.
+Two Nd-glass rods (Owens-Illinois ED-2, 2.54 cm in diameter
+by 5. 0B cm in length) have been examined in such 1ight
+scattering experiments at NBS and at the Air Porce Cambridge
+Research Laboratories. The ob,]ect is to see whether
+differences between the two rods can be detected by
+scattering methods which do not rely upon the human eye
+and yet provide an examination of essentially the whole
+rod. The search and seek ability of the human eye is very
+advantageous when compared with the limitations of such
+devices as photo multipl1er tubes and photo-diodes. One
+sample was rated excellent and the other sample was rated
+as less than excellent but not poor either. The rating,s
+were given by H. A. Lee of Owens-Illinois.
+
+The azimuthal light s cattering measurements were
+performed at NBS and were reporrted 1n NBS Technical Note
+Number 514. These measurements indicated that the forward
+scattering might be more fruitful. Dr. Martin Stickley
+and Mr. Edmund Hoell agreed to perform small angle scatter-
+ing measurements on the above two samples. Their results
+were communicated to NBS in the form of a letter. A copy
+of the letter and data is g1ven with their perm1ssion in
+the appendix to this pro,ject report. We thank them very
+much for their cooperation and for the1r efforts in measur-
+ing the small angle scattering. Even though they can
+distinguish rod A from rod B, the difference is marginal
+for the detection of a small number of inclusions wh1ch
+are less than tens of microns in size. The technique does
+not seem feasible as a way to maintain quality control for
+inclusions leading to damage. The technique does have
+promise for detecting striae however.
+Theoretical Treatment of Laser-Induced Thermal Disturbance
+Near Inclusions
+
+The heat diffusion equation with time dependent boundary
+conditions is solved for the temperature as a function of
+position and time. The optical path length change for a
+light ray passing near the inclusion, the radial and
+tangjential components of the stress tensor, and the radial
+and tangential changes of the local index of refraction due
+to the thermal stress field are computed from a knowledg,e
+of the space and time variations of the temperature.
+
+46
+
+
+wg J
+t,, 4.
+AL' Pn.. '
+33-7-22
+r'22s
+4
+2A3--
+A..
+''a-..
+s,. r .
+o, '4
+=--rr-r/22r'.
+e82'
+
+,,'
+GA
+
+= 7 ST 2
+. -3Cr.3-C---- '
+6. e, '4
+
+r7.. '-
+- r7'='':':,. -
+5og 'e,. 'A,'
+
+Ar
+e. Yn,' t '9e
+
+96, eJ e8 3s 'e
+o J A
+
+ar'ce, s, 'e e A''
+=,, e
+=172.
+'22r-
+e r
+
+'a.
+4, e
+oA' i '/e 'e
+
+4 r ,, n r
+. es ,
+sr , n
+tp- s
+'a2s7' 5'.
+A 'e-, P
+s,'e82'58
+8-5
+-:4.' 's
+;ae
+'' .
+(7 y
+'2
+,,'e
+, '-4s
+5o7 cA
+4, 6
+r8,7s 9: , o+'
+s t
+
+-2T2:
+s-, o
+4s5ZA -
+
+3r.
+
+,-A'-
+r, 9e .2
+
+e. -
+'se '' o,
+s,'
+e, '8., r
+4, -e...'
+4S .
+
+r- ' , '''
+3), d
+
+' ,'54 8,'' ,5s
+,'. 9 2e
+'+s '2
+2
+
+7A.. 3o). ' e
+A 'YgA, o Sr-
+e 's,, , 3,
+.
+r7%
+4te., o '-
+'yez-. h
+
+2'5TT5-
+9A ) Oy
+'s,,;'o e,3
+s 's
+o23s
+, s
+'/. ) 5t
+
+-7t,.
+S.-
+o+''er
+OA s
+
+2-
+'','' 7
+tr-.
+-
+-'
+
+sr 's7 re- T3=Z3.
+
+e.,736tra ,3:
+-..-.
+s
+-sy '--
+
+sg 's
+
+5 Sen.. 'es -
+2'
+
+-22
+54
+
+- rZ3
+
+SS3
+' 2 -
+7'4
+cA -
+
+- ,;e' 2e-.7 73 . .7s
+o e .
+o. 2
+' 4,, '
+2:''-
+
+7...
+/ '
+F2s-,
+7'P''AT --.--rr-. -
+
+ee.-..''387's,
+=a,;''e, ' 'e,
+
+5, '= .
+
+,2;'ea
+5 3
+
+6,
+n
+
+'-e,g
+
+
+e,.
+r,r-
+'s ,4'e
+C5
+s- .
+
+7= .,'4
+e,.'T'
+e,-
+A -
+
+b r'
+7s.
+'42,'
+'e o ' e
+e,A e.
+''--
+
+e-'4 '-
+e ;
+o,3's
+o-. o''.
+T
+
+e-, '4c-
+
+8 'e.
+'=
+
+''=; .
+'3c,.
+. ' t,'a'
+,.-e23C'r-.' -'-s r ''
+-' e
+F' -e
+
+2=-2-
+e e,, A ''o-
+c-..
+
+s .'9e
+T'c2, 's ,r
+.5
+
+4s
+4,.P
+,'
+
+e43. '
+7A -
+, =. '8, :
+4r '-
+
+'2 '=4.. o.
+
+.
+- r'2=,
+'e;e.
+43:S
+%4.
+,
+J y /
+%3,
+A -eT-7
+.'
+
+, O
+
+A P
+
+-=eT'
+O r ' o
+
+e 4,'' ' t-,r's
+c2' ,,5
+A.'-
+4=,''L8 5 'o, ,.' '- .
+4.e e
+
+3 6..
+3c, 'o '
+'4e,
+s, o
++ %o
+a s,, '03
+'A,
+
+'.o-A
+77 3--'5es r -
+.'4,. ' ' ta
+4s = e- a 'e,
+
+'2)
+53
+
+--37 3
+e 9b,,' 8 -
+,-
+4,' e
+'.
+
+, ,''4 'e : s's 's ,
+
+0-. r
+--';a=-
+
+,2T'Ar 'd
+o-'J,7's e. 4
+4cr,.
+
+-;,'
+, s
+r'-- 'T,-2 -
+' e 8 32r
+
+73''' 3
+
+9), 4
+-. 4Te-5
+
+e 5 A
+t-.,
+c 4o 'ea
+e' s,.
+'s2' .
+e,
+e rre
+
+'=a,.
+2
+
+t ,
+
+2
+5, 7- a'''T' g
+
+:r'
+r ,
+''aA .
+
+s,.' 'e ''e, =,. a e cra ' 'sz'.
+', 3s' 's-
+J ez-
+
+.
+
+- s.'-P
+
+6. 3,''e e7' = is, z
++,. '-
+'''
+
+'e, ,
+- O; '-o
+- ,,'s.
+
+'3e--'r 4e %8e 'A 4 ''7 L
+A 2
+a2-
+e'L
+
+r r-3-'
+
+a,'e :s.,'.''e
+
+3: -s4T- 5'-
+'e r
+s, 'e.
+e.'e
+
+3:
+3 's 's 3
+--
+a ,, ' .
+4 , n
+
+=',c r 7 -
+C'7'e- = '
+'r
+
+3
+s 8.''s s e, o-,
+s,
+r
+'a4,P
+
+'T7 r'-
+
+3r . 'c4 's
+'J as/., J
+'
+-
+'s=re,.
+
+' 'c,- 7'.
+'=8 ;'
+.
+235--
+o- .
+
+-.7=,:''-s,. s e -
+m %S
+2-
+
+.''s
+2A5-
+e2
+T'e
+
+''2;3----
+
+= -s %
+
+e-.
+
+
+A-
+oA''
+
+4se
+
+
+are 1ess than ;e'' A. The magnitudes of the tangential,
+and radial stress components do not exceed ;g-V (dynes/cm' ).
+The maximum stress occurs at the end of the laser pulse
+and 1s a factor of 10 less than the bulk moduli of the laser
+glass. The magnitudes of the radial and tangential changes
+of the index of refract1on due to thermal stress birefring-
+ence do not exceed 10-5 , The latter values are greatest
+for the same values of radial distance and time as those
+for the maximum optical path length change. The maximum
+temperature at the 1nterface between the platinum and the
+glass is 611'C and occurs at the end of the laser pulse.
+The maximum value of expansion of the platinum sphere occurs
+during the laser pulse and is about a factor of 1, 000 less
+than the speed of sounnd in glass.
+Conclusions
+
+The above calculations suggest two possible methods by
+which incipient absorbing centers might be detected. One
+method would use the interference of two light rays which
+experience different optical path length changes and the
+other method would use thermal stress birefringence. Because
+optical path length changes greater than one tenth the
+wavelength of the probing light are required to produce
+detectable fringe shifts, case l and case 2 ind1cate
+marginal feasibility for either of the above methods. How-
+ever, calculations such as case l and case 2 and preliminary
+additional calculations, wh1ch apply to millisecond pulse
+widths but are not reported here, suggest the direction in
+which one should go to optim1ze the optical path length
+changes without causing damage . Heating the 1nclus1on
+over a long,er period of time to the same surface tempera-
+ture of about 600'C gives greater spatial extents to the
+changes in indices of refraction. Another approach is to
+employ pulse widths and observation times which are less
+than the relaxation times of the host. Relaxation times
+for laser glasses between 800'C and 1100'C are approximately
+between nanioseconds and microseconnds. These are estimates
+of the time during which stress is proportlonal to strain
+in glasses which are not elastic for infin1te time. Such
+short time observations will permit one to raise the inclu-
+slon surface temperature substantially above the present
+600'C reported here annd st1l1 satisfy the assumptions of
+the present model. The author plans to extend his calcula-
+tions to longer pulse widths and to higher temperatures.
+
+Most of the other optical methods that have been sug-
+gested are capable of examining only small volumes at
+any one time and additional scanning methods are essential
+if an entire eample is to be studied. For example, K. Vedam
+
+u8
+
+
+et al, Appl. Phys.
+2L. 2551 (1966), report uitramicro-
+
+scoplc techniques by which they illuminate a 20p thick
+layer and by which they can detect 0.3'p particles with a
+(1/32) sec exposure for the camera. They also have
+estimated that 0. 03; particles might be detected with one
+hour exposure. The ma,jor disadvantage is that the layer
+under observation must be less than about 2 cm from the
+surface of the sample. Researchers should be able to
+examine much larger volumes of the sample by the techniques
+considered in this report.
+
+The above computations suggest that examining incipient
+absorbing, centers in laser glasses by methods which employ
+thermal stress birefringence are more promising than methods
+which use the interference of two l1ght rays which exper1-
+ence different optical path length changes due to the local
+variation of the index of refraction near the platinum
+sphere. However, because the propagation of light in the
+presence of a stress birefringence which has spherical
+symmetry is ccmplex, the interpretation of the birefring-
+ence data will be more tedious than the interpretation
+of data from an interference method.
+
+Additional computations suggest that the use of laser
+pulses with pv.lse widths of the order of milliseconds may
+be more promising for the detection of small incipient
+absorbing centers. The longer pulses produce changes in
+the index of refraction which extend over greater d1stances.
+
+The present theoretical model can be appl2ed to any
+spherical inclusion which has a thermal conductivity g,reater
+than that of the host. For example, antimony inclusions.
+which have been detected in some laser glasses, can be
+treated readily within the framework of the present model.
+Applying the present model to this and other cases is
+planned. In addition, attempts w1ll be made to remove
+some assumptions ccntained in the present model in order
+to make it appl1cab.le to a widerr class of problems. Some
+researchers suggest that metallic inclusions at very high
+temperatures m)ay have thermal conductivities comparable to
+that of the host. Por this reasonn, it would be most useful
+to remove the restriction that the thermal conductivity
+of the inclus'.on be greater than that of the host. Computa-
+tionally feastble solutions do not exist at present for
+this more general case; but additional e fforts to this end
+might prove successful. Also, the degree of thermal
+contact between an inclusion and the host should be
+examined during and after the laser pulse. It is certain
+that the state of thermal contact at the 1nitiation of the
+laser pulse depends upon the past thermal history of the
+
+49
+
+
+7rs,
+'A ,r''s.
+e ) '
+3T'Z
+-S22-Z-.
+'s. r .,'e , e, 9r e ;'P,
+'4,.
+r-- ;232 -
+e 4,'2
+=.
+4 '' - -'-
+e ,'-
+'eA., e
+
+5
+A '-es. F7
+'t
+
+,'r .-. -
+'Z-7'-s -
+
+e.7 e s
+=,2''
+=8,' 't-5e
+r, e '
+'2s
+e iA
+4. e 'a
+'e , r
+
+' 2.
+5 -
+6'
+-'-
+
+
+
+= 6,-7:
+e 'c
+
+vA .
+3-
+
+S:: -
+':22.
+97.-
+:AL
+
+w, '4
+s
+p
+
+s., eA rr4o
+'- L,r--.
+.e.
+
+e7 't
+'o .,'e d
+
+,3e
+
+'7r -
+e-'''=4,'
+3 ,',/ T.'r-
+-: 5s .
+'8 ,=
+'' 'o
+
+e 4r4 e
+4, .T4 '
+
+ro,-.
+4,rs.
+
+L s fa,
+
+i-78,'42 s'--.
+-' 2r7--
+-2s'T3LL,
+
+' r
+
+5o
+4e- 'F' A
+4.J ;
+-2's
+r 's
+6., 'o4 '4A
+'e,, ''-.
+3
+
+A:
+o c
+-2 r
+
+'s
+
+, 7 T'2 ',
+., - '4A
+,/o
+o A
+e , 6,:
+
+PS337.
+
+c.e.
+To.,
+
+',3-
+
+:.--
+-.5-
+'re2 e
+
+'23-tT7,
+4-24
+S 'A
+
+- r- 77'3e,r.: 2
+
+TrT'-
+ae r34, ), -o
+'e,
+
+.':7.: r
+3T
+
+:'' =
+S:'
+5....-
+
+S7 '2---'
+'-,.
+=. '/s
+- 5'3' '8T--,
+
+-7F;.
+r,' o -
+cs
+
+e 5E'', s 's-
+'ag T, 's-. e r-
+'-
+
+T-
+
+e ,'4
+Ts
+
+:
+
+
+. ADv
+x- T--
+- ,.sy''
+-SA'
+=x ,=''A- ,,g
+LL,ea
+s''c
+ee'' gs
+ee'
+-=V o
+x,'
+
+mP .e=
+go-'
+ep Mw
+
+=,'
+,-=V o
+,=-''
+
+rr
+gk''
+s,-
+e'e2,=
+
+44''
+c, i '
+% e5
+Vo
+e '
+e9 v-
+
+'-2-
+r''ST
+
+A', ; ='
+y9 eP'
+,3-'
+
+Lr
+r/5
+A''''
+=,
+Y o
+
+,,eY5 = e9
+8 ,,''
+C e
+e8
+4 ,.4%'
+
+.4 '
+x9 , ae'',
+As', =' -
+-', e'
+e%,(a s-
+,'
+e 47
+
+,,-'''
+w' ,,=W,g:P'
+x,9 e
+
+;'
+T--
+c
+
+'='2,=''
+
+''z-
+I' eJe;e'
+
+r 4,)
+, ,-V o
+as 'YY
+4,s'
+xe gA3'
+
+-2; '
+
+-''- .,-
+e. F +.
+gc e:7e..-
+gf, e-
+a='',s-
+xF gs
+AeP,e,e
+
+9;,,c% --
+
+s'-'-',s-
+,(s''
+
+4
+2m
+8'
+L'
+Cs
+
+ec9
+geP
+,s='
+
+g4)
+
+T
+3 Ae-', 1e''
+=', 7,
+',,:
+
+sA' em'-
+' ,,r
+9..
+''=- ,'''e' 2L,e,-'
+y', y9
+,-T-, '-' e's--
+-=
+.
+--,T-
+e 8,9
+:-3 -.-27N--2-. es--
+9 e.o
+
+,c
+'=a23:.-. '
+w'',,.A
+
+--- --'---TZg:
+r x,9
+-x
+-My7
+'-'. ,. -'s, ' . ' e .-
+' ,xc-'
+-.. :=-''- -
+,,.- e0''
+e( o
+e-
+2.-3
+' yx
+=',y' g,e'=
+L=''e
+'-'.-5-'
+s T-'25.-
+-5-
+', e' e'
+ess',,e
+2A
+ex ,.
+
+' ,9 a
+e', y9-
+-;72-
+='2 ,= 7.P2AV'
+'
+=e%,e
+se'
+s''go
+3
+''
+A Yv. g ''
+r4 ,'
+
+
+AM-Y'
+r,'
+==''.,, ='
+
+-''s
+-2
+
+
+be much less than those for the glass host. In the limit
+or K,,7 Fg, , Scuation (3) simplifies to give a spherically
+symmetric problem:
+
+- aT t -A P e) . E[s RaSa 7 (-r F,e) c3)
+''''y, dr
+dt
+.
+
+The solution for the temperature is obtained by taking
+the Laplace transform of the diffusion equation, the initial
+condition, and the time dependent boundary conditions. The
+transformed equations become linear equations for the Laplace
+transform U(g,3) or the temperature T(r,t). The analytic
+properties of the Laplace transform U(r,S) for complex
+values of S gives rise to three distinct types of behavior
+ror T(2,t). The volume specific heat ratio (R = h,/3hg,)
+determines the three regions of behavior; namely R = l,
+R s 1, and R = 1. This ratio is about 2. 97 for plat1num
+in 1aser glasses. Por this case the function 1/U(r,5) has
+zeros at two complex values of ,%Asib. The Bromwich
+contour integral is evaluated to give the temperature
+rp f
+-L 4) from a knowledge of U(y,5).
+
+Having thus obtained the temperaturre T(r,t) onne may
+compute all the other quantities discussed above. The
+optical path length change AL becomes
+
+ar f, (an/eT) T(r,c) x.
+(5)
+
+where the integration is along a ray that has a distance of
+closest approach r, to the absorbing center and the varia-
+tion of the index 6f refraction wth temperature is (dn/dT).
+
+The calculation of the stress components requ1re a few
+more assumptions. The stress components satisfy second
+order differential equations in position for a given time
+annd hence two coefficients must be determined. The
+boundary condition that all stress components vanish at
+distances infin1tely far from the absorbing center determines
+one of the two coefficients. There are three possible sets
+of addit1onal interface boundary conditions from which the
+second coefficient may be evaluated. The author has chosen
+to employ a slippery boundary at v r,F. A slippery
+boundary obtaIns when the conditions 2Tsted below are valid:
+
+52
+
+
+a. The hydrostatic pressure 1n the absorbing center at
+= = 5 equals the radial stress component in the host at
+A A
+x - r,5.
+
+b. The tangential stress components are discontinuous
+across the boundary at r =
+A C)
+
+Given conditions a and b, one uses the poisson ratio
+and the Young's modulus for the host and the isothermal
+compressibility of the absorbing center to compute the
+second coefficient. This second coefficient and the tempera-
+ture T(g,t) then yield the rradial and tangential stress
+components and the radial rates of expansion and contraction
+of the absorbing, center. From a knowledg;e of the stress
+components the stress birefringence may be computed. T5
+the rates of expansion and contraction of the absorbing
+center approach the speed of sound in the host then the
+above problem becomes a nonnlinear one involving two coupled
+differential equations. One equation treats heat diffusion
+and the other treats energy transfer In the form of sound
+or shock waves.
+
+The author developed an extensive computer program to
+evaluate all quantities given in Cases l annd 2 for all
+possible values of the ratio 0 = R = M, where M may be
+large but finite.
+
+Appendix
+
+Small Angle Scattering from Nd-doped Laser Glass
+Ippendix 1 contains the letter and data communicated to
+NBS by Dr. Martin Stickley. This letter annd data are
+referred to in the Section 1 of the pro,ject report entitled
+Incluslons in Laser Materials.
+
+53
+
+
+DEPARRTMENT OF THE AIR FORCE
+
+HEAbOuARTERS AIR FORCE CAMBRIDGE RESEARCH LABORATORIES (OAR)
+
+LAURENCE G. HANSCOA FIELD, BEDFORb, AASSACHUSETTs 01730
+
+Arrsoe CROL/C.M. Stickley/2694
+
+Dr. Herbert Bennett
+National Bureau of Standards
+Washington. D. C. 20234
+Dear Herb,
+23 December 1969
+
+Enclosed are graphs of the scatter loss vs. full angle for
+Owens-Illinois Rods A and B. Also included is the data after
+reduction by use of the formula found on the glossy figure
+(AFCRL photo 109-344).
+
+I think the system for measuring this scatter loss has been
+As.
+V3s
+
+working as well as it ever will be; to do better than we have done
+would require a greater effort than I am willing to put into the
+project. For full angles greater than 0. 35 milliradians the
+standard deviation turned out to be about 0. 8% or less which
+when converted into a loss coefficient gives a standard deviation
+of about 0.001crn'l,
+
+As you can see from the graph of the average for 10 runs on
+Rod B, the loss is extremely low. I do not know how much of
+this loss could be due to small angle surface scatter, thus it is
+included in these results. For the sake of computing a loss
+coefficient I did not attempt to subtract out a representative
+amount for it however. As you can see from the error bars,
+the loss is about zero, however the averages for the 10 readings
+were still on the positive side of zero for the largest angles
+(1. 6 and 0. 8 mrad) where the data is usually the most reliable.
+The uncertainty gets quite high at low angles (1. 6 x 10-t radians)
+probably because the intensity of the gas laser beam is highest
+right in the center, and any error in replacing the aperture will
+show up readily.
+
+RESEARCH - The Key to Aero space Superorty
+
+54
+w=as-
+r5r
+
+
+A comparison of rods A and B shows that the average
+transmission of Rod B is equal to or higher than that for
+Rod A in every case even though the error bars overlap.
+One factor that could cause this would be the optical quality
+of the samples. We did position the beam so that it went
+through the regicn of best quality of each rod, and to our
+eye they looked the same, but whether this measurement
+is more sensitive than our eye is unknown to me at the
+present time. Thus, if this factor is negligible, I would say
+Rod B is better than Rod A, but this difference is so slight
+that it is unimportant in the operation of the material as a
+laser. I am also enclosing photographs (positives and negatives)
+of the intensity distribution in the far field for both rods and for
+the case whxre no rod is present. The negatives can be used
+for making more prints if you so desire. The far field distribution
+is not what would be predicted theoretically since the illumination
+of the 4. 2 mm aperture was Gaussian-like.
+
+I am going to send Haynes Lee a copy of this letter plus
+attachments since I suspect he is interested in these results
+too. We would a.lso be interested in finding out which of these
+rods is the better one. Ed Hoell, the person who made the
+measurements, thinks Rod B is and the data supports his feeling.
+Also, he is due credit for making these measurements. It is due
+to his persistence and conscienciousness that they came out as well
+as they did. I hpe these results will be of use to you in your laser
+glass program.
+Sincerely,
+
+27A
+-F- -
+,/-2c4Ac )
+C. MARTIN STICKLEY
+Chief, Laser Physics Branch
+Optical Physics Laboratory
+
+55
+cc: Haynes Lee
+
+E. Hoell
+
+
+-
+%e:
+9xs
+R oo W
+
+r - -
+r------A - g
+
+s l
+iss
+3s
+la- s- 5j
+4- A a
+s5 - -
+]- ees
+
+1 22
+n , k---
+i-l
+
+eE:D2
+c
+4C
+15a.
+] 4 fa.
+] As ]
+w 8r
+aer
+
+s 2
+8 2
+8 i
+mmmss sssssss ' xd
+
+e 9
+S 2
+8 3
+r-- 1 4 A o- es
+i j i
+t g 2
+
+-8
+a o
+4 8
+iA or
+l s
+t
+
+8
+
+1
+] 8 -
+l a2
+] %6 ---
+] r -]+-
+
+s w
+xl
+1 w -](
+w]
+h] s
+r ] -
+
+8s
+
+
+find industrial processes whereby graphite could be produced
+with optimum properties and high reproducibility for missile
+
+In this sense of providing support for the strategy for
+the development of needed materials, the present program has
+come to focus upon two problem areas, Diffusion in Oxides,
+and Properties of Laser Materials. The ARPA support for the
+other areas listed in the Table of Contents in this Report
+is being phased out, and will for the most part cease with
+the present reporting period, although the work on Properties
+of Refractory Borides, which is included in a separate propo-
+sal to ARPA, may be continued for another six months.
+
+3. HIGE TEMPERATURE MATERTALS PROGRAM
+3.l. Ob,jectives inn Hig;h Temperature Materials
+The operation of rocket and ,jet enngines involves exposing
+metals at high temperatures to oxidising conditions, and
+raises the problem of oxidation protection of high tempera-
+ture refractory metal structural components. This same
+problem, currently for superalloy turbine blades, is posed
+again by ,Jet engines. The oxidation protection of metals
+requires some form of barrier layer to prevent diffusion.
+This layer, either applied or developed by the early stages
+of oxidation itself, w1ll moat likely be an oxide, and wi11
+function to keep the metal and oxygen apart. Tt can work
+only if the diffusion rates of oxygen and metal atoms through
+the layer are small enough. Thus the strategy for the
+development of oxidation protection of otherwise susceptible
+metals at high temperatures w1ll depend in part on being
+able to control the rates of diffusion, and therefore, in
+having data on the diffusion rates themselves.
+
+Diffusion in oxides is importannt to other classes of
+DoD problems. Thus improvements in the reliability and
+efficiency of military communication, computer, and radar
+circuitry could be made if ceramic magnetic and ferroelectric
+components could be made more reproducible and reliable.
+Because such important properties as initial susceptibility
+and coercive force of ferrites, and dielectric and peizo-
+electr1c propertles of ceramic ferroelectr1cs are very
+sensitive to the microstructural features (porosity, g;rain
+size) controlled by sintering, the strategy for improvement
+here requlres control over slntering, in these ceramics. The
+same is true of the ballistic response of c eramic armor.
+The development of transparent armor requres new techn1ques
+for the suppression of g;rain growth durIng otherwise complete
+eintering, mainly of 4-
+
+
+A
+c
+r
+,r
+a' e'
+
+a
+5x
+wF
+o'
+w'
+
+W-
+gm
+
+3
+
+5a,
+a'
+, t .e
+u ' ,F .e
+er
+r. s Y'a'..
+
+A
+4 of
+r5 s cr,r a
+W
+r af
+-o--
+
+, = - Ar
+
+=' nn
+
+.
+e
+
+A P
+
+,A
+e yr
+a d
+9
+c P-
+o grn
+c
+
+
+Rrword Scofer Lsas Coeffraief
+
+AAgA
+Goens- /ois Eael A : a
+Goens- Jhnos A B: o
+
+Aofe 1 L Soch powf io fie owwms-
+
+of 4 reoaAy
+2. Frror iaro danofe siAowd
+deuafwsnu frsw fc avssget-
+
+2 e 8 /o Az A / /4 2o
+
+RA AAgw A ro' ewoos
+
+
+xa
+va
+''.
+''w=.e
+'4-,
+=. ''.
+%4,.-
+''r4,
+2- 'w
+'4 eA
+:
+
+'8
+s'' - -
+2w
+' %a/ e-
+
+'c-,.
+''e
+r-72
+''4a re
+
+'r-.
+%F
+''=o
+
+a7rs
+a -
+'c.
+''w-
+''rA
+
+'wy
+5=.
+9,
+''
+
+'4oc 'a 4
+w %r
+''4=. 58
+
+' :
+
+9,A/
+'
+
+''4 ''4o ''A
+
+'4s- '9a
+
+'4as
+''=,- 'vos 5r.
+''3s '4A, ''=, '4
+'5=.
+'r.
+
+'wg 'A
+
+w8' '=, ''=. '= 'A 'a
+
+'-
+9e-
+
+'8 '4 ''4a
+
+''ws. ''5=e,. 'w '4a
+' =.
+5s,
+'..
+
+'4s 'w= 'A4
+'wA '6g '8a
+A, -
+'4e
+
+''ag
+
+, 5o '4-g '4
+
+V4ss
+
+'4oy '4L ''r,,
+2 'n w
+'4s;.
+
+-22 ' '- -
+
+'= 3a. '4 .
+' es
+''3e
+'ro,
+
+%2- '= '=
+
+rT
+
+'raL
+',
+%o ''-,.
+
+4g 5. '3..
+
+-2-
+''-.
+
+2 '--
+,,''o
+'9o
+'-4s
+2
+P,
+
+
+DAA zawAeAgY : FeEaAeet 3cA77ae Lo5s oA c.T. etAS EDPS
+IT 7a An Av4=s4 4f dess Z7Aos A2ae 2
+
+Rocfooaf /iAsAnosnon ws Ang4 (/s wac/aa-l
+6 = 422
+JaAe hTuf
+rafsla7 L,eoy
+
+w o,9y
+Aa P9/69 o.99b
+
+6.999
+ta Aro/wf 1,oo6
+
+f6oo
+tln la9 t.oot
+
+o,999
+taIw/47 Lood
+
+o,997
+o.eSS' o.woS
+f.eoo o, 997
+Leo7 o. y9/
+o,93 e.99g
+I0oo A.oc6
+o. 996 r.oT'
+t.eoo fpow
+o,4 o,994
+t.oo7 tOt4
+0.996 o,9g7
+c.3e9
+o, 99G
+,y86
+o, 99s
+e.9/
+0.99o
+t.oO4
+Mor6
+o.993
+\&t64
+t034
+o.9ss'
+o.99/
+t,oot
+Ao3z
+o.9y1
+t425
+o,99a
+t.oaS
+e, 97n
+
+Awcr4ee
+Tasmiaswon t,4992 c99e8 LooIs' o, 9982 oO61
+S4aAdond
+Deviatsw. o.Oowf o.oo42 c.oo71 oo.ao78 e.oz9
+Seaffwrr ro, o0OOt + o.oooow -c ooo3o -eo. occ36 -b. cotA
+kaas, aai'' to, ooo5 i o ooo8 i o. oott xo. oot4 m o. oo4
+
+
+4.4.3. Degradation of L.aser Materials
+4.4.3.l. Crystal Defect Studies on Laser Materials
+R. F. Elunt, T. Chang, M. T. Cohen, and T. Tsang
+
+Ob 'ective
+Inorganic Materials D1vision
+Inst1tute for Materials Researrch
+
+Th1s investigation is a study of the causes responsible
+for degradation of performannce of solid state lasers. The
+effort has been directed largely to a study of orange
+degradation of laser ruby, by EPR and optical means. (See
+NBS Technical Note 51l for previous report).
+Technical A EEE2
+
+Procedures followed are a continuation of those followed
+previously with the incorporation of appropriate addit1ons
+and changes. Experimental measurements consist largely of
+optical absorption spectra and electronn paramagnetic reso-
+nance on a variety of specially prepared ''ruby'' samples:
+
+l. Deta1led spectra taken on undamaged ruby is
+compared with corresponding spectra on ''orange'' degraded
+samples. These include specially prepared ''ruby'' as we ll
+as ''laser quality'' material.
+
+2. Spectra will be examined for evidence of trace
+impurities, ard, in the case or ''orange'' ruby, typical EPR
+crystal defect spectra that correlates with the orange
+coloring bands. This is of particular interest in view
+of the sg;gestion of Stickley, et al . u 4. that disc olor-
+ationn may arise from color centers created by the pumping;
+light at defects initially present in the crystals.
+
+Special attent1on w1ll be given to the dete ction
+of cg-'t and/or Co' 1ons that may exist in the orange
+samples. Thh1s effort includes a study of thhe Am = 2, EPR
+transition reported by Hoskins and Sorrer and by Mason
+and Thorp. I3..
+
+4. A number of doped sapphire crystals are grown and
+studied. Included are: rubies covering a wide rannge of
+Cr concenntration; crystals containing; other single metal
+impurities; and several ''double doped'' with Cr and one
+other metal.
+
+5. Most crystals.are colored by radiation with 50 EV
+x-rays, but recently =co y-irradiation has been occasionally
+employ ed.
+
+61
+
+
+=55=.
+%r
+PpJ
+
+,
+-
+,, e --
+
+3,'-e,. ''z--.
+-,=4
+4;
+=. 3=
+
+T732T-
+-
+'4 32x
+
+92x, '
+,'2
+
+-b
+-,'
+
+es2 2 \& =
+
+;7T -
+a;'
+
+'4,ty6 e,:A n
+8, 'e
+
+. 'a
+b
+'cs ' o
+
+' h4e, 'sA. ea
+.., '4''4=
+- 'ee '2
+,re 'e rP8
+r) -e
+3
+
+.. 'os
+
+-f
+'.
+
+'a, 'e-
+Ps 3ol '42
+58
+.-4
+- 7s. e 'e
+o s7--., 8='
+'-.-
+
+e,. 's'-
+'',3-, ,''-''-e34. L.7-'
+e7'oA Ar-
+' re . '4s,rT'''L
+7=7 .:
+. T - s. / 4e[,'
+2
+T. 'e,-
+-..'-co -
+v, r
+4.. 'o, ' e.
+
+.p- A z3A' '.
+e e.,'o .
+''2,. e '
+
+s Ag 2 ,%e-'s ,
+s-'-7:2T'
+hJ. 7e
+
+''-73 4'' 2 -- ----
+''4e 'L
+
+n e '. a.,'
+o)
+
+oa
+AT C84,
+'4t .
+
+'s'' A7 2.,=s,
+-. e
+':-- 4 e 2,e 'o
+' ., '4r, -)
+5cJ4 4o '-
+'eg
+
+
+
+r4. 7' '
+e 'e
+
+ies '4,t e
+
+
+A-
+'6
+5A
+'=,.
+
+'y
+o-
+4,,''4.
+
+r--2r-233
+e,.-'4 .3s7',3s
+/'L
+''.
+
+.T -
+
+'', e.
+
+,.rs. , G'' e''
+'-rso
+,, '4
+
+e-,JT:'3a
+,''A.
+
+z,'r -a7s e
+
+r4 ' o- '1
+'e 'L.
+
+.23
+'2 4s '
+.--
+t
+
+e . 'T
+''A,.e
+
+,,-e.,''aet' , F',s 's =e'
+
+73'..
+eo
+
+22 r-
+
+' g73-T2r
+e. 'a 'A =
+o- '
+
+'227---
+' 4o n
+c, --
+
+23T'= s, ''=s
+
+-- ''s,. ' .
+A. a
+'as,.'A..
+
+'7-s,
+
+.,'s :-c. 'F,;-
+
+K'-
+c ''es .
+
+'T-.
+
+--'' ,.'
+o-'o
+
+=r ''2,--
+
+'e-5, s
+4 ''4e,.
+
+4 4) 'a ' n
+
+5. -Ae ''L:
+
+'e
+34 '
+
+7S
+
+oA,7=-
+
+'3
+'-,
+
+3-
+
+5=o
+9A
+
+',--
+r .
+
+73- -'e
+' ,
+
+
+
+'e 2-
+
+c,''6, 7.
+''a7
+432.
+
+'2:.
+
+8'
+T'.
+'e.
+
+2=4 2e''/
+
+e
+'4o, ')
+- '3a. 2 e24 , 5s
+eJ.,
+%
+'
+
+1- r-.
+
+oA 7 o-
+
+r 9
+=
+
+
+
+4
+V, as' -o
+
+. e'x', ,-e'' r
+-S , e
+= c'' v,c- e''
+esF,ac a' e
+x'.,xs
+se',e -= =',a9,ew''
+''
+=',e
+--
+v% a9',eca
+c9'.,-.x
+
+ay'
+(L
+9'.-Y
+
+5-''
+A''
+e-,N9':
+- e'',-e'''
+My F'
+-' e3
+
+-', -
+;S7:-
+AeS .
+
+e-
+='L,s
+,(
+=',5
+
+' Ar
+
+. -s-''
+' 4o
+cf ,,5 o
+:-
+c8 a - g '
+'-x7
+
+-22'
+s='A','
+V( ,.e
+
+L-''
+' y5
+'',-e
+A2
+
+,=-'
+s9' ,e
+''.,. =
+.-- '
+-oF'
+-'.--
+-N' as''
+
+-:;
+,s='''e
+--
+
+s9,-'' g s-
+=% e4'''
+
+M er , o%
+,,e-
+
+:-T
+
+1E;':-. -
+
+= ,y% e -'g
+
+ex
+.,,e'.o o-
+
+%Xe;, . = s
+ee e9
+
+''',,:
+s'.
+
+s e9',,e'';-ys
+
+-2.-
+
+AS e9'
+-,eP'
+2 e,7-x
+
+sT ,o'
+
+, Vesys. s
+
+::-
+8- ,AD
+e-,,:
+
+s-gs'' I,as.es
+cc ,P e9
+e c'.-
+e' ,s' oynf'.,e,e'
+
+' ge 1'.-=',,o',
+
+s= s. eeLce' e. ,a='
+% .,-,o
+. Z'.--- s -
+
+,2ts4e-
+A x
+='c
+3',,e=' .-
+
+.,,=-e .
+-=..
+.''.e-
+
+e% ,,es ,, e=' ,--
+9' , d
+. .-2-'
+
+-' ;-;'
+e.s='''' e=-1
+a',A'--
+c -
+e'.-
+' ee''4%,,eLe9
+e' ,o9 , ww
+' x% ,,,x9
+3:
+,,,='''''- --'
+0).+' ,s
+'-
+r -e.e7 4
+,,,'',e;. o-,r
+r -, v
+7-t,-
+
+,e ''',=,-
+M5r,.s- .-
+x .,.y',a
+9
+Ao'24,s o
+.
+geP
+
+2s' uc''
+o
+L'' ,,.-''
+e' , dd
+=,,-'7--' ' -
+o
+- c',a-'a'
+P y
+:
+A=c
+.e-,-s
+e' ,-e' A' e', c-'..eP'ce
+ge, '.s9,--
+7 =; s'e,%.
+M' -
+-rS2Z7
+,m ce9
+AZ;--
+' A
+e''s'
+='
+A,: eT'-.
+eor
+' ,.e
+-.,,s ese',,47 9
+o O
+r' e7',,=
+;e es' -
+c9-' A
+',- =' x
+A ' 5g-
+' , e%-' , c
+. o' -n
+,-C
+.--':, ;T-' '.
+,=,e== ,'',e;, P''. -
+2a2-
+%.e,e
+' A=v' eo
+',sw'e eos
+:- 'z- rZ--25-
+1 4% '
+A2-
+'4
+A,m
+-,2x' ',c-'
+', y
+=Le
+-'',-',,e-
+.. -'2=
+-... SS :-c-
+:.
+rw'-o
+
+s' a
+,=c',-.. - :, zAs ,-
+
+=5 --
+',u r
+ey' - e
+2- 5-
+e',s'
+x%
+e5
+
+
+Crs04) lies well down the curve at 0.04 S Cr. while the
+''=e d'' ruby that oscillates above 0.7 um (on the N lines
+rather than the R lines) 1ies well out in the tail near
+0.45. This marked reduction in susceptib1lity to damage
+with increasing chromium might suggest Cr pairing as being
+1nvolved. The N lines, of course, are from Cr pairs;
+various authors have studied pairs, including for example
+Powel1 [6) and G1l.- u
+
+The work of Stickley I indicates certain d1fferences
+in detail between discoloration produced by laser pumping
+light and by ionizing radiation (i.e . x-rays). His work
+indicates that the longest wavelength band in pumped laser
+rods 1s near 0.l um and has a definite long wavelength tail
+extending out to at least 0.7 um. He offers evidence that
+'1s'' bands are in fact the same bands produced 1n ''pure''
+sapphire by ionizing radiation as described by Levy [8].
+
+We have initiated experiments to produce and study
+these pumped (1.e. ultra-violet light produced) effects.
+Samples included ''in house'' crystals, and crystals from
+two different commerc1al sources, both being reputed to be
+particularly susceptible to pump d1scoloration. These were
+mounted in an uncooled ruby laser head, with no UV f1lter
+provided. The ''head'' was flashed at 2 minute intervals
+and samples measured for discoloration. To date, after
+some 300 flashes only slight coloration has been observed,
+but this is insuff1cient to be clearly outside the 11mit
+of experimental detectib1lity. Future work along these
+linnes should be done, perhaps w1th cooling, with a stronger
+source, or perhaps with a stronng CW mercury arc.
+
+Electron paramagnetic resonance measurements have been
+made on a number of these samples. As ind1cated, special
+attentionn was given to a search for trace impurities of
+paramagnetic 1ons or other paramagnet1c defects in general
+(1.e. color centers). Changes in the normal C+St spectra
+were searched for with the intentions of correlation with
+the observed optical data. A very special effort was
+directed at finding the EPR band studied by Hoskins and
+Sorrer [2l and by Mason and Thorp I3).
+
+Included initially was a ''pure'' ''in house'' sapphire
+that showed a clear CgSt g,PR spectra annd no change on x-ray
+irradiation. A vapor phase grown sapphire, grown by another
+aroup at NBS, gave no c+5t EPR signal, attesting to its
+unusual purity in this respect. A number of rubies yielded
+the normal Cy5t EPR spectra and no change after x-ray
+coloring.
+
+64
+
+
+Subsequent to the above, the Hoskins and SSoffer line
+[2,5J, which they attrribute to CHt, has been observed in
+this laboratory. Two laser quality samples of 0. 05 and
+0. 0l wt 5 Cr.,0- were obtained from the Naval Research ,
+Labgpatory (RT). These had been colored by 10% R/ cm' sec.
+oy 'co irradiation and carefully protected from all light
+except dim incandescent bulbs.
+
+The prior difficulty in observing this 1ine is not
+completely understood. It is possible that it is very
+easily bleached optically, and hence is not caused by the
+same mechanism responslble for the optical color. They
+are related of course since they have been shown to be
+generated both chemically (2), and by irradiation. The
+difficulty is bslieved, very definitely, to be related
+to lack of propsr sample preparation in the earlier experi-
+ments. It is found necessary to operate at low temperature,
+4.2K.
+
+Figure 2 is the EPR 2ine obtained,,on a 0,005 wt 3 sahg)le
+grown here and irradiated by 2. 6 x 10% (R/cm' sec.) of ''ce. The
+magnetic field increases to the right, the ''aero'' signal
+level is indicated, and the posit1on of the zero crossing
+(indicated) is chosen as the center of this unsymmetrical
+line. Nearby structure as well as the asymmetry indicate
+a line of some complexity. The center field of 0.176 Tesla
+and the frequency of 9.4671 GHz indicate a E of 1.2,
+assuming a am = 2 transition. The power leve1' 1nto the
+cavity was 355 u watts.
+
+Figure 3 is that of the 0.05 wt E NRL. sample showing
+the ''line'' at two power levels. The solid curve was taken
+at 355 n watts, the dashed curve at 2.51 watts. Thus the
+extreme sensitivity of the sidebands of this line to power
+level is well illustrated. To study completely this line
+and its side bands, it is evident that the power le vels
+required cover an extremely broad rannge. TThe lower end
+of this range can only be observed by an excellent super-
+heterodyne detector such as is available in this laboratory.
+
+The apparent lack of the appropriate structure would
+seem to rule out the existengg of the normal hyperfine
+structurre anticipated for C'' , thus we currently find the
+identification with CH3r to be unsatisfactory. On the
+other hand the geometry of the cavity, v1z. the
+P,,,,P,.- c-axis together with the rhombohedra1 rield or
+tEe corundum Lattice, would make the identificationn of the
+line with a am = 2 transition extremely likely . PinallY,
+on cooling from 4. 2K down to 1.7K the signal strength is
+reduced by a factor consistent with an activation energy
+of about 7 cm-l. Thus we envision a spin 1 model in which
+
+6s
+
+
+the ground state is spin 0 lying perhaps 7 os,'' below the
+2l states. The latter can be observed as a am = 2 trans-
+ition under proper cond1tions. Of course, this is the
+model expected for CHi+ but we currently rule this out for
+other reasons.
+
+we nave aiso given 2.6 x 1o' ;,/ag,' g ' rradiation
+to several other samples of ''in house'' crystals, and as
+before, protected them from strong light. A ''pure'' sapphire
+crystal was found to contain CF5t, a trace of 1ron, and a
+weak an. = 2 line, although the sample geometry was probably
+unfavorable in this case.
+
+Also during th1s period both optical and EPR measure-
+ments were made on certain specially prepared samples of
+Nd glass to test these methods as means of detecting Pt
+inclusions. However, both the optical and EPR bands are
+too broad to permit reasonable sensitivity, and these
+methods do not seem very promising.
+Puture Plans
+
+Experiments planned for the immediate future, some in
+fact under way, are outlined 1n the following 1ist:
+
+1. Work is to commence immediately on YAG. The
+obvious importance of rare earth doped YAG, together with
+the report of discoloration/degradation of YAG during laser
+operation, would seem to make such work significant. Damage
+w1ll be produced by both optical pumping and ionizing
+radiation. Optical studies and EPR measurements w1ll be
+made in order to get some understanding of the nature of
+this trouble. Greater emphasis wi3l be placed on the
+infra-red than has been done in ruby. YAG (pure, Nd doped,
+and possibly double doped with Nd and Cr) w1ll be included.
+Some appropriate material is in hand and more is expected
+shortly.
+
+2. The EPR facilities to be employed are expected to
+include K - band capabil1ties soon. One bridge and a Iow
+temperature cavity set-up is nearly in operat1on. A
+K - band optical/EPR cav1ty has been designed that, hope-
+fully, will soon be constructed. TThe use of opt1cal/EPR
+cavities allows optical bleaching or exc1tat1on In the
+cav1ty. A true double resonance.,experiment has obvious
+appl1cation in the study of thhe 'E excited state in ruby
+and it may prove useful in YAG. Lastly, double resonance
+of the excited state may be a means for meaningful EPR
+study of laser glass. It is possible that the excited
+state EPR bands may be narrow as contrasted with the broad
+g;round state l2nes usually encountered. Successful work on
+
+66
+
+
+Since sintering in ceramics is mainly brought about by
+diffusion processes, the development of successful, lonng-
+range strategies needed to meet these DoD needs rests in
+part on knowledge of the rates of diffusion of metal and
+oxygen atoms in oxides.
+
+Rel1able technicues for measuring oxygen d1ffusion
+rates are not yet available, and therefore rel1able data for
+oxygen diffusion does not ex1st for any save a few ox1des.
+Thus one ob,jective of this program is to develop a reliable
+technique for measuring the rate of diffusion of oxygen in
+oxides.
+
+Purther, d1ffusion rrates are notoriously sensitive to
+impur1ties, and strategies for control require knowledge of
+the basic rate in the pure material and of the way various
+classes of imp ir1ties influence it. This in turn requires
+very pure crysoals for study. To date, almost no oxide
+crystals have been prepared pure enough to reveal the Intrin-
+sic diffusion rates. The second ob,]ective In this area is
+to prepare intrinsically pure crystals of A1-, one of the
+leading ceram1c armor candidates.
+
+3. 2. Pro,]ect Summaries in High Temperature Materials
+
+3.2. 1. D1rrusion in Oxides
+
+3. 2.1.l. Measurement of D1ffusion Coefr1cients in Oxides
+
+A. L. Dragco
+Inorganic Materials Division
+Institute for Materials Research
+The ob,jectives of this program are to develop a reliable
+technique for the measurement of the rrates of diffusion of
+oxygen in single crystal oxides, and to measure and interpret
+data on specific oxides. Experimentally these two ob,iectives
+consist of (1) extenging the sensitivty of present tech-
+niques so that thhe 4%0 distribution (''concentration profile'')
+in a single crystal sample can be measured, (2) comparing;
+the results of these concentration prof1le measurements with
+the measurements of the rate of exchange of l4( between the
+gas phase and the ox1de crystal, (3) determining the depend-
+ence of the diffusion rate on temperature, oxygen part1al
+pressure, and 1mpurities in the solid, etc., and (l) obtain-
+ing reliable ciffusion and exchange coefficients. The
+experimental results will provide the basis for determIning
+the mechanisms for oxide ion diffusion in the oxide studied.
+Currently, rutile (T10.,) is the oxide of interest. A mass
+spectrrometer is being; fsed to determine isotope ratios.
+
+
+-.,see'
+c9;,-= o4''e'
+=
+,.-
+'..e1,. V
+' =;='
+=e'.,2,-4
+s c-'',-='- , gx5
+
+,.=''='ee;ee'
+
+,= , aee'' e
+
+,-
+A=-
+
+T ,- =
+
+S3-
+3'.
+
+=',,s
+o'L,,.
+y%g e-
+''
+
+=7 ,. s'(.,,,'',J.
+-Z3
+oe es''',-r
+c,e'- =
+,,e' .-
+Z
+s-T--,,-T.
+,',7'-- =:s'
+x r
+2 es', r
+'' o9, '
+N a',a,,ee-'
+Ste A..
+,a'
+r'- s
+
+Z 2:-3'3- -
+7' g
+,e'
+
+=z
+T-'s
+etAV'
+Lr'=
+.
+e ''
+';'
+(t'%
+e' 9 ,,ss
+,e ,,,.s''
+s',
+s',-=.7.--'.
+, S
+, o'',=='.-c''
+s e,,,s''=e=-''Sr cee''--
+=' ;=',e: -'
+se( cc% ,Y'' x9
+ey A
+-;:z'---
+'=2Z '
+x'e,ac'--
+v e
+
+esF A
+r AV',r
+es',-e5'
+e. 'L, 2=,=-
+s' ee' -
+-:.3-a'2A,,i e
+2' 4'-e ,,- ,s''
+' ,e
+A 6
+4e- e9 cw7'A w' (c%'
+=-
+, e97
+-; Z '7-
+= , ,9'
+o g,r
+v ee
+3t'J'=,,--
+'2
+=L,,F''
+g9--
+g
+
+e''=-
+5 Av'
+e'=
+e', s
+o9
+e-' e=
+Ax ''
+-T,.-
+=' A
+
+2-
+57
+e'cs
+,s9',P A' g
+
+-e3'.
+
+V o- eeF ,,-1F e
+
+os gxs
+
+=-e7.
+,,x9''
+v%
+eF',=4''
+.5',
+,,-',s'2-
+- ,,e'Y-
+R-''-e( ,, e9,(z
+
+
+-,,2-
+' 9 e%.
+-
+w''
+:3
+7
+,=,-e- ,e
+u ' -,
+yf A
+er ,-',-eV.,4 eTr' ,-
+e- =',e
+2.
+=',s
+7:'-
+5P ,.,-9
+x'
+.,s
+
+=2'-5-7%3:- -''
+,22-
+
+e'.,.
+. '''gp
+
+=Z''e',tZs'
+
+.-%- Z
+ee'
+- o
+
+''s- =.e-
+,,-'-
+% A3' g
+M x'
+,A'
+'T
+
+. N2 e s- ;or
+
+e'2c ,A I+'
+
+Ls%'e
+', ao'
+-: ='. y, '
+- .s e =',, - ''
+as
+'LF'
+-:':'
+-2..-
+-' AO
+e',
+--=,,e-'G.,
+3T, .
+eeT
+eegy
+9' go Ae
+e%
+
+s ,--'' - eYs
+
+r'
+,-=-,-=
+
+As' cs- e'
+C ' (e
+-
+
+
+have its spin ''removed'' from the overall susceptibil1ty.
+The net loss in susceptibility can then be used to calculate
+the C-5t concentration.
+
+t1)
+()
+C3)
+(1
+11
+Le)
+t7)
+s)
+(9)
+L101
+References
+
+C. M. S3tickley, H. M11ler, E. E. Hoell, C. C. Gallagher
+and R. A. Bradbury, ADpl. Phys . 39. 1792 (1969).
+R. H. Hoskins and B. H. 3orrer, Phys. Rev. 423. A490
+(1964).
+D. R. Mason and J. 3. Thorp, Proc. Phys. Soc. (G.B.)
+L. 9 (1966).
+D. M. Dodd, D. L. Wood, and R. L. Barns, Appl. Phys.
+32 1153 (196).
+J. Novotny and Zd. Spurny, Czechoslovak Jour. of Phys.
+16n, 119 (1966).
+R1chard C. Powell, B. DiBartolo, B. Birang, and C. S.
+
+32. 29e (167).
+Naiman, Phys. Rev. 1
+C. Gi13, Proc. Pnys. 3oc. (0.s.) 13, (Pt. 1), 5b
+(1962).
+Pau1 W. Levy, Phys. Rev. 2E2. 1226 (1961).
+
+2- 375
+R. R. Joyce and P. L. Richards, Phys. Rev. 17
+(1969).
+G. A. Candela and R. E. Mundy, Rev. 3ci. Instr. 3%
+338 (1965).
+
+
+.-
+.'4.
+s7-
+
+
+'3.
+,r''
+4'
+a '4 '
+r3 '.
+
+t '%
+': 2
+o A'
+
+=
+-Ys. .
+9%
+5.
+
+sh
+s
+'5.
+-
+..
+
+.e
+=
+'
+,-'
+
+=
+
+,c
+A -7
+
+
+
+2
+.
+
+
+
+e'
+,
+2)
+rs-A
+AY
+
+' 5.
+,A e'
+A ,2s
++.N s
+wA' e 4
+3'
+'=
+=,--
+
+V' S
+A ='
+5'e
+-s s
+7
+s,-
+,'
+As'
+' =
+r =
+
+
+%s
+
+
+-.
+:
+
+u'..
+x '.
+2
+r
+
+N .
+s
+
+
+---. '
+
+'- - -
+
+-rr - , N
+
+-s
+' s
+''=
+-
+3
+2
+2-
+
+
+
+A A'
+
+::
+
+P
+
+
+Almost all work on the pro,ject during the past months
+has been focused on the construction of the inlet system for
+the isotope ratio mass spectrometer - consisting of roughing
+and high vacuum manifolds, sample and reference transfer
+lines, sample and reference storage, manometers and mole cular
+leak inlet. The system has the capacity for three oxygen
+references and four carbon dioxide references of different
+isotopic composition. Oxygen samples on the order of 0.3
+standard cc can be transferred from the diffusion furnace,
+stored and analyzed. It w1ll be possible to convert the
+oxygen to C9 using a graphite filament before analysis with
+the mass spectrometer or to analyze it directly.
+
+3.2.1. 2. Crystal Growth from Vapor
+
+H. 3. Parker and C. A. Harding
+Inorganic Materiale Division
+Institute for Materials Research
+
+The ob,jectives of this program are, first, the growth
+of aluminum oxide mono- and bicrystals of sufficient physi-
+cal perfection and chemical purity for use as research
+materials; second, the reduction of both cation and anion
+impurities in vapor grown aluminum oxide crystals to
+sufficiently low levels to permit meaningful property
+measurements at the intrinsic level; and third, the exten-
+sion of the technique to other materials of interest.
+
+During this reporting period, work has continued on the
+g;rowth of b1crystals containing symmetrical tilt boundaries,
+primarily devoted to ani investigation of possible variations
+in the growth technique designed to reduce or ellminate the
+occasional veils which form in the crystal when the growth
+cycle 1s interrupted. The use of a brief etching period of
+30 to 45 minutes duration at the beginning of each growth
+cycle, during which only hydrogen and chlorine are passed
+over the crystal, appears to be sufficient. However,
+attempts to utilize this etching on the original seed
+crystals have shown that chemical polishing in phosphoric
+acid is still required to completely remove mechan1cal
+damage resulting from sawing and grinding the seed plates.
+
+Additional bicrystal specimens have been suppled to
+Dr. Heuer at Case Western Reserve Un1versity for use in the
+ARPA program on Mass Transport in Oxides.
+
+Much of the effort has been devoted to the problem of
+improving the chemical purity of the crystals by changes in
+the technique and apparatus. Neutron activation analysis of
+representat1ve samples has been completed and are compared
+
+
+with the previously reported spectrochemical analysis in
+Table 1. Only four impurity elements were actually detected
+
+E-
+ement
+Cu
+Fe
+Ir
+Mg
+Mn
+Sc
+s1
+c1
+Table 1
+
+Chemical Analysis or NBS Vapor Grown A49
+
+Spectrochemical
+. Anal sis
+
+10 ppm
+questionable
+not detected
+
+10 ppm
+10 ppm
+not detected
+
+10 ppm
+a
+Neutron Activation
+
+Anal sis
+0.027 - 0.038 ppm
+
+pp4
+0.2005 - 0.002 ppm
+
+t
+-0. 0005 ppm
+-0. 015 ppm
+
+U
+.a op4
+
+/ Detection limit, not observed 1n specimens
+y/ Interference between ' 'A1 and ' Mg;, cann not detect
+s/ Could not be detected if present
+by activation analysis: copper, iridium, manganese and
+scandium. The question of magnesium and s1licon content
+remains unresolved and an alternative analytical technique
+will be required to determine the actual level of these
+impurities.
+
+In Table , analyses of the aluminum metal used as a
+source material are given, both before and after use in the
+chlorinator. Comparison of these analyses with those of the
+crystals in Table l shows that considerable improvement in
+purity is inherent in the growth process. The comparison
+also suggests that, at the purity level under considerationn,
+the aluminum may well be the chief source of contamination
+in the crystals. The marked reduction of silicon in the
+aluminum after use and its subsequent detection in the
+crystals indi2ates that this may be the most troublesome
+impurity. Reaction between the chlorine and metallic parts
+of the system is also evident from the new impurities found
+in the aluminm after use. Thhe disappearance of gallium
+from the aluminum after use indicates that it also is being
+transported. A particular search was made in the cry stals
+for gallium but 1f present, 1t is there at less than the
+0. 003 ppm levsl, the detection limit for activation analy sis.
+
+
+Table 2
+
+Spe ctrochemical Analysis of Aluminum Source Mater1al
+Element
+
+Ag
+Ca
+Cr
+Cu
+Pe
+Ga
+Mg
+Mn
+N1
+Pn
+s1
+A1 Metal,
+as received,
+nominal 5N purit
+
+s10 ppm
+questionable
+questionable
+10 - 100 ppm
+10 - 100 ppm
+100 - 1000 ppm
+10 - 100 ppm
+
+10 - 100 ppm
+Material
+
+Same, after
+
+use in
+Chlorinator
+
+s10 ppm
+410 ppm
+questionable
+10 - 100 ppm
+10 - 100 ppm
+10 - 100 ppm
+10 - 100 ppm
+100 - 1000 ppm
+
+=10 ppm
+
+A new furnace and chlorinator have been designed and
+are currently under construction. In this apparatus, con-
+tact between chlorine g,as, aluminum chloride and metal
+parts will be minimized in order to reduce exposure to this
+source of contamination.
+
+Single crystals of high purity AJV have been provided
+in a cooperative effort to the ARPA Laser Materials Program
+at NBS for use in spin resonnance studies where a chromium-
+free specimen was essential.
+
+Plans for the next reporting period include completion
+of the new growth apparatus and continued emphasis on
+improvement in purity levels. The use of 6N aluminum as
+the source material will be tried. The possibility of
+utilizing sparrk source mass spectrometry to determine the
+silicon and magnnesium levels will be investigated, as well
+as the use of NMR to determine, at least qualitatively, the
+hydrogen ion content of the crystals.
+
+
+
