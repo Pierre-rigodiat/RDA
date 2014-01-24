@@ -2,18 +2,18 @@ package gov.nist.mgi.tc.tools;
 
 import gov.nist.mgi.tc.tools.StringTools.CharType;
 
-import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import opennlp.tools.tokenize.Tokenizer;
 import opennlp.tools.tokenize.TokenizerME;
 import opennlp.tools.tokenize.TokenizerModel;
 import opennlp.tools.util.InvalidFormatException;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Class computing statistics about lines of text
@@ -71,11 +71,9 @@ public class TextStatistics {
 
 		this.linesStats = new HashMap<String, Map<CharType, Double>>();
 
-		String modelPath = getClass().getResource("en-token.bin").getPath();
-
 		// Init tokenizer (better word detections than a simple space count)
-		tsLogger.debug("Loading \"" + modelPath + "\"...");
-		TokenizerModel tknModel = new TokenizerModel(new File(modelPath));
+		InputStream modelInput = getClass().getResourceAsStream("en-token.bin");
+		TokenizerModel tknModel = new TokenizerModel(modelInput);
 		this.tknizer = new TokenizerME(tknModel);
 
 		tsLogger.exit();
