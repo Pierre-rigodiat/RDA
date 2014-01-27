@@ -1,6 +1,8 @@
 package gov.nist.mgi.tc.tools;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
@@ -54,17 +56,6 @@ public class SpellChecker {
 		// JLanguageTool setup
 		this.languageTool = new JLanguageTool(lang);
 		this.languageTool.setListUnknownWords(true);
-
-		// Add extra rules defined by the user
-		// See http://wiki.languagetool.org for more information
-		String rulesFile = getClass().getResource("rules.xml").getPath();
-		scLogger.trace("Loading " + rulesFile);
-
-		List<PatternRule> rules = this.languageTool.loadPatternRules(rulesFile);
-		for (PatternRule rule : rules) {
-			this.languageTool.addRule(rule);
-		}
-
 		this.languageTool.getAllRules();
 
 		scLogger.debug("SpellChecker created");
