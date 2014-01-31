@@ -51,7 +51,7 @@ public class Manual {
 		System.out.println("*** Garbage finder UI ****");
 
 		// Reading input
-		mLogger.debug("Waiting for input...");
+		mLogger.trace("Waiting for input...");
 
 		BufferedReader inputReader = new BufferedReader(new InputStreamReader(
 				System.in));
@@ -63,12 +63,14 @@ public class Manual {
 		inputReader.close(); // Closing the reader
 
 		mLogger.debug("Input setup. Initializing cleaning process...");
-
+		long startTime = System.currentTimeMillis();
+		
 		// Cleaning the text
 		TextCleaner tc = new TextCleaner(inputFile);
 		tc.processText();
 
-		mLogger.debug("Cleaning done");
+		long stopTime = System.currentTimeMillis();
+		mLogger.info("Cleaning done in "+(stopTime - startTime)+"ms");
 	}
 
 }

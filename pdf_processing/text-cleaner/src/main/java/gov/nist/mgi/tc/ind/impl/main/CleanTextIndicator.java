@@ -1,8 +1,8 @@
 package gov.nist.mgi.tc.ind.impl.main;
 
 import gov.nist.mgi.tc.ind.models.StatsIndicator;
+import gov.nist.mgi.tc.text.TextStatistics;
 import gov.nist.mgi.tc.tools.StringTools.CharType;
-import gov.nist.mgi.tc.tools.TextStatistics;
 
 /**
  * Indicator stating if a line is clean based on - the length of the line - the

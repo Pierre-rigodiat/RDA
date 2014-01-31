@@ -1,18 +1,18 @@
-package gov.nist.mgi.tc.tools;
+package gov.nist.mgi.tc.spcheck;
+
+import gov.nist.mgi.tc.tools.StringTools;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.languagetool.JLanguageTool;
 import org.languagetool.Language;
+import org.languagetool.MultiThreadedJLanguageTool;
 import org.languagetool.language.AmericanEnglish;
 import org.languagetool.rules.Rule;
 import org.languagetool.rules.RuleMatch;
-import org.languagetool.rules.patterns.PatternRule;
 
 /**
  * Class to perform a spell check on the text. Use JLanguageTool.
@@ -23,7 +23,7 @@ public class SpellChecker {
 	private static Logger scLogger = LogManager.getLogger(SpellChecker.class);
 
 	private static SpellChecker spellCheckerInstance = null;
-	private JLanguageTool languageTool;
+	private MultiThreadedJLanguageTool languageTool;
 
 	/*
 	 * private static String[] DO_NOT_SHOW = { "SPELLING", "UNKNOWN",
@@ -37,7 +37,7 @@ public class SpellChecker {
 	 * @return
 	 * @throws IOException
 	 */
-	public static SpellChecker getInstance() throws IOException {
+	public synchronized static SpellChecker getInstance() throws IOException {
 		if (spellCheckerInstance == null)
 			spellCheckerInstance = new SpellChecker();
 
@@ -54,7 +54,20 @@ public class SpellChecker {
 		Language lang = new AmericanEnglish();
 
 		// JLanguageTool setup
-		this.languageTool = new JLanguageTool(lang);
+		this.languageTool = new MultiThreadedJLanguageTool(lang);
+		
+		this.languageTool.setListUnknownWords(true);
+		this.languageTool.getAllRules();
+
+		scLogger.debug("SpellChecker created");
+	}
+	
+	public SpellChecker(Language lang) throws IOException
+	{
+		// JLanguageTool setup
+		this.languageTool = new MultiThreadedJLanguageTool(lang);
+		this.languageTool.setThreadPoolSize(100);
+		
 		this.languageTool.setListUnknownWords(true);
 		this.languageTool.getAllRules();
 
@@ -72,6 +85,7 @@ public class SpellChecker {
 		scLogger.trace("getErrorRate(" + sentence + ")");
 
 		// Use JLanguageTool to check the text and count unknown words
+		
 		List<RuleMatch> matches = this.languageTool.check(sentence);
 		List<String> unknownWords = this.languageTool.getUnknownWords();
 

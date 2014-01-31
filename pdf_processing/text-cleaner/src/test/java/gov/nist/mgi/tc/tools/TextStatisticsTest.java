@@ -3,6 +3,8 @@ package gov.nist.mgi.tc.tools;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import gov.nist.mgi.tc.text.TextStatistics;
+
 import java.io.IOException;
 
 import org.junit.Test;

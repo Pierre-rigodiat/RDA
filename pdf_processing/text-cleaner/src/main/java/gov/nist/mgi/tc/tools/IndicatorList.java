@@ -1,6 +1,7 @@
 package gov.nist.mgi.tc.tools;
 
 import gov.nist.mgi.tc.ind.models.Indicator;
+import gov.nist.mgi.tc.text.Text;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +31,12 @@ public class IndicatorList {
 	 */
 	public void register(Indicator ind) {
 		this.indList.add(ind);
+	}
+	
+	public boolean match(Text text)
+	{
+		// TODO Implement
+		return false;
 	}
 
 	/**

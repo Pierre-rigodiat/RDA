@@ -2,7 +2,7 @@ package gov.nist.mgi.tc.ind.impl.main;
 
 import gov.nist.mgi.tc.ind.impl.subs.EndOfSentenceIndicator;
 import gov.nist.mgi.tc.ind.models.StatsIndicator;
-import gov.nist.mgi.tc.tools.TextStatistics;
+import gov.nist.mgi.tc.text.TextStatistics;
 
 /**
  * Indicator detecting lines smaller than the average

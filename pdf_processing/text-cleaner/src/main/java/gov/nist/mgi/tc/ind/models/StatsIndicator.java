@@ -1,8 +1,8 @@
 package gov.nist.mgi.tc.ind.models;
 
+import gov.nist.mgi.tc.text.TextStatistics;
 import gov.nist.mgi.tc.tools.StringTools;
 import gov.nist.mgi.tc.tools.StringTools.CharType;
-import gov.nist.mgi.tc.tools.TextStatistics;
 
 import java.util.Map;
 

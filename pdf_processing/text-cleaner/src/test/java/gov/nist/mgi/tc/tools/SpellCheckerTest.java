@@ -2,6 +2,8 @@ package gov.nist.mgi.tc.tools;
 
 import static org.junit.Assert.*;
 
+import gov.nist.mgi.tc.spcheck.SpellChecker;
+
 import java.io.IOException;
 
 import org.junit.Test;

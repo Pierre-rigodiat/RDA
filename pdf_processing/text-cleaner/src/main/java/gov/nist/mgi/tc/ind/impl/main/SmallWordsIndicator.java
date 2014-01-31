@@ -1,7 +1,7 @@
 package gov.nist.mgi.tc.ind.impl.main;
 
 import gov.nist.mgi.tc.ind.models.StatsIndicator;
-import gov.nist.mgi.tc.tools.TextStatistics;
+import gov.nist.mgi.tc.text.TextStatistics;
 
 /**
  * Indicator computing the length of each word in a sentence.

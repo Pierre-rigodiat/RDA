@@ -1,5 +1,6 @@
-package gov.nist.mgi.tc.tools;
+package gov.nist.mgi.tc.text;
 
+import gov.nist.mgi.tc.tools.StringTools;
 import gov.nist.mgi.tc.tools.StringTools.CharType;
 
 import java.io.IOException;
@@ -48,6 +49,7 @@ public class TextStatistics {
 	private double totalLength;
 	private double totalWordNb;
 	private double lineNb;
+
 	private Map<String, Map<CharType, Double>> linesStats;
 
 	/**
@@ -69,6 +71,7 @@ public class TextStatistics {
 		this.totalWordNb = 0;
 		this.lineNb = 0;
 
+		// this.lineId = 0;
 		this.linesStats = new HashMap<String, Map<CharType, Double>>();
 
 		// Init tokenizer (better word detections than a simple space count)
@@ -96,35 +99,34 @@ public class TextStatistics {
 		this.setTotalWordNb(wordNb + wordList.length);
 
 		// Computing number of different character
-		Map<CharType, Double> charNumbers = new HashMap<CharType, Double>();
+		if (!this.linesStats.containsKey(line)) {
+			Map<CharType, Double> charNumbers = new HashMap<CharType, Double>();
 
-		String markedWord;
-		double lowerNb = 0;
-		double upperNb = 0;
-		double numberNb = 0;
-		double spCharNb = 0;
-		double lineWordLength = 0;
+			String markedWord;
+			double lowerNb = 0;
+			double upperNb = 0;
+			double numberNb = 0;
+			double spCharNb = 0;
 
-		for (String word : wordList) {
-			markedWord = word.replaceAll(LOWER_REGEX, LOWER_REPL);
-			markedWord = markedWord.replaceAll(UPPER_REGEX, UPPER_REPL);
-			markedWord = markedWord.replaceAll(NUMBER_REGEX, NUMBER_REPL);
-			markedWord = markedWord.replaceAll(SP_CHAR_REGEX, SP_CHAR_REPL);
+			for (String word : wordList) {
+				markedWord = word.replaceAll(LOWER_REGEX, LOWER_REPL);
+				markedWord = markedWord.replaceAll(UPPER_REGEX, UPPER_REPL);
+				markedWord = markedWord.replaceAll(NUMBER_REGEX, NUMBER_REPL);
+				markedWord = markedWord.replaceAll(SP_CHAR_REGEX, SP_CHAR_REPL);
 
-			lowerNb += StringTools.count(markedWord, LOWER_REPL);
-			upperNb += StringTools.count(markedWord, UPPER_REPL);
-			numberNb += StringTools.count(markedWord, NUMBER_REPL);
-			spCharNb += StringTools.count(markedWord, SP_CHAR_REPL);
+				lowerNb += StringTools.count(markedWord, LOWER_REPL);
+				upperNb += StringTools.count(markedWord, UPPER_REPL);
+				numberNb += StringTools.count(markedWord, NUMBER_REPL);
+				spCharNb += StringTools.count(markedWord, SP_CHAR_REPL);
+			}
 
-			lineWordLength += word.length();
+			charNumbers.put(CharType.LOWER, lowerNb);
+			charNumbers.put(CharType.UPPER, upperNb);
+			charNumbers.put(CharType.NUMBER, numberNb);
+			charNumbers.put(CharType.SPECIAL, spCharNb);
+
+			this.linesStats.put(line, charNumbers);
 		}
-
-		charNumbers.put(CharType.LOWER, lowerNb);
-		charNumbers.put(CharType.UPPER, upperNb);
-		charNumbers.put(CharType.NUMBER, numberNb);
-		charNumbers.put(CharType.SPECIAL, spCharNb);
-
-		this.linesStats.put(line, charNumbers);
 
 		// Computing line number
 		this.setLineNb(this.getLineNb() + 1);
@@ -136,6 +138,10 @@ public class TextStatistics {
 		this.setAvgWordPerLine(this.getTotalWordNb() / this.getLineNb());
 
 		// Computing average word size
+		double lineWordLength = 0;
+		for (String word : wordList) {
+			lineWordLength += word.length();
+		}
 		this.setTotalWordLength(this.getTotalWordLength() + lineWordLength);
 
 		this.setAvgWordSize(this.getTotalWordLength() / this.getTotalWordNb());
@@ -198,6 +204,8 @@ public class TextStatistics {
 		return this.tknizer.tokenize(line);
 	}
 
+	// ================= GETTERS AND SETTERS =================
+
 	private double getTotalLength() {
 		return totalLength;
 	}
@@ -214,7 +222,7 @@ public class TextStatistics {
 		this.totalWordNb = totalWordNb;
 	}
 
-	private double getLineNb() {
+	public double getLineNb() {
 		return lineNb;
 	}
 

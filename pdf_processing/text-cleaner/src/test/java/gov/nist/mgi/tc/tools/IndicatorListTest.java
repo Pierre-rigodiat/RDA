@@ -3,6 +3,7 @@ package gov.nist.mgi.tc.tools;
 import static org.junit.Assert.assertTrue;
 import gov.nist.mgi.tc.ind.impl.main.BegginingWithSpecCharIndicator;
 import gov.nist.mgi.tc.ind.impl.main.CleanTextIndicator;
+import gov.nist.mgi.tc.text.TextStatistics;
 
 import java.io.IOException;
 
