@@ -1,0 +1,25 @@
+<!-- 
+################################################################################
+#
+# File Name: base_site.html
+# Application: templates/admin
+# Description: 
+#
+# Author: Sharief Youssef
+#         sharief.youssef@nist.gov
+#
+# Sponsor: National Institue of Standards and Technology
+#
+################################################################################
+-->
+
+{% extends "admin/base.html" %}
+{% load i18n %}
+
+{% block title %}{{ title }} | {% trans 'Materials Data Curation Administration' %}{% endblock %}
+
+{% block branding %}
+<h1 id="site-name">{% trans 'Materials Data Curation Administration' %}</h1>
+{% endblock %}
+
+{% block nav-global %}{% endblock %}

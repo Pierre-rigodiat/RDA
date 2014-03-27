@@ -1,0 +1,199 @@
+<!-- 
+################################################################################
+#
+# File Name: user_management.html
+# Application: templates/admin
+# Description: 
+#
+# Author: Sharief Youssef
+#         sharief.youssef@nist.gov
+#
+# Sponsor: National Institue of Standards and Technology
+#
+################################################################################
+-->
+
+{% extends "admin/base_site.html" %}
+{% load staticfiles %}
+
+{% load i18n admin_static %}
+
+{% block extrastyle %}{{ block.super }}<link rel="stylesheet" type="text/css" href="{% static "admin/css/dashboard.css" %}" />{% endblock %}
+
+{% block coltype %}colMS{% endblock %}
+
+{% block bodyclass %}dashboard{% endblock %}
+
+{% block breadcrumbs %}{% endblock %}
+
+{% block content %}
+<body id="top">
+
+<div id="content-main">
+
+<div id="header-wrapper">
+	<div id="header-wrapper-2">
+		<div class="center-wrapper">
+
+			<div id="header">
+
+
+				<div id="logo">
+
+
+					<h1 id="site-title"><a href="/admin">Materials Data <span>Curation Administration</span></a></h1>
+					<h2 id="site-slogan">
+{% if user.is_authenticated %}
+    Welcome, {{ user.username }}. Thanks for logging in.
+{% else %}
+    Part of the Materials Genome Initiative
+{% endif %}
+</h2>
+				</div>
+
+				<div id="help-wrapper">
+					<div id="help" align="center">
+<nobr>
+{% if user.is_authenticated %}
+    <a href="/logout">Logout</a> 
+{% else %}
+    <a href="/login">Login</a> 
+{% endif %}
+
+<span class="text-separator">|</span> <a href="/my-profile">My Profile</a> <span class="text-separator">|</span> <a href="/help">Help</a> 
+</nobr>
+
+					</div>
+				</div>
+
+			</div>
+
+		</div>
+	</div>
+</div>
+
+<div id="navigation-wrapper">
+	<div id="navigation-wrapper-2">
+		<div class="center-wrapper">
+	
+			<div id="navigation">
+
+				<ul class="tabbed">
+					<li><a href="/">Home</a></li>
+					<li><a href="/admin/xml-schemas">XML Schemas</a></li>
+					<li class="current_page_item"><a href="/admin">User Management</a></li>
+				</ul>
+
+				<div class="clearer">&nbsp;</div>
+
+			</div>
+
+		</div>
+	</div>
+</div>
+
+<div id="content-wrapper">
+	<div class="center-wrapper">
+		
+		<div class="content">
+
+			<div id="featured-wrapper">
+				<div id="featured">
+
+<h1>User and Group Management</h1>
+					
+					<div class="clearer">&nbsp;</div>
+
+				</div>
+			</div>
+
+			<div id="main">
+
+{% if app_list %}
+    {% for app in app_list %}
+        <div class="app-{{ app.app_label }} module">
+        <table>
+        <caption>
+            <a href="{{ app.app_url }}" class="section" title="{% blocktrans with name=app.name %}Models in the {{ name }} application{% endblocktrans %}">
+                {% blocktrans with name=app.name %}{{ name }}{% endblocktrans %}
+            </a>
+        </caption>
+        {% for model in app.models %}
+            <tr class="model-{{ model.object_name|lower }}">
+            {% if model.admin_url %}
+                <th scope="row"><a href="{{ model.admin_url }}">{{ model.name }}</a></th>
+            {% else %}
+                <th scope="row">{{ model.name }}</th>
+            {% endif %}
+
+            {% if model.add_url %}
+                <td><a href="{{ model.add_url }}" class="addlink">{% trans 'Add' %}</a></td>
+            {% else %}
+                <td>&nbsp;</td>
+            {% endif %}
+
+            {% if model.admin_url %}
+                <td><a href="{{ model.admin_url }}" class="changelink">{% trans 'Change' %}</a></td>
+            {% else %}
+                <td>&nbsp;</td>
+            {% endif %}
+            </tr>
+        {% endfor %}
+        </table>
+        </div>
+    {% endfor %}
+{% else %}
+    <p>{% trans "You don't have permission to edit anything." %}</p>
+{% endif %}
+
+			</div>
+
+		</div>
+
+	</div>
+</div>
+
+<div id="footer-wrapper">
+
+	<div class="center-wrapper">
+
+		<div id="footer2">
+
+			<div class="left">
+				<a href="/admin">Home</a> <span class="text-separator">|</span> <a href="/admin/xml-schemas">XML Schemas</a> <span class="text-separator">|</span> <a href="/admin/user-management">User Management</a> <span class="text-separator">|</span> <a href="/about">About</a> <span class="text-separator">|</span> <a href="/contact">Contact</a> 
+			</div>
+
+			<div class="right">
+				<a href="#">Top ^</a>
+			</div>
+			
+			<div class="clearer">&nbsp;</div>
+
+		</div>
+
+	</div>
+
+</div>
+
+<div id="bottom">
+
+	<div class="center-wrapper">
+
+		<div class="left">
+			&copy; 2012 - {{ request.session.currentYear }} Materials Data Curation System <span class="text-separator">|</span> <a href="/privacy-policy">Privacy Policy</a> <span class="text-separator">|</span> <a href="/terms-of-use">Terms of Use</a> 
+		</div>
+
+		<div class="right">
+			<a href="http://templates.arcsin.se/">Website template</a> by <a href="http://arcsin.se/">Arcsin</a> 
+		</div>
+		
+		<div class="clearer">&nbsp;</div>
+
+	</div>
+
+</div>
+
+{% endblock %}
+
+</body>
+</html>
