@@ -1,0 +1,58 @@
+<!-- 
+################################################################################
+#
+# File Name: curateTemplateSelection.html
+# Application: templates
+# Description: 
+#
+# Author: Sharief Youssef
+#         sharief.youssef@nist.gov
+#
+# Sponsor: National Institue of Standards and Technology
+#
+################################################################################
+-->
+
+{% if request.session.currentTemplate %} 
+
+{% else %}
+
+<div class="alert">
+  <button type="button" class="close" data-dismiss="alert">&times;</button>
+  <i class="icon warning disable-selection"></i> No template selected. Select one in the table below. 
+</div>
+
+{% endif %}
+
+<table class="table table-bordered">
+  <tr>
+    <th>Template name</th>
+    <!--th>Description</th-->
+    <th>File name</th>
+    <th>Actions</th>
+  </tr>
+			  
+{% for template in templates %}
+  {% cycle 'even' '' as rowcolors silent %}
+  <tr class="{{ rowcolors }}">
+    <td>{{ template.title }}</td>
+    <td>{{ template.filename }}</td>
+
+{% if request.session.currentTemplate == template.filename %} 
+
+    <td><span style="color:green;font-weight:bold">Current template</span></td>
+
+{% else %}
+
+    <td><button class="btn set-template" ><i class="icon-plus-sign"></i> Set as current template</button></td>
+
+    <!-- <td>'.($current_filename==$file?'<span style="color:green;font-weight:bold">Current template</span>':'<button class="btn set-template"><i class="icon-plus-sign"></i> Set as current template</button>').'</td> -->
+
+{% endif %}
+
+  </tr>
+
+{% endfor %}
+
+</table>
+
