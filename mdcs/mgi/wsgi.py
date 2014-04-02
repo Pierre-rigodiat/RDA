@@ -1,3 +1,16 @@
+################################################################################
+#
+# File Name: wsgi.py
+# Application: mgi
+# Purpose:   
+#
+# Author: Sharief Youssef
+#         sharief.youssef@nist.gov
+#
+# Sponsor: National Institute of Standards and Technology (NIST)
+#
+################################################################################
+
 """
 WSGI config for mgi project.
 

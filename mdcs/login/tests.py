@@ -1,8 +1,8 @@
 ################################################################################
 #
 # File Name: tests.py
-# Application: Curate
-# Purpose:   
+# Application: login
+# Description:   
 #
 # Author: Sharief Youssef
 #         sharief.youssef@nist.gov

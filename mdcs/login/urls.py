@@ -1,8 +1,8 @@
 ################################################################################
 #
-# File Name: tests.py
-# Application: Curate
-# Purpose:   
+# File Name: urls.py
+# Application: login
+# Description:   
 #
 # Author: Sharief Youssef
 #         sharief.youssef@nist.gov
@@ -11,6 +11,10 @@
 #
 ################################################################################
 
-from django.test import TestCase
+from django.conf.urls import patterns, url
 
-# Create your tests here.
+from login import views
+
+urlpatterns = patterns('',
+    url(r'^$', views.index, name='index')
+)

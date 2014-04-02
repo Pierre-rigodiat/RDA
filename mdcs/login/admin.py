@@ -1,8 +1,8 @@
 ################################################################################
 #
-# File Name: tests.py
-# Application: Curate
-# Purpose:   
+# File Name: admin.py
+# Application: login
+# Description:   
 #
 # Author: Sharief Youssef
 #         sharief.youssef@nist.gov
@@ -11,6 +11,6 @@
 #
 ################################################################################
 
-from django.test import TestCase
+from django.contrib import admin
 
-# Create your tests here.
+# Register your models here.
