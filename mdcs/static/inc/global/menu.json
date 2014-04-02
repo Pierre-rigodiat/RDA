@@ -1,0 +1,68 @@
+[
+	{
+		"_id": "admin",
+		"baseUrl": "admin",
+		"fileDir": "",
+		"auth": 
+		{
+			"enable": true,
+			"type": "db"
+		},
+		"menus":
+		[
+			{
+				"name": "Home",
+				"url": ["home", ""],
+				"file": "home.inc.php"
+			},
+			{
+				"name": "Website",
+				"url": "website",
+				"file": "website.inc.php"
+			},
+			{
+				"name": "XML Schemas",
+				"url": "schemas",
+				"submenus":
+				[
+					{
+						"name": "Current Model",
+						"url": ["configuration", ""],
+						"file": "sch-conf.inc.php"
+					},
+					{
+						"name": "Manage Schemas",
+						"url": "manager",
+						"file": "sch-man.inc.php"
+					},
+					{
+						"name": "XML Schemas",
+						"url": "modules",
+						"file": "sch-mod.inc.php"
+					}
+				]
+			},
+			{
+				"name": "Website",
+				"url": "website",
+				"file": "website.inc.php"
+			}
+		]
+	},
+	{
+		"_id": "debug",
+		"baseUrl": "dev",
+		"auth":
+		{
+			"enable": false
+		}
+	},
+	{
+		"_id": "public",
+		"baseUrl": "",
+		"auth":
+		{
+			"enable": false
+		}
+	}
+]
