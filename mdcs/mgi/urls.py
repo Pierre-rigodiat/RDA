@@ -49,9 +49,9 @@ urlpatterns = patterns('',
     url(r'^view-schema', 'mgi.views.view_schema', name='view-schema'),
     url(r'^explore/', include('explore.urls')),
 #    url(r'^explore', 'mgi.views.explore', name='explore'),
-    url(r'^explore/step-one', include('explore.urls')),
-    url(r'^explore/step-two', include('explore.urls')),
-    url(r'^explore/step-three', include('explore.urls')),
+    url(r'^explore/select-template', include('explore.urls')),
+    url(r'^explore/customize-template$', 'mgi.views.explore_customize_template', name='expore-customize-template'),
+    url(r'^explore/perform-search$', 'mgi.views.explore_perform_search', name='explore-perform-search'),
     url(r'^contribute', 'mgi.views.contribute', name='contribute'),
     url(r'^all-options', 'mgi.views.all_options', name='all-options'),
     url(r'^browse-all', 'mgi.views.browse_all', name='browse-all'),
@@ -67,7 +67,7 @@ urlpatterns = patterns('',
     url(r'^privacy-policy', 'mgi.views.privacy_policy', name='privacy-policy'),
     url(r'^terms-of-use', 'mgi.views.terms_of_use', name='terms-of-use'),
     url(dajaxice_config.dajaxice_url, include('dajaxice.urls')), # django-dajaxice
-    url(r'', include('multiuploader.urls')), # django-multiuploader
+#    url(r'', include('multiuploader.urls')), # django-multiuploader
 )
 
 urlpatterns += staticfiles_urlpatterns()

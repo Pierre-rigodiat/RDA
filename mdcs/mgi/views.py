@@ -301,6 +301,59 @@ def explore(request):
             # the authentication system was unable to verify the username and password
 #            return HttpResponse("HomePage: The username and password were incorrect.")
 
+def explore_select_template(request):
+#    logout(request)
+    template = loader.get_template('explore.html')
+    context = RequestContext(request, {
+        '': '',
+    })
+    request.session['currentYear'] = currentYear()
+    if request.user.is_authenticated():
+        return HttpResponse(template.render(context))
+    else:
+        if 'loggedOut' in request.session:
+            del request.session['loggedOut']
+        request.session['next'] = '/curate/select-template'
+        return redirect('/login')
+
+def explore_customize_template(request):
+#    logout(request)
+    template = loader.get_template('explore_customize_template.html')
+    context = RequestContext(request, {
+        '': '',
+    })
+    request.session['currentYear'] = currentYear()
+    return HttpResponse(template.render(context))  # remove after testing
+    if request.user.is_authenticated():
+        if 'currentTemplate' not in request.session:
+            return redirect('/explore/select-template')
+        else:
+            return HttpResponse(template.render(context))
+    else:
+        if 'loggedOut' in request.session:
+            del request.session['loggedOut']
+        request.session['next'] = '/explore/customize-template'
+        return redirect('/login')
+
+def explore_perform_search(request):
+#    logout(request)
+    template = loader.get_template('explore_perform_search.html')
+    context = RequestContext(request, {
+        '': '',
+    })
+    request.session['currentYear'] = currentYear()
+    return HttpResponse(template.render(context))  # remove after testing
+    if request.user.is_authenticated():
+        if 'currentTemplate' not in request.session:
+            return redirect('/explore/select-template')
+        else:
+            return HttpResponse(template.render(context))
+    else:
+        if 'loggedOut' in request.session:
+            del request.session['loggedOut']
+        request.session['next'] = '/explore/perform-search'
+        return redirect('/login')
+
 def contribute(request):
     template = loader.get_template('contribute.html')
     context = RequestContext(request, {

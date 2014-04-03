@@ -1,14 +1,14 @@
 <!-- 
 ################################################################################
 #
-# File Name: explore.html
+# File Name: explore_customize_template.html
 # Application: templates
 # Description: 
 #
 # Author: Sharief Youssef
 #         sharief.youssef@nist.gov
 #
-# Sponsor: National Institue of Standards and Technology
+# Sponsor: National Institute of Standards and Technology (NIST)
 #
 ################################################################################
 -->
@@ -97,8 +97,8 @@
       <div id="subnav">
 
 	<ul class="tabbed">
-	  <li class="current_page_item"><a href="/explore/select-template">Select Template</a></li>
-	  <li><a href="/explore/customize-template">Customize Template</a></li>
+	  <li><a href="/explore/select-template">Select Template</a></li>
+	  <li class="current_page_item"><a href="/explore/customize-template">Customize Template</a></li>
 	  <li><a href="/explore/perform-search">Perform Search</a></li>
 	  </ul>
 
@@ -122,7 +122,7 @@
 
 		      <div class="post">
 
-			<div class="post-title"><h1>Select Template</h1></div>
+			<div class="post-title"><h1>Customize Template</h1></div>
 			
 			<div class="post-body">
 
@@ -130,123 +130,14 @@
 
 			      <h2 class="quiet">Introducing the next generation software</h2> -->
 			  
-			  <p class="large">Select a template from the following table. Once you make your selection, click on "Customize Template" to proceed.  It will automatically load the appropriate form and display it on the next page.</p>
+			  <p class="large">Customize template instructions go here.</p>
 
 			</div>
 			
 		      </div>
 
-		      <div id="template_selection">
-		      
-{% if request.session.currentTemplate %} 
-
-{% else %}
-
-<div class="alert">
-  <button type="button" class="close" data-dismiss="alert">&times;</button>
-  <i class="icon warning disable-selection"></i> No template selected. Select one in the table below. 
-</div>
-
-{% endif %}
-
-<table class="table table-bordered">
-  <tr>
-    <th>Template name</th>
-    <!--th>Description</th-->
-    <th>File name</th>
-    <th>Actions</th>
-  </tr>
-			  
-{% for template in templates %}
-  {% cycle 'even' '' as rowcolors silent %}
-  <tr class="{{ rowcolors }}">
-    <td>{{ template.title }}</td>
-    <td>{{ template.filename }}</td>
-
-{% if request.session.currentTemplate == template.filename %} 
-
-    <td><span style="color:green;font-weight:bold">Current template</span></td>
-
-{% else %}
-
-    <td><button class="btn set-template" ><i class="icon-plus-sign"></i> Set as current template</button></td>
-
-    <!-- <td>'.($current_filename==$file?'<span style="color:green;font-weight:bold">Current template</span>':'<button class="btn set-template"><i class="icon-plus-sign"></i> Set as current template</button>').'</td> -->
-
-{% endif %}
-
-  </tr>
-
-{% endfor %}
-
-</table>
-
-<div id="dialog-message" title="Template Loaded" style="display:none;">
-<p></p>
-  <p>
-    <span class="ui-icon ui-icon-circle-check" style="float:left; margin:0 7px 10px 0;"></span>
-    Template selected successfully. 
-  </p>
-  <p>
-    Currently using <a href="/view-schema/{{ request.session.currentTemplate }}" target="_new">{{ request.session.currentTemplate }}</a>
-  </p>
-  <p>
-    To proceed to the next step, click on step 2: <b>'Customize Template'</b>
-  </p>
-</div>
-
-<div id="dialog-error-message" title="Template Loaded" style="display:none;">
-<p></p>
-  <p>
-    <span class="ui-icon ui-icon-circle-check" style="float:left; margin:0 7px 10px 0;"></span>
-    Please select a template first.
-  </p>
-</div>
-
-
-</div>
-
-
 		    </div>
 		  </div>
-
-<script>
-selectedLink = "/explore";
-
-verifyTemplateIsSelected = function(selectedLink_)
-{
-    console.log('BEGIN [verifyTemplateIsSelected]');
-
-    selectedLink = selectedLink_;
-    Dajaxice.explore.verifyTemplateIsSelected(verifyTemplateIsSelectedCallback); // Dajax.process);
-
-    console.log('END [verifyTemplateIsSelected]');
-}
-
-verifyTemplateIsSelectedCallback = function(data)
-{
-    console.log('BEGIN [verifyTemplateIsSelectedCallback]');
-
-    if (data.templateSelected == 'no') {
-        $(function() {
-            $( "#dialog-error-message" ).dialog({
-                modal: true,
-                buttons: {
-                    Ok: function() {
-                    $( this ).dialog( "close" );
-                    }
-                }
-            });
-        });
-    } else {
-        location.href = selectedLink;
-    }
-
-    console.log('END [verifyTemplateIsSelectedCallback]');
-}
-
-</script>
-
 
 
 		  <div id="sidebar-wrapper">
@@ -258,9 +149,9 @@ verifyTemplateIsSelectedCallback = function(data)
 
 			<div class="box-content">
 			  <ul class="nice-list">
-			    <li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'img/Orange_Number_1.png' %}"></td><td><strong><a href="/explore/select-template">Select Template</a></strong></td></tr></table></li>
-			    <li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'img/Orange_Number_2.png' %}"></td><td><div style="cursor:pointer"><a onclick="verifyTemplateIsSelected('/explore/customize-template');">Customize Template</a></div></td></tr></table></li>
-			    <li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'img/Orange_Number_3.png' %}"></td><td><div style="cursor:pointer"><a onclick="verifyTemplateIsSelected('/explore/perform-search');">Perform Search</a></td></tr></table></li>
+			    <li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'img/Orange_Number_1.png' %}"></td><td><a href="/explore/select-template">Select Template</a></td></tr></table></li>
+			    <li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'img/Orange_Number_2.png' %}"></td><td><strong><a href="/explore/customize-template">Customize Template</a></strong></td></tr></table></li>
+			    <li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'img/Orange_Number_3.png' %}"></td><td><a href="/explore/perform-search">Perform Search</a></td></tr></table></li>
 			  </ul>
 			</div>
 
