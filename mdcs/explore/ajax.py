@@ -41,8 +41,8 @@ def getXsdString(request):
     print 'BEGIN def getXmlString(request)'
     dajax = Dajax()
 
-    templateFilename = request.session['currentTemplate']
-    pathFile = "{0}/xsdfiles/" + templateFilename
+    templateFilename = request.session['exploreCurrentTemplate']
+    pathFile = "{0}/mdcs/xsdfiles/" + templateFilename
 
     path = pathFile.format(
         settings.SITE_ROOT)
@@ -92,12 +92,12 @@ def setCurrentTemplate(request,templateFilename):
     
     global xmlDocTree
 
-    request.session['currentTemplate'] = templateFilename
+    request.session['exploreCurrentTemplate'] = templateFilename
     request.session.modified = True
     print '>>>>' + templateFilename + ' set as current template in session'
     dajax = Dajax()
 
-    pathFile = "{0}/xsdfiles/" + templateFilename
+    pathFile = "{0}/mdcs/xsdfiles/" + templateFilename
 
     path = pathFile.format(
         settings.SITE_ROOT)
@@ -124,7 +124,7 @@ def setCurrentTemplate(request,templateFilename):
 @dajaxice_register
 def verifyTemplateIsSelected(request):
     print 'BEGIN def verifyTemplateIsSelected(request)'
-    if 'currentTemplate' in request.session:
+    if 'exploreCurrentTemplate' in request.session:
       print 'template is selected'
       templateSelected = 'yes'
     else:
@@ -148,7 +148,7 @@ def verifyTemplateIsSelected(request):
 @dajaxice_register
 def setCurrentModel(request,modelFilename):
     print 'BEGIN def setCurrentModel(request)'
-    request.session['currentTemplate'] = modelFilename
+    request.session['exploreCurrentTemplate'] = modelFilename
     request.session.modified = True
     print '>>>>' + modelFilename
     dajax = Dajax()
@@ -463,7 +463,6 @@ def generateFormSubSection(xpath,selected,xmlDataTree):
                         formString += "<option value='" + choiceChild.attrib.get('value')  + "'>" + choiceChild.attrib.get('value') + "</option>"
                 formString += "</select>"
         
-
 #    for element in xmlDocTree.iter('*'):
 #        formString += "Current element:" + element.tag + "<br>"
 #        if element.find('*'):
@@ -504,6 +503,7 @@ def get_namespace(element):
 #
 ################################################################################
 def generateForm(key,xmlDataTree):
+    print 'BEGIN def generateForm(key,xmlDataTree)'
     formString = ""
     global xmlString
     global xmlDocTree
@@ -538,6 +538,8 @@ def generateForm(key,xmlDataTree):
 #    s = etree.tostring(xmlDataTree) #, pretty_print=True)
 #    print "xmlDataTree:\n" + s
 
+    print 'END def generateForm(key,xmlDataTree)'
+
     return formString
 
 ################################################################################
@@ -556,12 +558,12 @@ def generateXSDTreeForEnteringData(request):
     global xmlString
     global xmlDocTree
 
-    templateFilename = request.session['currentTemplate']
+    templateFilename = request.session['exploreCurrentTemplate']
 #    request.session.modified = True
-    print '>>>>' + templateFilename + ' is the current template in session'
+    print '>>>> ' + templateFilename + ' is the current template in session'
     dajax = Dajax()
 
-    pathFile = "{0}/xsdfiles/" + templateFilename
+    pathFile = "{0}/mdcs/xsdfiles/" + templateFilename
 
     path = pathFile.format(
         settings.SITE_ROOT)
@@ -573,7 +575,7 @@ def generateXSDTreeForEnteringData(request):
 #   xmlDocTree = etree.parse(path)
     xmlDataTree = ""
     xmlString = ""
-#    print "xsdDocTree: " + str(xmlDocTree)
+    print "xsdDocTree: " + str(xmlDocTree)
 
     formString = "<br><form id=\"dataEntryForm\">"
 
@@ -625,8 +627,8 @@ def changeXMLSchema(request,operation,xpath,name):
 
     if xmlDocTree == "":
         print "xmlDocTree is null"
-        templateFilename = request.session['currentTemplate']
-        pathFile = "{0}/xsdfiles/" + templateFilename
+        templateFilename = request.session['exploreCurrentTemplate']
+        pathFile = "{0}/mdcs/xsdfiles/" + templateFilename
         path = pathFile.format(
             settings.SITE_ROOT)
         xmlDocTree = etree.parse(path)

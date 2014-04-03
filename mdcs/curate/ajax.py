@@ -42,7 +42,7 @@ def getXsdString(request):
     dajax = Dajax()
 
     templateFilename = request.session['currentTemplate']
-    pathFile = "{0}/xsdfiles/" + templateFilename
+    pathFile = "{0}/mdcs/xsdfiles/" + templateFilename
 
     path = pathFile.format(
         settings.SITE_ROOT)
@@ -97,7 +97,7 @@ def setCurrentTemplate(request,templateFilename):
     print '>>>>' + templateFilename + ' set as current template in session'
     dajax = Dajax()
 
-    pathFile = "{0}/xsdfiles/" + templateFilename
+    pathFile = "{0}/mdcs/xsdfiles/" + templateFilename
 
     path = pathFile.format(
         settings.SITE_ROOT)
@@ -561,7 +561,7 @@ def generateXSDTreeForEnteringData(request):
     print '>>>>' + templateFilename + ' is the current template in session'
     dajax = Dajax()
 
-    pathFile = "{0}/xsdfiles/" + templateFilename
+    pathFile = "{0}/mdcs/xsdfiles/" + templateFilename
 
     path = pathFile.format(
         settings.SITE_ROOT)
@@ -626,7 +626,7 @@ def changeXMLSchema(request,operation,xpath,name):
     if xmlDocTree == "":
         print "xmlDocTree is null"
         templateFilename = request.session['currentTemplate']
-        pathFile = "{0}/xsdfiles/" + templateFilename
+        pathFile = "{0}/mdcs/xsdfiles/" + templateFilename
         path = pathFile.format(
             settings.SITE_ROOT)
         xmlDocTree = etree.parse(path)

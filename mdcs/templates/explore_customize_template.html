@@ -15,6 +15,8 @@
 
 {% load staticfiles %}
 
+{% load dajaxice_templatetags %}
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" dir="ltr">
 
@@ -27,6 +29,15 @@
 	<link rel="stylesheet" type="text/css" href="{% static 'style.css' %}" media="screen" />
 	<link rel="stylesheet" type="text/css" href="{% static 'resources/css/style.add.css' %}"  media="screen" />
 	<title>Materials Data Curation System</title>
+
+	<!-- JQuery & JQuery UI -->
+        <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css">
+        <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+        <script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
+	<script src="{% static 'dajax/jquery.dajax.core.js' %}"></script>
+
+        {% dajaxice_js_import %}
+
 </head>
 
 <body id="top">
@@ -136,6 +147,11 @@
 			
 		      </div>
 
+<div id="xsdForm">
+
+
+</div>
+
 		    </div>
 		  </div>
 
@@ -210,6 +226,49 @@
 	</div>
 
 </div>
+
+	<script src="{% static 'resources/js/bootstrap.min.js' %}"></script>
+	<script src="{% static 'inc/controllers/js/tpl_sel.js' %}"></script>
+	<script>
+	  loadExploreCurrentTemplateForm();
+	</script>
+
+
+<div id="dialog-cleared-message" title="Fields Cleared" style="display:none;">
+<p></p>
+  <p>
+    <span class="ui-icon ui-icon-circle-check" style="float:left; margin:0 7px 10px 0;"></span>
+    Form fields are cleared.
+  </p>
+  <p>
+    Currently using <a href="/view-schema/{{ request.session.currentTemplate }}" target="_new">{{ request.session.currentTemplate }}</a>
+  </p>
+</div>
+
+
+<div id="dialog-loaded-message" title="Form Loaded" style="display:none;">
+<p></p>
+  <p>
+    <span class="ui-icon ui-icon-circle-check" style="float:left; margin:0 7px 10px 0;"></span>
+    Form is loaded.
+  </p>
+  <p>
+    Currently using <a href="/view-schema/{{ request.session.currentTemplate }}" target="_new">{{ request.session.currentTemplate }}</a>
+  </p>
+</div>
+
+
+<div id="dialog-saved-message" title="Form Saved" style="display:none;">
+<p></p>
+  <p>
+    <span class="ui-icon ui-icon-circle-check" style="float:left; margin:0 7px 10px 0;"></span>
+    Form fields are saved.
+  </p>
+  <p>
+    Currently using <a href="/view-schema/{{ request.session.currentTemplate }}" target="_new">{{ request.session.currentTemplate }}</a>
+  </p>
+</div>
+
 
 </body>
 </html>

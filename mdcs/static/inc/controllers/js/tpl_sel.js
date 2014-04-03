@@ -2,6 +2,7 @@ loadTemplateSelectionControllers = function()
 {
     console.log('BEGIN [loadTemplateSelectionControllers]');
     $('.btn.set-template').on('click', setCurrentTemplate);
+    $('.btn.set-explore-template').on('click', setExploreCurrentTemplate);
     console.log('END [loadTemplateSelectionControllers]');
 }
 
@@ -86,6 +87,19 @@ loadCurrentTemplateForm = function()
     Dajaxice.curate.generateXSDTreeForEnteringData(Dajax.process); //,{'templateFilename':'xxxx'});
 
     console.log('END [loadCurrentTemplateForm]');
+}
+
+loadExploreCurrentTemplateForm = function()
+{
+    console.log('BEGIN [loadExploreCurrentTemplateForm]');
+
+    $('.btn.clear-fields').on('click', clearFields);
+    $('.btn.load-form').on('click', loadForm);
+    $('.btn.save-form').on('click', saveForm);
+
+    Dajaxice.explore.generateXSDTreeForEnteringData(Dajax.process); //,{'templateFilename':'xxxx'});
+
+    console.log('END [loadExploreCurrentTemplateForm]');
 }
 
 displayTemplateForm = function()
@@ -221,6 +235,23 @@ setCurrentTemplate = function()
 //        contentType: false,
 //        processData: false
 //    });
+
+    return false;
+}
+
+
+setExploreCurrentTemplate = function()
+{
+    var templateName = $(this).parent().parent().children(':first').text();
+    var templateFilename = $(this).parent().parent().children(':nth-child(2)').text();
+    var tdElement = $(this).parent();
+		
+    tdElement.html('<img src="/static/resources/img/ajax-loader.gif" alt="Loading..."/>');
+    $('.btn.set-template').off('click');
+    
+    console.log('[setExploreCurrentTemplate] Setting '+templateName+' with filename '+templateFilename+' as current template...');
+
+    Dajaxice.explore.setCurrentTemplate(setCurrentTemplateCallback,{'templateFilename':templateFilename});
 
     return false;
 }

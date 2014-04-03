@@ -142,6 +142,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'mongoengine.django.mongo_auth',
     'curate',
+    'explore',
     'dajax',
     'dajaxice',
     'rest_framework',  # djangorestframework
