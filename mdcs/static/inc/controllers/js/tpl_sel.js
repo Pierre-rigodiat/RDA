@@ -76,17 +76,18 @@ displayTemplateSelectedDialog = function()
   });
 }
 
-loadCurrentTemplateForm = function()
+loadCurrentTemplateFormForCuration = function()
 {
-    console.log('BEGIN [loadCurrentTemplateForm]');
+    console.log('BEGIN [loadCurrentTemplateFormForCuration]');
 
     $('.btn.clear-fields').on('click', clearFields);
     $('.btn.load-form').on('click', loadForm);
     $('.btn.save-form').on('click', saveForm);
+    $('.btn.download-xsd').on('click', downloadXSD);
 
     Dajaxice.curate.generateXSDTreeForEnteringData(Dajax.process); //,{'templateFilename':'xxxx'});
 
-    console.log('END [loadCurrentTemplateForm]');
+    console.log('END [loadCurrentTemplateFormForCuration]');
 }
 
 loadExploreCurrentTemplateForm = function()
@@ -151,6 +152,19 @@ downloadXML = function()
     console.log('END [downloadXML]');
 }
 
+downloadXSD = function()
+{
+    console.log('BEGIN [downloadXSD]');
+
+    console.log('[downloadXSD] Downloading XSD...');
+    
+    window.location = '/curate/view-data/download-XSD';
+    
+    console.log('[downloadXSD] Form downloaded');
+
+    console.log('END [downloadXSD]');
+}
+
 saveToRepository = function()
 {
     console.log('BEGIN [saveToRepository]');
@@ -200,6 +214,7 @@ changeXMLSchemaCallback = function(data)
 setCurrentTemplate = function()
 {
 	var templateName = $(this).parent().parent().children(':first').text();
+	var templateID = $(this).parent().parent().children(':first').attr('templateID');
 	var templateFilename = $(this).parent().parent().children(':nth-child(2)').text();
 	var tdElement = $(this).parent();
 		
@@ -210,7 +225,7 @@ setCurrentTemplate = function()
 
 //        Dajaxice.curate.setCurrentTemplate(setCurrentTemplateCallback(templateName,tdElement),{'templateName':templateName});
 //        Dajaxice.curate.setCurrentTemplate(Dajax.process,{'templateFilename':templateFilename});
-        Dajaxice.curate.setCurrentTemplate(setCurrentTemplateCallback,{'templateFilename':templateFilename});
+        Dajaxice.curate.setCurrentTemplate(setCurrentTemplateCallback,{'templateFilename':templateFilename,'templateID':templateID});
 //        tdElement.html('<span style="color:green;font-weight:bold">Current template</span>');
         
 

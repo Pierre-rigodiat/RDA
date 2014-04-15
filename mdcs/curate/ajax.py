@@ -1,7 +1,7 @@
 ################################################################################
 #
 # File Name: ajax.py
-# Application: Curate
+# Application: curate
 # Purpose:   
 #
 # Author: Sharief Youssef
@@ -16,6 +16,9 @@ from django.utils import simplejson
 from dajax.core import Dajax
 from dajaxice.decorators import dajaxice_register
 from django.conf import settings
+from mongoengine import *
+from io import BytesIO
+from curate.models import XMLSchema 
 
 #import xml.etree.ElementTree as etree
 import lxml.etree as etree
@@ -26,6 +29,12 @@ xmlString = ""
 xmlDocTree = ""
 debugON = 0
 
+# Class definition
+class Template(Document):
+    title = StringField(required=True)
+    filename = StringField(required=True)
+    content = StringField(required=True)
+
 ################################################################################
 #
 # Function Name: getXsdString(request)
@@ -33,23 +42,44 @@ debugON = 0
 # Outputs:       XML Schema of the current template
 # Exceptions:    None
 # Description:   Returns an XML Schema of the current template.
-#                The template is possibly modified.
+#                The template is is the unmodified version.
 #
 ################################################################################
 @dajaxice_register
 def getXsdString(request):
-    print 'BEGIN def getXmlString(request)'
+    print '>>>> BEGIN def getXsdString(request)'
     dajax = Dajax()
 
     templateFilename = request.session['currentTemplate']
-    pathFile = "{0}/mdcs/xsdfiles/" + templateFilename
 
-    path = pathFile.format(
-        settings.SITE_ROOT)
-    xmlDoc = open(path,'r')
-    xmlString = xmlDoc.read()
+    templateObject = Template.objects.get(filename=templateFilename)
+    xmlDocData = templateObject.content
 
-    print 'END def getXmlString(request)'
+    xmlString = xmlDocData.encode('utf-8')
+
+    print '>>>> END def getXsdString(request)'
+    return simplejson.dumps({'xmlString':xmlString})
+
+################################################################################
+#
+# Function Name: getCurrentXsdString(request)
+# Inputs:        request - 
+# Outputs:       XML Schema of the current template
+# Exceptions:    None
+# Description:   Returns an XML Schema of the current *version* of the template.
+#                The template is possibly modified.
+#
+################################################################################
+@dajaxice_register
+def getCurrentXsdString(request):
+    print '>>>> BEGIN def getXsdString(request)'
+    dajax = Dajax()
+
+    global xmlDocTree
+
+    xmlString = xmlDocTree.tostring()
+
+    print '>>>> END def getXsdString(request)'
     return simplejson.dumps({'xmlString':xmlString})
 
 ################################################################################
@@ -64,50 +94,45 @@ def getXsdString(request):
 ################################################################################
 @dajaxice_register
 def getXmlString(request):
-    print 'BEGIN def getXmlString(request)'
+    print '>>>>  BEGIN def getXmlString(request)'
     dajax = Dajax()
 
     global xmlString
 
-    print 'END def getXmlString(request)'
+    print '>>>> END def getXmlString(request)'
     return simplejson.dumps({'xmlString':xmlString})
-
-
-    return simplejson.dumps({'xmlString':xmlstring})
 
 ################################################################################
 # 
-# Function Name: setCurrentTemplate(request)
+# Function Name: setCurrentTemplate(request,templateFilename,templateID)
 # Inputs:        request - 
 #                templateFilename -  
 # Outputs:       JSON data with success or failure
 # Exceptions:    None
-# Description:   Set the current template to input argument.  Template is read into
-#                an xsdDocTree for use later.
+# Description:   Set the current template to input argument.  Template is read 
+#                into an xsdDocTree for use later.
 #
 ################################################################################
 @dajaxice_register
-def setCurrentTemplate(request,templateFilename):
+def setCurrentTemplate(request,templateFilename,templateID):
     print 'BEGIN def setCurrentTemplate(request)'
     
     global xmlDocTree
 
     request.session['currentTemplate'] = templateFilename
+    request.session['currentTemplateID'] = templateID
     request.session.modified = True
     print '>>>>' + templateFilename + ' set as current template in session'
     dajax = Dajax()
 
-    pathFile = "{0}/mdcs/xsdfiles/" + templateFilename
+    templateObject = Template.objects.get(filename=templateFilename)
+    xmlDocData = templateObject.content
 
-    path = pathFile.format(
-        settings.SITE_ROOT)
-    xmlDoc = open(path,'r')
-    xmlDocData = xmlDoc.read()
-    print "xsdData: " + xmlDocData
-    xmlDocTree2 = etree.XML(xmlDocData)
-    print "xsdDocTree: " + str(xmlDocTree2)
-
-    xmlDocTree = etree.parse(path)
+#    xmlDocTree = etree.parse(BytesIO(xmlDocData.encode('utf-8')))
+    print XMLSchema.tree
+    XMLSchema.tree = etree.parse(BytesIO(xmlDocData.encode('utf-8')))
+    print XMLSchema.tree
+    xmlDocTree = XMLSchema.tree
 
     print 'END def setCurrentTemplate(request)'
     return dajax.json()
@@ -168,6 +193,7 @@ def setCurrentModel(request,modelFilename):
 #
 ################################################################################
 def generateFormSubSection(xpath,selected,xmlDataTree):
+    print 'BEGIN def generateFormSubSection(xpath,selected,xmlDataTree)'
     formString = ""
     global xmlString
     global xmlDocTree
@@ -504,6 +530,7 @@ def get_namespace(element):
 #
 ################################################################################
 def generateForm(key,xmlDataTree):
+    print 'BEGIN def generateForm(key,xmlDataTree)'
     formString = ""
     global xmlString
     global xmlDocTree
@@ -512,6 +539,7 @@ def generateForm(key,xmlDataTree):
 #    formString += "schemaRoot: " + schemaRoot.tag + "<br>"
 
 #    namespace = "{http://www.w3.org/2001/XMLSchema}"
+
     namespace = get_namespace(xmlDocTree.getroot())
     if debugON: formString += "namespace: " + namespace + "<br>"
     e = xmlDocTree.findall("./{0}element".format(namespace))
@@ -557,20 +585,14 @@ def generateXSDTreeForEnteringData(request):
     global xmlDocTree
 
     templateFilename = request.session['currentTemplate']
+    templateID = request.session['currentTemplateID']
 #    request.session.modified = True
     print '>>>>' + templateFilename + ' is the current template in session'
     dajax = Dajax()
 
-    pathFile = "{0}/mdcs/xsdfiles/" + templateFilename
+    if xmlDocTree == "":
+        setCurrentTemplate(request,templateFilename, templateID)
 
-    path = pathFile.format(
-        settings.SITE_ROOT)
-    xmlDoc = open(path,'r')
-    xmlDocData = xmlDoc.read()
-#    print "xsdDocData: " + xmlDocData
-#    xmlDocTree = etree.XML(xmlDocData)
-
-#   xmlDocTree = etree.parse(path)
     xmlDataTree = ""
     xmlString = ""
 #    print "xsdDocTree: " + str(xmlDocTree)
@@ -626,7 +648,7 @@ def changeXMLSchema(request,operation,xpath,name):
     if xmlDocTree == "":
         print "xmlDocTree is null"
         templateFilename = request.session['currentTemplate']
-        pathFile = "{0}/mdcs/xsdfiles/" + templateFilename
+        pathFile = "{0}/xsdfiles/" + templateFilename
         path = pathFile.format(
             settings.SITE_ROOT)
         xmlDocTree = etree.parse(path)

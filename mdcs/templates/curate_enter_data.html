@@ -8,7 +8,7 @@
 # Author: Sharief Youssef
 #         sharief.youssef@nist.gov
 #
-# Sponsor: National Institue of Standards and Technology
+# Sponsor: National Institute of Standards and Technology (NIST)
 #
 ################################################################################
 -->
@@ -159,14 +159,9 @@
     <button class="btn clear-fields"><i class="icon-file"></i> Clear fields</button>
     <button class="btn load-form"><i class="icon-folder-open"></i> Load form</button>
     <button class="btn save-form"><i class="icon-hdd"></i> Save form</button>
-    </div>
+    <button class="btn download-xsd"><i class="icon-arrow-down"></i> Download form</button>
+  </div>
 
-
-  <div class="pagination">
-    <?php
-       displayPageNavigator();
-       ?>
-    </div>
 
 <br><br>
 
@@ -177,7 +172,7 @@
 
 		      </div>
 </div>
-<!--<button class="btn" onclick="loadCurrentTemplateForm()">update</button>-->
+<!--<button class="btn" onclick="loadCurrentTemplateFormForCuration()">update</button>-->
 
 		    </div>
 
@@ -255,7 +250,7 @@
 	<script src="{% static 'resources/js/bootstrap.min.js' %}"></script>
 	<script src="{% static 'inc/controllers/js/tpl_sel.js' %}"></script>
 	<script>
-	  loadCurrentTemplateForm();
+	  loadCurrentTemplateFormForCuration();
 	</script>
 
 

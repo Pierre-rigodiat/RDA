@@ -2,7 +2,7 @@
 #
 # File Name: views.py
 # Application: mgi
-# Description:
+# Description: Django views used to render pages for the system.
 #
 # Author: Sharief Youssef
 #         sharief.youssef@nist.gov
@@ -12,19 +12,20 @@
 ################################################################################
 
 from django.shortcuts import render
-
-# Create your views here.
-
 from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth import authenticate, login, logout
 from django.template import RequestContext, loader
 from django.shortcuts import redirect
-from datetime import date
-
 from django import forms
-
 from django.core.servers.basehttp import FileWrapper
 from django.conf import settings
+from datetime import date
+from mongoengine import *
+from operator import itemgetter
+from cStringIO import StringIO
+from curate.models import XMLSchema 
+
+import lxml.etree as etree
 
 class ContactForm(forms.Form):
     subject = forms.CharField(max_length=100)
@@ -32,16 +33,34 @@ class ContactForm(forms.Form):
     sender = forms.EmailField()
     cc_myself = forms.BooleanField(required=False)
 
-from mongoengine import *
-from operator import itemgetter
-
 class Template(Document):
     title = StringField(required=True)
     filename = StringField(required=True)
+    content = StringField(required=True)
 
+# Create your views here.
+
+################################################################################
+#
+# Function Name: currentYear(request)
+# Inputs:        request - 
+# Outputs:       Current Year
+# Exceptions:    None
+# Description:   Helper function - returns the current year
+#
+################################################################################
 def currentYear():
     return date.today().year
 
+################################################################################
+#
+# Function Name: home(request)
+# Inputs:        request - 
+# Outputs:       Materials Data Curation System homepage
+# Exceptions:    None
+# Description:   renders the main home page from template (index.html)
+#
+################################################################################
 def home(request):
     template = loader.get_template('index.html')
     connect('mgi')
@@ -52,6 +71,15 @@ def home(request):
     request.session['currentYear'] = currentYear()
     return HttpResponse(template.render(context))
 
+################################################################################
+#
+# Function Name: admin(request)
+# Inputs:        request - 
+# Outputs:       Administrative Dashboard page
+# Exceptions:    None
+# Description:   renders the admin page from template (admin/index.html)
+#
+################################################################################
 def admin(request):
     template = loader.get_template('admin/index.html')
     connect('mgi')
@@ -62,6 +90,16 @@ def admin(request):
     request.session['currentYear'] = currentYear()
     return HttpResponse(template.render(context))
 
+################################################################################
+#
+# Function Name: xml_schemas(request)
+# Inputs:        request - 
+# Outputs:       
+# Exceptions:    None
+# Description:   
+#                
+#
+################################################################################
 def xml_schemas(request):
     template = loader.get_template('admin/xml_schemas.html')
     connect('mgi')
@@ -72,6 +110,16 @@ def xml_schemas(request):
     request.session['currentYear'] = currentYear()
     return HttpResponse(template.render(context))
 
+################################################################################
+#
+# Function Name: manage_schemas(request)
+# Inputs:        request - 
+# Outputs:       
+# Exceptions:    None
+# Description:   
+#                
+#
+################################################################################
 def manage_schemas(request):
     template = loader.get_template('admin/manage_schemas.html')
     connect('mgi')
@@ -82,6 +130,16 @@ def manage_schemas(request):
     request.session['currentYear'] = currentYear()
     return HttpResponse(template.render(context))
 
+################################################################################
+#
+# Function Name: manage_modules(request)
+# Inputs:        request - 
+# Outputs:       
+# Exceptions:    None
+# Description:   
+#                
+#
+################################################################################
 def manage_modules(request):
     template = loader.get_template('admin/manage_modules.html')
     connect('mgi')
@@ -92,6 +150,16 @@ def manage_modules(request):
     request.session['currentYear'] = currentYear()
     return HttpResponse(template.render(context))
 
+################################################################################
+#
+# Function Name: manage_queries(request)
+# Inputs:        request - 
+# Outputs:       
+# Exceptions:    None
+# Description:   
+#                
+#
+################################################################################
 def manage_queries(request):
     template = loader.get_template('admin/manage_queries.html')
     connect('mgi')
@@ -102,6 +170,16 @@ def manage_queries(request):
     request.session['currentYear'] = currentYear()
     return HttpResponse(template.render(context))
 
+################################################################################
+#
+# Function Name: user_management(request)
+# Inputs:        request - 
+# Outputs:       
+# Exceptions:    None
+# Description:   
+#                
+#
+################################################################################
 def user_management(request):
     template = loader.get_template('admin/user_management.html')
     connect('mgi')
@@ -112,6 +190,16 @@ def user_management(request):
     request.session['currentYear'] = currentYear()
     return HttpResponse(template.render(context))
 
+################################################################################
+#
+# Function Name: curate(request)
+# Inputs:        request - 
+# Outputs:       
+# Exceptions:    None
+# Description:   
+#                
+#
+################################################################################
 def curate(request):
 #    logout(request)
     template = loader.get_template('curate.html')
@@ -127,23 +215,17 @@ def curate(request):
             del request.session['loggedOut']
         request.session['next'] = '/curate'
         return redirect('/login')
-#        username = request.POST['username']
-#        password = request.POST['password']
-#        user = authenticate(username=username, password=password)
-#        user = authenticate(username='materials', password='data123')
-#        if user is not None:
-            # the password verified for the user
-#            if user.is_active:
-#                login(request, user)
-#                return HttpResponse(template.render(context))
-#                return render_to_response('index.html', {'inhalt': 'sucessfully logged in'}, RequestContext(request))
-#                return HttpResponse("HomePage: User is valid, active and authenticated")
-#            else:
-#                return HttpResponse("HomePage: The password is valid, but the account has been disabled!")
-#        else:
-            # the authentication system was unable to verify the username and password
-#            return HttpResponse("HomePage: The username and password were incorrect.")
 
+################################################################################
+#
+# Function Name: curate_select_template(request)
+# Inputs:        request - 
+# Outputs:       
+# Exceptions:    None
+# Description:   
+#                
+#
+################################################################################
 def curate_select_template(request):
 #    logout(request)
     template = loader.get_template('curate.html')
@@ -159,14 +241,25 @@ def curate_select_template(request):
         request.session['next'] = '/curate/select-template'
         return redirect('/login')
 
+################################################################################
+#
+# Function Name: curate_enter_data(request)
+# Inputs:        request - 
+# Outputs:       
+# Exceptions:    None
+# Description:   
+#                
+#
+################################################################################
 def curate_enter_data(request):
+    print "BEGIN curate_enter_data(request)"
 #    logout(request)
     template = loader.get_template('curate_enter_data.html')
     context = RequestContext(request, {
         '': '',
     })
     request.session['currentYear'] = currentYear()
-    return HttpResponse(template.render(context))  # remove after testing
+#    return HttpResponse(template.render(context))  # remove after testing
     if request.user.is_authenticated():
         if 'currentTemplate' not in request.session:
             return redirect('/curate/select-template')
@@ -178,6 +271,16 @@ def curate_enter_data(request):
         request.session['next'] = '/curate/enter-data'
         return redirect('/login')
 
+################################################################################
+#
+# Function Name: curate_view_data(request)
+# Inputs:        request - 
+# Outputs:       
+# Exceptions:    None
+# Description:   
+#                
+#
+################################################################################
 def curate_view_data(request):
 #    logout(request)
     template = loader.get_template('curate_view_data.html')
@@ -197,64 +300,84 @@ def curate_view_data(request):
         request.session['next'] = '/curate/view-data'
         return redirect('/login')
 
+################################################################################
+#
+# Function Name: curate_view_data_downloadxml(request)
+# Inputs:        request - 
+# Outputs:       XML representation of the current data instance
+# Exceptions:    None
+# Description:   Returns an XML representation of the current data instance.
+#                Used when user wants to download the XML file.
+#
+################################################################################
 def curate_view_data_downloadxml(request):
-#    logout(request)
-
-#    template = loader.get_template('curate_view_data.html2')
-#    context = RequestContext(request, {
-#        '': '',
-#    })
-#    request.session['currentYear'] = currentYear()
-#    return HttpResponse(template.render(context))  # remove after testing
-    templateFilename = request.session['currentTemplate']
-    pathFile = "{0}/xsdfiles/" + templateFilename
-
-    path = pathFile.format(
-        settings.SITE_ROOT)
-    xmlDoc = open(path,'r')
-    response = HttpResponse(FileWrapper(xmlDoc), content_type='application/xml')
-    response['Content-Disposition'] = 'attachment; filename=mgiml.xml'
-    return response
     if request.user.is_authenticated():
         if 'currentTemplate' not in request.session:
             return redirect('/curate/select-template')
         else:
-            return HttpResponse(template.render(context))
+            templateFilename = request.session['currentTemplate']
+            pathFile = "{0}/mdcs/xsdfiles/" + templateFilename
+
+            path = pathFile.format(
+                settings.SITE_ROOT)
+            xmlDoc = open(path,'r')
+            response = HttpResponse(FileWrapper(xmlDoc), content_type='application/xml')
+            response['Content-Disposition'] = 'attachment; filename=mgiml.xml'
+            return response
     else:
         if 'loggedOut' in request.session:
             del request.session['loggedOut']
-        request.session['next'] = '/curate/view-data'
+        request.session['next'] = '/curate'
         return redirect('/login')
 
+################################################################################
+#
+# Function Name: curate_view_data_downloadxsd(request)
+# Inputs:        request - 
+# Outputs:       XSD representation of the current form instance
+# Exceptions:    None
+# Description:   Returns an XSD representation of the current form instance.
+#                Used when user wants to download the form / xml schema.
+#
+################################################################################
 def curate_view_data_downloadxsd(request):
-#    logout(request)
-
-#    template = loader.get_template('curate_view_data.html2')
-#    context = RequestContext(request, {
-#        '': '',
-#    })
-#    request.session['currentYear'] = currentYear()
-#    return HttpResponse(template.render(context))  # remove after testing
-    templateFilename = request.session['currentTemplate']
-    pathFile = "{0}/xsdfiles/" + templateFilename
-
-    path = pathFile.format(
-        settings.SITE_ROOT)
-    xmlDoc = open(path,'r')
-    response = HttpResponse(FileWrapper(xmlDoc), content_type='application/xml')
-    response['Content-Disposition'] = 'attachment; filename=mgiml.xml'
-    return response
     if request.user.is_authenticated():
         if 'currentTemplate' not in request.session:
             return redirect('/curate/select-template')
         else:
-            return HttpResponse(template.render(context))
+            templateFilename = request.session['currentTemplate']
+            print 'currentTemplate: ' + templateFilename
+
+            templateObject = Template.objects.get(filename=templateFilename)
+
+            print templateObject
+#            xsdDocData = templateObject.content
+            print XMLSchema.tree
+            root = XMLSchema.tree.getroot()
+            xsdDocData = etree.tostring(root,pretty_print=True)
+
+            xsdEncoded = xsdDocData.encode('utf-8')
+            fileObj = StringIO(xsdEncoded)
+
+            response = HttpResponse(FileWrapper(fileObj), content_type='application/xml')
+            response['Content-Disposition'] = 'attachment; filename=' + templateFilename
+            return response
     else:
         if 'loggedOut' in request.session:
             del request.session['loggedOut']
-        request.session['next'] = '/curate/view-data'
+        request.session['next'] = '/curate'
         return redirect('/login')
 
+################################################################################
+#
+# Function Name: view_schema(request)
+# Inputs:        request - 
+# Outputs:       
+# Exceptions:    None
+# Description:   
+#                
+#
+################################################################################
 def view_schema(request):
 #    logout(request)
     template = loader.get_template('view_schema.html')
@@ -274,6 +397,16 @@ def view_schema(request):
         request.session['next'] = '/curate/view-data'
         return redirect('/login')
 
+################################################################################
+#
+# Function Name: explore(request)
+# Inputs:        request - 
+# Outputs:       
+# Exceptions:    None
+# Description:   
+#                
+#
+################################################################################
 def explore(request):
 #    logout(request)
     template = loader.get_template('explore.html')
@@ -301,6 +434,16 @@ def explore(request):
             # the authentication system was unable to verify the username and password
 #            return HttpResponse("HomePage: The username and password were incorrect.")
 
+################################################################################
+#
+# Function Name: explore_select_template(request)
+# Inputs:        request - 
+# Outputs:       
+# Exceptions:    None
+# Description:   
+#                
+#
+################################################################################
 def explore_select_template(request):
 #    logout(request)
     template = loader.get_template('explore.html')
@@ -316,6 +459,16 @@ def explore_select_template(request):
         request.session['next'] = '/curate/select-template'
         return redirect('/login')
 
+################################################################################
+#
+# Function Name: explore_customize_template(request)
+# Inputs:        request - 
+# Outputs:       
+# Exceptions:    None
+# Description:   
+#                
+#
+################################################################################
 def explore_customize_template(request):
 #    logout(request)
     template = loader.get_template('explore_customize_template.html')
@@ -335,6 +488,16 @@ def explore_customize_template(request):
         request.session['next'] = '/explore/customize-template'
         return redirect('/login')
 
+################################################################################
+#
+# Function Name: explore_perform_search(request)
+# Inputs:        request - 
+# Outputs:       
+# Exceptions:    None
+# Description:   
+#                
+#
+################################################################################
 def explore_perform_search(request):
 #    logout(request)
     template = loader.get_template('explore_perform_search.html')
@@ -354,6 +517,16 @@ def explore_perform_search(request):
         request.session['next'] = '/explore/perform-search'
         return redirect('/login')
 
+################################################################################
+#
+# Function Name: contribute(request)
+# Inputs:        request - 
+# Outputs:       
+# Exceptions:    None
+# Description:   
+#                
+#
+################################################################################
 def contribute(request):
     template = loader.get_template('contribute.html')
     context = RequestContext(request, {
@@ -369,6 +542,16 @@ def contribute(request):
         request.session['next'] = '/curate'
         return redirect('/login')
 
+################################################################################
+#
+# Function Name: all_options(request)
+# Inputs:        request - 
+# Outputs:       
+# Exceptions:    None
+# Description:   
+#                
+#
+################################################################################
 def all_options(request):
     template = loader.get_template('all-options.html')
     context = RequestContext(request, {
@@ -377,6 +560,16 @@ def all_options(request):
     request.session['currentYear'] = currentYear()
     return HttpResponse(template.render(context))
 
+################################################################################
+#
+# Function Name: browse_all(request)
+# Inputs:        request - 
+# Outputs:       
+# Exceptions:    None
+# Description:   
+#                
+#
+################################################################################
 def browse_all(request):
     template = loader.get_template('browse-all.html')
     connect('mgi')
@@ -387,6 +580,16 @@ def browse_all(request):
     request.session['currentYear'] = currentYear()
     return HttpResponse(template.render(context))
 
+################################################################################
+#
+# Function Name: login_view(request)
+# Inputs:        request - 
+# Outputs:       
+# Exceptions:    None
+# Description:   
+#                
+#
+################################################################################
 def login_view(request):
 #    del request.session['loggedOut']
 
@@ -398,6 +601,16 @@ def login_view(request):
     request.session['next'] = 'http://www.google.com'
     return HttpResponse(template.render(context))
 
+################################################################################
+#
+# Function Name: logout_view(request)
+# Inputs:        request - 
+# Outputs:       
+# Exceptions:    None
+# Description:   
+#                
+#
+################################################################################
 def logout_view(request):
     logout(request)
     if 'loggedOut' in request.session:
@@ -411,6 +624,16 @@ def logout_view(request):
 #    })
 #    return HttpResponse(template.render(context))
 
+################################################################################
+#
+# Function Name: my_profile(request)
+# Inputs:        request - 
+# Outputs:       
+# Exceptions:    None
+# Description:   
+#                
+#
+################################################################################
 def my_profile(request):
     template = loader.get_template('my_profile.html')
     context = RequestContext(request, {
@@ -426,6 +649,16 @@ def my_profile(request):
         request.session['next'] = '/my-profile'
         return redirect('/login')
 
+################################################################################
+#
+# Function Name: my_profile_edit(request)
+# Inputs:        request - 
+# Outputs:       
+# Exceptions:    None
+# Description:   
+#                
+#
+################################################################################
 def my_profile_edit(request):
     template = loader.get_template('my_profile_edit.html')
     context = RequestContext(request, {
@@ -441,6 +674,16 @@ def my_profile_edit(request):
         request.session['next'] = '/my-profile'
         return redirect('/login')
 
+################################################################################
+#
+# Function Name: my_profile_change_password(request)
+# Inputs:        request - 
+# Outputs:       
+# Exceptions:    None
+# Description:   
+#                
+#
+################################################################################
 def my_profile_change_password(request):
     template = loader.get_template('my_profile_change_password.html')
     context = RequestContext(request, {
@@ -456,6 +699,16 @@ def my_profile_change_password(request):
         request.session['next'] = '/my-profile'
         return redirect('/login')
 
+################################################################################
+#
+# Function Name: contact(request)
+# Inputs:        request - 
+# Outputs:       
+# Exceptions:    None
+# Description:   
+#                
+#
+################################################################################
 def contact(request):
     if request.method == 'POST': # If the form has been submitted...
         form = ContactForm(request.POST) # A form bound to the POST data
@@ -476,6 +729,16 @@ def contact(request):
 #    request.session['currentYear'] = currentYear()
 #    return HttpResponse(template.render(context))
 
+################################################################################
+#
+# Function Name: about(request)
+# Inputs:        request - 
+# Outputs:       
+# Exceptions:    None
+# Description:   
+#                
+#
+################################################################################
 def about(request):
     template = loader.get_template('about.html')
     context = RequestContext(request, {
@@ -484,6 +747,16 @@ def about(request):
     request.session['currentYear'] = currentYear()
     return HttpResponse(template.render(context))
 
+################################################################################
+#
+# Function Name: privacy_policy(request)
+# Inputs:        request - 
+# Outputs:       
+# Exceptions:    None
+# Description:   
+#                
+#
+################################################################################
 def privacy_policy(request):
     template = loader.get_template('privacy-policy.html')
     context = RequestContext(request, {
@@ -492,6 +765,16 @@ def privacy_policy(request):
     request.session['currentYear'] = currentYear()
     return HttpResponse(template.render(context))
 
+################################################################################
+#
+# Function Name: terms_of_use(request)
+# Inputs:        request - 
+# Outputs:       
+# Exceptions:    None
+# Description:   
+#                
+#
+################################################################################
 def terms_of_use(request):
     template = loader.get_template('terms-of-use.html')
     context = RequestContext(request, {
@@ -500,6 +783,16 @@ def terms_of_use(request):
     request.session['currentYear'] = currentYear()
     return HttpResponse(template.render(context))
 
+################################################################################
+#
+# Function Name: help(request)
+# Inputs:        request - 
+# Outputs:       
+# Exceptions:    None
+# Description:   
+#                
+#
+################################################################################
 def help(request):
     template = loader.get_template('help.html')
     context = RequestContext(request, {

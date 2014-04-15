@@ -8,7 +8,7 @@
 # Author: Sharief Youssef
 #         sharief.youssef@nist.gov
 #
-# Sponsor: National Institue of Standards and Technology
+# Sponsor: National Institute of Standards and Technology (NIST)
 #
 ################################################################################
 -->
@@ -107,9 +107,9 @@
 
 	<ul class="tabbed">
 	  <li class="current_page_item"><a href="/curate/select-template">Select Template</a></li>
-	  <li><a href="/curate/enter-data">Enter Data</a></li>
-	  <li><a href="/curate/view-data">View Data</a></li>
-	  </ul>
+	  <li><div style="cursor:pointer"><a onclick="verifyTemplateIsSelected('/curate/enter-data');">Enter Data</a></div></li>
+	  <li><div style="cursor:pointer"><a onclick="verifyTemplateIsSelected('/curate/view-data');">View Data</a></div></li>
+	</ul>
 
 	<div class="clearer">&nbsp;</div>
 
@@ -169,7 +169,7 @@
 {% for template in templates %}
   {% cycle 'even' '' as rowcolors silent %}
   <tr class="{{ rowcolors }}">
-    <td>{{ template.title }}</td>
+    <td templateID='{{template.id}}'>{{ template.title }}</td>
     <td>{{ template.filename }}</td>
 
 {% if request.session.currentTemplate == template.filename %} 

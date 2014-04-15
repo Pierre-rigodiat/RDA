@@ -454,29 +454,15 @@ def generateFormSubSection(xpath,selected,xmlDataTree):
 
         for simpleTypeChild in simpleTypeChildren:
             if simpleTypeChild.tag == "{0}restriction".format(namespace):
-                formString += "<select>"
-                choiceChildren = simpleTypeChild.findall('*')
-                selectedChild = choiceChildren[0]
-                xmlString += selectedChild.attrib.get('value')
-                for choiceChild in choiceChildren:
-                    if choiceChild.tag == "{0}enumeration".format(namespace):
-                        formString += "<option value='" + choiceChild.attrib.get('value')  + "'>" + choiceChild.attrib.get('value') + "</option>"
-                formString += "</select>"
+                formString += "<input type='checkbox'>"
+#                choiceChildren = simpleTypeChild.findall('*')
+#                selectedChild = choiceChildren[0]
+#                xmlString += selectedChild.attrib.get('value')
+#                for choiceChild in choiceChildren:
+#                    if choiceChild.tag == "{0}enumeration".format(namespace):
+#                        formString += "<option value='" + choiceChild.attrib.get('value')  + "'>" + choiceChild.attrib.get('value') + "</option>"
+#                formString += "</select>"
         
-#    for element in xmlDocTree.iter('*'):
-#        formString += "Current element:" + element.tag + "<br>"
-#        if element.find('*'):
-#            elementChild = element.find('*')
-#            formString += "match:" + elementChild.tag + "<br>"
-#        if p.match(element.tag):
-#            if element.get("name"):
-#                formString += element.get("name") + "<input type='text' value='" + element.tag + "' style='width:450px'><br>" 
-#            else:
-#                if p.match(element.tag):
-#                    formString += "<input type='text' value='" + element.tag + "' style='width:450px'><br>" 
-#                else:
-#                    formString += "no match<br>"
-
     return formString
 
 ################################################################################

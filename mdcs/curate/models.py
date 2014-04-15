@@ -14,6 +14,7 @@
 from django.db import models
 
 from mongoengine import *
+import lxml.etree as etree
 
 # Create your models here.
 
@@ -36,3 +37,6 @@ class Task(models.Model):
     completed = models.BooleanField(default=False)
     title = models.CharField(max_length=100)
     description = models.TextField()
+
+class XMLSchema(models.Model):
+    tree = etree.ElementTree
