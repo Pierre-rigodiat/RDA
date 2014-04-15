@@ -162,6 +162,51 @@ def verifyTemplateIsSelected(request):
 
 ################################################################################
 # 
+# Function Name: uploadXMLSchema
+# Inputs:        request - 
+#                XMLSchema - 
+# Outputs:       JSON data 
+# Exceptions:    None
+# Description:   
+# 
+################################################################################
+@dajaxice_register
+def uploadXMLSchema(request,xmlSchemaFilename,xmlSchemaContent):
+    print 'BEGIN def uploadXMLSchema(request,xmlSchemaFilename,xmlSchemaContent)'
+    dajax = Dajax()
+
+    print 'xmlSchemaFilename: ' + xmlSchemaFilename
+    print 'xmlSchemaContent: ' + xmlSchemaContent
+
+    connect('mgi')
+    newTemplate = Template(title=xmlSchemaFilename, filename=xmlSchemaFilename, content=xmlSchemaContent).save()
+
+    print 'END def uploadXMLSchema(request,xmlSchemaFilename,xmlSchemaContent)'
+    return dajax.json()
+
+################################################################################
+# 
+# Function Name: deleteXMLSchema
+# Inputs:        request - 
+#                XMLSchema - 
+# Outputs:       JSON data 
+# Exceptions:    None
+# Description:   
+# 
+################################################################################
+@dajaxice_register
+def deleteXMLSchema(request,xmlSchemaFilename,xmlSchemaID):
+    print 'BEGIN def deleteXMLSchema(request,xmlSchemaFilename,xmlSchemaID)'
+    dajax = Dajax()
+
+    print 'xmlSchemaFilename: ' + xmlSchemaFilename
+    print 'xmlSchemaID: ' + xmlSchemaID
+
+    print 'END def deleteXMLSchema(request,xmlSchemaFilename,xmlSchemaID)'
+    return dajax.json()
+
+################################################################################
+# 
 # Function Name: setCurrentModel(request,modelFilename)
 # Inputs:        request - 
 #                modelFilename - 

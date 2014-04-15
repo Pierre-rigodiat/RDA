@@ -125,7 +125,8 @@ def manage_schemas(request):
     connect('mgi')
 
     context = RequestContext(request, {
-        'templates': Template.objects.all()
+#        'templates': Template.objects.all()
+        'templates': Template.objects.order_by('-id')
     })
     request.session['currentYear'] = currentYear()
     return HttpResponse(template.render(context))
