@@ -8,6 +8,8 @@ loadXsdManagerHandler = function()
     $('.delete').on('click', deleteCurrentSchema);
     $('.copy.schema').on('click', copySchema);
     $('.upload.schema').on('click', uploadSchema);
+    $('.copy.ontology').on('click', copyOntology);
+    $('.upload.ontology').on('click', uploadOntology);
     console.log('END [loadXsdManagerHandler]');
 }
 
@@ -149,5 +151,47 @@ uploadSchema = function()
     });
 	
     console.log('END [uploadSchema]');
+}
+
+/**
+ * 
+ */
+copyOntology = function()
+{
+    console.log('BEGIN [copyOntology]');
+
+    $(function() {
+        $( "#dialog-copied-message" ).dialog({
+            modal: true,
+            buttons: {
+		Ok: function() {
+                    $( this ).dialog( "close" );
+                }
+	    }
+        });
+    });
+	
+    console.log('END [copyOntology]');
+}
+
+/**
+ * 
+ */
+uploadOntology = function()
+{
+    console.log('BEGIN [uploadOntology]');
+
+    $(function() {
+        $( "#dialog-upload-message" ).dialog({
+            modal: true,
+            buttons: {
+		Ok: function() {
+                    $( this ).dialog( "close" );
+                }
+	    }
+        });
+    });
+	
+    console.log('END [uploadOntology]');
 }
 

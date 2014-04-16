@@ -1,7 +1,7 @@
 <!-- 
 ################################################################################
 #
-# File Name: manage_schemas.html
+# File Name: manage_ontology.html
 # Application: templates/admin
 # Description: 
 #
@@ -122,8 +122,8 @@
 
 	<ul class="tabbed">
 	  <li><a href="/admin/xml-schemas/current-model">Current Model</a></li>
-	  <li class="current_page_item"><a href="/admin/xml-schemas/manage-schemas">Manage Schemas</a></li>
-	  <li><a href="/admin/xml-schemas/manage-ontologies">Manage Ontologies</a></li>
+	  <li><a href="/admin/xml-schemas/manage-schemas">Manage Schemas</a></li>
+	  <li class="current_page_item"><a href="/admin/xml-schemas/manage-ontologies">Manage Ontologies</a></li>
 <!--	  <li><a href="/admin/xml-schemas/manage-modules">Manage Modules</a></li> -->
 	  </ul>
 
@@ -144,7 +144,7 @@
 			<div id="featured-wrapper">
 				<div id="featured">
 
-<h1>Schema Manager</h1>
+<h1>Ontology Manager</h1>
 					
 					<div class="clearer">&nbsp;</div>
 
@@ -155,8 +155,8 @@
 
 <div class="right-side">
 <span class="ctx_menu">
-<div class="icon legend long copy schema">Copy schema</div>
-<div class="icon legend long upload schema">Upload schema</div>
+<!-- <div class="icon legend long copy ontology">Copy Ontology</div> -->
+<div class="icon legend long upload ontology">Upload Ontology</div>
 </span>
 </div>
 
@@ -170,22 +170,21 @@
 
 {% endif %}
 
+{% if ontologies %}
+
 <table class="data-table">
   <tr>
-    <th>Schema name</th>
+    <th>Ontology name</th>
     <th>Filename</th>
-    <th>Root element</th>
     <th>Status</th>
     <th>Actions</th>
   </tr>
 
-
-{% for template in templates %}
+{% for ontology in ontologies %}
   {% cycle 'even' '' as rowcolors silent %}
   <tr class="{{ rowcolors }}">
-    <td>{{ template.title }}</td>
-    <td>{{ template.filename }}</td>
-    <td>Experiment</td>
+    <td>{{ ontology.title }}</td>
+    <td>{{ ontology.filename }}</td>
 
 {% if request.session.currentTemplate == template.filename %} 
 
@@ -195,7 +194,10 @@
 {% else %}
 
     <td><span style="color:green;">Registered</span></td>
-    <td><div class="icon legend extra-long add">Set as current model</div><div class="icon legend delete">Delete</div></td>
+    <td>
+<!-- <div class="icon legend extra-long add">Set as current model</div> -->
+<div class="icon legend delete">Delete</div>
+</td>
 
 {% endif %}
 
@@ -204,6 +206,13 @@
 {% endfor %}
 
 </table>
+
+{% else %}
+<br>
+There are currently no ontologies uploaded.  Please click "Upload Ontology" to the right to add an ontology.
+<br>
+<br>
+{% endif %}
 
 <div id="dialog-message" title="Template Loaded" style="display:none;">
 <p></p>
@@ -226,8 +235,8 @@
 
 <div class="right-side">
 <span class="ctx_menu">
-<div class="icon legend long copy schema">Copy schema</div>
-<div class="icon legend long upload schema">Upload schema</div>
+<!-- <div class="icon legend long copy ontology">Copy Ontology</div> -->
+<div class="icon legend long upload ontology">Upload Ontology</div>
 </span>
 </div>
 
@@ -300,7 +309,7 @@
 <p></p>
   <p>
     <span class="ui-icon ui-icon-circle-check" style="float:left; margin:0 7px 10px 0;"></span>
-    Schema copied successfully. 
+    Ontology copied successfully. 
   </p>
   <p>
     Currently using <a href="/view-schema/{{ request.session.currentTemplate }}" target="_new">{{ request.session.currentTemplate }}</a>
@@ -329,7 +338,7 @@
   }
 </style>
 
-<div id="dialog-upload-message" title="Upload Schema" style="display:none;">
+<div id="dialog-upload-message" title="Upload Ontology" style="display:none;">
 <br>
 <input type="file" id="files" name="files[]" multiple />
 <output id="list"></output>
@@ -366,8 +375,8 @@
     }
   }
 
-  function uploadXMLSchemaCallback(data) {
-    console.log('BEGIN uploadXMlSchemaCallback');
+  function uploadXMLOntologyCallback(data) {
+    console.log('BEGIN uploadXMlOntologyCallback');
 
     Dajax.process(data);
     console.log('BEGIN [setCurrentModelCallback]');
@@ -383,7 +392,7 @@
     });
     console.log('END [setCurrentModelCallback]');
 
-    console.log('END uploadXMlSchemaCallback');
+    console.log('END uploadXMlOntologyCallback');
   }
 
   function handleFileUpload(evt) {
@@ -413,7 +422,7 @@
       progress.textContent = '100%';
 //      setTimeout("document.getElementById('progress_bar').className='';", 2000);
 
-      Dajaxice.curate.uploadXMLSchema(uploadXMLSchemaCallback,{'xmlSchemaFilename':files[0].name,'xmlSchemaContent':reader.result}); 
+      Dajaxice.curate.uploadXMLOntology(uploadXMLOntologyCallback,{'xmlOntologyFilename':files[0].name,'xmlOntologyContent':reader.result}); 
     }
 
     // Read in the image file as a binary string.

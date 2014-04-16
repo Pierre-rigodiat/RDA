@@ -38,6 +38,11 @@ class Template(Document):
     filename = StringField(required=True)
     content = StringField(required=True)
 
+class Ontology(Document):
+    title = StringField(required=True)
+    filename = StringField(required=True)
+    content = StringField(required=True)
+
 # Create your views here.
 
 ################################################################################
@@ -167,6 +172,26 @@ def manage_queries(request):
 
     context = RequestContext(request, {
         'templates': Template.objects.order_by('-id')[:7]
+    })
+    request.session['currentYear'] = currentYear()
+    return HttpResponse(template.render(context))
+
+################################################################################
+#
+# Function Name: manage_ontologies(request)
+# Inputs:        request - 
+# Outputs:       
+# Exceptions:    None
+# Description:   
+#                
+#
+################################################################################
+def manage_ontologies(request):
+    template = loader.get_template('admin/manage_ontologies.html')
+    connect('mgi')
+
+    context = RequestContext(request, {
+        'ontologies': Ontology.objects.order_by('-id')
     })
     request.session['currentYear'] = currentYear()
     return HttpResponse(template.render(context))
