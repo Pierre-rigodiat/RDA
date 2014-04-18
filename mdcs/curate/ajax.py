@@ -193,21 +193,24 @@ def uploadXMLSchema(request,xmlSchemaFilename,xmlSchemaContent):
 # 
 # Function Name: deleteXMLSchema
 # Inputs:        request - 
-#                XMLSchema - 
+#                xmlSchemaID - 
 # Outputs:       JSON data 
 # Exceptions:    None
 # Description:   
 # 
 ################################################################################
 @dajaxice_register
-def deleteXMLSchema(request,xmlSchemaFilename,xmlSchemaID):
-    print 'BEGIN def deleteXMLSchema(request,xmlSchemaFilename,xmlSchemaID)'
+def deleteXMLSchema(request,xmlSchemaID):
+    print 'BEGIN def deleteXMLSchema(request,xmlSchemaID)'
     dajax = Dajax()
 
-    print 'xmlSchemaFilename: ' + xmlSchemaFilename
     print 'xmlSchemaID: ' + xmlSchemaID
 
-    print 'END def deleteXMLSchema(request,xmlSchemaFilename,xmlSchemaID)'
+    connect('mgi')
+    selectedSchema = Template.objects(id=xmlSchemaID)[0]
+    selectedSchema.delete()
+
+    print 'END def deleteXMLSchema(request,xmlSchemaID)'
     return dajax.json()
 
 ################################################################################
@@ -239,22 +242,24 @@ def uploadXMLOntology(request,xmlOntologyFilename,xmlOntologyContent):
 # 
 # Function Name: deleteXMLOntology
 # Inputs:        request - 
-#                xmlOntologyFilename - 
-#                xmlOntologyContent - 
+#                xmlOntologyID - 
 # Outputs:       JSON data 
 # Exceptions:    None
 # Description:   
 # 
 ################################################################################
 @dajaxice_register
-def deleteXMLOntology(request,xmlOntologyFilename,xmlOntologyID):
-    print 'BEGIN def deleteXMLOntology(request,xmlOntologyFilename,xmlOntologyID)'
+def deleteXMLOntology(request,xmlOntologyID):
+    print 'BEGIN def deleteXMLOntology(request,xmlOntologyID)'
     dajax = Dajax()
 
-    print 'xmlOntologyFilename: ' + xmlOntologyFilename
     print 'xmlOntologyID: ' + xmlOntologyID
 
-    print 'END def deleteXMLOntology(request,xmlOntologyFilename,xmlOntologyID)'
+    connect('mgi')
+    selectedOntology = Ontology.objects(id=xmlOntologyID)[0]
+    selectedOntology.delete()
+
+    print 'END def deleteXMLOntology(request,xmlOntologyID)'
     return dajax.json()
 
 ################################################################################

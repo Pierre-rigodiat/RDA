@@ -100,7 +100,7 @@
 				<ul class="tabbed">
 					<li><a href="/">Home</a></li>
 					<li><a href="/admin/user-management">User Management</a></li>
-					<li class="current_page_item"><a href="/admin/xml-schemas">XML Schemas</a></li>
+					<li class="current_page_item"><a href="/admin/xml-schemas">XML Schemas & Ontologies</a></li>
 				</ul>
 
 				<div class="clearer">&nbsp;</div>
@@ -190,12 +190,13 @@
 {% if request.session.currentTemplate == template.filename %} 
 
     <td><span style="color:blue;font-weight:bold">Current model</span></td>
-    <td><div class="icon legend delete">Delete</div></td>
+    <td><div class="icon legend delete schema" schemaid="{{ template.id }}">Delete</div></td>
 
 {% else %}
 
     <td><span style="color:green;">Registered</span></td>
-    <td><div class="icon legend extra-long add">Set as current model</div><div class="icon legend delete">Delete</div></td>
+    <td><div class="icon legend extra-long add">Set as current model</div>
+    <div class="icon legend delete schema" schemaid="{{ template.id }}">Delete</div></td>
 
 {% endif %}
 
@@ -245,7 +246,7 @@
 		<div id="footer2">
 
 			<div class="left">
-				<a href="/admin">Home</a> <span class="text-separator">|</span> <a href="/admin/user-management">User Management</a> <span class="text-separator">|</span> <a href="/admin/xml-schemas">XML Schemas</a> <span class="text-separator">|</span> <a href="/about">About</a> <span class="text-separator">|</span> <a href="/contact">Contact</a> 
+				<a href="/admin">Home</a> <span class="text-separator">|</span> <a href="/admin/user-management">User Management</a> <span class="text-separator">|</span> <a href="/admin/xml-schemas">XML Schemas & Ontologies</a> <span class="text-separator">|</span> <a href="/about">About</a> <span class="text-separator">|</span> <a href="/contact">Contact</a> 
 			</div>
 
 			<div class="right">
@@ -447,7 +448,7 @@
 <p></p>
   <p>
     <span class="ui-icon ui-icon-circle-check" style="float:left; margin:0 7px 10px 0;"></span>
-    Are you sure you want to delete xxxxxx?
+    Are you sure you want to delete <b id="schema-to-delete"></b>?
   </p>
 </div>
 

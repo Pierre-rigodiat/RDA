@@ -5,9 +5,10 @@ loadXsdManagerHandler = function()
 {
     console.log('BEGIN [loadXsdManagerHandler]');
     $('.add').on('click', setCurrentModel);
-    $('.delete').on('click', deleteCurrentSchema);
+    $('.delete.schema').on('click', deleteSchema);
     $('.copy.schema').on('click', copySchema);
     $('.upload.schema').on('click', uploadSchema);
+    $('.delete.ontology').on('click', deleteOntology);
     $('.copy.ontology').on('click', copyOntology);
     $('.upload.ontology').on('click', uploadOntology);
     console.log('END [loadXsdManagerHandler]');
@@ -90,15 +91,21 @@ setCurrentModelCallback = function(data)
 /**
  * 
  */
-deleteCurrentSchema = function()
+deleteSchema = function()
 {
-    console.log('BEGIN [deleteCurrentSchema]');
+    console.log('BEGIN [deleteSchema]');
+    var schemaName = $(this).parent().siblings(':first').text();
+    var schemaFilename = $(this).parent().siblings(':nth-child(2)').text();
+    var schemaID = $(this).attr("schemaid");
+
+    document.getElementById("schema-to-delete").innerHTML = schemaName;
 
     $(function() {
         $( "#dialog-deleteconfirm-message" ).dialog({
             modal: true,
             buttons: {
 		Yes: function() {
+                    deleteSchemaConfirmed(schemaID);
                     $( this ).dialog( "close" );
                 },
 		No: function() {
@@ -108,7 +115,35 @@ deleteCurrentSchema = function()
         });
     });
 	
-    console.log('END [deleteCurrentSchema]');
+    console.log('END [deleteSchema]');
+}
+
+/**
+ * 
+ */
+deleteSchemaConfirmed = function(schemaID)
+{
+    console.log('BEGIN [deleteSchemaConfirmed('+schemaID+')]');
+
+    Dajaxice.curate.deleteXMLSchema(deleteSchemaCallback,{'xmlSchemaID':schemaID});
+
+    console.log('END [deleteSchemaConfirmed('+schemaID+')]');
+}
+
+/**
+ * 
+ */
+deleteSchemaCallback = function(data)
+{
+    console.log('BEGIN [deleteSchemaCallback]');
+
+    Dajax.process(data);
+
+    $('#model_selection').load(document.URL +  ' #model_selection', function() {
+	loadXsdManagerHandler();
+    });
+
+    console.log('END [deleteSchemaCallback]');
 }
 
 /**
@@ -151,6 +186,64 @@ uploadSchema = function()
     });
 	
     console.log('END [uploadSchema]');
+}
+
+/**
+ * 
+ */
+deleteOntology = function()
+{
+    console.log('BEGIN [deleteOntology]');
+    var ontologyName = $(this).parent().siblings(':first').text();
+    var ontologyFilename = $(this).parent().siblings(':nth-child(2)').text();
+    var ontologyID = $(this).attr("ontologyid");
+
+    document.getElementById("ontology-to-delete").innerHTML = ontologyName;
+
+    $(function() {
+        $( "#dialog-deleteconfirm-message" ).dialog({
+            modal: true,
+            buttons: {
+		Yes: function() {
+                    deleteOntologyConfirmed(ontologyID);
+                    $( this ).dialog( "close" );
+                },
+		No: function() {
+                    $( this ).dialog( "close" );
+                }
+	    }
+        });
+    });
+	
+    console.log('END [deleteOntology]');
+}
+
+/**
+ * 
+ */
+deleteOntologyConfirmed = function(ontologyID)
+{
+    console.log('BEGIN [deleteOntologyConfirmed('+ontologyID+')]');
+
+    Dajaxice.curate.deleteXMLOntology(deleteOntologyCallback,{'xmlOntologyID':ontologyID});
+
+    console.log('END [deleteOntologyConfirmed('+ontologyID+')]');
+}
+
+/**
+ * 
+ */
+deleteOntologyCallback = function(data)
+{
+    console.log('BEGIN [deleteOntologyCallback]');
+
+    Dajax.process(data);
+
+    $('#model_selection').load(document.URL +  ' #model_selection', function() {
+	loadXsdManagerHandler();
+    });
+
+    console.log('END [deleteOntologyCallback]');
 }
 
 /**
