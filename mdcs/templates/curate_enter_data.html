@@ -159,7 +159,7 @@
     <button class="btn clear-fields"><i class="icon-file"></i> Clear fields</button>
     <button class="btn load-form"><i class="icon-folder-open"></i> Load form</button>
     <button class="btn save-form"><i class="icon-hdd"></i> Save form</button>
-    <button class="btn download-xsd"><i class="icon-arrow-down"></i> Download form</button>
+    <button class="btn download"><i class="icon-arrow-down"></i> Download</button>
   </div>
 
 
@@ -260,23 +260,51 @@
     <span class="ui-icon ui-icon-circle-check" style="float:left; margin:0 7px 10px 0;"></span>
     Form fields are cleared.
   </p>
-  <p>
+<!--  <p>
     Currently using <a href="/view-schema/{{ request.session.currentTemplate }}" target="_new">{{ request.session.currentTemplate }}</a>
   </p>
+-->
 </div>
 
 
-<div id="dialog-loaded-message" title="Form Loaded" style="display:none;">
+<div id="dialog-load-form-message" title="Load Form" style="display:none;">
+<p></p>
+  <p>
+    Select Form to Load:
+    <select id="listOfForms"><option value="none">None Exist</select>
+  </p>
+<!--  <p>
+    Currently using <a href="/view-schema/{{ request.session.currentTemplate }}" target="_new">{{ request.session.currentTemplate }}</a>
+  </p>
+-->
+</div>
+
+
+<div id="dialog-form-loaded-message" title="Form Loaded" style="display:none;">
 <p></p>
   <p>
     <span class="ui-icon ui-icon-circle-check" style="float:left; margin:0 7px 10px 0;"></span>
     Form is loaded.
   </p>
-  <p>
+<!--  <p>
     Currently using <a href="/view-schema/{{ request.session.currentTemplate }}" target="_new">{{ request.session.currentTemplate }}</a>
   </p>
+-->
 </div>
 
+
+<div id="dialog-save-as-message" title="Save Form" style="display:none;">
+<p></p>
+<!--  <p>
+    <span class="ui-icon ui-icon-circle-check" style="float:left; margin:0 7px 10px 0;"></span>
+    Save form
+  </p>
+-->
+  <p>
+    Save As: <input type="text" size="30" id="saveAsInput">
+  </p>
+  <p id="saveAsErrorMessage"></p>
+</div>
 
 <div id="dialog-saved-message" title="Form Saved" style="display:none;">
 <p></p>
@@ -284,9 +312,31 @@
     <span class="ui-icon ui-icon-circle-check" style="float:left; margin:0 7px 10px 0;"></span>
     Form fields are saved.
   </p>
-  <p>
+<!--  <p>
     Currently using <a href="/view-schema/{{ request.session.currentTemplate }}" target="_new">{{ request.session.currentTemplate }}</a>
   </p>
+-->
+</div>
+
+<div id="dialog-download-options" title="Download Options" style="display:none;">
+<p></p>
+<p>
+  <div class="btn-group">
+    <button class="btn download-xsd" onclick="downloadXSD();"><i class="icon-arrow-down"></i> Download Schema</button>
+  </div>
+<br><br>
+  <div class="btn-group">
+    <button class="btn download-form" onclick="downloadForm();"><i class="icon-arrow-down"></i> Download Form</button>
+  </div>
+<br><br>
+  <div class="btn-group">
+    <button class="btn download-xml" onclick="downloadXML();"><i class="icon-arrow-down"></i> Download XML</button>
+  </div>
+</p>
+<!--  <p>
+    Currently using <a href="/view-schema/{{ request.session.currentTemplate }}" target="_new">{{ request.session.currentTemplate }}</a>
+  </p>
+-->
 </div>
 
 

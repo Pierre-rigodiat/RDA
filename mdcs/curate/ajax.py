@@ -26,6 +26,7 @@ import xml.dom.minidom as minidom
 
 # Global Variables
 xmlString = ""
+formString = ""
 xmlDocTree = ""
 debugON = 0
 
@@ -38,6 +39,11 @@ class Template(Document):
 class Ontology(Document):
     title = StringField(required=True)
     filename = StringField(required=True)
+    content = StringField(required=True)
+
+class Htmlform(Document):
+    title = StringField(required=True)
+    schema = StringField(required=True)
     content = StringField(required=True)
 
 ################################################################################
@@ -106,6 +112,90 @@ def getXmlString(request):
 
     print '>>>> END def getXmlString(request)'
     return simplejson.dumps({'xmlString':xmlString})
+
+################################################################################
+#
+# Function Name: updateFormList(request)
+# Inputs:        request - 
+# Outputs:       
+# Exceptions:    None
+# Description:   
+#                
+#
+################################################################################
+@dajaxice_register
+def updateFormList(request):
+    print '>>>>  BEGIN def updateFormList(request)'
+    dajax = Dajax()
+
+    templateID = request.session['currentTemplateID']
+
+    connect('mgi')
+
+    selectOptions = ""
+    availableHTMLForms = Htmlform.objects(schema=templateID)
+    if len(availableHTMLForms) > 0:
+        for htmlForm in availableHTMLForms:
+            selectOptions += "<option value=\"" + str(htmlForm.id) + "\">" + htmlForm.title + "</option>"
+    else:
+        selectOptions = "<option value=\"none\">None Exist"
+
+    dajax.assign('#listOfForms', 'innerHTML', selectOptions)
+
+    print '>>>> END def updateFormList(request)'
+    return dajax.json()
+
+################################################################################
+#
+# Function Name: updateFormList(request)
+# Inputs:        request - 
+# Outputs:       
+# Exceptions:    None
+# Description:   
+#                
+#
+################################################################################
+@dajaxice_register
+def saveHTMLForm(request,saveAs):
+    print '>>>>  BEGIN def updateFormList(request)'
+    dajax = Dajax()
+
+    global formString
+
+    templateID = request.session['currentTemplateID']
+
+    connect('mgi')
+
+    newHTMLForm = Htmlform(title=saveAs, schema=templateID, content=formString).save()
+
+    print '>>>> END def updateFormList(request)'
+    return dajax.json()
+
+################################################################################
+#
+# Function Name: loadFormForEntry(request,formSelected)
+# Inputs:        request - 
+#                formSelected - 
+# Outputs:       
+# Exceptions:    None
+# Description:   
+#                
+#
+################################################################################
+@dajaxice_register
+def loadFormForEntry(request,formSelected):
+    print '>>>>  BEGIN def loadFormForEntry(request,formSelected)'
+    dajax = Dajax()
+
+    global xmlString
+
+    print 'formSelected: ' + formSelected
+    htmlFormObject = Htmlform.objects.get(id=formSelected)
+
+    dajax.assign('#xsdForm', 'innerHTML', htmlFormObject.content)
+
+    print '>>>> END def loadFormForEntry(request,formSelected)'
+    return dajax.json()
 
 ################################################################################
 # 
@@ -684,6 +774,7 @@ def generateXSDTreeForEnteringData(request):
     print 'BEGIN def generateXSDTreeForEnteringData(request)'
 
     global xmlString
+    global formString
     global xmlDocTree
 
     templateFilename = request.session['currentTemplate']
@@ -699,7 +790,7 @@ def generateXSDTreeForEnteringData(request):
     xmlString = ""
 #    print "xsdDocTree: " + str(xmlDocTree)
 
-    formString = "<br><form id=\"dataEntryForm\">"
+    formString = "<form id=\"dataEntryForm\">"
 
     formString += generateForm("schema",xmlDataTree)
 

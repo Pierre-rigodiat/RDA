@@ -31,7 +31,55 @@ loadForm = function()
     console.log('BEGIN [loadForm]');
 
     $(function() {
-        $( "#dialog-loaded-message" ).dialog({
+        $( "#dialog-load-form-message" ).dialog({
+            modal: true,
+            buttons: {
+		Load: function() {
+                    $( this ).dialog( "close" );
+		    doLoadForm();
+                },
+		Cancel: function() {
+                    $( this ).dialog( "close" );
+                }
+	    }
+        });
+    });
+	
+    console.log('END [loadForm]');
+}
+
+doLoadForm = function()
+{
+    console.log('BEGIN [doLoadForm]');
+
+    var formSelectedArray = document.getElementById('listOfForms');
+    var formSelected = formSelectedArray.options[formSelectedArray.selectedIndex].value;
+    Dajaxice.curate.loadFormForEntry(loadFormForEntryCallback,{'formSelected':formSelected});
+
+    console.log('END [doLoadForm]');
+
+    return false;
+}
+
+loadFormForEntryCallback = function(data)
+{
+    Dajax.process(data);
+    console.log('BEGIN [loadFormForEntryCallback]');
+    console.log('data passed back to callback function: ' + data);
+
+    // business logic goes here
+
+    console.log('END [loadFormForEntryCallback]');
+
+    return false;
+}
+
+formLoaded = function()
+{
+    console.log('BEGIN [loadForm]');
+
+    $(function() {
+        $( "#dialog-form-loaded-message" ).dialog({
             modal: true,
             buttons: {
 		Ok: function() {
@@ -49,10 +97,18 @@ saveForm = function()
     console.log('BEGIN [saveForm]');
 
     $(function() {
-        $( "#dialog-saved-message" ).dialog({
+        $( "#dialog-save-as-message" ).dialog({
             modal: true,
             buttons: {
-		Ok: function() {
+		Save: function() {
+		    if (document.getElementById('saveAsInput').value.length>0) {
+			$( this ).dialog( "close" );
+			doSave();
+		    } else {
+			document.getElementById('saveAsErrorMessage').innerHTML = "<font color=\"red\">Please enter a name</font>";
+		    }
+                },
+		Cancel: function() {
                     $( this ).dialog( "close" );
                 }
 	    }
@@ -60,6 +116,42 @@ saveForm = function()
     });
 	
     console.log('END [saveForm]');
+}
+
+doSave = function()
+{
+    console.log('BEGIN [doSave]');
+
+    Dajaxice.curate.saveHTMLForm(saveHTMLFormCallback,{'saveAs':document.getElementById('saveAsInput').value});
+
+    $(function() {
+        $( "#dialog-saved-message" ).dialog({
+            modal: true,
+            buttons: {
+		Ok: function() {
+                    $( this ).dialog( "close" );
+		    document.getElementById('saveAsInput').value = "";
+		    document.getElementById('saveAsErrorMessage').innerHTML = "";
+                }
+	    }
+        });
+    });
+	
+    console.log('END [doSave]');
+}
+
+saveHTMLFormCallback = function(data)
+{
+    Dajax.process(data);
+    console.log('BEGIN [saveHTMLFormCallback]');
+    console.log('data passed back to callback function: ' + data);
+
+    // business logic goes here
+    Dajaxice.curate.updateFormList(Dajax.process);
+
+    console.log('END [saveHTMLFormCallback]');
+
+    return false;
 }
 
 displayTemplateSelectedDialog = function()
@@ -83,9 +175,12 @@ loadCurrentTemplateFormForCuration = function()
     $('.btn.clear-fields').on('click', clearFields);
     $('.btn.load-form').on('click', loadForm);
     $('.btn.save-form').on('click', saveForm);
+    $('.btn.download').on('click', downloadOptions);
     $('.btn.download-xsd').on('click', downloadXSD);
 
     Dajaxice.curate.generateXSDTreeForEnteringData(Dajax.process); //,{'templateFilename':'xxxx'});
+
+    Dajaxice.curate.updateFormList(Dajax.process);
 
     console.log('END [loadCurrentTemplateFormForCuration]');
 }
@@ -112,7 +207,6 @@ displayTemplateForm = function()
     console.log('END [displayTemplateForm]');
 }
 
-
 loadCurrentTemplateView = function()
 {
     console.log('BEGIN [loadCurrentTemplateView]');
@@ -123,6 +217,21 @@ loadCurrentTemplateView = function()
     //    Dajaxice.curate.generateXSDTreeForEnteringData(Dajax.process); //,{'templateFilename':'xxxx'});
 
     console.log('END [loadCurrentTemplateView]');
+}
+
+
+downloadOptions = function()
+{
+ $(function() {
+    $( "#dialog-download-options" ).dialog({
+      modal: true,
+      buttons: {
+        Cancel: function() {
+          $( this ).dialog( "close" );
+        }
+      }
+    });
+  });
 }
 
 
