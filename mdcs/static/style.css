@@ -594,6 +594,15 @@ ul.tabbed a {text-decoration: none;}
 }
 #featured h2 span {color: #43B16C;}
 
+#floatMenu {
+    position:absolute;
+    top:210px;
+    left:65px;
+    margin-left:135px;
+    width:200px;
+}
+
+
 
 /* 
    Misc overriding classes

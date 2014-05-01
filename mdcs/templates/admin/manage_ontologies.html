@@ -339,8 +339,11 @@ There are currently no ontologies uploaded.  Please click "Upload Ontology" to t
 
 <div id="dialog-upload-message" title="Upload Ontology" style="display:none;">
 <br>
+Enter an Ontology name: <input type="text" id="ontology_name" name="ontology_name"/>
+<br>
 <input type="file" id="files" name="files[]" multiple />
 <output id="list"></output>
+<div id="ontologyNameErrorMessage"></div>
 
 <script>
   var files;
@@ -397,6 +400,12 @@ There are currently no ontologies uploaded.  Please click "Upload Ontology" to t
   function handleFileUpload(evt) {
     console.log('BEGIN handleFileUpload(evt)');
 
+    if (document.getElementById("ontology_name").value.trim().length == 0) {
+        document.getElementById('ontologyNameErrorMessage').innerHTML = "<font color=\"red\">Please enter an ontology name</font>"
+        return false;
+    } else {
+        document.getElementById('ontologyNameErrorMessage').innerHTML = ""
+    }
     var reader;
     var progress = document.querySelector('.percent');
 
@@ -421,7 +430,9 @@ There are currently no ontologies uploaded.  Please click "Upload Ontology" to t
       progress.textContent = '100%';
 //      setTimeout("document.getElementById('progress_bar').className='';", 2000);
 
-      Dajaxice.curate.uploadXMLOntology(uploadXMLOntologyCallback,{'xmlOntologyFilename':files[0].name,'xmlOntologyContent':reader.result}); 
+      var xmlOntologyName = document.getElementById('ontology_name').value.trim();
+
+      Dajaxice.curate.uploadXMLOntology(uploadXMLOntologyCallback,{'xmlOntologyName':xmlOntologyName,'xmlOntologyFilename':files[0].name,'xmlOntologyContent':reader.result}); 
     }
 
     // Read in the image file as a binary string.

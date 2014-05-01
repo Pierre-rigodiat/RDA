@@ -147,7 +147,7 @@ INSTALLED_APPS = (
     'dajaxice',
     'rest_framework',  # djangorestframework
     'api', # djangorestframework
-    'multiuploader', #django-multiuploader
+#    'multiuploader', #django-multiuploader
 )
 
 #AUTH_USER_MODEL = 'mongo_auth.MongoUser'

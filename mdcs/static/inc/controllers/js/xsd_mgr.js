@@ -174,11 +174,19 @@ uploadSchema = function()
 {
     console.log('BEGIN [uploadSchema]');
 
+    document.getElementById('schema_name').value = ""
+    document.getElementById('files').value = ""
+    document.getElementById('list').innerHTML = ""
+    document.getElementById('schemaNameErrorMessage').innerHTML = ""
+
     $(function() {
         $( "#dialog-upload-message" ).dialog({
             modal: true,
             buttons: {
 		Ok: function() {
+                    $( this ).dialog( "close" );
+                },
+		Cancel: function() {
                     $( this ).dialog( "close" );
                 }
 	    }
@@ -274,11 +282,19 @@ uploadOntology = function()
 {
     console.log('BEGIN [uploadOntology]');
 
+    document.getElementById('ontology_name').value = ""
+    document.getElementById('files').value = ""
+    document.getElementById('list').innerHTML = ""
+    document.getElementById('ontologyNameErrorMessage').innerHTML = ""
+
     $(function() {
         $( "#dialog-upload-message" ).dialog({
             modal: true,
             buttons: {
 		Ok: function() {
+                    $( this ).dialog( "close" );
+                },
+		Cancel: function() {
                     $( this ).dialog( "close" );
                 }
 	    }

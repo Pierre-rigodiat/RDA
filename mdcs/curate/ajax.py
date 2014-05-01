@@ -19,6 +19,12 @@ from django.conf import settings
 from mongoengine import *
 from io import BytesIO
 from curate.models import XMLSchema 
+import sys
+from xlrd import open_workbook
+from argparse import ArgumentError
+from cgi import FieldStorage
+from cStringIO import StringIO
+from django.core.servers.basehttp import FileWrapper
 
 #import xml.etree.ElementTree as etree
 import lxml.etree as etree
@@ -28,6 +34,7 @@ import xml.dom.minidom as minidom
 xmlString = ""
 formString = ""
 xmlDocTree = ""
+xmlDataTree = ""
 debugON = 0
 
 # Class definition
@@ -42,6 +49,16 @@ class Ontology(Document):
     content = StringField(required=True)
 
 class Htmlform(Document):
+    title = StringField(required=True)
+    schema = StringField(required=True)
+    content = StringField(required=True)
+
+class Xmldata(Document):
+    title = StringField(required=True)
+    schema = StringField(required=True)
+    content = StringField(required=True)
+
+class Hdf5file(Document):
     title = StringField(required=True)
     schema = StringField(required=True)
     content = StringField(required=True)
@@ -108,10 +125,38 @@ def getXmlString(request):
     print '>>>>  BEGIN def getXmlString(request)'
     dajax = Dajax()
 
-    global xmlString
+#    htmlFormObject = Htmlform.objects.get(title="Form 9")
+#    xmlString = htmlFormObject.content
 
     print '>>>> END def getXmlString(request)'
     return simplejson.dumps({'xmlString':xmlString})
+
+################################################################################
+#
+# Function Name: getHDF5String(request)
+# Inputs:        request - 
+# Outputs:       
+# Exceptions:    None
+# Description:   
+#                
+#
+################################################################################
+@dajaxice_register
+def getHDF5String(request):
+    print '>>>> BEGIN def getHDF5String(request)'
+    dajax = Dajax()
+
+    templateFilename = request.session['currentTemplate']
+
+    hdf5FileObject = Hdf5file.objects.get(title="hdf5file")
+    hdf5FileContent = hdf5FileObject.content
+
+    hdf5String = hdf5FileContent.encode('utf-8')
+
+    print hdf5String
+
+    print '>>>> END def getHDF5String(request)'
+    return simplejson.dumps({'hdf5String':hdf5String})
 
 ################################################################################
 #
@@ -156,7 +201,7 @@ def updateFormList(request):
 #
 ################################################################################
 @dajaxice_register
-def saveHTMLForm(request,saveAs):
+def saveHTMLForm(request,saveAs,content):
     print '>>>>  BEGIN def updateFormList(request)'
     dajax = Dajax()
 
@@ -166,9 +211,60 @@ def saveHTMLForm(request,saveAs):
 
     connect('mgi')
 
-    newHTMLForm = Htmlform(title=saveAs, schema=templateID, content=formString).save()
+#    newHTMLForm = Htmlform(title=saveAs, schema=templateID, content=formString).save()
+    newHTMLForm = Htmlform(title=saveAs, schema=templateID, content=content).save()
 
     print '>>>> END def updateFormList(request)'
+    return dajax.json()
+
+################################################################################
+#
+# Function Name: updateFormList(request)
+# Inputs:        request - 
+# Outputs:       
+# Exceptions:    None
+# Description:   
+#                
+#
+################################################################################
+@dajaxice_register
+def saveXMLDataToDB(request,saveAs):
+    print '>>>>  BEGIN def saveXMLDataToDB(request,saveAs)'
+    dajax = Dajax()
+
+    global xmlString
+
+    templateID = request.session['currentTemplateID']
+
+    connect('mgi')
+
+    newXMLData = Xmldata(title=saveAs, schema=templateID, content=xmlString).save()
+
+    print '>>>>  END def saveXMLDataToDB(request,saveAs)'
+    return dajax.json()
+
+################################################################################
+#
+# Function Name: saveXMLData(request,xmlContent,formContent)
+# Inputs:        request - 
+# Outputs:       
+# Exceptions:    None
+# Description:   
+#                
+#
+################################################################################
+@dajaxice_register
+def saveXMLData(request,xmlContent,formContent):
+    print '>>>>  BEGIN def saveXMLData(request,xmlContent,formContent)'
+    dajax = Dajax()
+
+    global xmlString
+    global formString
+
+    xmlString = xmlContent
+    formString = formContent
+
+    print '>>>> END def saveXMLData(request,xmlContent,formContent)'
     return dajax.json()
 
 ################################################################################
@@ -213,6 +309,12 @@ def setCurrentTemplate(request,templateFilename,templateID):
     print 'BEGIN def setCurrentTemplate(request)'
     
     global xmlDocTree
+    global xmlString
+    global formString
+
+    # reset global variables
+    xmlString = ""
+    formString = ""
 
     request.session['currentTemplate'] = templateFilename
     request.session['currentTemplateID'] = templateID
@@ -266,15 +368,16 @@ def verifyTemplateIsSelected(request):
 # 
 ################################################################################
 @dajaxice_register
-def uploadXMLSchema(request,xmlSchemaFilename,xmlSchemaContent):
+def uploadXMLSchema(request,xmlSchemaName,xmlSchemaFilename,xmlSchemaContent):
     print 'BEGIN def uploadXMLSchema(request,xmlSchemaFilename,xmlSchemaContent)'
     dajax = Dajax()
 
+    print 'xmlSchemaName: ' + xmlSchemaName
     print 'xmlSchemaFilename: ' + xmlSchemaFilename
     print 'xmlSchemaContent: ' + xmlSchemaContent
 
     connect('mgi')
-    newTemplate = Template(title=xmlSchemaFilename, filename=xmlSchemaFilename, content=xmlSchemaContent).save()
+    newTemplate = Template(title=xmlSchemaName, filename=xmlSchemaFilename, content=xmlSchemaContent).save()
 
     print 'END def uploadXMLSchema(request,xmlSchemaFilename,xmlSchemaContent)'
     return dajax.json()
@@ -315,15 +418,16 @@ def deleteXMLSchema(request,xmlSchemaID):
 # 
 ################################################################################
 @dajaxice_register
-def uploadXMLOntology(request,xmlOntologyFilename,xmlOntologyContent):
+def uploadXMLOntology(request,xmlOntologyName,xmlOntologyFilename,xmlOntologyContent):
     print 'BEGIN def uploadXMOntology(request,xmlOntologyFilename,xmlOntologyContent)'
     dajax = Dajax()
 
+    print 'xmlOntologyName: ' + xmlOntologyName
     print 'xmlOntologyFilename: ' + xmlOntologyFilename
     print 'xmlOntologyContent: ' + xmlOntologyContent
 
     connect('mgi')
-    newOntology = Ontology(title=xmlOntologyFilename, filename=xmlOntologyFilename, content=xmlOntologyContent).save()
+    newOntology = Ontology(title=xmlOntologyName, filename=xmlOntologyFilename, content=xmlOntologyContent).save()
 
     print 'END def uploadXMLOntology(request,xmlOntologyFilename,xmlOntologyContent)'
     return dajax.json()
@@ -375,20 +479,21 @@ def setCurrentModel(request,modelFilename):
 
 ################################################################################
 # 
-# Function Name: generateFormSubSection(xpath,selected,xmlDataTree)
+# Function Name: generateFormSubSection(xpath,selected,xmlElement)
 # Inputs:        xpath -
 #                selected -
-#                xmlDatatree - 
+#                xmlElement - 
 # Outputs:       JSON data 
 # Exceptions:    None
 # Description:   
 #
 ################################################################################
-def generateFormSubSection(xpath,selected,xmlDataTree):
-    print 'BEGIN def generateFormSubSection(xpath,selected,xmlDataTree)'
+def generateFormSubSection(xpath,selected,xmlElement):
+    print 'BEGIN def generateFormSubSection(xpath,selected,xmlElement)'
     formString = ""
     global xmlString
     global xmlDocTree
+    global xmlDataTree
     global debugON
     p = re.compile('(\{.*\})?schema', re.IGNORECASE)
 
@@ -407,7 +512,8 @@ def generateFormSubSection(xpath,selected,xmlDataTree):
         return formString
 
     if e.tag == "{0}complexType".format(namespace):
-        if debugON: formString += "matched complexType" + "<br>"
+        if debugON: formString += "matched complexType" 
+        print "matched complexType" + "<br>"
         complexTypeChild = e.find('*')
 
         if complexTypeChild is None:
@@ -418,12 +524,19 @@ def generateFormSubSection(xpath,selected,xmlDataTree):
             sequenceChildren = complexTypeChild.findall('*')
             for sequenceChild in sequenceChildren:
                 if debugON: formString += "SequenceChild:" + sequenceChild.tag + "<br>"
+                print "SequenceChild: " + sequenceChild.tag 
                 if sequenceChild.tag == "{0}element".format(namespace):
-                    if sequenceChild.attrib.get('type') == "xsd:string".format(namespace):
+                    if 'type' not in sequenceChild.attrib:
+                        if 'ref' in sequenceChild.attrib:
+                            if sequenceChild.attrib.get('ref') == "hdf5:HDF5-File":
+                                formString += "<ul><li><i><div id='hdf5File'>" + sequenceChild.attrib.get('ref') + "</div></i> "
+                                formString += "<div class=\"btn select-element\" onclick=\"selectHDF5File('hdf5:HDF5-File',this);\"><i class=\"icon-folder-open\"></i> Select HDF5 File</div>"
+                                formString += "</li></ul>"
+                            elif sequenceChild.attrib.get('ref') == "hdf5:Field":
+                                formString += "<ul><li><i><div id='hdf5Field'>" + sequenceChild.attrib.get('ref') + "</div></i> "
+                                formString += "</li></ul>"
+                    elif sequenceChild.attrib.get('type') == "xsd:string".format(namespace):
                         textCapitalized = sequenceChild.attrib.get('name')[0].capitalize()  + sequenceChild.attrib.get('name')[1:]
-                        newElement = etree.Element(textCapitalized)
-                        newElement.text = ""
-                        xmlDataTree.append(newElement)
                         if sequenceChild.attrib.get('occurances') is None:
                             if sequenceChild.attrib.get('minOccurs') is not None:
                                 occurances = int(sequenceChild.attrib.get('minOccurs'))
@@ -435,34 +548,84 @@ def generateFormSubSection(xpath,selected,xmlDataTree):
                             occurances = int(sequenceChild.attrib['occurances'])
                         print "occurances: " + str(occurances)
                         if occurances == 0:
-                            formString += "<ul><li><nobr>" + textCapitalized + " <input type='text' disabled>" 
+                            newElement = etree.Element("ul")
+                            xmlElement.append(newElement)
+                            xmlElement = newElement
+                            newElement = etree.Element("li")
+                            newElement.attrib['text'] = textCapitalized
+                            xmlElement.append(newElement)
+                            xmlElement = newElement
+                            newElement = etree.Element("nobr")
+                            newElement.text = textCapitalized
+                            xmlElement.append(newElement)
+                            xmlElement = newElement
+                            newElement = etree.Element("input")
+                            newElement.attrib['type'] = "text"
+                            xmlElement.append(newElement)
+                            formString += "<ul occurs='0'><li><nobr>" + textCapitalized + " <input type='text' disabled>" 
                             xmlString += "<" + sequenceChild.attrib.get('name') + ">" + "</" + sequenceChild.attrib.get('name') + ">"
                             if sequenceChild.attrib.get('maxOccurs') is not None:
                                 currentXPath = xmlDocTree.getpath(sequenceChild)
-                                formString += "<span class=\"icon add\" onclick=\"changeXMLSchema('add','" + currentXPath + "','" + sequenceChild.attrib.get('name') + "');\"></span>"
+                                xmlElement = newElement
+                                newElement = etree.Element("span")
+                                newElement.attrib['class'] = "icon add"
+                                xmlElement.append(newElement)
+                                formString += "<span class=\"icon add\" onclick=\"changeHTMLForm('add',this);\"></span>"
+                                formString += "<span class=\"icon remove\" style=\"display:none;\" onclick=\"changeHTMLForm('remove',this);\"></span>"
                             elif sequenceChild.attrib.get('minOccurs') is not None:
                                 currentXPath = xmlDocTree.getpath(sequenceChild)
-                                formString += "<span class=\"icon remove\" onclick=\"changeXMLSchema('remove','" + currentXPath + "','" + sequenceChild.attrib.get('name') + "');\"></span>"
+                                xmlElement = newElement
+                                newElement = etree.Element("span")
+                                newElement.attrib['class'] = "icon remove"
+                                xmlElement.append(newElement)
+                                formString += "<span class=\"icon add\" style=\"display:none;\" onclick=\"changeHTMLForm('add',this);\"></span>"
+                                formString += "<span class=\"icon remove\" onclick=\"changeHTMLForm('remove',this);\"></span>"
                             formString += "</nobr></li></ul>"
                         else:
                             for x in range (0,occurances):
-                                formString += "<ul><li><nobr>" + textCapitalized + " <input type='text'>"
+                                newElement = etree.Element("ul")
+                                xmlElement.append(newElement)
+                                xmlElement = newElement
+                                newElement = etree.Element("li")
+                                newElement.attrib['text'] = textCapitalized
+                                xmlElement.append(newElement)
+                                xmlElement = newElement
+                                newElement = etree.Element("nobr")
+                                newElement.text = textCapitalized + " "
+                                xmlElement.append(newElement)
+                                xmlElement = newElement
+                                newElement = etree.Element("input")
+                                newElement.attrib['type'] = "text"
+                                xmlElement.append(newElement)
+                                formString += "<ul occurs=\""+ str(occurances) +"\"><li><nobr>" + textCapitalized + " <input type='text'>"
                                 xmlString += "<" + sequenceChild.attrib.get('name') + ">" + "</" + sequenceChild.attrib.get('name') + ">"
                                 if sequenceChild.attrib.get('maxOccurs') is not None:
                                     currentXPath = xmlDocTree.getpath(sequenceChild)
-                                    formString += "<span class=\"icon add\" onclick=\"changeXMLSchema('add','" + currentXPath + "','" + sequenceChild.attrib.get('name') + "');\"></span>"
+                                    xmlElement = newElement
+                                    newElement = etree.Element("span")
+                                    newElement.attrib['class'] = "icon add"
+                                    xmlElement.append(newElement)
+                                    formString += "<span class=\"icon add\" onclick=\"changeHTMLForm('add',this);\"></span>"
                                     if (sequenceChild.attrib.get('maxOccurs') == "unbounded") or (int(sequenceChild.attrib.get('maxOccurs')) != occurances):
                                         currentXPath = xmlDocTree.getpath(sequenceChild)
-                                        formString += "<span class=\"icon remove\" onclick=\"changeXMLSchema('remove','" + currentXPath + "','" + sequenceChild.attrib.get('name') + "');\"></span>"
+                                        xmlElement = newElement
+                                        newElement = etree.Element("span")
+                                        newElement.attrib['class'] = "icon remove"
+                                        xmlElement.append(newElement)
+                                        formString += "<span class=\"icon remove\" onclick=\"changeHTMLForm('remove',this);\"></span>"
+                                    else:
+                                        formString += "<span class=\"icon remove\" style=\"display:none;\" onclick=\"changeHTMLForm('remove',this);\"></span>"
                                 elif sequenceChild.attrib.get('minOccurs') is not None:
                                     currentXPath = xmlDocTree.getpath(sequenceChild)
-                                    formString += "<span class=\"icon remove\" onclick=\"changeXMLSchema('remove','" + currentXPath + "','" + sequenceChild.attrib.get('name') + "');\"></span>"
+                                    xmlElement = newElement
+                                    newElement = etree.Element("span")
+                                    newElement.attrib['class'] = "icon remove"
+                                    xmlElement.append(newElement)
+                                    formString += "<span class=\"icon add\" style=\"display:none;\" onclick=\"changeHTMLForm('add',this);\"></span>"
+                                    formString += "<span class=\"icon remove\" onclick=\"changeHTMLForm('remove',this);\"></span>"
                                 formString += "</nobr></li></ul>"
                     elif (sequenceChild.attrib.get('type') == "xsd:double".format(namespace)) or (sequenceChild.attrib.get('type') == "xsd:integer".format(namespace)) or (sequenceChild.attrib.get('type') == "xsd:anyURI".format(namespace)):
                         textCapitalized = sequenceChild.attrib.get('name')[0].capitalize()  + sequenceChild.attrib.get('name')[1:]
-                        newElement = etree.Element(textCapitalized)
-                        newElement.text = ""
-                        xmlDataTree.append(newElement)
                         if sequenceChild.attrib.get('occurances') is None:
                             if sequenceChild.attrib.get('minOccurs') is not None:
                                 occurances = int(sequenceChild.attrib.get('minOccurs'))
@@ -476,17 +639,55 @@ def generateFormSubSection(xpath,selected,xmlDataTree):
                             occurances = int(sequenceChild.attrib['occurances'])
                         print "occurances: " + str(occurances)
                         if occurances == 0:
-                            formString += "<ul><li><nobr>" + textCapitalized + " <input type='text' disabled>"
+                            newElement = etree.Element("ul")
+                            xmlElement.append(newElement)
+                            xmlElement = newElement
+                            newElement = etree.Element("li")
+                            newElement.attrib['text'] = textCapitalized
+                            xmlElement.append(newElement)
+                            xmlElement = newElement
+                            newElement = etree.Element("nobr")
+                            newElement.text = textCapitalized + " "
+                            xmlElement.append(newElement)
+                            xmlElement = newElement
+                            newElement = etree.Element("input")
+                            newElement.attrib['type'] = "text"
+                            xmlElement.append(newElement)
+                            formString += "<ul occurs=\"0\"><li><nobr>" + textCapitalized + " <input type='text' disabled>"
                             xmlString += "<" + sequenceChild.attrib.get('name') + ">" + "</" + sequenceChild.attrib.get('name') + ">"
                             if sequenceChild.attrib.get('maxOccurs') is not None:
                                 currentXPath = xmlDocTree.getpath(sequenceChild)
-                                formString += "<span class=\"icon add\" onclick=\"changeXMLSchema('add','" + currentXPath + "','" + sequenceChild.attrib.get('name') + "');\"></span>"
+                                xmlElement = newElement
+                                newElement = etree.Element("span")
+                                newElement.attrib['class'] = "icon add"
+                                xmlElement.append(newElement)
+                                formString += "<span class=\"icon add\" onclick=\"changeHTMLForm('add',this);\"></span>"
+                                formString += "<span class=\"icon remove\" style=\"display:none;\" onclick=\"changeHTMLForm('remove',this);\"></span>"
                             elif sequenceChild.attrib.get('minOccurs') is not None:
                                 currentXPath = xmlDocTree.getpath(sequenceChild)
-                                formString += "<span class=\"icon add\" onclick=\"changeXMLSchema('add','" + currentXPath + "','" + sequenceChild.attrib.get('name') + "');\"></span>"
+                                xmlElement = newElement
+                                newElement = etree.Element("span")
+                                newElement.attrib['class'] = "icon add"
+                                xmlElement.append(newElement)
+                                formString += "<span class=\"icon add\" onclick=\"changeHTMLForm('add',this);\"></span>"
+                                formString += "<span class=\"icon remove\" style=\"display:none;\" onclick=\"changeHTMLForm('remove',this);\"></span>"
                             formString += "</nobr></li></ul>"
                         else:
-                            formString += "<ul><li><nobr>" + textCapitalized + " <input type='text'>"
+                            newElement = etree.Element("ul")
+                            xmlElement.append(newElement)
+                            xmlElement = newElement
+                            newElement = etree.Element("li")
+                            newElement.attrib['text'] = textCapitalized
+                            xmlElement.append(newElement)
+                            xmlElement = newElement
+                            newElement = etree.Element("nobr")
+                            newElement.text = textCapitalized + " "
+                            xmlElement.append(newElement)
+                            xmlElement = newElement
+                            newElement = etree.Element("input")
+                            newElement.attrib['type'] = "text"
+                            xmlElement.append(newElement)
+                            formString += "<ul occurs=\"" + str(occurances) + "\"><li><nobr>" + textCapitalized + " <input type='text'>"
                             xmlString += "<" + sequenceChild.attrib.get('name') + ">" + "</" + sequenceChild.attrib.get('name') + ">"
                             for x in range (0,occurances):
                                 if sequenceChild.attrib.get('maxOccurs') is not None:
@@ -494,21 +695,34 @@ def generateFormSubSection(xpath,selected,xmlDataTree):
                                         maxOccurs = int(sequenceChild.attrib.get('maxOccurs'))
                                         if maxOccurs == 0:
                                             currentXPath = xmlDocTree.getpath(sequenceChild)
-                                            formString += "<span class=\"icon add\" onclick=\"changeXMLSchema('add','" + currentXPath + "','" + sequenceChild.attrib.get('name') + "');\"></span>"
+                                            xmlElement = newElement
+                                            newElement = etree.Element("span")
+                                            newElement.attrib['class'] = "icon add"
+                                            xmlElement.append(newElement)
+                                            formString += "<span class=\"icon add\" onclick=\"changeHTMLForm('add',this);\"></span>"
+                                            formString += "<span class=\"icon remove\" style=\"display:none;\" onclick=\"changeHTMLForm('remove',this);\"></span>"
                                     else:
                                         currentXPath = xmlDocTree.getpath(sequenceChild)
-                                        formString += "<span class=\"icon add\" onclick=\"changeXMLSchema('add','" + currentXPath + "','" + sequenceChild.attrib.get('name') + "');\"></span>"
+                                        xmlElement = newElement
+                                        newElement = etree.Element("span")
+                                        newElement.attrib['class'] = "icon add"
+                                        xmlElement.append(newElement)
+                                        formString += "<span class=\"icon add\" onclick=\"changeHTMLForm('add',this);\"></span>"
+                                        formString += "<span class=\"icon remove\" style=\"display:none\" onclick=\"changeHTMLForm('remove',this);\"></span>"
                                 if sequenceChild.attrib.get('minOccurs') is not None:
                                     minOccurs = int(sequenceChild.attrib.get('minOccurs'))
                                     if minOccurs == 0:
                                         currentXPath = xmlDocTree.getpath(sequenceChild)
-                                        formString += "<span class=\"icon remove\" onclick=\"changeXMLSchema('remove','" + currentXPath + "','" + sequenceChild.attrib.get('name') + "');\"></span>"
+                                        xmlElement = newElement
+                                        newElement = etree.Element("span")
+                                        newElement.attrib['class'] = "icon remove"
+                                        xmlElement.append(newElement)
+                                        formString += "<span class=\"icon add\" style=\"display:none;\" onclick=\"changeHTMLForm('add',this);\"></span>"
+                                        formString += "<span class=\"icon remove\" onclick=\"changeHTMLForm('remove',this);\"></span>"
                             formString += "</nobr></li></ul>"
                     else:
                         if sequenceChild.attrib.get('type') is not None:
                             textCapitalized = sequenceChild.attrib.get('name')[0].capitalize()  + sequenceChild.attrib.get('name')[1:]
-                            newElement = etree.Element(textCapitalized)
-                            xmlDataTree.append(newElement)
                             if sequenceChild.attrib.get('occurances') is None:
                                 if sequenceChild.attrib.get('minOccurs') is not None:
                                     occurances = int(sequenceChild.attrib.get('minOccurs'))
@@ -522,36 +736,83 @@ def generateFormSubSection(xpath,selected,xmlDataTree):
                                 occurances = int(sequenceChild.attrib['occurances'])
                             print "occurances: " + str(occurances)
                             for x in range (0,occurances):
-                                formString += "<ul><li><nobr>" + textCapitalized + " "
+                                newElement = etree.Element("ul")
+                                xmlElement.append(newElement)
+                                xmlElement = newElement
+                                newElement = etree.Element("li")
+                                newElement.attrib['text'] = textCapitalized
+                                xmlElement.append(newElement)
+                                xmlElement = newElement
+                                newElement = etree.Element("nobr")
+                                newElement.text = textCapitalized
+                                xmlElement.append(newElement)
+                                formString += "<ul minOccurs='" + str(sequenceChild.attrib.get('minOccurs'))  + "' occurs=\""+ str(occurances) +"\"><li><nobr>" + textCapitalized + " "
                                 xmlString += "<" + sequenceChild.attrib.get('name') + ">" 
                                 if sequenceChild.attrib.get('maxOccurs') is not None:
                                     currentXPath = xmlDocTree.getpath(sequenceChild)
                                     if (sequenceChild.attrib.get('maxOccurs') == "unbounded"):
-                                        formString += "<span class=\"icon add\" onclick=\"changeXMLSchema('add','" + currentXPath + "','" + sequenceChild.attrib.get('name') + "');\"></span>"
+                                        xmlElement = newElement
+                                        newElement = etree.Element("span")
+                                        newElement.attrib['class'] = "icon add"
+                                        xmlElement.append(newElement)
+                                        formString += "<span class=\"icon add\" onclick=\"changeHTMLForm('add',this);\"></span>"
                                         if sequenceChild.attrib.get('minOccurs') is not None:
                                             if (occurances > sequenceChild.attrib.get('minOccurs')):
                                                 currentXPath = xmlDocTree.getpath(sequenceChild)
-                                                formString += "<span class=\"icon remove\" onclick=\"changeXMLSchema('remove','" + currentXPath + "','" + sequenceChild.attrib.get('name') + "');\"></span>"
+                                                xmlElement = newElement
+                                                newElement = etree.Element("span")
+                                                newElement.attrib['class'] = "icon remove"
+                                                xmlElement.append(newElement)
+                                                formString += "<span class=\"icon remove\" onclick=\"changeHTMLForm('remove',this);\"></span>"
+                                            else:
+                                                formString += "<span class=\"icon remove\" style=\"display:none;\" onclick=\"changeHTMLForm('remove',this);\"></span>"
                                         else:
                                             if (occurances > 1):
                                                 currentXPath = xmlDocTree.getpath(sequenceChild)
-                                                formString += "<span class=\"icon remove\" onclick=\"changeXMLSchema('remove','" + currentXPath + "','" + sequenceChild.attrib.get('name') + "');\"></span>"
+                                                xmlElement = newElement
+                                                newElement = etree.Element("span")
+                                                newElement.attrib['class'] = "icon remove"
+                                                xmlElement.append(newElement)
+                                                formString += "<span class=\"icon remove\" onclick=\"changeHTMLForm('remove',this);\"></span>"
+                                            else:
+                                                formString += "<span class=\"icon remove\" style=\"display:none;\" onclick=\"changeHTMLForm('remove',this);\"></span>"
                                     else:
                                         if (int(sequenceChild.attrib.get('maxOccurs')) > occurances):
-                                            formString += "<span class=\"icon add\" onclick=\"changeXMLSchema('add','" + currentXPath + "','" + sequenceChild.attrib.get('name') + "');\"></span>"
+                                            xmlElement = newElement
+                                            newElement = etree.Element("span")
+                                            newElement.attrib['class'] = "icon add"
+                                            xmlElement.append(newElement)
+                                            formString += "<span class=\"icon add\" onclick=\"changeHTMLForm('add',this);\"></span>"
                                         if sequenceChild.attrib.get('minOccurs') is not None:
                                             print "occurances: " + str(occurances)
                                             print "minOccurs: " + str(sequenceChild.attrib.get('minOccurs'))
                                             if (occurances > int(sequenceChild.attrib.get('minOccurs'))):
                                                 currentXPath = xmlDocTree.getpath(sequenceChild)
-                                                formString += "<span class=\"icon remove\" onclick=\"changeXMLSchema('remove','" + currentXPath + "','" + sequenceChild.attrib.get('name') + "');\"></span>"
+                                                xmlElement = newElement
+                                                newElement = etree.Element("span")
+                                                newElement.attrib['class'] = "icon remove"
+                                                xmlElement.append(newElement)
+                                                formString += "<span class=\"icon remove\" onclick=\"changeHTMLForm('remove',this);\"></span>"
+                                            else:
+                                                formString += "<span class=\"icon remove\" style=\"display:none;\" onclick=\"changeHTMLForm('remove',this);\"></span>"
                                         else:
                                             if (occurances > 1):
                                                 currentXPath = xmlDocTree.getpath(sequenceChild)
-                                                formString += "<span class=\"icon remove\" onclick=\"changeXMLSchema('remove','" + currentXPath + "','" + sequenceChild.attrib.get('name') + "');\"></span>"
+                                                xmlElement = newElement
+                                                newElement = etree.Element("span")
+                                                newElement.attrib['class'] = "icon remove"
+                                                xmlElement.append(newElement)
+                                                formString += "<span class=\"icon remove\" onclick=\"changeHTMLForm('remove',this);\"></span>"
+                                            else:
+                                                formString += "<span class=\"icon remove\" style=\"display:none;\" onclick=\"changeHTMLForm('remove',this);\"></span>"
                                 elif sequenceChild.attrib.get('minOccurs') is not None:
                                     currentXPath = xmlDocTree.getpath(sequenceChild)
-                                    formString += "<span class=\"icon remove\" onclick=\"changeXMLSchema('remove','" + currentXPath + "','" + sequenceChild.attrib.get('name') + "');\"></span>"
+                                    xmlElement = newElement
+                                    newElement = etree.Element("span")
+                                    newElement.attrib['class'] = "icon remove"
+                                    xmlElement.append(newElement)
+                                    formString += "<span class=\"icon add\" style=\"display:none;\" onclick=\"changeHTMLForm('add',this);\"></span>"
+                                    formString += "<span class=\"icon remove\" onclick=\"changeHTMLForm('remove',this);\"></span>"
 #                                if sequenceChild.attrib.get('maxOccurs') is not None:
 #                                    if sequenceChild.attrib.get('maxOccurs') != "unbounded":
 #                                        maxOccurs = int(sequenceChild.attrib.get('maxOccurs'))
@@ -572,9 +833,18 @@ def generateFormSubSection(xpath,selected,xmlDataTree):
                             
                         else:
                             textCapitalized = sequenceChild.attrib.get('name')[0].capitalize()  + sequenceChild.attrib.get('name')[1:]
-                            newElement = etree.Element(textCapitalized)
-                            xmlDataTree.append(newElement)
-                            formString += "<ul><li><nobr>" + textCapitalized + " "
+                            newElement = etree.Element("ul")
+                            xmlElement.append(newElement)
+                            xmlElement = newElement
+                            newElement = etree.Element("li")
+                            newElement.attrib['text'] = textCapitalized
+                            xmlElement.append(newElement)
+                            xmlElement = newElement
+                            newElement = etree.Element("nobr")
+                            newElement.text = textCapitalized
+                            xmlElement.append(newElement)
+                            formString += "<ul occurs=\"1\"><li><nobr>" + textCapitalized + " "
+#                            formString += "<ul><li><nobr>" + textCapitalized + " "
                             xmlString += "<" + sequenceChild.attrib.get('name') + ">" 
                             if sequenceChild.attrib.get('occurances') is None:
                                 sequenceChild.attrib['occurances'] = '1'
@@ -583,82 +853,177 @@ def generateFormSubSection(xpath,selected,xmlDataTree):
                                     maxOccurs = int(sequenceChild.attrib.get('maxOccurs'))
                                     if maxOccurs == 0:
                                         currentXPath = xmlDocTree.getpath(sequenceChild)
-                                        formString += "<span class=\"icon add\" onclick=\"changeXMLSchema('add','" + currentXPath + "','" + sequenceChild.attrib.get('name') + "');\"></span>"
+                                        xmlElement = newElement
+                                        newElement = etree.Element("span")
+                                        newElement.attrib['class'] = "icon add"
+                                        xmlElement.append(newElement)
+                                        formString += "<span class=\"icon add\" onclick=\"changeHTMLForm('add',this);\"></span>"
                                 else:
                                     currentXPath = xmlDocTree.getpath(sequenceChild)
-                                    formString += "<span class=\"icon add\" onclick=\"changeXMLSchema('add','" + currentXPath + "','" + sequenceChild.attrib.get('name') + "');\"></span>"
+                                    xmlElement = newElement
+                                    newElement = etree.Element("span")
+                                    newElement.attrib['class'] = "icon add"
+                                    xmlElement.append(newElement)
+                                    formString += "<span class=\"icon add\" onclick=\"changeHTMLForm('add',this);\"></span>"
                             if sequenceChild.attrib.get('minOccurs') is not None:
                                 minOccurs = int(sequenceChild.attrib.get('minOccurs'))
                                 if minOccurs == 0:
                                     currentXPath = xmlDocTree.getpath(sequenceChild)
-                                    formString += "<span class=\"icon remove\" onclick=\"changeXMLSchema('remove','" + currentXPath + "','" + sequenceChild.attrib.get('name') + "');\"></span>"
+                                    xmlElement = newElement
+                                    newElement = etree.Element("span")
+                                    newElement.attrib['class'] = "icon remove"
+                                    xmlElement.append(newElement)
+                                    formString += "<span class=\"icon remove\" onclick=\"changeHTMLForm('remove',this);\"></span>"
                             formString += generateFormSubSection(sequenceChild.attrib.get('type'),selected,newElement)
                             xmlString += "</" + sequenceChild.attrib.get('name') + ">"
                             formString += "</nobr></li></ul>"
                 elif sequenceChild.tag == "{0}choice".format(namespace):
-                    formString += "<ul><li><nobr>Choose <select onchange=\"alert('change to ' + this.value);\">"
+                    newElement = etree.Element("ul")
+                    xmlElement.append(newElement)
+                    xmlElement = newElement
+                    newElement = etree.Element("li")
+                    xmlElement.append(newElement)
+                    xmlElement = newElement
+                    newElement = etree.Element("nobr")
+                    newElement.text = "Choose "
+                    xmlElement.append(newElement)
+                    xmlElement = newElement
+                    newElement = etree.Element("select")
+                    newElement.attrib['onchange'] = "alert('change to ' + this.value);"
+                    xmlElement.append(newElement)
+                    xmlElement = newElement
+                    formString += "<ul><li><nobr>Choose <select onchange=\"changeChoice(this);\">"
                     choiceChildren = sequenceChild.findall('*')
                     selectedChild = choiceChildren[0]
                     xmlString += "<" + selectedChild.attrib.get('name') + "/>"
                     for choiceChild in choiceChildren:
                         if choiceChild.tag == "{0}element".format(namespace):
                             textCapitalized = choiceChild.attrib.get('name')[0].capitalize()  + choiceChild.attrib.get('name')[1:]
-                            newElement = etree.Element(textCapitalized)
-                            newElement.text = ""
-                            xmlDataTree.append(newElement)
+                            newElement = etree.Element("option")
+                            newElement.attrib['value'] = textCapitalized 
+                            newElement.text = textCapitalized 
+                            xmlElement.append(newElement)
                             formString += "<option value='" + textCapitalized + "'>" + textCapitalized + "</option></b><br>"
-                        formString += "</select>"
+                    formString += "</select>"
+                    print "+++++++++++++++++++++++++++++++++++++++++++"
                     if selected == "":
-                        choiceFirstChild = complexTypeChild[0]
-                        if choiceFirstChild.tag == "{0}element".format(namespace):
-                            if choiceFirstChild.attrib.get('type') != "xsd:string".format(namespace):
-                                textCapitalized = choiceFirstChild.attrib.get('name')[0].capitalize()  + choiceFirstChild.attrib.get('name')[1:]
-                                newElement = etree.Element(textCapitalized)
-                                xmlDataTree.append(newElement)
-                                formString += "<ul><li><nobr>" + textCapitalized
-                                xmlString += "<" + textCapitalized + ">" 
-                                formString += generateFormSubSection(choiceFirstChild.attrib.get('type'),selected,newElement) + "</nobr></li></ul>"
-                                xmlString += "</" + textCapitalized + ">"
-                            else:
-                                formString += "<ul><li><nobr>" + choiceFirstChild.attrib.get('name').capitalize() + " <input type='text'>" + "</nobr></li></ul>"
+                        for (counter, choiceChild) in enumerate(choiceChildren):
+                            if choiceChild.tag == "{0}element".format(namespace):
+                                if choiceChild.attrib.get('type') != "xsd:string".format(namespace):
+                                    textCapitalized = choiceChild.attrib.get('name')[0].capitalize()  + choiceChild.attrib.get('name')[1:]
+                                    print textCapitalized + " is not string type"
+                                    newElement = etree.Element("ul")
+                                    newElement.attrib['id'] = textCapitalized
+                                    xmlElement.append(newElement)
+                                    xmlElement = newElement
+                                    newElement = etree.Element("li")
+                                    xmlElement.append(newElement)
+                                    xmlElement = newElement
+                                    newElement = etree.Element("nobr")
+                                    newElement.text = textCapitalized
+                                    xmlElement.append(newElement)
+                                    if (counter > 0):
+                                        formString += "<ul id=\"" + textCapitalized + "\" style=\"display:none;\"><li><nobr>" + textCapitalized
+                                    else:
+                                        formString += "<ul id=\"" + textCapitalized + "\"><li><nobr>" + textCapitalized
+                                    xmlString += "<" + textCapitalized + ">" 
+                                    formString += generateFormSubSection(choiceChild.attrib.get('type'),selected,newElement) + "</nobr></li></ul>"
+                                    xmlString += "</" + textCapitalized + ">"
+                                else:
+                                    textCapitalized = choiceChild.attrib.get('name')[0].capitalize()  + choiceChild.attrib.get('name')[1:]
+                                    print textCapitalized + " is string type"
+                                    newElement = etree.Element("ul")
+                                    xmlElement.append(newElement)
+                                    xmlElement = newElement
+                                    newElement = etree.Element("li")
+                                    newElement.attrib['id'] = choiceChild.attrib.get('name').capitalize() 
+                                    xmlElement.append(newElement)
+                                    xmlElement = newElement
+                                    newElement = etree.Element("nobr")
+                                    newElement.text = choiceChild.attrib.get('name').capitalize() 
+                                    xmlElement.append(newElement)
+                                    xmlElement = newElement
+                                    newElement = etree.Element("option")
+                                    newElement.attrib['type'] = "text"
+                                    xmlElement.append(newElement)
+                                    formString += "<ul><li><nobr>" + choiceChild.attrib.get('name').capitalize() + " <input type='text'>" + "</nobr></li></ul>"
                     else:
                         formString += "selected not empty"
                     formString += "</nobr></li></ul>"
         elif complexTypeChild.tag == "{0}choice".format(namespace):
             if debugON: formString += "complexTypeChild:" + complexTypeChild.tag + "<br>"
-            formString += "<ul><li><nobr>Choose <select onchange=\"alert('change to ' + this.value);\">"
+            newElement = etree.Element("ul")
+            xmlElement.append(newElement)
+            xmlElement = newElement
+            newElement = etree.Element("li")
+            xmlElement.append(newElement)
+            xmlElement = newElement
+            newElement = etree.Element("nobr")
+            newElement.text = "Choose "
+            xmlElement.append(newElement)
+            xmlElement = newElement
+            newElement = etree.Element("select")
+            newElement.attrib['onchange'] = "alert('change to ' + this.value);"
+            xmlElement.append(newElement)
+            xmlElement = newElement
+            formString += "<ul><li><nobr>Choose <select onchange=\"changeChoice(this);\">"
             choiceChildren = complexTypeChild.findall('*')
             selectedChild = choiceChildren[0]
             xmlString += "<" + selectedChild.attrib.get('name') + "/>"
             for choiceChild in choiceChildren:
                 if choiceChild.tag == "{0}element".format(namespace):
                     textCapitalized = choiceChild.attrib.get('name')[0].capitalize()  + choiceChild.attrib.get('name')[1:]
-                    newElement = etree.Element(textCapitalized)
-                    newElement.text = ""
-                    xmlDataTree.append(newElement)
+                    newElement = etree.Element("option")
+                    newElement.attrib['value'] = textCapitalized 
+                    newElement.text = textCapitalized 
+                    xmlElement.append(newElement)
                     formString += "<option value='" + textCapitalized + "'>" + textCapitalized + "</option></b><br>"
             formString += "</select>"
             if selected == "":
-                choiceFirstChild = complexTypeChild[0]
-                if choiceFirstChild.tag == "{0}element".format(namespace):
-                    if choiceFirstChild.attrib.get('type') != "xsd:string".format(namespace):
-                        textCapitalized = choiceFirstChild.attrib.get('name')[0].capitalize()  + choiceFirstChild.attrib.get('name')[1:]
-                        newElement = etree.Element(textCapitalized)
-                        xmlDataTree.append(newElement)
-                        formString += "<ul><li><nobr>" + textCapitalized
-                        xmlString += "<" + textCapitalized + ">" 
-                        formString += generateFormSubSection(choiceFirstChild.attrib.get('type'),selected,newElement) + "</nobr></li></ul>"
-                        xmlString += "</" + textCapitalized + ">"
-                    else:
-                        formString += "<ul><li><nobr>" + choiceFirstChild.attrib.get('name').capitalize() + " <input type='text'>" + "</nobr></li></ul>"
+                for (counter, choiceChild) in enumerate(choiceChildren):
+                    if choiceChild.tag == "{0}element".format(namespace):
+                        if choiceChild.attrib.get('type') != "xsd:string".format(namespace):
+                            textCapitalized = choiceChild.attrib.get('name')[0].capitalize()  + choiceChild.attrib.get('name')[1:]
+                            newElement = etree.Element("ul")
+                            newElement.attrib['id'] = textCapitalized
+                            xmlElement.append(newElement)
+                            xmlElement = newElement
+                            newElement = etree.Element("li")
+                            xmlElement.append(newElement)
+                            xmlElement = newElement
+                            newElement = etree.Element("nobr")
+                            newElement.text = textCapitalized
+                            xmlElement.append(newElement)
+                            if (counter > 0):
+                                formString += "<ul id=\"" + textCapitalized + "\" style=\"display:none;\"><li><nobr>" + textCapitalized
+                            else:
+                                formString += "<ul id=\"" + textCapitalized + "\"><li><nobr>" + textCapitalized
+                            xmlString += "<" + textCapitalized + ">" 
+                            formString += generateFormSubSection(choiceChild.attrib.get('type'),selected,newElement) + "</nobr></li></ul>"
+                            xmlString += "</" + textCapitalized + ">"
+                        else:
+                            textCapitalized = choiceChild.attrib.get('name').capitalize()
+                            newElement = etree.Element("ul")
+                            newElement.attrib['id'] = choiceChild.attrib.get('name').capitalize()
+                            xmlElement.append(newElement)
+                            xmlElement = newElement
+                            newElement = etree.Element("li")
+                            xmlElement.append(newElement)
+                            xmlElement = newElement
+                            newElement = etree.Element("nobr")
+                            newElement.text = choiceChild.attrib.get('name').capitalize()
+                            xmlElement.append(newElement)
+                            formString += "<ul id=\"" + textCapitalized + "\"><li><nobr>" + textCapitalized + " <input type='text'>" + "</nobr></li></ul>"
             else:
                 formString += "selected not empty"
             formString += "</nobr></li></ul>"
         elif complexTypeChild.tag == "{0}attribute".format(namespace):
             textCapitalized = complexTypeChild.attrib.get('name')[0].capitalize()  + complexTypeChild.attrib.get('name')[1:]
-            newElement = etree.Element(textCapitalized)
-            newElement.text = ""
-            xmlDataTree.append(newElement)
+            newElement = etree.Element("li")
+            newElement.attrib['text'] = textCapitalized
+            newElement.text = textCapitalized
+            xmlElement.append(newElement)
+            xmlElement = newElement
             formString += "<li>" + textCapitalized + "</li>"
             xmlString += "<" + textCapitalized + ">" 
             xmlString += "</" + textCapitalized + ">"
@@ -670,14 +1035,30 @@ def generateFormSubSection(xpath,selected,xmlDataTree):
         if simpleTypeChildren is None:
             return formString
 
+        if e.attrib.get('name') == "ChemicalElement":
+#            formString += "<div id=\"periodicTable\"></div>"
+            currentXPath = xmlDocTree.getpath(e)
+            formString += "<div class=\"btn select-element\" onclick=\"selectElement('None',this);\"><i class=\"icon-folder-open\"></i> Select Element</div>"
+            formString += "<div id=\"elementSelected\">Current Selection: None</div>"
+
+            return formString
+
         for simpleTypeChild in simpleTypeChildren:
             if simpleTypeChild.tag == "{0}restriction".format(namespace):
+                newElement = etree.Element("select")
+#                newElement.attrib['onchange'] = "alert('change to ' + this.value);"
+                xmlElement.append(newElement)
+                xmlElement = newElement
                 formString += "<select>"
                 choiceChildren = simpleTypeChild.findall('*')
                 selectedChild = choiceChildren[0]
                 xmlString += selectedChild.attrib.get('value')
                 for choiceChild in choiceChildren:
                     if choiceChild.tag == "{0}enumeration".format(namespace):
+                        newElement = etree.Element("option")
+                        newElement.attrib['value'] = choiceChild.attrib.get('value')
+                        newElement.text = choiceChild.attrib.get('value')
+                        xmlElement.append(newElement)
                         formString += "<option value='" + choiceChild.attrib.get('value')  + "'>" + choiceChild.attrib.get('value') + "</option>"
                 formString += "</select>"
         
@@ -713,19 +1094,20 @@ def get_namespace(element):
 
 ################################################################################
 # 
-# Function Name: generateForm(key,xmlDataTree)
+# Function Name: generateForm(key,xmlElement)
 # Inputs:        key -
-#                xmlDatatree -
+#                xmlElement -
 # Outputs:       rendered HTMl form
 # Exceptions:    None
 # Description:   Renders HTMl form for display.
 #
 ################################################################################
-def generateForm(key,xmlDataTree):
-    print 'BEGIN def generateForm(key,xmlDataTree)'
+def generateForm(key,xmlElement):
+    print 'BEGIN def generateForm(key,xmlElement)'
     formString = ""
     global xmlString
     global xmlDocTree
+    global xmlDataTree
 
 #    schemaRoot = xmlDocTree.getroot()
 #    formString += "schemaRoot: " + schemaRoot.tag + "<br>"
@@ -745,12 +1127,18 @@ def generateForm(key,xmlDataTree):
             formString += "more than one: " + i.tag + "<br>"
     else:
         textCapitalized = e[0].attrib.get('name')[0].capitalize()  + e[0].attrib.get('name')[1:]
-        formString += "<b>" + textCapitalized + "</b><br>"
-        xmlDataTree = etree.Element(textCapitalized)
+        newElement = etree.Element("b")
+        newElement.text = textCapitalized
+        xmlElement.append(newElement)
+        newElement = etree.Element("br")
+        xmlElement.append(newElement)
+        formString += "<div xmlID='root'><b>" + textCapitalized + "</b><br>"
+#        xmlDataTree = etree.Element(textCapitalized)
         if debugON: xmlString += "<" + textCapitalized + ">"
         xmlString += "<" + e[0].attrib.get('name') + ">"
         if debugON: formString += "<b>" + e[0].attrib.get('name').capitalize() + "</b><br>"
-        formString += generateFormSubSection(e[0].attrib.get('type'),"",xmlDataTree)
+        formString += generateFormSubSection(e[0].attrib.get('type'),"",xmlElement)
+        formString += "</div>"
         if debugON: xmlString += "</" + textCapitalized + ">"
         xmlString += "</" + e[0].attrib.get('name') + ">"
        
@@ -776,36 +1164,61 @@ def generateXSDTreeForEnteringData(request):
     global xmlString
     global formString
     global xmlDocTree
+    global xmlDataTree
+
+    dajax = Dajax()
 
     templateFilename = request.session['currentTemplate']
     templateID = request.session['currentTemplateID']
-#    request.session.modified = True
     print '>>>>' + templateFilename + ' is the current template in session'
-    dajax = Dajax()
 
     if xmlDocTree == "":
         setCurrentTemplate(request,templateFilename, templateID)
 
-    xmlDataTree = ""
-    xmlString = ""
+    if (formString == ""):
+
+#    request.session.modified = True
+
+
+        xmlString = ""
 #    print "xsdDocTree: " + str(xmlDocTree)
 
-    formString = "<form id=\"dataEntryForm\">"
+        formString = "<form id=\"dataEntryForm\" name=\"xsdForm\">"
+        newElement = etree.Element("form")
+        newElement.attrib['id'] = "dataEntryForm"
+        newElement.attrib['name'] = "xsdForm"
+        xmlDataTree = etree.ElementTree(newElement)
 
-    formString += generateForm("schema",xmlDataTree)
+        formString += generateForm("schema",xmlDataTree.getroot())
 
 #    root = xmlDocTree.getroot()
 
 #    for child in root:
 #        print child.tag
 
-    reparsed = minidom.parseString(xmlString)
+        reparsed = minidom.parseString(xmlString)
 #    print "xmlDataTree: " + reparsed.toprettyxml(indent="  ")
-    formString += "</form>"
+        formString += "</form>"
 
 #    pretty_xml_as_string = xml.dom.minidom.parseString(xmlDocData).toprettyxml()
 
+#    dajax.assign('#xsdForm', 'innerHTML', etree.ElementTree.tostring(xmlDataTree, encoding='utf8', method='xml'))
+#    dajax.assign('#xsdForm', 'innerHTML', etree.tostring(xmlDataTree.getroot(),pretty_print=False))
+
+
+
     dajax.assign('#xsdForm', 'innerHTML', formString)
+
+#    print etree.tostring(xmlDataTree.getroot(),pretty_print=True)
+
+    pathFile = "{0}/static/resources/files/{1}"
+    path = pathFile.format(settings.SITE_ROOT,"periodic.html")
+    print 'path is ' + path
+    periodicTableDoc = open(path,'r')
+    periodicTableString = periodicTableDoc.read()
+
+    dajax.assign('#periodicTable', 'innerHTML', periodicTableString)
+
 #    dajax.assign('#xsdForm', 'innerHTML', pretty_xml_as_string)
 #    dajax.alert(pretty_xml_as_string)
 #    dajax.alert(xmlDocData)

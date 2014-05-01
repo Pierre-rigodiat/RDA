@@ -49,7 +49,7 @@
 
 </head>
 
-<body id="top">
+<body id="top" onbeforeunload="handleOnClose(event);">
 
 <div id="header-wrapper">
 	<div id="header-wrapper-2">
@@ -119,7 +119,8 @@
 	<ul class="tabbed">
 	  <li><a href="/curate/select-template">Select Template</a></li>
 	  <li class="current_page_item"><a href="/curate/enter-data">Enter Data</a></li>
-	  <li><a href="/curate/view-data">View Data</a></li>
+<!--	  <li><a href="/curate/view-data" onclick="viewData();">View Data</a></li> -->
+	  <li><a onclick="viewData();" style="cursor: pointer;">View Data</a></li>
 	  </ul>
 
 	<div class="clearer">&nbsp;</div>
@@ -187,7 +188,7 @@
 			  <ul class="nice-list">
 			    <li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'img/Orange_Number_1.png' %}"></td><td><a href="/curate/select-template">Select Template</a></td></tr></table></li>
 			    <li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'img/Orange_Number_2.png' %}"></td><td><strong><a href="/curate/enter-data">Enter Data</a></strong></td></tr></table></li>
-			    <li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'img/Orange_Number_3.png' %}"></td><td><a href="/curate/view-data">View Data</a></td></tr></table></li>
+			    <li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'img/Orange_Number_3.png' %}"></td><td><a style="cursor:pointer;" onclick="viewData();">View Data</a></td></tr></table></li>
 			    </ul>
 			  </div>
 
@@ -328,10 +329,11 @@
   <div class="btn-group">
     <button class="btn download-form" onclick="downloadForm();"><i class="icon-arrow-down"></i> Download Form</button>
   </div>
-<br><br>
+<!--<br><br>
   <div class="btn-group">
     <button class="btn download-xml" onclick="downloadXML();"><i class="icon-arrow-down"></i> Download XML</button>
   </div>
+-->
 </p>
 <!--  <p>
     Currently using <a href="/view-schema/{{ request.session.currentTemplate }}" target="_new">{{ request.session.currentTemplate }}</a>
@@ -339,8 +341,73 @@
 -->
 </div>
 
+<div id="dialog-select-element" title="Select Element" style="display:none;">
+<p></p>
+<p>
+
+<div id="periodicTable"></div>
+<br>
+<div id="chosenElement">Chosen Element: <b id="selectedElement">None</b></div>
+</p>
+</div>
+
+<div id="dialog-select-hdf5file" title="Select HDF5 File" style="display:none;">
+<p></p>
+<p>
+
+<iframe src="/curate/select-hdf5file">
+</iframe>
+
+<!-- <input id="yourinputname" type="file" name="yourinputname" style="display:" /> -->
+
+<!--<div class="btn select-hdf5file" onclick=""><i class="icon-folder-open"></i> Select HDF5 File</div>
+<br><br>
+<div id="chosenElement">File Selected: <b id="fileSelected">None</b></div>
+-->
+</p>
+</div>
 
 
+<script>
+<!-- $(document).ready(function(){
+    $('form').on('submit', function(e){
+        e.preventDefault();
+        var data = new FormData($('form').get(0));
+        $.ajax({
+            url: :"/curate/upload-hdf5file",
+            method: "POST",
+            data: data,
+            success: function(data){alert('success')},
+            error: function(data){alert('error')},
+            processData: false,
+            contentType: false,
+        });
+    });
+return false;
+});-->
+
+function upload(event) {
+event.preventDefault();
+var data = new FormData($('form').get(0));
+
+$.ajax({
+    url: $(this).attr('action'),
+    type: $(this).attr('method'),
+    data: data,
+    cache: false,
+    processData: false,
+    contentType: false,
+    success: function(data) {
+        alert('success');
+    }
+});
+return false;
+}
+
+$(function() {
+    $('form').submit(upload);
+});
+</script>
 
 </body>
 </html>

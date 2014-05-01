@@ -332,9 +332,11 @@
 
 <div id="dialog-upload-message" title="Upload Schema" style="display:none;">
 <br>
+Enter a Schema name: <input type="text" id="schema_name" name="schema_name"/>
+<br>
 <input type="file" id="files" name="files[]" multiple />
 <output id="list"></output>
-
+<div id="schemaNameErrorMessage"></div>
 <script>
   var files;
 //  var reader;
@@ -390,6 +392,13 @@
   function handleFileUpload(evt) {
     console.log('BEGIN handleFileUpload(evt)');
 
+    if (document.getElementById("schema_name").value.trim().length == 0) {
+        document.getElementById('schemaNameErrorMessage').innerHTML = "<font color=\"red\">Please enter a schema name</font>"
+        return false;
+    } else {
+        document.getElementById('schemaNameErrorMessage').innerHTML = ""
+    }
+
     var reader;
     var progress = document.querySelector('.percent');
 
@@ -414,7 +423,9 @@
       progress.textContent = '100%';
 //      setTimeout("document.getElementById('progress_bar').className='';", 2000);
 
-      Dajaxice.curate.uploadXMLSchema(uploadXMLSchemaCallback,{'xmlSchemaFilename':files[0].name,'xmlSchemaContent':reader.result}); 
+      var xmlSchemaName = document.getElementById('schema_name').value.trim();
+
+      Dajaxice.curate.uploadXMLSchema(uploadXMLSchemaCallback,{'xmlSchemaName':xmlSchemaName,'xmlSchemaFilename':files[0].name,'xmlSchemaContent':reader.result}); 
     }
 
     // Read in the image file as a binary string.
