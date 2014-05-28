@@ -34,7 +34,7 @@
         <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css">
         <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
         <script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
-	<script src="{% static 'dajax/jquery.dajax.core.js' %}"></script>
+		<script src="{% static 'dajax/jquery.dajax.core.js' %}"></script>
 
         {% dajaxice_js_import %}
 
@@ -110,7 +110,7 @@
 	<ul class="tabbed">
 	  <li><a href="/explore/select-template">Select Template</a></li>
 	  <li class="current_page_item"><a href="/explore/customize-template">Customize Template</a></li>
-	  <li><a href="/explore/perform-search">Perform Search</a></li>
+	  <li><a onclick="exploreData();" style="cursor:pointer;">Perform Search</a></li>
 	  </ul>
 
 	<div class="clearer">&nbsp;</div>
@@ -144,12 +144,22 @@
 			  <p class="large">Customize template instructions go here.</p>
 
 			</div>
-			
+						
 		      </div>
 
+<div class="toolbar">
+
+
+  <div class="btn-group pull-right">
+    <button class="btn clear-fields"><i class="icon-file"></i> Clear fields</button>    
+  </div>
+
+
+<br><br>
+
+</div>
+
 <div id="xsdForm">
-
-
 </div>
 
 		    </div>
@@ -167,7 +177,7 @@
 			  <ul class="nice-list">
 			    <li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'img/Orange_Number_1.png' %}"></td><td><a href="/explore/select-template">Select Template</a></td></tr></table></li>
 			    <li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'img/Orange_Number_2.png' %}"></td><td><strong><a href="/explore/customize-template">Customize Template</a></strong></td></tr></table></li>
-			    <li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'img/Orange_Number_3.png' %}"></td><td><a href="/explore/perform-search">Perform Search</a></td></tr></table></li>
+			    <li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'img/Orange_Number_3.png' %}"></td><td><a onclick="exploreData();" style="cursor:pointer">Perform Search</a></td></tr></table></li>
 			  </ul>
 			</div>
 
@@ -228,7 +238,8 @@
 </div>
 
 	<script src="{% static 'resources/js/bootstrap.min.js' %}"></script>
-	<script src="{% static 'inc/controllers/js/tpl_sel.js' %}"></script>
+	<!--<script src="{% static 'inc/controllers/js/tpl_sel.js' %}"></script>-->
+	<script src="{% static 'inc/controllers/js/data_exploration.js' %}"></script>
 	<script>
 	  loadExploreCurrentTemplateForm();
 	</script>
@@ -240,21 +251,6 @@
     <span class="ui-icon ui-icon-circle-check" style="float:left; margin:0 7px 10px 0;"></span>
     Form fields are cleared.
   </p>
-  <p>
-    Currently using <a href="/view-schema/{{ request.session.currentTemplate }}" target="_new">{{ request.session.currentTemplate }}</a>
-  </p>
-</div>
-
-
-<div id="dialog-loaded-message" title="Form Loaded" style="display:none;">
-<p></p>
-  <p>
-    <span class="ui-icon ui-icon-circle-check" style="float:left; margin:0 7px 10px 0;"></span>
-    Form is loaded.
-  </p>
-  <p>
-    Currently using <a href="/view-schema/{{ request.session.currentTemplate }}" target="_new">{{ request.session.currentTemplate }}</a>
-  </p>
 </div>
 
 
@@ -263,9 +259,6 @@
   <p>
     <span class="ui-icon ui-icon-circle-check" style="float:left; margin:0 7px 10px 0;"></span>
     Form fields are saved.
-  </p>
-  <p>
-    Currently using <a href="/view-schema/{{ request.session.currentTemplate }}" target="_new">{{ request.session.currentTemplate }}</a>
   </p>
 </div>
 

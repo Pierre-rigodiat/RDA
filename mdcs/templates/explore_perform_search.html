@@ -15,6 +15,8 @@
 
 {% load staticfiles %}
 
+{% load dajaxice_templatetags %}
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" dir="ltr">
 
@@ -26,7 +28,15 @@
 	<link rel="stylesheet" type="text/css" href="{% static 'resources/css/lib/bootstrap.min.css' %}"  media="screen" />
 	<link rel="stylesheet" type="text/css" href="{% static 'style.css' %}" media="screen" />
 	<link rel="stylesheet" type="text/css" href="{% static 'resources/css/style.add.css' %}"  media="screen" />
+	<link media="screen" href="/static/resources/css/icons.css" type="text/css" rel="stylesheet"></link>
+	<link media="screen" href="/static/resources/css/queryForm.css" type="text/css" rel="stylesheet"></link>
 	<title>Materials Data Curation System</title>
+	<!-- JQuery & JQuery UI -->
+    <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css">
+    <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+    <script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
+	<script src="{% static 'dajax/jquery.dajax.core.js' %}"></script>
+	{% dajaxice_js_import %}
 </head>
 
 <body id="top">
@@ -135,10 +145,49 @@
 			</div>
 			
 		      </div>
+<div id="queryBuilder">
+	<h2>Query Builder</h2>		
+	<div id="queryForm">
+	    <form>
+	        <p id="crit0">
+	            <select>
+	              <option value=""></option>
+	              <option value="NOT">NOT</option>
+	            </select> 
+	            <input droppable="true" readonly="readonly" type="text" class="elementInput"/>
+	            <span id="ui0">
+	            </span>                
+	            <span class="icon add" onclick="addField()"></span>                                 
+	        </p>        
+	        <span class="btn" onclick="saveQuery()">Save Query</span>
+	        <span class="btn" onclick="clearCriterias()">Clear</span>    
+	        <span class="btn" onclick="query()">Execute Query !</span>           
+	    </form>                        
+	</div>
+	<hr>
+	<div id="queries">
+	    <p>
+	    	<h2>Saved Queries</h2>
+	        <form>                
+	            <span class="btn" onclick="clearQueries()">Clear</span>   
+	        </form>
+	    </p>
+	    <div id="queriesTable">
+	        <table>
+	            <tr>	                
+	                <th width="15px">Add to Builder</th>
+	                <th>Queries</th>
+	                <th width="15px">Delete</th>
+	            </tr>                
+	        </table>
+	    </div>            
+	</div>
+</div>
+<div id="customForm">
+</div>
 
 		    </div>
 		  </div>
-
 
 		  <div id="sidebar-wrapper">
 		    <div id="sidebar">
@@ -209,6 +258,19 @@
 
 	</div>
 
+</div>
+
+<script src="{% static 'resources/js/bootstrap.min.js' %}"></script>
+<script src="{% static 'inc/controllers/js/data_exploration.js' %}"></script>
+<script>
+Dajaxice.explore.getCustomForm(Dajax.process);
+loadCustomTemplateForm();
+</script>
+
+<div id="dialog-errors-message" title="Errors" style="display:none;">
+<p></p>
+  <p id="listErrors">
+  </p>
 </div>
 
 </body>

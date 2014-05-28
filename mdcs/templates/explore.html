@@ -3,7 +3,8 @@
 #
 # File Name: explore.html
 # Application: templates
-# Description: 
+# Description: This is the main explore template used by the system.  A user
+#              would begin here and use it to select a template/schema.
 #
 # Author: Sharief Youssef
 #         sharief.youssef@nist.gov
@@ -170,7 +171,7 @@
 {% for template in templates %}
   {% cycle 'even' '' as rowcolors silent %}
   <tr class="{{ rowcolors }}">
-    <td>{{ template.title }}</td>
+    <td templateID='{{template.id}}'>{{ template.title }}</td>
     <td>{{ template.filename }}</td>
 
 {% if request.session.exploreCurrentTemplate == template.filename %} 
@@ -196,9 +197,6 @@
   <p>
     <span class="ui-icon ui-icon-circle-check" style="float:left; margin:0 7px 10px 0;"></span>
     Template selected successfully. 
-  </p>
-  <p>
-    Currently using <a href="/view-schema/{{ request.session.currentTemplate }}" target="_new">{{ request.session.currentTemplate }}</a>
   </p>
   <p>
     To proceed to the next step, click on step 2: <b>'Customize Template'</b>
@@ -331,7 +329,7 @@ verifyTemplateIsSelectedCallback = function(data)
 </div>
 
 	<script src="{% static 'resources/js/bootstrap.min.js' %}"></script>
-	<script src="{% static 'inc/controllers/js/tpl_sel.js' %}"></script>
+	<script src="{% static 'inc/controllers/js/data_exploration.js' %}"></script>
 	<script>
 	  loadTemplateSelectionControllers();
 	</script>

@@ -28,6 +28,7 @@ import sys
 from xlrd import open_workbook
 from argparse import ArgumentError
 from cgi import FieldStorage
+import zipfile
 
 import lxml.etree as etree
 
@@ -40,6 +41,11 @@ class ContactForm(forms.Form):
 class Template(Document):
     title = StringField(required=True)
     filename = StringField(required=True)
+    content = StringField(required=True)
+
+class Database(Document):
+    title = StringField(required=True)
+    timestamp = StringField(required=True)
     content = StringField(required=True)
 
 class Ontology(Document):
@@ -61,6 +67,9 @@ class Hdf5file(Document):
     title = StringField(required=True)
     schema = StringField(required=True)
     content = StringField(required=True)
+
+class queryResults(Document):
+    results = ListField(required=True) 
 
 # Create your views here.
 
@@ -232,6 +241,27 @@ def user_management(request):
     context = RequestContext(request, {
         'templates': Template.objects.order_by('-id')[:7]
     })
+    request.session['currentYear'] = currentYear()
+    return HttpResponse(template.render(context))
+
+################################################################################
+#
+# Function Name: database_management(request)
+# Inputs:        request - 
+# Outputs:       
+# Exceptions:    None
+# Description:   
+#                
+#
+################################################################################
+def database_management(request):
+    template = loader.get_template('admin/database_management.html')
+    connect('mgi')
+
+    context = RequestContext(request, {
+        'databases': Database.objects.order_by('-id')[:7]
+    })
+
     request.session['currentYear'] = currentYear()
     return HttpResponse(template.render(context))
 
@@ -713,9 +743,9 @@ def explore_customize_template(request):
         '': '',
     })
     request.session['currentYear'] = currentYear()
-    return HttpResponse(template.render(context))  # remove after testing
+#     return HttpResponse(template.render(context))  # remove after testing
     if request.user.is_authenticated():
-        if 'currentTemplate' not in request.session:
+        if 'exploreCurrentTemplate' not in request.session:
             return redirect('/explore/select-template')
         else:
             return HttpResponse(template.render(context))
@@ -744,7 +774,7 @@ def explore_perform_search(request):
     request.session['currentYear'] = currentYear()
     return HttpResponse(template.render(context))  # remove after testing
     if request.user.is_authenticated():
-        if 'currentTemplate' not in request.session:
+        if 'exploreCurrentTemplate' not in request.session:
             return redirect('/explore/select-template')
         else:
             return HttpResponse(template.render(context))
@@ -752,6 +782,86 @@ def explore_perform_search(request):
         if 'loggedOut' in request.session:
             del request.session['loggedOut']
         request.session['next'] = '/explore/perform-search'
+        return redirect('/login')
+
+################################################################################
+#
+# Function Name: explore_results(request)
+# Inputs:        request - 
+# Outputs:       
+# Exceptions:    None
+# Description:   
+#                
+#
+################################################################################
+def explore_results(request):
+#    logout(request)
+    template = loader.get_template('explore_results.html')
+    context = RequestContext(request, {
+        '': '',
+    })
+    request.session['currentYear'] = currentYear()
+    return HttpResponse(template.render(context))  # remove after testing
+    if request.user.is_authenticated():
+        if 'currentTemplate' not in request.session:
+            return redirect('/explore/select-template')
+        else:
+            return HttpResponse(template.render(context))
+    else:
+        if 'loggedOut' in request.session:
+            del request.session['loggedOut']
+        request.session['next'] = '/explore/results'
+        return redirect('/login')
+
+################################################################################
+#
+# Function Name: explore_download_results(request)
+# Inputs:        request - 
+# Outputs:       results of a query as xml files
+# Exceptions:    None
+# Description:   
+#
+################################################################################
+def explore_download_results(request):
+    if request.user.is_authenticated():
+        if 'exploreCurrentTemplate' not in request.session:
+            return redirect('/explore/select-template')
+        else:          
+            savedResultsID = request.GET.get('id','')
+            ResultsObject = queryResults.objects.get(pk=savedResultsID)
+
+#             fileObj = StringIO(formStringEncoded)
+            in_memory = StringIO()
+            zip = zipfile.ZipFile(in_memory, "a")
+            
+            resultNumber = 1
+            for result in ResultsObject.results:
+                zip.writestr("result"+str(resultNumber)+".xml", result)
+                resultNumber += 1
+                
+            # fix for Linux zip files read in Windows  
+            for xmlFile in zip.filelist:  
+                xmlFile.create_system = 0 
+            
+            zip.close()
+            
+            ResultsObject.delete()
+
+            response = HttpResponse(mimetype="application/zip")  
+            response["Content-Disposition"] = "attachment; filename=results.zip"  
+              
+            in_memory.seek(0)      
+            response.write(in_memory.read())  
+              
+            return response
+
+#             response = HttpResponse(FileWrapper(fileObj), content_type='application/xml')
+#             response['Content-Disposition'] = 'attachment; filename=results.zip' #templateFilename
+#             return response
+    else:
+        if 'loggedOut' in request.session:
+            del request.session['loggedOut']
+        request.session['next'] = '/explore'
         return redirect('/login')
 
 ################################################################################
