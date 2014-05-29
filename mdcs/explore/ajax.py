@@ -257,17 +257,16 @@ def setCurrentModel(request,modelFilename):
 
 ################################################################################
 # 
-# Function Name: generateFormSubSection(xpath,selected,fullPath)
+# Function Name: generateFormSubSection(xpath,fullPath)
 # Inputs:        xpath -
-#                selected -
 #                fullPath - 
 # Outputs:       JSON data 
 # Exceptions:    None
 # Description:   
 #
 ################################################################################
-def generateFormSubSection(xpath,selected, fullPath):
-    print 'BEGIN def generateFormSubSection(xpath,selected,fullPath)'
+def generateFormSubSection(xpath, fullPath):
+    print 'BEGIN def generateFormSubSection(xpath,fullPath)'
     formString = ""
 #     global xmlString
     global xmlDocTree
@@ -282,9 +281,6 @@ def generateFormSubSection(xpath,selected, fullPath):
     
     p = re.compile('(\{.*\})?schema', re.IGNORECASE)
 
-#     namespace = get_namespace(xmlDocTree.getroot())
-#    xpathFormated = "./{0}element"
-#    xpathFormated = "./{0}complexType[@name='"+xpath+"']"
     if xpath is None:
         print "xpath is none"
         return formString;
@@ -328,8 +324,7 @@ def generateFormSubSection(xpath,selected, fullPath):
                           or sequenceChild.attrib.get('type') == "{0}:anyURI".format(defaultPrefix)):                                                                
                         textCapitalized = sequenceChild.attrib.get('name')[0].capitalize()  + sequenceChild.attrib.get('name')[1:]                        
                         elementID = len(mapTagIDElementInfo.keys())
-                        formString += "<ul><li id='" + str(elementID) + "'><nobr>" + textCapitalized + " <input type='checkbox'>" 
-#                         xmlString += "<" + sequenceChild.attrib.get('name') + ">" + "</" + sequenceChild.attrib.get('name') + ">"                        
+                        formString += "<ul><li id='" + str(elementID) + "'><nobr>" + textCapitalized + " <input type='checkbox'>"                         
                         formString += "</nobr></li></ul>"                    
                         elementInfo = ElementInfo(sequenceChild.attrib.get('type'),fullPath[1:] + "." + textCapitalized)
                         mapTagIDElementInfo[elementID] = elementInfo
@@ -356,9 +351,7 @@ def generateFormSubSection(xpath,selected, fullPath):
                                 
                         if(isEnum is not True):                            
                             formString += "<ul><li><nobr>" + textCapitalized + " "
-#                             xmlString += "<" + sequenceChild.attrib.get('name') + ">"  
-                            formString += generateFormSubSection(sequenceChild.attrib.get('type'),selected,fullPath)
-#                             xmlString += "</" + sequenceChild.attrib.get('name') + ">"
+                            formString += generateFormSubSection(sequenceChild.attrib.get('type'),fullPath)
                             formString += "</nobr></li></ul>"                        
                 elif sequenceChild.tag == "{0}choice".format(defaultNamespace):
                     chooseID = nbChoicesID
@@ -366,35 +359,26 @@ def generateFormSubSection(xpath,selected, fullPath):
                     nbChoicesID += 1
                     formString += "<ul><li><nobr>Choose <select id='"+ chooseIDStr +"' onchange=\"changeChoice(this);\">"
                     choiceChildren = sequenceChild.findall('*')
-                    selectedChild = choiceChildren[0]
-#                     xmlString += "<" + selectedChild.attrib.get('name') + "/>"
+#                     selectedChild = choiceChildren[0]
                     for choiceChild in choiceChildren:
                         if choiceChild.tag == "{0}element".format(defaultNamespace):
                             textCapitalized = choiceChild.attrib.get('name')[0].capitalize()  + choiceChild.attrib.get('name')[1:]
                             formString += "<option value='" + textCapitalized + "'>" + textCapitalized + "</option></b><br>"
-                    formString += "</select>"
-                    print "+++++++++++++++++++++++++++++++++++++++++++"
-                    if selected == "":
-                        for (counter, choiceChild) in enumerate(choiceChildren):
-                            if choiceChild.tag == "{0}element".format(defaultNamespace):
-                                if choiceChild.attrib.get('type') != "{0}:string".format(defaultPrefix):
-                                    textCapitalized = choiceChild.attrib.get('name')[0].capitalize()  + choiceChild.attrib.get('name')[1:]
-                                    print textCapitalized + " is not string type"
-                                    if (counter > 0):
-#                                         formString += "<ul id=\"" + textCapitalized + "\" style=\"display:none;\"><li><nobr>" + textCapitalized
-                                        formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\" style=\"display:none;\"><li><nobr>" + textCapitalized
-                                    else:
-#                                         formString += "<ul id=\"" + textCapitalized + "\"><li><nobr>" + textCapitalized
-                                        formString += "<ul id=\""  + chooseIDStr + "-" + str(counter) + "\"><li><nobr>" + textCapitalized
-#                                     xmlString += "<" + textCapitalized + ">" 
-                                    formString += generateFormSubSection(choiceChild.attrib.get('type'),selected, fullPath) + "</nobr></li></ul>"
-#                                     xmlString += "</" + textCapitalized + ">"
+                    formString += "</select>"                    
+                    for (counter, choiceChild) in enumerate(choiceChildren):
+                        if choiceChild.tag == "{0}element".format(defaultNamespace):
+                            if choiceChild.attrib.get('type') != "{0}:string".format(defaultPrefix):
+                                textCapitalized = choiceChild.attrib.get('name')[0].capitalize()  + choiceChild.attrib.get('name')[1:]
+                                print textCapitalized + " is not string type"
+                                if (counter > 0):
+                                    formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\" style=\"display:none;\"><li><nobr>" + textCapitalized
                                 else:
-                                    textCapitalized = choiceChild.attrib.get('name')[0].capitalize()  + choiceChild.attrib.get('name')[1:]
-                                    print textCapitalized + " is string type"
-                                    formString += "<ul><li><nobr>" + choiceChild.attrib.get('name').capitalize() + " <input type='checkbox'>" + "</nobr></li></ul>"
-                    else:
-                        formString += "selected not empty"
+                                    formString += "<ul id=\""  + chooseIDStr + "-" + str(counter) + "\"><li><nobr>" + textCapitalized
+                                formString += generateFormSubSection(choiceChild.attrib.get('type'), fullPath) + "</nobr></li></ul>"
+                            else:
+                                textCapitalized = choiceChild.attrib.get('name')[0].capitalize()  + choiceChild.attrib.get('name')[1:]
+                                print textCapitalized + " is string type"
+                                formString += "<ul><li><nobr>" + choiceChild.attrib.get('name').capitalize() + " <input type='checkbox'>" + "</nobr></li></ul>"
                     formString += "</nobr></li></ul>"
         elif complexTypeChild.tag == "{0}choice".format(defaultNamespace):
             if debugON: formString += "complexTypeChild:" + complexTypeChild.tag + "<br>"
@@ -403,42 +387,37 @@ def generateFormSubSection(xpath,selected, fullPath):
             nbChoicesID += 1
             formString += "<ul><li><nobr>Choose <select id='"+ chooseIDStr +"' onchange=\"changeChoice(this);\">"        
             choiceChildren = complexTypeChild.findall('*')
-            selectedChild = choiceChildren[0]
-#             xmlString += "<" + selectedChild.attrib.get('name') + "/>"
+#             selectedChild = choiceChildren[0]
             for choiceChild in choiceChildren:
                 if choiceChild.tag == "{0}element".format(defaultNamespace):
                     textCapitalized = choiceChild.attrib.get('name')[0].capitalize()  + choiceChild.attrib.get('name')[1:]
                     formString += "<option value='" + textCapitalized + "'>" + textCapitalized + "</option></b><br>"
             formString += "</select>"
-            if selected == "":
-                for (counter, choiceChild) in enumerate(choiceChildren):
-                    if choiceChild.tag == "{0}element".format(defaultNamespace):
-                        if choiceChild.attrib.get('type') != "{0}:string".format(defaultPrefix):
-                            textCapitalized = choiceChild.attrib.get('name')[0].capitalize()  + choiceChild.attrib.get('name')[1:]
-                            if (counter > 0):
-#                                 formString += "<ul id=\"" + textCapitalized + "\" style=\"display:none;\"><li><nobr>" + textCapitalized
-                                formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\" style=\"display:none;\"><li><nobr>" + textCapitalized
-                            else:
-#                                 formString += "<ul id=\"" + textCapitalized + "\"><li><nobr>" + textCapitalized
-                                formString += "<ul id=\""  + chooseIDStr + "-" + str(counter) + "\"><li><nobr>" + textCapitalized
-#                             xmlString += "<" + textCapitalized + ">"     
-                            # TODO : add tag ID and save choices if enum                                                                                
-                            formString += generateFormSubSection(choiceChild.attrib.get('type'),selected, fullPath) + "</nobr></li></ul>"
-#                             xmlString += "</" + textCapitalized + ">"
+            for (counter, choiceChild) in enumerate(choiceChildren):
+                if choiceChild.tag == "{0}element".format(defaultNamespace):
+                    if (choiceChild.attrib.get('type') == "{0}:string".format(defaultPrefix)
+                      or choiceChild.attrib.get('type') == "{0}:double".format(defaultPrefix)
+                      or choiceChild.attrib.get('type') == "{0}:integer".format(defaultPrefix)
+                      or choiceChild.attrib.get('type') == "{0}:anyURI".format(defaultPrefix)):
+                        textCapitalized = choiceChild.attrib.get('name').capitalize()
+                        elementID = len(mapTagIDElementInfo.keys())
+                        if (counter > 0):
+                            formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\" style=\"display:none;\"><li id='" + str(elementID) + "'><nobr>" + textCapitalized + " <input type='checkbox'>" + "</nobr></li></ul>"
+                        else:                                      
+                            formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\"><li id='" + str(elementID) + "'><nobr>" + textCapitalized + " <input type='checkbox'>" + "</nobr></li></ul>"
+                        elementInfo = ElementInfo(choiceChild.attrib.get('type'),fullPath[1:]+"." + textCapitalized)
+                        mapTagIDElementInfo[elementID] = elementInfo
+                    else:                                                    
+                        textCapitalized = choiceChild.attrib.get('name')[0].capitalize()  + choiceChild.attrib.get('name')[1:]
+                        if (counter > 0):
+                            formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\" style=\"display:none;\"><li><nobr>" + textCapitalized
                         else:
-                            textCapitalized = choiceChild.attrib.get('name').capitalize()
-                            elementID = len(mapTagIDElementInfo.keys())
-                            formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\"><li id='" + str(elementID) + "'><nobr>" + textCapitalized + " <input type='checkbox'>" + "</nobr></li></ul>"                                      
-                            elementInfo = ElementInfo(choiceChild.attrib.get('type'),fullPath[1:]+"." + textCapitalized)
-                            mapTagIDElementInfo[elementID] = elementInfo
-            else:
-                formString += "selected not empty"
+                            formString += "<ul id=\""  + chooseIDStr + "-" + str(counter) + "\"><li><nobr>" + textCapitalized               
+                        formString += generateFormSubSection(choiceChild.attrib.get('type'), fullPath) + "</nobr></li></ul>"
             formString += "</nobr></li></ul>"
         elif complexTypeChild.tag == "{0}attribute".format(defaultNamespace):
             textCapitalized = complexTypeChild.attrib.get('name')[0].capitalize()  + complexTypeChild.attrib.get('name')[1:]
             formString += "<li>" + textCapitalized + "</li>"
-#             xmlString += "<" + textCapitalized + ">" 
-#             xmlString += "</" + textCapitalized + ">"
     elif e.tag == "{0}simpleType".format(defaultNamespace):
         if debugON: formString += "matched simpleType" + "<br>"
 
@@ -455,7 +434,7 @@ def generateFormSubSection(xpath,selected, fullPath):
                         formString += "<input type='checkbox'>"
                         break
 
-    print 'END def generateFormSubSection(xpath,selected,fullPath)'
+    print 'END def generateFormSubSection(xpath,fullPath)'
     return formString
 
 ################################################################################
@@ -501,16 +480,8 @@ def generateForm(key):
     else:
         textCapitalized = e[0].attrib.get('name')[0].capitalize()  + e[0].attrib.get('name')[1:]
         formString += "<b>" + textCapitalized + "</b><br>"
-#         if debugON: xmlString += "<" + textCapitalized + ">"
-#         xmlString += "<" + e[0].attrib.get('name') + ">"
         if debugON: formString += "<b>" + e[0].attrib.get('name').capitalize() + "</b><br>"
-        formString += generateFormSubSection(e[0].attrib.get('type'),"", "")
-#         if debugON: xmlString += "</" + textCapitalized + ">"
-#         xmlString += "</" + e[0].attrib.get('name') + ">"
-       
-    # pretty string
-#    s = etree.tostring(xmlDataTree) #, pretty_print=True)
-#    print "xmlDataTree:\n" + s
+        formString += generateFormSubSection(e[0].attrib.get('type'), "")
 
     print 'END def generateForm(key)'
 
@@ -542,10 +513,8 @@ def generateXSDTreeForQueryingData(request):
     if xmlDocTree == "":
         setCurrentTemplate(request,templateFilename, templateID)
     if (formString == ""):
-#         xmlString = ""
         formString = "<form id=\"dataQueryForm\" name=\"xsdForm\">"
         formString += generateForm("schema")        
-#         reparsed = minidom.parseString(xmlString)
         formString += "</form>"        
     
     dajax.assign('#xsdForm', 'innerHTML', formString)
@@ -553,71 +522,6 @@ def generateXSDTreeForQueryingData(request):
     print 'END def generateXSDTreeForQueryingData(request)'
     return dajax.json()
 
-################################################################################
-# 
-# Function Name: changeXMLSchema(request,operation,xpath,name)
-# Inputs:        request - 
-#                operation - 
-#                xpath - 
-#                name - 
-# Outputs:       
-# Exceptions:    None
-# Description:   
-#
-################################################################################
-# @dajaxice_register
-# def changeXMLSchema(request,operation,xpath,name):
-#     print 'BEGIN def changeXMLSchema(request,operation,xpath,name)'
-#     dajax = Dajax()
-# 
-#     global xmlString
-#     global xmlDocTree
-# 
-#     print "operation: " + operation
-#     print "xpath: " + xpath
-#     print "name: " + name
-# 
-# 
-#     if xmlDocTree == "":
-#         print "xmlDocTree is null"
-#         templateFilename = request.session['exploreCurrentTemplate']
-#         pathFile = "{0}/mdcs/xsdfiles/" + templateFilename
-#         path = pathFile.format(
-#             settings.SITE_ROOT)
-#         xmlDocTree = etree.parse(path)
-#         generateXSDTreeForQueryingData(request)
-#     else:
-#         print "xmlDocTree is not null"
-# 
-#     root = xmlDocTree.getroot()
-#     namespace = get_namespace(xmlDocTree.getroot())
-# 
-#     namespace = namespace[1:-1]
-# 
-#     print "root:"
-#     print root
-#     print "namespace: " + namespace
-# 
-#     e = xmlDocTree.xpath(xpath,namespaces={'xsd':namespace})
-# 
-#     print e[0].attrib.get('occurances')
-#     occurances = int(e[0].attrib.get('occurances'))
-#     if operation == "add":
-#         occurances += 1
-#     else:
-#         if occurances > 0:
-#             occurances -= 1
-#     print occurances
-#     e[0].attrib['occurances'] = str(occurances)
-#     
-#     formString = "<br><form id=\"dataQueryForm\">"
-#     formString += generateForm("schema")
-#     formString += "</form>"
-#     dajax.assign('#xsdForm', 'innerHTML', formString)
-# 
-#     
-#     print 'END def changeXMLSchema(request,operation,xpath,name)'
-#     return dajax.json()
 
 
 ################################################################################
@@ -1263,24 +1167,24 @@ def renderSavedQuery(query, queryID):
         </tr>
     """
 
-def checkTypes(queryFormTree, errors):
-    areTypesOK = True
-      
-    for criteria in queryFormTree.findall("./p"):
-        type = mapCriterias[criteria.attrib['id']].elementInfo.type
-        if (type == "integer"):
-            try:
-                int(criteria[2][1].value)
-            except:
-                errors.append(criteria[1].value + " must be of type : " + type)
-        elif (type == "string"):
-            pass
-        elif (type == "double"):
-            pass
-        elif (type == "query"):
-            pass
-        
-    return areTypesOK
+# def checkTypes(queryFormTree, errors):
+#     areTypesOK = True
+#       
+#     for criteria in queryFormTree.findall("./p"):
+#         type = mapCriterias[criteria.attrib['id']].elementInfo.type
+#         if (type == "integer"):
+#             try:
+#                 int(criteria[2][1].value)
+#             except:
+#                 errors.append(criteria[1].value + " must be of type : " + type)
+#         elif (type == "string"):
+#             pass
+#         elif (type == "double"):
+#             pass
+#         elif (type == "query"):
+#             pass
+#         
+#     return areTypesOK
 
 @dajaxice_register
 def updateUserInputs(request, htmlForm, fromElementID, toCriteriaID):   
