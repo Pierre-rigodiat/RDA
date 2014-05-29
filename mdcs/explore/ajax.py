@@ -1209,10 +1209,11 @@ def manageRegexBeforeSave(query, ListRegex, ListPattern):
         if key == "$and" or key == "$or":
             for subValue in value:
                 manageRegexBeforeSave(subValue, ListRegex, ListPattern)
-        else:
-            if isinstance(value, re._pattern_type):
-                ListRegex.append(str(value))
-                ListPattern.append(value.pattern)
+        elif isinstance(value, re._pattern_type):
+            ListRegex.append(str(value))
+            ListPattern.append(value.pattern)
+        elif isinstance(value, dict):
+            manageRegexBeforeSave(value, ListRegex, ListPattern)
 #                 DictRegex[str(value).replace(".", "")] = value.pattern
 
 @dajaxice_register
