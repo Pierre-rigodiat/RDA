@@ -27,11 +27,6 @@ setCurrentTemplateCallback = function(data)
     Dajax.process(data);
     console.log('BEGIN [setCurrentTemplateCallback]');
     console.log('data passed back to callback function: ' + data);
-//    location.reload();
-
-//    var messageLocation = $("#main").children(":first");
-//    messageLocation.hide().html("Template Successfully Selected").fadeIn(500);
-//    messageLocation.delay(2000).fadeOut(500);
 
     $('#template_selection').load(document.URL +  ' #template_selection', function() {
 		loadTemplateSelectionControllers();
@@ -41,35 +36,8 @@ setCurrentTemplateCallback = function(data)
 }
 
 
-loadCustomTemplateForm = function()
-{
-	console.log('BEGIN [loadCustomTemplateFormForExploration]');
-	$("#queryForm form input[type=text]").val("");
-//	$("#customForm").find("li[draggable=true]").draggable({
-//		helper: "clone",
-//		cursor: "copy"
-//	});
-	makeInputsDroppable();
-//	var queryForm = $("#queryForm").html()
-//	Dajaxice.explore.clearCriterias(Dajax.process, {'queryForm':queryForm})
-//	var queriesTable = $("#queriesTable").html()
-//	Dajaxice.explore.clearQueries(Dajax.process, {'queriesTable':queriesTable})
-	console.log('END [loadCustomTemplateFormForExploration]');
-} 
-
-//$(document).ready(function() {
-//	//$("body").find("select").val(0);
-//	$("#queryForm form input[type=text]").val("");
-//	$("#XMLDoc").find("li[draggable=true]").draggable({
-//		helper: "clone",
-//		cursor: "copy"
-//	});
-//	makeInputsDroppable();
-//});
-
 function makeInputsDroppable(){
 	$( "#queryForm input[droppable=true]" ).droppable({
-//		activeClass: "ui-state-default",
 		hoverClass: "ui-state-hover",
 		drop: function( event, ui ) {
 			$(this).val(ui.draggable.text());
@@ -107,18 +75,6 @@ resultsCallback = function()
     	
     console.log('END [saveCustomXMLData]');
 }
-
-//function renderForm(htmlForm){
-//	$("#queryForm").html(htmlForm);
-//}
-
-//function renderSavedQueries(htmlForm){
-//	$("#queries").html(htmlForm);
-//}
-
-//function renderQueriesTable(htmlForm){
-//	$("#queriesTable").html(htmlForm);
-//}
 
 function addField(){
 	$("input").each(function(){
@@ -186,10 +142,6 @@ exploreData = function()
 {
     console.log('BEGIN [exploreData]');
 
-//    var rootElement = document.getElementsByName("xsdForm")[0];
-//    var xmlString = '';
-//
-//    xmlString = generateXMLString (rootElement,xmlString);
 
     // Need to Set input values explicitiy before sending innerHTML for save
     var elems = document.getElementsByName("xsdForm")[0].getElementsByTagName("input");
@@ -241,8 +193,6 @@ loadExploreCurrentTemplateForm = function()
     console.log('BEGIN [loadExploreCurrentTemplateForm]');
 
     $('.btn.clear-fields').on('click', clearFields);
-//    $('.btn.load-form').on('click', loadForm);
-//    $('.btn.save-form').on('click', saveForm);
 
     Dajaxice.explore.generateXSDTreeForQueryingData(Dajax.process); //,{'templateFilename':'xxxx'});
 
@@ -253,7 +203,6 @@ clearFields = function()
 {
     console.log('BEGIN [clearFields]');
 
-//    $('#dataQueryForm')[0].reset();
     $('#dataQueryForm').find("select").val(0);
     $("#dataQueryForm").find("input").each(function() {
     	$( this ).removeAttr('checked');
@@ -311,7 +260,7 @@ backToQueryCallback = function()
 {
     console.log('BEGIN [backToQueryCallback]');
 
-    window.location = "/explore/perform-search"
-    	
+    window.location = "/explore/perform-search"    	
+   
     console.log('END [backToQueryCallback]');
 }

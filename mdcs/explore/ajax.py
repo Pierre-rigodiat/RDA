@@ -1534,6 +1534,14 @@ def saveCustomData(request,formContent):
     $("#customForm").find("li[draggable=true]").draggable({
         helper: "clone",
     });
+    
+    $( "#queryForm input[droppable=true]" ).droppable({
+        hoverClass: "ui-state-hover",
+        drop: function( event, ui ) {
+            $(this).val(ui.draggable.text());
+            updateUserInputs(ui.draggable.attr('id'),$(this).parent().attr('id')); 
+        }
+    });
     </script>
     """
 
@@ -1622,6 +1630,5 @@ def backToQuery(request):
     global savedQueryForm
      
     request.session['keepCriterias'] = True
-#     dajax.assign("#queryForm", "innerHTML", savedQueryForm)
-#     dajax.assign('#queryForm', 'innerHTML', savedQueryForm)
+
     return dajax.json()
