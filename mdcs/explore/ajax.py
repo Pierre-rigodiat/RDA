@@ -1065,7 +1065,10 @@ def buildPrettyCriteria(elementName, comparison, value, isNot=False):
     elif (comparison == "like"):
         prettyCriteria += " like "
     
-    prettyCriteria += str(value)        
+    if value == "":
+        prettyCriteria += '" "'
+    else:
+        prettyCriteria += str(value)        
     
     if(isNot):
         prettyCriteria += ")"
