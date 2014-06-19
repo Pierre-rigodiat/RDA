@@ -298,6 +298,20 @@ switchTab = function(tab)
 	
 	$("#subnav-wrapper .tabbed").attr("style","display:none;");
 	$("#subnav-"+tab).removeAttr("style");
+	
+	if (tab == "tab-1"){
+		$("#queryBuilder").removeAttr("style");
+		$("#customForm").removeAttr("style");
+		$("#QbEDesc").removeAttr("style");
+		$("#SPARQLqueryBuilder").attr("style","display:none;");		
+		$("#SPARQLDesc").attr("style","display:none;");	
+	}else{
+		$("#queryBuilder").attr("style","display:none;");
+		$("#customForm").attr("style","display:none;");
+		$("#QbEDesc").attr("style","display:none;");
+		$("#SPARQLqueryBuilder").removeAttr("style");
+		$("#SPARQLDesc").removeAttr("style");	
+	}
 	Dajaxice.explore.switchExploreTab(Dajax.process,{"tab":tab});
 	
 	console.log('END [switchTab]');
@@ -319,4 +333,5 @@ redirectSPARQLTab = function()
 	$("#tab-2").prop("checked",true);
 	switchTabRefresh();
 }
+
 

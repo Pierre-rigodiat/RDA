@@ -146,76 +146,85 @@
 
 
 <div id="content-wrapper">
-	<div class="center-wrapper">
-		
+	<div class="center-wrapper">	
 		<div class="content" id="content-two-columns">
-
-		  <div id="main-wrapper">
-		    <div id="main">
-
-		      <div class="post">
-
-			<div class="post-title"><h1>Perform Search</h1></div>
-			
-			<div class="post-body">
-
-			  <!--<p><img src="sample-thumbnail-2.jpg" width="640" height="200" alt="" class="bordered" /></p>
-
-			      <h2 class="quiet">Introducing the next generation software</h2> -->
-			  
-			  <p class="large">Drag highlighted elements from the XML tree to a field in the Query Builder to build a query. Click on plus/minus buttons to add/remove criteria. You can save queries to build more complex queries and you will retrieve them on your next connection. When your query is done, please click on Execute Query to get XML documents that match the criteria.</p>
-
-			</div>
-			
-		      </div>
-<div id="queryBuilder">
-	<h2>Query Builder</h2>		
-	<div id="queryForm">
-	    <form>
-	        <p id="crit0">
-	            <select>
-	              <option value=""></option>
-	              <option value="NOT">NOT</option>
-	            </select> 
-	            <input droppable="true" readonly="readonly" type="text" class="elementInput"/>
-	            <span id="ui0">
-	            </span>                
-	            <span class="icon add" onclick="addField()"></span>                                 
-	        </p>        
-	        <span class="btn" onclick="saveQuery()">Save Query</span>
-	        <span class="btn" onclick="clearCriterias()">Clear</span>    
-	        <span class="btn" onclick="query()">Execute Query !</span>           
-	    </form>                        
-	</div>
-	<hr>
-	<div id="queries">
-	    <p>
-	    	<h2>Saved Queries</h2>
-	        <form>                
-	            <span class="btn" onclick="clearQueries()">Clear</span>   
-	        </form>
-	    </p>
-	    <div id="queriesTable">
-	        <table>
-	            <tr>	                
-	                <th width="15px">Add to Builder</th>
-	                <th>Queries</th>
-	                <th width="15px">Delete</th>
-	            </tr>                
-	        </table>
-	    </div>            
-	</div>
-</div>
-<div id="customForm">
-</div>
-
-		    </div>
-		  </div>
-
-		  <div id="sidebar-wrapper">
-		    <div id="sidebar">
-
-		      <div class="box">
+			<div id="main-wrapper">
+	    		<div id="main">
+	    			<div class="post">
+						<div class="post-title"><h1>Perform Search</h1></div>
+						<div class="post-body">
+			  				<!--<p><img src="sample-thumbnail-2.jpg" width="640" height="200" alt="" class="bordered" /></p>
+							<h2 class="quiet">Introducing the next generation software</h2> -->
+	  						{% if request.session.currentExploreTab == "tab-1" %}	
+							<p id="QbEDesc" class="large">Drag highlighted elements from the XML tree to a field in the Query Builder to build a query. Click on plus/minus buttons to add/remove criteria. You can save queries to build more complex queries and you will retrieve them on your next connection. When your query is done, please click on Execute Query to get XML documents that match the criteria.</p>
+							<p id="SPARQLDesc" class="large" style="display: none;">SPARQL Endpoint</p>
+							{% else %}
+							<p id="QbEDesc" class="large" style="display: none;">Drag highlighted elements from the XML tree to a field in the Query Builder to build a query. Click on plus/minus buttons to add/remove criteria. You can save queries to build more complex queries and you will retrieve them on your next connection. When your query is done, please click on Execute Query to get XML documents that match the criteria.</p>
+							<p id="SPARQLDesc" class="large">SPARQL Endpoint</p>
+							{% endif %}
+						</div>
+					</div>
+		      		{% if request.session.currentExploreTab == "tab-1" %}
+					<div id="queryBuilder">
+					{% else %}
+					<div id="queryBuilder" style="display: none;">
+					{% endif %}
+						<h2>Query Builder</h2>		
+						<div id="queryForm">
+						    <form>
+						        <p id="crit0">
+						            <select>
+						              <option value=""></option>
+						              <option value="NOT">NOT</option>
+						            </select> 
+						            <input droppable="true" readonly="readonly" type="text" class="elementInput"/>
+						            <span id="ui0">
+						            </span>                
+						            <span class="icon add" onclick="addField()"></span>                                 
+						        </p>        
+						        <span class="btn" onclick="saveQuery()">Save Query</span>
+						        <span class="btn" onclick="clearCriterias()">Clear</span>    
+						        <span class="btn" onclick="query()">Execute Query !</span>           
+						    </form>                        
+						</div>
+						<hr>
+						<div id="queries">
+						    <p>
+						    	<h2>Saved Queries</h2>
+						        <form>                
+						            <span class="btn" onclick="clearQueries()">Clear</span>   
+						        </form>
+						    </p>
+						    <div id="queriesTable">
+						        <table>
+						            <tr>	                
+						                <th width="15px">Add to Builder</th>
+						                <th>Queries</th>
+						                <th width="15px">Delete</th>
+						            </tr>                
+						        </table>
+						    </div>            
+						</div>
+					</div>
+					{% if request.session.currentExploreTab == "tab-1" %}
+					<div id="customForm">
+					{% else %}
+					<div id="customForm" style="display: none;">
+					{% endif %}
+					</div>
+					
+					{% if request.session.currentExploreTab == "tab-2" %}
+					<div id="SPARQLqueryBuilder">
+					{% else %}
+					<div id="SPARQLqueryBuilder" style="display: none;">
+					{% endif %}
+						SPARQL form goes here !!!
+					</div>					
+				</div>
+	  		</div>
+			<div id="sidebar-wrapper">
+		    	<div id="sidebar">
+		      		<div class="box">
 
 			<div class="box-title">Data Exploration</div>
 
