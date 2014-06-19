@@ -8,6 +8,9 @@
 # Author: Sharief Youssef
 #         sharief.youssef@nist.gov
 #
+#		  Guillaume Sousa Amaral
+#		  guillaume.sousa@nist.gov
+#
 # Sponsor: National Institute of Standards and Technology (NIST)
 #
 ################################################################################
@@ -28,6 +31,7 @@
 	<link rel="stylesheet" type="text/css" href="{% static 'resources/css/lib/bootstrap.min.css' %}"  media="screen" />
 	<link rel="stylesheet" type="text/css" href="{% static 'style.css' %}" media="screen" />
 	<link rel="stylesheet" type="text/css" href="{% static 'resources/css/style.add.css' %}"  media="screen" />
+	<link rel="stylesheet" type="text/css" href="{% static 'resources/css/exploreTabs.css' %}"  media="screen" />
 	<title>Materials Data Curation System</title>
 
 	<!-- JQuery & JQuery UI -->
@@ -107,11 +111,16 @@
       
       <div id="subnav">
 
-	<ul class="tabbed">
-	  <li><a href="/explore/select-template">Select Template</a></li>
-	  <li class="current_page_item"><a href="/explore/customize-template">Customize Template</a></li>
-	  <li><a onclick="exploreData();" style="cursor:pointer;">Perform Search</a></li>
-	  </ul>
+		{% if request.session.currentExploreTab == "tab-1" %}
+		<ul id="subnav-tab-1" class="tabbed">
+		  <li><a href="/explore/select-template">Select Template</a></li>
+		  <li class="current_page_item"><a href="/explore/customize-template">Customize Template</a></li>
+		  <li><a onclick="exploreData();" style="cursor:pointer;">Perform Search</a></li>
+		</ul>
+		{% else %}
+		<ul id="subnav-tab-2" class="tabbed" style="display: none;">
+		</ul>
+		{% endif %}
 
 	<div class="clearer">&nbsp;</div>
 
@@ -173,12 +182,27 @@
 
 			<div class="box-title">Data Exploration</div>
 
-			<div class="box-content">
-			  <ul class="nice-list">
-			    <li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'img/Orange_Number_1.png' %}"></td><td><a href="/explore/select-template">Select Template</a></td></tr></table></li>
-			    <li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'img/Orange_Number_2.png' %}"></td><td><strong><a href="/explore/customize-template">Customize Template</a></strong></td></tr></table></li>
-			    <li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'img/Orange_Number_3.png' %}"></td><td><a onclick="exploreData();" style="cursor:pointer">Perform Search</a></td></tr></table></li>
-			  </ul>
+			<div id="explore-tabs">
+			
+				<div class="tab">
+				    <input type="radio" id="tab-1" name="tab-group-1" checked>
+				    <label for="tab-1">Query by Example</label>
+				    
+				    <div class="content">
+				        <div class="box-content">
+						  <ul class="nice-list">
+						    <li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'img/Orange_Number_1.png' %}"></td><td><a href="/explore/select-template">Select Template</a></td></tr></table></li>
+						    <li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'img/Orange_Number_2.png' %}"></td><td><strong><a href="/explore/customize-template">Customize Template</a></strong></td></tr></table></li>
+						    <li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'img/Orange_Number_3.png' %}"></td><td><a href="/explore/perform-search">Perform Search</a></td></tr></table></li>
+						  </ul>
+						</div>	
+				    </div> 
+				</div>
+			
+				<div class="tab">
+			       <input type="radio" id="tab-2" name="tab-group-1">
+			       <label for="tab-2" onclick="redirectExplore('tab-2')">SPARQL Endpoint</label>			      
+			   </div>
 			</div>
 
 

@@ -2,6 +2,16 @@ loadTemplateSelectionControllers = function()
 {
     console.log('BEGIN [loadTemplateSelectionControllers]');
     $('.btn.set-explore-template').on('click', setExploreCurrentTemplate);
+//    if(null != window.exploreSPARQL && window.exploreSPARQL == "true"){
+//    	$("#explore-tabs").find("input:radio").removeAttr('checked');
+//    	$("#tab-2").prop("checked",true);
+//    	switchTabRefresh();
+//    	window.exploreSPARQL = "false";
+//    }
+//    else{
+//    	switchTabRefresh();
+//    }
+    Dajaxice.explore.redirectExploreTabs(Dajax.process);
     console.log('END [loadTemplateSelectionControllers]');
 }
 
@@ -30,7 +40,7 @@ setCurrentTemplateCallback = function(data)
 
     $('#template_selection').load(document.URL +  ' #template_selection', function() {
 		loadTemplateSelectionControllers();
-		displayTemplateSelectedDialog();
+//		displayTemplateSelectedDialog();
     });
     console.log('END [setCurrentTemplateCallback]');
 }
@@ -264,3 +274,49 @@ backToQueryCallback = function()
    
     console.log('END [backToQueryCallback]');
 }
+
+switchTabRefresh = function()
+{
+	console.log('BEGIN [switchTabRefresh]');
+	
+	var tab = $("#explore-tabs").find("input:radio:checked").attr("id");	
+	
+	if (tab == null){
+		$("#tab-1").prop("checked",true);
+		tab = "tab-1"
+	}
+	switchTab(tab);
+	
+	console.log('END [switchTabRefresh]');
+}
+
+switchTab = function(tab)
+{
+	console.log('BEGIN [switchTab]');
+	
+	//var tab = $("#explore-tabs").find("input:radio:checked").attr("id")
+	
+	$("#subnav-wrapper .tabbed").attr("style","display:none;");
+	$("#subnav-"+tab).removeAttr("style");
+	Dajaxice.explore.switchExploreTab(Dajax.process,{"tab":tab});
+	
+	console.log('END [switchTab]');
+}
+
+redirectExplore = function(tab)
+{
+	console.log('BEGIN [redirectExplore]');
+	
+	//window.location = "/explore";
+	Dajaxice.explore.redirectExplore(Dajax.process);
+	
+	console.log('END [redirectExplore]');
+}
+
+redirectSPARQLTab = function()
+{
+	$("#explore-tabs").find("input:radio").removeAttr('checked');
+	$("#tab-2").prop("checked",true);
+	switchTabRefresh();
+}
+

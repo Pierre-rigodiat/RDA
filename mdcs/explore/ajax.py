@@ -107,8 +107,8 @@ class XMLData():
     def save(self):
         """save into mongo db"""
         # insert the content into mongo db
-        self.xmldata.insert(self.content)
-
+        docID = self.xmldata.insert(self.content)
+        return docID
         
     @staticmethod
     def objects():        
@@ -450,7 +450,6 @@ def generateFormSubSection(xpath, fullPath):
 def generateForm(key):
     print 'BEGIN def generateForm(key)'
     formString = ""
-#     global xmlString
     global xmlDocTree
     global mapTagIDElementInfo
     global nbChoicesID
@@ -472,16 +471,18 @@ def generateForm(key):
     if debugON: e = xmlDocTree.findall("{0}complexType/{0}choice/{0}element".format(defaultNamespace))
     if debugON: formString += "list size: " + str(len(e))
 
-    if len(e) > 1:
-#         formString += "<b>" + e[0].attrib.get('name').capitalize() + "</b><br><ul><li>Choose:"
-#         for i in e:
-#             formString += "more than one: " + i.tag + "<br>"
-        formString += "<p style='color:red'> The schema is not valid ! </p>"
-    else:
-        textCapitalized = e[0].attrib.get('name')[0].capitalize()  + e[0].attrib.get('name')[1:]
+#     if len(e) > 1:
+    for element in e:
+        textCapitalized = element.attrib.get('name')[0].capitalize()  + element.attrib.get('name')[1:]
         formString += "<b>" + textCapitalized + "</b><br>"
-        if debugON: formString += "<b>" + e[0].attrib.get('name').capitalize() + "</b><br>"
-        formString += generateFormSubSection(e[0].attrib.get('type'), "")
+        if debugON: formString += "<b>" + element.attrib.get('name').capitalize() + "</b><br>"
+        formString += generateFormSubSection(element.attrib.get('type'), "")
+#         formString += "<p style='color:red'> The schema is not valid ! </p>"
+#     else:
+#         textCapitalized = e[0].attrib.get('name')[0].capitalize()  + e[0].attrib.get('name')[1:]
+#         formString += "<b>" + textCapitalized + "</b><br>"
+#         if debugON: formString += "<b>" + e[0].attrib.get('name').capitalize() + "</b><br>"
+#         formString += generateFormSubSection(e[0].attrib.get('type'), "")
 
     print 'END def generateForm(key)'
 
@@ -625,6 +626,19 @@ def intCriteria(path, comparison, value, isNot=False):
     print 'END def intCriteria(path, comparison, value, isNot=False)'
     return criteria
 
+
+################################################################################
+# 
+# Function Name: floatCriteria(path, comparison, value, isNot=False)
+# Inputs:        path - 
+#                comparison -
+#                value -
+#                isNot -
+# Outputs:       a criteria
+# Exceptions:    None
+# Description:   Build a criteria for mongo db for the type float
+#
+################################################################################
 def floatCriteria(path, comparison, value, isNot=False):
     criteria = dict()
 
@@ -641,6 +655,18 @@ def floatCriteria(path, comparison, value, isNot=False):
 
     return criteria
 
+################################################################################
+# 
+# Function Name: stringCriteria(path, comparison, value, isNot=False)
+# Inputs:        path - 
+#                comparison -
+#                value -
+#                isNot -
+# Outputs:       a criteria
+# Exceptions:    None
+# Description:   Build a criteria for mongo db for the type string
+#
+################################################################################
 def stringCriteria(path, comparison, value, isNot=False):
     criteria = dict()
     
@@ -658,21 +684,36 @@ def stringCriteria(path, comparison, value, isNot=False):
     
     return criteria
 
+################################################################################
+# 
+# Function Name: queryToCriteria(query, isNot=False)
+# Inputs:        query - 
+#                isNot -
+# Outputs:       a criteria
+# Exceptions:    None
+# Description:   Build a criteria for mongo db for a query
+#
+################################################################################
 def queryToCriteria(query, isNot=False):
     if(isNot):
-#         return eval('{"$not":' + str(query) + '}')
         return invertQuery(query.copy())
     else:
         return query
 
+################################################################################
+# 
+# Function Name: invertQuery(query)
+# Inputs:        query - 
+# Outputs:       
+# Exceptions:    None
+# Description:   Invert each field of the query to build NOT(query)
+#
+################################################################################
 def invertQuery(query):
     for key, value in query.iteritems():
         if key == "$and" or key == "$or":
             for subValue in value:
                 invertQuery(subValue)
-#         elif key == "$not":        
-#             query.update(value)
-#             query.pop(key)
         else:            
             #lt, lte, =, gte, gt, not, ne
             if isinstance(value,dict):                
@@ -692,6 +733,17 @@ def invertQuery(query):
                     query[key]["$ne"] = savedValue
     return query
 
+################################################################################
+# 
+# Function Name: enumCriteria(path, value, isNot=False)
+# Inputs:        path -
+#                value -
+#                isNot -
+# Outputs:       criteria
+# Exceptions:    None
+# Description:   Build a criteria for mongo db for an enumeration
+#
+################################################################################
 def enumCriteria(path, value, isNot=False):
     criteria = dict()
     
@@ -702,6 +754,16 @@ def enumCriteria(path, value, isNot=False):
             
     return criteria
 
+################################################################################
+# 
+# Function Name: ANDCriteria(criteria1, criteria2)
+# Inputs:        criteria1 -
+#                criteria2 -
+# Outputs:       criteria
+# Exceptions:    None
+# Description:   Build a criteria that is the result of criteria1 and criteria2
+#
+################################################################################
 def ANDCriteria(criteria1, criteria2):
 #     return criteria1.update(criteria2)
     ANDcriteria = dict()
@@ -710,6 +772,16 @@ def ANDCriteria(criteria1, criteria2):
     ANDcriteria["$and"].append(criteria2)
     return ANDcriteria
 
+################################################################################
+# 
+# Function Name: ORCriteria(criteria1, criteria2)
+# Inputs:        criteria1 -
+#                criteria2 -
+# Outputs:       criteria
+# Exceptions:    None
+# Description:   Build a criteria that is the result of criteria1 or criteria2
+#
+################################################################################
 def ORCriteria(criteria1, criteria2):
     ORcriteria = dict()
     ORcriteria["$or"] = []
@@ -717,6 +789,19 @@ def ORCriteria(criteria1, criteria2):
     ORcriteria["$or"].append(criteria2)
     return ORcriteria
 
+################################################################################
+# 
+# Function Name: buildCriteria(elemPath, comparison, value, elemType, isNot=False)
+# Inputs:        elemPath -
+#                comparison -
+#                value -
+#                elemType - 
+#                isNot - 
+# Outputs:       criteria
+# Exceptions:    None
+# Description:   Look at element type and route to the right function to build the criteria
+#
+################################################################################
 def buildCriteria(elemPath, comparison, value, elemType, isNot=False):
     if (elemType == '{0}:integer'.format(defaultPrefix)):
         return intCriteria(elemPath, comparison, value, isNot)
@@ -727,11 +812,19 @@ def buildCriteria(elemPath, comparison, value, elemType, isNot=False):
     else:
         return stringCriteria(elemPath, comparison, value, isNot)
 
+################################################################################
+# 
+# Function Name: fieldsToQuery(htmlTree)
+# Inputs:        htmlTree -
+# Outputs:       query
+# Exceptions:    None
+# Description:   Take values from the html tree and create a query with them
+#
+################################################################################
 def fieldsToQuery(htmlTree):
     fields = htmlTree.findall("./p")
     
     query = dict()
-#     criteriaIterator = 0
     for field in fields:        
         boolComp = field[0].value
         if (boolComp == 'NOT'):
@@ -742,16 +835,13 @@ def fieldsToQuery(htmlTree):
         elemType = mapCriterias[field.attrib['id']].elementInfo.type
         if (elemType == "query"):
             queryValue = mapCriterias[field.attrib['id']].queryInfo.query
-#             criteriaIterator += 1
             criteria = queryToCriteria(queryValue, isNot)
         elif (elemType == "enum"):
             element = "content." + mapCriterias[field.attrib['id']].elementInfo.path
-#             criteriaIterator += 1
             value = field[2][0].value            
             criteria = enumCriteria(element, value, isNot)
         else:                
             element = "content." + mapCriterias[field.attrib['id']].elementInfo.path
-#             criteriaIterator += 1
             comparison = field[2][0].value
             value = field[2][1].value
             criteria = buildCriteria(element, comparison, value, elemType , isNot)
@@ -768,7 +858,15 @@ def fieldsToQuery(htmlTree):
         
     return query
 
-
+################################################################################
+# 
+# Function Name: checkQueryForm(htmlTree)
+# Inputs:        htmlTree -
+# Outputs:       query
+# Exceptions:    None
+# Description:   Check that values entered by the user match each element type
+#
+################################################################################
 def checkQueryForm(htmlTree):
     global mapCriterias
     
@@ -811,7 +909,16 @@ def checkQueryForm(htmlTree):
                     
     return errors
                     
-                    
+################################################################################
+# 
+# Function Name: addField(request, htmlForm)
+# Inputs:        request - 
+#                htmlForm -
+# Outputs:       
+# Exceptions:    None
+# Description:   Add an empty field to the query builder
+#
+################################################################################
 @dajaxice_register
 def addField(request, htmlForm):
     dajax = Dajax()
@@ -852,6 +959,17 @@ def addField(request, htmlForm):
     """);
     return dajax.json()
 
+################################################################################
+# 
+# Function Name: removeField(request, queryForm, criteriaID)
+# Inputs:        request -
+#                htmlForm -
+#                criteriaID -
+# Outputs:       
+# Exceptions:    None
+# Description:   Remove a field from the query builder
+#
+################################################################################
 @dajaxice_register
 def removeField(request, queryForm, criteriaID):
     dajax = Dajax()
@@ -894,7 +1012,15 @@ def removeField(request, queryForm, criteriaID):
     """);
     return dajax.json()
 
-
+################################################################################
+# 
+# Function Name: renderYESORNOT()
+# Inputs:        
+# Outputs:       Yes or Not select string
+# Exceptions:    None
+# Description:   Returns a string that represents an html select with yes or not options
+#
+################################################################################
 def renderYESORNOT():
     return """
         <select style="margin-right:4px;">
@@ -903,6 +1029,15 @@ def renderYESORNOT():
         </select> 
     """
 
+################################################################################
+# 
+# Function Name: renderANDORNOT()
+# Inputs:        
+# Outputs:       AND OR NOT select string
+# Exceptions:    None
+# Description:   Returns a string that represents an html select with AND, OR, NOT options
+#
+################################################################################
 def renderANDORNOT():
     return """
     <select>
@@ -912,6 +1047,15 @@ def renderANDORNOT():
     </select> 
     """
 
+################################################################################
+# 
+# Function Name: renderNumericSelect()
+# Inputs:        
+# Outputs:       numeric select string
+# Exceptions:    None
+# Description:   Returns a string that represents an html select with numeric comparisons
+#
+################################################################################
 def renderNumericSelect():
     return """
     <select style="width:50px">
@@ -1518,7 +1662,7 @@ def downloadResults(request):
     
     print '>>>> END def downloadResults(request)'
     return dajax.json()
-# 
+
 # @dajaxice_register
 # def saveQueryBuilder(request, queryBuilder):
 #     dajax = Dajax()
@@ -1535,4 +1679,33 @@ def backToQuery(request):
      
     request.session['keepCriterias'] = True
 
+    return dajax.json()
+
+
+@dajaxice_register
+def redirectExplore(request):
+    dajax = Dajax()
+    
+    request.session['currentExploreTab'] = "tab-2"
+    dajax.redirect("/explore")
+    
+    return dajax.json()
+
+@dajaxice_register
+def redirectExploreTabs(request):
+    dajax = Dajax()
+       
+    if 'currentExploreTab' in request.session and request.session['currentExploreTab'] == "tab-2":
+        dajax.script("redirectSPARQLTab();")
+    else:
+        dajax.script("switchTabRefresh();")
+    
+    return dajax.json()
+
+@dajaxice_register
+def switchExploreTab(request,tab):
+    dajax = Dajax()
+    
+    request.session["currentExploreTab"] = tab
+    
     return dajax.json()
