@@ -47,7 +47,8 @@ debugON = 0
 nbChoicesID = 0
 defaultPrefix = ""
 defaultNamespace = ""
-
+criteriaID = ""
+anyChecked = False
 
 
 results = []
@@ -83,7 +84,7 @@ class XMLData():
         Wrapper to manage JSON Documents, like mongoengine would have manage them (but with ordered data)
     """
     
-    def __init__(self, schema=None, xml=None, title=""):
+    def __init__(self, schemaID=None, xml=None, title=""):
         """
             initialize the object
             schema = ref schema (Document)
@@ -93,16 +94,16 @@ class XMLData():
         connection = Connection()
         # connect to the db 'mgi'
         db = connection['mgi']
-        # get the jsonDoc collection
+        # get the xmldata collection
         self.xmldata = db['xmldata']
         # create a new dict to keep the mongoengine order
         self.content = OrderedDict()
         # insert the ref to schema
-        self.content['schema'] = schema.id
-        #insert the title
+        self.content['schema'] = schemaID
+        # insert the title
         self.content['title'] = title
         # insert the json content after
-        self.content.update(xmltodict.parse(xml, postprocessor=postprocessor))
+        self.content['content'] = xmltodict.parse(xml, postprocessor=postprocessor)
         
     def save(self):
         """save into mongo db"""
@@ -265,8 +266,8 @@ def setCurrentModel(request,modelFilename):
 # Description:   
 #
 ################################################################################
-def generateFormSubSection(xpath, fullPath):
-    print 'BEGIN def generateFormSubSection(xpath,fullPath)'
+def generateFormSubSection(xpath, elementName, fullPath):
+    print 'BEGIN def generateFormSubSection(xpath, elementName, fullPath)'
     formString = ""
 #     global xmlString
     global xmlDocTree
@@ -300,7 +301,7 @@ def generateFormSubSection(xpath, fullPath):
         if complexTypeChild is None:
             return formString
 
-        fullPath += "." + xpath
+        fullPath += "." + elementName
         if complexTypeChild.tag == "{0}sequence".format(defaultNamespace):
             if debugON: formString += "complexTypeChild:" + complexTypeChild.tag + "<br>"
             sequenceChildren = complexTypeChild.findall('*')            
@@ -351,7 +352,7 @@ def generateFormSubSection(xpath, fullPath):
                                 
                         if(isEnum is not True):                            
                             formString += "<ul><li><nobr>" + textCapitalized + " "
-                            formString += generateFormSubSection(sequenceChild.attrib.get('type'),fullPath)
+                            formString += generateFormSubSection(sequenceChild.attrib.get('type'), textCapitalized,fullPath)
                             formString += "</nobr></li></ul>"                        
                 elif sequenceChild.tag == "{0}choice".format(defaultNamespace):
                     chooseID = nbChoicesID
@@ -374,7 +375,7 @@ def generateFormSubSection(xpath, fullPath):
                                     formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\" style=\"display:none;\"><li><nobr>" + textCapitalized
                                 else:
                                     formString += "<ul id=\""  + chooseIDStr + "-" + str(counter) + "\"><li><nobr>" + textCapitalized
-                                formString += generateFormSubSection(choiceChild.attrib.get('type'), fullPath) + "</nobr></li></ul>"
+                                formString += generateFormSubSection(choiceChild.attrib.get('type'), textCapitalized, fullPath) + "</nobr></li></ul>"
                             else:
                                 textCapitalized = choiceChild.attrib.get('name')[0].capitalize()  + choiceChild.attrib.get('name')[1:]
                                 print textCapitalized + " is string type"
@@ -413,7 +414,7 @@ def generateFormSubSection(xpath, fullPath):
                             formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\" style=\"display:none;\"><li><nobr>" + textCapitalized
                         else:
                             formString += "<ul id=\""  + chooseIDStr + "-" + str(counter) + "\"><li><nobr>" + textCapitalized               
-                        formString += generateFormSubSection(choiceChild.attrib.get('type'), fullPath) + "</nobr></li></ul>"
+                        formString += generateFormSubSection(choiceChild.attrib.get('type'), textCapitalized, fullPath) + "</nobr></li></ul>"
             formString += "</nobr></li></ul>"
         elif complexTypeChild.tag == "{0}attribute".format(defaultNamespace):
             textCapitalized = complexTypeChild.attrib.get('name')[0].capitalize()  + complexTypeChild.attrib.get('name')[1:]
@@ -434,7 +435,7 @@ def generateFormSubSection(xpath, fullPath):
                         formString += "<input type='checkbox'>"
                         break
 
-    print 'END def generateFormSubSection(xpath,fullPath)'
+    print 'END def generateFormSubSection(xpath, elementName, fullPath)'
     return formString
 
 ################################################################################
@@ -476,7 +477,7 @@ def generateForm(key):
         textCapitalized = element.attrib.get('name')[0].capitalize()  + element.attrib.get('name')[1:]
         formString += "<b>" + textCapitalized + "</b><br>"
         if debugON: formString += "<b>" + element.attrib.get('name').capitalize() + "</b><br>"
-        formString += generateFormSubSection(element.attrib.get('type'), "")
+        formString += generateFormSubSection(element.attrib.get('type'), textCapitalized, "")
 #         formString += "<p style='color:red'> The schema is not valid ! </p>"
 #     else:
 #         textCapitalized = e[0].attrib.get('name')[0].capitalize()  + e[0].attrib.get('name')[1:]
@@ -941,7 +942,7 @@ def addField(request, htmlForm):
             renderANDORNOT() 
         +
         """
-            <input droppable="true" readonly="readonly" type="text" class="elementInput">     
+            <input onclick="showCustomTree('crit""" + str(tagID) + """')" readonly="readonly" type="text" class="elementInput">     
             <span id='ui"""+ str(tagID) +"""'>
             </span>  
             <span class="icon remove" onclick="removeField('crit""" + str(tagID) + """')"></span>
@@ -954,9 +955,9 @@ def addField(request, htmlForm):
     
     dajax.assign("#queryForm", "innerHTML", html.tostring(htmlTree))
     
-    dajax.script("""
-        makeInputsDroppable();
-    """);
+#     dajax.script("""
+#         makeInputsDroppable();
+#     """);
     return dajax.json()
 
 ################################################################################
@@ -1007,9 +1008,9 @@ def removeField(request, queryForm, criteriaID):
         pass
     
     dajax.assign("#queryForm", "innerHTML", html.tostring(htmlTree))
-    dajax.script("""
-        makeInputsDroppable();
-    """);
+#     dajax.script("""
+#         makeInputsDroppable();
+#     """);
     return dajax.json()
 
 ################################################################################
@@ -1058,7 +1059,7 @@ def renderANDORNOT():
 ################################################################################
 def renderNumericSelect():
     return """
-    <select style="width:50px">
+    <select style="width:70px">
       <option value="lt">&lt;</option>
       <option value="lte">&le;</option>
       <option value="=">=</option>
@@ -1296,9 +1297,9 @@ def deleteQuery(request, queriesTable, savedQueryID):
     del mapQueryInfo[savedQueryID[5:]]
     
     dajax.assign("#queriesTable", "innerHTML", html.tostring(queriesTableTree))
-    dajax.script(""" 
-        makeInputsDroppable();    
-    """);
+#     dajax.script(""" 
+#         makeInputsDroppable();    
+#     """);
     return dajax.json()
     
     
@@ -1331,9 +1332,10 @@ def renderSavedQuery(query, queryID):
 #     return areTypesOK
 
 @dajaxice_register
-def updateUserInputs(request, htmlForm, fromElementID, toCriteriaID):   
+def updateUserInputs(request, htmlForm, fromElementID, criteriaID):   
     dajax = Dajax()
     global mapTagIDElementInfo
+    toCriteriaID = "crit" + str(criteriaID)
     
     mapCriterias[toCriteriaID] = CriteriaInfo()
     mapCriterias[toCriteriaID].elementInfo = mapTagIDElementInfo[int(fromElementID)]
@@ -1371,9 +1373,9 @@ def updateUserInputs(request, htmlForm, fromElementID, toCriteriaID):
 #     userInputs.getparent()[1].attrib['class'] = "elementInput ui-droppable"
     
     dajax.assign("#queryForm", "innerHTML", html.tostring(htmlTree))
-    dajax.script("""
-        makeInputsDroppable();    
-    """);
+#     dajax.script("""
+#         makeInputsDroppable();    
+#     """);
     return dajax.json()
     
     
@@ -1401,7 +1403,7 @@ def addSavedQueryToForm(request, queryForm, savedQueryID):
             renderYESORNOT() 
         +
         """
-            <input droppable="true" readonly="readonly" type="text" class="queryInput" value=" """+ str(query) +""" ">     
+            <input onclick="showCustomTree('crit""" + str(tagID) + """')" readonly="readonly" type="text" class="queryInput" value=" """+ str(query) +""" ">     
             <span id="ui"""+ str(tagID) +"""">
             </span>              
             <span class="icon add" onclick=addField()> </span>
@@ -1416,7 +1418,7 @@ def addSavedQueryToForm(request, queryForm, savedQueryID):
                 renderANDORNOT() 
             +
             """
-                <input droppable="true" readonly="readonly" type="text" class="queryInput" value=" """+ str(query) +""" ">     
+                <input onclick="showCustomTree('crit""" + str(tagID) + """')" readonly="readonly" type="text" class="queryInput" value=" """+ str(query) +""" ">     
                 <span id="ui"""+ str(tagID) +"""">
                 </span>  
                 <span class="icon remove" onclick="removeField('crit"""+ str(tagID) +"""')"></span>
@@ -1432,9 +1434,9 @@ def addSavedQueryToForm(request, queryForm, savedQueryID):
     mapCriterias['crit'+ str(tagID)].queryInfo = mapQueryInfo[savedQueryID[5:]]
     mapCriterias['crit'+ str(tagID)].elementInfo = ElementInfo("query") 
     dajax.assign("#queryForm", "innerHTML", html.tostring(queryTree))
-    dajax.script("""    
-        makeInputsDroppable();    
-    """);
+#     dajax.script("""    
+#         makeInputsDroppable();    
+#     """);
     return dajax.json()
     
 
@@ -1445,7 +1447,7 @@ def renderInitialForm():
           <option value=""></option>
           <option value="NOT">NOT</option>
         </select> 
-        <input droppable="true" readonly="readonly" type="text" class="elementInput"/>
+        <input onclick="showCustomTree('crit0')" readonly="readonly" type="text" class="elementInput"/>
         <span id="ui0">
         </span>                        
         <span class="icon add" onclick="addField()"></span>                                
@@ -1471,9 +1473,9 @@ def clearCriterias(request, queryForm):
     mapCriterias.clear()
       
     dajax.assign("#queryForm", "innerHTML", html.tostring(queryTree))
-    dajax.script("""   
-        makeInputsDroppable();    
-    """);
+#     dajax.script("""   
+#         makeInputsDroppable();    
+#     """);
     return dajax.json()
     
 @dajaxice_register
@@ -1500,9 +1502,9 @@ def clearQueries(request, queriesTable):
         
     dajax.assign("#queriesTable", "innerHTML", html.tostring(queriesTableTree))
     # render table again     
-    dajax.script("""  
-        makeInputsDroppable();    
-    """);
+#     dajax.script("""  
+#         makeInputsDroppable();    
+#     """);
     return dajax.json()
 
 @dajaxice_register
@@ -1535,8 +1537,6 @@ def getCustomForm(request):
                 </tr>                
             </table>""")
         for query in userQueries:
-#             pattern = re.compile("'re.compile(.*)'[,}]")
-#             for regex, pattern in query.dictRegex.iteritems():
             for i in range(0, len(query.ListRegex)):
                 query.query = query.query.replace(query.ListRegex[i], "re.compile('" + query.ListPattern[i] + "')")
                 
@@ -1545,7 +1545,11 @@ def getCustomForm(request):
             queriesTable.append(element)
         dajax.assign('#queriesTable', 'innerHTML', html.tostring(queriesTable))
         
-    dajax.assign('#customForm', 'innerHTML', customFormString)
+    if (customFormString != ""):
+        dajax.assign('#customForm', 'innerHTML', customFormString)
+    else:
+        customFormErrorMsg = "<p style='color:red;'>You should customize the template first. <a href='/explore/customize-template' style='color:red;font-weight:bold;'>Go back to Step 2 </a> and select the elements that you want to use in your queries.</p>"
+        dajax.assign('#customForm', 'innerHTML', customFormErrorMsg)
     
     return dajax.json()  
 
@@ -1567,6 +1571,8 @@ def saveCustomData(request,formContent):
 #     global xmlString
     global customFormString
     global formString
+    global anyChecked
+    
 #     global queryBuilderString
     
 #     queryBuilderString = ""
@@ -1577,27 +1583,34 @@ def saveCustomData(request,formContent):
     # modify the form string to only keep the selected elements
     htmlTree = html.fromstring(formContent)
     createCustomTreeForQuery(htmlTree)
-    customFormString = html.tostring(htmlTree) + """
-    <script>
-    $("#customForm").find("li[draggable=true]").draggable({
-        helper: "clone",
-    });
+    if (anyChecked):
+        customFormString = html.tostring(htmlTree)
+    else:
+        customFormString = ""
     
-    $( "#queryForm input[droppable=true]" ).droppable({
-        hoverClass: "ui-state-hover",
-        drop: function( event, ui ) {
-            $(this).val(ui.draggable.text());
-            updateUserInputs(ui.draggable.attr('id'),$(this).parent().attr('id')); 
-        }
-    });
-    </script>
-    """
+    anyChecked = False 
+#     + """
+#     <script>
+#     $("#customForm").find("li[draggable=true]").draggable({
+#         helper: "clone",
+#     });
+#     
+#     $( "#queryForm input[droppable=true]" ).droppable({
+#         hoverClass: "ui-state-hover",
+#         drop: function( event, ui ) {
+#             $(this).val(ui.draggable.text());
+#             updateUserInputs(ui.draggable.attr('id'),$(this).parent().attr('id')); 
+#         }
+#     });
+#     </script>
+#     """
 
     print '>>>> END def saveCustomData(request,formContent)'
     return dajax.json()  
 
-
 def createCustomTreeForQuery(htmlTree):
+    global anyChecked
+    anyChecked = False
     for ul in htmlTree.findall("./ul"):
         manageUlForQuery(ul)
 
@@ -1630,13 +1643,13 @@ def manageLiForQuery(li):
                 return False
             else:
                 #remove the checkbox and make the element draggable
-                li.attrib['draggable'] = "true"
+                global anyChecked
+                anyChecked = True
                 li.attrib['style'] = "color:orange;font-weight:bold;cursor:pointer;"
+                li.attrib['onclick'] = "selectElement("+ li.attrib['id'] +")"
                 checkbox.attrib['style'] = "display:none;"
                 return True
         except:
-            #remove the try catch when custom form will be completly done
-            #checkboxes for choices are missing
             return False
   
 
@@ -1662,15 +1675,7 @@ def downloadResults(request):
     
     print '>>>> END def downloadResults(request)'
     return dajax.json()
-
-# @dajaxice_register
-# def saveQueryBuilder(request, queryBuilder):
-#     dajax = Dajax()
-#     global queryBuilderString
-#     
-#     queryBuilderString = queryBuilder    
-#     
-#     return dajax.json()    
+  
 
 @dajaxice_register
 def backToQuery(request):
@@ -1707,5 +1712,32 @@ def switchExploreTab(request,tab):
     dajax = Dajax()
     
     request.session["currentExploreTab"] = tab
+    
+    return dajax.json()
+
+
+@dajaxice_register
+def setCurrentCriteria(request, currentCriteriaID):
+    dajax = Dajax()
+    
+    global criteriaID
+    criteriaID = currentCriteriaID
+    
+    return dajax.json()
+
+@dajaxice_register
+def selectElement(request, elementID, elementName): 
+    dajax = Dajax()
+    
+    global criteriaID
+    
+    dajax.script("""
+        $($("#"""+ criteriaID +"""").children()[1]).val('"""+ elementName +"""');
+        $($("#"""+ criteriaID +"""").children()[1]).attr("class","elementInput");
+        updateUserInputs("""+ str(elementID) +""", """+ str(criteriaID[4:]) +"""); 
+        $("#dialog-customTree").dialog("close");    
+    """)
+    
+    criteriaID = ""
     
     return dajax.json()

@@ -159,7 +159,7 @@
 							<p id="QbEDesc" class="large">Drag highlighted elements from the XML tree to a field in the Query Builder to build a query. Click on plus/minus buttons to add/remove criteria. You can save queries to build more complex queries and you will retrieve them on your next connection. When your query is done, please click on Execute Query to get XML documents that match the criteria.</p>
 							<p id="SPARQLDesc" class="large" style="display: none;">SPARQL Endpoint</p>
 							{% else %}
-							<p id="QbEDesc" class="large" style="display: none;">Drag highlighted elements from the XML tree to a field in the Query Builder to build a query. Click on plus/minus buttons to add/remove criteria. You can save queries to build more complex queries and you will retrieve them on your next connection. When your query is done, please click on Execute Query to get XML documents that match the criteria.</p>
+							<p id="QbEDesc" class="large" style="display: none;">Click on a field of the Query Builder to add an element to your query. The custom tree defined in Step 2 will appear and you will be able to select one of the hilighted elements. Click on plus/minus buttons to add/remove criteria. You can save queries to build more complex queries and you will retrieve them on your next connection. When your query is done, please click on Execute Query to get XML documents that match the criterias.</p>
 							<p id="SPARQLDesc" class="large">SPARQL Endpoint</p>
 							{% endif %}
 						</div>
@@ -177,7 +177,7 @@
 						              <option value=""></option>
 						              <option value="NOT">NOT</option>
 						            </select> 
-						            <input droppable="true" readonly="readonly" type="text" class="elementInput"/>
+						            <input onclick="showCustomTree('crit0')" readonly="readonly" type="text" class="elementInput"/>
 						            <span id="ui0">
 						            </span>                
 						            <span class="icon add" onclick="addField()"></span>                                 
@@ -206,13 +206,14 @@
 						    </div>            
 						</div>
 					</div>
+					<!--
 					{% if request.session.currentExploreTab == "tab-1" %}
 					<div id="customForm">
 					{% else %}
 					<div id="customForm" style="display: none;">
 					{% endif %}
 					</div>
-					
+					 -->					 
 					{% if request.session.currentExploreTab == "tab-2" %}
 					<div id="SPARQLqueryBuilder">
 					{% else %}
@@ -335,6 +336,14 @@ Dajaxice.explore.getCustomForm(Dajax.process);
 <p></p>
   <p id="listErrors">
   </p>
+</div> 
+
+<div id="dialog-customTree" title="Select an Element" style="display:none;">
+	<p>
+	Select the element that you want to insert in the query.
+	</p>
+	<div id="customForm">
+	</div>
 </div>
 
 </body>

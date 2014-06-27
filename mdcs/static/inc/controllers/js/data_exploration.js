@@ -2,15 +2,6 @@ loadTemplateSelectionControllers = function()
 {
     console.log('BEGIN [loadTemplateSelectionControllers]');
     $('.btn.set-explore-template').on('click', setExploreCurrentTemplate);
-//    if(null != window.exploreSPARQL && window.exploreSPARQL == "true"){
-//    	$("#explore-tabs").find("input:radio").removeAttr('checked');
-//    	$("#tab-2").prop("checked",true);
-//    	switchTabRefresh();
-//    	window.exploreSPARQL = "false";
-//    }
-//    else{
-//    	switchTabRefresh();
-//    }
     Dajaxice.explore.redirectExploreTabs(Dajax.process);
     console.log('END [loadTemplateSelectionControllers]');
 }
@@ -46,7 +37,7 @@ setCurrentTemplateCallback = function(data)
 }
 
 
-function makeInputsDroppable(){
+/*function makeInputsDroppable(){
 	$( "#queryForm input[droppable=true]" ).droppable({
 		hoverClass: "ui-state-hover",
 		drop: function( event, ui ) {
@@ -54,15 +45,15 @@ function makeInputsDroppable(){
 			updateUserInputs(ui.draggable.attr('id'),$(this).parent().attr('id')); 
 		}
 	});
-}
+}*/
 
-function updateUserInputs(fromElementID, toCriteriaID){
+function updateUserInputs(fromElementID, criteriaID){
 	$("input").each(function(){
 	    $(this).attr("value", $(this).val());
 	});
 	$('select option').each(function(){ this.defaultSelected = this.selected; });
-	var html = $("#queryForm").html()
-	Dajaxice.explore.updateUserInputs(Dajax.process,{'htmlForm':html, 'fromElementID':fromElementID, 'toCriteriaID':toCriteriaID});
+	var html = $("#queryForm").html();
+	Dajaxice.explore.updateUserInputs(Dajax.process,{'htmlForm':html, 'fromElementID':fromElementID, 'criteriaID':criteriaID});
 }
 
 
@@ -329,9 +320,44 @@ redirectExplore = function(tab)
 
 redirectSPARQLTab = function()
 {
+	console.log('BEGIN [redirectSPARQLTab]');
+	
 	$("#explore-tabs").find("input:radio").removeAttr('checked');
 	$("#tab-2").prop("checked",true);
 	switchTabRefresh();
+	
+	console.log('END [redirectSPARQLTab]');
+}
+
+showCustomTree = function(criteriaID)
+{
+	console.log('BEGIN [showCustomTree]');
+	
+	Dajaxice.explore.setCurrentCriteria(Dajax.process,{"currentCriteriaID":criteriaID});
+	
+	$(function() {
+        $( "#dialog-customTree" ).dialog({
+            modal: true,
+            width: 500,
+            height: 550,
+            buttons: {
+		Close: function() {
+                    $( this ).dialog( "close" );
+                }
+	    }
+        });
+    });
+	
+	console.log('END [showCustomTree]');
 }
 
 
+selectElement = function(elementID)
+{
+	console.log('BEGIN [selectElement]');
+		
+	var elementName = $("#" + elementID).text().trim();
+	Dajaxice.explore.selectElement(Dajax.process, {"elementID":elementID, "elementName":elementName});
+	
+	console.log('END [selectElement]');
+}

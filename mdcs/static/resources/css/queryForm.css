@@ -1,60 +1,40 @@
-#customForm
-{
-	overflow-y: auto; 
-	overflow-x: auto;
-	max-height:500px;
-    margin-right:330px;
-}
-
-#customForm .ui-draggable:hover
-{
-	cursor:"hand";
-}
-
-   
-#queryBuilder
+ #queryBuilder
 {	
-	width:320px;
-	float:right;
-	margin-right:0;
 	z-index:0; 
-	max-height:500px;
 	overflow-y: auto; 
-    /*position: fixed;*/
 }
 
 #queryBuilder select
 {
-	width:50px;	
-	font-size: 0.8em;
+	width:70px;	
+	font-size: 0.9em;
 	padding-left:0;
 	top:0;
 }
 
 #queryBuilder .elementInput
 {
-	font-size: 0.8em;
-	width:80px;
+	font-size: 0.9em;
+	width:230px;
 	margin-bottom:0;
-	cursor:"copy";
 }
 
 #queryBuilder input[readonly]
 {
-	cursor:text;
+	cursor:pointer;
 }
 
 #queryBuilder .queryInput
 {
-	font-size: 0.8em;
-	width:202px;
+	font-size: 0.9em;
+	width:472px;
 	margin-bottom:0;
 }
  
 #queryBuilder .valueInput
 {
-	font-size: 0.8em;
-	width:50px;
+	font-size: 0.9em;
+	width:150px;
 	margin-bottom:0;
 }
 
@@ -86,11 +66,6 @@
 	border-collapse:collapse;
 	text-align: center;
 	font-size: 0.9em;
-}
-
-#queriesTable table
-{
-	width:320px;
 }
 
 #queriesTable th
