@@ -30,6 +30,18 @@ from django.core.servers.basehttp import FileWrapper
 import lxml.etree as etree
 import xml.dom.minidom as minidom
 
+# Specific to MongoDB ordered inserts
+from collections import OrderedDict
+from pymongo import Connection
+import xmltodict
+
+# Specific to RDF
+import rdfPublisher
+
+#XSL file loading
+import os
+#from django.conf.settings import PROJECT_ROOT
+
 # Global Variables
 xmlString = ""
 formString = ""
@@ -37,7 +49,20 @@ xmlDocTree = ""
 xmlDataTree = ""
 debugON = 0
 
-# Class definition
+# SPARQL : URI for the project (http://www.example.com/)
+projectURI = "http://www.example.com/"
+
+# ORDERED DICT : Used by the Wrapper to insert numeric values as numbers (and not string)
+def postprocessor(path, key, value):
+    try:
+        return key, int(value)
+    except (ValueError, TypeError):
+        try:
+            return key, float(value)
+        except (ValueError, TypeError):
+            return key, value
+        
+# Class definitions
 class Template(Document):
     title = StringField(required=True)
     filename = StringField(required=True)
@@ -62,6 +87,39 @@ class Hdf5file(Document):
     title = StringField(required=True)
     schema = StringField(required=True)
     content = StringField(required=True)
+
+# ORDERED DICT : Wrapper to insert ordered dict into mongoDB, using mongoengine syntax                                                                                                                                        
+class Jsondata():
+    """                                                                                                                                                                                                                       
+        Wrapper to manage JSON Documents, like mongoengine would have manage them (but with ordered data)                                                                                                                     
+    """
+
+    def __init__(self, schemaID=None, xml=None, title=""):
+        """                                                                                                                                                                                                                   
+            initialize the object                                                                                                                                                                                             
+            schema = ref schema (Document)                                                                                                                                                                                    
+            xml = xml string                                                                                                                                                                                                  
+        """
+        # create a connection                                                                                                                                                                                                 
+        connection = Connection()
+        # connect to the db 'mgi'
+        db = connection['mgi']
+        # get the xmldata collection
+        self.xmldata = db['xmldata']
+        # create a new dict to keep the mongoengine order                                                                                                                                                                     
+        self.content = OrderedDict()
+        # insert the ref to schema                                                                                                                                                                                            
+        self.content['schema'] = schemaID
+        # insert the title                                                                                                                                                                                                    
+        self.content['title'] = title
+        # insert the json content after                                                                                                                                                                                       
+        self.content.update(xmltodict.parse(xml, postprocessor=postprocessor))
+
+    def save(self):
+        """save into mongo db"""
+        # insert the content into mongo db                                                                                                                                                                                    
+        docID = self.xmldata.insert(self.content)
+        return docID
 
 ################################################################################
 #
@@ -239,6 +297,34 @@ def saveXMLDataToDB(request,saveAs):
     connect('mgi')
 
     newXMLData = Xmldata(title=saveAs, schema=templateID, content=xmlString).save()
+
+    newJSONData = Jsondata(schemaID=templateID, xml=xmlString, title=saveAs)
+    docID = newJSONData.save()
+
+    #xsltPath = './xml2rdf3.xsl' #path to xslt on my machine
+    #xsltFile = open(os.path.join(PROJECT_ROOT,'xml2rdf3.xsl'))
+    xsltPath = os.path.join(settings.SITE_ROOT, 'static/resources/xsl/xml2rdf3.xsl')
+    xslt = etree.parse(xsltPath)
+    root = xslt.getroot()
+    namespace = root.nsmap['xsl']
+    URIparam = root.find("{" + namespace +"}param[@name='BaseURI']") #find BaseURI tag to insert the project URI
+    URIparam.text = projectURI + str(docID)
+
+    # SPARQL : transform the XML into RDF/XML
+    transform = etree.XSLT(xslt)
+    # add a namespace to the XML string, transformation didn't work well using XML DOM
+    xmlStr = xmlString.replace('>',' xmlns="' + projectURI + templateID + '">', 1) #TODO: OR schema name...
+    # domXML.attrib['xmlns'] = projectURI + schemaID #didn't work well
+    domXML = etree.fromstring(xmlStr)
+    domRDF = transform(domXML)
+
+    # SPARQL : get the rdf string
+    rdfStr = etree.tostring(domRDF)
+
+    print "rdf string: " + rdfStr
+
+    # SPARQL : send the rdf to the triplestore
+    rdfPublisher.sendRDF(rdfStr)
 
     print '>>>>  END def saveXMLDataToDB(request,saveAs)'
     return dajax.json()
