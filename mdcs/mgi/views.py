@@ -70,6 +70,9 @@ class Hdf5file(Document):
 
 class queryResults(Document):
     results = ListField(required=True) 
+    
+class sparqlQueryResults(Document):
+    results = StringField(required=True)
 
 # Create your views here.
 
@@ -772,7 +775,7 @@ def explore_perform_search(request):
         '': '',
     })
     request.session['currentYear'] = currentYear()
-    return HttpResponse(template.render(context))  # remove after testing
+    #return HttpResponse(template.render(context))  # remove after testing
     if request.user.is_authenticated():
         if 'exploreCurrentTemplate' not in request.session:
             return redirect('/explore/select-template')
@@ -801,7 +804,7 @@ def explore_results(request):
         '': '',
     })
     request.session['currentYear'] = currentYear()
-    return HttpResponse(template.render(context))  # remove after testing
+    #return HttpResponse(template.render(context))  # remove after testing
     if request.user.is_authenticated():
         if 'currentTemplate' not in request.session:
             return redirect('/explore/select-template')
@@ -811,6 +814,35 @@ def explore_results(request):
         if 'loggedOut' in request.session:
             del request.session['loggedOut']
         request.session['next'] = '/explore/results'
+        return redirect('/login')
+    
+################################################################################
+#
+# Function Name: explore_sparqlresults(request)
+# Inputs:        request - 
+# Outputs:       
+# Exceptions:    None
+# Description:   
+#                
+#
+################################################################################
+def explore_sparqlresults(request):
+#    logout(request)
+    template = loader.get_template('explore_sparqlresults.html')
+    context = RequestContext(request, {
+        '': '',
+    })
+    request.session['currentYear'] = currentYear()
+    #return HttpResponse(template.render(context))  # remove after testing
+    if request.user.is_authenticated():
+        if 'currentTemplate' not in request.session:
+            return redirect('/explore/select-template')
+        else:
+            return HttpResponse(template.render(context))
+    else:
+        if 'loggedOut' in request.session:
+            del request.session['loggedOut']
+        request.session['next'] = '/explore/sparqlresults'
         return redirect('/login')
 
 ################################################################################
@@ -858,6 +890,36 @@ def explore_download_results(request):
 #             response = HttpResponse(FileWrapper(fileObj), content_type='application/xml')
 #             response['Content-Disposition'] = 'attachment; filename=results.zip' #templateFilename
 #             return response
+    else:
+        if 'loggedOut' in request.session:
+            del request.session['loggedOut']
+        request.session['next'] = '/explore'
+        return redirect('/login')
+
+
+################################################################################
+#
+# Function Name: explore_download_sparqlresults(request)
+# Inputs:        request - 
+# Outputs:       results of a sparql query
+# Exceptions:    None
+# Description:   
+#
+################################################################################
+def explore_download_sparqlresults(request):
+    if request.user.is_authenticated():
+        if 'exploreCurrentTemplate' not in request.session:
+            return redirect('/explore/select-template')
+        else:          
+            savedResultsID = request.GET.get('id','')
+            sparqlResults = sparqlQueryResults.objects.get(pk=savedResultsID)
+
+            sparqlResultsEncoded = sparqlResults.results.encode('utf-8')
+            fileObj = StringIO(sparqlResultsEncoded)
+
+            response = HttpResponse(FileWrapper(fileObj), content_type='application/text')
+            response['Content-Disposition'] = 'attachment; filename=sparql_results.txt'
+            return response
     else:
         if 'loggedOut' in request.session:
             del request.session['loggedOut']

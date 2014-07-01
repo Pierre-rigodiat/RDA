@@ -156,11 +156,11 @@
 			  				<!--<p><img src="sample-thumbnail-2.jpg" width="640" height="200" alt="" class="bordered" /></p>
 							<h2 class="quiet">Introducing the next generation software</h2> -->
 	  						{% if request.session.currentExploreTab == "tab-1" %}	
-							<p id="QbEDesc" class="large">Drag highlighted elements from the XML tree to a field in the Query Builder to build a query. Click on plus/minus buttons to add/remove criteria. You can save queries to build more complex queries and you will retrieve them on your next connection. When your query is done, please click on Execute Query to get XML documents that match the criteria.</p>
-							<p id="SPARQLDesc" class="large" style="display: none;">SPARQL Endpoint</p>
+							<p id="QbEDesc" class="large">Click on a field of the Query Builder to add an element to your query. The custom tree defined in Step 2 will appear and you will be able to select one of the hilighted elements. Click on plus/minus buttons to add/remove criteria. You can save queries to build more complex queries and you will retrieve them on your next connection. When your query is done, please click on Execute Query to get XML documents that match the criterias.</p>
+							<p id="SPARQLDesc" class="large" style="display: none;">Write a SPARQL query into the text field and submit the query.</p>
 							{% else %}
 							<p id="QbEDesc" class="large" style="display: none;">Click on a field of the Query Builder to add an element to your query. The custom tree defined in Step 2 will appear and you will be able to select one of the hilighted elements. Click on plus/minus buttons to add/remove criteria. You can save queries to build more complex queries and you will retrieve them on your next connection. When your query is done, please click on Execute Query to get XML documents that match the criterias.</p>
-							<p id="SPARQLDesc" class="large">SPARQL Endpoint</p>
+							<p id="SPARQLDesc" class="large">Write a SPARQL query into the text field and submit the query.</p>
 							{% endif %}
 						</div>
 					</div>
@@ -219,7 +219,18 @@
 					{% else %}
 					<div id="SPARQLqueryBuilder" style="display: none;">
 					{% endif %}
-						SPARQL form goes here !!!
+						<span><strong>Template ID:</strong> {{request.session.exploreCurrentTemplateID }}</span><br/>
+						<!--<span><strong>Suggested prefix:</strong> PREFIX {{ request.session.exploreCurrentTemplate }}:&#60;http://www.example.com/{{request.session.exploreCurrentTemplateID }}&#62;</span><br/>-->
+						<span><strong>Suggested prefix:</strong> PREFIX tpl:&#60;http://www.example.com/{{request.session.exploreCurrentTemplateID }}&#62;</span><br/>
+						<span><strong>Get the value of a field using:</strong> ?s rdf:value ?o</span><br/>
+						<span><strong>RDF prefix:</strong> PREFIX rdf: &#60;http://www.w3.org/1999/02/22-rdf-syntax-ns#&#62;</span><br/> 						
+						<form>
+<textarea class="SPARQLTextArea">
+PREFIX rdf: &#60;http://www.w3.org/1999/02/22-rdf-syntax-ns#&#62;
+PREFIX tpl:&#60;http://www.example.com/{{request.session.exploreCurrentTemplateID }}&#62;
+</textarea>
+							<span class="btn" onclick="sparqlquery()">Submit Query !</span>
+						</form>
 					</div>					
 				</div>
 	  		</div>

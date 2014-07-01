@@ -70,11 +70,11 @@ function query(){
 
 resultsCallback = function()
 {
-	console.log('BEGIN [saveCustomXMLData]');
+	console.log('BEGIN [resultsCallback]');
 
     window.location = "/explore/results"
     	
-    console.log('END [saveCustomXMLData]');
+    console.log('END [resultsCallback]');
 }
 
 function addField(){
@@ -361,3 +361,36 @@ selectElement = function(elementID)
 	
 	console.log('END [selectElement]');
 }
+
+function sparqlquery(){
+	var queryStr = $("#SPARQLqueryBuilder .SPARQLTextArea").val();	
+	Dajaxice.explore.executeSPARQLQuery(Dajax.process,{"queryStr":queryStr});
+}
+
+sparqlResultsCallback = function()
+{
+	console.log('BEGIN [sparqlResultsCallback]');
+
+    window.location = "/explore/sparqlresults"
+    	
+    console.log('END [sparqlResultsCallback]');
+}
+
+downloadSparqlResults = function()
+{
+	console.log('BEGIN [downloadSparqlResults]');
+	
+	Dajaxice.explore.downloadSparqlResults(Dajax.process);
+	
+	console.log('END [downloadSparqlResults]');
+}
+
+//backToSparqlQuery = function()
+//{
+//	console.log('BEGIN [backToSparqlQuery]');
+//	
+//	Dajaxice.explore.backToSparqlQuery()
+//	
+//	console.log('END [backToSparqlQuery]');
+//}
+

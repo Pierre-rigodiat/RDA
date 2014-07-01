@@ -32,12 +32,14 @@ import lxml.etree as etree
 import xml.dom.minidom as minidom
 from _winreg import QueryValue
 
+import sparqlPublisher
+
 # Global Variables
 # xmlString = ""
 xmlDocTree = ""
 formString = ""
 customFormString = ""
-queryBuilderString = ""
+# queryBuilderString = ""
 savedQueryForm = ""
 mapTagIDElementInfo = None
 mapQueryInfo = dict()
@@ -52,6 +54,8 @@ anyChecked = False
 
 
 results = []
+sparqlResults = ""
+sparqlQuery = ""
 
 # Class definition
 class Template(Document):
@@ -61,6 +65,9 @@ class Template(Document):
     
 class queryResults(Document):
     results = ListField(required=True)
+    
+class sparqlQueryResults(Document):
+    results = StringField(required=True)
     
 class SavedQuery(Document):
     user = StringField(required=True)
@@ -542,10 +549,10 @@ def executeQuery(request, queryForm, queryBuilder):
     print 'BEGIN def executeQuery(request, queryForm, queryBuilder)'        
     dajax = Dajax()
     global results
-    global queryBuilderString
+#     global queryBuilderString
     global savedQueryForm
     
-    queryBuilderString = queryBuilder
+#     queryBuilderString = queryBuilder
     savedQueryForm = queryForm
     
     queryFormTree = html.fromstring(queryForm)
@@ -1511,13 +1518,18 @@ def clearQueries(request, queriesTable):
 def getCustomForm(request):
     dajax = Dajax()
     
+#     if 'currentExploreTab' in request.session and request.session['currentExploreTab'] == "tab-1":
+        
     global customFormString
     global mapQueryInfo
+    global savedQueryForm
     
     #delete criterias if user comes from another page than results
     if 'keepCriterias' in request.session:
         del request.session['keepCriterias']
-        dajax.assign("#queryForm", "innerHTML", savedQueryForm)
+        if savedQueryForm != "" :
+            dajax.assign("#queryForm", "innerHTML", savedQueryForm)
+            savedQueryForm = ""
     else:
         mapCriterias.clear()
     
@@ -1550,6 +1562,15 @@ def getCustomForm(request):
     else:
         customFormErrorMsg = "<p style='color:red;'>You should customize the template first. <a href='/explore/customize-template' style='color:red;font-weight:bold;'>Go back to Step 2 </a> and select the elements that you want to use in your queries.</p>"
         dajax.assign('#customForm', 'innerHTML', customFormErrorMsg)
+    
+#     elif 'currentExploreTab' in request.session and request.session['currentExploreTab'] == "tab-2":
+        
+    global sparqlQuery
+    
+    if sparqlQuery != "" :
+        
+        dajax.assign('#SPARQLqueryBuilder .SPARQLTextArea', 'innerHTML', sparqlQuery)
+        sparqlQuery = ""
     
     return dajax.json()  
 
@@ -1741,3 +1762,58 @@ def selectElement(request, elementID, elementName):
     criteriaID = ""
     
     return dajax.json()
+
+@dajaxice_register
+def executeSPARQLQuery(request, queryStr):
+    print 'BEGIN def executeSPARQLQuery(request, queryStr)'        
+    dajax = Dajax()
+    
+    global sparqlResults
+    global sparqlQuery
+    
+    sparqlQuery = queryStr
+    sparqlResults = sparqlPublisher.sendSPARQL(queryStr)
+    if sparqlResults is not None :
+        dajax.script("sparqlResultsCallback();")
+
+    print 'END def executeSPARQLQuery(request, queryStr)'
+    return dajax.json()
+
+@dajaxice_register
+def getSparqlResults(request):
+    dajax = Dajax()
+    
+    global sparqlResults
+    
+    displayedSparqlResults = sparqlResults.replace("<", "&#60;")
+    displayedSparqlResults = displayedSparqlResults.replace(">", "&#62;")
+    resultString = ""
+    resultString += "<pre class='sparqlResult' readonly='true'>"
+#     resultString += "<pre>"  
+    resultString += displayedSparqlResults
+#     resultString += "</pre>"
+    resultString += "</pre>"    
+            
+    dajax.assign("#results", "innerHTML", resultString)
+    
+    return dajax.json()
+
+@dajaxice_register
+def downloadSparqlResults(request):
+    print '>>>>  BEGIN def downloadSparqlResults(request)'
+    dajax = Dajax()
+
+    global sparqlResults
+
+    connect('mgi')
+    
+    if (sparqlResults is not None):
+        
+        savedResults = sparqlQueryResults(results=sparqlResults).save()
+        savedResultsID = str(savedResults.id)
+    
+        dajax.redirect("/explore/results/download-sparqlresults?id="+savedResultsID)
+    
+    print '>>>> END def downloadSparqlResults(request)'
+    return dajax.json()
+
