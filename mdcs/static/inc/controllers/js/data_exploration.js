@@ -339,7 +339,7 @@ showCustomTree = function(criteriaID)
         $( "#dialog-customTree" ).dialog({
             modal: true,
             width: 500,
-            height: 550,
+            height: 620,
             buttons: {
 		Close: function() {
                     $( this ).dialog( "close" );
@@ -383,6 +383,26 @@ downloadSparqlResults = function()
 	Dajaxice.explore.downloadSparqlResults(Dajax.process);
 	
 	console.log('END [downloadSparqlResults]');
+}
+
+getElementPath = function()
+{
+	console.log('BEGIN [getElementPath]');
+	
+	$(function() {
+        $( "#dialog-sparqlcustomTree" ).dialog({
+            modal: true,
+            width: 510,
+            height: 660,
+            buttons: {
+		Close: function() {
+                    $( this ).dialog( "close" );
+                }
+            }
+        });
+    });
+	
+	console.log('END [getElementPath]');
 }
 
 //backToSparqlQuery = function()

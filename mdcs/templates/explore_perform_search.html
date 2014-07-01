@@ -117,9 +117,9 @@
 	  <li class="current_page_item"><a href="/explore/perform-search">Perform Search</a></li>
   	</ul>
   	<ul id="subnav-tab-2" class="tabbed" style="display: none;">
-	  <li><a href="/explore/select-template">Select Template</a></li>	 
+	  <li><a href="/explore/select-template">Select Template</a></li>
+	  <li><a href="/explore/customize-template">Customize Template</a></li>	 
 	  <li class="current_page_item"><a href="/explore/perform-search">Perform Search</a></li> 
-	  <!--<li class="current_page_item"><a onclick="verifyTemplateIsSelected('/explore/perform-search');">Perform Search</a></li>-->
 	</ul>
   	{% else %}
   	<ul id="subnav-tab-1" class="tabbed" style="display: none;">
@@ -128,9 +128,9 @@
 	  <li class="current_page_item"><a href="/explore/perform-search">Perform Search</a></li>
   	</ul>
 	<ul id="subnav-tab-2" class="tabbed">
-	  <li><a href="/explore/select-template">Select Template</a></li>	 
-	  <li class="current_page_item"><a href="/explore/perform-search">Perform Search</a></li> 
-	  <!--<li class="current_page_item"><a onclick="verifyTemplateIsSelected('/explore/perform-search');">Perform Search</a></li>-->
+	  <li><a href="/explore/select-template">Select Template</a></li>	
+	  <li><a href="/explore/customize-template">Customize Template</a></li> 
+	  <li class="current_page_item"><a href="/explore/perform-search">Perform Search</a></li> 	
 	</ul>
 	{% endif %}
 	
@@ -157,10 +157,10 @@
 							<h2 class="quiet">Introducing the next generation software</h2> -->
 	  						{% if request.session.currentExploreTab == "tab-1" %}	
 							<p id="QbEDesc" class="large">Click on a field of the Query Builder to add an element to your query. The custom tree defined in Step 2 will appear and you will be able to select one of the hilighted elements. Click on plus/minus buttons to add/remove criteria. You can save queries to build more complex queries and you will retrieve them on your next connection. When your query is done, please click on Execute Query to get XML documents that match the criterias.</p>
-							<p id="SPARQLDesc" class="large" style="display: none;">Write a SPARQL query into the text field and submit the query.</p>
+							<p id="SPARQLDesc" class="large" style="display: none;">Write a SPARQL query into the text field and submit the query to get the results.</p>
 							{% else %}
 							<p id="QbEDesc" class="large" style="display: none;">Click on a field of the Query Builder to add an element to your query. The custom tree defined in Step 2 will appear and you will be able to select one of the hilighted elements. Click on plus/minus buttons to add/remove criteria. You can save queries to build more complex queries and you will retrieve them on your next connection. When your query is done, please click on Execute Query to get XML documents that match the criterias.</p>
-							<p id="SPARQLDesc" class="large">Write a SPARQL query into the text field and submit the query.</p>
+							<p id="SPARQLDesc" class="large">Write a SPARQL query into the text field and submit the query to get the results.</p>
 							{% endif %}
 						</div>
 					</div>
@@ -225,11 +225,12 @@
 						<span><strong>Get the value of a field using:</strong> ?s rdf:value ?o</span><br/>
 						<span><strong>RDF prefix:</strong> PREFIX rdf: &#60;http://www.w3.org/1999/02/22-rdf-syntax-ns#&#62;</span><br/> 						
 						<form>
-<textarea class="SPARQLTextArea">
-PREFIX rdf: &#60;http://www.w3.org/1999/02/22-rdf-syntax-ns#&#62;
+							<textarea class="SPARQLTextArea">PREFIX rdf: &#60;http://www.w3.org/1999/02/22-rdf-syntax-ns#&#62;
 PREFIX tpl:&#60;http://www.example.com/{{request.session.exploreCurrentTemplateID }}&#62;
-</textarea>
+SELECT * 
+WHERE {?s ?p ?o}</textarea>							
 							<span class="btn" onclick="sparqlquery()">Submit Query !</span>
+							<span class="btn" onclick="getElementPath()">Get an Element !</span>
 						</form>
 					</div>					
 				</div>
@@ -272,8 +273,9 @@ PREFIX tpl:&#60;http://www.example.com/{{request.session.exploreCurrentTemplateI
 				    <div class="content">
 			           <div class="box-content">
 						  <ul class="nice-list">
-						    <li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'img/Orange_Number_1.png' %}"></td><td><a href="/explore/select-template">Select Template</a></td></tr></table></li>						    
-						    <li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'img/Orange_Number_2.png' %}"></td><td><strong><a href="/explore/perform-search">Perform Search</a></strong></td></tr></table></li>
+						    <li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'img/Orange_Number_1.png' %}"></td><td><a href="/explore/select-template">Select Template</a></td></tr></table></li>
+						    <li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'img/Orange_Number_2.png' %}"></td><td><a href="/explore/customize-template">Customize Template</a></td></tr></table></li>						    
+						    <li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'img/Orange_Number_3.png' %}"></td><td><strong><a href="/explore/perform-search">Perform Search</a></strong></td></tr></table></li>
 						  </ul>
 						</div>	
 			       </div> 
@@ -355,6 +357,18 @@ Dajaxice.explore.getCustomForm(Dajax.process);
 	</p>
 	<div id="customForm">
 	</div>
+</div>
+
+<div id="dialog-sparqlcustomTree" title="Get the path to an Element" style="display:none;">
+	<p>
+	This window allows to help you to build the query. Select the element that you want to insert in the query and then go to the bottom of the window to copy/paste the path in your query.
+	</p>
+	<div id="sparqlCustomForm">
+	</div>
+	<br/><strong>Element Path :</strong><br/>
+	<input id="sparqlElementPath" type="text"/>
+	<br/><strong>Query Example :</strong><br/>
+	<textarea id="sparqlExample"></textarea>	
 </div>
 
 </body>

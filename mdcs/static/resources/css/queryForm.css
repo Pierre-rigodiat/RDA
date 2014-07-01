@@ -75,7 +75,7 @@
 
 #SPARQLqueryBuilder .SPARQLTextArea
 {
-	width:610px;
+	width:640px;
 	height:300px;
 	resize:none;
 	cursor:text;
@@ -83,9 +83,26 @@
 
 #SPARQLqueryBuilder .btn
 {
-	margin-left: 500px;
+	float: right;
+	margin-bottom: 20px;
 }
 
+#sparqlCustomForm
+{
+	height: 300px;
+	overflow: auto;
+}
+
+#sparqlElementPath
+{
+	width: 95%;
+}
+
+#sparqlExample
+{
+	width: 95%;	
+	resize: none;
+}
 /*#queryForm
 {
 	overflow-y: auto; 

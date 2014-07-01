@@ -1559,9 +1559,11 @@ def getCustomForm(request):
         
     if (customFormString != ""):
         dajax.assign('#customForm', 'innerHTML', customFormString)
+        dajax.assign('#sparqlCustomForm', 'innerHTML', customFormString)
     else:
         customFormErrorMsg = "<p style='color:red;'>You should customize the template first. <a href='/explore/customize-template' style='color:red;font-weight:bold;'>Go back to Step 2 </a> and select the elements that you want to use in your queries.</p>"
         dajax.assign('#customForm', 'innerHTML', customFormErrorMsg)
+        dajax.assign('#sparqlCustomForm', 'innerHTML', customFormErrorMsg)
     
 #     elif 'currentExploreTab' in request.session and request.session['currentExploreTab'] == "tab-2":
         
@@ -1750,17 +1752,32 @@ def setCurrentCriteria(request, currentCriteriaID):
 def selectElement(request, elementID, elementName): 
     dajax = Dajax()
     
-    global criteriaID
-    
-    dajax.script("""
-        $($("#"""+ criteriaID +"""").children()[1]).val('"""+ elementName +"""');
-        $($("#"""+ criteriaID +"""").children()[1]).attr("class","elementInput");
-        updateUserInputs("""+ str(elementID) +""", """+ str(criteriaID[4:]) +"""); 
-        $("#dialog-customTree").dialog("close");    
-    """)
-    
-    criteriaID = ""
-    
+    if 'currentExploreTab' in request.session and request.session['currentExploreTab'] == "tab-1":
+        global criteriaID    
+        dajax.script("""
+            $($("#"""+ criteriaID +"""").children()[1]).val('"""+ elementName +"""');
+            $($("#"""+ criteriaID +"""").children()[1]).attr("class","elementInput");
+            updateUserInputs("""+ str(elementID) +""", """+ str(criteriaID[4:]) +"""); 
+            $("#dialog-customTree").dialog("close");    
+        """)
+        
+        criteriaID = ""
+    elif 'currentExploreTab' in request.session and request.session['currentExploreTab'] == "tab-2":
+        global mapTagIDElementInfo
+        elementPath = mapTagIDElementInfo[elementID].path
+        elementPath = elementPath.replace(".","/tpl:")
+        elementPath = "tpl:" + elementPath
+        
+        queryExample = """SELECT ?""" + elementName + """Value
+WHERE {
+?s """ + elementPath + """ ?o .
+?o rdf:value ?""" + elementName + """Value .
+}
+"""
+        dajax.script("""
+            $("#sparqlElementPath").val('"""+ elementPath + """');
+        """)
+        dajax.assign("#sparqlExample", "innerHTML", queryExample)
     return dajax.json()
 
 @dajaxice_register
