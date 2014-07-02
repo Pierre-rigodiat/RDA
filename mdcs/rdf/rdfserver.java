@@ -32,11 +32,12 @@ public class rdfserver {
     public static String SERVER_ENDPOINT; // = "tcp://127.0.0.1:5555";
 	
     // TODO: replace by the real folder name in the project
-    public static String TDB_DIRECTORY; // = "/Users/ssy/Develop/Workspaces/mgi2/mgi/mdcs/data/ts";
+    public static String TDB_DIRECTORY; // = "C:\Users\GAS2\workspace_prod\MGI_Project\mdcs\data\ts";
 	
     //TODO: replace by the same project URI as in insertRDFForJena
     public static String PROJECT_URI; // = "http://www.example.com/";
 	
+    // rdfserver -server_endpoint "tcp://127.0.0.1:5555" -tdb_directory "C:\Users\GAS2\workspace_prod\MGI_Project\mdcs\data\ts" -project_uri "http://www.example.com/"
     public static void main(String[] args) throws Exception {
 	if (args.length < 6) {
 	    System.out.println("USAGE: rdfserver -server_endpoint <SERVER_ENDPOINT> -tdb_directory <TDB_DIRECTORY> -project_uri <PROJECT_URI>");
@@ -64,17 +65,17 @@ public class rdfserver {
 	// Socket to talk to clients
 	ZMQ.Socket responder = context.socket(ZMQ.REP);		 
 	responder.bind(SERVER_ENDPOINT);
-		 
+	
+	// Make a TDB-backed dataset				 
+	String directory = TDB_DIRECTORY;
+	// TODO: need to create the folders before this command
+	Dataset dataset = TDBFactory.createDataset(directory) ;
+	
 	while (true) {
 	    try{ 
 		// Wait for next request from the client
 		byte[] rdf = responder.recv();
-		System.out.println("Received RDF");
-				 
-		// Make a TDB-backed dataset				 
-		String directory = TDB_DIRECTORY;
-		// TODO: need to create the folders before this command
-		Dataset dataset = TDBFactory.createDataset(directory) ;
+		System.out.println("Received RDF");				 	
 	
 		// create an empty model
 		Model modelRDF = ModelFactory.createDefaultModel();
