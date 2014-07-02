@@ -98,7 +98,8 @@ class Jsondata():
         """                                                                                                                                                                                                                   
             initialize the object                                                                                                                                                                                             
             schema = ref schema (Document)                                                                                                                                                                                    
-            xml = xml string                                                                                                                                                                                                  
+            xml = xml string 
+            title = title of the document                                                                                                                                                                                                 
         """
         # create a connection                                                                                                                                                                                                 
         connection = Connection()
@@ -113,7 +114,7 @@ class Jsondata():
         # insert the title                                                                                                                                                                                                    
         self.content['title'] = title
         # insert the json content after                                                                                                                                                                                       
-        self.content.update(xmltodict.parse(xml, postprocessor=postprocessor))
+        self.content['content'] = xmltodict.parse(xml, postprocessor=postprocessor)
 
     def save(self):
         """save into mongo db"""
@@ -296,7 +297,7 @@ def saveXMLDataToDB(request,saveAs):
 
     connect('mgi')
 
-    newXMLData = Xmldata(title=saveAs, schema=templateID, content=xmlString).save()
+    #newXMLData = Xmldata(title=saveAs, schema=templateID, content=xmlString).save()
 
     newJSONData = Jsondata(schemaID=templateID, xml=xmlString, title=saveAs)
     docID = newJSONData.save()
