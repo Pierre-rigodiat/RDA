@@ -1031,10 +1031,10 @@ def removeField(request, queryForm, criteriaID):
 ################################################################################
 def renderYESORNOT():
     return """
-        <select style="margin-right:4px;">
-          <option value=""></option>
-          <option value="NOT">NOT</option>
-        </select> 
+    <select>
+      <option value=""></option>
+      <option value="NOT">NOT</option>
+    </select> 
     """
 
 ################################################################################
@@ -1558,8 +1558,12 @@ def getCustomForm(request):
         dajax.assign('#queriesTable', 'innerHTML', html.tostring(queriesTable))
         
     if (customFormString != ""):
-        dajax.assign('#customForm', 'innerHTML', customFormString)
-        dajax.assign('#sparqlCustomForm', 'innerHTML', customFormString)
+        if 'currentExploreTab' in request.session and request.session['currentExploreTab'] == "tab-1":
+            dajax.assign('#customForm', 'innerHTML', customFormString)
+            dajax.assign('#sparqlCustomForm', 'innerHTML', "")
+        elif 'currentExploreTab' in request.session and request.session['currentExploreTab'] == "tab-2":
+            dajax.assign('#sparqlCustomForm', 'innerHTML', customFormString)
+            dajax.assign('#customForm', 'innerHTML', "")
     else:
         customFormErrorMsg = "<p style='color:red;'>You should customize the template first. <a href='/explore/customize-template' style='color:red;font-weight:bold;'>Go back to Step 2 </a> and select the elements that you want to use in your queries.</p>"
         dajax.assign('#customForm', 'innerHTML', customFormErrorMsg)
@@ -1735,6 +1739,16 @@ def switchExploreTab(request,tab):
     dajax = Dajax()
     
     request.session["currentExploreTab"] = tab
+    
+    global customFormString
+    
+    if (customFormString != ""):
+        if 'currentExploreTab' in request.session and request.session['currentExploreTab'] == "tab-1":
+            dajax.assign('#customForm', 'innerHTML', customFormString)
+            dajax.assign('#sparqlCustomForm', 'innerHTML', "")
+        elif 'currentExploreTab' in request.session and request.session['currentExploreTab'] == "tab-2":
+            dajax.assign('#sparqlCustomForm', 'innerHTML', customFormString)
+            dajax.assign('#customForm', 'innerHTML', "")
     
     return dajax.json()
 
