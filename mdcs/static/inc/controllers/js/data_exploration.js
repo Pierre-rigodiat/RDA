@@ -172,7 +172,7 @@ saveCustomXMLDataCallback = function()
 
 changeChoice = function(selectObj)
 {
-    console.log('BEGIN [changeChoice(' + selectObj + ')]');
+    console.log('BEGIN [changeChoice(' + selectObj.id + ' : ' + selectObj.selectedIndex + ')]');
 
     // get the index of the selected option 
     var idx = selectObj.selectedIndex;  
@@ -186,7 +186,7 @@ changeChoice = function(selectObj)
     	
     }
 
-    console.log('END [changeChoice(' + selectObj + ')]');
+    console.log('END [changeChoice(' + selectObj.id + ' : ' + selectObj.selectedIndex + ')]');
 }
 
 loadExploreCurrentTemplateForm = function()
