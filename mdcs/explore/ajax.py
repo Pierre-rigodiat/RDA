@@ -172,6 +172,11 @@ class QueryInfo:
         self.query = query
         self.displayedQuery = displayedQuery
 
+class BranchInfo:
+    def __init__(self, keepTheBranch, isALeave):
+        self.keepTheBranch = keepTheBranch
+        self.isALeave = isALeave
+
 
 ################################################################################
 # 
@@ -310,6 +315,7 @@ def generateFormSubSection(xpath, elementName, fullPath):
 
         fullPath += "." + elementName
         if complexTypeChild.tag == "{0}sequence".format(defaultNamespace):
+            formString += "<ul>"
             if debugON: formString += "complexTypeChild:" + complexTypeChild.tag + "<br>"
             sequenceChildren = complexTypeChild.findall('*')            
             for sequenceChild in sequenceChildren:
@@ -332,8 +338,8 @@ def generateFormSubSection(xpath, elementName, fullPath):
                           or sequenceChild.attrib.get('type') == "{0}:anyURI".format(defaultPrefix)):                                                                
                         textCapitalized = sequenceChild.attrib.get('name')[0].capitalize()  + sequenceChild.attrib.get('name')[1:]                        
                         elementID = len(mapTagIDElementInfo.keys())
-                        formString += "<ul><li id='" + str(elementID) + "'><nobr>" + textCapitalized + " <input type='checkbox'>"                         
-                        formString += "</nobr></li></ul>"                    
+                        formString += "<li id='" + str(elementID) + "'>" + textCapitalized + " <input type='checkbox'>"                         
+                        formString += "</li>"                    
                         elementInfo = ElementInfo(sequenceChild.attrib.get('type'),fullPath[1:] + "." + textCapitalized)
                         mapTagIDElementInfo[elementID] = elementInfo
                     else:                        
@@ -348,7 +354,7 @@ def generateFormSubSection(xpath, elementName, fullPath):
                                 if restrictionChild is not None:                                    
                                     enumChildren = restrictionChild.findall("{0}enumeration".format(defaultNamespace))
                                     if enumChildren is not None:
-                                        formString += "<ul><li id='" + str(elementID) + "'><nobr>" + textCapitalized + " <input type='checkbox'>" + "</nobr></li></ul>"
+                                        formString += "<li id='" + str(elementID) + "'>" + textCapitalized + " <input type='checkbox'>" + "</li>"
                                         elementInfo = ElementInfo("enum",fullPath[1:]+"." + textCapitalized)
                                         mapTagIDElementInfo[elementID] = elementInfo
                                         listChoices = []
@@ -358,21 +364,21 @@ def generateFormSubSection(xpath, elementName, fullPath):
                                         isEnum = True
                                 
                         if(isEnum is not True):                            
-                            formString += "<ul><li><nobr>" + textCapitalized + " "
+                            formString += "<li>" + textCapitalized + " "
                             formString += generateFormSubSection(sequenceChild.attrib.get('type'), textCapitalized,fullPath)
-                            formString += "</nobr></li></ul>"                        
+                            formString += "</li>"                        
                 elif sequenceChild.tag == "{0}choice".format(defaultNamespace):
                     chooseID = nbChoicesID
                     chooseIDStr = 'choice' + str(chooseID)
                     nbChoicesID += 1
-                    formString += "<ul><li><nobr>Choose <select id='"+ chooseIDStr +"' onchange=\"changeChoice(this);\">"
+                    formString += "<li>Choose <select id='"+ chooseIDStr +"' onchange=\"changeChoice(this);\">"
                     choiceChildren = sequenceChild.findall('*')
 #                     selectedChild = choiceChildren[0]
                     for choiceChild in choiceChildren:
                         if choiceChild.tag == "{0}element".format(defaultNamespace):
                             textCapitalized = choiceChild.attrib.get('name')[0].capitalize()  + choiceChild.attrib.get('name')[1:]
                             formString += "<option value='" + textCapitalized + "'>" + textCapitalized + "</option></b><br>"
-                    formString += "</select>"                    
+                    formString += "</select></nobr>"                    
                     for (counter, choiceChild) in enumerate(choiceChildren):
                         if choiceChild.tag == "{0}element".format(defaultNamespace):
                             if (choiceChild.attrib.get('type') == "{0}:string".format(defaultPrefix)
@@ -382,25 +388,26 @@ def generateFormSubSection(xpath, elementName, fullPath):
                                 textCapitalized = choiceChild.attrib.get('name')[0].capitalize()  + choiceChild.attrib.get('name')[1:]
                                 elementID = len(mapTagIDElementInfo.keys())
                                 if (counter > 0):
-                                    formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\" style=\"display:none;\"><li id='" + str(elementID) + "'><nobr>" + textCapitalized + " <input type='checkbox'>" + "</nobr></li></ul>"
+                                    formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\" style=\"display:none;\"><li id='" + str(elementID) + "'>" + textCapitalized + " <input type='checkbox'>" + "</li></ul>"
                                 else:                                      
-                                    formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\"><li id='" + str(elementID) + "'><nobr>" + textCapitalized + " <input type='checkbox'>" + "</nobr></li></ul>"
+                                    formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\"><li id='" + str(elementID) + "'>" + textCapitalized + " <input type='checkbox'>" + "</li></ul>"
                                 elementInfo = ElementInfo(choiceChild.attrib.get('type'),fullPath[1:]+"." + textCapitalized)
                                 mapTagIDElementInfo[elementID] = elementInfo
                             else:
                                 textCapitalized = choiceChild.attrib.get('name')[0].capitalize()  + choiceChild.attrib.get('name')[1:]
                                 if (counter > 0):
-                                    formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\" style=\"display:none;\"><li><nobr>" + textCapitalized
+                                    formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\" style=\"display:none;\"><li>" + textCapitalized
                                 else:
-                                    formString += "<ul id=\""  + chooseIDStr + "-" + str(counter) + "\"><li><nobr>" + textCapitalized
-                                formString += generateFormSubSection(choiceChild.attrib.get('type'), textCapitalized, fullPath) + "</nobr></li></ul>"            
-                    formString += "</nobr></li></ul>"
+                                    formString += "<ul id=\""  + chooseIDStr + "-" + str(counter) + "\"><li>" + textCapitalized
+                                formString += generateFormSubSection(choiceChild.attrib.get('type'), textCapitalized, fullPath) + "</ul>"            
+            formString += "</li></ul>"
         elif complexTypeChild.tag == "{0}choice".format(defaultNamespace):
+            formString += "<ul>"
             if debugON: formString += "complexTypeChild:" + complexTypeChild.tag + "<br>"
             chooseID = nbChoicesID        
             chooseIDStr = 'choice' + str(chooseID)
             nbChoicesID += 1
-            formString += "<ul><li><nobr>Choose <select id='"+ chooseIDStr +"' onchange=\"changeChoice(this);\">"        
+            formString += "<li>Choose <select id='"+ chooseIDStr +"' onchange=\"changeChoice(this);\">"        
             choiceChildren = complexTypeChild.findall('*')
 #             selectedChild = choiceChildren[0]
             for choiceChild in choiceChildren:
@@ -417,19 +424,19 @@ def generateFormSubSection(xpath, elementName, fullPath):
                         textCapitalized = choiceChild.attrib.get('name')[0].capitalize()  + choiceChild.attrib.get('name')[1:]
                         elementID = len(mapTagIDElementInfo.keys())
                         if (counter > 0):
-                            formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\" style=\"display:none;\"><li id='" + str(elementID) + "'><nobr>" + textCapitalized + " <input type='checkbox'>" + "</nobr></li></ul>"
+                            formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\" style=\"display:none;\"><li id='" + str(elementID) + "'>" + textCapitalized + " <input type='checkbox'>" + "</li></ul>"
                         else:                                      
-                            formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\"><li id='" + str(elementID) + "'><nobr>" + textCapitalized + " <input type='checkbox'>" + "</nobr></li></ul>"
+                            formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\"><li id='" + str(elementID) + "'>" + textCapitalized + " <input type='checkbox'>" + "</li></ul>"
                         elementInfo = ElementInfo(choiceChild.attrib.get('type'),fullPath[1:]+"." + textCapitalized)
                         mapTagIDElementInfo[elementID] = elementInfo
                     else:                                                    
                         textCapitalized = choiceChild.attrib.get('name')[0].capitalize()  + choiceChild.attrib.get('name')[1:]
                         if (counter > 0):
-                            formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\" style=\"display:none;\"><li><nobr>" + textCapitalized
+                            formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\" style=\"display:none;\"><li>" + textCapitalized
                         else:
-                            formString += "<ul id=\""  + chooseIDStr + "-" + str(counter) + "\"><li><nobr>" + textCapitalized               
-                        formString += generateFormSubSection(choiceChild.attrib.get('type'), textCapitalized, fullPath) + "</nobr></li></ul>"
-            formString += "</nobr></li></ul>"
+                            formString += "<ul id=\""  + chooseIDStr + "-" + str(counter) + "\"><li>" + textCapitalized               
+                        formString += generateFormSubSection(choiceChild.attrib.get('type'), textCapitalized, fullPath) + "</ul>"
+            formString += "</li></ul>"
         elif complexTypeChild.tag == "{0}attribute".format(defaultNamespace):
             textCapitalized = complexTypeChild.attrib.get('name')[0].capitalize()  + complexTypeChild.attrib.get('name')[1:]
             formString += "<li>" + textCapitalized + "</li>"
@@ -1645,46 +1652,56 @@ def saveCustomData(request,formContent):
 def createCustomTreeForQuery(htmlTree):
     global anyChecked
     anyChecked = False
-    for ul in htmlTree.findall("./ul"):
-        manageUlForQuery(ul)
+    for li in htmlTree.findall("./ul/li"):
+        manageLiForQuery(li)
 
 def manageUlForQuery(ul):
-    keepTheBranch = False
+    branchInfo = BranchInfo(keepTheBranch = False, isALeave = False)
+    hasOnlyLeaves = True
     for li in ul.findall("./li"):
-        if(manageLiForQuery(li) == True):
-            keepTheBranch = True
+        liBranchInfo = manageLiForQuery(li)
+        if(liBranchInfo.keepTheBranch == True):
+            branchInfo.keepTheBranch = True
+        if(liBranchInfo.isALeave == False):
+            hasOnlyLeaves = False
              
-    if(not keepTheBranch):
+    if(not branchInfo.keepTheBranch):
         ul.attrib['style'] = "display:none;"
-    return keepTheBranch
+    if(hasOnlyLeaves):
+        pass
+    return branchInfo
 
             
 def manageLiForQuery(li):
     listUl = li.findall("./ul")
+    branchInfo = BranchInfo(keepTheBranch = False, isALeave = False)
     if (len(listUl) != 0):
-        keepTheBranch = False
         for ul in listUl:
-            if(manageUlForQuery(ul) == True):
-                keepTheBranch = True
-        if(not keepTheBranch):
-            ul.attrib['style'] = "display:none;"
-        return keepTheBranch
+            ulBranchInfo = manageUlForQuery(ul)
+            if(ulBranchInfo.keepTheBranch == True):
+                branchInfo.keepTheBranch = True
+        if(not branchInfo.keepTheBranch):
+            li.attrib['style'] = "display:none;"
+        return branchInfo
     else:
         try:
-            checkbox = li.find("./nobr/input[@type='checkbox']")
+            checkbox = li.find("./input[@type='checkbox']")
             if(checkbox.attrib['value'] == 'false'):
                 li.attrib['style'] = "display:none;"
-                return False
+                return branchInfo
             else:
                 global anyChecked
                 anyChecked = True
                 # remove the checkbox and make the element clickable
                 li.attrib['style'] = "color:orange;font-weight:bold;cursor:pointer;"
                 li.attrib['onclick'] = "selectElement("+ li.attrib['id'] +")"
-                checkbox.attrib['style'] = "display:none;"                
-                return True
+                checkbox.attrib['style'] = "display:none;"   
+                #
+                branchInfo.keepTheBranch = True
+                branchInfo.isALeave = True             
+                return branchInfo
         except:
-            return False
+            return branchInfo
   
 
 
