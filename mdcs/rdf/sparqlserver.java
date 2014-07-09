@@ -14,9 +14,15 @@
 //
 //###############################################################################
 
+import java.io.ByteArrayOutputStream;
+import java.io.OutputStream;
+
 import org.zeromq.ZMQ;
 
 import com.hp.hpl.jena.query.* ;
+import com.hp.hpl.jena.sparql.resultset.CSVOutput;
+import com.hp.hpl.jena.sparql.resultset.JSONOutput;
+import com.hp.hpl.jena.sparql.resultset.TSVOutput;
 import com.hp.hpl.jena.tdb.TDBFactory;
 import com.hp.hpl.jena.query.Dataset;
 import com.hp.hpl.jena.query.ReadWrite;
@@ -50,6 +56,7 @@ public class sparqlserver {
 			}
 		    }
 		}
+		System.out.println("SPARQL server launched...");
 	
 		//TODO: be sure it is the same context number as in the client
 		ZMQ.Context context = ZMQ.context(7);
@@ -63,6 +70,11 @@ public class sparqlserver {
 				byte[] queryBytes = responder.recv();
 				System.out.println("Received SPARQL query");
 				String queryStr = new String(queryBytes, "UTF-8");
+				char format = queryStr.charAt(0);
+				System.out.println(queryStr);
+				System.out.println(format);
+				queryStr = queryStr.substring(1);
+				System.out.println(queryStr);
 				Query query = QueryFactory.create(queryStr);
 				
 				// Make a TDB-backed dataset				 
@@ -77,10 +89,34 @@ public class sparqlserver {
 				
 				QueryExecution qexec = QueryExecutionFactory.create(query, modelTDB);
 				try {
-					ResultSet results = qexec.execSelect();
-					String reply = ResultSetFormatter.asText(results);
-//					String reply = ResultSetFormatter.asXMLString(results);
-					responder.send(reply.getBytes(), 0);
+					ResultSet results = qexec.execSelect();	
+					//0: TEXT
+					//1: XML
+					//2: CSV
+					//3: TSV
+					//4: JSON
+					if (format == '1'){
+						String reply = ResultSetFormatter.asXMLString(results);
+						responder.send(reply.getBytes(), 0);
+					}else if (format == '2'){
+						CSVOutput csvOutput = new CSVOutput();
+						ByteArrayOutputStream os = new ByteArrayOutputStream();
+						csvOutput.format(os, results);
+						responder.send(os.toByteArray(), 0);
+					}else if (format == '3'){
+						TSVOutput tsvOutput = new TSVOutput();
+						ByteArrayOutputStream os = new ByteArrayOutputStream();
+						tsvOutput.format(os, results);
+						responder.send(os.toByteArray(), 0);
+					}else if (format == '4'){
+						JSONOutput jsonOutput = new JSONOutput();
+						ByteArrayOutputStream os = new ByteArrayOutputStream();
+						jsonOutput.format(os, results);
+						responder.send(os.toByteArray(), 0);
+					}else{
+						String reply = ResultSetFormatter.asText(results);
+						responder.send(reply.getBytes(), 0);
+					}
 				} 
 				finally {
 					// close the query execution

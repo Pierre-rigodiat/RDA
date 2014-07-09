@@ -230,6 +230,13 @@ PREFIX tpl:&#60;http://www.example.com/{{request.session.exploreCurrentTemplateI
 SELECT * 
 WHERE {?s ?p ?o}</textarea>							
 							<span class="btn" onclick="sparqlquery()">Submit Query !</span>
+							<select id="SPARQLFormat">
+								<option>TEXT</option>
+								<option>XML</option>
+								<option>CSV</option>
+								<option>TSV</option>
+								<option>JSON</option>
+							</select>
 							<span class="btn" onclick="getElementPath()">Get an Element !</span>
 						</form>
 					</div>					

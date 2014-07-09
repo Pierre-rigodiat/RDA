@@ -1831,19 +1831,19 @@ WHERE {
     return dajax.json()
 
 @dajaxice_register
-def executeSPARQLQuery(request, queryStr):
-    print 'BEGIN def executeSPARQLQuery(request, queryStr)'        
+def executeSPARQLQuery(request, queryStr, sparqlFormatIndex):
+    print 'BEGIN def executeSPARQLQuery(request, queryStr, sparqlFormatIndex)'        
     dajax = Dajax()
     
     global sparqlResults
     global sparqlQuery
     
     sparqlQuery = queryStr
-    sparqlResults = sparqlPublisher.sendSPARQL(queryStr)
+    sparqlResults = sparqlPublisher.sendSPARQL(str(sparqlFormatIndex) + queryStr)
     if sparqlResults is not None :
         dajax.script("sparqlResultsCallback();")
 
-    print 'END def executeSPARQLQuery(request, queryStr)'
+    print 'END def executeSPARQLQuery(request, queryStr, sparqlFormatIndex)'
     return dajax.json()
 
 @dajaxice_register

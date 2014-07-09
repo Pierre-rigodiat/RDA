@@ -364,7 +364,8 @@ selectElement = function(elementID)
 
 function sparqlquery(){
 	var queryStr = $("#SPARQLqueryBuilder .SPARQLTextArea").val();	
-	Dajaxice.explore.executeSPARQLQuery(Dajax.process,{"queryStr":queryStr});
+	var sparqlFormatIndex = $("#SPARQLFormat").prop("selectedIndex");
+	Dajaxice.explore.executeSPARQLQuery(Dajax.process,{"queryStr":queryStr,"sparqlFormatIndex":sparqlFormatIndex});
 }
 
 sparqlResultsCallback = function()

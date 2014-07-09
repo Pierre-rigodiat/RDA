@@ -87,6 +87,14 @@
 	margin-bottom: 20px;
 }
 
+#SPARQLFormat
+{
+	width: 70px;
+	float: right;
+	margin-bottom: 20px;
+	margin-top: 0px;
+}
+
 #sparqlCustomForm
 {
 	height: 300px;
