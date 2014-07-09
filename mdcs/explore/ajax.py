@@ -173,9 +173,9 @@ class QueryInfo:
         self.displayedQuery = displayedQuery
 
 class BranchInfo:
-    def __init__(self, keepTheBranch, isALeave):
+    def __init__(self, keepTheBranch, selectedLeave):
         self.keepTheBranch = keepTheBranch
-        self.isALeave = isALeave
+        self.selectedLeave = selectedLeave
 
 
 ################################################################################
@@ -1656,25 +1656,37 @@ def createCustomTreeForQuery(htmlTree):
         manageLiForQuery(li)
 
 def manageUlForQuery(ul):
-    branchInfo = BranchInfo(keepTheBranch = False, isALeave = False)
-    hasOnlyLeaves = True
+    branchInfo = BranchInfo(keepTheBranch = False, selectedLeave = None)
+#     hasOnlyLeaves = True
+    selectedLeaves = []
     for li in ul.findall("./li"):
         liBranchInfo = manageLiForQuery(li)
         if(liBranchInfo.keepTheBranch == True):
             branchInfo.keepTheBranch = True
-        if(liBranchInfo.isALeave == False):
-            hasOnlyLeaves = False
+#         if(liBranchInfo.branchType == "branch"):
+#             hasOnlyLeaves = False
+        if (liBranchInfo.selectedLeave is not None):
+            selectedLeaves.append(liBranchInfo.selectedLeave)
              
     if(not branchInfo.keepTheBranch):
         ul.attrib['style'] = "display:none;"
-    if(hasOnlyLeaves):
-        pass
+#     elif(hasOnlyLeaves and nbSelectedLeaves >1): # starting at 2 because 1 is the regular case
+    elif(len(selectedLeaves) >1):
+        parent = ul.getparent()
+        parent.attrib['style'] = "color:purple;font-weight:bold;cursor:pointer;"
+        leavesID = ""
+        for leave in selectedLeaves[:-1]:
+            leavesID += leave + " "
+        leavesID += selectedLeaves[-1]
+#         parent.attrib['onclick'] = "selectParent('"+ leavesID +"')"
+        parent.insert(0, html.fragment_fromstring("""<span onclick="selectParent('"""+ leavesID +"""')">"""+ parent.text +"""</span>"""))
+        parent.text = ""
     return branchInfo
 
             
 def manageLiForQuery(li):
     listUl = li.findall("./ul")
-    branchInfo = BranchInfo(keepTheBranch = False, isALeave = False)
+    branchInfo = BranchInfo(keepTheBranch = False, selectedLeave = None)
     if (len(listUl) != 0):
         for ul in listUl:
             ulBranchInfo = manageUlForQuery(ul)
@@ -1696,9 +1708,9 @@ def manageLiForQuery(li):
                 li.attrib['style'] = "color:orange;font-weight:bold;cursor:pointer;"
                 li.attrib['onclick'] = "selectElement("+ li.attrib['id'] +")"
                 checkbox.attrib['style'] = "display:none;"   
-                #
+                # tells to keep this branch until this leave
                 branchInfo.keepTheBranch = True
-                branchInfo.isALeave = True             
+                branchInfo.selectedLeave = li.attrib['id']          
                 return branchInfo
         except:
             return branchInfo
@@ -1872,3 +1884,206 @@ def downloadSparqlResults(request):
     print '>>>> END def downloadSparqlResults(request)'
     return dajax.json()
 
+@dajaxice_register
+def prepareSubElementQuery(request, leavesID):
+    print '>>>>  BEGIN def prepareSubElementQuery(request, leavesID)'
+    dajax = Dajax()
+    
+    global mapTagIDElementInfo
+    
+    listLeavesId = leavesID.split(" ")
+    firstElementPath = mapTagIDElementInfo[int(listLeavesId[0])].path
+    parentPath = ".".join(firstElementPath.split(".")[:-1])
+    parentName = parentPath.split(".")[-1]
+    
+    subElementQueryBuilderStr = "<p><b>" +parentName+ "</b></p>"
+    subElementQueryBuilderStr += "<ul>"
+    for leaveID in listLeavesId:
+        elementInfo = mapTagIDElementInfo[int(leaveID)]
+        elementName = elementInfo.path.split(".")[-1]
+        subElementQueryBuilderStr += "<li><input type='checkbox' style='margin-right:4px;margin-left:2px;' checked/>"
+        subElementQueryBuilderStr += renderYESORNOT()
+        subElementQueryBuilderStr += elementName + ": "
+        if (elementInfo.type == "{0}:integer".format(defaultPrefix) 
+        or elementInfo.type == "{0}:double".format(defaultPrefix)):
+            subElementQueryBuilderStr += renderNumericSelect()
+            subElementQueryBuilderStr += renderValueInput()
+        elif (elementInfo.type == "enum"):
+            subElementQueryBuilderStr += renderEnum(leaveID)
+        else:
+            subElementQueryBuilderStr += renderStringSelect()
+            subElementQueryBuilderStr += renderValueInput()
+        subElementQueryBuilderStr += "</li><br/>"
+    subElementQueryBuilderStr += "</ul>"
+    
+    dajax.assign("#subElementQueryBuilder", "innerHTML", subElementQueryBuilderStr)    
+    
+    print '>>>>  END def prepareSubElementQuery(request, leavesID)'
+    return dajax.json()
+
+@dajaxice_register
+def insertSubElementQuery(request, leavesID, form):
+    print '>>>>  BEGIN def insertSubElementQuery(request, leavesID, form)'
+    dajax = Dajax()
+    
+    global mapTagIDElementInfo
+    
+    htmlTree = html.fromstring(form)
+    listLi = htmlTree.findall("ul/li")
+    listLeavesId = leavesID.split(" ")
+    
+    i = 0
+    nbSelected = 0
+    errors = []
+    for li in listLi:
+        if (li[0].attrib['value'] == 'true'):
+            nbSelected += 1
+            elementInfo = mapTagIDElementInfo[int(listLeavesId[i])]
+            elementName = elementInfo.path.split(".")[-1]
+            elementType = elementInfo.type
+            error = checkSubElementField(li, elementName, elementType)
+            if (error != ""):
+                errors.append(error)
+        i += 1
+    
+    if (nbSelected < 2):
+        errors = ["Please select at least two elements."]
+    
+    if(len(errors) == 0):
+        query = subElementfieldsToQuery(listLi, listLeavesId)
+        prettyQuery = subElementfieldsToPrettyQuery(listLi, listLeavesId)
+        mapCriterias[criteriaID] = CriteriaInfo()
+        mapCriterias[criteriaID].queryInfo = QueryInfo(query, prettyQuery)
+        mapCriterias[criteriaID].elementInfo = ElementInfo("query")
+        global criteriaID
+        uiID = "ui" + criteriaID[4:]
+        dajax.script("""
+            // insert the pretty query in the query builder
+            $($("#"""+ criteriaID +"""").children()[1]).attr("value",'"""+ prettyQuery +"""');
+            var field = $("#"""+ criteriaID +"""").children()[1]
+            // replace the pretty by an encoded version
+            $(field).attr("value",$(field).html($(field).attr("value")).text())
+            // set the class to query
+            $($("#"""+ criteriaID +"""").children()[1]).attr("class","queryInput");
+            // remove all other existing inputs
+            $("#"""+uiID+"""").children().remove();
+            // close the dialog
+            $("#dialog-subElementQuery").dialog("close");    
+        """)        
+    else:
+        errorsString = ""
+        for error in errors:
+            errorsString += "<p>" + error + "</p>"            
+        dajax.assign('#listErrors', 'innerHTML', errorsString)
+        dajax.script("displayErrors();")
+            
+    
+    print '>>>>  END def insertSubElementQuery(request, leavesID, form)'
+    return dajax.json()
+
+def checkSubElementField(liElement, elementName, elementType):   
+    error = ""
+       
+    if (elementType == "{0}:float".format(defaultPrefix) or elementType == "{0}:double".format(defaultPrefix)):
+        value = liElement[3].value
+        try:
+            float(value)
+        except ValueError:
+            error = elementName + " must be a number !"
+                
+    elif (elementType == "{0}:integer".format(defaultPrefix)):
+        value = liElement[3].value
+        try:
+            int(value)
+        except ValueError:
+            error = elementName + " must be an integer !"
+            
+    elif (elementType == "{0}:string".format(defaultPrefix)):
+        comparison = liElement[2].value
+        value = liElement[3].value
+        if (comparison == "like"):
+            try:
+                re.compile(value)
+            except Exception, e:
+                error = elementName + " must be a valid regular expression ! (" + str(e) + ")"    
+
+    return error
+
+def subElementfieldsToQuery(liElements, listLeavesId):
+    global mapTagIDElementInfo
+    
+    elemMatch = dict()
+    i = 0
+    
+    firstElementPath = mapTagIDElementInfo[int(listLeavesId[i])].path
+    parentPath = "content." + ".".join(firstElementPath.split(".")[:-1])
+    
+    for li in liElements:        
+        if (li[0].attrib['value'] == 'true'):
+            boolComp = li[1].value
+            if (boolComp == 'NOT'):
+                isNot = True
+            else:
+                isNot = False
+                
+            elementInfo = mapTagIDElementInfo[int(listLeavesId[i])]
+            elementType = elementInfo.type
+            elementName = elementInfo.path.split(".")[-1]
+            if (elementType == "enum"):
+                value = li[2].value            
+                criteria = enumCriteria(elementName, value, isNot)
+            else:                
+                comparison = li[2].value
+                value = li[3].value
+                criteria = buildCriteria(elementName, comparison, value, elementType , isNot)
+             
+        
+            elemMatch.update(criteria)
+                
+        i += 1
+         
+    query = dict()
+    query[parentPath] = dict()
+    query[parentPath]["$elemMatch"] = elemMatch
+    
+    
+    return query
+
+
+def subElementfieldsToPrettyQuery(liElements, listLeavesId):
+    query = ""
+    
+    elemMatch = "("
+    i = 0
+    
+    for li in liElements:        
+        if (li[0].attrib['value'] == 'true'):
+            boolComp = li[1].value
+            if (boolComp == 'NOT'):
+                isNot = True
+            else:
+                isNot = False
+                
+            elementInfo = mapTagIDElementInfo[int(listLeavesId[i])]
+            elementType = elementInfo.type
+            elementName = elementInfo.path.split(".")[-1]
+            if (elementType == "enum"):
+                value = li[2].value
+                criteria = enumToPrettyCriteria(elementName, value, isNot)
+            else:                 
+                comparison = li[2].value
+                value = li[3].value
+                criteria = buildPrettyCriteria(elementName, comparison, value, isNot)
+            
+            if (elemMatch != "("):
+                elemMatch += ", "
+            elemMatch += criteria       
+        i += 1
+        
+    elemMatch += ")"
+    firstElementPath = mapTagIDElementInfo[int(listLeavesId[0])].path
+    parentName = firstElementPath.split(".")[-2]
+    
+    query =  parentName + elemMatch
+        
+    return query 

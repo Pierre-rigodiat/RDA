@@ -103,16 +103,24 @@
 	width: 95%;	
 	resize: none;
 }
-/*#queryForm
-{
-	overflow-y: auto; 
-	overflow-x: hidden;
-	max-height:180px;
-}*/
 
-/*#queriesTable
+#subElementQueryBuilder select
 {
-	overflow-y: auto; 
-	overflow-x: hidden;
-	max-height:180px;
-}*/
+	width:70px;	
+	font-size: 0.9em;
+	top:0;
+}
+
+#subElementQueryBuilder .valueInput
+{
+	font-size: 0.9em;
+	width:150px;
+	margin-bottom:0;
+}
+
+#subElementQueryBuilder .selectInput
+{
+	font-size: 0.9em;
+	width:238px;
+	margin-bottom:0;
+} 

@@ -147,7 +147,7 @@ exploreData = function()
     // Need to Set input values explicitiy before sending innerHTML for save
     var elems = document.getElementsByName("xsdForm")[0].getElementsByTagName("input");
     for(var i = 0; i < elems.length; i++) {
-	// sent attribute to property value
+    	// sent attribute to property value
     	elems[i].setAttribute("value", elems[i].checked);
     	if(elems[i].checked == true)
     	{
@@ -414,3 +414,48 @@ getElementPath = function()
 //	console.log('END [backToSparqlQuery]');
 //}
 
+selectParent = function(leavesID)
+{
+	console.log('BEGIN [selectParent]');
+	
+	$("#dialog-customTree").dialog("close"); 
+	subElementQuery(leavesID);
+	
+	console.log('END [selectParent]');
+}
+
+subElementQuery = function(leavesID)
+{
+	console.log('BEGIN [subElementQuery]');
+	$(function() {
+        $( "#dialog-subElementQuery" ).dialog({
+            modal: true,
+            width: 670,
+            height: 420,
+            buttons: {
+		Close: function() {
+                    $( this ).dialog( "close" );
+                },
+        Insert: function(){
+        			var checkboxes = $("#subElementQueryBuilder").find("input:checkbox");
+        			for(var i = 0; i < checkboxes.length; i++) {
+        				checkboxes[i].setAttribute("value", checkboxes[i].checked);
+        		    	if(checkboxes[i].checked == true)
+        		    	{
+        		    		checkboxes[i].setAttribute("checked","checked");
+        		    	}
+        		    }
+        			$("input").each(function(){
+        			    $(this).attr("value", $(this).val());
+        			});
+        			$('select option').each(function(){ this.defaultSelected = this.selected; });
+        			var form = $("#subElementQueryBuilder").html();
+        			Dajaxice.explore.insertSubElementQuery(Dajax.process,{"leavesID":leavesID, "form":form});
+        		}
+            }
+        });
+    });
+	
+	Dajaxice.explore.prepareSubElementQuery(Dajax.process,{"leavesID":leavesID});
+	console.log('END [subElementQuery]');
+}
