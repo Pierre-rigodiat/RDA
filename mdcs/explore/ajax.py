@@ -334,6 +334,7 @@ def generateFormSubSection(xpath, elementName, fullPath):
 #                                 formString += "</li></ul>"
                     elif (sequenceChild.attrib.get('type') == "{0}:string".format(defaultPrefix)
                           or sequenceChild.attrib.get('type') == "{0}:double".format(defaultPrefix)
+                          or sequenceChild.attrib.get('type') == "{0}:float".format(defaultPrefix)
                           or sequenceChild.attrib.get('type') == "{0}:integer".format(defaultPrefix)
                           or sequenceChild.attrib.get('type') == "{0}:anyURI".format(defaultPrefix)):                                                                
                         textCapitalized = sequenceChild.attrib.get('name')[0].capitalize()  + sequenceChild.attrib.get('name')[1:]                        
@@ -383,6 +384,7 @@ def generateFormSubSection(xpath, elementName, fullPath):
                         if choiceChild.tag == "{0}element".format(defaultNamespace):
                             if (choiceChild.attrib.get('type') == "{0}:string".format(defaultPrefix)
                               or choiceChild.attrib.get('type') == "{0}:double".format(defaultPrefix)
+                              or choiceChild.attrib.get('type') == "{0}:float".format(defaultPrefix)
                               or choiceChild.attrib.get('type') == "{0}:integer".format(defaultPrefix)
                               or choiceChild.attrib.get('type') == "{0}:anyURI".format(defaultPrefix)):
                                 textCapitalized = choiceChild.attrib.get('name')[0].capitalize()  + choiceChild.attrib.get('name')[1:]
@@ -419,6 +421,7 @@ def generateFormSubSection(xpath, elementName, fullPath):
                 if choiceChild.tag == "{0}element".format(defaultNamespace):
                     if (choiceChild.attrib.get('type') == "{0}:string".format(defaultPrefix)
                       or choiceChild.attrib.get('type') == "{0}:double".format(defaultPrefix)
+                      or choiceChild.attrib.get('type') == "{0}:float".format(defaultPrefix)
                       or choiceChild.attrib.get('type') == "{0}:integer".format(defaultPrefix)
                       or choiceChild.attrib.get('type') == "{0}:anyURI".format(defaultPrefix)):
                         textCapitalized = choiceChild.attrib.get('name')[0].capitalize()  + choiceChild.attrib.get('name')[1:]
@@ -1376,7 +1379,8 @@ def updateUserInputs(request, htmlForm, fromElementID, criteriaID):
         userInputs.remove(element) 
     
     if (mapCriterias[toCriteriaID].elementInfo.type == "{0}:integer".format(defaultPrefix) 
-        or mapCriterias[toCriteriaID].elementInfo.type == "{0}:double".format(defaultPrefix)):
+        or mapCriterias[toCriteriaID].elementInfo.type == "{0}:double".format(defaultPrefix)
+        or mapCriterias[toCriteriaID].elementInfo.type == "{0}:float".format(defaultPrefix)):
         form = html.fragment_fromstring(renderNumericSelect())
         inputs = html.fragment_fromstring(renderValueInput()) 
         userInputs.append(form)
@@ -1905,7 +1909,8 @@ def prepareSubElementQuery(request, leavesID):
         subElementQueryBuilderStr += renderYESORNOT()
         subElementQueryBuilderStr += elementName + ": "
         if (elementInfo.type == "{0}:integer".format(defaultPrefix) 
-        or elementInfo.type == "{0}:double".format(defaultPrefix)):
+        or elementInfo.type == "{0}:double".format(defaultPrefix)
+        or elementInfo.type == "{0}:float".format(defaultPrefix)):
             subElementQueryBuilderStr += renderNumericSelect()
             subElementQueryBuilderStr += renderValueInput()
         elif (elementInfo.type == "enum"):
