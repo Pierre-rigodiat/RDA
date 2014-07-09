@@ -1012,6 +1012,31 @@ def login_view(request):
 
 ################################################################################
 #
+# Function Name: request_new_account(request)
+# Inputs:        request - 
+# Outputs:       
+# Exceptions:    None
+# Description:   
+#                
+#
+################################################################################
+def request_new_account(request):
+#    logout(request)
+    template = loader.get_template('request_new_account.html')
+    context = RequestContext(request, {
+        '': '',
+    })
+    request.session['currentYear'] = currentYear()
+    if request.user.is_authenticated():
+        return HttpResponse(template.render(context))
+    else:
+        if 'loggedOut' in request.session:
+            del request.session['loggedOut']
+        request.session['next'] = '/request-new-account'
+        return redirect('/login')
+
+################################################################################
+#
 # Function Name: logout_view(request)
 # Inputs:        request - 
 # Outputs:       
