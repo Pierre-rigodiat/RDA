@@ -804,7 +804,7 @@ def explore_results(request):
         '': '',
     })
     request.session['currentYear'] = currentYear()
-    #return HttpResponse(template.render(context))  # remove after testing
+    return HttpResponse(template.render(context))  # remove after testing
     if request.user.is_authenticated():
         if 'currentTemplate' not in request.session:
             return redirect('/explore/select-template')
@@ -833,7 +833,7 @@ def explore_sparqlresults(request):
         '': '',
     })
     request.session['currentYear'] = currentYear()
-    #return HttpResponse(template.render(context))  # remove after testing
+    return HttpResponse(template.render(context))  # remove after testing
     if request.user.is_authenticated():
         if 'currentTemplate' not in request.session:
             return redirect('/explore/select-template')

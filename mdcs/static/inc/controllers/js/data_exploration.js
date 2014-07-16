@@ -419,9 +419,13 @@ selectParent = function(leavesID)
 {
 	console.log('BEGIN [selectParent]');
 	
-	$("#dialog-customTree").dialog("close"); 
-	subElementQuery(leavesID);
-	
+	try{
+		$("#dialog-customTree").dialog("close"); 
+		subElementQuery(leavesID);
+	}catch(err)
+	{
+		
+	}
 	console.log('END [selectParent]');
 }
 
