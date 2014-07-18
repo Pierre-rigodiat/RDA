@@ -985,13 +985,7 @@ def request_new_account(request):
         '': '',
     })
     request.session['currentYear'] = currentYear()
-    if request.user.is_authenticated():
-        return HttpResponse(template.render(context))
-    else:
-        if 'loggedOut' in request.session:
-            del request.session['loggedOut']
-        request.session['next'] = '/request-new-account'
-        return redirect('/login')
+    return HttpResponse(template.render(context))
 
 ################################################################################
 #
