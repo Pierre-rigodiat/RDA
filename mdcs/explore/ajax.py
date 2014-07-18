@@ -30,7 +30,6 @@ import xmltodict
 #import xml.etree.ElementTree as etree
 import lxml.etree as etree
 import xml.dom.minidom as minidom
-from _winreg import QueryValue
 
 import sparqlPublisher
 
