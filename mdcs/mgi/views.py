@@ -16,7 +16,6 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth import authenticate, login, logout
 from django.template import RequestContext, loader
 from django.shortcuts import redirect
-from django import forms
 from django.core.servers.basehttp import FileWrapper
 from django.conf import settings
 from datetime import date
@@ -29,50 +28,9 @@ from xlrd import open_workbook
 from argparse import ArgumentError
 from cgi import FieldStorage
 import zipfile
+from mgi.models import Template, Database, Ontology, Htmlform, Xmldata, Hdf5file, queryResults, sparqlQueryResults, ContactForm
 
 import lxml.etree as etree
-
-class ContactForm(forms.Form):
-    subject = forms.CharField(max_length=100)
-    message = forms.CharField()
-    sender = forms.EmailField()
-    cc_myself = forms.BooleanField(required=False)
-
-class Template(Document):
-    title = StringField(required=True)
-    filename = StringField(required=True)
-    content = StringField(required=True)
-
-class Database(Document):
-    title = StringField(required=True)
-    timestamp = StringField(required=True)
-    content = StringField(required=True)
-
-class Ontology(Document):
-    title = StringField(required=True)
-    filename = StringField(required=True)
-    content = StringField(required=True)
-
-class Htmlform(Document):
-    title = StringField(required=True)
-    schema = StringField(required=True)
-    content = StringField(required=True)
-
-class Xmldata(Document):
-    title = StringField(required=True)
-    schema = StringField(required=True)
-    content = StringField(required=True)
-
-class Hdf5file(Document):
-    title = StringField(required=True)
-    schema = StringField(required=True)
-    content = StringField(required=True)
-
-class queryResults(Document):
-    results = ListField(required=True) 
-    
-class sparqlQueryResults(Document):
-    results = StringField(required=True)
 
 # Create your views here.
 
