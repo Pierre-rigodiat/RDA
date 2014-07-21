@@ -21,6 +21,7 @@ from django.template import RequestContext, loader
 from django.shortcuts import redirect
 from datetime import date
 from django.conf import settings
+from mgi.models import Template
 
 def currentYear():
     return date.today().year
@@ -28,11 +29,6 @@ def currentYear():
 from django import forms
 
 from mongoengine import *
-
-class Template(Document):
-    title = StringField(required=True)
-    filename = StringField(required=True)
-    content = StringField(required=True)
 
 def index(request):
     template = loader.get_template('curate.html')
