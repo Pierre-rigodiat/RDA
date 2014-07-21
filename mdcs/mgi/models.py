@@ -59,13 +59,20 @@ class ContactForm(forms.Form):
     sender = forms.EmailField()
     cc_myself = forms.BooleanField(required=False)
 
-class queryResults(Document):
+class QueryResults(Document):
     results = ListField(required=True) 
     
-class sparqlQueryResults(Document):
+class SparqlQueryResults(Document):
     results = StringField(required=True)
+    
+class SavedQuery(Document):
+    user = StringField(required=True)
+    template = StringField(required=True)    
+    query = StringField(required=True)
+    displayedQuery = StringField(required=True)
+    ListRegex = ListField()
+    ListPattern = ListField()
 
-# ORDERED DICT : Used by the Wrapper to insert numeric values as numbers (and not string)
 def postprocessor(path, key, value):
     try:
         return key, int(value)
@@ -74,8 +81,7 @@ def postprocessor(path, key, value):
             return key, float(value)
         except (ValueError, TypeError):
             return key, value
-        
-# ORDERED DICT : Wrapper to insert ordered dict into mongoDB, using mongoengine syntax                                                                                                                                        
+                                                                                                                                               
 class Jsondata():
     """                                                                                                                                                                                                                       
         Wrapper to manage JSON Documents, like mongoengine would have manage them (but with ordered data)                                                                                                                     
@@ -108,6 +114,43 @@ class Jsondata():
         # insert the content into mongo db                                                                                                                                                                                    
         docID = self.xmldata.insert(self.content)
         return docID
+    
+    @staticmethod
+    def objects():        
+        """
+            returns all objects as a list of dicts
+             /!\ Doesn't return the same kind of objects as mongoengine.Document.objects()
+        """
+        # create a connection
+        connection = Connection()
+        # connect to the db 'mgi'
+        db = connection['mgi']
+        # get the xmldata collection
+        xmldata = db['xmldata']
+        # find all objects of the collection
+        cursor = xmldata.find(as_class = OrderedDict)
+        # build a list with the objects        
+        results = []
+        for result in cursor:
+            results.append(result)
+        return results
+
+    @staticmethod
+    def executeQuery(query):
+        """queries mongo db and returns results data"""
+        # create a connection
+        connection = Connection()
+        # connect to the db 'mgi'
+        db = connection['mgi']
+        # get the xmldata collection
+        xmldata = db['xmldata']
+        # query mongo db
+        cursor = xmldata.find(query,as_class = OrderedDict)  
+        # build a list with the xml representation of objects that match the query      
+        queryResults = []
+        for result in cursor:
+            queryResults.append(result['content'])
+        return queryResults
 
 
 #class Task(models.Model):

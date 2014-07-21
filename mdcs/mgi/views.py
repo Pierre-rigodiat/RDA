@@ -28,7 +28,7 @@ from xlrd import open_workbook
 from argparse import ArgumentError
 from cgi import FieldStorage
 import zipfile
-from mgi.models import Template, Database, Ontology, Htmlform, Xmldata, Hdf5file, queryResults, sparqlQueryResults, ContactForm
+from mgi.models import Template, Database, Ontology, Htmlform, Xmldata, Hdf5file, QueryResults, SparqlQueryResults, ContactForm
 
 import lxml.etree as etree
 
@@ -818,7 +818,7 @@ def explore_download_results(request):
             return redirect('/explore/select-template')
         else:          
             savedResultsID = request.GET.get('id','')
-            ResultsObject = queryResults.objects.get(pk=savedResultsID)
+            ResultsObject = QueryResults.objects.get(pk=savedResultsID)
 
 #             fileObj = StringIO(formStringEncoded)
             in_memory = StringIO()
@@ -870,7 +870,7 @@ def explore_download_sparqlresults(request):
             return redirect('/explore/select-template')
         else:          
             savedResultsID = request.GET.get('id','')
-            sparqlResults = sparqlQueryResults.objects.get(pk=savedResultsID)
+            sparqlResults = SparqlQueryResults.objects.get(pk=savedResultsID)
 
             sparqlResultsEncoded = sparqlResults.results.encode('utf-8')
             fileObj = StringIO(sparqlResultsEncoded)

@@ -31,6 +31,8 @@ import xmltodict
 import lxml.etree as etree
 import xml.dom.minidom as minidom
 
+from mgi.models import Template, QueryResults, SparqlQueryResults, SavedQuery, Jsondata 
+
 import sparqlPublisher
 
 # Global Variables
@@ -56,106 +58,7 @@ results = []
 sparqlResults = ""
 sparqlQuery = ""
 
-# Class definition
-class Template(Document):
-    title = StringField(required=True)
-    filename = StringField(required=True)
-    content = StringField(required=True)
-    
-class queryResults(Document):
-    results = ListField(required=True)
-    
-class sparqlQueryResults(Document):
-    results = StringField(required=True)
-    
-class SavedQuery(Document):
-    user = StringField(required=True)
-    template = StringField(required=True)    
-    query = StringField(required=True)
-    displayedQuery = StringField(required=True)
-    ListRegex = ListField()
-    ListPattern = ListField()
-
-def postprocessor(path, key, value):
-        try:
-            return key, int(value)        
-        except (ValueError, TypeError):
-            try:
-                return key, float(value)
-            except (ValueError, TypeError):
-                return key, value  
-    
-class XMLData():
-    """
-        Wrapper to manage JSON Documents, like mongoengine would have manage them (but with ordered data)
-    """
-    
-    def __init__(self, schemaID=None, xml=None, title=""):
-        """
-            initialize the object
-            schema = ref schema (Document)
-            xml = xml string
-        """        
-        # create a connection
-        connection = Connection()
-        # connect to the db 'mgi'
-        db = connection['mgi']
-        # get the xmldata collection
-        self.xmldata = db['xmldata']
-        # create a new dict to keep the mongoengine order
-        self.content = OrderedDict()
-        # insert the ref to schema
-        self.content['schema'] = schemaID
-        # insert the title
-        self.content['title'] = title
-        # insert the json content after
-        self.content['content'] = xmltodict.parse(xml, postprocessor=postprocessor)
-        
-    def save(self):
-        """save into mongo db"""
-        # insert the content into mongo db
-        docID = self.xmldata.insert(self.content)
-        return docID
-        
-    @staticmethod
-    def objects():        
-        """
-            returns all objects as a list of dicts
-             /!\ Doesn't return the same kind of objects as mongoengine.Document.objects()
-        """
-        # create a connection
-        connection = Connection()
-        # connect to the db 'mgi'
-        db = connection['mgi']
-        # get the xmldata collection
-        xmldata = db['xmldata']
-        # find all objects of the collection
-        cursor = xmldata.find(as_class = OrderedDict)
-        # build a list with the objects        
-        results = []
-        for result in cursor:
-            results.append(result)
-        return results
-
-    
-
-    @staticmethod
-    def executeQuery(query):
-        """queries mongo db and returns results data"""
-        # create a connection
-        connection = Connection()
-        # connect to the db 'mgi'
-        db = connection['mgi']
-        # get the xmldata collection
-        xmldata = db['xmldata']
-        # query mongo db
-        cursor = xmldata.find(query,as_class = OrderedDict)  
-        # build a list with the xml representation of objects that match the query      
-        queryResults = []
-        for result in cursor:
-            queryResults.append(result['content'])
-        return queryResults
-    
+#Class definition
 class ElementInfo:    
     def __init__(self, type="", path=""):
         self.type = type
@@ -576,7 +479,7 @@ def executeQuery(request, queryForm, queryBuilder):
     if(len(errors)== 0):
         htmlTree = html.fromstring(queryForm)
         query = fieldsToQuery(htmlTree)
-        results = XMLData.executeQuery(query)
+        results = Jsondata.executeQuery(query)
         dajax.script("resultsCallback();")
     else:
         errorsString = ""
@@ -1734,7 +1637,7 @@ def downloadResults(request):
         for result in results:
             xmlResults.append(str(xmltodict.unparse(result)))
         
-        savedResults = queryResults(results=xmlResults).save()
+        savedResults = QueryResults(results=xmlResults).save()
         savedResultsID = str(savedResults.id)
     
         dajax.redirect("/explore/results/download-results?id="+savedResultsID)
@@ -1879,7 +1782,7 @@ def downloadSparqlResults(request):
     
     if (sparqlResults is not None):
         
-        savedResults = sparqlQueryResults(results=sparqlResults).save()
+        savedResults = SparqlQueryResults(results=sparqlResults).save()
         savedResultsID = str(savedResults.id)
     
         dajax.redirect("/explore/results/download-sparqlresults?id="+savedResultsID)
