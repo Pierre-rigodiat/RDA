@@ -18,6 +18,7 @@ from mongoengine import *
 # Specific to MongoDB ordered inserts
 from collections import OrderedDict
 from pymongo import Connection
+from bson.objectid import ObjectId
 import xmltodict
 
 # Create your models here.
@@ -87,7 +88,7 @@ class Jsondata():
         Wrapper to manage JSON Documents, like mongoengine would have manage them (but with ordered data)                                                                                                                     
     """
 
-    def __init__(self, schemaID=None, xml=None, title=""):
+    def __init__(self, schemaID=None, xml=None, json=None, title=""):
         """                                                                                                                                                                                                                   
             initialize the object                                                                                                                                                                                             
             schema = ref schema (Document)                                                                                                                                                                                    
@@ -106,8 +107,12 @@ class Jsondata():
         self.content['schema'] = schemaID
         # insert the title                                                                                                                                                                                                    
         self.content['title'] = title
-        # insert the json content after                                                                                                                                                                                       
-        self.content['content'] = xmltodict.parse(xml, postprocessor=postprocessor)
+        if (json is not None):
+            # insert the json content after                                                                                                                                                                                       
+            self.content['content'] = json
+        else:
+            # insert the json content after                                                                                                                                                                                       
+            self.content['content'] = xmltodict.parse(xml, postprocessor=postprocessor)
 
     def save(self):
         """save into mongo db"""
@@ -152,6 +157,47 @@ class Jsondata():
             queryResults.append(result['content'])
         return queryResults
 
+    @staticmethod
+    def get(postID):
+        """
+            Returns the object with the given id
+        """
+        # create a connection
+        connection = Connection()
+        # connect to the db 'mgi'
+        db = connection['mgi']
+        # get the xmldata collection
+        xmldata = db['xmldata']
+        return xmldata.find_one({'_id': ObjectId(postID)})
+    
+    @staticmethod
+    def delete(postID):
+        """
+            Delete the object with the given id
+        """
+        # create a connection
+        connection = Connection()
+        # connect to the db 'mgi'
+        db = connection['mgi']
+        # get the xmldata collection
+        xmldata = db['xmldata']
+        xmldata.remove({'_id': ObjectId(postID)})
+    
+    @staticmethod
+    def update(postID, json):
+        """
+            Update the object with the given id
+        """
+        # create a connection
+        connection = Connection()
+        # connect to the db 'mgi'
+        db = connection['mgi']
+        # get the xmldata collection
+        xmldata = db['xmldata']
+        del json['_id']
+        xmldata.update({'_id': ObjectId(postID)}, {"$set":json}, upsert=False)
+    
+        
 
 #class Task(models.Model):
 #    def foo(self):

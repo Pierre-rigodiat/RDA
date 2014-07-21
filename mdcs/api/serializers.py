@@ -12,11 +12,24 @@
 ################################################################################
 
 from rest_framework import serializers
+from rest_framework_mongoengine.serializers import MongoEngineModelSerializer
+from mgi.models import SavedQuery
 
+class jsonDataSerializer(serializers.Serializer):
+    title = serializers.CharField()
+    schema = serializers.CharField()
+    content = serializers.CharField()
+    _id = serializers.CharField()
+    
+class savedQuerySerializer(MongoEngineModelSerializer):
+    class Meta:
+        model = SavedQuery
+        
+        
+# Previous work
 from curate.models import Task
-
 class TaskSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Task
-        fields = ('title', 'description', 'completed')
+        fields = ('title', 'description', 'completed') 
