@@ -113,23 +113,23 @@
 	{% if request.session.currentExploreTab == "tab-1" %}	
 	<ul id="subnav-tab-1" class="tabbed">
 	  <li><a href="/explore/select-template">Select Template</a></li>
-	  <li><a href="/explore/customize-template">Customize Template</a></li>
+	  <li><a href="/explore/customize-template">Select Fields</a></li>
 	  <li class="current_page_item"><a href="/explore/perform-search">Perform Search</a></li>
   	</ul>
   	<ul id="subnav-tab-2" class="tabbed" style="display: none;">
 	  <li><a href="/explore/select-template">Select Template</a></li>
-	  <li><a href="/explore/customize-template">Customize Template</a></li>	 
+	  <li><a href="/explore/customize-template">Select Fields</a></li>	 
 	  <li class="current_page_item"><a href="/explore/perform-search">Perform Search</a></li> 
 	</ul>
   	{% else %}
   	<ul id="subnav-tab-1" class="tabbed" style="display: none;">
 	  <li><a href="/explore/select-template">Select Template</a></li>
-	  <li><a href="/explore/customize-template">Customize Template</a></li>
+	  <li><a href="/explore/customize-template">Select Fields</a></li>
 	  <li class="current_page_item"><a href="/explore/perform-search">Perform Search</a></li>
   	</ul>
 	<ul id="subnav-tab-2" class="tabbed">
 	  <li><a href="/explore/select-template">Select Template</a></li>	
-	  <li><a href="/explore/customize-template">Customize Template</a></li> 
+	  <li><a href="/explore/customize-template">Select Fields</a></li> 
 	  <li class="current_page_item"><a href="/explore/perform-search">Perform Search</a></li> 	
 	</ul>
 	{% endif %}
@@ -156,10 +156,10 @@
 			  				<!--<p><img src="sample-thumbnail-2.jpg" width="640" height="200" alt="" class="bordered" /></p>
 							<h2 class="quiet">Introducing the next generation software</h2> -->
 	  						{% if request.session.currentExploreTab == "tab-1" %}	
-							<p id="QbEDesc" class="large">Click on a field of the Query Builder to add an element to your query. The custom tree defined in Step 2 will appear and you will be able to select one of the hilighted elements. Click on plus/minus buttons to add/remove criteria. You can save queries to build more complex queries and you will retrieve them on your next connection. When your query is done, please click on Execute Query to get XML documents that match the criterias.</p>
+							<p id="QbEDesc" class="large">Click on a field of the Query Builder to add an element to your query. The custom tree defined in Step 2 will appear and you will be able to select one of the hilighted elements. Click on plus/minus buttons to add/remove criteria. You can save queries to build more complex queries and you will retrieve them on your next connection. When your query is done, please click on Submit Query to get XML documents that match the criterias.</p>
 							<p id="SPARQLDesc" class="large" style="display: none;">Write a SPARQL query into the text field and submit the query to get the results.</p>
 							{% else %}
-							<p id="QbEDesc" class="large" style="display: none;">Click on a field of the Query Builder to add an element to your query. The custom tree defined in Step 2 will appear and you will be able to select one of the hilighted elements. Click on plus/minus buttons to add/remove criteria. You can save queries to build more complex queries and you will retrieve them on your next connection. When your query is done, please click on Execute Query to get XML documents that match the criterias.</p>
+							<p id="QbEDesc" class="large" style="display: none;">Click on a field of the Query Builder to add an element to your query. The custom tree defined in Step 2 will appear and you will be able to select one of the hilighted elements. Click on plus/minus buttons to add/remove criteria. You can save queries to build more complex queries and you will retrieve them on your next connection. When your query is done, please click on Submit Query to get XML documents that match the criterias.</p>
 							<p id="SPARQLDesc" class="large">Write a SPARQL query into the text field and submit the query to get the results.</p>
 							{% endif %}
 						</div>
@@ -184,7 +184,7 @@
 						        </p>        
 						        <span class="btn" onclick="saveQuery()">Save Query</span>
 						        <span class="btn" onclick="clearCriterias()">Clear</span>    
-						        <span class="btn" onclick="query()">Execute Query !</span>           
+						        <span class="btn" onclick="query()">Submit Query</span>           
 						    </form>                        
 						</div>
 						<hr>
@@ -192,7 +192,7 @@
 						    <p>
 						    	<h2>Saved Queries</h2>
 						        <form>                
-						            <span class="btn" onclick="clearQueries()">Clear</span>   
+						            <span class="btn" onclick="clearQueries()">Delete All</span>   
 						        </form>
 						    </p>
 						    <div id="queriesTable">
@@ -229,7 +229,7 @@
 PREFIX tpl:&#60;http://www.example.com/{{request.session.exploreCurrentTemplateID }}#&#62;
 SELECT * 
 WHERE {?s ?p ?o}</textarea>							
-							<span class="btn" onclick="sparqlquery()">Submit Query !</span>
+							<span class="btn" onclick="sparqlquery()">Submit Query</span>
 							<select id="SPARQLFormat">
 								<option>TEXT</option>
 								<option>XML</option>
@@ -237,7 +237,7 @@ WHERE {?s ?p ?o}</textarea>
 								<option>TSV</option>
 								<option>JSON</option>
 							</select>
-							<span class="btn" onclick="getElementPath()">Get an Element !</span>
+							<span class="btn" onclick="getElementPath()">Get an Element</span>
 						</form>
 					</div>					
 				</div>
@@ -262,7 +262,7 @@ WHERE {?s ?p ?o}</textarea>
 				        <div class="box-content">
 						  <ul class="nice-list">
 						    <li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'img/Orange_Number_1.png' %}"></td><td><a href="/explore/select-template">Select Template</a></td></tr></table></li>
-						    <li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'img/Orange_Number_2.png' %}"></td><td><a href="/explore/customize-template">Customize Template</a></td></tr></table></li>
+						    <li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'img/Orange_Number_2.png' %}"></td><td><a href="/explore/customize-template">Select Fields</a></td></tr></table></li>
 						    <li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'img/Orange_Number_3.png' %}"></td><td><strong><a href="/explore/perform-search">Perform Search</a></strong></td></tr></table></li>
 						  </ul>
 						</div>	
@@ -281,7 +281,7 @@ WHERE {?s ?p ?o}</textarea>
 			           <div class="box-content">
 						  <ul class="nice-list">
 						    <li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'img/Orange_Number_1.png' %}"></td><td><a href="/explore/select-template">Select Template</a></td></tr></table></li>
-						    <li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'img/Orange_Number_2.png' %}"></td><td><a href="/explore/customize-template">Customize Template</a></td></tr></table></li>						    
+						    <li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'img/Orange_Number_2.png' %}"></td><td><a href="/explore/customize-template">Select Fields</a></td></tr></table></li>						    
 						    <li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'img/Orange_Number_3.png' %}"></td><td><strong><a href="/explore/perform-search">Perform Search</a></strong></td></tr></table></li>
 						  </ul>
 						</div>	
@@ -384,6 +384,12 @@ Dajaxice.explore.getCustomForm(Dajax.process);
 	</p>
 	<div id="subElementQueryBuilder">
 	</div>
+</div>
+
+<div id="dialog-DeleteAllQueries" title="Delete All Queries" style="display:none;">
+	<p>
+	Are you sure you want to delete all your saved queries?
+	</p>
 </div>
 
 </body>

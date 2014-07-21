@@ -112,7 +112,7 @@
 		{% if request.session.currentExploreTab == "tab-1" %}	
 		<ul id="subnav-tab-1" class="tabbed">
 	  		<li><a href="/explore/select-template">Select Template</a></li>
-	  		<li><a href="/explore/customize-template">Customize Template</a></li>
+	  		<li><a href="/explore/customize-template">Select Fields</a></li>
 	  		<li class="current_page_item"><a href="/explore/perform-search">Perform Search</a></li>
  		</ul>
 		<ul id="subnav-tab-2" class="tabbed" style="display: none;">
@@ -123,7 +123,7 @@
 	  	{% else %}
 	  	<ul id="subnav-tab-1" class="tabbed" style="display: none;">
 		  <li><a href="/explore/select-template">Select Template</a></li>
-		  <li><a href="/explore/customize-template">Customize Template</a></li>
+		  <li><a href="/explore/customize-template">Select Fields</a></li>
 		  <li class="current_page_item"><a href="/explore/perform-search">Perform Search</a></li>
 	  	</ul>
 		<ul id="subnav-tab-2" class="tabbed">
@@ -207,7 +207,7 @@
 				        <div class="box-content">
 						  <ul class="nice-list">
 						    <li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'img/Orange_Number_1.png' %}"></td><td><a href="/explore/select-template">Select Template</a></td></tr></table></li>
-						    <li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'img/Orange_Number_2.png' %}"></td><td><a href="/explore/customize-template">Customize Template</a></td></tr></table></li>
+						    <li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'img/Orange_Number_2.png' %}"></td><td><a href="/explore/customize-template">Select Fields</a></td></tr></table></li>
 						    <li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'img/Orange_Number_3.png' %}"></td><td><strong><a href="/explore/perform-search">Perform Search</a></strong></td></tr></table></li>
 						  </ul>
 						</div>	

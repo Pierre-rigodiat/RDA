@@ -114,23 +114,23 @@
 		{% if request.session.currentExploreTab == "tab-1" %}
 		<ul id="subnav-tab-1" class="tabbed">
 		  <li><a href="/explore/select-template">Select Template</a></li>
-		  <li class="current_page_item"><a href="/explore/customize-template">Customize Template</a></li>
+		  <li class="current_page_item"><a href="/explore/customize-template">Select Fields</a></li>
 		  <li><a onclick="exploreData();" style="cursor:pointer;">Perform Search</a></li>
 		</ul>
 		<ul id="subnav-tab-2" class="tabbed" style="display: none;">
 		  <li><a href="/explore/select-template">Select Template</a></li>
-		  <li class="current_page_item"><a href="/explore/customize-template">Customize Template</a></li>
+		  <li class="current_page_item"><a href="/explore/customize-template">Select Fields</a></li>
 		  <li><a onclick="exploreData();" style="cursor:pointer;">Perform Search</a></li>
 		</ul>
 		{% else %}
 		<ul id="subnav-tab-1" class="tabbed" style="display: none;">
 		  <li><a href="/explore/select-template">Select Template</a></li>
-		  <li class="current_page_item"><a href="/explore/customize-template">Customize Template</a></li>
+		  <li class="current_page_item"><a href="/explore/customize-template">Select Fields</a></li>
 		  <li><a onclick="exploreData();" style="cursor:pointer;">Perform Search</a></li>
 		</ul>
 		<ul id="subnav-tab-2" class="tabbed">
 		  <li><a href="/explore/select-template">Select Template</a></li>
-		  <li class="current_page_item"><a href="/explore/customize-template">Customize Template</a></li>
+		  <li class="current_page_item"><a href="/explore/customize-template">Select Fields</a></li>
 		  <li><a onclick="exploreData();" style="cursor:pointer;">Perform Search</a></li>
 		</ul>
 		{% endif %}
@@ -155,7 +155,7 @@
 
 		      <div class="post">
 
-			<div class="post-title"><h1>Customize Template</h1></div>
+			<div class="post-title"><h1>Select Fields</h1></div>
 			
 			<div class="post-body">
 
@@ -209,7 +209,7 @@
 				        <div class="box-content">
 						  <ul class="nice-list">
 						    <li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'img/Orange_Number_1.png' %}"></td><td><a href="/explore/select-template">Select Template</a></td></tr></table></li>
-						    <li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'img/Orange_Number_2.png' %}"></td><td><strong><a href="/explore/customize-template">Customize Template</a></strong></td></tr></table></li>
+						    <li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'img/Orange_Number_2.png' %}"></td><td><strong><a href="/explore/customize-template">Select Fields</a></strong></td></tr></table></li>
 						    <li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'img/Orange_Number_3.png' %}"></td><td><a onclick="exploreData();" style="cursor:pointer;">Perform Search</a></td></tr></table></li>
 						  </ul>
 						</div>	
@@ -228,7 +228,7 @@
 			           <div class="box-content">
 						  <ul class="nice-list">
 						    <li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'img/Orange_Number_1.png' %}"></td><td><a href="/explore/select-template">Select Template</a></td></tr></table></li>
-						    <li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'img/Orange_Number_2.png' %}"></td><td><strong><a href="/explore/customize-template">Customize Template</a></strong></td></tr></table></li>						    
+						    <li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'img/Orange_Number_2.png' %}"></td><td><strong><a href="/explore/customize-template">Select Fields</a></strong></td></tr></table></li>						    
 						    <li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'img/Orange_Number_3.png' %}"></td><td><a onclick="exploreData();" style="cursor:pointer;">Perform Search</a></td></tr></table></li>
 						  </ul>
 						</div>	

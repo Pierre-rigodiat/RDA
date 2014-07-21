@@ -130,13 +130,27 @@ function clearCriterias(){
 }
 
 
-function clearQueries(){
-	$("input").each(function(){
-	    $(this).attr("value", $(this).val());
-	});
-	$('select option').each(function(){ this.defaultSelected = this.selected; });
-	var queriesTable = $("#queriesTable").html()
-	Dajaxice.explore.clearQueries(Dajax.process, {'queriesTable':queriesTable})
+clearQueries = function()
+{
+	$(function() {
+        $( "#dialog-DeleteAllQueries" ).dialog({
+            modal: true,
+            buttons: {
+		Close: function() {
+                    $( this ).dialog( "close" );
+                },
+        Delete: function(){
+		        	$("input").each(function(){
+		        	    $(this).attr("value", $(this).val());
+		        	});
+		        	$('select option').each(function(){ this.defaultSelected = this.selected; });
+		        	var queriesTable = $("#queriesTable").html()
+		        	Dajaxice.explore.clearQueries(Dajax.process, {'queriesTable':queriesTable})
+		        	$( this ).dialog( "close" );
+        		}
+            }
+        });
+    });
 }
 
 exploreData = function()
