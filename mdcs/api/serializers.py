@@ -19,7 +19,7 @@ class jsonDataSerializer(serializers.Serializer):
     title = serializers.CharField()
     schema = serializers.CharField()
     content = serializers.CharField()
-#     _id = serializers.CharField()
+    _id = serializers.CharField(required=False)
     
 class savedQuerySerializer(MongoEngineModelSerializer):
     class Meta:

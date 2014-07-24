@@ -130,10 +130,10 @@ class JsonDataListTestCase(APITestCase):
         params = {"title":"title","schema":"schema","content":{"content":"content"}}
         
         # Test post new data
-        nbQueries = len(Jsondata.objects())
+        nbData = len(Jsondata.objects())
         response = self.client.post(url, data=params)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(nbQueries + 1, len(Jsondata.objects()))
+        self.assertEqual(nbData + 1, len(Jsondata.objects()))
         query = {"title":"title","schema":"schema"}
         results = Jsondata.find(query)
         Jsondata.delete(results[0]['_id'])
