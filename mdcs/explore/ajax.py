@@ -1232,9 +1232,9 @@ def deleteQuery(request, queriesTable, savedQueryID):
 def renderSavedQuery(query, queryID):
     return """
         <tr id=query"""+ str(queryID) +""">
-            <td><span class="icon add" onclick="addSavedQueryToForm('query"""+ str(queryID) +"""')"></span></td>
+            <td><span class="icon upload" onclick="addSavedQueryToForm('query"""+ str(queryID) +"""')"></span></td>
             <td>""" + query +  """</td>
-            <td><span class="icon remove" onclick="deleteQuery('query"""+ str(queryID) +"""')"></span></td>
+            <td><span class="icon invalid" onclick="deleteQuery('query"""+ str(queryID) +"""')"></span></td>
         </tr>
     """
 
