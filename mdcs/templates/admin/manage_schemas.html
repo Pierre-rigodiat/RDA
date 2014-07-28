@@ -154,8 +154,8 @@
 			<div id="main">
 
 <div class="right-side">
-<span class="ctx_menu">
-<div class="icon legend long copy schema">Copy schema</div>
+<span class="ctx_menu"> 
+<!-- <div class="icon legend long copy schema">Copy schema</div> -->
 <div class="icon legend long upload schema">Upload schema</div>
 </span>
 </div>
@@ -166,7 +166,7 @@
 
 {% else %}
 
-<div class="warn"><div class="icon warning"></div>The system has no schema loaded. Please set a current model to allow user to use the repository.</div>
+<!-- <div class="warn"><div class="icon warning"></div>The system has no schema loaded. Please set a current model to allow user to use the repository.</div> -->
 
 {% endif %}
 
@@ -195,8 +195,11 @@
 {% else %}
 
     <td><span style="color:green;">Registered</span></td>
-    <td><div class="icon legend extra-long add">Set as current model</div>
-    <div class="icon legend delete schema" schemaid="{{ template.id }}">Delete</div></td>
+    <td>
+    <!-- <div class="icon legend extra-long add">Set as current model</div> -->
+    <div class="icon legend long add newversion">New Version</div>
+    <div class="icon legend long copy schema">Copy schema</div>
+    <div class="icon legend delete schema" schemaid="{{ template.id }}">Delete Schema</div></td>
 
 {% endif %}
 
@@ -227,7 +230,7 @@
 
 <div class="right-side">
 <span class="ctx_menu">
-<div class="icon legend long copy schema">Copy schema</div>
+<!-- <div class="icon legend long copy schema">Copy schema</div> -->
 <div class="icon legend long upload schema">Upload schema</div>
 </span>
 </div>
