@@ -283,8 +283,8 @@ verifyTemplateIsSelectedCallback = function(data)
 				        <div class="box-content">
 						  <ul class="nice-list">
 						    <li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'img/Orange_Number_1.png' %}"></td><td><strong><a href="/explore/select-template">Select Template</a></strong></td></tr></table></li>
-						    <li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'img/Orange_Number_2.png' %}"></td><td><a href="/explore/customize-template">Select Fields</a></td></tr></table></li>
-						    <li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'img/Orange_Number_3.png' %}"></td><td><a href="/explore/perform-search">Perform Search</a></td></tr></table></li>
+						    <li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'img/Orange_Number_2.png' %}"></td><td><a onclick="verifyTemplateIsSelected('/explore/customize-template');" style="cursor: pointer;">Select Fields</a></td></tr></table></li>
+						    <li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'img/Orange_Number_3.png' %}"></td><td><a onclick="verifyTemplateIsSelected('/explore/perform-search');" style="cursor: pointer;">Perform Search</a></td></tr></table></li>
 						  </ul>
 						</div>	
 				    </div> 
@@ -298,8 +298,8 @@ verifyTemplateIsSelectedCallback = function(data)
 			           <div class="box-content">
 						  <ul class="nice-list">
 						    <li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'img/Orange_Number_1.png' %}"></td><td><strong><a href="/explore/select-template">Select Template</a></strong></td></tr></table></li>
-						    <li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'img/Orange_Number_2.png' %}"></td><td><a href="/explore/customize-template">Select Fields</a></td></tr></table></li>						    
-						    <li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'img/Orange_Number_3.png' %}"></td><td><a href="/explore/perform-search">Perform Search</a></td></tr></table></li> 
+						    <li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'img/Orange_Number_2.png' %}"></td><td><a onclick="verifyTemplateIsSelected('/explore/customize-template');" style="cursor: pointer;">Select Fields</a></td></tr></table></li>						    
+						    <li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'img/Orange_Number_3.png' %}"></td><td><a onclick="verifyTemplateIsSelected('/explore/perform-search');" style="cursor: pointer;">Perform Search</a></td></tr></table></li> 
 						  </ul>
 						</div>	
 			       </div> 

@@ -139,7 +139,27 @@ class Jsondata():
         for result in cursor:
             results.append(result)
         return results
-
+    
+    @staticmethod
+    def find(params):        
+        """
+            returns all objects that match params as a list of dicts 
+             /!\ Doesn't return the same kind of objects as mongoengine.Document.objects()
+        """
+        # create a connection
+        connection = Connection()
+        # connect to the db 'mgi'
+        db = connection['mgi']
+        # get the xmldata collection
+        xmldata = db['xmldata']
+        # find all objects of the collection
+        cursor = xmldata.find(params, as_class = OrderedDict)
+        # build a list with the objects        
+        results = []
+        for result in cursor:
+            results.append(result)
+        return results
+    
     @staticmethod
     def executeQuery(query):
         """queries mongo db and returns results data"""
@@ -194,7 +214,8 @@ class Jsondata():
         db = connection['mgi']
         # get the xmldata collection
         xmldata = db['xmldata']
-        del json['_id']
+        if '_id' in json:
+            del json['_id']
         xmldata.update({'_id': ObjectId(postID)}, {"$set":json}, upsert=False)
     
         

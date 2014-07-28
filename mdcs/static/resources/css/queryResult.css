@@ -13,4 +13,6 @@
 	resize:none;
 	cursor:text;
 	overflow: auto;
+	white-space: pre;
+	word-wrap: normal;
 }
