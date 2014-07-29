@@ -144,8 +144,7 @@ clearQueries = function()
 		        	    $(this).attr("value", $(this).val());
 		        	});
 		        	$('select option').each(function(){ this.defaultSelected = this.selected; });
-		        	var queriesTable = $("#queriesTable").html()
-		        	Dajaxice.explore.clearQueries(Dajax.process, {'queriesTable':queriesTable})
+		        	Dajaxice.explore.clearQueries(Dajax.process)
 		        	$( this ).dialog( "close" );
         		}
             }

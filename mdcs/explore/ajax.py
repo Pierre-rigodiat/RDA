@@ -1147,6 +1147,10 @@ def saveQuery(request, queryForm, queriesTable):
 #             queriesTree = html.fromstring(queriesList)
 #             queriesTable = queriesTree.find("./[@id=queriesTable]")
             queriesTableTree = html.fromstring(queriesTable)
+            tr = queriesTableTree.find("./tbody/tr[@id='noqueries']")
+            if(tr is not None):
+                # removes the row         
+                queriesTableTree.find("./tbody").remove(tr) 
     
 #             linesInTable = queriesTable.findall("./tbody")
 #             if (len(linesInTable) == 1): #th
@@ -1221,7 +1225,22 @@ def deleteQuery(request, queriesTable, savedQueryID):
     connect('mgi')
     SavedQuery(id=savedQueryID[5:]).delete()
     del mapQueryInfo[savedQueryID[5:]]
-    
+    if '_auth_user_id' in request.session and 'exploreCurrentTemplateID' in request.session:
+        userID = request.session['_auth_user_id']
+        templateID = request.session['exploreCurrentTemplateID']
+        connect('mgi')
+        userQueries = SavedQuery.objects(user=str(userID),template=str(templateID))        
+        if(len(userQueries) == 0):
+            queriesTableTree = html.fragment_fromstring(
+            """<table>
+                <tr>                    
+                    <th width="15px">Add to Builder</th>
+                    <th>Queries</th>
+                    <th width="15px">Delete</th>
+                </tr>                
+            </table>""")
+            element = html.fragment_fromstring(renderNoQueries())
+            queriesTableTree.append(element)
     dajax.assign("#queriesTable", "innerHTML", html.tostring(queriesTableTree))
 #     dajax.script(""" 
 #         makeInputsDroppable();    
@@ -1232,9 +1251,9 @@ def deleteQuery(request, queriesTable, savedQueryID):
 def renderSavedQuery(query, queryID):
     return """
         <tr id=query"""+ str(queryID) +""">
-            <td><span class="icon add" onclick="addSavedQueryToForm('query"""+ str(queryID) +"""')"></span></td>
+            <td><span class="icon upload" onclick="addSavedQueryToForm('query"""+ str(queryID) +"""')"></span></td>
             <td>""" + query +  """</td>
-            <td><span class="icon remove" onclick="deleteQuery('query"""+ str(queryID) +"""')"></span></td>
+            <td><span class="icon invalid" onclick="deleteQuery('query"""+ str(queryID) +"""')"></span></td>
         </tr>
     """
 
@@ -1406,25 +1425,40 @@ def clearCriterias(request, queryForm):
     return dajax.json()
     
 @dajaxice_register
-def clearQueries(request, queriesTable):
+def clearQueries(request):
     """ Reset Saved Queries """
     dajax = Dajax()
     
     global mapQueryInfo
     
-    queriesTableTree = html.fromstring(queriesTable)
-        
-    # finds all lines in the table exept the first one : headers
-    for tr in queriesTableTree.findall('./tbody/tr')[1:]:
-        # removes existing rows         
-        queriesTableTree.find("./tbody").remove(tr)    
-    
+#     queriesTableTree = html.fromstring(queriesTable)
+#         
+#     # finds all lines in the table exept the first one : headers
+#     for tr in queriesTableTree.findall('./tbody/tr')[1:]:
+#         # removes existing rows         
+#         queriesTableTree.find("./tbody").remove(tr)    
     connect('mgi')
     for queryID in mapQueryInfo.keys():
         SavedQuery(id=queryID).delete()
             
     mapQueryInfo.clear()
     
+    if '_auth_user_id' in request.session and 'exploreCurrentTemplateID' in request.session:
+        userID = request.session['_auth_user_id']
+        templateID = request.session['exploreCurrentTemplateID']
+        connect('mgi')
+        userQueries = SavedQuery.objects(user=str(userID),template=str(templateID))
+        queriesTableTree = html.fragment_fromstring(
+            """<table>
+                <tr>                    
+                    <th width="15px">Add to Builder</th>
+                    <th>Queries</th>
+                    <th width="15px">Delete</th>
+                </tr>                
+            </table>""")
+        if(len(userQueries) == 0):
+            element = html.fragment_fromstring(renderNoQueries())
+            queriesTableTree.append(element)
         
         
     dajax.assign("#queriesTable", "innerHTML", html.tostring(queriesTableTree))
@@ -1433,6 +1467,10 @@ def clearQueries(request, queriesTable):
 #         makeInputsDroppable();    
 #     """);
     return dajax.json()
+
+def renderNoQueries():
+    return "<tr id='noqueries'><td colspan='3' style='color:red;'>No Saved Queries for now.</td></tr>"
+
 
 @dajaxice_register
 def getCustomForm(request):
@@ -1468,13 +1506,17 @@ def getCustomForm(request):
                     <th width="15px">Delete</th>
                 </tr>                
             </table>""")
-        for query in userQueries:
-            for i in range(0, len(query.ListRegex)):
-                query.query = query.query.replace(query.ListRegex[i], "re.compile('" + query.ListPattern[i] + "')")
-                
-            mapQueryInfo[str(query.id)] = QueryInfo(eval(query.query), query.displayedQuery)
-            element = html.fragment_fromstring(renderSavedQuery(query.displayedQuery, query.id))            
+        if(len(userQueries) == 0):
+            element = html.fragment_fromstring(renderNoQueries())
             queriesTable.append(element)
+        else:
+            for query in userQueries:
+                for i in range(0, len(query.ListRegex)):
+                    query.query = query.query.replace(query.ListRegex[i], "re.compile('" + query.ListPattern[i] + "')")
+                    
+                mapQueryInfo[str(query.id)] = QueryInfo(eval(query.query), query.displayedQuery)
+                element = html.fragment_fromstring(renderSavedQuery(query.displayedQuery, query.id))            
+                queriesTable.append(element)
         dajax.assign('#queriesTable', 'innerHTML', html.tostring(queriesTable))
         
     if (customFormString != ""):
