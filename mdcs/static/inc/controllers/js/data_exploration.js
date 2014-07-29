@@ -116,8 +116,21 @@ function addSavedQueryToForm(savedQueryID){
 } 
 
 function deleteQuery(savedQueryID){
-	var queriesTable = $("#queriesTable").html()
-	Dajaxice.explore.deleteQuery(Dajax.process,{'queriesTable':queriesTable, 'savedQueryID':savedQueryID})
+	$(function() {
+        $( "#dialog-DeleteQuery" ).dialog({
+            modal: true,
+            buttons: {
+		Close: function() {
+                    $( this ).dialog( "close" );
+                },
+        Delete: function(){
+		        	var queriesTable = $("#queriesTable").html()
+		        	Dajaxice.explore.deleteQuery(Dajax.process,{'queriesTable':queriesTable, 'savedQueryID':savedQueryID})
+		        	$( this ).dialog( "close" );
+        		}
+            }
+        });
+    });
 }
 
 function clearCriterias(){
