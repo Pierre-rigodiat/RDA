@@ -150,6 +150,13 @@ INSTALLED_APPS = (
     'api', # djangorestframework
 )
 
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    )
+}
+
 SWAGGER_SETTINGS = {
     "exclude_namespaces": [], # List URL namespaces to ignore
     "api_version": '0.1',  # Specify your API's version
