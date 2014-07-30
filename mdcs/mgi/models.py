@@ -176,6 +176,23 @@ class Jsondata():
         for result in cursor:
             queryResults.append(result['content'])
         return queryResults
+    
+    @staticmethod
+    def executeQueryFullResult(query):
+        """queries mongo db and returns results data"""
+        # create a connection
+        connection = Connection()
+        # connect to the db 'mgi'
+        db = connection['mgi']
+        # get the xmldata collection
+        xmldata = db['xmldata']
+        # query mongo db
+        cursor = xmldata.find(query,as_class = OrderedDict)  
+        # build a list with the xml representation of objects that match the query              
+        results = []
+        for result in cursor:
+            results.append(result)
+        return results
 
     @staticmethod
     def get(postID):
