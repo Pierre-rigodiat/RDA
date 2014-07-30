@@ -559,7 +559,7 @@
       <xsd:element name="cooling_source" type="CoolingSourceType"/>
       <xsd:element name="pressure" type="PressureType"/>
       <xsd:element name="mirror_material" type="xsd:string"/>
-      <xsd:element name="index_of_refraction" type="xsd:integer"/>
+      <xsd:element name="index_of_refraction" type="xsd:double"/>
       <xsd:element name="number_of_fringes" type="xsd:integer"/>
       <xsd:element name="speciman_height" type="SpecimanHeightType"/>
       <xsd:element name="run_time" type="RunTimeType"/>
@@ -752,7 +752,7 @@
     <xsd:sequence>
       <xsd:element name="magnifications_used" type="xsd:integer"/>
       <xsd:element name="working_distance" type="WorkingDistanceType"/>
-      <xsd:element name="numerical_apperature" type="xsd:integer"/>
+      <xsd:element name="numerical_apperature" type="xsd:double"/>
       <xsd:element name="resolution" type="ResolutionType"/>
       <xsd:element name="depth_of_field" type="DepthOfFieldType"/>
     </xsd:sequence>
@@ -886,9 +886,9 @@
   <xsd:complexType name="Material">
     <xsd:sequence>
       <xsd:element name="materialName" type="xsd:string"/>
+      <xsd:element name="materialForm" type="FormOfMatter"/>
       <xsd:element name="phase" type="Phase"/>
       <xsd:element name="Composition" type="Composition"/>
-      <xsd:element minOccurs="1" maxOccurs="1" name="materialForm" type="FormOfMatter"/>
     </xsd:sequence>
   </xsd:complexType>
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
@@ -1241,7 +1241,7 @@
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
   <xsd:complexType name="TemperatureType">
     <xsd:sequence>
-      <xsd:element name="temperature" type="xsd:float"/>
+      <xsd:element name="temperature" type="xsd:double"/>
       <xsd:element name="unit" type="TemperatureUnitType"/>
       <xsd:element minOccurs="0" name="uncertainty" type="Uncertainty"/>
     </xsd:sequence>
@@ -1354,6 +1354,7 @@
   <xsd:simpleType name="WavelengthUnitType">
     <xsd:restriction base="xsd:string">
       <xsd:enumeration value="Angstroms"/>
+      <xsd:enumeration value="Nanometers"/>
     </xsd:restriction>
   </xsd:simpleType>
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
