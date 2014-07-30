@@ -173,6 +173,10 @@ SWAGGER_SETTINGS = {
     "is_superuser": False,  # Set to True to enforce admin only access
 }
 
+# django.contrib.auth.views.login redirects you to accounts/profile/ 
+# right after you log in by default. This setting changes that.
+LOGIN_REDIRECT_URL = '/'
+
 #AUTH_USER_MODEL = 'mongo_auth.MongoUser'
 
 #http://docs.mongoengine.org/en/latest/django.html
