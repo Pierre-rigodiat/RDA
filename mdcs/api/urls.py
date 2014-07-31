@@ -19,8 +19,12 @@ urlpatterns = patterns(
     url(r'^savedqueries/$','savedQuery_list', name='savedQuery_list'),
     url(r'^savedqueries/(?P<pk>([0-9]|[a-z])+)$', 'savedQuery_detail'),
 #     url(r'^data/$',JsonDataList.as_view(),name='jsonData_list'),
-    url(r'^data/$','jsonData_list',name='jsonData_list'),
+    url(r'^data/$','jsonData_list', name='jsonData_list'),
     url(r'^data/(?P<pk>([0-9]|[a-z])+)$', 'jsonData_detail'),
+    url(r'^curate/$', 'curate', name='curate'),
+    url(r'^explore/$', 'explore', name='explore'),
+    url(r'^explore/query-by-example/$', 'query_by_example', name='query_by_example'),
+    url(r'^explore/sparql-query/$', 'sparql_query', name='sparql_query'),
     url(r'^tasks/$', 'task_list', name='task_list'),
     url(r'^tasks/(?P<pk>[0-9]+)$', 'task_detail', name='task_detail'),
 )

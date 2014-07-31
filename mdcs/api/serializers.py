@@ -25,6 +25,16 @@ class savedQuerySerializer(MongoEngineModelSerializer):
     class Meta:
         model = SavedQuery
         
+class querySerializer(serializers.Serializer):
+    query = serializers.CharField()
+
+class sparqlQuerySerializer(serializers.Serializer):
+    query = serializers.CharField()
+    format = serializers.CharField(required=False)
+    
+class sparqlResultsSerializer(serializers.Serializer):
+    content = serializers.CharField()
+        
         
 # Previous work
 from curate.models import Task
