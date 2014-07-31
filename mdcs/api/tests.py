@@ -18,6 +18,7 @@ from rest_framework.test import APITestCase
 from rest_framework.status import HTTP_200_OK, HTTP_204_NO_CONTENT
 import json
 from rdflib.plugins.parsers.pyRdfa.extras.httpheader import content_type
+from lxml import etree
 
 class SavedQueryListTestCase(APITestCase):
     def test_GET(self):
@@ -141,7 +142,7 @@ class JsonDataListTestCase(APITestCase):
   
 class JsonDataDetailsTestCase(APITestCase):
     """
-        Test case for saved query detail
+        Test case for json data detail
     """
     def test_GET(self):
         # Test insert data and get it
@@ -187,6 +188,9 @@ class JsonDataDetailsTestCase(APITestCase):
         self.assertEqual(currentNbQueries, nbQueries - 1)
      
 class CurateTestCase(APITestCase):
+    """
+        Test case for curate
+    """
      
     def test_POST(self):
         url = reverse('curate')
@@ -195,13 +199,22 @@ class CurateTestCase(APITestCase):
         # Test post new data
         nbData = len(Jsondata.objects())
         response = self.client.post(url, data=params)
+        
+        # Test HTTP Response CREATED
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        
+        # Test that the document was well inserted
         self.assertEqual(nbData + 1, len(Jsondata.objects()))
         query = {"title":"title","schema":"schema"}
+        
+        # Delete the data
         results = Jsondata.find(query)
         Jsondata.delete(results[0]['_id'])
         
 class ExploreTestCase(APITestCase):
+    """
+        Test case for explore
+    """
     
     def test_GET(self):
         url = reverse('explore')
@@ -224,14 +237,25 @@ class ExploreTestCase(APITestCase):
         Jsondata.delete(str(id))
         
 class QbeTestCase(APITestCase):
+    """
+        Test case for query by example
+    """
      
     def test_POST(self):
         url = reverse('query_by_example')
-        params = {"query": {"content.Experiment.ExperimentType.TracerDiffusivity.Material.MaterialName" : "aluminum"}}        
+        data = Jsondata(schemaID="schema", xml="<el1><el2><el3>test</el3></el2></el1>", title="test")
+        id = data.save()
+        
+        params = {"query": {"content.el1.el2.el3" : "test"}}        
         response = self.client.post(url, data=params, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual('"_id": "'+str(id)+'"' in response.content, True)
+        Jsondata.delete(str(id))
         
 class SparqlTestCase(APITestCase):
+    """
+        Test case for sparql endpoint
+    """
      
     def test_POST(self):
         url = reverse('sparql_query')
@@ -241,4 +265,7 @@ class SparqlTestCase(APITestCase):
         params = {"query": "SELECT * WHERE {?s ?p ?o}","format":"xml"}        
         response = self.client.post(url, data=params)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+        etree.fromstring(eval(response.content)['content'])
+    
+        
         
