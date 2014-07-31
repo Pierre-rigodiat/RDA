@@ -887,8 +887,8 @@
     <xsd:sequence>
       <xsd:element name="materialName" type="xsd:string"/>
       <xsd:element name="materialForm" type="FormOfMatter"/>
+      <xsd:element name="materialComposition" type="Composition"/>
       <xsd:element name="phase" type="Phase"/>
-      <xsd:element name="Composition" type="Composition"/>
     </xsd:sequence>
   </xsd:complexType>
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
@@ -1113,7 +1113,7 @@
     <xsd:sequence>
       <xsd:element name="name" type="xsd:string"/>
       <xsd:element name="crystalStructure" type="CrystalStructure"/>
-      <xsd:element minOccurs="1" maxOccurs="unbounded" name="Composition" type="Composition"/>
+      <xsd:element minOccurs="1" maxOccurs="unbounded" name="phaseComposition" type="Composition"/>
     </xsd:sequence>
   </xsd:complexType>
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
@@ -1216,7 +1216,81 @@
   <xsd:complexType name="MaterialGeometryType">
     <xsd:sequence>
       <xsd:element name="MaterialName" type="xsd:string"/>
-      <xsd:element name="geometry" type="xsd:string"/>
+      <xsd:element name="geometry" type="GeometryType"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!--  Geometry Type -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <xsd:complexType name="GeometryType">
+    <xsd:sequence>
+      <xsd:element name="rectangular" type="RectangularType"/>
+      <xsd:element name="circular" type="CircularType"/>
+      <xsd:element name="rod" type="RodType"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!--  Rectangular Type -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <xsd:complexType name="RectangularType">
+    <xsd:sequence>
+      <xsd:element name="rectangular" type="LengthType"/>
+      <xsd:element name="circular" type="WidthType"/>
+      <xsd:element name="rod" type="ThicknessType"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!--  Circular Type -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <xsd:complexType name="CircularType">
+    <xsd:sequence>
+      <xsd:element name="rectangular" type="RadiusType"/>
+      <xsd:element name="circular" type="ThicknessType"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!--  Rod Type -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <xsd:complexType name="RodType">
+    <xsd:sequence>
+      <xsd:element name="radius" type="RadiusType"/>
+      <xsd:element name="length" type="LengthType"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!--  Length Type -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <xsd:complexType name="LengthType">
+    <xsd:sequence>
+      <xsd:element name="value" type="xsd:string"/>
+      <xsd:element name="unit" type="LengthUnitType"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!--  Width Type -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <xsd:complexType name="WidthType">
+    <xsd:sequence>
+      <xsd:element name="value" type="xsd:string"/>
+      <xsd:element name="unit" type="LengthUnitType"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!--  Thickness Type -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <xsd:complexType name="ThicknessType">
+    <xsd:sequence>
+      <xsd:element name="value" type="xsd:string"/>
+      <xsd:element name="unit" type="LengthUnitType"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!--  Radius Type -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <xsd:complexType name="RadiusType">
+    <xsd:sequence>
+      <xsd:element name="value" type="xsd:string"/>
+      <xsd:element name="unit" type="LengthUnitType"/>
     </xsd:sequence>
   </xsd:complexType>
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
