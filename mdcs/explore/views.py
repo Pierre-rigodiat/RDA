@@ -7,6 +7,9 @@
 # Author: Sharief Youssef
 #         sharief.youssef@nist.gov
 #
+#         Guillaume SOUSA AMARAL
+#         guillaume.sousa@nist.gov
+#
 # Sponsor: National Institute of Standards and Technology (NIST)
 #
 ################################################################################
@@ -20,17 +23,11 @@ from django.contrib.auth import authenticate, login, logout
 from django.template import RequestContext, loader
 from django.shortcuts import redirect
 from datetime import date
+from mongoengine import *
+from mgi.models import Template
 
 def currentYear():
     return date.today().year
-
-from django import forms
-
-from mongoengine import *
-
-class Template(Document):
-    title = StringField(required=True)
-    filename = StringField(required=True)
 
 ################################################################################
 #
@@ -43,7 +40,6 @@ class Template(Document):
 #
 ################################################################################
 def index(request):
-#    logout(request)
     template = loader.get_template('explore.html')
     request.session['currentYear'] = currentYear()
     if request.user.is_authenticated():
