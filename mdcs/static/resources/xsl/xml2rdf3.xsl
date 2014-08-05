@@ -46,7 +46,7 @@
        <xsl:template match="*">
               <xsl:param name="subjectname"/>
 
-              <!-- Build URI for subjects resources from acestors elements -->
+              <!-- Build URI for subjects resources from ancestors elements -->
               <xsl:variable name="newsubjectname">
                      <xsl:if test="$subjectname=''">
                             <xsl:value-of select="$BaseURI"/>
