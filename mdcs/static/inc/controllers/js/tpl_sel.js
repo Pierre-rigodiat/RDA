@@ -424,23 +424,21 @@ doSelectElement = function(divElement)
 
 changeChoice = function(selectObj)
 {
-    console.log('BEGIN [changeChoice(' + selectObj + ')]');
+    console.log('BEGIN [changeChoice(' + selectObj.id + ' : ' + selectObj.selectedIndex + ')]');
 
     // get the index of the selected option 
-    var idx = selectObj.selectedIndex; 
-    // get the value of the selected option 
-    var which = selectObj.options[idx].value; 
+    var idx = selectObj.selectedIndex;  
 
     for (i=0; i < selectObj.options.length;i++) {
-	console.log(selectObj.options[i].value);
-	if (selectObj.options[i].value == selectObj.options[idx].value) {
-	    document.getElementById(selectObj.options[i].value).style.display = "";
-	} else {
-	    document.getElementById(selectObj.options[i].value).style.display = "none";
-	}
+    	if (i == idx){
+    		$("#" + selectObj.id + "-" + i).removeAttr("style");
+		} else {
+			$("#" + selectObj.id + "-" + i).attr("style","display:none");
+		}
+    	
     }
 
-    console.log('END [changeChoice(' + selectObj + ')]');
+    console.log('END [changeChoice(' + selectObj.id + ' : ' + selectObj.selectedIndex + ')]');
 }
 
 displayTemplateSelectedDialog = function()
