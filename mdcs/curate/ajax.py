@@ -45,6 +45,7 @@ xmlDocTree = ""
 xmlDataTree = ""
 debugON = 0
 nbChoicesID = 0
+nbSelectedElement = 0
 
 # SPARQL : URI for the project (http://www.example.com/)
 projectURI = "http://www.example.com/"
@@ -509,6 +510,7 @@ def generateFormSubSection(xpath,selected,xmlElement):
     global xmlDocTree
     global xmlDataTree
     global nbChoicesID
+    global nbSelectedElement
     global debugON
     p = re.compile('(\{.*\})?schema', re.IGNORECASE)
 
@@ -1065,8 +1067,9 @@ def generateFormSubSection(xpath,selected,xmlElement):
         if e.attrib.get('name') == "ChemicalElement":
 #            formString += "<div id=\"periodicTable\"></div>"
             currentXPath = xmlDocTree.getpath(e)
-            formString += "<div class=\"btn select-element\" onclick=\"selectElement('None',this);\"><i class=\"icon-folder-open\"></i> Select Element</div>"
-            formString += "<div id=\"elementSelected\">Current Selection: None</div>"
+            formString += "<div class=\"btn select-element\" onclick=\"selectElement('None',this,"+str(nbSelectedElement)+");\"><i class=\"icon-folder-open\"></i> Select Element</div>"
+            formString += "<div id=\"elementSelected"+ str(nbSelectedElement) +"\">Current Selection: None</div>"
+            nbSelectedElement += 1
 
             return formString
 
@@ -1136,8 +1139,10 @@ def generateForm(key,xmlElement):
     global xmlDocTree
     global xmlDataTree
     global nbChoicesID
+    global nbSelectedElement
     
     nbChoicesID = 0
+    nbSelectedElement = 0
 
 #    schemaRoot = xmlDocTree.getroot()
 #    formString += "schemaRoot: " + schemaRoot.tag + "<br>"

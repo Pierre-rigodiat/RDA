@@ -257,7 +257,7 @@ generateXMLString = function(elementObj)
 //	    xmlString += "</" + which + ">";
 	} else if (children[i].tagName == "INPUT") {
 	    xmlString += children[i].value;
-	} else if (children[i].nodeType == 1 && children[i].getAttribute("id") == "elementSelected") {
+	} else if (children[i].nodeType == 1 && children[i].getAttribute("id") != null && children[i].getAttribute("id").indexOf("elementSelected") > -1) {
 	    var ptArray = children[i].innerHTML.split(" ");
 	    xmlString += ptArray[ptArray.length - 1];
 	} else {
@@ -315,7 +315,7 @@ saveHTMLFormCallback = function(data)
     return false;
 }
 
-selectElement = function(periodicTableElement,divElement)
+selectElement = function(periodicTableElement,divElement, selectedElementId)
 {
     console.log('BEGIN [selectElement(' + periodicTableElement + ',' + divElement + ')]');
 
@@ -327,7 +327,7 @@ selectElement = function(periodicTableElement,divElement)
             modal: true,
             buttons: {
 		Select: function() {
-		    doSelectElement(divElement);
+		    		doSelectElement(divElement, selectedElementId);
                     $( this ).dialog( "close" );
                 },
 		Cancel: function() {
@@ -408,18 +408,21 @@ chooseElement = function(element)
     console.log('END [chooseElement(' + element + ')]');
 }
 
-doSelectElement = function(divElement)
+doSelectElement = function(divElement, selectedElementId)
 {
-    console.log('BEGIN [chooseElement(' + divElement + ')]');
+    console.log('BEGIN [selectElement(' + divElement + ')]');
 
+//    var selectedElement = document.getElementById('selectedElement').innerHTML;
+//    divElement.onclick = function onclick(event) { selectElement(selectedElement,this); }
+//    divElement.parentNode.childNodes[2].innerHTML = "Current Selection: " + selectedElement;
     var selectedElement = document.getElementById('selectedElement').innerHTML;
     divElement.onclick = function onclick(event) { selectElement(selectedElement,this); }
-    divElement.parentNode.childNodes[2].innerHTML = "Current Selection: " + selectedElement;
+    document.getElementById('elementSelected'+selectedElementId).innerHTML = "Current Selection: " + selectedElement;
 
     // reset for next selection
     document.getElementById('chosenElement').innerHTML = "Chosen Element: <b>None</b>";
 
-    console.log('END [chooseElement(' + divElement + ')]');
+    console.log('END [selectElement(' + divElement + ')]');
 }
 
 changeChoice = function(selectObj)
