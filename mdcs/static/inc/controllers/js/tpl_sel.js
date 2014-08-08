@@ -532,19 +532,11 @@ downloadXML = function()
 {
     console.log('BEGIN [downloadXML]');
 
-    Dajaxice.curate.saveXMLDataToDB(downloadXMLCallback,{'saveAs':"xml2download"});
+    Dajaxice.curate.downloadXML(Dajax.process);
 
     console.log('END [downloadXML]');
 }
 
-downloadXMLCallback = function() 
-{    
-    console.log('BEGIN [downloadXMLCallabck]');
-
-    window.location = '/curate/view-data/download-XML';
-    
-    console.log('END [downloadXMLCallback]');
-}
 
 downloadXSD = function()
 {

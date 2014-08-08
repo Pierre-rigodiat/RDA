@@ -7,6 +7,9 @@
 # Author: Sharief Youssef
 #         sharief.youssef@nist.gov
 #
+#         Guillaume SOUSA AMARAL
+#         guillaume.sousa@nist.gov
+#
 # Sponsor: National Institute of Standards and Technology (NIST)
 #
 ################################################################################
@@ -28,7 +31,7 @@ from xlrd import open_workbook
 from argparse import ArgumentError
 from cgi import FieldStorage
 import zipfile
-from mgi.models import Template, Database, Ontology, Htmlform, Xmldata, Hdf5file, QueryResults, SparqlQueryResults, ContactForm
+from mgi.models import Template, Database, Ontology, Htmlform, Xmldata, Hdf5file, QueryResults, SparqlQueryResults, ContactForm, XML2Download
 
 import lxml.etree as etree
 
@@ -578,11 +581,11 @@ def curate_view_data_downloadxml(request):
         if 'currentTemplate' not in request.session:
             return redirect('/curate/select-template')
         else:
-            global xmlString
+            xml2downloadID = request.GET.get('id','')
+            xmlDataObject = XML2Download.objects.get(pk=xml2downloadID)
             
-            xmlDataObject = Xmldata.objects.get(title="xml2download")
 
-            xmlStringEncoded = xmlDataObject.content.encode('utf-8') 
+            xmlStringEncoded = xmlDataObject.xml.encode('utf-8') 
             fileObj = StringIO(xmlStringEncoded)
 
             xmlDataObject.delete()

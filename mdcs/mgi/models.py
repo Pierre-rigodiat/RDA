@@ -73,6 +73,9 @@ class SavedQuery(Document):
     displayedQuery = StringField(required=True)
     ListRegex = ListField()
     ListPattern = ListField()
+    
+class XML2Download(Document):
+    xml = StringField(required=True)
 
 def postprocessor(path, key, value):
     try:

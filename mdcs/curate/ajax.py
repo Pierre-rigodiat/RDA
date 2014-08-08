@@ -28,7 +28,7 @@ from argparse import ArgumentError
 from cgi import FieldStorage
 from cStringIO import StringIO
 from django.core.servers.basehttp import FileWrapper
-from mgi.models import Template, Ontology, Htmlform, Xmldata, Hdf5file, Jsondata
+from mgi.models import Template, Ontology, Htmlform, Xmldata, Hdf5file, Jsondata, XML2Download
 
 #import xml.etree.ElementTree as etree
 import lxml.html as html
@@ -1634,5 +1634,18 @@ def changeXMLSchema(request,operation,xpath,name):
 #    generateXSDTreeForEnteringData(request)
     
     print 'END def changeXMLSchema(request)'
+    return dajax.json()
+
+
+@dajaxice_register
+def downloadXML(request):
+    dajax = Dajax()
+    global xmlString
+    
+    xml2download = XML2Download(xml=xmlString).save()
+    xml2downloadID = str(xml2download.id)
+    
+    dajax.redirect("/curate/view-data/download-XML?id="+xml2downloadID)
+    
     return dajax.json()
 
