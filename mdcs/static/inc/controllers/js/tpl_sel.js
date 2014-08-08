@@ -649,97 +649,26 @@ changeXMLSchema = function(operation,xpath,name)
     return false;
 }
 
-changeHTMLForm = function(operation,selectObj)
+changeHTMLForm = function(operation,selectObj, tagID)
 {
     console.log('BEGIN [changeHTMLForm(' + operation + ',' + selectObj + ']');
-
+    console.log(tagID);
     if (operation == 'add') {
-	var nodeToAdd = selectObj.parentNode.parentNode;
-	var parentNode = nodeToAdd.parentNode;
-
-	console.log("operation: add");
-	console.log(selectObj.parentNode);
-	console.log("occurs: " + parentNode.getAttribute("occurs"));
-
-	if (parentNode.getAttribute("occurs") == "0") {
-	    inputElements = nodeToAdd.getElementsByTagName('input');
-	    for (var i=0;i<inputElements.length;i++) {
-		inputElements[i].disabled = false;
-	    }
-	    parentNode.setAttribute("occurs", (parseInt(parentNode.getAttribute("occurs")) + 1).toString());
-	    spanElements = nodeToAdd.getElementsByClassName('icon remove');
-	    for (var i=0;i<spanElements.length;i++) {
-		spanElements[i].style.display = "";
-	    }
-	    spanElements = nodeToAdd.getElementsByClassName('icon add');
-	    for (var i=0;i<spanElements.length;i++) {
-		spanElements[i].style.display = "none";
-	    }
-	} else if (parentNode.getAttribute("occurs") == "1") {
-	    selectObj.parentNode.getElementsByClassName("icon remove")[0].style.display = "";
-
-	    newNode = nodeToAdd.cloneNode(true);
-	    parentNode.appendChild(newNode);
-	    parentNode.setAttribute("occurs", (parseInt(parentNode.getAttribute("occurs")) + 1).toString());
-	} else if (parentNode.getAttribute("occurs") == parentNode.getAttribute("minOccurs")) {
-	    selectObj.parentNode.getElementsByClassName("icon remove")[0].style.display = "";
-
-	    newNode = nodeToAdd.cloneNode(true);
-	    parentNode.appendChild(newNode);
-	    parentNode.setAttribute("occurs", (parseInt(parentNode.getAttribute("occurs")) + 1).toString());
-	    for (var j=0;j<parentNode.childNodes.length;j++) {
-		console.log("var j: " + j);
-		console.log("length: " + parentNode.childNodes.length);
-//		console.log(parentNode.innerHTML);
-		console.log(parentNode.childNodes[j].innerHTML);
-		spanElements = parentNode.childNodes[j].getElementsByClassName('icon remove');
-		for (var i=0;i<0;i++) {
-		    console.log("var : " + i);
-		    console.log(spanElements[i].parentNode.innerHTML);
-		    spanElements[i].style.display = "";
-		}
-	    }
-	} else {
-	    newNode = nodeToAdd.cloneNode(true);
-	    parentNode.appendChild(newNode);
-	    parentNode.setAttribute("occurs", (parseInt(parentNode.getAttribute("occurs")) + 1).toString());
-	}
+//		var nodeToAdd = selectObj.parentNode.parentNode;
+//		var parentNode = nodeToAdd.parentNode;
+		$("input").each(function(){
+		    $(this).attr("value", $(this).val());
+		});
+		$('select option').each(function(){ this.defaultSelected = this.selected; });
+		var xsdForm = $("#xsdForm").html()
+		Dajaxice.curate.duplicate(Dajax.process,{"tagID":tagID, "xsdForm":xsdForm})
     } else if (operation == 'remove') {
-	var nodeToRemove = selectObj.parentNode.parentNode;
-	var parentNode = nodeToRemove.parentNode;
-	
-	console.log("operation: remove");
-	console.log("nodeToRemove: " + nodeToRemove.innerHTML);
-	console.log("parentNode: " + parentNode.innerHTML);
-//	console.log(parentNode.childNodes.length);
-	console.log("occurs: " + parentNode.getAttribute("occurs"));
-
-	if (parentNode.getAttribute("occurs") == "0") {
-	    nodeToRemove.disabled = true;
-	} else if (parentNode.getAttribute("occurs") == "1") {
-	    inputElements = nodeToRemove.getElementsByTagName('input');
-	    for (var i=0;i<inputElements.length;i++) {
-		inputElements[i].disabled = true;
-	    }
-	    parentNode.setAttribute("occurs", (parseInt(parentNode.getAttribute("occurs")) - 1).toString());
-	    spanElements = nodeToRemove.getElementsByClassName('icon remove');
-	    for (var i=0;i<spanElements.length;i++) {
-		spanElements[i].style.display = "none";
-	    }
-	    spanElements = nodeToRemove.getElementsByClassName('icon add');
-	    for (var i=0;i<spanElements.length;i++) {
-		spanElements[i].style.display = "";
-	    }
-	} else if (parentNode.getAttribute("occurs") == "2") {
-	    parentNode.getElementsByClassName("icon remove")[0].style.display = "none";
-	    parentNode.getElementsByClassName("icon remove")[1].style.display = "none";
-
-	    parentNode.removeChild(nodeToRemove);
-	    parentNode.setAttribute("occurs", (parseInt(parentNode.getAttribute("occurs")) - 1).toString());
-	} else {
-	    parentNode.removeChild(nodeToRemove);
-	    parentNode.setAttribute("occurs", (parseInt(parentNode.getAttribute("occurs")) - 1).toString());
-	}
+    	$("input").each(function(){
+		    $(this).attr("value", $(this).val());
+		});
+		$('select option').each(function(){ this.defaultSelected = this.selected; });
+		var xsdForm = $("#xsdForm").html()
+		Dajaxice.curate.remove(Dajax.process,{"tagID":tagID, "xsdForm":xsdForm})
     }
     
     console.log('END [changeHTMLForm(' + operation + ',' + selectObj + ']');
