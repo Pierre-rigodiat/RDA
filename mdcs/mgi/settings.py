@@ -259,7 +259,7 @@ USER_ROLES = (
 # Logging
 # https://docs.djangoproject.com/en/1.6/topics/logging/
 
-SITE_ROOT = '/Users/ssy/Develop/Workspaces/mgi/mdcs'
+SITE_ROOT = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..').replace('\\', '/')
 
 LOGGING = {
     'version': 1,

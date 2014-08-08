@@ -31,11 +31,24 @@ setCurrentTemplateCallback = function(data)
 
     $('#template_selection').load(document.URL +  ' #template_selection', function() {
 		loadTemplateSelectionControllers();
-//		displayTemplateSelectedDialog();
+		displayTemplateSelectedDialog();
     });
     console.log('END [setCurrentTemplateCallback]');
 }
 
+displayTemplateSelectedDialog = function()
+{
+ $(function() {
+    $( "#dialog-message" ).dialog({
+      modal: true,
+      buttons: {
+        Ok: function() {
+          $( this ).dialog( "close" );
+        }
+      }
+    });
+  });
+}
 
 /*function makeInputsDroppable(){
 	$( "#queryForm input[droppable=true]" ).droppable({

@@ -44,6 +44,8 @@ formString = ""
 xmlDocTree = ""
 xmlDataTree = ""
 debugON = 0
+nbChoicesID = 0
+nbSelectedElement = 0
 
 # SPARQL : URI for the project (http://www.example.com/)
 projectURI = "http://www.example.com/"
@@ -507,6 +509,8 @@ def generateFormSubSection(xpath,selected,xmlElement):
     global xmlString
     global xmlDocTree
     global xmlDataTree
+    global nbChoicesID
+    global nbSelectedElement
     global debugON
     p = re.compile('(\{.*\})?schema', re.IGNORECASE)
 
@@ -905,7 +909,10 @@ def generateFormSubSection(xpath,selected,xmlElement):
                     newElement.attrib['onchange'] = "alert('change to ' + this.value);"
                     xmlElement.append(newElement)
                     xmlElement = newElement
-                    formString += "<ul><li><nobr>Choose <select onchange=\"changeChoice(this);\">"
+                    chooseID = nbChoicesID
+                    chooseIDStr = 'choice' + str(chooseID)
+                    nbChoicesID += 1
+                    formString += "<ul><li><nobr>Choose <select id='"+ chooseIDStr +"' onchange=\"changeChoice(this);\">"
                     choiceChildren = sequenceChild.findall('*')
                     selectedChild = choiceChildren[0]
                     xmlString += "<" + selectedChild.attrib.get('name') + "/>"
@@ -936,9 +943,9 @@ def generateFormSubSection(xpath,selected,xmlElement):
                                     newElement.text = textCapitalized
                                     xmlElement.append(newElement)
                                     if (counter > 0):
-                                        formString += "<ul id=\"" + textCapitalized + "\" style=\"display:none;\"><li><nobr>" + textCapitalized
+                                        formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\" style=\"display:none;\"><li><nobr>" + textCapitalized
                                     else:
-                                        formString += "<ul id=\"" + textCapitalized + "\"><li><nobr>" + textCapitalized
+                                        formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\"><li><nobr>" + textCapitalized
                                     xmlString += "<" + textCapitalized + ">" 
                                     formString += generateFormSubSection(choiceChild.attrib.get('type'),selected,newElement) + "</nobr></li></ul>"
                                     xmlString += "</" + textCapitalized + ">"
@@ -959,7 +966,10 @@ def generateFormSubSection(xpath,selected,xmlElement):
                                     newElement = etree.Element("option")
                                     newElement.attrib['type'] = "text"
                                     xmlElement.append(newElement)
-                                    formString += "<ul><li><nobr>" + choiceChild.attrib.get('name').capitalize() + " <input type='text'>" + "</nobr></li></ul>"
+                                    if (counter > 0):
+                                        formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\" style=\"display:none;\"><li><nobr>" + choiceChild.attrib.get('name').capitalize() + " <input type='text'>" + "</nobr></li></ul>"
+                                    else:
+                                        formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\"><li><nobr>" + choiceChild.attrib.get('name').capitalize() + " <input type='text'>" + "</nobr></li></ul>"
                     else:
                         formString += "selected not empty"
                     formString += "</nobr></li></ul>"
@@ -979,7 +989,10 @@ def generateFormSubSection(xpath,selected,xmlElement):
             newElement.attrib['onchange'] = "alert('change to ' + this.value);"
             xmlElement.append(newElement)
             xmlElement = newElement
-            formString += "<ul><li><nobr>Choose <select onchange=\"changeChoice(this);\">"
+            chooseID = nbChoicesID        
+            chooseIDStr = 'choice' + str(chooseID)
+            nbChoicesID += 1
+            formString += "<ul><li><nobr>Choose <select id='"+ chooseIDStr +"' onchange=\"changeChoice(this);\">"
             choiceChildren = complexTypeChild.findall('*')
             selectedChild = choiceChildren[0]
             xmlString += "<" + selectedChild.attrib.get('name') + "/>"
@@ -1008,9 +1021,9 @@ def generateFormSubSection(xpath,selected,xmlElement):
                             newElement.text = textCapitalized
                             xmlElement.append(newElement)
                             if (counter > 0):
-                                formString += "<ul id=\"" + textCapitalized + "\" style=\"display:none;\"><li><nobr>" + textCapitalized
+                                formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\" style=\"display:none;\"><li><nobr>" + textCapitalized
                             else:
-                                formString += "<ul id=\"" + textCapitalized + "\"><li><nobr>" + textCapitalized
+                                formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\"><li><nobr>" + textCapitalized
                             xmlString += "<" + textCapitalized + ">" 
                             formString += generateFormSubSection(choiceChild.attrib.get('type'),selected,newElement) + "</nobr></li></ul>"
                             xmlString += "</" + textCapitalized + ">"
@@ -1026,7 +1039,10 @@ def generateFormSubSection(xpath,selected,xmlElement):
                             newElement = etree.Element("nobr")
                             newElement.text = choiceChild.attrib.get('name').capitalize()
                             xmlElement.append(newElement)
-                            formString += "<ul id=\"" + textCapitalized + "\"><li><nobr>" + textCapitalized + " <input type='text'>" + "</nobr></li></ul>"
+                            if (counter > 0):
+                                formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\" style=\"display:none;\"><li><nobr>" + textCapitalized + " <input type='text'>" + "</nobr></li></ul>"
+                            else:
+                                formString += "<ul id=\""  + chooseIDStr + "-" + str(counter) + "\"><li><nobr>" + textCapitalized + " <input type='text'>" + "</nobr></li></ul>"
             else:
                 formString += "selected not empty"
             formString += "</nobr></li></ul>"
@@ -1051,8 +1067,9 @@ def generateFormSubSection(xpath,selected,xmlElement):
         if e.attrib.get('name') == "ChemicalElement":
 #            formString += "<div id=\"periodicTable\"></div>"
             currentXPath = xmlDocTree.getpath(e)
-            formString += "<div class=\"btn select-element\" onclick=\"selectElement('None',this);\"><i class=\"icon-folder-open\"></i> Select Element</div>"
-            formString += "<div id=\"elementSelected\">Current Selection: None</div>"
+            formString += "<div class=\"btn select-element\" onclick=\"selectElement('None',this,"+str(nbSelectedElement)+");\"><i class=\"icon-folder-open\"></i> Select Element</div>"
+            formString += "<div id=\"elementSelected"+ str(nbSelectedElement) +"\">Current Selection: None</div>"
+            nbSelectedElement += 1
 
             return formString
 
@@ -1121,6 +1138,11 @@ def generateForm(key,xmlElement):
     global xmlString
     global xmlDocTree
     global xmlDataTree
+    global nbChoicesID
+    global nbSelectedElement
+    
+    nbChoicesID = 0
+    nbSelectedElement = 0
 
 #    schemaRoot = xmlDocTree.getroot()
 #    formString += "schemaRoot: " + schemaRoot.tag + "<br>"

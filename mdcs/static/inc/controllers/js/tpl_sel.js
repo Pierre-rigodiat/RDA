@@ -257,7 +257,7 @@ generateXMLString = function(elementObj)
 //	    xmlString += "</" + which + ">";
 	} else if (children[i].tagName == "INPUT") {
 	    xmlString += children[i].value;
-	} else if (children[i].nodeType == 1 && children[i].getAttribute("id") == "elementSelected") {
+	} else if (children[i].nodeType == 1 && children[i].getAttribute("id") != null && children[i].getAttribute("id").indexOf("elementSelected") > -1) {
 	    var ptArray = children[i].innerHTML.split(" ");
 	    xmlString += ptArray[ptArray.length - 1];
 	} else {
@@ -315,7 +315,7 @@ saveHTMLFormCallback = function(data)
     return false;
 }
 
-selectElement = function(periodicTableElement,divElement)
+selectElement = function(periodicTableElement,divElement, selectedElementId)
 {
     console.log('BEGIN [selectElement(' + periodicTableElement + ',' + divElement + ')]');
 
@@ -327,7 +327,7 @@ selectElement = function(periodicTableElement,divElement)
             modal: true,
             buttons: {
 		Select: function() {
-		    doSelectElement(divElement);
+		    		doSelectElement(divElement, selectedElementId);
                     $( this ).dialog( "close" );
                 },
 		Cancel: function() {
@@ -408,39 +408,40 @@ chooseElement = function(element)
     console.log('END [chooseElement(' + element + ')]');
 }
 
-doSelectElement = function(divElement)
+doSelectElement = function(divElement, selectedElementId)
 {
-    console.log('BEGIN [chooseElement(' + divElement + ')]');
+    console.log('BEGIN [selectElement(' + divElement + ')]');
 
+//    var selectedElement = document.getElementById('selectedElement').innerHTML;
+//    divElement.onclick = function onclick(event) { selectElement(selectedElement,this); }
+//    divElement.parentNode.childNodes[2].innerHTML = "Current Selection: " + selectedElement;
     var selectedElement = document.getElementById('selectedElement').innerHTML;
     divElement.onclick = function onclick(event) { selectElement(selectedElement,this); }
-    divElement.parentNode.childNodes[2].innerHTML = "Current Selection: " + selectedElement;
+    document.getElementById('elementSelected'+selectedElementId).innerHTML = "Current Selection: " + selectedElement;
 
     // reset for next selection
     document.getElementById('chosenElement').innerHTML = "Chosen Element: <b>None</b>";
 
-    console.log('END [chooseElement(' + divElement + ')]');
+    console.log('END [selectElement(' + divElement + ')]');
 }
 
 changeChoice = function(selectObj)
 {
-    console.log('BEGIN [changeChoice(' + selectObj + ')]');
+    console.log('BEGIN [changeChoice(' + selectObj.id + ' : ' + selectObj.selectedIndex + ')]');
 
     // get the index of the selected option 
-    var idx = selectObj.selectedIndex; 
-    // get the value of the selected option 
-    var which = selectObj.options[idx].value; 
+    var idx = selectObj.selectedIndex;  
 
     for (i=0; i < selectObj.options.length;i++) {
-	console.log(selectObj.options[i].value);
-	if (selectObj.options[i].value == selectObj.options[idx].value) {
-	    document.getElementById(selectObj.options[i].value).style.display = "";
-	} else {
-	    document.getElementById(selectObj.options[i].value).style.display = "none";
-	}
+    	if (i == idx){
+    		$("#" + selectObj.id + "-" + i).removeAttr("style");
+		} else {
+			$("#" + selectObj.id + "-" + i).attr("style","display:none");
+		}
+    	
     }
 
-    console.log('END [changeChoice(' + selectObj + ')]');
+    console.log('END [changeChoice(' + selectObj.id + ' : ' + selectObj.selectedIndex + ')]');
 }
 
 displayTemplateSelectedDialog = function()

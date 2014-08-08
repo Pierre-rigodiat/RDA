@@ -4,7 +4,7 @@
 # Application: explore
 # Purpose:   
 #
-# Author: Guillaume Sousa
+# Author: Guillaume SOUSA AMARAL
 #         guillaume.sousa@nist.gov
 #
 # Sponsor: National Institute of Standards and Technology (NIST)
