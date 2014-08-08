@@ -1207,7 +1207,7 @@
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
   <xsd:complexType name="SampleGeometryType">
     <xsd:sequence>
-      <xsd:element minOccurs="2" maxOccurs="unbounded" name="geometry" type="MaterialGeometryType"/>
+      <xsd:element minOccurs="1" maxOccurs="unbounded" name="geometry" type="MaterialGeometryType"/>
     </xsd:sequence>
   </xsd:complexType>
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
@@ -1224,9 +1224,11 @@
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
   <xsd:complexType name="GeometryType">
     <xsd:sequence>
-      <xsd:element name="rectangular" type="RectangularType"/>
-      <xsd:element name="circular" type="CircularType"/>
-      <xsd:element name="rod" type="RodType"/>
+      <xsd:choice>
+        <xsd:element name="rectangular" type="RectangularType"/>
+        <xsd:element name="circular" type="CircularType"/>
+        <xsd:element name="rod" type="RodType"/>
+      </xsd:choice>
     </xsd:sequence>
   </xsd:complexType>
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
