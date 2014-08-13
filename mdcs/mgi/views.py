@@ -31,7 +31,7 @@ from xlrd import open_workbook
 from argparse import ArgumentError
 from cgi import FieldStorage
 import zipfile
-from mgi.models import Template, Database, Ontology, Htmlform, Xmldata, Hdf5file, QueryResults, SparqlQueryResults, ContactForm, XML2Download
+from mgi.models import Template, Database, Ontology, Htmlform, Xmldata, Hdf5file, QueryResults, SparqlQueryResults, ContactForm, XML2Download, TemplateVersion
 
 import lxml.etree as etree
 
@@ -120,10 +120,20 @@ def xml_schemas(request):
 def manage_schemas(request):
     template = loader.get_template('admin/manage_schemas.html')
     connect('mgi')
+    
+    currentTemplateVersions = []
+    for tpl_version in TemplateVersion.objects():
+        currentTemplateVersions.append(tpl_version.current)
+    
+    currentTemplates = []
+    for tpl_version in currentTemplateVersions:
+        currentTemplates.append(Template.objects.get(pk=tpl_version))
 
     context = RequestContext(request, {
+        'templates':currentTemplates
 #        'templates': Template.objects.all()
-        'templates': Template.objects.order_by('-id')
+#         'templates': Template.objects.order_by('-id')
+        
     })
     request.session['currentYear'] = currentYear()
     return HttpResponse(template.render(context))

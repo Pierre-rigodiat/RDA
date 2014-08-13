@@ -112,7 +112,7 @@ def setCurrentTemplate(request,templateFilename, templateID):
     print '>>>>' + templateFilename + ' set as current template in session'
     dajax = Dajax()
 
-    templateObject = Template.objects.get(filename=templateFilename)
+    templateObject = Template.objects.get(pk=templateID)
     xmlDocData = templateObject.content
 
     print XMLSchema.tree

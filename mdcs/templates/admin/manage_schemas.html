@@ -174,7 +174,6 @@
   <tr>
     <th>Schema name</th>
     <th>Filename</th>
-    <th>Root element</th>
     <th>Status</th>
     <th>Actions</th>
   </tr>
@@ -185,19 +184,22 @@
   <tr class="{{ rowcolors }}">
     <td>{{ template.title }}</td>
     <td>{{ template.filename }}</td>
-    <td>Experiment</td>
 
 {% if request.session.currentTemplate == template.filename %} 
 
-    <td><span style="color:blue;font-weight:bold">Current model</span></td>
-    <td><div class="icon legend delete schema" schemaid="{{ template.id }}">Delete</div></td>
-
+    <!--<td><span style="color:blue;font-weight:bold">Current model</span></td>
+    <td><div class="icon legend delete schema" schemaid="{{ template.id }}">Delete</div></td>-->
+	<td><span style="color:green;">Registered</span></td>
+	<td>
+    <div class="icon legend long version" schemaid="{{ template.id }}">Manage Versions</div>
+    <div class="icon legend long copy schema">Copy schema</div>
+    <div class="icon legend delete schema" schemaid="{{ template.id }}">Delete Schema</div></td>
 {% else %}
 
     <td><span style="color:green;">Registered</span></td>
     <td>
     <!-- <div class="icon legend extra-long add">Set as current model</div> -->
-    <div class="icon legend long add newversion">New Version</div>
+    <div class="icon legend long version" schemaid="{{ template.id }}">Manage Versions</div>
     <div class="icon legend long copy schema">Copy schema</div>
     <div class="icon legend delete schema" schemaid="{{ template.id }}">Delete Schema</div></td>
 
@@ -308,6 +310,13 @@
   </p>
   <p>
     Currently using <a href="/view-schema/{{ request.session.currentTemplate }}" target="_new">{{ request.session.currentTemplate }}</a>
+  </p>
+</div>
+
+<div id="dialog-manage-versions" title="Manage Schema Versions" style="display:none;">  
+  <p>
+  <div id="template_versions">
+  </div>
   </p>
 </div>
 

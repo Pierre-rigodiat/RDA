@@ -4,6 +4,7 @@
 loadXsdManagerHandler = function()
 {
     console.log('BEGIN [loadXsdManagerHandler]');
+    $('.version').on('click', manageVersions);    
     $('.add').on('click', setCurrentModel);
     $('.delete.schema').on('click', deleteSchema);
     $('.copy.schema').on('click', copySchema);
@@ -13,6 +14,57 @@ loadXsdManagerHandler = function()
     $('.upload.ontology').on('click', uploadOntology);
     console.log('END [loadXsdManagerHandler]');
 }
+
+manageVersions = function()
+{
+    var modelName = $(this).parent().siblings(':first').text();
+    var modelFilename = $(this).parent().siblings(':nth-child(2)').text();
+    var tdElement = $(this).parent();
+    var schemaID = $(this).attr("schemaid");
+    
+    Dajaxice.curate.manageVersions(Dajax.process, {"schemaID":schemaID});    
+}
+
+function handleVersionUpload(evt) {
+	var files = evt.target.files; // FileList object
+    reader = new FileReader();
+    reader.onload = function(e){
+    	Dajaxice.curate.setVersionContent(Dajax.process,{"versionContent":reader.result, "versionFilename":files[0].name});
+    }
+    reader.readAsText(files[0]);
+  }
+
+uploadVersion = function()
+{
+	var templateVersionID = $("#updateVersionBtn").attr("versionid");	
+	Dajaxice.curate.uploadVersion(Dajax.process,{"templateVersionID":templateVersionID})
+}
+
+setCurrentVersion = function(setCurrent)
+{
+	var schemaid = $(setCurrent).attr("schemaid");
+	Dajaxice.curate.setCurrentVersion(Dajax.process,{"schemaid":schemaid});
+}
+
+deleteVersion = function(setCurrent)
+{
+	var schemaid = $(setCurrent).attr("schemaid");
+	Dajaxice.curate.deleteVersion(Dajax.process,{"schemaid":schemaid});
+}
+
+//manageVersionsCallback = function()
+//{
+// $(function() {
+//    $("#dialog-manage-versions").dialog({
+//      modal: true,
+//      buttons: {
+//        Ok: function() {
+//          $( this ).dialog( "close" );
+//        }
+//      }
+//    });
+//  });
+//}
 
 /**
  * 

@@ -28,7 +28,7 @@ from argparse import ArgumentError
 from cgi import FieldStorage
 from cStringIO import StringIO
 from django.core.servers.basehttp import FileWrapper
-from mgi.models import Template, Ontology, Htmlform, Xmldata, Hdf5file, Jsondata, XML2Download
+from mgi.models import Template, Ontology, Htmlform, Xmldata, Hdf5file, Jsondata, XML2Download, TemplateVersion
 
 #import xml.etree.ElementTree as etree
 import lxml.html as html
@@ -54,6 +54,8 @@ nbSelectedElement = 0
 xsd_elements = None
 mapTagElement = None
 occurrences = None
+xsdVersionContent = ""
+xsdVersionFilename = ""
 
 class ElementOccurrences:
     "Class that store information about element occurrences"
@@ -360,7 +362,7 @@ def setCurrentTemplate(request,templateFilename,templateID):
     print '>>>>' + templateFilename + ' set as current template in session'
     dajax = Dajax()
 
-    templateObject = Template.objects.get(filename=templateFilename)
+    templateObject = Template.objects.get(pk=templateID)
     xmlDocData = templateObject.content
 
 #    xmlDocTree = etree.parse(BytesIO(xmlDocData.encode('utf-8')))
@@ -416,6 +418,9 @@ def uploadXMLSchema(request,xmlSchemaName,xmlSchemaFilename,xmlSchemaContent):
 
     connect('mgi')
     newTemplate = Template(title=xmlSchemaName, filename=xmlSchemaFilename, content=xmlSchemaContent).save()
+    templateVersion = TemplateVersion(versions=[str(newTemplate.id)], current=str(newTemplate.id)).save()
+    newTemplate.templateVersion = str(templateVersion.id)
+    newTemplate.save()
 
     print 'END def uploadXMLSchema(request,xmlSchemaFilename,xmlSchemaContent)'
     return dajax.json()
@@ -439,6 +444,11 @@ def deleteXMLSchema(request,xmlSchemaID):
 
     connect('mgi')
     selectedSchema = Template.objects(id=xmlSchemaID)[0]
+    templateVersion = TemplateVersion.objects.get(pk=selectedSchema.templateVersion)
+    for version in templateVersion.versions:
+        template = Template.objects.get(pk=version)
+        template.delete()
+    templateVersion.delete()
     selectedSchema.delete()
 
     print 'END def deleteXMLSchema(request,xmlSchemaID)'
@@ -1646,6 +1656,187 @@ def downloadXML(request):
     xml2downloadID = str(xml2download.id)
     
     dajax.redirect("/curate/view-data/download-XML?id="+xml2downloadID)
+    
+    return dajax.json()
+
+
+@dajaxice_register
+def manageVersions(request, schemaID):
+    dajax = Dajax()
+    connect('mgi')
+    template = Template.objects.get(pk=schemaID)
+    templateVersions = TemplateVersion.objects.get(pk=template.templateVersion)
+    
+    htmlVersionsList = "<p><b>upload new version:</b>"
+    htmlVersionsList += "<input type='file' id='fileVersion' name='files[]' multiple></input>"
+    htmlVersionsList += "<span class='btn' id='updateVersionBtn' versionid='"+str(templateVersions.id)+"' onclick='uploadVersion()'>upload</span></p>"
+    htmlVersionsList += "<table>"    
+    
+    
+    i = len(templateVersions.versions)
+    for tpl_versionID in reversed(templateVersions.versions):
+        tpl = Template.objects.get(pk=tpl_versionID)
+        htmlVersionsList += "<tr>"
+        htmlVersionsList += "<td>Version " + str(i) + "</td>"
+        if str(tpl.id) == str(templateVersions.current):
+            htmlVersionsList += "<td style='font-weight:bold;color:green'>Current</td><td></td>"
+        else:
+            htmlVersionsList += "<td></td>"        
+            htmlVersionsList += "<td><span class='btn' id='setcurrent"+str(i)+"' schemaid='"+str(tpl.id)+"' onclick='setCurrentVersion(setcurrent"+str(i)+")'>Set Current</span><span class='btn' id='delete"+str(i)+"' schemaid='"+str(tpl.id)+"' onclick='deleteVersion(delete"+str(i)+")'>Delete</span></td>"          
+        htmlVersionsList += "</tr>"
+        i -= 1
+    htmlVersionsList += "</table>"     
+
+    dajax.script("""
+        $("#template_versions").html(" """+ htmlVersionsList +""" ");    
+        $(function() {
+            $("#dialog-manage-versions").dialog({
+              modal: true,
+              width: 500,
+              buttons: {
+                Ok: function() {
+                  $( this ).dialog( "close" );                  
+                }
+              },
+              beforeClose: function( event, ui ) {
+                  window.location = "/admin/xml-schemas";
+              }
+            });            
+          });
+        document.getElementById('fileVersion').addEventListener('change',handleVersionUpload, false);
+    """)
+    return dajax.json()
+
+
+@dajaxice_register
+def setVersionContent(request, versionContent, versionFilename):
+    dajax = Dajax()
+    global xsdVersionContent
+    global xsdVersionFilename
+    
+    xsdVersionContent = versionContent
+    xsdVersionFilename = versionFilename
+    
+    return dajax.json()
+
+
+@dajaxice_register
+def uploadVersion(request, templateVersionID):
+    dajax = Dajax()
+    global xsdVersionContent
+    global xsdVersionFilename
+    connect('mgi')
+    if xsdVersionContent != "" and xsdVersionFilename != "":
+        templateVersions = TemplateVersion.objects.get(pk=templateVersionID)
+        currentTemplate = Template.objects.get(pk=templateVersions.current)
+        newTemplate = Template(title=currentTemplate.title, filename=xsdVersionFilename, content=xsdVersionContent, templateVersion=templateVersionID).save()
+        templateVersions.versions.append(str(newTemplate.id))
+        templateVersions.save()
+        
+        htmlVersionsList = "<p><b>upload new version:</b>"
+        htmlVersionsList += "<input type='file' id='fileVersion' name='files[]' multiple></input>"
+        htmlVersionsList += "<span class='btn' id='updateVersionBtn' versionid='"+str(templateVersions.id)+"' onclick='uploadVersion()'>upload</span></p>"
+        htmlVersionsList += "<table>"    
+        
+        
+        i = len(templateVersions.versions)
+        for tpl_versionID in reversed(templateVersions.versions):
+            tpl = Template.objects.get(pk=tpl_versionID)
+            htmlVersionsList += "<tr>"
+            htmlVersionsList += "<td>Version " + str(i) + "</td>"
+            if str(tpl.id) == str(templateVersions.current):
+                htmlVersionsList += "<td style='font-weight:bold;color:green'>Current</td><td></td>"
+            else:
+                htmlVersionsList += "<td></td>"        
+                htmlVersionsList += "<td><span class='btn' id='setcurrent"+str(i)+"' schemaid='"+str(tpl.id)+"' onclick='setCurrentVersion(setcurrent"+str(i)+")'>Set Current</span><span class='btn' id='delete"+str(i)+"' schemaid='"+str(tpl.id)+"' onclick='deleteVersion(delete"+str(i)+")'>Delete</span></td>"          
+            htmlVersionsList += "</tr>"
+            i -= 1
+        htmlVersionsList += "</table>"     
+    
+        dajax.script("""
+            $("#template_versions").html(" """+ htmlVersionsList +""" ");    
+            document.getElementById('fileVersion').addEventListener('change',handleVersionUpload, false);
+        """)
+    else:
+        #dialog error
+        pass
+    
+    xsdVersionContent = ""
+    xsdVersionFilename = ""
+    
+    return dajax.json()
+
+
+@dajaxice_register
+def setCurrentVersion(request, schemaid):
+    dajax = Dajax()
+    connect('mgi')
+    selectedTemplate = Template.objects.get(pk=schemaid)
+    templateVersions = TemplateVersion.objects.get(pk=selectedTemplate.templateVersion)
+    templateVersions.current = str(selectedTemplate.id)
+    templateVersions.save()
+    
+    htmlVersionsList = "<p><b>upload new version:</b>"
+    htmlVersionsList += "<input type='file' id='fileVersion' name='files[]' multiple></input>"
+    htmlVersionsList += "<span class='btn' id='updateVersionBtn' versionid='"+str(templateVersions.id)+"' onclick='uploadVersion()'>upload</span></p>"
+    htmlVersionsList += "<table>"    
+    
+    
+    i = len(templateVersions.versions)
+    for tpl_versionID in reversed(templateVersions.versions):
+        tpl = Template.objects.get(pk=tpl_versionID)
+        htmlVersionsList += "<tr>"
+        htmlVersionsList += "<td>Version " + str(i) + "</td>"
+        if str(tpl.id) == str(templateVersions.current):
+            htmlVersionsList += "<td style='font-weight:bold;color:green'>Current</td><td></td>"
+        else:
+            htmlVersionsList += "<td></td>"        
+            htmlVersionsList += "<td><span class='btn' id='setcurrent"+str(i)+"' schemaid='"+str(tpl.id)+"' onclick='setCurrentVersion(setcurrent"+str(i)+")'>Set Current</span><span class='btn' id='delete"+str(i)+"' schemaid='"+str(tpl.id)+"' onclick='deleteVersion(delete"+str(i)+")'>Delete</span></td>"          
+        htmlVersionsList += "</tr>"
+        i -= 1
+    htmlVersionsList += "</table>"     
+
+    dajax.script("""
+        $("#template_versions").html(" """+ htmlVersionsList +""" ");    
+        document.getElementById('fileVersion').addEventListener('change',handleVersionUpload, false);
+    """)
+    
+    return dajax.json()
+
+@dajaxice_register
+def deleteVersion(request, schemaid):
+    dajax = Dajax()
+    connect('mgi')
+    selectedTemplate = Template.objects.get(pk=schemaid)
+    templateVersions = TemplateVersion.objects.get(pk=selectedTemplate.templateVersion)
+    del templateVersions.versions[templateVersions.versions.index(schemaid)]
+    templateVersions.save()
+    selectedTemplate.delete()
+    
+    htmlVersionsList = "<p><b>upload new version:</b>"
+    htmlVersionsList += "<input type='file' id='fileVersion' name='files[]' multiple></input>"
+    htmlVersionsList += "<span class='btn' id='updateVersionBtn' versionid='"+str(templateVersions.id)+"' onclick='uploadVersion()'>upload</span></p>"
+    htmlVersionsList += "<table>"    
+    
+    
+    i = len(templateVersions.versions)
+    for tpl_versionID in reversed(templateVersions.versions):
+        tpl = Template.objects.get(pk=tpl_versionID)
+        htmlVersionsList += "<tr>"
+        htmlVersionsList += "<td>Version " + str(i) + "</td>"
+        if str(tpl.id) == str(templateVersions.current):
+            htmlVersionsList += "<td style='font-weight:bold;color:green'>Current</td><td></td>"
+        else:
+            htmlVersionsList += "<td></td>"        
+            htmlVersionsList += "<td><span class='btn' id='setcurrent"+str(i)+"' schemaid='"+str(tpl.id)+"' onclick='setCurrentVersion(setcurrent"+str(i)+")'>Set Current</span><span class='btn' id='delete"+str(i)+"' schemaid='"+str(tpl.id)+"' onclick='deleteVersion(delete"+str(i)+")'>Delete</span></td>"          
+        htmlVersionsList += "</tr>"
+        i -= 1
+    htmlVersionsList += "</table>"    
+
+    dajax.script("""
+        $("#template_versions").html(" """+ htmlVersionsList +""" ");    
+        document.getElementById('fileVersion').addEventListener('change',handleVersionUpload, false);
+    """)
     
     return dajax.json()
 

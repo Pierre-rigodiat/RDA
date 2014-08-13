@@ -7,6 +7,9 @@
 # Author: Sharief Youssef
 #         sharief.youssef@nist.gov
 #
+#         Guillaume SOUSA AMARAL
+#         guillaume.sousa@nist.gov
+#
 # Sponsor: National Institute of Standards and Technology (NIST)
 #
 ################################################################################
@@ -28,6 +31,11 @@ class Template(Document):
     title = StringField(required=True)
     filename = StringField(required=True)
     content = StringField(required=True)
+    templateVersion = StringField()
+
+class TemplateVersion(Document):
+    versions = ListField(StringField())
+    current = StringField(required=True)
 
 class Ontology(Document):
     title = StringField(required=True)

@@ -24,7 +24,7 @@ from django.template import RequestContext, loader
 from django.shortcuts import redirect
 from datetime import date
 from mongoengine import *
-from mgi.models import Template
+from mgi.models import Template, TemplateVersion
 
 def currentYear():
     return date.today().year
@@ -44,9 +44,17 @@ def index(request):
     request.session['currentYear'] = currentYear()
     if request.user.is_authenticated():
         connect('mgi')
-
+    
+        currentTemplateVersions = []
+        for tpl_version in TemplateVersion.objects():
+            currentTemplateVersions.append(tpl_version.current)
+        
+        currentTemplates = []
+        for tpl_version in currentTemplateVersions:
+            currentTemplates.append(Template.objects.get(pk=tpl_version))
+            
         context = RequestContext(request, {
-                'templates': Template.objects,
+                'templates': currentTemplates,
                 })
         return HttpResponse(template.render(context))
     else:
