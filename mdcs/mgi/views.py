@@ -899,6 +899,107 @@ def explore_download_sparqlresults(request):
 
 ################################################################################
 #
+# Function Name: compose(request)
+# Inputs:        request - 
+# Outputs:       
+# Exceptions:    None
+# Description:   
+#                
+#
+################################################################################
+def compose(request):
+#    logout(request)
+    template = loader.get_template('compose.html')
+    context = RequestContext(request, {
+        '': '',
+    })
+    request.session['currentYear'] = currentYear()
+    if request.user.is_authenticated():
+        return HttpResponse(template.render(context))
+#        return HttpResponse("HomePage: User is authenticated")
+    else:
+        if 'loggedOut' in request.session:
+            del request.session['loggedOut']
+        request.session['next'] = '/compose'
+        return redirect('/login')
+
+################################################################################
+#
+# Function Name: compose_select_template(request)
+# Inputs:        request - 
+# Outputs:       
+# Exceptions:    None
+# Description:   
+#                
+#
+################################################################################
+def compose_select_template(request):
+#    logout(request)
+    template = loader.get_template('compose.html')
+    context = RequestContext(request, {
+        '': '',
+    })
+    request.session['currentYear'] = currentYear()
+    if request.user.is_authenticated():
+        return HttpResponse(template.render(context))
+    else:
+        if 'loggedOut' in request.session:
+            del request.session['loggedOut']
+        request.session['next'] = '/compose/select-template'
+        return redirect('/login')
+
+################################################################################
+#
+# Function Name: compose_build_template(request)
+# Inputs:        request - 
+# Outputs:       
+# Exceptions:    None
+# Description:   
+#                
+#
+################################################################################
+def compose_build_template(request):
+#    logout(request)
+    template = loader.get_template('compose_build_template.html')
+    context = RequestContext(request, {
+        '': '',
+    })
+    request.session['currentYear'] = currentYear()
+    if request.user.is_authenticated():
+        return HttpResponse(template.render(context))
+    else:
+        if 'loggedOut' in request.session:
+            del request.session['loggedOut']
+        request.session['next'] = '/compose/build-template'
+        return redirect('/login')
+
+################################################################################
+#
+# Function Name: compose_view_template(request)
+# Inputs:        request - 
+# Outputs:       
+# Exceptions:    None
+# Description:   
+#                
+#
+################################################################################
+def compose_view_template(request):
+#    logout(request)
+    template = loader.get_template('compose_view_template.html')
+    context = RequestContext(request, {
+        '': '',
+    })
+    request.session['currentYear'] = currentYear()
+    if request.user.is_authenticated():
+        return HttpResponse(template.render(context))
+    else:
+        if 'loggedOut' in request.session:
+            del request.session['loggedOut']
+        request.session['next'] = '/compose/view-template'
+        return redirect('/login')
+
+################################################################################
+#
 # Function Name: contribute(request)
 # Inputs:        request - 
 # Outputs:       
