@@ -7,13 +7,16 @@
 # Author: Sharief Youssef
 #         sharief.youssef@nist.gov
 #
+#         Guillaume SOUSA AMARAL
+#         guillaume.sousa@nist.gov
+#
 # Sponsor: National Institute of Standards and Technology (NIST)
 #
 ################################################################################
 
 from rest_framework import serializers
 from rest_framework_mongoengine.serializers import MongoEngineModelSerializer
-from mgi.models import SavedQuery
+from mgi.models import SavedQuery, Template
 
 class jsonDataSerializer(serializers.Serializer):
     title = serializers.CharField()
@@ -34,12 +37,5 @@ class sparqlQuerySerializer(serializers.Serializer):
     
 class sparqlResultsSerializer(serializers.Serializer):
     content = serializers.CharField()
-        
-        
-# Previous work
-from curate.models import Task
-class TaskSerializer(serializers.ModelSerializer):
 
-    class Meta:
-        model = Task
-        fields = ('title', 'description', 'completed') 
+        

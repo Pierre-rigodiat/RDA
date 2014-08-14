@@ -25,6 +25,4 @@ urlpatterns = patterns(
     url(r'^explore/$', 'explore', name='explore'),
     url(r'^explore/query-by-example/$', 'query_by_example', name='query_by_example'),
     url(r'^explore/sparql-query/$', 'sparql_query', name='sparql_query'),
-    url(r'^tasks/$', 'task_list', name='task_list'),
-    url(r'^tasks/(?P<pk>[0-9]+)$', 'task_detail', name='task_detail'),
 )
