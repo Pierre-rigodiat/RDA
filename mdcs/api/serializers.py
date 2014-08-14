@@ -38,4 +38,7 @@ class sparqlQuerySerializer(serializers.Serializer):
 class sparqlResultsSerializer(serializers.Serializer):
     content = serializers.CharField()
 
+class schemaSerializer(MongoEngineModelSerializer):
+    class Meta:
+        model = Template
         
