@@ -47,9 +47,22 @@ setCurrentVersion = function(setCurrent)
 }
 
 deleteVersion = function(setCurrent)
-{
-	var schemaid = $(setCurrent).attr("schemaid");
-	Dajaxice.curate.deleteVersion(Dajax.process,{"schemaid":schemaid});
+{			
+	$(function() {
+	        $( "#dialog-deleteversion-message" ).dialog({
+	            modal: true,
+	            buttons: {
+			Yes: function() {
+						var schemaid = $(setCurrent).attr("schemaid");
+						Dajaxice.curate.deleteVersion(Dajax.process,{"schemaid":schemaid});
+	                    $( this ).dialog( "close" );
+	                },
+			No: function() {
+	                    $( this ).dialog( "close" );
+	                }
+		    }
+	        });
+	    });
 }
 
 //manageVersionsCallback = function()

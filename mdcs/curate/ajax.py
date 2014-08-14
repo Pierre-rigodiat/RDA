@@ -1659,6 +1659,7 @@ def downloadXML(request):
     
     return dajax.json()
 
+from bson.objectid import ObjectId
 
 @dajaxice_register
 def manageVersions(request, schemaID):
@@ -1675,14 +1676,16 @@ def manageVersions(request, schemaID):
     
     i = len(templateVersions.versions)
     for tpl_versionID in reversed(templateVersions.versions):
-        tpl = Template.objects.get(pk=tpl_versionID)
+        tpl = Template.objects.get(pk=tpl_versionID)        
         htmlVersionsList += "<tr>"
         htmlVersionsList += "<td>Version " + str(i) + "</td>"
         if str(tpl.id) == str(templateVersions.current):
             htmlVersionsList += "<td style='font-weight:bold;color:green'>Current</td><td></td>"
         else:
-            htmlVersionsList += "<td></td>"        
-            htmlVersionsList += "<td><span class='btn' id='setcurrent"+str(i)+"' schemaid='"+str(tpl.id)+"' onclick='setCurrentVersion(setcurrent"+str(i)+")'>Set Current</span><span class='btn' id='delete"+str(i)+"' schemaid='"+str(tpl.id)+"' onclick='deleteVersion(delete"+str(i)+")'>Delete</span></td>"          
+            htmlVersionsList += "<td><span class='icon legend long' id='setcurrent"+str(i)+"' schemaid='"+str(tpl.id)+"' onclick='setCurrentVersion(setcurrent"+str(i)+")'>Set Current</span></td>"        
+            htmlVersionsList += "<td><span class='icon legend delete' id='delete"+str(i)+"' schemaid='"+str(tpl.id)+"' onclick='deleteVersion(delete"+str(i)+")'>Delete</span></td>"
+        objectid = ObjectId(tpl.id)
+        htmlVersionsList += "<td>" + objectid.generation_time.strftime('%m/%d/%Y') + "</td>"
         htmlVersionsList += "</tr>"
         i -= 1
     htmlVersionsList += "</table>"     
@@ -1695,6 +1698,9 @@ def manageVersions(request, schemaID):
               width: 500,
               buttons: {
                 Ok: function() {
+                  $( this ).dialog( "close" );                  
+                },
+                Cancel: function() {
                   $( this ).dialog( "close" );                  
                 }
               },
@@ -1747,8 +1753,10 @@ def uploadVersion(request, templateVersionID):
             if str(tpl.id) == str(templateVersions.current):
                 htmlVersionsList += "<td style='font-weight:bold;color:green'>Current</td><td></td>"
             else:
-                htmlVersionsList += "<td></td>"        
-                htmlVersionsList += "<td><span class='btn' id='setcurrent"+str(i)+"' schemaid='"+str(tpl.id)+"' onclick='setCurrentVersion(setcurrent"+str(i)+")'>Set Current</span><span class='btn' id='delete"+str(i)+"' schemaid='"+str(tpl.id)+"' onclick='deleteVersion(delete"+str(i)+")'>Delete</span></td>"          
+                htmlVersionsList += "<td><span class='icon legend long' id='setcurrent"+str(i)+"' schemaid='"+str(tpl.id)+"' onclick='setCurrentVersion(setcurrent"+str(i)+")'>Set Current</span></td>"        
+                htmlVersionsList += "<td><span class='icon legend delete' id='delete"+str(i)+"' schemaid='"+str(tpl.id)+"' onclick='deleteVersion(delete"+str(i)+")'>Delete</span></td>"
+            objectid = ObjectId(tpl.id)
+            htmlVersionsList += "<td>" + objectid.generation_time.strftime('%m/%d/%Y') + "</td>"          
             htmlVersionsList += "</tr>"
             i -= 1
         htmlVersionsList += "</table>"     
@@ -1790,8 +1798,10 @@ def setCurrentVersion(request, schemaid):
         if str(tpl.id) == str(templateVersions.current):
             htmlVersionsList += "<td style='font-weight:bold;color:green'>Current</td><td></td>"
         else:
-            htmlVersionsList += "<td></td>"        
-            htmlVersionsList += "<td><span class='btn' id='setcurrent"+str(i)+"' schemaid='"+str(tpl.id)+"' onclick='setCurrentVersion(setcurrent"+str(i)+")'>Set Current</span><span class='btn' id='delete"+str(i)+"' schemaid='"+str(tpl.id)+"' onclick='deleteVersion(delete"+str(i)+")'>Delete</span></td>"          
+            htmlVersionsList += "<td><span class='icon legend long' id='setcurrent"+str(i)+"' schemaid='"+str(tpl.id)+"' onclick='setCurrentVersion(setcurrent"+str(i)+")'>Set Current</span></td>"        
+            htmlVersionsList += "<td><span class='icon legend delete' id='delete"+str(i)+"' schemaid='"+str(tpl.id)+"' onclick='deleteVersion(delete"+str(i)+")'>Delete</span></td>"          
+        objectid = ObjectId(tpl.id)
+        htmlVersionsList += "<td>" + objectid.generation_time.strftime('%m/%d/%Y') + "</td>"
         htmlVersionsList += "</tr>"
         i -= 1
     htmlVersionsList += "</table>"     
@@ -1827,8 +1837,10 @@ def deleteVersion(request, schemaid):
         if str(tpl.id) == str(templateVersions.current):
             htmlVersionsList += "<td style='font-weight:bold;color:green'>Current</td><td></td>"
         else:
-            htmlVersionsList += "<td></td>"        
-            htmlVersionsList += "<td><span class='btn' id='setcurrent"+str(i)+"' schemaid='"+str(tpl.id)+"' onclick='setCurrentVersion(setcurrent"+str(i)+")'>Set Current</span><span class='btn' id='delete"+str(i)+"' schemaid='"+str(tpl.id)+"' onclick='deleteVersion(delete"+str(i)+")'>Delete</span></td>"          
+            htmlVersionsList += "<td><span class='icon legend long' id='setcurrent"+str(i)+"' schemaid='"+str(tpl.id)+"' onclick='setCurrentVersion(setcurrent"+str(i)+")'>Set Current</span></td>"        
+            htmlVersionsList += "<td><span class='icon legend delete' id='delete"+str(i)+"' schemaid='"+str(tpl.id)+"' onclick='deleteVersion(delete"+str(i)+")'>Delete</span></td>"          
+        objectid = ObjectId(tpl.id)
+        htmlVersionsList += "<td>" + objectid.generation_time.strftime('%m/%d/%Y') + "</td>"
         htmlVersionsList += "</tr>"
         i -= 1
     htmlVersionsList += "</table>"    
