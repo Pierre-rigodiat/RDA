@@ -7,6 +7,9 @@
 # Author: Sharief Youssef
 #         sharief.youssef@nist.gov
 #
+#         Guillaume SOUSA AMARAL
+#         guillaume.sousa@nist.gov
+#
 # Sponsor: National Institute of Standards and Technology (NIST)
 #
 ################################################################################
@@ -15,10 +18,12 @@
 from rest_framework.decorators import api_view
 from rest_framework import generics
 from rest_framework.status import HTTP_200_OK
+from rest_framework import status
+from rest_framework.response import Response
 # Models
-from mgi.models import SavedQuery, Jsondata
+from mgi.models import SavedQuery, Jsondata, Template, TemplateVersion
 # Serializers
-from api.serializers import savedQuerySerializer, jsonDataSerializer, querySerializer, sparqlQuerySerializer, sparqlResultsSerializer
+from api.serializers import savedQuerySerializer, jsonDataSerializer, querySerializer, sparqlQuerySerializer, sparqlResultsSerializer, schemaSerializer
 
 from explore import sparqlPublisher
 from curate import rdfPublisher
@@ -209,81 +214,61 @@ def curate(request):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-# Previous work
-from django.shortcuts import render
-from rest_framework import status
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
 
-#from rest_framework.generics import (
-#    ListCreateAPIView, RetrieveUpdateDestroyAPIView)
-
-from curate.models import Task
-from api.serializers import TaskSerializer
-from api.permissions import IsOwnerOrReadOnly
-
-
-#class TaskMixin(object):
-#    queryset = Task.objects.all()
-#    serializer_class = TaskSerializer
-#    permission_classes = (IsOwnerOrReadOnly,)
-
-#    def pre_save(self,obj):
-#        obj.owner = self.request.user
-
-#class TaskList(TaskMixin, ListCreateAPIView):
-#    pass
-
-#class TaskDetail(TaskMixin, RetrieveUpdateDestroyAPIView):
-#    pass
-
-@api_view(['GET', 'POST'])
-def task_list(request):
+@api_view(['POST'])
+def add_schema(request):
     """
-    List all tasks, or creat a new task.
+    POST http://localhost/api/schema/add/
+    POST data title="title", filename="filename", content="<xsd:schema>...</xsd:schema>" templateVersion="id"
     """
-
-    if request.method == 'GET':
-        print "task_list GET request"
-        tasks = Task.objects.all()
-        serializer = TaskSerializer(tasks)
-        return Response(serializers.data)
-
-    elif request.method == 'POST':
-        print "task_list POST request"
-        serializer = TaskSerializer(data=request.DATA)
-        if serializer.is_valid():
-            serializer.save()
-            return Response (serializer.data, status=status.HTTP_201_CREATED)
+    sSerializer = schemaSerializer(data=request.DATA)
+    if sSerializer.is_valid():
+        if "templateVersion" in request.DATA:
+            try:
+                templateVersions = TemplateVersion.objects.get(pk=request.DATA['templateVersion'])
+                newTemplate = Template(title=request.DATA['title'], filename=request.DATA['filename'], content=request.DATA['content'], templateVersion=request.DATA['templateVersion']).save()
+                templateVersions.versions.append(str(newTemplate.id))
+                templateVersions.save()
+            except:
+                return Response(status=status.HTTP_400_BAD_REQUEST)
         else:
-            return Response (
-                serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            newTemplate = Template(title=request.DATA['title'], filename=request.DATA['filename'], content=request.DATA['content']).save()
+            templateVersion = TemplateVersion(versions=[str(newTemplate.id)], current=str(newTemplate.id)).save()
+            newTemplate.templateVersion = str(templateVersion.id)
+            newTemplate.save()
+        return Response(sSerializer.data, status=status.HTTP_201_CREATED)
+    return Response(status=status.HTTP_400_BAD_REQUEST)
 
-@api_view(['GET','PUT','DELETE'])
-def task_detail(request, pk):
+@api_view(['GET'])
+def select_schema(request, pk):
     """
-    Get, update, or delete a specific task
+    GET http://localhost/api/schema/select/<id>
     """
-
     try:
-        task = Task.objects.get(pk=pk)
-    except Task.DoesNotExist:
+        template = Template.objects.get(pk=pk)
+    except:
         return Response(status=status.HTTP_404_NOT_FOUND)
 
-    if request.method == 'GET':
-        serializer = TaskSerializer(task)
-        return Response(serializer.data)
+    serializer = schemaSerializer(template)
+    return Response(serializer.data)
 
-    elif request.method == 'PUT':
-        serializer = TaskSerializer(task, data=request.DATA)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+@api_view(['GET'])
+def delete_schema(request, pk):
+    """
+    GET http://localhost/api/schema/delete/<id>
+    Can't delete template if it is the current version
+    """
+    try:
+        template = Template.objects.get(pk=pk)
+    except:
+        return Response(status=status.HTTP_404_NOT_FOUND)
 
-    elif request.method == 'DELETE':
-        task.delete()
+    templateVersion = TemplateVersion.objects.get(pk=template.templateVersion)
+    if templateVersion.current == template.id:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+    else:
+        del templateVersion.versions[templateVersion.versions.index(str(template.id))]
+        templateVersion.save()
+        template.delete()
+    
         return Response(status=status.HTTP_204_NO_CONTENT)
-
-

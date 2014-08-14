@@ -33,10 +33,5 @@ class Post(Document):
     tags = ListField(StringField(max_length=30))
     comments = ListField(EmbeddedDocumentField(Comment))
 
-class Task(models.Model):
-    completed = models.BooleanField(default=False)
-    title = models.CharField(max_length=100)
-    description = models.TextField()
-
 class XMLSchema(models.Model):
     tree = etree.ElementTree

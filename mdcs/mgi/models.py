@@ -247,8 +247,3 @@ class Jsondata():
         xmldata.update({'_id': ObjectId(postID)}, {"$set":json}, upsert=False)
     
         
-
-#class Task(models.Model):
-#    def foo(self):
-#        return "bar"
-
