@@ -263,12 +263,16 @@ def delete_schema(request, pk):
     except:
         return Response(status=status.HTTP_404_NOT_FOUND)
 
-    templateVersion = TemplateVersion.objects.get(pk=template.templateVersion)
-    if templateVersion.current == template.id:
-        return Response(status=status.HTTP_400_BAD_REQUEST)
+    if hasattr(template,'version'):
+        templateVersion = TemplateVersion.objects.get(pk=template.templateVersion)
+        if templateVersion.current == template.id:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        else:
+            del templateVersion.versions[templateVersion.versions.index(str(template.id))]
+            templateVersion.save()
+            template.delete()
+        
+            return Response(status=status.HTTP_204_NO_CONTENT)
     else:
-        del templateVersion.versions[templateVersion.versions.index(str(template.id))]
-        templateVersion.save()
         template.delete()
-    
         return Response(status=status.HTTP_204_NO_CONTENT)
