@@ -7,11 +7,14 @@
 # Author: Sharief Youssef
 #         sharief.youssef@nist.gov
 #
+#         Guillaume SOUSA AMARAL
+#         guillaume.sousa@nist.gov
+#
 # Sponsor: National Institute of Standards and Technology (NIST)
 #
 ################################################################################
 
-from mgi.models import SavedQuery, Jsondata
+from mgi.models import SavedQuery, Jsondata, Template, TemplateVersion
 from django.core.urlresolvers import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -187,29 +190,30 @@ class JsonDataDetailsTestCase(APITestCase):
         currentNbQueries = len(Jsondata.objects())
         self.assertEqual(currentNbQueries, nbQueries - 1)
      
-class CurateTestCase(APITestCase):
-    """
-        Test case for curate
-    """
-     
-    def test_POST(self):
-        url = reverse('curate')
-        params = {"title":"title","schema":"schema","content":"<test>value</test>"}
-          
-        # Test post new data
-        nbData = len(Jsondata.objects())
-        response = self.client.post(url, data=params)
-        
-        # Test HTTP Response CREATED
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        
-        # Test that the document was well inserted
-        self.assertEqual(nbData + 1, len(Jsondata.objects()))
-        query = {"title":"title","schema":"schema"}
-        
-        # Delete the data
-        results = Jsondata.find(query)
-        Jsondata.delete(results[0]['_id'])
+# DO NOT USE on production environment because it adds triples that can't be removed for now
+# class CurateTestCase(APITestCase):
+#     """
+#         Test case for curate
+#     """
+#      
+#     def test_POST(self):
+#         url = reverse('curate')
+#         params = {"title":"title","schema":"schema","content":"<test>value</test>"}
+#           
+#         # Test post new data
+#         nbData = len(Jsondata.objects())
+#         response = self.client.post(url, data=params)
+#         
+#         # Test HTTP Response CREATED
+#         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+#         
+#         # Test that the document was well inserted
+#         self.assertEqual(nbData + 1, len(Jsondata.objects()))
+#         query = {"title":"title","schema":"schema"}
+#         
+#         # Delete the data
+#         results = Jsondata.find(query)
+#         Jsondata.delete(results[0]['_id'])
         
 class ExploreTestCase(APITestCase):
     """
@@ -267,5 +271,73 @@ class SparqlTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         etree.fromstring(eval(response.content)['content'])
     
+class AddSchemaTestCase(APITestCase):
+    """
+        Test case for schema addition
+    """
+     
+    def test_POST(self):
+        url = reverse('add_schema')
+        
+        # TEST HTTP 201 CREATED
+        params = {"title": "title","filename":"filename","content":"content"}        
+        response = self.client.post(url, data=params)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        template = Template.objects(title = "title", filename = "filename", content = "content")[0]
+        TemplateVersion.objects.get(pk=template.templateVersion).delete()
+        template.delete()
+          
+        # TEST HTTP 201 CREATED (with version)
+        template1 = Template(title = "title1", filename = "filename1", content = "content1").save()
+        templateVersion = TemplateVersion(versions=[str(template1.id)], current=str(template1.id)).save()
+        params = {"title": "title","filename":"filename","content":"content","templateVersion":str(templateVersion.id)}        
+        response = self.client.post(url, data=params)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        Template.objects(title = "title", filename = "filename", content = "content")[0].delete()
+        Template.objects.get(pk=template1.id).delete()
+        TemplateVersion.objects.get(pk=templateVersion.id).delete()
+        
+        # TEST HTTP 400 BAD REQUEST (with wrong version id)        
+        params = {"title": "title","filename":"filename","content":"content","templateVersion":"NOT_A_VALID_ID"}        
+        response = self.client.post(url, data=params)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)      
         
         
+class SelectSchemaTestCase(APITestCase):
+    """
+        Test case for schema selection
+    """
+     
+    def test_GET(self):
+        # Test insert a template and get it
+        template = Template(title = "title", filename = "filename", content = "content").save()
+        id = template.id
+          
+        url = '/api/schema/select/' + str(id)
+        response = self.client.get(url)
+          
+        self.assertEqual(response.status_code, HTTP_200_OK)
+        template = response.data
+        self.assertEqual(template['title'],"title")
+        self.assertEqual(template['filename'],"filename")
+        self.assertEqual(template['content'],"content")
+        Template(id=str(id)).delete()
+        
+class DeleteSchemaTestCase(APITestCase):
+    """
+        Test case for schema deletion
+    """
+     
+    def test_GET(self):
+        # Test insert a template and get it
+        template = Template(title = "title", filename = "filename", content = "content").save()
+        id = template.id
+          
+        nbTemplates = len(Template.objects)
+          
+        url = '/api/schema/delete/' + str(id)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, HTTP_204_NO_CONTENT)
+          
+        currentNbTemplates = len(Template.objects)
+        self.assertEqual(currentNbTemplates, nbTemplates - 1)

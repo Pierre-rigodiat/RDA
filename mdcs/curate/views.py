@@ -43,7 +43,7 @@ def index(request):
         for tpl_version in TemplateVersion.objects():
             currentTemplateVersions.append(tpl_version.current)
         
-        currentTemplates = []
+        currentTemplates = []        
         for tpl_version in currentTemplateVersions:
             currentTemplates.append(Template.objects.get(pk=tpl_version))
 
