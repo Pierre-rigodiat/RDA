@@ -4,6 +4,7 @@ loadTemplateSelectionControllers = function()
 {
     console.log('BEGIN [loadTemplateSelectionControllers]');
     $('.btn.set-template').on('click', setCurrentTemplate);
+    $('.btn.set-compose-template').on('click', setCurrentComposeTemplate);
     $('.btn.set-explore-template').on('click', setExploreCurrentTemplate);
     console.log('END [loadTemplateSelectionControllers]');
 }
@@ -720,6 +721,23 @@ setCurrentTemplate = function()
 //        contentType: false,
 //        processData: false
 //    });
+
+    return false;
+}
+
+
+setCurrentComposeTemplate = function()
+{
+    var templateName = $(this).parent().parent().children(':first').text();
+    var templateFilename = $(this).parent().parent().children(':nth-child(2)').text();
+    var tdElement = $(this).parent();
+		
+    tdElement.html('<img src="/static/resources/img/ajax-loader.gif" alt="Loading..."/>');
+    $('.btn.set-template').off('click');
+    
+    console.log('[setCurrentComposeTemplate] Setting '+templateName+' with filename '+templateFilename+' as current template...');
+
+    Dajaxice.compose.setCurrentTemplate(setCurrentTemplateCallback,{'templateFilename':templateFilename,'templateID':templateID});
 
     return false;
 }
