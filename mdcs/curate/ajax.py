@@ -29,6 +29,8 @@ from cgi import FieldStorage
 from cStringIO import StringIO
 from django.core.servers.basehttp import FileWrapper
 from mgi.models import Template, Ontology, Htmlform, Xmldata, Hdf5file, Jsondata, XML2Download, TemplateVersion
+from datetime import datetime
+from datetime import tzinfo
 
 #import xml.etree.ElementTree as etree
 import lxml.html as html
@@ -1660,7 +1662,7 @@ def downloadXML(request):
     return dajax.json()
 
 from bson.objectid import ObjectId
-
+from dateutil import tz
 @dajaxice_register
 def manageVersions(request, schemaID):
     dajax = Dajax()
@@ -1685,11 +1687,15 @@ def manageVersions(request, schemaID):
             htmlVersionsList += "<td><span class='icon legend long' id='setcurrent"+str(i)+"' schemaid='"+str(tpl.id)+"' onclick='setCurrentVersion(setcurrent"+str(i)+")'>Set Current</span></td>"        
             htmlVersionsList += "<td><span class='icon legend delete' id='delete"+str(i)+"' schemaid='"+str(tpl.id)+"' onclick='deleteVersion(delete"+str(i)+")'>Delete</span></td>"
         objectid = ObjectId(tpl.id)
-        htmlVersionsList += "<td>" + objectid.generation_time.strftime('%m/%d/%Y') + "</td>"
+        from_zone = tz.tzutc()
+        to_zone = tz.tzlocal()
+        datetimeUTC = objectid.generation_time
+        datetimeUTC = datetimeUTC.replace(tzinfo=from_zone)
+        datetimeLocal = datetimeUTC.astimezone(to_zone)
+        htmlVersionsList += "<td>" + datetimeLocal.strftime('%m/%d/%Y %H&#58;%M&#58;%S') + "</td>"
         htmlVersionsList += "</tr>"
         i -= 1
     htmlVersionsList += "</table>"     
-
     dajax.script("""
         $("#template_versions").html(" """+ htmlVersionsList +""" ");    
         $(function() {
@@ -1756,7 +1762,12 @@ def uploadVersion(request, templateVersionID):
                 htmlVersionsList += "<td><span class='icon legend long' id='setcurrent"+str(i)+"' schemaid='"+str(tpl.id)+"' onclick='setCurrentVersion(setcurrent"+str(i)+")'>Set Current</span></td>"        
                 htmlVersionsList += "<td><span class='icon legend delete' id='delete"+str(i)+"' schemaid='"+str(tpl.id)+"' onclick='deleteVersion(delete"+str(i)+")'>Delete</span></td>"
             objectid = ObjectId(tpl.id)
-            htmlVersionsList += "<td>" + objectid.generation_time.strftime('%m/%d/%Y') + "</td>"          
+            from_zone = tz.tzutc()
+            to_zone = tz.tzlocal()
+            datetimeUTC = objectid.generation_time
+            datetimeUTC = datetimeUTC.replace(tzinfo=from_zone)
+            datetimeLocal = datetimeUTC.astimezone(to_zone)
+            htmlVersionsList += "<td>" + datetimeLocal.strftime('%m/%d/%Y %H&#58;%M&#58;%S') + "</td>"         
             htmlVersionsList += "</tr>"
             i -= 1
         htmlVersionsList += "</table>"     
@@ -1801,7 +1812,12 @@ def setCurrentVersion(request, schemaid):
             htmlVersionsList += "<td><span class='icon legend long' id='setcurrent"+str(i)+"' schemaid='"+str(tpl.id)+"' onclick='setCurrentVersion(setcurrent"+str(i)+")'>Set Current</span></td>"        
             htmlVersionsList += "<td><span class='icon legend delete' id='delete"+str(i)+"' schemaid='"+str(tpl.id)+"' onclick='deleteVersion(delete"+str(i)+")'>Delete</span></td>"          
         objectid = ObjectId(tpl.id)
-        htmlVersionsList += "<td>" + objectid.generation_time.strftime('%m/%d/%Y') + "</td>"
+        from_zone = tz.tzutc()
+        to_zone = tz.tzlocal()
+        datetimeUTC = objectid.generation_time
+        datetimeUTC = datetimeUTC.replace(tzinfo=from_zone)
+        datetimeLocal = datetimeUTC.astimezone(to_zone)
+        htmlVersionsList += "<td>" + datetimeLocal.strftime('%m/%d/%Y %H&#58;%M&#58;%S') + "</td>"
         htmlVersionsList += "</tr>"
         i -= 1
     htmlVersionsList += "</table>"     
@@ -1840,7 +1856,12 @@ def deleteVersion(request, schemaid):
             htmlVersionsList += "<td><span class='icon legend long' id='setcurrent"+str(i)+"' schemaid='"+str(tpl.id)+"' onclick='setCurrentVersion(setcurrent"+str(i)+")'>Set Current</span></td>"        
             htmlVersionsList += "<td><span class='icon legend delete' id='delete"+str(i)+"' schemaid='"+str(tpl.id)+"' onclick='deleteVersion(delete"+str(i)+")'>Delete</span></td>"          
         objectid = ObjectId(tpl.id)
-        htmlVersionsList += "<td>" + objectid.generation_time.strftime('%m/%d/%Y') + "</td>"
+        from_zone = tz.tzutc()
+        to_zone = tz.tzlocal()
+        datetimeUTC = objectid.generation_time
+        datetimeUTC = datetimeUTC.replace(tzinfo=from_zone)
+        datetimeLocal = datetimeUTC.astimezone(to_zone)
+        htmlVersionsList += "<td>" + datetimeLocal.strftime('%m/%d/%Y %H&#58;%M&#58;%S') + "</td>"
         htmlVersionsList += "</tr>"
         i -= 1
     htmlVersionsList += "</table>"    
