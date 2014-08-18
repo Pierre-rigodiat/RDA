@@ -419,10 +419,14 @@ def uploadXMLSchema(request,xmlSchemaName,xmlSchemaFilename,xmlSchemaContent):
     print 'xmlSchemaContent: ' + xmlSchemaContent
 
     connect('mgi')
-    newTemplate = Template(title=xmlSchemaName, filename=xmlSchemaFilename, content=xmlSchemaContent).save()
-    templateVersion = TemplateVersion(versions=[str(newTemplate.id)], current=str(newTemplate.id)).save()
+    templateVersion = TemplateVersion(nbVersions=1, isDeleted=False).save()
+    newTemplate = Template(title=xmlSchemaName, filename=xmlSchemaFilename, content=xmlSchemaContent, version=1, templateVersion=str(templateVersion.id)).save()
+    templateVersion.versions = [str(newTemplate.id)]
+    templateVersion.current=str(newTemplate.id)
+    templateVersion.save()
     newTemplate.templateVersion = str(templateVersion.id)
     newTemplate.save()
+    
 
     print 'END def uploadXMLSchema(request,xmlSchemaFilename,xmlSchemaContent)'
     return dajax.json()
@@ -447,11 +451,15 @@ def deleteXMLSchema(request,xmlSchemaID):
     connect('mgi')
     selectedSchema = Template.objects(id=xmlSchemaID)[0]
     templateVersion = TemplateVersion.objects.get(pk=selectedSchema.templateVersion)
-    for version in templateVersion.versions:
-        template = Template.objects.get(pk=version)
-        template.delete()
-    templateVersion.delete()
-    selectedSchema.delete()
+#     for version in templateVersion.versions:
+#         template = Template.objects.get(pk=version)
+#         template.delete()
+#     templateVersion.delete()
+#     selectedSchema.delete()
+    templateVersion.deletedVersions.append(str(selectedSchema.id))    
+    templateVersion.isDeleted = True
+    templateVersion.save()
+
 
     print 'END def deleteXMLSchema(request,xmlSchemaID)'
     return dajax.json()
@@ -1680,12 +1688,16 @@ def manageVersions(request, schemaID):
     for tpl_versionID in reversed(templateVersions.versions):
         tpl = Template.objects.get(pk=tpl_versionID)        
         htmlVersionsList += "<tr>"
-        htmlVersionsList += "<td>Version " + str(i) + "</td>"
+        htmlVersionsList += "<td>Version " + str(tpl.version) + "</td>"
         if str(tpl.id) == str(templateVersions.current):
             htmlVersionsList += "<td style='font-weight:bold;color:green'>Current</td>"
+            htmlVersionsList += "<td><span class='icon legend delete' id='delete"+str(i)+"' schemaid='"+str(tpl.id)+"' onclick='deleteVersion(delete"+str(i)+")'>Delete</span></td>"
+        elif str(tpl.id) in templateVersions.deletedVersions:
+            htmlVersionsList += "<td style='color:red'>Deleted</td>"
+            htmlVersionsList += "<td><span class='icon legend retrieve' id='restore"+str(i)+"' schemaid='"+str(tpl.id)+"' onclick='restoreVersion(restore"+str(i)+")'>Restore</span></td>"
         else:
-            htmlVersionsList += "<td><span class='icon legend long' id='setcurrent"+str(i)+"' schemaid='"+str(tpl.id)+"' onclick='setCurrentVersion(setcurrent"+str(i)+")'>Set Current</span></td>"        
-        htmlVersionsList += "<td><span class='icon legend delete' id='delete"+str(i)+"' schemaid='"+str(tpl.id)+"' onclick='deleteVersion(delete"+str(i)+")'>Delete</span></td>"
+            htmlVersionsList += "<td><span class='icon legend long' id='setcurrent"+str(i)+"' schemaid='"+str(tpl.id)+"' onclick='setCurrentVersion(setcurrent"+str(i)+")'>Set Current</span></td>"
+            htmlVersionsList += "<td><span class='icon legend delete' id='delete"+str(i)+"' schemaid='"+str(tpl.id)+"' onclick='deleteVersion(delete"+str(i)+")'>Delete</span></td>"        
         objectid = ObjectId(tpl.id)
         from_zone = tz.tzutc()
         to_zone = tz.tzlocal()
@@ -1742,7 +1754,8 @@ def uploadVersion(request, templateVersionID):
     if xsdVersionContent != "" and xsdVersionFilename != "":
         templateVersions = TemplateVersion.objects.get(pk=templateVersionID)
         currentTemplate = Template.objects.get(pk=templateVersions.current)
-        newTemplate = Template(title=currentTemplate.title, filename=xsdVersionFilename, content=xsdVersionContent, templateVersion=templateVersionID).save()
+        templateVersions.nbVersions += 1
+        newTemplate = Template(title=currentTemplate.title, filename=xsdVersionFilename, content=xsdVersionContent, templateVersion=templateVersionID, version=templateVersions.nbVersions).save()
         templateVersions.versions.append(str(newTemplate.id))
         templateVersions.save()
         
@@ -1756,12 +1769,16 @@ def uploadVersion(request, templateVersionID):
         for tpl_versionID in reversed(templateVersions.versions):
             tpl = Template.objects.get(pk=tpl_versionID)
             htmlVersionsList += "<tr>"
-            htmlVersionsList += "<td>Version " + str(i) + "</td>"
+            htmlVersionsList += "<td>Version " + str(tpl.version) + "</td>"
             if str(tpl.id) == str(templateVersions.current):
                 htmlVersionsList += "<td style='font-weight:bold;color:green'>Current</td>"
+                htmlVersionsList += "<td><span class='icon legend delete' id='delete"+str(i)+"' schemaid='"+str(tpl.id)+"' onclick='deleteVersion(delete"+str(i)+")'>Delete</span></td>"
+            elif str(tpl.id) in templateVersions.deletedVersions:
+                htmlVersionsList += "<td style='color:red'>Deleted</td>"
+                htmlVersionsList += "<td><span class='icon legend retrieve' id='restore"+str(i)+"' schemaid='"+str(tpl.id)+"' onclick='restoreVersion(restore"+str(i)+")'>Restore</span></td>"
             else:
-                htmlVersionsList += "<td><span class='icon legend long' id='setcurrent"+str(i)+"' schemaid='"+str(tpl.id)+"' onclick='setCurrentVersion(setcurrent"+str(i)+")'>Set Current</span></td>"        
-            htmlVersionsList += "<td><span class='icon legend delete' id='delete"+str(i)+"' schemaid='"+str(tpl.id)+"' onclick='deleteVersion(delete"+str(i)+")'>Delete</span></td>"
+                htmlVersionsList += "<td><span class='icon legend long' id='setcurrent"+str(i)+"' schemaid='"+str(tpl.id)+"' onclick='setCurrentVersion(setcurrent"+str(i)+")'>Set Current</span></td>"
+                htmlVersionsList += "<td><span class='icon legend delete' id='delete"+str(i)+"' schemaid='"+str(tpl.id)+"' onclick='deleteVersion(delete"+str(i)+")'>Delete</span></td>" 
             objectid = ObjectId(tpl.id)
             from_zone = tz.tzutc()
             to_zone = tz.tzlocal()
@@ -1807,12 +1824,16 @@ def setCurrentVersion(request, schemaid):
     for tpl_versionID in reversed(templateVersions.versions):
         tpl = Template.objects.get(pk=tpl_versionID)
         htmlVersionsList += "<tr>"
-        htmlVersionsList += "<td>Version " + str(i) + "</td>"
+        htmlVersionsList += "<td>Version " + str(tpl.version) + "</td>"
         if str(tpl.id) == str(templateVersions.current):
             htmlVersionsList += "<td style='font-weight:bold;color:green'>Current</td>"
+            htmlVersionsList += "<td><span class='icon legend delete' id='delete"+str(i)+"' schemaid='"+str(tpl.id)+"' onclick='deleteVersion(delete"+str(i)+")'>Delete</span></td>"
+        elif str(tpl.id) in templateVersions.deletedVersions:
+            htmlVersionsList += "<td style='color:red'>Deleted</td>"
+            htmlVersionsList += "<td><span class='icon legend retrieve' id='restore"+str(i)+"' schemaid='"+str(tpl.id)+"' onclick='restoreVersion(restore"+str(i)+")'>Restore</span></td>"
         else:
-            htmlVersionsList += "<td><span class='icon legend long' id='setcurrent"+str(i)+"' schemaid='"+str(tpl.id)+"' onclick='setCurrentVersion(setcurrent"+str(i)+")'>Set Current</span></td>"        
-        htmlVersionsList += "<td><span class='icon legend delete' id='delete"+str(i)+"' schemaid='"+str(tpl.id)+"' onclick='deleteVersion(delete"+str(i)+")'>Delete</span></td>"          
+            htmlVersionsList += "<td><span class='icon legend long' id='setcurrent"+str(i)+"' schemaid='"+str(tpl.id)+"' onclick='setCurrentVersion(setcurrent"+str(i)+")'>Set Current</span></td>"
+            htmlVersionsList += "<td><span class='icon legend delete' id='delete"+str(i)+"' schemaid='"+str(tpl.id)+"' onclick='deleteVersion(delete"+str(i)+")'>Delete</span></td>"          
         objectid = ObjectId(tpl.id)
         from_zone = tz.tzutc()
         to_zone = tz.tzlocal()
@@ -1838,19 +1859,23 @@ def deleteVersion(request, schemaid, newCurrent):
     connect('mgi')
     selectedTemplate = Template.objects.get(pk=schemaid)
     templateVersions = TemplateVersion.objects.get(pk=selectedTemplate.templateVersion)    
-#     if templateVersions.current == selectedTemplate.id:
-    if len(templateVersions.versions) == 1:
-        selectedTemplate.delete()
-        templateVersions.delete()
+
+    if len(templateVersions.versions) == 1 or len(templateVersions.versions) == len(templateVersions.deletedVersions) + 1:
+#         selectedTemplate.delete()
+        templateVersions.deletedVersions.append(str(selectedTemplate.id))    
+#         templateVersions.delete()
+        templateVersions.isDeleted = True
+        templateVersions.save()
         dajax.script("""
         $("#delete_custom_message").html("");
         $("#dialog-manage-versions").dialog( "close" );""")
     else:
         if newCurrent != "": 
             templateVersions.current = newCurrent
-        del templateVersions.versions[templateVersions.versions.index(schemaid)]    
+#         del templateVersions.versions[templateVersions.versions.index(schemaid)]
+        templateVersions.deletedVersions.append(str(selectedTemplate.id))   
         templateVersions.save()
-        selectedTemplate.delete()
+#         selectedTemplate.delete()
         
         htmlVersionsList = "<p><b>upload new version:</b>"
         htmlVersionsList += "<input type='file' id='fileVersion' name='files[]' multiple></input>"
@@ -1862,12 +1887,16 @@ def deleteVersion(request, schemaid, newCurrent):
         for tpl_versionID in reversed(templateVersions.versions):
             tpl = Template.objects.get(pk=tpl_versionID)
             htmlVersionsList += "<tr>"
-            htmlVersionsList += "<td>Version " + str(i) + "</td>"
+            htmlVersionsList += "<td>Version " + str(tpl.version) + "</td>"
             if str(tpl.id) == str(templateVersions.current):
                 htmlVersionsList += "<td style='font-weight:bold;color:green'>Current</td>"
+                htmlVersionsList += "<td><span class='icon legend delete' id='delete"+str(i)+"' schemaid='"+str(tpl.id)+"' onclick='deleteVersion(delete"+str(i)+")'>Delete</span></td>"
+            elif str(tpl.id) in templateVersions.deletedVersions:
+                htmlVersionsList += "<td style='color:red'>Deleted</td>"
+                htmlVersionsList += "<td><span class='icon legend retrieve' id='restore"+str(i)+"' schemaid='"+str(tpl.id)+"' onclick='restoreVersion(restore"+str(i)+")'>Restore</span></td>"
             else:
-                htmlVersionsList += "<td><span class='icon legend long' id='setcurrent"+str(i)+"' schemaid='"+str(tpl.id)+"' onclick='setCurrentVersion(setcurrent"+str(i)+")'>Set Current</span></td>"        
-            htmlVersionsList += "<td><span class='icon legend delete' id='delete"+str(i)+"' schemaid='"+str(tpl.id)+"' onclick='deleteVersion(delete"+str(i)+")'>Delete</span></td>"          
+                htmlVersionsList += "<td><span class='icon legend long' id='setcurrent"+str(i)+"' schemaid='"+str(tpl.id)+"' onclick='setCurrentVersion(setcurrent"+str(i)+")'>Set Current</span></td>"
+                htmlVersionsList += "<td><span class='icon legend delete' id='delete"+str(i)+"' schemaid='"+str(tpl.id)+"' onclick='deleteVersion(delete"+str(i)+")'>Delete</span></td>"     
             objectid = ObjectId(tpl.id)
             from_zone = tz.tzutc()
             to_zone = tz.tzlocal()
@@ -1898,10 +1927,12 @@ def assignDeleteCustomMessage(request, schemaid):
 
     if len(templateVersions.versions) == 1:
         message = "<span style='color:red'>You are about to delete the only version of this schema. The schema will be deleted from the schema manager.</span>"
+    elif templateVersions.current == str(selectedTemplate.id) and len(templateVersions.versions) == len(templateVersions.deletedVersions) + 1:
+        message = "<span style='color:red'>You are about to delete the last version of this schema. The schema will be deleted from the schema manager.</span>"
     elif templateVersions.current == str(selectedTemplate.id):
         message = "<span>You are about to delete the current version. If you want to continue, please select a new current version: <select id='selectCurrentVersion'>"
         for version in templateVersions.versions:
-            if version != templateVersions.current:
+            if version != templateVersions.current and version not in templateVersions.deletedVersions:
                 message += "<option value='"+version+"'>" + version + "</option>"
         message += "</select></span>"
     
@@ -1926,6 +1957,70 @@ def editSchemaInformation(request, schemaid, newName, newFilename):
     dajax.script("""
         $("#dialog-edit-info").dialog( "close" );
         window.location = "/admin/xml-schemas";
+    """)
+    
+    return dajax.json()
+
+@dajaxice_register
+def restoreSchema(request, schemaid):
+    dajax = Dajax()
+    
+    connect('mgi')
+    selectedTemplate = Template.objects.get(pk=schemaid)       
+    templateVersions = TemplateVersion.objects.get(pk=selectedTemplate.templateVersion)
+    templateVersions.isDeleted = False
+    templateVersions.save()
+    
+    dajax.script("""
+        window.location = "/admin/xml-schemas";
+    """)
+    
+    return dajax.json()
+
+@dajaxice_register
+def restoreVersion(request, schemaid):
+    dajax = Dajax()
+    connect('mgi')
+    selectedTemplate = Template.objects.get(pk=schemaid)
+    templateVersions = TemplateVersion.objects.get(pk=selectedTemplate.templateVersion)
+    del templateVersions.deletedVersions[templateVersions.deletedVersions.index(schemaid)]
+    templateVersions.save()
+    
+    htmlVersionsList = "<p><b>upload new version:</b>"
+    htmlVersionsList += "<input type='file' id='fileVersion' name='files[]' multiple></input>"
+    htmlVersionsList += "<span class='btn' id='updateVersionBtn' versionid='"+str(templateVersions.id)+"' onclick='uploadVersion()'>upload</span></p>"
+    htmlVersionsList += "<table>"    
+    
+    
+    i = len(templateVersions.versions)
+    for tpl_versionID in reversed(templateVersions.versions):
+        tpl = Template.objects.get(pk=tpl_versionID)
+        htmlVersionsList += "<tr>"
+        htmlVersionsList += "<td>Version " + str(tpl.version) + "</td>"
+        if str(tpl.id) == str(templateVersions.current):
+            htmlVersionsList += "<td style='font-weight:bold;color:green'>Current</td>"
+            htmlVersionsList += "<td><span class='icon legend delete' id='delete"+str(i)+"' schemaid='"+str(tpl.id)+"' onclick='deleteVersion(delete"+str(i)+")'>Delete</span></td>"
+        elif str(tpl.id) in templateVersions.deletedVersions:
+            htmlVersionsList += "<td style='color:red'>Deleted</td>"
+            htmlVersionsList += "<td><span class='icon legend retrieve' id='restore"+str(i)+"' schemaid='"+str(tpl.id)+"' onclick='restoreVersion(restore"+str(i)+")'>Restore</span></td>"
+        else:
+            htmlVersionsList += "<td><span class='icon legend long' id='setcurrent"+str(i)+"' schemaid='"+str(tpl.id)+"' onclick='setCurrentVersion(setcurrent"+str(i)+")'>Set Current</span></td>"
+            htmlVersionsList += "<td><span class='icon legend delete' id='delete"+str(i)+"' schemaid='"+str(tpl.id)+"' onclick='deleteVersion(delete"+str(i)+")'>Delete</span></td>"          
+        objectid = ObjectId(tpl.id)
+        from_zone = tz.tzutc()
+        to_zone = tz.tzlocal()
+        datetimeUTC = objectid.generation_time
+        datetimeUTC = datetimeUTC.replace(tzinfo=from_zone)
+        datetimeLocal = datetimeUTC.astimezone(to_zone)
+        htmlVersionsList += "<td>" + datetimeLocal.strftime('%m/%d/%Y %H&#58;%M&#58;%S') + "</td>"
+        htmlVersionsList += "</tr>"
+        i -= 1
+    htmlVersionsList += "</table>"     
+
+    dajax.script("""
+        $("#template_versions").html(" """+ htmlVersionsList +""" ");    
+        $("#delete_custom_message").html("");
+        document.getElementById('fileVersion').addEventListener('change',handleVersionUpload, false);
     """)
     
     return dajax.json()

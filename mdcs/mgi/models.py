@@ -32,10 +32,14 @@ class Template(Document):
     filename = StringField(required=True)
     content = StringField(required=True)
     templateVersion = StringField()
+    version = IntField(required=True, unique_with='templateVersion')
 
 class TemplateVersion(Document):
     versions = ListField(StringField())
-    current = StringField(required=True)
+    deletedVersions = ListField(StringField())
+    current = StringField()
+    nbVersions = IntField(required=True)
+    isDeleted = BooleanField(required=True)
 
 class Ontology(Document):
     title = StringField(required=True)

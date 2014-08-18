@@ -182,7 +182,7 @@
   </tr>
 
 
-{% for template in templates %}
+{% for template, isDeleted in templates.items %}
   {% cycle 'even' '' as rowcolors silent %}
   <tr class="{{ rowcolors }}">
     <td>{{ template.title }}</td>
@@ -198,6 +198,11 @@
     <div class="icon legend long edit" schemaid="{{ template.id }}">Edit Information</div>
     <div class="icon legend long copy schema">Copy schema</div>
     <div class="icon legend delete schema" schemaid="{{ template.id }}">Delete Schema</div></td>
+{% elif isDeleted == True %}     
+	<td><span style="color:red;">Deleted</span></td>
+    <td>
+    <!-- <div class="icon legend extra-long add">Set as current model</div> -->
+    <div class="icon legend long retrieve" schemaid="{{ template.id }}">Restore Schema</div>
 {% else %}
 
     <td><span style="color:green;">Registered</span></td>

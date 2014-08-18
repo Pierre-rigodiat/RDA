@@ -4,6 +4,7 @@
 loadXsdManagerHandler = function()
 {
     console.log('BEGIN [loadXsdManagerHandler]');
+    $('.retrieve').on('click',restoreSchema);
     $('.edit').on('click',editSchemaInformation);
     $('.version').on('click', manageVersions);    
     $('.add').on('click', setCurrentModel);
@@ -47,9 +48,9 @@ setCurrentVersion = function(setCurrent)
 	Dajaxice.curate.setCurrentVersion(Dajax.process,{"schemaid":schemaid});
 }
 
-deleteVersion = function(setCurrent)
+deleteVersion = function(toDelete)
 {			
-	var schemaid = $(setCurrent).attr("schemaid");
+	var schemaid = $(toDelete).attr("schemaid");
 	Dajaxice.curate.assignDeleteCustomMessage(Dajax.process,{"schemaid":schemaid});
 	$(function() {
 	        $( "#dialog-deleteversion-message" ).dialog({
@@ -71,6 +72,19 @@ deleteVersion = function(setCurrent)
 		    }
 	        });
 	    });
+}
+
+restoreSchema = function()
+{
+    var schemaID = $(this).attr("schemaid");
+    
+    Dajaxice.curate.restoreSchema(Dajax.process,{'schemaid':schemaID});
+}
+
+restoreVersion = function(toRestore)
+{
+	var schemaid = $(toRestore).attr("schemaid");
+	Dajaxice.curate.restoreVersion(Dajax.process,{"schemaid":schemaid});
 }
 
 editSchemaInformation = function()

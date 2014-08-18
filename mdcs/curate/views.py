@@ -43,12 +43,14 @@ def index(request):
         for tpl_version in TemplateVersion.objects():
             currentTemplateVersions.append(tpl_version.current)
         
-        currentTemplates = []        
+        currentTemplates = dict()
         for tpl_version in currentTemplateVersions:
-            currentTemplates.append(Template.objects.get(pk=tpl_version))
-
+            tpl = Template.objects.get(pk=tpl_version)
+            templateVersions = TemplateVersion.objects.get(pk=tpl.templateVersion)
+            currentTemplates[tpl] = templateVersions.isDeleted
+    
         context = RequestContext(request, {
-            'templates': currentTemplates
+           'templates':currentTemplates
         })
 
         return HttpResponse(template.render(context))

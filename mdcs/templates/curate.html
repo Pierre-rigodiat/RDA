@@ -167,8 +167,9 @@
     <th>Actions</th>
   </tr>
 			  
-{% for template in templates %}
+{% for template, isDeleted in templates.items %}
   {% cycle 'even' '' as rowcolors silent %}
+    {% if isDeleted == False %} 
   <tr class="{{ rowcolors }}">
     <td templateID='{{template.id}}'>{{ template.title }}</td>
     <td>{{ template.filename }}</td>
@@ -186,6 +187,8 @@
 {% endif %}
 
   </tr>
+  
+{% endif %}
 
 {% endfor %}
 
