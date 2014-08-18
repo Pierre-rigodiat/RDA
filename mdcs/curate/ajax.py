@@ -1890,7 +1890,7 @@ def deleteVersion(request, schemaid, newCurrent):
 @dajaxice_register
 def assignDeleteCustomMessage(request, schemaid):
     dajax = Dajax()
-    
+    connect('mgi')
     selectedTemplate = Template.objects.get(pk=schemaid)
     templateVersions = TemplateVersion.objects.get(pk=selectedTemplate.templateVersion)    
     
@@ -1909,3 +1909,23 @@ def assignDeleteCustomMessage(request, schemaid):
     
     return dajax.json()
 
+@dajaxice_register
+def editSchemaInformation(request, schemaid, newName, newFilename):
+    dajax = Dajax()
+    connect('mgi')
+    selectedTemplate = Template.objects.get(pk=schemaid)       
+    templateVersions = TemplateVersion.objects.get(pk=selectedTemplate.templateVersion)
+    
+    for version in templateVersions.versions:
+        template = Template.objects.get(pk=version)
+        template.title = newName
+        if version == schemaid:
+            template.filename = newFilename
+        template.save()
+    
+    dajax.script("""
+        $("#dialog-edit-info").dialog( "close" );
+        window.location = "/admin/xml-schemas";
+    """)
+    
+    return dajax.json()

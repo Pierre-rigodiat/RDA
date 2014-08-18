@@ -4,6 +4,7 @@
 loadXsdManagerHandler = function()
 {
     console.log('BEGIN [loadXsdManagerHandler]');
+    $('.edit').on('click',editSchemaInformation);
     $('.version').on('click', manageVersions);    
     $('.add').on('click', setCurrentModel);
     $('.delete.schema').on('click', deleteSchema);
@@ -72,20 +73,31 @@ deleteVersion = function(setCurrent)
 	    });
 }
 
-
-//manageVersionsCallback = function()
-//{
-// $(function() {
-//    $("#dialog-manage-versions").dialog({
-//      modal: true,
-//      buttons: {
-//        Ok: function() {
-//          $( this ).dialog( "close" );
-//        }
-//      }
-//    });
-//  });
-//}
+editSchemaInformation = function()
+{
+    var schemaName = $(this).parent().siblings(':first').text();
+    var schemaFilename = $(this).parent().siblings(':nth-child(2)').text();
+    var schemaID = $(this).attr("schemaid");
+    
+    $("#edit-schema-name")[0].value = schemaName;
+    $("#edit-filename")[0].value = schemaFilename;
+    
+	$(function() {
+        $( "#dialog-edit-info" ).dialog({
+            modal: true,
+            buttons: {
+            	Ok: function() {	
+					var newName = $("#edit-schema-name")[0].value;
+					var newFilename = $("#edit-filename")[0].value;
+					Dajaxice.curate.editSchemaInformation(Dajax.process,{'schemaid':schemaID, 'newName':newName,'newFilename':newFilename});
+                },
+                Cancel: function() {
+                    $( this ).dialog( "close" );
+                }
+            }
+        });
+    });
+}
 
 /**
  * 

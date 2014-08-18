@@ -8,6 +8,9 @@
 # Author: Sharief Youssef
 #         sharief.youssef@nist.gov
 #
+#		 Guillaume SOUSA AMARAL
+#		 guillaume.sousa@nist.gov
+#
 # Sponsor: National Institute of Standards and Technology (NIST)
 #
 ################################################################################
@@ -192,6 +195,7 @@
 	<td><span style="color:green;">Registered</span></td>
 	<td>
     <div class="icon legend long version" schemaid="{{ template.id }}">Manage Versions</div>
+    <div class="icon legend long edit" schemaid="{{ template.id }}">Edit Information</div>
     <div class="icon legend long copy schema">Copy schema</div>
     <div class="icon legend delete schema" schemaid="{{ template.id }}">Delete Schema</div></td>
 {% else %}
@@ -200,6 +204,7 @@
     <td>
     <!-- <div class="icon legend extra-long add">Set as current model</div> -->
     <div class="icon legend long version" schemaid="{{ template.id }}">Manage Versions</div>
+    <div class="icon legend long edit" schemaid="{{ template.id }}">Edit Information</div>
     <div class="icon legend long copy schema">Copy schema</div>
     <div class="icon legend delete schema" schemaid="{{ template.id }}">Delete Schema</div></td>
 
@@ -311,6 +316,13 @@
   <p>
     Currently using <a href="/view-schema/{{ request.session.currentTemplate }}" target="_new">{{ request.session.currentTemplate }}</a>
   </p>
+</div>
+
+<div id="dialog-edit-info" title="Edit Schema Information" style="display:none;">
+<p>
+Schema name: <input type="text" id="edit-schema-name"/><br/>
+Filename: <input type="text" id="edit-filename"/>
+</p>
 </div>
 
 <div id="dialog-manage-versions" title="Manage Schema Versions" style="display:none;">  
