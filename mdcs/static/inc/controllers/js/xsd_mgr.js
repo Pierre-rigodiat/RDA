@@ -48,13 +48,20 @@ setCurrentVersion = function(setCurrent)
 
 deleteVersion = function(setCurrent)
 {			
+	var schemaid = $(setCurrent).attr("schemaid");
+	Dajaxice.curate.assignDeleteCustomMessage(Dajax.process,{"schemaid":schemaid});
 	$(function() {
 	        $( "#dialog-deleteversion-message" ).dialog({
 	            modal: true,
 	            buttons: {
-			Yes: function() {
-						var schemaid = $(setCurrent).attr("schemaid");
-						Dajaxice.curate.deleteVersion(Dajax.process,{"schemaid":schemaid});
+			Yes: function() {	
+						var newCurrent = ""
+						try{
+							var idx = $("#selectCurrentVersion")[0].selectedIndex
+							newCurrent = $("#selectCurrentVersion")[0].options[idx].value
+						}
+						catch(e){}
+						Dajaxice.curate.deleteVersion(Dajax.process,{"schemaid":schemaid,"newCurrent":newCurrent});
 	                    $( this ).dialog( "close" );
 	                },
 			No: function() {
@@ -64,6 +71,7 @@ deleteVersion = function(setCurrent)
 	        });
 	    });
 }
+
 
 //manageVersionsCallback = function()
 //{

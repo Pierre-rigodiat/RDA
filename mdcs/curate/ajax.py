@@ -1682,10 +1682,10 @@ def manageVersions(request, schemaID):
         htmlVersionsList += "<tr>"
         htmlVersionsList += "<td>Version " + str(i) + "</td>"
         if str(tpl.id) == str(templateVersions.current):
-            htmlVersionsList += "<td style='font-weight:bold;color:green'>Current</td><td></td>"
+            htmlVersionsList += "<td style='font-weight:bold;color:green'>Current</td>"
         else:
             htmlVersionsList += "<td><span class='icon legend long' id='setcurrent"+str(i)+"' schemaid='"+str(tpl.id)+"' onclick='setCurrentVersion(setcurrent"+str(i)+")'>Set Current</span></td>"        
-            htmlVersionsList += "<td><span class='icon legend delete' id='delete"+str(i)+"' schemaid='"+str(tpl.id)+"' onclick='deleteVersion(delete"+str(i)+")'>Delete</span></td>"
+        htmlVersionsList += "<td><span class='icon legend delete' id='delete"+str(i)+"' schemaid='"+str(tpl.id)+"' onclick='deleteVersion(delete"+str(i)+")'>Delete</span></td>"
         objectid = ObjectId(tpl.id)
         from_zone = tz.tzutc()
         to_zone = tz.tzlocal()
@@ -1698,6 +1698,7 @@ def manageVersions(request, schemaID):
     htmlVersionsList += "</table>"     
     dajax.script("""
         $("#template_versions").html(" """+ htmlVersionsList +""" ");    
+        $("#delete_custom_message").html("");
         $(function() {
             $("#dialog-manage-versions").dialog({
               modal: true,
@@ -1757,10 +1758,10 @@ def uploadVersion(request, templateVersionID):
             htmlVersionsList += "<tr>"
             htmlVersionsList += "<td>Version " + str(i) + "</td>"
             if str(tpl.id) == str(templateVersions.current):
-                htmlVersionsList += "<td style='font-weight:bold;color:green'>Current</td><td></td>"
+                htmlVersionsList += "<td style='font-weight:bold;color:green'>Current</td>"
             else:
                 htmlVersionsList += "<td><span class='icon legend long' id='setcurrent"+str(i)+"' schemaid='"+str(tpl.id)+"' onclick='setCurrentVersion(setcurrent"+str(i)+")'>Set Current</span></td>"        
-                htmlVersionsList += "<td><span class='icon legend delete' id='delete"+str(i)+"' schemaid='"+str(tpl.id)+"' onclick='deleteVersion(delete"+str(i)+")'>Delete</span></td>"
+            htmlVersionsList += "<td><span class='icon legend delete' id='delete"+str(i)+"' schemaid='"+str(tpl.id)+"' onclick='deleteVersion(delete"+str(i)+")'>Delete</span></td>"
             objectid = ObjectId(tpl.id)
             from_zone = tz.tzutc()
             to_zone = tz.tzlocal()
@@ -1774,6 +1775,7 @@ def uploadVersion(request, templateVersionID):
     
         dajax.script("""
             $("#template_versions").html(" """+ htmlVersionsList +""" ");    
+            $("#delete_custom_message").html("");
             document.getElementById('fileVersion').addEventListener('change',handleVersionUpload, false);
         """)
     else:
@@ -1807,10 +1809,10 @@ def setCurrentVersion(request, schemaid):
         htmlVersionsList += "<tr>"
         htmlVersionsList += "<td>Version " + str(i) + "</td>"
         if str(tpl.id) == str(templateVersions.current):
-            htmlVersionsList += "<td style='font-weight:bold;color:green'>Current</td><td></td>"
+            htmlVersionsList += "<td style='font-weight:bold;color:green'>Current</td>"
         else:
             htmlVersionsList += "<td><span class='icon legend long' id='setcurrent"+str(i)+"' schemaid='"+str(tpl.id)+"' onclick='setCurrentVersion(setcurrent"+str(i)+")'>Set Current</span></td>"        
-            htmlVersionsList += "<td><span class='icon legend delete' id='delete"+str(i)+"' schemaid='"+str(tpl.id)+"' onclick='deleteVersion(delete"+str(i)+")'>Delete</span></td>"          
+        htmlVersionsList += "<td><span class='icon legend delete' id='delete"+str(i)+"' schemaid='"+str(tpl.id)+"' onclick='deleteVersion(delete"+str(i)+")'>Delete</span></td>"          
         objectid = ObjectId(tpl.id)
         from_zone = tz.tzutc()
         to_zone = tz.tzlocal()
@@ -1824,52 +1826,86 @@ def setCurrentVersion(request, schemaid):
 
     dajax.script("""
         $("#template_versions").html(" """+ htmlVersionsList +""" ");    
+        $("#delete_custom_message").html("");
         document.getElementById('fileVersion').addEventListener('change',handleVersionUpload, false);
     """)
     
     return dajax.json()
 
 @dajaxice_register
-def deleteVersion(request, schemaid):
+def deleteVersion(request, schemaid, newCurrent):
     dajax = Dajax()
     connect('mgi')
     selectedTemplate = Template.objects.get(pk=schemaid)
-    templateVersions = TemplateVersion.objects.get(pk=selectedTemplate.templateVersion)
-    del templateVersions.versions[templateVersions.versions.index(schemaid)]
-    templateVersions.save()
-    selectedTemplate.delete()
-    
-    htmlVersionsList = "<p><b>upload new version:</b>"
-    htmlVersionsList += "<input type='file' id='fileVersion' name='files[]' multiple></input>"
-    htmlVersionsList += "<span class='btn' id='updateVersionBtn' versionid='"+str(templateVersions.id)+"' onclick='uploadVersion()'>upload</span></p>"
-    htmlVersionsList += "<table>"    
-    
-    
-    i = len(templateVersions.versions)
-    for tpl_versionID in reversed(templateVersions.versions):
-        tpl = Template.objects.get(pk=tpl_versionID)
-        htmlVersionsList += "<tr>"
-        htmlVersionsList += "<td>Version " + str(i) + "</td>"
-        if str(tpl.id) == str(templateVersions.current):
-            htmlVersionsList += "<td style='font-weight:bold;color:green'>Current</td><td></td>"
-        else:
-            htmlVersionsList += "<td><span class='icon legend long' id='setcurrent"+str(i)+"' schemaid='"+str(tpl.id)+"' onclick='setCurrentVersion(setcurrent"+str(i)+")'>Set Current</span></td>"        
+    templateVersions = TemplateVersion.objects.get(pk=selectedTemplate.templateVersion)    
+#     if templateVersions.current == selectedTemplate.id:
+    if len(templateVersions.versions) == 1:
+        selectedTemplate.delete()
+        templateVersions.delete()
+        dajax.script("""
+        $("#delete_custom_message").html("");
+        $("#dialog-manage-versions").dialog( "close" );""")
+    else:
+        if newCurrent != "": 
+            templateVersions.current = newCurrent
+        del templateVersions.versions[templateVersions.versions.index(schemaid)]    
+        templateVersions.save()
+        selectedTemplate.delete()
+        
+        htmlVersionsList = "<p><b>upload new version:</b>"
+        htmlVersionsList += "<input type='file' id='fileVersion' name='files[]' multiple></input>"
+        htmlVersionsList += "<span class='btn' id='updateVersionBtn' versionid='"+str(templateVersions.id)+"' onclick='uploadVersion()'>upload</span></p>"
+        htmlVersionsList += "<table>"    
+        
+        
+        i = len(templateVersions.versions)
+        for tpl_versionID in reversed(templateVersions.versions):
+            tpl = Template.objects.get(pk=tpl_versionID)
+            htmlVersionsList += "<tr>"
+            htmlVersionsList += "<td>Version " + str(i) + "</td>"
+            if str(tpl.id) == str(templateVersions.current):
+                htmlVersionsList += "<td style='font-weight:bold;color:green'>Current</td>"
+            else:
+                htmlVersionsList += "<td><span class='icon legend long' id='setcurrent"+str(i)+"' schemaid='"+str(tpl.id)+"' onclick='setCurrentVersion(setcurrent"+str(i)+")'>Set Current</span></td>"        
             htmlVersionsList += "<td><span class='icon legend delete' id='delete"+str(i)+"' schemaid='"+str(tpl.id)+"' onclick='deleteVersion(delete"+str(i)+")'>Delete</span></td>"          
-        objectid = ObjectId(tpl.id)
-        from_zone = tz.tzutc()
-        to_zone = tz.tzlocal()
-        datetimeUTC = objectid.generation_time
-        datetimeUTC = datetimeUTC.replace(tzinfo=from_zone)
-        datetimeLocal = datetimeUTC.astimezone(to_zone)
-        htmlVersionsList += "<td>" + datetimeLocal.strftime('%m/%d/%Y %H&#58;%M&#58;%S') + "</td>"
-        htmlVersionsList += "</tr>"
-        i -= 1
-    htmlVersionsList += "</table>"    
+            objectid = ObjectId(tpl.id)
+            from_zone = tz.tzutc()
+            to_zone = tz.tzlocal()
+            datetimeUTC = objectid.generation_time
+            datetimeUTC = datetimeUTC.replace(tzinfo=from_zone)
+            datetimeLocal = datetimeUTC.astimezone(to_zone)
+            htmlVersionsList += "<td>" + datetimeLocal.strftime('%m/%d/%Y %H&#58;%M&#58;%S') + "</td>"
+            htmlVersionsList += "</tr>"
+            i -= 1
+        htmlVersionsList += "</table>"    
+        
+        dajax.script("""
+            $("#template_versions").html(" """+ htmlVersionsList +""" "); 
+            $("#delete_custom_message").html("");   
+            document.getElementById('fileVersion').addEventListener('change',handleVersionUpload, false);
+        """)
+    
+    return dajax.json()
 
-    dajax.script("""
-        $("#template_versions").html(" """+ htmlVersionsList +""" ");    
-        document.getElementById('fileVersion').addEventListener('change',handleVersionUpload, false);
-    """)
+@dajaxice_register
+def assignDeleteCustomMessage(request, schemaid):
+    dajax = Dajax()
+    
+    selectedTemplate = Template.objects.get(pk=schemaid)
+    templateVersions = TemplateVersion.objects.get(pk=selectedTemplate.templateVersion)    
+    
+    message = ""
+
+    if len(templateVersions.versions) == 1:
+        message = "<span style='color:red'>You are about to delete the only version of this schema. The schema will be deleted from the schema manager.</span>"
+    elif templateVersions.current == str(selectedTemplate.id):
+        message = "<span>You are about to delete the current version. If you want to continue, please select a new current version: <select id='selectCurrentVersion'>"
+        for version in templateVersions.versions:
+            if version != templateVersions.current:
+                message += "<option value='"+version+"'>" + version + "</option>"
+        message += "</select></span>"
+    
+    dajax.assign("#delete_custom_message", "innerHTML", message)
     
     return dajax.json()
 
