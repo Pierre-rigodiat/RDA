@@ -31,4 +31,5 @@ urlpatterns = patterns(
     url(r'^schema/add/$','add_schema', name='add_schema'),
     url(r'^schema/select/(?P<pk>([0-9]|[a-z])+)$','select_schema'),
     url(r'^schema/delete/(?P<pk>([0-9]|[a-z])+)$','delete_schema'),
+    url(r'^.*$','docs'),
 )
