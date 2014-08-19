@@ -1933,7 +1933,8 @@ def assignDeleteCustomMessage(request, schemaid):
         message = "<span>You are about to delete the current version. If you want to continue, please select a new current version: <select id='selectCurrentVersion'>"
         for version in templateVersions.versions:
             if version != templateVersions.current and version not in templateVersions.deletedVersions:
-                message += "<option value='"+version+"'>" + version + "</option>"
+                template = Template.objects.get(pk=version)
+                message += "<option value='"+version+"'>Version " + str(template.version) + "</option>"
         message += "</select></span>"
     
     dajax.assign("#delete_custom_message", "innerHTML", message)
