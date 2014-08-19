@@ -271,6 +271,16 @@ def select_schema(request, pk):
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
+def select_all_schemas(request):
+    """
+    GET http://localhost/api/schema/select/all
+    """
+    connect('mgi') 
+    templates = Template.objects
+    serializer = schemaSerializer(templates)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+@api_view(['GET'])
 def delete_schema(request, pk):
     """
     GET http://localhost/api/schema/delete/<id>
