@@ -302,4 +302,4 @@ def delete_schema(request, pk):
 @api_view(['GET'])
 def docs(request):
     content={'message':'Invalid command','docs':'http://'+str(request.get_host())+'/docs/'}
-    return Response(content, status=status.HTTP_204_NO_CONTENT)
+    return Response(content, status=status.HTTP_400_BAD_REQUEST)
