@@ -22,7 +22,7 @@ from rest_framework.response import Response
 # Models
 from mgi.models import SavedQuery, Jsondata, Template, TemplateVersion
 # Serializers
-from api.serializers import savedQuerySerializer, jsonDataSerializer, querySerializer, sparqlQuerySerializer, sparqlResultsSerializer, schemaSerializer
+from api.serializers import savedQuerySerializer, jsonDataSerializer, querySerializer, sparqlQuerySerializer, sparqlResultsSerializer, schemaSerializer, templateSerializer
 
 from explore import sparqlPublisher
 from curate import rdfPublisher
@@ -30,6 +30,9 @@ from lxml import etree
 from django.conf import settings
 import os
 from mongoengine import *
+from pymongo import Connection
+from bson.objectid import ObjectId
+import re
 
 projectURI = "http://www.example.com/"
 
@@ -256,19 +259,71 @@ def add_schema(request):
     return Response(sSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
-def select_schema(request, pk):
+def select_schema(request):
     """
-    GET http://localhost/api/schema/select/<id>
+    GET http://localhost/api/schema/select?param1=value1&param2=value2
+    URL parameters: 
+    id: string
+    filename: string
+    content: string
+    title: string
+    version: integer
+    templateVersion: string
+    For string fields, you can use regular expressions: %exp%
     """
     connect('mgi') 
-    try:
-        template = Template.objects.get(pk=pk)
+    id = request.QUERY_PARAMS.get('id', None)
+    filename = request.QUERY_PARAMS.get('filename', None)
+    content = request.QUERY_PARAMS.get('content', None)
+    title = request.QUERY_PARAMS.get('title', None)
+    version = request.QUERY_PARAMS.get('version', None)
+    templateVersion = request.QUERY_PARAMS.get('templateVersion', None)
+    
+    try:        
+        # create a connection                                                                                                                                                                                                 
+        connection = Connection()
+        # connect to the db 'mgi'
+        db = connection['mgi']
+        # get the xmldata collection
+        template = db['template']
+        query = dict()
+        if id is not None:            
+            query['_id'] = ObjectId(id)            
+        if filename is not None:
+            if filename[0] == '%' and filename[-1] == '%':
+                query['filename'] = re.compile(filename[1:-1])
+            else:
+                query['filename'] = filename            
+        if content is not None:
+            if content[0] == '%' and content[-1] == '%':
+                query['content'] = re.compile(content[1:-1])
+            else:
+                query['content'] = content
+        if title is not None:
+            if title[0] == '%' and title[-1] == '%':
+                query['title'] = re.compile(title[1:-1])
+            else:
+                query['title'] = title
+        if version is not None:
+            query['version'] = version
+        if templateVersion is not None:
+            if templateVersion[0] == '%' and templateVersion[-1] == '%':
+                query['templateVersion'] = re.compile(templateVersion[1:-1])
+            else:
+                query['titltemplateVersione'] = templateVersion
+        if len(query.keys()) == 0:
+            content = {'message':'No parameters given.'}
+            return Response(content, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            cursor = template.find(query)
+            templates = []
+            for resultTemplate in cursor:
+                templates.append(resultTemplate)
+            serializer = templateSerializer(templates)
+            return Response(serializer.data, status=status.HTTP_200_OK)
     except:
-        content = {'message':'No template found with the given id.'}
+        content = {'message':'No template found with the given parameters.'}
         return Response(content, status=status.HTTP_404_NOT_FOUND)
-
-    serializer = schemaSerializer(template)
-    return Response(serializer.data, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
 def select_all_schemas(request):
@@ -286,26 +341,33 @@ def delete_schema(request, pk):
     GET http://localhost/api/schema/delete/<id>
     Can't delete template if it is the current version
     """
-    connect('mgi') 
+    connect('mgi')     
     try:
         template = Template.objects.get(pk=pk)
     except:
         content = {'message':'No template found with the given id.'}
         return Response(content, status=status.HTTP_404_NOT_FOUND)
 
-    if hasattr(template,'version'):
+    if hasattr(template,'templateVersion'):
         templateVersion = TemplateVersion.objects.get(pk=template.templateVersion)
-        if templateVersion.current == template.id:
+        if templateVersion.current == str(template.id):
             content = {'message':'The selected template is the current. It can\'t be deleted.'}
             return Response(content, status=status.HTTP_400_BAD_REQUEST)
         else:
-            del templateVersion.versions[templateVersion.versions.index(str(template.id))]
+#             del templateVersion.versions[templateVersion.versions.index(str(template.id))]
+#             template.delete()
+            templateVersion.deletedVersions.append(str(template.id)) 
+            if len(templateVersion.versions) == len(templateVersion.deletedVersions):
+                templateVersion.isDeleted = True
             templateVersion.save()
-            template.delete()
             content = {'message':'Template deleted with success.'}
             return Response(content, status=status.HTTP_204_NO_CONTENT)
     else:
-        template.delete()
+#         template.delete()
+        templateVersion.deletedVersions.append(str(template.id)) 
+        if len(templateVersion.versions) == len(templateVersion.deletedVersions):
+            templateVersion.isDeleted = True
+        templateVersion.save()
         content = {'message':'Template deleted with success.'}
         return Response(content, status=status.HTTP_204_NO_CONTENT)
     

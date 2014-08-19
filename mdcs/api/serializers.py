@@ -41,4 +41,12 @@ class sparqlResultsSerializer(serializers.Serializer):
 class schemaSerializer(MongoEngineModelSerializer):
     class Meta:
         model = Template
+
+class templateSerializer(serializers.Serializer):
+    title = serializers.CharField()
+    filename = serializers.CharField()
+    content = serializers.CharField()
+    templateVersion = serializers.CharField()
+    version = serializers.IntegerField()
+    _id = serializers.CharField(required=False)
         
