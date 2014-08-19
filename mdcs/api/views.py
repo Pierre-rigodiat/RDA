@@ -19,7 +19,6 @@ from rest_framework.decorators import api_view
 from rest_framework import generics
 from rest_framework import status
 from rest_framework.response import Response
-from django.shortcuts import redirect
 # Models
 from mgi.models import SavedQuery, Jsondata, Template, TemplateVersion
 # Serializers
@@ -300,6 +299,7 @@ def delete_schema(request, pk):
         content = {'message':'Template deleted with success.'}
         return Response(content, status=status.HTTP_204_NO_CONTENT)
     
-
+@api_view(['GET'])
 def docs(request):
-    return redirect ('/docs')
+    content={'message':'Invalid command','docs':'http://'+str(request.get_host())+'/docs/'}
+    return Response(content, status=status.HTTP_204_NO_CONTENT)
