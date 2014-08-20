@@ -30,7 +30,7 @@ urlpatterns = patterns(
     url(r'^explore/sparql-query/$', 'sparql_query', name='sparql_query'),
     url(r'^schema/add/$','add_schema', name='add_schema'),
     url(r'^schema/select$','select_schema'),
-    url(r'^schema/delete/(?P<pk>([0-9]|[a-z])+)$','delete_schema'),
+    url(r'^schema/delete$','delete_schema'),
     url(r'^schema/select/all/$','select_all_schemas'),
     url(r'^.*$','docs'),
 )

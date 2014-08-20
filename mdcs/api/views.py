@@ -263,7 +263,7 @@ def select_schema(request):
     """
     GET http://localhost/api/schema/select?param1=value1&param2=value2
     URL parameters: 
-    id: string
+    id: string (ObjectId)
     filename: string
     content: string
     title: string
@@ -336,40 +336,67 @@ def select_all_schemas(request):
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
-def delete_schema(request, pk):
+def delete_schema(request):
     """
-    GET http://localhost/api/schema/delete/<id>
-    Can't delete template if it is the current version
+    GET http://localhost/api/schema/delete?id=IDtodelete&next=IDnextCurrent
+    URL parameters: 
+    id: string (ObjectId)
+    next: string (ObjectId)
     """
-    connect('mgi')     
-    try:
-        template = Template.objects.get(pk=pk)
-    except:
-        content = {'message':'No template found with the given id.'}
-        return Response(content, status=status.HTTP_404_NOT_FOUND)
+    connect('mgi')
+    id = request.QUERY_PARAMS.get('id', None)
+    next = request.QUERY_PARAMS.get('next', None)  
+    
+    if id is not None:   
+        try:
+            template = Template.objects.get(pk=id)        
+        except:
+            content = {'message':'No template found with the given id.'}
+            return Response(content, status=status.HTTP_404_NOT_FOUND)
+    else:
+        content = {'message':'No schema id to delete provided'}
+        return Response(content, status=status.HTTP_400_BAD_REQUEST)
 
-    if hasattr(template,'templateVersion'):
-        templateVersion = TemplateVersion.objects.get(pk=template.templateVersion)
-        if templateVersion.current == str(template.id):
-            content = {'message':'The selected template is the current. It can\'t be deleted.'}
+    if next is not None:
+        try:
+            nextCurrent = Template.objects.get(pk=next)
+            if nextCurrent.templateVersion != template.templateVersion:
+                content = {'message':'The specified next current schema is not a version of the current schema.'}
+                return Response(content, status=status.HTTP_400_BAD_REQUEST)
+        except:
+            content = {'message':'No template found with the given id to be the next current.'}
+            return Response(content, status=status.HTTP_404_NOT_FOUND)
+        
+    templateVersion = TemplateVersion.objects.get(pk=template.templateVersion)
+    if templateVersion.current == str(template.id) and next is None:
+        content = {'message':'The selected template is the current. It can\'t be deleted. If you still want to delete this template, please provide the id of the next current schema using \'next\' parameter'}
+        return Response(content, status=status.HTTP_400_BAD_REQUEST)
+    elif templateVersion.current == str(template.id) and next is not None and str(template.id) == str(nextCurrent.id):
+        content = {'message':'Schema id to delete and next id are the same.'}
+        return Response(content, status=status.HTTP_400_BAD_REQUEST)
+    elif templateVersion.current != str(template.id) and next is not None:
+        content = {'message':'You should only provide the next parameter when you want to delete a current version of a schema.'}
+        return Response(content, status=status.HTTP_400_BAD_REQUEST)
+    elif templateVersion.current == str(template.id) and next is not None:
+        if next in templateVersion.deletedVersions:
+            content = {'message':'The schema is deleted, it can\'t become current.'}
             return Response(content, status=status.HTTP_400_BAD_REQUEST)
-        else:
+        templateVersion.deletedVersions.append(str(template.id)) 
+        templateVersion.current = str(nextCurrent.id)
+        templateVersion.save()
+        content = {'message':'Current template deleted with success. A new version is current.'}
+        return Response(content, status=status.HTTP_204_NO_CONTENT)
+    else:
 #             del templateVersion.versions[templateVersion.versions.index(str(template.id))]
 #             template.delete()
-            templateVersion.deletedVersions.append(str(template.id)) 
-            if len(templateVersion.versions) == len(templateVersion.deletedVersions):
-                templateVersion.isDeleted = True
-            templateVersion.save()
-            content = {'message':'Template deleted with success.'}
-            return Response(content, status=status.HTTP_204_NO_CONTENT)
-    else:
-#         template.delete()
+        if str(template.id) in templateVersion.deletedVersions:
+            content = {'message':'This schema is already deleted.'}
+            return Response(content, status=status.HTTP_400_BAD_REQUEST)
         templateVersion.deletedVersions.append(str(template.id)) 
-        if len(templateVersion.versions) == len(templateVersion.deletedVersions):
-            templateVersion.isDeleted = True
         templateVersion.save()
         content = {'message':'Template deleted with success.'}
         return Response(content, status=status.HTTP_204_NO_CONTENT)
+
     
 @api_view(['GET'])
 def docs(request):
