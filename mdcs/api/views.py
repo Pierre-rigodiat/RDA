@@ -354,7 +354,7 @@ def delete_schema(request):
             content = {'message':'No template found with the given id.'}
             return Response(content, status=status.HTTP_404_NOT_FOUND)
     else:
-        content = {'message':'No schema id to delete provided'}
+        content = {'message':'No schema id provided to delete.'}
         return Response(content, status=status.HTTP_400_BAD_REQUEST)
 
     if next is not None:
