@@ -41,9 +41,9 @@
 <link rel="stylesheet" type="text/css" href="{% static 'resources/css/dialog.css' %}" media="screen" />
 
 	<!-- JQuery & JQuery UI -->
+		<script src="http://code.jquery.com/jquery-1.9.1.js"></script>
 		<script src="{% static 'resources/js/bootstrap.min.js' %}"></script>
-        <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css">
-        <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+        <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css">        
         <script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
 	<script src="{% static 'dajax/jquery.dajax.core.js' %}"></script>
 
@@ -503,6 +503,14 @@ Enter a Schema name: <input type="text" id="schema_name" name="schema_name"/>
   </p>
 </div>
 
+<div id="dialog-upload-error" title="Upload Error" style="display:none;">
+<p></p>
+  <p>
+    <span class="ui-icon ui-icon-circle-close" style="float:left; margin:0 7px 10px 0;"></span>
+    <p>No file selected.</p>
+    <p>Please select a file before trying to upload a schema.</p>
+  </p>
+</div>
 
 <script>
 // Check for the various File API support.
