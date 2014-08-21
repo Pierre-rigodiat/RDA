@@ -310,7 +310,7 @@ def select_schema(request):
             if templateVersion[0] == '%' and templateVersion[-1] == '%':
                 query['templateVersion'] = re.compile(templateVersion[1:-1])
             else:
-                query['titltemplateVersione'] = templateVersion
+                query['templateVersion'] = templateVersion
         if len(query.keys()) == 0:
             content = {'message':'No parameters given.'}
             return Response(content, status=status.HTTP_400_BAD_REQUEST)
