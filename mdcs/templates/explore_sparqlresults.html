@@ -33,6 +33,7 @@
 	<title>Materials Data Curation System</title>
 
 	<!-- JQuery & JQuery UI -->
+		<script src="{% static 'resources/js/bootstrap.min.js' %}"></script>
         <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css">
         <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
         <script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
@@ -289,8 +290,7 @@
 	</div>
 
 </div>
-
-		<script src="{% static 'resources/js/bootstrap.min.js' %}"></script>
+		
 		<script src="{% static 'inc/controllers/js/data_exploration.js' %}"></script>
 		<script>
 			Dajaxice.explore.getSparqlResults(Dajax.process);
