@@ -942,7 +942,7 @@ def generateFormSubSection(xpath,selected,xmlElement):
         if e.attrib.get('name') == "ChemicalElement":
 #            formString += "<div id=\"periodicTable\"></div>"
             currentXPath = xmlDocTree.getpath(e)
-            formString += "<div class=\"btn select-element\" onclick=\"selectElement('None',this,"+str(nbSelectedElement)+");\"><i class=\"icon-folder-open\"></i> Select Element</div>"
+            formString += "<div class=\"btn select-element\" onclick=\"selectElement('None',this,"+str(nbSelectedElement)+");\"><i class=\"icon-folder-open\"></i> Select Chemical Element</div>"
             formString += "<div id=\"elementSelected"+ str(nbSelectedElement) +"\">Current Selection: None</div>"
             nbSelectedElement += 1
 
@@ -1414,7 +1414,7 @@ def duplicateFormSubSection(xpath):
 
         if e.attrib.get('name') == "ChemicalElement":
 #            formString += "<div id=\"periodicTable\"></div>"
-            formString += "<div class=\"btn select-element\" onclick=\"selectElement('None',this,"+str(nbSelectedElement)+");\"><i class=\"icon-folder-open\"></i> Select Element</div>"
+            formString += "<div class=\"btn select-element\" onclick=\"selectElement('None',this,"+str(nbSelectedElement)+");\"><i class=\"icon-folder-open\"></i> Select Chemical Element</div>"
             formString += "<div id=\"elementSelected"+ str(nbSelectedElement) +"\">Current Selection: None</div>"
             nbSelectedElement += 1
 
