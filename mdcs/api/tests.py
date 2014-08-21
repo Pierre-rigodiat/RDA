@@ -233,7 +233,7 @@ class ExploreTestCase(APITestCase):
           
         # Test get as many data from the api than from mongo directly after adding 1
         data = Jsondata(schemaID="schema", xml="<test>value</test>", title="test")
-        id = data.save() 
+        id = data.save()         
         response = self.client.get(url)
         currentNbData = len(response.data)
         self.assertEqual(currentNbData, len(Jsondata.objects()))
