@@ -1796,8 +1796,7 @@ def uploadVersion(request, templateVersionID):
             document.getElementById('fileVersion').addEventListener('change',handleVersionUpload, false);
         """)
     else:
-        #dialog error
-        pass
+        dajax.script("""showUploadErrorDialog();""");
     
     xsdVersionContent = ""
     xsdVersionFilename = ""

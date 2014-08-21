@@ -42,6 +42,20 @@ uploadVersion = function()
 	Dajaxice.curate.uploadVersion(Dajax.process,{"templateVersionID":templateVersionID})
 }
 
+showUploadErrorDialog = function()
+{
+	$(function() {
+        $( "#dialog-upload-error" ).dialog({
+            modal: true,
+            buttons: {
+            	Ok: function() {	
+            		$( this ).dialog( "close" );
+                }
+            }
+        });
+    });
+}
+
 setCurrentVersion = function(setCurrent)
 {
 	var schemaid = $(setCurrent).attr("schemaid");
