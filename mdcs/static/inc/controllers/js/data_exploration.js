@@ -132,15 +132,15 @@ function deleteQuery(savedQueryID){
 	$(function() {
         $( "#dialog-DeleteQuery" ).dialog({
             modal: true,
-            buttons: {
-		Close: function() {
-                    $( this ).dialog( "close" );
-                },
-        Delete: function(){
+            buttons: {		
+            	Delete: function(){
 		        	var queriesTable = $("#queriesTable").html()
 		        	Dajaxice.explore.deleteQuery(Dajax.process,{'queriesTable':queriesTable, 'savedQueryID':savedQueryID})
 		        	$( this ).dialog( "close" );
-        		}
+        		},
+        		Cancel: function() {
+                    $( this ).dialog( "close" );
+                }
             }
         });
     });
@@ -161,18 +161,18 @@ clearQueries = function()
 	$(function() {
         $( "#dialog-DeleteAllQueries" ).dialog({
             modal: true,
-            buttons: {
-		Close: function() {
-                    $( this ).dialog( "close" );
-                },
-        Delete: function(){
+            buttons: {		
+        		Delete: function(){
 		        	$("input").each(function(){
 		        	    $(this).attr("value", $(this).val());
 		        	});
 		        	$('select option').each(function(){ this.defaultSelected = this.selected; });
 		        	Dajaxice.explore.clearQueries(Dajax.process)
 		        	$( this ).dialog( "close" );
-        		}
+        		},
+        		Cancel: function() {
+                    $( this ).dialog( "close" );
+                }
             }
         });
     });
