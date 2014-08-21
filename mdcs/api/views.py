@@ -400,5 +400,5 @@ def delete_schema(request):
     
 @api_view(['GET'])
 def docs(request):
-    content={'message':'Invalid command','docs':'http://'+str(request.get_host())+'/docs/'}
+    content={'message':'Invalid command','docs':'http://'+str(request.get_host())+'/docs/api'}
     return Response(content, status=status.HTTP_400_BAD_REQUEST)
