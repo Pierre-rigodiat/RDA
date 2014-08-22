@@ -127,12 +127,66 @@ def jsonData_detail(request, pk):
 @api_view(['GET'])
 def explore(request):
     """
-    GET http://localhost/api/explore
+    GET http://localhost/api/explore/select/all
     """
     connect('mgi') 
     jsonData = Jsondata.objects()
     serializer = jsonDataSerializer(jsonData)
     return Response(serializer.data, status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+def explore_detail(request):
+    """
+    GET http://localhost/api/explore/select
+    id: string (ObjectId)
+    schema: string (ObjectId)
+    title: string
+    """        
+    id = request.QUERY_PARAMS.get('id', None)
+    schema = request.QUERY_PARAMS.get('schema', None)
+    title = request.QUERY_PARAMS.get('title', None)
+    
+    try:        
+        query = dict()
+        if id is not None:            
+            query['_id'] = ObjectId(id)            
+        if schema is not None:
+            query['schema'] = schema
+        if title is not None:
+            query['title'] = title
+        if len(query.keys()) == 0:
+            content = {'message':'No parameters given.'}
+            return Response(content, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            jsonData = Jsondata.executeQueryFullResult(query)
+            serializer = jsonDataSerializer(jsonData)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+    except:
+        content = {'message':'No data found with the given parameters.'}
+        return Response(content, status=status.HTTP_404_NOT_FOUND)
+    
+@api_view(['GET'])
+def explore_delete(request):
+    """
+    GET http://localhost/api/explore/delete
+    id: string (ObjectId)
+    """        
+    id = request.QUERY_PARAMS.get('id', None)
+    
+    try:        
+        query = dict()
+        if id is not None:            
+            query['_id'] = ObjectId(id)            
+        if len(query.keys()) == 0:
+            content = {'message':'No id given.'}
+            return Response(content, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            Jsondata.delete(id)
+            content = {'message':'Data deleted with success.'}
+            return Response(content, status=status.HTTP_204_NO_CONTENT)
+    except:
+        content = {'message':'No data found with the given id.'}
+        return Response(content, status=status.HTTP_404_NOT_FOUND)
 
 @api_view(['POST'])
 def query_by_example(request):
@@ -268,10 +322,9 @@ def select_schema(request):
     content: string
     title: string
     version: integer
-    templateVersion: string
+    templateVersion: string (ObjectId)
     For string fields, you can use regular expressions: %exp%
     """
-    connect('mgi') 
     id = request.QUERY_PARAMS.get('id', None)
     filename = request.QUERY_PARAMS.get('filename', None)
     content = request.QUERY_PARAMS.get('content', None)
