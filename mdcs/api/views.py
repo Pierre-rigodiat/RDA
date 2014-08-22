@@ -151,9 +151,15 @@ def explore_detail(request):
         if id is not None:            
             query['_id'] = ObjectId(id)            
         if schema is not None:
-            query['schema'] = schema
+            if schema[0] == '/' and schema[-1] == '/':
+                query['schema'] = re.compile(schema[1:-1])
+            else:
+                query['schema'] = schema
         if title is not None:
-            query['title'] = title
+            if title[0] == '/' and title[-1] == '/':
+                query['title'] = re.compile(title[1:-1])
+            else:
+                query['title'] = title
         if len(query.keys()) == 0:
             content = {'message':'No parameters given.'}
             return Response(content, status=status.HTTP_400_BAD_REQUEST)
@@ -323,7 +329,7 @@ def select_schema(request):
     title: string
     version: integer
     templateVersion: string (ObjectId)
-    For string fields, you can use regular expressions: %exp%
+    For string fields, you can use regular expressions: /exp/
     """
     id = request.QUERY_PARAMS.get('id', None)
     filename = request.QUERY_PARAMS.get('filename', None)
@@ -343,24 +349,24 @@ def select_schema(request):
         if id is not None:            
             query['_id'] = ObjectId(id)            
         if filename is not None:
-            if filename[0] == '%' and filename[-1] == '%':
+            if filename[0] == '/' and filename[-1] == '/':
                 query['filename'] = re.compile(filename[1:-1])
             else:
                 query['filename'] = filename            
         if content is not None:
-            if content[0] == '%' and content[-1] == '%':
+            if content[0] == '/' and content[-1] == '/':
                 query['content'] = re.compile(content[1:-1])
             else:
                 query['content'] = content
         if title is not None:
-            if title[0] == '%' and title[-1] == '%':
+            if title[0] == '/' and title[-1] == '/':
                 query['title'] = re.compile(title[1:-1])
             else:
                 query['title'] = title
         if version is not None:
             query['version'] = version
         if templateVersion is not None:
-            if templateVersion[0] == '%' and templateVersion[-1] == '%':
+            if templateVersion[0] == '/' and templateVersion[-1] == '/':
                 query['templateVersion'] = re.compile(templateVersion[1:-1])
             else:
                 query['templateVersion'] = templateVersion
