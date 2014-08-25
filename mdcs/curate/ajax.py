@@ -414,10 +414,13 @@ def uploadXMLSchema(request,xmlSchemaName,xmlSchemaFilename,xmlSchemaContent):
     print 'BEGIN def uploadXMLSchema(request,xmlSchemaFilename,xmlSchemaContent)'
     dajax = Dajax()
 
-    print 'xmlSchemaName: ' + xmlSchemaName
-    print 'xmlSchemaFilename: ' + xmlSchemaFilename
-    print 'xmlSchemaContent: ' + xmlSchemaContent
-
+    try:
+        xmlTree = etree.fromstring(xmlSchemaContent)
+        xmlSchema = etree.XMLSchema(xmlTree)
+    except Exception, e:
+        dajax.script("alert('"+e.message+"');")
+        return dajax.json()
+    
     connect('mgi')
     templateVersion = TemplateVersion(nbVersions=1, isDeleted=False).save()
     newTemplate = Template(title=xmlSchemaName, filename=xmlSchemaFilename, content=xmlSchemaContent, version=1, templateVersion=str(templateVersion.id)).save()
