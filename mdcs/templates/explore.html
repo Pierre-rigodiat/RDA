@@ -36,10 +36,10 @@
 	<title>Materials Data Curation System</title>
 
 	<!-- JQuery & JQuery UI -->
-		<script src="http://code.jquery.com/jquery-1.9.1.js"></script>
-		<script src="{% static 'resources/js/bootstrap.min.js' %}"></script>
-        <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css">        
-        <script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
+	<script src="{% static 'resources/lib/jquery/jquery-1.11.1.min.js' %}"></script>
+	<script src="{% static 'resources/js/bootstrap.min.js' %}"></script>
+    <link rel="stylesheet" type="text/css" href="{% static 'resources/lib/jquery-ui/themes/smoothness/jquery-ui.css' %}"/>        
+    <script src="{% static 'resources/lib/jquery-ui/themes/smoothness/jquery-ui.js' %}"></script>
 	<script src="{% static 'dajax/jquery.dajax.core.js' %}"></script>
 
         {% dajaxice_js_import %}
