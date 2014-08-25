@@ -189,17 +189,7 @@
     <td>{{ template.title }}</td>
     <td>{{ template.filename }}</td>
 
-{% if request.session.currentTemplate == template.filename %} 
-
-    <!--<td><span style="color:blue;font-weight:bold">Current model</span></td>
-    <td><div class="icon legend delete schema" schemaid="{{ template.id }}">Delete</div></td>-->
-	<td><span style="color:green;">Registered</span></td>
-	<td>
-    <div class="icon legend long version" schemaid="{{ template.id }}">Manage Versions</div>
-    <div class="icon legend long edit" schemaid="{{ template.id }}">Edit Information</div>
-    <div class="icon legend long copy schema">Copy schema</div>
-    <div class="icon legend delete schema" schemaid="{{ template.id }}">Delete Schema</div></td>
-{% elif isDeleted == True %}     
+{% if isDeleted == True %}     
 	<td><span style="color:red;">Deleted</span></td>
     <td>
     <!-- <div class="icon legend extra-long add">Set as current model</div> -->
