@@ -250,7 +250,7 @@ def sparql_query(request):
 def curate(request):
     """
     POST http://localhost/api/curate/
-    POST data title="title", schema="schemaID", content="<xml>...</xml>"
+    POST data title="title", schema="schemaID", content="<root>...</root>"
     """        
     connect('mgi') 
     serializer = jsonDataSerializer(data=request.DATA)
