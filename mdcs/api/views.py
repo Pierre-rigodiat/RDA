@@ -256,9 +256,29 @@ def curate(request):
     connect('mgi') 
     serializer = jsonDataSerializer(data=request.DATA)
     if serializer.is_valid():
+        try:
+            schema = Template.objects.get(pk=ObjectId(request.DATA['schema']))
+            templateVersion = TemplateVersion.objects.get(pk=ObjectId(schema.templateVersion))
+            if str(schema.id) in templateVersion.deletedVersions:
+                content = {'message: The provided schema is currently deleted.'}
+                return Response(content, status=status.HTTP_400_BAD_REQUEST)
+        except:
+            content = {'message: No schema found with the given id.'}
+            return Response(content, status=status.HTTP_400_BAD_REQUEST)
+        
         xmlStr = request.DATA['content']
         try:
-            xmlTree = etree.fromstring(xmlStr)            
+            try:
+                xmlTree = etree.fromstring(xmlStr)
+            except Exception, e:
+                content = {'message: Unable to read the XML data: '+ e.message}
+                return Response(content, status=status.HTTP_400_BAD_REQUEST)
+            #TODO: schema validation
+#             xmlSchemaTree = etree.fromstring(schema.content)
+#             xmlSchema = etree.XMLSchema(xmlSchemaTree)
+#             if xmlSchema.validate(xmlTree) == False:
+#                 content = {'message: XML Schema validation error. Unable to validate the current XML document with the provided schema.'}
+#                 return Response(content, status=status.HTTP_400_BAD_REQUEST)
             jsondata = Jsondata(schemaID = request.DATA['schema'], xml = xmlStr, title = request.DATA['title'])
             docID = jsondata.save()            
 
@@ -288,7 +308,8 @@ def curate(request):
             rdfPublisher.sendRDF(rdfStr)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         except:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            content = {'message: Unable to insert data.'}
+            return Response(content, status=status.HTTP_400_BAD_REQUEST)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
