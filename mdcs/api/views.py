@@ -246,7 +246,6 @@ def sparql_query(request):
         return Response(srSerializer.data, status=status.HTTP_200_OK)
     return Response(sqSerializer.errors,status=status.HTTP_400_BAD_REQUEST)
 
-
 @api_view(['POST'])
 def curate(request):
     """
@@ -273,12 +272,13 @@ def curate(request):
             except Exception, e:
                 content = {'message: Unable to read the XML data: '+ e.message}
                 return Response(content, status=status.HTTP_400_BAD_REQUEST)
-            #TODO: schema validation
-#             xmlSchemaTree = etree.fromstring(schema.content)
-#             xmlSchema = etree.XMLSchema(xmlSchemaTree)
-#             if xmlSchema.validate(xmlTree) == False:
-#                 content = {'message: XML Schema validation error. Unable to validate the current XML document with the provided schema.'}
-#                 return Response(content, status=status.HTTP_400_BAD_REQUEST)
+            xmlSchemaTree = etree.fromstring(schema.content)
+            xmlSchema = etree.XMLSchema(xmlSchemaTree)
+            try:
+                xmlSchema.assertValid(xmlTree)
+            except Exception, e:
+                content = {'message':e.message}
+                return Response(content, status=status.HTTP_400_BAD_REQUEST)
             jsondata = Jsondata(schemaID = request.DATA['schema'], xml = xmlStr, title = request.DATA['title'])
             docID = jsondata.save()            
 
