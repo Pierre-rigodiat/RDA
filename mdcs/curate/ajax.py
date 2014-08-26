@@ -1721,14 +1721,17 @@ def manageVersions(request, schemaID):
               width: 500,
               buttons: {
                 Ok: function() {
-                  $( this ).dialog( "close" );                  
+                  $( this ).dialog( "close" );
+                  $('#model_selection').load(document.URL +  ' #model_selection', function() {
+                      loadXsdManagerHandler();
+                  });                  
                 },
                 Cancel: function() {
-                  $( this ).dialog( "close" );                  
+                  $( this ).dialog( "close" );  
+                  $('#model_selection').load(document.URL +  ' #model_selection', function() {
+                      loadXsdManagerHandler();
+                  });                
                 }
-              },
-              beforeClose: function( event, ui ) {
-                  window.location = "/admin/xml-schemas";
               }
             });            
           });
@@ -1960,7 +1963,9 @@ def editSchemaInformation(request, schemaid, newName, newFilename):
     
     dajax.script("""
         $("#dialog-edit-info").dialog( "close" );
-        window.location = "/admin/xml-schemas";
+        $('#model_selection').load(document.URL +  ' #model_selection', function() {
+              loadXsdManagerHandler();
+        });
     """)
     
     return dajax.json()
