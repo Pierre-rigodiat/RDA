@@ -32,7 +32,7 @@ from argparse import ArgumentError
 from cgi import FieldStorage
 import zipfile
 from mgi.models import Template, Database, Ontology, Htmlform, Xmldata, Hdf5file, QueryResults, SparqlQueryResults, ContactForm, XML2Download, TemplateVersion
-
+from bson.objectid import ObjectId
 import lxml.etree as etree
 
 # Create your views here.
@@ -334,7 +334,7 @@ def curate_upload_hdf5file(request):
         '': '',
     })
     if request.user.is_authenticated():
-        if 'currentTemplate' not in request.session:
+        if 'currentTemplateID' not in request.session:
             return redirect('/curate/select-template')
         else:
             if request.method == 'POST':
@@ -468,7 +468,7 @@ def curate_enter_data(request):
     request.session['currentYear'] = currentYear()
 #    return HttpResponse(template.render(context))  # remove after testing
     if request.user.is_authenticated():
-        if 'currentTemplate' not in request.session:
+        if 'currentTemplateID' not in request.session:
             return redirect('/curate/select-template')
         else:
             return HttpResponse(template.render(context))
@@ -497,7 +497,7 @@ def curate_view_data(request):
     request.session['currentYear'] = currentYear()
     return HttpResponse(template.render(context))  # remove after testing
     if request.user.is_authenticated():
-        if 'currentTemplate' not in request.session:
+        if 'currentTemplateID' not in request.session:
             return redirect('/curate/select-template')
         else:
             return HttpResponse(template.render(context))
@@ -519,13 +519,13 @@ def curate_view_data(request):
 ################################################################################
 def curate_enter_data_downloadxsd(request):
     if request.user.is_authenticated():
-        if 'currentTemplate' not in request.session:
+        if 'currentTemplateID' not in request.session:
             return redirect('/curate/select-template')
         else:
             templateFilename = request.session['currentTemplate']
-            print 'currentTemplate: ' + templateFilename
+            templateID = request.session['currentTemplateID']
 
-            templateObject = Template.objects.get(filename=templateFilename)
+            templateObject = Template.objects.get(pk=ObjectId(templateID))
 
             print templateObject
 #            xsdDocData = templateObject.content
@@ -557,7 +557,7 @@ def curate_enter_data_downloadxsd(request):
 ################################################################################
 def curate_enter_data_downloadform(request):
     if request.user.is_authenticated():
-        if 'currentTemplate' not in request.session:
+        if 'currentTemplateID' not in request.session:
             return redirect('/curate/select-template')
         else:
             global formString
@@ -590,7 +590,7 @@ def curate_enter_data_downloadform(request):
 ################################################################################
 def curate_view_data_downloadxml(request):
     if request.user.is_authenticated():
-        if 'currentTemplate' not in request.session:
+        if 'currentTemplateID' not in request.session:
             return redirect('/curate/select-template')
         else:
             xml2downloadID = request.GET.get('id','')
@@ -630,7 +630,7 @@ def view_schema(request):
     request.session['currentYear'] = currentYear()
     return HttpResponse(template.render(context))  # remove after testing
     if request.user.is_authenticated():
-        if 'currentTemplate' not in request.session:
+        if 'currentTemplateID' not in request.session:
             return redirect('/curate/select-template')
         else:
             return HttpResponse(template.render(context))
@@ -721,7 +721,7 @@ def explore_customize_template(request):
     request.session['currentYear'] = currentYear()
 #     return HttpResponse(template.render(context))  # remove after testing
     if request.user.is_authenticated():
-        if 'exploreCurrentTemplate' not in request.session:
+        if 'exploreCurrentTemplateID' not in request.session:
             return redirect('/explore/select-template')
         else:
             return HttpResponse(template.render(context))
@@ -750,7 +750,7 @@ def explore_perform_search(request):
     request.session['currentYear'] = currentYear()
     #return HttpResponse(template.render(context))  # remove after testing
     if request.user.is_authenticated():
-        if 'exploreCurrentTemplate' not in request.session:
+        if 'exploreCurrentTemplateID' not in request.session:
             return redirect('/explore/select-template')
         else:
             return HttpResponse(template.render(context))
@@ -779,7 +779,7 @@ def explore_results(request):
     request.session['currentYear'] = currentYear()
 #     return HttpResponse(template.render(context))  # remove after testing
     if request.user.is_authenticated():
-        if 'exploreCurrentTemplate' not in request.session:
+        if 'exploreCurrentTemplateID' not in request.session:
             return redirect('/explore/select-template')
         else:
             return HttpResponse(template.render(context))
@@ -808,7 +808,7 @@ def explore_sparqlresults(request):
     request.session['currentYear'] = currentYear()
 #     return HttpResponse(template.render(context))  # remove after testing
     if request.user.is_authenticated():
-        if 'exploreCurrentTemplate' not in request.session:
+        if 'exploreCurrentTemplateID' not in request.session:
             return redirect('/explore/select-template')
         else:
             return HttpResponse(template.render(context))
@@ -829,7 +829,7 @@ def explore_sparqlresults(request):
 ################################################################################
 def explore_download_results(request):
     if request.user.is_authenticated():
-        if 'exploreCurrentTemplate' not in request.session:
+        if 'exploreCurrentTemplateID' not in request.session:
             return redirect('/explore/select-template')
         else:          
             savedResultsID = request.GET.get('id','')
@@ -881,7 +881,7 @@ def explore_download_results(request):
 ################################################################################
 def explore_download_sparqlresults(request):
     if request.user.is_authenticated():
-        if 'exploreCurrentTemplate' not in request.session:
+        if 'exploreCurrentTemplateID' not in request.session:
             return redirect('/explore/select-template')
         else:          
             savedResultsID = request.GET.get('id','')

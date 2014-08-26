@@ -38,7 +38,7 @@
     <td>{{ template.title }}</td>
     <td>{{ template.filename }}</td>
 
-{% if request.session.currentTemplate == template.filename %} 
+{% if request.session.currentTemplateID == template.id|stringformat:"s" %} 
 
     <td><span style="color:green;font-weight:bold">Current template</span></td>
 

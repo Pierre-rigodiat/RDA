@@ -31,6 +31,7 @@ from django.core.servers.basehttp import FileWrapper
 from mgi.models import Template, Ontology, Htmlform, Xmldata, Hdf5file, Jsondata, XML2Download, TemplateVersion
 from datetime import datetime
 from datetime import tzinfo
+from bson.objectid import ObjectId
 
 #import xml.etree.ElementTree as etree
 import lxml.html as html
@@ -92,9 +93,9 @@ def getXsdString(request):
     print '>>>> BEGIN def getXsdString(request)'
     dajax = Dajax()
 
-    templateFilename = request.session['currentTemplate']
+    templateID = request.session['currentTemplateID']
 
-    templateObject = Template.objects.get(filename=templateFilename)
+    templateObject = Template.objects.get(pk=ObjectId(templateID))
     xmlDocData = templateObject.content
 
     xmlString = xmlDocData.encode('utf-8')
@@ -158,9 +159,7 @@ def getXmlString(request):
 @dajaxice_register
 def getHDF5String(request):
     print '>>>> BEGIN def getHDF5String(request)'
-    dajax = Dajax()
-
-    templateFilename = request.session['currentTemplate']
+    dajax = Dajax() 
 
     hdf5FileObject = Hdf5file.objects.get(title="hdf5file")
     hdf5FileContent = hdf5FileObject.content
@@ -388,7 +387,7 @@ def setCurrentTemplate(request,templateFilename,templateID):
 @dajaxice_register
 def verifyTemplateIsSelected(request):
     print 'BEGIN def verifyTemplateIsSelected(request)'
-    if 'currentTemplate' in request.session:
+    if 'currentTemplateID' in request.session:
       print 'template is selected'
       templateSelected = 'yes'
     else:
@@ -416,10 +415,11 @@ def uploadXMLSchema(request,xmlSchemaName,xmlSchemaFilename,xmlSchemaContent):
 
     try:
         xmlTree = etree.fromstring(xmlSchemaContent)
-        xmlSchema = etree.XMLSchema(xmlTree)
+        xmlSchema = etree.XMLSchema(xmlTree)        
     except Exception, e:
-        dajax.script("alert('"+e.message+"');")
+        dajax.script("""alert('"""+e.message.replace("'","") +"""');""")
         return dajax.json()
+    
     
     connect('mgi')
     templateVersion = TemplateVersion(nbVersions=1, isDeleted=False).save()
@@ -527,16 +527,16 @@ def deleteXMLOntology(request,xmlOntologyID):
 # Description:   Sets current model 
 # 
 ################################################################################
-@dajaxice_register
-def setCurrentModel(request,modelFilename):
-    print 'BEGIN def setCurrentModel(request)'
-    request.session['currentTemplate'] = modelFilename
-    request.session.modified = True
-    print '>>>>' + modelFilename
-    dajax = Dajax()
-
-    print 'END def setCurrentModel(request)'
-    return dajax.json()
+# @dajaxice_register
+# def setCurrentModel(request,modelFilename):
+#     print 'BEGIN def setCurrentModel(request)'
+#     request.session['currentTemplate'] = modelFilename
+#     request.session.modified = True
+#     print '>>>>' + modelFilename
+#     dajax = Dajax()
+# 
+#     print 'END def setCurrentModel(request)'
+#     return dajax.json()
 
 ################################################################################
 # 

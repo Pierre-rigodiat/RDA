@@ -137,7 +137,7 @@ def setCurrentTemplate(request,templateFilename, templateID):
 @dajaxice_register
 def verifyTemplateIsSelected(request):
     print 'BEGIN def verifyTemplateIsSelected(request)'
-    if 'exploreCurrentTemplate' in request.session:
+    if 'exploreCurrentTemplateID' in request.session:
         print 'template is selected'
         templateSelected = 'yes'
     else:
@@ -158,16 +158,16 @@ def verifyTemplateIsSelected(request):
 # Description:   Sets current model 
 # 
 ################################################################################
-@dajaxice_register
-def setCurrentModel(request,modelFilename):
-    print 'BEGIN def setCurrentModel(request)'
-    request.session['exploreCurrentTemplate'] = modelFilename
-    request.session.modified = True
-    print '>>>>' + modelFilename
-    dajax = Dajax()
-
-    print 'END def setCurrentModel(request)'
-    return dajax.json()
+# @dajaxice_register
+# def setCurrentModel(request,modelFilename):
+#     print 'BEGIN def setCurrentModel(request)'
+#     request.session['exploreCurrentTemplate'] = modelFilename
+#     request.session.modified = True
+#     print '>>>>' + modelFilename
+#     dajax = Dajax()
+# 
+#     print 'END def setCurrentModel(request)'
+#     return dajax.json()
 
 
 ################################################################################

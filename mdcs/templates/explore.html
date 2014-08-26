@@ -186,7 +186,7 @@
     <td templateID='{{template.id}}'>{{ template.title }}</td>
     <td>{{ template.filename }}</td>
 
-{% if request.session.exploreCurrentTemplate == template.filename %} 
+{% if request.session.exploreCurrentTemplateID == template.id|stringformat:"s" %} 
 
     <td><span style="color:green;font-weight:bold">Current template</span></td>
 
