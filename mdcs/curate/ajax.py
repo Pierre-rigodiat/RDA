@@ -28,7 +28,7 @@ from argparse import ArgumentError
 from cgi import FieldStorage
 from cStringIO import StringIO
 from django.core.servers.basehttp import FileWrapper
-from mgi.models import Template, Ontology, Htmlform, Xmldata, Hdf5file, Jsondata, XML2Download, TemplateVersion
+from mgi.models import Template, Ontology, Htmlform, Xmldata, Hdf5file, Jsondata, XML2Download, TemplateVersion, Instance
 from datetime import datetime
 from datetime import tzinfo
 from bson.objectid import ObjectId
@@ -2028,3 +2028,135 @@ def restoreVersion(request, schemaid):
     """)
     
     return dajax.json()
+
+@dajaxice_register
+def addInstance(request, name, protocol, address, port):
+    dajax = Dajax()
+    
+    errors = ""
+    
+    # test if an instance with the same name exists
+    instance = Instance.objects(name=name)
+    if len(instance) != 0:
+        errors += "An instance with the same name already exists.<br/>"
+    
+    # test if an instance with the same address/port exists
+    instance = Instance.objects(address=address, port=port)
+    if len(instance) != 0:
+        errors += "An instance with the address/port already exists.<br/>"
+    
+    # If some errors display them, otherwise insert the instance
+    if(errors == ""):
+        Instance(name=name, protocol=protocol, address=address, port=port).save()
+        dajax.script("""
+        $("#dialog-add-instance").dialog("close");
+        $('#model_selection').load(document.URL +  ' #model_selection', function() {
+              loadFedOfQueriesHandler();
+        });
+        """)
+    else:
+        dajax.assign("#instance_error", "innerHTML", errors)
+    
+    return dajax.json()
+
+@dajaxice_register
+def retrieveInstance(request, instanceid):
+    dajax = Dajax()
+    
+    instance = Instance.objects.get(pk=instanceid)
+    dajax.script(
+    """
+    $("#edit-instance-name").val('"""+ instance.name +"""');
+    $("#edit-instance-protocol").val('"""+ instance.protocol +"""');
+    $("#edit-instance-address").val('"""+ instance.address +"""');
+    $("#edit-instance-port").val('"""+ str(instance.port) +"""');
+    $(function() {
+        $( "#dialog-edit-instance" ).dialog({
+            modal: true,
+            height: 450,
+            width: 275,
+            buttons: {
+                Edit: function() {
+                    var name = $("#edit-instance-name").val();
+                    var protocol = $("#edit-instance-protocol").val();
+                    var address = $("#edit-instance-address").val();
+                    var port = $("#edit-instance-port").val();
+                    errors = ""
+                    if (name == "")
+                    {
+                        errors += "The name can't be empty.<br/>"
+                    }
+                    if(ValidateAddress(address) == false){
+                        errors += "The address is not valid.<br/>"
+                    }
+                    if(ValidatePort(port) == false){
+                        errors += "The port number is not valid."
+                    }
+                    if (errors != ""){
+                        $("#edit_instance_error").html(errors)
+                    }else{
+                        Dajaxice.curate.editInstance(Dajax.process,{"instanceid":'"""+instanceid+"""',"name":name, "protocol": protocol, "address":address, "port":port});
+                    }
+                },
+                Cancel: function() {                        
+                    $( this ).dialog( "close" );
+                }
+            }
+        });
+    });
+    """             
+    )
+    
+    return dajax.json()
+
+@dajaxice_register
+def editInstance(request, instanceid, name, protocol, address, port):
+    dajax = Dajax()
+    
+    errors = ""
+    
+    # test if an instance with the same name exists
+    instance = Instance.objects(name=name)
+    if len(instance) != 0 and str(instance[0].id) != instanceid:
+        errors += "An instance with the same name already exists.<br/>"
+    
+    # test if an instance with the same address/port exists
+    instance = Instance.objects(address=address, port=port)
+    if len(instance) != 0 and str(instance[0].id) != instanceid:
+        errors += "An instance with the address/port already exists.<br/>"
+    
+    # If some errors display them, otherwise insert the instance
+    if(errors == ""):
+        instance = Instance.objects.get(pk=instanceid)
+        instance.name = name
+        instance.protocol = protocol
+        instance.address = address
+        instance.port = port
+        instance.save()
+        dajax.script("""
+        $("#dialog-edit-instance").dialog("close");
+        $('#model_selection').load(document.URL +  ' #model_selection', function() {
+              loadFedOfQueriesHandler();
+        });
+        """)
+    else:
+        dajax.assign("#edit_instance_error", "innerHTML", errors)
+    
+    return dajax.json()
+
+@dajaxice_register
+def deleteInstance(request, instanceid):
+    dajax = Dajax()
+    
+    instance = Instance.objects.get(pk=instanceid)
+    instance.delete()
+    
+    dajax.script("""
+        $("#dialog-deleteinstance-message").dialog("close");
+        $('#model_selection').load(document.URL +  ' #model_selection', function() {
+              loadFedOfQueriesHandler();
+        });
+    """)
+    
+    return dajax.json()
+
