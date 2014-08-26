@@ -31,7 +31,7 @@ from xlrd import open_workbook
 from argparse import ArgumentError
 from cgi import FieldStorage
 import zipfile
-from mgi.models import Template, Database, Ontology, Htmlform, Xmldata, Hdf5file, QueryResults, SparqlQueryResults, ContactForm, XML2Download, TemplateVersion
+from mgi.models import Template, Database, Ontology, Htmlform, Xmldata, Hdf5file, QueryResults, SparqlQueryResults, ContactForm, XML2Download, TemplateVersion, Instance
 from bson.objectid import ObjectId
 import lxml.etree as etree
 
@@ -238,6 +238,26 @@ def database_management(request):
         'databases': Database.objects.order_by('-id')[:7]
     })
 
+    request.session['currentYear'] = currentYear()
+    return HttpResponse(template.render(context))
+
+################################################################################
+#
+# Function Name: federation_of_queries(request)
+# Inputs:        request - 
+# Outputs:       
+# Exceptions:    None
+# Description:   
+#                
+#
+################################################################################
+def federation_of_queries(request):
+    template = loader.get_template('admin/federation_of_queries.html')
+    connect('mgi')
+
+    context = RequestContext(request, {
+        'instances': Instance.objects.order_by('-id')
+    })
     request.session['currentYear'] = currentYear()
     return HttpResponse(template.render(context))
 

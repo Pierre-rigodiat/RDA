@@ -66,6 +66,12 @@ class Database(Document):
     timestamp = StringField(required=True)
     content = StringField(required=True)
 
+class Instance(Document):
+    name = StringField(required=True)
+    protocol = StringField(required=True) 
+    address = StringField(required=True) 
+    port = IntField(required=True)
+
 class ContactForm(forms.Form):
     subject = forms.CharField(max_length=100)
     message = forms.CharField()
