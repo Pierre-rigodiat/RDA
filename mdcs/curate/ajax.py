@@ -413,12 +413,13 @@ def uploadXMLSchema(request,xmlSchemaName,xmlSchemaFilename,xmlSchemaContent):
     print 'BEGIN def uploadXMLSchema(request,xmlSchemaFilename,xmlSchemaContent)'
     dajax = Dajax()
 
-    try:
-        xmlTree = etree.fromstring(xmlSchemaContent)
-        xmlSchema = etree.XMLSchema(xmlTree)        
-    except Exception, e:
-        dajax.script("""alert('"""+e.message.replace("'","") +"""');""")
-        return dajax.json()
+    #TODO: XML validation
+#     try:
+#         xmlTree = etree.fromstring(xmlSchemaContent)
+#         xmlSchema = etree.XMLSchema(xmlTree)        
+#     except Exception, e:
+#         dajax.script("""alert('"""+e.message.replace("'","") +"""');""")
+#         return dajax.json()
     
     
     connect('mgi')
