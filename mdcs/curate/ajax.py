@@ -2040,15 +2040,23 @@ def addInstance(request, name, protocol, address, port):
     
     errors = ""
     
-    # test if an instance with the same name exists
-    instance = Instance.objects(name=name)
-    if len(instance) != 0:
-        errors += "An instance with the same name already exists.<br/>"
+    # test if the name is "Local"
+    if (name == "Local"):
+        errors += "By default, the instance named Local is the instance currently running."
+    else:
+        # test if an instance with the same name exists
+        instance = Instance.objects(name=name)
+        if len(instance) != 0:
+            errors += "An instance with the same name already exists.<br/>"
     
-    # test if an instance with the same address/port exists
-    instance = Instance.objects(address=address, port=port)
-    if len(instance) != 0:
-        errors += "An instance with the address/port already exists.<br/>"
+    # test if new instance is not the same as the local instance
+    if address == request.META['REMOTE_ADDR'] and port == request.META['SERVER_PORT']:
+        errors += "The address and port you entered refer to the instance currently running."
+    else:
+        # test if an instance with the same address/port exists
+        instance = Instance.objects(address=address, port=port)
+        if len(instance) != 0:
+            errors += "An instance with the address/port already exists.<br/>"
     
     # If some errors display them, otherwise insert the instance
     if(errors == ""):
@@ -2120,15 +2128,23 @@ def editInstance(request, instanceid, name, protocol, address, port):
     
     errors = ""
     
-    # test if an instance with the same name exists
-    instance = Instance.objects(name=name)
-    if len(instance) != 0 and str(instance[0].id) != instanceid:
-        errors += "An instance with the same name already exists.<br/>"
+    # test if the name is "Local"
+    if (name == "Local"):
+        errors += "By default, the instance named Local is the instance currently running."
+    else:   
+        # test if an instance with the same name exists
+        instance = Instance.objects(name=name)
+        if len(instance) != 0 and str(instance[0].id) != instanceid:
+            errors += "An instance with the same name already exists.<br/>"
     
-    # test if an instance with the same address/port exists
-    instance = Instance.objects(address=address, port=port)
-    if len(instance) != 0 and str(instance[0].id) != instanceid:
-        errors += "An instance with the address/port already exists.<br/>"
+    # test if new instance is not the same as the local instance
+    if address == request.META['REMOTE_ADDR'] and port == request.META['SERVER_PORT']:
+        errors += "The address and port you entered refer to the instance currently running."
+    else:
+        # test if an instance with the same address/port exists
+        instance = Instance.objects(address=address, port=port)
+        if len(instance) != 0 and str(instance[0].id) != instanceid:
+            errors += "An instance with the address/port already exists.<br/>"
     
     # If some errors display them, otherwise insert the instance
     if(errors == ""):
