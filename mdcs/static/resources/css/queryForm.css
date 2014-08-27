@@ -132,3 +132,19 @@
 	width:238px;
 	margin-bottom:0;
 } 
+
+#fed_of_queries_servers
+{
+	height: 100px;
+	overflow-y: scroll;
+	overflow-x: auto;
+	background-color: #FFECCF;
+	padding-left: 10px;
+	padding-top: 5px;	
+}
+
+#fed_of_queries_servers .instance_name
+{
+	font-weight: bold;
+	font-size: 12px;
+}

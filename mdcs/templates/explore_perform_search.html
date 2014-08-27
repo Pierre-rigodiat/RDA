@@ -138,7 +138,7 @@
 	
 
 	<div class="clearer">&nbsp;</div>
-
+	
 	</div>
 
       </div>
@@ -296,7 +296,27 @@ WHERE {?s ?p ?o}</textarea>
 			</div>
 		    </div>
 		  </div>
-
+		  
+	<div>
+		<div id="sidebar-wrapper">
+		  	<div id="sidebar">
+		  		<div class="box">
+					<div class="box-title">Federation of Queries</div><br/>
+					<div id="fed_of_queries_servers">
+					{% for instance in instances %}
+						{% if instance.name == "Local" %}
+						<nobr><input type="checkbox" value="{{ instance.name }}" checked="checked"><span class="instance_name"> {{ instance.name }} </span><br/>
+						{% else %}
+						<nobr><input type="checkbox" value="{{ instance.name }}"><span class="instance_name"> {{ instance.name }} </span> ({{instance.protocol}}://{{instance.address}}:{{instance.port}})</nobr><br/>
+						{% endif %}
+					{% endfor %}
+					</div>
+					<br/>
+				</div>
+			</div>
+		</div>
+	</div>
+	
 <div class="clearer">&nbsp;</div>
 
   		</div>

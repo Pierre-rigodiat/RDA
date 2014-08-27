@@ -764,8 +764,13 @@ def explore_customize_template(request):
 def explore_perform_search(request):
 #    logout(request)
     template = loader.get_template('explore_perform_search.html')
+    instances = Instance.objects()   
+    local = Instance(name="Local", protocol="http", address=request.META['REMOTE_ADDR'], port=request.META['SERVER_PORT'])
+    listInstances = [local]
+    for instance in instances:
+        listInstances.append(instance) 
     context = RequestContext(request, {
-        '': '',
+        'instances': listInstances,
     })
     request.session['currentYear'] = currentYear()
     #return HttpResponse(template.render(context))  # remove after testing
