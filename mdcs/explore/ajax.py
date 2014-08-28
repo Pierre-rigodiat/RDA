@@ -59,6 +59,7 @@ instances = []
 results = []
 sparqlResults = ""
 sparqlQuery = ""
+sparqlFormat = ""
 
 #Class definition
 class ElementInfo:    
@@ -521,6 +522,8 @@ def getInstances(request, fedOfQueries):
 def getResults(request):
     dajax = Dajax()
     global instances
+    global results 
+    results = []
     
     dajax.script("""
         getAsyncResults('"""+ str(len(instances)) +"""');
@@ -544,9 +547,7 @@ def getResultsByInstance(request, numInstance):
     global results
     global query
     global instances
-    
-    
-    results = []
+        
     resultString = ""
     
     instance = instances[int(numInstance)]
@@ -1855,16 +1856,21 @@ WHERE {
     return dajax.json()
 
 @dajaxice_register
-def executeSPARQLQuery(request, queryStr, sparqlFormatIndex):
+def executeSPARQLQuery(request, queryStr, sparqlFormatIndex, fedOfQueries):
     print 'BEGIN def executeSPARQLQuery(request, queryStr, sparqlFormatIndex)'        
     dajax = Dajax()
     
-    global sparqlResults
     global sparqlQuery
+    global sparqlFormat
+    global instances
     
-    sparqlQuery = queryStr
-    sparqlResults = sparqlPublisher.sendSPARQL(str(sparqlFormatIndex) + queryStr)
-    if sparqlResults is not None :
+    instances = []
+    getInstances(request, fedOfQueries)
+    if (len(instances)==0):
+        dajax.script("showErrorInstancesDialog();")
+    else:
+        sparqlQuery = queryStr
+        sparqlFormat = str(sparqlFormatIndex)
         dajax.script("sparqlResultsCallback();")
 
     print 'END def executeSPARQLQuery(request, queryStr, sparqlFormatIndex)'
@@ -1873,20 +1879,65 @@ def executeSPARQLQuery(request, queryStr, sparqlFormatIndex):
 @dajaxice_register
 def getSparqlResults(request):
     dajax = Dajax()
-    
+    global instances
     global sparqlResults
     
-    displayedSparqlResults = sparqlResults.replace("<", "&#60;")
-    displayedSparqlResults = displayedSparqlResults.replace(">", "&#62;")
-    resultString = ""
-    resultString += "<pre class='sparqlResult' readonly='true'>"
-#     resultString += "<pre>"  
-    resultString += displayedSparqlResults
-#     resultString += "</pre>"
-    resultString += "</pre>"    
-            
-    dajax.assign("#results", "innerHTML", resultString)
+    sparqlResults = ""
     
+    dajax.script("""
+        getAsyncSparqlResults('"""+ str(len(instances)) +"""');
+    """)
+    
+    return dajax.json()
+
+@dajaxice_register
+def getSparqlResultsByInstance(request, numInstance):
+    dajax = Dajax()
+    
+    global sparqlResults
+    global sparqlQuery
+    global sparqlFormat
+    
+    resultString = ""
+    instance = instances[int(numInstance)]
+    resultString += "<b>From " + instance.name + ":</b> <br/>"
+    if instance.name == "Local":
+        instanceResults = sparqlPublisher.sendSPARQL(sparqlFormat + sparqlQuery)
+        sparqlResults += instanceResults
+        displayedSparqlResults = instanceResults.replace("<", "&#60;")
+        displayedSparqlResults = displayedSparqlResults.replace(">", "&#62;")
+        resultString += "<pre class='sparqlResult' readonly='true'>"
+        resultString += displayedSparqlResults
+        resultString += "</pre>"
+        resultString += "<br/>"
+    else:
+        url = instance.protocol + "://" + instance.address + ":" + str(instance.port) + "/api/explore/sparql-query"
+        resFormat = ""
+        if (sparqlFormat == "0"):
+            resFormat = "TEXT"
+        elif (sparqlFormat == "1"):
+            resFormat = "XML"
+        elif (sparqlFormat == "2"):
+            resFormat = "CSV"
+        elif (sparqlFormat == "3"):
+            resFormat = "TSV"
+        elif (sparqlFormat == "4"):
+            resFormat = "JSON"
+        data = {"query": sparqlQuery, "format": resFormat}
+        r = requests.post(url, data, auth=('admin', 'admin'))        
+        instanceResultsDict = eval(r.text)
+        instanceResults = instanceResultsDict['content']      
+        sparqlResults += instanceResults
+        displayedSparqlResults = instanceResults.replace("<", "&#60;")
+        displayedSparqlResults = displayedSparqlResults.replace(">", "&#62;")        
+        resultString += "<pre class='sparqlResult' readonly='true'>"
+        resultString += displayedSparqlResults
+        resultString += "</pre>"
+        resultString += "<br/>"
+        
+            
+    dajax.append("#results", "innerHTML", resultString)
+       
     return dajax.json()
 
 @dajaxice_register

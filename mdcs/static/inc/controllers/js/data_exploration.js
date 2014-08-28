@@ -109,6 +109,13 @@ getAsyncResults = function(nbInstances)
 	}
 }
 
+getAsyncSparqlResults = function(nbInstances)
+{
+	for (i=0; i < Number(nbInstances); ++i){
+		Dajaxice.explore.getSparqlResultsByInstance(Dajax.process,{"numInstance": i});
+	}
+}
+
 function addField(){
 	$("input").each(function(){
 	    $(this).attr("value", $(this).val());
@@ -423,7 +430,18 @@ selectElement = function(elementID)
 function sparqlquery(){
 	var queryStr = $("#SPARQLqueryBuilder .SPARQLTextArea").val();	
 	var sparqlFormatIndex = $("#SPARQLFormat").prop("selectedIndex");
-	Dajaxice.explore.executeSPARQLQuery(Dajax.process,{"queryStr":queryStr,"sparqlFormatIndex":sparqlFormatIndex});
+	var elems = $("#fed_of_queries_instances")[0].getElementsByTagName("input");
+    for(var i = 0; i < elems.length; i++) {
+    	if(elems[i].checked == true)
+    	{
+    		elems[i].setAttribute("checked","checked");
+    	}else
+    	{
+    		elems[i].removeAttribute('checked');
+    	}
+    }
+	var fedOfQueries = $("#fed_of_queries_instances").html()
+	Dajaxice.explore.executeSPARQLQuery(Dajax.process,{"queryStr":queryStr,"sparqlFormatIndex":sparqlFormatIndex, "fedOfQueries": fedOfQueries});
 }
 
 sparqlResultsCallback = function()
