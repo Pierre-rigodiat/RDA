@@ -188,8 +188,6 @@ def updateFormList(request):
 
     templateID = request.session['currentTemplateID']
 
-    connect('mgi')
-
     selectOptions = ""
     availableHTMLForms = Htmlform.objects(schema=templateID)
     if len(availableHTMLForms) > 0:
@@ -222,8 +220,6 @@ def saveHTMLForm(request,saveAs,content):
 
     templateID = request.session['currentTemplateID']
 
-    connect('mgi')
-
 #    newHTMLForm = Htmlform(title=saveAs, schema=templateID, content=formString).save()
     newHTMLForm = Htmlform(title=saveAs, schema=templateID, content=content).save()
 
@@ -248,8 +244,6 @@ def saveXMLDataToDB(request,saveAs):
     global xmlString
 
     templateID = request.session['currentTemplateID']
-
-    connect('mgi')
 
     #newXMLData = Xmldata(title=saveAs, schema=templateID, content=xmlString).save()
 
@@ -422,13 +416,11 @@ def uploadXMLSchema(request,xmlSchemaName,xmlSchemaFilename,xmlSchemaContent):
 #         return dajax.json()
     
     
-    connect('mgi')
     templateVersion = TemplateVersion(nbVersions=1, isDeleted=False).save()
     newTemplate = Template(title=xmlSchemaName, filename=xmlSchemaFilename, content=xmlSchemaContent, version=1, templateVersion=str(templateVersion.id)).save()
     templateVersion.versions = [str(newTemplate.id)]
     templateVersion.current=str(newTemplate.id)
-    templateVersion.save()
-    newTemplate.templateVersion = str(templateVersion.id)
+    templateVersion.save()    
     newTemplate.save()
     
 
@@ -452,7 +444,6 @@ def deleteXMLSchema(request,xmlSchemaID):
 
     print 'xmlSchemaID: ' + xmlSchemaID
 
-    connect('mgi')
     selectedSchema = Template.objects(id=xmlSchemaID)[0]
     templateVersion = TemplateVersion.objects.get(pk=selectedSchema.templateVersion)
 #     for version in templateVersion.versions:
@@ -488,7 +479,6 @@ def uploadXMLOntology(request,xmlOntologyName,xmlOntologyFilename,xmlOntologyCon
     print 'xmlOntologyFilename: ' + xmlOntologyFilename
     print 'xmlOntologyContent: ' + xmlOntologyContent
 
-    connect('mgi')
     newOntology = Ontology(title=xmlOntologyName, filename=xmlOntologyFilename, content=xmlOntologyContent).save()
 
     print 'END def uploadXMLOntology(request,xmlOntologyFilename,xmlOntologyContent)'
@@ -511,7 +501,6 @@ def deleteXMLOntology(request,xmlOntologyID):
 
     print 'xmlOntologyID: ' + xmlOntologyID
 
-    connect('mgi')
     selectedOntology = Ontology.objects(id=xmlOntologyID)[0]
     selectedOntology.delete()
 
@@ -1678,7 +1667,7 @@ from dateutil import tz
 @dajaxice_register
 def manageVersions(request, schemaID):
     dajax = Dajax()
-    connect('mgi')
+
     template = Template.objects.get(pk=schemaID)
     templateVersions = TemplateVersion.objects.get(pk=template.templateVersion)
     
@@ -1757,7 +1746,7 @@ def uploadVersion(request, templateVersionID):
     dajax = Dajax()
     global xsdVersionContent
     global xsdVersionFilename
-    connect('mgi')
+
     if xsdVersionContent != "" and xsdVersionFilename != "":
         templateVersions = TemplateVersion.objects.get(pk=templateVersionID)
         currentTemplate = Template.objects.get(pk=templateVersions.current)
@@ -1814,7 +1803,6 @@ def uploadVersion(request, templateVersionID):
 @dajaxice_register
 def setCurrentVersion(request, schemaid):
     dajax = Dajax()
-    connect('mgi')
     selectedTemplate = Template.objects.get(pk=schemaid)
     templateVersions = TemplateVersion.objects.get(pk=selectedTemplate.templateVersion)
     templateVersions.current = str(selectedTemplate.id)
@@ -1862,7 +1850,6 @@ def setCurrentVersion(request, schemaid):
 @dajaxice_register
 def deleteVersion(request, schemaid, newCurrent):
     dajax = Dajax()
-    connect('mgi')
     selectedTemplate = Template.objects.get(pk=schemaid)
     templateVersions = TemplateVersion.objects.get(pk=selectedTemplate.templateVersion)    
 
@@ -1925,7 +1912,6 @@ def deleteVersion(request, schemaid, newCurrent):
 @dajaxice_register
 def assignDeleteCustomMessage(request, schemaid):
     dajax = Dajax()
-    connect('mgi')
     selectedTemplate = Template.objects.get(pk=schemaid)
     templateVersions = TemplateVersion.objects.get(pk=selectedTemplate.templateVersion)    
     
@@ -1950,7 +1936,6 @@ def assignDeleteCustomMessage(request, schemaid):
 @dajaxice_register
 def editSchemaInformation(request, schemaid, newName, newFilename):
     dajax = Dajax()
-    connect('mgi')
     selectedTemplate = Template.objects.get(pk=schemaid)       
     templateVersions = TemplateVersion.objects.get(pk=selectedTemplate.templateVersion)
     
@@ -1974,7 +1959,6 @@ def editSchemaInformation(request, schemaid, newName, newFilename):
 def restoreSchema(request, schemaid):
     dajax = Dajax()
     
-    connect('mgi')
     selectedTemplate = Template.objects.get(pk=schemaid)       
     templateVersions = TemplateVersion.objects.get(pk=selectedTemplate.templateVersion)
     templateVersions.isDeleted = False
@@ -1989,7 +1973,6 @@ def restoreSchema(request, schemaid):
 @dajaxice_register
 def restoreVersion(request, schemaid):
     dajax = Dajax()
-    connect('mgi')
     selectedTemplate = Template.objects.get(pk=schemaid)
     templateVersions = TemplateVersion.objects.get(pk=selectedTemplate.templateVersion)
     del templateVersions.deletedVersions[templateVersions.deletedVersions.index(schemaid)]

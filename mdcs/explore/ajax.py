@@ -26,12 +26,13 @@ from lxml import html
 from collections import OrderedDict
 from pymongo import Connection
 import xmltodict
+import requests
 
 #import xml.etree.ElementTree as etree
 import lxml.etree as etree
 import xml.dom.minidom as minidom
 
-from mgi.models import Template, QueryResults, SparqlQueryResults, SavedQuery, Jsondata 
+from mgi.models import Template, QueryResults, SparqlQueryResults, SavedQuery, Jsondata, Instance 
 
 import sparqlPublisher
 
@@ -53,7 +54,8 @@ defaultNamespace = ""
 criteriaID = ""
 anyChecked = False
 
-
+query = dict()
+instances = []
 results = []
 sparqlResults = ""
 sparqlQuery = ""
@@ -454,7 +456,7 @@ def generateXSDTreeForQueryingData(request):
 
 ################################################################################
 # 
-# Function Name: executeQuery(request, queryForm, queryBuilder)
+# Function Name: executeQuery(request, queryForm, queryBuilder, fedOfQueries)
 # Inputs:        request - 
 #                queryForm - 
 #                queryBuilder - 
@@ -464,23 +466,29 @@ def generateXSDTreeForQueryingData(request):
 #
 ################################################################################
 @dajaxice_register
-def executeQuery(request, queryForm, queryBuilder):
-    print 'BEGIN def executeQuery(request, queryForm, queryBuilder)'        
+def executeQuery(request, queryForm, queryBuilder, fedOfQueries):
+    print 'BEGIN def executeQuery(request, queryForm, queryBuilder, fedOfQueries)'        
     dajax = Dajax()
-    global results
+#     global results
+    global query
+    global instances
 #     global queryBuilderString
     global savedQueryForm
     
 #     queryBuilderString = queryBuilder
-    savedQueryForm = queryForm
+    savedQueryForm = queryForm    
     
     queryFormTree = html.fromstring(queryForm)
     errors = checkQueryForm(queryFormTree)
     if(len(errors)== 0):
-        htmlTree = html.fromstring(queryForm)
-        query = fieldsToQuery(htmlTree)
-        results = Jsondata.executeQuery(query)
-        dajax.script("resultsCallback();")
+        instances = getInstances(request, fedOfQueries)
+        if (len(instances)==0):
+            dajax.script("showErrorInstancesDialog();")
+        else:
+            htmlTree = html.fromstring(queryForm)
+            query = fieldsToQuery(htmlTree)
+#             results = Jsondata.executeQuery(query)
+            dajax.script("resultsCallback();")
     else:
         errorsString = ""
         for error in errors:
@@ -488,9 +496,27 @@ def executeQuery(request, queryForm, queryBuilder):
         dajax.assign('#listErrors', 'innerHTML', errorsString)
         dajax.script("displayErrors();")
 
-    print 'END def executeQuery(request, queryForm, queryBuilder)'
+    print 'END def executeQuery(request, queryForm, queryBuilder, fedOfQueries)'
     return dajax.json()
 
+def getInstances(request, fedOfQueries):
+    global instances
+    
+    fedOfQueriesTree = html.fromstring(fedOfQueries)    
+    instancesCheckboxes = fedOfQueriesTree.findall(".//input[@type='checkbox']")
+    
+    for checkbox in instancesCheckboxes:
+        if 'checked' in checkbox.attrib:
+            if checkbox.attrib['value'] == "Local":
+                if 'HTTPS' in request.META['SERVER_PROTOCOL']:
+                    protocol = "https"
+                else:
+                    protocol = "http"
+                instances.append(Instance(name="Local", protocol=protocol, address=request.META['REMOTE_ADDR'], port=request.META['SERVER_PORT']))
+            else:
+                instances.append(Instance.objects.get(name=checkbox.attrib['value']))
+    
+    return instances
 
 ################################################################################
 # 
@@ -506,6 +532,22 @@ def getResults(request):
     print 'BEGIN def getResults(request)'
     dajax = Dajax()
     global results
+    global query
+    global instances
+    
+    
+    results = []
+    startIndex = 0
+    if instances[0].name == "Local":
+        results = Jsondata.executeQuery(query)
+        startIndex = 1
+    else:
+        
+        for instance in instances[1:]:
+            url = instance.protocol + "://" + instance.address + ":" + instance.port + "/api/explore/query-by-example"
+            data = {"query":query}
+            r = requests.post(url, data)
+            
     
     resultString = ""
     
@@ -1135,7 +1177,6 @@ def saveQuery(request, queryForm, queriesTable):
             displayedQuery = fieldsToPrettyQuery(queryFormTree) 
         
             #save the query in the data base
-            connect('mgi')
             
             ListRegex = []
             ListPattern = []
@@ -1222,13 +1263,11 @@ def deleteQuery(request, queriesTable, savedQueryID):
 #             queriesTableTree.remove(tbody)   
 #             break
     
-    connect('mgi')
     SavedQuery(id=savedQueryID[5:]).delete()
     del mapQueryInfo[savedQueryID[5:]]
     if '_auth_user_id' in request.session and 'exploreCurrentTemplateID' in request.session:
         userID = request.session['_auth_user_id']
         templateID = request.session['exploreCurrentTemplateID']
-        connect('mgi')
         userQueries = SavedQuery.objects(user=str(userID),template=str(templateID))        
         if(len(userQueries) == 0):
             queriesTableTree = html.fragment_fromstring(
@@ -1437,7 +1476,6 @@ def clearQueries(request):
 #     for tr in queriesTableTree.findall('./tbody/tr')[1:]:
 #         # removes existing rows         
 #         queriesTableTree.find("./tbody").remove(tr)    
-    connect('mgi')
     for queryID in mapQueryInfo.keys():
         SavedQuery(id=queryID).delete()
             
@@ -1446,7 +1484,6 @@ def clearQueries(request):
     if '_auth_user_id' in request.session and 'exploreCurrentTemplateID' in request.session:
         userID = request.session['_auth_user_id']
         templateID = request.session['exploreCurrentTemplateID']
-        connect('mgi')
         userQueries = SavedQuery.objects(user=str(userID),template=str(templateID))
         queriesTableTree = html.fragment_fromstring(
             """<table>
@@ -1496,7 +1533,6 @@ def getCustomForm(request):
     if '_auth_user_id' in request.session and 'exploreCurrentTemplateID' in request.session:
         userID = request.session['_auth_user_id']
         templateID = request.session['exploreCurrentTemplateID']
-        connect('mgi')
         userQueries = SavedQuery.objects(user=str(userID),template=str(templateID))
         queriesTable = html.fragment_fromstring(
             """<table>
@@ -1672,7 +1708,6 @@ def downloadResults(request):
 
     global results
 
-    connect('mgi')
     
     if (len(results) > 0):
         xmlResults = []
@@ -1820,7 +1855,6 @@ def downloadSparqlResults(request):
 
     global sparqlResults
 
-    connect('mgi')
     
     if (sparqlResults is not None):
         

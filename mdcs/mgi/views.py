@@ -60,7 +60,6 @@ def currentYear():
 ################################################################################
 def home(request):
     template = loader.get_template('index.html')
-    connect('mgi')
 
     context = RequestContext(request, {
         'templates': Template.objects.order_by('-id')[:7]
@@ -79,7 +78,6 @@ def home(request):
 ################################################################################
 def admin(request):
     template = loader.get_template('admin/index.html')
-    connect('mgi')
 
     context = RequestContext(request, {
         'templates': Template.objects.order_by('-id')[:7]
@@ -99,7 +97,6 @@ def admin(request):
 ################################################################################
 def xml_schemas(request):
     template = loader.get_template('admin/xml_schemas.html')
-    connect('mgi')
 
     context = RequestContext(request, {
         'templates': Template.objects.order_by('-id')[:7]
@@ -119,7 +116,6 @@ def xml_schemas(request):
 ################################################################################
 def manage_schemas(request):
     template = loader.get_template('admin/manage_schemas.html')
-    connect('mgi')
     
     currentTemplateVersions = []
     for tpl_version in TemplateVersion.objects():
@@ -152,7 +148,6 @@ def manage_schemas(request):
 ################################################################################
 def manage_modules(request):
     template = loader.get_template('admin/manage_modules.html')
-    connect('mgi')
 
     context = RequestContext(request, {
         'templates': Template.objects.order_by('-id')[:7]
@@ -172,7 +167,6 @@ def manage_modules(request):
 ################################################################################
 def manage_queries(request):
     template = loader.get_template('admin/manage_queries.html')
-    connect('mgi')
 
     context = RequestContext(request, {
         'templates': Template.objects.order_by('-id')[:7]
@@ -192,7 +186,6 @@ def manage_queries(request):
 ################################################################################
 def manage_ontologies(request):
     template = loader.get_template('admin/manage_ontologies.html')
-    connect('mgi')
 
     context = RequestContext(request, {
         'ontologies': Ontology.objects.order_by('-id')
@@ -212,7 +205,6 @@ def manage_ontologies(request):
 ################################################################################
 def user_management(request):
     template = loader.get_template('admin/user_management.html')
-    connect('mgi')
 
     context = RequestContext(request, {
         'templates': Template.objects.order_by('-id')[:7]
@@ -232,7 +224,6 @@ def user_management(request):
 ################################################################################
 def database_management(request):
     template = loader.get_template('admin/database_management.html')
-    connect('mgi')
 
     context = RequestContext(request, {
         'databases': Database.objects.order_by('-id')[:7]
@@ -253,7 +244,6 @@ def database_management(request):
 ################################################################################
 def federation_of_queries(request):
     template = loader.get_template('admin/federation_of_queries.html')
-    connect('mgi')
 
     context = RequestContext(request, {
         'instances': Instance.objects.order_by('-id')
@@ -765,7 +755,11 @@ def explore_perform_search(request):
 #    logout(request)
     template = loader.get_template('explore_perform_search.html')
     instances = Instance.objects()   
-    local = Instance(name="Local", protocol="http", address=request.META['REMOTE_ADDR'], port=request.META['SERVER_PORT'])
+    if 'HTTPS' in request.META['SERVER_PROTOCOL']:
+        protocol = "https"
+    else:
+        protocol = "http"
+    local = Instance(name="Local", protocol=protocol, address=request.META['REMOTE_ADDR'], port=request.META['SERVER_PORT'])
     listInstances = [local]
     for instance in instances:
         listInstances.append(instance) 
@@ -1080,7 +1074,6 @@ def all_options(request):
 ################################################################################
 def browse_all(request):
     template = loader.get_template('browse-all.html')
-    connect('mgi')
 
     context = RequestContext(request, {
         'templates': Template.objects.order_by('title')

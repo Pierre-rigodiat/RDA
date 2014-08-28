@@ -43,7 +43,6 @@ def index(request):
     template = loader.get_template('explore.html')
     request.session['currentYear'] = currentYear()
     if request.user.is_authenticated():
-        connect('mgi')
     
         currentTemplateVersions = []
         for tpl_version in TemplateVersion.objects():

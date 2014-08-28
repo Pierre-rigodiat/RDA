@@ -33,9 +33,7 @@ from mongoengine import *
 def index(request):
     template = loader.get_template('compose.html')
     request.session['currentYear'] = currentYear()
-    if request.user.is_authenticated():
-        connect('mgi')
-    
+    if request.user.is_authenticated():    
         currentTemplateVersions = []
         for tpl_version in TemplateVersion.objects():
             currentTemplateVersions.append(tpl_version.current)
