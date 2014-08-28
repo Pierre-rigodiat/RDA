@@ -285,8 +285,8 @@ def curate(request):
 #             except Exception, e:
 #                 content = {'message':e.message}
 #                 return Response(content, status=status.HTTP_400_BAD_REQUEST)
-#             jsondata = Jsondata(schemaID = request.DATA['schema'], xml = xmlStr, title = request.DATA['title'])
-#             docID = jsondata.save()            
+            jsondata = Jsondata(schemaID = request.DATA['schema'], xml = xmlStr, title = request.DATA['title'])
+            docID = jsondata.save()            
 
             #xsltPath = './xml2rdf3.xsl' #path to xslt on my machine
             #xsltFile = open(os.path.join(PROJECT_ROOT,'xml2rdf3.xsl'))
