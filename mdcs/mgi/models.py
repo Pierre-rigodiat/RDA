@@ -31,7 +31,7 @@ class Template(Document):
     title = StringField(required=True)
     filename = StringField(required=True)
     content = StringField(required=True)
-    templateVersion = StringField()
+    templateVersion = StringField(required=False)
     version = IntField(required=True, unique_with='templateVersion')
 
 class TemplateVersion(Document):
@@ -67,7 +67,7 @@ class Database(Document):
     content = StringField(required=True)
 
 class Instance(Document):
-    name = StringField(required=True)
+    name = StringField(required=True, unique=True)
     protocol = StringField(required=True) 
     address = StringField(required=True) 
     port = IntField(required=True)
