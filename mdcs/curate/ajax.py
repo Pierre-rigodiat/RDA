@@ -1861,7 +1861,11 @@ def deleteVersion(request, schemaid, newCurrent):
         templateVersions.save()
         dajax.script("""
         $("#delete_custom_message").html("");
-        $("#dialog-manage-versions").dialog( "close" );""")
+        $("#dialog-manage-versions").dialog( "close" );
+        $('#model_selection').load(document.URL +  ' #model_selection', function() {
+          loadXsdManagerHandler();
+        });    
+        """)
     else:
         if newCurrent != "": 
             templateVersions.current = newCurrent
@@ -1962,6 +1966,7 @@ def restoreSchema(request, schemaid):
     selectedTemplate = Template.objects.get(pk=schemaid)       
     templateVersions = TemplateVersion.objects.get(pk=selectedTemplate.templateVersion)
     templateVersions.isDeleted = False
+    del templateVersions.deletedVersions[templateVersions.deletedVersions.index(templateVersions.current)]
     templateVersions.save()
     
     dajax.script("""
