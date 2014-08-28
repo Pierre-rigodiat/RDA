@@ -1198,10 +1198,8 @@ def saveQuery(request, queryForm, queriesTable):
         
             #save the query in the data base
             
-            ListRegex = []
-            ListPattern = []
-            manageRegexBeforeSave(query, ListRegex, ListPattern)
-            savedQuery = SavedQuery(str(userID),str(templateID), str(query),displayedQuery,ListRegex, ListPattern)
+            manageRegexBeforeSave(query)
+            savedQuery = SavedQuery(str(userID),str(templateID), str(query),displayedQuery)
             savedQuery.save()
             
             #add the query to the table        
@@ -1241,7 +1239,7 @@ def saveQuery(request, queryForm, queriesTable):
     return dajax.json()
 
 
-def manageRegexBeforeSave(query, ListRegex, ListPattern):
+def manageRegexBeforeSave(query):
 #     for key, value in query.iteritems():
 #         if isinstance(value, dict):
 #             manageRegexBeforeSave(value)
@@ -1251,12 +1249,11 @@ def manageRegexBeforeSave(query, ListRegex, ListPattern):
     for key, value in query.iteritems():
         if key == "$and" or key == "$or":
             for subValue in value:
-                manageRegexBeforeSave(subValue, ListRegex, ListPattern)
+                manageRegexBeforeSave(subValue)
         elif isinstance(value, re._pattern_type):
-            ListRegex.append(str(value))
-            ListPattern.append(value.pattern)
+            query[key] = "/" + str(value.pattern) + "/"
         elif isinstance(value, dict):
-            manageRegexBeforeSave(value, ListRegex, ListPattern)
+            manageRegexBeforeSave(value)
 #                 DictRegex[str(value).replace(".", "")] = value.pattern
 
 @dajaxice_register
@@ -1528,6 +1525,16 @@ def clearQueries(request):
 def renderNoQueries():
     return "<tr id='noqueries'><td colspan='3' style='color:red;'>No Saved Queries for now.</td></tr>"
 
+def manageRegexFromDB(query):
+    for key, value in query.iteritems():
+        if key == "$and" or key == "$or":
+            for subValue in value:
+                manageRegexFromDB(subValue)
+        elif isinstance(value, str):
+            if (value[0] == "/" and value[-1] == "/"):
+                query[key] = re.compile(value[1:-1])
+        elif isinstance(value, dict):
+            manageRegexFromDB(value)
 
 @dajaxice_register
 def getCustomForm(request):
@@ -1566,12 +1573,11 @@ def getCustomForm(request):
             element = html.fragment_fromstring(renderNoQueries())
             queriesTable.append(element)
         else:
-            for query in userQueries:
-                for i in range(0, len(query.ListRegex)):
-                    query.query = query.query.replace(query.ListRegex[i], "re.compile('" + query.ListPattern[i] + "')")
-                    
-                mapQueryInfo[str(query.id)] = QueryInfo(eval(query.query), query.displayedQuery)
-                element = html.fragment_fromstring(renderSavedQuery(query.displayedQuery, query.id))            
+            for savedQuery in userQueries:
+                query = eval(savedQuery.query)
+                manageRegexFromDB(query)                    
+                mapQueryInfo[str(savedQuery.id)] = QueryInfo(query, savedQuery.displayedQuery)
+                element = html.fragment_fromstring(renderSavedQuery(savedQuery.displayedQuery, savedQuery.id))            
                 queriesTable.append(element)
         dajax.assign('#queriesTable', 'innerHTML', html.tostring(queriesTable))
         

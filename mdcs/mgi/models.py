@@ -89,8 +89,6 @@ class SavedQuery(Document):
     template = StringField(required=True)    
     query = StringField(required=True)
     displayedQuery = StringField(required=True)
-    ListRegex = ListField()
-    ListPattern = ListField()
     
 class XML2Download(Document):
     xml = StringField(required=True)
