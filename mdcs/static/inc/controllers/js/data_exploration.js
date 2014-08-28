@@ -102,6 +102,13 @@ resultsCallback = function()
     console.log('END [resultsCallback]');
 }
 
+getAsyncResults = function(nbInstances)
+{
+	for (i=0; i < Number(nbInstances); ++i){
+		Dajaxice.explore.getResultsByInstance(Dajax.process,{"numInstance": i});
+	}
+}
+
 function addField(){
 	$("input").each(function(){
 	    $(this).attr("value", $(this).val());

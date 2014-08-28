@@ -517,10 +517,20 @@ def getInstances(request, fedOfQueries):
             else:
                 instances.append(Instance.objects.get(name=checkbox.attrib['value']))  
     
+@dajaxice_register
+def getResults(request):
+    dajax = Dajax()
+    global instances
+    
+    dajax.script("""
+        getAsyncResults('"""+ str(len(instances)) +"""');
+    """)
+    
+    return dajax.json()
 
 ################################################################################
 # 
-# Function Name: getResults(request)
+# Function Name: getResultsByInstance(request, numInstance)
 # Inputs:        request -  
 # Outputs:       
 # Exceptions:    None
@@ -528,7 +538,7 @@ def getInstances(request, fedOfQueries):
 #
 ################################################################################
 @dajaxice_register
-def getResults(request):
+def getResultsByInstance(request, numInstance):
     print 'BEGIN def getResults(request)'
     dajax = Dajax()
     global results
@@ -539,51 +549,56 @@ def getResults(request):
     results = []
     resultString = ""
     
-    for instance in instances:
-        
-        resultString += "<b>From " + instance.name + ":</b> <br/>"
-        if instance.name == "Local":
-            instanceResults = Jsondata.executeQuery(query)
-            if len(instanceResults) > 0:
-                for instanceResult in instanceResults:
-                    results.append(instanceResult)
-                    resultString += "<textarea class='xmlResult' readonly='true'>"  
-                    resultString += str(xmltodict.unparse(instanceResult, pretty=True))
-                    resultString += "</textarea> <br/>"
-                resultString += "<br/>"
-            else:
-                resultString += "<span style='font-style:italic; color:red;'> No Results found... </span><br/><br/>"
+    instance = instances[int(numInstance)]
+    resultString += "<b>From " + instance.name + ":</b> <br/>"
+    if instance.name == "Local":
+        instanceResults = Jsondata.executeQuery(query)
+        if len(instanceResults) > 0:
+            for instanceResult in instanceResults:
+                results.append(instanceResult)
+                resultString += "<textarea class='xmlResult' readonly='true'>"  
+                resultString += str(xmltodict.unparse(instanceResult, pretty=True))
+                resultString += "</textarea> <br/>"
+            resultString += "<br/>"
         else:
-            url = instance.protocol + "://" + instance.address + ":" + str(instance.port) + "/api/explore/query-by-example"
-            manageRegexBeforeAPI(query)
-            data = {"query":str(query)}
-            r = requests.post(url, data, auth=('admin', 'admin'))
-            instanceResults = eval(r.text)
-            if len(instanceResults) > 0:
-                for instanceResult in instanceResults:
-                    results.append(instanceResult['content'])
-                    resultString += "<textarea class='xmlResult' readonly='true'>"  
-                    resultString += str(xmltodict.unparse(instanceResult['content'], pretty=True))
-                    resultString += "</textarea> <br/>"
-                resultString += "<br/>"
-            else:
-                resultString += "<span style='font-style:italic; color:red;'> No Results found... </span><br/><br/>"
+            resultString += "<span style='font-style:italic; color:red;'> No Results found... </span><br/><br/>"
+    else:
+        url = instance.protocol + "://" + instance.address + ":" + str(instance.port) + "/api/explore/query-by-example"
+        queryStr = str(query)
+#         queryToSend = eval(queryStr)
+        queryStr = manageRegexBeforeAPI(query, queryStr)
+        queryToSend = eval(queryStr)
+        data = {"query":str(queryToSend)}
+        r = requests.post(url, data, auth=('admin', 'admin'))
+        instanceResults = eval(r.text)
+        if len(instanceResults) > 0:
+            for instanceResult in instanceResults:
+                results.append(instanceResult['content'])
+                resultString += "<textarea class='xmlResult' readonly='true'>"  
+                resultString += str(xmltodict.unparse(instanceResult['content'], pretty=True))
+                resultString += "</textarea> <br/>"
+            resultString += "<br/>"
+        else:
+            resultString += "<span style='font-style:italic; color:red;'> No Results found... </span><br/><br/>"
         
             
-    dajax.assign("#results", "innerHTML", resultString)
+    dajax.append("#results", "innerHTML", resultString)
     
     print 'END def getResults(request)'
     return dajax.json()
 
-def manageRegexBeforeAPI(query):
+#TODO: can't do a deep copy of a dictionnary conataining pattern objects (deepcopy bug)
+def manageRegexBeforeAPI(query, queryStr):
     for key, value in query.iteritems():
         if key == "$and" or key == "$or":
             for subValue in value:
-                manageRegexBeforeAPI(subValue)
+                queryStr = manageRegexBeforeAPI(subValue, queryStr)
         elif isinstance(value, re._pattern_type):
-            query[key] = "/" + str(value.pattern) + "/"
+#             query[key] = "/" + str(value.pattern) + "/"
+            queryStr = queryStr.replace(str(value),"'/" + str(value.pattern) + "/'")
         elif isinstance(value, dict):
-            manageRegexBeforeAPI(value)
+            queryStr = manageRegexBeforeAPI(value, queryStr)
+    return queryStr
 
 ################################################################################
 # 
