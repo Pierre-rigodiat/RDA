@@ -37,8 +37,7 @@ import re
 projectURI = "http://www.example.com/"
 
 @api_view(['GET','POST'])
-def savedQuery_list(request):
-    connect('mgi') 
+def savedQuery_list(request): 
     if request.method == 'GET':
         savedQueries = SavedQuery.objects
         serializer = savedQuerySerializer(savedQueries)
@@ -55,8 +54,7 @@ def savedQuery_list(request):
 def savedQuery_detail(request, pk):
     """
     Retrieve, update or delete a saved query instance.
-    """    
-    connect('mgi')          
+    """              
     try:
         savedQuery = SavedQuery.objects.get(pk=pk)
     except:
@@ -82,7 +80,6 @@ def savedQuery_detail(request, pk):
 
 @api_view(['GET','POST'])
 def jsonData_list(request):
-    connect('mgi') 
     if request.method == 'GET':
         jsonData = Jsondata.objects()
         serializer = jsonDataSerializer(jsonData)
@@ -102,7 +99,6 @@ def jsonData_detail(request, pk):
     """
     Retrieve, update or delete a saved query instance.
     """              
-    connect('mgi') 
     jsonData = Jsondata.get(pk)
     if jsonData is None:
         content = {'message':'No data with the given id.'}
@@ -129,7 +125,6 @@ def explore(request):
     """
     GET http://localhost/api/explore/select/all
     """
-    connect('mgi') 
     jsonData = Jsondata.objects()
     serializer = jsonDataSerializer(jsonData)
     return Response(serializer.data, status=status.HTTP_200_OK)
@@ -200,7 +195,6 @@ def query_by_example(request):
     POST http://localhost/api/explore/query-by-example/
     POST data query="{'element':'value'}"
     """
-    connect('mgi') 
     qSerializer = querySerializer(data=request.DATA)
     if qSerializer.is_valid():
         try:
@@ -218,7 +212,6 @@ def sparql_query(request):
     POST http://localhost/api/explore/sparql-query/
     POST data query="SELECT * WHERE {?s ?p ?o}" format="xml"
     """
-    connect('mgi') 
     sqSerializer = sparqlQuerySerializer(data=request.DATA)
     if sqSerializer.is_valid():
         if 'format' in request.DATA:
@@ -252,7 +245,6 @@ def curate(request):
     POST http://localhost/api/curate/
     POST data title="title", schema="schemaID", content="<root>...</root>"
     """        
-    connect('mgi') 
     serializer = jsonDataSerializer(data=request.DATA)
     if serializer.is_valid():
         try:
@@ -320,22 +312,25 @@ def add_schema(request):
     POST http://localhost/api/schema/add/
     POST data title="title", filename="filename", content="<xsd:schema>...</xsd:schema>" templateVersion="id"
     """
-    connect('mgi') 
     sSerializer = schemaSerializer(data=request.DATA)
     if sSerializer.is_valid():
+        # a template version is provided: if it exists, add the schema as a new version and manage the version numbers
         if "templateVersion" in request.DATA:
             try:
                 templateVersions = TemplateVersion.objects.get(pk=request.DATA['templateVersion'])
-                newTemplate = Template(title=request.DATA['title'], filename=request.DATA['filename'], content=request.DATA['content'], templateVersion=request.DATA['templateVersion']).save()
-                templateVersions.versions.append(str(newTemplate.id))
+                templateVersions.nbVersions = templateVersions.nbVersions + 1
+                newTemplate = Template(title=request.DATA['title'], filename=request.DATA['filename'], content=request.DATA['content'], templateVersion=request.DATA['templateVersion'], version=templateVersions.nbVersions).save()
+                templateVersions.versions.append(str(newTemplate.id))                
                 templateVersions.save()
             except:
                 content = {'message':'No template version found with the given id.'}
                 return Response(content, status=status.HTTP_400_BAD_REQUEST)
         else:
-            newTemplate = Template(title=request.DATA['title'], filename=request.DATA['filename'], content=request.DATA['content']).save()
-            templateVersion = TemplateVersion(versions=[str(newTemplate.id)], current=str(newTemplate.id)).save()
-            newTemplate.templateVersion = str(templateVersion.id)
+            templateVersion = TemplateVersion(nbVersions=1, isDeleted=False).save()
+            newTemplate = Template(title=request.DATA['title'], filename=request.DATA['filename'], content=request.DATA['content'], version=1, templateVersion=str(templateVersion.id)).save()
+            templateVersion.versions = [str(newTemplate.id)]
+            templateVersion.current=str(newTemplate.id)
+            templateVersion.save()
             newTemplate.save()
         return Response(sSerializer.data, status=status.HTTP_201_CREATED)
     return Response(sSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -399,6 +394,8 @@ def select_schema(request):
             cursor = template.find(query)
             templates = []
             for resultTemplate in cursor:
+                resultTemplate['id'] = resultTemplate['_id']
+                del resultTemplate['_id']
                 templates.append(resultTemplate)
             serializer = templateSerializer(templates)
             return Response(serializer.data, status=status.HTTP_200_OK)
@@ -411,9 +408,8 @@ def select_all_schemas(request):
     """
     GET http://localhost/api/schema/select/all
     """
-    connect('mgi') 
     templates = Template.objects
-    serializer = schemaSerializer(templates)
+    serializer = templateSerializer(templates)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
@@ -424,7 +420,6 @@ def delete_schema(request):
     id: string (ObjectId)
     next: string (ObjectId)
     """
-    connect('mgi')
     id = request.QUERY_PARAMS.get('id', None)
     next = request.QUERY_PARAMS.get('next', None)  
     
