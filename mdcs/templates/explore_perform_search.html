@@ -302,7 +302,7 @@ WHERE {?s ?p ?o}</textarea>
 		  	<div id="sidebar">
 		  		<div class="box">
 					<div class="box-title">Federation of Queries</div><br/>
-					<div id="fed_of_queries_servers">
+					<div id="fed_of_queries_instances">
 					{% for instance in instances %}
 						{% if instance.name == "Local" %}
 						<nobr><input type="checkbox" value="{{ instance.name }}" checked="checked"><span class="instance_name"> {{ instance.name }} </span><br/>
@@ -416,6 +416,12 @@ Dajaxice.explore.getCustomForm(Dajax.process);
 <div id="dialog-DeleteQuery" title="Delete A Query" style="display:none;">
 	<p>
 	Are you sure you want to delete this saved query?
+	</p>
+</div>
+
+<div id="dialog-Instances" title="No Instance selected" style="display:none;">
+	<p>
+	No instance selected. Please, select one or more instances in the section Federation of Queries.
 	</p>
 </div>
 

@@ -189,16 +189,29 @@ def explore_delete(request):
         content = {'message':'No data found with the given id.'}
         return Response(content, status=status.HTTP_404_NOT_FOUND)
 
+def manageRegexInAPI(query):
+    for key, value in query.iteritems():
+        if key == "$and" or key == "$or":
+            for subValue in value:
+                manageRegexInAPI(subValue)
+        elif isinstance(value, str):
+            if (value[0] == "/" and value[-1] == "/"):
+                query[key] = re.compile(value[1:-1])
+        elif isinstance(value, dict):
+            manageRegexInAPI(value)
+
 @api_view(['POST'])
 def query_by_example(request):
     """
-    POST http://localhost/api/explore/query-by-example/
+    POST http://localhost/api/explore/query-by-example
     POST data query="{'element':'value'}"
     """
     qSerializer = querySerializer(data=request.DATA)
     if qSerializer.is_valid():
         try:
-            results = Jsondata.executeQueryFullResult(request.DATA['query'])
+            query = eval(request.DATA['query'])
+            manageRegexInAPI(query)
+            results = Jsondata.executeQueryFullResult(query)
             jsonSerializer = jsonDataSerializer(results)        
             return Response(jsonSerializer.data, status=status.HTTP_200_OK)
         except:
@@ -209,7 +222,7 @@ def query_by_example(request):
 @api_view(['POST'])
 def sparql_query(request):
     """
-    POST http://localhost/api/explore/sparql-query/
+    POST http://localhost/api/explore/sparql-query
     POST data query="SELECT * WHERE {?s ?p ?o}" format="xml"
     """
     sqSerializer = sparqlQuerySerializer(data=request.DATA)
@@ -242,7 +255,7 @@ def sparql_query(request):
 @api_view(['POST'])
 def curate(request):
     """
-    POST http://localhost/api/curate/
+    POST http://localhost/api/curate
     POST data title="title", schema="schemaID", content="<root>...</root>"
     """        
     serializer = jsonDataSerializer(data=request.DATA)
@@ -309,7 +322,7 @@ def curate(request):
 @api_view(['POST'])
 def add_schema(request):
     """
-    POST http://localhost/api/schema/add/
+    POST http://localhost/api/schema/add
     POST data title="title", filename="filename", content="<xsd:schema>...</xsd:schema>" templateVersion="id"
     """
     sSerializer = schemaSerializer(data=request.DATA)

@@ -133,7 +133,7 @@
 	margin-bottom:0;
 } 
 
-#fed_of_queries_servers
+#fed_of_queries_instances
 {
 	height: 100px;
 	overflow-y: scroll;
@@ -143,7 +143,7 @@
 	padding-top: 5px;	
 }
 
-#fed_of_queries_servers .instance_name
+#fed_of_queries_instances .instance_name
 {
 	font-weight: bold;
 	font-size: 12px;

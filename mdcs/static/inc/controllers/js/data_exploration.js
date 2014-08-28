@@ -78,7 +78,19 @@ function query(){
 	var queryForm = $("#queryForm").html()
 	var queryBuilder = $("#queryBuilder").html()
 	
-	Dajaxice.explore.executeQuery(Dajax.process,{'queryForm':queryForm, 'queryBuilder':queryBuilder});
+	var elems = $("#fed_of_queries_instances")[0].getElementsByTagName("input");
+    for(var i = 0; i < elems.length; i++) {
+    	if(elems[i].checked == true)
+    	{
+    		elems[i].setAttribute("checked","checked");
+    	}else
+    	{
+    		elems[i].removeAttribute('checked');
+    	}
+    }
+	var fedOfQueries = $("#fed_of_queries_instances").html()
+	
+	Dajaxice.explore.executeQuery(Dajax.process,{'queryForm':queryForm, 'queryBuilder':queryBuilder, "fedOfQueries": fedOfQueries});
 }
 
 resultsCallback = function()
@@ -502,4 +514,18 @@ subElementQuery = function(leavesID)
 	
 	Dajaxice.explore.prepareSubElementQuery(Dajax.process,{"leavesID":leavesID});
 	console.log('END [subElementQuery]');
+}
+
+showErrorInstancesDialog = function()
+{
+	$(function() {
+        $( "#dialog-Instances" ).dialog({
+            modal: true,
+            buttons: {
+            	OK: function() {
+                    $( this ).dialog( "close" );
+                }
+            }
+        });
+    });
 }

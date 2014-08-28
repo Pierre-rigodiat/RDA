@@ -481,7 +481,8 @@ def executeQuery(request, queryForm, queryBuilder, fedOfQueries):
     queryFormTree = html.fromstring(queryForm)
     errors = checkQueryForm(queryFormTree)
     if(len(errors)== 0):
-        instances = getInstances(request, fedOfQueries)
+        instances = []
+        getInstances(request, fedOfQueries)
         if (len(instances)==0):
             dajax.script("showErrorInstancesDialog();")
         else:
@@ -514,9 +515,8 @@ def getInstances(request, fedOfQueries):
                     protocol = "http"
                 instances.append(Instance(name="Local", protocol=protocol, address=request.META['REMOTE_ADDR'], port=request.META['SERVER_PORT']))
             else:
-                instances.append(Instance.objects.get(name=checkbox.attrib['value']))
+                instances.append(Instance.objects.get(name=checkbox.attrib['value']))  
     
-    return instances
 
 ################################################################################
 # 
@@ -537,33 +537,53 @@ def getResults(request):
     
     
     results = []
-    startIndex = 0
-    if instances[0].name == "Local":
-        results = Jsondata.executeQuery(query)
-        startIndex = 1
-    else:
-        
-        for instance in instances[1:]:
-            url = instance.protocol + "://" + instance.address + ":" + instance.port + "/api/explore/query-by-example"
-            data = {"query":query}
-            r = requests.post(url, data)
-            
-    
     resultString = ""
     
-    if len(results) > 0 :
-        for result in results:
-            resultString += "<textarea class='xmlResult' readonly='true'>"  
-            resultString += str(xmltodict.unparse(result, pretty=True))
-            resultString += "</textarea> <br/>"
-    else:
-        resultString = "<span style='font-style:italic; color:red;'> No Results found... </span>"
+    for instance in instances:
+        
+        resultString += "<b>From " + instance.name + ":</b> <br/>"
+        if instance.name == "Local":
+            instanceResults = Jsondata.executeQuery(query)
+            if len(instanceResults) > 0:
+                for instanceResult in instanceResults:
+                    results.append(instanceResult)
+                    resultString += "<textarea class='xmlResult' readonly='true'>"  
+                    resultString += str(xmltodict.unparse(instanceResult, pretty=True))
+                    resultString += "</textarea> <br/>"
+                resultString += "<br/>"
+            else:
+                resultString += "<span style='font-style:italic; color:red;'> No Results found... </span><br/><br/>"
+        else:
+            url = instance.protocol + "://" + instance.address + ":" + str(instance.port) + "/api/explore/query-by-example"
+            manageRegexBeforeAPI(query)
+            data = {"query":str(query)}
+            r = requests.post(url, data, auth=('admin', 'admin'))
+            instanceResults = eval(r.text)
+            if len(instanceResults) > 0:
+                for instanceResult in instanceResults:
+                    results.append(instanceResult['content'])
+                    resultString += "<textarea class='xmlResult' readonly='true'>"  
+                    resultString += str(xmltodict.unparse(instanceResult['content'], pretty=True))
+                    resultString += "</textarea> <br/>"
+                resultString += "<br/>"
+            else:
+                resultString += "<span style='font-style:italic; color:red;'> No Results found... </span><br/><br/>"
+        
             
     dajax.assign("#results", "innerHTML", resultString)
     
     print 'END def getResults(request)'
     return dajax.json()
 
+def manageRegexBeforeAPI(query):
+    for key, value in query.iteritems():
+        if key == "$and" or key == "$or":
+            for subValue in value:
+                manageRegexBeforeAPI(subValue)
+        elif isinstance(value, re._pattern_type):
+            query[key] = "/" + str(value.pattern) + "/"
+        elif isinstance(value, dict):
+            manageRegexBeforeAPI(value)
 
 ################################################################################
 # 
