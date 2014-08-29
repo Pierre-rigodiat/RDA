@@ -242,14 +242,14 @@ def generateFormSubSection(xpath, elementName, fullPath):
                           or sequenceChild.attrib.get('type') == "{0}:float".format(defaultPrefix)
                           or sequenceChild.attrib.get('type') == "{0}:integer".format(defaultPrefix)
                           or sequenceChild.attrib.get('type') == "{0}:anyURI".format(defaultPrefix)):                                                                
-                        textCapitalized = sequenceChild.attrib.get('name')[0].capitalize()  + sequenceChild.attrib.get('name')[1:]                        
+                        textCapitalized = sequenceChild.attrib.get('name')                     
                         elementID = len(mapTagIDElementInfo.keys())
                         formString += "<li id='" + str(elementID) + "'>" + textCapitalized + " <input type='checkbox'>"                         
                         formString += "</li>"                    
                         elementInfo = ElementInfo(sequenceChild.attrib.get('type'),fullPath[1:] + "." + textCapitalized)
                         mapTagIDElementInfo[elementID] = elementInfo
                     else:                        
-                        textCapitalized = sequenceChild.attrib.get('name')[0].capitalize()  + sequenceChild.attrib.get('name')[1:]    
+                        textCapitalized = sequenceChild.attrib.get('name')  
                         elementID = len(mapTagIDElementInfo.keys())                        
                         isEnum = False
                         # look for enumeration
@@ -282,7 +282,7 @@ def generateFormSubSection(xpath, elementName, fullPath):
 #                     selectedChild = choiceChildren[0]
                     for choiceChild in choiceChildren:
                         if choiceChild.tag == "{0}element".format(defaultNamespace):
-                            textCapitalized = choiceChild.attrib.get('name')[0].capitalize()  + choiceChild.attrib.get('name')[1:]
+                            textCapitalized = choiceChild.attrib.get('name')
                             formString += "<option value='" + textCapitalized + "'>" + textCapitalized + "</option></b><br>"
                     formString += "</select></nobr>"                    
                     for (counter, choiceChild) in enumerate(choiceChildren):
@@ -292,7 +292,7 @@ def generateFormSubSection(xpath, elementName, fullPath):
                               or choiceChild.attrib.get('type') == "{0}:float".format(defaultPrefix)
                               or choiceChild.attrib.get('type') == "{0}:integer".format(defaultPrefix)
                               or choiceChild.attrib.get('type') == "{0}:anyURI".format(defaultPrefix)):
-                                textCapitalized = choiceChild.attrib.get('name')[0].capitalize()  + choiceChild.attrib.get('name')[1:]
+                                textCapitalized = choiceChild.attrib.get('name')
                                 elementID = len(mapTagIDElementInfo.keys())
                                 if (counter > 0):
                                     formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\" style=\"display:none;\"><li id='" + str(elementID) + "'>" + textCapitalized + " <input type='checkbox'>" + "</li></ul>"
@@ -301,7 +301,7 @@ def generateFormSubSection(xpath, elementName, fullPath):
                                 elementInfo = ElementInfo(choiceChild.attrib.get('type'),fullPath[1:]+"." + textCapitalized)
                                 mapTagIDElementInfo[elementID] = elementInfo
                             else:
-                                textCapitalized = choiceChild.attrib.get('name')[0].capitalize()  + choiceChild.attrib.get('name')[1:]
+                                textCapitalized = choiceChild.attrib.get('name')
                                 if (counter > 0):
                                     formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\" style=\"display:none;\"><li>" + textCapitalized
                                 else:
@@ -319,7 +319,7 @@ def generateFormSubSection(xpath, elementName, fullPath):
 #             selectedChild = choiceChildren[0]
             for choiceChild in choiceChildren:
                 if choiceChild.tag == "{0}element".format(defaultNamespace):
-                    textCapitalized = choiceChild.attrib.get('name')[0].capitalize()  + choiceChild.attrib.get('name')[1:]
+                    textCapitalized = choiceChild.attrib.get('name')
                     formString += "<option value='" + textCapitalized + "'>" + textCapitalized + "</option></b><br>"
             formString += "</select>"
             for (counter, choiceChild) in enumerate(choiceChildren):
@@ -329,7 +329,7 @@ def generateFormSubSection(xpath, elementName, fullPath):
                       or choiceChild.attrib.get('type') == "{0}:float".format(defaultPrefix)
                       or choiceChild.attrib.get('type') == "{0}:integer".format(defaultPrefix)
                       or choiceChild.attrib.get('type') == "{0}:anyURI".format(defaultPrefix)):
-                        textCapitalized = choiceChild.attrib.get('name')[0].capitalize()  + choiceChild.attrib.get('name')[1:]
+                        textCapitalized = choiceChild.attrib.get('name')
                         elementID = len(mapTagIDElementInfo.keys())
                         if (counter > 0):
                             formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\" style=\"display:none;\"><li id='" + str(elementID) + "'>" + textCapitalized + " <input type='checkbox'>" + "</li></ul>"
@@ -338,7 +338,7 @@ def generateFormSubSection(xpath, elementName, fullPath):
                         elementInfo = ElementInfo(choiceChild.attrib.get('type'),fullPath[1:]+"." + textCapitalized)
                         mapTagIDElementInfo[elementID] = elementInfo
                     else:                                                    
-                        textCapitalized = choiceChild.attrib.get('name')[0].capitalize()  + choiceChild.attrib.get('name')[1:]
+                        textCapitalized = choiceChild.attrib.get('name')
                         if (counter > 0):
                             formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\" style=\"display:none;\"><li>" + textCapitalized
                         else:
@@ -346,7 +346,7 @@ def generateFormSubSection(xpath, elementName, fullPath):
                         formString += generateFormSubSection(choiceChild.attrib.get('type'), textCapitalized, fullPath) + "</ul>"
             formString += "</li></ul>"
         elif complexTypeChild.tag == "{0}attribute".format(defaultNamespace):
-            textCapitalized = complexTypeChild.attrib.get('name')[0].capitalize()  + complexTypeChild.attrib.get('name')[1:]
+            textCapitalized = complexTypeChild.attrib.get('name')
             formString += "<li>" + textCapitalized + "</li>"
     elif e.tag == "{0}simpleType".format(defaultNamespace):
         if debugON: formString += "matched simpleType" + "<br>"
@@ -403,7 +403,7 @@ def generateForm(key):
 
 #     if len(e) > 1:
     for element in e:
-        textCapitalized = element.attrib.get('name')[0].capitalize()  + element.attrib.get('name')[1:]
+        textCapitalized = element.attrib.get('name')
         formString += "<b>" + textCapitalized + "</b><br>"
         if debugON: formString += "<b>" + element.attrib.get('name').capitalize() + "</b><br>"
         formString += generateFormSubSection(element.attrib.get('type'), textCapitalized, "")

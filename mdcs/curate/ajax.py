@@ -603,7 +603,7 @@ def generateFormSubSection(xpath,selected,xmlElement):
                           or (sequenceChild.attrib.get('type') == "xsd:float".format(namespace)) 
                           or (sequenceChild.attrib.get('type') == "xsd:integer".format(namespace)) 
                           or (sequenceChild.attrib.get('type') == "xsd:anyURI".format(namespace))):
-                        textCapitalized = sequenceChild.attrib.get('name')[0].capitalize()  + sequenceChild.attrib.get('name')[1:]
+                        textCapitalized = sequenceChild.attrib.get('name')
                         addButton = False
                         deleteButton = False
                         nbOccurrences = 1
@@ -667,7 +667,7 @@ def generateFormSubSection(xpath,selected,xmlElement):
                         formString += "</ul>"                            
                     else:
                         if sequenceChild.attrib.get('type') is not None:
-                            textCapitalized = sequenceChild.attrib.get('name')[0].capitalize()  + sequenceChild.attrib.get('name')[1:]
+                            textCapitalized = sequenceChild.attrib.get('name')
                             addButton = False
                             deleteButton = False
                             nbOccurrences = 1
@@ -753,7 +753,7 @@ def generateFormSubSection(xpath,selected,xmlElement):
                     xmlString += "<" + selectedChild.attrib.get('name') + "/>"
                     for choiceChild in choiceChildren:
                         if choiceChild.tag == "{0}element".format(namespace):
-                            textCapitalized = choiceChild.attrib.get('name')[0].capitalize()  + choiceChild.attrib.get('name')[1:]
+                            textCapitalized = choiceChild.attrib.get('name')
                             newElement = etree.Element("option")
                             newElement.attrib['value'] = textCapitalized 
                             newElement.text = textCapitalized 
@@ -769,17 +769,17 @@ def generateFormSubSection(xpath,selected,xmlElement):
                                   or (choiceChild.attrib.get('type') == "xsd:float".format(namespace)) 
                                   or (choiceChild.attrib.get('type') == "xsd:integer".format(namespace)) 
                                   or (choiceChild.attrib.get('type') == "xsd:anyURI".format(namespace))):
-                                    textCapitalized = choiceChild.attrib.get('name')[0].capitalize()  + choiceChild.attrib.get('name')[1:]
+                                    textCapitalized = choiceChild.attrib.get('name')
                                     print textCapitalized + " is string type"
                                     newElement = etree.Element("ul")
                                     xmlElement.append(newElement)
                                     xmlElement = newElement
                                     newElement = etree.Element("li")
-                                    newElement.attrib['id'] = choiceChild.attrib.get('name').capitalize() 
+                                    newElement.attrib['id'] = choiceChild.attrib.get('name')
                                     xmlElement.append(newElement)
                                     xmlElement = newElement
                                     newElement = etree.Element("nobr")
-                                    newElement.text = choiceChild.attrib.get('name').capitalize() 
+                                    newElement.text = choiceChild.attrib.get('name') 
                                     xmlElement.append(newElement)
                                     xmlElement = newElement
                                     newElement = etree.Element("option")
@@ -791,11 +791,11 @@ def generateFormSubSection(xpath,selected,xmlElement):
                                     mapTagElement[tagID] = elementID 
                                     manageOccurences(choiceChild, elementID)
                                     if (counter > 0):
-                                        formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\" style=\"display:none;\"><li id='" + str(tagID) + "'><nobr>" + choiceChild.attrib.get('name').capitalize() + " <input type='text'>" + "</nobr></li></ul>"
+                                        formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\" style=\"display:none;\"><li id='" + str(tagID) + "'><nobr>" + choiceChild.attrib.get('name') + " <input type='text'>" + "</nobr></li></ul>"
                                     else:
-                                        formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\"><li id='" + str(tagID) + "'><nobr>" + choiceChild.attrib.get('name').capitalize() + " <input type='text'>" + "</nobr></li></ul>"
+                                        formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\"><li id='" + str(tagID) + "'><nobr>" + choiceChild.attrib.get('name') + " <input type='text'>" + "</nobr></li></ul>"
                                 else:
-                                    textCapitalized = choiceChild.attrib.get('name')[0].capitalize()  + choiceChild.attrib.get('name')[1:]
+                                    textCapitalized = choiceChild.attrib.get('name')
                                     print textCapitalized + " is not string type"
                                     newElement = etree.Element("ul")
                                     newElement.attrib['id'] = textCapitalized
@@ -847,7 +847,7 @@ def generateFormSubSection(xpath,selected,xmlElement):
             xmlString += "<" + selectedChild.attrib.get('name') + "/>"
             for choiceChild in choiceChildren:
                 if choiceChild.tag == "{0}element".format(namespace):
-                    textCapitalized = choiceChild.attrib.get('name')[0].capitalize()  + choiceChild.attrib.get('name')[1:]
+                    textCapitalized = choiceChild.attrib.get('name')
                     newElement = etree.Element("option")
                     newElement.attrib['value'] = textCapitalized 
                     newElement.text = textCapitalized 
@@ -862,16 +862,16 @@ def generateFormSubSection(xpath,selected,xmlElement):
                           or (choiceChild.attrib.get('type') == "xsd:float".format(namespace)) 
                           or (choiceChild.attrib.get('type') == "xsd:integer".format(namespace)) 
                           or (choiceChild.attrib.get('type') == "xsd:anyURI".format(namespace))):
-                            textCapitalized = choiceChild.attrib.get('name').capitalize()
+                            textCapitalized = choiceChild.attrib.get('name')
                             newElement = etree.Element("ul")
-                            newElement.attrib['id'] = choiceChild.attrib.get('name').capitalize()
+                            newElement.attrib['id'] = choiceChild.attrib.get('name')
                             xmlElement.append(newElement)
                             xmlElement = newElement
                             newElement = etree.Element("li")
                             xmlElement.append(newElement)
                             xmlElement = newElement
                             newElement = etree.Element("nobr")
-                            newElement.text = choiceChild.attrib.get('name').capitalize()
+                            newElement.text = choiceChild.attrib.get('name')
                             xmlElement.append(newElement)
                             elementID = len(xsd_elements)
                             xsd_elements[elementID] = choiceChild
@@ -883,7 +883,7 @@ def generateFormSubSection(xpath,selected,xmlElement):
                             else:
                                 formString += "<ul id=\""  + chooseIDStr + "-" + str(counter) + "\"><li id='" + str(tagID) + "'><nobr>" + textCapitalized + " <input type='text'>" + "</nobr></li></ul>"
                         else:
-                            textCapitalized = choiceChild.attrib.get('name')[0].capitalize()  + choiceChild.attrib.get('name')[1:]
+                            textCapitalized = choiceChild.attrib.get('name')
                             newElement = etree.Element("ul")
                             newElement.attrib['id'] = textCapitalized
                             xmlElement.append(newElement)
@@ -910,7 +910,7 @@ def generateFormSubSection(xpath,selected,xmlElement):
                 formString += "selected not empty"
             formString += "</nobr></li></ul>"
         elif complexTypeChild.tag == "{0}attribute".format(namespace):
-            textCapitalized = complexTypeChild.attrib.get('name')[0].capitalize()  + complexTypeChild.attrib.get('name')[1:]
+            textCapitalized = complexTypeChild.attrib.get('name')
             newElement = etree.Element("li")
             newElement.attrib['text'] = textCapitalized
             newElement.text = textCapitalized
@@ -1104,7 +1104,7 @@ def duplicate(request, tagID, xsdForm):
                         formString += "<li><i><div id='hdf5Field'>" + sequenceChild.attrib.get('ref') + "</div></i> "
                         formString += "</li>"
             elif sequenceChild.attrib.get('type') == "xsd:string".format(namespace):
-                textCapitalized = sequenceChild.attrib.get('name')[0].capitalize()  + sequenceChild.attrib.get('name')[1:]                                          
+                textCapitalized = sequenceChild.attrib.get('name')                                     
                 newTagID = "element" + str(len(mapTagElement.keys())) 
                 mapTagElement[newTagID] = elementID
                 formString += "<li id='" + str(newTagID) + "'><nobr>" + textCapitalized + " <input type='text'>"
@@ -1112,7 +1112,7 @@ def duplicate(request, tagID, xsdForm):
                 formString += "<span id='remove"+ str(newTagID[7:]) +"' class=\"icon remove\" onclick=\"changeHTMLForm('remove',this,"+str(newTagID[7:])+");\"></span>"         
                 formString += "</nobr></li>"
             elif (sequenceChild.attrib.get('type') == "xsd:double".format(namespace)) or (sequenceChild.attrib.get('type') == "xsd:integer".format(namespace)) or (sequenceChild.attrib.get('type') == "xsd:anyURI".format(namespace)):
-                textCapitalized = sequenceChild.attrib.get('name')[0].capitalize()  + sequenceChild.attrib.get('name')[1:]        
+                textCapitalized = sequenceChild.attrib.get('name')
                 newTagID = "element" + str(len(mapTagElement.keys()))  
                 mapTagElement[newTagID] = elementID 
                 formString += "<li id='" + str(newTagID) + "'><nobr>" + textCapitalized + " <input type='text'>"
@@ -1121,7 +1121,7 @@ def duplicate(request, tagID, xsdForm):
                 formString += "</nobr></li>"
             else:
                 if sequenceChild.attrib.get('type') is not None:
-                    textCapitalized = sequenceChild.attrib.get('name')[0].capitalize()  + sequenceChild.attrib.get('name')[1:]                       
+                    textCapitalized = sequenceChild.attrib.get('name')                      
                     newTagID = "element" + str(len(mapTagElement.keys()))  
                     mapTagElement[newTagID] = elementID 
                     formString += "<li id='" + str(newTagID) + "'><nobr>" + textCapitalized + " "
@@ -1130,7 +1130,7 @@ def duplicate(request, tagID, xsdForm):
                     formString += duplicateFormSubSection(sequenceChild.attrib['type'])
                     formString += "</nobr></li>"            
                 else:
-                    textCapitalized = sequenceChild.attrib.get('name')[0].capitalize()  + sequenceChild.attrib.get('name')[1:]
+                    textCapitalized = sequenceChild.attrib.get('name')
                     newTagID = "element" + str(len(mapTagElement.keys()))  
                     mapTagElement[newTagID] = elementID  
                     formString += "<li id='" + str(newTagID) + "'><nobr>" + textCapitalized + " "
@@ -1229,7 +1229,7 @@ def duplicateFormSubSection(xpath):
                           or (sequenceChild.attrib.get('type') == "xsd:float".format(namespace)) 
                           or (sequenceChild.attrib.get('type') == "xsd:integer".format(namespace)) 
                           or (sequenceChild.attrib.get('type') == "xsd:anyURI".format(namespace))):
-                        textCapitalized = sequenceChild.attrib.get('name')[0].capitalize()  + sequenceChild.attrib.get('name')[1:]
+                        textCapitalized = sequenceChild.attrib.get('name')
                         addButton = False
                         deleteButton = False
                         nbOccurrences = 1
@@ -1267,7 +1267,7 @@ def duplicateFormSubSection(xpath):
                         formString += "</ul>"
                     else:
                         if sequenceChild.attrib.get('type') is not None:
-                            textCapitalized = sequenceChild.attrib.get('name')[0].capitalize()  + sequenceChild.attrib.get('name')[1:]
+                            textCapitalized = sequenceChild.attrib.get('name')
                             addButton = False
                             deleteButton = False
                             nbOccurrences = 1
@@ -1315,7 +1315,7 @@ def duplicateFormSubSection(xpath):
                     selectedChild = choiceChildren[0]
                     for choiceChild in choiceChildren:
                         if choiceChild.tag == "{0}element".format(namespace):
-                            textCapitalized = choiceChild.attrib.get('name')[0].capitalize()  + choiceChild.attrib.get('name')[1:]
+                            textCapitalized = choiceChild.attrib.get('name')
                             formString += "<option value='" + textCapitalized + "'>" + textCapitalized + "</option></b><br>"
                     formString += "</select>"
                     formString += "</nobr></li></ul>"
@@ -1326,18 +1326,18 @@ def duplicateFormSubSection(xpath):
                               or (choiceChild.attrib.get('type') == "xsd:float".format(namespace)) 
                               or (choiceChild.attrib.get('type') == "xsd:integer".format(namespace)) 
                               or (choiceChild.attrib.get('type') == "xsd:anyURI".format(namespace))):
-                                textCapitalized = choiceChild.attrib.get('name')[0].capitalize()  + choiceChild.attrib.get('name')[1:]
+                                textCapitalized = choiceChild.attrib.get('name')
                                 elementID = len(xsd_elements)
                                 xsd_elements[elementID] = choiceChild
                                 tagID = "element" + str(len(mapTagElement.keys()))  
                                 mapTagElement[tagID] = elementID 
                                 manageOccurences(choiceChild, elementID)
                                 if (counter > 0):
-                                    formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\" style=\"display:none;\"><li id='" + str(tagID) + "'><nobr>" + choiceChild.attrib.get('name').capitalize() + " <input type='text'>" + "</nobr></li></ul>"
+                                    formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\" style=\"display:none;\"><li id='" + str(tagID) + "'><nobr>" + choiceChild.attrib.get('name') + " <input type='text'>" + "</nobr></li></ul>"
                                 else:
-                                    formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\"><li id='" + str(tagID) + "'><nobr>" + choiceChild.attrib.get('name').capitalize() + " <input type='text'>" + "</nobr></li></ul>"
+                                    formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\"><li id='" + str(tagID) + "'><nobr>" + choiceChild.attrib.get('name') + " <input type='text'>" + "</nobr></li></ul>"
                             else:
-                                textCapitalized = choiceChild.attrib.get('name')[0].capitalize()  + choiceChild.attrib.get('name')[1:]
+                                textCapitalized = choiceChild.attrib.get('name')
                                 elementID = len(xsd_elements)
                                 xsd_elements[elementID] = choiceChild
                                 tagID = "element" + str(len(mapTagElement.keys()))  
@@ -1358,7 +1358,7 @@ def duplicateFormSubSection(xpath):
             selectedChild = choiceChildren[0]
             for choiceChild in choiceChildren:
                 if choiceChild.tag == "{0}element".format(namespace):
-                    textCapitalized = choiceChild.attrib.get('name')[0].capitalize()  + choiceChild.attrib.get('name')[1:]
+                    textCapitalized = choiceChild.attrib.get('name')
                     formString += "<option value='" + textCapitalized + "'>" + textCapitalized + "</option></b><br>"
             formString += "</select>"
             formString += "</nobr></li></ul>"
@@ -1369,18 +1369,18 @@ def duplicateFormSubSection(xpath):
                       or (choiceChild.attrib.get('type') == "xsd:float".format(namespace)) 
                       or (choiceChild.attrib.get('type') == "xsd:integer".format(namespace)) 
                       or (choiceChild.attrib.get('type') == "xsd:anyURI".format(namespace))):
-                        textCapitalized = choiceChild.attrib.get('name')[0].capitalize()  + choiceChild.attrib.get('name')[1:]
+                        textCapitalized = choiceChild.attrib.get('name')
                         elementID = len(xsd_elements)
                         xsd_elements[elementID] = choiceChild
                         tagID = "element" + str(len(mapTagElement.keys()))  
                         mapTagElement[tagID] = elementID 
                         manageOccurences(choiceChild, elementID)
                         if (counter > 0):
-                            formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\" style=\"display:none;\"><li id='" + str(tagID) + "'><nobr>" + choiceChild.attrib.get('name').capitalize() + " <input type='text'>" + "</nobr></li></ul>"
+                            formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\" style=\"display:none;\"><li id='" + str(tagID) + "'><nobr>" + choiceChild.attrib.get('name') + " <input type='text'>" + "</nobr></li></ul>"
                         else:
-                            formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\"><li id='" + str(tagID) + "'><nobr>" + choiceChild.attrib.get('name').capitalize() + " <input type='text'>" + "</nobr></li></ul>"
+                            formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\"><li id='" + str(tagID) + "'><nobr>" + choiceChild.attrib.get('name') + " <input type='text'>" + "</nobr></li></ul>"
                     else:
-                        textCapitalized = choiceChild.attrib.get('name')[0].capitalize()  + choiceChild.attrib.get('name')[1:]
+                        textCapitalized = choiceChild.attrib.get('name')
                         elementID = len(xsd_elements)
                         xsd_elements[elementID] = choiceChild
                         tagID = "element" + str(len(mapTagElement.keys()))  
@@ -1392,7 +1392,7 @@ def duplicateFormSubSection(xpath):
                             formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\"><li id='" + str(tagID) + "'><nobr>" + textCapitalized
                         formString += duplicateFormSubSection(choiceChild.attrib.get('type')) + "</nobr></li></ul>"
         elif complexTypeChild.tag == "{0}attribute".format(namespace):
-            textCapitalized = complexTypeChild.attrib.get('name')[0].capitalize()  + complexTypeChild.attrib.get('name')[1:]
+            textCapitalized = complexTypeChild.attrib.get('name')
             tagID = "element" + str(len(mapTagElement.keys()))  
             mapTagElement[tagID] = elementID  
             manageOccurences(complexTypeChild, elementID)
@@ -1478,11 +1478,11 @@ def generateForm(key,xmlElement):
     if debugON: formString += "list size: " + str(len(e))
 
     if len(e) > 1:
-        formString += "<b>" + e[0].attrib.get('name').capitalize() + "</b><br><ul><li>Choose:"
+        formString += "<b>" + e[0].attrib.get('name') + "</b><br><ul><li>Choose:"
         for i in e:
             formString += "more than one: " + i.tag + "<br>"
     else:
-        textCapitalized = e[0].attrib.get('name')[0].capitalize()  + e[0].attrib.get('name')[1:]
+        textCapitalized = e[0].attrib.get('name')
         newElement = etree.Element("b")
         newElement.text = textCapitalized
         xmlElement.append(newElement)
@@ -1492,7 +1492,7 @@ def generateForm(key,xmlElement):
 #        xmlDataTree = etree.Element(textCapitalized)
         if debugON: xmlString += "<" + textCapitalized + ">"
         xmlString += "<" + e[0].attrib.get('name') + ">"
-        if debugON: formString += "<b>" + e[0].attrib.get('name').capitalize() + "</b><br>"
+        if debugON: formString += "<b>" + e[0].attrib.get('name') + "</b><br>"
         formString += generateFormSubSection(e[0].attrib.get('type'),"",xmlElement)
         formString += "</div>"
         if debugON: xmlString += "</" + textCapitalized + ">"
