@@ -145,7 +145,8 @@
 <table class="data-table">
   <tr>
     <th>Instance Name</th>
-    <th>Instance</th>
+    <th>Instance IP Address an Port</th>
+    <th>Status</th>
     <th>Actions</th>
   </tr>
 
@@ -155,6 +156,7 @@
   <tr class="{{ rowcolors }}">
     <td>{{ instance.name }}</td>
     <td>{{ instance.protocol }}://{{ instance.address }}:{{ instance.port }}</td>
+    <td style="color: green">Reachable</td>
     <td>    	
     	<div class="icon legend long edit instance" instanceid="{{ instance.id }}">Edit Information</div> 
     	<div class="icon legend delete instance" instanceid="{{ instance.id }}">Delete Instance</div>
