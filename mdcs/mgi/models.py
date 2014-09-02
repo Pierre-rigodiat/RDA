@@ -71,6 +71,8 @@ class Instance(Document):
     protocol = StringField(required=True) 
     address = StringField(required=True) 
     port = IntField(required=True)
+    user = StringField(required=True)
+    password = StringField(required=True)
 
 class ContactForm(forms.Form):
     subject = forms.CharField(max_length=100)

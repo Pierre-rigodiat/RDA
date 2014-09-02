@@ -514,7 +514,7 @@ def getInstances(request, fedOfQueries):
                     protocol = "https"
                 else:
                     protocol = "http"
-                instances.append(Instance(name="Local", protocol=protocol, address=request.META['REMOTE_ADDR'], port=request.META['SERVER_PORT']))
+                instances.append(Instance(name="Local", protocol=protocol, address=request.META['REMOTE_ADDR'], port=request.META['SERVER_PORT'], user="user", password="password"))
             else:
                 instances.append(Instance.objects.get(name=checkbox.attrib['value']))  
     
@@ -570,7 +570,7 @@ def getResultsByInstance(request, numInstance):
         queryStr = manageRegexBeforeAPI(query, queryStr)
         queryToSend = eval(queryStr)
         data = {"query":str(queryToSend)}
-        r = requests.post(url, data, auth=('admin', 'admin'))
+        r = requests.post(url, data, auth=(instance.user, instance.password))
         instanceResults = eval(r.text)
         if len(instanceResults) > 0:
             for instanceResult in instanceResults:
@@ -1924,7 +1924,7 @@ def getSparqlResultsByInstance(request, numInstance):
         elif (sparqlFormat == "4"):
             resFormat = "JSON"
         data = {"query": sparqlQuery, "format": resFormat}
-        r = requests.post(url, data, auth=('admin', 'admin'))        
+        r = requests.post(url, data, auth=(instance.user, instance.password))        
         instanceResultsDict = eval(r.text)
         instanceResults = instanceResultsDict['content']      
         sparqlResults += instanceResults

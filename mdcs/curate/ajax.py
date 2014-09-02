@@ -2025,7 +2025,7 @@ def restoreVersion(request, schemaid):
     return dajax.json()
 
 @dajaxice_register
-def addInstance(request, name, protocol, address, port):
+def addInstance(request, name, protocol, address, port, user, password):
     dajax = Dajax()
     
     errors = ""
@@ -2050,7 +2050,7 @@ def addInstance(request, name, protocol, address, port):
     
     # If some errors display them, otherwise insert the instance
     if(errors == ""):
-        Instance(name=name, protocol=protocol, address=address, port=port).save()
+        Instance(name=name, protocol=protocol, address=address, port=port, user=user, password=password).save()
         dajax.script("""
         $("#dialog-add-instance").dialog("close");
         $('#model_selection').load(document.URL +  ' #model_selection', function() {
@@ -2073,6 +2073,8 @@ def retrieveInstance(request, instanceid):
     $("#edit-instance-protocol").val('"""+ instance.protocol +"""');
     $("#edit-instance-address").val('"""+ instance.address +"""');
     $("#edit-instance-port").val('"""+ str(instance.port) +"""');
+    $("#edit-instance-user").val('"""+ str(instance.user) +"""');
+    $("#edit-instance-password").val('"""+ str(instance.password) +"""');
     $(function() {
         $( "#dialog-edit-instance" ).dialog({
             modal: true,
@@ -2080,25 +2082,19 @@ def retrieveInstance(request, instanceid):
             width: 275,
             buttons: {
                 Edit: function() {
-                    var name = $("#edit-instance-name").val();
-                    var protocol = $("#edit-instance-protocol").val();
-                    var address = $("#edit-instance-address").val();
-                    var port = $("#edit-instance-port").val();
-                    errors = ""
-                    if (name == "")
-                    {
-                        errors += "The name can't be empty.<br/>"
-                    }
-                    if(ValidateAddress(address) == false){
-                        errors += "The address is not valid.<br/>"
-                    }
-                    if(ValidatePort(port) == false){
-                        errors += "The port number is not valid."
-                    }
+                    name = $("#edit-instance-name").val()
+                    protocol = $("#edit-instance-protocol").val()
+                    address = $("#edit-instance-address").val()
+                    port = $("#edit-instance-port").val()     
+                    user = $("#edit-instance-user").val()
+                    password = $("#edit-instance-password").val()
+                    
+                    errors = checkFields(protocol, address, port, user, password);
+                    
                     if (errors != ""){
                         $("#edit_instance_error").html(errors)
                     }else{
-                        Dajaxice.curate.editInstance(Dajax.process,{"instanceid":'"""+instanceid+"""',"name":name, "protocol": protocol, "address":address, "port":port});
+                        Dajaxice.curate.editInstance(Dajax.process,{"instanceid":'"""+instanceid+"""',"name":name, "protocol": protocol, "address":address, "port":port, "user": user, "password": password});
                     }
                 },
                 Cancel: function() {                        
@@ -2113,7 +2109,7 @@ def retrieveInstance(request, instanceid):
     return dajax.json()
 
 @dajaxice_register
-def editInstance(request, instanceid, name, protocol, address, port):
+def editInstance(request, instanceid, name, protocol, address, port, user, password):
     dajax = Dajax()
     
     errors = ""
@@ -2143,6 +2139,8 @@ def editInstance(request, instanceid, name, protocol, address, port):
         instance.protocol = protocol
         instance.address = address
         instance.port = port
+        instance.user = user
+        instance.password = password
         instance.save()
         dajax.script("""
         $("#dialog-edit-instance").dialog("close");
