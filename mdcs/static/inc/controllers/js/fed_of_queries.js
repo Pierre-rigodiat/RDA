@@ -4,14 +4,35 @@ loadFedOfQueriesHandler = function()
 	$('.add.instance').on('click',addInstance);
 	$('.edit.instance').on('click',editInstance);
     $('.delete.instance').on('click', deleteInstance);
+    prepopulateFields();
 	console.log('END [loadFedOfQueriesHandler]');
+}
+
+prepopulateFields = function(){
+	$('input:text').each(
+	    function(){
+	    	if ($(this).val() == ""){
+	    		$(this).val($(this).attr('placeholder')).css('color','#999');
+	    	}
+	        $(this).click(
+	            function(){
+	            	if ($(this).val() == ""){
+	                $(this)
+	                    .val('')
+	                    .css('color','#000');
+	                }
+	            });
+	    });
 }
 
 addInstance = function()
 {
 	console.log('BEGIN [addInstance]');
 	$("#instance_error").html("");
-	
+	$('input:text').each(
+		    function(){
+		        $(this).val('');
+		    });
 	$(function() {
         $( "#dialog-add-instance" ).dialog({
             modal: true,
@@ -30,7 +51,7 @@ addInstance = function()
             		if (errors != ""){
             			$("#instance_error").html(errors);
             		}else{
-            			
+            			alert("TODO: ping remote mdcs");
             		}
             	},
             	Add: function() {	
