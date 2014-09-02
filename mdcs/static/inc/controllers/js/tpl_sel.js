@@ -13,13 +13,15 @@ clearFields = function()
 {
     console.log('BEGIN [clearFields]');
 
-    $('#dataEntryForm')[0].reset();
-
     $(function() {
         $( "#dialog-cleared-message" ).dialog({
             modal: true,
             buttons: {
-		Ok: function() {
+            	Clear: function() {
+            		Dajaxice.curate.clearFields(Dajax.process);
+                    $( this ).dialog( "close" );
+                },
+                Cancel: function() {
                     $( this ).dialog( "close" );
                 }
 	    }

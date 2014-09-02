@@ -59,6 +59,7 @@ mapTagElement = None
 occurrences = None
 xsdVersionContent = ""
 xsdVersionFilename = ""
+originalForm = ""
 
 class ElementOccurrences:
     "Class that store information about element occurrences"
@@ -1521,6 +1522,7 @@ def generateXSDTreeForEnteringData(request):
     global formString
     global xmlDocTree
     global xmlDataTree
+    global originalForm
 
     dajax = Dajax()
 
@@ -1562,7 +1564,7 @@ def generateXSDTreeForEnteringData(request):
 #    dajax.assign('#xsdForm', 'innerHTML', etree.tostring(xmlDataTree.getroot(),pretty_print=False))
 
 
-
+    originalForm = formString
     dajax.assign('#xsdForm', 'innerHTML', formString)
 
 #    print etree.tostring(xmlDataTree.getroot(),pretty_print=True)
@@ -2166,6 +2168,16 @@ def deleteInstance(request, instanceid):
               loadFedOfQueriesHandler();
         });
     """)
+    
+    return dajax.json()
+
+@dajaxice_register
+def clearFields(request):
+    dajax = Dajax()
+    
+    global originalForm
+    
+    dajax.assign('#xsdForm', 'innerHTML', originalForm)
     
     return dajax.json()
 
