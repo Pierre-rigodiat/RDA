@@ -250,12 +250,17 @@ generateXMLString = function(elementObj)
 	    }
 	} else if (children[i].tagName == "SELECT") {
 	    // get the index of the selected option 
-//	    var idx = children[i].selectedIndex; 
+	    var idx = children[i].selectedIndex; 
 	    // get the value of the selected option 
-//	    var which = children[i].options[idx].value; 
-//	    xmlString += "<" + which + ">";
-//	    xmlString += generateXMLString(children[i]);
-//	    xmlString += "</" + which + ">";
+	    var which = children[i].options[idx].value; 
+	    	    
+	    if (children[i].getAttribute("id") != null && children[i].getAttribute("id").indexOf("choice") > -1){
+	    	xmlString += "<" + which + ">";
+	    	xmlString += generateXMLString(children[i]);
+	    	xmlString += "</" + which + ">";
+	    }else {
+	    	xmlString += which;
+	    }	    
 	} else if (children[i].tagName == "INPUT") {
 	    xmlString += children[i].value;
 	} else if (children[i].nodeType == 1 && children[i].getAttribute("id") != null && children[i].getAttribute("id").indexOf("elementSelected") > -1) {
