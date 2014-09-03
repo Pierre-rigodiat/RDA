@@ -156,7 +156,11 @@
   <tr class="{{ rowcolors }}">
     <td>{{ instance.name }}</td>
     <td>{{ instance.protocol }}://{{ instance.address }}:{{ instance.port }}</td>
-    <td style="color: green">Reachable</td>
+    {% if instance.status == "Reachable" %}
+    	<td style="color: green">Reachable</td>
+    {% else %}
+    	<td style="color: red">Unreachable</td>
+    {% endif %}
     <td>    	
     	<div class="icon legend long edit instance" instanceid="{{ instance.id }}">Edit Information</div> 
     	<div class="icon legend delete instance" instanceid="{{ instance.id }}">Delete Instance</div>

@@ -491,3 +491,8 @@ def delete_schema(request):
 def docs(request):
     content={'message':'Invalid command','docs':'http://'+str(request.get_host())+'/docs/api'}
     return Response(content, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET'])
+def ping(request):
+    content={'message':'Endpoint reached'}
+    return Response(content, status=status.HTTP_200_OK)

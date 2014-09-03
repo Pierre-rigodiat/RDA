@@ -165,7 +165,7 @@ REST_FRAMEWORK = {
 }
 
 SWAGGER_SETTINGS = {
-    "exclude_namespaces": ['error_redirect'], # List URL namespaces to ignore
+    "exclude_namespaces": ['error_redirect','ping'], # List URL namespaces to ignore
     "api_version": '0.1',  # Specify your API's version
     "api_path": "/",  # Specify the path to your API not a root level
     "enabled_methods": [  # Specify which methods to enable in Swagger UI
@@ -179,6 +179,7 @@ SWAGGER_SETTINGS = {
     "is_authenticated": False,  # Set to True to enforce user authentication,
     "is_superuser": False,  # Set to True to enforce admin only access
 }
+
 
 # django.contrib.auth.views.login redirects you to accounts/profile/ 
 # right after you log in by default. This setting changes that.

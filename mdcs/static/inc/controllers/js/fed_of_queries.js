@@ -19,9 +19,7 @@ prepopulateFields = function(){
 	        $(this).click(
 	            function(){
 	            	if ($(this).val() == ""){
-	                $(this)
-	                    .val('')
-	                    .css('color','#000');
+		                $(this).val('').css('color','#000');
 	                }
 	            });
 	    });
@@ -32,6 +30,10 @@ addInstance = function()
 	console.log('BEGIN [addInstance]');
 	$("#instance_error").html("");
 	$('input:text').each(
+		    function(){
+		        $(this).val('');
+		    });
+	$('input:password').each(
 		    function(){
 		        $(this).val('');
 		    });
@@ -48,12 +50,14 @@ addInstance = function()
             		user = $("#instance_user").val();
             		password = $("#instance_password").val();
             		
+            		$("#instance_error").html("");
+            		
             		errors = checkFields(protocol, address, port, user, password);
             		
             		if (errors != ""){
             			$("#instance_error").html(errors);
             		}else{
-            			alert("TODO: ping remote mdcs");
+            			Dajaxice.curate.pingRemoteAPI(Dajax.process,{"name":name, "protocol": protocol, "address":address, "port":port, "user": user, "password": password});
             		}
             	},
             	Add: function() {	

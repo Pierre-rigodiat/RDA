@@ -16,7 +16,7 @@
 
 from django.conf.urls import patterns, url, include
 # from api.views import JsonDataList
-from api.views import docs
+from api.views import docs, ping
 
 urlpatterns = patterns(
     'api.views',
@@ -35,7 +35,8 @@ urlpatterns = patterns(
     url(r'^schema/select$','select_schema'),
     url(r'^schema/delete$','delete_schema'),
     url(r'^schema/select/all$','select_all_schemas'),
-    url(r'^.*$', include([url(r'^.*$', docs)], namespace='error_redirect'))
+    url('', include([url(r'^ping$', ping)], namespace='ping')),
+    url(r'^.*$', include([url(r'', docs)], namespace='error_redirect')),    
 )
 
 

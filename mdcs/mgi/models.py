@@ -73,6 +73,7 @@ class Instance(Document):
     port = IntField(required=True)
     user = StringField(required=True)
     password = StringField(required=True)
+    status = StringField()
 
 class ContactForm(forms.Form):
     subject = forms.CharField(max_length=100)

@@ -32,6 +32,7 @@ from mgi.models import Template, Ontology, Htmlform, Xmldata, Hdf5file, Jsondata
 from datetime import datetime
 from datetime import tzinfo
 from bson.objectid import ObjectId
+import requests
 
 #import xml.etree.ElementTree as etree
 import lxml.html as html
@@ -43,8 +44,7 @@ import rdfPublisher
 
 #XSL file loading
 import os
-from explore.ajax import formString
-#from django.conf.settings import PROJECT_ROOT
+
 
 # Global Variables
 xmlString = ""
@@ -2050,7 +2050,16 @@ def addInstance(request, name, protocol, address, port, user, password):
     
     # If some errors display them, otherwise insert the instance
     if(errors == ""):
-        Instance(name=name, protocol=protocol, address=address, port=port, user=user, password=password).save()
+        status = "Unreachable"
+        try:
+            url = protocol + "://" + address + ":" + port + "/api/ping"
+            r = requests.get(url, auth=(user, password))
+            if r.status_code == 200:
+                status = "Reachable"
+        except Exception, e:
+            pass
+        
+        Instance(name=name, protocol=protocol, address=address, port=port, user=user, password=password, status=status).save()
         dajax.script("""
         $("#dialog-add-instance").dialog("close");
         $('#model_selection').load(document.URL +  ' #model_selection', function() {
@@ -2134,6 +2143,15 @@ def editInstance(request, instanceid, name, protocol, address, port, user, passw
     
     # If some errors display them, otherwise insert the instance
     if(errors == ""):
+        status = "Unreachable"
+        try:
+            url = protocol + "://" + address + ":" + port + "/api/ping"
+            r = requests.get(url, auth=(user, password))
+            if r.status_code == 200:
+                status = "Reachable"
+        except Exception, e:
+            pass
+        
         instance = Instance.objects.get(pk=instanceid)
         instance.name = name
         instance.protocol = protocol
@@ -2141,6 +2159,7 @@ def editInstance(request, instanceid, name, protocol, address, port, user, passw
         instance.port = port
         instance.user = user
         instance.password = password
+        instance.status = status
         instance.save()
         dajax.script("""
         $("#dialog-edit-instance").dialog("close");
@@ -2179,3 +2198,23 @@ def clearFields(request):
     
     return dajax.json()
 
+
+@dajaxice_register
+def pingRemoteAPI(request, name, protocol, address, port, user, password):
+    dajax = Dajax()
+    
+    try:
+        url = protocol + "://" + address + ":" + port + "/api/ping"
+        r = requests.get(url, auth=(user, password))
+        if r.status_code == 200:
+            dajax.assign("#instance_error", "innerHTML", "<b style='color:green'>Remote API reached with success.</b>")
+        else:
+            if 'detail' in eval(r.content):
+                dajax.assign("#instance_error", "innerHTML", "<b style='color:red'>Error: " + eval(r.content)['detail'] + "</b>")
+            else:
+                dajax.assign("#instance_error", "innerHTML", "<b style='color:red'>Error: Unable to reach the remote API.</b>")
+    except Exception, e:
+        dajax.assign("#instance_error", "innerHTML", "<b style='color:red'>Error: Unable to reach the remote API.</b>")
+        
+    
+    return dajax.json()
