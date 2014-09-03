@@ -13,6 +13,8 @@ prepopulateFields = function(){
 	    function(){
 	    	if ($(this).val() == ""){
 	    		$(this).val($(this).attr('placeholder')).css('color','#999');
+	    	}else{
+	    		$(this).css('color','#000');
 	    	}
 	        $(this).click(
 	            function(){
