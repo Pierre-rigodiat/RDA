@@ -1,9 +1,10 @@
 #results .xmlResult
 {
 	width:610px;
-	height:300px;
-	resize:none;
+	max-height:400px;
+	overflow:auto;
 	cursor:text;
+	background-color: #F8F8F8 ;
 }
 
 #results .sparqlResult

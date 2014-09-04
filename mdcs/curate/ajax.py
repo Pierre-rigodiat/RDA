@@ -33,6 +33,7 @@ from datetime import datetime
 from datetime import tzinfo
 from bson.objectid import ObjectId
 import requests
+import xmltodict
 
 #import xml.etree.ElementTree as etree
 import lxml.html as html
@@ -2216,5 +2217,24 @@ def pingRemoteAPI(request, name, protocol, address, port, user, password):
     except Exception, e:
         dajax.assign("#instance_error", "innerHTML", "<b style='color:red'>Error: Unable to reach the remote API.</b>")
         
+    
+    return dajax.json()
+
+@dajaxice_register
+def loadXML(request):
+    dajax = Dajax()
+    
+    global xmlString
+    
+    xsltPath = os.path.join(settings.SITE_ROOT, 'static/resources/xsl/xml2html.xsl')
+    xslt = etree.parse(xsltPath)
+    transform = etree.XSLT(xslt)
+    xmlTree = ""
+    if (xmlString != ""):
+        dom = etree.fromstring(xmlString)
+        newdom = transform(dom)
+        xmlTree = str(newdom)
+    
+    dajax.assign("#XMLHolder", "innerHTML", xmlTree)
     
     return dajax.json()

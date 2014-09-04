@@ -27,6 +27,7 @@ from collections import OrderedDict
 from pymongo import Connection
 import xmltodict
 import requests
+import os
 
 #import xml.etree.ElementTree as etree
 import lxml.etree as etree
@@ -531,6 +532,7 @@ def getResults(request):
     
     return dajax.json()
 
+
 ################################################################################
 # 
 # Function Name: getResultsByInstance(request, numInstance)
@@ -557,9 +559,17 @@ def getResultsByInstance(request, numInstance):
         if len(instanceResults) > 0:
             for instanceResult in instanceResults:
                 results.append(instanceResult)
-                resultString += "<textarea class='xmlResult' readonly='true'>"  
-                resultString += str(xmltodict.unparse(instanceResult, pretty=True))
-                resultString += "</textarea> <br/>"
+#                 resultString += "<textarea class='xmlResult' readonly='true'>"
+                resultString += "<div class='xmlResult' readonly='true'>"
+                xsltPath = os.path.join(settings.SITE_ROOT, 'static/resources/xsl/xml2html.xsl')
+                xslt = etree.parse(xsltPath)
+                transform = etree.XSLT(xslt)
+                dom = etree.fromstring(str(xmltodict.unparse(instanceResult).replace('<?xml version="1.0" encoding="utf-8"?>\n',"")))
+                newdom = transform(dom)
+                resultString += str(newdom)
+#                 resultString += str(xmltodict.unparse(instanceResult, pretty=True))
+#                 resultString += "</textarea> <br/>"
+                resultString += "</div> <br/>"
             resultString += "<br/>"
         else:
             resultString += "<span style='font-style:italic; color:red;'> No Results found... </span><br/><br/>"
@@ -575,9 +585,17 @@ def getResultsByInstance(request, numInstance):
         if len(instanceResults) > 0:
             for instanceResult in instanceResults:
                 results.append(instanceResult['content'])
-                resultString += "<textarea class='xmlResult' readonly='true'>"  
-                resultString += str(xmltodict.unparse(instanceResult['content'], pretty=True))
-                resultString += "</textarea> <br/>"
+#                 resultString += "<textarea class='xmlResult' readonly='true'>"  
+#                 resultString += str(xmltodict.unparse(instanceResult['content'], pretty=True))
+#                 resultString += "</textarea> <br/>"
+                resultString += "<div class='xmlResult' readonly='true'>"
+                xsltPath = os.path.join(settings.SITE_ROOT, 'static/resources/xsl/xml2html.xsl')
+                xslt = etree.parse(xsltPath)
+                transform = etree.XSLT(xslt)
+                dom = etree.fromstring(str(xmltodict.unparse(instanceResult['content']).replace('<?xml version="1.0" encoding="utf-8"?>\n',"")))
+                newdom = transform(dom)
+                resultString += str(newdom)
+                resultString += "</div> <br/>"
             resultString += "<br/>"
         else:
             resultString += "<span style='font-style:italic; color:red;'> No Results found... </span><br/><br/>"

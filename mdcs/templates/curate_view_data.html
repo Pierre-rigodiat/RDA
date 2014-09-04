@@ -8,6 +8,9 @@
 # Author: Sharief Youssef
 #         sharief.youssef@nist.gov
 #
+#		  Guillaume SOUSA AMARAL
+#		  guillaume.sousa@nist.gov
+#
 # Sponsor: National Institue of Standards and Technology
 #
 ################################################################################
@@ -28,10 +31,8 @@
 	<link rel="stylesheet" type="text/css" href="{% static 'resources/css/lib/bootstrap.min.css' %}"  media="screen" />
 	<link rel="stylesheet" type="text/css" href="{% static 'style.css' %}" media="screen" />
 	<link rel="stylesheet" type="text/css" href="{% static 'resources/css/style.add.css' %}"  media="screen" />
-	<link rel="stylesheet" type="text/css" href="{% static 'resources/css/xml_display.css' %}" media="screen" />
-	<title>Materials Data Curation System</title>
-
-	<script type="text/javascript" src="{% static 'inc/controllers/js/xml_display.js' %}"></script>
+	<link rel="stylesheet" type="text/css" href="{% static 'resources/css/XMLTree.css' %}" media="screen" />
+	<title>Materials Data Curation System</title>	
 
 	<!-- JQuery & JQuery UI -->
 	<script src="{% static 'resources/lib/jquery/jquery-1.11.1.min.js' %}"></script>
@@ -39,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="{% static 'resources/lib/jquery-ui/themes/smoothness/jquery-ui.css' %}"/>        
     <script src="{% static 'resources/lib/jquery-ui/themes/smoothness/jquery-ui.js' %}"></script>
 	<script src="{% static 'dajax/jquery.dajax.core.js' %}"></script>
+	<script src="{% static 'inc/controllers/js/XMLTree.js' %}"></script>
 
         {% dajaxice_js_import %}
 
@@ -165,42 +167,8 @@
 		      
 <!--		      <div id="XSDHolder"></div> -->
 
-		      <script> 
-			getXmlStringCallback = function(data) 
-			{
-			  Dajax.process(data);
-			  console.log('BEGIN [getXmlStringCallback]');
-  			  LoadXMLString('XMLHolder',data.xmlString);
-			  console.log('END [getXmlStringCallback]');
-			}
-
-			Dajaxice.curate.getXmlString(getXmlStringCallback);
-		      </script>
-
-		      <script src="inc/controllers/js/view_xml.js"></script>
-		      <script>
-			LoadXMLString('XMLHolder', <?php echo "'".str_replace('"', '\\"', $xmlTree)."'"; ?>);
-			
-			loadViewXmlController();
-			</script>
-
-		      <script> 
-			getXsdStringCallback = function(data) 
-			{
-			  Dajax.process(data);
-			  console.log('BEGIN [getXsdStringCallback]');
-  			  LoadXMLString('XSDHolder',data.xmlString);
-			  console.log('END [getXsdStringCallback]');
-			}
-
-			Dajaxice.curate.getXsdString(getXsdStringCallback);
-		      </script>
-		      
-		      <script src="inc/controllers/js/view_xml.js"></script>
-		      <script>
-			LoadXMLString('XSDHolder', <?php echo "'".str_replace('"', '\\"', $xmlTree)."'"; ?>);
-			
-			loadViewXmlController();
+		      <script> 	
+			Dajaxice.curate.loadXML(Dajax.process);
 			</script>
 
 		      </div>
