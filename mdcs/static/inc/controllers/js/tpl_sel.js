@@ -257,9 +257,9 @@ generateXMLString = function(elementObj)
 	    var which = children[i].options[idx].value; 
 	    	    
 	    if (children[i].getAttribute("id") != null && children[i].getAttribute("id").indexOf("choice") > -1){
-	    	xmlString += "<" + which + ">";
+//	    	xmlString += "<" + which + ">";
 	    	xmlString += generateXMLString(children[i]);
-	    	xmlString += "</" + which + ">";
+//	    	xmlString += "</" + which + ">";
 	    }else {
 	    	xmlString += which;
 	    }	    
