@@ -20,9 +20,9 @@ from rest_framework import generics
 from rest_framework import status
 from rest_framework.response import Response
 # Models
-from mgi.models import SavedQuery, Jsondata, Template, TemplateVersion
+from mgi.models import SavedQuery, Jsondata, Template, TemplateVersion, Ontology, OntologyVersion
 # Serializers
-from api.serializers import savedQuerySerializer, jsonDataSerializer, querySerializer, sparqlQuerySerializer, sparqlResultsSerializer, schemaSerializer, templateSerializer
+from api.serializers import savedQuerySerializer, jsonDataSerializer, querySerializer, sparqlQuerySerializer, sparqlResultsSerializer, schemaSerializer, templateSerializer, ontologySerializer, resOntologySerializer
 
 from explore import sparqlPublisher
 from curate import rdfPublisher
@@ -486,6 +486,170 @@ def delete_schema(request):
         content = {'message':'Template deleted with success.'}
         return Response(content, status=status.HTTP_204_NO_CONTENT)
 
+@api_view(['POST'])
+def add_ontology(request):
+    """
+    POST http://localhost/api/ontology/add
+    POST data title="title", filename="filename", content="..." ontologyVersion="id"
+    """
+    oSerializer = ontologySerializer(data=request.DATA)
+    if oSerializer.is_valid():
+        # an ontology version is provided: if it exists, add the ontology as a new version and manage the version numbers
+        if "ontologyVersion" in request.DATA:
+            try:
+                ontologyVersions = OntologyVersion.objects.get(pk=request.DATA['ontologyVersion'])
+                ontologyVersions.nbVersions = ontologyVersions.nbVersions + 1
+                newOntology = Ontology(title=request.DATA['title'], filename=request.DATA['filename'], content=request.DATA['content'], ontologyVersion=request.DATA['ontologyVersion'], version=ontologyVersions.nbVersions).save()
+                ontologyVersions.versions.append(str(newOntology.id))                
+                ontologyVersions.save()
+            except:
+                content = {'message':'No ontology version found with the given id.'}
+                return Response(content, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            ontologyVersion = OntologyVersion(nbVersions=1, isDeleted=False).save()
+            newOntology = Ontology(title=request.DATA['title'], filename=request.DATA['filename'], content=request.DATA['content'], version=1, ontologyVersion=str(ontologyVersion.id)).save()
+            ontologyVersion.versions = [str(newOntology.id)]
+            ontologyVersion.current=str(newOntology.id)
+            ontologyVersion.save()
+            newOntology.save()
+        return Response(oSerializer.data, status=status.HTTP_201_CREATED)
+    return Response(oSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET'])
+def select_ontology(request):
+    """
+    GET http://localhost/api/onyology/select?param1=value1&param2=value2
+    URL parameters: 
+    id: string (ObjectId)
+    filename: string
+    content: string
+    title: string
+    version: integer
+    ontologyVersion: string (ObjectId)
+    For string fields, you can use regular expressions: /exp/
+    """
+    id = request.QUERY_PARAMS.get('id', None)
+    filename = request.QUERY_PARAMS.get('filename', None)
+    content = request.QUERY_PARAMS.get('content', None)
+    title = request.QUERY_PARAMS.get('title', None)
+    version = request.QUERY_PARAMS.get('version', None)
+    ontologyVersion = request.QUERY_PARAMS.get('ontologyVersion', None)
+    
+    try:        
+        # create a connection                                                                                                                                                                                                 
+        connection = Connection()
+        # connect to the db 'mgi'
+        db = connection['mgi']
+        # get the xmldata collection
+        ontology = db['ontology']
+        query = dict()
+        if id is not None:            
+            query['_id'] = ObjectId(id)            
+        if filename is not None:
+            if filename[0] == '/' and filename[-1] == '/':
+                query['filename'] = re.compile(filename[1:-1])
+            else:
+                query['filename'] = filename            
+        if content is not None:
+            if content[0] == '/' and content[-1] == '/':
+                query['content'] = re.compile(content[1:-1])
+            else:
+                query['content'] = content
+        if title is not None:
+            if title[0] == '/' and title[-1] == '/':
+                query['title'] = re.compile(title[1:-1])
+            else:
+                query['title'] = title
+        if version is not None:
+            query['version'] = version
+        if ontologyVersion is not None:
+            if ontologyVersion[0] == '/' and ontologyVersion[-1] == '/':
+                query['ontologyVersion'] = re.compile(ontologyVersion[1:-1])
+            else:
+                query['ontologyVersion'] = ontologyVersion
+        if len(query.keys()) == 0:
+            content = {'message':'No parameters given.'}
+            return Response(content, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            cursor = ontology.find(query)
+            ontologies = []
+            for resultOntology in cursor:
+                resultOntology['id'] = resultOntology['_id']
+                del resultOntology['_id']
+                ontologies.append(resultOntology)
+            serializer = resOntologySerializer(ontologies)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+    except:
+        content = {'message':'No ontology found with the given parameters.'}
+        return Response(content, status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['GET'])
+def select_all_ontologies(request):
+    """
+    GET http://localhost/api/ontology/select/all
+    """
+    ontologies = Ontology.objects
+    serializer = resOntologySerializer(ontologies)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+def delete_ontology(request):
+    """
+    GET http://localhost/api/ontology/delete?id=IDtodelete&next=IDnextCurrent
+    URL parameters: 
+    id: string (ObjectId)
+    next: string (ObjectId)
+    """
+    id = request.QUERY_PARAMS.get('id', None)
+    next = request.QUERY_PARAMS.get('next', None)  
+    
+    if id is not None:   
+        try:
+            ontology = Ontology.objects.get(pk=id)        
+        except:
+            content = {'message':'No ontology found with the given id.'}
+            return Response(content, status=status.HTTP_404_NOT_FOUND)
+    else:
+        content = {'message':'No ontology id provided to delete.'}
+        return Response(content, status=status.HTTP_400_BAD_REQUEST)
+
+    if next is not None:
+        try:
+            nextCurrent = Ontology.objects.get(pk=next)
+            if nextCurrent.ontologyVersion != ontology.ontologyVersion:
+                content = {'message':'The specified next current ontology is not a version of the current ontology.'}
+                return Response(content, status=status.HTTP_400_BAD_REQUEST)
+        except:
+            content = {'message':'No ontology found with the given id to be the next current.'}
+            return Response(content, status=status.HTTP_404_NOT_FOUND)
+        
+    ontologyVersion = OntologyVersion.objects.get(pk=ontology.ontologyVersion)
+    if ontologyVersion.current == str(ontology.id) and next is None:
+        content = {'message':'The selected ontology is the current. It can\'t be deleted. If you still want to delete this ontology, please provide the id of the next current ontology using \'next\' parameter'}
+        return Response(content, status=status.HTTP_400_BAD_REQUEST)
+    elif ontologyVersion.current == str(ontology.id) and next is not None and str(ontology.id) == str(nextCurrent.id):
+        content = {'message':'Ontology id to delete and next id are the same.'}
+        return Response(content, status=status.HTTP_400_BAD_REQUEST)
+    elif ontologyVersion.current != str(ontology.id) and next is not None:
+        content = {'message':'You should only provide the next parameter when you want to delete a current version of a ontology.'}
+        return Response(content, status=status.HTTP_400_BAD_REQUEST)
+    elif ontologyVersion.current == str(ontology.id) and next is not None:
+        if next in ontologyVersion.deletedVersions:
+            content = {'message':'The ontology is deleted, it can\'t become current.'}
+            return Response(content, status=status.HTTP_400_BAD_REQUEST)
+        ontologyVersion.deletedVersions.append(str(ontology.id)) 
+        ontologyVersion.current = str(nextCurrent.id)
+        ontologyVersion.save()
+        content = {'message':'Current ontology deleted with success. A new version is current.'}
+        return Response(content, status=status.HTTP_204_NO_CONTENT)
+    else:
+        if str(ontology.id) in ontologyVersion.deletedVersions:
+            content = {'message':'This ontology is already deleted.'}
+            return Response(content, status=status.HTTP_400_BAD_REQUEST)
+        ontologyVersion.deletedVersions.append(str(ontology.id)) 
+        ontologyVersion.save()
+        content = {'message':'Ontology deleted with success.'}
+        return Response(content, status=status.HTTP_204_NO_CONTENT)
     
 @api_view(['GET'])
 def docs(request):

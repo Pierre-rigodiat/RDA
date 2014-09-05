@@ -16,7 +16,7 @@
 
 from rest_framework import serializers
 from rest_framework_mongoengine.serializers import MongoEngineModelSerializer
-from mgi.models import SavedQuery, Template
+from mgi.models import SavedQuery, Template, Ontology
 
 class jsonDataSerializer(serializers.Serializer):
     title = serializers.CharField()
@@ -48,6 +48,19 @@ class templateSerializer(serializers.Serializer):
     filename = serializers.CharField()
     content = serializers.CharField()
     templateVersion = serializers.CharField()
+    version = serializers.IntegerField()
+    id = serializers.CharField(required=False)
+    
+class ontologySerializer(MongoEngineModelSerializer):
+    class Meta:
+        model = Ontology
+        exclude = (['ontologyVersion','version'])
+        
+class resOntologySerializer(serializers.Serializer):
+    title = serializers.CharField()
+    filename = serializers.CharField()
+    content = serializers.CharField()
+    ontologyVersion = serializers.CharField()
     version = serializers.IntegerField()
     id = serializers.CharField(required=False)
         

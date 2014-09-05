@@ -45,6 +45,15 @@ class Ontology(Document):
     title = StringField(required=True)
     filename = StringField(required=True)
     content = StringField(required=True)
+    ontologyVersion = StringField(required=False)
+    version = IntField(required=True, unique_with='ontologyVersion')
+    
+class OntologyVersion(Document):
+    versions = ListField(StringField())
+    deletedVersions = ListField(StringField())
+    current = StringField()
+    nbVersions = IntField(required=True)
+    isDeleted = BooleanField(required=True)
 
 class Htmlform(Document):
     title = StringField(required=True)
