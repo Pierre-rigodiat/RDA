@@ -594,8 +594,9 @@ def generateFormSubSection(xpath,selected,xmlElement):
                     if 'type' not in sequenceChild.attrib:
                         if 'ref' in sequenceChild.attrib:
                             if sequenceChild.attrib.get('ref') == "hdf5:HDF5-File":
-                                formString += "<ul><li><i><div id='hdf5File'>" + sequenceChild.attrib.get('ref') + "</div></i> "
-                                formString += "<div class=\"btn select-element\" onclick=\"selectHDF5File('hdf5:HDF5-File',this);\"><i class=\"icon-folder-open\"></i> Select HDF5 File</div>"
+#                                 formString += "<ul><li><i><div id='hdf5File'>" + sequenceChild.attrib.get('ref') + "</div></i> "
+                                formString += "<ul><li><i><div id='hdf5File'>Spreadsheet File</div></i> "
+                                formString += "<div class=\"btn select-element\" onclick=\"selectHDF5File('Spreadsheet File',this);\"><i class=\"icon-folder-open\"></i> Upload Spreadsheet </div>"
                                 formString += "</li></ul>"
                             elif sequenceChild.attrib.get('ref') == "hdf5:Field":
                                 formString += "<ul><li><i><div id='hdf5Field'>" + sequenceChild.attrib.get('ref') + "</div></i> "
@@ -1099,8 +1100,9 @@ def duplicate(request, tagID, xsdForm):
             if 'type' not in sequenceChild.attrib:
                 if 'ref' in sequenceChild.attrib:
                     if sequenceChild.attrib.get('ref') == "hdf5:HDF5-File":
-                        formString += "<li><i><div id='hdf5File'>" + sequenceChild.attrib.get('ref') + "</div></i> "
-                        formString += "<div class=\"btn select-element\" onclick=\"selectHDF5File('hdf5:HDF5-File',this);\"><i class=\"icon-folder-open\"></i> Select HDF5 File</div>"
+#                         formString += "<li><i><div id='hdf5File'>" + sequenceChild.attrib.get('ref') + "</div></i> "
+                        formString += "<ul><li><i><div id='hdf5File'>Spreadsheet File</div></i> "
+                        formString += "<div class=\"btn select-element\" onclick=\"selectHDF5File('Spreadsheet File',this);\"><i class=\"icon-folder-open\"></i> Upload Spreadsheet</div>"
                         formString += "</li>"
                     elif sequenceChild.attrib.get('ref') == "hdf5:Field":
                         formString += "<li><i><div id='hdf5Field'>" + sequenceChild.attrib.get('ref') + "</div></i> "
@@ -1220,8 +1222,9 @@ def duplicateFormSubSection(xpath):
                     if 'type' not in sequenceChild.attrib:
                         if 'ref' in sequenceChild.attrib:
                             if sequenceChild.attrib.get('ref') == "hdf5:HDF5-File":
-                                formString += "<ul><li><i><div id='hdf5File'>" + sequenceChild.attrib.get('ref') + "</div></i> "
-                                formString += "<div class=\"btn select-element\" onclick=\"selectHDF5File('hdf5:HDF5-File',this);\"><i class=\"icon-folder-open\"></i> Select HDF5 File</div>"
+#                                 formString += "<ul><li><i><div id='hdf5File'>" + sequenceChild.attrib.get('ref') + "</div></i> "
+                                formString += "<ul><li><i><div id='hdf5File'>Spreadsheet File</div></i> "
+                                formString += "<div class=\"btn select-element\" onclick=\"selectHDF5File('Spreadsheet File',this);\"><i class=\"icon-folder-open\"></i> Upload Spreadsheet </div>"
                                 formString += "</li></ul>"
                             elif sequenceChild.attrib.get('ref') == "hdf5:Field":
                                 formString += "<ul><li><i><div id='hdf5Field'>" + sequenceChild.attrib.get('ref') + "</div></i> "
