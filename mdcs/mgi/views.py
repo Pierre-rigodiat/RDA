@@ -31,7 +31,7 @@ from xlrd import open_workbook
 from argparse import ArgumentError
 from cgi import FieldStorage
 import zipfile
-from mgi.models import Template, Database, Ontology, Htmlform, Xmldata, Hdf5file, QueryResults, SparqlQueryResults, ContactForm, XML2Download, TemplateVersion, Instance
+from mgi.models import Template, Database, Ontology, Htmlform, Xmldata, Hdf5file, QueryResults, SparqlQueryResults, ContactForm, XML2Download, TemplateVersion, Instance, OntologyVersion
 from bson.objectid import ObjectId
 import lxml.etree as etree
 
@@ -115,7 +115,8 @@ def xml_schemas(request):
 #
 ################################################################################
 def manage_schemas(request):
-    template = loader.get_template('admin/manage_schemas.html')
+#     template = loader.get_template('admin/manage_schemas.html')
+    template = loader.get_template('admin/manage_uploads.html')
     
     currentTemplateVersions = []
     for tpl_version in TemplateVersion.objects():
@@ -128,7 +129,8 @@ def manage_schemas(request):
         currentTemplates[tpl] = templateVersions.isDeleted
 
     context = RequestContext(request, {
-        'templates':currentTemplates
+        'objects':currentTemplates,
+        'objectType': "Template"
 #        'templates': Template.objects.all()
 #         'templates': Template.objects.order_by('-id')
         
@@ -185,10 +187,22 @@ def manage_queries(request):
 #
 ################################################################################
 def manage_ontologies(request):
-    template = loader.get_template('admin/manage_ontologies.html')
+    template = loader.get_template('admin/manage_uploads.html')
+    
+    currentOntologyVersions = []
+    for onto_version in OntologyVersion.objects():
+        currentOntologyVersions.append(onto_version.current)
+    
+    currentOntologies = dict()
+    for onto_version in currentOntologyVersions:
+        onto = Ontology.objects.get(pk=onto_version)
+        ontologyVersions = OntologyVersion.objects.get(pk=onto.ontologyVersion)
+        currentOntologies[onto] = ontologyVersions.isDeleted
 
     context = RequestContext(request, {
-        'ontologies': Ontology.objects.order_by('-id')
+        'objects':currentOntologies,
+        'objectType': "Ontology"
+        
     })
     request.session['currentYear'] = currentYear()
     return HttpResponse(template.render(context))

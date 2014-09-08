@@ -1,14 +1,11 @@
 <!-- 
 ################################################################################
 #
-# File Name: manage_schemas.html
+# File Name: manage_uploads.html
 # Application: templates/admin
 # Description: 
 #
-# Author: Sharief Youssef
-#         sharief.youssef@nist.gov
-#
-#		  Guillaume SOUSA AMARAL
+# Author: Guillaume SOUSA AMARAL
 #		  guillaume.sousa@nist.gov
 #
 # Sponsor: National Institute of Standards and Technology (NIST)
@@ -127,9 +124,13 @@
 
 	<ul class="tabbed">
 	  <li><a href="/admin/xml-schemas/current-model">Current Model</a></li>
-	  <li class="current_page_item"><a href="/admin/xml-schemas/manage-schemas">Manage Schemas</a></li>
-	  <li><a href="/admin/xml-schemas/manage-ontologies">Manage Ontologies</a></li>
-<!--	  <li><a href="/admin/xml-schemas/manage-modules">Manage Modules</a></li> -->
+	  {% if objectType == "Template" %}
+	  	<li class="current_page_item"><a href="/admin/xml-schemas/manage-schemas">Manage Templates</a></li>
+  		<li><a href="/admin/xml-schemas/manage-ontologies">Manage Ontologies</a></li>
+	  {% else %}
+	  	<li><a href="/admin/xml-schemas/manage-schemas">Manage Templates</a></li>
+  		<li class="current_page_item"><a href="/admin/xml-schemas/manage-ontologies">Manage Ontologies</a></li>
+	  {% endif %}
 	  </ul>
 
 	<div class="clearer">&nbsp;</div>
@@ -149,7 +150,7 @@
 			<div id="featured-wrapper">
 				<div id="featured">
 
-<h1>Schema Manager</h1>
+<h1>{{ objectType }} Manager</h1>
 					
 					<div class="clearer">&nbsp;</div>
 
@@ -159,44 +160,42 @@
 			<div id="main">
 
 <div class="right-side">
-<span class="ctx_menu"> 
-<!-- <div class="icon legend long copy schema">Copy schema</div> -->
-<div class="icon legend long upload schema">Upload schema</div>
+<span class="ctx_menu">
+<div class="icon legend long upload">Upload {{ objectType }}</div>
 </span>
 </div>
 
 		      <div id="model_selection">
 		      
 
+{% if objects %}
+
 <table class="data-table">
   <tr>
-    <th>Schema name</th>
+  	<th>{{ objectType }} name</th>
     <th>Filename</th>
     <th>Status</th>
     <th>Actions</th>
   </tr>
 
-
-{% for template, isDeleted in templates.items %}
+{% for object, isDeleted in objects.items %}
   {% cycle 'even' '' as rowcolors silent %}
   <tr class="{{ rowcolors }}">
-    <td>{{ template.title }}</td>
-    <td>{{ template.filename }}</td>
+    <td>{{ object.title }}</td>
+    <td>{{ object.filename }}</td>
 
 {% if isDeleted == True %}     
 	<td><span style="color:red;">Deleted</span></td>
     <td>
-    <!-- <div class="icon legend extra-long add">Set as current model</div> -->
-    <div class="icon legend long retrieve" schemaid="{{ template.id }}">Restore Schema</div>
+    <div class="icon legend long retrieve" objectType="{{ objectType }}" objectid="{{ object.id }}">Restore {{ objectType }} </div>
 {% else %}
 
     <td><span style="color:green;">Registered</span></td>
     <td>
-    <!-- <div class="icon legend extra-long add">Set as current model</div> -->
-    <div class="icon legend long version" schemaid="{{ template.id }}">Manage Versions</div>
-    <div class="icon legend long edit" schemaid="{{ template.id }}">Edit Information</div>
-    <div class="icon legend long copy schema">Copy schema</div>
-    <div class="icon legend delete schema" schemaid="{{ template.id }}">Delete Schema</div></td>
+    <div class="icon legend long version" objectType="{{ objectType }}" objectid="{{ object.id }}">Manage Versions</div>
+    <div class="icon legend long edit" objectType="{{ objectType }}" objectid="{{ object.id }}">Edit Information</div>
+    <div class="icon legend long copy">Copy {{ objectType }}</div>
+    <div class="icon legend delete" objectType="{{ objectType }}" objectid="{{ object.id }}">Delete {{ objectType }}</div></td>
 
 {% endif %}
 
@@ -206,19 +205,12 @@
 
 </table>
 
-<div id="dialog-message" title="Template Loaded" style="display:none;">
-<p></p>
-  <p>
-    <span class="ui-icon ui-icon-circle-check" style="float:left; margin:0 7px 10px 0;"></span>
-    Template selected successfully. 
-  </p>
-  <p>
-    Currently using <a href="/view-schema/{{ request.session.currentTemplate }}" target="_new">{{ request.session.currentTemplate }}</a>
-  </p>
-  <p>
-    To proceed to the next step, click on step 2: <b>'Enter Data'</b>
-  </p>
-</div>
+{% else %}
+<br>
+There are currently no {{ objectType }} uploaded.  Please click "Upload {{ objectType }}" to the right to add {{ objectType }}.
+<br>
+<br>
+{% endif %}
 
 
 </div>
@@ -227,8 +219,7 @@
 
 <div class="right-side">
 <span class="ctx_menu">
-<!-- <div class="icon legend long copy schema">Copy schema</div> -->
-<div class="icon legend long upload schema">Upload schema</div>
+<div class="icon legend long upload">Upload {{ objectType }}</div>
 </span>
 </div>
 
@@ -279,44 +270,33 @@
 
 </div>
 
+
 <script src="{% static 'inc/controllers/js/xsd_mgr.js' %}"></script>
 <script>
-  loadXsdManagerHandler();
+  loadUploadManagerHandler();
 </script>
-
-
-<div id="dialog-currentmodel-message" title="Model Selection Successful" style="display:none;">
-<p></p>
-  <p>
-    <span class="ui-icon ui-icon-circle-check" style="float:left; margin:0 7px 10px 0;"></span>
-    Current model selected successfully. 
-  </p>
-  <p>
-    Currently using <a href="/view-schema/{{ request.session.currentTemplate }}" target="_new">{{ request.session.currentTemplate }}</a>
-  </p>
-</div>
 
 <div id="dialog-copied-message" title="Copy Successful" style="display:none;">
 <p></p>
   <p>
     <span class="ui-icon ui-icon-circle-check" style="float:left; margin:0 7px 10px 0;"></span>
-    Schema copied successfully. 
+    {{ objectType }} copied successfully. 
   </p>
   <p>
     Currently using <a href="/view-schema/{{ request.session.currentTemplate }}" target="_new">{{ request.session.currentTemplate }}</a>
   </p>
 </div>
 
-<div id="dialog-edit-info" title="Edit Schema Information" style="display:none;">
+<div id="dialog-edit-info" title="Edit {{ objectType }} Information" style="display:none;">
 <p>
-<b>Schema name:</b> <input type="text" id="edit-schema-name"/><br/>
+<b>{{ objectType }} name:</b> <input type="text" id="edit-name"/><br/>
 <b>Filename:</b> <input type="text" id="edit-filename"/>
 </p>
 </div>
 
-<div id="dialog-manage-versions" title="Manage Schema Versions" style="display:none;">  
+<div id="dialog-manage-versions" title="Manage {{ objectType }} Versions" style="display:none;">  
   <p>
-  <div id="template_versions">
+  <div id="object_versions">
   </div>
   </p>
 </div>
@@ -343,13 +323,14 @@
   }
 </style>
 
-<div id="dialog-upload-message" title="Upload Schema" style="display:none;">
+<div id="dialog-upload-message" title="Upload {{ objectType }}" style="display:none;">
 <br>
-Enter a Schema name: <input type="text" id="schema_name" name="schema_name"/>
+Enter {{ objectType }} name: <input type="text" id="object_name" name="object_name"/>
 <br>
 <input type="file" id="files" name="files[]" multiple />
 <output id="list"></output>
-<div id="schemaNameErrorMessage"></div>
+<div id="objectNameErrorMessage"></div>
+
 <script>
   var files;
 //  var reader;
@@ -382,36 +363,29 @@ Enter a Schema name: <input type="text" id="schema_name" name="schema_name"/>
     }
   }
 
-  function uploadXMLSchemaCallback(data) {
-    console.log('BEGIN uploadXMlSchemaCallback');
+  function uploadObjectCallback(data) {
+    console.log('BEGIN uploadObjectCallback');
 
     Dajax.process(data);
     console.log('BEGIN [setCurrentModelCallback]');
-//    location.reload();
-
-//    var messageLocation = $("#main").children(":first");
-//    messageLocation.hide().html("Template Successfully Selected").fadeIn(500);
-//    messageLocation.delay(2000).fadeOut(500);
 
     $('#model_selection').load(document.URL +  ' #model_selection', function() {
-			  loadXsdManagerHandler();
-			  //displayModelSelectedDialog();
+			  loadUploadManagerHandler();
     });
     console.log('END [setCurrentModelCallback]');
 
-    console.log('END uploadXMlSchemaCallback');
+    console.log('END uploadObjectCallback');
   }
 
   function handleFileUpload(evt) {
     console.log('BEGIN handleFileUpload(evt)');
 
-    if (document.getElementById("schema_name").value.trim().length == 0) {
-        document.getElementById('schemaNameErrorMessage').innerHTML = "<font color=\"red\">Please enter a schema name</font>"
+    if (document.getElementById("object_name").value.trim().length == 0) {
+        document.getElementById('objectNameErrorMessage').innerHTML = "<font color=\"red\">Please enter a name</font>"
         return false;
     } else {
-        document.getElementById('schemaNameErrorMessage').innerHTML = ""
+        document.getElementById('objectNameErrorMessage').innerHTML = ""
     }
-
     var reader;
     var progress = document.querySelector('.percent');
 
@@ -431,13 +405,12 @@ Enter a Schema name: <input type="text" id="schema_name" name="schema_name"/>
       document.getElementById('progress_bar').className = 'loading';
     };
     reader.onload = function(e) {
-      // Ensure that the progress bar displays 100% at the end.
       progress.style.width = '100%';
       progress.textContent = '100%';
 
-      var xmlSchemaName = document.getElementById('schema_name').value.trim();
+      var objectName = document.getElementById('object_name').value.trim();
 
-      Dajaxice.curate.uploadXMLSchema(uploadXMLSchemaCallback,{'xmlSchemaName':xmlSchemaName,'xmlSchemaFilename':files[0].name,'xmlSchemaContent':reader.result}); 
+      Dajaxice.curate.uploadObject(uploadObjectCallback,{'objectName':objectName,'objectFilename':files[0].name,'objectContent':reader.result, 'objectType': '{{ objectType }}'}); 
     }
 
     // Read in the image file as a binary string.
@@ -452,10 +425,6 @@ Enter a Schema name: <input type="text" id="schema_name" name="schema_name"/>
     // files is a FileList of File objects. List some properties.
     var output = [];
     for (var i = 0, f; f = files[i]; i++) {
-//      output.push('<li><strong>', escape(f.name), '</strong> (', f.type || 'n/a', ') - ',
-//                  f.size, ' bytes, last modified: ',
-//                  f.lastModifiedDate ? f.lastModifiedDate.toLocaleDateString() : 'n/a',
-//                  '</li><button id=\'uploadFile\'>Upload</button><div id=\"progress_bar\"><div class=\"percent\">0%</div></div>');
       output.push('<br></li><button id=\'uploadFile\'>Upload</button><div id=\"progress_bar\"><div class=\"percent\">0%</div></div>');
     }
     document.getElementById('list').innerHTML = '<ul>' + output.join('') + '</ul>';
@@ -471,11 +440,9 @@ Enter a Schema name: <input type="text" id="schema_name" name="schema_name"/>
 <p></p>
   <p>
     <span class="ui-icon ui-icon-circle-check" style="float:left; margin:0 7px 10px 0;"></span>
-    <p>Are you sure you want to delete <b id="schema-to-delete"></b>?</p>
-    <p style='color:red;'>By deleting this schema you will also delete all vesions of this schema.</p> 
+    Are you sure you want to delete <b id="object-to-delete"></b>?
   </p>
 </div>
-
 
 <div id="dialog-deleteversion-message" title="Confirm Delete" style="display:none;">
 <p></p>
@@ -494,7 +461,6 @@ Enter a Schema name: <input type="text" id="schema_name" name="schema_name"/>
     <p>Please select a file before trying to upload a schema.</p>
   </p>
 </div>
-
 <script>
 // Check for the various File API support.
 if (window.File && window.FileReader && window.FileList && window.Blob) {

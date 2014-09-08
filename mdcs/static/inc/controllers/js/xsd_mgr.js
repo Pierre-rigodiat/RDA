@@ -1,20 +1,16 @@
 /**
  * 
  */
-loadXsdManagerHandler = function()
+loadUploadManagerHandler = function()
 {
-    console.log('BEGIN [loadXsdManagerHandler]');
-    $('.retrieve').on('click',restoreSchema);
-    $('.edit').on('click',editSchemaInformation);
+    console.log('BEGIN [loadUploadManagerHandler]');
+    $('.retrieve').on('click',restoreObject);
+    $('.edit').on('click',editInformation);
     $('.version').on('click', manageVersions);    
-//    $('.add').on('click', setCurrentModel);
-    $('.delete.schema').on('click', deleteSchema);
-    $('.copy.schema').on('click', copySchema);
-    $('.upload.schema').on('click', uploadSchema);
-    $('.delete.ontology').on('click', deleteOntology);
-    $('.copy.ontology').on('click', copyOntology);
-    $('.upload.ontology').on('click', uploadOntology);
-    console.log('END [loadXsdManagerHandler]');
+    $('.delete').on('click', deleteObject);
+    $('.copy').on('click', copyObject);
+    $('.upload').on('click', uploadObject);
+    console.log('END [loadUploadManagerHandler]');
 }
 
 manageVersions = function()
@@ -22,24 +18,36 @@ manageVersions = function()
     var modelName = $(this).parent().siblings(':first').text();
     var modelFilename = $(this).parent().siblings(':nth-child(2)').text();
     var tdElement = $(this).parent();
-    var schemaID = $(this).attr("schemaid");
+    var objectID = $(this).attr("objectid");
+    var objectType = $(this).attr("objectType");
     
-    Dajaxice.curate.manageVersions(Dajax.process, {"schemaID":schemaID});    
+    Dajaxice.curate.manageVersions(Dajax.process, {"objectID": objectID, "objectType": objectType});    
 }
 
-function handleVersionUpload(evt) {
+function handleSchemaVersionUpload(evt) {
 	var files = evt.target.files; // FileList object
     reader = new FileReader();
     reader.onload = function(e){
-    	Dajaxice.curate.setVersionContent(Dajax.process,{"versionContent":reader.result, "versionFilename":files[0].name});
+    	Dajaxice.curate.setSchemaVersionContent(Dajax.process,{"versionContent":reader.result, "versionFilename":files[0].name});
+    }
+    reader.readAsText(files[0]);
+  }
+
+function handleOntologyVersionUpload(evt) {
+	var files = evt.target.files; // FileList object
+    reader = new FileReader();
+    reader.onload = function(e){
+    	Dajaxice.curate.setOntologyVersionContent(Dajax.process,{"versionContent":reader.result, "versionFilename":files[0].name});
     }
     reader.readAsText(files[0]);
   }
 
 uploadVersion = function()
 {
-	var templateVersionID = $("#updateVersionBtn").attr("versionid");	
-	Dajaxice.curate.uploadVersion(Dajax.process,{"templateVersionID":templateVersionID})
+	var objectVersionID = $("#updateVersionBtn").attr("versionid");
+	var objectType = $("#updateVersionBtn").attr("objectType");	
+	
+	Dajaxice.curate.uploadVersion(Dajax.process,{"objectVersionID":objectVersionID, "objectType": objectType})
 }
 
 showUploadErrorDialog = function()
@@ -58,14 +66,17 @@ showUploadErrorDialog = function()
 
 setCurrentVersion = function(setCurrent)
 {
-	var schemaid = $(setCurrent).attr("schemaid");
-	Dajaxice.curate.setCurrentVersion(Dajax.process,{"schemaid":schemaid});
+	var objectid = $(setCurrent).attr("objectid");
+	var objectType = $(setCurrent).attr("objectType");
+	
+	Dajaxice.curate.setCurrentVersion(Dajax.process,{"objectid":objectid, "objectType":objectType});
 }
 
 deleteVersion = function(toDelete)
 {			
-	var schemaid = $(toDelete).attr("schemaid");
-	Dajaxice.curate.assignDeleteCustomMessage(Dajax.process,{"schemaid":schemaid});
+	var objectid = $(toDelete).attr("objectid");
+	var objectType = $(toDelete).attr("objectType");
+	Dajaxice.curate.assignDeleteCustomMessage(Dajax.process,{"objectid":objectid, "objectType":objectType});
 	$(function() {
 	        $( "#dialog-deleteversion-message" ).dialog({
 	            modal: true,
@@ -77,7 +88,7 @@ deleteVersion = function(toDelete)
 							newCurrent = $("#selectCurrentVersion")[0].options[idx].value
 						}
 						catch(e){}
-						Dajaxice.curate.deleteVersion(Dajax.process,{"schemaid":schemaid,"newCurrent":newCurrent});
+						Dajaxice.curate.deleteVersion(Dajax.process,{"objectid":objectid, "objectType":objectType,"newCurrent":newCurrent});
 	                    $( this ).dialog( "close" );
 	                },
 			No: function() {
@@ -88,36 +99,40 @@ deleteVersion = function(toDelete)
 	    });
 }
 
-restoreSchema = function()
+restoreObject = function()
 {
-    var schemaID = $(this).attr("schemaid");
+    var objectID = $(this).attr("objectid");
+    var objectType = $(this).attr("objectType");
     
-    Dajaxice.curate.restoreSchema(Dajax.process,{'schemaid':schemaID});
+    Dajaxice.curate.restoreObject(Dajax.process,{'objectid':objectID, 'objectType':objectType});
 }
 
 restoreVersion = function(toRestore)
 {
-	var schemaid = $(toRestore).attr("schemaid");
-	Dajaxice.curate.restoreVersion(Dajax.process,{"schemaid":schemaid});
+	var objectID = $(toRestore).attr("objectid");
+	var objectType = $(toRestore).attr("objectType");
+	
+	Dajaxice.curate.restoreVersion(Dajax.process,{'objectid':objectID, 'objectType':objectType});
 }
 
-editSchemaInformation = function()
+editInformation = function()
 {
-    var schemaName = $(this).parent().siblings(':first').text();
-    var schemaFilename = $(this).parent().siblings(':nth-child(2)').text();
-    var schemaID = $(this).attr("schemaid");
+    var objectName = $(this).parent().siblings(':first').text();
+    var objectFilename = $(this).parent().siblings(':nth-child(2)').text();
+    var objectID = $(this).attr("objectid");
+    var objectType = $(this).attr("objectType");
     
-    $("#edit-schema-name")[0].value = schemaName;
-    $("#edit-filename")[0].value = schemaFilename;
+    $("#edit-name")[0].value = objectName;
+    $("#edit-filename")[0].value = objectFilename;
     
 	$(function() {
         $( "#dialog-edit-info" ).dialog({
             modal: true,
             buttons: {
             	Ok: function() {	
-					var newName = $("#edit-schema-name")[0].value;
+					var newName = $("#edit-name")[0].value;
 					var newFilename = $("#edit-filename")[0].value;
-					Dajaxice.curate.editSchemaInformation(Dajax.process,{'schemaid':schemaID, 'newName':newName,'newFilename':newFilename});
+					Dajaxice.curate.editInformation(Dajax.process,{'objectid':objectID, 'objectType':objectType, 'newName':newName,'newFilename':newFilename});
                 },
                 Cancel: function() {
                     $( this ).dialog( "close" );
@@ -195,7 +210,7 @@ setCurrentModelCallback = function(data)
 //    messageLocation.delay(2000).fadeOut(500);
 
     $('#model_selection').load(document.URL +  ' #model_selection', function() {
-	loadXsdManagerHandler();
+	loadUploadManagerHandler();
 	//displayModelSelectedDialog();
     });
     console.log('END [setCurrentModelCallback]');
@@ -204,21 +219,22 @@ setCurrentModelCallback = function(data)
 /**
  * 
  */
-deleteSchema = function()
+deleteObject = function()
 {
-    console.log('BEGIN [deleteSchema]');
-    var schemaName = $(this).parent().siblings(':first').text();
-    var schemaFilename = $(this).parent().siblings(':nth-child(2)').text();
-    var schemaID = $(this).attr("schemaid");
+    console.log('BEGIN [deleteObject]');
+    var objectName = $(this).parent().siblings(':first').text();
+    var objectFilename = $(this).parent().siblings(':nth-child(2)').text();
+    var objectID = $(this).attr("objectid");
+    var objectType = $(this).attr("objectType");
 
-    document.getElementById("schema-to-delete").innerHTML = schemaName;
+    document.getElementById("object-to-delete").innerHTML = objectName;
 
     $(function() {
         $( "#dialog-deleteconfirm-message" ).dialog({
             modal: true,
             buttons: {
 		Yes: function() {
-                    deleteSchemaConfirmed(schemaID);
+                    deleteObjectConfirmed(objectID, objectType);
                     $( this ).dialog( "close" );
                 },
 		No: function() {
@@ -228,43 +244,43 @@ deleteSchema = function()
         });
     });
 	
-    console.log('END [deleteSchema]');
+    console.log('END [deleteObject]');
 }
 
 /**
  * 
  */
-deleteSchemaConfirmed = function(schemaID)
+deleteObjectConfirmed = function(objectID, objectType)
 {
-    console.log('BEGIN [deleteSchemaConfirmed('+schemaID+')]');
+    console.log('BEGIN [deleteObjectConfirmed('+objectID+')]');
 
-    Dajaxice.curate.deleteXMLSchema(deleteSchemaCallback,{'xmlSchemaID':schemaID});
+    Dajaxice.curate.deleteObject(deleteObjectCallback,{'objectID':objectID, "objectType":objectType});
 
-    console.log('END [deleteSchemaConfirmed('+schemaID+')]');
+    console.log('END [deleteObjectConfirmed('+objectID+')]');
 }
 
 /**
  * 
  */
-deleteSchemaCallback = function(data)
+deleteObjectCallback = function(data)
 {
-    console.log('BEGIN [deleteSchemaCallback]');
+    console.log('BEGIN [deleteObjectCallback]');
 
     Dajax.process(data);
 
     $('#model_selection').load(document.URL +  ' #model_selection', function() {
-	loadXsdManagerHandler();
+	loadUploadManagerHandler();
     });
 
-    console.log('END [deleteSchemaCallback]');
+    console.log('END [deleteObjectCallback]');
 }
 
 /**
  * 
  */
-copySchema = function()
+copyObject = function()
 {
-    console.log('BEGIN [copySchema]');
+    console.log('BEGIN [copyObject]');
 
     $(function() {
         $( "#dialog-copied-message" ).dialog({
@@ -277,20 +293,20 @@ copySchema = function()
         });
     });
 	
-    console.log('END [copySchema]');
+    console.log('END [copyObject]');
 }
 
 /**
  * 
  */
-uploadSchema = function()
+uploadObject = function()
 {
-    console.log('BEGIN [uploadSchema]');
+    console.log('BEGIN [uploadObject]');
 
-    document.getElementById('schema_name').value = ""
+    document.getElementById('object_name').value = ""
     document.getElementById('files').value = ""
     document.getElementById('list').innerHTML = ""
-    document.getElementById('schemaNameErrorMessage').innerHTML = ""
+    document.getElementById('objectNameErrorMessage').innerHTML = ""
 
     $(function() {
         $( "#dialog-upload-message" ).dialog({
@@ -306,114 +322,6 @@ uploadSchema = function()
         });
     });
 	
-    console.log('END [uploadSchema]');
-}
-
-/**
- * 
- */
-deleteOntology = function()
-{
-    console.log('BEGIN [deleteOntology]');
-    var ontologyName = $(this).parent().siblings(':first').text();
-    var ontologyFilename = $(this).parent().siblings(':nth-child(2)').text();
-    var ontologyID = $(this).attr("ontologyid");
-
-    document.getElementById("ontology-to-delete").innerHTML = ontologyName;
-
-    $(function() {
-        $( "#dialog-deleteconfirm-message" ).dialog({
-            modal: true,
-            buttons: {
-		Yes: function() {
-                    deleteOntologyConfirmed(ontologyID);
-                    $( this ).dialog( "close" );
-                },
-		No: function() {
-                    $( this ).dialog( "close" );
-                }
-	    }
-        });
-    });
-	
-    console.log('END [deleteOntology]');
-}
-
-/**
- * 
- */
-deleteOntologyConfirmed = function(ontologyID)
-{
-    console.log('BEGIN [deleteOntologyConfirmed('+ontologyID+')]');
-
-    Dajaxice.curate.deleteXMLOntology(deleteOntologyCallback,{'xmlOntologyID':ontologyID});
-
-    console.log('END [deleteOntologyConfirmed('+ontologyID+')]');
-}
-
-/**
- * 
- */
-deleteOntologyCallback = function(data)
-{
-    console.log('BEGIN [deleteOntologyCallback]');
-
-    Dajax.process(data);
-
-    $('#model_selection').load(document.URL +  ' #model_selection', function() {
-	loadXsdManagerHandler();
-    });
-
-    console.log('END [deleteOntologyCallback]');
-}
-
-/**
- * 
- */
-copyOntology = function()
-{
-    console.log('BEGIN [copyOntology]');
-
-    $(function() {
-        $( "#dialog-copied-message" ).dialog({
-            modal: true,
-            buttons: {
-		Ok: function() {
-                    $( this ).dialog( "close" );
-                }
-	    }
-        });
-    });
-	
-    console.log('END [copyOntology]');
-}
-
-/**
- * 
- */
-uploadOntology = function()
-{
-    console.log('BEGIN [uploadOntology]');
-
-    document.getElementById('ontology_name').value = ""
-    document.getElementById('files').value = ""
-    document.getElementById('list').innerHTML = ""
-    document.getElementById('ontologyNameErrorMessage').innerHTML = ""
-
-    $(function() {
-        $( "#dialog-upload-message" ).dialog({
-            modal: true,
-            buttons: {
-		Ok: function() {
-                    $( this ).dialog( "close" );
-                },
-		Cancel: function() {
-                    $( this ).dialog( "close" );
-                }
-	    }
-        });
-    });
-	
-    console.log('END [uploadOntology]');
+    console.log('END [uploadObject]');
 }
 

@@ -28,12 +28,14 @@ from argparse import ArgumentError
 from cgi import FieldStorage
 from cStringIO import StringIO
 from django.core.servers.basehttp import FileWrapper
-from mgi.models import Template, Ontology, Htmlform, Xmldata, Hdf5file, Jsondata, XML2Download, TemplateVersion, Instance
+from mgi.models import Template, Ontology, Htmlform, Xmldata, Hdf5file, Jsondata, XML2Download, TemplateVersion, Instance, OntologyVersion
 from datetime import datetime
 from datetime import tzinfo
 from bson.objectid import ObjectId
 import requests
 import xmltodict
+from bson.objectid import ObjectId
+from dateutil import tz
 
 #import xml.etree.ElementTree as etree
 import lxml.html as html
@@ -60,6 +62,8 @@ mapTagElement = None
 occurrences = None
 xsdVersionContent = ""
 xsdVersionFilename = ""
+ontologyVersionContent = ""
+ontologyVersionFilename = ""
 originalForm = ""
 
 class ElementOccurrences:
@@ -405,7 +409,7 @@ def verifyTemplateIsSelected(request):
 # 
 ################################################################################
 @dajaxice_register
-def uploadXMLSchema(request,xmlSchemaName,xmlSchemaFilename,xmlSchemaContent):
+def uploadObject(request,objectName,objectFilename,objectContent, objectType):
     print 'BEGIN def uploadXMLSchema(request,xmlSchemaFilename,xmlSchemaContent)'
     dajax = Dajax()
 
@@ -417,13 +421,19 @@ def uploadXMLSchema(request,xmlSchemaName,xmlSchemaFilename,xmlSchemaContent):
 #         dajax.script("""alert('"""+e.message.replace("'","") +"""');""")
 #         return dajax.json()
     
+    if objectType == "Template":
+        objectVersions = TemplateVersion(nbVersions=1, isDeleted=False).save()
+        object = Template(title=objectName, filename=objectFilename, content=objectContent, version=1, templateVersion=str(objectVersions.id)).save()
+    else:
+        objectVersions = OntologyVersion(nbVersions=1, isDeleted=False).save()
+        object = Ontology(title=objectName, filename=objectFilename, content=objectContent, version=1, ontologyVersion=str(objectVersions.id)).save()
     
-    templateVersion = TemplateVersion(nbVersions=1, isDeleted=False).save()
-    newTemplate = Template(title=xmlSchemaName, filename=xmlSchemaFilename, content=xmlSchemaContent, version=1, templateVersion=str(templateVersion.id)).save()
-    templateVersion.versions = [str(newTemplate.id)]
-    templateVersion.current=str(newTemplate.id)
-    templateVersion.save()    
-    newTemplate.save()
+#     templateVersion = TemplateVersion(nbVersions=1, isDeleted=False).save()
+#     newTemplate = Template(title=xmlSchemaName, filename=xmlSchemaFilename, content=xmlSchemaContent, version=1, templateVersion=str(templateVersion.id)).save()
+    objectVersions.versions = [str(object.id)]
+    objectVersions.current=str(object.id)
+    objectVersions.save()    
+    object.save()
     
 
     print 'END def uploadXMLSchema(request,xmlSchemaFilename,xmlSchemaContent)'
@@ -440,22 +450,26 @@ def uploadXMLSchema(request,xmlSchemaName,xmlSchemaFilename,xmlSchemaContent):
 # 
 ################################################################################
 @dajaxice_register
-def deleteXMLSchema(request,xmlSchemaID):
+def deleteObject(request, objectID, objectType):
     print 'BEGIN def deleteXMLSchema(request,xmlSchemaID)'
     dajax = Dajax()
 
-    print 'xmlSchemaID: ' + xmlSchemaID
+    if objectType == "Template":
+        object = Template.objects.get(pk=objectID)
+        objectVersions = TemplateVersion.objects.get(pk=object.templateVersion)
+    else:
+        object = Ontology.objects.get(pk=objectID)
+        objectVersions = OntologyVersion.objects.get(pk=object.ontologyVersion)
 
-    selectedSchema = Template.objects(id=xmlSchemaID)[0]
-    templateVersion = TemplateVersion.objects.get(pk=selectedSchema.templateVersion)
+
 #     for version in templateVersion.versions:
 #         template = Template.objects.get(pk=version)
 #         template.delete()
 #     templateVersion.delete()
 #     selectedSchema.delete()
-    templateVersion.deletedVersions.append(str(selectedSchema.id))    
-    templateVersion.isDeleted = True
-    templateVersion.save()
+    objectVersions.deletedVersions.append(str(object.id))    
+    objectVersions.isDeleted = True
+    objectVersions.save()
 
 
     print 'END def deleteXMLSchema(request,xmlSchemaID)'
@@ -1668,36 +1682,45 @@ def downloadXML(request):
     
     return dajax.json()
 
-from bson.objectid import ObjectId
-from dateutil import tz
-@dajaxice_register
-def manageVersions(request, schemaID):
-    dajax = Dajax()
 
-    template = Template.objects.get(pk=schemaID)
-    templateVersions = TemplateVersion.objects.get(pk=template.templateVersion)
+@dajaxice_register
+def manageVersions(request, objectID, objectType):
+    dajax = Dajax()
+    
+    if objectType == "Template":
+        object = Template.objects.get(pk=objectID)
+        objectVersions = TemplateVersion.objects.get(pk=object.templateVersion)
+    else:
+        object = Ontology.objects.get(pk=objectID)
+        objectVersions = OntologyVersion.objects.get(pk=object.ontologyVersion)
+#     template = Template.objects.get(pk=schemaID)
+#     templateVersions = TemplateVersion.objects.get(pk=template.templateVersion)
     
     htmlVersionsList = "<p><b>upload new version:</b>"
     htmlVersionsList += "<input type='file' id='fileVersion' name='files[]' multiple></input>"
-    htmlVersionsList += "<span class='btn' id='updateVersionBtn' versionid='"+str(templateVersions.id)+"' onclick='uploadVersion()'>upload</span></p>"
+    htmlVersionsList += "<span class='btn' id='updateVersionBtn' versionid='"+str(objectVersions.id)+"' objectType='"+ objectType +"' onclick='uploadVersion()'>upload</span></p>"
     htmlVersionsList += "<table>"    
     
     
-    i = len(templateVersions.versions)
-    for tpl_versionID in reversed(templateVersions.versions):
-        tpl = Template.objects.get(pk=tpl_versionID)        
-        htmlVersionsList += "<tr>"
-        htmlVersionsList += "<td>Version " + str(tpl.version) + "</td>"
-        if str(tpl.id) == str(templateVersions.current):
-            htmlVersionsList += "<td style='font-weight:bold;color:green'>Current</td>"
-            htmlVersionsList += "<td><span class='icon legend delete' id='delete"+str(i)+"' schemaid='"+str(tpl.id)+"' onclick='deleteVersion(delete"+str(i)+")'>Delete</span></td>"
-        elif str(tpl.id) in templateVersions.deletedVersions:
-            htmlVersionsList += "<td style='color:red'>Deleted</td>"
-            htmlVersionsList += "<td><span class='icon legend retrieve' id='restore"+str(i)+"' schemaid='"+str(tpl.id)+"' onclick='restoreVersion(restore"+str(i)+")'>Restore</span></td>"
+    i = len(objectVersions.versions)
+    for obj_versionID in reversed(objectVersions.versions):
+        if objectType == "Template":
+            obj = Template.objects.get(pk=obj_versionID)
         else:
-            htmlVersionsList += "<td><span class='icon legend long' id='setcurrent"+str(i)+"' schemaid='"+str(tpl.id)+"' onclick='setCurrentVersion(setcurrent"+str(i)+")'>Set Current</span></td>"
-            htmlVersionsList += "<td><span class='icon legend delete' id='delete"+str(i)+"' schemaid='"+str(tpl.id)+"' onclick='deleteVersion(delete"+str(i)+")'>Delete</span></td>"        
-        objectid = ObjectId(tpl.id)
+            obj = Ontology.objects.get(pk=obj_versionID)
+#         tpl = Template.objects.get(pk=tpl_versionID)        
+        htmlVersionsList += "<tr>"
+        htmlVersionsList += "<td>Version " + str(obj.version) + "</td>"
+        if str(obj.id) == str(objectVersions.current):
+            htmlVersionsList += "<td style='font-weight:bold;color:green'>Current</td>"
+            htmlVersionsList += "<td><span class='icon legend delete' id='delete"+str(i)+"' objectid='"+str(obj.id)+"' objectType='"+ objectType +"' onclick='deleteVersion(delete"+str(i)+")'>Delete</span></td>"
+        elif str(obj.id) in objectVersions.deletedVersions:
+            htmlVersionsList += "<td style='color:red'>Deleted</td>"
+            htmlVersionsList += "<td><span class='icon legend retrieve' id='restore"+str(i)+"' objectid='"+str(obj.id)+"' objectType='"+ objectType +"' onclick='restoreVersion(restore"+str(i)+")'>Restore</span></td>"
+        else:
+            htmlVersionsList += "<td><span class='icon legend long' id='setcurrent"+str(i)+"' objectid='"+str(obj.id)+"' objectType='"+ objectType +"' onclick='setCurrentVersion(setcurrent"+str(i)+")'>Set Current</span></td>"
+            htmlVersionsList += "<td><span class='icon legend delete' id='delete"+str(i)+"' objectid='"+str(obj.id)+"' objectType='"+ objectType +"' onclick='deleteVersion(delete"+str(i)+")'>Delete</span></td>"        
+        objectid = ObjectId(obj.id)
         from_zone = tz.tzutc()
         to_zone = tz.tzlocal()
         datetimeUTC = objectid.generation_time
@@ -1707,8 +1730,12 @@ def manageVersions(request, schemaID):
         htmlVersionsList += "</tr>"
         i -= 1
     htmlVersionsList += "</table>"     
+    if objectType == "Template":
+        handler = "handleSchemaVersionUpload"
+    else:
+        handler = "handleOntologyVersionUpload"
     dajax.script("""
-        $("#template_versions").html(" """+ htmlVersionsList +""" ");    
+        $("#object_versions").html(" """+ htmlVersionsList +""" ");    
         $("#delete_custom_message").html("");
         $(function() {
             $("#dialog-manage-versions").dialog({
@@ -1718,25 +1745,25 @@ def manageVersions(request, schemaID):
                 Ok: function() {
                   $( this ).dialog( "close" );
                   $('#model_selection').load(document.URL +  ' #model_selection', function() {
-                      loadXsdManagerHandler();
+                      loadUploadManagerHandler();
                   });                  
                 },
                 Cancel: function() {
                   $( this ).dialog( "close" );  
                   $('#model_selection').load(document.URL +  ' #model_selection', function() {
-                      loadXsdManagerHandler();
+                      loadUploadManagerHandler();
                   });                
                 }
               }
             });            
           });
-        document.getElementById('fileVersion').addEventListener('change',handleVersionUpload, false);
+        document.getElementById('fileVersion').addEventListener('change',"""+ handler +""", false);
     """)
     return dajax.json()
 
 
 @dajaxice_register
-def setVersionContent(request, versionContent, versionFilename):
+def setSchemaVersionContent(request, versionContent, versionFilename):
     dajax = Dajax()
     global xsdVersionContent
     global xsdVersionFilename
@@ -1746,42 +1773,72 @@ def setVersionContent(request, versionContent, versionFilename):
     
     return dajax.json()
 
+@dajaxice_register
+def setOntologyVersionContent(request, versionContent, versionFilename):
+    dajax = Dajax()
+    global ontologyVersionContent
+    global ontologyVersionFilename
+    
+    ontologyVersionContent = versionContent
+    ontologyVersionFilename = versionFilename
+    
+    return dajax.json()
 
 @dajaxice_register
-def uploadVersion(request, templateVersionID):
+def uploadVersion(request, objectVersionID, objectType):
     dajax = Dajax()
     global xsdVersionContent
     global xsdVersionFilename
+    global ontologyVersionContent
+    global ontologyVersionFilename
+    
+    if objectType == "Template":        
+        objectVersions = TemplateVersion.objects.get(pk=objectVersionID)
+        object = Template.objects.get(pk=objectVersions.current)
+        versionContent = xsdVersionContent
+        versionFilename = xsdVersionFilename
+    else:
+        objectVersions = OntologyVersion.objects.get(pk=objectVersionID)
+        object = Ontology.objects.get(pk=objectVersions.current)
+        versionContent = ontologyVersionContent
+        versionFilename = ontologyVersionFilename
+        
 
-    if xsdVersionContent != "" and xsdVersionFilename != "":
-        templateVersions = TemplateVersion.objects.get(pk=templateVersionID)
-        currentTemplate = Template.objects.get(pk=templateVersions.current)
-        templateVersions.nbVersions += 1
-        newTemplate = Template(title=currentTemplate.title, filename=xsdVersionFilename, content=xsdVersionContent, templateVersion=templateVersionID, version=templateVersions.nbVersions).save()
-        templateVersions.versions.append(str(newTemplate.id))
-        templateVersions.save()
+    if versionContent != "" and versionFilename != "":
+#         templateVersions = TemplateVersion.objects.get(pk=templateVersionID)
+#         currentTemplate = Template.objects.get(pk=templateVersions.current)
+        objectVersions.nbVersions += 1
+        if objectType == "Template": 
+            newObject = Template(title=object.title, filename=versionFilename, content=versionContent, templateVersion=objectVersionID, version=objectVersions.nbVersions).save()
+        else:
+            newObject = Ontology(title=object.title, filename=versionFilename, content=versionContent, ontologyVersion=objectVersionID, version=objectVersions.nbVersions).save()
+        objectVersions.versions.append(str(newObject.id))
+        objectVersions.save()
         
         htmlVersionsList = "<p><b>upload new version:</b>"
         htmlVersionsList += "<input type='file' id='fileVersion' name='files[]' multiple></input>"
-        htmlVersionsList += "<span class='btn' id='updateVersionBtn' versionid='"+str(templateVersions.id)+"' onclick='uploadVersion()'>upload</span></p>"
+        htmlVersionsList += "<span class='btn' id='updateVersionBtn' versionid='"+str(objectVersions.id)+"' objectType='"+ objectType +"' onclick='uploadVersion()'>upload</span></p>"
         htmlVersionsList += "<table>"    
         
         
-        i = len(templateVersions.versions)
-        for tpl_versionID in reversed(templateVersions.versions):
-            tpl = Template.objects.get(pk=tpl_versionID)
-            htmlVersionsList += "<tr>"
-            htmlVersionsList += "<td>Version " + str(tpl.version) + "</td>"
-            if str(tpl.id) == str(templateVersions.current):
-                htmlVersionsList += "<td style='font-weight:bold;color:green'>Current</td>"
-                htmlVersionsList += "<td><span class='icon legend delete' id='delete"+str(i)+"' schemaid='"+str(tpl.id)+"' onclick='deleteVersion(delete"+str(i)+")'>Delete</span></td>"
-            elif str(tpl.id) in templateVersions.deletedVersions:
-                htmlVersionsList += "<td style='color:red'>Deleted</td>"
-                htmlVersionsList += "<td><span class='icon legend retrieve' id='restore"+str(i)+"' schemaid='"+str(tpl.id)+"' onclick='restoreVersion(restore"+str(i)+")'>Restore</span></td>"
+        i = len(objectVersions.versions)
+        for obj_versionID in reversed(objectVersions.versions):
+            if objectType == "Template":
+                obj = Template.objects.get(pk=obj_versionID)
             else:
-                htmlVersionsList += "<td><span class='icon legend long' id='setcurrent"+str(i)+"' schemaid='"+str(tpl.id)+"' onclick='setCurrentVersion(setcurrent"+str(i)+")'>Set Current</span></td>"
-                htmlVersionsList += "<td><span class='icon legend delete' id='delete"+str(i)+"' schemaid='"+str(tpl.id)+"' onclick='deleteVersion(delete"+str(i)+")'>Delete</span></td>" 
-            objectid = ObjectId(tpl.id)
+                obj = Ontology.objects.get(pk=obj_versionID)
+            htmlVersionsList += "<tr>"
+            htmlVersionsList += "<td>Version " + str(obj.version) + "</td>"
+            if str(obj.id) == str(objectVersions.current):
+                htmlVersionsList += "<td style='font-weight:bold;color:green'>Current</td>"
+                htmlVersionsList += "<td><span class='icon legend delete' id='delete"+str(i)+"' objectid='"+str(obj.id)+"' objectType='"+ objectType +"' onclick='deleteVersion(delete"+str(i)+")'>Delete</span></td>"
+            elif str(obj.id) in objectVersions.deletedVersions:
+                htmlVersionsList += "<td style='color:red'>Deleted</td>"
+                htmlVersionsList += "<td><span class='icon legend retrieve' id='restore"+str(i)+"' objectid='"+str(obj.id)+"' objectType='"+ objectType +"' onclick='restoreVersion(restore"+str(i)+")'>Restore</span></td>"
+            else:
+                htmlVersionsList += "<td><span class='icon legend long' id='setcurrent"+str(i)+"' objectid='"+str(obj.id)+"' objectType='"+ objectType +"' onclick='setCurrentVersion(setcurrent"+str(i)+")'>Set Current</span></td>"
+                htmlVersionsList += "<td><span class='icon legend delete' id='delete"+str(i)+"' objectid='"+str(obj.id)+"' objectType='"+ objectType +"' onclick='deleteVersion(delete"+str(i)+")'>Delete</span></td>" 
+            objectid = ObjectId(obj.id)
             from_zone = tz.tzutc()
             to_zone = tz.tzlocal()
             datetimeUTC = objectid.generation_time
@@ -1791,50 +1848,68 @@ def uploadVersion(request, templateVersionID):
             htmlVersionsList += "</tr>"
             i -= 1
         htmlVersionsList += "</table>"     
-    
+        if objectType == "Template":
+            handler = "handleSchemaVersionUpload"
+        else:
+            handler = "handleOntologyVersionUpload"
         dajax.script("""
-            $("#template_versions").html(" """+ htmlVersionsList +""" ");    
+            $("#object_versions").html(" """+ htmlVersionsList +""" ");    
             $("#delete_custom_message").html("");
-            document.getElementById('fileVersion').addEventListener('change',handleVersionUpload, false);
+            document.getElementById('fileVersion').addEventListener('change',"""+ handler +""", false);
         """)
     else:
         dajax.script("""showUploadErrorDialog();""");
     
-    xsdVersionContent = ""
-    xsdVersionFilename = ""
-    
+    if objectType == "Template":
+        xsdVersionContent = ""
+        xsdVersionFilename = ""
+    else:
+        ontologyVersionContent = ""
+        ontologyVersionContent = ""
+        
     return dajax.json()
 
 
 @dajaxice_register
-def setCurrentVersion(request, schemaid):
+def setCurrentVersion(request, objectid, objectType):
     dajax = Dajax()
-    selectedTemplate = Template.objects.get(pk=schemaid)
-    templateVersions = TemplateVersion.objects.get(pk=selectedTemplate.templateVersion)
-    templateVersions.current = str(selectedTemplate.id)
-    templateVersions.save()
+    
+    if objectType == "Template":
+        object = Template.objects.get(pk=objectid)
+        objectVersions = TemplateVersion.objects.get(pk=object.templateVersion)
+    else:
+        object = Ontology.objects.get(pk=objectid)
+        objectVersions = OntologyVersion.objects.get(pk=object.ontologyVersion)
+    
+#     selectedTemplate = Template.objects.get(pk=schemaid)
+#     templateVersions = TemplateVersion.objects.get(pk=selectedTemplate.templateVersion)
+    objectVersions.current = str(object.id)
+    objectVersions.save()
     
     htmlVersionsList = "<p><b>upload new version:</b>"
     htmlVersionsList += "<input type='file' id='fileVersion' name='files[]' multiple></input>"
-    htmlVersionsList += "<span class='btn' id='updateVersionBtn' versionid='"+str(templateVersions.id)+"' onclick='uploadVersion()'>upload</span></p>"
+    htmlVersionsList += "<span class='btn' id='updateVersionBtn' versionid='"+str(objectVersions.id)+"' objectType='"+ objectType +"' onclick='uploadVersion()'>upload</span></p>"
     htmlVersionsList += "<table>"    
     
     
-    i = len(templateVersions.versions)
-    for tpl_versionID in reversed(templateVersions.versions):
-        tpl = Template.objects.get(pk=tpl_versionID)
-        htmlVersionsList += "<tr>"
-        htmlVersionsList += "<td>Version " + str(tpl.version) + "</td>"
-        if str(tpl.id) == str(templateVersions.current):
-            htmlVersionsList += "<td style='font-weight:bold;color:green'>Current</td>"
-            htmlVersionsList += "<td><span class='icon legend delete' id='delete"+str(i)+"' schemaid='"+str(tpl.id)+"' onclick='deleteVersion(delete"+str(i)+")'>Delete</span></td>"
-        elif str(tpl.id) in templateVersions.deletedVersions:
-            htmlVersionsList += "<td style='color:red'>Deleted</td>"
-            htmlVersionsList += "<td><span class='icon legend retrieve' id='restore"+str(i)+"' schemaid='"+str(tpl.id)+"' onclick='restoreVersion(restore"+str(i)+")'>Restore</span></td>"
+    i = len(objectVersions.versions)
+    for obj_versionID in reversed(objectVersions.versions):
+        if objectType == "Template":
+            obj = Template.objects.get(pk=obj_versionID)
         else:
-            htmlVersionsList += "<td><span class='icon legend long' id='setcurrent"+str(i)+"' schemaid='"+str(tpl.id)+"' onclick='setCurrentVersion(setcurrent"+str(i)+")'>Set Current</span></td>"
-            htmlVersionsList += "<td><span class='icon legend delete' id='delete"+str(i)+"' schemaid='"+str(tpl.id)+"' onclick='deleteVersion(delete"+str(i)+")'>Delete</span></td>"          
-        objectid = ObjectId(tpl.id)
+            obj = Ontology.objects.get(pk=obj_versionID)
+        htmlVersionsList += "<tr>"
+        htmlVersionsList += "<td>Version " + str(obj.version) + "</td>"
+        if str(obj.id) == str(objectVersions.current):
+            htmlVersionsList += "<td style='font-weight:bold;color:green'>Current</td>"
+            htmlVersionsList += "<td><span class='icon legend delete' id='delete"+str(i)+"' objectid='"+str(obj.id)+"' objectType='"+ objectType +"' onclick='deleteVersion(delete"+str(i)+")'>Delete</span></td>"
+        elif str(obj.id) in objectVersions.deletedVersions:
+            htmlVersionsList += "<td style='color:red'>Deleted</td>"
+            htmlVersionsList += "<td><span class='icon legend retrieve' id='restore"+str(i)+"' objectid='"+str(obj.id)+"' objectType='"+ objectType +"' onclick='restoreVersion(restore"+str(i)+")'>Restore</span></td>"
+        else:
+            htmlVersionsList += "<td><span class='icon legend long' id='setcurrent"+str(i)+"' objectid='"+str(obj.id)+"' objectType='"+ objectType +"' onclick='setCurrentVersion(setcurrent"+str(i)+")'>Set Current</span></td>"
+            htmlVersionsList += "<td><span class='icon legend delete' id='delete"+str(i)+"' objectid='"+str(obj.id)+"' objectType='"+ objectType +"' onclick='deleteVersion(delete"+str(i)+")'>Delete</span></td>"          
+        objectid = ObjectId(obj.id)
         from_zone = tz.tzutc()
         to_zone = tz.tzlocal()
         datetimeUTC = objectid.generation_time
@@ -1844,63 +1919,79 @@ def setCurrentVersion(request, schemaid):
         htmlVersionsList += "</tr>"
         i -= 1
     htmlVersionsList += "</table>"     
+    
+    if objectType == "Template":
+        handler = "handleSchemaVersionUpload"
+    else:
+        handler = "handleOntologyVersionUpload"
 
     dajax.script("""
-        $("#template_versions").html(" """+ htmlVersionsList +""" ");    
+        $("#object_versions").html(" """+ htmlVersionsList +""" ");    
         $("#delete_custom_message").html("");
-        document.getElementById('fileVersion').addEventListener('change',handleVersionUpload, false);
+        document.getElementById('fileVersion').addEventListener('change',"""+ handler +""", false);
     """)
     
     return dajax.json()
 
 @dajaxice_register
-def deleteVersion(request, schemaid, newCurrent):
+def deleteVersion(request, objectid, objectType, newCurrent):
     dajax = Dajax()
-    selectedTemplate = Template.objects.get(pk=schemaid)
-    templateVersions = TemplateVersion.objects.get(pk=selectedTemplate.templateVersion)    
+    
+    if objectType == "Template":
+        object = Template.objects.get(pk=objectid)
+        objectVersions = TemplateVersion.objects.get(pk=object.templateVersion)
+    else:
+        object = Ontology.objects.get(pk=objectid)
+        objectVersions = OntologyVersion.objects.get(pk=object.ontologyVersion)
+    
+#     selectedTemplate = Template.objects.get(pk=schemaid)
+#     templateVersions = TemplateVersion.objects.get(pk=selectedTemplate.templateVersion)    
 
-    if len(templateVersions.versions) == 1 or len(templateVersions.versions) == len(templateVersions.deletedVersions) + 1:
+    if len(objectVersions.versions) == 1 or len(objectVersions.versions) == len(objectVersions.deletedVersions) + 1:
 #         selectedTemplate.delete()
-        templateVersions.deletedVersions.append(str(selectedTemplate.id))    
+        objectVersions.deletedVersions.append(str(object.id))    
 #         templateVersions.delete()
-        templateVersions.isDeleted = True
-        templateVersions.save()
+        objectVersions.isDeleted = True
+        objectVersions.save()
         dajax.script("""
         $("#delete_custom_message").html("");
         $("#dialog-manage-versions").dialog( "close" );
         $('#model_selection').load(document.URL +  ' #model_selection', function() {
-          loadXsdManagerHandler();
+          loadUploadManagerHandler();
         });    
         """)
     else:
         if newCurrent != "": 
-            templateVersions.current = newCurrent
+            objectVersions.current = newCurrent
 #         del templateVersions.versions[templateVersions.versions.index(schemaid)]
-        templateVersions.deletedVersions.append(str(selectedTemplate.id))   
-        templateVersions.save()
+        objectVersions.deletedVersions.append(str(object.id))   
+        objectVersions.save()
 #         selectedTemplate.delete()
         
         htmlVersionsList = "<p><b>upload new version:</b>"
         htmlVersionsList += "<input type='file' id='fileVersion' name='files[]' multiple></input>"
-        htmlVersionsList += "<span class='btn' id='updateVersionBtn' versionid='"+str(templateVersions.id)+"' onclick='uploadVersion()'>upload</span></p>"
+        htmlVersionsList += "<span class='btn' id='updateVersionBtn' versionid='"+str(objectVersions.id)+"' objectType='"+ objectType +"' onclick='uploadVersion()'>upload</span></p>"
         htmlVersionsList += "<table>"    
         
         
-        i = len(templateVersions.versions)
-        for tpl_versionID in reversed(templateVersions.versions):
-            tpl = Template.objects.get(pk=tpl_versionID)
-            htmlVersionsList += "<tr>"
-            htmlVersionsList += "<td>Version " + str(tpl.version) + "</td>"
-            if str(tpl.id) == str(templateVersions.current):
-                htmlVersionsList += "<td style='font-weight:bold;color:green'>Current</td>"
-                htmlVersionsList += "<td><span class='icon legend delete' id='delete"+str(i)+"' schemaid='"+str(tpl.id)+"' onclick='deleteVersion(delete"+str(i)+")'>Delete</span></td>"
-            elif str(tpl.id) in templateVersions.deletedVersions:
-                htmlVersionsList += "<td style='color:red'>Deleted</td>"
-                htmlVersionsList += "<td><span class='icon legend retrieve' id='restore"+str(i)+"' schemaid='"+str(tpl.id)+"' onclick='restoreVersion(restore"+str(i)+")'>Restore</span></td>"
+        i = len(objectVersions.versions)
+        for obj_versionID in reversed(objectVersions.versions):
+            if objectType == "Template":
+                obj = Template.objects.get(pk=obj_versionID)
             else:
-                htmlVersionsList += "<td><span class='icon legend long' id='setcurrent"+str(i)+"' schemaid='"+str(tpl.id)+"' onclick='setCurrentVersion(setcurrent"+str(i)+")'>Set Current</span></td>"
-                htmlVersionsList += "<td><span class='icon legend delete' id='delete"+str(i)+"' schemaid='"+str(tpl.id)+"' onclick='deleteVersion(delete"+str(i)+")'>Delete</span></td>"     
-            objectid = ObjectId(tpl.id)
+                obj = Ontology.objects.get(pk=obj_versionID)
+            htmlVersionsList += "<tr>"
+            htmlVersionsList += "<td>Version " + str(obj.version) + "</td>"
+            if str(obj.id) == str(objectVersions.current):
+                htmlVersionsList += "<td style='font-weight:bold;color:green'>Current</td>"
+                htmlVersionsList += "<td><span class='icon legend delete' id='delete"+str(i)+"' objectid='"+str(obj.id)+"' objectType='"+ objectType +"' onclick='deleteVersion(delete"+str(i)+")'>Delete</span></td>"
+            elif str(obj.id) in objectVersions.deletedVersions:
+                htmlVersionsList += "<td style='color:red'>Deleted</td>"
+                htmlVersionsList += "<td><span class='icon legend retrieve' id='restore"+str(i)+"' objectid='"+str(obj.id)+"' objectType='"+ objectType +"' onclick='restoreVersion(restore"+str(i)+")'>Restore</span></td>"
+            else:
+                htmlVersionsList += "<td><span class='icon legend long' id='setcurrent"+str(i)+"' objectid='"+str(obj.id)+"' objectType='"+ objectType +"' onclick='setCurrentVersion(setcurrent"+str(i)+")'>Set Current</span></td>"
+                htmlVersionsList += "<td><span class='icon legend delete' id='delete"+str(i)+"' objectid='"+str(obj.id)+"' objectType='"+ objectType +"' onclick='deleteVersion(delete"+str(i)+")'>Delete</span></td>"     
+            objectid = ObjectId(obj.id)
             from_zone = tz.tzutc()
             to_zone = tz.tzlocal()
             datetimeUTC = objectid.generation_time
@@ -1910,33 +2001,48 @@ def deleteVersion(request, schemaid, newCurrent):
             htmlVersionsList += "</tr>"
             i -= 1
         htmlVersionsList += "</table>"    
+        if objectType == "Template":
+            handler = "handleSchemaVersionUpload"
+        else:
+            handler = "handleOntologyVersionUpload"
         
         dajax.script("""
-            $("#template_versions").html(" """+ htmlVersionsList +""" "); 
+            $("#object_versions").html(" """+ htmlVersionsList +""" "); 
             $("#delete_custom_message").html("");   
-            document.getElementById('fileVersion').addEventListener('change',handleVersionUpload, false);
+            document.getElementById('fileVersion').addEventListener('change',"""+ handler +""", false);
         """)
     
     return dajax.json()
 
 @dajaxice_register
-def assignDeleteCustomMessage(request, schemaid):
+def assignDeleteCustomMessage(request, objectid, objectType):
     dajax = Dajax()
-    selectedTemplate = Template.objects.get(pk=schemaid)
-    templateVersions = TemplateVersion.objects.get(pk=selectedTemplate.templateVersion)    
+    
+    if objectType == "Template":
+        object = Template.objects.get(pk=objectid)
+        objectVersions = TemplateVersion.objects.get(pk=object.templateVersion)
+    else:
+        object = Ontology.objects.get(pk=objectid)
+        objectVersions = OntologyVersion.objects.get(pk=object.ontologyVersion)
+        
+#     selectedTemplate = Template.objects.get(pk=schemaid)
+#     templateVersions = TemplateVersion.objects.get(pk=selectedTemplate.templateVersion)    
     
     message = ""
 
-    if len(templateVersions.versions) == 1:
-        message = "<span style='color:red'>You are about to delete the only version of this schema. The schema will be deleted from the schema manager.</span>"
-    elif templateVersions.current == str(selectedTemplate.id) and len(templateVersions.versions) == len(templateVersions.deletedVersions) + 1:
-        message = "<span style='color:red'>You are about to delete the last version of this schema. The schema will be deleted from the schema manager.</span>"
-    elif templateVersions.current == str(selectedTemplate.id):
+    if len(objectVersions.versions) == 1:
+        message = "<span style='color:red'>You are about to delete the only version of this "+ objectType +". The "+ objectType +" will be deleted from the "+ objectType +" manager.</span>"
+    elif objectVersions.current == str(object.id) and len(objectVersions.versions) == len(objectVersions.deletedVersions) + 1:
+        message = "<span style='color:red'>You are about to delete the last version of this "+ objectType +". The "+ objectType +" will be deleted from the "+ objectType +" manager.</span>"
+    elif objectVersions.current == str(object.id):
         message = "<span>You are about to delete the current version. If you want to continue, please select a new current version: <select id='selectCurrentVersion'>"
-        for version in templateVersions.versions:
-            if version != templateVersions.current and version not in templateVersions.deletedVersions:
-                template = Template.objects.get(pk=version)
-                message += "<option value='"+version+"'>Version " + str(template.version) + "</option>"
+        for version in objectVersions.versions:
+            if version != objectVersions.current and version not in objectVersions.deletedVersions:
+                if objectType == "Template":
+                    obj = Template.objects.get(pk=version)
+                else:
+                    obj = Ontology.objects.get(pk=version)
+                message += "<option value='"+version+"'>Version " + str(obj.version) + "</option>"
         message += "</select></span>"
     
     dajax.assign("#delete_custom_message", "innerHTML", message)
@@ -1944,72 +2050,103 @@ def assignDeleteCustomMessage(request, schemaid):
     return dajax.json()
 
 @dajaxice_register
-def editSchemaInformation(request, schemaid, newName, newFilename):
+def editInformation(request, objectid, objectType, newName, newFilename):
     dajax = Dajax()
-    selectedTemplate = Template.objects.get(pk=schemaid)       
-    templateVersions = TemplateVersion.objects.get(pk=selectedTemplate.templateVersion)
     
-    for version in templateVersions.versions:
-        template = Template.objects.get(pk=version)
-        template.title = newName
-        if version == schemaid:
-            template.filename = newFilename
-        template.save()
+    if objectType == "Template":
+        object = Template.objects.get(pk=objectid)
+        objectVersions = TemplateVersion.objects.get(pk=object.templateVersion)
+    else:
+        object = Ontology.objects.get(pk=objectid)
+        objectVersions = OntologyVersion.objects.get(pk=object.ontologyVersion)
+    
+#     selectedTemplate = Template.objects.get(pk=schemaid)       
+#     templateVersions = TemplateVersion.objects.get(pk=selectedTemplate.templateVersion)
+    
+    for version in objectVersions.versions:
+        if objectType == "Template":
+            obj = Template.objects.get(pk=version)
+        else:
+            obj = Ontology.objects.get(pk=version)
+        obj.title = newName
+        if version == objectid:
+            obj.filename = newFilename
+        obj.save()
     
     dajax.script("""
         $("#dialog-edit-info").dialog( "close" );
         $('#model_selection').load(document.URL +  ' #model_selection', function() {
-              loadXsdManagerHandler();
+              loadUploadManagerHandler();
         });
     """)
     
     return dajax.json()
 
 @dajaxice_register
-def restoreSchema(request, schemaid):
+def restoreObject(request, objectid, objectType):
     dajax = Dajax()
     
-    selectedTemplate = Template.objects.get(pk=schemaid)       
-    templateVersions = TemplateVersion.objects.get(pk=selectedTemplate.templateVersion)
-    templateVersions.isDeleted = False
-    del templateVersions.deletedVersions[templateVersions.deletedVersions.index(templateVersions.current)]
-    templateVersions.save()
+    if objectType == "Template":
+        object = Template.objects.get(pk=objectid)
+        objectVersions = TemplateVersion.objects.get(pk=object.templateVersion)
+    else:
+        object = Ontology.objects.get(pk=objectid)
+        objectVersions = OntologyVersion.objects.get(pk=object.ontologyVersion)
+    
+#     selectedTemplate = Template.objects.get(pk=schemaid)       
+#     templateVersions = TemplateVersion.objects.get(pk=selectedTemplate.templateVersion)
+    objectVersions.isDeleted = False
+    del objectVersions.deletedVersions[objectVersions.deletedVersions.index(objectVersions.current)]
+    objectVersions.save()
     
     dajax.script("""
-        window.location = "/admin/xml-schemas";
+        $('#model_selection').load(document.URL +  ' #model_selection', function() {
+              loadUploadManagerHandler();
+        });
     """)
     
     return dajax.json()
 
 @dajaxice_register
-def restoreVersion(request, schemaid):
+def restoreVersion(request, objectid, objectType):
     dajax = Dajax()
-    selectedTemplate = Template.objects.get(pk=schemaid)
-    templateVersions = TemplateVersion.objects.get(pk=selectedTemplate.templateVersion)
-    del templateVersions.deletedVersions[templateVersions.deletedVersions.index(schemaid)]
-    templateVersions.save()
+    
+    if objectType == "Template":
+        object = Template.objects.get(pk=objectid)
+        objectVersions = TemplateVersion.objects.get(pk=object.templateVersion)
+    else:
+        object = Ontology.objects.get(pk=objectid)
+        objectVersions = OntologyVersion.objects.get(pk=object.ontologyVersion)
+    
+#     selectedTemplate = Template.objects.get(pk=schemaid)
+#     templateVersions = TemplateVersion.objects.get(pk=selectedTemplate.templateVersion)
+    del objectVersions.deletedVersions[objectVersions.deletedVersions.index(objectid)]
+    objectVersions.save()
     
     htmlVersionsList = "<p><b>upload new version:</b>"
     htmlVersionsList += "<input type='file' id='fileVersion' name='files[]' multiple></input>"
-    htmlVersionsList += "<span class='btn' id='updateVersionBtn' versionid='"+str(templateVersions.id)+"' onclick='uploadVersion()'>upload</span></p>"
+    htmlVersionsList += "<span class='btn' id='updateVersionBtn' versionid='"+str(objectVersions.id)+"' objectType='"+ objectType +"' onclick='uploadVersion()'>upload</span></p>"
     htmlVersionsList += "<table>"    
     
     
-    i = len(templateVersions.versions)
-    for tpl_versionID in reversed(templateVersions.versions):
-        tpl = Template.objects.get(pk=tpl_versionID)
-        htmlVersionsList += "<tr>"
-        htmlVersionsList += "<td>Version " + str(tpl.version) + "</td>"
-        if str(tpl.id) == str(templateVersions.current):
-            htmlVersionsList += "<td style='font-weight:bold;color:green'>Current</td>"
-            htmlVersionsList += "<td><span class='icon legend delete' id='delete"+str(i)+"' schemaid='"+str(tpl.id)+"' onclick='deleteVersion(delete"+str(i)+")'>Delete</span></td>"
-        elif str(tpl.id) in templateVersions.deletedVersions:
-            htmlVersionsList += "<td style='color:red'>Deleted</td>"
-            htmlVersionsList += "<td><span class='icon legend retrieve' id='restore"+str(i)+"' schemaid='"+str(tpl.id)+"' onclick='restoreVersion(restore"+str(i)+")'>Restore</span></td>"
+    i = len(objectVersions.versions)
+    for obj_versionID in reversed(objectVersions.versions):
+        if objectType == "Template":
+            obj = Template.objects.get(pk=obj_versionID)
         else:
-            htmlVersionsList += "<td><span class='icon legend long' id='setcurrent"+str(i)+"' schemaid='"+str(tpl.id)+"' onclick='setCurrentVersion(setcurrent"+str(i)+")'>Set Current</span></td>"
-            htmlVersionsList += "<td><span class='icon legend delete' id='delete"+str(i)+"' schemaid='"+str(tpl.id)+"' onclick='deleteVersion(delete"+str(i)+")'>Delete</span></td>"          
-        objectid = ObjectId(tpl.id)
+            obj = Ontology.objects.get(pk=obj_versionID)
+        htmlVersionsList += "<tr>"
+        htmlVersionsList += "<td>Version " + str(obj.version) + "</td>"
+        if str(obj.id) == str(objectVersions.current):
+            htmlVersionsList += "<td style='font-weight:bold;color:green'>Current</td>"
+            htmlVersionsList += "<td><span class='icon legend delete' id='delete"+str(i)+"' objectid='"+str(obj.id)+"' objectType='"+ objectType +"' onclick='deleteVersion(delete"+str(i)+")'>Delete</span></td>"
+        elif str(obj.id) in objectVersions.deletedVersions:
+            htmlVersionsList += "<td style='color:red'>Deleted</td>"
+            htmlVersionsList += "<td><span class='icon legend retrieve' id='restore"+str(i)+"' objectid='"+str(obj.id)+"' objectType='"+ objectType +"' onclick='restoreVersion(restore"+str(i)+")'>Restore</span></td>"
+        else:
+            htmlVersionsList += "<td><span class='icon legend long' id='setcurrent"+str(i)+"' objectid='"+str(obj.id)+"' objectType='"+ objectType +"' onclick='setCurrentVersion(setcurrent"+str(i)+")'>Set Current</span></td>"
+            htmlVersionsList += "<td><span class='icon legend delete' id='delete"+str(i)+"' objectid='"+str(obj.id)+"' objectType='"+ objectType +"' onclick='deleteVersion(delete"+str(i)+")'>Delete</span></td>"          
+        objectid = ObjectId(obj.id)
         from_zone = tz.tzutc()
         to_zone = tz.tzlocal()
         datetimeUTC = objectid.generation_time
@@ -2019,11 +2156,14 @@ def restoreVersion(request, schemaid):
         htmlVersionsList += "</tr>"
         i -= 1
     htmlVersionsList += "</table>"     
-
+    if objectType == "Template":
+        handler = "handleSchemaVersionUpload"
+    else:
+        handler = "handleOntologyVersionUpload"
     dajax.script("""
-        $("#template_versions").html(" """+ htmlVersionsList +""" ");    
+        $("#object_versions").html(" """+ htmlVersionsList +""" ");    
         $("#delete_custom_message").html("");
-        document.getElementById('fileVersion').addEventListener('change',handleVersionUpload, false);
+        document.getElementById('fileVersion').addEventListener('change',"""+ handler +""", false);
     """)
     
     return dajax.json()
