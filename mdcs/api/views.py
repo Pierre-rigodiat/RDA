@@ -322,7 +322,7 @@ def curate(request):
 @api_view(['POST'])
 def add_schema(request):
     """
-    POST http://localhost/api/schema/add
+    POST http://localhost/api/templates/add
     POST data title="title", filename="filename", content="<xsd:schema>...</xsd:schema>" templateVersion="id"
     """
     sSerializer = schemaSerializer(data=request.DATA)
@@ -351,7 +351,7 @@ def add_schema(request):
 @api_view(['GET'])
 def select_schema(request):
     """
-    GET http://localhost/api/schema/select?param1=value1&param2=value2
+    GET http://localhost/api/templates/select?param1=value1&param2=value2
     URL parameters: 
     id: string (ObjectId)
     filename: string
@@ -419,7 +419,7 @@ def select_schema(request):
 @api_view(['GET'])
 def select_all_schemas(request):
     """
-    GET http://localhost/api/schema/select/all
+    GET http://localhost/api/templates/select/all
     """
     templates = Template.objects
     serializer = templateSerializer(templates)
@@ -428,7 +428,7 @@ def select_all_schemas(request):
 @api_view(['GET'])
 def delete_schema(request):
     """
-    GET http://localhost/api/schema/delete?id=IDtodelete&next=IDnextCurrent
+    GET http://localhost/api/templates/delete?id=IDtodelete&next=IDnextCurrent
     URL parameters: 
     id: string (ObjectId)
     next: string (ObjectId)
@@ -489,7 +489,7 @@ def delete_schema(request):
 @api_view(['POST'])
 def add_ontology(request):
     """
-    POST http://localhost/api/ontology/add
+    POST http://localhost/api/types/add
     POST data title="title", filename="filename", content="..." ontologyVersion="id"
     """
     oSerializer = ontologySerializer(data=request.DATA)
@@ -518,7 +518,7 @@ def add_ontology(request):
 @api_view(['GET'])
 def select_ontology(request):
     """
-    GET http://localhost/api/onyology/select?param1=value1&param2=value2
+    GET http://localhost/api/types/select?param1=value1&param2=value2
     URL parameters: 
     id: string (ObjectId)
     filename: string
@@ -586,7 +586,7 @@ def select_ontology(request):
 @api_view(['GET'])
 def select_all_ontologies(request):
     """
-    GET http://localhost/api/ontology/select/all
+    GET http://localhost/api/types/select/all
     """
     ontologies = Ontology.objects
     serializer = resOntologySerializer(ontologies)
@@ -595,7 +595,7 @@ def select_all_ontologies(request):
 @api_view(['GET'])
 def delete_ontology(request):
     """
-    GET http://localhost/api/ontology/delete?id=IDtodelete&next=IDnextCurrent
+    GET http://localhost/api/types/delete?id=IDtodelete&next=IDnextCurrent
     URL parameters: 
     id: string (ObjectId)
     next: string (ObjectId)
