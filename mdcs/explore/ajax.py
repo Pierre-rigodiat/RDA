@@ -20,7 +20,6 @@ from dajax.core import Dajax
 from dajaxice.decorators import dajaxice_register
 from django.conf import settings
 from mongoengine import *
-from explore.models import XMLSchema 
 from io import BytesIO
 from lxml import html
 from collections import OrderedDict
@@ -33,7 +32,7 @@ import os
 import lxml.etree as etree
 import xml.dom.minidom as minidom
 
-from mgi.models import Template, QueryResults, SparqlQueryResults, SavedQuery, Jsondata, Instance 
+from mgi.models import Template, QueryResults, SparqlQueryResults, SavedQuery, Jsondata, Instance, XMLSchema
 
 import sparqlPublisher
 

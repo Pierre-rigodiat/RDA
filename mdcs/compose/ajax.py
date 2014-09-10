@@ -18,7 +18,7 @@ from dajaxice.decorators import dajaxice_register
 from django.conf import settings
 from mongoengine import *
 from io import BytesIO
-from curate.models import XMLSchema 
+from mgi.models import XMLSchema 
 import sys
 from xlrd import open_workbook
 from argparse import ArgumentError
