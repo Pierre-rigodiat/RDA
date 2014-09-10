@@ -16,7 +16,8 @@
 
 from rest_framework import serializers
 from rest_framework_mongoengine.serializers import MongoEngineModelSerializer
-from mgi.models import SavedQuery, Template, Ontology
+from mgi.models import SavedQuery, Template, Ontology, TemplateVersion, OntologyVersion, Instance
+from django.contrib.auth.models import User
 
 class jsonDataSerializer(serializers.Serializer):
     title = serializers.CharField()
@@ -50,11 +51,19 @@ class templateSerializer(serializers.Serializer):
     templateVersion = serializers.CharField()
     version = serializers.IntegerField()
     id = serializers.CharField(required=False)
-    
+
+class TemplateVersionSerializer(MongoEngineModelSerializer):
+    class Meta:
+        model = TemplateVersion
+
 class ontologySerializer(MongoEngineModelSerializer):
     class Meta:
         model = Ontology
         exclude = (['ontologyVersion','version'])
+        
+class OntologyVersionSerializer(MongoEngineModelSerializer):
+    class Meta:
+        model = OntologyVersion
         
 class resOntologySerializer(serializers.Serializer):
     title = serializers.CharField()
@@ -63,4 +72,25 @@ class resOntologySerializer(serializers.Serializer):
     ontologyVersion = serializers.CharField()
     version = serializers.IntegerField()
     id = serializers.CharField(required=False)
+    
+class instanceSerializer(MongoEngineModelSerializer):
+    class Meta:
+        model = Instance
+        exclude = (['status'])
         
+class resInstanceSerializer(serializers.Serializer):
+    name = serializers.CharField()
+    protocol = serializers.CharField()
+    address = serializers.CharField()
+    port = serializers.IntegerField()
+    user = serializers.CharField()
+    password = serializers.CharField() 
+    status = serializers.CharField()
+    id = serializers.CharField(required=False)
+    
+class UserSerializer(serializers.Serializer):
+    username = serializers.CharField()
+    first_name = serializers.CharField()
+    last_name = serializers.CharField()
+    email = serializers.CharField()
+    

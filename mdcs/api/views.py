@@ -20,9 +20,10 @@ from rest_framework import generics
 from rest_framework import status
 from rest_framework.response import Response
 # Models
-from mgi.models import SavedQuery, Jsondata, Template, TemplateVersion, Ontology, OntologyVersion
+from mgi.models import SavedQuery, Jsondata, Template, TemplateVersion, Ontology, OntologyVersion, Instance
+from django.contrib.auth.models import User
 # Serializers
-from api.serializers import savedQuerySerializer, jsonDataSerializer, querySerializer, sparqlQuerySerializer, sparqlResultsSerializer, schemaSerializer, templateSerializer, ontologySerializer, resOntologySerializer
+from api.serializers import savedQuerySerializer, jsonDataSerializer, querySerializer, sparqlQuerySerializer, sparqlResultsSerializer, schemaSerializer, templateSerializer, ontologySerializer, resOntologySerializer, TemplateVersionSerializer, OntologyVersionSerializer, instanceSerializer, resInstanceSerializer, UserSerializer
 
 from explore import sparqlPublisher
 from curate import rdfPublisher
@@ -33,6 +34,9 @@ from mongoengine import *
 from pymongo import Connection
 from bson.objectid import ObjectId
 import re
+import requests
+from django.db.models import Q
+import operator
 
 projectURI = "http://www.example.com/"
 
@@ -264,10 +268,10 @@ def curate(request):
             schema = Template.objects.get(pk=ObjectId(request.DATA['schema']))
             templateVersion = TemplateVersion.objects.get(pk=ObjectId(schema.templateVersion))
             if str(schema.id) in templateVersion.deletedVersions:
-                content = {'message: The provided schema is currently deleted.'}
+                content = {'message: The provided template is currently deleted.'}
                 return Response(content, status=status.HTTP_400_BAD_REQUEST)
         except:
-            content = {'message: No schema found with the given id.'}
+            content = {'message: No template found with the given id.'}
             return Response(content, status=status.HTTP_400_BAD_REQUEST)
         
         xmlStr = request.DATA['content']
@@ -331,6 +335,9 @@ def add_schema(request):
         if "templateVersion" in request.DATA:
             try:
                 templateVersions = TemplateVersion.objects.get(pk=request.DATA['templateVersion'])
+                if templateVersions.isDeleted == True:
+                    content = {'message':'This template version belongs to a deleted template. You are not allowed to delete it.'}
+                    return Response(content, status=status.HTTP_400_BAD_REQUEST)
                 templateVersions.nbVersions = templateVersions.nbVersions + 1
                 newTemplate = Template(title=request.DATA['title'], filename=request.DATA['filename'], content=request.DATA['content'], templateVersion=request.DATA['templateVersion'], version=templateVersions.nbVersions).save()
                 templateVersions.versions.append(str(newTemplate.id))                
@@ -426,15 +433,78 @@ def select_all_schemas(request):
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
+def select_all_schemas_versions(request):
+    """
+    GET http://localhost/api/schemas/versions/select/all
+    """
+    templateVersions = TemplateVersion.objects
+    serializer = TemplateVersionSerializer(templateVersions)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+def current_template_version(request):
+    """
+    GET http://localhost/api/templates/versions/current?id=IdToBeCurrent
+    """
+    id = request.QUERY_PARAMS.get('id', None)
+    if id is not None:   
+        try:
+            template = Template.objects.get(pk=id)        
+        except:
+            content = {'message':'No template found with the given id.'}
+            return Response(content, status=status.HTTP_404_NOT_FOUND)
+    else:
+        content = {'message':'No template id provided to be current.'}
+        return Response(content, status=status.HTTP_400_BAD_REQUEST)
+    
+    templateVersion = TemplateVersion.objects.get(pk=template.templateVersion)
+    if templateVersion.isDeleted == True:
+        content = {'message':'This template version belongs to a deleted template. You are not allowed to restore it. Please restore the template first (id:'+ str(templateVersion.id) +').'}
+        return Response(content, status=status.HTTP_400_BAD_REQUEST)
+    if templateVersion.current == id:
+        content = {'message':'The selected template is already the current template.'}
+        return Response(content, status=status.HTTP_400_BAD_REQUEST)
+    if id in templateVersion.deletedVersions:
+        content = {'message':'The selected template is deleted. Please restore it first to make it current.'}
+        return Response(content, status=status.HTTP_400_BAD_REQUEST)
+    templateVersion.current = id
+    templateVersion.save()
+    content = {'message':'Current template set with success.'}
+    return Response(content, status=status.HTTP_200_OK)
+    
+@api_view(['GET'])
 def delete_schema(request):
     """
     GET http://localhost/api/templates/delete?id=IDtodelete&next=IDnextCurrent
+    GET http://localhost/api/templates/delete?templateVersion=IDtodelete
     URL parameters: 
     id: string (ObjectId)
     next: string (ObjectId)
+    templateVersion: string (ObjectId)
     """
     id = request.QUERY_PARAMS.get('id', None)
-    next = request.QUERY_PARAMS.get('next', None)  
+    next = request.QUERY_PARAMS.get('next', None)
+    versionID = request.QUERY_PARAMS.get('templateVersion', None)  
+    
+    if versionID is not None:
+        if id is not None or next is not None:
+            content = {'message':'Wrong parameters combination.'}
+            return Response(content, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            try:
+                templateVersion = TemplateVersion.objects.get(pk=versionID)
+                if templateVersion.isDeleted == False:
+                    templateVersion.deletedVersions.append(templateVersion.current)
+                    templateVersion.isDeleted = True
+                    templateVersion.save()
+                    content = {'message':'Template version deleted with success.'}
+                    return Response(content, status=status.HTTP_200_OK)
+                else:
+                    content = {'message':'Template version already deleted.'}
+                    return Response(content, status=status.HTTP_400_BAD_REQUEST)
+            except:
+                content = {'message':'No template version found with the given id.'}
+                return Response(content, status=status.HTTP_404_NOT_FOUND)
     
     if id is not None:   
         try:
@@ -443,32 +513,35 @@ def delete_schema(request):
             content = {'message':'No template found with the given id.'}
             return Response(content, status=status.HTTP_404_NOT_FOUND)
     else:
-        content = {'message':'No schema id provided to delete.'}
+        content = {'message':'No template id provided to delete.'}
         return Response(content, status=status.HTTP_400_BAD_REQUEST)
 
     if next is not None:
         try:
             nextCurrent = Template.objects.get(pk=next)
             if nextCurrent.templateVersion != template.templateVersion:
-                content = {'message':'The specified next current schema is not a version of the current schema.'}
+                content = {'message':'The specified next current template is not a version of the current template.'}
                 return Response(content, status=status.HTTP_400_BAD_REQUEST)
         except:
             content = {'message':'No template found with the given id to be the next current.'}
             return Response(content, status=status.HTTP_404_NOT_FOUND)
         
     templateVersion = TemplateVersion.objects.get(pk=template.templateVersion)
+    if templateVersion.isDeleted == True:
+        content = {'message':'This template version belongs to a deleted template. You are not allowed to restore it. Please restore the template first (id:'+ str(templateVersion.id) +').'}
+        return Response(content, status=status.HTTP_400_BAD_REQUEST)
     if templateVersion.current == str(template.id) and next is None:
-        content = {'message':'The selected template is the current. It can\'t be deleted. If you still want to delete this template, please provide the id of the next current schema using \'next\' parameter'}
+        content = {'message':'The selected template is the current. It can\'t be deleted. If you still want to delete this template, please provide the id of the next current template using \'next\' parameter'}
         return Response(content, status=status.HTTP_400_BAD_REQUEST)
     elif templateVersion.current == str(template.id) and next is not None and str(template.id) == str(nextCurrent.id):
-        content = {'message':'Schema id to delete and next id are the same.'}
+        content = {'message':'Template id to delete and next id are the same.'}
         return Response(content, status=status.HTTP_400_BAD_REQUEST)
     elif templateVersion.current != str(template.id) and next is not None:
-        content = {'message':'You should only provide the next parameter when you want to delete a current version of a schema.'}
+        content = {'message':'You should only provide the next parameter when you want to delete a current version of a template.'}
         return Response(content, status=status.HTTP_400_BAD_REQUEST)
     elif templateVersion.current == str(template.id) and next is not None:
         if next in templateVersion.deletedVersions:
-            content = {'message':'The schema is deleted, it can\'t become current.'}
+            content = {'message':'The template is deleted, it can\'t become current.'}
             return Response(content, status=status.HTTP_400_BAD_REQUEST)
         templateVersion.deletedVersions.append(str(template.id)) 
         templateVersion.current = str(nextCurrent.id)
@@ -479,12 +552,67 @@ def delete_schema(request):
 #             del templateVersion.versions[templateVersion.versions.index(str(template.id))]
 #             template.delete()
         if str(template.id) in templateVersion.deletedVersions:
-            content = {'message':'This schema is already deleted.'}
+            content = {'message':'This template is already deleted.'}
             return Response(content, status=status.HTTP_400_BAD_REQUEST)
         templateVersion.deletedVersions.append(str(template.id)) 
         templateVersion.save()
         content = {'message':'Template deleted with success.'}
         return Response(content, status=status.HTTP_204_NO_CONTENT)
+
+@api_view(['GET'])
+def restore_schema(request):
+    """
+    GET http://localhost/api/templates/restore?id=IDtorestore
+    GET http://localhost/api/templates/delete?templateVersion=IDtorestore
+    URL parameters: 
+    id: string (ObjectId)
+    templateVersion: string (ObjectId)
+    """
+    id = request.QUERY_PARAMS.get('id', None)    
+    versionID = request.QUERY_PARAMS.get('templateVersion', None)
+    
+    if versionID is not None:
+        if id is not None:
+            content = {'message':'Wrong parameters combination.'}
+            return Response(content, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            try:
+                templateVersion = TemplateVersion.objects.get(pk=versionID)
+                if templateVersion.isDeleted == False:
+                    content = {'message':'Template version not deleted. No need to be restored.'}
+                    return Response(content, status=status.HTTP_400_BAD_REQUEST)
+                else:
+                    templateVersion.isDeleted = False
+                    del templateVersion.deletedVersions[templateVersion.deletedVersions.index(templateVersion.current)]
+                    templateVersion.save()
+                    content = {'message':'Template restored with success.'}
+                    return Response(content, status=status.HTTP_200_OK)
+            except:
+                content = {'message':'No template version found with the given id.'}
+                return Response(content, status=status.HTTP_404_NOT_FOUND)
+        
+    if id is not None:   
+        try:
+            template = Template.objects.get(pk=id)        
+        except:
+            content = {'message':'No template found with the given id.'}
+            return Response(content, status=status.HTTP_404_NOT_FOUND)
+    else:
+        content = {'message':'No template id provided to restore.'}
+        return Response(content, status=status.HTTP_400_BAD_REQUEST)
+    
+    templateVersion = TemplateVersion.objects.get(pk=template.templateVersion)
+    if templateVersion.isDeleted == True:
+        content = {'message':'This template version belongs to a deleted template. You are not allowed to restore it. Please restore the template first (id:'+ str(templateVersion.id) +').'}
+        return Response(content, status=status.HTTP_400_BAD_REQUEST)
+    if id in templateVersion.deletedVersions:
+        del templateVersion.deletedVersions[templateVersion.deletedVersions.index(id)]
+        templateVersion.save()
+        content = {'message':'Template version restored with success.'}
+        return Response(content, status=status.HTTP_200_OK)
+    else:
+        content = {'message':'Template version not deleted. No need to be restored.'}
+        return Response(content, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
 def add_ontology(request):
@@ -498,6 +626,9 @@ def add_ontology(request):
         if "ontologyVersion" in request.DATA:
             try:
                 ontologyVersions = OntologyVersion.objects.get(pk=request.DATA['ontologyVersion'])
+                if ontologyVersions.isDeleted == True:
+                    content = {'message':'This ontology version belongs to a deleted ontology. You are not allowed to delete it.'}
+                    return Response(content, status=status.HTTP_400_BAD_REQUEST)
                 ontologyVersions.nbVersions = ontologyVersions.nbVersions + 1
                 newOntology = Ontology(title=request.DATA['title'], filename=request.DATA['filename'], content=request.DATA['content'], ontologyVersion=request.DATA['ontologyVersion'], version=ontologyVersions.nbVersions).save()
                 ontologyVersions.versions.append(str(newOntology.id))                
@@ -593,16 +724,79 @@ def select_all_ontologies(request):
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
+def select_all_ontologies_versions(request):
+    """
+    GET http://localhost/api/types/versions/select/all
+    """
+    ontologyVersions = OntologyVersion.objects
+    serializer = OntologyVersionSerializer(ontologyVersions)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+def current_ontology_version(request):
+    """
+    GET http://localhost/api/types/versions/current?id=IdToBeCurrent
+    """
+    id = request.QUERY_PARAMS.get('id', None)
+    if id is not None:   
+        try:
+            ontology = Ontology.objects.get(pk=id)        
+        except:
+            content = {'message':'No ontology found with the given id.'}
+            return Response(content, status=status.HTTP_404_NOT_FOUND)
+    else:
+        content = {'message':'No ontology id provided to be current.'}
+        return Response(content, status=status.HTTP_400_BAD_REQUEST)
+    
+    ontologyVersion = OntologyVersion.objects.get(pk=ontology.ontologyVersion)
+    if ontologyVersion.isDeleted == True:
+        content = {'message':'This ontology version belongs to a deleted ontology. You are not allowed to restore it. Please restore the ontology first (id:'+ str(ontologyVersion.id) +').'}
+        return Response(content, status=status.HTTP_400_BAD_REQUEST)
+    if ontologyVersion.current == id:
+        content = {'message':'The selected ontology is already the current ontology.'}
+        return Response(content, status=status.HTTP_400_BAD_REQUEST)
+    if id in ontologyVersion.deletedVersions:
+        content = {'message':'The selected ontology is deleted. Please restore it first to make it current.'}
+        return Response(content, status=status.HTTP_400_BAD_REQUEST)
+    ontologyVersion.current = id
+    ontologyVersion.save()
+    content = {'message':'Current ontology set with success.'}
+    return Response(content, status=status.HTTP_200_OK)
+
+@api_view(['GET'])
 def delete_ontology(request):
     """
     GET http://localhost/api/types/delete?id=IDtodelete&next=IDnextCurrent
+    GET http://localhost/api/types/delete?ontologyVersion=IDtodelete
     URL parameters: 
     id: string (ObjectId)
     next: string (ObjectId)
+    ontologyVersion: string (ObjectId)
     """
     id = request.QUERY_PARAMS.get('id', None)
     next = request.QUERY_PARAMS.get('next', None)  
+    versionID = request.QUERY_PARAMS.get('ontologyVersion', None)  
     
+    if versionID is not None:
+        if id is not None or next is not None:
+            content = {'message':'Wrong parameters combination.'}
+            return Response(content, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            try:
+                ontologyVersion = OntologyVersion.objects.get(pk=versionID)
+                if ontologyVersion.isDeleted == False:
+                    ontologyVersion.deletedVersions.append(ontologyVersion.current)
+                    ontologyVersion.isDeleted = True
+                    ontologyVersion.save()
+                    content = {'message':'Ontology version deleted with success.'}
+                    return Response(content, status=status.HTTP_200_OK)
+                else:
+                    content = {'message':'Ontology version already deleted.'}
+                    return Response(content, status=status.HTTP_400_BAD_REQUEST)
+            except:
+                content = {'message':'No ontology version found with the given id.'}
+                return Response(content, status=status.HTTP_404_NOT_FOUND)
+            
     if id is not None:   
         try:
             ontology = Ontology.objects.get(pk=id)        
@@ -624,6 +818,9 @@ def delete_ontology(request):
             return Response(content, status=status.HTTP_404_NOT_FOUND)
         
     ontologyVersion = OntologyVersion.objects.get(pk=ontology.ontologyVersion)
+    if ontologyVersion.isDeleted == True:
+        content = {'message':'This ontology version belongs to a deleted ontology. You are not allowed to delete it. please restore the ontology first (id='+ str(ontologyVersion.id) +')'}
+        return Response(content, status=status.HTTP_400_BAD_REQUEST)
     if ontologyVersion.current == str(ontology.id) and next is None:
         content = {'message':'The selected ontology is the current. It can\'t be deleted. If you still want to delete this ontology, please provide the id of the next current ontology using \'next\' parameter'}
         return Response(content, status=status.HTTP_400_BAD_REQUEST)
@@ -650,7 +847,287 @@ def delete_ontology(request):
         ontologyVersion.save()
         content = {'message':'Ontology deleted with success.'}
         return Response(content, status=status.HTTP_204_NO_CONTENT)
+
+@api_view(['GET'])
+def restore_ontology(request):
+    """
+    GET http://localhost/api/types/restore?id=IDtorestore
+    GET http://localhost/api/types/delete?ontologyVersion=IDtorestore
+    URL parameters: 
+    id: string (ObjectId)
+    ontologyVersion: string (ObjectId)
+    """
+    id = request.QUERY_PARAMS.get('id', None)    
+    versionID = request.QUERY_PARAMS.get('ontologyVersion', None)
     
+    if versionID is not None:
+        if id is not None:
+            content = {'message':'Wrong parameters combination.'}
+            return Response(content, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            try:
+                ontologyVersion = OntologyVersion.objects.get(pk=versionID)
+                if ontologyVersion.isDeleted == False:
+                    content = {'message':'Ontology version not deleted. No need to be restored.'}
+                    return Response(content, status=status.HTTP_400_BAD_REQUEST)
+                else:
+                    ontologyVersion.isDeleted = False
+                    del ontologyVersion.deletedVersions[ontologyVersion.deletedVersions.index(ontologyVersion.current)]
+                    ontologyVersion.save()
+                    content = {'message':'Ontology restored with success.'}
+                    return Response(content, status=status.HTTP_200_OK)
+            except:
+                content = {'message':'No ontology version found with the given id.'}
+                return Response(content, status=status.HTTP_404_NOT_FOUND)
+        
+    if id is not None:   
+        try:
+            ontology = Ontology.objects.get(pk=id)        
+        except:
+            content = {'message':'No ontology found with the given id.'}
+            return Response(content, status=status.HTTP_404_NOT_FOUND)
+    else:
+        content = {'message':'No ontology id provided to restore.'}
+        return Response(content, status=status.HTTP_400_BAD_REQUEST)
+    
+    ontologyVersion = OntologyVersion.objects.get(pk=ontology.ontologyVersion)
+    if ontologyVersion.isDeleted == True:
+        content = {'message':'This ontology version belongs to a deleted ontology. You are not allowed to restore it. Please restore the ontology first (id:'+ str(ontologyVersion.id) +').'}
+        return Response(content, status=status.HTTP_400_BAD_REQUEST)
+    if id in ontologyVersion.deletedVersions:
+        del ontologyVersion.deletedVersions[ontologyVersion.deletedVersions.index(id)]
+        ontologyVersion.save()
+        content = {'message':'Ontology version restored with success.'}
+        return Response(content, status=status.HTTP_200_OK)
+    else:
+        content = {'message':'Ontology version not deleted. No need to be restored.'}
+        return Response(content, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET'])
+def select_all_repositories(request):
+    """
+    GET http://localhost/api/repositories/select/all
+    """
+    instances = Instance.objects
+    serializer = instanceSerializer(instances)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+def select_repository(request):
+    """
+    GET http://localhost/api/repositories/select?param1=value1&param2=value2
+    URL parameters: 
+    id: string (ObjectId)
+    name: string
+    protocol: string
+    address: string
+    port: integer
+    user: string
+    status: string
+    For string fields, you can use regular expressions: /exp/
+    """
+    id = request.QUERY_PARAMS.get('id', None)
+    name = request.QUERY_PARAMS.get('filename', None)
+    protocol = request.QUERY_PARAMS.get('protocol', None)
+    address = request.QUERY_PARAMS.get('address', None)
+    port = request.QUERY_PARAMS.get('port', None)
+    user = request.QUERY_PARAMS.get('user', None)
+    inst_status = request.QUERY_PARAMS.get('status', None)
+    
+    try:        
+        # create a connection                                                                                                                                                                                                 
+        connection = Connection()
+        # connect to the db 'mgi'
+        db = connection['mgi']
+        # get the xmldata collection
+        instance = db['instance']
+        query = dict()
+        if id is not None:            
+            query['_id'] = ObjectId(id)            
+        if name is not None:
+            if name[0] == '/' and name[-1] == '/':
+                query['name'] = re.compile(name[1:-1])
+            else:
+                query['name'] = name            
+        if protocol is not None:
+            if protocol[0] == '/' and protocol[-1] == '/':
+                query['protocol'] = re.compile(protocol[1:-1])
+            else:
+                query['protocol'] = protocol
+        if address is not None:
+            if address[0] == '/' and address[-1] == '/':
+                query['address'] = re.compile(address[1:-1])
+            else:
+                query['address'] = address
+        if port is not None:
+            query['port'] = port
+        if user is not None:
+            if user[0] == '/' and user[-1] == '/':
+                query['user'] = re.compile(user[1:-1])
+            else:
+                query['user'] = user
+        if inst_status is not None:
+            if inst_status[0] == '/' and inst_status[-1] == '/':
+                query['status'] = re.compile(inst_status[1:-1])
+            else:
+                query['status'] = inst_status
+        if len(query.keys()) == 0:
+            content = {'message':'No parameters given.'}
+            return Response(content, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            cursor = instance.find(query)
+            instances = []
+            for resultInstance in cursor:
+                resultInstance['id'] = resultInstance['_id']
+                del resultInstance['_id']
+                instances.append(resultInstance)
+            serializer = resInstanceSerializer(instances)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+    except:
+        content = {'message':'No template found with the given parameters.'}
+        return Response(content, status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['POST'])
+def add_repository(request):
+    """
+    POST http://localhost/api/repositories/add
+    POST data name="name", protocol="protocol", address="address", port=port, user="user", password="password"
+    """
+    iSerializer = instanceSerializer(data=request.DATA)
+    if iSerializer.is_valid():
+        errors = ""
+        # test if the protocol is HTTP or HTTPS
+        if request.DATA['protocol'].upper() not in ['HTTP','HTTPS']:
+            errors += 'Allowed protocol are HTTP and HTTPS.'
+        # test if the name is "Local"
+        if (request.DATA['name'] == ""):
+            errors += "The name cannot be empty."
+        elif (request.DATA['name'] == "Local"):
+            errors += 'By default, the instance named Local is the instance currently running.'
+        else:
+            # test if an instance with the same name exists
+            instance = Instance.objects(name=request.DATA['name'])
+            if len(instance) != 0:
+                errors += "An instance with the same name already exists."
+        regex = re.compile("^[0-9]{1,5}$")
+        if not regex.match(str(request.DATA['port'])):
+            errors += "The port number is not valid."
+        regex = re.compile("^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$")
+        if not regex.match(request.DATA['address']):
+            errors += "The address is not valid."
+        # test if new instance is not the same as the local instance
+        if request.DATA['address'] == request.META['REMOTE_ADDR'] and str(request.DATA['port']) == request.META['SERVER_PORT']:
+            errors += "The address and port you entered refer to the instance currently running."
+        else:
+            # test if an instance with the same address/port exists
+            instance = Instance.objects(address=request.DATA['address'], port=request.DATA['port'])
+            if len(instance) != 0:
+                errors += "An instance with the address/port already exists."
+        
+        if errors != "":
+            content = {'message': errors}
+            return Response(content, status=status.HTTP_400_BAD_REQUEST)
+        
+        inst_status = "Unreachable"
+        try:
+            url = request.DATA['protocol'] + "://" + request.DATA['address'] + ":" + request.DATA['port'] + "/api/ping"
+            r = requests.get(url, auth=(request.DATA['user'], request.DATA['password']))
+            if r.status_code == 200:
+                inst_status = "Reachable"
+        except Exception, e:
+            pass
+        Instance(name=request.DATA['name'], protocol=request.DATA['protocol'], address=request.DATA['address'], port=request.DATA['port'], user=request.DATA['user'], password=request.DATA['password'], status=inst_status).save()
+        return Response(iSerializer.data, status=status.HTTP_201_CREATED)
+    return Response(iSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET'])
+def delete_repository(request):
+    """
+    GET http://localhost/api/repositories/delete?id=IDtodelete
+    """
+    id = request.QUERY_PARAMS.get('id', None)
+    
+    if id is not None:   
+        try:
+            instance = Instance.objects.get(pk=id)        
+        except:
+            content = {'message':'No instance found with the given id.'}
+            return Response(content, status=status.HTTP_404_NOT_FOUND)
+    else:
+        content = {'message':'No instance id provided to restore.'}
+        return Response(content, status=status.HTTP_400_BAD_REQUEST)
+    
+    instance.delete()
+    content = {'message':'Instance deleted with success.'}
+    return Response(content, status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['GET'])
+def select_all_users(request):
+    """
+    GET http://localhost/api/users/select/all
+    """
+    users = User.objects.all()
+    serializer = UserSerializer(users)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+def select_user(request):
+    """
+    GET http://localhost/api/users/select?param1=value1&param2=value2
+    URL parameters: 
+    username: string
+    first_name: string
+    last_name: string
+    email: string    
+    For string fields, you can use regular expressions: /exp/
+    """    
+    username = request.QUERY_PARAMS.get('username', None)
+    first_name = request.QUERY_PARAMS.get('first_name', None)
+    last_name = request.QUERY_PARAMS.get('last_name', None)
+    email = request.QUERY_PARAMS.get('email', None)
+        
+#     predicates = [('username__regex', 'test'), ('first_name', 'test')]
+#     q_list = [Q(x) for x in predicates]
+#     users = User.objects.get(reduce(operator.and_, q_list))
+    
+    predicates = []
+    if username is not None:
+        if username[0] == '/' and username[-1] == '/':
+            predicates.append(['username__regex',username[1:-1]])
+        else:
+            predicates.append(['username',username])
+    if first_name is not None:
+        if first_name[0] == '/' and first_name[-1] == '/':
+            predicates.append(['first_name__regex',first_name[1:-1]])
+        else:
+            predicates.append(['first_name',first_name])
+    if last_name is not None:
+        if last_name[0] == '/' and last_name[-1] == '/':
+            predicates.append(['last_name__regex',last_name[1:-1]])
+        else:
+            predicates.append(['last_name',last_name])
+    if email is not None:
+        if email[0] == '/' and email[-1] == '/':
+            predicates.append(['email__regex',email[1:-1]])
+        else:
+            predicates.append(['email',email])
+    
+    q_list = [Q(x) for x in predicates]
+    if len(q_list) != 0:
+        try:
+            users = User.objects.get(reduce(operator.and_, q_list))
+        except:
+            users = []
+    else:
+        users = []
+    serializer = UserSerializer(users)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+def add_user(request):
+    pass
+def delete_user(request):
+    pass
+
 @api_view(['GET'])
 def docs(request):
     content={'message':'Invalid command','docs':'http://'+str(request.get_host())+'/docs/api'}
