@@ -8,7 +8,6 @@ loadUploadManagerHandler = function()
     $('.edit').on('click',editInformation);
     $('.version').on('click', manageVersions);    
     $('.delete').on('click', deleteObject);
-    $('.copy').on('click', copyObject);
     $('.upload').on('click', uploadObject);
     console.log('END [loadUploadManagerHandler]');
 }
@@ -275,26 +274,6 @@ deleteObjectCallback = function(data)
     console.log('END [deleteObjectCallback]');
 }
 
-/**
- * 
- */
-copyObject = function()
-{
-    console.log('BEGIN [copyObject]');
-
-    $(function() {
-        $( "#dialog-copied-message" ).dialog({
-            modal: true,
-            buttons: {
-		Ok: function() {
-                    $( this ).dialog( "close" );
-                }
-	    }
-        });
-    });
-	
-    console.log('END [copyObject]');
-}
 
 /**
  * 
