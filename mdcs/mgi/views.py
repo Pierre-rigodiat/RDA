@@ -25,13 +25,12 @@ from datetime import date
 from mongoengine import *
 from operator import itemgetter
 from cStringIO import StringIO
-from curate.models import XMLSchema 
 import sys
 from xlrd import open_workbook
 from argparse import ArgumentError
 from cgi import FieldStorage
 import zipfile
-from mgi.models import Template, Database, Ontology, Htmlform, Xmldata, Hdf5file, QueryResults, SparqlQueryResults, ContactForm, XML2Download, TemplateVersion, Instance, OntologyVersion
+from mgi.models import Template, Database, Ontology, Htmlform, Xmldata, Hdf5file, QueryResults, SparqlQueryResults, ContactForm, XML2Download, TemplateVersion, Instance, OntologyVersion, XMLSchema 
 from bson.objectid import ObjectId
 import lxml.etree as etree
 
@@ -221,7 +220,7 @@ def user_management(request):
     template = loader.get_template('admin/user_management.html')
 
     context = RequestContext(request, {
-        'templates': Template.objects.order_by('-id')[:7]
+        
     })
     request.session['currentYear'] = currentYear()
     return HttpResponse(template.render(context))
