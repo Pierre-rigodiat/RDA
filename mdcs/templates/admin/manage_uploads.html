@@ -101,7 +101,7 @@
 				<ul class="tabbed">
 					<li><a href="/">Home</a></li>
 					<li><a href="/admin/user-management">User Management</a></li>
-					<li class="current_page_item"><a href="/admin/xml-schemas">XML Schemas & Ontologies</a></li>
+					<li class="current_page_item"><a href="/admin/xml-schemas">Templates & Ontologies</a></li>
 					<li><a href="/admin/federation-of-queries">Federation of Queries</a></li>
 				</ul>
 
@@ -123,7 +123,6 @@
       <div id="subnav">
 
 	<ul class="tabbed">
-	  <li><a href="/admin/xml-schemas/current-model">Current Model</a></li>
 	  {% if objectType == "Template" %}
 	  	<li class="current_page_item"><a href="/admin/xml-schemas/manage-schemas">Manage Templates</a></li>
   		<li><a href="/admin/xml-schemas/manage-ontologies">Manage Ontologies</a></li>
@@ -194,7 +193,6 @@
     <td>
     <div class="icon legend long version" objectType="{{ objectType }}" objectid="{{ object.id }}">Manage Versions</div>
     <div class="icon legend long edit" objectType="{{ objectType }}" objectid="{{ object.id }}">Edit Information</div>
-    <div class="icon legend long copy">Copy {{ objectType }}</div>
     <div class="icon legend delete" objectType="{{ objectType }}" objectid="{{ object.id }}">Delete {{ objectType }}</div></td>
 
 {% endif %}
@@ -237,7 +235,7 @@ There are currently no {{ objectType }} uploaded.  Please click "Upload {{ objec
 		<div id="footer2">
 
 			<div class="left">
-				<a href="/admin">Home</a> <span class="text-separator">|</span> <a href="/admin/user-management">User Management</a> <span class="text-separator">|</span> <a href="/admin/xml-schemas">XML Schemas & Ontologies</a><span class="text-separator">|</span> <a href="/admin/federation-of-queries">Federation of Queries</a> <span class="text-separator">|</span> <a href="/about">About</a> <span class="text-separator">|</span> <a href="/contact">Contact</a> 
+				<a href="/admin">Home</a> <span class="text-separator">|</span> <a href="/admin/user-management">User Management</a> <span class="text-separator">|</span> <a href="/admin/xml-schemas">Templates & Ontologies</a><span class="text-separator">|</span> <a href="/admin/federation-of-queries">Federation of Queries</a> <span class="text-separator">|</span> <a href="/about">About</a> <span class="text-separator">|</span> <a href="/contact">Contact</a> 
 			</div>
 
 			<div class="right">
