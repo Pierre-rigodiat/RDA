@@ -23,7 +23,7 @@ from rest_framework.response import Response
 from mgi.models import SavedQuery, Jsondata, Template, TemplateVersion, Ontology, OntologyVersion, Instance
 from django.contrib.auth.models import User
 # Serializers
-from api.serializers import savedQuerySerializer, jsonDataSerializer, querySerializer, sparqlQuerySerializer, sparqlResultsSerializer, schemaSerializer, templateSerializer, ontologySerializer, resOntologySerializer, TemplateVersionSerializer, OntologyVersionSerializer, instanceSerializer, resInstanceSerializer, UserSerializer
+from api.serializers import savedQuerySerializer, jsonDataSerializer, querySerializer, sparqlQuerySerializer, sparqlResultsSerializer, schemaSerializer, templateSerializer, ontologySerializer, resOntologySerializer, TemplateVersionSerializer, OntologyVersionSerializer, instanceSerializer, resInstanceSerializer, UserSerializer, insertUserSerializer, resSavedQuerySerializer, updateUserSerializer
 
 from explore import sparqlPublisher
 from curate import rdfPublisher
@@ -37,92 +37,221 @@ import re
 import requests
 from django.db.models import Q
 import operator
+import json
 
 projectURI = "http://www.example.com/"
 
-@api_view(['GET','POST'])
-def savedQuery_list(request): 
-    if request.method == 'GET':
-        savedQueries = SavedQuery.objects
-        serializer = savedQuerySerializer(savedQueries)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+# @api_view(['GET','POST'])
+# def savedQuery_list(request): 
+#     if request.method == 'GET':
+#         savedQueries = SavedQuery.objects
+#         serializer = savedQuerySerializer(savedQueries)
+#         return Response(serializer.data, status=status.HTTP_200_OK)
+# 
+#     elif request.method == 'POST':        
+#         serializer = savedQuerySerializer(data=request.DATA)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data, status=status.HTTP_201_CREATED)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+#     
+# @api_view(['GET', 'PUT', 'DELETE'])
+# def savedQuery_detail(request, pk):
+#     """
+#     Retrieve, update or delete a saved query instance.
+#     """              
+#     try:
+#         savedQuery = SavedQuery.objects.get(pk=pk)
+#     except:
+#         content = {'message':'No saved query with the given id.'}
+#         return Response(content, status=status.HTTP_404_NOT_FOUND)
+# 
+#     if request.method == 'GET':
+#         serializer = savedQuerySerializer(savedQuery)
+#         return Response(serializer.data, status=status.HTTP_200_OK)
+# 
+#     elif request.method == 'PUT':
+#         serializer = savedQuerySerializer(savedQuery, data=request.DATA)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data, status=status.HTTP_200_OK)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+# 
+#     elif request.method == 'DELETE':
+#         savedQuery.delete()
+#         content = {'message':'The query was deleted with success.'}
+#         return Response(content, status=status.HTTP_204_NO_CONTENT)
 
-    elif request.method == 'POST':        
-        serializer = savedQuerySerializer(data=request.DATA)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+# @api_view(['GET','POST'])
+# def jsonData_list(request):
+#     if request.method == 'GET':
+#         jsonData = Jsondata.objects()
+#         serializer = jsonDataSerializer(jsonData)
+#         return Response(serializer.data, status=status.HTTP_200_OK)
+#  
+#     elif request.method == 'POST':        
+#         serializer = jsonDataSerializer(data=request.DATA)
+#         if serializer.is_valid():
+#             jsondata = Jsondata(schemaID = request.DATA['schema'], json = request.DATA['content'], title = request.DATA['title'])
+#             jsondata.save()
+#             return Response(serializer.data, status=status.HTTP_201_CREATED)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+# 
+# 
+# @api_view(['GET', 'PUT', 'DELETE'])
+# def jsonData_detail(request, pk):
+#     """
+#     Retrieve, update or delete a saved query instance.
+#     """              
+#     jsonData = Jsondata.get(pk)
+#     if jsonData is None:
+#         content = {'message':'No data with the given id.'}
+#         return Response(content, status=status.HTTP_404_NOT_FOUND)
+# 
+#     if request.method == 'GET':
+#         serializer = jsonDataSerializer(jsonData)
+#         return Response(serializer.data, status=status.HTTP_200_OK)
+# 
+#     elif request.method == 'PUT':
+#         serializer = jsonDataSerializer(jsonData, data=request.DATA)
+#         if serializer.is_valid():
+#             Jsondata.update(pk, request.DATA)
+#             return Response(serializer.data, status=status.HTTP_200_OK)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+# 
+#     elif request.method == 'DELETE':
+#         Jsondata.delete(pk)
+#         content = {'message':'Data deleted with success.'}
+#         return Response(content, status=status.HTTP_204_NO_CONTENT)
+
+@api_view(['GET'])
+def select_all_savedqueries(request):
+    """
+    GET http://localhost/api/saved_queries/select/all
+    """
+    queries = SavedQuery.objects()
+    serializer = savedQuerySerializer(queries)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+def select_savedquery(request):
+    """
+    GET http://localhost/api/saved_queries/select
+    id: string (ObjectId)
+    user: string 
+    template: string
+    query: string
+    displayedQuery: string
+    """
+    id = request.QUERY_PARAMS.get('id', None)
+    user = request.QUERY_PARAMS.get('user', None)
+    template = request.QUERY_PARAMS.get('template', None)
+    dbquery = request.QUERY_PARAMS.get('query', None)
+    displayedQuery = request.QUERY_PARAMS.get('displayedQuery', None)
     
-@api_view(['GET', 'PUT', 'DELETE'])
-def savedQuery_detail(request, pk):
-    """
-    Retrieve, update or delete a saved query instance.
-    """              
-    try:
-        savedQuery = SavedQuery.objects.get(pk=pk)
+    try:        
+        # create a connection                                                                                                                                                                                                 
+        connection = Connection()
+        # connect to the db 'mgi'
+        db = connection['mgi']
+        # get the xmldata collection
+        savedQueries = db['saved_query']
+        query = dict()
+        if id is not None:            
+            query['_id'] = ObjectId(id)            
+        if user is not None:
+            if user[0] == '/' and user[-1] == '/':
+                query['user'] = re.compile(user[1:-1])
+            else:
+                query['user'] = user            
+        if template is not None:
+            if template[0] == '/' and template[-1] == '/':
+                query['template'] = re.compile(template[1:-1])
+            else:
+                query['template'] = template
+        if dbquery is not None:
+            if dbquery[0] == '/' and dbquery[-1] == '/':
+                query['query'] = re.compile(dbquery[1:-1])
+            else:
+                query['query'] = dbquery
+        if displayedQuery is not None:
+            if displayedQuery[0] == '/' and displayedQuery[-1] == '/':
+                query['displayedQuery'] = re.compile(displayedQuery[1:-1])
+            else:
+                query['displayedQuery'] = displayedQuery
+        if len(query.keys()) == 0:
+            content = {'message':'No parameters given.'}
+            return Response(content, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            cursor = savedQueries.find(query)
+            listSavedQueries = []
+            for resultSavedQuery in cursor:
+                resultSavedQuery['id'] = resultSavedQuery['_id']
+                del resultSavedQuery['_id']
+                listSavedQueries.append(resultSavedQuery)
+            serializer = resSavedQuerySerializer(listSavedQueries)
+            return Response(serializer.data, status=status.HTTP_200_OK)
     except:
-        content = {'message':'No saved query with the given id.'}
+        content = {'message':'No saved query found with the given parameters.'}
         return Response(content, status=status.HTTP_404_NOT_FOUND)
 
-    if request.method == 'GET':
-        serializer = savedQuerySerializer(savedQuery)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-    elif request.method == 'PUT':
-        serializer = savedQuerySerializer(savedQuery, data=request.DATA)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    elif request.method == 'DELETE':
-        savedQuery.delete()
-        content = {'message':'The query was deleted with success.'}
-        return Response(content, status=status.HTTP_204_NO_CONTENT)
-
-
-@api_view(['GET','POST'])
-def jsonData_list(request):
-    if request.method == 'GET':
-        jsonData = Jsondata.objects()
-        serializer = jsonDataSerializer(jsonData)
-        return Response(serializer.data, status=status.HTTP_200_OK)
- 
-    elif request.method == 'POST':        
-        serializer = jsonDataSerializer(data=request.DATA)
-        if serializer.is_valid():
-            jsondata = Jsondata(schemaID = request.DATA['schema'], json = request.DATA['content'], title = request.DATA['title'])
-            jsondata.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-@api_view(['GET', 'PUT', 'DELETE'])
-def jsonData_detail(request, pk):
+@api_view(['POST'])
+def add_savedquery(request):
     """
-    Retrieve, update or delete a saved query instance.
-    """              
-    jsonData = Jsondata.get(pk)
-    if jsonData is None:
-        content = {'message':'No data with the given id.'}
+    POST http://localhost/api/saved_queries/add
+    POST data user="user", template="template" query="query", displayedQuery="displayedQuery"
+    """    
+    serializer = resSavedQuerySerializer(data=request.DATA)
+    if serializer.is_valid():
+        errors = ""
+        try:
+            json_object = json.loads(request.DATA["query"])
+        except ValueError:
+            errors += "Invalid query."
+        try:
+            template = Template.objects.get(pk=request.DATA["template"])
+        except Exception:
+            errors += "Unknown template."
+        try:
+            user = User.objects.get(pk=request.DATA["user"])
+        except Exception:
+            errors += "Unknown user."
+        
+        if errors != "":
+            content = {'message':errors}
+            return Response(content, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            SavedQuery(user=request.DATA["user"],template=request.DATA["template"],query=request.DATA["query"],displayedQuery=request.DATA["displayedQuery"]).save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        except Exception, e:
+            content = {'message':e.message}
+            return Response(content, status=status.HTTP_400_BAD_REQUEST)
+    
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET'])
+def delete_savedquery(request):
+    """
+    GET http://localhost/api/saved_queries/delete?id=id
+    URL parameters: 
+    id: string 
+    """
+    id = request.QUERY_PARAMS.get('id', None)
+    if id is not None:
+        try:
+            query = SavedQuery.objects.get(pk=id)
+            query.delete()
+            content = {'message':"Query deleted with success."}
+            return Response(content, status=status.HTTP_200_OK)
+        except:
+            content = {'message':"No query found with the given id."}
+            return Response(content, status=status.HTTP_404_NOT_FOUND)
+    else:
+        content = {'message':"No id provided."}
         return Response(content, status=status.HTTP_404_NOT_FOUND)
 
-    if request.method == 'GET':
-        serializer = jsonDataSerializer(jsonData)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-    elif request.method == 'PUT':
-        serializer = jsonDataSerializer(jsonData, data=request.DATA)
-        if serializer.is_valid():
-            Jsondata.update(pk, request.DATA)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    elif request.method == 'DELETE':
-        Jsondata.delete(pk)
-        content = {'message':'Data deleted with success.'}
-        return Response(content, status=status.HTTP_204_NO_CONTENT)
 
 @api_view(['GET'])
 def explore(request):
@@ -1061,6 +1190,78 @@ def delete_repository(request):
     content = {'message':'Instance deleted with success.'}
     return Response(content, status=status.HTTP_404_NOT_FOUND)
 
+@api_view(['PUT'])
+def update_repository(request):  
+    """
+    PUT http://localhost/api/repositories/update?id=IDtoUpdate
+    PUT data name="name", protocol="protocol", address="address", port=port, user="user", password="password"
+    """    
+    id = request.QUERY_PARAMS.get('id', None)        
+    
+    if id is not None:   
+        try:
+            instance = Instance.objects.get(pk=id)        
+        except:
+            content = {'message':'No instance found with the given id.'}
+            return Response(content, status=status.HTTP_404_NOT_FOUND)
+    else:
+        content = {'message':'No instance id provided to restore.'}
+        return Response(content, status=status.HTTP_400_BAD_REQUEST)
+
+    serializer = instanceSerializer(instance, data=request.DATA)
+    if serializer.is_valid():
+        errors = ""
+        # test if the protocol is HTTP or HTTPS
+        if request.DATA['protocol'].upper() not in ['HTTP','HTTPS']:
+            errors += 'Allowed protocol are HTTP and HTTPS.'
+        # test if the name is "Local"
+        if (request.DATA['name'] == ""):
+            errors += "The name cannot be empty."
+        elif (request.DATA['name'] == "Local"):
+            errors += 'By default, the instance named Local is the instance currently running.'
+        else:
+            # test if an instance with the same name exists
+            instances = Instance.objects(name=request.DATA['name'])
+            if len(instances) != 0:
+                errors += "An instance with the same name already exists."
+        regex = re.compile("^[0-9]{1,5}$")
+        if not regex.match(str(request.DATA['port'])):
+            errors += "The port number is not valid."
+        regex = re.compile("^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$")
+        if not regex.match(request.DATA['address']):
+            errors += "The address is not valid."
+        # test if new instance is not the same as the local instance
+        if request.DATA['address'] == request.META['REMOTE_ADDR'] and str(request.DATA['port']) == request.META['SERVER_PORT']:
+            errors += "The address and port you entered refer to the instance currently running."
+        else:
+            # test if an instance with the same address/port exists
+            instances = Instance.objects(address=request.DATA['address'], port=request.DATA['port'])
+            if len(instances) != 0:
+                errors += "An instance with the address/port already exists."
+        
+        if errors != "":
+            content = {'message': errors}
+            return Response(content, status=status.HTTP_400_BAD_REQUEST)
+        
+        inst_status = "Unreachable"
+        try:
+            url = request.DATA['protocol'] + "://" + request.DATA['address'] + ":" + request.DATA['port'] + "/api/ping"
+            r = requests.get(url, auth=(request.DATA['user'], request.DATA['password']))
+            if r.status_code == 200:
+                inst_status = "Reachable"
+        except Exception, e:
+            pass
+        instance.name=request.DATA['name']
+        instance.protocol=request.DATA['protocol']
+        instance.address=request.DATA['address']
+        instance.port=request.DATA['port']
+        instance.user=request.DATA['user']
+        instance.password=request.DATA['password']
+        instance.status=inst_status
+        instance.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 @api_view(['GET'])
 def select_all_users(request):
     """
@@ -1085,11 +1286,7 @@ def select_user(request):
     first_name = request.QUERY_PARAMS.get('first_name', None)
     last_name = request.QUERY_PARAMS.get('last_name', None)
     email = request.QUERY_PARAMS.get('email', None)
-        
-#     predicates = [('username__regex', 'test'), ('first_name', 'test')]
-#     q_list = [Q(x) for x in predicates]
-#     users = User.objects.get(reduce(operator.and_, q_list))
-    
+            
     predicates = []
     if username is not None:
         if username[0] == '/' and username[-1] == '/':
@@ -1123,10 +1320,96 @@ def select_user(request):
     serializer = UserSerializer(users)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
+@api_view(['POST'])
 def add_user(request):
-    pass
+    """
+    POST http://localhost/api/users/add
+    POST data username="username", password="password" first_name="first_name", last_name="last_name", port=port, email="email"
+    """    
+    serializer = insertUserSerializer(data=request.DATA)
+    if serializer.is_valid():
+        username = request.DATA['username']
+        password = request.DATA['password']
+        if 'first_name' in request.DATA:
+            first_name = request.DATA['first_name']
+        else:
+            first_name = ""
+        if 'last_name' in request.DATA:
+            last_name = request.DATA['last_name']
+        else:
+            last_name = ""
+        if 'email' in request.DATA:
+            email = request.DATA['email']
+        else:
+            email = ""
+        try:
+            user = User.objects.create_user(username=username,password=password)
+            user.first_name = first_name
+            user.last_name = last_name
+            user.email = email
+            user.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        except Exception, e:
+            content = {'message':e.message}
+            return Response(content, status=status.HTTP_400_BAD_REQUEST)
+    
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET'])
 def delete_user(request):
-    pass
+    """
+    GET http://localhost/api/users/delete?username=username
+    URL parameters: 
+    username: string
+    """
+    username = request.QUERY_PARAMS.get('username', None)
+    if username is not None:
+        try:
+            user = User.objects.get(username=username)
+            user.delete()
+            content = {'message':"User deleted with success."}
+            return Response(content, status=status.HTTP_200_OK)
+        except:
+            content = {'message':"The given username does not exist."}
+            return Response(content, status=status.HTTP_404_NOT_FOUND)
+    else:
+        content = {'message':"No username provided."}
+        return Response(content, status=status.HTTP_404_NOT_FOUND)
+    
+@api_view(['PUT'])
+def update_user(request):
+    """
+    PUT http://localhost/api/users/update?username=userToUpdate
+    PUT data first_name="first_name", last_name="last_name", port=port, email="email"
+    """    
+    username = request.QUERY_PARAMS.get('username', None)        
+        
+    if id is not None:   
+        try:
+            user = User.objects.get(username=username)        
+        except:
+            content = {'message':'No user found with the given username.'}
+            return Response(content, status=status.HTTP_404_NOT_FOUND)
+    else:
+        content = {'message':'No username provided to restore.'}
+        return Response(content, status=status.HTTP_400_BAD_REQUEST)
+
+    serializer = updateUserSerializer(data=request.DATA)
+    if serializer.is_valid():    
+        try:
+            if 'first_name' in request.DATA:
+                user.first_name = request.DATA['first_name']
+            if 'last_name' in request.DATA:
+                user.last_name = request.DATA['last_name']
+            if 'email' in request.DATA:
+                user.email = request.DATA['email']
+            user.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        except Exception, e:
+            content = {'message':e.message}
+            return Response(content, status=status.HTTP_400_BAD_REQUEST)
+    
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
 def docs(request):

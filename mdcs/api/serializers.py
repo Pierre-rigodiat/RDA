@@ -29,6 +29,13 @@ class savedQuerySerializer(MongoEngineModelSerializer):
     class Meta:
         model = SavedQuery
         
+class resSavedQuerySerializer(serializers.Serializer):
+    user = serializers.CharField()
+    template = serializers.CharField()
+    query = serializers.CharField()
+    displayedQuery = serializers.CharField()
+    id = serializers.CharField(required=False)
+        
 class querySerializer(serializers.Serializer):
     query = serializers.CharField()
 
@@ -93,4 +100,15 @@ class UserSerializer(serializers.Serializer):
     first_name = serializers.CharField()
     last_name = serializers.CharField()
     email = serializers.CharField()
-    
+
+class insertUserSerializer(serializers.Serializer):
+    username = serializers.CharField()
+    password = serializers.CharField()
+    first_name = serializers.CharField(required=False)
+    last_name = serializers.CharField(required=False)
+    email = serializers.CharField(required=False)
+
+class updateUserSerializer(serializers.Serializer):
+    first_name = serializers.CharField(required=False)
+    last_name = serializers.CharField(required=False)
+    email = serializers.CharField(required=False)
