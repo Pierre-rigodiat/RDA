@@ -8,12 +8,17 @@
 # Author: Sharief Youssef
 #         sharief.youssef@nist.gov
 #
+#		  Guillaume SOUSA AMARAL
+#		  guillaume.sousa@nist.gov
+#
 # Sponsor: National Institute of Standards and Technology
 #
 ################################################################################
 -->
 
 {% load staticfiles %}
+
+{% load dajaxice_templatetags %}
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" dir="ltr">
@@ -23,10 +28,18 @@
 	<meta name="description" content=""/>
 	<meta name="keywords" content="" />
 	<meta name="author" content="" />
+	<link rel="stylesheet" type="text/css" href="{% static 'resources/css/lib/bootstrap.min.css' %}"  media="screen" />
 	<link rel="stylesheet" type="text/css" href="{% static 'style.css' %}" media="screen" />
 	<title>Materials Data Curation System</title>
-</head>
 
+	<!-- JQuery & JQuery UI -->
+	<script src="{% static 'resources/lib/jquery/jquery-1.11.1.min.js' %}"></script>
+	<script src="{% static 'resources/js/bootstrap.min.js' %}"></script>
+    <link rel="stylesheet" type="text/css" href="{% static 'resources/lib/jquery-ui/themes/smoothness/jquery-ui.css' %}"/>        
+    <script src="{% static 'resources/lib/jquery-ui/themes/smoothness/jquery-ui.js' %}"></script>
+	<script src="{% static 'dajax/jquery.dajax.core.js' %}"></script>
+</head>
+	{% dajaxice_js_import %}
 <body id="top">
 
 <div id="header-wrapper">
@@ -103,20 +116,33 @@
 
 <table>
 <tr>
+    <td>User: </td>
+    <td><input type="text" id="username"/></td>
+</tr>
+<tr>
+    <td>Password: </td>
+    <td><input type="password" id="password1"/></td>
+</tr>
+<tr>
+    <td>Confirm Password: </td>
+    <td><input type="password" id="password2"/></td>
+</tr>
+<tr><td></td><td></td></tr>
+<tr>
     <td>First Name: </td>
-    <td><div style="border:2px solid gray;width:200px;height:20px"><input type="text" id="firstname"></div></td>
+    <td><input type="text" id="firstname"/></td>
 </tr>
 <tr>
     <td>Last Name: </td>
-    <td><div style="border:2px solid gray;width:200px;height:20px"><input type="text" id="lastname"></div></td>
+    <td><input type="text" id="lastname"/></td>
 </tr>
 <tr>
     <td>Email Address: </td>
-    <td><div style="border:2px solid gray;width:200px;height:20px"><input type="text" id="emailaddress"></div></td>
+    <td><input type="text" id="emailaddress"/></td>
 </tr>
 <tr>
   <td></td>
-  <td><input type="submit" value="Make Request" style="height:25px;width:100px;"/ onclick=""></td>
+  <td><input class="btn" value="Make a Request" onclick="request_account();"/></td>
 </tr>
 </table>
 
@@ -177,5 +203,20 @@
 
 </div>
 
+<div id="dialog-errors-message" title="Errors" style="display:none;">
+<p></p>
+  <p id="listErrors">
+  </p>
+</div> 
+
+
+<div id="dialog-request-sent" title="Request Sent" style="display:none;">
+<p></p>
+ 	Request sent with success!
+</div>
+<script src="{% static 'inc/controllers/js/user_account_req.js' %}"></script>
+<script>
+	loadUserAccountRequest();
+</script>
 </body>
 </html>

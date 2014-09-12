@@ -32,6 +32,13 @@ class User(Document):
     email = StringField(required=True)
     first_name = StringField(max_length=50)
     last_name = StringField(max_length=50)
+    
+class Request(Document):
+    username = StringField(required=True)
+    password = StringField(required=True)
+    first_name = StringField(required=True)
+    last_name = StringField(required=True)
+    email = StringField(required=True)    
 
 class Comment(EmbeddedDocument):
     content = StringField()

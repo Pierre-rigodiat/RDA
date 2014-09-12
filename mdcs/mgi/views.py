@@ -30,10 +30,11 @@ from xlrd import open_workbook
 from argparse import ArgumentError
 from cgi import FieldStorage
 import zipfile
-from mgi.models import Template, Database, Ontology, Htmlform, Xmldata, Hdf5file, QueryResults, SparqlQueryResults, ContactForm, XML2Download, TemplateVersion, Instance, OntologyVersion, XMLSchema 
+from mgi.models import Template, Database, Ontology, Htmlform, Xmldata, Hdf5file, QueryResults, SparqlQueryResults, ContactForm, XML2Download, TemplateVersion, Instance, OntologyVersion, XMLSchema, Request 
 from bson.objectid import ObjectId
 import lxml.etree as etree
 
+        
 # Create your views here.
 
 ################################################################################
@@ -79,7 +80,15 @@ def admin(request):
     template = loader.get_template('admin/index.html')
 
     context = RequestContext(request, {
-        'templates': Template.objects.order_by('-id')[:7]
+    })
+    request.session['currentYear'] = currentYear()
+    return HttpResponse(template.render(context))
+
+def user_requests(request):
+    template = loader.get_template('admin/user_requests.html')
+
+    context = RequestContext(request, {
+        'requests': Request.objects
     })
     request.session['currentYear'] = currentYear()
     return HttpResponse(template.render(context))

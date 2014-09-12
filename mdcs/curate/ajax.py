@@ -28,7 +28,8 @@ from argparse import ArgumentError
 from cgi import FieldStorage
 from cStringIO import StringIO
 from django.core.servers.basehttp import FileWrapper
-from mgi.models import Template, Ontology, Htmlform, Xmldata, Hdf5file, Jsondata, XML2Download, TemplateVersion, Instance, OntologyVersion
+from mgi.models import Template, Ontology, Htmlform, Xmldata, Hdf5file, Jsondata, XML2Download, TemplateVersion, Instance, OntologyVersion, Request
+from django.contrib.auth.models import User
 from datetime import datetime
 from datetime import tzinfo
 import requests
@@ -2385,4 +2386,40 @@ def loadXML(request):
     
     dajax.assign("#XMLHolder", "innerHTML", xmlTree)
     
+    return dajax.json()
+
+@dajaxice_register
+def requestAccount(request, username, password, firstname, lastname, email):
+    dajax = Dajax()
+    try:
+        user = User.objects.get(username=username)
+        dajax.script(
+         """
+            $("#listErrors").html("This user already exist. Please choose another username.");
+            $(function() {
+                $( "#dialog-errors-message" ).dialog({
+                  modal: true,
+                  buttons: {
+                    Ok: function() {
+                      $( this ).dialog( "close" );
+                    }
+                  }
+                });
+              });
+         """)
+    except:
+        Request(username=username, password=password ,first_name=firstname, last_name=lastname, email=email).save()
+        dajax.script(
+         """
+            $(function() {
+                $( "#dialog-request-sent" ).dialog({
+                  modal: true,
+                  buttons: {
+                    Ok: function() {
+                      $( this ).dialog( "close" );
+                    }
+                  }
+                });
+              });
+         """)
     return dajax.json()
