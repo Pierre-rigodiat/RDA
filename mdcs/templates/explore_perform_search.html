@@ -221,14 +221,14 @@
 					{% else %}
 					<div id="SPARQLqueryBuilder" style="display: none;">
 					{% endif %}
-						<span><strong>Template ID:</strong> {{request.session.exploreCurrentTemplateID }}</span><br/>
+						<span><strong>Template hash:</strong> {{ template_hash }}</span><br/>
 						<!--<span><strong>Suggested prefix:</strong> PREFIX {{ request.session.exploreCurrentTemplate }}:&#60;http://www.example.com/{{request.session.exploreCurrentTemplateID }}&#62;</span><br/>-->
-						<span><strong>Suggested prefix:</strong> PREFIX tpl:&#60;http://www.example.com/{{request.session.exploreCurrentTemplateID }}#&#62;</span><br/>
+						<span><strong>Suggested prefix:</strong> PREFIX tpl:&#60;http://www.example.com/{{ template_hash }}#&#62;</span><br/>
 						<span><strong>Get the value of a field using:</strong> ?s rdf:value ?o</span><br/>
 						<span><strong>RDF prefix:</strong> PREFIX rdf: &#60;http://www.w3.org/1999/02/22-rdf-syntax-ns#&#62;</span><br/> 						
 						<form>
 							<textarea class="SPARQLTextArea">PREFIX rdf: &#60;http://www.w3.org/1999/02/22-rdf-syntax-ns#&#62;
-PREFIX tpl:&#60;http://www.example.com/{{request.session.exploreCurrentTemplateID }}#&#62;
+PREFIX tpl:&#60;http://www.example.com/{{ template_hash }}#&#62;
 SELECT * 
 WHERE {?s ?p ?o}</textarea>							
 							<span class="btn" onclick="sparqlquery()">Submit Query</span>

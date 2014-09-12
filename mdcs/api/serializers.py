@@ -57,6 +57,7 @@ class templateSerializer(serializers.Serializer):
     content = serializers.CharField()
     templateVersion = serializers.CharField()
     version = serializers.IntegerField()
+    hash = serializers.CharField()
     id = serializers.CharField(required=False)
 
 class TemplateVersionSerializer(MongoEngineModelSerializer):

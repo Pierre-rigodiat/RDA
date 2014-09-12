@@ -776,8 +776,12 @@ def explore_perform_search(request):
     listInstances = [local]
     for instance in instances:
         listInstances.append(instance) 
+        
+    template_hash = Template.objects.get(pk=request.session['exploreCurrentTemplateID']).hash
+        
     context = RequestContext(request, {
         'instances': listInstances,
+        'template_hash': template_hash,
     })
     request.session['currentYear'] = currentYear()
     #return HttpResponse(template.render(context))  # remove after testing

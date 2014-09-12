@@ -52,6 +52,7 @@ class Template(Document):
     content = StringField(required=True)
     templateVersion = StringField(required=False)
     version = IntField(required=True, unique_with='templateVersion')
+    hash = StringField(required=True)
 
 class TemplateVersion(Document):
     versions = ListField(StringField())

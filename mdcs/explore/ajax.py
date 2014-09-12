@@ -27,6 +27,7 @@ from pymongo import Connection
 import xmltodict
 import requests
 import os
+import json
 
 #import xml.etree.ElementTree as etree
 import lxml.etree as etree
@@ -531,7 +532,6 @@ def getResults(request):
     
     return dajax.json()
 
-
 ################################################################################
 # 
 # Function Name: getResultsByInstance(request, numInstance)
@@ -579,8 +579,9 @@ def getResultsByInstance(request, numInstance):
         queryStr = manageRegexBeforeAPI(query, queryStr)
         queryToSend = eval(queryStr)
         data = {"query":str(queryToSend)}
-        r = requests.post(url, data, auth=(instance.user, instance.password))
-        instanceResults = eval(r.text)
+        r = requests.post(url, data, auth=(instance.user, instance.password))   
+        result = r.text
+        instanceResults = json.loads(result,object_pairs_hook=OrderedDict)
         if len(instanceResults) > 0:
             for instanceResult in instanceResults:
                 results.append(instanceResult['content'])
@@ -605,7 +606,7 @@ def getResultsByInstance(request, numInstance):
     print 'END def getResults(request)'
     return dajax.json()
 
-#TODO: can't do a deep copy of a dictionnary conataining pattern objects (deepcopy bug)
+#TODO: can't do a deep copy of a dictionary containing pattern objects (deepcopy bug)
 def manageRegexBeforeAPI(query, queryStr):
     for key, value in query.iteritems():
         if key == "$and" or key == "$or":

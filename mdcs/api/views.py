@@ -38,6 +38,7 @@ import requests
 from django.db.models import Q
 import operator
 import json
+import hashlib
 
 projectURI = "http://www.example.com/"
 
@@ -433,7 +434,8 @@ def curate(request):
             # SPARQL : transform the XML into RDF/XML
             transform = etree.XSLT(xslt)
             # add a namespace to the XML string, transformation didn't work well using XML DOM
-            xmlStr = xmlStr.replace('>',' xmlns="' + projectURI + request.DATA['schema'] + '">', 1) #TODO: OR schema name...
+            template = Template.objects.get(pk=templateID)
+            xmlStr = xmlStr.replace('>',' xmlns="' + projectURI + template.hash + '">', 1) #TODO: OR schema name...                
             # domXML.attrib['xmlns'] = projectURI + schemaID #didn't work well
             domXML = etree.fromstring(xmlStr)
             domRDF = transform(domXML)
@@ -468,7 +470,9 @@ def add_schema(request):
                     content = {'message':'This template version belongs to a deleted template. You are not allowed to delete it.'}
                     return Response(content, status=status.HTTP_400_BAD_REQUEST)
                 templateVersions.nbVersions = templateVersions.nbVersions + 1
-                newTemplate = Template(title=request.DATA['title'], filename=request.DATA['filename'], content=request.DATA['content'], templateVersion=request.DATA['templateVersion'], version=templateVersions.nbVersions).save()
+                hash = hashlib.sha1(request.DATA['content'])
+                hex_dig = hash.hexdigest()
+                newTemplate = Template(title=request.DATA['title'], filename=request.DATA['filename'], content=request.DATA['content'], templateVersion=request.DATA['templateVersion'], version=templateVersions.nbVersions, hash=hex_dig).save()
                 templateVersions.versions.append(str(newTemplate.id))                
                 templateVersions.save()
             except:
@@ -476,7 +480,9 @@ def add_schema(request):
                 return Response(content, status=status.HTTP_400_BAD_REQUEST)
         else:
             templateVersion = TemplateVersion(nbVersions=1, isDeleted=False).save()
-            newTemplate = Template(title=request.DATA['title'], filename=request.DATA['filename'], content=request.DATA['content'], version=1, templateVersion=str(templateVersion.id)).save()
+            hash = hashlib.sha1(request.DATA['content'])
+            hex_dig = hash.hexdigest()
+            newTemplate = Template(title=request.DATA['title'], filename=request.DATA['filename'], content=request.DATA['content'], version=1, templateVersion=str(templateVersion.id), hash=hex_dig).save()
             templateVersion.versions = [str(newTemplate.id)]
             templateVersion.current=str(newTemplate.id)
             templateVersion.save()
@@ -495,6 +501,7 @@ def select_schema(request):
     title: string
     version: integer
     templateVersion: string (ObjectId)
+    hash: string
     For string fields, you can use regular expressions: /exp/
     """
     id = request.QUERY_PARAMS.get('id', None)
@@ -503,6 +510,7 @@ def select_schema(request):
     title = request.QUERY_PARAMS.get('title', None)
     version = request.QUERY_PARAMS.get('version', None)
     templateVersion = request.QUERY_PARAMS.get('templateVersion', None)
+    hash = request.QUERY_PARAMS.get('hash', None)
     
     try:        
         # create a connection                                                                                                                                                                                                 
@@ -536,6 +544,11 @@ def select_schema(request):
                 query['templateVersion'] = re.compile(templateVersion[1:-1])
             else:
                 query['templateVersion'] = templateVersion
+        if hash is not None:
+            if hash[0] == '/' and hash[-1] == '/':
+                query['hash'] = re.compile(hash[1:-1])
+            else:
+                query['hash'] = hash
         if len(query.keys()) == 0:
             content = {'message':'No parameters given.'}
             return Response(content, status=status.HTTP_400_BAD_REQUEST)

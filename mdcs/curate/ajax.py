@@ -31,11 +31,11 @@ from django.core.servers.basehttp import FileWrapper
 from mgi.models import Template, Ontology, Htmlform, Xmldata, Hdf5file, Jsondata, XML2Download, TemplateVersion, Instance, OntologyVersion
 from datetime import datetime
 from datetime import tzinfo
-from bson.objectid import ObjectId
 import requests
 import xmltodict
 from bson.objectid import ObjectId
 from dateutil import tz
+import hashlib
 
 #import xml.etree.ElementTree as etree
 import lxml.html as html
@@ -268,7 +268,8 @@ def saveXMLDataToDB(request,saveAs):
     # SPARQL : transform the XML into RDF/XML
     transform = etree.XSLT(xslt)
     # add a namespace to the XML string, transformation didn't work well using XML DOM
-    xmlStr = xmlString.replace('>',' xmlns="' + projectURI + templateID + '">', 1) #TODO: OR schema name...
+    template = Template.objects.get(pk=templateID)
+    xmlStr = xmlString.replace('>',' xmlns="' + projectURI + template.hash + '">', 1) #TODO: OR schema name...
     # domXML.attrib['xmlns'] = projectURI + schemaID #didn't work well
     domXML = etree.fromstring(xmlStr)
     domRDF = transform(domXML)
@@ -423,7 +424,9 @@ def uploadObject(request,objectName,objectFilename,objectContent, objectType):
     
     if objectType == "Template":
         objectVersions = TemplateVersion(nbVersions=1, isDeleted=False).save()
-        object = Template(title=objectName, filename=objectFilename, content=objectContent, version=1, templateVersion=str(objectVersions.id)).save()
+        hash = hashlib.sha1(objectContent)
+        hex_dig = hash.hexdigest()
+        object = Template(title=objectName, filename=objectFilename, content=objectContent, version=1, templateVersion=str(objectVersions.id), hash=hex_dig).save()
     else:
         objectVersions = OntologyVersion(nbVersions=1, isDeleted=False).save()
         object = Ontology(title=objectName, filename=objectFilename, content=objectContent, version=1, ontologyVersion=str(objectVersions.id)).save()
@@ -1809,7 +1812,9 @@ def uploadVersion(request, objectVersionID, objectType):
 #         currentTemplate = Template.objects.get(pk=templateVersions.current)
         objectVersions.nbVersions += 1
         if objectType == "Template": 
-            newObject = Template(title=object.title, filename=versionFilename, content=versionContent, templateVersion=objectVersionID, version=objectVersions.nbVersions).save()
+            hash = hashlib.sha1(versionContent)
+            hex_dig = hash.hexdigest()
+            newObject = Template(title=object.title, filename=versionFilename, content=versionContent, templateVersion=objectVersionID, version=objectVersions.nbVersions, hash=hex_dig).save()
         else:
             newObject = Ontology(title=object.title, filename=versionFilename, content=versionContent, ontologyVersion=objectVersionID, version=objectVersions.nbVersions).save()
         objectVersions.versions.append(str(newObject.id))
