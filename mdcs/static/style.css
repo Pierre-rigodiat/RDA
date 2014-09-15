@@ -440,10 +440,10 @@ div.comment-list {
 	padding: 10px 28px 0 32px;
 }
 #help a {
-	color: #999;
+	color: #DDD;
 	text-decoration: none;
 }
-#help a:hover {color: #DDD;}
+#help a:hover {color: white;}
 
 #help span.text-separator {
 	color: #444;
