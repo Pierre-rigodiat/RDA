@@ -1,7 +1,7 @@
 <!-- 
 ################################################################################
 #
-# File Name: fed_of_queries.html
+# File Name: manage_uploads.html
 # Application: templates/admin
 # Description: 
 #
@@ -27,7 +27,6 @@
 	<meta name="author" content="" />
 	<link rel="stylesheet" type="text/css" href="{% static 'resources/css/lib/bootstrap.min.css' %}"  media="screen" />
 	<link rel="stylesheet" type="text/css" href="{% static 'style.css' %}" media="screen" />
-	<link rel="stylesheet" type="text/css" href="{% static 'resources/css/fed_of_queries.css' %}" media="screen" />
 	<title>Materials Data Curation System</title>
 
 <link rel="stylesheet" type="text/css" href="{% static 'admin/css/dashboard.css' %}" />
@@ -103,8 +102,8 @@
 					<li><a href="/">Home</a></li>
 					<li><a href="/admin/user-management">User Management</a></li>
 					<li><a href="/admin/xml-schemas">Templates & Ontologies</a></li>
-					<li class="current_page_item"><a href="/admin/federation-of-queries">Federation of Queries</a></li>
-					<li><a href="/admin/backup-database">Database</a></li>
+					<li><a href="/admin/federation-of-queries">Federation of Queries</a></li>
+					<li class="current_page_item"><a href="/admin/backup-database">Database</a></li>
 				</ul>
 
 				<div class="clearer">&nbsp;</div>
@@ -113,6 +112,26 @@
 
 		</div>
 	</div>
+</div>
+
+<div id="subnav-wrapper">
+  <div id="subnav-wrapper-2">
+
+    <div class="center-wrapper">
+      
+      <div id="subnav">
+
+	<ul class="tabbed">
+		<li class="current_page_item"><a href="/admin/backup-database">Backup Database</a></li>	  
+	  	<li><a href="/admin/restore-database">Restore Database</a></li>  		
+	  </ul>
+
+	<div class="clearer">&nbsp;</div>
+
+	</div>
+
+      </div>
+    </div>
 </div>
 
 
@@ -124,7 +143,7 @@
 			<div id="featured-wrapper">
 				<div id="featured">
 
-					<h1>Federation of Queries</h1>
+<h1>Backup Database</h1>
 					
 					<div class="clearer">&nbsp;</div>
 
@@ -133,53 +152,13 @@
 
 			<div id="main">
 
-<div class="right-side">
-<span class="ctx_menu"> 
-<!-- <div class="icon legend long copy schema">Copy schema</div> -->
-<div class="icon legend long add instance">Add new instance</div>
-</span>
-</div>
-
 		      <div id="model_selection">
 		      
 
-<table class="data-table">
-  <tr>
-    <th>Instance Name</th>
-    <th>Instance IP Address and Port</th>
-    <th>Status</th>
-    <th>Actions</th>
-  </tr>
 
-
-{% for instance in instances %}
-  {% cycle 'even' '' as rowcolors silent %}
-  <tr class="{{ rowcolors }}">
-    <td>{{ instance.name }}</td>
-    <td>{{ instance.protocol }}://{{ instance.address }}:{{ instance.port }}</td>
-    {% if instance.status == "Reachable" %}
-    	<td style="color: green">Reachable</td>
-    {% else %}
-    	<td style="color: red">Unreachable</td>
-    {% endif %}
-    <td>    	
-    	<div class="icon legend long edit instance" instanceid="{{ instance.id }}">Edit Information</div> 
-    	<div class="icon legend delete instance" instanceid="{{ instance.id }}">Delete Instance</div>
-    </td>
-  </tr>
-{% endfor %}
-
-</table>
 
 </div>
 
-
-
-<div class="right-side">
-<span class="ctx_menu">
-	<div class="icon legend long add instance">Add new instance</div>
-</span>
-</div>
 
 			</div>
 
@@ -187,7 +166,6 @@
 
 	</div>
 </div>
-
 <div id="footer-wrapper">
 
 	<div class="center-wrapper">
@@ -226,61 +204,6 @@
 
 	</div>
 
-</div>
-
-<div id="dialog-edit-instance" title="Edit Instance Information" style="display:none;">
-<p>
-<b>Name:</b> <br/><input type="text" id="edit-instance-name" placeholder="Name"/><br/>
-<b>Protocol:</b> <br/>
-<select id="edit-instance-protocol">
-	<option value="http">HTTP</option>
-	<option value="https">HTTPS</option>
-</select><br/>
-<b>Address:</b><br/><input type="text" id="edit-instance-address" placeholder="127.0.0.1"/><br/>
-<b>Port:</b><br/><input type="text" id="edit-instance-port" placeholder="8000"/><br/>
-<b>User: </b><br/><input type="text" id="edit-instance-user" placeholder="Username"/><br />
-<b>Password: </b><br/><input type="password" id="edit-instance-password" placeholder="Password"/><br/>
-</p>
-<p id="edit_instance_error">
-</p>
-</div>
-
-<div id="dialog-deleteinstance-message" title="Confirm Delete" style="display:none;">
-<p></p>
-  <p>
-    <span class="ui-icon ui-icon-circle-check" style="float:left; margin:0 7px 10px 0;"></span>
-    <p>Are you sure you want to delete this instance?</p>
-  </p>
-</div>
-
-<script src="{% static 'inc/controllers/js/fed_of_queries.js' %}"></script>
-<script>
-	loadFedOfQueriesHandler();
-</script>
-
-<div id="dialog-add-instance" title="Add new instance" style="display:none;">
-<p>
-To add a new instance enter the name, the protocol, the address and the port of the instance.
-</p>
-<p>
-<nobr>
-<input type="text" id="instance_name" placeholder="Name"/>
-<select id="instance_protocol">
-	<option value="http">HTTP</option>
-	<option value="https">HTTPS</option>
-</select>
-://
-<input type="text" id="instance_address" placeholder="127.0.0.1"/>
-:
-<input type="text" id="instance_port" placeholder="8000"/>
-</nobr>
-</p>
-<p>
-<b>User: </b><input type="text" id="instance_user" placeholder="Username"/><br />
-<b>Password: </b><input type="password" id="instance_password" placeholder="Password"/>
-</p> 
-<p id="instance_error">
-</p>
 </div>
 
 </body>
