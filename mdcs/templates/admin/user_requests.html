@@ -174,8 +174,8 @@
     <td>{{ request.email }}</td>
 
     <td>
-    	<div class="icon legend long accept" requestid="{{ request.id }}">Accept</div>
-    	<div class="icon legend long remove" requestid="{{ request.id }}">Deny</div>    
+    	<div class="icon legend long accept request" requestid="{{ request.id }}">Accept</div>
+    	<div class="icon legend long remove request" requestid="{{ request.id }}">Deny</div>    
     </td>
 
   </tr>
@@ -240,5 +240,28 @@ No account requests pending at the moment.
 
 </div>
 
+<div id="dialog-error-request" title="Error Request" style="display:none;">  
+  <p>
+  This request can't be accepted. Please check that the user does not already exists.
+  </p>
+</div>
+
+<div id="dialog-denied-request" title="Request Denied" style="display:none;">  
+  <p>
+  Are you sure you want to deny this request?
+  </p>
+</div>
+
+<div id="dialog-accepted-request" title="Request Accepted" style="display:none;">  
+  <p>
+  <span class="ui-icon ui-icon-circle-check" style="float:left; margin:0 7px 10px 0;"></span>
+  User created with success.
+  </p>
+</div>
+
+<script src="{% static 'inc/controllers/js/user_requests.js' %}"></script>
+<script>
+	loadUserRequestsHandler();
+</script>
 </body>
 </html>

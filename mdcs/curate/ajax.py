@@ -2417,9 +2417,66 @@ def requestAccount(request, username, password, firstname, lastname, email):
                   buttons: {
                     Ok: function() {
                       $( this ).dialog( "close" );
+                      window.location = "/";
                     }
                   }
                 });
               });
          """)
     return dajax.json()
+
+@dajaxice_register
+def acceptRequest(request, requestid):
+    dajax = Dajax()
+    userRequest = Request.objects.get(pk=requestid)
+    try:
+        existingUser = User.objects.get(username=userRequest.username)
+        dajax.script(
+        """
+            $(function() {
+                $( "#dialog-error-request" ).dialog({
+                  modal: true,
+                  buttons: {
+                    Ok: function() {
+                      $( this ).dialog( "close" );
+                    }
+                  }
+                });
+              });              
+        """)        
+    except:
+        user = User.objects.create_user(username=userRequest.username, password=userRequest.password, first_name=userRequest.first_name, last_name=userRequest.last_name, email=userRequest.email)
+        user.save()
+        userRequest.delete()
+        dajax.script(
+        """
+            $(function() {
+                $( "#dialog-accepted-request" ).dialog({
+                  modal: true,
+                  buttons: {
+                    Ok: function() {
+                      $( this ).dialog( "close" );
+                    }
+                  }
+                });
+              });
+              $('#model_selection').load(document.URL +  ' #model_selection', function() {
+                  loadUserRequestsHandler();
+              });
+        """)
+        
+    return dajax.json()
+
+@dajaxice_register
+def denyRequest(request, requestid):
+    dajax = Dajax()
+    userRequest = Request.objects.get(pk=requestid)
+    userRequest.delete()
+    dajax.script(
+    """
+      $('#model_selection').load(document.URL +  ' #model_selection', function() {
+          loadUserRequestsHandler();
+      });
+    """)
+    return dajax.json()
+
