@@ -307,7 +307,7 @@ WHERE {?s ?p ?o}</textarea>
 						{% if instance.name == "Local" %}
 						<nobr><input type="checkbox" value="{{ instance.name }}" checked="checked"><span class="instance_name"> {{ instance.name }} </span><br/>
 						{% else %}
-						<nobr><input type="checkbox" value="{{ instance.name }}"><span class="instance_name"> {{ instance.name }} </span> ({{instance.protocol}}://{{instance.address}}:{{instance.port}})</nobr><br/>
+						<nobr><input type="checkbox" value="{{ instance.name }}"><span class="instance_name" title="{{instance.protocol}}://{{instance.address}}:{{instance.port}}"> {{ instance.name }} </span></nobr><br/>
 						{% endif %}
 					{% endfor %}
 					</div>
