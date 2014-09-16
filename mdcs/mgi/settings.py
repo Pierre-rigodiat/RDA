@@ -327,46 +327,71 @@ if DEBUG:
 # http://pythonhosted.org/django-auth-ldap/index.html
 ########################################################################
 
-import ldap, logging
-from django_auth_ldap.config import LDAPSearch, GroupOfNamesType, ActiveDirectoryGroupType
+# import ldap, logging
+# from django_auth_ldap.config import LDAPSearch, GroupOfNamesType, ActiveDirectoryGroupType
+# 
+# AUTHENTICATION_BACKENDS = (
+#     'django_auth_ldap.backend.LDAPBackend',
+#     'django.contrib.auth.backends.ModelBackend',
+# )
+# 
+# # Baseline configuration.
+# AUTH_LDAP_SERVER_URI = "ldaps://wsgendev01.gendev.nist.gov"  # development
+# # AUTH_LDAP_SERVER_URI = "ldaps://wsldap02.ldapmaster.nist.gov"  # production
+# 
+# #AUTH_LDAP_BIND_DN = 'CN=Bind Account,OU=Users,OU=Users,OU=Chicago,DC=sub,DC=domain,DC=com'
+# #AUTH_LDAP_BIND_DN = "cn=ssy,dc=GENDEV,dc=NIST,dc=GOV"
+# AUTH_LDAP_BIND_DN = "ou=NISTUSERS,dc=GENDEV,dc=NIST,dc=GOV"
+# AUTH_LDAP_BIND_PASSWORD = "eawdagiag.8ab"
+# #AUTH_LDAP_USER_SEARCH = LDAPSearch('OU=Users,OU=Users,OU=Chicago,DC=sub,DC=domain,DC=com', ldap.SCOPE_SUBTREE, "(uid=%(user)s)",)
+# AUTH_LDAP_USER_SEARCH = LDAPSearch("ou=NISTUSERS,dc=GENDEV,dc=NIST,dc=GOV", ldap.SCOPE_SUBTREE, "(uid=%(user)s)")
+# 
+# #AUTH_LDAP_GROUP_SEARCH = LDAPSearch("OU=Groups,OU=Chicago,DC=sub,DC=domain,DC=com", ldap.SCOPE_SUBTREE, "(objectClass=groupOfNames)")
+# AUTH_LDAP_GROUP_SEARCH = LDAPSearch("ou=Groups,dc=parent,dc=ssischool,dc=org",
+#  ldap.SCOPE_SUBTREE, "(objectClass=groupOfNames)"
+# )
+# 
+# AUTH_LDAP_GROUP_TYPE = ActiveDirectoryGroupType()
+# AUTH_LDAP_FIND_GROUP_PERMS = True
+# #AUTH_LDAP_CACHE_GROUPS = True
+# #AUTH_LDAP_GROUP_CACHE_TIMEOUT = 3600
+# AUTH_LDAP_GLOBAL_OPTIONS = {
+#     ldap.OPT_X_TLS_REQUIRE_CERT: False,
+#     ldap.OPT_REFERRALS: False,
+# } 
+# 
+# AUTH_LDAP_USER_ATTR_MAP = {
+#     "first_name": "givenName",
+#     "last_name": "sn",
+#     "email": "mail"
+# }
+# 
+# AUTH_LDAP_USER_FLAGS_BY_GROUP = {
+#     "is_staff":  "CN=SomeGroup,OU=Groups,OU=Chicago,DC=sub,DC=domain,DC=com",
+# }
 
-AUTHENTICATION_BACKENDS = (
-    'django_auth_ldap.backend.LDAPBackend',
-    'django.contrib.auth.backends.ModelBackend',
-)
+import ldap
+from django_auth_ldap.config import LDAPSearch, GroupOfNamesType
 
-# Baseline configuration.
-AUTH_LDAP_SERVER_URI = "ldaps://wsgendev01.gendev.nist.gov"  # development
-# AUTH_LDAP_SERVER_URI = "ldaps://wsldap02.ldapmaster.nist.gov"  # production
-
-#AUTH_LDAP_BIND_DN = 'CN=Bind Account,OU=Users,OU=Users,OU=Chicago,DC=sub,DC=domain,DC=com'
-#AUTH_LDAP_BIND_DN = "cn=ssy,dc=GENDEV,dc=NIST,dc=GOV"
-AUTH_LDAP_BIND_DN = "ou=NISTUSERS,dc=GENDEV,dc=NIST,dc=GOV"
-AUTH_LDAP_BIND_PASSWORD = "eawdagiag.8ab"
-#AUTH_LDAP_USER_SEARCH = LDAPSearch('OU=Users,OU=Users,OU=Chicago,DC=sub,DC=domain,DC=com', ldap.SCOPE_SUBTREE, "(uid=%(user)s)",)
-AUTH_LDAP_USER_SEARCH = LDAPSearch("ou=NISTUSERS,dc=GENDEV,dc=NIST,dc=GOV", ldap.SCOPE_SUBTREE, "(uid=%(user)s)")
-
-#AUTH_LDAP_GROUP_SEARCH = LDAPSearch("OU=Groups,OU=Chicago,DC=sub,DC=domain,DC=com", ldap.SCOPE_SUBTREE, "(objectClass=groupOfNames)")
-AUTH_LDAP_GROUP_SEARCH = LDAPSearch("ou=Groups,dc=parent,dc=ssischool,dc=org",
- ldap.SCOPE_SUBTREE, "(objectClass=groupOfNames)"
-)
-
-AUTH_LDAP_GROUP_TYPE = ActiveDirectoryGroupType()
-AUTH_LDAP_FIND_GROUP_PERMS = True
-#AUTH_LDAP_CACHE_GROUPS = True
-#AUTH_LDAP_GROUP_CACHE_TIMEOUT = 3600
+#AUTH_LDAP_START_TLS = True  
 AUTH_LDAP_GLOBAL_OPTIONS = {
     ldap.OPT_X_TLS_REQUIRE_CERT: False,
     ldap.OPT_REFERRALS: False,
 } 
 
+AUTH_LDAP_SERVER_URI = "ldap://wsgendev02.gendev.nist.gov:389"  # development
+AUTH_LDAP_BIND_DN = "ou=NISTUSERS,dc=GENDEV,dc=NIST,dc=GOV"
+AUTH_LDAP_BIND_PASSWORD = "eawdagiag.8ab"
+AUTH_LDAP_USER_SEARCH = LDAPSearch("ou=NISTUSERS,dc=GENDEV,dc=NIST,dc=GOV", ldap.SCOPE_SUBTREE, "(uid=%(user)s)")
 AUTH_LDAP_USER_ATTR_MAP = {
     "first_name": "givenName",
     "last_name": "sn",
     "email": "mail"
 }
 
-AUTH_LDAP_USER_FLAGS_BY_GROUP = {
-    "is_staff":  "CN=SomeGroup,OU=Groups,OU=Chicago,DC=sub,DC=domain,DC=com",
-}
+AUTHENTICATION_BACKENDS = (
+    'django_auth_ldap.backend.LDAPBackend',
+    'django.contrib.auth.backends.ModelBackend',
+)
 
+AUTH_LDAP_ALWAYS_UPDATE_USER = False

@@ -128,6 +128,18 @@ class SavedQuery(Document):
     template = StringField(required=True)    
     query = StringField(required=True)
     displayedQuery = StringField(required=True)
+
+class ModuleResource(EmbeddedDocument):
+    name = StringField(required=True)
+    content = StringField(required=True)
+    type = StringField(required=True)
+
+class Module(Document):
+    name = StringField(required=True)
+    template = StringField(required=True)
+    tag = StringField(required=True)
+    htmlTag = StringField(required=True)
+    resources = ListField(EmbeddedDocumentField(ModuleResource))  
     
 class XML2Download(Document):
     xml = StringField(required=True)

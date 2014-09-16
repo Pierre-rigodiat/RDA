@@ -28,7 +28,7 @@ from argparse import ArgumentError
 from cgi import FieldStorage
 from cStringIO import StringIO
 from django.core.servers.basehttp import FileWrapper
-from mgi.models import Template, Ontology, Htmlform, Xmldata, Hdf5file, Jsondata, XML2Download, TemplateVersion, Instance, OntologyVersion, Request
+from mgi.models import Template, Ontology, Htmlform, Xmldata, Hdf5file, Jsondata, XML2Download, TemplateVersion, Instance, OntologyVersion, Request, Module, ModuleResource
 from django.contrib.auth.models import User
 from datetime import datetime
 from datetime import tzinfo
@@ -49,7 +49,6 @@ import rdfPublisher
 #XSL file loading
 import os
 
-
 # Global Variables
 xmlString = ""
 formString = ""
@@ -66,6 +65,17 @@ xsdVersionFilename = ""
 ontologyVersionContent = ""
 ontologyVersionFilename = ""
 originalForm = ""
+currentResourceContent = ""
+currentResourceFilename = ""
+listModuleResource = []
+mapModules = dict() 
+
+
+class ModuleResourceInfo:
+        
+    def __init__(self, content = "", filename = ""):
+        self.content = content
+        self.filename = filename
 
 class ElementOccurrences:
     "Class that store information about element occurrences"
@@ -570,12 +580,12 @@ def generateFormSubSection(xpath,selected,xmlElement):
     global xsd_elements
     global mapTagElement
     global occurrences
+    global mapModules
     global debugON
     p = re.compile('(\{.*\})?schema', re.IGNORECASE)
 
     namespace = get_namespace(xmlDocTree.getroot())
-#    xpathFormated = "./{0}element"
-#    xpathFormated = "./{0}complexType[@name='"+xpath+"']"
+
     if xpath is None:
         print "xpath is none"
         return formString;
@@ -586,6 +596,10 @@ def generateFormSubSection(xpath,selected,xmlElement):
 
     if e is None:
         return formString    
+    
+    if e.attrib.get('name') in mapModules.keys():
+        formString += mapModules[e.attrib.get('name')]    
+        return formString
     
     if e.tag == "{0}complexType".format(namespace):
         if debugON: formString += "matched complexType" 
@@ -953,14 +967,13 @@ def generateFormSubSection(xpath,selected,xmlElement):
         if simpleTypeChildren is None:
             return formString
 
-        if e.attrib.get('name') == "ChemicalElement":
-#            formString += "<div id=\"periodicTable\"></div>"
-            currentXPath = xmlDocTree.getpath(e)
-            formString += "<div class=\"btn select-element\" onclick=\"selectElement('None',this,"+str(nbSelectedElement)+");\"><i class=\"icon-folder-open\"></i> Select Chemical Element</div>"
-            formString += "<div id=\"elementSelected"+ str(nbSelectedElement) +"\">Current Selection: None</div>"
-            nbSelectedElement += 1
-
-            return formString
+#         if e.attrib.get('name') == "ChemicalElement":
+#             currentXPath = xmlDocTree.getpath(e)
+#             formString += "<div class=\"btn select-element\" onclick=\"selectElement('None',this,"+str(nbSelectedElement)+");\"><i class=\"icon-folder-open\"></i> Select Chemical Element</div>"
+#             formString += "<div id=\"elementSelected"+ str(nbSelectedElement) +"\">Current Selection: None</div>"
+#             nbSelectedElement += 1
+# 
+#             return formString
 
         for simpleTypeChild in simpleTypeChildren:
             if simpleTypeChild.tag == "{0}restriction".format(namespace):
@@ -1527,6 +1540,19 @@ def generateForm(key,xmlElement):
 
     return formString
 
+def loadModuleResources(templateID):
+    modules = Module.objects(template=templateID)
+    html = ""
+    for module in modules:
+        for resource in module.resources:
+            if resource.type == "js":
+                html += "<script>" + resource.content + "</script>"
+            elif resource.type == "html":
+                html += "<div>" + resource.content + "</div>"
+            elif resource.type == "css":
+                html += "<style>" + resource.content + "</style>"
+    return html
+
 ################################################################################
 # 
 # Function Name: generateXSDTreeForEnteringData(request)
@@ -1545,6 +1571,7 @@ def generateXSDTreeForEnteringData(request):
     global xmlDocTree
     global xmlDataTree
     global originalForm
+    global mapModules
 
     dajax = Dajax()
 
@@ -1554,14 +1581,17 @@ def generateXSDTreeForEnteringData(request):
 
     if xmlDocTree == "":
         setCurrentTemplate(request,templateFilename, templateID)
+        
+    html = loadModuleResources(templateID)
+    dajax.assign('#modules', 'innerHTML', html)
+    mapModules = dict()    
+    modules = Module.objects(template=templateID)  
+    for module in modules:
+        mapModules[module.tag] = module.htmlTag
 
-    if (formString == ""):
-
-#    request.session.modified = True
-
+    if (formString == ""):                
 
         xmlString = ""
-#    print "xsdDocTree: " + str(xmlDocTree)
 
         formString = "<form id=\"dataEntryForm\" name=\"xsdForm\">"
         newElement = etree.Element("form")
@@ -1570,38 +1600,12 @@ def generateXSDTreeForEnteringData(request):
         xmlDataTree = etree.ElementTree(newElement)
 
         formString += generateForm("schema",xmlDataTree.getroot())
-
-#    root = xmlDocTree.getroot()
-
-#    for child in root:
-#        print child.tag
-
         reparsed = minidom.parseString(xmlString)
-#    print "xmlDataTree: " + reparsed.toprettyxml(indent="  ")
         formString += "</form>"
-
-#    pretty_xml_as_string = xml.dom.minidom.parseString(xmlDocData).toprettyxml()
-
-#    dajax.assign('#xsdForm', 'innerHTML', etree.ElementTree.tostring(xmlDataTree, encoding='utf8', method='xml'))
-#    dajax.assign('#xsdForm', 'innerHTML', etree.tostring(xmlDataTree.getroot(),pretty_print=False))
 
 
     originalForm = formString
     dajax.assign('#xsdForm', 'innerHTML', formString)
-
-#    print etree.tostring(xmlDataTree.getroot(),pretty_print=True)
-
-    pathFile = "{0}/static/resources/files/{1}"
-    path = pathFile.format(settings.SITE_ROOT,"periodic.html")
-    print 'path is ' + path
-    periodicTableDoc = open(path,'r')
-    periodicTableString = periodicTableDoc.read()
-
-    dajax.assign('#periodicTable', 'innerHTML', periodicTableString)
-
-#    dajax.assign('#xsdForm', 'innerHTML', pretty_xml_as_string)
-#    dajax.alert(pretty_xml_as_string)
-#    dajax.alert(xmlDocData)
  
     print 'END def generateXSDTreeForEnteringData(request)'
     return dajax.json()
@@ -2480,3 +2484,42 @@ def denyRequest(request, requestid):
     """)
     return dajax.json()
 
+@dajaxice_register
+def addModuleResource(request, resourceContent, resourceFilename):
+    dajax = Dajax()
+    global currentResourceContent
+    global currentResourceFilename
+    
+    currentResourceContent = resourceContent
+    currentResourceFilename = resourceFilename    
+    
+    return dajax.json()
+
+@dajaxice_register
+def uploadResource(request):
+    dajax = Dajax()
+    global listModuleResource
+    global currentResourceContent
+    global currentResourceFilename
+    
+    if currentResourceContent != "" and currentResourceFilename != "":
+        listModuleResource.append(ModuleResourceInfo(content=currentResourceContent,filename=currentResourceFilename))
+        dajax.append("#uploadedResources", "innerHTML", currentResourceFilename + "<br/>")
+        dajax.script("""$("#moduleResource").val("");""")
+        currentResourceContent = ""
+        currentResourceFilename = ""
+    
+    return dajax.json()
+
+@dajaxice_register
+def addModule(request, template, name, tag, HTMLTag):
+    dajax = Dajax()    
+    
+    module = Module(name=name, template=template, tag=tag, htmlTag=HTMLTag)
+    for resource in listModuleResource:
+        moduleResource = ModuleResource(name=resource.filename, content=resource.content, type=resource.filename.split(".")[-1])
+        module.resources.append(moduleResource)
+    
+    module.save()
+
+    return dajax.json()

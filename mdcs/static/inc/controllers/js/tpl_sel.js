@@ -250,16 +250,20 @@ generateXMLString = function(elementObj)
 	    } else {
 		xmlString += generateXMLString(children[i]);
 	    }
-	} else if (children[i].tagName == "SELECT") {
+	}else if (children[i].tagName == "DIV"){
+		valModule = $(children[i]).attr("value");
+		if (typeof valModule !== typeof undefined && valModule !== false) {
+			xmlString += valModule
+		}
+	} 	
+	else if (children[i].tagName == "SELECT") {
 	    // get the index of the selected option 
 	    var idx = children[i].selectedIndex; 
 	    // get the value of the selected option 
 	    var which = children[i].options[idx].value; 
 	    	    
 	    if (children[i].getAttribute("id") != null && children[i].getAttribute("id").indexOf("choice") > -1){
-//	    	xmlString += "<" + which + ">";
 	    	xmlString += generateXMLString(children[i]);
-//	    	xmlString += "</" + which + ">";
 	    }else {
 	    	xmlString += which;
 	    }	    
@@ -323,30 +327,30 @@ saveHTMLFormCallback = function(data)
     return false;
 }
 
-selectElement = function(periodicTableElement,divElement, selectedElementId)
-{
-    console.log('BEGIN [selectElement(' + periodicTableElement + ',' + divElement + ')]');
-
-    document.getElementById('chosenElement').innerHTML = "Chosen Element: <b>" + periodicTableElement + "</b>";
-
-    $(function() {
-	$("#dialog-select-element" ).dialog({ width: 700 });
-        $("#dialog-select-element" ).dialog({
-            modal: true,
-            buttons: {
-		Select: function() {
-		    		doSelectElement(divElement, selectedElementId);
-                    $( this ).dialog( "close" );
-                },
-		Cancel: function() {
-                    $( this ).dialog( "close" );
-                }
-	    }
-        });
-    });
-	
-    console.log('END [selectElement]');
-}
+//selectElement = function(periodicTableElement,divElement, selectedElementId)
+//{
+//    console.log('BEGIN [selectElement(' + periodicTableElement + ',' + divElement + ')]');
+//
+//    document.getElementById('chosenElement').innerHTML = "Chosen Element: <b>" + periodicTableElement + "</b>";
+//
+//    $(function() {
+//	$("#dialog-select-element" ).dialog({ width: 700 });
+//        $("#dialog-select-element" ).dialog({
+//            modal: true,
+//            buttons: {
+//		Select: function() {
+//		    		doSelectElement(divElement, selectedElementId);
+//                    $( this ).dialog( "close" );
+//                },
+//		Cancel: function() {
+//                    $( this ).dialog( "close" );
+//                }
+//	    }
+//        });
+//    });
+//	
+//    console.log('END [selectElement]');
+//}
 
 selectHDF5File = function(hdf5File,divElement)
 {
@@ -407,31 +411,31 @@ getHDF5StringCallback = function(data)
     console.log('END [getHDF5StringCallback(' + data + ')]');
 }
 
-chooseElement = function(element)
-{
-    console.log('BEGIN [chooseElement(' + element + ')]');
-
-    document.getElementById('chosenElement').innerHTML = "Chosen Element: <b id=\"selectedElement\">" + element + "</b>";
-
-    console.log('END [chooseElement(' + element + ')]');
-}
-
-doSelectElement = function(divElement, selectedElementId)
-{
-    console.log('BEGIN [selectElement(' + divElement + ')]');
-
+//chooseElement = function(element)
+//{
+//    console.log('BEGIN [chooseElement(' + element + ')]');
+//
+//    document.getElementById('chosenElement').innerHTML = "Chosen Element: <b id=\"selectedElement\">" + element + "</b>";
+//
+//    console.log('END [chooseElement(' + element + ')]');
+//}
+//
+//doSelectElement = function(divElement, selectedElementId)
+//{
+//    console.log('BEGIN [selectElement(' + divElement + ')]');
+//
+////    var selectedElement = document.getElementById('selectedElement').innerHTML;
+////    divElement.onclick = function onclick(event) { selectElement(selectedElement,this); }
+////    divElement.parentNode.childNodes[2].innerHTML = "Current Selection: " + selectedElement;
 //    var selectedElement = document.getElementById('selectedElement').innerHTML;
 //    divElement.onclick = function onclick(event) { selectElement(selectedElement,this); }
-//    divElement.parentNode.childNodes[2].innerHTML = "Current Selection: " + selectedElement;
-    var selectedElement = document.getElementById('selectedElement').innerHTML;
-    divElement.onclick = function onclick(event) { selectElement(selectedElement,this); }
-    document.getElementById('elementSelected'+selectedElementId).innerHTML = "Current Selection: " + selectedElement;
-
-    // reset for next selection
-    document.getElementById('chosenElement').innerHTML = "Chosen Element: <b>None</b>";
-
-    console.log('END [selectElement(' + divElement + ')]');
-}
+//    document.getElementById('elementSelected'+selectedElementId).innerHTML = "Current Selection: " + selectedElement;
+//
+//    // reset for next selection
+//    document.getElementById('chosenElement').innerHTML = "Chosen Element: <b>None</b>";
+//
+//    console.log('END [selectElement(' + divElement + ')]');
+//}
 
 changeChoice = function(selectObj)
 {
@@ -477,7 +481,7 @@ loadCurrentTemplateFormForCuration = function()
     $('.btn.download-xsd').on('click', downloadXSD);
     $('.btn.download-form').on('click', downloadForm);
     $('.btn.download-xml').on('click', downloadXML);
-    $('.btn.select-element').on('click', selectElement);
+//    $('.btn.select-element').on('click', selectElement);
 
     Dajaxice.curate.generateXSDTreeForEnteringData(Dajax.process); //,{'templateFilename':'xxxx'});
 

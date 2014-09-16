@@ -174,11 +174,20 @@ def manage_schemas(request):
 #                
 #
 ################################################################################
-def manage_modules(request):
+def module_management(request):
     template = loader.get_template('admin/manage_modules.html')
 
     context = RequestContext(request, {
-        'templates': Template.objects.order_by('-id')[:7]
+        
+    })
+    request.session['currentYear'] = currentYear()
+    return HttpResponse(template.render(context))
+
+def module_add(request):
+    template = loader.get_template('admin/add_module.html')
+
+    context = RequestContext(request, {
+        
     })
     request.session['currentYear'] = currentYear()
     return HttpResponse(template.render(context))

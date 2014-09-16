@@ -127,9 +127,15 @@
 	  {% if objectType == "Template" %}
 	  	<li class="current_page_item"><a href="/admin/xml-schemas/manage-schemas">Manage Templates</a></li>
   		<li><a href="/admin/xml-schemas/manage-ontologies">Manage Ontologies</a></li>
-	  {% else %}
+  		<li><a href="/admin/xml-schemas/module-management">Manage Modules</a></li>
+	  {% elif objectType == "Ontology" %}
 	  	<li><a href="/admin/xml-schemas/manage-schemas">Manage Templates</a></li>
   		<li class="current_page_item"><a href="/admin/xml-schemas/manage-ontologies">Manage Ontologies</a></li>
+  		<li><a href="/admin/xml-schemas/module-management">Manage Modules</a></li>
+  	  {% else %}
+  	  	<li><a href="/admin/xml-schemas/manage-schemas">Manage Templates</a></li>
+  		<li><a href="/admin/xml-schemas/manage-ontologies">Manage Ontologies</a></li>
+  		<li class="current_page_item"><a href="/admin/xml-schemas/module-management">Manage Modules</a></li>
 	  {% endif %}
 	  </ul>
 

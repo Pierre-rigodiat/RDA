@@ -7,7 +7,7 @@
 # Author: Sharief Youssef
 #         sharief.youssef@nist.gov
 #
-# Sponsor: National Institue of Standards and Technology
+# Sponsor: National Institute of Standards and Technology
 #
 ################################################################################
 

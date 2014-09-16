@@ -8,7 +8,10 @@
 # Author: Sharief Youssef
 #         sharief.youssef@nist.gov
 #
-# Sponsor: National Institue of Standards and Technology
+#		  Guillaume SOUSA AMARAL
+#		  guillaume.sousa@nist.gov
+#
+# Sponsor: National Institute of Standards and Technology
 #
 ################################################################################
 -->
@@ -98,7 +101,7 @@
 				<ul class="tabbed">
 					<li><a href="/">Home</a></li>
 					<li><a href="/admin/user-management">User Management</a></li>
-					<li class="current_page_item"><a href="/admin/xml-schemas">Templates</a></li>
+					<li class="current_page_item"><a href="/admin/xml-schemas">Templates & Ontologies</a></li>
 					<li><a href="/admin/federation-of-queries">Federation of Queries</a></li>
 					<li><a href="/admin/backup-database">Database</a></li>
 				</ul>
@@ -120,10 +123,9 @@
       <div id="subnav">
 
 	<ul class="tabbed">
-	  <li><a href="/admin/xml-schemas/current-model">Current Model</a></li>
-	  <li><a href="/admin/xml-schemas/manage-schemas">Manage Schemas</a></li>
-	  <li class="current_page_item"><a href="/admin/xml-schemas/manage-modules">Manage Modules</a></li>
-	  <li><a href="/admin/xml-schemas/manage-queries">Manage Queries</a></li>
+  	  	<li><a href="/admin/xml-schemas/manage-schemas">Manage Templates</a></li>
+  		<li><a href="/admin/xml-schemas/manage-ontologies">Manage Ontologies</a></li>
+  		<li class="current_page_item"><a href="/admin/xml-schemas/module-management">Manage Modules</a></li>
 	  </ul>
 
 	<div class="clearer">&nbsp;</div>
@@ -144,14 +146,60 @@
 				<div id="featured">
 
 <h1>Module Manager</h1>
-		
-Here you can choose the module to enable or disable.
+					
 					<div class="clearer">&nbsp;</div>
 
 				</div>
 			</div>
 
 			<div id="main">
+
+<a href="/admin/xml-schemas/module-add">Add Module</a>
+
+		      <div id="model_selection">
+		      
+
+{% if modules %}
+
+<table class="data-table">
+  <tr>
+  	<th>Module name</th>
+    <th>Tag</th>
+    <th>Schema</th>
+    <th>Description</th>
+    <th>Actions</th>
+  </tr>
+
+{% for module in modules %}
+  {% cycle 'even' '' as rowcolors silent %}
+  <tr class="{{ rowcolors }}">
+    <td>Name</td>
+    <td>tag</td>
+
+
+
+    <td>Schema</td>
+    <td>Description</td>
+    <td>
+    <div class="icon legend long edit" objectid="{{ module.id }}">Edit</div>
+    <div class="icon legend delete" objectid="{{ module.id }}">Delete</div></td>
+
+
+  </tr>
+
+{% endfor %}
+
+</table>
+
+{% else %}
+<br>
+There are currently no modules uploaded.  Please click "Upload Module" to the right to add a Module.
+<br>
+<br>
+{% endif %}
+
+
+</div>
 
 
 
@@ -202,9 +250,9 @@ Here you can choose the module to enable or disable.
 
 </div>
 
-<script src="{% static 'inc/controllers/js/xsd_mgr.js' %}"></script>
+<script src="{% static 'inc/controllers/js/module_mgr.js' %}"></script>
 <script>
-  loadXsdManagerHandler();
+  loadModuleManagerHandler();
 </script>
 
 </body>
