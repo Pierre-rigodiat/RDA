@@ -1224,6 +1224,8 @@ def duplicateFormSubSection(xpath):
     global mapTagElement
     global occurrences
     global debugON
+    global mapModules
+    
     p = re.compile('(\{.*\})?schema', re.IGNORECASE)
 # 
     namespace = get_namespace(xmlDocTree.getroot())
@@ -1234,7 +1236,11 @@ def duplicateFormSubSection(xpath):
  
     if e is None:
         return formString
-     
+    
+    if e.attrib.get('name') in mapModules.keys():
+        formString += mapModules[e.attrib.get('name')]    
+        return formString 
+    
     if e.tag == "{0}complexType".format(namespace):
         if debugON: formString += "matched complexType" 
         print "matched complexType" + "<br>"
@@ -1441,13 +1447,13 @@ def duplicateFormSubSection(xpath):
         if simpleTypeChildren is None:
             return formString
 
-        if e.attrib.get('name') == "ChemicalElement":
-#            formString += "<div id=\"periodicTable\"></div>"
-            formString += "<div class=\"btn select-element\" onclick=\"selectElement('None',this,"+str(nbSelectedElement)+");\"><i class=\"icon-folder-open\"></i> Select Chemical Element</div>"
-            formString += "<div id=\"elementSelected"+ str(nbSelectedElement) +"\">Current Selection: None</div>"
-            nbSelectedElement += 1
-
-            return formString
+#         if e.attrib.get('name') == "ChemicalElement":
+# #            formString += "<div id=\"periodicTable\"></div>"
+#             formString += "<div class=\"btn select-element\" onclick=\"selectElement('None',this,"+str(nbSelectedElement)+");\"><i class=\"icon-folder-open\"></i> Select Chemical Element</div>"
+#             formString += "<div id=\"elementSelected"+ str(nbSelectedElement) +"\">Current Selection: None</div>"
+#             nbSelectedElement += 1
+# 
+#             return formString
 
         for simpleTypeChild in simpleTypeChildren:
             if simpleTypeChild.tag == "{0}restriction".format(namespace):
