@@ -166,20 +166,18 @@
   	<th>Module name</th>
     <th>Tag</th>
     <th>Schema</th>
-    <th>Description</th>
     <th>Actions</th>
   </tr>
 
 {% for module in modules %}
   {% cycle 'even' '' as rowcolors silent %}
   <tr class="{{ rowcolors }}">
-    <td>Name</td>
-    <td>tag</td>
+    <td>{{ module.name }}</td>
+    <td>{{ module.tag }}</td>
 
 
 
-    <td>Schema</td>
-    <td>Description</td>
+    <td>{{ module.template }}</td>
     <td>
     <div class="icon legend long edit" objectid="{{ module.id }}">Edit</div>
     <div class="icon legend delete" objectid="{{ module.id }}">Delete</div></td>

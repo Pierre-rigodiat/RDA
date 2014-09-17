@@ -227,8 +227,12 @@ generateXMLString = function(elementObj)
 	    if (nobrNode1.firstChild != null) {
 		console.log(nobrNode1.firstChild.tagName);
 		if (nobrNode1.firstChild.tagName == "DIV") {
-		    console.log("hdf5file matched");
-		    xmlString += hdf5String;
+			tagId = $(nobrNode1.firstChild).attr("id");
+			if (typeof tagId !== typeof undefined && tagId !== false && tagId == "hdf5File") {
+				xmlString += hdf5String
+			}
+//		    alert("hdf5file matched");
+//		    xmlString += hdf5String;
 		} else if (nobrNode1.firstChild.nodeValue.trim() != "Choose") {
 		    xmlString += "<" + nobrNode1.firstChild.nodeValue.trim() + ">";
 		    if (nobrNode1.firstChild.nodeValue.trim() == "Table") {
@@ -363,7 +367,7 @@ selectHDF5File = function(hdf5File,divElement)
             modal: true,
             buttons: {
 		Done: function() {
-		    doSelectHDF5File(divElement);
+					doSelectHDF5File(divElement);
                     $( this ).dialog( "close" );
                 },
 		Cancel: function() {

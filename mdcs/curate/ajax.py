@@ -178,11 +178,15 @@ def getHDF5String(request):
     print '>>>> BEGIN def getHDF5String(request)'
     dajax = Dajax() 
 
-    hdf5FileObject = Hdf5file.objects.get(title="hdf5file")
-    hdf5FileContent = hdf5FileObject.content
-
-    hdf5String = hdf5FileContent.encode('utf-8')
-
+    hdf5String = ""
+    try:
+        hdf5FileObject = Hdf5file.objects.get(title="hdf5file")
+        hdf5FileContent = hdf5FileObject.content
+        hdf5FileObject.delete()
+        hdf5String = hdf5FileContent.encode('utf-8')
+    except:
+        pass
+    
     print hdf5String
 
     print '>>>> END def getHDF5String(request)'

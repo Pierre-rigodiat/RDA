@@ -1,0 +1,9 @@
+<html>
+<body>
+File Upload Failed. Please be sure that you uploaded an excel file. Each header should contain the column unit between parenthesis.
+<form action="/curate/upload-hdf5file" method="post" id="file-upload-form" enctype="multipart/form-data"> {% csrf_token %}
+    <input id="yourinputname" type="file" name="yourinputname">
+    <button type="submit" class="btn btn-primary" id='upload-btn'>Upload</button>
+</form> 
+</body>
+</html>
