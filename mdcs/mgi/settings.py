@@ -317,7 +317,7 @@ LOGGING = {
 
 if DEBUG:
     import logging
-
+ 
     logger = logging.getLogger('django_auth_ldap')
     logger.addHandler(logging.StreamHandler())
     logger.setLevel(logging.DEBUG)
@@ -371,24 +371,31 @@ if DEBUG:
 # }
 
 import ldap
-from django_auth_ldap.config import LDAPSearch, GroupOfNamesType
+from django_auth_ldap.config import LDAPSearch
 
-#AUTH_LDAP_START_TLS = True  
+# AUTH_LDAP_START_TLS = True  
 AUTH_LDAP_GLOBAL_OPTIONS = {
     ldap.OPT_X_TLS_REQUIRE_CERT: False,
     ldap.OPT_REFERRALS: False,
 } 
 
+# Binding to the LDAP
 AUTH_LDAP_SERVER_URI = "ldap://wsgendev02.gendev.nist.gov:389"  # development
-AUTH_LDAP_BIND_DN = "ou=NISTUSERS,dc=GENDEV,dc=NIST,dc=GOV"
-AUTH_LDAP_BIND_PASSWORD = "eawdagiag.8ab"
+AUTH_LDAP_BIND_DN = "cn=ssy,ou=NISTUSERS,dc=GENDEV,dc=NIST,dc=GOV"
+AUTH_LDAP_BIND_PASSWORD = "YMS*1975*smy"
+
+#Search the user from the login inputs
 AUTH_LDAP_USER_SEARCH = LDAPSearch("ou=NISTUSERS,dc=GENDEV,dc=NIST,dc=GOV", ldap.SCOPE_SUBTREE, "(uid=%(user)s)")
+# AUTH_LDAP_USER_DN_TEMPLATE = "ou=NISTUSERS,dc=GENDEV,dc=NIST,dc=GOV"
+
+# Get these attributes from the LDAP to create the Django user
 AUTH_LDAP_USER_ATTR_MAP = {
     "first_name": "givenName",
     "last_name": "sn",
     "email": "mail"
 }
 
+# Try to find the user in the LDAP first, and then in the django backend
 AUTHENTICATION_BACKENDS = (
     'django_auth_ldap.backend.LDAPBackend',
     'django.contrib.auth.backends.ModelBackend',
