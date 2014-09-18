@@ -155,16 +155,26 @@
 <p>
 
 <b>MongoDB path:</b><input type="text" value="C:\mongodb" id="mongopath"/><br/> 
-<button class="btn" onclick="createBackup();">Create a backup</button>
+<a href="javascript:createBackup();">Create a backup</a>
 </p>
 
 		      <div id="model_selection">
-		      
+<br/>
 {% if backups %}
 <h2>Available backups</h2>
+<br/>
+<table class="data-table">
+  <tr>
+  	<th>Backup</th>
+    <th>Actions</th>
+  </tr>
 {% for backup in backups %}
-{{backup}} <span class="btn" onclick="deleteBackup('{{backup}}');">Delete</span><br/>
+<tr>
+<td>{{backup}}</td> 
+<td><span class="icon legend long delete" onclick="deleteBackup('{{backup}}');">Delete</span><br/></td>
+</tr>
 {% endfor %}
+</table>
 {% else %}
 No Backups available.
 {% endif %}

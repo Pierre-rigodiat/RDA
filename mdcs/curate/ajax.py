@@ -72,7 +72,8 @@ mapModules = dict()
 
 
 class ModuleResourceInfo:
-        
+    "Class that store information about a resource for a module"
+    
     def __init__(self, content = "", filename = ""):
         self.content = content
         self.filename = filename

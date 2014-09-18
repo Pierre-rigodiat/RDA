@@ -157,11 +157,22 @@
 
 		      <div id="model_selection">
 		      
+<br/>
 {% if backups %}
 <h2>Available backups</h2>
+<br/>
+<table class="data-table">
+  <tr>
+  	<th>Backup</th>
+    <th>Actions</th>
+  </tr>
 {% for backup in backups %}
-{{backup}}  <span class="btn" onclick="restoreBackup('{{backup}}');">Restore</span><br/>
+<tr>
+<td>{{backup}}</td> 
+<td><span class="icon legend long retrieve" onclick="restoreBackup('{{backup}}');">Restore</span><br/></td>
+</tr>
 {% endfor %}
+</table>
 {% else %}
 No Backups available.
 {% endif %}
