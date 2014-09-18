@@ -2533,3 +2533,93 @@ def addModule(request, template, name, tag, HTMLTag):
     module.save()
 
     return dajax.json()
+
+@dajaxice_register
+def createBackup(request, mongodbPath):
+    dajax = Dajax()
+    
+    backupsDir = settings.SITE_ROOT + '/data/backups/'
+    
+    now = datetime.now()
+    backupFolder = now.strftime("%Y_%m_%d_%H_%M_%S")
+    
+    backupCommand = mongodbPath + "/bin/mongodump --out " + backupsDir + backupFolder
+    retvalue = os.system(backupCommand)
+#     result = subprocess.check_output(backupCommand, shell=True)
+    if retvalue == 0:
+        result = "Backup created with success."
+    else:
+        result = "Unable to create the backup."
+        
+    dajax.assign("#backup-message", 'innerHTML', result)
+    dajax.script(
+    """
+        $(function() {
+            $( "#dialog-backup" ).dialog({
+                modal: true,
+                width: 520,
+                buttons: {
+                    OK: function() {    
+                        $( this ).dialog( "close" );
+                        }
+                }      
+            });
+        });
+      $('#model_selection').load(document.URL +  ' #model_selection', function() {});
+    """)
+    return dajax.json()
+
+
+@dajaxice_register
+def restoreBackup(request, mongodbPath, backup):
+    dajax = Dajax()
+    
+    backupsDir = settings.SITE_ROOT + '/data/backups/'
+    
+    backupCommand = mongodbPath + "/bin/mongorestore " + backupsDir + backup
+    retvalue = os.system(backupCommand)
+    
+    if retvalue == 0:
+        result = "Backup restored with success."
+    else:
+        result = "Unable to restore the backup."
+        
+    dajax.assign("#backup-message", 'innerHTML', result)
+    dajax.script(
+    """
+        $(function() {
+            $( "#dialog-backup" ).dialog({
+                modal: true,
+                width: 520,
+                buttons: {
+                    OK: function() {    
+                        $( this ).dialog( "close" );
+                        }
+                }      
+            });
+        });
+    """)
+    return dajax.json()
+
+
+@dajaxice_register
+def deleteBackup(request, backup):
+    dajax = Dajax()
+    
+    backupsDir = settings.SITE_ROOT + '/data/backups/'
+    
+    for root, dirs, files in os.walk(backupsDir + backup, topdown=False):
+        for name in files:
+            os.remove(os.path.join(root, name))
+        for name in dirs:
+            os.rmdir(os.path.join(root, name))
+    os.rmdir(backupsDir + backup)
+    
+    dajax.script(
+    """
+      $('#model_selection').load(document.URL +  ' #model_selection', function() {});
+    """)
+    
+    return dajax.json()
+
+

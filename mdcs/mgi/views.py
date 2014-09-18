@@ -33,7 +33,7 @@ import zipfile
 from mgi.models import Template, Database, Ontology, Htmlform, Xmldata, Hdf5file, QueryResults, SparqlQueryResults, ContactForm, XML2Download, TemplateVersion, Instance, OntologyVersion, XMLSchema, Request, Module 
 from bson.objectid import ObjectId
 import lxml.etree as etree
-
+import os
         
 # Create your views here.
 
@@ -95,9 +95,10 @@ def user_requests(request):
 
 def backup_database(request):
     template = loader.get_template('admin/backup-database.html')
-
-    context = RequestContext(request, {
+    backupsDir = settings.SITE_ROOT + '/data/backups/'
         
+    context = RequestContext(request, {
+        'backups' : os.listdir(backupsDir)
     })
     request.session['currentYear'] = currentYear()
     return HttpResponse(template.render(context))
@@ -105,8 +106,10 @@ def backup_database(request):
 def restore_database(request):
     template = loader.get_template('admin/restore-database.html')
 
-    context = RequestContext(request, {
+    backupsDir = settings.SITE_ROOT + '/data/backups/'
         
+    context = RequestContext(request, {
+        'backups' : os.listdir(backupsDir)
     })
     request.session['currentYear'] = currentYear()
     return HttpResponse(template.render(context))

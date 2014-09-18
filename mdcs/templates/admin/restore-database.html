@@ -152,9 +152,19 @@
 
 			<div id="main">
 
+<p><b>MongoDB path:</b><input type="text" value="C:\mongodb" id="mongopath"/><br/></p> 
+
+
 		      <div id="model_selection">
 		      
-
+{% if backups %}
+<h2>Available backups</h2>
+{% for backup in backups %}
+{{backup}}  <span class="btn" onclick="restoreBackup('{{backup}}');">Restore</span><br/>
+{% endfor %}
+{% else %}
+No Backups available.
+{% endif %}
 
 
 </div>
@@ -205,6 +215,10 @@
 	</div>
 
 </div>
-
+<div id="dialog-backup" title="Backup Status" style="display:none;">
+<div id="backup-message">
+</div>
+</div>
+<script src="{% static 'inc/controllers/js/backup.js' %}"></script>
 </body>
 </html>
