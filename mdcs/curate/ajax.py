@@ -1715,7 +1715,7 @@ def manageVersions(request, objectID, objectType):
 #     templateVersions = TemplateVersion.objects.get(pk=template.templateVersion)
     
     htmlVersionsList = "<p><b>upload new version:</b>"
-    htmlVersionsList += "<input type='file' id='fileVersion' name='files[]' multiple></input>"
+    htmlVersionsList += "<input type='file' id='fileVersion' name='files[]'></input>"
     htmlVersionsList += "<span class='btn' id='updateVersionBtn' versionid='"+str(objectVersions.id)+"' objectType='"+ objectType +"' onclick='uploadVersion()'>upload</span></p>"
     htmlVersionsList += "<table>"    
     
@@ -1836,7 +1836,7 @@ def uploadVersion(request, objectVersionID, objectType):
         objectVersions.save()
         
         htmlVersionsList = "<p><b>upload new version:</b>"
-        htmlVersionsList += "<input type='file' id='fileVersion' name='files[]' multiple></input>"
+        htmlVersionsList += "<input type='file' id='fileVersion' name='files[]'></input>"
         htmlVersionsList += "<span class='btn' id='updateVersionBtn' versionid='"+str(objectVersions.id)+"' objectType='"+ objectType +"' onclick='uploadVersion()'>upload</span></p>"
         htmlVersionsList += "<table>"    
         
@@ -1907,7 +1907,7 @@ def setCurrentVersion(request, objectid, objectType):
     objectVersions.save()
     
     htmlVersionsList = "<p><b>upload new version:</b>"
-    htmlVersionsList += "<input type='file' id='fileVersion' name='files[]' multiple></input>"
+    htmlVersionsList += "<input type='file' id='fileVersion' name='files[]'></input>"
     htmlVersionsList += "<span class='btn' id='updateVersionBtn' versionid='"+str(objectVersions.id)+"' objectType='"+ objectType +"' onclick='uploadVersion()'>upload</span></p>"
     htmlVersionsList += "<table>"    
     
@@ -1989,7 +1989,7 @@ def deleteVersion(request, objectid, objectType, newCurrent):
 #         selectedTemplate.delete()
         
         htmlVersionsList = "<p><b>upload new version:</b>"
-        htmlVersionsList += "<input type='file' id='fileVersion' name='files[]' multiple></input>"
+        htmlVersionsList += "<input type='file' id='fileVersion' name='files[]'></input>"
         htmlVersionsList += "<span class='btn' id='updateVersionBtn' versionid='"+str(objectVersions.id)+"' objectType='"+ objectType +"' onclick='uploadVersion()'>upload</span></p>"
         htmlVersionsList += "<table>"    
         
@@ -2144,7 +2144,7 @@ def restoreVersion(request, objectid, objectType):
     objectVersions.save()
     
     htmlVersionsList = "<p><b>upload new version:</b>"
-    htmlVersionsList += "<input type='file' id='fileVersion' name='files[]' multiple></input>"
+    htmlVersionsList += "<input type='file' id='fileVersion' name='files[]'></input>"
     htmlVersionsList += "<span class='btn' id='updateVersionBtn' versionid='"+str(objectVersions.id)+"' objectType='"+ objectType +"' onclick='uploadVersion()'>upload</span></p>"
     htmlVersionsList += "<table>"    
     
