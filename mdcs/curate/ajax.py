@@ -2544,7 +2544,7 @@ def createBackup(request, mongodbPath):
     now = datetime.now()
     backupFolder = now.strftime("%Y_%m_%d_%H_%M_%S")
     
-    backupCommand = mongodbPath + "/bin/mongodump --out " + backupsDir + backupFolder
+    backupCommand = mongodbPath + "/mongodump --out " + backupsDir + backupFolder
     retvalue = os.system(backupCommand)
 #     result = subprocess.check_output(backupCommand, shell=True)
     if retvalue == 0:
@@ -2577,7 +2577,7 @@ def restoreBackup(request, mongodbPath, backup):
     
     backupsDir = settings.SITE_ROOT + '/data/backups/'
     
-    backupCommand = mongodbPath + "/bin/mongorestore " + backupsDir + backup
+    backupCommand = mongodbPath + "/mongorestore " + backupsDir + backup
     retvalue = os.system(backupCommand)
     
     if retvalue == 0:
