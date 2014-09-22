@@ -69,6 +69,8 @@ currentResourceContent = ""
 currentResourceFilename = ""
 listModuleResource = []
 mapModules = dict() 
+namespaces = dict() #ET _namespaces doesn't allow to get namespaces declared in <schema>
+defaultPrefix = ""
 
 
 class ModuleResourceInfo:
@@ -574,11 +576,10 @@ def deleteXMLOntology(request,xmlOntologyID):
 # Description:   
 #
 ################################################################################
-def generateFormSubSection(xpath,selected,xmlElement):
+def generateFormSubSection(xpath,selected,xmlElement, xmlTree):
     print 'BEGIN def generateFormSubSection(xpath,selected,xmlElement)'
     formString = ""
     global xmlString
-    global xmlDocTree
     global xmlDataTree
     global nbChoicesID
     global nbSelectedElement
@@ -586,10 +587,12 @@ def generateFormSubSection(xpath,selected,xmlElement):
     global mapTagElement
     global occurrences
     global mapModules
+    global namespaces
+    global defaultPrefix
     global debugON
     p = re.compile('(\{.*\})?schema', re.IGNORECASE)
 
-    namespace = get_namespace(xmlDocTree.getroot())
+    namespace = namespaces[defaultPrefix]
 
     if xpath is None:
         print "xpath is none"
@@ -597,7 +600,7 @@ def generateFormSubSection(xpath,selected,xmlElement):
 
     xpathFormated = "./*[@name='"+xpath+"']"
     if debugON: formString += "xpathFormated: " + xpathFormated.format(namespace)
-    e = xmlDocTree.find(xpathFormated.format(namespace))
+    e = xmlTree.find(xpathFormated.format(namespace))
 
     if e is None:
         return formString    
@@ -629,7 +632,7 @@ def generateFormSubSection(xpath,selected,xmlElement):
                 print "SequenceChild: " + sequenceChild.tag 
                 if sequenceChild.tag == "{0}element".format(namespace):
                     if 'type' not in sequenceChild.attrib:
-                        if 'ref' in sequenceChild.attrib:
+                        if 'ref' in sequenceChild.attrib:                            
                             if sequenceChild.attrib.get('ref') == "hdf5:HDF5-File":
 #                                 formString += "<ul><li><i><div id='hdf5File'>" + sequenceChild.attrib.get('ref') + "</div></i> "
                                 formString += "<ul><li><i><div id='hdf5File'>Spreadsheet File</div></i> "
@@ -638,6 +641,13 @@ def generateFormSubSection(xpath,selected,xmlElement):
                             elif sequenceChild.attrib.get('ref') == "hdf5:Field":
                                 formString += "<ul><li><i><div id='hdf5Field'>" + sequenceChild.attrib.get('ref') + "</div></i> "
                                 formString += "</li></ul>"
+                            else:                            
+                                refType = Ontology.objects.get(title=sequenceChild.attrib.get('ref'))
+                                refTypeTree = etree.parse(BytesIO(refType.content.encode('utf-8')))
+                                e = refTypeTree.findall("./{0}element[@name='table']".format(namespace))                             
+                                formString += "<div'>table<br>"                                
+                                formString += generateFormSubSection(e[0].attrib.get('type'),"",xmlElement,refTypeTree)
+                                formString += "</div>"
                     elif ((sequenceChild.attrib.get('type') == "xsd:string".format(namespace))
                           or (sequenceChild.attrib.get('type') == "xsd:double".format(namespace))
                           or (sequenceChild.attrib.get('type') == "xsd:float".format(namespace)) 
@@ -684,7 +694,7 @@ def generateFormSubSection(xpath,selected,xmlElement):
                             mapTagElement[tagID] = elementID 
                             formString += "<li id='" + str(tagID) + "'><nobr>" + textCapitalized + " <input type='text'>"
                             xmlString += "<" + sequenceChild.attrib.get('name') + ">" + "</" + sequenceChild.attrib.get('name') + ">"
-                            currentXPath = xmlDocTree.getpath(sequenceChild)
+                            currentXPath = xmlTree.getpath(sequenceChild)
                             xmlElement = newElement
                             newElement = etree.Element("span")
                             newElement.attrib['class'] = "icon add"
@@ -694,7 +704,7 @@ def generateFormSubSection(xpath,selected,xmlElement):
                             else:
                                 formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" style=\"display:none;\" onclick=\"changeHTMLForm('add',this,"+str(tagID[7:])+");\"></span>"
                                 
-                            currentXPath = xmlDocTree.getpath(sequenceChild)
+                            currentXPath = xmlTree.getpath(sequenceChild)
                             xmlElement = newElement
                             newElement = etree.Element("span")
                             newElement.attrib['class'] = "icon remove"
@@ -744,7 +754,7 @@ def generateFormSubSection(xpath,selected,xmlElement):
                                 mapTagElement[tagID] = elementID 
                                 formString += "<li id='" + str(tagID) + "'><nobr>" + textCapitalized + " "
                                 xmlString += "<" + sequenceChild.attrib.get('name') + ">"
-                                currentXPath = xmlDocTree.getpath(sequenceChild)
+                                currentXPath = xmlTree.getpath(sequenceChild)
                                 xmlElement = newElement
                                 newElement = etree.Element("span")
                                 newElement.attrib['class'] = "icon add"
@@ -754,7 +764,7 @@ def generateFormSubSection(xpath,selected,xmlElement):
                                 else:
                                     formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" style=\"display:none;\" onclick=\"changeHTMLForm('add',this,"+str(tagID[7:])+");\"></span>"
                                     
-                                currentXPath = xmlDocTree.getpath(sequenceChild)
+                                currentXPath = xmlTree.getpath(sequenceChild)
                                 xmlElement = newElement
                                 newElement = etree.Element("span")
                                 newElement.attrib['class'] = "icon remove"
@@ -763,7 +773,7 @@ def generateFormSubSection(xpath,selected,xmlElement):
                                     formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" onclick=\"changeHTMLForm('remove',this,"+str(tagID[7:])+");\"></span>"
                                 else:
                                     formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" style=\"display:none;\" onclick=\"changeHTMLForm('remove',this,"+str(tagID[7:])+");\"></span>"
-                                formString += generateFormSubSection(sequenceChild.attrib.get('type'),selected,newElement)
+                                formString += generateFormSubSection(sequenceChild.attrib.get('type'),selected,newElement,xmlTree)
                                 xmlString += "</" + sequenceChild.attrib.get('name') + ">"
                                 formString += "</nobr></li>"
                             formString += "</ul>"
@@ -857,7 +867,7 @@ def generateFormSubSection(xpath,selected,xmlElement):
                                     else:
                                         formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\"><li id='" + str(tagID) + "'><nobr>" + textCapitalized
                                     xmlString += "<" + textCapitalized + ">" 
-                                    formString += generateFormSubSection(choiceChild.attrib.get('type'),selected,newElement) + "</nobr></li></ul>"
+                                    formString += generateFormSubSection(choiceChild.attrib.get('type'),selected,newElement,xmlTree) + "</nobr></li></ul>"
                                     xmlString += "</" + textCapitalized + ">"
                     else:
                         formString += "selected not empty"
@@ -944,7 +954,7 @@ def generateFormSubSection(xpath,selected,xmlElement):
                             else:
                                 formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\"><li id='" + str(tagID) + "'><nobr>" + textCapitalized
                             xmlString += "<" + textCapitalized + ">" 
-                            formString += generateFormSubSection(choiceChild.attrib.get('type'),selected,newElement) + "</nobr></li></ul>"
+                            formString += generateFormSubSection(choiceChild.attrib.get('type'),selected,newElement,xmlTree) + "</nobr></li></ul>"
                             xmlString += "</" + textCapitalized + ">"
             else:
                 formString += "selected not empty"
@@ -1107,6 +1117,8 @@ def duplicate(request, tagID, xsdForm):
     global mapTagElement
     global xmlDocTree
     global occurrences
+    global namespaces
+    global defaultPrefix
     
     tagID = "element"+ str(tagID)
     elementID = mapTagElement[tagID]
@@ -1132,7 +1144,7 @@ def duplicate(request, tagID, xsdForm):
         else:
             
             #render element
-            namespace = get_namespace(xmlDocTree.getroot())
+            namespace = namespaces[defaultPrefix]
             if 'type' not in sequenceChild.attrib:
                 if 'ref' in sequenceChild.attrib:
                     if sequenceChild.attrib.get('ref') == "hdf5:HDF5-File":
@@ -1230,10 +1242,12 @@ def duplicateFormSubSection(xpath):
     global occurrences
     global debugON
     global mapModules
+    global namespaces
+    global defaultPrefix
     
     p = re.compile('(\{.*\})?schema', re.IGNORECASE)
 # 
-    namespace = get_namespace(xmlDocTree.getroot())
+    namespace = namespaces[defaultPrefix]
 
     xpathFormated = "./*[@name='"+xpath+"']"
     if debugON: formString += "xpathFormated: " + xpathFormated.format(namespace)
@@ -1484,6 +1498,19 @@ def get_namespace(element):
   m = re.match('\{.*\}', element.tag)
   return m.group(0) if m else ''
 
+
+def get_namespaces(file):
+    "Reads and returns the namespaces in the schema tag"
+    events = "start", "start-ns"
+    ns = {}
+    for event, elem in etree.iterparse(file, events):
+        if event == "start-ns":
+            if elem[0] in ns and ns[elem[0]] != elem[1]:
+                raise Exception("Duplicate prefix with different URI found.")
+            ns[elem[0]] = "{%s}" % elem[1]
+        elif event == "start":
+            break
+    return ns
 ################################################################################
 # 
 # Function Name: generateForm(key,xmlElement)
@@ -1505,6 +1532,8 @@ def generateForm(key,xmlElement):
     global xsd_elements
     global mapTagElement
     global occurrences
+    global namespaces
+    global defaultPrefix
     
     nbChoicesID = 0
     nbSelectedElement = 0
@@ -1517,7 +1546,7 @@ def generateForm(key,xmlElement):
 
 #    namespace = "{http://www.w3.org/2001/XMLSchema}"
 
-    namespace = get_namespace(xmlDocTree.getroot())
+    namespace = namespaces[defaultPrefix]
     if debugON: formString += "namespace: " + namespace + "<br>"
     e = xmlDocTree.findall("./{0}element".format(namespace))
 
@@ -1540,7 +1569,7 @@ def generateForm(key,xmlElement):
         if debugON: xmlString += "<" + textCapitalized + ">"
         xmlString += "<" + e[0].attrib.get('name') + ">"
         if debugON: formString += "<b>" + e[0].attrib.get('name') + "</b><br>"
-        formString += generateFormSubSection(e[0].attrib.get('type'),"",xmlElement)
+        formString += generateFormSubSection(e[0].attrib.get('type'),"",xmlElement, xmlDocTree)
         formString += "</div>"
         if debugON: xmlString += "</" + textCapitalized + ">"
         xmlString += "</" + e[0].attrib.get('name') + ">"
@@ -1583,7 +1612,9 @@ def generateXSDTreeForEnteringData(request):
     global xmlDataTree
     global originalForm
     global mapModules
-
+    global namespaces
+    global defaultPrefix
+    
     dajax = Dajax()
 
     templateFilename = request.session['currentTemplate']
@@ -1599,9 +1630,14 @@ def generateXSDTreeForEnteringData(request):
     modules = Module.objects(template=templateID)  
     for module in modules:
         mapModules[module.tag] = module.htmlTag
-
+        
+    namespaces = get_namespaces(BytesIO(etree.tostring(xmlDocTree).encode('utf-8')))
+    for prefix, url in namespaces.items():
+        if (url == "{http://www.w3.org/2001/XMLSchema}"):            
+            defaultPrefix = prefix
+            break
+        
     if (formString == ""):                
-
         xmlString = ""
 
         formString = "<form id=\"dataEntryForm\" name=\"xsdForm\">"
@@ -1640,6 +1676,8 @@ def changeXMLSchema(request,operation,xpath,name):
 
     global xmlString
     global xmlDocTree
+    global namespaces
+    global defaultPrefix
 
     print "operation: " + operation
     print "xpath: " + xpath
@@ -1658,7 +1696,7 @@ def changeXMLSchema(request,operation,xpath,name):
         print "xmlDocTree is not null"
 
     root = xmlDocTree.getroot()
-    namespace = get_namespace(xmlDocTree.getroot())
+    namespace = namespaces[defaultPrefix]
 
     namespace = namespace[1:-1]
 
