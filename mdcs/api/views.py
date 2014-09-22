@@ -39,6 +39,7 @@ from django.db.models import Q
 import operator
 import json
 import hashlib
+from collections import OrderedDict
 
 projectURI = "http://www.example.com/"
 
@@ -338,26 +339,65 @@ def manageRegexInAPI(query):
 def query_by_example(request):
     """
     POST http://localhost/api/explore/query-by-example
-    POST data query="{'element':'value'}"
+    POST data query="{'element':'value'}" repositories="Local,Server1,Server2"
     """
     qSerializer = querySerializer(data=request.DATA)
     if qSerializer.is_valid():
-        try:
-            query = eval(request.DATA['query'])
-            manageRegexInAPI(query)
-            results = Jsondata.executeQueryFullResult(query)
-            jsonSerializer = jsonDataSerializer(results)        
-            return Response(jsonSerializer.data, status=status.HTTP_200_OK)
-        except:
-            content = {'message':'Bad query: use the following format {\'element\':\'value\'}'}
-            return Response(content, status=status.HTTP_400_BAD_REQUEST)
+        if 'repositories' in request.DATA:
+            instanceResults = []
+            repositories = request.DATA['repositories'].split(",")
+            if len(repositories) == 0:
+                content = {'message':'Repositories keyword found but the list is empty.'}
+                return Response(content, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                instances = []
+                local = False
+                for repository in repositories:
+                    if repository == "Local":
+                        local = True
+                    else:
+                        try:
+                            instance = Instance.objects.get(name=repository)
+                            instances.append(instance)
+                        except:
+                            content = {'message':'Unknown repository.'}
+                            return Response(content, status=status.HTTP_400_BAD_REQUEST)
+                if local:
+                    try:
+                        query = eval(request.DATA['query'])
+                        manageRegexInAPI(query)
+                        instanceResults = instanceResults + Jsondata.executeQueryFullResult(query)                        
+                    except:
+                        content = {'message':'Bad query: use the following format {\'element\':\'value\'}'}
+                        return Response(content, status=status.HTTP_400_BAD_REQUEST)
+                for instance in instances:
+                    url = instance.protocol + "://" + instance.address + ":" + str(instance.port) + "/api/explore/query-by-example"   
+                    query = request.DATA['query']              
+                    data = {"query":query}
+                    r = requests.post(url, data, auth=(instance.user, instance.password))   
+                    result = r.text
+                    instanceResults = instanceResults + json.loads(result,object_pairs_hook=OrderedDict)
+                    
+                jsonSerializer = jsonDataSerializer(instanceResults)        
+                return Response(jsonSerializer.data, status=status.HTTP_200_OK)
+        else:
+            try:
+                query = eval(request.DATA['query'])
+                manageRegexInAPI(query)
+                results = Jsondata.executeQueryFullResult(query)
+                jsonSerializer = jsonDataSerializer(results)        
+                return Response(jsonSerializer.data, status=status.HTTP_200_OK)
+            except:
+                content = {'message':'Bad query: use the following format {\'element\':\'value\'}'}
+                return Response(content, status=status.HTTP_400_BAD_REQUEST)
+        
     return Response(qSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
 def sparql_query(request):
     """
     POST http://localhost/api/explore/sparql-query
-    POST data query="SELECT * WHERE {?s ?p ?o}" format="xml"
+    POST data query="SELECT * WHERE {?s ?p ?o}" format="xml" repositories="Local,Server1,Server2"
     """
     sqSerializer = sparqlQuerySerializer(data=request.DATA)
     if sqSerializer.is_valid():
@@ -378,12 +418,49 @@ def sparql_query(request):
                 return Response(content, status=status.HTTP_400_BAD_REQUEST)
         else:
             query = '0' + request.DATA['query']
-         
-        results = dict()  
-        results['content'] = sparqlPublisher.sendSPARQL(query) 
         
-        srSerializer = sparqlResultsSerializer(results)
-        return Response(srSerializer.data, status=status.HTTP_200_OK)
+        if 'repositories' in request.DATA:
+            instanceResults = []
+            repositories = request.DATA['repositories'].split(",")
+            if len(repositories) == 0:
+                content = {'message':'Repositories keyword found but the list is empty.'}
+                return Response(content, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                instances = []
+                local = False
+                for repository in repositories:
+                    if repository == "Local":
+                        local = True
+                    else:
+                        try:
+                            instance = Instance.objects.get(name=repository)
+                            instances.append(instance)
+                        except:
+                            content = {'message':'Unknown repository.'}
+                            return Response(content, status=status.HTTP_400_BAD_REQUEST)
+                if local:
+                    instanceResults.append(sparqlPublisher.sendSPARQL(query)) 
+                for instance in instances:
+                    url = instance.protocol + "://" + instance.address + ":" + str(instance.port) + "/api/explore/sparql-query"
+                    if 'format' in request.DATA:
+                        data = {"query": request.DATA['query'], "format":request.DATA['format']}
+                    else:
+                        data = {"query": request.DATA['query']}
+                    r = requests.post(url, data, auth=(instance.user, instance.password))        
+                    instanceResultsDict = eval(r.text)
+                    instanceResults.append(instanceResultsDict['content'])
+                    
+                results = dict()
+                results['content'] = instanceResults
+                
+                srSerializer = sparqlResultsSerializer(results)
+                return Response(srSerializer.data, status=status.HTTP_200_OK)
+        else:
+            results = dict()  
+            results['content'] = sparqlPublisher.sendSPARQL(query) 
+            
+            srSerializer = sparqlResultsSerializer(results)
+            return Response(srSerializer.data, status=status.HTTP_200_OK)
     return Response(sqSerializer.errors,status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
