@@ -254,12 +254,13 @@ generateXMLString = function(elementObj)
 	    } else {
 		xmlString += generateXMLString(children[i]);
 	    }
-	}else if (children[i].tagName == "DIV"){
-		valModule = $(children[i]).attr("value");
-		if (typeof valModule !== typeof undefined && valModule !== false) {
-			xmlString += valModule
-		}
-	} 	
+	}
+//	else if (children[i].tagName == "DIV"){
+//		valModule = $(children[i]).attr("value");
+//		if (typeof valModule !== typeof undefined && valModule !== false) {
+//			xmlString += valModule
+//		}
+//	} 	
 	else if (children[i].tagName == "SELECT") {
 	    // get the index of the selected option 
 	    var idx = children[i].selectedIndex; 
@@ -331,30 +332,30 @@ saveHTMLFormCallback = function(data)
     return false;
 }
 
-//selectElement = function(periodicTableElement,divElement, selectedElementId)
-//{
-//    console.log('BEGIN [selectElement(' + periodicTableElement + ',' + divElement + ')]');
-//
-//    document.getElementById('chosenElement').innerHTML = "Chosen Element: <b>" + periodicTableElement + "</b>";
-//
-//    $(function() {
-//	$("#dialog-select-element" ).dialog({ width: 700 });
-//        $("#dialog-select-element" ).dialog({
-//            modal: true,
-//            buttons: {
-//		Select: function() {
-//		    		doSelectElement(divElement, selectedElementId);
-//                    $( this ).dialog( "close" );
-//                },
-//		Cancel: function() {
-//                    $( this ).dialog( "close" );
-//                }
-//	    }
-//        });
-//    });
-//	
-//    console.log('END [selectElement]');
-//}
+selectElement = function(periodicTableElement,divElement, selectedElementId)
+{
+    console.log('BEGIN [selectElement(' + periodicTableElement + ',' + divElement + ')]');
+
+    document.getElementById('chosenElement').innerHTML = "Chosen Element: <b>" + periodicTableElement + "</b>";
+
+    $(function() {
+	$("#dialog-select-element" ).dialog({ width: 700 });
+        $("#dialog-select-element" ).dialog({
+            modal: true,
+            buttons: {
+		Select: function() {
+		    		doSelectElement(divElement, selectedElementId);
+                    $( this ).dialog( "close" );
+                },
+		Cancel: function() {
+                    $( this ).dialog( "close" );
+                }
+	    }
+        });
+    });
+	
+    console.log('END [selectElement]');
+}
 
 selectHDF5File = function(hdf5File,divElement)
 {
@@ -415,31 +416,31 @@ getHDF5StringCallback = function(data)
     console.log('END [getHDF5StringCallback(' + data + ')]');
 }
 
-//chooseElement = function(element)
-//{
-//    console.log('BEGIN [chooseElement(' + element + ')]');
-//
-//    document.getElementById('chosenElement').innerHTML = "Chosen Element: <b id=\"selectedElement\">" + element + "</b>";
-//
-//    console.log('END [chooseElement(' + element + ')]');
-//}
-//
-//doSelectElement = function(divElement, selectedElementId)
-//{
-//    console.log('BEGIN [selectElement(' + divElement + ')]');
-//
-////    var selectedElement = document.getElementById('selectedElement').innerHTML;
-////    divElement.onclick = function onclick(event) { selectElement(selectedElement,this); }
-////    divElement.parentNode.childNodes[2].innerHTML = "Current Selection: " + selectedElement;
+chooseElement = function(element)
+{
+    console.log('BEGIN [chooseElement(' + element + ')]');
+
+    document.getElementById('chosenElement').innerHTML = "Chosen Element: <b id=\"selectedElement\">" + element + "</b>";
+
+    console.log('END [chooseElement(' + element + ')]');
+}
+
+doSelectElement = function(divElement, selectedElementId)
+{
+    console.log('BEGIN [selectElement(' + divElement + ')]');
+
 //    var selectedElement = document.getElementById('selectedElement').innerHTML;
 //    divElement.onclick = function onclick(event) { selectElement(selectedElement,this); }
-//    document.getElementById('elementSelected'+selectedElementId).innerHTML = "Current Selection: " + selectedElement;
-//
-//    // reset for next selection
-//    document.getElementById('chosenElement').innerHTML = "Chosen Element: <b>None</b>";
-//
-//    console.log('END [selectElement(' + divElement + ')]');
-//}
+//    divElement.parentNode.childNodes[2].innerHTML = "Current Selection: " + selectedElement;
+    var selectedElement = document.getElementById('selectedElement').innerHTML;
+    divElement.onclick = function onclick(event) { selectElement(selectedElement,this); }
+    document.getElementById('elementSelected'+selectedElementId).innerHTML = "Current Selection: " + selectedElement;
+
+    // reset for next selection
+    document.getElementById('chosenElement').innerHTML = "Chosen Element: <b>None</b>";
+
+    console.log('END [selectElement(' + divElement + ')]');
+}
 
 changeChoice = function(selectObj)
 {

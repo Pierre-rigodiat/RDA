@@ -600,10 +600,10 @@ def generateFormSubSection(xpath,selected,xmlElement, xmlTree, namespace):
 
     if e is None:
         return formString    
-    
-    if e.attrib.get('name') in mapModules.keys():
-        formString += mapModules[e.attrib.get('name')]    
-        return formString
+    #TODOD: module
+#     if e.attrib.get('name') in mapModules.keys():
+#         formString += mapModules[e.attrib.get('name')]    
+#         return formString
     
     if e.tag == "{0}complexType".format(namespace):
         if debugON: formString += "matched complexType" 
@@ -1018,13 +1018,13 @@ def generateFormSubSection(xpath,selected,xmlElement, xmlTree, namespace):
         if simpleTypeChildren is None:
             return formString
 
-#         if e.attrib.get('name') == "ChemicalElement":
-#             currentXPath = xmlDocTree.getpath(e)
-#             formString += "<div class=\"btn select-element\" onclick=\"selectElement('None',this,"+str(nbSelectedElement)+");\"><i class=\"icon-folder-open\"></i> Select Chemical Element</div>"
-#             formString += "<div id=\"elementSelected"+ str(nbSelectedElement) +"\">Current Selection: None</div>"
-#             nbSelectedElement += 1
-# 
-#             return formString
+        #TODO: modules
+        if e.attrib.get('name') == "ChemicalElement":
+            currentXPath = xmlDocTree.getpath(e)
+            formString += "<div class=\"btn select-element\" onclick=\"selectElement('None',this,"+str(nbSelectedElement)+");\"><i class=\"icon-folder-open\"></i> Select Chemical Element</div>"
+            formString += "<div id=\"elementSelected"+ str(nbSelectedElement) +"\">Current Selection: None</div>"
+            nbSelectedElement += 1 
+            return formString
 
         for simpleTypeChild in simpleTypeChildren:
             if simpleTypeChild.tag == "{0}restriction".format(namespace):
@@ -1322,9 +1322,10 @@ def duplicateFormSubSection(xpath, xmlTree, namespace):
     if e is None:
         return formString
     
-    if e.attrib.get('name') in mapModules.keys():
-        formString += mapModules[e.attrib.get('name')]    
-        return formString 
+    #TODO: modules
+#     if e.attrib.get('name') in mapModules.keys():
+#         formString += mapModules[e.attrib.get('name')]    
+#         return formString 
     
     if e.tag == "{0}complexType".format(namespace):
         if debugON: formString += "matched complexType" 
@@ -1344,7 +1345,6 @@ def duplicateFormSubSection(xpath, xmlTree, namespace):
                     if 'type' not in sequenceChild.attrib:
                         if 'ref' in sequenceChild.attrib: 
                             if sequenceChild.attrib.get('ref') == "hdf5:HDF5-File":
-#                                 formString += "<ul><li><i><div id='hdf5File'>" + sequenceChild.attrib.get('ref') + "</div></i> "
                                 formString += "<ul><li><i><div id='hdf5File'>Spreadsheet File</div></i> "
                                 formString += "<div class=\"btn select-element\" onclick=\"selectHDF5File('Spreadsheet File',this);\"><i class=\"icon-folder-open\"></i> Upload Spreadsheet </div>"
                                 formString += "</li></ul>"
@@ -1579,13 +1579,14 @@ def duplicateFormSubSection(xpath, xmlTree, namespace):
         if simpleTypeChildren is None:
             return formString
 
-#         if e.attrib.get('name') == "ChemicalElement":
-# #            formString += "<div id=\"periodicTable\"></div>"
-#             formString += "<div class=\"btn select-element\" onclick=\"selectElement('None',this,"+str(nbSelectedElement)+");\"><i class=\"icon-folder-open\"></i> Select Chemical Element</div>"
-#             formString += "<div id=\"elementSelected"+ str(nbSelectedElement) +"\">Current Selection: None</div>"
-#             nbSelectedElement += 1
-# 
-#             return formString
+        #TODO: modules
+        if e.attrib.get('name') == "ChemicalElement":
+#            formString += "<div id=\"periodicTable\"></div>"
+            formString += "<div class=\"btn select-element\" onclick=\"selectElement('None',this,"+str(nbSelectedElement)+");\"><i class=\"icon-folder-open\"></i> Select Chemical Element</div>"
+            formString += "<div id=\"elementSelected"+ str(nbSelectedElement) +"\">Current Selection: None</div>"
+            nbSelectedElement += 1
+ 
+            return formString
 
         for simpleTypeChild in simpleTypeChildren:
             if simpleTypeChild.tag == "{0}restriction".format(namespace):
@@ -1765,6 +1766,16 @@ def generateXSDTreeForEnteringData(request):
 
 
     originalForm = formString
+
+    #TODO: modules
+    pathFile = "{0}/static/resources/files/{1}"
+    path = pathFile.format(settings.SITE_ROOT,"periodic.html")
+    print 'path is ' + path
+    periodicTableDoc = open(path,'r')
+    periodicTableString = periodicTableDoc.read()
+    
+    dajax.assign('#periodicTable', 'innerHTML', periodicTableString)
+
     dajax.assign('#xsdForm', 'innerHTML', formString)
  
     print 'END def generateXSDTreeForEnteringData(request)'
