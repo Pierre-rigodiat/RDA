@@ -8,12 +8,17 @@
 # Author: Sharief Youssef
 #         sharief.youssef@nist.gov
 #
+#		  Guillaume SOUSA AMARAL
+#		  guillaume.sousa@nist.gov
+#
 # Sponsor: National Institute of Standards and Technology
 #
 ################################################################################
 -->
 
 {% load staticfiles %}
+
+{% load dajaxice_templatetags %}
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" dir="ltr">
@@ -25,14 +30,17 @@
 	<meta name="author" content="" />
 	<link rel="stylesheet" type="text/css" href="{% static 'resources/css/lib/bootstrap.min.css' %}"  media="screen" />
 	<link rel="stylesheet" type="text/css" href="{% static 'style.css' %}" media="screen" />
+	<link rel="stylesheet" type="text/css" href="{% static 'resources/css/style.add.css' %}"  media="screen" />
+	<link rel="stylesheet" type="text/css" href="{% static 'resources/css/exploreTabs.css' %}"  media="screen" />
 	<title>Materials Data Curation System</title>
 
 	<!-- JQuery & JQuery UI -->
 	<script src="{% static 'resources/lib/jquery/jquery-1.11.1.min.js' %}"></script>
 	<script src="{% static 'resources/js/bootstrap.min.js' %}"></script>
     <link rel="stylesheet" type="text/css" href="{% static 'resources/lib/jquery-ui/themes/smoothness/jquery-ui.css' %}"/>        
-    <script src="{% static 'resources/lib/jquery-ui/themes/smoothness/jquery-ui.js' %}"></script>	
-
+    <script src="{% static 'resources/lib/jquery-ui/themes/smoothness/jquery-ui.js' %}"></script>
+	<script src="{% static 'dajax/jquery.dajax.core.js' %}"></script>	
+	{% dajaxice_js_import %}
 </head>
 
 <body id="top">
@@ -110,7 +118,7 @@
 					</div>
 					<div class="clearer">&nbsp;</div>
   <div class="btn-group pull-right">
-    <button class="btn save-profile"><i class="icon-hdd"></i> Save</button>
+    <button class="btn save-profile" userid="{{ user.id }}"><i class="icon-hdd"></i> Save</button>
     <button class="btn load-form" onclick="location.href='/my-profile'"><i class="icon-hdd"></i> Done</button>
     </div>
 <br><br>
@@ -118,19 +126,19 @@
 <table>
 <tr>
 <td>First Name:</td>
-<td><input type="text" value="{{ user.first_name }}"></td>
+<td><input type="text" id="first_name" value="{{ user.first_name }}"/></td>
 </tr>
 <tr>
 <td>Last Name:</td>
-<td><input type="text" value="{{ user.last_name }}"></td>
+<td><input type="text" id="last_name" value="{{ user.last_name }}"/></td>
 </tr>
 <tr>
 <td>Username:</td>
-<td><input type="text" value="{{ user.username }}"></td>
+<td><input type="text" id="username" value="{{ user.username }}"/></td>
 </tr>
 <tr>
 <td>Email:</td>
-<td><input type="text" value="{{ user.email }}"></td>
+<td><input type="text" id="email" value="{{ user.email }}"/></td>
 </tr>
 </table>
 <p>
@@ -195,26 +203,14 @@
   </p>
 </div>
 
+<div id="dialog-errors-message" title="Errors" style="display:none;">
+    <div id="edit-errors">
+    </div>  
+</div>
+
+<script src="{% static 'inc/controllers/js/user_account_req.js' %}"></script>
 <script>
-saveProfile = function()
-{
-    console.log('BEGIN [saveProfile]');
-
-    $(function() {
-        $( "#dialog-saved-message" ).dialog({
-            modal: true,
-            buttons: {
-                    Ok: function() {
-                    $( this ).dialog( "close" );
-                }
-    }
-        });
-    });
-
-    console.log('END [saveProfile]');
-}
-
-$('.btn.save-profile').on('click', saveProfile);
+loadEditProfileHandler();
 </script>
 
 

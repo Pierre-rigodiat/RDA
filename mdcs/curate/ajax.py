@@ -2775,3 +2775,52 @@ def deleteBackup(request, backup):
     return dajax.json()
 
 
+@dajaxice_register
+def saveUserProfile(request, userid, username, firstname, lastname, email):
+    dajax = Dajax()
+    
+    user = User.objects.get(id=userid)
+    errors = ""
+    if username != user.username:
+        try:
+            user = User.objects.get(username=username)
+            errors += "A user with the same username already exists.<br/>"
+            dajax.script(
+            """
+            $("#edit-errors").html('"""+errors+"""');
+            $(function() {
+                $( "#dialog-errors-message" ).dialog({
+                  modal: true,
+                  buttons: {
+                    Ok: function() {
+                      $( this ).dialog( "close" );
+                    }
+                  }
+                });
+              });
+              """)
+            return dajax.json()
+        except:
+            user.username = username
+    
+    user.first_name = firstname
+    user.last_name = lastname
+    user.email = email
+    user.save()
+    dajax.script(
+    """
+    $(function() {
+        $( "#dialog-saved-message" ).dialog({
+            modal: true,
+            buttons: {
+                    Ok: function() {                        
+                    $( this ).dialog( "close" );
+                }
+            }
+        });
+    });
+    """)
+    
+    return dajax.json()
+
+
