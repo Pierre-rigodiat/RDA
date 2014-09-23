@@ -112,3 +112,66 @@ saveProfile = function()
     console.log('END [saveProfile]');
 }
 
+loadChangePasswordHandler = function()
+{
+    console.log('BEGIN [loadChangePasswordHandler]');
+    $('.btn.save-profile').on('click', saveProfile);
+    console.log('END [loadChangePasswordHandler]');
+}
+
+saveProfile = function()
+{
+    console.log('BEGIN [saveProfile]');
+
+    firstname = $("#old_pass").val();
+	pass1 = $("#pass1").val();
+	pass2 = $("#pass2").val();
+	userid = $(this).attr("userid");
+	
+	errors = "";
+	if (old_pass == "" || pass1 == "" || pass2 == ""){
+		errors += "Some fields are empty.<br/>";
+	}else{
+		if (pass1 != pass2){
+			errors += "New passwords should be identic.<br/>";
+		}else{
+			if(checkPassword(pass1) == false){
+				errors += "Password should respect the following requirements:<br/>"
+				errors += "- Minimum length: 8 characters.<br/>"
+				errors += "- At least 1 alphanumeric character.<br/>"
+				errors += "- At least 1 non alphanumeric character.<br/>"				
+			}
+		}
+	}
+	if (errors != ""){
+		$("#list-errors").html(errors);
+		$(function() {
+		    $( "#dialog-errors-message" ).dialog({
+		      modal: true,
+		      buttons: {
+		        Ok: function() {
+		          $( this ).dialog( "close" );
+		        }
+		      }
+		    });
+		  });
+	}
+	else{
+		Dajaxice.curate.changePassword(Dajax.process,{"userid":userid, "old_password":old_pass, "password":pass1});
+	}
+    
+    
+//    $(function() {
+//        $( "#dialog-saved-message" ).dialog({
+//            modal: true,
+//            buttons: {
+//                    Ok: function() {
+//                    $( this ).dialog( "close" );
+//                }
+//    }
+//        });
+//    });
+
+    console.log('END [saveProfile]');
+}
+

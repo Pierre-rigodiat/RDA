@@ -2823,4 +2823,10 @@ def saveUserProfile(request, userid, username, firstname, lastname, email):
     
     return dajax.json()
 
-
+@dajaxice_register
+def changePassword(request, userid, old_password, password):
+    dajax = Dajax()
+    
+    
+    
+    return dajax.json()
