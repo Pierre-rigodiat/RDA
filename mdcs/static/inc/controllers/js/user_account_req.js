@@ -115,15 +115,15 @@ saveProfile = function()
 loadChangePasswordHandler = function()
 {
     console.log('BEGIN [loadChangePasswordHandler]');
-    $('.btn.save-profile').on('click', saveProfile);
+    $('.btn.change-pass').on('click', changePassword);
     console.log('END [loadChangePasswordHandler]');
 }
 
-saveProfile = function()
+changePassword = function()
 {
-    console.log('BEGIN [saveProfile]');
+    console.log('BEGIN [changePassword]');
 
-    firstname = $("#old_pass").val();
+    old_pass = $("#old_pass").val();
 	pass1 = $("#pass1").val();
 	pass2 = $("#pass2").val();
 	userid = $(this).attr("userid");
@@ -172,6 +172,6 @@ saveProfile = function()
 //        });
 //    });
 
-    console.log('END [saveProfile]');
+    console.log('END [changePassword]');
 }
 

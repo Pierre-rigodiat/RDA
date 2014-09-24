@@ -2834,10 +2834,48 @@ def saveUserProfile(request, userid, username, firstname, lastname, email):
     
     return dajax.json()
 
+from django.contrib.auth import authenticate
+
 @dajaxice_register
 def changePassword(request, userid, old_password, password):
     dajax = Dajax()
     
-    
+    errors = ""
+    user = User.objects.get(id=userid)
+    auth_user = authenticate(username=user.username, password=old_password)
+    if auth_user is None:
+        errors += "The old password is incorrect"
+        dajax.script(
+        """
+        $("#list-errors").html('"""+errors+"""');
+        $(function() {
+            $( "#dialog-errors-message" ).dialog({
+              modal: true,
+              buttons: {
+                Ok: function() {
+                  $( this ).dialog( "close" );
+                }
+              }
+            });
+          });
+          """)
+        return dajax.json()
+    else:        
+        user.set_password(password)
+        user.save()
+        dajax.script(
+        """
+        $(function() {
+            $( "#dialog-saved-message" ).dialog({
+                modal: true,
+                buttons: {
+                        Ok: function() {                        
+                        $( this ).dialog( "close" );
+                    }
+                }
+            });
+        });
+        """)
+
     
     return dajax.json()
