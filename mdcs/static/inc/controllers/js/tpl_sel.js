@@ -479,11 +479,11 @@ doSelectMultipleElements = function(divElement)
 console.log('BEGIN [selectElement(' + divElement + ')]');
 
 
-
+var xmlResult = "";
+var displayedResults = "";
 //if the second row contains 1 cel: no selected elements
 if (!($("#tableChosenElements").children("tbody").children().length == 2 && $($("#tableChosenElements").children("tbody").children()[1]).children().length == 1)){
-	var xmlResult = "";
-	var displayedResults = "<table>"
+	displayedResults = "<table>"
 	displayedResults += "<tr><th>Element</th><th>Quantity</th><th>Purity</th><th>Error</th></tr>"
 	
 	$("#tableChosenElements").children("tbody").children().each(function(i,tr){
