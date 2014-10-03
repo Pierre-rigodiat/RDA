@@ -436,7 +436,30 @@ doSelectElement = function(divElement)
 selectMultipleElements = function(divElement)
 {
   console.log('BEGIN [selectElement(' + divElement + ')]');
-
+  
+  
+  if ($($(divElement).parent()).children(".moduleDisplay").html() != ""){	  
+	  var newTable = "<table>";
+	  newTable += "<tr><th>Element</th><th>Quantity</th><th>Purity</th><th>Error</th><th>Actions</th></tr>";
+	  console.log($($(divElement).parent()).children(".moduleDisplay").children("table").children("tbody").children())
+	  $($(divElement).parent()).children(".moduleDisplay").children("table").children("tbody").children().each(function(i,tr){
+			// not the headers
+			if (i != 0){  
+				console.log(i,tr)				
+				newTable += "<tr>";
+				newTable += "<td style='text-align:center'>"  + $($(tr).children()[0]).html() + "</td>";
+				newTable += "<td><input type='text' value='"  + $($(tr).children()[1]).html() + "'/></td>"; 
+				newTable += "<td><input type='text' value='"  + $($(tr).children()[2]).html() + "'/></td>";
+				newTable += "<td><input type='text' value='"  + $($(tr).children()[3]).html() + "'/></td>";
+				newTable += "<td><span class='btn' onclick='removeMultipleElement(this)'>Remove</span></td>"
+				newTable += "</tr>";
+			}
+	  });
+	  
+	  newTable += "</table>"  
+	  $("#tableChosenElements").html(newTable);
+  }
+  
   $(function() {
       $("#dialog-select-element-multiple" ).dialog({
           modal: true,
@@ -497,7 +520,7 @@ if (!($("#tableChosenElements").children("tbody").children().length == 2 && $($(
 			xmlResult += "</constituent>";
 			
 			displayedResults += "<tr>";
-			displayedResults += "<td style='text-align:center'><b>"  + $($(tr).children()[0]).html() + "<b></td>";
+			displayedResults += "<td style='text-align:center'>"  + $($(tr).children()[0]).html() + "</td>";
 			displayedResults += "<td style='text-align:center'>"  + $($(tr).children()[1]).children().val() + "</td>"; 
 			displayedResults += "<td style='text-align:center'>"  + $($(tr).children()[2]).children().val() + "</td>";
 			displayedResults += "<td style='text-align:center'>"  + $($(tr).children()[3]).children().val() + "</td>";
