@@ -37,6 +37,7 @@ import xmltodict
 from bson.objectid import ObjectId
 from dateutil import tz
 import hashlib
+import json
 
 #import xml.etree.ElementTree as etree
 import lxml.html as html
@@ -48,29 +49,17 @@ import rdfPublisher
 
 #XSL file loading
 import os
+from explore.ajax import formString
+from json.decoder import JSONDecoder
+
+# SPARQL : URI for the project (http://www.example.com/)
+projectURI = "http://www.example.com/"
 
 # Global Variables
-xmlString = ""
-formString = ""
-xmlDocTree = ""
-xmlDataTree = ""
 debugON = 0
-nbChoicesID = 0
-nbSelectedElement = 0
+
 xsd_elements = None
-mapTagElement = None
 occurrences = None
-xsdVersionContent = ""
-xsdVersionFilename = ""
-ontologyVersionContent = ""
-ontologyVersionFilename = ""
-originalForm = ""
-currentResourceContent = ""
-currentResourceFilename = ""
-listModuleResource = []
-mapModules = dict() 
-namespaces = dict() #ET _namespaces doesn't allow to get namespaces declared in <schema>
-defaultPrefix = ""
 
 
 class ModuleResourceInfo:
@@ -78,7 +67,10 @@ class ModuleResourceInfo:
     
     def __init__(self, content = "", filename = ""):
         self.content = content
-        self.filename = filename
+        self.filename = filename   
+
+    def __to_json__(self):
+        return json.dumps(self, default=lambda o:o.__dict__)
 
 class ElementOccurrences:
     "Class that store information about element occurrences"
@@ -91,80 +83,7 @@ class ElementOccurrences:
         self.maxOccurrences = maxOccurrences
         
         #current number of occurrences of the element
-        self.nbOccurrences = nbOccurrences
-        
-
-
-# SPARQL : URI for the project (http://www.example.com/)
-projectURI = "http://www.example.com/"
-
-################################################################################
-#
-# Function Name: getXsdString(request)
-# Inputs:        request - 
-# Outputs:       XML Schema of the current template
-# Exceptions:    None
-# Description:   Returns an XML Schema of the current template.
-#                The template is is the unmodified version.
-#
-################################################################################
-@dajaxice_register
-def getXsdString(request):
-    print '>>>> BEGIN def getXsdString(request)'
-    dajax = Dajax()
-
-    templateID = request.session['currentTemplateID']
-
-    templateObject = Template.objects.get(pk=ObjectId(templateID))
-    xmlDocData = templateObject.content
-
-    xmlString = xmlDocData.encode('utf-8')
-
-    print '>>>> END def getXsdString(request)'
-    return simplejson.dumps({'xmlString':xmlString})
-
-################################################################################
-#
-# Function Name: getCurrentXsdString(request)
-# Inputs:        request - 
-# Outputs:       XML Schema of the current template
-# Exceptions:    None
-# Description:   Returns an XML Schema of the current *version* of the template.
-#                The template is possibly modified.
-#
-################################################################################
-@dajaxice_register
-def getCurrentXsdString(request):
-    print '>>>> BEGIN def getXsdString(request)'
-    dajax = Dajax()
-
-    global xmlDocTree
-
-    xmlString = xmlDocTree.tostring()
-
-    print '>>>> END def getXsdString(request)'
-    return simplejson.dumps({'xmlString':xmlString})
-
-################################################################################
-#
-# Function Name: getXmlString(request)
-# Inputs:        request - 
-# Outputs:       XML representation of the current data instance
-# Exceptions:    None
-# Description:   Returns an XML representation of the current data instance.
-#                Used when user wants to download the XML file.
-#
-################################################################################
-@dajaxice_register
-def getXmlString(request):
-    print '>>>>  BEGIN def getXmlString(request)'
-    dajax = Dajax()
-
-#    htmlFormObject = Htmlform.objects.get(title="Form 9")
-#    xmlString = htmlFormObject.content
-
-    print '>>>> END def getXmlString(request)'
-    return simplejson.dumps({'xmlString':xmlString})
+        self.nbOccurrences = nbOccurrences        
 
 ################################################################################
 #
@@ -240,11 +159,8 @@ def saveHTMLForm(request,saveAs,content):
     print '>>>>  BEGIN def updateFormList(request)'
     dajax = Dajax()
 
-    global formString
-
     templateID = request.session['currentTemplateID']
 
-#    newHTMLForm = Htmlform(title=saveAs, schema=templateID, content=formString).save()
     newHTMLForm = Htmlform(title=saveAs, schema=templateID, content=content).save()
 
     print '>>>> END def updateFormList(request)'
@@ -265,8 +181,7 @@ def saveXMLDataToDB(request,saveAs):
     print '>>>>  BEGIN def saveXMLDataToDB(request,saveAs)'
     dajax = Dajax()
 
-    global xmlString
-
+    xmlString = request.session['xmlString']
     templateID = request.session['currentTemplateID']
 
     #newXMLData = Xmldata(title=saveAs, schema=templateID, content=xmlString).save()
@@ -318,11 +233,8 @@ def saveXMLData(request,xmlContent,formContent):
     print '>>>>  BEGIN def saveXMLData(request,xmlContent,formContent)'
     dajax = Dajax()
 
-    global xmlString
-    global formString
-
-    xmlString = xmlContent
-    formString = formContent
+    request.session['xmlString'] = xmlContent
+    request.session['formString'] = formContent
 
     print '>>>> END def saveXMLData(request,xmlContent,formContent)'
     return dajax.json()
@@ -342,8 +254,6 @@ def saveXMLData(request,xmlContent,formContent):
 def loadFormForEntry(request,formSelected):
     print '>>>>  BEGIN def loadFormForEntry(request,formSelected)'
     dajax = Dajax()
-
-    global xmlString
 
     print 'formSelected: ' + formSelected
     htmlFormObject = Htmlform.objects.get(id=formSelected)
@@ -367,14 +277,10 @@ def loadFormForEntry(request,formSelected):
 @dajaxice_register
 def setCurrentTemplate(request,templateFilename,templateID):
     print 'BEGIN def setCurrentTemplate(request)'
-    
-    global xmlDocTree
-    global xmlString
-    global formString
 
     # reset global variables
-    xmlString = ""
-    formString = ""
+    request.session['xmlString'] = ""
+    request.session['formString'] = ""
 
     request.session['currentTemplate'] = templateFilename
     request.session['currentTemplateID'] = templateID
@@ -385,11 +291,8 @@ def setCurrentTemplate(request,templateFilename,templateID):
     templateObject = Template.objects.get(pk=templateID)
     xmlDocData = templateObject.content
 
-#    xmlDocTree = etree.parse(BytesIO(xmlDocData.encode('utf-8')))
-    print XMLSchema.tree
     XMLSchema.tree = etree.parse(BytesIO(xmlDocData.encode('utf-8')))
-    print XMLSchema.tree
-    xmlDocTree = XMLSchema.tree
+    request.session['xmlDocTree'] = etree.tostring(XMLSchema.tree)
 
     print 'END def setCurrentTemplate(request)'
     return dajax.json()
@@ -544,26 +447,6 @@ def deleteXMLOntology(request,xmlOntologyID):
     print 'END def deleteXMLOntology(request,xmlOntologyID)'
     return dajax.json()
 
-################################################################################
-# 
-# Function Name: setCurrentModel(request,modelFilename)
-# Inputs:        request - 
-#                modelFilename - 
-# Outputs:       JSON data 
-# Exceptions:    None
-# Description:   Sets current model 
-# 
-################################################################################
-# @dajaxice_register
-# def setCurrentModel(request,modelFilename):
-#     print 'BEGIN def setCurrentModel(request)'
-#     request.session['currentTemplate'] = modelFilename
-#     request.session.modified = True
-#     print '>>>>' + modelFilename
-#     dajax = Dajax()
-# 
-#     print 'END def setCurrentModel(request)'
-#     return dajax.json()
 
 ################################################################################
 # 
@@ -576,19 +459,18 @@ def deleteXMLOntology(request,xmlOntologyID):
 # Description:   
 #
 ################################################################################
-def generateFormSubSection(xpath,selected,xmlElement, xmlTree, namespace):
+def generateFormSubSection(request, xpath, xmlTree, namespace):
     print 'BEGIN def generateFormSubSection(xpath,selected,xmlElement)'
-    formString = ""
-    global xmlString
-    global xmlDataTree
-    global nbChoicesID
-    global nbSelectedElement
+    
     global xsd_elements
-    global mapTagElement
     global occurrences
-    global mapModules
     global debugON
-    p = re.compile('(\{.*\})?schema', re.IGNORECASE)
+    
+    mapTagElement = request.session['mapTagElement']
+#     mapModules = request.session['mapModules']
+    namespaces = request.session['namespaces']
+    nbChoicesID = int(request.session['nbChoicesID'])
+    formString = ""
 
     if xpath is None:
         print "xpath is none"
@@ -696,7 +578,7 @@ def generateFormSubSection(xpath,selected,xmlElement, xmlTree, namespace):
                                                 formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" onclick=\"changeHTMLForm('remove',this,"+str(tagID[7:])+");\"></span>"
                                             else:
                                                 formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" style=\"display:none;\" onclick=\"changeHTMLForm('remove',this,"+str(tagID[7:])+");\"></span>"
-                                            formString += generateFormSubSection(e[0].attrib.get('type'),"",xmlElement, refTypeTree, namespace)
+                                            formString += generateFormSubSection(request, e[0].attrib.get('type'), refTypeTree, namespace)
                                             formString += "</nobr></li>"
                                         formString += "</ul>"
                                     except:
@@ -729,40 +611,16 @@ def generateFormSubSection(xpath,selected,xmlElement, xmlTree, namespace):
                         xsd_elements[elementID] = sequenceChild
                         manageOccurences(sequenceChild, elementID)
                         formString += "<ul>"                                   
-                        for x in range (0,int(nbOccurrences)):
-                            newElement = etree.Element("ul")
-                            xmlElement.append(newElement)
-                            xmlElement = newElement
-                            newElement = etree.Element("li")
-                            newElement.attrib['text'] = textCapitalized
-                            xmlElement.append(newElement)
-                            xmlElement = newElement
-                            newElement = etree.Element("nobr")
-                            newElement.text = textCapitalized + " "
-                            xmlElement.append(newElement)
-                            xmlElement = newElement
-                            newElement = etree.Element("input")
-                            newElement.attrib['type'] = "text"
-                            xmlElement.append(newElement)                            
+                        for x in range (0,int(nbOccurrences)):                         
                             tagID = "element" + str(len(mapTagElement.keys()))  
                             mapTagElement[tagID] = elementID 
                             formString += "<li id='" + str(tagID) + "'><nobr>" + textCapitalized + " <input type='text'>"
-                            xmlString += "<" + sequenceChild.attrib.get('name') + ">" + "</" + sequenceChild.attrib.get('name') + ">"
-                            currentXPath = xmlTree.getpath(sequenceChild)
-                            xmlElement = newElement
-                            newElement = etree.Element("span")
-                            newElement.attrib['class'] = "icon add"
-                            xmlElement.append(newElement)
+                                                
                             if (addButton == True):                                
                                 formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" onclick=\"changeHTMLForm('add',this,"+str(tagID[7:])+");\"></span>"
                             else:
-                                formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" style=\"display:none;\" onclick=\"changeHTMLForm('add',this,"+str(tagID[7:])+");\"></span>"
-                                
-                            currentXPath = xmlTree.getpath(sequenceChild)
-                            xmlElement = newElement
-                            newElement = etree.Element("span")
-                            newElement.attrib['class'] = "icon remove"
-                            xmlElement.append(newElement)
+                                formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" style=\"display:none;\" onclick=\"changeHTMLForm('add',this,"+str(tagID[7:])+");\"></span>"                                
+
                             if (deleteButton == True):
                                 formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" onclick=\"changeHTMLForm('remove',this,"+str(tagID[7:])+");\"></span>"
                             else:
@@ -793,241 +651,124 @@ def generateFormSubSection(xpath,selected,xmlElement, xmlTree, namespace):
                             xsd_elements[elementID] = sequenceChild
                             manageOccurences(sequenceChild, elementID)
                             formString += "<ul>"                                   
-                            for x in range (0,int(nbOccurrences)):
-                                newElement = etree.Element("ul")
-                                xmlElement.append(newElement)
-                                xmlElement = newElement
-                                newElement = etree.Element("li")
-                                newElement.attrib['text'] = textCapitalized
-                                xmlElement.append(newElement)
-                                xmlElement = newElement
-                                newElement = etree.Element("nobr")
-                                newElement.text = textCapitalized
-                                xmlElement.append(newElement)                            
+                            for x in range (0,int(nbOccurrences)):                            
                                 tagID = "element" + str(len(mapTagElement.keys()))  
                                 mapTagElement[tagID] = elementID 
                                 formString += "<li id='" + str(tagID) + "'><nobr>" + textCapitalized + " "
-                                xmlString += "<" + sequenceChild.attrib.get('name') + ">"
-                                currentXPath = xmlTree.getpath(sequenceChild)
-                                xmlElement = newElement
-                                newElement = etree.Element("span")
-                                newElement.attrib['class'] = "icon add"
-                                xmlElement.append(newElement)
+
                                 if (addButton == True):                                
                                     formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" onclick=\"changeHTMLForm('add',this,"+str(tagID[7:])+");\"></span>"
                                 else:
                                     formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" style=\"display:none;\" onclick=\"changeHTMLForm('add',this,"+str(tagID[7:])+");\"></span>"
                                     
-                                currentXPath = xmlTree.getpath(sequenceChild)
-                                xmlElement = newElement
-                                newElement = etree.Element("span")
-                                newElement.attrib['class'] = "icon remove"
-                                xmlElement.append(newElement)
                                 if (deleteButton == True):
                                     formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" onclick=\"changeHTMLForm('remove',this,"+str(tagID[7:])+");\"></span>"
                                 else:
                                     formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" style=\"display:none;\" onclick=\"changeHTMLForm('remove',this,"+str(tagID[7:])+");\"></span>"
-                                formString += generateFormSubSection(sequenceChild.attrib.get('type'),selected,newElement,xmlTree,namespace)
-                                xmlString += "</" + sequenceChild.attrib.get('name') + ">"
+                                formString += generateFormSubSection(request, sequenceChild.attrib.get('type'),xmlTree,namespace)
                                 formString += "</nobr></li>"
                             formString += "</ul>"
                         else:
                             print "No Type"
                 elif sequenceChild.tag == "{0}choice".format(namespace):
-                    newElement = etree.Element("ul")
-                    xmlElement.append(newElement)
-                    xmlElement = newElement
-                    newElement = etree.Element("li")
-                    xmlElement.append(newElement)
-                    xmlElement = newElement
-                    newElement = etree.Element("nobr")
-                    newElement.text = "Choose "
-                    xmlElement.append(newElement)
-                    xmlElement = newElement
-                    newElement = etree.Element("select")
-                    newElement.attrib['onchange'] = "alert('change to ' + this.value);"
-                    xmlElement.append(newElement)
-                    xmlElement = newElement
                     chooseID = nbChoicesID
                     chooseIDStr = 'choice' + str(chooseID)
                     nbChoicesID += 1
+                    request.session['nbChoicesID'] = str(nbChoicesID)
                     formString += "<ul><li><nobr>Choose <select id='"+ chooseIDStr +"' onchange=\"changeChoice(this);\">"
                     choiceChildren = sequenceChild.findall('*')
                     selectedChild = choiceChildren[0]
-                    xmlString += "<" + selectedChild.attrib.get('name') + "/>"
                     for choiceChild in choiceChildren:
                         if choiceChild.tag == "{0}element".format(namespace):
                             textCapitalized = choiceChild.attrib.get('name')
-                            newElement = etree.Element("option")
-                            newElement.attrib['value'] = textCapitalized 
-                            newElement.text = textCapitalized 
-                            xmlElement.append(newElement)
                             formString += "<option value='" + textCapitalized + "'>" + textCapitalized + "</option></b><br>"
                     formString += "</select>"
-                    print "+++++++++++++++++++++++++++++++++++++++++++"
-                    if selected == "":
-                        for (counter, choiceChild) in enumerate(choiceChildren):
-                            if choiceChild.tag == "{0}element".format(namespace):
-                                if((choiceChild.attrib.get('type') == "xsd:string".format(namespace))
-                                  or (choiceChild.attrib.get('type') == "xsd:double".format(namespace))
-                                  or (choiceChild.attrib.get('type') == "xsd:float".format(namespace)) 
-                                  or (choiceChild.attrib.get('type') == "xsd:integer".format(namespace)) 
-                                  or (choiceChild.attrib.get('type') == "xsd:anyURI".format(namespace))):
-                                    textCapitalized = choiceChild.attrib.get('name')
-                                    print textCapitalized + " is string type"
-                                    newElement = etree.Element("ul")
-                                    xmlElement.append(newElement)
-                                    xmlElement = newElement
-                                    newElement = etree.Element("li")
-                                    newElement.attrib['id'] = choiceChild.attrib.get('name')
-                                    xmlElement.append(newElement)
-                                    xmlElement = newElement
-                                    newElement = etree.Element("nobr")
-                                    newElement.text = choiceChild.attrib.get('name') 
-                                    xmlElement.append(newElement)
-                                    xmlElement = newElement
-                                    newElement = etree.Element("option")
-                                    newElement.attrib['type'] = "text"
-                                    xmlElement.append(newElement)
-                                    elementID = len(xsd_elements)
-                                    xsd_elements[elementID] = choiceChild
-                                    tagID = "element" + str(len(mapTagElement.keys()))  
-                                    mapTagElement[tagID] = elementID 
-                                    manageOccurences(choiceChild, elementID)
-                                    if (counter > 0):
-                                        formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\" style=\"display:none;\"><li id='" + str(tagID) + "'><nobr>" + choiceChild.attrib.get('name') + " <input type='text'>" + "</nobr></li></ul>"
-                                    else:
-                                        formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\"><li id='" + str(tagID) + "'><nobr>" + choiceChild.attrib.get('name') + " <input type='text'>" + "</nobr></li></ul>"
+                    
+                    for (counter, choiceChild) in enumerate(choiceChildren):
+                        if choiceChild.tag == "{0}element".format(namespace):
+                            if((choiceChild.attrib.get('type') == "xsd:string".format(namespace))
+                              or (choiceChild.attrib.get('type') == "xsd:double".format(namespace))
+                              or (choiceChild.attrib.get('type') == "xsd:float".format(namespace)) 
+                              or (choiceChild.attrib.get('type') == "xsd:integer".format(namespace)) 
+                              or (choiceChild.attrib.get('type') == "xsd:anyURI".format(namespace))):
+                                textCapitalized = choiceChild.attrib.get('name')                                
+                                elementID = len(xsd_elements)
+                                xsd_elements[elementID] = choiceChild
+                                tagID = "element" + str(len(mapTagElement.keys()))  
+                                mapTagElement[tagID] = elementID 
+                                manageOccurences(choiceChild, elementID)
+                                if (counter > 0):
+                                    formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\" style=\"display:none;\"><li id='" + str(tagID) + "'><nobr>" + choiceChild.attrib.get('name') + " <input type='text'>" + "</nobr></li></ul>"
                                 else:
-                                    textCapitalized = choiceChild.attrib.get('name')
-                                    print textCapitalized + " is not string type"
-                                    newElement = etree.Element("ul")
-                                    newElement.attrib['id'] = textCapitalized
-                                    xmlElement.append(newElement)
-                                    xmlElement = newElement
-                                    newElement = etree.Element("li")
-                                    xmlElement.append(newElement)
-                                    xmlElement = newElement
-                                    newElement = etree.Element("nobr")
-                                    newElement.text = textCapitalized
-                                    xmlElement.append(newElement)
-                                    elementID = len(xsd_elements)
-                                    xsd_elements[elementID] = choiceChild
-                                    tagID = "element" + str(len(mapTagElement.keys()))  
-                                    mapTagElement[tagID] = elementID 
-                                    manageOccurences(choiceChild, elementID)
-                                    if (counter > 0):
-                                        formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\" style=\"display:none;\"><li id='" + str(tagID) + "'><nobr>" + textCapitalized
-                                    else:
-                                        formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\"><li id='" + str(tagID) + "'><nobr>" + textCapitalized
-                                    xmlString += "<" + textCapitalized + ">" 
-                                    formString += generateFormSubSection(choiceChild.attrib.get('type'),selected,newElement,xmlTree,namespace) + "</nobr></li></ul>"
-                                    xmlString += "</" + textCapitalized + ">"
-                    else:
-                        formString += "selected not empty"
+                                    formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\"><li id='" + str(tagID) + "'><nobr>" + choiceChild.attrib.get('name') + " <input type='text'>" + "</nobr></li></ul>"
+                            else:
+                                textCapitalized = choiceChild.attrib.get('name')
+                                elementID = len(xsd_elements)
+                                xsd_elements[elementID] = choiceChild
+                                tagID = "element" + str(len(mapTagElement.keys()))  
+                                mapTagElement[tagID] = elementID 
+                                manageOccurences(choiceChild, elementID)
+                                if (counter > 0):
+                                    formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\" style=\"display:none;\"><li id='" + str(tagID) + "'><nobr>" + textCapitalized
+                                else:
+                                    formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\"><li id='" + str(tagID) + "'><nobr>" + textCapitalized
+                                formString += generateFormSubSection(request, choiceChild.attrib.get('type'),xmlTree,namespace) + "</nobr></li></ul>"
+                    
                     formString += "</nobr></li></ul>"
         elif complexTypeChild.tag == "{0}choice".format(namespace):
             if debugON: formString += "complexTypeChild:" + complexTypeChild.tag + "<br>"
-            newElement = etree.Element("ul")
-            xmlElement.append(newElement)
-            xmlElement = newElement
-            newElement = etree.Element("li")
-            xmlElement.append(newElement)
-            xmlElement = newElement
-            newElement = etree.Element("nobr")
-            newElement.text = "Choose "
-            xmlElement.append(newElement)
-            xmlElement = newElement
-            newElement = etree.Element("select")
-            newElement.attrib['onchange'] = "alert('change to ' + this.value);"
-            xmlElement.append(newElement)
-            xmlElement = newElement
             chooseID = nbChoicesID        
             chooseIDStr = 'choice' + str(chooseID)
             nbChoicesID += 1
+            request.session['nbChoicesID'] = str(nbChoicesID)
             formString += "<ul><li><nobr>Choose <select id='"+ chooseIDStr +"' onchange=\"changeChoice(this);\">"
             choiceChildren = complexTypeChild.findall('*')
             selectedChild = choiceChildren[0]
-            xmlString += "<" + selectedChild.attrib.get('name') + "/>"
             for choiceChild in choiceChildren:
                 if choiceChild.tag == "{0}element".format(namespace):
                     textCapitalized = choiceChild.attrib.get('name')
-                    newElement = etree.Element("option")
-                    newElement.attrib['value'] = textCapitalized 
-                    newElement.text = textCapitalized 
-                    xmlElement.append(newElement)
                     formString += "<option value='" + textCapitalized + "'>" + textCapitalized + "</option></b><br>"
             formString += "</select>"
-            if selected == "":
-                for (counter, choiceChild) in enumerate(choiceChildren):
-                    if choiceChild.tag == "{0}element".format(namespace):
-                        if((choiceChild.attrib.get('type') == "xsd:string".format(namespace))
-                          or (choiceChild.attrib.get('type') == "xsd:double".format(namespace))
-                          or (choiceChild.attrib.get('type') == "xsd:float".format(namespace)) 
-                          or (choiceChild.attrib.get('type') == "xsd:integer".format(namespace)) 
-                          or (choiceChild.attrib.get('type') == "xsd:anyURI".format(namespace))):
-                            textCapitalized = choiceChild.attrib.get('name')
-                            newElement = etree.Element("ul")
-                            newElement.attrib['id'] = choiceChild.attrib.get('name')
-                            xmlElement.append(newElement)
-                            xmlElement = newElement
-                            newElement = etree.Element("li")
-                            xmlElement.append(newElement)
-                            xmlElement = newElement
-                            newElement = etree.Element("nobr")
-                            newElement.text = choiceChild.attrib.get('name')
-                            xmlElement.append(newElement)
-                            elementID = len(xsd_elements)
-                            xsd_elements[elementID] = choiceChild
-                            tagID = "element" + str(len(mapTagElement.keys()))  
-                            mapTagElement[tagID] = elementID 
-                            manageOccurences(choiceChild, elementID)
-                            if (counter > 0):
-                                formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\" style=\"display:none;\"><li id='" + str(tagID) + "'><nobr>" + textCapitalized + " <input type='text'>" + "</nobr></li></ul>"
-                            else:
-                                formString += "<ul id=\""  + chooseIDStr + "-" + str(counter) + "\"><li id='" + str(tagID) + "'><nobr>" + textCapitalized + " <input type='text'>" + "</nobr></li></ul>"
+            for (counter, choiceChild) in enumerate(choiceChildren):
+                if choiceChild.tag == "{0}element".format(namespace):
+                    if((choiceChild.attrib.get('type') == "xsd:string".format(namespace))
+                      or (choiceChild.attrib.get('type') == "xsd:double".format(namespace))
+                      or (choiceChild.attrib.get('type') == "xsd:float".format(namespace)) 
+                      or (choiceChild.attrib.get('type') == "xsd:integer".format(namespace)) 
+                      or (choiceChild.attrib.get('type') == "xsd:anyURI".format(namespace))):
+                        textCapitalized = choiceChild.attrib.get('name')                        
+                        elementID = len(xsd_elements)
+                        xsd_elements[elementID] = choiceChild
+                        tagID = "element" + str(len(mapTagElement.keys()))  
+                        mapTagElement[tagID] = elementID 
+                        manageOccurences(choiceChild, elementID)
+                        if (counter > 0):
+                            formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\" style=\"display:none;\"><li id='" + str(tagID) + "'><nobr>" + textCapitalized + " <input type='text'>" + "</nobr></li></ul>"
                         else:
-                            textCapitalized = choiceChild.attrib.get('name')
-                            newElement = etree.Element("ul")
-                            newElement.attrib['id'] = textCapitalized
-                            xmlElement.append(newElement)
-                            xmlElement = newElement
-                            newElement = etree.Element("li")
-                            xmlElement.append(newElement)
-                            xmlElement = newElement
-                            newElement = etree.Element("nobr")
-                            newElement.text = textCapitalized
-                            xmlElement.append(newElement)
-                            elementID = len(xsd_elements)
-                            xsd_elements[elementID] = choiceChild
-                            tagID = "element" + str(len(mapTagElement.keys()))  
-                            mapTagElement[tagID] = elementID 
-                            manageOccurences(choiceChild, elementID)
-                            if (counter > 0):
-                                formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\" style=\"display:none;\"><li id='" + str(tagID) + "'><nobr>" + textCapitalized
-                            else:
-                                formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\"><li id='" + str(tagID) + "'><nobr>" + textCapitalized
-                            xmlString += "<" + textCapitalized + ">" 
-                            formString += generateFormSubSection(choiceChild.attrib.get('type'),selected,newElement,xmlTree,namespace) + "</nobr></li></ul>"
-                            xmlString += "</" + textCapitalized + ">"
-            else:
-                formString += "selected not empty"
+                            formString += "<ul id=\""  + chooseIDStr + "-" + str(counter) + "\"><li id='" + str(tagID) + "'><nobr>" + textCapitalized + " <input type='text'>" + "</nobr></li></ul>"
+                    else:
+                        textCapitalized = choiceChild.attrib.get('name')
+                    
+                        elementID = len(xsd_elements)
+                        xsd_elements[elementID] = choiceChild
+                        tagID = "element" + str(len(mapTagElement.keys()))  
+                        mapTagElement[tagID] = elementID 
+                        manageOccurences(choiceChild, elementID)
+                        if (counter > 0):
+                            formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\" style=\"display:none;\"><li id='" + str(tagID) + "'><nobr>" + textCapitalized
+                        else:
+                            formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\"><li id='" + str(tagID) + "'><nobr>" + textCapitalized
+                        formString += generateFormSubSection(request, choiceChild.attrib.get('type'),xmlTree,namespace) + "</nobr></li></ul>"
+
             formString += "</nobr></li></ul>"
         elif complexTypeChild.tag == "{0}attribute".format(namespace):
             textCapitalized = complexTypeChild.attrib.get('name')
-            newElement = etree.Element("li")
-            newElement.attrib['text'] = textCapitalized
-            newElement.text = textCapitalized
-            xmlElement.append(newElement)
-            xmlElement = newElement
             elementID = len(xsd_elements) 
             xsd_elements[elementID] = complexTypeChild
             tagID = "element" + str(len(mapTagElement.keys()))  
             mapTagElement[tagID] = elementID  
             manageOccurences(complexTypeChild, elementID)
             formString += "<li id='" + str(tagID) + "'>" + textCapitalized + "</li>"
-            xmlString += "<" + textCapitalized + ">" 
-            xmlString += "</" + textCapitalized + ">"
     elif e.tag == "{0}simpleType".format(namespace):
         if debugON: formString += "matched simpleType" + "<br>"
 
@@ -1039,38 +780,13 @@ def generateFormSubSection(xpath,selected,xmlElement, xmlTree, namespace):
         
         for simpleTypeChild in simpleTypeChildren:
             if simpleTypeChild.tag == "{0}restriction".format(namespace):
-                newElement = etree.Element("select")
-#                newElement.attrib['onchange'] = "alert('change to ' + this.value);"
-                xmlElement.append(newElement)
-                xmlElement = newElement
                 formString += "<select>"
                 choiceChildren = simpleTypeChild.findall('*')
-                selectedChild = choiceChildren[0]
-                xmlString += selectedChild.attrib.get('value')
                 for choiceChild in choiceChildren:
                     if choiceChild.tag == "{0}enumeration".format(namespace):
-                        newElement = etree.Element("option")
-                        newElement.attrib['value'] = choiceChild.attrib.get('value')
-                        newElement.text = choiceChild.attrib.get('value')
-                        xmlElement.append(newElement)
                         formString += "<option value='" + choiceChild.attrib.get('value')  + "'>" + choiceChild.attrib.get('value') + "</option>"
-                formString += "</select>"
-        
-
-#    for element in xmlDocTree.iter('*'):
-#        formString += "Current element:" + element.tag + "<br>"
-#        if element.find('*'):
-#            elementChild = element.find('*')
-#            formString += "match:" + elementChild.tag + "<br>"
-#        if p.match(element.tag):
-#            if element.get("name"):
-#                formString += element.get("name") + "<input type='text' value='" + element.tag + "' style='width:450px'><br>" 
-#            else:
-#                if p.match(element.tag):
-#                    formString += "<input type='text' value='" + element.tag + "' style='width:450px'><br>" 
-#                else:
-#                    formString += "no match<br>"
-
+                formString += "</select>"        
+    
     return formString
 
 def manageOccurences(element, elementID):
@@ -1096,9 +812,9 @@ def manageOccurences(element, elementID):
 def remove(request, tagID, xsdForm):
     dajax = Dajax()
     global xsd_elements
-    global mapTagElement
-    global xmlDocTree
     global occurrences
+    
+    mapTagElement = request.session['mapTagElement']
     
     tagID = "element"+ str(tagID)
     elementID = mapTagElement[tagID]
@@ -1159,14 +875,17 @@ def remove(request, tagID, xsdForm):
 @dajaxice_register
 def duplicate(request, tagID, xsdForm):
     dajax = Dajax()
-    formString = ""
-    global xsd_elements
-    global mapTagElement
-    global xmlDocTree
-    global occurrences
-    global namespaces
-    global defaultPrefix
     
+    global xsd_elements
+    global occurrences
+
+    mapTagElement = request.session['mapTagElement']
+    namespaces = request.session['namespaces']
+    defaultPrefix = request.session['defaultPrefix']
+    xmlDocTreeStr = request.session['xmlDocTree']
+    xmlDocTree = etree.fromstring(xmlDocTreeStr)
+    
+    formString = ""
     tagID = "element"+ str(tagID)
     elementID = mapTagElement[tagID]
     sequenceChild = xsd_elements[elementID]
@@ -1215,7 +934,7 @@ def duplicate(request, tagID, xsdForm):
                                 formString += "<li id='" + str(newTagID) + "'><nobr>" + refTypeStr + " "
                                 formString += "<span id='add"+ str(newTagID[7:]) +"' class=\"icon add\" onclick=\"changeHTMLForm('add',this,"+str(newTagID[7:])+");\"></span>"
                                 formString += "<span id='remove"+ str(newTagID[7:]) +"' class=\"icon remove\" onclick=\"changeHTMLForm('remove',this,"+str(newTagID[7:])+");\"></span>"           
-                                formString += duplicateFormSubSection(e[0].attrib.get('type'), refTypeTree, namespace)  
+                                formString += duplicateFormSubSection(request, e[0].attrib.get('type'), refTypeTree, namespace)  
                                 formString += "</nobr></li>"  
                             except:
                                 formString += "<ul><li>"+refTypeStr+"</li></ul>"
@@ -1249,7 +968,7 @@ def duplicate(request, tagID, xsdForm):
                             formString += "<li id='" + str(newTagID) + "'><nobr>" + textCapitalized + " "
                             formString += "<span id='add"+ str(newTagID[7:]) +"' class=\"icon add\" onclick=\"changeHTMLForm('add',this,"+str(newTagID[7:])+");\"></span>"
                             formString += "<span id='remove"+ str(newTagID[7:]) +"' class=\"icon remove\" onclick=\"changeHTMLForm('remove',this,"+str(newTagID[7:])+");\"></span>"            
-                            formString += duplicateFormSubSection(sequenceChild.attrib['type'], refTypeTree, namespace)
+                            formString += duplicateFormSubSection(request, sequenceChild.attrib['type'], refTypeTree, namespace)
                             formString += "</nobr></li>"
                             break
                     else:
@@ -1259,7 +978,7 @@ def duplicate(request, tagID, xsdForm):
                         formString += "<li id='" + str(newTagID) + "'><nobr>" + textCapitalized + " "
                         formString += "<span id='add"+ str(newTagID[7:]) +"' class=\"icon add\" onclick=\"changeHTMLForm('add',this,"+str(newTagID[7:])+");\"></span>"
                         formString += "<span id='remove"+ str(newTagID[7:]) +"' class=\"icon remove\" onclick=\"changeHTMLForm('remove',this,"+str(newTagID[7:])+");\"></span>"           
-                        formString += duplicateFormSubSection(sequenceChild.attrib['type'], xmlDocTree, namespace)
+                        formString += duplicateFormSubSection(request, sequenceChild.attrib['type'], xmlDocTree, namespace)
                         formString += "</nobr></li>"            
                 else:
                     textCapitalized = sequenceChild.attrib.get('name')
@@ -1268,7 +987,7 @@ def duplicate(request, tagID, xsdForm):
                     formString += "<li id='" + str(newTagID) + "'><nobr>" + textCapitalized + " "
                     formString += "<span id='add"+ str(newTagID[7:]) +"' class=\"icon add\" onclick=\"changeHTMLForm('add',this,"+str(newTagID[7:])+");\"></span>"
                     formString += "<span id='remove"+ str(newTagID[7:]) +"' class=\"icon remove\" onclick=\"changeHTMLForm('remove',this,"+str(newTagID[7:])+");\"></span>"            
-                    formString += duplicateFormSubSection(sequenceChild.attrib['type'], xmlDocTree, namespace)
+                    formString += duplicateFormSubSection(request, sequenceChild.attrib['type'], xmlDocTree, namespace)
                     formString += "</nobr></li>"
     
     
@@ -1311,20 +1030,18 @@ def duplicate(request, tagID, xsdForm):
 # Description:   
 #
 ################################################################################
-def duplicateFormSubSection(xpath, xmlTree, namespace):
+def duplicateFormSubSection(request, xpath, xmlTree, namespace):
     print 'BEGIN def duplicateFormSubSection(xpath)'
-    formString = ""
-    global nbChoicesID
-    global nbSelectedElement
+    
     global xsd_elements
-    global mapTagElement
     global occurrences
     global debugON
-    global mapModules
-    global namespaces
-    global defaultPrefix
     
-    p = re.compile('(\{.*\})?schema', re.IGNORECASE)
+    mapTagElement = request.session['mapTagElement']
+#     mapModules = request.session['mapModules']
+    namespaces = request.session['namespaces']
+    nbChoicesID = int(request.session['nbChoicesID'])
+    formString = ""
 
     xpathFormated = "./*[@name='"+xpath+"']"
     if debugON: formString += "xpathFormated: " + xpathFormated.format(namespace)
@@ -1439,7 +1156,7 @@ def duplicateFormSubSection(xpath, xmlTree, namespace):
                                                 formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" onclick=\"changeHTMLForm('remove',this,"+str(tagID[7:])+");\"></span>"
                                             else:
                                                 formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" style=\"display:none;\" onclick=\"changeHTMLForm('remove',this,"+str(tagID[7:])+");\"></span>"
-                                            formString += duplicateFormSubSection(e[0].attrib.get('type'), refTypeTree, namespace) 
+                                            formString += duplicateFormSubSection(request, e[0].attrib.get('type'), refTypeTree, namespace) 
                                             formString += "</nobr></li>"
                                         formString += "</ul>"
                                     except:
@@ -1522,7 +1239,7 @@ def duplicateFormSubSection(xpath, xmlTree, namespace):
                                     formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" onclick=\"changeHTMLForm('remove',this,"+str(tagID[7:])+");\"></span>"
                                 else:
                                     formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" style=\"display:none;\" onclick=\"changeHTMLForm('remove',this,"+str(tagID[7:])+");\"></span>"
-                                formString += duplicateFormSubSection(sequenceChild.attrib.get('type'), xmlTree, namespace)
+                                formString += duplicateFormSubSection(request, sequenceChild.attrib.get('type'), xmlTree, namespace)
                                 formString += "</nobr></li>"
                             formString += "</ul>"
                         else:
@@ -1531,6 +1248,7 @@ def duplicateFormSubSection(xpath, xmlTree, namespace):
                     chooseID = nbChoicesID
                     chooseIDStr = 'choice' + str(chooseID)
                     nbChoicesID += 1
+                    request.session['nbChoicesID'] = str(nbChoicesID)
                     formString += "<ul><li><nobr>Choose <select id='"+ chooseIDStr +"' onchange=\"changeChoice(this);\">"
                     choiceChildren = sequenceChild.findall('*')
                     selectedChild = choiceChildren[0]
@@ -1568,12 +1286,13 @@ def duplicateFormSubSection(xpath, xmlTree, namespace):
                                     formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\" style=\"display:none;\"><li id='" + str(tagID) + "'><nobr>" + textCapitalized
                                 else:
                                     formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\"><li id='" + str(tagID) + "'><nobr>" + textCapitalized
-                                formString += duplicateFormSubSection(choiceChild.attrib.get('type'), xmlTree, namespace) + "</nobr></li></ul>"
+                                formString += duplicateFormSubSection(request, choiceChild.attrib.get('type'), xmlTree, namespace) + "</nobr></li></ul>"
         elif complexTypeChild.tag == "{0}choice".format(namespace):
             if debugON: formString += "complexTypeChild:" + complexTypeChild.tag + "<br>"
             chooseID = nbChoicesID        
             chooseIDStr = 'choice' + str(chooseID)
             nbChoicesID += 1
+            request.session['nbChoicesID'] = str(nbChoicesID)
             formString += "<ul><li><nobr>Choose <select id='"+ chooseIDStr +"' onchange=\"changeChoice(this);\">"
             choiceChildren = complexTypeChild.findall('*')
             selectedChild = choiceChildren[0]
@@ -1611,7 +1330,7 @@ def duplicateFormSubSection(xpath, xmlTree, namespace):
                             formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\" style=\"display:none;\"><li id='" + str(tagID) + "'><nobr>" + textCapitalized
                         else:
                             formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\"><li id='" + str(tagID) + "'><nobr>" + textCapitalized
-                        formString += duplicateFormSubSection(choiceChild.attrib.get('type'), xmlTree, namespace) + "</nobr></li></ul>"
+                        formString += duplicateFormSubSection(request, choiceChild.attrib.get('type'), xmlTree, namespace) + "</nobr></li></ul>"
         elif complexTypeChild.tag == "{0}attribute".format(namespace):
             textCapitalized = complexTypeChild.attrib.get('name')
             tagID = "element" + str(len(mapTagElement.keys()))  
@@ -1642,7 +1361,7 @@ def duplicateFormSubSection(xpath, xmlTree, namespace):
                     if choiceChild.tag == "{0}enumeration".format(namespace):
                         formString += "<option value='" + choiceChild.attrib.get('value')  + "'>" + choiceChild.attrib.get('value') + "</option>"
                 formString += "</select>"
-
+    
     return formString
 ################################################################################
 # 
@@ -1681,32 +1400,23 @@ def get_namespaces(file):
 # Description:   Renders HTMl form for display.
 #
 ################################################################################
-def generateForm(key,xmlElement):
+def generateForm(request):
     print 'BEGIN def generateForm(key,xmlElement)'
-    formString = ""
-    global xmlString
-    global xmlDocTree
-    global xmlDataTree
-    global nbChoicesID
-    global nbSelectedElement
-    global xsd_elements
-    global mapTagElement
-    global occurrences
-    global namespaces
-    global defaultPrefix
     
-    nbChoicesID = 0
-    nbSelectedElement = 0
-    xsd_elements = dict()
-    mapTagElement = dict()
+    global xsd_elements
+    global occurrences
+    
+    request.session['mapTagElement'] = dict()
+    defaultPrefix = request.session['defaultPrefix']
+    xmlDocTreeStr = request.session['xmlDocTree']
+    xmlDocTree = etree.fromstring(xmlDocTreeStr)
+    request.session['nbChoicesID'] = '0'
+    
+    formString = ""
+    xsd_elements = dict()    
     occurrences = dict()
 
-#    schemaRoot = xmlDocTree.getroot()
-#    formString += "schemaRoot: " + schemaRoot.tag + "<br>"
-
-#    namespace = "{http://www.w3.org/2001/XMLSchema}"
-
-    namespace = namespaces[defaultPrefix]
+    namespace = request.session['namespaces'][defaultPrefix]
     if debugON: formString += "namespace: " + namespace + "<br>"
     e = xmlDocTree.findall("./{0}element".format(namespace))
 
@@ -1719,24 +1429,10 @@ def generateForm(key,xmlElement):
             formString += "more than one: " + i.tag + "<br>"
     else:
         textCapitalized = e[0].attrib.get('name')
-        newElement = etree.Element("b")
-        newElement.text = textCapitalized
-        xmlElement.append(newElement)
-        newElement = etree.Element("br")
-        xmlElement.append(newElement)
         formString += "<div xmlID='root'><b>" + textCapitalized + "</b><br>"
-#        xmlDataTree = etree.Element(textCapitalized)
-        if debugON: xmlString += "<" + textCapitalized + ">"
-        xmlString += "<" + e[0].attrib.get('name') + ">"
         if debugON: formString += "<b>" + e[0].attrib.get('name') + "</b><br>"
-        formString += generateFormSubSection(e[0].attrib.get('type'),"",xmlElement, xmlDocTree,namespace)
+        formString += generateFormSubSection(request, e[0].attrib.get('type'), xmlDocTree,namespace)
         formString += "</div>"
-        if debugON: xmlString += "</" + textCapitalized + ">"
-        xmlString += "</" + e[0].attrib.get('name') + ">"
-       
-    # pretty string
-#    s = etree.tostring(xmlDataTree) #, pretty_print=True)
-#    print "xmlDataTree:\n" + s
 
     return formString
 
@@ -1764,25 +1460,26 @@ def loadModuleResources(templateID):
 ################################################################################
 @dajaxice_register
 def generateXSDTreeForEnteringData(request):
-    print 'BEGIN def generateXSDTreeForEnteringData(request)'
-
-    global xmlString
-    global formString
-    global xmlDocTree
-    global xmlDataTree
-    global originalForm
-    global mapModules
-    global namespaces
-    global defaultPrefix
-    
+    print 'BEGIN def generateXSDTreeForEnteringData(request)'    
     dajax = Dajax()
 
+    if 'formString' in request.session:
+        formString = request.session['formString']  
+    else:
+        formString = ''
+       
+    if 'xmlDocTree' in request.session:
+        xmlDocTree = request.session['xmlDocTree'] 
+    else:
+        xmlDocTree = ""
+               
     templateFilename = request.session['currentTemplate']
     templateID = request.session['currentTemplateID']
     print '>>>>' + templateFilename + ' is the current template in session'
 
     if xmlDocTree == "":
         setCurrentTemplate(request,templateFilename, templateID)
+        xmlDocTree = request.session['xmlDocTree'] 
         
     html = loadModuleResources(templateID)
     dajax.assign('#modules', 'innerHTML', html)
@@ -1790,28 +1487,22 @@ def generateXSDTreeForEnteringData(request):
     modules = Module.objects(template=templateID)  
     for module in modules:
         mapModules[module.tag] = module.htmlTag
-        
-    namespaces = get_namespaces(BytesIO(etree.tostring(xmlDocTree).encode('utf-8')))
-    for prefix, url in namespaces.items():
+    request.session['mapModules'] = mapModules
+    
+    request.session['namespaces'] = get_namespaces(BytesIO(str(xmlDocTree)))
+    for prefix, url in request.session['namespaces'].items():
         if (url == "{http://www.w3.org/2001/XMLSchema}"):            
-            defaultPrefix = prefix
+            request.session['defaultPrefix'] = prefix
             break
-        
+    
+    
     if (formString == ""):                
-        xmlString = ""
-
         formString = "<form id=\"dataEntryForm\" name=\"xsdForm\">"
-        newElement = etree.Element("form")
-        newElement.attrib['id'] = "dataEntryForm"
-        newElement.attrib['name'] = "xsdForm"
-        xmlDataTree = etree.ElementTree(newElement)
-
-        formString += generateForm("schema",xmlDataTree.getroot())
-        reparsed = minidom.parseString(xmlString)
+        formString += generateForm(request)
         formString += "</form>"
 
 
-    originalForm = formString
+    request.session['originalForm'] = formString
 
     #TODO: modules
     pathFile = "{0}/static/resources/files/{1}"
@@ -1832,83 +1523,17 @@ def generateXSDTreeForEnteringData(request):
 
     dajax.assign('#xsdForm', 'innerHTML', formString)
  
+    request.session['formString'] = formString
+    
     print 'END def generateXSDTreeForEnteringData(request)'
-    return dajax.json()
-
-################################################################################
-# 
-# Function Name: changeXMLSchema(request,operation,xpath,name)
-# Inputs:        request - 
-#                operation - 
-#                xpath - 
-#                name - 
-# Outputs:       
-# Exceptions:    None
-# Description:   
-#
-################################################################################
-@dajaxice_register
-def changeXMLSchema(request,operation,xpath,name):
-    print 'BEGIN def changeXMLSchema(request)'
-    dajax = Dajax()
-
-    global xmlString
-    global xmlDocTree
-    global namespaces
-    global defaultPrefix
-
-    print "operation: " + operation
-    print "xpath: " + xpath
-    print "name: " + name
-
-
-    if xmlDocTree == "":
-        print "xmlDocTree is null"
-        templateFilename = request.session['currentTemplate']
-        pathFile = "{0}/xsdfiles/" + templateFilename
-        path = pathFile.format(
-            settings.SITE_ROOT)
-        xmlDocTree = etree.parse(path)
-        generateXSDTreeForEnteringData(request)
-    else:
-        print "xmlDocTree is not null"
-
-    root = xmlDocTree.getroot()
-    namespace = namespaces[defaultPrefix]
-
-    namespace = namespace[1:-1]
-
-    print "root:"
-    print root
-    print "namespace: " + namespace
-
-    e = xmlDocTree.xpath(xpath,namespaces={'xsd':namespace})
-
-    print e[0].attrib.get('occurances')
-    occurances = int(e[0].attrib.get('occurances'))
-    if operation == "add":
-        occurances += 1
-    else:
-        if occurances > 0:
-            occurances -= 1
-    print occurances
-    e[0].attrib['occurances'] = str(occurances)
-    
-    formString = "<br><form id=\"dataEntryForm\">"
-    formString += generateForm("schema","")
-    formString += "</form>"
-    dajax.assign('#xsdForm', 'innerHTML', formString)
-
-#    generateXSDTreeForEnteringData(request)
-    
-    print 'END def changeXMLSchema(request)'
     return dajax.json()
 
 
 @dajaxice_register
 def downloadXML(request):
     dajax = Dajax()
-    global xmlString
+
+    xmlString = request.session['xmlString']
     
     xml2download = XML2Download(xml=xmlString).save()
     xml2downloadID = str(xml2download.id)
@@ -2000,44 +1625,48 @@ def manageVersions(request, objectID, objectType):
 @dajaxice_register
 def setSchemaVersionContent(request, versionContent, versionFilename):
     dajax = Dajax()
-    global xsdVersionContent
-    global xsdVersionFilename
     
-    xsdVersionContent = versionContent
-    xsdVersionFilename = versionFilename
+    request.session['xsdVersionContent'] = versionContent
+    request.session['xsdVersionFilename'] = versionFilename
     
     return dajax.json()
 
 @dajaxice_register
 def setOntologyVersionContent(request, versionContent, versionFilename):
     dajax = Dajax()
-    global ontologyVersionContent
-    global ontologyVersionFilename
     
-    ontologyVersionContent = versionContent
-    ontologyVersionFilename = versionFilename
+    request.session['ontologyVersionContent'] = versionContent
+    request.session['ontologyVersionFilename'] = versionFilename
     
     return dajax.json()
 
 @dajaxice_register
 def uploadVersion(request, objectVersionID, objectType):
     dajax = Dajax()
-    global xsdVersionContent
-    global xsdVersionFilename
-    global ontologyVersionContent
-    global ontologyVersionFilename
     
-    if objectType == "Template":        
-        objectVersions = TemplateVersion.objects.get(pk=objectVersionID)
-        object = Template.objects.get(pk=objectVersions.current)
-        versionContent = xsdVersionContent
-        versionFilename = xsdVersionFilename
+    
+    if objectType == "Template":      
+        if ('xsdVersionContent' in request.session 
+        and 'xsdVersionFilename' in request.session 
+        and request.session['xsdVersionContent'] != "" 
+        and request.session['xsdVersionFilename'] != ""):
+            objectVersions = TemplateVersion.objects.get(pk=objectVersionID)
+            object = Template.objects.get(pk=objectVersions.current)
+            versionContent = request.session['xsdVersionContent']
+            versionFilename = request.session['xsdVersionFilename']
+        else:
+            return dajax.json()
     else:
-        objectVersions = OntologyVersion.objects.get(pk=objectVersionID)
-        object = Ontology.objects.get(pk=objectVersions.current)
-        versionContent = ontologyVersionContent
-        versionFilename = ontologyVersionFilename
-        
+        if ('ontologyVersionContent' in request.session 
+        and 'ontologyVersionFilename' in request.session 
+        and request.session['ontologyVersionContent'] != "" 
+        and request.session['ontologyVersionFilename'] != ""):
+            objectVersions = OntologyVersion.objects.get(pk=objectVersionID)
+            object = Ontology.objects.get(pk=objectVersions.current)
+            versionContent = request.session['ontologyVersionContent']
+            versionFilename = request.session['ontologyVersionFilename']
+        else:
+            return dajax.json()
 
     if versionContent != "" and versionFilename != "":
 #         templateVersions = TemplateVersion.objects.get(pk=templateVersionID)
@@ -2098,11 +1727,11 @@ def uploadVersion(request, objectVersionID, objectType):
         dajax.script("""showUploadErrorDialog();""");
     
     if objectType == "Template":
-        xsdVersionContent = ""
-        xsdVersionFilename = ""
+        request.session['xsdVersionContent'] = ""
+        request.session['xsdVersionFilename'] = ""
     else:
-        ontologyVersionContent = ""
-        ontologyVersionContent = ""
+        request.session['ontologyVersionContent'] = ""
+        request.session['ontologyVersionFilename'] = ""
         
     return dajax.json()
 
@@ -2573,7 +2202,7 @@ def deleteInstance(request, instanceid):
 def clearFields(request):
     dajax = Dajax()
     
-    global originalForm
+    originalForm = request.session['originalForm']
     
     dajax.assign('#xsdForm', 'innerHTML', originalForm)
     
@@ -2604,7 +2233,7 @@ def pingRemoteAPI(request, name, protocol, address, port, user, password):
 def loadXML(request):
     dajax = Dajax()
     
-    global xmlString
+    xmlString = request.session['xmlString']
     
     xsltPath = os.path.join(settings.SITE_ROOT, 'static/resources/xsl/xml2html.xsl')
     xslt = etree.parse(xsltPath)
@@ -2712,29 +2341,39 @@ def denyRequest(request, requestid):
     return dajax.json()
 
 @dajaxice_register
-def addModuleResource(request, resourceContent, resourceFilename):
+def initModuleManager(request):
     dajax = Dajax()
-    global currentResourceContent
-    global currentResourceFilename
     
-    currentResourceContent = resourceContent
-    currentResourceFilename = resourceFilename    
+    request.session['listModuleResource'] = []
     
     return dajax.json()
 
 @dajaxice_register
+def addModuleResource(request, resourceContent, resourceFilename):
+    dajax = Dajax()
+    
+    request.session['currentResourceContent'] = resourceContent
+    request.session['currentResourceFilename'] = resourceFilename    
+    
+    return dajax.json()
+
+
+@dajaxice_register
 def uploadResource(request):
     dajax = Dajax()
-    global listModuleResource
+    
     global currentResourceContent
     global currentResourceFilename
     
-    if currentResourceContent != "" and currentResourceFilename != "":
-        listModuleResource.append(ModuleResourceInfo(content=currentResourceContent,filename=currentResourceFilename))
-        dajax.append("#uploadedResources", "innerHTML", currentResourceFilename + "<br/>")
-        dajax.script("""$("#moduleResource").val("");""")
-        currentResourceContent = ""
-        currentResourceFilename = ""
+    if ('currentResourceContent' in request.session 
+        and request.session['currentResourceContent'] != "" 
+        and 'currentResourceFilename' in request.session 
+        and request.session['currentResourceFilename'] != ""):
+            request.session['listModuleResource'].append(ModuleResourceInfo(content=request.session['currentResourceContent'],filename=request.session['currentResourceFilename']).__to_json__())
+            dajax.append("#uploadedResources", "innerHTML", request.session['currentResourceFilename'] + "<br/>")
+            dajax.script("""$("#moduleResource").val("");""")
+            request.session['currentResourceContent'] = ""
+            request.session['currentResourceFilename'] = ""
     
     return dajax.json()
 
@@ -2743,8 +2382,10 @@ def addModule(request, template, name, tag, HTMLTag):
     dajax = Dajax()    
     
     module = Module(name=name, template=template, tag=tag, htmlTag=HTMLTag)
-    for resource in listModuleResource:
-        moduleResource = ModuleResource(name=resource.filename, content=resource.content, type=resource.filename.split(".")[-1])
+    listModuleResource = request.session['listModuleResource']
+    for resource in listModuleResource: 
+        resource = eval(resource)        
+        moduleResource = ModuleResource(name=resource['filename'], content=resource['content'], type=resource['filename'].split(".")[-1])
         module.resources.append(moduleResource)
     
     module.save()

@@ -823,16 +823,6 @@ saveXMLDataToDBCallback = function()
 }
 
 
-changeXMLSchema = function(operation,xpath,name)
-{
-    console.log('BEGIN [changeXMLSchema]');
-    Dajaxice.curate.changeXMLSchema(changeXMLSchemaCallback,{'operation':operation,'xpath':xpath,'name':name});
-
-    console.log('END [changeXMlSchema]');
-
-    return false;
-}
-
 changeHTMLForm = function(operation,selectObj, tagID)
 {
     console.log('BEGIN [changeHTMLForm(' + operation + ',' + selectObj + ']');
@@ -860,18 +850,6 @@ changeHTMLForm = function(operation,selectObj, tagID)
     return false;
 }
 
-changeXMLSchemaCallback = function(data)
-{
-    Dajax.process(data);
-    console.log('BEGIN [changeXMLSchemaCallback]');
-    console.log('data passed back to callback function: ' + data);
-
-    // business logic goes here
-
-    console.log('END [changeXMlSchemaCallback]');
-
-    return false;
-}
 
 setCurrentTemplate = function()
 {

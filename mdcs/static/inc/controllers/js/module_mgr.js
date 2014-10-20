@@ -1,6 +1,6 @@
 loadModuleManagerHandler = function()
 {
-    console.log('BEGIN [loadModuleManagerHandler]');
+    console.log('BEGIN [loadModuleManagerHandler]');    
     
     console.log('END [loadModuleManagerHandler]');
 }
@@ -10,6 +10,7 @@ loadAddModuleHandler = function()
 {
     console.log('BEGIN [loadAddModuleHandler]');
     document.getElementById('moduleResource').addEventListener('change',handleModuleResourceUpload, false);
+    Dajaxice.curate.initModuleManager(Dajax.process);
     console.log('END [loadAddModuleHandler]');
 }
 
