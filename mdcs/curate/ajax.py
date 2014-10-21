@@ -49,7 +49,6 @@ import rdfPublisher
 
 #XSL file loading
 import os
-from explore.ajax import formString
 from json.decoder import JSONDecoder
 
 # SPARQL : URI for the project (http://www.example.com/)
@@ -2368,9 +2367,6 @@ def addModuleResource(request, resourceContent, resourceFilename):
 @dajaxice_register
 def uploadResource(request):
     dajax = Dajax()
-    
-    global currentResourceContent
-    global currentResourceFilename
     
     if ('currentResourceContent' in request.session 
         and request.session['currentResourceContent'] != "" 

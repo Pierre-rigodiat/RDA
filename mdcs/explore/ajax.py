@@ -38,29 +38,15 @@ from mgi.models import Template, QueryResults, SparqlQueryResults, SavedQuery, J
 import sparqlPublisher
 
 # Global Variables
-# xmlString = ""
-xmlDocTree = ""
-formString = ""
-customFormString = ""
-# queryBuilderString = ""
-savedQueryForm = ""
+debugON = 0
+
 mapTagIDElementInfo = None
 mapQueryInfo = dict()
 mapCriterias = OrderedDict()
 mapEnumIDChoices = dict()
-debugON = 0
-nbChoicesID = 0
-defaultPrefix = ""
-defaultNamespace = ""
-criteriaID = ""
-anyChecked = False
-
 query = dict()
 instances = []
 results = []
-sparqlResults = ""
-sparqlQuery = ""
-sparqlFormat = ""
 
 #Class definition
 class ElementInfo:    
@@ -98,17 +84,11 @@ class BranchInfo:
 ################################################################################
 @dajaxice_register
 def setCurrentTemplate(request,templateFilename, templateID):
-    print 'BEGIN def setCurrentTemplate(request)'
-    
-    global xmlDocTree
-#     global xmlString
-    global formString
-    global customFormString
+    print 'BEGIN def setCurrentTemplate(request)'    
 
     # reset global variables
-#     xmlString = ""
-    formString = ""
-    customFormString = ""
+    request.session['formStringExplore'] = ""
+    request.session['customFormStringExplore'] = ""
     
     request.session['exploreCurrentTemplate'] = templateFilename
     request.session['exploreCurrentTemplateID'] = templateID
@@ -119,10 +99,8 @@ def setCurrentTemplate(request,templateFilename, templateID):
     templateObject = Template.objects.get(pk=templateID)
     xmlDocData = templateObject.content
 
-    print XMLSchema.tree
     XMLSchema.tree = etree.parse(BytesIO(xmlDocData.encode('utf-8')))
-    print XMLSchema.tree
-    xmlDocTree = XMLSchema.tree
+    request.session['xmlDocTreeExplore'] = etree.tostring(XMLSchema.tree)
 
     print 'END def setCurrentTemplate(request)'
     return dajax.json()
@@ -184,21 +162,19 @@ def verifyTemplateIsSelected(request):
 # Description:   
 #
 ################################################################################
-def generateFormSubSection(xpath, elementName, fullPath):
+def generateFormSubSection(request, xpath, elementName, fullPath, xmlTree):
     print 'BEGIN def generateFormSubSection(xpath, elementName, fullPath)'
-    formString = ""
+    
 #     global xmlString
-    global xmlDocTree
+    
     global xmlDataTree
     global mapTagIDElementInfo
-    global nbChoicesID
     global debugON
-    global defaultNamespace
-    global defaultPrefix
     
-    
-    
-    p = re.compile('(\{.*\})?schema', re.IGNORECASE)
+    defaultNamespace = request.session['defaultNamespaceExplore']    
+    defaultPrefix = request.session['defaultPrefixExplore']
+    nbChoicesID = int(request.session['nbChoicesIDExplore'])
+    formString = ""
 
     if xpath is None:
         print "xpath is none"
@@ -206,7 +182,7 @@ def generateFormSubSection(xpath, elementName, fullPath):
 
     xpathFormated = "./*[@name='"+xpath+"']"
     if debugON: formString += "xpathFormated: " + xpathFormated.format(defaultNamespace)
-    e = xmlDocTree.find(xpathFormated.format(defaultNamespace))
+    e = xmlTree.find(xpathFormated.format(defaultNamespace))
 
     if e is None:
         return formString
@@ -254,7 +230,7 @@ def generateFormSubSection(xpath, elementName, fullPath):
                         elementID = len(mapTagIDElementInfo.keys())                        
                         isEnum = False
                         # look for enumeration
-                        childElement = xmlDocTree.find("./*[@name='"+sequenceChild.attrib.get('type')+"']".format(defaultNamespace))
+                        childElement = xmlTree.find("./*[@name='"+sequenceChild.attrib.get('type')+"']".format(defaultNamespace))
                         if (childElement is not None):
                             if(childElement.tag == "{0}simpleType".format(defaultNamespace)):
                                 restrictionChild = childElement.find("{0}restriction".format(defaultNamespace))        
@@ -272,12 +248,13 @@ def generateFormSubSection(xpath, elementName, fullPath):
                                 
                         if(isEnum is not True):                            
                             formString += "<li>" + textCapitalized + " "
-                            formString += generateFormSubSection(sequenceChild.attrib.get('type'), textCapitalized,fullPath)
+                            formString += generateFormSubSection(request, sequenceChild.attrib.get('type'), textCapitalized,fullPath, xmlTree)
                             formString += "</li>"                        
                 elif sequenceChild.tag == "{0}choice".format(defaultNamespace):
                     chooseID = nbChoicesID
                     chooseIDStr = 'choice' + str(chooseID)
                     nbChoicesID += 1
+                    request.session['nbChoicesIDExplore'] = str(nbChoicesID)
                     formString += "<li>Choose <select id='"+ chooseIDStr +"' onchange=\"changeChoice(this);\">"
                     choiceChildren = sequenceChild.findall('*')
 #                     selectedChild = choiceChildren[0]
@@ -307,7 +284,7 @@ def generateFormSubSection(xpath, elementName, fullPath):
                                     formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\" style=\"display:none;\"><li>" + textCapitalized
                                 else:
                                     formString += "<ul id=\""  + chooseIDStr + "-" + str(counter) + "\"><li>" + textCapitalized
-                                formString += generateFormSubSection(choiceChild.attrib.get('type'), textCapitalized, fullPath) + "</ul>"            
+                                formString += generateFormSubSection(request, choiceChild.attrib.get('type'), textCapitalized, fullPath, xmlTree) + "</ul>"            
             formString += "</li></ul>"
         elif complexTypeChild.tag == "{0}choice".format(defaultNamespace):
             formString += "<ul>"
@@ -315,6 +292,7 @@ def generateFormSubSection(xpath, elementName, fullPath):
             chooseID = nbChoicesID        
             chooseIDStr = 'choice' + str(chooseID)
             nbChoicesID += 1
+            request.session['nbChoicesID'] = str(nbChoicesID)
             formString += "<li>Choose <select id='"+ chooseIDStr +"' onchange=\"changeChoice(this);\">"        
             choiceChildren = complexTypeChild.findall('*')
 #             selectedChild = choiceChildren[0]
@@ -344,7 +322,7 @@ def generateFormSubSection(xpath, elementName, fullPath):
                             formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\" style=\"display:none;\"><li>" + textCapitalized
                         else:
                             formString += "<ul id=\""  + chooseIDStr + "-" + str(counter) + "\"><li>" + textCapitalized               
-                        formString += generateFormSubSection(choiceChild.attrib.get('type'), textCapitalized, fullPath) + "</ul>"
+                        formString += generateFormSubSection(request, choiceChild.attrib.get('type'), textCapitalized, fullPath, xmlTree) + "</ul>"
             formString += "</li></ul>"
         elif complexTypeChild.tag == "{0}attribute".format(defaultNamespace):
             textCapitalized = complexTypeChild.attrib.get('name')
@@ -378,24 +356,26 @@ def generateFormSubSection(xpath, elementName, fullPath):
 #
 ################################################################################
 
-def generateForm(key):
-    print 'BEGIN def generateForm(key)'
-    formString = ""
-    global xmlDocTree
+def generateForm(request):
+    print 'BEGIN def generateForm(key)'    
+    
     global mapTagIDElementInfo
-    global nbChoicesID
-    global defaultNamespace
-    global defaultPrefix
 
+    xmlDocTreeStr = request.session['xmlDocTreeExplore']
+    xmlDocTree = etree.fromstring(xmlDocTreeStr)
+    
     mapTagIDElementInfo = dict()
-    nbChoicesID = 0
-
+    request.session['nbChoicesIDExplore'] = '0'
+    
+    formString = ""
+    
     defaultNamespace = "http://www.w3.org/2001/XMLSchema"
-    for prefix, url in xmlDocTree.getroot().nsmap.iteritems():
+    for prefix, url in xmlDocTree.nsmap.iteritems():
         if (url == defaultNamespace):            
-            defaultPrefix = prefix
+            request.session['defaultPrefixExplore'] = prefix
             break
     defaultNamespace = "{" + defaultNamespace + "}"
+    request.session['defaultNamespaceExplore'] = defaultNamespace
     if debugON: formString += "namespace: " + defaultNamespace + "<br>"
     e = xmlDocTree.findall("./{0}element".format(defaultNamespace))
 
@@ -407,7 +387,7 @@ def generateForm(key):
         textCapitalized = element.attrib.get('name')
         formString += "<b>" + textCapitalized + "</b><br>"
         if debugON: formString += "<b>" + element.attrib.get('name').capitalize() + "</b><br>"
-        formString += generateFormSubSection(element.attrib.get('type'), textCapitalized, "")
+        formString += generateFormSubSection(request, element.attrib.get('type'), textCapitalized, "", xmlDocTree)
 #         formString += "<p style='color:red'> The schema is not valid ! </p>"
 #     else:
 #         textCapitalized = e[0].attrib.get('name')[0].capitalize()  + e[0].attrib.get('name')[1:]
@@ -433,20 +413,30 @@ def generateXSDTreeForQueryingData(request):
     print 'BEGIN def generateXSDTreeForQueryingData(request)'
 
 #     global xmlString
-    global formString
-    global xmlDocTree
     global xmlDataTree
 
     dajax = Dajax()
+    
+    if 'formStringExplore' in request.session:
+        formString = request.session['formStringExplore']  
+    else:
+        formString = ''
+    
+    if 'xmlDocTree' in request.session:
+        xmlDocTree = request.session['xmlDocTreeExplore'] 
+    else:
+        xmlDocTree = ""
+    
     templateFilename = request.session['exploreCurrentTemplate']
     templateID = request.session['exploreCurrentTemplateID']
     print '>>>> ' + templateFilename + ' is the current template in session'
     
     if xmlDocTree == "":
         setCurrentTemplate(request,templateFilename, templateID)
+        xmlDocTree = request.session['xmlDocTreeExplore']
     if (formString == ""):
         formString = "<form id=\"dataQueryForm\" name=\"xsdForm\">"
-        formString += generateForm("schema")        
+        formString += generateForm(request)        
         formString += "</form>"        
     
     dajax.assign('#xsdForm', 'innerHTML', formString)
@@ -474,14 +464,11 @@ def executeQuery(request, queryForm, queryBuilder, fedOfQueries):
 #     global results
     global query
     global instances
-#     global queryBuilderString
-    global savedQueryForm
     
-#     queryBuilderString = queryBuilder
-    savedQueryForm = queryForm    
+    request.session['savedQueryFormExplore'] = queryForm    
     
     queryFormTree = html.fromstring(queryForm)
-    errors = checkQueryForm(queryFormTree)
+    errors = checkQueryForm(request, queryFormTree)
     if(len(errors)== 0):
         instances = []
         getInstances(request, fedOfQueries)
@@ -489,7 +476,7 @@ def executeQuery(request, queryForm, queryBuilder, fedOfQueries):
             dajax.script("showErrorInstancesDialog();")
         else:
             htmlTree = html.fromstring(queryForm)
-            query = fieldsToQuery(htmlTree)
+            query = fieldsToQuery(request, htmlTree)
 #             results = Jsondata.executeQuery(query)
             dajax.script("resultsCallback();")
     else:
@@ -825,7 +812,9 @@ def ORCriteria(criteria1, criteria2):
 # Description:   Look at element type and route to the right function to build the criteria
 #
 ################################################################################
-def buildCriteria(elemPath, comparison, value, elemType, isNot=False):
+def buildCriteria(request, elemPath, comparison, value, elemType, isNot=False):
+    defaultPrefix = request.session['defaultPrefixExplore']
+    
     if (elemType == '{0}:integer'.format(defaultPrefix)):
         return intCriteria(elemPath, comparison, value, isNot)
     elif (elemType == '{0}:float'.format(defaultPrefix) or elemType == '{0}:double'.format(defaultPrefix)):
@@ -844,7 +833,7 @@ def buildCriteria(elemPath, comparison, value, elemType, isNot=False):
 # Description:   Take values from the html tree and create a query with them
 #
 ################################################################################
-def fieldsToQuery(htmlTree):
+def fieldsToQuery(request, htmlTree):
     fields = htmlTree.findall("./p")
     
     query = dict()
@@ -867,7 +856,7 @@ def fieldsToQuery(htmlTree):
             element = "content." + mapCriterias[field.attrib['id']].elementInfo.path
             comparison = field[2][0].value
             value = field[2][1].value
-            criteria = buildCriteria(element, comparison, value, elemType , isNot)
+            criteria = buildCriteria(request, element, comparison, value, elemType , isNot)
         
         if(boolComp == 'OR'):        
             query = ORCriteria(query, criteria)
@@ -890,8 +879,10 @@ def fieldsToQuery(htmlTree):
 # Description:   Check that values entered by the user match each element type
 #
 ################################################################################
-def checkQueryForm(htmlTree):
+def checkQueryForm(request, htmlTree):
     global mapCriterias
+    
+    defaultPrefix = request.session['defaultPrefixExplore']
     
     errors = []
     fields = htmlTree.findall("./p")
@@ -1225,9 +1216,9 @@ def saveQuery(request, queryForm, queriesTable):
     
     if(len(errors)== 0): 
         # Check that the query is valid      
-        errors = checkQueryForm(queryFormTree)
+        errors = checkQueryForm(request, queryFormTree)
         if(len(errors)== 0):
-            query = fieldsToQuery(queryFormTree)    
+            query = fieldsToQuery(request, queryFormTree)    
             displayedQuery = fieldsToPrettyQuery(queryFormTree) 
         
             #save the query in the data base
@@ -1370,6 +1361,9 @@ def renderSavedQuery(query, queryID):
 def updateUserInputs(request, htmlForm, fromElementID, criteriaID):   
     dajax = Dajax()
     global mapTagIDElementInfo
+    
+    defaultPrefix = request.session['defaultPrefixExplore']
+    
     toCriteriaID = "crit" + str(criteriaID)
     
     mapCriterias[toCriteriaID] = CriteriaInfo()
@@ -1575,17 +1569,20 @@ def getCustomForm(request):
     dajax = Dajax()
     
 #     if 'currentExploreTab' in request.session and request.session['currentExploreTab'] == "tab-1":
-        
-    global customFormString
-    global mapQueryInfo
-    global savedQueryForm
     
+    global mapQueryInfo
+    
+    if 'savedQueryForm' in request.session:
+        savedQueryForm = request.session['savedQueryFormExplore']
+    else:
+        savedQueryForm = ""
+    customFormString = request.session['customFormStringExplore']
     #delete criterias if user comes from another page than results
     if 'keepCriterias' in request.session:
         del request.session['keepCriterias']
         if savedQueryForm != "" :
             dajax.assign("#queryForm", "innerHTML", savedQueryForm)
-            savedQueryForm = ""
+            request.session['savedQueryFormExplore'] = ""
     else:
         mapCriterias.clear()
     
@@ -1628,13 +1625,15 @@ def getCustomForm(request):
         dajax.assign('#sparqlCustomForm', 'innerHTML', customFormErrorMsg)
     
 #     elif 'currentExploreTab' in request.session and request.session['currentExploreTab'] == "tab-2":
-        
-    global sparqlQuery
     
-    if sparqlQuery != "" :
-        
-        dajax.assign('#SPARQLqueryBuilder .SPARQLTextArea', 'innerHTML', sparqlQuery)
+    if 'sparqlQueryExplore' in request.session and request.session['sparqlQueryExplore'] != "":
+        sparqlQuery = request.session['sparqlQueryExplore']
+    else:
         sparqlQuery = ""
+        
+    if sparqlQuery != "" :        
+        dajax.assign('#SPARQLqueryBuilder .SPARQLTextArea', 'innerHTML', sparqlQuery)
+        request.session['sparqlQueryExplore'] = ""
     
     return dajax.json()  
 
@@ -1653,27 +1652,18 @@ def saveCustomData(request,formContent):
     print '>>>>  BEGIN def saveCustomData(request,formContent)'
     dajax = Dajax()
 
-#     global xmlString
-    global customFormString
-    global formString
-    global anyChecked
-    
-#     global queryBuilderString
-    
-#     queryBuilderString = ""
-
-#     xmlString = xmlContent
-    formString = formContent
+    request.session['formStringExplore']  = formContent
 
     # modify the form string to only keep the selected elements
     htmlTree = html.fromstring(formContent)
-    createCustomTreeForQuery(htmlTree)
+    createCustomTreeForQuery(request, htmlTree)
+    anyChecked = request.session['anyCheckedExplore']
     if (anyChecked):
-        customFormString = html.tostring(htmlTree)
+        request.session['customFormStringExplore'] = html.tostring(htmlTree)
     else:
-        customFormString = ""
+        request.session['customFormStringExplore'] = ""
     
-    anyChecked = False 
+    request.session['anyCheckedExplore'] = False 
 #     + """
 #     <script>
 #     $("#customForm").find("li[draggable=true]").draggable({
@@ -1693,18 +1683,17 @@ def saveCustomData(request,formContent):
     print '>>>> END def saveCustomData(request,formContent)'
     return dajax.json()  
 
-def createCustomTreeForQuery(htmlTree):
-    global anyChecked
-    anyChecked = False
+def createCustomTreeForQuery(request, htmlTree):
+    request.session['anyCheckedExplore'] = False
     for li in htmlTree.findall("./ul/li"):
-        manageLiForQuery(li)
+        manageLiForQuery(request, li)
 
-def manageUlForQuery(ul):
+def manageUlForQuery(request, ul):
     branchInfo = BranchInfo(keepTheBranch = False, selectedLeave = None)
 #     hasOnlyLeaves = True
     selectedLeaves = []
     for li in ul.findall("./li"):
-        liBranchInfo = manageLiForQuery(li)
+        liBranchInfo = manageLiForQuery(request, li)
         if(liBranchInfo.keepTheBranch == True):
             branchInfo.keepTheBranch = True
 #         if(liBranchInfo.branchType == "branch"):
@@ -1728,12 +1717,12 @@ def manageUlForQuery(ul):
     return branchInfo
 
             
-def manageLiForQuery(li):
+def manageLiForQuery(request, li):
     listUl = li.findall("./ul")
     branchInfo = BranchInfo(keepTheBranch = False, selectedLeave = None)
     if (len(listUl) != 0):
         for ul in listUl:
-            ulBranchInfo = manageUlForQuery(ul)
+            ulBranchInfo = manageUlForQuery(request, ul)
             if(ulBranchInfo.keepTheBranch == True):
                 branchInfo.keepTheBranch = True
         if(not branchInfo.keepTheBranch):
@@ -1746,8 +1735,7 @@ def manageLiForQuery(li):
                 li.attrib['style'] = "display:none;"
                 return branchInfo
             else:
-                global anyChecked
-                anyChecked = True
+                request.session['anyCheckedExplore'] = True
                 # remove the checkbox and make the element clickable
                 li.attrib['style'] = "color:orange;font-weight:bold;cursor:pointer;"
                 li.attrib['onclick'] = "selectElement("+ li.attrib['id'] +")"
@@ -1786,7 +1774,6 @@ def downloadResults(request):
 @dajaxice_register
 def backToQuery(request):
     dajax = Dajax()
-    global savedQueryForm
      
     request.session['keepCriterias'] = True
 
@@ -1819,7 +1806,10 @@ def switchExploreTab(request,tab):
     
     request.session["currentExploreTab"] = tab
     
-    global customFormString
+    if 'customFormString' in request.session:   
+        customFormString = request.session['customFormStringExplore']
+    else:
+        customFormString = ""
     
     if (customFormString != ""):
         if 'currentExploreTab' in request.session and request.session['currentExploreTab'] == "tab-1":
@@ -1836,8 +1826,7 @@ def switchExploreTab(request,tab):
 def setCurrentCriteria(request, currentCriteriaID):
     dajax = Dajax()
     
-    global criteriaID
-    criteriaID = currentCriteriaID
+    request.session['criteriaIDExplore'] = currentCriteriaID
     
     return dajax.json()
 
@@ -1846,7 +1835,7 @@ def selectElement(request, elementID, elementName):
     dajax = Dajax()
     
     if 'currentExploreTab' in request.session and request.session['currentExploreTab'] == "tab-1":
-        global criteriaID    
+        criteriaID = request.session['criteriaIDExplore']    
         dajax.script("""
             $($("#"""+ criteriaID +"""").children()[1]).val('"""+ elementName +"""');
             $($("#"""+ criteriaID +"""").children()[1]).attr("class","elementInput");
@@ -1854,7 +1843,7 @@ def selectElement(request, elementID, elementName):
             $("#dialog-customTree").dialog("close");    
         """)
         
-        criteriaID = ""
+        request.session['criteriaIDExplore'] = ""
     elif 'currentExploreTab' in request.session and request.session['currentExploreTab'] == "tab-2":
         global mapTagIDElementInfo
         elementPath = mapTagIDElementInfo[elementID].path
@@ -1878,8 +1867,6 @@ def executeSPARQLQuery(request, queryStr, sparqlFormatIndex, fedOfQueries):
     print 'BEGIN def executeSPARQLQuery(request, queryStr, sparqlFormatIndex)'        
     dajax = Dajax()
     
-    global sparqlQuery
-    global sparqlFormat
     global instances
     
     instances = []
@@ -1887,8 +1874,8 @@ def executeSPARQLQuery(request, queryStr, sparqlFormatIndex, fedOfQueries):
     if (len(instances)==0):
         dajax.script("showErrorInstancesDialog();")
     else:
-        sparqlQuery = queryStr
-        sparqlFormat = str(sparqlFormatIndex)
+        request.session['sparqlQueryExplore'] = queryStr
+        request.session['sparqlFormatExplore'] = str(sparqlFormatIndex)
         dajax.script("sparqlResultsCallback();")
 
     print 'END def executeSPARQLQuery(request, queryStr, sparqlFormatIndex)'
@@ -1898,9 +1885,8 @@ def executeSPARQLQuery(request, queryStr, sparqlFormatIndex, fedOfQueries):
 def getSparqlResults(request):
     dajax = Dajax()
     global instances
-    global sparqlResults
     
-    sparqlResults = ""
+    request.session['sparqlResultsExplore'] = ""
     
     dajax.script("""
         getAsyncSparqlResults('"""+ str(len(instances)) +"""');
@@ -1912,16 +1898,15 @@ def getSparqlResults(request):
 def getSparqlResultsByInstance(request, numInstance):
     dajax = Dajax()
     
-    global sparqlResults
-    global sparqlQuery
-    global sparqlFormat
+    sparqlQuery = request.session['sparqlQueryExplore']    
+    sparqlFormat = request.session['sparqlFormatExplore']
     
     resultString = ""
     instance = instances[int(numInstance)]
     resultString += "<b>From " + instance.name + ":</b> <br/>"
     if instance.name == "Local":
         instanceResults = sparqlPublisher.sendSPARQL(sparqlFormat + sparqlQuery)
-        sparqlResults += instanceResults
+        request.session['sparqlResultsExplore'] += instanceResults
         displayedSparqlResults = instanceResults.replace("<", "&#60;")
         displayedSparqlResults = displayedSparqlResults.replace(">", "&#62;")
         resultString += "<pre class='sparqlResult' readonly='true'>"
@@ -1945,7 +1930,7 @@ def getSparqlResultsByInstance(request, numInstance):
         r = requests.post(url, data, auth=(instance.user, instance.password))        
         instanceResultsDict = eval(r.text)
         instanceResults = instanceResultsDict['content']      
-        sparqlResults += instanceResults
+        request.session['sparqlResultsExplore'] += instanceResults
         displayedSparqlResults = instanceResults.replace("<", "&#60;")
         displayedSparqlResults = displayedSparqlResults.replace(">", "&#62;")        
         resultString += "<pre class='sparqlResult' readonly='true'>"
@@ -1963,8 +1948,10 @@ def downloadSparqlResults(request):
     print '>>>>  BEGIN def downloadSparqlResults(request)'
     dajax = Dajax()
 
-    global sparqlResults
-
+    if 'sparqlResultsExplore' in request.session and request.session['sparqlResultsExplore']!= "":
+        sparqlResults = request.session['sparqlResultsExplore']
+    else:
+        sparqlResults = None
     
     if (sparqlResults is not None):
         
@@ -1982,6 +1969,8 @@ def prepareSubElementQuery(request, leavesID):
     dajax = Dajax()
     
     global mapTagIDElementInfo
+    
+    defaultPrefix = request.session['defaultPrefixExplore']
     
     listLeavesId = leavesID.split(" ")
     firstElementPath = mapTagIDElementInfo[int(listLeavesId[0])].path
@@ -2021,6 +2010,8 @@ def insertSubElementQuery(request, leavesID, form):
     
     global mapTagIDElementInfo
     
+    criteriaID = request.session['criteriaIDExplore']
+    
     htmlTree = html.fromstring(form)
     listLi = htmlTree.findall("ul/li")
     listLeavesId = leavesID.split(" ")
@@ -2034,7 +2025,7 @@ def insertSubElementQuery(request, leavesID, form):
             elementInfo = mapTagIDElementInfo[int(listLeavesId[i])]
             elementName = elementInfo.path.split(".")[-1]
             elementType = elementInfo.type
-            error = checkSubElementField(li, elementName, elementType)
+            error = checkSubElementField(request, li, elementName, elementType)
             if (error != ""):
                 errors.append(error)
         i += 1
@@ -2043,12 +2034,11 @@ def insertSubElementQuery(request, leavesID, form):
         errors = ["Please select at least two elements."]
     
     if(len(errors) == 0):
-        query = subElementfieldsToQuery(listLi, listLeavesId)
+        query = subElementfieldsToQuery(request, listLi, listLeavesId)
         prettyQuery = subElementfieldsToPrettyQuery(listLi, listLeavesId)
         mapCriterias[criteriaID] = CriteriaInfo()
         mapCriterias[criteriaID].queryInfo = QueryInfo(query, prettyQuery)
         mapCriterias[criteriaID].elementInfo = ElementInfo("query")
-        global criteriaID
         uiID = "ui" + criteriaID[4:]
         dajax.script("""
             // insert the pretty query in the query builder
@@ -2074,9 +2064,10 @@ def insertSubElementQuery(request, leavesID, form):
     print '>>>>  END def insertSubElementQuery(request, leavesID, form)'
     return dajax.json()
 
-def checkSubElementField(liElement, elementName, elementType):   
+def checkSubElementField(request, liElement, elementName, elementType):   
     error = ""
-       
+    defaultPrefix = request.session['defaultPrefixExplore']
+    
     if (elementType == "{0}:float".format(defaultPrefix) or elementType == "{0}:double".format(defaultPrefix)):
         value = liElement[3].value
         try:
@@ -2102,7 +2093,7 @@ def checkSubElementField(liElement, elementName, elementType):
 
     return error
 
-def subElementfieldsToQuery(liElements, listLeavesId):
+def subElementfieldsToQuery(request, liElements, listLeavesId):
     global mapTagIDElementInfo
     
     elemMatch = dict()
@@ -2128,7 +2119,7 @@ def subElementfieldsToQuery(liElements, listLeavesId):
             else:                
                 comparison = li[2].value
                 value = li[3].value
-                criteria = buildCriteria(elementName, comparison, value, elementType , isNot)
+                criteria = buildCriteria(request, elementName, comparison, value, elementType , isNot)
              
         
             elemMatch.update(criteria)

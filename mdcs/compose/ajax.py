@@ -34,7 +34,6 @@ import xml.dom.minidom as minidom
 
 #XSL file loading
 import os
-from explore.ajax import formString
 #from django.conf.settings import PROJECT_ROOT
 
 
