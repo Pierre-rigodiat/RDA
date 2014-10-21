@@ -58,9 +58,6 @@ projectURI = "http://www.example.com/"
 # Global Variables
 debugON = 0
 
-xsd_elements = None
-occurrences = None
-
 
 class ModuleResourceInfo:
     "Class that store information about a resource for a module"
@@ -84,6 +81,9 @@ class ElementOccurrences:
         
         #current number of occurrences of the element
         self.nbOccurrences = nbOccurrences        
+    
+    def __to_json__(self):
+        return json.dumps(self, default=lambda o:o.__dict__)
 
 ################################################################################
 #
@@ -462,10 +462,9 @@ def deleteXMLOntology(request,xmlOntologyID):
 def generateFormSubSection(request, xpath, xmlTree, namespace):
     print 'BEGIN def generateFormSubSection(xpath,selected,xmlElement)'
     
-    global xsd_elements
-    global occurrences
     global debugON
     
+    xsd_elements = request.session['xsd_elements']
     mapTagElement = request.session['mapTagElement']
 #     mapModules = request.session['mapModules']
     namespaces = request.session['namespaces']
@@ -563,8 +562,8 @@ def generateFormSubSection(request, xpath, xmlTree, namespace):
                                                     addButton = True   
                                                     
                                         elementID = len(xsd_elements)
-                                        xsd_elements[elementID] = sequenceChild
-                                        manageOccurences(sequenceChild, elementID)   
+                                        xsd_elements[elementID] = etree.tostring(sequenceChild)
+                                        manageOccurences(request, sequenceChild, elementID)   
                                         formString += "<ul>"                                   
                                         for x in range (0,int(nbOccurrences)):     
                                             tagID = "element" + str(len(mapTagElement.keys()))  
@@ -608,8 +607,8 @@ def generateFormSubSection(request, xpath, xmlTree, namespace):
                                     addButton = True
                                     
                         elementID = len(xsd_elements)
-                        xsd_elements[elementID] = sequenceChild
-                        manageOccurences(sequenceChild, elementID)
+                        xsd_elements[elementID] = etree.tostring(sequenceChild)
+                        manageOccurences(request, sequenceChild, elementID)
                         formString += "<ul>"                                   
                         for x in range (0,int(nbOccurrences)):                         
                             tagID = "element" + str(len(mapTagElement.keys()))  
@@ -648,8 +647,8 @@ def generateFormSubSection(request, xpath, xmlTree, namespace):
                                         addButton = True
                                         
                             elementID = len(xsd_elements)
-                            xsd_elements[elementID] = sequenceChild
-                            manageOccurences(sequenceChild, elementID)
+                            xsd_elements[elementID] = etree.tostring(sequenceChild)
+                            manageOccurences(request, sequenceChild, elementID)
                             formString += "<ul>"                                   
                             for x in range (0,int(nbOccurrences)):                            
                                 tagID = "element" + str(len(mapTagElement.keys()))  
@@ -693,10 +692,10 @@ def generateFormSubSection(request, xpath, xmlTree, namespace):
                               or (choiceChild.attrib.get('type') == "xsd:anyURI".format(namespace))):
                                 textCapitalized = choiceChild.attrib.get('name')                                
                                 elementID = len(xsd_elements)
-                                xsd_elements[elementID] = choiceChild
+                                xsd_elements[elementID] = etree.tostring(choiceChild)
                                 tagID = "element" + str(len(mapTagElement.keys()))  
                                 mapTagElement[tagID] = elementID 
-                                manageOccurences(choiceChild, elementID)
+                                manageOccurences(request, choiceChild, elementID)
                                 if (counter > 0):
                                     formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\" style=\"display:none;\"><li id='" + str(tagID) + "'><nobr>" + choiceChild.attrib.get('name') + " <input type='text'>" + "</nobr></li></ul>"
                                 else:
@@ -704,10 +703,10 @@ def generateFormSubSection(request, xpath, xmlTree, namespace):
                             else:
                                 textCapitalized = choiceChild.attrib.get('name')
                                 elementID = len(xsd_elements)
-                                xsd_elements[elementID] = choiceChild
+                                xsd_elements[elementID] = etree.tostring(choiceChild)
                                 tagID = "element" + str(len(mapTagElement.keys()))  
                                 mapTagElement[tagID] = elementID 
-                                manageOccurences(choiceChild, elementID)
+                                manageOccurences(request, choiceChild, elementID)
                                 if (counter > 0):
                                     formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\" style=\"display:none;\"><li id='" + str(tagID) + "'><nobr>" + textCapitalized
                                 else:
@@ -738,10 +737,10 @@ def generateFormSubSection(request, xpath, xmlTree, namespace):
                       or (choiceChild.attrib.get('type') == "xsd:anyURI".format(namespace))):
                         textCapitalized = choiceChild.attrib.get('name')                        
                         elementID = len(xsd_elements)
-                        xsd_elements[elementID] = choiceChild
+                        xsd_elements[elementID] = etree.tostring(choiceChild)
                         tagID = "element" + str(len(mapTagElement.keys()))  
                         mapTagElement[tagID] = elementID 
-                        manageOccurences(choiceChild, elementID)
+                        manageOccurences(request, choiceChild, elementID)
                         if (counter > 0):
                             formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\" style=\"display:none;\"><li id='" + str(tagID) + "'><nobr>" + textCapitalized + " <input type='text'>" + "</nobr></li></ul>"
                         else:
@@ -750,10 +749,10 @@ def generateFormSubSection(request, xpath, xmlTree, namespace):
                         textCapitalized = choiceChild.attrib.get('name')
                     
                         elementID = len(xsd_elements)
-                        xsd_elements[elementID] = choiceChild
+                        xsd_elements[elementID] = etree.tostring(choiceChild)
                         tagID = "element" + str(len(mapTagElement.keys()))  
                         mapTagElement[tagID] = elementID 
-                        manageOccurences(choiceChild, elementID)
+                        manageOccurences(request, choiceChild, elementID)
                         if (counter > 0):
                             formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\" style=\"display:none;\"><li id='" + str(tagID) + "'><nobr>" + textCapitalized
                         else:
@@ -764,10 +763,10 @@ def generateFormSubSection(request, xpath, xmlTree, namespace):
         elif complexTypeChild.tag == "{0}attribute".format(namespace):
             textCapitalized = complexTypeChild.attrib.get('name')
             elementID = len(xsd_elements) 
-            xsd_elements[elementID] = complexTypeChild
+            xsd_elements[elementID] = etree.tostring(complexTypeChild)
             tagID = "element" + str(len(mapTagElement.keys()))  
             mapTagElement[tagID] = elementID  
-            manageOccurences(complexTypeChild, elementID)
+            manageOccurences(request, complexTypeChild, elementID)
             formString += "<li id='" + str(tagID) + "'>" + textCapitalized + "</li>"
     elif e.tag == "{0}simpleType".format(namespace):
         if debugON: formString += "matched simpleType" + "<br>"
@@ -789,9 +788,8 @@ def generateFormSubSection(request, xpath, xmlTree, namespace):
     
     return formString
 
-def manageOccurences(element, elementID):
-    global occurrences
-    
+def manageOccurences(request, element, elementID):
+    occurrences = request.session['occurrences']
     elementOccurrences = ElementOccurrences()
     
     if ('minOccurs' in element.attrib):
@@ -804,26 +802,33 @@ def manageOccurences(element, elementID):
         else:
             elementOccurrences.maxOccurrences = int(element.attrib['maxOccurs'])
     
-    occurrences[elementID] = elementOccurrences
+    occurrences[elementID] = elementOccurrences.__to_json__()
     
 
 
 @dajaxice_register
 def remove(request, tagID, xsdForm):
     dajax = Dajax()
-    global xsd_elements
-    global occurrences
     
+    occurrences = request.session['occurrences']
     mapTagElement = request.session['mapTagElement']
     
     tagID = "element"+ str(tagID)
     elementID = mapTagElement[tagID]
 #     sequenceChild = xsd_elements[elementID]
-    elementOccurrences = occurrences[elementID]
+    elementOccurrencesStr = occurrences[str(elementID)]
+    if 'inf' in elementOccurrencesStr:
+        elementOccurrencesStr = elementOccurrencesStr.replace('inf','float("inf")')
+    if 'Infinity' in elementOccurrencesStr:
+        elementOccurrencesStr = elementOccurrencesStr.replace('Infinity','float("inf")') 
+    elementOccurrences = eval(elementOccurrencesStr)
 
-    if (elementOccurrences.nbOccurrences > elementOccurrences.minOccurrences):
-        occurrences[elementID].nbOccurrences -= 1
-        if (elementOccurrences.nbOccurrences == 0):    
+    if (elementOccurrences['nbOccurrences'] > elementOccurrences['minOccurrences']):
+        elementOccurrences['nbOccurrences'] -= 1
+        occurrences[str(elementID)] = unicode(elementOccurrences)
+        request.session['occurrences'] = occurrences
+        
+        if (elementOccurrences['nbOccurrences'] == 0):    
             #desactiver les couleurs etc pour elementX        
             dajax.script("""
                 $('#add"""+str(tagID[7:])+"""').attr('style','');
@@ -836,9 +841,9 @@ def remove(request, tagID, xsdForm):
             addButton = False
             deleteButton = False
             
-            if (elementOccurrences.nbOccurrences < elementOccurrences.maxOccurrences):
+            if (elementOccurrences['nbOccurrences'] < elementOccurrences['maxOccurrences']):
                 addButton = True
-            if (elementOccurrences.nbOccurrences > elementOccurrences.minOccurrences):
+            if (elementOccurrences['nbOccurrences'] > elementOccurrences['minOccurrences']):
                 deleteButton = True
                 
             htmlTree = html.fromstring(xsdForm)
@@ -876,9 +881,8 @@ def remove(request, tagID, xsdForm):
 def duplicate(request, tagID, xsdForm):
     dajax = Dajax()
     
-    global xsd_elements
-    global occurrences
-
+    xsd_elements = request.session['xsd_elements']
+    occurrences = request.session['occurrences']
     mapTagElement = request.session['mapTagElement']
     namespaces = request.session['namespaces']
     defaultPrefix = request.session['defaultPrefix']
@@ -888,15 +892,22 @@ def duplicate(request, tagID, xsdForm):
     formString = ""
     tagID = "element"+ str(tagID)
     elementID = mapTagElement[tagID]
-    sequenceChild = xsd_elements[elementID]
-    elementOccurrences = occurrences[elementID]
+    sequenceChild = etree.fromstring(xsd_elements[str(elementID)])
+    elementOccurrencesStr = occurrences[str(elementID)]
+    if 'inf' in elementOccurrencesStr:
+        elementOccurrencesStr = elementOccurrencesStr.replace('inf','float("inf")')
+    if 'Infinity' in elementOccurrencesStr:
+        elementOccurrencesStr = elementOccurrencesStr.replace('Infinity','float("inf")') 
+    elementOccurrences = eval(elementOccurrencesStr)
 
-    if (elementOccurrences.nbOccurrences < elementOccurrences.maxOccurrences):
-        occurrences[elementID].nbOccurrences += 1
+    if (elementOccurrences['nbOccurrences'] < elementOccurrences['maxOccurrences']):        
+        elementOccurrences['nbOccurrences'] += 1
+        occurrences[str(elementID)] = unicode(elementOccurrences)
+        request.session['occurrences'] = occurrences
         
-        if(elementOccurrences.nbOccurrences == 1):      
+        if(elementOccurrences['nbOccurrences'] == 1):      
             styleAdd=''
-            if (elementOccurrences.maxOccurrences == 1):
+            if (elementOccurrences['maxOccurrences'] == 1):
                 styleAdd = 'display:none'
             
             dajax.script("""
@@ -998,9 +1009,9 @@ def duplicate(request, tagID, xsdForm):
             addButton = False
             deleteButton = False
             
-            if (elementOccurrences.nbOccurrences < elementOccurrences.maxOccurrences):
+            if (elementOccurrences['nbOccurrences'] < elementOccurrences['maxOccurrences']):
                 addButton = True
-            if (elementOccurrences.nbOccurrences > elementOccurrences.minOccurrences):
+            if (elementOccurrences['nbOccurrences'] > elementOccurrences['minOccurrences']):
                 deleteButton = True
             
                           
@@ -1033,10 +1044,9 @@ def duplicate(request, tagID, xsdForm):
 def duplicateFormSubSection(request, xpath, xmlTree, namespace):
     print 'BEGIN def duplicateFormSubSection(xpath)'
     
-    global xsd_elements
-    global occurrences
     global debugON
     
+    xsd_elements = request.session['xsd_elements']
     mapTagElement = request.session['mapTagElement']
 #     mapModules = request.session['mapModules']
     namespaces = request.session['namespaces']
@@ -1141,8 +1151,8 @@ def duplicateFormSubSection(request, xpath, xmlTree, namespace):
                                                     addButton = True   
                                                     
                                         elementID = len(xsd_elements)
-                                        xsd_elements[elementID] = sequenceChild
-                                        manageOccurences(sequenceChild, elementID)   
+                                        xsd_elements[elementID] = etree.tostring(sequenceChild)
+                                        manageOccurences(request, sequenceChild, elementID)   
                                         formString += "<ul>"                                   
                                         for x in range (0,int(nbOccurrences)):     
                                             tagID = "element" + str(len(mapTagElement.keys()))  
@@ -1186,8 +1196,8 @@ def duplicateFormSubSection(request, xpath, xmlTree, namespace):
                                     addButton = True
                                     
                         elementID = len(xsd_elements)
-                        xsd_elements[elementID] = sequenceChild
-                        manageOccurences(sequenceChild, elementID)
+                        xsd_elements[elementID] = etree.tostring(sequenceChild)
+                        manageOccurences(request, sequenceChild, elementID)
                         formString += "<ul>"                                   
                         for x in range (0,int(nbOccurrences)):                                                    
                             tagID = "element" + str(len(mapTagElement.keys()))  
@@ -1224,8 +1234,8 @@ def duplicateFormSubSection(request, xpath, xmlTree, namespace):
                                         addButton = True
                                         
                             elementID = len(xsd_elements)
-                            xsd_elements[elementID] = sequenceChild
-                            manageOccurences(sequenceChild, elementID)
+                            xsd_elements[elementID] = etree.tostring(sequenceChild)
+                            manageOccurences(request, sequenceChild, elementID)
                             formString += "<ul>"                                   
                             for x in range (0,int(nbOccurrences)):
                                 tagID = "element" + str(len(mapTagElement.keys()))  
@@ -1267,10 +1277,10 @@ def duplicateFormSubSection(request, xpath, xmlTree, namespace):
                               or (choiceChild.attrib.get('type') == "xsd:anyURI".format(namespace))):
                                 textCapitalized = choiceChild.attrib.get('name')
                                 elementID = len(xsd_elements)
-                                xsd_elements[elementID] = choiceChild
+                                xsd_elements[elementID] = etree.tostring(choiceChild)
                                 tagID = "element" + str(len(mapTagElement.keys()))  
                                 mapTagElement[tagID] = elementID 
-                                manageOccurences(choiceChild, elementID)
+                                manageOccurences(request, choiceChild, elementID)
                                 if (counter > 0):
                                     formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\" style=\"display:none;\"><li id='" + str(tagID) + "'><nobr>" + choiceChild.attrib.get('name') + " <input type='text'>" + "</nobr></li></ul>"
                                 else:
@@ -1278,10 +1288,10 @@ def duplicateFormSubSection(request, xpath, xmlTree, namespace):
                             else:
                                 textCapitalized = choiceChild.attrib.get('name')
                                 elementID = len(xsd_elements)
-                                xsd_elements[elementID] = choiceChild
+                                xsd_elements[elementID] = etree.tostring(choiceChild)
                                 tagID = "element" + str(len(mapTagElement.keys()))  
                                 mapTagElement[tagID] = elementID 
-                                manageOccurences(choiceChild, elementID)
+                                manageOccurences(request, choiceChild, elementID)
                                 if (counter > 0):
                                     formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\" style=\"display:none;\"><li id='" + str(tagID) + "'><nobr>" + textCapitalized
                                 else:
@@ -1311,10 +1321,10 @@ def duplicateFormSubSection(request, xpath, xmlTree, namespace):
                       or (choiceChild.attrib.get('type') == "xsd:anyURI".format(namespace))):
                         textCapitalized = choiceChild.attrib.get('name')
                         elementID = len(xsd_elements)
-                        xsd_elements[elementID] = choiceChild
+                        xsd_elements[elementID] = etree.tostring(choiceChild)
                         tagID = "element" + str(len(mapTagElement.keys()))  
                         mapTagElement[tagID] = elementID 
-                        manageOccurences(choiceChild, elementID)
+                        manageOccurences(request, choiceChild, elementID)
                         if (counter > 0):
                             formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\" style=\"display:none;\"><li id='" + str(tagID) + "'><nobr>" + choiceChild.attrib.get('name') + " <input type='text'>" + "</nobr></li></ul>"
                         else:
@@ -1322,10 +1332,10 @@ def duplicateFormSubSection(request, xpath, xmlTree, namespace):
                     else:
                         textCapitalized = choiceChild.attrib.get('name')
                         elementID = len(xsd_elements)
-                        xsd_elements[elementID] = choiceChild
+                        xsd_elements[elementID] = etree.tostring(choiceChild)
                         tagID = "element" + str(len(mapTagElement.keys()))  
                         mapTagElement[tagID] = elementID 
-                        manageOccurences(choiceChild, elementID)
+                        manageOccurences(request, choiceChild, elementID)
                         if (counter > 0):
                             formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\" style=\"display:none;\"><li id='" + str(tagID) + "'><nobr>" + textCapitalized
                         else:
@@ -1335,7 +1345,7 @@ def duplicateFormSubSection(request, xpath, xmlTree, namespace):
             textCapitalized = complexTypeChild.attrib.get('name')
             tagID = "element" + str(len(mapTagElement.keys()))  
             mapTagElement[tagID] = elementID  
-            manageOccurences(complexTypeChild, elementID)
+            manageOccurences(request, complexTypeChild, elementID)
             formString += "<li id='" + str(tagID) + "'>" + textCapitalized + "</li>"            
     elif e.tag == "{0}simpleType".format(namespace):
         if debugON: formString += "matched simpleType" + "<br>"
@@ -1403,9 +1413,8 @@ def get_namespaces(file):
 def generateForm(request):
     print 'BEGIN def generateForm(key,xmlElement)'
     
-    global xsd_elements
-    global occurrences
-    
+    request.session['xsd_elements'] = dict()    
+    request.session['occurrences'] = dict()
     request.session['mapTagElement'] = dict()
     defaultPrefix = request.session['defaultPrefix']
     xmlDocTreeStr = request.session['xmlDocTree']
@@ -1413,9 +1422,7 @@ def generateForm(request):
     request.session['nbChoicesID'] = '0'
     
     formString = ""
-    xsd_elements = dict()    
-    occurrences = dict()
-
+    
     namespace = request.session['namespaces'][defaultPrefix]
     if debugON: formString += "namespace: " + namespace + "<br>"
     e = xmlDocTree.findall("./{0}element".format(namespace))
