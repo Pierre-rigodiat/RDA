@@ -330,7 +330,7 @@ def manageRegexInAPI(query):
             for subValue in value:
                 manageRegexInAPI(subValue)
         elif isinstance(value, str):
-            if (value[0] == "/" and value[-1] == "/"):
+            if (len(value) > 2 and value[0] == "/" and value[-1] == "/"):
                 query[key] = re.compile(value[1:-1])
         elif isinstance(value, dict):
             manageRegexInAPI(value)

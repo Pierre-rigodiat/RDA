@@ -40,30 +40,42 @@ import sparqlPublisher
 # Global Variables
 debugON = 0
 
-mapTagIDElementInfo = None
-mapQueryInfo = dict()
-mapCriterias = OrderedDict()
-mapEnumIDChoices = dict()
 query = dict()
-instances = []
-results = []
 
 #Class definition
 class ElementInfo:    
     def __init__(self, type="", path=""):
         self.type = type
         self.path = path
-        
+    
+    def __to_json__(self):
+        return json.dumps(self, default=lambda o:o.__dict__)
+    
 class CriteriaInfo:
     def __init__(self, elementInfo=None, queryInfo=None):
         self.elementInfo = elementInfo
         self.queryInfo = queryInfo
+    
+    def __to_json__(self):
+        jsonDict = dict()
+        if self.elementInfo == None:
+            jsonDict['elementInfo'] = None
+        else:
+            jsonDict['elementInfo'] = self.elementInfo.__to_json__()
+        if self.queryInfo == None:
+            jsonDict['queryInfo'] = None
+        else:
+            jsonDict['queryInfo'] = self.queryInfo.__to_json__()
+        return str(jsonDict)
         
 class QueryInfo:
     def __init__(self, query="", displayedQuery=""):
         self.query = query
         self.displayedQuery = displayedQuery
 
+    def __to_json__(self):        
+        return json.dumps(self, default=lambda o:o.__dict__)
+    
 class BranchInfo:
     def __init__(self, keepTheBranch, selectedLeave):
         self.keepTheBranch = keepTheBranch
@@ -165,12 +177,9 @@ def verifyTemplateIsSelected(request):
 def generateFormSubSection(request, xpath, elementName, fullPath, xmlTree):
     print 'BEGIN def generateFormSubSection(xpath, elementName, fullPath)'
     
-#     global xmlString
-    
-    global xmlDataTree
-    global mapTagIDElementInfo
+
     global debugON
-    
+        
     defaultNamespace = request.session['defaultNamespaceExplore']    
     defaultPrefix = request.session['defaultPrefixExplore']
     nbChoicesID = int(request.session['nbChoicesIDExplore'])
@@ -219,14 +228,17 @@ def generateFormSubSection(request, xpath, elementName, fullPath, xmlTree):
                           or sequenceChild.attrib.get('type') == "{0}:float".format(defaultPrefix)
                           or sequenceChild.attrib.get('type') == "{0}:integer".format(defaultPrefix)
                           or sequenceChild.attrib.get('type') == "{0}:anyURI".format(defaultPrefix)):                                                                
-                        textCapitalized = sequenceChild.attrib.get('name')                     
+                        textCapitalized = sequenceChild.attrib.get('name')   
+                        mapTagIDElementInfo = request.session['mapTagIDElementInfoExplore']                  
                         elementID = len(mapTagIDElementInfo.keys())
                         formString += "<li id='" + str(elementID) + "'>" + textCapitalized + " <input type='checkbox'>"                         
                         formString += "</li>"                    
                         elementInfo = ElementInfo(sequenceChild.attrib.get('type'),fullPath[1:] + "." + textCapitalized)
-                        mapTagIDElementInfo[elementID] = elementInfo
+                        mapTagIDElementInfo[elementID] = elementInfo.__to_json__()
+                        request.session['mapTagIDElementInfoExplore'] = mapTagIDElementInfo
                     else:                        
-                        textCapitalized = sequenceChild.attrib.get('name')  
+                        textCapitalized = sequenceChild.attrib.get('name') 
+                        mapTagIDElementInfo = request.session['mapTagIDElementInfoExplore'] 
                         elementID = len(mapTagIDElementInfo.keys())                        
                         isEnum = False
                         # look for enumeration
@@ -239,13 +251,14 @@ def generateFormSubSection(request, xpath, elementName, fullPath, xmlTree):
                                     if enumChildren is not None:
                                         formString += "<li id='" + str(elementID) + "'>" + textCapitalized + " <input type='checkbox'>" + "</li>"
                                         elementInfo = ElementInfo("enum",fullPath[1:]+"." + textCapitalized)
-                                        mapTagIDElementInfo[elementID] = elementInfo
+                                        mapTagIDElementInfo[elementID] = elementInfo.__to_json__()
+                                        request.session['mapTagIDElementInfoExplore'] = mapTagIDElementInfo
                                         listChoices = []
                                         for enumChild in enumChildren:
                                             listChoices.append(enumChild.attrib['value'])
-                                        mapEnumIDChoices[elementID] = listChoices
+                                        request.session['mapEnumIDChoicesExplore'][elementID] = listChoices
                                         isEnum = True
-                                
+                        
                         if(isEnum is not True):                            
                             formString += "<li>" + textCapitalized + " "
                             formString += generateFormSubSection(request, sequenceChild.attrib.get('type'), textCapitalized,fullPath, xmlTree)
@@ -271,13 +284,15 @@ def generateFormSubSection(request, xpath, elementName, fullPath, xmlTree):
                               or choiceChild.attrib.get('type') == "{0}:integer".format(defaultPrefix)
                               or choiceChild.attrib.get('type') == "{0}:anyURI".format(defaultPrefix)):
                                 textCapitalized = choiceChild.attrib.get('name')
+                                mapTagIDElementInfo = request.session['mapTagIDElementInfoExplore']
                                 elementID = len(mapTagIDElementInfo.keys())
                                 if (counter > 0):
                                     formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\" style=\"display:none;\"><li id='" + str(elementID) + "'>" + textCapitalized + " <input type='checkbox'>" + "</li></ul>"
                                 else:                                      
                                     formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\"><li id='" + str(elementID) + "'>" + textCapitalized + " <input type='checkbox'>" + "</li></ul>"
                                 elementInfo = ElementInfo(choiceChild.attrib.get('type'),fullPath[1:]+"." + textCapitalized)
-                                mapTagIDElementInfo[elementID] = elementInfo
+                                mapTagIDElementInfo[elementID] = elementInfo.__to_json__()
+                                request.session['mapTagIDElementInfoExplore'] = mapTagIDElementInfo
                             else:
                                 textCapitalized = choiceChild.attrib.get('name')
                                 if (counter > 0):
@@ -309,13 +324,15 @@ def generateFormSubSection(request, xpath, elementName, fullPath, xmlTree):
                       or choiceChild.attrib.get('type') == "{0}:integer".format(defaultPrefix)
                       or choiceChild.attrib.get('type') == "{0}:anyURI".format(defaultPrefix)):
                         textCapitalized = choiceChild.attrib.get('name')
+                        mapTagIDElementInfo =  request.session['mapTagIDElementInfoExplore']
                         elementID = len(mapTagIDElementInfo.keys())
                         if (counter > 0):
                             formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\" style=\"display:none;\"><li id='" + str(elementID) + "'>" + textCapitalized + " <input type='checkbox'>" + "</li></ul>"
                         else:                                      
                             formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\"><li id='" + str(elementID) + "'>" + textCapitalized + " <input type='checkbox'>" + "</li></ul>"
                         elementInfo = ElementInfo(choiceChild.attrib.get('type'),fullPath[1:]+"." + textCapitalized)
-                        mapTagIDElementInfo[elementID] = elementInfo
+                        mapTagIDElementInfo[elementID] = elementInfo.__to_json__()
+                        request.session['mapTagIDElementInfoExplore'] = mapTagIDElementInfo
                     else:                                                    
                         textCapitalized = choiceChild.attrib.get('name')
                         if (counter > 0):
@@ -359,12 +376,12 @@ def generateFormSubSection(request, xpath, elementName, fullPath, xmlTree):
 def generateForm(request):
     print 'BEGIN def generateForm(key)'    
     
-    global mapTagIDElementInfo
 
     xmlDocTreeStr = request.session['xmlDocTreeExplore']
     xmlDocTree = etree.fromstring(xmlDocTreeStr)
     
-    mapTagIDElementInfo = dict()
+    request.session['mapTagIDElementInfoExplore'] = dict()
+    request.session['mapEnumIDChoicesExplore'] = dict()
     request.session['nbChoicesIDExplore'] = '0'
     
     formString = ""
@@ -411,9 +428,6 @@ def generateForm(request):
 @dajaxice_register
 def generateXSDTreeForQueryingData(request): 
     print 'BEGIN def generateXSDTreeForQueryingData(request)'
-
-#     global xmlString
-    global xmlDataTree
 
     dajax = Dajax()
     
@@ -463,21 +477,22 @@ def executeQuery(request, queryForm, queryBuilder, fedOfQueries):
     dajax = Dajax()
 #     global results
     global query
-    global instances
     
     request.session['savedQueryFormExplore'] = queryForm    
     
     queryFormTree = html.fromstring(queryForm)
     errors = checkQueryForm(request, queryFormTree)
     if(len(errors)== 0):
-        instances = []
-        getInstances(request, fedOfQueries)
+        instances = getInstances(request, fedOfQueries)
         if (len(instances)==0):
             dajax.script("showErrorInstancesDialog();")
         else:
             htmlTree = html.fromstring(queryForm)
             query = fieldsToQuery(request, htmlTree)
-#             results = Jsondata.executeQuery(query)
+            json_instances = []
+            for instance in instances:
+                json_instances.append(instance.to_json()) 
+            request.session['instancesExplore'] = json_instances
             dajax.script("resultsCallback();")
     else:
         errorsString = ""
@@ -490,8 +505,8 @@ def executeQuery(request, queryForm, queryBuilder, fedOfQueries):
     return dajax.json()
 
 def getInstances(request, fedOfQueries):
-    global instances
     
+    instances = []
     fedOfQueriesTree = html.fromstring(fedOfQueries)    
     instancesCheckboxes = fedOfQueriesTree.findall(".//input[@type='checkbox']")
     
@@ -504,14 +519,15 @@ def getInstances(request, fedOfQueries):
                     protocol = "http"
                 instances.append(Instance(name="Local", protocol=protocol, address=request.META['REMOTE_ADDR'], port=request.META['SERVER_PORT'], user="user", password="password"))
             else:
-                instances.append(Instance.objects.get(name=checkbox.attrib['value']))  
+                instances.append(Instance.objects.get(name=checkbox.attrib['value']))
+    
+    return instances  
     
 @dajaxice_register
 def getResults(request):
     dajax = Dajax()
-    global instances
-    global results 
-    results = []
+    
+    instances = request.session['instancesExplore']
     
     dajax.script("""
         getAsyncResults('"""+ str(len(instances)) +"""');
@@ -532,19 +548,22 @@ def getResults(request):
 def getResultsByInstance(request, numInstance):
     print 'BEGIN def getResults(request)'
     dajax = Dajax()
-    global results
+    
     global query
-    global instances
+    
+    instances = request.session['instancesExplore']
         
     resultString = ""
+    results = []    
     
-    instance = instances[int(numInstance)]
-    resultString += "<b>From " + instance.name + ":</b> <br/>"
-    if instance.name == "Local":
+    instance = eval(instances[int(numInstance)])
+    sessionName = "resultsExplore" + instance['name']
+    resultString += "<b>From " + instance['name'] + ":</b> <br/>"
+    if instance['name'] == "Local":
         instanceResults = Jsondata.executeQuery(query)
         if len(instanceResults) > 0:
             for instanceResult in instanceResults:
-                results.append(instanceResult)
+                results.append(xmltodict.unparse(instanceResult))
 #                 resultString += "<textarea class='xmlResult' readonly='true'>"
                 resultString += "<div class='xmlResult' readonly='true'>"
                 xsltPath = os.path.join(settings.SITE_ROOT, 'static/resources/xsl/xml2html.xsl')
@@ -560,18 +579,18 @@ def getResultsByInstance(request, numInstance):
         else:
             resultString += "<span style='font-style:italic; color:red;'> No Results found... </span><br/><br/>"
     else:
-        url = instance.protocol + "://" + instance.address + ":" + str(instance.port) + "/api/explore/query-by-example"
+        url = instance['protocol'] + "://" + instance['address'] + ":" + str(instance['port']) + "/api/explore/query-by-example"
         queryStr = str(query)
 #         queryToSend = eval(queryStr)
         queryStr = manageRegexBeforeAPI(query, queryStr)
         queryToSend = eval(queryStr)
         data = {"query":str(queryToSend)}
-        r = requests.post(url, data, auth=(instance.user, instance.password))   
+        r = requests.post(url, data, auth=(instance['user'], instance['password']))   
         result = r.text
         instanceResults = json.loads(result,object_pairs_hook=OrderedDict)
         if len(instanceResults) > 0:
             for instanceResult in instanceResults:
-                results.append(instanceResult['content'])
+                results.append(xmltodict.unparse(instanceResult['content']))
 #                 resultString += "<textarea class='xmlResult' readonly='true'>"  
 #                 resultString += str(xmltodict.unparse(instanceResult['content'], pretty=True))
 #                 resultString += "</textarea> <br/>"
@@ -587,7 +606,7 @@ def getResultsByInstance(request, numInstance):
         else:
             resultString += "<span style='font-style:italic; color:red;'> No Results found... </span><br/><br/>"
         
-            
+    request.session[sessionName] = results
     dajax.append("#results", "innerHTML", resultString)
     
     print 'END def getResults(request)'
@@ -834,6 +853,9 @@ def buildCriteria(request, elemPath, comparison, value, elemType, isNot=False):
 #
 ################################################################################
 def fieldsToQuery(request, htmlTree):
+    
+    mapCriterias = request.session['mapCriteriasExplore']
+    
     fields = htmlTree.findall("./p")
     
     query = dict()
@@ -844,16 +866,25 @@ def fieldsToQuery(request, htmlTree):
         else:
             isNot = False
             
-        elemType = mapCriterias[field.attrib['id']].elementInfo.type
+        criteriaInfo = eval(mapCriterias[field.attrib['id']])
+        if criteriaInfo['elementInfo'] is None:
+            elementInfo = None
+        else:
+            elementInfo = eval(criteriaInfo['elementInfo'])
+        if criteriaInfo['queryInfo'] is None:
+            queryInfo = None
+        else:
+            queryInfo = eval(criteriaInfo['queryInfo'])
+        elemType = elementInfo['type']
         if (elemType == "query"):
-            queryValue = mapCriterias[field.attrib['id']].queryInfo.query
+            queryValue = queryInfo['query']
             criteria = queryToCriteria(queryValue, isNot)
         elif (elemType == "enum"):
-            element = "content." + mapCriterias[field.attrib['id']].elementInfo.path
+            element = "content." + elementInfo['path']
             value = field[2][0].value            
             criteria = enumCriteria(element, value, isNot)
         else:                
-            element = "content." + mapCriterias[field.attrib['id']].elementInfo.path
+            element = "content." + elementInfo['path']
             comparison = field[2][0].value
             value = field[2][1].value
             criteria = buildCriteria(request, element, comparison, value, elemType , isNot)
@@ -880,8 +911,8 @@ def fieldsToQuery(request, htmlTree):
 #
 ################################################################################
 def checkQueryForm(request, htmlTree):
-    global mapCriterias
     
+    mapCriterias = request.session['mapCriteriasExplore']
     defaultPrefix = request.session['defaultPrefixExplore']
     
     errors = []
@@ -890,14 +921,16 @@ def checkQueryForm(request, htmlTree):
         errors.append("Some fields are empty !")
     else:
         for field in fields:
-            elemType = mapCriterias[field.attrib['id']].elementInfo.type
+            criteriaInfo = eval(mapCriterias[field.attrib['id']])
+            elementInfo = eval(criteriaInfo['elementInfo']) 
+            elemType = elementInfo['type']
             
             if (elemType == "{0}:float".format(defaultPrefix) or elemType == "{0}:double".format(defaultPrefix)):
                 value = field[2][1].value
                 try:
                     float(value)
                 except ValueError:
-                    elementPath = mapCriterias[field.attrib['id']].elementInfo.path
+                    elementPath = elementInfo['path']
                     element = elementPath.split('.')[-1]
                     errors.append(element + " must be a number !")
                         
@@ -906,14 +939,14 @@ def checkQueryForm(request, htmlTree):
                 try:
                     int(value)
                 except ValueError:
-                    elementPath = mapCriterias[field.attrib['id']].elementInfo.path
+                    elementPath = elementInfo['path']
                     element = elementPath.split('.')[-1]
                     errors.append(element + " must be an integer !")
                     
             elif (elemType == "{0}:string".format(defaultPrefix)):
                 comparison = field[2][0].value
                 value = field[2][1].value
-                elementPath = mapCriterias[field.attrib['id']].elementInfo.path
+                elementPath = elementInfo['path']
                 element = elementPath.split('.')[-1]
                 if (comparison == "like"):
                     try:
@@ -986,9 +1019,7 @@ def addField(request, htmlForm):
 ################################################################################
 @dajaxice_register
 def removeField(request, queryForm, criteriaID):
-    dajax = Dajax()
-    global mapCriterias
-    
+    dajax = Dajax()    
     htmlTree = html.fromstring(queryForm)
     
     currentElement = htmlTree.get_element_by_id(criteriaID)
@@ -1016,7 +1047,9 @@ def removeField(request, queryForm, criteriaID):
             fields[0][0] = html.fragment_fromstring(renderYESORNOT())
         
     try:
+        mapCriterias = request.session['mapCriteriasExplore']
         del mapCriterias[criteriaID]
+        request.session['mapCriteriasExplore'] = mapCriterias
     except:
         pass
     
@@ -1094,9 +1127,9 @@ def renderStringSelect():
     </select> 
     """
 
-def renderEnum(fromElementID):
+def renderEnum(request, fromElementID):
     enum = "<select class='selectInput'>"
-    listOptions = mapEnumIDChoices[int(fromElementID)]
+    listOptions = request.session['mapEnumIDChoicesExplore'][str(fromElementID)]
     for option in listOptions:
         enum += "<option value='" + option + "'>" + option + "</option>"    
     enum += "</select>"
@@ -1155,9 +1188,11 @@ def ORPrettyCriteria(query, criteria):
 def ANDPrettyCriteria(query, criteria):
     return "(" + query + " AND " + criteria + ")"
 
-def fieldsToPrettyQuery(queryFormTree):
-    fields = queryFormTree.findall("./p")
+def fieldsToPrettyQuery(request, queryFormTree):
     
+    mapCriterias = request.session['mapCriteriasExplore']
+    
+    fields = queryFormTree.findall("./p")
     query = ""
 #     criteriaIterator = 0
     for field in fields:        
@@ -1167,19 +1202,28 @@ def fieldsToPrettyQuery(queryFormTree):
         else:
             isNot = False
                 
-        elemType = mapCriterias[field.attrib['id']].elementInfo.type
+        criteriaInfo = eval(mapCriterias[field.attrib['id']])
+        if criteriaInfo['elementInfo'] is None:
+            elementInfo = None
+        else:
+            elementInfo = eval(criteriaInfo['elementInfo'])
+        if criteriaInfo['queryInfo'] is None:
+            queryInfo = None
+        else:
+            queryInfo = eval(criteriaInfo['queryInfo']) 
+        elemType = elementInfo['type']
         if (elemType == "query"):
-            queryValue = mapCriterias[field.attrib['id']].queryInfo.displayedQuery
+            queryValue = queryInfo['displayedQuery']
 #             criteriaIterator += 1
             criteria = queryToPrettyCriteria(queryValue, isNot)
         elif (elemType == "enum"):
-            elementPath = mapCriterias[field.attrib['id']].elementInfo.path
+            elementPath = elementInfo['path']
             element = elementPath.split('.')[-1]
 #             criteriaIterator += 1
             value = field[2][0].value            
             criteria = enumToPrettyCriteria(element, value, isNot)
         else:                 
-            elementPath = mapCriterias[field.attrib['id']].elementInfo.path
+            elementPath = elementInfo['path']
             element = elementPath.split('.')[-1]
 #             criteriaIterator += 1
             comparison = field[2][0].value
@@ -1201,6 +1245,8 @@ def fieldsToPrettyQuery(queryFormTree):
 @dajaxice_register
 def saveQuery(request, queryForm, queriesTable):
     dajax = Dajax()
+    
+    mapQueryInfo = request.session['mapQueryInfoExplore']
     queryFormTree = html.fromstring(queryForm)
 
     # Check that the user can save a query
@@ -1219,7 +1265,7 @@ def saveQuery(request, queryForm, queriesTable):
         errors = checkQueryForm(request, queryFormTree)
         if(len(errors)== 0):
             query = fieldsToQuery(request, queryFormTree)    
-            displayedQuery = fieldsToPrettyQuery(queryFormTree) 
+            displayedQuery = fieldsToPrettyQuery(request, queryFormTree) 
         
             #save the query in the data base
             
@@ -1243,7 +1289,9 @@ def saveQuery(request, queryForm, queriesTable):
 #                 queryID = int(linesInTable[-1][0].attrib['id'][5:]) + 1
 #                 pass
 #             mapQueryInfo[queryID] = QueryInfo(query, displayedQuery)
-            mapQueryInfo[str(savedQuery.id)] = QueryInfo(query, displayedQuery)
+            queryInfo = QueryInfo(query, displayedQuery)
+            mapQueryInfo[str(savedQuery.id)] = queryInfo.__to_json__()
+            request.session['mapQueryInfoExplore'] = mapQueryInfo
             
             element = html.fragment_fromstring(renderSavedQuery(str(displayedQuery),savedQuery.id))
             queriesTableTree.find("./tbody").append(element)
@@ -1284,7 +1332,6 @@ def manageRegexBeforeSave(query):
 @dajaxice_register
 def deleteQuery(request, queriesTable, savedQueryID):
     dajax = Dajax()
-    global mapQueryInfo
     
 #     queriesTree = html.fromstring(queriesList)
 #     queriesTable = queriesTree.find(".//table")
@@ -1306,7 +1353,11 @@ def deleteQuery(request, queriesTable, savedQueryID):
 #             break
     
     SavedQuery(id=savedQueryID[5:]).delete()
+    
+    mapQueryInfo = request.session['mapQueryInfoExplore']
     del mapQueryInfo[savedQueryID[5:]]
+    request.session['mapQueryInfoExplore'] = mapQueryInfo
+    
     if '_auth_user_id' in request.session and 'exploreCurrentTemplateID' in request.session:
         userID = request.session['_auth_user_id']
         templateID = request.session['exploreCurrentTemplateID']
@@ -1360,14 +1411,17 @@ def renderSavedQuery(query, queryID):
 @dajaxice_register
 def updateUserInputs(request, htmlForm, fromElementID, criteriaID):   
     dajax = Dajax()
-    global mapTagIDElementInfo
     
+    mapTagIDElementInfo = request.session['mapTagIDElementInfoExplore']
+    mapCriterias = request.session['mapCriteriasExplore']
     defaultPrefix = request.session['defaultPrefixExplore']
     
     toCriteriaID = "crit" + str(criteriaID)
     
-    mapCriterias[toCriteriaID] = CriteriaInfo()
-    mapCriterias[toCriteriaID].elementInfo = mapTagIDElementInfo[int(fromElementID)]
+    criteriaInfo = CriteriaInfo()
+    criteriaInfo.elementInfo = ElementInfo(path=eval(mapTagIDElementInfo[str(fromElementID)])['path'], type=eval(mapTagIDElementInfo[str(fromElementID)])['type'])
+    mapCriterias[toCriteriaID] = criteriaInfo.__to_json__()
+    request.session['mapCriteriasExplore'] = mapCriterias
     
     htmlTree = html.fromstring(htmlForm)
     currentCriteria = htmlTree.get_element_by_id(toCriteriaID)  
@@ -1383,15 +1437,15 @@ def updateUserInputs(request, htmlForm, fromElementID, criteriaID):
     for element in userInputs.findall("*"):
         userInputs.remove(element) 
     
-    if (mapCriterias[toCriteriaID].elementInfo.type == "{0}:integer".format(defaultPrefix) 
-        or mapCriterias[toCriteriaID].elementInfo.type == "{0}:double".format(defaultPrefix)
-        or mapCriterias[toCriteriaID].elementInfo.type == "{0}:float".format(defaultPrefix)):
+    if (criteriaInfo.elementInfo.type == "{0}:integer".format(defaultPrefix) 
+        or criteriaInfo.elementInfo.type == "{0}:double".format(defaultPrefix)
+        or criteriaInfo.elementInfo.type == "{0}:float".format(defaultPrefix)):
         form = html.fragment_fromstring(renderNumericSelect())
         inputs = html.fragment_fromstring(renderValueInput()) 
         userInputs.append(form)
         userInputs.append(inputs) 
-    elif (mapCriterias[toCriteriaID].elementInfo.type == "enum"):
-        form = html.fragment_fromstring(renderEnum(fromElementID))
+    elif (criteriaInfo.elementInfo.type == "enum"):
+        form = html.fragment_fromstring(renderEnum(request, fromElementID))
         userInputs.append(form)
     else:
         form = html.fragment_fromstring(renderStringSelect())
@@ -1412,6 +1466,8 @@ def updateUserInputs(request, htmlForm, fromElementID, criteriaID):
 @dajaxice_register
 def addSavedQueryToForm(request, queryForm, savedQueryID):
     dajax = Dajax()
+    
+    mapQueryInfo = request.session['mapQueryInfoExplore']
     queryTree = html.fromstring(queryForm)
     
     fields = queryTree.findall("./p")
@@ -1422,7 +1478,8 @@ def addSavedQueryToForm(request, queryForm, savedQueryID):
         fields[0].append(minusButton)
         
     lastID = fields[-1].attrib['id'][4:]
-    query = mapQueryInfo[savedQueryID[5:]].displayedQuery
+    queryInfo = eval(mapQueryInfo[savedQueryID[5:]])
+    query = queryInfo['displayedQuery']
     if (len(fields)== 1 and fields[0][1].value == ""):
         queryTree.remove(fields[0])
         tagID = int(lastID)
@@ -1460,9 +1517,12 @@ def addSavedQueryToForm(request, queryForm, savedQueryID):
     #insert before the 3 buttons (save, clear, execute)
     queryTree.insert(-3,element)
     
-    mapCriterias['crit'+ str(tagID)] = CriteriaInfo()
-    mapCriterias['crit'+ str(tagID)].queryInfo = mapQueryInfo[savedQueryID[5:]]
-    mapCriterias['crit'+ str(tagID)].elementInfo = ElementInfo("query") 
+    mapCriterias = request.session['mapCriteriasExplore']
+    criteriaInfo = CriteriaInfo()
+    criteriaInfo.queryInfo = QueryInfo(query=eval(mapQueryInfo[savedQueryID[5:]])['query'], displayedQuery=eval(mapQueryInfo[savedQueryID[5:]])['displayedQuery'])
+    criteriaInfo.elementInfo = ElementInfo("query")
+    mapCriterias['crit'+ str(tagID)] = criteriaInfo.__to_json__() 
+    request.session['mapCriteriasExplore'] = mapCriterias
     dajax.assign("#queryForm", "innerHTML", html.tostring(queryTree))
 #     dajax.script("""    
 #         makeInputsDroppable();    
@@ -1488,7 +1548,6 @@ def renderInitialForm():
 def clearCriterias(request, queryForm):
     """ Reset Saved Criterias """
     dajax = Dajax()
-    global mapCriterias
     
     # Load the criterias tree     
     queryTree = html.fromstring(queryForm)
@@ -1500,7 +1559,7 @@ def clearCriterias(request, queryForm):
     initialForm = html.fragment_fromstring(renderInitialForm())
     queryTree.insert(0,initialForm)  
     
-    mapCriterias.clear()
+    request.session['mapCriteriasExplore'] = dict()
       
     dajax.assign("#queryForm", "innerHTML", html.tostring(queryTree))
 #     dajax.script("""   
@@ -1513,7 +1572,7 @@ def clearQueries(request):
     """ Reset Saved Queries """
     dajax = Dajax()
     
-    global mapQueryInfo
+    mapQueryInfo = request.session['mapQueryInfoExplore']
     
 #     queriesTableTree = html.fromstring(queriesTable)
 #         
@@ -1524,7 +1583,7 @@ def clearQueries(request):
     for queryID in mapQueryInfo.keys():
         SavedQuery(id=queryID).delete()
             
-    mapQueryInfo.clear()
+    request.session['mapQueryInfoExplore'] = dict()
     
     if '_auth_user_id' in request.session and 'exploreCurrentTemplateID' in request.session:
         userID = request.session['_auth_user_id']
@@ -1559,7 +1618,7 @@ def manageRegexFromDB(query):
             for subValue in value:
                 manageRegexFromDB(subValue)
         elif isinstance(value, str):
-            if (value[0] == "/" and value[-1] == "/"):
+            if (len(value) > 2 and value[0] == "/" and value[-1] == "/"):
                 query[key] = re.compile(value[1:-1])
         elif isinstance(value, dict):
             manageRegexFromDB(value)
@@ -1569,8 +1628,7 @@ def getCustomForm(request):
     dajax = Dajax()
     
 #     if 'currentExploreTab' in request.session and request.session['currentExploreTab'] == "tab-1":
-    
-    global mapQueryInfo
+    mapQueryInfo = dict()
     
     if 'savedQueryForm' in request.session:
         savedQueryForm = request.session['savedQueryFormExplore']
@@ -1584,10 +1642,10 @@ def getCustomForm(request):
             dajax.assign("#queryForm", "innerHTML", savedQueryForm)
             request.session['savedQueryFormExplore'] = ""
     else:
-        mapCriterias.clear()
+        request.session['mapCriteriasExplore'] = dict()
     
     #Get saved queries of an user
-    mapQueryInfo.clear()
+    request.session['mapQueryInfoExplore'] = dict()
     if '_auth_user_id' in request.session and 'exploreCurrentTemplateID' in request.session:
         userID = request.session['_auth_user_id']
         templateID = request.session['exploreCurrentTemplateID']
@@ -1606,8 +1664,10 @@ def getCustomForm(request):
         else:
             for savedQuery in userQueries:
                 query = eval(savedQuery.query)
-                manageRegexFromDB(query)                    
-                mapQueryInfo[str(savedQuery.id)] = QueryInfo(query, savedQuery.displayedQuery)
+                manageRegexFromDB(query)         
+                queryInfo = QueryInfo(query, savedQuery.displayedQuery)
+                mapQueryInfo[str(savedQuery.id)] = queryInfo.__to_json__()
+                request.session['mapQueryInfoExplore'] = mapQueryInfo
                 element = html.fragment_fromstring(renderSavedQuery(savedQuery.displayedQuery, savedQuery.id))            
                 queriesTable.append(element)
         dajax.assign('#queriesTable', 'innerHTML', html.tostring(queriesTable))
@@ -1754,18 +1814,21 @@ def downloadResults(request):
     print '>>>>  BEGIN def downloadResults(request)'
     dajax = Dajax()
 
-    global results
-
+    instances = request.session['instancesExplore']
     
-    if (len(results) > 0):
-        xmlResults = []
-        for result in results:
-            xmlResults.append(str(xmltodict.unparse(result)))
+    xmlResults = []
+    for instance in instances:
+        sessionName = "resultsExplore" + instance.name
+        results = request.session[sessionName]
+    
+        if (len(results) > 0):            
+            for result in results:
+                xmlResults.append(result)
+            
+    savedResults = QueryResults(results=xmlResults).save()
+    savedResultsID = str(savedResults.id)
         
-        savedResults = QueryResults(results=xmlResults).save()
-        savedResultsID = str(savedResults.id)
-    
-        dajax.redirect("/explore/results/download-results?id="+savedResultsID)
+    dajax.redirect("/explore/results/download-results?id="+savedResultsID)
     
     print '>>>> END def downloadResults(request)'
     return dajax.json()
@@ -1845,8 +1908,8 @@ def selectElement(request, elementID, elementName):
         
         request.session['criteriaIDExplore'] = ""
     elif 'currentExploreTab' in request.session and request.session['currentExploreTab'] == "tab-2":
-        global mapTagIDElementInfo
-        elementPath = mapTagIDElementInfo[elementID].path
+        mapTagIDElementInfo = request.session['mapTagIDElementInfoExplore']
+        elementPath = eval(mapTagIDElementInfo[str(elementID)])['path']
         elementPath = elementPath.replace(".","/tpl:")
         elementPath = "tpl:" + elementPath
         
@@ -1867,13 +1930,14 @@ def executeSPARQLQuery(request, queryStr, sparqlFormatIndex, fedOfQueries):
     print 'BEGIN def executeSPARQLQuery(request, queryStr, sparqlFormatIndex)'        
     dajax = Dajax()
     
-    global instances
-    
-    instances = []
-    getInstances(request, fedOfQueries)
+    instances = getInstances(request, fedOfQueries)
     if (len(instances)==0):
         dajax.script("showErrorInstancesDialog();")
     else:
+        json_instances = []
+        for instance in instances:
+            json_instances.append(instance.to_json()) 
+        request.session['instancesExplore'] = json_instances
         request.session['sparqlQueryExplore'] = queryStr
         request.session['sparqlFormatExplore'] = str(sparqlFormatIndex)
         dajax.script("sparqlResultsCallback();")
@@ -1884,8 +1948,8 @@ def executeSPARQLQuery(request, queryStr, sparqlFormatIndex, fedOfQueries):
 @dajaxice_register
 def getSparqlResults(request):
     dajax = Dajax()
-    global instances
     
+    instances = request.session['instancesExplore']    
     request.session['sparqlResultsExplore'] = ""
     
     dajax.script("""
@@ -1898,13 +1962,14 @@ def getSparqlResults(request):
 def getSparqlResultsByInstance(request, numInstance):
     dajax = Dajax()
     
+    instances = request.session['instancesExplore']
     sparqlQuery = request.session['sparqlQueryExplore']    
     sparqlFormat = request.session['sparqlFormatExplore']
     
     resultString = ""
-    instance = instances[int(numInstance)]
-    resultString += "<b>From " + instance.name + ":</b> <br/>"
-    if instance.name == "Local":
+    instance = eval(instances[int(numInstance)])
+    resultString += "<b>From " + instance['name'] + ":</b> <br/>"
+    if instance['name'] == "Local":
         instanceResults = sparqlPublisher.sendSPARQL(sparqlFormat + sparqlQuery)
         request.session['sparqlResultsExplore'] += instanceResults
         displayedSparqlResults = instanceResults.replace("<", "&#60;")
@@ -1914,7 +1979,7 @@ def getSparqlResultsByInstance(request, numInstance):
         resultString += "</pre>"
         resultString += "<br/>"
     else:
-        url = instance.protocol + "://" + instance.address + ":" + str(instance.port) + "/api/explore/sparql-query"
+        url = instance['protocol'] + "://" + instance['address'] + ":" + str(instance['port']) + "/api/explore/sparql-query"
         resFormat = ""
         if (sparqlFormat == "0"):
             resFormat = "TEXT"
@@ -1927,7 +1992,7 @@ def getSparqlResultsByInstance(request, numInstance):
         elif (sparqlFormat == "4"):
             resFormat = "JSON"
         data = {"query": sparqlQuery, "format": resFormat}
-        r = requests.post(url, data, auth=(instance.user, instance.password))        
+        r = requests.post(url, data, auth=(instance['user'], instance['password']))        
         instanceResultsDict = eval(r.text)
         instanceResults = instanceResultsDict['content']      
         request.session['sparqlResultsExplore'] += instanceResults
@@ -1968,19 +2033,19 @@ def prepareSubElementQuery(request, leavesID):
     print '>>>>  BEGIN def prepareSubElementQuery(request, leavesID)'
     dajax = Dajax()
     
-    global mapTagIDElementInfo
+    mapTagIDElementInfo =  request.session['mapTagIDElementInfoExplore']
     
     defaultPrefix = request.session['defaultPrefixExplore']
     
     listLeavesId = leavesID.split(" ")
-    firstElementPath = mapTagIDElementInfo[int(listLeavesId[0])].path
+    firstElementPath = eval(mapTagIDElementInfo[str(listLeavesId[0])])['path']
     parentPath = ".".join(firstElementPath.split(".")[:-1])
     parentName = parentPath.split(".")[-1]
     
     subElementQueryBuilderStr = "<p><b>" +parentName+ "</b></p>"
     subElementQueryBuilderStr += "<ul>"
     for leaveID in listLeavesId:
-        elementInfo = mapTagIDElementInfo[int(leaveID)]
+        elementInfo = ElementInfo(path=eval(mapTagIDElementInfo[str(leaveID)])['path'], type=eval(mapTagIDElementInfo[str(leaveID)])['type'])
         elementName = elementInfo.path.split(".")[-1]
         subElementQueryBuilderStr += "<li><input type='checkbox' style='margin-right:4px;margin-left:2px;' checked/>"
         subElementQueryBuilderStr += renderYESORNOT()
@@ -1991,7 +2056,7 @@ def prepareSubElementQuery(request, leavesID):
             subElementQueryBuilderStr += renderNumericSelect()
             subElementQueryBuilderStr += renderValueInput()
         elif (elementInfo.type == "enum"):
-            subElementQueryBuilderStr += renderEnum(leaveID)
+            subElementQueryBuilderStr += renderEnum(request, leaveID)
         else:
             subElementQueryBuilderStr += renderStringSelect()
             subElementQueryBuilderStr += renderValueInput()
@@ -2008,8 +2073,9 @@ def insertSubElementQuery(request, leavesID, form):
     print '>>>>  BEGIN def insertSubElementQuery(request, leavesID, form)'
     dajax = Dajax()
     
-    global mapTagIDElementInfo
+    mapTagIDElementInfo = request.session['mapTagIDElementInfoExplore'] 
     
+    mapCriterias = request.session['mapCriteriasExplore']
     criteriaID = request.session['criteriaIDExplore']
     
     htmlTree = html.fromstring(form)
@@ -2021,8 +2087,8 @@ def insertSubElementQuery(request, leavesID, form):
     errors = []
     for li in listLi:
         if (li[0].attrib['value'] == 'true'):
-            nbSelected += 1
-            elementInfo = mapTagIDElementInfo[int(listLeavesId[i])]
+            nbSelected += 1            
+            elementInfo = ElementInfo(path=eval(mapTagIDElementInfo[str(listLeavesId[i])])['path'], type=eval(mapTagIDElementInfo[str(listLeavesId[i])])['type'])
             elementName = elementInfo.path.split(".")[-1]
             elementType = elementInfo.type
             error = checkSubElementField(request, li, elementName, elementType)
@@ -2035,10 +2101,12 @@ def insertSubElementQuery(request, leavesID, form):
     
     if(len(errors) == 0):
         query = subElementfieldsToQuery(request, listLi, listLeavesId)
-        prettyQuery = subElementfieldsToPrettyQuery(listLi, listLeavesId)
-        mapCriterias[criteriaID] = CriteriaInfo()
-        mapCriterias[criteriaID].queryInfo = QueryInfo(query, prettyQuery)
-        mapCriterias[criteriaID].elementInfo = ElementInfo("query")
+        prettyQuery = subElementfieldsToPrettyQuery(request, listLi, listLeavesId)
+        criteriaInfo = CriteriaInfo()
+        criteriaInfo.queryInfo = QueryInfo(query, prettyQuery)
+        criteriaInfo.elementInfo = ElementInfo("query")
+        mapCriterias[criteriaID] = criteriaInfo.__to_json__()
+        request.session['mapCriteriasExplore'] = mapCriterias
         uiID = "ui" + criteriaID[4:]
         dajax.script("""
             // insert the pretty query in the query builder
@@ -2094,12 +2162,12 @@ def checkSubElementField(request, liElement, elementName, elementType):
     return error
 
 def subElementfieldsToQuery(request, liElements, listLeavesId):
-    global mapTagIDElementInfo
     
+    mapTagIDElementInfo = request.session['mapTagIDElementInfoExplore'] 
     elemMatch = dict()
     i = 0
     
-    firstElementPath = mapTagIDElementInfo[int(listLeavesId[i])].path
+    firstElementPath = eval(mapTagIDElementInfo[str(listLeavesId[i])])['path']
     parentPath = "content." + ".".join(firstElementPath.split(".")[:-1])
     
     for li in liElements:        
@@ -2110,7 +2178,7 @@ def subElementfieldsToQuery(request, liElements, listLeavesId):
             else:
                 isNot = False
                 
-            elementInfo = mapTagIDElementInfo[int(listLeavesId[i])]
+            elementInfo = ElementInfo(path=eval(mapTagIDElementInfo[str(listLeavesId[i])])['path'], type=eval(mapTagIDElementInfo[str(listLeavesId[i])])['type'])
             elementType = elementInfo.type
             elementName = elementInfo.path.split(".")[-1]
             if (elementType == "enum"):
@@ -2134,7 +2202,9 @@ def subElementfieldsToQuery(request, liElements, listLeavesId):
     return query
 
 
-def subElementfieldsToPrettyQuery(liElements, listLeavesId):
+def subElementfieldsToPrettyQuery(request, liElements, listLeavesId):
+    mapTagIDElementInfo = request.session['mapTagIDElementInfoExplore'] 
+    
     query = ""
     
     elemMatch = "("
@@ -2148,7 +2218,7 @@ def subElementfieldsToPrettyQuery(liElements, listLeavesId):
             else:
                 isNot = False
                 
-            elementInfo = mapTagIDElementInfo[int(listLeavesId[i])]
+            elementInfo = ElementInfo(path=eval(mapTagIDElementInfo[str(listLeavesId[i])])['path'], type=eval(mapTagIDElementInfo[str(listLeavesId[i])])['type'])
             elementType = elementInfo.type
             elementName = elementInfo.path.split(".")[-1]
             if (elementType == "enum"):
@@ -2165,7 +2235,7 @@ def subElementfieldsToPrettyQuery(liElements, listLeavesId):
         i += 1
         
     elemMatch += ")"
-    firstElementPath = mapTagIDElementInfo[int(listLeavesId[0])].path
+    firstElementPath = eval(mapTagIDElementInfo[str(listLeavesId[0])])['path']
     parentName = firstElementPath.split(".")[-2]
     
     query =  parentName + elemMatch
