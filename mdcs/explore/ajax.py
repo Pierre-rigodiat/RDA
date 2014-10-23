@@ -28,6 +28,7 @@ import xmltodict
 import requests
 import os
 import json
+import copy
 
 #import xml.etree.ElementTree as etree
 import lxml.etree as etree
@@ -542,7 +543,6 @@ def manageRegexBeforeExe(query):
         elif isinstance(value, dict):
             manageRegexBeforeExe(value)
 
-import copy
 ################################################################################
 # 
 # Function Name: getResultsByInstance(request, numInstance)
