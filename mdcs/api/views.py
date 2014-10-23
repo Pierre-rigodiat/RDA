@@ -329,7 +329,7 @@ def manageRegexInAPI(query):
         if key == "$and" or key == "$or":
             for subValue in value:
                 manageRegexInAPI(subValue)
-        elif isinstance(value, str):
+        elif isinstance(value, str) or isinstance(value, unicode):
             if (len(value) > 2 and value[0] == "/" and value[-1] == "/"):
                 query[key] = re.compile(value[1:-1])
         elif isinstance(value, dict):

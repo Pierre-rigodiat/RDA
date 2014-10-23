@@ -40,8 +40,6 @@ import sparqlPublisher
 # Global Variables
 debugON = 0
 
-query = dict()
-
 #Class definition
 class ElementInfo:    
     def __init__(self, type="", path=""):
@@ -475,8 +473,6 @@ def generateXSDTreeForQueryingData(request):
 def executeQuery(request, queryForm, queryBuilder, fedOfQueries):
     print 'BEGIN def executeQuery(request, queryForm, queryBuilder, fedOfQueries)'        
     dajax = Dajax()
-#     global results
-    global query
     
     request.session['savedQueryFormExplore'] = queryForm    
     
@@ -488,7 +484,7 @@ def executeQuery(request, queryForm, queryBuilder, fedOfQueries):
             dajax.script("showErrorInstancesDialog();")
         else:
             htmlTree = html.fromstring(queryForm)
-            query = fieldsToQuery(request, htmlTree)
+            request.session['queryExplore'] = fieldsToQuery(request, htmlTree)
             json_instances = []
             for instance in instances:
                 json_instances.append(instance.to_json()) 
@@ -535,6 +531,18 @@ def getResults(request):
     
     return dajax.json()
 
+def manageRegexBeforeExe(query):
+    for key, value in query.iteritems():
+        if key == "$and" or key == "$or":
+            for subValue in value:
+                manageRegexBeforeExe(subValue)
+        elif isinstance(value, unicode):
+            if (len(value) > 2 and value[0] == "/" and value[-1] == "/"):
+                query[key] = re.compile(value[1:-1])
+        elif isinstance(value, dict):
+            manageRegexBeforeExe(value)
+
+import copy
 ################################################################################
 # 
 # Function Name: getResultsByInstance(request, numInstance)
@@ -549,7 +557,7 @@ def getResultsByInstance(request, numInstance):
     print 'BEGIN def getResults(request)'
     dajax = Dajax()
     
-    global query
+    query = copy.deepcopy(request.session['queryExplore'])
     
     instances = request.session['instancesExplore']
         
@@ -560,6 +568,7 @@ def getResultsByInstance(request, numInstance):
     sessionName = "resultsExplore" + instance['name']
     resultString += "<b>From " + instance['name'] + ":</b> <br/>"
     if instance['name'] == "Local":
+        manageRegexBeforeExe(query)
         instanceResults = Jsondata.executeQuery(query)
         if len(instanceResults) > 0:
             for instanceResult in instanceResults:
@@ -580,11 +589,10 @@ def getResultsByInstance(request, numInstance):
             resultString += "<span style='font-style:italic; color:red;'> No Results found... </span><br/><br/>"
     else:
         url = instance['protocol'] + "://" + instance['address'] + ":" + str(instance['port']) + "/api/explore/query-by-example"
-        queryStr = str(query)
+#         queryStr = str(query)
+#         queryStr = manageRegexBeforeAPI(query, queryStr)
 #         queryToSend = eval(queryStr)
-        queryStr = manageRegexBeforeAPI(query, queryStr)
-        queryToSend = eval(queryStr)
-        data = {"query":str(queryToSend)}
+        data = {"query":str(query)}
         r = requests.post(url, data, auth=(instance['user'], instance['password']))   
         result = r.text
         instanceResults = json.loads(result,object_pairs_hook=OrderedDict)
@@ -707,9 +715,11 @@ def stringCriteria(path, comparison, value, isNot=False):
     elif (comparison == "like"):
         if(isNot):
             criteria[path] = dict()
-            criteria[path]["$not"] = re.compile(value)
+#             criteria[path]["$not"] = re.compile(value)
+            criteria[path]["$not"] = "/" + value + "/"
         else:
-            criteria[path] = re.compile(value)
+#             criteria[path] = re.compile(value)
+            criteria[path] = "/" + value + "/"
     
     return criteria
 
@@ -1268,8 +1278,7 @@ def saveQuery(request, queryForm, queriesTable):
             displayedQuery = fieldsToPrettyQuery(request, queryFormTree) 
         
             #save the query in the data base
-            
-            manageRegexBeforeSave(query)
+#             manageRegexBeforeSave(query)
             savedQuery = SavedQuery(str(userID),str(templateID), str(query),displayedQuery)
             savedQuery.save()
             
@@ -1630,7 +1639,7 @@ def getCustomForm(request):
 #     if 'currentExploreTab' in request.session and request.session['currentExploreTab'] == "tab-1":
     mapQueryInfo = dict()
     
-    if 'savedQueryForm' in request.session:
+    if 'savedQueryFormExplore' in request.session:
         savedQueryForm = request.session['savedQueryFormExplore']
     else:
         savedQueryForm = ""
@@ -1664,7 +1673,7 @@ def getCustomForm(request):
         else:
             for savedQuery in userQueries:
                 query = eval(savedQuery.query)
-                manageRegexFromDB(query)         
+#                 manageRegexFromDB(query)     
                 queryInfo = QueryInfo(query, savedQuery.displayedQuery)
                 mapQueryInfo[str(savedQuery.id)] = queryInfo.__to_json__()
                 request.session['mapQueryInfoExplore'] = mapQueryInfo
