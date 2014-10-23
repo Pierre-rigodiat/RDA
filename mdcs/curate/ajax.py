@@ -1506,9 +1506,7 @@ def generateXSDTreeForEnteringData(request):
         formString = "<form id=\"dataEntryForm\" name=\"xsdForm\">"
         formString += generateForm(request)
         formString += "</form>"
-
-
-    request.session['originalForm'] = formString
+        request.session['originalForm'] = formString
 
     #TODO: modules
     pathFile = "{0}/static/resources/files/{1}"
