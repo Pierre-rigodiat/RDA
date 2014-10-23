@@ -269,10 +269,23 @@ clearFields = function()
 {
     console.log('BEGIN [clearFields]');
 
-    $('#dataQueryForm').find("select").val(0);
+    // reset all select to their 0 index
+    $('#dataQueryForm').find("select").each(function(){
+	  this.selectedIndex = 0;
+	  for (i=0; i < this.options.length;i++) {
+	    if (i == 0){
+	    		$("#" + this.id + "-" + i).removeAttr("style");
+			} else {
+	        $("#" + this.id + "-" + i).attr("style","display:none");
+			}
+	    	
+	    }
+	});
+    // clear all checkboxes
     $("#dataQueryForm").find("input").each(function() {
     	$( this ).removeAttr('checked');
     });
+    // display a message
     $(function() {
         $( "#dialog-cleared-message" ).dialog({
             modal: true,
