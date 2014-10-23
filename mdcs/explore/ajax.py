@@ -306,7 +306,7 @@ def generateFormSubSection(request, xpath, elementName, fullPath, xmlTree):
             chooseID = nbChoicesID        
             chooseIDStr = 'choice' + str(chooseID)
             nbChoicesID += 1
-            request.session['nbChoicesID'] = str(nbChoicesID)
+            request.session['nbChoicesIDExplore'] = str(nbChoicesID)
             formString += "<li>Choose <select id='"+ chooseIDStr +"' onchange=\"changeChoice(this);\">"        
             choiceChildren = complexTypeChild.findall('*')
 #             selectedChild = choiceChildren[0]
@@ -923,7 +923,21 @@ def fieldsToQuery(request, htmlTree):
 def checkQueryForm(request, htmlTree):
     
     mapCriterias = request.session['mapCriteriasExplore']
-    defaultPrefix = request.session['defaultPrefixExplore']
+    
+    if 'defaultPrefixExplore' in request.session:
+        defaultPrefix = request.session['defaultPrefixExplore']
+    else:
+        xmlDocTreeStr = request.session['xmlDocTreeExplore']
+        xmlDocTree = etree.fromstring(xmlDocTreeStr)
+        
+        defaultNamespace = "http://www.w3.org/2001/XMLSchema"
+        for prefix, url in xmlDocTree.nsmap.iteritems():
+            if (url == defaultNamespace):            
+                request.session['defaultPrefixExplore'] = prefix
+                defaultPrefix = prefix
+                break
+        
+    
     
     errors = []
     fields = htmlTree.findall("./p")
@@ -1827,7 +1841,7 @@ def downloadResults(request):
     
     xmlResults = []
     for instance in instances:
-        sessionName = "resultsExplore" + instance.name
+        sessionName = "resultsExplore" + eval(instance)['name']
         results = request.session[sessionName]
     
         if (len(results) > 0):            
