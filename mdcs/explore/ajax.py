@@ -1263,7 +1263,7 @@ def buildPrettyCriteria(elementName, comparison, value, isNot=False):
         prettyCriteria += " like "
     
     if value == "":
-        prettyCriteria += '" "'
+        prettyCriteria += ' &ldquo;  &ldquo;'
     else:
         prettyCriteria += str(value)        
     
