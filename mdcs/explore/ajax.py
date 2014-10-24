@@ -1970,7 +1970,7 @@ def switchExploreTab(request,tab):
     
     request.session["currentExploreTab"] = tab
     
-    if 'customFormString' in request.session:   
+    if 'customFormStringExplore' in request.session:   
         customFormString = request.session['customFormStringExplore']
     else:
         customFormString = ""
