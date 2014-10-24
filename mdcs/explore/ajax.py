@@ -543,6 +543,83 @@ def manageRegexBeforeExe(query):
         elif isinstance(value, dict):
             manageRegexBeforeExe(value)
 
+# ################################################################################
+# # 
+# # Function Name: getResultsByInstance(request, numInstance)
+# # Inputs:        request -  
+# # Outputs:       
+# # Exceptions:    None
+# # Description:   Get results of a query
+# #
+# ################################################################################
+# @dajaxice_register
+# def getResultsByInstance(request, numInstance):
+#     print 'BEGIN def getResults(request)'
+#     dajax = Dajax()
+#     
+#     query = copy.deepcopy(request.session['queryExplore'])
+#     
+#     instances = request.session['instancesExplore']
+#         
+#     resultString = ""
+#     results = []    
+#     
+#     instance = eval(instances[int(numInstance)])
+#     sessionName = "resultsExplore" + instance['name']
+#     resultString += "<b>From " + instance['name'] + ":</b> <br/>"
+#     if instance['name'] == "Local":
+#         manageRegexBeforeExe(query)
+#         instanceResults = Jsondata.executeQuery(query)
+#         if len(instanceResults) > 0:
+#             for instanceResult in instanceResults:
+#                 results.append(xmltodict.unparse(instanceResult))
+# #                 resultString += "<textarea class='xmlResult' readonly='true'>"
+#                 resultString += "<div class='xmlResult' readonly='true'>"
+#                 xsltPath = os.path.join(settings.SITE_ROOT, 'static/resources/xsl/xml2html.xsl')
+#                 xslt = etree.parse(xsltPath)
+#                 transform = etree.XSLT(xslt)
+#                 dom = etree.fromstring(str(xmltodict.unparse(instanceResult).replace('<?xml version="1.0" encoding="utf-8"?>\n',"")))
+#                 newdom = transform(dom)
+#                 resultString += str(newdom)
+# #                 resultString += str(xmltodict.unparse(instanceResult, pretty=True))
+# #                 resultString += "</textarea> <br/>"
+#                 resultString += "</div> <br/>"
+#             resultString += "<br/>"
+#         else:
+#             resultString += "<span style='font-style:italic; color:red;'> No Results found... </span><br/><br/>"
+#     else:
+#         url = instance['protocol'] + "://" + instance['address'] + ":" + str(instance['port']) + "/api/explore/query-by-example"
+# #         queryStr = str(query)
+# #         queryStr = manageRegexBeforeAPI(query, queryStr)
+# #         queryToSend = eval(queryStr)
+#         data = {"query":str(query)}
+#         r = requests.post(url, data, auth=(instance['user'], instance['password']))   
+#         result = r.text
+#         instanceResults = json.loads(result,object_pairs_hook=OrderedDict)
+#         if len(instanceResults) > 0:
+#             for instanceResult in instanceResults:
+#                 results.append(xmltodict.unparse(instanceResult['content']))
+# #                 resultString += "<textarea class='xmlResult' readonly='true'>"  
+# #                 resultString += str(xmltodict.unparse(instanceResult['content'], pretty=True))
+# #                 resultString += "</textarea> <br/>"
+#                 resultString += "<div class='xmlResult' readonly='true'>"
+#                 xsltPath = os.path.join(settings.SITE_ROOT, 'static/resources/xsl/xml2html.xsl')
+#                 xslt = etree.parse(xsltPath)
+#                 transform = etree.XSLT(xslt)
+#                 dom = etree.fromstring(str(xmltodict.unparse(instanceResult['content']).replace('<?xml version="1.0" encoding="utf-8"?>\n',"")))
+#                 newdom = transform(dom)
+#                 resultString += str(newdom)
+#                 resultString += "</div> <br/>"
+#             resultString += "<br/>"
+#         else:
+#             resultString += "<span style='font-style:italic; color:red;'> No Results found... </span><br/><br/>"
+#         
+#     request.session[sessionName] = results
+#     dajax.append("#results", "innerHTML", resultString)
+#     
+#     print 'END def getResults(request)'
+#     return dajax.json()
+
 ################################################################################
 # 
 # Function Name: getResultsByInstance(request, numInstance)
@@ -555,66 +632,67 @@ def manageRegexBeforeExe(query):
 @dajaxice_register
 def getResultsByInstance(request, numInstance):
     print 'BEGIN def getResults(request)'
-    dajax = Dajax()
-    
-    query = copy.deepcopy(request.session['queryExplore'])
+    dajax = Dajax()   
     
     instances = request.session['instancesExplore']
         
     resultString = ""
     results = []    
     
-    instance = eval(instances[int(numInstance)])
-    sessionName = "resultsExplore" + instance['name']
-    resultString += "<b>From " + instance['name'] + ":</b> <br/>"
-    if instance['name'] == "Local":
-        manageRegexBeforeExe(query)
-        instanceResults = Jsondata.executeQuery(query)
-        if len(instanceResults) > 0:
-            for instanceResult in instanceResults:
-                results.append(xmltodict.unparse(instanceResult))
-#                 resultString += "<textarea class='xmlResult' readonly='true'>"
-                resultString += "<div class='xmlResult' readonly='true'>"
-                xsltPath = os.path.join(settings.SITE_ROOT, 'static/resources/xsl/xml2html.xsl')
-                xslt = etree.parse(xsltPath)
-                transform = etree.XSLT(xslt)
-                dom = etree.fromstring(str(xmltodict.unparse(instanceResult).replace('<?xml version="1.0" encoding="utf-8"?>\n',"")))
-                newdom = transform(dom)
-                resultString += str(newdom)
-#                 resultString += str(xmltodict.unparse(instanceResult, pretty=True))
-#                 resultString += "</textarea> <br/>"
-                resultString += "</div> <br/>"
-            resultString += "<br/>"
+    for i in range(int(numInstance)):
+        instance = eval(instances[int(i)])
+        sessionName = "resultsExplore" + instance['name']
+        resultString += "<b>From " + instance['name'] + ":</b> <br/>"
+        if instance['name'] == "Local":
+            query = copy.deepcopy(request.session['queryExplore'])
+            manageRegexBeforeExe(query)
+            instanceResults = Jsondata.executeQuery(query)
+            if len(instanceResults) > 0:
+                for instanceResult in instanceResults:
+                    results.append(xmltodict.unparse(instanceResult))
+    #                 resultString += "<textarea class='xmlResult' readonly='true'>"
+                    resultString += "<div class='xmlResult' readonly='true'>"
+                    xsltPath = os.path.join(settings.SITE_ROOT, 'static/resources/xsl/xml2html.xsl')
+                    xslt = etree.parse(xsltPath)
+                    transform = etree.XSLT(xslt)
+                    dom = etree.fromstring(str(xmltodict.unparse(instanceResult).replace('<?xml version="1.0" encoding="utf-8"?>\n',"")))
+                    newdom = transform(dom)
+                    resultString += str(newdom)
+    #                 resultString += str(xmltodict.unparse(instanceResult, pretty=True))
+    #                 resultString += "</textarea> <br/>"
+                    resultString += "</div> <br/>"
+                resultString += "<br/>"
+            else:
+                resultString += "<span style='font-style:italic; color:red;'> No Results found... </span><br/><br/>"
         else:
-            resultString += "<span style='font-style:italic; color:red;'> No Results found... </span><br/><br/>"
-    else:
-        url = instance['protocol'] + "://" + instance['address'] + ":" + str(instance['port']) + "/api/explore/query-by-example"
-#         queryStr = str(query)
-#         queryStr = manageRegexBeforeAPI(query, queryStr)
-#         queryToSend = eval(queryStr)
-        data = {"query":str(query)}
-        r = requests.post(url, data, auth=(instance['user'], instance['password']))   
-        result = r.text
-        instanceResults = json.loads(result,object_pairs_hook=OrderedDict)
-        if len(instanceResults) > 0:
-            for instanceResult in instanceResults:
-                results.append(xmltodict.unparse(instanceResult['content']))
-#                 resultString += "<textarea class='xmlResult' readonly='true'>"  
-#                 resultString += str(xmltodict.unparse(instanceResult['content'], pretty=True))
-#                 resultString += "</textarea> <br/>"
-                resultString += "<div class='xmlResult' readonly='true'>"
-                xsltPath = os.path.join(settings.SITE_ROOT, 'static/resources/xsl/xml2html.xsl')
-                xslt = etree.parse(xsltPath)
-                transform = etree.XSLT(xslt)
-                dom = etree.fromstring(str(xmltodict.unparse(instanceResult['content']).replace('<?xml version="1.0" encoding="utf-8"?>\n',"")))
-                newdom = transform(dom)
-                resultString += str(newdom)
-                resultString += "</div> <br/>"
-            resultString += "<br/>"
-        else:
-            resultString += "<span style='font-style:italic; color:red;'> No Results found... </span><br/><br/>"
-        
-    request.session[sessionName] = results
+            url = instance['protocol'] + "://" + instance['address'] + ":" + str(instance['port']) + "/api/explore/query-by-example"
+    #         queryStr = str(query)
+    #         queryStr = manageRegexBeforeAPI(query, queryStr)
+    #         queryToSend = eval(queryStr)
+            query = copy.deepcopy(request.session['queryExplore'])
+            data = {"query":str(query)}
+            r = requests.post(url, data, auth=(instance['user'], instance['password']))   
+            result = r.text
+            instanceResults = json.loads(result,object_pairs_hook=OrderedDict)
+            if len(instanceResults) > 0:
+                for instanceResult in instanceResults:
+                    results.append(xmltodict.unparse(instanceResult['content']))
+    #                 resultString += "<textarea class='xmlResult' readonly='true'>"  
+    #                 resultString += str(xmltodict.unparse(instanceResult['content'], pretty=True))
+    #                 resultString += "</textarea> <br/>"
+                    resultString += "<div class='xmlResult' readonly='true'>"
+                    xsltPath = os.path.join(settings.SITE_ROOT, 'static/resources/xsl/xml2html.xsl')
+                    xslt = etree.parse(xsltPath)
+                    transform = etree.XSLT(xslt)
+                    dom = etree.fromstring(str(xmltodict.unparse(instanceResult['content']).replace('<?xml version="1.0" encoding="utf-8"?>\n',"")))
+                    newdom = transform(dom)
+                    resultString += str(newdom)
+                    resultString += "</div> <br/>"
+                resultString += "<br/>"
+            else:
+                resultString += "<span style='font-style:italic; color:red;'> No Results found... </span><br/><br/>"
+            
+        request.session[sessionName] = results
     dajax.append("#results", "innerHTML", resultString)
     
     print 'END def getResults(request)'
@@ -1981,72 +2059,150 @@ def getSparqlResults(request):
     
     return dajax.json()
 
+# from threading import Thread, Lock
+# mutex = Lock()
+
+# @dajaxice_register
+# def getSparqlResultsByInstance(request, numInstance):
+#     dajax = Dajax()
+#     global mutex
+#     mutex.acquire()
+#     try:      
+#         instances = request.session['instancesExplore']
+#         sparqlQuery = request.session['sparqlQueryExplore']    
+#         sparqlFormat = request.session['sparqlFormatExplore']
+#         
+#         resultString = ""
+#         instance = eval(instances[int(numInstance)])
+#         sessionName = "sparqlResultsExplore" + instance['name']
+#         print sessionName + "lock"
+#         resultString += "<b>From " + instance['name'] + ":</b> <br/>"
+#         if instance['name'] == "Local":
+#             instanceResults = sparqlPublisher.sendSPARQL(sparqlFormat + sparqlQuery)
+#             request.session[sessionName] = instanceResults
+#             displayedSparqlResults = instanceResults.replace("<", "&#60;")
+#             displayedSparqlResults = displayedSparqlResults.replace(">", "&#62;")
+#             resultString += "<pre class='sparqlResult' readonly='true'>"
+#             resultString += displayedSparqlResults
+#             resultString += "</pre>"
+#             resultString += "<br/>"
+#         else:
+#             url = instance['protocol'] + "://" + instance['address'] + ":" + str(instance['port']) + "/api/explore/sparql-query"
+#             resFormat = ""
+#             if (sparqlFormat == "0"):
+#                 resFormat = "TEXT"
+#             elif (sparqlFormat == "1"):
+#                 resFormat = "XML"
+#             elif (sparqlFormat == "2"):
+#                 resFormat = "CSV"
+#             elif (sparqlFormat == "3"):
+#                 resFormat = "TSV"
+#             elif (sparqlFormat == "4"):
+#                 resFormat = "JSON"
+#             data = {"query": sparqlQuery, "format": resFormat}
+#             try:
+#                 r = requests.post(url, data, auth=(instance['user'], instance['password']))
+#                 instanceResultsDict = eval(r.text)
+#                 instanceResults = instanceResultsDict['content']  
+#                 request.session[sessionName] = instanceResults
+#                 displayedSparqlResults = instanceResults.replace("<", "&#60;")
+#                 displayedSparqlResults = displayedSparqlResults.replace(">", "&#62;")        
+#                 resultString += "<pre class='sparqlResult' readonly='true'>"
+#                 resultString += displayedSparqlResults
+#                 resultString += "</pre>"
+#                 resultString += "<br/>"
+#             except:            
+#                 request.session[sessionName] = ""
+#                 resultString += "<p style='color:red;'>Unable to contact the remote instance.</p>"
+#     
+#         dajax.append("#results", "innerHTML", resultString)
+#         
+#         request.session.modified = True
+#         request.session.save()
+#     except Exception, e:
+#         print "error in :" + sessionName
+#         print e.message
+#         mutex.release()
+#         return dajax.json()
+#     mutex.release()
+#     print sessionName + "release"
+#     return dajax.json()
+
 @dajaxice_register
 def getSparqlResultsByInstance(request, numInstance):
     dajax = Dajax()
     
-    instances = request.session['instancesExplore']
-    sparqlQuery = request.session['sparqlQueryExplore']    
-    sparqlFormat = request.session['sparqlFormatExplore']
-    
     resultString = ""
-    instance = eval(instances[int(numInstance)])
-    resultString += "<b>From " + instance['name'] + ":</b> <br/>"
-    if instance['name'] == "Local":
-        instanceResults = sparqlPublisher.sendSPARQL(sparqlFormat + sparqlQuery)
-        request.session['sparqlResultsExplore'] += instanceResults
-        displayedSparqlResults = instanceResults.replace("<", "&#60;")
-        displayedSparqlResults = displayedSparqlResults.replace(">", "&#62;")
-        resultString += "<pre class='sparqlResult' readonly='true'>"
-        resultString += displayedSparqlResults
-        resultString += "</pre>"
-        resultString += "<br/>"
-    else:
-        url = instance['protocol'] + "://" + instance['address'] + ":" + str(instance['port']) + "/api/explore/sparql-query"
-        resFormat = ""
-        if (sparqlFormat == "0"):
-            resFormat = "TEXT"
-        elif (sparqlFormat == "1"):
-            resFormat = "XML"
-        elif (sparqlFormat == "2"):
-            resFormat = "CSV"
-        elif (sparqlFormat == "3"):
-            resFormat = "TSV"
-        elif (sparqlFormat == "4"):
-            resFormat = "JSON"
-        data = {"query": sparqlQuery, "format": resFormat}
-        r = requests.post(url, data, auth=(instance['user'], instance['password']))        
-        instanceResultsDict = eval(r.text)
-        instanceResults = instanceResultsDict['content']      
-        request.session['sparqlResultsExplore'] += instanceResults
-        displayedSparqlResults = instanceResults.replace("<", "&#60;")
-        displayedSparqlResults = displayedSparqlResults.replace(">", "&#62;")        
-        resultString += "<pre class='sparqlResult' readonly='true'>"
-        resultString += displayedSparqlResults
-        resultString += "</pre>"
-        resultString += "<br/>"
-        
-            
+    
+    for i in range(int(numInstance)):
+        instances = request.session['instancesExplore']
+        sparqlQuery = request.session['sparqlQueryExplore']    
+        sparqlFormat = request.session['sparqlFormatExplore']
+                
+        instance = eval(instances[int(i)])
+        sessionName = "sparqlResultsExplore" + instance['name']
+        resultString += "<b>From " + instance['name'] + ":</b> <br/>"
+        if instance['name'] == "Local":
+            instanceResults = sparqlPublisher.sendSPARQL(sparqlFormat + sparqlQuery)
+            request.session[sessionName] = instanceResults
+            displayedSparqlResults = instanceResults.replace("<", "&#60;")
+            displayedSparqlResults = displayedSparqlResults.replace(">", "&#62;")
+            resultString += "<pre class='sparqlResult' readonly='true'>"
+            resultString += displayedSparqlResults
+            resultString += "</pre>"
+            resultString += "<br/>"
+        else:
+            url = instance['protocol'] + "://" + instance['address'] + ":" + str(instance['port']) + "/api/explore/sparql-query"
+            resFormat = ""
+            if (sparqlFormat == "0"):
+                resFormat = "TEXT"
+            elif (sparqlFormat == "1"):
+                resFormat = "XML"
+            elif (sparqlFormat == "2"):
+                resFormat = "CSV"
+            elif (sparqlFormat == "3"):
+                resFormat = "TSV"
+            elif (sparqlFormat == "4"):
+                resFormat = "JSON"
+            data = {"query": sparqlQuery, "format": resFormat}
+            try:
+                r = requests.post(url, data, auth=(instance['user'], instance['password']))
+                instanceResultsDict = eval(r.text)
+                instanceResults = instanceResultsDict['content']  
+                request.session[sessionName] = instanceResults
+                displayedSparqlResults = instanceResults.replace("<", "&#60;")
+                displayedSparqlResults = displayedSparqlResults.replace(">", "&#62;")        
+                resultString += "<pre class='sparqlResult' readonly='true'>"
+                resultString += displayedSparqlResults
+                resultString += "</pre>"
+                resultString += "<br/>"
+            except:
+                request.session[sessionName] = ""
+                resultString += "<p style='color:red;'>Unable to contact the remote instance.</p>"
+    
     dajax.append("#results", "innerHTML", resultString)
        
     return dajax.json()
-
+    
 @dajaxice_register
 def downloadSparqlResults(request):
     print '>>>>  BEGIN def downloadSparqlResults(request)'
     dajax = Dajax()
 
-    if 'sparqlResultsExplore' in request.session and request.session['sparqlResultsExplore']!= "":
-        sparqlResults = request.session['sparqlResultsExplore']
-    else:
-        sparqlResults = None
+    instances = request.session['instancesExplore']
+    sparqlResults = ""
+    for instance in instances:
+        sessionName = "sparqlResultsExplore" + eval(instance)['name']
+        results = request.session[sessionName]
     
-    if (sparqlResults is not None):
+        if (len(results) > 0):            
+            sparqlResults += results
+
         
-        savedResults = SparqlQueryResults(results=sparqlResults).save()
-        savedResultsID = str(savedResults.id)
-    
-        dajax.redirect("/explore/results/download-sparqlresults?id="+savedResultsID)
+    savedResults = SparqlQueryResults(results=sparqlResults).save()
+    savedResultsID = str(savedResults.id)
+
+    dajax.redirect("/explore/results/download-sparqlresults?id="+savedResultsID)
     
     print '>>>> END def downloadSparqlResults(request)'
     return dajax.json()

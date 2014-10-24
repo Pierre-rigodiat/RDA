@@ -104,18 +104,19 @@ resultsCallback = function()
 
 getAsyncResults = function(nbInstances)
 {
-	for (i=0; i < Number(nbInstances); ++i){
-		Dajaxice.explore.getResultsByInstance(Dajax.process,{"numInstance": i});
-	}
+	/*for (i=0; i < Number(nbInstances); ++i){
+		Dajaxice.explore.getResultsByInstance(Dajax.process,{"numInstance": i});		
+	}*/
+	Dajaxice.explore.getResultsByInstance(Dajax.process,{"numInstance": nbInstances});
 }
 
 getAsyncSparqlResults = function(nbInstances)
 {
-	for (i=0; i < Number(nbInstances); ++i){
+	/*for (i=0; i < Number(nbInstances); ++i){
 		Dajaxice.explore.getSparqlResultsByInstance(Dajax.process,{"numInstance": i});
-	}
+	}*/
+	Dajaxice.explore.getSparqlResultsByInstance(Dajax.process,{"numInstance": nbInstances});
 }
-
 function addField(){
 	$("input").each(function(){
 	    $(this).attr("value", $(this).val());
