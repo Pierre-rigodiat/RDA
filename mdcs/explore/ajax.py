@@ -636,10 +636,10 @@ def getResultsByInstance(request, numInstance):
     
     instances = request.session['instancesExplore']
         
-    resultString = ""
-    results = []    
+    resultString = ""    
     
     for i in range(int(numInstance)):
+        results = []
         instance = eval(instances[int(i)])
         sessionName = "resultsExplore" + instance['name']
         resultString += "<b>From " + instance['name'] + ":</b> <br/>"
