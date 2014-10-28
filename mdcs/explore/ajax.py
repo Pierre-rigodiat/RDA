@@ -42,6 +42,14 @@ import sparqlPublisher
 debugON = 0
 
 #Class definition
+
+################################################################################
+# 
+# Class Name: ElementInfo
+#
+# Description: Store information about element from the XML schema
+#
+################################################################################
 class ElementInfo:    
     def __init__(self, type="", path=""):
         self.type = type
@@ -49,7 +57,14 @@ class ElementInfo:
     
     def __to_json__(self):
         return json.dumps(self, default=lambda o:o.__dict__)
-    
+
+################################################################################
+# 
+# Class Name: CriteriaInfo
+#
+# Description: Store information about a criteria from the query builder
+#
+################################################################################
 class CriteriaInfo:
     def __init__(self, elementInfo=None, queryInfo=None):
         self.elementInfo = elementInfo
@@ -66,7 +81,14 @@ class CriteriaInfo:
         else:
             jsonDict['queryInfo'] = self.queryInfo.__to_json__()
         return str(jsonDict)
-        
+
+################################################################################
+# 
+# Class Name: QueryInfo
+#
+# Description: Store information about a query
+#
+################################################################################
 class QueryInfo:
     def __init__(self, query="", displayedQuery=""):
         self.query = query
@@ -74,7 +96,15 @@ class QueryInfo:
 
     def __to_json__(self):        
         return json.dumps(self, default=lambda o:o.__dict__)
-    
+ 
+################################################################################
+# 
+# Class Name: BranchInfo
+#
+# Description: Store information about a branch from the xml schema while it is
+# being processed for customization
+#
+################################################################################   
 class BranchInfo:
     def __init__(self, keepTheBranch, selectedLeave):
         self.keepTheBranch = keepTheBranch
@@ -83,7 +113,7 @@ class BranchInfo:
 
 ################################################################################
 # 
-# Function Name: setCurrentTemplate(request)
+# Function Name: setCurrentTemplate(request,templateFilename, templateID):
 # Inputs:        request - 
 #                templateFilename -  
 #                templateID - 
@@ -136,41 +166,21 @@ def verifyTemplateIsSelected(request):
     else:
         print 'template is not selected'
         templateSelected = 'no'
-#     dajax = Dajax()
 
     print 'END def verifyTemplateIsSelected(request)'
     return simplejson.dumps({'templateSelected':templateSelected})
 
 ################################################################################
 # 
-# Function Name: setCurrentModel(request,modelFilename)
-# Inputs:        request - 
-#                modelFilename - 
+# Function Name: generateFormSubSection(request, xpath, elementName, fullPath, xmlTree)
+# Inputs:        request -
+#                elementName - 
+#                xpath -
+#                fullPath -
+#                xmlTree - 
 # Outputs:       JSON data 
 # Exceptions:    None
-# Description:   Sets current model 
-# 
-################################################################################
-# @dajaxice_register
-# def setCurrentModel(request,modelFilename):
-#     print 'BEGIN def setCurrentModel(request)'
-#     request.session['exploreCurrentTemplate'] = modelFilename
-#     request.session.modified = True
-#     print '>>>>' + modelFilename
-#     dajax = Dajax()
-# 
-#     print 'END def setCurrentModel(request)'
-#     return dajax.json()
-
-
-################################################################################
-# 
-# Function Name: generateFormSubSection(xpath,fullPath)
-# Inputs:        xpath -
-#                fullPath - 
-# Outputs:       JSON data 
-# Exceptions:    None
-# Description:   
+# Description:   Recurcively generates the HTML form from the XML schema
 #
 ################################################################################
 def generateFormSubSection(request, xpath, elementName, fullPath, xmlTree):
@@ -501,6 +511,16 @@ def executeQuery(request, queryForm, queryBuilder, fedOfQueries):
     print 'END def executeQuery(request, queryForm, queryBuilder, fedOfQueries)'
     return dajax.json()
 
+################################################################################
+# 
+# Function Name: getInstances(request, fedOfQueries)
+# Inputs:        request -
+#                fedOfQueries - html list of repositories
+# Outputs:       JSON data 
+# Exceptions:    None
+# Description:   Get the selected instances from the the repositories section
+#
+################################################################################
 def getInstances(request, fedOfQueries):
     
     instances = []
@@ -519,7 +539,16 @@ def getInstances(request, fedOfQueries):
                 instances.append(Instance.objects.get(name=checkbox.attrib['value']))
     
     return instances  
-    
+
+################################################################################
+# 
+# Function Name: getResults(request)
+# Inputs:        request -
+# Outputs:       JSON data 
+# Exceptions:    None
+# Description:   Get the results of a query
+#
+################################################################################
 @dajaxice_register
 def getResults(request):
     dajax = Dajax()
@@ -532,6 +561,15 @@ def getResults(request):
     
     return dajax.json()
 
+################################################################################
+# 
+# Function Name: getResults(query)
+# Inputs:        query -
+# Outputs:       JSON data 
+# Exceptions:    None
+# Description:   Transform the query to get rid of Regex object 
+#
+################################################################################
 def manageRegexBeforeExe(query):
     for key, value in query.iteritems():
         if key == "$and" or key == "$or":
@@ -626,7 +664,7 @@ def manageRegexBeforeExe(query):
 # Inputs:        request -  
 # Outputs:       
 # Exceptions:    None
-# Description:   Get results of a query
+# Description:   Get results of a query for a specific instance (Local or others)
 #
 ################################################################################
 @dajaxice_register
@@ -1216,11 +1254,29 @@ def renderNumericSelect():
     </select> 
     """
 
+################################################################################
+# 
+# Function Name: renderValueInput()
+# Inputs:        
+# Outputs:       input for a value
+# Exceptions:    None
+# Description:   Returns an input to type a value
+#
+################################################################################
 def renderValueInput():
     return """
     <input style="margin-left:4px;" type="text" class="valueInput"/>
     """
 
+################################################################################
+# 
+# Function Name: renderValueInput()
+# Inputs:        
+# Outputs:       input for a value
+# Exceptions:    None
+# Description:   Returns an input to type a value
+#
+################################################################################
 def renderStringSelect():
     return """
     <select>
@@ -1229,6 +1285,15 @@ def renderStringSelect():
     </select> 
     """
 
+################################################################################
+# 
+# Function Name: renderEnum()
+# Inputs:        
+# Outputs:       render an html select from an enumeration
+# Exceptions:    None
+# Description:   Returns html select from an enumeration
+#
+################################################################################
 def renderEnum(request, fromElementID):
     enum = "<select class='selectInput'>"
     listOptions = request.session['mapEnumIDChoicesExplore'][str(fromElementID)]
@@ -1240,6 +1305,18 @@ def renderEnum(request, fromElementID):
 def renderSelectForm(tagID):
     pass
 
+################################################################################
+# 
+# Function Name: buildPrettyCriteria(elementName, comparison, value, isNot=False)
+# Inputs:        elementName - 
+#                comparison - 
+#                value -
+#                isNot - 
+# Outputs:       render a criteria in a pretty form
+# Exceptions:    None
+# Description:   Returns a pretty representation of the criteria
+#
+################################################################################
 def buildPrettyCriteria(elementName, comparison, value, isNot=False):
     prettyCriteria = ""
     
@@ -1272,24 +1349,75 @@ def buildPrettyCriteria(elementName, comparison, value, isNot=False):
     
     return prettyCriteria
 
+################################################################################
+# 
+# Function Name: queryToPrettyCriteria(queryValue, isNot)
+# Inputs:        queryValue - 
+#                isNot - 
+# Outputs:       render a query in a pretty form
+# Exceptions:    None
+# Description:   Returns a pretty representation of the query
+#
+################################################################################
 def queryToPrettyCriteria(queryValue, isNot):
     if(isNot):
         return "NOT(" + queryValue + ")"
     else:
         return queryValue
-    
+
+################################################################################
+# 
+# Function Name: enumToPrettyCriteria(element, value, isNot=False)
+# Inputs:        element - 
+#                value - 
+#                isNot - 
+# Outputs:       render an enumeration value in a pretty form
+# Exceptions:    None
+# Description:   Returns a pretty representation of the enumeration value
+#
+################################################################################
 def enumToPrettyCriteria(element, value, isNot=False):
     if(isNot):
         return "NOT(" + str(element) + " is " + str(value) + ")"
     else:
         return str(element) + " is " + str(value)
 
+################################################################################
+# 
+# Function Name: ORPrettyCriteria(query, criteria)
+# Inputs:        query - 
+#                criteria - 
+# Outputs:       render a OR in a pretty form
+# Exceptions:    None
+# Description:   Returns a pretty representation of the OR
+#
+################################################################################
 def ORPrettyCriteria(query, criteria):
     return "(" + query + " OR " + criteria + ")"
 
+################################################################################
+# 
+# Function Name: ANDPrettyCriteria(query, criteria)
+# Inputs:        query - 
+#                criteria - 
+# Outputs:       render a AND in a pretty form
+# Exceptions:    None
+# Description:   Returns a pretty representation of the AND
+#
+################################################################################
 def ANDPrettyCriteria(query, criteria):
     return "(" + query + " AND " + criteria + ")"
 
+################################################################################
+# 
+# Function Name: fieldsToPrettyQuery(request, queryFormTree)
+# Inputs:        request - 
+#                queryFormTree - 
+# Outputs:       
+# Exceptions:    None
+# Description:   Tranforms fields from the HTML form into pretty representation
+#
+################################################################################
 def fieldsToPrettyQuery(request, queryFormTree):
     
     mapCriterias = request.session['mapCriteriasExplore']
@@ -1344,6 +1472,17 @@ def fieldsToPrettyQuery(request, queryFormTree):
         
     return query    
 
+################################################################################
+# 
+# Function Name: saveQuery(request, , queryForm, queriesTable)
+# Inputs:        request - 
+#                queryForm -
+#                queriesTable - 
+# Outputs:       
+# Exceptions:    None
+# Description:   save a query into mongo db and update the html display
+#
+################################################################################
 @dajaxice_register
 def saveQuery(request, queryForm, queriesTable):
     dajax = Dajax()
@@ -1412,7 +1551,15 @@ def saveQuery(request, queryForm, queriesTable):
 
     return dajax.json()
 
-
+################################################################################
+# 
+# Function Name: manageRegexBeforeSave(query)
+# Inputs:        query
+# Outputs:       
+# Exceptions:    None
+# Description:   Replaces the Regex objects before saving into mongo db
+#
+################################################################################
 def manageRegexBeforeSave(query):
 #     for key, value in query.iteritems():
 #         if isinstance(value, dict):
@@ -1430,6 +1577,17 @@ def manageRegexBeforeSave(query):
             manageRegexBeforeSave(value)
 #                 DictRegex[str(value).replace(".", "")] = value.pattern
 
+################################################################################
+# 
+# Function Name: deleteQuery(request, queriesTable, savedQueryID)
+# Inputs:        request - 
+#                queriesTable -
+#                savedQueryID - 
+# Outputs:       
+# Exceptions:    None
+# Description:   Deletes a query and update the HTML display
+#
+################################################################################
 @dajaxice_register
 def deleteQuery(request, queriesTable, savedQueryID):
     dajax = Dajax()
@@ -1480,7 +1638,16 @@ def deleteQuery(request, queriesTable, savedQueryID):
 #     """);
     return dajax.json()
     
-    
+################################################################################
+# 
+# Function Name: renderSavedQuery(query, queryID)
+# Inputs:        query - 
+#                queryID - 
+# Outputs:       
+# Exceptions:    None
+# Description:   Renders a saved query
+#
+################################################################################   
 def renderSavedQuery(query, queryID):
     return """
         <tr id=query"""+ str(queryID) +""">
@@ -1509,6 +1676,18 @@ def renderSavedQuery(query, queryID):
 #         
 #     return areTypesOK
 
+################################################################################
+# 
+# Function Name: updateUserInputs(request, htmlForm, fromElementID, criteriaID)
+# Inputs:        request - 
+#                htmlForm - 
+#                fromElementID - 
+#                criteriaID - 
+# Outputs:       
+# Exceptions:    None
+# Description:   Update the user input of the query builder according to the type of the selected element
+#
+################################################################################  
 @dajaxice_register
 def updateUserInputs(request, htmlForm, fromElementID, criteriaID):   
     dajax = Dajax()
@@ -1563,7 +1742,17 @@ def updateUserInputs(request, htmlForm, fromElementID, criteriaID):
 #     """);
     return dajax.json()
     
-    
+################################################################################
+# 
+# Function Name: addSavedQueryToForm(request, queryForm, savedQueryID)
+# Inputs:        request - 
+#                queryForm - 
+#                savedQueryID - 
+# Outputs:       
+# Exceptions:    None
+# Description:   Adds the selected query to query builder
+#
+################################################################################ 
 @dajaxice_register
 def addSavedQueryToForm(request, queryForm, savedQueryID):
     dajax = Dajax()
@@ -1630,7 +1819,15 @@ def addSavedQueryToForm(request, queryForm, savedQueryID):
 #     """);
     return dajax.json()
     
-
+################################################################################
+# 
+# Function Name: renderInitialForm()
+# Inputs:        
+# Outputs:       
+# Exceptions:    None
+# Description:   Renders the initial Query Builder
+#
+################################################################################ 
 def renderInitialForm():
     return """
     <p id="crit0">
@@ -1645,6 +1842,16 @@ def renderInitialForm():
     </p>
     """
 
+################################################################################
+# 
+# Function Name: clearCriterias(request, queryForm)
+# Inputs:        request -
+#                queryForm - 
+# Outputs:       
+# Exceptions:    None
+# Description:   Clears the Query Builder
+#
+################################################################################ 
 @dajaxice_register
 def clearCriterias(request, queryForm):
     """ Reset Saved Criterias """
@@ -1667,7 +1874,16 @@ def clearCriterias(request, queryForm):
 #         makeInputsDroppable();    
 #     """);
     return dajax.json()
-    
+
+################################################################################
+# 
+# Function Name: clearQueries(request)
+# Inputs:        request -
+# Outputs:       
+# Exceptions:    None
+# Description:   Delete all saved queries
+#
+################################################################################ 
 @dajaxice_register
 def clearQueries(request):
     """ Reset Saved Queries """
@@ -1710,9 +1926,27 @@ def clearQueries(request):
 #     """);
     return dajax.json()
 
+################################################################################
+# 
+# Function Name: renderNoQueries()
+# Inputs:        
+# Outputs:       
+# Exceptions:    None
+# Description:   Renders the initial form for saved queries
+#
+################################################################################ 
 def renderNoQueries():
     return "<tr id='noqueries'><td colspan='3' style='color:red;'>No Saved Queries for now.</td></tr>"
 
+################################################################################
+# 
+# Function Name: manageRegexFromDB(query)
+# Inputs:        query - 
+# Outputs:       
+# Exceptions:    None
+# Description:   Restore Regex from Mongo db
+#
+################################################################################ 
 def manageRegexFromDB(query):
     for key, value in query.iteritems():
         if key == "$and" or key == "$or":
@@ -1724,6 +1958,15 @@ def manageRegexFromDB(query):
         elif isinstance(value, dict):
             manageRegexFromDB(value)
 
+################################################################################
+# 
+# Function Name: getCustomForm(request)
+# Inputs:        request - 
+# Outputs:       
+# Exceptions:    None
+# Description:   Get the form customized by the user to select the fields
+#
+################################################################################ 
 @dajaxice_register
 def getCustomForm(request):
     dajax = Dajax()
@@ -1800,11 +2043,11 @@ def getCustomForm(request):
 
 ################################################################################
 #
-# Function Name: saveXMLData(request,xmlContent,formContent)
+# Function Name: saveCustomData(request,formContent)
 # Inputs:        request - 
 # Outputs:       
 # Exceptions:    None
-# Description:   
+# Description:   Saves the custom template with fields selected by the user
 #                
 #
 ################################################################################
@@ -1844,11 +2087,32 @@ def saveCustomData(request,formContent):
     print '>>>> END def saveCustomData(request,formContent)'
     return dajax.json()  
 
+################################################################################
+#
+# Function Name: createCustomTreeForQuery(request,htmlTree)
+# Inputs:        request - 
+#                htmlTree - 
+# Outputs:       
+# Exceptions:    None
+# Description:   Creates a custom HTML tree from fields chosen by the user
+#                
+#
+################################################################################
 def createCustomTreeForQuery(request, htmlTree):
     request.session['anyCheckedExplore'] = False
     for li in htmlTree.findall("./ul/li"):
         manageLiForQuery(request, li)
 
+################################################################################
+#
+# Function Name: manageUlForQuery(request, ul)
+# Inputs:        request - 
+#                ul - 
+# Outputs:       
+# Exceptions:    None
+# Description:   Process the ul element of an HTML list
+#                
+################################################################################
 def manageUlForQuery(request, ul):
     branchInfo = BranchInfo(keepTheBranch = False, selectedLeave = None)
 #     hasOnlyLeaves = True
@@ -1877,7 +2141,17 @@ def manageUlForQuery(request, ul):
         parent.text = ""
     return branchInfo
 
-            
+
+################################################################################
+#
+# Function Name: manageLiForQuery(request, li)
+# Inputs:        request - 
+#                li - 
+# Outputs:       
+# Exceptions:    None
+# Description:   Process the li element of an HTML list
+#                
+################################################################################
 def manageLiForQuery(request, li):
     listUl = li.findall("./ul")
     branchInfo = BranchInfo(keepTheBranch = False, selectedLeave = None)
@@ -1909,7 +2183,15 @@ def manageLiForQuery(request, li):
             return branchInfo
   
 
-
+################################################################################
+#
+# Function Name: downloadResults(request)
+# Inputs:        request - 
+# Outputs:       
+# Exceptions:    None
+# Description:   Download results from a query
+#                
+################################################################################
 @dajaxice_register
 def downloadResults(request):
     print '>>>>  BEGIN def downloadResults(request)'
@@ -1935,6 +2217,15 @@ def downloadResults(request):
     return dajax.json()
   
 
+################################################################################
+#
+# Function Name: backToQuery(request)
+# Inputs:        request - 
+# Outputs:       
+# Exceptions:    None
+# Description:   Allows to come back to the query definition keeping the criterias
+#                
+################################################################################
 @dajaxice_register
 def backToQuery(request):
     dajax = Dajax()
@@ -1944,6 +2235,15 @@ def backToQuery(request):
     return dajax.json()
 
 
+################################################################################
+#
+# Function Name: redirectExplore(request)
+# Inputs:        request - 
+# Outputs:       
+# Exceptions:    None
+# Description:   Switch tab
+#                
+################################################################################
 @dajaxice_register
 def redirectExplore(request):
     dajax = Dajax()
@@ -1953,6 +2253,15 @@ def redirectExplore(request):
     
     return dajax.json()
 
+################################################################################
+#
+# Function Name: redirectExploreTabs(request)
+# Inputs:        request - 
+# Outputs:       
+# Exceptions:    None
+# Description:   Switch tab
+#                
+################################################################################
 @dajaxice_register
 def redirectExploreTabs(request):
     dajax = Dajax()
@@ -1964,6 +2273,15 @@ def redirectExploreTabs(request):
     
     return dajax.json()
 
+################################################################################
+#
+# Function Name: redirectExploreTabs(request)
+# Inputs:        request - 
+# Outputs:       
+# Exceptions:    None
+# Description:   Switch tab and clears/sets custom forms
+#                
+################################################################################
 @dajaxice_register
 def switchExploreTab(request,tab):
     dajax = Dajax()
@@ -1986,6 +2304,16 @@ def switchExploreTab(request,tab):
     return dajax.json()
 
 
+################################################################################
+#
+# Function Name: setCurrentCriteria(request, currentCriteriaID)
+# Inputs:        request - 
+#                currentCriteriaID
+# Outputs:       
+# Exceptions:    None
+# Description:   Set the id of the criteria that is currently set
+#                
+################################################################################
 @dajaxice_register
 def setCurrentCriteria(request, currentCriteriaID):
     dajax = Dajax()
@@ -1994,6 +2322,17 @@ def setCurrentCriteria(request, currentCriteriaID):
     
     return dajax.json()
 
+################################################################################
+#
+# Function Name: selectElement(request, elementID, elementName)
+# Inputs:        request - 
+#                elementID - 
+#                elementName - 
+# Outputs:       
+# Exceptions:    None
+# Description:   Select an element from the Get Element feature of the SPARQL endpoint
+#                
+################################################################################
 @dajaxice_register
 def selectElement(request, elementID, elementName): 
     dajax = Dajax()
@@ -2026,6 +2365,18 @@ WHERE {
         dajax.assign("#sparqlExample", "innerHTML", queryExample)
     return dajax.json()
 
+################################################################################
+#
+# Function Name: executeSPARQLQuery(request, queryStr, sparqlFormatIndex, fedOfQueries)
+# Inputs:        request - 
+#                queryStr - 
+#                sparqlFormatIndex - 
+#                fedOfQueries - 
+# Outputs:       
+# Exceptions:    None
+# Description:   Execute a SPARQL query
+#                
+################################################################################
 @dajaxice_register
 def executeSPARQLQuery(request, queryStr, sparqlFormatIndex, fedOfQueries):
     print 'BEGIN def executeSPARQLQuery(request, queryStr, sparqlFormatIndex)'        
@@ -2046,6 +2397,15 @@ def executeSPARQLQuery(request, queryStr, sparqlFormatIndex, fedOfQueries):
     print 'END def executeSPARQLQuery(request, queryStr, sparqlFormatIndex)'
     return dajax.json()
 
+################################################################################
+#
+# Function Name: getSparqlResults(request)
+# Inputs:        request - 
+# Outputs:       
+# Exceptions:    None
+# Description:   Gets results from a SPARQL query
+#                
+################################################################################
 @dajaxice_register
 def getSparqlResults(request):
     dajax = Dajax()
@@ -2128,6 +2488,16 @@ def getSparqlResults(request):
 #     print sessionName + "release"
 #     return dajax.json()
 
+################################################################################
+#
+# Function Name: getSparqlResultsByInstance(request, numInstance)
+# Inputs:        request -
+#                numInstance -
+# Outputs:       
+# Exceptions:    None
+# Description:   Gets results from a SPARQL query for the given instances
+#                
+################################################################################
 @dajaxice_register
 def getSparqlResultsByInstance(request, numInstance):
     dajax = Dajax()
@@ -2183,7 +2553,16 @@ def getSparqlResultsByInstance(request, numInstance):
     dajax.append("#results", "innerHTML", resultString)
        
     return dajax.json()
-    
+
+################################################################################
+#
+# Function Name: downloadSparqlResults(request)
+# Inputs:        request -
+# Outputs:       
+# Exceptions:    None
+# Description:   Download Results gotten from a SPARQL query
+#                
+################################################################################  
 @dajaxice_register
 def downloadSparqlResults(request):
     print '>>>>  BEGIN def downloadSparqlResults(request)'
@@ -2207,6 +2586,16 @@ def downloadSparqlResults(request):
     print '>>>> END def downloadSparqlResults(request)'
     return dajax.json()
 
+################################################################################
+#
+# Function Name: prepareSubElementQuery(request, leavesID)
+# Inputs:        request -
+#                leavesID -
+# Outputs:       
+# Exceptions:    None
+# Description:   Build the form for queries on a same subelement 
+#                
+################################################################################
 @dajaxice_register
 def prepareSubElementQuery(request, leavesID):
     print '>>>>  BEGIN def prepareSubElementQuery(request, leavesID)'
@@ -2247,6 +2636,17 @@ def prepareSubElementQuery(request, leavesID):
     print '>>>>  END def prepareSubElementQuery(request, leavesID)'
     return dajax.json()
 
+################################################################################
+#
+# Function Name: insertSubElementQuery(request, leavesID, form)
+# Inputs:        request -
+#                leavesID -
+#                form - 
+# Outputs:       
+# Exceptions:    None
+# Description:   Inserts a query for a sub element in the query builder  
+#                
+################################################################################
 @dajaxice_register
 def insertSubElementQuery(request, leavesID, form):
     print '>>>>  BEGIN def insertSubElementQuery(request, leavesID, form)'
@@ -2311,6 +2711,18 @@ def insertSubElementQuery(request, leavesID, form):
     print '>>>>  END def insertSubElementQuery(request, leavesID, form)'
     return dajax.json()
 
+################################################################################
+#
+# Function Name: checkSubElementField(request, liElement, elementName, elementType)
+# Inputs:        request -
+#                liElement -
+#                elementName - 
+#                elementType - 
+# Outputs:       
+# Exceptions:    None
+# Description:   Checks that the fields of the subelement query are of the good type
+#                
+################################################################################
 def checkSubElementField(request, liElement, elementName, elementType):   
     error = ""
     defaultPrefix = request.session['defaultPrefixExplore']
@@ -2340,6 +2752,17 @@ def checkSubElementField(request, liElement, elementName, elementType):
 
     return error
 
+################################################################################
+#
+# Function Name: subElementfieldsToQuery(request, liElement, listLeavesId)
+# Inputs:        request -
+#                liElement -
+#                listLeavesId - 
+# Outputs:       
+# Exceptions:    None
+# Description:   Tranforms HTML fields in a subelement query for mongo db
+#                
+################################################################################
 def subElementfieldsToQuery(request, liElements, listLeavesId):
     
     mapTagIDElementInfo = request.session['mapTagIDElementInfoExplore'] 
@@ -2380,7 +2803,17 @@ def subElementfieldsToQuery(request, liElements, listLeavesId):
     
     return query
 
-
+################################################################################
+#
+# Function Name: subElementfieldsToQuery(request, liElement, listLeavesId)
+# Inputs:        request -
+#                liElement -
+#                listLeavesId - 
+# Outputs:       
+# Exceptions:    None
+# Description:   Tranforms HTML fields in a pretty subelement query
+#                
+################################################################################
 def subElementfieldsToPrettyQuery(request, liElements, listLeavesId):
     mapTagIDElementInfo = request.session['mapTagIDElementInfoExplore'] 
     
