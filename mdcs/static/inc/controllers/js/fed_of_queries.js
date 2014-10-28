@@ -4,25 +4,7 @@ loadFedOfQueriesHandler = function()
 	$('.add.instance').on('click',addInstance);
 	$('.edit.instance').on('click',editInstance);
     $('.delete.instance').on('click', deleteInstance);
-    prepopulateFields();
 	console.log('END [loadFedOfQueriesHandler]');
-}
-
-prepopulateFields = function(){
-	$('input:text').each(
-	    function(){
-	    	if ($(this).val() == ""){
-	    		$(this).val($(this).attr('placeholder')).css('color','#999');
-	    	}else{
-	    		$(this).css('color','#000');
-	    	}
-	        $(this).click(
-	            function(){
-	            	if ($(this).val() == ""){
-		                $(this).val('').css('color','#000');
-	                }
-	            });
-	    });
 }
 
 addInstance = function()
