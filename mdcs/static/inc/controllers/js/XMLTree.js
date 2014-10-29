@@ -1,5 +1,5 @@
 showhide = function(event){
-	console.log('BEGIN [test]');
+	console.log('BEGIN [showhide]');
 	button = event.target
 	parent = $(event.target).parent()
 	$(parent.children()[2]).toggle("blind",500);
@@ -9,5 +9,5 @@ showhide = function(event){
 		$(button).attr("class","expand");
 	}
 		
-	console.log('END [test]');
+	console.log('END [showhide]');
 }
