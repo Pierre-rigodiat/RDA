@@ -576,7 +576,7 @@ def manageRegexBeforeExe(query):
             for subValue in value:
                 manageRegexBeforeExe(subValue)
         elif isinstance(value, unicode):
-            if (len(value) > 2 and value[0] == "/" and value[-1] == "/"):
+            if (len(value) >= 2 and value[0] == "/" and value[-1] == "/"):
                 query[key] = re.compile(value[1:-1])
         elif isinstance(value, dict):
             manageRegexBeforeExe(value)
@@ -1953,7 +1953,7 @@ def manageRegexFromDB(query):
             for subValue in value:
                 manageRegexFromDB(subValue)
         elif isinstance(value, str):
-            if (len(value) > 2 and value[0] == "/" and value[-1] == "/"):
+            if (len(value) >= 2 and value[0] == "/" and value[-1] == "/"):
                 query[key] = re.compile(value[1:-1])
         elif isinstance(value, dict):
             manageRegexFromDB(value)
