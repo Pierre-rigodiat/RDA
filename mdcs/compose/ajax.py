@@ -7,6 +7,9 @@
 # Author: Sharief Youssef
 #         sharief.youssef@nist.gov
 #
+#         Guillaume SOUSA AMARAL
+#         guillaume.sousa@nist.gov
+#
 # Sponsor: National Institute of Standards and Technology (NIST)
 #
 ################################################################################
@@ -66,14 +69,12 @@ def setCurrentTemplate(request,templateFilename,templateID):
     print '>>>>' + templateFilename + ' set as current template in session'
     dajax = Dajax()
 
-    templateObject = Template.objects.get(pk=templateID)
-    xmlDocData = templateObject.content
+    if templateID != "new":
+        templateObject = Template.objects.get(pk=templateID)
+        xmlDocData = templateObject.content
 
-#    xmlDocTree = etree.parse(BytesIO(xmlDocData.encode('utf-8')))
-    print XMLSchema.tree
-    XMLSchema.tree = etree.parse(BytesIO(xmlDocData.encode('utf-8')))
-    print XMLSchema.tree
-    xmlDocTree = XMLSchema.tree
+        XMLSchema.tree = etree.parse(BytesIO(xmlDocData.encode('utf-8')))
+        request.session['xmlDocTreeCompose'] = etree.tostring(XMLSchema.tree)
 
     print 'END def setCurrentTemplate(request)'
     return dajax.json()

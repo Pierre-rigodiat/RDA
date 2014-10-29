@@ -7,6 +7,9 @@
 # Author: Sharief Youssef
 #         sharief.youssef@nist.gov
 #
+#         Guillaume SOUSA AMARAL
+#         guillaume.sousa@nist.gov
+#
 # Sponsor: National Institute of Standards and Technology (NIST)
 #
 ################################################################################
@@ -33,17 +36,20 @@ from mongoengine import *
 def index(request):
     template = loader.get_template('compose.html')
     request.session['currentYear'] = currentYear()
-    if request.user.is_authenticated():    
+    if request.user.is_authenticated():
+    
         currentTemplateVersions = []
         for tpl_version in TemplateVersion.objects():
             currentTemplateVersions.append(tpl_version.current)
         
-        currentTemplates = []
+        currentTemplates = dict()
         for tpl_version in currentTemplateVersions:
-            currentTemplates.append(Template.objects.get(pk=tpl_version))
-
+            tpl = Template.objects.get(pk=tpl_version)
+            templateVersions = TemplateVersion.objects.get(pk=tpl.templateVersion)
+            currentTemplates[tpl] = templateVersions.isDeleted
+    
         context = RequestContext(request, {
-            'templates': currentTemplates
+           'templates':currentTemplates
         })
 
         return HttpResponse(template.render(context))
@@ -52,4 +58,3 @@ def index(request):
             del request.session['loggedOut']
         request.session['next'] = '/compose'
         return redirect('/login')
-

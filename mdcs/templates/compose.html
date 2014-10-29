@@ -8,6 +8,9 @@
 # Author: Sharief Youssef
 #         sharief.youssef@nist.gov
 #
+#		  Guillaume SOUSA AMARAL
+#		  guillaume.sousa@nist.gov
+#
 # Sponsor: National Institute of Standards and Technology (NIST)
 #
 ################################################################################
@@ -171,28 +174,35 @@
   <tr class="{{ rowcolors }}">
     <td templateID='new'>New Base Template</td>
     <td>new_base_template.xsd</td>
-    <td><button class="btn set-template" ><i class="icon-plus-sign"></i> Select as start template</button></td>
+    {% if request.session.currentComposeTemplateID == "new" %} 
+    <td><span style="color:green;font-weight:bold">Current template</span></td>
+    {% else %}
+    <td><button class="btn set-compose-template" ><i class="icon-plus-sign"></i> Select as start template</button></td>
+    {% endif %}
   </tr>
 
-{% for template in templates %}
+{% for template, isDeleted in templates.items %}
   {% cycle 'even' '' as rowcolors silent %}
+    {% if isDeleted == False %} 
   <tr class="{{ rowcolors }}">
     <td templateID='{{template.id}}'>{{ template.title }}</td>
     <td>{{ template.filename }}</td>
 
-{% if request.session.currentComposeTemplate == template.filename %} 
+{% if request.session.currentComposeTemplateID == template.id|stringformat:"s" %} 
 
     <td><span style="color:green;font-weight:bold">Current template</span></td>
 
 {% else %}
 
-    <td><button class="btn set-compose-template" ><i class="icon-plus-sign"></i> Select as start template</button></td>
+    <td><button class="btn set-compose-template" ><i class="icon-plus-sign"></i> Set as current template</button></td>
 
     <!-- <td>'.($current_filename==$file?'<span style="color:green;font-weight:bold">Current template</span>':'<button class="btn set-template"><i class="icon-plus-sign"></i> Set as current template</button>').'</td> -->
 
 {% endif %}
 
   </tr>
+  
+{% endif %}
 
 {% endfor %}
 
@@ -205,7 +215,7 @@
     Template selected successfully. 
   </p>
   <p>
-    Currently using <a href="/view-schema/{{ request.session.currentTemplate }}" target="_new">{{ request.session.currentTemplate }}</a>
+    Currently using <a href="/view-schema/{{ request.session.currentComposeTemplate }}" target="_new">{{ request.session.currentComposeTemplate }}</a>
   </p>
   <p>
     To proceed to the next step, click on step 2: <b>'Enter Data'</b>

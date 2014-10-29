@@ -900,6 +900,7 @@ setCurrentComposeTemplate = function()
     var templateName = $(this).parent().parent().children(':first').text();
     var templateFilename = $(this).parent().parent().children(':nth-child(2)').text();
     var tdElement = $(this).parent();
+    var templateID = $(this).parent().parent().children(':first').attr('templateid');
 		
     tdElement.html('<img src="/static/resources/img/ajax-loader.gif" alt="Loading..."/>');
     $('.btn.set-template').off('click');
