@@ -20,10 +20,10 @@ from rest_framework import generics
 from rest_framework import status
 from rest_framework.response import Response
 # Models
-from mgi.models import SavedQuery, Jsondata, Template, TemplateVersion, Ontology, OntologyVersion, Instance
+from mgi.models import SavedQuery, Jsondata, Template, TemplateVersion, Type, TypeVersion, Instance
 from django.contrib.auth.models import User
 # Serializers
-from api.serializers import savedQuerySerializer, jsonDataSerializer, querySerializer, sparqlQuerySerializer, sparqlResultsSerializer, schemaSerializer, templateSerializer, ontologySerializer, resOntologySerializer, TemplateVersionSerializer, OntologyVersionSerializer, instanceSerializer, resInstanceSerializer, UserSerializer, insertUserSerializer, resSavedQuerySerializer, updateUserSerializer
+from api.serializers import savedQuerySerializer, jsonDataSerializer, querySerializer, sparqlQuerySerializer, sparqlResultsSerializer, schemaSerializer, templateSerializer, typeSerializer, resTypeSerializer, TemplateVersionSerializer, TypeVersionSerializer, instanceSerializer, resInstanceSerializer, UserSerializer, insertUserSerializer, resSavedQuerySerializer, updateUserSerializer
 
 from explore import sparqlPublisher
 from curate import rdfPublisher
@@ -163,22 +163,22 @@ def select_savedquery(request):
         if id is not None:            
             query['_id'] = ObjectId(id)            
         if user is not None:
-            if user[0] == '/' and user[-1] == '/':
+            if len(user) >= 2 and user[0] == '/' and user[-1] == '/':
                 query['user'] = re.compile(user[1:-1])
             else:
                 query['user'] = user            
         if template is not None:
-            if template[0] == '/' and template[-1] == '/':
+            if len(template) >= 2 and template[0] == '/' and template[-1] == '/':
                 query['template'] = re.compile(template[1:-1])
             else:
                 query['template'] = template
         if dbquery is not None:
-            if dbquery[0] == '/' and dbquery[-1] == '/':
+            if len(dbquery) >= 2 and dbquery[0] == '/' and dbquery[-1] == '/':
                 query['query'] = re.compile(dbquery[1:-1])
             else:
                 query['query'] = dbquery
         if displayedQuery is not None:
-            if displayedQuery[0] == '/' and displayedQuery[-1] == '/':
+            if len(displayedQuery) >= 2 and displayedQuery[0] == '/' and displayedQuery[-1] == '/':
                 query['displayedQuery'] = re.compile(displayedQuery[1:-1])
             else:
                 query['displayedQuery'] = displayedQuery
@@ -281,12 +281,12 @@ def explore_detail(request):
         if id is not None:            
             query['_id'] = ObjectId(id)            
         if schema is not None:
-            if schema[0] == '/' and schema[-1] == '/':
+            if len(schema) >= 2 and schema[0] == '/' and schema[-1] == '/':
                 query['schema'] = re.compile(schema[1:-1])
             else:
                 query['schema'] = schema
         if title is not None:
-            if title[0] == '/' and title[-1] == '/':
+            if len(title) >= 2 and title[0] == '/' and title[-1] == '/':
                 query['title'] = re.compile(title[1:-1])
             else:
                 query['title'] = title
@@ -330,7 +330,7 @@ def manageRegexInAPI(query):
             for subValue in value:
                 manageRegexInAPI(subValue)
         elif isinstance(value, str) or isinstance(value, unicode):
-            if (len(value) > 2 and value[0] == "/" and value[-1] == "/"):
+            if (len(value) >= 2 and value[0] == "/" and value[-1] == "/"):
                 query[key] = re.compile(value[1:-1])
         elif isinstance(value, dict):
             manageRegexInAPI(value)
@@ -600,29 +600,29 @@ def select_schema(request):
         if id is not None:            
             query['_id'] = ObjectId(id)            
         if filename is not None:
-            if filename[0] == '/' and filename[-1] == '/':
+            if len(filename) >= 2 and filename[0] == '/' and filename[-1] == '/':
                 query['filename'] = re.compile(filename[1:-1])
             else:
                 query['filename'] = filename            
         if content is not None:
-            if content[0] == '/' and content[-1] == '/':
+            if len(content) >= 2 and content[0] == '/' and content[-1] == '/':
                 query['content'] = re.compile(content[1:-1])
             else:
                 query['content'] = content
         if title is not None:
-            if title[0] == '/' and title[-1] == '/':
+            if len(title) >= 2 and title[0] == '/' and title[-1] == '/':
                 query['title'] = re.compile(title[1:-1])
             else:
                 query['title'] = title
         if version is not None:
             query['version'] = version
         if templateVersion is not None:
-            if templateVersion[0] == '/' and templateVersion[-1] == '/':
+            if len(templateVersion) >= 2 and templateVersion[0] == '/' and templateVersion[-1] == '/':
                 query['templateVersion'] = re.compile(templateVersion[1:-1])
             else:
                 query['templateVersion'] = templateVersion
         if hash is not None:
-            if hash[0] == '/' and hash[-1] == '/':
+            if len(hash) >= 2 and hash[0] == '/' and hash[-1] == '/':
                 query['hash'] = re.compile(hash[1:-1])
             else:
                 query['hash'] = hash
@@ -834,39 +834,39 @@ def restore_schema(request):
         return Response(content, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
-def add_ontology(request):
+def add_type(request):
     """
     POST http://localhost/api/types/add
-    POST data title="title", filename="filename", content="..." ontologyVersion="id"
+    POST data title="title", filename="filename", content="..." typeVersion="id"
     """
-    oSerializer = ontologySerializer(data=request.DATA)
+    oSerializer = typeSerializer(data=request.DATA)
     if oSerializer.is_valid():
-        # an ontology version is provided: if it exists, add the ontology as a new version and manage the version numbers
-        if "ontologyVersion" in request.DATA:
+        # an type version is provided: if it exists, add the type as a new version and manage the version numbers
+        if "typeVersion" in request.DATA:
             try:
-                ontologyVersions = OntologyVersion.objects.get(pk=request.DATA['ontologyVersion'])
-                if ontologyVersions.isDeleted == True:
-                    content = {'message':'This ontology version belongs to a deleted ontology. You are not allowed to delete it.'}
+                typeVersions = TypeVersion.objects.get(pk=request.DATA['typeVersion'])
+                if typeVersions.isDeleted == True:
+                    content = {'message':'This type version belongs to a deleted type. You are not allowed to delete it.'}
                     return Response(content, status=status.HTTP_400_BAD_REQUEST)
-                ontologyVersions.nbVersions = ontologyVersions.nbVersions + 1
-                newOntology = Ontology(title=request.DATA['title'], filename=request.DATA['filename'], content=request.DATA['content'], ontologyVersion=request.DATA['ontologyVersion'], version=ontologyVersions.nbVersions).save()
-                ontologyVersions.versions.append(str(newOntology.id))                
-                ontologyVersions.save()
+                typeVersions.nbVersions = typeVersions.nbVersions + 1
+                newType = Type(title=request.DATA['title'], filename=request.DATA['filename'], content=request.DATA['content'], typeVersion=request.DATA['typeVersion'], version=typeVersions.nbVersions).save()
+                typeVersions.versions.append(str(newType.id))                
+                typeVersions.save()
             except:
-                content = {'message':'No ontology version found with the given id.'}
+                content = {'message':'No type version found with the given id.'}
                 return Response(content, status=status.HTTP_400_BAD_REQUEST)
         else:
-            ontologyVersion = OntologyVersion(nbVersions=1, isDeleted=False).save()
-            newOntology = Ontology(title=request.DATA['title'], filename=request.DATA['filename'], content=request.DATA['content'], version=1, ontologyVersion=str(ontologyVersion.id)).save()
-            ontologyVersion.versions = [str(newOntology.id)]
-            ontologyVersion.current=str(newOntology.id)
-            ontologyVersion.save()
-            newOntology.save()
+            typeVersion = TypeVersion(nbVersions=1, isDeleted=False).save()
+            newType = Type(title=request.DATA['title'], filename=request.DATA['filename'], content=request.DATA['content'], version=1, typeVersion=str(typeVersion.id)).save()
+            typeVersion.versions = [str(newType.id)]
+            typeVersion.current=str(newType.id)
+            typeVersion.save()
+            newType.save()
         return Response(oSerializer.data, status=status.HTTP_201_CREATED)
     return Response(oSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
-def select_ontology(request):
+def select_type(request):
     """
     GET http://localhost/api/types/select?param1=value1&param2=value2
     URL parameters: 
@@ -875,7 +875,7 @@ def select_ontology(request):
     content: string
     title: string
     version: integer
-    ontologyVersion: string (ObjectId)
+    typeVersion: string (ObjectId)
     For string fields, you can use regular expressions: /exp/
     """
     id = request.QUERY_PARAMS.get('id', None)
@@ -883,7 +883,7 @@ def select_ontology(request):
     content = request.QUERY_PARAMS.get('content', None)
     title = request.QUERY_PARAMS.get('title', None)
     version = request.QUERY_PARAMS.get('version', None)
-    ontologyVersion = request.QUERY_PARAMS.get('ontologyVersion', None)
+    typeVersion = request.QUERY_PARAMS.get('typeVersion', None)
     
     try:        
         # create a connection                                                                                                                                                                                                 
@@ -891,110 +891,110 @@ def select_ontology(request):
         # connect to the db 'mgi'
         db = connection['mgi']
         # get the xmldata collection
-        ontology = db['ontology']
+        type = db['type']
         query = dict()
         if id is not None:            
             query['_id'] = ObjectId(id)            
         if filename is not None:
-            if filename[0] == '/' and filename[-1] == '/':
+            if len(filename) >= 2 and filename[0] == '/' and filename[-1] == '/':
                 query['filename'] = re.compile(filename[1:-1])
             else:
                 query['filename'] = filename            
         if content is not None:
-            if content[0] == '/' and content[-1] == '/':
+            if len(content) >= 2 and content[0] == '/' and content[-1] == '/':
                 query['content'] = re.compile(content[1:-1])
             else:
                 query['content'] = content
         if title is not None:
-            if title[0] == '/' and title[-1] == '/':
+            if len(title) >= 2 and title[0] == '/' and title[-1] == '/':
                 query['title'] = re.compile(title[1:-1])
             else:
                 query['title'] = title
         if version is not None:
             query['version'] = version
-        if ontologyVersion is not None:
-            if ontologyVersion[0] == '/' and ontologyVersion[-1] == '/':
-                query['ontologyVersion'] = re.compile(ontologyVersion[1:-1])
+        if typeVersion is not None:
+            if len(typeVersion) >= 2 and typeVersion[0] == '/' and typeVersion[-1] == '/':
+                query['typeVersion'] = re.compile(typeVersion[1:-1])
             else:
-                query['ontologyVersion'] = ontologyVersion
+                query['typeVersion'] = typeVersion
         if len(query.keys()) == 0:
             content = {'message':'No parameters given.'}
             return Response(content, status=status.HTTP_400_BAD_REQUEST)
         else:
-            cursor = ontology.find(query)
-            ontologies = []
-            for resultOntology in cursor:
-                resultOntology['id'] = resultOntology['_id']
-                del resultOntology['_id']
-                ontologies.append(resultOntology)
-            serializer = resOntologySerializer(ontologies)
+            cursor = type.find(query)
+            types = []
+            for resultType in cursor:
+                resultType['id'] = resultType['_id']
+                del resultType['_id']
+                types.append(resultType)
+            serializer = resTypeSerializer(types)
             return Response(serializer.data, status=status.HTTP_200_OK)
     except:
-        content = {'message':'No ontology found with the given parameters.'}
+        content = {'message':'No type found with the given parameters.'}
         return Response(content, status=status.HTTP_404_NOT_FOUND)
 
 @api_view(['GET'])
-def select_all_ontologies(request):
+def select_all_types(request):
     """
     GET http://localhost/api/types/select/all
     """
-    ontologies = Ontology.objects
-    serializer = resOntologySerializer(ontologies)
+    types = Type.objects
+    serializer = resTypeSerializer(types)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
-def select_all_ontologies_versions(request):
+def select_all_types_versions(request):
     """
     GET http://localhost/api/types/versions/select/all
     """
-    ontologyVersions = OntologyVersion.objects
-    serializer = OntologyVersionSerializer(ontologyVersions)
+    typeVersions = TypeVersion.objects
+    serializer = TypeVersionSerializer(typeVersions)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
-def current_ontology_version(request):
+def current_type_version(request):
     """
     GET http://localhost/api/types/versions/current?id=IdToBeCurrent
     """
     id = request.QUERY_PARAMS.get('id', None)
     if id is not None:   
         try:
-            ontology = Ontology.objects.get(pk=id)        
+            type = Type.objects.get(pk=id)        
         except:
-            content = {'message':'No ontology found with the given id.'}
+            content = {'message':'No type found with the given id.'}
             return Response(content, status=status.HTTP_404_NOT_FOUND)
     else:
-        content = {'message':'No ontology id provided to be current.'}
+        content = {'message':'No type id provided to be current.'}
         return Response(content, status=status.HTTP_400_BAD_REQUEST)
     
-    ontologyVersion = OntologyVersion.objects.get(pk=ontology.ontologyVersion)
-    if ontologyVersion.isDeleted == True:
-        content = {'message':'This ontology version belongs to a deleted ontology. You are not allowed to restore it. Please restore the ontology first (id:'+ str(ontologyVersion.id) +').'}
+    typeVersion = TypeVersion.objects.get(pk=type.typeVersion)
+    if typeVersion.isDeleted == True:
+        content = {'message':'This type version belongs to a deleted type. You are not allowed to restore it. Please restore the type first (id:'+ str(typeVersion.id) +').'}
         return Response(content, status=status.HTTP_400_BAD_REQUEST)
-    if ontologyVersion.current == id:
-        content = {'message':'The selected ontology is already the current ontology.'}
+    if typeVersion.current == id:
+        content = {'message':'The selected type is already the current type.'}
         return Response(content, status=status.HTTP_400_BAD_REQUEST)
-    if id in ontologyVersion.deletedVersions:
-        content = {'message':'The selected ontology is deleted. Please restore it first to make it current.'}
+    if id in typeVersion.deletedVersions:
+        content = {'message':'The selected type is deleted. Please restore it first to make it current.'}
         return Response(content, status=status.HTTP_400_BAD_REQUEST)
-    ontologyVersion.current = id
-    ontologyVersion.save()
-    content = {'message':'Current ontology set with success.'}
+    typeVersion.current = id
+    typeVersion.save()
+    content = {'message':'Current type set with success.'}
     return Response(content, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
-def delete_ontology(request):
+def delete_type(request):
     """
     GET http://localhost/api/types/delete?id=IDtodelete&next=IDnextCurrent
-    GET http://localhost/api/types/delete?ontologyVersion=IDtodelete
+    GET http://localhost/api/types/delete?typeVersion=IDtodelete
     URL parameters: 
     id: string (ObjectId)
     next: string (ObjectId)
-    ontologyVersion: string (ObjectId)
+    typeVersion: string (ObjectId)
     """
     id = request.QUERY_PARAMS.get('id', None)
     next = request.QUERY_PARAMS.get('next', None)  
-    versionID = request.QUERY_PARAMS.get('ontologyVersion', None)  
+    versionID = request.QUERY_PARAMS.get('typeVersion', None)  
     
     if versionID is not None:
         if id is not None or next is not None:
@@ -1002,82 +1002,82 @@ def delete_ontology(request):
             return Response(content, status=status.HTTP_400_BAD_REQUEST)
         else:
             try:
-                ontologyVersion = OntologyVersion.objects.get(pk=versionID)
-                if ontologyVersion.isDeleted == False:
-                    ontologyVersion.deletedVersions.append(ontologyVersion.current)
-                    ontologyVersion.isDeleted = True
-                    ontologyVersion.save()
-                    content = {'message':'Ontology version deleted with success.'}
+                typeVersion = TtypeVersion.objects.get(pk=versionID)
+                if typeVersion.isDeleted == False:
+                    typeVersion.deletedVersions.append(typeVersion.current)
+                    typeVersion.isDeleted = True
+                    typeVersion.save()
+                    content = {'message':'Type version deleted with success.'}
                     return Response(content, status=status.HTTP_200_OK)
                 else:
-                    content = {'message':'Ontology version already deleted.'}
+                    content = {'message':'Type version already deleted.'}
                     return Response(content, status=status.HTTP_400_BAD_REQUEST)
             except:
-                content = {'message':'No ontology version found with the given id.'}
+                content = {'message':'No type version found with the given id.'}
                 return Response(content, status=status.HTTP_404_NOT_FOUND)
             
     if id is not None:   
         try:
-            ontology = Ontology.objects.get(pk=id)        
+            type = Type.objects.get(pk=id)        
         except:
-            content = {'message':'No ontology found with the given id.'}
+            content = {'message':'No type found with the given id.'}
             return Response(content, status=status.HTTP_404_NOT_FOUND)
     else:
-        content = {'message':'No ontology id provided to delete.'}
+        content = {'message':'No type id provided to delete.'}
         return Response(content, status=status.HTTP_400_BAD_REQUEST)
 
     if next is not None:
         try:
-            nextCurrent = Ontology.objects.get(pk=next)
-            if nextCurrent.ontologyVersion != ontology.ontologyVersion:
-                content = {'message':'The specified next current ontology is not a version of the current ontology.'}
+            nextCurrent = Type.objects.get(pk=next)
+            if nextCurrent.typeVersion != type.typeVersion:
+                content = {'message':'The specified next current type is not a version of the current type.'}
                 return Response(content, status=status.HTTP_400_BAD_REQUEST)
         except:
-            content = {'message':'No ontology found with the given id to be the next current.'}
+            content = {'message':'No type found with the given id to be the next current.'}
             return Response(content, status=status.HTTP_404_NOT_FOUND)
         
-    ontologyVersion = OntologyVersion.objects.get(pk=ontology.ontologyVersion)
-    if ontologyVersion.isDeleted == True:
-        content = {'message':'This ontology version belongs to a deleted ontology. You are not allowed to delete it. please restore the ontology first (id='+ str(ontologyVersion.id) +')'}
+    typeVersion = TypeVersion.objects.get(pk=type.typeVersion)
+    if typeVersion.isDeleted == True:
+        content = {'message':'This type version belongs to a deleted type. You are not allowed to delete it. please restore the type first (id='+ str(typeVersion.id) +')'}
         return Response(content, status=status.HTTP_400_BAD_REQUEST)
-    if ontologyVersion.current == str(ontology.id) and next is None:
-        content = {'message':'The selected ontology is the current. It can\'t be deleted. If you still want to delete this ontology, please provide the id of the next current ontology using \'next\' parameter'}
+    if typeVersion.current == str(type.id) and next is None:
+        content = {'message':'The selected type is the current. It can\'t be deleted. If you still want to delete this type, please provide the id of the next current type using \'next\' parameter'}
         return Response(content, status=status.HTTP_400_BAD_REQUEST)
-    elif ontologyVersion.current == str(ontology.id) and next is not None and str(ontology.id) == str(nextCurrent.id):
-        content = {'message':'Ontology id to delete and next id are the same.'}
+    elif typeVersion.current == str(type.id) and next is not None and str(type.id) == str(nextCurrent.id):
+        content = {'message':'Type id to delete and next id are the same.'}
         return Response(content, status=status.HTTP_400_BAD_REQUEST)
-    elif ontologyVersion.current != str(ontology.id) and next is not None:
-        content = {'message':'You should only provide the next parameter when you want to delete a current version of a ontology.'}
+    elif typeVersion.current != str(type.id) and next is not None:
+        content = {'message':'You should only provide the next parameter when you want to delete a current version of a type.'}
         return Response(content, status=status.HTTP_400_BAD_REQUEST)
-    elif ontologyVersion.current == str(ontology.id) and next is not None:
-        if next in ontologyVersion.deletedVersions:
-            content = {'message':'The ontology is deleted, it can\'t become current.'}
+    elif typeVersion.current == str(type.id) and next is not None:
+        if next in typeVersion.deletedVersions:
+            content = {'message':'The type is deleted, it can\'t become current.'}
             return Response(content, status=status.HTTP_400_BAD_REQUEST)
-        ontologyVersion.deletedVersions.append(str(ontology.id)) 
-        ontologyVersion.current = str(nextCurrent.id)
-        ontologyVersion.save()
-        content = {'message':'Current ontology deleted with success. A new version is current.'}
+        typeVersion.deletedVersions.append(str(type.id)) 
+        typeVersion.current = str(nextCurrent.id)
+        typeVersion.save()
+        content = {'message':'Current type deleted with success. A new version is current.'}
         return Response(content, status=status.HTTP_204_NO_CONTENT)
     else:
-        if str(ontology.id) in ontologyVersion.deletedVersions:
-            content = {'message':'This ontology is already deleted.'}
+        if str(type.id) in typeVersion.deletedVersions:
+            content = {'message':'This type is already deleted.'}
             return Response(content, status=status.HTTP_400_BAD_REQUEST)
-        ontologyVersion.deletedVersions.append(str(ontology.id)) 
-        ontologyVersion.save()
-        content = {'message':'Ontology deleted with success.'}
+        typeVersion.deletedVersions.append(str(type.id)) 
+        typeVersion.save()
+        content = {'message':'Type deleted with success.'}
         return Response(content, status=status.HTTP_204_NO_CONTENT)
 
 @api_view(['GET'])
-def restore_ontology(request):
+def restore_type(request):
     """
     GET http://localhost/api/types/restore?id=IDtorestore
-    GET http://localhost/api/types/delete?ontologyVersion=IDtorestore
+    GET http://localhost/api/types/delete?typeVersion=IDtorestore
     URL parameters: 
     id: string (ObjectId)
-    ontologyVersion: string (ObjectId)
+    typeVersion: string (ObjectId)
     """
     id = request.QUERY_PARAMS.get('id', None)    
-    versionID = request.QUERY_PARAMS.get('ontologyVersion', None)
+    versionID = request.QUERY_PARAMS.get('typeVersion', None)
     
     if versionID is not None:
         if id is not None:
@@ -1085,41 +1085,41 @@ def restore_ontology(request):
             return Response(content, status=status.HTTP_400_BAD_REQUEST)
         else:
             try:
-                ontologyVersion = OntologyVersion.objects.get(pk=versionID)
-                if ontologyVersion.isDeleted == False:
-                    content = {'message':'Ontology version not deleted. No need to be restored.'}
+                typeVersion = TypeVersion.objects.get(pk=versionID)
+                if typeVersion.isDeleted == False:
+                    content = {'message':'Type version not deleted. No need to be restored.'}
                     return Response(content, status=status.HTTP_400_BAD_REQUEST)
                 else:
-                    ontologyVersion.isDeleted = False
-                    del ontologyVersion.deletedVersions[ontologyVersion.deletedVersions.index(ontologyVersion.current)]
-                    ontologyVersion.save()
-                    content = {'message':'Ontology restored with success.'}
+                    typeVersion.isDeleted = False
+                    del typeVersion.deletedVersions[typeVersion.deletedVersions.index(typeVersion.current)]
+                    typeVersion.save()
+                    content = {'message':'Type restored with success.'}
                     return Response(content, status=status.HTTP_200_OK)
             except:
-                content = {'message':'No ontology version found with the given id.'}
+                content = {'message':'No type version found with the given id.'}
                 return Response(content, status=status.HTTP_404_NOT_FOUND)
         
     if id is not None:   
         try:
-            ontology = Ontology.objects.get(pk=id)        
+            type = Type.objects.get(pk=id)        
         except:
-            content = {'message':'No ontology found with the given id.'}
+            content = {'message':'No type found with the given id.'}
             return Response(content, status=status.HTTP_404_NOT_FOUND)
     else:
-        content = {'message':'No ontology id provided to restore.'}
+        content = {'message':'No type id provided to restore.'}
         return Response(content, status=status.HTTP_400_BAD_REQUEST)
     
-    ontologyVersion = OntologyVersion.objects.get(pk=ontology.ontologyVersion)
-    if ontologyVersion.isDeleted == True:
-        content = {'message':'This ontology version belongs to a deleted ontology. You are not allowed to restore it. Please restore the ontology first (id:'+ str(ontologyVersion.id) +').'}
+    typeVersion = TypeVersion.objects.get(pk=type.typeVersion)
+    if typeVersion.isDeleted == True:
+        content = {'message':'This type version belongs to a deleted type. You are not allowed to restore it. Please restore the type first (id:'+ str(typeVersion.id) +').'}
         return Response(content, status=status.HTTP_400_BAD_REQUEST)
-    if id in ontologyVersion.deletedVersions:
-        del ontologyVersion.deletedVersions[ontologyVersion.deletedVersions.index(id)]
-        ontologyVersion.save()
-        content = {'message':'Ontology version restored with success.'}
+    if id in typeVersion.deletedVersions:
+        del typeVersion.deletedVersions[typeVersion.deletedVersions.index(id)]
+        typeVersion.save()
+        content = {'message':'Type version restored with success.'}
         return Response(content, status=status.HTTP_200_OK)
     else:
-        content = {'message':'Ontology version not deleted. No need to be restored.'}
+        content = {'message':'Type version not deleted. No need to be restored.'}
         return Response(content, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
@@ -1164,29 +1164,29 @@ def select_repository(request):
         if id is not None:            
             query['_id'] = ObjectId(id)            
         if name is not None:
-            if name[0] == '/' and name[-1] == '/':
+            if len(name) >= 2 and name[0] == '/' and name[-1] == '/':
                 query['name'] = re.compile(name[1:-1])
             else:
                 query['name'] = name            
         if protocol is not None:
-            if protocol[0] == '/' and protocol[-1] == '/':
+            if len(protocol) >= 2 and protocol[0] == '/' and protocol[-1] == '/':
                 query['protocol'] = re.compile(protocol[1:-1])
             else:
                 query['protocol'] = protocol
         if address is not None:
-            if address[0] == '/' and address[-1] == '/':
+            if len(address) >= 2 and address[0] == '/' and address[-1] == '/':
                 query['address'] = re.compile(address[1:-1])
             else:
                 query['address'] = address
         if port is not None:
             query['port'] = port
         if user is not None:
-            if user[0] == '/' and user[-1] == '/':
+            if len(user) >= 2 and user[0] == '/' and user[-1] == '/':
                 query['user'] = re.compile(user[1:-1])
             else:
                 query['user'] = user
         if inst_status is not None:
-            if inst_status[0] == '/' and inst_status[-1] == '/':
+            if len(inst_status) >= 2 and inst_status[0] == '/' and inst_status[-1] == '/':
                 query['status'] = re.compile(inst_status[1:-1])
             else:
                 query['status'] = inst_status
@@ -1379,22 +1379,22 @@ def select_user(request):
             
     predicates = []
     if username is not None:
-        if username[0] == '/' and username[-1] == '/':
+        if len(username) >= 2 and username[0] == '/' and username[-1] == '/':
             predicates.append(['username__regex',username[1:-1]])
         else:
             predicates.append(['username',username])
     if first_name is not None:
-        if first_name[0] == '/' and first_name[-1] == '/':
+        if len(first_name) >= 2 and first_name[0] == '/' and first_name[-1] == '/':
             predicates.append(['first_name__regex',first_name[1:-1]])
         else:
             predicates.append(['first_name',first_name])
     if last_name is not None:
-        if last_name[0] == '/' and last_name[-1] == '/':
+        if len(last_name) >= 2 and last_name[0] == '/' and last_name[-1] == '/':
             predicates.append(['last_name__regex',last_name[1:-1]])
         else:
             predicates.append(['last_name',last_name])
     if email is not None:
-        if email[0] == '/' and email[-1] == '/':
+        if len(email) >= 2 and email[0] == '/' and email[-1] == '/':
             predicates.append(['email__regex',email[1:-1]])
         else:
             predicates.append(['email',email])

@@ -30,7 +30,7 @@ from xlrd import open_workbook
 from argparse import ArgumentError
 from cgi import FieldStorage
 import zipfile
-from mgi.models import Template, Database, Ontology, Htmlform, Xmldata, Hdf5file, QueryResults, SparqlQueryResults, ContactForm, XML2Download, TemplateVersion, Instance, OntologyVersion, XMLSchema, Request, Module 
+from mgi.models import Template, Database, Htmlform, Xmldata, Hdf5file, QueryResults, SparqlQueryResults, ContactForm, XML2Download, TemplateVersion, Instance, XMLSchema, Request, Module, Type, TypeVersion 
 from bson.objectid import ObjectId
 import lxml.etree as etree
 import os
@@ -216,7 +216,7 @@ def manage_queries(request):
 
 ################################################################################
 #
-# Function Name: manage_ontologies(request)
+# Function Name: manage_types(request)
 # Inputs:        request - 
 # Outputs:       
 # Exceptions:    None
@@ -224,22 +224,22 @@ def manage_queries(request):
 #                
 #
 ################################################################################
-def manage_ontologies(request):
+def manage_types(request):
     template = loader.get_template('admin/manage_uploads.html')
     
-    currentOntologyVersions = []
-    for onto_version in OntologyVersion.objects():
-        currentOntologyVersions.append(onto_version.current)
+    currentTypeVersions = []
+    for type_version in TypeVersion.objects():
+        currentTypeVersions.append(type_version.current)
     
-    currentOntologies = dict()
-    for onto_version in currentOntologyVersions:
-        onto = Ontology.objects.get(pk=onto_version)
-        ontologyVersions = OntologyVersion.objects.get(pk=onto.ontologyVersion)
-        currentOntologies[onto] = ontologyVersions.isDeleted
+    currentTypes = dict()
+    for type_version in currentTypeVersions:
+        type = Type.objects.get(pk=type_version)
+        typeVersions = TypeVersion.objects.get(pk=type.typeVersion)
+        currentTypes[type] = typeVersions.isDeleted
 
     context = RequestContext(request, {
-        'objects':currentOntologies,
-        'objectType': "Ontology"
+        'objects':currentTypes,
+        'objectType': "Type"
         
     })
     request.session['currentYear'] = currentYear()

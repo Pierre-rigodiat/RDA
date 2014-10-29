@@ -32,11 +32,11 @@ function handleSchemaVersionUpload(evt) {
     reader.readAsText(files[0]);
   }
 
-function handleOntologyVersionUpload(evt) {
+function handleTypeVersionUpload(evt) {
 	var files = evt.target.files; // FileList object
     reader = new FileReader();
     reader.onload = function(e){
-    	Dajaxice.curate.setOntologyVersionContent(Dajax.process,{"versionContent":reader.result, "versionFilename":files[0].name});
+    	Dajaxice.curate.setTypeVersionContent(Dajax.process,{"versionContent":reader.result, "versionFilename":files[0].name});
     }
     reader.readAsText(files[0]);
   }

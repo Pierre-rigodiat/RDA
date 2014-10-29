@@ -28,7 +28,7 @@ from argparse import ArgumentError
 from cgi import FieldStorage
 from cStringIO import StringIO
 from django.core.servers.basehttp import FileWrapper
-from mgi.models import Template, Ontology, Htmlform, Xmldata, Hdf5file, Jsondata, XML2Download, TemplateVersion, Instance, OntologyVersion, Request, Module, ModuleResource
+from mgi.models import Template, Htmlform, Xmldata, Hdf5file, Jsondata, XML2Download, TemplateVersion, Instance, Request, Module, ModuleResource, Type, TypeVersion
 from django.contrib.auth.models import User
 from datetime import datetime
 from datetime import tzinfo
@@ -348,8 +348,8 @@ def uploadObject(request,objectName,objectFilename,objectContent, objectType):
         hex_dig = hash.hexdigest()
         object = Template(title=objectName, filename=objectFilename, content=objectContent, version=1, templateVersion=str(objectVersions.id), hash=hex_dig).save()
     else:
-        objectVersions = OntologyVersion(nbVersions=1, isDeleted=False).save()
-        object = Ontology(title=objectName, filename=objectFilename, content=objectContent, version=1, ontologyVersion=str(objectVersions.id)).save()
+        objectVersions = TypeVersion(nbVersions=1, isDeleted=False).save()
+        object = Type(title=objectName, filename=objectFilename, content=objectContent, version=1, typeVersion=str(objectVersions.id)).save()
     
 #     templateVersion = TemplateVersion(nbVersions=1, isDeleted=False).save()
 #     newTemplate = Template(title=xmlSchemaName, filename=xmlSchemaFilename, content=xmlSchemaContent, version=1, templateVersion=str(templateVersion.id)).save()
@@ -381,8 +381,8 @@ def deleteObject(request, objectID, objectType):
         object = Template.objects.get(pk=objectID)
         objectVersions = TemplateVersion.objects.get(pk=object.templateVersion)
     else:
-        object = Ontology.objects.get(pk=objectID)
-        objectVersions = OntologyVersion.objects.get(pk=object.ontologyVersion)
+        object = Type.objects.get(pk=objectID)
+        objectVersions = TypeVersion.objects.get(pk=object.typeVersion)
 
 
 #     for version in templateVersion.versions:
@@ -400,50 +400,50 @@ def deleteObject(request, objectID, objectType):
 
 ################################################################################
 # 
-# Function Name: uploadXMLOntology
+# Function Name: uploadXMLType
 # Inputs:        request - 
-#                xmlOntologyFilename - 
-#                xmlOntologyContent - 
+#                xmlTypeFilename - 
+#                xmlTypeContent - 
 # Outputs:       JSON data 
 # Exceptions:    None
 # Description:   
 # 
 ################################################################################
 @dajaxice_register
-def uploadXMLOntology(request,xmlOntologyName,xmlOntologyFilename,xmlOntologyContent):
-    print 'BEGIN def uploadXMOntology(request,xmlOntologyFilename,xmlOntologyContent)'
+def uploadXMLType(request,xmlTypeName,xmlTypeFilename,xmlTypeContent):
+    print 'BEGIN def uploadXMType(request,xmlTypeFilename,xmlTypeContent)'
     dajax = Dajax()
 
-    print 'xmlOntologyName: ' + xmlOntologyName
-    print 'xmlOntologyFilename: ' + xmlOntologyFilename
-    print 'xmlOntologyContent: ' + xmlOntologyContent
+    print 'xmlTypeName: ' + xmlTypeName
+    print 'xmlTypeFilename: ' + xmlTypeFilename
+    print 'xmlTypeContent: ' + xmlTypeContent
 
-    newOntology = Ontology(title=xmlOntologyName, filename=xmlOntologyFilename, content=xmlOntologyContent).save()
+    newType = Type(title=xmlTypeName, filename=xmlTypeFilename, content=xmlTypeContent).save()
 
-    print 'END def uploadXMLOntology(request,xmlOntologyFilename,xmlOntologyContent)'
+    print 'END def uploadXMLTypey(request,xmlTypeFilename,xmlTypeContent)'
     return dajax.json()
 
 ################################################################################
 # 
-# Function Name: deleteXMLOntology
+# Function Name: deleteXMLType
 # Inputs:        request - 
-#                xmlOntologyID - 
+#                xmlTypeID - 
 # Outputs:       JSON data 
 # Exceptions:    None
 # Description:   
 # 
 ################################################################################
 @dajaxice_register
-def deleteXMLOntology(request,xmlOntologyID):
-    print 'BEGIN def deleteXMLOntology(request,xmlOntologyID)'
+def deleteXMLType(request,xmlTypeID):
+    print 'BEGIN def deleteXMLType(request,xmlTypeID)'
     dajax = Dajax()
 
-    print 'xmlOntologyID: ' + xmlOntologyID
+    print 'xmlTypeID: ' + xmlTypeID
 
-    selectedOntology = Ontology.objects(id=xmlOntologyID)[0]
-    selectedOntology.delete()
+    selectedType = Type.objects(id=xmlTypeID)[0]
+    selectedType.delete()
 
-    print 'END def deleteXMLOntology(request,xmlOntologyID)'
+    print 'END def deleteXMLType(request,xmlTypeID)'
     return dajax.json()
 
 
@@ -543,7 +543,7 @@ def generateFormSubSection(request, xpath, xmlTree, namespace):
                                         addButton = False
                                         deleteButton = False
                                         nbOccurrences = 1
-                                        refType = Ontology.objects.get(title=refTypeStr)
+                                        refType = Type.objects.get(title=refTypeStr)
                                         refTypeTree = etree.parse(BytesIO(refType.content.encode('utf-8')))    
                                         e = refTypeTree.findall("./{0}element[@name='{1}']".format(namespace,refTypeStr))     
                                         if ('minOccurs' in sequenceChild.attrib):
@@ -936,7 +936,7 @@ def duplicate(request, tagID, xsdForm):
                         if refNamespace in namespaces.keys():
                             refTypeStr = sequenceChild.attrib.get('ref').split(":")[1]
                             try:
-                                refType = Ontology.objects.get(title=refTypeStr)
+                                refType = Type.objects.get(title=refTypeStr)
                                 refTypeTree = etree.parse(BytesIO(refType.content.encode('utf-8')))    
                                 e = refTypeTree.findall("./{0}element[@name='{1}']".format(namespace,refTypeStr))                                                             
                                 newTagID = "element" + str(len(mapTagElement.keys()))  
@@ -967,8 +967,8 @@ def duplicate(request, tagID, xsdForm):
                 formString += "</nobr></li>"
             else:
                 if sequenceChild.attrib.get('type') is not None:
-                    #TODO: temporary solution before model change, look for the type in every ontology
-                    for externalType in Ontology.objects:
+                    #TODO: temporary solution before model change, look for the type in every type
+                    for externalType in Type.objects:
                         refTypeTree = etree.parse(BytesIO(externalType.content.encode('utf-8')))    
                         e = refTypeTree.findall("./{0}element[@name='{1}']".format(namespace,sequenceChild.attrib.get('type')))
                         if e is not None:
@@ -1132,7 +1132,7 @@ def duplicateFormSubSection(request, xpath, xmlTree, namespace):
                                         addButton = False
                                         deleteButton = False
                                         nbOccurrences = 1
-                                        refType = Ontology.objects.get(title=refTypeStr)
+                                        refType = Type.objects.get(title=refTypeStr)
                                         refTypeTree = etree.parse(BytesIO(refType.content.encode('utf-8')))    
                                         e = refTypeTree.findall("./{0}element[@name='{1}']".format(namespace,refTypeStr))     
                                         if ('minOccurs' in sequenceChild.attrib):
@@ -1555,8 +1555,8 @@ def manageVersions(request, objectID, objectType):
         object = Template.objects.get(pk=objectID)
         objectVersions = TemplateVersion.objects.get(pk=object.templateVersion)
     else:
-        object = Ontology.objects.get(pk=objectID)
-        objectVersions = OntologyVersion.objects.get(pk=object.ontologyVersion)
+        object = Type.objects.get(pk=objectID)
+        objectVersions = TypeVersion.objects.get(pk=object.typeVersion)
 #     template = Template.objects.get(pk=schemaID)
 #     templateVersions = TemplateVersion.objects.get(pk=template.templateVersion)
     
@@ -1571,7 +1571,7 @@ def manageVersions(request, objectID, objectType):
         if objectType == "Template":
             obj = Template.objects.get(pk=obj_versionID)
         else:
-            obj = Ontology.objects.get(pk=obj_versionID)
+            obj = Type.objects.get(pk=obj_versionID)
 #         tpl = Template.objects.get(pk=tpl_versionID)        
         htmlVersionsList += "<tr>"
         htmlVersionsList += "<td>Version " + str(obj.version) + "</td>"
@@ -1597,7 +1597,7 @@ def manageVersions(request, objectID, objectType):
     if objectType == "Template":
         handler = "handleSchemaVersionUpload"
     else:
-        handler = "handleOntologyVersionUpload"
+        handler = "handleTypeVersionUpload"
     dajax.script("""
         $("#object_versions").html(" """+ htmlVersionsList +""" ");    
         $("#delete_custom_message").html("");
@@ -1636,11 +1636,11 @@ def setSchemaVersionContent(request, versionContent, versionFilename):
     return dajax.json()
 
 @dajaxice_register
-def setOntologyVersionContent(request, versionContent, versionFilename):
+def setTypeVersionContent(request, versionContent, versionFilename):
     dajax = Dajax()
     
-    request.session['ontologyVersionContent'] = versionContent
-    request.session['ontologyVersionFilename'] = versionFilename
+    request.session['typeVersionContent'] = versionContent
+    request.session['typeVersionFilename'] = versionFilename
     
     return dajax.json()
 
@@ -1661,14 +1661,14 @@ def uploadVersion(request, objectVersionID, objectType):
         else:
             return dajax.json()
     else:
-        if ('ontologyVersionContent' in request.session 
-        and 'ontologyVersionFilename' in request.session 
-        and request.session['ontologyVersionContent'] != "" 
-        and request.session['ontologyVersionFilename'] != ""):
-            objectVersions = OntologyVersion.objects.get(pk=objectVersionID)
-            object = Ontology.objects.get(pk=objectVersions.current)
-            versionContent = request.session['ontologyVersionContent']
-            versionFilename = request.session['ontologyVersionFilename']
+        if ('typeVersionContent' in request.session 
+        and 'typeVersionFilename' in request.session 
+        and request.session['typeVersionContent'] != "" 
+        and request.session['typeVersionFilename'] != ""):
+            objectVersions = TypeVersion.objects.get(pk=objectVersionID)
+            object = Type.objects.get(pk=objectVersions.current)
+            versionContent = request.session['typeVersionContent']
+            versionFilename = request.session['typeVersionFilename']
         else:
             return dajax.json()
 
@@ -1681,7 +1681,7 @@ def uploadVersion(request, objectVersionID, objectType):
             hex_dig = hash.hexdigest()
             newObject = Template(title=object.title, filename=versionFilename, content=versionContent, templateVersion=objectVersionID, version=objectVersions.nbVersions, hash=hex_dig).save()
         else:
-            newObject = Ontology(title=object.title, filename=versionFilename, content=versionContent, ontologyVersion=objectVersionID, version=objectVersions.nbVersions).save()
+            newObject = Type(title=object.title, filename=versionFilename, content=versionContent, typeVersion=objectVersionID, version=objectVersions.nbVersions).save()
         objectVersions.versions.append(str(newObject.id))
         objectVersions.save()
         
@@ -1696,7 +1696,7 @@ def uploadVersion(request, objectVersionID, objectType):
             if objectType == "Template":
                 obj = Template.objects.get(pk=obj_versionID)
             else:
-                obj = Ontology.objects.get(pk=obj_versionID)
+                obj = Ttype.objects.get(pk=obj_versionID)
             htmlVersionsList += "<tr>"
             htmlVersionsList += "<td>Version " + str(obj.version) + "</td>"
             if str(obj.id) == str(objectVersions.current):
@@ -1721,7 +1721,7 @@ def uploadVersion(request, objectVersionID, objectType):
         if objectType == "Template":
             handler = "handleSchemaVersionUpload"
         else:
-            handler = "handleOntologyVersionUpload"
+            handler = "handleTypeVersionUpload"
         dajax.script("""
             $("#object_versions").html(" """+ htmlVersionsList +""" ");    
             $("#delete_custom_message").html("");
@@ -1734,8 +1734,8 @@ def uploadVersion(request, objectVersionID, objectType):
         request.session['xsdVersionContent'] = ""
         request.session['xsdVersionFilename'] = ""
     else:
-        request.session['ontologyVersionContent'] = ""
-        request.session['ontologyVersionFilename'] = ""
+        request.session['typeVersionContent'] = ""
+        request.session['typeVersionFilename'] = ""
         
     return dajax.json()
 
@@ -1748,8 +1748,8 @@ def setCurrentVersion(request, objectid, objectType):
         object = Template.objects.get(pk=objectid)
         objectVersions = TemplateVersion.objects.get(pk=object.templateVersion)
     else:
-        object = Ontology.objects.get(pk=objectid)
-        objectVersions = OntologyVersion.objects.get(pk=object.ontologyVersion)
+        object = Type.objects.get(pk=objectid)
+        objectVersions = TypeVersion.objects.get(pk=object.typeVersion)
     
 #     selectedTemplate = Template.objects.get(pk=schemaid)
 #     templateVersions = TemplateVersion.objects.get(pk=selectedTemplate.templateVersion)
@@ -1767,7 +1767,7 @@ def setCurrentVersion(request, objectid, objectType):
         if objectType == "Template":
             obj = Template.objects.get(pk=obj_versionID)
         else:
-            obj = Ontology.objects.get(pk=obj_versionID)
+            obj = Type.objects.get(pk=obj_versionID)
         htmlVersionsList += "<tr>"
         htmlVersionsList += "<td>Version " + str(obj.version) + "</td>"
         if str(obj.id) == str(objectVersions.current):
@@ -1793,7 +1793,7 @@ def setCurrentVersion(request, objectid, objectType):
     if objectType == "Template":
         handler = "handleSchemaVersionUpload"
     else:
-        handler = "handleOntologyVersionUpload"
+        handler = "handleTypeVersionUpload"
 
     dajax.script("""
         $("#object_versions").html(" """+ htmlVersionsList +""" ");    
@@ -1811,8 +1811,8 @@ def deleteVersion(request, objectid, objectType, newCurrent):
         object = Template.objects.get(pk=objectid)
         objectVersions = TemplateVersion.objects.get(pk=object.templateVersion)
     else:
-        object = Ontology.objects.get(pk=objectid)
-        objectVersions = OntologyVersion.objects.get(pk=object.ontologyVersion)
+        object = Type.objects.get(pk=objectid)
+        objectVersions = TypeVersion.objects.get(pk=object.typeVersion)
     
 #     selectedTemplate = Template.objects.get(pk=schemaid)
 #     templateVersions = TemplateVersion.objects.get(pk=selectedTemplate.templateVersion)    
@@ -1849,7 +1849,7 @@ def deleteVersion(request, objectid, objectType, newCurrent):
             if objectType == "Template":
                 obj = Template.objects.get(pk=obj_versionID)
             else:
-                obj = Ontology.objects.get(pk=obj_versionID)
+                obj = Type.objects.get(pk=obj_versionID)
             htmlVersionsList += "<tr>"
             htmlVersionsList += "<td>Version " + str(obj.version) + "</td>"
             if str(obj.id) == str(objectVersions.current):
@@ -1874,7 +1874,7 @@ def deleteVersion(request, objectid, objectType, newCurrent):
         if objectType == "Template":
             handler = "handleSchemaVersionUpload"
         else:
-            handler = "handleOntologyVersionUpload"
+            handler = "handleTypeVersionUpload"
         
         dajax.script("""
             $("#object_versions").html(" """+ htmlVersionsList +""" "); 
@@ -1892,8 +1892,8 @@ def assignDeleteCustomMessage(request, objectid, objectType):
         object = Template.objects.get(pk=objectid)
         objectVersions = TemplateVersion.objects.get(pk=object.templateVersion)
     else:
-        object = Ontology.objects.get(pk=objectid)
-        objectVersions = OntologyVersion.objects.get(pk=object.ontologyVersion)
+        object = Type.objects.get(pk=objectid)
+        objectVersions = TypeVersion.objects.get(pk=object.typeVersion)
         
 #     selectedTemplate = Template.objects.get(pk=schemaid)
 #     templateVersions = TemplateVersion.objects.get(pk=selectedTemplate.templateVersion)    
@@ -1911,7 +1911,7 @@ def assignDeleteCustomMessage(request, objectid, objectType):
                 if objectType == "Template":
                     obj = Template.objects.get(pk=version)
                 else:
-                    obj = Ontology.objects.get(pk=version)
+                    obj = Type.objects.get(pk=version)
                 message += "<option value='"+version+"'>Version " + str(obj.version) + "</option>"
         message += "</select></span>"
     
@@ -1927,8 +1927,8 @@ def editInformation(request, objectid, objectType, newName, newFilename):
         object = Template.objects.get(pk=objectid)
         objectVersions = TemplateVersion.objects.get(pk=object.templateVersion)
     else:
-        object = Ontology.objects.get(pk=objectid)
-        objectVersions = OntologyVersion.objects.get(pk=object.ontologyVersion)
+        object = Type.objects.get(pk=objectid)
+        objectVersions = TypeVersion.objects.get(pk=object.typeVersion)
     
 #     selectedTemplate = Template.objects.get(pk=schemaid)       
 #     templateVersions = TemplateVersion.objects.get(pk=selectedTemplate.templateVersion)
@@ -1937,7 +1937,7 @@ def editInformation(request, objectid, objectType, newName, newFilename):
         if objectType == "Template":
             obj = Template.objects.get(pk=version)
         else:
-            obj = Ontology.objects.get(pk=version)
+            obj = Type.objects.get(pk=version)
         obj.title = newName
         if version == objectid:
             obj.filename = newFilename
@@ -1960,8 +1960,8 @@ def restoreObject(request, objectid, objectType):
         object = Template.objects.get(pk=objectid)
         objectVersions = TemplateVersion.objects.get(pk=object.templateVersion)
     else:
-        object = Ontology.objects.get(pk=objectid)
-        objectVersions = OntologyVersion.objects.get(pk=object.ontologyVersion)
+        object = Type.objects.get(pk=objectid)
+        objectVersions = TypeVersion.objects.get(pk=object.typeVersion)
     
 #     selectedTemplate = Template.objects.get(pk=schemaid)       
 #     templateVersions = TemplateVersion.objects.get(pk=selectedTemplate.templateVersion)
@@ -1985,8 +1985,8 @@ def restoreVersion(request, objectid, objectType):
         object = Template.objects.get(pk=objectid)
         objectVersions = TemplateVersion.objects.get(pk=object.templateVersion)
     else:
-        object = Ontology.objects.get(pk=objectid)
-        objectVersions = OntologyVersion.objects.get(pk=object.ontologyVersion)
+        object = Type.objects.get(pk=objectid)
+        objectVersions = TypeVersion.objects.get(pk=object.typeVersion)
     
 #     selectedTemplate = Template.objects.get(pk=schemaid)
 #     templateVersions = TemplateVersion.objects.get(pk=selectedTemplate.templateVersion)
@@ -2004,7 +2004,7 @@ def restoreVersion(request, objectid, objectType):
         if objectType == "Template":
             obj = Template.objects.get(pk=obj_versionID)
         else:
-            obj = Ontology.objects.get(pk=obj_versionID)
+            obj = Type.objects.get(pk=obj_versionID)
         htmlVersionsList += "<tr>"
         htmlVersionsList += "<td>Version " + str(obj.version) + "</td>"
         if str(obj.id) == str(objectVersions.current):
@@ -2029,7 +2029,7 @@ def restoreVersion(request, objectid, objectType):
     if objectType == "Template":
         handler = "handleSchemaVersionUpload"
     else:
-        handler = "handleOntologyVersionUpload"
+        handler = "handleTypeVersionUpload"
     dajax.script("""
         $("#object_versions").html(" """+ htmlVersionsList +""" ");    
         $("#delete_custom_message").html("");

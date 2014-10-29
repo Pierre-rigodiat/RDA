@@ -25,7 +25,7 @@ from argparse import ArgumentError
 from cgi import FieldStorage
 from cStringIO import StringIO
 from django.core.servers.basehttp import FileWrapper
-from mgi.models import Template, Ontology, Htmlform, Xmldata, Hdf5file, Jsondata, XML2Download, TemplateVersion
+from mgi.models import Template, Type, Htmlform, Xmldata, Hdf5file, Jsondata, XML2Download, TemplateVersion
 
 #import xml.etree.ElementTree as etree
 import lxml.html as html

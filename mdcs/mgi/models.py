@@ -67,15 +67,15 @@ class TemplateVersion(Document):
     current = StringField()
     nbVersions = IntField(required=True)
     isDeleted = BooleanField(required=True)
-
-class Ontology(Document):
+    
+class Type(Document):
     title = StringField(required=True)
     filename = StringField(required=True)
     content = StringField(required=True)
-    ontologyVersion = StringField(required=False)
-    version = IntField(required=True, unique_with='ontologyVersion')
+    typeVersion = StringField(required=False)
+    version = IntField(required=True, unique_with='typeVersion')
     
-class OntologyVersion(Document):
+class TypeVersion(Document):
     versions = ListField(StringField())
     deletedVersions = ListField(StringField())
     current = StringField()

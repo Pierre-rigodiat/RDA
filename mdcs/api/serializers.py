@@ -16,7 +16,7 @@
 
 from rest_framework import serializers
 from rest_framework_mongoengine.serializers import MongoEngineModelSerializer
-from mgi.models import SavedQuery, Template, Ontology, TemplateVersion, OntologyVersion, Instance
+from mgi.models import SavedQuery, Template, Type, TemplateVersion, TypeVersion, Instance
 from django.contrib.auth.models import User
 
 class jsonDataSerializer(serializers.Serializer):
@@ -64,20 +64,20 @@ class TemplateVersionSerializer(MongoEngineModelSerializer):
     class Meta:
         model = TemplateVersion
 
-class ontologySerializer(MongoEngineModelSerializer):
+class typeSerializer(MongoEngineModelSerializer):
     class Meta:
-        model = Ontology
-        exclude = (['ontologyVersion','version'])
+        model = Type
+        exclude = (['typeVersion','version'])
         
-class OntologyVersionSerializer(MongoEngineModelSerializer):
+class TypeVersionSerializer(MongoEngineModelSerializer):
     class Meta:
-        model = OntologyVersion
+        model = TypeVersion
         
-class resOntologySerializer(serializers.Serializer):
+class resTypeSerializer(serializers.Serializer):
     title = serializers.CharField()
     filename = serializers.CharField()
     content = serializers.CharField()
-    ontologyVersion = serializers.CharField()
+    typeVersion = serializers.CharField()
     version = serializers.IntegerField()
     id = serializers.CharField(required=False)
     
