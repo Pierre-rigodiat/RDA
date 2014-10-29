@@ -94,7 +94,7 @@
 					<li><a href="/">Home</a></li>
 					<li><a href="/curate">Data Curation</a></li>
 					<li class="current_page_item"><a href="/explore">Data Exploration</a></li>
-					<!-- <li><a href="/compose">Composer</a></li> -->
+					<li><a href="/compose">Composer</a></li>
 				</ul>
 
 				<div class="clearer">&nbsp;</div>
@@ -203,7 +203,18 @@
 						                <th width="15px">Add to Builder</th>
 						                <th>Queries</th>
 						                <th width="15px">Delete</th>
-						            </tr>                
+						            </tr>
+						            {% if queries %}
+							            {% for query in queries %}
+										  <tr>
+										    <td><span class="icon upload" onclick="addSavedQueryToForm('query{{ query.id }}')"></span></td>
+										    <td>{{ query.displayedQuery|safe }}</td>
+										    <td><span class="icon invalid" onclick="deleteQuery('query{{ query.id }}')"></span></td>									
+										  </tr>									
+										{% endfor %}
+									{% else %}
+										<tr><td colspan='3' style='color:red;'>No Saved Queries for now.</td></tr>
+									{% endif %}            
 						        </table>
 						    </div>            
 						</div>
@@ -330,7 +341,7 @@ WHERE {?s ?p ?o}</textarea>
 		<div id="footer2">
 
 			<div class="left">
-				<a href="/">Home</a> <span class="text-separator">|</span> <a href="/curate">Data Curation</a> <span class="text-separator">|</span> <a href="/explore">Data Exploration</a> <!-- <span class="text-separator">|</span> <a href="/compose">Composer</a> --> <span class="text-separator">|</span> <a href="/about">About</a> <span class="text-separator">|</span> <a href="/contact">Contact</a> 
+				<a href="/">Home</a> <span class="text-separator">|</span> <a href="/curate">Data Curation</a> <span class="text-separator">|</span> <a href="/explore">Data Exploration</a> <span class="text-separator">|</span> <a href="/compose">Composer</a><span class="text-separator">|</span> <a href="/about">About</a> <span class="text-separator">|</span> <a href="/contact">Contact</a> 
 			</div>
 
 			<div class="right">

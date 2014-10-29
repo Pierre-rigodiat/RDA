@@ -1513,29 +1513,12 @@ def saveQuery(request, queryForm, queriesTable):
             savedQuery = SavedQuery(str(userID),str(templateID), str(query),displayedQuery)
             savedQuery.save()
             
-            #add the query to the table        
-#             queriesTree = html.fromstring(queriesList)
-#             queriesTable = queriesTree.find("./[@id=queriesTable]")
-            queriesTableTree = html.fromstring(queriesTable)
-            tr = queriesTableTree.find("./tbody/tr[@id='noqueries']")
-            if(tr is not None):
-                # removes the row         
-                queriesTableTree.find("./tbody").remove(tr) 
-    
-#             linesInTable = queriesTable.findall("./tbody")
-#             if (len(linesInTable) == 1): #th
-#                 queryID = 0
-#             else:
-#                 queryID = int(linesInTable[-1][0].attrib['id'][5:]) + 1
-#                 pass
-#             mapQueryInfo[queryID] = QueryInfo(query, displayedQuery)
             queryInfo = QueryInfo(query, displayedQuery)
             mapQueryInfo[str(savedQuery.id)] = queryInfo.__to_json__()
             request.session['mapQueryInfoExplore'] = mapQueryInfo
-            
-            element = html.fragment_fromstring(renderSavedQuery(str(displayedQuery),savedQuery.id))
-            queriesTableTree.find("./tbody").append(element)
-            dajax.assign('#queriesTable', 'innerHTML', html.tostring(queriesTableTree))
+            dajax.script("""
+                $('#queriesTable').load(document.URL +  ' #queriesTable', function() {}); 
+            """)
         else:
             errorsString = ""
             for error in errors:
@@ -1589,93 +1572,21 @@ def manageRegexBeforeSave(query):
 #
 ################################################################################
 @dajaxice_register
-def deleteQuery(request, queriesTable, savedQueryID):
-    dajax = Dajax()
-    
-#     queriesTree = html.fromstring(queriesList)
-#     queriesTable = queriesTree.find(".//table")
-#     lineToDelete = queriesTable.find(".//tr/[@id='"+ savedQueryID +"']")
-#     queriesTable.remove(lineToDelete)
-    
-    # finds all lines in the table exept the first one : headers
-    queriesTableTree = html.fromstring(queriesTable)
-    tr = queriesTableTree.find("./tbody/tr[@id='"+ savedQueryID +"']")
-    if(tr is not None):
-        # removes the row         
-        queriesTableTree.find("./tbody").remove(tr)   
-#     # finds all lines in the table exept the first one : headers
-#     for tbody in queriesTableTree.findall('./tbody')[1:]:
-#         tr = tbody.find("./tr/[@id='"+ savedQueryID +"']")
-#         if(tr is not None):
-#             # removes the row         
-#             queriesTableTree.remove(tbody)   
-#             break
-    
+def deleteQuery(request, savedQueryID):
+    dajax = Dajax() 
+        
     SavedQuery(id=savedQueryID[5:]).delete()
     
     mapQueryInfo = request.session['mapQueryInfoExplore']
     del mapQueryInfo[savedQueryID[5:]]
     request.session['mapQueryInfoExplore'] = mapQueryInfo
     
-    if '_auth_user_id' in request.session and 'exploreCurrentTemplateID' in request.session:
-        userID = request.session['_auth_user_id']
-        templateID = request.session['exploreCurrentTemplateID']
-        userQueries = SavedQuery.objects(user=str(userID),template=str(templateID))        
-        if(len(userQueries) == 0):
-            queriesTableTree = html.fragment_fromstring(
-            """<table>
-                <tr>                    
-                    <th width="15px">Add to Builder</th>
-                    <th>Queries</th>
-                    <th width="15px">Delete</th>
-                </tr>                
-            </table>""")
-            element = html.fragment_fromstring(renderNoQueries())
-            queriesTableTree.append(element)
-    dajax.assign("#queriesTable", "innerHTML", html.tostring(queriesTableTree))
-#     dajax.script(""" 
-#         makeInputsDroppable();    
-#     """);
+    dajax.script("""
+        $('#queriesTable').load(document.URL +  ' #queriesTable', function() {}); 
+    """)
+
     return dajax.json()
     
-################################################################################
-# 
-# Function Name: renderSavedQuery(query, queryID)
-# Inputs:        query - 
-#                queryID - 
-# Outputs:       
-# Exceptions:    None
-# Description:   Renders a saved query
-#
-################################################################################   
-def renderSavedQuery(query, queryID):
-    return """
-        <tr id=query"""+ str(queryID) +""">
-            <td><span class="icon upload" onclick="addSavedQueryToForm('query"""+ str(queryID) +"""')"></span></td>
-            <td>""" + query +  """</td>
-            <td><span class="icon invalid" onclick="deleteQuery('query"""+ str(queryID) +"""')"></span></td>
-        </tr>
-    """
-
-# def checkTypes(queryFormTree, errors):
-#     areTypesOK = True
-#       
-#     for criteria in queryFormTree.findall("./p"):
-#         type = mapCriterias[criteria.attrib['id']].elementInfo.type
-#         if (type == "integer"):
-#             try:
-#                 int(criteria[2][1].value)
-#             except:
-#                 errors.append(criteria[1].value + " must be of type : " + type)
-#         elif (type == "string"):
-#             pass
-#         elif (type == "double"):
-#             pass
-#         elif (type == "query"):
-#             pass
-#         
-#     return areTypesOK
-
 ################################################################################
 # 
 # Function Name: updateUserInputs(request, htmlForm, fromElementID, criteriaID)
@@ -1890,53 +1801,18 @@ def clearQueries(request):
     dajax = Dajax()
     
     mapQueryInfo = request.session['mapQueryInfoExplore']
-    
-#     queriesTableTree = html.fromstring(queriesTable)
-#         
-#     # finds all lines in the table exept the first one : headers
-#     for tr in queriesTableTree.findall('./tbody/tr')[1:]:
-#         # removes existing rows         
-#         queriesTableTree.find("./tbody").remove(tr)    
+       
     for queryID in mapQueryInfo.keys():
         SavedQuery(id=queryID).delete()
             
     request.session['mapQueryInfoExplore'] = dict()
     
-    if '_auth_user_id' in request.session and 'exploreCurrentTemplateID' in request.session:
-        userID = request.session['_auth_user_id']
-        templateID = request.session['exploreCurrentTemplateID']
-        userQueries = SavedQuery.objects(user=str(userID),template=str(templateID))
-        queriesTableTree = html.fragment_fromstring(
-            """<table>
-                <tr>                    
-                    <th width="15px">Add to Builder</th>
-                    <th>Queries</th>
-                    <th width="15px">Delete</th>
-                </tr>                
-            </table>""")
-        if(len(userQueries) == 0):
-            element = html.fragment_fromstring(renderNoQueries())
-            queriesTableTree.append(element)
-        
-        
-    dajax.assign("#queriesTable", "innerHTML", html.tostring(queriesTableTree))
-    # render table again     
-#     dajax.script("""  
-#         makeInputsDroppable();    
-#     """);
+    dajax.script("""
+        $('#queriesTable').load(document.URL +  ' #queriesTable', function() {}); 
+    """)
+    
     return dajax.json()
 
-################################################################################
-# 
-# Function Name: renderNoQueries()
-# Inputs:        
-# Outputs:       
-# Exceptions:    None
-# Description:   Renders the initial form for saved queries
-#
-################################################################################ 
-def renderNoQueries():
-    return "<tr id='noqueries'><td colspan='3' style='color:red;'>No Saved Queries for now.</td></tr>"
 
 ################################################################################
 # 
@@ -1971,8 +1847,6 @@ def manageRegexFromDB(query):
 def getCustomForm(request):
     dajax = Dajax()
     
-#     if 'currentExploreTab' in request.session and request.session['currentExploreTab'] == "tab-1":
-    mapQueryInfo = dict()
     
     if 'savedQueryFormExplore' in request.session:
         savedQueryForm = request.session['savedQueryFormExplore']
@@ -1989,32 +1863,19 @@ def getCustomForm(request):
         request.session['mapCriteriasExplore'] = dict()
     
     #Get saved queries of an user
+    mapQueryInfo = dict()
     request.session['mapQueryInfoExplore'] = dict()
     if '_auth_user_id' in request.session and 'exploreCurrentTemplateID' in request.session:
         userID = request.session['_auth_user_id']
         templateID = request.session['exploreCurrentTemplateID']
         userQueries = SavedQuery.objects(user=str(userID),template=str(templateID))
-        queriesTable = html.fragment_fromstring(
-            """<table>
-                <tr>                    
-                    <th width="15px">Add to Builder</th>
-                    <th>Queries</th>
-                    <th width="15px">Delete</th>
-                </tr>                
-            </table>""")
-        if(len(userQueries) == 0):
-            element = html.fragment_fromstring(renderNoQueries())
-            queriesTable.append(element)
-        else:
-            for savedQuery in userQueries:
-                query = eval(savedQuery.query)
-#                 manageRegexFromDB(query)     
-                queryInfo = QueryInfo(query, savedQuery.displayedQuery)
-                mapQueryInfo[str(savedQuery.id)] = queryInfo.__to_json__()
-                request.session['mapQueryInfoExplore'] = mapQueryInfo
-                element = html.fragment_fromstring(renderSavedQuery(savedQuery.displayedQuery, savedQuery.id))            
-                queriesTable.append(element)
-        dajax.assign('#queriesTable', 'innerHTML', html.tostring(queriesTable))
+        for savedQuery in userQueries:
+            query = eval(savedQuery.query)
+#            manageRegexFromDB(query)     
+            queryInfo = QueryInfo(query, savedQuery.displayedQuery)
+            mapQueryInfo[str(savedQuery.id)] = queryInfo.__to_json__()
+            request.session['mapQueryInfoExplore'] = mapQueryInfo
+            
         
     if (customFormString != ""):
         if 'currentExploreTab' in request.session and request.session['currentExploreTab'] == "tab-1":

@@ -30,7 +30,8 @@ from xlrd import open_workbook
 from argparse import ArgumentError
 from cgi import FieldStorage
 import zipfile
-from mgi.models import Template, Database, Htmlform, Xmldata, Hdf5file, QueryResults, SparqlQueryResults, ContactForm, XML2Download, TemplateVersion, Instance, XMLSchema, Request, Module, Type, TypeVersion 
+from mgi.models import Template, Database, Htmlform, Xmldata, Hdf5file, QueryResults, SparqlQueryResults, ContactForm, XML2Download, TemplateVersion, Instance, XMLSchema, Request, Module, Type, TypeVersion ,\
+    SavedQuery
 from bson.objectid import ObjectId
 import lxml.etree as etree
 import os
@@ -821,10 +822,12 @@ def explore_perform_search(request):
         listInstances.append(instance) 
         
     template_hash = Template.objects.get(pk=request.session['exploreCurrentTemplateID']).hash
-        
+    
+    queries = SavedQuery.objects(user=str(request.user.id), template=str(request.session['exploreCurrentTemplateID']))
     context = RequestContext(request, {
         'instances': listInstances,
         'template_hash': template_hash,
+        'queries':queries,
     })
     request.session['currentYear'] = currentYear()
     #return HttpResponse(template.render(context))  # remove after testing

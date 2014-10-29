@@ -161,8 +161,7 @@ function deleteQuery(savedQueryID){
             modal: true,
             buttons: {		
             	Delete: function(){
-		        	var queriesTable = $("#queriesTable").html()
-		        	Dajaxice.explore.deleteQuery(Dajax.process,{'queriesTable':queriesTable, 'savedQueryID':savedQueryID})
+		        	Dajaxice.explore.deleteQuery(Dajax.process,{'savedQueryID':savedQueryID})
 		        	$( this ).dialog( "close" );
         		},
         		Cancel: function() {
