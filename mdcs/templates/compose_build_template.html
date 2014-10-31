@@ -31,7 +31,8 @@
 	<link rel="stylesheet" type="text/css" href="{% static 'resources/css/lib/bootstrap.min.css' %}"  media="screen" />
 	<link rel="stylesheet" type="text/css" href="{% static 'style.css' %}" media="screen" />
 	<link rel="stylesheet" type="text/css" href="{% static 'resources/css/style.add.css' %}"  media="screen" />
-	<title>Materials Data Curation System</title>
+	<link rel="stylesheet" type="text/css" href="{% static 'resources/css/XMLTree.css' %}" media="screen" />
+	<title>Materials Data Curation System</title>	
 
 	<!-- JQuery & JQuery UI -->
 	<script src="{% static 'resources/lib/jquery/jquery-1.11.1.min.js' %}"></script>
@@ -39,8 +40,9 @@
     <link rel="stylesheet" type="text/css" href="{% static 'resources/lib/jquery-ui/themes/smoothness/jquery-ui.css' %}"/>        
     <script src="{% static 'resources/lib/jquery-ui/themes/smoothness/jquery-ui.js' %}"></script>
 	<script src="{% static 'dajax/jquery.dajax.core.js' %}"></script>
+	<script src="{% static 'inc/controllers/js/composer.js' %}"></script>
 
-        {% dajaxice_js_import %}
+    {% dajaxice_js_import %}
 </head>
 
 <body id="top">
@@ -153,6 +155,16 @@
 		      <div id="template_selection">
 		      
 {% if request.session.currentComposeTemplate %} 
+
+			<div class="clearer">&nbsp;</div>
+
+		      <div id="XMLHolder"></div>
+
+				<br/><br/>
+
+		    <script> 	
+				Dajaxice.compose.loadXML(Dajax.process);
+			</script>
 
 {% else %}
 
@@ -276,12 +288,30 @@ verifyTemplateIsSelectedCallback = function(data)
 
 </div>
 
-	<script src="{% static 'inc/controllers/js/tpl_sel.js' %}"></script>
-	<script>
-	  loadTemplateSelectionControllers();
-
-	</script>
-
+<div id="dialog-insert-element-sequence" title="Insert an Element" style="display:none;">
+  <p>
+    Please select the type of the element that you want to insert in the template.
+  </p>
+  <div id="table_types">
+	  <table class="table table-bordered">
+	  <tr>
+	    <th>Type name</th>
+	    <th>File name</th>
+	    <th>Actions</th>
+	  </tr>
+	{% for type, isDeleted in types.items %}
+	  {% cycle 'even' '' as rowcolors silent %} 
+	  {% if isDeleted == False %} 
+	  <tr class="{{ rowcolors }}">
+	    <td templateID='{{type.id}}'>{{ type.title }}</td>
+	    <td>{{ type.filename }}</td>
+	    <td><button class="btn insert"><i class="icon-plus-sign"></i>Insert</button></td>
+	  </tr>
+	  {% endif %}
+	{% endfor %}
+	</table>
+	</div>
+</div>
 
 </body>
 </html>

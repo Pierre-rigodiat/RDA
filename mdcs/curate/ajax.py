@@ -2233,6 +2233,15 @@ def pingRemoteAPI(request, name, protocol, address, port, user, password):
     
     return dajax.json()
 
+################################################################################
+# 
+# Function Name: loadXML(request)
+# Inputs:        request - 
+# Outputs:       JSON data with templateSelected 
+# Exceptions:    None
+# Description:   Loads the XML data in the view data page. First transforms the data.
+# 
+################################################################################
 @dajaxice_register
 def loadXML(request):
     dajax = Dajax()

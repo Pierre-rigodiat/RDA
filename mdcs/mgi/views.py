@@ -1044,11 +1044,23 @@ def compose_select_template(request):
 def compose_build_template(request):
 #    logout(request)
     template = loader.get_template('compose_build_template.html')
-    context = RequestContext(request, {
-        '': '',
-    })
     request.session['currentYear'] = currentYear()
     if request.user.is_authenticated():
+        
+        currentTypeVersions = []
+        for type_version in TypeVersion.objects():
+            currentTypeVersions.append(type_version.current)
+        
+        currentTypes = dict()
+        for type_version in currentTypeVersions:
+            type = Type.objects.get(pk=type_version)
+            typeVersions = TypeVersion.objects.get(pk=type.typeVersion)
+            currentTypes[type] = typeVersions.isDeleted
+    
+        context = RequestContext(request, {
+           'types':currentTypes
+        })
+        
         return HttpResponse(template.render(context))
     else:
         if 'loggedOut' in request.session:

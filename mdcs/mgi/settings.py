@@ -192,6 +192,7 @@ LOGIN_REDIRECT_URL = '/'
 #SESSION_SERIALIZER = 'mongoengine.django.sessions.BSONSerializer'
 
 #SESSION_ENGINE = "django.contrib.sessions.backends.file"
+#SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 SESSION_SAVE_EVERY_REQUEST=True
 
 MIDDLEWARE_CLASSES = (

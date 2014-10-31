@@ -20,25 +20,12 @@ from dajax.core import Dajax
 from dajaxice.decorators import dajaxice_register
 from django.conf import settings
 from mongoengine import *
-from io import BytesIO
-from mgi.models import XMLSchema 
-import sys
-from xlrd import open_workbook
-from argparse import ArgumentError
-from cgi import FieldStorage
-from cStringIO import StringIO
-from django.core.servers.basehttp import FileWrapper
-from mgi.models import Template, Type, Htmlform, Xmldata, Hdf5file, Jsondata, XML2Download, TemplateVersion
-
-#import xml.etree.ElementTree as etree
-import lxml.html as html
+from mgi.models import Template, Type
 import lxml.etree as etree
-import xml.dom.minidom as minidom
+from io import BytesIO
 
-#XSL file loading
+# XSL file loading
 import os
-#from django.conf.settings import PROJECT_ROOT
-
 
 ################################################################################
 # 
@@ -72,9 +59,12 @@ def setCurrentTemplate(request,templateFilename,templateID):
     if templateID != "new":
         templateObject = Template.objects.get(pk=templateID)
         xmlDocData = templateObject.content
-
-        XMLSchema.tree = etree.parse(BytesIO(xmlDocData.encode('utf-8')))
-        request.session['xmlDocTreeCompose'] = etree.tostring(XMLSchema.tree)
+        request.session['xmlTemplateCompose'] = xmlDocData
+    else:
+        base_template_path = os.path.join(settings.SITE_ROOT, 'static/resources/xsd/new_base_template.xsd')
+        base_template_file = open(base_template_path, 'r')
+        base_template_content = base_template_file.read()
+        request.session['xmlTemplateCompose'] = base_template_content
 
     print 'END def setCurrentTemplate(request)'
     return dajax.json()
@@ -102,4 +92,78 @@ def verifyTemplateIsSelected(request):
     print 'END def verifyTemplateIsSelected(request)'
     return simplejson.dumps({'templateSelected':templateSelected})
 
+################################################################################
+# 
+# Function Name: loadXML(request)
+# Inputs:        request - 
+# Outputs:       JSON data with templateSelected 
+# Exceptions:    None
+# Description:   Loads the XML data in the compose page. First transforms the data.
+# 
+################################################################################
+@dajaxice_register
+def loadXML(request):
+    dajax = Dajax()
+    
+    xmlString = request.session['xmlTemplateCompose']
+    
+    xsltPath = os.path.join(settings.SITE_ROOT, 'static/resources/xsl/xsd2html.xsl')
+    xslt = etree.parse(xsltPath)
+    transform = etree.XSLT(xslt)
+    xmlTree = ""
+    if (xmlString != ""):
+        request.session['namespacesCompose'] = get_namespaces(BytesIO(str(xmlString)))
+        for prefix, url in request.session['namespacesCompose'].items():
+            if (url == "{http://www.w3.org/2001/XMLSchema}"):            
+                request.session['defaultPrefixCompose'] = prefix
+                break
+        dom = etree.parse(BytesIO(xmlString.encode('utf-8')))
+        newdom = transform(dom)
+        xmlTree = str(newdom)
+    
+    dajax.assign("#XMLHolder", "innerHTML", xmlTree)
+    
+    return dajax.json()
 
+def get_namespaces(file):
+    "Reads and returns the namespaces in the schema tag"
+    events = "start", "start-ns"
+    ns = {}
+    for event, elem in etree.iterparse(file, events):
+        if event == "start-ns":
+            if elem[0] in ns and ns[elem[0]] != elem[1]:
+                raise Exception("Duplicate prefix with different URI found.")
+            ns[elem[0]] = "{%s}" % elem[1]
+        elif event == "start":
+            break
+    return ns
+
+
+################################################################################
+# 
+# Function Name: insertElementSequence(request, typeID, xpath)
+# Inputs:        request - HTTP request
+#                typeID - ID of the inserted type
+#                xpath - xpath where the element is added
+# Outputs:       JSON 
+# Exceptions:    None
+# Description:   insert the type in the original schema
+# 
+################################################################################
+@dajaxice_register
+def insertElementSequence(request, typeID, xpath, typeName):
+    dajax = Dajax()
+    
+    defaultPrefix = request.session['defaultPrefixCompose']
+    namespace = request.session['namespacesCompose'][defaultPrefix]
+    
+    xmlString = request.session['xmlTemplateCompose']
+    dom = etree.parse(BytesIO(xmlString.encode('utf-8')))
+    
+    xpath = xpath.replace(defaultPrefix +":", namespace)
+    dom.find(xpath).append(etree.Element(namespace+"element", attrib={'type':typeName, 'name':typeName}))
+    request.session['xmlTemplateCompose'] = etree.tostring(dom) 
+    print etree.tostring(dom)
+    
+    return dajax.json()
+    

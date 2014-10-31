@@ -63,12 +63,40 @@ ul.tree ul li:last-child:before {
 .element {
 }
 
+.newElement {
+	color:green;
+}
+
 .category {
 	font-weight: bold;
 }
 
 .text {
 	color: orange;
+}
+
+.path{
+	display: none;
+}
+
+.name {
+	font-weight: bold;
+	color:white;
+	margin-left: 2px;
+	border: 3px solid #E68A00; 
+	text-align: center; 
+	background: #E68A00;
+	border-radius: 5px;
+}
+
+.type {
+	font-weight: bold;
+	color:white;
+	margin-left: 2px;
+	border: 3px solid #B8B8B8; 
+	text-align: center; 
+	background: #B8B8B8;
+	border-radius: 5px;
 }
 
 .preserve {
@@ -96,4 +124,8 @@ ul.tree ul li:last-child:before {
 	background-image: url("../../img/expand.png");
 	background-repeat: no-repeat;	
 	display: inline-block;
+}
+
+.menu{
+	width: 150px;
 }
