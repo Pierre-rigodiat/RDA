@@ -1,8 +1,32 @@
-$(document).on('click', function(event) {
-  if (!$(event.target).closest('#XMLHolder').length) {
-    $("#menu").remove();
-  }
-});
+loadComposeBuildTemplate = function(){
+	console.log('BEGIN [loadComposeBuildTemplate]');
+		
+	$('.btn.download').on('click', downloadTemplate);
+	$('.btn.save').on('click', saveTemplate);
+	$(document).on('click', function(event) {
+	  if (!$(event.target).closest('#XMLHolder').length) {
+	    $("#menu").remove();
+	  }
+	});
+	
+	Dajaxice.compose.loadXML(Dajax.process);
+	console.log('END [loadComposeBuildTemplate]');
+}
+
+downloadTemplate = function(){
+	console.log('BEGIN [downloadTemplate]');
+	
+	Dajaxice.compose.downloadTemplate(Dajax.process);
+	
+	console.log('END [downloadTemplate]');
+}
+
+saveTemplate = function(){
+	console.log('BEGIN [saveTemplate]');
+	
+	
+	console.log('END [saveTemplate]');
+}
 
 
 showhide = function(event){
@@ -37,6 +61,22 @@ var showMenuSequence=function(event){
 	      }).show();
 };		
 
+var showMenuElement=function(event){
+	$("#menu").remove();
+	
+	target = event.target;
+	$("<ul id='menu' style='position:absolute;z-index:9999;'>" + 
+      "<li><span onclick='displayRenameElementDialog()'>Rename</span></li>" +
+      "</ul>")
+		.menu()
+		.appendTo("body")
+		.position({
+	        my: "left top",
+	        at: "left bottom",
+	        of: event.target
+	      }).show();
+};	
+
 displayInsertElementSequenceDialog = function()
 {
  $(function() {
@@ -56,9 +96,35 @@ displayInsertElementSequenceDialog = function()
   });
 }
 
-insertElementSequence = function(event){
-	console.log(target);
-	
+displayRenameElementDialog = function()
+{
+	$("#newElementName").val($(target).parent().siblings('.name').html());
+	$(function() {
+		$( "#dialog-rename-element" ).dialog({
+		  modal: true,
+		  width: 400,
+		  height: 300,
+		  buttons: {
+			Rename: function() {
+					newName = $("#newElementName").val();
+					if (newName.length > 0){
+						xpath = getXPath();
+						Dajaxice.compose.renameElement(Dajax.process, {"xpath":xpath, "newName":newName});
+						$(target).parent().siblings('.name').html(newName);
+						$( this ).dialog( "close" );
+					}else{
+						$( "#rename-element-error" ).html("The name can't be empty.")
+					}					 
+			   	},			      
+		    Cancel: function() {
+		    		$( this ).dialog( "close" );
+		        }
+		      }
+		    });
+	  });
+}
+
+insertElementSequence = function(event){	
 	// change the sequence style
 	parent = $(target).parent()
 	if ($(parent).attr('class') == "element"){
@@ -72,6 +138,42 @@ insertElementSequence = function(event){
 	typeID = $(insertButton).parent().siblings(':first').attr('templateid');
 	namespace = $(target).text().split(":")[0];
 	
+	nbElement = $(parent).parent().find("ul").children().length;
+	
+	console.log(nbElement)
+	if (nbElement == 0){
+		path = namespace + ":element";
+//	}else if (nbElement == 1){
+//		path = namespace + ":element[2]";
+//		$($(parent).parent().find("ul").children()[0]).find(".element-wrapper").find(".path").text(namespace + ":element[0]");
+	}else{
+		path = namespace + ":element[" + String(nbElement + 1) + "]";
+	}	
+	
+	xpath = getXPath();
+	
+	// add the new element
+	$(parent).parent().find("ul").append("<li>" +
+											"<div class='element-wrapper'>" +
+												"<span class=path>"+
+												 path +
+												"</span>" +
+												"<span class='newElement'>" +
+													"<span onclick='showMenuElement(event)' style='cursor:pointer;'>" +
+													namespace + ":element : "+ 
+													"</span>" +													
+												"</span>" +
+												"<span class='name'>"+ typeName +"</span>" +
+												"<span class='type'>"+ typeName +"</span>" +
+											"</div>"+
+										"</li>")
+	
+	$( "#dialog-insert-element-sequence" ).dialog("close");
+	
+	Dajaxice.compose.insertElementSequence(Dajax.process, {"typeID": typeID, "xpath":xpath, "typeName": typeName});
+}
+
+getXPath = function(){
 	current = $(target).parent().siblings('.path');
 	xpath = $(current).text();	
 	current = $(current).parent().parent().parent().siblings('.path');
@@ -85,21 +187,5 @@ insertElementSequence = function(event){
 		}		
 	}
 	
-	// add the new element
-	$(parent).parent().find("ul").append("<li>" +
-											"<div class='element-wrapper'>" +
-												"<span class='newElement'>" +
-													"<span>" +namespace + ":element : "+ "</span>" +													
-												"</span>" +
-												"<span class='name'>"+ typeName +"</span>" +
-												"<span class='type'>"+ typeName +"</span>" +
-											"</div>"+
-										"</li>")
-	
-	$( "#dialog-insert-element-sequence" ).dialog("close");
-	
-	Dajaxice.compose.insertElementSequence(Dajax.process, {"typeID": typeID, "xpath":xpath, "typeName": typeName});
+	return xpath;
 }
-
-
-

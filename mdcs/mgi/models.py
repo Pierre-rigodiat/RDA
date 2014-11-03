@@ -70,7 +70,7 @@ class TemplateVersion(Document):
     
 class Type(Document):
     title = StringField(required=True)
-    filename = StringField(required=True)
+    filename = StringField(required=True, unique=True)
     content = StringField(required=True)
     typeVersion = StringField(required=False)
     version = IntField(required=True, unique_with='typeVersion')

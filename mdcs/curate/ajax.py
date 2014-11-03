@@ -968,28 +968,28 @@ def duplicate(request, tagID, xsdForm):
             else:
                 if sequenceChild.attrib.get('type') is not None:
                     #TODO: temporary solution before model change, look for the type in every type
-                    for externalType in Type.objects:
-                        refTypeTree = etree.parse(BytesIO(externalType.content.encode('utf-8')))    
-                        e = refTypeTree.findall("./{0}element[@name='{1}']".format(namespace,sequenceChild.attrib.get('type')))
-                        if e is not None:
-                            textCapitalized = sequenceChild.attrib.get('name')
-                            newTagID = "element" + str(len(mapTagElement.keys()))  
-                            mapTagElement[newTagID] = elementID 
-                            formString += "<li id='" + str(newTagID) + "'><nobr>" + textCapitalized + " "
-                            formString += "<span id='add"+ str(newTagID[7:]) +"' class=\"icon add\" onclick=\"changeHTMLForm('add',this,"+str(newTagID[7:])+");\"></span>"
-                            formString += "<span id='remove"+ str(newTagID[7:]) +"' class=\"icon remove\" onclick=\"changeHTMLForm('remove',this,"+str(newTagID[7:])+");\"></span>"            
-                            formString += duplicateFormSubSection(request, sequenceChild.attrib['type'], refTypeTree, namespace)
-                            formString += "</nobr></li>"
-                            break
-                    else:
-                        textCapitalized = sequenceChild.attrib.get('name')                      
-                        newTagID = "element" + str(len(mapTagElement.keys()))  
-                        mapTagElement[newTagID] = elementID 
-                        formString += "<li id='" + str(newTagID) + "'><nobr>" + textCapitalized + " "
-                        formString += "<span id='add"+ str(newTagID[7:]) +"' class=\"icon add\" onclick=\"changeHTMLForm('add',this,"+str(newTagID[7:])+");\"></span>"
-                        formString += "<span id='remove"+ str(newTagID[7:]) +"' class=\"icon remove\" onclick=\"changeHTMLForm('remove',this,"+str(newTagID[7:])+");\"></span>"           
-                        formString += duplicateFormSubSection(request, sequenceChild.attrib['type'], xmlDocTree, namespace)
-                        formString += "</nobr></li>"            
+#                     for externalType in Type.objects:
+#                         refTypeTree = etree.parse(BytesIO(externalType.content.encode('utf-8')))    
+#                         e = refTypeTree.findall("./{0}element[@name='{1}']".format(namespace,sequenceChild.attrib.get('type')))
+#                         if e is not None:
+#                             textCapitalized = sequenceChild.attrib.get('name')
+#                             newTagID = "element" + str(len(mapTagElement.keys()))  
+#                             mapTagElement[newTagID] = elementID 
+#                             formString += "<li id='" + str(newTagID) + "'><nobr>" + textCapitalized + " "
+#                             formString += "<span id='add"+ str(newTagID[7:]) +"' class=\"icon add\" onclick=\"changeHTMLForm('add',this,"+str(newTagID[7:])+");\"></span>"
+#                             formString += "<span id='remove"+ str(newTagID[7:]) +"' class=\"icon remove\" onclick=\"changeHTMLForm('remove',this,"+str(newTagID[7:])+");\"></span>"            
+#                             formString += duplicateFormSubSection(request, sequenceChild.attrib['type'], refTypeTree, namespace)
+#                             formString += "</nobr></li>"
+#                             break
+                    
+                    textCapitalized = sequenceChild.attrib.get('name')                      
+                    newTagID = "element" + str(len(mapTagElement.keys()))  
+                    mapTagElement[newTagID] = elementID 
+                    formString += "<li id='" + str(newTagID) + "'><nobr>" + textCapitalized + " "
+                    formString += "<span id='add"+ str(newTagID[7:]) +"' class=\"icon add\" onclick=\"changeHTMLForm('add',this,"+str(newTagID[7:])+");\"></span>"
+                    formString += "<span id='remove"+ str(newTagID[7:]) +"' class=\"icon remove\" onclick=\"changeHTMLForm('remove',this,"+str(newTagID[7:])+");\"></span>"           
+                    formString += duplicateFormSubSection(request, sequenceChild.attrib['type'], xmlDocTree, namespace)
+                    formString += "</nobr></li>"            
                 else:
                     textCapitalized = sequenceChild.attrib.get('name')
                     newTagID = "element" + str(len(mapTagElement.keys()))  
@@ -1266,7 +1266,7 @@ def duplicateFormSubSection(request, xpath, xmlTree, namespace):
                             textCapitalized = choiceChild.attrib.get('name')
                             formString += "<option value='" + textCapitalized + "'>" + textCapitalized + "</option></b><br>"
                     formString += "</select>"
-                    formString += "</nobr></li></ul>"
+                    
                     for (counter, choiceChild) in enumerate(choiceChildren):
                         if choiceChild.tag == "{0}element".format(namespace):
                             if((choiceChild.attrib.get('type') == "xsd:string".format(namespace))
@@ -1310,7 +1310,7 @@ def duplicateFormSubSection(request, xpath, xmlTree, namespace):
                     textCapitalized = choiceChild.attrib.get('name')
                     formString += "<option value='" + textCapitalized + "'>" + textCapitalized + "</option></b><br>"
             formString += "</select>"
-            formString += "</nobr></li></ul>"
+            
             for (counter, choiceChild) in enumerate(choiceChildren):
                 if choiceChild.tag == "{0}element".format(namespace):
                     if((choiceChild.attrib.get('type') == "xsd:string".format(namespace))
@@ -1412,6 +1412,12 @@ def get_namespaces(file):
 def generateForm(request):
     print 'BEGIN def generateForm(key,xmlElement)'
     
+    if 'xsd_elements' in request.session:
+        del request.session['xsd_elements']
+    if 'occurrences' in request.session:
+        del request.session['occurrences']
+    if 'mapTagElement' in request.session:
+        del request.session['mapTagElement']  
     request.session['xsd_elements'] = dict()    
     request.session['occurrences'] = dict()
     request.session['mapTagElement'] = dict()

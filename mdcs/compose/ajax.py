@@ -20,7 +20,7 @@ from dajax.core import Dajax
 from dajaxice.decorators import dajaxice_register
 from django.conf import settings
 from mongoengine import *
-from mgi.models import Template, Type
+from mgi.models import Template, Type, XML2Download
 import lxml.etree as etree
 from io import BytesIO
 
@@ -60,11 +60,13 @@ def setCurrentTemplate(request,templateFilename,templateID):
         templateObject = Template.objects.get(pk=templateID)
         xmlDocData = templateObject.content
         request.session['xmlTemplateCompose'] = xmlDocData
+        request.session['newXmlTemplateCompose'] = xmlDocData
     else:
         base_template_path = os.path.join(settings.SITE_ROOT, 'static/resources/xsd/new_base_template.xsd')
         base_template_file = open(base_template_path, 'r')
         base_template_content = base_template_file.read()
         request.session['xmlTemplateCompose'] = base_template_content
+        request.session['newXmlTemplateCompose'] = base_template_content
 
     print 'END def setCurrentTemplate(request)'
     return dajax.json()
@@ -92,6 +94,28 @@ def verifyTemplateIsSelected(request):
     print 'END def verifyTemplateIsSelected(request)'
     return simplejson.dumps({'templateSelected':templateSelected})
 
+
+################################################################################
+# 
+# Function Name: downloadTemplate(request)
+# Inputs:        request - 
+# Outputs:       JSON data with templateSelected 
+# Exceptions:    None
+# Description:   Download the template file
+# 
+################################################################################
+@dajaxice_register
+def downloadTemplate(request):
+    dajax = Dajax()
+    
+    xmlString = request.session['newXmlTemplateCompose']
+    
+    xml2download = XML2Download(xml=xmlString).save()
+    xml2downloadID = str(xml2download.id)
+    
+    dajax.redirect("/curate/view-data/download-XML?id="+xml2downloadID)
+    
+    return dajax.json()
 ################################################################################
 # 
 # Function Name: loadXML(request)
@@ -105,7 +129,12 @@ def verifyTemplateIsSelected(request):
 def loadXML(request):
     dajax = Dajax()
     
+    # get the original string
     xmlString = request.session['xmlTemplateCompose']
+    # reset the string
+    request.session['newXmlTemplateCompose'] = xmlString
+    
+    request.session['includedTypesCompose'] = []
     
     xsltPath = os.path.join(settings.SITE_ROOT, 'static/resources/xsl/xsd2html.xsl')
     xslt = etree.parse(xsltPath)
@@ -157,13 +186,52 @@ def insertElementSequence(request, typeID, xpath, typeName):
     defaultPrefix = request.session['defaultPrefixCompose']
     namespace = request.session['namespacesCompose'][defaultPrefix]
     
-    xmlString = request.session['xmlTemplateCompose']
+    xmlString = request.session['newXmlTemplateCompose']
     dom = etree.parse(BytesIO(xmlString.encode('utf-8')))
     
+    # set the element namespace
     xpath = xpath.replace(defaultPrefix +":", namespace)
+    # add the element to the sequence
     dom.find(xpath).append(etree.Element(namespace+"element", attrib={'type':typeName, 'name':typeName}))
-    request.session['xmlTemplateCompose'] = etree.tostring(dom) 
+    
+    # add the id of the type if not already present
+    if typeID not in request.session['includedTypesCompose']:
+        request.session['includedTypesCompose'].append(typeID)
+        includedType = Type.objects.get(pk=typeID)
+        dom.getroot().insert(0,etree.Element(namespace+"include", attrib={'schemaLocation':includedType.filename}))
+    
+    # save the tree in the session
+    request.session['newXmlTemplateCompose'] = etree.tostring(dom) 
     print etree.tostring(dom)
     
     return dajax.json()
+
+################################################################################
+# 
+# Function Name: renameElement(request, xpath, newName)
+# Inputs:        request - HTTP request
+#                newName - 
+# Outputs:       JSON 
+# Exceptions:    None
+# Description:   replace the current name of the element by the new name
+# 
+################################################################################
+@dajaxice_register
+def renameElement(request, xpath, newName):
+    dajax = Dajax()
     
+    defaultPrefix = request.session['defaultPrefixCompose']
+    namespace = request.session['namespacesCompose'][defaultPrefix]
+    
+    xmlString = request.session['newXmlTemplateCompose']
+    dom = etree.parse(BytesIO(xmlString.encode('utf-8')))
+    
+    # set the element namespace
+    xpath = xpath.replace(defaultPrefix +":", namespace)
+    # add the element to the sequence
+    dom.find(xpath).attrib['name'] = newName
+    
+    # save the tree in the session
+    request.session['newXmlTemplateCompose'] = etree.tostring(dom) 
+    
+    return dajax.json()

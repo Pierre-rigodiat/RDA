@@ -389,6 +389,10 @@ def generateForm(request):
     xmlDocTreeStr = request.session['xmlDocTreeExplore']
     xmlDocTree = etree.fromstring(xmlDocTreeStr)
     
+    if 'mapTagIDElementInfoExplore' in request.session:
+        del request.session['mapTagIDElementInfoExplore']    
+    if 'mapEnumIDChoicesExplore' in request.session:
+        del request.session['mapEnumIDChoicesExplore']
     request.session['mapTagIDElementInfoExplore'] = dict()
     request.session['mapEnumIDChoicesExplore'] = dict()
     request.session['nbChoicesIDExplore'] = '0'

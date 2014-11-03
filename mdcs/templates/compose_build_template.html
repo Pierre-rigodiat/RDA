@@ -146,13 +146,16 @@
 			  
 			  <p class="large">Next compose....</p>
 
-
+		
 
 			</div>
 			
 		      </div>
-
-		      <div id="template_selection">
+		<div class="btn-group pull-right">
+			<button class="btn download"><i class="icon-arrow-down"></i> Download Template</button>
+		    <button class="btn save"><i class="icon-hdd"></i> Save Template </button>		    
+	    </div>
+	    <div id="template_selection">
 		      
 {% if request.session.currentComposeTemplate %} 
 
@@ -161,10 +164,6 @@
 		      <div id="XMLHolder"></div>
 
 				<br/><br/>
-
-		    <script> 	
-				Dajaxice.compose.loadXML(Dajax.process);
-			</script>
 
 {% else %}
 
@@ -313,5 +312,23 @@ verifyTemplateIsSelectedCallback = function(data)
 	</div>
 </div>
 
+<div id="dialog-rename-element" title="Rename Element" style="display:none;">
+	<p>
+		Use the following form to rename the element:
+	</p>
+	<table>
+		<tr>
+			<td>Name:</td>
+			<td><input type="text" id="newElementName"/></td>
+		</tr>
+	</table>
+	<div id="rename-element-error" style="color:red;">
+	</div>
+</div>
+
+
+<script>
+  loadComposeBuildTemplate();
+</script>
 </body>
 </html>

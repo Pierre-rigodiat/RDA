@@ -594,10 +594,7 @@ def curate_enter_data_downloadxsd(request):
             templateObject = Template.objects.get(pk=ObjectId(templateID))
 
             print templateObject
-#            xsdDocData = templateObject.content
-            print XMLSchema.tree
-            root = XMLSchema.tree.getroot()
-            xsdDocData = etree.tostring(root,pretty_print=True)
+            xsdDocData = templateObject.content
 
             xsdEncoded = xsdDocData.encode('utf-8')
             fileObj = StringIO(xsdEncoded)
