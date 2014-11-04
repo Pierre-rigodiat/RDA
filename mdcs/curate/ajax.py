@@ -478,8 +478,77 @@ def generateFormSubSection(request, xpath, xmlTree, namespace):
     if debugON: formString += "xpathFormated: " + xpathFormated.format(namespace)
     e = xmlTree.find(xpathFormated.format(namespace))
 
+    # e is None: no element found with the type
+    # look for an included type
     if e is None:
-        return formString    
+        includedTypes = request.session['includedTypes']
+        if xpath in includedTypes:
+            includedType = Type.objects.get(pk=includedTypes[xpath])
+            includedTypeTree = etree.parse(BytesIO(includedType.content.encode('utf-8')))
+            element = includedTypeTree.find("{0}element".format(namespace))
+            if 'name' in element.attrib:
+                elementStr = element.attrib.get('name')
+            else:
+                elementStr = element.attrib.get('type').split(":")[1]
+            try:
+                addButton = False
+                deleteButton = False
+                nbOccurrences = 1
+             
+                if ('minOccurs' in element.attrib):
+                    if (element.attrib['minOccurs'] == '0'):
+                        deleteButton = True
+                    else:
+                        nbOccurrences = element.attrib['minOccurs']
+                
+                if ('maxOccurs' in element.attrib):
+                    if (element.attrib['maxOccurs'] == "unbounded"):
+                        addButton = True
+                    elif ('minOccurs' in element.attrib):
+                        if (int(element.attrib['maxOccurs']) > int(element.attrib['minOccurs'])
+                            and int(element.attrib['maxOccurs']) > 1):
+                            addButton = True   
+                            
+                elementID = len(xsd_elements)
+                xsd_elements[elementID] = etree.tostring(element)
+                manageOccurences(request, element, elementID)   
+                formString += "<ul>"                                   
+                for x in range (0,int(nbOccurrences)):     
+                    tagID = "element" + str(len(mapTagElement.keys()))  
+                    mapTagElement[tagID] = elementID       
+                    if((element.attrib.get('type') == "xsd:string".format(namespace))
+                          or (element.attrib.get('type') == "xsd:double".format(namespace))
+                          or (element.attrib.get('type') == "xsd:float".format(namespace)) 
+                          or (element.attrib.get('type') == "xsd:integer".format(namespace)) 
+                          or (element.attrib.get('type') == "xsd:anyURI".format(namespace))):
+                        formString += "<li id='" + str(tagID) + "'><nobr>" + elementStr + " <input type='text'>"
+                    else:      
+                        formString += "<li id='" + str(tagID) + "'><nobr>" + elementStr
+                    if (addButton == True):                                
+                        formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" onclick=\"changeHTMLForm('add',this,"+str(tagID[7:])+");\"></span>"
+                    else:
+                        formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" style=\"display:none;\" onclick=\"changeHTMLForm('add',this,"+str(tagID[7:])+");\"></span>"                                                                             
+                    if (deleteButton == True):
+                        formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" onclick=\"changeHTMLForm('remove',this,"+str(tagID[7:])+");\"></span>"
+                    else:
+                        formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" style=\"display:none;\" onclick=\"changeHTMLForm('remove',this,"+str(tagID[7:])+");\"></span>"
+                    if((element.attrib.get('type') == "xsd:string".format(namespace))
+                          or (element.attrib.get('type') == "xsd:double".format(namespace))
+                          or (element.attrib.get('type') == "xsd:float".format(namespace)) 
+                          or (element.attrib.get('type') == "xsd:integer".format(namespace)) 
+                          or (element.attrib.get('type') == "xsd:anyURI".format(namespace))):
+                        pass
+                    else:
+                        formString += generateFormSubSection(request, element.attrib.get('type'), includedTypeTree, namespace)
+                    formString += "</nobr></li>"
+                formString += "</ul>"
+                return formString
+            except:
+                formString += "<ul><li>"+elementStr+"</li></ul>"
+                return formString
+        else:
+            return formString    
+        
     #TODOD: module
 #     if e.attrib.get('name') in mapModules.keys():
 #         formString += mapModules[e.attrib.get('name')]    
@@ -511,6 +580,7 @@ def generateFormSubSection(request, xpath, xmlTree, namespace):
         if complexTypeChild is None:
             return formString
     
+        # skip the annotations
         if (complexTypeChild.tag == "{0}annotation".format(namespace)):
             e.remove(complexTypeChild)
             complexTypeChild = e.find('*')
@@ -1399,6 +1469,22 @@ def get_namespaces(file):
         elif event == "start":
             break
     return ns
+
+def getIncludedTypes(xmlTreeStr, namespace):
+    includedTypes = dict()
+    
+    xmlTree = etree.fromstring(xmlTreeStr)
+    listIncludes = xmlTree.findall("{0}include".format(namespace))
+    if (len(listIncludes) > 0):
+        for include in listIncludes:
+            if 'schemaLocation' in include.attrib:
+                try:
+                    includedType = Type.objects.get(filename=include.attrib['schemaLocation'])
+                    includedTypes[includedType.title] = str(includedType.id)
+                except:
+                    pass
+    
+    return includedTypes
 ################################################################################
 # 
 # Function Name: generateForm(key,xmlElement)
@@ -1493,20 +1579,25 @@ def generateXSDTreeForEnteringData(request):
         setCurrentTemplate(request,templateFilename, templateID)
         xmlDocTree = request.session['xmlDocTree'] 
         
+    # load modules from the database
     html = loadModuleResources(templateID)
     dajax.assign('#modules', 'innerHTML', html)
     mapModules = dict()    
     modules = Module.objects(template=templateID)  
     for module in modules:
         mapModules[module.tag] = module.htmlTag
-    request.session['mapModules'] = mapModules
+    request.session['mapModules'] = mapModules    
     
+    # find the namespaces
     request.session['namespaces'] = get_namespaces(BytesIO(str(xmlDocTree)))
     for prefix, url in request.session['namespaces'].items():
         if (url == "{http://www.w3.org/2001/XMLSchema}"):            
             request.session['defaultPrefix'] = prefix
             break
     
+    # load included types from the database
+    includedTypes = getIncludedTypes(xmlDocTree, request.session['namespaces'][request.session['defaultPrefix']]);
+    request.session['includedTypes'] = includedTypes
     
     if (formString == ""):                
         formString = "<form id=\"dataEntryForm\" name=\"xsdForm\">"

@@ -57,10 +57,17 @@
 									<xsl:value-of select="name(.)" />
 								</span>
 							</xsl:when>
-							<xsl:otherwise>
+							<xsl:when test="contains(name(.),'element')">
 								<span onclick="showMenuElement(event)" style="cursor:pointer;">
 									<xsl:value-of select="name(.)" />
 									<xsl:text> : </xsl:text>
+								</span>
+							</xsl:when>
+							<xsl:when test="contains(name(.),'include')">								
+							</xsl:when>
+							<xsl:otherwise>
+								<span>
+									<xsl:value-of select="name(.)" />
 								</span>
 							</xsl:otherwise>						
 						</xsl:choose>						
