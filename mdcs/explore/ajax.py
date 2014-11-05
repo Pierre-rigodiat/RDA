@@ -145,6 +145,39 @@ def setCurrentTemplate(request,templateFilename, templateID):
     print 'END def setCurrentTemplate(request)'
     return dajax.json()
 
+################################################################################
+# 
+# Function Name: setCurrentUserTemplate(request, templateID):
+# Inputs:        request - 
+#                templateID - 
+# Outputs:       JSON data with success or failure
+# Exceptions:    None
+# Description:   Set the current template to input argument.  Template is read into
+#                an xsdDocTree for use later.
+#
+################################################################################
+@dajaxice_register
+def setCurrentUserTemplate(request, templateID):
+    print 'BEGIN def setCurrentTemplate(request)'    
+
+    # reset global variables
+    request.session['formStringExplore'] = ""
+    request.session['customFormStringExplore'] = ""
+        
+    request.session['exploreCurrentTemplateID'] = templateID
+    request.session.modified = True
+
+    dajax = Dajax()
+
+    templateObject = Template.objects.get(pk=templateID)
+    request.session['exploreCurrentTemplate'] = templateObject.title
+    xmlDocData = templateObject.content
+
+    XMLSchema.tree = etree.parse(BytesIO(xmlDocData.encode('utf-8')))
+    request.session['xmlDocTreeExplore'] = etree.tostring(XMLSchema.tree)
+
+    print 'END def setCurrentTemplate(request)'
+    return dajax.json()
 
 
 ################################################################################
@@ -204,7 +237,7 @@ def generateFormSubSection(request, xpath, elementName, fullPath, xmlTree):
     # e is None: no element found with the type
     # look for an included type
     if e is None:
-        includedTypes = request.session['includedTypes']
+        includedTypes = request.session['includedTypesExplore']
         if xpath in includedTypes:
             includedType = Type.objects.get(pk=includedTypes[xpath])
             includedTypeTree = etree.parse(BytesIO(includedType.content.encode('utf-8')))
@@ -516,10 +549,10 @@ def generateXSDTreeForQueryingData(request):
     request.session['defaultNamespaceExplore'] = defaultNamespace
     
     # load included types from the database
-    if 'includedTypes' in request.session:
-        del request.session['includedTypes']
+    if 'includedTypesExplore' in request.session:
+        del request.session['includedTypesExplore']
     includedTypes = getIncludedTypes(xmlDocTreeStr, defaultNamespace);
-    request.session['includedTypes'] = includedTypes
+    request.session['includedTypesExplore'] = includedTypes
     
     if xmlDocTreeStr == "":
         setCurrentTemplate(request,templateFilename, templateID)        

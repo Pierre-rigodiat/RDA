@@ -1,3 +1,70 @@
+loadTemplateSelectionControllers = function()
+{
+    console.log('BEGIN [loadTemplateSelectionControllers]');
+    $('.btn.set-compose-template').on('click', setComposeCurrentTemplate);
+    $('.btn.set-compose-user-template').on('click', setComposeCurrentUserTemplate);
+    console.log('END [loadTemplateSelectionControllers]');
+}
+
+
+setComposeCurrentTemplate = function()
+{
+    var templateName = $(this).parent().parent().children(':first').text();
+    var templateFilename = $(this).parent().parent().children(':nth-child(2)').text();
+    var tdElement = $(this).parent();
+    var templateID = $(this).parent().parent().children(':first').attr('templateid');
+		
+    tdElement.html('<img src="/static/resources/img/ajax-loader.gif" alt="Loading..."/>');
+    $('.btn.set-template').off('click');
+    
+    console.log('[setCurrentComposeTemplate] Setting '+templateName+' with filename '+templateFilename+' as current template...');
+
+    Dajaxice.compose.setCurrentTemplate(setCurrentTemplateCallback,{'templateFilename':templateFilename,'templateID':templateID});
+
+    return false;
+}
+
+setComposeCurrentUserTemplate = function()
+{
+    var templateName = $(this).parent().parent().children(':first').text();
+    var tdElement = $(this).parent();
+    var templateID = $(this).parent().parent().children(':first').attr('templateid');
+		
+    tdElement.html('<img src="/static/resources/img/ajax-loader.gif" alt="Loading..."/>');
+    $('.btn.set-template').off('click');
+
+    Dajaxice.compose.setCurrentUserTemplate(setCurrentTemplateCallback,{'templateID':templateID});
+
+    return false;
+}
+
+setCurrentTemplateCallback = function(data)
+{
+    Dajax.process(data);
+    console.log('BEGIN [setCurrentTemplateCallback]');
+    console.log('data passed back to callback function: ' + data);
+
+    $('#template_selection').load(document.URL +  ' #template_selection', function() {
+		loadTemplateSelectionControllers();
+		displayTemplateSelectedDialog();
+    });
+    console.log('END [setCurrentTemplateCallback]');
+}
+
+displayTemplateSelectedDialog = function()
+{
+ $(function() {
+    $( "#dialog-message" ).dialog({
+      modal: true,
+      buttons: {
+        Ok: function() {
+          $( this ).dialog( "close" );
+        }
+      }
+    });
+  });
+}
+
 loadComposeBuildTemplate = function(){
 	console.log('BEGIN [loadComposeBuildTemplate]');
 		
@@ -24,10 +91,50 @@ downloadTemplate = function(){
 saveTemplate = function(){
 	console.log('BEGIN [saveTemplate]');
 	
+	$("#new-template-error").html("");
+	
+	$(function() {
+		$("#dialog-save-template").dialog({
+		  modal: true,
+		  width: 400,
+		  height: 250,
+		  buttons: {
+			Save: function() {
+					templateName = $("#newTemplateName").val();
+					if (templateName.length > 0){						
+						Dajaxice.compose.saveTemplate(saveTemplateCallback, {"templateName":templateName});						
+						$( this ).dialog( "close" );
+					}else{
+						$( "#new-template-error" ).html("The name can't be empty.")
+					}					 
+			   	},			      
+		    Cancel: function() {
+		    		$( this ).dialog( "close" );
+		        }
+		      }
+		    });
+	  });
 	
 	console.log('END [saveTemplate]');
 }
 
+
+saveTemplateCallback = function(){
+	console.log('BEGIN [saveTemplateCallback]');
+	
+	$(function() {
+        $( "#dialog-saved-message" ).dialog({
+            modal: true,
+            buttons: {
+		Ok: function() {
+                    $( this ).dialog( "close" );
+                }
+            }
+        });
+    });
+	
+	console.log('END [saveTemplateCallback]');
+}
 
 showhide = function(event){
 	console.log('BEGIN [showhide]');
@@ -51,6 +158,7 @@ var showMenuSequence=function(event){
 	target = event.target;
 	$("<ul id='menu' style='position:absolute;z-index:9999;'>" + 
       "<li><span onclick='displayInsertElementSequenceDialog()'>Add Element</span></li>" +
+      "<li><span onclick='displayChangeTypeDialog()'>Change Type</span></li>" +
       "</ul>")
 		.menu()
 		.appendTo("body")
@@ -98,12 +206,13 @@ displayInsertElementSequenceDialog = function()
 
 displayRenameElementDialog = function()
 {
+	$( "#rename-element-error" ).html("");
 	$("#newElementName").val($(target).parent().siblings('.name').html());
 	$(function() {
 		$( "#dialog-rename-element" ).dialog({
 		  modal: true,
 		  width: 400,
-		  height: 300,
+		  height: 250,
 		  buttons: {
 			Rename: function() {
 					newName = $("#newElementName").val();

@@ -169,18 +169,19 @@
 </div>
 
 {% endif %}
-
+<div style="text-align: center; font-size: 18px;">Templates</div>
+<br/>
 <table class="table table-bordered">
   <tr>
     <th>Template name</th>
     <!--th>Description</th-->
     <th>File name</th>
-    <th>Actions</th>
+    <th width="200">Actions</th>
   </tr>
 			  
-{% for template, isDeleted in templates.items %}
-  {% cycle 'even' '' as rowcolors silent %}
+{% for template, isDeleted in templates.items %}  
   {% if isDeleted == False %} 
+  {% cycle 'even' '' as rowcolors silent %}
   <tr class="{{ rowcolors }}">
     <td templateID='{{template.id}}'>{{ template.title }}</td>
     <td>{{ template.filename }}</td>
@@ -203,6 +204,40 @@
 {% endfor %}
 
 </table>
+
+<div style="text-align: center; font-size: 18px;">User Templates</div>
+<br/>
+{% if userTemplates %}
+<table class="table table-bordered">
+  <tr>
+    <th>Template name</th>
+    <th width="200">Actions</th>
+  </tr>
+{% for template in userTemplates %}
+  {% cycle 'even' '' as rowcolors silent %}
+  <tr class="{{ rowcolors }}">
+    <td templateID='{{template.id}}'>{{ template.title }}</td>
+
+{% if request.session.exploreCurrentTemplateID == template.id|stringformat:"s" %} 
+
+    <td><span style="color:green;font-weight:bold">Current template</span></td>
+
+{% else %}
+
+    <td><button class="btn set-explore-user-template" ><i class="icon-plus-sign"></i> Set as current template</button></td>    
+
+{% endif %}
+
+  </tr>  
+
+{% endfor %}
+</table>
+
+{%else%}
+
+<div style="color:grey;">Create your own templates using the <a href="/compose">Composer</a> and you will be able to use them from this section.</div>
+
+{% endif %}
 
 <div id="dialog-message" title="Template Loaded" style="display:none;">
 <p></p>

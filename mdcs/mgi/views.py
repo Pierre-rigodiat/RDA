@@ -532,8 +532,9 @@ def curate_enter_data_downloadxsd(request):
             templateFilename = request.session['currentTemplate']
             templateID = request.session['currentTemplateID']
 
+            
             templateObject = Template.objects.get(pk=ObjectId(templateID))
-
+                
             print templateObject
             xsdDocData = templateObject.content
 
@@ -1346,4 +1347,34 @@ def help(request):
 #        else:
 #            # the authentication system was unable to verify the username and password
 #            return HttpResponse("HomePage: The username and password were incorrect.")
+
+################################################################################
+#
+# Function Name: compose_downloadxsd(request)
+# Inputs:        request - 
+# Outputs:       XSD representation of the current data instance
+# Exceptions:    None
+# Description:   Returns an XSD representation of the current data instance.
+#                Used when user wants to download the XML file.
+#
+################################################################################
+def compose_downloadxsd(request):
+    if request.user.is_authenticated():                  
+        xml2downloadID = request.GET.get('id','')
+        xmlDataObject = XML2Download.objects.get(pk=xml2downloadID)
+        
+
+        xmlStringEncoded = xmlDataObject.xml.encode('utf-8') 
+        fileObj = StringIO(xmlStringEncoded)
+
+        xmlDataObject.delete()
+
+        response = HttpResponse(FileWrapper(fileObj), content_type='application/xml')
+        response['Content-Disposition'] = 'attachment; filename=' + "new_template.xsd"
+        return response
+    else:
+        if 'loggedOut' in request.session:
+            del request.session['loggedOut']
+        request.session['next'] = '/compose'
+        return redirect('/login')
 

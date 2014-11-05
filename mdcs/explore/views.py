@@ -55,7 +55,8 @@ def index(request):
             currentTemplates[tpl] = templateVersions.isDeleted
     
         context = RequestContext(request, {
-            'templates':currentTemplates
+            'templates':currentTemplates,
+           'userTemplates': Template.objects(user=str(request.user.id)),
         })
         return HttpResponse(template.render(context))
     else:

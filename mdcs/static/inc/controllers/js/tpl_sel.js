@@ -4,8 +4,7 @@ loadTemplateSelectionControllers = function()
 {
     console.log('BEGIN [loadTemplateSelectionControllers]');
     $('.btn.set-template').on('click', setCurrentTemplate);
-    $('.btn.set-compose-template').on('click', setCurrentComposeTemplate);
-    $('.btn.set-explore-template').on('click', setExploreCurrentTemplate);
+    $('.btn.set-curate-user-template').on('click', setCurrentUserTemplate);   
     console.log('END [loadTemplateSelectionControllers]');
 }
 
@@ -863,83 +862,29 @@ setCurrentTemplate = function()
 	
 	console.log('[setCurrentTemplate] Setting '+templateName+' with filename '+templateFilename+' as current template...');
 
-//        Dajaxice.curate.setCurrentTemplate(setCurrentTemplateCallback(templateName,tdElement),{'templateName':templateName});
-//        Dajaxice.curate.setCurrentTemplate(Dajax.process,{'templateFilename':templateFilename});
-        Dajaxice.curate.setCurrentTemplate(setCurrentTemplateCallback,{'templateFilename':templateFilename,'templateID':templateID});
-//        tdElement.html('<span style="color:green;font-weight:bold">Current template</span>');
-        
-
-//        Dajaxice.curate.setCurrentTemplate(setCurrentTemplateCallback(),{'templateName':templateName,'notifElement':tdElement.serializeObject()});
-//        Dajaxice.curate.setCurrentTemplate(Dajax.process);
-	
-//	$.ajax({
-//        url: '/static/inc/controllers/php/schemaLoader.php',
-//        type: 'GET',
-//        success: function(data) {
-//      		/* Generate additional trees for the form */
-//        	generateTrees(tdElement);
-//        	console.log('[setCurrentTemplate] '+templateName+' loaded');
-//        },
-//        error: function() {
-//            console.error("[setCurrentTemplate] A problem occured during template loading");
-//        },
-//        // Form data
-//        data: 'n='+templateName,
-//        //Options to tell JQuery not to process data or worry about content-type
-//        cache: false,
-//        contentType: false,
-//        processData: false
-//    });
+    Dajaxice.curate.setCurrentTemplate(setCurrentTemplateCallback,{'templateFilename':templateFilename,'templateID':templateID});
 
     return false;
 }
 
-
-setCurrentComposeTemplate = function()
+setCurrentUserTemplate = function()
 {
-    var templateName = $(this).parent().parent().children(':first').text();
-    var templateFilename = $(this).parent().parent().children(':nth-child(2)').text();
-    var tdElement = $(this).parent();
-    var templateID = $(this).parent().parent().children(':first').attr('templateid');
+	var templateName = $(this).parent().parent().children(':first').text();
+	var templateID = $(this).parent().parent().children(':first').attr('templateID');
+	var tdElement = $(this).parent();
 		
-    tdElement.html('<img src="/static/resources/img/ajax-loader.gif" alt="Loading..."/>');
-    $('.btn.set-template').off('click');
-    
-    console.log('[setCurrentComposeTemplate] Setting '+templateName+' with filename '+templateFilename+' as current template...');
+	tdElement.html('<img src="/static/resources/img/ajax-loader.gif" alt="Loading..."/>');
+	$('.btn.set-template').off('click');
 
-    Dajaxice.compose.setCurrentTemplate(setCurrentTemplateCallback,{'templateFilename':templateFilename,'templateID':templateID});
+    Dajaxice.curate.setCurrentUserTemplate(setCurrentTemplateCallback,{'templateID':templateID});
 
     return false;
 }
-
-
-setExploreCurrentTemplate = function()
-{
-    var templateName = $(this).parent().parent().children(':first').text();
-    var templateFilename = $(this).parent().parent().children(':nth-child(2)').text();
-    var tdElement = $(this).parent();
-		
-    tdElement.html('<img src="/static/resources/img/ajax-loader.gif" alt="Loading..."/>');
-    $('.btn.set-template').off('click');
-    
-    console.log('[setExploreCurrentTemplate] Setting '+templateName+' with filename '+templateFilename+' as current template...');
-
-    Dajaxice.explore.setCurrentTemplate(setCurrentTemplateCallback,{'templateFilename':templateFilename});
-
-    return false;
-}
-
 
 setCurrentTemplateCallback = function(data)
 {
     Dajax.process(data);
     console.log('BEGIN [setCurrentTemplateCallback]');
-    console.log('data passed back to callback function: ' + data);
-//    location.reload();
-
-//    var messageLocation = $("#main").children(":first");
-//    messageLocation.hide().html("Template Successfully Selected").fadeIn(500);
-//    messageLocation.delay(2000).fadeOut(500);
 
     $('#template_selection').load(document.URL +  ' #template_selection', function() {
 	loadTemplateSelectionControllers();

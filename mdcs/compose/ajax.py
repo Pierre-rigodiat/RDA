@@ -23,6 +23,7 @@ from mongoengine import *
 from mgi.models import Template, Type, XML2Download
 import lxml.etree as etree
 from io import BytesIO
+import hashlib
 
 # XSL file loading
 import os
@@ -41,14 +42,6 @@ import os
 @dajaxice_register
 def setCurrentTemplate(request,templateFilename,templateID):
     print 'BEGIN def setCurrentTemplate(request)'
-    
-    global xmlDocTree
-    global xmlString
-    global formString
-
-    # reset global variables
-    xmlString = ""
-    formString = ""
 
     request.session['currentComposeTemplate'] = templateFilename
     request.session['currentComposeTemplateID'] = templateID
@@ -71,6 +64,36 @@ def setCurrentTemplate(request,templateFilename,templateID):
     print 'END def setCurrentTemplate(request)'
     return dajax.json()
 
+
+################################################################################
+# 
+# Function Name: setCurrentUserTemplate(request,templateID)
+# Inputs:        request - 
+#                templateFilename -  
+# Outputs:       JSON data with success or failure
+# Exceptions:    None
+# Description:   Set the current template to input argument.  Template is read 
+#                into an xsdDocTree for use later.
+#
+################################################################################
+@dajaxice_register
+def setCurrentUserTemplate(request,templateID):
+    print 'BEGIN def setCurrentUserTemplate(request)'    
+
+    
+    request.session['currentComposeTemplateID'] = templateID
+    request.session.modified = True
+    
+    dajax = Dajax()
+    
+    templateObject = Template.objects.get(pk=templateID)
+    request.session['currentComposeTemplate'] = templateObject.title
+    xmlDocData = templateObject.content
+    request.session['xmlTemplateCompose'] = xmlDocData
+    request.session['newXmlTemplateCompose'] = xmlDocData
+
+    print 'END def setCurrentUserTemplate(request)'
+    return dajax.json()
 ################################################################################
 # 
 # Function Name: verifyTemplateIsSelected(request)
@@ -113,7 +136,7 @@ def downloadTemplate(request):
     xml2download = XML2Download(xml=xmlString).save()
     xml2downloadID = str(xml2download.id)
     
-    dajax.redirect("/curate/view-data/download-XML?id="+xml2downloadID)
+    dajax.redirect("/compose/download-XSD?id="+xml2downloadID)
     
     return dajax.json()
 ################################################################################
@@ -210,6 +233,7 @@ def insertElementSequence(request, typeID, xpath, typeName):
 # 
 # Function Name: renameElement(request, xpath, newName)
 # Inputs:        request - HTTP request
+#                xpath - 
 #                newName - 
 # Outputs:       JSON 
 # Exceptions:    None
@@ -235,3 +259,27 @@ def renameElement(request, xpath, newName):
     request.session['newXmlTemplateCompose'] = etree.tostring(dom) 
     
     return dajax.json()
+
+################################################################################
+# 
+# Function Name: saveTemplate(request, templateName)
+# Inputs:        request - HTTP request
+#                templateName - 
+# Outputs:       JSON 
+# Exceptions:    None
+# Description:   save the current template in the database
+# 
+################################################################################
+@dajaxice_register
+def saveTemplate(request, templateName):
+    dajax = Dajax()
+    
+    hash = hashlib.sha1(request.session['newXmlTemplateCompose'])
+    hex_dig = hash.hexdigest()
+    template = Template(title=templateName, filename=templateName, content=request.session['newXmlTemplateCompose'], hash=hex_dig, user=request.user.id)
+    template.save()
+    print template.id
+
+    return dajax.json()
+
+

@@ -199,7 +199,7 @@ def saveXMLDataToDB(request,saveAs):
 
     # SPARQL : transform the XML into RDF/XML
     transform = etree.XSLT(xslt)
-    # add a namespace to the XML string, transformation didn't work well using XML DOM
+    # add a namespace to the XML string, transformation didn't work well using XML DOM    
     template = Template.objects.get(pk=templateID)
     xmlStr = xmlString.replace('>',' xmlns="' + projectURI + template.hash + '">', 1) #TODO: OR schema name...
     # domXML.attrib['xmlns'] = projectURI + schemaID #didn't work well
@@ -288,6 +288,40 @@ def setCurrentTemplate(request,templateFilename,templateID):
     dajax = Dajax()
 
     templateObject = Template.objects.get(pk=templateID)
+    xmlDocData = templateObject.content
+
+    XMLSchema.tree = etree.parse(BytesIO(xmlDocData.encode('utf-8')))
+    request.session['xmlDocTree'] = etree.tostring(XMLSchema.tree)
+
+    print 'END def setCurrentTemplate(request)'
+    return dajax.json()
+
+################################################################################
+# 
+# Function Name: setCurrentUserTemplate(request, templateID)
+# Inputs:        request - 
+#                templateID -  
+# Outputs:       JSON data with success or failure
+# Exceptions:    None
+# Description:   Set the current template to input argument.  Template is read 
+#                into an xsdDocTree for use later.
+#
+################################################################################
+@dajaxice_register
+def setCurrentUserTemplate(request,templateID):
+    print 'BEGIN def setCurrentTemplate(request)'
+
+    # reset global variables
+    request.session['xmlString'] = ""
+    request.session['formString'] = ""
+    
+    request.session['currentTemplateID'] = templateID
+    request.session.modified = True
+    
+    dajax = Dajax()
+
+    templateObject = Template.objects.get(pk=templateID)
+    request.session['currentTemplate'] = templateObject.title
     xmlDocData = templateObject.content
 
     XMLSchema.tree = etree.parse(BytesIO(xmlDocData.encode('utf-8')))

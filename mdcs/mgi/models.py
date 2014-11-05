@@ -58,9 +58,10 @@ class Template(Document):
     filename = StringField(required=True)
     content = StringField(required=True)
     templateVersion = StringField(required=False)
-    version = IntField(required=True, unique_with='templateVersion')
+    version = IntField(required=False)
     hash = StringField(required=True)
-
+    user = IntField(required=False)
+    
 class TemplateVersion(Document):
     versions = ListField(StringField())
     deletedVersions = ListField(StringField())
