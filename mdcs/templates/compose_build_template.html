@@ -115,7 +115,7 @@
 	<ul class="tabbed">
 	  <li><div style="cursor:pointer"><a href="/compose/select-template">Start Template</a></div></li>
 	  <li class="current_page_item"><a href="/compose/build-template">Compose Template</a></li>
-	  <li><div style="cursor:pointer"><a href="/compose/view-template">View Template</a></div></li>
+	  <!-- <li><div style="cursor:pointer"><a href="/compose/view-template">View Template</a></div></li> -->
 	</ul>
 
 	<div class="clearer">&nbsp;</div>
@@ -228,7 +228,7 @@ verifyTemplateIsSelectedCallback = function(data)
 			  <ul class="nice-list">
 			    <li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'img/Orange_Number_1.png' %}"></td><td><div style="cursor:pointer"><a href="/compose/select-template">Start Template</a></div></td></tr></table></li>
 			    <li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'img/Orange_Number_2.png' %}"></td><td><strong><a href="/compose/build-template">Compose Template</a></strong></td></tr></table></li>
-			    <li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'img/Orange_Number_3.png' %}"></td><td><div style="cursor:pointer"><a href="/compose/view-template">View Template</a></td></tr></table></li>
+			    <!-- <li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'img/Orange_Number_3.png' %}"></td><td><div style="cursor:pointer"><a href="/compose/view-template">View Template</a></td></tr></table></li> -->
 			  </ul>
 			</div>
 
@@ -325,6 +325,25 @@ verifyTemplateIsSelectedCallback = function(data)
 		</tr>
 	</table>
 	<div id="rename-element-error" style="color:red;">
+	</div>
+</div>
+
+<div id="dialog-occurrences-element" title="Manage occurrences" style="display:none;">
+	<p>
+		Use the following form to manage the occurrences of the selected element.
+		Accepted values are integers. The keyword "unbounded" can be used for Maximum Occurrences.
+	</p>
+	<table>
+		<tr>
+			<td>Minimum Occurrences:</td>
+			<td><input type="text" id="minOccurrences"/></td>
+		</tr>
+		<tr>
+			<td>Maximum Occurrences:</td>
+			<td><input type="text" id="maxOccurrences"/></td>
+		</tr>
+	</table>
+	<div id="manage-occurrences-error" style="color:red;">
 	</div>
 </div>
 

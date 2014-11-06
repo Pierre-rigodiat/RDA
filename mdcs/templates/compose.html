@@ -113,7 +113,7 @@
 	<ul class="tabbed">
 	  <li class="current_page_item"><a href="/compose/select-template">Start Template</a></li>
 	  <li><div style="cursor:pointer"><a onclick="verifyTemplateIsSelected('/compose/build-template');">Compose Template</a></div></li>
-	  <li><div style="cursor:pointer"><a onclick="verifyTemplateIsSelected('/compose/view-template');">View Template</a></div></li>
+	  <!-- <li><div style="cursor:pointer"><a onclick="verifyTemplateIsSelected('/compose/view-template');">View Template</a></div></li> -->
 	</ul>
 
 	<div class="clearer">&nbsp;</div>
@@ -152,7 +152,7 @@
 			
 		      <div id="template_selection">
 		      
-{% if request.session.composeCurrentTemplate %} 
+{% if request.session.currentComposeTemplateID %} 
 
 {% else %}
 
@@ -320,7 +320,7 @@ verifyTemplateIsSelectedCallback = function(data)
 			  <ul class="nice-list">
 			    <li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'img/Orange_Number_1.png' %}"></td><td><strong><a href="/compose/select-template">Start Template</a></strong></td></tr></table></li>
 			    <li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'img/Orange_Number_2.png' %}"></td><td><div style="cursor:pointer"><a onclick="verifyTemplateIsSelected('/compose/build-template');">Compose Template</a></div></td></tr></table></li>
-			    <li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'img/Orange_Number_3.png' %}"></td><td><div style="cursor:pointer"><a onclick="verifyTemplateIsSelected('/compose/view-template');">View Template</a></td></tr></table></li>
+			    <!-- <li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'img/Orange_Number_3.png' %}"></td><td><div style="cursor:pointer"><a onclick="verifyTemplateIsSelected('/compose/view-template');">View Template</a></td></tr></table></li> -->
 			  </ul>
 			</div>
 
