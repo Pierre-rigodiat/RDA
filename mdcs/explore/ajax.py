@@ -212,7 +212,7 @@ def verifyTemplateIsSelected(request):
 #                xmlTree - 
 # Outputs:       JSON data 
 # Exceptions:    None
-# Description:   Recurcively generates the HTML form from the XML schema
+# Description:   Recursively generates the HTML form from the XML schema
 #
 ################################################################################
 def generateFormSubSection(request, xpath, elementName, fullPath, xmlTree):
@@ -237,61 +237,25 @@ def generateFormSubSection(request, xpath, elementName, fullPath, xmlTree):
     # e is None: no element found with the type
     # look for an included type
     if e is None:
-        includedTypes = request.session['includedTypesExplore']
+        includedTypes = request.session['includedTypes']
         if xpath in includedTypes:
             includedType = Type.objects.get(pk=includedTypes[xpath])
             includedTypeTree = etree.parse(BytesIO(includedType.content.encode('utf-8')))
             element = includedTypeTree.find("{0}element".format(defaultNamespace))
-            if 'name' in element.attrib:
-                textCapitalized = element.attrib.get('name')
-            else:
-                textCapitalized = element.attrib.get('type').split(":")[1]
-            try:
-                formString += "<ul>"
-                if (element.attrib.get('type') == "{0}:string".format(defaultPrefix)
-                      or element.attrib.get('type') == "{0}:double".format(defaultPrefix)
-                      or element.attrib.get('type') == "{0}:float".format(defaultPrefix)
-                      or element.attrib.get('type') == "{0}:integer".format(defaultPrefix)
-                      or element.attrib.get('type') == "{0}:anyURI".format(defaultPrefix)):                                                                
-                    mapTagIDElementInfo = request.session['mapTagIDElementInfoExplore']                  
-                    elementID = len(mapTagIDElementInfo.keys())
-                    formString += "<li id='" + str(elementID) + "'>" + textCapitalized + " <input type='checkbox'>"                         
-                    formString += "</li>"                    
-                    elementInfo = ElementInfo(element.attrib.get('type'),fullPath[1:] + "." + textCapitalized)
-                    mapTagIDElementInfo[elementID] = elementInfo.__to_json__()
-                    request.session['mapTagIDElementInfoExplore'] = mapTagIDElementInfo
-                else:                        
-                    mapTagIDElementInfo = request.session['mapTagIDElementInfoExplore'] 
-                    elementID = len(mapTagIDElementInfo.keys())                        
-                    isEnum = False
-                    # look for enumeration
-                    childElement = includedTypeTree.find("./*[@name='"+element.attrib.get('type')+"']".format(defaultNamespace))
-                    if (childElement is not None):
-                        if(childElement.tag == "{0}simpleType".format(defaultNamespace)):
-                            restrictionChild = childElement.find("{0}restriction".format(defaultNamespace))        
-                            if restrictionChild is not None:                                    
-                                enumChildren = restrictionChild.findall("{0}enumeration".format(defaultNamespace))
-                                if enumChildren is not None:
-                                    formString += "<li id='" + str(elementID) + "'>" + textCapitalized + " <input type='checkbox'>" + "</li>"
-                                    elementInfo = ElementInfo("enum",fullPath[1:]+"." + textCapitalized)
-                                    mapTagIDElementInfo[elementID] = elementInfo.__to_json__()
-                                    request.session['mapTagIDElementInfoExplore'] = mapTagIDElementInfo
-                                    listChoices = []
-                                    for enumChild in enumChildren:
-                                        listChoices.append(enumChild.attrib['value'])
-                                    request.session['mapEnumIDChoicesExplore'][elementID] = listChoices
-                                    isEnum = True
-                    
-                    if(isEnum is not True):                            
-                        formString += "<li>" + textCapitalized + " "
-                        formString += generateFormSubSection(request, element.attrib.get('type'), textCapitalized, fullPath, includedTypeTree)
-                        formString += "</li>"
-                formString += "</ul>"
+            try:                                                    
+                if((element.attrib.get('type') == "xsd:string".format(defaultPrefix))
+                      or (element.attrib.get('type') == "xsd:double".format(defaultPrefix))
+                      or (element.attrib.get('type') == "xsd:float".format(defaultPrefix)) 
+                      or (element.attrib.get('type') == "xsd:integer".format(defaultPrefix)) 
+                      or (element.attrib.get('type') == "xsd:anyURI".format(defaultPrefix))):
+                    formString +=  "<input type='checkbox'>"
+                else:
+                    formString += generateFormSubSection(request, element.attrib.get('type'), elementName, fullPath, includedTypeTree)
                 return formString
             except:
                 return formString
         else:
-            return formString
+            return formString    
 
     if e.tag == "{0}complexType".format(defaultNamespace):
         if debugON: formString += "matched complexType" 

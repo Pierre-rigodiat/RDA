@@ -172,17 +172,35 @@ var showMenuSequence=function(event){
 var showMenuElement=function(event){
 	$("#menu").remove();
 	
+	
 	target = event.target;
-	$("<ul id='menu' style='position:absolute;z-index:9999;'>" + 
-      "<li><span onclick='displayRenameElementDialog()'>Rename</span></li>" +
-      "</ul>")
-		.menu()
-		.appendTo("body")
-		.position({
-	        my: "left top",
-	        at: "left bottom",
-	        of: event.target
-	      }).show();
+	parentPath = $(target).parent().parent().parent().parent().siblings('.path').text();
+	
+	// if root element
+	if(parentPath.indexOf('schema') > -1){
+		$("<ul id='menu' style='position:absolute;z-index:9999;'>" + 
+	      "<li><span onclick='displayRenameElementDialog()'>Rename</span></li>" +
+	      "</ul>")
+			.menu()
+			.appendTo("body")
+			.position({
+		        my: "left top",
+		        at: "left bottom",
+		        of: event.target
+		      }).show();
+	}else{ // not root element
+		$("<ul id='menu' style='position:absolute;z-index:9999;'>" + 
+	      "<li><span onclick='displayRenameElementDialog()'>Rename</span></li>" +
+	      "<li><span onclick='displayOccurrencesElementDialog()'>Manage Occurrences</span></li>" +
+	      "</ul>")
+			.menu()
+			.appendTo("body")
+			.position({
+		        my: "left top",
+		        at: "left bottom",
+		        of: event.target
+		      }).show();
+	}	
 };	
 
 displayInsertElementSequenceDialog = function()
@@ -202,6 +220,44 @@ displayInsertElementSequenceDialog = function()
       }
     });
   });
+}
+
+function isInt(value) {
+  return !isNaN(value) && parseInt(Number(value)) == value && !isNaN(parseInt(value, 10));
+}
+
+displayOccurrencesElementDialog = function()
+{
+	 $( "#manage-occurrences-error" ).html("");
+	 $(function() {
+		xpath = getXPath();
+		Dajaxice.compose.getOccurrences(getOccurrencesCallback,{"xpath":xpath})
+	    $( "#dialog-occurrences-element" ).dialog({
+	      modal: true,
+	      width: 600,
+	      height: 350,
+	      buttons: {
+			Save: function() {
+			  minOccurs = $("#minOccurrences").val();
+			  maxOccurs = $("#maxOccurrences").val();
+			  if (isInt(minOccurs) && (isInt(maxOccurs) || maxOccurs == "unbounded")){
+				  Dajaxice.compose.setOccurrences(Dajax.process,{"xpath":xpath, "minOccurs":minOccurs,"maxOccurs":maxOccurs})
+				  $( this ).dialog( "close" );
+			  }else{
+				  $( "#manage-occurrences-error" ).html('Fields must be integers (or "unbounded" for Max Occurrences only).')
+			  }
+			},
+			Cancel: function() {
+			  $( this ).dialog( "close" );
+			}
+	      }
+	    });
+	  });
+}
+
+getOccurrencesCallback = function(data){
+	$("#minOccurrences").val(data[0].val['minOccurs']);
+	$("#maxOccurrences").val(data[0].val['maxOccurs']);
 }
 
 displayRenameElementDialog = function()

@@ -520,65 +520,17 @@ def generateFormSubSection(request, xpath, xmlTree, namespace):
             includedType = Type.objects.get(pk=includedTypes[xpath])
             includedTypeTree = etree.parse(BytesIO(includedType.content.encode('utf-8')))
             element = includedTypeTree.find("{0}element".format(namespace))
-            if 'name' in element.attrib:
-                elementStr = element.attrib.get('name')
-            else:
-                elementStr = element.attrib.get('type').split(":")[1]
-            try:
-                addButton = False
-                deleteButton = False
-                nbOccurrences = 1
-             
-                if ('minOccurs' in element.attrib):
-                    if (element.attrib['minOccurs'] == '0'):
-                        deleteButton = True
-                    else:
-                        nbOccurrences = element.attrib['minOccurs']
-                
-                if ('maxOccurs' in element.attrib):
-                    if (element.attrib['maxOccurs'] == "unbounded"):
-                        addButton = True
-                    elif ('minOccurs' in element.attrib):
-                        if (int(element.attrib['maxOccurs']) > int(element.attrib['minOccurs'])
-                            and int(element.attrib['maxOccurs']) > 1):
-                            addButton = True   
-                            
-                elementID = len(xsd_elements)
-                xsd_elements[elementID] = etree.tostring(element)
-                manageOccurences(request, element, elementID)   
-                formString += "<ul>"                                   
-                for x in range (0,int(nbOccurrences)):     
-                    tagID = "element" + str(len(mapTagElement.keys()))  
-                    mapTagElement[tagID] = elementID       
-                    if((element.attrib.get('type') == "xsd:string".format(namespace))
-                          or (element.attrib.get('type') == "xsd:double".format(namespace))
-                          or (element.attrib.get('type') == "xsd:float".format(namespace)) 
-                          or (element.attrib.get('type') == "xsd:integer".format(namespace)) 
-                          or (element.attrib.get('type') == "xsd:anyURI".format(namespace))):
-                        formString += "<li id='" + str(tagID) + "'><nobr>" + elementStr + " <input type='text'>"
-                    else:      
-                        formString += "<li id='" + str(tagID) + "'><nobr>" + elementStr
-                    if (addButton == True):                                
-                        formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" onclick=\"changeHTMLForm('add',this,"+str(tagID[7:])+");\"></span>"
-                    else:
-                        formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" style=\"display:none;\" onclick=\"changeHTMLForm('add',this,"+str(tagID[7:])+");\"></span>"                                                                             
-                    if (deleteButton == True):
-                        formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" onclick=\"changeHTMLForm('remove',this,"+str(tagID[7:])+");\"></span>"
-                    else:
-                        formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" style=\"display:none;\" onclick=\"changeHTMLForm('remove',this,"+str(tagID[7:])+");\"></span>"
-                    if((element.attrib.get('type') == "xsd:string".format(namespace))
-                          or (element.attrib.get('type') == "xsd:double".format(namespace))
-                          or (element.attrib.get('type') == "xsd:float".format(namespace)) 
-                          or (element.attrib.get('type') == "xsd:integer".format(namespace)) 
-                          or (element.attrib.get('type') == "xsd:anyURI".format(namespace))):
-                        pass
-                    else:
-                        formString += generateFormSubSection(request, element.attrib.get('type'), includedTypeTree, namespace)
-                    formString += "</nobr></li>"
-                formString += "</ul>"
+            try:                                                    
+                if((element.attrib.get('type') == "xsd:string".format(namespace))
+                      or (element.attrib.get('type') == "xsd:double".format(namespace))
+                      or (element.attrib.get('type') == "xsd:float".format(namespace)) 
+                      or (element.attrib.get('type') == "xsd:integer".format(namespace)) 
+                      or (element.attrib.get('type') == "xsd:anyURI".format(namespace))):
+                    formString +=  "<input type='text'>"
+                else:
+                    formString += generateFormSubSection(request, element.attrib.get('type'), includedTypeTree, namespace)
                 return formString
             except:
-                formString += "<ul><li>"+elementStr+"</li></ul>"
                 return formString
         else:
             return formString    
@@ -1023,7 +975,7 @@ def duplicate(request, tagID, xsdForm):
         
         else:
             
-            #render element
+            # render element
             namespace = namespaces[defaultPrefix]
             if 'type' not in sequenceChild.attrib:
                 if 'ref' in sequenceChild.attrib:
@@ -1080,16 +1032,24 @@ def duplicate(request, tagID, xsdForm):
                             includedType = Type.objects.get(pk=includedTypes[xpath])
                             includedTypeTree = etree.parse(BytesIO(includedType.content.encode('utf-8')))
                             element = includedTypeTree.find("{0}element".format(namespace))
-                            if 'name' in element.attrib:
-                                textCapitalized = element.attrib.get('name')
+                            if 'name' in sequenceChild.attrib:
+                                textCapitalized = sequenceChild.attrib.get('name')
                             else:
-                                textCapitalized = element.attrib.get('type').split(":")[1]
+                                textCapitalized = sequenceChild.attrib.get('type').split(":")[1]
                             newTagID = "element" + str(len(mapTagElement.keys()))
                             mapTagElement[newTagID] = elementID
                             formString += "<li id='" + str(newTagID) + "'><nobr>" + textCapitalized + " "
                             formString += "<span id='add"+ str(newTagID[7:]) +"' class=\"icon add\" onclick=\"changeHTMLForm('add',this,"+str(newTagID[7:])+");\"></span>"
-                            formString += "<span id='remove"+ str(newTagID[7:]) +"' class=\"icon remove\" onclick=\"changeHTMLForm('remove',this,"+str(newTagID[7:])+");\"></span>"            
-                            formString += duplicateFormSubSection(request, sequenceChild.attrib['type'], includedTypeTree, namespace)
+                            formString += "<span id='remove"+ str(newTagID[7:]) +"' class=\"icon remove\" onclick=\"changeHTMLForm('remove',this,"+str(newTagID[7:])+");\"></span>"                        
+                            e = includedTypeTree.find("./*[@type='{0}:{1}']".format(request.session['defaultPrefix'],xpath))
+                            if e is not None:
+                                if ((e.attrib['type'] == "xsd:string".format(namespace)) or 
+                                    (e.attrib['type'] == "xsd:double".format(namespace)) or
+                                    (e.attrib['type'] == "xsd:integer".format(namespace)) or
+                                    (e.attrib['type'] == "xsd:anyURI".format(namespace))):
+                                    formString += " <input type='text'>"
+                            else:
+                                formString += duplicateFormSubSection(request, sequenceChild.attrib['type'], includedTypeTree, namespace)
                             formString += "</nobr></li>"                            
 #TODO: temporary solution before model change, look for the type in every type
 #                     for externalType in Type.objects:
@@ -1585,7 +1545,7 @@ def generateForm(request):
         if debugON: formString += "<b>" + e[0].attrib.get('name') + "</b><br>"
         formString += generateFormSubSection(request, e[0].attrib.get('type'), xmlDocTree,namespace)
         formString += "</div>"
-
+    
     return formString
 
 def loadModuleResources(templateID):

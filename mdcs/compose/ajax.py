@@ -107,11 +107,11 @@ def setCurrentUserTemplate(request,templateID):
 def verifyTemplateIsSelected(request):
     print 'BEGIN def verifyTemplateIsSelected(request)'
     if 'currentComposeTemplate' in request.session:
-      print 'template is selected'
-      templateSelected = 'yes'
+        print 'template is selected'
+        templateSelected = 'yes'
     else:
-      print 'template is not selected'
-      templateSelected = 'no'
+        print 'template is not selected'
+        templateSelected = 'no'
     dajax = Dajax()
 
     print 'END def verifyTemplateIsSelected(request)'
@@ -283,3 +283,73 @@ def saveTemplate(request, templateName):
     return dajax.json()
 
 
+################################################################################
+# 
+# Function Name: getOccurrences(request, xpath)
+# Inputs:        request - HTTP request
+#                xpath -  
+# Outputs:       JSON 
+# Exceptions:    None
+# Description:   Get the occurrences of the selected element
+# 
+################################################################################
+@dajaxice_register
+def getOccurrences(request, xpath):
+    dajax = Dajax()
+    
+    defaultPrefix = request.session['defaultPrefixCompose']
+    namespace = request.session['namespacesCompose'][defaultPrefix]
+    
+    xmlString = request.session['newXmlTemplateCompose']
+    dom = etree.parse(BytesIO(xmlString.encode('utf-8')))
+    
+    # set the element namespace
+    xpath = xpath.replace(defaultPrefix +":", namespace)
+    # add the element to the sequence
+    element = dom.find(xpath)
+    minOccurs = "1"
+    maxOccurs = "1"
+    if 'minOccurs' in element.attrib:
+        minOccurs = element.attrib['minOccurs']
+    if 'maxOccurs' in element.attrib:
+        maxOccurs = element.attrib['maxOccurs']
+    
+    occurs = {'minOccurs':minOccurs, 'maxOccurs':maxOccurs}
+    dajax.add_data(occurs, 'getOccurrencesCallback')
+    
+    return dajax.json()
+
+
+################################################################################
+# 
+# Function Name: setOccurrences(request, xpath, minOccurs, maxOccurs)
+# Inputs:        request - HTTP request
+#                xpath -  
+#                minOccurs -
+#                maxOccurs - 
+# Outputs:       JSON 
+# Exceptions:    None
+# Description:   Set the occurrences of the selected element
+# 
+################################################################################
+@dajaxice_register
+def setOccurrences(request, xpath, minOccurs, maxOccurs):
+    dajax = Dajax()
+    
+    defaultPrefix = request.session['defaultPrefixCompose']
+    namespace = request.session['namespacesCompose'][defaultPrefix]
+    
+    xmlString = request.session['newXmlTemplateCompose']
+    dom = etree.parse(BytesIO(xmlString.encode('utf-8')))
+    
+    # set the element namespace
+    xpath = xpath.replace(defaultPrefix +":", namespace)
+    # add the element to the sequence
+    element = dom.find(xpath)
+    element.attrib['minOccurs'] = minOccurs
+    element.attrib['maxOccurs'] = maxOccurs
+    
+    # save the tree in the session
+    request.session['newXmlTemplateCompose'] = etree.tostring(dom) 
+    
+    return dajax.json()
