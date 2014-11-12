@@ -96,22 +96,30 @@ class ElementOccurrences:
 ################################################################################
 @dajaxice_register
 def getHDF5String(request):
-    print '>>>> BEGIN def getHDF5String(request)'
+#     print '>>>> BEGIN def getHDF5String(request)'
+#     dajax = Dajax() 
+# 
+#     hdf5String = ""
+#     try:
+#         hdf5FileObject = Hdf5file.objects.get(title="hdf5file")
+#         hdf5FileContent = hdf5FileObject.content
+#         hdf5FileObject.delete()
+#         hdf5String = hdf5FileContent.encode('utf-8')
+#     except:
+#         pass
+#     
+#     print hdf5String
+# 
+#     print '>>>> END def getHDF5String(request)'
+#     return simplejson.dumps({'hdf5String':hdf5String})
     dajax = Dajax() 
+    if 'spreadsheetXML' in request.session:
+        spreadsheetXML = request.session['spreadsheetXML']
+        request.session['spreadsheetXML'] = ""
+    else:
+        spreadsheetXML = ""
 
-    hdf5String = ""
-    try:
-        hdf5FileObject = Hdf5file.objects.get(title="hdf5file")
-        hdf5FileContent = hdf5FileObject.content
-        hdf5FileObject.delete()
-        hdf5String = hdf5FileContent.encode('utf-8')
-    except:
-        pass
-    
-    print hdf5String
-
-    print '>>>> END def getHDF5String(request)'
-    return simplejson.dumps({'hdf5String':hdf5String})
+    return simplejson.dumps({'spreadsheetXML':spreadsheetXML})
 
 ################################################################################
 #
@@ -584,10 +592,14 @@ def generateFormSubSection(request, xpath, xmlTree, namespace):
                     if 'type' not in sequenceChild.attrib:
                         if 'ref' in sequenceChild.attrib:  
                             if sequenceChild.attrib.get('ref') == "hdf5:HDF5-File":
-#                                 formString += "<ul><li><i><div id='hdf5File'>" + sequenceChild.attrib.get('ref') + "</div></i> "
-                                formString += "<ul><li><i><div id='hdf5File'>Spreadsheet File</div></i> "
+#                                 formString += "<ul><li><i><div id='hdf5File'>Spreadsheet File</div></i> "
+#                                 formString += "<div class=\"btn select-element\" onclick=\"selectHDF5File('Spreadsheet File',this);\"><i class=\"icon-folder-open\"></i> Upload Spreadsheet </div>"
+#                                 formString += "</li></ul>"
+                                formString += "<div class='module' style='display: inline'>"
                                 formString += "<div class=\"btn select-element\" onclick=\"selectHDF5File('Spreadsheet File',this);\"><i class=\"icon-folder-open\"></i> Upload Spreadsheet </div>"
-                                formString += "</li></ul>"
+                                formString += "<div class='moduleDisplay'></div>"
+                                formString += "<div class='moduleResult' style='display: none'></div>"
+                                formString += "</div>"
                             elif sequenceChild.attrib.get('ref') == "hdf5:Field":
                                 formString += "<ul><li><i><div id='hdf5Field'>" + sequenceChild.attrib.get('ref') + "</div></i> "
                                 formString += "</li></ul>"
@@ -1202,9 +1214,14 @@ def duplicateFormSubSection(request, xpath, xmlTree, namespace):
                     if 'type' not in sequenceChild.attrib:
                         if 'ref' in sequenceChild.attrib: 
                             if sequenceChild.attrib.get('ref') == "hdf5:HDF5-File":
-                                formString += "<ul><li><i><div id='hdf5File'>Spreadsheet File</div></i> "
+#                                 formString += "<ul><li><i><div id='hdf5File'>Spreadsheet File</div></i> "
+#                                 formString += "<div class=\"btn select-element\" onclick=\"selectHDF5File('Spreadsheet File',this);\"><i class=\"icon-folder-open\"></i> Upload Spreadsheet </div>"
+#                                 formString += "</li></ul>"
+                                formString += "<div class='module' style='display: inline'>"
                                 formString += "<div class=\"btn select-element\" onclick=\"selectHDF5File('Spreadsheet File',this);\"><i class=\"icon-folder-open\"></i> Upload Spreadsheet </div>"
-                                formString += "</li></ul>"
+                                formString += "<div class='moduleDisplay'></div>"
+                                formString += "<div class='moduleResult' style='display: none'></div>"
+                                formString += "</div>"
                             elif sequenceChild.attrib.get('ref') == "hdf5:Field":
                                 formString += "<ul><li><i><div id='hdf5Field'>" + sequenceChild.attrib.get('ref') + "</div></i> "
                                 formString += "</li></ul>"
@@ -1518,9 +1535,12 @@ def generateForm(request):
         del request.session['occurrences']
     if 'mapTagElement' in request.session:
         del request.session['mapTagElement']  
+    if 'spreadsheetXML' in request.session:
+        del request.session['spreadsheetXML']
     request.session['xsd_elements'] = dict()    
     request.session['occurrences'] = dict()
     request.session['mapTagElement'] = dict()
+    request.session['spreadsheetXML'] = ""
     defaultPrefix = request.session['defaultPrefix']
     xmlDocTreeStr = request.session['xmlDocTree']
     xmlDocTree = etree.fromstring(xmlDocTreeStr)
@@ -2699,3 +2719,61 @@ def changePassword(request, userid, old_password, password):
 
     
     return dajax.json()
+
+
+# from xlrd import open_workbook
+# 
+# @dajaxice_register
+# def readExcel(request, resourceContent, resourceFilename):
+#     dajax = Dajax()
+#     
+#     request.session['excelContent'] = resourceContent
+#     request.session['excelFilename'] = resourceFilename
+#     
+#     return dajax.json()
+# 
+# 
+# @dajaxice_register
+# def uploadExcel(request):
+#     dajax = Dajax()
+#     
+#     resourceContent = request.session['excelContent']
+#     resourceFilename = request.session['excelFilename']
+#     
+#     book = open_workbook(file_contents=resourceContent)
+#     
+#     root = etree.Element("excel")
+#     root.set("name", str(resourceFilename))
+#     header = etree.SubElement(root, "header")
+#     values = etree.SubElement(root, "values")
+#     
+#     for sheet in book.sheets():
+#         for rowIndex in range(sheet.nrows):
+#     
+#             if rowIndex != 0:
+#                 row = etree.SubElement(values, "row")
+#                 row.set("id", str(rowIndex))
+#     
+#             for colIndex in range(sheet.ncols):
+#                 if rowIndex == 0:
+#                     col = etree.SubElement(header, "col")
+#                 else:
+#                     col = etree.SubElement(row, "col")
+#     
+#                 col.set("id", str(colIndex))
+#                 col.text = str(sheet.cell(rowIndex, colIndex).value)
+#     
+# 
+#     hdf5String = etree.tostring(root)
+# 
+# 
+#     templateID = request.session['currentTemplateID']
+#     existingHDF5files = Hdf5file.objects(schema=templateID)
+#     if existingHDF5files is not None:
+#         for hdf5file in existingHDF5files:
+#             hdf5file.delete()
+#         newHDF5File = Hdf5file(title="hdf5file", schema=templateID, content=hdf5String).save()
+#     else:
+#         newHDF5File = Hdf5file(title="hdf5file", schema=templateID, content=hdf5String).save()
+#     
+#     return dajax.json()

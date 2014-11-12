@@ -1,4 +1,5 @@
-<form action="/curate/upload-hdf5file" method="post" id="file-upload-form" enctype="multipart/form-data"> {% csrf_token %}
-    <input id="yourinputname" type="file" name="yourinputname">
-    <button type="submit" class="btn btn-primary" id='upload-btn'>Upload</button>
+<form action="/curate/upload-spreadsheet" method="post" id="file-upload-form" enctype="multipart/form-data"> 
+	{% csrf_token %}
+	<input type='file' id='excelSpreadsheet' name='excelSpreadsheet'></input>
+	<button class='btn' type="submit" id='uploadSpreadsheet' >Upload</button>
 </form>

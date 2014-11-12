@@ -556,20 +556,20 @@ removeMultipleElement = function(removeButton){
 }
 
 selectHDF5File = function(hdf5File,divElement)
-{
-    console.log('BEGIN [selectHDF5File(' + hdf5File + ',' + divElement + ')]');
-
-    document.getElementById('hdf5File').innerHTML = hdf5File;
-
+{	
     $(function() {
-        $("#dialog-select-hdf5file" ).dialog({
+        //$("#dialog-select-hdf5file" ).dialog({
+    	$('<div id="dialog-select-hdf5file" title="Upload Spreadsheet File" style="display:none;">'+
+    	'<iframe src="/curate/select-hdf5file">'+
+    	'</iframe>'+	
+    	'</div>' ).dialog({
             modal: true,
             buttons: {
-		Done: function() {
-					doSelectHDF5File(divElement);
+            	Done: function() {
+            		doSelectHDF5File(divElement);
                     $( this ).dialog( "close" );
                 },
-		Cancel: function() {
+                Cancel: function() {
                     $( this ).dialog( "close" );
                 }
 	    }
@@ -579,42 +579,24 @@ selectHDF5File = function(hdf5File,divElement)
     console.log('END [selectElement]');
 }
 
+var moduleTag;
+
 doSelectHDF5File = function(divElement)
 {
-    console.log('BEGIN [doSelectHDF5File(' + divElement + ')]');
-
+	moduleTag = $(divElement).parent();
     Dajaxice.curate.getHDF5String(getHDF5StringCallback);
-
-//    var fileObj = document.getElementById('yourinputname').files[0];
-//    document.getElementById('hdf5File').innerHTML = fileObj.name;
-
-//    if (fileObj) {
-//      var r = new FileReader();
-//      r.onload = function(e) { 
-//	  var contents = e.target.result;
-//	  Dajaxice.curate.getHDF5String(getHDF5StringCallback,{'hdf5FileContents':contents});
-//      }
-//      r.readAsText(fileObj);
-//    } else { 
-//      alert("Failed to load file");
-//    }
-
-    console.log('END [doSelectHDF5File(' + divElement + ')]');
 }
 
 getHDF5StringCallback = function(data)
 {
-    console.log('BEGIN [getHDF5StringCallback(' + data + ')]');
+	spreadsheetXML = data.spreadsheetXML;
 
-    hdf5String = data.hdf5String;
-    var rootElement = document.getElementsByName("xsdForm")[0];
-    rootElement.childNodes[0].setAttribute("hdf5ns", "http://hdfgroup.org/HDF5/XML/schema/HDF5-File");
-    console.log(rootElement.parentNode.innerHTML);
-
-    console.log('END [getHDF5StringCallback(' + data + ')]');
+	if (spreadsheetXML != ""){
+		moduleTag.children(".moduleResult").html(spreadsheetXML);
+		moduleTag.children(".moduleDisplay").html("Spreadsheet successfully loaded.");
+	}	
+	
 }
-
-
 
 changeChoice = function(selectObj)
 {

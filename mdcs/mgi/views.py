@@ -34,8 +34,6 @@ from mgi.models import Template, Database, Htmlform, Xmldata, Hdf5file, QueryRes
 from bson.objectid import ObjectId
 import lxml.etree as etree
 import os
-from lxml.etree import Element, SubElement, dump
-from xlrd import open_workbook
 
 # Create your views here.
 
@@ -356,6 +354,7 @@ def curate_select_template(request):
         request.session['next'] = '/curate/select-template'
         return redirect('/login')
 
+
 ################################################################################
 #
 # Function Name: curate_select_hdf5file(request)
@@ -381,6 +380,7 @@ def curate_select_hdf5file(request):
         request.session['next'] = '/curate/select-template'
         return redirect('/login')
 
+from xlrd import open_workbook
 ################################################################################
 #
 # Function Name: curate_upload_hdf5file(request)
@@ -391,8 +391,7 @@ def curate_select_hdf5file(request):
 #                
 #
 ################################################################################
-def curate_upload_hdf5file(request):
-#    logout(request)
+def curate_upload_spreadsheet(request):
     template = loader.get_template('curate_upload_successful.html')
     
     context = RequestContext(request, {
@@ -405,44 +404,44 @@ def curate_upload_hdf5file(request):
             if request.method == 'POST':
                 try:
                     print request.FILES
-                    input_excel = request.FILES['yourinputname']
+                    input_excel = request.FILES['excelSpreadsheet']
                     print input_excel
                     book = open_workbook(file_contents=input_excel.read())
-                    sheetCount = book.nsheets
                     
-                    root = Element("excel")
+                    root = etree.Element("excel")
                     root.set("name", str(input_excel))
-                    header = SubElement(root, "header")
-                    values = SubElement(root, "values")
+                    header = etree.SubElement(root, "header")
+                    values = etree.SubElement(root, "values")
                     
                     for sheet in book.sheets():
                         for rowIndex in range(sheet.nrows):
                     
                             if rowIndex != 0:
-                                row = SubElement(values, "row")
+                                row = etree.SubElement(values, "row")
                                 row.set("id", str(rowIndex))
                     
                             for colIndex in range(sheet.ncols):
                                 if rowIndex == 0:
-                                    col = SubElement(header, "col")
+                                    col = etree.SubElement(header, "column")
                                 else:
-                                    col = SubElement(row, "col")
+                                    col = etree.SubElement(row, "column")
                     
                                 col.set("id", str(colIndex))
                                 col.text = str(sheet.cell(rowIndex, colIndex).value)
                     
     
-                    hdf5String = etree.tostring(root)
-
-    
-                    templateID = request.session['currentTemplateID']
-                    existingHDF5files = Hdf5file.objects(schema=templateID)
-                    if existingHDF5files is not None:
-                        for hdf5file in existingHDF5files:
-                            hdf5file.delete()
-                        newHDF5File = Hdf5file(title="hdf5file", schema=templateID, content=hdf5String).save()
-                    else:
-                        newHDF5File = Hdf5file(title="hdf5file", schema=templateID, content=hdf5String).save()
+                    xmlString = etree.tostring(root)                    
+                    
+                    request.session['spreadsheetXML'] = xmlString                    
+                    
+#                     templateID = request.session['currentTemplateID']
+#                     existingHDF5files = Hdf5file.objects(schema=templateID)
+#                     if existingHDF5files is not None:
+#                         for hdf5file in existingHDF5files:
+#                             hdf5file.delete()
+#                         newHDF5File = Hdf5file(title="hdf5file", schema=templateID, content=hdf5String).save()
+#                     else:
+#                         newHDF5File = Hdf5file(title="hdf5file", schema=templateID, content=hdf5String).save()
                 except:
                     templateError = loader.get_template('curate_upload_failed.html')
                     return HttpResponse(templateError.render(context))

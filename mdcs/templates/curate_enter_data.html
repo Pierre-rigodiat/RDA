@@ -394,63 +394,41 @@
 </div>
 </div>
 
-<div id="dialog-select-hdf5file" title="Upload Spreadsheet File" style="display:none;">
-<p></p>
-<p> 
-
-<iframe src="/curate/select-hdf5file">
-</iframe>
-
-<!-- <input id="yourinputname" type="file" name="yourinputname" style="display:" /> -->
-
-<!--<div class="btn select-hdf5file" onclick=""><i class="icon-folder-open"></i> Select HDF5 File</div>
-<br><br>
-<div id="chosenElement">File Selected: <b id="fileSelected">None</b></div>
--->
-</p>
+<!-- <div id="dialog-select-hdf5file" title="Upload Spreadsheet File" style="display:none;">
+	<table>
+		<tr>
+			<td>
+				<input type='file' id='excelSpreadsheet' name='files[]'></input>
+			</td>
+			<td>
+				<span class='btn' id='uploadSpreadsheet' onclick='uploadSpreadsheet()'>upload</span>
+			</td>
+		</tr>
+	</table>		
 </div>
-
-
 <script>
-/*$(document).ready(function(){
-    $('form').on('submit', function(e){
-        e.preventDefault();
-        var data = new FormData($('form').get(0));
-        $.ajax({
-            url: :"/curate/upload-hdf5file",
-            method: "POST",
-            data: data,
-            success: function(data){alert('success')},
-            error: function(data){alert('error')},
-            processData: false,
-            contentType: false,
-        });
-    });
-return false;
-});*/
-
-function upload(event) {
-event.preventDefault();
-var data = new FormData($('form').get(0));
-
-$.ajax({
-    url: $(this).attr('action'),
-    type: $(this).attr('method'),
-    data: data,
-    cache: false,
-    processData: false,
-    contentType: false,
-    success: function(data) {
-        alert('success');
+document.getElementById('excelSpreadsheet').addEventListener('change',handleExcelUpload, false);
+function handleExcelUpload(evt) {
+	var files = evt.target.files; // FileList object
+    reader = new FileReader();
+    reader.onload = function(e){
+    	Dajaxice.curate.readExcel(Dajax.process,{"resourceContent":reader.result, "resourceFilename":files[0].name});
     }
-});
-return false;
+    reader.readAsText(files[0]);
 }
 
-$(function() {
-    $('form').submit(upload);
-});
+uploadSpreadsheet = function(){
+	Dajaxice.curate.uploadExcel(Dajax.process);
+}
 </script>
+ -->
+
+<div id="dialog-select-hdf5file" title="Upload Spreadsheet File" style="display:none;">
+<iframe src="/curate/select-hdf5file">
+</iframe>	
+</div>
+ 
+
 
 <div id="modules">
 </div>
