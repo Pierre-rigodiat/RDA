@@ -192,6 +192,7 @@ var showMenuElement=function(event){
 		$("<ul id='menu' style='position:absolute;z-index:9999;'>" + 
 	      "<li><span onclick='displayRenameElementDialog()'>Rename</span></li>" +
 	      "<li><span onclick='displayOccurrencesElementDialog()'>Manage Occurrences</span></li>" +
+	      "<li><span onclick='displayDeleteElementDialog()'>Delete</span></li>" +
 	      "</ul>")
 			.menu()
 			.appendTo("body")
@@ -255,9 +256,33 @@ displayOccurrencesElementDialog = function()
 	  });
 }
 
+
 getOccurrencesCallback = function(data){
 	$("#minOccurrences").val(data[0].val['minOccurs']);
 	$("#maxOccurrences").val(data[0].val['maxOccurs']);
+}
+
+displayDeleteElementDialog = function()
+{
+	 $(function() {
+		xpath = getXPath();
+	    $( "#dialog-delete-element" ).dialog({
+	      modal: true,
+	      width: 400,
+	      height: 170,
+	      buttons: {
+			Delete: function() {
+				manageXPath();
+				$(target).parent().parent().parent().remove();				
+				Dajaxice.compose.deleteElement(Dajax.process,{"xpath":xpath});
+				$( this ).dialog( "close" );
+			},
+			Cancel: function() {
+				$( this ).dialog( "close" );
+			}
+	      }
+	    });
+	  });
 }
 
 displayRenameElementDialog = function()
@@ -353,4 +378,16 @@ getXPath = function(){
 	}
 	
 	return xpath;
+}
+
+
+manageXPath = function(){	
+	namespace = $(target).text().split(":")[0];
+	i = 1;
+	$(target).closest("ul").children().each(function(){
+	  if(!($(this).find(".path").html() == $(target).closest("li").find(".path").html() )){
+		  $(this).find(".path").html(namespace + ":element["+i+"]");
+		  i += 1;
+	  }	  
+	})
 }

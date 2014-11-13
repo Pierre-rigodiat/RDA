@@ -610,8 +610,7 @@ changeChoice = function(selectObj)
     		$("#" + selectObj.id + "-" + i).removeAttr("style");
 		} else {
 			$("#" + selectObj.id + "-" + i).attr("style","display:none");
-		}
-    	
+		}    	
     }
 
     console.log('END [changeChoice(' + selectObj.id + ' : ' + selectObj.selectedIndex + ')]');

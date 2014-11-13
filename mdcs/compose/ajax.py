@@ -353,3 +353,35 @@ def setOccurrences(request, xpath, minOccurs, maxOccurs):
     request.session['newXmlTemplateCompose'] = etree.tostring(dom) 
     
     return dajax.json()
+
+
+################################################################################
+# 
+# Function Name: deleteElement(request, xpath)
+# Inputs:        request - HTTP request
+#                xpath - 
+# Outputs:       JSON 
+# Exceptions:    None
+# Description:   delete the element from the template
+# 
+################################################################################
+@dajaxice_register
+def deleteElement(request, xpath):
+    dajax = Dajax()
+    
+    defaultPrefix = request.session['defaultPrefixCompose']
+    namespace = request.session['namespacesCompose'][defaultPrefix]
+    
+    xmlString = request.session['newXmlTemplateCompose']
+    dom = etree.parse(BytesIO(xmlString.encode('utf-8')))
+    
+    # set the element namespace
+    xpath = xpath.replace(defaultPrefix +":", namespace)
+    # add the element to the sequence
+    toRemove = dom.find(xpath)
+    toRemove.getparent().remove(toRemove)
+    
+    # save the tree in the session
+    request.session['newXmlTemplateCompose'] = etree.tostring(dom) 
+    
+    return dajax.json()
