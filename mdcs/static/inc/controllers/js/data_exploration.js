@@ -269,6 +269,28 @@ changeChoice = function(selectObj)
     console.log('END [changeChoice(' + selectObj.id + ' : ' + selectObj.selectedIndex + ')]');
 }
 
+verifyTemplateIsSelectedCustomize = function(){
+    console.log('BEGIN [verifyTemplateIsSelected]');
+
+    Dajaxice.explore.verifyTemplateIsSelected(verifyTemplateIsSelectedCustomizeCallback); 
+
+    console.log('END [verifyTemplateIsSelected]');
+}
+
+verifyTemplateIsSelectedCustomizeCallback = function(data)
+{
+    console.log('BEGIN [verifyTemplateIsSelectedCallback]');
+
+    if (data.templateSelected == 'no') {
+        location.href = "/explore";
+    }else{
+    	loadExploreCurrentTemplateForm();
+    }
+
+    console.log('END [verifyTemplateIsSelectedCallback]');
+}
+
+
 loadExploreCurrentTemplateForm = function()
 {
     console.log('BEGIN [loadExploreCurrentTemplateForm]');

@@ -45,6 +45,8 @@
     {% dajaxice_js_import %}
 </head>
 
+
+
 <body id="top">
 
 <div id="header-wrapper">
@@ -178,44 +180,6 @@
 
 		    </div>
 		  </div>
-
-<script>
-selectedLink = "/compose";
-
-verifyTemplateIsSelected = function(selectedLink_)
-{
-    console.log('BEGIN [verifyTemplateIsSelected]');
-
-    selectedLink = selectedLink_;
-    Dajaxice.compose.verifyTemplateIsSelected(verifyTemplateIsSelectedCallback); // Dajax.process);
-
-    console.log('END [verifyTemplateIsSelected]');
-}
-
-verifyTemplateIsSelectedCallback = function(data)
-{
-    console.log('BEGIN [verifyTemplateIsSelectedCallback]');
-
-    if (data.templateSelected == 'no') {
-        $(function() {
-            $( "#dialog-error-message" ).dialog({
-                modal: true,
-                buttons: {
-                    Ok: function() {
-                    $( this ).dialog( "close" );
-                    }
-                }
-            });
-        });
-    } else {
-        location.href = selectedLink;
-    }
-
-    console.log('END [verifyTemplateIsSelectedCallback]');
-}
-
-</script>
-
 
 		  <div id="sidebar-wrapper">
 		    <div id="sidebar">
@@ -377,7 +341,7 @@ verifyTemplateIsSelectedCallback = function(data)
 </div>
 
 <script>
-  loadComposeBuildTemplate();
+  verifyTemplateIsSelected();
 </script>
 </body>
 </html>

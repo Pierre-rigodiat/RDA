@@ -1,11 +1,41 @@
 loadTemplateSelectionControllers = function()
 {
-    console.log('BEGIN [loadTemplateSelectionControllers]');
+    console.log('BEGIN [loadTemplateSelectionControllers]');    
     $('.btn.set-compose-template').on('click', setComposeCurrentTemplate);
     $('.btn.set-compose-user-template').on('click', setComposeCurrentUserTemplate);
     console.log('END [loadTemplateSelectionControllers]');
 }
 
+verifyTemplateIsSelected = function(){
+    console.log('BEGIN [verifyTemplateIsSelected]');
+
+    Dajaxice.compose.verifyTemplateIsSelected(verifyTemplateIsSelectedCallback); 
+
+    console.log('END [verifyTemplateIsSelected]');
+}
+
+verifyTemplateIsSelectedCallback = function(data)
+{
+    console.log('BEGIN [verifyTemplateIsSelectedCallback]');
+
+    if (data.templateSelected == 'no') {
+        location.href = "/compose";
+    }else{
+    	loadTemplateSelectionControllers();
+    }
+
+    console.log('END [verifyTemplateIsSelectedCallback]');
+}
+
+
+
+verifyNewTemplate = function(){
+	Dajaxice.compose.isNewTemplate(newTemplateCallback);
+}
+
+newTemplateCallback = function(){
+
+}
 
 setComposeCurrentTemplate = function()
 {

@@ -747,37 +747,40 @@ def explore_customize_template(request):
 ################################################################################
 def explore_perform_search(request):
 #    logout(request)
-    template = loader.get_template('explore_perform_search.html')
-    instances = Instance.objects()   
-    if 'HTTPS' in request.META['SERVER_PROTOCOL']:
-        protocol = "https"
-    else:
-        protocol = "http"
-    local = Instance(name="Local", protocol=protocol, address=request.META['REMOTE_ADDR'], port=request.META['SERVER_PORT'])
-    listInstances = [local]
-    for instance in instances:
-        listInstances.append(instance) 
-        
-    template_hash = Template.objects.get(pk=request.session['exploreCurrentTemplateID']).hash
-    
-    queries = SavedQuery.objects(user=str(request.user.id), template=str(request.session['exploreCurrentTemplateID']))
-    context = RequestContext(request, {
-        'instances': listInstances,
-        'template_hash': template_hash,
-        'queries':queries,
-    })
-    request.session['currentYear'] = currentYear()
-    #return HttpResponse(template.render(context))  # remove after testing
-    if request.user.is_authenticated():
-        if 'exploreCurrentTemplateID' not in request.session:
-            return redirect('/explore/select-template')
+    try:
+        template = loader.get_template('explore_perform_search.html')
+        instances = Instance.objects()   
+        if 'HTTPS' in request.META['SERVER_PROTOCOL']:
+            protocol = "https"
         else:
-            return HttpResponse(template.render(context))
-    else:
-        if 'loggedOut' in request.session:
-            del request.session['loggedOut']
-        request.session['next'] = '/explore/perform-search'
-        return redirect('/login')
+            protocol = "http"
+        local = Instance(name="Local", protocol=protocol, address=request.META['REMOTE_ADDR'], port=request.META['SERVER_PORT'])
+        listInstances = [local]
+        for instance in instances:
+            listInstances.append(instance) 
+            
+        template_hash = Template.objects.get(pk=request.session['exploreCurrentTemplateID']).hash
+        
+        queries = SavedQuery.objects(user=str(request.user.id), template=str(request.session['exploreCurrentTemplateID']))
+        context = RequestContext(request, {
+            'instances': listInstances,
+            'template_hash': template_hash,
+            'queries':queries,
+        })
+        request.session['currentYear'] = currentYear()
+        #return HttpResponse(template.render(context))  # remove after testing
+        if request.user.is_authenticated():
+            if 'exploreCurrentTemplateID' not in request.session:
+                return redirect('/explore/select-template')
+            else:
+                return HttpResponse(template.render(context))
+        else:
+            if 'loggedOut' in request.session:
+                del request.session['loggedOut']
+            request.session['next'] = '/explore/perform-search'
+            return redirect('/login')
+    except:
+        return redirect("/explore")
 
 ################################################################################
 #

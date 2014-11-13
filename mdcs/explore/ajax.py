@@ -494,7 +494,7 @@ def generateXSDTreeForQueryingData(request):
     else:
         formString = ''
     
-    if 'xmlDocTree' in request.session:
+    if 'xmlDocTreeExplore' in request.session:
         xmlDocTreeStr = request.session['xmlDocTreeExplore'] 
     else:
         xmlDocTreeStr = ""

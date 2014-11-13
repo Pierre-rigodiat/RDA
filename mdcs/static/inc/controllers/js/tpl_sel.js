@@ -630,6 +630,28 @@ displayTemplateSelectedDialog = function()
   });
 }
 
+verifyTemplateIsSelectedCurateEnterData = function(){
+    console.log('BEGIN [verifyTemplateIsSelected]');
+
+    Dajaxice.curate.verifyTemplateIsSelected(verifyTemplateIsSelectedCurateEnterDataCallback); 
+
+    console.log('END [verifyTemplateIsSelected]');
+}
+
+verifyTemplateIsSelectedCurateEnterDataCallback = function(data)
+{
+    console.log('BEGIN [verifyTemplateIsSelectedCallback]');
+
+    if (data.templateSelected == 'no') {
+        location.href = "/curate";
+    }else{
+    	loadCurrentTemplateFormForCuration();
+    }
+
+    console.log('END [verifyTemplateIsSelectedCallback]');
+}
+
+
 loadCurrentTemplateFormForCuration = function()
 {
     console.log('BEGIN [loadCurrentTemplateFormForCuration]');
@@ -671,6 +693,29 @@ displayTemplateForm = function()
 	
     console.log('END [displayTemplateForm]');
 }
+
+verifyTemplateIsSelectedViewData = function(){
+    console.log('BEGIN [verifyTemplateIsSelected]');
+
+    Dajaxice.curate.verifyTemplateIsSelected(verifyTemplateIsSelectedViewDataCallback); 
+
+    console.log('END [verifyTemplateIsSelected]');
+}
+
+verifyTemplateIsSelectedViewDataCallback = function(data)
+{
+    console.log('BEGIN [verifyTemplateIsSelectedCallback]');
+
+    if (data.templateSelected == 'no') {
+        location.href = "/curate";
+    }else{
+    	loadCurrentTemplateView();
+    	Dajaxice.curate.loadXML(Dajax.process);
+    }
+
+    console.log('END [verifyTemplateIsSelectedCallback]');
+}
+
 
 loadCurrentTemplateView = function()
 {

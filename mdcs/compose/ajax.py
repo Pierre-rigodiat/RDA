@@ -117,6 +117,24 @@ def verifyTemplateIsSelected(request):
     print 'END def verifyTemplateIsSelected(request)'
     return simplejson.dumps({'templateSelected':templateSelected})
 
+################################################################################
+# 
+# Function Name: isNewTemplate(request)
+# Inputs:        request - 
+# Outputs:       JSON data with templateSelected 
+# Exceptions:    None
+# Description:   Verifies the current template is new.
+# 
+################################################################################
+@dajaxice_register
+def isNewTemplate(request):    
+    if 'currentComposeTemplateID' in request.session and request.session['currentComposeTemplateID'] == "new":
+        newTemplate = 'yes'
+    else:
+        newTemplate = 'no'
+    dajax = Dajax()
+    
+    return simplejson.dumps({'newTemplate':newTemplate})
 
 ################################################################################
 # 
