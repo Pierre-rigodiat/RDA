@@ -341,7 +341,23 @@
 </div>
 
 <script>
-  verifyTemplateIsSelected();
+verifyTemplateIsSelectedBuild();
 </script>
+
+<div id="dialog-new-template" title="New Template" style="display:none;">
+<p></p>
+  <p>
+    You are about to create a new template/type. Please provide the name of the type of the root element.
+  </p>
+  <table>
+  	<tr>
+  	<td>Root Type: </td>
+  	<td><input type="text" id="newTemplateTypeName" placeholder="Root"/></td>
+  	</tr>
+  </table>
+  <div style="color:red;" id="newTemplateTypeNameError">
+  </div>
+</div>
+
 </body>
 </html>

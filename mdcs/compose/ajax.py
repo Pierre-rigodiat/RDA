@@ -106,7 +106,7 @@ def setCurrentUserTemplate(request,templateID):
 @dajaxice_register
 def verifyTemplateIsSelected(request):
     print 'BEGIN def verifyTemplateIsSelected(request)'
-    if 'currentComposeTemplate' in request.session:
+    if 'currentComposeTemplateID' in request.session:
         print 'template is selected'
         templateSelected = 'yes'
     else:
@@ -403,3 +403,38 @@ def deleteElement(request, xpath):
     request.session['newXmlTemplateCompose'] = etree.tostring(dom) 
     
     return dajax.json()
+
+################################################################################
+# 
+# Function Name: changeRootTypeName(request, typeName)
+# Inputs:        request - HTTP request
+# Outputs:       JSON 
+# Exceptions:    None
+# Description:   Change the name of the root type
+# 
+################################################################################
+@dajaxice_register
+def changeRootTypeName(request, typeName):
+    dajax = Dajax()
+    
+    defaultPrefix = request.session['defaultPrefixCompose']
+    namespace = request.session['namespacesCompose'][defaultPrefix]
+    
+    xmlString = request.session['newXmlTemplateCompose']
+    dom = etree.parse(BytesIO(xmlString.encode('utf-8')))
+    
+    # root is the only element
+    xpathRoot = namespace + "element"
+    # root type is the only complex type
+    xpathRootType = namespace + "complexType"
+
+    # change the root type name in the dom
+    dom.find(xpathRoot).attrib['type'] = typeName
+    dom.find(xpathRootType).attrib['name'] = typeName
+    
+    # save the tree in the session
+    request.session['newXmlTemplateCompose'] = etree.tostring(dom) 
+    
+    return dajax.json()
+
+

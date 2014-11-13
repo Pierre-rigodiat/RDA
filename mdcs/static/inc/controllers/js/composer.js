@@ -6,35 +6,52 @@ loadTemplateSelectionControllers = function()
     console.log('END [loadTemplateSelectionControllers]');
 }
 
-verifyTemplateIsSelected = function(){
+verifyTemplateIsSelectedBuild = function(){
     console.log('BEGIN [verifyTemplateIsSelected]');
 
-    Dajaxice.compose.verifyTemplateIsSelected(verifyTemplateIsSelectedCallback); 
+    Dajaxice.compose.verifyTemplateIsSelected(verifyTemplateIsSelectedBuildCallback); 
 
     console.log('END [verifyTemplateIsSelected]');
 }
 
-verifyTemplateIsSelectedCallback = function(data)
+verifyTemplateIsSelectedBuildCallback = function(data)
 {
     console.log('BEGIN [verifyTemplateIsSelectedCallback]');
 
     if (data.templateSelected == 'no') {
         location.href = "/compose";
     }else{
-    	loadTemplateSelectionControllers();
+    	loadComposeBuildTemplate();
+    	verifyNewTemplate();
     }
 
     console.log('END [verifyTemplateIsSelectedCallback]');
 }
 
-
-
 verifyNewTemplate = function(){
 	Dajaxice.compose.isNewTemplate(newTemplateCallback);
 }
 
-newTemplateCallback = function(){
-
+newTemplateCallback = function(data){
+	$("#newTemplateTypeNameError").html("");
+	$(function() {
+	    $( "#dialog-new-template" ).dialog({
+	      modal: true,
+	      width:400,
+	      height:270,
+	      buttons: {
+	        Start: function() {
+	          if ($("#newTemplateTypeName").val() == ""){
+	        	  $("#newTemplateTypeNameError").html("The name can't be empty.");
+	          }else{
+	        	  $("#XMLHolder").find(".type").html($("#newTemplateTypeName").val());
+	        	  Dajaxice.compose.changeRootTypeName(Dajax.process, {"typeName":$("#newTemplateTypeName").val()});
+	        	  $( this ).dialog( "close" );
+	          }
+	        }
+	      }
+	    });
+	  });
 }
 
 setComposeCurrentTemplate = function()
