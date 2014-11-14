@@ -296,7 +296,26 @@ def saveTemplate(request, templateName):
     hex_dig = hash.hexdigest()
     template = Template(title=templateName, filename=templateName, content=request.session['newXmlTemplateCompose'], hash=hex_dig, user=request.user.id)
     template.save()
-    print template.id
+
+    return dajax.json()
+
+
+################################################################################
+# 
+# Function Name: saveType(request, typeName)
+# Inputs:        request - HTTP request
+#                typeName - 
+# Outputs:       JSON 
+# Exceptions:    None
+# Description:   save the current type in the database
+# 
+################################################################################
+@dajaxice_register
+def saveType(request, typeName):
+    dajax = Dajax()
+    
+    type = Type(title=typeName, filename=typeName, content=request.session['newXmlTemplateCompose'], user=request.user.id)
+    type.save()
 
     return dajax.json()
 
@@ -437,4 +456,32 @@ def changeRootTypeName(request, typeName):
     
     return dajax.json()
 
-
+################################################################################
+# 
+# Function Name: changeRootTypeName(request, xpath, typeName)
+# Inputs:        request - HTTP request
+#                xpath -
+#                typeName - 
+# Outputs:       JSON 
+# Exceptions:    None
+# Description:   Change the type of the element
+# 
+################################################################################
+@dajaxice_register
+def changeXSDType(request, xpath, newType):
+    dajax = Dajax()
+    
+    defaultPrefix = request.session['defaultPrefixCompose']
+    namespace = request.session['namespacesCompose'][defaultPrefix]
+    
+    xmlString = request.session['newXmlTemplateCompose']
+    dom = etree.parse(BytesIO(xmlString.encode('utf-8')))
+    
+    # set the element namespace
+    xpath = xpath.replace(defaultPrefix +":", namespace)
+    dom.find(xpath).tag = namespace + newType
+    
+    # save the tree in the session
+    request.session['newXmlTemplateCompose'] = etree.tostring(dom) 
+    
+    return dajax.json()

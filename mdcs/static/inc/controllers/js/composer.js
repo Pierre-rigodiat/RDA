@@ -33,25 +33,27 @@ verifyNewTemplate = function(){
 }
 
 newTemplateCallback = function(data){
-	$("#newTemplateTypeNameError").html("");
-	$(function() {
-	    $( "#dialog-new-template" ).dialog({
-	      modal: true,
-	      width:400,
-	      height:270,
-	      buttons: {
-	        Start: function() {
-	          if ($("#newTemplateTypeName").val() == ""){
-	        	  $("#newTemplateTypeNameError").html("The name can't be empty.");
-	          }else{
-	        	  $("#XMLHolder").find(".type").html($("#newTemplateTypeName").val());
-	        	  Dajaxice.compose.changeRootTypeName(Dajax.process, {"typeName":$("#newTemplateTypeName").val()});
-	        	  $( this ).dialog( "close" );
-	          }
-	        }
-	      }
-	    });
-	  });
+	if (data.newTemplate == 'yes'){
+		$("#newTemplateTypeNameError").html("");
+		$(function() {
+		    $( "#dialog-new-template" ).dialog({
+		      modal: true,
+		      width:400,
+		      height:270,
+		      buttons: {
+		        Start: function() {
+		          if ($("#newTemplateTypeName").val() == ""){
+		        	  $("#newTemplateTypeNameError").html("The name can't be empty.");
+		          }else{
+		        	  $("#XMLHolder").find(".type").html($("#newTemplateTypeName").val());
+		        	  Dajaxice.compose.changeRootTypeName(Dajax.process, {"typeName":$("#newTemplateTypeName").val()});
+		        	  $( this ).dialog( "close" );
+		          }
+		        }
+		      }
+		    });
+		  });
+	} 
 }
 
 setComposeCurrentTemplate = function()
@@ -116,7 +118,8 @@ loadComposeBuildTemplate = function(){
 	console.log('BEGIN [loadComposeBuildTemplate]');
 		
 	$('.btn.download').on('click', downloadTemplate);
-	$('.btn.save').on('click', saveTemplate);
+	$('.btn.save.template').on('click', saveTemplate);
+	$('.btn.save.types').on('click', saveType);
 	$(document).on('click', function(event) {
 	  if (!$(event.target).closest('#XMLHolder').length) {
 	    $("#menu").remove();
@@ -154,7 +157,7 @@ saveTemplate = function(){
 					}else{
 						$( "#new-template-error" ).html("The name can't be empty.")
 					}					 
-			   	},			      
+			   	},		      
 		    Cancel: function() {
 		    		$( this ).dialog( "close" );
 		        }
@@ -165,6 +168,32 @@ saveTemplate = function(){
 	console.log('END [saveTemplate]');
 }
 
+
+saveType = function(){
+	console.log('BEGIN [saveType]');
+	
+	typeName = $($("#XMLHolder").find(".type")[0]).html();
+	$("#newTypeName").val(typeName)
+	
+	$(function() {
+		$("#dialog-save-type").dialog({
+		  modal: true,
+		  width: 400,
+		  height: 250,
+		  buttons: {
+			Save: function() {
+					Dajaxice.compose.saveType(saveTemplateCallback, {"typeName":typeName});						
+					$( this ).dialog( "close" );									
+			   	},			      
+		    Cancel: function() {
+		    		$( this ).dialog( "close" );
+		        }
+		      }
+		    });
+	  });
+	
+	console.log('END [saveType]');
+}
 
 saveTemplateCallback = function(){
 	console.log('BEGIN [saveTemplateCallback]');
@@ -269,6 +298,31 @@ displayInsertElementSequenceDialog = function()
     });
   });
 }
+
+displayChangeTypeDialog = function()
+{
+	 $(function() {
+	    $( "#dialog-change-xsd-type" ).dialog({
+	      modal: true,
+	      width: 275,
+	      height: 185,
+	      buttons: {
+	    	Change: function() {
+	    		  newType = $("#newXSDtype").val();
+	    		  xpath = getXPath();
+	    		  oldType = $(target).text().split(":")[1];
+	    		  $(target).html($(target).html().replace(oldType,newType));
+	    		  $(target).parent().siblings(".path").html($(target).parent().siblings(".path").html().replace(oldType,newType));
+	    		  Dajaxice.compose.changeXSDType(Dajax.process,{"xpath":xpath, "newType": newType});
+		          $( this ).dialog( "close" );
+		    },
+	        Cancel: function() {
+	          $( this ).dialog( "close" );
+	        }
+	      }
+	    });
+	  });
+	}
 
 function isInt(value) {
   return !isNaN(value) && parseInt(Number(value)) == value && !isNaN(parseInt(value, 10));

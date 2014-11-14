@@ -997,6 +997,9 @@ def compose_build_template(request):
             type = Type.objects.get(pk=type_version)
             typeVersions = TypeVersion.objects.get(pk=type.typeVersion)
             currentTypes[type] = typeVersions.isDeleted
+        
+        for user_type in Type.objects(user=request.user.id):
+            currentTypes[user_type] = False
     
         context = RequestContext(request, {
            'types':currentTypes

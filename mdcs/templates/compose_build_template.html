@@ -156,8 +156,9 @@
 			
 		      </div>
 		<div class="btn-group pull-right">
-			<button class="btn download"><i class="icon-arrow-down"></i> Download Template</button>
-		    <button class="btn save"><i class="icon-hdd"></i> Save Template </button>		    
+			<button class="btn download"><i class="icon-arrow-down"></i> Download </button>
+		    <button class="btn save template"><i class="icon-hdd"></i> Save Template </button>
+		    <button class="btn save types"><i class="icon-hdd"></i> Save Type </button>		    
 	    </div>
 	    <div id="template_selection">
 		      
@@ -332,12 +333,36 @@
 	</div>
 </div>
 
+<div id="dialog-save-type" title="Save Type" style="display:none;">
+	<p>
+		Enter a name for this type.
+	</p>
+	<table>
+		<tr>
+			<td>Name:</td>
+			<td><input type="text" id="newTypeName" disabled="disabled"/></td>
+		</tr>
+	</table>
+</div>
+
 <div id="dialog-saved-message" title="XML Data Saved" style="display:none;">
 <p></p>
   <p>
     <span class="ui-icon ui-icon-circle-check" style="float:left; margin:0 7px 10px 0;"></span>
-    Save to repository successful.
+    Saved to repository successfully.
   </p>
+</div>
+
+<div id="dialog-change-xsd-type" title="Change Element Type" style="display:none;">
+<p>
+Select the new element type:
+</p>
+ <div>
+ 	<select id="newXSDtype">
+ 		<option value="sequence">Sequence</option>
+ 		<option value="choice">Choice</option>
+ 	</select>
+ </div>
 </div>
 
 <script>

@@ -41,7 +41,12 @@
 										<span onclick="showMenuSequence(event)" style="cursor:pointer;">																								
 											<xsl:value-of select="name(.)" />
 										</span>
-									</xsl:when>									
+									</xsl:when>
+									<xsl:when test="contains(name(.),'choice')">																		
+										<span onclick="showMenuSequence(event)" style="cursor:pointer;">																								
+											<xsl:value-of select="name(.)" />
+										</span>
+									</xsl:when>								
 									<xsl:otherwise>
 										<span>
 											<xsl:value-of select="name(.)" />
