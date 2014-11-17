@@ -50,6 +50,7 @@ import rdfPublisher
 #XSL file loading
 import os
 from json.decoder import JSONDecoder
+from django.core.files.temp import NamedTemporaryFile
 
 # SPARQL : URI for the project (http://www.example.com/)
 projectURI = "http://www.example.com/"
@@ -363,12 +364,15 @@ def verifyTemplateIsSelected(request):
 
 ################################################################################
 # 
-# Function Name: uploadXMLSchema
+# Function Name: uploadObject
 # Inputs:        request - 
-#                XMLSchema - 
+#                objectName - 
+#                objectFilename - 
+#                objectContent -
+#                objectType -
 # Outputs:       JSON data 
 # Exceptions:    None
-# Description:   
+# Description:   Upload of an object (template or type)
 # 
 ################################################################################
 @dajaxice_register
@@ -377,12 +381,38 @@ def uploadObject(request,objectName,objectFilename,objectContent, objectType):
     dajax = Dajax()
 
     #TODO: XML validation
-#     try:
-#         xmlTree = etree.fromstring(xmlSchemaContent)
-#         xmlSchema = etree.XMLSchema(xmlTree)        
-#     except Exception, e:
-#         dajax.script("""alert('"""+e.message.replace("'","") +"""');""")
-#         return dajax.json()
+    try:        
+        xmlTree = etree.parse(BytesIO(objectContent.encode('utf-8')))
+        try:
+            imports = xmlTree.findall("{http://www.w3.org/2001/XMLSchema}import")
+            for import_el in imports:
+                refTemplate = Template.objects.get(filename=import_el.attrib['schemaLocation'])
+                f  = NamedTemporaryFile()
+                f.write(refTemplate.content)
+                f.flush()          
+                #xmlTree.find("{http://www.w3.org/2001/XMLSchema}import").attrib['schemaLocation'] = f.name.replace('\\', '/')
+                import_el.attrib['schemaLocation'] = f.name.replace('\\', '/')
+            
+            includes = xmlTree.findall("{http://www.w3.org/2001/XMLSchema}include")
+            for include_el in includes:
+                refTemplate = Template.objects.get(filename=include_el.attrib['schemaLocation'])
+                f  = NamedTemporaryFile()
+                f.write(refTemplate.content)
+                f.flush()          
+                include_el.attrib['schemaLocation'] = f.name.replace('\\', '/')
+            
+            xmlSchema = etree.XMLSchema(xmlTree)
+        except Exception, e:
+            dajax.script("""
+                $("#objectNameErrorMessage").html("<font color='red'>Not a valid XML schema.</font><br/>"""+e.message.replace("'","") +""" ");
+            """)
+            return dajax.json()
+    except Exception, e:
+        #dajax.script("""alert('"""+e.message.replace("'","") +"""');""")
+        dajax.script("""
+                $("#objectNameErrorMessage").html("<font color='red'>Not a valid XML document.</font><br/>"""+e.message.replace("'","") +""" ");
+            """)
+        return dajax.json()     
     
     if objectType == "Template":
         objectVersions = TemplateVersion(nbVersions=1, isDeleted=False).save()
