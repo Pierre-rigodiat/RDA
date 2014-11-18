@@ -174,10 +174,66 @@ def saveHTMLForm(request,saveAs,content):
     print '>>>> END def updateFormList(request)'
     return dajax.json()
 
+
 ################################################################################
 #
 # Function Name: updateFormList(request)
 # Inputs:        request - 
+# Outputs:       
+# Exceptions:    None
+# Description:   
+#                
+#
+################################################################################
+@dajaxice_register
+def validateXMLData(request, xmlString):
+    dajax = Dajax()
+    
+    templateID = request.session['currentTemplateID']
+    
+    #TODO: XML validation           
+    try:
+        validateXMLDocument(templateID, xmlString)   
+    except Exception, e:
+        message= e.message.replace('"','\'')
+        dajax.script("""
+            $("#saveErrorMessage").html(" """+ message + """ ");
+            saveXMLDataToDBError();
+        """)
+        return dajax.json()
+    
+    return dajax.json()
+
+def validateXMLDocument(templateID, xmlString):
+    template = Template.objects.get(pk=templateID)
+    xmlTree = etree.parse(StringIO(template.content.encode('utf-8')))
+    
+    imports = xmlTree.findall("{http://www.w3.org/2001/XMLSchema}import")
+    for import_el in imports:
+        refTemplate = Template.objects.get(filename=import_el.attrib['schemaLocation'])
+        f  = NamedTemporaryFile()
+        f.write(refTemplate.content)
+        f.flush()          
+        import_el.attrib['schemaLocation'] = f.name.replace('\\', '/')
+    
+    includes = xmlTree.findall("{http://www.w3.org/2001/XMLSchema}include")
+    for include_el in includes:
+        refTemplate = Template.objects.get(filename=include_el.attrib['schemaLocation'])
+        f  = NamedTemporaryFile()
+        f.write(refTemplate.content)
+        f.flush()          
+        include_el.attrib['schemaLocation'] = f.name.replace('\\', '/')
+    
+    xmlSchema = etree.XMLSchema(xmlTree)    
+    xmlDoc = etree.fromstring(xmlString)
+    prettyXMLString = etree.tostring(xmlDoc, pretty_print=True)  
+    #xmlSchema.assertValid(etree.parse(StringIO(xmlString)))
+    xmlSchema.assertValid(etree.parse(StringIO(prettyXMLString)))  
+################################################################################
+#
+# Function Name: saveXMLDataToDB(request, saveAs)
+# Inputs:        request - 
+#                saveAs - title of the document
 # Outputs:       
 # Exceptions:    None
 # Description:   
@@ -192,37 +248,59 @@ def saveXMLDataToDB(request,saveAs):
     xmlString = request.session['xmlString']
     templateID = request.session['currentTemplateID']
 
+    #TODO: XML validation       
+    
+    try:
+        validateXMLDocument(templateID, xmlString)   
+    except Exception, e:
+        message= e.message.replace('"','\'')
+        dajax.script("""
+            $("#saveErrorMessage").html(" """+ message + """ ");
+            saveXMLDataToDBError();
+        """)
+        return dajax.json()
+
     #newXMLData = Xmldata(title=saveAs, schema=templateID, content=xmlString).save()
 
-    newJSONData = Jsondata(schemaID=templateID, xml=xmlString, title=saveAs)
-    docID = newJSONData.save()
-
-    #xsltPath = './xml2rdf3.xsl' #path to xslt on my machine
-    #xsltFile = open(os.path.join(PROJECT_ROOT,'xml2rdf3.xsl'))
-    xsltPath = os.path.join(settings.SITE_ROOT, 'static/resources/xsl/xml2rdf3.xsl')
-    xslt = etree.parse(xsltPath)
-    root = xslt.getroot()
-    namespace = root.nsmap['xsl']
-    URIparam = root.find("{" + namespace +"}param[@name='BaseURI']") #find BaseURI tag to insert the project URI
-    URIparam.text = projectURI + str(docID)
-
-    # SPARQL : transform the XML into RDF/XML
-    transform = etree.XSLT(xslt)
-    # add a namespace to the XML string, transformation didn't work well using XML DOM    
-    template = Template.objects.get(pk=templateID)
-    xmlStr = xmlString.replace('>',' xmlns="' + projectURI + template.hash + '">', 1) #TODO: OR schema name...
-    # domXML.attrib['xmlns'] = projectURI + schemaID #didn't work well
-    domXML = etree.fromstring(xmlStr)
-    domRDF = transform(domXML)
-
-    # SPARQL : get the rdf string
-    rdfStr = etree.tostring(domRDF)
-
-    print "rdf string: " + rdfStr
-
-    # SPARQL : send the rdf to the triplestore
-    rdfPublisher.sendRDF(rdfStr)
-
+    try:
+        newJSONData = Jsondata(schemaID=templateID, xml=xmlString, title=saveAs)
+        docID = newJSONData.save()
+    
+        #xsltPath = './xml2rdf3.xsl' #path to xslt on my machine
+        #xsltFile = open(os.path.join(PROJECT_ROOT,'xml2rdf3.xsl'))
+        xsltPath = os.path.join(settings.SITE_ROOT, 'static/resources/xsl/xml2rdf3.xsl')
+        xslt = etree.parse(xsltPath)
+        root = xslt.getroot()
+        namespace = root.nsmap['xsl']
+        URIparam = root.find("{" + namespace +"}param[@name='BaseURI']") #find BaseURI tag to insert the project URI
+        URIparam.text = projectURI + str(docID)
+    
+        # SPARQL : transform the XML into RDF/XML
+        transform = etree.XSLT(xslt)
+        # add a namespace to the XML string, transformation didn't work well using XML DOM    
+        template = Template.objects.get(pk=templateID)
+        xmlStr = xmlString.replace('>',' xmlns="' + projectURI + template.hash + '">', 1) #TODO: OR schema name...
+        # domXML.attrib['xmlns'] = projectURI + schemaID #didn't work well
+        domXML = etree.fromstring(xmlStr)
+        domRDF = transform(domXML)
+    
+        # SPARQL : get the rdf string
+        rdfStr = etree.tostring(domRDF)
+    
+        print "rdf string: " + rdfStr
+    
+        # SPARQL : send the rdf to the triplestore
+        rdfPublisher.sendRDF(rdfStr)
+        
+        dajax.script("""
+            savedXMLDataToDB();
+        """)
+    except Exception, e:
+        message= e.message.replace('"','\'')
+        dajax.script("""
+            $("#saveErrorMessage").html(" """+ message + """ ");
+            saveXMLDataToDBError();
+        """)
     print '>>>>  END def saveXMLDataToDB(request,saveAs)'
     return dajax.json()
 
@@ -390,7 +468,6 @@ def uploadObject(request,objectName,objectFilename,objectContent, objectType):
                 f  = NamedTemporaryFile()
                 f.write(refTemplate.content)
                 f.flush()          
-                #xmlTree.find("{http://www.w3.org/2001/XMLSchema}import").attrib['schemaLocation'] = f.name.replace('\\', '/')
                 import_el.attrib['schemaLocation'] = f.name.replace('\\', '/')
             
             includes = xmlTree.findall("{http://www.w3.org/2001/XMLSchema}include")

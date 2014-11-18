@@ -180,9 +180,17 @@ viewData = function()
 
     Dajaxice.curate.saveXMLData(saveXMLDataCallback,{'xmlContent':xmlString,'formContent':document.getElementById('xsdForm').innerHTML});
 
-//    alert (formatXml(xmlString));
-
     console.log('END [viewData]');
+}
+
+validateXML = function()
+{
+	var rootElement = document.getElementsByName("xsdForm")[0];
+    var xmlString = '';
+
+    xmlString = generateXMLString (rootElement, xmlString);
+    
+    Dajaxice.curate.validateXMLData(Dajax.process,{'xmlString':xmlString});
 }
 
 saveXMLDataCallback = function()
@@ -196,7 +204,7 @@ saveXMLDataCallback = function()
 
 generateXMLString = function(elementObj)
 {
-//    console.log('BEGIN [generateXMLString]');
+    console.log('BEGIN [generateXMLString]');
 
     var xmlString="";
 
@@ -220,39 +228,41 @@ generateXMLString = function(elementObj)
 		xmlString += generateXMLString(children[i]);
 	    }
 	} else if (children[i].tagName == "LI") {
-	    console.log(children[i].innerHTML);
-	    var nobrNode1 = children[i].children[0];
-	    var nobrNode2 = children[i].children[1];
-	    if (nobrNode1.firstChild != null) {
-		console.log(nobrNode1.firstChild.tagName);
-		if (nobrNode1.firstChild.tagName == "DIV") {
-			tagId = $(nobrNode1.firstChild).attr("id");
-			if (typeof tagId !== typeof undefined && tagId !== false && tagId == "hdf5File") {
-				xmlString += hdf5String
+		if (children[i].style.color != "rgb(216, 216, 216)") {
+		    console.log(children[i].innerHTML);
+		    var nobrNode1 = children[i].children[0];
+		    var nobrNode2 = children[i].children[1];
+		    if (nobrNode1.firstChild != null) {
+			console.log(nobrNode1.firstChild.tagName);
+			if (nobrNode1.firstChild.tagName == "DIV") {
+				tagId = $(nobrNode1.firstChild).attr("id");
+				if (typeof tagId !== typeof undefined && tagId !== false && tagId == "hdf5File") {
+					xmlString += hdf5String
+				}
+	//		    alert("hdf5file matched");
+	//		    xmlString += hdf5String;
+			} else if (nobrNode1.firstChild.nodeValue.trim() != "Choose") {
+			    xmlString += "<" + nobrNode1.firstChild.nodeValue.trim() + ">";
+			    if (nobrNode1.firstChild.nodeValue.trim() == "Table") {
+				xmlString += "table";
+			    }
+			    xmlString += generateXMLString(children[i]);
+			    xmlString += "</" + nobrNode1.firstChild.nodeValue.trim() + ">";
+			} else {
+			    xmlString += generateXMLString(children[i]);
 			}
-//		    alert("hdf5file matched");
-//		    xmlString += hdf5String;
-		} else if (nobrNode1.firstChild.nodeValue.trim() != "Choose") {
-		    xmlString += "<" + nobrNode1.firstChild.nodeValue.trim() + ">";
-		    if (nobrNode1.firstChild.nodeValue.trim() == "Table") {
-			xmlString += "table";
+		    } else if (nobrNode2.firstChild != null) {
+			if (nobrNode2.firstChild.nodeValue.trim() != "Choose") {
+			    xmlString += "<" + nobrNode2.firstChild.nodeValue.trim() + ">";
+			    xmlString += generateXMLString(children[i]);
+			    xmlString += "</" + nobrNode2.firstChild.nodeValue.trim() + ">";
+			} else {
+			    xmlString += generateXMLString(children[i]);
+			}
+		    } else {
+			xmlString += generateXMLString(children[i]);
 		    }
-		    xmlString += generateXMLString(children[i]);
-		    xmlString += "</" + nobrNode1.firstChild.nodeValue.trim() + ">";
-		} else {
-		    xmlString += generateXMLString(children[i]);
 		}
-	    } else if (nobrNode2.firstChild != null) {
-		if (nobrNode2.firstChild.nodeValue.trim() != "Choose") {
-		    xmlString += "<" + nobrNode2.firstChild.nodeValue.trim() + ">";
-		    xmlString += generateXMLString(children[i]);
-		    xmlString += "</" + nobrNode2.firstChild.nodeValue.trim() + ">";
-		} else {
-		    xmlString += generateXMLString(children[i]);
-		}
-	    } else {
-		xmlString += generateXMLString(children[i]);
-	    }
 	}
 	else if (children[i].tagName == "DIV" && $(children[i]).hasClass("module") ){
 		xmlString += $($(children[i]).parent()).find(".moduleResult").html();		
@@ -284,40 +294,9 @@ generateXMLString = function(elementObj)
 	}
     }
     
-//    console.log('END [generateXMLString]');
+    console.log('END [generateXMLString]');
 
     return xmlString
-}
-
-function formatXml(xml) {
-    var formatted = '';
-    var reg = /(>)(<)(\/*)/g;
-    xml = xml.replace(reg, '$1\r\n$2$3');
-    var pad = 0;
-    jQuery.each(xml.split('\r\n'), function(index, node) {
-        var indent = 0;
-        if (node.match( /.+<\/\w[^>]*>$/ )) {
-            indent = 0;
-        } else if (node.match( /^<\/\w/ )) {
-            if (pad != 0) {
-                pad -= 1;
-            }
-        } else if (node.match( /^<\w[^>]*[^\/]>.*$/ )) {
-            indent = 1;
-        } else {
-            indent = 0;
-        }
- 
-        var padding = '';
-        for (var i = 0; i < pad; i++) {
-            padding += '  ';
-        }
- 
-        formatted += padding + node + '\r\n';
-        pad += indent;
-    });
- 
-    return formatted;
 }
 
 saveHTMLFormCallback = function(data)
@@ -424,7 +403,8 @@ doSelectElement = function(divElement)
     var selectedElement = document.getElementById('selectedElement').innerHTML;
     divElement.onclick = function onclick(event) { selectElement(selectedElement,this); }	
 	$($(divElement).parent()).children(".moduleDisplay").html("Current Selection: "+selectedElement);
-	$($(divElement).parent()).children(".moduleResult").html("<element>" + selectedElement + "</element>");
+	//$($(divElement).parent()).children(".moduleResult").html("<element>" + selectedElement + "</element>");
+	$($(divElement).parent()).children(".moduleResult").html(selectedElement);
 	
     // reset for next selection
     document.getElementById('chosenElement').innerHTML = "Chosen Element: <b>None</b>";
@@ -660,6 +640,7 @@ loadCurrentTemplateFormForCuration = function()
     $('.btn.load-form').on('click', loadForm);
     $('.btn.save-form').on('click', saveForm);
     $('.btn.download').on('click', downloadOptions);
+    $('.btn.validate').on('click', validateXML);
     $('.btn.download-xsd').on('click', downloadXSD);
     $('.btn.download-form').on('click', downloadForm);
     $('.btn.download-xml').on('click', downloadXML);
@@ -821,7 +802,14 @@ doSaveToRepository = function()
 {
     console.log('BEGIN [doSaveToRepository]');
 
-    Dajaxice.curate.saveXMLDataToDB(saveXMLDataToDBCallback,{'saveAs':document.getElementById('saveAsInput').value});
+    Dajaxice.curate.saveXMLDataToDB(Dajax.process,{'saveAs':document.getElementById('saveAsInput').value});
+
+    console.log('END [doSaveToRepository]');
+}
+
+savedXMLDataToDB = function()
+{
+    console.log('BEGIN [savedXMLDataToDB]');
 
     $(function() {
         $( "#dialog-saved-message" ).dialog({
@@ -835,17 +823,28 @@ doSaveToRepository = function()
 	    }
         });
     });
-	
-    console.log('END [doSaveToRepository]');
+    
+    console.log('END [savedXMLDataToDB]');
 }
 
-saveXMLDataToDBCallback = function()
+saveXMLDataToDBError = function()
 {
-    console.log('BEGIN [doSaveXMLDataToDBCallback]');
-
-
-    console.log('END [doSaveXMLDataToDBCallback]');
+    console.log('BEGIN [saveXMLDataToDBError]');
+    
+    $(function() {
+        $( "#dialog-save-error-message" ).dialog({
+            modal: true,
+            buttons: {
+            	Ok: function(){
+            		$(this).dialog("close");
+            	}
+            }
+        });
+    });
+    
+    console.log('END [saveXMLDataToDBError]');
 }
+
 
 
 changeHTMLForm = function(operation,selectObj, tagID)
