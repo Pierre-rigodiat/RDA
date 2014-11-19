@@ -202,6 +202,10 @@ def validateXMLData(request, xmlString):
             saveXMLDataToDBError();
         """)
         return dajax.json()
+
+    dajax.script("""
+        viewData();
+    """)
     
     return dajax.json()
 
@@ -261,8 +265,7 @@ def saveXMLDataToDB(request,saveAs):
     xmlString = request.session['xmlString']
     templateID = request.session['currentTemplateID']
 
-    #TODO: XML validation       
-    
+    #TODO: XML validation           
     try:
         validateXMLDocument(templateID, xmlString)   
     except Exception, e:

@@ -640,7 +640,6 @@ loadCurrentTemplateFormForCuration = function()
     $('.btn.load-form').on('click', loadForm);
     $('.btn.save-form').on('click', saveForm);
     $('.btn.download').on('click', downloadOptions);
-    $('.btn.validate').on('click', validateXML);
     $('.btn.download-xsd').on('click', downloadXSD);
     $('.btn.download-form').on('click', downloadForm);
     $('.btn.download-xml').on('click', downloadXML);

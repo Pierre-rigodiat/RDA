@@ -124,8 +124,7 @@
 	<ul class="tabbed">
 	  <li><a href="/curate/select-template">Select Template</a></li>
 	  <li class="current_page_item"><a href="/curate/enter-data">Enter Data</a></li>
-<!--	  <li><a href="/curate/view-data" onclick="viewData();">View Data</a></li> -->
-	  <li><a onclick="viewData();" style="cursor: pointer;">View Data</a></li>
+	  <li><a onclick="validateXML();" style="cursor: pointer;">View Data</a></li>
 	  </ul>
 
 	<div class="clearer">&nbsp;</div>
@@ -166,7 +165,6 @@
     <button class="btn load-form"><i class="icon-folder-open"></i> Load form </button>
     <button class="btn save-form"><i class="icon-hdd"></i> Save form </button>
     <button class="btn download"><i class="icon-arrow-down"></i> Download </button>
-    <button class="btn validate"><i class="icon-check"></i> Validate </button>
   </div>
 
 
@@ -194,7 +192,7 @@
 			  <ul class="nice-list">
 			    <li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'img/Orange_Number_1.png' %}"></td><td><a href="/curate/select-template">Select Template</a></td></tr></table></li>
 			    <li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'img/Orange_Number_2.png' %}"></td><td><strong><a href="/curate/enter-data">Enter Data</a></strong></td></tr></table></li>
-			    <li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'img/Orange_Number_3.png' %}"></td><td><a style="cursor:pointer;" onclick="viewData();">View Data</a></td></tr></table></li>
+			    <li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'img/Orange_Number_3.png' %}"></td><td><a style="cursor:pointer;" onclick="validateXML();">View Data</a></td></tr></table></li>
 			    </ul>
 			  </div>
 
