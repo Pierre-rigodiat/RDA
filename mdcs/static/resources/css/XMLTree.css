@@ -99,6 +99,16 @@ ul.tree ul li:last-child:before {
 	border-radius: 5px;
 }
 
+.occurs {
+	font-weight: bold;
+	color:white;
+	margin-left: 2px;
+	border: 3px solid #BD4B00; 
+	text-align: center; 
+	background: #BD4B00;
+	border-radius: 5px;
+}
+
 .preserve {
 	white-space: pre-wrap;
 }

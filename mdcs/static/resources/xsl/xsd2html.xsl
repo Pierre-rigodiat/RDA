@@ -111,6 +111,36 @@
 								</span>
 								</xsl:when>
 							</xsl:choose>
+							<xsl:if test="contains(name(.),'element')"> 
+								<span class="occurs">
+								(
+								<xsl:choose>
+									<xsl:when test="./@minOccurs">
+										<xsl:value-of select="@minOccurs" />								
+									</xsl:when>
+									<xsl:otherwise>								
+										1								
+									</xsl:otherwise>
+								</xsl:choose>
+								,
+								<xsl:choose>
+									<xsl:when test="./@maxOccurs">
+										<xsl:choose>
+											<xsl:when test="./@maxOccurs='unbounded'">
+											*
+											</xsl:when>
+											<xsl:otherwise>
+												<xsl:value-of select="@maxOccurs" />
+											</xsl:otherwise> 
+										</xsl:choose>
+									</xsl:when>
+									<xsl:otherwise>
+										1								
+									</xsl:otherwise>
+								</xsl:choose>
+								)
+								</span>
+							</xsl:if>
 						</xsl:when>
 						<xsl:otherwise>
 							<ul>
