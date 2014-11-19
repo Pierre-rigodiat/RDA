@@ -328,6 +328,7 @@ function isInt(value) {
   return !isNaN(value) && parseInt(Number(value)) == value && !isNaN(parseInt(value, 10));
 }
 
+
 displayOccurrencesElementDialog = function()
 {
 	 $( "#manage-occurrences-error" ).html("");
@@ -340,14 +341,36 @@ displayOccurrencesElementDialog = function()
 	      height: 350,
 	      buttons: {
 			Save: function() {
-			  minOccurs = $("#minOccurrences").val();
-			  maxOccurs = $("#maxOccurrences").val();
-			  if (isInt(minOccurs) && (isInt(maxOccurs) || maxOccurs == "unbounded")){
-				  Dajaxice.compose.setOccurrences(Dajax.process,{"xpath":xpath, "minOccurs":minOccurs,"maxOccurs":maxOccurs})
-				  $( this ).dialog( "close" );
-			  }else{
-				  $( "#manage-occurrences-error" ).html('Fields must be integers (or "unbounded" for Max Occurrences only).')
-			  }
+				minOccurs = $("#minOccurrences").val();
+				maxOccurs = $("#maxOccurrences").val();
+
+				errors = ""
+
+				if (! isInt(minOccurs)){
+					errors += "minOccurs should be an integer.<br/>";
+				}else {
+					if (minOccurs < 0){
+						errors += "minOccurs should be superior or equal to 0.<br/>";
+					}
+					if (! isInt(maxOccurs)){
+						if (maxOccurs != "unbounded"){
+							errors += "maxOccurs should be an integer or 'unbounded'.<br/>";
+						}
+					}else {
+						if (maxOccurs < 1){
+							errors += "maxOccurs should be superior or equal to 1.<br/>";
+						}else if (maxOccurs < minOccurs){
+							errors += "maxOccurs should be superior or equal to minOccurs.<br/>";
+						}
+					}
+				}
+				
+				if (errors == ""){
+					Dajaxice.compose.setOccurrences(Dajax.process,{"xpath":xpath, "minOccurs":minOccurs,"maxOccurs":maxOccurs});
+					$( this ).dialog( "close" );
+				}else{
+					$( "#manage-occurrences-error" ).html(errors);
+				}
 			},
 			Cancel: function() {
 			  $( this ).dialog( "close" );
