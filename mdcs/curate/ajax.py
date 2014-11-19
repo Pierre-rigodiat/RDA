@@ -177,11 +177,12 @@ def saveHTMLForm(request,saveAs,content):
 
 ################################################################################
 #
-# Function Name: updateFormList(request)
+# Function Name: validateXMLData(request, xmlString)
 # Inputs:        request - 
+#                xmlString - 
 # Outputs:       
 # Exceptions:    None
-# Description:   
+# Description:   Check if the current XML document is valid
 #                
 #
 ################################################################################
@@ -204,6 +205,18 @@ def validateXMLData(request, xmlString):
     
     return dajax.json()
 
+################################################################################
+#
+# Function Name: validateXMLDocument(templateID, xmlString)
+# Inputs:        request - 
+#                templateID - 
+#                xmlString - 
+# Outputs:       
+# Exceptions:    None
+# Description:   Check that the XML document is validated by the template
+#                
+#
+################################################################################
 def validateXMLDocument(templateID, xmlString):
     template = Template.objects.get(pk=templateID)
     xmlTree = etree.parse(StringIO(template.content.encode('utf-8')))
@@ -608,8 +621,6 @@ def deleteXMLType(request,xmlTypeID):
 #
 ################################################################################
 def generateFormSubSection(request, xpath, xmlTree, namespace):
-    print 'BEGIN def generateFormSubSection(xpath,selected,xmlElement)'
-    
     global debugON
     
     xsd_elements = request.session['xsd_elements']
@@ -623,9 +634,12 @@ def generateFormSubSection(request, xpath, xmlTree, namespace):
         print "xpath is none"
         return formString;
 
-    xpathFormated = "./*[@name='"+xpath+"']"
-    if debugON: formString += "xpathFormated: " + xpathFormated.format(namespace)
-    e = xmlTree.find(xpathFormated.format(namespace))
+    if type(xpath) is str:
+        xpathFormated = "./*[@name='"+xpath+"']"
+        if debugON: formString += "xpathFormated: " + xpathFormated.format(namespace)
+        e = xmlTree.find(xpathFormated.format(namespace))
+    else:
+        e = xpath
 
     # e is None: no element found with the type
     # look for an included type
@@ -675,7 +689,6 @@ def generateFormSubSection(request, xpath, xmlTree, namespace):
     
     if e.tag == "{0}complexType".format(namespace):
         if debugON: formString += "matched complexType" 
-        print "matched complexType" + "<br>"
         complexTypeChild = e.find('*')        
                 
         if complexTypeChild is None:
@@ -694,7 +707,6 @@ def generateFormSubSection(request, xpath, xmlTree, namespace):
             sequenceChildren = complexTypeChild.findall('*')
             for sequenceChild in sequenceChildren:
                 if debugON: formString += "SequenceChild:" + sequenceChild.tag + "<br>"
-                print "SequenceChild: " + sequenceChild.tag 
                 if sequenceChild.tag == "{0}element".format(namespace):
                     if 'type' not in sequenceChild.attrib:
                         if 'ref' in sequenceChild.attrib:  
@@ -757,6 +769,46 @@ def generateFormSubSection(request, xpath, xmlTree, namespace):
                                     except:
                                         formString += "<ul><li>"+refTypeStr+"</li></ul>"
                                         print "Unable to find the following reference: " + sequenceChild.attrib.get('ref')
+                        # element with type declared below it
+                        else:                            
+                            textCapitalized = sequenceChild.attrib.get('name')
+                            addButton = False
+                            deleteButton = False
+                            nbOccurrences = 1
+                            if ('minOccurs' in sequenceChild.attrib):
+                                if (sequenceChild.attrib['minOccurs'] == '0'):
+                                    deleteButton = True
+                                else:
+                                    nbOccurrences = sequenceChild.attrib['minOccurs']
+                            
+                            if ('maxOccurs' in sequenceChild.attrib):
+                                if (sequenceChild.attrib['maxOccurs'] == "unbounded"):
+                                    addButton = True
+                                elif ('minOccurs' in sequenceChild.attrib):
+                                    if (int(sequenceChild.attrib['maxOccurs']) > int(sequenceChild.attrib['minOccurs'])
+                                        and int(sequenceChild.attrib['maxOccurs']) > 1):
+                                        addButton = True
+                                        
+                            elementID = len(xsd_elements)
+                            xsd_elements[elementID] = etree.tostring(sequenceChild)
+                            manageOccurences(request, sequenceChild, elementID)
+                            
+                            formString += "<ul>"                                   
+                            for x in range (0,int(nbOccurrences)):     
+                                tagID = "element" + str(len(mapTagElement.keys()))  
+                                mapTagElement[tagID] = elementID             
+                                formString += "<li id='" + str(tagID) + "'><nobr>" + textCapitalized
+                                if (addButton == True):                                
+                                    formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" onclick=\"changeHTMLForm('add',this,"+str(tagID[7:])+");\"></span>"
+                                else:
+                                    formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" style=\"display:none;\" onclick=\"changeHTMLForm('add',this,"+str(tagID[7:])+");\"></span>"                                                                             
+                                if (deleteButton == True):
+                                    formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" onclick=\"changeHTMLForm('remove',this,"+str(tagID[7:])+");\"></span>"
+                                else:
+                                    formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" style=\"display:none;\" onclick=\"changeHTMLForm('remove',this,"+str(tagID[7:])+");\"></span>"
+                                formString += generateFormSubSection(request, sequenceChild[0], xmlTree, namespace)
+                                formString += "</nobr></li>"
+                            formString += "</ul>"                        
                     elif ((sequenceChild.attrib.get('type') == "xsd:string".format(namespace))
                           or (sequenceChild.attrib.get('type') == "xsd:double".format(namespace))
                           or (sequenceChild.attrib.get('type') == "xsd:float".format(namespace)) 
@@ -842,7 +894,7 @@ def generateFormSubSection(request, xpath, xmlTree, namespace):
                                 formString += "</nobr></li>"
                             formString += "</ul>"
                         else:
-                            print "No Type"
+                            print "No Type:" + sequenceChild.attrib['name']
                 elif sequenceChild.tag == "{0}choice".format(namespace):
                     chooseID = nbChoicesID
                     chooseIDStr = 'choice' + str(chooseID)
@@ -1124,6 +1176,15 @@ def duplicate(request, tagID, xsdForm):
                             except:
                                 formString += "<ul><li>"+refTypeStr+"</li></ul>"
                                 print "Unable to find the following reference: " + sequenceChild.attrib.get('ref')
+                else:
+                    textCapitalized = sequenceChild.attrib.get('name')
+                    newTagID = "element" + str(len(mapTagElement.keys()))  
+                    mapTagElement[newTagID] = elementID  
+                    formString += "<li id='" + str(newTagID) + "'><nobr>" + textCapitalized + " "
+                    formString += "<span id='add"+ str(newTagID[7:]) +"' class=\"icon add\" onclick=\"changeHTMLForm('add',this,"+str(newTagID[7:])+");\"></span>"
+                    formString += "<span id='remove"+ str(newTagID[7:]) +"' class=\"icon remove\" onclick=\"changeHTMLForm('remove',this,"+str(newTagID[7:])+");\"></span>"            
+                    formString += duplicateFormSubSection(request, sequenceChild[0], xmlDocTree, namespace)
+                    formString += "</nobr></li>"
             elif sequenceChild.attrib.get('type') == "xsd:string".format(namespace):
                 textCapitalized = sequenceChild.attrib.get('name')                                     
                 newTagID = "element" + str(len(mapTagElement.keys())) 
@@ -1253,12 +1314,15 @@ def duplicateFormSubSection(request, xpath, xmlTree, namespace):
 #     mapModules = request.session['mapModules']
     namespaces = request.session['namespaces']
     nbChoicesID = int(request.session['nbChoicesID'])
-    formString = ""
-
-    xpathFormated = "./*[@name='"+xpath+"']"
-    if debugON: formString += "xpathFormated: " + xpathFormated.format(namespace)
-    e = xmlTree.find(xpathFormated.format(namespace))
+    formString = ""    
  
+    if type(xpath) is str:
+        xpathFormated = "./*[@name='"+xpath+"']"
+        if debugON: formString += "xpathFormated: " + xpathFormated.format(namespace)
+        e = xmlTree.find(xpathFormated.format(namespace))
+    else:
+        e = xpath
+        
     if e is None:
         return formString    
     
@@ -1805,6 +1869,7 @@ def manageVersions(request, objectID, objectType):
     htmlVersionsList = "<p><b>upload new version:</b>"
     htmlVersionsList += "<input type='file' id='fileVersion' name='files[]'></input>"
     htmlVersionsList += "<span class='btn' id='updateVersionBtn' versionid='"+str(objectVersions.id)+"' objectType='"+ objectType +"' onclick='uploadVersion()'>upload</span></p>"
+    htmlVersionsList += "<div id='versionNameErrorMessage'></div>"
     htmlVersionsList += "<table>"    
     
     
@@ -1888,9 +1953,8 @@ def setTypeVersionContent(request, versionContent, versionFilename):
 
 @dajaxice_register
 def uploadVersion(request, objectVersionID, objectType):
-    dajax = Dajax()
-    
-    
+    dajax = Dajax()    
+        
     if objectType == "Template":      
         if ('xsdVersionContent' in request.session 
         and 'xsdVersionFilename' in request.session 
@@ -1900,6 +1964,37 @@ def uploadVersion(request, objectVersionID, objectType):
             object = Template.objects.get(pk=objectVersions.current)
             versionContent = request.session['xsdVersionContent']
             versionFilename = request.session['xsdVersionFilename']
+            
+            try:        
+                xmlTree = etree.parse(BytesIO(versionContent.encode('utf-8')))
+                try:
+                    imports = xmlTree.findall("{http://www.w3.org/2001/XMLSchema}import")
+                    for import_el in imports:
+                        refTemplate = Template.objects.get(filename=import_el.attrib['schemaLocation'])
+                        f  = NamedTemporaryFile()
+                        f.write(refTemplate.content)
+                        f.flush()          
+                        import_el.attrib['schemaLocation'] = f.name.replace('\\', '/')
+                    
+                    includes = xmlTree.findall("{http://www.w3.org/2001/XMLSchema}include")
+                    for include_el in includes:
+                        refTemplate = Template.objects.get(filename=include_el.attrib['schemaLocation'])
+                        f  = NamedTemporaryFile()
+                        f.write(refTemplate.content)
+                        f.flush()          
+                        include_el.attrib['schemaLocation'] = f.name.replace('\\', '/')
+                    
+                    xmlSchema = etree.XMLSchema(xmlTree)
+                except Exception, e:
+                    dajax.script("""
+                        $("#versionNameErrorMessage").html("<font color='red'>Not a valid XML schema.</font><br/>"""+e.message.replace("'","") +""" ");
+                    """)
+                    return dajax.json()
+            except Exception, e:
+                dajax.script("""
+                        $("#versionNameErrorMessage").html("<font color='red'>Not a valid XML document.</font><br/>"""+e.message.replace("'","") +""" ");
+                    """)
+                return dajax.json()
         else:
             return dajax.json()
     else:
@@ -1930,6 +2025,7 @@ def uploadVersion(request, objectVersionID, objectType):
         htmlVersionsList = "<p><b>upload new version:</b>"
         htmlVersionsList += "<input type='file' id='fileVersion' name='files[]'></input>"
         htmlVersionsList += "<span class='btn' id='updateVersionBtn' versionid='"+str(objectVersions.id)+"' objectType='"+ objectType +"' onclick='uploadVersion()'>upload</span></p>"
+        htmlVersionsList += "<div id='versionNameErrorMessage'></div>"
         htmlVersionsList += "<table>"    
         
         
@@ -2001,6 +2097,7 @@ def setCurrentVersion(request, objectid, objectType):
     htmlVersionsList = "<p><b>upload new version:</b>"
     htmlVersionsList += "<input type='file' id='fileVersion' name='files[]'></input>"
     htmlVersionsList += "<span class='btn' id='updateVersionBtn' versionid='"+str(objectVersions.id)+"' objectType='"+ objectType +"' onclick='uploadVersion()'>upload</span></p>"
+    htmlVersionsList += "<div id='versionNameErrorMessage'></div>"
     htmlVersionsList += "<table>"    
     
     
@@ -2083,6 +2180,7 @@ def deleteVersion(request, objectid, objectType, newCurrent):
         htmlVersionsList = "<p><b>upload new version:</b>"
         htmlVersionsList += "<input type='file' id='fileVersion' name='files[]'></input>"
         htmlVersionsList += "<span class='btn' id='updateVersionBtn' versionid='"+str(objectVersions.id)+"' objectType='"+ objectType +"' onclick='uploadVersion()'>upload</span></p>"
+        htmlVersionsList += "<div id='versionNameErrorMessage'></div>"
         htmlVersionsList += "<table>"    
         
         
@@ -2238,6 +2336,7 @@ def restoreVersion(request, objectid, objectType):
     htmlVersionsList = "<p><b>upload new version:</b>"
     htmlVersionsList += "<input type='file' id='fileVersion' name='files[]'></input>"
     htmlVersionsList += "<span class='btn' id='updateVersionBtn' versionid='"+str(objectVersions.id)+"' objectType='"+ objectType +"' onclick='uploadVersion()'>upload</span></p>"
+    htmlVersionsList += "<div id='versionNameErrorMessage'></div>"
     htmlVersionsList += "<table>"    
     
     

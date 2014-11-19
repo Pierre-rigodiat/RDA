@@ -230,9 +230,14 @@ def generateFormSubSection(request, xpath, elementName, fullPath, xmlTree):
         print "xpath is none"
         return formString;
 
-    xpathFormated = "./*[@name='"+xpath+"']"
-    if debugON: formString += "xpathFormated: " + xpathFormated.format(defaultNamespace)
-    e = xmlTree.find(xpathFormated.format(defaultNamespace))
+    
+    if type(xpath) is str:
+        xpathFormated = "./*[@name='"+xpath+"']"
+        if debugON: formString += "xpathFormated: " + xpathFormated.format(defaultNamespace)
+        e = xmlTree.find(xpathFormated.format(defaultNamespace))
+    else:
+        e = xpath
+
 
     # e is None: no element found with the type
     # look for an included type
@@ -275,7 +280,42 @@ def generateFormSubSection(request, xpath, elementName, fullPath, xmlTree):
                 print "SequenceChild: " + sequenceChild.tag 
                 if sequenceChild.tag == "{0}element".format(defaultNamespace):
                     if 'type' not in sequenceChild.attrib:
-                        pass
+                        # type declared below
+                        textCapitalized = sequenceChild.attrib.get('name') 
+                        mapTagIDElementInfo = request.session['mapTagIDElementInfoExplore'] 
+                        elementID = len(mapTagIDElementInfo.keys())                        
+                        
+                        if (sequenceChild[0].tag == "{0}complexType".format(defaultNamespace)):
+                            formString += "<li>" + textCapitalized + " "
+                            formString += generateFormSubSection(request, sequenceChild[0], textCapitalized,fullPath, xmlTree)
+                            formString += "</li>"    
+                        else:
+                            textCapitalized = sequenceChild.attrib.get('name') 
+                            mapTagIDElementInfo = request.session['mapTagIDElementInfoExplore'] 
+                            elementID = len(mapTagIDElementInfo.keys())                        
+                            isEnum = False
+                            # look for enumeration
+                            childElement = sequenceChild[0]
+                            if (childElement is not None):
+                                if(childElement.tag == "{0}simpleType".format(defaultNamespace)):
+                                    restrictionChild = childElement.find("{0}restriction".format(defaultNamespace))        
+                                    if restrictionChild is not None:                                    
+                                        enumChildren = restrictionChild.findall("{0}enumeration".format(defaultNamespace))
+                                        if enumChildren is not None:
+                                            formString += "<li id='" + str(elementID) + "'>" + textCapitalized + " <input type='checkbox'>" + "</li>"
+                                            elementInfo = ElementInfo("enum",fullPath[1:]+"." + textCapitalized)
+                                            mapTagIDElementInfo[elementID] = elementInfo.__to_json__()
+                                            request.session['mapTagIDElementInfoExplore'] = mapTagIDElementInfo
+                                            listChoices = []
+                                            for enumChild in enumChildren:
+                                                listChoices.append(enumChild.attrib['value'])
+                                            request.session['mapEnumIDChoicesExplore'][elementID] = listChoices
+                                            isEnum = True
+                            
+                            if(isEnum is not True):                            
+                                formString += "<li>" + textCapitalized + " "
+                                formString += generateFormSubSection(request, sequenceChild[0], textCapitalized,fullPath, xmlTree)
+                                formString += "</li>" 
 #                         if 'ref' in sequenceChild.attrib:
 #                             if sequenceChild.attrib.get('ref') == "hdf5:HDF5-File":
 #                                 formString += "<ul><li><i><div id='hdf5File'>" + sequenceChild.attrib.get('ref') + "</div></i> "

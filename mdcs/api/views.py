@@ -40,6 +40,8 @@ import operator
 import json
 import hashlib
 from collections import OrderedDict
+from StringIO import StringIO
+from django.core.files.temp import NamedTemporaryFile
 
 projectURI = "http://www.example.com/"
 
@@ -463,6 +465,42 @@ def sparql_query(request):
             return Response(srSerializer.data, status=status.HTTP_200_OK)
     return Response(sqSerializer.errors,status=status.HTTP_400_BAD_REQUEST)
 
+
+################################################################################
+#
+# Function Name: validateXMLDocument(templateID, xmlString)
+# Inputs:        request - 
+#                templateID - 
+#                xmlString - 
+# Outputs:       
+# Exceptions:    None
+# Description:   Check that the XML document is validated by the template
+#                
+#
+################################################################################
+def validateXMLDocument(templateID, xmlString):
+    template = Template.objects.get(pk=templateID)
+    xmlTree = etree.parse(StringIO(template.content.encode('utf-8')))
+    
+    imports = xmlTree.findall("{http://www.w3.org/2001/XMLSchema}import")
+    for import_el in imports:
+        refTemplate = Template.objects.get(filename=import_el.attrib['schemaLocation'])
+        f  = NamedTemporaryFile()
+        f.write(refTemplate.content)
+        f.flush()          
+        import_el.attrib['schemaLocation'] = f.name.replace('\\', '/')
+    
+    includes = xmlTree.findall("{http://www.w3.org/2001/XMLSchema}include")
+    for include_el in includes:
+        refTemplate = Template.objects.get(filename=include_el.attrib['schemaLocation'])
+        f  = NamedTemporaryFile()
+        f.write(refTemplate.content)
+        f.flush()          
+        include_el.attrib['schemaLocation'] = f.name.replace('\\', '/')
+    
+    xmlSchema = etree.XMLSchema(xmlTree)          
+    xmlSchema.assertValid(etree.parse(StringIO(xmlString))) 
+
 @api_view(['POST'])
 def curate(request):
     """
@@ -489,13 +527,11 @@ def curate(request):
                 content = {'message: Unable to read the XML data: '+ e.message}
                 return Response(content, status=status.HTTP_400_BAD_REQUEST)
             #TODO: XML validation
-#             xmlSchemaTree = etree.fromstring(schema.content)
-#             xmlSchema = etree.XMLSchema(xmlSchemaTree)
-#             try:
-#                 xmlSchema.assertValid(xmlTree)
-#             except Exception, e:
-#                 content = {'message':e.message}
-#                 return Response(content, status=status.HTTP_400_BAD_REQUEST)
+            try:
+                validateXMLDocument(schema.id, xmlStr)
+            except Exception, e:
+                content = {'message':e.message}
+                return Response(content, status=status.HTTP_400_BAD_REQUEST)
             jsondata = Jsondata(schemaID = request.DATA['schema'], xml = xmlStr, title = request.DATA['title'])
             docID = jsondata.save()            
 
@@ -511,7 +547,7 @@ def curate(request):
             # SPARQL : transform the XML into RDF/XML
             transform = etree.XSLT(xslt)
             # add a namespace to the XML string, transformation didn't work well using XML DOM
-            template = Template.objects.get(pk=templateID)
+            template = Template.objects.get(pk=schema.id)
             xmlStr = xmlStr.replace('>',' xmlns="' + projectURI + template.hash + '">', 1) #TODO: OR schema name...                
             # domXML.attrib['xmlns'] = projectURI + schemaID #didn't work well
             domXML = etree.fromstring(xmlStr)
