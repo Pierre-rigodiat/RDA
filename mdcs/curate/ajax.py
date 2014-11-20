@@ -1151,33 +1151,24 @@ def duplicate(request, tagID, xsdForm):
             # render element
             namespace = namespaces[defaultPrefix]
             if 'type' not in sequenceChild.attrib:
-                if 'ref' in sequenceChild.attrib:
-                    if sequenceChild.attrib.get('ref') == "hdf5:HDF5-File":
-#                       formString += "<ul><li><i><div id='hdf5File'>" + sequenceChild.attrib.get('ref') + "</div></i> "
-                        formString += "<ul><li><i><div id='hdf5File'>Spreadsheet File</div></i> "
-                        formString += "<div class=\"btn select-element\" onclick=\"selectHDF5File('Spreadsheet File',this);\"><i class=\"icon-folder-open\"></i> Upload Spreadsheet </div>"
-                        formString += "</li></ul>"
-                    elif sequenceChild.attrib.get('ref') == "hdf5:Field":
-                        formString += "<ul><li><i><div id='hdf5Field'>" + sequenceChild.attrib.get('ref') + "</div></i> "
-                        formString += "</li></ul>"
-                    else:
-                        refNamespace = sequenceChild.attrib.get('ref').split(":")[0]
-                        if refNamespace in namespaces.keys():
-                            refTypeStr = sequenceChild.attrib.get('ref').split(":")[1]
-                            try:
-                                refType = Type.objects.get(title=refTypeStr)
-                                refTypeTree = etree.parse(BytesIO(refType.content.encode('utf-8')))    
-                                e = refTypeTree.findall("./{0}element[@name='{1}']".format(namespace,refTypeStr))                                                             
-                                newTagID = "element" + str(len(mapTagElement.keys()))  
-                                mapTagElement[newTagID] = elementID 
-                                formString += "<li id='" + str(newTagID) + "'><nobr>" + refTypeStr + " "
-                                formString += "<span id='add"+ str(newTagID[7:]) +"' class=\"icon add\" onclick=\"changeHTMLForm('add',this,"+str(newTagID[7:])+");\"></span>"
-                                formString += "<span id='remove"+ str(newTagID[7:]) +"' class=\"icon remove\" onclick=\"changeHTMLForm('remove',this,"+str(newTagID[7:])+");\"></span>"           
-                                formString += duplicateFormSubSection(request, e[0].attrib.get('type'), refTypeTree, namespace)  
-                                formString += "</nobr></li>"  
-                            except:
-                                formString += "<ul><li>"+refTypeStr+"</li></ul>"
-                                print "Unable to find the following reference: " + sequenceChild.attrib.get('ref')
+                if 'ref' in sequenceChild.attrib:                    
+                    refNamespace = sequenceChild.attrib.get('ref').split(":")[0]
+                    if refNamespace in namespaces.keys():
+                        refTypeStr = sequenceChild.attrib.get('ref').split(":")[1]
+                        try:
+                            refType = Type.objects.get(title=refTypeStr)
+                            refTypeTree = etree.parse(BytesIO(refType.content.encode('utf-8')))    
+                            e = refTypeTree.findall("./{0}element[@name='{1}']".format(namespace,refTypeStr))                                                             
+                            newTagID = "element" + str(len(mapTagElement.keys()))  
+                            mapTagElement[newTagID] = elementID 
+                            formString += "<li id='" + str(newTagID) + "'><nobr>" + refTypeStr + " "
+                            formString += "<span id='add"+ str(newTagID[7:]) +"' class=\"icon add\" onclick=\"changeHTMLForm('add',this,"+str(newTagID[7:])+");\"></span>"
+                            formString += "<span id='remove"+ str(newTagID[7:]) +"' class=\"icon remove\" onclick=\"changeHTMLForm('remove',this,"+str(newTagID[7:])+");\"></span>"           
+                            formString += duplicateFormSubSection(request, e[0].attrib.get('type'), refTypeTree, namespace)  
+                            formString += "</nobr></li>"  
+                        except:
+                            formString += "<ul><li>"+refTypeStr+"</li></ul>"
+                            print "Unable to find the following reference: " + sequenceChild.attrib.get('ref')
                 else:
                     textCapitalized = sequenceChild.attrib.get('name')
                     newTagID = "element" + str(len(mapTagElement.keys()))  
@@ -1349,6 +1340,15 @@ def duplicateFormSubSection(request, xpath, xmlTree, namespace):
         formString += "<div class='moduleDisplay'>Current Selection: None</div>"
         formString += "<div class='moduleResult' style='display: none'></div>"
         formString += "</div>" 
+        return formString
+    
+    #TODO: modules
+    if 'name' in e.attrib and e.attrib.get('name') == "Table":
+        formString += "<div class='module' style='display: inline'>"
+        formString += "<div class=\"btn select-element\" onclick=\"selectHDF5File('Spreadsheet File',this);\"><i class=\"icon-folder-open\"></i> Upload Spreadsheet </div>"
+        formString += "<div class='moduleDisplay'></div>"
+        formString += "<div class='moduleResult' style='display: none'></div>"
+        formString += "</div>"
         return formString
     
     if e.tag == "{0}complexType".format(namespace):
