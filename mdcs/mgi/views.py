@@ -410,8 +410,8 @@ def curate_upload_spreadsheet(request):
                     
                     root = etree.Element("excel")
                     root.set("name", str(input_excel))
-                    header = etree.SubElement(root, "header")
-                    values = etree.SubElement(root, "values")
+                    header = etree.SubElement(root, "headers")
+                    values = etree.SubElement(root, "rows")
                     
                     for sheet in book.sheets():
                         for rowIndex in range(sheet.nrows):
