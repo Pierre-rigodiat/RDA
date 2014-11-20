@@ -192,6 +192,8 @@ def validateXMLData(request, xmlString):
     
     templateID = request.session['currentTemplateID']
     
+    request.session['xmlString'] = ""
+    
     #TODO: XML validation           
     try:
         validateXMLDocument(templateID, xmlString)   
@@ -203,6 +205,8 @@ def validateXMLData(request, xmlString):
         """)
         return dajax.json()
 
+    request.session['xmlString'] = xmlString
+    
     dajax.script("""
         viewData();
     """)
@@ -266,15 +270,15 @@ def saveXMLDataToDB(request,saveAs):
     templateID = request.session['currentTemplateID']
 
     #TODO: XML validation           
-    try:
-        validateXMLDocument(templateID, xmlString)   
-    except Exception, e:
-        message= e.message.replace('"','\'')
-        dajax.script("""
-            $("#saveErrorMessage").html(" """+ message + """ ");
-            saveXMLDataToDBError();
-        """)
-        return dajax.json()
+#     try:
+#         validateXMLDocument(templateID, xmlString)   
+#     except Exception, e:
+#         message= e.message.replace('"','\'')
+#         dajax.script("""
+#             $("#saveErrorMessage").html(" """+ message + """ ");
+#             saveXMLDataToDBError();
+#         """)
+#         return dajax.json()
 
     #newXMLData = Xmldata(title=saveAs, schema=templateID, content=xmlString).save()
 
@@ -322,7 +326,7 @@ def saveXMLDataToDB(request,saveAs):
 
 ################################################################################
 #
-# Function Name: saveXMLData(request,xmlContent,formContent)
+# Function Name: saveXMLData(request,formContent)
 # Inputs:        request - 
 # Outputs:       
 # Exceptions:    None
@@ -331,14 +335,13 @@ def saveXMLDataToDB(request,saveAs):
 #
 ################################################################################
 @dajaxice_register
-def saveXMLData(request,xmlContent,formContent):
-    print '>>>>  BEGIN def saveXMLData(request,xmlContent,formContent)'
+def saveXMLData(request, formContent):
+    print '>>>>  BEGIN def saveXMLData(request,formContent)'
     dajax = Dajax()
-
-    request.session['xmlString'] = xmlContent
+    
     request.session['formString'] = formContent
 
-    print '>>>> END def saveXMLData(request,xmlContent,formContent)'
+    print '>>>> END def saveXMLData(request,formContent)'
     return dajax.json()
 
 ################################################################################
@@ -690,6 +693,15 @@ def generateFormSubSection(request, xpath, xmlTree, namespace):
         formString += "</div>" 
         return formString
     
+    #TODO: modules
+    if 'name' in e.attrib and e.attrib.get('name') == "Table":
+        formString += "<div class='module' style='display: inline'>"
+        formString += "<div class=\"btn select-element\" onclick=\"selectHDF5File('Spreadsheet File',this);\"><i class=\"icon-folder-open\"></i> Upload Spreadsheet </div>"
+        formString += "<div class='moduleDisplay'></div>"
+        formString += "<div class='moduleResult' style='display: none'></div>"
+        formString += "</div>"
+        return formString
+    
     if e.tag == "{0}complexType".format(namespace):
         if debugON: formString += "matched complexType" 
         complexTypeChild = e.find('*')        
@@ -713,65 +725,52 @@ def generateFormSubSection(request, xpath, xmlTree, namespace):
                 if sequenceChild.tag == "{0}element".format(namespace):
                     if 'type' not in sequenceChild.attrib:
                         if 'ref' in sequenceChild.attrib:  
-                            if sequenceChild.attrib.get('ref') == "hdf5:HDF5-File":
-#                                 formString += "<ul><li><i><div id='hdf5File'>Spreadsheet File</div></i> "
-#                                 formString += "<div class=\"btn select-element\" onclick=\"selectHDF5File('Spreadsheet File',this);\"><i class=\"icon-folder-open\"></i> Upload Spreadsheet </div>"
-#                                 formString += "</li></ul>"
-                                formString += "<div class='module' style='display: inline'>"
-                                formString += "<div class=\"btn select-element\" onclick=\"selectHDF5File('Spreadsheet File',this);\"><i class=\"icon-folder-open\"></i> Upload Spreadsheet </div>"
-                                formString += "<div class='moduleDisplay'></div>"
-                                formString += "<div class='moduleResult' style='display: none'></div>"
-                                formString += "</div>"
-                            elif sequenceChild.attrib.get('ref') == "hdf5:Field":
-                                formString += "<ul><li><i><div id='hdf5Field'>" + sequenceChild.attrib.get('ref') + "</div></i> "
-                                formString += "</li></ul>"
-                            else:
-                                refNamespace = sequenceChild.attrib.get('ref').split(":")[0]
-                                if refNamespace in namespaces.keys():
-                                    refTypeStr = sequenceChild.attrib.get('ref').split(":")[1]
-                                    try:
-                                        addButton = False
-                                        deleteButton = False
-                                        nbOccurrences = 1
-                                        refType = Type.objects.get(title=refTypeStr)
-                                        refTypeTree = etree.parse(BytesIO(refType.content.encode('utf-8')))    
-                                        e = refTypeTree.findall("./{0}element[@name='{1}']".format(namespace,refTypeStr))     
-                                        if ('minOccurs' in sequenceChild.attrib):
-                                            if (sequenceChild.attrib['minOccurs'] == '0'):
-                                                deleteButton = True
-                                            else:
-                                                nbOccurrences = sequenceChild.attrib['minOccurs']
-                                        
-                                        if ('maxOccurs' in sequenceChild.attrib):
-                                            if (sequenceChild.attrib['maxOccurs'] == "unbounded"):
-                                                addButton = True
-                                            elif ('minOccurs' in sequenceChild.attrib):
-                                                if (int(sequenceChild.attrib['maxOccurs']) > int(sequenceChild.attrib['minOccurs'])
-                                                    and int(sequenceChild.attrib['maxOccurs']) > 1):
-                                                    addButton = True   
-                                                    
-                                        elementID = len(xsd_elements)
-                                        xsd_elements[elementID] = etree.tostring(sequenceChild)
-                                        manageOccurences(request, sequenceChild, elementID)   
-                                        formString += "<ul>"                                   
-                                        for x in range (0,int(nbOccurrences)):     
-                                            tagID = "element" + str(len(mapTagElement.keys()))  
-                                            mapTagElement[tagID] = elementID             
-                                            formString += "<li id='" + str(tagID) + "'><nobr>" + refTypeStr
-                                            if (addButton == True):                                
-                                                formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" onclick=\"changeHTMLForm('add',this,"+str(tagID[7:])+");\"></span>"
-                                            else:
-                                                formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" style=\"display:none;\" onclick=\"changeHTMLForm('add',this,"+str(tagID[7:])+");\"></span>"                                                                             
-                                            if (deleteButton == True):
-                                                formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" onclick=\"changeHTMLForm('remove',this,"+str(tagID[7:])+");\"></span>"
-                                            else:
-                                                formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" style=\"display:none;\" onclick=\"changeHTMLForm('remove',this,"+str(tagID[7:])+");\"></span>"
-                                            formString += generateFormSubSection(request, e[0].attrib.get('type'), refTypeTree, namespace)
-                                            formString += "</nobr></li>"
-                                        formString += "</ul>"
-                                    except:
-                                        formString += "<ul><li>"+refTypeStr+"</li></ul>"
-                                        print "Unable to find the following reference: " + sequenceChild.attrib.get('ref')
+                            refNamespace = sequenceChild.attrib.get('ref').split(":")[0]
+                            if refNamespace in namespaces.keys():
+                                refTypeStr = sequenceChild.attrib.get('ref').split(":")[1]
+                                try:
+                                    addButton = False
+                                    deleteButton = False
+                                    nbOccurrences = 1
+                                    refType = Type.objects.get(title=refTypeStr)
+                                    refTypeTree = etree.parse(BytesIO(refType.content.encode('utf-8')))    
+                                    e = refTypeTree.findall("./{0}element[@name='{1}']".format(namespace,refTypeStr))     
+                                    if ('minOccurs' in sequenceChild.attrib):
+                                        if (sequenceChild.attrib['minOccurs'] == '0'):
+                                            deleteButton = True
+                                        else:
+                                            nbOccurrences = sequenceChild.attrib['minOccurs']
+                                    
+                                    if ('maxOccurs' in sequenceChild.attrib):
+                                        if (sequenceChild.attrib['maxOccurs'] == "unbounded"):
+                                            addButton = True
+                                        elif ('minOccurs' in sequenceChild.attrib):
+                                            if (int(sequenceChild.attrib['maxOccurs']) > int(sequenceChild.attrib['minOccurs'])
+                                                and int(sequenceChild.attrib['maxOccurs']) > 1):
+                                                addButton = True   
+                                                
+                                    elementID = len(xsd_elements)
+                                    xsd_elements[elementID] = etree.tostring(sequenceChild)
+                                    manageOccurences(request, sequenceChild, elementID)   
+                                    formString += "<ul>"                                   
+                                    for x in range (0,int(nbOccurrences)):     
+                                        tagID = "element" + str(len(mapTagElement.keys()))  
+                                        mapTagElement[tagID] = elementID             
+                                        formString += "<li id='" + str(tagID) + "'><nobr>" + refTypeStr
+                                        if (addButton == True):                                
+                                            formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" onclick=\"changeHTMLForm('add',this,"+str(tagID[7:])+");\"></span>"
+                                        else:
+                                            formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" style=\"display:none;\" onclick=\"changeHTMLForm('add',this,"+str(tagID[7:])+");\"></span>"                                                                             
+                                        if (deleteButton == True):
+                                            formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" onclick=\"changeHTMLForm('remove',this,"+str(tagID[7:])+");\"></span>"
+                                        else:
+                                            formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" style=\"display:none;\" onclick=\"changeHTMLForm('remove',this,"+str(tagID[7:])+");\"></span>"
+                                        formString += generateFormSubSection(request, e[0].attrib.get('type'), refTypeTree, namespace)
+                                        formString += "</nobr></li>"
+                                    formString += "</ul>"
+                                except:
+                                    formString += "<ul><li>"+refTypeStr+"</li></ul>"
+                                    print "Unable to find the following reference: " + sequenceChild.attrib.get('ref')
                         # element with type declared below it
                         else:                            
                             textCapitalized = sequenceChild.attrib.get('name')

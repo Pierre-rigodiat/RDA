@@ -164,12 +164,7 @@ viewData = function()
 {
     console.log('BEGIN [viewData]');
 
-//    alert (document.getElementsByName("xsdForm")[0].innerHTML);
-
     var rootElement = document.getElementsByName("xsdForm")[0];
-    var xmlString = '';
-
-    xmlString = generateXMLString (rootElement,xmlString);
 
     // Need to Set input values explicitiy before sending innerHTML for save
     var elems = document.getElementsByName("xsdForm")[0].getElementsByTagName("input");
@@ -178,7 +173,7 @@ viewData = function()
 	elems[i].setAttribute("value", elems[i].value);
     }
 
-    Dajaxice.curate.saveXMLData(saveXMLDataCallback,{'xmlContent':xmlString,'formContent':document.getElementById('xsdForm').innerHTML});
+    Dajaxice.curate.saveXMLData(saveXMLDataCallback,{'formContent':document.getElementById('xsdForm').innerHTML});
 
     console.log('END [viewData]');
 }
@@ -186,8 +181,8 @@ viewData = function()
 validateXML = function()
 {
 	var rootElement = document.getElementsByName("xsdForm")[0];
-    var xmlString = '';
-
+	var xmlString = '';
+	
     xmlString = generateXMLString (rootElement, xmlString);
     
     Dajaxice.curate.validateXMLData(Dajax.process,{'xmlString':xmlString});
@@ -213,15 +208,15 @@ generateXMLString = function(elementObj)
 	console.log(children[i].tagName);
 	if (children[i].nodeType == 1 && children[i].hasAttribute("xmlID")) {
 	    if (children[i].getAttribute("xmlID") == "root") {
-		if (children[i].hasAttribute("hdf5ns")) {
-		    xmlString += "<" + children[i].firstChild.innerHTML.trim() + " xmlns:hdf5=\"http://hdfgroup.org/HDF5/XML/schema/HDF5-File\">"
-		    xmlString += generateXMLString(children[i]);
-		    xmlString += "</" + children[i].firstChild.innerHTML.trim() + ">"
-		} else {
+//		if (children[i].hasAttribute("hdf5ns")) {
+//		    xmlString += "<" + children[i].firstChild.innerHTML.trim() + " xmlns:hdf5=\"http://hdfgroup.org/HDF5/XML/schema/HDF5-File\">"
+//		    xmlString += generateXMLString(children[i]);
+//		    xmlString += "</" + children[i].firstChild.innerHTML.trim() + ">"
+//		} else {
 		    xmlString += "<" + children[i].firstChild.innerHTML.trim() + ">"
 		    xmlString += generateXMLString(children[i]);
 		    xmlString += "</" + children[i].firstChild.innerHTML.trim() + ">"
-		}
+//		}
 	    }
 	} else if (children[i].tagName == "UL") {
 	    if (children[i].style.display != "none") {
@@ -235,10 +230,10 @@ generateXMLString = function(elementObj)
 		    if (nobrNode1.firstChild != null) {
 			console.log(nobrNode1.firstChild.tagName);
 			if (nobrNode1.firstChild.tagName == "DIV") {
-				tagId = $(nobrNode1.firstChild).attr("id");
-				if (typeof tagId !== typeof undefined && tagId !== false && tagId == "hdf5File") {
-					xmlString += hdf5String
-				}
+//				tagId = $(nobrNode1.firstChild).attr("id");
+//				if (typeof tagId !== typeof undefined && tagId !== false && tagId == "hdf5File") {
+//					xmlString += hdf5String
+//				}
 	//		    alert("hdf5file matched");
 	//		    xmlString += hdf5String;
 			} else if (nobrNode1.firstChild.nodeValue.trim() != "Choose") {
