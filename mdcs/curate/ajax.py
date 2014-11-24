@@ -2549,8 +2549,30 @@ def deleteInstance(request, instanceid):
 def clearFields(request):
     dajax = Dajax()
     
+    # get the original version of the form
     originalForm = request.session['originalForm']
     
+    # reinitialize the map of occurrences with original values
+    occurrences = request.session['occurrences']
+    
+    for elementID in occurrences.keys():
+        elementOccurrencesStr = occurrences[str(elementID)]
+        if 'inf' in elementOccurrencesStr:
+            elementOccurrencesStr = elementOccurrencesStr.replace('inf','float("inf")')
+        if 'Infinity' in elementOccurrencesStr:
+            elementOccurrencesStr = elementOccurrencesStr.replace('Infinity','float("inf")') 
+        elementOccurrences = eval(elementOccurrencesStr)
+
+        if (elementOccurrences['minOccurrences'] != 0):
+            elementOccurrences['nbOccurrences'] = elementOccurrences['minOccurrences']
+        else:
+            elementOccurrences['nbOccurrences'] = 1
+        occurrences[str(elementID)] = unicode(elementOccurrences)
+    
+    request.session['occurrences'] = occurrences
+    
+    
+    # assign the form to the page
     dajax.assign('#xsdForm', 'innerHTML', originalForm)
     
     return dajax.json()
