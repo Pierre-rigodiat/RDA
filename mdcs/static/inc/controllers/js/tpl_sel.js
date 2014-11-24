@@ -1,5 +1,3 @@
-var hdf5String = "";
-
 loadTemplateSelectionControllers = function()
 {
     console.log('BEGIN [loadTemplateSelectionControllers]');
