@@ -1062,7 +1062,7 @@ def remove(request, tagID, xsdForm):
                 $('#add"""+str(tagID[7:])+"""').attr('style','');
                 $('#remove"""+str(tagID[7:])+"""').attr('style','display:none');
                 $("#"""+tagID+"""").prop("disabled",true);
-                $("#"""+tagID+"""").css("color","#D8D8D8");
+                $("#"""+tagID+"""").addClass("removed");
                 $("#"""+tagID+"""").children("ul").hide(500);
             """)
         else:
@@ -1142,7 +1142,7 @@ def duplicate(request, tagID, xsdForm):
                 $('#add"""+str(tagID[7:])+"""').attr('style','"""+ styleAdd +"""');
                 $('#remove"""+str(tagID[7:])+"""').attr('style','');
                 $("#"""+tagID+"""").prop("disabled",false);
-                $("#"""+tagID+"""").css("color","#000000");
+                $("#"""+tagID+"""").removeClass("removed");
                 $("#"""+tagID+"""").children("ul").show(500);
             """)
         

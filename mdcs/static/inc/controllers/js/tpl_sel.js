@@ -221,7 +221,7 @@ generateXMLString = function(elementObj)
 		xmlString += generateXMLString(children[i]);
 	    }
 	} else if (children[i].tagName == "LI") {
-		if (children[i].style.color != "rgb(216, 216, 216)") {
+		if (! $(children[i]).hasClass("removed") ) {
 		    console.log(children[i].innerHTML);
 		    var nobrNode1 = children[i].children[0];
 		    var nobrNode2 = children[i].children[1];
