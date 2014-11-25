@@ -367,6 +367,14 @@ displayOccurrencesElementDialog = function()
 				
 				if (errors == ""){
 					Dajaxice.compose.setOccurrences(Dajax.process,{"xpath":xpath, "minOccurs":minOccurs,"maxOccurs":maxOccurs});
+					occursStr = "( " + minOccurs + " , ";
+					if (maxOccurs == "unbounded"){
+						occursStr += "*";
+					}else{
+						occursStr += maxOccurs;
+					}
+					occursStr += " )";
+					$(target).parent().siblings(".occurs").html(occursStr)
 					$( this ).dialog( "close" );
 				}else{
 					$( "#manage-occurrences-error" ).html(errors);
@@ -479,6 +487,7 @@ insertElementSequence = function(event){
 												"</span>" +
 												"<span class='name'>"+ typeName +"</span>" +
 												"<span class='type'>"+ typeName +"</span>" +
+												"<span class='occurs'>( 1 , 1)</span>" +
 											"</div>"+
 										"</li>")
 	

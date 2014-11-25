@@ -112,17 +112,16 @@
 								</xsl:when>
 							</xsl:choose>
 							<xsl:if test="contains(name(.),'element')"> 
-								<span class="occurs">
-								(
+								<span class="occurs">(
 								<xsl:choose>
 									<xsl:when test="./@minOccurs">
 										<xsl:value-of select="@minOccurs" />								
 									</xsl:when>
-									<xsl:otherwise>								
-										1								
+									<xsl:otherwise>
+									1								
 									</xsl:otherwise>
 								</xsl:choose>
-								,
+								, 
 								<xsl:choose>
 									<xsl:when test="./@maxOccurs">
 										<xsl:choose>
@@ -135,7 +134,7 @@
 										</xsl:choose>
 									</xsl:when>
 									<xsl:otherwise>
-										1								
+									1
 									</xsl:otherwise>
 								</xsl:choose>
 								)
