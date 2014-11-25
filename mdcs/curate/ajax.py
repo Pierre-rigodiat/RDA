@@ -516,8 +516,36 @@ def uploadObject(request,objectName,objectFilename,objectContent, objectType):
         hex_dig = hash.hexdigest()
         object = Template(title=objectName, filename=objectFilename, content=objectContent, version=1, templateVersion=str(objectVersions.id), hash=hex_dig).save()
     else:
-        objectVersions = TypeVersion(nbVersions=1, isDeleted=False).save()
-        object = Type(title=objectName, filename=objectFilename, content=objectContent, version=1, typeVersion=str(objectVersions.id)).save()
+        # 1) get the name from the file: type of the root or type of the root without namespace, check only one root
+        elements = xmlTree.findall("{http://www.w3.org/2001/XMLSchema}element")
+        if (len(elements) != 1):
+            dajax.script("""
+                $("#objectNameErrorMessage").html("<font color='red'>Only templates with one root element can be uploaded as a type.</font><br/>");
+            """)
+            return dajax.json()
+        else:
+            elem = elements[0]
+            if ('type' in elem.attrib):
+                elementType = elem.attrib['type']
+                if(':' in elementType):
+                    elementType = elementType.split(':')[1]
+            else:
+                dajax.script("""
+                $("#objectNameErrorMessage").html("<font color='red'>The 'type' attribute should appear in the root element.</font><br/>");
+                """)
+                return dajax.json()
+                                                                    
+        # 2) check that the filename is not already in the database
+        try:
+            Type.objects.get(filename=objectFilename)
+            dajax.script("""
+            $("#objectNameErrorMessage").html("<font color='red'>A type with the same filename already exists.</font><br/>");
+            """)
+            return dajax.json()
+        except:            
+            # 3) Save the type
+            objectVersions = TypeVersion(nbVersions=1, isDeleted=False).save()
+            object = Type(title=elementType, filename=objectFilename, content=objectContent, version=1, typeVersion=str(objectVersions.id)).save()
     
 #     templateVersion = TemplateVersion(nbVersions=1, isDeleted=False).save()
 #     newTemplate = Template(title=xmlSchemaName, filename=xmlSchemaFilename, content=xmlSchemaContent, version=1, templateVersion=str(templateVersion.id)).save()

@@ -306,40 +306,23 @@ There are currently no {{ objectType }} uploaded.  Please click "Upload {{ objec
   </p>
 </div>
 
-<style>
-  #progress_bar {
-    margin: 10px 0;
-    padding: 3px;
-    border: 1px solid #000;
-    font-size: 14px;
-    clear: both;
-    opacity: 0;
-    -moz-transition: opacity 1s linear;
-    -o-transition: opacity 1s linear;
-    -webkit-transition: opacity 1s linear;
-  }
-  #progress_bar.loading {
-    opacity: 1.0;
-  }
-  #progress_bar .percent {
-    background-color: #99ccff;
-    height: auto;
-    width: 0;
-  }
-</style>
 
 <div id="dialog-upload-message" title="Upload {{ objectType }}" style="display:none;">
-<br>
-Enter {{ objectType }} name: <input type="text" id="object_name" name="object_name"/>
-<br>
+{% if objectType == "Template" %}
+<p>
+Enter {{ objectType }} name: <input type="text" id="object_name" objectType="{{ objectType }}" name="object_name"/>
+</p>
+{% else %}
+<p style="display: none;">
+Enter {{ objectType }} name: <input type="text" id="object_name" objectType="{{ objectType }}" name="object_name"></input>
+</p>
+{% endif %}
 <input type="file" id="files" name="files[]" />
 <output id="list"></output>
 <div id="objectNameErrorMessage"></div>
 
 <script>
-  var files;
-//  var reader;
-//  var progress = document.querySelector('.percent');
+  var files; 
 
   function errorHandler(evt) {
     switch(evt.target.error.code) {
@@ -354,18 +337,6 @@ Enter {{ objectType }} name: <input type="text" id="object_name" name="object_na
       default:
         alert('An error occurred reading this file.');
     };
-  }
-
-  function updateProgress(evt) {
-    // evt is an ProgressEvent.
-    if (evt.lengthComputable) {
-      var percentLoaded = Math.round((evt.loaded / evt.total) * 100);
-      // Increase the progress bar length.
-      if (percentLoaded < 100) {
-        progress.style.width = percentLoaded + '%';
-        progress.textContent = percentLoaded + '%';
-      }
-    }
   }
 
   function uploadObjectCallback(data) {
@@ -385,33 +356,22 @@ Enter {{ objectType }} name: <input type="text" id="object_name" name="object_na
   function handleFileUpload(evt) {
     console.log('BEGIN handleFileUpload(evt)');
 
-    if (document.getElementById("object_name").value.trim().length == 0) {
-        document.getElementById('objectNameErrorMessage').innerHTML = "<font color=\"red\">Please enter a name</font>"
+    if ($("#object_name").attr("objectType") == "Template" && $("#object_name").val().trim().length == 0) {
+        $('#objectNameErrorMessage').html("<font color=\"red\">Please enter a name</font>");
         return false;
     } else {
-        document.getElementById('objectNameErrorMessage').innerHTML = ""
+        $('#objectNameErrorMessage').html("")
     }
     var reader;
-    var progress = document.querySelector('.percent');
 
     document.getElementById('uploadFile').disabled = true;
 
-    // Reset progress indicator on new file selection.
-    progress.style.width = '0%';
-    progress.textContent = '0%';
-
     reader = new FileReader();
     reader.onerror = errorHandler;
-    reader.onprogress = updateProgress;
     reader.onabort = function(e) {
       alert('File read cancelled');
     };
-    reader.onloadstart = function(e) {
-      document.getElementById('progress_bar').className = 'loading';
-    };
     reader.onload = function(e) {
-      progress.style.width = '100%';
-      progress.textContent = '100%';
 
       var objectName = document.getElementById('object_name').value.trim();
 
@@ -430,7 +390,7 @@ Enter {{ objectType }} name: <input type="text" id="object_name" name="object_na
     // files is a FileList of File objects. List some properties.
     var output = [];
     for (var i = 0, f; f = files[i]; i++) {
-      output.push('<br></li><button id=\'uploadFile\'>Upload</button><div id=\"progress_bar\"><div class=\"percent\">0%</div></div>');
+      output.push('<br></li><button id=\'uploadFile\'>Upload</button>');
     }
     document.getElementById('list').innerHTML = '<ul>' + output.join('') + '</ul>';
     document.getElementById('uploadFile').disabled = false;
