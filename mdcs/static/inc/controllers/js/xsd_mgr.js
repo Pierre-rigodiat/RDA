@@ -20,10 +20,45 @@ manageVersions = function()
     var objectID = $(this).attr("objectid");
     var objectType = $(this).attr("objectType");
     
-    Dajaxice.curate.manageVersions(Dajax.process, {"objectID": objectID, "objectType": objectType});    
+    //Dajaxice.curate.manageVersions(Dajax.process, {"objectID": objectID, "objectType": objectType});
+
+    
+    $(function() {
+    	$('<div title="Manage Versions">'+
+    			'<iframe id="version-upload-frame" style="width:500px;height:auto; min-height:400px;" src="/admin/manage-versions?id='+ objectID +'&type='+ objectType +'">'+
+    			'</iframe>'+	
+    	  '</div>' ).dialog({
+	        modal: true,
+	        width:520,
+	        height:510,
+	        resizable:false,
+            buttons: {
+            	OK: function() {
+                    $( this ).dialog( "close" );
+                    $('#model_selection').load(document.URL +  ' #model_selection', function() {
+                        loadUploadManagerHandler();
+                    }); 
+                },
+                Cancel: function() {
+                	$( this ).dialog( "close" );  
+                    $('#model_selection').load(document.URL +  ' #model_selection', function() {
+                        loadUploadManagerHandler();
+                    }); 
+                }
+	    }
+        });
+    });
+//    if (objectType == "Template"){
+//    	document.getElementById('version-upload-frame').contentWindow.document.getElementById('fileVersion').addEventListener('change', handleSchemaVersionUpload , false);
+//    }
+//    else {
+//    	document.getElementById('version-upload-frame').contentWindow.document.getElementById('fileVersion').addEventListener('change', handleTypeVersionUpload , false);
+//	}
+    
 }
 
 function handleSchemaVersionUpload(evt) {
+	console.log("test")
 	var files = evt.target.files; // FileList object
     reader = new FileReader();
     reader.onload = function(e){
@@ -65,22 +100,25 @@ showUploadErrorDialog = function()
 
 setCurrentVersion = function(setCurrent)
 {
-	var objectid = $(setCurrent).attr("objectid");
-	var objectType = $(setCurrent).attr("objectType");
+	current = document.getElementById(setCurrent);
+	var objectid = $(current).attr("objectid");
+	var objectType = $(current).attr("objectType");
 	
 	Dajaxice.curate.setCurrentVersion(Dajax.process,{"objectid":objectid, "objectType":objectType});
 }
 
 deleteVersion = function(toDelete)
 {			
-	var objectid = $(toDelete).attr("objectid");
-	var objectType = $(toDelete).attr("objectType");
+	current = document.getElementById(toDelete);
+	var objectid = $(current).attr("objectid");
+	var objectType = $(current).attr("objectType");
 	Dajaxice.curate.assignDeleteCustomMessage(Dajax.process,{"objectid":objectid, "objectType":objectType});
 	$(function() {
-	        $( "#dialog-deleteversion-message" ).dialog({
+//			$(window.parent.document).find('#dialog-deleteversion-message').dialog({
+			$('#dialog-deleteversion-message').dialog({
 	            modal: true,
 	            buttons: {
-			Yes: function() {	
+	            	Yes: function() {	
 						var newCurrent = ""
 						try{
 							var idx = $("#selectCurrentVersion")[0].selectedIndex
@@ -90,7 +128,7 @@ deleteVersion = function(toDelete)
 						Dajaxice.curate.deleteVersion(Dajax.process,{"objectid":objectid, "objectType":objectType,"newCurrent":newCurrent});
 	                    $( this ).dialog( "close" );
 	                },
-			No: function() {
+	                No: function() {
 	                    $( this ).dialog( "close" );
 	                }
 		    }
@@ -108,8 +146,9 @@ restoreObject = function()
 
 restoreVersion = function(toRestore)
 {
-	var objectID = $(toRestore).attr("objectid");
-	var objectType = $(toRestore).attr("objectType");
+	current = document.getElementById(toRestore);
+	var objectID = $(current).attr("objectid");
+	var objectType = $(current).attr("objectType");
 	
 	Dajaxice.curate.restoreVersion(Dajax.process,{'objectid':objectID, 'objectType':objectType});
 }

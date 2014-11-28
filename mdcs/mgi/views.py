@@ -34,6 +34,8 @@ from mgi.models import Template, Database, Htmlform, Xmldata, Hdf5file, QueryRes
 from bson.objectid import ObjectId
 import lxml.etree as etree
 import os
+from dateutil import tz
+from collections import OrderedDict
 
 # Create your views here.
 
@@ -1383,3 +1385,49 @@ def compose_downloadxsd(request):
         request.session['next'] = '/compose'
         return redirect('/login')
 
+################################################################################
+#
+# Function Name: manage_versions(request)
+# Inputs:        request - 
+# Outputs:       
+# Exceptions:    None
+# Description:   Redirect to the version manager of a given object
+#
+################################################################################
+def manage_versions(request):
+    template = loader.get_template('admin/manage_versions.html')
+    
+    id = request.GET.get('id','')
+    objectType = request.GET.get('type','')
+    
+    if objectType == "Template":
+        object = Template.objects.get(pk=id)
+        objectVersions = TemplateVersion.objects.get(pk=object.templateVersion)
+    else:
+        object = Type.objects.get(pk=id)
+        objectVersions = TypeVersion.objects.get(pk=object.typeVersion)    
+
+    versions = OrderedDict()
+    reversedVersions = list(reversed(objectVersions.versions))
+    for version_id in reversedVersions:
+        if objectType == "Template":
+            version = Template.objects.get(pk=version_id)
+        else:
+            version = Type.objects.get(pk=version_id)   
+        objectid = ObjectId(version.id)
+        from_zone = tz.tzutc()
+        to_zone = tz.tzlocal()
+        datetimeUTC = objectid.generation_time
+        datetimeUTC = datetimeUTC.replace(tzinfo=from_zone)
+        datetimeLocal = datetimeUTC.astimezone(to_zone)
+        datetime = datetimeLocal.strftime('%m/%d/%Y %H&#58;%M&#58;%S')
+        versions[version] = datetime
+    
+
+    context = RequestContext(request, {
+        'versions': versions,
+        'objectVersions': objectVersions,
+        'objectType': objectType,
+    })
+    request.session['currentYear'] = currentYear()
+    return HttpResponse(template.render(context))
