@@ -19,22 +19,16 @@ from django.utils import simplejson
 from dajax.core import Dajax
 from dajaxice.decorators import dajaxice_register
 from django.conf import settings
-from mongoengine import *
 from io import BytesIO
 from lxml import html
 from collections import OrderedDict
-from pymongo import Connection
 import xmltodict
 import requests
 import os
 import json
 import copy
-
-#import xml.etree.ElementTree as etree
 import lxml.etree as etree
-
 from mgi.models import Template, QueryResults, SparqlQueryResults, SavedQuery, Jsondata, Instance, XMLSchema, Type
-
 import sparqlPublisher
 
 # Global Variables
@@ -218,24 +212,26 @@ def verifyTemplateIsSelected(request):
 def generateFormSubSection(request, xpath, elementName, fullPath, xmlTree):
     print 'BEGIN def generateFormSubSection(xpath, elementName, fullPath)'
     
-
     global debugON
-        
+    
+    # get the variables in session
     defaultNamespace = request.session['defaultNamespaceExplore']    
     defaultPrefix = request.session['defaultPrefixExplore']
     nbChoicesID = int(request.session['nbChoicesIDExplore'])
     formString = ""
 
+    # No xpath provided: returns the current string
     if xpath is None:
         print "xpath is none"
         return formString;
 
-    
+    # Xpath is a string: look for the element in the tree
     if type(xpath) is str:
         xpathFormated = "./*[@name='"+xpath+"']"
         if debugON: formString += "xpathFormated: " + xpathFormated.format(defaultNamespace)
         e = xmlTree.find(xpathFormated.format(defaultNamespace))
     else:
+        # the xpath already contains the element
         e = xpath
 
 
@@ -261,7 +257,8 @@ def generateFormSubSection(request, xpath, elementName, fullPath, xmlTree):
                 return formString
         else:
             return formString    
-
+    
+    # if the element is a complex type
     if e.tag == "{0}complexType".format(defaultNamespace):
         if debugON: formString += "matched complexType" 
         print "matched complexType" + "<br>"
@@ -270,7 +267,9 @@ def generateFormSubSection(request, xpath, elementName, fullPath, xmlTree):
         if complexTypeChild is None:
             return formString
 
+        # build the path to element to be used in the query
         fullPath += "." + elementName
+        # if this is a sequence
         if complexTypeChild.tag == "{0}sequence".format(defaultNamespace):
             formString += "<ul>"
             if debugON: formString += "complexTypeChild:" + complexTypeChild.tag + "<br>"
@@ -294,7 +293,7 @@ def generateFormSubSection(request, xpath, elementName, fullPath, xmlTree):
                             mapTagIDElementInfo = request.session['mapTagIDElementInfoExplore'] 
                             elementID = len(mapTagIDElementInfo.keys())                        
                             isEnum = False
-                            # look for enumeration
+                            # look for enumeration to save the values 
                             childElement = sequenceChild[0]
                             if (childElement is not None):
                                 if(childElement.tag == "{0}simpleType".format(defaultNamespace)):
@@ -316,14 +315,7 @@ def generateFormSubSection(request, xpath, elementName, fullPath, xmlTree):
                                 formString += "<li>" + textCapitalized + " "
                                 formString += generateFormSubSection(request, sequenceChild[0], textCapitalized,fullPath, xmlTree)
                                 formString += "</li>" 
-#                         if 'ref' in sequenceChild.attrib:
-#                             if sequenceChild.attrib.get('ref') == "hdf5:HDF5-File":
-#                                 formString += "<ul><li><i><div id='hdf5File'>" + sequenceChild.attrib.get('ref') + "</div></i> "
-#                                 formString += "<div class=\"btn select-element\" onclick=\"selectHDF5File('hdf5:HDF5-File',this);\"><i class=\"icon-folder-open\"></i> Select HDF5 File</div>"
-#                                 formString += "</li></ul>"
-#                             elif sequenceChild.attrib.get('ref') == "hdf5:Field":
-#                                 formString += "<ul><li><i><div id='hdf5Field'>" + sequenceChild.attrib.get('ref') + "</div></i> "
-#                                 formString += "</li></ul>"
+                    # if element is one of the declared type
                     elif (sequenceChild.attrib.get('type') == "{0}:string".format(defaultPrefix)
                           or sequenceChild.attrib.get('type') == "{0}:double".format(defaultPrefix)
                           or sequenceChild.attrib.get('type') == "{0}:float".format(defaultPrefix)
@@ -336,7 +328,7 @@ def generateFormSubSection(request, xpath, elementName, fullPath, xmlTree):
                         formString += "</li>"                    
                         elementInfo = ElementInfo(sequenceChild.attrib.get('type'),fullPath[1:] + "." + textCapitalized)
                         mapTagIDElementInfo[elementID] = elementInfo.__to_json__()
-                        request.session['mapTagIDElementInfoExplore'] = mapTagIDElementInfo
+                        request.session['mapTagIDElementInfoExplore'] = mapTagIDElementInfo                
                     else:                        
                         textCapitalized = sequenceChild.attrib.get('name') 
                         mapTagIDElementInfo = request.session['mapTagIDElementInfoExplore'] 
@@ -363,7 +355,8 @@ def generateFormSubSection(request, xpath, elementName, fullPath, xmlTree):
                         if(isEnum is not True):                            
                             formString += "<li>" + textCapitalized + " "
                             formString += generateFormSubSection(request, sequenceChild.attrib.get('type'), textCapitalized,fullPath, xmlTree)
-                            formString += "</li>"                        
+                            formString += "</li>"      
+                # the element is a choice                  
                 elif sequenceChild.tag == "{0}choice".format(defaultNamespace):
                     chooseID = nbChoicesID
                     chooseIDStr = 'choice' + str(chooseID)
@@ -371,12 +364,11 @@ def generateFormSubSection(request, xpath, elementName, fullPath, xmlTree):
                     request.session['nbChoicesIDExplore'] = str(nbChoicesID)
                     formString += "<li>Choose <select id='"+ chooseIDStr +"' onchange=\"changeChoice(this);\">"
                     choiceChildren = sequenceChild.findall('*')
-#                     selectedChild = choiceChildren[0]
                     for choiceChild in choiceChildren:
                         if choiceChild.tag == "{0}element".format(defaultNamespace):
                             textCapitalized = choiceChild.attrib.get('name')
                             formString += "<option value='" + textCapitalized + "'>" + textCapitalized + "</option></b><br>"
-                    formString += "</select></nobr>"                    
+                    formString += "</select></nobr>"                                    
                     for (counter, choiceChild) in enumerate(choiceChildren):
                         if choiceChild.tag == "{0}element".format(defaultNamespace):
                             if (choiceChild.attrib.get('type') == "{0}:string".format(defaultPrefix)
@@ -411,7 +403,6 @@ def generateFormSubSection(request, xpath, elementName, fullPath, xmlTree):
             request.session['nbChoicesIDExplore'] = str(nbChoicesID)
             formString += "<li>Choose <select id='"+ chooseIDStr +"' onchange=\"changeChoice(this);\">"        
             choiceChildren = complexTypeChild.findall('*')
-#             selectedChild = choiceChildren[0]
             for choiceChild in choiceChildren:
                 if choiceChild.tag == "{0}element".format(defaultNamespace):
                     textCapitalized = choiceChild.attrib.get('name')
@@ -520,7 +511,7 @@ def generateForm(request):
 # Inputs:        request - 
 # Outputs:       
 # Exceptions:    None
-# Description:   
+# Description:   Generate an HTML tree from the XSD to select the fields being used in the query
 #
 ################################################################################
 @dajaxice_register
@@ -543,6 +534,7 @@ def generateXSDTreeForQueryingData(request):
     templateID = request.session['exploreCurrentTemplateID']
     print '>>>> ' + templateFilename + ' is the current template in session'
     
+    # get the namespaces of the schema and the default prefix
     xmlDocTree = etree.fromstring(xmlDocTreeStr)
     defaultNamespace = "http://www.w3.org/2001/XMLSchema"
     for prefix, url in xmlDocTree.nsmap.iteritems():
@@ -570,6 +562,16 @@ def generateXSDTreeForQueryingData(request):
     print 'END def generateXSDTreeForQueryingData(request)'
     return dajax.json()
 
+
+################################################################################
+# 
+# Function Name: getIncludedTypes(xmlTreeStr, namespace)
+# Inputs:        request - 
+# Outputs:       A dictionary of types that are included in the template using the include tag
+# Exceptions:    None
+# Description:   Get the types that are included in the template using the include tag
+#
+################################################################################
 def getIncludedTypes(xmlTreeStr, namespace):
     includedTypes = dict()
     
@@ -594,7 +596,7 @@ def getIncludedTypes(xmlTreeStr, namespace):
 #                queryBuilder - 
 # Outputs:       
 # Exceptions:    None
-# Description:   execute a query in mongo db
+# Description:   execute a query in Mongo db
 #
 ################################################################################
 @dajaxice_register
@@ -778,7 +780,8 @@ def manageRegexBeforeExe(query):
 ################################################################################
 # 
 # Function Name: getResultsByInstance(request, numInstance)
-# Inputs:        request -  
+# Inputs:        request -
+#                numInstance - number of instances
 # Outputs:       
 # Exceptions:    None
 # Description:   Get results of a query for a specific instance (Local or others)
@@ -852,8 +855,18 @@ def getResultsByInstance(request, numInstance):
     
     print 'END def getResults(request)'
     return dajax.json()
-
-#TODO: can't do a deep copy of a dictionary containing pattern objects (deepcopy bug)
+ 
+################################################################################
+# 
+# Function Name: manageRegexBeforeAPI(query, queryStr)
+# Inputs:        query - 
+#                queryStr -
+# Outputs:       
+# Exceptions:    None
+# Description:   Can't do a deep copy of a dictionary containing pattern objects (deepcopy bug).
+#                This function is no longer in use
+#
+################################################################################
 def manageRegexBeforeAPI(query, queryStr):
     for key, value in query.iteritems():
         if key == "$and" or key == "$or":
@@ -1037,7 +1050,6 @@ def enumCriteria(path, value, isNot=False):
 #
 ################################################################################
 def ANDCriteria(criteria1, criteria2):
-#     return criteria1.update(criteria2)
     ANDcriteria = dict()
     ANDcriteria["$and"] = []
     ANDcriteria["$and"].append(criteria1)
@@ -1157,6 +1169,7 @@ def checkQueryForm(request, htmlTree):
     
     mapCriterias = request.session['mapCriteriasExplore']
     
+    # get the prefix/namespace used in the schema
     if 'defaultPrefixExplore' in request.session:
         defaultPrefix = request.session['defaultPrefixExplore']
     else:
@@ -1171,7 +1184,7 @@ def checkQueryForm(request, htmlTree):
                 break
         
     
-    
+    # check if there are no errors in the query
     errors = []
     fields = htmlTree.findall("./p")
     if (len(mapCriterias) != len(fields)):
@@ -1258,9 +1271,6 @@ def addField(request, htmlForm):
     
     dajax.assign("#queryForm", "innerHTML", html.tostring(htmlTree))
     
-#     dajax.script("""
-#         makeInputsDroppable();
-#     """);
     return dajax.json()
 
 ################################################################################
@@ -1311,9 +1321,7 @@ def removeField(request, queryForm, criteriaID):
         pass
     
     dajax.assign("#queryForm", "innerHTML", html.tostring(htmlTree))
-#     dajax.script("""
-#         makeInputsDroppable();
-#     """);
+
     return dajax.json()
 
 ################################################################################
@@ -1541,7 +1549,7 @@ def fieldsToPrettyQuery(request, queryFormTree):
     
     fields = queryFormTree.findall("./p")
     query = ""
-#     criteriaIterator = 0
+
     for field in fields:        
         boolComp = field[0].value
         if (boolComp == 'NOT'):
@@ -1561,18 +1569,15 @@ def fieldsToPrettyQuery(request, queryFormTree):
         elemType = elementInfo['type']
         if (elemType == "query"):
             queryValue = queryInfo['displayedQuery']
-#             criteriaIterator += 1
             criteria = queryToPrettyCriteria(queryValue, isNot)
         elif (elemType == "enum"):
             elementPath = elementInfo['path']
             element = elementPath.split('.')[-1]
-#             criteriaIterator += 1
             value = field[2][0].value            
             criteria = enumToPrettyCriteria(element, value, isNot)
         else:                 
             elementPath = elementInfo['path']
             element = elementPath.split('.')[-1]
-#             criteriaIterator += 1
             comparison = field[2][0].value
             value = field[2][1].value
             criteria = buildPrettyCriteria(element, comparison, value, isNot)
@@ -1761,13 +1766,9 @@ def updateUserInputs(request, htmlForm, fromElementID, criteriaID):
         userInputs.append(form)
         userInputs.append(inputs)
         
-
-#     userInputs.getparent()[1].attrib['class'] = "elementInput ui-droppable"
     
     dajax.assign("#queryForm", "innerHTML", html.tostring(htmlTree))
-#     dajax.script("""
-#         makeInputsDroppable();    
-#     """);
+
     return dajax.json()
     
 ################################################################################
@@ -1830,8 +1831,7 @@ def addSavedQueryToForm(request, queryForm, savedQueryID):
                 <span class="icon add" onclick="addField()"> </span>
             </p>
         """)  
-#             break
-    
+
     #insert before the 3 buttons (save, clear, execute)
     queryTree.insert(-3,element)
     
@@ -1842,9 +1842,7 @@ def addSavedQueryToForm(request, queryForm, savedQueryID):
     mapCriterias['crit'+ str(tagID)] = criteriaInfo.__to_json__() 
     request.session['mapCriteriasExplore'] = mapCriterias
     dajax.assign("#queryForm", "innerHTML", html.tostring(queryTree))
-#     dajax.script("""    
-#         makeInputsDroppable();    
-#     """);
+
     return dajax.json()
     
 ################################################################################
@@ -1898,9 +1896,7 @@ def clearCriterias(request, queryForm):
     request.session['mapCriteriasExplore'] = dict()
       
     dajax.assign("#queryForm", "innerHTML", html.tostring(queryTree))
-#     dajax.script("""   
-#         makeInputsDroppable();    
-#     """);
+
     return dajax.json()
 
 ################################################################################
@@ -2046,21 +2042,6 @@ def saveCustomData(request,formContent):
         request.session['customFormStringExplore'] = ""
     
     request.session['anyCheckedExplore'] = False 
-#     + """
-#     <script>
-#     $("#customForm").find("li[draggable=true]").draggable({
-#         helper: "clone",
-#     });
-#     
-#     $( "#queryForm input[droppable=true]" ).droppable({
-#         hoverClass: "ui-state-hover",
-#         drop: function( event, ui ) {
-#             $(this).val(ui.draggable.text());
-#             updateUserInputs(ui.draggable.attr('id'),$(this).parent().attr('id')); 
-#         }
-#     });
-#     </script>
-#     """
 
     print '>>>> END def saveCustomData(request,formContent)'
     return dajax.json()  

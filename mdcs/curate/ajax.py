@@ -59,6 +59,15 @@ projectURI = "http://www.example.com/"
 debugON = 0
 
 
+#Class definition
+
+################################################################################
+# 
+# Class Name: ModuleResourceInfo
+#
+# Description: Store information about a resource for a module
+#
+################################################################################
 class ModuleResourceInfo:
     "Class that store information about a resource for a module"
     
@@ -69,6 +78,13 @@ class ModuleResourceInfo:
     def __to_json__(self):
         return json.dumps(self, default=lambda o:o.__dict__)
 
+################################################################################
+# 
+# Class Name: ElementOccurrences
+#
+# Description: Store information about a resource for a module
+#
+################################################################################
 class ElementOccurrences:
     "Class that store information about element occurrences"
         
@@ -97,22 +113,6 @@ class ElementOccurrences:
 ################################################################################
 @dajaxice_register
 def getHDF5String(request):
-#     print '>>>> BEGIN def getHDF5String(request)'
-#     dajax = Dajax() 
-# 
-#     hdf5String = ""
-#     try:
-#         hdf5FileObject = Hdf5file.objects.get(title="hdf5file")
-#         hdf5FileContent = hdf5FileObject.content
-#         hdf5FileObject.delete()
-#         hdf5String = hdf5FileContent.encode('utf-8')
-#     except:
-#         pass
-#     
-#     print hdf5String
-# 
-#     print '>>>> END def getHDF5String(request)'
-#     return simplejson.dumps({'hdf5String':hdf5String})
     dajax = Dajax() 
     if 'spreadsheetXML' in request.session:
         spreadsheetXML = request.session['spreadsheetXML']
@@ -154,7 +154,7 @@ def updateFormList(request):
 
 ################################################################################
 #
-# Function Name: updateFormList(request)
+# Function Name: saveHTMLForm(request)
 # Inputs:        request - 
 # Outputs:       
 # Exceptions:    None
@@ -182,7 +182,7 @@ def saveHTMLForm(request,saveAs,content):
 #                xmlString - 
 # Outputs:       
 # Exceptions:    None
-# Description:   Check if the current XML document is valid
+# Description:   Check if the current XML document is valid according to the template
 #                
 #
 ################################################################################
