@@ -22,34 +22,27 @@ from django.conf import settings
 from mongoengine import *
 from io import BytesIO
 from mgi.models import XMLSchema 
-import sys
-from xlrd import open_workbook
-from argparse import ArgumentError
-from cgi import FieldStorage
 from cStringIO import StringIO
 from django.core.servers.basehttp import FileWrapper
-from mgi.models import Template, Htmlform, Xmldata, Hdf5file, Jsondata, XML2Download, TemplateVersion, Instance, Request, Module, ModuleResource, Type, TypeVersion
+from mgi.models import Template, Htmlform, Xmldata, Jsondata, XML2Download, TemplateVersion, Instance, Request, Module, ModuleResource, Type, TypeVersion
 from django.contrib.auth.models import User
 from datetime import datetime
-from datetime import tzinfo
 import requests
 import xmltodict
 from bson.objectid import ObjectId
-from dateutil import tz
 import hashlib
 import json
+from django.contrib.auth import authenticate
 
 #import xml.etree.ElementTree as etree
 import lxml.html as html
 import lxml.etree as etree
-import xml.dom.minidom as minidom
 
 # Specific to RDF
 import rdfPublisher
 
 #XSL file loading
 import os
-from json.decoder import JSONDecoder
 from django.core.files.temp import NamedTemporaryFile
 
 # SPARQL : URI for the project (http://www.example.com/)
@@ -107,7 +100,7 @@ class ElementOccurrences:
 # Inputs:        request - 
 # Outputs:       
 # Exceptions:    None
-# Description:   
+# Description:   Get the values of an excel spreadsheet from the session variable
 #                
 #
 ################################################################################
@@ -158,7 +151,7 @@ def updateFormList(request):
 # Inputs:        request - 
 # Outputs:       
 # Exceptions:    None
-# Description:   
+# Description:   Save the current form in MongoDB
 #                
 #
 ################################################################################
@@ -257,6 +250,8 @@ def validateXMLDocument(templateID, xmlString):
     prettyXMLString = etree.tostring(xmlDoc, pretty_print=True)  
     #xmlSchema.assertValid(etree.parse(StringIO(xmlString)))
     xmlSchema.assertValid(etree.parse(StringIO(prettyXMLString)))  
+    
+
 ################################################################################
 #
 # Function Name: saveXMLDataToDB(request, saveAs)
@@ -264,7 +259,8 @@ def validateXMLDocument(templateID, xmlString):
 #                saveAs - title of the document
 # Outputs:       
 # Exceptions:    None
-# Description:   
+# Description:   Save the current XML document in MongoDB. The document is also
+#                converted to RDF format and sent to a Jena triplestore.
 #                
 #
 ################################################################################
@@ -276,25 +272,11 @@ def saveXMLDataToDB(request,saveAs):
     xmlString = request.session['xmlString']
     templateID = request.session['currentTemplateID']
 
-    #TODO: XML validation           
-#     try:
-#         validateXMLDocument(templateID, xmlString)   
-#     except Exception, e:
-#         message= e.message.replace('"','\'')
-#         dajax.script("""
-#             $("#saveErrorMessage").html(" """+ message + """ ");
-#             saveXMLDataToDBError();
-#         """)
-#         return dajax.json()
-
-    #newXMLData = Xmldata(title=saveAs, schema=templateID, content=xmlString).save()
 
     try:
         newJSONData = Jsondata(schemaID=templateID, xml=xmlString, title=saveAs)
         docID = newJSONData.save()
-    
-        #xsltPath = './xml2rdf3.xsl' #path to xslt on my machine
-        #xsltFile = open(os.path.join(PROJECT_ROOT,'xml2rdf3.xsl'))
+        
         xsltPath = os.path.join(settings.SITE_ROOT, 'static/resources/xsl/xml2rdf3.xsl')
         xslt = etree.parse(xsltPath)
         root = xslt.getroot()
@@ -337,7 +319,7 @@ def saveXMLDataToDB(request,saveAs):
 # Inputs:        request - 
 # Outputs:       
 # Exceptions:    None
-# Description:   
+# Description:   Save the content of the current form in session
 #                
 #
 ################################################################################
@@ -358,7 +340,7 @@ def saveXMLData(request, formContent):
 #                formSelected - 
 # Outputs:       
 # Exceptions:    None
-# Description:   
+# Description:   Load a saved form in the page
 #                
 #
 ################################################################################
@@ -380,6 +362,7 @@ def loadFormForEntry(request,formSelected):
 # Function Name: setCurrentTemplate(request,templateFilename,templateID)
 # Inputs:        request - 
 #                templateFilename -  
+#                templateID - 
 # Outputs:       JSON data with success or failure
 # Exceptions:    None
 # Description:   Set the current template to input argument.  Template is read 
@@ -417,7 +400,8 @@ def setCurrentTemplate(request,templateFilename,templateID):
 # Outputs:       JSON data with success or failure
 # Exceptions:    None
 # Description:   Set the current template to input argument.  Template is read 
-#                into an xsdDocTree for use later.
+#                into an xsdDocTree for use later. This case is for templates
+#                defined using the composer.
 #
 ################################################################################
 @dajaxice_register
@@ -468,7 +452,7 @@ def verifyTemplateIsSelected(request):
 
 ################################################################################
 # 
-# Function Name: uploadObject
+# Function Name: uploadObject(request,objectName,objectFilename,objectContent, objectType)
 # Inputs:        request - 
 #                objectName - 
 #                objectFilename - 
@@ -511,7 +495,6 @@ def uploadObject(request,objectName,objectFilename,objectContent, objectType):
             """)
             return dajax.json()
     except Exception, e:
-        #dajax.script("""alert('"""+e.message.replace("'","") +"""');""")
         dajax.script("""
                 $("#objectNameErrorMessage").html("<font color='red'>Not a valid XML document.</font><br/>"""+e.message.replace("'","") +""" ");
             """)
@@ -552,8 +535,6 @@ def uploadObject(request,objectName,objectFilename,objectContent, objectType):
             objectVersions = TypeVersion(nbVersions=1, isDeleted=False).save()
             object = Type(title=elementType, filename=objectFilename, content=objectContent, version=1, typeVersion=str(objectVersions.id)).save()
     
-#     templateVersion = TemplateVersion(nbVersions=1, isDeleted=False).save()
-#     newTemplate = Template(title=xmlSchemaName, filename=xmlSchemaFilename, content=xmlSchemaContent, version=1, templateVersion=str(templateVersion.id)).save()
     objectVersions.versions = [str(object.id)]
     objectVersions.current=str(object.id)
     objectVersions.save()    
@@ -565,12 +546,13 @@ def uploadObject(request,objectName,objectFilename,objectContent, objectType):
 
 ################################################################################
 # 
-# Function Name: deleteXMLSchema
+# Function Name: deleteObject(request, objectID, objectType)
 # Inputs:        request - 
-#                xmlSchemaID - 
+#                objectID - 
+#                objectType - 
 # Outputs:       JSON data 
 # Exceptions:    None
-# Description:   
+# Description:   Delete an object (template or type).
 # 
 ################################################################################
 @dajaxice_register
@@ -585,12 +567,6 @@ def deleteObject(request, objectID, objectType):
         object = Type.objects.get(pk=objectID)
         objectVersions = TypeVersion.objects.get(pk=object.typeVersion)
 
-
-#     for version in templateVersion.versions:
-#         template = Template.objects.get(pk=version)
-#         template.delete()
-#     templateVersion.delete()
-#     selectedSchema.delete()
     objectVersions.deletedVersions.append(str(object.id))    
     objectVersions.isDeleted = True
     objectVersions.save()
@@ -599,64 +575,17 @@ def deleteObject(request, objectID, objectType):
     print 'END def deleteXMLSchema(request,xmlSchemaID)'
     return dajax.json()
 
+
 ################################################################################
 # 
-# Function Name: uploadXMLType
-# Inputs:        request - 
-#                xmlTypeFilename - 
-#                xmlTypeContent - 
+# Function Name: generateFormSubSection(request, xpath, xmlTree, namespace)
+# Inputs:        request -
+#                xpath - path to the element or element itself
+#                xmlTree - XML tree of the template
+#                namespace - Namespace used in the template
 # Outputs:       JSON data 
 # Exceptions:    None
-# Description:   
-# 
-################################################################################
-@dajaxice_register
-def uploadXMLType(request,xmlTypeName,xmlTypeFilename,xmlTypeContent):
-    print 'BEGIN def uploadXMType(request,xmlTypeFilename,xmlTypeContent)'
-    dajax = Dajax()
-
-    print 'xmlTypeName: ' + xmlTypeName
-    print 'xmlTypeFilename: ' + xmlTypeFilename
-    print 'xmlTypeContent: ' + xmlTypeContent
-
-    newType = Type(title=xmlTypeName, filename=xmlTypeFilename, content=xmlTypeContent).save()
-
-    print 'END def uploadXMLTypey(request,xmlTypeFilename,xmlTypeContent)'
-    return dajax.json()
-
-################################################################################
-# 
-# Function Name: deleteXMLType
-# Inputs:        request - 
-#                xmlTypeID - 
-# Outputs:       JSON data 
-# Exceptions:    None
-# Description:   
-# 
-################################################################################
-@dajaxice_register
-def deleteXMLType(request,xmlTypeID):
-    print 'BEGIN def deleteXMLType(request,xmlTypeID)'
-    dajax = Dajax()
-
-    print 'xmlTypeID: ' + xmlTypeID
-
-    selectedType = Type.objects(id=xmlTypeID)[0]
-    selectedType.delete()
-
-    print 'END def deleteXMLType(request,xmlTypeID)'
-    return dajax.json()
-
-
-################################################################################
-# 
-# Function Name: generateFormSubSection(xpath,selected,xmlElement)
-# Inputs:        xpath -
-#                selected -
-#                xmlElement - 
-# Outputs:       JSON data 
-# Exceptions:    None
-# Description:   
+# Description:   Generate a subsection of the HTML string to be inserted in the page.
 #
 ################################################################################
 def generateFormSubSection(request, xpath, xmlTree, namespace):
@@ -1054,6 +983,17 @@ def generateFormSubSection(request, xpath, xmlTree, namespace):
     
     return formString
 
+################################################################################
+# 
+# Function Name: manageOccurences(request, element, elementID)
+# Inputs:        request -
+#                element - 
+#                elementID -
+# Outputs:       JSON data 
+# Exceptions:    None
+# Description:   Store information about the occurrences of the element
+#
+################################################################################
 def manageOccurences(request, element, elementID):
     occurrences = request.session['occurrences']
     elementOccurrences = ElementOccurrences()
@@ -1071,7 +1011,17 @@ def manageOccurences(request, element, elementID):
     occurrences[elementID] = elementOccurrences.__to_json__()
     
 
-
+################################################################################
+# 
+# Function Name: remove(request, tagID, xsdForm)
+# Inputs:        request -
+#                tagID - 
+#                xsdForm -
+# Outputs:       JSON data 
+# Exceptions:    None
+# Description:   Remove an element from the form: make it grey or remove the selected occurrence
+#
+################################################################################
 @dajaxice_register
 def remove(request, tagID, xsdForm):
     dajax = Dajax()
@@ -1081,7 +1031,6 @@ def remove(request, tagID, xsdForm):
     
     tagID = "element"+ str(tagID)
     elementID = mapTagElement[tagID]
-#     sequenceChild = xsd_elements[elementID]
     elementOccurrencesStr = occurrences[str(elementID)]
     if 'inf' in elementOccurrencesStr:
         elementOccurrencesStr = elementOccurrencesStr.replace('inf','float("inf")')
@@ -1095,7 +1044,6 @@ def remove(request, tagID, xsdForm):
         request.session['occurrences'] = occurrences
         
         if (elementOccurrences['nbOccurrences'] == 0):    
-            #desactiver les couleurs etc pour elementX        
             dajax.script("""
                 $('#add"""+str(tagID[7:])+"""').attr('style','');
                 $('#remove"""+str(tagID[7:])+"""').attr('style','display:none');
@@ -1136,11 +1084,13 @@ def remove(request, tagID, xsdForm):
 
 ################################################################################
 # 
-# Function Name: duplicate(tagID)
-# Inputs:        xpath -
+# Function Name: duplicate(request, tagID, xsdForm)
+# Inputs:        request -
+#                tagID -
+#                xsdForm -
 # Outputs:       JSON data 
 # Exceptions:    None
-# Description:   
+# Description:   Duplicate an occurrence of an element: make it black or add one.
 #
 ################################################################################
 @dajaxice_register
@@ -1328,11 +1278,14 @@ def duplicate(request, tagID, xsdForm):
 
 ################################################################################
 # 
-# Function Name: duplicateFormSubSection(xpath)
-# Inputs:        xpath -
+# Function Name: duplicateFormSubSection(request, xpath)
+# Inputs:        request -
+#                xpath -
+#                xmlTree - 
+#                namespace - 
 # Outputs:       JSON data 
 # Exceptions:    None
-# Description:   
+# Description:   Duplicate subsection of an element when the type is complex.
 #
 ################################################################################
 def duplicateFormSubSection(request, xpath, xmlTree, namespace):
@@ -1684,21 +1637,16 @@ def duplicateFormSubSection(request, xpath, xmlTree, namespace):
                 formString += "</select>"
     
     return formString
+
 ################################################################################
 # 
-# Function Name: get_namespace(element)
-# Inputs:        element -
-# Outputs:       namespace
+# Function Name: get_namespaces(file)
+# Inputs:        file -
+# Outputs:       namespaces
 # Exceptions:    None
-# Description:   Helper function that gets namespace
+# Description:   Get the namespaces used in the document
 #
 ################################################################################
-
-def get_namespace(element):
-  m = re.match('\{.*\}', element.tag)
-  return m.group(0) if m else ''
-
-
 def get_namespaces(file):
     "Reads and returns the namespaces in the schema tag"
     events = "start", "start-ns"
@@ -1712,6 +1660,16 @@ def get_namespaces(file):
             break
     return ns
 
+################################################################################
+# 
+# Function Name: getIncludedTypes(xmlTreeStr, namespace)
+# Inputs:        xmlTreeStr -
+#                namespace -
+# Outputs:       Included types
+# Exceptions:    None
+# Description:   Get the list of external types included using the include tag. 
+#
+################################################################################
 def getIncludedTypes(xmlTreeStr, namespace):
     includedTypes = dict()
     
@@ -1727,11 +1685,11 @@ def getIncludedTypes(xmlTreeStr, namespace):
                     pass
     
     return includedTypes
+
 ################################################################################
 # 
-# Function Name: generateForm(key,xmlElement)
-# Inputs:        key -
-#                xmlElement -
+# Function Name: generateForm(request)
+# Inputs:        request -
 # Outputs:       rendered HTMl form
 # Exceptions:    None
 # Description:   Renders HTMl form for display.
@@ -1779,6 +1737,16 @@ def generateForm(request):
     
     return formString
 
+################################################################################
+# 
+# Function Name: loadModuleResources(templateID)
+# Inputs:        templateID -
+# Outputs:       
+# Exceptions:    None
+# Description:   Get the resources needed to display a module of the template,
+#                and returns a string to be inserted in the HTML page.
+#
+################################################################################
 def loadModuleResources(templateID):
     modules = Module.objects(template=templateID)
     html = ""
@@ -1798,7 +1766,7 @@ def loadModuleResources(templateID):
 # Inputs:        request - 
 # Outputs:       
 # Exceptions:    None
-# Description:   
+# Description:   Renders HTMl form for display.
 #
 ################################################################################
 @dajaxice_register
@@ -1879,6 +1847,15 @@ def generateXSDTreeForEnteringData(request):
     return dajax.json()
 
 
+################################################################################
+# 
+# Function Name: downloadXML(request)
+# Inputs:        request - 
+# Outputs:       
+# Exceptions:    None
+# Description:   Make the current XML document available for download.
+#
+################################################################################
 @dajaxice_register
 def downloadXML(request):
     dajax = Dajax()
@@ -1893,6 +1870,17 @@ def downloadXML(request):
     return dajax.json()
 
 
+################################################################################
+# 
+# Function Name: setSchemaVersionContent(request, versionContent, versionFilename)
+# Inputs:        request - 
+#                versionContent -
+#                versionFilename - 
+# Outputs:       
+# Exceptions:    None
+# Description:   Save the name and content of uploaded schema before save
+#
+################################################################################
 @dajaxice_register
 def setSchemaVersionContent(request, versionContent, versionFilename):
     dajax = Dajax()
@@ -1902,6 +1890,17 @@ def setSchemaVersionContent(request, versionContent, versionFilename):
     
     return dajax.json()
 
+################################################################################
+# 
+# Function Name: setTypeVersionContent(request, versionContent, versionFilename)
+# Inputs:        request - 
+#                versionContent -
+#                versionFilename - 
+# Outputs:       
+# Exceptions:    None
+# Description:   Save the name and content of uploaded type before save
+#
+################################################################################
 @dajaxice_register
 def setTypeVersionContent(request, versionContent, versionFilename):
     dajax = Dajax()
@@ -1911,10 +1910,22 @@ def setTypeVersionContent(request, versionContent, versionFilename):
     
     return dajax.json()
 
+################################################################################
+# 
+# Function Name: uploadVersion(request, objectVersionID, objectType)
+# Inputs:        request - 
+#                objectVersionID -
+#                objectType - 
+# Outputs:       
+# Exceptions:    None
+# Description:   Upload the object (template or type)
+#
+################################################################################
 @dajaxice_register
 def uploadVersion(request, objectVersionID, objectType):
     dajax = Dajax()    
-        
+    
+    # Templates
     if objectType == "Template":      
         if ('xsdVersionContent' in request.session 
         and 'xsdVersionFilename' in request.session 
@@ -1957,7 +1968,7 @@ def uploadVersion(request, objectVersionID, objectType):
                 return dajax.json()
         else:
             return dajax.json()
-    else:
+    else: #Types
         if ('typeVersionContent' in request.session 
         and 'typeVersionFilename' in request.session 
         and request.session['typeVersionContent'] != "" 
@@ -1997,7 +2008,17 @@ def uploadVersion(request, objectVersionID, objectType):
         
     return dajax.json()
 
-
+################################################################################
+# 
+# Function Name: setCurrentVersion(request, objectid, objectType)
+# Inputs:        request - 
+#                objectid -
+#                objectType - 
+# Outputs:       
+# Exceptions:    None
+# Description:   Set the current version of the object (template or type)
+#
+################################################################################
 @dajaxice_register
 def setCurrentVersion(request, objectid, objectType):
     dajax = Dajax()
@@ -2019,6 +2040,18 @@ def setCurrentVersion(request, objectid, objectType):
     
     return dajax.json()
 
+################################################################################
+# 
+# Function Name: deleteVersion(request, objectid, objectType, newCurrent)
+# Inputs:        request - 
+#                objectid -
+#                objectType - 
+#                newCurrent - 
+# Outputs:       
+# Exceptions:    None
+# Description:   Delete a version of the object (template or type) by adding it to the list of deleted
+#
+################################################################################
 @dajaxice_register
 def deleteVersion(request, objectid, objectType, newCurrent):
     dajax = Dajax()
@@ -2055,6 +2088,17 @@ def deleteVersion(request, objectid, objectType, newCurrent):
     
     return dajax.json()
 
+################################################################################
+# 
+# Function Name: assignDeleteCustomMessage(request, objectid, objectType)
+# Inputs:        request - 
+#                objectid -
+#                objectType - 
+# Outputs:       
+# Exceptions:    None
+# Description:   Assign a message to the dialog box regarding the situation of the version that is about to be deleted
+#
+################################################################################
 @dajaxice_register
 def assignDeleteCustomMessage(request, objectid, objectType):
     dajax = Dajax()
@@ -2089,6 +2133,19 @@ def assignDeleteCustomMessage(request, objectid, objectType):
     
     return dajax.json()
 
+################################################################################
+# 
+# Function Name: editInformation(request, objectid, objectType, newName, newFilename)
+# Inputs:        request - 
+#                objectid -
+#                objectType - 
+#                newName - 
+#                newFileName -
+# Outputs:       
+# Exceptions:    None
+# Description:   Edit information of an object (template or type)
+#
+################################################################################
 @dajaxice_register
 def editInformation(request, objectid, objectType, newName, newFilename):
     dajax = Dajax()
@@ -2119,6 +2176,18 @@ def editInformation(request, objectid, objectType, newName, newFilename):
     
     return dajax.json()
 
+
+################################################################################
+# 
+# Function Name: restoreObject(request, objectid, objectType)
+# Inputs:        request - 
+#                objectid -
+#                objectType - 
+# Outputs:       
+# Exceptions:    None
+# Description:   Restore an object previously deleted (template or type)
+#
+################################################################################
 @dajaxice_register
 def restoreObject(request, objectid, objectType):
     dajax = Dajax()
@@ -2142,6 +2211,17 @@ def restoreObject(request, objectid, objectType):
     
     return dajax.json()
 
+################################################################################
+# 
+# Function Name: restoreVersion(request, objectid, objectType)
+# Inputs:        request - 
+#                objectid -
+#                objectType - 
+# Outputs:       
+# Exceptions:    None
+# Description:   Restore a version of an object previously deleted (template or type)
+#
+################################################################################
 @dajaxice_register
 def restoreVersion(request, objectid, objectType):
     dajax = Dajax()
@@ -2163,6 +2243,21 @@ def restoreVersion(request, objectid, objectType):
     
     return dajax.json()
 
+################################################################################
+# 
+# Function Name: addInstance(request, name, protocol, address, port, user, password)
+# Inputs:        request - 
+#                name -
+#                protocol - 
+#                address - 
+#                port - 
+#                user - 
+#                password - 
+# Outputs:       
+# Exceptions:    None
+# Description:   Register a remote instance for the federation of queries
+#
+################################################################################
 @dajaxice_register
 def addInstance(request, name, protocol, address, port, user, password):
     dajax = Dajax()
@@ -2210,6 +2305,16 @@ def addInstance(request, name, protocol, address, port, user, password):
     
     return dajax.json()
 
+################################################################################
+# 
+# Function Name: retrieveInstance(request, instanceid)
+# Inputs:        request - 
+#                instanceid - 
+# Outputs:       
+# Exceptions:    None
+# Description:   Retrieve an instance to edit it
+#
+################################################################################
 @dajaxice_register
 def retrieveInstance(request, instanceid):
     dajax = Dajax()
@@ -2256,6 +2361,22 @@ def retrieveInstance(request, instanceid):
     
     return dajax.json()
 
+################################################################################
+# 
+# Function Name: editInstance(request, instanceid, name, protocol, address, port, user, password)
+# Inputs:        request -
+#                instanceid - 
+#                name -
+#                protocol - 
+#                address - 
+#                port - 
+#                user - 
+#                password - 
+# Outputs:       
+# Exceptions:    None
+# Description:   Edit the instance information
+#
+################################################################################
 @dajaxice_register
 def editInstance(request, instanceid, name, protocol, address, port, user, password):
     dajax = Dajax()
@@ -2311,6 +2432,16 @@ def editInstance(request, instanceid, name, protocol, address, port, user, passw
     
     return dajax.json()
 
+################################################################################
+# 
+# Function Name: deleteInstance(request, instanceid)
+# Inputs:        request -
+#                instanceid -  
+# Outputs:       
+# Exceptions:    None
+# Description:   Delete an instance
+#
+################################################################################
 @dajaxice_register
 def deleteInstance(request, instanceid):
     dajax = Dajax()
@@ -2327,6 +2458,15 @@ def deleteInstance(request, instanceid):
     
     return dajax.json()
 
+################################################################################
+# 
+# Function Name: clearFields(request)
+# Inputs:        request -
+# Outputs:       
+# Exceptions:    None
+# Description:   Clears fields of the HTML form. Also restore the occurences.
+#
+################################################################################
 @dajaxice_register
 def clearFields(request):
     dajax = Dajax()
@@ -2359,7 +2499,21 @@ def clearFields(request):
     
     return dajax.json()
 
-
+################################################################################
+# 
+# Function Name: pingRemoteAPI(request, name, protocol, address, port, user, password)
+# Inputs:        request -
+#                name - 
+#                protocol -
+#                address - 
+#                port -
+#                user -
+#                password - 
+# Outputs:       
+# Exceptions:    None
+# Description:   Ping a remote instance to see if it is reachable with the given parameters
+#
+################################################################################
 @dajaxice_register
 def pingRemoteAPI(request, name, protocol, address, port, user, password):
     dajax = Dajax()
@@ -2408,6 +2562,20 @@ def loadXML(request):
     
     return dajax.json()
 
+################################################################################
+# 
+# Function Name: requestAccount(request, username, password, firstname, lastname, email)
+# Inputs:        request - 
+#                username - 
+#                password - 
+#                firstname - 
+#                lastname - 
+#                email - 
+# Outputs:        
+# Exceptions:    None
+# Description:   Submit a request for an user account for the system.
+# 
+################################################################################
 @dajaxice_register
 def requestAccount(request, username, password, firstname, lastname, email):
     dajax = Dajax()
@@ -2445,6 +2613,16 @@ def requestAccount(request, username, password, firstname, lastname, email):
          """)
     return dajax.json()
 
+################################################################################
+# 
+# Function Name: acceptRequest(request, requestid)
+# Inputs:        request - 
+#                requestid - 
+# Outputs:        
+# Exceptions:    None
+# Description:   Accepts a request and creates the user account
+# 
+################################################################################
 @dajaxice_register
 def acceptRequest(request, requestid):
     dajax = Dajax()
@@ -2487,6 +2665,16 @@ def acceptRequest(request, requestid):
         
     return dajax.json()
 
+################################################################################
+# 
+# Function Name: denyRequest(request, requestid)
+# Inputs:        request - 
+#                requestid - 
+# Outputs:        
+# Exceptions:    None
+# Description:   Denies a request
+# 
+################################################################################
 @dajaxice_register
 def denyRequest(request, requestid):
     dajax = Dajax()
@@ -2500,6 +2688,16 @@ def denyRequest(request, requestid):
     """)
     return dajax.json()
 
+################################################################################
+# 
+# Function Name: initModuleManager(request)
+# Inputs:        request - 
+#                requestid - 
+# Outputs:        
+# Exceptions:    None
+# Description:   Empties the list of resource when come to the module manager
+# 
+################################################################################
 @dajaxice_register
 def initModuleManager(request):
     dajax = Dajax()
@@ -2508,6 +2706,17 @@ def initModuleManager(request):
     
     return dajax.json()
 
+################################################################################
+# 
+# Function Name: addModuleResource(request, resourceContent, resourceFilename)
+# Inputs:        request - 
+#                resourceContent - 
+#                resourceFilename - 
+# Outputs:        
+# Exceptions:    None
+# Description:   Add a resource for the module. Save the content and name before save.
+# 
+################################################################################
 @dajaxice_register
 def addModuleResource(request, resourceContent, resourceFilename):
     dajax = Dajax()
@@ -2518,6 +2727,15 @@ def addModuleResource(request, resourceContent, resourceFilename):
     return dajax.json()
 
 
+################################################################################
+# 
+# Function Name: uploadResource(request)
+# Inputs:        request - 
+# Outputs:        
+# Exceptions:    None
+# Description:   Upload the resource
+# 
+################################################################################
 @dajaxice_register
 def uploadResource(request):
     dajax = Dajax()
@@ -2534,6 +2752,19 @@ def uploadResource(request):
     
     return dajax.json()
 
+################################################################################
+# 
+# Function Name: addModule(request, template, name, tag, HTMLTag)
+# Inputs:        request - 
+#                template - 
+#                name - 
+#                tag - 
+#                HTMLTag - 
+# Outputs:        
+# Exceptions:    None
+# Description:   Add a module in mongo db
+# 
+################################################################################
 @dajaxice_register
 def addModule(request, template, name, tag, HTMLTag):
     dajax = Dajax()    
@@ -2549,6 +2780,16 @@ def addModule(request, template, name, tag, HTMLTag):
 
     return dajax.json()
 
+################################################################################
+# 
+# Function Name: createBackup(request, mongodbPath)
+# Inputs:        request - 
+#                mongoPath -  
+# Outputs:        
+# Exceptions:    None
+# Description:   Runs the mongo db command to create a backup of the current mongo instance
+# 
+################################################################################
 @dajaxice_register
 def createBackup(request, mongodbPath):
     dajax = Dajax()
@@ -2584,7 +2825,17 @@ def createBackup(request, mongodbPath):
     """)
     return dajax.json()
 
-
+################################################################################
+# 
+# Function Name: restoreBackup(request, mongodbPath, backup)
+# Inputs:        request - 
+#                mongoPath -  
+#                backup - 
+# Outputs:        
+# Exceptions:    None
+# Description:   Runs the mongo db command to restore a backup to the current mongo instance
+# 
+################################################################################
 @dajaxice_register
 def restoreBackup(request, mongodbPath, backup):
     dajax = Dajax()
@@ -2616,7 +2867,16 @@ def restoreBackup(request, mongodbPath, backup):
     """)
     return dajax.json()
 
-
+################################################################################
+# 
+# Function Name: restoreBackup(request, backup)
+# Inputs:        request -   
+#                backup - 
+# Outputs:        
+# Exceptions:    None
+# Description:   Deletes a backup from the list
+# 
+################################################################################
 @dajaxice_register
 def deleteBackup(request, backup):
     dajax = Dajax()
@@ -2637,7 +2897,20 @@ def deleteBackup(request, backup):
     
     return dajax.json()
 
-
+################################################################################
+# 
+# Function Name: saveUserProfile(request, userid, username, firstname, lastname, email)
+# Inputs:        request -   
+#                userid - 
+#                username - 
+#                firstname -
+#                lastname -
+#                email - 
+# Outputs:        
+# Exceptions:    None
+# Description:   saves the user profile with the updated information
+# 
+################################################################################
 @dajaxice_register
 def saveUserProfile(request, userid, username, firstname, lastname, email):
     dajax = Dajax()
@@ -2686,8 +2959,19 @@ def saveUserProfile(request, userid, username, firstname, lastname, email):
     
     return dajax.json()
 
-from django.contrib.auth import authenticate
 
+################################################################################
+# 
+# Function Name: changePassword(request, userid, old_password, password)
+# Inputs:        request -   
+#                userid - 
+#                old_password - 
+#                password - 
+# Outputs:        
+# Exceptions:    None
+# Description:   Changes the password of the user
+# 
+################################################################################
 @dajaxice_register
 def changePassword(request, userid, old_password, password):
     dajax = Dajax()
