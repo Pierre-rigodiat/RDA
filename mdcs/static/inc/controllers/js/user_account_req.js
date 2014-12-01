@@ -62,7 +62,7 @@ request_account = function()
 		  });
 	}
 	else{
-		Dajaxice.curate.requestAccount(Dajax.process,{"username":username, "password":pass1, "firstname":firstname, "lastname": lastname, "email": email});
+		Dajaxice.admin.requestAccount(Dajax.process,{"username":username, "password":pass1, "firstname":firstname, "lastname": lastname, "email": email});
 	}
 }
 
@@ -106,7 +106,7 @@ saveProfile = function()
 		  });
 	}
 	else{
-		Dajaxice.curate.saveUserProfile(Dajax.process,{"userid":userid, "username":username, "firstname":firstname, "lastname": lastname, "email": email});
+		Dajaxice.admin.saveUserProfile(Dajax.process,{"userid":userid, "username":username, "firstname":firstname, "lastname": lastname, "email": email});
 	}
 
     console.log('END [saveProfile]');
@@ -157,7 +157,7 @@ changePassword = function()
 		  });
 	}
 	else{
-		Dajaxice.curate.changePassword(Dajax.process,{"userid":userid, "old_password":old_pass, "password":pass1});
+		Dajaxice.admin.changePassword(Dajax.process,{"userid":userid, "old_password":old_pass, "password":pass1});
 	}
     
     

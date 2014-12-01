@@ -39,7 +39,7 @@ addInstance = function()
             		if (errors != ""){
             			$("#instance_error").html(errors);
             		}else{
-            			Dajaxice.curate.pingRemoteAPI(Dajax.process,{"name":name, "protocol": protocol, "address":address, "port":port, "user": user, "password": password});
+            			Dajaxice.admin.pingRemoteAPI(Dajax.process,{"name":name, "protocol": protocol, "address":address, "port":port, "user": user, "password": password});
             		}
             	},
             	Add: function() {	
@@ -55,7 +55,7 @@ addInstance = function()
             		if (errors != ""){
             			$("#instance_error").html(errors);
             		}else{
-            			Dajaxice.curate.addInstance(Dajax.process,{"name":name, "protocol": protocol, "address":address, "port":port, "user": user, "password": password});
+            			Dajaxice.admin.addInstance(Dajax.process,{"name":name, "protocol": protocol, "address":address, "port":port, "user": user, "password": password});
             		}
                 },
                 Cancel: function() {	
@@ -115,7 +115,7 @@ editInstance = function()
 {    
     var instanceid = $(this).attr("instanceid");
     $("#edit_instance_error").html("");
-    Dajaxice.curate.retrieveInstance(Dajax.process,{"instanceid":instanceid});
+    Dajaxice.admin.retrieveInstance(Dajax.process,{"instanceid":instanceid});
 }
 
 deleteInstance = function()
@@ -127,7 +127,7 @@ deleteInstance = function()
             width: 520,
             buttons: {
             	Delete: function() {	
-            		Dajaxice.curate.deleteInstance(Dajax.process, {"instanceid": instanceid});
+            		Dajaxice.admin.deleteInstance(Dajax.process, {"instanceid": instanceid});
             	},
             	Cancel: function() {	
             		$( this ).dialog( "close" );

@@ -20,41 +20,36 @@ manageVersions = function()
     var objectID = $(this).attr("objectid");
     var objectType = $(this).attr("objectType");
     
-    //Dajaxice.curate.manageVersions(Dajax.process, {"objectID": objectID, "objectType": objectType});
-
-    
-    $(function() {
-    	$('<div title="Manage Versions">'+
-    			'<iframe id="version-upload-frame" style="width:500px;height:auto; min-height:400px;" src="/admin/manage-versions?id='+ objectID +'&type='+ objectType +'">'+
-    			'</iframe>'+	
-    	  '</div>' ).dialog({
-	        modal: true,
-	        width:520,
-	        height:510,
-	        resizable:false,
-            buttons: {
-            	OK: function() {
-                    $( this ).dialog( "close" );
-                    $('#model_selection').load(document.URL +  ' #model_selection', function() {
-                        loadUploadManagerHandler();
-                    }); 
-                },
-                Cancel: function() {
-                	$( this ).dialog( "close" );  
-                    $('#model_selection').load(document.URL +  ' #model_selection', function() {
-                        loadUploadManagerHandler();
-                    }); 
-                }
-	    }
-        });
-    });
-//    if (objectType == "Template"){
-//    	document.getElementById('version-upload-frame').contentWindow.document.getElementById('fileVersion').addEventListener('change', handleSchemaVersionUpload , false);
-//    }
-//    else {
-//    	document.getElementById('version-upload-frame').contentWindow.document.getElementById('fileVersion').addEventListener('change', handleTypeVersionUpload , false);
-//	}
-    
+   
+	versionDialog = $('<div title="Manage Versions" id="dialog-manage-versions">'+
+			'<iframe id="version-upload-frame" style="width:500px;height:auto; min-height:400px;" src="/admin/manage-versions?id='+ objectID +'&type='+ objectType +'">'+
+			'</iframe>'+	
+	  '</div>' ).dialog({
+        modal: true,
+        width:520,
+        height:510,
+        resizable:false,
+        close: function(event, ui){
+        	$(this).dialog('destroy').remove();
+        	$('#model_selection').load(window.parent.document.URL +  ' #model_selection', function() {
+        	      loadUploadManagerHandler();
+        	});  
+        },
+        buttons: {
+        	OK: function() {
+        		$(this).dialog('close');
+                $('#model_selection').load(document.URL +  ' #model_selection', function() {
+                    loadUploadManagerHandler();
+                }); 
+            },
+            Cancel: function() {
+            	$(this).dialog('close');
+                $('#model_selection').load(document.URL +  ' #model_selection', function() {
+                    loadUploadManagerHandler();
+                }); 
+            }
+    }
+    });   
 }
 
 function handleSchemaVersionUpload(evt) {
@@ -62,7 +57,7 @@ function handleSchemaVersionUpload(evt) {
 	var files = evt.target.files; // FileList object
     reader = new FileReader();
     reader.onload = function(e){
-    	Dajaxice.curate.setSchemaVersionContent(Dajax.process,{"versionContent":reader.result, "versionFilename":files[0].name});
+    	Dajaxice.admin.setSchemaVersionContent(Dajax.process,{"versionContent":reader.result, "versionFilename":files[0].name});
     }
     reader.readAsText(files[0]);
   }
@@ -71,7 +66,7 @@ function handleTypeVersionUpload(evt) {
 	var files = evt.target.files; // FileList object
     reader = new FileReader();
     reader.onload = function(e){
-    	Dajaxice.curate.setTypeVersionContent(Dajax.process,{"versionContent":reader.result, "versionFilename":files[0].name});
+    	Dajaxice.admin.setTypeVersionContent(Dajax.process,{"versionContent":reader.result, "versionFilename":files[0].name});
     }
     reader.readAsText(files[0]);
   }
@@ -81,7 +76,7 @@ uploadVersion = function()
 	var objectVersionID = $("#updateVersionBtn").attr("versionid");
 	var objectType = $("#updateVersionBtn").attr("objectType");	
 	
-	Dajaxice.curate.uploadVersion(Dajax.process,{"objectVersionID":objectVersionID, "objectType": objectType})
+	Dajaxice.admin.uploadVersion(Dajax.process,{"objectVersionID":objectVersionID, "objectType": objectType})
 }
 
 showUploadErrorDialog = function()
@@ -104,7 +99,7 @@ setCurrentVersion = function(setCurrent)
 	var objectid = $(current).attr("objectid");
 	var objectType = $(current).attr("objectType");
 	
-	Dajaxice.curate.setCurrentVersion(Dajax.process,{"objectid":objectid, "objectType":objectType});
+	Dajaxice.admin.setCurrentVersion(Dajax.process,{"objectid":objectid, "objectType":objectType});
 }
 
 deleteVersion = function(toDelete)
@@ -112,7 +107,7 @@ deleteVersion = function(toDelete)
 	current = document.getElementById(toDelete);
 	var objectid = $(current).attr("objectid");
 	var objectType = $(current).attr("objectType");
-	Dajaxice.curate.assignDeleteCustomMessage(Dajax.process,{"objectid":objectid, "objectType":objectType});
+	Dajaxice.admin.assignDeleteCustomMessage(Dajax.process,{"objectid":objectid, "objectType":objectType});
 	$(function() {
 //			$(window.parent.document).find('#dialog-deleteversion-message').dialog({
 			$('#dialog-deleteversion-message').dialog({
@@ -125,7 +120,7 @@ deleteVersion = function(toDelete)
 							newCurrent = $("#selectCurrentVersion")[0].options[idx].value
 						}
 						catch(e){}
-						Dajaxice.curate.deleteVersion(Dajax.process,{"objectid":objectid, "objectType":objectType,"newCurrent":newCurrent});
+						Dajaxice.admin.deleteVersion(Dajax.process,{"objectid":objectid, "objectType":objectType,"newCurrent":newCurrent});
 	                    $( this ).dialog( "close" );
 	                },
 	                No: function() {
@@ -136,12 +131,13 @@ deleteVersion = function(toDelete)
 	    });
 }
 
+
 restoreObject = function()
 {
     var objectID = $(this).attr("objectid");
     var objectType = $(this).attr("objectType");
     
-    Dajaxice.curate.restoreObject(Dajax.process,{'objectid':objectID, 'objectType':objectType});
+    Dajaxice.admin.restoreObject(Dajax.process,{'objectid':objectID, 'objectType':objectType});
 }
 
 restoreVersion = function(toRestore)
@@ -150,7 +146,7 @@ restoreVersion = function(toRestore)
 	var objectID = $(current).attr("objectid");
 	var objectType = $(current).attr("objectType");
 	
-	Dajaxice.curate.restoreVersion(Dajax.process,{'objectid':objectID, 'objectType':objectType});
+	Dajaxice.admin.restoreVersion(Dajax.process,{'objectid':objectID, 'objectType':objectType});
 }
 
 editInformation = function()
@@ -170,7 +166,7 @@ editInformation = function()
             	Ok: function() {	
 					var newName = $("#edit-name")[0].value;
 					var newFilename = $("#edit-filename")[0].value;
-					Dajaxice.curate.editInformation(Dajax.process,{'objectid':objectID, 'objectType':objectType, 'newName':newName,'newFilename':newFilename});
+					Dajaxice.admin.editInformation(Dajax.process,{'objectid':objectID, 'objectType':objectType, 'newName':newName,'newFilename':newFilename});
                 },
                 Cancel: function() {
                     $( this ).dialog( "close" );
@@ -197,62 +193,6 @@ displayModelSelectedDialog = function()
   });
 }
 
-/**
- * 
- */
-//setCurrentModel = function()
-//{
-//    console.log('BEGIN [setCurrentModel]');
-//    var modelName = $(this).parent().siblings(':first').text();
-//    var modelFilename = $(this).parent().siblings(':nth-child(2)').text();
-//    var tdElement = $(this).parent();
-//	
-//    $('.add').off('click');
-//		
-//    tdElement.html('<img src="/static/resources/img/ajax-loader.gif" alt="Loading..."/>');
-//		
-//    console.log('[setCurrentModel] Loading '+modelName+' with filename '+modelFilename+' as current model...');
-//
-//    Dajaxice.curate.setCurrentModel(setCurrentModelCallback,{'modelFilename':modelFilename});
-//	
-////    $.ajax({
-////        url: 'inc/controllers/php/schemaLoader.php',
-////        type: 'GET',
-////        success: function(data) {
-////        	// Refresh the page
-////        	loadPage($(location).attr('href')+'?manageSchemas');
-////        	console.log('[setCurrentModel] '+modelName+' loaded');
-////        },
-////        error: function() {
-////            console.error("[setCurrentModel] A problem occured during schema loading");
-////        },
-////        // Form data
-////        data: 'n='+modelName,
-////        //Options to tell JQuery not to process data or worry about content-type
-////        cache: false,
-////        contentType: false,
-////        processData: false
-////    });
-//
-//    console.log('END [setCurrentModel]');
-//}
-
-setCurrentModelCallback = function(data)
-{
-    Dajax.process(data);
-    console.log('BEGIN [setCurrentModelCallback]');
-//    location.reload();
-
-//    var messageLocation = $("#main").children(":first");
-//    messageLocation.hide().html("Template Successfully Selected").fadeIn(500);
-//    messageLocation.delay(2000).fadeOut(500);
-
-    $('#model_selection').load(document.URL +  ' #model_selection', function() {
-	loadUploadManagerHandler();
-	//displayModelSelectedDialog();
-    });
-    console.log('END [setCurrentModelCallback]');
-}
 
 /**
  * 
@@ -292,7 +232,7 @@ deleteObjectConfirmed = function(objectID, objectType)
 {
     console.log('BEGIN [deleteObjectConfirmed('+objectID+')]');
 
-    Dajaxice.curate.deleteObject(deleteObjectCallback,{'objectID':objectID, "objectType":objectType});
+    Dajaxice.admin.deleteObject(deleteObjectCallback,{'objectID':objectID, "objectType":objectType});
 
     console.log('END [deleteObjectConfirmed('+objectID+')]');
 }

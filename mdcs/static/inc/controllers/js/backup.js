@@ -1,13 +1,13 @@
 createBackup = function()
 {
 	var mongodbPath = $("#mongopath").val();
-	Dajaxice.curate.createBackup(Dajax.process,{"mongodbPath":mongodbPath});
+	Dajaxice.admin.createBackup(Dajax.process,{"mongodbPath":mongodbPath});
 }
 
 restoreBackup = function(backup)
 {
 	var mongodbPath = $("#mongopath").val();
-	Dajaxice.curate.restoreBackup(Dajax.process,{"mongodbPath":mongodbPath,"backup":backup});
+	Dajaxice.admin.restoreBackup(Dajax.process,{"mongodbPath":mongodbPath,"backup":backup});
 }
 
 deleteBackup = function(backup)
@@ -18,7 +18,7 @@ deleteBackup = function(backup)
             width: 520,
             buttons: {
                 Delete: function() {    
-                	Dajaxice.curate.deleteBackup(Dajax.process,{"backup":backup});
+                	Dajaxice.admin.deleteBackup(Dajax.process,{"backup":backup});
                     $( this ).dialog( "close" );
                     },
                 Cancel: function() {    

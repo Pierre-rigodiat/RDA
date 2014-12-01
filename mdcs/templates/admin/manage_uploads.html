@@ -299,14 +299,6 @@ There are currently no {{ objectType }} uploaded.  Please click "Upload {{ objec
 </p>
 </div>
 
-<div id="dialog-manage-versions" title="Manage {{ objectType }} Versions" style="display:none;">  
-  <p>
-  <div id="object_versions">
-  </div>
-  </p>
-</div>
-
-
 <div id="dialog-upload-message" title="Upload {{ objectType }}" style="display:none;">
 {% if objectType == "Template" %}
 <p>
@@ -375,7 +367,7 @@ Enter {{ objectType }} name: <input type="text" id="object_name" objectType="{{ 
 
       var objectName = document.getElementById('object_name').value.trim();
 
-      Dajaxice.curate.uploadObject(uploadObjectCallback,{'objectName':objectName,'objectFilename':files[0].name,'objectContent':reader.result, 'objectType': '{{ objectType }}'}); 
+      Dajaxice.admin.uploadObject(uploadObjectCallback,{'objectName':objectName,'objectFilename':files[0].name,'objectContent':reader.result, 'objectType': '{{ objectType }}'}); 
     }
 
     // Read in the image file as a binary string.

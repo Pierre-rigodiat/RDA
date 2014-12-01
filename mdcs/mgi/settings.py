@@ -144,6 +144,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'mongoengine.django.mongo_auth',
+    'admin',
     'curate',
     'explore',
     'compose',

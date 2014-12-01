@@ -10,7 +10,7 @@ loadUserRequestsHandler = function()
 acceptRequest = function()
 {
 	var requestid = $(this).attr("requestid");
-	Dajaxice.curate.acceptRequest(Dajax.process,{"requestid": requestid});
+	Dajaxice.admin.acceptRequest(Dajax.process,{"requestid": requestid});
 }
 
 denyRequest = function()
@@ -21,7 +21,7 @@ denyRequest = function()
           modal: true,
           buttons: {
             Deny: function() {
-              Dajaxice.curate.denyRequest(Dajax.process,{"requestid": requestid});
+              Dajaxice.admin.denyRequest(Dajax.process,{"requestid": requestid});
               $( this ).dialog( "close" );
             },
             Cancel: function() {            

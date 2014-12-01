@@ -190,9 +190,9 @@ def module_management(request):
 
 def module_add(request):
     template = loader.get_template('admin/add_module.html')
-
-    context = RequestContext(request, {
         
+    context = RequestContext(request, {
+        'templates':Template.objects
     })
     request.session['currentYear'] = currentYear()
     return HttpResponse(template.render(context))

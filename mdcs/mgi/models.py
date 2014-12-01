@@ -138,7 +138,7 @@ class ModuleResource(EmbeddedDocument):
 
 class Module(Document):
     name = StringField(required=True)
-    template = StringField(required=True)
+    templates = ListField(StringField())
     tag = StringField(required=True)
     htmlTag = StringField(required=True)
     resources = ListField(EmbeddedDocumentField(ModuleResource))  

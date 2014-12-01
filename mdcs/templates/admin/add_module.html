@@ -158,8 +158,14 @@
 <div>
 <table>
 <tr>
-	<td><b>Template ID:</b></td>
-	<td><input type="text" id="module-template"/></td>
+	<td><b>Templates:</b></td>	
+	<td>
+	<select multiple="multiple" id="module-templates">
+		{% for template in templates%}
+			<option value="{{template.id}}">{{template.title}}</option>
+		{% endfor %}
+	</select>
+	</td>
 </tr>
 <tr>
 	<td><b>Module Name:</b></td>
@@ -221,6 +227,10 @@
 
 	</div>
 
+</div>
+<div id="dialog-errors" style="display: none;">
+ <p>Unable to upload the module:</p>
+ <div id="errors"></div>
 </div>
 
 <div id="bottom">
