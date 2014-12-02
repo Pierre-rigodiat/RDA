@@ -157,15 +157,16 @@
 Use the following form to insert a module in the curator. You can choose a set of templates to which your module will apply, a tag to be replaced and the HTML code to replace it. You can also provide some resources for your module (.html, .css, .js).
 The HTML tag you provide will replace the usual representation of the tag in the form to enter data in the Curator. The following structure will be inserted in the page:
 <br/>
-<textarea rows="10" cols="100" readonly="readonly">
-<p>
-<div class='module' style='display: inline'>"
-HTML tag
-<div class='moduleDisplay'></div>
-<div class='moduleResult' style='display: none'></div>
-</div>    
-</p>
-</textarea>
+
+
+<pre>
+&lt;div class='module' style='display: inline'&gt;
+	HTML tag
+	&lt;div class='moduleDisplay'&gt;&lt;/div&gt;
+	&lt;div class='moduleResult' style='display: none'&gt;&lt;/div&gt;
+&lt;/div&gt;
+</pre>
+
 
 <div>
 <table>
