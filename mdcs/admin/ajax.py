@@ -283,6 +283,14 @@ def uploadVersion(request, objectVersionID, objectType):
             return dajax.json()
 
     if versionContent != "" and versionFilename != "":
+        
+        # check if a type with the same name already exists
+        testFilenameObjects = Type.objects(filename=versionFilename)    
+        if len(testFilenameObjects) == 1: # 0 is ok, more than 1 can't happen
+            dajax.script("""
+                showErrorEditType();
+            """)
+            return dajax.json()
 
         objectVersions.nbVersions += 1
         if objectType == "Template": 
@@ -452,10 +460,20 @@ def editInformation(request, objectid, objectType, newName, newFilename):
     if objectType == "Template":
         object = Template.objects.get(pk=objectid)
         objectVersions = TemplateVersion.objects.get(pk=object.templateVersion)
-    else:
+    else:        
         object = Type.objects.get(pk=objectid)
         objectVersions = TypeVersion.objects.get(pk=object.typeVersion)
+        # check if a type with the same name already exists
+        testFilenameObjects = Type.objects(filename=newFilename)    
+        if len(testFilenameObjects) == 1: # 0 is ok, more than 1 can't happen
+            #check that the type with the same filename is the current one
+            if testFilenameObjects[0].id != object.id:
+                dajax.script("""
+                    showErrorEditType();
+                """)
+                return dajax.json()
     
+    # change the name of every version but only the filename of the current
     for version in objectVersions.versions:
         if objectType == "Template":
             obj = Template.objects.get(pk=version)

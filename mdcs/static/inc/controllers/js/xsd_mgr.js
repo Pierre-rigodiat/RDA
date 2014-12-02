@@ -283,3 +283,16 @@ uploadObject = function()
     console.log('END [uploadObject]');
 }
 
+
+showErrorEditType = function(){
+	$(function() {
+        $( "#dialog-error-edit" ).dialog({
+            modal: true,
+            buttons: {
+			Ok: function() {
+                $( this ).dialog( "close" );
+	          },
+		    }
+        });
+    });
+}
