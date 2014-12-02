@@ -447,7 +447,7 @@ def generateFormSubSection(request, xpath, xmlTree, namespace):
     
     xsd_elements = request.session['xsd_elements']
     mapTagElement = request.session['mapTagElement']
-#     mapModules = request.session['mapModules']
+    mapModules = request.session['mapModules']
     namespaces = request.session['namespaces']
     nbChoicesID = int(request.session['nbChoicesID'])
     formString = ""
@@ -492,9 +492,13 @@ def generateFormSubSection(request, xpath, xmlTree, namespace):
             return formString    
         
     #TODOD: module
-#     if e.attrib.get('name') in mapModules.keys():
-#         formString += mapModules[e.attrib.get('name')]    
-#         return formString
+    if e.attrib.get('name') in mapModules.keys():
+        formString += "<div class='module' style='display: inline'>"
+        formString += mapModules[e.attrib.get('name')]
+        formString += "<div class='moduleDisplay'></div>"
+        formString += "<div class='moduleResult' style='display: none'></div>"
+        formString += "</div>"    
+        return formString
     
     #TODO: modules
     if 'name' in e.attrib and e.attrib.get('name') == "ConstituentsType":
@@ -1149,7 +1153,7 @@ def duplicateFormSubSection(request, xpath, xmlTree, namespace):
     
     xsd_elements = request.session['xsd_elements']
     mapTagElement = request.session['mapTagElement']
-#     mapModules = request.session['mapModules']
+    mapModules = request.session['mapModules']
     namespaces = request.session['namespaces']
     nbChoicesID = int(request.session['nbChoicesID'])
     formString = ""    
@@ -1165,9 +1169,13 @@ def duplicateFormSubSection(request, xpath, xmlTree, namespace):
         return formString    
     
     #TODO: modules
-#     if e.attrib.get('name') in mapModules.keys():
-#         formString += mapModules[e.attrib.get('name')]    
-#         return formString 
+    if e.attrib.get('name') in mapModules.keys():
+        formString += "<div class='module' style='display: inline'>"
+        formString += mapModules[e.attrib.get('name')]
+        formString += "<div class='moduleDisplay'></div>"
+        formString += "<div class='moduleResult' style='display: none'></div>"
+        formString += "</div>"    
+        return formString
     
     #TODO: modules
     if 'name' in e.attrib and e.attrib.get('name') == "ConstituentMaterial":
@@ -1473,14 +1481,6 @@ def duplicateFormSubSection(request, xpath, xmlTree, namespace):
         if simpleTypeChildren is None:
             return formString
 
-        #TODO: modules
-#         if e.attrib.get('name') == "ChemicalElement":
-# #            formString += "<div id=\"periodicTable\"></div>"
-#             formString += "<div class=\"btn select-element\" onclick=\"selectElement('None',this,"+str(nbSelectedElement)+");\"><i class=\"icon-folder-open\"></i> Select Chemical Element</div>"
-#             formString += "<div id=\"elementSelected"+ str(nbSelectedElement) +"\">Current Selection: None</div>"
-#             nbSelectedElement += 1
-#             return formString
-
         for simpleTypeChild in simpleTypeChildren:
             if simpleTypeChild.tag == "{0}restriction".format(namespace):
                 formString += "<select>"
@@ -1602,7 +1602,7 @@ def generateForm(request):
 #
 ################################################################################
 def loadModuleResources(templateID):
-    modules = Module.objects(template=templateID)
+    modules = Module.objects(templates__contains=templateID)
     html = ""
     for module in modules:
         for resource in module.resources:
@@ -1652,7 +1652,7 @@ def generateXSDTreeForEnteringData(request):
     html = loadModuleResources(templateID)
     dajax.assign('#modules', 'innerHTML', html)
     mapModules = dict()    
-    modules = Module.objects(template=templateID)  
+    modules = Module.objects(templates__contains=templateID)  
     for module in modules:
         mapModules[module.tag] = module.htmlTag
     request.session['mapModules'] = mapModules    

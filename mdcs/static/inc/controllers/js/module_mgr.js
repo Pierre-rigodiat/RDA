@@ -1,10 +1,33 @@
 loadModuleManagerHandler = function()
 {
     console.log('BEGIN [loadModuleManagerHandler]');    
-    
+    $('.delete.module').on('click', deleteModule);
     console.log('END [loadModuleManagerHandler]');
 }
 
+deleteModule = function(){
+	var objectid = $(this).attr("objectid");
+	$(function() {
+        $( "#dialog-delete" ).dialog({
+            modal: true,
+            buttons: {
+            	Yes: function() {	
+            		$( this ).dialog( "close" );
+            		Dajaxice.admin.deleteModule(deleteModuleCallback,{"objectid":objectid});
+                },
+                No:function() {	
+            		$( this ).dialog( "close" );
+                }
+            }
+        });
+    });
+}
+
+deleteModuleCallback = function(){
+    $('#model_selection').load(document.URL +  ' #model_selection', function() {
+    	loadModuleManagerHandler();
+    });
+}
 
 loadAddModuleHandler = function()
 {
@@ -49,7 +72,7 @@ addModule = function()
 		errors += "Please enter a valid HTML tag. <br/>"
 	}
 	if (errors == ""){
-		Dajaxice.admin.addModule(Dajax.process, {"templates":templates, "name":name, "tag":tag, "HTMLTag": HTMLTag});
+		Dajaxice.admin.addModule(addModuleCallback, {"templates":templates, "name":name, "tag":tag, "HTMLTag": HTMLTag});
 	}else{
 		$("#errors").html(errors);
 		$(function() {
@@ -62,6 +85,22 @@ addModule = function()
 	            }
 	        });
 	    });
-	}
-	
+	}	
 }
+
+addModuleCallback = function(){
+	$(function() {
+        $( "#dialog-added" ).dialog({
+            modal: true,
+            close: function(){
+            	window.location = "module-management"
+            },
+            buttons: {
+            	Ok: function() {	
+            		$( this ).dialog( "close" );
+                }
+            }
+        });
+    });
+}
+

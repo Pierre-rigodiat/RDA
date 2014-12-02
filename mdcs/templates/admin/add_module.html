@@ -154,6 +154,18 @@
 			</div>
 
 			<div id="main">
+Use the following form to insert a module in the curator. You can choose a set of templates to which your module will apply, a tag to be replaced and the HTML code to replace it. You can also provide some resources for your module (.html, .css, .js).
+The HTML tag you provide will replace the usual representation of the tag in the form to enter data in the Curator. The following structure will be inserted in the page:
+<br/>
+<textarea rows="10" cols="100" readonly="readonly">
+<p>
+<div class='module' style='display: inline'>"
+HTML tag
+<div class='moduleDisplay'></div>
+<div class='moduleResult' style='display: none'></div>
+</div>    
+</p>
+</textarea>
 
 <div>
 <table>
@@ -231,6 +243,10 @@
 <div id="dialog-errors" style="display: none;">
  <p>Unable to upload the module:</p>
  <div id="errors"></div>
+</div>
+
+<div id="dialog-added" style="display:none;">
+<p>Module created with success.</p>
 </div>
 
 <div id="bottom">

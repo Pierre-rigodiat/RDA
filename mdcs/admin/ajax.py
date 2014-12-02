@@ -977,6 +977,25 @@ def addModule(request, templates, name, tag, HTMLTag):
 
 ################################################################################
 # 
+# Function Name: deleteModule(request, objectid)
+# Inputs:        request - 
+#                objectid - 
+# Outputs:        
+# Exceptions:    None
+# Description:   Delete a module
+# 
+################################################################################
+@dajaxice_register
+def deleteModule(request, objectid):
+    dajax = Dajax()    
+    
+    module = Module.objects.get(pk=objectid)
+    module.delete()
+
+    return dajax.json()
+
+################################################################################
+# 
 # Function Name: createBackup(request, mongodbPath)
 # Inputs:        request - 
 #                mongoPath -  

@@ -17,6 +17,7 @@
 -->
 
 {% load staticfiles %}
+{% load dajaxice_templatetags %}
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" dir="ltr">
@@ -44,7 +45,7 @@
     <link rel="stylesheet" type="text/css" href="{% static 'resources/lib/jquery-ui/themes/smoothness/jquery-ui.css' %}"/>        
     <script src="{% static 'resources/lib/jquery-ui/themes/smoothness/jquery-ui.js' %}"></script>
 	<script src="{% static 'dajax/jquery.dajax.core.js' %}"></script>
-
+	{% dajaxice_js_import %}
 </head>
 
 <body id="top">
@@ -165,7 +166,6 @@
   <tr>
   	<th>Module name</th>
     <th>Tag</th>
-    <th>Schema</th>
     <th>Actions</th>
   </tr>
 
@@ -175,12 +175,9 @@
     <td>{{ module.name }}</td>
     <td>{{ module.tag }}</td>
 
-
-
-    <td>{{ module.template }}</td>
     <td>
-    <div class="icon legend long edit" objectid="{{ module.id }}">Edit</div>
-    <div class="icon legend delete" objectid="{{ module.id }}">Delete</div></td>
+    <div class="icon legend delete module" objectid="{{ module.id }}">Delete</div>
+    </td>
 
 
   </tr>
@@ -246,6 +243,10 @@ There are currently no modules uploaded.  Please click "Add Module" to add a Mod
 
 	</div>
 
+</div>
+
+<div id="dialog-delete" style="display:none;">
+<p>Are you sure you want to delete this module?</p>
 </div>
 
 <script src="{% static 'inc/controllers/js/module_mgr.js' %}"></script>
