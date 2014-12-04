@@ -1,15 +1,24 @@
+/**
+ * Create a backup of the running mongodb instance.
+ */
 createBackup = function()
 {
 	var mongodbPath = $("#mongopath").val();
 	Dajaxice.admin.createBackup(Dajax.process,{"mongodbPath":mongodbPath});
 }
 
+/**
+ * Restore a backup to the running mongodb instance.
+ */
 restoreBackup = function(backup)
 {
 	var mongodbPath = $("#mongopath").val();
 	Dajaxice.admin.restoreBackup(Dajax.process,{"mongodbPath":mongodbPath,"backup":backup});
 }
 
+/**
+ * Delete a backup.
+ */
 deleteBackup = function(backup)
 {
 	$(function() {
