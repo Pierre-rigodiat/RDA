@@ -39,6 +39,7 @@ from django.db.models import Q
 import operator
 import json
 import hashlib
+import xmltodict
 from collections import OrderedDict
 from StringIO import StringIO
 from django.core.files.temp import NamedTemporaryFile
@@ -261,10 +262,23 @@ def delete_savedquery(request):
 def explore(request):
     """
     GET http://localhost/api/explore/select/all
+    dataformat: [xml,json]
     """
+    dataformat = request.QUERY_PARAMS.get('dataformat', None)
+
     jsonData = Jsondata.objects()
-    serializer = jsonDataSerializer(jsonData)
-    return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    if dataformat== None or dataformat=="xml":
+        for jsonDoc in jsonData:
+            jsonDoc['content'] = xmltodict.unparse(jsonDoc['content'])  
+        serializer = jsonDataSerializer(jsonData)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    elif dataformat == "json":
+        serializer = jsonDataSerializer(jsonData)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    else:
+        content = {'message':'The specified format is not accepted.'}
+        return Response(content, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
 def explore_detail(request):
@@ -273,10 +287,12 @@ def explore_detail(request):
     id: string (ObjectId)
     schema: string (ObjectId)
     title: string
+    dataformat: [xml,json]
     """        
     id = request.QUERY_PARAMS.get('id', None)
     schema = request.QUERY_PARAMS.get('schema', None)
     title = request.QUERY_PARAMS.get('title', None)
+    dataformat = request.QUERY_PARAMS.get('dataformat', None)
     
     try:        
         query = dict()
@@ -297,8 +313,18 @@ def explore_detail(request):
             return Response(content, status=status.HTTP_400_BAD_REQUEST)
         else:
             jsonData = Jsondata.executeQueryFullResult(query)
-            serializer = jsonDataSerializer(jsonData)
-            return Response(serializer.data, status=status.HTTP_200_OK)
+        
+            if dataformat== None or dataformat=="xml":
+                for jsonDoc in jsonData:
+                    jsonDoc['content'] = xmltodict.unparse(jsonDoc['content'])  
+                serializer = jsonDataSerializer(jsonData)
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            elif dataformat == "json":
+                serializer = jsonDataSerializer(jsonData)
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            else:
+                content = {'message':'The specified format is not accepted.'}
+                return Response(content, status=status.HTTP_400_BAD_REQUEST)
     except:
         content = {'message':'No data found with the given parameters.'}
         return Response(content, status=status.HTTP_404_NOT_FOUND)
@@ -341,8 +367,14 @@ def manageRegexInAPI(query):
 def query_by_example(request):
     """
     POST http://localhost/api/explore/query-by-example
-    POST data query="{'element':'value'}" repositories="Local,Server1,Server2"
+    POST data query="{'element':'value'}" repositories="Local,Server1,Server2" dataformat: [xml,json]
+    {"query":"{'content.root.property1.value':'xxx'}"}
     """
+         
+    dataformat = None
+    if 'dataformat' in request.DATA:
+        dataformat = request.DATA['dataformat']
+    
     qSerializer = querySerializer(data=request.DATA)
     if qSerializer.is_valid():
         if 'repositories' in request.DATA:
@@ -379,16 +411,35 @@ def query_by_example(request):
                     r = requests.post(url, data, auth=(instance.user, instance.password))   
                     result = r.text
                     instanceResults = instanceResults + json.loads(result,object_pairs_hook=OrderedDict)
-                    
-                jsonSerializer = jsonDataSerializer(instanceResults)        
-                return Response(jsonSerializer.data, status=status.HTTP_200_OK)
+            
+                if dataformat== None or dataformat=="xml":
+                    for jsonDoc in instanceResults:
+                        jsonDoc['content'] = xmltodict.unparse(jsonDoc['content'])  
+                    serializer = jsonDataSerializer(instanceResults)
+                    return Response(serializer.data, status=status.HTTP_200_OK)
+                elif dataformat == "json":
+                    serializer = jsonDataSerializer(instanceResults)
+                    return Response(serializer.data, status=status.HTTP_200_OK)
+                else:
+                    content = {'message':'The specified format is not accepted.'}
+                    return Response(content, status=status.HTTP_400_BAD_REQUEST)
         else:
             try:
                 query = eval(request.DATA['query'])
                 manageRegexInAPI(query)
                 results = Jsondata.executeQueryFullResult(query)
-                jsonSerializer = jsonDataSerializer(results)        
-                return Response(jsonSerializer.data, status=status.HTTP_200_OK)
+            
+                if dataformat== None or dataformat=="xml":
+                    for jsonDoc in results:
+                        jsonDoc['content'] = xmltodict.unparse(jsonDoc['content'])  
+                    serializer = jsonDataSerializer(results)
+                    return Response(serializer.data, status=status.HTTP_200_OK)
+                elif dataformat == "json":
+                    serializer = jsonDataSerializer(results)
+                    return Response(serializer.data, status=status.HTTP_200_OK)
+                else:
+                    content = {'message':'The specified format is not accepted.'}
+                    return Response(content, status=status.HTTP_400_BAD_REQUEST)
             except:
                 content = {'message':'Bad query: use the following format {\'element\':\'value\'}'}
                 return Response(content, status=status.HTTP_400_BAD_REQUEST)
@@ -399,12 +450,12 @@ def query_by_example(request):
 def sparql_query(request):
     """
     POST http://localhost/api/explore/sparql-query
-    POST data query="SELECT * WHERE {?s ?p ?o}" format="xml" repositories="Local,Server1,Server2"
+    POST data query="SELECT * WHERE {?s ?p ?o}" dataformat="xml" repositories="Local,Server1,Server2"
     """
     sqSerializer = sparqlQuerySerializer(data=request.DATA)
     if sqSerializer.is_valid():
-        if 'format' in request.DATA:
-            format = request.DATA['format']
+        if 'dataformat' in request.DATA:
+            format = request.DATA['dataformat']
             if (format.upper() == "TEXT"):
                 query = '0' + request.DATA['query']
             elif (format.upper() == "XML"):
@@ -444,8 +495,8 @@ def sparql_query(request):
                     instanceResults.append(sparqlPublisher.sendSPARQL(query)) 
                 for instance in instances:
                     url = instance.protocol + "://" + instance.address + ":" + str(instance.port) + "/api/explore/sparql-query"
-                    if 'format' in request.DATA:
-                        data = {"query": request.DATA['query'], "format":request.DATA['format']}
+                    if 'dataformat' in request.DATA:
+                        data = {"query": request.DATA['query'], "dataformat":request.DATA['dataformat']}
                     else:
                         data = {"query": request.DATA['query']}
                     r = requests.post(url, data, auth=(instance.user, instance.password))        

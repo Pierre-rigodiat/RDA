@@ -824,9 +824,6 @@ def getResultsByInstance(request, numInstance):
                 resultString += "<span style='font-style:italic; color:red;'> No Results found... </span><br/><br/>"
         else:
             url = instance['protocol'] + "://" + instance['address'] + ":" + str(instance['port']) + "/api/explore/query-by-example"
-    #         queryStr = str(query)
-    #         queryStr = manageRegexBeforeAPI(query, queryStr)
-    #         queryToSend = eval(queryStr)
             query = copy.deepcopy(request.session['queryExplore'])
             data = {"query":str(query)}
             r = requests.post(url, data, auth=(instance['user'], instance['password']))   
@@ -834,7 +831,7 @@ def getResultsByInstance(request, numInstance):
             instanceResults = json.loads(result,object_pairs_hook=OrderedDict)
             if len(instanceResults) > 0:
                 for instanceResult in instanceResults:
-                    results.append(xmltodict.unparse(instanceResult['content']))
+                    results.append(instanceResult['content'])
     #                 resultString += "<textarea class='xmlResult' readonly='true'>"  
     #                 resultString += str(xmltodict.unparse(instanceResult['content'], pretty=True))
     #                 resultString += "</textarea> <br/>"
@@ -842,7 +839,7 @@ def getResultsByInstance(request, numInstance):
                     xsltPath = os.path.join(settings.SITE_ROOT, 'static/resources/xsl/xml2html.xsl')
                     xslt = etree.parse(xsltPath)
                     transform = etree.XSLT(xslt)
-                    dom = etree.fromstring(str(xmltodict.unparse(instanceResult['content']).replace('<?xml version="1.0" encoding="utf-8"?>\n',"")))
+                    dom = etree.fromstring(str(instanceResult['content'].replace('<?xml version="1.0" encoding="utf-8"?>\n',"")))
                     newdom = transform(dom)
                     resultString += str(newdom)
                     resultString += "</div> <br/>"
@@ -2493,7 +2490,7 @@ def getSparqlResultsByInstance(request, numInstance):
                 resFormat = "TSV"
             elif (sparqlFormat == "4"):
                 resFormat = "JSON"
-            data = {"query": sparqlQuery, "format": resFormat}
+            data = {"query": sparqlQuery, "dataformat": resFormat}
             try:
                 r = requests.post(url, data, auth=(instance['user'], instance['password']))
                 instanceResultsDict = eval(r.text)
