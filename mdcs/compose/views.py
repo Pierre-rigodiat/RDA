@@ -1,7 +1,7 @@
 ################################################################################
 #
 # File Name: views.py
-# Application: Compose
+# Application: compose
 # Purpose:   
 #
 # Author: Sharief Youssef

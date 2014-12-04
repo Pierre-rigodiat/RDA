@@ -4,7 +4,10 @@
 # Application: admin
 # Purpose:   
 #
-# Author: Guillaume SOUSA AMARAL
+# Author: Sharief Youssef
+#         sharief.youssef@nist.gov
+#
+#         Guillaume SOUSA AMARAL
 #         guillaume.sousa@nist.gov
 #
 # Sponsor: National Institute of Standards and Technology (NIST)
@@ -64,7 +67,6 @@ def uploadObject(request,objectName,objectFilename,objectContent, objectType):
     print 'BEGIN def uploadXMLSchema(request,xmlSchemaFilename,xmlSchemaContent)'
     dajax = Dajax()
 
-    #TODO: XML validation
     try:        
         xmlTree = etree.parse(BytesIO(objectContent.encode('utf-8')))
         try:

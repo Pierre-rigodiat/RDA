@@ -1,7 +1,7 @@
 ################################################################################
 #
 # File Name: views.py
-# Application: Curate
+# Application: curate
 # Purpose:   
 #
 # Author: Sharief Youssef
