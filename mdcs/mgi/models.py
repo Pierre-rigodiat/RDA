@@ -147,6 +147,8 @@ class XML2Download(Document):
     xml = StringField(required=True)
 
 def postprocessor(path, key, value):
+    if(key == "#text"):
+        return key, str(value)
     try:
         return key, int(value)
     except (ValueError, TypeError):
