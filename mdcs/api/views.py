@@ -43,8 +43,8 @@ import xmltodict
 from collections import OrderedDict
 from StringIO import StringIO
 from django.core.files.temp import NamedTemporaryFile
+from django.conf import settings
 
-projectURI = "http://www.example.com/"
 
 @api_view(['GET'])
 def select_all_savedqueries(request):
@@ -509,13 +509,13 @@ def curate(request):
             root = xslt.getroot()
             namespace = root.nsmap['xsl']
             URIparam = root.find("{" + namespace +"}param[@name='BaseURI']") #find BaseURI tag to insert the project URI
-            URIparam.text = projectURI + str(docID)
+            URIparam.text = settings.PROJECT_URI + str(docID)
         
             # SPARQL : transform the XML into RDF/XML
             transform = etree.XSLT(xslt)
             # add a namespace to the XML string, transformation didn't work well using XML DOM
             template = Template.objects.get(pk=schema.id)
-            xmlStr = xmlStr.replace('>',' xmlns="' + projectURI + template.hash + '">', 1) #TODO: OR schema name...                
+            xmlStr = xmlStr.replace('>',' xmlns="' + settings.PROJECT_URI + template.hash + '">', 1) #TODO: OR schema name...                
             # domXML.attrib['xmlns'] = projectURI + schemaID #didn't work well
             domXML = etree.fromstring(xmlStr)
             domRDF = transform(domXML)

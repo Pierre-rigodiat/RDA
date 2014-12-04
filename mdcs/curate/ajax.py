@@ -41,9 +41,6 @@ import rdfPublisher
 import os
 from django.core.files.temp import NamedTemporaryFile
 
-# SPARQL : URI for the project (http://www.example.com/)
-projectURI = "http://www.example.com/"
-
 # Global Variables
 debugON = 0
 
@@ -261,13 +258,13 @@ def saveXMLDataToDB(request,saveAs):
         root = xslt.getroot()
         namespace = root.nsmap['xsl']
         URIparam = root.find("{" + namespace +"}param[@name='BaseURI']") #find BaseURI tag to insert the project URI
-        URIparam.text = projectURI + str(docID)
+        URIparam.text = settings.PROJECT_URI + str(docID)
     
         # SPARQL : transform the XML into RDF/XML
         transform = etree.XSLT(xslt)
         # add a namespace to the XML string, transformation didn't work well using XML DOM    
         template = Template.objects.get(pk=templateID)
-        xmlStr = xmlString.replace('>',' xmlns="' + projectURI + template.hash + '">', 1) #TODO: OR schema name...
+        xmlStr = xmlString.replace('>',' xmlns="' + settings.PROJECT_URI + template.hash + '">', 1) #TODO: OR schema name...
         # domXML.attrib['xmlns'] = projectURI + schemaID #didn't work well
         domXML = etree.fromstring(xmlStr)
         domRDF = transform(domXML)
