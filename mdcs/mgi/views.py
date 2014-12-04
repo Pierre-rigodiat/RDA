@@ -617,34 +617,6 @@ def curate_view_data_downloadxml(request):
         request.session['next'] = '/curate'
         return redirect('/login')
 
-################################################################################
-#
-# Function Name: view_schema(request)
-# Inputs:        request - 
-# Outputs:       
-# Exceptions:    None
-# Description:   
-#                
-#
-################################################################################
-def view_schema(request):
-#    logout(request)
-    template = loader.get_template('view_schema.html')
-    context = RequestContext(request, {
-        '': '',
-    })
-    request.session['currentYear'] = currentYear()
-    return HttpResponse(template.render(context))  # remove after testing
-    if request.user.is_authenticated():
-        if 'currentTemplateID' not in request.session:
-            return redirect('/curate/select-template')
-        else:
-            return HttpResponse(template.render(context))
-    else:
-        if 'loggedOut' in request.session:
-            del request.session['loggedOut']
-        request.session['next'] = '/curate/view-data'
-        return redirect('/login')
 
 ################################################################################
 #
