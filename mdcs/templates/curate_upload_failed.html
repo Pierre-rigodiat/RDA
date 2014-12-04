@@ -1,5 +1,6 @@
 File Upload Failed. Please be sure that you uploaded an excel file. Each header should contain the column unit between parenthesis.
 <form action="/curate/upload-spreadsheet" method="post" id="file-upload-form" enctype="multipart/form-data"> 
+	{% csrf_token %}
 	<input type='file' id='excelSpreadsheet' name='excelSpreadsheet'></input>
 	<button class='btn' type="submit" id='uploadSpreadsheet' >Upload</button>
 </form>
