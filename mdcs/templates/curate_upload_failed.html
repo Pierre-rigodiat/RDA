@@ -1,3 +1,21 @@
+<!-- 
+################################################################################
+#
+# File Name: curate_upload_failed.html
+# Application: templates
+# Description: 
+#
+# Author: Sharief Youssef
+#         sharief.youssef@nist.gov
+#
+# 		  Guillaume SOUSA AMARAL
+#		  guillaume.sousa@nist.gov
+#
+# Sponsor: National Institute of Standards and Technology (NIST)
+#
+################################################################################
+-->
+
 File Upload Failed. Please be sure that you uploaded an excel file. Each header should contain the column unit between parenthesis.
 <form action="/curate/upload-spreadsheet" method="post" id="file-upload-form" enctype="multipart/form-data"> 
 	{% csrf_token %}

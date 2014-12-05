@@ -29,14 +29,6 @@
 	<link rel="stylesheet" type="text/css" href="{% static 'resources/css/lib/bootstrap.min.css' %}"  media="screen" />
 	<link rel="stylesheet" type="text/css" href="{% static 'resources/css/style.css' %}" media="screen" />
 	<title>Materials Data Curation System</title>
-
-
-	<!-- JQuery & JQuery UI -->
-	<script src="{% static 'resources/lib/jquery/jquery-1.11.1.min.js' %}"></script>
-	<script src="{% static 'resources/js/bootstrap.min.js' %}"></script>
-    <link rel="stylesheet" type="text/css" href="{% static 'resources/lib/jquery-ui/themes/smoothness/jquery-ui.css' %}"/>        
-    <script src="{% static 'resources/lib/jquery-ui/themes/smoothness/jquery-ui.js' %}"></script>
-
 </head>
 
 <body id="top">
@@ -117,16 +109,6 @@
 
 					<div class="clearer">&nbsp;</div>
 
-{% if request.session.currentTemplateID %} 
-
-{% else %}
-
-<div class="alert">
-  <button type="button" class="close" data-dismiss="alert">&times;</button>
-  <i class="icon warning disable-selection"></i> No template selected. Select one in the table below.
-</div>
-
-{% endif %}
 
 <table class="table table-bordered">
   <tr>
@@ -162,7 +144,7 @@
 
 	<div class="center-wrapper">
 
-		<div id="footer">
+		<div id="footer2">
 
 			<div class="left">
 				<a href="/">Home</a> <span class="text-separator">|</span> <a href="/curate">Data Curation</a> <span class="text-separator">|</span> <a href="/explore">Data Exploration</a> <span class="text-separator">|</span> <a href="/about">About</a> <span class="text-separator">|</span> <a href="/contact">Contact</a>
@@ -202,12 +184,6 @@
 	</div>
 
 </div>
-
-	
-	<script src="{% static 'inc/controllers/js/tpl_sel.js' %}"></script>
-	<script>
-	  loadTemplateSelectionControllers();
-	</script>
 
 </body>
 </html>
