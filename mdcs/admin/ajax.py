@@ -605,7 +605,7 @@ def addInstance(request, name, protocol, address, port, user, password):
     if(errors == ""):
         status = "Unreachable"
         try:
-            url = protocol + "://" + address + ":" + port + "/api/ping"
+            url = protocol + "://" + address + ":" + port + "/rest/ping"
             r = requests.get(url, auth=(user, password))
             if r.status_code == 200:
                 status = "Reachable"
@@ -687,7 +687,7 @@ def editInstance(request, instanceid, name, protocol, address, port, user, passw
     if(errors == ""):
         status = "Unreachable"
         try:
-            url = protocol + "://" + address + ":" + port + "/api/ping"
+            url = protocol + "://" + address + ":" + port + "/rest/ping"
             r = requests.get(url, auth=(user, password))
             if r.status_code == 200:
                 status = "Reachable"
@@ -1103,7 +1103,7 @@ def pingRemoteAPI(request, name, protocol, address, port, user, password):
     dajax = Dajax()
     
     try:
-        url = protocol + "://" + address + ":" + port + "/api/ping"
+        url = protocol + "://" + address + ":" + port + "/rest/ping"
         r = requests.get(url, auth=(user, password))
         if r.status_code == 200:
             dajax.assign("#instance_error", "innerHTML", "<b style='color:green'>Remote API reached with success.</b>")

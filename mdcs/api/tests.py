@@ -66,7 +66,7 @@ from lxml import etree
 #         query.save()
 #         id = query.id
 #           
-#         url = '/api/savedqueries/' + str(id)
+#         url = '/rest/savedqueries/' + str(id)
 #         response = self.client.get(url)
 #           
 #         self.assertEqual(response.status_code, HTTP_200_OK)
@@ -85,7 +85,7 @@ from lxml import etree
 #         query.save()
 #         id = query.id
 #           
-#         url = '/api/savedqueries/' + str(id)
+#         url = '/rest/savedqueries/' + str(id)
 #         response = self.client.put(url, {"user":"new user","template":"template","query":"query", "displayedQuery":"displayedQuery"})
 #         self.assertEqual(response.status_code, HTTP_200_OK)
 #         self.assertEqual(SavedQuery.objects.get(id=str(id)).user, "new user")
@@ -99,7 +99,7 @@ from lxml import etree
 #           
 #         nbQueries = len(SavedQuery.objects)
 #           
-#         url = '/api/savedqueries/' + str(id)
+#         url = '/rest/savedqueries/' + str(id)
 #         response = self.client.delete(url)
 #         self.assertEqual(response.status_code, HTTP_204_NO_CONTENT)
 #           
@@ -152,7 +152,7 @@ from lxml import etree
 #         data = Jsondata(schemaID="schema", xml="<test>value</test>", title="test")
 #         id = data.save()
 #           
-#         url = '/api/data/' + str(id)
+#         url = '/rest/data/' + str(id)
 #         response = self.client.get(url)
 #           
 #         self.assertEqual(response.status_code, HTTP_200_OK)
@@ -169,7 +169,7 @@ from lxml import etree
 #         data = Jsondata(schemaID="schema", xml="<test>value</test>", title="test")
 #         id = data.save()
 #             
-#         url = '/api/data/' + str(id)
+#         url = '/rest/data/' + str(id)
 #         response = self.client.put(url, json.dumps({"schema":"new schema","content":{"test":"value"},"title":"test"}), content_type='application/json')
 #           
 #         self.assertEqual(response.status_code, HTTP_200_OK)
@@ -183,7 +183,7 @@ from lxml import etree
 #            
 #         nbQueries = len(Jsondata.objects())
 #            
-#         url = '/api/data/' + str(id)
+#         url = '/rest/data/' + str(id)
 #         response = self.client.delete(url)
 #         self.assertEqual(response.status_code, HTTP_204_NO_CONTENT)
 #            
@@ -322,7 +322,7 @@ from lxml import etree
 #         
 #         self.client = APIClient()
 #         self.client.login(username='gas2', password='data123')
-#         url = '/api/schema/select?id=' + str(id)
+#         url = '/rest/schema/select?id=' + str(id)
 #         response = self.client.get(url)
 #         self.client.logout()
 #         
@@ -346,7 +346,7 @@ from lxml import etree
 #            
 #         nbTemplates = len(Template.objects)
 #            
-#         url = '/api/schema/delete/' + str(id)
+#         url = '/rest/schema/delete/' + str(id)
 #         response = self.client.get(url)
 #         self.assertEqual(response.status_code, HTTP_204_NO_CONTENT)
 #            

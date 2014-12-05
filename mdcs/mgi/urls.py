@@ -28,7 +28,7 @@ urlpatterns = patterns('',
 
     url(r'^$', 'mgi.views.home', name='home'),
     url(r'^admin/', include(admin.site.urls)),
-    url(r'^api/', include('api.urls')),
+    url(r'^rest/', include('api.urls')),
     url(r'^docs/api', include('rest_framework_swagger.urls')),
     url(r'^admin/backup-database$', 'mgi.views.backup_database', name='backup_database'),
     url(r'^admin/restore-database$', 'mgi.views.restore_database', name='restore_database'),

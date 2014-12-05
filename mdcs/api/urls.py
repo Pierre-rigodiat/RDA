@@ -20,15 +20,10 @@ from api.views import docs, ping
 
 urlpatterns = patterns(
     'api.views',
-#     url(r'^saved_queries/$','savedQuery_list', name='savedQuery_list'),
-#     url(r'^saved_queries/(?P<pk>([0-9]|[a-z])+)$', 'savedQuery_detail'),
     url(r'^saved_queries/select/all$','select_all_savedqueries'),
     url(r'^saved_queries/select$','select_savedquery'),
     url(r'^saved_queries/delete$','delete_savedquery'),
     url(r'^saved_queries/add$','add_savedquery'),
-#     url(r'^data/$',JsonDataList.as_view(),name='jsonData_list'),
-#     url(r'^data/$','jsonData_list', name='jsonData_list'),
-#     url(r'^data/(?P<pk>([0-9]|[a-z])+)$', 'jsonData_detail'),
     url(r'^curate$', 'curate', name='curate'),
     url(r'^explore/select/all$', 'explore', name='explore'),
     url(r'^explore/select$', 'explore_detail', name='explore_detail'),

@@ -58,7 +58,7 @@ from django.conf import settings
 @api_view(['GET'])
 def select_all_savedqueries(request):
     """
-    GET http://localhost/api/saved_queries/select/all
+    GET http://localhost/rest/saved_queries/select/all
     """
     queries = SavedQuery.objects()
     serializer = savedQuerySerializer(queries)
@@ -77,7 +77,7 @@ def select_all_savedqueries(request):
 @api_view(['GET'])
 def select_savedquery(request):
     """
-    GET http://localhost/api/saved_queries/select
+    GET http://localhost/rest/saved_queries/select
     id: string (ObjectId)
     user: string 
     template: string
@@ -148,7 +148,7 @@ def select_savedquery(request):
 @api_view(['POST'])
 def add_savedquery(request):
     """
-    POST http://localhost/api/saved_queries/add
+    POST http://localhost/rest/saved_queries/add
     POST data user="user", template="template" query="query", displayedQuery="displayedQuery"
     """    
     serializer = resSavedQuerySerializer(data=request.DATA)
@@ -192,7 +192,7 @@ def add_savedquery(request):
 @api_view(['GET'])
 def delete_savedquery(request):
     """
-    GET http://localhost/api/saved_queries/delete?id=id
+    GET http://localhost/rest/saved_queries/delete?id=id
     URL parameters: 
     id: string 
     """
@@ -223,7 +223,7 @@ def delete_savedquery(request):
 @api_view(['GET'])
 def explore(request):
     """
-    GET http://localhost/api/explore/select/all
+    GET http://localhost/rest/explore/select/all
     dataformat: [xml,json]
     """
     dataformat = request.QUERY_PARAMS.get('dataformat', None)
@@ -254,7 +254,7 @@ def explore(request):
 @api_view(['GET'])
 def explore_detail(request):
     """
-    GET http://localhost/api/explore/select
+    GET http://localhost/rest/explore/select
     id: string (ObjectId)
     schema: string (ObjectId)
     title: string
@@ -312,7 +312,7 @@ def explore_detail(request):
 @api_view(['GET'])
 def explore_delete(request):
     """
-    GET http://localhost/api/explore/delete
+    GET http://localhost/rest/explore/delete
     id: string (ObjectId)
     """        
     id = request.QUERY_PARAMS.get('id', None)
@@ -364,7 +364,7 @@ def manageRegexInAPI(query):
 @api_view(['POST'])
 def query_by_example(request):
     """
-    POST http://localhost/api/explore/query-by-example
+    POST http://localhost/rest/explore/query-by-example
     POST data query="{'element':'value'}" repositories="Local,Server1,Server2" dataformat: [xml,json]
     {"query":"{'content.root.property1.value':'xxx'}"}
     """
@@ -403,7 +403,7 @@ def query_by_example(request):
                         content = {'message':'Bad query: use the following format {\'element\':\'value\'}'}
                         return Response(content, status=status.HTTP_400_BAD_REQUEST)
                 for instance in instances:
-                    url = instance.protocol + "://" + instance.address + ":" + str(instance.port) + "/api/explore/query-by-example"   
+                    url = instance.protocol + "://" + instance.address + ":" + str(instance.port) + "/rest/explore/query-by-example"   
                     query = request.DATA['query']              
                     data = {"query":query}
                     r = requests.post(url, data, auth=(instance.user, instance.password))   
@@ -456,7 +456,7 @@ def query_by_example(request):
 @api_view(['POST'])
 def sparql_query(request):
     """
-    POST http://localhost/api/explore/sparql-query
+    POST http://localhost/rest/explore/sparql-query
     POST data query="SELECT * WHERE {?s ?p ?o}" dataformat="xml" repositories="Local,Server1,Server2"
     """
     sqSerializer = sparqlQuerySerializer(data=request.DATA)
@@ -501,7 +501,7 @@ def sparql_query(request):
                 if local:
                     instanceResults.append(sparqlPublisher.sendSPARQL(query)) 
                 for instance in instances:
-                    url = instance.protocol + "://" + instance.address + ":" + str(instance.port) + "/api/explore/sparql-query"
+                    url = instance.protocol + "://" + instance.address + ":" + str(instance.port) + "/rest/explore/sparql-query"
                     if 'dataformat' in request.DATA:
                         data = {"query": request.DATA['query'], "dataformat":request.DATA['dataformat']}
                     else:
@@ -571,7 +571,7 @@ def validateXMLDocument(templateID, xmlString):
 @api_view(['POST'])
 def curate(request):
     """
-    POST http://localhost/api/curate
+    POST http://localhost/rest/curate
     POST data title="title", schema="schemaID", content="<root>...</root>"
     """        
     serializer = jsonDataSerializer(data=request.DATA)
@@ -645,7 +645,7 @@ def curate(request):
 @api_view(['POST'])
 def add_schema(request):
     """
-    POST http://localhost/api/templates/add
+    POST http://localhost/rest/templates/add
     POST data title="title", filename="filename", content="<xsd:schema>...</xsd:schema>" templateVersion="id"
     """
     sSerializer = schemaSerializer(data=request.DATA)
@@ -690,7 +690,7 @@ def add_schema(request):
 @api_view(['GET'])
 def select_schema(request):
     """
-    GET http://localhost/api/templates/select?param1=value1&param2=value2
+    GET http://localhost/rest/templates/select?param1=value1&param2=value2
     URL parameters: 
     id: string (ObjectId)
     filename: string
@@ -774,7 +774,7 @@ def select_schema(request):
 @api_view(['GET'])
 def select_all_schemas(request):
     """
-    GET http://localhost/api/templates/select/all
+    GET http://localhost/rest/templates/select/all
     """
     templates = Template.objects
     serializer = templateSerializer(templates)
@@ -792,7 +792,7 @@ def select_all_schemas(request):
 @api_view(['GET'])
 def select_all_schemas_versions(request):
     """
-    GET http://localhost/api/schemas/versions/select/all
+    GET http://localhost/rest/schemas/versions/select/all
     """
     templateVersions = TemplateVersion.objects
     serializer = TemplateVersionSerializer(templateVersions)
@@ -810,7 +810,7 @@ def select_all_schemas_versions(request):
 @api_view(['GET'])
 def current_template_version(request):
     """
-    GET http://localhost/api/templates/versions/current?id=IdToBeCurrent
+    GET http://localhost/rest/templates/versions/current?id=IdToBeCurrent
     """
     id = request.QUERY_PARAMS.get('id', None)
     if id is not None:   
@@ -850,8 +850,8 @@ def current_template_version(request):
 @api_view(['GET'])
 def delete_schema(request):
     """
-    GET http://localhost/api/templates/delete?id=IDtodelete&next=IDnextCurrent
-    GET http://localhost/api/templates/delete?templateVersion=IDtodelete
+    GET http://localhost/rest/templates/delete?id=IDtodelete&next=IDnextCurrent
+    GET http://localhost/rest/templates/delete?templateVersion=IDtodelete
     URL parameters: 
     id: string (ObjectId)
     next: string (ObjectId)
@@ -946,8 +946,8 @@ def delete_schema(request):
 @api_view(['GET'])
 def restore_schema(request):
     """
-    GET http://localhost/api/templates/restore?id=IDtorestore
-    GET http://localhost/api/templates/delete?templateVersion=IDtorestore
+    GET http://localhost/rest/templates/restore?id=IDtorestore
+    GET http://localhost/rest/templates/delete?templateVersion=IDtorestore
     URL parameters: 
     id: string (ObjectId)
     templateVersion: string (ObjectId)
@@ -1010,7 +1010,7 @@ def restore_schema(request):
 @api_view(['POST'])
 def add_type(request):
     """
-    POST http://localhost/api/types/add
+    POST http://localhost/rest/types/add
     POST data title="title", filename="filename", content="..." typeVersion="id"
     """
     oSerializer = typeSerializer(data=request.DATA)
@@ -1051,7 +1051,7 @@ def add_type(request):
 @api_view(['GET'])
 def select_type(request):
     """
-    GET http://localhost/api/types/select?param1=value1&param2=value2
+    GET http://localhost/rest/types/select?param1=value1&param2=value2
     URL parameters: 
     id: string (ObjectId)
     filename: string
@@ -1128,7 +1128,7 @@ def select_type(request):
 @api_view(['GET'])
 def select_all_types(request):
     """
-    GET http://localhost/api/types/select/all
+    GET http://localhost/rest/types/select/all
     """
     types = Type.objects
     serializer = resTypeSerializer(types)
@@ -1146,7 +1146,7 @@ def select_all_types(request):
 @api_view(['GET'])
 def select_all_types_versions(request):
     """
-    GET http://localhost/api/types/versions/select/all
+    GET http://localhost/rest/types/versions/select/all
     """
     typeVersions = TypeVersion.objects
     serializer = TypeVersionSerializer(typeVersions)
@@ -1164,7 +1164,7 @@ def select_all_types_versions(request):
 @api_view(['GET'])
 def current_type_version(request):
     """
-    GET http://localhost/api/types/versions/current?id=IdToBeCurrent
+    GET http://localhost/rest/types/versions/current?id=IdToBeCurrent
     """
     id = request.QUERY_PARAMS.get('id', None)
     if id is not None:   
@@ -1204,8 +1204,8 @@ def current_type_version(request):
 @api_view(['GET'])
 def delete_type(request):
     """
-    GET http://localhost/api/types/delete?id=IDtodelete&next=IDnextCurrent
-    GET http://localhost/api/types/delete?typeVersion=IDtodelete
+    GET http://localhost/rest/types/delete?id=IDtodelete&next=IDnextCurrent
+    GET http://localhost/rest/types/delete?typeVersion=IDtodelete
     URL parameters: 
     id: string (ObjectId)
     next: string (ObjectId)
@@ -1298,8 +1298,8 @@ def delete_type(request):
 @api_view(['GET'])
 def restore_type(request):
     """
-    GET http://localhost/api/types/restore?id=IDtorestore
-    GET http://localhost/api/types/delete?typeVersion=IDtorestore
+    GET http://localhost/rest/types/restore?id=IDtorestore
+    GET http://localhost/rest/types/delete?typeVersion=IDtorestore
     URL parameters: 
     id: string (ObjectId)
     typeVersion: string (ObjectId)
@@ -1362,7 +1362,7 @@ def restore_type(request):
 @api_view(['GET'])
 def select_all_repositories(request):
     """
-    GET http://localhost/api/repositories/select/all
+    GET http://localhost/rest/repositories/select/all
     """
     instances = Instance.objects
     serializer = instanceSerializer(instances)
@@ -1380,7 +1380,7 @@ def select_all_repositories(request):
 @api_view(['GET'])
 def select_repository(request):
     """
-    GET http://localhost/api/repositories/select?param1=value1&param2=value2
+    GET http://localhost/rest/repositories/select?param1=value1&param2=value2
     URL parameters: 
     id: string (ObjectId)
     name: string
@@ -1464,7 +1464,7 @@ def select_repository(request):
 @api_view(['POST'])
 def add_repository(request):
     """
-    POST http://localhost/api/repositories/add
+    POST http://localhost/rest/repositories/add
     POST data name="name", protocol="protocol", address="address", port=port, user="user", password="password"
     """
     iSerializer = instanceSerializer(data=request.DATA)
@@ -1504,7 +1504,7 @@ def add_repository(request):
         
         inst_status = "Unreachable"
         try:
-            url = request.DATA['protocol'] + "://" + request.DATA['address'] + ":" + request.DATA['port'] + "/api/ping"
+            url = request.DATA['protocol'] + "://" + request.DATA['address'] + ":" + request.DATA['port'] + "/rest/ping"
             r = requests.get(url, auth=(request.DATA['user'], request.DATA['password']))
             if r.status_code == 200:
                 inst_status = "Reachable"
@@ -1526,7 +1526,7 @@ def add_repository(request):
 @api_view(['GET'])
 def delete_repository(request):
     """
-    GET http://localhost/api/repositories/delete?id=IDtodelete
+    GET http://localhost/rest/repositories/delete?id=IDtodelete
     """
     id = request.QUERY_PARAMS.get('id', None)
     
@@ -1556,7 +1556,7 @@ def delete_repository(request):
 @api_view(['PUT'])
 def update_repository(request):  
     """
-    PUT http://localhost/api/repositories/update?id=IDtoUpdate
+    PUT http://localhost/rest/repositories/update?id=IDtoUpdate
     PUT data name="name", protocol="protocol", address="address", port=port, user="user", password="password"
     """    
     id = request.QUERY_PARAMS.get('id', None)        
@@ -1608,7 +1608,7 @@ def update_repository(request):
         
         inst_status = "Unreachable"
         try:
-            url = request.DATA['protocol'] + "://" + request.DATA['address'] + ":" + request.DATA['port'] + "/api/ping"
+            url = request.DATA['protocol'] + "://" + request.DATA['address'] + ":" + request.DATA['port'] + "/rest/ping"
             r = requests.get(url, auth=(request.DATA['user'], request.DATA['password']))
             if r.status_code == 200:
                 inst_status = "Reachable"
@@ -1637,7 +1637,7 @@ def update_repository(request):
 @api_view(['GET'])
 def select_all_users(request):
     """
-    GET http://localhost/api/users/select/all
+    GET http://localhost/rest/users/select/all
     """
     users = User.objects.all()
     serializer = UserSerializer(users)
@@ -1655,7 +1655,7 @@ def select_all_users(request):
 @api_view(['GET'])
 def select_user(request):
     """
-    GET http://localhost/api/users/select?param1=value1&param2=value2
+    GET http://localhost/rest/users/select?param1=value1&param2=value2
     URL parameters: 
     username: string
     first_name: string
@@ -1713,7 +1713,7 @@ def select_user(request):
 @api_view(['POST'])
 def add_user(request):
     """
-    POST http://localhost/api/users/add
+    POST http://localhost/rest/users/add
     POST data username="username", password="password" first_name="first_name", last_name="last_name", port=port, email="email"
     """    
     serializer = insertUserSerializer(data=request.DATA)
@@ -1757,7 +1757,7 @@ def add_user(request):
 @api_view(['GET'])
 def delete_user(request):
     """
-    GET http://localhost/api/users/delete?username=username
+    GET http://localhost/rest/users/delete?username=username
     URL parameters: 
     username: string
     """
@@ -1787,7 +1787,7 @@ def delete_user(request):
 @api_view(['PUT'])
 def update_user(request):
     """
-    PUT http://localhost/api/users/update?username=userToUpdate
+    PUT http://localhost/rest/users/update?username=userToUpdate
     PUT data first_name="first_name", last_name="last_name", port=port, email="email"
     """    
     username = request.QUERY_PARAMS.get('username', None)        

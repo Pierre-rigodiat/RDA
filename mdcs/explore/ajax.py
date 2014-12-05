@@ -745,7 +745,7 @@ def manageRegexBeforeExe(query):
 #         else:
 #             resultString += "<span style='font-style:italic; color:red;'> No Results found... </span><br/><br/>"
 #     else:
-#         url = instance['protocol'] + "://" + instance['address'] + ":" + str(instance['port']) + "/api/explore/query-by-example"
+#         url = instance['protocol'] + "://" + instance['address'] + ":" + str(instance['port']) + "/rest/explore/query-by-example"
 # #         queryStr = str(query)
 # #         queryStr = manageRegexBeforeAPI(query, queryStr)
 # #         queryToSend = eval(queryStr)
@@ -823,7 +823,7 @@ def getResultsByInstance(request, numInstance):
             else:
                 resultString += "<span style='font-style:italic; color:red;'> No Results found... </span><br/><br/>"
         else:
-            url = instance['protocol'] + "://" + instance['address'] + ":" + str(instance['port']) + "/api/explore/query-by-example"
+            url = instance['protocol'] + "://" + instance['address'] + ":" + str(instance['port']) + "/rest/explore/query-by-example"
             query = copy.deepcopy(request.session['queryExplore'])
             data = {"query":str(query)}
             r = requests.post(url, data, auth=(instance['user'], instance['password']))   
@@ -2403,7 +2403,7 @@ def getSparqlResults(request):
 #             resultString += "</pre>"
 #             resultString += "<br/>"
 #         else:
-#             url = instance['protocol'] + "://" + instance['address'] + ":" + str(instance['port']) + "/api/explore/sparql-query"
+#             url = instance['protocol'] + "://" + instance['address'] + ":" + str(instance['port']) + "/rest/explore/sparql-query"
 #             resFormat = ""
 #             if (sparqlFormat == "0"):
 #                 resFormat = "TEXT"
@@ -2478,7 +2478,7 @@ def getSparqlResultsByInstance(request, numInstance):
             resultString += "</pre>"
             resultString += "<br/>"
         else:
-            url = instance['protocol'] + "://" + instance['address'] + ":" + str(instance['port']) + "/api/explore/sparql-query"
+            url = instance['protocol'] + "://" + instance['address'] + ":" + str(instance['port']) + "/rest/explore/sparql-query"
             resFormat = ""
             if (sparqlFormat == "0"):
                 resFormat = "TEXT"
