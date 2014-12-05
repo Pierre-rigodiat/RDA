@@ -46,6 +46,15 @@ from django.core.files.temp import NamedTemporaryFile
 from django.conf import settings
 
 
+################################################################################
+# 
+# Function Name: select_all_savedqueries(request)
+# Inputs:        request - 
+# Outputs:        
+# Exceptions:    None
+# Description:   Get all saved queries
+# 
+################################################################################
 @api_view(['GET'])
 def select_all_savedqueries(request):
     """
@@ -55,6 +64,16 @@ def select_all_savedqueries(request):
     serializer = savedQuerySerializer(queries)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
+
+################################################################################
+# 
+# Function Name: select_savedquery(request)
+# Inputs:        request - 
+# Outputs:        
+# Exceptions:    None
+# Description:   Get saved queries that match the parameters
+# 
+################################################################################
 @api_view(['GET'])
 def select_savedquery(request):
     """
@@ -117,6 +136,15 @@ def select_savedquery(request):
         content = {'message':'No saved query found with the given parameters.'}
         return Response(content, status=status.HTTP_404_NOT_FOUND)
 
+################################################################################
+# 
+# Function Name: add_savedquery(request)
+# Inputs:        request - 
+# Outputs:        
+# Exceptions:    None
+# Description:   Add a saved query
+# 
+################################################################################
 @api_view(['POST'])
 def add_savedquery(request):
     """
@@ -152,6 +180,15 @@ def add_savedquery(request):
     
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+################################################################################
+# 
+# Function Name: delete_savedquery(request)
+# Inputs:        request - 
+# Outputs:        
+# Exceptions:    None
+# Description:   Delete a saved query
+# 
+################################################################################
 @api_view(['GET'])
 def delete_savedquery(request):
     """
@@ -174,6 +211,15 @@ def delete_savedquery(request):
         return Response(content, status=status.HTTP_404_NOT_FOUND)
 
 
+################################################################################
+# 
+# Function Name: explore(request)
+# Inputs:        request - 
+# Outputs:        
+# Exceptions:    None
+# Description:   Get all XML data
+# 
+################################################################################
 @api_view(['GET'])
 def explore(request):
     """
@@ -196,6 +242,15 @@ def explore(request):
         content = {'message':'The specified format is not accepted.'}
         return Response(content, status=status.HTTP_400_BAD_REQUEST)
 
+################################################################################
+# 
+# Function Name: explore_detail(request)
+# Inputs:        request - 
+# Outputs:        
+# Exceptions:    None
+# Description:   Get XML data that match the parameters
+# 
+################################################################################
 @api_view(['GET'])
 def explore_detail(request):
     """
@@ -244,7 +299,16 @@ def explore_detail(request):
     except:
         content = {'message':'No data found with the given parameters.'}
         return Response(content, status=status.HTTP_404_NOT_FOUND)
-    
+
+################################################################################
+# 
+# Function Name: explore_delete(request)
+# Inputs:        request - 
+# Outputs:        
+# Exceptions:    None
+# Description:   Delete the XML data with the provided id
+# 
+################################################################################
 @api_view(['GET'])
 def explore_delete(request):
     """
@@ -268,6 +332,15 @@ def explore_delete(request):
         content = {'message':'No data found with the given id.'}
         return Response(content, status=status.HTTP_404_NOT_FOUND)
 
+################################################################################
+# 
+# Function Name: manageRegexInAPI(request)
+# Inputs:        request - 
+# Outputs:        
+# Exceptions:    None
+# Description:   Compile the regex in a query
+# 
+################################################################################
 def manageRegexInAPI(query):
     for key, value in query.iteritems():
         if key == "$and" or key == "$or":
@@ -279,6 +352,15 @@ def manageRegexInAPI(query):
         elif isinstance(value, dict):
             manageRegexInAPI(value)
 
+################################################################################
+# 
+# Function Name: query_by_example(request)
+# Inputs:        request - 
+# Outputs:        
+# Exceptions:    None
+# Description:   Submit a query to MongoDB
+# 
+################################################################################
 @api_view(['POST'])
 def query_by_example(request):
     """
@@ -362,6 +444,15 @@ def query_by_example(request):
         
     return Response(qSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+################################################################################
+# 
+# Function Name: sparql_query(request)
+# Inputs:        request - 
+# Outputs:        
+# Exceptions:    None
+# Description:   Submit a SPARQL query to the Jena triplestore
+# 
+################################################################################
 @api_view(['POST'])
 def sparql_query(request):
     """
@@ -468,6 +559,15 @@ def validateXMLDocument(templateID, xmlString):
     xmlSchema = etree.XMLSchema(xmlTree)          
     xmlSchema.assertValid(etree.parse(StringIO(xmlString))) 
 
+################################################################################
+# 
+# Function Name: curate(request)
+# Inputs:        request - 
+# Outputs:        
+# Exceptions:    None
+# Description:   Curate an XML document: save the data in MongoDB and Jena
+# 
+################################################################################
 @api_view(['POST'])
 def curate(request):
     """
@@ -533,7 +633,15 @@ def curate(request):
             return Response(content, status=status.HTTP_400_BAD_REQUEST)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
+################################################################################
+# 
+# Function Name: add_schema(request)
+# Inputs:        request - 
+# Outputs:        
+# Exceptions:    None
+# Description:   Add a template or a version of a template
+# 
+################################################################################
 @api_view(['POST'])
 def add_schema(request):
     """
@@ -570,6 +678,15 @@ def add_schema(request):
         return Response(sSerializer.data, status=status.HTTP_201_CREATED)
     return Response(sSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+################################################################################
+# 
+# Function Name: select_schema(request)
+# Inputs:        request - 
+# Outputs:        
+# Exceptions:    None
+# Description:   Get templates that match the parameters
+# 
+################################################################################
 @api_view(['GET'])
 def select_schema(request):
     """
@@ -645,6 +762,15 @@ def select_schema(request):
         content = {'message':'No template found with the given parameters.'}
         return Response(content, status=status.HTTP_404_NOT_FOUND)
 
+################################################################################
+# 
+# Function Name: select_all_schemas(request)
+# Inputs:        request - 
+# Outputs:        
+# Exceptions:    None
+# Description:   Get all schemas
+# 
+################################################################################
 @api_view(['GET'])
 def select_all_schemas(request):
     """
@@ -654,6 +780,15 @@ def select_all_schemas(request):
     serializer = templateSerializer(templates)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
+################################################################################
+# 
+# Function Name: select_all_schemas_versions(request)
+# Inputs:        request - 
+# Outputs:        
+# Exceptions:    None
+# Description:   Get all template version managers
+# 
+################################################################################
 @api_view(['GET'])
 def select_all_schemas_versions(request):
     """
@@ -663,6 +798,15 @@ def select_all_schemas_versions(request):
     serializer = TemplateVersionSerializer(templateVersions)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
+################################################################################
+# 
+# Function Name: current_template_version(request)
+# Inputs:        request - 
+# Outputs:        
+# Exceptions:    None
+# Description:   Set the current version of a template
+# 
+################################################################################
 @api_view(['GET'])
 def current_template_version(request):
     """
@@ -693,7 +837,16 @@ def current_template_version(request):
     templateVersion.save()
     content = {'message':'Current template set with success.'}
     return Response(content, status=status.HTTP_200_OK)
-    
+
+################################################################################
+# 
+# Function Name: delete_schema(request)
+# Inputs:        request - 
+# Outputs:        
+# Exceptions:    None
+# Description:   Delete a template
+# 
+################################################################################
 @api_view(['GET'])
 def delete_schema(request):
     """
@@ -781,6 +934,15 @@ def delete_schema(request):
         content = {'message':'Template deleted with success.'}
         return Response(content, status=status.HTTP_204_NO_CONTENT)
 
+################################################################################
+# 
+# Function Name: restore_schema(request)
+# Inputs:        request - 
+# Outputs:        
+# Exceptions:    None
+# Description:   Restore a template or a template version manager
+# 
+################################################################################
 @api_view(['GET'])
 def restore_schema(request):
     """
@@ -836,6 +998,15 @@ def restore_schema(request):
         content = {'message':'Template version not deleted. No need to be restored.'}
         return Response(content, status=status.HTTP_400_BAD_REQUEST)
 
+################################################################################
+# 
+# Function Name: add_type(request)
+# Inputs:        request - 
+# Outputs:        
+# Exceptions:    None
+# Description:   Add a type
+# 
+################################################################################
 @api_view(['POST'])
 def add_type(request):
     """
@@ -868,6 +1039,15 @@ def add_type(request):
         return Response(oSerializer.data, status=status.HTTP_201_CREATED)
     return Response(oSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+################################################################################
+# 
+# Function Name: select_type(request)
+# Inputs:        request - 
+# Outputs:        
+# Exceptions:    None
+# Description:   Select types that match parameters
+# 
+################################################################################
 @api_view(['GET'])
 def select_type(request):
     """
@@ -936,6 +1116,15 @@ def select_type(request):
         content = {'message':'No type found with the given parameters.'}
         return Response(content, status=status.HTTP_404_NOT_FOUND)
 
+################################################################################
+# 
+# Function Name: select_all_types(request)
+# Inputs:        request - 
+# Outputs:        
+# Exceptions:    None
+# Description:   Get all types
+# 
+################################################################################
 @api_view(['GET'])
 def select_all_types(request):
     """
@@ -945,6 +1134,15 @@ def select_all_types(request):
     serializer = resTypeSerializer(types)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
+################################################################################
+# 
+# Function Name: select_all_types_versions(request)
+# Inputs:        request - 
+# Outputs:        
+# Exceptions:    None
+# Description:   Get all type versions managers
+# 
+################################################################################
 @api_view(['GET'])
 def select_all_types_versions(request):
     """
@@ -954,6 +1152,15 @@ def select_all_types_versions(request):
     serializer = TypeVersionSerializer(typeVersions)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
+################################################################################
+# 
+# Function Name: current_type_version(request)
+# Inputs:        request - 
+# Outputs:        
+# Exceptions:    None
+# Description:   Set the current version of a type
+# 
+################################################################################
 @api_view(['GET'])
 def current_type_version(request):
     """
@@ -985,6 +1192,15 @@ def current_type_version(request):
     content = {'message':'Current type set with success.'}
     return Response(content, status=status.HTTP_200_OK)
 
+################################################################################
+# 
+# Function Name: delete_type(request)
+# Inputs:        request - 
+# Outputs:        
+# Exceptions:    None
+# Description:   Delete a type
+# 
+################################################################################
 @api_view(['GET'])
 def delete_type(request):
     """
@@ -1070,6 +1286,15 @@ def delete_type(request):
         content = {'message':'Type deleted with success.'}
         return Response(content, status=status.HTTP_204_NO_CONTENT)
 
+################################################################################
+# 
+# Function Name: restore_type(request)
+# Inputs:        request - 
+# Outputs:        
+# Exceptions:    None
+# Description:   Restore a type
+# 
+################################################################################
 @api_view(['GET'])
 def restore_type(request):
     """
@@ -1125,6 +1350,15 @@ def restore_type(request):
         content = {'message':'Type version not deleted. No need to be restored.'}
         return Response(content, status=status.HTTP_400_BAD_REQUEST)
 
+################################################################################
+# 
+# Function Name: select_all_repositories(request)
+# Inputs:        request - 
+# Outputs:        
+# Exceptions:    None
+# Description:   Get all repositories
+# 
+################################################################################
 @api_view(['GET'])
 def select_all_repositories(request):
     """
@@ -1134,6 +1368,15 @@ def select_all_repositories(request):
     serializer = instanceSerializer(instances)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
+################################################################################
+# 
+# Function Name: select_repository(request)
+# Inputs:        request - 
+# Outputs:        
+# Exceptions:    None
+# Description:   Get repositories that match the parameters
+# 
+################################################################################
 @api_view(['GET'])
 def select_repository(request):
     """
@@ -1209,6 +1452,15 @@ def select_repository(request):
         content = {'message':'No template found with the given parameters.'}
         return Response(content, status=status.HTTP_404_NOT_FOUND)
 
+################################################################################
+# 
+# Function Name: add_repository(request)
+# Inputs:        request - 
+# Outputs:        
+# Exceptions:    None
+# Description:   Add a repository
+# 
+################################################################################
 @api_view(['POST'])
 def add_repository(request):
     """
@@ -1262,6 +1514,15 @@ def add_repository(request):
         return Response(iSerializer.data, status=status.HTTP_201_CREATED)
     return Response(iSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+################################################################################
+# 
+# Function Name: delete_repository(request)
+# Inputs:        request - 
+# Outputs:        
+# Exceptions:    None
+# Description:   Delete a repository
+# 
+################################################################################
 @api_view(['GET'])
 def delete_repository(request):
     """
@@ -1283,6 +1544,15 @@ def delete_repository(request):
     content = {'message':'Instance deleted with success.'}
     return Response(content, status=status.HTTP_404_NOT_FOUND)
 
+################################################################################
+# 
+# Function Name: update_repository(request)
+# Inputs:        request - 
+# Outputs:        
+# Exceptions:    None
+# Description:   Update a repository
+# 
+################################################################################
 @api_view(['PUT'])
 def update_repository(request):  
     """
@@ -1355,6 +1625,15 @@ def update_repository(request):
         return Response(serializer.data, status=status.HTTP_200_OK)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+################################################################################
+# 
+# Function Name: select_all_users(request)
+# Inputs:        request - 
+# Outputs:        
+# Exceptions:    None
+# Description:   Get all users
+# 
+################################################################################
 @api_view(['GET'])
 def select_all_users(request):
     """
@@ -1364,6 +1643,15 @@ def select_all_users(request):
     serializer = UserSerializer(users)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
+################################################################################
+# 
+# Function Name: select_user(request)
+# Inputs:        request - 
+# Outputs:        
+# Exceptions:    None
+# Description:   Select users that match parameters
+# 
+################################################################################
 @api_view(['GET'])
 def select_user(request):
     """
@@ -1413,6 +1701,15 @@ def select_user(request):
     serializer = UserSerializer(users)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
+################################################################################
+# 
+# Function Name: add_user(request)
+# Inputs:        request - 
+# Outputs:        
+# Exceptions:    None
+# Description:   Add an user to the system
+# 
+################################################################################
 @api_view(['POST'])
 def add_user(request):
     """
@@ -1448,6 +1745,15 @@ def add_user(request):
     
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+################################################################################
+# 
+# Function Name: delete_user(request)
+# Inputs:        request - 
+# Outputs:        
+# Exceptions:    None
+# Description:   Delete an user
+# 
+################################################################################
 @api_view(['GET'])
 def delete_user(request):
     """
@@ -1468,7 +1774,16 @@ def delete_user(request):
     else:
         content = {'message':"No username provided."}
         return Response(content, status=status.HTTP_404_NOT_FOUND)
-    
+
+################################################################################
+# 
+# Function Name: update_user(request)
+# Inputs:        request - 
+# Outputs:        
+# Exceptions:    None
+# Description:   Update user's information
+# 
+################################################################################  
 @api_view(['PUT'])
 def update_user(request):
     """
@@ -1504,11 +1819,29 @@ def update_user(request):
     
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+################################################################################
+# 
+# Function Name: docs(request)
+# Inputs:        request - 
+# Outputs:        
+# Exceptions:    None
+# Description:   Gives the link to the API documentation
+# 
+################################################################################
 @api_view(['GET'])
 def docs(request):
     content={'message':'Invalid command','docs':'http://'+str(request.get_host())+'/docs/api'}
     return Response(content, status=status.HTTP_400_BAD_REQUEST)
 
+################################################################################
+# 
+# Function Name: ping(request)
+# Inputs:        request - 
+# Outputs:        
+# Exceptions:    None
+# Description:   Ping the API
+# 
+################################################################################
 @api_view(['GET'])
 def ping(request):
     content={'message':'Endpoint reached'}
