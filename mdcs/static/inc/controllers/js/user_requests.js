@@ -31,3 +31,34 @@ denyRequest = function()
         });
       });
 }
+
+showErrorRequestDialog = function(){
+	$(function() {
+        $( "#dialog-error-request" ).dialog({
+          modal: true,
+          buttons: {
+            Ok: function() {
+              $( this ).dialog( "close" );
+            }
+          }
+        });
+      });   
+}
+
+
+showAcceptedRequestDialog = function(){
+	$(function() {
+        $( "#dialog-accepted-request" ).dialog({
+          modal: true,
+          buttons: {
+            Ok: function() {
+              $( this ).dialog( "close" );
+            }
+          }
+        });
+      });
+      $('#model_selection').load(document.URL +  ' #model_selection', function() {
+          loadUserRequestsHandler();
+      });
+}
+

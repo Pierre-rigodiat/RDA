@@ -37,3 +37,18 @@ deleteBackup = function(backup)
         });
     });
 }
+
+showBackupDialog = function(){
+    $(function() {
+        $( "#dialog-backup" ).dialog({
+            modal: true,
+            width: 520,
+            buttons: {
+                OK: function() {    
+                    $( this ).dialog( "close" );
+                    }
+            }      
+        });
+    });
+    $('#model_selection').load(document.URL +  ' #model_selection', function() {});
+}

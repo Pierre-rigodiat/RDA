@@ -160,18 +160,89 @@ changePassword = function()
 		Dajaxice.admin.changePassword(Dajax.process,{"userid":userid, "old_password":old_pass, "password":pass1});
 	}
     
-    
-//    $(function() {
-//        $( "#dialog-saved-message" ).dialog({
-//            modal: true,
-//            buttons: {
-//                    Ok: function() {
-//                    $( this ).dialog( "close" );
-//                }
-//    }
-//        });
-//    });
-
     console.log('END [changePassword]');
 }
 
+showErrorRequestDialog = function(){
+	$("#listErrors").html("This user already exists. Please choose another username.");
+	$(function() {
+	    $( "#dialog-errors-message" ).dialog({
+	      modal: true,
+	      buttons: {
+	        Ok: function() {
+	          $( this ).dialog( "close" );
+	        }
+	      }
+	    });
+	  });
+} 
+
+showSentRequestDialog = function (){
+	$(function() {
+        $( "#dialog-request-sent" ).dialog({
+          modal: true,
+          buttons: {
+            Ok: function() {
+              $( this ).dialog( "close" );
+              window.location = "/";
+            }
+          }
+        });
+      });
+}
+
+showEditErrorDialog = function(errors){
+	$("#edit-errors").html(errors);
+    $(function() {
+        $( "#dialog-errors-message" ).dialog({
+          modal: true,
+          buttons: {
+            Ok: function() {
+              $( this ).dialog( "close" );
+            }
+          }
+        });
+      });
+}
+
+showSavedProfileDialog = function(){
+	$(function() {
+        $( "#dialog-saved-message" ).dialog({
+            modal: true,
+            buttons: {
+                    Ok: function() {                        
+                    $( this ).dialog( "close" );
+                    window.location = "/my-profile";
+                }
+            }
+        });
+    });
+}
+
+showChangePasswordErrorDialog = function(errors){
+    $("#list-errors").html(errors);
+    $(function() {
+        $( "#dialog-errors-message" ).dialog({
+          modal: true,
+          buttons: {
+            Ok: function() {
+              $( this ).dialog( "close" );
+            }
+          }
+        });
+      });
+}
+
+showPasswordChangedDialog = function(){
+    $(function() {
+        $( "#dialog-saved-message" ).dialog({
+            modal: true,
+            buttons: {
+                    Ok: function() {                        
+                    $( this ).dialog( "close" );
+                    window.location = "/my-profile";
+                }
+            }
+        });
+    });
+}

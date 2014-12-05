@@ -1,3 +1,6 @@
+/**
+ * Load controllers of the template selection page.
+ */
 loadTemplateSelectionControllers = function()
 {
     console.log('BEGIN [loadTemplateSelectionControllers]');    
@@ -6,6 +9,9 @@ loadTemplateSelectionControllers = function()
     console.log('END [loadTemplateSelectionControllers]');
 }
 
+/**
+ * Check that a template is selected.
+ */
 verifyTemplateIsSelectedBuild = function(){
     console.log('BEGIN [verifyTemplateIsSelected]');
 
@@ -14,6 +20,10 @@ verifyTemplateIsSelectedBuild = function(){
     console.log('END [verifyTemplateIsSelected]');
 }
 
+/**
+ * The template is not selected, redirect to main page.
+ * @param data 'yes' or 'no'
+ */
 verifyTemplateIsSelectedBuildCallback = function(data)
 {
     console.log('BEGIN [verifyTemplateIsSelectedCallback]');
@@ -28,10 +38,17 @@ verifyTemplateIsSelectedBuildCallback = function(data)
     console.log('END [verifyTemplateIsSelectedCallback]');
 }
 
+/**
+ * Check if the selected template is a new template
+ */
 verifyNewTemplate = function(){
 	Dajaxice.compose.isNewTemplate(newTemplateCallback);
 }
 
+/**
+ * If new template, need to give it a name
+ * @param data 'yes' or 'no'
+ */
 newTemplateCallback = function(data){
 	if (data.newTemplate == 'yes'){
 		$("#newTemplateTypeNameError").html("");
@@ -56,6 +73,9 @@ newTemplateCallback = function(data){
 	} 
 }
 
+/**
+ * Set a template to be current
+ */
 setComposeCurrentTemplate = function()
 {
     var templateName = $(this).parent().parent().children(':first').text();
@@ -73,6 +93,9 @@ setComposeCurrentTemplate = function()
     return false;
 }
 
+/**
+ * Set a user template to be current
+ */
 setComposeCurrentUserTemplate = function()
 {
     var templateName = $(this).parent().parent().children(':first').text();
@@ -87,6 +110,10 @@ setComposeCurrentUserTemplate = function()
     return false;
 }
 
+/**
+ * 
+ * @param data
+ */
 setCurrentTemplateCallback = function(data)
 {
     Dajax.process(data);

@@ -639,44 +639,7 @@ def retrieveInstance(request, instanceid):
     dajax = Dajax()
     
     instance = Instance.objects.get(pk=instanceid)
-    dajax.script(
-    """
-    $("#edit-instance-name").val('"""+ instance.name +"""');
-    $("#edit-instance-protocol").val('"""+ instance.protocol +"""');
-    $("#edit-instance-address").val('"""+ instance.address +"""');
-    $("#edit-instance-port").val('"""+ str(instance.port) +"""');
-    $("#edit-instance-user").val('"""+ str(instance.user) +"""');
-    $("#edit-instance-password").val('"""+ str(instance.password) +"""');
-    $(function() {
-        $( "#dialog-edit-instance" ).dialog({
-            modal: true,
-            height: 450,
-            width: 275,
-            buttons: {
-                Edit: function() {
-                    name = $("#edit-instance-name").val()
-                    protocol = $("#edit-instance-protocol").val()
-                    address = $("#edit-instance-address").val()
-                    port = $("#edit-instance-port").val()     
-                    user = $("#edit-instance-user").val()
-                    password = $("#edit-instance-password").val()
-                    
-                    errors = checkFields(protocol, address, port, user, password);
-                    
-                    if (errors != ""){
-                        $("#edit_instance_error").html(errors)
-                    }else{
-                        Dajaxice.curate.editInstance(Dajax.process,{"instanceid":'"""+instanceid+"""',"name":name, "protocol": protocol, "address":address, "port":port, "user": user, "password": password});
-                    }
-                },
-                Cancel: function() {                        
-                    $( this ).dialog( "close" );
-                }
-            }
-        });
-    });
-    """             
-    )
+    dajax.script("editInstanceCallback('"+ str(instance.name) +"','"+ str(instance.protocol) +"','"+ str(instance.address) +"','"+ str(instance.port) +"','"+ str(instance.user) +"','"+ str(instance.password) +"','"+ str(instanceid) +"');")
     
     return dajax.json()
 
@@ -796,36 +759,10 @@ def requestAccount(request, username, password, firstname, lastname, email):
     dajax = Dajax()
     try:
         user = User.objects.get(username=username)
-        dajax.script(
-         """
-            $("#listErrors").html("This user already exist. Please choose another username.");
-            $(function() {
-                $( "#dialog-errors-message" ).dialog({
-                  modal: true,
-                  buttons: {
-                    Ok: function() {
-                      $( this ).dialog( "close" );
-                    }
-                  }
-                });
-              });
-         """)
+        dajax.script("showErrorRequestDialog();")
     except:
         Request(username=username, password=password ,first_name=firstname, last_name=lastname, email=email).save()
-        dajax.script(
-         """
-            $(function() {
-                $( "#dialog-request-sent" ).dialog({
-                  modal: true,
-                  buttons: {
-                    Ok: function() {
-                      $( this ).dialog( "close" );
-                      window.location = "/";
-                    }
-                  }
-                });
-              });
-         """)
+        dajax.script("showSentRequestDialog();")
     return dajax.json()
 
 ################################################################################
@@ -844,39 +781,12 @@ def acceptRequest(request, requestid):
     userRequest = Request.objects.get(pk=requestid)
     try:
         existingUser = User.objects.get(username=userRequest.username)
-        dajax.script(
-        """
-            $(function() {
-                $( "#dialog-error-request" ).dialog({
-                  modal: true,
-                  buttons: {
-                    Ok: function() {
-                      $( this ).dialog( "close" );
-                    }
-                  }
-                });
-              });              
-        """)        
+        dajax.script("showErrorRequestDialog();")        
     except:
         user = User.objects.create_user(username=userRequest.username, password=userRequest.password, first_name=userRequest.first_name, last_name=userRequest.last_name, email=userRequest.email)
         user.save()
         userRequest.delete()
-        dajax.script(
-        """
-            $(function() {
-                $( "#dialog-accepted-request" ).dialog({
-                  modal: true,
-                  buttons: {
-                    Ok: function() {
-                      $( this ).dialog( "close" );
-                    }
-                  }
-                });
-              });
-              $('#model_selection').load(document.URL +  ' #model_selection', function() {
-                  loadUserRequestsHandler();
-              });
-        """)
+        dajax.script("showAcceptedRequestDialog();")
         
     return dajax.json()
 
@@ -1042,21 +952,7 @@ def createBackup(request, mongodbPath):
         result = "Unable to create the backup."
         
     dajax.assign("#backup-message", 'innerHTML', result)
-    dajax.script(
-    """
-        $(function() {
-            $( "#dialog-backup" ).dialog({
-                modal: true,
-                width: 520,
-                buttons: {
-                    OK: function() {    
-                        $( this ).dialog( "close" );
-                        }
-                }      
-            });
-        });
-      $('#model_selection').load(document.URL +  ' #model_selection', function() {});
-    """)
+    dajax.script("showBackupDialog();")
     return dajax.json()
 
 ################################################################################
@@ -1085,20 +981,7 @@ def restoreBackup(request, mongodbPath, backup):
         result = "Unable to restore the backup."
         
     dajax.assign("#backup-message", 'innerHTML', result)
-    dajax.script(
-    """
-        $(function() {
-            $( "#dialog-backup" ).dialog({
-                modal: true,
-                width: 520,
-                buttons: {
-                    OK: function() {    
-                        $( this ).dialog( "close" );
-                        }
-                }      
-            });
-        });
-    """)
+    dajax.script("showBackupDialog();")
     return dajax.json()
 
 ################################################################################
@@ -1155,20 +1038,7 @@ def saveUserProfile(request, userid, username, firstname, lastname, email):
         try:
             user = User.objects.get(username=username)
             errors += "A user with the same username already exists.<br/>"
-            dajax.script(
-            """
-            $("#edit-errors").html('"""+errors+"""');
-            $(function() {
-                $( "#dialog-errors-message" ).dialog({
-                  modal: true,
-                  buttons: {
-                    Ok: function() {
-                      $( this ).dialog( "close" );
-                    }
-                  }
-                });
-              });
-              """)
+            dajax.script("showEditErrorDialog('"+errors+"');")
             return dajax.json()
         except:
             user.username = username
@@ -1177,19 +1047,7 @@ def saveUserProfile(request, userid, username, firstname, lastname, email):
     user.last_name = lastname
     user.email = email
     user.save()
-    dajax.script(
-    """
-    $(function() {
-        $( "#dialog-saved-message" ).dialog({
-            modal: true,
-            buttons: {
-                    Ok: function() {                        
-                    $( this ).dialog( "close" );
-                }
-            }
-        });
-    });
-    """)
+    dajax.script("showSavedProfileDialog();")
     
     return dajax.json()
 
@@ -1214,38 +1072,13 @@ def changePassword(request, userid, old_password, password):
     user = User.objects.get(id=userid)
     auth_user = authenticate(username=user.username, password=old_password)
     if auth_user is None:
-        errors += "The old password is incorrect"
-        dajax.script(
-        """
-        $("#list-errors").html('"""+errors+"""');
-        $(function() {
-            $( "#dialog-errors-message" ).dialog({
-              modal: true,
-              buttons: {
-                Ok: function() {
-                  $( this ).dialog( "close" );
-                }
-              }
-            });
-          });
-          """)
+        errors += "The old password is incorrect."
+        dajax.script("showChangePasswordErrorDialog('"+ errors +"')")
         return dajax.json()
     else:        
         user.set_password(password)
         user.save()
-        dajax.script(
-        """
-        $(function() {
-            $( "#dialog-saved-message" ).dialog({
-                modal: true,
-                buttons: {
-                        Ok: function() {                        
-                        $( this ).dialog( "close" );
-                    }
-                }
-            });
-        });
-        """)
+        dajax.script("showPasswordChangedDialog();")
 
     
     return dajax.json()

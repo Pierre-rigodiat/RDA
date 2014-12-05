@@ -118,6 +118,42 @@ editInstance = function()
     Dajaxice.admin.retrieveInstance(Dajax.process,{"instanceid":instanceid});
 }
 
+editInstanceCallback = function(name, protocol, address, port, user, password, instanceid){
+    $("#edit-instance-name").val(name);
+    $("#edit-instance-protocol").val(protocol);
+    $("#edit-instance-address").val(address);
+    $("#edit-instance-port").val(port);
+    $("#edit-instance-user").val(user);
+    $("#edit-instance-password").val(password);
+    $(function() {
+        $( "#dialog-edit-instance" ).dialog({
+            modal: true,
+            height: 450,
+            width: 275,
+            buttons: {
+                Edit: function() {
+                    name = $("#edit-instance-name").val()
+                    protocol = $("#edit-instance-protocol").val()
+                    address = $("#edit-instance-address").val()
+                    port = $("#edit-instance-port").val()     
+                    user = $("#edit-instance-user").val()
+                    password = $("#edit-instance-password").val()
+                     
+                    errors = checkFields(protocol, address, port, user, password);
+                     
+                    if (errors != ""){
+                        $("#edit_instance_error").html(errors)
+                    }else{
+                        Dajaxice.admin.editInstance(Dajax.process,{"instanceid":instanceid,"name":name, "protocol": protocol, "address":address, "port":port, "user": user, "password": password});
+                    }
+                },
+                Cancel: function() {                        
+                    $( this ).dialog( "close" );
+                }
+            }
+        });
+    });
+}
 deleteInstance = function()
 {
 	var instanceid = $(this).attr("instanceid");
