@@ -1,3 +1,16 @@
+/**
+ * 
+ * File Name: fed_of_queries.js
+ * Author: Sharief Youssef
+ * 		   sharief.youssef@nist.gov
+ *
+ *        Guillaume SOUSA AMARAL
+ *        guillaume.sousa@nist.gov
+ * 
+ * Sponsor: National Institute of Standards and Technology (NIST)
+ * 
+ */
+
 loadFedOfQueriesHandler = function()
 {
 	console.log('BEGIN [loadFedOfQueriesHandler]');

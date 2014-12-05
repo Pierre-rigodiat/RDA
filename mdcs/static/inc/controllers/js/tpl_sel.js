@@ -1,3 +1,16 @@
+/**
+ * 
+ * File Name: tpl_sel.js
+ * Author: Sharief Youssef
+ * 		   sharief.youssef@nist.gov
+ *
+ *        Guillaume SOUSA AMARAL
+ *        guillaume.sousa@nist.gov
+ * 
+ * Sponsor: National Institute of Standards and Technology (NIST)
+ * 
+ */
+
 loadTemplateSelectionControllers = function()
 {
     console.log('BEGIN [loadTemplateSelectionControllers]');

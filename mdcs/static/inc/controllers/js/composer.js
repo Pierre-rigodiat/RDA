@@ -1,4 +1,17 @@
 /**
+ * 
+ * File Name: composer.js
+ * Author: Sharief Youssef
+ * 		   sharief.youssef@nist.gov
+ *
+ *        Guillaume SOUSA AMARAL
+ *        guillaume.sousa@nist.gov
+ * 
+ * Sponsor: National Institute of Standards and Technology (NIST)
+ * 
+ */
+
+/**
  * Load controllers of the template selection page.
  */
 loadTemplateSelectionControllers = function()

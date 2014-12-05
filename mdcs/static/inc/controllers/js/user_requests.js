@@ -1,3 +1,16 @@
+/**
+ * 
+ * File Name: user_requests.js
+ * Author: Sharief Youssef
+ * 		   sharief.youssef@nist.gov
+ *
+ *        Guillaume SOUSA AMARAL
+ *        guillaume.sousa@nist.gov
+ * 
+ * Sponsor: National Institute of Standards and Technology (NIST)
+ * 
+ */
+
 loadUserRequestsHandler = function()
 {
 	console.log('BEGIN [loadUserRequestsHandler]');
