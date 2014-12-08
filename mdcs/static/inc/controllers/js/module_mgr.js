@@ -11,6 +11,9 @@
  * 
  */
 
+/**
+ * Load modules controllers
+ */
 loadModuleManagerHandler = function()
 {
     console.log('BEGIN [loadModuleManagerHandler]');    
@@ -18,6 +21,9 @@ loadModuleManagerHandler = function()
     console.log('END [loadModuleManagerHandler]');
 }
 
+/**
+ * Delete a module
+ */
 deleteModule = function(){
 	var objectid = $(this).attr("objectid");
 	$(function() {
@@ -36,12 +42,18 @@ deleteModule = function(){
     });
 }
 
+/**
+ * Update the list of modules
+ */
 deleteModuleCallback = function(){
     $('#model_selection').load(document.URL +  ' #model_selection', function() {
     	loadModuleManagerHandler();
     });
 }
 
+/**
+ * Load controllers for module addition
+ */
 loadAddModuleHandler = function()
 {
     console.log('BEGIN [loadAddModuleHandler]');
@@ -50,6 +62,10 @@ loadAddModuleHandler = function()
     console.log('END [loadAddModuleHandler]');
 }
 
+/**
+ * Handler for reading of resources files
+ * @param evt
+ */
 function handleModuleResourceUpload(evt) {
 	var files = evt.target.files; // FileList object
     reader = new FileReader();
@@ -59,11 +75,17 @@ function handleModuleResourceUpload(evt) {
     reader.readAsText(files[0]);
 }
 
+/**
+ * Upload a resource
+ */
 uploadResource = function()
 {
 	Dajaxice.admin.uploadResource(Dajax.process);
 }
 
+/**
+ * Add a module
+ */
 addModule = function()
 {
 	var templates = $("#module-templates").val();
@@ -101,6 +123,9 @@ addModule = function()
 	}	
 }
 
+/**
+ * Display a message when the module is added.
+ */
 addModuleCallback = function(){
 	$(function() {
         $( "#dialog-added" ).dialog({

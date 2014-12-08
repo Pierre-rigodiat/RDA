@@ -11,6 +11,9 @@
  * 
  */
 
+/**
+ * load controllers for the federation of queries
+ */
 loadFedOfQueriesHandler = function()
 {
 	console.log('BEGIN [loadFedOfQueriesHandler]');
@@ -20,6 +23,9 @@ loadFedOfQueriesHandler = function()
 	console.log('END [loadFedOfQueriesHandler]');
 }
 
+/**
+ * Add a repository
+ */
 addInstance = function()
 {
 	console.log('BEGIN [addInstance]');
@@ -81,6 +87,11 @@ addInstance = function()
 	console.log('END [addInstance]');
 }
 
+/**
+ * Check that the address is a correct IP address
+ * @param address
+ * @returns {Boolean}
+ */
 function ValidateAddress(address)   
 {  
 	if (/^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(address))  
@@ -90,6 +101,11 @@ function ValidateAddress(address)
 	return (false)  ;
 } 
 
+/**
+ * Check that the port is a correct port number
+ * @param port
+ * @returns {Boolean}
+ */
 function ValidatePort(port)   
 {  
 	if (/^[0-9]{1,5}$/.test(port))  
@@ -99,6 +115,15 @@ function ValidatePort(port)
 	return (false)  ;
 } 
 
+/**
+ * Check that fields are correct
+ * @param protocol
+ * @param address
+ * @param port
+ * @param user
+ * @param password
+ * @returns {String}
+ */
 function checkFields(protocol, address, port, user, password){
 	errors = ""
 	
@@ -124,6 +149,9 @@ function checkFields(protocol, address, port, user, password){
 	return errors;
 }
 
+/**
+ * Edit repository information. Get the information from the server.
+ */
 editInstance = function()
 {    
     var instanceid = $(this).attr("instanceid");
@@ -131,6 +159,16 @@ editInstance = function()
     Dajaxice.admin.retrieveInstance(Dajax.process,{"instanceid":instanceid});
 }
 
+/**
+ * Edit repository information. 
+ * @param name
+ * @param protocol
+ * @param address
+ * @param port
+ * @param user
+ * @param password
+ * @param instanceid
+ */
 editInstanceCallback = function(name, protocol, address, port, user, password, instanceid){
     $("#edit-instance-name").val(name);
     $("#edit-instance-protocol").val(protocol);
@@ -167,6 +205,10 @@ editInstanceCallback = function(name, protocol, address, port, user, password, i
         });
     });
 }
+
+/**
+ * Delete a repository.
+ */
 deleteInstance = function()
 {
 	var instanceid = $(this).attr("instanceid");

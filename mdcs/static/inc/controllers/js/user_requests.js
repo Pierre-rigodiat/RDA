@@ -11,6 +11,9 @@
  * 
  */
 
+/**
+ * Load controllers to manage user requests
+ */
 loadUserRequestsHandler = function()
 {
 	console.log('BEGIN [loadUserRequestsHandler]');
@@ -19,13 +22,18 @@ loadUserRequestsHandler = function()
 	console.log('END [loadUserRequestsHandler]');
 }
 
-
+/**
+ * Accept a user request
+ */
 acceptRequest = function()
 {
 	var requestid = $(this).attr("requestid");
 	Dajaxice.admin.acceptRequest(Dajax.process,{"requestid": requestid});
 }
 
+/**
+ * Deny a user request
+ */
 denyRequest = function()
 {
 	var requestid = $(this).attr("requestid");
@@ -45,6 +53,9 @@ denyRequest = function()
       });
 }
 
+/**
+ * Display errors for user requests
+ */
 showErrorRequestDialog = function(){
 	$(function() {
         $( "#dialog-error-request" ).dialog({
@@ -58,7 +69,9 @@ showErrorRequestDialog = function(){
       });   
 }
 
-
+/**
+ * Display success message when user created
+ */
 showAcceptedRequestDialog = function(){
 	$(function() {
         $( "#dialog-accepted-request" ).dialog({

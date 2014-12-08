@@ -11,6 +11,9 @@
  * 
  */
 
+/**
+ * Load controllers for the template selection
+ */
 loadTemplateSelectionControllers = function()
 {
     console.log('BEGIN [loadTemplateSelectionControllers]');
@@ -20,6 +23,10 @@ loadTemplateSelectionControllers = function()
     console.log('END [loadTemplateSelectionControllers]');
 }
 
+/**
+ * set the current template
+ * @returns {Boolean}
+ */
 setExploreCurrentTemplate = function()
 {
     var templateName = $(this).parent().parent().children(':first').text();
@@ -37,6 +44,10 @@ setExploreCurrentTemplate = function()
     return false;
 }
 
+/**
+ * set the current user template
+ * @returns {Boolean}
+ */
 setExploreCurrentUserTemplate = function()
 {
     var templateName = $(this).parent().parent().children(':first').text();
@@ -51,6 +62,10 @@ setExploreCurrentUserTemplate = function()
     return false;
 }
 
+/**
+ * Set template Callback. Updates the template display.
+ * @param data
+ */
 setCurrentTemplateCallback = function(data)
 {
     Dajax.process(data);
@@ -64,6 +79,9 @@ setCurrentTemplateCallback = function(data)
     console.log('END [setCurrentTemplateCallback]');
 }
 
+/**
+ * Shows a dialog when the template is selected
+ */
 displayTemplateSelectedDialog = function()
 {
  $(function() {
@@ -78,16 +96,11 @@ displayTemplateSelectedDialog = function()
   });
 }
 
-/*function makeInputsDroppable(){
-	$( "#queryForm input[droppable=true]" ).droppable({
-		hoverClass: "ui-state-hover",
-		drop: function( event, ui ) {
-			$(this).val(ui.draggable.text());
-			updateUserInputs(ui.draggable.attr('id'),$(this).parent().attr('id')); 
-		}
-	});
-}*/
-
+/**
+ * When an element is selected in the query builder, input fields are added to the form regarding the type of the element.
+ * @param fromElementID
+ * @param criteriaID
+ */
 function updateUserInputs(fromElementID, criteriaID){
 	$("input").each(function(){
 	    $(this).attr("value", $(this).val());
@@ -97,7 +110,9 @@ function updateUserInputs(fromElementID, criteriaID){
 	Dajaxice.explore.updateUserInputs(Dajax.process,{'htmlForm':html, 'fromElementID':fromElementID, 'criteriaID':criteriaID});
 }
 
-
+/**
+ * Submit a query
+ */
 function query(){
 	$("input").each(function(){
 	    $(this).attr("value", $(this).val());
@@ -121,6 +136,9 @@ function query(){
 	Dajaxice.explore.executeQuery(Dajax.process,{'queryForm':queryForm, 'queryBuilder':queryBuilder, "fedOfQueries": fedOfQueries});
 }
 
+/**
+ * Redirect to results page
+ */
 resultsCallback = function()
 {
 	console.log('BEGIN [resultsCallback]');
@@ -130,6 +148,10 @@ resultsCallback = function()
     console.log('END [resultsCallback]');
 }
 
+/**
+ * Get results asynchronously (disabled)
+ * @param nbInstances
+ */
 getAsyncResults = function(nbInstances)
 {
 	/*for (i=0; i < Number(nbInstances); ++i){
@@ -138,6 +160,10 @@ getAsyncResults = function(nbInstances)
 	Dajaxice.explore.getResultsByInstance(Dajax.process,{"numInstance": nbInstances});
 }
 
+/**
+ * Get SPARQL results asynchronously (disabled)
+ * @param nbInstances
+ */
 getAsyncSparqlResults = function(nbInstances)
 {
 	/*for (i=0; i < Number(nbInstances); ++i){
@@ -145,6 +171,10 @@ getAsyncSparqlResults = function(nbInstances)
 	}*/
 	Dajaxice.explore.getSparqlResultsByInstance(Dajax.process,{"numInstance": nbInstances});
 }
+
+/**
+ * Add an empty field to the query builder
+ */
 function addField(){
 	$("input").each(function(){
 	    $(this).attr("value", $(this).val());
@@ -154,6 +184,10 @@ function addField(){
 	Dajaxice.explore.addField(Dajax.process,{'htmlForm':html});
 }
 
+/**
+ * Remove a field from the query builder
+ * @param tagID
+ */
 function removeField(tagID){
 	$("input").each(function(){
 	    $(this).attr("value", $(this).val());
@@ -163,6 +197,9 @@ function removeField(tagID){
 	Dajaxice.explore.removeField(Dajax.process,{'queryForm':queryForm, 'criteriaID':tagID});
 }
 
+/**
+ * Save the current query
+ */
 function saveQuery(){
 	$("input").each(function(){
 	    $(this).attr("value", $(this).val());
@@ -173,7 +210,10 @@ function saveQuery(){
 	Dajaxice.explore.saveQuery(Dajax.process,{'queryForm':queryForm, 'queriesTable':queriesTable});
 }
 
-
+/**
+ * Insert a saved query in the query builder
+ * @param savedQueryID
+ */
 function addSavedQueryToForm(savedQueryID){
 	$("input").each(function(){
 	    $(this).attr("value", $(this).val());
@@ -183,6 +223,10 @@ function addSavedQueryToForm(savedQueryID){
 	Dajaxice.explore.addSavedQueryToForm(Dajax.process,{'queryForm':queryForm, 'savedQueryID':savedQueryID})
 } 
 
+/**
+ * Delete a save query
+ * @param savedQueryID
+ */
 function deleteQuery(savedQueryID){
 	$(function() {
         $( "#dialog-DeleteQuery" ).dialog({
@@ -200,6 +244,9 @@ function deleteQuery(savedQueryID){
     });
 }
 
+/**
+ * Clear the current criterias
+ */
 function clearCriterias(){
 	$("input").each(function(){
 	    $(this).attr("value", $(this).val());
@@ -209,7 +256,9 @@ function clearCriterias(){
 	Dajaxice.explore.clearCriterias(Dajax.process, {'queryForm':queryForm})
 }
 
-
+/**
+ * Delete all saved queries 
+ */
 clearQueries = function()
 {
 	$(function() {
@@ -232,6 +281,9 @@ clearQueries = function()
     });
 }
 
+/**
+ * Save the custom form
+ */
 exploreData = function()
 {
     console.log('BEGIN [exploreData]');
@@ -253,6 +305,9 @@ exploreData = function()
     console.log('END [exploreData]');
 }
 
+/**
+ * Redirect to Perform Search
+ */
 saveCustomXMLDataCallback = function()
 {
     console.log('BEGIN [saveCustomXMLData]');
@@ -262,7 +317,10 @@ saveCustomXMLDataCallback = function()
     console.log('END [saveCustomXMLData]');
 }
 
-
+/**
+ * Change a choice in the XSD form
+ * @param selectObj
+ */
 changeChoice = function(selectObj)
 {
     console.log('BEGIN [changeChoice(' + selectObj.id + ' : ' + selectObj.selectedIndex + ')]');
@@ -282,6 +340,9 @@ changeChoice = function(selectObj)
     console.log('END [changeChoice(' + selectObj.id + ' : ' + selectObj.selectedIndex + ')]');
 }
 
+/**
+ * Check that a template is selected
+ */
 verifyTemplateIsSelectedCustomize = function(){
     console.log('BEGIN [verifyTemplateIsSelected]');
 
@@ -290,6 +351,10 @@ verifyTemplateIsSelectedCustomize = function(){
     console.log('END [verifyTemplateIsSelected]');
 }
 
+/**
+ * Callback of check template selected. Display an error message if not selected.
+ * @param data
+ */
 verifyTemplateIsSelectedCustomizeCallback = function(data)
 {
     console.log('BEGIN [verifyTemplateIsSelectedCallback]');
@@ -303,18 +368,23 @@ verifyTemplateIsSelectedCustomizeCallback = function(data)
     console.log('END [verifyTemplateIsSelectedCallback]');
 }
 
-
+/**
+ * Generate a form to select fields to use in the query builder
+ */
 loadExploreCurrentTemplateForm = function()
 {
     console.log('BEGIN [loadExploreCurrentTemplateForm]');
 
     $('.btn.clear-fields').on('click', clearFields);
 
-    Dajaxice.explore.generateXSDTreeForQueryingData(Dajax.process); //,{'templateFilename':'xxxx'});
+    Dajaxice.explore.generateXSDTreeForQueryingData(Dajax.process); 
 
     console.log('END [loadExploreCurrentTemplateForm]');
 }
 
+/**
+ * Clear all check boxes of the form
+ */
 clearFields = function()
 {
     console.log('BEGIN [clearFields]');
@@ -350,7 +420,9 @@ clearFields = function()
     console.log('END [clearFields]');
 }
 
-
+/**
+ * Download all results
+ */
 downloadResults = function()
 {
 	console.log('BEGIN [downloadResults]');
@@ -360,6 +432,9 @@ downloadResults = function()
 	console.log('END [downloadResults]');
 }
 
+/**
+ * Display errors
+ */
 displayErrors = function()
 {
 	$(function() {
@@ -374,7 +449,9 @@ displayErrors = function()
     });
 }
 
-
+/**
+ * Comes back to the query, keeping the current criterias
+ */
 backToQuery = function()
 {
 	console.log('BEGIN [backToQuery]');
@@ -384,7 +461,9 @@ backToQuery = function()
 	console.log('END [backToQuery]');
 }
 
-
+/**
+ * Redirect to Perform Search
+ */
 backToQueryCallback = function()
 {
     console.log('BEGIN [backToQueryCallback]');
@@ -394,6 +473,9 @@ backToQueryCallback = function()
     console.log('END [backToQueryCallback]');
 }
 
+/**
+ * Manage the display of the tabs
+ */
 switchTabRefresh = function()
 {
 	console.log('BEGIN [switchTabRefresh]');
@@ -409,6 +491,9 @@ switchTabRefresh = function()
 	console.log('END [switchTabRefresh]');
 }
 
+/**
+ * Manage the display of the tabs
+ */
 switchTab = function(tab)
 {
 	console.log('BEGIN [switchTab]');
@@ -436,6 +521,9 @@ switchTab = function(tab)
 	console.log('END [switchTab]');
 }
 
+/**
+ * Manage the display of the tabs
+ */
 redirectExplore = function(tab)
 {
 	console.log('BEGIN [redirectExplore]');
@@ -446,6 +534,9 @@ redirectExplore = function(tab)
 	console.log('END [redirectExplore]');
 }
 
+/**
+ * Manage the display of the tabs
+ */
 redirectSPARQLTab = function()
 {
 	console.log('BEGIN [redirectSPARQLTab]');
@@ -457,6 +548,10 @@ redirectSPARQLTab = function()
 	console.log('END [redirectSPARQLTab]');
 }
 
+/**
+ * Show the custom tree to choose a field for the query builder
+ * @param criteriaID
+ */
 showCustomTree = function(criteriaID)
 {
 	console.log('BEGIN [showCustomTree]');
@@ -479,7 +574,10 @@ showCustomTree = function(criteriaID)
 	console.log('END [showCustomTree]');
 }
 
-
+/**
+ * Select an element to insert in the query builder
+ * @param elementID
+ */
 selectElement = function(elementID)
 {
 	console.log('BEGIN [selectElement]');
@@ -490,6 +588,9 @@ selectElement = function(elementID)
 	console.log('END [selectElement]');
 }
 
+/**
+ * Submit a SPARQL query
+ */
 function sparqlquery(){
 	var queryStr = $("#SPARQLqueryBuilder .SPARQLTextArea").val();	
 	var sparqlFormatIndex = $("#SPARQLFormat").prop("selectedIndex");
@@ -507,6 +608,9 @@ function sparqlquery(){
 	Dajaxice.explore.executeSPARQLQuery(Dajax.process,{"queryStr":queryStr,"sparqlFormatIndex":sparqlFormatIndex, "fedOfQueries": fedOfQueries});
 }
 
+/**
+ * Redirect to SPARQL results
+ */
 sparqlResultsCallback = function()
 {
 	console.log('BEGIN [sparqlResultsCallback]');
@@ -516,6 +620,9 @@ sparqlResultsCallback = function()
     console.log('END [sparqlResultsCallback]');
 }
 
+/**
+ * Download SPARQL results
+ */
 downloadSparqlResults = function()
 {
 	console.log('BEGIN [downloadSparqlResults]');
@@ -525,6 +632,9 @@ downloadSparqlResults = function()
 	console.log('END [downloadSparqlResults]');
 }
 
+/**
+ * Get the path to an element to use in a SPARQL query
+ */
 getElementPath = function()
 {
 	console.log('BEGIN [getElementPath]');
@@ -545,15 +655,10 @@ getElementPath = function()
 	console.log('END [getElementPath]');
 }
 
-//backToSparqlQuery = function()
-//{
-//	console.log('BEGIN [backToSparqlQuery]');
-//	
-//	Dajaxice.explore.backToSparqlQuery()
-//	
-//	console.log('END [backToSparqlQuery]');
-//}
-
+/**
+ * Select an element from the custom tree, for subelement query
+ * @param leavesID
+ */
 selectParent = function(leavesID)
 {
 	console.log('BEGIN [selectParent]');
@@ -568,6 +673,10 @@ selectParent = function(leavesID)
 	console.log('END [selectParent]');
 }
 
+/**
+ * Open the dialog to create a query on subelements of the same document
+ * @param leavesID
+ */
 subElementQuery = function(leavesID)
 {
 	console.log('BEGIN [subElementQuery]');
@@ -604,6 +713,9 @@ subElementQuery = function(leavesID)
 	console.log('END [subElementQuery]');
 }
 
+/**
+ * Show an error message when no repository are selected
+ */
 showErrorInstancesDialog = function()
 {
 	$(function() {

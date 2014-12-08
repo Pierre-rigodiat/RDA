@@ -11,6 +11,9 @@
  * 
  */
 
+/**
+ * Expand/Collapse elements from the XML tree
+ */
 showhide = function(event){
 	console.log('BEGIN [showhide]');
 	button = event.target

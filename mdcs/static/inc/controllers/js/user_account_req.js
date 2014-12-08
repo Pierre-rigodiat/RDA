@@ -11,6 +11,9 @@
  * 
  */
 
+/**
+ * Load controllers for user account request.
+ */
 loadUserAccountRequest = function()
 {
     console.log('BEGIN [loadUserAccountRequest]');
@@ -18,6 +21,11 @@ loadUserAccountRequest = function()
     console.log('END [loadUserAccountRequest]');
 }
 
+/**
+ * Check that the password is correct
+ * @param password
+ * @returns {Boolean}
+ */
 checkPassword = function(password){
 	//if length is 8 characters or more, increase strength value
 	if (password.length < 8){
@@ -34,6 +42,9 @@ checkPassword = function(password){
 	} 
 }
 
+/**
+ * Submit a request for an account
+ */
 request_account = function()
 {
 	username = $("#username").val();
@@ -79,7 +90,9 @@ request_account = function()
 	}
 }
 
-
+/**
+ * Load controllers for edit profile page
+ */
 loadEditProfileHandler = function()
 {
     console.log('BEGIN [loadEditProfileHandler]');
@@ -87,6 +100,9 @@ loadEditProfileHandler = function()
     console.log('END [loadEditProfileHandler]');
 }
 
+/**
+ * Save the user profile
+ */
 saveProfile = function()
 {
     console.log('BEGIN [saveProfile]');
@@ -125,6 +141,9 @@ saveProfile = function()
     console.log('END [saveProfile]');
 }
 
+/**
+ * Load controllers for change password page
+ */
 loadChangePasswordHandler = function()
 {
     console.log('BEGIN [loadChangePasswordHandler]');
@@ -132,6 +151,9 @@ loadChangePasswordHandler = function()
     console.log('END [loadChangePasswordHandler]');
 }
 
+/**
+ * Change the user password
+ */
 changePassword = function()
 {
     console.log('BEGIN [changePassword]');
@@ -176,6 +198,9 @@ changePassword = function()
     console.log('END [changePassword]');
 }
 
+/**
+ * Display a dialog with errors when bad user account request 
+ */
 showErrorRequestDialog = function(){
 	$("#listErrors").html("This user already exists. Please choose another username.");
 	$(function() {
@@ -190,6 +215,9 @@ showErrorRequestDialog = function(){
 	  });
 } 
 
+/**
+ * Display a dialog with success message when user request sent
+ */
 showSentRequestDialog = function (){
 	$(function() {
         $( "#dialog-request-sent" ).dialog({
@@ -204,6 +232,10 @@ showSentRequestDialog = function (){
       });
 }
 
+/**
+ * Display a dialog with errors for user profile edition
+ * @param errors
+ */
 showEditErrorDialog = function(errors){
 	$("#edit-errors").html(errors);
     $(function() {
@@ -218,6 +250,9 @@ showEditErrorDialog = function(errors){
       });
 }
 
+/**
+ * Display a message when user profile saved
+ */
 showSavedProfileDialog = function(){
 	$(function() {
         $( "#dialog-saved-message" ).dialog({
@@ -232,6 +267,10 @@ showSavedProfileDialog = function(){
     });
 }
 
+/**
+ * Display a dialog with errors for user password change
+ * @param errors
+ */
 showChangePasswordErrorDialog = function(errors){
     $("#list-errors").html(errors);
     $(function() {
@@ -246,6 +285,9 @@ showChangePasswordErrorDialog = function(errors){
       });
 }
 
+/**
+ * Display a message when user password changed
+ */
 showPasswordChangedDialog = function(){
     $(function() {
         $( "#dialog-saved-message" ).dialog({

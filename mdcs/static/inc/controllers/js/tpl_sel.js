@@ -11,6 +11,9 @@
  * 
  */
 
+/**
+ * Load controllers for template selection
+ */
 loadTemplateSelectionControllers = function()
 {
     console.log('BEGIN [loadTemplateSelectionControllers]');
@@ -19,6 +22,9 @@ loadTemplateSelectionControllers = function()
     console.log('END [loadTemplateSelectionControllers]');
 }
 
+/**
+ * Clear the fields of the current curated data
+ */
 clearFields = function()
 {
     console.log('BEGIN [clearFields]');
@@ -41,6 +47,9 @@ clearFields = function()
     console.log('END [clearFields]');
 }
 
+/**
+ * Load an existing form. Show the window.
+ */
 loadForm = function()
 {
     console.log('BEGIN [loadForm]');
@@ -51,7 +60,7 @@ loadForm = function()
             buttons: {
 		Load: function() {
                     $( this ).dialog( "close" );
-		    doLoadForm();
+                    doLoadForm();
                 },
 		Cancel: function() {
                     $( this ).dialog( "close" );
@@ -63,6 +72,10 @@ loadForm = function()
     console.log('END [loadForm]');
 }
 
+/**
+ * Load an existing form.
+ * @returns {Boolean}
+ */
 doLoadForm = function()
 {
     console.log('BEGIN [doLoadForm]');
@@ -77,19 +90,26 @@ doLoadForm = function()
     return false;
 }
 
+/**
+ * Load form callback.
+ * @param data
+ * @returns {Boolean}
+ */
 loadFormForEntryCallback = function(data)
 {
     Dajax.process(data);
     console.log('BEGIN [loadFormForEntryCallback]');
     console.log('data passed back to callback function: ' + data);
 
-    // business logic goes here
 
     console.log('END [loadFormForEntryCallback]');
 
     return false;
 }
 
+/**
+ * Display message when form loaded.
+ */
 formLoaded = function()
 {
     console.log('BEGIN [loadForm]');
@@ -108,6 +128,9 @@ formLoaded = function()
     console.log('END [loadForm]');
 }
 
+/**
+ * Save the current form. Show the window.
+ */
 saveForm = function()
 {
     console.log('BEGIN [saveForm]');
@@ -134,6 +157,9 @@ saveForm = function()
     console.log('END [saveForm]');
 }
 
+/**
+ * Save an existing form. 
+ */
 doSave = function()
 {
     console.log('BEGIN [doSave]');
@@ -171,6 +197,9 @@ doSave = function()
     console.log('END [doSave]');
 }
 
+/**
+ * Display the current data to curate
+ */
 viewData = function()
 {
     console.log('BEGIN [viewData]');
@@ -189,6 +218,9 @@ viewData = function()
     console.log('END [viewData]');
 }
 
+/**
+ * Validate the current data to curate.
+ */
 validateXML = function()
 {
 	var rootElement = document.getElementsByName("xsdForm")[0];
@@ -199,6 +231,9 @@ validateXML = function()
     Dajaxice.curate.validateXMLData(Dajax.process,{'xmlString':xmlString});
 }
 
+/**
+ * Redirect to View Data.
+ */
 saveXMLDataCallback = function()
 {
     console.log('BEGIN [saveXMLData]');
@@ -208,6 +243,11 @@ saveXMLDataCallback = function()
     console.log('END [saveXMLData]');
 }
 
+/**
+ * Generate an XML String from values entered in the form.
+ * @param elementObj
+ * @returns {String}
+ */
 generateXMLString = function(elementObj)
 {
     console.log('BEGIN [generateXMLString]');
@@ -219,15 +259,9 @@ generateXMLString = function(elementObj)
 	console.log(children[i].tagName);
 	if (children[i].nodeType == 1 && children[i].hasAttribute("xmlID")) {
 	    if (children[i].getAttribute("xmlID") == "root") {
-//		if (children[i].hasAttribute("hdf5ns")) {
-//		    xmlString += "<" + children[i].firstChild.innerHTML.trim() + " xmlns:hdf5=\"http://hdfgroup.org/HDF5/XML/schema/HDF5-File\">"
-//		    xmlString += generateXMLString(children[i]);
-//		    xmlString += "</" + children[i].firstChild.innerHTML.trim() + ">"
-//		} else {
 		    xmlString += "<" + children[i].firstChild.innerHTML.trim() + ">"
 		    xmlString += generateXMLString(children[i]);
 		    xmlString += "</" + children[i].firstChild.innerHTML.trim() + ">"
-//		}
 	    }
 	} else if (children[i].tagName == "UL") {
 	    if (children[i].style.display != "none") {
@@ -240,14 +274,7 @@ generateXMLString = function(elementObj)
 		    var nobrNode2 = children[i].children[1];
 		    if (nobrNode1.firstChild != null) {
 			console.log(nobrNode1.firstChild.tagName);
-			if (nobrNode1.firstChild.tagName == "DIV") {
-//				tagId = $(nobrNode1.firstChild).attr("id");
-//				if (typeof tagId !== typeof undefined && tagId !== false && tagId == "hdf5File") {
-//					xmlString += hdf5String
-//				}
-	//		    alert("hdf5file matched");
-	//		    xmlString += hdf5String;
-			} else if (nobrNode1.firstChild.nodeValue.trim() != "Choose") {
+			if (nobrNode1.firstChild.nodeValue.trim() != "Choose") {
 			    xmlString += "<" + nobrNode1.firstChild.nodeValue.trim() + ">";
 			    if (nobrNode1.firstChild.nodeValue.trim() == "Table") {
 				xmlString += "table";
@@ -272,13 +299,7 @@ generateXMLString = function(elementObj)
 	}
 	else if (children[i].tagName == "DIV" && $(children[i]).hasClass("module") ){
 		xmlString += $($(children[i]).parent()).find(".moduleResult").html();		
-	} 
-//	else if (children[i].tagName == "DIV"){
-//		valModule = $(children[i]).attr("value");
-//		if (typeof valModule !== typeof undefined && valModule !== false) {
-//			xmlString += valModule
-//		}
-//	} 	
+	} 	
 	else if (children[i].tagName == "SELECT") {
 	    // get the index of the selected option 
 	    var idx = children[i].selectedIndex; 
@@ -305,6 +326,11 @@ generateXMLString = function(elementObj)
     return xmlString
 }
 
+/**
+ * 
+ * @param data
+ * @returns {Boolean}
+ */
 saveHTMLFormCallback = function(data)
 {
     Dajax.process(data);
@@ -319,57 +345,11 @@ saveHTMLFormCallback = function(data)
     return false;
 }
 
-//selectElement = function(periodicTableElement,divElement, selectedElementId)
-//{
-//    console.log('BEGIN [selectElement(' + periodicTableElement + ',' + divElement + ')]');
-//
-//    document.getElementById('chosenElement').innerHTML = "Chosen Element: <b>" + periodicTableElement + "</b>";
-//
-//    $(function() {
-//	$("#dialog-select-element" ).dialog({ width: 700 });
-//        $("#dialog-select-element" ).dialog({
-//            modal: true,
-//            buttons: {
-//		Select: function() {
-//		    		doSelectElement(divElement, selectedElementId);
-//                    $( this ).dialog( "close" );
-//                },
-//		Cancel: function() {
-//                    $( this ).dialog( "close" );
-//                }
-//	    }
-//        });
-//    });
-//	
-//    console.log('END [selectElement]');
-//}
-//
-//chooseElement = function(element)
-//{
-//console.log('BEGIN [chooseElement(' + element + ')]');
-//
-//$('#chosenElement').html("Chosen Element: <b id=\"selectedElement\">" + element + "</b>");
-//
-//console.log('END [chooseElement(' + element + ')]');
-//}
-//
-//doSelectElement = function(divElement, selectedElementId)
-//{
-//console.log('BEGIN [selectElement(' + divElement + ')]');
-//
-////var selectedElement = document.getElementById('selectedElement').innerHTML;
-////divElement.onclick = function onclick(event) { selectElement(selectedElement,this); }
-////divElement.parentNode.childNodes[2].innerHTML = "Current Selection: " + selectedElement;
-//var selectedElement = document.getElementById('selectedElement').innerHTML;
-//divElement.onclick = function onclick(event) { selectElement(selectedElement,this); }
-//document.getElementById('elementSelected'+selectedElementId).innerHTML = "Current Selection: " + selectedElement;
-//
-//// reset for next selection
-//document.getElementById('chosenElement').innerHTML = "Chosen Element: <b>None</b>";
-//
-//console.log('END [selectElement(' + divElement + ')]');
-//}
 
+/**
+ * Display the periodic table to select a chemical element
+ * @param divElement
+ */
 selectElement = function(divElement)
 {   
 	console.log('BEGIN [selectElement()]');
@@ -393,6 +373,10 @@ selectElement = function(divElement)
 	console.log('END [selectElement()]');
 }
 
+/**
+ * Display the selected element
+ * @param element
+ */
 chooseElement = function(element)
 {
     console.log('BEGIN [chooseElement(' + element + ')]');
@@ -402,6 +386,10 @@ chooseElement = function(element)
     console.log('END [chooseElement(' + element + ')]');
 }
 
+/**
+ * Save the selected element into the form
+ * @param divElement
+ */
 doSelectElement = function(divElement)
 {
     console.log('BEGIN [selectElement(' + divElement + ')]');
@@ -418,6 +406,10 @@ doSelectElement = function(divElement)
     console.log('END [selectElement(' + divElement + ')]');
 }
 
+/**
+ * Display the periodic table to select multiple chemical elements
+ * @param divElement
+ */
 selectMultipleElements = function(divElement)
 {
   console.log('BEGIN [selectElement(' + divElement + ')]');
@@ -465,6 +457,10 @@ selectMultipleElements = function(divElement)
   console.log('END [selectElement]');
 }
 
+/**
+ * Display the selected elements
+ * @param element
+ */
 chooseMultipleElements = function(element)
 {
   console.log('BEGIN [chooseElement(' + element + ')]');
@@ -482,6 +478,10 @@ chooseMultipleElements = function(element)
   console.log('END [chooseElement(' + element + ')]');
 }
 
+/**
+ * Save the selected elements into the form
+ * @param divElement
+ */
 doSelectMultipleElements = function(divElement)
 {
 console.log('BEGIN [selectElement(' + divElement + ')]');
@@ -526,6 +526,9 @@ document.getElementById('chosenMultipleElements').innerHTML = "<table id='tableC
 console.log('END [selectElement(' + divElement + ')]');
 }
 
+/**
+ * Remove an element from the selection
+ */
 removeMultipleElement = function(removeButton){
 	console.log('BEGIN [removeMultipleElement)]');
 	
@@ -541,6 +544,11 @@ removeMultipleElement = function(removeButton){
 	console.log('END [removeMultipleElement]');
 }
 
+/**
+ * Select an Excel Spreadseet. Show the dialog box.
+ * @param hdf5File
+ * @param divElement
+ */
 selectHDF5File = function(hdf5File,divElement)
 {	
     $(function() {
@@ -566,13 +574,20 @@ selectHDF5File = function(hdf5File,divElement)
 }
 
 var moduleTag;
-
+/**
+ * Select an Excel Spreadseet. 
+ * @param divElement
+ */
 doSelectHDF5File = function(divElement)
 {
 	moduleTag = $(divElement).parent();
     Dajaxice.curate.getHDF5String(getHDF5StringCallback);
 }
 
+/**
+ * Insert the Spreadsheet information in the form.
+ * @param data
+ */
 getHDF5StringCallback = function(data)
 {
 	spreadsheetXML = data.spreadsheetXML;
@@ -584,6 +599,10 @@ getHDF5StringCallback = function(data)
 	
 }
 
+/**
+ * Update the display regarding the choice of the user.
+ * @param selectObj
+ */
 changeChoice = function(selectObj)
 {
     console.log('BEGIN [changeChoice(' + selectObj.id + ' : ' + selectObj.selectedIndex + ')]');
@@ -602,6 +621,9 @@ changeChoice = function(selectObj)
     console.log('END [changeChoice(' + selectObj.id + ' : ' + selectObj.selectedIndex + ')]');
 }
 
+/**
+ * Show a dialog when a template is selected
+ */
 displayTemplateSelectedDialog = function()
 {
  $(function() {
@@ -616,6 +638,9 @@ displayTemplateSelectedDialog = function()
   });
 }
 
+/**
+ * Check if the template is selected, to prevent manual navigation.
+ */
 verifyTemplateIsSelectedCurateEnterData = function(){
     console.log('BEGIN [verifyTemplateIsSelected]');
 
@@ -624,6 +649,10 @@ verifyTemplateIsSelectedCurateEnterData = function(){
     console.log('END [verifyTemplateIsSelected]');
 }
 
+/**
+ * Callback redirects to main page if no templates selected.
+ * @param data
+ */
 verifyTemplateIsSelectedCurateEnterDataCallback = function(data)
 {
     console.log('BEGIN [verifyTemplateIsSelectedCallback]');
@@ -637,7 +666,9 @@ verifyTemplateIsSelectedCurateEnterDataCallback = function(data)
     console.log('END [verifyTemplateIsSelectedCallback]');
 }
 
-
+/**
+ * Load the form to curate data
+ */
 loadCurrentTemplateFormForCuration = function()
 {
     console.log('BEGIN [loadCurrentTemplateFormForCuration]');
@@ -649,15 +680,17 @@ loadCurrentTemplateFormForCuration = function()
     $('.btn.download-xsd').on('click', downloadXSD);
     $('.btn.download-form').on('click', downloadForm);
     $('.btn.download-xml').on('click', downloadXML);
-//    $('.btn.select-element').on('click', selectElement);
 
-    Dajaxice.curate.generateXSDTreeForEnteringData(Dajax.process); //,{'templateFilename':'xxxx'});
+    Dajaxice.curate.generateXSDTreeForEnteringData(Dajax.process); 
 
     Dajaxice.curate.updateFormList(Dajax.process);
 
     console.log('END [loadCurrentTemplateFormForCuration]');
 }
 
+/**
+ * Load the form to customize fields for query
+ */
 loadExploreCurrentTemplateForm = function()
 {
     console.log('BEGIN [loadExploreCurrentTemplateForm]');
@@ -671,6 +704,9 @@ loadExploreCurrentTemplateForm = function()
     console.log('END [loadExploreCurrentTemplateForm]');
 }
 
+/**
+ * 
+ */
 displayTemplateForm = function()
 {
     console.log('BEGIN [displayTemplateForm]');
@@ -680,6 +716,9 @@ displayTemplateForm = function()
     console.log('END [displayTemplateForm]');
 }
 
+/**
+ * Check that the tempalte is selected or redirect to main page
+ */
 verifyTemplateIsSelectedViewData = function(){
     console.log('BEGIN [verifyTemplateIsSelected]');
 
@@ -688,6 +727,9 @@ verifyTemplateIsSelectedViewData = function(){
     console.log('END [verifyTemplateIsSelected]');
 }
 
+/**
+ * Check that the tempalte is selected or redirect to main page
+ */
 verifyTemplateIsSelectedViewDataCallback = function(data)
 {
     console.log('BEGIN [verifyTemplateIsSelectedCallback]');
@@ -702,7 +744,9 @@ verifyTemplateIsSelectedViewDataCallback = function(data)
     console.log('END [verifyTemplateIsSelectedCallback]');
 }
 
-
+/**
+ * Load template view controllers
+ */
 loadCurrentTemplateView = function()
 {
     console.log('BEGIN [loadCurrentTemplateView]');
@@ -710,12 +754,12 @@ loadCurrentTemplateView = function()
     $('.btn.download-xml').on('click', downloadXML);
     $('.btn.save-to-repo').on('click', saveToRepository);
 
-    //    Dajaxice.curate.generateXSDTreeForEnteringData(Dajax.process); //,{'templateFilename':'xxxx'});
-
     console.log('END [loadCurrentTemplateView]');
 }
 
-
+/**
+ * Shows a dialog to choose dialog options
+ */
 downloadOptions = function()
 {
  $(function() {
@@ -731,6 +775,9 @@ downloadOptions = function()
 }
 
 
+/**
+ * Download the XML document
+ */
 downloadXML = function()
 {
     console.log('BEGIN [downloadXML]');
@@ -740,7 +787,9 @@ downloadXML = function()
     console.log('END [downloadXML]');
 }
 
-
+/**
+ * Download the XSD template
+ */
 downloadXSD = function()
 {
     console.log('BEGIN [downloadXSD]');
@@ -755,18 +804,21 @@ downloadXSD = function()
     console.log('END [downloadXSD]');
 }
 
+/**
+ * Download the HTML form
+ */
 downloadForm = function()
 {
     console.log('BEGIN [downloadForm]');
-
-//    dataToDownload = document.getElementById('xsdForm').innerHTML;
-//    document.location = 'data:Application/octet-stream,' + encodeURIComponent(dataToDownload);
     
     Dajaxice.curate.saveHTMLForm(downloadFormCallback,{'saveAs':"form2download", 'content':document.getElementById('xsdForm').innerHTML});
 
     console.log('END [downloadForm]');
 }
 
+/**
+ * Callback redirects to download page
+ */
 downloadFormCallback = function()
 {
     console.log('BEGIN [downloadFormCallback]');
@@ -777,6 +829,9 @@ downloadFormCallback = function()
     console.log('END [downloadFormCallback]');
 }
 
+/**
+ * Save XML data to repository. Shows dialog.
+ */
 saveToRepository = function()
 {
     console.log('BEGIN [saveToRepository]');
@@ -803,6 +858,9 @@ saveToRepository = function()
     console.log('END [saveToRepository]');
 }
 
+/**
+ * Save XML data to repository. 
+ */
 doSaveToRepository = function()
 {
     console.log('BEGIN [doSaveToRepository]');
@@ -812,6 +870,9 @@ doSaveToRepository = function()
     console.log('END [doSaveToRepository]');
 }
 
+/**
+ * Saved XML data to DB message.
+ */
 savedXMLDataToDB = function()
 {
     console.log('BEGIN [savedXMLDataToDB]');
@@ -822,8 +883,8 @@ savedXMLDataToDB = function()
             buttons: {
 		Ok: function() {
                     $( this ).dialog( "close" );
-		    document.getElementById('saveAsInput').value = "";
-		    document.getElementById('saveAsErrorMessage').innerHTML = "";
+                    document.getElementById('saveAsInput').value = "";
+                    document.getElementById('saveAsErrorMessage').innerHTML = "";
                 }
 	    }
         });
@@ -832,6 +893,9 @@ savedXMLDataToDB = function()
     console.log('END [savedXMLDataToDB]');
 }
 
+/**
+ * Save XML data to DB error message. 
+ */
 saveXMLDataToDBError = function()
 {
     console.log('BEGIN [saveXMLDataToDBError]');
@@ -851,7 +915,13 @@ saveXMLDataToDBError = function()
 }
 
 
-
+/**
+ * Duplicate or remove an element
+ * @param operation
+ * @param selectObj
+ * @param tagID
+ * @returns {Boolean}
+ */
 changeHTMLForm = function(operation,selectObj, tagID)
 {
     console.log('BEGIN [changeHTMLForm(' + operation + ',' + selectObj + ']');
@@ -879,7 +949,10 @@ changeHTMLForm = function(operation,selectObj, tagID)
     return false;
 }
 
-
+/**
+ * Set the current template 
+ * @returns {Boolean}
+ */
 setCurrentTemplate = function()
 {
 	var templateName = $(this).parent().parent().children(':first').text();
@@ -897,6 +970,10 @@ setCurrentTemplate = function()
     return false;
 }
 
+/**
+ * Set current user defined template
+ * @returns {Boolean}
+ */
 setCurrentUserTemplate = function()
 {
 	var templateName = $(this).parent().parent().children(':first').text();
@@ -911,6 +988,10 @@ setCurrentUserTemplate = function()
     return false;
 }
 
+/**
+ * Update page when template selected.
+ * @param data
+ */
 setCurrentTemplateCallback = function(data)
 {
     Dajax.process(data);
@@ -923,57 +1004,3 @@ setCurrentTemplateCallback = function(data)
     console.log('END [setCurrentTemplateCallback]');
 }
 
-setCurrentTemplateCallback2 = function(templateName,notifElement)
-{
-    Dajax.process(templateName,notifElement);
-    console.log('[setCurrentTemplateCallback] '+templateName);
-    notifElement.html('<span style="color:green;font-weight:bold">Current template</span>');
-}
-
-generateTrees = function(notifElement)
-{
-	var trElement = notifElement.parent(),
-		trElementClass = trElement.attr('class');
-	
-	$.ajax({
-        url: 'parser/controllers/php/generateReferenceTrees.php',
-        type: 'GET',
-        success: function(data) {
-        	try
-        	{
-        		var jsonObject = $.parseJSON(data);
-        		
-        		if(jsonObject.code>=0)
-	        	{
-					console.log('[generateReferenceTrees] Trees generated');
-					
-					loadPage($(location).attr('href'));
-	        	}
-	        	else
-	        	{
-	        		console.error('[generateReferenceTrees] Error '+jsonObject.code+'  ('+jsonObject.result+') occured while toggle module');
-	        		
-	        		trElement.attr('class', (trElementClass?trElementClass+' error':'error'));
-            		notifElement.html('<span style="font-weight:bold;color:red">Ajax call error</span>');
-	        	}
-        	}
-        	catch(ex)
-        	{
-        		console.error('[generateReferenceTrees] JSON parsing error');
-        		
-        		trElement.attr('class', (trElementClass?trElementClass+' error':'error'));
-            	notifElement.html('<span style="font-weight:bold;color:red">Ajax call error</span>');
-        	}
-        },
-        error: function() {
-            console.error("[generateReferenceTrees] Problem with the AJAX call");
-            
-            trElement.attr('class', (trElementClass?trElementClass+' error':'error'));
-            notifElement.html('<span style="font-weight:bold;color:red">Ajax call error</span>');
-        },
-        //Options to tell JQuery not to process data or worry about content-type
-        cache: false,
-        contentType: false,
-        processData: false
-    });
-}

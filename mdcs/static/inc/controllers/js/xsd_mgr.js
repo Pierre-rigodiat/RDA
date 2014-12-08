@@ -12,7 +12,7 @@
  */
 
 /**
- * 
+ * Load controllers for template/type upload management
  */
 loadUploadManagerHandler = function()
 {
@@ -25,6 +25,9 @@ loadUploadManagerHandler = function()
     console.log('END [loadUploadManagerHandler]');
 }
 
+/**
+ * Open a window for the version management
+ */
 manageVersions = function()
 {
     var modelName = $(this).parent().siblings(':first').text();
@@ -65,6 +68,10 @@ manageVersions = function()
     });   
 }
 
+/**
+ * Handler for the reading of version of a template
+ * @param evt
+ */
 function handleSchemaVersionUpload(evt) {
 	console.log("test")
 	var files = evt.target.files; // FileList object
@@ -75,6 +82,10 @@ function handleSchemaVersionUpload(evt) {
     reader.readAsText(files[0]);
   }
 
+/**
+ * Handler for the reading of version of a type
+ * @param evt
+ */
 function handleTypeVersionUpload(evt) {
 	var files = evt.target.files; // FileList object
     reader = new FileReader();
@@ -84,6 +95,9 @@ function handleTypeVersionUpload(evt) {
     reader.readAsText(files[0]);
   }
 
+/**
+ * Upload a version
+ */
 uploadVersion = function()
 {
 	var objectVersionID = $("#updateVersionBtn").attr("versionid");
@@ -92,6 +106,9 @@ uploadVersion = function()
 	Dajaxice.admin.uploadVersion(Dajax.process,{"objectVersionID":objectVersionID, "objectType": objectType})
 }
 
+/**
+ * Display errors for upload
+ */
 showUploadErrorDialog = function()
 {
 	$(function() {
@@ -106,6 +123,10 @@ showUploadErrorDialog = function()
     });
 }
 
+/**
+ * Set the current version to be used on the user side
+ * @param setCurrent
+ */
 setCurrentVersion = function(setCurrent)
 {
 	current = document.getElementById(setCurrent);
@@ -115,6 +136,10 @@ setCurrentVersion = function(setCurrent)
 	Dajaxice.admin.setCurrentVersion(Dajax.process,{"objectid":objectid, "objectType":objectType});
 }
 
+/**
+ * Delete a version
+ * @param toDelete
+ */
 deleteVersion = function(toDelete)
 {			
 	current = document.getElementById(toDelete);
@@ -122,7 +147,6 @@ deleteVersion = function(toDelete)
 	var objectType = $(current).attr("objectType");
 	Dajaxice.admin.assignDeleteCustomMessage(Dajax.process,{"objectid":objectid, "objectType":objectType});
 	$(function() {
-//			$(window.parent.document).find('#dialog-deleteversion-message').dialog({
 			$('#dialog-deleteversion-message').dialog({
 	            modal: true,
 	            buttons: {
@@ -144,7 +168,9 @@ deleteVersion = function(toDelete)
 	    });
 }
 
-
+/**
+ * Restore a template or a type
+ */
 restoreObject = function()
 {
     var objectID = $(this).attr("objectid");
@@ -153,6 +179,10 @@ restoreObject = function()
     Dajaxice.admin.restoreObject(Dajax.process,{'objectid':objectID, 'objectType':objectType});
 }
 
+/**
+ * Restore a version of a template or a type
+ * @param toRestore
+ */
 restoreVersion = function(toRestore)
 {
 	current = document.getElementById(toRestore);
@@ -162,6 +192,9 @@ restoreVersion = function(toRestore)
 	Dajaxice.admin.restoreVersion(Dajax.process,{'objectid':objectID, 'objectType':objectType});
 }
 
+/**
+ * Edit general information of a template or a type
+ */
 editInformation = function()
 {
     var objectName = $(this).parent().siblings(':first').text();
@@ -189,26 +222,9 @@ editInformation = function()
     });
 }
 
-/**
- * 
- */
-displayModelSelectedDialog = function()
-{
- $(function() {
-    $( "#dialog-message" ).dialog({
-      modal: true,
-      buttons: {
-        Ok: function() {
-          $( this ).dialog( "close" );
-        }
-      }
-    });
-  });
-}
-
 
 /**
- * 
+ * Delete a template or a type
  */
 deleteObject = function()
 {
@@ -239,7 +255,7 @@ deleteObject = function()
 }
 
 /**
- * 
+ * Display a message when the delete is confirmed
  */
 deleteObjectConfirmed = function(objectID, objectType)
 {
@@ -251,7 +267,7 @@ deleteObjectConfirmed = function(objectID, objectType)
 }
 
 /**
- * 
+ * Update the display when an object is deleted
  */
 deleteObjectCallback = function(data)
 {
@@ -268,7 +284,7 @@ deleteObjectCallback = function(data)
 
 
 /**
- * 
+ * Upload a template or a type
  */
 uploadObject = function()
 {
@@ -296,7 +312,9 @@ uploadObject = function()
     console.log('END [uploadObject]');
 }
 
-
+/**
+ * Display error message when bad edition of type
+ */
 showErrorEditType = function(){
 	$(function() {
         $( "#dialog-error-edit" ).dialog({

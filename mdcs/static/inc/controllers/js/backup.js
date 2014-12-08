@@ -52,6 +52,9 @@ deleteBackup = function(backup)
     });
 }
 
+/**
+ *	Open a dialog with the status of the backup command
+ */
 showBackupDialog = function(){
     $(function() {
         $( "#dialog-backup" ).dialog({
