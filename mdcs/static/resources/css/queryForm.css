@@ -1,4 +1,21 @@
- #queryBuilder
+/*
+################################################################################
+#
+# File Name: queryForm.css
+# Purpose:   Css specific to the query form
+#
+# Author: Sharief Youssef
+#         sharief.youssef@nist.gov
+#
+#         Guillaume SOUSA AMARAL
+#         guillaume.sousa@nist.gov
+#
+# Sponsor: National Institute of Standards and Technology (NIST)
+#
+################################################################################ 
+*/
+
+#queryBuilder
 {	
 	z-index:0; 
 	overflow-y: auto; 

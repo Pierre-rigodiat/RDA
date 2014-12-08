@@ -1,3 +1,19 @@
+<!--
+################################################################################
+#
+# File Name: new_base_template.xsd
+# Purpose:   Empty template to start using the composer
+#
+# Author: Sharief Youssef
+#         sharief.youssef@nist.gov
+#
+#         Guillaume SOUSA AMARAL
+#         guillaume.sousa@nist.gov
+#
+# Sponsor: National Institute of Standards and Technology (NIST)
+#
+################################################################################ 
+ -->
 <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   	<xsd:element name="root" type="Root"/>
   

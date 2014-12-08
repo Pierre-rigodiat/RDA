@@ -1,3 +1,20 @@
+/*
+################################################################################
+#
+# File Name: XMLTree.css
+# Purpose:   Css specific to the display of XML trees
+#
+# Author: Sharief Youssef
+#         sharief.youssef@nist.gov
+#
+#         Guillaume SOUSA AMARAL
+#         guillaume.sousa@nist.gov
+#
+# Sponsor: National Institute of Standards and Technology (NIST)
+#
+################################################################################ 
+*/
+
 ul.tree,
 ul.tree ul {
   list-style:none;

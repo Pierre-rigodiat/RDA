@@ -1,3 +1,20 @@
+/*
+################################################################################
+#
+# File Name: exploreTabs.css
+# Purpose:   Displays tabs for Query By Example / SPARQL Queries
+#
+# Author: Sharief Youssef
+#         sharief.youssef@nist.gov
+#
+#         Guillaume SOUSA AMARAL
+#         guillaume.sousa@nist.gov
+#
+# Sponsor: National Institute of Standards and Technology (NIST)
+#
+################################################################################ 
+*/
+
 #explore-tabs{
   position: relative;   
   min-height: 250px;
