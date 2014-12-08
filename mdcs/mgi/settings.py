@@ -34,10 +34,9 @@ PROJECT_URI = "http://www.example.com/"
 SECRET_KEY = 'ponq)(gd8hm57799)$lup4g9kyvp0l(9)k-3!em7dddn^(y)!5'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-# DEBUG = False
+DEBUG = False
+TEMPLATE_DEBUG = False
 
-TEMPLATE_DEBUG = True
 TEMPLATE_DIRS = [os.path.join(BASE_DIR, 'templates')]
 
 ALLOWED_HOSTS = ['*']
@@ -55,8 +54,8 @@ TEMPLATE_CONTEXT_PROCESSORS = ("django.contrib.auth.context_processors.auth",
 "django.core.context_processors.media",
 "django.core.context_processors.static",
 "django.core.context_processors.tz",
-"django.contrib.messages.context_processors.messages") #,
-#"multiuploader.context_processors.booleans") # django-multiuploader
+"django.contrib.messages.context_processors.messages")
+
 
 #optional
 MULTIUPLOADER_FILES_FOLDER = 'multiuploader'
@@ -193,7 +192,6 @@ LOGIN_REDIRECT_URL = '/'
 #http://docs.mongoengine.org/en/latest/django.html
 #SESSION_ENGINE = 'mongoengine.django.sessions'
 #SESSION_SERIALIZER = 'mongoengine.django.sessions.BSONSerializer'
-
 #SESSION_ENGINE = "django.contrib.sessions.backends.file"
 #SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 SESSION_SAVE_EVERY_REQUEST=True
@@ -221,9 +219,6 @@ DATABASES = {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
-#    'default': {
-#        'ENGINE': 'django.db.backends.dummy'
-#    }
 }
 
 from mongoengine import connect
