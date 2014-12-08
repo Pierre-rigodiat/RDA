@@ -2,7 +2,7 @@
 #
 # File Name: ajax.py
 # Application: compose
-# Purpose:   
+# Purpose:   AJAX methods used by the Composer
 #
 # Author: Sharief Youssef
 #         sharief.youssef@nist.gov

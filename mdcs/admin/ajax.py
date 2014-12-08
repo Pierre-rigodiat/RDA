@@ -2,7 +2,7 @@
 #
 # File Name: ajax.py
 # Application: admin
-# Purpose:   
+# Purpose:    AJAX methods used for administration purposes
 #
 # Author: Sharief Youssef
 #         sharief.youssef@nist.gov

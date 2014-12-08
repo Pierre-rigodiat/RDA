@@ -2,7 +2,7 @@
 #
 # File Name: ajax.py
 # Application: curate
-# Purpose:   
+# Purpose:   AJAX methods used by the Curator
 #
 # Author: Sharief Youssef
 #         sharief.youssef@nist.gov
@@ -29,8 +29,6 @@ from bson.objectid import ObjectId
 import hashlib
 import json
 
-
-#import xml.etree.ElementTree as etree
 import lxml.html as html
 import lxml.etree as etree
 
@@ -224,7 +222,6 @@ def validateXMLDocument(templateID, xmlString):
     xmlSchema = etree.XMLSchema(xmlTree)    
     xmlDoc = etree.fromstring(xmlString)
     prettyXMLString = etree.tostring(xmlDoc, pretty_print=True)  
-    #xmlSchema.assertValid(etree.parse(StringIO(xmlString)))
     xmlSchema.assertValid(etree.parse(StringIO(prettyXMLString)))  
     
 
@@ -416,11 +413,11 @@ def setCurrentUserTemplate(request,templateID):
 def verifyTemplateIsSelected(request):
     print 'BEGIN def verifyTemplateIsSelected(request)'
     if 'currentTemplateID' in request.session:
-      print 'template is selected'
-      templateSelected = 'yes'
+        print 'template is selected'
+        templateSelected = 'yes'
     else:
-      print 'template is not selected'
-      templateSelected = 'no'
+        print 'template is not selected'
+        templateSelected = 'no'
     dajax = Dajax()
 
     print 'END def verifyTemplateIsSelected(request)'

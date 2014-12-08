@@ -2,7 +2,7 @@
 #
 # File Name: ajax.py
 # Application: explore
-# Purpose:   
+# Purpose:   AJAX methods used for Explore purposes
 #
 # Author: Sharief Youssef
 #         sharief.youssef@nist.gov
