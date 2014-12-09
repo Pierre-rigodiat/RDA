@@ -69,23 +69,6 @@ def home(request):
     request.session['currentYear'] = currentYear()
     return HttpResponse(template.render(context))
 
-################################################################################
-#
-# Function Name: admin(request)
-# Inputs:        request - 
-# Outputs:       Administrative Dashboard page
-# Exceptions:    None
-# Description:   renders the admin page from template (admin/index.html)
-#
-################################################################################
-def admin(request):
-    template = loader.get_template('admin/index.html')
-
-    context = RequestContext(request, {
-    })
-    request.session['currentYear'] = currentYear()
-    return HttpResponse(template.render(context))
-
 def user_requests(request):
     template = loader.get_template('admin/user_requests.html')
 
