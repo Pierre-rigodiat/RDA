@@ -116,24 +116,6 @@ def restore_database(request):
     request.session['currentYear'] = currentYear()
     return HttpResponse(template.render(context))
 
-################################################################################
-#
-# Function Name: xml_schemas(request)
-# Inputs:        request - 
-# Outputs:       
-# Exceptions:    None
-# Description:   
-#                
-#
-################################################################################
-def xml_schemas(request):
-    template = loader.get_template('admin/xml_schemas.html')
-
-    context = RequestContext(request, {
-        'templates': Template.objects.order_by('-id')[:7]
-    })
-    request.session['currentYear'] = currentYear()
-    return HttpResponse(template.render(context))
 
 ################################################################################
 #
