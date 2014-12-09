@@ -3,6 +3,25 @@
 
 {% if not is_popup %}
 {% block breadcrumbs %}
+<div id="subnav-wrapper">
+  <div id="subnav-wrapper-2">
+
+    <div class="center-wrapper">
+      
+      <div id="subnav">
+
+	<ul class="tabbed">	  
+	  	<li class="current_page_item"><a href="/admin/user-management">Manage Users</a></li>	  
+	  	<li><a href="/admin/user-requests">Account Requests</a></li> 		
+	  </ul>
+
+	<div class="clearer">&nbsp;</div>
+
+	</div>
+
+      </div>
+    </div>
+</div>
 <div id="content-wrapper">
 	<div class="center-wrapper">
 
@@ -17,13 +36,7 @@
 
 				</div>
 			</div>
-<div class="breadcrumbs">
-<a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
-&rsaquo;
-{% for app in app_list %}
-{% blocktrans with app.name as name %}{{ name }}{% endblocktrans %}
-{% endfor %}
-</div>
+
 {% endblock %}
 {% endif %}
 

@@ -36,6 +36,7 @@ import lxml.etree as etree
 import os
 from dateutil import tz
 from collections import OrderedDict
+from xlrd import open_workbook
 
 # Create your views here.
 
@@ -69,6 +70,15 @@ def home(request):
     request.session['currentYear'] = currentYear()
     return HttpResponse(template.render(context))
 
+################################################################################
+#
+# Function Name: user_requests(request)
+# Inputs:        request - 
+# Outputs:       User Request Page
+# Exceptions:    None
+# Description:   Page that allows to accept or deny user requests
+#
+################################################################################
 def user_requests(request):
     template = loader.get_template('admin/user_requests.html')
 
@@ -78,6 +88,15 @@ def user_requests(request):
     request.session['currentYear'] = currentYear()
     return HttpResponse(template.render(context))
 
+################################################################################
+#
+# Function Name: backup_database(request)
+# Inputs:        request - 
+# Outputs:       Backup Page
+# Exceptions:    None
+# Description:   Page that allows to create a MongoDB backup 
+#
+################################################################################
 def backup_database(request):
     template = loader.get_template('admin/backup-database.html')
     backupsDir = settings.SITE_ROOT + '/data/backups/'
@@ -88,6 +107,15 @@ def backup_database(request):
     request.session['currentYear'] = currentYear()
     return HttpResponse(template.render(context))
 
+################################################################################
+#
+# Function Name: restore_database(request)
+# Inputs:        request - 
+# Outputs:       Backup Page
+# Exceptions:    None
+# Description:   Page that allows to restore a MongoDB backup 
+#
+################################################################################
 def restore_database(request):
     template = loader.get_template('admin/restore-database.html')
 
@@ -104,14 +132,12 @@ def restore_database(request):
 #
 # Function Name: manage_schemas(request)
 # Inputs:        request - 
-# Outputs:       
+# Outputs:       Manage Templates Page
 # Exceptions:    None
-# Description:   
-#                
+# Description:   Page that allows to upload new schemas and manage the existing ones
 #
 ################################################################################
 def manage_schemas(request):
-#     template = loader.get_template('admin/manage_schemas.html')
     template = loader.get_template('admin/manage_uploads.html')
     
     currentTemplateVersions = []
@@ -126,10 +152,7 @@ def manage_schemas(request):
 
     context = RequestContext(request, {
         'objects':currentTemplates,
-        'objectType': "Template"
-#        'templates': Template.objects.all()
-#         'templates': Template.objects.order_by('-id')
-        
+        'objectType': "Template"        
     })
     request.session['currentYear'] = currentYear()
     return HttpResponse(template.render(context))
@@ -138,10 +161,9 @@ def manage_schemas(request):
 #
 # Function Name: manage_modules(request)
 # Inputs:        request - 
-# Outputs:       
+# Outputs:       Manage Modules Page
 # Exceptions:    None
-# Description:   
-#                
+# Description:   Page that allows to list all existing modules
 #
 ################################################################################
 def module_management(request):
@@ -153,6 +175,15 @@ def module_management(request):
     request.session['currentYear'] = currentYear()
     return HttpResponse(template.render(context))
 
+################################################################################
+#
+# Function Name: module_add(request)
+# Inputs:        request - 
+# Outputs:       Add Module Page
+# Exceptions:    None
+# Description:   Page that allows to add a new module
+#
+################################################################################
 def module_add(request):
     template = loader.get_template('admin/add_module.html')
         
@@ -162,33 +193,14 @@ def module_add(request):
     request.session['currentYear'] = currentYear()
     return HttpResponse(template.render(context))
 
-################################################################################
-#
-# Function Name: manage_queries(request)
-# Inputs:        request - 
-# Outputs:       
-# Exceptions:    None
-# Description:   
-#                
-#
-################################################################################
-def manage_queries(request):
-    template = loader.get_template('admin/manage_queries.html')
-
-    context = RequestContext(request, {
-        'templates': Template.objects.order_by('-id')[:7]
-    })
-    request.session['currentYear'] = currentYear()
-    return HttpResponse(template.render(context))
 
 ################################################################################
 #
 # Function Name: manage_types(request)
 # Inputs:        request - 
-# Outputs:       
+# Outputs:       Manage Types Page
 # Exceptions:    None
-# Description:   
-#                
+# Description:   Page that allows to upload new types and manage the existing ones
 #
 ################################################################################
 def manage_types(request):
@@ -214,50 +226,11 @@ def manage_types(request):
 
 ################################################################################
 #
-# Function Name: user_management(request)
-# Inputs:        request - 
-# Outputs:       
-# Exceptions:    None
-# Description:   
-#                
-#
-################################################################################
-def user_management(request):
-    template = loader.get_template('admin/user_management.html')
-
-    context = RequestContext(request, {
-        
-    })
-    request.session['currentYear'] = currentYear()
-    return HttpResponse(template.render(context))
-
-################################################################################
-#
-# Function Name: database_management(request)
-# Inputs:        request - 
-# Outputs:       
-# Exceptions:    None
-# Description:   
-#                
-#
-################################################################################
-def database_management(request):
-    template = loader.get_template('admin/database_management.html')
-
-    context = RequestContext(request, {
-        'databases': Database.objects.order_by('-id')[:7]
-    })
-
-    request.session['currentYear'] = currentYear()
-    return HttpResponse(template.render(context))
-
-################################################################################
-#
 # Function Name: federation_of_queries(request)
 # Inputs:        request - 
-# Outputs:       
+# Outputs:       Repositories Management Page
 # Exceptions:    None
-# Description:   
+# Description:   Page that allows to add instance of repositories and manage existing ones
 #                
 #
 ################################################################################
@@ -274,14 +247,12 @@ def federation_of_queries(request):
 #
 # Function Name: curate(request)
 # Inputs:        request - 
-# Outputs:       
+# Outputs:       Main Page of Curate Application
 # Exceptions:    None
-# Description:   
-#                
+# Description:   Redirects to Curate Application        
 #
 ################################################################################
 def curate(request):
-#    logout(request)
     template = loader.get_template('curate.html')
     context = RequestContext(request, {
         '': '',
@@ -289,7 +260,6 @@ def curate(request):
     request.session['currentYear'] = currentYear()
     if request.user.is_authenticated():
         return HttpResponse(template.render(context))
-#        return HttpResponse("HomePage: User is authenticated")
     else:
         if 'loggedOut' in request.session:
             del request.session['loggedOut']
@@ -300,14 +270,13 @@ def curate(request):
 #
 # Function Name: curate_select_template(request)
 # Inputs:        request - 
-# Outputs:       
+# Outputs:       Main Page of Curate Application
 # Exceptions:    None
-# Description:   
+# Description:   Page that allows to select a template to start curating data
 #                
 #
 ################################################################################
 def curate_select_template(request):
-#    logout(request)
     template = loader.get_template('curate.html')
     context = RequestContext(request, {
         '': '',
@@ -326,14 +295,13 @@ def curate_select_template(request):
 #
 # Function Name: curate_select_hdf5file(request)
 # Inputs:        request - 
-# Outputs:       
+# Outputs:       Select Spreadsheet page
 # Exceptions:    None
-# Description:   
+# Description:   Page that allows to select an Excel Spreadsheet 
 #                
 #
 ################################################################################
 def curate_select_hdf5file(request):
-#    logout(request)
     template = loader.get_template('curate_select_hdf5file.html')
     context = RequestContext(request, {
         '': '',
@@ -347,15 +315,13 @@ def curate_select_hdf5file(request):
         request.session['next'] = '/curate/select-template'
         return redirect('/login')
 
-from xlrd import open_workbook
 ################################################################################
 #
 # Function Name: curate_upload_hdf5file(request)
 # Inputs:        request - 
-# Outputs:       
+# Outputs:       Result of the upload
 # Exceptions:    None
-# Description:   
-#                
+# Description:   Transforms the spreadsheet into XML and displays a success or error message
 #
 ################################################################################
 def curate_upload_spreadsheet(request):
@@ -400,15 +366,6 @@ def curate_upload_spreadsheet(request):
                     xmlString = etree.tostring(root)                    
                     
                     request.session['spreadsheetXML'] = xmlString                    
-                    
-#                     templateID = request.session['currentTemplateID']
-#                     existingHDF5files = Hdf5file.objects(schema=templateID)
-#                     if existingHDF5files is not None:
-#                         for hdf5file in existingHDF5files:
-#                             hdf5file.delete()
-#                         newHDF5File = Hdf5file(title="hdf5file", schema=templateID, content=hdf5String).save()
-#                     else:
-#                         newHDF5File = Hdf5file(title="hdf5file", schema=templateID, content=hdf5String).save()
                 except:
                     templateError = loader.get_template('curate_upload_failed.html')
                     return HttpResponse(templateError.render(context))
@@ -425,21 +382,20 @@ def curate_upload_spreadsheet(request):
 #
 # Function Name: curate_enter_data(request)
 # Inputs:        request - 
-# Outputs:       
+# Outputs:       Enter Data Page
 # Exceptions:    None
-# Description:   
+# Description:   Page that allows to fill XML document data using an HTML form
 #                
 #
 ################################################################################
 def curate_enter_data(request):
     print "BEGIN curate_enter_data(request)"
-#    logout(request)
     template = loader.get_template('curate_enter_data.html')
     context = RequestContext(request, {
         '': '',
     })
     request.session['currentYear'] = currentYear()
-#    return HttpResponse(template.render(context))  # remove after testing
+
     if request.user.is_authenticated():
         if 'currentTemplateID' not in request.session:
             return redirect('/curate/select-template')
@@ -455,14 +411,12 @@ def curate_enter_data(request):
 #
 # Function Name: curate_view_data(request)
 # Inputs:        request - 
-# Outputs:       
+# Outputs:       View Data Page
 # Exceptions:    None
-# Description:   
-#                
+# Description:   Page that allows to view XML data to be curated                
 #
 ################################################################################
 def curate_view_data(request):
-#    logout(request)
     template = loader.get_template('curate_view_data.html')
     context = RequestContext(request, {
         '': '',
@@ -535,13 +489,13 @@ def curate_enter_data_downloadform(request):
             
             htmlFormObject = Htmlform.objects.get(title="form2download")
 
-            formStringEncoded = htmlFormObject.content.encode('utf-8') #"abac" #formString.encode('utf-8')
+            formStringEncoded = htmlFormObject.content.encode('utf-8') 
             fileObj = StringIO(formStringEncoded)
 
             htmlFormObject.delete()
 
             response = HttpResponse(FileWrapper(fileObj), content_type='application/xml')
-            response['Content-Disposition'] = 'attachment; filename=' + "form.xml" #templateFilename
+            response['Content-Disposition'] = 'attachment; filename=' + "form.xml" 
             return response
     else:
         if 'loggedOut' in request.session:
@@ -587,14 +541,12 @@ def curate_view_data_downloadxml(request):
 #
 # Function Name: explore(request)
 # Inputs:        request - 
-# Outputs:       
+# Outputs:       Main Page of Explore Application
 # Exceptions:    None
-# Description:   
-#                
+# Description:   Redirects to the Explore Application
 #
 ################################################################################
 def explore(request):
-#    logout(request)
     template = loader.get_template('explore.html')
     context = RequestContext(request, {
         '': '',
@@ -602,36 +554,22 @@ def explore(request):
     request.session['currentYear'] = currentYear()
     if request.user.is_authenticated():
         return HttpResponse(template.render(context))
-#        return HttpResponse("HomePage: User is authenticated")
     else:
         if 'loggedOut' in request.session:
             del request.session['loggedOut']
         request.session['next'] = '/explore'
         return redirect('/login')
-#        user = authenticate(username='materials', password='data123')
-#        if user is not None:
-            # the password verified for the user
-#            if user.is_active:
-#                return HttpResponse(template.render(context))
-#                return HttpResponse("HomePage: User is valid, active and authenticated")
-#            else:
-#                return HttpResponse("HomePage: The password is valid, but the account has been disabled!")
-#        else:
-            # the authentication system was unable to verify the username and password
-#            return HttpResponse("HomePage: The username and password were incorrect.")
 
 ################################################################################
 #
 # Function Name: explore_select_template(request)
 # Inputs:        request - 
-# Outputs:       
+# Outputs:       Main Page of Explore Application
 # Exceptions:    None
-# Description:   
-#                
+# Description:   Page that allows to select a template to start Exploring
 #
 ################################################################################
 def explore_select_template(request):
-#    logout(request)
     template = loader.get_template('explore.html')
     context = RequestContext(request, {
         '': '',
@@ -649,20 +587,17 @@ def explore_select_template(request):
 #
 # Function Name: explore_customize_template(request)
 # Inputs:        request - 
-# Outputs:       
+# Outputs:       Customize Template Page
 # Exceptions:    None
-# Description:   
-#                
+# Description:   Page that allows to select fields being used during Exploration
 #
 ################################################################################
 def explore_customize_template(request):
-#    logout(request)
     template = loader.get_template('explore_customize_template.html')
     context = RequestContext(request, {
         '': '',
     })
     request.session['currentYear'] = currentYear()
-#     return HttpResponse(template.render(context))  # remove after testing
     if request.user.is_authenticated():
         if 'exploreCurrentTemplateID' not in request.session:
             return redirect('/explore/select-template')
@@ -678,14 +613,12 @@ def explore_customize_template(request):
 #
 # Function Name: explore_perform_search(request)
 # Inputs:        request - 
-# Outputs:       
+# Outputs:       Perform Search Page
 # Exceptions:    None
-# Description:   
-#                
+# Description:   Page that allows to submit queries
 #
 ################################################################################
 def explore_perform_search(request):
-#    logout(request)
     try:
         template = loader.get_template('explore_perform_search.html')
         instances = Instance.objects()   
@@ -707,7 +640,6 @@ def explore_perform_search(request):
             'queries':queries,
         })
         request.session['currentYear'] = currentYear()
-        #return HttpResponse(template.render(context))  # remove after testing
         if request.user.is_authenticated():
             if 'exploreCurrentTemplateID' not in request.session:
                 return redirect('/explore/select-template')
@@ -725,20 +657,17 @@ def explore_perform_search(request):
 #
 # Function Name: explore_results(request)
 # Inputs:        request - 
-# Outputs:       
+# Outputs:       Query results page
 # Exceptions:    None
-# Description:   
-#                
+# Description:   Page that allows to see results from a query
 #
 ################################################################################
 def explore_results(request):
-#    logout(request)
     template = loader.get_template('explore_results.html')
     context = RequestContext(request, {
         '': '',
     })
     request.session['currentYear'] = currentYear()
-#     return HttpResponse(template.render(context))  # remove after testing
     if request.user.is_authenticated():
         if 'exploreCurrentTemplateID' not in request.session:
             return redirect('/explore/select-template')
@@ -754,20 +683,17 @@ def explore_results(request):
 #
 # Function Name: explore_sparqlresults(request)
 # Inputs:        request - 
-# Outputs:       
+# Outputs:       SPARQL Results Page
 # Exceptions:    None
-# Description:   
-#                
+# Description:   Page that allows to see SPARQL results
 #
 ################################################################################
 def explore_sparqlresults(request):
-#    logout(request)
     template = loader.get_template('explore_sparqlresults.html')
     context = RequestContext(request, {
         '': '',
     })
     request.session['currentYear'] = currentYear()
-#     return HttpResponse(template.render(context))  # remove after testing
     if request.user.is_authenticated():
         if 'exploreCurrentTemplateID' not in request.session:
             return redirect('/explore/select-template')
@@ -785,7 +711,7 @@ def explore_sparqlresults(request):
 # Inputs:        request - 
 # Outputs:       results of a query as xml files
 # Exceptions:    None
-# Description:   
+# Description:   Download XML results in a ZIP file
 #
 ################################################################################
 def explore_download_results(request):
@@ -796,7 +722,6 @@ def explore_download_results(request):
             savedResultsID = request.GET.get('id','')
             ResultsObject = QueryResults.objects.get(pk=savedResultsID)
 
-#             fileObj = StringIO(formStringEncoded)
             in_memory = StringIO()
             zip = zipfile.ZipFile(in_memory, "a")
             
@@ -820,10 +745,6 @@ def explore_download_results(request):
             response.write(in_memory.read())  
               
             return response
-
-#             response = HttpResponse(FileWrapper(fileObj), content_type='application/xml')
-#             response['Content-Disposition'] = 'attachment; filename=results.zip' #templateFilename
-#             return response
     else:
         if 'loggedOut' in request.session:
             del request.session['loggedOut']
@@ -835,9 +756,9 @@ def explore_download_results(request):
 #
 # Function Name: explore_download_sparqlresults(request)
 # Inputs:        request - 
-# Outputs:       results of a sparql query
+# Outputs:       Results of a sparql query
 # Exceptions:    None
-# Description:   
+# Description:   Download SPARQL results
 #
 ################################################################################
 def explore_download_sparqlresults(request):
@@ -864,14 +785,12 @@ def explore_download_sparqlresults(request):
 #
 # Function Name: compose(request)
 # Inputs:        request - 
-# Outputs:       
+# Outputs:       Main Page of the Composer Application 
 # Exceptions:    None
-# Description:   
+# Description:   Redirects to the main page of the composer
 #                
-#
 ################################################################################
 def compose(request):
-#    logout(request)
     template = loader.get_template('compose.html')
     context = RequestContext(request, {
         '': '',
@@ -879,7 +798,6 @@ def compose(request):
     request.session['currentYear'] = currentYear()
     if request.user.is_authenticated():
         return HttpResponse(template.render(context))
-#        return HttpResponse("HomePage: User is authenticated")
     else:
         if 'loggedOut' in request.session:
             del request.session['loggedOut']
@@ -890,14 +808,12 @@ def compose(request):
 #
 # Function Name: compose_select_template(request)
 # Inputs:        request - 
-# Outputs:       
+# Outputs:       Main Page of Composer Application
 # Exceptions:    None
-# Description:   
-#                
+# Description:   Page that allows to select a template to start composing
 #
 ################################################################################
 def compose_select_template(request):
-#    logout(request)
     template = loader.get_template('compose.html')
     context = RequestContext(request, {
         '': '',
@@ -915,14 +831,12 @@ def compose_select_template(request):
 #
 # Function Name: compose_build_template(request)
 # Inputs:        request - 
-# Outputs:       
+# Outputs:       Build Template Page
 # Exceptions:    None
-# Description:   
-#                
+# Description:   Page that allows to Compose the Template
 #
 ################################################################################
 def compose_build_template(request):
-#    logout(request)
     template = loader.get_template('compose_build_template.html')
     request.session['currentYear'] = currentYear()
     if request.user.is_authenticated():
@@ -953,62 +867,11 @@ def compose_build_template(request):
 
 ################################################################################
 #
-# Function Name: compose_view_template(request)
-# Inputs:        request - 
-# Outputs:       
-# Exceptions:    None
-# Description:   
-#                
-#
-################################################################################
-def compose_view_template(request):
-#    logout(request)
-    template = loader.get_template('compose_view_template.html')
-    context = RequestContext(request, {
-        '': '',
-    })
-    request.session['currentYear'] = currentYear()
-    if request.user.is_authenticated():
-        return HttpResponse(template.render(context))
-    else:
-        if 'loggedOut' in request.session:
-            del request.session['loggedOut']
-        request.session['next'] = '/compose/view-template'
-        return redirect('/login')
-
-################################################################################
-#
-# Function Name: contribute(request)
-# Inputs:        request - 
-# Outputs:       
-# Exceptions:    None
-# Description:   
-#                
-#
-################################################################################
-def contribute(request):
-    template = loader.get_template('contribute.html')
-    context = RequestContext(request, {
-        '': '',
-    })
-    request.session['currentYear'] = currentYear()
-    if request.user.is_authenticated():
-        return HttpResponse(template.render(context))
-#        return HttpResponse("HomePage: User is authenticated")
-    else:
-        if 'loggedOut' in request.session:
-            del request.session['loggedOut']
-        request.session['next'] = '/curate'
-        return redirect('/login')
-
-################################################################################
-#
 # Function Name: all_options(request)
 # Inputs:        request - 
-# Outputs:       
+# Outputs:       All Options Page
 # Exceptions:    None
-# Description:   
-#                
+# Description:   Page that allows to access every features of the System   
 #
 ################################################################################
 def all_options(request):
@@ -1023,10 +886,9 @@ def all_options(request):
 #
 # Function Name: browse_all(request)
 # Inputs:        request - 
-# Outputs:       
+# Outputs:       Browse All Page
 # Exceptions:    None
-# Description:   
-#                
+# Description:   Page that allows to access the list of all existing templates
 #
 ################################################################################
 def browse_all(request):
@@ -1040,37 +902,14 @@ def browse_all(request):
 
 ################################################################################
 #
-# Function Name: login_view(request)
-# Inputs:        request - 
-# Outputs:       
-# Exceptions:    None
-# Description:   
-#                
-#
-################################################################################
-def login_view(request):
-#    del request.session['loggedOut']
-
-    template = loader.get_template('login.html')
-    context = RequestContext(request, {
-        'next': 'http://www.google.com',
-    })
-    request.session['currentYear'] = currentYear()
-    request.session['next'] = 'http://www.google.com'
-    return HttpResponse(template.render(context))
-
-################################################################################
-#
 # Function Name: request_new_account(request)
 # Inputs:        request - 
-# Outputs:       
+# Outputs:       Request New Account Page
 # Exceptions:    None
-# Description:   
-#                
+# Description:   Page that allows to request a user account
 #
 ################################################################################
 def request_new_account(request):
-#    logout(request)
     template = loader.get_template('request_new_account.html')
     context = RequestContext(request, {
         '': '',
@@ -1082,9 +921,9 @@ def request_new_account(request):
 #
 # Function Name: logout_view(request)
 # Inputs:        request - 
-# Outputs:       
+# Outputs:       Login Page
 # Exceptions:    None
-# Description:   
+# Description:   Page that redirects to login page
 #                
 #
 ################################################################################
@@ -1095,20 +934,14 @@ def logout_view(request):
     request.session['next'] = '/'
     request.session['currentYear'] = currentYear()
     return redirect('/login')
-#    template = loader.get_template('login.html')
-#    context = RequestContext(request, {
-#        '': '',
-#    })
-#    return HttpResponse(template.render(context))
 
 ################################################################################
 #
 # Function Name: my_profile(request)
 # Inputs:        request - 
-# Outputs:       
+# Outputs:       My Profile Page
 # Exceptions:    None
-# Description:   
-#                
+# Description:   Page that allows to look at user's profile information
 #
 ################################################################################
 def my_profile(request):
@@ -1119,7 +952,6 @@ def my_profile(request):
     request.session['currentYear'] = currentYear()
     if request.user.is_authenticated():
         return HttpResponse(template.render(context))
-#        return HttpResponse("HomePage: User is authenticated")
     else:
         if 'loggedOut' in request.session:
             del request.session['loggedOut']
@@ -1130,10 +962,9 @@ def my_profile(request):
 #
 # Function Name: my_profile_edit(request)
 # Inputs:        request - 
-# Outputs:       
+# Outputs:       Edit My Profile Page
 # Exceptions:    None
-# Description:   
-#                
+# Description:   Page that allows to edit a profile
 #
 ################################################################################
 def my_profile_edit(request):
@@ -1144,7 +975,6 @@ def my_profile_edit(request):
     request.session['currentYear'] = currentYear()
     if request.user.is_authenticated():
         return HttpResponse(template.render(context))
-#        return HttpResponse("HomePage: User is authenticated")
     else:
         if 'loggedOut' in request.session:
             del request.session['loggedOut']
@@ -1155,10 +985,9 @@ def my_profile_edit(request):
 #
 # Function Name: my_profile_change_password(request)
 # Inputs:        request - 
-# Outputs:       
+# Outputs:       Change Password Page
 # Exceptions:    None
-# Description:   
-#                
+# Description:   Page that allows to change a password
 #
 ################################################################################
 def my_profile_change_password(request):
@@ -1169,7 +998,6 @@ def my_profile_change_password(request):
     request.session['currentYear'] = currentYear()
     if request.user.is_authenticated():
         return HttpResponse(template.render(context))
-#        return HttpResponse("HomePage: User is authenticated")
     else:
         if 'loggedOut' in request.session:
             del request.session['loggedOut']
@@ -1199,39 +1027,14 @@ def contact(request):
     return render(request, 'contact.html', {
         'form': form,
     })
-#    template = loader.get_template('contact.html')
-#    context = RequestContext(request, {
-#        '': '',
-#    })
-#    request.session['currentYear'] = currentYear()
-#    return HttpResponse(template.render(context))
-
-################################################################################
-#
-# Function Name: about(request)
-# Inputs:        request - 
-# Outputs:       
-# Exceptions:    None
-# Description:   
-#                
-#
-################################################################################
-def about(request):
-    template = loader.get_template('about.html')
-    context = RequestContext(request, {
-        '': '',
-    })
-    request.session['currentYear'] = currentYear()
-    return HttpResponse(template.render(context))
 
 ################################################################################
 #
 # Function Name: privacy_policy(request)
 # Inputs:        request - 
-# Outputs:       
+# Outputs:       Privacy Policy Page
 # Exceptions:    None
-# Description:   
-#                
+# Description:   Page that provides privacy policy     
 #
 ################################################################################
 def privacy_policy(request):
@@ -1246,10 +1049,9 @@ def privacy_policy(request):
 #
 # Function Name: terms_of_use(request)
 # Inputs:        request - 
-# Outputs:       
+# Outputs:       Terms of Use page
 # Exceptions:    None
-# Description:   
-#                
+# Description:   Page that provides terms of use
 #
 ################################################################################
 def terms_of_use(request):
@@ -1264,10 +1066,9 @@ def terms_of_use(request):
 #
 # Function Name: help(request)
 # Inputs:        request - 
-# Outputs:       
+# Outputs:       Help Page
 # Exceptions:    None
-# Description:   
-#                
+# Description:   Page that provides FAQ
 #
 ################################################################################
 def help(request):
@@ -1278,19 +1079,6 @@ def help(request):
     request.session['currentYear'] = currentYear()
     return HttpResponse(template.render(context))
 
-#    if request.user.is_authenticated():
-#        return HttpResponse("HomePage: User is authenticated")
-#    else:
-#        user = authenticate(username='materials', password='data123')
-#        if user is not None:
-#            # the password verified for the user
-#            if user.is_active:
-#                return HttpResponse("HomePage: User is valid, active and authenticated")
-#            else:
-#                return HttpResponse("HomePage: The password is valid, but the account has been disabled!")
-#        else:
-#            # the authentication system was unable to verify the username and password
-#            return HttpResponse("HomePage: The username and password were incorrect.")
 
 ################################################################################
 #
@@ -1326,9 +1114,9 @@ def compose_downloadxsd(request):
 #
 # Function Name: manage_versions(request)
 # Inputs:        request - 
-# Outputs:       
+# Outputs:       Manage Version Page
 # Exceptions:    None
-# Description:   Redirect to the version manager of a given object
+# Description:   Redirects to the version manager of a given object
 #
 ################################################################################
 def manage_versions(request):

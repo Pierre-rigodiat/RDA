@@ -33,6 +33,16 @@ from django import forms
 
 from mongoengine import *
 
+
+################################################################################
+#
+# Function Name: index(request)
+# Inputs:        request - 
+# Outputs:       Main Page of Curate Application
+# Exceptions:    None
+# Description:   Page that allows to select a template to start curating         
+#
+################################################################################
 def index(request):
     template = loader.get_template('curate.html')
     request.session['currentYear'] = currentYear()

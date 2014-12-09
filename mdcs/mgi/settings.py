@@ -336,7 +336,7 @@ AUTH_LDAP_GLOBAL_OPTIONS = {
 } 
 
 # Binding to the LDAP
-AUTH_LDAP_SERVER_URI = "ldap://wsgendev02.gendev.nist.gov:389"  # development
+AUTH_LDAP_SERVER_URI = "ldap://wsgendev02.gendev.nist.gov:389"  # ldap server
 AUTH_LDAP_BIND_DN = "cn=ssy,ou=NISTUSERS,dc=GENDEV,dc=NIST,dc=GOV"
 AUTH_LDAP_BIND_PASSWORD = "YMS*1975*smy"
 
