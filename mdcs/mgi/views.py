@@ -557,17 +557,16 @@ def curate_enter_data_downloadform(request):
         if 'currentTemplateID' not in request.session:
             return redirect('/curate/select-template')
         else:
-            global formString
-            
-            htmlFormObject = Htmlform.objects.get(title="form2download")
+            htmlFormId = request.GET.get('id','')          
+            htmlFormObject = Htmlform.objects.get(pk=htmlFormId)
 
             formStringEncoded = htmlFormObject.content.encode('utf-8') 
             fileObj = StringIO(formStringEncoded)
 
             htmlFormObject.delete()
 
-            response = HttpResponse(FileWrapper(fileObj), content_type='application/xml')
-            response['Content-Disposition'] = 'attachment; filename=' + "form.xml" 
+            response = HttpResponse(FileWrapper(fileObj), content_type='text/html')
+            response['Content-Disposition'] = 'attachment; filename=' + "form.html" 
             return response
     else:
         if 'loggedOut' in request.session:

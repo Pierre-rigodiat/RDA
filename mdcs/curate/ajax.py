@@ -121,7 +121,7 @@ def updateFormList(request):
 
 ################################################################################
 #
-# Function Name: saveHTMLForm(request)
+# Function Name: saveHTMLForm(request,saveAs,content)
 # Inputs:        request - 
 # Outputs:       
 # Exceptions:    None
@@ -130,17 +130,36 @@ def updateFormList(request):
 #
 ################################################################################
 @dajaxice_register
-def saveHTMLForm(request,saveAs,content):
-    print '>>>>  BEGIN def updateFormList(request)'
+def saveHTMLForm(request,saveAs,content):    
     dajax = Dajax()
 
     templateID = request.session['currentTemplateID']
 
     newHTMLForm = Htmlform(title=saveAs, schema=templateID, content=content).save()
-
-    print '>>>> END def updateFormList(request)'
+    
     return dajax.json()
 
+
+################################################################################
+#
+# Function Name: downloadHTMLForm(request,saveAs,content)
+# Inputs:        request - 
+# Outputs:       
+# Exceptions:    None
+# Description:   Download the HTML form      
+#
+################################################################################
+@dajaxice_register
+def downloadHTMLForm(request,saveAs,content):    
+    dajax = Dajax()
+
+    templateID = request.session['currentTemplateID']
+
+    newHTMLForm = Htmlform(title=saveAs, schema=templateID, content=content).save()
+    
+    dajax.redirect('/curate/enter-data/download-form?id='+str(newHTMLForm.id))
+    
+    return dajax.json()
 
 ################################################################################
 #

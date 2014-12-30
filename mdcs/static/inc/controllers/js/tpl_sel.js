@@ -811,22 +811,9 @@ downloadForm = function()
 {
     console.log('BEGIN [downloadForm]');
     
-    Dajaxice.curate.saveHTMLForm(downloadFormCallback,{'saveAs':"form2download", 'content':document.getElementById('xsdForm').innerHTML});
+    Dajaxice.curate.downloadHTMLForm(Dajax.process,{'saveAs':"form2download", 'content':document.getElementById('xsdForm').innerHTML});
 
     console.log('END [downloadForm]');
-}
-
-/**
- * Callback redirects to download page
- */
-downloadFormCallback = function()
-{
-    console.log('BEGIN [downloadFormCallback]');
-
-    window.location = '/curate/enter-data/download-form';
-    $( "#dialog-download-options" ).dialog("close");
-    
-    console.log('END [downloadFormCallback]');
 }
 
 /**
