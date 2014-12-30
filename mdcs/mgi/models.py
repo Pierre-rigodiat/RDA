@@ -24,6 +24,7 @@ from pymongo import Connection
 from bson.objectid import ObjectId
 import xmltodict
 import lxml.etree as etree
+from email import email
 
 # Create your models here.
 
@@ -50,6 +51,11 @@ class Post(Document):
     tags = ListField(StringField(max_length=30))
     comments = ListField(EmbeddedDocumentField(Comment))
 
+class Message(Document):
+    name = StringField(max_length=100)
+    email = EmailField()
+    message = StringField()
+    
 class XMLSchema(models.Model):
     tree = etree.ElementTree
     

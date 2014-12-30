@@ -18,6 +18,8 @@
 
 {% load staticfiles %}
 
+{% load dajaxice_templatetags %}
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" dir="ltr">
 
@@ -29,6 +31,14 @@
 	<link rel="stylesheet" type="text/css" href="{% static 'resources/css/lib/bootstrap.min.css' %}"  media="screen" />
 	<link rel="stylesheet" type="text/css" href="{% static 'resources/css/style.css' %}" media="screen" />
 	<title>Materials Data Curation System</title>
+	<!-- JQuery & JQuery UI -->
+	<script src="{% static 'resources/lib/jquery/jquery-1.11.1.min.js' %}"></script>
+	<script src="{% static 'resources/js/bootstrap.min.js' %}"></script>
+    <link rel="stylesheet" type="text/css" href="{% static 'resources/lib/jquery-ui/themes/smoothness/jquery-ui.css' %}"/>        
+    <script src="{% static 'resources/lib/jquery-ui/themes/smoothness/jquery-ui.js' %}"></script>
+	<script src="{% static 'dajax/jquery.dajax.core.js' %}"></script>
+	
+	{% dajaxice_js_import %}
 </head>
 
 <body id="top">
@@ -108,15 +118,13 @@
 
 <p>
 
-<form action="/contact-message" method="post">
-	<p><label for="id_sender_name">Name:</label>
-    <input id="id_sender_name" type="text" name="sender_name" maxlength="100" style="border:1px solid grey" /></p>
-	<p><label for="id_sender_email">Email:</label>
-    <input type="email" name="sender_email" id="id_sender_email" style="border:1px solid grey" /></p>
-	<p><label for="id_sender_email">Message:</label>
-    <textarea type="text" name="sender_message" id="id_sender_message" style="border:1px solid grey" ></textarea></p>
-<input class="btn" type="submit" value="Submit" />
-</form>
+	<p><label>Name:</label>
+    <input type="text" id="id_sender_name" maxlength="100"/></p>
+	<p><label>Email:</label>
+    <input type="text" id="id_sender_email" /></p>
+	<p><label>Message:</label>
+    <textarea rows="10" cols="50" id="id_sender_message" ></textarea></p>
+	<span class="btn submit">Submit</span>
 
 				</div>
 			</div>
@@ -133,7 +141,7 @@
 		<div id="footer2">
 
 			<div class="left">
-				<a href="/">Home</a> <span class="text-separator">|</span> <a href="/curate">Data Curation</a> <span class="text-separator">|</span> <a href="/explore">Data Exploration</a>
+				<a href="/">Home</a> <span class="text-separator">|</span> <a href="/curate">Data Curation</a> <span class="text-separator">|</span> <a href="/explore">Data Exploration</a><span class="text-separator">|</span> <a href="/contact">Contact</a>
 			</div>
 
 			<div class="right">
@@ -170,6 +178,21 @@
 	</div>
 
 </div>
+
+<div id="dialog-errors-message" title="Errors" style="display:none;">
+    <div id="contact-errors">
+    </div>  
+</div>
+
+<div id="dialog-sent-message" title="Message Sent" style="display:none;">
+    <span class="ui-icon ui-icon-circle-check" style="float:left; margin:0 7px 10px 0;"></span>
+    The message was sent with success.
+</div>
+
+<script src="{% static 'inc/controllers/js/contact.js' %}"></script>
+<script>
+loadContactControllers();
+</script>
 
 </body>
 </html>

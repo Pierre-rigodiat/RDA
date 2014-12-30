@@ -171,7 +171,6 @@
 
 		      </div>
 </div>
-<!--<button class="btn" onclick="loadCurrentTemplateFormForCuration()">update</button>-->
 
 		    </div>
 
@@ -386,35 +385,6 @@
 	</table>
 </div>
 </div>
-
-<!-- <div id="dialog-select-hdf5file" title="Upload Spreadsheet File" style="display:none;">
-	<table>
-		<tr>
-			<td>
-				<input type='file' id='excelSpreadsheet' name='files[]'></input>
-			</td>
-			<td>
-				<span class='btn' id='uploadSpreadsheet' onclick='uploadSpreadsheet()'>upload</span>
-			</td>
-		</tr>
-	</table>		
-</div>
-<script>
-document.getElementById('excelSpreadsheet').addEventListener('change',handleExcelUpload, false);
-function handleExcelUpload(evt) {
-	var files = evt.target.files; // FileList object
-    reader = new FileReader();
-    reader.onload = function(e){
-    	Dajaxice.curate.readExcel(Dajax.process,{"resourceContent":reader.result, "resourceFilename":files[0].name});
-    }
-    reader.readAsText(files[0]);
-}
-
-uploadSpreadsheet = function(){
-	Dajaxice.curate.uploadExcel(Dajax.process);
-}
-</script>
- -->
 
 <div id="dialog-select-hdf5file" title="Upload Spreadsheet File" style="display:none;">
 <iframe src="/curate/select-hdf5file">

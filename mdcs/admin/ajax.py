@@ -19,7 +19,7 @@ from dajaxice.decorators import dajaxice_register
 import lxml.etree as etree
 import json
 from io import BytesIO
-from mgi.models import Template, TemplateVersion, Instance, Request, Module, ModuleResource, Type, TypeVersion
+from mgi.models import Template, TemplateVersion, Instance, Request, Module, ModuleResource, Type, TypeVersion, Message
 from django.core.files.temp import NamedTemporaryFile
 import hashlib
 import requests
@@ -1115,5 +1115,25 @@ def pingRemoteAPI(request, name, protocol, address, port, user, password):
     except Exception, e:
         dajax.assign("#instance_error", "innerHTML", "<b style='color:red'>Error: Unable to reach the remote API.</b>")
         
+    
+    return dajax.json()
+
+################################################################################
+# 
+# Function Name: contact(request, name, email, message)
+# Inputs:        request -
+#                name - 
+#                email -
+#                message - 
+# Outputs:       
+# Exceptions:    None
+# Description:   Send a message to the Administrator
+#
+################################################################################
+@dajaxice_register
+def contact(request, name, email, message):
+    dajax = Dajax()
+    
+    Message(name=name, email=email, message=message).save()
     
     return dajax.json()
