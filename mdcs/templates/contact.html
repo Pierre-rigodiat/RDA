@@ -108,44 +108,15 @@
 
 <p>
 
-<form action="/contact" method="post">
-<p><label for="id_sender_name">Name:</label>
+<form action="/contact-message" method="post">
+	<p><label for="id_sender_name">Name:</label>
     <input id="id_sender_name" type="text" name="sender_name" maxlength="100" style="border:1px solid grey" /></p>
-<p><label for="id_sender_email">Email:</label>
+	<p><label for="id_sender_email">Email:</label>
     <input type="email" name="sender_email" id="id_sender_email" style="border:1px solid grey" /></p>
-<p><label for="id_sender_email">Message:</label>
-    <input type="text" name="sender_message" id="id_sender_message" style="border:1px solid grey" /></p>
-<p><label for="id_cc_myself">Cc myself:</label>
-    <input type="checkbox" name="cc_myself" id="id_cc_myself" /></p>
-<input type="submit" value="Submit" />
+	<p><label for="id_sender_email">Message:</label>
+    <textarea type="text" name="sender_message" id="id_sender_message" style="border:1px solid grey" ></textarea></p>
+<input class="btn" type="submit" value="Submit" />
 </form>
-
-<!--
-<form action="/contact" method="post">
-    {{ form.non_field_errors }}
-    <div class="fieldWrapper">
-        {{ form.subject.errors }}
-        <label for="id_subject">Email subject:</label>
-        {{ form.subject }}
-    </div>
-    <div class="fieldWrapper">
-        {{ form.message.errors }}
-        <label for="id_message">Your message:</label>
-        {{ form.message }}
-    </div>
-    <div class="fieldWrapper">
-        {{ form.sender.errors }}
-        <label for="id_sender">Your email address:</label>
-        {{ form.sender }}
-    </div>
-    <div class="fieldWrapper">
-        {{ form.cc_myself.errors }}
-        <label for="id_cc_myself">CC yourself?</label>
-        {{ form.cc_myself }}
-    </div>
-    <p><input type="submit" value="Send message" /></p>
-</form>
--->
 
 				</div>
 			</div>
@@ -162,7 +133,7 @@
 		<div id="footer2">
 
 			<div class="left">
-				<a href="/">Home</a> <span class="text-separator">|</span> <a href="/curate">Data Curation</a> <span class="text-separator">|</span> <a href="/explore">Data Exploration</a> <span class="text-separator">|</span> <a href="/about">About</a> 
+				<a href="/">Home</a> <span class="text-separator">|</span> <a href="/curate">Data Curation</a> <span class="text-separator">|</span> <a href="/explore">Data Exploration</a>
 			</div>
 
 			<div class="right">
