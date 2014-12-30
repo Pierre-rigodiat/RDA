@@ -30,7 +30,7 @@ from xlrd import open_workbook
 from argparse import ArgumentError
 from cgi import FieldStorage
 import zipfile
-from mgi.models import Template, Database, Htmlform, Xmldata, Hdf5file, QueryResults, SparqlQueryResults, XML2Download, TemplateVersion, Instance, XMLSchema, Request, Module, Type, TypeVersion, SavedQuery
+from mgi.models import Template, Database, Htmlform, Xmldata, Hdf5file, QueryResults, SparqlQueryResults, XML2Download, TemplateVersion, Instance, XMLSchema, Request, Module, Type, TypeVersion, SavedQuery, Message
 from bson.objectid import ObjectId
 import lxml.etree as etree
 import os
@@ -84,6 +84,30 @@ def user_requests(request):
 
     context = RequestContext(request, {
         'requests': Request.objects
+    })
+    request.session['currentYear'] = currentYear()
+    if request.user.is_authenticated() and request.user.is_staff:
+        return HttpResponse(template.render(context))
+    else:
+        if 'loggedOut' in request.session:
+            del request.session['loggedOut']
+        request.session['next'] = '/'
+        return redirect('/login')
+    
+################################################################################
+#
+# Function Name: contact_messages(request)
+# Inputs:        request - 
+# Outputs:       User Request Page
+# Exceptions:    None
+# Description:   Page that allows to read messages from the contact page
+#
+################################################################################
+def contact_messages(request):
+    template = loader.get_template('admin/contact_messages.html')
+
+    context = RequestContext(request, {
+        'contacts': Message.objects
     })
     request.session['currentYear'] = currentYear()
     if request.user.is_authenticated() and request.user.is_staff:

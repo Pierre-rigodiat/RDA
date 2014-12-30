@@ -54,7 +54,7 @@ class Post(Document):
 class Message(Document):
     name = StringField(max_length=100)
     email = EmailField()
-    message = StringField()
+    content = StringField()
     
 class XMLSchema(models.Model):
     tree = etree.ElementTree

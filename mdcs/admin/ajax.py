@@ -1134,6 +1134,25 @@ def pingRemoteAPI(request, name, protocol, address, port, user, password):
 def contact(request, name, email, message):
     dajax = Dajax()
     
-    Message(name=name, email=email, message=message).save()
+    Message(name=name, email=email, content=message).save()
     
+    return dajax.json()
+
+################################################################################
+# 
+# Function Name: removeMessage(request, messageid)
+# Inputs:        request -
+#                messageid - 
+# Outputs:       
+# Exceptions:    None
+# Description:   Send a message to the Administrator
+#
+################################################################################
+@dajaxice_register
+def removeMessage(request, messageid):
+    dajax = Dajax()
+    
+    message = Message.objects.get(pk=messageid)
+    message.delete()
+        
     return dajax.json()

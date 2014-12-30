@@ -1,7 +1,7 @@
 <!-- 
 ################################################################################
 #
-# File Name: user_requests.html
+# File Name: contact_messages.html
 # Application: templates/admin
 # Description: 
 #
@@ -120,8 +120,8 @@
 
 	<ul class="tabbed">
 		<li><a href="/admin/user-management">Manage Users</a></li>	  
-	  	<li class="current_page_item"><a href="/admin/user-requests">Account Requests</a></li>  	
-	  	<li><a href="/admin/contact-messages">Contact Messages</a></li>  	
+	  	<li><a href="/admin/user-requests">Account Requests</a></li>  	
+	  	<li class="current_page_item"><a href="/admin/contact-messages">Contact Messages</a></li>  	
 	  </ul>
 
 	<div class="clearer">&nbsp;</div>
@@ -141,7 +141,7 @@
 			<div id="featured-wrapper">
 				<div id="featured">
 
-<h1>Account Requests</h1>
+<h1>Contact Messages</h1>
 					
 					<div class="clearer">&nbsp;</div>
 
@@ -153,28 +153,25 @@
 		      <div id="model_selection">
 		      
 
-{% if requests %}
+{% if contacts %}
 
 <table class="data-table">
   <tr>
-  	<th>User</th>
-    <th>First Name</th>
-    <th>Last Name</th>
+  	<th>Name</th>
     <th>Email Address</th>
+    <th>Message</th>
     <th>Actions</th>
   </tr>
 
-{% for request in requests %}
+{% for message in contacts %}
   {% cycle 'even' '' as rowcolors silent %}
   <tr class="{{ rowcolors }}">
-    <td>{{ request.username }}</td>
-    <td>{{ request.first_name }}</td>
-    <td>{{ request.last_name }}</td>
-    <td>{{ request.email }}</td>
+    <td>{{ message.name }}</td>
+    <td>{{ message.email }}</td>
+    <td>{{ message.content }}</td>
 
     <td>
-    	<div class="icon legend long accept request" requestid="{{ request.id }}">Accept</div>
-    	<div class="icon legend long remove request" requestid="{{ request.id }}">Deny</div>    
+    	<div class="icon legend long remove message" messageid="{{ message.id }}">Delete</div>    
     </td>
 
   </tr>
@@ -185,7 +182,7 @@
 
 {% else %}
 
-No account requests pending at the moment.
+No contact messages pending at the moment.
 
 {% endif %}
 
@@ -239,28 +236,21 @@ No account requests pending at the moment.
 
 </div>
 
-<div id="dialog-error-request" title="Error Request" style="display:none;">  
-  <p>
-  This request can't be accepted. Please check that the user does not already exists.
-  </p>
-</div>
 
-<div id="dialog-denied-request" title="Request Denied" style="display:none;">  
-  <p>
-  Are you sure you want to deny this request?
-  </p>
-</div>
-
-<div id="dialog-accepted-request" title="Request Accepted" style="display:none;">  
+<div id="dialog-deleted-message" title="Message Deleted" style="display:none;">  
   <p>
   <span class="ui-icon ui-icon-circle-check" style="float:left; margin:0 7px 10px 0;"></span>
-  User created with success.
+  Message deleted with success.
   </p>
 </div>
 
-<script src="{% static 'inc/controllers/js/user_requests.js' %}"></script>
+<div id="dialog-confirm-delete" title="Message Sent" style="display:none;">
+    Are you sure you want to delete this message?
+</div>
+
+<script src="{% static 'inc/controllers/js/contact.js' %}"></script>
 <script>
-	loadUserRequestsHandler();
+	loadContactMessagesHandler();
 </script>
 </body>
 </html>
