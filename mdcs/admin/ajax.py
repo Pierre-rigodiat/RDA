@@ -1174,8 +1174,9 @@ def saveTermsOfUse(request, content):
     for term in TermsOfUse.objects:
         term.delete()
     
-    newTerms = TermsOfUse(content = content)
-    newTerms.save()
+    if (content != ""):
+        newTerms = TermsOfUse(content = content)
+        newTerms.save()
     
     return dajax.json()
 
@@ -1197,8 +1198,9 @@ def savePrivacyPolicy(request, content):
     for privacy in PrivacyPolicy.objects:
         privacy.delete()
     
-    newPrivacy = PrivacyPolicy(content = content)
-    newPrivacy.save()
+    if (content != ""):
+        newPrivacy = PrivacyPolicy(content = content)
+        newPrivacy.save()
     
     return dajax.json()
 
