@@ -19,7 +19,7 @@ from dajaxice.decorators import dajaxice_register
 import lxml.etree as etree
 import json
 from io import BytesIO
-from mgi.models import Template, TemplateVersion, Instance, Request, Module, ModuleResource, Type, TypeVersion, Message
+from mgi.models import Template, TemplateVersion, Instance, Request, Module, ModuleResource, Type, TypeVersion, Message, TermsOfUse, PrivacyPolicy
 from django.core.files.temp import NamedTemporaryFile
 import hashlib
 import requests
@@ -1145,7 +1145,7 @@ def contact(request, name, email, message):
 #                messageid - 
 # Outputs:       
 # Exceptions:    None
-# Description:   Send a message to the Administrator
+# Description:   Remove a message from Contact form
 #
 ################################################################################
 @dajaxice_register
@@ -1156,3 +1156,49 @@ def removeMessage(request, messageid):
     message.delete()
         
     return dajax.json()
+
+################################################################################
+# 
+# Function Name: saveTermsOfUse(request, content)
+# Inputs:        request -
+#                content - 
+# Outputs:       
+# Exceptions:    None
+# Description:   Saves the terms of use
+#
+################################################################################
+@dajaxice_register
+def saveTermsOfUse(request, content):
+    dajax = Dajax()
+    
+    for term in TermsOfUse.objects:
+        term.delete()
+    
+    newTerms = TermsOfUse(content = content)
+    newTerms.save()
+    
+    return dajax.json()
+
+
+################################################################################
+# 
+# Function Name: savePrivacyPolicy(request, content)
+# Inputs:        request -
+#                content - 
+# Outputs:       
+# Exceptions:    None
+# Description:   Saves the privacy policy
+#
+################################################################################
+@dajaxice_register
+def savePrivacyPolicy(request, content):
+    dajax = Dajax()
+    
+    for privacy in PrivacyPolicy.objects:
+        privacy.delete()
+    
+    newPrivacy = PrivacyPolicy(content = content)
+    newPrivacy.save()
+    
+    return dajax.json()
+

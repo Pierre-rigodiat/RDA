@@ -30,7 +30,7 @@ from xlrd import open_workbook
 from argparse import ArgumentError
 from cgi import FieldStorage
 import zipfile
-from mgi.models import Template, Database, Htmlform, Xmldata, Hdf5file, QueryResults, SparqlQueryResults, XML2Download, TemplateVersion, Instance, XMLSchema, Request, Module, Type, TypeVersion, SavedQuery, Message
+from mgi.models import Template, Database, Htmlform, Xmldata, Hdf5file, QueryResults, SparqlQueryResults, XML2Download, TemplateVersion, Instance, XMLSchema, Request, Module, Type, TypeVersion, SavedQuery, Message, TermsOfUse, PrivacyPolicy
 from bson.objectid import ObjectId
 import lxml.etree as etree
 import os
@@ -120,6 +120,85 @@ def contact_messages(request):
 
 ################################################################################
 #
+# Function Name: website(request)
+# Inputs:        request - 
+# Outputs:       User Request Page
+# Exceptions:    None
+# Description:   Page that allows to edit website pages
+#
+################################################################################
+def website(request):
+    if request.user.is_authenticated() and request.user.is_staff:
+        template = loader.get_template('admin/website.html')
+
+        context = RequestContext(request, {        
+        })
+        request.session['currentYear'] = currentYear()
+        return HttpResponse(template.render(context))
+    else:
+        if 'loggedOut' in request.session:
+            del request.session['loggedOut']
+        request.session['next'] = '/'
+        return redirect('/login')
+
+################################################################################
+#
+# Function Name: privacy_policy_admin(request)
+# Inputs:        request - 
+# Outputs:       User Request Page
+# Exceptions:    None
+# Description:   Page that allows to edit Privacy Policy
+#
+################################################################################
+def privacy_policy_admin(request):
+    if request.user.is_authenticated() and request.user.is_staff:
+        template = loader.get_template('admin/privacy_policy.html')
+
+        policy = None
+        if len(PrivacyPolicy.objects) != 0:
+            policy = PrivacyPolicy.objects[0] 
+        
+        context = RequestContext(request, { 
+            'policy': policy
+        })
+        request.session['currentYear'] = currentYear()
+        return HttpResponse(template.render(context))
+    else:
+        if 'loggedOut' in request.session:
+            del request.session['loggedOut']
+        request.session['next'] = '/'
+        return redirect('/login')
+
+################################################################################
+#
+# Function Name: terms_of_use_admin(request)
+# Inputs:        request - 
+# Outputs:       User Request Page
+# Exceptions:    None
+# Description:   Page that allows to edit Terms of Use
+#
+################################################################################
+def terms_of_use_admin(request):
+    if request.user.is_authenticated() and request.user.is_staff:
+        template = loader.get_template('admin/terms_of_use.html')
+
+        terms = None
+        if len(TermsOfUse.objects) != 0:
+            terms = TermsOfUse.objects[0] 
+    
+        context = RequestContext(request, { 
+            'terms': terms
+        })
+        request.session['currentYear'] = currentYear()
+        return HttpResponse(template.render(context))
+    else:
+        if 'loggedOut' in request.session:
+            del request.session['loggedOut']
+        request.session['next'] = '/'
+        return redirect('/login')
+
+################################################################################
+#
 # Function Name: backup_database(request)
 # Inputs:        request - 
 # Outputs:       Backup Page
@@ -128,14 +207,14 @@ def contact_messages(request):
 #
 ################################################################################
 def backup_database(request):
-    template = loader.get_template('admin/backup-database.html')
-    backupsDir = settings.SITE_ROOT + '/data/backups/'
-        
-    context = RequestContext(request, {
-        'backups' : os.listdir(backupsDir)
-    })
-    request.session['currentYear'] = currentYear()
     if request.user.is_authenticated() and request.user.is_staff:
+        template = loader.get_template('admin/backup-database.html')
+        backupsDir = settings.SITE_ROOT + '/data/backups/'
+            
+        context = RequestContext(request, {
+            'backups' : os.listdir(backupsDir)
+        })
+        request.session['currentYear'] = currentYear()
         return HttpResponse(template.render(context))
     else:
         if 'loggedOut' in request.session:
@@ -153,15 +232,15 @@ def backup_database(request):
 #
 ################################################################################
 def restore_database(request):
-    template = loader.get_template('admin/restore-database.html')
-
-    backupsDir = settings.SITE_ROOT + '/data/backups/'
-        
-    context = RequestContext(request, {
-        'backups' : os.listdir(backupsDir)
-    })
-    request.session['currentYear'] = currentYear()
     if request.user.is_authenticated() and request.user.is_staff:
+        template = loader.get_template('admin/restore-database.html')
+
+        backupsDir = settings.SITE_ROOT + '/data/backups/'
+            
+        context = RequestContext(request, {
+            'backups' : os.listdir(backupsDir)
+        })
+        request.session['currentYear'] = currentYear()
         return HttpResponse(template.render(context))
     else:
         if 'loggedOut' in request.session:
@@ -180,24 +259,24 @@ def restore_database(request):
 #
 ################################################################################
 def manage_schemas(request):
-    template = loader.get_template('admin/manage_uploads.html')
-    
-    currentTemplateVersions = []
-    for tpl_version in TemplateVersion.objects():
-        currentTemplateVersions.append(tpl_version.current)
-    
-    currentTemplates = dict()
-    for tpl_version in currentTemplateVersions:
-        tpl = Template.objects.get(pk=tpl_version)
-        templateVersions = TemplateVersion.objects.get(pk=tpl.templateVersion)
-        currentTemplates[tpl] = templateVersions.isDeleted
-
-    context = RequestContext(request, {
-        'objects':currentTemplates,
-        'objectType': "Template"        
-    })
-    request.session['currentYear'] = currentYear()
     if request.user.is_authenticated() and request.user.is_staff:
+        template = loader.get_template('admin/manage_uploads.html')
+    
+        currentTemplateVersions = []
+        for tpl_version in TemplateVersion.objects():
+            currentTemplateVersions.append(tpl_version.current)
+        
+        currentTemplates = dict()
+        for tpl_version in currentTemplateVersions:
+            tpl = Template.objects.get(pk=tpl_version)
+            templateVersions = TemplateVersion.objects.get(pk=tpl.templateVersion)
+            currentTemplates[tpl] = templateVersions.isDeleted
+    
+        context = RequestContext(request, {
+            'objects':currentTemplates,
+            'objectType': "Template"        
+        })
+        request.session['currentYear'] = currentYear()
         return HttpResponse(template.render(context))
     else:
         if 'loggedOut' in request.session:
@@ -215,13 +294,13 @@ def manage_schemas(request):
 #
 ################################################################################
 def module_management(request):
-    template = loader.get_template('admin/manage_modules.html')
-
-    context = RequestContext(request, {
-        'modules': Module.objects
-    })
-    request.session['currentYear'] = currentYear()
     if request.user.is_authenticated() and request.user.is_staff:
+        template = loader.get_template('admin/manage_modules.html')
+
+        context = RequestContext(request, {
+            'modules': Module.objects
+        })
+        request.session['currentYear'] = currentYear()
         return HttpResponse(template.render(context))
     else:
         if 'loggedOut' in request.session:
@@ -239,13 +318,13 @@ def module_management(request):
 #
 ################################################################################
 def module_add(request):
-    template = loader.get_template('admin/add_module.html')
-        
-    context = RequestContext(request, {
-        'templates':Template.objects
-    })
-    request.session['currentYear'] = currentYear()
     if request.user.is_authenticated() and request.user.is_staff:
+        template = loader.get_template('admin/add_module.html')
+        
+        context = RequestContext(request, {
+            'templates':Template.objects
+        })
+        request.session['currentYear'] = currentYear()
         return HttpResponse(template.render(context))
     else:
         if 'loggedOut' in request.session:
@@ -264,25 +343,25 @@ def module_add(request):
 #
 ################################################################################
 def manage_types(request):
-    template = loader.get_template('admin/manage_uploads.html')
-    
-    currentTypeVersions = []
-    for type_version in TypeVersion.objects():
-        currentTypeVersions.append(type_version.current)
-    
-    currentTypes = dict()
-    for type_version in currentTypeVersions:
-        type = Type.objects.get(pk=type_version)
-        typeVersions = TypeVersion.objects.get(pk=type.typeVersion)
-        currentTypes[type] = typeVersions.isDeleted
-
-    context = RequestContext(request, {
-        'objects':currentTypes,
-        'objectType': "Type"
-        
-    })
-    request.session['currentYear'] = currentYear()
     if request.user.is_authenticated() and request.user.is_staff:
+        template = loader.get_template('admin/manage_uploads.html')
+    
+        currentTypeVersions = []
+        for type_version in TypeVersion.objects():
+            currentTypeVersions.append(type_version.current)
+        
+        currentTypes = dict()
+        for type_version in currentTypeVersions:
+            type = Type.objects.get(pk=type_version)
+            typeVersions = TypeVersion.objects.get(pk=type.typeVersion)
+            currentTypes[type] = typeVersions.isDeleted
+    
+        context = RequestContext(request, {
+            'objects':currentTypes,
+            'objectType': "Type"
+            
+        })
+        request.session['currentYear'] = currentYear()
         return HttpResponse(template.render(context))
     else:
         if 'loggedOut' in request.session:
@@ -301,13 +380,13 @@ def manage_types(request):
 #
 ################################################################################
 def federation_of_queries(request):
-    template = loader.get_template('admin/federation_of_queries.html')
-
-    context = RequestContext(request, {
-        'instances': Instance.objects.order_by('-id')
-    })
-    request.session['currentYear'] = currentYear()
     if request.user.is_authenticated() and request.user.is_staff:
+        template = loader.get_template('admin/federation_of_queries.html')
+
+        context = RequestContext(request, {
+            'instances': Instance.objects.order_by('-id')
+        })
+        request.session['currentYear'] = currentYear()
         return HttpResponse(template.render(context))
     else:
         if 'loggedOut' in request.session:
@@ -325,12 +404,12 @@ def federation_of_queries(request):
 #
 ################################################################################
 def curate(request):
-    template = loader.get_template('curate.html')
-    context = RequestContext(request, {
-        '': '',
-    })
-    request.session['currentYear'] = currentYear()
     if request.user.is_authenticated():
+        template = loader.get_template('curate.html')
+        context = RequestContext(request, {
+            '': '',
+        })
+        request.session['currentYear'] = currentYear()
         return HttpResponse(template.render(context))
     else:
         if 'loggedOut' in request.session:
@@ -349,12 +428,12 @@ def curate(request):
 #
 ################################################################################
 def curate_select_template(request):
-    template = loader.get_template('curate.html')
-    context = RequestContext(request, {
-        '': '',
-    })
-    request.session['currentYear'] = currentYear()
     if request.user.is_authenticated():
+        template = loader.get_template('curate.html')
+        context = RequestContext(request, {
+            '': '',
+        })
+        request.session['currentYear'] = currentYear()
         return HttpResponse(template.render(context))
     else:
         if 'loggedOut' in request.session:
@@ -374,12 +453,12 @@ def curate_select_template(request):
 #
 ################################################################################
 def curate_select_hdf5file(request):
-    template = loader.get_template('curate_select_hdf5file.html')
-    context = RequestContext(request, {
-        '': '',
-    })
-    request.session['currentYear'] = currentYear()
     if request.user.is_authenticated():
+        template = loader.get_template('curate_select_hdf5file.html')
+        context = RequestContext(request, {
+            '': '',
+        })
+        request.session['currentYear'] = currentYear()
         return HttpResponse(template.render(context))
     else:
         if 'loggedOut' in request.session:
@@ -397,12 +476,12 @@ def curate_select_hdf5file(request):
 #
 ################################################################################
 def curate_upload_spreadsheet(request):
-    template = loader.get_template('curate_upload_successful.html')
-    
-    context = RequestContext(request, {
-        '': '',
-    })
     if request.user.is_authenticated():
+        template = loader.get_template('curate_upload_successful.html')
+    
+        context = RequestContext(request, {
+            '': '',
+        })
         if 'currentTemplateID' not in request.session:
             return redirect('/curate/select-template')
         else:
@@ -462,13 +541,12 @@ def curate_upload_spreadsheet(request):
 ################################################################################
 def curate_enter_data(request):
     print "BEGIN curate_enter_data(request)"
-    template = loader.get_template('curate_enter_data.html')
-    context = RequestContext(request, {
-        '': '',
-    })
-    request.session['currentYear'] = currentYear()
-
     if request.user.is_authenticated():
+        template = loader.get_template('curate_enter_data.html')
+        context = RequestContext(request, {
+            '': '',
+        })
+        request.session['currentYear'] = currentYear()
         if 'currentTemplateID' not in request.session:
             return redirect('/curate/select-template')
         else:
@@ -488,14 +566,13 @@ def curate_enter_data(request):
 # Description:   Page that allows to view XML data to be curated                
 #
 ################################################################################
-def curate_view_data(request):
-    template = loader.get_template('curate_view_data.html')
-    context = RequestContext(request, {
-        '': '',
-    })
-    request.session['currentYear'] = currentYear()
-    return HttpResponse(template.render(context))  # remove after testing
+def curate_view_data(request):    
     if request.user.is_authenticated():
+        template = loader.get_template('curate_view_data.html')
+        context = RequestContext(request, {
+            '': '',
+        })
+        request.session['currentYear'] = currentYear()
         if 'currentTemplateID' not in request.session:
             return redirect('/curate/select-template')
         else:
@@ -618,12 +695,12 @@ def curate_view_data_downloadxml(request):
 #
 ################################################################################
 def explore(request):
-    template = loader.get_template('explore.html')
-    context = RequestContext(request, {
-        '': '',
-    })
-    request.session['currentYear'] = currentYear()
     if request.user.is_authenticated():
+        template = loader.get_template('explore.html')
+        context = RequestContext(request, {
+            '': '',
+        })
+        request.session['currentYear'] = currentYear()
         return HttpResponse(template.render(context))
     else:
         if 'loggedOut' in request.session:
@@ -641,12 +718,12 @@ def explore(request):
 #
 ################################################################################
 def explore_select_template(request):
-    template = loader.get_template('explore.html')
-    context = RequestContext(request, {
-        '': '',
-    })
-    request.session['currentYear'] = currentYear()
     if request.user.is_authenticated():
+        template = loader.get_template('explore.html')
+        context = RequestContext(request, {
+            '': '',
+        })
+        request.session['currentYear'] = currentYear()
         return HttpResponse(template.render(context))
     else:
         if 'loggedOut' in request.session:
@@ -664,12 +741,12 @@ def explore_select_template(request):
 #
 ################################################################################
 def explore_customize_template(request):
-    template = loader.get_template('explore_customize_template.html')
-    context = RequestContext(request, {
-        '': '',
-    })
-    request.session['currentYear'] = currentYear()
     if request.user.is_authenticated():
+        template = loader.get_template('explore_customize_template.html')
+        context = RequestContext(request, {
+            '': '',
+        })
+        request.session['currentYear'] = currentYear()
         if 'exploreCurrentTemplateID' not in request.session:
             return redirect('/explore/select-template')
         else:
@@ -691,27 +768,27 @@ def explore_customize_template(request):
 ################################################################################
 def explore_perform_search(request):
     try:
-        template = loader.get_template('explore_perform_search.html')
-        instances = Instance.objects()   
-        if 'HTTPS' in request.META['SERVER_PROTOCOL']:
-            protocol = "https"
-        else:
-            protocol = "http"
-        local = Instance(name="Local", protocol=protocol, address=request.META['REMOTE_ADDR'], port=request.META['SERVER_PORT'])
-        listInstances = [local]
-        for instance in instances:
-            listInstances.append(instance) 
-            
-        template_hash = Template.objects.get(pk=request.session['exploreCurrentTemplateID']).hash
-        
-        queries = SavedQuery.objects(user=str(request.user.id), template=str(request.session['exploreCurrentTemplateID']))
-        context = RequestContext(request, {
-            'instances': listInstances,
-            'template_hash': template_hash,
-            'queries':queries,
-        })
-        request.session['currentYear'] = currentYear()
         if request.user.is_authenticated():
+            template = loader.get_template('explore_perform_search.html')
+            instances = Instance.objects()   
+            if 'HTTPS' in request.META['SERVER_PROTOCOL']:
+                protocol = "https"
+            else:
+                protocol = "http"
+            local = Instance(name="Local", protocol=protocol, address=request.META['REMOTE_ADDR'], port=request.META['SERVER_PORT'])
+            listInstances = [local]
+            for instance in instances:
+                listInstances.append(instance) 
+                
+            template_hash = Template.objects.get(pk=request.session['exploreCurrentTemplateID']).hash
+            
+            queries = SavedQuery.objects(user=str(request.user.id), template=str(request.session['exploreCurrentTemplateID']))
+            context = RequestContext(request, {
+                'instances': listInstances,
+                'template_hash': template_hash,
+                'queries':queries,
+            })
+            request.session['currentYear'] = currentYear()
             if 'exploreCurrentTemplateID' not in request.session:
                 return redirect('/explore/select-template')
             else:
@@ -734,12 +811,12 @@ def explore_perform_search(request):
 #
 ################################################################################
 def explore_results(request):
-    template = loader.get_template('explore_results.html')
-    context = RequestContext(request, {
-        '': '',
-    })
-    request.session['currentYear'] = currentYear()
     if request.user.is_authenticated():
+        template = loader.get_template('explore_results.html')
+        context = RequestContext(request, {
+            '': '',
+        })
+        request.session['currentYear'] = currentYear()
         if 'exploreCurrentTemplateID' not in request.session:
             return redirect('/explore/select-template')
         else:
@@ -760,12 +837,12 @@ def explore_results(request):
 #
 ################################################################################
 def explore_sparqlresults(request):
-    template = loader.get_template('explore_sparqlresults.html')
-    context = RequestContext(request, {
-        '': '',
-    })
-    request.session['currentYear'] = currentYear()
     if request.user.is_authenticated():
+        template = loader.get_template('explore_sparqlresults.html')
+        context = RequestContext(request, {
+            '': '',
+        })
+        request.session['currentYear'] = currentYear()
         if 'exploreCurrentTemplateID' not in request.session:
             return redirect('/explore/select-template')
         else:
@@ -1016,12 +1093,12 @@ def logout_view(request):
 #
 ################################################################################
 def my_profile(request):
-    template = loader.get_template('my_profile.html')
-    context = RequestContext(request, {
-        '': '',
-    })
-    request.session['currentYear'] = currentYear()
     if request.user.is_authenticated():
+        template = loader.get_template('my_profile.html')
+        context = RequestContext(request, {
+            '': '',
+        })
+        request.session['currentYear'] = currentYear()
         return HttpResponse(template.render(context))
     else:
         if 'loggedOut' in request.session:
@@ -1039,12 +1116,12 @@ def my_profile(request):
 #
 ################################################################################
 def my_profile_edit(request):
-    template = loader.get_template('my_profile_edit.html')
-    context = RequestContext(request, {
-        '': '',
-    })
-    request.session['currentYear'] = currentYear()
     if request.user.is_authenticated():
+        template = loader.get_template('my_profile_edit.html')
+        context = RequestContext(request, {
+            '': '',
+        })
+        request.session['currentYear'] = currentYear()
         return HttpResponse(template.render(context))
     else:
         if 'loggedOut' in request.session:
@@ -1062,12 +1139,12 @@ def my_profile_edit(request):
 #
 ################################################################################
 def my_profile_change_password(request):
-    template = loader.get_template('my_profile_change_password.html')
-    context = RequestContext(request, {
-        '': '',
-    })
-    request.session['currentYear'] = currentYear()
     if request.user.is_authenticated():
+        template = loader.get_template('my_profile_change_password.html')
+        context = RequestContext(request, {
+            '': '',
+        })
+        request.session['currentYear'] = currentYear()
         return HttpResponse(template.render(context))
     else:
         if 'loggedOut' in request.session:
@@ -1104,8 +1181,12 @@ def contact(request):
 ################################################################################
 def privacy_policy(request):
     template = loader.get_template('privacy-policy.html')
-    context = RequestContext(request, {
-        '': '',
+    policy = None
+    if len(PrivacyPolicy.objects) != 0:
+        policy = PrivacyPolicy.objects[0] 
+
+    context = RequestContext(request, { 
+        'policy': policy
     })
     request.session['currentYear'] = currentYear()
     return HttpResponse(template.render(context))
@@ -1121,8 +1202,12 @@ def privacy_policy(request):
 ################################################################################
 def terms_of_use(request):
     template = loader.get_template('terms-of-use.html')
-    context = RequestContext(request, {
-        '': '',
+    terms = None
+    if len(TermsOfUse.objects) != 0:
+        terms = TermsOfUse.objects[0] 
+
+    context = RequestContext(request, { 
+        'terms': terms
     })
     request.session['currentYear'] = currentYear()
     return HttpResponse(template.render(context))

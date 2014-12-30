@@ -102,6 +102,13 @@
 					<div class="left" style="width: 830px">
 					
 						<h2><span>Privacy Policy</span></h2>
+						
+						<br/>
+						{% if policy %}
+						{{ policy.content | safe}}
+						{% else %}
+						<a href="/contact">Contact the administrator</a>
+						{% endif %}
 
 					</div>
 

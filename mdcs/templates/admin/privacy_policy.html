@@ -1,7 +1,7 @@
 <!-- 
 ################################################################################
 #
-# File Name: contact_messages.html
+# File Name: user_requests.html
 # Application: templates/admin
 # Description: 
 #
@@ -40,13 +40,11 @@
     <link rel="stylesheet" type="text/css" href="{% static 'resources/lib/jquery-ui/themes/smoothness/jquery-ui.css' %}"/>        
     <script src="{% static 'resources/lib/jquery-ui/themes/smoothness/jquery-ui.js' %}"></script>
 	<script src="{% static 'dajax/jquery.dajax.core.js' %}"></script>
-
-        {% dajaxice_js_import %}
+	
+	{% dajaxice_js_import %}
 </head>
 
 <body id="top">
-
-<div id="content-main">
 
 <div id="header-wrapper">
 	<div id="header-wrapper-2">
@@ -97,11 +95,11 @@
 
 				<ul class="tabbed">
 					<li><a href="/">Home</a></li>
-					<li class="current_page_item"><a href="/admin/user-management">User Management</a></li>
+					<li><a href="/admin/user-management">User Management</a></li>
 					<li><a href="/admin/xml-schemas">Templates & Types</a></li>
 					<li><a href="/admin/federation-of-queries">Repositories</a></li>
 					<li><a href="/admin/backup-database">Database Management</a></li>
-					<li><a href="/admin/website">Website</a></li>
+					<li class="current_page_item"><a href="/admin/website">Website</a></li>
 				</ul>
 
 				<div class="clearer">&nbsp;</div>
@@ -119,10 +117,9 @@
       
       <div id="subnav">
 
-	<ul class="tabbed">
-		<li><a href="/admin/user-management">Manage Users</a></li>	  
-	  	<li><a href="/admin/user-requests">Account Requests</a></li>  	
-	  	<li class="current_page_item"><a href="/admin/contact-messages">Contact Messages</a></li>  	
+      <ul class="tabbed">
+		<li class="current_page_item"><a href="/admin/website/privacy-policy">Privacy Policy</a></li>	  
+	  	<li><a href="/admin/website/terms-of-use">Terms of Use</a></li>  	
 	  </ul>
 
 	<div class="clearer">&nbsp;</div>
@@ -142,55 +139,17 @@
 			<div id="featured-wrapper">
 				<div id="featured">
 
-<h1>Contact Messages</h1>
-					
+					<h1>Privacy Policy</h1>
 					<div class="clearer">&nbsp;</div>
+					You can use this form to provide privacy policy for the website. You can use HTML syntax and HTML tags to write the text.
+					<div>
+					
+					<textarea rows="10" cols="100" style="width:auto;" id="policy_content">{% if policy %}{{ policy.content }}{% endif %}</textarea>
+					
+					<span class="btn policy">Save</span>
+					</div>
 
 				</div>
-			</div>
-
-			<div id="main">
-
-		      <div id="model_selection">
-		      
-
-{% if contacts %}
-
-<table class="data-table">
-  <tr>
-  	<th>Name</th>
-    <th>Email Address</th>
-    <th>Message</th>
-    <th>Actions</th>
-  </tr>
-
-{% for message in contacts %}
-  {% cycle 'even' '' as rowcolors silent %}
-  <tr class="{{ rowcolors }}">
-    <td>{{ message.name }}</td>
-    <td>{{ message.email }}</td>
-    <td>{{ message.content }}</td>
-
-    <td>
-    	<div class="icon legend long remove message" messageid="{{ message.id }}">Delete</div>    
-    </td>
-
-  </tr>
-
-{% endfor %}
-
-</table>
-
-{% else %}
-
-No contact messages pending at the moment.
-
-{% endif %}
-
-
-</div>
-
-
 			</div>
 
 		</div>
@@ -237,21 +196,17 @@ No contact messages pending at the moment.
 
 </div>
 
-
-<div id="dialog-deleted-message" title="Message Deleted" style="display:none;">  
+<div id="dialog-saved-policy" title="Privacy Policy Saved" style="display:none;">  
   <p>
   <span class="ui-icon ui-icon-circle-check" style="float:left; margin:0 7px 10px 0;"></span>
-  Message deleted with success.
+  The privacy policy was successfuly saved.
   </p>
 </div>
 
-<div id="dialog-confirm-delete" title="Message Sent" style="display:none;">
-    Are you sure you want to delete this message?
-</div>
-
-<script src="{% static 'inc/controllers/js/contact.js' %}"></script>
+<script src="{% static 'inc/controllers/js/website.js' %}"></script>
 <script>
-	loadContactMessagesHandler();
+	loadPrivacyPolicyControllers();
 </script>
+
 </body>
 </html>

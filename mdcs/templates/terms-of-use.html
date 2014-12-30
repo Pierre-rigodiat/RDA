@@ -104,6 +104,12 @@
 					
 						<h2><span>Terms of Use</span></h2>
 
+						<br/>
+						{% if terms %}
+						{{ terms.content | safe}}
+						{% else %}
+						<a href="/contact">Contact the administrator</a>
+						{% endif %}
 
 					</div>
 

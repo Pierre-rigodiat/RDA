@@ -145,6 +145,12 @@ class Module(Document):
     
 class XML2Download(Document):
     xml = StringField(required=True)
+    
+class PrivacyPolicy(Document):
+    content = StringField()
+    
+class TermsOfUse(Document):
+    content = StringField()
 
 def postprocessor(path, key, value):
     if(key == "#text"):
