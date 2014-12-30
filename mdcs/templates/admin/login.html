@@ -26,6 +26,7 @@
 	<meta name="description" content=""/>
 	<meta name="keywords" content="" />
 	<meta name="author" content="" />
+	<link rel="stylesheet" type="text/css" href="{% static 'resources/css/lib/bootstrap.min.css' %}"  media="screen" />
 	<link rel="stylesheet" type="text/css" href="{% static 'resources/css/style.css' %}" media="screen" />
 	<title>Materials Data Curation System</title>
 </head>
@@ -119,11 +120,11 @@ You have successfully logged out
 <table>
 <tr>
     <td>{{ form.username.label_tag }}</td>
-    <td><div style="border:2px solid gray;width:200px;">{{ form.username }}</div></td>
+    <td><div>{{ form.username }}</div></td>
 </tr>
 <tr>
     <td>{{ form.password.label_tag }}</td>
-    <td><div style="border:2px solid gray;width:200px;">{{ form.password }}</div></td>
+    <td><div>{{ form.password }}</div></td>
 </tr>
 <tr>
   <td></td>
@@ -133,6 +134,8 @@ You have successfully logged out
 
 <input type="hidden" name="next" value="{{ request.session.next }}" />
 </form>
+<br>
+   <a href="/request-new-account"><button class="btn request account" > Request an Account</button></a>
 
 {% endblock %}
 
