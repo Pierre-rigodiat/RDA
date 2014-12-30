@@ -30,7 +30,7 @@ from xlrd import open_workbook
 from argparse import ArgumentError
 from cgi import FieldStorage
 import zipfile
-from mgi.models import Template, Database, Htmlform, Xmldata, Hdf5file, QueryResults, SparqlQueryResults, ContactForm, XML2Download, TemplateVersion, Instance, XMLSchema, Request, Module, Type, TypeVersion, SavedQuery
+from mgi.models import Template, Database, Htmlform, Xmldata, Hdf5file, QueryResults, SparqlQueryResults, XML2Download, TemplateVersion, Instance, XMLSchema, Request, Module, Type, TypeVersion, SavedQuery
 from bson.objectid import ObjectId
 import lxml.etree as etree
 import os
@@ -86,7 +86,13 @@ def user_requests(request):
         'requests': Request.objects
     })
     request.session['currentYear'] = currentYear()
-    return HttpResponse(template.render(context))
+    if request.user.is_authenticated() and request.user.is_staff:
+        return HttpResponse(template.render(context))
+    else:
+        if 'loggedOut' in request.session:
+            del request.session['loggedOut']
+        request.session['next'] = '/'
+        return redirect('/login')
 
 ################################################################################
 #
@@ -105,7 +111,13 @@ def backup_database(request):
         'backups' : os.listdir(backupsDir)
     })
     request.session['currentYear'] = currentYear()
-    return HttpResponse(template.render(context))
+    if request.user.is_authenticated() and request.user.is_staff:
+        return HttpResponse(template.render(context))
+    else:
+        if 'loggedOut' in request.session:
+            del request.session['loggedOut']
+        request.session['next'] = '/'
+        return redirect('/login')
 
 ################################################################################
 #
@@ -125,7 +137,13 @@ def restore_database(request):
         'backups' : os.listdir(backupsDir)
     })
     request.session['currentYear'] = currentYear()
-    return HttpResponse(template.render(context))
+    if request.user.is_authenticated() and request.user.is_staff:
+        return HttpResponse(template.render(context))
+    else:
+        if 'loggedOut' in request.session:
+            del request.session['loggedOut']
+        request.session['next'] = '/'
+        return redirect('/login')
 
 
 ################################################################################
@@ -155,7 +173,13 @@ def manage_schemas(request):
         'objectType': "Template"        
     })
     request.session['currentYear'] = currentYear()
-    return HttpResponse(template.render(context))
+    if request.user.is_authenticated() and request.user.is_staff:
+        return HttpResponse(template.render(context))
+    else:
+        if 'loggedOut' in request.session:
+            del request.session['loggedOut']
+        request.session['next'] = '/'
+        return redirect('/login')
 
 ################################################################################
 #
@@ -173,7 +197,13 @@ def module_management(request):
         'modules': Module.objects
     })
     request.session['currentYear'] = currentYear()
-    return HttpResponse(template.render(context))
+    if request.user.is_authenticated() and request.user.is_staff:
+        return HttpResponse(template.render(context))
+    else:
+        if 'loggedOut' in request.session:
+            del request.session['loggedOut']
+        request.session['next'] = '/'
+        return redirect('/login')
 
 ################################################################################
 #
@@ -191,7 +221,13 @@ def module_add(request):
         'templates':Template.objects
     })
     request.session['currentYear'] = currentYear()
-    return HttpResponse(template.render(context))
+    if request.user.is_authenticated() and request.user.is_staff:
+        return HttpResponse(template.render(context))
+    else:
+        if 'loggedOut' in request.session:
+            del request.session['loggedOut']
+        request.session['next'] = '/'
+        return redirect('/login')
 
 
 ################################################################################
@@ -222,7 +258,13 @@ def manage_types(request):
         
     })
     request.session['currentYear'] = currentYear()
-    return HttpResponse(template.render(context))
+    if request.user.is_authenticated() and request.user.is_staff:
+        return HttpResponse(template.render(context))
+    else:
+        if 'loggedOut' in request.session:
+            del request.session['loggedOut']
+        request.session['next'] = '/'
+        return redirect('/login')
 
 ################################################################################
 #
@@ -241,7 +283,13 @@ def federation_of_queries(request):
         'instances': Instance.objects.order_by('-id')
     })
     request.session['currentYear'] = currentYear()
-    return HttpResponse(template.render(context))
+    if request.user.is_authenticated() and request.user.is_staff:
+        return HttpResponse(template.render(context))
+    else:
+        if 'loggedOut' in request.session:
+            del request.session['loggedOut']
+        request.session['next'] = '/'
+        return redirect('/login')
 
 ################################################################################
 #
@@ -1015,18 +1063,12 @@ def my_profile_change_password(request):
 #
 ################################################################################
 def contact(request):
-    if request.method == 'POST': # If the form has been submitted...
-        form = ContactForm(request.POST) # A form bound to the POST data
-        if form.is_valid(): # All validation rules pass
-            # Process the data in form.cleaned_data
-            # ...
-            return HttpResponseRedirect('/thanks/') # Redirect after POST
-    else:
-        form = ContactForm() # An unbound form
-
-    return render(request, 'contact.html', {
-        'form': form,
+    template = loader.get_template('contact.html')
+    context = RequestContext(request, {
+        '': '',
     })
+    request.session['currentYear'] = currentYear()    
+    return HttpResponse(template.render(context))
 
 ################################################################################
 #
@@ -1120,39 +1162,45 @@ def compose_downloadxsd(request):
 #
 ################################################################################
 def manage_versions(request):
-    template = loader.get_template('admin/manage_versions.html')
-    
-    id = request.GET.get('id','')
-    objectType = request.GET.get('type','')
-    
-    if objectType == "Template":
-        object = Template.objects.get(pk=id)
-        objectVersions = TemplateVersion.objects.get(pk=object.templateVersion)
-    else:
-        object = Type.objects.get(pk=id)
-        objectVersions = TypeVersion.objects.get(pk=object.typeVersion)    
-
-    versions = OrderedDict()
-    reversedVersions = list(reversed(objectVersions.versions))
-    for version_id in reversedVersions:
+    if request.user.is_authenticated() and request.user.is_staff:
+        template = loader.get_template('admin/manage_versions.html')
+        
+        id = request.GET.get('id','')
+        objectType = request.GET.get('type','')
+        
         if objectType == "Template":
-            version = Template.objects.get(pk=version_id)
+            object = Template.objects.get(pk=id)
+            objectVersions = TemplateVersion.objects.get(pk=object.templateVersion)
         else:
-            version = Type.objects.get(pk=version_id)   
-        objectid = ObjectId(version.id)
-        from_zone = tz.tzutc()
-        to_zone = tz.tzlocal()
-        datetimeUTC = objectid.generation_time
-        datetimeUTC = datetimeUTC.replace(tzinfo=from_zone)
-        datetimeLocal = datetimeUTC.astimezone(to_zone)
-        datetime = datetimeLocal.strftime('%m/%d/%Y %H&#58;%M&#58;%S')
-        versions[version] = datetime
+            object = Type.objects.get(pk=id)
+            objectVersions = TypeVersion.objects.get(pk=object.typeVersion)    
     
-
-    context = RequestContext(request, {
-        'versions': versions,
-        'objectVersions': objectVersions,
-        'objectType': objectType,
-    })
-    request.session['currentYear'] = currentYear()
-    return HttpResponse(template.render(context))
+        versions = OrderedDict()
+        reversedVersions = list(reversed(objectVersions.versions))
+        for version_id in reversedVersions:
+            if objectType == "Template":
+                version = Template.objects.get(pk=version_id)
+            else:
+                version = Type.objects.get(pk=version_id)   
+            objectid = ObjectId(version.id)
+            from_zone = tz.tzutc()
+            to_zone = tz.tzlocal()
+            datetimeUTC = objectid.generation_time
+            datetimeUTC = datetimeUTC.replace(tzinfo=from_zone)
+            datetimeLocal = datetimeUTC.astimezone(to_zone)
+            datetime = datetimeLocal.strftime('%m/%d/%Y %H&#58;%M&#58;%S')
+            versions[version] = datetime
+        
+    
+        context = RequestContext(request, {
+            'versions': versions,
+            'objectVersions': objectVersions,
+            'objectType': objectType,
+        })
+        request.session['currentYear'] = currentYear()
+        return HttpResponse(template.render(context))
+    else:
+        if 'loggedOut' in request.session:
+            del request.session['loggedOut']
+        request.session['next'] = '/'
+        return redirect('/login')
