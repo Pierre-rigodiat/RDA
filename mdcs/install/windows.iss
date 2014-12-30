@@ -8,7 +8,7 @@
 AppId={{EE247CA0-EF41-48C8-988D-8A009BF94485}
 AppName=mdcs
 AppVersion=1.0
-;AppVerName=mdcs 1.0
+AppVerName=mdcs 1.0
 AppPublisher=NIST
 DefaultDirName={pf}\mdcs
 DefaultGroupName=mdcs
