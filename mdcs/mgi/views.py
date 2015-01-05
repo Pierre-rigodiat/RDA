@@ -492,7 +492,7 @@ def curate_upload_spreadsheet(request):
                     print input_excel
                     book = open_workbook(file_contents=input_excel.read())
                     
-                    root = etree.Element("excel")
+                    root = etree.Element("table")
                     root.set("name", str(input_excel))
                     header = etree.SubElement(root, "headers")
                     values = etree.SubElement(root, "rows")
@@ -511,10 +511,11 @@ def curate_upload_spreadsheet(request):
                                     col = etree.SubElement(row, "column")
                     
                                 col.set("id", str(colIndex))
-                                col.text = str(sheet.cell(rowIndex, colIndex).value)
-                    
+                                col.text = str(sheet.cell(rowIndex, colIndex).value)                    
     
-                    xmlString = etree.tostring(root)                    
+#                     xmlString = etree.tostring(root)
+                    xmlString = etree.tostring(header)
+                    xmlString += etree.tostring(values)
                     
                     request.session['spreadsheetXML'] = xmlString                    
                 except:

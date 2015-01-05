@@ -227,6 +227,7 @@ validateXML = function()
 	var xmlString = '';
 	
     xmlString = generateXMLString (rootElement, xmlString);
+    console.log(xmlString);
     
     Dajaxice.curate.validateXMLData(Dajax.process,{'xmlString':xmlString});
 }
@@ -250,13 +251,10 @@ saveXMLDataCallback = function()
  */
 generateXMLString = function(elementObj)
 {
-    console.log('BEGIN [generateXMLString]');
-
     var xmlString="";
 
     var children = elementObj.childNodes;
     for(var i = 0; i < children.length; i++) {
-	console.log(children[i].tagName);
 	if (children[i].nodeType == 1 && children[i].hasAttribute("xmlID")) {
 	    if (children[i].getAttribute("xmlID") == "root") {
 		    xmlString += "<" + children[i].firstChild.innerHTML.trim() + ">"
@@ -269,11 +267,11 @@ generateXMLString = function(elementObj)
 	    }
 	} else if (children[i].tagName == "LI") {
 		if (! $(children[i]).hasClass("removed") ) {
-		    console.log(children[i].innerHTML);
+
 		    var nobrNode1 = children[i].children[0];
 		    var nobrNode2 = children[i].children[1];
 		    if (nobrNode1.firstChild != null) {
-			console.log(nobrNode1.firstChild.tagName);
+
 			if (nobrNode1.firstChild.nodeValue.trim() != "Choose") {
 			    xmlString += "<" + nobrNode1.firstChild.nodeValue.trim() + ">";
 			    if (nobrNode1.firstChild.nodeValue.trim() == "Table") {
@@ -298,6 +296,7 @@ generateXMLString = function(elementObj)
 		}
 	}
 	else if (children[i].tagName == "DIV" && $(children[i]).hasClass("module") ){
+		console.log($($(children[i]).parent()).find(".moduleResult").html());	
 		xmlString += $($(children[i]).parent()).find(".moduleResult").html();		
 	} 	
 	else if (children[i].tagName == "SELECT") {
@@ -320,8 +319,6 @@ generateXMLString = function(elementObj)
 	    xmlString += generateXMLString(children[i]);
 	}
     }
-    
-    console.log('END [generateXMLString]');
 
     return xmlString
 }
