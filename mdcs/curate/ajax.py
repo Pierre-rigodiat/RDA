@@ -1683,11 +1683,15 @@ def generateXSDTreeForEnteringData(request):
     includedTypes = getIncludedTypes(xmlDocTree, request.session['namespaces'][request.session['defaultPrefix']]);
     request.session['includedTypes'] = includedTypes
     
-    if (formString == ""):                
+    if (formString == ""):     
+        # this form was not created, generates it from the schema           
         formString = "<form id=\"dataEntryForm\" name=\"xsdForm\">"
         formString += generateForm(request)
         formString += "</form>"
         request.session['originalForm'] = formString
+    else:
+        # the form has already been created and some occurrences may have been change by the user, reinitiliazes the occurrences
+        reinitOccurrences(request)
 
     #TODO: modules
     pathFile = "{0}/static/resources/files/{1}"
@@ -1754,6 +1758,24 @@ def clearFields(request):
     # get the original version of the form
     originalForm = request.session['originalForm']
     
+    reinitOccurrences(request)    
+    
+    # assign the form to the page
+    dajax.assign('#xsdForm', 'innerHTML', originalForm)
+    
+    return dajax.json()
+
+
+################################################################################
+# 
+# Function Name: reinitOccurrences(request)
+# Inputs:        request -
+# Outputs:       
+# Exceptions:    None
+# Description:   Reinitialize the number of occurrences with original values
+#
+################################################################################
+def reinitOccurrences(request):
     # reinitialize the map of occurrences with original values
     occurrences = request.session['occurrences']
     
@@ -1772,13 +1794,6 @@ def clearFields(request):
         occurrences[str(elementID)] = unicode(elementOccurrences)
     
     request.session['occurrences'] = occurrences
-    
-    
-    # assign the form to the page
-    dajax.assign('#xsdForm', 'innerHTML', originalForm)
-    
-    return dajax.json()
-
 
 ################################################################################
 # 
