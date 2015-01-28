@@ -25,22 +25,22 @@ class TestSimpleXSD(unittest.TestCase):
 		self.assertEquals(len(xmlTree.getroot().getchildren()), 1)
 		
 		
-	def test_includes_URL(self):
-		# file with includes using URLs
-		file = open('time-type.xsd','r')
-		content = file.read()
-		
-		flatenner = XSDflattener.XSDFlattenerURL(content)
-		flat = flatenner.get_flat()
-	
-		print flat
-
-		# try to build the schema, would throw an exception if incorrect
-		xmlTree = etree.parse(BytesIO(flat.encode('utf-8')))
-		xmlSchema = etree.XMLSchema(xmlTree)
-		
-		# 2 types from includes + 1 type in the file
-		self.assertEquals(len(xmlTree.getroot().getchildren()), 3)
+# 	def test_includes_URL(self):
+# 		# file with includes using URLs
+# 		file = open('time-type.xsd','r')
+# 		content = file.read()
+# 		
+# 		flatenner = XSDflattener.XSDFlattenerURL(content)
+# 		flat = flatenner.get_flat()
+# 	
+# 		print flat
+# 
+# 		# try to build the schema, would throw an exception if incorrect
+# 		xmlTree = etree.parse(BytesIO(flat.encode('utf-8')))
+# 		xmlSchema = etree.XMLSchema(xmlTree)
+# 		
+# 		# 2 types from includes + 1 type in the file
+# 		self.assertEquals(len(xmlTree.getroot().getchildren()), 3)
 		
 	def test_includes_local(self):
 		# file with includes using path
