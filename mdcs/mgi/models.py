@@ -75,9 +75,9 @@ class TemplateVersion(Document):
     nbVersions = IntField(required=True)
     isDeleted = BooleanField(required=True)
     
-class Type(Document):
+class Type(Document):    
     title = StringField(required=True)
-    filename = StringField(required=True, unique=True)
+    filename = StringField(required=True)
     content = StringField(required=True)
     typeVersion = StringField(required=False)
     version = IntField(required=False)
@@ -151,6 +151,10 @@ class PrivacyPolicy(Document):
     
 class TermsOfUse(Document):
     content = StringField()
+    
+class Bucket(Document):
+    label = StringField(required=True, unique=True)
+    types = ListField()
 
 def postprocessor(path, key, value):
     if(key == "#text"):
