@@ -155,7 +155,7 @@ INSTALLED_APPS = (
     'rest_framework_swagger', #django-rest-swagger for api documentation
     'api', # djangorestframework
 )
-
+ 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.BasicAuthentication',
@@ -242,10 +242,16 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
 
+# python manage.py collectstatic gather all static files in this directory
+# link this directory to static in apache configuration file
+STATIC_ROOT = 'var/www/mgi/static/'
+
+# static files manually put
 STATIC_URL = '/static/'
 
+# static files gathered
 STATICFILES_DIRS = (
-    os.path.join(BASE_DIR, "static"),
+    os.path.join(BASE_DIR, 'static'),
 )
 
 STATICFILES_FINDERS = (
@@ -290,7 +296,7 @@ LOGGING = {
             'formatter': 'standard',
         },
         'console':{
-            'level':'INFO',
+            'level':'DEBUG',
             'class':'logging.StreamHandler',
             'formatter': 'standard'
         },
