@@ -45,6 +45,7 @@ from StringIO import StringIO
 from django.core.files.temp import NamedTemporaryFile
 from django.conf import settings
 from django.http.response import HttpResponse
+from utils.XSDhash import XSDhash
 
 
 ################################################################################
@@ -659,9 +660,8 @@ def add_schema(request):
                     content = {'message':'This template version belongs to a deleted template. You are not allowed to delete it.'}
                     return Response(content, status=status.HTTP_400_BAD_REQUEST)
                 templateVersions.nbVersions = templateVersions.nbVersions + 1
-                hash = hashlib.sha1(request.DATA['content'])
-                hex_dig = hash.hexdigest()
-                newTemplate = Template(title=request.DATA['title'], filename=request.DATA['filename'], content=request.DATA['content'], templateVersion=request.DATA['templateVersion'], version=templateVersions.nbVersions, hash=hex_dig).save()
+                hash = XSDhash.get_hash(request.DATA['content'])
+                newTemplate = Template(title=request.DATA['title'], filename=request.DATA['filename'], content=request.DATA['content'], templateVersion=request.DATA['templateVersion'], version=templateVersions.nbVersions, hash=hash).save()
                 templateVersions.versions.append(str(newTemplate.id))                
                 templateVersions.save()
             except:
@@ -669,9 +669,8 @@ def add_schema(request):
                 return Response(content, status=status.HTTP_400_BAD_REQUEST)
         else:
             templateVersion = TemplateVersion(nbVersions=1, isDeleted=False).save()
-            hash = hashlib.sha1(request.DATA['content'])
-            hex_dig = hash.hexdigest()
-            newTemplate = Template(title=request.DATA['title'], filename=request.DATA['filename'], content=request.DATA['content'], version=1, templateVersion=str(templateVersion.id), hash=hex_dig).save()
+            hash = XSDhash.get_hash(request.DATA['content'])
+            newTemplate = Template(title=request.DATA['title'], filename=request.DATA['filename'], content=request.DATA['content'], version=1, templateVersion=str(templateVersion.id), hash=hash).save()
             templateVersion.versions = [str(newTemplate.id)]
             templateVersion.current=str(newTemplate.id)
             templateVersion.save()

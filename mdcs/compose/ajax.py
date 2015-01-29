@@ -23,7 +23,7 @@ from mongoengine import *
 from mgi.models import Template, Type, XML2Download
 import lxml.etree as etree
 from io import BytesIO
-import hashlib
+from utils.XSDhash import XSDhash
 
 # XSL file loading
 import os
@@ -292,9 +292,8 @@ def renameElement(request, xpath, newName):
 def saveTemplate(request, templateName):
     dajax = Dajax()
     
-    hash = hashlib.sha1(request.session['newXmlTemplateCompose'])
-    hex_dig = hash.hexdigest()
-    template = Template(title=templateName, filename=templateName, content=request.session['newXmlTemplateCompose'], hash=hex_dig, user=request.user.id)
+    hash = XSDhash.get_hash(request.session['newXmlTemplateCompose'])    
+    template = Template(title=templateName, filename=templateName, content=request.session['newXmlTemplateCompose'], hash=hash, user=request.user.id)
     template.save()
 
     return dajax.json()
