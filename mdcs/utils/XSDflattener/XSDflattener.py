@@ -27,7 +27,7 @@ from collections import OrderedDict
 import requests
 from abc import ABCMeta, abstractmethod
 
-class XSDFlattener():
+class XSDFlattener(object):
 	
 	__metaclass__ = ABCMeta
 	
@@ -46,7 +46,7 @@ class XSDFlattener():
 		includes = xmlTree.findall("{http://www.w3.org/2001/XMLSchema}include")
 		if len(includes) > 0:
 			for el_include in includes:
-				uri = el_include.attrib['schemaLocation']				
+				uri = el_include.attrib['schemaLocation']			
 				flatDependency = self.get_flat_dependency(uri)
 				if flatDependency is not None:
 					# append flatDependency to the tree
@@ -55,7 +55,6 @@ class XSDFlattener():
 					for element in dependencyElements:
 						xmlTree.getroot().append(element)
 				el_include.getparent().remove(el_include)
-		print self.dependencies
 		return etree.tostring(xmlTree)
 		
 	def get_flat_dependency(self, uri):
@@ -66,7 +65,8 @@ class XSDFlattener():
 			includes = xmlTree.findall("{http://www.w3.org/2001/XMLSchema}include")
 			if len(includes) > 0:
 				for el_include in includes:
-					flatDependency = self.get_flat_dependency(el_include.attrib['schemaLocation'])
+					uri = el_include.attrib['schemaLocation']	
+					flatDependency = self.get_flat_dependency(uri)
 					if flatDependency is not None:
 						# append flatDependency to the tree
 						dependencyTree = etree.fromstring(flatDependency)
@@ -84,8 +84,13 @@ class XSDFlattener():
 
 class XSDFlattenerURL(XSDFlattener):
 			
+	def __init__(self, xmlString, user, password):
+		XSDFlattener.__init__(self, xmlString)
+		self.user = user
+		self.password = password
+	
 	def get_dependency_content(self, uri):
-		r = requests.get(uri)
+		r = requests.get(uri,auth=(self.user, self.password))
 		return r.text
 		
 class XSDFlattenerLocal(XSDFlattener):
@@ -94,7 +99,7 @@ class XSDFlattenerLocal(XSDFlattener):
 		file = open(uri,'r')
 		content = file.read()
 		return content
-		
+
 class XSDFlattenerFull(XSDFlattener):
 		
 	def get_dependency_content(self, uri):
