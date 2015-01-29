@@ -21,8 +21,6 @@ import lxml.etree as etree
 import json
 from io import BytesIO
 from mgi.models import Template, TemplateVersion, Instance, Request, Module, ModuleResource, Type, TypeVersion, Message, TermsOfUse, PrivacyPolicy
-from django.core.files.temp import NamedTemporaryFile
-import hashlib
 import requests
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
