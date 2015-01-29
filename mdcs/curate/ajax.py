@@ -504,7 +504,7 @@ def generateFormSubSection(request, xpath, xmlTree, namespace):
         else:
             return formString    
         
-    #TODOD: module
+    #TODO: module
     if e.attrib.get('name') in mapModules.keys():
         formString += "<div class='module' style='display: inline'>"
         formString += mapModules[e.attrib.get('name')]

@@ -1313,3 +1313,9 @@ def manage_versions(request):
             del request.session['loggedOut']
         request.session['next'] = '/'
         return redirect('/login')
+
+            
+        
+        
+        
+        

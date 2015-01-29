@@ -13,36 +13,36 @@
 # Sponsor: National Institute of Standards and Technology (NIST)
 #
 ################################################################################
-
+ 
 import sys
 import zmq
 import os
-
+ 
 REQUEST_TIMEOUT = 2500
 REQUEST_RETRIES = 3
 SERVER_ENDPOINT = "tcp://127.0.0.1:5555"
-
-
+ 
+ 
 def sendRDF(rdfStr):
     context = zmq.Context(7)
-    
+     
     print "Connecting to server..."
     socket = context.socket(zmq.REQ)
     socket.connect(SERVER_ENDPOINT)
-    
+     
     poll = zmq.Poller()
     poll.register(socket, zmq.POLLIN)
-    
-    
+     
+     
     retries_left = REQUEST_RETRIES
     request = 0
-            
+             
     while retries_left:
         request += 1    
-        
+         
         print("Sending request %s..." % request) 
         socket.send(rdfStr.encode('utf-8'))
-        
+         
         expect_reply = True
         while expect_reply:
             socks = dict(poll.poll(REQUEST_TIMEOUT))
@@ -70,6 +70,6 @@ def sendRDF(rdfStr):
                 socket.connect(SERVER_ENDPOINT)
                 poll.register(socket, zmq.POLLIN)
                 socket.send(rdfStr.encode('utf-8'))
-
+ 
     socket.close()
     context.term()
