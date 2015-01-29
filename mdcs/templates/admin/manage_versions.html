@@ -39,7 +39,7 @@
 	<input type='file' id='fileVersion' name='files[]' onchange="handleTypeVersionUpload(event)"></input>
 	{% endif %}
 	<span class='btn' id='updateVersionBtn' versionid='{{ objectVersions.id }}' objectType='{{ objectType }}' onclick='uploadVersion()'>upload</span></p>
-	<div id='versionNameErrorMessage'></div>
+	<div id='objectUploadErrorMessage'></div>
 	
 	<table>
 	{% for version, datetime in versions.items %}

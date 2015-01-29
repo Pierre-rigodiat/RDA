@@ -293,23 +293,61 @@ uploadObject = function()
     document.getElementById('object_name').value = ""
     document.getElementById('files').value = ""
     document.getElementById('list').innerHTML = ""
-    document.getElementById('objectNameErrorMessage').innerHTML = ""
+    document.getElementById('objectUploadErrorMessage').innerHTML = ""
 
     $(function() {
         $( "#dialog-upload-message" ).dialog({
             modal: true,
+            width: 500,
+            open: function(event, ui){
+            	Dajaxice.admin.clearObject(Dajax.process);
+            },
+            close: function(event, ui){
+            	Dajaxice.admin.clearObject(Dajax.process);
+            },
             buttons: {
-		Ok: function() {
-                    $( this ).dialog( "close" );
-                },
-		Cancel: function() {
-                    $( this ).dialog( "close" );
-                }
-	    }
-        });
-    });
+				Cancel: function() {
+		                    $( this ).dialog( "close" );
+		                }
+			    }
+        	});
+    	});
 	
     console.log('END [uploadObject]');
+}
+
+/**
+ * Save a template or a type
+ */
+saveObject = function() 
+{
+	console.log('BEGIN [saveObject]');
+	Dajaxice.admin.saveObject(Dajax.process);
+	console.log('END [saveObject]');
+}
+
+/**
+ * Save a version of a template or a type
+ */
+saveVersion = function() 
+{
+	console.log('BEGIN [saveVersion]');
+	Dajaxice.admin.saveVersion(Dajax.process);
+	console.log('END [saveVersion]');
+}
+
+/**
+ * Resolve dependencies
+ */
+resolveDependencies = function()
+{
+	var dependencies = [];
+	
+	$("#dependencies").find(".dependency").each(function(){
+		dependencies.push($($(this)[0].options[$(this)[0].selectedIndex]).attr('objectid'));
+	});    	
+	
+	Dajaxice.admin.resolveDependencies(Dajax.process, {"dependencies":dependencies});
 }
 
 /**

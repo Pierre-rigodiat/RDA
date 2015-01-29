@@ -219,14 +219,6 @@ There are currently no {{ objectType }} uploaded.  Please click "Upload {{ objec
 
 </div>
 
-
-
-<div class="right-side">
-<span class="ctx_menu">
-<div class="icon legend long upload">Upload {{ objectType }}</div>
-</span>
-</div>
-
 			</div>
 
 		</div>
@@ -299,18 +291,41 @@ There are currently no {{ objectType }} uploaded.  Please click "Upload {{ objec
 </div>
 
 <div id="dialog-upload-message" title="Upload {{ objectType }}" style="display:none;">
-{% if objectType == "Template" %}
-<p>
-Enter {{ objectType }} name: <input type="text" id="object_name" objectType="{{ objectType }}" name="object_name"/>
-</p>
-{% else %}
-<p style="display: none;">
-Enter {{ objectType }} name: <input type="text" id="object_name" objectType="{{ objectType }}" name="object_name"></input>
-</p>
-{% endif %}
-<input type="file" id="files" name="files[]" />
-<output id="list"></output>
-<div id="objectNameErrorMessage"></div>
+<table>
+	<tr>
+		<td>
+			Enter {{ objectType }} name:
+		</td>
+		<td> 
+			<input type="text" id="object_name" objectType="{{ objectType }}" name="object_name"/>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			Select a file:
+		</td>
+		<td>
+			<input type="file" id="files" name="files[]" />
+			<output id="list"></output>
+		</td>
+	</tr>
+	{% if objectType == "Type" %}
+	<tr>
+		<td>
+			Select the buckets:
+		</td>
+		<td>
+			<select>
+				{% for bucket in buckets %}
+					<option bucketid="{{ bucket.id }}">{{ bucket.label }}</option>
+				{% endfor %}
+			</select>
+		</td>
+	</tr>
+	{% endif %}
+</table>
+<div id="objectUploadErrorMessage"></div>
+<div id="dependenciesArea"></div>
 
 <script>
   var files; 
@@ -347,11 +362,11 @@ Enter {{ objectType }} name: <input type="text" id="object_name" objectType="{{ 
   function handleFileUpload(evt) {
     console.log('BEGIN handleFileUpload(evt)');
 
-    if ($("#object_name").attr("objectType") == "Template" && $("#object_name").val().trim().length == 0) {
-        $('#objectNameErrorMessage').html("<font color=\"red\">Please enter a name</font>");
+    if ($("#object_name").val().trim().length == 0) {
+        $('#objectUploadErrorMessage').html("<font color=\"red\">Please enter a name</font>");
         return false;
     } else {
-        $('#objectNameErrorMessage').html("")
+        $('#objectUploadErrorMessage').html("")
     }
     var reader;
 
@@ -381,9 +396,9 @@ Enter {{ objectType }} name: <input type="text" id="object_name" objectType="{{ 
     // files is a FileList of File objects. List some properties.
     var output = [];
     for (var i = 0, f; f = files[i]; i++) {
-      output.push('<br></li><button id=\'uploadFile\'>Upload</button>');
+      output.push('<button id=\'uploadFile\'>Upload</button>');
     }
-    document.getElementById('list').innerHTML = '<ul>' + output.join('') + '</ul>';
+    document.getElementById('list').innerHTML = output.join('');
     document.getElementById('uploadFile').disabled = false;
     document.getElementById('uploadFile').addEventListener('click', handleFileUpload, false);
   }

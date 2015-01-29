@@ -16,6 +16,7 @@
 
 from dajax.core import Dajax
 from dajaxice.decorators import dajaxice_register
+import lxml.html as html
 import lxml.etree as etree
 import json
 from io import BytesIO
@@ -28,6 +29,11 @@ from django.contrib.auth import authenticate
 import os
 from django.conf import settings
 from datetime import datetime
+import mgi
+from _io import StringIO
+from utils.XSDflattenerMDCS.XSDflattenerMDCS import XSDFlattenerMDCS
+from utils.XSDflattener.XSDflattener import XSDFlattenerURL
+from utils.XSDhash import XSDhash
 
 #Class definition
 
@@ -51,6 +57,67 @@ class ModuleResourceInfo:
 
 ################################################################################
 # 
+# Function Name: checkValidForMDCS(xmlTree, type)
+# Inputs:        request - 
+#                xmlTree - 
+#                type - 
+# Outputs:       errors
+# Exceptions:    None
+# Description:   Check that the format of the the schema is supported by the current version of the MDCS
+# 
+################################################################################
+def getValidityErrorsForMDCS(xmlTree, type):
+    errors = []
+    
+    # General Tests
+    
+    # get the imports
+    imports = xmlTree.findall("{http://www.w3.org/2001/XMLSchema}import")
+    # get the includes
+    includes = xmlTree.findall("{http://www.w3.org/2001/XMLSchema}include")
+    # get the elements
+    elements = xmlTree.findall("{http://www.w3.org/2001/XMLSchema}element")
+    
+    if len(imports) != 0 or len(includes) != 0:
+        # V1: Only includes        
+        if len(imports) != 0:
+            errors.append("Import statements are not supported.")
+        else:
+            for el_include in includes:
+                if 'schemaLocation' not in el_include.attrib:
+                    errors.append("The attribute schemaLocation of include is required but missing.")
+                elif ' ' in el_include.attrib['schemaLocation']:
+                    errors.append("The use of namespace in include elements is not supported.")
+
+    # Templates Tests
+
+    if type == "Template":
+        # Tests for templates
+        if len(elements) != 1 :
+            errors.append("Only templates with one root element are supported.")
+
+    # Types Tests
+    
+    elif type == "Type":        
+        elements = xmlTree.findall("*")
+        # only simpleType, complexType or include
+        for element in elements:
+            if 'complexType' not in element.tag and 'simpleType' not in element.tag and 'include' not in element.tag:
+                errors.append("A type should be a valid XML schema containing only one type definition (Allowed tags are: simpleType or complexType and include).")
+                break
+        # only one type
+        for element in elements:
+            cptType = 0 
+            if 'complexType' in element.tag or 'simpleType' in element.tag:
+                cptType += 1
+                if cptType > 1:
+                    errors.append("A type should be a valid XML schema containing only one type definition (only one simpleType or complexType).")
+                    break
+
+    return errors
+
+################################################################################
+# 
 # Function Name: uploadObject(request,objectName,objectFilename,objectContent, objectType)
 # Inputs:        request - 
 #                objectName - 
@@ -64,84 +131,282 @@ class ModuleResourceInfo:
 ################################################################################
 @dajaxice_register
 def uploadObject(request,objectName,objectFilename,objectContent, objectType):
-    print 'BEGIN def uploadXMLSchema(request,xmlSchemaFilename,xmlSchemaContent)'
+    print 'BEGIN def uploadObject(request,objectName,objectFilename,objectContent, objectType)'
     dajax = Dajax()
+    
+    # Save all parameters
+    request.session['uploadObjectName'] = objectName
+    request.session['uploadObjectFilename'] = objectFilename
+    request.session['uploadObjectContent'] = objectContent
+    request.session['uploadObjectType'] = objectType
+    
+    request.session['uploadObjectValid'] = False
+    
+    xmlTree = None
 
-    try:        
+    # is it a valid XML document ?
+    try:            
         xmlTree = etree.parse(BytesIO(objectContent.encode('utf-8')))
+    except Exception, e:
+        dajax.script("""$("#objectUploadErrorMessage").html("<font color='red'>Not a valid XML document.</font><br/>"""+e.message.replace("'","") +""" ");""")
+        return dajax.json()
+    
+    # is it supported by the MDCS ?
+    errors = getValidityErrorsForMDCS(xmlTree, objectType)
+    if len(errors) > 0:
+        errorsStr = ""
+        for error in errors:
+            errorsStr += error + "<br/>"
+        dajax.script("""$("#objectUploadErrorMessage").html("<font color='red'>"""+ errorsStr +"""</font>");""")
+        return dajax.json() 
+    
+    # get the imports
+    imports = xmlTree.findall("{http://www.w3.org/2001/XMLSchema}import")
+    # get the includes
+    includes = xmlTree.findall("{http://www.w3.org/2001/XMLSchema}include")
+    
+    if len(imports) != 0 or len(includes) != 0:
+        # Display array to resolve dependencies
+        htmlString = generateHtmlDependencyResolver(imports, includes)
+        dajax.script("""$("#objectUploadErrorMessage").html(" """+ htmlString +""" ")""")
+        return dajax.json()
+    else:
         try:
-            imports = xmlTree.findall("{http://www.w3.org/2001/XMLSchema}import")
-            for import_el in imports:
-                refTemplate = Template.objects.get(filename=import_el.attrib['schemaLocation'])
-                f  = NamedTemporaryFile()
-                f.write(refTemplate.content)
-                f.flush()          
-                import_el.attrib['schemaLocation'] = f.name.replace('\\', '/')
-            
-            includes = xmlTree.findall("{http://www.w3.org/2001/XMLSchema}include")
-            for include_el in includes:
-                refTemplate = Template.objects.get(filename=include_el.attrib['schemaLocation'])
-                f  = NamedTemporaryFile()
-                f.write(refTemplate.content)
-                f.flush()          
-                include_el.attrib['schemaLocation'] = f.name.replace('\\', '/')
-            
+            # is it a valid XML schema ?
             xmlSchema = etree.XMLSchema(xmlTree)
         except Exception, e:
             dajax.script("""
-                $("#objectNameErrorMessage").html("<font color='red'>Not a valid XML schema.</font><br/>"""+e.message.replace("'","") +""" ");
+                $("#objectUploadErrorMessage").html("<font color='red'>Not a valid XML schema.</font><br/>"""+e.message.replace("'","") +""" ");
             """)
             return dajax.json()
-    except Exception, e:
+        
+        request.session['uploadObjectValid'] = True
         dajax.script("""
-                $("#objectNameErrorMessage").html("<font color='red'>Not a valid XML document.</font><br/>"""+e.message.replace("'","") +""" ");
-            """)
-        return dajax.json()     
-    
-    if objectType == "Template":
-        objectVersions = TemplateVersion(nbVersions=1, isDeleted=False).save()
-        hash = hashlib.sha1(objectContent)
-        hex_dig = hash.hexdigest()
-        object = Template(title=objectName, filename=objectFilename, content=objectContent, version=1, templateVersion=str(objectVersions.id), hash=hex_dig).save()
-    else:
-        # 1) get the name from the file: type of the root or type of the root without namespace, check only one root
-        elements = xmlTree.findall("{http://www.w3.org/2001/XMLSchema}element")
-        if (len(elements) != 1):
-            dajax.script("""
-                $("#objectNameErrorMessage").html("<font color='red'>Only templates with one root element can be uploaded as a type.</font><br/>");
-            """)
-            return dajax.json()
-        else:
-            elem = elements[0]
-            if ('type' in elem.attrib):
-                elementType = elem.attrib['type']
-            else:
-                dajax.script("""
-                $("#objectNameErrorMessage").html("<font color='red'>The 'type' attribute should appear in the root element.</font><br/>");
-                """)
-                return dajax.json()
-                                                                    
-        # 2) check that the filename is not already in the database
-        try:
-            Type.objects.get(filename=objectFilename)
-            dajax.script("""
-            $("#objectNameErrorMessage").html("<font color='red'>A type with the same filename already exists.</font><br/>");
-            """)
-            return dajax.json()
-        except:            
-            # 3) Save the type
-            objectVersions = TypeVersion(nbVersions=1, isDeleted=False).save()
-            object = Type(title=elementType, filename=objectFilename, content=objectContent, version=1, typeVersion=str(objectVersions.id)).save()
-    
-    objectVersions.versions = [str(object.id)]
-    objectVersions.current=str(object.id)
-    objectVersions.save()    
-    object.save()
-    
+            $("#objectUploadErrorMessage").html("<font color='green'>The uploaded template is valid. You can now save it.</font>   <span class='btn' onclick='saveObject()'>Save</span>");
+        """)
+        return dajax.json()
 
-    print 'END def uploadXMLSchema(request,xmlSchemaFilename,xmlSchemaContent)'
+    print 'END def uploadObject(request,objectName,objectFilename,objectContent, objectType)'
     return dajax.json()
 
+################################################################################
+# 
+# Function Name: saveObject(request)
+# Inputs:        request - 
+# Outputs:       JSON data 
+# Exceptions:    None
+# Description:   Save an object (template or type) in mongodb
+# 
+################################################################################
+@dajaxice_register
+def saveObject(request):
+    print 'BEGIN def saveObject(request)'
+    dajax = Dajax()
+    
+    objectName = None
+    objectFilename = None 
+    objectContent = None
+    objectType = None
+    
+    if ('uploadObjectValid' in request.session and request.session['uploadObjectValid'] == True and
+        'uploadObjectName' in request.session and request.session['uploadObjectName'] is not None and
+        'uploadObjectFilename' in request.session and request.session['uploadObjectFilename'] is not None and
+        'uploadObjectContent' in request.session and request.session['uploadObjectContent'] is not None and
+        'uploadObjectType' in request.session and request.session['uploadObjectType'] is not None):    
+        objectName = request.session['uploadObjectName']
+        objectFilename = request.session['uploadObjectFilename'] 
+        objectContent = request.session['uploadObjectContent']
+        objectType = request.session['uploadObjectType']        
+            
+        # save the object
+        if objectType == "Template":
+            hash = XSDhash.get_hash(objectContent)
+            objectVersions = TemplateVersion(nbVersions=1, isDeleted=False).save()            
+            object = Template(title=objectName, filename=objectFilename, content=objectContent, version=1, templateVersion=str(objectVersions.id), hash=hash).save()
+        elif objectType == "Type":                                                                                    
+            objectVersions = TypeVersion(nbVersions=1, isDeleted=False).save()
+            object = Type(title=objectName, filename=objectFilename, content=objectContent, version=1, typeVersion=str(objectVersions.id)).save()
+        
+        objectVersions.versions = [str(object.id)]
+        objectVersions.current = str(object.id)
+        objectVersions.save()    
+        object.save()
+        dajax.script("""
+            $( "#dialog-upload-message" ).dialog("close");
+            $('#model_selection').load(document.URL +  ' #model_selection', function() {
+            loadUploadManagerHandler();
+            });
+        """)
+        clearObject(request)      
+    else:
+        dajax.script("""$("#objectUploadErrorMessage").html("<font color='red'>Please upload a valid XML schema first.</font>"); """)
+        return dajax.json()
+    
+
+    print 'END def saveObject(request)'
+    return dajax.json()
+
+################################################################################
+# 
+# Function Name: resolveDependencies(request, dependencies)
+# Inputs:        request - 
+#                dependencies - 
+# Outputs:       JSON data 
+# Exceptions:    None
+# Description:   Save an object (template or type) in mongodb
+# 
+################################################################################
+@dajaxice_register
+def resolveDependencies(request, dependencies):
+    print 'BEGIN def resolveDependencies(request, dependencies)'
+    dajax = Dajax()
+     
+    objectContent = None
+    
+    if ('uploadObjectName' in request.session and request.session['uploadObjectName'] is not None and
+        'uploadObjectFilename' in request.session and request.session['uploadObjectFilename'] is not None and
+        'uploadObjectContent' in request.session and request.session['uploadObjectContent'] is not None and
+        'uploadObjectType' in request.session and request.session['uploadObjectType'] is not None):    
+        objectContent = request.session['uploadObjectContent']
+        contentSession = 'uploadObjectContent'
+        validSession = 'uploadObjectValid'
+        saveBtn = "<span class='btn' onclick='saveObject()'>Save</span>"
+    elif ('uploadVersionFilename' in request.session and request.session['uploadVersionFilename'] is not None and
+        'uploadVersionContent' in request.session and request.session['uploadVersionContent'] is not None):
+        objectContent = request.session['uploadVersionContent']
+        contentSession = 'uploadVersionContent'
+        validSession = 'uploadVersionValid'
+        saveBtn = "<span class='btn' onclick='saveVersion()'>Save</span>"
+    else:
+        dajax.script("""$("#objectUploadErrorMessage").html("<font color='red'>Please upload a file first.</font><br/>");""")
+        return dajax.json()
+         
+    xmlTree = etree.parse(BytesIO(objectContent.encode('utf-8')))        
+    # get the imports
+    imports = xmlTree.findall("{http://www.w3.org/2001/XMLSchema}import")
+     
+    # get the includes
+    includes = xmlTree.findall("{http://www.w3.org/2001/XMLSchema}include")
+     
+    idxInclude = 0        
+    # replace includes/imports by API calls
+    for dependency in dependencies:
+        includes[idxInclude].attrib['schemaLocation'] = 'http://'+str(request.get_host())+'/rest/type/get-dependency?id=' + str(dependency)
+        idxInclude += 1            
+     
+#         flattener = XSDFlattenerURL(etree.tostring(xmlTree),'admin','admin')
+    flattener = XSDFlattenerMDCS(etree.tostring(xmlTree))
+    flatTree = etree.fromstring(flattener.get_flat())
+    
+    try:
+        # is it a valid XML schema ?
+        xmlSchema = etree.XMLSchema(flatTree)
+        request.session[contentSession] = etree.tostring(xmlTree)
+        request.session[validSession] = True
+        dajax.script("""
+            $("#objectUploadErrorMessage").html("<font color='green'>The uploaded template is valid. You can now save it.</font>"""+ saveBtn +"""  ");
+        """)
+    except Exception, e:
+        dajax.script("""
+            $("#errorDependencies").html("<font color='red'>Not a valid XML schema.</font><br/>"""+e.message.replace("'","") +""" ");
+        """)
+        return dajax.json()        
+    
+
+    print 'END def resolveDependencies(request, dependencies)'
+    return dajax.json()
+
+
+################################################################################
+# 
+# Function Name: clearObject(request)
+# Inputs:        request - 
+# Outputs:       JSON data 
+# Exceptions:    None
+# Description:   Clear variables in the session
+# 
+################################################################################
+@dajaxice_register
+def clearObject(request):
+    print 'BEGIN def clearObject(request)'
+    dajax = Dajax()
+    
+    if 'uploadObjectName' in request.session:
+        del request.session['uploadObjectName']
+    if 'uploadObjectFilename' in request.session:
+        del request.session['uploadObjectFilename']
+    if 'uploadObjectContent' in request.session: 
+        del request.session['uploadObjectContent']
+    if 'uploadObjectType' in request.session:
+        del request.session['uploadObjectType']
+    if 'uploadObjectValid' in request.session:
+        del request.session['uploadObjectValid']
+
+    print 'END def clearObject(request)'
+    return dajax.json()
+
+
+################################################################################
+# 
+# Function Name: clearVersion(request)
+# Inputs:        request - 
+# Outputs:       JSON data 
+# Exceptions:    None
+# Description:   Clear variables in the session
+# 
+################################################################################
+@dajaxice_register
+def clearVersion(request):
+    print 'BEGIN def clearVersion(request)'
+    dajax = Dajax()
+    
+    if 'uploadVersionValid' in request.session:
+        del request.session['uploadVersionValid']
+    if 'uploadVersionID' in request.session:
+        del request.session['uploadVersionID']
+    if 'uploadVersionType' in request.session: 
+        del request.session['uploadVersionType']
+    if 'uploadVersionFilename' in request.session:
+        del request.session['uploadVersionFilename']
+    if 'uploadVersionContent' in request.session:
+        del request.session['uploadVersionContent']
+
+    print 'END def clearVersion(request)'
+    return dajax.json()
+################################################################################
+# 
+# Function Name: generateHtmlDependencyResolver(imports, includes)
+# Inputs:        request - 
+#                imports -
+#                includes - 
+# Outputs:       JSON data 
+# Exceptions:    None
+# Description:   Generate an HTML form to resolve depencies of an uploaded schema
+# 
+################################################################################
+def generateHtmlDependencyResolver(imports, includes):
+    #there are includes or imports, need to resolve them            
+    htmlString = "Please choose a file from the database to resolve each import/include."
+    htmlString += "<table id='dependencies'>"
+    htmlString += "<tr><th>Import/Include</th><th>Value</th><th>Dependency</th></tr>"
+    
+    selectDependencyStr = "<select class='dependency'>"
+    for type in Type.objects:
+        selectDependencyStr += "<option objectid='"+ str(type.id) +"'>"+ type.title +"</option>"
+    selectDependencyStr += "</select>"
+    
+    for el_include in includes:
+        htmlString += "<tr>"
+        htmlString += "<td>Include</td>"
+        htmlString += "<td><textarea readonly>"+ el_include.attrib['schemaLocation']+"</textarea></td>"
+        htmlString += "<td>"+ selectDependencyStr +"</td>"
+        htmlString += "</tr>"
+        
+    htmlString += "</table>"   
+    htmlString += "<span class='btn resolve' onclick='resolveDependencies();'>Resolve</span>"
+    htmlString += "<div id='errorDependencies'></div>"
+    
+    return htmlString
 
 ################################################################################
 # 
@@ -170,7 +435,6 @@ def deleteObject(request, objectID, objectType):
     objectVersions.isDeleted = True
     objectVersions.save()
 
-
     print 'END def deleteXMLSchema(request,xmlSchemaID)'
     return dajax.json()
 
@@ -189,8 +453,9 @@ def deleteObject(request, objectID, objectType):
 def setSchemaVersionContent(request, versionContent, versionFilename):
     dajax = Dajax()
     
-    request.session['xsdVersionContent'] = versionContent
-    request.session['xsdVersionFilename'] = versionFilename
+    request.session['uploadVersionContent'] = versionContent
+    request.session['uploadVersionFilename'] = versionFilename 
+    request.session['uploadVersionValid'] = False
     
     return dajax.json()
 
@@ -209,8 +474,9 @@ def setSchemaVersionContent(request, versionContent, versionFilename):
 def setTypeVersionContent(request, versionContent, versionFilename):
     dajax = Dajax()
     
-    request.session['typeVersionContent'] = versionContent
-    request.session['typeVersionFilename'] = versionFilename
+    request.session['uploadVersionContent'] = versionContent
+    request.session['uploadVersionFilename'] = versionFilename
+    request.session['uploadVersionValid'] = False
     
     return dajax.json()
 
@@ -229,95 +495,121 @@ def setTypeVersionContent(request, versionContent, versionFilename):
 def uploadVersion(request, objectVersionID, objectType):
     dajax = Dajax()    
     
-    # Templates
-    if objectType == "Template":      
-        if ('xsdVersionContent' in request.session 
-        and 'xsdVersionFilename' in request.session 
-        and request.session['xsdVersionContent'] != "" 
-        and request.session['xsdVersionFilename'] != ""):
-            objectVersions = TemplateVersion.objects.get(pk=objectVersionID)
-            object = Template.objects.get(pk=objectVersions.current)
-            versionContent = request.session['xsdVersionContent']
-            versionFilename = request.session['xsdVersionFilename']
-            
-            try:        
-                xmlTree = etree.parse(BytesIO(versionContent.encode('utf-8')))
-                try:
-                    imports = xmlTree.findall("{http://www.w3.org/2001/XMLSchema}import")
-                    for import_el in imports:
-                        refTemplate = Template.objects.get(filename=import_el.attrib['schemaLocation'])
-                        f  = NamedTemporaryFile()
-                        f.write(refTemplate.content)
-                        f.flush()          
-                        import_el.attrib['schemaLocation'] = f.name.replace('\\', '/')
-                    
-                    includes = xmlTree.findall("{http://www.w3.org/2001/XMLSchema}include")
-                    for include_el in includes:
-                        refTemplate = Template.objects.get(filename=include_el.attrib['schemaLocation'])
-                        f  = NamedTemporaryFile()
-                        f.write(refTemplate.content)
-                        f.flush()          
-                        include_el.attrib['schemaLocation'] = f.name.replace('\\', '/')
-                    
-                    xmlSchema = etree.XMLSchema(xmlTree)
-                except Exception, e:
-                    dajax.script("""
-                        $("#versionNameErrorMessage").html("<font color='red'>Not a valid XML schema.</font><br/>"""+e.message.replace("'","") +""" ");
-                    """)
-                    return dajax.json()
+    versionContent = None
+    
+    if ('uploadVersionFilename' in request.session and request.session['uploadVersionFilename'] is not None and
+        'uploadVersionContent' in request.session and request.session['uploadVersionContent'] is not None):    
+        request.session['uploadVersionID'] = objectVersionID
+        request.session['uploadVersionType'] = objectType
+        
+        versionContent = request.session['uploadVersionContent'] 
+       
+    
+        xmlTree = None
+    
+        # is it a valid XML document ?
+        try:            
+            xmlTree = etree.parse(BytesIO(versionContent.encode('utf-8')))
+        except Exception, e:
+            dajax.script("""$("#objectUploadErrorMessage").html("<font color='red'>Not a valid XML document.</font><br/>"""+e.message.replace("'","") +""" ");""")
+            return dajax.json()
+        
+        # is it supported by the MDCS ?
+        errors = getValidityErrorsForMDCS(xmlTree, objectType)
+        if len(errors) > 0:
+            errorsStr = ""
+            for error in errors:
+                errorsStr += error + "<br/>"
+            dajax.script("""$("#objectUploadErrorMessage").html("<font color='red'>"""+ errorsStr +"""</font>");""")
+            return dajax.json() 
+        
+        # get the imports
+        imports = xmlTree.findall("{http://www.w3.org/2001/XMLSchema}import")
+        # get the includes
+        includes = xmlTree.findall("{http://www.w3.org/2001/XMLSchema}include")
+        
+        if len(imports) != 0 or len(includes) != 0:
+            # Display array to resolve dependencies
+            htmlString = generateHtmlDependencyResolver(imports, includes)
+            dajax.script("""$("#objectUploadErrorMessage").html(" """+ htmlString +""" ")""")
+            return dajax.json()
+        else:
+            try:
+                # is it a valid XML schema ?
+                xmlSchema = etree.XMLSchema(xmlTree)
             except Exception, e:
                 dajax.script("""
-                        $("#versionNameErrorMessage").html("<font color='red'>Not a valid XML document.</font><br/>"""+e.message.replace("'","") +""" ");
-                    """)
+                    $("#objectUploadErrorMessage").html("<font color='red'>Not a valid XML schema.</font><br/>"""+e.message.replace("'","") +""" ");
+                """)
                 return dajax.json()
-        else:
-            return dajax.json()
-    else: #Types
-        if ('typeVersionContent' in request.session 
-        and 'typeVersionFilename' in request.session 
-        and request.session['typeVersionContent'] != "" 
-        and request.session['typeVersionFilename'] != ""):
-            objectVersions = TypeVersion.objects.get(pk=objectVersionID)
-            object = Type.objects.get(pk=objectVersions.current)
-            versionContent = request.session['typeVersionContent']
-            versionFilename = request.session['typeVersionFilename']
-        else:
-            return dajax.json()
-
-    if versionContent != "" and versionFilename != "":
-        
-        # check if a type with the same name already exists
-        testFilenameObjects = Type.objects(filename=versionFilename)    
-        if len(testFilenameObjects) == 1: # 0 is ok, more than 1 can't happen
+            
+            request.session['uploadVersionValid'] = True
             dajax.script("""
-                showErrorEditType();
+                $("#objectUploadErrorMessage").html("<font color='green'>The uploaded template is valid. You can now save it.</font>   <span class='btn' onclick='saveVersion()'>Save</span>");
             """)
             return dajax.json()
 
-        objectVersions.nbVersions += 1
-        if objectType == "Template": 
-            hash = hashlib.sha1(versionContent)
-            hex_dig = hash.hexdigest()
-            newObject = Template(title=object.title, filename=versionFilename, content=versionContent, templateVersion=objectVersionID, version=objectVersions.nbVersions, hash=hex_dig).save()
-        else:
-            newObject = Type(title=object.title, filename=versionFilename, content=versionContent, typeVersion=objectVersionID, version=objectVersions.nbVersions).save()
+    print 'END def uploadObject(request,objectName,objectFilename,objectContent, objectType)'
+        
+    return dajax.json()
+
+
+################################################################################
+# 
+# Function Name: saveVersion(request)
+# Inputs:        request - 
+# Outputs:       JSON data 
+# Exceptions:    None
+# Description:   Save a version of an object (template or type) in mongodb
+# 
+################################################################################
+@dajaxice_register
+def saveVersion(request):
+    print 'BEGIN def saveVersion(request, objectType)'
+    dajax = Dajax()
+    
+    versionFilename = None 
+    versionContent = None
+    objectVersionID = None
+    objectType = None
+    
+    if ('uploadVersionValid' in request.session and request.session['uploadVersionValid'] == True and
+        'uploadVersionID' in request.session and request.session['uploadVersionID'] is not None and
+        'uploadVersionType' in request.session and request.session['uploadVersionType'] is not None and
+        'uploadVersionFilename' in request.session and request.session['uploadVersionFilename'] is not None and
+        'uploadVersionContent' in request.session and request.session['uploadVersionContent'] is not None):    
+        versionFilename = request.session['uploadVersionFilename']
+        versionContent = request.session['uploadVersionContent'] 
+        objectVersionID = request.session['uploadVersionID']
+        objectType = request.session['uploadVersionType']
+        
+        # save the object
+        if objectType == "Template":
+            objectVersions = TemplateVersion.objects.get(pk=objectVersionID)
+            objectVersions.nbVersions += 1
+            object = Template.objects.get(pk=objectVersions.current)
+            hash = XSDhash.get_hash(versionContent)
+            newObject = Template(title=object.title, filename=versionFilename, content=versionContent, version=objectVersions.nbVersions, templateVersion=objectVersionID, hash=hash).save()
+        elif objectType == "Type":    
+            objectVersions = TypeVersion.objects.get(pk=objectVersionID)
+            objectVersions.nbVersions += 1
+            object = Type.objects.get(pk=objectVersions.current)                                                                                
+            newObject = Type(title=object.title, filename=versionFilename, content=versionContent, version=objectVersions.nbVersions, typeVersion=objectVersionID).save()
+        
         objectVersions.versions.append(str(newObject.id))
         objectVersions.save()
-                
+        
         dajax.script("""
             $("#delete_custom_message").html("");
             $('#model_version').load(document.URL +  ' #model_version', function() {}); 
-        """)
+        """)     
+        clearVersion(request)
     else:
-        dajax.script("""showUploadErrorDialog();""");
+        dajax.script("""$("#objectUploadErrorMessage").html("<font color='red'>Please upload a valid XML schema first.</font>"); """)
+        return dajax.json()
     
-    if objectType == "Template":
-        request.session['xsdVersionContent'] = ""
-        request.session['xsdVersionFilename'] = ""
-    else:
-        request.session['typeVersionContent'] = ""
-        request.session['typeVersionFilename'] = ""
-        
+
+    print 'END def saveVersion(request, objectType)'
     return dajax.json()
 
 ################################################################################
