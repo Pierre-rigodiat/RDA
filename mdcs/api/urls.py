@@ -54,6 +54,8 @@ urlpatterns = patterns(
     url(r'^users/add$','add_user'),
     url(r'^users/delete$','delete_user'),
     url(r'^users/update$','update_user'),
+    url(r'^template/get-file$','get_file'),
+    url(r'^type/get-dependency$','get_dependency'),
     url('', include([url(r'^ping$', ping)], namespace='ping')),
     url(r'^.*$', include([url(r'', docs)], namespace='error_redirect')),    
 )

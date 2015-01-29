@@ -44,6 +44,7 @@ from collections import OrderedDict
 from StringIO import StringIO
 from django.core.files.temp import NamedTemporaryFile
 from django.conf import settings
+from django.http.response import HttpResponse
 
 
 ################################################################################
@@ -1846,3 +1847,61 @@ def docs(request):
 def ping(request):
     content={'message':'Endpoint reached'}
     return Response(content, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+def get_file(request):
+    filename = request.QUERY_PARAMS.get('filename', None)
+    version = request.QUERY_PARAMS.get('version', None) 
+    try:
+        type = Type.objects.get(filename=filename, version=int(version))
+  
+        xsdEncoded = type.content.encode('utf-8')
+        fileObj = StringIO(xsdEncoded)
+        response = HttpResponse(fileObj, content_type='application/xml')
+        response['Content-Disposition'] = 'attachment; filename=' + filename
+        return response
+    except: 
+        content={'message':'Invalid command','docs':'http://'+str(request.get_host())+'/docs/api'}
+        return Response(content, status=status.HTTP_200_OK)
+    
+@api_view(['GET'])
+def get_dependency(request):
+    print "get dependency"
+    # TODO: change to the hash
+    id = request.QUERY_PARAMS.get('id', None)
+     
+    try:
+        type = Type.objects.get(pk=str(id))
+        
+        xsdEncoded = type.content.encode('utf-8')
+        fileObj = StringIO(xsdEncoded)
+        response = HttpResponse(fileObj, content_type='application/xml')
+        response['Content-Disposition'] = 'attachment; filename=' + str(id)
+        return response
+    except: 
+        content={'message':'Invalid command','docs':'http://'+str(request.get_host())+'/docs/api'}
+        return Response(content, status=status.HTTP_200_OK)
+    
+# from django.core.servers.basehttp import FileWrapper
+# @api_view(['GET'])
+# def get_file(request):
+#     filename = request.QUERY_PARAMS.get('filename', None) 
+#     try:
+#         response = HttpResponse(FileWrapper(open(os.path.join(settings.SITE_ROOT, 'static/'+filename))), content_type='application/xml')
+#         response['Content-Disposition'] = 'attachment; filename=' + filename
+#         return response
+#     except: 
+#         content={'message':'Invalid command','docs':'http://'+str(request.get_host())+'/docs/api'}
+#         return Response(content, status=status.HTTP_200_OK)
+    
+# @api_view(['GET'])
+# def get_file(request):
+#     filename = request.QUERY_PARAMS.get('filename', None) 
+#     try:
+#         response = HttpResponse(open(os.path.join(settings.SITE_ROOT, 'static/'+filename)), content_type='application/xml')
+#         response['Content-Disposition'] = 'attachment; filename=' + filename
+#         return response
+#     except: 
+#         content={'message':'Invalid command','docs':'http://'+str(request.get_host())+'/docs/api'}
+#         return Response(content, status=status.HTTP_200_OK)
