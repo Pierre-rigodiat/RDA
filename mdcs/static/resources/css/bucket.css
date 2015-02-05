@@ -1,0 +1,8 @@
+.bucket {
+	font-weight: bold;
+	color:white;
+	margin-left: 2px;
+	padding: 3px;
+	text-align: center; 
+	border-radius: 5px;
+}
