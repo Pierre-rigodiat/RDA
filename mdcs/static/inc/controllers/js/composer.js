@@ -192,8 +192,7 @@ saveTemplate = function(){
 			Save: function() {
 					templateName = $("#newTemplateName").val();
 					if (templateName.length > 0){						
-						Dajaxice.compose.saveTemplate(saveTemplateCallback, {"templateName":templateName});						
-						$( this ).dialog( "close" );
+						Dajaxice.compose.saveTemplate(Dajax.process, {"templateName":templateName});						
 					}else{
 						$( "#new-template-error" ).html("The name can't be empty.")
 					}					 
@@ -223,8 +222,7 @@ saveType = function(){
 			Save: function() {
 					typeName = $("#newTypeName").val();
 					if (typeName.length > 0){	
-						Dajaxice.compose.saveType(saveTemplateCallback, {"typeName":typeName});						
-						$( this ).dialog( "close" );
+						Dajaxice.compose.saveType(Dajax.process, {"typeName":typeName});						
 					}else{
 						$( "#new-type-error" ).html("The name can't be empty.")
 					}
@@ -241,6 +239,9 @@ saveType = function(){
 
 saveTemplateCallback = function(){
 	console.log('BEGIN [saveTemplateCallback]');
+	
+	$("#dialog-save-template").dialog("close");
+	$("#dialog-save-type").dialog("close");
 	
 	$(function() {
         $( "#dialog-saved-message" ).dialog({
@@ -336,7 +337,10 @@ displayInsertElementSequenceDialog = function()
       height: 400,
       open: function(){
     	  $('#table_types').accordion({
+    		  	header: "h3",
     			collapsible: true,
+    			active: false,
+    			heightStyle: "content",
 		  });
       },
       buttons: {

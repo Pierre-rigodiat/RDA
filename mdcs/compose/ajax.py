@@ -20,7 +20,7 @@ from dajax.core import Dajax
 from dajaxice.decorators import dajaxice_register
 from django.conf import settings
 from mongoengine import *
-from mgi.models import Template, Type, XML2Download
+from mgi.models import Template, Type, XML2Download, MetaSchema
 import lxml.etree as etree
 from io import BytesIO
 from utils.XSDhash import XSDhash
@@ -53,7 +53,12 @@ def setCurrentTemplate(request,templateFilename,templateID):
 
     if templateID != "new":
         templateObject = Template.objects.get(pk=templateID)
-        xmlDocData = templateObject.content
+        if templateID in MetaSchema.objects.all().values_list('schemaId'):
+            meta = MetaSchema.objects.get(schemaId=templateID)
+            xmlDocData = meta.api_content
+        else:
+            xmlDocData = templateObject.content
+        
         request.session['xmlTemplateCompose'] = xmlDocData
         request.session['newXmlTemplateCompose'] = xmlDocData
     else:
@@ -89,8 +94,13 @@ def setCurrentUserTemplate(request,templateID):
     dajax = Dajax()
     
     templateObject = Template.objects.get(pk=templateID)
+    if templateID in MetaSchema.objects.all().values_list('schemaId'):
+        meta = MetaSchema.objects.get(schemaId=templateID)
+        xmlDocData = meta.api_content
+    else:
+        xmlDocData = templateObject.content
+    
     request.session['currentComposeTemplate'] = templateObject.title
-    xmlDocData = templateObject.content
     request.session['xmlTemplateCompose'] = xmlDocData
     request.session['newXmlTemplateCompose'] = xmlDocData
 
@@ -302,10 +312,38 @@ def renameElement(request, xpath, newName):
 def saveTemplate(request, templateName):
     dajax = Dajax()
     
-    hash = XSDhash.get_hash(request.session['newXmlTemplateCompose'])    
-    template = Template(title=templateName, filename=templateName, content=request.session['newXmlTemplateCompose'], hash=hash, user=request.user.id)
+    content=request.session['newXmlTemplateCompose']
+    
+    # is it a valid XML document ?
+    try:            
+        xmlTree = etree.parse(BytesIO(content.encode('utf-8')))
+    except Exception, e:
+        dajax.script("""$("#new-type-error").html("<font color='red'>Not a valid XML document.</font><br/>"""+ e.message.replace("'","") +""" ");""")
+        return dajax.json()
+    
+    flattener = XSDFlattenerMDCS(etree.tostring(xmlTree))
+    flatStr = flattener.get_flat()
+    flatTree = etree.fromstring(flatStr)
+    
+    try:
+        # is it a valid XML schema ?
+        xmlSchema = etree.XMLSchema(flatTree)
+    except Exception, e:
+        dajax.script("""
+            $("#new-type-error").html("<font color='red'>Not a valid XML schema.</font><br/>"""+ e.message.replace("'","") +""" ");
+        """)
+        return dajax.json() 
+    
+    hash = XSDhash.get_hash(content) 
+    template = Template(title=templateName, filename=templateName, content=content, hash=hash, user=request.user.id)
     template.save()
-
+    
+    MetaSchema(schemaId=str(template.id), flat_content=flatStr, api_content=content).save()
+    
+    dajax.script("""
+        saveTemplateCallback();
+    """)
+    
     return dajax.json()
 
 
@@ -333,7 +371,8 @@ def saveType(request, typeName):
         return dajax.json()
     
     flattener = XSDFlattenerMDCS(etree.tostring(xmlTree))
-    flatTree = etree.fromstring(flattener.get_flat())
+    flatStr = flattener.get_flat()
+    flatTree = etree.fromstring(flatStr)
     
     try:
         # is it a valid XML schema ?
@@ -346,7 +385,11 @@ def saveType(request, typeName):
     
     type = Type(title=typeName, filename=typeName, content=request.session['newXmlTemplateCompose'], user=request.user.id)
     type.save()
-
+    MetaSchema(schemaId=str(type.id), flat_content=flatStr, api_content=content).save()
+    
+    dajax.script("""
+        saveTemplateCallback();
+    """)
     return dajax.json()
 
 
