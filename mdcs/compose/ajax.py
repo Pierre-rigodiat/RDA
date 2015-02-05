@@ -24,6 +24,8 @@ from mgi.models import Template, Type, XML2Download
 import lxml.etree as etree
 from io import BytesIO
 from utils.XSDhash import XSDhash
+from utils.XSDflattenerMDCS.XSDflattenerMDCS import XSDFlattenerMDCS
+from utils.APIschemaLocator.APIschemaLocator import getSchemaLocation
 
 # XSL file loading
 import os
@@ -230,16 +232,24 @@ def insertElementSequence(request, typeID, xpath, typeName):
     xmlString = request.session['newXmlTemplateCompose']
     dom = etree.parse(BytesIO(xmlString.encode('utf-8')))
     
+    # get the type to add
+    includedType = Type.objects.get(pk=typeID)
+    typeTree = etree.fromstring(includedType.content)
+    elementType = typeTree.find("{http://www.w3.org/2001/XMLSchema}complexType")
+    if elementType is None:
+        elementType = typeTree.find("{http://www.w3.org/2001/XMLSchema}simpleType")
+    type = elementType.attrib["name"]
+    
     # set the element namespace
     xpath = xpath.replace(defaultPrefix +":", namespace)
     # add the element to the sequence
-    dom.find(xpath).append(etree.Element(namespace+"element", attrib={'type':typeName, 'name':typeName}))
+    dom.find(xpath).append(etree.Element(namespace+"element", attrib={'type': type, 'name':typeName}))
     
+    includeURL = getSchemaLocation(request, str(typeID))
     # add the id of the type if not already present
-    if typeID not in request.session['includedTypesCompose']:
-        request.session['includedTypesCompose'].append(typeID)
-        includedType = Type.objects.get(pk=typeID)
-        dom.getroot().insert(0,etree.Element(namespace+"include", attrib={'schemaLocation':includedType.filename}))
+    if includeURL not in request.session['includedTypesCompose']:
+        request.session['includedTypesCompose'].append(includeURL)        
+        dom.getroot().insert(0,etree.Element(namespace+"include", attrib={'schemaLocation':includeURL}))
     
     # save the tree in the session
     request.session['newXmlTemplateCompose'] = etree.tostring(dom) 
@@ -312,6 +322,27 @@ def saveTemplate(request, templateName):
 @dajaxice_register
 def saveType(request, typeName):
     dajax = Dajax()
+    
+    content=request.session['newXmlTemplateCompose']
+    
+    # is it a valid XML document ?
+    try:            
+        xmlTree = etree.parse(BytesIO(content.encode('utf-8')))
+    except Exception, e:
+        dajax.script("""$("#new-type-error").html("<font color='red'>Not a valid XML document.</font><br/>"""+ e.message.replace("'","") +""" ");""")
+        return dajax.json()
+    
+    flattener = XSDFlattenerMDCS(etree.tostring(xmlTree))
+    flatTree = etree.fromstring(flattener.get_flat())
+    
+    try:
+        # is it a valid XML schema ?
+        xmlSchema = etree.XMLSchema(flatTree)
+    except Exception, e:
+        dajax.script("""
+            $("#new-type-error").html("<font color='red'>Not a valid XML schema.</font><br/>"""+ e.message.replace("'","") +""" ");
+        """)
+        return dajax.json() 
     
     type = Type(title=typeName, filename=typeName, content=request.session['newXmlTemplateCompose'], user=request.user.id)
     type.save()

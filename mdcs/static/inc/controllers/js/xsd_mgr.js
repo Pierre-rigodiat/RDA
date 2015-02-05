@@ -22,6 +22,7 @@ loadUploadManagerHandler = function()
     $('.version').on('click', manageVersions);    
     $('.delete').on('click', deleteObject);
     $('.upload').on('click', uploadObject);
+    $('.buckets').on('click', manageBuckets);
     console.log('END [loadUploadManagerHandler]');
 }
 
@@ -322,7 +323,13 @@ uploadObject = function()
 saveObject = function() 
 {
 	console.log('BEGIN [saveObject]');
-	Dajaxice.admin.saveObject(Dajax.process);
+	
+	var buckets = [];
+	$("#select_buckets option:selected").each(function(){
+		buckets.push($(this).attr('bucketid'));
+	});
+	
+	Dajaxice.admin.saveObject(Dajax.process, {"buckets": buckets});
 	console.log('END [saveObject]');
 }
 
@@ -332,6 +339,8 @@ saveObject = function()
 saveVersion = function() 
 {
 	console.log('BEGIN [saveVersion]');
+
+	
 	Dajaxice.admin.saveVersion(Dajax.process);
 	console.log('END [saveVersion]');
 }
@@ -346,7 +355,6 @@ resolveDependencies = function()
 	$("#dependencies").find(".dependency").each(function(){
 		dependencies.push($($(this)[0].options[$(this)[0].selectedIndex]).attr('objectid'));
 	});    	
-	
 	Dajaxice.admin.resolveDependencies(Dajax.process, {"dependencies":dependencies});
 }
 
@@ -364,4 +372,67 @@ showErrorEditType = function(){
 		    }
         });
     });
+}
+
+
+/**
+ * Display window to manage buckets
+ */
+manageBuckets = function(){
+	$(function() {
+        $( "#dialog-buckets" ).dialog({
+            modal: true,
+            buttons: {
+			Ok: function() {
+                $( this ).dialog( "close" );
+	          },
+		    }
+        });
+    });
+}
+
+/**
+ * Display window to add a bucket
+ */
+addBucket = function(){
+	$(function() {
+		$('#label_bucket').val('');
+        $( "#dialog-add-bucket" ).dialog({
+            modal: true,
+            buttons: {
+            	Add: function() {
+            		$("#errorAddBucket").html("");
+            		var label = $('#label_bucket').val();
+            		if (label == ""){
+            			$("#errorAddBucket").html("<font color='red'>Please enter a name.</font><br/>");
+            		}else{
+            			Dajaxice.admin.addBucket(Dajax.process, {'label': label});
+            		}                    
+    	          },
+				Cancel: function() {
+	                $( this ).dialog( "close" );
+		          },
+		    }
+        });
+    });	
+}
+
+/**
+ * Display window to delete a bucket
+ */
+deleteBucket = function(bucket_id){
+	$(function() {
+        $( "#dialog-delete-bucket" ).dialog({
+            modal: true,
+            buttons: {
+            	Delete: function() {
+            		Dajaxice.admin.deleteBucket(Dajax.process, {"bucket_id":bucket_id})
+            		$( this ).dialog( "close" );
+            		},
+				Cancel: function() {
+	                $( this ).dialog( "close" );
+		          },
+		    }
+        });
+    });	
 }

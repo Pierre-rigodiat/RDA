@@ -89,6 +89,11 @@ class TypeVersion(Document):
     current = StringField()
     nbVersions = IntField(required=True)
     isDeleted = BooleanField(required=True)
+    
+class MetaSchema(Document):
+    schemaId = StringField(required=True, unique=True)
+    flat_content = StringField(required=True)
+    api_content = StringField(required=True)
 
 class Htmlform(Document):
     title = StringField(required=True)
@@ -154,6 +159,7 @@ class TermsOfUse(Document):
     
 class Bucket(Document):
     label = StringField(required=True, unique=True)
+    color = StringField(required=True, unique=True)
     types = ListField()
 
 def postprocessor(path, key, value):

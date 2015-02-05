@@ -32,6 +32,7 @@
 	<link rel="stylesheet" type="text/css" href="{% static 'resources/css/style.css' %}" media="screen" />
 	<link rel="stylesheet" type="text/css" href="{% static 'resources/css/style.add.css' %}"  media="screen" />
 	<link rel="stylesheet" type="text/css" href="{% static 'resources/css/XMLTree.css' %}" media="screen" />
+	<link rel="stylesheet" type="text/css" href="{% static 'resources/css/bucket.css' %}" media="screen" />
 	<title>Materials Data Curation System</title>	
 
 	<!-- JQuery & JQuery UI -->
@@ -262,28 +263,59 @@
 
 </div>
 
+
+
 <div id="dialog-insert-element-sequence" title="Insert an Element" style="display:none;">
   <p>
     Please select the type of the element that you want to insert in the template.
   </p>
   <div id="table_types">
-	  <table class="table table-bordered">
-	  <tr>
-	    <th>Type name</th>
-	    <th>File name</th>
-	    <th>Actions</th>
-	  </tr>
-	{% for type, isDeleted in types.items %}
-	  {% cycle 'even' '' as rowcolors silent %} 
-	  {% if isDeleted == False %} 
-	  <tr class="{{ rowcolors }}">
-	    <td templateID='{{type.id}}'>{{ type.title }}</td>
-	    <td>{{ type.filename }}</td>
-	    <td><button class="btn insert"><i class="icon-plus-sign"></i>Insert</button></td>
-	  </tr>
-	  {% endif %}
-	{% endfor %}
-	</table>
+ 	{% for bucket, types in bucketsTypes.items %}
+ 		<h3><span class="bucket" style="background:{{ bucket.color}};">{{bucket.label}}</span></h3>
+ 		<div>
+ 		<p>
+ 		<table class="table table-bordered">
+ 			{% for type in types %}
+ 			<tr>
+	    		<td templateID='{{type.id}}'>{{ type.title }}</td>
+	    		<td>{{ type.filename }}</td>
+	    		<td><button class="btn insert"><i class="icon-plus-sign"></i>Insert</button></td>
+	 		</tr>
+	 		{% endfor %}
+	 	</table>
+	 	</p>
+	 	</div>
+ 	{% endfor %}
+ 	
+ 	<h3>No Buckets</h3>
+ 	<div>	
+ 	<p>
+ 	<table class="table table-bordered">
+		{% for type in nobucketsTypes %}
+		<tr>
+    		<td templateID='{{type.id}}'>{{ type.title }}</td>
+    		<td>{{ type.filename }}</td>
+    		<td><button class="btn insert"><i class="icon-plus-sign"></i>Insert</button></td>
+ 		</tr>
+ 		{% endfor %}
+ 	</table>
+ 	</p>
+ 	</div>
+ 	
+  	<h3>My Types</h3>
+  	<div>
+  	<p>
+  	<table class="table table-bordered">
+		{% for type in userTypes %}
+		<tr>
+    		<td templateID='{{type.id}}'>{{ type.title }}</td>
+    		<td>{{ type.filename }}</td>
+    		<td><button class="btn insert"><i class="icon-plus-sign"></i>Insert</button></td>
+ 		</tr>
+ 		{% endfor %}
+ 	</table>
+ 	</p>
+ 	</div>
 	</div>
 </div>
 
@@ -348,9 +380,11 @@
 	<table>
 		<tr>
 			<td>Name:</td>
-			<td><input type="text" id="newTypeName" disabled="disabled"/></td>
+			<td><input type="text" id="newTypeName"/></td>
 		</tr>
 	</table>
+	<div id="new-type-error" style="color:red;">
+	</div>
 </div>
 
 <div id="dialog-saved-message" title="XML Data Saved" style="display:none;">

@@ -212,8 +212,7 @@ saveTemplate = function(){
 saveType = function(){
 	console.log('BEGIN [saveType]');
 	
-	typeName = $($("#XMLHolder").find(".type")[0]).html();
-	$("#newTypeName").val(typeName)
+	$("#new-type-error").html("");
 	
 	$(function() {
 		$("#dialog-save-type").dialog({
@@ -222,8 +221,13 @@ saveType = function(){
 		  height: 250,
 		  buttons: {
 			Save: function() {
-					Dajaxice.compose.saveType(saveTemplateCallback, {"typeName":typeName});						
-					$( this ).dialog( "close" );									
+					typeName = $("#newTypeName").val();
+					if (typeName.length > 0){	
+						Dajaxice.compose.saveType(saveTemplateCallback, {"typeName":typeName});						
+						$( this ).dialog( "close" );
+					}else{
+						$( "#new-type-error" ).html("The name can't be empty.")
+					}
 			   	},			      
 		    Cancel: function() {
 		    		$( this ).dialog( "close" );
@@ -325,11 +329,16 @@ displayInsertElementSequenceDialog = function()
  $(function() {
 	$("#table_types").find(".btn.insert").each(function(){
 		$(this).attr('onclick','insertElementSequence(event)');
-	});
+	});	
     $( "#dialog-insert-element-sequence" ).dialog({
       modal: true,
       width: 600,
       height: 400,
+      open: function(){
+    	  $('#table_types').accordion({
+    			collapsible: true,
+		  });
+      },
       buttons: {
         Cancel: function() {
           $( this ).dialog( "close" );

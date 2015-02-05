@@ -20,7 +20,7 @@ from rest_framework import generics
 from rest_framework import status
 from rest_framework.response import Response
 # Models
-from mgi.models import SavedQuery, Jsondata, Template, TemplateVersion, Type, TypeVersion, Instance
+from mgi.models import SavedQuery, Jsondata, Template, TemplateVersion, Type, TypeVersion, Instance, MetaSchema
 from django.contrib.auth.models import User
 # Serializers
 from api.serializers import savedQuerySerializer, jsonDataSerializer, querySerializer, sparqlQuerySerializer, sparqlResultsSerializer, schemaSerializer, templateSerializer, typeSerializer, resTypeSerializer, TemplateVersionSerializer, TypeVersionSerializer, instanceSerializer, resInstanceSerializer, UserSerializer, insertUserSerializer, resSavedQuerySerializer, updateUserSerializer
@@ -1871,9 +1871,15 @@ def get_dependency(request):
     id = request.QUERY_PARAMS.get('id', None)
      
     try:
-        type = Type.objects.get(pk=str(id))
         
-        xsdEncoded = type.content.encode('utf-8')
+        if id in MetaSchema.objects.all().values_list('schemaId'):
+            meta = MetaSchema.objects.get(schemaId=id)
+            content = meta.api_content
+        else:
+            type = Type.objects.get(pk=str(id))
+            content = type.content
+        
+        xsdEncoded = content.encode('utf-8')
         fileObj = StringIO(xsdEncoded)
         response = HttpResponse(fileObj, content_type='application/xml')
         response['Content-Disposition'] = 'attachment; filename=' + str(id)
