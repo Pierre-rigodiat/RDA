@@ -20,7 +20,7 @@ import lxml.html as html
 import lxml.etree as etree
 import json
 from io import BytesIO
-from mgi.models import Template, TemplateVersion, Instance, Request, Module, ModuleResource, Type, TypeVersion, Message, TermsOfUse, PrivacyPolicy
+from mgi.models import Template, TemplateVersion, Instance, Request, Module, ModuleResource, Type, TypeVersion, Message, TermsOfUse, PrivacyPolicy, Bucket, MetaSchema
 import requests
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
@@ -30,8 +30,11 @@ from datetime import datetime
 import mgi
 from _io import StringIO
 from utils.XSDflattenerMDCS.XSDflattenerMDCS import XSDFlattenerMDCS
-from utils.XSDflattener.XSDflattener import XSDFlattenerURL
+# from utils.XSDflattener.XSDflattener import XSDFlattenerURL
 from utils.XSDhash import XSDhash
+from utils.APIschemaLocator import APIschemaLocator
+import random
+from utils.APIschemaLocator.APIschemaLocator import getSchemaLocation
 
 #Class definition
 
@@ -197,7 +200,7 @@ def uploadObject(request,objectName,objectFilename,objectContent, objectType):
 # 
 ################################################################################
 @dajaxice_register
-def saveObject(request):
+def saveObject(request, buckets):
     print 'BEGIN def saveObject(request)'
     dajax = Dajax()
     
@@ -205,6 +208,8 @@ def saveObject(request):
     objectFilename = None 
     objectContent = None
     objectType = None
+    objectFlat = None
+    objectApiurl = None
     
     if ('uploadObjectValid' in request.session and request.session['uploadObjectValid'] == True and
         'uploadObjectName' in request.session and request.session['uploadObjectName'] is not None and
@@ -214,7 +219,15 @@ def saveObject(request):
         objectName = request.session['uploadObjectName']
         objectFilename = request.session['uploadObjectFilename'] 
         objectContent = request.session['uploadObjectContent']
-        objectType = request.session['uploadObjectType']        
+        objectType = request.session['uploadObjectType']      
+        if 'uploadObjectFlat' in request.session and request.session['uploadObjectFlat'] is not None:
+            objectFlat = request.session['uploadObjectFlat']
+        else:
+            objectFlat = None
+        if 'uploadObjectAPIurl' in request.session and request.session['uploadObjectAPIurl'] is not None:
+            objectApiurl = request.session['uploadObjectAPIurl']
+        else:
+            objectApiurl = None  
             
         # save the object
         if objectType == "Template":
@@ -224,11 +237,19 @@ def saveObject(request):
         elif objectType == "Type":                                                                                    
             objectVersions = TypeVersion(nbVersions=1, isDeleted=False).save()
             object = Type(title=objectName, filename=objectFilename, content=objectContent, version=1, typeVersion=str(objectVersions.id)).save()
+            for bucket_id in buckets:
+                bucket = Bucket.objects.get(pk=bucket_id)
+                bucket.types.append(str(objectVersions.id))
+                bucket.save()
         
         objectVersions.versions = [str(object.id)]
         objectVersions.current = str(object.id)
         objectVersions.save()    
         object.save()
+        
+        if objectFlat is not None and objectApiurl is not None:
+            MetaSchema(schemaId=str(object.id), flat_content=objectFlat, api_content=objectApiurl).save()
+            
         dajax.script("""
             $( "#dialog-upload-message" ).dialog("close");
             $('#model_selection').load(document.URL +  ' #model_selection', function() {
@@ -266,14 +287,18 @@ def resolveDependencies(request, dependencies):
         'uploadObjectContent' in request.session and request.session['uploadObjectContent'] is not None and
         'uploadObjectType' in request.session and request.session['uploadObjectType'] is not None):    
         objectContent = request.session['uploadObjectContent']
-        contentSession = 'uploadObjectContent'
+#         contentSession = 'uploadObjectContent'
         validSession = 'uploadObjectValid'
+        flatSession = 'uploadObjectFlat'
+        apiSession = 'uploadObjectAPIurl'
         saveBtn = "<span class='btn' onclick='saveObject()'>Save</span>"
     elif ('uploadVersionFilename' in request.session and request.session['uploadVersionFilename'] is not None and
         'uploadVersionContent' in request.session and request.session['uploadVersionContent'] is not None):
         objectContent = request.session['uploadVersionContent']
-        contentSession = 'uploadVersionContent'
+#         contentSession = 'uploadVersionContent'
         validSession = 'uploadVersionValid'
+        flatSession = 'uploadVersionFlat'
+        apiSession = 'uploadVersionAPIurl'
         saveBtn = "<span class='btn' onclick='saveVersion()'>Save</span>"
     else:
         dajax.script("""$("#objectUploadErrorMessage").html("<font color='red'>Please upload a file first.</font><br/>");""")
@@ -281,7 +306,7 @@ def resolveDependencies(request, dependencies):
          
     xmlTree = etree.parse(BytesIO(objectContent.encode('utf-8')))        
     # get the imports
-    imports = xmlTree.findall("{http://www.w3.org/2001/XMLSchema}import")
+#     imports = xmlTree.findall("{http://www.w3.org/2001/XMLSchema}import")
      
     # get the includes
     includes = xmlTree.findall("{http://www.w3.org/2001/XMLSchema}include")
@@ -289,18 +314,22 @@ def resolveDependencies(request, dependencies):
     idxInclude = 0        
     # replace includes/imports by API calls
     for dependency in dependencies:
-        includes[idxInclude].attrib['schemaLocation'] = 'http://'+str(request.get_host())+'/rest/type/get-dependency?id=' + str(dependency)
+        includes[idxInclude].attrib['schemaLocation'] = getSchemaLocation(request, str(dependency))
         idxInclude += 1            
      
 #         flattener = XSDFlattenerURL(etree.tostring(xmlTree),'admin','admin')
     flattener = XSDFlattenerMDCS(etree.tostring(xmlTree))
-    flatTree = etree.fromstring(flattener.get_flat())
+    flatStr = flattener.get_flat()
+    flatTree = etree.fromstring(flatStr)
     
     try:
         # is it a valid XML schema ?
         xmlSchema = etree.XMLSchema(flatTree)
-        request.session[contentSession] = etree.tostring(xmlTree)
+#         request.session[contentSession] = etree.tostring(xmlTree)
         request.session[validSession] = True
+        
+        request.session[flatSession] = flatStr
+        request.session[apiSession] = etree.tostring(xmlTree)
         dajax.script("""
             $("#objectUploadErrorMessage").html("<font color='green'>The uploaded template is valid. You can now save it.</font>"""+ saveBtn +"""  ");
         """)
@@ -339,7 +368,11 @@ def clearObject(request):
         del request.session['uploadObjectType']
     if 'uploadObjectValid' in request.session:
         del request.session['uploadObjectValid']
-
+    if 'uploadObjectFlat' in request.session:
+        del request.session['uploadObjectFlat']
+    if 'uploadObjectAPIurl' in request.session:
+        del request.session['uploadObjectAPIurl']
+        
     print 'END def clearObject(request)'
     return dajax.json()
 
@@ -368,6 +401,10 @@ def clearVersion(request):
         del request.session['uploadVersionFilename']
     if 'uploadVersionContent' in request.session:
         del request.session['uploadVersionContent']
+    if 'uploadVersionFlat' in request.session:
+        del request.session['uploadVersionFlat']
+    if 'uploadVersionAPIurl' in request.session:
+        del request.session['uploadVersionAPIurl']
 
     print 'END def clearVersion(request)'
     return dajax.json()
@@ -580,7 +617,15 @@ def saveVersion(request):
         versionContent = request.session['uploadVersionContent'] 
         objectVersionID = request.session['uploadVersionID']
         objectType = request.session['uploadVersionType']
-        
+        if 'uploadVersionFlat' in request.session and request.session['uploadVersionFlat'] is not None:
+            versionFlat = request.session['uploadVersionFlat']
+        else:
+            versionFlat = None
+        if 'uploadVersionAPIurl' in request.session and request.session['uploadVersionAPIurl'] is not None:
+            versionApiurl = request.session['uploadVersionAPIurl']
+        else:
+            versionApiurl = None  
+            
         # save the object
         if objectType == "Template":
             objectVersions = TemplateVersion.objects.get(pk=objectVersionID)
@@ -596,6 +641,9 @@ def saveVersion(request):
         
         objectVersions.versions.append(str(newObject.id))
         objectVersions.save()
+        
+        if versionFlat is not None and versionApiurl is not None:
+            MetaSchema(schemaId=str(newObject.id), flat_content=versionFlat, api_content=versionApiurl).save()
         
         dajax.script("""
             $("#delete_custom_message").html("");
@@ -1494,3 +1542,76 @@ def savePrivacyPolicy(request, content):
     
     return dajax.json()
 
+
+################################################################################
+# 
+# Function Name: addBucket(request, label)
+# Inputs:        request -
+#                label - 
+# Outputs:       
+# Exceptions:    None
+# Description:   Add a new bucket
+#
+################################################################################
+@dajaxice_register
+def addBucket(request, label):
+    dajax = Dajax()
+    
+    # check that the label is unique
+    labels = Bucket.objects.all().values_list('label') 
+    if label in labels:
+        dajax.script("""$("#errorAddBucket").html("<font color='red'>A bucket with the same label already exists.</font><br/>");""")
+        return dajax.json()
+    
+    # get an unique color
+    colors = Bucket.objects.all().values_list('color') 
+    color = rdm_hex_color()
+    while color in colors:
+        color = rdm_hex_color()
+        
+    Bucket(label=label, color=color).save()
+    dajax.script(
+    """
+      $('#dialog-add-bucket').dialog('close');
+      $('#model_buckets').load(document.URL +  ' #model_buckets', function() {});
+      $('#model_select_buckets').load(document.URL +  ' #model_select_buckets', function() {});
+    """)
+    
+    return dajax.json()
+
+
+################################################################################
+# 
+# Function Name: addBucket(request, bucket_id)
+# Inputs:        request -
+#                bucket_id - 
+# Outputs:       
+# Exceptions:    None
+# Description:   Delete a bucket
+#
+################################################################################
+@dajaxice_register
+def deleteBucket(request, bucket_id):
+    dajax = Dajax()
+    
+    bucket = Bucket.objects.get(pk=bucket_id)
+    bucket.delete()
+        
+    dajax.script(
+    """
+      $('#model_buckets').load(document.URL +  ' #model_buckets', function() {});
+      $('#model_select_buckets').load(document.URL +  ' #model_select_buckets', function() {});
+    """)
+    
+    return dajax.json()
+################################################################################
+# 
+# Function Name: rdm_hex_color()
+# Inputs:        None
+# Outputs:       hex color
+# Exceptions:    None
+# Description:   Generates a random color code
+#
+################################################################################
+def rdm_hex_color():
+    return '#' +''.join([random.choice('0123456789ABCDEF') for x in range(6)])
