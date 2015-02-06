@@ -74,6 +74,8 @@ newTemplateCallback = function(data){
 		        Start: function() {
 		          if ($("#newTemplateTypeName").val() == ""){
 		        	  $("#newTemplateTypeNameError").html("The name can't be empty.");
+		          }else if ( !$("#newTemplateTypeName").val().match(/^[a-zA-Z]*$/)){
+		        	  $("#newTemplateTypeNameError").html("The name can only contains letters.");
 		          }else{
 		        	  $("#XMLHolder").find(".type").html($("#newTemplateTypeName").val());
 		        	  Dajaxice.compose.changeRootTypeName(Dajax.process, {"typeName":$("#newTemplateTypeName").val()});
@@ -238,10 +240,7 @@ saveType = function(){
 }
 
 saveTemplateCallback = function(){
-	console.log('BEGIN [saveTemplateCallback]');
-	
-	$("#dialog-save-template").dialog("close");
-	$("#dialog-save-type").dialog("close");
+	console.log('BEGIN [saveTemplateCallback]');	
 	
 	$(function() {
         $( "#dialog-saved-message" ).dialog({

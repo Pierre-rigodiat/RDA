@@ -242,11 +242,11 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
 
-# python manage.py collectstatic gather all static files in this directory
+# python manage.py collectstatic gathers all static files in this directory
 # link this directory to static in apache configuration file
 STATIC_ROOT = 'var/www/mgi/static/'
 
-# static files manually put
+# static files manually added
 STATIC_URL = '/static/'
 
 # static files gathered

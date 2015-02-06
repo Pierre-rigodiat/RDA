@@ -203,6 +203,12 @@ def loadXML(request):
         newdom = transform(dom)
         xmlTree = str(newdom)
     
+    # store the current includes
+    includes = dom.findall("{http://www.w3.org/2001/XMLSchema}include")
+    for el_include in includes:
+        if 'schemaLocation' in el_include.attrib:
+            request.session['includedTypesCompose'].append(el_include.attrib['schemaLocation'])
+            
     dajax.assign("#XMLHolder", "innerHTML", xmlTree)
     
     return dajax.json()
@@ -318,7 +324,7 @@ def saveTemplate(request, templateName):
     try:            
         xmlTree = etree.parse(BytesIO(content.encode('utf-8')))
     except Exception, e:
-        dajax.script("""$("#new-type-error").html("<font color='red'>Not a valid XML document.</font><br/>"""+ e.message.replace("'","") +""" ");""")
+        dajax.script("""$("#new-template-error").html("<font color='red'>Not a valid XML document.</font><br/>"""+ e.message.replace("'","") +""" ");""")
         return dajax.json()
     
     flattener = XSDFlattenerMDCS(etree.tostring(xmlTree))
@@ -330,7 +336,7 @@ def saveTemplate(request, templateName):
         xmlSchema = etree.XMLSchema(flatTree)
     except Exception, e:
         dajax.script("""
-            $("#new-type-error").html("<font color='red'>Not a valid XML schema.</font><br/>"""+ e.message.replace("'","") +""" ");
+            $("#new-template-error").html("<font color='red'>Not a valid XML schema.</font><br/>"""+ e.message.replace("'","") +""" ");
         """)
         return dajax.json() 
     
@@ -342,6 +348,7 @@ def saveTemplate(request, templateName):
     
     dajax.script("""
         saveTemplateCallback();
+        $("#dialog-save-template").dialog("close");
     """)
     
     return dajax.json()
@@ -363,14 +370,25 @@ def saveType(request, typeName):
     
     content=request.session['newXmlTemplateCompose']
     
+    templateID = request.session['currentComposeTemplateID']
+    # can save as type if new type or from existing type
+    if templateID != "new":
+        if templateID not in Type.objects.all().values_list('id'):
+            dajax.script("""$("#new-type-error").html("<font color='red'>Unable to save an existing template as a type.</font><br/>");""")
+            return dajax.json()
+    
     # is it a valid XML document ?
     try:            
         xmlTree = etree.parse(BytesIO(content.encode('utf-8')))
+        # this is a type: remove the root element to only keep the type
+        root = xmlTree.find("{http://www.w3.org/2001/XMLSchema}element")
+        root.getparent().remove(root)
+        content = etree.tostring(xmlTree)
     except Exception, e:
         dajax.script("""$("#new-type-error").html("<font color='red'>Not a valid XML document.</font><br/>"""+ e.message.replace("'","") +""" ");""")
         return dajax.json()
     
-    flattener = XSDFlattenerMDCS(etree.tostring(xmlTree))
+    flattener = XSDFlattenerMDCS(content)
     flatStr = flattener.get_flat()
     flatTree = etree.fromstring(flatStr)
     
@@ -383,12 +401,14 @@ def saveType(request, typeName):
         """)
         return dajax.json() 
     
-    type = Type(title=typeName, filename=typeName, content=request.session['newXmlTemplateCompose'], user=request.user.id)
+    
+    type = Type(title=typeName, filename=typeName, content=content, user=request.user.id)
     type.save()
     MetaSchema(schemaId=str(type.id), flat_content=flatStr, api_content=content).save()
     
     dajax.script("""
         saveTemplateCallback();
+        $("#dialog-save-type").dialog("close");
     """)
     return dajax.json()
 
