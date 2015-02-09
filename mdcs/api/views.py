@@ -1221,7 +1221,7 @@ def delete_type(request):
             return Response(content, status=status.HTTP_400_BAD_REQUEST)
         else:
             try:
-                typeVersion = TtypeVersion.objects.get(pk=versionID)
+                typeVersion = TypeVersion.objects.get(pk=versionID)
                 if typeVersion.isDeleted == False:
                     typeVersion.deletedVersions.append(typeVersion.current)
                     typeVersion.isDeleted = True
