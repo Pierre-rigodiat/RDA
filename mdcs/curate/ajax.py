@@ -806,7 +806,7 @@ def generateFormSubSection(request, xpath, xmlTree, namespace):
             manageOccurences(request, complexTypeChild, elementID)
             formString += "<li id='" + str(tagID) + "'>" + textCapitalized + "</li>"
     elif e.tag == "{0}simpleType".format(namespace):
-        if debugON: formString += "matched simpleType" + "<br>"
+        if debugON: formString += "matched simpleType"
 
         simpleTypeChildren = e.findall('*')
         
@@ -1135,7 +1135,7 @@ def duplicateFormSubSection(request, xpath, xmlTree, namespace):
     
     if e.tag == "{0}complexType".format(namespace):
         if debugON: formString += "matched complexType" 
-        print "matched complexType" + "<br>"
+        print "matched complexType"
         complexTypeChild = e.find('*')
 
         if complexTypeChild is None:
@@ -1387,7 +1387,7 @@ def duplicateFormSubSection(request, xpath, xmlTree, namespace):
             manageOccurences(request, complexTypeChild, elementID)
             formString += "<li id='" + str(tagID) + "'>" + textCapitalized + "</li>"            
     elif e.tag == "{0}simpleType".format(namespace):
-        if debugON: formString += "matched simpleType" + "<br>"
+        if debugON: formString += "matched simpleType"
 
         simpleTypeChildren = e.findall('*')
         
