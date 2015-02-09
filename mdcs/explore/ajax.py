@@ -28,7 +28,7 @@ import os
 import json
 import copy
 import lxml.etree as etree
-from mgi.models import Template, QueryResults, SparqlQueryResults, SavedQuery, Jsondata, Instance, XMLSchema, Type
+from mgi.models import Template, QueryResults, SparqlQueryResults, SavedQuery, Jsondata, Instance, XMLSchema, MetaSchema
 import sparqlPublisher
 
 # Global Variables
@@ -130,8 +130,12 @@ def setCurrentTemplate(request,templateFilename, templateID):
     print '>>>>' + templateFilename + ' set as current template in session'
     dajax = Dajax()
 
-    templateObject = Template.objects.get(pk=templateID)
-    xmlDocData = templateObject.content
+    if templateID in MetaSchema.objects.all().values_list('schemaId'):
+        meta = MetaSchema.objects.get(schemaId=templateID)
+        xmlDocData = meta.flat_content
+    else:
+        templateObject = Template.objects.get(pk=templateID)
+        xmlDocData = templateObject.content
 
     XMLSchema.tree = etree.parse(BytesIO(xmlDocData.encode('utf-8')))
     request.session['xmlDocTreeExplore'] = etree.tostring(XMLSchema.tree)
@@ -165,7 +169,13 @@ def setCurrentUserTemplate(request, templateID):
 
     templateObject = Template.objects.get(pk=templateID)
     request.session['exploreCurrentTemplate'] = templateObject.title
-    xmlDocData = templateObject.content
+    
+    if templateID in MetaSchema.objects.all().values_list('schemaId'):
+        meta = MetaSchema.objects.get(schemaId=templateID)
+        xmlDocData = meta.flat_content
+    else:
+        xmlDocData = templateObject.content
+
 
     XMLSchema.tree = etree.parse(BytesIO(xmlDocData.encode('utf-8')))
     request.session['xmlDocTreeExplore'] = etree.tostring(XMLSchema.tree)
@@ -238,25 +248,7 @@ def generateFormSubSection(request, xpath, elementName, fullPath, xmlTree):
     # e is None: no element found with the type
     # look for an included type
     if e is None:
-        includedTypes = request.session['includedTypes']
-        if xpath in includedTypes:
-            includedType = Type.objects.get(pk=includedTypes[xpath])
-            includedTypeTree = etree.parse(BytesIO(includedType.content.encode('utf-8')))
-            element = includedTypeTree.find("{0}element".format(defaultNamespace))
-            try:                                                    
-                if((element.attrib.get('type') == "xsd:string".format(defaultPrefix))
-                      or (element.attrib.get('type') == "xsd:double".format(defaultPrefix))
-                      or (element.attrib.get('type') == "xsd:float".format(defaultPrefix)) 
-                      or (element.attrib.get('type') == "xsd:integer".format(defaultPrefix)) 
-                      or (element.attrib.get('type') == "xsd:anyURI".format(defaultPrefix))):
-                    formString +=  "<input type='checkbox'>"
-                else:
-                    formString += generateFormSubSection(request, element.attrib.get('type'), elementName, fullPath, includedTypeTree)
-                return formString
-            except:
-                return formString
-        else:
-            return formString    
+        return formString    
     
     # if the element is a complex type
     if e.tag == "{0}complexType".format(defaultNamespace):
@@ -279,42 +271,46 @@ def generateFormSubSection(request, xpath, elementName, fullPath, xmlTree):
                 print "SequenceChild: " + sequenceChild.tag 
                 if sequenceChild.tag == "{0}element".format(defaultNamespace):
                     if 'type' not in sequenceChild.attrib:
-                        # type declared below
-                        textCapitalized = sequenceChild.attrib.get('name') 
-                        mapTagIDElementInfo = request.session['mapTagIDElementInfoExplore'] 
-                        elementID = len(mapTagIDElementInfo.keys())                        
-                        
-                        if (sequenceChild[0].tag == "{0}complexType".format(defaultNamespace)):
-                            formString += "<li>" + textCapitalized + " "
-                            formString += generateFormSubSection(request, sequenceChild[0], textCapitalized,fullPath, xmlTree)
-                            formString += "</li>"    
-                        else:
+                        if 'ref' in sequenceChild.attrib:
+                            print "ref"  
+                            return formString
+                        else:        
+                            # type declared below
                             textCapitalized = sequenceChild.attrib.get('name') 
                             mapTagIDElementInfo = request.session['mapTagIDElementInfoExplore'] 
                             elementID = len(mapTagIDElementInfo.keys())                        
-                            isEnum = False
-                            # look for enumeration to save the values 
-                            childElement = sequenceChild[0]
-                            if (childElement is not None):
-                                if(childElement.tag == "{0}simpleType".format(defaultNamespace)):
-                                    restrictionChild = childElement.find("{0}restriction".format(defaultNamespace))        
-                                    if restrictionChild is not None:                                    
-                                        enumChildren = restrictionChild.findall("{0}enumeration".format(defaultNamespace))
-                                        if enumChildren is not None:
-                                            formString += "<li id='" + str(elementID) + "'>" + textCapitalized + " <input type='checkbox'>" + "</li>"
-                                            elementInfo = ElementInfo("enum",fullPath[1:]+"." + textCapitalized)
-                                            mapTagIDElementInfo[elementID] = elementInfo.__to_json__()
-                                            request.session['mapTagIDElementInfoExplore'] = mapTagIDElementInfo
-                                            listChoices = []
-                                            for enumChild in enumChildren:
-                                                listChoices.append(enumChild.attrib['value'])
-                                            request.session['mapEnumIDChoicesExplore'][elementID] = listChoices
-                                            isEnum = True
                             
-                            if(isEnum is not True):                            
+                            if (sequenceChild[0].tag == "{0}complexType".format(defaultNamespace)):
                                 formString += "<li>" + textCapitalized + " "
                                 formString += generateFormSubSection(request, sequenceChild[0], textCapitalized,fullPath, xmlTree)
-                                formString += "</li>" 
+                                formString += "</li>"    
+                            else:
+                                textCapitalized = sequenceChild.attrib.get('name') 
+                                mapTagIDElementInfo = request.session['mapTagIDElementInfoExplore'] 
+                                elementID = len(mapTagIDElementInfo.keys())                        
+                                isEnum = False
+                                # look for enumeration to save the values 
+                                childElement = sequenceChild[0]
+                                if (childElement is not None):
+                                    if(childElement.tag == "{0}simpleType".format(defaultNamespace)):
+                                        restrictionChild = childElement.find("{0}restriction".format(defaultNamespace))        
+                                        if restrictionChild is not None:                                    
+                                            enumChildren = restrictionChild.findall("{0}enumeration".format(defaultNamespace))
+                                            if enumChildren is not None:
+                                                formString += "<li id='" + str(elementID) + "'>" + textCapitalized + " <input type='checkbox'>" + "</li>"
+                                                elementInfo = ElementInfo("enum",fullPath[1:]+"." + textCapitalized)
+                                                mapTagIDElementInfo[elementID] = elementInfo.__to_json__()
+                                                request.session['mapTagIDElementInfoExplore'] = mapTagIDElementInfo
+                                                listChoices = []
+                                                for enumChild in enumChildren:
+                                                    listChoices.append(enumChild.attrib['value'])
+                                                request.session['mapEnumIDChoicesExplore'][elementID] = listChoices
+                                                isEnum = True
+                                
+                                if(isEnum is not True):                            
+                                    formString += "<li>" + textCapitalized + " "
+                                    formString += generateFormSubSection(request, sequenceChild[0], textCapitalized,fullPath, xmlTree)
+                                    formString += "</li>" 
                     # if element is one of the declared type
                     elif (sequenceChild.attrib.get('type') == "{0}:string".format(defaultPrefix)
                           or sequenceChild.attrib.get('type') == "{0}:double".format(defaultPrefix)
@@ -544,12 +540,6 @@ def generateXSDTreeForQueryingData(request):
     defaultNamespace = "{" + defaultNamespace + "}"
     request.session['defaultNamespaceExplore'] = defaultNamespace
     
-    # load included types from the database
-    if 'includedTypesExplore' in request.session:
-        del request.session['includedTypesExplore']
-    includedTypes = getIncludedTypes(xmlDocTreeStr, defaultNamespace);
-    request.session['includedTypesExplore'] = includedTypes
-    
     if xmlDocTreeStr == "":
         setCurrentTemplate(request,templateFilename, templateID)        
     if (formString == ""):
@@ -562,31 +552,6 @@ def generateXSDTreeForQueryingData(request):
     print 'END def generateXSDTreeForQueryingData(request)'
     return dajax.json()
 
-
-################################################################################
-# 
-# Function Name: getIncludedTypes(xmlTreeStr, namespace)
-# Inputs:        request - 
-# Outputs:       A dictionary of types that are included in the template using the include tag
-# Exceptions:    None
-# Description:   Get the types that are included in the template using the include tag
-#
-################################################################################
-def getIncludedTypes(xmlTreeStr, namespace):
-    includedTypes = dict()
-    
-    xmlTree = etree.fromstring(xmlTreeStr)
-    listIncludes = xmlTree.findall("{0}include".format(namespace))
-    if (len(listIncludes) > 0):
-        for include in listIncludes:
-            if 'schemaLocation' in include.attrib:
-                try:
-                    includedType = Type.objects.get(filename=include.attrib['schemaLocation'])
-                    includedTypes[includedType.title] = str(includedType.id)
-                except:
-                    pass
-    
-    return includedTypes
 
 ################################################################################
 # 
