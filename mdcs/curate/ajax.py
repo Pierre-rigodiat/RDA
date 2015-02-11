@@ -27,6 +27,7 @@ from django.core.servers.basehttp import FileWrapper
 from mgi.models import Template, Htmlform, Jsondata, XML2Download, Module, Type, MetaSchema
 from bson.objectid import ObjectId
 import json
+from mgi import utils
 
 import lxml.html as html
 import lxml.etree as etree
@@ -178,10 +179,9 @@ def validateXMLData(request, xmlString):
     templateID = request.session['currentTemplateID']
     
     request.session['xmlString'] = ""
-    
-    #TODO: XML validation           
+          
     try:
-        validateXMLDocument(templateID, xmlString)   
+        utils.validateXMLDocument(templateID, xmlString)   
     except Exception, e:
         message= e.message.replace('"','\'')
         dajax.script("""
@@ -197,34 +197,6 @@ def validateXMLData(request, xmlString):
     """)
     
     return dajax.json()
-
-################################################################################
-#
-# Function Name: validateXMLDocument(templateID, xmlString)
-# Inputs:        request - 
-#                templateID - 
-#                xmlString - 
-# Outputs:       
-# Exceptions:    None
-# Description:   Check that the XML document is validated by the template
-#                
-#
-################################################################################
-def validateXMLDocument(templateID, xmlString):
-    
-    if templateID in MetaSchema.objects.all().values_list('schemaId'):
-        meta = MetaSchema.objects.get(schemaId=templateID)
-        xmlDocData = meta.flat_content
-    else:
-        templateObject = Template.objects.get(pk=templateID)
-        xmlDocData = templateObject.content
-    
-    xmlTree = etree.parse(StringIO(xmlDocData.encode('utf-8')))
-    
-    xmlSchema = etree.XMLSchema(xmlTree)    
-    xmlDoc = etree.fromstring(xmlString)
-    prettyXMLString = etree.tostring(xmlDoc, pretty_print=True)  
-    xmlSchema.assertValid(etree.parse(StringIO(prettyXMLString)))  
     
 
 ################################################################################
