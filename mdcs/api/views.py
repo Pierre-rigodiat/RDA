@@ -636,13 +636,10 @@ def add_schema(request):
                 listTypesId = []
                 for typeId in Type.objects.all().values_list('id'):     
                     listTypesId.append(str(typeId))
-                
-                listTemplatesId = []
-                for templateId in Template.objects.all().values_list('id'):     
-                    listTemplatesId.append(str(templateId))
+
                 # replace includes/imports by API calls
                 for dependency in dependencies:
-                    if dependency in listTypesId or dependency in listTemplatesId: 
+                    if dependency in listTypesId: 
                         includes[idxInclude].attrib['schemaLocation'] = getSchemaLocation(request, str(dependency))
                         idxInclude += 1
                     else:
@@ -1950,42 +1947,41 @@ def ping(request):
     return Response(content, status=status.HTTP_200_OK)
 
 
-@api_view(['GET'])
-def get_file(request):
-    filename = request.QUERY_PARAMS.get('filename', None)
-    version = request.QUERY_PARAMS.get('version', None) 
-    try:
-        type = Type.objects.get(filename=filename, version=int(version))
-  
-        xsdEncoded = type.content.encode('utf-8')
-        fileObj = StringIO(xsdEncoded)
-        response = HttpResponse(fileObj, content_type='application/xml')
-        response['Content-Disposition'] = 'attachment; filename=' + filename
-        return response
-    except: 
-        content={'message':'Invalid command','docs':'http://'+str(request.get_host())+'/docs/api'}
-        return Response(content, status=status.HTTP_200_OK)
-    
+################################################################################
+# 
+# Function Name: get_dependency(request)
+# Inputs:        request - 
+# Outputs:        
+# Exceptions:    None
+# Description:   Get a template dependency using its mongodb id
+# 
+################################################################################   
 @api_view(['GET'])
 def get_dependency(request):
-    print "get dependency"
-    # TODO: change to the hash
+    """
+    GET http://localhost/rest/types/get-dependency?id=id
+    """  
+    # TODO: can change to the hash
     id = request.QUERY_PARAMS.get('id', None)
-     
-    try:
-        if id in MetaSchema.objects.all().values_list('schemaId'):
-            meta = MetaSchema.objects.get(schemaId=id)
-            content = meta.api_content
-        else:
-            type = Type.objects.get(pk=str(id))
-            content = type.content
-        
-        xsdEncoded = content.encode('utf-8')
-        fileObj = StringIO(xsdEncoded)
-        response = HttpResponse(fileObj, content_type='application/xml')
-        response['Content-Disposition'] = 'attachment; filename=' + str(id)
-        return response
-    except: 
-        content={'message':'Invalid command','docs':'http://'+str(request.get_host())+'/docs/api'}
-        return Response(content, status=status.HTTP_200_OK)
     
+    if id is None:
+        content={'message':'No dependency id provided.'}
+        return Response(content, status=status.HTTP_400_BAD_REQUEST)
+    else:
+        try:
+            if id in MetaSchema.objects.all().values_list('schemaId'):
+                meta = MetaSchema.objects.get(schemaId=id)
+                content = meta.api_content
+            else:
+                type = Type.objects.get(pk=str(id))
+                content = type.content
+            
+            xsdEncoded = content.encode('utf-8')
+            fileObj = StringIO(xsdEncoded)
+            response = HttpResponse(fileObj, content_type='application/xml')
+            response['Content-Disposition'] = 'attachment; filename=' + str(id)
+            return response
+        except: 
+            content={'message':'No dependency could be found with the given id.'}
+            return Response(content, status=status.HTTP_400_BAD_REQUEST)
+        
