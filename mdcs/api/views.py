@@ -24,7 +24,6 @@ from mgi.models import SavedQuery, Jsondata, Template, TemplateVersion, Type, Ty
 from django.contrib.auth.models import User
 # Serializers
 from api.serializers import savedQuerySerializer, jsonDataSerializer, querySerializer, sparqlQuerySerializer, sparqlResultsSerializer, schemaSerializer, templateSerializer, typeSerializer, resTypeSerializer, TemplateVersionSerializer, TypeVersionSerializer, instanceSerializer, resInstanceSerializer, UserSerializer, insertUserSerializer, resSavedQuerySerializer, updateUserSerializer
-
 from explore import sparqlPublisher
 from curate import rdfPublisher
 from lxml import etree
@@ -38,14 +37,15 @@ import requests
 from django.db.models import Q
 import operator
 import json
-import hashlib
 import xmltodict
 from collections import OrderedDict
 from StringIO import StringIO
-from django.core.files.temp import NamedTemporaryFile
-from django.conf import settings
 from django.http.response import HttpResponse
 from utils.XSDhash import XSDhash
+from mgi import utils
+from io import BytesIO
+from utils.APIschemaLocator.APIschemaLocator import getSchemaLocation
+from utils.XSDflattenerMDCS.XSDflattenerMDCS import XSDFlattenerMDCS
 
 
 ################################################################################
@@ -379,7 +379,7 @@ def query_by_example(request):
     if qSerializer.is_valid():
         if 'repositories' in request.DATA:
             instanceResults = []
-            repositories = request.DATA['repositories'].split(",")
+            repositories = request.DATA['repositories'].strip().split(",")
             if len(repositories) == 0:
                 content = {'message':'Repositories keyword found but the list is empty.'}
                 return Response(content, status=status.HTTP_400_BAD_REQUEST)
@@ -483,7 +483,7 @@ def sparql_query(request):
         
         if 'repositories' in request.DATA:
             instanceResults = []
-            repositories = request.DATA['repositories'].split(",")
+            repositories = request.DATA['repositories'].strip().split(",")
             if len(repositories) == 0:
                 content = {'message':'Repositories keyword found but the list is empty.'}
                 return Response(content, status=status.HTTP_400_BAD_REQUEST)
@@ -524,42 +524,7 @@ def sparql_query(request):
             srSerializer = sparqlResultsSerializer(results)
             return Response(srSerializer.data, status=status.HTTP_200_OK)
     return Response(sqSerializer.errors,status=status.HTTP_400_BAD_REQUEST)
-
-
-################################################################################
-#
-# Function Name: validateXMLDocument(templateID, xmlString)
-# Inputs:        request - 
-#                templateID - 
-#                xmlString - 
-# Outputs:       
-# Exceptions:    None
-# Description:   Check that the XML document is validated by the template
-#                
-#
-################################################################################
-def validateXMLDocument(templateID, xmlString):
-    template = Template.objects.get(pk=templateID)
-    xmlTree = etree.parse(StringIO(template.content.encode('utf-8')))
-    
-    imports = xmlTree.findall("{http://www.w3.org/2001/XMLSchema}import")
-    for import_el in imports:
-        refTemplate = Template.objects.get(filename=import_el.attrib['schemaLocation'])
-        f  = NamedTemporaryFile()
-        f.write(refTemplate.content)
-        f.flush()          
-        import_el.attrib['schemaLocation'] = f.name.replace('\\', '/')
-    
-    includes = xmlTree.findall("{http://www.w3.org/2001/XMLSchema}include")
-    for include_el in includes:
-        refTemplate = Template.objects.get(filename=include_el.attrib['schemaLocation'])
-        f  = NamedTemporaryFile()
-        f.write(refTemplate.content)
-        f.flush()          
-        include_el.attrib['schemaLocation'] = f.name.replace('\\', '/')
-    
-    xmlSchema = etree.XMLSchema(xmlTree)          
-    xmlSchema.assertValid(etree.parse(StringIO(xmlString))) 
+  
 
 ################################################################################
 # 
@@ -591,21 +556,13 @@ def curate(request):
         xmlStr = request.DATA['content']
         try:
             try:
-                xmlTree = etree.fromstring(xmlStr)
-            except Exception, e:
-                content = {'message: Unable to read the XML data: '+ e.message}
-                return Response(content, status=status.HTTP_400_BAD_REQUEST)
-            #TODO: XML validation
-            try:
-                validateXMLDocument(schema.id, xmlStr)
+                utils.validateXMLDocument(schema.id, xmlStr)
             except Exception, e:
                 content = {'message':e.message}
                 return Response(content, status=status.HTTP_400_BAD_REQUEST)
             jsondata = Jsondata(schemaID = request.DATA['schema'], xml = xmlStr, title = request.DATA['title'])
             docID = jsondata.save()            
-
-            #xsltPath = './xml2rdf3.xsl' #path to xslt on my machine
-            #xsltFile = open(os.path.join(PROJECT_ROOT,'xml2rdf3.xsl'))
+            
             xsltPath = os.path.join(settings.SITE_ROOT, 'static/resources/xsl/xml2rdf3.xsl')
             xslt = etree.parse(xsltPath)
             root = xslt.getroot()
@@ -624,8 +581,6 @@ def curate(request):
         
             # SPARQL : get the rdf string
             rdfStr = etree.tostring(domRDF)
-        
-            print "rdf string: " + rdfStr
         
             # SPARQL : send the rdf to the triplestore
             rdfPublisher.sendRDF(rdfStr)
@@ -648,34 +603,108 @@ def curate(request):
 def add_schema(request):
     """
     POST http://localhost/rest/templates/add
-    POST data title="title", filename="filename", content="<xsd:schema>...</xsd:schema>" templateVersion="id"
+    POST data title="title", filename="filename", content="<xsd:schema>...</xsd:schema>" templateVersion="id", dependencies="id,id"
     """
+    
+    xsdContent = None
+    xsdFlatContent = None
+    xsdAPIContent = None
+        
     sSerializer = schemaSerializer(data=request.DATA)
     if sSerializer.is_valid():
+        xsdContent = request.DATA['content']
+        
+        # is this a valid XMl document?
+        try:
+            xmlTree = etree.parse(BytesIO(xsdContent.encode('utf-8')))
+        except Exception, e:
+            content = {'message':'This is not a valid XML document.' + e.message.replace("'","")}
+            return Response(content, status=status.HTTP_400_BAD_REQUEST)
+        # check that the schema is valid for the MDCS
+        errors = utils.getValidityErrorsForMDCS(xmlTree, "Template")
+        if len(errors) > 0:
+            content = {'message':'This template is not supported by the current version of the MDCS.', 'errors': errors}
+            return Response(content, status=status.HTTP_400_BAD_REQUEST)
+        
+        # manage the dependencies
+        includes = xmlTree.findall("{http://www.w3.org/2001/XMLSchema}include")        
+        idxInclude = 0
+        
+        if 'dependencies' in request.DATA:  
+            dependencies = request.DATA['dependencies'].strip().split(",")
+            if len(dependencies) == len(includes):
+                listTypesId = []
+                for typeId in Type.objects.all().values_list('id'):     
+                    listTypesId.append(str(typeId))
+                
+                listTemplatesId = []
+                for templateId in Template.objects.all().values_list('id'):     
+                    listTemplatesId.append(str(templateId))
+                # replace includes/imports by API calls
+                for dependency in dependencies:
+                    if dependency in listTypesId or dependency in listTemplatesId: 
+                        includes[idxInclude].attrib['schemaLocation'] = getSchemaLocation(request, str(dependency))
+                        idxInclude += 1
+                    else:
+                        content = {'message':'One or more dependencies can not be found in the database.'}
+                        return Response(content, status=status.HTTP_400_BAD_REQUEST)
+                flattener = XSDFlattenerMDCS(etree.tostring(xmlTree))
+                flatStr = flattener.get_flat()
+                flatTree = etree.fromstring(flatStr)
+                # is this a valid XML schema?
+                try:
+                    xmlSchema = etree.XMLSchema(flatTree)
+                    xsdFlatContent = flatStr
+                    xsdAPIContent = etree.tostring(xmlTree)
+                except Exception, e:
+                    content = {'message':'This is not a valid XML schema.' + e.message.replace("'","")}
+                    return Response(content, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                content = {'message':'The number of given dependencies (' + str(len(dependencies)) + ')  is different from the actual number of dependencies found in the uploaded template (' + str(len(includes)) + ').'}
+                return Response(content, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            if len(includes) > 0:
+                content = {'message':'The template that you are trying to upload has some dependencies. Use the "dependencies" keyword to register a template with its dependencies.'}
+                return Response(content, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                # is this a valid XML schema?
+                try:
+                    xmlSchema = etree.XMLSchema(xmlTree)
+                except Exception, e:
+                    content = {'message':'This is not a valid XML schema.' + e.message.replace("'","")}
+                    return Response(content, status=status.HTTP_400_BAD_REQUEST)
+        
         # a template version is provided: if it exists, add the schema as a new version and manage the version numbers
         if "templateVersion" in request.DATA:
             try:
                 templateVersions = TemplateVersion.objects.get(pk=request.DATA['templateVersion'])
                 if templateVersions.isDeleted == True:
-                    content = {'message':'This template version belongs to a deleted template. You are not allowed to delete it.'}
+                    content = {'message':'This template version belongs to a deleted template. You are not allowed to add a template to it.'}
                     return Response(content, status=status.HTTP_400_BAD_REQUEST)
                 templateVersions.nbVersions = templateVersions.nbVersions + 1
-                hash = XSDhash.get_hash(request.DATA['content'])
-                newTemplate = Template(title=request.DATA['title'], filename=request.DATA['filename'], content=request.DATA['content'], templateVersion=request.DATA['templateVersion'], version=templateVersions.nbVersions, hash=hash).save()
+                hash = XSDhash.get_hash(xsdContent)
+                newTemplate = Template(title=request.DATA['title'], filename=request.DATA['filename'], content=xsdContent, templateVersion=request.DATA['templateVersion'], version=templateVersions.nbVersions, hash=hash).save()
                 templateVersions.versions.append(str(newTemplate.id))                
                 templateVersions.save()
+                # Save Meta schema
+                if xsdFlatContent is not None and xsdAPIContent is not None:
+                    MetaSchema(schemaId=str(newTemplate.id), flat_content=xsdFlatContent, api_content=xsdAPIContent).save()
             except:
                 content = {'message':'No template version found with the given id.'}
                 return Response(content, status=status.HTTP_400_BAD_REQUEST)
         else:
             templateVersion = TemplateVersion(nbVersions=1, isDeleted=False).save()
-            hash = XSDhash.get_hash(request.DATA['content'])
-            newTemplate = Template(title=request.DATA['title'], filename=request.DATA['filename'], content=request.DATA['content'], version=1, templateVersion=str(templateVersion.id), hash=hash).save()
+            hash = XSDhash.get_hash(xsdContent)
+            newTemplate = Template(title=request.DATA['title'], filename=request.DATA['filename'], content=xsdContent, version=1, templateVersion=str(templateVersion.id), hash=hash).save()
             templateVersion.versions = [str(newTemplate.id)]
             templateVersion.current=str(newTemplate.id)
             templateVersion.save()
             newTemplate.save()
-        return Response(sSerializer.data, status=status.HTTP_201_CREATED)
+            # Save Meta schema
+            if xsdFlatContent is not None and xsdAPIContent is not None:
+                MetaSchema(schemaId=str(newTemplate.id), flat_content=xsdFlatContent, api_content=xsdAPIContent).save()
+        
+        return Response(eval(newTemplate.to_json()), status=status.HTTP_201_CREATED)
     return Response(sSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 ################################################################################
@@ -1011,21 +1040,91 @@ def restore_schema(request):
 def add_type(request):
     """
     POST http://localhost/rest/types/add
-    POST data title="title", filename="filename", content="..." typeVersion="id"
+    POST data title="title", filename="filename", content="..." typeVersion="id" dependencies="id,id"
     """
+    
+    xsdContent = None
+    xsdFlatContent = None
+    xsdAPIContent = None
+    
     oSerializer = typeSerializer(data=request.DATA)
     if oSerializer.is_valid():
+        xsdContent = request.DATA['content']
+        
+        # is this a valid XMl document?
+        try:
+            xmlTree = etree.parse(BytesIO(xsdContent.encode('utf-8')))
+        except Exception, e:
+            content = {'message':'This is not a valid XML document.' + e.message.replace("'","")}
+            return Response(content, status=status.HTTP_400_BAD_REQUEST)
+        
+        # check that the schema is valid for the MDCS
+        errors = utils.getValidityErrorsForMDCS(xmlTree, "Type")
+        if len(errors) > 0:
+            content = {'message':'This type is not supported by the current version of the MDCS.', 'errors': errors}
+            return Response(content, status=status.HTTP_400_BAD_REQUEST)
+        
+        # manage the dependencies
+        includes = xmlTree.findall("{http://www.w3.org/2001/XMLSchema}include")        
+        idxInclude = 0
+        
+        if 'dependencies' in request.DATA:  
+            dependencies = request.DATA['dependencies'].strip().split(",")
+            if len(dependencies) == len(includes):
+                listTypesId = []
+                for typeId in Type.objects.all().values_list('id'):     
+                    listTypesId.append(str(typeId))
+                
+                # replace includes/imports by API calls
+                for dependency in dependencies:
+                    if dependency in listTypesId: 
+                        includes[idxInclude].attrib['schemaLocation'] = getSchemaLocation(request, str(dependency))
+                        idxInclude += 1
+                    else:
+                        content = {'message':'One or more dependencies can not be found in the database.'}
+                        return Response(content, status=status.HTTP_400_BAD_REQUEST)
+                flattener = XSDFlattenerMDCS(etree.tostring(xmlTree))
+                flatStr = flattener.get_flat()
+                flatTree = etree.fromstring(flatStr)
+                # is this a valid XML schema?
+                try:
+                    xmlSchema = etree.XMLSchema(flatTree)
+                    xsdFlatContent = flatStr
+                    xsdAPIContent = etree.tostring(xmlTree)
+                except Exception, e:
+                    content = {'message':'This is not a valid XML schema.' + e.message.replace("'","")}
+                    return Response(content, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                content = {'message':'The number of given dependencies (' + str(len(dependencies)) + ')  is different from the actual number of dependencies found in the uploaded template (' + str(len(includes)) + ').'}
+                return Response(content, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            if len(includes) > 0:
+                content = {'message':'The template that you are trying to upload has some dependencies. Use the "dependencies" keyword to register a template with its dependencies.'}
+                return Response(content, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                # is this a valid XML schema?
+                try:
+                    xmlSchema = etree.XMLSchema(xmlTree)
+                except Exception, e:
+                    content = {'message':'This is not a valid XML schema.' + e.message.replace("'","")}
+                    return Response(content, status=status.HTTP_400_BAD_REQUEST)
+
+
+        
         # an type version is provided: if it exists, add the type as a new version and manage the version numbers
         if "typeVersion" in request.DATA:
             try:
                 typeVersions = TypeVersion.objects.get(pk=request.DATA['typeVersion'])
                 if typeVersions.isDeleted == True:
-                    content = {'message':'This type version belongs to a deleted type. You are not allowed to delete it.'}
+                    content = {'message':'This type version belongs to a deleted type. You can not add a type to it.'}
                     return Response(content, status=status.HTTP_400_BAD_REQUEST)
                 typeVersions.nbVersions = typeVersions.nbVersions + 1
                 newType = Type(title=request.DATA['title'], filename=request.DATA['filename'], content=request.DATA['content'], typeVersion=request.DATA['typeVersion'], version=typeVersions.nbVersions).save()
                 typeVersions.versions.append(str(newType.id))                
                 typeVersions.save()
+                # Save Meta schema
+                if xsdFlatContent is not None and xsdAPIContent is not None:
+                    MetaSchema(schemaId=str(newType.id), flat_content=xsdFlatContent, api_content=xsdAPIContent).save()
             except:
                 content = {'message':'No type version found with the given id.'}
                 return Response(content, status=status.HTTP_400_BAD_REQUEST)
@@ -1036,7 +1135,10 @@ def add_type(request):
             typeVersion.current=str(newType.id)
             typeVersion.save()
             newType.save()
-        return Response(oSerializer.data, status=status.HTTP_201_CREATED)
+            # Save Meta schema
+            if xsdFlatContent is not None and xsdAPIContent is not None:
+                MetaSchema(schemaId=str(newType.id), flat_content=xsdFlatContent, api_content=xsdAPIContent).save()
+        return Response(eval(newType.to_json()), status=status.HTTP_201_CREATED)
     return Response(oSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 ################################################################################
@@ -1871,7 +1973,6 @@ def get_dependency(request):
     id = request.QUERY_PARAMS.get('id', None)
      
     try:
-        
         if id in MetaSchema.objects.all().values_list('schemaId'):
             meta = MetaSchema.objects.get(schemaId=id)
             content = meta.api_content
@@ -1888,25 +1989,3 @@ def get_dependency(request):
         content={'message':'Invalid command','docs':'http://'+str(request.get_host())+'/docs/api'}
         return Response(content, status=status.HTTP_200_OK)
     
-# from django.core.servers.basehttp import FileWrapper
-# @api_view(['GET'])
-# def get_file(request):
-#     filename = request.QUERY_PARAMS.get('filename', None) 
-#     try:
-#         response = HttpResponse(FileWrapper(open(os.path.join(settings.SITE_ROOT, 'static/'+filename))), content_type='application/xml')
-#         response['Content-Disposition'] = 'attachment; filename=' + filename
-#         return response
-#     except: 
-#         content={'message':'Invalid command','docs':'http://'+str(request.get_host())+'/docs/api'}
-#         return Response(content, status=status.HTTP_200_OK)
-    
-# @api_view(['GET'])
-# def get_file(request):
-#     filename = request.QUERY_PARAMS.get('filename', None) 
-#     try:
-#         response = HttpResponse(open(os.path.join(settings.SITE_ROOT, 'static/'+filename)), content_type='application/xml')
-#         response['Content-Disposition'] = 'attachment; filename=' + filename
-#         return response
-#     except: 
-#         content={'message':'Invalid command','docs':'http://'+str(request.get_host())+'/docs/api'}
-#         return Response(content, status=status.HTTP_200_OK)

@@ -26,14 +26,18 @@ from urlparse import urlparse
 class XSDFlattenerMDCS(XSDFlattener):
 			
 	def get_dependency_content(self, uri):
-		url = urlparse(uri)
-		id = url.query.split("=")[1]
-		if id in MetaSchema.objects.all().values_list('schemaId'):
-			meta = MetaSchema.objects.get(schemaId=id)
-			content = meta.api_content
-		else:
-			type = Type.objects.get(pk=str(id))
-			content = type.content
+		content = ""
+		try:
+			url = urlparse(uri)
+			id = url.query.split("=")[1]
+			if id in MetaSchema.objects.all().values_list('schemaId'):
+				meta = MetaSchema.objects.get(schemaId=id)
+				content = meta.api_content
+			else:
+				type = Type.objects.get(pk=str(id))
+				content = type.content
+		except:
+			pass
 		return content
 	
 	

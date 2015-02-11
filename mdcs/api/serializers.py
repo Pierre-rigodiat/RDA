@@ -88,17 +88,20 @@ class sparqlQuerySerializer(serializers.Serializer):
 class sparqlResultsSerializer(serializers.Serializer):
     content = serializers.CharField()
 
+
 ################################################################################
 # 
 # Class Name: schemaSerializer
 #
-# Description:   Serializer for schema
+# Description:   Serializer for schema with dependencies
 # 
 ################################################################################
 class schemaSerializer(MongoEngineModelSerializer):
+    dependencies = serializers.CharField(required=False)
     class Meta:
         model = Template
-        exclude = (['templateVersion','version'])
+        exclude = (['templateVersion','version','hash'])
+
 
 ################################################################################
 # 
@@ -135,6 +138,7 @@ class TemplateVersionSerializer(MongoEngineModelSerializer):
 # 
 ################################################################################
 class typeSerializer(MongoEngineModelSerializer):
+    dependencies = serializers.CharField(required=False)
     class Meta:
         model = Type
         exclude = (['typeVersion','version'])

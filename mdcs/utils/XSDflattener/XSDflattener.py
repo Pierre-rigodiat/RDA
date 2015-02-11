@@ -58,24 +58,27 @@ class XSDFlattener(object):
 		return etree.tostring(xmlTree)
 		
 	def get_flat_dependency(self, uri):
-		if uri not in self.dependencies:
-			self.dependencies.append(uri)
-			dependencyContent = self.get_dependency_content(uri)
-			xmlTree = etree.parse(BytesIO(dependencyContent.encode('utf-8')))
-			includes = xmlTree.findall("{http://www.w3.org/2001/XMLSchema}include")
-			if len(includes) > 0:
-				for el_include in includes:
-					uri = el_include.attrib['schemaLocation']	
-					flatDependency = self.get_flat_dependency(uri)
-					if flatDependency is not None:
-						# append flatDependency to the tree
-						dependencyTree = etree.fromstring(flatDependency)
-						dependencyElements = dependencyTree.getchildren()
-						for element in dependencyElements:
-							xmlTree.getroot().append(element)
-					el_include.getparent().remove(el_include)
-			return etree.tostring(xmlTree)
-		else:
+		try:
+			if uri not in self.dependencies:
+				self.dependencies.append(uri)
+				dependencyContent = self.get_dependency_content(uri)
+				xmlTree = etree.parse(BytesIO(dependencyContent.encode('utf-8')))
+				includes = xmlTree.findall("{http://www.w3.org/2001/XMLSchema}include")
+				if len(includes) > 0:
+					for el_include in includes:
+						uri = el_include.attrib['schemaLocation']	
+						flatDependency = self.get_flat_dependency(uri)
+						if flatDependency is not None:
+							# append flatDependency to the tree
+							dependencyTree = etree.fromstring(flatDependency)
+							dependencyElements = dependencyTree.getchildren()
+							for element in dependencyElements:
+								xmlTree.getroot().append(element)
+						el_include.getparent().remove(el_include)
+				return etree.tostring(xmlTree)
+			else:
+				return None
+		except:
 			return None
 	
 	@abstractmethod	
