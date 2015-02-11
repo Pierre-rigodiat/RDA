@@ -87,14 +87,17 @@ class XSDFlattener(object):
 
 class XSDFlattenerURL(XSDFlattener):
 			
-	def __init__(self, xmlString, user, password):
+	def __init__(self, xmlString):
 		XSDFlattener.__init__(self, xmlString)
-		self.user = user
-		self.password = password
+		self.servers = {}
 	
 	def get_dependency_content(self, uri):
-		r = requests.get(uri,auth=(self.user, self.password))
-		return r.text
+		pass
+# 		r = requests.get(uri,auth=(self.user, self.password))
+# 		return r.text
+	
+	def registerServer(self, url, user, password):
+		self.servers[url] = {'user':user, 'password':password}
 		
 class XSDFlattenerLocal(XSDFlattener):
 		
