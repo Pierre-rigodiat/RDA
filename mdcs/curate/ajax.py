@@ -39,9 +39,6 @@ import rdfPublisher
 import os
 from django.core.files.temp import NamedTemporaryFile
 
-# Global Variables
-debugON = 0
-
 
 #Class definition
 
@@ -243,8 +240,6 @@ def saveXMLDataToDB(request,saveAs):
         # SPARQL : get the rdf string
         rdfStr = etree.tostring(domRDF)
     
-        print "rdf string: " + rdfStr
-    
         # SPARQL : send the rdf to the triplestore
         rdfPublisher.sendRDF(rdfStr)
         
@@ -296,7 +291,6 @@ def loadFormForEntry(request,formSelected):
     print '>>>>  BEGIN def loadFormForEntry(request,formSelected)'
     dajax = Dajax()
 
-    print 'formSelected: ' + formSelected
     htmlFormObject = Htmlform.objects.get(id=formSelected)
 
     dajax.assign('#xsdForm', 'innerHTML', htmlFormObject.content)
@@ -327,7 +321,6 @@ def setCurrentTemplate(request,templateFilename,templateID):
     request.session['currentTemplate'] = templateFilename
     request.session['currentTemplateID'] = templateID
     request.session.modified = True
-    print '>>>>' + templateFilename + ' set as current template in session'
     dajax = Dajax()
 
     if templateID in MetaSchema.objects.all().values_list('schemaId'):
@@ -396,10 +389,8 @@ def setCurrentUserTemplate(request,templateID):
 def verifyTemplateIsSelected(request):
     print 'BEGIN def verifyTemplateIsSelected(request)'
     if 'currentTemplateID' in request.session:
-        print 'template is selected'
         templateSelected = 'yes'
     else:
-        print 'template is not selected'
         templateSelected = 'no'
     dajax = Dajax()
 
@@ -420,7 +411,6 @@ def verifyTemplateIsSelected(request):
 #
 ################################################################################
 def generateFormSubSection(request, xpath, xmlTree, namespace):
-    global debugON
     
     xsd_elements = request.session['xsd_elements']
     mapTagElement = request.session['mapTagElement']
@@ -430,12 +420,10 @@ def generateFormSubSection(request, xpath, xmlTree, namespace):
     formString = ""
 
     if xpath is None:
-        print "xpath is none"
         return formString;
 
     if type(xpath) is str:
         xpathFormated = "./*[@name='"+xpath+"']"
-        if debugON: formString += "xpathFormated: " + xpathFormated.format(namespace)
         elems = xmlTree.findall(xpathFormated)
         e = None
         for elem in elems:
@@ -486,7 +474,6 @@ def generateFormSubSection(request, xpath, xmlTree, namespace):
         return formString
     
     if e.tag == "{0}complexType".format(namespace):
-        if debugON: formString += "matched complexType" 
         complexTypeChild = e.find('*')        
                 
         if complexTypeChild is None:
@@ -501,10 +488,8 @@ def generateFormSubSection(request, xpath, xmlTree, namespace):
             return formString
 
         if complexTypeChild.tag == "{0}sequence".format(namespace):
-            if debugON: formString += "complexTypeChild:" + complexTypeChild.tag + "<br>"
             sequenceChildren = complexTypeChild.findall('*')
             for sequenceChild in sequenceChildren:
-                if debugON: formString += "SequenceChild:" + sequenceChild.tag + "<br>"
                 if sequenceChild.tag == "{0}element".format(namespace):
                     if 'type' not in sequenceChild.attrib:
                         if 'ref' in sequenceChild.attrib: 
@@ -725,7 +710,6 @@ def generateFormSubSection(request, xpath, xmlTree, namespace):
                     
                     formString += "</nobr></li></ul>"
         elif complexTypeChild.tag == "{0}choice".format(namespace):
-            if debugON: formString += "complexTypeChild:" + complexTypeChild.tag + "<br>"
             chooseID = nbChoicesID        
             chooseIDStr = 'choice' + str(chooseID)
             nbChoicesID += 1
@@ -779,8 +763,6 @@ def generateFormSubSection(request, xpath, xmlTree, namespace):
             manageOccurences(request, complexTypeChild, elementID)
             formString += "<li id='" + str(tagID) + "'>" + textCapitalized + "</li>"
     elif e.tag == "{0}simpleType".format(namespace):
-        if debugON: formString += "matched simpleType"
-
         simpleTypeChildren = e.findall('*')
         
         if simpleTypeChildren is None:
@@ -1053,8 +1035,6 @@ def duplicate(request, tagID, xsdForm):
 def duplicateFormSubSection(request, xpath, xmlTree, namespace):
     print 'BEGIN def duplicateFormSubSection(xpath)'
     
-    global debugON
-    
     xsd_elements = request.session['xsd_elements']
     mapTagElement = request.session['mapTagElement']
     mapModules = request.session['mapModules']
@@ -1064,7 +1044,6 @@ def duplicateFormSubSection(request, xpath, xmlTree, namespace):
  
     if type(xpath) is str:
         xpathFormated = "./*[@name='"+xpath+"']"
-        if debugON: formString += "xpathFormated: " + xpathFormated.format(namespace)
         e = xmlTree.find(xpathFormated.format(namespace))
     else:
         e = xpath
@@ -1109,8 +1088,6 @@ def duplicateFormSubSection(request, xpath, xmlTree, namespace):
         return formString
     
     if e.tag == "{0}complexType".format(namespace):
-        if debugON: formString += "matched complexType" 
-        print "matched complexType"
         complexTypeChild = e.find('*')
 
         if complexTypeChild is None:
@@ -1135,11 +1112,8 @@ def duplicateFormSubSection(request, xpath, xmlTree, namespace):
             return formString
         
         if complexTypeChild.tag == "{0}sequence".format(namespace):
-            if debugON: formString += "complexTypeChild:" + complexTypeChild.tag + "<br>"
             sequenceChildren = complexTypeChild.findall('*')
             for sequenceChild in sequenceChildren:
-                if debugON: formString += "SequenceChild:" + sequenceChild.tag + "<br>"
-                print "SequenceChild: " + sequenceChild.tag 
                 if sequenceChild.tag == "{0}element".format(namespace):
                     if 'type' not in sequenceChild.attrib:
                         if 'ref' in sequenceChild.attrib: 
@@ -1314,7 +1288,6 @@ def duplicateFormSubSection(request, xpath, xmlTree, namespace):
                                     formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\"><li id='" + str(tagID) + "'><nobr>" + textCapitalized
                                 formString += duplicateFormSubSection(request, choiceChild.attrib.get('type'), xmlTree, namespace) + "</nobr></li></ul>"
         elif complexTypeChild.tag == "{0}choice".format(namespace):
-            if debugON: formString += "complexTypeChild:" + complexTypeChild.tag + "<br>"
             chooseID = nbChoicesID        
             chooseIDStr = 'choice' + str(chooseID)
             nbChoicesID += 1
@@ -1364,7 +1337,6 @@ def duplicateFormSubSection(request, xpath, xmlTree, namespace):
             manageOccurences(request, complexTypeChild, elementID)
             formString += "<li id='" + str(tagID) + "'>" + textCapitalized + "</li>"            
     elif e.tag == "{0}simpleType".format(namespace):
-        if debugON: formString += "matched simpleType"
 
         simpleTypeChildren = e.findall('*')
         
@@ -1436,11 +1408,7 @@ def generateForm(request):
     formString = ""
     
     namespace = request.session['namespaces'][defaultPrefix]
-    if debugON: formString += "namespace: " + namespace + "<br>"
     e = xmlDocTree.findall("./{0}element".format(namespace))
-
-    if debugON: e = xmlDocTree.findall("{0}complexType/{0}choice/{0}element".format(namespace))
-    if debugON: formString += "list size: " + str(len(e))
 
     if len(e) > 1:
         formString += "<b>" + e[0].attrib.get('name') + "</b><br><ul><li>Choose:"
@@ -1449,8 +1417,6 @@ def generateForm(request):
     else:
         textCapitalized = e[0].attrib.get('name')
         formString += "<div xmlID='root'><b>" + textCapitalized + "</b><br>"
-        if debugON: formString += "<b>" + e[0].attrib.get('name') + "</b><br>"
-        formString += generateFormSubSection(request, e[0].attrib.get('type'), xmlDocTree,namespace)
         formString += "</div>"
     
     return formString
@@ -1504,7 +1470,6 @@ def generateXSDTreeForEnteringData(request):
                
     templateFilename = request.session['currentTemplate']
     templateID = request.session['currentTemplateID']
-    print '>>>>' + templateFilename + ' is the current template in session'
 
     if xmlDocTree == "":
         setCurrentTemplate(request,templateFilename, templateID)
@@ -1541,7 +1506,6 @@ def generateXSDTreeForEnteringData(request):
     #TODO: modules
     pathFile = "{0}/static/resources/files/{1}"
     path = pathFile.format(settings.SITE_ROOT,"periodic.html")
-    print 'path is ' + path
     periodicTableDoc = open(path,'r')
     periodicTableString = periodicTableDoc.read()
     
@@ -1549,7 +1513,6 @@ def generateXSDTreeForEnteringData(request):
 
     pathFile = "{0}/static/resources/files/{1}"
     path = pathFile.format(settings.SITE_ROOT,"periodicMultiple.html")
-    print 'path is ' + path
     periodicMultipleTableDoc = open(path,'r')
     periodicTableMultipleString = periodicMultipleTableDoc.read()
     

@@ -31,9 +31,6 @@ import lxml.etree as etree
 from mgi.models import Template, QueryResults, SparqlQueryResults, SavedQuery, Jsondata, Instance, XMLSchema, MetaSchema
 import sparqlPublisher
 
-# Global Variables
-debugON = 0
-
 #Class definition
 
 ################################################################################
@@ -127,7 +124,6 @@ def setCurrentTemplate(request,templateFilename, templateID):
     request.session['exploreCurrentTemplate'] = templateFilename
     request.session['exploreCurrentTemplateID'] = templateID
     request.session.modified = True
-    print '>>>>' + templateFilename + ' set as current template in session'
     dajax = Dajax()
 
     if templateID in MetaSchema.objects.all().values_list('schemaId'):
@@ -197,10 +193,8 @@ def setCurrentUserTemplate(request, templateID):
 def verifyTemplateIsSelected(request):
     print 'BEGIN def verifyTemplateIsSelected(request)'
     if 'exploreCurrentTemplateID' in request.session:
-        print 'template is selected'
         templateSelected = 'yes'
     else:
-        print 'template is not selected'
         templateSelected = 'no'
 
     print 'END def verifyTemplateIsSelected(request)'
@@ -222,8 +216,6 @@ def verifyTemplateIsSelected(request):
 def generateFormSubSection(request, xpath, elementName, fullPath, xmlTree):
     print 'BEGIN def generateFormSubSection(xpath, elementName, fullPath)'
     
-    global debugON
-    
     # get the variables in session
     defaultNamespace = request.session['defaultNamespaceExplore']    
     defaultPrefix = request.session['defaultPrefixExplore']
@@ -232,13 +224,11 @@ def generateFormSubSection(request, xpath, elementName, fullPath, xmlTree):
 
     # No xpath provided: returns the current string
     if xpath is None:
-        print "xpath is none"
         return formString;
 
     # Xpath is a string: look for the element in the tree
     if type(xpath) is str:
         xpathFormated = "./*[@name='"+xpath+"']"
-        if debugON: formString += "xpathFormated: " + xpathFormated.format(defaultNamespace)
         e = xmlTree.find(xpathFormated.format(defaultNamespace))
     else:
         # the xpath already contains the element
@@ -252,8 +242,6 @@ def generateFormSubSection(request, xpath, elementName, fullPath, xmlTree):
     
     # if the element is a complex type
     if e.tag == "{0}complexType".format(defaultNamespace):
-        if debugON: formString += "matched complexType" 
-        print "matched complexType" + "<br>"
         complexTypeChild = e.find('*')
 
         if complexTypeChild is None:
@@ -264,11 +252,8 @@ def generateFormSubSection(request, xpath, elementName, fullPath, xmlTree):
         # if this is a sequence
         if complexTypeChild.tag == "{0}sequence".format(defaultNamespace):
             formString += "<ul>"
-            if debugON: formString += "complexTypeChild:" + complexTypeChild.tag + "<br>"
             sequenceChildren = complexTypeChild.findall('*')            
             for sequenceChild in sequenceChildren:
-                if debugON: formString += "SequenceChild:" + sequenceChild.tag + "<br>"
-                print "SequenceChild: " + sequenceChild.tag 
                 if sequenceChild.tag == "{0}element".format(defaultNamespace):
                     if 'type' not in sequenceChild.attrib:
                         if 'ref' in sequenceChild.attrib:
@@ -392,7 +377,6 @@ def generateFormSubSection(request, xpath, elementName, fullPath, xmlTree):
             formString += "</li></ul>"
         elif complexTypeChild.tag == "{0}choice".format(defaultNamespace):
             formString += "<ul>"
-            if debugON: formString += "complexTypeChild:" + complexTypeChild.tag + "<br>"
             chooseID = nbChoicesID        
             chooseIDStr = 'choice' + str(chooseID)
             nbChoicesID += 1
@@ -433,7 +417,6 @@ def generateFormSubSection(request, xpath, elementName, fullPath, xmlTree):
             textCapitalized = complexTypeChild.attrib.get('name')
             formString += "<li>" + textCapitalized + "</li>"
     elif e.tag == "{0}simpleType".format(defaultNamespace):
-        if debugON: formString += "matched simpleType" + "<br>"
 
         simpleTypeChildren = e.findall('*')
         
@@ -481,20 +464,15 @@ def generateForm(request):
     defaultNamespace = request.session['defaultNamespaceExplore'] 
     e = xmlDocTree.findall("./{0}element".format(defaultNamespace))
 
-    if debugON: e = xmlDocTree.findall("{0}complexType/{0}choice/{0}element".format(defaultNamespace))
-    if debugON: formString += "list size: " + str(len(e))
-
 #     if len(e) > 1:
     for element in e:
         textCapitalized = element.attrib.get('name')
         formString += "<b>" + textCapitalized + "</b><br>"
-        if debugON: formString += "<b>" + element.attrib.get('name').capitalize() + "</b><br>"
         formString += generateFormSubSection(request, element.attrib.get('type'), textCapitalized, "", xmlDocTree)
 #         formString += "<p style='color:red'> The schema is not valid ! </p>"
 #     else:
 #         textCapitalized = e[0].attrib.get('name')[0].capitalize()  + e[0].attrib.get('name')[1:]
 #         formString += "<b>" + textCapitalized + "</b><br>"
-#         if debugON: formString += "<b>" + e[0].attrib.get('name').capitalize() + "</b><br>"
 #         formString += generateFormSubSection(e[0].attrib.get('type'), "")
 
     print 'END def generateForm(key)'
@@ -528,7 +506,6 @@ def generateXSDTreeForQueryingData(request):
     
     templateFilename = request.session['exploreCurrentTemplate']
     templateID = request.session['exploreCurrentTemplateID']
-    print '>>>> ' + templateFilename + ' is the current template in session'
     
     # get the namespaces of the schema and the default prefix
     xmlDocTree = etree.fromstring(xmlDocTreeStr)
