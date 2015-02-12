@@ -1,7 +1,7 @@
 
 import lxml.etree as etree
 from mgi.models import MetaSchema, Template
-from _io import StringIO
+from cStringIO import StringIO
 
 ################################################################################
 # 
@@ -91,3 +91,4 @@ def validateXMLDocument(templateID, xmlString):
     xmlDoc = etree.fromstring(xmlString)
     prettyXMLString = etree.tostring(xmlDoc, pretty_print=True)  
     xmlSchema.assertValid(etree.parse(StringIO(prettyXMLString)))  
+    
