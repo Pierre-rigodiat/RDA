@@ -398,385 +398,348 @@ def verifyTemplateIsSelected(request):
     return simplejson.dumps({'templateSelected':templateSelected})
 
 
-################################################################################
-# 
-# Function Name: generateFormSubSection(request, xpath, xmlTree, namespace)
-# Inputs:        request -
-#                xpath - path to the element or element itself
-#                xmlTree - XML tree of the template
-#                namespace - Namespace used in the template
-# Outputs:       JSON data 
-# Exceptions:    None
-# Description:   Generate a subsection of the HTML string to be inserted in the page.
-#
-################################################################################
-def generateFormSubSection(request, xpath, xmlTree, namespace):
+def manageButtons(element):
+    addButton = False
+    deleteButton = False
+    nbOccurrences = 1
+    if ('minOccurs' in element.attrib):
+        if (element.attrib['minOccurs'] == '0'):
+            deleteButton = True
+        else:
+            nbOccurrences = element.attrib['minOccurs']
     
+    if ('maxOccurs' in element.attrib):
+        if (element.attrib['maxOccurs'] == "unbounded"):
+            addButton = True
+        elif ('minOccurs' in element.attrib):
+            if (int(element.attrib['maxOccurs']) > int(element.attrib['minOccurs'])
+                and int(element.attrib['maxOccurs']) > 1):
+                addButton = True
+    return addButton, deleteButton, nbOccurrences
+
+def removeAnnotations(element, namespace):
+    "Remove annotations of the current element"
+    
+    #check if the first child is an annotation and delete it
+    if(len(list(element)) != 0):
+        if (element[0].tag == "{0}annotation".format(namespace)):
+            element.remove(element[0])
+
+
+def generateSequence(request, element, xmlTree, namespace):
+    #(annotation?,(element|group|choice|sequence|any)*)
+    
+    formString = ""
+    
+    # remove the annotations
+    removeAnnotations(element, namespace)
+    
+    # generates the sequence
+    if(len(list(element)) != 0):
+        for child in element:
+            if (child.tag == "{0}element".format(namespace)):            
+                formString += generateElement(request, child, xmlTree, namespace)
+            elif (child.tag == "{0}sequence".format(namespace)):
+                formString += generateSequence(request, child, xmlTree, namespace)
+            elif (child.tag == "{0}choice".format(namespace)):
+                formString += generateChoice(request, child, xmlTree, namespace)
+            elif (child.tag == "{0}any".format(namespace)):
+                pass
+            elif (child.tag == "{0}group".format(namespace)):
+                pass
+    
+    return formString
+
+def generateChoice(request, element, xmlTree, namespace):
+    #(annotation?,(element|group|choice|sequence|any)*)
+    nbChoicesID = int(request.session['nbChoicesID'])
     xsd_elements = request.session['xsd_elements']
     mapTagElement = request.session['mapTagElement']
-    mapModules = request.session['mapModules']
-    namespaces = request.session['namespaces']
-    nbChoicesID = int(request.session['nbChoicesID'])
+    defaultPrefix = request.session['defaultPrefix']
+    
     formString = ""
+    
+    #remove the annotations
+    removeAnnotations(element, namespace) 
+    
+    chooseID = nbChoicesID
+    chooseIDStr = 'choice' + str(chooseID)
+    nbChoicesID += 1
+    request.session['nbChoicesID'] = str(nbChoicesID)
+    formString += "<ul><li><nobr>Choose <select id='"+ chooseIDStr +"' onchange=\"changeChoice(this);\">"
+    
+    # generates the sequence
+    if(len(list(element)) != 0):
+        for child in element:
+            if (child.tag == "{0}element".format(namespace)):            
+                name = child.attrib.get('name')
+                formString += "<option value='" + name + "'>" + name + "</option></b><br>"
+            elif (child.tag == "{0}group".format(namespace)):
+                pass
+            elif (child.tag == "{0}choice".format(namespace)):
+                pass
+            elif (child.tag == "{0}sequence".format(namespace)):
+                pass
+            elif (child.tag == "{0}any".format(namespace)):
+                pass
 
-    if xpath is None:
-        return formString;
+    formString += "</select>"
+    
+    for (counter, choiceChild) in enumerate(list(element)):
+        if choiceChild.tag == "{0}element".format(namespace):
+            if choiceChild.attrib.get('type') in ["{0}:string".format(defaultPrefix), 
+                                                  "{0}:double".format(defaultPrefix), 
+                                                  "{0}:float".format(defaultPrefix), 
+                                                  "{0}:integer".format(defaultPrefix), 
+                                                  "{0}:anyURI".format(defaultPrefix)]:
+                textCapitalized = choiceChild.attrib.get('name')                                
+                elementID = len(xsd_elements)
+                xsd_elements[elementID] = etree.tostring(choiceChild)
+                tagID = "element" + str(len(mapTagElement.keys()))  
+                mapTagElement[tagID] = elementID 
+                manageOccurences(request, choiceChild, elementID)
+                if (counter > 0):
+                    formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\" style=\"display:none;\"><li id='" + str(tagID) + "'><nobr>" + choiceChild.attrib.get('name') + " <input type='text'>" + "</nobr></li></ul>"
+                else:
+                    formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\"><li id='" + str(tagID) + "'><nobr>" + choiceChild.attrib.get('name') + " <input type='text'>" + "</nobr></li></ul>"
+            else:
+                textCapitalized = choiceChild.attrib.get('name')
+                elementID = len(xsd_elements)
+                xsd_elements[elementID] = etree.tostring(choiceChild)
+                tagID = "element" + str(len(mapTagElement.keys()))  
+                mapTagElement[tagID] = elementID 
+                manageOccurences(request, choiceChild, elementID)
+                if (counter > 0):
+                    formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\" style=\"display:none;\"><li id='" + str(tagID) + "'><nobr>" + textCapitalized
+                else:
+                    formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\"><li id='" + str(tagID) + "'><nobr>" + textCapitalized
+                
+                xpath = "./*[@name='"+choiceChild.attrib.get('type')+"']"
+                elementType = xmlTree.find(xpath)
+                if elementType.tag == "{0}complexType".format(namespace):
+                    formString += generateComplexType(request, elementType, xmlTree, namespace)
+                elif elementType.tag == "{0}simpleType".format(namespace):
+                    formString += generateSimpleType(request, elementType, xmlTree, namespace)    
+                
+                formString += "</nobr></li></ul>"
+        else:
+            pass
+    
+    formString += "</nobr></li></ul>"
+    
+    
+    return formString
+    
+def generateSimpleType(request, element, xmlTree, namespace):
+    formString = ""
+    
+    # remove the annotations
+    removeAnnotations(element, namespace)
+    
+    # TODO: modules
+    formString = stubModules(request, element)
+    if len(formString) > 0:
+        return formString
+    
+    for child in list(element):
+        if child.tag == "{0}restriction".format(namespace):
+            formString += "<select>"
+            choiceChildren = child.findall('*')
+            for choiceChild in choiceChildren:
+                if choiceChild.tag == "{0}enumeration".format(namespace):
+                    formString += "<option value='" + choiceChild.attrib.get('value')  + "'>" + choiceChild.attrib.get('value') + "</option>"
+            formString += "</select>"
+    
+    return formString 
 
-    if type(xpath) is str:
-        xpathFormated = "./*[@name='"+xpath+"']"
-        elems = xmlTree.findall(xpathFormated)
-        e = None
-        for elem in elems:
-            if elem.tag == "{0}simpleType".format(namespace) or elem.tag == "{0}complexType".format(namespace):
-                e = elem
-                break  
-    else:
-        e = xpath
 
-    # e is None
-    if e is None:
-        return formString    
+def generateComplexType(request, element, xmlTree, namespace):
+    formString = ""
+    
+    # remove the annotations
+    removeAnnotations(element, namespace)
+    
+    # TODO: modules
+    formString = stubModules(request, element)
+    if len(formString) > 0:
+        return formString
+    
+    # TODO: does it contain attributes ?
         
-    #TODO: module
-    if e.attrib.get('name') in mapModules.keys():
+    # does it contain sequence or all?
+    complexTypeChild = element.find('{0}sequence'.format(namespace))
+    if complexTypeChild is not None:
+        return generateSequence(request, complexTypeChild, xmlTree, namespace)
+    else:
+        complexTypeChild = element.find('{0}all'.format(namespace))
+        if complexTypeChild is not None:
+            return generateSequence(request, complexTypeChild, xmlTree, namespace)
+        else:
+            # does it contain choice ?
+            complexTypeChild = element.find('{0}choice'.format(namespace))
+            if complexTypeChild is not None:
+                return generateChoice(request, complexTypeChild, xmlTree, namespace)
+            else:
+                return formString
+    
+    return formString 
+
+
+def stubModules(request, element):
+    mapModules = request.session['mapModules']
+    
+    formString = ""
+    
+    #TODO: modules
+    if element.attrib.get('name') in mapModules.keys():
         formString += "<div class='module' style='display: inline'>"
-        formString += mapModules[e.attrib.get('name')]
+        formString += mapModules[element.attrib.get('name')]
         formString += "<div class='moduleDisplay'></div>"
         formString += "<div class='moduleResult' style='display: none'></div>"
         formString += "</div>"    
-        return formString
     
     #TODO: modules
-    if 'name' in e.attrib and e.attrib.get('name') == "ConstituentsType":
+    if 'name' in element.attrib and element.attrib.get('name') == "ConstituentsType":
         formString += "<div class='module' style='display: inline'>"
         formString += "<div class=\"btn select-element\" onclick=\"selectMultipleElements(this);\"><i class=\"icon-folder-open\"></i> Select Chemical Elements</div>"
         formString += "<div class='moduleDisplay'></div>"
         formString += "<div class='moduleResult' style='display: none'></div>"
         formString += "</div>"
-        return formString
     
     #TODO: modules
-    if 'name' in e.attrib and e.attrib.get('name') == "ChemicalElement":
+    if 'name' in element.attrib and element.attrib.get('name') == "ChemicalElement":
         formString += "<div class='module' style='display: inline'>"
         formString += "<div class=\"btn select-element\" onclick=\"selectElement(this);\"><i class=\"icon-folder-open\"></i> Select Chemical Element</div>"
         formString += "<div class='moduleDisplay'>Current Selection: None</div>"
         formString += "<div class='moduleResult' style='display: none'></div>"
         formString += "</div>" 
-        return formString
     
     #TODO: modules
-    if 'name' in e.attrib and e.attrib.get('name') == "Table":
+    if 'name' in element.attrib and element.attrib.get('name') == "Table":
         formString += "<div class='module' style='display: inline'>"
         formString += "<div class=\"btn select-element\" onclick=\"selectHDF5File('Spreadsheet File',this);\"><i class=\"icon-folder-open\"></i> Upload Spreadsheet </div>"
         formString += "<div class='moduleDisplay'></div>"
         formString += "<div class='moduleResult' style='display: none'></div>"
         formString += "</div>"
-        return formString
     
-    if e.tag == "{0}complexType".format(namespace):
-        complexTypeChild = e.find('*')        
-                
-        if complexTypeChild is None:
-            return formString
+    return formString
+
+################################################################################
+# 
+# Function Name: generateElement(request, element, xmlTree, namespace)
+# Inputs:        request -
+#                element - XML element
+#                xmlTree - XML tree of the template
+#                namespace - Namespace used in the template
+# Outputs:       JSON data 
+# Exceptions:    None
+# Description:   Generate an HTML string that represents an XML element.
+#
+################################################################################
+def generateElement(request, element, xmlTree, namespace):
     
-        # skip the annotations
-        if (complexTypeChild.tag == "{0}annotation".format(namespace)):
-            e.remove(complexTypeChild)
-            complexTypeChild = e.find('*')
+    xsd_elements = request.session['xsd_elements']
+    mapTagElement = request.session['mapTagElement']
+    defaultPrefix = request.session['defaultPrefix']
+    
+    formString = ""
+
+    
+    if 'type' not in element.attrib:
+        # type is a reference included in the document
+        if 'ref' in element.attrib: 
+            print "ref"  
+            return formString 
+        # element with type declared below it
+        else:                            
+            textCapitalized = element.attrib.get('name')
+            addButton, deleteButton, nbOccurrences = manageButtons(element)
+                                                    
+            elementID = len(xsd_elements)
+            xsd_elements[elementID] = etree.tostring(element)
+            manageOccurences(request, element, elementID)
             
-        if complexTypeChild is None:
-            return formString
-
-        if complexTypeChild.tag == "{0}sequence".format(namespace):
-            sequenceChildren = complexTypeChild.findall('*')
-            for sequenceChild in sequenceChildren:
-                if sequenceChild.tag == "{0}element".format(namespace):
-                    if 'type' not in sequenceChild.attrib:
-                        if 'ref' in sequenceChild.attrib: 
-                            print "ref"  
-                            return formString 
-#                             refNamespace = sequenceChild.attrib.get('ref').split(":")[0]
-#                             if refNamespace in namespaces.keys():
-#                                 refTypeStr = sequenceChild.attrib.get('ref').split(":")[1]
-#                                 try:
-#                                     addButton = False
-#                                     deleteButton = False
-#                                     nbOccurrences = 1   
-#                                     if ('minOccurs' in sequenceChild.attrib):
-#                                         if (sequenceChild.attrib['minOccurs'] == '0'):
-#                                             deleteButton = True
-#                                         else:
-#                                             nbOccurrences = sequenceChild.attrib['minOccurs']
-#                                     
-#                                     if ('maxOccurs' in sequenceChild.attrib):
-#                                         if (sequenceChild.attrib['maxOccurs'] == "unbounded"):
-#                                             addButton = True
-#                                         elif ('minOccurs' in sequenceChild.attrib):
-#                                             if (int(sequenceChild.attrib['maxOccurs']) > int(sequenceChild.attrib['minOccurs'])
-#                                                 and int(sequenceChild.attrib['maxOccurs']) > 1):
-#                                                 addButton = True   
-#                                                 
-#                                     elementID = len(xsd_elements)
-#                                     xsd_elements[elementID] = etree.tostring(sequenceChild)
-#                                     manageOccurences(request, sequenceChild, elementID)   
-#                                     formString += "<ul>"                                   
-#                                     for x in range (0,int(nbOccurrences)):     
-#                                         tagID = "element" + str(len(mapTagElement.keys()))  
-#                                         mapTagElement[tagID] = elementID             
-#                                         formString += "<li id='" + str(tagID) + "'><nobr>" + refTypeStr
-#                                         if (addButton == True):                                
-#                                             formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" onclick=\"changeHTMLForm('add',this,"+str(tagID[7:])+");\"></span>"
-#                                         else:
-#                                             formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" style=\"display:none;\" onclick=\"changeHTMLForm('add',this,"+str(tagID[7:])+");\"></span>"                                                                             
-#                                         if (deleteButton == True):
-#                                             formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" onclick=\"changeHTMLForm('remove',this,"+str(tagID[7:])+");\"></span>"
-#                                         else:
-#                                             formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" style=\"display:none;\" onclick=\"changeHTMLForm('remove',this,"+str(tagID[7:])+");\"></span>"
-#                                         formString += generateFormSubSection(request, sequenceChild.attrib['ref'], xmlTree, namespace)
-#                                         formString += "</nobr></li>"
-#                                     formString += "</ul>"
-#                                 except:
-#                                     formString += "<ul><li>"+refTypeStr+"</li></ul>"
-#                                     print "Unable to find the following reference: " + sequenceChild.attrib.get('ref')
-                        # element with type declared below it
-                        else:                            
-                            textCapitalized = sequenceChild.attrib.get('name')
-                            addButton = False
-                            deleteButton = False
-                            nbOccurrences = 1
-                            if ('minOccurs' in sequenceChild.attrib):
-                                if (sequenceChild.attrib['minOccurs'] == '0'):
-                                    deleteButton = True
-                                else:
-                                    nbOccurrences = sequenceChild.attrib['minOccurs']
-                            
-                            if ('maxOccurs' in sequenceChild.attrib):
-                                if (sequenceChild.attrib['maxOccurs'] == "unbounded"):
-                                    addButton = True
-                                elif ('minOccurs' in sequenceChild.attrib):
-                                    if (int(sequenceChild.attrib['maxOccurs']) > int(sequenceChild.attrib['minOccurs'])
-                                        and int(sequenceChild.attrib['maxOccurs']) > 1):
-                                        addButton = True
-                                        
-                            elementID = len(xsd_elements)
-                            xsd_elements[elementID] = etree.tostring(sequenceChild)
-                            manageOccurences(request, sequenceChild, elementID)
-                            
-                            formString += "<ul>"                                   
-                            for x in range (0,int(nbOccurrences)):     
-                                tagID = "element" + str(len(mapTagElement.keys()))  
-                                mapTagElement[tagID] = elementID             
-                                formString += "<li id='" + str(tagID) + "'><nobr>" + textCapitalized
-                                if (addButton == True):                                
-                                    formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" onclick=\"changeHTMLForm('add',this,"+str(tagID[7:])+");\"></span>"
-                                else:
-                                    formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" style=\"display:none;\" onclick=\"changeHTMLForm('add',this,"+str(tagID[7:])+");\"></span>"                                                                             
-                                if (deleteButton == True):
-                                    formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" onclick=\"changeHTMLForm('remove',this,"+str(tagID[7:])+");\"></span>"
-                                else:
-                                    formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" style=\"display:none;\" onclick=\"changeHTMLForm('remove',this,"+str(tagID[7:])+");\"></span>"
-                                formString += generateFormSubSection(request, sequenceChild[0], xmlTree, namespace)
-                                formString += "</nobr></li>"
-                            formString += "</ul>"                        
-                    elif ((sequenceChild.attrib.get('type') == "xsd:string".format(namespace))
-                          or (sequenceChild.attrib.get('type') == "xsd:double".format(namespace))
-                          or (sequenceChild.attrib.get('type') == "xsd:float".format(namespace)) 
-                          or (sequenceChild.attrib.get('type') == "xsd:integer".format(namespace)) 
-                          or (sequenceChild.attrib.get('type') == "xsd:anyURI".format(namespace))):
-                        textCapitalized = sequenceChild.attrib.get('name')
-                        addButton = False
-                        deleteButton = False
-                        nbOccurrences = 1
-                        if ('minOccurs' in sequenceChild.attrib):
-                            if (sequenceChild.attrib['minOccurs'] == '0'):
-                                deleteButton = True
-                            else:
-                                nbOccurrences = sequenceChild.attrib['minOccurs']
-                        
-                        if ('maxOccurs' in sequenceChild.attrib):
-                            if (sequenceChild.attrib['maxOccurs'] == "unbounded"):
-                                addButton = True
-                            elif ('minOccurs' in sequenceChild.attrib):
-                                if (int(sequenceChild.attrib['maxOccurs']) > int(sequenceChild.attrib['minOccurs'])
-                                    and int(sequenceChild.attrib['maxOccurs']) > 1):
-                                    addButton = True
-                                    
-                        elementID = len(xsd_elements)
-                        xsd_elements[elementID] = etree.tostring(sequenceChild)
-                        manageOccurences(request, sequenceChild, elementID)
-                        formString += "<ul>"                                   
-                        for x in range (0,int(nbOccurrences)):                         
-                            tagID = "element" + str(len(mapTagElement.keys()))  
-                            mapTagElement[tagID] = elementID 
-                            formString += "<li id='" + str(tagID) + "'><nobr>" + textCapitalized + " <input type='text'>"
-                                                
-                            if (addButton == True):                                
-                                formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" onclick=\"changeHTMLForm('add',this,"+str(tagID[7:])+");\"></span>"
-                            else:
-                                formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" style=\"display:none;\" onclick=\"changeHTMLForm('add',this,"+str(tagID[7:])+");\"></span>"                                
-
-                            if (deleteButton == True):
-                                formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" onclick=\"changeHTMLForm('remove',this,"+str(tagID[7:])+");\"></span>"
-                            else:
-                                formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" style=\"display:none;\" onclick=\"changeHTMLForm('remove',this,"+str(tagID[7:])+");\"></span>"
-                            formString += "</nobr></li>"
-                        formString += "</ul>"                            
-                    else:
-                        if sequenceChild.attrib.get('type') is not None:
-                            textCapitalized = sequenceChild.attrib.get('name')
-                            addButton = False
-                            deleteButton = False
-                            nbOccurrences = 1
-                            if ('minOccurs' in sequenceChild.attrib):
-                                if (sequenceChild.attrib['minOccurs'] == '0'):
-                                    deleteButton = True
-                                else:
-                                    nbOccurrences = sequenceChild.attrib['minOccurs']
-                            
-                            if ('maxOccurs' in sequenceChild.attrib):
-                                if (sequenceChild.attrib['maxOccurs'] == "unbounded"):
-                                    addButton = True
-                                elif ('minOccurs' in sequenceChild.attrib):
-                                    if (int(sequenceChild.attrib['maxOccurs']) > int(sequenceChild.attrib['minOccurs'])
-                                        and int(sequenceChild.attrib['maxOccurs']) > 1):
-                                        addButton = True
-                                        
-                            elementID = len(xsd_elements)
-                            xsd_elements[elementID] = etree.tostring(sequenceChild)
-                            manageOccurences(request, sequenceChild, elementID)
-                            formString += "<ul>"                                   
-                            for x in range (0,int(nbOccurrences)):                            
-                                tagID = "element" + str(len(mapTagElement.keys()))  
-                                mapTagElement[tagID] = elementID 
-                                formString += "<li id='" + str(tagID) + "'><nobr>" + textCapitalized + " "
-
-                                if (addButton == True):                                
-                                    formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" onclick=\"changeHTMLForm('add',this,"+str(tagID[7:])+");\"></span>"
-                                else:
-                                    formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" style=\"display:none;\" onclick=\"changeHTMLForm('add',this,"+str(tagID[7:])+");\"></span>"
-                                    
-                                if (deleteButton == True):
-                                    formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" onclick=\"changeHTMLForm('remove',this,"+str(tagID[7:])+");\"></span>"
-                                else:
-                                    formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" style=\"display:none;\" onclick=\"changeHTMLForm('remove',this,"+str(tagID[7:])+");\"></span>"
-                                formString += generateFormSubSection(request, sequenceChild.attrib.get('type'),xmlTree,namespace)
-                                formString += "</nobr></li>"
-                            formString += "</ul>"
-                        else:
-                            print "No Type:" + sequenceChild.attrib['name']
-                elif sequenceChild.tag == "{0}choice".format(namespace):
-                    chooseID = nbChoicesID
-                    chooseIDStr = 'choice' + str(chooseID)
-                    nbChoicesID += 1
-                    request.session['nbChoicesID'] = str(nbChoicesID)
-                    formString += "<ul><li><nobr>Choose <select id='"+ chooseIDStr +"' onchange=\"changeChoice(this);\">"
-                    choiceChildren = sequenceChild.findall('*')
-                    selectedChild = choiceChildren[0]
-                    for choiceChild in choiceChildren:
-                        if choiceChild.tag == "{0}element".format(namespace):
-                            textCapitalized = choiceChild.attrib.get('name')
-                            formString += "<option value='" + textCapitalized + "'>" + textCapitalized + "</option></b><br>"
-                    formString += "</select>"
+            formString += "<ul>"                                   
+            for x in range (0,int(nbOccurrences)):     
+                tagID = "element" + str(len(mapTagElement.keys()))  
+                mapTagElement[tagID] = elementID             
+                formString += "<li id='" + str(tagID) + "'><nobr>" + textCapitalized
+                if (addButton == True):                                
+                    formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" onclick=\"changeHTMLForm('add',this,"+str(tagID[7:])+");\"></span>"
+                else:
+                    formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" style=\"display:none;\" onclick=\"changeHTMLForm('add',this,"+str(tagID[7:])+");\"></span>"                                                                             
+                if (deleteButton == True):
+                    formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" onclick=\"changeHTMLForm('remove',this,"+str(tagID[7:])+");\"></span>"
+                else:
+                    formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" style=\"display:none;\" onclick=\"changeHTMLForm('remove',this,"+str(tagID[7:])+");\"></span>"
+                if element[0].tag == "{0}complexType".format(namespace):
+                    formString += generateComplexType(request, element[0], xmlTree, namespace)
+                elif element[0].tag == "{0}simpleType".format(namespace):
+                    formString += generateSimpleType(request, element[0], xmlTree, namespace)
+                formString += "</nobr></li>"
+            formString += "</ul>"                        
+    elif element.attrib.get('type') in ["{0}:string".format(defaultPrefix), 
+                                              "{0}:double".format(defaultPrefix), 
+                                              "{0}:float".format(defaultPrefix), 
+                                              "{0}:integer".format(defaultPrefix), 
+                                              "{0}:anyURI".format(defaultPrefix)]:
+        textCapitalized = element.attrib.get('name')
+        addButton, deleteButton, nbOccurrences = manageButtons(element)
                     
-                    for (counter, choiceChild) in enumerate(choiceChildren):
-                        if choiceChild.tag == "{0}element".format(namespace):
-                            if((choiceChild.attrib.get('type') == "xsd:string".format(namespace))
-                              or (choiceChild.attrib.get('type') == "xsd:double".format(namespace))
-                              or (choiceChild.attrib.get('type') == "xsd:float".format(namespace)) 
-                              or (choiceChild.attrib.get('type') == "xsd:integer".format(namespace)) 
-                              or (choiceChild.attrib.get('type') == "xsd:anyURI".format(namespace))):
-                                textCapitalized = choiceChild.attrib.get('name')                                
-                                elementID = len(xsd_elements)
-                                xsd_elements[elementID] = etree.tostring(choiceChild)
-                                tagID = "element" + str(len(mapTagElement.keys()))  
-                                mapTagElement[tagID] = elementID 
-                                manageOccurences(request, choiceChild, elementID)
-                                if (counter > 0):
-                                    formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\" style=\"display:none;\"><li id='" + str(tagID) + "'><nobr>" + choiceChild.attrib.get('name') + " <input type='text'>" + "</nobr></li></ul>"
-                                else:
-                                    formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\"><li id='" + str(tagID) + "'><nobr>" + choiceChild.attrib.get('name') + " <input type='text'>" + "</nobr></li></ul>"
-                            else:
-                                textCapitalized = choiceChild.attrib.get('name')
-                                elementID = len(xsd_elements)
-                                xsd_elements[elementID] = etree.tostring(choiceChild)
-                                tagID = "element" + str(len(mapTagElement.keys()))  
-                                mapTagElement[tagID] = elementID 
-                                manageOccurences(request, choiceChild, elementID)
-                                if (counter > 0):
-                                    formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\" style=\"display:none;\"><li id='" + str(tagID) + "'><nobr>" + textCapitalized
-                                else:
-                                    formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\"><li id='" + str(tagID) + "'><nobr>" + textCapitalized
-                                formString += generateFormSubSection(request, choiceChild.attrib.get('type'),xmlTree,namespace) + "</nobr></li></ul>"
-                    
-                    formString += "</nobr></li></ul>"
-        elif complexTypeChild.tag == "{0}choice".format(namespace):
-            chooseID = nbChoicesID        
-            chooseIDStr = 'choice' + str(chooseID)
-            nbChoicesID += 1
-            request.session['nbChoicesID'] = str(nbChoicesID)
-            formString += "<ul><li><nobr>Choose <select id='"+ chooseIDStr +"' onchange=\"changeChoice(this);\">"
-            choiceChildren = complexTypeChild.findall('*')
-            selectedChild = choiceChildren[0]
-            for choiceChild in choiceChildren:
-                if choiceChild.tag == "{0}element".format(namespace):
-                    textCapitalized = choiceChild.attrib.get('name')
-                    formString += "<option value='" + textCapitalized + "'>" + textCapitalized + "</option></b><br>"
-            formString += "</select>"
-            for (counter, choiceChild) in enumerate(choiceChildren):
-                if choiceChild.tag == "{0}element".format(namespace):
-                    if((choiceChild.attrib.get('type') == "xsd:string".format(namespace))
-                      or (choiceChild.attrib.get('type') == "xsd:double".format(namespace))
-                      or (choiceChild.attrib.get('type') == "xsd:float".format(namespace)) 
-                      or (choiceChild.attrib.get('type') == "xsd:integer".format(namespace)) 
-                      or (choiceChild.attrib.get('type') == "xsd:anyURI".format(namespace))):
-                        textCapitalized = choiceChild.attrib.get('name')                        
-                        elementID = len(xsd_elements)
-                        xsd_elements[elementID] = etree.tostring(choiceChild)
-                        tagID = "element" + str(len(mapTagElement.keys()))  
-                        mapTagElement[tagID] = elementID 
-                        manageOccurences(request, choiceChild, elementID)
-                        if (counter > 0):
-                            formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\" style=\"display:none;\"><li id='" + str(tagID) + "'><nobr>" + textCapitalized + " <input type='text'>" + "</nobr></li></ul>"
-                        else:
-                            formString += "<ul id=\""  + chooseIDStr + "-" + str(counter) + "\"><li id='" + str(tagID) + "'><nobr>" + textCapitalized + " <input type='text'>" + "</nobr></li></ul>"
-                    else:
-                        textCapitalized = choiceChild.attrib.get('name')
-                    
-                        elementID = len(xsd_elements)
-                        xsd_elements[elementID] = etree.tostring(choiceChild)
-                        tagID = "element" + str(len(mapTagElement.keys()))  
-                        mapTagElement[tagID] = elementID 
-                        manageOccurences(request, choiceChild, elementID)
-                        if (counter > 0):
-                            formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\" style=\"display:none;\"><li id='" + str(tagID) + "'><nobr>" + textCapitalized
-                        else:
-                            formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\"><li id='" + str(tagID) + "'><nobr>" + textCapitalized
-                        formString += generateFormSubSection(request, choiceChild.attrib.get('type'),xmlTree,namespace) + "</nobr></li></ul>"
-
-            formString += "</nobr></li></ul>"
-        elif complexTypeChild.tag == "{0}attribute".format(namespace):
-            textCapitalized = complexTypeChild.attrib.get('name')
-            elementID = len(xsd_elements) 
-            xsd_elements[elementID] = etree.tostring(complexTypeChild)
+        elementID = len(xsd_elements)
+        xsd_elements[elementID] = etree.tostring(element)
+        manageOccurences(request, element, elementID)
+        
+        formString += "<ul>"                                   
+        for x in range (0,int(nbOccurrences)):                         
             tagID = "element" + str(len(mapTagElement.keys()))  
-            mapTagElement[tagID] = elementID  
-            manageOccurences(request, complexTypeChild, elementID)
-            formString += "<li id='" + str(tagID) + "'>" + textCapitalized + "</li>"
-    elif e.tag == "{0}simpleType".format(namespace):
-        simpleTypeChildren = e.findall('*')
-        
-        if simpleTypeChildren is None:
-            return formString
+            mapTagElement[tagID] = elementID 
+            formString += "<li id='" + str(tagID) + "'><nobr>" + textCapitalized + " <input type='text'>"
+                                
+            if (addButton == True):                                
+                formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" onclick=\"changeHTMLForm('add',this,"+str(tagID[7:])+");\"></span>"
+            else:
+                formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" style=\"display:none;\" onclick=\"changeHTMLForm('add',this,"+str(tagID[7:])+");\"></span>"                                
 
+            if (deleteButton == True):
+                formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" onclick=\"changeHTMLForm('remove',this,"+str(tagID[7:])+");\"></span>"
+            else:
+                formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" style=\"display:none;\" onclick=\"changeHTMLForm('remove',this,"+str(tagID[7:])+");\"></span>"
+            formString += "</nobr></li>"
+        formString += "</ul>"                            
+    else:
+        if element.attrib.get('type') is not None:
+            textCapitalized = element.attrib.get('name')
+            addButton, deleteButton, nbOccurrences = manageButtons(element)
+                                                    
+            elementID = len(xsd_elements)
+            xsd_elements[elementID] = etree.tostring(element)
+            manageOccurences(request, element, elementID)
+            formString += "<ul>"                                   
+            for x in range (0,int(nbOccurrences)):                            
+                tagID = "element" + str(len(mapTagElement.keys()))  
+                mapTagElement[tagID] = elementID 
+                formString += "<li id='" + str(tagID) + "'><nobr>" + textCapitalized + " "
+
+                if (addButton == True):                                
+                    formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" onclick=\"changeHTMLForm('add',this,"+str(tagID[7:])+");\"></span>"
+                else:
+                    formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" style=\"display:none;\" onclick=\"changeHTMLForm('add',this,"+str(tagID[7:])+");\"></span>"
+                    
+                if (deleteButton == True):
+                    formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" onclick=\"changeHTMLForm('remove',this,"+str(tagID[7:])+");\"></span>"
+                else:
+                    formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" style=\"display:none;\" onclick=\"changeHTMLForm('remove',this,"+str(tagID[7:])+");\"></span>"
+                xpath = "./*[@name='"+element.attrib.get('type')+"']"
+                elementType = xmlTree.find(xpath)
+                if elementType is not None:
+                    if elementType.tag == "{0}complexType".format(namespace):
+                        formString += generateComplexType(request, elementType, xmlTree, namespace)
+                    elif elementType.tag == "{0}simpleType".format(namespace):
+                        formString += generateSimpleType(request, elementType, xmlTree, namespace)
         
-        for simpleTypeChild in simpleTypeChildren:
-            if simpleTypeChild.tag == "{0}restriction".format(namespace):
-                formString += "<select>"
-                choiceChildren = simpleTypeChild.findall('*')
-                for choiceChild in choiceChildren:
-                    if choiceChild.tag == "{0}enumeration".format(namespace):
-                        formString += "<option value='" + choiceChild.attrib.get('value')  + "'>" + choiceChild.attrib.get('value') + "</option>"
-                formString += "</select>"        
+                formString += "</nobr></li>"
+            formString += "</ul>"
     
     return formString
 
@@ -879,6 +842,7 @@ def remove(request, tagID, xsdForm):
     
     return dajax.json()
 
+
 ################################################################################
 # 
 # Function Name: duplicate(request, tagID, xsdForm)
@@ -941,20 +905,6 @@ def duplicate(request, tagID, xsdForm):
                     # ref is present        
                     print "ref"  
                     return formString            
-#                     refNamespace = sequenceChild.attrib.get('ref').split(":")[0]
-#                     if refNamespace in namespaces.keys():
-#                         refTypeStr = sequenceChild.attrib.get('ref').split(":")[1]
-#                         try:
-#                             newTagID = "element" + str(len(mapTagElement.keys()))  
-#                             mapTagElement[newTagID] = elementID 
-#                             formString += "<li id='" + str(newTagID) + "'><nobr>" + refTypeStr + " "
-#                             formString += "<span id='add"+ str(newTagID[7:]) +"' class=\"icon add\" onclick=\"changeHTMLForm('add',this,"+str(newTagID[7:])+");\"></span>"
-#                             formString += "<span id='remove"+ str(newTagID[7:]) +"' class=\"icon remove\" onclick=\"changeHTMLForm('remove',this,"+str(newTagID[7:])+");\"></span>"           
-#                             formString += duplicateFormSubSection(request, sequenceChild.attrib['ref'], xmlDocTree, namespace)  
-#                             formString += "</nobr></li>"  
-#                         except:
-#                             formString += "<ul><li>"+refTypeStr+"</li></ul>"
-#                             print "Unable to find the following reference: " + sequenceChild.attrib.get('ref')
                 else:
                     # type declared below the element
                     textCapitalized = sequenceChild.attrib.get('name')
@@ -963,14 +913,17 @@ def duplicate(request, tagID, xsdForm):
                     formString += "<li id='" + str(newTagID) + "'><nobr>" + textCapitalized + " "
                     formString += "<span id='add"+ str(newTagID[7:]) +"' class=\"icon add\" onclick=\"changeHTMLForm('add',this,"+str(newTagID[7:])+");\"></span>"
                     formString += "<span id='remove"+ str(newTagID[7:]) +"' class=\"icon remove\" onclick=\"changeHTMLForm('remove',this,"+str(newTagID[7:])+");\"></span>"            
-                    formString += duplicateFormSubSection(request, sequenceChild[0], xmlDocTree, namespace)
+                    if sequenceChild[0].tag == "{0}complexType".format(namespace):
+                        formString += generateComplexType(request, sequenceChild[0], xmlDocTree, namespace)
+                    elif sequenceChild[0].tag == "{0}simpleType".format(namespace):
+                        formString += generateSimpleType(request, sequenceChild[0], xmlDocTree, namespace)
                     formString += "</nobr></li>"
                     
             # type is XML type
-            elif ((sequenceChild.attrib.get('type') == "xsd:string".format(namespace)) or
-                (sequenceChild.attrib.get('type') == "xsd:double".format(namespace)) or 
-                (sequenceChild.attrib.get('type') == "xsd:integer".format(namespace)) or 
-                (sequenceChild.attrib.get('type') == "xsd:anyURI".format(namespace))):
+            elif sequenceChild.attrib.get('type') in ["{0}:string".format(defaultPrefix), 
+                                                      "{0}:double".format(defaultPrefix), 
+                                                      "{0}:integer".format(defaultPrefix), 
+                                                      "{0}:anyURI".format(defaultPrefix)]:
                 textCapitalized = sequenceChild.attrib.get('name')                                     
                 newTagID = "element" + str(len(mapTagElement.keys())) 
                 mapTagElement[newTagID] = elementID
@@ -987,7 +940,13 @@ def duplicate(request, tagID, xsdForm):
                     formString += "<li id='" + str(newTagID) + "'><nobr>" + textCapitalized + " "
                     formString += "<span id='add"+ str(newTagID[7:]) +"' class=\"icon add\" onclick=\"changeHTMLForm('add',this,"+str(newTagID[7:])+");\"></span>"
                     formString += "<span id='remove"+ str(newTagID[7:]) +"' class=\"icon remove\" onclick=\"changeHTMLForm('remove',this,"+str(newTagID[7:])+");\"></span>"           
-                    formString += duplicateFormSubSection(request, sequenceChild.attrib['type'], xmlDocTree, namespace)
+                    xpath = "./*[@name='"+sequenceChild.attrib.get('type')+"']"
+                    elementType = xmlDocTree.find(xpath)
+                    if elementType is not None:
+                        if elementType.tag == "{0}complexType".format(namespace):
+                            formString += generateComplexType(request, elementType, xmlDocTree, namespace)
+                        elif elementType.tag == "{0}simpleType".format(namespace):
+                            formString += generateSimpleType(request, elementType, xmlDocTree, namespace)                    
                     formString += "</nobr></li>"    
     
             htmlTree = html.fromstring(xsdForm)
@@ -1019,341 +978,6 @@ def duplicate(request, tagID, xsdForm):
                 
     return dajax.json()
     
-
-################################################################################
-# 
-# Function Name: duplicateFormSubSection(request, xpath)
-# Inputs:        request -
-#                xpath -
-#                xmlTree - 
-#                namespace - 
-# Outputs:       JSON data 
-# Exceptions:    None
-# Description:   Duplicate subsection of an element when the type is complex.
-#
-################################################################################
-def duplicateFormSubSection(request, xpath, xmlTree, namespace):
-    print 'BEGIN def duplicateFormSubSection(xpath)'
-    
-    xsd_elements = request.session['xsd_elements']
-    mapTagElement = request.session['mapTagElement']
-    mapModules = request.session['mapModules']
-    namespaces = request.session['namespaces']
-    nbChoicesID = int(request.session['nbChoicesID'])
-    formString = ""    
- 
-    if type(xpath) is str:
-        xpathFormated = "./*[@name='"+xpath+"']"
-        e = xmlTree.find(xpathFormated.format(namespace))
-    else:
-        e = xpath
-        
-    if e is None:
-        return formString    
-    
-    #TODO: modules
-    if e.attrib.get('name') in mapModules.keys():
-        formString += "<div class='module' style='display: inline'>"
-        formString += mapModules[e.attrib.get('name')]
-        formString += "<div class='moduleDisplay'></div>"
-        formString += "<div class='moduleResult' style='display: none'></div>"
-        formString += "</div>"    
-        return formString
-    
-    #TODO: modules
-    if 'name' in e.attrib and e.attrib.get('name') == "ConstituentMaterial":
-        formString += "<div class='module' style='display: inline'>"
-        formString += "<div class=\"btn select-element\" onclick=\"selectMultipleElements(this);\"><i class=\"icon-folder-open\"></i> Select Chemical Elements</div>"
-        formString += "<div class='moduleDisplay'></div>"
-        formString += "<div class='moduleResult' style='display: none'></div>"
-        formString += "</div>"
-        return formString
-    
-    #TODO: modules
-    if 'name' in e.attrib and e.attrib.get('name') == "ChemicalElement":
-        formString += "<div class='module' style='display: inline'>"
-        formString += "<div class=\"btn select-element\" onclick=\"selectElement(this);\"><i class=\"icon-folder-open\"></i> Select Chemical Element</div>"
-        formString += "<div class='moduleDisplay'>Current Selection: None</div>"
-        formString += "<div class='moduleResult' style='display: none'></div>"
-        formString += "</div>" 
-        return formString
-    
-    #TODO: modules
-    if 'name' in e.attrib and e.attrib.get('name') == "Table":
-        formString += "<div class='module' style='display: inline'>"
-        formString += "<div class=\"btn select-element\" onclick=\"selectHDF5File('Spreadsheet File',this);\"><i class=\"icon-folder-open\"></i> Upload Spreadsheet </div>"
-        formString += "<div class='moduleDisplay'></div>"
-        formString += "<div class='moduleResult' style='display: none'></div>"
-        formString += "</div>"
-        return formString
-    
-    if e.tag == "{0}complexType".format(namespace):
-        complexTypeChild = e.find('*')
-
-        if complexTypeChild is None:
-            return formString
-
-        #TODO: modules
-        if 'name' in e.attrib and e.attrib.get('name') == "ConstituentMaterial":
-            formString += "<div class='module' style='display: inline'>"
-            formString += "<div class=\"btn select-element\" onclick=\"selectMultipleElements(this);\"><i class=\"icon-folder-open\"></i> Select Chemical Elements</div>"
-            formString += "<div class='moduleDisplay'></div>"
-            formString += "<div class='moduleResult' style='display: none'></div>"
-            formString += "</div>"
-            return formString
-        
-        #TODO: modules
-        if 'name' in e.attrib and e.attrib.get('name') == "ChemicalElement":
-            formString += "<div class='module' style='display: inline'>"
-            formString += "<div class=\"btn select-element\" onclick=\"selectElement(this));\"><i class=\"icon-folder-open\"></i> Select Chemical Element</div>"
-            formString += "<div class='moduleDisplay'>Current Selection: None</div>"
-            formString += "<div class='moduleResult' style='display: none'></div>"
-            formString += "</div>" 
-            return formString
-        
-        if complexTypeChild.tag == "{0}sequence".format(namespace):
-            sequenceChildren = complexTypeChild.findall('*')
-            for sequenceChild in sequenceChildren:
-                if sequenceChild.tag == "{0}element".format(namespace):
-                    if 'type' not in sequenceChild.attrib:
-                        if 'ref' in sequenceChild.attrib: 
-                            print "ref"  
-                            return formString
-#                             refNamespace = sequenceChild.attrib.get('ref').split(":")[0]
-#                             if refNamespace in namespaces.keys():
-#                                 refTypeStr = sequenceChild.attrib.get('ref').split(":")[1]
-#                                 try:
-#                                     addButton = False
-#                                     deleteButton = False
-#                                     nbOccurrences = 1
-#                                     if ('minOccurs' in sequenceChild.attrib):
-#                                         if (sequenceChild.attrib['minOccurs'] == '0'):
-#                                             deleteButton = True
-#                                         else:
-#                                             nbOccurrences = sequenceChild.attrib['minOccurs']
-#                                     
-#                                     if ('maxOccurs' in sequenceChild.attrib):
-#                                         if (sequenceChild.attrib['maxOccurs'] == "unbounded"):
-#                                             addButton = True
-#                                         elif ('minOccurs' in sequenceChild.attrib):
-#                                             if (int(sequenceChild.attrib['maxOccurs']) > int(sequenceChild.attrib['minOccurs'])
-#                                                 and int(sequenceChild.attrib['maxOccurs']) > 1):
-#                                                 addButton = True   
-#                                                 
-#                                     elementID = len(xsd_elements)
-#                                     xsd_elements[elementID] = etree.tostring(sequenceChild)
-#                                     manageOccurences(request, sequenceChild, elementID)   
-#                                     formString += "<ul>"                                   
-#                                     for x in range (0,int(nbOccurrences)):     
-#                                         tagID = "element" + str(len(mapTagElement.keys()))  
-#                                         mapTagElement[tagID] = elementID             
-#                                         formString += "<li id='" + str(tagID) + "'><nobr>" + refTypeStr
-#                                         if (addButton == True):                                
-#                                             formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" onclick=\"changeHTMLForm('add',this,"+str(tagID[7:])+");\"></span>"
-#                                         else:
-#                                             formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" style=\"display:none;\" onclick=\"changeHTMLForm('add',this,"+str(tagID[7:])+");\"></span>"                                                                             
-#                                         if (deleteButton == True):
-#                                             formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" onclick=\"changeHTMLForm('remove',this,"+str(tagID[7:])+");\"></span>"
-#                                         else:
-#                                             formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" style=\"display:none;\" onclick=\"changeHTMLForm('remove',this,"+str(tagID[7:])+");\"></span>"
-#                                         formString += duplicateFormSubSection(request, sequenceChild.attrib['ref'], xmlTree, namespace) 
-#                                         formString += "</nobr></li>"
-#                                     formString += "</ul>"
-#                                 except:
-#                                     formString += "<ul><li>"+refTypeStr+"</li></ul>"
-#                                     print "Unable to find the following reference: " + sequenceChild.attrib.get('ref')
-                    elif ((sequenceChild.attrib.get('type') == "xsd:string".format(namespace))
-                          or (sequenceChild.attrib.get('type') == "xsd:double".format(namespace))
-                          or (sequenceChild.attrib.get('type') == "xsd:float".format(namespace)) 
-                          or (sequenceChild.attrib.get('type') == "xsd:integer".format(namespace)) 
-                          or (sequenceChild.attrib.get('type') == "xsd:anyURI".format(namespace))):
-                        textCapitalized = sequenceChild.attrib.get('name')
-                        addButton = False
-                        deleteButton = False
-                        nbOccurrences = 1
-                        if ('minOccurs' in sequenceChild.attrib):
-                            if (sequenceChild.attrib['minOccurs'] == '0'):
-                                deleteButton = True
-                            else:
-                                nbOccurrences = sequenceChild.attrib['minOccurs']
-                        
-                        if ('maxOccurs' in sequenceChild.attrib):
-                            if (sequenceChild.attrib['maxOccurs'] == "unbounded"):
-                                addButton = True
-                            elif ('minOccurs' in sequenceChild.attrib):
-                                if (int(sequenceChild.attrib['maxOccurs']) > int(sequenceChild.attrib['minOccurs'])
-                                    and int(sequenceChild.attrib['maxOccurs']) > 1):
-                                    addButton = True
-                                    
-                        elementID = len(xsd_elements)
-                        xsd_elements[elementID] = etree.tostring(sequenceChild)
-                        manageOccurences(request, sequenceChild, elementID)
-                        formString += "<ul>"                                   
-                        for x in range (0,int(nbOccurrences)):                                                    
-                            tagID = "element" + str(len(mapTagElement.keys()))  
-                            mapTagElement[tagID] = elementID 
-                            formString += "<li id='" + str(tagID) + "'><nobr>" + textCapitalized + " <input type='text'>"
-                            if (addButton == True):                                
-                                formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" onclick=\"changeHTMLForm('add',this,"+str(tagID[7:])+");\"></span>"
-                            else:
-                                formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" style=\"display:none;\" onclick=\"changeHTMLForm('add',this,"+str(tagID[7:])+");\"></span>"
-                            if (deleteButton == True):
-                                formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" onclick=\"changeHTMLForm('remove',this,"+str(tagID[7:])+");\"></span>"
-                            else:
-                                formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" style=\"display:none;\" onclick=\"changeHTMLForm('remove',this,"+str(tagID[7:])+");\"></span>"
-                            formString += "</nobr></li>"
-                        formString += "</ul>"
-                    else:
-                        if sequenceChild.attrib.get('type') is not None:
-                            textCapitalized = sequenceChild.attrib.get('name')
-                            addButton = False
-                            deleteButton = False
-                            nbOccurrences = 1
-                            if ('minOccurs' in sequenceChild.attrib):
-                                if (sequenceChild.attrib['minOccurs'] == '0'):
-                                    deleteButton = True
-                                else:
-                                    nbOccurrences = sequenceChild.attrib['minOccurs']
-                            
-                            if ('maxOccurs' in sequenceChild.attrib):
-                                if (sequenceChild.attrib['maxOccurs'] == "unbounded"):
-                                    addButton = True
-                                elif ('minOccurs' in sequenceChild.attrib):
-                                    if (int(sequenceChild.attrib['maxOccurs']) > int(sequenceChild.attrib['minOccurs'])
-                                        and int(sequenceChild.attrib['maxOccurs']) > 1):
-                                        addButton = True
-                                        
-                            elementID = len(xsd_elements)
-                            xsd_elements[elementID] = etree.tostring(sequenceChild)
-                            manageOccurences(request, sequenceChild, elementID)
-                            formString += "<ul>"                                   
-                            for x in range (0,int(nbOccurrences)):
-                                tagID = "element" + str(len(mapTagElement.keys()))  
-                                mapTagElement[tagID] = elementID 
-                                formString += "<li id='" + str(tagID) + "'><nobr>" + textCapitalized + " "
-                                if (addButton == True):                                
-                                    formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" onclick=\"changeHTMLForm('add',this,"+str(tagID[7:])+");\"></span>"
-                                else:
-                                    formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" style=\"display:none;\" onclick=\"changeHTMLForm('add',this,"+str(tagID[7:])+");\"></span>"
-                                if (deleteButton == True):
-                                    formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" onclick=\"changeHTMLForm('remove',this,"+str(tagID[7:])+");\"></span>"
-                                else:
-                                    formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" style=\"display:none;\" onclick=\"changeHTMLForm('remove',this,"+str(tagID[7:])+");\"></span>"
-                                formString += duplicateFormSubSection(request, sequenceChild.attrib.get('type'), xmlTree, namespace)
-                                formString += "</nobr></li>"
-                            formString += "</ul>"
-                        else:
-                            print "No Type"
-                elif sequenceChild.tag == "{0}choice".format(namespace):
-                    chooseID = nbChoicesID
-                    chooseIDStr = 'choice' + str(chooseID)
-                    nbChoicesID += 1
-                    request.session['nbChoicesID'] = str(nbChoicesID)
-                    formString += "<ul><li><nobr>Choose <select id='"+ chooseIDStr +"' onchange=\"changeChoice(this);\">"
-                    choiceChildren = sequenceChild.findall('*')
-                    selectedChild = choiceChildren[0]
-                    for choiceChild in choiceChildren:
-                        if choiceChild.tag == "{0}element".format(namespace):
-                            textCapitalized = choiceChild.attrib.get('name')
-                            formString += "<option value='" + textCapitalized + "'>" + textCapitalized + "</option></b><br>"
-                    formString += "</select>"
-                    
-                    for (counter, choiceChild) in enumerate(choiceChildren):
-                        if choiceChild.tag == "{0}element".format(namespace):
-                            if((choiceChild.attrib.get('type') == "xsd:string".format(namespace))
-                              or (choiceChild.attrib.get('type') == "xsd:double".format(namespace))
-                              or (choiceChild.attrib.get('type') == "xsd:float".format(namespace)) 
-                              or (choiceChild.attrib.get('type') == "xsd:integer".format(namespace)) 
-                              or (choiceChild.attrib.get('type') == "xsd:anyURI".format(namespace))):
-                                textCapitalized = choiceChild.attrib.get('name')
-                                elementID = len(xsd_elements)
-                                xsd_elements[elementID] = etree.tostring(choiceChild)
-                                tagID = "element" + str(len(mapTagElement.keys()))  
-                                mapTagElement[tagID] = elementID 
-                                manageOccurences(request, choiceChild, elementID)
-                                if (counter > 0):
-                                    formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\" style=\"display:none;\"><li id='" + str(tagID) + "'><nobr>" + choiceChild.attrib.get('name') + " <input type='text'>" + "</nobr></li></ul>"
-                                else:
-                                    formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\"><li id='" + str(tagID) + "'><nobr>" + choiceChild.attrib.get('name') + " <input type='text'>" + "</nobr></li></ul>"
-                            else:
-                                textCapitalized = choiceChild.attrib.get('name')
-                                elementID = len(xsd_elements)
-                                xsd_elements[elementID] = etree.tostring(choiceChild)
-                                tagID = "element" + str(len(mapTagElement.keys()))  
-                                mapTagElement[tagID] = elementID 
-                                manageOccurences(request, choiceChild, elementID)
-                                if (counter > 0):
-                                    formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\" style=\"display:none;\"><li id='" + str(tagID) + "'><nobr>" + textCapitalized
-                                else:
-                                    formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\"><li id='" + str(tagID) + "'><nobr>" + textCapitalized
-                                formString += duplicateFormSubSection(request, choiceChild.attrib.get('type'), xmlTree, namespace) + "</nobr></li></ul>"
-        elif complexTypeChild.tag == "{0}choice".format(namespace):
-            chooseID = nbChoicesID        
-            chooseIDStr = 'choice' + str(chooseID)
-            nbChoicesID += 1
-            request.session['nbChoicesID'] = str(nbChoicesID)
-            formString += "<ul><li><nobr>Choose <select id='"+ chooseIDStr +"' onchange=\"changeChoice(this);\">"
-            choiceChildren = complexTypeChild.findall('*')
-            selectedChild = choiceChildren[0]
-            for choiceChild in choiceChildren:
-                if choiceChild.tag == "{0}element".format(namespace):
-                    textCapitalized = choiceChild.attrib.get('name')
-                    formString += "<option value='" + textCapitalized + "'>" + textCapitalized + "</option></b><br>"
-            formString += "</select>"
-            
-            for (counter, choiceChild) in enumerate(choiceChildren):
-                if choiceChild.tag == "{0}element".format(namespace):
-                    if((choiceChild.attrib.get('type') == "xsd:string".format(namespace))
-                      or (choiceChild.attrib.get('type') == "xsd:double".format(namespace))
-                      or (choiceChild.attrib.get('type') == "xsd:float".format(namespace)) 
-                      or (choiceChild.attrib.get('type') == "xsd:integer".format(namespace)) 
-                      or (choiceChild.attrib.get('type') == "xsd:anyURI".format(namespace))):
-                        textCapitalized = choiceChild.attrib.get('name')
-                        elementID = len(xsd_elements)
-                        xsd_elements[elementID] = etree.tostring(choiceChild)
-                        tagID = "element" + str(len(mapTagElement.keys()))  
-                        mapTagElement[tagID] = elementID 
-                        manageOccurences(request, choiceChild, elementID)
-                        if (counter > 0):
-                            formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\" style=\"display:none;\"><li id='" + str(tagID) + "'><nobr>" + choiceChild.attrib.get('name') + " <input type='text'>" + "</nobr></li></ul>"
-                        else:
-                            formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\"><li id='" + str(tagID) + "'><nobr>" + choiceChild.attrib.get('name') + " <input type='text'>" + "</nobr></li></ul>"
-                    else:
-                        textCapitalized = choiceChild.attrib.get('name')
-                        elementID = len(xsd_elements)
-                        xsd_elements[elementID] = etree.tostring(choiceChild)
-                        tagID = "element" + str(len(mapTagElement.keys()))  
-                        mapTagElement[tagID] = elementID 
-                        manageOccurences(request, choiceChild, elementID)
-                        if (counter > 0):
-                            formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\" style=\"display:none;\"><li id='" + str(tagID) + "'><nobr>" + textCapitalized
-                        else:
-                            formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\"><li id='" + str(tagID) + "'><nobr>" + textCapitalized
-                        formString += duplicateFormSubSection(request, choiceChild.attrib.get('type'), xmlTree, namespace) + "</nobr></li></ul>"
-        elif complexTypeChild.tag == "{0}attribute".format(namespace):
-            textCapitalized = complexTypeChild.attrib.get('name')
-            tagID = "element" + str(len(mapTagElement.keys()))  
-            mapTagElement[tagID] = elementID  
-            manageOccurences(request, complexTypeChild, elementID)
-            formString += "<li id='" + str(tagID) + "'>" + textCapitalized + "</li>"            
-    elif e.tag == "{0}simpleType".format(namespace):
-
-        simpleTypeChildren = e.findall('*')
-        
-        if simpleTypeChildren is None:
-            return formString
-
-        for simpleTypeChild in simpleTypeChildren:
-            if simpleTypeChild.tag == "{0}restriction".format(namespace):
-                formString += "<select>"
-                choiceChildren = simpleTypeChild.findall('*')
-                for choiceChild in choiceChildren:
-                    if choiceChild.tag == "{0}enumeration".format(namespace):
-                        formString += "<option value='" + choiceChild.attrib.get('value')  + "'>" + choiceChild.attrib.get('value') + "</option>"
-                formString += "</select>"
-    
-    return formString
-
 ################################################################################
 # 
 # Function Name: get_namespaces(file)
@@ -1417,6 +1041,7 @@ def generateForm(request):
     else:
         textCapitalized = e[0].attrib.get('name')
         formString += "<div xmlID='root'><b>" + textCapitalized + "</b><br>"
+        formString += generateElement(request, e[0], xmlDocTree,namespace)
         formString += "</div>"
     
     return formString
