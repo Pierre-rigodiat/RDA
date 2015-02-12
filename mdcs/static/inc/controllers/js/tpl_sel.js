@@ -255,13 +255,7 @@ generateXMLString = function(elementObj)
 
     var children = elementObj.childNodes;
     for(var i = 0; i < children.length; i++) {
-	if (children[i].nodeType == 1 && children[i].hasAttribute("xmlID")) {
-	    if (children[i].getAttribute("xmlID") == "root") {
-		    xmlString += "<" + children[i].firstChild.innerHTML.trim() + ">"
-		    xmlString += generateXMLString(children[i]);
-		    xmlString += "</" + children[i].firstChild.innerHTML.trim() + ">"
-	    }
-	} else if (children[i].tagName == "UL") {
+    if (children[i].tagName == "UL") {
 	    if (children[i].style.display != "none") {
 		xmlString += generateXMLString(children[i]);
 	    }

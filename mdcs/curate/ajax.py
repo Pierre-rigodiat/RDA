@@ -1113,12 +1113,9 @@ def generateForm(request):
     e = xmlDocTree.findall("./{0}element".format(namespace))
 
     if len(e) > 1:
-        formString += "<b>" + e[0].attrib.get('name') + "</b><br><ul><li>Choose:"
-        for i in e:
-            formString += "more than one: " + i.tag + "<br>"
+        formString += "<p style='color:red'> The current version of the MDCS does not support multiple root templates. </p>"
     else:
-        textCapitalized = e[0].attrib.get('name')
-        formString += "<div xmlID='root'><b>" + textCapitalized + "</b><br>"
+        formString += "<div xmlID='root'>"
         formString += generateElement(request, e[0], xmlDocTree,namespace)
         formString += "</div>"
     
