@@ -397,7 +397,17 @@ def verifyTemplateIsSelected(request):
     print 'END def verifyTemplateIsSelected(request)'
     return simplejson.dumps({'templateSelected':templateSelected})
 
-
+################################################################################
+# 
+# Function Name: manageButtons(element)
+# Inputs:        element - XML element 
+# Outputs:       addButton - Boolean
+#                deleteButton - Boolean
+#                nbOccurrences - Integer
+# Exceptions:    None
+# Description:   Check element occurrences and returns buttons information
+# 
+################################################################################
 def manageButtons(element):
     addButton = False
     deleteButton = False
@@ -417,6 +427,16 @@ def manageButtons(element):
                 addButton = True
     return addButton, deleteButton, nbOccurrences
 
+################################################################################
+# 
+# Function Name: removeAnnotations(element, namespace)
+# Inputs:        element - XML element 
+#                namespace - namespace
+# Outputs:       None
+# Exceptions:    None
+# Description:   Remove annotations of an element if present
+# 
+################################################################################
 def removeAnnotations(element, namespace):
     "Remove annotations of the current element"
     
@@ -426,6 +446,18 @@ def removeAnnotations(element, namespace):
             element.remove(element[0])
 
 
+################################################################################
+# 
+# Function Name: generateSequence(request, element, xmlTree, namespace)
+# Inputs:        request - 
+#                element - XML element
+#                xmlTree - XML Tree
+#                namespace - namespace
+# Outputs:       HTML string representing a sequence
+# Exceptions:    None
+# Description:   Generates a section of the form that represents an XML sequence
+# 
+################################################################################
 def generateSequence(request, element, xmlTree, namespace):
     #(annotation?,(element|group|choice|sequence|any)*)
     
@@ -450,6 +482,18 @@ def generateSequence(request, element, xmlTree, namespace):
     
     return formString
 
+################################################################################
+# 
+# Function Name: generateChoice(request, element, xmlTree, namespace)
+# Inputs:        request - 
+#                element - XML element
+#                xmlTree - XML Tree
+#                namespace - namespace
+# Outputs:       HTML string representing a sequence
+# Exceptions:    None
+# Description:   Generates a section of the form that represents an XML choice
+# 
+################################################################################
 def generateChoice(request, element, xmlTree, namespace):
     #(annotation?,(element|group|choice|sequence|any)*)
     nbChoicesID = int(request.session['nbChoicesID'])
@@ -529,7 +573,19 @@ def generateChoice(request, element, xmlTree, namespace):
     
     
     return formString
-    
+
+################################################################################
+# 
+# Function Name: generateChoice(request, element, xmlTree, namespace)
+# Inputs:        request - 
+#                element - XML element
+#                xmlTree - XML Tree
+#                namespace - namespace
+# Outputs:       HTML string representing a sequence
+# Exceptions:    None
+# Description:   Generates a section of the form that represents an XML choice
+# 
+################################################################################
 def generateSimpleType(request, element, xmlTree, namespace):
     formString = ""
     
@@ -553,6 +609,18 @@ def generateSimpleType(request, element, xmlTree, namespace):
     return formString 
 
 
+################################################################################
+# 
+# Function Name: generateComplexType(request, element, xmlTree, namespace)
+# Inputs:        request - 
+#                element - XML element
+#                xmlTree - XML Tree
+#                namespace - namespace
+# Outputs:       HTML string representing a sequence
+# Exceptions:    None
+# Description:   Generates a section of the form that represents an XML complexType
+# 
+################################################################################
 def generateComplexType(request, element, xmlTree, namespace):
     formString = ""
     
@@ -585,6 +653,16 @@ def generateComplexType(request, element, xmlTree, namespace):
     return formString 
 
 
+################################################################################
+# 
+# Function Name: stubModules(request, element)
+# Inputs:        request - 
+#                element - XML element
+# Outputs:       HTML string representing a sequence
+# Exceptions:    None
+# Description:   Temporary hardcoded modules for materials scientist
+# 
+################################################################################
 def stubModules(request, element):
     mapModules = request.session['mapModules']
     
