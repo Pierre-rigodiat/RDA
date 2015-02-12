@@ -200,252 +200,318 @@ def verifyTemplateIsSelected(request):
     print 'END def verifyTemplateIsSelected(request)'
     return simplejson.dumps({'templateSelected':templateSelected})
 
+
 ################################################################################
 # 
-# Function Name: generateFormSubSection(request, xpath, elementName, fullPath, xmlTree)
-# Inputs:        request -
-#                elementName - 
-#                xpath -
-#                fullPath -
-#                xmlTree - 
-# Outputs:       JSON data 
+# Function Name: removeAnnotations(element, namespace)
+# Inputs:        element - XML element 
+#                namespace - namespace
+# Outputs:       None
 # Exceptions:    None
-# Description:   Recursively generates the HTML form from the XML schema
-#
+# Description:   Remove annotations of an element if present
+# 
 ################################################################################
-def generateFormSubSection(request, xpath, elementName, fullPath, xmlTree):
-    print 'BEGIN def generateFormSubSection(xpath, elementName, fullPath)'
+def removeAnnotations(element, namespace):
+    "Remove annotations of the current element"
     
-    # get the variables in session
-    defaultNamespace = request.session['defaultNamespaceExplore']    
-    defaultPrefix = request.session['defaultPrefixExplore']
-    nbChoicesID = int(request.session['nbChoicesIDExplore'])
+    #check if the first child is an annotation and delete it
+    if(len(list(element)) != 0):
+        if (element[0].tag == "{0}annotation".format(namespace)):
+            element.remove(element[0])
+
+
+################################################################################
+# 
+# Function Name: generateSequence(request, element, fullPath, xmlTree)
+# Inputs:        request - 
+#                element - XML element
+#                fullPath - full Xpath to the current element
+#                xmlTree - XML Tree
+# Outputs:       HTML string representing a sequence
+# Exceptions:    None
+# Description:   Generates a section of the form that represents an XML sequence
+# 
+################################################################################
+def generateSequence(request, element, fullPath, xmlTree):
+    #(annotation?,(element|group|choice|sequence|any)*)
+    defaultNamespace = request.session['defaultNamespaceExplore']
+    
     formString = ""
-
-    # No xpath provided: returns the current string
-    if xpath is None:
-        return formString;
-
-    # Xpath is a string: look for the element in the tree
-    if type(xpath) is str:
-        xpathFormated = "./*[@name='"+xpath+"']"
-        e = xmlTree.find(xpathFormated.format(defaultNamespace))
-    else:
-        # the xpath already contains the element
-        e = xpath
-
-
-    # e is None: no element found with the type
-    # look for an included type
-    if e is None:
-        return formString    
     
-    # if the element is a complex type
-    if e.tag == "{0}complexType".format(defaultNamespace):
-        complexTypeChild = e.find('*')
-
-        if complexTypeChild is None:
-            return formString
-
-        # build the path to element to be used in the query
-        fullPath += "." + elementName
-        # if this is a sequence
-        if complexTypeChild.tag == "{0}sequence".format(defaultNamespace):
-            formString += "<ul>"
-            sequenceChildren = complexTypeChild.findall('*')            
-            for sequenceChild in sequenceChildren:
-                if sequenceChild.tag == "{0}element".format(defaultNamespace):
-                    if 'type' not in sequenceChild.attrib:
-                        if 'ref' in sequenceChild.attrib:
-                            print "ref"  
-                            return formString
-                        else:        
-                            # type declared below
-                            textCapitalized = sequenceChild.attrib.get('name') 
-                            mapTagIDElementInfo = request.session['mapTagIDElementInfoExplore'] 
-                            elementID = len(mapTagIDElementInfo.keys())                        
-                            
-                            if (sequenceChild[0].tag == "{0}complexType".format(defaultNamespace)):
-                                formString += "<li>" + textCapitalized + " "
-                                formString += generateFormSubSection(request, sequenceChild[0], textCapitalized,fullPath, xmlTree)
-                                formString += "</li>"    
-                            else:
-                                textCapitalized = sequenceChild.attrib.get('name') 
-                                mapTagIDElementInfo = request.session['mapTagIDElementInfoExplore'] 
-                                elementID = len(mapTagIDElementInfo.keys())                        
-                                isEnum = False
-                                # look for enumeration to save the values 
-                                childElement = sequenceChild[0]
-                                if (childElement is not None):
-                                    if(childElement.tag == "{0}simpleType".format(defaultNamespace)):
-                                        restrictionChild = childElement.find("{0}restriction".format(defaultNamespace))        
-                                        if restrictionChild is not None:                                    
-                                            enumChildren = restrictionChild.findall("{0}enumeration".format(defaultNamespace))
-                                            if enumChildren is not None:
-                                                formString += "<li id='" + str(elementID) + "'>" + textCapitalized + " <input type='checkbox'>" + "</li>"
-                                                elementInfo = ElementInfo("enum",fullPath[1:]+"." + textCapitalized)
-                                                mapTagIDElementInfo[elementID] = elementInfo.__to_json__()
-                                                request.session['mapTagIDElementInfoExplore'] = mapTagIDElementInfo
-                                                listChoices = []
-                                                for enumChild in enumChildren:
-                                                    listChoices.append(enumChild.attrib['value'])
-                                                request.session['mapEnumIDChoicesExplore'][elementID] = listChoices
-                                                isEnum = True
-                                
-                                if(isEnum is not True):                            
-                                    formString += "<li>" + textCapitalized + " "
-                                    formString += generateFormSubSection(request, sequenceChild[0], textCapitalized,fullPath, xmlTree)
-                                    formString += "</li>" 
-                    # if element is one of the declared type
-                    elif (sequenceChild.attrib.get('type') == "{0}:string".format(defaultPrefix)
-                          or sequenceChild.attrib.get('type') == "{0}:double".format(defaultPrefix)
-                          or sequenceChild.attrib.get('type') == "{0}:float".format(defaultPrefix)
-                          or sequenceChild.attrib.get('type') == "{0}:integer".format(defaultPrefix)
-                          or sequenceChild.attrib.get('type') == "{0}:anyURI".format(defaultPrefix)):                                                                
-                        textCapitalized = sequenceChild.attrib.get('name')   
-                        mapTagIDElementInfo = request.session['mapTagIDElementInfoExplore']                  
-                        elementID = len(mapTagIDElementInfo.keys())
-                        formString += "<li id='" + str(elementID) + "'>" + textCapitalized + " <input type='checkbox'>"                         
-                        formString += "</li>"                    
-                        elementInfo = ElementInfo(sequenceChild.attrib.get('type'),fullPath[1:] + "." + textCapitalized)
-                        mapTagIDElementInfo[elementID] = elementInfo.__to_json__()
-                        request.session['mapTagIDElementInfoExplore'] = mapTagIDElementInfo                
-                    else:                        
-                        textCapitalized = sequenceChild.attrib.get('name') 
-                        mapTagIDElementInfo = request.session['mapTagIDElementInfoExplore'] 
-                        elementID = len(mapTagIDElementInfo.keys())                        
-                        isEnum = False
-                        # look for enumeration
-                        childElement = xmlTree.find("./*[@name='"+sequenceChild.attrib.get('type')+"']".format(defaultNamespace))
-                        if (childElement is not None):
-                            if(childElement.tag == "{0}simpleType".format(defaultNamespace)):
-                                restrictionChild = childElement.find("{0}restriction".format(defaultNamespace))        
-                                if restrictionChild is not None:                                    
-                                    enumChildren = restrictionChild.findall("{0}enumeration".format(defaultNamespace))
-                                    if enumChildren is not None:
-                                        formString += "<li id='" + str(elementID) + "'>" + textCapitalized + " <input type='checkbox'>" + "</li>"
-                                        elementInfo = ElementInfo("enum",fullPath[1:]+"." + textCapitalized)
-                                        mapTagIDElementInfo[elementID] = elementInfo.__to_json__()
-                                        request.session['mapTagIDElementInfoExplore'] = mapTagIDElementInfo
-                                        listChoices = []
-                                        for enumChild in enumChildren:
-                                            listChoices.append(enumChild.attrib['value'])
-                                        request.session['mapEnumIDChoicesExplore'][elementID] = listChoices
-                                        isEnum = True
-                        
-                        if(isEnum is not True):                            
-                            formString += "<li>" + textCapitalized + " "
-                            formString += generateFormSubSection(request, sequenceChild.attrib.get('type'), textCapitalized,fullPath, xmlTree)
-                            formString += "</li>"      
-                # the element is a choice                  
-                elif sequenceChild.tag == "{0}choice".format(defaultNamespace):
-                    chooseID = nbChoicesID
-                    chooseIDStr = 'choice' + str(chooseID)
-                    nbChoicesID += 1
-                    request.session['nbChoicesIDExplore'] = str(nbChoicesID)
-                    formString += "<li>Choose <select id='"+ chooseIDStr +"' onchange=\"changeChoice(this);\">"
-                    choiceChildren = sequenceChild.findall('*')
-                    for choiceChild in choiceChildren:
-                        if choiceChild.tag == "{0}element".format(defaultNamespace):
-                            textCapitalized = choiceChild.attrib.get('name')
-                            formString += "<option value='" + textCapitalized + "'>" + textCapitalized + "</option></b><br>"
-                    formString += "</select></nobr>"                                    
-                    for (counter, choiceChild) in enumerate(choiceChildren):
-                        if choiceChild.tag == "{0}element".format(defaultNamespace):
-                            if (choiceChild.attrib.get('type') == "{0}:string".format(defaultPrefix)
-                              or choiceChild.attrib.get('type') == "{0}:double".format(defaultPrefix)
-                              or choiceChild.attrib.get('type') == "{0}:float".format(defaultPrefix)
-                              or choiceChild.attrib.get('type') == "{0}:integer".format(defaultPrefix)
-                              or choiceChild.attrib.get('type') == "{0}:anyURI".format(defaultPrefix)):
-                                textCapitalized = choiceChild.attrib.get('name')
-                                mapTagIDElementInfo = request.session['mapTagIDElementInfoExplore']
-                                elementID = len(mapTagIDElementInfo.keys())
-                                if (counter > 0):
-                                    formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\" style=\"display:none;\"><li id='" + str(elementID) + "'>" + textCapitalized + " <input type='checkbox'>" + "</li></ul>"
-                                else:                                      
-                                    formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\"><li id='" + str(elementID) + "'>" + textCapitalized + " <input type='checkbox'>" + "</li></ul>"
-                                elementInfo = ElementInfo(choiceChild.attrib.get('type'),fullPath[1:]+"." + textCapitalized)
-                                mapTagIDElementInfo[elementID] = elementInfo.__to_json__()
-                                request.session['mapTagIDElementInfoExplore'] = mapTagIDElementInfo
-                            else:
-                                textCapitalized = choiceChild.attrib.get('name')
-                                if (counter > 0):
-                                    formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\" style=\"display:none;\"><li>" + textCapitalized
-                                else:
-                                    formString += "<ul id=\""  + chooseIDStr + "-" + str(counter) + "\"><li>" + textCapitalized
-                                formString += generateFormSubSection(request, choiceChild.attrib.get('type'), textCapitalized, fullPath, xmlTree) + "</ul>"            
-            formString += "</li></ul>"
-        elif complexTypeChild.tag == "{0}choice".format(defaultNamespace):
-            formString += "<ul>"
-            chooseID = nbChoicesID        
-            chooseIDStr = 'choice' + str(chooseID)
-            nbChoicesID += 1
-            request.session['nbChoicesIDExplore'] = str(nbChoicesID)
-            formString += "<li>Choose <select id='"+ chooseIDStr +"' onchange=\"changeChoice(this);\">"        
-            choiceChildren = complexTypeChild.findall('*')
-            for choiceChild in choiceChildren:
-                if choiceChild.tag == "{0}element".format(defaultNamespace):
-                    textCapitalized = choiceChild.attrib.get('name')
-                    formString += "<option value='" + textCapitalized + "'>" + textCapitalized + "</option></b><br>"
-            formString += "</select>"
-            for (counter, choiceChild) in enumerate(choiceChildren):
-                if choiceChild.tag == "{0}element".format(defaultNamespace):
-                    if (choiceChild.attrib.get('type') == "{0}:string".format(defaultPrefix)
-                      or choiceChild.attrib.get('type') == "{0}:double".format(defaultPrefix)
-                      or choiceChild.attrib.get('type') == "{0}:float".format(defaultPrefix)
-                      or choiceChild.attrib.get('type') == "{0}:integer".format(defaultPrefix)
-                      or choiceChild.attrib.get('type') == "{0}:anyURI".format(defaultPrefix)):
-                        textCapitalized = choiceChild.attrib.get('name')
-                        mapTagIDElementInfo =  request.session['mapTagIDElementInfoExplore']
-                        elementID = len(mapTagIDElementInfo.keys())
-                        if (counter > 0):
-                            formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\" style=\"display:none;\"><li id='" + str(elementID) + "'>" + textCapitalized + " <input type='checkbox'>" + "</li></ul>"
-                        else:                                      
-                            formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\"><li id='" + str(elementID) + "'>" + textCapitalized + " <input type='checkbox'>" + "</li></ul>"
-                        elementInfo = ElementInfo(choiceChild.attrib.get('type'),fullPath[1:]+"." + textCapitalized)
-                        mapTagIDElementInfo[elementID] = elementInfo.__to_json__()
-                        request.session['mapTagIDElementInfoExplore'] = mapTagIDElementInfo
-                    else:                                                    
-                        textCapitalized = choiceChild.attrib.get('name')
-                        if (counter > 0):
-                            formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\" style=\"display:none;\"><li>" + textCapitalized
-                        else:
-                            formString += "<ul id=\""  + chooseIDStr + "-" + str(counter) + "\"><li>" + textCapitalized               
-                        formString += generateFormSubSection(request, choiceChild.attrib.get('type'), textCapitalized, fullPath, xmlTree) + "</ul>"
-            formString += "</li></ul>"
-        elif complexTypeChild.tag == "{0}attribute".format(defaultNamespace):
-            textCapitalized = complexTypeChild.attrib.get('name')
-            formString += "<li>" + textCapitalized + "</li>"
-    elif e.tag == "{0}simpleType".format(defaultNamespace):
-
-        simpleTypeChildren = e.findall('*')
-        
-        if simpleTypeChildren is None:
-            return formString
-
-        for simpleTypeChild in simpleTypeChildren:
-            if simpleTypeChild.tag == "{0}restriction".format(defaultNamespace):
-                choiceChildren = simpleTypeChild.findall('*')
-                for choiceChild in choiceChildren:
-                    if choiceChild.tag == "{0}enumeration".format(defaultNamespace):
-                        formString += "<input type='checkbox'>"
-                        break
-
-    print 'END def generateFormSubSection(xpath, elementName, fullPath)'
+    # remove the annotations
+    removeAnnotations(element, defaultNamespace)
+    
+    formString += "<ul>"
+    # generates the sequence
+    if(len(list(element)) != 0):
+        for child in element:
+            if (child.tag == "{0}element".format(defaultNamespace)):            
+                formString += generateElement(request, child, fullPath, xmlTree)
+            elif (child.tag == "{0}sequence".format(defaultNamespace)):
+                formString += generateSequence(request, child, fullPath, xmlTree)
+            elif (child.tag == "{0}choice".format(defaultNamespace)):
+                formString += generateChoice(request, child, fullPath, xmlTree)
+            elif (child.tag == "{0}any".format(defaultNamespace)):
+                pass
+            elif (child.tag == "{0}group".format(defaultNamespace)):
+                pass
+    
+    formString += "</ul>"
+    
     return formString
 
 ################################################################################
 # 
-# Function Name: generateForm(key)
-# Inputs:        key -
+# Function Name: generateChoice(request, element, fullPath, xmlTree)
+# Inputs:        request - 
+#                element - XML element
+#                fullPath - full Xpath to the current element
+#                xmlTree - XML Tree
+#                namespace - namespace
+# Outputs:       HTML string representing a sequence
+# Exceptions:    None
+# Description:   Generates a section of the form that represents an XML choice
+# 
+################################################################################
+def generateChoice(request, element, fullPath, xmlTree):
+    #(annotation?,(element|group|choice|sequence|any)*)
+    nbChoicesID = int(request.session['nbChoicesIDExplore'])
+    
+    defaultNamespace = request.session['defaultNamespaceExplore']    
+    defaultPrefix = request.session['defaultPrefixExplore']
+    
+    formString = ""
+    
+    #remove the annotations
+    removeAnnotations(element, defaultNamespace) 
+    
+    chooseID = nbChoicesID
+    chooseIDStr = 'choice' + str(chooseID)
+    nbChoicesID += 1
+    request.session['nbChoicesIDExplore'] = str(nbChoicesID)
+    formString += "<ul><li>Choose <select id='"+ chooseIDStr +"' onchange=\"changeChoice(this);\">"
+    
+    # generates the sequence
+    if(len(list(element)) != 0):
+        for child in element:
+            if (child.tag == "{0}element".format(defaultNamespace)):            
+                name = child.attrib.get('name')
+                formString += "<option value='" + name + "'>" + name + "</option></b><br>"
+            elif (child.tag == "{0}group".format(defaultNamespace)):
+                pass
+            elif (child.tag == "{0}choice".format(defaultNamespace)):
+                pass
+            elif (child.tag == "{0}sequence".format(defaultNamespace)):
+                pass
+            elif (child.tag == "{0}any".format(defaultNamespace)):
+                pass
+
+    formString += "</select>"
+                                  
+    for (counter, choiceChild) in enumerate(list(element)):
+        if choiceChild.tag == "{0}element".format(defaultNamespace):
+            if choiceChild.attrib.get('type') in ["{0}:string".format(defaultPrefix), 
+                                                   "{0}:double".format(defaultPrefix), 
+                                                   "{0}:float".format(defaultPrefix), 
+                                                   "{0}:integer".format(defaultPrefix), 
+                                                   "{0}:anyURI".format(defaultPrefix)]:
+                textCapitalized = choiceChild.attrib.get('name')
+                mapTagIDElementInfo = request.session['mapTagIDElementInfoExplore']
+                elementID = len(mapTagIDElementInfo.keys())
+                if (counter > 0):
+                    formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\" style=\"display:none;\"><li id='" + str(elementID) + "'>" + textCapitalized + " <input type='checkbox'>" + "</li></ul>"
+                else:                                      
+                    formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\"><li id='" + str(elementID) + "'>" + textCapitalized + " <input type='checkbox'>" + "</li></ul>"
+                elementInfo = ElementInfo(choiceChild.attrib.get('type'),fullPath[1:]+"." + textCapitalized)
+                mapTagIDElementInfo[elementID] = elementInfo.__to_json__()
+                request.session['mapTagIDElementInfoExplore'] = mapTagIDElementInfo
+            else:
+                textCapitalized = choiceChild.attrib.get('name')
+                if (counter > 0):
+                    formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\" style=\"display:none;\">"
+                else:
+                    formString += "<ul id=\""  + chooseIDStr + "-" + str(counter) + "\">"
+                xpath = "./*[@name='"+choiceChild.attrib.get('type')+"']"
+                elementType = xmlTree.find(xpath)
+                if elementType.tag == "{0}complexType".format(defaultNamespace):
+                    formString += "<li>" + textCapitalized
+                    formString += generateComplexType(request, elementType, textCapitalized, fullPath, xmlTree)
+                    formString += "</li>"
+                elif elementType.tag == "{0}simpleType".format(defaultNamespace):
+                    formString += generateSimpleType(request, choiceChild, textCapitalized, elementType, fullPath, xmlTree)    
+                formString += "</ul>"   
+        else:
+            pass      
+    formString += "</li></ul>"
+    
+    return formString
+
+################################################################################
+# 
+# Function Name: generateSimpleType(request, element, elementName, elementType, fullPath, xmlTree)
+# Inputs:        request - 
+#                element - XML element
+#                elementName - name of the XML element
+#                elementType - type of the XML element
+#                xmlTree - XML Tree
+#                namespace - namespace
+# Outputs:       HTML string representing a sequence
+# Exceptions:    None
+# Description:   Generates a section of the form that represents an XML choice
+# 
+################################################################################
+def generateSimpleType(request, element, elementName, elementType, fullPath, xmlTree):
+    defaultNamespace = request.session['defaultNamespaceExplore']    
+    mapTagIDElementInfo = request.session['mapTagIDElementInfoExplore'] 
+    
+    elementID = len(mapTagIDElementInfo.keys()) 
+    
+    # build the path to element to be used in the query
+    fullPath += "." + elementName
+    
+    formString = ""
+
+    # remove the annotations
+    removeAnnotations(element, defaultNamespace)    
+    
+    for child in list(element):
+        if child.tag == "{0}restriction".format(defaultNamespace):
+            enumChildren = child.findall("{0}enumeration".format(defaultNamespace))
+            if enumChildren is not None:
+                formString += "<li id='" + str(elementID) + "'>" + elementName + " <input type='checkbox'>" + "</li>"
+                elementInfo = ElementInfo("enum",fullPath[1:]+"." + elementName)
+                mapTagIDElementInfo[elementID] = elementInfo.__to_json__()
+                request.session['mapTagIDElementInfoExplore'] = mapTagIDElementInfo
+                listChoices = []
+                for enumChild in enumChildren:
+                    listChoices.append(enumChild.attrib['value'])
+                request.session['mapEnumIDChoicesExplore'][elementID] = listChoices
+    
+    
+    return formString 
+
+
+################################################################################
+# 
+# Function Name: generateComplexType(request, elementType, elementName, fullPath, xmlTree)
+# Inputs:        request - 
+#                elementType - XML elementType
+#                elementName - name of the XML element
+#                xmlTree - XML Tree
+#                namespace - namespace
+# Outputs:       HTML string representing a sequence
+# Exceptions:    None
+# Description:   Generates a section of the form that represents an XML complexType
+# 
+################################################################################
+def generateComplexType(request, elementType, elementName, fullPath, xmlTree):
+    defaultNamespace = request.session['defaultNamespaceExplore']    
+    
+    # build the path to element to be used in the query
+    fullPath += "." + elementName
+    
+    formString = ""
+    
+    # remove the annotations
+    removeAnnotations(elementType, defaultNamespace)
+    
+    # TODO: does it contain attributes ?
+    
+    # does it contain sequence or all?
+    complexTypeChild = elementType.find('{0}sequence'.format(defaultNamespace))
+    if complexTypeChild is not None:
+        return generateSequence(request, complexTypeChild, fullPath, xmlTree)
+    else:
+        complexTypeChild = elementType.find('{0}all'.format(defaultNamespace))
+        if complexTypeChild is not None:
+            return generateSequence(request, complexTypeChild, fullPath, xmlTree)
+        else:
+            # does it contain choice ?
+            complexTypeChild = elementType.find('{0}choice'.format(defaultNamespace))
+            if complexTypeChild is not None:
+                return generateChoice(request, complexTypeChild, fullPath, xmlTree)
+            else:
+                return formString
+    
+    return formString 
+
+################################################################################
+# 
+# Function Name: generateElement(request, element, fullPath, xmlTree)
+# Inputs:        request -
+#                element - XML element
+#                fullPath - full Xpath to the current element
+#                xmlTree - XML Tree
+# Outputs:       JSON data 
+# Exceptions:    None
+# Description:   Generate an HTML string that represents an XML element.
+#
+################################################################################
+def generateElement(request, element, fullPath, xmlTree):
+    print 'BEGIN def generateElement(request, xpath, elementName, fullPath)'
+    
+    # get the variables in session
+    defaultNamespace = request.session['defaultNamespaceExplore']    
+    defaultPrefix = request.session['defaultPrefixExplore']
+    
+    formString = ""
+
+    
+    if 'type' not in element.attrib:
+        # type is a reference included in the document
+        if 'ref' in element.attrib:
+            print "ref"  
+            return formString
+        else:        
+            # type declared below
+            textCapitalized = element.attrib.get('name') 
+            if (element[0].tag == "{0}complexType".format(defaultNamespace)):
+                formString += "<li>" + textCapitalized + " "
+                formString += generateComplexType(request, element[0], textCapitalized, fullPath, xmlTree)
+                formString += "</li>"    
+            else:                     
+                formString += generateSimpleType(request, element, textCapitalized, element[0], fullPath, xmlTree)
+                   
+    # if element is one of the declared type
+    elif element.attrib.get('type') in ["{0}:string".format(defaultPrefix), 
+                                         "{0}:double".format(defaultPrefix), 
+                                         "{0}:float".format(defaultPrefix), 
+                                         "{0}:integer".format(defaultPrefix), 
+                                         "{0}:anyURI".format(defaultPrefix)]:                                                                
+        textCapitalized = element.attrib.get('name')   
+        mapTagIDElementInfo = request.session['mapTagIDElementInfoExplore']                  
+        elementID = len(mapTagIDElementInfo.keys())
+        formString += "<li id='" + str(elementID) + "'>" + textCapitalized + " <input type='checkbox'>"                         
+        formString += "</li>"                    
+        elementInfo = ElementInfo(element.attrib.get('type'),fullPath[1:] + "." + textCapitalized)
+        mapTagIDElementInfo[elementID] = elementInfo.__to_json__()
+        request.session['mapTagIDElementInfoExplore'] = mapTagIDElementInfo                
+    else:                        
+        textCapitalized = element.attrib.get('name') 
+        xpath = "./*[@name='"+element.attrib.get('type')+"']"
+        elementType = xmlTree.find(xpath)                        
+        if elementType is not None:
+            if elementType.tag == "{0}complexType".format(defaultNamespace):
+                formString += "<li>" + textCapitalized + " "
+                formString += generateComplexType(request, elementType, textCapitalized, fullPath, xmlTree)
+                formString += "</li>"    
+            elif elementType.tag == "{0}simpleType".format(defaultNamespace):                
+                formString += generateSimpleType(request, element, textCapitalized, elementType, fullPath, xmlTree)
+
+    print 'END def generateElement(request, xpath, elementName, fullPath)'
+    return formString
+
+################################################################################
+# 
+# Function Name: generateForm(request)
+# Inputs:        request -
 # Outputs:       rendered HTMl form
 # Exceptions:    None
 # Description:   Renders HTMl form for display.
 #
 ################################################################################
-
 def generateForm(request):
-    print 'BEGIN def generateForm(key)'    
+    print 'BEGIN def generateForm(request)'    
     
 
     xmlDocTreeStr = request.session['xmlDocTreeExplore']
@@ -464,18 +530,14 @@ def generateForm(request):
     defaultNamespace = request.session['defaultNamespaceExplore'] 
     e = xmlDocTree.findall("./{0}element".format(defaultNamespace))
 
-#     if len(e) > 1:
-    for element in e:
-        textCapitalized = element.attrib.get('name')
-        formString += "<b>" + textCapitalized + "</b><br>"
-        formString += generateFormSubSection(request, element.attrib.get('type'), textCapitalized, "", xmlDocTree)
-#         formString += "<p style='color:red'> The schema is not valid ! </p>"
-#     else:
-#         textCapitalized = e[0].attrib.get('name')[0].capitalize()  + e[0].attrib.get('name')[1:]
-#         formString += "<b>" + textCapitalized + "</b><br>"
-#         formString += generateFormSubSection(e[0].attrib.get('type'), "")
+    if len(e) > 1:        
+        formString += "<p style='color:red'> The current version of the MDCS does not support multiple root templates. </p>"
+    else:
+        formString += "<ul>"
+        formString += generateElement(request, e[0], "", xmlDocTree)
+        formString += "</ul>"
 
-    print 'END def generateForm(key)'
+    print 'END def generateForm(request)'
 
     return formString
 
