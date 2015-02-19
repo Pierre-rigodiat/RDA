@@ -131,8 +131,9 @@ def saveHTMLForm(request,saveAs,content):
     dajax = Dajax()
 
     templateID = request.session['currentTemplateID']
+    occurrences = request.session['occurrences']
 
-    newHTMLForm = Htmlform(title=saveAs, schema=templateID, content=content).save()
+    newHTMLForm = Htmlform(title=saveAs, schema=templateID, content=content, occurrences=str(occurrences)).save()
     
     return dajax.json()
 
@@ -291,10 +292,14 @@ def loadFormForEntry(request,formSelected):
     print '>>>>  BEGIN def loadFormForEntry(request,formSelected)'
     dajax = Dajax()
 
-    htmlFormObject = Htmlform.objects.get(id=formSelected)
-
-    dajax.assign('#xsdForm', 'innerHTML', htmlFormObject.content)
-
+    try:
+        htmlFormObject = Htmlform.objects.get(id=formSelected)
+        request.session['occurrences'] = eval(htmlFormObject.occurrences)
+        
+        dajax.assign('#xsdForm', 'innerHTML', htmlFormObject.content)
+    except:
+        pass
+    
     print '>>>> END def loadFormForEntry(request,formSelected)'
     return dajax.json()
 

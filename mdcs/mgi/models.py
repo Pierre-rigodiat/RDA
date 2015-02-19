@@ -99,6 +99,7 @@ class Htmlform(Document):
     title = StringField(required=True)
     schema = StringField(required=True)
     content = StringField(required=True)
+    occurrences = StringField(required=True)
 
 class Xmldata(Document):
     title = StringField(required=True)
