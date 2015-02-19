@@ -512,7 +512,7 @@ def generateChoice(request, element, xmlTree, namespace):
     request.session['nbChoicesID'] = str(nbChoicesID)
     formString += "<ul><li><nobr>Choose <select id='"+ chooseIDStr +"' onchange=\"changeChoice(this);\">"
     
-    # generates the sequence
+    # generates the choice
     if(len(list(element)) != 0):
         for child in element:
             if (child.tag == "{0}element".format(namespace)):            
@@ -1110,15 +1110,18 @@ def generateForm(request):
     formString = ""
     
     namespace = request.session['namespaces'][defaultPrefix]
-    e = xmlDocTree.findall("./{0}element".format(namespace))
+    elements = xmlDocTree.findall("./{0}element".format(namespace))
 
-    if len(e) > 1:
-        formString += "<p style='color:red'> The current version of the MDCS does not support multiple root templates. </p>"
-    else:
+    if len(elements) == 1:
         formString += "<div xmlID='root'>"
-        formString += generateElement(request, e[0], xmlDocTree,namespace)
+        formString += generateElement(request, elements[0], xmlDocTree,namespace)
         formString += "</div>"
-    
+    elif len(elements) > 1:     
+        formString += "<div xmlID='root'>"
+        formString += generateChoice(request, elements, xmlDocTree, namespace)
+        formString += "</div>"
+           
+        
     return formString
 
 ################################################################################

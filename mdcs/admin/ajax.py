@@ -348,6 +348,8 @@ def clearVersion(request):
 
     print 'END def clearVersion(request)'
     return dajax.json()
+
+
 ################################################################################
 # 
 # Function Name: generateHtmlDependencyResolver(imports, includes)

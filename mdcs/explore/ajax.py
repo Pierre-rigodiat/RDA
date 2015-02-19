@@ -528,13 +528,15 @@ def generateForm(request):
     formString = ""   
         
     defaultNamespace = request.session['defaultNamespaceExplore'] 
-    e = xmlDocTree.findall("./{0}element".format(defaultNamespace))
+    elements = xmlDocTree.findall("./{0}element".format(defaultNamespace))
 
-    if len(e) > 1:        
-        formString += "<p style='color:red'> The current version of the MDCS does not support multiple root templates. </p>"
-    else:
+    if len(elements) == 1:
         formString += "<ul>"
-        formString += generateElement(request, e[0], "", xmlDocTree)
+        formString += generateElement(request, elements[0], "", xmlDocTree)
+        formString += "</ul>"
+    elif len(elements) > 1:
+        formString += "<ul>"  
+        formString += generateChoice(request, elements, "", xmlDocTree)
         formString += "</ul>"
 
     print 'END def generateForm(request)'
