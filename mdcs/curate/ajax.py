@@ -542,10 +542,13 @@ def generateChoice(request, element, xmlTree, namespace):
                 tagID = "element" + str(len(mapTagElement.keys()))  
                 mapTagElement[tagID] = elementID 
                 manageOccurences(request, choiceChild, elementID)
+                defaultValue = ""
+                if 'default' in choiceChild.attrib:
+                    defaultValue = choiceChild.attrib['default']
                 if (counter > 0):
-                    formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\" style=\"display:none;\"><li id='" + str(tagID) + "'><nobr>" + choiceChild.attrib.get('name') + " <input type='text'>" + "</nobr></li></ul>"
+                    formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\" style=\"display:none;\"><li id='" + str(tagID) + "'><nobr>" + choiceChild.attrib.get('name') + " <input type='text' value='"+ defaultValue +"'/>" + "</nobr></li></ul>"
                 else:
-                    formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\"><li id='" + str(tagID) + "'><nobr>" + choiceChild.attrib.get('name') + " <input type='text'>" + "</nobr></li></ul>"
+                    formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\"><li id='" + str(tagID) + "'><nobr>" + choiceChild.attrib.get('name') + " <input type='text' value='"+ defaultValue +"'/>" + "</nobr></li></ul>"
             else:
                 textCapitalized = choiceChild.attrib.get('name')
                 elementID = len(xsd_elements)
@@ -772,7 +775,10 @@ def generateElement(request, element, xmlTree, namespace):
         for x in range (0,int(nbOccurrences)):                         
             tagID = "element" + str(len(mapTagElement.keys()))  
             mapTagElement[tagID] = elementID 
-            formString += "<li id='" + str(tagID) + "'><nobr>" + textCapitalized + " <input type='text'>"
+            defaultValue = ""
+            if 'default' in element.attrib:
+                defaultValue = element.attrib['default']
+            formString += "<li id='" + str(tagID) + "'><nobr>" + textCapitalized + " <input type='text' value='"+ defaultValue +"'/>"
                                 
             if (addButton == True):                                
                 formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" onclick=\"changeHTMLForm('add',this,"+str(tagID[7:])+");\"></span>"
@@ -1005,7 +1011,10 @@ def duplicate(request, tagID, xsdForm):
                 textCapitalized = sequenceChild.attrib.get('name')                                     
                 newTagID = "element" + str(len(mapTagElement.keys())) 
                 mapTagElement[newTagID] = elementID
-                formString += "<li id='" + str(newTagID) + "'><nobr>" + textCapitalized + " <input type='text'>"
+                defaultValue = ""
+                if 'default' in sequenceChild.attrib:
+                    defaultValue = sequenceChild.attrib['default']
+                formString += "<li id='" + str(newTagID) + "'><nobr>" + textCapitalized + " <input type='text' value='"+ defaultValue +"'/>"
                 formString += "<span id='add"+ str(newTagID[7:]) +"' class=\"icon add\" onclick=\"changeHTMLForm('add',this,"+str(newTagID[7:])+");\"></span>"
                 formString += "<span id='remove"+ str(newTagID[7:]) +"' class=\"icon remove\" onclick=\"changeHTMLForm('remove',this,"+str(newTagID[7:])+");\"></span>"         
                 formString += "</nobr></li>"
