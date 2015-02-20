@@ -30,7 +30,7 @@ import copy
 import lxml.etree as etree
 from mgi.models import Template, QueryResults, SparqlQueryResults, SavedQuery, Jsondata, Instance, XMLSchema, MetaSchema
 import sparqlPublisher
-
+from mgi import utils
 #Class definition
 
 ################################################################################
@@ -310,11 +310,21 @@ def generateChoice(request, element, fullPath, xmlTree):
                                   
     for (counter, choiceChild) in enumerate(list(element)):
         if choiceChild.tag == "{0}element".format(defaultNamespace):
-            if choiceChild.attrib.get('type') in ["{0}:string".format(defaultPrefix), 
-                                                   "{0}:double".format(defaultPrefix), 
-                                                   "{0}:float".format(defaultPrefix), 
-                                                   "{0}:integer".format(defaultPrefix), 
-                                                   "{0}:anyURI".format(defaultPrefix)]:
+            if 'type' not in choiceChild.attrib:
+                # type is a reference included in the document
+                if 'ref' in choiceChild.attrib:
+                    print "ref"  
+                    return formString
+                else:        
+                    # type declared below
+                    textCapitalized = choiceChild.attrib.get('name') 
+                    if (element[0].tag == "{0}complexType".format(defaultNamespace)):
+                        formString += "<li>" + textCapitalized + " "
+                        formString += generateComplexType(request, choiceChild[0], textCapitalized, fullPath, xmlTree)
+                        formString += "</li>"    
+                    else:                     
+                        formString += generateSimpleType(request, choiceChild, textCapitalized, choiceChild[0], fullPath, xmlTree)
+            elif choiceChild.attrib.get('type') in utils.getXSDTypes(defaultPrefix):
                 textCapitalized = choiceChild.attrib.get('name')
                 mapTagIDElementInfo = request.session['mapTagIDElementInfoExplore']
                 elementID = len(mapTagIDElementInfo.keys())
@@ -372,9 +382,9 @@ def generateSimpleType(request, element, elementName, elementType, fullPath, xml
     formString = ""
 
     # remove the annotations
-    removeAnnotations(element, defaultNamespace)    
+    removeAnnotations(elementType, defaultNamespace)    
     
-    for child in list(element):
+    for child in list(elementType):
         if child.tag == "{0}restriction".format(defaultNamespace):
             enumChildren = child.findall("{0}enumeration".format(defaultNamespace))
             if enumChildren is not None:
@@ -473,11 +483,7 @@ def generateElement(request, element, fullPath, xmlTree):
                 formString += generateSimpleType(request, element, textCapitalized, element[0], fullPath, xmlTree)
                    
     # if element is one of the declared type
-    elif element.attrib.get('type') in ["{0}:string".format(defaultPrefix), 
-                                         "{0}:double".format(defaultPrefix), 
-                                         "{0}:float".format(defaultPrefix), 
-                                         "{0}:integer".format(defaultPrefix), 
-                                         "{0}:anyURI".format(defaultPrefix)]:                                                                
+    elif element.attrib.get('type') in utils.getXSDTypes(defaultPrefix):                                                                
         textCapitalized = element.attrib.get('name')   
         mapTagIDElementInfo = request.session['mapTagIDElementInfoExplore']                  
         elementID = len(mapTagIDElementInfo.keys())
@@ -535,9 +541,7 @@ def generateForm(request):
         formString += generateElement(request, elements[0], "", xmlDocTree)
         formString += "</ul>"
     elif len(elements) > 1:
-        formString += "<ul>"  
         formString += generateChoice(request, elements, "", xmlDocTree)
-        formString += "</ul>"
 
     print 'END def generateForm(request)'
 
@@ -1092,9 +1096,23 @@ def ORCriteria(criteria1, criteria2):
 def buildCriteria(request, elemPath, comparison, value, elemType, isNot=False):
     defaultPrefix = request.session['defaultPrefixExplore']
     
-    if (elemType == '{0}:integer'.format(defaultPrefix)):
+    if (elemType in ['{0}:byte'.format(defaultPrefix),
+                     '{0}:int'.format(defaultPrefix),
+                     '{0}:integer'.format(defaultPrefix),
+                     '{0}:long'.format(defaultPrefix),
+                     '{0}:negativeInteger'.format(defaultPrefix),
+                     '{0}:nonNegativeInteger'.format(defaultPrefix),
+                     '{0}:nonPositiveInteger'.format(defaultPrefix),
+                     '{0}:positiveInteger'.format(defaultPrefix),
+                     '{0}:short'.format(defaultPrefix),
+                     '{0}:unsignedLong'.format(defaultPrefix),
+                     '{0}:unsignedInt'.format(defaultPrefix),
+                     '{0}:unsignedShort'.format(defaultPrefix),
+                     '{0}:unsignedByte'.format(defaultPrefix),]):
         return intCriteria(elemPath, comparison, value, isNot)
-    elif (elemType == '{0}:float'.format(defaultPrefix) or elemType == '{0}:double'.format(defaultPrefix)):
+    elif (elemType in ['{0}:float'.format(defaultPrefix), 
+                       '{0}:double'.format(defaultPrefix),
+                       '{0}:decimal'.format(defaultPrefix)]):
         return floatCriteria(elemPath, comparison, value, isNot)
     elif (elemType == '{0}:string'.format(defaultPrefix)):
         return stringCriteria(elemPath, comparison, value, isNot)
@@ -1198,7 +1216,9 @@ def checkQueryForm(request, htmlTree):
             elementInfo = eval(criteriaInfo['elementInfo']) 
             elemType = elementInfo['type']
             
-            if (elemType == "{0}:float".format(defaultPrefix) or elemType == "{0}:double".format(defaultPrefix)):
+            if (elemType in ['{0}:float'.format(defaultPrefix), 
+                       '{0}:double'.format(defaultPrefix),
+                       '{0}:decimal'.format(defaultPrefix)]):
                 value = field[2][1].value
                 try:
                     float(value)
@@ -1207,7 +1227,19 @@ def checkQueryForm(request, htmlTree):
                     element = elementPath.split('.')[-1]
                     errors.append(element + " must be a number !")
                         
-            elif (elemType == "{0}:integer".format(defaultPrefix)):
+            elif (elemType in ['{0}:byte'.format(defaultPrefix),
+                     '{0}:int'.format(defaultPrefix),
+                     '{0}:integer'.format(defaultPrefix),
+                     '{0}:long'.format(defaultPrefix),
+                     '{0}:negativeInteger'.format(defaultPrefix),
+                     '{0}:nonNegativeInteger'.format(defaultPrefix),
+                     '{0}:nonPositiveInteger'.format(defaultPrefix),
+                     '{0}:positiveInteger'.format(defaultPrefix),
+                     '{0}:short'.format(defaultPrefix),
+                     '{0}:unsignedLong'.format(defaultPrefix),
+                     '{0}:unsignedInt'.format(defaultPrefix),
+                     '{0}:unsignedShort'.format(defaultPrefix),
+                     '{0}:unsignedByte'.format(defaultPrefix)]):
                 value = field[2][1].value
                 try:
                     int(value)
@@ -1753,9 +1785,22 @@ def updateUserInputs(request, htmlForm, fromElementID, criteriaID):
     for element in userInputs.findall("*"):
         userInputs.remove(element) 
     
-    if (criteriaInfo.elementInfo.type == "{0}:integer".format(defaultPrefix) 
-        or criteriaInfo.elementInfo.type == "{0}:double".format(defaultPrefix)
-        or criteriaInfo.elementInfo.type == "{0}:float".format(defaultPrefix)):
+    if (criteriaInfo.elementInfo.type in ["{0}:byte".format(defaultPrefix),
+                                            "{0}:decimal".format(defaultPrefix),
+                                            "{0}:int".format(defaultPrefix),
+                                            "{0}:integer".format(defaultPrefix),
+                                            "{0}:long".format(defaultPrefix),
+                                            "{0}:negativeInteger".format(defaultPrefix),
+                                            "{0}:nonNegativeInteger".format(defaultPrefix),
+                                            "{0}:nonPositiveInteger".format(defaultPrefix),
+                                            "{0}:positiveInteger".format(defaultPrefix), 
+                                            "{0}:short".format(defaultPrefix), 
+                                            "{0}:unsignedLong".format(defaultPrefix), 
+                                            "{0}:unsignedInt".format(defaultPrefix), 
+                                            "{0}:unsignedShort".format(defaultPrefix), 
+                                            "{0}:unsignedByte".format(defaultPrefix),
+                                            "{0}:double".format(defaultPrefix),
+                                            "{0}:float".format(defaultPrefix)]):
         form = html.fragment_fromstring(renderNumericSelect())
         inputs = html.fragment_fromstring(renderValueInput()) 
         userInputs.append(form)
@@ -2580,9 +2625,22 @@ def prepareSubElementQuery(request, leavesID):
         subElementQueryBuilderStr += "<li><input type='checkbox' style='margin-right:4px;margin-left:2px;' checked/>"
         subElementQueryBuilderStr += renderYESORNOT()
         subElementQueryBuilderStr += elementName + ": "
-        if (elementInfo.type == "{0}:integer".format(defaultPrefix) 
-        or elementInfo.type == "{0}:double".format(defaultPrefix)
-        or elementInfo.type == "{0}:float".format(defaultPrefix)):
+        if (elementInfo.type in ["{0}:byte".format(defaultPrefix),
+                                            "{0}:decimal".format(defaultPrefix),
+                                            "{0}:int".format(defaultPrefix),
+                                            "{0}:integer".format(defaultPrefix),
+                                            "{0}:long".format(defaultPrefix),
+                                            "{0}:negativeInteger".format(defaultPrefix),
+                                            "{0}:nonNegativeInteger".format(defaultPrefix),
+                                            "{0}:nonPositiveInteger".format(defaultPrefix),
+                                            "{0}:positiveInteger".format(defaultPrefix), 
+                                            "{0}:short".format(defaultPrefix), 
+                                            "{0}:unsignedLong".format(defaultPrefix), 
+                                            "{0}:unsignedInt".format(defaultPrefix), 
+                                            "{0}:unsignedShort".format(defaultPrefix), 
+                                            "{0}:unsignedByte".format(defaultPrefix),
+                                            "{0}:double".format(defaultPrefix),
+                                            "{0}:float".format(defaultPrefix)]):
             subElementQueryBuilderStr += renderNumericSelect()
             subElementQueryBuilderStr += renderValueInput()
         elif (elementInfo.type == "enum"):
@@ -2689,14 +2747,28 @@ def checkSubElementField(request, liElement, elementName, elementType):
     error = ""
     defaultPrefix = request.session['defaultPrefixExplore']
     
-    if (elementType == "{0}:float".format(defaultPrefix) or elementType == "{0}:double".format(defaultPrefix)):
+    if (elementType in ['{0}:float'.format(defaultPrefix), 
+                       '{0}:double'.format(defaultPrefix),
+                       '{0}:decimal'.format(defaultPrefix)]):
         value = liElement[3].value
         try:
             float(value)
         except ValueError:
             error = elementName + " must be a number !"
                 
-    elif (elementType == "{0}:integer".format(defaultPrefix)):
+    elif (elementType in ['{0}:byte'.format(defaultPrefix),
+                     '{0}:int'.format(defaultPrefix),
+                     '{0}:integer'.format(defaultPrefix),
+                     '{0}:long'.format(defaultPrefix),
+                     '{0}:negativeInteger'.format(defaultPrefix),
+                     '{0}:nonNegativeInteger'.format(defaultPrefix),
+                     '{0}:nonPositiveInteger'.format(defaultPrefix),
+                     '{0}:positiveInteger'.format(defaultPrefix),
+                     '{0}:short'.format(defaultPrefix),
+                     '{0}:unsignedLong'.format(defaultPrefix),
+                     '{0}:unsignedInt'.format(defaultPrefix),
+                     '{0}:unsignedShort'.format(defaultPrefix),
+                     '{0}:unsignedByte'.format(defaultPrefix)]):
         value = liElement[3].value
         try:
             int(value)

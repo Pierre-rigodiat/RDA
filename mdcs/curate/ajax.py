@@ -536,11 +536,7 @@ def generateChoice(request, element, xmlTree, namespace):
     
     for (counter, choiceChild) in enumerate(list(element)):
         if choiceChild.tag == "{0}element".format(namespace):
-            if choiceChild.attrib.get('type') in ["{0}:string".format(defaultPrefix), 
-                                                  "{0}:double".format(defaultPrefix), 
-                                                  "{0}:float".format(defaultPrefix), 
-                                                  "{0}:integer".format(defaultPrefix), 
-                                                  "{0}:anyURI".format(defaultPrefix)]:
+            if choiceChild.attrib.get('type') in utils.getXSDTypes(defaultPrefix):
                 textCapitalized = choiceChild.attrib.get('name')                                
                 elementID = len(xsd_elements)
                 xsd_elements[elementID] = etree.tostring(choiceChild)
@@ -734,8 +730,20 @@ def generateElement(request, element, xmlTree, namespace):
     if 'type' not in element.attrib:
         # type is a reference included in the document
         if 'ref' in element.attrib: 
-            print "ref"  
-            return formString 
+            pass
+#             ref = element.attrib['ref']
+#             if ':' in ref:
+#                 refSplit = ref.split(":")
+#                 refNamespacePrefix = refSplit[0]
+#                 refName = refSplit[1]
+#                 namespaces = request.session['namespaces']
+#                 refNamespace = namespaces[refNamespacePrefix]
+#                 element = xmlTree.findall("./{0}element[@name='"+refName+"']".format(refNamespace))
+#                 formString += generateElement(request, element, xmlTree, refNamespace)
+#             else:
+#                 element = xmlTree.findall("./{0}element[@name='"+ref+"']".format(namespace))
+#                 formString += generateElement(request, element, xmlTree, namespace)
+             
         # element with type declared below it
         else:                            
             textCapitalized = element.attrib.get('name')
@@ -764,11 +772,7 @@ def generateElement(request, element, xmlTree, namespace):
                     formString += generateSimpleType(request, element[0], xmlTree, namespace)
                 formString += "</nobr></li>"
             formString += "</ul>"                        
-    elif element.attrib.get('type') in ["{0}:string".format(defaultPrefix), 
-                                              "{0}:double".format(defaultPrefix), 
-                                              "{0}:float".format(defaultPrefix), 
-                                              "{0}:integer".format(defaultPrefix), 
-                                              "{0}:anyURI".format(defaultPrefix)]:
+    elif element.attrib.get('type') in utils.getXSDTypes(defaultPrefix):
         textCapitalized = element.attrib.get('name')
         addButton, deleteButton, nbOccurrences = manageButtons(element)
                     
@@ -1009,10 +1013,7 @@ def duplicate(request, tagID, xsdForm):
                     formString += "</nobr></li>"
                     
             # type is XML type
-            elif sequenceChild.attrib.get('type') in ["{0}:string".format(defaultPrefix), 
-                                                      "{0}:double".format(defaultPrefix), 
-                                                      "{0}:integer".format(defaultPrefix), 
-                                                      "{0}:anyURI".format(defaultPrefix)]:
+            elif sequenceChild.attrib.get('type') in utils.getXSDTypes(defaultPrefix):
                 textCapitalized = sequenceChild.attrib.get('name')                                     
                 newTagID = "element" + str(len(mapTagElement.keys())) 
                 mapTagElement[newTagID] = elementID
@@ -1126,15 +1127,17 @@ def generateForm(request):
     namespace = request.session['namespaces'][defaultPrefix]
     elements = xmlDocTree.findall("./{0}element".format(namespace))
 
-    if len(elements) == 1:
-        formString += "<div xmlID='root'>"
-        formString += generateElement(request, elements[0], xmlDocTree,namespace)
-        formString += "</div>"
-    elif len(elements) > 1:     
-        formString += "<div xmlID='root'>"
-        formString += generateChoice(request, elements, xmlDocTree, namespace)
-        formString += "</div>"
-           
+    try:
+        if len(elements) == 1:
+            formString += "<div xmlID='root'>"
+            formString += generateElement(request, elements[0], xmlDocTree,namespace)
+            formString += "</div>"
+        elif len(elements) > 1:     
+            formString += "<div xmlID='root'>"
+            formString += generateChoice(request, elements, xmlDocTree, namespace)
+            formString += "</div>"
+    except Exception, e:
+        print e.message
         
     return formString
 

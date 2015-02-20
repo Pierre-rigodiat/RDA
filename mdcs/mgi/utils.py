@@ -91,4 +91,49 @@ def validateXMLDocument(templateID, xmlString):
     xmlDoc = etree.fromstring(xmlString)
     prettyXMLString = etree.tostring(xmlDoc, pretty_print=True)  
     xmlSchema.assertValid(etree.parse(StringIO(prettyXMLString)))  
-    
+
+################################################################################
+#
+# Function Name: getXSDTypes(prefix)
+# Inputs:        request - 
+#                prefix - Namespace prefix 
+# Outputs:       
+# Exceptions:    None
+# Description:   Returns the list of all supported XSD types
+#
+################################################################################
+def getXSDTypes(prefix):
+    return ["{0}:string".format(prefix), 
+            "{0}:normalizedString".format(prefix),
+            "{0}:token".format(prefix),
+            "{0}:date".format(prefix),
+            "{0}:dateTime".format(prefix),
+            "{0}:duration".format(prefix),
+            "{0}:gDay".format(prefix),
+            "{0}:gMonth".format(prefix),
+            "{0}:gMonthDay".format(prefix),
+            "{0}:gYear".format(prefix),
+            "{0}:gYearMonth".format(prefix),
+            "{0}:gYearMonth".format(prefix),
+            "{0}:time".format(prefix), 
+            "{0}:byte".format(prefix),
+            "{0}:decimal".format(prefix),
+            "{0}:int".format(prefix),
+            "{0}:integer".format(prefix),
+            "{0}:long".format(prefix),
+            "{0}:negativeInteger".format(prefix),
+            "{0}:nonNegativeInteger".format(prefix),
+            "{0}:nonPositiveInteger".format(prefix),
+            "{0}:positiveInteger".format(prefix), 
+            "{0}:short".format(prefix), 
+            "{0}:unsignedLong".format(prefix), 
+            "{0}:unsignedInt".format(prefix), 
+            "{0}:unsignedShort".format(prefix), 
+            "{0}:unsignedByte".format(prefix), 
+            "{0}:anyURI".format(prefix), 
+            "{0}:base64Binary".format(prefix), 
+            "{0}:boolean".format(prefix), 
+            "{0}:double".format(prefix),  
+            "{0}:float".format(prefix),
+            "{0}:hexBinary".format(prefix),
+            "{0}:QName".format(prefix)]
