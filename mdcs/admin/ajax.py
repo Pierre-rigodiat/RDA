@@ -724,19 +724,20 @@ def assignDeleteCustomMessage(request, objectid, objectType):
 
 ################################################################################
 # 
-# Function Name: editInformation(request, objectid, objectType, newName, newFilename)
+# Function Name: editInformation(request, objectid, objectType, newName, newFilename, buckets)
 # Inputs:        request - 
 #                objectid -
 #                objectType - 
 #                newName - 
 #                newFileName -
+#                buckets - 
 # Outputs:       
 # Exceptions:    None
 # Description:   Edit information of an object (template or type)
 #
 ################################################################################
 @dajaxice_register
-def editInformation(request, objectid, objectType, newName, newFilename):
+def editInformation(request, objectid, objectType, newName, newFilename, buckets):
     dajax = Dajax()
     
     if objectType == "Template":
@@ -765,6 +766,20 @@ def editInformation(request, objectid, objectType, newName, newFilename):
         if version == objectid:
             obj.filename = newFilename
         obj.save()
+        
+    # update the buckets
+    allBuckets = Bucket.objects
+    for bucket in allBuckets:
+        if str(bucket.id) in buckets:
+            if str(objectVersions.id) not in bucket.types:
+                bucket.types.append(str(objectVersions.id))
+        
+        else:   
+            if str(objectVersions.id) in bucket.types:
+                bucket.types.remove(str(objectVersions.id))
+        
+        bucket.save()
+    
     
     dajax.script("""
         $("#dialog-edit-info").dialog( "close" );
@@ -1543,9 +1558,11 @@ def deleteBucket(request, bucket_id):
     """
       $('#model_buckets').load(document.URL +  ' #model_buckets', function() {});
       $('#model_select_buckets').load(document.URL +  ' #model_select_buckets', function() {});
+      $('#model_selection').load(document.URL +  ' #model_selection', function() {});
     """)
     
     return dajax.json()
+
 ################################################################################
 # 
 # Function Name: rdm_hex_color()

@@ -180,6 +180,7 @@
   <tr>
   	<th>{{ objectType }} name</th>
     <th>Filename</th>
+    <th>Buckets</th>
     <th>Status</th>
     <th>Actions</th>
   </tr>
@@ -189,6 +190,13 @@
   <tr class="{{ rowcolors }}">
     <td>{{ object.title }}</td>
     <td>{{ object.filename }}</td>
+	<td>
+	{% for bucket in buckets %}		
+		{% if object.typeVersion|stringformat:"s" in bucket.types %}
+			<span class="bucket" style="background:{{ bucket.color}};" bucketid="{{bucket.id}}">{{ bucket.label }}</span>			
+		{% endif %}		
+	{% endfor %}
+	</td>
 
 {% if isDeleted == True %}     
 	<td><span style="color:red;">Deleted</span></td>
@@ -295,7 +303,15 @@ There are currently no {{ objectType }} uploaded.  Please click "Upload {{ objec
 <div id="dialog-edit-info" title="Edit {{ objectType }} Information" style="display:none;">
 <p>
 <b>{{ objectType }} name:</b> <input type="text" id="edit-name"/><br/>
-<b>Filename:</b> <input type="text" id="edit-filename"/>
+<b>Filename:</b> <input type="text" id="edit-filename"/><br/>
+<b>Buckets:</b>
+<div id="model_select_edit_buckets">
+	<select multiple="multiple" id="select_edit_buckets">
+		{% for bucket in buckets %}
+			<option bucketid="{{ bucket.id }}">{{ bucket.label }}</option>
+		{% endfor %}
+	</select>
+</div>
 </p>
 </div>
 

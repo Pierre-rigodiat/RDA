@@ -200,6 +200,18 @@ editInformation = function()
 {
     var objectName = $(this).parent().siblings(':first').text();
     var objectFilename = $(this).parent().siblings(':nth-child(2)').text();
+    var buckets = [] 
+    
+    $(this).parent().siblings(':nth-child(3)').children().each(function(){
+    	buckets.push($(this).attr('bucketid'));
+    });
+    $("#select_edit_buckets").children().each(function(){
+      $(this).prop('selected',false);
+	  if(buckets.indexOf($(this).attr('bucketid')) > -1 ){
+	    $(this).prop('selected',true);
+	  }
+	})
+
     var objectID = $(this).attr("objectid");
     var objectType = $(this).attr("objectType");
     
@@ -213,7 +225,13 @@ editInformation = function()
             	Ok: function() {	
 					var newName = $("#edit-name")[0].value;
 					var newFilename = $("#edit-filename")[0].value;
-					Dajaxice.admin.editInformation(Dajax.process,{'objectid':objectID, 'objectType':objectType, 'newName':newName,'newFilename':newFilename});
+					var newBuckets = [] 				    
+					$("#select_edit_buckets").children().each(function(){
+						if($(this).prop('selected') == true ){
+							newBuckets.push($(this).attr('bucketid'))
+						}
+					})
+					Dajaxice.admin.editInformation(Dajax.process,{'objectid':objectID, 'objectType':objectType, 'newName':newName,'newFilename':newFilename, 'buckets':newBuckets});
                 },
                 Cancel: function() {
                     $( this ).dialog( "close" );
