@@ -536,7 +536,40 @@ def generateChoice(request, element, xmlTree, namespace):
     
     for (counter, choiceChild) in enumerate(list(element)):
         if choiceChild.tag == "{0}element".format(namespace):
-            if choiceChild.attrib.get('type') in utils.getXSDTypes(defaultPrefix):
+            if 'type' not in choiceChild.attrib:
+                # type is a reference included in the document
+                if 'ref' in choiceChild.attrib: 
+                    pass
+                     
+                # element with type declared below it
+                else:                            
+                    textCapitalized = choiceChild.attrib.get('name')
+                    addButton, deleteButton, nbOccurrences = manageButtons(choiceChild)
+                                                            
+                    elementID = len(xsd_elements)
+                    xsd_elements[elementID] = etree.tostring(choiceChild)
+                    manageOccurences(request, choiceChild, elementID)
+                    
+                    formString += "<ul>"                                   
+                    for x in range (0,int(nbOccurrences)):     
+                        tagID = "element" + str(len(mapTagElement.keys()))  
+                        mapTagElement[tagID] = elementID             
+                        formString += "<li id='" + str(tagID) + "'><nobr>" + textCapitalized
+                        if (addButton == True):                                
+                            formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" onclick=\"changeHTMLForm('add',this,"+str(tagID[7:])+");\"></span>"
+                        else:
+                            formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" style=\"display:none;\" onclick=\"changeHTMLForm('add',this,"+str(tagID[7:])+");\"></span>"                                                                             
+                        if (deleteButton == True):
+                            formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" onclick=\"changeHTMLForm('remove',this,"+str(tagID[7:])+");\"></span>"
+                        else:
+                            formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" style=\"display:none;\" onclick=\"changeHTMLForm('remove',this,"+str(tagID[7:])+");\"></span>"
+                        if choiceChild[0].tag == "{0}complexType".format(namespace):
+                            formString += generateComplexType(request, choiceChild[0], xmlTree, namespace)
+                        elif choiceChild[0].tag == "{0}simpleType".format(namespace):
+                            formString += generateSimpleType(request, choiceChild[0], xmlTree, namespace)
+                        formString += "</nobr></li>"
+                    formString += "</ul>"
+            elif choiceChild.attrib.get('type') in utils.getXSDTypes(defaultPrefix):
                 textCapitalized = choiceChild.attrib.get('name')                                
                 elementID = len(xsd_elements)
                 xsd_elements[elementID] = etree.tostring(choiceChild)
@@ -1127,17 +1160,16 @@ def generateForm(request):
     namespace = request.session['namespaces'][defaultPrefix]
     elements = xmlDocTree.findall("./{0}element".format(namespace))
 
-    try:
-        if len(elements) == 1:
-            formString += "<div xmlID='root'>"
-            formString += generateElement(request, elements[0], xmlDocTree,namespace)
-            formString += "</div>"
-        elif len(elements) > 1:     
-            formString += "<div xmlID='root'>"
-            formString += generateChoice(request, elements, xmlDocTree, namespace)
-            formString += "</div>"
-    except Exception, e:
-        print e.message
+    
+    if len(elements) == 1:
+        formString += "<div xmlID='root'>"
+        formString += generateElement(request, elements[0], xmlDocTree,namespace)
+        formString += "</div>"
+    elif len(elements) > 1:     
+        formString += "<div xmlID='root'>"
+        formString += generateChoice(request, elements, xmlDocTree, namespace)
+        formString += "</div>"
+
         
     return formString
 
