@@ -343,7 +343,7 @@ saveHTMLFormCallback = function(data)
  */
 selectElement = function(divElement)
 {   
-	console.log('BEGIN [selectElement()]');
+	console.log('BEGIN [selectElement('+divElement+')]');
     document.getElementById('chosenElement').innerHTML = "Chosen Element: <b>None</b>";
 
     $(function() {
@@ -361,7 +361,7 @@ selectElement = function(divElement)
 	    }
         });
     });
-	console.log('END [selectElement()]');
+	console.log('END [selectElement('+divElement+')]');
 }
 
 /**
@@ -383,10 +383,11 @@ chooseElement = function(element)
  */
 doSelectElement = function(divElement)
 {
-    console.log('BEGIN [selectElement(' + divElement + ')]');
+    console.log('BEGIN [doSelectElement(' + divElement + ')]');
 
     var selectedElement = document.getElementById('selectedElement').innerHTML;
-    divElement.onclick = function onclick(event) { selectElement(selectedElement,this); }	
+    console.log('[selected Element(' + selectedElement + ')]');
+    divElement.onclick = function onclick(event) { selectElement(this); }	
 	$($(divElement).parent()).children(".moduleDisplay").html("Current Selection: "+selectedElement);
 	//$($(divElement).parent()).children(".moduleResult").html("<element>" + selectedElement + "</element>");
 	$($(divElement).parent()).children(".moduleResult").html(selectedElement);
@@ -394,7 +395,7 @@ doSelectElement = function(divElement)
     // reset for next selection
     document.getElementById('chosenElement').innerHTML = "Chosen Element: <b>None</b>";
 
-    console.log('END [selectElement(' + divElement + ')]');
+    console.log('END [doSelectElement(' + divElement + ')]');
 }
 
 /**
