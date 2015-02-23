@@ -1532,6 +1532,7 @@ def addBucket(request, label):
       $('#dialog-add-bucket').dialog('close');
       $('#model_buckets').load(document.URL +  ' #model_buckets', function() {});
       $('#model_select_buckets').load(document.URL +  ' #model_select_buckets', function() {});
+      $('#model_select_edit_buckets').load(document.URL +  ' #model_select_edit_buckets', function() {});
     """)
     
     return dajax.json()
@@ -1558,7 +1559,10 @@ def deleteBucket(request, bucket_id):
     """
       $('#model_buckets').load(document.URL +  ' #model_buckets', function() {});
       $('#model_select_buckets').load(document.URL +  ' #model_select_buckets', function() {});
-      $('#model_selection').load(document.URL +  ' #model_selection', function() {});
+      $('#model_selection').load(document.URL +  ' #model_selection', function() {
+        loadUploadManagerHandler();
+      });
+      $('#model_select_edit_buckets').load(document.URL +  ' #model_select_edit_buckets', function() {});
     """)
     
     return dajax.json()

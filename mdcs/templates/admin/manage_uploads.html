@@ -180,7 +180,9 @@
   <tr>
   	<th>{{ objectType }} name</th>
     <th>Filename</th>
+    {% if objectType == "Type" %}
     <th>Buckets</th>
+    {% endif %}
     <th>Status</th>
     <th>Actions</th>
   </tr>
@@ -190,14 +192,16 @@
   <tr class="{{ rowcolors }}">
     <td>{{ object.title }}</td>
     <td>{{ object.filename }}</td>
-	<td>
-	{% for bucket in buckets %}		
-		{% if object.typeVersion|stringformat:"s" in bucket.types %}
-			<span class="bucket" style="background:{{ bucket.color}};" bucketid="{{bucket.id}}">{{ bucket.label }}</span>			
-		{% endif %}		
-	{% endfor %}
-	</td>
-
+    {% if objectType == "Type" %}
+		<td>
+		{% for bucket in buckets %}		
+			{% if object.typeVersion|stringformat:"s" in bucket.types %}
+				<span class="bucket" style="background:{{ bucket.color}};" bucketid="{{bucket.id}}">{{ bucket.label }}</span>			
+			{% endif %}		
+		{% endfor %}
+		</td>
+	{% endif %}
+	
 {% if isDeleted == True %}     
 	<td><span style="color:red;">Deleted</span></td>
     <td>
