@@ -387,7 +387,7 @@ def generateSimpleType(request, element, elementName, elementType, fullPath, xml
     for child in list(elementType):
         if child.tag == "{0}restriction".format(defaultNamespace):
             enumChildren = child.findall("{0}enumeration".format(defaultNamespace))
-            if enumChildren is not None:
+            if len(enumChildren) > 0:
                 formString += "<li id='" + str(elementID) + "'>" + elementName + " <input type='checkbox'>" + "</li>"
                 elementInfo = ElementInfo("enum",fullPath[1:]+"." + elementName)
                 mapTagIDElementInfo[elementID] = elementInfo.__to_json__()
@@ -396,6 +396,12 @@ def generateSimpleType(request, element, elementName, elementType, fullPath, xml
                 for enumChild in enumChildren:
                     listChoices.append(enumChild.attrib['value'])
                 request.session['mapEnumIDChoicesExplore'][elementID] = listChoices
+            else:
+                if child.attrib['base'] in utils.getXSDTypes(request.session['defaultPrefixExplore']):
+                    formString += "<li id='" + str(elementID) + "'>" + elementName + " <input type='checkbox'>"    
+                    elementInfo = ElementInfo(child.attrib['base'], fullPath[1:])
+                    mapTagIDElementInfo[elementID] = elementInfo.__to_json__()
+                    request.session['mapTagIDElementInfoExplore'] = mapTagIDElementInfo    
     
     
     return formString 

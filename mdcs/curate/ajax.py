@@ -636,12 +636,15 @@ def generateSimpleType(request, element, xmlTree, namespace):
     
     for child in list(element):
         if child.tag == "{0}restriction".format(namespace):
-            formString += "<select>"
-            choiceChildren = child.findall('*')
-            for choiceChild in choiceChildren:
-                if choiceChild.tag == "{0}enumeration".format(namespace):
-                    formString += "<option value='" + choiceChild.attrib.get('value')  + "'>" + choiceChild.attrib.get('value') + "</option>"
-            formString += "</select>"
+            enumeration = child.findall('{0}enumeration'.format(namespace))
+            if len(enumeration) > 0:
+                formString += "<select>"
+                for enum in enumeration:
+                    formString += "<option value='" + enum.attrib.get('value')  + "'>" + enum.attrib.get('value') + "</option>"
+                formString += "</select>"
+            else:
+                if child.attrib['base'] in utils.getXSDTypes(request.session['defaultPrefix']):
+                    formString += " <input type='text'/>"
     
     return formString 
 
