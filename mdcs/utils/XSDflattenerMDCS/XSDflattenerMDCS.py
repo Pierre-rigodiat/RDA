@@ -23,6 +23,13 @@ from utils.XSDflattener.XSDflattener import XSDFlattener
 from mgi.models import Type, MetaSchema
 from urlparse import urlparse
 
+################################################################################
+#
+# XSDFlattenerMDCS
+#
+# description: flattener that works with MDCS model
+#
+################################################################################
 class XSDFlattenerMDCS(XSDFlattener):
 			
 	def get_dependency_content(self, uri):

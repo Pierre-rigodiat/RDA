@@ -18,7 +18,6 @@ import lxml.etree as etree
 import hashlib
 import xmltodict
 from io import BytesIO
-from collections import OrderedDict
 import copy
 
 def get_hash(xmlString):

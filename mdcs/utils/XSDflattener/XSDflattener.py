@@ -85,6 +85,14 @@ class XSDFlattener(object):
 	def get_dependency_content(self, uri):
 		pass
 
+
+################################################################################
+#
+# XSDFlattenerURL
+#
+# future: flattener that could work using URL of distant server requiring authentication
+#
+################################################################################
 class XSDFlattenerURL(XSDFlattener):
 			
 	def __init__(self, xmlString):
@@ -98,7 +106,14 @@ class XSDFlattenerURL(XSDFlattener):
 	
 	def registerServer(self, url, user, password):
 		self.servers[url] = {'user':user, 'password':password}
-		
+
+################################################################################
+#
+# XSDFlattenerLocal
+#
+# description: flattener that can flatten files on the local file system
+#
+################################################################################	
 class XSDFlattenerLocal(XSDFlattener):
 		
 	def get_dependency_content(self, uri):
@@ -106,6 +121,14 @@ class XSDFlattenerLocal(XSDFlattener):
 		content = file.read()
 		return content
 
+
+################################################################################
+#
+# XSDFlattenerFull
+#
+# future: flattener that could work using URL and local files
+#
+################################################################################
 class XSDFlattenerFull(XSDFlattener):
 		
 	def get_dependency_content(self, uri):
