@@ -163,9 +163,11 @@
 						<div class="clearer">&nbsp;</div>
 <p>
 						<ul class="nice-list">
-{% for template in templates %}
-							<li><span></span> {{ template.title }}  | {{ template.filename }}</li>
-{% endfor %}
+							{% if templates %}
+								{% for template in templates %}
+								<li><span></span> {{ template.title }}  | {{ template.filename }}</li>
+								{% endfor %}
+							{% endif %}
 						</ul>
 												
 					</div>
