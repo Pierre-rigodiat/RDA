@@ -389,7 +389,7 @@ def generateSimpleType(request, element, elementName, elementType, fullPath, xml
             enumChildren = child.findall("{0}enumeration".format(defaultNamespace))
             if len(enumChildren) > 0:
                 formString += "<li id='" + str(elementID) + "'>" + elementName + " <input type='checkbox'>" + "</li>"
-                elementInfo = ElementInfo("enum",fullPath[1:]+"." + elementName)
+                elementInfo = ElementInfo("enum",fullPath[1:])
                 mapTagIDElementInfo[elementID] = elementInfo.__to_json__()
                 request.session['mapTagIDElementInfoExplore'] = mapTagIDElementInfo
                 listChoices = []
