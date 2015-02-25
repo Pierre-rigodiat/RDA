@@ -308,6 +308,7 @@ There are currently no {{ objectType }} uploaded.  Please click "Upload {{ objec
 <p>
 <b>{{ objectType }} name:</b> <input type="text" id="edit-name"/><br/>
 <b>Filename:</b> <input type="text" id="edit-filename"/><br/>
+{% if objectType == "Type" %}
 <b>Buckets:</b>
 <div id="model_select_edit_buckets">
 	<select multiple="multiple" id="select_edit_buckets">
@@ -316,6 +317,7 @@ There are currently no {{ objectType }} uploaded.  Please click "Upload {{ objec
 		{% endfor %}
 	</select>
 </div>
+{% endif %}
 </p>
 </div>
 
