@@ -554,7 +554,8 @@ getXPath = function(){
 	current = $(current).parent().parent().parent().siblings('.path');
 	while(current != null){
 		current_path = $(current).text() ;
-		if (current_path.contains("schema")){
+		console.log(current_path)
+		if (current_path.indexOf("schema") != -1){
 			current = null;
 		}else{			
 			xpath = current_path + "/" + xpath;	
