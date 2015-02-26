@@ -630,7 +630,9 @@ def executeQuery(request, queryForm, queryBuilder, fedOfQueries):
             dajax.script("showErrorInstancesDialog();")
         else:
             htmlTree = html.fromstring(queryForm)
-            request.session['queryExplore'] = fieldsToQuery(request, htmlTree)
+            query = fieldsToQuery(request, htmlTree)
+            query['schema'] = request.session['exploreCurrentTemplateID']
+            request.session['queryExplore'] = query
             json_instances = []
             for instance in instances:
                 json_instances.append(instance.to_json()) 

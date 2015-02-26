@@ -367,8 +367,8 @@ def manageRegexInAPI(query):
 def query_by_example(request):
     """
     POST http://localhost/rest/explore/query-by-example
-    POST data query="{'element':'value'}" repositories="Local,Server1,Server2" dataformat: [xml,json]
-    {"query":"{'content.root.property1.value':'xxx'}"}
+    POST data query="{'path_to_element':'value','schema':'id'}" repositories="Local,Server1,Server2" dataformat: [xml,json]
+    {"query":"{'content.root.property1.value':'xxx','schema':'id'}"}
     """
          
     dataformat = None
