@@ -161,9 +161,10 @@ def downloadHTMLForm(request,saveAs,content):
 
 ################################################################################
 #
-# Function Name: validateXMLData(request, xmlString)
+# Function Name: validateXMLData(request, xmlString, xsdForm)
 # Inputs:        request - 
-#                xmlString - 
+#                xmlString - XML string generated from the form
+#                xsdForm -  Current form
 # Outputs:       
 # Exceptions:    None
 # Description:   Check if the current XML document is valid according to the template
@@ -171,7 +172,7 @@ def downloadHTMLForm(request,saveAs,content):
 #
 ################################################################################
 @dajaxice_register
-def validateXMLData(request, xmlString):
+def validateXMLData(request, xmlString, xsdForm):
     dajax = Dajax()
     
     templateID = request.session['currentTemplateID']
@@ -189,6 +190,7 @@ def validateXMLData(request, xmlString):
         return dajax.json()
 
     request.session['xmlString'] = xmlString
+    request.session['formString'] = xsdForm
     
     dajax.script("""
         viewData();
@@ -969,6 +971,7 @@ def remove(request, tagID, xsdForm):
             
             dajax.assign('#xsdForm', 'innerHTML', html.tostring(htmlTree))
     
+    request.session.modified = True
     return dajax.json()
 
 
@@ -1104,7 +1107,8 @@ def duplicate(request, tagID, xsdForm):
                     htmlTree.get_element_by_id("remove" + str(idOfElement)).attrib['style'] = 'display:none'                
             
             dajax.assign('#xsdForm', 'innerHTML', html.tostring(htmlTree))            
-                
+    
+    request.session.modified = True
     return dajax.json()
     
 ################################################################################
@@ -1143,14 +1147,11 @@ def generateForm(request):
     
     if 'xsd_elements' in request.session:
         del request.session['xsd_elements']
-    if 'occurrences' in request.session:
-        del request.session['occurrences']
     if 'mapTagElement' in request.session:
         del request.session['mapTagElement']  
     if 'spreadsheetXML' in request.session:
         del request.session['spreadsheetXML']
     request.session['xsd_elements'] = dict()    
-    request.session['occurrences'] = dict()
     request.session['mapTagElement'] = dict()
     request.session['spreadsheetXML'] = ""
     defaultPrefix = request.session['defaultPrefix']
@@ -1199,6 +1200,29 @@ def loadModuleResources(templateID):
                 html += "<style>" + resource.content + "</style>"
     return html
 
+
+################################################################################
+# 
+# Function Name: initCuration(request)
+# Inputs:        request - 
+# Outputs:       
+# Exceptions:    None
+# Description:   Reinitialize data structures
+#
+################################################################################
+@dajaxice_register
+def initCuration(request):
+    dajax = Dajax()
+    
+    if 'formString' in request.session:
+        del request.session['formString']  
+       
+    if 'xmlDocTree' in request.session:
+        del request.session['xmlDocTree']
+    
+    return dajax.json()
+
+ 
 ################################################################################
 # 
 # Function Name: generateXSDTreeForEnteringData(request)
@@ -1212,23 +1236,28 @@ def loadModuleResources(templateID):
 def generateXSDTreeForEnteringData(request):
     print 'BEGIN def generateXSDTreeForEnteringData(request)'    
     dajax = Dajax()
+    
+    templateID = request.session['currentTemplateID']
 
     if 'formString' in request.session:
         formString = request.session['formString']  
     else:
         formString = ''
+        request.session['occurrences'] = dict()  
        
     if 'xmlDocTree' in request.session:
         xmlDocTree = request.session['xmlDocTree'] 
     else:
-        xmlDocTree = ""
-               
-    templateFilename = request.session['currentTemplate']
-    templateID = request.session['currentTemplateID']
+        if templateID in MetaSchema.objects.all().values_list('schemaId'):
+            meta = MetaSchema.objects.get(schemaId=templateID)
+            xmlDocData = meta.flat_content
+        else:
+            templateObject = Template.objects.get(pk=templateID)
+            xmlDocData = templateObject.content
 
-    if xmlDocTree == "":
-        setCurrentTemplate(request,templateFilename, templateID)
-        xmlDocTree = request.session['xmlDocTree'] 
+        xmlDocTree = etree.parse(BytesIO(xmlDocData.encode('utf-8')))
+        request.session['xmlDocTree'] = etree.tostring(xmlDocTree)
+        xmlDocTree = request.session['xmlDocTree']
         
     # load modules from the database
     if 'mapModules' in request.session:
@@ -1254,9 +1283,6 @@ def generateXSDTreeForEnteringData(request):
         formString += generateForm(request)
         formString += "</form>"
         request.session['originalForm'] = formString
-    else:
-        # the form has already been created and some occurrences may have been change by the user, reinitiliazes the occurrences
-        reinitOccurrences(request)
 
     #TODO: modules
     pathFile = "{0}/static/resources/files/{1}"

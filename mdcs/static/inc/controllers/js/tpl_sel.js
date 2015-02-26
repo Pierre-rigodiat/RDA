@@ -18,8 +18,9 @@ loadTemplateSelectionControllers = function()
 {
     console.log('BEGIN [loadTemplateSelectionControllers]');
     $('.btn.set-template').on('click', setCurrentTemplate);
-    $('.btn.set-curate-user-template').on('click', setCurrentUserTemplate);   
-    console.log('END [loadTemplateSelectionControllers]');
+    $('.btn.set-curate-user-template').on('click', setCurrentUserTemplate);
+    Dajaxice.curate.initCuration(Dajax.process);
+    console.log('END [loadTemplateSelectionControllers]');    
 }
 
 /**
@@ -227,9 +228,12 @@ validateXML = function()
 	var xmlString = '';
 	
     xmlString = generateXMLString (rootElement, xmlString);
-    console.log(xmlString);
     
-    Dajaxice.curate.validateXMLData(Dajax.process,{'xmlString':xmlString});
+    $("input").each(function(){
+	    $(this).attr("value", $(this).val());
+	});
+	$('select option').each(function(){ this.defaultSelected = this.selected; });
+    Dajaxice.curate.validateXMLData(Dajax.process,{'xmlString':xmlString, 'xsdForm': $('#xsdForm').html()});
 }
 
 /**
