@@ -1221,16 +1221,15 @@ def deleteModule(request, objectid):
 
 ################################################################################
 # 
-# Function Name: createBackup(request, mongodbPath)
-# Inputs:        request - 
-#                mongoPath -  
+# Function Name: createBackup(request)
+# Inputs:        request -  
 # Outputs:        
 # Exceptions:    None
 # Description:   Runs the mongo db command to create a backup of the current mongo instance
 # 
 ################################################################################
 @dajaxice_register
-def createBackup(request, mongodbPath):
+def createBackup(request):
     dajax = Dajax()
     
     backupsDir = settings.SITE_ROOT + '/data/backups/'
@@ -1238,7 +1237,7 @@ def createBackup(request, mongodbPath):
     now = datetime.now()
     backupFolder = now.strftime("%Y_%m_%d_%H_%M_%S")
     
-    backupCommand = mongodbPath + "/mongodump --out " + backupsDir + backupFolder
+    backupCommand = "mongodump --out " + backupsDir + backupFolder
     retvalue = os.system(backupCommand)
 #     result = subprocess.check_output(backupCommand, shell=True)
     if retvalue == 0:
@@ -1254,7 +1253,6 @@ def createBackup(request, mongodbPath):
 # 
 # Function Name: restoreBackup(request, mongodbPath, backup)
 # Inputs:        request - 
-#                mongoPath -  
 #                backup - 
 # Outputs:        
 # Exceptions:    None
@@ -1262,12 +1260,12 @@ def createBackup(request, mongodbPath):
 # 
 ################################################################################
 @dajaxice_register
-def restoreBackup(request, mongodbPath, backup):
+def restoreBackup(request, backup):
     dajax = Dajax()
     
     backupsDir = settings.SITE_ROOT + '/data/backups/'
     
-    backupCommand = mongodbPath + "/mongorestore " + backupsDir + backup
+    backupCommand = "mongorestore " + backupsDir + backup
     retvalue = os.system(backupCommand)
     
     if retvalue == 0:
@@ -1281,7 +1279,7 @@ def restoreBackup(request, mongodbPath, backup):
 
 ################################################################################
 # 
-# Function Name: restoreBackup(request, backup)
+# Function Name: deleteBackup(request, backup)
 # Inputs:        request -   
 #                backup - 
 # Outputs:        

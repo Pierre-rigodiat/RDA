@@ -17,8 +17,7 @@
  */
 createBackup = function()
 {
-	var mongodbPath = $("#mongopath").val();
-	Dajaxice.admin.createBackup(Dajax.process,{"mongodbPath":mongodbPath});
+	Dajaxice.admin.createBackup(Dajax.process);
 }
 
 /**
@@ -26,8 +25,7 @@ createBackup = function()
  */
 restoreBackup = function(backup)
 {
-	var mongodbPath = $("#mongopath").val();
-	Dajaxice.admin.restoreBackup(Dajax.process,{"mongodbPath":mongodbPath,"backup":backup});
+	Dajaxice.admin.restoreBackup(Dajax.process,{"backup":backup});
 }
 
 /**
