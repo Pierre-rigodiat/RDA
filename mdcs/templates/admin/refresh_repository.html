@@ -1,7 +1,7 @@
 <!-- 
 ################################################################################
 #
-# File Name: manage_uploads.html
+# File Name: add_repository.html
 # Application: templates/admin
 # Description: 
 #
@@ -11,13 +11,12 @@
 #		  Guillaume SOUSA AMARAL
 #		  guillaume.sousa@nist.gov
 #
-# Sponsor: National Institute of Standards and Technology (NIST)
+# Sponsor: National Institute of Standards and Technology
 #
 ################################################################################
 -->
 
 {% load staticfiles %}
-
 {% load dajaxice_templatetags %}
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -31,17 +30,15 @@
 	<link rel="stylesheet" type="text/css" href="{% static 'resources/css/lib/bootstrap.min.css' %}"  media="screen" />
 	<link rel="stylesheet" type="text/css" href="{% static 'resources/css/style.css' %}" media="screen" />
 	<title>Materials Data Curation System</title>
-
 	<link rel="stylesheet" type="text/css" href="{% static 'resources/css/icons.css' %}" media="screen" />
-
+	
 	<!-- JQuery & JQuery UI -->
 	<script src="{% static 'resources/lib/jquery/jquery-1.11.1.min.js' %}"></script>
 	<script src="{% static 'resources/js/bootstrap.min.js' %}"></script>
     <link rel="stylesheet" type="text/css" href="{% static 'resources/lib/jquery-ui/themes/smoothness/jquery-ui.css' %}"/>        
     <script src="{% static 'resources/lib/jquery-ui/themes/smoothness/jquery-ui.js' %}"></script>
 	<script src="{% static 'dajax/jquery.dajax.core.js' %}"></script>
-
-        {% dajaxice_js_import %}
+	{% dajaxice_js_import %}
 </head>
 
 <body id="top">
@@ -99,8 +96,8 @@
 					<li><a href="/">Home</a></li>
 					<li><a href="/admin/user-management">User Management</a></li>
 					<li><a href="/admin/xml-schemas">Templates & Types</a></li>
-					<li><a href="/admin/repositories">Repositories</a></li>
-					<li class="current_page_item"><a href="/admin/backup-database">Database Management</a></li>
+					<li class="current_page_item"><a href="/admin/repositories">Repositories</a></li>
+					<li><a href="/admin/backup-database">Database Management</a></li>
 					<li><a href="/admin/website">Website</a></li>
 				</ul>
 
@@ -112,6 +109,7 @@
 	</div>
 </div>
 
+
 <div id="subnav-wrapper">
   <div id="subnav-wrapper-2">
 
@@ -120,8 +118,7 @@
       <div id="subnav">
 
 	<ul class="tabbed">
-		<li class="current_page_item"><a href="/admin/backup-database">Backup Database</a></li>	  
-	  	<li><a href="/admin/restore-database">Restore Database</a></li>  		
+  	  	<li class="current_page_item"><a href="/admin/refresh-repository">Refresh Instance Token</a></li>
 	  </ul>
 
 	<div class="clearer">&nbsp;</div>
@@ -141,7 +138,7 @@
 			<div id="featured-wrapper">
 				<div id="featured">
 
-<h1>Backup Database</h1>
+<h1>Refresh Instance Token</h1>
 					
 					<div class="clearer">&nbsp;</div>
 
@@ -149,42 +146,30 @@
 			</div>
 
 			<div id="main">
+Use the following form to refresh the token of the selected instance.
 
-<p>
-<a href="javascript:createBackup();">Create a backup</a>
-</p>
 
-		      <div id="model_selection">
+<div>
 <br/>
-{% if backups %}
-<h2>Available backups</h2>
-<br/>
-<table class="data-table">
-  <tr>
-  	<th>Backup</th>
-    <th>Actions</th>
-  </tr>
-{% for backup in backups %}
-<tr>
-<td>{{backup}}</td> 
-<td><span class="icon legend long delete" onclick="deleteBackup('{{backup}}');">Delete</span><br/></td>
-</tr>
-{% endfor %}
-</table>
-{% else %}
-No Backups available.
-{% endif %}
-
-
+<form action="/admin/repositories/refresh-repository/" method="post">
+ 	{% csrf_token %}
+    {{ form }}
+    <br/>
+    <div id="instance_error">
+    <b>
+    {{action_result}}
+    </b>
+    </div>
+    <input type="submit" class="btn" name="action" value="Refresh"/>
+</form>
 </div>
-
-
 			</div>
 
 		</div>
 
 	</div>
 </div>
+
 <div id="footer-wrapper">
 
 	<div class="center-wrapper">
@@ -206,7 +191,6 @@ No Backups available.
 	</div>
 
 </div>
-
 <div id="bottom">
 
 	<div class="center-wrapper">
@@ -224,19 +208,6 @@ No Backups available.
 	</div>
 
 </div>
-
-<div id="dialog-backup" title="Backup Status" style="display:none;">
-<div id="backup-message">
-</div>
-</div>
-
-<div id="dialog-delete-backup" title="Backup Status" style="display:none;">
-<p>
-Are you sure you want to delete this backup?
-</p>
-</div>
-
-
-<script src="{% static 'inc/controllers/js/backup.js' %}"></script>
+<script src="{% static 'inc/controllers/js/fed_of_queries.js' %}"></script>
 </body>
 </html>

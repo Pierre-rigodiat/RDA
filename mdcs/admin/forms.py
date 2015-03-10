@@ -29,3 +29,8 @@ class RepositoryForm(forms.Form):
     client_id = forms.CharField(label='Client ID', max_length=100, required=True)
     client_secret = forms.CharField(label='Client Secret', max_length=100, required=True)
     timeout = forms.IntegerField(label="Timeout (s)", min_value=1, max_value=60, initial=1)
+    
+class RefreshRepositoryForm(forms.Form):
+    client_id = forms.CharField(label='Client ID', max_length=100, required=True)
+    client_secret = forms.CharField(label='Client Secret', max_length=100, required=True)
+    timeout = forms.IntegerField(label="Timeout (s)", min_value=1, max_value=60, initial=1)

@@ -40,6 +40,7 @@ from xlrd import open_workbook
 import requests
 from datetime import datetime
 from datetime import timedelta
+from admin.forms import RepositoryForm, RefreshRepositoryForm
 
 # Create your views here.
 
@@ -398,7 +399,6 @@ def federation_of_queries(request):
         request.session['next'] = '/'
         return redirect('/login')
 
-from admin.forms import RepositoryForm
 ################################################################################
 #
 # Function Name: add_repository(request)
@@ -451,7 +451,7 @@ def add_repository(request):
                                 delta = timedelta(seconds=int(eval(r.content)["expires_in"]))
                                 expires = now + delta
                                 Instance(name=request.POST["name"], protocol=request.POST["protocol"], address=request.POST["ip_address"], port=request.POST["port"], access_token=eval(r.content)["access_token"], refresh_token=eval(r.content)["refresh_token"], expires=expires).save()
-                                return HttpResponseRedirect('/admin/federation-of-queries')
+                                return HttpResponseRedirect('/admin/repositories')
                             else: 
                                 message = "Unable to get access to the remote instance using these parameters."
                                 return render(request, 'admin/add_repository.html', {'form':form, 'action_result':message})
@@ -476,14 +476,70 @@ def add_repository(request):
                     except Exception, e:
                         message = "Error: Unable to reach the remote API."
                     
-                    return render(request, 'admin/add_repository.html', {'form':form, 'action_result':message})
-                    
-                return HttpResponseRedirect('/admin/add-repository')
-            
+                    return render(request, 'admin/add_repository.html', {'form':form, 'action_result':message})            
         else:
             form = RepositoryForm()
         
         return render(request, 'admin/add_repository.html', {'form':form})
+    else:
+        if 'loggedOut' in request.session:
+            del request.session['loggedOut']
+        request.session['next'] = '/'
+        return redirect('/login')
+    
+    
+################################################################################
+#
+# Function Name: refresh_repository(request)
+# Inputs:        request - 
+# Outputs:       Page that allows to refresh a repository token
+# Exceptions:    None
+# Description:   Page that allows to refresh a repository token 
+#                
+#
+################################################################################
+def refresh_repository(request):
+    request.session['currentYear'] = currentYear()
+    if request.user.is_authenticated() and request.user.is_staff:
+        if request.method == 'POST':
+            
+            form = RefreshRepositoryForm(request.POST)
+
+            if form.is_valid():
+                try:
+                    id = request.session['refreshInstanceID']
+                    instance = Instance.objects.get(pk=ObjectId(id))
+                except:
+                    message = "Error: Unable to access the registered instance."
+                    return render(request, 'admin/refresh_repository.html', {'form':form, 'action_result':message})
+                
+                try:
+                    url = instance.protocol + "://" + instance.address + ":" + str(instance.port) + "/oauth2/access_token/"                            
+                    data="client_id=" + request.POST["client_id"] + "&client_secret=" + request.POST["client_secret"] + "&grant_type=refresh_token&refresh_token=" + instance.refresh_token
+                    headers = {'content-type': 'application/x-www-form-urlencoded'}
+                    r = requests.post(url=url, data=data, headers=headers, timeout=int(request.POST["timeout"]))
+                    if r.status_code == 200:
+                        now = datetime.now()
+                        delta = timedelta(seconds=int(eval(r.content)["expires_in"]))
+                        expires = now + delta
+                        instance.access_token=eval(r.content)["access_token"]
+                        instance.refresh_token=eval(r.content)["refresh_token"]
+                        instance.expires=expires
+                        instance.save()
+                        return HttpResponseRedirect('/admin/repositories')
+                    else: 
+                        message = "Unable to get access to the remote instance using these parameters."
+                        return render(request, 'admin/refresh_repository.html', {'form':form, 'action_result':message})
+                except Exception, e:
+                    message = "Unable to get access to the remote instance using these parameters."
+                    return render(request, 'admin/refresh_repository.html', {'form':form, 'action_result':message})
+                
+                
+        else:
+            form = RefreshRepositoryForm()
+            request.session['refreshInstanceID'] = request.GET['id']
+        
+        return render(request, 'admin/refresh_repository.html', {'form':form})
     else:
         if 'loggedOut' in request.session:
             del request.session['loggedOut']

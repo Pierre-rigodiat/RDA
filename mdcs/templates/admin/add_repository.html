@@ -96,7 +96,7 @@
 					<li><a href="/">Home</a></li>
 					<li><a href="/admin/user-management">User Management</a></li>
 					<li><a href="/admin/xml-schemas">Templates & Types</a></li>
-					<li class="current_page_item"><a href="/admin/federation-of-queries">Repositories</a></li>
+					<li class="current_page_item"><a href="/admin/repositories">Repositories</a></li>
 					<li><a href="/admin/backup-database">Database Management</a></li>
 					<li><a href="/admin/website">Website</a></li>
 				</ul>
@@ -118,7 +118,7 @@
       <div id="subnav">
 
 	<ul class="tabbed">
-  	  	<li class="current_page_item"><a href="/admin/add-repository">Add New Instance</a></li>
+  	  	<li class="current_page_item"><a href="/admin/repositories/add-repository">Add New Instance</a></li>
 	  </ul>
 
 	<div class="clearer">&nbsp;</div>
@@ -151,7 +151,7 @@ Use the following form to register a remote instance of the MDCS. Please provide
 
 <div>
 <br/>
-<form action="/admin/add-repository/" method="post" onsubmit="return validateInstance()">
+<form action="/admin/repositories/add-repository/" method="post" onsubmit="return validateInstance()">
  	{% csrf_token %}
     {{ form }}
     <br/>
@@ -178,7 +178,7 @@ Use the following form to register a remote instance of the MDCS. Please provide
 		<div id="footer2">
 
 			<div class="left">
-				<a href="/">Home</a> <span class="text-separator">|</span> <a href="/admin/user-management">User Management</a> <span class="text-separator">|</span> <a href="/admin/xml-schemas">Templates & Types</a><span class="text-separator">|</span> <a href="/admin/federation-of-queries">Repositories</a><span class="text-separator">|</span> <a href="/admin/backup-database">Database Management</a><span class="text-separator">|</span> <a href="/admin/website">Website</a> 
+				<a href="/">Home</a> <span class="text-separator">|</span> <a href="/admin/user-management">User Management</a> <span class="text-separator">|</span> <a href="/admin/xml-schemas">Templates & Types</a><span class="text-separator">|</span> <a href="/admin/repositories">Repositories</a><span class="text-separator">|</span> <a href="/admin/backup-database">Database Management</a><span class="text-separator">|</span> <a href="/admin/website">Website</a> 
 			</div>
 
 			<div class="right">
