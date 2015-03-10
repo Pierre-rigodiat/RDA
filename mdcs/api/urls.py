@@ -49,7 +49,6 @@ urlpatterns = patterns(
     url(r'^repositories/select','select_repository'),
     url(r'^repositories/add$','add_repository'),
     url(r'^repositories/delete$','delete_repository'),
-    url(r'^repositories/update$','update_repository'),
     url(r'^users/select/all$','select_all_users'),
     url(r'^users/select','select_user'),
     url(r'^users/add$','add_user'),

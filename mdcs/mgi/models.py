@@ -121,9 +121,9 @@ class Instance(Document):
     protocol = StringField(required=True) 
     address = StringField(required=True) 
     port = IntField(required=True)
-    user = StringField(required=True)
-    password = StringField(required=True)
-    status = StringField()
+    access_token = StringField(required=True)
+    refresh_token = StringField(required=True)
+    expires = DateTimeField(required=True)
 
 class QueryResults(Document):
     results = ListField(required=True) 

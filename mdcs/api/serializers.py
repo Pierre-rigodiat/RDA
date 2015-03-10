@@ -179,7 +179,23 @@ class resTypeSerializer(serializers.Serializer):
 class instanceSerializer(MongoEngineModelSerializer):
     class Meta:
         model = Instance
-        exclude = (['status'])
+
+################################################################################
+# 
+# Class Name: mewInstanceSerializer
+#
+# Description:   Serializer for new repository instance
+# 
+################################################################################  
+class newInstanceSerializer(serializers.Serializer):
+    name = serializers.CharField()
+    protocol = serializers.CharField()
+    address = serializers.CharField()
+    port = serializers.IntegerField()
+    user = serializers.CharField()
+    password = serializers.CharField()
+    client_id = serializers.CharField()
+    client_secret = serializers.CharField()
 
 ################################################################################
 # 
@@ -193,9 +209,9 @@ class resInstanceSerializer(serializers.Serializer):
     protocol = serializers.CharField()
     address = serializers.CharField()
     port = serializers.IntegerField()
-    user = serializers.CharField()
-    password = serializers.CharField() 
-    status = serializers.CharField()
+    access_token = serializers.CharField()
+    refresh_token = serializers.CharField()
+    expires = serializers.CharField()
     id = serializers.CharField(required=False)
 
 ################################################################################

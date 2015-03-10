@@ -78,8 +78,8 @@ def getValidityErrorsForMDCS(xmlTree, type):
 ################################################################################
 def validateXMLDocument(templateID, xmlString):
     
-    if templateID in MetaSchema.objects.all().values_list('schemaId'):
-        meta = MetaSchema.objects.get(schemaId=templateID)
+    if str(templateID) in MetaSchema.objects.all().values_list('schemaId'):
+        meta = MetaSchema.objects.get(schemaId=str(templateID))
         xmlDocData = meta.flat_content
     else:
         templateObject = Template.objects.get(pk=templateID)

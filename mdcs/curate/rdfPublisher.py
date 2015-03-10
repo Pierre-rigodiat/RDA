@@ -18,7 +18,7 @@ import sys
 import zmq
 import os
  
-REQUEST_TIMEOUT = 2500
+REQUEST_TIMEOUT = 10000
 REQUEST_RETRIES = 3
 SERVER_ENDPOINT = "tcp://127.0.0.1:5555"
  

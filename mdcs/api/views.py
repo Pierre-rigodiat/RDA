@@ -23,7 +23,7 @@ from rest_framework.response import Response
 from mgi.models import SavedQuery, Jsondata, Template, TemplateVersion, Type, TypeVersion, Instance, MetaSchema
 from django.contrib.auth.models import User
 # Serializers
-from api.serializers import savedQuerySerializer, jsonDataSerializer, querySerializer, sparqlQuerySerializer, sparqlResultsSerializer, schemaSerializer, templateSerializer, typeSerializer, resTypeSerializer, TemplateVersionSerializer, TypeVersionSerializer, instanceSerializer, resInstanceSerializer, UserSerializer, insertUserSerializer, resSavedQuerySerializer, updateUserSerializer
+from api.serializers import savedQuerySerializer, jsonDataSerializer, querySerializer, sparqlQuerySerializer, sparqlResultsSerializer, schemaSerializer, templateSerializer, typeSerializer, resTypeSerializer, TemplateVersionSerializer, TypeVersionSerializer, instanceSerializer, resInstanceSerializer, UserSerializer, insertUserSerializer, resSavedQuerySerializer, updateUserSerializer, newInstanceSerializer
 from explore import sparqlPublisher
 from curate import rdfPublisher
 from lxml import etree
@@ -46,6 +46,8 @@ from mgi import utils
 from io import BytesIO
 from utils.APIschemaLocator.APIschemaLocator import getSchemaLocation
 from utils.XSDflattenerMDCS.XSDflattenerMDCS import XSDFlattenerMDCS
+from datetime import datetime
+from datetime import timedelta
 
 
 ################################################################################
@@ -408,7 +410,8 @@ def query_by_example(request):
                     url = instance.protocol + "://" + instance.address + ":" + str(instance.port) + "/rest/explore/query-by-example"   
                     query = request.DATA['query']              
                     data = {"query":query}
-                    r = requests.post(url, data, auth=(instance.user, instance.password))   
+                    headers = {'Authorization': 'Bearer ' + instance['access_token']}
+                    r = requests.post(url, data=data, headers=headers)
                     result = r.text
                     instanceResults = instanceResults + json.loads(result,object_pairs_hook=OrderedDict)
             
@@ -508,7 +511,8 @@ def sparql_query(request):
                         data = {"query": request.DATA['query'], "dataformat":request.DATA['dataformat']}
                     else:
                         data = {"query": request.DATA['query']}
-                    r = requests.post(url, data, auth=(instance.user, instance.password))        
+                    headers = {'Authorization': 'Bearer ' + instance['access_token']}
+                    r = requests.post(url, data=data, headers=headers)      
                     instanceResultsDict = eval(r.text)
                     instanceResults.append(instanceResultsDict['content'])
                     
@@ -1548,7 +1552,7 @@ def select_repository(request):
             serializer = resInstanceSerializer(instances)
             return Response(serializer.data, status=status.HTTP_200_OK)
     except:
-        content = {'message':'No template found with the given parameters.'}
+        content = {'message':'No instance found with the given parameters.'}
         return Response(content, status=status.HTTP_404_NOT_FOUND)
 
 ################################################################################
@@ -1564,9 +1568,9 @@ def select_repository(request):
 def add_repository(request):
     """
     POST http://localhost/rest/repositories/add
-    POST data name="name", protocol="protocol", address="address", port=port, user="user", password="password"
+    POST data name="name", protocol="protocol", address="address", port=port, user="user", password="password", client_id="client_id", client_secret="client_secret"
     """
-    iSerializer = instanceSerializer(data=request.DATA)
+    iSerializer = newInstanceSerializer(data=request.DATA)
     if iSerializer.is_valid():
         errors = ""
         # test if the protocol is HTTP or HTTPS
@@ -1575,7 +1579,7 @@ def add_repository(request):
         # test if the name is "Local"
         if (request.DATA['name'] == ""):
             errors += "The name cannot be empty."
-        elif (request.DATA['name'] == "Local"):
+        elif (request.DATA['name'].upper() == "LOCAL"):
             errors += 'By default, the instance named Local is the instance currently running.'
         else:
             # test if an instance with the same name exists
@@ -1601,16 +1605,27 @@ def add_repository(request):
             content = {'message': errors}
             return Response(content, status=status.HTTP_400_BAD_REQUEST)
         
-        inst_status = "Unreachable"
+        
         try:
-            url = request.DATA['protocol'] + "://" + request.DATA['address'] + ":" + request.DATA['port'] + "/rest/ping"
-            r = requests.get(url, auth=(request.DATA['user'], request.DATA['password']))
+            url = request.DATA["protocol"] + "://" + request.DATA["address"] + ":" + request.DATA["port"] + "/oauth2/access_token/"                            
+            data="client_id=" + request.DATA["client_id"] + "&client_secret=" + request.DATA["client_secret"] + "&grant_type=password&username=" + request.DATA["user"] + "&password=" + request.DATA["password"]
+            headers = {'content-type': 'application/x-www-form-urlencoded'}
+            r = requests.post(url=url,data=data, headers=headers)
             if r.status_code == 200:
-                inst_status = "Reachable"
-        except Exception, e:
-            pass
-        Instance(name=request.DATA['name'], protocol=request.DATA['protocol'], address=request.DATA['address'], port=request.DATA['port'], user=request.DATA['user'], password=request.DATA['password'], status=inst_status).save()
-        return Response(iSerializer.data, status=status.HTTP_201_CREATED)
+                now = datetime.now()
+                delta = timedelta(seconds=int(eval(r.content)["expires_in"]))
+                expires = now + delta
+                instance = Instance(name=request.DATA["name"], protocol=request.DATA["protocol"], address=request.DATA["address"], port=request.DATA["port"], access_token=eval(r.content)["access_token"], refresh_token=eval(r.content)["refresh_token"], expires=expires).save()
+            else: 
+                errors += "Unable to get access to the remote instance using these parameters."
+        except Exception:
+            errors += "Unable to get access to the remote instance using these parameters."        
+        
+        if errors != "":
+            content = {'message': errors}
+            return Response(content, status=status.HTTP_400_BAD_REQUEST)
+        else:            
+            return Response(eval(instance.to_json()), status=status.HTTP_201_CREATED)
     return Response(iSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 ################################################################################
@@ -1642,87 +1657,6 @@ def delete_repository(request):
     instance.delete()
     content = {'message':'Instance deleted with success.'}
     return Response(content, status=status.HTTP_404_NOT_FOUND)
-
-################################################################################
-# 
-# Function Name: update_repository(request)
-# Inputs:        request - 
-# Outputs:        
-# Exceptions:    None
-# Description:   Update a repository
-# 
-################################################################################
-@api_view(['PUT'])
-def update_repository(request):  
-    """
-    PUT http://localhost/rest/repositories/update?id=IDtoUpdate
-    PUT data name="name", protocol="protocol", address="address", port=port, user="user", password="password"
-    """    
-    id = request.QUERY_PARAMS.get('id', None)        
-    
-    if id is not None:   
-        try:
-            instance = Instance.objects.get(pk=id)        
-        except:
-            content = {'message':'No instance found with the given id.'}
-            return Response(content, status=status.HTTP_404_NOT_FOUND)
-    else:
-        content = {'message':'No instance id provided to restore.'}
-        return Response(content, status=status.HTTP_400_BAD_REQUEST)
-
-    serializer = instanceSerializer(instance, data=request.DATA)
-    if serializer.is_valid():
-        errors = ""
-        # test if the protocol is HTTP or HTTPS
-        if request.DATA['protocol'].upper() not in ['HTTP','HTTPS']:
-            errors += 'Allowed protocol are HTTP and HTTPS.'
-        # test if the name is "Local"
-        if (request.DATA['name'] == ""):
-            errors += "The name cannot be empty."
-        elif (request.DATA['name'] == "Local"):
-            errors += 'By default, the instance named Local is the instance currently running.'
-        else:
-            # test if an instance with the same name exists
-            instances = Instance.objects(name=request.DATA['name'])
-            if len(instances) != 0:
-                errors += "An instance with the same name already exists."
-        regex = re.compile("^[0-9]{1,5}$")
-        if not regex.match(str(request.DATA['port'])):
-            errors += "The port number is not valid."
-        regex = re.compile("^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$")
-        if not regex.match(request.DATA['address']):
-            errors += "The address is not valid."
-        # test if new instance is not the same as the local instance
-        if request.DATA['address'] == request.META['REMOTE_ADDR'] and str(request.DATA['port']) == request.META['SERVER_PORT']:
-            errors += "The address and port you entered refer to the instance currently running."
-        else:
-            # test if an instance with the same address/port exists
-            instances = Instance.objects(address=request.DATA['address'], port=request.DATA['port'])
-            if len(instances) != 0:
-                errors += "An instance with the address/port already exists."
-        
-        if errors != "":
-            content = {'message': errors}
-            return Response(content, status=status.HTTP_400_BAD_REQUEST)
-        
-        inst_status = "Unreachable"
-        try:
-            url = request.DATA['protocol'] + "://" + request.DATA['address'] + ":" + request.DATA['port'] + "/rest/ping"
-            r = requests.get(url, auth=(request.DATA['user'], request.DATA['password']))
-            if r.status_code == 200:
-                inst_status = "Reachable"
-        except Exception, e:
-            pass
-        instance.name=request.DATA['name']
-        instance.protocol=request.DATA['protocol']
-        instance.address=request.DATA['address']
-        instance.port=request.DATA['port']
-        instance.user=request.DATA['user']
-        instance.password=request.DATA['password']
-        instance.status=inst_status
-        instance.save()
-        return Response(serializer.data, status=status.HTTP_200_OK)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 ################################################################################
 # 

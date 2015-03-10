@@ -630,8 +630,7 @@ def executeQuery(request, queryForm, queryBuilder, fedOfQueries):
             dajax.script("showErrorInstancesDialog();")
         else:
             htmlTree = html.fromstring(queryForm)
-            query = fieldsToQuery(request, htmlTree)
-            query['schema'] = request.session['exploreCurrentTemplateID']
+            query = fieldsToQuery(request, htmlTree)            
             request.session['queryExplore'] = query
             json_instances = []
             for instance in instances:
@@ -671,7 +670,7 @@ def getInstances(request, fedOfQueries):
                     protocol = "https"
                 else:
                     protocol = "http"
-                instances.append(Instance(name="Local", protocol=protocol, address=request.META['REMOTE_ADDR'], port=request.META['SERVER_PORT'], user="user", password="password"))
+                instances.append(Instance(name="Local", protocol=protocol, address=request.META['REMOTE_ADDR'], port=request.META['SERVER_PORT'], access_token="token", refresh_token="token"))
             else:
                 instances.append(Instance.objects.get(name=checkbox.attrib['value']))
     
@@ -821,6 +820,7 @@ def getResultsByInstance(request, numInstance):
         resultString += "<b>From " + instance['name'] + ":</b> <br/>"
         if instance['name'] == "Local":
             query = copy.deepcopy(request.session['queryExplore'])
+            query['schema'] = request.session['exploreCurrentTemplateID']
             manageRegexBeforeExe(query)
             instanceResults = Jsondata.executeQuery(query)
             if len(instanceResults) > 0:
@@ -844,7 +844,8 @@ def getResultsByInstance(request, numInstance):
             url = instance['protocol'] + "://" + instance['address'] + ":" + str(instance['port']) + "/rest/explore/query-by-example"
             query = copy.deepcopy(request.session['queryExplore'])
             data = {"query":str(query)}
-            r = requests.post(url, data, auth=(instance['user'], instance['password']))   
+            headers = {'Authorization': 'Bearer ' + instance['access_token']}
+            r = requests.post(url, data=data, headers=headers)   
             result = r.text
             instanceResults = json.loads(result,object_pairs_hook=OrderedDict)
             if len(instanceResults) > 0:
@@ -2551,7 +2552,8 @@ def getSparqlResultsByInstance(request, numInstance):
                 resFormat = "JSON"
             data = {"query": sparqlQuery, "dataformat": resFormat}
             try:
-                r = requests.post(url, data, auth=(instance['user'], instance['password']))
+                headers = {'Authorization': 'Bearer ' + instance['access_token']}
+                r = requests.post(url, data=data, headers=headers)
                 instanceResultsDict = eval(r.text)
                 instanceResults = instanceResultsDict['content']  
                 request.session[sessionName] = instanceResults

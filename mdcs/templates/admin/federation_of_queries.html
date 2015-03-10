@@ -134,8 +134,7 @@
 
 <div class="right-side">
 <span class="ctx_menu"> 
-<!-- <div class="icon legend long copy schema">Copy schema</div> -->
-<div class="icon legend long add instance">Add new instance</div>
+<a href="/admin/add-repository">Add new instance</a>
 </span>
 </div>
 
@@ -145,8 +144,8 @@
 <table class="data-table">
   <tr>
     <th>Instance Name</th>
-    <th>Instance IP Address and Port</th>
-    <th>Status</th>
+    <th>Instance URL</th>
+    <th>Token expires</th>
     <th>Actions</th>
   </tr>
 
@@ -156,14 +155,11 @@
   <tr class="{{ rowcolors }}">
     <td>{{ instance.name }}</td>
     <td>{{ instance.protocol }}://{{ instance.address }}:{{ instance.port }}</td>
-    {% if instance.status == "Reachable" %}
-    	<td style="color: green">Reachable</td>
-    {% else %}
-    	<td style="color: red">Unreachable</td>
-    {% endif %}
+    <td>{{ instance.expires }}</td>
     <td>    	
-    	<div class="icon legend long edit instance" instanceid="{{ instance.id }}">Edit Information</div> 
-    	<div class="icon legend delete instance" instanceid="{{ instance.id }}">Delete Instance</div>
+    	<div class="icon legend long edit instance" instanceid="{{ instance.id }}">Edit</div>
+    	<div class="icon legend long refresh instance" instanceid="{{ instance.id }}">Refresh</div> 
+    	<div class="icon legend delete instance" instanceid="{{ instance.id }}">Delete</div>
     </td>
   </tr>
 {% endfor %}
@@ -171,15 +167,6 @@
 </table>
 
 </div>
-
-
-
-<div class="right-side">
-<span class="ctx_menu">
-	<div class="icon legend long add instance">Add new instance</div>
-</span>
-</div>
-
 			</div>
 
 		</div>
@@ -227,23 +214,6 @@
 
 </div>
 
-<div id="dialog-edit-instance" title="Edit Instance Information" style="display:none;">
-<p>
-<b>Name:</b> <br/><input type="text" id="edit-instance-name" placeholder="Name"/><br/>
-<b>Protocol:</b> <br/>
-<select id="edit-instance-protocol">
-	<option value="http">HTTP</option>
-	<option value="https">HTTPS</option>
-</select><br/>
-<b>Address:</b><br/><input type="text" id="edit-instance-address" placeholder="127.0.0.1"/><br/>
-<b>Port:</b><br/><input type="text" id="edit-instance-port" placeholder="8000"/><br/>
-<b>User: </b><br/><input type="text" id="edit-instance-user" placeholder="Username"/><br />
-<b>Password: </b><br/><input type="password" id="edit-instance-password" placeholder="Password"/><br/>
-</p>
-<p id="edit_instance_error">
-</p>
-</div>
-
 <div id="dialog-deleteinstance-message" title="Confirm Delete" style="display:none;">
 <p></p>
   <p>
@@ -252,35 +222,18 @@
   </p>
 </div>
 
+<div id="dialog-edit-instance" title="Edit Instance" style="display:none;">
+	<p>
+		<b>Name:</b> <input type="text" id="edit-name"/>
+	</p>
+	<div id="edit_instance_error">
+	</div>
+</div>
+
 <script src="{% static 'inc/controllers/js/fed_of_queries.js' %}"></script>
 <script>
 	loadFedOfQueriesHandler();
 </script>
-
-<div id="dialog-add-instance" title="Add new instance" style="display:none;">
-<p>
-To add a new instance enter the name, the protocol, the address and the port of the instance.
-</p>
-<p>
-<nobr>
-<input type="text" id="instance_name" placeholder="Name"/>
-<select id="instance_protocol">
-	<option value="http">HTTP</option>
-	<option value="https">HTTPS</option>
-</select>
-://
-<input type="text" id="instance_address" placeholder="127.0.0.1"/>
-:
-<input type="text" id="instance_port" placeholder="8000"/>
-</nobr>
-</p>
-<p>
-<b>User: </b><input type="text" id="instance_user" placeholder="Username"/><br />
-<b>Password: </b><input type="password" id="instance_password" placeholder="Password"/>
-</p> 
-<p id="instance_error">
-</p>
-</div>
 
 </body>
 </html>

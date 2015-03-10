@@ -17,74 +17,9 @@
 loadFedOfQueriesHandler = function()
 {
 	console.log('BEGIN [loadFedOfQueriesHandler]');
-	$('.add.instance').on('click',addInstance);
 	$('.edit.instance').on('click',editInstance);
     $('.delete.instance').on('click', deleteInstance);
 	console.log('END [loadFedOfQueriesHandler]');
-}
-
-/**
- * Add a repository
- */
-addInstance = function()
-{
-	console.log('BEGIN [addInstance]');
-	$("#instance_error").html("");
-	$('input:text').each(
-		    function(){
-		        $(this).val('');
-		    });
-	$('input:password').each(
-		    function(){
-		        $(this).val('');
-		    });
-	$(function() {
-        $( "#dialog-add-instance" ).dialog({
-            modal: true,
-            width: 520,
-            buttons: {
-            	Test: function(){
-            		name = $("#instance_name").val();
-            		protocol = $("#instance_protocol").val();
-            		address = $("#instance_address").val();
-            		port = $("#instance_port").val();
-            		user = $("#instance_user").val();
-            		password = $("#instance_password").val();
-            		
-            		$("#instance_error").html("");
-            		
-            		errors = checkFields(protocol, address, port, user, password);
-            		
-            		if (errors != ""){
-            			$("#instance_error").html(errors);
-            		}else{
-            			Dajaxice.admin.pingRemoteAPI(Dajax.process,{"name":name, "protocol": protocol, "address":address, "port":port, "user": user, "password": password});
-            		}
-            	},
-            	Add: function() {	
-            		name = $("#instance_name").val();
-            		protocol = $("#instance_protocol").val();
-            		address = $("#instance_address").val();
-            		port = $("#instance_port").val();
-            		user = $("#instance_user").val();
-            		password = $("#instance_password").val();
-            		
-            		errors = checkFields(protocol, address, port, user, password);
-            		
-            		if (errors != ""){
-            			$("#instance_error").html(errors);
-            		}else{
-            			Dajaxice.admin.addInstance(Dajax.process,{"name":name, "protocol": protocol, "address":address, "port":port, "user": user, "password": password});
-            		}
-                },
-                Cancel: function() {	
-                	$("#instance_error").html("");
-            		$( this ).dialog( "close" );
-                }
-            }
-        });
-    });
-	console.log('END [addInstance]');
 }
 
 /**
@@ -92,7 +27,7 @@ addInstance = function()
  * @param address
  * @returns {Boolean}
  */
-function ValidateAddress(address)   
+function validateAddress(address)   
 {  
 	if (/^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(address))  
 	{  
@@ -106,7 +41,7 @@ function ValidateAddress(address)
  * @param port
  * @returns {Boolean}
  */
-function ValidatePort(port)   
+function validatePort(port)   
 {  
 	if (/^[0-9]{1,5}$/.test(port))  
 	{  
@@ -117,93 +52,66 @@ function ValidatePort(port)
 
 /**
  * Check that fields are correct
- * @param protocol
  * @param address
  * @param port
- * @param user
- * @param password
  * @returns {String}
  */
-function checkFields(protocol, address, port, user, password){
+function checkFields(address, port){
 	errors = ""
 	
-	if (name == "")
-	{
-		errors += "The name can't be empty.<br/>";
-	}
-	if(ValidateAddress(address) == false){
+	if(validateAddress(address) == false){
 		errors += "The address is not valid.<br/>";
 	}
-	if(ValidatePort(port) == false){
+	if(validatePort(port) == false){
 		errors += "The port number is not valid.<br/>";
-	}
-	if (user == "")
-	{
-		errors += "The user can't be empty.<br/>";
-	}
-	if (password == "")
-	{
-		errors += "The password can't be empty.<br/>";
 	}
 	
 	return errors;
 }
 
 /**
+ * Check that instance information are valid
+ * @returns {Boolean}
+ */
+function validateInstance(){
+	address = $("#id_ip_address").val();
+	port = $("#id_port").val();
+	
+	errors = checkFields(address, port);
+	
+	if (errors != ""){
+		$("#instance_error").html(errors);
+		return (false);
+	}
+	else{
+		$("#instance_error").html("");
+		return (true);
+	}
+}
+/**
  * Edit repository information. Get the information from the server.
  */
 editInstance = function()
 {    
     var instanceid = $(this).attr("instanceid");
+    var name = $(this).parent().siblings(':first').text();
+    
     $("#edit_instance_error").html("");
-    Dajaxice.admin.retrieveInstance(Dajax.process,{"instanceid":instanceid});
-}
-
-/**
- * Edit repository information. 
- * @param name
- * @param protocol
- * @param address
- * @param port
- * @param user
- * @param password
- * @param instanceid
- */
-editInstanceCallback = function(name, protocol, address, port, user, password, instanceid){
-    $("#edit-instance-name").val(name);
-    $("#edit-instance-protocol").val(protocol);
-    $("#edit-instance-address").val(address);
-    $("#edit-instance-port").val(port);
-    $("#edit-instance-user").val(user);
-    $("#edit-instance-password").val(password);
+    $("#edit-name").val(name);
+    
     $(function() {
         $( "#dialog-edit-instance" ).dialog({
             modal: true,
-            height: 450,
-            width: 275,
             buttons: {
-                Edit: function() {
-                    name = $("#edit-instance-name").val()
-                    protocol = $("#edit-instance-protocol").val()
-                    address = $("#edit-instance-address").val()
-                    port = $("#edit-instance-port").val()     
-                    user = $("#edit-instance-user").val()
-                    password = $("#edit-instance-password").val()
-                     
-                    errors = checkFields(protocol, address, port, user, password);
-                     
-                    if (errors != ""){
-                        $("#edit_instance_error").html(errors)
-                    }else{
-                        Dajaxice.admin.editInstance(Dajax.process,{"instanceid":instanceid,"name":name, "protocol": protocol, "address":address, "port":port, "user": user, "password": password});
-                    }
-                },
-                Cancel: function() {                        
-                    $( this ).dialog( "close" );
-                }
-            }
+            	Edit: function() {	
+            		Dajaxice.admin.editInstance(Dajax.process, {"instanceid": instanceid, "name":$("#edit-name").val()});
+            	},
+            	Cancel: function() {	
+            		$( this ).dialog( "close" );
+            	}
+            }      
         });
-    });
+	});
 }
 
 /**

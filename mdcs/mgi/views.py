@@ -37,6 +37,9 @@ import os
 from dateutil import tz
 from collections import OrderedDict
 from xlrd import open_workbook
+import requests
+from datetime import datetime
+from datetime import timedelta
 
 # Create your views here.
 
@@ -395,6 +398,97 @@ def federation_of_queries(request):
         request.session['next'] = '/'
         return redirect('/login')
 
+from admin.forms import RepositoryForm
+################################################################################
+#
+# Function Name: add_repository(request)
+# Inputs:        request - 
+# Outputs:       Page that allows to add a repository
+# Exceptions:    None
+# Description:   Page that allows to add instance of a repository 
+#                
+#
+################################################################################
+def add_repository(request):
+    request.session['currentYear'] = currentYear()
+    if request.user.is_authenticated() and request.user.is_staff:
+        if request.method == 'POST':
+            
+    
+            form = RepositoryForm(request.POST)
+
+            if form.is_valid():
+                if request.POST["action"] == "Register":
+                    errors = ""
+
+                    # test if the name is "Local"
+                    if (request.POST["name"].upper() == "LOCAL"):
+                        errors += "By default, the instance named Local is the instance currently running."
+                    else:
+                        # test if an instance with the same name exists
+                        instance = Instance.objects(name=request.POST["name"])
+                        if len(instance) != 0:
+                            errors += "An instance with the same name already exists.<br/>"
+                    
+                    # test if new instance is not the same as the local instance
+                    if request.POST["ip_address"] == request.META['REMOTE_ADDR'] and request.POST["port"] == request.META['SERVER_PORT']:
+                        errors += "The address and port you entered refer to the instance currently running."
+                    else:
+                        # test if an instance with the same address/port exists
+                        instance = Instance.objects(address=request.POST["ip_address"], port=request.POST["port"])
+                        if len(instance) != 0:
+                            errors += "An instance with the address/port already exists.<br/>"
+                    
+                    # If some errors display them, otherwise insert the instance
+                    if(errors == ""):
+                        try:
+                            url = request.POST["protocol"] + "://" + request.POST["ip_address"] + ":" + request.POST["port"] + "/oauth2/access_token/"                            
+                            data="client_id=" + request.POST["client_id"] + "&client_secret=" + request.POST["client_secret"] + "&grant_type=password&username=" + request.POST["username"] + "&password=" + request.POST["password"]
+                            headers = {'content-type': 'application/x-www-form-urlencoded'}
+                            r = requests.post(url=url, data=data, headers=headers, timeout=int(request.POST["timeout"]))
+                            if r.status_code == 200:
+                                now = datetime.now()
+                                delta = timedelta(seconds=int(eval(r.content)["expires_in"]))
+                                expires = now + delta
+                                Instance(name=request.POST["name"], protocol=request.POST["protocol"], address=request.POST["ip_address"], port=request.POST["port"], access_token=eval(r.content)["access_token"], refresh_token=eval(r.content)["refresh_token"], expires=expires).save()
+                                return HttpResponseRedirect('/admin/federation-of-queries')
+                            else: 
+                                message = "Unable to get access to the remote instance using these parameters."
+                                return render(request, 'admin/add_repository.html', {'form':form, 'action_result':message})
+                        except Exception, e:
+                            message = "Unable to get access to the remote instance using these parameters."
+                            return render(request, 'admin/add_repository.html', {'form':form, 'action_result':message})
+                                                
+                    else:
+                        return render(request, 'admin/add_repository.html', {'form':form, 'action_result':errors})
+                        
+                elif request.POST["action"] == "Ping":
+                    try:
+                        url = request.POST["protocol"] + "://" + request.POST["ip_address"] + ":" + request.POST["port"] + "/rest/ping"
+                        r = requests.get(url, auth=(request.POST["username"], request.POST["password"]), timeout=int(request.POST["timeout"]))
+                        if r.status_code == 200:
+                            message = "Remote API reached with success."                                                
+                        else:
+                            if 'detail' in eval(r.content):
+                                message = "Error: " + eval(r.content)['detail']
+                            else:
+                                message = "Error: Unable to reach the remote API."
+                    except Exception, e:
+                        message = "Error: Unable to reach the remote API."
+                    
+                    return render(request, 'admin/add_repository.html', {'form':form, 'action_result':message})
+                    
+                return HttpResponseRedirect('/admin/add-repository')
+            
+        else:
+            form = RepositoryForm()
+        
+        return render(request, 'admin/add_repository.html', {'form':form})
+    else:
+        if 'loggedOut' in request.session:
+            del request.session['loggedOut']
+        request.session['next'] = '/'
+        return redirect('/login')
 ################################################################################
 #
 # Function Name: curate(request)

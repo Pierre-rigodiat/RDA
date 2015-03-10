@@ -857,111 +857,26 @@ def restoreVersion(request, objectid, objectType):
     
     return dajax.json()
 
-################################################################################
-# 
-# Function Name: addInstance(request, name, protocol, address, port, user, password)
-# Inputs:        request - 
-#                name -
-#                protocol - 
-#                address - 
-#                port - 
-#                user - 
-#                password - 
-# Outputs:       
-# Exceptions:    None
-# Description:   Register a remote instance for the federation of queries
-#
-################################################################################
-@dajaxice_register
-def addInstance(request, name, protocol, address, port, user, password):
-    dajax = Dajax()
-    
-    errors = ""
-    
-    # test if the name is "Local"
-    if (name == "Local"):
-        errors += "By default, the instance named Local is the instance currently running."
-    else:
-        # test if an instance with the same name exists
-        instance = Instance.objects(name=name)
-        if len(instance) != 0:
-            errors += "An instance with the same name already exists.<br/>"
-    
-    # test if new instance is not the same as the local instance
-    if address == request.META['REMOTE_ADDR'] and port == request.META['SERVER_PORT']:
-        errors += "The address and port you entered refer to the instance currently running."
-    else:
-        # test if an instance with the same address/port exists
-        instance = Instance.objects(address=address, port=port)
-        if len(instance) != 0:
-            errors += "An instance with the address/port already exists.<br/>"
-    
-    # If some errors display them, otherwise insert the instance
-    if(errors == ""):
-        status = "Unreachable"
-        try:
-            url = protocol + "://" + address + ":" + port + "/rest/ping"
-            r = requests.get(url, auth=(user, password), timeout=0.5)
-            if r.status_code == 200:
-                status = "Reachable"
-        except Exception, e:
-            pass
-        
-        Instance(name=name, protocol=protocol, address=address, port=port, user=user, password=password, status=status).save()
-        dajax.script("""
-        $("#dialog-add-instance").dialog("close");
-        $('#model_selection').load(document.URL +  ' #model_selection', function() {
-              loadFedOfQueriesHandler();
-        });
-        """)
-    else:
-        dajax.assign("#instance_error", "innerHTML", errors)
-    
-    return dajax.json()
 
 ################################################################################
 # 
-# Function Name: retrieveInstance(request, instanceid)
-# Inputs:        request - 
-#                instanceid - 
-# Outputs:       
-# Exceptions:    None
-# Description:   Retrieve an instance to edit it
-#
-################################################################################
-@dajaxice_register
-def retrieveInstance(request, instanceid):
-    dajax = Dajax()
-    
-    instance = Instance.objects.get(pk=instanceid)
-    dajax.script("editInstanceCallback('"+ str(instance.name) +"','"+ str(instance.protocol) +"','"+ str(instance.address) +"','"+ str(instance.port) +"','"+ str(instance.user) +"','"+ str(instance.password) +"','"+ str(instanceid) +"');")
-    
-    return dajax.json()
-
-################################################################################
-# 
-# Function Name: editInstance(request, instanceid, name, protocol, address, port, user, password)
+# Function Name: editInstance(request, instanceid, name)
 # Inputs:        request -
 #                instanceid - 
 #                name -
-#                protocol - 
-#                address - 
-#                port - 
-#                user - 
-#                password - 
 # Outputs:       
 # Exceptions:    None
 # Description:   Edit the instance information
 #
 ################################################################################
 @dajaxice_register
-def editInstance(request, instanceid, name, protocol, address, port, user, password):
+def editInstance(request, instanceid, name):
     dajax = Dajax()
     
     errors = ""
     
     # test if the name is "Local"
-    if (name == "Local"):
+    if (name.upper() == "LOCAL"):
         errors += "By default, the instance named Local is the instance currently running."
     else:   
         # test if an instance with the same name exists
@@ -969,34 +884,10 @@ def editInstance(request, instanceid, name, protocol, address, port, user, passw
         if len(instance) != 0 and str(instance[0].id) != instanceid:
             errors += "An instance with the same name already exists.<br/>"
     
-    # test if new instance is not the same as the local instance
-    if address == request.META['REMOTE_ADDR'] and port == request.META['SERVER_PORT']:
-        errors += "The address and port you entered refer to the instance currently running."
-    else:
-        # test if an instance with the same address/port exists
-        instance = Instance.objects(address=address, port=port)
-        if len(instance) != 0 and str(instance[0].id) != instanceid:
-            errors += "An instance with the address/port already exists.<br/>"
-    
     # If some errors display them, otherwise insert the instance
-    if(errors == ""):
-        status = "Unreachable"
-        try:
-            url = protocol + "://" + address + ":" + port + "/rest/ping"
-            r = requests.get(url, auth=(user, password), timeout=0.5)
-            if r.status_code == 200:
-                status = "Reachable"
-        except Exception, e:
-            pass
-        
+    if(errors == ""):      
         instance = Instance.objects.get(pk=instanceid)
         instance.name = name
-        instance.protocol = protocol
-        instance.address = address
-        instance.port = port
-        instance.user = user
-        instance.password = password
-        instance.status = status
         instance.save()
         dajax.script("""
         $("#dialog-edit-instance").dialog("close");
@@ -1373,41 +1264,6 @@ def changePassword(request, userid, old_password, password):
         user.save()
         dajax.script("showPasswordChangedDialog();")
 
-    
-    return dajax.json()
-
-################################################################################
-# 
-# Function Name: pingRemoteAPI(request, name, protocol, address, port, user, password)
-# Inputs:        request -
-#                name - 
-#                protocol -
-#                address - 
-#                port -
-#                user -
-#                password - 
-# Outputs:       
-# Exceptions:    None
-# Description:   Ping a remote instance to see if it is reachable with the given parameters
-#
-################################################################################
-@dajaxice_register
-def pingRemoteAPI(request, name, protocol, address, port, user, password):
-    dajax = Dajax()
-    
-    try:
-        url = protocol + "://" + address + ":" + port + "/rest/ping"
-        r = requests.get(url, auth=(user, password), timeout=0.5)
-        if r.status_code == 200:
-            dajax.assign("#instance_error", "innerHTML", "<b style='color:green'>Remote API reached with success.</b>")
-        else:
-            if 'detail' in eval(r.content):
-                dajax.assign("#instance_error", "innerHTML", "<b style='color:red'>Error: " + eval(r.content)['detail'] + "</b>")
-            else:
-                dajax.assign("#instance_error", "innerHTML", "<b style='color:red'>Error: Unable to reach the remote API.</b>")
-    except Exception, e:
-        dajax.assign("#instance_error", "innerHTML", "<b style='color:red'>Error: Unable to reach the remote API.</b>")
-        
     
     return dajax.json()
 
