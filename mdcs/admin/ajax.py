@@ -167,16 +167,20 @@ def saveObject(request, buckets):
         if 'uploadObjectAPIurl' in request.session and request.session['uploadObjectAPIurl'] is not None:
             objectApiurl = request.session['uploadObjectAPIurl']
         else:
-            objectApiurl = None  
+            objectApiurl = None
+        if 'uploadDependencies' in request.session and request.session['uploadDependencies'] is not None:
+            dependencies = request.session['uploadDependencies']
+        else:
+            dependencies = None
             
+        hash = XSDhash.get_hash(objectContent)
         # save the object
-        if objectType == "Template":
-            hash = XSDhash.get_hash(objectContent)
+        if objectType == "Template":            
             objectVersions = TemplateVersion(nbVersions=1, isDeleted=False).save()            
             object = Template(title=objectName, filename=objectFilename, content=objectContent, version=1, templateVersion=str(objectVersions.id), hash=hash).save()
         elif objectType == "Type":                                                                                    
             objectVersions = TypeVersion(nbVersions=1, isDeleted=False).save()
-            object = Type(title=objectName, filename=objectFilename, content=objectContent, version=1, typeVersion=str(objectVersions.id)).save()
+            object = Type(title=objectName, filename=objectFilename, content=objectContent, version=1, typeVersion=str(objectVersions.id), hash=hash).save()
             for bucket_id in buckets:
                 bucket = Bucket.objects.get(pk=bucket_id)
                 bucket.types.append(str(objectVersions.id))
@@ -187,8 +191,10 @@ def saveObject(request, buckets):
         objectVersions.save()    
         object.save()
         
-        if objectFlat is not None and objectApiurl is not None:
+        if objectFlat is not None and objectApiurl is not None and dependencies is not None:
             MetaSchema(schemaId=str(object.id), flat_content=objectFlat, api_content=objectApiurl).save()
+            object.dependencies = dependencies
+            object.save()
             
         dajax.script("""
             $( "#dialog-upload-message" ).dialog("close");
@@ -270,6 +276,7 @@ def resolveDependencies(request, dependencies):
         
         request.session[flatSession] = flatStr
         request.session[apiSession] = etree.tostring(xmlTree)
+        request.session["uploadDependencies"] = dependencies
         dajax.script("""
             $("#objectUploadErrorMessage").html("<font color='green'>The uploaded template is valid. You can now save it.</font>"""+ saveBtn +"""  ");
         """)
@@ -312,6 +319,8 @@ def clearObject(request):
         del request.session['uploadObjectFlat']
     if 'uploadObjectAPIurl' in request.session:
         del request.session['uploadObjectAPIurl']
+    if 'uploadDependencies' in request.session: 
+        del request.session['uploadDependencies']
         
     print 'END def clearObject(request)'
     return dajax.json()
@@ -345,6 +354,8 @@ def clearVersion(request):
         del request.session['uploadVersionFlat']
     if 'uploadVersionAPIurl' in request.session:
         del request.session['uploadVersionAPIurl']
+    if 'uploadDependencies' in request.session: 
+        del request.session['uploadDependencies']
 
     print 'END def clearVersion(request)'
     return dajax.json()
@@ -567,25 +578,31 @@ def saveVersion(request):
             versionApiurl = request.session['uploadVersionAPIurl']
         else:
             versionApiurl = None  
+        if 'uploadDependencies' in request.session and request.session['uploadDependencies'] is not None:
+            dependencies = request.session['uploadDependencies']
+        else:
+            dependencies = None
             
+        hash = XSDhash.get_hash(versionContent)
         # save the object
         if objectType == "Template":
             objectVersions = TemplateVersion.objects.get(pk=objectVersionID)
             objectVersions.nbVersions += 1
-            object = Template.objects.get(pk=objectVersions.current)
-            hash = XSDhash.get_hash(versionContent)
+            object = Template.objects.get(pk=objectVersions.current)            
             newObject = Template(title=object.title, filename=versionFilename, content=versionContent, version=objectVersions.nbVersions, templateVersion=objectVersionID, hash=hash).save()
         elif objectType == "Type":    
             objectVersions = TypeVersion.objects.get(pk=objectVersionID)
             objectVersions.nbVersions += 1
             object = Type.objects.get(pk=objectVersions.current)                                                                                
-            newObject = Type(title=object.title, filename=versionFilename, content=versionContent, version=objectVersions.nbVersions, typeVersion=objectVersionID).save()
+            newObject = Type(title=object.title, filename=versionFilename, content=versionContent, version=objectVersions.nbVersions, typeVersion=objectVersionID, hash=hash).save()
         
         objectVersions.versions.append(str(newObject.id))
         objectVersions.save()
         
-        if versionFlat is not None and versionApiurl is not None:
+        if versionFlat is not None and versionApiurl is not None and dependencies is not None:
             MetaSchema(schemaId=str(newObject.id), flat_content=versionFlat, api_content=versionApiurl).save()
+            object.dependencies = dependencies
+            object.save()
         
         dajax.script("""
             $("#delete_custom_message").html("");

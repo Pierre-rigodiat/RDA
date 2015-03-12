@@ -67,6 +67,7 @@ class Template(Document):
     version = IntField(required=False)
     hash = StringField(required=True)
     user = IntField(required=False)
+    dependencies = ListField(StringField())
     
 class TemplateVersion(Document):
     versions = ListField(StringField())
@@ -81,7 +82,9 @@ class Type(Document):
     content = StringField(required=True)
     typeVersion = StringField(required=False)
     version = IntField(required=False)
+    hash = StringField(required=True)
     user = IntField(required=False)
+    dependencies = ListField(StringField())
     
 class TypeVersion(Document):
     versions = ListField(StringField())

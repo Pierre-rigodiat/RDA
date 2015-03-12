@@ -26,6 +26,7 @@ from io import BytesIO
 from utils.XSDhash import XSDhash
 from utils.XSDflattenerMDCS.XSDflattenerMDCS import XSDFlattenerMDCS
 from utils.APIschemaLocator.APIschemaLocator import getSchemaLocation
+from urlparse import urlparse
 
 # XSL file loading
 import os
@@ -341,7 +342,12 @@ def saveTemplate(request, templateName):
         return dajax.json() 
     
     hash = XSDhash.get_hash(content) 
-    template = Template(title=templateName, filename=templateName, content=content, hash=hash, user=request.user.id)
+    dependencies = []
+    for uri in request.session["includedTypesCompose"]:
+        url = urlparse(uri)
+        id = url.query.split("=")[1]
+        dependencies.append(id)
+    template = Template(title=templateName, filename=templateName, content=content, hash=hash, user=request.user.id, dependencies=dependencies)
     template.save()
     
     MetaSchema(schemaId=str(template.id), flat_content=flatStr, api_content=content).save()
@@ -402,7 +408,13 @@ def saveType(request, typeName):
         return dajax.json() 
     
     
-    type = Type(title=typeName, filename=typeName, content=content, user=request.user.id)
+    hash = XSDhash.get_hash(content)
+    dependencies = []
+    for uri in request.session["includedTypesCompose"]:
+        url = urlparse(uri)
+        id = url.query.split("=")[1]
+        dependencies.append(id)
+    type = Type(title=typeName, filename=typeName, content=content, user=request.user.id, hash=hash, dependencies=dependencies)
     type.save()
     MetaSchema(schemaId=str(type.id), flat_content=flatStr, api_content=content).save()
     

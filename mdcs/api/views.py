@@ -624,7 +624,7 @@ def curate(request):
 def add_schema(request):
     """
     POST http://localhost/rest/templates/add
-    POST data title="title", filename="filename", content="<xsd:schema>...</xsd:schema>" templateVersion="id", dependencies="id,id"
+    POST data title="title", filename="filename", content="<xsd:schema>...</xsd:schema>" templateVersion="id", dependencies[]="id,id"
     """
     if request.user.is_staff is True:
         xsdContent = None
@@ -650,9 +650,10 @@ def add_schema(request):
             # manage the dependencies
             includes = xmlTree.findall("{http://www.w3.org/2001/XMLSchema}include")        
             idxInclude = 0
+            dependencies = []
             
-            if 'dependencies' in request.DATA:  
-                dependencies = request.DATA['dependencies'].strip().split(",")
+            if 'dependencies[]' in request.DATA:  
+                dependencies = request.DATA['dependencies[]'].strip().split(",")
                 if len(dependencies) == len(includes):
                     listTypesId = []
                     for typeId in Type.objects.all().values_list('id'):     
@@ -701,7 +702,7 @@ def add_schema(request):
                         return Response(content, status=status.HTTP_400_BAD_REQUEST)
                     templateVersions.nbVersions = templateVersions.nbVersions + 1
                     hash = XSDhash.get_hash(xsdContent)
-                    newTemplate = Template(title=request.DATA['title'], filename=request.DATA['filename'], content=xsdContent, templateVersion=request.DATA['templateVersion'], version=templateVersions.nbVersions, hash=hash).save()
+                    newTemplate = Template(title=request.DATA['title'], filename=request.DATA['filename'], content=xsdContent, templateVersion=request.DATA['templateVersion'], version=templateVersions.nbVersions, hash=hash, dependencies=dependencies).save()
                     templateVersions.versions.append(str(newTemplate.id))                
                     templateVersions.save()
                     # Save Meta schema
@@ -713,7 +714,7 @@ def add_schema(request):
             else:
                 templateVersion = TemplateVersion(nbVersions=1, isDeleted=False).save()
                 hash = XSDhash.get_hash(xsdContent)
-                newTemplate = Template(title=request.DATA['title'], filename=request.DATA['filename'], content=xsdContent, version=1, templateVersion=str(templateVersion.id), hash=hash).save()
+                newTemplate = Template(title=request.DATA['title'], filename=request.DATA['filename'], content=xsdContent, version=1, templateVersion=str(templateVersion.id), hash=hash, dependencies=dependencies).save()
                 templateVersion.versions = [str(newTemplate.id)]
                 templateVersion.current=str(newTemplate.id)
                 templateVersion.save()
@@ -1074,7 +1075,7 @@ def restore_schema(request):
 def add_type(request):
     """
     POST http://localhost/rest/types/add
-    POST data title="title", filename="filename", content="..." typeVersion="id" dependencies="id,id"
+    POST data title="title", filename="filename", content="..." typeVersion="id" dependencies[]="id,id"
     """
     if request.user.is_staff is True:
         xsdContent = None
@@ -1101,9 +1102,10 @@ def add_type(request):
             # manage the dependencies
             includes = xmlTree.findall("{http://www.w3.org/2001/XMLSchema}include")        
             idxInclude = 0
+            dependencies = []
             
-            if 'dependencies' in request.DATA:  
-                dependencies = request.DATA['dependencies'].strip().split(",")
+            if 'dependencies[]' in request.DATA:  
+                dependencies = request.DATA['dependencies[]'].strip().split(",")
                 if len(dependencies) == len(includes):
                     listTypesId = []
                     for typeId in Type.objects.all().values_list('id'):     
@@ -1145,7 +1147,7 @@ def add_type(request):
     
     
             
-            # an type version is provided: if it exists, add the type as a new version and manage the version numbers
+            # a type version is provided: if it exists, add the type as a new version and manage the version numbers
             if "typeVersion" in request.DATA:
                 try:
                     typeVersions = TypeVersion.objects.get(pk=request.DATA['typeVersion'])
@@ -1153,7 +1155,8 @@ def add_type(request):
                         content = {'message':'This type version belongs to a deleted type. You can not add a type to it.'}
                         return Response(content, status=status.HTTP_400_BAD_REQUEST)
                     typeVersions.nbVersions = typeVersions.nbVersions + 1
-                    newType = Type(title=request.DATA['title'], filename=request.DATA['filename'], content=request.DATA['content'], typeVersion=request.DATA['typeVersion'], version=typeVersions.nbVersions).save()
+                    hash = XSDhash.get_hash(xsdContent)
+                    newType = Type(title=request.DATA['title'], filename=request.DATA['filename'], content=request.DATA['content'], typeVersion=request.DATA['typeVersion'], version=typeVersions.nbVersions, hash=hash, dependencies=dependencies).save()
                     typeVersions.versions.append(str(newType.id))                
                     typeVersions.save()
                     # Save Meta schema
@@ -1164,7 +1167,8 @@ def add_type(request):
                     return Response(content, status=status.HTTP_400_BAD_REQUEST)
             else:
                 typeVersion = TypeVersion(nbVersions=1, isDeleted=False).save()
-                newType = Type(title=request.DATA['title'], filename=request.DATA['filename'], content=request.DATA['content'], version=1, typeVersion=str(typeVersion.id)).save()
+                hash = XSDhash.get_hash(xsdContent)
+                newType = Type(title=request.DATA['title'], filename=request.DATA['filename'], content=request.DATA['content'], version=1, typeVersion=str(typeVersion.id), hash=hash, dependencies=dependencies).save()
                 typeVersion.versions = [str(newType.id)]
                 typeVersion.current=str(newType.id)
                 typeVersion.save()
