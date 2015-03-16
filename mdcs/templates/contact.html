@@ -118,15 +118,18 @@
 					</div>
 					<div class="clearer">&nbsp;</div>
 
-<p>
-
-	<p><label>Name:</label>
-    <input type="text" id="id_sender_name" maxlength="100"/></p>
-	<p><label>Email:</label>
-    <input type="text" id="id_sender_email" /></p>
-	<p><label>Message:</label>
-    <textarea rows="10" cols="100" style="width:auto;" id="id_sender_message" ></textarea></p>
-	<span class="btn submit">Submit</span>
+				<div>
+				<br/>
+				<form action="/contact" method="post">
+				 	{% csrf_token %}
+				    {{ form }}
+				    <br/>
+				    <div id="contact_error" style="font-weight: bold;">
+				    {{action_result}}
+				    </div>
+				    <input type="submit" class="btn" value="Send Message"/>
+				</form>
+				</div>
 
 				</div>
 			</div>
@@ -180,21 +183,6 @@
 	</div>
 
 </div>
-
-<div id="dialog-errors-message" title="Errors" style="display:none;">
-    <div id="contact-errors">
-    </div>  
-</div>
-
-<div id="dialog-sent-message" title="Message Sent" style="display:none;">
-    <span class="ui-icon ui-icon-circle-check" style="float:left; margin:0 7px 10px 0;"></span>
-    The message was sent with success.
-</div>
-
-<script src="{% static 'inc/controllers/js/contact.js' %}"></script>
-<script>
-loadContactControllers();
-</script>
 
 </body>
 </html>

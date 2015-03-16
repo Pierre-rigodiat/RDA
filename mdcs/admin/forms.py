@@ -54,4 +54,15 @@ class ChangePasswordForm(forms.Form):
     new1 = forms.CharField(label='New Password',widget=forms.PasswordInput, required=True)
     new2 = forms.CharField(label='Confirm New Password',widget=forms.PasswordInput, required=True)
     
+class ContactForm(forms.Form):
+    name = forms.CharField(label='Name', max_length=100, required=True)
+    email = forms.EmailField(label='Email Address', max_length=100, required=True)
+    message = forms.CharField(label='Message', widget=forms.Textarea, required=True)
+
+class PrivacyPolicyForm(forms.Form):
+    content = forms.CharField(label="Privacy Policy", widget=forms.Textarea, required=False)
+
+class TermsOfUseForm(forms.Form):
+    content = forms.CharField(label="Terms of Use", widget=forms.Textarea, required=False)
+    
     

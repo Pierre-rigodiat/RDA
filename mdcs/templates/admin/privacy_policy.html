@@ -143,12 +143,14 @@
 					<div class="clearer">&nbsp;</div>
 					You can use this form to provide privacy policy for the website. You can use HTML syntax and HTML tags to write the text.
 					<div>
-					
-					<textarea rows="10" cols="100" style="width:auto;" id="policy_content">{% if policy %}{{ policy.content }}{% endif %}</textarea>
 					<br/>
-					<span class="btn policy">Save</span>
+					<form action="/admin/website/privacy-policy" method="post">
+					 	{% csrf_token %}
+					    {{ form }}
+					    <br/>
+					    <input type="submit" class="btn" value="Save"/>
+					</form>
 					</div>
-
 				</div>
 			</div>
 

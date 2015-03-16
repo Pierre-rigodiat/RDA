@@ -155,10 +155,8 @@ Use the following form to refresh the token of the selected instance.
  	{% csrf_token %}
     {{ form }}
     <br/>
-    <div id="instance_error">
-    <b>
+    <div id="instance_error" style="font-weight: bold;">
     {{action_result}}
-    </b>
     </div>
     <input type="submit" class="btn" name="action" value="Refresh"/>
 </form>

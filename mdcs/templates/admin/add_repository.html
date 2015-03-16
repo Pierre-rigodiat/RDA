@@ -155,10 +155,8 @@ Use the following form to register a remote instance of the MDCS. Please provide
  	{% csrf_token %}
     {{ form }}
     <br/>
-    <div id="instance_error">
-    <b>
+    <div id="instance_error" style="font-weight: bold;">
     {{action_result}}
-    </b>
     </div>
     <input type="submit" class="btn" name="action" value="Ping"/>
     <input type="submit" class="btn" name="action" value="Register"/>

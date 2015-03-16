@@ -142,10 +142,13 @@
 					<div class="clearer">&nbsp;</div>
 					You can use this form to provide terms of use for the website. You can use HTML syntax and HTML tags to write the text.
 					<div>
-					
-					<textarea rows="10" cols="100" style="width:auto;" id="terms_of_use_content">{% if terms %}{{ terms.content }}{% endif %}</textarea>
 					<br/>
-					<span class="btn terms">Save</span>
+					<form action="/admin/website/terms-of-use" method="post">
+					 	{% csrf_token %}
+					    {{ form }}
+					    <br/>
+					    <input type="submit" class="btn" value="Save"/>
+					</form>
 					</div>
 				</div>
 			</div>

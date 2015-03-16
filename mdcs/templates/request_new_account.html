@@ -122,10 +122,8 @@
  	{% csrf_token %}
     {{ form }}
     <br/>
-    <div id="request_error">
-    <b>
+    <div id="request_error" style="font-weight: bold;">
     {{action_result}}
-    </b>
     </div>
     <input type="submit" class="btn" value="Make a Request"/>
 </form>
@@ -187,6 +185,7 @@
 	</div>
 
 </div>
+
 <script src="{% static 'inc/controllers/js/user_account_req.js' %}"></script>
 </body>
 </html>

@@ -40,7 +40,7 @@ from xlrd import open_workbook
 import requests
 from datetime import datetime
 from datetime import timedelta
-from admin.forms import RepositoryForm, RefreshRepositoryForm, RequestAccountForm, EditProfileForm, ChangePasswordForm
+from admin.forms import RepositoryForm, RefreshRepositoryForm, RequestAccountForm, EditProfileForm, ChangePasswordForm, ContactForm, PrivacyPolicyForm, TermsOfUseForm
 from django.contrib.auth.models import User
 
 # Create your views here.
@@ -155,25 +155,34 @@ def website(request):
 # Description:   Page that allows to edit Privacy Policy
 #
 ################################################################################
-def privacy_policy_admin(request):
+def privacy_policy_admin(request): 
+    request.session['currentYear'] = currentYear()
     if request.user.is_authenticated() and request.user.is_staff:
-        template = loader.get_template('admin/privacy_policy.html')
-
-        policy = None
-        if len(PrivacyPolicy.objects) != 0:
-            policy = PrivacyPolicy.objects[0] 
+        if request.method == 'POST':
+            form = PrivacyPolicyForm(request.POST)
+            if form.is_valid():
+                for privacy in PrivacyPolicy.objects:
+                    privacy.delete()
+                
+                if (request.POST['content'] != ""):
+                    newPrivacy = PrivacyPolicy(content = request.POST['content'])
+                    newPrivacy.save()
+                return HttpResponseRedirect("/admin/website")
+        else:
+            if len(PrivacyPolicy.objects) != 0:
+                policy = PrivacyPolicy.objects[0] 
+                data = {'content':policy.content}
+                form = PrivacyPolicyForm(data)
+            else:
+                form = PrivacyPolicyForm()
         
-        context = RequestContext(request, { 
-            'policy': policy
-        })
-        request.session['currentYear'] = currentYear()
-        return HttpResponse(template.render(context))
+        return render(request, 'admin/privacy_policy.html', {'form':form})
     else:
         if 'loggedOut' in request.session:
             del request.session['loggedOut']
         request.session['next'] = '/'
         return redirect('/login')
-
+    
 ################################################################################
 #
 # Function Name: terms_of_use_admin(request)
@@ -184,18 +193,27 @@ def privacy_policy_admin(request):
 #
 ################################################################################
 def terms_of_use_admin(request):
+    request.session['currentYear'] = currentYear()
     if request.user.is_authenticated() and request.user.is_staff:
-        template = loader.get_template('admin/terms_of_use.html')
-
-        terms = None
-        if len(TermsOfUse.objects) != 0:
-            terms = TermsOfUse.objects[0] 
-    
-        context = RequestContext(request, { 
-            'terms': terms
-        })
-        request.session['currentYear'] = currentYear()
-        return HttpResponse(template.render(context))
+        if request.method == 'POST':
+            form = TermsOfUseForm(request.POST)
+            if form.is_valid():
+                for terms in TermsOfUse.objects:
+                    terms.delete()
+                
+                if (request.POST['content'] != ""):
+                    newTerms = TermsOfUse(content = request.POST['content'])
+                    newTerms.save()
+                return HttpResponseRedirect("/admin/website")
+        else:
+            if len(TermsOfUse.objects) != 0:
+                terms = TermsOfUse.objects[0] 
+                data = {'content':terms.content}
+                form = TermsOfUseForm(data)
+            else:
+                form = TermsOfUseForm()
+        
+        return render(request, 'admin/terms_of_use.html', {'form':form})
     else:
         if 'loggedOut' in request.session:
             del request.session['loggedOut']
@@ -1232,10 +1250,11 @@ def request_new_account(request):
             try:
                 user = User.objects.get(username=request.POST["username"])
                 message = "This username already exists. Please choose another username."
-                return render(request, 'request_new_account.htmll', {'form':form, 'action_result':message})
+                return render(request, 'request_new_account.html', {'form':form, 'action_result':message})
             except:
                 Request(username=request.POST["username"], password=request.POST["password1"],first_name=request.POST["firstname"], last_name=request.POST["lastname"], email=request.POST["email"]).save()
                 return HttpResponseRedirect("/")
+                
     else:
         form = RequestAccountForm()
     
@@ -1291,14 +1310,36 @@ def my_profile(request):
 # Description:   Page that allows to edit a profile
 #
 ################################################################################
-def my_profile_edit(request):
+def my_profile_edit(request):   
+    request.session['currentYear'] = currentYear()
     if request.user.is_authenticated():
-        template = loader.get_template('my_profile_edit.html')
-        context = RequestContext(request, {
-            '': '',
-        })
-        request.session['currentYear'] = currentYear()
-        return HttpResponse(template.render(context))
+        if request.method == 'POST':
+            form = EditProfileForm(request.POST)
+            if form.is_valid():
+                user = User.objects.get(id=request.user.id)
+                if request.POST['username'] != user.username:
+                    try:
+                        user = User.objects.get(username=request.POST['username'])
+                        message = "A user with the same username already exists."
+                        return render(request, 'my_profile_edit.html', {'form':form, 'action_result':message})
+                    except:
+                        user.username = request.POST['username']
+                
+                user.first_name = request.POST['firstname']
+                user.last_name = request.POST['lastname']
+                user.email = request.POST['email']
+                user.save()
+                return HttpResponseRedirect("/my-profile")
+        else:
+            user = User.objects.get(id=request.user.id)
+            data = {'firstname':user.first_name, 
+                    'lastname':user.last_name,
+                    'username':user.username,
+                    'email':user.email}
+            form = EditProfileForm(data)
+        
+        return render(request, 'my_profile_edit.html', {'form':form})
+    
     else:
         if 'loggedOut' in request.session:
             del request.session['loggedOut']
@@ -1315,13 +1356,25 @@ def my_profile_edit(request):
 #
 ################################################################################
 def my_profile_change_password(request):
+    request.session['currentYear'] = currentYear()
     if request.user.is_authenticated():
-        template = loader.get_template('my_profile_change_password.html')
-        context = RequestContext(request, {
-            '': '',
-        })
-        request.session['currentYear'] = currentYear()
-        return HttpResponse(template.render(context))
+        if request.method == 'POST':
+            form = ChangePasswordForm(request.POST)
+            if form.is_valid():
+                user = User.objects.get(id=request.user.id)
+                auth_user = authenticate(username=user.username, password=request.POST['old'])
+                if auth_user is None:
+                    message = "The old password is incorrect."
+                    return render(request, 'my_profile_change_password.html', {'form':form, 'action_result':message})
+                else:        
+                    user.set_password(request.POST['new1'])
+                    user.save()
+                    return HttpResponseRedirect("/my-profile")
+        else:
+            form = ChangePasswordForm()
+        
+        return render(request, 'my_profile_change_password.html', {'form':form})
+    
     else:
         if 'loggedOut' in request.session:
             del request.session['loggedOut']
@@ -1339,12 +1392,15 @@ def my_profile_change_password(request):
 #
 ################################################################################
 def contact(request):
-    template = loader.get_template('contact.html')
-    context = RequestContext(request, {
-        '': '',
-    })
-    request.session['currentYear'] = currentYear()    
-    return HttpResponse(template.render(context))
+    if request.method == 'POST':
+        form = ContactForm(request.POST)
+        if form.is_valid():
+            Message(name=request.POST['name'], email=request.POST['email'], content=request.POST['message']).save()
+            return HttpResponseRedirect("/")
+    else:
+        form = ContactForm()
+    
+    return render(request, 'contact.html', {'form':form})
 
 ################################################################################
 #
