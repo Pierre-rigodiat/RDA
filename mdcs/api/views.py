@@ -960,7 +960,7 @@ def delete_schema(request):
             
         templateVersion = TemplateVersion.objects.get(pk=template.templateVersion)
         if templateVersion.isDeleted == True:
-            content = {'message':'This template version belongs to a deleted template. You are not allowed to restore it. Please restore the template first (id:'+ str(templateVersion.id) +').'}
+            content = {'message':'This template version belongs to a deleted template. You are not allowed to delete it. Please restore the template first (id:'+ str(templateVersion.id) +').'}
             return Response(content, status=status.HTTP_400_BAD_REQUEST)
         if templateVersion.current == str(template.id) and next is None:
             content = {'message':'The selected template is the current. It can\'t be deleted. If you still want to delete this template, please provide the id of the next current template using \'next\' parameter'}
@@ -1007,7 +1007,7 @@ def delete_schema(request):
 def restore_schema(request):
     """
     GET http://localhost/rest/templates/restore?id=IDtorestore
-    GET http://localhost/rest/templates/delete?templateVersion=IDtorestore
+    GET http://localhost/rest/templates/restore?templateVersion=IDtorestore
     URL parameters: 
     id: string (ObjectId)
     templateVersion: string (ObjectId)
@@ -1447,7 +1447,7 @@ def delete_type(request):
 def restore_type(request):
     """
     GET http://localhost/rest/types/restore?id=IDtorestore
-    GET http://localhost/rest/types/delete?typeVersion=IDtorestore
+    GET http://localhost/rest/types/restore?typeVersion=IDtorestore
     URL parameters: 
     id: string (ObjectId)
     typeVersion: string (ObjectId)
