@@ -40,7 +40,8 @@ from xlrd import open_workbook
 import requests
 from datetime import datetime
 from datetime import timedelta
-from admin.forms import RepositoryForm, RefreshRepositoryForm
+from admin.forms import RepositoryForm, RefreshRepositoryForm, RequestAccountForm, EditProfileForm, ChangePasswordForm
+from django.contrib.auth.models import User
 
 # Create your views here.
 
@@ -1223,12 +1224,22 @@ def browse_all(request):
 #
 ################################################################################
 def request_new_account(request):
-    template = loader.get_template('request_new_account.html')
-    context = RequestContext(request, {
-        '': '',
-    })
     request.session['currentYear'] = currentYear()
-    return HttpResponse(template.render(context))
+    
+    if request.method == 'POST':
+        form = RequestAccountForm(request.POST)
+        if form.is_valid():
+            try:
+                user = User.objects.get(username=request.POST["username"])
+                message = "This username already exists. Please choose another username."
+                return render(request, 'request_new_account.htmll', {'form':form, 'action_result':message})
+            except:
+                Request(username=request.POST["username"], password=request.POST["password1"],first_name=request.POST["firstname"], last_name=request.POST["lastname"], email=request.POST["email"]).save()
+                return HttpResponseRedirect("/")
+    else:
+        form = RequestAccountForm()
+    
+    return render(request, 'request_new_account.html', {'form':form})
 
 ################################################################################
 #

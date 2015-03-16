@@ -34,3 +34,24 @@ class RefreshRepositoryForm(forms.Form):
     client_id = forms.CharField(label='Client ID', max_length=100, required=True)
     client_secret = forms.CharField(label='Client Secret', max_length=100, required=True)
     timeout = forms.IntegerField(label="Timeout (s)", min_value=1, max_value=60, initial=1)
+
+class RequestAccountForm(forms.Form):
+    username = forms.CharField(label='Username', max_length=100, required=True)
+    password1 = forms.CharField(label='Password',widget=forms.PasswordInput, required=True)
+    password2 = forms.CharField(label='Confirm Password',widget=forms.PasswordInput, required=True)
+    firstname = forms.CharField(label='First Name', max_length=100, required=True)
+    lastname = forms.CharField(label='Last Name', max_length=100, required=True)
+    email = forms.EmailField(label='Email Address', max_length=100, required=True)
+    
+class EditProfileForm(forms.Form):
+    firstname = forms.CharField(label='First Name', max_length=100, required=True)
+    lastname = forms.CharField(label='Last Name', max_length=100, required=True)
+    username = forms.CharField(label='Username', max_length=100, required=True)
+    email = forms.EmailField(label='Email Address', max_length=100, required=True)
+    
+class ChangePasswordForm(forms.Form):
+    old = forms.CharField(label='Old Password',widget=forms.PasswordInput, required=True)
+    new1 = forms.CharField(label='New Password',widget=forms.PasswordInput, required=True)
+    new2 = forms.CharField(label='Confirm New Password',widget=forms.PasswordInput, required=True)
+    
+    

@@ -111,41 +111,25 @@
 			</div>
 
 			<div id="main" style="margin-left:20px;">
+				Use the following form to request an user account on the Materials Data Curation System.
 
 {% block content %}
 
 
-<table>
-<tr>
-    <td>Username: </td>
-    <td><input type="text" id="username"/></td>
-</tr>
-<tr>
-    <td>Password: </td>
-    <td><input type="password" id="password1"/></td>
-</tr>
-<tr>
-    <td>Confirm Password: </td>
-    <td><input type="password" id="password2"/></td>
-</tr>
-<tr><td></td><td></td></tr>
-<tr>
-    <td>First Name: </td>
-    <td><input type="text" id="firstname"/></td>
-</tr>
-<tr>
-    <td>Last Name: </td>
-    <td><input type="text" id="lastname"/></td>
-</tr>
-<tr>
-    <td>Email Address: </td>
-    <td><input type="text" id="emailaddress"/></td>
-</tr>
-<tr>
-  <td></td>
-  <td><button onclick="request_account();" class="btn">Make a Request</button></td> 
-</tr>
-</table>
+<div>
+<br/>
+<form action="/request-new-account" method="post" onsubmit="return validateRequest()">
+ 	{% csrf_token %}
+    {{ form }}
+    <br/>
+    <div id="request_error">
+    <b>
+    {{action_result}}
+    </b>
+    </div>
+    <input type="submit" class="btn" value="Make a Request"/>
+</form>
+</div>
 
 {% endblock %}
 
@@ -203,21 +187,6 @@
 	</div>
 
 </div>
-
-<div id="dialog-errors-message" title="Errors" style="display:none;">
-<p></p>
-  <p id="listErrors">
-  </p>
-</div> 
-
-
-<div id="dialog-request-sent" title="Request Sent" style="display:none;">
-<p></p>
- 	Request sent with success!
-</div>
 <script src="{% static 'inc/controllers/js/user_account_req.js' %}"></script>
-<script>
-	loadUserAccountRequest();
-</script>
 </body>
 </html>

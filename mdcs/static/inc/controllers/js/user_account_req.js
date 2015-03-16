@@ -12,16 +12,6 @@
  */
 
 /**
- * Load controllers for user account request.
- */
-loadUserAccountRequest = function()
-{
-    console.log('BEGIN [loadUserAccountRequest]');
-    
-    console.log('END [loadUserAccountRequest]');
-}
-
-/**
  * Check that the password is correct
  * @param password
  * @returns {Boolean}
@@ -43,50 +33,32 @@ checkPassword = function(password){
 }
 
 /**
- * Submit a request for an account
+ * Check that the current request is valid
  */
-request_account = function()
-{
-	username = $("#username").val();
-	pass1 = $("#password1").val();
-	pass2 = $("#password2").val();
-	firstname = $("#firstname").val();
-	lastname = $("#lastname").val();
-	email = $("#emailaddress").val();	
+validateRequest = function(){
+	pass1 = $("#id_password1").val();
+	pass2 = $("#id_password2").val();
 	
 	errors = "";
-	if (username == "" || pass1 == "" || pass2 == "" || firstname == "" || lastname == "" || email == ""){
-		errors += "Some fields are empty.<br/>";
+	
+	if (pass1 != pass2){
+		errors += "Passwords should be identic.";
 	}else{
-		if (pass1 != pass2){
-			errors += "Passwords should be identic.";
-		}else{
-			if(checkPassword(pass1) == false){
-				errors += "Password should respect the following requirements:<br/>"
-				errors += "- Minimum length: 8 characters.<br/>"
-				errors += "- At least 1 alphanumeric character.<br/>"
-				errors += "- At least 1 non alphanumeric character.<br/>"				
-			}
-		}
-		if(!email.match(/^([a-zA-Z0-9_.+-])+\@(([a-zA-Z0-9-])+\.)+([a-zA-Z0-9]{2,4})+$/)){
-			errors += "The email address is not valid.<br/>"
+		if(checkPassword(pass1) == false){
+			errors += "Password should respect the following requirements:<br/>"
+			errors += "- Minimum length: 8 characters.<br/>"
+			errors += "- At least 1 alphanumeric character.<br/>"
+			errors += "- At least 1 non alphanumeric character.<br/>"				
 		}
 	}
+	
 	if (errors != ""){
-		$("#listErrors").html(errors);
-		$(function() {
-		    $( "#dialog-errors-message" ).dialog({
-		      modal: true,
-		      buttons: {
-		        Ok: function() {
-		          $( this ).dialog( "close" );
-		        }
-		      }
-		    });
-		  });
+		$("#request_error").html(errors);
+		return (false);
 	}
 	else{
-		Dajaxice.admin.requestAccount(Dajax.process,{"username":username, "password":pass1, "firstname":firstname, "lastname": lastname, "email": email});
+		$("#request_error").html("");
+		return (true);
 	}
 }
 

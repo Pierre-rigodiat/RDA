@@ -945,31 +945,6 @@ def deleteInstance(request, instanceid):
 
 ################################################################################
 # 
-# Function Name: requestAccount(request, username, password, firstname, lastname, email)
-# Inputs:        request - 
-#                username - 
-#                password - 
-#                firstname - 
-#                lastname - 
-#                email - 
-# Outputs:        
-# Exceptions:    None
-# Description:   Submit a request for an user account for the system.
-# 
-################################################################################
-@dajaxice_register
-def requestAccount(request, username, password, firstname, lastname, email):
-    dajax = Dajax()
-    try:
-        user = User.objects.get(username=username)
-        dajax.script("showErrorRequestDialog();")
-    except:
-        Request(username=username, password=password ,first_name=firstname, last_name=lastname, email=email).save()
-        dajax.script("showSentRequestDialog();")
-    return dajax.json()
-
-################################################################################
-# 
 # Function Name: acceptRequest(request, requestid)
 # Inputs:        request - 
 #                requestid - 
