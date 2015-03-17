@@ -143,6 +143,11 @@
 					You can use this form to provide terms of use for the website. You can use HTML syntax and HTML tags to write the text.
 					<div>
 					<br/>
+					<style>
+					textarea {
+	    				width: 700px;
+					}
+					</style>
 					<form action="/admin/website/terms-of-use" method="post">
 					 	{% csrf_token %}
 					    {{ form }}

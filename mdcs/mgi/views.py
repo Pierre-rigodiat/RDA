@@ -42,6 +42,7 @@ from datetime import datetime
 from datetime import timedelta
 from admin.forms import RepositoryForm, RefreshRepositoryForm, RequestAccountForm, EditProfileForm, ChangePasswordForm, ContactForm, PrivacyPolicyForm, TermsOfUseForm
 from django.contrib.auth.models import User
+from django.contrib import messages
 
 # Create your views here.
 
@@ -167,7 +168,8 @@ def privacy_policy_admin(request):
                 if (request.POST['content'] != ""):
                     newPrivacy = PrivacyPolicy(content = request.POST['content'])
                     newPrivacy.save()
-                return HttpResponseRedirect("/admin/website")
+                messages.add_message(request, messages.INFO, 'Privacy Policy saved with success.')
+                return redirect('/admin/website')
         else:
             if len(PrivacyPolicy.objects) != 0:
                 policy = PrivacyPolicy.objects[0] 
@@ -204,7 +206,8 @@ def terms_of_use_admin(request):
                 if (request.POST['content'] != ""):
                     newTerms = TermsOfUse(content = request.POST['content'])
                     newTerms.save()
-                return HttpResponseRedirect("/admin/website")
+                messages.add_message(request, messages.INFO, 'Terms of Use saved with success.')
+                return redirect('/admin/website')
         else:
             if len(TermsOfUse.objects) != 0:
                 terms = TermsOfUse.objects[0] 
@@ -470,7 +473,8 @@ def add_repository(request):
                                 delta = timedelta(seconds=int(eval(r.content)["expires_in"]))
                                 expires = now + delta
                                 Instance(name=request.POST["name"], protocol=request.POST["protocol"], address=request.POST["ip_address"], port=request.POST["port"], access_token=eval(r.content)["access_token"], refresh_token=eval(r.content)["refresh_token"], expires=expires).save()
-                                return HttpResponseRedirect('/admin/repositories')
+                                messages.add_message(request, messages.INFO, 'Repository registered with success.')
+                                return redirect('/admin/repositories')
                             else: 
                                 message = "Unable to get access to the remote instance using these parameters."
                                 return render(request, 'admin/add_repository.html', {'form':form, 'action_result':message})
@@ -1253,7 +1257,8 @@ def request_new_account(request):
                 return render(request, 'request_new_account.html', {'form':form, 'action_result':message})
             except:
                 Request(username=request.POST["username"], password=request.POST["password1"],first_name=request.POST["firstname"], last_name=request.POST["lastname"], email=request.POST["email"]).save()
-                return HttpResponseRedirect("/")
+                messages.add_message(request, messages.INFO, 'User Account Request sent to the administrator.')
+                return redirect('/')
                 
     else:
         form = RequestAccountForm()
@@ -1328,8 +1333,9 @@ def my_profile_edit(request):
                 user.first_name = request.POST['firstname']
                 user.last_name = request.POST['lastname']
                 user.email = request.POST['email']
-                user.save()
-                return HttpResponseRedirect("/my-profile")
+                user.save()                
+                messages.add_message(request, messages.INFO, 'Profile information edited with success.')
+                return redirect('/my-profile')
         else:
             user = User.objects.get(id=request.user.id)
             data = {'firstname':user.first_name, 
@@ -1369,7 +1375,8 @@ def my_profile_change_password(request):
                 else:        
                     user.set_password(request.POST['new1'])
                     user.save()
-                    return HttpResponseRedirect("/my-profile")
+                    messages.add_message(request, messages.INFO, 'Password changed with success.')
+                    return redirect('/my-profile')
         else:
             form = ChangePasswordForm()
         
@@ -1396,7 +1403,8 @@ def contact(request):
         form = ContactForm(request.POST)
         if form.is_valid():
             Message(name=request.POST['name'], email=request.POST['email'], content=request.POST['message']).save()
-            return HttpResponseRedirect("/")
+            messages.add_message(request, messages.INFO, 'Your message was sent to the administrator.')
+            return redirect('/')
     else:
         form = ContactForm()
     

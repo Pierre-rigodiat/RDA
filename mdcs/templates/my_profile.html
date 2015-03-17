@@ -29,6 +29,11 @@
 	<link rel="stylesheet" type="text/css" href="{% static 'resources/css/lib/bootstrap.min.css' %}"  media="screen" />
 	<link rel="stylesheet" type="text/css" href="{% static 'resources/css/style.css' %}" media="screen" />
 	<title>Materials Data Curation System</title>
+	
+	<link rel="stylesheet" type="text/css" href="{% static 'resources/css/icons.css' %}" media="screen" />
+	<!-- JQuery & JQuery UI -->
+	<script src="{% static 'resources/lib/jquery/jquery-1.11.1.min.js' %}"></script>
+	<script src="{% static 'resources/js/bootstrap.min.js' %}"></script>
 </head>
 
 <body id="top">
@@ -99,7 +104,14 @@
 
 			<div id="featured-wrapper">
 				<div id="featured" style="width: 830px">
-
+					{% if messages %}
+				        {% for message in messages %}
+				            <div class="alert">
+							  <button type="button" class="close" data-dismiss="alert">&times;</button>
+							  <i class="icon disable-selection"></i> {{message}} 
+							</div>
+				        {% endfor %}
+					{% endif %}
 					<div class="left">
 					
 						<h2><span>My Profile</span></h2>

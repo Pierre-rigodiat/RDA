@@ -29,6 +29,12 @@
 	<link rel="stylesheet" type="text/css" href="{% static 'resources/css/lib/bootstrap.min.css' %}"  media="screen" />
 	<link rel="stylesheet" type="text/css" href="{% static 'resources/css/style.css' %}" media="screen" />
 	<title>Materials Data Curation System</title>
+	
+	<link rel="stylesheet" type="text/css" href="{% static 'resources/css/icons.css' %}" media="screen" />
+	<!-- JQuery & JQuery UI -->
+	<script src="{% static 'resources/lib/jquery/jquery-1.11.1.min.js' %}"></script>
+	<script src="{% static 'resources/js/bootstrap.min.js' %}"></script>
+
 </head>
 
 <body id="top">
@@ -96,13 +102,25 @@
 	<div class="center-wrapper">
 		
 		<div class="content">
-
+	
 			<div id="featured-wrapper">
 				<div id="featured">
-
+					{% if messages %}
+				        {% for message in messages %}
+				            <div class="alert">
+							  <button type="button" class="close" data-dismiss="alert">&times;</button>
+							  <i class="icon disable-selection"></i> {{message}} 
+							</div>
+				        {% endfor %}
+					{% endif %}
 					<div class="left" style="width: 400px">
 					
 						<h2><span>Materials Data Curator</span></h2>
+						 
+
+						
+						
+						
 <br>
 <p>
 						<p class="large">This system allows for the curation of Material Data in a repository using predefined templates and a prototype ontology.</p>

@@ -33,7 +33,9 @@
 	<title>Materials Data Curation System</title>
 
 	<link rel="stylesheet" type="text/css" href="{% static 'resources/css/icons.css' %}" media="screen" />
-
+	<!-- JQuery & JQuery UI -->
+	<script src="{% static 'resources/lib/jquery/jquery-1.11.1.min.js' %}"></script>
+	<script src="{% static 'resources/js/bootstrap.min.js' %}"></script>
 </head>
 
 <body id="top">
@@ -125,12 +127,17 @@
 
 <div id="content-wrapper">
 	<div class="center-wrapper">
-		
 		<div class="content">
-
 			<div id="featured-wrapper">
 				<div id="featured">
-
+					{% if messages %}
+				        {% for message in messages %}
+				            <div class="alert">
+							  <button type="button" class="close" data-dismiss="alert">&times;</button>
+							  <i class="icon disable-selection"></i> {{message}} 
+							</div>
+				        {% endfor %}
+					{% endif %}
 					<h1>Website Management</h1>
 					
 

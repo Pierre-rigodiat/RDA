@@ -144,6 +144,11 @@
 					You can use this form to provide privacy policy for the website. You can use HTML syntax and HTML tags to write the text.
 					<div>
 					<br/>
+					<style>
+					textarea {
+	    				width: 700px;
+					}
+					</style>
 					<form action="/admin/website/privacy-policy" method="post">
 					 	{% csrf_token %}
 					    {{ form }}

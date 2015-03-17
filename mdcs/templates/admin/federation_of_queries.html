@@ -122,7 +122,14 @@
 
 			<div id="featured-wrapper">
 				<div id="featured">
-
+					{% if messages %}
+				        {% for message in messages %}
+				            <div class="alert">
+							  <button type="button" class="close" data-dismiss="alert">&times;</button>
+							  <i class="icon disable-selection"></i> {{message}} 
+							</div>
+				        {% endfor %}
+					{% endif %}
 					<h1>Repositories</h1>
 					
 					<div class="clearer">&nbsp;</div>
