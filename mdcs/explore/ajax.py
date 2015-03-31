@@ -319,9 +319,7 @@ def generateChoice(request, element, fullPath, xmlTree):
                     # type declared below
                     textCapitalized = choiceChild.attrib.get('name') 
                     if (element[0].tag == "{0}complexType".format(defaultNamespace)):
-                        formString += "<li>" + textCapitalized + " "
                         formString += generateComplexType(request, choiceChild[0], textCapitalized, fullPath, xmlTree)
-                        formString += "</li>"    
                     else:                     
                         formString += generateSimpleType(request, choiceChild, textCapitalized, choiceChild[0], fullPath, xmlTree)
             elif choiceChild.attrib.get('type') in utils.getXSDTypes(defaultPrefix):
@@ -344,9 +342,7 @@ def generateChoice(request, element, fullPath, xmlTree):
                 xpath = "./*[@name='"+choiceChild.attrib.get('type')+"']"
                 elementType = xmlTree.find(xpath)
                 if elementType.tag == "{0}complexType".format(defaultNamespace):
-                    formString += "<li>" + textCapitalized
                     formString += generateComplexType(request, elementType, textCapitalized, fullPath, xmlTree)
-                    formString += "</li>"
                 elif elementType.tag == "{0}simpleType".format(defaultNamespace):
                     formString += generateSimpleType(request, choiceChild, textCapitalized, elementType, fullPath, xmlTree)    
                 formString += "</ul>"   
@@ -371,10 +367,9 @@ def generateChoice(request, element, fullPath, xmlTree):
 # 
 ################################################################################
 def generateSimpleType(request, element, elementName, elementType, fullPath, xmlTree):
-    defaultNamespace = request.session['defaultNamespaceExplore']    
-    mapTagIDElementInfo = request.session['mapTagIDElementInfoExplore'] 
+    #(annotation?,(restriction|list|union))
     
-    elementID = len(mapTagIDElementInfo.keys()) 
+    defaultNamespace = request.session['defaultNamespaceExplore']  
     
     # build the path to element to be used in the query
     fullPath += "." + elementName
@@ -384,28 +379,83 @@ def generateSimpleType(request, element, elementName, elementType, fullPath, xml
     # remove the annotations
     removeAnnotations(elementType, defaultNamespace)    
     
-    for child in list(elementType):
+    if(len(list(elementType)) != 0):
+        child = elementType[0] 
         if child.tag == "{0}restriction".format(defaultNamespace):
-            enumChildren = child.findall("{0}enumeration".format(defaultNamespace))
-            if len(enumChildren) > 0:
-                formString += "<li id='" + str(elementID) + "'>" + elementName + " <input type='checkbox'>" + "</li>"
-                elementInfo = ElementInfo("enum",fullPath[1:])
-                mapTagIDElementInfo[elementID] = elementInfo.__to_json__()
-                request.session['mapTagIDElementInfoExplore'] = mapTagIDElementInfo
-                listChoices = []
-                for enumChild in enumChildren:
-                    listChoices.append(enumChild.attrib['value'])
-                request.session['mapEnumIDChoicesExplore'][elementID] = listChoices
-            else:
-                if child.attrib['base'] in utils.getXSDTypes(request.session['defaultPrefixExplore']):
-                    formString += "<li id='" + str(elementID) + "'>" + elementName + " <input type='checkbox'>"    
-                    elementInfo = ElementInfo(child.attrib['base'], fullPath[1:])
-                    mapTagIDElementInfo[elementID] = elementInfo.__to_json__()
-                    request.session['mapTagIDElementInfoExplore'] = mapTagIDElementInfo    
-    
+            formString += generateRestriction(request, child, fullPath, elementName)
+        elif child.tag == "{0}list".format(defaultNamespace):
+            pass
+        elif child.tag == "{0}union".format(defaultNamespace):
+            pass
     
     return formString 
 
+################################################################################
+# 
+# Function Name: generateRestriction(request, element, fullPath, elementName)
+# Inputs:        request - 
+#                element - XML element
+#                fullPath - full XPath
+#                elementName - name of the XML element
+# Outputs:       HTML string representing a sequence
+# Exceptions:    None
+# Description:   Generates a section of the form that represents an XML restriction
+# 
+################################################################################
+def generateRestriction(request, element, fullPath, elementName):
+    defaultNamespace = request.session['defaultNamespaceExplore']  
+    mapTagIDElementInfo = request.session['mapTagIDElementInfoExplore']
+    
+    elementID = len(mapTagIDElementInfo.keys()) 
+    
+    formString = ""
+    
+    enumChildren = element.findall("{0}enumeration".format(defaultNamespace))
+    if len(enumChildren) > 0:
+        formString += "<li id='" + str(elementID) + "'>" + elementName + " <input type='checkbox'>" + "</li>"
+        elementInfo = ElementInfo("enum",fullPath[1:])
+        mapTagIDElementInfo[elementID] = elementInfo.__to_json__()
+        request.session['mapTagIDElementInfoExplore'] = mapTagIDElementInfo
+        listChoices = []
+        for enumChild in enumChildren:
+            listChoices.append(enumChild.attrib['value'])
+        request.session['mapEnumIDChoicesExplore'][elementID] = listChoices
+    else:
+        if element.attrib['base'] in utils.getXSDTypes(request.session['defaultPrefixExplore']):
+            formString += "<li id='" + str(elementID) + "'>" + elementName + " <input type='checkbox'>"    
+            elementInfo = ElementInfo(element.attrib['base'], fullPath[1:])
+            mapTagIDElementInfo[elementID] = elementInfo.__to_json__()
+            request.session['mapTagIDElementInfoExplore'] = mapTagIDElementInfo
+            
+    return formString
+
+################################################################################
+# 
+# Function Name: generateExtension(request, element, fullPath, elementName)
+# Inputs:        request - 
+#                element - XML element
+#                fullPath - full XPath
+#                elementName - name of the XML element
+# Outputs:       HTML string representing a sequence
+# Exceptions:    None
+# Description:   Generates a section of the form that represents an XML extension
+# 
+################################################################################
+def generateExtension(request, element, fullPath, elementName):
+    mapTagIDElementInfo = request.session['mapTagIDElementInfoExplore']
+    
+    elementID = len(mapTagIDElementInfo.keys()) 
+    
+    formString = ""
+    
+    if element.attrib['base'] in utils.getXSDTypes(request.session['defaultPrefixExplore']):
+        formString += "<li id='" + str(elementID) + "'>" + elementName + " <input type='checkbox'/>"    
+        elementInfo = ElementInfo(element.attrib['base'], fullPath[1:])
+        mapTagIDElementInfo[elementID] = elementInfo.__to_json__()
+        request.session['mapTagIDElementInfoExplore'] = mapTagIDElementInfo
+        formString += "</li>"
+            
+    return formString
 
 ################################################################################
 # 
@@ -413,8 +463,8 @@ def generateSimpleType(request, element, elementName, elementType, fullPath, xml
 # Inputs:        request - 
 #                elementType - XML elementType
 #                elementName - name of the XML element
+#                fullPath - full XPath
 #                xmlTree - XML Tree
-#                namespace - namespace
 # Outputs:       HTML string representing a sequence
 # Exceptions:    None
 # Description:   Generates a section of the form that represents an XML complexType
@@ -436,20 +486,64 @@ def generateComplexType(request, elementType, elementName, fullPath, xmlTree):
     # does it contain sequence or all?
     complexTypeChild = elementType.find('{0}sequence'.format(defaultNamespace))
     if complexTypeChild is not None:
-        return generateSequence(request, complexTypeChild, fullPath, xmlTree)
+        formString += "<li>" + elementName
+        formString += generateSequence(request, complexTypeChild, fullPath, xmlTree)
+        formString += "</li>"
     else:
         complexTypeChild = elementType.find('{0}all'.format(defaultNamespace))
         if complexTypeChild is not None:
-            return generateSequence(request, complexTypeChild, fullPath, xmlTree)
+            formString += "<li>" + elementName
+            formString += generateSequence(request, complexTypeChild, fullPath, xmlTree)
+            formString += "</li>"
         else:
             # does it contain choice ?
             complexTypeChild = elementType.find('{0}choice'.format(defaultNamespace))
             if complexTypeChild is not None:
-                return generateChoice(request, complexTypeChild, fullPath, xmlTree)
+                formString += "<li>" + elementName
+                formString += generateChoice(request, complexTypeChild, fullPath, xmlTree)
+                formString += "</li>"
             else:
-                return formString
+                # does it contain a simple content ?
+                complexTypeChild = elementType.find('{0}simpleContent'.format(defaultNamespace))
+                if complexTypeChild is not None:
+                    return generateSimpleContent(request, complexTypeChild, fullPath, elementName)
+                else:
+                    return formString
     
     return formString 
+
+
+################################################################################
+# 
+# Function Name: generateSimpleContent(request, element, fullPath, xmlTree)
+# Inputs:        request - 
+#                complexTypeChild - element
+#                fullPath - full XPath
+#                xmlTree - XML Tree
+# Outputs:       HTML string representing a sequence
+# Exceptions:    None
+# Description:   Generates a section of the form that represents an XML simple content
+# 
+################################################################################
+def generateSimpleContent(request, element, fullPath, elementName):
+    #(annotation?,(restriction|extension))
+    
+    defaultNamespace = request.session['defaultNamespaceExplore']
+    
+    formString = ""
+    
+    # remove the annotations
+    removeAnnotations(element, defaultNamespace)
+    
+    # generates the sequence
+    if(len(list(element)) != 0):
+        child = element[0]    
+        if (child.tag == "{0}restriction".format(defaultNamespace)):            
+            formString += generateRestriction(request, child, fullPath, elementName)
+        elif (child.tag == "{0}extension".format(defaultNamespace)):
+            formString += generateExtension(request, child, fullPath, elementName)
+    
+    return formString
 
 ################################################################################
 # 
@@ -482,9 +576,7 @@ def generateElement(request, element, fullPath, xmlTree):
             # type declared below
             textCapitalized = element.attrib.get('name') 
             if (element[0].tag == "{0}complexType".format(defaultNamespace)):
-                formString += "<li>" + textCapitalized + " "
                 formString += generateComplexType(request, element[0], textCapitalized, fullPath, xmlTree)
-                formString += "</li>"    
             else:                     
                 formString += generateSimpleType(request, element, textCapitalized, element[0], fullPath, xmlTree)
                    
@@ -504,9 +596,7 @@ def generateElement(request, element, fullPath, xmlTree):
         elementType = xmlTree.find(xpath)                        
         if elementType is not None:
             if elementType.tag == "{0}complexType".format(defaultNamespace):
-                formString += "<li>" + textCapitalized + " "
-                formString += generateComplexType(request, elementType, textCapitalized, fullPath, xmlTree)
-                formString += "</li>"    
+                formString += generateComplexType(request, elementType, textCapitalized, fullPath, xmlTree) 
             elif elementType.tag == "{0}simpleType".format(defaultNamespace):                
                 formString += generateSimpleType(request, element, textCapitalized, elementType, fullPath, xmlTree)
 
@@ -820,7 +910,6 @@ def getResultsByInstance(request, numInstance):
         resultString += "<b>From " + instance['name'] + ":</b> <br/>"
         if instance['name'] == "Local":
             query = copy.deepcopy(request.session['queryExplore'])
-            query['schema'] = request.session['exploreCurrentTemplateID']
             manageRegexBeforeExe(query)
             instanceResults = Jsondata.executeQuery(query)
             if len(instanceResults) > 0:
