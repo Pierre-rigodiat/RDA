@@ -228,6 +228,7 @@ validateXML = function()
 	var xmlString = '';
 	
     xmlString = generateXMLString (rootElement, xmlString);
+    console.log(xmlString);
     
     $("input").each(function(){
 	    $(this).attr("value", $(this).val());
@@ -259,63 +260,50 @@ generateXMLString = function(elementObj)
 
     var children = elementObj.childNodes;
     for(var i = 0; i < children.length; i++) {
-    if (children[i].tagName == "UL") {
-	    if (children[i].style.display != "none") {
-		xmlString += generateXMLString(children[i]);
-	    }
-	} else if (children[i].tagName == "LI") {
-		if (! $(children[i]).hasClass("removed") ) {
-
-		    var nobrNode1 = children[i].children[0];
-		    var nobrNode2 = children[i].children[1];
-		    if (nobrNode1.firstChild != null) {
-
-			if (nobrNode1.firstChild.nodeValue.trim() != "Choose") {
-			    xmlString += "<" + nobrNode1.firstChild.nodeValue.trim() + ">";
-			    if (nobrNode1.firstChild.nodeValue.trim() == "Table") {
-				xmlString += "table";
-			    }
-			    xmlString += generateXMLString(children[i]);
-			    xmlString += "</" + nobrNode1.firstChild.nodeValue.trim() + ">";
-			} else {
-			    xmlString += generateXMLString(children[i]);
+	    if (children[i].tagName == "UL") {
+	    	if (! $(children[i]).hasClass("notchosen") ) {
+	    		xmlString += generateXMLString(children[i]);
+	    	}
+		} else if (children[i].tagName == "LI") {
+			if (! $(children[i]).hasClass("removed") ) {
+			
+				var textNode = $(children[i]).contents().filter(function(){
+			        return this.nodeType === 3;
+			    }).text();
+				
+				if (textNode.trim() != "Choose") {
+				    xmlString += "<" + textNode + ">";
+				    xmlString += generateXMLString(children[i]);
+				    xmlString += "</" + textNode + ">";
+				}else {
+					xmlString += generateXMLString(children[i]);
+				}
+			    	
 			}
-		    } else if (nobrNode2.firstChild != null) {
-			if (nobrNode2.firstChild.nodeValue.trim() != "Choose") {
-			    xmlString += "<" + nobrNode2.firstChild.nodeValue.trim() + ">";
-			    xmlString += generateXMLString(children[i]);
-			    xmlString += "</" + nobrNode2.firstChild.nodeValue.trim() + ">";
-			} else {
-			    xmlString += generateXMLString(children[i]);
-			}
-		    } else {
-			xmlString += generateXMLString(children[i]);
-		    }
 		}
-	}
-	else if (children[i].tagName == "DIV" && $(children[i]).hasClass("module") ){
-		console.log($($(children[i]).parent()).find(".moduleResult").html());	
-		xmlString += $($(children[i]).parent()).find(".moduleResult").html();		
-	} 	
-	else if (children[i].tagName == "SELECT") {
-	    // get the index of the selected option 
-	    var idx = children[i].selectedIndex; 
-	    // get the value of the selected option 
-	    var which = children[i].options[idx].value; 
-	    	    
-	    if (children[i].getAttribute("id") != null && children[i].getAttribute("id").indexOf("choice") > -1){
-	    	xmlString += generateXMLString(children[i]);
-	    }else {
-	    	xmlString += which;
-	    }	    
-	} else if (children[i].tagName == "INPUT") {
-	    xmlString += children[i].value;
-	} else if (children[i].nodeType == 1 && children[i].getAttribute("id") != null && children[i].getAttribute("id").indexOf("elementSelected") > -1) {
-	    var ptArray = children[i].innerHTML.split(" ");
-	    xmlString += ptArray[ptArray.length - 1];
-	} else {
-	    xmlString += generateXMLString(children[i]);
-	}
+		else if (children[i].tagName == "DIV" && $(children[i]).hasClass("module") ){
+			console.log($($(children[i]).parent()).find(".moduleResult").html());	
+			xmlString += $($(children[i]).parent()).find(".moduleResult").html();		
+		} 	
+		else if (children[i].tagName == "SELECT") {
+		    // get the index of the selected option 
+		    var idx = children[i].selectedIndex; 
+		    // get the value of the selected option 
+		    var which = children[i].options[idx].value; 
+		    	    
+		    if (children[i].getAttribute("id") != null && children[i].getAttribute("id").indexOf("choice") > -1){
+		    	xmlString += generateXMLString(children[i]);
+		    }else {
+		    	xmlString += which;
+		    }	    
+		} else if (children[i].tagName == "INPUT") {
+		    xmlString += children[i].value;
+		} else if (children[i].nodeType == 1 && children[i].getAttribute("id") != null && children[i].getAttribute("id").indexOf("elementSelected") > -1) {
+		    var ptArray = children[i].innerHTML.split(" ");
+		    xmlString += ptArray[ptArray.length - 1];
+		} else {
+		    xmlString += generateXMLString(children[i]);
+		}
     }
 
     return xmlString
@@ -608,9 +596,9 @@ changeChoice = function(selectObj)
 
     for (i=0; i < selectObj.options.length;i++) {
     	if (i == idx){
-    		$("#" + selectObj.id + "-" + i).removeAttr("style");
+    		$("#" + selectObj.id + "-" + i).removeAttr("class");
 		} else {
-			$("#" + selectObj.id + "-" + i).attr("style","display:none");
+			$("#" + selectObj.id + "-" + i).attr("class","notchosen");
 		}    	
     }
 
@@ -901,33 +889,28 @@ saveXMLDataToDBError = function()
 /**
  * Duplicate or remove an element
  * @param operation
- * @param selectObj
  * @param tagID
  * @returns {Boolean}
  */
-changeHTMLForm = function(operation,selectObj, tagID)
+changeHTMLForm = function(operation, tagID)
 {
-    console.log('BEGIN [changeHTMLForm(' + operation + ',' + selectObj + ']');
+    console.log('BEGIN [changeHTMLForm(' + operation + ')]');
     console.log(tagID);
-    if (operation == 'add') {
-//		var nodeToAdd = selectObj.parentNode.parentNode;
-//		var parentNode = nodeToAdd.parentNode;
-		$("input").each(function(){
-		    $(this).attr("value", $(this).val());
-		});
-		$('select option').each(function(){ this.defaultSelected = this.selected; });
-		var xsdForm = $("#xsdForm").html()
-		Dajaxice.curate.duplicate(Dajax.process,{"tagID":tagID, "xsdForm":xsdForm})
-    } else if (operation == 'remove') {
-    	$("input").each(function(){
-		    $(this).attr("value", $(this).val());
-		});
-		$('select option').each(function(){ this.defaultSelected = this.selected; });
-		var xsdForm = $("#xsdForm").html()
-		Dajaxice.curate.remove(Dajax.process,{"tagID":tagID, "xsdForm":xsdForm})
-    }
     
-    console.log('END [changeHTMLForm(' + operation + ',' + selectObj + ']');
+    $("input").each(function(){
+	    $(this).attr("value", $(this).val());
+	});
+	$('select option').each(function(){ this.defaultSelected = this.selected; });
+	var xsdForm = $("#xsdForm").html()
+	
+    if (operation == 'add') {
+    	$("#element"+tagID).children(".expand").attr("class","collapse");
+		Dajaxice.curate.duplicate(Dajax.process,{"tagID":tagID, "xsdForm":xsdForm});		
+    } else if (operation == 'remove') {    	
+    	$("#element"+tagID).children(".collapse").attr("class","expand");
+		Dajaxice.curate.remove(Dajax.process,{"tagID":tagID, "xsdForm":xsdForm});		
+    }
+    console.log('END [changeHTMLForm(' + operation + ')]');
 
     return false;
 }

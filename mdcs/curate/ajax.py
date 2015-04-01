@@ -517,7 +517,7 @@ def generateChoice(request, element, xmlTree, namespace):
     chooseIDStr = 'choice' + str(chooseID)
     nbChoicesID += 1
     request.session['nbChoicesID'] = str(nbChoicesID)
-    formString += "<ul><li><nobr>Choose <select id='"+ chooseIDStr +"' onchange=\"changeChoice(this);\">"
+    formString += "<ul><li>Choose <select id='"+ chooseIDStr +"' onchange=\"changeChoice(this);\">"
     
     # generates the choice
     if(len(list(element)) != 0):
@@ -556,20 +556,20 @@ def generateChoice(request, element, xmlTree, namespace):
                     for x in range (0,int(nbOccurrences)):     
                         tagID = "element" + str(len(mapTagElement.keys()))  
                         mapTagElement[tagID] = elementID             
-                        formString += "<li id='" + str(tagID) + "'><nobr>" + textCapitalized
+                        formString += "<li id='" + str(tagID) + "'>" + textCapitalized
                         if (addButton == True):                                
-                            formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" onclick=\"changeHTMLForm('add',this,"+str(tagID[7:])+");\"></span>"
+                            formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" onclick=\"changeHTMLForm('add',"+str(tagID[7:])+");\"></span>"
                         else:
-                            formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" style=\"display:none;\" onclick=\"changeHTMLForm('add',this,"+str(tagID[7:])+");\"></span>"                                                                             
+                            formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" style=\"display:none;\" onclick=\"changeHTMLForm('add',"+str(tagID[7:])+");\"></span>"                                                                             
                         if (deleteButton == True):
-                            formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" onclick=\"changeHTMLForm('remove',this,"+str(tagID[7:])+");\"></span>"
+                            formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" onclick=\"changeHTMLForm('remove',"+str(tagID[7:])+");\"></span>"
                         else:
-                            formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" style=\"display:none;\" onclick=\"changeHTMLForm('remove',this,"+str(tagID[7:])+");\"></span>"
+                            formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" style=\"display:none;\" onclick=\"changeHTMLForm('remove',"+str(tagID[7:])+");\"></span>"
                         if choiceChild[0].tag == "{0}complexType".format(namespace):
                             formString += generateComplexType(request, choiceChild[0], xmlTree, namespace)
                         elif choiceChild[0].tag == "{0}simpleType".format(namespace):
                             formString += generateSimpleType(request, choiceChild[0], xmlTree, namespace)
-                        formString += "</nobr></li>"
+                        formString += "</li>"
                     formString += "</ul>"
             elif choiceChild.attrib.get('type') in utils.getXSDTypes(defaultPrefix):
                 textCapitalized = choiceChild.attrib.get('name')                                
@@ -582,9 +582,9 @@ def generateChoice(request, element, xmlTree, namespace):
                 if 'default' in choiceChild.attrib:
                     defaultValue = choiceChild.attrib['default']
                 if (counter > 0):
-                    formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\" style=\"display:none;\"><li id='" + str(tagID) + "'><nobr>" + choiceChild.attrib.get('name') + " <input type='text' value='"+ defaultValue +"'/>" + "</nobr></li></ul>"
+                    formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\" class=\"notchosen\"><li id='" + str(tagID) + "'>" + choiceChild.attrib.get('name') + " <input type='text' value='"+ defaultValue +"'/>" + "</li></ul>"
                 else:
-                    formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\"><li id='" + str(tagID) + "'><nobr>" + choiceChild.attrib.get('name') + " <input type='text' value='"+ defaultValue +"'/>" + "</nobr></li></ul>"
+                    formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\"><li id='" + str(tagID) + "'>" + choiceChild.attrib.get('name') + " <input type='text' value='"+ defaultValue +"'/>" + "</li></ul>"
             else:
                 textCapitalized = choiceChild.attrib.get('name')
                 elementID = len(xsd_elements)
@@ -593,9 +593,9 @@ def generateChoice(request, element, xmlTree, namespace):
                 mapTagElement[tagID] = elementID 
                 manageOccurences(request, choiceChild, elementID)
                 if (counter > 0):
-                    formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\" style=\"display:none;\"><li id='" + str(tagID) + "'><nobr>" + textCapitalized
+                    formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\" class=\"notchosen\"><li id='" + str(tagID) + "'>" + textCapitalized
                 else:
-                    formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\"><li id='" + str(tagID) + "'><nobr>" + textCapitalized
+                    formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\"><li id='" + str(tagID) + "'>" + textCapitalized
                 
                 xpath = "./*[@name='"+choiceChild.attrib.get('type')+"']"
                 elementType = xmlTree.find(xpath)
@@ -604,18 +604,18 @@ def generateChoice(request, element, xmlTree, namespace):
                 elif elementType.tag == "{0}simpleType".format(namespace):
                     formString += generateSimpleType(request, elementType, xmlTree, namespace)    
                 
-                formString += "</nobr></li></ul>"
+                formString += "</li></ul>"
         else:
             pass
     
-    formString += "</nobr></li></ul>"
+    formString += "</li></ul>"
     
     
     return formString
 
 ################################################################################
 # 
-# Function Name: generateChoice(request, element, xmlTree, namespace)
+# Function Name: generateSimpleType(request, element, xmlTree, namespace)
 # Inputs:        request - 
 #                element - XML element
 #                xmlTree - XML Tree
@@ -794,21 +794,25 @@ def generateElement(request, element, xmlTree, namespace):
             formString += "<ul>"                                   
             for x in range (0,int(nbOccurrences)):     
                 tagID = "element" + str(len(mapTagElement.keys()))  
-                mapTagElement[tagID] = elementID             
-                formString += "<li id='" + str(tagID) + "'><nobr>" + textCapitalized
-                if (addButton == True):                                
-                    formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" onclick=\"changeHTMLForm('add',this,"+str(tagID[7:])+");\"></span>"
-                else:
-                    formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" style=\"display:none;\" onclick=\"changeHTMLForm('add',this,"+str(tagID[7:])+");\"></span>"                                                                             
-                if (deleteButton == True):
-                    formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" onclick=\"changeHTMLForm('remove',this,"+str(tagID[7:])+");\"></span>"
-                else:
-                    formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" style=\"display:none;\" onclick=\"changeHTMLForm('remove',this,"+str(tagID[7:])+");\"></span>"
+                mapTagElement[tagID] = elementID    
+                
                 if element[0].tag == "{0}complexType".format(namespace):
+                    formString += "<li id='" + str(tagID) + "'>" + "<span class='collapse' style='cursor:pointer;' onclick='showhideCurate(event);'></span>"  + textCapitalized
+                else: 
+                    formString += "<li id='" + str(tagID) + "'>" + textCapitalized
+                if (addButton == True):                                
+                    formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" onclick=\"changeHTMLForm('add',"+str(tagID[7:])+");\"></span>"
+                else:
+                    formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" style=\"display:none;\" onclick=\"changeHTMLForm('add',"+str(tagID[7:])+");\"></span>"                                                                             
+                if (deleteButton == True):
+                    formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" onclick=\"changeHTMLForm('remove',"+str(tagID[7:])+");\"></span>"
+                else:
+                    formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" style=\"display:none;\" onclick=\"changeHTMLForm('remove',"+str(tagID[7:])+");\"></span>"
+                if element[0].tag == "{0}complexType".format(namespace):                    
                     formString += generateComplexType(request, element[0], xmlTree, namespace)
                 elif element[0].tag == "{0}simpleType".format(namespace):
                     formString += generateSimpleType(request, element[0], xmlTree, namespace)
-                formString += "</nobr></li>"
+                formString += "</li>"
             formString += "</ul>"                        
     elif element.attrib.get('type') in utils.getXSDTypes(defaultPrefix):
         textCapitalized = element.attrib.get('name')
@@ -825,18 +829,18 @@ def generateElement(request, element, xmlTree, namespace):
             defaultValue = ""
             if 'default' in element.attrib:
                 defaultValue = element.attrib['default']
-            formString += "<li id='" + str(tagID) + "'><nobr>" + textCapitalized + " <input type='text' value='"+ defaultValue +"'/>"
+            formString += "<li id='" + str(tagID) + "'>" + textCapitalized + " <input type='text' value='"+ defaultValue +"'/>"
                                 
             if (addButton == True):                                
-                formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" onclick=\"changeHTMLForm('add',this,"+str(tagID[7:])+");\"></span>"
+                formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" onclick=\"changeHTMLForm('add',"+str(tagID[7:])+");\"></span>"
             else:
-                formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" style=\"display:none;\" onclick=\"changeHTMLForm('add',this,"+str(tagID[7:])+");\"></span>"                                
+                formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" style=\"display:none;\" onclick=\"changeHTMLForm('add',"+str(tagID[7:])+");\"></span>"                                
 
             if (deleteButton == True):
-                formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" onclick=\"changeHTMLForm('remove',this,"+str(tagID[7:])+");\"></span>"
+                formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" onclick=\"changeHTMLForm('remove',"+str(tagID[7:])+");\"></span>"
             else:
-                formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" style=\"display:none;\" onclick=\"changeHTMLForm('remove',this,"+str(tagID[7:])+");\"></span>"
-            formString += "</nobr></li>"
+                formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" style=\"display:none;\" onclick=\"changeHTMLForm('remove',"+str(tagID[7:])+");\"></span>"
+            formString += "</li>"
         formString += "</ul>"                            
     else:
         if element.attrib.get('type') is not None:
@@ -846,30 +850,35 @@ def generateElement(request, element, xmlTree, namespace):
             elementID = len(xsd_elements)
             xsd_elements[elementID] = etree.tostring(element)
             manageOccurences(request, element, elementID)
-            formString += "<ul>"                                   
+            formString += "<ul>"        
             for x in range (0,int(nbOccurrences)):                            
                 tagID = "element" + str(len(mapTagElement.keys()))  
-                mapTagElement[tagID] = elementID 
-                formString += "<li id='" + str(tagID) + "'><nobr>" + textCapitalized + " "
-
-                if (addButton == True):                                
-                    formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" onclick=\"changeHTMLForm('add',this,"+str(tagID[7:])+");\"></span>"
-                else:
-                    formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" style=\"display:none;\" onclick=\"changeHTMLForm('add',this,"+str(tagID[7:])+");\"></span>"
-                    
-                if (deleteButton == True):
-                    formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" onclick=\"changeHTMLForm('remove',this,"+str(tagID[7:])+");\"></span>"
-                else:
-                    formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" style=\"display:none;\" onclick=\"changeHTMLForm('remove',this,"+str(tagID[7:])+");\"></span>"
+                mapTagElement[tagID] = elementID
                 xpath = "./*[@name='"+element.attrib.get('type')+"']"
                 elementType = xmlTree.find(xpath)
+                 
+                if elementType.tag == "{0}complexType".format(namespace):
+                    formString += "<li id='" + str(tagID) + "'>" + "<span class='collapse' style='cursor:pointer;' onclick='showhideCurate(event);'></span>"  + textCapitalized
+                else: 
+                    formString += "<li id='" + str(tagID) + "'>" + textCapitalized
+                    
+                if (addButton == True):                                
+                    formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" onclick=\"changeHTMLForm('add',"+str(tagID[7:])+");\"></span>"
+                else:
+                    formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" style=\"display:none;\" onclick=\"changeHTMLForm('add',"+str(tagID[7:])+");\"></span>"
+                    
+                if (deleteButton == True):
+                    formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" onclick=\"changeHTMLForm('remove',"+str(tagID[7:])+");\"></span>"
+                else:
+                    formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" style=\"display:none;\" onclick=\"changeHTMLForm('remove',"+str(tagID[7:])+");\"></span>"
+                
                 if elementType is not None:
                     if elementType.tag == "{0}complexType".format(namespace):
                         formString += generateComplexType(request, elementType, xmlTree, namespace)
                     elif elementType.tag == "{0}simpleType".format(namespace):
                         formString += generateSimpleType(request, elementType, xmlTree, namespace)
         
-                formString += "</nobr></li>"
+                formString += "</li>"
             formString += "</ul>"
     
     return formString
@@ -1042,16 +1051,21 @@ def duplicate(request, tagID, xsdForm):
                     textCapitalized = sequenceChild.attrib.get('name')
                     newTagID = "element" + str(len(mapTagElement.keys()))  
                     mapTagElement[newTagID] = elementID  
-                    formString += "<li id='" + str(newTagID) + "'><nobr>" + textCapitalized + " "
-                    formString += "<span id='add"+ str(newTagID[7:]) +"' class=\"icon add\" onclick=\"changeHTMLForm('add',this,"+str(newTagID[7:])+");\"></span>"
-                    formString += "<span id='remove"+ str(newTagID[7:]) +"' class=\"icon remove\" onclick=\"changeHTMLForm('remove',this,"+str(newTagID[7:])+");\"></span>"            
+                    if sequenceChild[0].tag == "{0}complexType".format(namespace):
+                        formString += "<li id='" + str(newTagID) + "'>" + "<span class='collapse' style='cursor:pointer;' onclick='showhideCurate(event);'></span>"  + textCapitalized
+                    else: 
+                        formString += "<li id='" + str(newTagID) + "'>" + textCapitalized
+                    
+                    formString += "<li id='" + str(newTagID) + "'>" + textCapitalized
+                    formString += "<span id='add"+ str(newTagID[7:]) +"' class=\"icon add\" onclick=\"changeHTMLForm('add',"+str(newTagID[7:])+");\"></span>"
+                    formString += "<span id='remove"+ str(newTagID[7:]) +"' class=\"icon remove\" onclick=\"changeHTMLForm('remove',"+str(newTagID[7:])+");\"></span>"            
                     if sequenceChild[0].tag == "{0}complexType".format(namespace):
                         formString += generateComplexType(request, sequenceChild[0], xmlDocTree, namespace)
                     elif sequenceChild[0].tag == "{0}simpleType".format(namespace):
                         formString += generateSimpleType(request, sequenceChild[0], xmlDocTree, namespace)
-                    formString += "</nobr></li>"
+                    formString += "</li>"
                     
-            # type is XML type
+            # type is a primitive XML type
             elif sequenceChild.attrib.get('type') in utils.getXSDTypes(defaultPrefix):
                 textCapitalized = sequenceChild.attrib.get('name')                                     
                 newTagID = "element" + str(len(mapTagElement.keys())) 
@@ -1059,27 +1073,33 @@ def duplicate(request, tagID, xsdForm):
                 defaultValue = ""
                 if 'default' in sequenceChild.attrib:
                     defaultValue = sequenceChild.attrib['default']
-                formString += "<li id='" + str(newTagID) + "'><nobr>" + textCapitalized + " <input type='text' value='"+ defaultValue +"'/>"
-                formString += "<span id='add"+ str(newTagID[7:]) +"' class=\"icon add\" onclick=\"changeHTMLForm('add',this,"+str(newTagID[7:])+");\"></span>"
-                formString += "<span id='remove"+ str(newTagID[7:]) +"' class=\"icon remove\" onclick=\"changeHTMLForm('remove',this,"+str(newTagID[7:])+");\"></span>"         
-                formString += "</nobr></li>"
+                formString += "<li id='" + str(newTagID) + "'>" + textCapitalized + " <input type='text' value='"+ defaultValue +"'/>"
+                formString += "<span id='add"+ str(newTagID[7:]) +"' class=\"icon add\" onclick=\"changeHTMLForm('add',"+str(newTagID[7:])+");\"></span>"
+                formString += "<span id='remove"+ str(newTagID[7:]) +"' class=\"icon remove\" onclick=\"changeHTMLForm('remove',"+str(newTagID[7:])+");\"></span>"         
+                formString += "</li>"
             else:
                 # type is declared in the document
                 if sequenceChild.attrib.get('type') is not None:                  
                     textCapitalized = sequenceChild.attrib.get('name')                      
                     newTagID = "element" + str(len(mapTagElement.keys()))  
                     mapTagElement[newTagID] = elementID 
-                    formString += "<li id='" + str(newTagID) + "'><nobr>" + textCapitalized + " "
-                    formString += "<span id='add"+ str(newTagID[7:]) +"' class=\"icon add\" onclick=\"changeHTMLForm('add',this,"+str(newTagID[7:])+");\"></span>"
-                    formString += "<span id='remove"+ str(newTagID[7:]) +"' class=\"icon remove\" onclick=\"changeHTMLForm('remove',this,"+str(newTagID[7:])+");\"></span>"           
                     xpath = "./*[@name='"+sequenceChild.attrib.get('type')+"']"
                     elementType = xmlDocTree.find(xpath)
+                                        
+                    if elementType.tag == "{0}complexType".format(namespace):
+                        formString += "<li id='" + str(newTagID) + "'>" + "<span class='collapse' style='cursor:pointer;' onclick='showhideCurate(event);'></span>"  + textCapitalized
+                    else: 
+                        formString += "<li id='" + str(newTagID) + "'>" + textCapitalized
+                    
+                    formString += "<span id='add"+ str(newTagID[7:]) +"' class=\"icon add\" onclick=\"changeHTMLForm('add',"+str(newTagID[7:])+");\"></span>"
+                    formString += "<span id='remove"+ str(newTagID[7:]) +"' class=\"icon remove\" onclick=\"changeHTMLForm('remove',"+str(newTagID[7:])+");\"></span>"           
+                    
                     if elementType is not None:
                         if elementType.tag == "{0}complexType".format(namespace):
                             formString += generateComplexType(request, elementType, xmlDocTree, namespace)
                         elif elementType.tag == "{0}simpleType".format(namespace):
                             formString += generateSimpleType(request, elementType, xmlDocTree, namespace)                    
-                    formString += "</nobr></li>"    
+                    formString += "</li>"    
     
             htmlTree = html.fromstring(xsdForm)
             currentElement = htmlTree.get_element_by_id(tagID)
