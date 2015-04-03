@@ -39,9 +39,7 @@ elif (sys.argv[1] != '-from' or
     usage()
 else:
     arg_from = sys.argv[2]
-    print arg_from
     arg_to = sys.argv[4]
-    print arg_to
     arg_from_db = sys.argv[6]
     arg_to_mdcs_addr = sys.argv[8]
     arg_mdcs_user = sys.argv[10]

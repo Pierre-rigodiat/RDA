@@ -18,6 +18,8 @@ import os
 import signal
 import requests
 import logging
+import time
+import platform
 from abc import ABCMeta, abstractmethod
 
 # Prerequisites:
@@ -59,6 +61,7 @@ class MDCSMigration(object):
         self.server_dest = server_dest
         self.user_dest = user_dest
         self.pswd_dest = pswd_dest
+        self.mongo_pid = None
         
         # initialize identifiers map that will keep track of ids from one system to another
         self.identifiers = {}
@@ -68,13 +71,16 @@ class MDCSMigration(object):
         logging.info(str(datetime.now()))
     
     def run(self):
-        try:
-            
+        try:            
             if self.connect():
                 if self.ping():
                     logging.info("Start of data migration.")
                     self.migrate()
                     logging.info("End of data migration.")
+                else:
+                    logging.critical("Unable to reach MDCS API.")
+            else:
+                logging.critical("Unable to connect to original database.")
         except Exception,e:
             logging.critical(e.message)
         finally:
@@ -85,15 +91,23 @@ class MDCSMigration(object):
         try:
             logging.info("Trying to connect to original database...")
             # Prepare command to run mongodb
-            command = 'mongod --dbpath "{0}" --port {1}'.format(self.db_orig, ORIG_DB_PORT)                     
-            # run mongodb instances
-            self.pid = subprocess.Popen(command).pid
-            logging.info("Connection to original database command run in process PID: " + str(self.pid))
+            command = 'mongod --dbpath "{0}" --port {1} --bind_ip 127.0.0.1'.format(self.db_orig, ORIG_DB_PORT)                     
+            # run mongodb instances            
+            if platform.system() == 'Windows':
+                logging.info("Windows system detected.")
+                self.mongo_pid = subprocess.Popen(command).pid
+            else:
+                logging.info("System other than Windows detected.")
+                self.mongo_pid = subprocess.Popen(command, shell=True).pid
+            logging.info("Connection to original database command run in process PID: " + str(self.mongo_pid))
+            # sleep for 3 seconds (arbitrary set) to let time to mongo daemon to run
+            time.sleep(3)
             client = MongoClient('localhost', ORIG_DB_PORT)
             client.close()
             logging.info("Connected to original database.")
             return True
-        except:
+        except Exception, e:
+            logging.critical(e.message)
             return False
     
     def ping(self):
@@ -105,7 +119,7 @@ class MDCSMigration(object):
             logging.info("MDCS API reached with success.")
             return True
         else:
-            logging.info("Unable to reach MDCS API.")
+            logging.critical("Unable to reach MDCS API.")
             return False
         
     @abstractmethod
@@ -114,11 +128,14 @@ class MDCSMigration(object):
     
 
     def clean(self):
-        if self.pid:
-            try:
-                os.kill(self.pid, signal.SIGTERM)
-                logging.info("Running instance of Mongodb killed.")
-            except:
-                logging.info("Unable to end Mongodb instance.")
+        try:
+            if self.mongo_pid is not None:
+                try:
+                    os.kill(self.mongo_pid, signal.SIGTERM)
+                    logging.info("Running instance of Mongodb killed.")
+                except:
+                    logging.critical("Unable to end Mongodb instance.")
+        except Exception, e:
+            logging.critical(e.message)
 
     
