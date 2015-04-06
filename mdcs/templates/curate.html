@@ -269,7 +269,14 @@ verifyTemplateIsSelected = function(selectedLink_)
     console.log('BEGIN [verifyTemplateIsSelected]');
 
     selectedLink = selectedLink_;
-    Dajaxice.curate.verifyTemplateIsSelected(verifyTemplateIsSelectedCallback); // Dajax.process);
+    $.ajax({
+        url : "/curate/verify_template_is_selected",
+        type : "GET",
+        dataType: "json",
+        success: function(data){
+            verifyTemplateIsSelectedCallback(data )
+        }
+    });
 
     console.log('END [verifyTemplateIsSelected]');
 }

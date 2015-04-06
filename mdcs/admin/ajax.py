@@ -16,28 +16,20 @@
 
 from dajax.core import Dajax
 from dajaxice.decorators import dajaxice_register
-import lxml.html as html
 import lxml.etree as etree
 import json
 from io import BytesIO
-from mgi.models import Template, TemplateVersion, Instance, Request, Module, ModuleResource, Type, TypeVersion, Message, TermsOfUse, PrivacyPolicy, Bucket, MetaSchema
-import requests
+from mgi.models import Template, TemplateVersion, Instance, Request, Module, ModuleResource, Type, TypeVersion, Message, Bucket, MetaSchema
 from django.contrib.auth.models import User
-from django.contrib.auth import authenticate
 import os
 from django.conf import settings
 from datetime import datetime
-import mgi
-from _io import StringIO
 from utils.XSDflattenerMDCS.XSDflattenerMDCS import XSDFlattenerMDCS
-# from utils.XSDflattener.XSDflattener import XSDFlattenerURL
 from utils.XSDhash import XSDhash
-from utils.APIschemaLocator import APIschemaLocator
 import random
 from utils.APIschemaLocator.APIschemaLocator import getSchemaLocation
 from mgi import utils
 
-#Class definition
 
 ################################################################################
 # 
@@ -49,7 +41,7 @@ from mgi import utils
 class ModuleResourceInfo:
     "Class that store information about a resource for a module"
     
-    def __init__(self, content = "", filename = ""):
+    def __init__(self, content="", filename=""):
         self.content = content
         self.filename = filename   
 
@@ -71,7 +63,7 @@ class ModuleResourceInfo:
 # 
 ################################################################################
 @dajaxice_register
-def uploadObject(request,objectName,objectFilename,objectContent, objectType):
+def uploadObject(request,objectName, objectFilename, objectContent, objectType):
     print 'BEGIN def uploadObject(request,objectName,objectFilename,objectContent, objectType)'
     dajax = Dajax()
     

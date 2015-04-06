@@ -16,16 +16,13 @@
 
 import re
 from django.utils import simplejson
+from django.http import HttpResponse
 from dajax.core import Dajax
 from dajaxice.decorators import dajaxice_register
 from django.conf import settings
-from mongoengine import *
 from io import BytesIO
-from mgi.models import XMLSchema 
-from cStringIO import StringIO
-from django.core.servers.basehttp import FileWrapper
-from mgi.models import Template, Htmlform, Jsondata, XML2Download, Module, Type, MetaSchema
-from bson.objectid import ObjectId
+from mgi.models import XMLSchema
+from mgi.models import Template, Htmlform, Jsondata, XML2Download, Module, MetaSchema
 import json
 from mgi import utils
 
@@ -37,7 +34,6 @@ import rdfPublisher
 
 #XSL file loading
 import os
-from django.core.files.temp import NamedTemporaryFile
 
 
 #Class definition
@@ -50,11 +46,9 @@ from django.core.files.temp import NamedTemporaryFile
 #
 ################################################################################
 class ElementOccurrences:
-    "Class that store information about element occurrences"
+    "Class that stores information about element occurrences"
         
     def __init__(self, minOccurrences = 1, maxOccurrences = 1, nbOccurrences = 1):
-        #self.__class__.count += 1
-        
         #min/max occurrence attributes
         self.minOccurrences = minOccurrences
         self.maxOccurrences = maxOccurrences
@@ -65,9 +59,10 @@ class ElementOccurrences:
     def __to_json__(self):
         return json.dumps(self, default=lambda o:o.__dict__)
 
+
 ################################################################################
 #
-# Function Name: getHDF5String(request)
+# Function Name: get_hdf5_string(request)
 # Inputs:        request - 
 # Outputs:       
 # Exceptions:    None
@@ -75,20 +70,20 @@ class ElementOccurrences:
 #                
 #
 ################################################################################
-@dajaxice_register
-def getHDF5String(request):
-    dajax = Dajax() 
+def get_hdf5_string(request):
     if 'spreadsheetXML' in request.session:
         spreadsheetXML = request.session['spreadsheetXML']
         request.session['spreadsheetXML'] = ""
     else:
         spreadsheetXML = ""
 
-    return simplejson.dumps({'spreadsheetXML':spreadsheetXML})
+    response_dict = {'spreadsheetXML': spreadsheetXML}
+    return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
+
 
 ################################################################################
 #
-# Function Name: updateFormList(request)
+# Function Name: update_form_list(request)
 # Inputs:        request - 
 # Outputs:       
 # Exceptions:    None
@@ -96,29 +91,24 @@ def getHDF5String(request):
 #                
 #
 ################################################################################
-@dajaxice_register
-def updateFormList(request):
-    print '>>>>  BEGIN def updateFormList(request)'
-    dajax = Dajax()
+def update_form_list(request):
+    template_id = request.session['currentTemplateID']
 
-    templateID = request.session['currentTemplateID']
-
-    selectOptions = ""
-    availableHTMLForms = Htmlform.objects(schema=templateID)
-    if len(availableHTMLForms) > 0:
-        for htmlForm in availableHTMLForms:
-            selectOptions += "<option value=\"" + str(htmlForm.id) + "\">" + htmlForm.title + "</option>"
+    select_options = ""
+    saved_forms = Htmlform.objects(schema=template_id)
+    if len(saved_forms) > 0:
+        for htmlForm in saved_forms:
+            select_options += "<option value=\"" + str(htmlForm.id) + "\">" + htmlForm.title + "</option>"
     else:
-        selectOptions = "<option value=\"none\">None Exist"
+        select_options = "<option value=\"none\">None Exist"
 
-    dajax.assign('#listOfForms', 'innerHTML', selectOptions)
+    response_dict = {'options': select_options}
+    return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
 
-    print '>>>> END def updateFormList(request)'
-    return dajax.json()
 
 ################################################################################
 #
-# Function Name: saveHTMLForm(request,saveAs,content)
+# Function Name: save_html_form(request)
 # Inputs:        request - 
 # Outputs:       
 # Exceptions:    None
@@ -126,42 +116,21 @@ def updateFormList(request):
 #                
 #
 ################################################################################
-@dajaxice_register
-def saveHTMLForm(request,saveAs,content):    
-    dajax = Dajax()
+def save_html_form(request):
 
-    templateID = request.session['currentTemplateID']
+    save_as = request.POST['saveAs']
+    content = request.POST['content']
+    template_id = request.session['currentTemplateID']
     occurrences = request.session['occurrences']
 
-    newHTMLForm = Htmlform(title=saveAs, schema=templateID, content=content, occurrences=str(occurrences)).save()
-    
-    return dajax.json()
+    Htmlform(title=save_as, schema=template_id, content=content, occurrences=str(occurrences)).save()
+
+    return HttpResponse(json.dumps({}), mimetype='application/javascript')
 
 
 ################################################################################
 #
-# Function Name: downloadHTMLForm(request,saveAs,content)
-# Inputs:        request - 
-# Outputs:       
-# Exceptions:    None
-# Description:   Download the HTML form      
-#
-################################################################################
-@dajaxice_register
-def downloadHTMLForm(request,saveAs,content):    
-    dajax = Dajax()
-
-    templateID = request.session['currentTemplateID']
-
-    newHTMLForm = Htmlform(title=saveAs, schema=templateID, content=content).save()
-    
-    dajax.redirect('/curate/enter-data/download-form?id='+str(newHTMLForm.id))
-    
-    return dajax.json()
-
-################################################################################
-#
-# Function Name: validateXMLData(request, xmlString, xsdForm)
+# Function Name: validateXMLData(request)
 # Inputs:        request - 
 #                xmlString - XML string generated from the form
 #                xsdForm -  Current form
@@ -171,39 +140,29 @@ def downloadHTMLForm(request,saveAs,content):
 #                
 #
 ################################################################################
-@dajaxice_register
-def validateXMLData(request, xmlString, xsdForm):
-    dajax = Dajax()
+def validate_xml_data(request):
     
-    templateID = request.session['currentTemplateID']
+    template_id = request.session['currentTemplateID']
     
     request.session['xmlString'] = ""
           
     try:
-        utils.validateXMLDocument(templateID, xmlString)   
+        utils.validateXMLDocument(template_id, request.POST['xmlString'])
     except Exception, e:
-        message= e.message.replace('"','\'')
-        dajax.script("""
-            $("#saveErrorMessage").html(" """+ message + """ ");
-            saveXMLDataToDBError();
-        """)
-        return dajax.json()
+        message= e.message.replace('"', '\'')
+        response_dict = {'errors': message}
+        return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
 
-    request.session['xmlString'] = xmlString
-    request.session['formString'] = xsdForm
-    
-    dajax.script("""
-        viewData();
-    """)
-    
-    return dajax.json()
+    request.session['xmlString'] = request.POST['xmlString']
+    request.session['formString'] = request.POST['xsdForm']
+
+    return HttpResponse(json.dumps({}), mimetype='application/javascript')
     
 
 ################################################################################
 #
-# Function Name: saveXMLDataToDB(request, saveAs)
-# Inputs:        request - 
-#                saveAs - title of the document
+# Function Name: save_xml_data_to_db(request)
+# Inputs:        request -
 # Outputs:       
 # Exceptions:    None
 # Description:   Save the current XML document in MongoDB. The document is also
@@ -211,17 +170,15 @@ def validateXMLData(request, xmlString, xsdForm):
 #                
 #
 ################################################################################
-@dajaxice_register
-def saveXMLDataToDB(request,saveAs):
-    print '>>>>  BEGIN def saveXMLDataToDB(request,saveAs)'
-    dajax = Dajax()
+def save_xml_data_to_db(request):
+    print 'BEGIN def saveXMLDataToDB(request)'
 
+    response_dict = {}
     xmlString = request.session['xmlString']
     templateID = request.session['currentTemplateID']
 
-
     try:
-        newJSONData = Jsondata(schemaID=templateID, xml=xmlString, title=saveAs)
+        newJSONData = Jsondata(schemaID=templateID, xml=xmlString, title=request.POST['saveAs'])
         docID = newJSONData.save()
         
         xsltPath = os.path.join(settings.SITE_ROOT, 'static/resources/xsl/xml2rdf3.xsl')
@@ -245,109 +202,97 @@ def saveXMLDataToDB(request,saveAs):
     
         # SPARQL : send the rdf to the triplestore
         rdfPublisher.sendRDF(rdfStr)
-        
-        dajax.script("""
-            savedXMLDataToDB();
-        """)
+
     except Exception, e:
-        message= e.message.replace('"','\'')
-        dajax.script("""
-            $("#saveErrorMessage").html(" """+ message + """ ");
-            saveXMLDataToDBError();
-        """)
-    print '>>>>  END def saveXMLDataToDB(request,saveAs)'
-    return dajax.json()
+        message = e.message.replace('"', '\'')
+        response_dict['errors'] = message
+
+    print 'END def saveXMLDataToDB(request,saveAs)'
+    return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
+
 
 ################################################################################
 #
-# Function Name: saveXMLData(request,formContent)
-# Inputs:        request - 
+# Function Name: view_data(request)
+# Inputs:        request -
 # Outputs:       
 # Exceptions:    None
-# Description:   Save the content of the current form in session
-#                
+# Description:   Save the content of the current form in session before redirection to view data
 #
 ################################################################################
-@dajaxice_register
-def saveXMLData(request, formContent):
-    print '>>>>  BEGIN def saveXMLData(request,formContent)'
-    dajax = Dajax()
-    
-    request.session['formString'] = formContent
+def view_data(request):
+    print 'BEGIN def saveXMLData(request)'
 
-    print '>>>> END def saveXMLData(request,formContent)'
-    return dajax.json()
+    request.session['formString'] = request.POST['form_content']
+    return HttpResponse(json.dumps({}), mimetype='application/javascript')
+
+    print 'END def saveXMLData(request)'
+
 
 ################################################################################
 #
-# Function Name: loadFormForEntry(request,formSelected)
-# Inputs:        request - 
-#                formSelected - 
+# Function Name: load_form_for_entry(request)
+# Inputs:        request -
 # Outputs:       
 # Exceptions:    None
 # Description:   Load a saved form in the page
 #                
 #
 ################################################################################
-@dajaxice_register
-def loadFormForEntry(request,formSelected):
-    print '>>>>  BEGIN def loadFormForEntry(request,formSelected)'
-    dajax = Dajax()
-
+def load_form_for_entry(request):
     try:
-        htmlFormObject = Htmlform.objects.get(id=formSelected)
-        request.session['occurrences'] = eval(htmlFormObject.occurrences)
-        
-        dajax.assign('#xsdForm', 'innerHTML', htmlFormObject.content)
+        form_selected = request.POST['form_selected']
+        html_form_object = Htmlform.objects.get(id=form_selected)
+        request.session['occurrences'] = eval(html_form_object.occurrences)
+
+        response_dict = {'xsdForm': html_form_object.content}
+        return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
     except:
-        pass
-    
-    print '>>>> END def loadFormForEntry(request,formSelected)'
-    return dajax.json()
+        return HttpResponse(json.dumps({}), mimetype='application/javascript')
+
 
 ################################################################################
 # 
-# Function Name: setCurrentTemplate(request,templateFilename,templateID)
-# Inputs:        request - 
-#                templateFilename -  
-#                templateID - 
+# Function Name: set_current_template(request)
+# Inputs:        request -
 # Outputs:       JSON data with success or failure
 # Exceptions:    None
 # Description:   Set the current template to input argument.  Template is read 
 #                into an xsdDocTree for use later.
 #
 ################################################################################
-@dajaxice_register
-def setCurrentTemplate(request,templateFilename,templateID):
-    print 'BEGIN def setCurrentTemplate(request)'
+def set_current_template(request):
+    print 'BEGIN def set_current_template(request)'
+
+    template_filename = request.POST['templateFilename']
+    template_id = request.POST['templateID']
 
     # reset global variables
     request.session['xmlString'] = ""
     request.session['formString'] = ""
 
-    request.session['currentTemplate'] = templateFilename
-    request.session['currentTemplateID'] = templateID
+    request.session['currentTemplate'] = template_filename
+    request.session['currentTemplateID'] = template_id
     request.session.modified = True
-    dajax = Dajax()
 
-    if templateID in MetaSchema.objects.all().values_list('schemaId'):
-        meta = MetaSchema.objects.get(schemaId=templateID)
+    if template_id in MetaSchema.objects.all().values_list('schemaId'):
+        meta = MetaSchema.objects.get(schemaId=template_id)
         xmlDocData = meta.flat_content
     else:
-        templateObject = Template.objects.get(pk=templateID)
+        templateObject = Template.objects.get(pk=template_id)
         xmlDocData = templateObject.content
 
     XMLSchema.tree = etree.parse(BytesIO(xmlDocData.encode('utf-8')))
     request.session['xmlDocTree'] = etree.tostring(XMLSchema.tree)
 
-    print 'END def setCurrentTemplate(request)'
-    return dajax.json()
+    print 'END def set_current_template(request)'
+    return HttpResponse(json.dumps({}), mimetype='application/javascript')
+
 
 ################################################################################
 # 
-# Function Name: setCurrentUserTemplate(request, templateID)
-# Inputs:        request - 
-#                templateID -  
+# Function Name: set_current_user_template(request)
+# Inputs:        request -
 # Outputs:       JSON data with success or failure
 # Exceptions:    None
 # Description:   Set the current template to input argument.  Template is read 
@@ -355,24 +300,23 @@ def setCurrentTemplate(request,templateFilename,templateID):
 #                defined using the composer.
 #
 ################################################################################
-@dajaxice_register
-def setCurrentUserTemplate(request,templateID):
+def set_current_user_template(request):
     print 'BEGIN def setCurrentTemplate(request)'
+
+    template_id = request.POST['templateID']
 
     # reset global variables
     request.session['xmlString'] = ""
     request.session['formString'] = ""
     
-    request.session['currentTemplateID'] = templateID
+    request.session['currentTemplateID'] = template_id
     request.session.modified = True
-    
-    dajax = Dajax()
 
-    templateObject = Template.objects.get(pk=templateID)
+    templateObject = Template.objects.get(pk=template_id)
     request.session['currentTemplate'] = templateObject.title
     
-    if templateID in MetaSchema.objects.all().values_list('schemaId'):
-        meta = MetaSchema.objects.get(schemaId=templateID)
+    if template_id in MetaSchema.objects.all().values_list('schemaId'):
+        meta = MetaSchema.objects.get(schemaId=template_id)
         xmlDocData = meta.flat_content
     else:
         xmlDocData = templateObject.content
@@ -381,28 +325,30 @@ def setCurrentUserTemplate(request,templateID):
     request.session['xmlDocTree'] = etree.tostring(XMLSchema.tree)
 
     print 'END def setCurrentTemplate(request)'
-    return dajax.json()
+    return HttpResponse(json.dumps({}), mimetype='application/javascript')
+
 
 ################################################################################
 # 
-# Function Name: verifyTemplateIsSelected(request)
+# Function Name: verify_template_is_selected(request)
 # Inputs:        request - 
 # Outputs:       JSON data with templateSelected 
 # Exceptions:    None
 # Description:   Verifies the current template is selected.
 # 
 ################################################################################
-@dajaxice_register
-def verifyTemplateIsSelected(request):
-    print 'BEGIN def verifyTemplateIsSelected(request)'
+def verify_template_is_selected(request):
+    print 'BEGIN def verify_template_is_selected(request)'
     if 'currentTemplateID' in request.session:
         templateSelected = 'yes'
     else:
         templateSelected = 'no'
-    dajax = Dajax()
 
-    print 'END def verifyTemplateIsSelected(request)'
-    return simplejson.dumps({'templateSelected':templateSelected})
+    print 'END def verify_template_is_selected(request)'
+
+    response_dict = {'templateSelected': templateSelected}
+    return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
+
 
 ################################################################################
 # 
@@ -913,23 +859,19 @@ def manageOccurences(request, element, elementID):
 
 ################################################################################
 # 
-# Function Name: remove(request, tagID, xsdForm)
+# Function Name: remove(request)
 # Inputs:        request -
-#                tagID - 
-#                xsdForm -
-# Outputs:       JSON data 
+# Outputs:       JSON data
 # Exceptions:    None
 # Description:   Remove an element from the form: make it grey or remove the selected occurrence
 #
 ################################################################################
-@dajaxice_register
-def remove(request, tagID, xsdForm):
-    dajax = Dajax()
-    
+def remove(request):
+    response_dict = {}
     occurrences = request.session['occurrences']
     mapTagElement = request.session['mapTagElement']
     
-    tagID = "element"+ str(tagID)
+    tagID = "element"+ str(request.POST['tagID'])
     elementID = mapTagElement[tagID]
     elementOccurrencesStr = occurrences[str(elementID)]
     if 'inf' in elementOccurrencesStr:
@@ -944,13 +886,9 @@ def remove(request, tagID, xsdForm):
         request.session['occurrences'] = occurrences
         
         if (elementOccurrences['nbOccurrences'] == 0):    
-            dajax.script("""
-                $('#add"""+str(tagID[7:])+"""').attr('style','');
-                $('#remove"""+str(tagID[7:])+"""').attr('style','display:none');
-                $("#"""+tagID+"""").prop("disabled",true);
-                $("#"""+tagID+"""").addClass("removed");
-                $("#"""+tagID+"""").children("ul").hide(500);
-            """)
+            response_dict['occurs'] = 'zero'
+            response_dict['tagID'] = str(tagID)
+            response_dict['id'] = str(tagID[7:])
         else:
             addButton = False
             deleteButton = False
@@ -960,7 +898,7 @@ def remove(request, tagID, xsdForm):
             if (elementOccurrences['nbOccurrences'] > elementOccurrences['minOccurrences']):
                 deleteButton = True
                 
-            htmlTree = html.fromstring(xsdForm)
+            htmlTree = html.fromstring(request.POST['xsdForm'])
             currentElement = htmlTree.get_element_by_id(tagID)
             parent = currentElement.getparent()
             
@@ -978,27 +916,23 @@ def remove(request, tagID, xsdForm):
             
             parent.remove(currentElement)
             
-            dajax.assign('#xsdForm', 'innerHTML', html.tostring(htmlTree))
+            response_dict = {'xsdForm': html.tostring(htmlTree)}
     
     request.session.modified = True
-    return dajax.json()
+    return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
 
 
 ################################################################################
 # 
-# Function Name: duplicate(request, tagID, xsdForm)
+# Function Name: duplicate(request)
 # Inputs:        request -
-#                tagID -
-#                xsdForm -
 # Outputs:       JSON data 
 # Exceptions:    None
 # Description:   Duplicate an occurrence of an element: make it black or add one.
 #
 ################################################################################
-@dajaxice_register
-def duplicate(request, tagID, xsdForm):
-    dajax = Dajax()
-    
+def duplicate(request):
+    response_dict = {}
     xsd_elements = request.session['xsd_elements']
     occurrences = request.session['occurrences']
     mapTagElement = request.session['mapTagElement']
@@ -1008,7 +942,7 @@ def duplicate(request, tagID, xsdForm):
     xmlDocTree = etree.fromstring(xmlDocTreeStr)
     
     formString = ""
-    tagID = "element"+ str(tagID)
+    tagID = "element"+ str(request.POST['tagID'])
     elementID = mapTagElement[tagID]
     sequenceChild = etree.fromstring(xsd_elements[str(elementID)])
     elementOccurrencesStr = occurrences[str(elementID)]
@@ -1027,17 +961,11 @@ def duplicate(request, tagID, xsdForm):
             styleAdd=''
             if (elementOccurrences['maxOccurrences'] == 1):
                 styleAdd = 'display:none'
-            
-            dajax.script("""
-                $('#add"""+str(tagID[7:])+"""').attr('style','"""+ styleAdd +"""');
-                $('#remove"""+str(tagID[7:])+"""').attr('style','');
-                $("#"""+tagID+"""").prop("disabled",false);
-                $("#"""+tagID+"""").removeClass("removed");
-                $("#"""+tagID+"""").children("ul").show(500);
-            """)
-        
+            response_dict['occurs'] = 'zero'
+            response_dict['tagID'] = str(tagID)
+            response_dict['id'] = str(tagID[7:])
+            response_dict['styleAdd'] = 'display:none'
         else:
-            
             # render element
             namespace = namespaces[defaultPrefix]
             if 'type' not in sequenceChild.attrib:
@@ -1101,7 +1029,7 @@ def duplicate(request, tagID, xsdForm):
                             formString += generateSimpleType(request, elementType, xmlDocTree, namespace)                    
                     formString += "</li>"    
     
-            htmlTree = html.fromstring(xsdForm)
+            htmlTree = html.fromstring(request.POST['xsdForm'])
             currentElement = htmlTree.get_element_by_id(tagID)
             parent = currentElement.getparent()
             parent.append(html.fragment_fromstring(formString))          
@@ -1125,11 +1053,11 @@ def duplicate(request, tagID, xsdForm):
                     htmlTree.get_element_by_id("remove" + str(idOfElement)).attrib['style'] = ''
                 else:
                     htmlTree.get_element_by_id("remove" + str(idOfElement)).attrib['style'] = 'display:none'                
-            
-            dajax.assign('#xsdForm', 'innerHTML', html.tostring(htmlTree))            
+
+            response_dict['xsdForm'] = html.tostring(htmlTree)
     
     request.session.modified = True
-    return dajax.json()
+    return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
     
 ################################################################################
 # 
@@ -1223,24 +1151,21 @@ def loadModuleResources(templateID):
 
 ################################################################################
 # 
-# Function Name: initCuration(request)
+# Function Name: init_curate(request)
 # Inputs:        request - 
 # Outputs:       
 # Exceptions:    None
 # Description:   Reinitialize data structures
 #
 ################################################################################
-@dajaxice_register
-def initCuration(request):
-    dajax = Dajax()
-    
+def init_curate(request):
     if 'formString' in request.session:
         del request.session['formString']  
        
     if 'xmlDocTree' in request.session:
         del request.session['xmlDocTree']
-    
-    return dajax.json()
+
+    return HttpResponse(json.dumps({}), mimetype='application/javascript')
 
  
 ################################################################################
@@ -1252,12 +1177,11 @@ def initCuration(request):
 # Description:   Renders HTMl form for display.
 #
 ################################################################################
-@dajaxice_register
-def generateXSDTreeForEnteringData(request):
-    print 'BEGIN def generateXSDTreeForEnteringData(request)'    
-    dajax = Dajax()
-    
-    templateID = request.session['currentTemplateID']
+def generate_xsd_form(request):
+    print 'BEGIN def generate_xsd_form(request)'
+
+    template_id = request.session['currentTemplateID']
+    response_dict = {}
 
     if 'formString' in request.session:
         formString = request.session['formString']  
@@ -1268,11 +1192,11 @@ def generateXSDTreeForEnteringData(request):
     if 'xmlDocTree' in request.session:
         xmlDocTree = request.session['xmlDocTree'] 
     else:
-        if templateID in MetaSchema.objects.all().values_list('schemaId'):
-            meta = MetaSchema.objects.get(schemaId=templateID)
+        if template_id in MetaSchema.objects.all().values_list('schemaId'):
+            meta = MetaSchema.objects.get(schemaId=template_id)
             xmlDocData = meta.flat_content
         else:
-            templateObject = Template.objects.get(pk=templateID)
+            templateObject = Template.objects.get(pk=template_id)
             xmlDocData = templateObject.content
 
         xmlDocTree = etree.parse(BytesIO(xmlDocData.encode('utf-8')))
@@ -1282,10 +1206,10 @@ def generateXSDTreeForEnteringData(request):
     # load modules from the database
     if 'mapModules' in request.session:
         del request.session['mapModules']
-    html = loadModuleResources(templateID)
-    dajax.assign('#modules', 'innerHTML', html)
+    resources_html = loadModuleResources(template_id)
+    response_dict['modules'] = resources_html
     mapModules = dict()    
-    modules = Module.objects(templates__contains=templateID)  
+    modules = Module.objects(templates__contains=template_id)
     for module in modules:
         mapModules[module.tag] = module.htmlTag
     request.session['mapModules'] = mapModules    
@@ -1309,70 +1233,60 @@ def generateXSDTreeForEnteringData(request):
     path = pathFile.format(settings.SITE_ROOT,"periodic.html")
     periodicTableDoc = open(path,'r')
     periodicTableString = periodicTableDoc.read()
-    
-    dajax.assign('#periodicTable', 'innerHTML', periodicTableString)
+
+    response_dict['periodicTable'] = periodicTableString
 
     pathFile = "{0}/static/resources/files/{1}"
     path = pathFile.format(settings.SITE_ROOT,"periodicMultiple.html")
     periodicMultipleTableDoc = open(path,'r')
     periodicTableMultipleString = periodicMultipleTableDoc.read()
-    
-    dajax.assign('#periodicTableMultiple', 'innerHTML', periodicTableMultipleString)
 
-    dajax.assign('#xsdForm', 'innerHTML', formString)
+    response_dict['periodicTableMultiple'] = periodicTableMultipleString
+    response_dict['xsdForm'] = formString
  
     request.session['formString'] = formString
-    
-    print 'END def generateXSDTreeForEnteringData(request)'
-    return dajax.json()
+
+    return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
+    print 'END def generate_xsd_form(request)'
 
 
 ################################################################################
 # 
-# Function Name: downloadXML(request)
+# Function Name: download_xml(request)
 # Inputs:        request - 
 # Outputs:       
 # Exceptions:    None
 # Description:   Make the current XML document available for download.
 #
 ################################################################################
-@dajaxice_register
-def downloadXML(request):
-    dajax = Dajax()
-
+def download_xml(request):
     xmlString = request.session['xmlString']
     
     xml2download = XML2Download(xml=xmlString).save()
     xml2downloadID = str(xml2download.id)
-    
-    dajax.redirect("/curate/view-data/download-XML?id="+xml2downloadID)
-    
-    return dajax.json()
 
+    response_dict = {"xml2downloadID": xml2downloadID}
+    return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
 
 
 ################################################################################
 # 
-# Function Name: clearFields(request)
+# Function Name: clear_fields(request)
 # Inputs:        request -
 # Outputs:       
 # Exceptions:    None
-# Description:   Clears fields of the HTML form. Also restore the occurences.
+# Description:   Clears fields of the HTML form. Also restore the occurrences.
 #
 ################################################################################
-@dajaxice_register
-def clearFields(request):
-    dajax = Dajax()
+def clear_fields(request):
     
     # get the original version of the form
-    originalForm = request.session['originalForm']
+    original_form = request.session['originalForm']
     
     reinitOccurrences(request)    
-    
-    # assign the form to the page
-    dajax.assign('#xsdForm', 'innerHTML', originalForm)
-    
-    return dajax.json()
+
+    response_dict = {'xsdForm': original_form}
+    return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
 
 
 ################################################################################
@@ -1404,18 +1318,17 @@ def reinitOccurrences(request):
     
     request.session['occurrences'] = occurrences
 
+
 ################################################################################
 # 
-# Function Name: loadXML(request)
+# Function Name: load_xml(request)
 # Inputs:        request - 
 # Outputs:       JSON data with templateSelected 
 # Exceptions:    None
 # Description:   Loads the XML data in the view data page. First transforms the data.
 # 
 ################################################################################
-@dajaxice_register
-def loadXML(request):
-    dajax = Dajax()
+def load_xml(request):
     
     xmlString = request.session['xmlString']
     
@@ -1427,11 +1340,9 @@ def loadXML(request):
         dom = etree.fromstring(xmlString)
         newdom = transform(dom)
         xmlTree = str(newdom)
-    
-    dajax.assign("#XMLHolder", "innerHTML", xmlTree)
-    
-    return dajax.json()
 
+    response_dict = {"XMLHolder": xmlTree}
+    return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
 
 
 
