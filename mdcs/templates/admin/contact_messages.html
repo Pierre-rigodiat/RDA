@@ -18,8 +18,6 @@
 
 {% load staticfiles %}
 
-{% load dajaxice_templatetags %}
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" dir="ltr">
 
@@ -39,9 +37,6 @@
 	<script src="{% static 'resources/js/bootstrap.min.js' %}"></script>
     <link rel="stylesheet" type="text/css" href="{% static 'resources/lib/jquery-ui/themes/smoothness/jquery-ui.css' %}"/>        
     <script src="{% static 'resources/lib/jquery-ui/themes/smoothness/jquery-ui.js' %}"></script>
-	<script src="{% static 'dajax/jquery.dajax.core.js' %}"></script>
-
-        {% dajaxice_js_import %}
 </head>
 
 <body id="top">

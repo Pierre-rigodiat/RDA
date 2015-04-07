@@ -15,10 +15,7 @@
 ################################################################################
 
 import re
-from django.utils import simplejson
 from django.http import HttpResponse
-from dajax.core import Dajax
-from dajaxice.decorators import dajaxice_register
 from django.conf import settings
 from io import BytesIO
 from mgi.models import XMLSchema

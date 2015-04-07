@@ -15,9 +15,7 @@
 ################################################################################
 
 import re
-from django.utils import simplejson
-from dajax.core import Dajax
-from dajaxice.decorators import dajaxice_register
+from django.http import HttpResponse
 from django.conf import settings
 from io import BytesIO
 from lxml import html
@@ -103,71 +101,88 @@ class BranchInfo:
 
 ################################################################################
 # 
-# Function Name: setCurrentTemplate(request,templateFilename, templateID):
+# Function Name: set_current_template(request):
 # Inputs:        request - 
-#                templateFilename -  
-#                templateID - 
 # Outputs:       JSON data with success or failure
 # Exceptions:    None
 # Description:   Set the current template to input argument.  Template is read into
 #                an xsdDocTree for use later.
 #
 ################################################################################
-@dajaxice_register
-def setCurrentTemplate(request,templateFilename, templateID):
+def set_current_template(request):
+    print 'BEGIN def setCurrentTemplate(request)'    
+
+    template_filename = request.POST['templateFilename']
+    template_id = request.POST['templateID']
+
+    setCurrentTemplate(request, template_filename, template_id)
+
+    print 'END def setCurrentTemplate(request)'
+    return HttpResponse(json.dumps({}), mimetype='application/javascript')
+
+
+################################################################################
+# 
+# Function Name: setCurrentTemplate(request):
+# Inputs:        request - 
+#                template_filename - name of the template
+#                template_id - id of the template
+# Outputs:       
+# Exceptions:    None
+# Description:   Set the current template to input argument.  Template is read into
+#                an xsdDocTree for use later.
+#
+################################################################################
+def setCurrentTemplate(request, template_filename, template_id):
     print 'BEGIN def setCurrentTemplate(request)'    
 
     # reset global variables
     request.session['formStringExplore'] = ""
     request.session['customFormStringExplore'] = ""
     
-    request.session['exploreCurrentTemplate'] = templateFilename
-    request.session['exploreCurrentTemplateID'] = templateID
+    request.session['exploreCurrentTemplate'] = template_filename
+    request.session['exploreCurrentTemplateID'] = template_id
     request.session.modified = True
-    dajax = Dajax()
 
-    if templateID in MetaSchema.objects.all().values_list('schemaId'):
-        meta = MetaSchema.objects.get(schemaId=templateID)
+    if template_id in MetaSchema.objects.all().values_list('schemaId'):
+        meta = MetaSchema.objects.get(schemaId=template_id)
         xmlDocData = meta.flat_content
     else:
-        templateObject = Template.objects.get(pk=templateID)
+        templateObject = Template.objects.get(pk=template_id)
         xmlDocData = templateObject.content
 
     XMLSchema.tree = etree.parse(BytesIO(xmlDocData.encode('utf-8')))
     request.session['xmlDocTreeExplore'] = etree.tostring(XMLSchema.tree)
 
     print 'END def setCurrentTemplate(request)'
-    return dajax.json()
 
 ################################################################################
 # 
-# Function Name: setCurrentUserTemplate(request, templateID):
+# Function Name: set_current_user_template(request,):
 # Inputs:        request - 
-#                templateID - 
 # Outputs:       JSON data with success or failure
 # Exceptions:    None
 # Description:   Set the current template to input argument.  Template is read into
 #                an xsdDocTree for use later.
 #
 ################################################################################
-@dajaxice_register
-def setCurrentUserTemplate(request, templateID):
+def set_current_user_template(request):
     print 'BEGIN def setCurrentTemplate(request)'    
 
+    template_id = request.POST['templateID']
+    
     # reset global variables
     request.session['formStringExplore'] = ""
     request.session['customFormStringExplore'] = ""
         
-    request.session['exploreCurrentTemplateID'] = templateID
+    request.session['exploreCurrentTemplateID'] = template_id
     request.session.modified = True
 
-    dajax = Dajax()
-
-    templateObject = Template.objects.get(pk=templateID)
+    templateObject = Template.objects.get(pk=template_id)
     request.session['exploreCurrentTemplate'] = templateObject.title
     
-    if templateID in MetaSchema.objects.all().values_list('schemaId'):
-        meta = MetaSchema.objects.get(schemaId=templateID)
+    if template_id in MetaSchema.objects.all().values_list('schemaId'):
+        meta = MetaSchema.objects.get(schemaId=template_id)
         xmlDocData = meta.flat_content
     else:
         xmlDocData = templateObject.content
@@ -177,20 +192,19 @@ def setCurrentUserTemplate(request, templateID):
     request.session['xmlDocTreeExplore'] = etree.tostring(XMLSchema.tree)
 
     print 'END def setCurrentTemplate(request)'
-    return dajax.json()
+    return HttpResponse(json.dumps({}), mimetype='application/javascript')
 
 
 ################################################################################
 # 
-# Function Name: verifyTemplateIsSelected(request)
+# Function Name: verify_template_is_selected(request)
 # Inputs:        request - 
 # Outputs:       JSON data with templateSelected 
 # Exceptions:    None
 # Description:   Verifies the current template is selected.
 # 
 ################################################################################
-@dajaxice_register
-def verifyTemplateIsSelected(request):
+def verify_template_is_selected(request):
     print 'BEGIN def verifyTemplateIsSelected(request)'
     if 'exploreCurrentTemplateID' in request.session:
         templateSelected = 'yes'
@@ -198,7 +212,9 @@ def verifyTemplateIsSelected(request):
         templateSelected = 'no'
 
     print 'END def verifyTemplateIsSelected(request)'
-    return simplejson.dumps({'templateSelected':templateSelected})
+    
+    response_dict = {'templateSelected': templateSelected}
+    return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
 
 
 ################################################################################
@@ -645,18 +661,15 @@ def generateForm(request):
 
 ################################################################################
 # 
-# Function Name: generateXSDTreeForQueryingData(request)
+# Function Name: generate_xsd_tree_for_querying_data(request)
 # Inputs:        request - 
 # Outputs:       
 # Exceptions:    None
 # Description:   Generate an HTML tree from the XSD to select the fields being used in the query
 #
 ################################################################################
-@dajaxice_register
-def generateXSDTreeForQueryingData(request): 
+def generate_xsd_tree_for_querying_data(request): 
     print 'BEGIN def generateXSDTreeForQueryingData(request)'
-
-    dajax = Dajax()
     
     if 'formStringExplore' in request.session:
         formString = request.session['formStringExplore']  
@@ -687,55 +700,52 @@ def generateXSDTreeForQueryingData(request):
         formString = "<form id=\"dataQueryForm\" name=\"xsdForm\">"
         formString += generateForm(request)        
         formString += "</form>"        
-    
-    dajax.assign('#xsdForm', 'innerHTML', formString)
  
     print 'END def generateXSDTreeForQueryingData(request)'
-    return dajax.json()
+    response_dict = {'xsdForm': formString}
+    return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
 
 
 ################################################################################
 # 
-# Function Name: executeQuery(request, queryForm, queryBuilder, fedOfQueries)
+# Function Name: execute_query(request)
 # Inputs:        request - 
-#                queryForm - 
-#                queryBuilder - 
 # Outputs:       
 # Exceptions:    None
 # Description:   execute a query in Mongo db
 #
 ################################################################################
-@dajaxice_register
-def executeQuery(request, queryForm, queryBuilder, fedOfQueries):
-    print 'BEGIN def executeQuery(request, queryForm, queryBuilder, fedOfQueries)'        
-    dajax = Dajax()
+def execute_query(request):
+    print 'BEGIN def executeQuery(request)'        
     
-    request.session['savedQueryFormExplore'] = queryForm    
+    query_form = request.POST['queryForm']
+    fed_of_queries = request.POST['fedOfQueries']
     
-    queryFormTree = html.fromstring(queryForm)
+    request.session['savedQueryFormExplore'] = query_form    
+    
+    response_dict = {}
+    queryFormTree = html.fromstring(query_form)
     errors = checkQueryForm(request, queryFormTree)
     if(len(errors)== 0):
-        instances = getInstances(request, fedOfQueries)
+        instances = getInstances(request, fed_of_queries)
         if (len(instances)==0):
-            dajax.script("showErrorInstancesDialog();")
+            response_dict = {'errors': 'zero'}
         else:
-            htmlTree = html.fromstring(queryForm)
+            htmlTree = html.fromstring(query_form)
             query = fieldsToQuery(request, htmlTree)            
             request.session['queryExplore'] = query
             json_instances = []
             for instance in instances:
                 json_instances.append(instance.to_json()) 
             request.session['instancesExplore'] = json_instances
-            dajax.script("resultsCallback();")
     else:
         errorsString = ""
         for error in errors:
-            errorsString += "<p>" + error + "</p>"            
-        dajax.assign('#listErrors', 'innerHTML', errorsString)
-        dajax.script("displayErrors();")
+            errorsString += "<p>" + error + "</p>"    
+        response_dict = {'listErrors': errorsString}        
 
     print 'END def executeQuery(request, queryForm, queryBuilder, fedOfQueries)'
-    return dajax.json()
+    return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
 
 ################################################################################
 # 
@@ -768,24 +778,17 @@ def getInstances(request, fedOfQueries):
 
 ################################################################################
 # 
-# Function Name: getResults(request)
+# Function Name: get_results(request)
 # Inputs:        request -
 # Outputs:       JSON data 
 # Exceptions:    None
 # Description:   Get the results of a query
 #
 ################################################################################
-@dajaxice_register
-def getResults(request):
-    dajax = Dajax()
-    
-    instances = request.session['instancesExplore']
-    
-    dajax.script("""
-        getAsyncResults('"""+ str(len(instances)) +"""');
-    """)
-    
-    return dajax.json()
+def get_results(request):
+    instances = request.session['instancesExplore']    
+    response_dict = {'numInstance': str(len(instances))}
+    return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
 
 ################################################################################
 # 
@@ -884,26 +887,26 @@ def manageRegexBeforeExe(query):
 #     print 'END def getResults(request)'
 #     return dajax.json()
 
+
 ################################################################################
 # 
-# Function Name: getResultsByInstance(request, numInstance)
+# Function Name: get_results_by_instance(request)
 # Inputs:        request -
-#                numInstance - number of instances
 # Outputs:       
 # Exceptions:    None
 # Description:   Get results of a query for a specific instance (Local or others)
 #
 ################################################################################
-@dajaxice_register
-def getResultsByInstance(request, numInstance):
+def get_results_by_instance(request):
     print 'BEGIN def getResults(request)'
-    dajax = Dajax()   
+    
+    num_instance = request.GET['numInstance']
     
     instances = request.session['instancesExplore']
         
     resultString = ""    
     
-    for i in range(int(numInstance)):
+    for i in range(int(num_instance)):
         results = []
         instance = eval(instances[int(i)])
         sessionName = "resultsExplore" + instance['name']
@@ -956,10 +959,11 @@ def getResultsByInstance(request, numInstance):
                 resultString += "<span style='font-style:italic; color:red;'> No Results found... </span><br/><br/>"
             
         request.session[sessionName] = results
-    dajax.append("#results", "innerHTML", resultString)
     
     print 'END def getResults(request)'
-    return dajax.json()
+    response_dict = {'results': resultString}
+    return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
+ 
  
 ################################################################################
 # 
@@ -1361,18 +1365,17 @@ def checkQueryForm(request, htmlTree):
                     
 ################################################################################
 # 
-# Function Name: addField(request, htmlForm)
+# Function Name: add_field(request)
 # Inputs:        request - 
-#                htmlForm -
 # Outputs:       
 # Exceptions:    None
 # Description:   Add an empty field to the query builder
 #
 ################################################################################
-@dajaxice_register
-def addField(request, htmlForm):
-    dajax = Dajax()
-    htmlTree = html.fromstring(htmlForm)
+def add_field(request):
+    
+    html_form = request.POST['htmlForm']
+    htmlTree = html.fromstring(html_form)
     
     fields = htmlTree.findall("./p")    
     fields[-1].remove(fields[-1].find("./span[@class='icon add']"))      
@@ -1402,32 +1405,31 @@ def addField(request, htmlForm):
     #insert before the 3 buttons (save, clear, execute)
     htmlTree.insert(-3,element)   
     
-    dajax.assign("#queryForm", "innerHTML", html.tostring(htmlTree))
-    
-    return dajax.json()
+    response_dict = {'queryForm': html.tostring(htmlTree)}
+    return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
+
 
 ################################################################################
 # 
-# Function Name: removeField(request, queryForm, criteriaID)
+# Function Name: remove_field(request)
 # Inputs:        request -
-#                htmlForm -
-#                criteriaID -
 # Outputs:       
 # Exceptions:    None
 # Description:   Remove a field from the query builder
 #
 ################################################################################
-@dajaxice_register
-def removeField(request, queryForm, criteriaID):
-    dajax = Dajax()    
-    htmlTree = html.fromstring(queryForm)
+def remove_field(request):
+    criteria_id = request.POST['criteriaID']
+    query_form = request.POST['queryForm']
     
-    currentElement = htmlTree.get_element_by_id(criteriaID)
+    htmlTree = html.fromstring(query_form)
+    
+    currentElement = htmlTree.get_element_by_id(criteria_id)
     fields = htmlTree.findall("./p")
     
     
     # suppress last element => give the + to the previous
-    if(fields[-1].attrib['id'] == criteriaID):
+    if(fields[-1].attrib['id'] == criteria_id):
         plusButton = html.fragment_fromstring("""<span class="icon add" onclick="addField()"></span>""")
         fields[-2].append(plusButton)
     # only one element left => remove the -
@@ -1448,14 +1450,13 @@ def removeField(request, queryForm, criteriaID):
         
     try:
         mapCriterias = request.session['mapCriteriasExplore']
-        del mapCriterias[criteriaID]
+        del mapCriterias[criteria_id]
         request.session['mapCriteriasExplore'] = mapCriterias
     except:
         pass
-    
-    dajax.assign("#queryForm", "innerHTML", html.tostring(htmlTree))
 
-    return dajax.json()
+    response_dict = {'queryForm': html.tostring(htmlTree)}
+    return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
 
 ################################################################################
 # 
@@ -1729,21 +1730,18 @@ def fieldsToPrettyQuery(request, queryFormTree):
 
 ################################################################################
 # 
-# Function Name: saveQuery(request, , queryForm, queriesTable)
+# Function Name: save_query(request)
 # Inputs:        request - 
-#                queryForm -
-#                queriesTable - 
 # Outputs:       
 # Exceptions:    None
 # Description:   save a query into mongo db and update the html display
 #
 ################################################################################
-@dajaxice_register
-def saveQuery(request, queryForm, queriesTable):
-    dajax = Dajax()
+def save_query(request):
+    query_form = request.POST['queryForm']
     
     mapQueryInfo = request.session['mapQueryInfoExplore']
-    queryFormTree = html.fromstring(queryForm)
+    queryFormTree = html.fromstring(query_form)
 
     # Check that the user can save a query
     errors = []
@@ -1756,6 +1754,7 @@ def saveQuery(request, queryForm, queriesTable):
     else:
         errors = ['You have to login to save a query.']
     
+    response_dict = {}
     if(len(errors)== 0): 
         # Check that the query is valid      
         errors = checkQueryForm(request, queryFormTree)
@@ -1771,23 +1770,19 @@ def saveQuery(request, queryForm, queriesTable):
             queryInfo = QueryInfo(query, displayedQuery)
             mapQueryInfo[str(savedQuery.id)] = queryInfo.__to_json__()
             request.session['mapQueryInfoExplore'] = mapQueryInfo
-            dajax.script("""
-                $('#queriesTable').load(document.URL +  ' #queriesTable', function() {}); 
-            """)
         else:
             errorsString = ""
             for error in errors:
-                errorsString += "<p>" + error + "</p>"            
-            dajax.assign('#listErrors', 'innerHTML', errorsString)
-            dajax.script("displayErrors();")
+                errorsString += "<p>" + error + "</p>"  
+            response_dict = {'listErrors': errorsString}
     else:
         errorsString = ""
         for error in errors:
             errorsString += "<p>" + error + "</p>"            
-        dajax.assign('#listErrors', 'innerHTML', errorsString)
-        dajax.script("displayErrors();")
+        response_dict = {'listErrors': errorsString}
 
-    return dajax.json()
+    return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
+
 
 ################################################################################
 # 
@@ -1815,67 +1810,60 @@ def manageRegexBeforeSave(query):
             manageRegexBeforeSave(value)
 #                 DictRegex[str(value).replace(".", "")] = value.pattern
 
+
 ################################################################################
 # 
-# Function Name: deleteQuery(request, queriesTable, savedQueryID)
+# Function Name: delete_query(request)
 # Inputs:        request - 
-#                queriesTable -
-#                savedQueryID - 
 # Outputs:       
 # Exceptions:    None
 # Description:   Deletes a query and update the HTML display
 #
 ################################################################################
-@dajaxice_register
-def deleteQuery(request, savedQueryID):
-    dajax = Dajax() 
-        
-    SavedQuery(id=savedQueryID[5:]).delete()
+def delete_query(request):
+    saved_query_id = request.POST['savedQueryID']
+    SavedQuery(id=saved_query_id[5:]).delete()
     
     mapQueryInfo = request.session['mapQueryInfoExplore']
-    del mapQueryInfo[savedQueryID[5:]]
+    del mapQueryInfo[saved_query_id[5:]]
     request.session['mapQueryInfoExplore'] = mapQueryInfo
     
-    dajax.script("""
-        $('#queriesTable').load(document.URL +  ' #queriesTable', function() {}); 
-    """)
+    return HttpResponse(json.dumps({}), mimetype='application/javascript')
 
-    return dajax.json()
-    
+
 ################################################################################
 # 
-# Function Name: updateUserInputs(request, htmlForm, fromElementID, criteriaID)
+# Function Name: update_user_inputs(request)
 # Inputs:        request - 
-#                htmlForm - 
-#                fromElementID - 
-#                criteriaID - 
 # Outputs:       
 # Exceptions:    None
 # Description:   Update the user input of the query builder according to the type of the selected element
 #
 ################################################################################  
-@dajaxice_register
-def updateUserInputs(request, htmlForm, fromElementID, criteriaID):   
-    dajax = Dajax()
+def update_user_inputs(request):   
+    html_form = request.POST['html'] 
+    from_element_id = request.POST['fromElementID']
+    criteria_id = request.POST['criteriaID']
     
     mapTagIDElementInfo = request.session['mapTagIDElementInfoExplore']
     mapCriterias = request.session['mapCriteriasExplore']
     defaultPrefix = request.session['defaultPrefixExplore']
     
-    toCriteriaID = "crit" + str(criteriaID)
+    toCriteriaID = "crit" + str(criteria_id)
     
     criteriaInfo = CriteriaInfo()
-    criteriaInfo.elementInfo = ElementInfo(path=eval(mapTagIDElementInfo[str(fromElementID)])['path'], type=eval(mapTagIDElementInfo[str(fromElementID)])['type'])
+    criteriaInfo.elementInfo = ElementInfo(path=eval(mapTagIDElementInfo[str(from_element_id)])['path'], type=eval(mapTagIDElementInfo[str(from_element_id)])['type'])
     mapCriterias[toCriteriaID] = criteriaInfo.__to_json__()
     request.session['mapCriteriasExplore'] = mapCriterias
     
-    htmlTree = html.fromstring(htmlForm)
+    htmlTree = html.fromstring(html_form)
     currentCriteria = htmlTree.get_element_by_id(toCriteriaID)  
     
     try:
         currentCriteria[1].attrib['class'] = currentCriteria[1].attrib['class'].replace('queryInput','elementInput') 
     except:
         pass
+    
     # criteria id = crit%d  
     criteriaIDIncr = toCriteriaID[4:]
     userInputs = currentCriteria.find("./span/[@id='ui"+ str(criteriaIDIncr) +"']")
@@ -1904,7 +1892,7 @@ def updateUserInputs(request, htmlForm, fromElementID, criteriaID):
         userInputs.append(form)
         userInputs.append(inputs) 
     elif (criteriaInfo.elementInfo.type == "enum"):
-        form = html.fragment_fromstring(renderEnum(request, fromElementID))
+        form = html.fragment_fromstring(renderEnum(request, from_element_id))
         userInputs.append(form)
     else:
         form = html.fragment_fromstring(renderStringSelect())
@@ -1912,28 +1900,26 @@ def updateUserInputs(request, htmlForm, fromElementID, criteriaID):
         userInputs.append(form)
         userInputs.append(inputs)
         
+    response_dict = {'queryForm': html.tostring(htmlTree)}
+    return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
     
-    dajax.assign("#queryForm", "innerHTML", html.tostring(htmlTree))
-
-    return dajax.json()
     
 ################################################################################
 # 
-# Function Name: addSavedQueryToForm(request, queryForm, savedQueryID)
+# Function Name: add_saved_query_to_form(request)
 # Inputs:        request - 
-#                queryForm - 
-#                savedQueryID - 
 # Outputs:       
 # Exceptions:    None
 # Description:   Adds the selected query to query builder
 #
 ################################################################################ 
-@dajaxice_register
-def addSavedQueryToForm(request, queryForm, savedQueryID):
-    dajax = Dajax()
+def add_saved_query_to_form(request):
+    query_form = request.POST['queryForm']
+    saved_query_id = request.POST['savedQueryID']
+    
     
     mapQueryInfo = request.session['mapQueryInfoExplore']
-    queryTree = html.fromstring(queryForm)
+    queryTree = html.fromstring(query_form)
     
     fields = queryTree.findall("./p")
     fields[-1].remove(fields[-1].find("./span[@class='icon add']"))      
@@ -1943,7 +1929,7 @@ def addSavedQueryToForm(request, queryForm, savedQueryID):
         fields[0].append(minusButton)
         
     lastID = fields[-1].attrib['id'][4:]
-    queryInfo = eval(mapQueryInfo[savedQueryID[5:]])
+    queryInfo = eval(mapQueryInfo[saved_query_id[5:]])
     query = queryInfo['displayedQuery']
     if (len(fields)== 1 and fields[0][1].value == ""):
         queryTree.remove(fields[0])
@@ -1983,13 +1969,14 @@ def addSavedQueryToForm(request, queryForm, savedQueryID):
     
     mapCriterias = request.session['mapCriteriasExplore']
     criteriaInfo = CriteriaInfo()
-    criteriaInfo.queryInfo = QueryInfo(query=eval(mapQueryInfo[savedQueryID[5:]])['query'], displayedQuery=eval(mapQueryInfo[savedQueryID[5:]])['displayedQuery'])
+    criteriaInfo.queryInfo = QueryInfo(query=eval(mapQueryInfo[saved_query_id[5:]])['query'], displayedQuery=eval(mapQueryInfo[saved_query_id[5:]])['displayedQuery'])
     criteriaInfo.elementInfo = ElementInfo("query")
     mapCriterias['crit'+ str(tagID)] = criteriaInfo.__to_json__() 
     request.session['mapCriteriasExplore'] = mapCriterias
-    dajax.assign("#queryForm", "innerHTML", html.tostring(queryTree))
 
-    return dajax.json()
+    response_dict = {'queryForm': html.tostring(queryTree)}
+    return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
+    
     
 ################################################################################
 # 
@@ -2016,21 +2003,20 @@ def renderInitialForm():
 
 ################################################################################
 # 
-# Function Name: clearCriterias(request, queryForm)
+# Function Name: clear_criterias(request)
 # Inputs:        request -
-#                queryForm - 
 # Outputs:       
 # Exceptions:    None
 # Description:   Clears the Query Builder
 #
 ################################################################################ 
-@dajaxice_register
-def clearCriterias(request, queryForm):
+def clear_criterias(request):
     """ Reset Saved Criterias """
-    dajax = Dajax()
+    
+    query_form = request.POST['queryForm']
     
     # Load the criterias tree     
-    queryTree = html.fromstring(queryForm)
+    queryTree = html.fromstring(query_form)
     
     fields = queryTree.findall("./p")
     for field in fields:
@@ -2040,24 +2026,22 @@ def clearCriterias(request, queryForm):
     queryTree.insert(0,initialForm)  
     
     request.session['mapCriteriasExplore'] = dict()
-      
-    dajax.assign("#queryForm", "innerHTML", html.tostring(queryTree))
 
-    return dajax.json()
+    response_dict = {'queryForm': html.tostring(queryTree)}
+    return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
+
 
 ################################################################################
 # 
-# Function Name: clearQueries(request)
+# Function Name: clear_queries(request)
 # Inputs:        request -
 # Outputs:       
 # Exceptions:    None
 # Description:   Delete all saved queries
 #
 ################################################################################ 
-@dajaxice_register
-def clearQueries(request):
+def clear_queries(request):
     """ Reset Saved Queries """
-    dajax = Dajax()
     
     mapQueryInfo = request.session['mapQueryInfoExplore']
        
@@ -2066,11 +2050,7 @@ def clearQueries(request):
             
     request.session['mapQueryInfoExplore'] = dict()
     
-    dajax.script("""
-        $('#queriesTable').load(document.URL +  ' #queriesTable', function() {}); 
-    """)
-    
-    return dajax.json()
+    return HttpResponse(json.dumps({}), mimetype='application/javascript')
 
 
 ################################################################################
@@ -2093,30 +2073,29 @@ def manageRegexFromDB(query):
         elif isinstance(value, dict):
             manageRegexFromDB(value)
 
+
 ################################################################################
 # 
-# Function Name: getCustomForm(request)
+# Function Name: get_custom_form(request)
 # Inputs:        request - 
 # Outputs:       
 # Exceptions:    None
 # Description:   Get the form customized by the user to select the fields
 #
 ################################################################################ 
-@dajaxice_register
-def getCustomForm(request):
-    dajax = Dajax()
-    
-    
+def get_custom_form(request):
     if 'savedQueryFormExplore' in request.session:
         savedQueryForm = request.session['savedQueryFormExplore']
     else:
         savedQueryForm = ""
     customFormString = request.session['customFormStringExplore']
+    
+    response_dict = {}
     #delete criterias if user comes from another page than results
     if 'keepCriterias' in request.session:
         del request.session['keepCriterias']
         if savedQueryForm != "" :
-            dajax.assign("#queryForm", "innerHTML", savedQueryForm)
+            response_dict['queryForm'] = savedQueryForm
             request.session['savedQueryFormExplore'] = ""
     else:
         request.session['mapCriteriasExplore'] = dict()
@@ -2138,32 +2117,34 @@ def getCustomForm(request):
         
     if (customFormString != ""):
         if 'currentExploreTab' in request.session and request.session['currentExploreTab'] == "tab-1":
-            dajax.assign('#customForm', 'innerHTML', customFormString)
-            dajax.assign('#sparqlCustomForm', 'innerHTML', "")
+            customForm = customFormString
+            sparqlCustomForm = ""
         elif 'currentExploreTab' in request.session and request.session['currentExploreTab'] == "tab-2":
-            dajax.assign('#sparqlCustomForm', 'innerHTML', customFormString)
-            dajax.assign('#customForm', 'innerHTML', "")
+            sparqlCustomForm = customFormString
+            customForm = ""
     else:
         customFormErrorMsg = "<p style='color:red;'>You should customize the template first. <a href='/explore/customize-template' style='color:red;font-weight:bold;'>Go back to Step 2 </a> and select the elements that you want to use in your queries.</p>"
-        dajax.assign('#customForm', 'innerHTML', customFormErrorMsg)
-        dajax.assign('#sparqlCustomForm', 'innerHTML', customFormErrorMsg)
+        customForm = customFormErrorMsg
+        sparqlCustomForm = customFormErrorMsg
     
-#     elif 'currentExploreTab' in request.session and request.session['currentExploreTab'] == "tab-2":
+    response_dict['customForm'] = customForm
+    response_dict['sparqlCustomForm'] = sparqlCustomForm
     
     if 'sparqlQueryExplore' in request.session and request.session['sparqlQueryExplore'] != "":
         sparqlQuery = request.session['sparqlQueryExplore']
     else:
         sparqlQuery = ""
         
-    if sparqlQuery != "" :        
-        dajax.assign('#SPARQLqueryBuilder .SPARQLTextArea', 'innerHTML', sparqlQuery)
+    if sparqlQuery != "" :
+        response_dict['sparqlQuery'] = sparqlQuery    
         request.session['sparqlQueryExplore'] = ""
     
-    return dajax.json()  
+    return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
+
 
 ################################################################################
 #
-# Function Name: saveCustomData(request,formContent)
+# Function Name: save_custom_data(request)
 # Inputs:        request - 
 # Outputs:       
 # Exceptions:    None
@@ -2171,15 +2152,14 @@ def getCustomForm(request):
 #                
 #
 ################################################################################
-@dajaxice_register
-def saveCustomData(request,formContent):
-    print '>>>>  BEGIN def saveCustomData(request,formContent)'
-    dajax = Dajax()
-
-    request.session['formStringExplore']  = formContent
+def save_custom_data(request):
+    print '>>>>  BEGIN def saveCustomData(request)'
+    
+    form_content = request.POST['formContent']
+    request.session['formStringExplore']  = form_content
 
     # modify the form string to only keep the selected elements
-    htmlTree = html.fromstring(formContent)
+    htmlTree = html.fromstring(form_content)
     createCustomTreeForQuery(request, htmlTree)
     anyChecked = request.session['anyCheckedExplore']
     if (anyChecked):
@@ -2189,8 +2169,8 @@ def saveCustomData(request,formContent):
     
     request.session['anyCheckedExplore'] = False 
 
-    print '>>>> END def saveCustomData(request,formContent)'
-    return dajax.json()  
+    print '>>>> END def saveCustomData(request)'
+    return HttpResponse(json.dumps({}), mimetype='application/javascript')
 
 ################################################################################
 #
@@ -2290,20 +2270,19 @@ def manageLiForQuery(request, li):
 
 ################################################################################
 #
-# Function Name: downloadResults(request)
+# Function Name: download_results(request)
 # Inputs:        request - 
 # Outputs:       
 # Exceptions:    None
 # Description:   Download results from a query
 #                
 ################################################################################
-@dajaxice_register
-def downloadResults(request):
+def download_results(request):
     print '>>>>  BEGIN def downloadResults(request)'
-    dajax = Dajax()
 
     instances = request.session['instancesExplore']
     
+    response_dict = {}
     xmlResults = []
     for instance in instances:
         sessionName = "resultsExplore" + eval(instance)['name']
@@ -2312,51 +2291,42 @@ def downloadResults(request):
         if (len(results) > 0):            
             for result in results:
                 xmlResults.append(result)
-            
-    savedResults = QueryResults(results=xmlResults).save()
-    savedResultsID = str(savedResults.id)
+     
+    if len(xmlResults) > 0:       
+        savedResults = QueryResults(results=xmlResults).save()
+        savedResultsID = str(savedResults.id)
+        response_dict = {'savedResultsID': savedResultsID}
         
-    dajax.redirect("/explore/results/download-results?id="+savedResultsID)
-    
-    print '>>>> END def downloadResults(request)'
-    return dajax.json()
+    print '>>>> END def downloadResults(request)'    
+    return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
   
 
 ################################################################################
 #
-# Function Name: backToQuery(request)
+# Function Name: back_to_query(request)
 # Inputs:        request - 
 # Outputs:       
 # Exceptions:    None
 # Description:   Allows to come back to the query definition keeping the criterias
 #                
 ################################################################################
-@dajaxice_register
-def backToQuery(request):
-    dajax = Dajax()
-     
+def back_to_query(request):         
     request.session['keepCriterias'] = True
-
-    return dajax.json()
+    return HttpResponse(json.dumps({}), mimetype='application/javascript')
 
 
 ################################################################################
 #
-# Function Name: redirectExplore(request)
+# Function Name: redirect_explore(request)
 # Inputs:        request - 
 # Outputs:       
 # Exceptions:    None
 # Description:   Switch tab
 #                
 ################################################################################
-@dajaxice_register
-def redirectExplore(request):
-    dajax = Dajax()
-    
+def redirect_explore(request):
     request.session['currentExploreTab'] = "tab-2"
-    dajax.redirect("/explore")
-    
-    return dajax.json()
+
 
 ################################################################################
 #
@@ -2367,16 +2337,14 @@ def redirectExplore(request):
 # Description:   Switch tab
 #                
 ################################################################################
-@dajaxice_register
-def redirectExploreTabs(request):
-    dajax = Dajax()
-       
+def redirect_explore_tabs(request):
     if 'currentExploreTab' in request.session and request.session['currentExploreTab'] == "tab-2":
-        dajax.script("redirectSPARQLTab();")
+        response_dict = {'tab':'sparql'}
     else:
-        dajax.script("switchTabRefresh();")
+        response_dict = {'tab':'qbe'}
     
-    return dajax.json()
+    return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
+
 
 ################################################################################
 #
@@ -2387,11 +2355,10 @@ def redirectExploreTabs(request):
 # Description:   Switch tab and clears/sets custom forms
 #                
 ################################################################################
-@dajaxice_register
-def switchExploreTab(request,tab):
-    dajax = Dajax()
-    
-    request.session["currentExploreTab"] = tab
+def switch_explore_tab(request):    
+    request.session["currentExploreTab"] = request.POST['tab']
+    sparqlCustomForm = ""
+    customForm = ""
     
     if 'customFormStringExplore' in request.session:   
         customFormString = request.session['customFormStringExplore']
@@ -2400,129 +2367,116 @@ def switchExploreTab(request,tab):
     
     if (customFormString != ""):
         if 'currentExploreTab' in request.session and request.session['currentExploreTab'] == "tab-1":
-            dajax.assign('#customForm', 'innerHTML', customFormString)
-            dajax.assign('#sparqlCustomForm', 'innerHTML', "")
+            customForm = customFormString
+            sparqlCustomForm = ""
         elif 'currentExploreTab' in request.session and request.session['currentExploreTab'] == "tab-2":
-            dajax.assign('#sparqlCustomForm', 'innerHTML', customFormString)
-            dajax.assign('#customForm', 'innerHTML', "")
+            sparqlCustomForm = customFormString
+            customForm = ""
     
-    return dajax.json()
+    response_dict = {"customForm": customForm, "sparqlCustomForm": sparqlCustomForm}
+    return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
 
 
 ################################################################################
 #
-# Function Name: setCurrentCriteria(request, currentCriteriaID)
+# Function Name: set_current_criteria(request)
 # Inputs:        request - 
-#                currentCriteriaID
 # Outputs:       
 # Exceptions:    None
 # Description:   Set the id of the criteria that is currently set
 #                
 ################################################################################
-@dajaxice_register
-def setCurrentCriteria(request, currentCriteriaID):
-    dajax = Dajax()
+def set_current_criteria(request):
     
-    request.session['criteriaIDExplore'] = currentCriteriaID
+    request.session['criteriaIDExplore'] = request.POST['currentCriteriaID']
+    return HttpResponse(json.dumps({}), mimetype='application/javascript')
     
-    return dajax.json()
 
 ################################################################################
 #
-# Function Name: selectElement(request, elementID, elementName)
+# Function Name: select_element(request)
 # Inputs:        request - 
-#                elementID - 
-#                elementName - 
 # Outputs:       
 # Exceptions:    None
 # Description:   Select an element from the Get Element feature of the SPARQL endpoint
 #                
 ################################################################################
-@dajaxice_register
-def selectElement(request, elementID, elementName): 
-    dajax = Dajax()
+def select_element(request):
+    
+    element_id = request.POST['elementID']
+    element_name = request.POST['elementName']
     
     if 'currentExploreTab' in request.session and request.session['currentExploreTab'] == "tab-1":
-        criteriaID = request.session['criteriaIDExplore']    
-        dajax.script("""
-            $($("#"""+ criteriaID +"""").children()[1]).val('"""+ elementName +"""');
-            $($("#"""+ criteriaID +"""").children()[1]).attr("class","elementInput");
-            updateUserInputs("""+ str(elementID) +""", """+ str(criteriaID[4:]) +"""); 
-            $("#dialog-customTree").dialog("close");    
-        """)
+        criteria_id = request.session['criteriaIDExplore']  
+        response_dict = {"tab": "tab-1", 
+                         "criteriaTagID": criteria_id,
+                         "criteriaID": str(criteria_id[4:])}  
         
         request.session['criteriaIDExplore'] = ""
     elif 'currentExploreTab' in request.session and request.session['currentExploreTab'] == "tab-2":
         mapTagIDElementInfo = request.session['mapTagIDElementInfoExplore']
-        elementPath = eval(mapTagIDElementInfo[str(elementID)])['path']
+        elementPath = eval(mapTagIDElementInfo[str(element_id)])['path']
         elementPath = elementPath.replace(".","/tpl:")
         elementPath = "tpl:" + elementPath
         
-        queryExample = """SELECT ?""" + elementName + """Value
+        queryExample = """SELECT ?""" + element_name + """Value
 WHERE {
 ?s """ + elementPath + """ ?o .
-?o rdf:value ?""" + elementName + """Value .
+?o rdf:value ?""" + element_name + """Value .
 }
 """
-        dajax.script("""
-            $("#sparqlElementPath").val('"""+ elementPath + """');
-        """)
-        dajax.assign("#sparqlExample", "innerHTML", queryExample)
-    return dajax.json()
+        response_dict = {"tab": "tab-2", 
+                         "elementPath": elementPath,
+                         "queryExample": queryExample} 
+
+    return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
 
 ################################################################################
 #
-# Function Name: executeSPARQLQuery(request, queryStr, sparqlFormatIndex, fedOfQueries)
+# Function Name: execute_sparql_query(request)
 # Inputs:        request - 
-#                queryStr - 
-#                sparqlFormatIndex - 
-#                fedOfQueries - 
 # Outputs:       
 # Exceptions:    None
 # Description:   Execute a SPARQL query
 #                
 ################################################################################
-@dajaxice_register
-def executeSPARQLQuery(request, queryStr, sparqlFormatIndex, fedOfQueries):
-    print 'BEGIN def executeSPARQLQuery(request, queryStr, sparqlFormatIndex)'        
-    dajax = Dajax()
+def execute_sparql_query(request):
+    print 'BEGIN def executeSPARQLQuery(request)'        
     
-    instances = getInstances(request, fedOfQueries)
+    fed_of_queries = request.POST['fedOfQueries']
+    query_str = request.POST['queryStr']
+    sparql_format_index = request.POST['sparqlFormatIndex']
+    
+    response_dict = {}
+    
+    instances = getInstances(request, fed_of_queries)
     if (len(instances)==0):
-        dajax.script("showErrorInstancesDialog();")
+        response_dict = {'errors':'zero'}
     else:
         json_instances = []
         for instance in instances:
             json_instances.append(instance.to_json()) 
         request.session['instancesExplore'] = json_instances
-        request.session['sparqlQueryExplore'] = queryStr
-        request.session['sparqlFormatExplore'] = str(sparqlFormatIndex)
-        dajax.script("sparqlResultsCallback();")
+        request.session['sparqlQueryExplore'] = query_str
+        request.session['sparqlFormatExplore'] = str(sparql_format_index)
 
-    print 'END def executeSPARQLQuery(request, queryStr, sparqlFormatIndex)'
-    return dajax.json()
+    print 'END def executeSPARQLQuery(request)'
+    return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
 
 ################################################################################
 #
-# Function Name: getSparqlResults(request)
+# Function Name: get_sparql_results(request)
 # Inputs:        request - 
 # Outputs:       
 # Exceptions:    None
 # Description:   Gets results from a SPARQL query
 #                
 ################################################################################
-@dajaxice_register
-def getSparqlResults(request):
-    dajax = Dajax()
-    
+def get_sparql_results(request):
     instances = request.session['instancesExplore']    
-    request.session['sparqlResultsExplore'] = ""
-    
-    dajax.script("""
-        getAsyncSparqlResults('"""+ str(len(instances)) +"""');
-    """)
-    
-    return dajax.json()
+    request.session['sparqlResultsExplore'] = ""    
+    response_dict = {'numInstance': str(len(instances))}
+    return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
 
 # from threading import Thread, Lock
 # mutex = Lock()
@@ -2593,23 +2547,22 @@ def getSparqlResults(request):
 #     print sessionName + "release"
 #     return dajax.json()
 
+
 ################################################################################
 #
-# Function Name: getSparqlResultsByInstance(request, numInstance)
+# Function Name: get_sparql_results_by_instance(request)
 # Inputs:        request -
-#                numInstance -
 # Outputs:       
 # Exceptions:    None
 # Description:   Gets results from a SPARQL query for the given instances
 #                
 ################################################################################
-@dajaxice_register
-def getSparqlResultsByInstance(request, numInstance):
-    dajax = Dajax()
+def get_sparql_results_by_instance(request):
+    num_instance = request.GET['numInstance']
     
     resultString = ""
     
-    for i in range(int(numInstance)):
+    for i in range(int(num_instance)):
         instances = request.session['instancesExplore']
         sparqlQuery = request.session['sparqlQueryExplore']    
         sparqlFormat = request.session['sparqlFormatExplore']
@@ -2655,24 +2608,22 @@ def getSparqlResultsByInstance(request, numInstance):
             except:
                 request.session[sessionName] = ""
                 resultString += "<p style='color:red;'>Unable to contact the remote instance.</p>"
-    
-    dajax.append("#results", "innerHTML", resultString)
-       
-    return dajax.json()
+        
+    response_dict = {'results' : resultString}   
+    return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
+
 
 ################################################################################
 #
-# Function Name: downloadSparqlResults(request)
+# Function Name: download_sparql_results(request)
 # Inputs:        request -
 # Outputs:       
 # Exceptions:    None
 # Description:   Download Results gotten from a SPARQL query
 #                
 ################################################################################  
-@dajaxice_register
-def downloadSparqlResults(request):
+def download_sparql_results(request):
     print '>>>>  BEGIN def downloadSparqlResults(request)'
-    dajax = Dajax()
 
     instances = request.session['instancesExplore']
     sparqlResults = ""
@@ -2686,32 +2637,30 @@ def downloadSparqlResults(request):
         
     savedResults = SparqlQueryResults(results=sparqlResults).save()
     savedResultsID = str(savedResults.id)
-
-    dajax.redirect("/explore/results/download-sparqlresults?id="+savedResultsID)
     
     print '>>>> END def downloadSparqlResults(request)'
-    return dajax.json()
+    response_dict = {'savedResultsID': savedResultsID}
+    return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
+
 
 ################################################################################
 #
-# Function Name: prepareSubElementQuery(request, leavesID)
+# Function Name: prepare_sub_element_query(request)
 # Inputs:        request -
-#                leavesID -
 # Outputs:       
 # Exceptions:    None
 # Description:   Build the form for queries on a same subelement 
 #                
 ################################################################################
-@dajaxice_register
-def prepareSubElementQuery(request, leavesID):
-    print '>>>>  BEGIN def prepareSubElementQuery(request, leavesID)'
-    dajax = Dajax()
-    
+def prepare_sub_element_query(request):
+    print '>>>>  BEGIN def prepareSubElementQuery(request)'
+
+    leaves_id = request.GET['leavesID']    
     mapTagIDElementInfo =  request.session['mapTagIDElementInfoExplore']
     
     defaultPrefix = request.session['defaultPrefixExplore']
     
-    listLeavesId = leavesID.split(" ")
+    listLeavesId = leaves_id.split(" ")
     firstElementPath = eval(mapTagIDElementInfo[str(listLeavesId[0])])['path']
     parentPath = ".".join(firstElementPath.split(".")[:-1])
     parentName = parentPath.split(".")[-1]
@@ -2750,26 +2699,25 @@ def prepareSubElementQuery(request, leavesID):
         subElementQueryBuilderStr += "</li><br/>"
     subElementQueryBuilderStr += "</ul>"
     
-    dajax.assign("#subElementQueryBuilder", "innerHTML", subElementQueryBuilderStr)    
-    
-    print '>>>>  END def prepareSubElementQuery(request, leavesID)'
-    return dajax.json()
+    print '>>>>  END def prepareSubElementQuery(request)'
+    response_dict = {'subElementQueryBuilder': subElementQueryBuilderStr}
+    return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
+
 
 ################################################################################
 #
-# Function Name: insertSubElementQuery(request, leavesID, form)
+# Function Name: insert_sub_element_query(request)
 # Inputs:        request -
-#                leavesID -
-#                form - 
 # Outputs:       
 # Exceptions:    None
 # Description:   Inserts a query for a sub element in the query builder  
 #                
 ################################################################################
-@dajaxice_register
-def insertSubElementQuery(request, leavesID, form):
-    print '>>>>  BEGIN def insertSubElementQuery(request, leavesID, form)'
-    dajax = Dajax()
+def insert_sub_element_query(request):
+    print '>>>>  BEGIN def insertSubElementQuery(request)'
+    
+    form = request.POST['form']
+    leaves_id = request.POST['leavesID']
     
     mapTagIDElementInfo = request.session['mapTagIDElementInfoExplore'] 
     
@@ -2778,7 +2726,7 @@ def insertSubElementQuery(request, leavesID, form):
     
     htmlTree = html.fromstring(form)
     listLi = htmlTree.findall("ul/li")
-    listLeavesId = leavesID.split(" ")
+    listLeavesId = leaves_id.split(" ")
     
     i = 0
     nbSelected = 0
@@ -2806,29 +2754,19 @@ def insertSubElementQuery(request, leavesID, form):
         mapCriterias[criteriaID] = criteriaInfo.__to_json__()
         request.session['mapCriteriasExplore'] = mapCriterias
         uiID = "ui" + criteriaID[4:]
-        dajax.script("""
-            // insert the pretty query in the query builder
-            $($("#"""+ criteriaID +"""").children()[1]).attr("value",'"""+ prettyQuery +"""');
-            var field = $("#"""+ criteriaID +"""").children()[1]
-            // replace the pretty by an encoded version
-            $(field).attr("value",$(field).html($(field).attr("value")).text())
-            // set the class to query
-            $($("#"""+ criteriaID +"""").children()[1]).attr("class","queryInput");
-            // remove all other existing inputs
-            $("#"""+uiID+"""").children().remove();
-            // close the dialog
-            $("#dialog-subElementQuery").dialog("close");    
-        """)        
+        response_dict = {'criteriaID': criteriaID,
+                         'prettyQuery': prettyQuery,
+                         'uiID': uiID}    
     else:
         errorsString = ""
         for error in errors:
-            errorsString += "<p>" + error + "</p>"            
-        dajax.assign('#listErrors', 'innerHTML', errorsString)
-        dajax.script("displayErrors();")
+            errorsString += "<p>" + error + "</p>"
+        response_dict = {'listErrors': errorsString}            
             
     
-    print '>>>>  END def insertSubElementQuery(request, leavesID, form)'
-    return dajax.json()
+    print '>>>>  END def insertSubElementQuery(request)'
+    
+    return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
 
 ################################################################################
 #

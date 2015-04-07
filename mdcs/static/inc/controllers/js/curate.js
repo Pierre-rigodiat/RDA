@@ -1,6 +1,6 @@
 /**
  * 
- * File Name: tpl_sel.js
+ * File Name: curate.js
  * Author: Sharief Youssef
  * 		   sharief.youssef@nist.gov
  *
@@ -11,50 +11,55 @@
  * 
  */
 
-function getCookie(name) {
-    var cookieValue = null;
-    if (document.cookie && document.cookie != '') {
-        var cookies = document.cookie.split(';');
-        for (var i = 0; i < cookies.length; i++) {
-            var cookie = jQuery.trim(cookies[i]);
-            // Does this cookie string begin with the name we want?
-            if (cookie.substring(0, name.length + 1) == (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
-}
-var csrftoken = getCookie('csrftoken');
 
-function csrfSafeMethod(method) {
-    // these HTTP methods do not require CSRF protection
-    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
-}
-function sameOrigin(url) {
-    // test that a given url is a same-origin URL
-    // url could be relative or scheme relative or absolute
-    var host = document.location.host; // host + port
-    var protocol = document.location.protocol;
-    var sr_origin = '//' + host;
-    var origin = protocol + sr_origin;
-    // Allow absolute or scheme relative URLs to same origin
-    return (url == origin || url.slice(0, origin.length + 1) == origin + '/') ||
-        (url == sr_origin || url.slice(0, sr_origin.length + 1) == sr_origin + '/') ||
-        // or any other URL that isn't scheme relative or absolute i.e relative.
-        !(/^(\/\/|http:|https:).*/.test(url));
-}
-$.ajaxSetup({
-    beforeSend: function(xhr, settings) {
-        if (!csrfSafeMethod(settings.type) && sameOrigin(settings.url)) {
-            // Send the token to same-origin, relative URLs only.
-            // Send the token only if the method warrants CSRF protection
-            // Using the CSRFToken value acquired earlier
-            xhr.setRequestHeader("X-CSRFToken", csrftoken);
+/**
+ * AJAX call, checks that a template is selected
+ * @param selectedLink redirection link
+ */
+verifyTemplateIsSelected = function(selectedLink)
+{
+    console.log('BEGIN [verifyTemplateIsSelected]');
+    
+    $.ajax({
+        url : "/curate/verify_template_is_selected",
+        type : "GET",
+        dataType: "json",
+        success: function(data){
+            verifyTemplateIsSelectedCallback(data, selectedLink);
         }
+    });
+
+    console.log('END [verifyTemplateIsSelected]');
+}
+
+
+/**
+ * AJAX callback, redirects to selected link if authorized
+ * @param data data from server
+ * @param selectedLink redirection link
+ */
+verifyTemplateIsSelectedCallback = function(data, selectedLink)
+{
+    console.log('BEGIN [verifyTemplateIsSelectedCallback]');
+
+    if (data.templateSelected == 'no') {
+        $(function() {
+            $( "#dialog-error-message" ).dialog({
+                modal: true,
+                buttons: {
+                    Ok: function() {
+                    $( this ).dialog( "close" );
+                    }
+                }
+            });
+        });
+    } else {
+        location.href = selectedLink;
     }
-});
+
+    console.log('END [verifyTemplateIsSelectedCallback]');
+}
+
 
 /**
  * Load controllers for template selection
@@ -68,6 +73,10 @@ loadTemplateSelectionControllers = function()
     console.log('END [loadTemplateSelectionControllers]');    
 }
 
+
+/**
+ * AJAX call, initializes curation
+ */
 init_curate = function(){
     $.ajax({
         url : "/curate/init_curate",
@@ -75,6 +84,7 @@ init_curate = function(){
         dataType: "json",
     });
 }
+
 
 /**
  * Clear the fields of the current curated data
@@ -101,6 +111,10 @@ clearFields = function()
     console.log('END [clearFields]');
 }
 
+
+/**
+ * AJAX call, clears fields 
+ */
 clear_fields = function(){
     $.ajax({
         url : "/curate/clear_fields",
@@ -111,6 +125,7 @@ clear_fields = function(){
         }
     });
 }
+
 
 /**
  * Load an existing form. Show the window.
@@ -137,6 +152,7 @@ loadForm = function()
     console.log('END [loadForm]');
 }
 
+
 /**
  * Load an existing form.
  * @returns {Boolean}
@@ -155,6 +171,11 @@ doLoadForm = function()
     return false;
 }
 
+
+/**
+ * AJAX call, load the form from the server
+ * @param form_selected
+ */
 load_form_for_entry = function(form_selected){
     $.ajax({
         url : "/curate/load_form_for_entry",
@@ -192,6 +213,7 @@ formLoaded = function()
     console.log('END [loadForm]');
 }
 
+
 /**
  * Save the current form. Show the window.
  */
@@ -220,6 +242,7 @@ saveForm = function()
 	
     console.log('END [saveForm]');
 }
+
 
 /**
  * Save an existing form. 
@@ -263,6 +286,12 @@ doSave = function()
     console.log('END [doSave]');
 }
 
+
+/**
+ * AJAX call, saves the HTML form 
+ * @param save_as title of the form
+ * @param content form content of the form
+ */
 save_html_form = function(save_as, content){
     $.ajax({
         url : "/curate/save_html_form",
@@ -278,8 +307,9 @@ save_html_form = function(save_as, content){
     });
 }
 
+
 /**
- * Display the current data to curate
+ * Displays the current data to be curated
  */
 viewData = function()
 {
@@ -300,6 +330,11 @@ viewData = function()
     console.log('END [viewData]');
 }
 
+
+/**
+ * AJAX call, redirects to View Data after sending the current form
+ * @param formContent
+ */
 view_data = function(formContent){
     $.ajax({
         url : "/curate/view_data",
@@ -313,6 +348,7 @@ view_data = function(formContent){
         }
     });
 }
+
 
 /**
  * Validate the current data to curate.
@@ -335,6 +371,11 @@ validateXML = function()
 }
 
 
+/**
+ * AJAX call, send the XML String to the server for validation
+ * @param xmlString XML String generated from the HTML form
+ * @param xsdForm HTML form
+ */
 validate_xml_data = function(xmlString, xsdForm){
     $.ajax({
         url : "/curate/validate_xml_data",
@@ -444,6 +485,7 @@ selectElement = function(divElement)
 	console.log('END [selectElement('+divElement+')]');
 }
 
+
 /**
  * Display the selected element
  * @param element
@@ -456,6 +498,7 @@ chooseElement = function(element)
 
     console.log('END [chooseElement(' + element + ')]');
 }
+
 
 /**
  * Save the selected element into the form
@@ -477,6 +520,7 @@ doSelectElement = function(divElement)
 
     console.log('END [doSelectElement(' + divElement + ')]');
 }
+
 
 /**
  * Display the periodic table to select multiple chemical elements
@@ -529,6 +573,7 @@ selectMultipleElements = function(divElement)
   console.log('END [selectElement]');
 }
 
+
 /**
  * Display the selected elements
  * @param element
@@ -549,6 +594,7 @@ chooseMultipleElements = function(element)
 
   console.log('END [chooseElement(' + element + ')]');
 }
+
 
 /**
  * Save the selected elements into the form
@@ -598,6 +644,7 @@ document.getElementById('chosenMultipleElements').innerHTML = "<table id='tableC
 console.log('END [selectElement(' + divElement + ')]');
 }
 
+
 /**
  * Remove an element from the selection
  */
@@ -615,6 +662,7 @@ removeMultipleElement = function(removeButton){
 	
 	console.log('END [removeMultipleElement]');
 }
+
 
 /**
  * Select an Excel Spreadseet. Show the dialog box.
@@ -657,6 +705,9 @@ doSelectHDF5File = function(divElement)
 }
 
 
+/**
+ * AJAX call, gets XML String from spreadsheet
+ */
 get_hdf5_string = function(){
     $.ajax({
         url : "/curate/get_hdf5_string",
@@ -667,6 +718,7 @@ get_hdf5_string = function(){
         }
     });
 }
+
 
 /**
  * Insert the Spreadsheet information in the form.
@@ -679,6 +731,7 @@ getHDF5StringCallback = function(spreadsheetXML)
 		moduleTag.children(".moduleDisplay").html("Spreadsheet successfully loaded.");
 	}
 }
+
 
 /**
  * Update the display regarding the choice of the user.
@@ -702,6 +755,7 @@ changeChoice = function(selectObj)
     console.log('END [changeChoice(' + selectObj.id + ' : ' + selectObj.selectedIndex + ')]');
 }
 
+
 /**
  * Show a dialog when a template is selected
  */
@@ -719,6 +773,7 @@ displayTemplateSelectedDialog = function()
   });
 }
 
+
 /**
  * Check if the template is selected, to prevent manual navigation.
  */
@@ -731,16 +786,21 @@ verifyTemplateIsSelectedCurateEnterData = function(){
 }
 
 
+/**
+ * AJAX call, checks that a template has been selected
+ * @param callback
+ */
 verify_template_is_selected = function(callback){
     $.ajax({
         url : "/curate/verify_template_is_selected",
         type : "GET",
         dataType: "json",
         success: function(data){
-            callback(data.templateSelected )
+            callback(data.templateSelected);
         }
     });
 }
+
 
 /**
  * Callback redirects to main page if no templates selected.
@@ -758,6 +818,7 @@ verifyTemplateIsSelectedCurateEnterDataCallback = function(templateSelected)
 
     console.log('END [verifyTemplateIsSelectedCallback]');
 }
+
 
 /**
  * Load the form to curate data
@@ -779,6 +840,10 @@ loadCurrentTemplateFormForCuration = function()
     console.log('END [loadCurrentTemplateFormForCuration]');
 }
 
+
+/**
+ * AJAX call, generates HTML form from XSD
+ */
 generate_xsd_form = function(){
     $.ajax({
         url : "/curate/generate_xsd_form",
@@ -794,6 +859,9 @@ generate_xsd_form = function(){
 }
 
 
+/**
+ * AJAX call, updates the list of availlable forms to load
+ */
 update_form_list = function(){
     $.ajax({
         url : "/curate/update_form_list",
@@ -803,22 +871,6 @@ update_form_list = function(){
             $('#listOfForms').html(data.options);
         }
     });
-}
-
-/**
- * Load the form to customize fields for query
- */
-loadExploreCurrentTemplateForm = function()
-{
-    console.log('BEGIN [loadExploreCurrentTemplateForm]');
-
-    $('.btn.clear-fields').on('click', clearFields);
-    $('.btn.load-form').on('click', loadForm);
-    $('.btn.save-form').on('click', saveForm);
-
-    Dajaxice.explore.generateXSDTreeForEnteringData(Dajax.process); //,{'templateFilename':'xxxx'});
-
-    console.log('END [loadExploreCurrentTemplateForm]');
 }
 
 
@@ -832,6 +884,7 @@ verifyTemplateIsSelectedViewData = function(){
 
     console.log('END [verifyTemplateIsSelected]');
 }
+
 
 /**
  * Check that the tempalte is selected or redirect to main page
@@ -851,6 +904,9 @@ verifyTemplateIsSelectedViewDataCallback = function(data)
 }
 
 
+/**
+ * AJAX call, loads XML data into the page for review
+ */
 load_xml = function(){
     $.ajax({
         url : "/curate/load_xml",
@@ -861,6 +917,7 @@ load_xml = function(){
         }
     });
 }
+
 
 /**
  * Load template view controllers
@@ -874,6 +931,7 @@ loadCurrentTemplateView = function()
 
     console.log('END [loadCurrentTemplateView]');
 }
+
 
 /**
  * Shows a dialog to choose dialog options
@@ -905,6 +963,10 @@ downloadXML = function()
     console.log('END [downloadXML]');
 }
 
+
+/**
+ * AJAX call, get XML data and redirects to download view
+ */
 download_xml = function(){
     $.ajax({
         url : "/curate/download_xml",
@@ -915,6 +977,7 @@ download_xml = function(){
         }
     });
 }
+
 
 /**
  * Download the XSD template
@@ -932,6 +995,7 @@ downloadXSD = function()
 
     console.log('END [downloadXSD]');
 }
+
 
 /**
  * Save XML data to repository. Shows dialog.
@@ -962,6 +1026,7 @@ saveToRepository = function()
     console.log('END [saveToRepository]');
 }
 
+
 /**
  * Save XML data to repository. 
  */
@@ -976,6 +1041,10 @@ doSaveToRepository = function()
 }
 
 
+/**
+ * AJAX call, saves data to database
+ * @param saveAs title of the document
+ */
 save_xml_data_to_db = function(saveAs){
     $.ajax({
         url : "/curate/save_xml_data_to_db",
@@ -987,13 +1056,23 @@ save_xml_data_to_db = function(saveAs){
         success : function(data) {
             if ('errors' in data){
                 $("#saveErrorMessage").html(data.errors);
-                savedXMLDataToDB();
+                $(function() {
+                    $( "#dialog-save-error-message" ).dialog({
+                        modal: true,
+                        buttons: {
+                        	Ok: function() {
+                                $( this ).dialog( "close" );
+                            }
+                        }
+                    });
+                });                
             }else{
                 savedXMLDataToDB();
             }
         }
     });
 }
+
 
 /**
  * Saved XML data to DB message.
@@ -1017,6 +1096,7 @@ savedXMLDataToDB = function()
     
     console.log('END [savedXMLDataToDB]');
 }
+
 
 /**
  * Save XML data to DB error message. 
@@ -1070,6 +1150,11 @@ changeHTMLForm = function(operation, tagID)
 }
 
 
+/**
+ * AJAX call, duplicate an element from the form
+ * @param tagID HTML id of the element to duplicate
+ * @param xsdForm HTML form 
+ */
 duplicate = function(tagID, xsdForm){
     $.ajax({
         url : "/curate/duplicate",
@@ -1094,6 +1179,12 @@ duplicate = function(tagID, xsdForm){
     });
 }
 
+
+/**
+ * AJAX call, remove an element from the form
+ * @param tagID HTML id of the element to remove
+ * @param xsdForm HTML form 
+ */
 remove = function(tagID, xsdForm){
 $.ajax({
         url : "/curate/remove",
@@ -1116,6 +1207,8 @@ $.ajax({
         }
     });
 }
+
+
 /**
  * Set the current template 
  * @returns {Boolean}
@@ -1137,6 +1230,12 @@ setCurrentTemplate = function()
     return false;
 }
 
+
+/**
+ * AJAX call, sets the current template
+ * @param templateFilename name of the selected template
+ * @param templateID id of the selected template
+ */
 set_current_template = function(templateFilename,templateID){
     $.ajax({
         url : "/curate/set_current_template",
@@ -1151,6 +1250,7 @@ set_current_template = function(templateFilename,templateID){
         }
     });
 }
+
 
 /**
  * Set current user defined template
@@ -1170,6 +1270,11 @@ setCurrentUserTemplate = function()
     return false;
 }
 
+
+/**
+ * AJAX call, sets the current user defined template
+ * @param templateID
+ */
 set_current_user_template = function(templateID){
     $.ajax({
         url : "/curate/set_current_user_template",
@@ -1183,6 +1288,7 @@ set_current_user_template = function(templateID){
         }
     });
 }
+
 
 /**
  * Update page when template selected.
