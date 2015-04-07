@@ -39,4 +39,7 @@ urlpatterns = patterns('',
     url(r'^website$', 'admin.views.website', name='website'),
     url(r'^website/privacy-policy$', 'admin.views.privacy_policy_admin', name='privacy-policy-admin'),
     url(r'^website/terms-of-use$', 'admin.views.terms_of_use_admin', name='terms-of-use-admin'),
+    url(r'^create_backup', 'admin.ajax.create_backup'),
+    url(r'^restore_backup', 'admin.ajax.restore_backup'),
+    url(r'^delete_backup', 'admin.ajax.delete_backup'),
 )

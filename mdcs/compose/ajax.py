@@ -15,9 +15,8 @@
 ################################################################################
 
 import re
-from django.utils import simplejson
-from dajax.core import Dajax
-from dajaxice.decorators import dajaxice_register
+from django.http import HttpResponse
+import json
 from django.conf import settings
 from mongoengine import *
 from mgi.models import Template, Type, XML2Download, MetaSchema
@@ -33,29 +32,28 @@ import os
 
 ################################################################################
 # 
-# Function Name: setCurrentTemplate(request,templateFilename,templateID)
+# Function Name: set_current_template(request)
 # Inputs:        request - 
-#                templateFilename -  
 # Outputs:       JSON data with success or failure
 # Exceptions:    None
 # Description:   Set the current template to input argument.  Template is read 
 #                into an xsdDocTree for use later.
 #
 ################################################################################
-@dajaxice_register
-def setCurrentTemplate(request,templateFilename,templateID):
+def set_current_template(request):
     print 'BEGIN def setCurrentTemplate(request)'
 
-    request.session['currentComposeTemplate'] = templateFilename
-    request.session['currentComposeTemplateID'] = templateID
-    request.session.modified = True
-    print '>>>>' + templateFilename + ' set as current template in session'
-    dajax = Dajax()
+    template_filename = request.POST['templateFilename']
+    template_id = request.POST['templateID']
 
-    if templateID != "new":
-        templateObject = Template.objects.get(pk=templateID)
-        if templateID in MetaSchema.objects.all().values_list('schemaId'):
-            meta = MetaSchema.objects.get(schemaId=templateID)
+    request.session['currentComposeTemplate'] = template_filename
+    request.session['currentComposeTemplateID'] = template_id
+    request.session.modified = True
+
+    if template_id != "new":
+        templateObject = Template.objects.get(pk=template_id)
+        if template_id in MetaSchema.objects.all().values_list('schemaId'):
+            meta = MetaSchema.objects.get(schemaId=template_id)
             xmlDocData = meta.api_content
         else:
             xmlDocData = templateObject.content
@@ -70,33 +68,30 @@ def setCurrentTemplate(request,templateFilename,templateID):
         request.session['newXmlTemplateCompose'] = base_template_content
 
     print 'END def setCurrentTemplate(request)'
-    return dajax.json()
+    return HttpResponse(json.dumps({}), mimetype='application/javascript')
 
 
 ################################################################################
 # 
-# Function Name: setCurrentUserTemplate(request,templateID)
+# Function Name: set_current_user_template(request)
 # Inputs:        request - 
-#                templateFilename -  
 # Outputs:       JSON data with success or failure
 # Exceptions:    None
 # Description:   Set the current template to input argument.  Template is read 
 #                into an xsdDocTree for use later.
 #
 ################################################################################
-@dajaxice_register
-def setCurrentUserTemplate(request,templateID):
+def set_current_user_template(request):
     print 'BEGIN def setCurrentUserTemplate(request)'    
 
+    template_id = request.POST['templateID']
     
-    request.session['currentComposeTemplateID'] = templateID
+    request.session['currentComposeTemplateID'] = template_id
     request.session.modified = True
     
-    dajax = Dajax()
-    
-    templateObject = Template.objects.get(pk=templateID)
-    if templateID in MetaSchema.objects.all().values_list('schemaId'):
-        meta = MetaSchema.objects.get(schemaId=templateID)
+    templateObject = Template.objects.get(pk=template_id)
+    if template_id in MetaSchema.objects.all().values_list('schemaId'):
+        meta = MetaSchema.objects.get(schemaId=template_id)
         xmlDocData = meta.api_content
     else:
         xmlDocData = templateObject.content
@@ -106,18 +101,19 @@ def setCurrentUserTemplate(request,templateID):
     request.session['newXmlTemplateCompose'] = xmlDocData
 
     print 'END def setCurrentUserTemplate(request)'
-    return dajax.json()
+    return HttpResponse(json.dumps({}), mimetype='application/javascript')
+
+
 ################################################################################
 # 
-# Function Name: verifyTemplateIsSelected(request)
+# Function Name: verify_template_is_selected(request)
 # Inputs:        request - 
 # Outputs:       JSON data with templateSelected 
 # Exceptions:    None
 # Description:   Verifies the current template is selected.
 # 
 ################################################################################
-@dajaxice_register
-def verifyTemplateIsSelected(request):
+def verify_template_is_selected(request):
     print 'BEGIN def verifyTemplateIsSelected(request)'
     if 'currentComposeTemplateID' in request.session:
         print 'template is selected'
@@ -125,64 +121,59 @@ def verifyTemplateIsSelected(request):
     else:
         print 'template is not selected'
         templateSelected = 'no'
-    dajax = Dajax()
 
-    print 'END def verifyTemplateIsSelected(request)'
-    return simplejson.dumps({'templateSelected':templateSelected})
+    response_dict = {'templateSelected': templateSelected}
+    return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
+
 
 ################################################################################
 # 
-# Function Name: isNewTemplate(request)
+# Function Name: is_new_template(request)
 # Inputs:        request - 
 # Outputs:       JSON data with templateSelected 
 # Exceptions:    None
 # Description:   Verifies the current template is new.
 # 
 ################################################################################
-@dajaxice_register
-def isNewTemplate(request):    
+def is_new_template(request):    
     if 'currentComposeTemplateID' in request.session and request.session['currentComposeTemplateID'] == "new":
         newTemplate = 'yes'
     else:
         newTemplate = 'no'
-    dajax = Dajax()
     
-    return simplejson.dumps({'newTemplate':newTemplate})
+    response_dict = {'newTemplate': newTemplate}
+    return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
+
 
 ################################################################################
 # 
-# Function Name: downloadTemplate(request)
+# Function Name: download_template(request)
 # Inputs:        request - 
 # Outputs:       JSON data with templateSelected 
 # Exceptions:    None
 # Description:   Download the template file
 # 
 ################################################################################
-@dajaxice_register
-def downloadTemplate(request):
-    dajax = Dajax()
-    
+def download_template(request):
     xmlString = request.session['newXmlTemplateCompose']
     
     xml2download = XML2Download(xml=xmlString).save()
     xml2downloadID = str(xml2download.id)
     
-    dajax.redirect("/compose/download-XSD?id="+xml2downloadID)
+    response_dict = {'xml2downloadID': xml2downloadID}
+    return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
+
     
-    return dajax.json()
 ################################################################################
 # 
-# Function Name: loadXML(request)
+# Function Name: load_xml(request)
 # Inputs:        request - 
 # Outputs:       JSON data with templateSelected 
 # Exceptions:    None
 # Description:   Loads the XML data in the compose page. First transforms the data.
 # 
 ################################################################################
-@dajaxice_register
-def loadXML(request):
-    dajax = Dajax()
-    
+def load_xml(request):
     # get the original string
     xmlString = request.session['xmlTemplateCompose']
     # reset the string
@@ -210,9 +201,9 @@ def loadXML(request):
         if 'schemaLocation' in el_include.attrib:
             request.session['includedTypesCompose'].append(el_include.attrib['schemaLocation'])
             
-    dajax.assign("#XMLHolder", "innerHTML", xmlTree)
-    
-    return dajax.json()
+    response_dict = {'XMLHolder': xmlTree}
+    return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
+
 
 def get_namespaces(file):
     "Reads and returns the namespaces in the schema tag"
@@ -230,18 +221,17 @@ def get_namespaces(file):
 
 ################################################################################
 # 
-# Function Name: insertElementSequence(request, typeID, xpath)
+# Function Name: insert_element_sequence(request)
 # Inputs:        request - HTTP request
-#                typeID - ID of the inserted type
-#                xpath - xpath where the element is added
 # Outputs:       JSON 
 # Exceptions:    None
 # Description:   insert the type in the original schema
 # 
 ################################################################################
-@dajaxice_register
-def insertElementSequence(request, typeID, xpath, typeName):
-    dajax = Dajax()
+def insert_element_sequence(request):
+    type_id = request.POST['typeID']
+    type_name = request.POST['typeName']
+    xpath = request.POST['xpath']
     
     defaultPrefix = request.session['defaultPrefixCompose']
     namespace = request.session['namespacesCompose'][defaultPrefix]
@@ -250,7 +240,7 @@ def insertElementSequence(request, typeID, xpath, typeName):
     dom = etree.parse(BytesIO(xmlString.encode('utf-8')))
     
     # get the type to add
-    includedType = Type.objects.get(pk=typeID)
+    includedType = Type.objects.get(pk=type_id)
     typeTree = etree.fromstring(includedType.content)
     elementType = typeTree.find("{http://www.w3.org/2001/XMLSchema}complexType")
     if elementType is None:
@@ -260,9 +250,9 @@ def insertElementSequence(request, typeID, xpath, typeName):
     # set the element namespace
     xpath = xpath.replace(defaultPrefix +":", namespace)
     # add the element to the sequence
-    dom.find(xpath).append(etree.Element(namespace+"element", attrib={'type': type, 'name':typeName}))
+    dom.find(xpath).append(etree.Element(namespace+"element", attrib={'type': type, 'name':type_name}))
     
-    includeURL = getSchemaLocation(request, str(typeID))
+    includeURL = getSchemaLocation(request, str(type_id))
     # add the id of the type if not already present
     if includeURL not in request.session['includedTypesCompose']:
         request.session['includedTypesCompose'].append(includeURL)        
@@ -272,22 +262,20 @@ def insertElementSequence(request, typeID, xpath, typeName):
     request.session['newXmlTemplateCompose'] = etree.tostring(dom) 
     print etree.tostring(dom)
     
-    return dajax.json()
+    return HttpResponse(json.dumps({}), mimetype='application/javascript')
 
 ################################################################################
 # 
-# Function Name: renameElement(request, xpath, newName)
+# Function Name: rename_element(request)
 # Inputs:        request - HTTP request
-#                xpath - 
-#                newName - 
 # Outputs:       JSON 
 # Exceptions:    None
 # Description:   replace the current name of the element by the new name
 # 
 ################################################################################
-@dajaxice_register
-def renameElement(request, xpath, newName):
-    dajax = Dajax()
+def rename_element(request):
+    new_name = request.POST['newName']
+    xpath = request.POST['xpath']
     
     defaultPrefix = request.session['defaultPrefixCompose']
     namespace = request.session['namespacesCompose'][defaultPrefix]
@@ -298,35 +286,33 @@ def renameElement(request, xpath, newName):
     # set the element namespace
     xpath = xpath.replace(defaultPrefix +":", namespace)
     # add the element to the sequence
-    dom.find(xpath).attrib['name'] = newName
+    dom.find(xpath).attrib['name'] = new_name
     
     # save the tree in the session
     request.session['newXmlTemplateCompose'] = etree.tostring(dom) 
+    return HttpResponse(json.dumps({}), mimetype='application/javascript')
     
-    return dajax.json()
 
 ################################################################################
 # 
-# Function Name: saveTemplate(request, templateName)
+# Function Name: save_template(request)
 # Inputs:        request - HTTP request
-#                templateName - 
 # Outputs:       JSON 
 # Exceptions:    None
 # Description:   save the current template in the database
 # 
 ################################################################################
-@dajaxice_register
-def saveTemplate(request, templateName):
-    dajax = Dajax()
-    
+def save_template(request):
+    template_name = request.POST['templateName']    
     content=request.session['newXmlTemplateCompose']
     
+    response_dict = {}
     # is it a valid XML document ?
     try:            
         xmlTree = etree.parse(BytesIO(content.encode('utf-8')))
     except Exception, e:
-        dajax.script("""$("#new-template-error").html("<font color='red'>Not a valid XML document.</font><br/>"""+ e.message.replace("'","") +""" ");""")
-        return dajax.json()
+        response_dict['errors'] = e.message.replace("'","")
+        return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
     
     flattener = XSDFlattenerMDCS(etree.tostring(xmlTree))
     flatStr = flattener.get_flat()
@@ -336,10 +322,8 @@ def saveTemplate(request, templateName):
         # is it a valid XML schema ?
         xmlSchema = etree.XMLSchema(flatTree)
     except Exception, e:
-        dajax.script("""
-            $("#new-template-error").html("<font color='red'>Not a valid XML schema.</font><br/>"""+ e.message.replace("'","") +""" ");
-        """)
-        return dajax.json() 
+        response_dict['errors'] = e.message.replace("'","")
+        return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
     
     hash = XSDhash.get_hash(content) 
     dependencies = []
@@ -347,41 +331,35 @@ def saveTemplate(request, templateName):
         url = urlparse(uri)
         id = url.query.split("=")[1]
         dependencies.append(id)
-    template = Template(title=templateName, filename=templateName, content=content, hash=hash, user=request.user.id, dependencies=dependencies)
+    template = Template(title=template_name, filename=template_name, content=content, hash=hash, user=request.user.id, dependencies=dependencies)
     template.save()
     
     MetaSchema(schemaId=str(template.id), flat_content=flatStr, api_content=content).save()
     
-    dajax.script("""
-        saveTemplateCallback();
-        $("#dialog-save-template").dialog("close");
-    """)
-    
-    return dajax.json()
+    return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
 
 
 ################################################################################
 # 
-# Function Name: saveType(request, typeName)
+# Function Name: save_type(request)
 # Inputs:        request - HTTP request
-#                typeName - 
 # Outputs:       JSON 
 # Exceptions:    None
 # Description:   save the current type in the database
 # 
 ################################################################################
-@dajaxice_register
-def saveType(request, typeName):
-    dajax = Dajax()
-    
+def save_type(request):     
+    type_name = request.POST['typeName']
+    response_dict = {}
+       
     content=request.session['newXmlTemplateCompose']
     
     templateID = request.session['currentComposeTemplateID']
     # can save as type if new type or from existing type
     if templateID != "new":
         if templateID not in Type.objects.all().values_list('id'):
-            dajax.script("""$("#new-type-error").html("<font color='red'>Unable to save an existing template as a type.</font><br/>");""")
-            return dajax.json()
+            response_dict['errors'] = "Unable to save an existing template as a type."
+            return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
     
     # is it a valid XML document ?
     try:            
@@ -391,8 +369,9 @@ def saveType(request, typeName):
         root.getparent().remove(root)
         content = etree.tostring(xmlTree)
     except Exception, e:
-        dajax.script("""$("#new-type-error").html("<font color='red'>Not a valid XML document.</font><br/>"""+ e.message.replace("'","") +""" ");""")
-        return dajax.json()
+        response_dict['errors'] = "Not a valid XML document."
+        response_dict['message'] = e.message.replace("'","")
+        return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
     
     flattener = XSDFlattenerMDCS(content)
     flatStr = flattener.get_flat()
@@ -402,10 +381,9 @@ def saveType(request, typeName):
         # is it a valid XML schema ?
         xmlSchema = etree.XMLSchema(flatTree)
     except Exception, e:
-        dajax.script("""
-            $("#new-type-error").html("<font color='red'>Not a valid XML schema.</font><br/>"""+ e.message.replace("'","") +""" ");
-        """)
-        return dajax.json() 
+        response_dict['errors'] = "Not a valid XML document."
+        response_dict['message'] = e.message.replace("'","")
+        return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
     
     
     hash = XSDhash.get_hash(content)
@@ -414,30 +392,24 @@ def saveType(request, typeName):
         url = urlparse(uri)
         id = url.query.split("=")[1]
         dependencies.append(id)
-    type = Type(title=typeName, filename=typeName, content=content, user=request.user.id, hash=hash, dependencies=dependencies)
+    type = Type(title=type_name, filename=type_name, content=content, user=request.user.id, hash=hash, dependencies=dependencies)
     type.save()
     MetaSchema(schemaId=str(type.id), flat_content=flatStr, api_content=content).save()
     
-    dajax.script("""
-        saveTemplateCallback();
-        $("#dialog-save-type").dialog("close");
-    """)
-    return dajax.json()
+    return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
 
 
 ################################################################################
 # 
-# Function Name: getOccurrences(request, xpath)
+# Function Name: get_occurrences(request)
 # Inputs:        request - HTTP request
-#                xpath -  
 # Outputs:       JSON 
 # Exceptions:    None
 # Description:   Get the occurrences of the selected element
 # 
 ################################################################################
-@dajaxice_register
-def getOccurrences(request, xpath):
-    dajax = Dajax()
+def get_occurrences(request):
+    xpath = request.POST['xpath']
     
     defaultPrefix = request.session['defaultPrefixCompose']
     namespace = request.session['namespacesCompose'][defaultPrefix]
@@ -456,27 +428,23 @@ def getOccurrences(request, xpath):
     if 'maxOccurs' in element.attrib:
         maxOccurs = element.attrib['maxOccurs']
     
-    occurs = {'minOccurs':minOccurs, 'maxOccurs':maxOccurs}
-    dajax.add_data(occurs, 'getOccurrencesCallback')
-    
-    return dajax.json()
+    response_dict = {'minOccurs':minOccurs, 'maxOccurs':maxOccurs}
+    return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
 
 
 ################################################################################
 # 
-# Function Name: setOccurrences(request, xpath, minOccurs, maxOccurs)
+# Function Name: set_occurrences(request)
 # Inputs:        request - HTTP request
-#                xpath -  
-#                minOccurs -
-#                maxOccurs - 
 # Outputs:       JSON 
 # Exceptions:    None
 # Description:   Set the occurrences of the selected element
 # 
 ################################################################################
-@dajaxice_register
-def setOccurrences(request, xpath, minOccurs, maxOccurs):
-    dajax = Dajax()
+def set_occurrences(request):    
+    xpath = request.POST['xpath']
+    minOccurs = request.POST['minOccurs']
+    maxOccurs = request.POST['maxOccurs']
     
     defaultPrefix = request.session['defaultPrefixCompose']
     namespace = request.session['namespacesCompose'][defaultPrefix]
@@ -493,24 +461,20 @@ def setOccurrences(request, xpath, minOccurs, maxOccurs):
     
     # save the tree in the session
     request.session['newXmlTemplateCompose'] = etree.tostring(dom) 
-    
-    return dajax.json()
+    return HttpResponse(json.dumps({}), mimetype='application/javascript')
 
 
 ################################################################################
 # 
-# Function Name: deleteElement(request, xpath)
+# Function Name: delete_element(request)
 # Inputs:        request - HTTP request
-#                xpath - 
 # Outputs:       JSON 
 # Exceptions:    None
 # Description:   delete the element from the template
 # 
 ################################################################################
-@dajaxice_register
-def deleteElement(request, xpath):
-    dajax = Dajax()
-    
+def delete_element(request):
+    xpath = request.POST['xpath']
     defaultPrefix = request.session['defaultPrefixCompose']
     namespace = request.session['namespacesCompose'][defaultPrefix]
     
@@ -524,22 +488,21 @@ def deleteElement(request, xpath):
     toRemove.getparent().remove(toRemove)
     
     # save the tree in the session
-    request.session['newXmlTemplateCompose'] = etree.tostring(dom) 
-    
-    return dajax.json()
+    request.session['newXmlTemplateCompose'] = etree.tostring(dom)     
+    return HttpResponse(json.dumps({}), mimetype='application/javascript')
+
 
 ################################################################################
 # 
-# Function Name: changeRootTypeName(request, typeName)
+# Function Name: change_root_type_name(request)
 # Inputs:        request - HTTP request
 # Outputs:       JSON 
 # Exceptions:    None
 # Description:   Change the name of the root type
 # 
 ################################################################################
-@dajaxice_register
-def changeRootTypeName(request, typeName):
-    dajax = Dajax()
+def change_root_type_name(request):
+    type_name = request.POST['typeName']
     
     defaultPrefix = request.session['defaultPrefixCompose']
     namespace = request.session['namespacesCompose'][defaultPrefix]
@@ -553,28 +516,26 @@ def changeRootTypeName(request, typeName):
     xpathRootType = namespace + "complexType"
 
     # change the root type name in the dom
-    dom.find(xpathRoot).attrib['type'] = typeName
-    dom.find(xpathRootType).attrib['name'] = typeName
+    dom.find(xpathRoot).attrib['type'] = type_name
+    dom.find(xpathRootType).attrib['name'] = type_name
     
     # save the tree in the session
     request.session['newXmlTemplateCompose'] = etree.tostring(dom) 
-    
-    return dajax.json()
+    return HttpResponse(json.dumps({}), mimetype='application/javascript')
+
 
 ################################################################################
 # 
-# Function Name: changeRootTypeName(request, xpath, typeName)
+# Function Name: change_xsd_type(request)
 # Inputs:        request - HTTP request
-#                xpath -
-#                typeName - 
 # Outputs:       JSON 
 # Exceptions:    None
 # Description:   Change the type of the element
 # 
 ################################################################################
-@dajaxice_register
-def changeXSDType(request, xpath, newType):
-    dajax = Dajax()
+def change_xsd_type(request):
+    xpath = request.POST['xpath']
+    new_type = request.POST['newType']
     
     defaultPrefix = request.session['defaultPrefixCompose']
     namespace = request.session['namespacesCompose'][defaultPrefix]
@@ -584,9 +545,9 @@ def changeXSDType(request, xpath, newType):
     
     # set the element namespace
     xpath = xpath.replace(defaultPrefix +":", namespace)
-    dom.find(xpath).tag = namespace + newType
+    dom.find(xpath).tag = namespace + new_type
     
     # save the tree in the session
     request.session['newXmlTemplateCompose'] = etree.tostring(dom) 
+    return HttpResponse(json.dumps({}), mimetype='application/javascript')
     
-    return dajax.json()

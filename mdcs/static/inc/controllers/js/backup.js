@@ -17,16 +17,54 @@
  */
 createBackup = function()
 {
-	Dajaxice.admin.createBackup(Dajax.process);
+	create_backup();
 }
+
+
+/**
+ * AJAX call, creates a backup
+ */
+create_backup = function(){
+    $.ajax({
+        url : "/admin/create_backup",
+        type : "GET",
+        dataType: "json",        
+        success: function(data){
+        	$("#backup-message").html(data.result);
+            showBackupDialog();
+        }
+    });
+}
+
 
 /**
  * Restore a backup to the running mongodb instance.
  */
 restoreBackup = function(backup)
 {
-	Dajaxice.admin.restoreBackup(Dajax.process,{"backup":backup});
+	restore_backup(backup);
 }
+
+
+/**
+ * AJAX call, restore a backup
+ * @param backup
+ */
+restore_backup = function(backup){
+    $.ajax({
+        url : "/admin/restore_backup",
+        type : "POST",
+        dataType: "json",
+        data : {
+        	backup : backup,
+        },
+        success: function(data){
+        	$("#backup-message").html(data.result);
+            showBackupDialog();
+        }
+    });
+}
+
 
 /**
  * Delete a backup.
@@ -39,7 +77,7 @@ deleteBackup = function(backup)
             width: 520,
             buttons: {
                 Delete: function() {    
-                	Dajaxice.admin.deleteBackup(Dajax.process,{"backup":backup});
+                	delete_backup(backup);
                     $( this ).dialog( "close" );
                     },
                 Cancel: function() {    
@@ -49,6 +87,26 @@ deleteBackup = function(backup)
         });
     });
 }
+
+
+/**
+ * AJAX call, delete a backup
+ * @param backup
+ */
+delete_backup = function(backup){
+    $.ajax({
+        url : "/admin/delete_backup",
+        type : "POST",
+        dataType: "json",
+        data : {
+        	backup : backup,
+        },
+        success: function(data){
+        	$('#model_selection').load(document.URL +  ' #model_selection', function() {});
+        }
+    });
+}
+
 
 /**
  *	Open a dialog with the status of the backup command

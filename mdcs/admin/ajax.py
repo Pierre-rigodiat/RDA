@@ -16,6 +16,7 @@
 
 from dajax.core import Dajax
 from dajaxice.decorators import dajaxice_register
+from django.http import HttpResponse
 import lxml.etree as etree
 import json
 from io import BytesIO
@@ -1096,17 +1097,14 @@ def deleteModule(request, objectid):
 
 ################################################################################
 # 
-# Function Name: createBackup(request)
+# Function Name: create_backup(request)
 # Inputs:        request -  
 # Outputs:        
 # Exceptions:    None
 # Description:   Runs the mongo db command to create a backup of the current mongo instance
 # 
 ################################################################################
-@dajaxice_register
-def createBackup(request):
-    dajax = Dajax()
-    
+def create_backup(request):
     backupsDir = settings.SITE_ROOT + '/data/backups/'
     
     now = datetime.now()
@@ -1119,25 +1117,22 @@ def createBackup(request):
         result = "Backup created with success."
     else:
         result = "Unable to create the backup."
-        
-    dajax.assign("#backup-message", 'innerHTML', result)
-    dajax.script("showBackupDialog();")
-    return dajax.json()
+    
+    response_dict = {'result': result}
+    return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
+    
 
 ################################################################################
 # 
-# Function Name: restoreBackup(request, mongodbPath, backup)
+# Function Name: restore_backup(request)
 # Inputs:        request - 
-#                backup - 
 # Outputs:        
 # Exceptions:    None
 # Description:   Runs the mongo db command to restore a backup to the current mongo instance
 # 
 ################################################################################
-@dajaxice_register
-def restoreBackup(request, backup):
-    dajax = Dajax()
-    
+def restore_backup(request):    
+    backup = request.POST['backup']    
     backupsDir = settings.SITE_ROOT + '/data/backups/'
     
     backupCommand = "mongorestore " + backupsDir + backup
@@ -1147,25 +1142,22 @@ def restoreBackup(request, backup):
         result = "Backup restored with success."
     else:
         result = "Unable to restore the backup."
-        
-    dajax.assign("#backup-message", 'innerHTML', result)
-    dajax.script("showBackupDialog();")
-    return dajax.json()
+    
+    response_dict = {'result': result}
+    return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
+
 
 ################################################################################
 # 
-# Function Name: deleteBackup(request, backup)
+# Function Name: delete_backup(request)
 # Inputs:        request -   
-#                backup - 
 # Outputs:        
 # Exceptions:    None
 # Description:   Deletes a backup from the list
 # 
 ################################################################################
-@dajaxice_register
-def deleteBackup(request, backup):
-    dajax = Dajax()
-    
+def delete_backup(request):
+    backup = request.POST['backup']
     backupsDir = settings.SITE_ROOT + '/data/backups/'
     
     for root, dirs, files in os.walk(backupsDir + backup, topdown=False):
@@ -1174,13 +1166,9 @@ def deleteBackup(request, backup):
         for name in dirs:
             os.rmdir(os.path.join(root, name))
     os.rmdir(backupsDir + backup)
-    
-    dajax.script(
-    """
-      $('#model_selection').load(document.URL +  ' #model_selection', function() {});
-    """)
-    
-    return dajax.json()
+        
+    return HttpResponse(json.dumps({}), mimetype='application/javascript')
+
 
 ################################################################################
 # 

@@ -197,6 +197,7 @@ set_current_user_template = function(templateID){
     });
 }
 
+
 /**
  * Set template Callback. Updates the template display.
  * @param data
@@ -211,6 +212,7 @@ setCurrentTemplateCallback = function()
     });
     console.log('END [setCurrentTemplateCallback]');
 }
+
 
 /**
  * Shows a dialog when the template is selected
@@ -263,7 +265,6 @@ update_user_inputs = function(html, fromElementID, criteriaID){
         }
     });
 }
-
 
 
 /**
@@ -496,7 +497,6 @@ function saveQuery(){
 }
 
 
-
 /**
  * AJAX call, save the query
  * @param htmlForm
@@ -679,7 +679,6 @@ exploreData = function()
 {
     console.log('BEGIN [exploreData]');
 
-
     // Need to Set input values explicitiy before sending innerHTML for save
     var elems = document.getElementsByName("xsdForm")[0].getElementsByTagName("input");
     for(var i = 0; i < elems.length; i++) {
@@ -746,7 +745,7 @@ changeChoice = function(selectObj)
 verifyTemplateIsSelectedCustomize = function(){
     console.log('BEGIN [verifyTemplateIsSelected]');
 
-    verify_template_is_selected(verifyTemplateIsSelectedCustomizeCallback); 
+    verify_template_is_selected_customize(); 
 
     console.log('END [verifyTemplateIsSelected]');
 }
@@ -756,13 +755,13 @@ verifyTemplateIsSelectedCustomize = function(){
  * AJAX call, checks that a template has been selected
  * @param callback
  */
-verify_template_is_selected = function(callback){
+verify_template_is_selected_customize = function(){
     $.ajax({
         url : "/explore/verify_template_is_selected",
         type : "GET",
         dataType: "json",
         success: function(data){
-            callback(data.templateSelected);
+        	verifyTemplateIsSelectedCustomizeCallback(data);
         }
     });
 }
@@ -784,6 +783,7 @@ verifyTemplateIsSelectedCustomizeCallback = function(data)
 
     console.log('END [verifyTemplateIsSelectedCallback]');
 }
+
 
 /**
  * Generate a form to select fields to use in the query builder
@@ -813,6 +813,7 @@ generate_xsd_tree_for_querying_data = function(){
         }
     });
 }
+
 
 /**
  * Clear all check boxes of the form
@@ -851,6 +852,7 @@ clearFields = function()
 	
     console.log('END [clearFields]');
 }
+
 
 /**
  * Download all results
@@ -898,6 +900,7 @@ displayErrors = function()
         });
     });
 }
+
 
 /**
  * Comes back to the query, keeping the current criterias
@@ -1019,6 +1022,7 @@ redirect_explore = function(){
     });
 }
 
+
 /**
  * Manage the display of the tabs
  */
@@ -1032,6 +1036,7 @@ redirectSPARQLTab = function()
 	
 	console.log('END [redirectSPARQLTab]');
 }
+
 
 /**
  * Show the custom tree to choose a field for the query builder
@@ -1058,7 +1063,6 @@ showCustomTree = function(currentCriteriaID)
 	
 	console.log('END [showCustomTree]');
 }
-
 
 
 /**
@@ -1142,7 +1146,6 @@ function sparqlquery(){
 }
 
 
-
 /**
  * AJAX call, submit a SPARQL query
  * @param queryStr
@@ -1163,7 +1166,7 @@ execute_sparql_query = function(queryStr, sparqlFormatIndex, fedOfQueries){
 			if('errors' in data){
 				showErrorInstancesDialog();
 			}else{
-				window.location = "/explore/sparqlresults"
+				window.location = "/explore/sparqlresults";
 			}
 	    }
     });
@@ -1192,7 +1195,7 @@ download_sparql_results = function(){
         type : "GET",
         dataType: "json",
 		success: function(data){
-			window.location = "/explore/results/download-sparqlresults?id=" + data.savedResultsID
+			window.location = "/explore/results/download-sparqlresults?id=" + data.savedResultsID;
 	    }
     });
 }

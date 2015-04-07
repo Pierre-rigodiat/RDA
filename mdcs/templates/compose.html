@@ -36,6 +36,7 @@
 	<script src="{% static 'resources/js/bootstrap.min.js' %}"></script>
     <link rel="stylesheet" type="text/css" href="{% static 'resources/lib/jquery-ui/themes/smoothness/jquery-ui.css' %}"/>        
     <script src="{% static 'resources/lib/jquery-ui/themes/smoothness/jquery-ui.js' %}"></script>
+    <script src="{% static 'inc/controllers/js/csrf.js' %}"></script>
 
 </head>
 
@@ -266,44 +267,6 @@
 
 		    </div>
 		  </div>
-
-<script>
-selectedLink = "/compose";
-
-verifyTemplateIsSelected = function(selectedLink_)
-{
-    console.log('BEGIN [verifyTemplateIsSelected]');
-
-    selectedLink = selectedLink_;
-    Dajaxice.compose.verifyTemplateIsSelected(verifyTemplateIsSelectedCallback); // Dajax.process);
-
-    console.log('END [verifyTemplateIsSelected]');
-}
-
-verifyTemplateIsSelectedCallback = function(data)
-{
-    console.log('BEGIN [verifyTemplateIsSelectedCallback]');
-
-    if (data.templateSelected == 'no') {
-        $(function() {
-            $( "#dialog-error-message" ).dialog({
-                modal: true,
-                buttons: {
-                    Ok: function() {
-                    $( this ).dialog( "close" );
-                    }
-                }
-            });
-        });
-    } else {
-        location.href = selectedLink;
-    }
-
-    console.log('END [verifyTemplateIsSelectedCallback]');
-}
-
-</script>
-
 
 		  <div id="sidebar-wrapper">
 		    <div id="sidebar">
