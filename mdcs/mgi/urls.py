@@ -19,8 +19,6 @@ from django.conf.urls.static import static
 
 from django.conf.urls import patterns, include, url
 
-from dajaxice.core import dajaxice_autodiscover, dajaxice_config
-dajaxice_autodiscover()
 
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
@@ -46,7 +44,6 @@ urlpatterns = patterns('',
     url(r'^privacy-policy', 'mgi.views.privacy_policy', name='privacy-policy'),
     url(r'^terms-of-use', 'mgi.views.terms_of_use', name='terms-of-use'),
     url(r'^oauth2/', include('provider.oauth2.urls', namespace='oauth2')),
-    url(dajaxice_config.dajaxice_url, include('dajaxice.urls')), # django-dajaxice
 )+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 

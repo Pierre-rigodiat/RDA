@@ -11,6 +11,7 @@
  * 
  */
 
+
 /**
  * Load controllers for contact messages
  */
@@ -19,6 +20,7 @@ loadContactMessagesHandler = function(){
     $('.remove.message').on('click', removeMessage);
     console.log('END [loadContactMessagesHandler]');
 }
+
 
 /**
  * Delete a message from the list
@@ -31,7 +33,7 @@ removeMessage = function(){
 	      buttons: {
 	        Yes: function() {
 	          $( this ).dialog( "close" );
-	          Dajaxice.admin.removeMessage(removeMessageCallback,{"messageid": messageid});
+	          remove_message(messageid);
 	        },
 	        No:function() {
 	         $( this ).dialog( "close" );
@@ -41,11 +43,23 @@ removeMessage = function(){
 	  });	
 }
 
+
 /**
- * Delete message Callback
+ * AJAX call, removes a message
+ * @param messageid id of the message
  */
-removeMessageCallback = function(){
-	$('#model_selection').load(document.URL +  ' #model_selection', function() {
-        loadContactMessagesHandler();
+remove_message = function(messageid){
+    $.ajax({
+        url : "/admin/remove_message",
+        type : "POST",
+        data:{
+        	messageid: messageid
+        },
+        dataType: "json",
+        success: function(data){
+        	$('#model_selection').load(document.URL +  ' #model_selection', function() {
+                loadContactMessagesHandler();
+            });
+        }
     });
 }

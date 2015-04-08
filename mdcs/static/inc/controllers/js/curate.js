@@ -191,7 +191,6 @@ load_form_for_entry = function(form_selected){
 }
 
 
-
 /**
  * Display message when form loaded.
  */

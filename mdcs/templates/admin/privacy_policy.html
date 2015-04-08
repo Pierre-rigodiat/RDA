@@ -38,6 +38,7 @@
 	<script src="{% static 'resources/js/bootstrap.min.js' %}"></script>
     <link rel="stylesheet" type="text/css" href="{% static 'resources/lib/jquery-ui/themes/smoothness/jquery-ui.css' %}"/>        
     <script src="{% static 'resources/lib/jquery-ui/themes/smoothness/jquery-ui.js' %}"></script>
+    <script src="{% static 'inc/controllers/js/csrf.js' %}"></script>
 </head>
 
 <body id="top">
@@ -198,18 +199,6 @@
 	</div>
 
 </div>
-
-<div id="dialog-saved-policy" title="Privacy Policy Saved" style="display:none;">  
-  <p>
-  <span class="ui-icon ui-icon-circle-check" style="float:left; margin:0 7px 10px 0;"></span>
-  The privacy policy was successfuly saved.
-  </p>
-</div>
-
-<script src="{% static 'inc/controllers/js/website.js' %}"></script>
-<script>
-	loadPrivacyPolicyControllers();
-</script>
 
 </body>
 </html>

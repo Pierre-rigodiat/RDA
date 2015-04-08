@@ -149,8 +149,6 @@ INSTALLED_APPS = (
     'curate',
     'explore',
     'compose',
-    'dajax',
-    'dajaxice',
     'rest_framework',  # djangorestframework
     'rest_framework_swagger', #django-rest-swagger for api documentation
     'api', # djangorestframework
@@ -260,7 +258,6 @@ STATICFILES_DIRS = (
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-    'dajaxice.finders.DajaxiceFinder',
 )
 
 # Django User Roles Package

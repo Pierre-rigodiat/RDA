@@ -152,6 +152,7 @@ def privacy_policy_admin(request):
         request.session['next'] = '/'
         return redirect('/login')
 
+
 ################################################################################
 #
 # Function Name: terms_of_use_admin(request)

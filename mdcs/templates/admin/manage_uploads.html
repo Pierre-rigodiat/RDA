@@ -39,6 +39,7 @@
 	<script src="{% static 'resources/js/bootstrap.min.js' %}"></script>
     <link rel="stylesheet" type="text/css" href="{% static 'resources/lib/jquery-ui/themes/smoothness/jquery-ui.css' %}"/>        
     <script src="{% static 'resources/lib/jquery-ui/themes/smoothness/jquery-ui.js' %}"></script>
+    <script src="{% static 'inc/controllers/js/csrf.js' %}"></script>
 </head>
 
 <body id="top">
@@ -373,20 +374,6 @@ There are currently no {{ objectType }} uploaded.  Please click "Upload {{ objec
     };
   }
 
-  function uploadObjectCallback(data) {
-    console.log('BEGIN uploadObjectCallback');
-
-    Dajax.process(data);
-    console.log('BEGIN [setCurrentModelCallback]');
-
-    $('#model_selection').load(document.URL +  ' #model_selection', function() {
-			  loadUploadManagerHandler();
-    });
-    console.log('END [setCurrentModelCallback]');
-
-    console.log('END uploadObjectCallback');
-  }
-
   function handleFileUpload(evt) {
     console.log('BEGIN handleFileUpload(evt)');
 
@@ -409,7 +396,9 @@ There are currently no {{ objectType }} uploaded.  Please click "Upload {{ objec
 
       var objectName = document.getElementById('object_name').value.trim();
 
-      Dajaxice.admin.uploadObject(uploadObjectCallback,{'objectName':objectName,'objectFilename':files[0].name,'objectContent':reader.result, 'objectType': '{{ objectType }}'}); 
+      objectFilename = files[0].name;
+      objectContent = reader.result;
+      upload_object(objectName, objectFilename, objectContent, '{{ objectType }}'); 
     }
 
     // Read in the image file as a binary string.

@@ -14,8 +14,6 @@
 #
 ################################################################################
 
-from dajax.core import Dajax
-from dajaxice.decorators import dajaxice_register
 from django.http import HttpResponse
 import lxml.etree as etree
 import json
@@ -52,47 +50,47 @@ class ModuleResourceInfo:
 
 ################################################################################
 # 
-# Function Name: uploadObject(request,objectName,objectFilename,objectContent, objectType)
+# Function Name: upload_object(request)
 # Inputs:        request - 
-#                objectName - 
-#                objectFilename - 
-#                objectContent -
-#                objectType -
 # Outputs:       JSON data 
 # Exceptions:    None
 # Description:   Upload of an object (template or type)
 # 
 ################################################################################
-@dajaxice_register
-def uploadObject(request,objectName, objectFilename, objectContent, objectType):
+def upload_object(request):
     print 'BEGIN def uploadObject(request,objectName,objectFilename,objectContent, objectType)'
-    dajax = Dajax()
+    object_name = request.POST['objectName']
+    object_filename = request.POST['objectFilename']
+    object_content = request.POST['objectContent']
+    object_type = request.POST['objectType']
     
     # Save all parameters
-    request.session['uploadObjectName'] = objectName
-    request.session['uploadObjectFilename'] = objectFilename
-    request.session['uploadObjectContent'] = objectContent
-    request.session['uploadObjectType'] = objectType
+    request.session['uploadObjectName'] = object_name
+    request.session['uploadObjectFilename'] = object_filename
+    request.session['uploadObjectContent'] = object_content
+    request.session['uploadObjectType'] = object_type
     
     request.session['uploadObjectValid'] = False
     
     xmlTree = None
 
+    response_dict = {}
     # is it a valid XML document ?
     try:            
-        xmlTree = etree.parse(BytesIO(objectContent.encode('utf-8')))
+        xmlTree = etree.parse(BytesIO(object_content.encode('utf-8')))
     except Exception, e:
-        dajax.script("""$("#objectUploadErrorMessage").html("<font color='red'>Not a valid XML document.</font><br/>"""+e.message.replace("'","") +""" ");""")
-        return dajax.json()
+        response_dict['errors'] = "Not a valid XML document."
+        response_dict['message'] = e.message.replace("'","")
+        return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
     
     # is it supported by the MDCS ?
-    errors = utils.getValidityErrorsForMDCS(xmlTree, objectType)
+    errors = utils.getValidityErrorsForMDCS(xmlTree, object_type)
     if len(errors) > 0:
         errorsStr = ""
         for error in errors:
             errorsStr += error + "<br/>"
-        dajax.script("""$("#objectUploadErrorMessage").html("<font color='red'>"""+ errorsStr +"""</font>");""")
-        return dajax.json() 
+        response_dict['errors'] = errorsStr
+        return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
     
     # get the imports
     imports = xmlTree.findall("{http://www.w3.org/2001/XMLSchema}import")
@@ -102,40 +100,36 @@ def uploadObject(request,objectName, objectFilename, objectContent, objectType):
     if len(imports) != 0 or len(includes) != 0:
         # Display array to resolve dependencies
         htmlString = generateHtmlDependencyResolver(imports, includes)
-        dajax.script("""$("#objectUploadErrorMessage").html(" """+ htmlString +""" ")""")
-        return dajax.json()
+        response_dict['errors'] = htmlString
+        return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
     else:
         try:
             # is it a valid XML schema ?
             xmlSchema = etree.XMLSchema(xmlTree)
         except Exception, e:
-            dajax.script("""
-                $("#objectUploadErrorMessage").html("<font color='red'>Not a valid XML schema.</font><br/>"""+e.message.replace("'","") +""" ");
-            """)
-            return dajax.json()
+            response_dict['errors'] = "Not a valid XML schema."
+            response_dict['message'] = e.message.replace("'","")
+            return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
         
         request.session['uploadObjectValid'] = True
-        dajax.script("""
-            $("#objectUploadErrorMessage").html("<font color='green'>The uploaded template is valid. You can now save it.</font>   <span class='btn' onclick='saveObject()'>Save</span>");
-        """)
-        return dajax.json()
+        return HttpResponse(json.dumps({}), mimetype='application/javascript')
+
 
     print 'END def uploadObject(request,objectName,objectFilename,objectContent, objectType)'
-    return dajax.json()
+    return HttpResponse(json.dumps({}), mimetype='application/javascript')
+
 
 ################################################################################
 # 
-# Function Name: saveObject(request)
+# Function Name: save_object(request)
 # Inputs:        request - 
 # Outputs:       JSON data 
 # Exceptions:    None
 # Description:   Save an object (template or type) in mongodb
 # 
 ################################################################################
-@dajaxice_register
-def saveObject(request, buckets):
-    print 'BEGIN def saveObject(request)'
-    dajax = Dajax()
+def save_object(request):
+    print 'BEGIN def saveObject(request)'    
     
     objectName = None
     objectFilename = None 
@@ -174,6 +168,7 @@ def saveObject(request, buckets):
         elif objectType == "Type":                                                                                    
             objectVersions = TypeVersion(nbVersions=1, isDeleted=False).save()
             object = Type(title=objectName, filename=objectFilename, content=objectContent, version=1, typeVersion=str(objectVersions.id), hash=hash).save()
+            buckets = request.POST.getlist('buckets[]')
             for bucket_id in buckets:
                 bucket = Bucket.objects.get(pk=bucket_id)
                 bucket.types.append(str(objectVersions.id))
@@ -189,38 +184,32 @@ def saveObject(request, buckets):
             object.dependencies = dependencies
             object.save()
             
-        dajax.script("""
-            $( "#dialog-upload-message" ).dialog("close");
-            $('#model_selection').load(document.URL +  ' #model_selection', function() {
-            loadUploadManagerHandler();
-            });
-        """)
-        clearObject(request)      
+        clear_object(request)      
     else:
-        dajax.script("""$("#objectUploadErrorMessage").html("<font color='red'>Please upload a valid XML schema first.</font>"); """)
-        return dajax.json()
+        response_dict = {'errors': 'True'}
+        return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
     
 
     print 'END def saveObject(request)'
-    return dajax.json()
+    return HttpResponse(json.dumps({}), mimetype='application/javascript')
+
 
 ################################################################################
 # 
-# Function Name: resolveDependencies(request, dependencies)
+# Function Name: resolve_dependencies(request)
 # Inputs:        request - 
-#                dependencies - 
 # Outputs:       JSON data 
 # Exceptions:    None
 # Description:   Save an object (template or type) in mongodb
 # 
 ################################################################################
-@dajaxice_register
-def resolveDependencies(request, dependencies):
-    print 'BEGIN def resolveDependencies(request, dependencies)'
-    dajax = Dajax()
+def resolve_dependencies(request):
+    print 'BEGIN def resolveDependencies(request)'
+    dependencies = request.POST.getlist('dependencies[]')
      
     objectContent = None
     
+    response_dict = {}
     if ('uploadObjectName' in request.session and request.session['uploadObjectName'] is not None and
         'uploadObjectFilename' in request.session and request.session['uploadObjectFilename'] is not None and
         'uploadObjectContent' in request.session and request.session['uploadObjectContent'] is not None and
@@ -240,8 +229,8 @@ def resolveDependencies(request, dependencies):
         apiSession = 'uploadVersionAPIurl'
         saveBtn = "<span class='btn' onclick='saveVersion()'>Save</span>"
     else:
-        dajax.script("""$("#objectUploadErrorMessage").html("<font color='red'>Please upload a file first.</font><br/>");""")
-        return dajax.json()
+        response_dict= {'errors': "Please upload a file first."}
+        return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
          
     xmlTree = etree.parse(BytesIO(objectContent.encode('utf-8')))        
     # get the imports
@@ -270,33 +259,28 @@ def resolveDependencies(request, dependencies):
         request.session[flatSession] = flatStr
         request.session[apiSession] = etree.tostring(xmlTree)
         request.session["uploadDependencies"] = dependencies
-        dajax.script("""
-            $("#objectUploadErrorMessage").html("<font color='green'>The uploaded template is valid. You can now save it.</font>"""+ saveBtn +"""  ");
-        """)
+        message = "The uploaded template is valid. You can now save it." + saveBtn
+        response_dict = {'message': message}
     except Exception, e:
-        dajax.script("""
-            $("#errorDependencies").html("<font color='red'>Not a valid XML schema.</font><br/>"""+e.message.replace("'","") +""" ");
-        """)
-        return dajax.json()        
+        response_dict = {'errorDependencies': e.message.replace("'","")}
+        return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')      
     
 
-    print 'END def resolveDependencies(request, dependencies)'
-    return dajax.json()
+    print 'END def resolveDependencies(request)'
+    return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
 
 
 ################################################################################
 # 
-# Function Name: clearObject(request)
+# Function Name: clear_object(request)
 # Inputs:        request - 
 # Outputs:       JSON data 
 # Exceptions:    None
 # Description:   Clear variables in the session
 # 
 ################################################################################
-@dajaxice_register
-def clearObject(request):
+def clear_object(request):
     print 'BEGIN def clearObject(request)'
-    dajax = Dajax()
     
     if 'uploadObjectName' in request.session:
         del request.session['uploadObjectName']
@@ -316,7 +300,7 @@ def clearObject(request):
         del request.session['uploadDependencies']
         
     print 'END def clearObject(request)'
-    return dajax.json()
+    return HttpResponse(json.dumps({}), mimetype='application/javascript')
 
 
 ################################################################################
@@ -328,10 +312,8 @@ def clearObject(request):
 # Description:   Clear variables in the session
 # 
 ################################################################################
-@dajaxice_register
 def clearVersion(request):
     print 'BEGIN def clearVersion(request)'
-    dajax = Dajax()
     
     if 'uploadVersionValid' in request.session:
         del request.session['uploadVersionValid']
@@ -351,7 +333,6 @@ def clearVersion(request):
         del request.session['uploadDependencies']
 
     print 'END def clearVersion(request)'
-    return dajax.json()
 
 
 ################################################################################
@@ -389,120 +370,116 @@ def generateHtmlDependencyResolver(imports, includes):
     
     return htmlString
 
+
 ################################################################################
 # 
-# Function Name: deleteObject(request, objectID, objectType)
+# Function Name: delete_object(request)
 # Inputs:        request - 
-#                objectID - 
-#                objectType - 
 # Outputs:       JSON data 
 # Exceptions:    None
 # Description:   Delete an object (template or type).
 # 
 ################################################################################
-@dajaxice_register
-def deleteObject(request, objectID, objectType):
-    print 'BEGIN def deleteXMLSchema(request,xmlSchemaID)'
-    dajax = Dajax()
+def delete_object(request):
+    print 'BEGIN def delete_object(request)'
+    object_id = request.POST['objectID']
+    object_type = request.POST['objectType']
 
-    if objectType == "Template":
-        object = Template.objects.get(pk=objectID)
+    if object_type == "Template":
+        object = Template.objects.get(pk=object_id)
         objectVersions = TemplateVersion.objects.get(pk=object.templateVersion)
     else:
-        object = Type.objects.get(pk=objectID)
+        object = Type.objects.get(pk=object_id)
         objectVersions = TypeVersion.objects.get(pk=object.typeVersion)
 
     objectVersions.deletedVersions.append(str(object.id))    
     objectVersions.isDeleted = True
     objectVersions.save()
 
-    print 'END def deleteXMLSchema(request,xmlSchemaID)'
-    return dajax.json()
+    print 'END def delete_object(request)'
+    return HttpResponse(json.dumps({}), mimetype='application/javascript')
+
 
 ################################################################################
 # 
-# Function Name: setSchemaVersionContent(request, versionContent, versionFilename)
+# Function Name: set_schema_version_content(request)
 # Inputs:        request - 
-#                versionContent -
-#                versionFilename - 
 # Outputs:       
 # Exceptions:    None
 # Description:   Save the name and content of uploaded schema before save
 #
 ################################################################################
-@dajaxice_register
-def setSchemaVersionContent(request, versionContent, versionFilename):
-    dajax = Dajax()
+def set_schema_version_content(request):
+    version_content = request.POST['versionContent']
+    version_filename = request.POST['versionFilename']
     
-    request.session['uploadVersionContent'] = versionContent
-    request.session['uploadVersionFilename'] = versionFilename 
+    request.session['uploadVersionContent'] = version_content
+    request.session['uploadVersionFilename'] = version_filename 
     request.session['uploadVersionValid'] = False
     
-    return dajax.json()
+    return HttpResponse(json.dumps({}), mimetype='application/javascript')
+
 
 ################################################################################
 # 
-# Function Name: setTypeVersionContent(request, versionContent, versionFilename)
+# Function Name: set_type_version_content(request)
 # Inputs:        request - 
-#                versionContent -
-#                versionFilename - 
 # Outputs:       
 # Exceptions:    None
 # Description:   Save the name and content of uploaded type before save
 #
 ################################################################################
-@dajaxice_register
-def setTypeVersionContent(request, versionContent, versionFilename):
-    dajax = Dajax()
+def set_type_version_content(request):
+    version_content = request.POST['versionContent']
+    version_filename = request.POST['versionFilename']
     
-    request.session['uploadVersionContent'] = versionContent
-    request.session['uploadVersionFilename'] = versionFilename
+    request.session['uploadVersionContent'] = version_content
+    request.session['uploadVersionFilename'] = version_filename
     request.session['uploadVersionValid'] = False
     
-    return dajax.json()
+    return HttpResponse(json.dumps({}), mimetype='application/javascript')
+
 
 ################################################################################
 # 
-# Function Name: uploadVersion(request, objectVersionID, objectType)
+# Function Name: upload_version(request)
 # Inputs:        request - 
-#                objectVersionID -
-#                objectType - 
 # Outputs:       
 # Exceptions:    None
 # Description:   Upload the object (template or type)
 #
 ################################################################################
-@dajaxice_register
-def uploadVersion(request, objectVersionID, objectType):
-    dajax = Dajax()    
+def upload_version(request):
+    object_version_id = request.POST['objectVersionID']
+    object_type = request.POST['objectType']
+    
+    response_dict = {}
     
     versionContent = None
-    
     if ('uploadVersionFilename' in request.session and request.session['uploadVersionFilename'] is not None and
         'uploadVersionContent' in request.session and request.session['uploadVersionContent'] is not None):    
-        request.session['uploadVersionID'] = objectVersionID
-        request.session['uploadVersionType'] = objectType
+        request.session['uploadVersionID'] = object_version_id
+        request.session['uploadVersionType'] = object_type
         
         versionContent = request.session['uploadVersionContent'] 
-       
-    
+        
         xmlTree = None
-    
         # is it a valid XML document ?
         try:            
             xmlTree = etree.parse(BytesIO(versionContent.encode('utf-8')))
         except Exception, e:
-            dajax.script("""$("#objectUploadErrorMessage").html("<font color='red'>Not a valid XML document.</font><br/>"""+e.message.replace("'","") +""" ");""")
-            return dajax.json()
+            response_dict['errors'] = "Not a valid XML document."
+            response_dict['message'] = e.message.replace("'","")
+            return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
         
         # is it supported by the MDCS ?
-        errors = utils.getValidityErrorsForMDCS(xmlTree, objectType)
+        errors = utils.getValidityErrorsForMDCS(xmlTree, object_type)
         if len(errors) > 0:
             errorsStr = ""
             for error in errors:
-                errorsStr += error + "<br/>"
-            dajax.script("""$("#objectUploadErrorMessage").html("<font color='red'>"""+ errorsStr +"""</font>");""")
-            return dajax.json() 
+                errorsStr += error + "<br/>"            
+            response_dict['errors'] = errorsStr
+            return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
         
         # get the imports
         imports = xmlTree.findall("{http://www.w3.org/2001/XMLSchema}import")
@@ -512,42 +489,34 @@ def uploadVersion(request, objectVersionID, objectType):
         if len(imports) != 0 or len(includes) != 0:
             # Display array to resolve dependencies
             htmlString = generateHtmlDependencyResolver(imports, includes)
-            dajax.script("""$("#objectUploadErrorMessage").html(" """+ htmlString +""" ")""")
-            return dajax.json()
+            response_dict['errors'] = htmlString
+            return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
         else:
             try:
                 # is it a valid XML schema ?
                 xmlSchema = etree.XMLSchema(xmlTree)
             except Exception, e:
-                dajax.script("""
-                    $("#objectUploadErrorMessage").html("<font color='red'>Not a valid XML schema.</font><br/>"""+e.message.replace("'","") +""" ");
-                """)
-                return dajax.json()
+                response_dict['errors'] = "Not a valid XML schema."
+                response_dict['message'] = e.message.replace("'","")
+                return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
             
             request.session['uploadVersionValid'] = True
-            dajax.script("""
-                $("#objectUploadErrorMessage").html("<font color='green'>The uploaded template is valid. You can now save it.</font>   <span class='btn' onclick='saveVersion()'>Save</span>");
-            """)
-            return dajax.json()
-
-    print 'END def uploadObject(request,objectName,objectFilename,objectContent, objectType)'
-        
-    return dajax.json()
-
+            return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
+    else:
+        response_dict['errors'] = "Please select a document first."
+        return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
 
 ################################################################################
 # 
-# Function Name: saveVersion(request)
+# Function Name: save_version(request)
 # Inputs:        request - 
 # Outputs:       JSON data 
 # Exceptions:    None
 # Description:   Save a version of an object (template or type) in mongodb
 # 
 ################################################################################
-@dajaxice_register
-def saveVersion(request):
+def save_version(request):
     print 'BEGIN def saveVersion(request, objectType)'
-    dajax = Dajax()
     
     versionFilename = None 
     versionContent = None
@@ -596,73 +565,63 @@ def saveVersion(request):
             MetaSchema(schemaId=str(newObject.id), flat_content=versionFlat, api_content=versionApiurl).save()
             object.dependencies = dependencies
             object.save()
-        
-        dajax.script("""
-            $("#delete_custom_message").html("");
-            $('#model_version').load(document.URL +  ' #model_version', function() {}); 
-        """)     
+           
         clearVersion(request)
-    else:
-        dajax.script("""$("#objectUploadErrorMessage").html("<font color='red'>Please upload a valid XML schema first.</font>"); """)
-        return dajax.json()
+    else:    
+        response_dict = {'errors': 'True'}
+        return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
     
 
     print 'END def saveVersion(request, objectType)'
-    return dajax.json()
+    return HttpResponse(json.dumps({}), mimetype='application/javascript')
+
 
 ################################################################################
 # 
-# Function Name: setCurrentVersion(request, objectid, objectType)
+# Function Name: set_current_version(request)
 # Inputs:        request - 
-#                objectid -
-#                objectType - 
 # Outputs:       
 # Exceptions:    None
 # Description:   Set the current version of the object (template or type)
 #
 ################################################################################
-@dajaxice_register
-def setCurrentVersion(request, objectid, objectType):
-    dajax = Dajax()
+def set_current_version(request):
+    object_id = request.GET['objectid']
+    object_type = request.GET['objectType']
     
-    if objectType == "Template":
-        object = Template.objects.get(pk=objectid)
+    if object_type == "Template":
+        object = Template.objects.get(pk=object_id)
         objectVersions = TemplateVersion.objects.get(pk=object.templateVersion)
     else:
-        object = Type.objects.get(pk=objectid)
+        object = Type.objects.get(pk=object_id)
         objectVersions = TypeVersion.objects.get(pk=object.typeVersion)
     
     objectVersions.current = str(object.id)
     objectVersions.save()
      
-    dajax.script("""
-        $("#delete_custom_message").html("");   
-        $('#model_version').load(document.URL +  ' #model_version', function() {});      
-    """)
-    
-    return dajax.json()
+    return HttpResponse(json.dumps({}), mimetype='application/javascript')
+
 
 ################################################################################
 # 
-# Function Name: deleteVersion(request, objectid, objectType, newCurrent)
+# Function Name: delete_version(request)
 # Inputs:        request - 
-#                objectid -
-#                objectType - 
-#                newCurrent - 
 # Outputs:       
 # Exceptions:    None
 # Description:   Delete a version of the object (template or type) by adding it to the list of deleted
 #
 ################################################################################
-@dajaxice_register
-def deleteVersion(request, objectid, objectType, newCurrent):
-    dajax = Dajax()
+def delete_version(request):
+    object_id = request.POST['objectid']
+    object_type = request.POST['objectType']
+    new_current = request.POST['newCurrent']
     
-    if objectType == "Template":
-        object = Template.objects.get(pk=objectid)
+    response_dict = {}
+    if object_type == "Template":
+        object = Template.objects.get(pk=object_id)
         objectVersions = TemplateVersion.objects.get(pk=object.templateVersion)
     else:
-        object = Type.objects.get(pk=objectid)
+        object = Type.objects.get(pk=object_id)
         objectVersions = TypeVersion.objects.get(pk=object.typeVersion)
       
 
@@ -670,220 +629,186 @@ def deleteVersion(request, objectid, objectType, newCurrent):
         objectVersions.deletedVersions.append(str(object.id))    
         objectVersions.isDeleted = True
         objectVersions.save()
-        dajax.script("""
-            $("#delete_custom_message").html("");
-            window.parent.versionDialog.dialog("close");  
-        """)
+        response_dict = {'deleted': 'object'}
+    
     else:
-        if newCurrent != "": 
-            objectVersions.current = newCurrent
+        if new_current != "": 
+            objectVersions.current = new_current
         objectVersions.deletedVersions.append(str(object.id))   
         objectVersions.save()        
+        response_dict = {'deleted': 'version'}
     
-        dajax.script("""
-            $("#delete_custom_message").html("");   
-            $('#model_version').load(document.URL +  ' #model_version', function() {}); 
-        """)
-    
-    return dajax.json()
+    return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
 
 ################################################################################
 # 
-# Function Name: assignDeleteCustomMessage(request, objectid, objectType)
+# Function Name: assign_delete_custom_message(request)
 # Inputs:        request - 
-#                objectid -
-#                objectType - 
 # Outputs:       
 # Exceptions:    None
 # Description:   Assign a message to the dialog box regarding the situation of the version that is about to be deleted
 #
 ################################################################################
-@dajaxice_register
-def assignDeleteCustomMessage(request, objectid, objectType):
-    dajax = Dajax()
+def assign_delete_custom_message(request):
+    object_id = request.GET['objectid']
+    object_type = request.GET['objectType']
     
-    if objectType == "Template":
-        object = Template.objects.get(pk=objectid)
+    if object_type == "Template":
+        object = Template.objects.get(pk=object_id)
         objectVersions = TemplateVersion.objects.get(pk=object.templateVersion)
     else:
-        object = Type.objects.get(pk=objectid)
+        object = Type.objects.get(pk=object_id)
         objectVersions = TypeVersion.objects.get(pk=object.typeVersion)  
     
     message = ""
 
     if len(objectVersions.versions) == 1:
-        message = "<span style='color:red'>You are about to delete the only version of this "+ objectType +". The "+ objectType +" will be deleted from the "+ objectType +" manager.</span>"
+        message = "<span style='color:red'>You are about to delete the only version of this "+ object_type +". The "+ object_type +" will be deleted from the "+ object_type +" manager.</span>"
     elif objectVersions.current == str(object.id) and len(objectVersions.versions) == len(objectVersions.deletedVersions) + 1:
-        message = "<span style='color:red'>You are about to delete the last version of this "+ objectType +". The "+ objectType +" will be deleted from the "+ objectType +" manager.</span>"
+        message = "<span style='color:red'>You are about to delete the last version of this "+ object_type +". The "+ object_type +" will be deleted from the "+ object_type +" manager.</span>"
     elif objectVersions.current == str(object.id):
         message = "<span>You are about to delete the current version. If you want to continue, please select a new current version: <select id='selectCurrentVersion'>"
         for version in objectVersions.versions:
             if version != objectVersions.current and version not in objectVersions.deletedVersions:
-                if objectType == "Template":
+                if object_type == "Template":
                     obj = Template.objects.get(pk=version)
                 else:
                     obj = Type.objects.get(pk=version)
                 message += "<option value='"+version+"'>Version " + str(obj.version) + "</option>"
         message += "</select></span>"
-    
-    dajax.script("""
-                    $('#delete_custom_message').html(" """+ message +""" ");
-                 """)
-    
-    return dajax.json()
+
+    response_dict = {'message': message}
+    return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
+
 
 ################################################################################
 # 
-# Function Name: editInformation(request, objectid, objectType, newName, newFilename, buckets)
+# Function Name: edit_information(request)
 # Inputs:        request - 
-#                objectid -
-#                objectType - 
-#                newName - 
-#                newFileName -
-#                buckets - 
 # Outputs:       
 # Exceptions:    None
 # Description:   Edit information of an object (template or type)
 #
 ################################################################################
-@dajaxice_register
-def editInformation(request, objectid, objectType, newName, newFilename, buckets):
-    dajax = Dajax()
+def edit_information(request):
+    object_id = request.POST['objectID']
+    object_type = request.POST['objectType']
+    new_name = request.POST['newName']
+    new_filename = request.POST['newFilename']
+
     
-    if objectType == "Template":
-        object = Template.objects.get(pk=objectid)
+    
+    if object_type == "Template":
+        object = Template.objects.get(pk=object_id)
         objectVersions = TemplateVersion.objects.get(pk=object.templateVersion)
     else:        
-        object = Type.objects.get(pk=objectid)
+        object = Type.objects.get(pk=object_id)
         objectVersions = TypeVersion.objects.get(pk=object.typeVersion)
         # check if a type with the same name already exists
-        testFilenameObjects = Type.objects(filename=newFilename)    
+        testFilenameObjects = Type.objects(filename=new_filename)    
         if len(testFilenameObjects) == 1: # 0 is ok, more than 1 can't happen
             #check that the type with the same filename is the current one
             if testFilenameObjects[0].id != object.id:
-                dajax.script("""
-                    showErrorEditType();
-                """)
-                return dajax.json()
+                response_dict = {'errors': 'True'}
+                return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
     
     # change the name of every version but only the filename of the current
     for version in objectVersions.versions:
-        if objectType == "Template":
+        if object_type == "Template":
             obj = Template.objects.get(pk=version)
         else:
             obj = Type.objects.get(pk=version)
-        obj.title = newName
-        if version == objectid:
-            obj.filename = newFilename
+        obj.title = new_name
+        if version == object_id:
+            obj.filename = new_filename
         obj.save()
-        
-    # update the buckets
-    allBuckets = Bucket.objects
-    for bucket in allBuckets:
-        if str(bucket.id) in buckets:
-            if str(objectVersions.id) not in bucket.types:
-                bucket.types.append(str(objectVersions.id))
-        
-        else:   
-            if str(objectVersions.id) in bucket.types:
-                bucket.types.remove(str(objectVersions.id))
-        
-        bucket.save()
     
+    if 'newBuckets[]' in request.POST:
+        new_buckets = request.POST.getlist('newBuckets[]')
+        # update the buckets
+        allBuckets = Bucket.objects
+        for bucket in allBuckets:
+            if str(bucket.id) in new_buckets:
+                if str(objectVersions.id) not in bucket.types:
+                    bucket.types.append(str(objectVersions.id))
+            
+            else:   
+                if str(objectVersions.id) in bucket.types:
+                    bucket.types.remove(str(objectVersions.id))
+            
+            bucket.save()
     
-    dajax.script("""
-        $("#dialog-edit-info").dialog( "close" );
-        $('#model_selection').load(document.URL +  ' #model_selection', function() {
-              loadUploadManagerHandler();
-        });
-    """)
-    
-    return dajax.json()
+    return HttpResponse(json.dumps({}), mimetype='application/javascript')
 
 
 ################################################################################
 # 
-# Function Name: restoreObject(request, objectid, objectType)
+# Function Name: restore_object(request)
 # Inputs:        request - 
-#                objectid -
-#                objectType - 
 # Outputs:       
 # Exceptions:    None
 # Description:   Restore an object previously deleted (template or type)
 #
 ################################################################################
-@dajaxice_register
-def restoreObject(request, objectid, objectType):
-    dajax = Dajax()
+def restore_object(request):
+    object_id = request.POST['objectID']
+    object_type = request.POST['objectType']
     
-    if objectType == "Template":
-        object = Template.objects.get(pk=objectid)
+    if object_type == "Template":
+        object = Template.objects.get(pk=object_id)
         objectVersions = TemplateVersion.objects.get(pk=object.templateVersion)
     else:
-        object = Type.objects.get(pk=objectid)
+        object = Type.objects.get(pk=object_id)
         objectVersions = TypeVersion.objects.get(pk=object.typeVersion)
         
     objectVersions.isDeleted = False
     del objectVersions.deletedVersions[objectVersions.deletedVersions.index(objectVersions.current)]
     objectVersions.save()
     
-    dajax.script("""
-        $('#model_selection').load(document.URL +  ' #model_selection', function() {
-              loadUploadManagerHandler();
-        });
-    """)
-    
-    return dajax.json()
+    return HttpResponse(json.dumps({}), mimetype='application/javascript')
+
 
 ################################################################################
 # 
-# Function Name: restoreVersion(request, objectid, objectType)
+# Function Name: restore_version(request)
 # Inputs:        request - 
-#                objectid -
-#                objectType - 
 # Outputs:       
 # Exceptions:    None
 # Description:   Restore a version of an object previously deleted (template or type)
 #
 ################################################################################
-@dajaxice_register
-def restoreVersion(request, objectid, objectType):
-    dajax = Dajax()
+def restore_version(request):
+    object_id = request.POST['objectID']
+    object_type = request.POST['objectType']
     
-    if objectType == "Template":
-        object = Template.objects.get(pk=objectid)
+    if object_type == "Template":
+        object = Template.objects.get(pk=object_id)
         objectVersions = TemplateVersion.objects.get(pk=object.templateVersion)
     else:
-        object = Type.objects.get(pk=objectid)
+        object = Type.objects.get(pk=object_id)
         objectVersions = TypeVersion.objects.get(pk=object.typeVersion)
         
-    del objectVersions.deletedVersions[objectVersions.deletedVersions.index(objectid)]
+    del objectVersions.deletedVersions[objectVersions.deletedVersions.index(object_id)]
     objectVersions.save()
        
-    dajax.script("""
-        $("#delete_custom_message").html("");
-        $('#model_version').load(document.URL +  ' #model_version', function() {}); 
-    """)
-    
-    return dajax.json()
+    return HttpResponse(json.dumps({}), mimetype='application/javascript')
 
 
 ################################################################################
 # 
-# Function Name: editInstance(request, instanceid, name)
+# Function Name: edit_instance(request)
 # Inputs:        request -
-#                instanceid - 
-#                name -
 # Outputs:       
 # Exceptions:    None
 # Description:   Edit the instance information
 #
 ################################################################################
-@dajaxice_register
-def editInstance(request, instanceid, name):
-    dajax = Dajax()
+def edit_instance(request):
+    instance_id = request.POST['instanceid']
+    name = request.POST['name']
     
     errors = ""
+    response_dict = {}
     
     # test if the name is "Local"
     if (name.upper() == "LOCAL"):
@@ -891,179 +816,153 @@ def editInstance(request, instanceid, name):
     else:   
         # test if an instance with the same name exists
         instance = Instance.objects(name=name)
-        if len(instance) != 0 and str(instance[0].id) != instanceid:
+        if len(instance) != 0 and str(instance[0].id) != instance_id:
             errors += "An instance with the same name already exists.<br/>"
     
     # If some errors display them, otherwise insert the instance
     if(errors == ""):      
-        instance = Instance.objects.get(pk=instanceid)
+        instance = Instance.objects.get(pk=instance_id)
         instance.name = name
         instance.save()
-        dajax.script("""
-        $("#dialog-edit-instance").dialog("close");
-        $('#model_selection').load(document.URL +  ' #model_selection', function() {
-              loadFedOfQueriesHandler();
-        });
-        """)
     else:
-        dajax.assign("#edit_instance_error", "innerHTML", errors)
+        response_dict = {'errors': errors}
     
-    return dajax.json()
+    return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
+
 
 ################################################################################
 # 
-# Function Name: deleteInstance(request, instanceid)
+# Function Name: delete_instance(request)
 # Inputs:        request -
-#                instanceid -  
 # Outputs:       
 # Exceptions:    None
 # Description:   Delete an instance
 #
 ################################################################################
-@dajaxice_register
-def deleteInstance(request, instanceid):
-    dajax = Dajax()
+def delete_instance(request):
+    instance_id = request.POST['instanceid']
     
-    instance = Instance.objects.get(pk=instanceid)
+    instance = Instance.objects.get(pk=instance_id)
     instance.delete()
     
-    dajax.script("""
-        $("#dialog-deleteinstance-message").dialog("close");
-        $('#model_selection').load(document.URL +  ' #model_selection', function() {
-              loadFedOfQueriesHandler();
-        });
-    """)
-    
-    return dajax.json()
+    return HttpResponse(json.dumps({}), mimetype='application/javascript')
+
 
 ################################################################################
 # 
-# Function Name: acceptRequest(request, requestid)
+# Function Name: accept_request(request)
 # Inputs:        request - 
-#                requestid - 
 # Outputs:        
 # Exceptions:    None
 # Description:   Accepts a request and creates the user account
 # 
 ################################################################################
-@dajaxice_register
-def acceptRequest(request, requestid):
-    dajax = Dajax()
-    userRequest = Request.objects.get(pk=requestid)
+def accept_request(request):
+    request_id = request.POST['requestid']
+    
+    response_dict = {}
+    
+    userRequest = Request.objects.get(pk=request_id)
     try:
         existingUser = User.objects.get(username=userRequest.username)
-        dajax.script("showErrorRequestDialog();")        
+        response_dict = {'errors': 'User already exists.'} 
     except:
         user = User.objects.create_user(username=userRequest.username, password=userRequest.password, first_name=userRequest.first_name, last_name=userRequest.last_name, email=userRequest.email)
         user.save()
         userRequest.delete()
-        dajax.script("showAcceptedRequestDialog();")
         
-    return dajax.json()
+    return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
+
 
 ################################################################################
 # 
-# Function Name: denyRequest(request, requestid)
+# Function Name: deny_request(request)
 # Inputs:        request - 
-#                requestid - 
 # Outputs:        
 # Exceptions:    None
 # Description:   Denies a request
 # 
 ################################################################################
-@dajaxice_register
-def denyRequest(request, requestid):
-    dajax = Dajax()
-    userRequest = Request.objects.get(pk=requestid)
+def deny_request(request):
+    request_id = request.POST['requestid']
+    
+    userRequest = Request.objects.get(pk=request_id)
     userRequest.delete()
-    dajax.script(
-    """
-      $('#model_selection').load(document.URL +  ' #model_selection', function() {
-          loadUserRequestsHandler();
-      });
-    """)
-    return dajax.json()
+    
+    return HttpResponse(json.dumps({}), mimetype='application/javascript')
+
 
 ################################################################################
 # 
-# Function Name: initModuleManager(request)
+# Function Name: init_module_manager(request)
 # Inputs:        request - 
-#                requestid - 
 # Outputs:        
 # Exceptions:    None
-# Description:   Empties the list of resource when come to the module manager
+# Description:   Empties the list of resources when coming to the module manager
 # 
 ################################################################################
-@dajaxice_register
-def initModuleManager(request):
-    dajax = Dajax()
-    
+def init_module_manager(request):
     request.session['listModuleResource'] = []
-    
-    return dajax.json()
+    return HttpResponse(json.dumps({}), mimetype='application/javascript')
+
 
 ################################################################################
 # 
-# Function Name: addModuleResource(request, resourceContent, resourceFilename)
+# Function Name: add_module_resource(request)
 # Inputs:        request - 
-#                resourceContent - 
-#                resourceFilename - 
 # Outputs:        
 # Exceptions:    None
 # Description:   Add a resource for the module. Save the content and name before save.
 # 
 ################################################################################
-@dajaxice_register
-def addModuleResource(request, resourceContent, resourceFilename):
-    dajax = Dajax()
+def add_module_resource(request):
+    resource_content = request.POST['resourceContent']
+    resource_filename = request.POST['resourceFilename']
     
-    request.session['currentResourceContent'] = resourceContent
-    request.session['currentResourceFilename'] = resourceFilename    
+    request.session['currentResourceContent'] = resource_content
+    request.session['currentResourceFilename'] = resource_filename    
     
-    return dajax.json()
+    return HttpResponse(json.dumps({}), mimetype='application/javascript')
 
 
 ################################################################################
 # 
-# Function Name: uploadResource(request)
+# Function Name: upload_resource(request)
 # Inputs:        request - 
 # Outputs:        
 # Exceptions:    None
 # Description:   Upload the resource
 # 
 ################################################################################
-@dajaxice_register
-def uploadResource(request):
-    dajax = Dajax()
+def upload_resource(request):
+    response_dict = {}
     
     if ('currentResourceContent' in request.session 
-        and request.session['currentResourceContent'] != "" 
+        and request.session['currentResourceContent'] != ""
         and 'currentResourceFilename' in request.session 
         and request.session['currentResourceFilename'] != ""):
+            response_dict = {'filename': request.session['currentResourceFilename']}
             request.session['listModuleResource'].append(ModuleResourceInfo(content=request.session['currentResourceContent'],filename=request.session['currentResourceFilename']).__to_json__())
-            dajax.append("#uploadedResources", "innerHTML", request.session['currentResourceFilename'] + "<br/>")
-            dajax.script("""$("#moduleResource").val("");""")
             request.session['currentResourceContent'] = ""
             request.session['currentResourceFilename'] = ""
     
-    return dajax.json()
+    return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
+
 
 ################################################################################
 # 
-# Function Name: addModule(request, template, name, tag, HTMLTag)
-# Inputs:        request - 
-#                template - 
-#                name - 
-#                tag - 
-#                HTMLTag - 
+# Function Name: add_module(request)
+# Inputs:        request -  
 # Outputs:        
 # Exceptions:    None
 # Description:   Add a module in mongo db
 # 
 ################################################################################
-@dajaxice_register
-def addModule(request, templates, name, tag, HTMLTag):
-    dajax = Dajax()    
+def add_module(request): 
+    name = request.POST['name']
+    templates = request.POST.getlist('templates[]')
+    tag = request.POST['tag']
+    HTMLTag = request.POST['HTMLTag']
     
     module = Module(name=name, templates=templates, tag=tag, htmlTag=HTMLTag)
     listModuleResource = request.session['listModuleResource']
@@ -1074,26 +973,26 @@ def addModule(request, templates, name, tag, HTMLTag):
     
     module.save()
 
-    return dajax.json()
+    return HttpResponse(json.dumps({}), mimetype='application/javascript')
+
 
 ################################################################################
 # 
-# Function Name: deleteModule(request, objectid)
+# Function Name: delete_module(request)
 # Inputs:        request - 
-#                objectid - 
 # Outputs:        
 # Exceptions:    None
 # Description:   Delete a module
 # 
 ################################################################################
-@dajaxice_register
-def deleteModule(request, objectid):
-    dajax = Dajax()    
+def delete_module(request):
+    object_id = request.POST['objectid']    
     
-    module = Module.objects.get(pk=objectid)
+    module = Module.objects.get(pk=object_id)
     module.delete()
 
-    return dajax.json()
+    return HttpResponse(json.dumps({}), mimetype='application/javascript')
+
 
 ################################################################################
 # 
@@ -1172,43 +1071,39 @@ def delete_backup(request):
 
 ################################################################################
 # 
-# Function Name: removeMessage(request, messageid)
+# Function Name: remove_message(request)
 # Inputs:        request -
-#                messageid - 
 # Outputs:       
 # Exceptions:    None
 # Description:   Remove a message from Contact form
 #
 ################################################################################
-@dajaxice_register
-def removeMessage(request, messageid):
-    dajax = Dajax()
+def remove_message(request):
+    message_id = request.POST['messageid']
     
-    message = Message.objects.get(pk=messageid)
+    message = Message.objects.get(pk=message_id)
     message.delete()
-        
-    return dajax.json()
+            
+    return HttpResponse(json.dumps({}), mimetype='application/javascript')
 
 
 ################################################################################
 # 
-# Function Name: addBucket(request, label)
+# Function Name: add_bucket(request)
 # Inputs:        request -
-#                label - 
 # Outputs:       
 # Exceptions:    None
 # Description:   Add a new bucket
 #
 ################################################################################
-@dajaxice_register
-def addBucket(request, label):
-    dajax = Dajax()
+def add_bucket(request):
+    label = request.POST['label']
     
     # check that the label is unique
     labels = Bucket.objects.all().values_list('label') 
-    if label in labels:
-        dajax.script("""$("#errorAddBucket").html("<font color='red'>A bucket with the same label already exists.</font><br/>");""")
-        return dajax.json()
+    if label in labels:        
+        response_dict = {"errors": "True"}
+        return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
     
     # get an unique color
     colors = Bucket.objects.all().values_list('color') 
@@ -1217,45 +1112,27 @@ def addBucket(request, label):
         color = rdm_hex_color()
         
     Bucket(label=label, color=color).save()
-    dajax.script(
-    """
-      $('#dialog-add-bucket').dialog('close');
-      $('#model_buckets').load(document.URL +  ' #model_buckets', function() {});
-      $('#model_select_buckets').load(document.URL +  ' #model_select_buckets', function() {});
-      $('#model_select_edit_buckets').load(document.URL +  ' #model_select_edit_buckets', function() {});
-    """)
     
-    return dajax.json()
+    return HttpResponse(json.dumps({}), mimetype='application/javascript')
 
 
 ################################################################################
 # 
-# Function Name: addBucket(request, bucket_id)
+# Function Name: delete_bucket(request)
 # Inputs:        request -
-#                bucket_id - 
 # Outputs:       
 # Exceptions:    None
 # Description:   Delete a bucket
 #
 ################################################################################
-@dajaxice_register
-def deleteBucket(request, bucket_id):
-    dajax = Dajax()
+def delete_bucket(request):
+    bucket_id = request.POST['bucket_id']
     
     bucket = Bucket.objects.get(pk=bucket_id)
     bucket.delete()
-        
-    dajax.script(
-    """
-      $('#model_buckets').load(document.URL +  ' #model_buckets', function() {});
-      $('#model_select_buckets').load(document.URL +  ' #model_select_buckets', function() {});
-      $('#model_selection').load(document.URL +  ' #model_selection', function() {
-        loadUploadManagerHandler();
-      });
-      $('#model_select_edit_buckets').load(document.URL +  ' #model_select_edit_buckets', function() {});
-    """)
     
-    return dajax.json()
+    return HttpResponse(json.dumps({}), mimetype='application/javascript')
+
 
 ################################################################################
 # 

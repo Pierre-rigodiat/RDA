@@ -36,6 +36,7 @@
 	<script src="{% static 'resources/js/bootstrap.min.js' %}"></script>
     <link rel="stylesheet" type="text/css" href="{% static 'resources/lib/jquery-ui/themes/smoothness/jquery-ui.css' %}"/>        
     <script src="{% static 'resources/lib/jquery-ui/themes/smoothness/jquery-ui.js' %}"></script>
+    <script src="{% static 'inc/controllers/js/csrf.js' %}"></script>
 </head>
 
 <body id="top">
@@ -197,16 +198,5 @@
 
 </div>
 
-<div id="dialog-saved-terms" title="Terms of Use Saved" style="display:none;">  
-  <p>
-  <span class="ui-icon ui-icon-circle-check" style="float:left; margin:0 7px 10px 0;"></span>
-  The terms of use were successfuly saved.
-  </p>
-</div>
-
-<script src="{% static 'inc/controllers/js/website.js' %}"></script>
-<script>
-	loadTermsOfUseControllers();
-</script>
 </body>
 </html>

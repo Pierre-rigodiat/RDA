@@ -471,7 +471,11 @@ save_type = function(typeName){
         },
         success: function(data){
         	if('errors' in data){
-        		$("#new-type-error").html("<font color='red'>" + data.errors + "</font><br/>" + data.message);
+        		if ("message" in data){
+        			$("#new-type-error").html("<font color='red'>" + data.errors + "</font><br/>" + data.message);
+        		}else{
+        			$("#new-type-error").html("<font color='red'>" + data.errors + "</font><br/>");
+        		}     
         	}else{
         		saveTemplateCallback();
                 $("#dialog-save-type").dialog("close");
@@ -650,6 +654,10 @@ change_xsd_type = function(xpath, newType){
     });
 }
 
+
+/**
+ * Show dialog to set occurrences
+ */
 displayOccurrencesElementDialog = function()
 {
 	 $( "#manage-occurrences-error" ).html("");
@@ -711,6 +719,10 @@ displayOccurrencesElementDialog = function()
 
 
 
+/**
+ * AJAX call, gets element occurrences from the server
+ * @param xpath
+ */
 get_occurrences = function(xpath){
     $.ajax({
         url : "/compose/get_occurrences",
