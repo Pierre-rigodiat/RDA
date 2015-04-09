@@ -75,7 +75,7 @@ def get_hdf5_string(request):
         spreadsheetXML = ""
 
     response_dict = {'spreadsheetXML': spreadsheetXML}
-    return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
+    return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
 
 
 ################################################################################
@@ -100,7 +100,7 @@ def update_form_list(request):
         select_options = "<option value=\"none\">None Exist"
 
     response_dict = {'options': select_options}
-    return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
+    return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
 
 
 ################################################################################
@@ -122,7 +122,7 @@ def save_html_form(request):
 
     Htmlform(title=save_as, schema=template_id, content=content, occurrences=str(occurrences)).save()
 
-    return HttpResponse(json.dumps({}), mimetype='application/javascript')
+    return HttpResponse(json.dumps({}), content_type='application/javascript')
 
 
 ################################################################################
@@ -148,12 +148,12 @@ def validate_xml_data(request):
     except Exception, e:
         message= e.message.replace('"', '\'')
         response_dict = {'errors': message}
-        return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
+        return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
 
     request.session['xmlString'] = request.POST['xmlString']
     request.session['formString'] = request.POST['xsdForm']
 
-    return HttpResponse(json.dumps({}), mimetype='application/javascript')
+    return HttpResponse(json.dumps({}), content_type='application/javascript')
     
 
 ################################################################################
@@ -205,7 +205,7 @@ def save_xml_data_to_db(request):
         response_dict['errors'] = message
 
     print 'END def saveXMLDataToDB(request,saveAs)'
-    return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
+    return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
 
 
 ################################################################################
@@ -221,7 +221,7 @@ def view_data(request):
     print 'BEGIN def saveXMLData(request)'
 
     request.session['formString'] = request.POST['form_content']
-    return HttpResponse(json.dumps({}), mimetype='application/javascript')
+    return HttpResponse(json.dumps({}), content_type='application/javascript')
 
     print 'END def saveXMLData(request)'
 
@@ -243,9 +243,9 @@ def load_form_for_entry(request):
         request.session['occurrences'] = eval(html_form_object.occurrences)
 
         response_dict = {'xsdForm': html_form_object.content}
-        return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
+        return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
     except:
-        return HttpResponse(json.dumps({}), mimetype='application/javascript')
+        return HttpResponse(json.dumps({}), content_type='application/javascript')
 
 
 ################################################################################
@@ -283,7 +283,7 @@ def set_current_template(request):
     request.session['xmlDocTree'] = etree.tostring(XMLSchema.tree)
 
     print 'END def set_current_template(request)'
-    return HttpResponse(json.dumps({}), mimetype='application/javascript')
+    return HttpResponse(json.dumps({}), content_type='application/javascript')
 
 
 ################################################################################
@@ -322,7 +322,7 @@ def set_current_user_template(request):
     request.session['xmlDocTree'] = etree.tostring(XMLSchema.tree)
 
     print 'END def setCurrentTemplate(request)'
-    return HttpResponse(json.dumps({}), mimetype='application/javascript')
+    return HttpResponse(json.dumps({}), content_type='application/javascript')
 
 
 ################################################################################
@@ -344,7 +344,7 @@ def verify_template_is_selected(request):
     print 'END def verify_template_is_selected(request)'
 
     response_dict = {'templateSelected': templateSelected}
-    return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
+    return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
 
 
 ################################################################################
@@ -916,7 +916,7 @@ def remove(request):
             response_dict = {'xsdForm': html.tostring(htmlTree)}
     
     request.session.modified = True
-    return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
+    return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
 
 
 ################################################################################
@@ -1054,7 +1054,7 @@ def duplicate(request):
             response_dict['xsdForm'] = html.tostring(htmlTree)
     
     request.session.modified = True
-    return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
+    return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
     
 ################################################################################
 # 
@@ -1162,7 +1162,7 @@ def init_curate(request):
     if 'xmlDocTree' in request.session:
         del request.session['xmlDocTree']
 
-    return HttpResponse(json.dumps({}), mimetype='application/javascript')
+    return HttpResponse(json.dumps({}), content_type='application/javascript')
 
  
 ################################################################################
@@ -1243,7 +1243,7 @@ def generate_xsd_form(request):
  
     request.session['formString'] = formString
 
-    return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
+    return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
     print 'END def generate_xsd_form(request)'
 
 
@@ -1263,7 +1263,7 @@ def download_xml(request):
     xml2downloadID = str(xml2download.id)
 
     response_dict = {"xml2downloadID": xml2downloadID}
-    return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
+    return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
 
 
 ################################################################################
@@ -1283,7 +1283,7 @@ def clear_fields(request):
     reinitOccurrences(request)    
 
     response_dict = {'xsdForm': original_form}
-    return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
+    return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
 
 
 ################################################################################
@@ -1339,7 +1339,7 @@ def load_xml(request):
         xmlTree = str(newdom)
 
     response_dict = {"XMLHolder": xmlTree}
-    return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
+    return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
 
 
 

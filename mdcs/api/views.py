@@ -1643,10 +1643,10 @@ def add_repository(request):
             
             
             try:
-                url = request.DATA["protocol"] + "://" + request.DATA["address"] + ":" + request.DATA["port"] + "/oauth2/access_token/"                            
-                data="client_id=" + request.DATA["client_id"] + "&client_secret=" + request.DATA["client_secret"] + "&grant_type=password&username=" + request.DATA["user"] + "&password=" + request.DATA["password"]
+                url = request.DATA["protocol"] + "://" + request.DATA["address"] + ":" + request.DATA["port"] + "/o/token/"                            
+                data="grant_type=password&username=" + request.DATA["user"] + "&password=" + request.DATA["password"]
                 headers = {'content-type': 'application/x-www-form-urlencoded'}
-                r = requests.post(url=url,data=data, headers=headers)
+                r = requests.post(url=url,data=data, headers=headers,  auth=(request.DATA["client_id"], request.DATA["client_secret"]))
                 if r.status_code == 200:
                     now = datetime.now()
                     delta = timedelta(seconds=int(eval(r.content)["expires_in"]))

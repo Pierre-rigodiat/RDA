@@ -1,7 +1,7 @@
 ################################################################################
 #
 # File Name: admin.py
-# Application: admin
+# Application: admin_mdcs
 # Purpose:   
 #
 # Author: Sharief Youssef

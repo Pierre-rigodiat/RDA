@@ -1,7 +1,7 @@
 ################################################################################
 #
 # File Name: ajax.py
-# Application: admin
+# Application: admin_mdcs
 # Purpose:    AJAX methods used for administration purposes
 #
 # Author: Sharief Youssef
@@ -81,7 +81,7 @@ def upload_object(request):
     except Exception, e:
         response_dict['errors'] = "Not a valid XML document."
         response_dict['message'] = e.message.replace("'","")
-        return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
+        return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
     
     # is it supported by the MDCS ?
     errors = utils.getValidityErrorsForMDCS(xmlTree, object_type)
@@ -90,7 +90,7 @@ def upload_object(request):
         for error in errors:
             errorsStr += error + "<br/>"
         response_dict['errors'] = errorsStr
-        return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
+        return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
     
     # get the imports
     imports = xmlTree.findall("{http://www.w3.org/2001/XMLSchema}import")
@@ -101,7 +101,7 @@ def upload_object(request):
         # Display array to resolve dependencies
         htmlString = generateHtmlDependencyResolver(imports, includes)
         response_dict['errors'] = htmlString
-        return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
+        return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
     else:
         try:
             # is it a valid XML schema ?
@@ -109,14 +109,14 @@ def upload_object(request):
         except Exception, e:
             response_dict['errors'] = "Not a valid XML schema."
             response_dict['message'] = e.message.replace("'","")
-            return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
+            return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
         
         request.session['uploadObjectValid'] = True
-        return HttpResponse(json.dumps({}), mimetype='application/javascript')
+        return HttpResponse(json.dumps({}), content_type='application/javascript')
 
 
     print 'END def uploadObject(request,objectName,objectFilename,objectContent, objectType)'
-    return HttpResponse(json.dumps({}), mimetype='application/javascript')
+    return HttpResponse(json.dumps({}), content_type='application/javascript')
 
 
 ################################################################################
@@ -187,11 +187,11 @@ def save_object(request):
         clear_object(request)      
     else:
         response_dict = {'errors': 'True'}
-        return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
+        return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
     
 
     print 'END def saveObject(request)'
-    return HttpResponse(json.dumps({}), mimetype='application/javascript')
+    return HttpResponse(json.dumps({}), content_type='application/javascript')
 
 
 ################################################################################
@@ -230,7 +230,7 @@ def resolve_dependencies(request):
         saveBtn = "<span class='btn' onclick='saveVersion()'>Save</span>"
     else:
         response_dict= {'errors': "Please upload a file first."}
-        return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
+        return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
          
     xmlTree = etree.parse(BytesIO(objectContent.encode('utf-8')))        
     # get the imports
@@ -263,11 +263,11 @@ def resolve_dependencies(request):
         response_dict = {'message': message}
     except Exception, e:
         response_dict = {'errorDependencies': e.message.replace("'","")}
-        return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')      
+        return HttpResponse(json.dumps(response_dict), content_type='application/javascript')      
     
 
     print 'END def resolveDependencies(request)'
-    return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
+    return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
 
 
 ################################################################################
@@ -300,7 +300,7 @@ def clear_object(request):
         del request.session['uploadDependencies']
         
     print 'END def clearObject(request)'
-    return HttpResponse(json.dumps({}), mimetype='application/javascript')
+    return HttpResponse(json.dumps({}), content_type='application/javascript')
 
 
 ################################################################################
@@ -397,7 +397,7 @@ def delete_object(request):
     objectVersions.save()
 
     print 'END def delete_object(request)'
-    return HttpResponse(json.dumps({}), mimetype='application/javascript')
+    return HttpResponse(json.dumps({}), content_type='application/javascript')
 
 
 ################################################################################
@@ -417,7 +417,7 @@ def set_schema_version_content(request):
     request.session['uploadVersionFilename'] = version_filename 
     request.session['uploadVersionValid'] = False
     
-    return HttpResponse(json.dumps({}), mimetype='application/javascript')
+    return HttpResponse(json.dumps({}), content_type='application/javascript')
 
 
 ################################################################################
@@ -437,7 +437,7 @@ def set_type_version_content(request):
     request.session['uploadVersionFilename'] = version_filename
     request.session['uploadVersionValid'] = False
     
-    return HttpResponse(json.dumps({}), mimetype='application/javascript')
+    return HttpResponse(json.dumps({}), content_type='application/javascript')
 
 
 ################################################################################
@@ -470,7 +470,7 @@ def upload_version(request):
         except Exception, e:
             response_dict['errors'] = "Not a valid XML document."
             response_dict['message'] = e.message.replace("'","")
-            return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
+            return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
         
         # is it supported by the MDCS ?
         errors = utils.getValidityErrorsForMDCS(xmlTree, object_type)
@@ -479,7 +479,7 @@ def upload_version(request):
             for error in errors:
                 errorsStr += error + "<br/>"            
             response_dict['errors'] = errorsStr
-            return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
+            return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
         
         # get the imports
         imports = xmlTree.findall("{http://www.w3.org/2001/XMLSchema}import")
@@ -490,7 +490,7 @@ def upload_version(request):
             # Display array to resolve dependencies
             htmlString = generateHtmlDependencyResolver(imports, includes)
             response_dict['errors'] = htmlString
-            return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
+            return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
         else:
             try:
                 # is it a valid XML schema ?
@@ -498,13 +498,13 @@ def upload_version(request):
             except Exception, e:
                 response_dict['errors'] = "Not a valid XML schema."
                 response_dict['message'] = e.message.replace("'","")
-                return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
+                return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
             
             request.session['uploadVersionValid'] = True
-            return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
+            return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
     else:
         response_dict['errors'] = "Please select a document first."
-        return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
+        return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
 
 ################################################################################
 # 
@@ -569,11 +569,11 @@ def save_version(request):
         clearVersion(request)
     else:    
         response_dict = {'errors': 'True'}
-        return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
+        return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
     
 
     print 'END def saveVersion(request, objectType)'
-    return HttpResponse(json.dumps({}), mimetype='application/javascript')
+    return HttpResponse(json.dumps({}), content_type='application/javascript')
 
 
 ################################################################################
@@ -599,7 +599,7 @@ def set_current_version(request):
     objectVersions.current = str(object.id)
     objectVersions.save()
      
-    return HttpResponse(json.dumps({}), mimetype='application/javascript')
+    return HttpResponse(json.dumps({}), content_type='application/javascript')
 
 
 ################################################################################
@@ -638,7 +638,7 @@ def delete_version(request):
         objectVersions.save()        
         response_dict = {'deleted': 'version'}
     
-    return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
+    return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
 
 ################################################################################
 # 
@@ -678,7 +678,7 @@ def assign_delete_custom_message(request):
         message += "</select></span>"
 
     response_dict = {'message': message}
-    return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
+    return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
 
 
 ################################################################################
@@ -710,7 +710,7 @@ def edit_information(request):
             #check that the type with the same filename is the current one
             if testFilenameObjects[0].id != object.id:
                 response_dict = {'errors': 'True'}
-                return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
+                return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
     
     # change the name of every version but only the filename of the current
     for version in objectVersions.versions:
@@ -738,7 +738,7 @@ def edit_information(request):
             
             bucket.save()
     
-    return HttpResponse(json.dumps({}), mimetype='application/javascript')
+    return HttpResponse(json.dumps({}), content_type='application/javascript')
 
 
 ################################################################################
@@ -765,7 +765,7 @@ def restore_object(request):
     del objectVersions.deletedVersions[objectVersions.deletedVersions.index(objectVersions.current)]
     objectVersions.save()
     
-    return HttpResponse(json.dumps({}), mimetype='application/javascript')
+    return HttpResponse(json.dumps({}), content_type='application/javascript')
 
 
 ################################################################################
@@ -791,7 +791,7 @@ def restore_version(request):
     del objectVersions.deletedVersions[objectVersions.deletedVersions.index(object_id)]
     objectVersions.save()
        
-    return HttpResponse(json.dumps({}), mimetype='application/javascript')
+    return HttpResponse(json.dumps({}), content_type='application/javascript')
 
 
 ################################################################################
@@ -827,7 +827,7 @@ def edit_instance(request):
     else:
         response_dict = {'errors': errors}
     
-    return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
+    return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
 
 
 ################################################################################
@@ -845,7 +845,7 @@ def delete_instance(request):
     instance = Instance.objects.get(pk=instance_id)
     instance.delete()
     
-    return HttpResponse(json.dumps({}), mimetype='application/javascript')
+    return HttpResponse(json.dumps({}), content_type='application/javascript')
 
 
 ################################################################################
@@ -871,7 +871,7 @@ def accept_request(request):
         user.save()
         userRequest.delete()
         
-    return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
+    return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
 
 
 ################################################################################
@@ -889,7 +889,7 @@ def deny_request(request):
     userRequest = Request.objects.get(pk=request_id)
     userRequest.delete()
     
-    return HttpResponse(json.dumps({}), mimetype='application/javascript')
+    return HttpResponse(json.dumps({}), content_type='application/javascript')
 
 
 ################################################################################
@@ -903,7 +903,7 @@ def deny_request(request):
 ################################################################################
 def init_module_manager(request):
     request.session['listModuleResource'] = []
-    return HttpResponse(json.dumps({}), mimetype='application/javascript')
+    return HttpResponse(json.dumps({}), content_type='application/javascript')
 
 
 ################################################################################
@@ -922,7 +922,7 @@ def add_module_resource(request):
     request.session['currentResourceContent'] = resource_content
     request.session['currentResourceFilename'] = resource_filename    
     
-    return HttpResponse(json.dumps({}), mimetype='application/javascript')
+    return HttpResponse(json.dumps({}), content_type='application/javascript')
 
 
 ################################################################################
@@ -946,7 +946,7 @@ def upload_resource(request):
             request.session['currentResourceContent'] = ""
             request.session['currentResourceFilename'] = ""
     
-    return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
+    return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
 
 
 ################################################################################
@@ -973,7 +973,7 @@ def add_module(request):
     
     module.save()
 
-    return HttpResponse(json.dumps({}), mimetype='application/javascript')
+    return HttpResponse(json.dumps({}), content_type='application/javascript')
 
 
 ################################################################################
@@ -991,7 +991,7 @@ def delete_module(request):
     module = Module.objects.get(pk=object_id)
     module.delete()
 
-    return HttpResponse(json.dumps({}), mimetype='application/javascript')
+    return HttpResponse(json.dumps({}), content_type='application/javascript')
 
 
 ################################################################################
@@ -1018,7 +1018,7 @@ def create_backup(request):
         result = "Unable to create the backup."
     
     response_dict = {'result': result}
-    return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
+    return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
     
 
 ################################################################################
@@ -1043,7 +1043,7 @@ def restore_backup(request):
         result = "Unable to restore the backup."
     
     response_dict = {'result': result}
-    return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
+    return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
 
 
 ################################################################################
@@ -1066,7 +1066,7 @@ def delete_backup(request):
             os.rmdir(os.path.join(root, name))
     os.rmdir(backupsDir + backup)
         
-    return HttpResponse(json.dumps({}), mimetype='application/javascript')
+    return HttpResponse(json.dumps({}), content_type='application/javascript')
 
 
 ################################################################################
@@ -1084,7 +1084,7 @@ def remove_message(request):
     message = Message.objects.get(pk=message_id)
     message.delete()
             
-    return HttpResponse(json.dumps({}), mimetype='application/javascript')
+    return HttpResponse(json.dumps({}), content_type='application/javascript')
 
 
 ################################################################################
@@ -1103,7 +1103,7 @@ def add_bucket(request):
     labels = Bucket.objects.all().values_list('label') 
     if label in labels:        
         response_dict = {"errors": "True"}
-        return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
+        return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
     
     # get an unique color
     colors = Bucket.objects.all().values_list('color') 
@@ -1113,7 +1113,7 @@ def add_bucket(request):
         
     Bucket(label=label, color=color).save()
     
-    return HttpResponse(json.dumps({}), mimetype='application/javascript')
+    return HttpResponse(json.dumps({}), content_type='application/javascript')
 
 
 ################################################################################
@@ -1131,7 +1131,7 @@ def delete_bucket(request):
     bucket = Bucket.objects.get(pk=bucket_id)
     bucket.delete()
     
-    return HttpResponse(json.dumps({}), mimetype='application/javascript')
+    return HttpResponse(json.dumps({}), content_type='application/javascript')
 
 
 ################################################################################

@@ -118,7 +118,7 @@ def set_current_template(request):
     setCurrentTemplate(request, template_filename, template_id)
 
     print 'END def setCurrentTemplate(request)'
-    return HttpResponse(json.dumps({}), mimetype='application/javascript')
+    return HttpResponse(json.dumps({}), content_type='application/javascript')
 
 
 ################################################################################
@@ -155,6 +155,7 @@ def setCurrentTemplate(request, template_filename, template_id):
     request.session['xmlDocTreeExplore'] = etree.tostring(XMLSchema.tree)
 
     print 'END def setCurrentTemplate(request)'
+    return HttpResponse(json.dumps({}), content_type='application/javascript')
 
 ################################################################################
 # 
@@ -192,7 +193,7 @@ def set_current_user_template(request):
     request.session['xmlDocTreeExplore'] = etree.tostring(XMLSchema.tree)
 
     print 'END def setCurrentTemplate(request)'
-    return HttpResponse(json.dumps({}), mimetype='application/javascript')
+    return HttpResponse(json.dumps({}), content_type='application/javascript')
 
 
 ################################################################################
@@ -214,7 +215,7 @@ def verify_template_is_selected(request):
     print 'END def verifyTemplateIsSelected(request)'
     
     response_dict = {'templateSelected': templateSelected}
-    return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
+    return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
 
 
 ################################################################################
@@ -703,7 +704,7 @@ def generate_xsd_tree_for_querying_data(request):
  
     print 'END def generateXSDTreeForQueryingData(request)'
     response_dict = {'xsdForm': formString}
-    return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
+    return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
 
 
 ################################################################################
@@ -745,7 +746,7 @@ def execute_query(request):
         response_dict = {'listErrors': errorsString}        
 
     print 'END def executeQuery(request, queryForm, queryBuilder, fedOfQueries)'
-    return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
+    return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
 
 ################################################################################
 # 
@@ -788,7 +789,7 @@ def getInstances(request, fedOfQueries):
 def get_results(request):
     instances = request.session['instancesExplore']    
     response_dict = {'numInstance': str(len(instances))}
-    return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
+    return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
 
 ################################################################################
 # 
@@ -962,7 +963,7 @@ def get_results_by_instance(request):
     
     print 'END def getResults(request)'
     response_dict = {'results': resultString}
-    return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
+    return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
  
  
 ################################################################################
@@ -1406,7 +1407,7 @@ def add_field(request):
     htmlTree.insert(-3,element)   
     
     response_dict = {'queryForm': html.tostring(htmlTree)}
-    return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
+    return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
 
 
 ################################################################################
@@ -1456,7 +1457,7 @@ def remove_field(request):
         pass
 
     response_dict = {'queryForm': html.tostring(htmlTree)}
-    return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
+    return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
 
 ################################################################################
 # 
@@ -1781,7 +1782,7 @@ def save_query(request):
             errorsString += "<p>" + error + "</p>"            
         response_dict = {'listErrors': errorsString}
 
-    return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
+    return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
 
 
 ################################################################################
@@ -1828,7 +1829,7 @@ def delete_query(request):
     del mapQueryInfo[saved_query_id[5:]]
     request.session['mapQueryInfoExplore'] = mapQueryInfo
     
-    return HttpResponse(json.dumps({}), mimetype='application/javascript')
+    return HttpResponse(json.dumps({}), content_type='application/javascript')
 
 
 ################################################################################
@@ -1901,7 +1902,7 @@ def update_user_inputs(request):
         userInputs.append(inputs)
         
     response_dict = {'queryForm': html.tostring(htmlTree)}
-    return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
+    return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
     
     
 ################################################################################
@@ -1975,7 +1976,7 @@ def add_saved_query_to_form(request):
     request.session['mapCriteriasExplore'] = mapCriterias
 
     response_dict = {'queryForm': html.tostring(queryTree)}
-    return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
+    return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
     
     
 ################################################################################
@@ -2028,7 +2029,7 @@ def clear_criterias(request):
     request.session['mapCriteriasExplore'] = dict()
 
     response_dict = {'queryForm': html.tostring(queryTree)}
-    return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
+    return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
 
 
 ################################################################################
@@ -2050,7 +2051,7 @@ def clear_queries(request):
             
     request.session['mapQueryInfoExplore'] = dict()
     
-    return HttpResponse(json.dumps({}), mimetype='application/javascript')
+    return HttpResponse(json.dumps({}), content_type='application/javascript')
 
 
 ################################################################################
@@ -2139,7 +2140,7 @@ def get_custom_form(request):
         response_dict['sparqlQuery'] = sparqlQuery    
         request.session['sparqlQueryExplore'] = ""
     
-    return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
+    return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
 
 
 ################################################################################
@@ -2170,7 +2171,7 @@ def save_custom_data(request):
     request.session['anyCheckedExplore'] = False 
 
     print '>>>> END def saveCustomData(request)'
-    return HttpResponse(json.dumps({}), mimetype='application/javascript')
+    return HttpResponse(json.dumps({}), content_type='application/javascript')
 
 ################################################################################
 #
@@ -2298,7 +2299,7 @@ def download_results(request):
         response_dict = {'savedResultsID': savedResultsID}
         
     print '>>>> END def downloadResults(request)'    
-    return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
+    return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
   
 
 ################################################################################
@@ -2312,7 +2313,7 @@ def download_results(request):
 ################################################################################
 def back_to_query(request):         
     request.session['keepCriterias'] = True
-    return HttpResponse(json.dumps({}), mimetype='application/javascript')
+    return HttpResponse(json.dumps({}), content_type='application/javascript')
 
 
 ################################################################################
@@ -2343,7 +2344,7 @@ def redirect_explore_tabs(request):
     else:
         response_dict = {'tab':'qbe'}
     
-    return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
+    return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
 
 
 ################################################################################
@@ -2374,7 +2375,7 @@ def switch_explore_tab(request):
             customForm = ""
     
     response_dict = {"customForm": customForm, "sparqlCustomForm": sparqlCustomForm}
-    return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
+    return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
 
 
 ################################################################################
@@ -2389,7 +2390,7 @@ def switch_explore_tab(request):
 def set_current_criteria(request):
     
     request.session['criteriaIDExplore'] = request.POST['currentCriteriaID']
-    return HttpResponse(json.dumps({}), mimetype='application/javascript')
+    return HttpResponse(json.dumps({}), content_type='application/javascript')
     
 
 ################################################################################
@@ -2429,7 +2430,7 @@ WHERE {
                          "elementPath": elementPath,
                          "queryExample": queryExample} 
 
-    return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
+    return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
 
 ################################################################################
 #
@@ -2461,7 +2462,7 @@ def execute_sparql_query(request):
         request.session['sparqlFormatExplore'] = str(sparql_format_index)
 
     print 'END def executeSPARQLQuery(request)'
-    return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
+    return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
 
 ################################################################################
 #
@@ -2476,7 +2477,7 @@ def get_sparql_results(request):
     instances = request.session['instancesExplore']    
     request.session['sparqlResultsExplore'] = ""    
     response_dict = {'numInstance': str(len(instances))}
-    return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
+    return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
 
 # from threading import Thread, Lock
 # mutex = Lock()
@@ -2610,7 +2611,7 @@ def get_sparql_results_by_instance(request):
                 resultString += "<p style='color:red;'>Unable to contact the remote instance.</p>"
         
     response_dict = {'results' : resultString}   
-    return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
+    return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
 
 
 ################################################################################
@@ -2640,7 +2641,7 @@ def download_sparql_results(request):
     
     print '>>>> END def downloadSparqlResults(request)'
     response_dict = {'savedResultsID': savedResultsID}
-    return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
+    return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
 
 
 ################################################################################
@@ -2701,7 +2702,7 @@ def prepare_sub_element_query(request):
     
     print '>>>>  END def prepareSubElementQuery(request)'
     response_dict = {'subElementQueryBuilder': subElementQueryBuilderStr}
-    return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
+    return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
 
 
 ################################################################################
@@ -2766,7 +2767,7 @@ def insert_sub_element_query(request):
     
     print '>>>>  END def insertSubElementQuery(request)'
     
-    return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
+    return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
 
 ################################################################################
 #

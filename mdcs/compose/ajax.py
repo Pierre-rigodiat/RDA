@@ -68,7 +68,7 @@ def set_current_template(request):
         request.session['newXmlTemplateCompose'] = base_template_content
 
     print 'END def setCurrentTemplate(request)'
-    return HttpResponse(json.dumps({}), mimetype='application/javascript')
+    return HttpResponse(json.dumps({}), content_type='application/javascript')
 
 
 ################################################################################
@@ -101,7 +101,7 @@ def set_current_user_template(request):
     request.session['newXmlTemplateCompose'] = xmlDocData
 
     print 'END def setCurrentUserTemplate(request)'
-    return HttpResponse(json.dumps({}), mimetype='application/javascript')
+    return HttpResponse(json.dumps({}), content_type='application/javascript')
 
 
 ################################################################################
@@ -123,7 +123,7 @@ def verify_template_is_selected(request):
         templateSelected = 'no'
 
     response_dict = {'templateSelected': templateSelected}
-    return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
+    return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
 
 
 ################################################################################
@@ -142,7 +142,7 @@ def is_new_template(request):
         newTemplate = 'no'
     
     response_dict = {'newTemplate': newTemplate}
-    return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
+    return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
 
 
 ################################################################################
@@ -161,7 +161,7 @@ def download_template(request):
     xml2downloadID = str(xml2download.id)
     
     response_dict = {'xml2downloadID': xml2downloadID}
-    return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
+    return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
 
     
 ################################################################################
@@ -202,7 +202,7 @@ def load_xml(request):
             request.session['includedTypesCompose'].append(el_include.attrib['schemaLocation'])
             
     response_dict = {'XMLHolder': xmlTree}
-    return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
+    return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
 
 
 def get_namespaces(file):
@@ -262,7 +262,7 @@ def insert_element_sequence(request):
     request.session['newXmlTemplateCompose'] = etree.tostring(dom) 
     print etree.tostring(dom)
     
-    return HttpResponse(json.dumps({}), mimetype='application/javascript')
+    return HttpResponse(json.dumps({}), content_type='application/javascript')
 
 ################################################################################
 # 
@@ -290,7 +290,7 @@ def rename_element(request):
     
     # save the tree in the session
     request.session['newXmlTemplateCompose'] = etree.tostring(dom) 
-    return HttpResponse(json.dumps({}), mimetype='application/javascript')
+    return HttpResponse(json.dumps({}), content_type='application/javascript')
     
 
 ################################################################################
@@ -312,7 +312,7 @@ def save_template(request):
         xmlTree = etree.parse(BytesIO(content.encode('utf-8')))
     except Exception, e:
         response_dict['errors'] = e.message.replace("'","")
-        return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
+        return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
     
     flattener = XSDFlattenerMDCS(etree.tostring(xmlTree))
     flatStr = flattener.get_flat()
@@ -323,7 +323,7 @@ def save_template(request):
         xmlSchema = etree.XMLSchema(flatTree)
     except Exception, e:
         response_dict['errors'] = e.message.replace("'","")
-        return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
+        return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
     
     hash = XSDhash.get_hash(content) 
     dependencies = []
@@ -336,7 +336,7 @@ def save_template(request):
     
     MetaSchema(schemaId=str(template.id), flat_content=flatStr, api_content=content).save()
     
-    return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
+    return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
 
 
 ################################################################################
@@ -359,7 +359,7 @@ def save_type(request):
     if templateID != "new":
         if templateID not in Type.objects.all().values_list('id'):
             response_dict['errors'] = "Unable to save an existing template as a type."
-            return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
+            return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
     
     # is it a valid XML document ?
     try:            
@@ -371,7 +371,7 @@ def save_type(request):
     except Exception, e:
         response_dict['errors'] = "Not a valid XML document."
         response_dict['message'] = e.message.replace("'","")
-        return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
+        return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
     
     flattener = XSDFlattenerMDCS(content)
     flatStr = flattener.get_flat()
@@ -383,7 +383,7 @@ def save_type(request):
     except Exception, e:
         response_dict['errors'] = "Not a valid XML document."
         response_dict['message'] = e.message.replace("'","")
-        return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
+        return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
     
     
     hash = XSDhash.get_hash(content)
@@ -396,7 +396,7 @@ def save_type(request):
     type.save()
     MetaSchema(schemaId=str(type.id), flat_content=flatStr, api_content=content).save()
     
-    return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
+    return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
 
 
 ################################################################################
@@ -429,7 +429,7 @@ def get_occurrences(request):
         maxOccurs = element.attrib['maxOccurs']
     
     response_dict = {'minOccurs':minOccurs, 'maxOccurs':maxOccurs}
-    return HttpResponse(json.dumps(response_dict), mimetype='application/javascript')
+    return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
 
 
 ################################################################################
@@ -461,7 +461,7 @@ def set_occurrences(request):
     
     # save the tree in the session
     request.session['newXmlTemplateCompose'] = etree.tostring(dom) 
-    return HttpResponse(json.dumps({}), mimetype='application/javascript')
+    return HttpResponse(json.dumps({}), content_type='application/javascript')
 
 
 ################################################################################
@@ -489,7 +489,7 @@ def delete_element(request):
     
     # save the tree in the session
     request.session['newXmlTemplateCompose'] = etree.tostring(dom)     
-    return HttpResponse(json.dumps({}), mimetype='application/javascript')
+    return HttpResponse(json.dumps({}), content_type='application/javascript')
 
 
 ################################################################################
@@ -521,7 +521,7 @@ def change_root_type_name(request):
     
     # save the tree in the session
     request.session['newXmlTemplateCompose'] = etree.tostring(dom) 
-    return HttpResponse(json.dumps({}), mimetype='application/javascript')
+    return HttpResponse(json.dumps({}), content_type='application/javascript')
 
 
 ################################################################################
@@ -549,5 +549,5 @@ def change_xsd_type(request):
     
     # save the tree in the session
     request.session['newXmlTemplateCompose'] = etree.tostring(dom) 
-    return HttpResponse(json.dumps({}), mimetype='application/javascript')
+    return HttpResponse(json.dumps({}), content_type='application/javascript')
     

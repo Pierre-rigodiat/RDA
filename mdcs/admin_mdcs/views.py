@@ -1,7 +1,7 @@
 ################################################################################
 #
 # File Name: views.py
-# Application: admin
+# Application: admin_mdcs
 # Purpose:   
 #
 # Author: Sharief Youssef
@@ -432,10 +432,10 @@ def add_repository(request):
                     # If some errors display them, otherwise insert the instance
                     if(errors == ""):
                         try:
-                            url = request.POST["protocol"] + "://" + request.POST["ip_address"] + ":" + request.POST["port"] + "/oauth2/access_token/"
-                            data="client_id=" + request.POST["client_id"] + "&client_secret=" + request.POST["client_secret"] + "&grant_type=password&username=" + request.POST["username"] + "&password=" + request.POST["password"]
+                            url = request.POST["protocol"] + "://" + request.POST["ip_address"] + ":" + request.POST["port"] + "/o/token/"
+                            data="grant_type=password&username=" + request.POST["username"] + "&password=" + request.POST["password"]
                             headers = {'content-type': 'application/x-www-form-urlencoded'}
-                            r = requests.post(url=url, data=data, headers=headers, timeout=int(request.POST["timeout"]))
+                            r = requests.post(url=url, data=data, headers=headers, auth=(request.POST["client_id"], request.POST["client_secret"]), timeout=int(request.POST["timeout"]))
                             if r.status_code == 200:
                                 now = datetime.now()
                                 delta = timedelta(seconds=int(eval(r.content)["expires_in"]))
@@ -505,10 +505,10 @@ def refresh_repository(request):
                     return render(request, 'admin/refresh_repository.html', {'form':form, 'action_result':message})
 
                 try:
-                    url = instance.protocol + "://" + instance.address + ":" + str(instance.port) + "/oauth2/access_token/"
-                    data="client_id=" + request.POST["client_id"] + "&client_secret=" + request.POST["client_secret"] + "&grant_type=refresh_token&refresh_token=" + instance.refresh_token
+                    url = instance.protocol + "://" + instance.address + ":" + str(instance.port) + "/o/token/"
+                    data="&grant_type=refresh_token&refresh_token=" + instance.refresh_token
                     headers = {'content-type': 'application/x-www-form-urlencoded'}
-                    r = requests.post(url=url, data=data, headers=headers, timeout=int(request.POST["timeout"]))
+                    r = requests.post(url=url, data=data, headers=headers, auth=(request.POST["client_id"], request.POST["client_secret"]), timeout=int(request.POST["timeout"]))
                     if r.status_code == 200:
                         now = datetime.now()
                         delta = timedelta(seconds=int(eval(r.content)["expires_in"]))
