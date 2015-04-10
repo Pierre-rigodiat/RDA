@@ -433,9 +433,16 @@ def add_repository(request):
                     if(errors == ""):
                         try:
                             url = request.POST["protocol"] + "://" + request.POST["ip_address"] + ":" + request.POST["port"] + "/o/token/"
-                            data="grant_type=password&username=" + request.POST["username"] + "&password=" + request.POST["password"]
+#                             data="grant_type=password&username=" + request.POST["username"] + "&password=" + request.POST["password"]
                             headers = {'content-type': 'application/x-www-form-urlencoded'}
-                            r = requests.post(url=url, data=data, headers=headers, auth=(request.POST["client_id"], request.POST["client_secret"]), timeout=int(request.POST["timeout"]))
+                            data={
+                                'grant_type': 'password',
+                                'username': request.POST["username"],
+                                'password': request.POST["password"],
+                                'client_id': request.POST["client_id"],
+                                'client_secret': request.POST["client_secret"]
+                            }
+                            r = requests.post(url=url, data=data, headers=headers, timeout=int(request.POST["timeout"]))
                             if r.status_code == 200:
                                 now = datetime.now()
                                 delta = timedelta(seconds=int(eval(r.content)["expires_in"]))
