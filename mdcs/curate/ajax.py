@@ -540,8 +540,15 @@ def generateChoice(request, element, xmlTree, namespace):
                 else:
                     formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\"><li id='" + str(tagID) + "'>" + textCapitalized
                 
-                xpath = "./*[@name='"+choiceChild.attrib.get('type')+"']"
+                # TODO: manage namespaces
+                # type of the element is complex
+                xpath = "./{0}complexType[@name='{1}']".format(namespace,choiceChild.attrib.get('type'))
                 elementType = xmlTree.find(xpath)
+                if elementType is None:
+                    # type of the element is simple
+                    xpath = "./{0}simpleType[@name='{1}']".format(namespace,choiceChild.attrib.get('type'))
+                    elementType = xmlTree.find(xpath)
+                    
                 if elementType.tag == "{0}complexType".format(namespace):
                     formString += generateComplexType(request, elementType, xmlTree, namespace)
                 elif elementType.tag == "{0}simpleType".format(namespace):
@@ -797,8 +804,14 @@ def generateElement(request, element, xmlTree, namespace):
             for x in range (0,int(nbOccurrences)):                            
                 tagID = "element" + str(len(mapTagElement.keys()))  
                 mapTagElement[tagID] = elementID
-                xpath = "./*[@name='"+element.attrib.get('type')+"']"
+                # TODO: manage namespaces
+                # type of the element is complex
+                xpath = "./{0}complexType[@name='{1}']".format(namespace,element.attrib.get('type'))
                 elementType = xmlTree.find(xpath)
+                if elementType is None:
+                    # type of the element is simple
+                    xpath = "./{0}simpleType[@name='{1}']".format(namespace,element.attrib.get('type'))
+                    elementType = xmlTree.find(xpath)
                  
                 if elementType.tag == "{0}complexType".format(namespace):
                     formString += "<li id='" + str(tagID) + "'>" + "<span class='collapse' style='cursor:pointer;' onclick='showhideCurate(event);'></span>"  + textCapitalized
@@ -1008,8 +1021,14 @@ def duplicate(request):
                     textCapitalized = sequenceChild.attrib.get('name')                      
                     newTagID = "element" + str(len(mapTagElement.keys()))  
                     mapTagElement[newTagID] = elementID 
-                    xpath = "./*[@name='"+sequenceChild.attrib.get('type')+"']"
+                    # TODO: manage namespaces
+                    # type of the element is complex
+                    xpath = "./{0}complexType[@name='{1}']".format(namespace,sequenceChild.attrib.get('type'))
                     elementType = xmlDocTree.find(xpath)
+                    if elementType is None:
+                        # type of the element is simple
+                        xpath = "./{0}simpleType[@name='{1}']".format(namespace,sequenceChild.attrib.get('type'))
+                        elementType = xmlDocTree.find(xpath)
                                         
                     if elementType.tag == "{0}complexType".format(namespace):
                         formString += "<li id='" + str(newTagID) + "'>" + "<span class='collapse' style='cursor:pointer;' onclick='showhideCurate(event);'></span>"  + textCapitalized

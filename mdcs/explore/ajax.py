@@ -356,8 +356,14 @@ def generateChoice(request, element, fullPath, xmlTree):
                     formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\" style=\"display:none;\">"
                 else:
                     formString += "<ul id=\""  + chooseIDStr + "-" + str(counter) + "\">"
-                xpath = "./*[@name='"+choiceChild.attrib.get('type')+"']"
+                # TODO: manage namespaces
+                # type of the element is complex
+                xpath = "./{0}complexType[@name='{1}']".format(defaultNamespace,choiceChild.attrib.get('type'))
                 elementType = xmlTree.find(xpath)
+                if elementType is None:
+                    # type of the element is simple
+                    xpath = "./{0}simpleType[@name='{1}']".format(defaultNamespace,choiceChild.attrib.get('type'))
+                    elementType = xmlTree.find(xpath)
                 if elementType.tag == "{0}complexType".format(defaultNamespace):
                     formString += generateComplexType(request, elementType, textCapitalized, fullPath, xmlTree)
                 elif elementType.tag == "{0}simpleType".format(defaultNamespace):
@@ -609,8 +615,14 @@ def generateElement(request, element, fullPath, xmlTree):
         request.session['mapTagIDElementInfoExplore'] = mapTagIDElementInfo                
     else:                        
         textCapitalized = element.attrib.get('name') 
-        xpath = "./*[@name='"+element.attrib.get('type')+"']"
-        elementType = xmlTree.find(xpath)                        
+        # TODO: manage namespaces
+        # type of the element is complex
+        xpath = "./{0}complexType[@name='{1}']".format(defaultNamespace,element.attrib.get('type'))
+        elementType = xmlTree.find(xpath)
+        if elementType is None:
+            # type of the element is simple
+            xpath = "./{0}simpleType[@name='{1}']".format(defaultNamespace,element.attrib.get('type'))
+            elementType = xmlTree.find(xpath)                        
         if elementType is not None:
             if elementType.tag == "{0}complexType".format(defaultNamespace):
                 formString += generateComplexType(request, elementType, textCapitalized, fullPath, xmlTree) 
