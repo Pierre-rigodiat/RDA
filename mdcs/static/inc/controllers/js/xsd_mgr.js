@@ -69,19 +69,43 @@ manageVersions = function()
     });   
 }
 
+
 /**
  * Handler for the reading of version of a template
  * @param evt
  */
 function handleSchemaVersionUpload(evt) {
-	console.log("test")
 	var files = evt.target.files; // FileList object
     reader = new FileReader();
     reader.onload = function(e){
-    	Dajaxice.admin.setSchemaVersionContent(Dajax.process,{"versionContent":reader.result, "versionFilename":files[0].name});
+    	versionContent = reader.result;
+    	versionFilename = files[0].name;
+    	set_schema_version_content(versionContent, versionFilename);
     }
     reader.readAsText(files[0]);
-  }
+}
+
+
+/**
+ * AJAX call, send content of the file
+ * @param versionContent content of the file
+ * @param versionFilename name of the file
+ */
+set_schema_version_content = function(versionContent, versionFilename){
+    $.ajax({
+        url : "/admin/set_schema_version_content",
+        type : "POST",
+        dataType: "json",
+        data : {
+        	versionContent : versionContent,
+        	versionFilename : versionFilename,
+        },
+        success: function(data){
+            
+        }
+    });
+}
+
 
 /**
  * Handler for the reading of version of a type
@@ -91,10 +115,34 @@ function handleTypeVersionUpload(evt) {
 	var files = evt.target.files; // FileList object
     reader = new FileReader();
     reader.onload = function(e){
-    	Dajaxice.admin.setTypeVersionContent(Dajax.process,{"versionContent":reader.result, "versionFilename":files[0].name});
+    	versionContent = reader.result;
+    	versionFilename = files[0].name;
+    	set_type_version_content(versionContent, versionFilename);
     }
     reader.readAsText(files[0]);
-  }
+}
+
+
+/**
+ * AJAX call, send content of the file
+ * @param versionContent content of the file
+ * @param versionFilename name of the file
+ */
+set_type_version_content = function(versionContent, versionFilename){
+    $.ajax({
+        url : "/admin/set_type_version_content",
+        type : "POST",
+        dataType: "json",
+        data : {
+        	versionContent : versionContent,
+        	versionFilename : versionFilename,
+        },
+        success: function(data){
+            
+        }
+    });
+}
+
 
 /**
  * Upload a version
@@ -104,25 +152,39 @@ uploadVersion = function()
 	var objectVersionID = $("#updateVersionBtn").attr("versionid");
 	var objectType = $("#updateVersionBtn").attr("objectType");	
 	
-	Dajaxice.admin.uploadVersion(Dajax.process,{"objectVersionID":objectVersionID, "objectType": objectType})
+	upload_version(objectVersionID, objectType);
 }
 
+
+
 /**
- * Display errors for upload
+ * AJAX call, uploads a version
+ * @param objectVersionID id of the version manager
+ * @param objectType type of the version file
  */
-showUploadErrorDialog = function()
-{
-	$(function() {
-        $( "#dialog-upload-error" ).dialog({
-            modal: true,
-            buttons: {
-            	Ok: function() {	
-            		$( this ).dialog( "close" );
-                }
+upload_version = function(objectVersionID, objectType){
+    $.ajax({
+        url : "/admin/upload_version",
+        type : "POST",
+        dataType: "json",
+        data : {
+        	objectVersionID : objectVersionID,
+        	objectType : objectType,
+        },
+        success: function(data){
+            if ('errors' in data){
+            	if ("message" in data){
+        			$("#objectUploadErrorMessage").html("<font color='red'>" + data.errors + "</font><br/>" + data.message);
+        		}else{
+        			$("#objectUploadErrorMessage").html("<font color='red'>" + data.errors + "</font><br/>");
+        		} 
+            }else{
+            	$("#objectUploadErrorMessage").html("<font color='green'>The uploaded template is valid. You can now save it.</font>   <span class='btn' onclick='saveVersion()'>Save</span>");
             }
-        });
+        }
     });
 }
+
 
 /**
  * Set the current version to be used on the user side
@@ -134,8 +196,31 @@ setCurrentVersion = function(setCurrent)
 	var objectid = $(current).attr("objectid");
 	var objectType = $(current).attr("objectType");
 	
-	Dajaxice.admin.setCurrentVersion(Dajax.process,{"objectid":objectid, "objectType":objectType});
+	set_current_version(objectid, objectType);
 }
+
+
+/**
+ * AJAX call, sets the current version
+ * @param objectid id of the object
+ * @param objectType type of the object
+ */
+set_current_version = function(objectid, objectType){
+    $.ajax({
+        url : "/admin/set_current_version",
+        type : "GET",
+        dataType: "json",
+        data : {
+        	objectid : objectid,
+        	objectType : objectType,
+        },
+        success: function(data){
+            $("#delete_custom_message").html("");   
+            $('#model_version').load(document.URL +  ' #model_version', function() {});   
+        }
+    });
+}
+
 
 /**
  * Delete a version
@@ -146,7 +231,7 @@ deleteVersion = function(toDelete)
 	current = document.getElementById(toDelete);
 	var objectid = $(current).attr("objectid");
 	var objectType = $(current).attr("objectType");
-	Dajaxice.admin.assignDeleteCustomMessage(Dajax.process,{"objectid":objectid, "objectType":objectType});
+	assign_delete_custom_message(objectid, objectType);
 	$(function() {
 			$('#dialog-deleteversion-message').dialog({
 	            modal: true,
@@ -158,7 +243,7 @@ deleteVersion = function(toDelete)
 							newCurrent = $("#selectCurrentVersion")[0].options[idx].value
 						}
 						catch(e){}
-						Dajaxice.admin.deleteVersion(Dajax.process,{"objectid":objectid, "objectType":objectType,"newCurrent":newCurrent});
+						delete_version(objectid, objectType, newCurrent);
 	                    $( this ).dialog( "close" );
 	                },
 	                No: function() {
@@ -169,6 +254,57 @@ deleteVersion = function(toDelete)
 	    });
 }
 
+
+/**
+ * AJAX call, get delete message 
+ * @param objectid id of the object to delete
+ * @param objectType type of the object
+ */
+assign_delete_custom_message = function(objectid, objectType){
+    $.ajax({
+        url : "/admin/assign_delete_custom_message",
+        type : "GET",
+        dataType: "json",
+        data : {
+        	objectid : objectid,
+        	objectType : objectType,
+        },
+        success: function(data){
+        	$('#delete_custom_message').html(data.message);
+        }
+    });
+}
+
+
+/**
+ * AJAX call, delete a version
+ * @param objectid id of the object
+ * @param objectType type of the object
+ * @param newCurrent new object set current
+ */
+delete_version = function(objectid, objectType, newCurrent){
+    $.ajax({
+        url : "/admin/delete_version",
+        type : "POST",
+        dataType: "json",
+        data : {
+        	objectid : objectid,
+        	objectType : objectType,
+        	newCurrent : newCurrent,
+        },
+        success: function(data){
+        	if(data.deleted == 'object'){
+                $("#delete_custom_message").html("");
+                window.parent.versionDialog.dialog("close");  
+        	}else if(data.deleted == 'version'){
+                $("#delete_custom_message").html("");   
+                $('#model_version').load(document.URL +  ' #model_version', function() {}); 
+        	}
+        }
+    });
+}
+
+
 /**
  * Restore a template or a type
  */
@@ -177,8 +313,32 @@ restoreObject = function()
     var objectID = $(this).attr("objectid");
     var objectType = $(this).attr("objectType");
     
-    Dajaxice.admin.restoreObject(Dajax.process,{'objectid':objectID, 'objectType':objectType});
+    restore_object(objectID, objectType);
 }
+
+
+/**
+ * AJAX call, restores an object
+ * @param objectID id of the object
+ * @param objectType type of the object
+ */
+restore_object = function(objectID, objectType){
+    $.ajax({
+        url : "/admin/restore_object",
+        type : "POST",
+        dataType: "json",
+        data : {
+        	objectID : objectID,
+        	objectType : objectType,
+        },
+        success: function(data){
+            $('#model_selection').load(document.URL +  ' #model_selection', function() {
+                loadUploadManagerHandler();
+          });
+        }
+    });
+}
+
 
 /**
  * Restore a version of a template or a type
@@ -190,8 +350,31 @@ restoreVersion = function(toRestore)
 	var objectID = $(current).attr("objectid");
 	var objectType = $(current).attr("objectType");
 	
-	Dajaxice.admin.restoreVersion(Dajax.process,{'objectid':objectID, 'objectType':objectType});
+	restore_version(objectID, objectType);
 }
+
+
+/**
+ * AJAX call, restore a version
+ * @param objectID id of the object
+ * @param objectType type of the object
+ */
+restore_version = function(objectID, objectType){
+    $.ajax({
+        url : "/admin/restore_version",
+        type : "POST",
+        dataType: "json",
+        data : {
+        	objectID : objectID,
+        	objectType : objectType,
+        },
+        success: function(data){
+            $("#delete_custom_message").html("");
+            $('#model_version').load(document.URL +  ' #model_version', function() {}); 
+        }
+    });
+}
+
 
 /**
  * Edit general information of a template or a type
@@ -231,13 +414,47 @@ editInformation = function()
 							newBuckets.push($(this).attr('bucketid'))
 						}
 					})
-					Dajaxice.admin.editInformation(Dajax.process,{'objectid':objectID, 'objectType':objectType, 'newName':newName,'newFilename':newFilename, 'buckets':newBuckets});
+					edit_information(objectID, objectType, newName, newFilename, newBuckets);
                 },
                 Cancel: function() {
                     $( this ).dialog( "close" );
                 }
             }
         });
+    });
+}
+
+
+/**
+ * AJAX call, edit information of an object
+ * @param objectID id of the object
+ * @param objectType type of the object
+ * @param newName new name of the object
+ * @param newFilename new filename of the object
+ * @param newBuckets new buckets for the object
+ */
+edit_information = function(objectID, objectType, newName, newFilename, newBuckets){
+    $.ajax({
+        url : "/admin/edit_information",
+        type : "POST",
+        dataType: "json",
+        data : {
+        	objectID : objectID,
+        	objectType : objectType,
+        	newName : newName,
+        	newFilename : newFilename,
+        	newBuckets : newBuckets,
+        },
+        success: function(data){
+            if ('errors' in data){
+            	showErrorEditType();
+            }else{
+                $("#dialog-edit-info").dialog( "close" );
+                $('#model_selection').load(document.URL +  ' #model_selection', function() {
+                      loadUploadManagerHandler();
+                });
+            }
+        }
     });
 }
 
@@ -260,7 +477,7 @@ deleteObject = function()
             modal: true,
             buttons: {
 		Yes: function() {
-                    deleteObjectConfirmed(objectID, objectType);
+					delete_object(objectID, objectType);
                     $( this ).dialog( "close" );
                 },
 		No: function() {
@@ -273,32 +490,28 @@ deleteObject = function()
     console.log('END [deleteObject]');
 }
 
-/**
- * Display a message when the delete is confirmed
- */
-deleteObjectConfirmed = function(objectID, objectType)
-{
-    console.log('BEGIN [deleteObjectConfirmed('+objectID+')]');
 
-    Dajaxice.admin.deleteObject(deleteObjectCallback,{'objectID':objectID, "objectType":objectType});
-
-    console.log('END [deleteObjectConfirmed('+objectID+')]');
-}
 
 /**
- * Update the display when an object is deleted
+ * AJAX call, delete an object
+ * @param objectID id of the object
+ * @param objectType type of the object
  */
-deleteObjectCallback = function(data)
-{
-    console.log('BEGIN [deleteObjectCallback]');
-
-    Dajax.process(data);
-
-    $('#model_selection').load(document.URL +  ' #model_selection', function() {
-	loadUploadManagerHandler();
+delete_object = function(objectID, objectType){
+    $.ajax({
+        url : "/admin/delete_object",
+        type : "POST",
+        dataType: "json",
+        data : {
+        	objectID : objectID,
+        	objectType : objectType,
+        },
+        success: function(data){
+            $('#model_selection').load(document.URL +  ' #model_selection', function() {
+            	loadUploadManagerHandler();
+            });
+        }
     });
-
-    console.log('END [deleteObjectCallback]');
 }
 
 
@@ -319,10 +532,10 @@ uploadObject = function()
             modal: true,
             width: 500,
             open: function(event, ui){
-            	Dajaxice.admin.clearObject(Dajax.process);
+            	clear_object();
             },
             close: function(event, ui){
-            	Dajaxice.admin.clearObject(Dajax.process);
+            	clear_object();
             },
             buttons: {
 				Cancel: function() {
@@ -334,6 +547,22 @@ uploadObject = function()
 	
     console.log('END [uploadObject]');
 }
+
+
+/**
+ * AJAX call, clears objects in session
+ */
+clear_object = function(){
+    $.ajax({
+        url : "/admin/clear_object",
+        type : "GET",
+        dataType: "json",
+        success: function(data){
+           
+        }
+    });
+}
+
 
 /**
  * Save a template or a type
@@ -347,8 +576,34 @@ saveObject = function()
 		buckets.push($(this).attr('bucketid'));
 	});
 	
-	Dajaxice.admin.saveObject(Dajax.process, {"buckets": buckets});
+	save_object(buckets);
 	console.log('END [saveObject]');
+}
+
+
+/**
+ * AJAX call, save an object
+ * @param buckets
+ */
+save_object = function(buckets){
+    $.ajax({
+        url : "/admin/save_object",
+        type : "POST",
+        dataType: "json",
+        data : {
+        	buckets : buckets,
+        },
+        success: function(data){
+        	if('errors' in data){
+        		$("#objectUploadErrorMessage").html("<font color='red'>Please upload a valid XML schema first.</font>");
+        	}else{
+                $( "#dialog-upload-message" ).dialog("close");
+                $('#model_selection').load(document.URL +  ' #model_selection', function() {
+                loadUploadManagerHandler();
+                });
+        	}
+        }
+    });
 }
 
 /**
@@ -357,11 +612,30 @@ saveObject = function()
 saveVersion = function() 
 {
 	console.log('BEGIN [saveVersion]');
-
-	
-	Dajaxice.admin.saveVersion(Dajax.process);
+	save_version();
 	console.log('END [saveVersion]');
 }
+
+
+/**
+ * AJAX call, saves a version
+ */
+save_version = function(){
+    $.ajax({
+        url : "/admin/save_version",
+        type : "GET",
+        dataType: "json",
+        success: function(data){
+        	if('errors' in data){
+        		$("#objectUploadErrorMessage").html("<font color='red'>Please upload a valid XML schema first.</font>");
+        	}else{
+                $("#delete_custom_message").html("");
+                $('#model_version').load(document.URL +  ' #model_version', function() {}); 
+        	}        	
+        }
+    });
+}
+
 
 /**
  * Resolve dependencies
@@ -373,8 +647,34 @@ resolveDependencies = function()
 	$("#dependencies").find(".dependency").each(function(){
 		dependencies.push($($(this)[0].options[$(this)[0].selectedIndex]).attr('objectid'));
 	});    	
-	Dajaxice.admin.resolveDependencies(Dajax.process, {"dependencies":dependencies});
+	resolve_dependencies(dependencies);
 }
+
+
+/**
+ * AJAX call, resolves dependencies
+ * @param dependencies
+ */
+resolve_dependencies = function(dependencies){
+    $.ajax({
+        url : "/admin/resolve_dependencies",
+        type : "POST",
+        dataType: "json",
+        data : {
+        	dependencies : dependencies,
+        },
+        success: function(data){
+            if ("errors" in data){
+            	$("#objectUploadErrorMessage").html("<font color='red'>" + data.errors + "</font>");
+            }else if ("errorDependencies" in data){
+            	$("#errorDependencies").html("<font color='red'>Not a valid XML schema.</font><br/>" + data.errorDependencies);
+            }else{
+            	$("#objectUploadErrorMessage").html("<font color='green'>" + data.message + "</font>");
+            }
+        }
+    });
+}
+
 
 /**
  * Display error message when bad edition of type
@@ -424,7 +724,7 @@ addBucket = function(){
             		if (label == ""){
             			$("#errorAddBucket").html("<font color='red'>Please enter a name.</font><br/>");
             		}else{
-            			Dajaxice.admin.addBucket(Dajax.process, {'label': label});
+            			add_bucket(label);
             		}                    
     	          },
 				Cancel: function() {
@@ -435,6 +735,33 @@ addBucket = function(){
     });	
 }
 
+
+/**
+ * AJAX call, adds a bucket
+ * @param label label of the bucket
+ */
+add_bucket = function(label){
+    $.ajax({
+        url : "/admin/add_bucket",
+        type : "POST",
+        dataType: "json",
+        data : {
+        	label : label,
+        },
+        success: function(data){
+            if ("errors" in data){
+            	$("#errorAddBucket").html("<font color='red'>A bucket with the same label already exists.</font><br/>");
+            }else{
+                $('#dialog-add-bucket').dialog('close');
+                $('#model_buckets').load(document.URL +  ' #model_buckets', function() {});
+                $('#model_select_buckets').load(document.URL +  ' #model_select_buckets', function() {});
+                $('#model_select_edit_buckets').load(document.URL +  ' #model_select_edit_buckets', function() {});
+            }
+        }
+    });
+}
+
+
 /**
  * Display window to delete a bucket
  */
@@ -444,7 +771,7 @@ deleteBucket = function(bucket_id){
             modal: true,
             buttons: {
             	Delete: function() {
-            		Dajaxice.admin.deleteBucket(Dajax.process, {"bucket_id":bucket_id})
+            		delete_bucket(bucket_id);
             		$( this ).dialog( "close" );
             		},
 				Cancel: function() {
@@ -453,4 +780,62 @@ deleteBucket = function(bucket_id){
 		    }
         });
     });	
+}
+
+
+
+/**
+ * AJAX call, deletes a buckets
+ * @param bucket_id id of the bucket
+ */
+delete_bucket = function(bucket_id){
+    $.ajax({
+        url : "/admin/delete_bucket",
+        type : "POST",
+        dataType: "json",
+        data : {
+        	bucket_id : bucket_id,
+        },
+        success: function(data){
+            $('#model_buckets').load(document.URL +  ' #model_buckets', function() {});
+            $('#model_select_buckets').load(document.URL +  ' #model_select_buckets', function() {});
+            $('#model_selection').load(document.URL +  ' #model_selection', function() {
+              loadUploadManagerHandler();
+            });
+            $('#model_select_edit_buckets').load(document.URL +  ' #model_select_edit_buckets', function() {});
+        }
+    });
+}
+
+
+/**
+ * AJAX call, uploads an object
+ * @param objectName name of the object
+ * @param objectFilename name of the file
+ * @param objectContent content of the file
+ * @param objectType type of object
+ */
+upload_object = function(objectName, objectFilename, objectContent, objectType){
+    $.ajax({
+        url : "/admin/upload_object",
+        type : "POST",
+        dataType: "json",
+        data : {
+        	objectName : objectName,
+        	objectFilename : objectFilename,
+        	objectContent : objectContent,
+        	objectType : objectType,
+        },
+        success: function(data){
+        	if ("errors" in data){
+        		if ("message" in data){
+        			$("#objectUploadErrorMessage").html("<font color='red'>" + data.errors + "</font><br/>" + data.message);
+        		}else{
+        			$("#objectUploadErrorMessage").html("<font color='red'>" + data.errors + "</font><br/>");
+        		}        		
+        	}else{
+        		$("#objectUploadErrorMessage").html("<font color='green'>The uploaded template is valid. You can now save it.</font>   <span class='btn' onclick='saveObject()'>Save</span>");
+        	}
+        }
+    });
 }

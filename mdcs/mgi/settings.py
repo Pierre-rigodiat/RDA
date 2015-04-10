@@ -147,23 +147,25 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'mongoengine.django.mongo_auth',
-    'admin',
+    'admin_mdcs',
     'curate',
     'explore',
     'compose',
-    'dajax',
-    'dajaxice',
     'rest_framework',  # djangorestframework
     'rest_framework_swagger', #django-rest-swagger for api documentation
     'api', # djangorestframework
-    'provider',
-    'provider.oauth2'
+    'oauth2_provider',
 )
- 
+
+OAUTH2_PROVIDER = {
+    # this is the list of available scopes
+    'SCOPES': {'read': 'Read scope', 'write': 'Write scope'}
+}
+
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.BasicAuthentication',
-        'rest_framework.authentication.OAuth2Authentication',
+        'oauth2_provider.ext.rest_framework.OAuth2Authentication',
         'rest_framework.authentication.SessionAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': (
@@ -262,7 +264,6 @@ STATICFILES_DIRS = (
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-    'dajaxice.finders.DajaxiceFinder',
 )
 
 # Django User Roles Package

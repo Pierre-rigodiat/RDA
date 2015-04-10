@@ -21,7 +21,7 @@ from django.template import RequestContext, loader
 from django.shortcuts import redirect
 from datetime import date
 from mgi.models import Template, Request, Message, TermsOfUse, PrivacyPolicy
-from admin.forms import RequestAccountForm, EditProfileForm, ChangePasswordForm, ContactForm
+from admin_mdcs.forms import RequestAccountForm, EditProfileForm, ChangePasswordForm, ContactForm
 from django.contrib.auth.models import User
 from django.contrib import messages
 

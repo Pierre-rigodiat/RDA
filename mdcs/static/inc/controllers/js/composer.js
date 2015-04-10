@@ -11,6 +11,56 @@
  * 
  */
 
+
+/**
+ * AJAX call, checks that a template is selected
+ * @param selectedLink redirection link
+ */
+verifyTemplateIsSelected = function(selectedLink)
+{
+    console.log('BEGIN [verifyTemplateIsSelected]');
+
+    $.ajax({
+        url : "/compose/verify_template_is_selected",
+        type : "GET",
+        dataType: "json",
+        success: function(data){
+            verifyTemplateIsSelectedCallback(data, selectedLink);
+        }
+    });
+
+    console.log('END [verifyTemplateIsSelected]');
+}
+
+
+/**
+ * AJAX callback, redirects to selected link if authorized
+ * @param data data from server
+ * @param selectedLink redirection link
+ */
+verifyTemplateIsSelectedCallback = function(data, selectedLink)
+{
+    console.log('BEGIN [verifyTemplateIsSelectedCallback]');
+
+    if (data.templateSelected == 'no') {
+        $(function() {
+            $( "#dialog-error-message" ).dialog({
+                modal: true,
+                buttons: {
+                    Ok: function() {
+                    $( this ).dialog( "close" );
+                    }
+                }
+            });
+        });
+    } else {
+        location.href = selectedLink;
+    }
+
+    console.log('END [verifyTemplateIsSelectedCallback]');
+}
+
+
 /**
  * Load controllers of the template selection page.
  */
@@ -28,10 +78,27 @@ loadTemplateSelectionControllers = function()
 verifyTemplateIsSelectedBuild = function(){
     console.log('BEGIN [verifyTemplateIsSelected]');
 
-    Dajaxice.compose.verifyTemplateIsSelected(verifyTemplateIsSelectedBuildCallback); 
+    verify_template_is_selected_build(); 
 
     console.log('END [verifyTemplateIsSelected]');
 }
+
+
+/**
+ * AJAX call, checks that a template has been selected
+ * @param callback
+ */
+verify_template_is_selected_build = function(){
+    $.ajax({
+        url : "/compose/verify_template_is_selected",
+        type : "GET",
+        dataType: "json",
+        success: function(data){
+        	verifyTemplateIsSelectedBuildCallback(data);
+        }
+    });
+}
+
 
 /**
  * The template is not selected, redirect to main page.
@@ -51,12 +118,29 @@ verifyTemplateIsSelectedBuildCallback = function(data)
     console.log('END [verifyTemplateIsSelectedCallback]');
 }
 
+
 /**
  * Check if the selected template is a new template
  */
 verifyNewTemplate = function(){
-	Dajaxice.compose.isNewTemplate(newTemplateCallback);
+	is_new_template();
 }
+
+
+/**
+ * AJAX call, checks if the template is a new template
+ */
+is_new_template = function(){
+    $.ajax({
+        url : "/compose/is_new_template",
+        type : "GET",
+        dataType: "json",
+        success: function(data){
+        	newTemplateCallback(data);
+        }
+    });
+}
+
 
 /**
  * If new template, need to give it a name
@@ -78,7 +162,8 @@ newTemplateCallback = function(data){
 		        	  $("#newTemplateTypeNameError").html("The name can only contains letters.");
 		          }else{
 		        	  $("#XMLHolder").find(".type").html($("#newTemplateTypeName").val());
-		        	  Dajaxice.compose.changeRootTypeName(Dajax.process, {"typeName":$("#newTemplateTypeName").val()});
+		        	  typeName = $("#newTemplateTypeName").val();
+		        	  change_root_type_name(typeName);
 		        	  $( this ).dialog( "close" );
 		          }
 		        }
@@ -87,6 +172,23 @@ newTemplateCallback = function(data){
 		  });
 	} 
 }
+
+
+/**
+ * AJAX call, change the name of the root type
+ * @param typeName name of the root type
+ */
+change_root_type_name = function(typeName){
+    $.ajax({
+        url : "/compose/change_root_type_name",
+        type : "POST",
+        dataType: "json",
+        data:{
+        	typeName: typeName
+        },
+    });
+}
+
 
 /**
  * Set a template to be current
@@ -103,10 +205,32 @@ setComposeCurrentTemplate = function()
     
     console.log('[setCurrentComposeTemplate] Setting '+templateName+' with filename '+templateFilename+' as current template...');
 
-    Dajaxice.compose.setCurrentTemplate(setCurrentTemplateCallback,{'templateFilename':templateFilename,'templateID':templateID});
+    set_current_template(templateFilename, templateID);
 
     return false;
 }
+
+
+/**
+ * AJAX call, sets the current template
+ * @param templateFilename name of the file
+ * @param templateID id of the template
+ */
+set_current_template = function (templateFilename, templateID){
+    $.ajax({
+        url : "/compose/set_current_template",
+        type : "POST",
+        dataType: "json",
+        data:{
+        	templateFilename: templateFilename,
+        	templateID: templateID
+        },
+        success: function(data){
+        	setCurrentTemplateCallback();
+        }
+    });
+}
+
 
 /**
  * Set a user template to be current
@@ -120,20 +244,38 @@ setComposeCurrentUserTemplate = function()
     tdElement.html('<img src="/static/resources/img/ajax-loader.gif" alt="Loading..."/>');
     $('.btn.set-template').off('click');
 
-    Dajaxice.compose.setCurrentUserTemplate(setCurrentTemplateCallback,{'templateID':templateID});
+    set_current_user_template(templateID);
 
     return false;
 }
 
+
 /**
- * 
+ * AJAX call, sets the current user template
+ * @param templateID id of the template
+ */
+set_current_user_template = function (templateID){
+    $.ajax({
+        url : "/compose/set_current_user_template",
+        type : "POST",
+        dataType: "json",
+        data:{
+        	templateID: templateID
+        },
+        success: function(data){
+        	setCurrentTemplateCallback();
+        }
+    });
+}
+
+
+/**
+ * AJAX callback
  * @param data
  */
-setCurrentTemplateCallback = function(data)
+setCurrentTemplateCallback = function()
 {
-    Dajax.process(data);
     console.log('BEGIN [setCurrentTemplateCallback]');
-    console.log('data passed back to callback function: ' + data);
 
     $('#template_selection').load(document.URL +  ' #template_selection', function() {
 		loadTemplateSelectionControllers();
@@ -142,6 +284,9 @@ setCurrentTemplateCallback = function(data)
     console.log('END [setCurrentTemplateCallback]');
 }
 
+/**
+ * show success dialog
+ */
 displayTemplateSelectedDialog = function()
 {
  $(function() {
@@ -156,6 +301,10 @@ displayTemplateSelectedDialog = function()
   });
 }
 
+
+/**
+ * Load controllers for build template page 
+ */
 loadComposeBuildTemplate = function(){
 	console.log('BEGIN [loadComposeBuildTemplate]');
 		
@@ -168,18 +317,57 @@ loadComposeBuildTemplate = function(){
 	  }
 	});
 	
-	Dajaxice.compose.loadXML(Dajax.process);
+	load_xml();
 	console.log('END [loadComposeBuildTemplate]');
 }
 
+
+/**
+ * AJAX call, load xml document
+ */
+load_xml = function(){
+    $.ajax({
+        url : "/compose/load_xml",
+        type : "GET",
+        dataType: "json",
+        success: function(data){
+        	$("#XMLHolder").html(data.XMLHolder);
+        }
+    });
+}
+
+
+/**
+ * Download a composed template
+ */
 downloadTemplate = function(){
 	console.log('BEGIN [downloadTemplate]');
 	
-	Dajaxice.compose.downloadTemplate(Dajax.process);
+	download_template();
 	
 	console.log('END [downloadTemplate]');
 }
 
+
+
+/**
+ * AJAX call, download a composed template
+ */
+download_template = function(){
+    $.ajax({
+        url : "/compose/download_template",
+        type : "GET",
+        dataType: "json",
+        success: function(data){
+        	window.location = "/compose/download-XSD?id=" + data.xml2downloadID
+        }
+    });
+}
+
+
+/**
+ * Save a composed template
+ */
 saveTemplate = function(){
 	console.log('BEGIN [saveTemplate]');
 	
@@ -194,7 +382,7 @@ saveTemplate = function(){
 			Save: function() {
 					templateName = $("#newTemplateName").val();
 					if (templateName.length > 0){						
-						Dajaxice.compose.saveTemplate(Dajax.process, {"templateName":templateName});						
+						save_template(templateName);						
 					}else{
 						$( "#new-template-error" ).html("The name can't be empty.")
 					}					 
@@ -210,6 +398,35 @@ saveTemplate = function(){
 }
 
 
+
+/**
+ * AJAX call, saves a template
+ * @param templateName
+ */
+save_template = function(templateName){
+    $.ajax({
+        url : "/compose/save_template",
+        type : "POST",
+        dataType: "json",
+        data:{
+        	templateName: templateName
+        },
+        success: function(data){
+        	if('errors' in data){
+        		$("#new-template-error").html("<font color='red'>Not a valid XML schema.</font><br/>" + data.errors);
+        	}else{
+        		saveTemplateCallback();
+                $("#dialog-save-template").dialog("close");
+        	}
+        }
+    });
+}
+
+
+
+/**
+ * Save a composed type
+ */
 saveType = function(){
 	console.log('BEGIN [saveType]');
 	
@@ -224,7 +441,7 @@ saveType = function(){
 			Save: function() {
 					typeName = $("#newTypeName").val();
 					if (typeName.length > 0){	
-						Dajaxice.compose.saveType(Dajax.process, {"typeName":typeName});						
+						save_type(typeName);						
 					}else{
 						$( "#new-type-error" ).html("The name can't be empty.")
 					}
@@ -239,6 +456,38 @@ saveType = function(){
 	console.log('END [saveType]');
 }
 
+
+/**
+ * AJAX call, saves a type
+ * @param templateName
+ */
+save_type = function(typeName){
+    $.ajax({
+        url : "/compose/save_type",
+        type : "POST",
+        dataType: "json",
+        data:{
+        	typeName: typeName
+        },
+        success: function(data){
+        	if('errors' in data){
+        		if ("message" in data){
+        			$("#new-type-error").html("<font color='red'>" + data.errors + "</font><br/>" + data.message);
+        		}else{
+        			$("#new-type-error").html("<font color='red'>" + data.errors + "</font><br/>");
+        		}     
+        	}else{
+        		saveTemplateCallback();
+                $("#dialog-save-type").dialog("close");
+        	}
+        }
+    });
+}
+
+
+/**
+ * Show success message
+ */
 saveTemplateCallback = function(){
 	console.log('BEGIN [saveTemplateCallback]');	
 	
@@ -256,6 +505,10 @@ saveTemplateCallback = function(){
 	console.log('END [saveTemplateCallback]');
 }
 
+/**
+ * Show/hide
+ * @param event
+ */
 showhide = function(event){
 	console.log('BEGIN [showhide]');
 	button = event.target
@@ -365,7 +618,7 @@ displayChangeTypeDialog = function()
 	    		  oldType = $(target).text().split(":")[1];
 	    		  $(target).html($(target).html().replace(oldType,newType));
 	    		  $(target).parent().siblings(".path").html($(target).parent().siblings(".path").html().replace(oldType,newType));
-	    		  Dajaxice.compose.changeXSDType(Dajax.process,{"xpath":xpath, "newType": newType});
+	    		  change_xsd_type(xpath, newType);
 		          $( this ).dialog( "close" );
 		    },
 	        Cancel: function() {
@@ -381,12 +634,36 @@ function isInt(value) {
 }
 
 
+/**
+ * AJAX call, cahnges the type of a element
+ * @param xpath Xpath to the element
+ * @param newType new type of the element
+ */
+change_xsd_type = function(xpath, newType){
+    $.ajax({
+        url : "/compose/change_xsd_type",
+        type : "POST",
+        dataType: "json",
+        data:{
+        	xpath: xpath,
+        	newType: newType
+        },
+        success: function(data){
+
+        }
+    });
+}
+
+
+/**
+ * Show dialog to set occurrences
+ */
 displayOccurrencesElementDialog = function()
 {
 	 $( "#manage-occurrences-error" ).html("");
 	 $(function() {
 		xpath = getXPath();
-		Dajaxice.compose.getOccurrences(getOccurrencesCallback,{"xpath":xpath})
+		get_occurrences(xpath);
 	    $( "#dialog-occurrences-element" ).dialog({
 	      modal: true,
 	      width: 600,
@@ -418,7 +695,7 @@ displayOccurrencesElementDialog = function()
 				}
 				
 				if (errors == ""){
-					Dajaxice.compose.setOccurrences(Dajax.process,{"xpath":xpath, "minOccurs":minOccurs,"maxOccurs":maxOccurs});
+					set_occurrences(xpath, minOccurs, maxOccurs);
 					occursStr = "( " + minOccurs + " , ";
 					if (maxOccurs == "unbounded"){
 						occursStr += "*";
@@ -441,9 +718,46 @@ displayOccurrencesElementDialog = function()
 }
 
 
-getOccurrencesCallback = function(data){
-	$("#minOccurrences").val(data[0].val['minOccurs']);
-	$("#maxOccurrences").val(data[0].val['maxOccurs']);
+
+/**
+ * AJAX call, gets element occurrences from the server
+ * @param xpath
+ */
+get_occurrences = function(xpath){
+    $.ajax({
+        url : "/compose/get_occurrences",
+        type : "POST",
+        dataType: "json",
+        data:{
+        	xpath: xpath,
+        },
+        success: function(data){
+        	$("#minOccurrences").val(data.minOccurs);
+        	$("#maxOccurrences").val(data.maxOccurs);
+        }
+    });
+}
+
+/**
+ * AJAX call, sets the occurrences of an element
+ * @param xpath xpath of the element
+ * @param minOccurs minimun occurrences
+ * @param maxOccurs maximum occurrences
+ */
+set_occurrences = function(xpath, minOccurs, maxOccurs){
+    $.ajax({
+        url : "/compose/set_occurrences",
+        type : "POST",
+        dataType: "json",
+        data:{
+        	xpath: xpath,
+        	minOccurs: minOccurs,
+        	maxOccurs: maxOccurs,
+        },
+        success: function(data){
+
+        }
+    });
 }
 
 displayDeleteElementDialog = function()
@@ -458,7 +772,7 @@ displayDeleteElementDialog = function()
 			Delete: function() {
 				manageXPath();
 				$(target).parent().parent().parent().remove();				
-				Dajaxice.compose.deleteElement(Dajax.process,{"xpath":xpath});
+				delete_element(xpath);
 				$( this ).dialog( "close" );
 			},
 			Cancel: function() {
@@ -469,6 +783,29 @@ displayDeleteElementDialog = function()
 	  });
 }
 
+
+/**
+ * AJAX call, deletes an element
+ * @param xpath
+ */
+delete_element = function(xpath){
+    $.ajax({
+        url : "/compose/delete_element",
+        type : "POST",
+        dataType: "json",
+        data:{
+        	xpath: xpath,
+        },
+        success: function(data){
+
+        }
+    });
+}
+
+
+/**
+ * Show dialog to rename an element
+ */
 displayRenameElementDialog = function()
 {
 	$( "#rename-element-error" ).html("");
@@ -483,7 +820,7 @@ displayRenameElementDialog = function()
 					newName = $("#newElementName").val();
 					if (newName.length > 0){
 						xpath = getXPath();
-						Dajaxice.compose.renameElement(Dajax.process, {"xpath":xpath, "newName":newName});
+						rename_element(xpath, newName);
 						$(target).parent().siblings('.name').html(newName);
 						$( this ).dialog( "close" );
 					}else{
@@ -498,6 +835,32 @@ displayRenameElementDialog = function()
 	  });
 }
 
+
+/**
+ * AJAX call, renames an element
+ * @param xpath xpath of the element
+ * @param newName new name of the element
+ */
+rename_element = function(xpath, newName){
+    $.ajax({
+        url : "/compose/rename_element",
+        type : "POST",
+        dataType: "json",
+        data:{
+        	xpath: xpath,
+        	newName: newName
+        },
+        success: function(data){
+
+        }
+    });
+}
+
+
+/**
+ * Insert an element in the XML tree
+ * @param event
+ */
 insertElementSequence = function(event){	
 	// change the sequence style
 	parent = $(target).parent()
@@ -545,9 +908,35 @@ insertElementSequence = function(event){
 	
 	$( "#dialog-insert-element-sequence" ).dialog("close");
 	
-	Dajaxice.compose.insertElementSequence(Dajax.process, {"typeID": typeID, "xpath":xpath, "typeName": typeName});
+	insert_element_sequence(typeID, xpath, typeName);
 }
 
+
+
+/**
+ * AJAX call, inserts an element in an XML sequence
+ */
+insert_element_sequence = function(typeID, xpath, typeName){
+    $.ajax({
+        url : "/compose/insert_element_sequence",
+        type : "POST",
+        dataType: "json",
+        data:{
+        	typeID: typeID,
+        	xpath: xpath,
+        	typeName: typeName
+        },
+        success: function(data){
+
+        }
+    });
+}
+
+
+/**
+ * Build xpath of selected element
+ * @returns
+ */
 getXPath = function(){
 	current = $(target).parent().siblings('.path');
 	xpath = $(current).text();	

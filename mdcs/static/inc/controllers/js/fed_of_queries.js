@@ -11,6 +11,7 @@
  * 
  */
 
+
 /**
  * load controllers for the federation of queries
  */
@@ -21,6 +22,7 @@ loadFedOfQueriesHandler = function()
     $('.delete.instance').on('click', deleteInstance);
 	console.log('END [loadFedOfQueriesHandler]');
 }
+
 
 /**
  * Check that the address is a correct IP address
@@ -34,7 +36,8 @@ function validateAddress(address)
 		return (true)  ;
 	}  
 	return (false)  ;
-} 
+}
+
 
 /**
  * Check that the port is a correct port number
@@ -49,6 +52,7 @@ function validatePort(port)
 	}  
 	return (false)  ;
 } 
+
 
 /**
  * Check that fields are correct
@@ -69,6 +73,7 @@ function checkFields(address, port){
 	return errors;
 }
 
+
 /**
  * Check that instance information are valid
  * @returns {Boolean}
@@ -88,6 +93,8 @@ function validateInstance(){
 		return (true);
 	}
 }
+
+
 /**
  * Edit repository information. Get the information from the server.
  */
@@ -104,7 +111,8 @@ editInstance = function()
             modal: true,
             buttons: {
             	Edit: function() {	
-            		Dajaxice.admin.editInstance(Dajax.process, {"instanceid": instanceid, "name":$("#edit-name").val()});
+            		name = $("#edit-name").val();
+            		edit_instance(instanceid, name);
             	},
             	Cancel: function() {	
             		$( this ).dialog( "close" );
@@ -113,6 +121,35 @@ editInstance = function()
         });
 	});
 }
+
+
+/**
+ * AJAX call, edit an instance
+ * @param instanceid id of the selected instance
+ * @param name new name of the instance
+ */
+edit_instance = function(instanceid, name){
+    $.ajax({
+        url : "/admin/edit_instance",
+        type : "POST",
+        dataType: "json",
+        data : {
+        	instanceid : instanceid,
+        	name: name
+        },
+        success: function(data){
+        	if ('errors' in data){
+        		$("#edit_instance_error").html(data.errors);
+        	}else{
+        		$("#dialog-edit-instance").dialog("close");
+                $('#model_selection').load(document.URL +  ' #model_selection', function() {
+                      loadFedOfQueriesHandler();
+                });
+        	}
+        }
+    });
+}
+
 
 /**
  * Delete a repository.
@@ -126,7 +163,7 @@ deleteInstance = function()
             width: 520,
             buttons: {
             	Delete: function() {	
-            		Dajaxice.admin.deleteInstance(Dajax.process, {"instanceid": instanceid});
+            		delete_instance(instanceid);
             	},
             	Cancel: function() {	
             		$( this ).dialog( "close" );
@@ -134,5 +171,27 @@ deleteInstance = function()
             }      
         });
 	});
+}
+
+
+/**
+ * AJAX call, deletes an instance of a repository
+ * @param instanceid id of the selected instance
+ */
+delete_instance = function(instanceid){
+    $.ajax({
+        url : "/admin/delete_instance",
+        type : "POST",
+        dataType: "json",
+        data : {
+        	instanceid : instanceid,
+        },
+        success: function(data){
+        	$("#dialog-deleteinstance-message").dialog("close");
+            $('#model_selection').load(document.URL +  ' #model_selection', function() {
+                  loadFedOfQueriesHandler();
+            });
+        }
+    });
 }
 

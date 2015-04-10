@@ -1,6 +1,6 @@
 /**
  * 
- * File Name: tpl_sel.js
+ * File Name: curate.js
  * Author: Sharief Youssef
  * 		   sharief.youssef@nist.gov
  *
@@ -13,6 +13,55 @@
 
 
 /**
+ * AJAX call, checks that a template is selected
+ * @param selectedLink redirection link
+ */
+verifyTemplateIsSelected = function(selectedLink)
+{
+    console.log('BEGIN [verifyTemplateIsSelected]');
+    
+    $.ajax({
+        url : "/curate/verify_template_is_selected",
+        type : "GET",
+        dataType: "json",
+        success: function(data){
+            verifyTemplateIsSelectedCallback(data, selectedLink);
+        }
+    });
+
+    console.log('END [verifyTemplateIsSelected]');
+}
+
+
+/**
+ * AJAX callback, redirects to selected link if authorized
+ * @param data data from server
+ * @param selectedLink redirection link
+ */
+verifyTemplateIsSelectedCallback = function(data, selectedLink)
+{
+    console.log('BEGIN [verifyTemplateIsSelectedCallback]');
+
+    if (data.templateSelected == 'no') {
+        $(function() {
+            $( "#dialog-error-message" ).dialog({
+                modal: true,
+                buttons: {
+                    Ok: function() {
+                    $( this ).dialog( "close" );
+                    }
+                }
+            });
+        });
+    } else {
+        location.href = selectedLink;
+    }
+
+    console.log('END [verifyTemplateIsSelectedCallback]');
+}
+
+
+/**
  * Load controllers for template selection
  */
 loadTemplateSelectionControllers = function()
@@ -20,9 +69,22 @@ loadTemplateSelectionControllers = function()
     console.log('BEGIN [loadTemplateSelectionControllers]');
     $('.btn.set-template').on('click', setCurrentTemplate);
     $('.btn.set-curate-user-template').on('click', setCurrentUserTemplate);
-    Dajaxice.curate.initCuration(Dajax.process);
+    init_curate();
     console.log('END [loadTemplateSelectionControllers]');    
 }
+
+
+/**
+ * AJAX call, initializes curation
+ */
+init_curate = function(){
+    $.ajax({
+        url : "/curate/init_curate",
+        type : "GET",
+        dataType: "json",
+    });
+}
+
 
 /**
  * Clear the fields of the current curated data
@@ -36,7 +98,7 @@ clearFields = function()
             modal: true,
             buttons: {
             	Clear: function() {
-            		Dajaxice.curate.clearFields(Dajax.process);
+            		clear_fields();
                     $( this ).dialog( "close" );
                 },
                 Cancel: function() {
@@ -48,6 +110,22 @@ clearFields = function()
 	
     console.log('END [clearFields]');
 }
+
+
+/**
+ * AJAX call, clears fields 
+ */
+clear_fields = function(){
+    $.ajax({
+        url : "/curate/clear_fields",
+        type : "GET",
+        dataType: "json",
+        success: function(data){
+            $("#xsdForm").html(data.xsdForm);
+        }
+    });
+}
+
 
 /**
  * Load an existing form. Show the window.
@@ -74,6 +152,7 @@ loadForm = function()
     console.log('END [loadForm]');
 }
 
+
 /**
  * Load an existing form.
  * @returns {Boolean}
@@ -83,31 +162,34 @@ doLoadForm = function()
     console.log('BEGIN [doLoadForm]');
 
     var formSelectedArray = document.getElementById('listOfForms');
-    var formSelected = formSelectedArray.options[formSelectedArray.selectedIndex].value;
+    var form_selected = formSelectedArray.options[formSelectedArray.selectedIndex].value;
 
-    Dajaxice.curate.loadFormForEntry(loadFormForEntryCallback,{'formSelected':formSelected});
+    load_form_for_entry(form_selected);
 
     console.log('END [doLoadForm]');
 
     return false;
 }
 
+
 /**
- * Load form callback.
- * @param data
- * @returns {Boolean}
+ * AJAX call, load the form from the server
+ * @param form_selected
  */
-loadFormForEntryCallback = function(data)
-{
-    Dajax.process(data);
-    console.log('BEGIN [loadFormForEntryCallback]');
-    console.log('data passed back to callback function: ' + data);
-
-
-    console.log('END [loadFormForEntryCallback]');
-
-    return false;
+load_form_for_entry = function(form_selected){
+    $.ajax({
+        url : "/curate/load_form_for_entry",
+        type : "POST",
+        dataType: "json",
+        data : {
+            form_selected : form_selected,
+        },
+        success: function(data){
+            $('#xsdForm').html(data.xsdForm);
+        }
+    });
 }
+
 
 /**
  * Display message when form loaded.
@@ -129,6 +211,7 @@ formLoaded = function()
 	
     console.log('END [loadForm]');
 }
+
 
 /**
  * Save the current form. Show the window.
@@ -159,6 +242,7 @@ saveForm = function()
     console.log('END [saveForm]');
 }
 
+
 /**
  * Save an existing form. 
  */
@@ -181,7 +265,9 @@ doSave = function()
 	elems[i].selectedIndex = idx;
     }
 
-    Dajaxice.curate.saveHTMLForm(saveHTMLFormCallback,{'saveAs':document.getElementById('saveAsInput').value, 'content':document.getElementById('xsdForm').innerHTML});
+    saveAs = document.getElementById('saveAsInput').value;
+    content = document.getElementById('xsdForm').innerHTML;
+    save_html_form(saveAs , content);
 
     $(function() {
         $( "#dialog-saved-message" ).dialog({
@@ -199,8 +285,30 @@ doSave = function()
     console.log('END [doSave]');
 }
 
+
 /**
- * Display the current data to curate
+ * AJAX call, saves the HTML form 
+ * @param save_as title of the form
+ * @param content form content of the form
+ */
+save_html_form = function(save_as, content){
+    $.ajax({
+        url : "/curate/save_html_form",
+        type : "POST",
+        dataType: "json",
+        data : {
+            saveAs : saveAs,
+            content: content
+        },
+        success: function(data){
+            update_form_list();
+        }
+    });
+}
+
+
+/**
+ * Displays the current data to be curated
  */
 viewData = function()
 {
@@ -215,10 +323,31 @@ viewData = function()
 	elems[i].setAttribute("value", elems[i].value);
     }
 
-    Dajaxice.curate.saveXMLData(saveXMLDataCallback,{'formContent':document.getElementById('xsdForm').innerHTML});
+    formContent = document.getElementById('xsdForm').innerHTML
+    view_data(formContent);
 
     console.log('END [viewData]');
 }
+
+
+/**
+ * AJAX call, redirects to View Data after sending the current form
+ * @param formContent
+ */
+view_data = function(formContent){
+    $.ajax({
+        url : "/curate/view_data",
+        type : "POST",
+        dataType: "json",
+        data : {
+            form_content : formContent,
+        },
+        success: function(data){
+            window.location = "/curate/view-data"
+        }
+    });
+}
+
 
 /**
  * Validate the current data to curate.
@@ -235,20 +364,37 @@ validateXML = function()
 	    $(this).attr("value", $(this).val());
 	});
 	$('select option').each(function(){ this.defaultSelected = this.selected; });
-    Dajaxice.curate.validateXMLData(Dajax.process,{'xmlString':xmlString, 'xsdForm': $('#xsdForm').html()});
+
+    xsdForm = $('#xsdForm').html();
+    validate_xml_data(xmlString, xsdForm);
 }
+
 
 /**
- * Redirect to View Data.
+ * AJAX call, send the XML String to the server for validation
+ * @param xmlString XML String generated from the HTML form
+ * @param xsdForm HTML form
  */
-saveXMLDataCallback = function()
-{
-    console.log('BEGIN [saveXMLData]');
-
-    window.location = "/curate/view-data"
-
-    console.log('END [saveXMLData]');
+validate_xml_data = function(xmlString, xsdForm){
+    $.ajax({
+        url : "/curate/validate_xml_data",
+        type : "POST",
+        dataType: "json",
+        data : {
+            xmlString : xmlString,
+            xsdForm: xsdForm
+        },
+        success: function(data){
+            if ('errors' in data){
+                 $("#saveErrorMessage").html(data.errors);
+                saveXMLDataToDBError();
+            }else{
+                viewData();
+            }
+        }
+    });
 }
+
 
 /**
  * Generate an XML String from values entered in the form.
@@ -310,25 +456,6 @@ generateXMLString = function(elementObj)
     return xmlString
 }
 
-/**
- * 
- * @param data
- * @returns {Boolean}
- */
-saveHTMLFormCallback = function(data)
-{
-    Dajax.process(data);
-    console.log('BEGIN [saveHTMLFormCallback]');
-    console.log('data passed back to callback function: ' + data);
-
-    // business logic goes here
-    Dajaxice.curate.updateFormList(Dajax.process);
-
-    console.log('END [saveHTMLFormCallback]');
-
-    return false;
-}
-
 
 /**
  * Display the periodic table to select a chemical element
@@ -357,6 +484,7 @@ selectElement = function(divElement)
 	console.log('END [selectElement('+divElement+')]');
 }
 
+
 /**
  * Display the selected element
  * @param element
@@ -369,6 +497,7 @@ chooseElement = function(element)
 
     console.log('END [chooseElement(' + element + ')]');
 }
+
 
 /**
  * Save the selected element into the form
@@ -390,6 +519,7 @@ doSelectElement = function(divElement)
 
     console.log('END [doSelectElement(' + divElement + ')]');
 }
+
 
 /**
  * Display the periodic table to select multiple chemical elements
@@ -442,6 +572,7 @@ selectMultipleElements = function(divElement)
   console.log('END [selectElement]');
 }
 
+
 /**
  * Display the selected elements
  * @param element
@@ -462,6 +593,7 @@ chooseMultipleElements = function(element)
 
   console.log('END [chooseElement(' + element + ')]');
 }
+
 
 /**
  * Save the selected elements into the form
@@ -511,6 +643,7 @@ document.getElementById('chosenMultipleElements').innerHTML = "<table id='tableC
 console.log('END [selectElement(' + divElement + ')]');
 }
 
+
 /**
  * Remove an element from the selection
  */
@@ -528,6 +661,7 @@ removeMultipleElement = function(removeButton){
 	
 	console.log('END [removeMultipleElement]');
 }
+
 
 /**
  * Select an Excel Spreadseet. Show the dialog box.
@@ -566,23 +700,37 @@ var moduleTag;
 doSelectHDF5File = function(divElement)
 {
 	moduleTag = $(divElement).parent();
-    Dajaxice.curate.getHDF5String(getHDF5StringCallback);
+    get_hdf5_string();
 }
+
+
+/**
+ * AJAX call, gets XML String from spreadsheet
+ */
+get_hdf5_string = function(){
+    $.ajax({
+        url : "/curate/get_hdf5_string",
+        type : "GET",
+        dataType: "json",
+        success: function(data){
+            getHDF5StringCallback(data.spreadsheetXML);
+        }
+    });
+}
+
 
 /**
  * Insert the Spreadsheet information in the form.
  * @param data
  */
-getHDF5StringCallback = function(data)
+getHDF5StringCallback = function(spreadsheetXML)
 {
-	spreadsheetXML = data.spreadsheetXML;
-
 	if (spreadsheetXML != ""){
 		moduleTag.children(".moduleResult").html(spreadsheetXML);
 		moduleTag.children(".moduleDisplay").html("Spreadsheet successfully loaded.");
-	}	
-	
+	}
 }
+
 
 /**
  * Update the display regarding the choice of the user.
@@ -606,6 +754,7 @@ changeChoice = function(selectObj)
     console.log('END [changeChoice(' + selectObj.id + ' : ' + selectObj.selectedIndex + ')]');
 }
 
+
 /**
  * Show a dialog when a template is selected
  */
@@ -623,26 +772,44 @@ displayTemplateSelectedDialog = function()
   });
 }
 
+
 /**
  * Check if the template is selected, to prevent manual navigation.
  */
 verifyTemplateIsSelectedCurateEnterData = function(){
     console.log('BEGIN [verifyTemplateIsSelected]');
 
-    Dajaxice.curate.verifyTemplateIsSelected(verifyTemplateIsSelectedCurateEnterDataCallback); 
+    verify_template_is_selected(verifyTemplateIsSelectedCurateEnterDataCallback);
 
     console.log('END [verifyTemplateIsSelected]');
 }
+
+
+/**
+ * AJAX call, checks that a template has been selected
+ * @param callback
+ */
+verify_template_is_selected = function(callback){
+    $.ajax({
+        url : "/curate/verify_template_is_selected",
+        type : "GET",
+        dataType: "json",
+        success: function(data){
+            callback(data.templateSelected);
+        }
+    });
+}
+
 
 /**
  * Callback redirects to main page if no templates selected.
  * @param data
  */
-verifyTemplateIsSelectedCurateEnterDataCallback = function(data)
+verifyTemplateIsSelectedCurateEnterDataCallback = function(templateSelected)
 {
     console.log('BEGIN [verifyTemplateIsSelectedCallback]');
 
-    if (data.templateSelected == 'no') {
+    if (templateSelected == 'no') {
         location.href = "/curate";
     }else{
     	loadCurrentTemplateFormForCuration();
@@ -650,6 +817,7 @@ verifyTemplateIsSelectedCurateEnterDataCallback = function(data)
 
     console.log('END [verifyTemplateIsSelectedCallback]');
 }
+
 
 /**
  * Load the form to curate data
@@ -663,43 +831,47 @@ loadCurrentTemplateFormForCuration = function()
     $('.btn.save-form').on('click', saveForm);
     $('.btn.download').on('click', downloadOptions);
     $('.btn.download-xsd').on('click', downloadXSD);
-    $('.btn.download-form').on('click', downloadForm);
     $('.btn.download-xml').on('click', downloadXML);
 
-    Dajaxice.curate.generateXSDTreeForEnteringData(Dajax.process); 
-
-    Dajaxice.curate.updateFormList(Dajax.process);
+    generate_xsd_form()
+    update_form_list();
 
     console.log('END [loadCurrentTemplateFormForCuration]');
 }
 
-/**
- * Load the form to customize fields for query
- */
-loadExploreCurrentTemplateForm = function()
-{
-    console.log('BEGIN [loadExploreCurrentTemplateForm]');
-
-    $('.btn.clear-fields').on('click', clearFields);
-    $('.btn.load-form').on('click', loadForm);
-    $('.btn.save-form').on('click', saveForm);
-
-    Dajaxice.explore.generateXSDTreeForEnteringData(Dajax.process); //,{'templateFilename':'xxxx'});
-
-    console.log('END [loadExploreCurrentTemplateForm]');
-}
 
 /**
- * 
+ * AJAX call, generates HTML form from XSD
  */
-displayTemplateForm = function()
-{
-    console.log('BEGIN [displayTemplateForm]');
-
-    
-	
-    console.log('END [displayTemplateForm]');
+generate_xsd_form = function(){
+    $.ajax({
+        url : "/curate/generate_xsd_form",
+        type : "GET",
+        dataType: "json",
+        success : function(data) {
+            $('#modules').html(data.modules);
+            $('#periodicTable').html(data.periodicTable);
+            $('#periodicTableMultiple').html(data.periodicTableMultiple);
+            $('#xsdForm').html(data.xsdForm);
+        },
+    });
 }
+
+
+/**
+ * AJAX call, updates the list of availlable forms to load
+ */
+update_form_list = function(){
+    $.ajax({
+        url : "/curate/update_form_list",
+        type : "GET",
+        dataType: "json",
+        success : function(data) {
+            $('#listOfForms').html(data.options);
+        }
+    });
+}
+
 
 /**
  * Check that the tempalte is selected or redirect to main page
@@ -707,10 +879,11 @@ displayTemplateForm = function()
 verifyTemplateIsSelectedViewData = function(){
     console.log('BEGIN [verifyTemplateIsSelected]');
 
-    Dajaxice.curate.verifyTemplateIsSelected(verifyTemplateIsSelectedViewDataCallback); 
+    verify_template_is_selected(verifyTemplateIsSelectedViewDataCallback);
 
     console.log('END [verifyTemplateIsSelected]');
 }
+
 
 /**
  * Check that the tempalte is selected or redirect to main page
@@ -723,11 +896,27 @@ verifyTemplateIsSelectedViewDataCallback = function(data)
         location.href = "/curate";
     }else{
     	loadCurrentTemplateView();
-    	Dajaxice.curate.loadXML(Dajax.process);
+    	load_xml();
     }
 
     console.log('END [verifyTemplateIsSelectedCallback]');
 }
+
+
+/**
+ * AJAX call, loads XML data into the page for review
+ */
+load_xml = function(){
+    $.ajax({
+        url : "/curate/load_xml",
+        type : "GET",
+        dataType: "json",
+        success : function(data) {
+            $('#XMLHolder').html(data.XMLHolder);
+        }
+    });
+}
+
 
 /**
  * Load template view controllers
@@ -741,6 +930,7 @@ loadCurrentTemplateView = function()
 
     console.log('END [loadCurrentTemplateView]');
 }
+
 
 /**
  * Shows a dialog to choose dialog options
@@ -767,10 +957,26 @@ downloadXML = function()
 {
     console.log('BEGIN [downloadXML]');
 
-    Dajaxice.curate.downloadXML(Dajax.process);
+    download_xml();
 
     console.log('END [downloadXML]');
 }
+
+
+/**
+ * AJAX call, get XML data and redirects to download view
+ */
+download_xml = function(){
+    $.ajax({
+        url : "/curate/download_xml",
+        type : "GET",
+        dataType: "json",
+        success : function(data) {
+            window.location = "/curate/view-data/download-XML?id="+ data.xml2downloadID
+        }
+    });
+}
+
 
 /**
  * Download the XSD template
@@ -789,17 +995,6 @@ downloadXSD = function()
     console.log('END [downloadXSD]');
 }
 
-/**
- * Download the HTML form
- */
-downloadForm = function()
-{
-    console.log('BEGIN [downloadForm]');
-    
-    Dajaxice.curate.downloadHTMLForm(Dajax.process,{'saveAs':"form2download", 'content':document.getElementById('xsdForm').innerHTML});
-
-    console.log('END [downloadForm]');
-}
 
 /**
  * Save XML data to repository. Shows dialog.
@@ -830,6 +1025,7 @@ saveToRepository = function()
     console.log('END [saveToRepository]');
 }
 
+
 /**
  * Save XML data to repository. 
  */
@@ -837,10 +1033,45 @@ doSaveToRepository = function()
 {
     console.log('BEGIN [doSaveToRepository]');
 
-    Dajaxice.curate.saveXMLDataToDB(Dajax.process,{'saveAs':document.getElementById('saveAsInput').value});
+    saveAs = document.getElementById('saveAsInput').value
+    save_xml_data_to_db(saveAs);
 
     console.log('END [doSaveToRepository]');
 }
+
+
+/**
+ * AJAX call, saves data to database
+ * @param saveAs title of the document
+ */
+save_xml_data_to_db = function(saveAs){
+    $.ajax({
+        url : "/curate/save_xml_data_to_db",
+        type : "POST",
+        dataType: "json",
+        data:{
+            saveAs: saveAs
+        },
+        success : function(data) {
+            if ('errors' in data){
+                $("#saveErrorMessage").html(data.errors);
+                $(function() {
+                    $( "#dialog-save-error-message" ).dialog({
+                        modal: true,
+                        buttons: {
+                        	Ok: function() {
+                                $( this ).dialog( "close" );
+                            }
+                        }
+                    });
+                });                
+            }else{
+                savedXMLDataToDB();
+            }
+        }
+    });
+}
+
 
 /**
  * Saved XML data to DB message.
@@ -864,6 +1095,7 @@ savedXMLDataToDB = function()
     
     console.log('END [savedXMLDataToDB]');
 }
+
 
 /**
  * Save XML data to DB error message. 
@@ -906,15 +1138,75 @@ changeHTMLForm = function(operation, tagID)
 	
     if (operation == 'add') {
     	$("#element"+tagID).children(".expand").attr("class","collapse");
-		Dajaxice.curate.duplicate(Dajax.process,{"tagID":tagID, "xsdForm":xsdForm});		
+		duplicate(tagID, xsdForm);
     } else if (operation == 'remove') {    	
     	$("#element"+tagID).children(".collapse").attr("class","expand");
-		Dajaxice.curate.remove(Dajax.process,{"tagID":tagID, "xsdForm":xsdForm});		
+		remove(tagID, xsdForm);
     }
     console.log('END [changeHTMLForm(' + operation + ')]');
 
     return false;
 }
+
+
+/**
+ * AJAX call, duplicate an element from the form
+ * @param tagID HTML id of the element to duplicate
+ * @param xsdForm HTML form 
+ */
+duplicate = function(tagID, xsdForm){
+    $.ajax({
+        url : "/curate/duplicate",
+        type : "POST",
+        dataType: "json",
+        data : {
+            tagID : tagID,
+            xsdForm: xsdForm
+        },
+        success: function(data){
+            if (data.occurs == "zero"){
+                $('#add' + data.id).attr('style', data.styleAdd);
+                $('#remove' + data.id).attr('style','');
+                $("#" + data.tagID).prop("disabled",false);
+                $("#" + data.tagID).removeClass("removed");
+                $("#" + data.tagID).children("ul").show(500);
+            }
+            else{
+                $("#xsdForm").html(data.xsdForm)
+            }
+        }
+    });
+}
+
+
+/**
+ * AJAX call, remove an element from the form
+ * @param tagID HTML id of the element to remove
+ * @param xsdForm HTML form 
+ */
+remove = function(tagID, xsdForm){
+$.ajax({
+        url : "/curate/remove",
+        type : "POST",
+        dataType: "json",
+        data : {
+            tagID : tagID,
+            xsdForm: xsdForm
+        },
+        success: function(data){
+            if (data.occurs == "zero"){
+                $('#add' + data.id).attr('style','');
+                $('#remove' + data.id).attr('style','display:none');
+                $("#" + data.tagID).prop("disabled",true);
+                $("#" + data.tagID).addClass("removed");
+                $("#" + data.tagID).children("ul").hide(500);
+            }else{
+                $("#xsdForm").html(data.xsdForm)
+            }
+        }
+    });
+}
+
 
 /**
  * Set the current template 
@@ -932,10 +1224,32 @@ setCurrentTemplate = function()
 	
 	console.log('[setCurrentTemplate] Setting '+templateName+' with filename '+templateFilename+' as current template...');
 
-    Dajaxice.curate.setCurrentTemplate(setCurrentTemplateCallback,{'templateFilename':templateFilename,'templateID':templateID});
+    set_current_template(templateFilename,templateID);
 
     return false;
 }
+
+
+/**
+ * AJAX call, sets the current template
+ * @param templateFilename name of the selected template
+ * @param templateID id of the selected template
+ */
+set_current_template = function(templateFilename,templateID){
+    $.ajax({
+        url : "/curate/set_current_template",
+        type : "POST",
+        dataType: "json",
+        data : {
+            templateFilename : templateFilename,
+            templateID: templateID
+        },
+        success: function(){
+            setCurrentTemplateCallback();
+        }
+    });
+}
+
 
 /**
  * Set current user defined template
@@ -950,18 +1264,37 @@ setCurrentUserTemplate = function()
 	tdElement.html('<img src="/static/resources/img/ajax-loader.gif" alt="Loading..."/>');
 	$('.btn.set-template').off('click');
 
-    Dajaxice.curate.setCurrentUserTemplate(setCurrentTemplateCallback,{'templateID':templateID});
+    set_current_user_template(templateID);
 
     return false;
 }
+
+
+/**
+ * AJAX call, sets the current user defined template
+ * @param templateID
+ */
+set_current_user_template = function(templateID){
+    $.ajax({
+        url : "/curate/set_current_user_template",
+        type : "POST",
+        dataType: "json",
+        data : {
+            templateID: templateID
+        },
+        success: function(){
+            setCurrentTemplateCallback();
+        }
+    });
+}
+
 
 /**
  * Update page when template selected.
  * @param data
  */
-setCurrentTemplateCallback = function(data)
+setCurrentTemplateCallback = function()
 {
-    Dajax.process(data);
     console.log('BEGIN [setCurrentTemplateCallback]');
 
     $('#template_selection').load(document.URL +  ' #template_selection', function() {
