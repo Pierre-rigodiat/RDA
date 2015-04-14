@@ -20,7 +20,7 @@
 #
 ################################################################################
 
-VERSION = 1.2
+VERSION = "1.1.1"
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
@@ -30,18 +30,22 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 PROJECT_URI = "http://www.example.com/"
 
 # Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/1.6/howto/deployment/checklist/
+# See https://docs.djangoproject.com/en/1.7/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'ponq)(gd8hm57799)$lup4g9kyvp0l(9)k-3!em7dddn^(y)!5'
+SECRET_KEY = os.environ['SECRET_KEY']
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-TEMPLATE_DEBUG = True
+DEBUG = False
+TEMPLATE_DEBUG = False
 
 TEMPLATE_DIRS = [os.path.join(BASE_DIR, 'templates')]
 
 ALLOWED_HOSTS = ['*']
+
+#HTTPS
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
 
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
@@ -57,85 +61,6 @@ TEMPLATE_CONTEXT_PROCESSORS = ("django.contrib.auth.context_processors.auth",
 "django.core.context_processors.static",
 "django.core.context_processors.tz",
 "django.contrib.messages.context_processors.messages")
-
-
-#optional
-MULTIUPLOADER_FILES_FOLDER = 'multiuploader'
-#optional
-MULTIUPLOADER_FILE_EXPIRATION_TIME = 3600
-#optional
-MULTIUPLOADER_FORMS_SETTINGS = {
-'default': {
-    'FILE_TYPES' : ["txt","zip","jpg","jpeg","flv","png"],
-    'CONTENT_TYPES' : [
-            'image/jpeg',
-            'image/png',
-            'application/msword',
-            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-            'application/vnd.ms-excel',
-            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            'application/vnd.ms-powerpoint',
-            'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-            'application/vnd.oasis.opendocument.text',
-            'application/vnd.oasis.opendocument.spreadsheet',
-            'application/vnd.oasis.opendocument.presentation',
-            'text/plain',
-            'text/rtf',
-                ],
-    'MAX_FILE_SIZE': 10485760,
-    'MAX_FILE_NUMBER':5,
-    'AUTO_UPLOAD': True,
-},
-'images':{
-    'FILE_TYPES' : ['jpg', 'jpeg', 'png', 'gif', 'svg', 'bmp', 'tiff', 'ico' ],
-    'CONTENT_TYPES' : [
-        'image/gif',
-        'image/jpeg',
-        'image/pjpeg',
-        'image/png',
-        'image/svg+xml',
-        'image/tiff',
-        'image/vnd.microsoft.icon',
-        'image/vnd.wap.wbmp',
-        ],
-    'MAX_FILE_SIZE': 10485760,
-    'MAX_FILE_NUMBER':5,
-    'AUTO_UPLOAD': True,
-},
-'video':{
-    'FILE_TYPES' : ['flv', 'mpg', 'mpeg', 'mp4' ,'avi', 'mkv', 'ogg', 'wmv', 'mov', 'webm' ],
-    'CONTENT_TYPES' : [
-        'video/mpeg',
-        'video/mp4',
-        'video/ogg',
-        'video/quicktime',
-        'video/webm',
-        'video/x-ms-wmv',
-        'video/x-flv',
-        ],
-    'MAX_FILE_SIZE': 10485760,
-    'MAX_FILE_NUMBER':5,
-    'AUTO_UPLOAD': True,
-},
-'audio':{
-    'FILE_TYPES' : ['mp3', 'mp4', 'ogg', 'wma', 'wax', 'wav', 'webm' ],
-    'CONTENT_TYPES' : [
-        'audio/basic',
-        'audio/L24',
-        'audio/mp4',
-        'audio/mpeg',
-        'audio/ogg',
-        'audio/vorbis',
-        'audio/x-ms-wma',
-        'audio/x-ms-wax',
-        'audio/vnd.rn-realaudio',
-        'audio/vnd.wave',
-        'audio/webm'
-        ],
-    'MAX_FILE_SIZE': 10485760,
-    'MAX_FILE_NUMBER':5,
-    'AUTO_UPLOAD': True,
-}}
 
 # Application definition
 
@@ -175,7 +100,7 @@ REST_FRAMEWORK = {
 
 SWAGGER_SETTINGS = {
     "exclude_namespaces": ['error_redirect','ping'], # List URL namespaces to ignore
-    "api_version": '0.1',  # Specify your API's version
+    "api_version": '1.1',  # Specify your API's version
     "api_path": "/",  # Specify the path to your API not a root level
     "enabled_methods": [  # Specify which methods to enable in Swagger UI
         'get',
@@ -194,7 +119,6 @@ SWAGGER_SETTINGS = {
 # right after you log in by default. This setting changes that.
 LOGIN_REDIRECT_URL = '/'
 
-#AUTH_USER_MODEL = 'mongo_auth.MongoUser'
 
 #http://docs.mongoengine.org/en/latest/django.html
 #SESSION_ENGINE = 'mongoengine.django.sessions'
@@ -202,6 +126,7 @@ LOGIN_REDIRECT_URL = '/'
 #SESSION_ENGINE = "django.contrib.sessions.backends.file"
 #SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 SESSION_SAVE_EVERY_REQUEST=True
+SESSION_EXPIRE_AT_BROWSER_CLOSE=True
 
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -219,7 +144,7 @@ WSGI_APPLICATION = 'mgi.wsgi.application'
 
 
 # Database
-# https://docs.djangoproject.com/en/1.6/ref/settings/#databases
+# https://docs.djangoproject.com/en/1.7/ref/settings/#databases
 
 DATABASES = {
     'default': {
@@ -247,7 +172,7 @@ USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/1.6/howto/static-files/
+# https://docs.djangoproject.com/en/1.7/howto/static-files/
 
 # python manage.py collectstatic gathers all static files in this directory
 # link this directory to static in apache configuration file
