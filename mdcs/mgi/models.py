@@ -25,31 +25,13 @@ from bson.objectid import ObjectId
 import xmltodict
 import lxml.etree as etree
 from email import email
-
-# Create your models here.
-
-# Class definitions
-class User(Document):
-    email = StringField(required=True)
-    first_name = StringField(max_length=50)
-    last_name = StringField(max_length=50)
-    
+ 
 class Request(Document):
     username = StringField(required=True)
     password = StringField(required=True)
     first_name = StringField(required=True)
     last_name = StringField(required=True)
     email = StringField(required=True)    
-
-class Comment(EmbeddedDocument):
-    content = StringField()
-    name = StringField(max_length=120)
-
-class Post(Document):
-    title = StringField(max_length=120, required=True)
-    author = ReferenceField(User, reverse_delete_rule=CASCADE)
-    tags = ListField(StringField(max_length=30))
-    comments = ListField(EmbeddedDocumentField(Comment))
 
 class Message(Document):
     name = StringField(max_length=100)
