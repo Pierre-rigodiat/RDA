@@ -723,7 +723,7 @@ def edit_information(request):
             obj.filename = new_filename
         obj.save()
     
-    if 'newBuckets[]' in request.POST:
+    if object_type == "Type":
         new_buckets = request.POST.getlist('newBuckets[]')
         # update the buckets
         allBuckets = Bucket.objects
