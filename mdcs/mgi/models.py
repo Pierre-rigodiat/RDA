@@ -14,17 +14,16 @@
 #
 ################################################################################
 
-from django import forms
 from django.db import models
 from mongoengine import *
 
 # Specific to MongoDB ordered inserts
 from collections import OrderedDict
-from pymongo import Connection
 from bson.objectid import ObjectId
 import xmltodict
 import lxml.etree as etree
-from email import email
+from pymongo import MongoClient
+from mgi.settings import MONGODB_URI
  
 class Request(Document):
     username = StringField(required=True)
@@ -48,7 +47,7 @@ class Template(Document):
     templateVersion = StringField(required=False)
     version = IntField(required=False)
     hash = StringField(required=True)
-    user = IntField(required=False)
+    user = StringField(required=False)
     dependencies = ListField(StringField())
     
 class TemplateVersion(Document):
@@ -65,7 +64,7 @@ class Type(Document):
     typeVersion = StringField(required=False)
     version = IntField(required=False)
     hash = StringField(required=True)
-    user = IntField(required=False)
+    user = StringField(required=False)
     dependencies = ListField(StringField())
     
 class TypeVersion(Document):
@@ -172,9 +171,9 @@ class Jsondata():
             title = title of the document                                                                                                                                                                                                 
         """
         # create a connection                                                                                                                                                                                                 
-        connection = Connection()
+        client = MongoClient(MONGODB_URI)
         # connect to the db 'mgi'
-        db = connection['mgi']
+        db = client['mgi']
         # get the xmldata collection
         self.xmldata = db['xmldata']
         # create a new dict to keep the mongoengine order                                                                                                                                                                     
@@ -203,9 +202,9 @@ class Jsondata():
              /!\ Doesn't return the same kind of objects as mongoengine.Document.objects()
         """
         # create a connection
-        connection = Connection()
+        client = MongoClient(MONGODB_URI)
         # connect to the db 'mgi'
-        db = connection['mgi']
+        db = client['mgi']
         # get the xmldata collection
         xmldata = db['xmldata']
         # find all objects of the collection
@@ -223,9 +222,9 @@ class Jsondata():
              /!\ Doesn't return the same kind of objects as mongoengine.Document.objects()
         """
         # create a connection
-        connection = Connection()
+        client = MongoClient(MONGODB_URI)
         # connect to the db 'mgi'
-        db = connection['mgi']
+        db = client['mgi']
         # get the xmldata collection
         xmldata = db['xmldata']
         # find all objects of the collection
@@ -240,9 +239,9 @@ class Jsondata():
     def executeQuery(query):
         """queries mongo db and returns results data"""
         # create a connection
-        connection = Connection()
+        client = MongoClient(MONGODB_URI)
         # connect to the db 'mgi'
-        db = connection['mgi']
+        db = client['mgi']
         # get the xmldata collection
         xmldata = db['xmldata']
         # query mongo db
@@ -257,9 +256,9 @@ class Jsondata():
     def executeQueryFullResult(query):
         """queries mongo db and returns results data"""
         # create a connection
-        connection = Connection()
+        client = MongoClient(MONGODB_URI)
         # connect to the db 'mgi'
-        db = connection['mgi']
+        db = client['mgi']
         # get the xmldata collection
         xmldata = db['xmldata']
         # query mongo db
@@ -276,9 +275,9 @@ class Jsondata():
             Returns the object with the given id
         """
         # create a connection
-        connection = Connection()
+        client = MongoClient(MONGODB_URI)
         # connect to the db 'mgi'
-        db = connection['mgi']
+        db = client['mgi']
         # get the xmldata collection
         xmldata = db['xmldata']
         return xmldata.find_one({'_id': ObjectId(postID)})
@@ -289,9 +288,9 @@ class Jsondata():
             Delete the object with the given id
         """
         # create a connection
-        connection = Connection()
+        client = MongoClient(MONGODB_URI)()
         # connect to the db 'mgi'
-        db = connection['mgi']
+        db = client['mgi']
         # get the xmldata collection
         xmldata = db['xmldata']
         xmldata.remove({'_id': ObjectId(postID)})
@@ -302,9 +301,9 @@ class Jsondata():
             Update the object with the given id
         """
         # create a connection
-        connection = Connection()
+        client = MongoClient(MONGODB_URI)
         # connect to the db 'mgi'
-        db = connection['mgi']
+        db = client['mgi']
         # get the xmldata collection
         xmldata = db['xmldata']
         if '_id' in json:

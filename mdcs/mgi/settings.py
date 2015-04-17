@@ -36,16 +36,15 @@ PROJECT_URI = "http://www.example.com/"
 SECRET_KEY = os.environ['SECRET_KEY']
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
-TEMPLATE_DEBUG = False
+DEBUG = True
 
 TEMPLATE_DIRS = [os.path.join(BASE_DIR, 'templates')]
 
 ALLOWED_HOSTS = ['*']
 
-#HTTPS
-CSRF_COOKIE_SECURE = True
-SESSION_COOKIE_SECURE = True
+# HTTPS: Enable these options when HTTPS set up
+# CSRF_COOKIE_SECURE = True
+# SESSION_COOKIE_SECURE = True
 
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
@@ -121,8 +120,8 @@ LOGIN_REDIRECT_URL = '/'
 
 
 #http://docs.mongoengine.org/en/latest/django.html
-#SESSION_ENGINE = 'mongoengine.django.sessions'
-#SESSION_SERIALIZER = 'mongoengine.django.sessions.BSONSerializer'
+SESSION_ENGINE = 'mongoengine.django.sessions'
+SESSION_SERIALIZER = 'mongoengine.django.sessions.BSONSerializer'
 #SESSION_ENGINE = "django.contrib.sessions.backends.file"
 #SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 SESSION_SAVE_EVERY_REQUEST=True
@@ -147,15 +146,30 @@ WSGI_APPLICATION = 'mgi.wsgi.application'
 # https://docs.djangoproject.com/en/1.7/ref/settings/#databases
 
 DATABASES = {
+#     'default': {
+# #         'ENGINE': 'django.db.backends.dummy'
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+#     }
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'USER':"postgres",
+        'PASSWORD': "data123",
+        'NAME': 'mgi',                      
     }
 }
 
-from mongoengine import connect
+# AUTHENTICATION_BACKENDS = (
+#     'mongoengine.django.auth.MongoEngineBackend',
+# )
 
-connect('mgi')
+# AUTH_USER_MODEL = 'mongo_auth.MongoUser'
+# MONGOENGINE_USER_DOCUMENT = 'mongoengine.django.auth.User'
+
+from mongoengine import connect
+MONGODB_URI = "mongodb://admin:admin@localhost/mgi"
+connect("mgi", host=MONGODB_URI)
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.6/topics/i18n/

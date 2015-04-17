@@ -1,0 +1,21 @@
+mongo
+use admin
+db.createUser(
+  {
+    user: "mongo_user",
+    pwd: "mongo_pass",
+    roles: [ { role: "userAdminAnyDatabase", db: "admin" } ]
+	}
+)
+exit
+
+mongo --port 27017 -u mongo_user -p mongo_pass --authenticationDatabase admin
+use mgi
+db.createUser(
+    {
+      user: "admin",
+      pwd: "admin",
+      roles: ["readWrite"]
+    }
+)
+exit

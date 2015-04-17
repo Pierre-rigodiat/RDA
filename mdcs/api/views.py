@@ -30,7 +30,8 @@ from lxml import etree
 from django.conf import settings
 import os
 from mongoengine import *
-from pymongo import Connection
+from pymongo import MongoClient
+from mgi.settings import MONGODB_URI
 from bson.objectid import ObjectId
 import re
 import requests
@@ -101,9 +102,9 @@ def select_savedquery(request):
         
         try:        
             # create a connection                                                                                                                                                                                                 
-            connection = Connection()
+            client = MongoClient(MONGODB_URI)
             # connect to the db 'mgi'
-            db = connection['mgi']
+            db = client['mgi']
             # get the xmldata collection
             savedQueries = db['saved_query']
             query = dict()
@@ -197,6 +198,7 @@ def add_savedquery(request):
         content = {'message':'Only an administrator can use this feature.'}
         return Response(content, status=status.HTTP_401_UNAUTHORIZED)
 
+
 ################################################################################
 # 
 # Function Name: delete_savedquery(request)
@@ -206,7 +208,7 @@ def add_savedquery(request):
 # Description:   Delete a saved query
 # 
 ################################################################################
-@api_view(['GET'])
+@api_view(['DELETE'])
 def delete_savedquery(request):
     """
     GET http://localhost/rest/saved_queries/delete?id=id
@@ -330,7 +332,7 @@ def explore_detail(request):
 # Description:   Delete the XML data with the provided id
 # 
 ################################################################################
-@api_view(['GET'])
+@api_view(['DELETE'])
 def explore_delete(request):
     """
     GET http://localhost/rest/explore/delete
@@ -763,9 +765,9 @@ def select_schema(request):
     
     try:        
         # create a connection                                                                                                                                                                                                 
-        connection = Connection()
+        client = MongoClient(MONGODB_URI)
         # connect to the db 'mgi'
-        db = connection['mgi']
+        db = client['mgi']
         # get the xmldata collection
         template = db['template']
         query = dict()
@@ -903,7 +905,7 @@ def current_template_version(request):
 # Description:   Delete a template
 # 
 ################################################################################
-@api_view(['GET'])
+@api_view(['DELETE'])
 def delete_schema(request):
     """
     GET http://localhost/rest/templates/delete?id=IDtodelete&next=IDnextCurrent
@@ -1212,9 +1214,9 @@ def select_type(request):
     
     try:        
         # create a connection                                                                                                                                                                                                 
-        connection = Connection()
+        client = MongoClient(MONGODB_URI)
         # connect to the db 'mgi'
-        db = connection['mgi']
+        db = client['mgi']
         # get the xmldata collection
         type = db['type']
         query = dict()
@@ -1337,6 +1339,8 @@ def current_type_version(request):
     else:
         content = {'message':'Only an administrator can use this feature.'}
         return Response(content, status=status.HTTP_401_UNAUTHORIZED)
+    
+    
 ################################################################################
 # 
 # Function Name: delete_type(request)
@@ -1346,7 +1350,7 @@ def current_type_version(request):
 # Description:   Delete a type
 # 
 ################################################################################
-@api_view(['GET'])
+@api_view(['DELETE'])
 def delete_type(request):
     """
     GET http://localhost/rest/types/delete?id=IDtodelete&next=IDnextCurrent
@@ -1434,6 +1438,8 @@ def delete_type(request):
     else:
         content = {'message':'Only an administrator can use this feature.'}
         return Response(content, status=status.HTTP_401_UNAUTHORIZED)
+    
+
 ################################################################################
 # 
 # Function Name: restore_type(request)
@@ -1501,6 +1507,8 @@ def restore_type(request):
     else:
         content = {'message':'Only an administrator can use this feature.'}
         return Response(content, status=status.HTTP_401_UNAUTHORIZED)
+    
+
 ################################################################################
 # 
 # Function Name: select_all_repositories(request)
@@ -1548,9 +1556,9 @@ def select_repository(request):
     
     try:        
         # create a connection                                                                                                                                                                                                 
-        connection = Connection()
+        client = MongoClient(MONGODB_URI)
         # connect to the db 'mgi'
-        db = connection['mgi']
+        db = client['mgi']
         # get the xmldata collection
         instance = db['instance']
         query = dict()
@@ -1675,7 +1683,7 @@ def add_repository(request):
 # Description:   Delete a repository
 # 
 ################################################################################
-@api_view(['GET'])
+@api_view(['DELETE'])
 def delete_repository(request):
     """
     GET http://localhost/rest/repositories/delete?id=IDtodelete
@@ -1699,6 +1707,7 @@ def delete_repository(request):
     else:
         content = {'message':'Only an administrator can use this feature.'}
         return Response(content, status=status.HTTP_401_UNAUTHORIZED)
+
     
 ################################################################################
 # 
@@ -1831,6 +1840,8 @@ def add_user(request):
     else:
         content = {'message':'Only an administrator can use this feature.'}
         return Response(content, status=status.HTTP_401_UNAUTHORIZED)
+    
+
 ################################################################################
 # 
 # Function Name: delete_user(request)
@@ -1840,7 +1851,7 @@ def add_user(request):
 # Description:   Delete an user
 # 
 ################################################################################
-@api_view(['GET'])
+@api_view(['DELETE'])
 def delete_user(request):
     """
     GET http://localhost/rest/users/delete?username=username
@@ -1864,7 +1875,8 @@ def delete_user(request):
     else:
         content = {'message':'Only an administrator can use this feature.'}
         return Response(content, status=status.HTTP_401_UNAUTHORIZED)
-    
+
+
 ################################################################################
 # 
 # Function Name: update_user(request)
