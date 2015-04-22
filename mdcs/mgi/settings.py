@@ -120,10 +120,8 @@ LOGIN_REDIRECT_URL = '/'
 
 
 #http://docs.mongoengine.org/en/latest/django.html
-SESSION_ENGINE = 'mongoengine.django.sessions'
-SESSION_SERIALIZER = 'mongoengine.django.sessions.BSONSerializer'
-#SESSION_ENGINE = "django.contrib.sessions.backends.file"
-#SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+# SESSION_ENGINE = 'mongoengine.django.sessions'
+# SESSION_SERIALIZER = 'mongoengine.django.sessions.BSONSerializer'
 SESSION_SAVE_EVERY_REQUEST=True
 SESSION_EXPIRE_AT_BROWSER_CLOSE=True
 
@@ -146,11 +144,6 @@ WSGI_APPLICATION = 'mgi.wsgi.application'
 # https://docs.djangoproject.com/en/1.7/ref/settings/#databases
 
 DATABASES = {
-#     'default': {
-# #         'ENGINE': 'django.db.backends.dummy'
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-#     }
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'USER':"postgres",
@@ -159,14 +152,10 @@ DATABASES = {
     }
 }
 
-# AUTHENTICATION_BACKENDS = (
-#     'mongoengine.django.auth.MongoEngineBackend',
-# )
-
-# AUTH_USER_MODEL = 'mongo_auth.MongoUser'
-# MONGOENGINE_USER_DOCUMENT = 'mongoengine.django.auth.User'
 
 from mongoengine import connect
+MONGO_ADMIN_USER = "mongo_user"
+MONGO_ADMIN_PASSWORD = "mongo_pass"
 MONGODB_URI = "mongodb://admin:admin@localhost/mgi"
 connect("mgi", host=MONGODB_URI)
 

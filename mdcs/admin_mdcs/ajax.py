@@ -28,6 +28,7 @@ from utils.XSDhash import XSDhash
 import random
 from utils.APIschemaLocator.APIschemaLocator import getSchemaLocation
 from mgi import utils
+import mgi
 
 
 ################################################################################
@@ -1009,7 +1010,9 @@ def create_backup(request):
     now = datetime.now()
     backupFolder = now.strftime("%Y_%m_%d_%H_%M_%S")
     
-    backupCommand = "mongodump --out " + backupsDir + backupFolder
+    backupCommand = "mongodump --out " + backupsDir + backupFolder + " -u " + \
+                    settings.MONGO_ADMIN_USER + " -p " + settings.MONGO_ADMIN_PASSWORD + \
+                    " --authenticationDatabase admin"
     retvalue = os.system(backupCommand)
 #     result = subprocess.check_output(backupCommand, shell=True)
     if retvalue == 0:
@@ -1034,7 +1037,9 @@ def restore_backup(request):
     backup = request.POST['backup']    
     backupsDir = settings.SITE_ROOT + '/data/backups/'
     
-    backupCommand = "mongorestore " + backupsDir + backup
+    backupCommand = "mongorestore " + backupsDir + backup + " -u " + \
+                    settings.MONGO_ADMIN_USER + " -p " + settings.MONGO_ADMIN_PASSWORD + \
+                    " --authenticationDatabase admin"
     retvalue = os.system(backupCommand)
     
     if retvalue == 0:

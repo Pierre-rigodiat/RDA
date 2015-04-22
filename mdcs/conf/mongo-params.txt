@@ -4,7 +4,7 @@ db.createUser(
   {
     user: "mongo_user",
     pwd: "mongo_pass",
-    roles: [ { role: "userAdminAnyDatabase", db: "admin" } ]
+    roles: [ { role: "userAdminAnyDatabase", db: "admin" }, "backup", "restore" ]
 	}
 )
 exit
