@@ -20,31 +20,67 @@
 #
 ################################################################################
 
+import os
+
 VERSION = "1.1.1"
 
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = True
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-import os
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 #SPARQL project URI
 PROJECT_URI = "http://www.example.com/"
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/1.7/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ['SECRET_KEY']
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+if DEBUG == True:
+    SECRET_KEY = 'ponq)(gd8hm57799)$lup4g9kyvp0l(9)k-3!em7dddn^(y)!5'
+    
+    ALLOWED_HOSTS = ['*']
+    
+    DATABASES = {
+    'default': {
+         'ENGINE': 'django.db.backends.sqlite3',
+         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+         }
+    }
+    
+else:
+    pass
+    # Uncomment and set all parameters, delete pass instruction
+    # See https://docs.djangoproject.com/en/1.7/howto/deployment/checklist/
+    
+    # https://docs.djangoproject.com/en/1.7/ref/settings/#secret-key
+    # SECRET_KEY = '<secret_key>'
+    
+    # https://docs.djangoproject.com/en/1.7/ref/settings/#allowed-hosts
+    # ALLOWED_HOSTS = ['<domain>','<server_ip>']
+    
+    # https://docs.djangoproject.com/en/1.7/ref/settings/#csrf-cookie-secure
+    # CSRF_COOKIE_SECURE = True
+    # https://docs.djangoproject.com/en/1.7/ref/settings/#session-cookie-secure
+    # SESSION_COOKIE_SECURE = True
+    
+    # https://docs.djangoproject.com/en/1.7/ref/settings/#databases
+    # DATABASES = {
+    #     'default': {
+    #         'ENGINE': 'django.db.backends.postgresql_psycopg2',
+    #         'USER':"<postgres_user>",
+    #         'PASSWORD': "<postgres_password>",
+    #         'NAME': 'mgi',                      
+    #     }
+    # }
+
+# Replace by your own values
+from mongoengine import connect
+MONGO_ADMIN_USER = "mongo_user"
+MONGO_ADMIN_PASSWORD = "mongo_pass"
+MONGODB_URI = "mongodb://admin:admin@localhost/mgi"
+connect("mgi", host=MONGODB_URI)
 
 TEMPLATE_DIRS = [os.path.join(BASE_DIR, 'templates')]
-
-ALLOWED_HOSTS = ['*']
-
-# HTTPS: Enable these options when HTTPS set up
-# CSRF_COOKIE_SECURE = True
-# SESSION_COOKIE_SECURE = True
 
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
@@ -118,10 +154,6 @@ SWAGGER_SETTINGS = {
 # right after you log in by default. This setting changes that.
 LOGIN_REDIRECT_URL = '/'
 
-
-#http://docs.mongoengine.org/en/latest/django.html
-# SESSION_ENGINE = 'mongoengine.django.sessions'
-# SESSION_SERIALIZER = 'mongoengine.django.sessions.BSONSerializer'
 SESSION_SAVE_EVERY_REQUEST=True
 SESSION_EXPIRE_AT_BROWSER_CLOSE=True
 
@@ -136,29 +168,6 @@ MIDDLEWARE_CLASSES = (
 )
 
 ROOT_URLCONF = 'mgi.urls'
-
-WSGI_APPLICATION = 'mgi.wsgi.application'
-
-
-# Database
-# https://docs.djangoproject.com/en/1.7/ref/settings/#databases
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'USER':"postgres",
-        'PASSWORD': "data123",
-        'NAME': 'mgi',                      
-    }
-}
-
-
-from mongoengine import connect
-MONGO_ADMIN_USER = "mongo_user"
-MONGO_ADMIN_PASSWORD = "mongo_pass"
-MONGODB_URI = "mongodb://admin:admin@localhost/mgi"
-connect("mgi", host=MONGODB_URI)
-
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.6/topics/i18n/
@@ -194,16 +203,8 @@ STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 )
 
-# Django User Roles Package
-# https://github.com/dabapps/django-user-roles
-
-USER_ROLES = (
-    'scientist',
-    'sysadmin',
-)
-
 # Logging
-# https://docs.djangoproject.com/en/1.6/topics/logging/
+# https://docs.djangoproject.com/en/1.7/topics/logging/
 
 SITE_ROOT = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..').replace('\\', '/')
 
