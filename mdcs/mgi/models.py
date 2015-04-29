@@ -14,14 +14,12 @@
 #
 ################################################################################
 
-from django.db import models
 from mongoengine import *
 
 # Specific to MongoDB ordered inserts
 from collections import OrderedDict
 from bson.objectid import ObjectId
 import xmltodict
-import lxml.etree as etree
 from pymongo import MongoClient
 from mgi.settings import MONGODB_URI
  

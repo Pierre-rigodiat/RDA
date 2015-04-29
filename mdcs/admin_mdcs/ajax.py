@@ -630,6 +630,7 @@ def delete_version(request):
     
     return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
 
+
 ################################################################################
 # 
 # Function Name: assign_delete_custom_message(request)
