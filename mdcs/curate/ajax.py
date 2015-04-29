@@ -18,7 +18,6 @@ import re
 from django.http import HttpResponse
 from django.conf import settings
 from io import BytesIO
-from mgi.models import XMLSchema
 from mgi.models import Template, Htmlform, Jsondata, XML2Download, Module, MetaSchema
 import json
 from mgi import utils
@@ -279,8 +278,8 @@ def set_current_template(request):
         templateObject = Template.objects.get(pk=template_id)
         xmlDocData = templateObject.content
 
-    XMLSchema.tree = etree.parse(BytesIO(xmlDocData.encode('utf-8')))
-    request.session['xmlDocTree'] = etree.tostring(XMLSchema.tree)
+    XMLtree = etree.parse(BytesIO(xmlDocData.encode('utf-8')))
+    request.session['xmlDocTree'] = etree.tostring(XMLtree)
 
     print 'END def set_current_template(request)'
     return HttpResponse(json.dumps({}), content_type='application/javascript')
@@ -318,8 +317,8 @@ def set_current_user_template(request):
     else:
         xmlDocData = templateObject.content
 
-    XMLSchema.tree = etree.parse(BytesIO(xmlDocData.encode('utf-8')))
-    request.session['xmlDocTree'] = etree.tostring(XMLSchema.tree)
+    XMLtree = etree.parse(BytesIO(xmlDocData.encode('utf-8')))
+    request.session['xmlDocTree'] = etree.tostring(XMLtree)
 
     print 'END def setCurrentTemplate(request)'
     return HttpResponse(json.dumps({}), content_type='application/javascript')

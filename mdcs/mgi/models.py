@@ -37,9 +37,6 @@ class Message(Document):
     email = EmailField()
     content = StringField()
     
-class XMLSchema(models.Model):
-    tree = etree.ElementTree
-    
 class Template(Document):
     title = StringField(required=True)
     filename = StringField(required=True)

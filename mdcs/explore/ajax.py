@@ -26,7 +26,7 @@ import os
 import json
 import copy
 import lxml.etree as etree
-from mgi.models import Template, QueryResults, SparqlQueryResults, SavedQuery, Jsondata, Instance, XMLSchema, MetaSchema
+from mgi.models import Template, QueryResults, SparqlQueryResults, SavedQuery, Jsondata, Instance, MetaSchema
 import sparqlPublisher
 from mgi import utils
 #Class definition
@@ -151,8 +151,8 @@ def setCurrentTemplate(request, template_filename, template_id):
         templateObject = Template.objects.get(pk=template_id)
         xmlDocData = templateObject.content
 
-    XMLSchema.tree = etree.parse(BytesIO(xmlDocData.encode('utf-8')))
-    request.session['xmlDocTreeExplore'] = etree.tostring(XMLSchema.tree)
+    XMLtree = etree.parse(BytesIO(xmlDocData.encode('utf-8')))
+    request.session['xmlDocTreeExplore'] = etree.tostring(XMLtree)
 
     print 'END def setCurrentTemplate(request)'
     return HttpResponse(json.dumps({}), content_type='application/javascript')
@@ -189,8 +189,8 @@ def set_current_user_template(request):
         xmlDocData = templateObject.content
 
 
-    XMLSchema.tree = etree.parse(BytesIO(xmlDocData.encode('utf-8')))
-    request.session['xmlDocTreeExplore'] = etree.tostring(XMLSchema.tree)
+    XMLtree = etree.parse(BytesIO(xmlDocData.encode('utf-8')))
+    request.session['xmlDocTreeExplore'] = etree.tostring(XMLtree)
 
     print 'END def setCurrentTemplate(request)'
     return HttpResponse(json.dumps({}), content_type='application/javascript')
