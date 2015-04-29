@@ -31,17 +31,6 @@ from bson.objectid import ObjectId
 from dateutil import tz
 from collections import OrderedDict
 
-################################################################################
-#
-# Function Name: currentYear(request)
-# Inputs:        request -
-# Outputs:       Current Year
-# Exceptions:    None
-# Description:   Helper function - returns the current year
-#
-################################################################################
-def currentYear():
-    return date.today().year
 
 ################################################################################
 #
@@ -58,7 +47,7 @@ def user_requests(request):
     context = RequestContext(request, {
         'requests': Request.objects
     })
-    request.session['currentYear'] = currentYear()
+    
     if request.user.is_authenticated() and request.user.is_staff:
         return HttpResponse(template.render(context))
     else:
@@ -82,7 +71,7 @@ def contact_messages(request):
     context = RequestContext(request, {
         'contacts': Message.objects
     })
-    request.session['currentYear'] = currentYear()
+    
     if request.user.is_authenticated() and request.user.is_staff:
         return HttpResponse(template.render(context))
     else:
@@ -106,7 +95,7 @@ def website(request):
 
         context = RequestContext(request, {
         })
-        request.session['currentYear'] = currentYear()
+
         return HttpResponse(template.render(context))
     else:
         if 'loggedOut' in request.session:
@@ -124,7 +113,6 @@ def website(request):
 #
 ################################################################################
 def privacy_policy_admin(request):
-    request.session['currentYear'] = currentYear()
     if request.user.is_authenticated() and request.user.is_staff:
         if request.method == 'POST':
             form = PrivacyPolicyForm(request.POST)
@@ -163,7 +151,6 @@ def privacy_policy_admin(request):
 #
 ################################################################################
 def terms_of_use_admin(request):
-    request.session['currentYear'] = currentYear()
     if request.user.is_authenticated() and request.user.is_staff:
         if request.method == 'POST':
             form = TermsOfUseForm(request.POST)
@@ -219,7 +206,6 @@ def manage_schemas(request):
             'objects':currentTemplates,
             'objectType': "Template"
         })
-        request.session['currentYear'] = currentYear()
         return HttpResponse(template.render(context))
     else:
         if 'loggedOut' in request.session:
@@ -243,7 +229,6 @@ def module_management(request):
         context = RequestContext(request, {
             'modules': Module.objects
         })
-        request.session['currentYear'] = currentYear()
         return HttpResponse(template.render(context))
     else:
         if 'loggedOut' in request.session:
@@ -267,7 +252,6 @@ def module_add(request):
         context = RequestContext(request, {
             'templates':Template.objects
         })
-        request.session['currentYear'] = currentYear()
         return HttpResponse(template.render(context))
     else:
         if 'loggedOut' in request.session:
@@ -305,7 +289,6 @@ def manage_types(request):
             'buckets': Bucket.objects
 
         })
-        request.session['currentYear'] = currentYear()
         return HttpResponse(template.render(context))
     else:
         if 'loggedOut' in request.session:
@@ -330,7 +313,6 @@ def federation_of_queries(request):
         context = RequestContext(request, {
             'instances': Instance.objects.order_by('-id')
         })
-        request.session['currentYear'] = currentYear()
         return HttpResponse(template.render(context))
     else:
         if 'loggedOut' in request.session:
@@ -349,7 +331,6 @@ def federation_of_queries(request):
 #
 ################################################################################
 def add_repository(request):
-    request.session['currentYear'] = currentYear()
     if request.user.is_authenticated() and request.user.is_staff:
         if request.method == 'POST':
 
@@ -446,7 +427,6 @@ def add_repository(request):
 #
 ################################################################################
 def refresh_repository(request):
-    request.session['currentYear'] = currentYear()
     if request.user.is_authenticated() and request.user.is_staff:
         if request.method == 'POST':
 
@@ -538,7 +518,6 @@ def manage_versions(request):
             'objectVersions': objectVersions,
             'objectType': objectType,
         })
-        request.session['currentYear'] = currentYear()
         return HttpResponse(template.render(context))
     else:
         if 'loggedOut' in request.session:

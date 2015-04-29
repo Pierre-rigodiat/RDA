@@ -28,19 +28,6 @@ from django.contrib import messages
 
 ################################################################################
 #
-# Function Name: currentYear(request)
-# Inputs:        request - 
-# Outputs:       Current Year
-# Exceptions:    None
-# Description:   Helper function - returns the current year
-#
-################################################################################
-def currentYear():
-    return date.today().year
-
-
-################################################################################
-#
 # Function Name: home(request)
 # Inputs:        request - 
 # Outputs:       Materials Data Curation System homepage
@@ -54,7 +41,6 @@ def home(request):
     context = RequestContext(request, {
         'templates': Template.objects.order_by('-id')[:7]
     })
-    request.session['currentYear'] = currentYear()
     return HttpResponse(template.render(context))
 
 
@@ -72,7 +58,6 @@ def all_options(request):
     context = RequestContext(request, {
         '': '',
     })
-    request.session['currentYear'] = currentYear()
     return HttpResponse(template.render(context))
 
 
@@ -91,7 +76,6 @@ def browse_all(request):
     context = RequestContext(request, {
         'templates': Template.objects.order_by('title')
     })
-    request.session['currentYear'] = currentYear()
     return HttpResponse(template.render(context))
 
 
@@ -105,8 +89,6 @@ def browse_all(request):
 #
 ################################################################################
 def request_new_account(request):
-    request.session['currentYear'] = currentYear()
-    
     if request.method == 'POST':
         form = RequestAccountForm(request.POST)
         if form.is_valid():
@@ -140,7 +122,6 @@ def logout_view(request):
     if 'loggedOut' in request.session:
         request.session['loggedOut'] = 'true'
     request.session['next'] = '/'
-    request.session['currentYear'] = currentYear()
     return redirect('/login')
 
 
@@ -159,7 +140,6 @@ def my_profile(request):
         context = RequestContext(request, {
             '': '',
         })
-        request.session['currentYear'] = currentYear()
         return HttpResponse(template.render(context))
     else:
         if 'loggedOut' in request.session:
@@ -178,7 +158,6 @@ def my_profile(request):
 #
 ################################################################################
 def my_profile_edit(request):   
-    request.session['currentYear'] = currentYear()
     if request.user.is_authenticated():
         if request.method == 'POST':
             form = EditProfileForm(request.POST)
@@ -225,7 +204,6 @@ def my_profile_edit(request):
 #
 ################################################################################
 def my_profile_change_password(request):
-    request.session['currentYear'] = currentYear()
     if request.user.is_authenticated():
         if request.method == 'POST':
             form = ChangePasswordForm(request.POST)
@@ -293,7 +271,6 @@ def privacy_policy(request):
     context = RequestContext(request, { 
         'policy': policy
     })
-    request.session['currentYear'] = currentYear()
     return HttpResponse(template.render(context))
 
 
@@ -315,7 +292,6 @@ def terms_of_use(request):
     context = RequestContext(request, { 
         'terms': terms
     })
-    request.session['currentYear'] = currentYear()
     return HttpResponse(template.render(context))
 
 
@@ -333,5 +309,4 @@ def help(request):
     context = RequestContext(request, {
         '': '',
     })
-    request.session['currentYear'] = currentYear()
     return HttpResponse(template.render(context))

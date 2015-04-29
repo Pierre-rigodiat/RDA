@@ -29,10 +29,6 @@ from xlrd import open_workbook
 from mgi.models import Template, TemplateVersion, Htmlform, XML2Download
 
 
-def currentYear():
-    return date.today().year
-
-
 ################################################################################
 #
 # Function Name: index(request)
@@ -44,7 +40,6 @@ def currentYear():
 ################################################################################
 def index(request):
     template = loader.get_template('curate.html')
-    request.session['currentYear'] = currentYear()
     if request.user.is_authenticated():
     
         currentTemplateVersions = []
@@ -86,7 +81,6 @@ def curate_select_template(request):
         context = RequestContext(request, {
             '': '',
         })
-        request.session['currentYear'] = currentYear()
         return HttpResponse(template.render(context))
     else:
         if 'loggedOut' in request.session:
@@ -111,7 +105,6 @@ def curate_select_hdf5file(request):
         context = RequestContext(request, {
             '': '',
         })
-        request.session['currentYear'] = currentYear()
         return HttpResponse(template.render(context))
     else:
         if 'loggedOut' in request.session:
@@ -200,7 +193,6 @@ def curate_enter_data(request):
         context = RequestContext(request, {
             '': '',
         })
-        request.session['currentYear'] = currentYear()
         if 'currentTemplateID' not in request.session:
             return redirect('/curate/select-template')
         else:
@@ -226,7 +218,6 @@ def curate_view_data(request):
         context = RequestContext(request, {
             '': '',
         })
-        request.session['currentYear'] = currentYear()
         if 'currentTemplateID' not in request.session:
             return redirect('/curate/select-template')
         else:

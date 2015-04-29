@@ -150,7 +150,7 @@
 	<div class="center-wrapper">
 
 		<div class="left">
-			&copy; 2012 - {{ request.session.currentYear }} Materials Data Curation System <span class="text-separator">|</span> <a href="/privacy-policy">Privacy Policy</a> <span class="text-separator">|</span> <a href="/terms-of-use">Terms of Use</a> 
+			&copy; 2012 - {% now "Y" %} Materials Data Curation System <span class="text-separator">|</span> <a href="/privacy-policy">Privacy Policy</a> <span class="text-separator">|</span> <a href="/terms-of-use">Terms of Use</a> 
 {% if user.is_staff %}
 <span class="text-separator">|</span> <a href="/admin" target="_new">Administration</a> 
 {% else %}

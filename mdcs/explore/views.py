@@ -23,9 +23,6 @@ from cStringIO import StringIO
 from django.core.servers.basehttp import FileWrapper
 import zipfile
 
-def currentYear():
-    return date.today().year
-
 
 ################################################################################
 #
@@ -39,7 +36,6 @@ def currentYear():
 ################################################################################
 def index(request):
     template = loader.get_template('explore.html')
-    request.session['currentYear'] = currentYear()
     if request.user.is_authenticated():
     
         currentTemplateVersions = []
@@ -79,7 +75,6 @@ def explore_select_template(request):
         context = RequestContext(request, {
             '': '',
         })
-        request.session['currentYear'] = currentYear()
         return HttpResponse(template.render(context))
     else:
         if 'loggedOut' in request.session:
@@ -102,8 +97,7 @@ def explore_customize_template(request):
         template = loader.get_template('explore_customize_template.html')
         context = RequestContext(request, {
             '': '',
-        })
-        request.session['currentYear'] = currentYear()
+        })    
         if 'exploreCurrentTemplateID' not in request.session:
             return redirect('/explore/select-template')
         else:
@@ -146,7 +140,6 @@ def explore_perform_search(request):
                 'template_hash': template_hash,
                 'queries':queries,
             })
-            request.session['currentYear'] = currentYear()
             if 'exploreCurrentTemplateID' not in request.session:
                 return redirect('/explore/select-template')
             else:
@@ -175,7 +168,6 @@ def explore_results(request):
         context = RequestContext(request, {
             '': '',
         })
-        request.session['currentYear'] = currentYear()
         if 'exploreCurrentTemplateID' not in request.session:
             return redirect('/explore/select-template')
         else:
@@ -202,7 +194,7 @@ def explore_sparqlresults(request):
         context = RequestContext(request, {
             '': '',
         })
-        request.session['currentYear'] = currentYear()
+
         if 'exploreCurrentTemplateID' not in request.session:
             return redirect('/explore/select-template')
         else:

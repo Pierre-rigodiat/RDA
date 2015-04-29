@@ -26,10 +26,6 @@ from cStringIO import StringIO
 from mgi.models import Template, TemplateVersion, XML2Download, Type, TypeVersion, Bucket
 
 
-def currentYear():
-    return date.today().year
-
-
 ################################################################################
 #
 # Function Name: index(request)
@@ -41,7 +37,6 @@ def currentYear():
 ################################################################################
 def index(request):
     template = loader.get_template('compose.html')
-    request.session['currentYear'] = currentYear()
     if request.user.is_authenticated():
     
         
@@ -79,7 +74,6 @@ def index(request):
 ################################################################################
 def compose_build_template(request):
     template = loader.get_template('compose_build_template.html')
-    request.session['currentYear'] = currentYear()
     if request.user.is_authenticated():
 
         # 1) user types: list of ids
