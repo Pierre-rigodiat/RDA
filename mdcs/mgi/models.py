@@ -22,8 +22,10 @@ from bson.objectid import ObjectId
 import xmltodict
 from pymongo import MongoClient
 from mgi.settings import MONGODB_URI
+
  
 class Request(Document):
+    """Represents a request sent by an user to get an account"""
     username = StringField(required=True)
     password = StringField(required=True)
     first_name = StringField(required=True)
@@ -31,11 +33,13 @@ class Request(Document):
     email = StringField(required=True)    
 
 class Message(Document):
+    """Represents a message sent via the Contact form"""
     name = StringField(max_length=100)
     email = EmailField()
     content = StringField()
     
 class Template(Document):
+    """Represents an XML schema template that defines the structure of data for curation"""
     title = StringField(required=True)
     filename = StringField(required=True)
     content = StringField(required=True)
@@ -46,6 +50,7 @@ class Template(Document):
     dependencies = ListField(StringField())
     
 class TemplateVersion(Document):
+    """Manages versions of templates"""
     versions = ListField(StringField())
     deletedVersions = ListField(StringField())
     current = StringField()
@@ -53,6 +58,7 @@ class TemplateVersion(Document):
     isDeleted = BooleanField(required=True)
     
 class Type(Document):    
+    """Represents an XML schema type to use to compose XML Schemas"""
     title = StringField(required=True)
     filename = StringField(required=True)
     content = StringField(required=True)
@@ -63,6 +69,7 @@ class Type(Document):
     dependencies = ListField(StringField())
     
 class TypeVersion(Document):
+    """Manages versions of types"""
     versions = ListField(StringField())
     deletedVersions = ListField(StringField())
     current = StringField()
@@ -70,17 +77,20 @@ class TypeVersion(Document):
     isDeleted = BooleanField(required=True)
     
 class MetaSchema(Document):
+    """Stores more information about templates/types"""
     schemaId = StringField(required=True, unique=True)
     flat_content = StringField(required=True)
     api_content = StringField(required=True)
 
 class Htmlform(Document):
+    """Represents an HTML form saved during curation"""
     title = StringField(required=True)
     schema = StringField(required=True)
     content = StringField(required=True)
     occurrences = StringField(required=True)
 
 class Instance(Document):
+    """Represents an instance of a remote MDCS"""
     name = StringField(required=True, unique=True)
     protocol = StringField(required=True) 
     address = StringField(required=True) 
@@ -90,23 +100,28 @@ class Instance(Document):
     expires = DateTimeField(required=True)
 
 class QueryResults(Document):
+    """Stores results from a query (Query By Example)"""
     results = ListField(required=True) 
     
 class SparqlQueryResults(Document):
+    """Stores results from a query (SPARQL endpoint)"""
     results = StringField(required=True)
     
 class SavedQuery(Document):
+    """Represents a query saved by the user (Query by Example)"""
     user = StringField(required=True)
     template = StringField(required=True)    
     query = StringField(required=True)
     displayedQuery = StringField(required=True)
 
 class ModuleResource(EmbeddedDocument):
+    """Represents a resource file attached to a module"""
     name = StringField(required=True)
     content = StringField(required=True)
     type = StringField(required=True)
 
 class Module(Document):
+    """Represents a module, that will replace an existing input during curation"""
     name = StringField(required=True)
     templates = ListField(StringField())
     tag = StringField(required=True)
@@ -114,20 +129,25 @@ class Module(Document):
     resources = ListField(EmbeddedDocumentField(ModuleResource))  
     
 class XML2Download(Document):
+    """Temporarily stores the content of an XML document to download"""
     xml = StringField(required=True)
     
 class PrivacyPolicy(Document):
+    """Privacy Policy of the MDCS"""
     content = StringField()
     
 class TermsOfUse(Document):
+    """Terms of Use of the MDCS"""
     content = StringField()
     
 class Bucket(Document):
+    """Represents a bucket to store types by domain"""
     label = StringField(required=True, unique=True)
     color = StringField(required=True, unique=True)
     types = ListField()
 
 def postprocessor(path, key, value):
+    """Called after XML to JSON transformation"""
     if(key == "#text"):
         return key, str(value)
     try:

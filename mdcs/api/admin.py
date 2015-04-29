@@ -13,7 +13,3 @@
 # Sponsor: National Institute of Standards and Technology (NIST)
 #
 ################################################################################
-
-from django.contrib import admin
-
-# Register your models here.
