@@ -331,7 +331,7 @@ def save_template(request):
         url = urlparse(uri)
         id = url.query.split("=")[1]
         dependencies.append(id)
-    template = Template(title=template_name, filename=template_name, content=content, hash=hash, user=request.user.id, dependencies=dependencies)
+    template = Template(title=template_name, filename=template_name, content=content, hash=hash, user=str(request.user.id), dependencies=dependencies)
     template.save()
     
     MetaSchema(schemaId=str(template.id), flat_content=flatStr, api_content=content).save()
@@ -392,7 +392,7 @@ def save_type(request):
         url = urlparse(uri)
         id = url.query.split("=")[1]
         dependencies.append(id)
-    type = Type(title=type_name, filename=type_name, content=content, user=request.user.id, hash=hash, dependencies=dependencies)
+    type = Type(title=type_name, filename=type_name, content=content, user=str(request.user.id), hash=hash, dependencies=dependencies)
     type.save()
     MetaSchema(schemaId=str(type.id), flat_content=flatStr, api_content=content).save()
     
