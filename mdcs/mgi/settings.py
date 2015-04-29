@@ -75,9 +75,9 @@ else:
 
 # Replace by your own values
 from mongoengine import connect
-MONGO_ADMIN_USER = "mongo_user"
-MONGO_ADMIN_PASSWORD = "mongo_pass"
-MONGODB_URI = "mongodb://admin:admin@localhost/mgi"
+MONGO_MGI_USER = "admin"
+MONGO_MGI_PASSWORD = "admin"
+MONGODB_URI = "mongodb://" + MONGO_MGI_USER + ":" + MONGO_MGI_PASSWORD + "@localhost/mgi"
 connect("mgi", host=MONGODB_URI)
 
 TEMPLATE_DIRS = [os.path.join(BASE_DIR, 'templates')]
