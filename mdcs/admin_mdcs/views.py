@@ -191,57 +191,6 @@ def terms_of_use_admin(request):
         request.session['next'] = '/'
         return redirect('/login')
 
-################################################################################
-#
-# Function Name: backup_database(request)
-# Inputs:        request -
-# Outputs:       Backup Page
-# Exceptions:    None
-# Description:   Page that allows to create a MongoDB backup
-#
-################################################################################
-def backup_database(request):
-    if request.user.is_authenticated() and request.user.is_staff:
-        template = loader.get_template('admin/backup-database.html')
-        backupsDir = settings.SITE_ROOT + '/data/backups/'
-
-        context = RequestContext(request, {
-            'backups' : os.listdir(backupsDir)
-        })
-        request.session['currentYear'] = currentYear()
-        return HttpResponse(template.render(context))
-    else:
-        if 'loggedOut' in request.session:
-            del request.session['loggedOut']
-        request.session['next'] = '/'
-        return redirect('/login')
-
-################################################################################
-#
-# Function Name: restore_database(request)
-# Inputs:        request -
-# Outputs:       Backup Page
-# Exceptions:    None
-# Description:   Page that allows to restore a MongoDB backup
-#
-################################################################################
-def restore_database(request):
-    if request.user.is_authenticated() and request.user.is_staff:
-        template = loader.get_template('admin/restore-database.html')
-
-        backupsDir = settings.SITE_ROOT + '/data/backups/'
-
-        context = RequestContext(request, {
-            'backups' : os.listdir(backupsDir)
-        })
-        request.session['currentYear'] = currentYear()
-        return HttpResponse(template.render(context))
-    else:
-        if 'loggedOut' in request.session:
-            del request.session['loggedOut']
-        request.session['next'] = '/'
-        return redirect('/login')
-
 
 ################################################################################
 #

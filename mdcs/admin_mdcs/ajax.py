@@ -20,15 +20,11 @@ import json
 from io import BytesIO
 from mgi.models import Template, TemplateVersion, Instance, Request, Module, ModuleResource, Type, TypeVersion, Message, Bucket, MetaSchema
 from django.contrib.auth.models import User
-import os
-from django.conf import settings
-from datetime import datetime
 from utils.XSDflattenerMDCS.XSDflattenerMDCS import XSDFlattenerMDCS
 from utils.XSDhash import XSDhash
 import random
 from utils.APIschemaLocator.APIschemaLocator import getSchemaLocation
 from mgi import utils
-import mgi
 
 
 ################################################################################
@@ -39,14 +35,14 @@ import mgi
 #
 ################################################################################
 class ModuleResourceInfo:
-    "Class that store information about a resource for a module"
+    """Class that stores information about a resource for a module"""
     
     def __init__(self, content="", filename=""):
         self.content = content
         self.filename = filename   
 
     def __to_json__(self):
-        return json.dumps(self, default=lambda o:o.__dict__)
+        return json.dumps(self, default=lambda o: o.__dict__)
 
 
 ################################################################################
@@ -59,7 +55,8 @@ class ModuleResourceInfo:
 # 
 ################################################################################
 def upload_object(request):
-    print 'BEGIN def uploadObject(request,objectName,objectFilename,objectContent, objectType)'
+    print 'BEGIN def upload_object(request)'
+
     object_name = request.POST['objectName']
     object_filename = request.POST['objectFilename']
     object_content = request.POST['objectContent']
@@ -70,7 +67,6 @@ def upload_object(request):
     request.session['uploadObjectFilename'] = object_filename
     request.session['uploadObjectContent'] = object_content
     request.session['uploadObjectType'] = object_type
-    
     request.session['uploadObjectValid'] = False
     
     xmlTree = None
@@ -115,8 +111,6 @@ def upload_object(request):
         request.session['uploadObjectValid'] = True
         return HttpResponse(json.dumps({}), content_type='application/javascript')
 
-
-    print 'END def uploadObject(request,objectName,objectFilename,objectContent, objectType)'
     return HttpResponse(json.dumps({}), content_type='application/javascript')
 
 
@@ -130,7 +124,7 @@ def upload_object(request):
 # 
 ################################################################################
 def save_object(request):
-    print 'BEGIN def saveObject(request)'    
+    print 'BEGIN def save_object(request)'
     
     objectName = None
     objectFilename = None 
@@ -189,9 +183,7 @@ def save_object(request):
     else:
         response_dict = {'errors': 'True'}
         return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
-    
 
-    print 'END def saveObject(request)'
     return HttpResponse(json.dumps({}), content_type='application/javascript')
 
 
@@ -263,11 +255,9 @@ def resolve_dependencies(request):
         message = "The uploaded template is valid. You can now save it." + saveBtn
         response_dict = {'message': message}
     except Exception, e:
-        response_dict = {'errorDependencies': e.message.replace("'","")}
+        response_dict = {'errorDependencies': e.message.replace("'", "")}
         return HttpResponse(json.dumps(response_dict), content_type='application/javascript')      
-    
 
-    print 'END def resolveDependencies(request)'
     return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
 
 
@@ -344,25 +334,25 @@ def clearVersion(request):
 #                includes - 
 # Outputs:       JSON data 
 # Exceptions:    None
-# Description:   Generate an HTML form to resolve depencies of an uploaded schema
+# Description:   Generate an HTML form to resolve dependencies of an uploaded schema
 # 
 ################################################################################
 def generateHtmlDependencyResolver(imports, includes):
-    #there are includes or imports, need to resolve them            
+    # there are includes or imports, need to resolve them
     htmlString = "Please choose a file from the database to resolve each import/include."
     htmlString += "<table id='dependencies'>"
     htmlString += "<tr><th>Import/Include</th><th>Value</th><th>Dependency</th></tr>"
     
     selectDependencyStr = "<select class='dependency'>"
     for type in Type.objects:
-        selectDependencyStr += "<option objectid='"+ str(type.id) +"'>"+ type.title +"</option>"
+        selectDependencyStr += "<option objectid='" + str(type.id) + "'>" + type.title + "</option>"
     selectDependencyStr += "</select>"
     
     for el_include in includes:
         htmlString += "<tr>"
         htmlString += "<td>Include</td>"
-        htmlString += "<td><textarea readonly>"+ el_include.attrib['schemaLocation']+"</textarea></td>"
-        htmlString += "<td>"+ selectDependencyStr +"</td>"
+        htmlString += "<td><textarea readonly>" + el_include.attrib['schemaLocation'] + "</textarea></td>"
+        htmlString += "<td>"+ selectDependencyStr + "</td>"
         htmlString += "</tr>"
         
     htmlString += "</table>"   
@@ -507,6 +497,7 @@ def upload_version(request):
         response_dict['errors'] = "Please select a document first."
         return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
 
+
 ################################################################################
 # 
 # Function Name: save_version(request)
@@ -571,9 +562,7 @@ def save_version(request):
     else:    
         response_dict = {'errors': 'True'}
         return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
-    
 
-    print 'END def saveVersion(request, objectType)'
     return HttpResponse(json.dumps({}), content_type='application/javascript')
 
 
@@ -664,9 +653,9 @@ def assign_delete_custom_message(request):
     message = ""
 
     if len(objectVersions.versions) == 1:
-        message = "<span style='color:red'>You are about to delete the only version of this "+ object_type +". The "+ object_type +" will be deleted from the "+ object_type +" manager.</span>"
+        message = "<span style='color:red'>You are about to delete the only version of this " + object_type + ". The " + object_type + " will be deleted from the "+ object_type + " manager.</span>"
     elif objectVersions.current == str(object.id) and len(objectVersions.versions) == len(objectVersions.deletedVersions) + 1:
-        message = "<span style='color:red'>You are about to delete the last version of this "+ object_type +". The "+ object_type +" will be deleted from the "+ object_type +" manager.</span>"
+        message = "<span style='color:red'>You are about to delete the last version of this " + object_type + ". The " + object_type + " will be deleted from the "+ object_type + " manager.</span>"
     elif objectVersions.current == str(object.id):
         message = "<span>You are about to delete the current version. If you want to continue, please select a new current version: <select id='selectCurrentVersion'>"
         for version in objectVersions.versions:
@@ -697,8 +686,6 @@ def edit_information(request):
     new_name = request.POST['newName']
     new_filename = request.POST['newFilename']
 
-    
-    
     if object_type == "Template":
         object = Template.objects.get(pk=object_id)
         objectVersions = TemplateVersion.objects.get(pk=object.templateVersion)
@@ -812,7 +799,7 @@ def edit_instance(request):
     response_dict = {}
     
     # test if the name is "Local"
-    if (name.upper() == "LOCAL"):
+    if name.upper() == "LOCAL":
         errors += "By default, the instance named Local is the instance currently running."
     else:   
         # test if an instance with the same name exists
@@ -821,7 +808,7 @@ def edit_instance(request):
             errors += "An instance with the same name already exists.<br/>"
     
     # If some errors display them, otherwise insert the instance
-    if(errors == ""):      
+    if errors == "":
         instance = Instance.objects.get(pk=instance_id)
         instance.name = name
         instance.save()
@@ -943,7 +930,7 @@ def upload_resource(request):
         and 'currentResourceFilename' in request.session 
         and request.session['currentResourceFilename'] != ""):
             response_dict = {'filename': request.session['currentResourceFilename']}
-            request.session['listModuleResource'].append(ModuleResourceInfo(content=request.session['currentResourceContent'],filename=request.session['currentResourceFilename']).__to_json__())
+            request.session['listModuleResource'].append(ModuleResourceInfo(content=request.session['currentResourceContent'], filename=request.session['currentResourceFilename']).__to_json__())
             request.session['currentResourceContent'] = ""
             request.session['currentResourceFilename'] = ""
     
@@ -992,85 +979,6 @@ def delete_module(request):
     module = Module.objects.get(pk=object_id)
     module.delete()
 
-    return HttpResponse(json.dumps({}), content_type='application/javascript')
-
-
-################################################################################
-# 
-# Function Name: create_backup(request)
-# Inputs:        request -  
-# Outputs:        
-# Exceptions:    None
-# Description:   Runs the mongo db command to create a backup of the current mongo instance
-# 
-################################################################################
-def create_backup(request):
-    backupsDir = settings.SITE_ROOT + '/data/backups/'
-    
-    now = datetime.now()
-    backupFolder = now.strftime("%Y_%m_%d_%H_%M_%S")
-    
-    backupCommand = "mongodump --out " + backupsDir + backupFolder + " -u " + \
-                    settings.MONGO_ADMIN_USER + " -p " + settings.MONGO_ADMIN_PASSWORD + \
-                    " --authenticationDatabase admin"
-    retvalue = os.system(backupCommand)
-#     result = subprocess.check_output(backupCommand, shell=True)
-    if retvalue == 0:
-        result = "Backup created with success."
-    else:
-        result = "Unable to create the backup."
-    
-    response_dict = {'result': result}
-    return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
-    
-
-################################################################################
-# 
-# Function Name: restore_backup(request)
-# Inputs:        request - 
-# Outputs:        
-# Exceptions:    None
-# Description:   Runs the mongo db command to restore a backup to the current mongo instance
-# 
-################################################################################
-def restore_backup(request):    
-    backup = request.POST['backup']    
-    backupsDir = settings.SITE_ROOT + '/data/backups/'
-    
-    backupCommand = "mongorestore " + backupsDir + backup + " -u " + \
-                    settings.MONGO_ADMIN_USER + " -p " + settings.MONGO_ADMIN_PASSWORD + \
-                    " --authenticationDatabase admin"
-    retvalue = os.system(backupCommand)
-    
-    if retvalue == 0:
-        result = "Backup restored with success."
-    else:
-        result = "Unable to restore the backup."
-    
-    response_dict = {'result': result}
-    return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
-
-
-################################################################################
-# 
-# Function Name: delete_backup(request)
-# Inputs:        request -   
-# Outputs:        
-# Exceptions:    None
-# Description:   Deletes a backup from the list
-# 
-################################################################################
-def delete_backup(request):
-    backup = request.POST['backup']
-    backupsDir = settings.SITE_ROOT + '/data/backups/'
-    
-    for root, dirs, files in os.walk(backupsDir + backup, topdown=False):
-        for name in files:
-            os.remove(os.path.join(root, name))
-        for name in dirs:
-            os.rmdir(os.path.join(root, name))
-    os.rmdir(backupsDir + backup)
-        
     return HttpResponse(json.dumps({}), content_type='application/javascript')
 
 
