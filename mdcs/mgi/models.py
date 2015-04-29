@@ -82,21 +82,6 @@ class Htmlform(Document):
     content = StringField(required=True)
     occurrences = StringField(required=True)
 
-class Xmldata(Document):
-    title = StringField(required=True)
-    schema = StringField(required=True)
-    content = StringField(required=True)
-
-class Hdf5file(Document):
-    title = StringField(required=True)
-    schema = StringField(required=True)
-    content = StringField(required=True)
-
-class Database(Document):
-    title = StringField(required=True)
-    timestamp = StringField(required=True)
-    content = StringField(required=True)
-
 class Instance(Document):
     name = StringField(required=True, unique=True)
     protocol = StringField(required=True) 
