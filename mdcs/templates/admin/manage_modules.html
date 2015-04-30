@@ -57,6 +57,7 @@ There are currently no modules uploaded.  Please click "Add Module" to add a Mod
 {% endif %}
 {% endblock %}  
 
+{% block extra %}
 <div id="dialog-delete" style="display:none;">
 <p>Are you sure you want to delete this module?</p>
 </div>
@@ -65,3 +66,4 @@ There are currently no modules uploaded.  Please click "Add Module" to add a Mod
 <script>
   loadModuleManagerHandler();
 </script>
+{% endblock %}  

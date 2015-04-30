@@ -15,6 +15,7 @@
 #
 ################################################################################
 -->
+
 {% load admin_static %}
 {% load firstof from future %}
 <!DOCTYPE html>
@@ -53,7 +54,6 @@
 <!-- Container -->
 <div id="container">
 	<!-- Header -->
-    {% if not is_popup %}
 	{% include 'header.html' %}
 	<div id="navigation-wrapper">
 		<div id="navigation-wrapper-2">
@@ -76,7 +76,6 @@
 			</div>
 	    </div>
 	</div>
-	{% endif %}
 	<!-- END Header -->
 	
 	
@@ -85,37 +84,24 @@
 		{% block pretitle %}{% endblock %}
 		<div id="content-wrapper">
 			<div class="center-wrapper">		
-				<div class="content">
-					<div id="featured-wrapper">
-						<div id="featured">
-							{% block messages %}
-							    {% if messages %}
-							    <ul class="messagelist">
-								    {% for message in messages %}
-								      <li style="display:block">
-								      	<div class="alert">
-										  <button type="button" class="close" data-dismiss="alert">&times;</button>
-										  <i class="icon disable-selection"></i> {{message}} 
-										</div>
-								      </li>
-								    {% endfor %}
-							    </ul>
-							    {% endif %}
-							{% endblock messages %}
-							<h1>{% block title %}{{title}}{% endblock %}</h1>	
-							<div class="clearer">
-							&nbsp;
-							</div>
+				<div class="content" id="content-two-columns">
+					<div id="main-wrapper">
+						<div id="main">
+							<div class="post">
+								<div class="post-title"><h1>{% block title %}{% endblock %}</h1></div>
+								<div class="post-body">
+			  						<p class="large">{% block description %}{% endblock %}</p>
+								</div>			
+		      				</div>
+							{% block content %}{% endblock %}
 						</div>
 					</div>
-					<div id="main">
-	   					<div id="model_selection">
-							{% block content %}
-								{% block object-tools %}{% endblock %}
-								{{content}}
-							{% endblock %}
-						</div>
-					</div>
+					<div id="sidebar-wrapper">
+					    <div id="sidebar">
+					    {% block sidebar %}{% endblock %}
+					    </div>
+				  	</div>
+					<div class="clearer">&nbsp;</div>
 				</div>
 			</div>
 		</div>

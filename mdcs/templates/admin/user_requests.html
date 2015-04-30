@@ -62,7 +62,7 @@ No account requests pending at the moment.
 
 {% endif %}
 {% endblock %}
-
+{% block extra %}
 <div id="dialog-error-request" title="Error Request" style="display:none;">  
   <p>
   This request can't be accepted. Please check that the user does not already exists.
@@ -86,4 +86,4 @@ No account requests pending at the moment.
 <script>
 	loadUserRequestsHandler();
 </script>
-
+{% endblock %}

@@ -115,7 +115,7 @@ There are currently no {{ objectType }} uploaded.  Please click "Upload {{ objec
 
 {% endblock %}  
 
-
+{% block extra %}
 <script src="{% static 'inc/controllers/js/xsd_mgr.js' %}"></script>
 <script>
   loadUploadManagerHandler();
@@ -351,3 +351,4 @@ if (window.File && window.FileReader && window.FileList && window.Blob) {
   </p>
 </div>
 
+{% endblock %}  

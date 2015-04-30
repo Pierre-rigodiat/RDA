@@ -85,6 +85,7 @@ The HTML tag you provide will replace the usual representation of the tag in the
 
 {% endblock %} 
 
+{% block extra %}
 <div id="dialog-errors" style="display: none;">
  <p>Unable to upload the module:</p>
  <div id="errors"></div>
@@ -99,4 +100,4 @@ The HTML tag you provide will replace the usual representation of the tag in the
 <script>
   loadAddModuleHandler();
 </script>
-
+{% endblock %}

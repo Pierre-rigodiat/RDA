@@ -16,134 +16,22 @@
 ################################################################################
 -->
 
+{% extends "base2.html" %}
 {% load staticfiles %}
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en">
+{% block extrastyle %}
+<link rel="stylesheet" type="text/css" href="{% static 'resources/css/style.add.css' %}"  media="screen" />
+{% endblock %}
 
-<head>
-	<meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
-	<meta name="description" content=""/>
-	<meta name="keywords" content="" />
-	<meta name="author" content="" />
-	<link rel="stylesheet" type="text/css" href="{% static 'resources/css/lib/bootstrap.min.css' %}"  media="screen" />
-	<link rel="stylesheet" type="text/css" href="{% static 'resources/css/style.css' %}" media="screen" />
-	<link rel="stylesheet" type="text/css" href="{% static 'resources/css/style.add.css' %}"  media="screen" />
-	<title>Materials Data Curation System</title>
-	<link rel="stylesheet" type="text/css" href="{% static 'resources/css/icons.css' %}" media="screen" />
-	<!-- JQuery & JQuery UI -->
-	<script src="{% static 'resources/lib/jquery/jquery-1.11.1.min.js' %}"></script>
-	<script src="{% static 'resources/js/bootstrap.min.js' %}"></script>
-    <link rel="stylesheet" type="text/css" href="{% static 'resources/lib/jquery-ui/themes/smoothness/jquery-ui.css' %}"/>        
-    <script src="{% static 'resources/lib/jquery-ui/themes/smoothness/jquery-ui.js' %}"></script>
-    <script src="{% static 'inc/controllers/js/csrf.js' %}"></script>
+{% block title %}Start Template{% endblock %}
+{% block description %}Select a new or existing start template from the following table to start composing. Once you make your selection, click on "Compose Template" to proceed.  It will automatically load the appropriate template and display it on the next page.{% endblock %}
 
-</head>
+{% block menu %}{% include 'menu.html' with active_tab='tab4' %}{% endblock %}
+{% block submenu %}{% include 'submenu-compose.html' with active_tab='tab1' %}{% endblock %}
 
-<body id="top">
-
-<div id="header-wrapper">
-	<div id="header-wrapper-2">
-		<div class="center-wrapper">
-
-			<div id="header">
-
-				<div id="logo">
-					<h1 id="site-title"><a href="#">Materials Data <span>Curation System</span></a></h1>
-					<h2 id="site-slogan">
-{% if user.is_authenticated %}
-    Welcome, {{ user.username }}. Thanks for logging in.
-{% else %}
-    Part of the Materials Genome Initiative
-{% endif %}
-</h2>
-				</div>
-
-				<div id="help-wrapper">
-					<div id="help" align="center">
-<nobr>
-{% if user.is_authenticated %}
-    <a href="/logout">Logout</a> 
-{% else %}
-    <a href="/login">Login</a> 
-{% endif %}
-
-<span class="text-separator">|</span> <a href="/my-profile">My Profile</a> <span class="text-separator">|</span> <a href="/help">Help</a> 
-</nobr>
-
-					</div>
-				</div>
-
-			</div>
-
-		</div>
-	</div>
-</div>
-
-<div id="navigation-wrapper">
-	<div id="navigation-wrapper-2">
-		<div class="center-wrapper">
-	
-			<div id="navigation">
-
-				<ul class="tabbed">
-					<li><a href="/">Home</a></li>
-					<li><a href="/curate">Data Curation</a></li>
-					<li><a href="/explore">Data Exploration</a></li>
-					<li class="current_page_item"><a href="/compose">Composer</a></li>
-				</ul>
-				<div class="clearer">&nbsp;</div>
-
-			</div>
-
-		</div>
-	</div>
-</div>
-
-<div id="subnav-wrapper">
-  <div id="subnav-wrapper-2">
-
-    <div class="center-wrapper">
-      
-      <div id="subnav">
-
-	<ul class="tabbed">
-	  <li class="current_page_item"><a href="/compose/select-template">Start Template</a></li>
-	  <li><div style="cursor:pointer"><a onclick="verifyTemplateIsSelected('/compose/build-template');">Compose Template</a></div></li>
-	  <!-- <li><div style="cursor:pointer"><a onclick="verifyTemplateIsSelected('/compose/view-template');">View Template</a></div></li> -->
-	</ul>
-
-	<div class="clearer">&nbsp;</div>
-
-	</div>
-
-      </div>
-    </div>
-</div>
-
-<div id="content-wrapper">
-	<div class="center-wrapper">
-		
-		<div class="content" id="content-two-columns">
-
-		  <div id="main-wrapper">
-		    <div id="main">
-
-		      <div class="post">
-
-			<div class="post-title"><h1>Start Template</h1></div>
+{% block content %}
 			
-			<div class="post-body">
-			  
-			  <p class="large">Select a new or existing start template from the following table to start composing. Once you make your selection, click on "Compose Template" to proceed.  It will automatically load the appropriate template and display it on the next page.</p>
-
-
-
-			</div>
-			
-		      </div>
-			
-		      <div id="template_selection">
+<div id="template_selection">
 		      
 {% if request.session.currentComposeTemplateID %} 
 
@@ -234,7 +122,24 @@
 <div style="color:grey;">Create your own templates using the <a href="/compose">Composer</a> and you will be able to use them from this section.</div>
 
 {% endif %}
+</div>
+{% endblock %}
 
+
+{% block sidebar %}
+<div class="box" >
+	<div class="box-title">Composer</div>
+	<div class="box-content">
+		<ul class="nice-list">
+			<li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'img/Orange_Number_1.png' %}"></td><td><strong><a href="/compose/select-template">Start Template</a></strong></td></tr></table></li>
+			<li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'img/Orange_Number_2.png' %}"></td><td><div style="cursor:pointer"><a onclick="verifyTemplateIsSelected('/compose/build-template');">Compose Template</a></div></td></tr></table></li>
+		</ul>
+	</div>
+</div>
+{% endblock %}
+
+
+{% block extra %}
 <div id="dialog-message" title="Template Loaded" style="display:none;">
 <p></p>
   <p>
@@ -256,88 +161,10 @@
     Please select a template first.
   </p>
 </div>
-
-
-</div>
-
-
-		    </div>
-		  </div>
-
-		  <div id="sidebar-wrapper">
-		    <div id="sidebar">
-
-		      <div class="box" ><!--"floatMenu">-->
-
-			<div class="box-title">Composer</div>
-
-			<div class="box-content">
-			  <ul class="nice-list">
-			    <li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'img/Orange_Number_1.png' %}"></td><td><strong><a href="/compose/select-template">Start Template</a></strong></td></tr></table></li>
-			    <li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'img/Orange_Number_2.png' %}"></td><td><div style="cursor:pointer"><a onclick="verifyTemplateIsSelected('/compose/build-template');">Compose Template</a></div></td></tr></table></li>
-			  </ul>
-			</div>
-
-			</div>
-		    </div>
-		  </div>
-
-<div class="clearer">&nbsp;</div>
-
-		</div>
-
-	</div>
-</div>
-
-<div id="footer-wrapper">
-
-	<div class="center-wrapper">
-
-		<div id="footer2">
-
-			<div class="left">
-				<a href="/">Home</a> <span class="text-separator">|</span> <a href="/curate">Data Curation</a> <span class="text-separator">|</span> <a href="/explore">Data Exploration</a> <span class="text-separator">|</span> <a href="/compose">Composer</a><span class="text-separator">|</span> <a href="/contact">Contact</a> 
-			</div>
-
-			<div class="right">
-				<a href="#">Top ^</a>
-			</div>
-			
-			<div class="clearer">&nbsp;</div>
-
-		</div>
-
-	</div>
-
-</div>
-
-<div id="bottom">
-
-	<div class="center-wrapper">
-
-		<div class="left">
-			&copy; 2012 - {% now "Y" %} Materials Data Curation System <span class="text-separator">|</span> <a href="/privacy-policy">Privacy Policy</a> <span class="text-separator">|</span> <a href="/terms-of-use">Terms of Use</a>  
-
-{% if user.is_staff %}
-<span class="text-separator">|</span> <a href="/admin" target="_new">Administration</a> 
-{% else %}
-
-{% endif %}
-		</div>
-
-		<div class="right">
-			<a href="http://templates.arcsin.se/">Website template</a> by <a href="http://arcsin.se/">Arcsin</a> 
-		</div>
-		
-		<div class="clearer">&nbsp;</div>
-
-	</div>
-
-</div>
-	
 <script src="{% static 'inc/controllers/js/composer.js' %}"></script>
 <script>
 	loadTemplateSelectionControllers();
 </script>
-</body>
-</html>
+{% endblock %}
+
+
