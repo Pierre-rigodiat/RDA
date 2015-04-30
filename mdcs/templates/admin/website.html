@@ -16,211 +16,33 @@
 ################################################################################
 -->
 
+{% extends "base.html" %}
 {% load staticfiles %}
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr">
+{% block title %}Website Management{% endblock %}
 
-<head>
-	<meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
-	<meta name="description" content=""/>
-	<meta name="keywords" content="" />
-	<meta name="author" content="" />
-	<link rel="stylesheet" type="text/css" href="{% static 'resources/css/lib/bootstrap.min.css' %}"  media="screen" />
-	<link rel="stylesheet" type="text/css" href="{% static 'resources/css/style.css' %}" media="screen" />
-	<title>Materials Data Curation System</title>
-
-	<link rel="stylesheet" type="text/css" href="{% static 'resources/css/icons.css' %}" media="screen" />
-	<!-- JQuery & JQuery UI -->
-	<script src="{% static 'resources/lib/jquery/jquery-1.11.1.min.js' %}"></script>
-	<script src="{% static 'resources/js/bootstrap.min.js' %}"></script>
-	<script src="{% static 'inc/controllers/js/csrf.js' %}"></script>
-</head>
-
-<body id="top">
-
-<div id="header-wrapper">
-	<div id="header-wrapper-2">
-		<div class="center-wrapper">
-
-			<div id="header">
+{% block menu %}{% include 'admin/menu-admin.html' with active_tab='tab5' %}{% endblock %}
+{% block submenu %}{% include 'admin/submenu-website.html' %}{% endblock %}
 
 
-				<div id="logo">
-
-
-					<h1 id="site-title"><a href="/admin">Materials Data <span>Curation Administration</span></a></h1>
-					<h2 id="site-slogan">
-{% if user.is_authenticated %}
-    Welcome, {{ user.username }}. Thanks for logging in.
-{% else %}
-    Part of the Materials Genome Initiative
-{% endif %}
-</h2>
-				</div>
-
-				<div id="help-wrapper">
-					<div id="help" align="center">
-<nobr>
-{% if user.is_authenticated %}
-    <a href="/logout">Logout</a> 
-{% else %}
-    <a href="/login">Login</a> 
-{% endif %}
-
-<span class="text-separator">|</span> <a href="/my-profile">My Profile</a> <span class="text-separator">|</span> <a href="/help">Help</a> 
-</nobr>
-
-					</div>
-				</div>
-
-			</div>
-
-		</div>
-	</div>
-</div>
-
-<div id="navigation-wrapper">
-	<div id="navigation-wrapper-2">
-		<div class="center-wrapper">
-	
-			<div id="navigation">
-
-				<ul class="tabbed">
-					<li><a href="/">Home</a></li>
-					<li><a href="/admin/user-management">User Management</a></li>
-					<li><a href="/admin/xml-schemas">Templates & Types</a></li>
-					<li><a href="/admin/repositories">Repositories</a></li>
-					<li class="current_page_item"><a href="/admin/website">Website</a></li>
-				</ul>
-
-				<div class="clearer">&nbsp;</div>
-
-			</div>
-
-		</div>
-	</div>
-</div>
-
-<div id="subnav-wrapper">
-  <div id="subnav-wrapper-2">
-
-    <div class="center-wrapper">
-      
-      <div id="subnav">
-
-	<ul class="tabbed">
-		<li><a href="/admin/website/privacy-policy">Privacy Policy</a></li>	  
-	  	<li><a href="/admin/website/terms-of-use">Terms of Use</a></li>  	
-	  </ul>
-
-	<div class="clearer">&nbsp;</div>
-
-	</div>
-
-      </div>
-    </div>
-</div>
-
-
-<div id="content-wrapper">
-	<div class="center-wrapper">
-		<div class="content">
-			<div id="featured-wrapper">
-				<div id="featured">
-					{% if messages %}
-				        {% for message in messages %}
-				            <div class="alert">
-							  <button type="button" class="close" data-dismiss="alert">&times;</button>
-							  <i class="icon disable-selection"></i> {{message}} 
-							</div>
-				        {% endfor %}
-					{% endif %}
-					<h1>Website Management</h1>
-					
-
+{% block content%}
 		      
-
-					<div class="left" style="width: 350px">
-					
-						<div class="clearer">&nbsp;</div>
-<br/>
-
-						<img src="/static/img/edit-big.png" width="64" height="64" alt="" class="left bordered" />
-
-						<h3><a href="website/privacy-policy">Privacy Policy</a></h3>
-						
-						<p>Click here to edit the Privacy Policy page of the system.</p>
-
-						<div class="clearer">&nbsp;</div>
-
-						
-					</div>
-
-					<div class="right" style="width: 350px">
-
-						<div class="clearer">&nbsp;</div>
-<br/>
-
-						<img src="/static/img/edit-big.png" width="64" height="64" alt="" class="left bordered" />
-
-						<h3><a href="website/terms-of-use">Terms of Use</a></h3>
-
-					
-						<p>Click here to edit the Terms of Use page of the system.</p>
-
-						<div class="clearer">&nbsp;</div>
-
-					</div>
-					
-					<div class="clearer">&nbsp;</div>
-
-				</div>
-			</div>
-
-		</div>
-
-	</div>
-</div>
-<div id="footer-wrapper">
-
-	<div class="center-wrapper">
-
-		<div id="footer2">
-
-			<div class="left">
-				<a href="/">Home</a> <span class="text-separator">|</span> <a href="/admin/user-management">User Management</a> <span class="text-separator">|</span> <a href="/admin/xml-schemas">Templates & Types</a><span class="text-separator">|</span> <a href="/admin/repositories">Repositories</a><span class="text-separator">|</span> <a href="/admin/website">Website</a>
-			</div>
-
-			<div class="right">
-				<a href="#">Top ^</a>
-			</div>
-			
-			<div class="clearer">&nbsp;</div>
-
-		</div>
-
-	</div>
-
+<div class="left" style="width: 350px">			
+	<div class="clearer">&nbsp;</div>
+	<br/>
+	<img src="/static/img/edit-big.png" width="64" height="64" alt="" class="left bordered" />
+	<h3><a href="website/privacy-policy">Privacy Policy</a></h3>
+	<p>Click here to edit the Privacy Policy page of the system.</p>
+	<div class="clearer">&nbsp;</div>
 </div>
 
-<div id="bottom">
-
-	<div class="center-wrapper">
-
-		<div class="left">
-			&copy; 2012 - {% now "Y" %} Materials Data Curation System <span class="text-separator">|</span> <a href="/privacy-policy">Privacy Policy</a> <span class="text-separator">|</span> <a href="/terms-of-use">Terms of Use</a> 
-		</div>
-
-		<div class="right">
-			<a href="http://templates.arcsin.se/">Website template</a> by <a href="http://arcsin.se/">Arcsin</a> 
-		</div>
-		
-		<div class="clearer">&nbsp;</div>
-
-	</div>
-
+<div class="right" style="width: 350px">
+	<div class="clearer">&nbsp;</div>
+	<br/>
+	<img src="/static/img/edit-big.png" width="64" height="64" alt="" class="left bordered" />
+	<h3><a href="website/terms-of-use">Terms of Use</a></h3>
+	<p>Click here to edit the Terms of Use page of the system.</p>
+	<div class="clearer">&nbsp;</div>
 </div>
-
-</body>
-</html>
+<div class="clearer">&nbsp;</div>
+{% endblock %}  

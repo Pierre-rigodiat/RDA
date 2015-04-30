@@ -1,0 +1,9 @@
+<ul class="tabbed">
+	<li class="{% if active_tab == 'tab1' %} current_page_item {% endif %}"><a href="/">Home</a></li>
+	<li class="{% if active_tab == 'tab2' %} current_page_item {% endif %}"><a href="/curate">Data Curation</a></li>
+	<li class="{% if active_tab == 'tab3' %} current_page_item {% endif %}"><a href="/explore">Data Exploration</a></li>
+	<li class="{% if active_tab == 'tab4' %} current_page_item {% endif %}"><a href="/compose">Composer</a></li>
+	{% if active_tab == 'login' %}
+	<li class="current_page_item"><a href="/login">Login</a></li>
+	{% endif %}
+</ul>

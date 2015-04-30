@@ -16,40 +16,13 @@
 ################################################################################
 -->
 
-{% extends "admin/base_site.html" %}
+{% extends "base.html" %}
 {% load i18n admin_urls %}
 
-{% block breadcrumbs %}
-<div id="subnav-wrapper">
-  <div id="subnav-wrapper-2">
+{% block menu %}{% include 'admin/menu-admin.html' with active_tab='tab2' %}{% endblock %}
+{% block submenu %}{% include 'admin/submenu-user.html' with active_tab='tab1' %}{% endblock %}
 
-    <div class="center-wrapper">
-      
-      <div id="subnav">
-
-	<ul class="tabbed">	  
-	  	<li class="current_page_item"><a href="/admin/user-management">Manage Users</a></li>	  
-	  	<li><a href="/admin/user-requests">Account Requests</a></li> 	
-	  	<li><a href="/admin/contact-messages">Contact Messages</a></li>  	
-	  </ul>
-
-	<div class="clearer">&nbsp;</div>
-
-	</div>
-
-      </div>
-    </div>
-</div>
-<div id="content-wrapper">
-	<div class="center-wrapper">
-
-		<div class="content">
-
-			<div id="featured-wrapper">
-				<div id="featured">
-
-<h1>User Management</h1>
-
+{% block content %}
 <div class="breadcrumbs">
 <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
 &rsaquo; <a href="{% url 'admin:app_list' app_label=opts.app_label %}">{{ opts.app_config.verbose_name }}</a>
@@ -57,19 +30,6 @@
 &rsaquo; <a href="{% url opts|admin_urlname:'change' object.pk|admin_urlquote %}">{{ object|truncatewords:"18" }}</a>
 &rsaquo; {% trans 'History' %}
 </div>
-					<div class="clearer">&nbsp;</div>
-
-				</div>
-			</div>
-			</div>
-
-{% endblock %}
-
-{% block content %}
-<div id="content-main">
-
-			<div id="main">
-
 
 <div class="module">
 
@@ -96,13 +56,5 @@
     <p>{% trans "This object doesn't have a change history. It probably wasn't added via this admin site." %}</p>
 {% endif %}
 </div>
-</div>
 
-			</div>
-
-		</div>
-
-	</div>
-</div>
-</div>
 {% endblock %}

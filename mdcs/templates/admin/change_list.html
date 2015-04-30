@@ -16,7 +16,9 @@
 ################################################################################
 -->
 
-{% extends "admin/base_site.html" %}
+{% extends "base.html" %}
+{% block menu %}{% include 'admin/menu-admin.html' with active_tab='tab2' %}{% endblock %}
+{% block submenu %}{% include 'admin/submenu-user.html' with active_tab='tab1' %}{% endblock %}
 {% load i18n admin_urls admin_static admin_list %}
 
 {% block extrastyle %}
