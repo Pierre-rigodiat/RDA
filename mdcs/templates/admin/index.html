@@ -22,7 +22,7 @@
 {% load i18n admin_static %}
 
 {% block extrastyle %}{{ block.super }}<link rel="stylesheet" type="text/css" href="{% static "admin/css/dashboard.css" %}" />{% endblock %}
-{% block title %}User Management{% endblock %}
+{% block title %}<h1>User Management</h1>{% endblock %}
 {% block menu %}{% include 'admin/menu-admin.html' with active_tab='tab2' %}{% endblock %}
 {% block submenu %}{% include 'admin/submenu-user.html' with active_tab='tab1' %}{% endblock %}
 {% block coltype %}colMS{% endblock %}

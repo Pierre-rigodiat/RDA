@@ -19,16 +19,18 @@
 {% extends "base.html" %}
 {% load staticfiles %}
 
-{% block title %}Login{% endblock %}
+{% block title %}<h1>Login</h1>{% endblock %}
 
 {% block menu %}{% include 'menu.html' with active_tab='login' %}{% endblock %}
 
 
-
 {% block content %}
+<div style="margin-left:20px;">
 
 {% if request.session.loggedOut %} 
 You have successfully logged out
+{% else %}
+
 {% endif %}
 
 {% if form.errors %}
@@ -38,24 +40,24 @@ You have successfully logged out
 <form method="post" action="{% url 'django.contrib.auth.views.login' %}">
 {% csrf_token %}
 <table>
-<tr>
-    <td>{{ form.username.label_tag }}</td>
-    <td><div>{{ form.username }}</div></td>
-</tr>
-<tr>
-    <td>{{ form.password.label_tag }}</td>
-    <td><div>{{ form.password }}</div></td>
-</tr>
-<tr>
-  <td></td>
-  <td><button class="btn" type="submit" value="login" style="height:25px;width:50px;">Login</button></td>
-</tr>
+	<tr>
+	    <td>{{ form.username.label_tag }}</td>
+	    <td><div>{{ form.username }}</div></td>
+	</tr>
+	<tr>
+	    <td>{{ form.password.label_tag }}</td>
+	    <td><div>{{ form.password }}</div></td>
+	</tr>
+	<tr>
+	  <td></td>
+	  <td><button class="btn" type="submit" value="login" style="height:25px;width:50px;">Login</button></td>
+	</tr>
 </table>
 
 <input type="hidden" name="next" value="{{ request.session.next }}" />
 </form>
-<br>
+	<br/>
    <a href="/request-new-account"><button class="btn request account" > Request an Account</button></a>
-
+	<div class="clearer">&nbsp;</div>
+</div>
 {% endblock %}
-

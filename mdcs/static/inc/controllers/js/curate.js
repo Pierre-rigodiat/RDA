@@ -358,7 +358,6 @@ validateXML = function()
 	var xmlString = '';
 	
     xmlString = generateXMLString (rootElement, xmlString);
-    console.log(xmlString);
     
     $("input").each(function(){
 	    $(this).attr("value", $(this).val());
@@ -429,7 +428,6 @@ generateXMLString = function(elementObj)
 			}
 		}
 		else if (children[i].tagName == "DIV" && $(children[i]).hasClass("module") ){
-			console.log($($(children[i]).parent()).find(".moduleResult").html());	
 			xmlString += $($(children[i]).parent()).find(".moduleResult").html();		
 		} 	
 		else if (children[i].tagName == "SELECT") {

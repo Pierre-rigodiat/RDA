@@ -16,281 +16,73 @@
 ################################################################################
 -->
 
+{% extends "base2.html" %}
 {% load staticfiles %}
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr">
+{% block extrastyle %}
+<link rel="stylesheet" type="text/css" href="{% static 'resources/css/style.add.css' %}"  media="screen" />	
+<link rel="stylesheet" type="text/css" href="{% static 'resources/css/queryResult.css' %}"  media="screen" />
+<link rel="stylesheet" type="text/css" href="{% static 'resources/css/exploreTabs.css' %}"  media="screen" />
+<link rel="stylesheet" type="text/css" href="{% static 'resources/css/XMLTree.css' %}"  media="screen" />
+{% endblock %}
 
-<head>
-	<meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
-	<meta name="description" content=""/>
-	<meta name="keywords" content="" />
-	<meta name="author" content="" />
-	<link rel="stylesheet" type="text/css" href="{% static 'resources/css/lib/bootstrap.min.css' %}"  media="screen" />
-	<link rel="stylesheet" type="text/css" href="{% static 'resources/css/style.css' %}" media="screen" />
-	<link rel="stylesheet" type="text/css" href="{% static 'resources/css/style.add.css' %}"  media="screen" />	
-	<link rel="stylesheet" type="text/css" href="{% static 'resources/css/queryResult.css' %}"  media="screen" />
-	<link rel="stylesheet" type="text/css" href="{% static 'resources/css/exploreTabs.css' %}"  media="screen" />
-	<link rel="stylesheet" type="text/css" href="{% static 'resources/css/XMLTree.css' %}"  media="screen" />
-	<title>Materials Data Curation System</title>
+{% block extrahead %}
+<script src="{% static 'inc/controllers/js/XMLTree.js' %}"></script>
+{% endblock %}
 
-	<!-- JQuery & JQuery UI -->
-	<script src="{% static 'resources/lib/jquery/jquery-1.11.1.min.js' %}"></script>
-	<script src="{% static 'resources/js/bootstrap.min.js' %}"></script>
-    <link rel="stylesheet" type="text/css" href="{% static 'resources/lib/jquery-ui/themes/smoothness/jquery-ui.css' %}"/>        
-    <script src="{% static 'resources/lib/jquery-ui/themes/smoothness/jquery-ui.js' %}"></script>
-	<script src="{% static 'inc/controllers/js/XMLTree.js' %}"></script>
-	<script src="{% static 'inc/controllers/js/csrf.js' %}"></script>
+{% block title %}<h1>Query Results</h1>{% endblock %}
 
-</head>
+{% block description %}From here you can view the results of your query.{% endblock %}
 
-<body id="top">
+{% block menu %}{% include 'menu.html' with active_tab='tab3' %}{% endblock %}
 
-<div id="header-wrapper">
-	<div id="header-wrapper-2">
-		<div class="center-wrapper">
+{% block submenu %}	
+<ul id="subnav-tab-1" class="tabbed">
+	<li><a href="/explore/select-template">Select Template</a></li>
+	<li><a href="/explore/customize-template">Select Fields</a></li>
+	<li class="current_page_item"><a href="/explore/perform-search">Perform Search</a></li>
+</ul>
+{% endblock %}	
 
-			<div id="header">
-
-				<div id="logo">
-					<h1 id="site-title"><a href="/">Materials Data <span>Curation System</span></a></h1>
-					<h2 id="site-slogan">
-{% if user.is_authenticated %}
-    Welcome, {{ user.username }}. Thanks for logging in.
-{% else %}
-    Part of the Materials Genome Initiative
-{% endif %}
-</h2>
-				</div>
-
-				<div id="help-wrapper">
-					<div id="help" align="center">
-<nobr>
-{% if user.is_authenticated %}
-    <a href="/logout">Logout</a> 
-{% else %}
-    <a href="/login">Login</a> 
-{% endif %}
-
-<span class="text-separator">|</span> <a href="/my-profile">My Profile</a> <span class="text-separator">|</span> <a href="/help">Help</a> 
-</nobr>
-
-					</div>
-				</div>
-
-			</div>
-
-		</div>
-	</div>
-</div>
-
-<div id="navigation-wrapper">
-	<div id="navigation-wrapper-2">
-		<div class="center-wrapper">
-	
-			<div id="navigation">
-
-				<ul class="tabbed">
-					<li><a href="/">Home</a></li>
-					<li><a href="/curate">Data Curation</a></li>
-					<li class="current_page_item"><a href="/explore">Data Exploration</a></li>
-					<li><a href="/compose">Composer</a></li>
-				</ul>
-
-				<div class="clearer">&nbsp;</div>
-
-			</div>
-
-		</div>
-	</div>
-</div>
-
-<div id="subnav-wrapper">
-  <div id="subnav-wrapper-2">
-
-    <div class="center-wrapper">
-      
-      <div id="subnav">
-
-		{% if request.session.currentExploreTab == "tab-1" %}	
-		<ul id="subnav-tab-1" class="tabbed">
-	  		<li><a href="/explore/select-template">Select Template</a></li>
-	  		<li><a href="/explore/customize-template">Select Fields</a></li>
-	  		<li class="current_page_item"><a href="/explore/perform-search">Perform Search</a></li>
- 		</ul>
-		<ul id="subnav-tab-2" class="tabbed" style="display: none;">
-		  <li><a href="/explore/select-template">Select Template</a></li>	 
-		  <li class="current_page_item"><a href="/explore/perform-search">Perform Search</a></li> 
-		  <!--<li class="current_page_item"><a onclick="verifyTemplateIsSelected('/explore/perform-search');">Perform Search</a></li>-->
-		</ul>
-	  	{% else %}
-	  	<ul id="subnav-tab-1" class="tabbed" style="display: none;">
-		  <li><a href="/explore/select-template">Select Template</a></li>
-		  <li><a href="/explore/customize-template">Select Fields</a></li>
-		  <li class="current_page_item"><a href="/explore/perform-search">Perform Search</a></li>
-	  	</ul>
-		<ul id="subnav-tab-2" class="tabbed">
-		  <li><a href="/explore/select-template">Select Template</a></li>	 
-		  <li class="current_page_item"><a href="/explore/perform-search">Perform Search</a></li> 
-		  <!--<li class="current_page_item"><a onclick="verifyTemplateIsSelected('/explore/perform-search');">Perform Search</a></li>-->
-		</ul>
-		{% endif %}
-	<div class="clearer">&nbsp;</div>
-
-	</div>
-
-      </div>
-    </div>
-</div>
-
-
-
-<div id="content-wrapper">
-	<div class="center-wrapper">
-		
-		<div class="content" id="content-two-columns">
-
-		  <div id="main-wrapper">
-		    <div id="main">
-
-		      <div class="post">
-
-			<div class="post-title"><h1>Query Results</h1></div>
-			
-			<div class="post-body">
-			  
-			  <p class="large">From here you can view the results of your query.</p>
-			  
-			</div>
-			
-		      </div>
-
+{% block content %}
 <div class="toolbar">
-
-
-  <div class="btn-group pull-right">
-    <span class="btn" onclick="backToQuery();" style="text-decoration:none">Back to Query</span>
-    <span class="btn" onclick="downloadResults()"><i class="icon-arrow-down"></i> Download</span>
-  </div>
-
-
-<br><br>
-
+	<div class="btn-group pull-right">
+    	<span class="btn" onclick="backToQuery();" style="text-decoration:none">Back to Query</span>
+    	<span class="btn" onclick="downloadResults()"><i class="icon-arrow-down"></i> Download</span>
+  	</div>
+	<br/><br/>
 </div>
+<div id="results"></div>
+{% endblock %}	
 
-<div id="results">
-</div>
-
-		    </div>
-		  </div>
-
-
-		  <div id="sidebar-wrapper">
-		    <div id="sidebar">
-
-		      <div class="box">
-
-			<div class="box-title">Data Exploration</div>
-
-			<div id="explore-tabs">
-			
-				<div class="tab">
-				    {% if request.session.currentExploreTab == "tab-1" %}
-				    <input type="radio" id="tab-1" name="tab-group-1" checked>
-				    {% else %}
-				    <input type="radio" id="tab-1" name="tab-group-1">
-				    {% endif %}
-				    <label for="tab-1"><nobr>Query by Example</nobr></label>
-				    
-				    <div class="content">
-				        <div class="box-content">
-						  <ul class="nice-list">
-						    <li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'img/Orange_Number_1.png' %}"></td><td><nobr><a href="/explore/select-template">Select Template</a></nobr></td></tr></table></li>
-						    <li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'img/Orange_Number_2.png' %}"></td><td><nobr><a href="/explore/customize-template">Select Fields</a></nobr></td></tr></table></li>
-						    <li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'img/Orange_Number_3.png' %}"></td><td><strong><nobr><a href="/explore/perform-search">Perform Search</a></nobr></strong></td></tr></table></li>
-						  </ul>
-						</div>	
-				    </div> 
-				</div>
-			
-				<div class="tab">
-			       {% if request.session.currentExploreTab == "tab-2" %}
-			       <input type="radio" id="tab-2" name="tab-group-1" checked>
-			       {% else %}
-			       <input type="radio" id="tab-2" name="tab-group-1">
-			       {% endif %}
-			       <label for="tab-2"><nobr>SPARQL Endpoint</nobr></label>
-			       
-			       <div class="content">
-			           <div class="box-content">
-						  <ul class="nice-list">
-						    <li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'img/Orange_Number_1.png' %}"></td><td><nobr><a href="/explore/select-template">Select Template</a></nobr></td></tr></table></li>
-						    <li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'img/Orange_Number_2.png' %}"></td><td><nobr><a href="/explore/customize-template">Select Fields</a></nobr></td></tr></table></li>						    
-						    <li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'img/Orange_Number_3.png' %}"></td><td><strong><nobr><a href="/explore/perform-search">Perform Search</a></nobr></strong></td></tr></table></li>
-						  </ul>
-						</div>	
-			       </div> 
-			   </div>
-			</div>
-
-			</div>
-		    </div>
-		  </div>
-
-<div class="clearer">&nbsp;</div>
-
-  		</div>
+{% block sidebar %}
+<div class="box">
+	<div class="box-title">Data Exploration</div>
+	<div id="explore-tabs">
+		<div class="tab">
+		    <input type="radio" id="tab-1" name="tab-group-1" checked>
+		    <label for="tab-1"><nobr>Query by Example</nobr></label>	
+		    <div class="content">
+		        <div class="box-content">
+				  <ul class="nice-list">
+				    <li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'img/Orange_Number_1.png' %}"></td><td><nobr><a href="/explore/select-template">Select Template</a></nobr></td></tr></table></li>
+				    <li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'img/Orange_Number_2.png' %}"></td><td><nobr><a href="/explore/customize-template">Select Fields</a></nobr></td></tr></table></li>
+				    <li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'img/Orange_Number_3.png' %}"></td><td><strong><nobr><a href="/explore/perform-search">Perform Search</a></nobr></strong></td></tr></table></li>
+				  </ul>
+				</div>	
+		    </div> 
+		</div>
+		<div class="tab">
+	       <input type="radio" id="tab-2" name="tab-group-1" disabled>
+	       <label for="tab-2" style="color:grey;"><nobr>SPARQL Endpoint</nobr></label>
+	   </div>
 	</div>
 </div>
+{% endblock %}
 
-<div id="footer-wrapper">
-
-	<div class="center-wrapper">
-
-		<div id="footer2">
-
-			<div class="left">
-				<a href="/">Home</a> <span class="text-separator">|</span> <a href="/curate">Data Curation</a> <span class="text-separator">|</span> <a href="/explore">Data Exploration</a> <span class="text-separator">|</span> <a href="/compose">Composer</a><span class="text-separator">|</span> <a href="/contact">Contact</a> 
-			</div>
-
-			<div class="right">
-				<a href="#">Top ^</a>
-			</div>
-			
-			<div class="clearer">&nbsp;</div>
-
-		</div>
-
-	</div>
-
-</div>
-
-<div id="bottom">
-
-	<div class="center-wrapper">
-
-		<div class="left">
-			&copy; 2012 - {% now "Y" %} Materials Data Curation System <span class="text-separator">|</span> <a href="/privacy-policy">Privacy Policy</a> <span class="text-separator">|</span> <a href="/terms-of-use">Terms of Use</a>
-{% if user.is_staff %}
-<span class="text-separator">|</span> <a href="/admin" target="_new">Administration</a> 
-{% else %}
-
-{% endif %}
-		</div>
-
-		<div class="right">
-			<a href="http://templates.arcsin.se/">Website template</a> by <a href="http://arcsin.se/">Arcsin</a> 
-		</div>
-		
-		<div class="clearer">&nbsp;</div>
-
-	</div>
-
-</div>
-		
-		<script src="{% static 'inc/controllers/js/explore.js' %}"></script>
-		<script>
-			get_results();
-		</script>
-	</body>
-</html>
+{% block extra %}		
+<script src="{% static 'inc/controllers/js/explore.js' %}"></script>
+<script>
+get_results();
+</script>
+{% endblock %}

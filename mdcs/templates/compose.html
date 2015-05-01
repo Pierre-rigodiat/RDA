@@ -23,11 +23,16 @@
 <link rel="stylesheet" type="text/css" href="{% static 'resources/css/style.add.css' %}"  media="screen" />
 {% endblock %}
 
-{% block title %}Start Template{% endblock %}
+{% block title %}<h1>Start Template</h1>{% endblock %}
 {% block description %}Select a new or existing start template from the following table to start composing. Once you make your selection, click on "Compose Template" to proceed.  It will automatically load the appropriate template and display it on the next page.{% endblock %}
 
 {% block menu %}{% include 'menu.html' with active_tab='tab4' %}{% endblock %}
-{% block submenu %}{% include 'submenu-compose.html' with active_tab='tab1' %}{% endblock %}
+{% block submenu %}
+<ul class="tabbed">
+	<li class="current_page_item"><a href="/compose/select-template">Start Template</a></li>
+	<li><div style="cursor:pointer"><a onclick="verifyTemplateIsSelected('/compose/build-template');">Compose Template</a></div></li>
+</ul>
+{% endblock %}
 
 {% block content %}
 			

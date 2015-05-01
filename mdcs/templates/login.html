@@ -16,101 +16,22 @@
 ################################################################################
 -->
 
+{% extends "base.html" %}
 {% load staticfiles %}
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr">
+{% block title %}<h1>Login</h1>{% endblock %}
 
-<head>
-	<meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
-	<meta name="description" content=""/>
-	<meta name="keywords" content="" />
-	<meta name="author" content="" />
-	<link rel="stylesheet" type="text/css" href="{% static 'resources/css/lib/bootstrap.min.css' %}"  media="screen" />
-	<link rel="stylesheet" type="text/css" href="{% static 'resources/css/style.css' %}" media="screen" />
-	<title>Materials Data Curation System</title>
-</head>
+{% block menu %}{% include 'menu.html' with active_tab='login' %}{% endblock %}
 
-<body id="top">
 
-<div id="header-wrapper">
-	<div id="header-wrapper-2">
-		<div class="center-wrapper">
-
-			<div id="header">
-
-				<div id="logo">
-					<h1 id="site-title"><a href="/">Materials Data <span>Curation System</span></a></h1>
-					<h2 id="site-slogan">
-{% if user.is_authenticated %}
-    Welcome, {{ user.username }}. Thanks for logging in.
-{% else %}
-    Part of the Materials Genome Initiative
-{% endif %}
-</h2>
-				</div>
-
-				<div id="help-wrapper">
-					<div id="help" align="center">
-
-						<a href="login">Login</a> <span class="text-separator">|</span> <a href="my-profile">My Profile</a> <span class="text-separator">|</span> <a href="help">Help</a> 
-
-					</div>
-				</div>
-
-			</div>
-
-		</div>
-	</div>
-</div>
-
-<div id="navigation-wrapper">
-	<div id="navigation-wrapper-2">
-		<div class="center-wrapper">
-	
-			<div id="navigation">
-
-				<ul class="tabbed">
-					<li><a href="/">Home</a></li>
-					<li><a href="curate">Data Curation</a></li>
-					<li><a href="explore">Data Exploration</a></li>
-					<li><a href="compose">Composer</a></li>
-					<li class="current_page_item"><a href="login">Login</a></li>
-				</ul>
-
-				<div class="clearer">&nbsp;</div>
-
-			</div>
-
-		</div>
-	</div>
-</div>
-
-<div id="content-wrapper">
-	<div class="center-wrapper">
-		
-		<div class="content">
-
-			<div id="featured-wrapper">
-				<div id="featured">
-
-<h1>Login</h1>
-					
-					<div class="clearer">&nbsp;</div>
-
-				</div>
-			</div>
-
-			<div id="main" style="margin-left:20px;">
+{% block content %}
+<div style="margin-left:20px;">
 
 {% if request.session.loggedOut %} 
 You have successfully logged out
 {% else %}
 
 {% endif %}
-
-{% block content %}
-
 
 {% if form.errors %}
 <p>Your username and password didn't match. Please try again.</p>
@@ -119,81 +40,24 @@ You have successfully logged out
 <form method="post" action="{% url 'django.contrib.auth.views.login' %}">
 {% csrf_token %}
 <table>
-<tr>
-    <td>{{ form.username.label_tag }}</td>
-    <td><div>{{ form.username }}</div></td>
-</tr>
-<tr>
-    <td>{{ form.password.label_tag }}</td>
-    <td><div>{{ form.password }}</div></td>
-</tr>
-<tr>
-  <td></td>
-  <td><button class="btn" type="submit" value="login" style="height:25px;width:50px;">Login</button></td>
-</tr>
+	<tr>
+	    <td>{{ form.username.label_tag }}</td>
+	    <td><div>{{ form.username }}</div></td>
+	</tr>
+	<tr>
+	    <td>{{ form.password.label_tag }}</td>
+	    <td><div>{{ form.password }}</div></td>
+	</tr>
+	<tr>
+	  <td></td>
+	  <td><button class="btn" type="submit" value="login" style="height:25px;width:50px;">Login</button></td>
+	</tr>
 </table>
 
 <input type="hidden" name="next" value="{{ request.session.next }}" />
 </form>
-<br>
+	<br/>
    <a href="/request-new-account"><button class="btn request account" > Request an Account</button></a>
-
+	<div class="clearer">&nbsp;</div>
+</div>
 {% endblock %}
-
-					<div class="clearer">&nbsp;</div>
-
-				</div>
-			</div>
-
-		</div>
-
-	</div>
-</div>
-
-<div id="footer-wrapper">
-
-	<div class="center-wrapper">
-
-		<div id="footer2">
-
-			<div class="left">
-				<a href="/">Home</a> <span class="text-separator">|</span> <a href="/curate">Data Curation</a> <span class="text-separator">|</span> <a href="/explore">Data Exploration</a> <span class="text-separator">|</span> <a href="/compose">Composer</a><span class="text-separator">|</span> <a href="/contact">Contact</a> 
-			</div>
-
-			<div class="right">
-				<a href="#">Top ^</a>
-			</div>
-			
-			<div class="clearer">&nbsp;</div>
-
-		</div>
-
-	</div>
-
-</div>
-
-<div id="bottom">
-
-	<div class="center-wrapper">
-
-		<div class="left">
-			&copy; 2012 - {% now "Y" %} Materials Data Curation System <span class="text-separator">|</span> <a href="/privacy-policy">Privacy Policy</a> <span class="text-separator">|</span> <a href="/terms-of-use">Terms of Use</a> 
-{% if user.is_staff %}
-<span class="text-separator">|</span> <a href="/admin" target="_new">Administration</a> 
-{% else %}
-
-{% endif %}
-		</div>
-
-		<div class="right">
-			<a href="http://templates.arcsin.se/">Website template</a> by <a href="http://arcsin.se/">Arcsin</a> 
-		</div>
-		
-		<div class="clearer">&nbsp;</div>
-
-	</div>
-
-</div>
-
-</body>
-</html>

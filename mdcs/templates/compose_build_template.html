@@ -27,41 +27,35 @@
 {% block extrahead %}
 <script src="{% static 'inc/controllers/js/composer.js' %}"></script>
 {% endblock %}
-{% block title %}Compose Template{% endblock %}
+{% block title %}<h1>Compose Template</h1>{% endblock %}
 {% block description %}Please click on an element of the tree to start composing the template. A menu will appear and you will be able to interact with that element.{% endblock %}
 
 {% block menu %}{% include 'menu.html' with active_tab='tab4' %}{% endblock %}
-{% block submenu %}{% include 'submenu-compose.html' with active_tab='tab2' %}{% endblock %}
+{% block submenu %}
+<ul class="tabbed">
+	<li><a href="/compose/select-template">Start Template</a></li>
+	<li class="current_page_item"><a href="/compose/build-template">Compose Template</a></li>
+</ul>
+{% endblock %}
 
 {% block content %}
-			
-
 <div class="btn-group pull-right">
 	<button class="btn download"><i class="icon-arrow-down"></i> Download </button>
     <button class="btn save template"><i class="icon-hdd"></i> Save as Template </button>
     <button class="btn save types"><i class="icon-hdd"></i> Save as Type </button>		    
 </div>
-<div id="template_selection">
-		      
+<div id="template_selection">	      
 {% if request.session.currentComposeTemplate %} 
-
 <div class="clearer">&nbsp;</div>
-
 <div id="XMLHolder"></div>
-
 <br/><br/>
-
 {% endif %}
-
 </div>
-
 <div class="clearer">&nbsp;</div>
-
 {% endblock %}
 
 							
 {% block sidebar %}
-
 <div class="box" >
 	<div class="box-title">Composer</div>
 	<div class="box-content">
@@ -79,7 +73,6 @@
 		</ul>
 	</div>
 </div>
-
 {% endblock %}
 
 {% block extra %}

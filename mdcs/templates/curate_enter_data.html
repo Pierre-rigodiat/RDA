@@ -26,11 +26,17 @@
 {% block extrahead %}
 <script src="{% static 'inc/controllers/js/XMLTreeCurator.js' %}"></script>
 {% endblock %}
-{% block title %}Data Entry{% endblock %}
+{% block title %}<h1>Data Entry</h1>{% endblock %}
 {% block description %}Here you can fill in the Material Data form. Once it is completed, you can view the data you have entered.{% endblock %}
 
 {% block menu %}{% include 'menu.html' with active_tab='tab2' %}{% endblock %}
-{% block submenu %}{% include 'submenu-curate.html' with active_tab='tab1' %}{% endblock %}
+{% block submenu %}
+<ul class="tabbed">
+	<li class="{% if active_tab == 'tab1' %} current_page_item {% endif %}"><a href="/curate/select-template">Select Template</a></li>
+	<li class="{% if active_tab == 'tab2' %} current_page_item {% endif %}"><a href="/curate/enter-data">Enter Data</a></li>
+	<li class="{% if active_tab == 'tab3' %} current_page_item {% endif %}"><a onclick="validateXML();" style="cursor: pointer;">View Data</a></li>
+</ul>
+{% endblock %}
 
 {% block content %}
 <div class="toolbar">

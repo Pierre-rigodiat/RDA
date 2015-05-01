@@ -29,9 +29,8 @@
 	<meta name="author" content="" />
 	<link rel="stylesheet" type="text/css" href="{% static 'resources/css/lib/bootstrap.min.css' %}"  media="screen" />
 	<link rel="stylesheet" type="text/css" href="{% static 'resources/css/style.css' %}" media="screen" />
-	<title>Materials Data Curation System</title>
-
 	<link rel="stylesheet" type="text/css" href="{% static 'resources/css/icons.css' %}" media="screen" />
+	<title>Materials Data Curation System</title>
 
 	<!-- JQuery & JQuery UI -->
 	<script src="{% static 'resources/lib/jquery/jquery-1.11.1.min.js' %}"></script>
@@ -102,7 +101,7 @@
 							    </ul>
 							    {% endif %}
 							{% endblock messages %}
-							<h1>{% block title %}{{title}}{% endblock %}</h1>	
+							{% block title %}{{title}}{% endblock %}	
 							<div class="clearer">
 							&nbsp;
 							</div>
