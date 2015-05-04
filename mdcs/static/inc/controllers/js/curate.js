@@ -62,6 +62,23 @@ verifyTemplateIsSelectedCallback = function(data, selectedLink)
 
 
 /**
+ * Display message to block access to view data from first step.
+ */
+viewDataError = function()
+{
+    $(function() {
+        $( "#dialog-view-error-message" ).dialog({
+            modal: true,
+            buttons: {
+            	Ok: function() {
+                    $( this ).dialog( "close" );
+                }
+            }
+        });
+    });
+}
+
+/**
  * Load controllers for template selection
  */
 loadTemplateSelectionControllers = function()

@@ -173,35 +173,38 @@ def save_xml_data_to_db(request):
     xmlString = request.session['xmlString']
     templateID = request.session['currentTemplateID']
 
-    try:
-        newJSONData = Jsondata(schemaID=templateID, xml=xmlString, title=request.POST['saveAs'])
-        docID = newJSONData.save()
+    if xmlString != "":
+        try:
+            newJSONData = Jsondata(schemaID=templateID, xml=xmlString, title=request.POST['saveAs'])
+            docID = newJSONData.save()
+            
+            xsltPath = os.path.join(settings.SITE_ROOT, 'static/resources/xsl/xml2rdf3.xsl')
+            xslt = etree.parse(xsltPath)
+            root = xslt.getroot()
+            namespace = root.nsmap['xsl']
+            URIparam = root.find("{" + namespace +"}param[@name='BaseURI']") #find BaseURI tag to insert the project URI
+            URIparam.text = settings.PROJECT_URI + str(docID)
         
-        xsltPath = os.path.join(settings.SITE_ROOT, 'static/resources/xsl/xml2rdf3.xsl')
-        xslt = etree.parse(xsltPath)
-        root = xslt.getroot()
-        namespace = root.nsmap['xsl']
-        URIparam = root.find("{" + namespace +"}param[@name='BaseURI']") #find BaseURI tag to insert the project URI
-        URIparam.text = settings.PROJECT_URI + str(docID)
+            # SPARQL : transform the XML into RDF/XML
+            transform = etree.XSLT(xslt)
+            # add a namespace to the XML string, transformation didn't work well using XML DOM    
+            template = Template.objects.get(pk=templateID)
+            xmlStr = xmlString.replace('>',' xmlns="' + settings.PROJECT_URI + template.hash + '">', 1) #TODO: OR schema name...
+            # domXML.attrib['xmlns'] = projectURI + schemaID #didn't work well
+            domXML = etree.fromstring(xmlStr)
+            domRDF = transform(domXML)
+        
+            # SPARQL : get the rdf string
+            rdfStr = etree.tostring(domRDF)
+        
+            # SPARQL : send the rdf to the triplestore
+            rdfPublisher.sendRDF(rdfStr)
     
-        # SPARQL : transform the XML into RDF/XML
-        transform = etree.XSLT(xslt)
-        # add a namespace to the XML string, transformation didn't work well using XML DOM    
-        template = Template.objects.get(pk=templateID)
-        xmlStr = xmlString.replace('>',' xmlns="' + settings.PROJECT_URI + template.hash + '">', 1) #TODO: OR schema name...
-        # domXML.attrib['xmlns'] = projectURI + schemaID #didn't work well
-        domXML = etree.fromstring(xmlStr)
-        domRDF = transform(domXML)
-    
-        # SPARQL : get the rdf string
-        rdfStr = etree.tostring(domRDF)
-    
-        # SPARQL : send the rdf to the triplestore
-        rdfPublisher.sendRDF(rdfStr)
-
-    except Exception, e:
-        message = e.message.replace('"', '\'')
-        response_dict['errors'] = message
+        except Exception, e:
+            message = e.message.replace('"', '\'')
+            response_dict['errors'] = message
+    else:
+        response_dict['errors'] = "No data to save."
 
     print 'END def saveXMLDataToDB(request,saveAs)'
     return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
