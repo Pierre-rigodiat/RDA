@@ -30,7 +30,7 @@
 <ul class="tabbed">
   <li class="current_page_item"><a href="/curate/select-template">Select Template</a></li>
   <li><div style="cursor:pointer"><a onclick="verifyTemplateIsSelected('/curate/enter-data');">Enter Data</a></div></li>
-  <li><div style="cursor:pointer"><a onclick="verifyTemplateIsSelected('/curate/view-data');">View Data</a></div></li>
+  <li><div style="cursor:pointer"><a onclick="viewDataError();">View Data</a></div></li>
 </ul>
 {% endblock %}
 
@@ -125,7 +125,7 @@
 		<ul class="nice-list">
 			<li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'img/Orange_Number_1.png' %}"></td><td><strong><a href="/curate/select-template">Select Template</a></strong></td></tr></table></li>
 			<li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'img/Orange_Number_2.png' %}"></td><td><div style="cursor:pointer"><a onclick="verifyTemplateIsSelected('/curate/enter-data');">Enter Data</a></div></td></tr></table></li>
-			<li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'img/Orange_Number_3.png' %}"></td><td><div style="cursor:pointer"><a onclick="verifyTemplateIsSelected('/curate/view-data');">View Data</a></td></tr></table></li>
+			<li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'img/Orange_Number_3.png' %}"></td><td><div style="cursor:pointer"><a onclick="viewDataError();">View Data</a></td></tr></table></li>
 		</ul>
 	</div>
 </div>
@@ -147,11 +147,17 @@
   </p>
 </div>
 
-<div id="dialog-error-message" title="Template Loaded" style="display:none;">
+<div id="dialog-error-message" title="No template selected" style="display:none;">
 <p></p>
   <p>
-    <span class="ui-icon ui-icon-circle-check" style="float:left; margin:0 7px 10px 0;"></span>
     Please select a template first.
+  </p>
+</div>
+
+<div id="dialog-view-error-message" title="No data to view" style="display:none;">
+<p></p>
+  <p>
+    No data to view yet. Please proceed to step 2 first.
   </p>
 </div>
 
