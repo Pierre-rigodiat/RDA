@@ -1083,10 +1083,8 @@ def stringCriteria(path, comparison, value, isNot=False):
     elif (comparison == "like"):
         if(isNot):
             criteria[path] = dict()
-#             criteria[path]["$not"] = re.compile(value)
             criteria[path]["$not"] = "/" + value + "/"
         else:
-#             criteria[path] = re.compile(value)
             criteria[path] = "/" + value + "/"
     
     return criteria
@@ -2213,17 +2211,21 @@ def createCustomTreeForQuery(request, htmlTree):
 ################################################################################
 def manageUlForQuery(request, ul):
     branchInfo = BranchInfo(keepTheBranch = False, selectedLeave = None)
-#     hasOnlyLeaves = True
+
     selectedLeaves = []
     for li in ul.findall("./li"):
         liBranchInfo = manageLiForQuery(request, li)
         if(liBranchInfo.keepTheBranch == True):
             branchInfo.keepTheBranch = True
-#         if(liBranchInfo.branchType == "branch"):
-#             hasOnlyLeaves = False
         if (liBranchInfo.selectedLeave is not None):
             selectedLeaves.append(liBranchInfo.selectedLeave)
-             
+    
+    # ul can contain ul, because XSD allows recursive sequence or sequence with choices
+    for ul in ul.findall("./ul"):
+        ulBranchInfo = manageUlForQuery(request, ul)
+        if(ulBranchInfo.keepTheBranch == True):
+                branchInfo.keepTheBranch = True
+                
     if(not branchInfo.keepTheBranch):
         ul.attrib['style'] = "display:none;"
 #     elif(hasOnlyLeaves and nbSelectedLeaves >1): # starting at 2 because 1 is the regular case
