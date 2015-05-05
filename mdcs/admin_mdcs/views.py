@@ -56,6 +56,7 @@ def user_requests(request):
         request.session['next'] = '/'
         return redirect('/login')
 
+
 ################################################################################
 #
 # Function Name: contact_messages(request)
@@ -80,6 +81,7 @@ def contact_messages(request):
         request.session['next'] = '/'
         return redirect('/login')
 
+
 ################################################################################
 #
 # Function Name: website(request)
@@ -102,6 +104,7 @@ def website(request):
             del request.session['loggedOut']
         request.session['next'] = '/'
         return redirect('/login')
+
 
 ################################################################################
 #
@@ -213,6 +216,7 @@ def manage_schemas(request):
         request.session['next'] = '/'
         return redirect('/login')
 
+
 ################################################################################
 #
 # Function Name: manage_modules(request)
@@ -235,6 +239,7 @@ def module_management(request):
             del request.session['loggedOut']
         request.session['next'] = '/'
         return redirect('/login')
+
 
 ################################################################################
 #
@@ -296,6 +301,7 @@ def manage_types(request):
         request.session['next'] = '/'
         return redirect('/login')
 
+
 ################################################################################
 #
 # Function Name: federation_of_queries(request)
@@ -319,6 +325,7 @@ def federation_of_queries(request):
             del request.session['loggedOut']
         request.session['next'] = '/'
         return redirect('/login')
+
 
 ################################################################################
 #
@@ -472,6 +479,7 @@ def refresh_repository(request):
             del request.session['loggedOut']
         request.session['next'] = '/'
         return redirect('/login')
+
 
 ################################################################################
 #

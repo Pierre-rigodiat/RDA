@@ -15,7 +15,6 @@
 ################################################################################
 
 from django.conf.urls import patterns, url, include
-# from api.views import JsonDataList
 from api.views import docs, ping
 
 urlpatterns = patterns(

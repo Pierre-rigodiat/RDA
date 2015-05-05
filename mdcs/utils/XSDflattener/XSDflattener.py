@@ -20,11 +20,7 @@
 ################################################################################
 
 import lxml.etree as etree
-import hashlib
-import xmltodict
 from io import BytesIO
-from collections import OrderedDict
-import requests
 from abc import ABCMeta, abstractmethod
 
 class XSDFlattener(object):
