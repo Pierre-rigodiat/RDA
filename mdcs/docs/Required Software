@@ -1,0 +1,8 @@
+Required Software
+
+This document provides a list of all software that are required to run the MDCS.
+
+Python 2.7.x
+MongoDB 3.x
+JDK 7
+SQLite3 (prefer PostgreSQL 9.x in production)
