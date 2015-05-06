@@ -71,7 +71,7 @@ To query the RDF DB:
 sh fuseki-server --loc=/path/to/mdcs/data/ts /ts
 
 Install all required python packages:
-Use the file called Required Python Packages to install them in their good version. If you are using a virtual environment, make sure it is activated before starting the installation. Instructions specific to UNIX platform can be found below.
+Use the file called Required Python Packages to install them in their good version. If you are using a virtual environment, make sure it is activated before starting the installation. Instructions specific to Linux platform can be found below.
 
 
 For lxml:
