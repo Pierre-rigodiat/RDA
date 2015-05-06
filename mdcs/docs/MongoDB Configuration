@@ -29,7 +29,7 @@ roles: [ { role: "userAdminAnyDatabase", db: "admin"},"backup","restore"]
 )
 exit
 
-mongo --port 27017 -u "<mongo_admin_user>", -p "<mongo_admin_password>" --authenticationDatabase admin
+mongo --port 27017 -u "<mongo_admin_user>" -p "<mongo_admin_password>" --authenticationDatabase admin
 use mgi
 db.createUser(
 {
