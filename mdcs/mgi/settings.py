@@ -5,10 +5,10 @@
 # Description: 
 #   Django settings for mgi project.
 #   For more information on this file, see
-#   https://docs.djangoproject.com/en/1.6/topics/settings/
+#   https://docs.djangoproject.com/en/1.7/topics/settings/
 #
 #   For the full list of settings and their values, see
-#   https://docs.djangoproject.com/en/1.6/ref/settings/
+#   https://docs.djangoproject.com/en/1.7/ref/settings/
 #
 # Author: Sharief Youssef
 #         sharief.youssef@nist.gov
