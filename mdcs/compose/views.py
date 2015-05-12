@@ -78,7 +78,7 @@ def compose_build_template(request):
 
         # 1) user types: list of ids
         userTypes = []
-        for user_type in Type.objects(user=request.user.id):
+        for user_type in Type.objects(user=str(request.user.id)):
             userTypes.append(user_type)
 
         # 2) buckets: label -> list of type that are not deleted
