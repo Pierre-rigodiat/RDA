@@ -80,6 +80,12 @@ MONGO_MGI_PASSWORD = "mgi_password"
 MONGODB_URI = "mongodb://" + MONGO_MGI_USER + ":" + MONGO_MGI_PASSWORD + "@localhost/mgi"
 connect("mgi", host=MONGODB_URI)
 
+
+# Enables modules for materials scientists 
+MATERIALS_MODULES=True
+
+
+
 TEMPLATE_DIRS = [os.path.join(BASE_DIR, 'templates')]
 
 TEMPLATE_LOADERS = (

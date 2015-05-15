@@ -25,12 +25,13 @@ from mgi import utils
 import lxml.html as html
 import lxml.etree as etree
 
+from mgi.settings import MATERIALS_MODULES
+
 # Specific to RDF
 import rdfPublisher
 
 #XSL file loading
 import os
-
 
 #Class definition
 
@@ -669,30 +670,28 @@ def stubModules(request, element):
         formString += "<div class='moduleDisplay'></div>"
         formString += "<div class='moduleResult' style='display: none'></div>"
         formString += "</div>"    
-    
-    #TODO: modules
-    if 'name' in element.attrib and element.attrib.get('name') == "ConstituentsType":
-        formString += "<div class='module' style='display: inline'>"
-        formString += "<div class=\"btn select-element\" onclick=\"selectMultipleElements(this);\"><i class=\"icon-folder-open\"></i> Select Chemical Elements</div>"
-        formString += "<div class='moduleDisplay'></div>"
-        formString += "<div class='moduleResult' style='display: none'></div>"
-        formString += "</div>"
-    
-    #TODO: modules
-    if 'name' in element.attrib and element.attrib.get('name') == "ChemicalElement":
-        formString += "<div class='module' style='display: inline'>"
-        formString += "<div class=\"btn select-element\" onclick=\"selectElement(this);\"><i class=\"icon-folder-open\"></i> Select Chemical Element</div>"
-        formString += "<div class='moduleDisplay'>Current Selection: None</div>"
-        formString += "<div class='moduleResult' style='display: none'></div>"
-        formString += "</div>" 
-    
-    #TODO: modules
-    if 'name' in element.attrib and element.attrib.get('name') == "Table":
-        formString += "<div class='module' style='display: inline'>"
-        formString += "<div class=\"btn select-element\" onclick=\"selectHDF5File('Spreadsheet File',this);\"><i class=\"icon-folder-open\"></i> Upload Spreadsheet </div>"
-        formString += "<div class='moduleDisplay'></div>"
-        formString += "<div class='moduleResult' style='display: none'></div>"
-        formString += "</div>"
+        
+    if MATERIALS_MODULES == True:
+        if 'name' in element.attrib and element.attrib.get('name') == "ConstituentsType":
+            formString += "<div class='module' style='display: inline'>"
+            formString += "<div class=\"btn select-element\" onclick=\"selectMultipleElements(this);\"><i class=\"icon-folder-open\"></i> Select Chemical Elements</div>"
+            formString += "<div class='moduleDisplay'></div>"
+            formString += "<div class='moduleResult' style='display: none'></div>"
+            formString += "</div>"
+        
+        if 'name' in element.attrib and element.attrib.get('name') == "ChemicalElement":
+            formString += "<div class='module' style='display: inline'>"
+            formString += "<div class=\"btn select-element\" onclick=\"selectElement(this);\"><i class=\"icon-folder-open\"></i> Select Chemical Element</div>"
+            formString += "<div class='moduleDisplay'>Current Selection: None</div>"
+            formString += "<div class='moduleResult' style='display: none'></div>"
+            formString += "</div>" 
+        
+        if 'name' in element.attrib and element.attrib.get('name') == "Table":
+            formString += "<div class='module' style='display: inline'>"
+            formString += "<div class=\"btn select-element\" onclick=\"selectHDF5File('Spreadsheet File',this);\"><i class=\"icon-folder-open\"></i> Upload Spreadsheet </div>"
+            formString += "<div class='moduleDisplay'></div>"
+            formString += "<div class='moduleResult' style='display: none'></div>"
+            formString += "</div>"
     
     return formString
 
