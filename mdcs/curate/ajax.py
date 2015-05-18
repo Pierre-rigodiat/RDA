@@ -646,12 +646,7 @@ def generateElement(request, element, xmlTree, namespace, choiceInfo=None):
 
     # remove the annotations
     removeAnnotations(element, namespace)
-    
-    if 'name' in element.attrib:
-        print element.attrib['name']
-    elif 'ref' in element.attrib:
-        print element.attrib['ref']
-        
+            
     if 'type' not in element.attrib:
         # type is a reference included in the document
         if 'ref' in element.attrib: 
