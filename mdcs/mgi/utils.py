@@ -137,3 +137,18 @@ def getXSDTypes(prefix):
             "{0}:float".format(prefix),
             "{0}:hexBinary".format(prefix),
             "{0}:QName".format(prefix)]
+    
+    
+################################################################################
+# 
+# Class Name: ElementOccurrences
+#
+# Description: Store information about a resource for a module
+#
+################################################################################
+class ChoiceInfo:
+    "Class that stores information about a choice being rendered"
+        
+    def __init__(self, chooseIDStr, counter):
+        self.chooseIDStr = chooseIDStr
+        self.counter = counter
