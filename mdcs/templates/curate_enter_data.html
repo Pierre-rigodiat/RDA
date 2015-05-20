@@ -56,9 +56,9 @@
 	<div class="box-title">Data Curation</div>
 	<div class="box-content">
 		<ul class="nice-list">
-			<li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'img/Orange_Number_1.png' %}"></td><td><a href="/curate/select-template">Select Template</a></td></tr></table></li>
-			<li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'img/Orange_Number_2.png' %}"></td><td><strong><a href="/curate/enter-data">Enter Data</a></strong></td></tr></table></li>
-			<li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'img/Orange_Number_3.png' %}"></td><td><a style="cursor:pointer;" onclick="validateXML();">View Data</a></td></tr></table></li>
+			<li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'resources/img/Orange_Number_1.png' %}"></td><td><a href="/curate/select-template">Select Template</a></td></tr></table></li>
+			<li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'resources/img/Orange_Number_2.png' %}"></td><td><strong><a href="/curate/enter-data">Enter Data</a></strong></td></tr></table></li>
+			<li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'resources/img/Orange_Number_3.png' %}"></td><td><a style="cursor:pointer;" onclick="validateXML();">View Data</a></td></tr></table></li>
 		</ul>
 	</div>
 </div>
@@ -136,10 +136,17 @@ verifyTemplateIsSelectedCurateEnterData();
 <p></p>
 <p>
   <div class="btn-group">
-    <button class="btn download-xsd" onclick="downloadXSD();"><i class="icon-arrow-down"></i> Download Schema</button>
+    <button class="btn" onclick="downloadXSD();"><i class="icon-arrow-down"></i> Download Schema</button>
   </div>
 <br/>
 </p>
+<p>
+  <div class="btn-group">
+    <button class="btn" onclick="downloadCurrentXML();"><i class="icon-arrow-down"></i> Download Document</button>
+  </div>
+<br/>
+</p>
+
 </div>
 
 <div id="dialog-select-element" title="Select Element" style="display:none;">
