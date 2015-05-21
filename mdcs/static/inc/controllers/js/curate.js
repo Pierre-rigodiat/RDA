@@ -374,7 +374,7 @@ validateXML = function()
 	var rootElement = document.getElementsByName("xsdForm")[0];
 	var xmlString = '';
 	
-    xmlString = generateXMLString (rootElement, xmlString);
+    xmlString = generateXMLString (rootElement);
     
     $("input").each(function(){
 	    $(this).attr("value", $(this).val());
@@ -451,6 +451,7 @@ generateXMLString = function(elementObj)
 		    // get the index of the selected option 
 		    var idx = children[i].selectedIndex; 
 		    // get the value of the selected option 
+		    
 		    var which = children[i].options[idx].value; 
 		    	    
 		    if (children[i].getAttribute("id") != null && children[i].getAttribute("id").indexOf("choice") > -1){
@@ -845,8 +846,6 @@ loadCurrentTemplateFormForCuration = function()
     $('.btn.load-form').on('click', loadForm);
     $('.btn.save-form').on('click', saveForm);
     $('.btn.download').on('click', downloadOptions);
-    $('.btn.download-xsd').on('click', downloadXSD);
-    $('.btn.download-xml').on('click', downloadXML);
 
     generate_xsd_form()
     update_form_list();
@@ -1008,6 +1007,43 @@ downloadXSD = function()
     console.log('[downloadXSD] Schema downloaded');
 
     console.log('END [downloadXSD]');
+}
+
+
+/**
+ * Download the current XML document
+ */
+downloadCurrentXML = function()
+{
+    console.log('BEGIN [downloadCurrentXML]');
+    
+	var rootElement = document.getElementsByName("xsdForm")[0];
+	var xmlString = '';
+    
+    xmlString = generateXMLString (rootElement);   
+    
+    download_current_xml(xmlString);
+    
+    console.log('END [downloadCurrentXML]');
+}
+
+
+/**
+ * AJAX call, download XML document in its current form
+ */
+download_current_xml = function(xmlString){
+    $.ajax({
+        url : "/curate/enter-data/download_current_xml",
+        type : "POST",
+        dataType: "json",
+        data:{
+        	xmlString: xmlString
+        },
+        success : function(data) {
+        	window.location = "/curate/view-data/download-XML?id="+ data.xml2downloadID
+        	$("#dialog-download-options").dialog("close");
+        }
+    });
 }
 
 

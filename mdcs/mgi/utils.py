@@ -90,7 +90,36 @@ def validateXMLDocument(templateID, xmlString):
     xmlSchema = etree.XMLSchema(xmlTree)    
     xmlDoc = etree.fromstring(xmlString)
     prettyXMLString = etree.tostring(xmlDoc, pretty_print=True)  
-    xmlSchema.assertValid(etree.parse(StringIO(prettyXMLString)))  
+    xmlSchema.assertValid(etree.parse(StringIO(prettyXMLString)))
+    
+
+################################################################################
+#
+# Function Name: manageNamespace(templateID, xmlString)
+# Inputs:        request - 
+#                templateID - 
+#                xmlString - 
+# Outputs:       
+# Exceptions:    None
+# Description:   - manage global targetNamespace
+#                
+#
+################################################################################
+def manageNamespace(templateID, xmlString):
+    # the schema has no dependencies
+    if str(templateID) not in MetaSchema.objects.all().values_list('schemaId'):
+        templateObject = Template.objects.get(pk=templateID)
+        templateData = templateObject.content    
+        templateTree = etree.parse(StringIO(templateData.encode('utf-8')))
+        templateTreeRoot = templateTree.getroot()
+        # The schema is using a target namespace
+        if 'targetNamespace' in templateTreeRoot.attrib:
+            xmlTree = etree.parse(StringIO(xmlString.encode('utf-8')))
+            xmlRoot = xmlTree.getroot()
+            xmlRoot.attrib['xmlns'] = templateTreeRoot.attrib['targetNamespace']
+            xmlString = etree.tostring(xmlTree)
+    
+    return xmlString
 
 ################################################################################
 #

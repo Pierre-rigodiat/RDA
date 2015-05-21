@@ -18,6 +18,7 @@ import re
 from django.http import HttpResponse
 from django.conf import settings
 from io import BytesIO
+from cStringIO import StringIO
 from mgi.models import Template, Htmlform, Jsondata, XML2Download, Module, MetaSchema
 import json
 from mgi import utils
@@ -127,7 +128,7 @@ def save_html_form(request):
 
 ################################################################################
 #
-# Function Name: validateXMLData(request)
+# Function Name: validate_xml_data(request)
 # Inputs:        request - 
 #                xmlString - XML string generated from the form
 #                xsdForm -  Current form
@@ -139,18 +140,19 @@ def save_html_form(request):
 ################################################################################
 def validate_xml_data(request):
     
-    template_id = request.session['currentTemplateID']
-    
+    template_id = request.session['currentTemplateID']    
     request.session['xmlString'] = ""
-          
+    
+    # TODO: namespaces
+    xmlString = utils.manageNamespace(template_id, request.POST['xmlString'])      
     try:
-        utils.validateXMLDocument(template_id, request.POST['xmlString'])
+        utils.validateXMLDocument(template_id, xmlString)
     except Exception, e:
         message= e.message.replace('"', '\'')
         response_dict = {'errors': message}
         return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
 
-    request.session['xmlString'] = request.POST['xmlString']
+    request.session['xmlString'] = xmlString
     request.session['formString'] = request.POST['xsdForm']
 
     return HttpResponse(json.dumps({}), content_type='application/javascript')
@@ -411,7 +413,7 @@ def removeAnnotations(element, namespace):
 # Description:   Generates a section of the form that represents an XML sequence
 # 
 ################################################################################
-def generateSequence(request, element, xmlTree, namespace):
+def generateSequence(request, element, xmlTree, namespace, choiceInfo=None):
     #(annotation?,(element|group|choice|sequence|any)*)
     
     formString = ""
@@ -423,11 +425,11 @@ def generateSequence(request, element, xmlTree, namespace):
     if(len(list(element)) != 0):
         for child in element:
             if (child.tag == "{0}element".format(namespace)):            
-                formString += generateElement(request, child, xmlTree, namespace)
+                formString += generateElement(request, child, xmlTree, namespace, choiceInfo)
             elif (child.tag == "{0}sequence".format(namespace)):
-                formString += generateSequence(request, child, xmlTree, namespace)
+                formString += generateSequence(request, child, xmlTree, namespace, choiceInfo)
             elif (child.tag == "{0}choice".format(namespace)):
-                formString += generateChoice(request, child, xmlTree, namespace)
+                formString += generateChoice(request, child, xmlTree, namespace, choiceInfo)
             elif (child.tag == "{0}any".format(namespace)):
                 pass
             elif (child.tag == "{0}group".format(namespace)):
@@ -447,12 +449,9 @@ def generateSequence(request, element, xmlTree, namespace):
 # Description:   Generates a section of the form that represents an XML choice
 # 
 ################################################################################
-def generateChoice(request, element, xmlTree, namespace):
+def generateChoice(request, element, xmlTree, namespace, choiceInfo=None):
     #(annotation?,(element|group|choice|sequence|any)*)
     nbChoicesID = int(request.session['nbChoicesID'])
-    xsd_elements = request.session['xsd_elements']
-    mapTagElement = request.session['mapTagElement']
-    defaultPrefix = request.session['defaultPrefix']
     
     formString = ""
     
@@ -463,7 +462,16 @@ def generateChoice(request, element, xmlTree, namespace):
     chooseIDStr = 'choice' + str(chooseID)
     nbChoicesID += 1
     request.session['nbChoicesID'] = str(nbChoicesID)
-    formString += "<ul><li>Choose <select id='"+ chooseIDStr +"' onchange=\"changeChoice(this);\">"
+    if choiceInfo:
+        if (choiceInfo.counter > 0):
+            formString += "<ul id=\"" + choiceInfo.chooseIDStr + "-" + str(choiceInfo.counter) + "\" class=\"notchosen\"><li>Choose <select id='"+ chooseIDStr +"' onchange=\"changeChoice(this);\">"
+        else:
+            formString += "<ul id=\"" + choiceInfo.chooseIDStr + "-" + str(choiceInfo.counter) + "\"><li>Choose <select id='"+ chooseIDStr +"' onchange=\"changeChoice(this);\">"
+    else:
+        formString += "<ul><li>Choose <select id='"+ chooseIDStr +"' onchange=\"changeChoice(this);\">"
+        
+    
+    nbSequence = 1
     
     # generates the choice
     if(len(list(element)) != 0):
@@ -478,7 +486,8 @@ def generateChoice(request, element, xmlTree, namespace):
             elif (child.tag == "{0}choice".format(namespace)):
                 pass
             elif (child.tag == "{0}sequence".format(namespace)):
-                pass
+                formString += "<option value='sequence" + str(nbSequence) + "'>Sequence " + str(nbSequence) + "</option></b><br>"
+                nbSequence += 1
             elif (child.tag == "{0}any".format(namespace)):
                 pass
 
@@ -487,7 +496,13 @@ def generateChoice(request, element, xmlTree, namespace):
     for (counter, choiceChild) in enumerate(list(element)):
         if choiceChild.tag == "{0}element".format(namespace):
             formString += generateElement(request, choiceChild, xmlTree, namespace, utils.ChoiceInfo(chooseIDStr,counter))
-        else:
+        elif (choiceChild.tag == "{0}group".format(namespace)):
+            pass
+        elif (choiceChild.tag == "{0}choice".format(namespace)):
+            pass
+        elif (choiceChild.tag == "{0}sequence".format(namespace)):
+            formString += generateSequence(request, choiceChild, xmlTree, namespace, utils.ChoiceInfo(chooseIDStr,counter))
+        elif (choiceChild.tag == "{0}any".format(namespace)):
             pass
     
     formString += "</li></ul>"
@@ -660,10 +675,12 @@ def generateElement(request, element, xmlTree, namespace, choiceInfo=None):
                 # TODO: manage namespaces/targetNamespaces, composed schema with different target namespaces
 #                 element = xmlTree.findall("./{0}element[@name='"+refName+"']".format(refNamespace))
                 element = xmlTree.find("./{0}element[@name='{1}']".format(namespace, refName))
-                formString += generateElement(request, element, xmlTree, namespace)
+                if element is not None:
+                    formString += generateElement(request, element, xmlTree, namespace, choiceInfo)
             else:
                 element = xmlTree.find("./{0}element[@name='{1}']".format(namespace, ref))
-                formString += generateElement(request, element, xmlTree, namespace)
+                if element is not None:
+                    formString += generateElement(request, element, xmlTree, namespace, choiceInfo)
              
         # element with type declared below it
         else:                            
@@ -957,7 +974,6 @@ def duplicate(request):
                     else: 
                         formString += "<li id='" + str(newTagID) + "'>" + textCapitalized
                     
-                    formString += "<li id='" + str(newTagID) + "'>" + textCapitalized
                     formString += "<span id='add"+ str(newTagID[7:]) +"' class=\"icon add\" onclick=\"changeHTMLForm('add',"+str(newTagID[7:])+");\"></span>"
                     formString += "<span id='remove"+ str(newTagID[7:]) +"' class=\"icon remove\" onclick=\"changeHTMLForm('remove',"+str(newTagID[7:])+");\"></span>"            
                     if sequenceChild[0].tag == "{0}complexType".format(namespace):
@@ -1037,7 +1053,8 @@ def duplicate(request):
     
     request.session.modified = True
     return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
-    
+
+
 ################################################################################
 # 
 # Function Name: get_namespaces(file)
@@ -1240,6 +1257,25 @@ def generate_xsd_form(request):
 ################################################################################
 def download_xml(request):
     xmlString = request.session['xmlString']
+    
+    xml2download = XML2Download(xml=xmlString).save()
+    xml2downloadID = str(xml2download.id)
+
+    response_dict = {"xml2downloadID": xml2downloadID}
+    return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
+
+
+################################################################################
+# 
+# Function Name: download_xml(request)
+# Inputs:        request - 
+# Outputs:       
+# Exceptions:    None
+# Description:   Make the current XML document available for download.
+#
+################################################################################
+def download_current_xml(request):
+    xmlString = request.POST['xmlString']
     
     xml2download = XML2Download(xml=xmlString).save()
     xml2downloadID = str(xml2download.id)
