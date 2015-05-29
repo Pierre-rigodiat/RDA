@@ -265,7 +265,7 @@ img.alignright, img.right {margin: 0 0 1em 1.5em;}
 }
 .archive-separator {margin: 0 0 14px;}
 
-.separator-vertical {background: url('/static/img/separator-vertical.gif') repeat-y center top;}
+.separator-vertical {background: url('/static/resources/img/separator-vertical.gif') repeat-y center top;}
 
 
 /* 
@@ -362,7 +362,7 @@ ul.nice-list span {color: #666;}
 ------------------------------------------------------------------- */
 
 .box {
-	background: url('/static/img/box.gif') no-repeat left top;
+	background: url('/static/resources/img/box.gif') no-repeat left top;
 	border-bottom: 1px solid #DFDFDA;
 	border-top: 1px solid #FFF;
 	padding: 16px 20px 0;
@@ -421,15 +421,15 @@ div.comment-list {
 
 /* Header */
 
-#header-wrapper {background: #2F2F2F url('/static/img/header.gif') repeat-x left top;}
-#header-wrapper-2 {background: url('/static/img/header-wrapper-2.gif') repeat-y center top;}
+#header-wrapper {background: #2F2F2F url('/static/resources/img/header.gif') repeat-x left top;}
+#header-wrapper-2 {background: url('/static/resources/img/header-wrapper-2.gif') repeat-y center top;}
 #header {
-	background: #333 url('/static/img/header.gif') repeat-x left top;
+	background: #333 url('/static/resources/img/header.gif') repeat-x left top;
 	padding: 32px 32px 0 46px;
 }
 
 #help-wrapper {
-	background: url('/static/img/help.gif') no-repeat left top;
+	background: url('/static/resources/img/help.gif') no-repeat left top;
 	height: 39px;
 	margin: -8px 0 0 auto;
 	width: 290px;
@@ -473,10 +473,10 @@ ul.tabbed li {
 }
 ul.tabbed a {text-decoration: none;}
 
-#navigation-wrapper {background: url('/static/img/navigation.gif') repeat-x left top;}
-#navigation-wrapper-2 {background: url('/static/img/navigation-wrapper-2.gif') no-repeat center top;}
+#navigation-wrapper {background: url('/static/resources/img/navigation.gif') repeat-x left top;}
+#navigation-wrapper-2 {background: url('/static/resources/img/navigation-wrapper-2.gif') no-repeat center top;}
 #navigation {
-	background: url('/static/img/navigation.gif') repeat-x left top;
+	background: url('/static/resources/img/navigation.gif') repeat-x left top;
 	min-height: 46px;
 	padding: 0 8px;
 }
@@ -490,14 +490,14 @@ ul.tabbed a {text-decoration: none;}
 }
 #navigation a:hover {color: #FFF;}
 #navigation li.current_page_item a, #navigation li.current_page_parent a {color: #FFE;}
-#navigation li.current_page_item a {background: url('/static/img/navigation-arrow-2.gif') no-repeat center bottom;}
-#navigation li.current_page_parent a {background: url('/static/img/navigation-arrow.gif') no-repeat center bottom;}
+#navigation li.current_page_item a {background: url('/static/resources/img/navigation-arrow-2.gif') no-repeat center bottom;}
+#navigation li.current_page_parent a {background: url('/static/resources/img/navigation-arrow.gif') no-repeat center bottom;}
 
 
 /* Subnav */
 
-#subnav-wrapper {background: #E9E9E9 url('/static/img/subnav-wrapper.gif') repeat-x left bottom;}
-#subnav-wrapper-2 {background: url('/static/img/subnav-wrapper-2.gif') no-repeat center bottom;}
+#subnav-wrapper {background: #E9E9E9 url('/static/resources/img/subnav-wrapper.gif') repeat-x left bottom;}
+#subnav-wrapper-2 {background: url('/static/resources/img/subnav-wrapper-2.gif') no-repeat center bottom;}
 #subnav {padding: 0 8px;}
 
 #subnav a {
@@ -513,8 +513,8 @@ ul.tabbed a {text-decoration: none;}
 /* Content */
 
 .content {font-size: 1.1em;}
-#content-wrapper {background: #F6F6F6 url('/static/img/content-wrapper.gif') repeat-y center top;}
-.content#content-two-columns {background: url('/static/img/content-two-columns.gif') repeat-y left top;}
+#content-wrapper {background: #F6F6F6 url('/static/resources/img/content-wrapper.gif') repeat-y center top;}
+.content#content-two-columns {background: url('/static/resources/img/content-two-columns.gif') repeat-y left top;}
 
 
 /* Main */
@@ -542,7 +542,7 @@ ul.tabbed a {text-decoration: none;}
 /* Footer */
 
 #footer-wrapper {
-	background: url('/static/img/footer-wrapper.gif') no-repeat center bottom;
+	background: url('/static/resources/img/footer-wrapper.gif') no-repeat center bottom;
 	border-top: 1px solid #999;
 	padding-bottom: 20px;
 }
@@ -582,7 +582,7 @@ ul.tabbed a {text-decoration: none;}
 
 /* Featured Box */
 #featured-wrapper {
-	background: url('/static/img/gradient-light.gif') repeat-x left bottom;
+	background: url('/static/resources/img/gradient-light.gif') repeat-x left bottom;
 	border-bottom: 1px solid #E0E0E0;
 	padding-bottom: 22px;
 }
