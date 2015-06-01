@@ -288,7 +288,7 @@ class Jsondata():
             Delete the object with the given id
         """
         # create a connection
-        client = MongoClient(MONGODB_URI)()
+        client = MongoClient(MONGODB_URI)
         # connect to the db 'mgi'
         db = client['mgi']
         # get the xmldata collection
