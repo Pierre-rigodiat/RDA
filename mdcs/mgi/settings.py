@@ -58,6 +58,7 @@ else:
     # https://docs.djangoproject.com/en/1.7/ref/settings/#allowed-hosts
     # ALLOWED_HOSTS = ['<domain>','<server_ip>']
     
+    #os.environ['HTTPS'] = "on"
     # https://docs.djangoproject.com/en/1.7/ref/settings/#csrf-cookie-secure
     # CSRF_COOKIE_SECURE = True
     # https://docs.djangoproject.com/en/1.7/ref/settings/#session-cookie-secure
@@ -80,11 +81,8 @@ MONGO_MGI_PASSWORD = "mgi_password"
 MONGODB_URI = "mongodb://" + MONGO_MGI_USER + ":" + MONGO_MGI_PASSWORD + "@localhost/mgi"
 connect("mgi", host=MONGODB_URI)
 
-
 # Enables modules for materials scientists 
 MATERIALS_MODULES=True
-
-
 
 TEMPLATE_DIRS = [os.path.join(BASE_DIR, 'templates')]
 
