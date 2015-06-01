@@ -137,7 +137,7 @@ ul.tree ul li:last-child:before {
 	height: 12px;
 	margin-left: 2px;
 	margin-right: 2px;
-	background-image: url("../../img/collapse.png");
+	background-image: url("../img/collapse.png");
 	background-repeat: no-repeat;	
 	display: inline-block;
 }
@@ -148,7 +148,7 @@ ul.tree ul li:last-child:before {
 	height: 12px;
 	margin-left: 2px;
 	margin-right: 2px;
-	background-image: url("../../img/expand.png");
+	background-image: url("../img/expand.png");
 	background-repeat: no-repeat;	
 	display: inline-block;
 }
