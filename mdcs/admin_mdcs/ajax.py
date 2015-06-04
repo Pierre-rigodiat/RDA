@@ -24,7 +24,7 @@ from utils.XSDflattenerMDCS.XSDflattenerMDCS import XSDFlattenerMDCS
 from utils.XSDhash import XSDhash
 import random
 from utils.APIschemaLocator.APIschemaLocator import getSchemaLocation
-from mgi import utils
+from mgi import common
 
 
 ################################################################################
@@ -81,7 +81,7 @@ def upload_object(request):
         return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
     
     # is it supported by the MDCS ?
-    errors = utils.getValidityErrorsForMDCS(xmlTree, object_type)
+    errors = common.getValidityErrorsForMDCS(xmlTree, object_type)
     if len(errors) > 0:
         errorsStr = ""
         for error in errors:
@@ -464,7 +464,7 @@ def upload_version(request):
             return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
         
         # is it supported by the MDCS ?
-        errors = utils.getValidityErrorsForMDCS(xmlTree, object_type)
+        errors = common.getValidityErrorsForMDCS(xmlTree, object_type)
         if len(errors) > 0:
             errorsStr = ""
             for error in errors:

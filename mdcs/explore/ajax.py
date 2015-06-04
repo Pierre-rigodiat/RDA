@@ -28,7 +28,7 @@ import copy
 import lxml.etree as etree
 from mgi.models import Template, QueryResults, SparqlQueryResults, SavedQuery, Jsondata, Instance, MetaSchema
 import sparqlPublisher
-from mgi import utils
+from mgi import common
 #Class definition
 
 ################################################################################
@@ -339,7 +339,7 @@ def generateChoice(request, element, fullPath, xmlTree):
                         formString += generateComplexType(request, choiceChild[0], textCapitalized, fullPath, xmlTree)
                     else:                     
                         formString += generateSimpleType(request, choiceChild, textCapitalized, choiceChild[0], fullPath, xmlTree)
-            elif choiceChild.attrib.get('type') in utils.getXSDTypes(defaultPrefix):
+            elif choiceChild.attrib.get('type') in common.getXSDTypes(defaultPrefix):
                 textCapitalized = choiceChild.attrib.get('name')
                 mapTagIDElementInfo = request.session['mapTagIDElementInfoExplore']
                 elementID = len(mapTagIDElementInfo.keys())
@@ -444,7 +444,7 @@ def generateRestriction(request, element, fullPath, elementName):
             listChoices.append(enumChild.attrib['value'])
         request.session['mapEnumIDChoicesExplore'][elementID] = listChoices
     else:
-        if element.attrib['base'] in utils.getXSDTypes(request.session['defaultPrefixExplore']):
+        if element.attrib['base'] in common.getXSDTypes(request.session['defaultPrefixExplore']):
             formString += "<li id='" + str(elementID) + "'>" + elementName + " <input type='checkbox'>"    
             elementInfo = ElementInfo(element.attrib['base'], fullPath[1:])
             mapTagIDElementInfo[elementID] = elementInfo.__to_json__()
@@ -471,7 +471,7 @@ def generateExtension(request, element, fullPath, elementName):
     
     formString = ""
     
-    if element.attrib['base'] in utils.getXSDTypes(request.session['defaultPrefixExplore']):
+    if element.attrib['base'] in common.getXSDTypes(request.session['defaultPrefixExplore']):
         formString += "<li id='" + str(elementID) + "'>" + elementName + " <input type='checkbox'/>"    
         elementInfo = ElementInfo(element.attrib['base'], fullPath[1:])
         mapTagIDElementInfo[elementID] = elementInfo.__to_json__()
@@ -604,7 +604,7 @@ def generateElement(request, element, fullPath, xmlTree):
                 formString += generateSimpleType(request, element, textCapitalized, element[0], fullPath, xmlTree)
                    
     # if element is one of the declared type
-    elif element.attrib.get('type') in utils.getXSDTypes(defaultPrefix):                                                                
+    elif element.attrib.get('type') in common.getXSDTypes(defaultPrefix):                                                                
         textCapitalized = element.attrib.get('name')   
         mapTagIDElementInfo = request.session['mapTagIDElementInfoExplore']                  
         elementID = len(mapTagIDElementInfo.keys())

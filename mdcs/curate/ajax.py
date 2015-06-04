@@ -21,7 +21,7 @@ from io import BytesIO
 from cStringIO import StringIO
 from mgi.models import Template, Htmlform, Jsondata, XML2Download, Module, MetaSchema
 import json
-from mgi import utils
+from mgi import common
 
 import lxml.html as html
 import lxml.etree as etree
@@ -144,9 +144,9 @@ def validate_xml_data(request):
     request.session['xmlString'] = ""
     
     # TODO: namespaces
-    xmlString = utils.manageNamespace(template_id, request.POST['xmlString'])      
+    xmlString = common.manageNamespace(template_id, request.POST['xmlString'])      
     try:
-        utils.validateXMLDocument(template_id, xmlString)
+        common.validateXMLDocument(template_id, xmlString)
     except Exception, e:
         message= e.message.replace('"', '\'')
         response_dict = {'errors': message}
@@ -495,13 +495,13 @@ def generateChoice(request, element, xmlTree, namespace, choiceInfo=None):
     
     for (counter, choiceChild) in enumerate(list(element)):
         if choiceChild.tag == "{0}element".format(namespace):
-            formString += generateElement(request, choiceChild, xmlTree, namespace, utils.ChoiceInfo(chooseIDStr,counter))
+            formString += generateElement(request, choiceChild, xmlTree, namespace, common.ChoiceInfo(chooseIDStr,counter))
         elif (choiceChild.tag == "{0}group".format(namespace)):
             pass
         elif (choiceChild.tag == "{0}choice".format(namespace)):
             pass
         elif (choiceChild.tag == "{0}sequence".format(namespace)):
-            formString += generateSequence(request, choiceChild, xmlTree, namespace, utils.ChoiceInfo(chooseIDStr,counter))
+            formString += generateSequence(request, choiceChild, xmlTree, namespace, common.ChoiceInfo(chooseIDStr,counter))
         elif (choiceChild.tag == "{0}any".format(namespace)):
             pass
     
@@ -542,7 +542,7 @@ def generateSimpleType(request, element, xmlTree, namespace):
                     formString += "<option value='" + enum.attrib.get('value')  + "'>" + enum.attrib.get('value') + "</option>"
                 formString += "</select>"
             else:
-                if child.attrib['base'] in utils.getXSDTypes(request.session['defaultPrefix']):
+                if child.attrib['base'] in common.getXSDTypes(request.session['defaultPrefix']):
                     formString += " <input type='text'/>"
     
     return formString 
@@ -651,7 +651,7 @@ def stubModules(request, element):
 # Description:   Generate an HTML string that represents an XML element.
 #
 ################################################################################
-def generateElement(request, element, xmlTree, namespace, choiceInfo=None):
+def generateElement(request, element, xmlTree, namespace, choiceInfo=None, elementInfo=None):
     
     xsd_elements = request.session['xsd_elements']
     mapTagElement = request.session['mapTagElement']
@@ -676,11 +676,11 @@ def generateElement(request, element, xmlTree, namespace, choiceInfo=None):
 #                 element = xmlTree.findall("./{0}element[@name='"+refName+"']".format(refNamespace))
                 element = xmlTree.find("./{0}element[@name='{1}']".format(namespace, refName))
                 if element is not None:
-                    formString += generateElement(request, element, xmlTree, namespace, choiceInfo)
+                    formString += generateElement(request, element, xmlTree, namespace, choiceInfo, elementInfo)
             else:
                 element = xmlTree.find("./{0}element[@name='{1}']".format(namespace, ref))
                 if element is not None:
-                    formString += generateElement(request, element, xmlTree, namespace, choiceInfo)
+                    formString += generateElement(request, element, xmlTree, namespace, choiceInfo, elementInfo)
              
         # element with type declared below it
         else:                            
@@ -728,7 +728,7 @@ def generateElement(request, element, xmlTree, namespace, choiceInfo=None):
                         formString += generateSimpleType(request, element[0], xmlTree, namespace)
                 formString += "</li>"
             formString += "</ul>"                        
-    elif element.attrib.get('type') in utils.getXSDTypes(defaultPrefix):
+    elif element.attrib.get('type') in common.getXSDTypes(defaultPrefix):
         textCapitalized = element.attrib.get('name')
         addButton, deleteButton, nbOccurrences = manageButtons(element)
                     
@@ -983,7 +983,7 @@ def duplicate(request):
                     formString += "</li>"
                     
             # type is a primitive XML type
-            elif sequenceChild.attrib.get('type') in utils.getXSDTypes(defaultPrefix):
+            elif sequenceChild.attrib.get('type') in common.getXSDTypes(defaultPrefix):
                 textCapitalized = sequenceChild.attrib.get('name')                                     
                 newTagID = "element" + str(len(mapTagElement.keys())) 
                 mapTagElement[newTagID] = elementID
