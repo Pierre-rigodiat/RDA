@@ -43,7 +43,7 @@ from collections import OrderedDict
 from StringIO import StringIO
 from django.http.response import HttpResponse
 from utils.XSDhash import XSDhash
-from mgi import utils
+from mgi import common
 from io import BytesIO
 from utils.APIschemaLocator.APIschemaLocator import getSchemaLocation
 from utils.XSDflattenerMDCS.XSDflattenerMDCS import XSDFlattenerMDCS
@@ -579,7 +579,7 @@ def curate(request):
         xmlStr = request.DATA['content']
         try:
             try:
-                utils.validateXMLDocument(schema.id, xmlStr)
+                common.validateXMLDocument(schema.id, xmlStr)
             except Exception, e:
                 content = {'message':e.message}
                 return Response(content, status=status.HTTP_400_BAD_REQUEST)
@@ -644,7 +644,7 @@ def add_schema(request):
                 content = {'message':'This is not a valid XML document.' + e.message.replace("'","")}
                 return Response(content, status=status.HTTP_400_BAD_REQUEST)
             # check that the schema is valid for the MDCS
-            errors = utils.getValidityErrorsForMDCS(xmlTree, "Template")
+            errors = common.getValidityErrorsForMDCS(xmlTree, "Template")
             if len(errors) > 0:
                 content = {'message':'This template is not supported by the current version of the MDCS.', 'errors': errors}
                 return Response(content, status=status.HTTP_400_BAD_REQUEST)
@@ -1096,7 +1096,7 @@ def add_type(request):
                 return Response(content, status=status.HTTP_400_BAD_REQUEST)
             
             # check that the schema is valid for the MDCS
-            errors = utils.getValidityErrorsForMDCS(xmlTree, "Type")
+            errors = common.getValidityErrorsForMDCS(xmlTree, "Type")
             if len(errors) > 0:
                 content = {'message':'This type is not supported by the current version of the MDCS.', 'errors': errors}
                 return Response(content, status=status.HTTP_400_BAD_REQUEST)
@@ -1990,5 +1990,46 @@ def get_dependency(request):
             return response
         except: 
             content={'message':'No dependency could be found with the given id.'}
+            return Response(content, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+from mgi import settings as mgi_settings
+import gridfs
+################################################################################
+# 
+# Function Name: get_blob(request)
+# Inputs:        request - 
+# Outputs:        
+# Exceptions:    None
+# Description:   Get a file from its handle
+# 
+################################################################################   
+@api_view(['GET'])
+def get_blob(request):
+    """
+    GET http://localhost/rest/get-blob?id=id
+    """  
+    # TODO: can change to the hash
+    blob_id = request.QUERY_PARAMS.get('id', None)
+    
+    if blob_id is None:
+        content={'message':'No id provided.'}
+        return Response(content, status=status.HTTP_400_BAD_REQUEST)
+    else:
+        try:
+            client = MongoClient(mgi_settings.BLOB_HOSTER_URI)    
+            db = client['mgi']
+            fs = gridfs.GridFS(db)
+            if fs.exists(ObjectId(blob_id)):
+                blob = fs.get(ObjectId(blob_id))
+                response = HttpResponse(blob)
+                response['Content-Disposition'] = 'attachment; filename=' + str(blob_id)
+                return response
+            else:
+                content={'message':'No file could be found with the given id.'}
+                return Response(content, status=status.HTTP_400_BAD_REQUEST)
+        except: 
+            content={'message':'No file could be found with the given id.'}
             return Response(content, status=status.HTTP_400_BAD_REQUEST)
         
