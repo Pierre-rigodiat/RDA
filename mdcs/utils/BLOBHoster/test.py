@@ -1,6 +1,6 @@
 import unittest
 from utils.BLOBHoster.BLOBHosterFactory import BLOBHosterFactory
-
+import base64
 
 class TestGridFS(unittest.TestCase):
     def setUp(self):
@@ -14,35 +14,59 @@ class TestGridFS(unittest.TestCase):
         blobHosterFactory = BLOBHosterFactory(BLOB_HOSTER, BLOB_HOSTER_URI, BLOB_HOSTER_USER, BLOB_HOSTER_PSWD, MDCS_URI)
         self.blobHoster = blobHosterFactory.createBLOBHoster()
             
-    def testSetGetText(self):              
+    def testText(self):              
+        self.assertEqual(len(self.blobHoster.list()), 0)
         text = 'test'       
         handle = self.blobHoster.save(text)        
         out = self.blobHoster.get(handle)
-        print text + " = " + out
         self.assertEqual(text, out)
-    
-#     def testSetGetImage(self):
-#         import base64
-#         with open('Penguins.jpg','rb') as imageFile:
-#             imageStr = base64.b64encode(imageFile.read())
-#             handle = self.blobHoster.save(imageStr)        
-#         out = self.blobHoster.get(handle)
-#         self.assertEqual(imageStr, out)
-#         fh = open("Penguins.out.jpg", "wb")
-#         fh.write(out.decode('base64'))
-#         fh.close()
-
-    def testSetGetImage(self):
+        self.assertEqual(len(self.blobHoster.list()), 1)
+        self.assertEqual(handle in self.blobHoster.list(), True)
+        self.blobHoster.delete(handle)
+        self.assertEqual(len(self.blobHoster.list()), 0)
+     
+ 
+    def testImage(self):
+        self.assertEqual(len(self.blobHoster.list()), 0)        
         with open('Penguins.jpg','rb') as imageFile:
             handle = self.blobHoster.save(imageFile)        
-        
+          
         out = self.blobHoster.get(handle)
-        
+          
         with open("Penguins.out.jpg", "wb") as imageFile:
-            imageFile.write(out)        
-        
+            imageFile.write(out)             
+         
+        self.assertEqual(len(self.blobHoster.list()), 1)   
+        self.blobHoster.delete(handle)
+        self.assertEqual(len(self.blobHoster.list()), 0)
+         
     def testList(self):
-        handles = self.blobHoster.list()
+        self.assertEqual(len(self.blobHoster.list()), 0)
+        text = 'test'
+        savedHandles = []    
+        for i in range(1,10):   
+            handle = self.blobHoster.save(text)
+            savedHandles.append(handle)
+            self.assertEqual(len(self.blobHoster.list()), i)
+            self.assertEqual(handle in self.blobHoster.list(), True)
+                
+        for handle in savedHandles:
+            self.blobHoster.delete(handle)
+         
+        self.assertEqual(len(self.blobHoster.list()), 0)
+ 
+    def testDelete(self):         
+        self.assertEqual(len(self.blobHoster.list()), 0)
+        text = 'test'       
+        handle = self.blobHoster.save(text)        
+        self.assertEqual(len(self.blobHoster.list()), 1)
+        self.blobHoster.delete(handle)
+        self.assertEqual(len(self.blobHoster.list()), 0)
+        
+#     def testInt(self):              
+#         self.assertEqual(len(self.blobHoster.list()), 0)
+#         text = 3     
+#         self.blobHoster.save(text)        
         
 if __name__ == '__main__':
     unittest.main()

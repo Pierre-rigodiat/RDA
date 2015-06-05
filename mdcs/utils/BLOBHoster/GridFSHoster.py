@@ -72,5 +72,5 @@ class GridFSHoster(BLOBHoster):
         except:
             raise ValueError('The handle is not well formed.') 
         if self.fs.exists(ObjectId(blob_id)):
-            self.fs.delete(blob_id)
+            self.fs.delete(ObjectId(blob_id))
         
