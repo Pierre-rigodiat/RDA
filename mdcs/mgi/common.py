@@ -180,18 +180,4 @@ class ChoiceInfo:
         
     def __init__(self, chooseIDStr, counter):
         self.chooseIDStr = chooseIDStr
-        self.counter = counter
-        
-################################################################################
-# 
-# Class Name: ElementInfo
-#
-# Description: Store information about an element being rendered
-#
-################################################################################
-class ElementInfo:
-    "Class that stores information about a element being rendered"
-        
-    def __init__(self, minOccurs=None, maxOccurs=None):
-        self.minOccurs = minOccurs
-        self.maxOccurs = maxOccurs
+        self.counter = counter        
