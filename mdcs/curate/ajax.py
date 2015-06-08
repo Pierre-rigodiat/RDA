@@ -954,7 +954,7 @@ def duplicate(request):
             response_dict['occurs'] = 'zero'
             response_dict['tagID'] = str(tagID)
             response_dict['id'] = str(tagID[7:])
-            response_dict['styleAdd'] = 'display:none'
+            response_dict['styleAdd'] = styleAdd
         else:
             # render element
             namespace = namespaces[defaultPrefix]
