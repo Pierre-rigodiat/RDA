@@ -733,7 +733,6 @@ def generateElement(request, element, xmlTree, namespace, choiceInfo=None):
                 elif element[0].tag == "{0}simpleType".format(namespace):
                     formString += generateSimpleType(request, element[0], xmlTree, namespace)
             formString += "</li>"
-        formString += "</ul>"                        
     elif element.attrib.get('type') in common.getXSDTypes(defaultPrefix):                         
         for x in range (0,int(nbOccurrences)):                         
             tagID = "element" + str(len(mapTagElement.keys()))  
@@ -752,8 +751,7 @@ def generateElement(request, element, xmlTree, namespace, choiceInfo=None):
                 formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" onclick=\"changeHTMLForm('remove',"+str(tagID[7:])+");\"></span>"
             else:
                 formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" style=\"display:none;\" onclick=\"changeHTMLForm('remove',"+str(tagID[7:])+");\"></span>"
-            formString += "</li>"
-        formString += "</ul>"                            
+            formString += "</li>"                    
     else:
         if element.attrib.get('type') is not None:  
             for x in range (0,int(nbOccurrences)):                            
@@ -794,8 +792,9 @@ def generateElement(request, element, xmlTree, namespace, choiceInfo=None):
                         formString += generateSimpleType(request, elementType, xmlTree, namespace)
         
                 formString += "</li>"
-            formString += "</ul>"
-    
+                
+    formString += "</ul>"
+        
     return formString
 
 ################################################################################
