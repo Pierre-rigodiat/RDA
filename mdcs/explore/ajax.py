@@ -249,7 +249,7 @@ def removeAnnotations(element, namespace):
 # Description:   Generates a section of the form that represents an XML sequence
 # 
 ################################################################################
-def generateSequence(request, element, fullPath, xmlTree):
+def generateSequence(request, element, fullPath, xmlTree, choiceInfo=None):
     #(annotation?,(element|group|choice|sequence|any)*)
     defaultNamespace = request.session['defaultNamespaceExplore']
     
@@ -258,16 +258,23 @@ def generateSequence(request, element, fullPath, xmlTree):
     # remove the annotations
     removeAnnotations(element, defaultNamespace)
     
-    formString += "<ul>"
+    if choiceInfo:
+        if (choiceInfo.counter > 0):
+            formString += "<ul id=\"" + choiceInfo.chooseIDStr + "-" + str(choiceInfo.counter) + "\" class=\"notchosen\">"
+        else:
+            formString += "<ul id=\"" + choiceInfo.chooseIDStr + "-" + str(choiceInfo.counter) + "\" >"
+    else:
+        formString += "<ul>"
+    
     # generates the sequence
     if(len(list(element)) != 0):
         for child in element:
             if (child.tag == "{0}element".format(defaultNamespace)):            
-                formString += generateElement(request, child, fullPath, xmlTree)
+                formString += generateElement(request, child, fullPath, xmlTree, choiceInfo)
             elif (child.tag == "{0}sequence".format(defaultNamespace)):
-                formString += generateSequence(request, child, fullPath, xmlTree)
+                formString += generateSequence(request, child, fullPath, xmlTree, choiceInfo)
             elif (child.tag == "{0}choice".format(defaultNamespace)):
-                formString += generateChoice(request, child, fullPath, xmlTree)
+                formString += generateChoice(request, child, fullPath, xmlTree, choiceInfo)
             elif (child.tag == "{0}any".format(defaultNamespace)):
                 pass
             elif (child.tag == "{0}group".format(defaultNamespace)):
@@ -284,93 +291,71 @@ def generateSequence(request, element, fullPath, xmlTree):
 #                element - XML element
 #                fullPath - full Xpath to the current element
 #                xmlTree - XML Tree
-#                namespace - namespace
+#                choiceInfo - 
 # Outputs:       HTML string representing a sequence
 # Exceptions:    None
 # Description:   Generates a section of the form that represents an XML choice
 # 
 ################################################################################
-def generateChoice(request, element, fullPath, xmlTree):
+def generateChoice(request, element, fullPath, xmlTree, choiceInfo=None):
     #(annotation?,(element|group|choice|sequence|any)*)
     nbChoicesID = int(request.session['nbChoicesIDExplore'])
     
     defaultNamespace = request.session['defaultNamespaceExplore']    
-    defaultPrefix = request.session['defaultPrefixExplore']
     
     formString = ""
     
     #remove the annotations
     removeAnnotations(element, defaultNamespace) 
     
+    if choiceInfo:
+        if (choiceInfo.counter > 0):
+            formString += "<ul id=\"" + choiceInfo.chooseIDStr + "-" + str(choiceInfo.counter) + "\" class=\"notchosen\">"
+        else:
+            formString += "<ul id=\"" + choiceInfo.chooseIDStr + "-" + str(choiceInfo.counter) + "\" >"
+    else:
+        formString += "<ul>"
+    
     chooseID = nbChoicesID
     chooseIDStr = 'choice' + str(chooseID)
     nbChoicesID += 1
     request.session['nbChoicesIDExplore'] = str(nbChoicesID)
-    formString += "<ul><li>Choose <select id='"+ chooseIDStr +"' onchange=\"changeChoice(this);\">"
+    formString += "<li>Choose <select id='"+ chooseIDStr +"' onchange=\"changeChoice(this);\">"
     
-    # generates the sequence
+    nbSequence = 1
+    # generates the choice
     if(len(list(element)) != 0):
         for child in element:
             if (child.tag == "{0}element".format(defaultNamespace)):            
                 name = child.attrib.get('name')
+                if name is None:
+                    name = child.attrib.get('ref')
                 formString += "<option value='" + name + "'>" + name + "</option></b><br>"
             elif (child.tag == "{0}group".format(defaultNamespace)):
                 pass
             elif (child.tag == "{0}choice".format(defaultNamespace)):
                 pass
             elif (child.tag == "{0}sequence".format(defaultNamespace)):
-                pass
+                formString += "<option value='sequence" + str(nbSequence) + "'>Sequence " + str(nbSequence) + "</option></b><br>"
+                nbSequence += 1
             elif (child.tag == "{0}any".format(defaultNamespace)):
                 pass
 
     formString += "</select>"
-                                  
+    
     for (counter, choiceChild) in enumerate(list(element)):
         if choiceChild.tag == "{0}element".format(defaultNamespace):
-            if 'type' not in choiceChild.attrib:
-                # type is a reference included in the document
-                if 'ref' in choiceChild.attrib:
-                    print "ref"  
-                    return formString
-                else:        
-                    # type declared below
-                    textCapitalized = choiceChild.attrib.get('name') 
-                    if (element[0].tag == "{0}complexType".format(defaultNamespace)):
-                        formString += generateComplexType(request, choiceChild[0], textCapitalized, fullPath, xmlTree)
-                    else:                     
-                        formString += generateSimpleType(request, choiceChild, textCapitalized, choiceChild[0], fullPath, xmlTree)
-            elif choiceChild.attrib.get('type') in common.getXSDTypes(defaultPrefix):
-                textCapitalized = choiceChild.attrib.get('name')
-                mapTagIDElementInfo = request.session['mapTagIDElementInfoExplore']
-                elementID = len(mapTagIDElementInfo.keys())
-                if (counter > 0):
-                    formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\" style=\"display:none;\"><li id='" + str(elementID) + "'>" + textCapitalized + " <input type='checkbox'>" + "</li></ul>"
-                else:                                      
-                    formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\"><li id='" + str(elementID) + "'>" + textCapitalized + " <input type='checkbox'>" + "</li></ul>"
-                elementInfo = ElementInfo(choiceChild.attrib.get('type'),fullPath[1:]+"." + textCapitalized)
-                mapTagIDElementInfo[elementID] = elementInfo.__to_json__()
-                request.session['mapTagIDElementInfoExplore'] = mapTagIDElementInfo
-            else:
-                textCapitalized = choiceChild.attrib.get('name')
-                if (counter > 0):
-                    formString += "<ul id=\"" + chooseIDStr + "-" + str(counter) + "\" style=\"display:none;\">"
-                else:
-                    formString += "<ul id=\""  + chooseIDStr + "-" + str(counter) + "\">"
-                # TODO: manage namespaces
-                # type of the element is complex
-                xpath = "./{0}complexType[@name='{1}']".format(defaultNamespace,choiceChild.attrib.get('type'))
-                elementType = xmlTree.find(xpath)
-                if elementType is None:
-                    # type of the element is simple
-                    xpath = "./{0}simpleType[@name='{1}']".format(defaultNamespace,choiceChild.attrib.get('type'))
-                    elementType = xmlTree.find(xpath)
-                if elementType.tag == "{0}complexType".format(defaultNamespace):
-                    formString += generateComplexType(request, elementType, textCapitalized, fullPath, xmlTree)
-                elif elementType.tag == "{0}simpleType".format(defaultNamespace):
-                    formString += generateSimpleType(request, choiceChild, textCapitalized, elementType, fullPath, xmlTree)    
-                formString += "</ul>"   
-        else:
-            pass      
+            formString += generateElement(request, choiceChild, fullPath, xmlTree, common.ChoiceInfo(chooseIDStr,counter))
+        elif (choiceChild.tag == "{0}group".format(defaultNamespace)):
+            pass
+        elif (choiceChild.tag == "{0}choice".format(defaultNamespace)):
+            pass
+        elif (choiceChild.tag == "{0}sequence".format(defaultNamespace)):
+            formString += generateSequence(request, choiceChild, fullPath, xmlTree, common.ChoiceInfo(chooseIDStr,counter))
+        elif (choiceChild.tag == "{0}any".format(defaultNamespace)):
+            pass
+                                  
+    
     formString += "</li></ul>"
     
     return formString
@@ -580,24 +565,52 @@ def generateSimpleContent(request, element, fullPath, elementName):
 # Description:   Generate an HTML string that represents an XML element.
 #
 ################################################################################
-def generateElement(request, element, fullPath, xmlTree):
-    print 'BEGIN def generateElement(request, xpath, elementName, fullPath)'
-    
+def generateElement(request, element, fullPath, xmlTree, choiceInfo=None):
     # get the variables in session
     defaultNamespace = request.session['defaultNamespaceExplore']    
     defaultPrefix = request.session['defaultPrefixExplore']
     
     formString = ""
 
-    
-    if 'type' not in element.attrib:
-        # type is a reference included in the document
-        if 'ref' in element.attrib:
-            print "ref"  
-            return formString
-        else:        
-            # type declared below
-            textCapitalized = element.attrib.get('name') 
+    # remove the annotations
+    removeAnnotations(element, defaultNamespace)
+
+    # type is a reference included in the document
+    if 'ref' in element.attrib: 
+        ref = element.attrib['ref']
+        refElement = None
+        if ':' in ref:
+            refSplit = ref.split(":")
+            refNamespacePrefix = refSplit[0]
+            refName = refSplit[1]
+            namespaces = request.session['namespaces']
+            # refNamespace = namespaces[refNamespacePrefix]
+            # TODO: manage namespaces/targetNamespaces, composed schema with different target namespaces
+            # element = xmlTree.findall("./{0}element[@name='"+refName+"']".format(refNamespace))
+            refElement = xmlTree.find("./{0}element[@name='{1}']".format(defaultNamespace, refName))
+        else:
+            refElement = xmlTree.find("./{0}element[@name='{1}']".format(defaultNamespace, ref))
+                
+        if refElement is not None:
+            textCapitalized = refElement.attrib.get('name')            
+            element = refElement
+            # remove the annotations
+            removeAnnotations(element, defaultNamespace)
+    else:
+        textCapitalized = element.attrib.get('name')
+        
+    if choiceInfo:
+        if (choiceInfo.counter > 0):
+            formString += "<ul id=\"" + choiceInfo.chooseIDStr + "-" + str(choiceInfo.counter) + "\" class=\"notchosen\">"
+        else:
+            formString += "<ul id=\"" + choiceInfo.chooseIDStr + "-" + str(choiceInfo.counter) + "\" >"
+    else:
+        formString += "<ul>"
+
+    print textCapitalized
+    if 'type' not in element.attrib:   
+        # type declared below
+        if len(list(element)) > 0 :
             if (element[0].tag == "{0}complexType".format(defaultNamespace)):
                 formString += generateComplexType(request, element[0], textCapitalized, fullPath, xmlTree)
             else:                     
@@ -617,11 +630,14 @@ def generateElement(request, element, fullPath, xmlTree):
         textCapitalized = element.attrib.get('name') 
         # TODO: manage namespaces
         # type of the element is complex
-        xpath = "./{0}complexType[@name='{1}']".format(defaultNamespace,element.attrib.get('type'))
+        typeName = element.attrib.get('type')
+        if ':' in typeName:
+            typeName = typeName.split(":")[1]
+        xpath = "./{0}complexType[@name='{1}']".format(defaultNamespace,typeName)
         elementType = xmlTree.find(xpath)
         if elementType is None:
             # type of the element is simple
-            xpath = "./{0}simpleType[@name='{1}']".format(defaultNamespace,element.attrib.get('type'))
+            xpath = "./{0}simpleType[@name='{1}']".format(defaultNamespace,typeName)
             elementType = xmlTree.find(xpath)                        
         if elementType is not None:
             if elementType.tag == "{0}complexType".format(defaultNamespace):
@@ -629,7 +645,7 @@ def generateElement(request, element, fullPath, xmlTree):
             elif elementType.tag == "{0}simpleType".format(defaultNamespace):                
                 formString += generateSimpleType(request, element, textCapitalized, elementType, fullPath, xmlTree)
 
-    print 'END def generateElement(request, xpath, elementName, fullPath)'
+    formString += "</ul>"
     return formString
 
 ################################################################################
@@ -662,9 +678,7 @@ def generateForm(request):
     elements = xmlDocTree.findall("./{0}element".format(defaultNamespace))
 
     if len(elements) == 1:
-        formString += "<ul>"
-        formString += generateElement(request, elements[0], "", xmlDocTree)
-        formString += "</ul>"
+        formString += generateElement(request, elements[0], "", xmlDocTree)    
     elif len(elements) > 1:
         formString += generateChoice(request, elements, "", xmlDocTree)
 

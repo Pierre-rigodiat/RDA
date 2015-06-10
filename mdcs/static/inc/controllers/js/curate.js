@@ -429,19 +429,20 @@ generateXMLString = function(elementObj)
 	    	}
 		} else if (children[i].tagName == "LI") {
 			if (! $(children[i]).hasClass("removed") ) {
-			
-				var textNode = $(children[i]).contents().filter(function(){
-			        return this.nodeType === 3;
-			    }).text();
 				
-				if (textNode.trim() != "Choose") {
-				    xmlString += "<" + textNode + ">";
+				if($(children[i]).hasClass("choice") ) {
+					xmlString += generateXMLString(children[i]);
+				}else if ($(children[i]).hasClass("sequence") ) {
+					xmlString += generateXMLString(children[i]);
+				}else{
+					var textNode = $(children[i]).contents().filter(function(){
+				        return this.nodeType === 3;
+				    }).text();
+					
+					xmlString += "<" + textNode + ">";
 				    xmlString += generateXMLString(children[i]);
 				    xmlString += "</" + textNode + ">";
-				}else {
-					xmlString += generateXMLString(children[i]);
-				}
-			    	
+				}			    	
 			}
 		}
 		else if (children[i].tagName == "DIV" && $(children[i]).hasClass("module") ){
@@ -1219,6 +1220,7 @@ duplicate = function(tagID, xsdForm){
                 $('#add' + data.id).attr('style', data.styleAdd);
                 $('#remove' + data.id).attr('style','');
                 $("#" + data.tagID).prop("disabled",false);
+                $("#" + data.tagID).children('select').prop("disabled",false);
                 $("#" + data.tagID).removeClass("removed");
                 $("#" + data.tagID).children("ul").show(500);
             }
@@ -1249,6 +1251,7 @@ $.ajax({
                 $('#add' + data.id).attr('style','');
                 $('#remove' + data.id).attr('style','display:none');
                 $("#" + data.tagID).prop("disabled",true);
+                $("#" + data.tagID).children('select').prop("disabled",true);
                 $("#" + data.tagID).addClass("removed");
                 $("#" + data.tagID).children("ul").hide(500);
             }else{

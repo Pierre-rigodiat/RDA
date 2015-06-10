@@ -18,3 +18,7 @@
 #dataQueryForm li{
 	white-space: nowrap;
 }
+
+.notchosen{
+	display: none;
+}

@@ -729,9 +729,9 @@ changeChoice = function(selectObj)
 
     for (i=0; i < selectObj.options.length;i++) {
     	if (i == idx){
-    		$("#" + selectObj.id + "-" + i).removeAttr("style");
+    		$("#" + selectObj.id + "-" + i).removeAttr("class");
 		} else {
-			$("#" + selectObj.id + "-" + i).attr("style","display:none");
+			$("#" + selectObj.id + "-" + i).attr("class","notchosen");
 		}
     	
     }
