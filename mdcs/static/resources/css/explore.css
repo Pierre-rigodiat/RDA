@@ -1,0 +1,20 @@
+/*
+################################################################################
+#
+# File Name: explore.css
+# Purpose:   For explore app
+#
+# Author: Sharief Youssef
+#         sharief.youssef@nist.gov
+#
+#         Guillaume SOUSA AMARAL
+#         guillaume.sousa@nist.gov
+#
+# Sponsor: National Institute of Standards and Technology (NIST)
+#
+################################################################################ 
+*/
+
+#dataQueryForm li{
+	white-space: nowrap;
+}
