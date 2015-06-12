@@ -44,6 +44,12 @@
 					</span>
 				</xsl:otherwise>
 			</xsl:choose>
+			<!-- attributes -->
+			<xsl:for-each select="@*">
+				<span class="type">
+				<xsl:value-of select="name(.)" />:<xsl:value-of select="."/>
+				</span>
+			</xsl:for-each>
 			<xsl:choose>
 				<xsl:when test="not(*)">
 					<xsl:text> : </xsl:text>

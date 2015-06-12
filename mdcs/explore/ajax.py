@@ -607,9 +607,9 @@ def generateElement(request, element, fullPath, xmlTree, choiceInfo=None):
     else:
         formString += "<ul>"
 
-    print textCapitalized
-    if 'type' not in element.attrib:   
-        # type declared below
+    # type declared below
+    if 'type' not in element.attrib:           
+        # if tag not closed:  <element/>
         if len(list(element)) > 0 :
             if (element[0].tag == "{0}complexType".format(defaultNamespace)):
                 formString += generateComplexType(request, element[0], textCapitalized, fullPath, xmlTree)

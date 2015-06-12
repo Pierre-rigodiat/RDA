@@ -382,6 +382,33 @@ def manageButtons(element):
                 addButton = True
     return addButton, deleteButton, nbOccurrences
 
+
+################################################################################
+# 
+# Function Name: manageAttrButtons(element)
+# Inputs:        element - XML element 
+# Outputs:       addButton - Boolean
+#                deleteButton - Boolean
+#                nbOccurrences - Integer
+# Exceptions:    None
+# Description:   Check element occurrences and returns buttons information
+# 
+################################################################################
+def manageAttrButtons(element):
+    addButton = False
+    deleteButton = False
+    nbOccurrences = 1
+
+    if ('use' in element.attrib):
+        if element.attrib['use'] == "optional":
+            deleteButton = True
+        elif element.attrib['use'] == "prohibited":            
+            nbOccurrences = 0
+        elif element.attrib['use'] == "required":
+            pass
+        
+    return addButton, deleteButton, nbOccurrences
+
 ################################################################################
 # 
 # Function Name: removeAnnotations(element, namespace)
@@ -646,6 +673,8 @@ def generateSimpleType(request, element, xmlTree, namespace):
 # 
 ################################################################################
 def generateComplexType(request, element, xmlTree, namespace):
+    #(annotation?,(simpleContent|complexContent|((group|all|choice|sequence)?,((attribute|attributeGroup)*,anyAttribute?))))
+
     formString = ""
     
     # remove the annotations
@@ -656,23 +685,27 @@ def generateComplexType(request, element, xmlTree, namespace):
     if len(formString) > 0:
         return formString
     
-    # TODO: does it contain attributes ?
-        
+    # does it contain an attribute?
+    complexTypeChildren = element.findall('{0}attribute'.format(namespace))
+    if len(complexTypeChildren) > 0:
+        for attribute in complexTypeChildren:
+            formString += generateElement(request, attribute, xmlTree, namespace)
+    
     # does it contain sequence or all?
     complexTypeChild = element.find('{0}sequence'.format(namespace))
     if complexTypeChild is not None:
-        return generateSequence(request, complexTypeChild, xmlTree, namespace)
+        formString += generateSequence(request, complexTypeChild, xmlTree, namespace)
     else:
         complexTypeChild = element.find('{0}all'.format(namespace))
         if complexTypeChild is not None:
-            return generateSequence(request, complexTypeChild, xmlTree, namespace)
+            formString += generateSequence(request, complexTypeChild, xmlTree, namespace)
         else:
             # does it contain choice ?
             complexTypeChild = element.find('{0}choice'.format(namespace))
             if complexTypeChild is not None:
-                return generateChoice(request, complexTypeChild, xmlTree, namespace)
+                formString += generateChoice(request, complexTypeChild, xmlTree, namespace)
             else:
-                return formString
+                formString += ""        
     
     return formString 
 
@@ -758,33 +791,36 @@ def generateElement(request, element, xmlTree, namespace, choiceInfo=None):
             namespaces = request.session['namespaces']
             refNamespace = namespaces[refNamespacePrefix]
             # TODO: manage namespaces/targetNamespaces, composed schema with different target namespaces
-#                 element = xmlTree.findall("./{0}element[@name='"+refName+"']".format(refNamespace))
+            # element = xmlTree.findall("./{0}element[@name='"+refName+"']".format(refNamespace))
             refElement = xmlTree.find("./{0}element[@name='{1}']".format(namespace, refName))
         else:
             refElement = xmlTree.find("./{0}element[@name='{1}']".format(namespace, ref))
                 
         if refElement is not None:
-            textCapitalized = refElement.attrib.get('name')
-            addButton, deleteButton, nbOccurrences = manageButtons(element)
-            elementID = len(xsd_elements)
-            if ('maxOccurs' not in element.attrib) or (element.attrib['maxOccurs']=="1"):
-                xsd_elements[elementID] = ""
-            else:
-                xsd_elements[elementID] = etree.tostring(element)
-            manageOccurences(request, element, elementID)
+            textCapitalized = refElement.attrib.get('name')            
             element = refElement
             # remove the annotations
             removeAnnotations(element, namespace)
     else:
         textCapitalized = element.attrib.get('name')
-        addButton, deleteButton, nbOccurrences = manageButtons(element)
-        elementID = len(xsd_elements)
+    
+    
+    elementID = len(xsd_elements)
+    if element.tag == "{0}element".format(namespace):
         # don't save element representation if never need to duplicate it
         if ('maxOccurs' not in element.attrib) or (element.attrib['maxOccurs']=="1"):
             xsd_elements[elementID] = ""
         else:
             xsd_elements[elementID] = etree.tostring(element)
         manageOccurences(request, element, elementID)
+        addButton, deleteButton, nbOccurrences = manageButtons(element)
+        element_tag='element'
+    elif element.tag == "{0}attribute".format(namespace):
+        # don't save attribute representation because never needs to duplicate it
+        xsd_elements[elementID] = ""
+        manageAttrOccurrences(request, element, elementID)
+        addButton, deleteButton, nbOccurrences = manageAttrButtons(element)
+        element_tag='attribute'
         
     if choiceInfo:
         if (choiceInfo.counter > 0):
@@ -803,11 +839,11 @@ def generateElement(request, element, xmlTree, namespace, choiceInfo=None):
             # if tag not closed:  <element/>
             if len(list(element)) > 0 :
                 if element[0].tag == "{0}complexType".format(namespace):
-                    formString += "<li id='" + str(tagID) + "'>" + "<span class='collapse' style='cursor:pointer;' onclick='showhideCurate(event);'></span>"  + textCapitalized
+                    formString += "<li class='"+ element_tag +"' id='" + str(tagID) + "'>" + "<span class='collapse' style='cursor:pointer;' onclick='showhideCurate(event);'></span>"  + textCapitalized
                 else: 
-                    formString += "<li id='" + str(tagID) + "'>" + textCapitalized
+                    formString += "<li class='"+ element_tag +"' id='" + str(tagID) + "'>" + textCapitalized
             else:
-                formString += "<li id='" + str(tagID) + "'>" + textCapitalized
+                formString += "<li class='"+ element_tag +"' id='" + str(tagID) + "'>" + textCapitalized
             if (addButton == True):                                
                 formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" onclick=\"changeHTMLForm('add',"+str(tagID[7:])+");\"></span>"
             else:
@@ -831,7 +867,7 @@ def generateElement(request, element, xmlTree, namespace, choiceInfo=None):
             defaultValue = ""
             if 'default' in element.attrib:
                 defaultValue = element.attrib['default']
-            formString += "<li id='" + str(tagID) + "'>" + textCapitalized + " <input type='text' value='"+ defaultValue +"'/>"
+            formString += "<li class='"+ element_tag +"' id='" + str(tagID) + "'>" + textCapitalized + " <input type='text' value='"+ defaultValue +"'/>"
                                 
             if (addButton == True):                                
                 formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" onclick=\"changeHTMLForm('add',"+str(tagID[7:])+");\"></span>"
@@ -862,9 +898,9 @@ def generateElement(request, element, xmlTree, namespace, choiceInfo=None):
                     elementType = xmlTree.find(xpath)
                  
                 if elementType.tag == "{0}complexType".format(namespace):
-                    formString += "<li id='" + str(tagID) + "'>" + "<span class='collapse' style='cursor:pointer;' onclick='showhideCurate(event);'></span>"  + textCapitalized
+                    formString += "<li class='"+ element_tag +"' id='" + str(tagID) + "'>" + "<span class='collapse' style='cursor:pointer;' onclick='showhideCurate(event);'></span>"  + textCapitalized
                 else: 
-                    formString += "<li id='" + str(tagID) + "'>" + textCapitalized
+                    formString += "<li class='"+ element_tag +"' id='" + str(tagID) + "'>" + textCapitalized
                     
                 if (addButton == True):                                
                     formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" onclick=\"changeHTMLForm('add',"+str(tagID[7:])+");\"></span>"
@@ -887,6 +923,7 @@ def generateElement(request, element, xmlTree, namespace, choiceInfo=None):
     formString += "</ul>"
         
     return formString
+
 
 ################################################################################
 # 
@@ -914,6 +951,37 @@ def manageOccurences(request, element, elementID):
             elementOccurrences.maxOccurrences = int(element.attrib['maxOccurs'])
     
     occurrences[elementID] = elementOccurrences.__to_json__()
+
+################################################################################
+# 
+# Function Name: manageAttrOccurrences(request, element, elementID)
+# Inputs:        request -
+#                element - 
+#                elementID -
+# Outputs:       JSON data 
+# Exceptions:    None
+# Description:   Store information about the occurrences of the element
+#
+################################################################################
+def manageAttrOccurrences(request, element, elementID):
+    occurrences = request.session['occurrences']
+    elementOccurrences = ElementOccurrences()
+    
+    elementOccurrences.nbOccurrences = 1
+    elementOccurrences.minOccurrences = 1
+    elementOccurrences.maxOccurrences = 1
+    if ('use' in element.attrib):
+        if element.attrib['use'] == "optional":
+            elementOccurrences.minOccurrences = 0
+        elif element.attrib['use'] == "prohibited":            
+            elementOccurrences.nbOccurrences = 0
+            elementOccurrences.minOccurrences = 0
+            elementOccurrences.maxOccurrences = 0
+        elif element.attrib['use'] == "required":
+            pass
+    
+    occurrences[elementID] = elementOccurrences.__to_json__()
+    
     
 
 ################################################################################
