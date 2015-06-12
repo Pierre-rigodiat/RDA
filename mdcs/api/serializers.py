@@ -17,7 +17,6 @@
 from rest_framework import serializers
 from rest_framework_mongoengine.serializers import MongoEngineModelSerializer
 from mgi.models import SavedQuery, Template, Type, TemplateVersion, TypeVersion, Instance
-from django.contrib.auth.models import User
 
 ################################################################################
 # 
