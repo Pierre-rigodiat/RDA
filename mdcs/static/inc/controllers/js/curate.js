@@ -421,7 +421,7 @@ generateXMLString = function(elementObj)
 {
     var xmlString="";
 
-    var children = elementObj.childNodes;
+    var children = $(elementObj).children();
     for(var i = 0; i < children.length; i++) {
 	    if (children[i].tagName == "UL") {
 	    	if (! $(children[i]).hasClass("notchosen") ) {
@@ -434,14 +434,39 @@ generateXMLString = function(elementObj)
 					xmlString += generateXMLString(children[i]);
 				}else if ($(children[i]).hasClass("sequence") ) {
 					xmlString += generateXMLString(children[i]);
-				}else{
+				}else if ($(children[i]).hasClass("element") ){
 					var textNode = $(children[i]).contents().filter(function(){
 				        return this.nodeType === 3;
 				    }).text();
 					
-					xmlString += "<" + textNode + ">";
+					// get attributes
+					var attributes = ""
+					$(children[i]).children("ul").children("li.attribute:not(.removed)").each(function(){
+						var text = $(this).contents().filter(function(){
+					        return this.nodeType === 3;
+					    }).text();
+					
+						attrChildren = $(this).children();					
+ 
+						var value= ""
+						for(var j = 0; j < attrChildren.length; j++) {
+							if (attrChildren[j].tagName == "SELECT") {
+							    // get the index of the selected option 
+							    var idx = attrChildren[j].selectedIndex; 
+							    // get the value of the selected option 		    
+							    value = attrChildren[j].options[idx].value; 						    	    
+							} else if (attrChildren[j].tagName == "INPUT") {
+								console.log(attrChildren[j]);
+								value = attrChildren[j].value;
+							}
+						}						
+						attributes += " " + text + "='" + value + "'";
+					});
+					xmlString += "<" + textNode + attributes + ">";
+					
 				    xmlString += generateXMLString(children[i]);
 				    xmlString += "</" + textNode + ">";
+					
 				}			    	
 			}
 		}
@@ -451,8 +476,7 @@ generateXMLString = function(elementObj)
 		else if (children[i].tagName == "SELECT") {
 		    // get the index of the selected option 
 		    var idx = children[i].selectedIndex; 
-		    // get the value of the selected option 
-		    
+		    // get the value of the selected option 		    
 		    var which = children[i].options[idx].value; 
 		    	    
 		    if (children[i].getAttribute("id") != null && children[i].getAttribute("id").indexOf("choice") > -1){
@@ -462,10 +486,7 @@ generateXMLString = function(elementObj)
 		    }	    
 		} else if (children[i].tagName == "INPUT") {
 		    xmlString += children[i].value;
-		} else if (children[i].nodeType == 1 && children[i].getAttribute("id") != null && children[i].getAttribute("id").indexOf("elementSelected") > -1) {
-		    var ptArray = children[i].innerHTML.split(" ");
-		    xmlString += ptArray[ptArray.length - 1];
-		} else {
+		}  else {
 		    xmlString += generateXMLString(children[i]);
 		}
     }
