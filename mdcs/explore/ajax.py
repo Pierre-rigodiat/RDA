@@ -392,7 +392,7 @@ def generateSimpleType(request, element, elementName, elementType, fullPath, xml
         if child.tag == "{0}restriction".format(defaultNamespace):
             formString += generateRestriction(request, child, fullPath, elementName)
         elif child.tag == "{0}list".format(defaultNamespace):
-            pass
+            formString += "<li>" + elementName + "</li>"
         elif child.tag == "{0}union".format(defaultNamespace):
             pass
     
@@ -617,8 +617,7 @@ def generateElement(request, element, fullPath, xmlTree, choiceInfo=None):
                 formString += generateSimpleType(request, element, textCapitalized, element[0], fullPath, xmlTree)
                    
     # if element is one of the declared type
-    elif element.attrib.get('type') in common.getXSDTypes(defaultPrefix):                                                                
-        textCapitalized = element.attrib.get('name')   
+    elif element.attrib.get('type') in common.getXSDTypes(defaultPrefix):                                                                   
         mapTagIDElementInfo = request.session['mapTagIDElementInfoExplore']                  
         elementID = len(mapTagIDElementInfo.keys())
         formString += "<li id='" + str(elementID) + "'>" + textCapitalized + " <input type='checkbox'>"                         
@@ -627,7 +626,6 @@ def generateElement(request, element, fullPath, xmlTree, choiceInfo=None):
         mapTagIDElementInfo[elementID] = elementInfo.__to_json__()
         request.session['mapTagIDElementInfoExplore'] = mapTagIDElementInfo                
     else:                        
-        textCapitalized = element.attrib.get('name') 
         # TODO: manage namespaces
         # type of the element is complex
         typeName = element.attrib.get('type')

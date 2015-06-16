@@ -645,17 +645,20 @@ def generateSimpleType(request, element, xmlTree, namespace):
     if len(formString) > 0:
         return formString
     
-    for child in list(element):
-        if child.tag == "{0}restriction".format(namespace):
-            enumeration = child.findall('{0}enumeration'.format(namespace))
+    if list(element) > 0:
+        if element[0].tag == "{0}restriction".format(namespace):
+            enumeration = element[0].findall('{0}enumeration'.format(namespace))
             if len(enumeration) > 0:
                 formString += "<select>"
                 for enum in enumeration:
                     formString += "<option value='" + enum.attrib.get('value')  + "'>" + enum.attrib.get('value') + "</option>"
                 formString += "</select>"
             else:
-                if child.attrib['base'] in common.getXSDTypes(request.session['defaultPrefix']):
+                if element[0].attrib['base'] in common.getXSDTypes(request.session['defaultPrefix']):
                     formString += " <input type='text'/>"
+        elif element[0].tag == "{0}list".format(namespace):
+            #TODO: list can contain a restriction/enumeration, what can we do about that?
+            formString += "<input type='text'/>"
     
     return formString 
 
