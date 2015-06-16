@@ -1258,7 +1258,7 @@ def generateForm(request):
         del request.session['mapTagElement']  
     if 'spreadsheetXML' in request.session:
         del request.session['spreadsheetXML']
-    request.session['xsd_elements'] = dict()    
+    request.session['xsd_elements'] = dict()   
     request.session['mapTagElement'] = dict()
     request.session['spreadsheetXML'] = ""
     defaultPrefix = request.session['defaultPrefix']
@@ -1280,7 +1280,6 @@ def generateForm(request):
         formString += "<div xmlID='root'>"
         formString += generateChoice(request, elements, xmlDocTree, namespace)
         formString += "</div>"
-
         
     return formString
 
