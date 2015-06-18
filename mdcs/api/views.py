@@ -332,28 +332,28 @@ def explore_detail(request):
 # Description:   Delete the XML data with the provided id
 # 
 ################################################################################
-@api_view(['DELETE'])
-def explore_delete(request):
-    """
-    GET http://localhost/rest/explore/delete
-    id: string (ObjectId)
-    """        
-    id = request.QUERY_PARAMS.get('id', None)
-    
-    try:        
-        query = dict()
-        if id is not None:            
-            query['_id'] = ObjectId(id)            
-        if len(query.keys()) == 0:
-            content = {'message':'No id given.'}
-            return Response(content, status=status.HTTP_400_BAD_REQUEST)
-        else:
-            Jsondata.delete(id)
-            content = {'message':'Data deleted with success.'}
-            return Response(content, status=status.HTTP_204_NO_CONTENT)
-    except:
-        content = {'message':'No data found with the given id.'}
-        return Response(content, status=status.HTTP_404_NOT_FOUND)
+# @api_view(['DELETE'])
+# def explore_delete(request):
+#     """
+#     GET http://localhost/rest/explore/delete
+#     id: string (ObjectId)
+#     """        
+#     id = request.QUERY_PARAMS.get('id', None)
+#     
+#     try:        
+#         query = dict()
+#         if id is not None:            
+#             query['_id'] = ObjectId(id)            
+#         if len(query.keys()) == 0:
+#             content = {'message':'No id given.'}
+#             return Response(content, status=status.HTTP_400_BAD_REQUEST)
+#         else:
+#             Jsondata.delete(id)
+#             content = {'message':'Data deleted with success.'}
+#             return Response(content, status=status.HTTP_204_NO_CONTENT)
+#     except:
+#         content = {'message':'No data found with the given id.'}
+#         return Response(content, status=status.HTTP_404_NOT_FOUND)
 
 ################################################################################
 # 
