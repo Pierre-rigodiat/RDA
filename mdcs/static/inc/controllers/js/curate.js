@@ -1207,14 +1207,14 @@ changeHTMLForm = function(operation, tagID)
 	    $(this).attr("value", $(this).val());
 	});
 	$('select option').each(function(){ this.defaultSelected = this.selected; });
-	var xsdForm = $("#xsdForm").html()
+	
 	
     if (operation == 'add') {
-    	$("#element"+tagID).children(".expand").attr("class","collapse");
-		duplicate(tagID, xsdForm);
+    	$("#element"+tagID).children(".expand").attr("class","collapse");    
+		duplicate(tagID);
     } else if (operation == 'remove') {    	
     	$("#element"+tagID).children(".collapse").attr("class","expand");
-		remove(tagID, xsdForm);
+		remove(tagID);
     }
     console.log('END [changeHTMLForm(' + operation + ')]');
 
@@ -1225,29 +1225,42 @@ changeHTMLForm = function(operation, tagID)
 /**
  * AJAX call, duplicate an element from the form
  * @param tagID HTML id of the element to duplicate
- * @param xsdForm HTML form 
  */
-duplicate = function(tagID, xsdForm){
+duplicate = function(tagID){
     $.ajax({
-        url : "/curate/duplicate",
+        url : "/curate/can_duplicate",
         type : "POST",
         dataType: "json",
         data : {
             tagID : tagID,
-            xsdForm: xsdForm
         },
         success: function(data){
-            if (data.occurs == "zero"){
+        	if ('occurs' in data){
+        		if (data.occurs == "zero"){
                 $('#add' + data.id).attr('style', data.styleAdd);
                 $('#remove' + data.id).attr('style','');
                 $("#" + data.tagID).prop("disabled",false);
                 $("#" + data.tagID).children('select').prop("disabled",false);
                 $("#" + data.tagID).removeClass("removed");
                 $("#" + data.tagID).children("ul").show(500);
-            }
-            else{
-                $("#xsdForm").html(data.xsdForm)
-            }
+	            }
+	            else{
+	            	var xsdForm = $("#xsdForm").html();
+	            	
+	            	$.ajax({
+				        url : "/curate/duplicate",
+				        type : "POST",
+				        dataType: "json",
+				        data : {
+				            tagID : tagID,
+				            xsdForm: xsdForm
+				        },
+				        success: function(data){
+				        	$("#xsdForm").html(data.xsdForm);
+				        }
+        			});
+	            }
+        	}
         }
     });
 }
@@ -1256,28 +1269,41 @@ duplicate = function(tagID, xsdForm){
 /**
  * AJAX call, remove an element from the form
  * @param tagID HTML id of the element to remove
- * @param xsdForm HTML form 
  */
-remove = function(tagID, xsdForm){
+remove = function(tagID){
+console.log("test");
 $.ajax({
-        url : "/curate/remove",
+        url : "/curate/can_remove",
         type : "POST",
         dataType: "json",
         data : {
             tagID : tagID,
-            xsdForm: xsdForm
         },
         success: function(data){
-            if (data.occurs == "zero"){
-                $('#add' + data.id).attr('style','');
-                $('#remove' + data.id).attr('style','display:none');
-                $("#" + data.tagID).prop("disabled",true);
-                $("#" + data.tagID).children('select').prop("disabled",true);
-                $("#" + data.tagID).addClass("removed");
-                $("#" + data.tagID).children("ul").hide(500);
-            }else{
-                $("#xsdForm").html(data.xsdForm)
-            }
+        	if ('occurs' in data){
+        		if (data.occurs == "zero"){
+                    $('#add' + data.id).attr('style','');
+                    $('#remove' + data.id).attr('style','display:none');
+                    $("#" + data.tagID).prop("disabled",true);
+                    $("#" + data.tagID).children('select').prop("disabled",true);
+                    $("#" + data.tagID).addClass("removed");
+                    $("#" + data.tagID).children("ul").hide(500);
+        		}else{
+        			var xsdForm = $("#xsdForm").html();     			
+        			$.ajax({
+				        url : "/curate/remove",
+				        type : "POST",
+				        dataType: "json",
+				        data : {
+				            tagID : tagID,
+				            xsdForm: xsdForm
+				        },
+				        success: function(data){
+				        	$("#xsdForm").html(data.xsdForm);
+				        }
+        			});
+        		}
+        	}
         }
     });
 }
