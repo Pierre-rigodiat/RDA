@@ -1201,7 +1201,6 @@ saveXMLDataToDBError = function()
 changeHTMLForm = function(operation, tagID)
 {
     console.log('BEGIN [changeHTMLForm(' + operation + ')]');
-    console.log(tagID);
     
     $("input").each(function(){
 	    $(this).attr("value", $(this).val());
@@ -1271,7 +1270,6 @@ duplicate = function(tagID){
  * @param tagID HTML id of the element to remove
  */
 remove = function(tagID){
-console.log("test");
 $.ajax({
         url : "/curate/can_remove",
         type : "POST",
