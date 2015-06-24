@@ -645,23 +645,50 @@ def generateSimpleType(request, element, xmlTree, namespace):
     if len(formString) > 0:
         return formString
     
-    if list(element) > 0:
-        if element[0].tag == "{0}restriction".format(namespace):
-            enumeration = element[0].findall('{0}enumeration'.format(namespace))
-            if len(enumeration) > 0:
-                formString += "<select>"
-                for enum in enumeration:
-                    formString += "<option value='" + enum.attrib.get('value')  + "'>" + enum.attrib.get('value') + "</option>"
-                formString += "</select>"
-            else:
-                if element[0].attrib['base'] in common.getXSDTypes(request.session['defaultPrefix']):
-                    formString += " <input type='text'/>"
-        elif element[0].tag == "{0}list".format(namespace):
+    if (list(element) != 0):
+        child = element[0] 
+        if child.tag == "{0}restriction".format(namespace):
+            formString += generateRestriction(request, child, xmlTree, namespace)            
+        elif child.tag == "{0}list".format(namespace):
             #TODO: list can contain a restriction/enumeration, what can we do about that?
             formString += "<input type='text'/>"
+        elif child.tag == "{0}union".format(namespace):
+            pass
     
     return formString 
 
+
+################################################################################
+# 
+# Function Name: generateRestriction(request, element, xmlTree, namespace)
+# Inputs:        request - 
+#                element - XML element
+#                xmlTree - XML Tree
+#                namespace - namespace
+# Outputs:       HTML string representing a sequence
+# Exceptions:    None
+# Description:   Generates a section of the form that represents an XML restriction
+# 
+################################################################################
+def generateRestriction(request, element, xmlTree, namespace):
+    formString = ""
+    
+    removeAnnotations(element, namespace)
+    
+    enumeration = element.findall('{0}enumeration'.format(namespace))
+    if len(enumeration) > 0:
+        formString += "<select>"
+        for enum in enumeration:
+            formString += "<option value='" + enum.attrib.get('value')  + "'>" + enum.attrib.get('value') + "</option>"
+        formString += "</select>"
+    else:
+        simpleType = element.find('{0}simpleType'.format(namespace))
+        if simpleType is not None:
+            formString += generateSimpleType(request, simpleType, xmlTree, namespace)
+        else:        
+            formString += " <input type='text'/>"
+            
+    return formString
 
 ################################################################################
 # 
@@ -1339,15 +1366,17 @@ def generateForm(request):
     namespace = request.session['namespaces'][defaultPrefix]
     elements = xmlDocTree.findall("./{0}element".format(namespace))
 
-    
-    if len(elements) == 1:
-        formString += "<div xmlID='root'>"
-        formString += generateElement(request, elements[0], xmlDocTree,namespace)
-        formString += "</div>"
-    elif len(elements) > 1:     
-        formString += "<div xmlID='root'>"
-        formString += generateChoice(request, elements, xmlDocTree, namespace)
-        formString += "</div>"
+    try:
+        if len(elements) == 1:
+            formString += "<div xmlID='root'>"
+            formString += generateElement(request, elements[0], xmlDocTree,namespace)
+            formString += "</div>"
+        elif len(elements) > 1:     
+            formString += "<div xmlID='root'>"
+            formString += generateChoice(request, elements, xmlDocTree, namespace)
+            formString += "</div>"
+    except Exception, e:
+        formString = "UNSUPPORTED ELEMENT FOUND (" + e.message + ")" 
         
     return formString
 

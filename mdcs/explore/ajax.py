@@ -390,7 +390,7 @@ def generateSimpleType(request, element, elementName, elementType, fullPath, xml
     if(len(list(elementType)) != 0):
         child = elementType[0] 
         if child.tag == "{0}restriction".format(defaultNamespace):
-            formString += generateRestriction(request, child, fullPath, elementName)
+            formString += generateRestriction(request, child, fullPath, elementName, xmlTree)
         elif child.tag == "{0}list".format(defaultNamespace):
             formString += "<li>" + elementName + "</li>"
         elif child.tag == "{0}union".format(defaultNamespace):
@@ -410,7 +410,7 @@ def generateSimpleType(request, element, elementName, elementType, fullPath, xml
 # Description:   Generates a section of the form that represents an XML restriction
 # 
 ################################################################################
-def generateRestriction(request, element, fullPath, elementName):
+def generateRestriction(request, element, fullPath, elementName, xmlTree):
     defaultNamespace = request.session['defaultNamespaceExplore']  
     mapTagIDElementInfo = request.session['mapTagIDElementInfoExplore']
     
@@ -429,11 +429,15 @@ def generateRestriction(request, element, fullPath, elementName):
             listChoices.append(enumChild.attrib['value'])
         request.session['mapEnumIDChoicesExplore'][elementID] = listChoices
     else:
-        if element.attrib['base'] in common.getXSDTypes(request.session['defaultPrefixExplore']):
-            formString += "<li id='" + str(elementID) + "'>" + elementName + " <input type='checkbox'>"    
-            elementInfo = ElementInfo(element.attrib['base'], fullPath[1:])
-            mapTagIDElementInfo[elementID] = elementInfo.__to_json__()
-            request.session['mapTagIDElementInfoExplore'] = mapTagIDElementInfo
+        simpleType = element.find('{0}simpleType'.format(defaultNamespace))
+        if simpleType is not None:
+            formString += generateSimpleType(request, element, elementName, simpleType, fullPath, xmlTree)
+        else:
+            if 'base' in element.attrib and element.attrib['base'] in common.getXSDTypes(request.session['defaultPrefixExplore']):
+                formString += "<li id='" + str(elementID) + "'>" + elementName + " <input type='checkbox'>"    
+                elementInfo = ElementInfo(element.attrib['base'], fullPath[1:])
+                mapTagIDElementInfo[elementID] = elementInfo.__to_json__()
+                request.session['mapTagIDElementInfoExplore'] = mapTagIDElementInfo
             
     return formString
 
@@ -675,11 +679,14 @@ def generateForm(request):
     defaultNamespace = request.session['defaultNamespaceExplore'] 
     elements = xmlDocTree.findall("./{0}element".format(defaultNamespace))
 
-    if len(elements) == 1:
-        formString += generateElement(request, elements[0], "", xmlDocTree)    
-    elif len(elements) > 1:
-        formString += generateChoice(request, elements, "", xmlDocTree)
-
+    try:
+        if len(elements) == 1:
+            formString += generateElement(request, elements[0], "", xmlDocTree)    
+        elif len(elements) > 1:
+            formString += generateChoice(request, elements, "", xmlDocTree)
+    except Exception, e:
+        formString = "UNSUPPORTED ELEMENT FOUND (" + e.message + ")" 
+        
     print 'END def generateForm(request)'
 
     return formString

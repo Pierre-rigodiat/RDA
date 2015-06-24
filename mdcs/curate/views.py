@@ -246,7 +246,6 @@ def curate_enter_data_downloadxsd(request):
             templateFilename = request.session['currentTemplate']
             templateID = request.session['currentTemplateID']
 
-
             templateObject = Template.objects.get(pk=ObjectId(templateID))
 
             print templateObject
