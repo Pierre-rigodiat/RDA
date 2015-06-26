@@ -24,12 +24,13 @@ from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
 urlpatterns = patterns('',
 
-    url(r'^$', 'mgi.views.home', name='home'),
+    url(r'^$', 'mgi.views.home', name='home'),    
     url(r'^admin/', include('admin_mdcs.urls')),
     url(r'^curate/', include('curate.urls')),
     url(r'^explore/', include('explore.urls')),
     url(r'^compose/', include('compose.urls')),
     url(r'^rest/', include('api.urls')),
+    url(r'^modules/', include('modules.urls')),
     url(r'^docs/api', include('rest_framework_swagger.urls')),
     url(r'^all-options', 'mgi.views.all_options', name='all-options'),
     url(r'^browse-all', 'mgi.views.browse_all', name='browse-all'),
