@@ -1,23 +1,12 @@
 from django.http import HttpResponse
 import json
 from exceptions import ModuleError
-from django.template import Context, Template
-
 
 from abc import ABCMeta, abstractmethod
-from django.conf import settings
-import os
 
 
 class Module(object):
     __metaclass__ = ABCMeta
-    
-    def __init__(self, template=None, params={}):
-        if template is None:
-            raise ModuleError('No base template selected. Provide a template to the module constructor. Available templates are: ' + str(TEMPLATES.keys()))
-        
-        self.template = template
-        self.params = params
     
     def view(self, request):
         module = None
@@ -26,10 +15,9 @@ class Module(object):
         
         if request.method == 'GET':
             try:
-#                 self.params.update(self.set_params())
-                module = self.get_module()
-                moduleDisplay = self.get_default_display()
-                moduleResult = self.get_default_result()                
+                module = self.get_module(request)
+                moduleDisplay = self.get_default_display(request)
+                moduleResult = self.get_default_result(request)
             except Exception, e:
                 raise ModuleError('Something went wrong during module initialization: ' + e.message)
             # check returned values?  
@@ -52,7 +40,7 @@ class Module(object):
             try:
                 if 'moduleDisplay' not in request.POST or 'moduleResult' not in request.POST:
                     raise ModuleError('Current values of display and results should be sent in JSON body.')
-                moduleDisplay, moduleResult = self.post(request)
+                moduleDisplay, moduleResult = self.process_data(request)
             except Exception, e:
                 raise ModuleError('Something went wrong during module execution: ' + e.message)
             # check returned values?
@@ -77,29 +65,13 @@ class Module(object):
             response['moduleDisplay'] = moduleDisplay
         if moduleResult is not None:
             response['moduleResult'] = moduleResult
-        #return HttpResponse(module)
         return HttpResponse(json.dumps(response), content_type='application/javascript')
-
-    
-#     @abstractmethod
-#     def get(self, request):
-#         """
-#             Method:
-#                 Get the module to insert in the form and default values
-#             Input:
-#                 request: HTTP request
-#             Outputs:
-#                 module: input to be inserted in the form
-#                 moduleDisplay: Default value to display (can be None)
-#                 moduleResult: Default result (can be None)
-#         """
-#         raise NotImplementedError("This method is not implemented.")    
     
     @abstractmethod
-    def post(self, request):
+    def process_data(self, request):
         """
             Method:
-                Send data to the server (called before editing or saving)
+                Process data received from the client and send back the result and what to display.
             Input:
                 request: HTTP request
                 request.POST['moduleDisplay']: value of moduleDisplay
@@ -110,49 +82,19 @@ class Module(object):
         """
         raise NotImplementedError("This method is not implemented.")
 
-    def get_module(self):
+    @abstractmethod
+    def get_module(self, request):
         """
             Method:
                 Get the module to insert in the form.
             Outputs:
                 module: input to be inserted in the form
         """
-        # check template in available templates
-        if self.template in TEMPLATES.keys():
-            # check parameters in template's parameters
-            for param_name in self.params.keys():                
-                if (param_name not in TEMPLATES[self.template]['parameters']['required'] and
-                   param_name not in TEMPLATES[self.template]['parameters']['optional']):                    
-                    raise ModuleError('At least one of the parameters provided to the template is not expected. Required parameters: ' + str(TEMPLATES[self.template]['parameters']['required']) + ', Optional parameters: ' + str(TEMPLATES[self.template]['parameters']['optional']) )                                
-            # check that all required parameters are present
-            for required_param in TEMPLATES[self.template]['parameters']['required']:
-                if required_param not in self.params.keys():
-                    raise ModuleError('One of the required parameters is missing. Required parameters are: ' + str(TEMPLATES[self.template]['parameters']['required']))
-                
-            # load template with context
-            with open(TEMPLATES[self.template]['path'], 'r') as template_file:
-                template_content = template_file.read()
-                template = Template(template_content)
-                context = Context(self.params) 
-                module = template.render(context)
-                return module       
-        else:
-            raise ModuleError('The selected template does not exist. Available templates are: ' + str(TEMPLATES.keys()))
+        raise NotImplementedError("This method is not implemented.")
 
-#     @abstractmethod
-#     def set_params(self):   
-#         """
-#             Method:
-#                 Set parameters for template. Allows actions on the server.
-#             Input:
-# 
-#             Outputs:
-#                 params: dict = {"param_name": "param_value"}
-#         """
-#         return dict()
     
     @abstractmethod
-    def get_default_display(self):
+    def get_default_display(self, request):
         """
             Method:
                 Get the default value to be displayed in the form.
@@ -162,7 +104,7 @@ class Module(object):
         raise NotImplementedError("This method is not implemented.")
     
     @abstractmethod
-    def get_default_result(self):
+    def get_default_result(self, request):
         """
             Method:
                 Get the default value to be stored in the form.
@@ -170,56 +112,3 @@ class Module(object):
                 default result value
         """
         raise NotImplementedError("This method is not implemented.")
-    
-
-
-TEMPLATES_PATH = os.path.join(settings.SITE_ROOT, 'modules/templates/')
-TEMPLATES = {
-             "input": 
-                {
-                "path": TEMPLATES_PATH + "input.html",
-                "parameters":
-                    {
-                    "required" : [],
-                    "optional" : ["label","default_value"]
-                    }
-                },
-             "input_button": 
-                {
-                "path": TEMPLATES_PATH + "input_button.html",
-                "parameters":
-                    {
-                    "required" : ["button_label"],
-                    "optional" : ["label","default_value"], 
-                    }
-                },
-             "options":
-                {
-                "path": TEMPLATES_PATH + "options.html",
-                "parameters":
-                    {
-                    "required" : [],
-                    "optional" : ["label","default_value"], 
-                    }
-                }, 
-             "popup":
-                {
-                "path": TEMPLATES_PATH + "popup.html",
-                "parameters":
-                    {
-                    "required" : ["popup_content", "button_label"],
-                    "optional" : [], 
-                    }
-                }, 
-             "free":
-                {
-                "path": TEMPLATES_PATH + "free.html",
-                "parameters":
-                    {
-                    "required" : ["content"],
-                    "optional" : [], 
-                    }
-                }, 
-             }
-    
-    
