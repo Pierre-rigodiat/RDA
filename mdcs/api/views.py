@@ -577,6 +577,7 @@ def curate(request):
             return Response(content, status=status.HTTP_400_BAD_REQUEST)
         
         xmlStr = request.DATA['content']
+        docID = None
         try:
             try:
                 common.validateXMLDocument(schema.id, xmlStr)
@@ -609,6 +610,8 @@ def curate(request):
             rdfPublisher.sendRDF(rdfStr)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         except:
+            if docID is not None:
+                jsondata.delete(docID)
             content = {'message: Unable to insert data.'}
             return Response(content, status=status.HTTP_400_BAD_REQUEST)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
