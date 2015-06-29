@@ -1,6 +1,7 @@
 from modules.builtin.models import PopupModule
 from django.conf import settings
 import os
+from modules.exceptions import ModuleError
 
 
 RESOURCES_PATH = os.path.join(settings.SITE_ROOT, 'modules/diffusion/resources/')
@@ -21,4 +22,9 @@ class PeriodicTableModule(PopupModule):
         return ""
     
     def process_data(self, request):
-        pass
+        if 'selectedElement' in request.POST:
+            moduleDisplay = "Chosen element: " + request.POST['selectedElement']
+            moduleResult = request.POST['selectedElement']
+            return moduleDisplay, moduleResult
+        else:
+            raise ModuleError('Selected Element not properly sent to server. Please set "selectedElement" in POST data.')

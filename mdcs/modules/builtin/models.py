@@ -2,14 +2,19 @@ from modules.models import Module, ModuleError
 from django.conf import settings
 import os
 from django.template import Context, Template
-from abc import ABCMeta, abstractmethod
+from abc import abstractmethod
+
 
 TEMPLATES_PATH = os.path.join(settings.SITE_ROOT, 'modules/builtin/resources/html/')
 
 
 def render_module(template, params):
     """
-    render template with its context
+        Purpose:
+            renders the template with its context
+        Input:
+            template: path to HTML template to render
+            params: parameters to create a context for the template
     """
     with open(template, 'r') as template_file:
         template_content = template_file.read()

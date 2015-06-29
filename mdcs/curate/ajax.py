@@ -772,10 +772,16 @@ def stubModules(request, element):
             formString += "</div>"
         
         if 'name' in element.attrib and element.attrib.get('name') == "ChemicalElement":
+#             formString += "<div class='module' style='display: inline'>"
+#             formString += "<div class=\"btn select-element\" onclick=\"selectElement(this);\"><i class=\"icon-folder-open\"></i> Select Chemical Element</div>"
+#             formString += "<div class='moduleDisplay'>Current Selection: None</div>"
+#             formString += "<div class='moduleResult' style='display: none'></div>"
+#             formString += "</div>" 
             formString += "<div class='module' style='display: inline'>"
-            formString += "<div class=\"btn select-element\" onclick=\"selectElement(this);\"><i class=\"icon-folder-open\"></i> Select Chemical Element</div>"
-            formString += "<div class='moduleDisplay'>Current Selection: None</div>"
+            formString += "<div class='moduleContent'></div>"
+            formString += "<div class='moduleDisplay'></div>"
             formString += "<div class='moduleResult' style='display: none'></div>"
+            formString += "<div class='moduleURL' style='display: none'>diffusion/periodic-table</div>"
             formString += "</div>" 
         
         if 'name' in element.attrib and element.attrib.get('name') == "Table":

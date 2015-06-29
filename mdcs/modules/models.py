@@ -38,8 +38,6 @@ class Module(object):
                 pass
         elif request.method == 'POST':
             try:
-                if 'moduleDisplay' not in request.POST or 'moduleResult' not in request.POST:
-                    raise ModuleError('Current values of display and results should be sent in JSON body.')
                 moduleDisplay, moduleResult = self.process_data(request)
             except Exception, e:
                 raise ModuleError('Something went wrong during module execution: ' + e.message)
