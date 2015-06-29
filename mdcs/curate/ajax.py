@@ -764,6 +764,14 @@ def stubModules(request, element):
         formString += "</div>"    
         
     if MATERIALS_MODULES == True:
+        if 'name' in element.attrib and element.attrib.get('name') == "Phase":
+            formString += "<div class='module' style='display: inline'>"
+            formString += "<div class='moduleContent'></div>"
+            formString += "<div class='moduleDisplay'></div>"
+            formString += "<div class='moduleResult' style='display: none'></div>"
+            formString += "<div class='moduleURL' style='display: none'>test/positive-integer</div>"
+            formString += "</div>" 
+        
         if 'name' in element.attrib and element.attrib.get('name') == "ConstituentsType":
             formString += "<div class='module' style='display: inline'>"
             formString += "<div class=\"btn select-element\" onclick=\"selectMultipleElements(this);\"><i class=\"icon-folder-open\"></i> Select Chemical Elements</div>"
@@ -790,6 +798,7 @@ def stubModules(request, element):
             formString += "<div class='moduleDisplay'></div>"
             formString += "<div class='moduleResult' style='display: none'></div>"
             formString += "</div>"
+
     
     return formString
 
