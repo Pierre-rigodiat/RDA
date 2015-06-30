@@ -889,6 +889,8 @@ generate_xsd_form = function(){
             $('#periodicTable').html(data.periodicTable);
             $('#periodicTableMultiple').html(data.periodicTableMultiple);
             $('#xsdForm').html(data.xsdForm);
+
+            initModules();
         },
     });
 }
