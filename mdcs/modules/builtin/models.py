@@ -5,7 +5,8 @@ from django.template import Context, Template
 from abc import abstractmethod
 
 
-TEMPLATES_PATH = os.path.join(settings.SITE_ROOT, 'modules/builtin/resources/html/')
+RESOURCES_PATH = os.path.join(settings.SITE_ROOT, 'modules/builtin/resources/')
+TEMPLATES_PATH = os.path.join(RESOURCES_PATH, 'html/')
 
 
 def render_module(template, params):
@@ -44,6 +45,10 @@ class PopupModule(Module):
         return render_module(template, params)
 
     @abstractmethod
+    def get_resources(self):
+        pass
+
+    @abstractmethod
     def get_default_display(self, request):
         pass
 
@@ -71,6 +76,13 @@ class InputModule(Module):
         if self.default_value is not None:
             params.update({"default_value": self.default_value})
         return render_module(template, params)
+
+    
+    def get_resources(self):
+        script_path = RESOURCES_PATH + 'js/input.js'
+        with open(script_path, 'r') as script_file:
+            script_content = '<script>' + script_file.read() + '</script>'            
+        self.resources['script'].append(script_content)
 
     @abstractmethod
     def get_default_display(self, request):
@@ -107,6 +119,11 @@ class InputButtonModule(Module):
         return render_module(template, params)
 
     @abstractmethod
+    def get_resources(self):
+        
+        self.resources['script'].append()
+
+    @abstractmethod
     def get_default_display(self, request):
         pass
 
@@ -139,6 +156,10 @@ class OptionsModule(Module):
         if self.default_value is not None:
             params.update({"default_value": self.default_value})
         return render_module(template, params)
+
+    @abstractmethod
+    def get_resources(self):
+        pass
 
     @abstractmethod
     def get_default_display(self, request):
