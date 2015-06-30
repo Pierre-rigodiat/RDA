@@ -26,7 +26,7 @@ def render_module(template, params):
 
 
 class PopupModule(Module):
-    def __init__(self, popup_content=None, button_label=None):
+    def __init__(self, scripts=None, styles=None, popup_content=None, button_label=None):
         Module.__init__(self)
 
         if popup_content is None or button_label is None:
@@ -45,10 +45,6 @@ class PopupModule(Module):
         return render_module(template, params)
 
     @abstractmethod
-    def get_resources(self):
-        pass
-
-    @abstractmethod
     def get_default_display(self, request):
         pass
 
@@ -62,8 +58,13 @@ class PopupModule(Module):
 
 
 class InputModule(Module):
-    def __init__(self, label=None, default_value=None):
-        Module.__init__(self)
+    def __init__(self, scripts=None, styles=None, label=None, default_value=None):
+        input_script = os.path.join(RESOURCES_PATH, 'js/input.js')
+        
+        if scripts is not None:
+            scripts.append(input_script)
+        
+        Module.__init__(self, scripts=scripts, styles=styles)
 
         self.label = label
         self.default_value = default_value
@@ -76,13 +77,6 @@ class InputModule(Module):
         if self.default_value is not None:
             params.update({"default_value": self.default_value})
         return render_module(template, params)
-
-    
-    def get_resources(self):
-        script_path = RESOURCES_PATH + 'js/input.js'
-        with open(script_path, 'r') as script_file:
-            script_content = '<script>' + script_file.read() + '</script>'            
-        self.resources['script'].append(script_content)
 
     @abstractmethod
     def get_default_display(self, request):
@@ -98,7 +92,7 @@ class InputModule(Module):
 
 
 class InputButtonModule(Module):
-    def __init__(self, button_label=None, label=None, default_value=None):
+    def __init__(self, scripts=None, styles=None, button_label=None, label=None, default_value=None):
         Module.__init__(self)
 
         if button_label is None:
@@ -118,10 +112,6 @@ class InputButtonModule(Module):
             params.update({"default_value": self.default_value})
         return render_module(template, params)
 
-    @abstractmethod
-    def get_resources(self):
-        
-        self.resources['script'].append()
 
     @abstractmethod
     def get_default_display(self, request):
@@ -137,7 +127,7 @@ class InputButtonModule(Module):
 
 
 class OptionsModule(Module):
-    def __init__(self, options=None, label=None, default_value=None):
+    def __init__(self, scripts=None, styles=None, options=None, label=None, default_value=None):
         Module.__init__(self)
 
         if options is None:
@@ -156,10 +146,6 @@ class OptionsModule(Module):
         if self.default_value is not None:
             params.update({"default_value": self.default_value})
         return render_module(template, params)
-
-    @abstractmethod
-    def get_resources(self):
-        pass
 
     @abstractmethod
     def get_default_display(self, request):

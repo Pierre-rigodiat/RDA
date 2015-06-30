@@ -8,10 +8,9 @@ from abc import ABCMeta, abstractmethod
 class Module(object):
     __metaclass__ = ABCMeta
     
-    def __init__(self):
-        self.resources = {}
-        self.resources['script'] = []
-        self.resources['style'] = []
+    def __init__(self, scripts=None, styles=None):
+        self.scripts = scripts
+        self.styles = styles
         
     def view(self, request):
         module = None
@@ -21,9 +20,9 @@ class Module(object):
         if request.method == 'GET':
             if 'type' in request.GET and request.GET['type'] == 'resources':            
                 response = {}
-                self.get_resources()
-                response['moduleStyle'] = self.resources['style']
-                response['moduleScript'] = self.resources['script']
+                moduleScript, moduleStyle = self.get_resources()
+                response['moduleStyle'] = moduleStyle
+                response['moduleScript'] = moduleScript
                 return HttpResponse(json.dumps(response), content_type='application/javascript')
             else:
                 try:
@@ -79,19 +78,57 @@ class Module(object):
             response['moduleResult'] = moduleResult
         return HttpResponse(json.dumps(response), content_type='application/javascript')
     
-    @abstractmethod
     def get_resources(self):
-        pass
-#         module_style = self.get_module_style()
-#         
-#         for style in module_style:
-#             pass
-#         
-#         module_script = self.get_module_script()
-#         
-#         for script in module_script:
-#             pass
+        """
+        
+        """
+        moduleScripts = []
+        moduleStyles = []
+        
+        if self.scripts is not None:
+            try:
+                for script in self.scripts:
+                    external = False
+                    try:
+                        if script.startswith('http://') or script.startswith('https://'):
+                            external = True
+                    except:
+                        raise ModuleError('Scripts should be string of characters. It can be a path to a resource or an URL.')
+                                                            
+                    if external:
+                        script_tag = '<script src="' + script + '"></script>'    
+                        moduleScripts.append(script_tag)
+                    else:                        
+                        with open(script, 'r') as script_file:
+                            script_tag = '<script>' + script_file.read() + '</script>'    
+                        moduleScripts.append(script_tag)
+            except:
+                raise ModuleError('An error occurred during the reading of resources. Make sure that you are only using urls to external resources or paths to resources inside the application.')
+        
+        if self.styles is not None:
+            try:
+                for style in self.styles:
+                    external = False
+                    try:
+                        if style.startswith('http://') or style.startswith('https://'):
+                            external = True
+                    except:
+                        raise ModuleError('Styles should be string of characters. It can be a path to a resource or an URL.')
+                                                            
+                    if external:
+                        style_tag = '<link rel="stylesheet" type="text/css" href="' + style + '"></link>'    
+                        moduleStyles.append(style_tag)
+                    else:                        
+                        with open(style, 'r') as style_file:
+                            style_tag = '<style>' + style_file.read() + '</style>'    
+                        moduleStyles.append(style_tag)
+            except:
+                raise ModuleError('An error occurred during the reading of resources. Make sure that you are only using urls to external resources or paths to resources inside the application.')
+            
+        return moduleScripts, moduleStyles
     
+
+
 
     @abstractmethod
     def process_data(self, request):

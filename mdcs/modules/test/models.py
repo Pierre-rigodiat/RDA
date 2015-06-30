@@ -6,14 +6,6 @@ class PositiveIntegerInputModule(InputModule):
     def __init__(self):
         InputModule.__init__(self, label='Enter positive integer', default_value=1)
 
-    
-    
-    def get_resources(self):
-        InputModule.get_resources(self)
-         
-        
-
-
     def get_default_display(self, request):
         return "1 is a valid positive integer"
         
@@ -30,6 +22,9 @@ class PositiveIntegerInputModule(InputModule):
                 if value > 0:
                     moduleDisplay = str(value) + " is a valid positive integer"
                     moduleResult = value
+                else:
+                    moduleDisplay = str(value) + " is not a positive integer"
+                    moduleResult = ""
             except:                            
                 moduleDisplay = str(value) + " is not a positive integer"
                 moduleResult = ""
