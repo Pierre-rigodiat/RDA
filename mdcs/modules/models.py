@@ -8,34 +8,48 @@ from abc import ABCMeta, abstractmethod
 class Module(object):
     __metaclass__ = ABCMeta
     
+    def __init__(self):
+        self.resources = {}
+        self.resources['script'] = []
+        self.resources['style'] = []
+        
     def view(self, request):
         module = None
         moduleDisplay = None
         moduleResult = None
         
         if request.method == 'GET':
-            try:
-                module = self.get_module(request)
-                moduleDisplay = self.get_default_display(request)
-                moduleResult = self.get_default_result(request)
-            except Exception, e:
-                raise ModuleError('Something went wrong during module initialization: ' + e.message)
-            # check returned values?  
-            
-            # module should be HTML and should not be null
-            if module is None:
-                raise ModuleError('Module value cannot be None. Module initialization cannot be completed.')   
+            if 'type' in request.GET and request.GET['type'] == 'resources':            
+                response = {}
+                self.get_resources()
+                response['moduleStyle'] = self.resources['style']
+                response['moduleScript'] = self.resources['script']
+                return HttpResponse(json.dumps(response), content_type='application/javascript')
             else:
-                # check HTML or raise exception
-                pass
-            
-            if moduleDisplay is not None:
-                # check HTML or raise exception
-                pass
-            
-            if moduleResult is not None:
-                # check is value or valid XML or raise exception
-                pass
+                try:
+                    module = self.get_module(request)
+                    moduleDisplay = self.get_default_display(request)
+                    moduleResult = self.get_default_result(request)
+                except Exception, e:
+                    raise ModuleError('Something went wrong during module initialization: ' + e.message)
+                
+                # check returned values? 
+                
+                # module should be HTML and should not be null
+                if module is None:
+                    raise ModuleError('Module value cannot be None. Module initialization cannot be completed.')   
+                else:
+                    # check HTML or raise exception
+                    pass
+                
+                if moduleDisplay is not None:
+                    # check HTML or raise exception
+                    pass
+                
+                if moduleResult is not None:
+                    # check is value or valid XML or raise exception
+                    pass
+                
         elif request.method == 'POST':
             try:
                 moduleDisplay, moduleResult = self.process_data(request)
@@ -65,6 +79,20 @@ class Module(object):
             response['moduleResult'] = moduleResult
         return HttpResponse(json.dumps(response), content_type='application/javascript')
     
+    @abstractmethod
+    def get_resources(self):
+        pass
+#         module_style = self.get_module_style()
+#         
+#         for style in module_style:
+#             pass
+#         
+#         module_script = self.get_module_script()
+#         
+#         for script in module_script:
+#             pass
+    
+
     @abstractmethod
     def process_data(self, request):
         """
