@@ -26,7 +26,7 @@ class PositiveIntegerInputModule(InputModule):
                     moduleDisplay = str(value) + " is not a positive integer"
                     moduleResult = ""
             except:                            
-                moduleDisplay = str(value) + " is not a positive integer"
+                moduleDisplay = str(request.POST['value']) + " is not a positive integer"
                 moduleResult = ""
                             
             return moduleDisplay, moduleResult

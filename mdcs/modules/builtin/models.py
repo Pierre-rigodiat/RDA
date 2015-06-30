@@ -63,6 +63,8 @@ class InputModule(Module):
         
         if scripts is not None:
             scripts.append(input_script)
+        else:
+            scripts =[input_script]
         
         Module.__init__(self, scripts=scripts, styles=styles)
 
