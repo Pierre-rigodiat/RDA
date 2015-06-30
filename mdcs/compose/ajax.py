@@ -192,6 +192,9 @@ def load_xml(request):
                 request.session['defaultPrefixCompose'] = prefix
                 break
         dom = etree.parse(BytesIO(xmlString.encode('utf-8')))
+        annotations = dom.findall(".//{http://www.w3.org/2001/XMLSchema}annotation")
+        for annotation in annotations:
+            annotation.getparent().remove(annotation)
         newdom = transform(dom)
         xmlTree = str(newdom)
     
