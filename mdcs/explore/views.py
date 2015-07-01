@@ -220,32 +220,36 @@ def explore_download_results(request):
         if 'exploreCurrentTemplateID' not in request.session:
             return redirect('/explore/select-template')
         else:
-            savedResultsID = request.GET.get('id','')
-            ResultsObject = QueryResults.objects.get(pk=savedResultsID)
-
-            in_memory = StringIO()
-            zip = zipfile.ZipFile(in_memory, "a")
-
-            resultNumber = 1
-            for result in ResultsObject.results:
-                zip.writestr("result"+str(resultNumber)+".xml", result)
-                resultNumber += 1
-
-            # fix for Linux zip files read in Windows
-            for xmlFile in zip.filelist:
-                xmlFile.create_system = 0
-
-            zip.close()
-
-            ResultsObject.delete()
-
-            response = HttpResponse(content_type="application/zip")
-            response["Content-Disposition"] = "attachment; filename=results.zip"
-
-            in_memory.seek(0)
-            response.write(in_memory.read())
-
-            return response
+            savedResultsID = request.GET.get('id', None)
+            
+            if savedResultsID is not None:
+                ResultsObject = QueryResults.objects.get(pk=savedResultsID)
+    
+                in_memory = StringIO()
+                zip = zipfile.ZipFile(in_memory, "a")
+    
+                resultNumber = 1
+                for result in ResultsObject.results:
+                    zip.writestr("result"+str(resultNumber)+".xml", result)
+                    resultNumber += 1
+    
+                # fix for Linux zip files read in Windows
+                for xmlFile in zip.filelist:
+                    xmlFile.create_system = 0
+    
+                zip.close()
+    
+                ResultsObject.delete()
+    
+                response = HttpResponse(content_type="application/zip")
+                response["Content-Disposition"] = "attachment; filename=results.zip"
+    
+                in_memory.seek(0)
+                response.write(in_memory.read())
+    
+                return response
+            else:
+                return redirect('/')
     else:
         if 'loggedOut' in request.session:
             del request.session['loggedOut']
@@ -267,15 +271,19 @@ def explore_download_sparqlresults(request):
         if 'exploreCurrentTemplateID' not in request.session:
             return redirect('/explore/select-template')
         else:
-            savedResultsID = request.GET.get('id','')
-            sparqlResults = SparqlQueryResults.objects.get(pk=savedResultsID)
-
-            sparqlResultsEncoded = sparqlResults.results.encode('utf-8')
-            fileObj = StringIO(sparqlResultsEncoded)
-
-            response = HttpResponse(FileWrapper(fileObj), content_type='application/text')
-            response['Content-Disposition'] = 'attachment; filename=sparql_results.txt'
-            return response
+            savedResultsID = request.GET.get('id', None)
+            
+            if savedResultsID is not None:
+                sparqlResults = SparqlQueryResults.objects.get(pk=savedResultsID)
+    
+                sparqlResultsEncoded = sparqlResults.results.encode('utf-8')
+                fileObj = StringIO(sparqlResultsEncoded)
+    
+                response = HttpResponse(FileWrapper(fileObj), content_type='application/text')
+                response['Content-Disposition'] = 'attachment; filename=sparql_results.txt'
+                return response
+            else:
+                return redirect('/')
     else:
         if 'loggedOut' in request.session:
             del request.session['loggedOut']
