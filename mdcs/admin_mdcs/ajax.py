@@ -18,7 +18,7 @@ from django.http import HttpResponse
 import lxml.etree as etree
 import json
 from io import BytesIO
-from mgi.models import Template, TemplateVersion, Instance, Request, Module, ModuleResource, Type, TypeVersion, Message, Bucket, MetaSchema
+from mgi.models import Template, TemplateVersion, Instance, Request, Module, Type, TypeVersion, Message, Bucket, MetaSchema
 from django.contrib.auth.models import User
 from utils.XSDflattenerMDCS.XSDflattenerMDCS import XSDFlattenerMDCS
 from utils.XSDhash import XSDhash
@@ -1059,3 +1059,64 @@ def delete_bucket(request):
 ################################################################################
 def rdm_hex_color():
     return '#' +''.join([random.choice('0123456789ABCDEF') for x in range(6)])
+
+
+def insert_module(request):
+    module_id = request.POST['moduleID']
+    xpath = request.POST['xpath']
+    
+    defaultPrefix = request.session['moduleDefaultPrefix']
+    namespace = request.session['moduleNamespaces'][defaultPrefix]
+    template_content = request.session['moduleTemplateContent']
+    
+    dom = etree.parse(BytesIO(template_content.encode('utf-8')))
+    
+    # set the element namespace
+    xpath = xpath.replace(defaultPrefix +":", namespace)
+    # add the element to the sequence
+    element = dom.find(xpath)
+    
+    module = Module.objects.get(pk=module_id)
+    
+    element.attrib['_mod_mdcs_'] =  module.url
+    
+    # save the tree in the session
+    request.session['moduleTemplateContent'] = etree.tostring(dom) 
+    print etree.tostring(element)
+    
+    return HttpResponse(json.dumps({}), content_type='application/javascript')
+    
+def remove_module(request):
+    xpath = request.POST['xpath']
+    
+    defaultPrefix = request.session['moduleDefaultPrefix']
+    namespace = request.session['moduleNamespaces'][defaultPrefix]
+    template_content = request.session['moduleTemplateContent']
+    
+    dom = etree.parse(BytesIO(template_content.encode('utf-8')))
+    
+    # set the element namespace
+    xpath = xpath.replace(defaultPrefix +":", namespace)
+    # add the element to the sequence
+    element = dom.find(xpath)
+    
+    if '_mod_mdcs_' in element.attrib:
+        del element.attrib['_mod_mdcs_']
+    
+    # save the tree in the session
+    request.session['moduleTemplateContent'] = etree.tostring(dom) 
+    print etree.tostring(element)
+    
+    return HttpResponse(json.dumps({}), content_type='application/javascript')
+    
+    
+def save_modules(request):
+    template_content = request.session['moduleTemplateContent']
+    template_id = request.session['moduleTemplateID']
+        
+    template = Template.objects.get(pk=template_id)
+    template.content = template_content
+    template.save()    
+    
+    return HttpResponse(json.dumps({}), content_type='application/javascript')
+    

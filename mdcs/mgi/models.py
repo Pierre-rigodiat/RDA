@@ -114,19 +114,10 @@ class SavedQuery(Document):
     query = StringField(required=True)
     displayedQuery = StringField(required=True)
 
-class ModuleResource(EmbeddedDocument):
-    """Represents a resource file attached to a module"""
-    name = StringField(required=True)
-    content = StringField(required=True)
-    type = StringField(required=True)
-
 class Module(Document):
     """Represents a module, that will replace an existing input during curation"""
     name = StringField(required=True)
-    templates = ListField(StringField())
-    tag = StringField(required=True)
-    htmlTag = StringField(required=True)
-    resources = ListField(EmbeddedDocumentField(ModuleResource))  
+    url = StringField(required=True)  
     
 class XML2Download(Document):
     """Temporarily stores the content of an XML document to download"""

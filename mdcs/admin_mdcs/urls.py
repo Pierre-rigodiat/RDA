@@ -64,4 +64,8 @@ urlpatterns = patterns('',
     url(r'^add_bucket', 'admin_mdcs.ajax.add_bucket'),
     url(r'^delete_bucket', 'admin_mdcs.ajax.delete_bucket'),
     url(r'^upload_object', 'admin_mdcs.ajax.upload_object'),
+    url(r'^modules', 'admin_mdcs.views.modules'),
+    url(r'^insert_module', 'admin_mdcs.ajax.insert_module'),
+    url(r'^remove_module', 'admin_mdcs.ajax.remove_module'),
+    url(r'^save_modules', 'admin_mdcs.ajax.save_modules'),
 )
