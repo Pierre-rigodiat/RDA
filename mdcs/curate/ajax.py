@@ -22,11 +22,10 @@ from cStringIO import StringIO
 from mgi.models import Template, Htmlform, Jsondata, XML2Download, Module, MetaSchema
 import json
 from mgi import common
+from django.template import Context, loader
 
 import lxml.html as html
 import lxml.etree as etree
-
-from mgi.settings import MATERIALS_MODULES
 
 # Specific to RDF
 import rdfPublisher
@@ -40,7 +39,7 @@ import os
 # 
 # Class Name: ElementOccurrences
 #
-# Description: Store information about a resource for a module
+# Description: Store information about a occurrences of an element
 #
 ################################################################################
 class ElementOccurrences:
@@ -640,8 +639,7 @@ def generateSimpleType(request, element, xmlTree, namespace):
     # remove the annotations
     removeAnnotations(element, namespace)
     
-    # TODO: modules
-    formString = stubModules(request, element)
+    formString = generateModule(request, element)
     if len(formString) > 0:
         return formString
     
@@ -710,8 +708,7 @@ def generateComplexType(request, element, xmlTree, namespace):
     # remove the annotations
     removeAnnotations(element, namespace)
     
-    # TODO: modules
-    formString = stubModules(request, element)
+    formString = generateModule(request, element)
     if len(formString) > 0:
         return formString
     
@@ -742,63 +739,27 @@ def generateComplexType(request, element, xmlTree, namespace):
 
 ################################################################################
 # 
-# Function Name: stubModules(request, element)
+# Function Name: generateModule(request, element)
 # Inputs:        request - 
 #                element - XML element
-# Outputs:       HTML string representing a sequence
+# Outputs:       Module
 # Exceptions:    None
-# Description:   Temporary hardcoded modules for materials scientist
+# Description:   Generate a module to replace an element
 # 
 ################################################################################
-def stubModules(request, element):
-    mapModules = request.session['mapModules']
-    
+def generateModule(request, element):    
     formString = ""
     
-    #TODO: modules
-    if element.attrib.get('name') in mapModules.keys():
-        formString += "<div class='module' style='display: inline'>"
-        formString += mapModules[element.attrib.get('name')]
-        formString += "<div class='moduleDisplay'></div>"
-        formString += "<div class='moduleResult' style='display: none'></div>"
-        formString += "</div>"    
-        
-    if MATERIALS_MODULES == True:
-        if 'name' in element.attrib and element.attrib.get('name') == "Phase":
-            formString += "<div class='module' style='display: inline'>"
-            formString += "<div class='moduleContent'></div>"
-            formString += "<div class='moduleDisplay'></div>"
-            formString += "<div class='moduleResult' style='display: none'></div>"
-            formString += "<div class='moduleURL' style='display: none'>test/positive-integer</div>"
-            formString += "</div>" 
-        
-        if 'name' in element.attrib and element.attrib.get('name') == "ConstituentsType":
-            formString += "<div class='module' style='display: inline'>"
-            formString += "<div class=\"btn select-element\" onclick=\"selectMultipleElements(this);\"><i class=\"icon-folder-open\"></i> Select Chemical Elements</div>"
-            formString += "<div class='moduleDisplay'></div>"
-            formString += "<div class='moduleResult' style='display: none'></div>"
-            formString += "</div>"
-        
-        if 'name' in element.attrib and element.attrib.get('name') == "ChemicalElement":
-#             formString += "<div class='module' style='display: inline'>"
-#             formString += "<div class=\"btn select-element\" onclick=\"selectElement(this);\"><i class=\"icon-folder-open\"></i> Select Chemical Element</div>"
-#             formString += "<div class='moduleDisplay'>Current Selection: None</div>"
-#             formString += "<div class='moduleResult' style='display: none'></div>"
-#             formString += "</div>" 
-            formString += "<div class='module' style='display: inline'>"
-            formString += "<div class='moduleContent'></div>"
-            formString += "<div class='moduleDisplay'></div>"
-            formString += "<div class='moduleResult' style='display: none'></div>"
-            formString += "<div class='moduleURL' style='display: none'>diffusion/periodic-table</div>"
-            formString += "</div>" 
-        
-        if 'name' in element.attrib and element.attrib.get('name') == "Table":
-            formString += "<div class='module' style='display: inline'>"
-            formString += "<div class=\"btn select-element\" onclick=\"selectHDF5File('Spreadsheet File',this);\"><i class=\"icon-folder-open\"></i> Upload Spreadsheet </div>"
-            formString += "<div class='moduleDisplay'></div>"
-            formString += "<div class='moduleResult' style='display: none'></div>"
-            formString += "</div>"
-
+    # check if a module is set for this element
+    if '_mod_mdcs_' in element.attrib:
+        # get the url of the module
+        url = element.attrib['_mod_mdcs_']
+        # check that the url is registered in the system
+        if url in Module.objects.all().values_list('url'):
+            template = loader.get_template('module.html')
+            params = {'url':url}
+            context = Context(params)
+            formString += template.render(context) 
     
     return formString
 
@@ -824,6 +785,12 @@ def generateElement(request, element, xmlTree, namespace, choiceInfo=None):
 
     # remove the annotations
     removeAnnotations(element, namespace)
+    
+    module = generateModule(request, element)
+    if len(module) > 0:
+        hasModule = True
+    else:
+        hasModule = False
     
     # type is a reference included in the document
     if 'ref' in element.attrib: 
@@ -900,10 +867,16 @@ def generateElement(request, element, xmlTree, namespace, choiceInfo=None):
             
             # if tag not closed:  <element/>
             if len(list(element)) > 0 :
-                if element[0].tag == "{0}complexType".format(namespace):                    
-                    formString += generateComplexType(request, element[0], xmlTree, namespace)
+                if element[0].tag == "{0}complexType".format(namespace):
+                    if hasModule:
+                        formString += module
+                    else:                  
+                        formString += generateComplexType(request, element[0], xmlTree, namespace)
                 elif element[0].tag == "{0}simpleType".format(namespace):
-                    formString += generateSimpleType(request, element[0], xmlTree, namespace)
+                    if hasModule:
+                        formString += module
+                    else:    
+                        formString += generateSimpleType(request, element[0], xmlTree, namespace)
             formString += "</li>"
     elif element.attrib.get('type') in common.getXSDTypes(defaultPrefix):                         
         for x in range (0,int(nbOccurrences)):                         
@@ -912,8 +885,12 @@ def generateElement(request, element, xmlTree, namespace, choiceInfo=None):
             defaultValue = ""
             if 'default' in element.attrib:
                 defaultValue = element.attrib['default']
-            formString += "<li class='"+ element_tag +"' id='" + str(tagID) + "'>" + textCapitalized + " <input type='text' value='"+ defaultValue +"'/>"
-                                
+            formString += "<li class='"+ element_tag +"' id='" + str(tagID) + "'>" + textCapitalized
+                
+            if hasModule:
+                formString += module
+            else:
+                formString += " <input type='text' value='"+ defaultValue +"'/>"     
             if (addButton == True):                                
                 formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" onclick=\"changeHTMLForm('add',"+str(tagID[7:])+");\"></span>"
             else:
@@ -959,9 +936,15 @@ def generateElement(request, element, xmlTree, namespace, choiceInfo=None):
                 
                 if elementType is not None:
                     if elementType.tag == "{0}complexType".format(namespace):
-                        formString += generateComplexType(request, elementType, xmlTree, namespace)
+                        if hasModule:
+                            formString += module
+                        else:                        
+                            formString += generateComplexType(request, elementType, xmlTree, namespace)
                     elif elementType.tag == "{0}simpleType".format(namespace):
-                        formString += generateSimpleType(request, elementType, xmlTree, namespace)
+                        if hasModule:
+                            formString += module
+                        else:   
+                            formString += generateSimpleType(request, elementType, xmlTree, namespace)
         
                 formString += "</li>"
                 
@@ -1330,28 +1313,6 @@ def duplicate(request):
 
 ################################################################################
 # 
-# Function Name: get_namespaces(file)
-# Inputs:        file -
-# Outputs:       namespaces
-# Exceptions:    None
-# Description:   Get the namespaces used in the document
-#
-################################################################################
-def get_namespaces(file):
-    "Reads and returns the namespaces in the schema tag"
-    events = "start", "start-ns"
-    ns = {}
-    for event, elem in etree.iterparse(file, events):
-        if event == "start-ns":
-            if elem[0] in ns and ns[elem[0]] != elem[1]:
-                raise Exception("Duplicate prefix with different URI found.")
-            ns[elem[0]] = "{%s}" % elem[1]
-        elif event == "start":
-            break
-    return ns
-
-################################################################################
-# 
 # Function Name: generateForm(request)
 # Inputs:        request -
 # Outputs:       rendered HTMl form
@@ -1394,29 +1355,6 @@ def generateForm(request):
         formString = "UNSUPPORTED ELEMENT FOUND (" + e.message + ")" 
         
     return formString
-
-################################################################################
-# 
-# Function Name: loadModuleResources(templateID)
-# Inputs:        templateID -
-# Outputs:       
-# Exceptions:    None
-# Description:   Get the resources needed to display a module of the template,
-#                and returns a string to be inserted in the HTML page.
-#
-################################################################################
-def loadModuleResources(templateID):
-    modules = Module.objects(templates__contains=templateID)
-    html = ""
-    for module in modules:
-        for resource in module.resources:
-            if resource.type == "js":
-                html += "<script>" + resource.content + "</script>"
-            elif resource.type == "html":
-                html += "<div>" + resource.content + "</div>"
-            elif resource.type == "css":
-                html += "<style>" + resource.content + "</style>"
-    return html
 
 
 ################################################################################
@@ -1471,21 +1409,10 @@ def generate_xsd_form(request):
 
         xmlDocTree = etree.parse(BytesIO(xmlDocData.encode('utf-8')))
         request.session['xmlDocTree'] = etree.tostring(xmlDocTree)
-        xmlDocTree = request.session['xmlDocTree']
-        
-    # load modules from the database
-    if 'mapModules' in request.session:
-        del request.session['mapModules']
-    resources_html = loadModuleResources(template_id)
-    response_dict['modules'] = resources_html
-    mapModules = dict()    
-    modules = Module.objects(templates__contains=template_id)
-    for module in modules:
-        mapModules[module.tag] = module.htmlTag
-    request.session['mapModules'] = mapModules    
+        xmlDocTree = request.session['xmlDocTree']   
     
     # find the namespaces
-    request.session['namespaces'] = get_namespaces(BytesIO(str(xmlDocTree)))
+    request.session['namespaces'] = common.get_namespaces(BytesIO(str(xmlDocTree)))
     for prefix, url in request.session['namespaces'].items():
         if (url == "{http://www.w3.org/2001/XMLSchema}"):            
             request.session['defaultPrefix'] = prefix
@@ -1498,22 +1425,7 @@ def generate_xsd_form(request):
         formString += "</form>"
         request.session['originalForm'] = formString
 
-    #TODO: modules
-    pathFile = "{0}/static/resources/files/{1}"
-    path = pathFile.format(settings.SITE_ROOT,"periodic.html")
-    periodicTableDoc = open(path,'r')
-    periodicTableString = periodicTableDoc.read()
-
-    response_dict['periodicTable'] = periodicTableString
-
-    pathFile = "{0}/static/resources/files/{1}"
-    path = pathFile.format(settings.SITE_ROOT,"periodicMultiple.html")
-    periodicMultipleTableDoc = open(path,'r')
-    periodicTableMultipleString = periodicMultipleTableDoc.read()
-
-    response_dict['periodicTableMultiple'] = periodicTableMultipleString
     response_dict['xsdForm'] = formString
- 
     request.session['formString'] = formString
 
     return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
