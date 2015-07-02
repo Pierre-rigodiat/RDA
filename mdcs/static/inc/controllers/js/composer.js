@@ -892,7 +892,7 @@ insertElementSequence = function(event){
 	// add the new element
 	$(parent).parent().find("ul").append("<li>" +
 											"<div class='element-wrapper'>" +
-												"<span class=path>"+
+												"<span class='path'>"+
 												 path +
 												"</span>" +
 												"<span class='newElement'>" +
