@@ -1,8 +1,12 @@
 var openModule = null;
 
 closePopUp = function() {
-    $('.active_dialog').dialog("close");
-    $('.active_dialog').removeClass('active_dialog');
+    var $activeDialog = $('.active_dialog');
+
+    $activeDialog.removeClass('active_dialog');
+    $activeDialog.dialog("close");
+    $activeDialog.dialog("destroy");
+
 };
 
 var popupOptions = {
@@ -18,8 +22,6 @@ configurePopUp = function(options, getDataFunction) {
     var saveButton = {
         Save: function() {
             data = getDataFunction();
-            console.log(data);
-
             saveModuleData(openModule, data);
             closePopUp(openModule);
         }
@@ -27,18 +29,29 @@ configurePopUp = function(options, getDataFunction) {
     popupOptions["buttons"] = $.extend({}, saveButton, popupOptions["buttons"]);
 }
 
-$('.mod_popup').on('click', '.open-popup', function(event) {
-    event.preventDefault();
+$('body').on('click', '.mod_popup .open-popup', function(event) {
+    console.log("Opening module popup...")
 
-    console.log('open dialog');
+    event.preventDefault();
     openModule = $(this).parent().parent().parent();
 
+    // TODO Redo a $.ajax GET to reparse the module
     var moduleURL = openModule.find('.moduleURL').text();
-    var moduleURLRegExp = new RegExp('/', 'g');
-    moduleURL = moduleURL.replace(moduleURLRegExp, '--');
+    /*$.ajax({
+        url: '/modules/'+moduleURL,
+        method: 'GET',
+        dataType: 'json',
+        success: function(data) {
+            console.log(data);
+        },
+        error: function() {
+            console.error('Problem @ module loading');
+        }
+    });*/
 
-    openModule.find('.mod_dialog').addClass(moduleURL);
+    //var moduleURLRegExp = new RegExp('/', 'g');
+    //moduleURL = moduleURL.replace(moduleURLRegExp, '--');
 
-    $('.'+moduleURL).addClass('active_dialog');
-    $('.'+moduleURL).dialog(popupOptions);
+    openModule.find('.mod_dialog').addClass('active_dialog');
+    $('.active_dialog').dialog(popupOptions);
 });

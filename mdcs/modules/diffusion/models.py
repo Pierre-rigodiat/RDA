@@ -25,7 +25,7 @@ class PeriodicTableModule(PopupModule):
     
     def process_data(self, request):
         if 'selectedElement' in request.POST:
-            moduleDisplay = 'Chosen element: <span class="selected">' + request.POST['selectedElement'] + '</span>'
+            moduleDisplay = 'Chosen element: ' + request.POST['selectedElement']
             moduleResult = request.POST['selectedElement']
             return moduleDisplay, moduleResult
         else:

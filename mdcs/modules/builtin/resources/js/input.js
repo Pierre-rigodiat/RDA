@@ -1,4 +1,4 @@
-$('.mod_input').on('blur', 'input[type="text"]', function(event) {
+$('body').on('blur', '.mod_input input[type="text"]', function(event) {
     // Collect data
     var data = {
         'value': $(this).val()
