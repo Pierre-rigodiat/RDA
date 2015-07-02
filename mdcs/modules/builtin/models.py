@@ -27,7 +27,14 @@ def render_module(template, params):
 
 class PopupModule(Module):
     def __init__(self, scripts=None, styles=None, popup_content=None, button_label=None):
-        Module.__init__(self)
+        input_script = os.path.join(RESOURCES_PATH, 'js/popup.js')
+
+        if scripts is not None:
+            scripts.insert(0, input_script)
+        else:
+            scripts = [input_script]
+
+        Module.__init__(self, scripts=scripts, styles=styles)
 
         if popup_content is None or button_label is None:
             raise ModuleError("'popup_content' and 'button_label' are required.")

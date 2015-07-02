@@ -13,7 +13,9 @@ class PeriodicTableModule(PopupModule):
         with open(RESOURCES_PATH + 'html/periodic.html', 'r') as periodic_file:        
             periodic_table = periodic_file.read()
 
-        PopupModule.__init__(self, popup_content=periodic_table, button_label='Select Element')
+        PopupModule.__init__(self, popup_content=periodic_table, button_label='Select Element',
+                             styles=[os.path.join(RESOURCES_PATH, 'css/periodic.css')],
+                             scripts=[os.path.join(RESOURCES_PATH, 'js/periodic.js')])
 
     def get_default_display(self, request):
         return "No element selected"
@@ -23,7 +25,7 @@ class PeriodicTableModule(PopupModule):
     
     def process_data(self, request):
         if 'selectedElement' in request.POST:
-            moduleDisplay = "Chosen element: " + request.POST['selectedElement']
+            moduleDisplay = 'Chosen element: ' + request.POST['selectedElement']
             moduleResult = request.POST['selectedElement']
             return moduleDisplay, moduleResult
         else:
