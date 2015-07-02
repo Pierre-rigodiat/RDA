@@ -24,7 +24,6 @@ from django.core.servers.basehttp import FileWrapper
 from datetime import date
 from cStringIO import StringIO
 from mgi.models import Template, TemplateVersion, XML2Download, Type, TypeVersion, Bucket
-from cherrypy import response
 
 
 ################################################################################
