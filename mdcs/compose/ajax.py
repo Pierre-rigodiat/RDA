@@ -26,6 +26,7 @@ from utils.XSDhash import XSDhash
 from utils.XSDflattenerMDCS.XSDflattenerMDCS import XSDFlattenerMDCS
 from utils.APIschemaLocator.APIschemaLocator import getSchemaLocation
 from urlparse import urlparse
+from mgi import common
 
 # XSL file loading
 import os
@@ -186,7 +187,7 @@ def load_xml(request):
     transform = etree.XSLT(xslt)
     xmlTree = ""
     if (xmlString != ""):
-        request.session['namespacesCompose'] = get_namespaces(BytesIO(str(xmlString)))
+        request.session['namespacesCompose'] = common.get_namespaces(BytesIO(str(xmlString)))
         for prefix, url in request.session['namespacesCompose'].items():
             if (url == "{http://www.w3.org/2001/XMLSchema}"):            
                 request.session['defaultPrefixCompose'] = prefix
@@ -206,20 +207,6 @@ def load_xml(request):
             
     response_dict = {'XMLHolder': xmlTree}
     return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
-
-
-def get_namespaces(file):
-    "Reads and returns the namespaces in the schema tag"
-    events = "start", "start-ns"
-    ns = {}
-    for event, elem in etree.iterparse(file, events):
-        if event == "start-ns":
-            if elem[0] in ns and ns[elem[0]] != elem[1]:
-                raise Exception("Duplicate prefix with different URI found.")
-            ns[elem[0]] = "{%s}" % elem[1]
-        elif event == "start":
-            break
-    return ns
 
 
 ################################################################################
