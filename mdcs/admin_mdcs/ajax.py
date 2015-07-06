@@ -1077,9 +1077,9 @@ def insert_module(request):
     element = dom.find(xpath)
     
     module = Module.objects.get(pk=module_id)
-    
-    element.attrib['_mod_mdcs_'] =  module.url
-    
+        
+    element.attrib['{http://mdcs.ns}_mod_mdcs_'] =  module.url
+        
     # save the tree in the session
     request.session['moduleTemplateContent'] = etree.tostring(dom) 
     print etree.tostring(element)
@@ -1100,8 +1100,18 @@ def remove_module(request):
     # add the element to the sequence
     element = dom.find(xpath)
     
-    if '_mod_mdcs_' in element.attrib:
-        del element.attrib['_mod_mdcs_']
+    if '{http://mdcs.ns}_mod_mdcs_' in element.attrib:
+        del element.attrib['{http://mdcs.ns}_mod_mdcs_']
+    
+    # remove prefix from namespaces
+    nsmap = element.nsmap
+    for prefix, ns in nsmap.iteritems():
+        if ns == 'http://mdcs.ns':
+            del nsmap[prefix]
+            break
+    
+    # create a new element to replace the previous one (can't replace directly the nsmap using lxml)
+    element = etree.Element(element.tag, nsmap = nsmap);
     
     # save the tree in the session
     request.session['moduleTemplateContent'] = etree.tostring(dom) 

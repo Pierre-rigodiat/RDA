@@ -16,7 +16,8 @@
 ################################################################################ 
  -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-	version="1.0">
+				xmlns:mdcs="http://mdcs.ns"
+				version="1.0">
 	<xsl:output method="html" indent="yes" encoding="UTF-8" />
 	<xsl:preserve-space elements="*" />
 	<xsl:template match="/">	 	
@@ -89,9 +90,9 @@
 								</xsl:when>
 							</xsl:choose>
 							<xsl:choose>
-								<xsl:when test="./@_mod_mdcs_">
+								<xsl:when test="./@mdcs:_mod_mdcs_">
 								<span class="module">
-									<xsl:value-of select="@_mod_mdcs_" />
+									<xsl:value-of select="@mdcs:_mod_mdcs_" />
 								</span>
 								</xsl:when>
 							</xsl:choose>							
@@ -149,9 +150,9 @@
 								</xsl:when>
 							</xsl:choose>
 							<xsl:choose>
-								<xsl:when test="./@_mod_mdcs_">
+								<xsl:when test="./@mdcs:_mod_mdcs_">
 								<span class="module">
-									<xsl:value-of select="@_mod_mdcs_" />
+									<xsl:value-of select="@mdcs:_mod_mdcs_" />
 								</span>
 								</xsl:when>
 							</xsl:choose>

@@ -750,10 +750,10 @@ def generateComplexType(request, element, xmlTree, namespace):
 def generateModule(request, element):    
     formString = ""
     
-    # check if a module is set for this element
-    if '_mod_mdcs_' in element.attrib:
+    # check if a module is set for this element    
+    if '{http://mdcs.ns}_mod_mdcs_' in element.attrib:
         # get the url of the module
-        url = element.attrib['_mod_mdcs_']
+        url = element.attrib['{http://mdcs.ns}_mod_mdcs_']
         # check that the url is registered in the system
         if url in Module.objects.all().values_list('url'):
             template = loader.get_template('module.html')
