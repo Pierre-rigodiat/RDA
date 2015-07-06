@@ -1061,6 +1061,15 @@ def rdm_hex_color():
     return '#' +''.join([random.choice('0123456789ABCDEF') for x in range(6)])
 
 
+################################################################################
+# 
+# Function Name: insert_module(request)
+# Inputs:        request -
+# Outputs:       
+# Exceptions:    None
+# Description:   Insert a module in the template by adding an attribute.
+#
+################################################################################
 def insert_module(request):
     module_id = request.POST['moduleID']
     xpath = request.POST['xpath']
@@ -1085,7 +1094,17 @@ def insert_module(request):
     print etree.tostring(element)
     
     return HttpResponse(json.dumps({}), content_type='application/javascript')
-    
+
+
+################################################################################
+# 
+# Function Name: remove_module(request)
+# Inputs:        request -
+# Outputs:       
+# Exceptions:    None
+# Description:   Remove a module from the template by removing an attribute and the automatic namespace.
+#
+################################################################################
 def remove_module(request):
     xpath = request.POST['xpath']
     
