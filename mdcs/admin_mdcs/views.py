@@ -222,54 +222,6 @@ def manage_schemas(request):
 
 ################################################################################
 #
-# Function Name: manage_modules(request)
-# Inputs:        request -
-# Outputs:       Manage Modules Page
-# Exceptions:    None
-# Description:   Page that allows to list all existing modules
-#
-################################################################################
-def module_management(request):
-    if request.user.is_authenticated() and request.user.is_staff:
-        template = loader.get_template('admin/manage_modules.html')
-
-        context = RequestContext(request, {
-            'modules': Module.objects
-        })
-        return HttpResponse(template.render(context))
-    else:
-        if 'loggedOut' in request.session:
-            del request.session['loggedOut']
-        request.session['next'] = '/'
-        return redirect('/login')
-
-
-################################################################################
-#
-# Function Name: module_add(request)
-# Inputs:        request -
-# Outputs:       Add Module Page
-# Exceptions:    None
-# Description:   Page that allows to add a new module
-#
-################################################################################
-def module_add(request):
-    if request.user.is_authenticated() and request.user.is_staff:
-        template = loader.get_template('admin/add_module.html')
-
-        context = RequestContext(request, {
-            'templates':Template.objects
-        })
-        return HttpResponse(template.render(context))
-    else:
-        if 'loggedOut' in request.session:
-            del request.session['loggedOut']
-        request.session['next'] = '/'
-        return redirect('/login')
-
-
-################################################################################
-#
 # Function Name: manage_types(request)
 # Inputs:        request -
 # Outputs:       Manage Types Page
@@ -541,7 +493,6 @@ def manage_versions(request):
             del request.session['loggedOut']
         request.session['next'] = '/'
         return redirect('/login')
-
 
 
 ################################################################################

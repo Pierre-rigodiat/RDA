@@ -89,10 +89,6 @@ connect("mgi", host=MONGODB_URI)
 # MDCS_URI = 'http://127.0.0.1:8000'
 # blobHoster = BLOBHosterFactory(BLOB_HOSTER, BLOB_HOSTER_URI, BLOB_HOSTER_USER, BLOB_HOSTER_PSWD, MDCS_URI)
 
-
-# Enables modules for materials scientists 
-MATERIALS_MODULES=True
-
 TEMPLATE_DIRS = [os.path.join(BASE_DIR, 'templates')]
 
 TEMPLATE_LOADERS = (

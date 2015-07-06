@@ -26,25 +26,6 @@ import random
 from utils.APIschemaLocator.APIschemaLocator import getSchemaLocation
 from mgi import common
 
-
-################################################################################
-# 
-# Class Name: ModuleResourceInfo
-#
-# Description: Store information about a resource for a module
-#
-################################################################################
-class ModuleResourceInfo:
-    """Class that stores information about a resource for a module"""
-    
-    def __init__(self, content="", filename=""):
-        self.content = content
-        self.filename = filename   
-
-    def __to_json__(self):
-        return json.dumps(self, default=lambda o: o.__dict__)
-
-
 ################################################################################
 # 
 # Function Name: upload_object(request)
@@ -883,108 +864,6 @@ def deny_request(request):
 
 ################################################################################
 # 
-# Function Name: init_module_manager(request)
-# Inputs:        request - 
-# Outputs:        
-# Exceptions:    None
-# Description:   Empties the list of resources when coming to the module manager
-# 
-################################################################################
-def init_module_manager(request):
-    request.session['listModuleResource'] = []
-    return HttpResponse(json.dumps({}), content_type='application/javascript')
-
-
-################################################################################
-# 
-# Function Name: add_module_resource(request)
-# Inputs:        request - 
-# Outputs:        
-# Exceptions:    None
-# Description:   Add a resource for the module. Save the content and name before save.
-# 
-################################################################################
-def add_module_resource(request):
-    resource_content = request.POST['resourceContent']
-    resource_filename = request.POST['resourceFilename']
-    
-    request.session['currentResourceContent'] = resource_content
-    request.session['currentResourceFilename'] = resource_filename    
-    
-    return HttpResponse(json.dumps({}), content_type='application/javascript')
-
-
-################################################################################
-# 
-# Function Name: upload_resource(request)
-# Inputs:        request - 
-# Outputs:        
-# Exceptions:    None
-# Description:   Upload the resource
-# 
-################################################################################
-def upload_resource(request):
-    response_dict = {}
-    
-    if ('currentResourceContent' in request.session 
-        and request.session['currentResourceContent'] != ""
-        and 'currentResourceFilename' in request.session 
-        and request.session['currentResourceFilename'] != ""):
-            response_dict = {'filename': request.session['currentResourceFilename']}
-            request.session['listModuleResource'].append(ModuleResourceInfo(content=request.session['currentResourceContent'], filename=request.session['currentResourceFilename']).__to_json__())
-            request.session['currentResourceContent'] = ""
-            request.session['currentResourceFilename'] = ""
-    
-    return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
-
-
-################################################################################
-# 
-# Function Name: add_module(request)
-# Inputs:        request -  
-# Outputs:        
-# Exceptions:    None
-# Description:   Add a module in mongo db
-# 
-################################################################################
-def add_module(request): 
-    name = request.POST['name']
-    templates = request.POST.getlist('templates[]')
-    tag = request.POST['tag']
-    HTMLTag = request.POST['HTMLTag']
-    
-    module = Module(name=name, templates=templates, tag=tag, htmlTag=HTMLTag)
-    listModuleResource = request.session['listModuleResource']
-    for resource in listModuleResource: 
-        resource = eval(resource)        
-        moduleResource = ModuleResource(name=resource['filename'], content=resource['content'], type=resource['filename'].split(".")[-1])
-        module.resources.append(moduleResource)
-    
-    module.save()
-
-    return HttpResponse(json.dumps({}), content_type='application/javascript')
-
-
-################################################################################
-# 
-# Function Name: delete_module(request)
-# Inputs:        request - 
-# Outputs:        
-# Exceptions:    None
-# Description:   Delete a module
-# 
-################################################################################
-def delete_module(request):
-    object_id = request.POST['objectid']    
-    
-    module = Module.objects.get(pk=object_id)
-    module.delete()
-
-    return HttpResponse(json.dumps({}), content_type='application/javascript')
-
-
-################################################################################
-# 
 # Function Name: remove_message(request)
 # Inputs:        request -
 # Outputs:       
@@ -1138,7 +1017,16 @@ def remove_module(request):
     
     return HttpResponse(json.dumps({}), content_type='application/javascript')
     
-    
+
+################################################################################
+# 
+# Function Name: save_modules(request)
+# Inputs:        request -
+# Outputs:       
+# Exceptions:    None
+# Description:   Save the template with its modules.
+#
+################################################################################
 def save_modules(request):
     template_content = request.session['moduleTemplateContent']
     template_id = request.session['moduleTemplateID']
