@@ -20,7 +20,7 @@ showhide = function(event){
 	
 	button = event.target
 	parent = $(event.target).parent()
-	$(parent.children()[3]).toggle("blind",500);
+	$(parent.children('ul')).toggle("blind",500);
 	if ($(button).attr("class") == "expand"){
 		$(button).attr("class","collapse");
 	}else{
