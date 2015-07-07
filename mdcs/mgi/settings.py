@@ -120,6 +120,7 @@ INSTALLED_APPS = (
     'curate',
     'explore',
     'compose',
+    'modules',
     'rest_framework',  # djangorestframework
     'rest_framework_swagger', #django-rest-swagger for api documentation
     'api', # djangorestframework
