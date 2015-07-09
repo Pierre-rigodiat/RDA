@@ -19,10 +19,10 @@ class Module(object):
         
         if request.method == 'GET':
             if 'type' in request.GET and request.GET['type'] == 'resources':            
-                response = {}
-                moduleScript, moduleStyle = self.get_resources()
-                response['moduleStyle'] = moduleStyle
-                response['moduleScript'] = moduleScript
+                response = {
+                    'moduleStyle': self.styles,
+                    'moduleScript': self.scripts
+                }
                 return HttpResponse(json.dumps(response), content_type='application/javascript')
             else:
                 try:
@@ -175,3 +175,54 @@ class Module(object):
                 default result value
         """
         raise NotImplementedError("This method is not implemented.")
+
+
+class ModuleManager(object):
+
+    def load_scripts(self, scripts):
+        module_scripts = []
+
+        try:
+            for script in reversed(list(scripts)):
+                external = False
+                try:
+                    if script.startswith('http://') or script.startswith('https://'):
+                        external = True
+                except:
+                    raise ModuleError('Scripts should be string of characters. It can be a path to a resource or an URL.')
+
+                if external:
+                    script_tag = '<script src="' + script + '"></script>'
+                    module_scripts.append(script_tag)
+                else:
+                    with open(script, 'r') as script_file:
+                        script_tag = '<script>' + script_file.read() + '</script>'
+                    module_scripts.append(script_tag)
+        except:
+            raise ModuleError('An error occurred during the reading of resources. Make sure that you are only using urls to external resources or paths to resources inside the application.')
+
+        return module_scripts
+
+    def load_styles(self, styles):
+        module_styles = []
+
+        try:
+            for style in reversed(list(styles)):
+                external = False
+                try:
+                    if style.startswith('http://') or style.startswith('https://'):
+                        external = True
+                except:
+                    raise ModuleError('Styles should be string of characters. It can be a path to a resource or an URL.')
+
+                if external:
+                    style_tag = '<link rel="stylesheet" type="text/css" href="' + style + '"></link>'
+                    module_styles.append(style_tag)
+                else:
+                    with open(style, 'r') as style_file:
+                        style_tag = '<style>' + style_file.read() + '</style>'
+                    module_styles.append(style_tag)
+        except:
+            raise ModuleError('An error occurred during the reading of resources. Make sure that you are only using urls to external resources or paths to resources inside the application.')
+
+        return module_styles

@@ -1,9 +1,8 @@
 var openModule = null;
 var openPopUp = null;
+var popUpOptions = [];
 
 closePopUp = function() {
-//    var $activeDialog = $('.active_dialog');
-
     openPopUp.removeClass('active_dialog');
     openPopUp.dialog("destroy");
 
@@ -11,7 +10,7 @@ closePopUp = function() {
     openPopUp = null;
 };
 
-var popupOptions = {
+var defaultPopUpOptions = {
     modal: true,
     buttons: {
         Cancel: closePopUp
@@ -21,8 +20,10 @@ var popupOptions = {
     }
 }
 
-configurePopUp = function(options, getDataFunction) {
-    popupOptions = $.extend({}, popupOptions, options);
+configurePopUp = function(moduleURL, options, getDataFunction) {
+    console.log("configure popup");
+    console.log(moduleURL);
+    var modulePopUpOptions = $.extend({}, defaultPopUpOptions, options);
 
     var saveButton = {
         Save: function() {
@@ -32,7 +33,12 @@ configurePopUp = function(options, getDataFunction) {
             closePopUp();
         }
     };
-    popupOptions["buttons"] = $.extend({}, saveButton, popupOptions["buttons"]);
+    modulePopUpOptions["buttons"] = $.extend({}, saveButton, modulePopUpOptions["buttons"]);
+
+    popUpOptions[moduleURL] = modulePopUpOptions;
+    console.log(popUpOptions);
+    console.log("**********");
+
 }
 
 $('body').on('click', '.mod_popup .open-popup', function(event) {
@@ -42,5 +48,5 @@ $('body').on('click', '.mod_popup .open-popup', function(event) {
     openModule.find('.mod_dialog').addClass('active_dialog');
 
     openPopUp = $('.active_dialog');
-    openPopUp.dialog(popupOptions);
+    openPopUp.dialog(popUpOptions[openModule.find('.moduleURL').text()]);
 });
