@@ -165,7 +165,8 @@ def getXSDTypes(prefix):
             "{0}:double".format(prefix),  
             "{0}:float".format(prefix),
             "{0}:hexBinary".format(prefix),
-            "{0}:QName".format(prefix)]
+            "{0}:QName".format(prefix),
+            "{0}:anyType".format(prefix)]
     
     
 ################################################################################
