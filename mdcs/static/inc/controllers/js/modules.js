@@ -6,7 +6,7 @@ loadModule = function($module) {
     }
 
     $.ajax({
-        url : '/modules/'+moduleURL,
+        url : '/modules'+moduleURL,
         type : "GET",
         dataType: "json",
         success: function(data){
@@ -32,7 +32,7 @@ loadModuleResources = function(moduleURLList) {
          console.log(moduleURL);
 
         $.ajax({
-            url : '/modules/'+moduleURL,
+            url : '/modules'+moduleURL,
             type : "GET",
             dataType: "json",
             data: {
@@ -60,9 +60,9 @@ saveModuleData = function($module, modData) {
     if(moduleURL === '') {
         return;
     }
-
+    
     $.ajax({
-        url : '/modules/'+moduleURL,
+        url : '/modules'+moduleURL,
         type : "POST",
         dataType: "json",
         data: modData,
