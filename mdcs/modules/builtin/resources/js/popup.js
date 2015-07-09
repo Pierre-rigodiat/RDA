@@ -26,9 +26,9 @@ configurePopUp = function(options, getDataFunction) {
 
     var saveButton = {
         Save: function() {
-            data = getDataFunction();
+            data = getDataFunction();            
             saveModuleData(openModule, data);
-
+            
             closePopUp();
         }
     };

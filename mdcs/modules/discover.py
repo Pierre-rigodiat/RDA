@@ -76,6 +76,3 @@ def discover_modules():
         raise e
         # something went wrong, delete already added modules
         Module.objects.all().delete()
-        
-    
-
