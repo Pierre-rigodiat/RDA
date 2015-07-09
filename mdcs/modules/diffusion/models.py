@@ -44,13 +44,13 @@ class PeriodicTableMultipleModule(PopupModule):
         with open(RESOURCES_PATH + 'html/periodic_multiple.html', 'r') as periodic_file:
             periodic_table = periodic_file.read()
 
-        PopupModule.__init__(self, popup_content=periodic_table, button_label='Select Element',
+        PopupModule.__init__(self, popup_content=periodic_table, button_label='Select Elements',
                              styles=[os.path.join(RESOURCES_PATH, 'css/periodic.css'),
                                      os.path.join(RESOURCES_PATH, 'css/periodic_multiple.css')],
                              scripts=[os.path.join(RESOURCES_PATH, 'js/periodic_multiple.js')])
 
     def get_default_display(self, request):
-        return "No element selected"
+        return "No elements selected"
 
     def get_default_result(self, request):
         return ""
