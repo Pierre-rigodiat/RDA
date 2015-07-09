@@ -35,6 +35,9 @@ def __flatten_patterns_tree__(patterns, prefix='', filter_path=None, exclude_nam
     pattern_list = []
     
     for pattern in patterns:
+        # TODO: find cleaner solution
+        if 'resources' in pattern.regex.pattern:
+            continue
         if isinstance(pattern, RegexURLPattern):
             endpoint_data = __assemble_endpoint_data__(pattern, prefix, filter_path=filter_path)
     
