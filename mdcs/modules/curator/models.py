@@ -6,7 +6,8 @@ from django.conf import settings
 import os
 from mgi.settings import BLOB_HOSTER, BLOB_HOSTER_URI, BLOB_HOSTER_USER, BLOB_HOSTER_PSWD, MDCS_URI
 from utils.BLOBHoster.BLOBHosterFactory import BLOBHosterFactory
-RESOURCES_PATH = os.path.join(settings.SITE_ROOT, 'modules/utils/resources/')
+
+RESOURCES_PATH = os.path.join(settings.SITE_ROOT, 'modules/curator/resources/')
 
 class BlobHosterModule(PopupModule):
     def __init__(self):
