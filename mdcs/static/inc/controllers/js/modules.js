@@ -83,9 +83,9 @@ saveModuleData = function($module, modData) {
     if(moduleURL === '') {
         return;
     }
-    
-    $.ajax({
-        url : '/modules'+moduleURL,
+
+    var ajaxOptions = {
+        url : '/modules/'+moduleURL,
         type : "POST",
         dataType: "json",
         data: modData,
@@ -98,7 +98,14 @@ saveModuleData = function($module, modData) {
         error: function() {
 
         }
-    });
+    }
+
+    if(modData instanceof FormData) {
+        ajaxOptions.processData = false;
+        ajaxOptions.contentType = false;
+    }
+
+    $.ajax(ajaxOptions);
 };
 
 // Modules initialisation
