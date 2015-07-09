@@ -114,10 +114,42 @@ com_crashlytics_export_strings.xml
 crashlytics.properties
 crashlytics-build.properties
 
-# Additional files to ignore
-mdcs/logfile.*
-mdcs/conf/.*
+# eclipse
+mdcs/.project
+mdcs/.pydevproject
+mdcs/mdcs/
+mdcs/.settings/*
+
+# Inno
+mdcs/WinPython-32bit-2.7.6.3
+mdcs/jre7
+mdcs/mongodb
+mdcs/install/Output
+
+# Apache deployment
+mdcs/var
+mdcs/apache
+
+# data
+mdcs/logfile*
+mdcs/mgi/logfile*
 mdcs/db.sqlite3
-mdcs/mgi/settings.py
+mdcs/data
+mdcs/static/resources/files/schemas
+mdcs/input
+mdcs/xsdfiles
 
+# mongodb
+mdcs/mongod.lock
+mdcs/conf/my-mongodb.conf
+mdcs/conf/mongo-create-users
 
+# test
+mdcs/api/tests - Copy.py
+
+# tests BLOBHoster
+mdcs/utils/BLOBHoster/Penguins.out.jpg
+mdcs/utils/BLOBHoster/settings.txt
+
+# jena
+mdcs/rdf
