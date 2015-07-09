@@ -24,7 +24,7 @@ class BLOBHoster(object):
         self.BLOB_HOSTER_PSWD = BLOB_HOSTER_PSWD
     
     @abstractmethod
-    def save(self, blob):
+    def save(self, blob, filename, contentType):
         # data is str or binaries
         # returns an URI
         raise NotImplementedError("This method is not implemented.")
@@ -36,6 +36,11 @@ class BLOBHoster(object):
     
     @abstractmethod    
     def list(self):
+        # returns a list of URIs 
+        raise NotImplementedError("This method is not implemented.")
+    
+    @abstractmethod    
+    def query(self, query):
         # returns a list of URIs 
         raise NotImplementedError("This method is not implemented.")
     
