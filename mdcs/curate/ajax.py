@@ -776,7 +776,6 @@ def generateModule(request, element):
 #
 ################################################################################
 def generateElement(request, element, xmlTree, namespace, choiceInfo=None):
-    
     xsd_elements = request.session['xsd_elements']
     mapTagElement = request.session['mapTagElement']
     defaultPrefix = request.session['defaultPrefix']
@@ -1420,9 +1419,7 @@ def generate_xsd_form(request):
     
     if (formString == ""):     
         # this form was not created, generates it from the schema           
-        formString = "<form id=\"dataEntryForm\" name=\"xsdForm\">"
         formString += generateForm(request)
-        formString += "</form>"
         request.session['originalForm'] = formString
 
     response_dict['xsdForm'] = formString
