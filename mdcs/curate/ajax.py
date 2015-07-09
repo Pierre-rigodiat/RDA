@@ -1343,11 +1343,11 @@ def generateForm(request):
 
     try:
         if len(elements) == 1:
-            formString += "<div xmlID='root'>"
+            formString += "<div xmlID='root' name='xsdForm'>"
             formString += generateElement(request, elements[0], xmlDocTree,namespace)
             formString += "</div>"
         elif len(elements) > 1:     
-            formString += "<div xmlID='root'>"
+            formString += "<div xmlID='root' name='xsdForm'>"
             formString += generateChoice(request, elements, xmlDocTree, namespace)
             formString += "</div>"
     except Exception, e:
