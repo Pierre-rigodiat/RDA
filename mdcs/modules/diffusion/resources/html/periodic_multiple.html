@@ -1,5 +1,4 @@
-<span class="periodic-table-keep-state hide">false</span>
-<table class="periodic-table periodic-table-simple">
+<table class="periodic-table-multiple periodic-table">
 <tr>
     <td></td>
     <td class="c-header">IA</td>
@@ -151,4 +150,32 @@
     <td class="p-elem darkgray">Lr</td>
     <td></td>
 </tr>
+</table>
+
+<table class="table table-striped element-list">
+    <thead>
+    <tr>
+        <th>Element</th>
+        <th>Quantity</th>
+        <th>Purity</th>
+        <th>Error</th>
+        <th>Actions</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr class="empty">
+        <td colspan="5">
+            No selected element. Please use the periodic table above.
+        </td>
+    </tr>
+    </tbody>
+    <tfoot>
+    <tr class="sample-row">
+        <td class="name"></td>
+        <td class="qty"><input type="text" /><div class="saved-data"></div></td>
+        <td class="pur"><input type="text" /><div class="saved-data"></div></td>
+        <td class="err"><input type="text" /><div class="saved-data"></div></td>
+        <td><span href="#" class="remove-element btn btn-default">Remove</span></td>
+    </tr>
+    </tfoot>
 </table>

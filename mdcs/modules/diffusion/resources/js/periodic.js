@@ -1,5 +1,5 @@
 var periodicTablePopupOptions = {
-    width: 1000,
+    width: 700,
     title: "Select Element",
     create: function(event, ui) {
         var pTable = $(this).find('.periodic-table');
@@ -18,17 +18,18 @@ var periodicTablePopupOptions = {
         }
 
         popUpState.text("false");
-
-        // Selection highlight
-        $(this).on('click', '.periodic-table td.p-elem', function(event) {
-            $.each(pTable.find('.selected'), function(index, element) {
-                $(element).removeClass('selected');
-            });
-
-            $(this).addClass('selected');
-        });
     },
 }
+
+// Selection highlight
+$(document).on('click', '.periodic-table-simple td.p-elem', function(event) {
+    var pTable = openPopUp.find('.periodic-table');
+    $.each(pTable.find('.selected'), function(index, element) {
+        $(element).removeClass('selected');
+    });
+
+    $(this).addClass('selected');
+});
 
 savePeriodicTableData = function() {
     var selectedElement = openPopUp.find('.periodic-table .selected');
@@ -43,4 +44,4 @@ savePeriodicTableData = function() {
     return {'selectedElement': selectedElement.text()};
 }
 
-configurePopUp(periodicTablePopupOptions, savePeriodicTableData);
+configurePopUp('diffusion/periodic-table', periodicTablePopupOptions, savePeriodicTableData);

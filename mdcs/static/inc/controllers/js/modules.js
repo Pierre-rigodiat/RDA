@@ -28,29 +28,52 @@ loadModule = function($module) {
 }
 
 loadModuleResources = function(moduleURLList) {
-    $.each(moduleURLList, function(index, moduleURL) {
-         console.log(moduleURL);
+    var modulesResources = {
+        'scripts': [],
+        'styles': []
+    };
 
+    $.each(moduleURLList, function(index, moduleURL) {
         $.ajax({
             url : '/modules/'+moduleURL,
             type : "GET",
+            async: false,
             dataType: "json",
             data: {
                 'type': 'resources',
             },
             success: function(data){
-                if('moduleStyle' in data && 'moduleScript' in data) {
+                /*if('moduleStyle' in data && 'moduleScript' in data) {
                     // Update style
                     $('head').append(data.moduleStyle);
 
                     // Update moduleScript
                     $('body').append(data.moduleScript);
-                }
+                }*/
+
+                modulesResources.scripts = modulesResources.scripts.concat(data.moduleScript);
+                modulesResources.styles = modulesResources.styles.concat(data.moduleStyle);
             },
             error: function() {
                 // Raise error
             }
         });
+    });
+
+    //console.log(modulesResources);
+
+    $.ajax({
+        url: '/modules/resources',
+        type: "POST",
+        dataType: "json",
+        data: modulesResources,
+        success: function(data){
+            $('head').append(data.styles);
+            $('body').append(data.scripts);
+        },
+        error: function() {
+            // Raise error
+        }
     });
 }
 
