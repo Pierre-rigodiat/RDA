@@ -26,7 +26,7 @@ def __assemble_endpoint_data__(pattern, prefix='', filter_path=None):
     }
 
 
-def __flatten_patterns_tree__(patterns, prefix='', filter_path=None, exclude_namespaces=[]):
+def __flatten_patterns_tree__(patterns, prefix='', filter_path=None, excluded=[]):
     """
     Uses recursion to flatten url tree.
     patterns -- urlpatterns list
@@ -35,10 +35,10 @@ def __flatten_patterns_tree__(patterns, prefix='', filter_path=None, exclude_nam
     pattern_list = []
     
     for pattern in patterns:
-        # TODO: find cleaner solution
-        if 'resources' in pattern.regex.pattern:
-            continue
         if isinstance(pattern, RegexURLPattern):
+            if pattern.name is not None and pattern.name in excluded: 
+                continue
+            
             endpoint_data = __assemble_endpoint_data__(pattern, prefix, filter_path=filter_path)
     
             if endpoint_data is None:
@@ -46,28 +46,26 @@ def __flatten_patterns_tree__(patterns, prefix='', filter_path=None, exclude_nam
     
             pattern_list.append(endpoint_data)
     
-        elif isinstance(pattern, RegexURLResolver):
-    
-            if pattern.namespace is not None and pattern.namespace in exclude_namespaces:
-                continue
+        elif isinstance(pattern, RegexURLResolver):            
     
             pref = prefix + pattern.regex.pattern
             pattern_list.extend(__flatten_patterns_tree__(
                 pattern.url_patterns,
                 pref,
                 filter_path=filter_path,
-                exclude_namespaces=exclude_namespaces,
+                excluded=excluded,
             ))
     
     return pattern_list
 
 
 def discover_modules():
-    patterns = __flatten_patterns_tree__(urls.urlpatterns)
-    
+    patterns = __flatten_patterns_tree__(urls.urlpatterns, excluded=urls.excluded)
+    for pattern in patterns:
+        print pattern
     # Remove all existing modules
     Module.objects.all().delete()
-    
+        
     try:
         for pattern in patterns:
             Module(url=pattern['url'], name=pattern['name']).save()
