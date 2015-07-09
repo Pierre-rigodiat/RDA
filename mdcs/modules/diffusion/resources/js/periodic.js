@@ -44,4 +44,4 @@ savePeriodicTableData = function() {
     return {'selectedElement': selectedElement.text()};
 }
 
-configurePopUp('diffusion/periodic-table', periodicTablePopupOptions, savePeriodicTableData);
+configurePopUp('/diffusion/periodic-table', periodicTablePopupOptions, savePeriodicTableData);

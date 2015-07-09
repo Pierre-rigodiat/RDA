@@ -4,14 +4,16 @@ from models import ModuleManager
 from django.http import HttpResponse
 
 def load_resources_view(request):
-    script_set = set()
-    style_set = set()
+    script_set = []
+    style_set = []
 
     for script in request.POST.getlist('scripts[]'):
-        script_set.add(script)
+        if script not in script_set:
+            script_set.append(script)
 
     for style in request.POST.getlist('styles[]'):
-        style_set.add(style)
+        if style not in style_set:
+            style_set.append(style)
 
     response = {
         'styles': [],

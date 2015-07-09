@@ -101,4 +101,4 @@ savePeriodicTableMultipleData = function() {
     return {'elementList': JSON.stringify(data)};
 }
 
-configurePopUp('diffusion/periodic-table-multiple', periodicTableMultiplePopupOptions, savePeriodicTableMultipleData);
+configurePopUp('/diffusion/periodic-table-multiple', periodicTableMultiplePopupOptions, savePeriodicTableMultipleData);

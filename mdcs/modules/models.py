@@ -183,7 +183,7 @@ class ModuleManager(object):
         module_scripts = []
 
         try:
-            for script in reversed(list(scripts)):
+            for script in list(scripts):
                 external = False
                 try:
                     if script.startswith('http://') or script.startswith('https://'):
@@ -207,7 +207,7 @@ class ModuleManager(object):
         module_styles = []
 
         try:
-            for style in reversed(list(styles)):
+            for style in list(styles):
                 external = False
                 try:
                     if style.startswith('http://') or style.startswith('https://'):
