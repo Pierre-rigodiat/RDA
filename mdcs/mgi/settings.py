@@ -81,13 +81,12 @@ MONGO_MGI_PASSWORD = "mgi_password"
 MONGODB_URI = "mongodb://" + MONGO_MGI_USER + ":" + MONGO_MGI_PASSWORD + "@localhost/mgi"
 connect("mgi", host=MONGODB_URI)
 
-# from utils.BLOBHoster.BLOBHosterFactory import BLOBHosterFactory
-# BLOB_HOSTER = 'GridFS'
-# BLOB_HOSTER_URI = MONGODB_URI
-# BLOB_HOSTER_USER = MONGO_MGI_USER
-# BLOB_HOSTER_PSWD = MONGO_MGI_PASSWORD
-# MDCS_URI = 'http://127.0.0.1:8000'
-# blobHoster = BLOBHosterFactory(BLOB_HOSTER, BLOB_HOSTER_URI, BLOB_HOSTER_USER, BLOB_HOSTER_PSWD, MDCS_URI)
+from utils.BLOBHoster.BLOBHosterFactory import BLOBHosterFactory
+BLOB_HOSTER = 'GridFS'
+BLOB_HOSTER_URI = MONGODB_URI
+BLOB_HOSTER_USER = MONGO_MGI_USER
+BLOB_HOSTER_PSWD = MONGO_MGI_PASSWORD
+MDCS_URI = 'http://127.0.0.1:8000'
 
 TEMPLATE_DIRS = [os.path.join(BASE_DIR, 'templates')]
 
