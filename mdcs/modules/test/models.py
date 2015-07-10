@@ -1,5 +1,9 @@
 from modules.builtin.models import InputModule, OptionsModule
 from modules.exceptions import ModuleError
+from django.conf import settings
+import os
+
+RESOURCES_PATH = os.path.join(settings.SITE_ROOT, 'modules/test/resources/')
 
 class PositiveIntegerInputModule(InputModule):
     
@@ -73,6 +77,40 @@ class ChemicalElementMappingModule(OptionsModule):
             moduleDisplay = label  + " is selected"
             moduleResult = value
             
+            return moduleDisplay, moduleResult
+        else:
+            raise ModuleError('Value not properly sent to server. Please set "value" in POST data.')
+
+
+
+class ListToGraphInputModule(InputModule):
+    
+    def __init__(self):
+        InputModule.__init__(self, label='Enter a list of numbers',
+                             styles=[os.path.join(RESOURCES_PATH, 'css/list_to_graph.css')],
+                             scripts=["https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"])
+
+    def get_default_display(self, request):
+        return ""
+        
+    def get_default_result(self, request):
+        return ""
+    
+    def process_data(self, request):
+        if 'value' in request.POST:
+            moduleDisplay = "<div class='chart list_to_graph'></div>"
+            moduleResult = request.POST['value']
+            
+            post_value = request.POST['value']
+            values = post_value.split(' ')
+            
+            for value in values:
+                try:
+                    int(value)
+                except:
+                    moduleDisplay = "<b style='color:red;'>Expecting a list of integer values separated by spaces.</b>"
+                    moduleResult = ""            
+                            
             return moduleDisplay, moduleResult
         else:
             raise ModuleError('Value not properly sent to server. Please set "value" in POST data.')
