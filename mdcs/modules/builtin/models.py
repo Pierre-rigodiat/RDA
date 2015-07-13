@@ -179,5 +179,41 @@ class OptionsModule(Module):
     @abstractmethod
     def process_data(self, request):
         pass
-    
-    
+
+
+class AutoCompleteModule(Module):
+    def __init__(self, scripts=None, styles=None, label=None):
+        input_script = os.path.join(RESOURCES_PATH, 'js/autocomplete.js')
+
+        if scripts is not None:
+            scripts.insert(0, input_script)
+        else:
+            scripts = [input_script]
+
+        Module.__init__(self, scripts=scripts, styles=styles)
+
+        self.label = label
+
+    def get_module(self, request):
+        if 'term' in request.GET:
+            return self.process_data(request)
+
+        template = os.path.join(TEMPLATES_PATH, 'autocomplete.html')
+        params = {}
+
+        if self.label is not None:
+            params.update({"label": self.label})
+
+        return render_module(template, params)
+
+    @abstractmethod
+    def get_default_display(self, request):
+        pass
+
+    @abstractmethod
+    def get_default_result(self, request):
+        pass
+
+    @abstractmethod
+    def process_data(self, request):
+        pass
