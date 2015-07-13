@@ -1,3 +1,3 @@
-configureAutocomplete = function($module, moduleOptions) {
-    $module.find('.mod_autocomplete input').autocomplete(moduleOptions);
+configureAutocomplete = function(moduleOptions) {
+    $('body').find('.mod_autocomplete input').autocomplete(moduleOptions);
 }
