@@ -2027,7 +2027,7 @@ def get_blob(request):
             if fs.exists(ObjectId(blob_id)):
                 blob = fs.get(ObjectId(blob_id))
                 response = HttpResponse(blob)
-                response['Content-Disposition'] = 'attachment; filename=' + str(blob_id)
+                response['Content-Disposition'] = 'attachment; filename=' + str(blob.filename)
                 return response
             else:
                 content={'message':'No file could be found with the given id.'}
