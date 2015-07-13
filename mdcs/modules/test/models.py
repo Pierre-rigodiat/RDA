@@ -1,4 +1,4 @@
-from modules.builtin.models import InputModule, OptionsModule, AsyncInputModule
+from modules.builtin.models import InputModule, OptionsModule, AsyncInputModule, AutoCompleteModule
 from modules.exceptions import ModuleError
 from django.conf import settings
 import os
@@ -36,7 +36,7 @@ class PositiveIntegerInputModule(InputModule):
             return moduleDisplay, moduleResult
         else:
             raise ModuleError('Value not properly sent to server. Please set "value" in POST data.')
-        
+
 
 class ChemicalElementMappingModule(OptionsModule):
     
@@ -116,3 +116,38 @@ class ListToGraphInputModule(AsyncInputModule):
         else:
             raise ModuleError('Value not properly sent to server. Please set "value" in POST data.')
         
+
+
+class ExampleAutoCompleteModule(AutoCompleteModule):
+
+    def __init__(self):
+        self.data = [
+            'Plastic',
+            'Concrete',
+            'Cement',
+            'Material1',
+            'Material2',
+            'Material3',
+            'Others'
+        ]
+
+        AutoCompleteModule.__init__(self, label='Material Name', scripts=[os.path.join(RESOURCES_PATH,
+                                                                                       'js/example_autocomplete.js')])
+
+    def get_default_display(self, request):
+        return ""
+
+    def get_default_result(self, request):
+        return ""
+
+    def process_data(self, request):
+        if 'term' in request.GET:
+            response_list = []
+
+            for d in self.data:
+                if request.GET['term'].lower() in d.lower():
+                    response_list.append(d)
+
+            return response_list
+        else:
+            pass
