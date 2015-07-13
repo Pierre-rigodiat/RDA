@@ -1,4 +1,4 @@
-from models import PositiveIntegerInputModule, ExampleAutoCompleteModule
+from models import PositiveIntegerInputModule, ExampleAutoCompleteModule, ChemicalElementMappingModule, ListToGraphInputModule
 
 def positive_integer(request):
     return PositiveIntegerInputModule().view(request)
