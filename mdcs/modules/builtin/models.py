@@ -100,6 +100,47 @@ class InputModule(Module):
         pass
 
 
+class AsyncInputModule(Module):
+    def __init__(self, scripts=None, styles=None, label=None, default_value=None, modclass=None):
+        input_script = os.path.join(RESOURCES_PATH, 'js/async_input.js')
+        
+        if modclass is None:
+            raise ModuleError("'modclass' is required.")
+        else:
+            self.modclass = modclass
+        
+        if scripts is not None:
+            scripts.append(input_script)
+        else:
+            scripts =[input_script]
+        
+        Module.__init__(self, scripts=scripts, styles=styles)
+
+        self.label = label
+        self.default_value = default_value
+
+    def get_module(self, request):
+        template = os.path.join(TEMPLATES_PATH, 'async_input.html')
+        params = {'class': self.modclass}
+        if self.label is not None:
+            params.update({"label": self.label})
+        if self.default_value is not None:
+            params.update({"default_value": self.default_value})
+        return render_module(template, params)
+
+    @abstractmethod
+    def get_default_display(self, request):
+        pass
+
+    @abstractmethod
+    def get_default_result(self, request):
+        pass
+
+    @abstractmethod
+    def process_data(self, request):
+        pass
+
+
 class InputButtonModule(Module):
     def __init__(self, scripts=None, styles=None, button_label=None, label=None, default_value=None):
         Module.__init__(self)

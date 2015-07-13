@@ -77,7 +77,7 @@ loadModuleResources = function(moduleURLList) {
     });
 }
 
-saveModuleData = function($module, modData) {
+saveModuleData = function($module, modData, asyncOpt=true) {
     var moduleURL = $module.find('.moduleURL').text();
 
     if(moduleURL === '') {
@@ -89,23 +89,11 @@ saveModuleData = function($module, modData) {
         type : "POST",
         dataType: "json",
         data: modData,
+        async: asyncOpt,
         success: function(data){
             if('moduleDisplay' in data && 'moduleResult' in data) {
             	$module.find('.moduleDisplay').html(data.moduleDisplay);
                 $module.find('.moduleResult').html(data.moduleResult);
-                
-//              TODO: may need a callback here  
-//                var arr = data.moduleResult.split(' ');
-//                var x = d3.scale.linear()
-//                .domain([0, d3.max(arr)])
-//                .range([0, 420]);
-//
-//	            d3.select(".chart")
-//	              .selectAll("div")
-//	                .data(arr)
-//	              .enter().append("div")
-//	                .style("width", function(d) { return x(d) + "px"; })
-//	                .text(function(d) { return d; });
             }
         },
         error: function() {

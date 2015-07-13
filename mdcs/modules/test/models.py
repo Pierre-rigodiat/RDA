@@ -1,4 +1,4 @@
-from modules.builtin.models import InputModule, OptionsModule
+from modules.builtin.models import InputModule, OptionsModule, AsyncInputModule
 from modules.exceptions import ModuleError
 from django.conf import settings
 import os
@@ -83,12 +83,13 @@ class ChemicalElementMappingModule(OptionsModule):
 
 
 
-class ListToGraphInputModule(InputModule):
+class ListToGraphInputModule(AsyncInputModule):
     
     def __init__(self):
-        InputModule.__init__(self, label='Enter a list of numbers',
+        AsyncInputModule.__init__(self, label='Enter a list of numbers', modclass='list_to_graph',
                              styles=[os.path.join(RESOURCES_PATH, 'css/list_to_graph.css')],
-                             scripts=["https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"])
+                             scripts=["https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js",
+                                      os.path.join(RESOURCES_PATH, 'js/list_to_graph.js')])
 
     def get_default_display(self, request):
         return ""
@@ -98,7 +99,7 @@ class ListToGraphInputModule(InputModule):
     
     def process_data(self, request):
         if 'value' in request.POST:
-            moduleDisplay = "<div class='chart list_to_graph'></div>"
+            moduleDisplay = "<div class='chart'></div>"
             moduleResult = request.POST['value']
             
             post_value = request.POST['value']
