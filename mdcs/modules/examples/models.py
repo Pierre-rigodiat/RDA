@@ -3,7 +3,7 @@ from modules.exceptions import ModuleError
 from django.conf import settings
 import os
 
-RESOURCES_PATH = os.path.join(settings.SITE_ROOT, 'modules/test/resources/')
+RESOURCES_PATH = os.path.join(settings.SITE_ROOT, 'modules/examples/resources/')
 
 class PositiveIntegerInputModule(InputModule):
     

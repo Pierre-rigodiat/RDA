@@ -1,6 +1,6 @@
 import unittest
 
-from modules.test.models import PositiveIntegerInputModule
+from modules.examples.models import PositiveIntegerInputModule
 from django.http.request import HttpRequest
 import json
 

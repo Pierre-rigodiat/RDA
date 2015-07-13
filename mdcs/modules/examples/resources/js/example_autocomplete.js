@@ -1,5 +1,5 @@
-configureAutocomplete($('#element5'), {
-    source: "/modules/test/autocomplete",
+configureAutocomplete({
+    source: "/modules/examples/autocomplete",
     minLength: 0,
     response: function(event, ui) {
         var content = ui.content[1];
