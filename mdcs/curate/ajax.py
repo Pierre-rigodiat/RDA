@@ -791,6 +791,23 @@ def generateElement(request, element, xmlTree, namespace, choiceInfo=None):
     else:
         hasModule = False
     
+    elementID = len(xsd_elements)
+    if element.tag == "{0}element".format(namespace):
+        # don't save element representation if never need to duplicate it
+        if ('maxOccurs' not in element.attrib) or (element.attrib['maxOccurs']=="1"):
+            xsd_elements[elementID] = ""
+        else:
+            xsd_elements[elementID] = etree.tostring(element)
+        manageOccurences(request, element, elementID)
+        addButton, deleteButton, nbOccurrences = manageButtons(element)
+        element_tag='element'
+    elif element.tag == "{0}attribute".format(namespace):
+        # don't save attribute representation because never needs to duplicate it
+        xsd_elements[elementID] = ""
+        manageAttrOccurrences(request, element, elementID)
+        addButton, deleteButton, nbOccurrences = manageAttrButtons(element)
+        element_tag='attribute'
+    
     # type is a reference included in the document
     if 'ref' in element.attrib: 
         ref = element.attrib['ref']
@@ -814,24 +831,6 @@ def generateElement(request, element, xmlTree, namespace, choiceInfo=None):
             removeAnnotations(element, namespace)
     else:
         textCapitalized = element.attrib.get('name')
-    
-    
-    elementID = len(xsd_elements)
-    if element.tag == "{0}element".format(namespace):
-        # don't save element representation if never need to duplicate it
-        if ('maxOccurs' not in element.attrib) or (element.attrib['maxOccurs']=="1"):
-            xsd_elements[elementID] = ""
-        else:
-            xsd_elements[elementID] = etree.tostring(element)
-        manageOccurences(request, element, elementID)
-        addButton, deleteButton, nbOccurrences = manageButtons(element)
-        element_tag='element'
-    elif element.tag == "{0}attribute".format(namespace):
-        # don't save attribute representation because never needs to duplicate it
-        xsd_elements[elementID] = ""
-        manageAttrOccurrences(request, element, elementID)
-        addButton, deleteButton, nbOccurrences = manageAttrButtons(element)
-        element_tag='attribute'
         
     if choiceInfo:
         if (choiceInfo.counter > 0):
