@@ -1,8 +1,11 @@
 from django.http import HttpResponse
 import json
+from django.http.request import QueryDict
+from django.utils.html import escape
 from exceptions import ModuleError
 
 from abc import ABCMeta, abstractmethod
+from modules.utils import sanitize
 
 
 class Module(object):
@@ -50,6 +53,13 @@ class Module(object):
                     pass
                 
         elif request.method == 'POST':
+            post_data = {}
+            for key, value in request.POST.items():
+                post_data[key] = sanitize(value)
+
+            request.POST = post_data
+            print request.POST
+
             try:
                 moduleDisplay, moduleResult = self.process_data(request)
             except Exception, e:
