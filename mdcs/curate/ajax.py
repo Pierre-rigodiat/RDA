@@ -33,6 +33,7 @@ import rdfPublisher
 #XSL file loading
 import os
 
+
 #Class definition
 
 ################################################################################
@@ -439,7 +440,7 @@ def removeAnnotations(element, namespace):
 # Description:   Generates a section of the form that represents an XML sequence
 # 
 ################################################################################
-def generateSequence(request, element, xmlTree, namespace, choiceInfo=None):
+def generateSequence(request, element, xmlTree, namespace, choiceInfo=None, fullPath=""):
     #(annotation?,(element|group|choice|sequence|any)*)
     
     formString = ""
@@ -488,11 +489,11 @@ def generateSequence(request, element, xmlTree, namespace, choiceInfo=None):
             if(len(list(element)) != 0):
                 for child in element:
                     if (child.tag == "{0}element".format(namespace)):            
-                        formString += generateElement(request, child, xmlTree, namespace, choiceInfo)
+                        formString += generateElement(request, child, xmlTree, namespace, choiceInfo, fullPath=fullPath)
                     elif (child.tag == "{0}sequence".format(namespace)):
-                        formString += generateSequence(request, child, xmlTree, namespace, choiceInfo)
+                        formString += generateSequence(request, child, xmlTree, namespace, choiceInfo, fullPath=fullPath)
                     elif (child.tag == "{0}choice".format(namespace)):
-                        formString += generateChoice(request, child, xmlTree, namespace, choiceInfo)
+                        formString += generateChoice(request, child, xmlTree, namespace, choiceInfo, fullPath=fullPath)
                     elif (child.tag == "{0}any".format(namespace)):
                         pass
                     elif (child.tag == "{0}group".format(namespace)):
@@ -505,11 +506,11 @@ def generateSequence(request, element, xmlTree, namespace, choiceInfo=None):
         if(len(list(element)) != 0):
             for child in element:
                 if (child.tag == "{0}element".format(namespace)):            
-                    formString += generateElement(request, child, xmlTree, namespace, choiceInfo)
+                    formString += generateElement(request, child, xmlTree, namespace, choiceInfo, fullPath=fullPath)
                 elif (child.tag == "{0}sequence".format(namespace)):
-                    formString += generateSequence(request, child, xmlTree, namespace, choiceInfo)
+                    formString += generateSequence(request, child, xmlTree, namespace, choiceInfo, fullPath=fullPath)
                 elif (child.tag == "{0}choice".format(namespace)):
-                    formString += generateChoice(request, child, xmlTree, namespace, choiceInfo)
+                    formString += generateChoice(request, child, xmlTree, namespace, choiceInfo, fullPath=fullPath)
                 elif (child.tag == "{0}any".format(namespace)):
                     pass
                 elif (child.tag == "{0}group".format(namespace)):
@@ -529,7 +530,7 @@ def generateSequence(request, element, xmlTree, namespace, choiceInfo=None):
 # Description:   Generates a section of the form that represents an XML choice
 # 
 ################################################################################
-def generateChoice(request, element, xmlTree, namespace, choiceInfo=None):
+def generateChoice(request, element, xmlTree, namespace, choiceInfo=None, fullPath=""):
     #(annotation?,(element|group|choice|sequence|any)*)
     nbChoicesID = int(request.session['nbChoicesID'])
     xsd_elements = request.session['xsd_elements']
@@ -606,13 +607,13 @@ def generateChoice(request, element, xmlTree, namespace, choiceInfo=None):
             
         for (counter, choiceChild) in enumerate(list(element)):
             if choiceChild.tag == "{0}element".format(namespace):
-                formString += generateElement(request, choiceChild, xmlTree, namespace, common.ChoiceInfo(chooseIDStr,counter))
+                formString += generateElement(request, choiceChild, xmlTree, namespace, common.ChoiceInfo(chooseIDStr,counter), fullPath=fullPath)
             elif (choiceChild.tag == "{0}group".format(namespace)):
                 pass
             elif (choiceChild.tag == "{0}choice".format(namespace)):
                 pass
             elif (choiceChild.tag == "{0}sequence".format(namespace)):
-                formString += generateSequence(request, choiceChild, xmlTree, namespace, common.ChoiceInfo(chooseIDStr,counter))
+                formString += generateSequence(request, choiceChild, xmlTree, namespace, common.ChoiceInfo(chooseIDStr,counter), fullPath=fullPath)
             elif (choiceChild.tag == "{0}any".format(namespace)):
                 pass
         
@@ -633,7 +634,7 @@ def generateChoice(request, element, xmlTree, namespace, choiceInfo=None):
 # Description:   Generates a section of the form that represents an XML choice
 # 
 ################################################################################
-def generateSimpleType(request, element, xmlTree, namespace):
+def generateSimpleType(request, element, xmlTree, namespace, fullPath):
     formString = ""
     
     # remove the annotations
@@ -646,7 +647,7 @@ def generateSimpleType(request, element, xmlTree, namespace):
     if (list(element) != 0):
         child = element[0] 
         if child.tag == "{0}restriction".format(namespace):
-            formString += generateRestriction(request, child, xmlTree, namespace)            
+            formString += generateRestriction(request, child, xmlTree, namespace, fullPath)            
         elif child.tag == "{0}list".format(namespace):
             #TODO: list can contain a restriction/enumeration, what can we do about that?
             formString += "<input type='text'/>"
@@ -668,7 +669,7 @@ def generateSimpleType(request, element, xmlTree, namespace):
 # Description:   Generates a section of the form that represents an XML restriction
 # 
 ################################################################################
-def generateRestriction(request, element, xmlTree, namespace):
+def generateRestriction(request, element, xmlTree, namespace, fullPath=""):
     formString = ""
     
     removeAnnotations(element, namespace)
@@ -676,13 +677,25 @@ def generateRestriction(request, element, xmlTree, namespace):
     enumeration = element.findall('{0}enumeration'.format(namespace))
     if len(enumeration) > 0:
         formString += "<select>"
-        for enum in enumeration:
-            formString += "<option value='" + enum.attrib.get('value')  + "'>" + enum.attrib.get('value') + "</option>"
+        if edit:
+            edit_elements = edit_data_tree.xpath(fullPath) 
+            selected_value = None   
+            if len(edit_elements) > 0:
+                if edit_elements[0].text is not None:
+                    selected_value = edit_elements[0].text                 
+            for enum in enumeration:
+                if selected_value is not None and enum.attrib.get('value') == selected_value:
+                    formString += "<option value='" + enum.attrib.get('value')  + "' selected>" + enum.attrib.get('value') + "</option>"
+                else:
+                    formString += "<option value='" + enum.attrib.get('value')  + "'>" + enum.attrib.get('value') + "</option>"
+        else:
+            for enum in enumeration:
+                formString += "<option value='" + enum.attrib.get('value')  + "'>" + enum.attrib.get('value') + "</option>"
         formString += "</select>"
     else:
         simpleType = element.find('{0}simpleType'.format(namespace))
         if simpleType is not None:
-            formString += generateSimpleType(request, simpleType, xmlTree, namespace)
+            formString += generateSimpleType(request, simpleType, xmlTree, namespace, fullPath=fullPath)
         else:        
             formString += " <input type='text'/>"
             
@@ -700,7 +713,7 @@ def generateRestriction(request, element, xmlTree, namespace):
 # Description:   Generates a section of the form that represents an XML complexType
 # 
 ################################################################################
-def generateComplexType(request, element, xmlTree, namespace):
+def generateComplexType(request, element, xmlTree, namespace, fullPath):
     #(annotation?,(simpleContent|complexContent|((group|all|choice|sequence)?,((attribute|attributeGroup)*,anyAttribute?))))
 
     formString = ""
@@ -716,21 +729,21 @@ def generateComplexType(request, element, xmlTree, namespace):
     complexTypeChildren = element.findall('{0}attribute'.format(namespace))
     if len(complexTypeChildren) > 0:
         for attribute in complexTypeChildren:
-            formString += generateElement(request, attribute, xmlTree, namespace)
+            formString += generateElement(request, attribute, xmlTree, namespace, fullPath=fullPath)
     
     # does it contain sequence or all?
     complexTypeChild = element.find('{0}sequence'.format(namespace))
     if complexTypeChild is not None:
-        formString += generateSequence(request, complexTypeChild, xmlTree, namespace)
+        formString += generateSequence(request, complexTypeChild, xmlTree, namespace, fullPath=fullPath)
     else:
         complexTypeChild = element.find('{0}all'.format(namespace))
         if complexTypeChild is not None:
-            formString += generateSequence(request, complexTypeChild, xmlTree, namespace)
+            formString += generateSequence(request, complexTypeChild, xmlTree, namespace, fullPath=fullPath)
         else:
             # does it contain choice ?
             complexTypeChild = element.find('{0}choice'.format(namespace))
             if complexTypeChild is not None:
-                formString += generateChoice(request, complexTypeChild, xmlTree, namespace)
+                formString += generateChoice(request, complexTypeChild, xmlTree, namespace, fullPath=fullPath)
             else:
                 formString += ""        
     
@@ -763,6 +776,14 @@ def generateModule(request, element):
     
     return formString
 
+from mgi.models import Jsondata
+import xmltodict
+json_data = Jsondata.get("558971f389772a1844176d56")
+edit_data = xmltodict.unparse(json_data['content'])
+edit_data = edit_data[39:]
+edit_data_tree = etree.fromstring(edit_data)
+edit = True
+
 ################################################################################
 # 
 # Function Name: generateElement(request, element, xmlTree, namespace)
@@ -775,10 +796,13 @@ def generateModule(request, element):
 # Description:   Generate an HTML string that represents an XML element.
 #
 ################################################################################
-def generateElement(request, element, xmlTree, namespace, choiceInfo=None):
+def generateElement(request, element, xmlTree, namespace, choiceInfo=None, fullPath=""):
     xsd_elements = request.session['xsd_elements']
     mapTagElement = request.session['mapTagElement']
     defaultPrefix = request.session['defaultPrefix']
+    
+    # XSD xpath
+    # etree.ElementTree(xmlTree).getpath(element)
     
     formString = ""
 
@@ -840,6 +864,21 @@ def generateElement(request, element, xmlTree, namespace, choiceInfo=None):
     else:
         formString += "<ul>"
     
+    # XML xpath
+    if fullPath == "":
+        fullPath = "//" + textCapitalized
+    else:
+        fullPath += "/" + textCapitalized
+    print fullPath   
+    
+    if edit:
+        edit_elements = edit_data_tree.xpath(fullPath)
+        if len(edit_elements) > 0:
+            nbOccurrences = len(edit_elements)
+#             for xml_element in edit_elements:
+#                 if xml_element.text is not None:
+#                     defaultValue = xml_element.text
+    
     if 'type' not in element.attrib:
         # element with type declared below it                                                                          
         for x in range (0,int(nbOccurrences)):     
@@ -868,23 +907,41 @@ def generateElement(request, element, xmlTree, namespace, choiceInfo=None):
                 if element[0].tag == "{0}complexType".format(namespace):
                     if hasModule:
                         formString += module
-                    else:                  
-                        formString += generateComplexType(request, element[0], xmlTree, namespace)
+                    else:  
+                        formString += generateComplexType(request, element[0], xmlTree, namespace, fullPath=fullPath+'['+ str(x+1) +']')
+#                         if edit:
+#                             if len(edit_elements) > 1:
+#                                 formString += generateComplexType(request, element[0], xmlTree, namespace, fullPath=fullPath+'['+ str(x+1) +']')
+#                             else:
+#                                 formString += generateComplexType(request, element[0], xmlTree, namespace, fullPath=fullPath)
+#                         else:                
+#                             formString += generateComplexType(request, element[0], xmlTree, namespace, fullPath=fullPath)
                 elif element[0].tag == "{0}simpleType".format(namespace):
                     if hasModule:
                         formString += module
                     else:    
-                        formString += generateSimpleType(request, element[0], xmlTree, namespace)
+                        formString += generateSimpleType(request, element[0], xmlTree, namespace, fullPath=fullPath+'['+ str(x+1) +']')
+#                         if edit:
+#                             if len(edit_elements) > 0:
+#                                 formString += generateSimpleType(request, element[0], xmlTree, namespace, fullPath=fullPath+'['+ str(x+1) +']')
+#                             else:
+#                                 formString += generateSimpleType(request, element[0], xmlTree, namespace, fullPath=fullPath)
+#                         else:
+#                             formString += generateSimpleType(request, element[0], xmlTree, namespace, fullPath=fullPath)
             formString += "</li>"
     elif element.attrib.get('type') in common.getXSDTypes(defaultPrefix):                         
         for x in range (0,int(nbOccurrences)):                         
             tagID = "element" + str(len(mapTagElement.keys()))  
             mapTagElement[tagID] = elementID 
             defaultValue = ""
-            if 'default' in element.attrib:
+            if edit:
+                if len(edit_elements) > 0:
+                    if edit_elements[x].text is not None:
+                        defaultValue = edit_elements[x].text
+            elif 'default' in element.attrib:
                 defaultValue = element.attrib['default']
             formString += "<li class='"+ element_tag +"' id='" + str(tagID) + "'>" + textCapitalized
-                
+                       
             if hasModule:
                 formString += module
             else:
@@ -936,13 +993,27 @@ def generateElement(request, element, xmlTree, namespace, choiceInfo=None):
                     if elementType.tag == "{0}complexType".format(namespace):
                         if hasModule:
                             formString += module
-                        else:                        
-                            formString += generateComplexType(request, elementType, xmlTree, namespace)
+                        else:       
+                            formString += generateComplexType(request, elementType, xmlTree, namespace, fullPath=fullPath+'['+ str(x+1) +']')
+#                             if edit:
+#                                 if len(edit_elements) > 1:
+#                                     formString += generateComplexType(request, elementType, xmlTree, namespace, fullPath=fullPath+'['+ str(x+1) +']')
+#                                 else:                   
+#                                     formString += generateComplexType(request, elementType, xmlTree, namespace, fullPath=fullPath)
+#                             else:
+#                                 formString += generateComplexType(request, elementType, xmlTree, namespace, fullPath=fullPath)
                     elif elementType.tag == "{0}simpleType".format(namespace):
                         if hasModule:
                             formString += module
-                        else:   
-                            formString += generateSimpleType(request, elementType, xmlTree, namespace)
+                        else:
+                            formString += generateSimpleType(request, elementType, xmlTree, namespace, fullPath=fullPath+'['+ str(x+1) +']')
+#                             if edit:
+#                                 if len(edit_elements) > 0:
+#                                     formString += generateSimpleType(request, elementType, xmlTree, namespace, fullPath=fullPath+'['+ str(x+1) +']')
+#                                 else:
+#                                     formString += generateSimpleType(request, elementType, xmlTree, namespace, fullPath=fullPath)
+#                             else:
+#                                 formString += generateSimpleType(request, elementType, xmlTree, namespace, fullPath=fullPath)
         
                 formString += "</li>"
                 
