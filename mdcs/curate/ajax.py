@@ -562,10 +562,12 @@ def generateChoice(request, element, xmlTree, namespace, choiceInfo=None, fullPa
         nbOccurrences = 1
         elementID = len(xsd_elements)
         xsd_elements[elementID] = ""
-        
+    
+    if edit:
+        edit_elements = edit_data_tree.xpath(fullPath) 
+     
     if choiceInfo:
         if edit:
-            edit_elements = edit_data_tree.xpath(fullPath) 
             if len(edit_elements) == 0:
                 formString += "<ul id=\"" + choiceInfo.chooseIDStr + "-" + str(choiceInfo.counter) + "\" class=\"notchosen\">"
             else:
@@ -579,7 +581,6 @@ def generateChoice(request, element, xmlTree, namespace, choiceInfo=None, fullPa
         formString += "<ul>"
     
     if edit:
-        edit_elements = edit_data_tree.xpath(fullPath)
         if len(edit_elements) > 0:
             nbOccurrences = len(edit_elements)
     
@@ -594,7 +595,7 @@ def generateChoice(request, element, xmlTree, namespace, choiceInfo=None, fullPa
         formString += "<li class='choice' id='" + str(tagID) + "'>Choose<select id='"+ chooseIDStr +"' onchange=\"changeChoice(this);\">"
         
         nbSequence = 1
-        
+
         # generates the choice
         if(len(list(element)) != 0):
             for child in element:
@@ -602,7 +603,10 @@ def generateChoice(request, element, xmlTree, namespace, choiceInfo=None, fullPa
                     name = child.attrib.get('name')
                     if name is None:
                         name = child.attrib.get('ref')
-                    formString += "<option value='" + name + "'>" + name + "</option></b><br>"
+                    if len(edit_data_tree.xpath(fullPath+'/' + name)) == 0:    
+                        formString += "<option value='" + name + "'>" + name + "</option></b><br>"
+                    else:
+                        formString += "<option value='" + name + "' selected>" + name + "</option></b><br>"
                 elif (child.tag == "{0}group".format(namespace)):
                     pass
                 elif (child.tag == "{0}choice".format(namespace)):
@@ -797,7 +801,7 @@ def generateModule(request, element):
 
 from mgi.models import Jsondata
 import xmltodict
-json_data = Jsondata.get("558971f389772a1844176d56")
+json_data = Jsondata.get("558971f389772a1844176d57")
 edit_data = xmltodict.unparse(json_data['content'])
 edit_data = edit_data[39:]
 edit_data_tree = etree.fromstring(edit_data)
