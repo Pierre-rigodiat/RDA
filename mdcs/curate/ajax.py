@@ -460,10 +460,17 @@ def generateSequence(request, element, xmlTree, namespace, choiceInfo=None, full
         manageOccurences(request, element, elementID)
         
         if choiceInfo:
-            if (choiceInfo.counter > 0):
-                formString += "<ul id=\"" + choiceInfo.chooseIDStr + "-" + str(choiceInfo.counter) + "\" class=\"notchosen\">"
+            if edit:
+                edit_elements = edit_data_tree.xpath(fullPath) 
+                if len(edit_elements) == 0:
+                    formString += "<ul id=\"" + choiceInfo.chooseIDStr + "-" + str(choiceInfo.counter) + "\" class=\"notchosen\">"
+                else:
+                    formString += "<ul id=\"" + choiceInfo.chooseIDStr + "-" + str(choiceInfo.counter) + "\" >"
             else:
-                formString += "<ul id=\"" + choiceInfo.chooseIDStr + "-" + str(choiceInfo.counter) + "\" >"
+                if (choiceInfo.counter > 0):
+                    formString += "<ul id=\"" + choiceInfo.chooseIDStr + "-" + str(choiceInfo.counter) + "\" class=\"notchosen\">"
+                else:
+                    formString += "<ul id=\"" + choiceInfo.chooseIDStr + "-" + str(choiceInfo.counter) + "\" >"
         else:
             formString += "<ul>"
     
@@ -557,13 +564,25 @@ def generateChoice(request, element, xmlTree, namespace, choiceInfo=None, fullPa
         xsd_elements[elementID] = ""
         
     if choiceInfo:
-        if (choiceInfo.counter > 0):
-            formString += "<ul id=\"" + choiceInfo.chooseIDStr + "-" + str(choiceInfo.counter) + "\" class=\"notchosen\">"
+        if edit:
+            edit_elements = edit_data_tree.xpath(fullPath) 
+            if len(edit_elements) == 0:
+                formString += "<ul id=\"" + choiceInfo.chooseIDStr + "-" + str(choiceInfo.counter) + "\" class=\"notchosen\">"
+            else:
+                formString += "<ul id=\"" + choiceInfo.chooseIDStr + "-" + str(choiceInfo.counter) + "\" >"
         else:
-            formString += "<ul id=\"" + choiceInfo.chooseIDStr + "-" + str(choiceInfo.counter) + "\" >"
+            if (choiceInfo.counter > 0):
+                formString += "<ul id=\"" + choiceInfo.chooseIDStr + "-" + str(choiceInfo.counter) + "\" class=\"notchosen\">"
+            else:
+                formString += "<ul id=\"" + choiceInfo.chooseIDStr + "-" + str(choiceInfo.counter) + "\" >"
     else:
         formString += "<ul>"
-            
+    
+    if edit:
+        edit_elements = edit_data_tree.xpath(fullPath)
+        if len(edit_elements) > 0:
+            nbOccurrences = len(edit_elements)
+    
     for x in range (0,int(nbOccurrences)):
         tagID = "element" + str(len(mapTagElement.keys()))  
         mapTagElement[tagID] = elementID        
@@ -855,14 +874,6 @@ def generateElement(request, element, xmlTree, namespace, choiceInfo=None, fullP
             removeAnnotations(element, namespace)
     else:
         textCapitalized = element.attrib.get('name')
-        
-    if choiceInfo:
-        if (choiceInfo.counter > 0):
-            formString += "<ul id=\"" + choiceInfo.chooseIDStr + "-" + str(choiceInfo.counter) + "\" class=\"notchosen\">"
-        else:
-            formString += "<ul id=\"" + choiceInfo.chooseIDStr + "-" + str(choiceInfo.counter) + "\" >"
-    else:
-        formString += "<ul>"
     
     # XML xpath
     if fullPath == "":
@@ -874,10 +885,21 @@ def generateElement(request, element, xmlTree, namespace, choiceInfo=None, fullP
     if edit:
         edit_elements = edit_data_tree.xpath(fullPath)
         if len(edit_elements) > 0:
-            nbOccurrences = len(edit_elements)
-#             for xml_element in edit_elements:
-#                 if xml_element.text is not None:
-#                     defaultValue = xml_element.text
+            nbOccurrences = len(edit_elements)  
+        
+    if choiceInfo:
+        if edit:
+            if len(edit_elements) == 0:
+                formString += "<ul id=\"" + choiceInfo.chooseIDStr + "-" + str(choiceInfo.counter) + "\" class=\"notchosen\">"
+            else:
+                formString += "<ul id=\"" + choiceInfo.chooseIDStr + "-" + str(choiceInfo.counter) + "\" >"
+        else:
+            if (choiceInfo.counter > 0):
+                formString += "<ul id=\"" + choiceInfo.chooseIDStr + "-" + str(choiceInfo.counter) + "\" class=\"notchosen\">"
+            else:
+                formString += "<ul id=\"" + choiceInfo.chooseIDStr + "-" + str(choiceInfo.counter) + "\" >"
+    else:
+        formString += "<ul>"
     
     if 'type' not in element.attrib:
         # element with type declared below it                                                                          
@@ -909,25 +931,11 @@ def generateElement(request, element, xmlTree, namespace, choiceInfo=None, fullP
                         formString += module
                     else:  
                         formString += generateComplexType(request, element[0], xmlTree, namespace, fullPath=fullPath+'['+ str(x+1) +']')
-#                         if edit:
-#                             if len(edit_elements) > 1:
-#                                 formString += generateComplexType(request, element[0], xmlTree, namespace, fullPath=fullPath+'['+ str(x+1) +']')
-#                             else:
-#                                 formString += generateComplexType(request, element[0], xmlTree, namespace, fullPath=fullPath)
-#                         else:                
-#                             formString += generateComplexType(request, element[0], xmlTree, namespace, fullPath=fullPath)
                 elif element[0].tag == "{0}simpleType".format(namespace):
                     if hasModule:
                         formString += module
                     else:    
                         formString += generateSimpleType(request, element[0], xmlTree, namespace, fullPath=fullPath+'['+ str(x+1) +']')
-#                         if edit:
-#                             if len(edit_elements) > 0:
-#                                 formString += generateSimpleType(request, element[0], xmlTree, namespace, fullPath=fullPath+'['+ str(x+1) +']')
-#                             else:
-#                                 formString += generateSimpleType(request, element[0], xmlTree, namespace, fullPath=fullPath)
-#                         else:
-#                             formString += generateSimpleType(request, element[0], xmlTree, namespace, fullPath=fullPath)
             formString += "</li>"
     elif element.attrib.get('type') in common.getXSDTypes(defaultPrefix):                         
         for x in range (0,int(nbOccurrences)):                         
@@ -995,26 +1003,11 @@ def generateElement(request, element, xmlTree, namespace, choiceInfo=None, fullP
                             formString += module
                         else:       
                             formString += generateComplexType(request, elementType, xmlTree, namespace, fullPath=fullPath+'['+ str(x+1) +']')
-#                             if edit:
-#                                 if len(edit_elements) > 1:
-#                                     formString += generateComplexType(request, elementType, xmlTree, namespace, fullPath=fullPath+'['+ str(x+1) +']')
-#                                 else:                   
-#                                     formString += generateComplexType(request, elementType, xmlTree, namespace, fullPath=fullPath)
-#                             else:
-#                                 formString += generateComplexType(request, elementType, xmlTree, namespace, fullPath=fullPath)
                     elif elementType.tag == "{0}simpleType".format(namespace):
                         if hasModule:
                             formString += module
                         else:
-                            formString += generateSimpleType(request, elementType, xmlTree, namespace, fullPath=fullPath+'['+ str(x+1) +']')
-#                             if edit:
-#                                 if len(edit_elements) > 0:
-#                                     formString += generateSimpleType(request, elementType, xmlTree, namespace, fullPath=fullPath+'['+ str(x+1) +']')
-#                                 else:
-#                                     formString += generateSimpleType(request, elementType, xmlTree, namespace, fullPath=fullPath)
-#                             else:
-#                                 formString += generateSimpleType(request, elementType, xmlTree, namespace, fullPath=fullPath)
-        
+                            formString += generateSimpleType(request, elementType, xmlTree, namespace, fullPath=fullPath+'['+ str(x+1) +']')        
                 formString += "</li>"
                 
     formString += "</ul>"
