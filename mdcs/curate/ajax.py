@@ -563,8 +563,11 @@ def generateChoice(request, element, xmlTree, namespace, choiceInfo=None, fullPa
         elementID = len(xsd_elements)
         xsd_elements[elementID] = ""
     
-    if edit:
-        edit_elements = edit_data_tree.xpath(fullPath) 
+    edit_elements = []
+    try:
+        edit_elements = edit_data_tree.xpath(fullPath)
+    except:
+        pass 
      
     if choiceInfo:
         if edit:
@@ -599,14 +602,20 @@ def generateChoice(request, element, xmlTree, namespace, choiceInfo=None, fullPa
         # generates the choice
         if(len(list(element)) != 0):
             for child in element:
-                if (child.tag == "{0}element".format(namespace)):            
-                    name = child.attrib.get('name')
-                    if name is None:
-                        name = child.attrib.get('ref')
-                    if len(edit_data_tree.xpath(fullPath+'/' + name)) == 0:    
-                        formString += "<option value='" + name + "'>" + name + "</option></b><br>"
+                if (child.tag == "{0}element".format(namespace)):
+                    if child.attrib.get('name') is not None:
+                        opt_value = opt_label = child.attrib.get('name')
                     else:
-                        formString += "<option value='" + name + "' selected>" + name + "</option></b><br>"
+                        opt_value = opt_label = child.attrib.get('ref')
+                        if ':' in opt_label:
+                            opt_label = opt_label.split(':')[1]
+                    # look for active choice when editing                
+                    elementPath = fullPath + '/' + opt_label
+                    
+                    if len(edit_data_tree.xpath(elementPath)) == 0:    
+                        formString += "<option value='" + opt_value + "'>" + opt_label + "</option></b><br>"
+                    else:
+                        formString += "<option value='" + opt_value + "' selected>" + opt_label + "</option></b><br>"
                 elif (child.tag == "{0}group".format(namespace)):
                     pass
                 elif (child.tag == "{0}choice".format(namespace)):
@@ -628,7 +637,7 @@ def generateChoice(request, element, xmlTree, namespace, choiceInfo=None, fullPa
         else:
             formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" style=\"display:none;\" onclick=\"changeHTMLForm('remove',"+str(tagID[7:])+");\"></span>"
             
-        for (counter, choiceChild) in enumerate(list(element)):
+        for (counter, choiceChild) in enumerate(list(element)):       
             if choiceChild.tag == "{0}element".format(namespace):
                 formString += generateElement(request, choiceChild, xmlTree, namespace, common.ChoiceInfo(chooseIDStr,counter), fullPath=fullPath)
             elif (choiceChild.tag == "{0}group".format(namespace)):
@@ -799,13 +808,18 @@ def generateModule(request, element):
     
     return formString
 
-from mgi.models import Jsondata
-import xmltodict
-json_data = Jsondata.get("558971f389772a1844176d57")
-edit_data = xmltodict.unparse(json_data['content'])
-edit_data = edit_data[39:]
+# from mgi.models import Jsondata
+# import xmltodict
+# json_data = Jsondata.get("558971f389772a1844176d57")
+# edit_data = xmltodict.unparse(json_data['content'])
+# edit_data = edit_data[39:]
+
+with open("C:\\Users\\GAS2\\Documents\\Material Doc\\Ken\\trc\\trc\\2012\\vol-57\\issue-1\\je200950f.xml",'r') as xml_file:     
+    edit_data = xml_file.read()
 edit_data_tree = etree.fromstring(edit_data)
 edit = True
+
+
 
 ################################################################################
 # 
@@ -879,12 +893,12 @@ def generateElement(request, element, xmlTree, namespace, choiceInfo=None, fullP
     else:
         textCapitalized = element.attrib.get('name')
     
-    # XML xpath
-    if fullPath == "":
-        fullPath = "//" + textCapitalized
-    else:
-        fullPath += "/" + textCapitalized
+    # XML xpath:/root/element
+    fullPath += "/" + textCapitalized
     print fullPath   
+    
+    # XSD xpath
+#     etree.ElementTree(xmlTree).getpath(element)
     
     if edit:
         edit_elements = edit_data_tree.xpath(fullPath)
@@ -938,7 +952,7 @@ def generateElement(request, element, xmlTree, namespace, choiceInfo=None, fullP
                 elif element[0].tag == "{0}simpleType".format(namespace):
                     if hasModule:
                         formString += module
-                    else:    
+                    else:
                         formString += generateSimpleType(request, element[0], xmlTree, namespace, fullPath=fullPath+'['+ str(x+1) +']')
             formString += "</li>"
     elif element.attrib.get('type') in common.getXSDTypes(defaultPrefix):                         
