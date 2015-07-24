@@ -456,9 +456,11 @@ def generateSequence(request, element, xmlTree, namespace, choiceInfo=None, full
         text = "Sequence"
         addButton, deleteButton, nbOccurrences = manageButtons(element)
         elementID = len(xsd_elements)
-        xsd_elements[elementID] = etree.tostring(element)
+        # XSD xpath
+        xsd_xpath = etree.ElementTree(xmlTree).getpath(element)
+        xsd_elements[elementID] = xsd_xpath
         manageOccurences(request, element, elementID)
-        
+                       
         if choiceInfo:
             if edit:
                 edit_elements = edit_data_tree.xpath(fullPath) 
@@ -553,7 +555,9 @@ def generateChoice(request, element, xmlTree, namespace, choiceInfo=None, fullPa
          or ('maxOccurs' in element.attrib and element.attrib['maxOccurs'] != '1')))):                        
             addButton, deleteButton, nbOccurrences = manageButtons(element)
             elementID = len(xsd_elements)
-            xsd_elements[elementID] = etree.tostring(element)
+            # XSD xpath
+            xsd_xpath = etree.ElementTree(xmlTree).getpath(element)
+            xsd_elements[elementID] = xsd_xpath
             manageOccurences(request, element, elementID)
     else:
         # multiple roots or no min/maxOccurs
@@ -602,7 +606,7 @@ def generateChoice(request, element, xmlTree, namespace, choiceInfo=None, fullPa
         # generates the choice
         if(len(list(element)) != 0):
             for child in element:
-                if (child.tag == "{0}element".format(namespace)):
+                if (child.tag == "{0}element".format(namespace)):                    
                     if child.attrib.get('name') is not None:
                         opt_value = opt_label = child.attrib.get('name')
                     else:
@@ -612,10 +616,13 @@ def generateChoice(request, element, xmlTree, namespace, choiceInfo=None, fullPa
                     # look for active choice when editing                
                     elementPath = fullPath + '/' + opt_label
                     
-                    if len(edit_data_tree.xpath(elementPath)) == 0:    
-                        formString += "<option value='" + opt_value + "'>" + opt_label + "</option></b><br>"
+                    if edit:
+                        if len(edit_data_tree.xpath(elementPath)) == 0:    
+                            formString += "<option value='" + opt_value + "'>" + opt_label + "</option></b><br>"
+                        else:
+                            formString += "<option value='" + opt_value + "' selected>" + opt_label + "</option></b><br>"
                     else:
-                        formString += "<option value='" + opt_value + "' selected>" + opt_label + "</option></b><br>"
+                        formString += "<option value='" + opt_value + "'>" + opt_label + "</option></b><br>"
                 elif (child.tag == "{0}group".format(namespace)):
                     pass
                 elif (child.tag == "{0}choice".format(namespace)):
@@ -814,7 +821,9 @@ def generateModule(request, element):
 # edit_data = xmltodict.unparse(json_data['content'])
 # edit_data = edit_data[39:]
 
-with open("C:\\Users\\GAS2\\Documents\\Material Doc\\Ken\\trc\\trc\\2012\\vol-57\\issue-1\\je200950f.xml",'r') as xml_file:     
+# path = "C:\\Users\\GAS2\\Documents\\Material Doc\\Carrie\\data\\data-4.xml"
+path = "C:\\Users\\GAS2\\Documents\\Material Doc\\Ken\\trc\\trc\\2012\\vol-57\\issue-1\\je200950f.xml"
+with open(path,'r') as xml_file:
     edit_data = xml_file.read()
 edit_data_tree = etree.fromstring(edit_data)
 edit = True
@@ -853,12 +862,15 @@ def generateElement(request, element, xmlTree, namespace, choiceInfo=None, fullP
         hasModule = False
     
     elementID = len(xsd_elements)
+    # XSD xpath
+    xsd_xpath = etree.ElementTree(xmlTree).getpath(element)
+    
     if element.tag == "{0}element".format(namespace):
         # don't save element representation if never need to duplicate it
         if ('maxOccurs' not in element.attrib) or (element.attrib['maxOccurs']=="1"):
             xsd_elements[elementID] = ""
         else:
-            xsd_elements[elementID] = etree.tostring(element)
+            xsd_elements[elementID] = xsd_xpath
         manageOccurences(request, element, elementID)
         addButton, deleteButton, nbOccurrences = manageButtons(element)
         element_tag='element'
@@ -895,15 +907,17 @@ def generateElement(request, element, xmlTree, namespace, choiceInfo=None, fullP
     
     # XML xpath:/root/element
     fullPath += "/" + textCapitalized
-    print fullPath   
+#     print fullPath   
     
-    # XSD xpath
-#     etree.ElementTree(xmlTree).getpath(element)
-    
+    removed = ""
     if edit:
+        # See if the element is present in the XML document
         edit_elements = edit_data_tree.xpath(fullPath)
         if len(edit_elements) > 0:
-            nbOccurrences = len(edit_elements)  
+            nbOccurrences = len(edit_elements)
+        else:
+            # disable element if not present in the XML document
+            removed = " removed"
         
     if choiceInfo:
         if edit:
@@ -928,11 +942,11 @@ def generateElement(request, element, xmlTree, namespace, choiceInfo=None, fullP
             # if tag not closed:  <element/>
             if len(list(element)) > 0 :
                 if element[0].tag == "{0}complexType".format(namespace):
-                    formString += "<li class='"+ element_tag +"' id='" + str(tagID) + "'>" + "<span class='collapse' style='cursor:pointer;' onclick='showhideCurate(event);'></span>"  + textCapitalized
+                    formString += "<li class='"+ element_tag + removed +"' id='" + str(tagID) + "'>" + "<span class='collapse' style='cursor:pointer;' onclick='showhideCurate(event);'></span>"  + textCapitalized
                 else: 
-                    formString += "<li class='"+ element_tag +"' id='" + str(tagID) + "'>" + textCapitalized
+                    formString += "<li class='"+ element_tag + removed +"' id='" + str(tagID) + "'>" + textCapitalized
             else:
-                formString += "<li class='"+ element_tag +"' id='" + str(tagID) + "'>" + textCapitalized
+                formString += "<li class='"+ element_tag + removed +"' id='" + str(tagID) + "'>" + textCapitalized
             if (addButton == True):                                
                 formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" onclick=\"changeHTMLForm('add',"+str(tagID[7:])+");\"></span>"
             else:
@@ -966,7 +980,7 @@ def generateElement(request, element, xmlTree, namespace, choiceInfo=None, fullP
                         defaultValue = edit_elements[x].text
             elif 'default' in element.attrib:
                 defaultValue = element.attrib['default']
-            formString += "<li class='"+ element_tag +"' id='" + str(tagID) + "'>" + textCapitalized
+            formString += "<li class='"+ element_tag + removed +"' id='" + str(tagID) + "'>" + textCapitalized
                        
             if hasModule:
                 formString += module
@@ -1001,9 +1015,9 @@ def generateElement(request, element, xmlTree, namespace, choiceInfo=None, fullP
                     elementType = xmlTree.find(xpath)
                  
                 if elementType.tag == "{0}complexType".format(namespace):
-                    formString += "<li class='"+ element_tag +"' id='" + str(tagID) + "'>" + "<span class='collapse' style='cursor:pointer;' onclick='showhideCurate(event);'></span>"  + textCapitalized
+                    formString += "<li class='"+ element_tag + removed +"' id='" + str(tagID) + "'>" + "<span class='collapse' style='cursor:pointer;' onclick='showhideCurate(event);'></span>"  + textCapitalized
                 else: 
-                    formString += "<li class='"+ element_tag +"' id='" + str(tagID) + "'>" + textCapitalized
+                    formString += "<li class='"+ element_tag + removed +"' id='" + str(tagID) + "'>" + textCapitalized
                     
                 if (addButton == True):                                
                     formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" onclick=\"changeHTMLForm('add',"+str(tagID[7:])+");\"></span>"
@@ -1029,7 +1043,22 @@ def generateElement(request, element, xmlTree, namespace, choiceInfo=None, fullP
                 formString += "</li>"
                 
     formString += "</ul>"
-        
+    
+    if edit:
+        # if the element is removed
+        if len(removed) > 0:
+            nbOccurrences = 0
+        # set the number of occurrences to match the number of elements from the XML document
+        occurrences = request.session['occurrences']
+        elementOccurrencesStr = occurrences[elementID]
+        if 'inf' in elementOccurrencesStr:
+            elementOccurrencesStr = elementOccurrencesStr.replace('inf','float("inf")')
+        if 'Infinity' in elementOccurrencesStr:
+            elementOccurrencesStr = elementOccurrencesStr.replace('Infinity','float("inf")') 
+        elementOccurrences = eval(elementOccurrencesStr)
+        elementOccurrences['nbOccurrences'] = nbOccurrences
+        occurrences[elementID] = str(elementOccurrences)
+            
     return formString
 
 
@@ -1124,7 +1153,6 @@ def can_remove(request):
         if (elementOccurrences['nbOccurrences'] == 0):    
             response_dict['occurs'] = 'zero'
             response_dict['tagID'] = str(tagID)
-            response_dict['id'] = str(tagID[7:])
         else:
             response_dict['occurs'] = 'notzero'
     else:
@@ -1167,9 +1195,10 @@ def remove(request):
             deleteButton = True
             
         htmlTree = html.fromstring(request.POST['xsdForm'])
-        currentElement = htmlTree.get_element_by_id(tagID)
+        currentElement = htmlTree.get_element_by_id(tagID)        
         parent = currentElement.getparent()
         
+        # update siblings buttons add/remove to be consistant with new number of occurrencesS
         elementsOfCurrentType = parent.findall("li")
         for element in elementsOfCurrentType:
             idOfElement = element.attrib['id'][7:]
@@ -1188,6 +1217,50 @@ def remove(request):
     
     request.session.modified = True
     return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
+
+
+def test_remove(request, formString, tagID):
+    occurrences = request.session['occurrences']
+    mapTagElement = request.session['mapTagElement']
+    
+    elementID = mapTagElement[tagID]
+    elementOccurrencesStr = occurrences[elementID]
+    if 'inf' in elementOccurrencesStr:
+        elementOccurrencesStr = elementOccurrencesStr.replace('inf','float("inf")')
+    if 'Infinity' in elementOccurrencesStr:
+        elementOccurrencesStr = elementOccurrencesStr.replace('Infinity','float("inf")') 
+    elementOccurrences = eval(elementOccurrencesStr)
+
+    if (elementOccurrences['nbOccurrences'] > elementOccurrences['minOccurrences']):                
+        addButton = False
+        deleteButton = False
+        
+        if (elementOccurrences['nbOccurrences'] < elementOccurrences['maxOccurrences']):
+            addButton = True
+        if (elementOccurrences['nbOccurrences'] > elementOccurrences['minOccurrences']):
+            deleteButton = True
+            
+        htmlTree = html.fromstring(formString)
+        currentElement = htmlTree.get_element_by_id(tagID)
+        parent = currentElement.getparent()
+        
+        elementsOfCurrentType = parent.findall("li")
+        for element in elementsOfCurrentType:
+            idOfElement = element.attrib['id'][7:]
+            if(addButton == True):
+                htmlTree.get_element_by_id("add" + str(idOfElement)).attrib['style'] = ''
+            else:
+                htmlTree.get_element_by_id("add" + str(idOfElement)).attrib['style'] = 'display:none'
+            if (deleteButton == True):
+                htmlTree.get_element_by_id("remove" + str(idOfElement)).attrib['style'] = ''
+            else:
+                htmlTree.get_element_by_id("remove" + str(idOfElement)).attrib['style'] = 'display:none'                
+        
+        parent.remove(currentElement)
+        
+        return html.tostring(htmlTree)
+    
+    return formString
 
 
 ################################################################################

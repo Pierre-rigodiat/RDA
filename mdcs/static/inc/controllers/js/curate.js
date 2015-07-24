@@ -869,7 +869,7 @@ loadCurrentTemplateFormForCuration = function()
     $('.btn.save-form').on('click', saveForm);
     $('.btn.download').on('click', downloadOptions);
 
-    generate_xsd_form()
+    generate_xsd_form();
     update_form_list();
 
     console.log('END [loadCurrentTemplateFormForCuration]');
@@ -890,6 +890,10 @@ generate_xsd_form = function(){
             $('#periodicTableMultiple').html(data.periodicTableMultiple);
             $('#xsdForm').html(data.xsdForm);
 
+            $("#xsdForm").find(".removed").each(function(){
+        		disable_element($(this).attr('id'));
+    		});
+            
             initModules();
         },
     });
@@ -1222,7 +1226,6 @@ changeHTMLForm = function(operation, tagID)
     return false;
 }
 
-
 /**
  * AJAX call, duplicate an element from the form
  * @param tagID HTML id of the element to duplicate
@@ -1266,6 +1269,18 @@ duplicate = function(tagID){
     });
 }
 
+/**
+ * disable removed element
+ * @param tagID HTML id of the element to disable
+ */
+disable_element = function(tagID){
+	$("#"+ tagID).children(".collapse").attr("class","expand");
+	$('#add' + tagID.substring(7)).attr('style','');
+    $('#remove' + tagID.substring(7)).attr('style','display:none');
+    $("#" + tagID).prop("disabled",true);
+    $("#" + tagID).children('select').prop("disabled",true);
+    $("#" + tagID).children("ul").hide();
+}
 
 /**
  * AJAX call, remove an element from the form
@@ -1282,12 +1297,8 @@ $.ajax({
         success: function(data){
         	if ('occurs' in data){
         		if (data.occurs == "zero"){
-                    $('#add' + data.id).attr('style','');
-                    $('#remove' + data.id).attr('style','display:none');
-                    $("#" + data.tagID).prop("disabled",true);
-                    $("#" + data.tagID).children('select').prop("disabled",true);
                     $("#" + data.tagID).addClass("removed");
-                    $("#" + data.tagID).children("ul").hide(500);
+                    disable_element(tagID);
         		}else{
         			var xsdForm = $("#xsdForm").html();     			
         			$.ajax({
