@@ -821,8 +821,8 @@ def generateModule(request, element):
 # edit_data = xmltodict.unparse(json_data['content'])
 # edit_data = edit_data[39:]
 
-# path = "C:\\Users\\GAS2\\Documents\\Material Doc\\Carrie\\data\\data-4.xml"
-path = "C:\\Users\\GAS2\\Documents\\Material Doc\\Ken\\trc\\trc\\2012\\vol-57\\issue-1\\je200950f.xml"
+path = "C:\\Users\\GAS2\\Documents\\Material Doc\\Carrie\\data\\data-4.xml"
+# path = "C:\\Users\\GAS2\\Documents\\Material Doc\\Ken\\trc\\trc\\2012\\vol-57\\issue-1\\je200950f.xml"
 with open(path,'r') as xml_file:
     edit_data = xml_file.read()
 edit_data_tree = etree.fromstring(edit_data)
@@ -909,6 +909,7 @@ def generateElement(request, element, xmlTree, namespace, choiceInfo=None, fullP
     fullPath += "/" + textCapitalized
 #     print fullPath   
     
+    # TODO: do that after manageOccurrences, to use directly element.attrib instead of session
     removed = ""
     if edit:
         # See if the element is present in the XML document
@@ -917,7 +918,15 @@ def generateElement(request, element, xmlTree, namespace, choiceInfo=None, fullP
             nbOccurrences = len(edit_elements)
         else:
             # disable element if not present in the XML document
-            removed = " removed"
+            occurrences = request.session['occurrences']
+            elementOccurrencesStr = occurrences[elementID]
+            if 'inf' in elementOccurrencesStr:
+                elementOccurrencesStr = elementOccurrencesStr.replace('inf','float("inf")')
+            if 'Infinity' in elementOccurrencesStr:
+                elementOccurrencesStr = elementOccurrencesStr.replace('Infinity','float("inf")') 
+            elementOccurrences = eval(elementOccurrencesStr)
+            if elementOccurrences['minOccurrences'] == 0:
+                removed = " removed"
         
     if choiceInfo:
         if edit:
@@ -947,14 +956,17 @@ def generateElement(request, element, xmlTree, namespace, choiceInfo=None, fullP
                     formString += "<li class='"+ element_tag + removed +"' id='" + str(tagID) + "'>" + textCapitalized
             else:
                 formString += "<li class='"+ element_tag + removed +"' id='" + str(tagID) + "'>" + textCapitalized
-            if (addButton == True):                                
-                formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" onclick=\"changeHTMLForm('add',"+str(tagID[7:])+");\"></span>"
+            if addButton == False and deleteButton == False:
+                pass
             else:
-                formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" style=\"display:none;\" onclick=\"changeHTMLForm('add',"+str(tagID[7:])+");\"></span>"                                                                             
-            if (deleteButton == True):
-                formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" onclick=\"changeHTMLForm('remove',"+str(tagID[7:])+");\"></span>"
-            else:
-                formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" style=\"display:none;\" onclick=\"changeHTMLForm('remove',"+str(tagID[7:])+");\"></span>"
+                if (addButton == True):                                
+                    formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" onclick=\"changeHTMLForm('add',"+str(tagID[7:])+");\"></span>"
+                else:
+                    formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" style=\"display:none;\" onclick=\"changeHTMLForm('add',"+str(tagID[7:])+");\"></span>"                                                                             
+                if (deleteButton == True):
+                    formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" onclick=\"changeHTMLForm('remove',"+str(tagID[7:])+");\"></span>"
+                else:
+                    formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" style=\"display:none;\" onclick=\"changeHTMLForm('remove',"+str(tagID[7:])+");\"></span>"
             
             # if tag not closed:  <element/>
             if len(list(element)) > 0 :
@@ -985,16 +997,19 @@ def generateElement(request, element, xmlTree, namespace, choiceInfo=None, fullP
             if hasModule:
                 formString += module
             else:
-                formString += " <input type='text' value='"+ defaultValue +"'/>"     
-            if (addButton == True):                                
-                formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" onclick=\"changeHTMLForm('add',"+str(tagID[7:])+");\"></span>"
-            else:
-                formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" style=\"display:none;\" onclick=\"changeHTMLForm('add',"+str(tagID[7:])+");\"></span>"                                
-
-            if (deleteButton == True):
-                formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" onclick=\"changeHTMLForm('remove',"+str(tagID[7:])+");\"></span>"
-            else:
-                formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" style=\"display:none;\" onclick=\"changeHTMLForm('remove',"+str(tagID[7:])+");\"></span>"
+                formString += " <input type='text' value='"+ defaultValue +"'/>" 
+            if addButton == False and deleteButton == False:
+                pass
+            else:    
+                if (addButton == True):                                
+                    formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" onclick=\"changeHTMLForm('add',"+str(tagID[7:])+");\"></span>"
+                else:
+                    formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" style=\"display:none;\" onclick=\"changeHTMLForm('add',"+str(tagID[7:])+");\"></span>"                                
+    
+                if (deleteButton == True):
+                    formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" onclick=\"changeHTMLForm('remove',"+str(tagID[7:])+");\"></span>"
+                else:
+                    formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" style=\"display:none;\" onclick=\"changeHTMLForm('remove',"+str(tagID[7:])+");\"></span>"
             formString += "</li>"                    
     else:
         if element.attrib.get('type') is not None:  
@@ -1018,16 +1033,18 @@ def generateElement(request, element, xmlTree, namespace, choiceInfo=None, fullP
                     formString += "<li class='"+ element_tag + removed +"' id='" + str(tagID) + "'>" + "<span class='collapse' style='cursor:pointer;' onclick='showhideCurate(event);'></span>"  + textCapitalized
                 else: 
                     formString += "<li class='"+ element_tag + removed +"' id='" + str(tagID) + "'>" + textCapitalized
-                    
-                if (addButton == True):                                
-                    formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" onclick=\"changeHTMLForm('add',"+str(tagID[7:])+");\"></span>"
+                if addButton == False and deleteButton == False:
+                    pass
                 else:
-                    formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" style=\"display:none;\" onclick=\"changeHTMLForm('add',"+str(tagID[7:])+");\"></span>"
-                    
-                if (deleteButton == True):
-                    formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" onclick=\"changeHTMLForm('remove',"+str(tagID[7:])+");\"></span>"
-                else:
-                    formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" style=\"display:none;\" onclick=\"changeHTMLForm('remove',"+str(tagID[7:])+");\"></span>"
+                    if (addButton == True):                                
+                        formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" onclick=\"changeHTMLForm('add',"+str(tagID[7:])+");\"></span>"
+                    else:
+                        formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" style=\"display:none;\" onclick=\"changeHTMLForm('add',"+str(tagID[7:])+");\"></span>"
+                        
+                    if (deleteButton == True):
+                        formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" onclick=\"changeHTMLForm('remove',"+str(tagID[7:])+");\"></span>"
+                    else:
+                        formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" style=\"display:none;\" onclick=\"changeHTMLForm('remove',"+str(tagID[7:])+");\"></span>"
                 
                 if elementType is not None:
                     if elementType.tag == "{0}complexType".format(namespace):
@@ -1044,8 +1061,9 @@ def generateElement(request, element, xmlTree, namespace, choiceInfo=None, fullP
                 
     formString += "</ul>"
     
+    #TODO: can do that in manage occurrences
     if edit:
-        # if the element is removed
+        # if the element is absent
         if len(removed) > 0:
             nbOccurrences = 0
         # set the number of occurrences to match the number of elements from the XML document
@@ -1217,50 +1235,6 @@ def remove(request):
     
     request.session.modified = True
     return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
-
-
-def test_remove(request, formString, tagID):
-    occurrences = request.session['occurrences']
-    mapTagElement = request.session['mapTagElement']
-    
-    elementID = mapTagElement[tagID]
-    elementOccurrencesStr = occurrences[elementID]
-    if 'inf' in elementOccurrencesStr:
-        elementOccurrencesStr = elementOccurrencesStr.replace('inf','float("inf")')
-    if 'Infinity' in elementOccurrencesStr:
-        elementOccurrencesStr = elementOccurrencesStr.replace('Infinity','float("inf")') 
-    elementOccurrences = eval(elementOccurrencesStr)
-
-    if (elementOccurrences['nbOccurrences'] > elementOccurrences['minOccurrences']):                
-        addButton = False
-        deleteButton = False
-        
-        if (elementOccurrences['nbOccurrences'] < elementOccurrences['maxOccurrences']):
-            addButton = True
-        if (elementOccurrences['nbOccurrences'] > elementOccurrences['minOccurrences']):
-            deleteButton = True
-            
-        htmlTree = html.fromstring(formString)
-        currentElement = htmlTree.get_element_by_id(tagID)
-        parent = currentElement.getparent()
-        
-        elementsOfCurrentType = parent.findall("li")
-        for element in elementsOfCurrentType:
-            idOfElement = element.attrib['id'][7:]
-            if(addButton == True):
-                htmlTree.get_element_by_id("add" + str(idOfElement)).attrib['style'] = ''
-            else:
-                htmlTree.get_element_by_id("add" + str(idOfElement)).attrib['style'] = 'display:none'
-            if (deleteButton == True):
-                htmlTree.get_element_by_id("remove" + str(idOfElement)).attrib['style'] = ''
-            else:
-                htmlTree.get_element_by_id("remove" + str(idOfElement)).attrib['style'] = 'display:none'                
-        
-        parent.remove(currentElement)
-        
-        return html.tostring(htmlTree)
-    
-    return formString
 
 
 ################################################################################

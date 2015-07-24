@@ -889,7 +889,6 @@ generate_xsd_form = function(){
             $('#periodicTable').html(data.periodicTable);
             $('#periodicTableMultiple').html(data.periodicTableMultiple);
             $('#xsdForm').html(data.xsdForm);
-
             $("#xsdForm").find(".removed").each(function(){
         		disable_element($(this).attr('id'));
     		});
@@ -1274,7 +1273,7 @@ duplicate = function(tagID){
  * @param tagID HTML id of the element to disable
  */
 disable_element = function(tagID){
-	$("#"+ tagID).children(".collapse").attr("class","expand");
+	$("#" + tagID).children(".collapse").attr("class","expand");
 	$('#add' + tagID.substring(7)).attr('style','');
     $('#remove' + tagID.substring(7)).attr('style','display:none');
     $("#" + tagID).prop("disabled",true);
@@ -1298,7 +1297,11 @@ $.ajax({
         	if ('occurs' in data){
         		if (data.occurs == "zero"){
                     $("#" + data.tagID).addClass("removed");
-                    disable_element(tagID);
+                    $('#add' + data.tagID.substring(7)).attr('style','');
+                    $('#remove' + data.tagID.substring(7)).attr('style','display:none');
+                    $("#" + data.tagID).prop("disabled",true);
+                    $("#" + data.tagID).children('select').prop("disabled",true);
+                    $("#" + data.tagID).children("ul").hide(500);
         		}else{
         			var xsdForm = $("#xsdForm").html();     			
         			$.ajax({
