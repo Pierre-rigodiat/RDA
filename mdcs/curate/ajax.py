@@ -740,6 +740,26 @@ def generateRestriction(request, element, xmlTree, namespace, fullPath=""):
             
     return formString
 
+
+def generateExtension(request, element, xmlTree, namespace, fullPath=""):
+    formString = ""
+    
+    removeAnnotations(element, namespace)
+    
+    simpleType = element.find('{0}simpleType'.format(namespace))
+    if simpleType is not None:
+        formString += generateSimpleType(request, simpleType, xmlTree, namespace, fullPath=fullPath)
+    else:
+        defaultValue = ""
+        if edit:
+            edit_elements = edit_data_tree.xpath(fullPath)
+            if len(edit_elements) > 0:
+                if edit_elements[0].text is not None:
+                    defaultValue = edit_elements[0].text
+        formString += " <input type='text' value='"+ defaultValue +"'/>" 
+            
+    return formString
+
 ################################################################################
 # 
 # Function Name: generateComplexType(request, element, xmlTree, namespace)
@@ -764,7 +784,13 @@ def generateComplexType(request, element, xmlTree, namespace, fullPath):
     if len(formString) > 0:
         return formString
     
-    # does it contain an attribute?
+    # is it a simple content?
+    complexTypeChild = element.find('{0}simpleContent'.format(namespace))
+    if complexTypeChild is not None:
+        formString += generateSimpleContent(request, complexTypeChild, xmlTree, namespace, fullPath=fullPath)
+        return formString
+    
+    # does it contain a attributes?
     complexTypeChildren = element.findall('{0}attribute'.format(namespace))
     if len(complexTypeChildren) > 0:
         for attribute in complexTypeChildren:
@@ -787,6 +813,25 @@ def generateComplexType(request, element, xmlTree, namespace, fullPath):
                 formString += ""        
     
     return formString 
+
+
+def generateSimpleContent(request, element, xmlTree, namespace, fullPath):
+    #(annotation?,(restriction|extension))
+    
+    formString = ""
+    
+    # remove the annotations
+    removeAnnotations(element, namespace)
+    
+    # generates the sequence
+    if(len(list(element)) != 0):
+        child = element[0]    
+        if (child.tag == "{0}restriction".format(namespace)):            
+            formString += generateRestriction(request, child, xmlTree, namespace, fullPath)
+        elif (child.tag == "{0}extension".format(namespace)):
+            formString += generateExtension(request, child, xmlTree, namespace, fullPath)
+    
+    return formString
 
 
 ################################################################################
@@ -821,7 +866,7 @@ def generateModule(request, element):
 # edit_data = xmltodict.unparse(json_data['content'])
 # edit_data = edit_data[39:]
 
-path = "C:\\Users\\GAS2\\Documents\\Material Doc\\Carrie\\data\\data-4.xml"
+path = "C:\\Users\\GAS2\\Documents\\Material Doc\\Carrie\\data\\data-2.xml"
 # path = "C:\\Users\\GAS2\\Documents\\Material Doc\\Ken\\trc\\trc\\2012\\vol-57\\issue-1\\je200950f.xml"
 with open(path,'r') as xml_file:
     edit_data = xml_file.read()
@@ -864,7 +909,7 @@ def generateElement(request, element, xmlTree, namespace, choiceInfo=None, fullP
     elementID = len(xsd_elements)
     # XSD xpath
     xsd_xpath = etree.ElementTree(xmlTree).getpath(element)
-    
+        
     if element.tag == "{0}element".format(namespace):
         # don't save element representation if never need to duplicate it
         if ('maxOccurs' not in element.attrib) or (element.attrib['maxOccurs']=="1"):
@@ -909,7 +954,6 @@ def generateElement(request, element, xmlTree, namespace, choiceInfo=None, fullP
     fullPath += "/" + textCapitalized
 #     print fullPath   
     
-    # TODO: do that after manageOccurrences, to use directly element.attrib instead of session
     removed = ""
     if edit:
         # See if the element is present in the XML document
@@ -917,7 +961,7 @@ def generateElement(request, element, xmlTree, namespace, choiceInfo=None, fullP
         if len(edit_elements) > 0:
             nbOccurrences = len(edit_elements)
         else:
-            # disable element if not present in the XML document
+            # Disable element from the GUI if not present in the XML document
             occurrences = request.session['occurrences']
             elementOccurrencesStr = occurrences[elementID]
             if 'inf' in elementOccurrencesStr:
@@ -1061,12 +1105,12 @@ def generateElement(request, element, xmlTree, namespace, choiceInfo=None, fullP
                 
     formString += "</ul>"
     
-    #TODO: can do that in manage occurrences
+    # Update element information to match the number of elements from the XML document
     if edit:
-        # if the element is absent
+        # if the element is absent, nbOccurences is 0
         if len(removed) > 0:
             nbOccurrences = 0
-        # set the number of occurrences to match the number of elements from the XML document
+        # set the number of occurrences in session
         occurrences = request.session['occurrences']
         elementOccurrencesStr = occurrences[elementID]
         if 'inf' in elementOccurrencesStr:
