@@ -889,9 +889,7 @@ generate_xsd_form = function(){
             $('#periodicTable').html(data.periodicTable);
             $('#periodicTableMultiple').html(data.periodicTableMultiple);
             $('#xsdForm').html(data.xsdForm);
-            $("#xsdForm").find(".removed").each(function(){
-        		disable_element($(this).attr('id'));
-    		});
+            setTimeout(disable_elements ,0);
             
             initModules();
         },
@@ -1279,6 +1277,16 @@ disable_element = function(tagID){
     $("#" + tagID).prop("disabled",true);
     $("#" + tagID).children('select').prop("disabled",true);
     $("#" + tagID).children("ul").hide();
+}
+
+/**
+ * disable all removed elements
+ * @param tagID HTML id of the element to disable
+ */
+disable_elements = function(){
+	$("#xsdForm").find(".removed").each(function(){
+		disable_element($(this).attr('id'));
+	});
 }
 
 /**
