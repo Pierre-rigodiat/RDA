@@ -148,7 +148,68 @@ def postprocessor(path, key, value):
             return key, float(value)
         except (ValueError, TypeError):
             return key, value
-                                                                                                                                               
+
+
+# Admin
+class XSDElement(Document):
+    xsd_xpath = StringField()
+    minOccurs = FloatField()
+    maxOccurs = FloatField()
+
+class XSDStructure(Document):
+    template = ReferenceField(Template)
+    xsd_elements = ListField(ReferenceField(XSDElement))
+
+# Curate
+class XMLElement(Document):
+    xsd_xpath = StringField() #xsd_element = ReferenceField(XSDElement)
+    nbOccurs = IntField()
+#     parent = StringField()
+#     children = ListField(StringField)
+
+class FormElement(Document):
+    html_id = StringField()
+    name = StringField()
+    xml_xpath = StringField() # pour siblings module
+    xml_element = ReferenceField(XMLElement)
+
+# class FormElement(Document):
+#     html_id = StringField()
+#     value = StringField() # pas besoin, recuperer depuis client
+#     active = BooleanField() # pas besoin, peut regarder si actif dans le form
+#     xml_xpath = StringField()
+#     xml_element = ReferenceField(XMLElement)
+
+
+# class Occurrences(EmbeddedDocument):
+#     minOccurs = FloatField()
+#     maxOccurs = FloatField()
+#     nbOccurs = IntField()
+
+# class XMLElement(Document):
+#     name = StringField()
+#     xsd_xpath = StringField()
+#     xml_xpath = StringField()
+#     occurrences = EmbeddedDocumentField(Occurrences)
+#     parent = StringField()
+#     children = ListField(StringField)
+# 
+# class FormElement(Document):
+#     html_id = StringField()
+#     value = StringField()
+#     active = BooleanField()
+#     xml_element = ReferenceField(XMLElement)
+
+
+# class TempData(Document):
+#     """
+#         Stores data being entered and not yet curated
+#     """
+#     user = StringField(required=True)
+#     template = StringField(required=True)
+#     form_data = ListField(ReferenceField(FormElement)) # when loading form, just needed to work on the form, has to be regenerated when loading new document
+#     xml_data = StringField(required=True) # on save data (get active with no parent, then active children, take the name + value...)
+#                                                                                                                                                
 class Jsondata():
     """                                                                                                                                                                                                                       
         Wrapper to manage JSON Documents, like mongoengine would have manage them (but with ordered data)                                                                                                                     

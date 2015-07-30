@@ -26,6 +26,7 @@ import random
 from utils.APIschemaLocator.APIschemaLocator import getSchemaLocation
 from mgi import common
 
+
 ################################################################################
 # 
 # Function Name: upload_object(request)
@@ -141,6 +142,11 @@ def save_object(request):
         if objectType == "Template":            
             objectVersions = TemplateVersion(nbVersions=1, isDeleted=False).save()            
             object = Template(title=objectName, filename=objectFilename, content=objectContent, version=1, templateVersion=str(objectVersions.id), hash=hash).save()
+            
+            object_content = request.session['uploadObjectContent']           
+            xmlDocTree = etree.parse(BytesIO(object_content.encode('utf-8')))
+            
+            generateForm(request, xmlDocTree, object)
         elif objectType == "Type":                                                                                    
             objectVersions = TypeVersion(nbVersions=1, isDeleted=False).save()
             object = Type(title=objectName, filename=objectFilename, content=objectContent, version=1, typeVersion=str(objectVersions.id), hash=hash).save()
@@ -1037,3 +1043,315 @@ def save_modules(request):
     
     return HttpResponse(json.dumps({}), content_type='application/javascript')
     
+
+namespace = "{http://www.w3.org/2001/XMLSchema}"
+prefix = "xsd"
+from mgi.models import XSDStructure, XSDElement
+
+
+################################################################################
+# 
+# Function Name: generateForm(request)
+# Inputs:        request -
+# Outputs:       rendered HTMl form
+# Exceptions:    None
+# Description:   Renders HTMl form for display.
+#
+################################################################################
+def generateForm(request, xmlDocTree, template):
+    
+    xsd_structure = XSDStructure(template=template)   
+    elements = xmlDocTree.findall("./{0}element".format(namespace))
+
+    for element in elements:
+        generateElement(request, element, xmlDocTree,namespace, xsd_structure)        
+        
+    xsd_structure.save()
+
+
+################################################################################
+# 
+# Function Name: removeAnnotations(element, namespace)
+# Inputs:        element - XML element 
+#                namespace - namespace
+# Outputs:       None
+# Exceptions:    None
+# Description:   Remove annotations of an element if present
+# 
+################################################################################
+def removeAnnotations(element, namespace):
+    "Remove annotations of the current element"
+    
+    #check if the first child is an annotation and delete it
+    if(len(list(element)) != 0):
+        if (element[0].tag == "{0}annotation".format(namespace)):
+            element.remove(element[0])
+    
+
+################################################################################
+# 
+# Function Name: generateSequence(request, element, xmlTree, namespace)
+# Inputs:        request - 
+#                element - XML element
+#                xmlTree - XML Tree
+#                namespace - namespace
+# Outputs:       HTML string representing a sequence
+# Exceptions:    None
+# Description:   Generates a section of the form that represents an XML sequence
+# 
+################################################################################
+def generateSequence(request, element, xmlTree, namespace, xsd_structure):
+    #(annotation?,(element|group|choice|sequence|any)*)
+    
+    # remove the annotations
+    removeAnnotations(element, namespace)
+    
+    minOccurs, maxOccurs = manageOccurences(request, element)
+    # store info about element in database, if need to have info about occurrences
+    if minOccurs != 1 and maxOccurs != 1:
+        xsd_element = XSDElement()
+        # XSD xpath
+        xsd_xpath = xmlTree.getpath(element)
+        xsd_element.xsd_xpath = xsd_xpath
+        xsd_element.minOccurs = minOccurs
+        xsd_element.maxOccurs = maxOccurs
+        xsd_element.save()
+        xsd_structure.xsd_elements.append(xsd_element)
+
+    # generates the sequence
+    if(len(list(element)) != 0):
+        for child in element:
+            if (child.tag == "{0}element".format(namespace)):            
+                generateElement(request, child, xmlTree, namespace, xsd_structure)
+            elif (child.tag == "{0}sequence".format(namespace)):
+                generateSequence(request, child, xmlTree, namespace, xsd_structure)
+            elif (child.tag == "{0}choice".format(namespace)):
+                generateChoice(request, child, xmlTree, namespace, xsd_structure)
+            elif (child.tag == "{0}any".format(namespace)):
+                pass
+            elif (child.tag == "{0}group".format(namespace)):
+                pass
+
+################################################################################
+# 
+# Function Name: generateChoice(request, element, xmlTree, namespace)
+# Inputs:        request - 
+#                element - XML element
+#                xmlTree - XML Tree
+#                namespace - namespace
+# Outputs:       HTML string representing a sequence
+# Exceptions:    None
+# Description:   Generates a section of the form that represents an XML choice
+# 
+################################################################################
+def generateChoice(request, element, xmlTree, namespace, xsd_structure):
+    #(annotation?,(element|group|choice|sequence|any)*)
+
+    #remove the annotations
+    removeAnnotations(element, namespace)     
+
+    minOccurs, maxOccurs = manageOccurences(request, element)
+    # store info about element in database, if need to have info about occurrences
+    if minOccurs != 1 and maxOccurs != 1:
+        xsd_element = XSDElement()
+        # XSD xpath
+        xsd_xpath = xmlTree.getpath(element)
+        xsd_element.xsd_xpath = xsd_xpath
+        xsd_element.minOccurs = minOccurs
+        xsd_element.maxOccurs = maxOccurs
+        xsd_element.save()
+        xsd_structure.xsd_elements.append(xsd_element)
+            
+    for (counter, choiceChild) in enumerate(list(element)):       
+        if choiceChild.tag == "{0}element".format(namespace):
+            generateElement(request, choiceChild, xmlTree, namespace, xsd_structure)
+        elif (choiceChild.tag == "{0}group".format(namespace)):
+            pass
+        elif (choiceChild.tag == "{0}choice".format(namespace)):
+            pass
+        elif (choiceChild.tag == "{0}sequence".format(namespace)):
+            generateSequence(request, choiceChild, xmlTree, namespace, xsd_structure)
+        elif (choiceChild.tag == "{0}any".format(namespace)):
+            pass
+
+################################################################################
+# 
+# Function Name: generateComplexType(request, element, xmlTree, namespace)
+# Inputs:        request - 
+#                element - XML element
+#                xmlTree - XML Tree
+#                namespace - namespace
+# Outputs:       HTML string representing a sequence
+# Exceptions:    None
+# Description:   Generates a section of the form that represents an XML complexType
+# 
+################################################################################
+def generateComplexType(request, element, xmlTree, namespace, xsd_structure):
+    #(annotation?,(simpleContent|complexContent|((group|all|choice|sequence)?,((attribute|attributeGroup)*,anyAttribute?))))
+    
+    # remove the annotations
+    removeAnnotations(element, namespace)
+    
+    # does it contain a attributes?
+    complexTypeChildren = element.findall('{0}attribute'.format(namespace))
+    if len(complexTypeChildren) > 0:
+        for attribute in complexTypeChildren:
+            generateElement(request, attribute, xmlTree, namespace, xsd_structure)
+    
+    # does it contain sequence or all?
+    complexTypeChild = element.find('{0}sequence'.format(namespace))
+    if complexTypeChild is not None:
+        generateSequence(request, complexTypeChild, xmlTree, namespace, xsd_structure)
+    else:
+        complexTypeChild = element.find('{0}all'.format(namespace))
+        if complexTypeChild is not None:
+            generateSequence(request, complexTypeChild, xmlTree, namespace, xsd_structure)
+        else:
+            # does it contain choice ?
+            complexTypeChild = element.find('{0}choice'.format(namespace))
+            if complexTypeChild is not None:
+                generateChoice(request, complexTypeChild, xmlTree, namespace, xsd_structure)
+            else:
+                pass
+
+################################################################################
+# 
+# Function Name: generateElement(request, element, xmlTree, namespace)
+# Inputs:        request -
+#                element - XML element
+#                xmlTree - XML tree of the template
+#                namespace - Namespace used in the template
+# Outputs:       JSON data 
+# Exceptions:    None
+# Description:   Generate an HTML string that represents an XML element.
+#
+################################################################################
+def generateElement(request, element, xmlTree, namespace, xsd_structure):
+    # remove the annotations
+    removeAnnotations(element, namespace)
+   
+    if element.tag == "{0}element".format(namespace):
+        minOccurs, maxOccurs = manageOccurences(request, element)
+        element_tag='element'
+    elif element.tag == "{0}attribute".format(namespace):
+        minOccurs, maxOccurs = manageAttrOccurrences(request, element)
+        element_tag='attribute'
+    
+    # store info about element in database, if need to have info about occurrences
+    if minOccurs != 1 and maxOccurs != 1:
+        xsd_element = XSDElement()
+        # XSD xpath
+        xsd_xpath = xmlTree.getpath(element)
+        xsd_element.xsd_xpath = xsd_xpath
+        xsd_element.minOccurs = minOccurs
+        xsd_element.maxOccurs = maxOccurs
+        xsd_element.save()
+        xsd_structure.xsd_elements.append(xsd_element)
+        
+    # type is a reference included in the document
+    if 'ref' in element.attrib: 
+        ref = element.attrib['ref']
+        refElement = None
+        if ':' in ref:
+            refSplit = ref.split(":")
+            refNamespacePrefix = refSplit[0]
+            refName = refSplit[1]
+            namespaces = request.session['namespaces']
+            refNamespace = namespaces[refNamespacePrefix]
+            # TODO: manage namespaces/targetNamespaces, composed schema with different target namespaces
+            # element = xmlTree.findall("./{0}element[@name='"+refName+"']".format(refNamespace))
+            refElement = xmlTree.find("./{0}element[@name='{1}']".format(namespace, refName))
+        else:
+            refElement = xmlTree.find("./{0}element[@name='{1}']".format(namespace, ref))
+                
+        if refElement is not None:       
+            element = refElement
+            # remove the annotations
+            removeAnnotations(element, namespace)
+    
+    # element with type declared below it 
+    if 'type' not in element.attrib:                                                                         
+        # if tag not closed:  <element/>
+        if len(list(element)) > 0 :                
+            if element[0].tag == "{0}complexType".format(namespace):
+                generateComplexType(request, element[0], xmlTree, namespace, xsd_structure)
+            elif element[0].tag == "{0}simpleType".format(namespace):
+                pass
+        else:
+            # if tag closed:  <element/>
+            pass
+            
+    elif element.attrib.get('type') in common.getXSDTypes(prefix):
+        # element is an element from default XML namespace                      
+        pass
+    # the element has a type
+    elif element.attrib.get('type') is not None:  
+        typeName = element.attrib.get('type')
+        if ':' in typeName:
+            typeName = typeName.split(":")[1]
+        
+        xpath = "./{0}complexType[@name='{1}']".format(namespace,typeName)
+        elementType = xmlTree.find(xpath)
+        if elementType is None:
+            # type of the element is simple
+            xpath = "./{0}simpleType[@name='{1}']".format(namespace,typeName)
+            elementType = xmlTree.find(xpath)
+         
+        if elementType is not None:
+            if elementType.tag == "{0}complexType".format(namespace):
+                generateComplexType(request, elementType, xmlTree, namespace, xsd_structure)
+            elif elementType.tag == "{0}simpleType".format(namespace):
+                pass
+            
+################################################################################
+# 
+# Function Name: manageOccurences(request, element, elementID)
+# Inputs:        request -
+#                element - 
+#                elementID -
+# Outputs:       JSON data 
+# Exceptions:    None
+# Description:   Store information about the occurrences of the element
+#
+################################################################################
+def manageOccurences(request, element):
+    
+    minOccurs = 1
+    maxOccurs = 1
+    if ('minOccurs' in element.attrib):
+        minOccurs = float(element.attrib['minOccurs'])
+    if ('maxOccurs' in element.attrib):
+        if (element.attrib['maxOccurs'] == "unbounded"):
+            maxOccurs = float('inf')
+        else:
+            maxOccurs = float(element.attrib['maxOccurs'])
+
+    return minOccurs, maxOccurs
+
+################################################################################
+# 
+# Function Name: manageAttrOccurrences(request, element, elementID)
+# Inputs:        request -
+#                element - 
+#                elementID -
+# Outputs:       JSON data 
+# Exceptions:    None
+# Description:   Store information about the occurrences of the element
+#
+################################################################################
+def manageAttrOccurrences(request, element):
+    
+    minOccurrs = 1
+    maxOccurrs = 1
+    if ('use' in element.attrib):
+        if element.attrib['use'] == "optional":
+            minOccurrs = 0
+        elif element.attrib['use'] == "prohibited":            
+            minOccurrs = 0
+            maxOccurrs = 0
+        elif element.attrib['use'] == "required":
+            pass
+
+    return minOccurrs, maxOccurrs
+
+
