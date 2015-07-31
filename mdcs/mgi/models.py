@@ -165,6 +165,8 @@ class XSDStructure(Document):
 class XMLElement(Document):
     xsd_xpath = StringField() #xsd_element = ReferenceField(XSDElement)
     nbOccurs = IntField()
+    minOccurs = FloatField()
+    maxOccurs = FloatField()
 
 # good one
 class FormElement(Document):
@@ -179,7 +181,7 @@ class FormData(Document):
     """
     user = StringField(required=True)
     template = StringField(required=True)
-    duplicable_elements = ListField(ReferenceField(FormElement)) # when loading form, just needed to work on the form, has to be regenerated when loading new document, can auto save that
+    elements = DictField() # when loading form, just needed to work on the form, has to be regenerated when loading new document, can auto save that
     xml_data = StringField() # on save data (get active with no parent, then active children, take the name + value...)
 
 class Jsondata():
