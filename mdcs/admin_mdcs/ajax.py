@@ -1256,10 +1256,6 @@ def generateElement(request, element, xmlTree, namespace, xsd_structure):
             refSplit = ref.split(":")
             refNamespacePrefix = refSplit[0]
             refName = refSplit[1]
-            namespaces = request.session['namespaces']
-            refNamespace = namespaces[refNamespacePrefix]
-            # TODO: manage namespaces/targetNamespaces, composed schema with different target namespaces
-            # element = xmlTree.findall("./{0}element[@name='"+refName+"']".format(refNamespace))
             refElement = xmlTree.find("./{0}element[@name='{1}']".format(namespace, refName))
         else:
             refElement = xmlTree.find("./{0}element[@name='{1}']".format(namespace, ref))
