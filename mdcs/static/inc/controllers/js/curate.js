@@ -1289,7 +1289,7 @@ duplicate = function(tagID){
                 $("#" + data.tagID).prop("disabled",false);
                 $("#" + data.tagID).children('select').prop("disabled",false);
                 $("#" + data.tagID).removeClass("removed");
-                $("#" + data.tagID).children("ul").show(500);
+                $("#" + data.tagID).children("ul").attr('style','');
 	            }
 	            else{
 	            	var xsdForm = $("#xsdForm").html();
