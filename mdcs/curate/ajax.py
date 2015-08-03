@@ -882,12 +882,12 @@ def generateModule(request, element):
 # edit_data = xmltodict.unparse(json_data['content'])
 # edit_data = edit_data[39:]
 
-# path = "C:\\Users\\GAS2\\Documents\\Material Doc\\Carrie\\data\\data-3.xml"
+path = "C:\\Users\\GAS2\\Documents\\Material Doc\\Carrie\\data\\data-3.xml"
 # path = "C:\\Users\\GAS2\\Documents\\Material Doc\\Ken\\trc\\trc\\2012\\vol-57\\issue-1\\je200950f.xml" #800
 # path = "C:\\Users\\GAS2\\Documents\\Material Doc\\Ken\\trc\\trc\\2012\\vol-57\\issue-11\\je300530z.xml" #28000
 # path = "C:\\Users\\gas2\\Dev\\MGI\\mdcs\\inputs\\data\\diff\\data-3.xml"
 # path = "C:\\Users\\gas2\\Dev\\MGI\\mdcs\\inputs\\data\\trc\\je300530z.xml" #28000
-path = "C:\\Users\\gas2\\Dev\\MGI\\mdcs\\inputs\\data\\trc\\je200950f.xml" #800
+# path = "C:\\Users\\gas2\\Dev\\MGI\\mdcs\\inputs\\data\\trc\\je200950f.xml" #800
 
 with open(path,'r') as xml_file:
     edit_data = xml_file.read()
@@ -914,7 +914,6 @@ from mgi.models import FormElement, XMLElement, FormData
 ################################################################################
 def generateElement(request, element, xmlTree, namespace, choiceInfo=None, fullPath=""):
     defaultPrefix = request.session['defaultPrefix']
-    nb_html_tags = int(request.session['nb_html_tags'])
     
     formString = ""
 
@@ -1030,7 +1029,8 @@ def generateElement(request, element, xmlTree, namespace, choiceInfo=None, fullP
     
     if 'type' not in element.attrib:
         # element with type declared below it                                                                          
-        for x in range (0,int(nbOccurrences)):     
+        for x in range (0,int(nbOccurrences)): 
+            nb_html_tags = int(request.session['nb_html_tags'])    
             # build the tagID and increase by 1
             tagID = "element" + str(nb_html_tags)
             nb_html_tags += 1
@@ -1068,7 +1068,8 @@ def generateElement(request, element, xmlTree, namespace, choiceInfo=None, fullP
             formString += "</li>"
     elif element.attrib.get('type') in common.getXSDTypes(defaultPrefix):
         # element is an element from default XML namespace                      
-        for x in range (0,int(nbOccurrences)):               
+        for x in range (0,int(nbOccurrences)):
+            nb_html_tags = int(request.session['nb_html_tags'])           
             tagID = "element" + str(nb_html_tags)
             nb_html_tags += 1
             request.session['nb_html_tags'] = str(nb_html_tags)           
@@ -1103,7 +1104,8 @@ def generateElement(request, element, xmlTree, namespace, choiceInfo=None, fullP
     else:
         if element.attrib.get('type') is not None:  
             # the element has a type
-            for x in range (0,int(nbOccurrences)):                            
+            for x in range (0,int(nbOccurrences)): 
+                nb_html_tags = int(request.session['nb_html_tags'])                           
                 tagID = "element" + str(nb_html_tags)
                 nb_html_tags += 1
                 request.session['nb_html_tags'] = str(nb_html_tags)            
@@ -1275,7 +1277,7 @@ def remove(request):
     form_element = FormElement.objects.get(id=form_element_id)
     xml_element = form_element.xml_element
 
-    if (xml_element.nbOccurs > xml_element.minOccurs):
+    if (xml_element.nbOccurs >= xml_element.minOccurs):
         addButton = False
         deleteButton = False
         
@@ -1341,22 +1343,15 @@ def generateElement_absent(request, sequenceChild, xmlDocTree, form_element):
         refElement = None
         if ':' in ref:
             refSplit = ref.split(":")
-            refNamespacePrefix = refSplit[0]
             refName = refSplit[1]
-            refNamespace = namespaces[refNamespacePrefix]
-            # TODO: manage namespaces/targetNamespaces, composed schema with different target namespaces
-            # element = xmlTree.findall("./{0}element[@name='"+refName+"']".format(refNamespace))
             refElement = xmlDocTree.find("./{0}element[@name='{1}']".format(namespace, refName))
         else:
             refElement = xmlDocTree.find("./{0}element[@name='{1}']".format(namespace, ref))
 
         if refElement is not None:
-            textCapitalized = refElement.attrib.get('name')
             sequenceChild = refElement
             # remove the annotations
             removeAnnotations(sequenceChild, namespace)
-    else:
-        textCapitalized = sequenceChild.attrib.get('name')
 
     # type is not present
     if 'type' not in sequenceChild.attrib:
@@ -1439,16 +1434,22 @@ def generate_absent(request):
     else:
         formString = generateElement_absent(request, sequenceChild, xmlDocTree, form_element)
 
+    
+    # build HTML tree for the form
     htmlTree = html.fromstring(request.POST['xsdForm'])
+    # get the element we are working on
     currentElement = htmlTree.get_element_by_id(tagID)
+    
     try:
-        currentElement.insert(1, html.fragment_fromstring(formString))
+        generated_element = html.fragment_fromstring(formString)
+        if generated_element.tag == "ul":
+            currentElement.append(generated_element)
+        else:
+            currentElement.insert(1, generated_element)
     except:
         for generated_element in html.fragments_fromstring(formString):
             currentElement.append(generated_element)
 
-    # parent = currentElement.getparent()
-    # parent.append(html.fragment_fromstring(formString))
 
     # update the number of elements in database
     xml_element.nbOccurs = 1
@@ -1457,21 +1458,17 @@ def generate_absent(request):
     if tag == "element":
         # updates buttons
         addButton = False
-        deleteButton = False
-
+        
         if (xml_element.nbOccurs < xml_element.maxOccurs):
             addButton = True
-        if (xml_element.nbOccurs > xml_element.minOccurs):
-            deleteButton = True
-
+        
+        # enable add button if we can add more
         if(addButton == True):
             htmlTree.get_element_by_id("add" + str(id)).attrib['style'] = ''
         else:
             htmlTree.get_element_by_id("add" + str(id)).attrib['style'] = 'display:none'
-        if (deleteButton == True):
-            htmlTree.get_element_by_id("remove" + str(id)).attrib['style'] = ''
-        else:
-            htmlTree.get_element_by_id("remove" + str(id)).attrib['style'] = 'display:none'
+        # enable delete button to come back to 0 occurs
+        htmlTree.get_element_by_id("remove" + str(id)).attrib['style'] = ''
 
     response_dict['xsdForm'] = html.tostring(htmlTree)
 
@@ -1549,7 +1546,7 @@ def duplicate(request):
 
 
     # Check that the element can be duplicated
-    if (xml_element.nbOccurs < xml_element.maxOccurs):   
+    if (xml_element.nbOccurs <= xml_element.maxOccurs):   
         nb_html_tags = int(request.session['nb_html_tags'])
         namespaces = request.session['namespaces']
         defaultPrefix = request.session['defaultPrefix']
