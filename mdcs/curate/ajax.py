@@ -882,8 +882,8 @@ def generateModule(request, element):
 # edit_data = xmltodict.unparse(json_data['content'])
 # edit_data = edit_data[39:]
 
-path = "C:\\Users\\GAS2\\Documents\\Material Doc\\Carrie\\data\\data-3.xml"
-# path = "C:\\Users\\GAS2\\Documents\\Material Doc\\Ken\\trc\\trc\\2012\\vol-57\\issue-1\\je200950f.xml" #800
+# path = "C:\\Users\\GAS2\\Documents\\Material Doc\\Carrie\\data\\data-3.xml"
+path = "C:\\Users\\GAS2\\Documents\\Material Doc\\Ken\\trc\\trc\\2012\\vol-57\\issue-1\\je200950f.xml" #800
 # path = "C:\\Users\\GAS2\\Documents\\Material Doc\\Ken\\trc\\trc\\2012\\vol-57\\issue-11\\je300530z.xml" #28000
 # path = "C:\\Users\\gas2\\Dev\\MGI\\mdcs\\inputs\\data\\diff\\data-3.xml"
 # path = "C:\\Users\\gas2\\Dev\\MGI\\mdcs\\inputs\\data\\trc\\je300530z.xml" #28000
@@ -1707,7 +1707,74 @@ def duplicate(request):
                         pass
             formString += "</li>"
         elif element_tag == "choice":
-            pass
+            newTagID = "element" + str(nb_html_tags)
+            nb_html_tags += 1
+            request.session['nb_html_tags'] = str(nb_html_tags)        
+            new_xml_xpath = form_element.xml_xpath[0:form_element.xml_xpath.rfind('[') + 1] + str(xml_element.nbOccurs) + ']'    
+            new_form_element = FormElement(html_id=newTagID, xml_element=xml_element, xml_xpath=form_element.xml_xpath).save()
+            form_data.elements[newTagID] = new_form_element.id
+            form_data.save()
+            
+            nbChoicesID = int(request.session['nbChoicesID'])
+            chooseID = nbChoicesID
+            chooseIDStr = 'choice' + str(chooseID)
+            nbChoicesID += 1
+            request.session['nbChoicesID'] = str(nbChoicesID)
+            
+            formString += "<li class='choice' id='" + str(newTagID) + "'>Choose<select id='"+ chooseIDStr +"' onchange=\"changeChoice(this);\">"
+            
+            nbSequence = 1
+    
+            # generates the choice
+            if(len(list(sequenceChild)) != 0):
+                for child in sequenceChild:
+                    if (child.tag == "{0}element".format(namespace)):                    
+                        if child.attrib.get('name') is not None:
+                            opt_value = opt_label = child.attrib.get('name')
+                        else:
+                            opt_value = opt_label = child.attrib.get('ref')
+                            if ':' in opt_label:
+                                opt_label = opt_label.split(':')[1]
+                        # look for active choice when editing                
+                        elementPath = form_element.xml_xpath + '/' + opt_label
+                        
+                        if edit:
+                            if len(edit_data_tree.xpath(elementPath)) == 0:    
+                                formString += "<option value='" + opt_value + "'>" + opt_label + "</option></b><br>"
+                            else:
+                                formString += "<option value='" + opt_value + "' selected>" + opt_label + "</option></b><br>"
+                        else:
+                            formString += "<option value='" + opt_value + "'>" + opt_label + "</option></b><br>"
+                    elif (child.tag == "{0}group".format(namespace)):
+                        pass
+                    elif (child.tag == "{0}choice".format(namespace)):
+                        pass
+                    elif (child.tag == "{0}sequence".format(namespace)):
+                        formString += "<option value='sequence" + str(nbSequence) + "'>Sequence " + str(nbSequence) + "</option></b><br>"
+                        nbSequence += 1
+                    elif (child.tag == "{0}any".format(namespace)):
+                        pass
+        
+            formString += "</select>"
+            
+                            
+            formString += "<span id='add"+ str(newTagID[7:]) +"' class=\"icon add\" onclick=\"changeHTMLForm('add',"+str(newTagID[7:])+");\"></span>"   
+            formString += "<span id='remove"+ str(newTagID[7:]) +"' class=\"icon remove\" onclick=\"changeHTMLForm('remove',"+str(newTagID[7:])+");\"></span>"
+
+                
+            for (counter, choiceChild) in enumerate(list(sequenceChild)):       
+                if choiceChild.tag == "{0}element".format(namespace):
+                    formString += generateElement(request, choiceChild, xmlDocTree, namespace, common.ChoiceInfo(chooseIDStr,counter), fullPath=new_xml_xpath)
+                elif (choiceChild.tag == "{0}group".format(namespace)):
+                    pass
+                elif (choiceChild.tag == "{0}choice".format(namespace)):
+                    pass
+                elif (choiceChild.tag == "{0}sequence".format(namespace)):
+                    formString += generateSequence(request, choiceChild, xmlDocTree, namespace, common.ChoiceInfo(chooseIDStr,counter), fullPath=new_xml_xpath)
+                elif (choiceChild.tag == "{0}any".format(namespace)):
+                    pass
+            
+            formString += "</li>"
                          
 
         htmlTree = html.fromstring(request.POST['xsdForm'])
