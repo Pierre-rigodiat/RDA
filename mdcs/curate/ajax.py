@@ -1675,9 +1675,37 @@ def duplicate(request):
                             formString += generateSimpleType(request, elementType, xmlDocTree, namespace, fullPath=new_xml_xpath)                    
                     formString += "</li>"
         elif element_tag == "sequence":
-            formString += generateSequence(request, sequenceChild, xmlDocTree, namespace, fullPath=form_element.xml_xpath)
-            # get rid of the ul tags
-            formString = formString[4:-4]
+            newTagID = "element" + str(nb_html_tags)
+            nb_html_tags += 1
+            request.session['nb_html_tags'] = str(nb_html_tags)        
+            new_xml_xpath = form_element.xml_xpath[0:form_element.xml_xpath.rfind('[') + 1] + str(xml_element.nbOccurs) + ']'    
+            new_form_element = FormElement(html_id=newTagID, xml_element=xml_element, xml_xpath=form_element.xml_xpath).save()
+            form_data.elements[newTagID] = new_form_element.id
+            form_data.save()
+            text = "Sequence"
+            
+            if len(list(sequenceChild)) > 0 :
+                formString += "<li class='sequence' id='" + str(newTagID) + "'>" + "<span class='collapse' style='cursor:pointer;' onclick='showhideCurate(event);'></span>"  + text
+            else:
+                formString += "<li class='sequence' id='" + str(newTagID) + "'>" + text
+                
+            formString += "<span id='add"+ str(newTagID[7:]) +"' class=\"icon add\" onclick=\"changeHTMLForm('add',"+str(newTagID[7:])+");\"></span>"
+            formString += "<span id='remove"+ str(newTagID[7:]) +"' class=\"icon remove\" onclick=\"changeHTMLForm('remove',"+str(newTagID[7:])+");\"></span>"
+            
+            # generates the sequence
+            if(len(list(sequenceChild)) != 0):
+                for child in sequenceChild:
+                    if (child.tag == "{0}element".format(namespace)):            
+                        formString += generateElement(request, child, xmlDocTree, namespace, fullPath=new_xml_xpath)
+                    elif (child.tag == "{0}sequence".format(namespace)):
+                        formString += generateSequence(request, child, xmlDocTree, namespace, fullPath=new_xml_xpath)
+                    elif (child.tag == "{0}choice".format(namespace)):
+                        formString += generateChoice(request, child, xmlDocTree, namespace, fullPath=new_xml_xpath)
+                    elif (child.tag == "{0}any".format(namespace)):
+                        pass
+                    elif (child.tag == "{0}group".format(namespace)):
+                        pass
+            formString += "</li>"
         elif element_tag == "choice":
             pass
                          
