@@ -10,32 +10,66 @@ class PositiveIntegerInputModule(InputModule):
     def __init__(self):
         InputModule.__init__(self, label='Enter positive integer', default_value=1)
 
-    def get_default_display(self, request):
-        return "1 is a valid positive integer"
-        
-    def get_default_result(self, request):
-        return 1
-    
-    def process_data(self, request):
-        if 'value' in request.POST:
-            moduleDisplay = ""
-            moduleResult = "" 
-            
-            try:
-                value = int(request.POST['value'])
-                if value > 0:
-                    moduleDisplay = str(value) + " is a valid positive integer"
-                    moduleResult = value
-                else:
-                    moduleDisplay = str(value) + " is not a positive integer"
-                    moduleResult = ""
-            except:                            
-                moduleDisplay = str(request.POST['value']) + " is not a positive integer"
-                moduleResult = ""
-                            
-            return moduleDisplay, moduleResult
-        else:
-            raise ModuleError('Value not properly sent to server. Please set "value" in POST data.')
+    def _get_module(self, request):
+        if 'data' in request.GET:
+            self.default_value = request.GET['data']
+
+        return InputModule.get_module(self, request)
+
+    def _is_data_valid(self, data):
+        try:
+            value = int(data)
+            if value > 0:
+                return True
+            else:
+                return False
+        except ValueError:
+            return False
+
+    def _get_display(self, request):
+        if 'data' in request.GET:
+            self.default_value = request.GET['data']
+
+        return str(self.default_value)+" is a valid positive integer"
+
+    def _get_result(self, request):
+        return ''
+
+    def _post_module(self, request):
+        return ''
+
+    def _post_display(self, request):
+        return str(request.POST['data']) + " is not a positive integer"
+
+    def _post_result(self, request):
+        return ''
+
+    # def get_default_display(self, request):
+    #     return "1 is a valid positive integer"
+    #
+    # def get_default_result(self, request):
+    #     return 1
+    #
+    # def process_data(self, request):
+    #     if 'value' in request.POST:
+    #         moduleDisplay = ""
+    #         moduleResult = ""
+    #
+    #         try:
+    #             value = int(request.POST['value'])
+    #             if value > 0:
+    #                 moduleDisplay = str(value) + " is a valid positive integer"
+    #                 moduleResult = value
+    #             else:
+    #                 moduleDisplay = str(value) + " is not a positive integer"
+    #                 moduleResult = ""
+    #         except:
+    #             moduleDisplay = str(request.POST['value']) + " is not a positive integer"
+    #             moduleResult = ""
+    #
+    #         return moduleDisplay, moduleResult
+    #     else:
+    #         raise ModuleError('Value not properly sent to server. Please set "value" in POST data.')
 
 
 class ChemicalElementMappingModule(OptionsModule):

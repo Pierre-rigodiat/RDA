@@ -117,7 +117,8 @@ class SavedQuery(Document):
 class Module(Document):
     """Represents a module, that will replace an existing input during curation"""
     name = StringField(required=True)
-    url = StringField(required=True)  
+    url = StringField(required=True)
+    view = StringField(required=True)
     
 class XML2Download(Document):
     """Temporarily stores the content of an XML document to download"""

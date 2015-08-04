@@ -3,26 +3,26 @@ from django.conf import settings
 import os
 from django.template import Context, Template
 from abc import abstractmethod
-
+from modules import render_module
 
 RESOURCES_PATH = os.path.join(settings.SITE_ROOT, 'modules/builtin/resources/')
 TEMPLATES_PATH = os.path.join(RESOURCES_PATH, 'html/')
 
 
-def render_module(template, params):
-    """
-        Purpose:
-            renders the template with its context
-        Input:
-            template: path to HTML template to render
-            params: parameters to create a context for the template
-    """
-    with open(template, 'r') as template_file:
-        template_content = template_file.read()
-        template = Template(template_content)
-        context = Context(params)
-        module = template.render(context)
-        return module
+# def render_module(template, params):
+#     """
+#         Purpose:
+#             renders the template with its context
+#         Input:
+#             template: path to HTML template to render
+#             params: parameters to create a context for the template
+#     """
+#     with open(template, 'r') as template_file:
+#         template_content = template_file.read()
+#         template = Template(template_content)
+#         context = Context(params)
+#         module = template.render(context)
+#         return module
 
 
 class PopupModule(Module):
@@ -65,18 +65,23 @@ class PopupModule(Module):
 
 
 class InputModule(Module):
-    def __init__(self, scripts=None, styles=None, label=None, default_value=None):
+    def __init__(self, scripts=list(), styles=list(), label=None, default_value=None):
         input_script = os.path.join(RESOURCES_PATH, 'js/input.js')
-        
+
+        # FIXME use module function
         if scripts is not None:
             scripts.append(input_script)
         else:
-            scripts =[input_script]
+            scripts = [input_script]
         
         Module.__init__(self, scripts=scripts, styles=styles)
 
         self.label = label
         self.default_value = default_value
+
+    # FIXME Simplify code!
+    def _get_module(self, request):
+        return self.get_module(request)
 
     def get_module(self, request):
         template = os.path.join(TEMPLATES_PATH, 'input.html')
@@ -87,17 +92,21 @@ class InputModule(Module):
             params.update({"default_value": self.default_value})
         return render_module(template, params)
 
-    @abstractmethod
-    def get_default_display(self, request):
-        pass
-
-    @abstractmethod
-    def get_default_result(self, request):
-        pass
-
-    @abstractmethod
-    def process_data(self, request):
-        pass
+    # @abstractmethod
+    # def get_default_display(self, request):
+    #     pass
+    #
+    # @abstractmethod
+    # def get_default_result(self, request):
+    #     pass
+    #
+    # @abstractmethod
+    # def get_default_result(self, request):
+    #     pass
+    #
+    # @abstractmethod
+    # def process_data(self, request):
+    #     pass
 
 
 class AsyncInputModule(Module):

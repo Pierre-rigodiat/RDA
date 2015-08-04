@@ -28,6 +28,8 @@ import lxml.html as html
 import lxml.etree as etree
 
 # Specific to RDF
+# from modules.models import ModuleFactory
+from modules import get_module_view
 import rdfPublisher
 
 #XSL file loading
@@ -747,20 +749,30 @@ def generateComplexType(request, element, xmlTree, namespace):
 # Description:   Generate a module to replace an element
 # 
 ################################################################################
-def generateModule(request, element):    
+def generateModule(request, element):
     formString = ""
     
     # check if a module is set for this element    
     if '{http://mdcs.ns}_mod_mdcs_' in element.attrib:
+
         # get the url of the module
         url = element.attrib['{http://mdcs.ns}_mod_mdcs_']
         # check that the url is registered in the system
         if url in Module.objects.all().values_list('url'):
-            template = loader.get_template('module.html')
-            params = {'url':url}
-            context = Context(params)
-            formString += template.render(context) 
-    
+            view = get_module_view(url)
+
+            request.GET = {
+                'url': url,
+                #     'data': '<xml> or value',
+            }
+
+            formString += view(request).content
+
+            # template = loader.get_template('module.html')
+            # params = {'url': url}
+            # context = Context(params)
+            # formString += template.render(context)
+
     return formString
 
 ################################################################################

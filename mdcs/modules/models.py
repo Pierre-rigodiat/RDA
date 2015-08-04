@@ -1,183 +1,121 @@
+import importlib
+import os
+from django.conf import settings
 from django.http import HttpResponse
 import json
 from django.http.request import QueryDict
 from django.utils.html import escape
+from rest_framework.status import HTTP_200_OK, HTTP_403_FORBIDDEN, HTTP_400_BAD_REQUEST
 from exceptions import ModuleError
 
 from abc import ABCMeta, abstractmethod
 from modules.utils import sanitize
+# from mdcs.modules.urls import urlpatterns
+# from mgi import models
+from modules import render_module
 
 
 class Module(object):
     __metaclass__ = ABCMeta
     
-    def __init__(self, scripts=None, styles=None):
+    def __init__(self, scripts=list(), styles=list()):
         self.scripts = scripts
         self.styles = styles
-        
-    def view(self, request):
-        module = None
-        moduleDisplay = None
-        moduleResult = None
-        
+
+        self.template = os.path.join(settings.SITE_ROOT, 'templates/module.html')
+
+
+    def add_scripts(self, scripts):
+        pass
+
+    def add_styles(self, styles):
+        pass
+
+    def render(self, request):
         if request.method == 'GET':
-            if 'type' in request.GET and request.GET['type'] == 'resources':            
-                response = {
-                    'moduleStyle': self.styles,
-                    'moduleScript': self.scripts
-                }
-                return HttpResponse(json.dumps(response), content_type='application/javascript')
+            if 'resources' in request.GET:
+                return self._get_resources()
             else:
-                try:
-                    module = self.get_module(request)
-                    moduleDisplay = self.get_default_display(request)
-                    moduleResult = self.get_default_result(request)
-                except Exception, e:
-                    raise ModuleError('Something went wrong during module initialization: ' + e.message)
-                
-                # check returned values? 
-                
-                # module should be HTML and should not be null
-                if module is None:
-                    raise ModuleError('Module value cannot be None. Module initialization cannot be completed.')   
-                else:
-                    # check HTML or raise exception
-                    pass
-                
-                if moduleDisplay is not None:
-                    # check HTML or raise exception
-                    pass
-                
-                if moduleResult is not None:
-                    # check is value or valid XML or raise exception
-                    pass
-                
+                return self._get(request)
         elif request.method == 'POST':
-            post_data = {}
-            for key, value in request.POST.items():
-                post_data[key] = sanitize(value)
-
-            request.POST = post_data
-            print request.POST
-
-            try:
-                moduleDisplay, moduleResult = self.process_data(request)
-            except Exception, e:
-                raise ModuleError('Something went wrong during module execution: ' + e.message)
-            # check returned values?
-            if moduleDisplay is not None:
-                # check HTML
-                pass
-            else:
-                raise ModuleError('The module returned nothing to display.')
-            
-            if moduleResult is not None:
-                # check is value or valid XML or raise exception
-                pass
-            else:
-                raise ModuleError('The module returned no result.')
+            return self._post(request)
         else:
-            raise ModuleError('Only GET and POST methods can be used to communicate with a module.')            
-         
-        response = {}
-        if module is not None:
-            response['module'] = module
-        if moduleDisplay is not None:
-            response['moduleDisplay'] = moduleDisplay
-        if moduleResult is not None:
-            response['moduleResult'] = moduleResult
-        return HttpResponse(json.dumps(response), content_type='application/javascript')
+            raise ModuleError('Only GET and POST methods can be used to communicate with a module.')
+
+    def _get(self, request):
+        # FIXME add additional check
+        #   > TODO in get we only need url and data(optional)
+        #   > TODO parameters needs to be sanitized
+        if 'data' in request.GET:
+            request.GET = {
+                'data': sanitize(request.GET['data']),
+                'url': request.GET['url']
+            }
+
+            if not self._is_data_valid(request.GET['data']):
+                print 'Data ' + str(request.GET['data']) + ' is not valid'
+                del request.GET['data']
+
+        template_data = {
+            'module': '',
+            'display': '',
+            'result': '',
+            'url': request.GET['url']
+        }
+
+        try:
+            template_data['module'] = self._get_module(request)
+            template_data['display'] = self._get_display(request)
+            template_data['result'] = self._get_result(request)
+        except Exception, e:
+            raise ModuleError('Something went wrong during module initialization: ' + e.message)
+
+        # TODO Add additional checks
+        for key, val in template_data.items():
+            if val is None:
+                raise ModuleError('Variable '+key+' cannot be None. Module initialization cannot be completed.')
+
+        # Apply tags to the template
+        html_code = render_module(self.template, template_data)
+        return HttpResponse(html_code, status=HTTP_200_OK)
+
+    def _post(self, request):
+        # Sanitzing data from the request
+        post_data = {}
+        for key, value in request.POST.items():
+            post_data[key] = sanitize(value)
+
+        request.POST = post_data
+
+        if not self._is_data_valid(request.POST['data']):
+            return HttpResponse(status=HTTP_400_BAD_REQUEST)
+
+        template_data = {
+            # 'module': '',
+            'display': '',
+            'result': '',
+        }
+
+        try:
+            # template_data['module'] = self._post_module(request)
+            template_data['display'] = self._post_display(request)
+            template_data['result'] = self._post_result(request)
+        except Exception, e:
+            raise ModuleError('Something went wrong during module initialization: ' + e.message)
     
-    def get_resources(self):
+    def _get_resources(self):
         """
         
         """
-        moduleScripts = []
-        moduleStyles = []
-        
-        if self.scripts is not None:
-            try:
-                for script in self.scripts:
-                    external = False
-                    try:
-                        if script.startswith('http://') or script.startswith('https://'):
-                            external = True
-                    except:
-                        raise ModuleError('Scripts should be string of characters. It can be a path to a resource or an URL.')
-                                                            
-                    if external:
-                        script_tag = '<script src="' + script + '"></script>'    
-                        moduleScripts.append(script_tag)
-                    else:                        
-                        with open(script, 'r') as script_file:
-                            script_tag = '<script>' + script_file.read() + '</script>'    
-                        moduleScripts.append(script_tag)
-            except:
-                raise ModuleError('An error occurred during the reading of resources. Make sure that you are only using urls to external resources or paths to resources inside the application.')
-        
-        if self.styles is not None:
-            try:
-                for style in self.styles:
-                    external = False
-                    try:
-                        if style.startswith('http://') or style.startswith('https://'):
-                            external = True
-                    except:
-                        raise ModuleError('Styles should be string of characters. It can be a path to a resource or an URL.')
-                                                            
-                    if external:
-                        style_tag = '<link rel="stylesheet" type="text/css" href="' + style + '"></link>'    
-                        moduleStyles.append(style_tag)
-                    else:                        
-                        with open(style, 'r') as style_file:
-                            style_tag = '<style>' + style_file.read() + '</style>'    
-                        moduleStyles.append(style_tag)
-            except:
-                raise ModuleError('An error occurred during the reading of resources. Make sure that you are only using urls to external resources or paths to resources inside the application.')
-            
-        return moduleScripts, moduleStyles
-    
+        response = {
+            'scripts': self.scripts,
+            'styles': self.styles
+        }
 
-
+        return HttpResponse(json.dumps(response), status=HTTP_200_OK)
 
     @abstractmethod
-    def process_data(self, request):
-        """
-            Method:
-                Process data received from the client and send back the result and what to display.
-            Input:
-                request: HTTP request
-                request.POST['moduleDisplay']: value of moduleDisplay
-                request.POST['moduleResult']: value of moduleResult
-            Outputs:
-                moduleDisplay: Value to display
-                moduleResult: Result (can be a value or valid XML)
-        """
-        raise NotImplementedError("This method is not implemented.")
-
-    @abstractmethod
-    def get_module(self, request):
-        """
-            Method:
-                Get the module to insert in the form.
-            Outputs:
-                module: input to be inserted in the form
-        """
-        raise NotImplementedError("This method is not implemented.")
-
-    
-    @abstractmethod
-    def get_default_display(self, request):
-        """
-            Method:
-                Get the default value to be displayed in the form.
-            Outputs:
-                default displayed value
-        """
-        raise NotImplementedError("This method is not implemented.")
-    
-    @abstractmethod
-    def get_default_result(self, request):
+    def _is_data_valid(self, data):
         """
             Method:
                 Get the default value to be stored in the form.
@@ -186,53 +124,108 @@ class Module(object):
         """
         raise NotImplementedError("This method is not implemented.")
 
+    @abstractmethod
+    def _get_module(self, request):
+        """
+            Method:
+                Get the default value to be stored in the form.
+            Outputs:
+                default result value
+        """
+        raise NotImplementedError("This method is not implemented.")
 
-class ModuleManager(object):
+    @abstractmethod
+    def _get_display(self, request):
+        """
+            Method:
+                Get the default value to be stored in the form.
+            Outputs:
+                default result value
+        """
+        raise NotImplementedError("This method is not implemented.")
 
-    def load_scripts(self, scripts):
-        module_scripts = []
+    @abstractmethod
+    def _get_result(self, request):
+        """
+            Method:
+                Get the default value to be stored in the form.
+            Outputs:
+                default result value
+        """
+        raise NotImplementedError("This method is not implemented.")
 
-        try:
-            for script in list(scripts):
-                external = False
-                try:
-                    if script.startswith('http://') or script.startswith('https://'):
-                        external = True
-                except:
-                    raise ModuleError('Scripts should be string of characters. It can be a path to a resource or an URL.')
+    # @abstractmethod
+    # def _post_module(self, request):
+    #     """
+    #         Method:
+    #             Get the default value to be stored in the form.
+    #         Outputs:
+    #             default result value
+    #     """
+    #     raise NotImplementedError("This method is not implemented.")
 
-                if external:
-                    script_tag = '<script src="' + script + '"></script>'
-                    module_scripts.append(script_tag)
-                else:
-                    with open(script, 'r') as script_file:
-                        script_tag = '<script>' + script_file.read() + '</script>'
-                    module_scripts.append(script_tag)
-        except:
-            raise ModuleError('An error occurred during the reading of resources. Make sure that you are only using urls to external resources or paths to resources inside the application.')
+    @abstractmethod
+    def _post_display(self, request):
+        """
+            Method:
+                Get the default value to be stored in the form.
+            Outputs:
+                default result value
+        """
+        raise NotImplementedError("This method is not implemented.")
 
-        return module_scripts
+    @abstractmethod
+    def _post_result(self, request):
+        """
+            Method:
+                Get the default value to be stored in the form.
+            Outputs:
+                default result value
+        """
+        raise NotImplementedError("This method is not implemented.")
 
-    def load_styles(self, styles):
-        module_styles = []
-
-        try:
-            for style in list(styles):
-                external = False
-                try:
-                    if style.startswith('http://') or style.startswith('https://'):
-                        external = True
-                except:
-                    raise ModuleError('Styles should be string of characters. It can be a path to a resource or an URL.')
-
-                if external:
-                    style_tag = '<link rel="stylesheet" type="text/css" href="' + style + '"></link>'
-                    module_styles.append(style_tag)
-                else:
-                    with open(style, 'r') as style_file:
-                        style_tag = '<style>' + style_file.read() + '</style>'
-                    module_styles.append(style_tag)
-        except:
-            raise ModuleError('An error occurred during the reading of resources. Make sure that you are only using urls to external resources or paths to resources inside the application.')
-
-        return module_styles
+    # @abstractmethod
+    # def process_data(self, request):
+    #     """
+    #         Method:
+    #             Process data received from the client and send back the result and what to display.
+    #         Input:
+    #             request: HTTP request
+    #             request.POST['moduleDisplay']: value of moduleDisplay
+    #             request.POST['moduleResult']: value of moduleResult
+    #         Outputs:
+    #             moduleDisplay: Value to display
+    #             moduleResult: Result (can be a value or valid XML)
+    #     """
+    #     raise NotImplementedError("This method is not implemented.")
+    #
+    # @abstractmethod
+    # def get_module(self, request):
+    #     """
+    #         Method:
+    #             Get the module to insert in the form.
+    #         Outputs:
+    #             module: input to be inserted in the form
+    #     """
+    #     raise NotImplementedError("This method is not implemented.")
+    #
+    #
+    # @abstractmethod
+    # def get_default_display(self, request):
+    #     """
+    #         Method:
+    #             Get the default value to be displayed in the form.
+    #         Outputs:
+    #             default displayed value
+    #     """
+    #     raise NotImplementedError("This method is not implemented.")
+    #
+    # @abstractmethod
+    # def get_default_result(self, request):
+    #     """
+    #         Method:
+    #             Get the default value to be stored in the form.
+    #         Outputs:
+    #             default result value
+    #     """
+    #     raise NotImplementedError("This method is not implemented.")
