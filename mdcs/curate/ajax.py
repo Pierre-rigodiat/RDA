@@ -694,8 +694,8 @@ def generateSimpleType(request, element, xmlTree, namespace, fullPath):
     # remove the annotations
     removeAnnotations(element, namespace)
     
-    formString = generateModule(request, element)
-    if len(formString) > 0:
+    if hasModule(request, element):
+        formString += generateModule(request, element, namespace)
         return formString
     
     if (list(element) != 0):
@@ -795,8 +795,8 @@ def generateComplexType(request, element, xmlTree, namespace, fullPath):
     # remove the annotations
     removeAnnotations(element, namespace)
     
-    formString = generateModule(request, element)
-    if len(formString) > 0:
+    if hasModule(request, element):
+        formString += generateModule(request, element, namespace)
         return formString
     
     # is it a simple content?
@@ -859,8 +859,35 @@ def generateSimpleContent(request, element, xmlTree, namespace, fullPath):
 # Description:   Generate a module to replace an element
 # 
 ################################################################################
-def generateModule(request, element):    
+def generateModule(request, element, namespace, xsd_xpath=None, xml_xpath=None):    
     formString = ""
+    
+    reload_data = None
+    if edit:
+        if element.tag == "{0}element".format(namespace):
+            reload_data = xml_element = edit_data_tree.xpath(xml_xpath)[0].text
+        elif element.tag == "{0}attribute".format(namespace):
+            pass
+        elif element.tag == "{0}complexType".format(namespace) or element.tag == "{0}simpleType".format(namespace):
+            pass
+    
+    # check if a module is set for this element    
+    if '{http://mdcs.ns}_mod_mdcs_' in element.attrib:
+        # get the url of the module
+        url = element.attrib['{http://mdcs.ns}_mod_mdcs_']
+        # check that the url is registered in the system
+        
+#         view = get_module_view(url)
+# 
+#         request.GET = {
+#             'url': url,
+#             #     'data': '<xml> or value',
+#         }
+#         formString += view(request).content
+    return formString
+
+def hasModule(request, element):
+    has_module = False
     
     # check if a module is set for this element    
     if '{http://mdcs.ns}_mod_mdcs_' in element.attrib:
@@ -868,19 +895,9 @@ def generateModule(request, element):
         url = element.attrib['{http://mdcs.ns}_mod_mdcs_']
         # check that the url is registered in the system
         if url in Module.objects.all().values_list('url'):
-            template = loader.get_template('module.html')
-            params = {'url':url}
-            context = Context(params)
-            formString += template.render(context) 
-            # m = Module(url, data)
-            # formString = m.render()
-    return formString
-
-# from mgi.models import Jsondata
-# import xmltodict
-# json_data = Jsondata.get("558971f389772a1844176d57")
-# edit_data = xmltodict.unparse(json_data['content'])
-# edit_data = edit_data[39:]
+            has_module = True
+    
+    return has_module
 
 # path = "C:\\Users\\GAS2\\Documents\\Material Doc\\Carrie\\data\\data-3.xml"
 path = "C:\\Users\\GAS2\\Documents\\Material Doc\\Ken\\trc\\trc\\2012\\vol-57\\issue-1\\je200950f.xml" #800
@@ -892,7 +909,7 @@ path = "C:\\Users\\GAS2\\Documents\\Material Doc\\Ken\\trc\\trc\\2012\\vol-57\\i
 with open(path,'r') as xml_file:
     edit_data = xml_file.read()
 edit_data_tree = etree.fromstring(edit_data)
-edit = False
+edit = True
 siblings_xpath = False # store xpath of all leaves elements and modules (siblings module)
 min_build = True # build minimum tree
 
@@ -920,11 +937,7 @@ def generateElement(request, element, xmlTree, namespace, choiceInfo=None, fullP
     # remove the annotations
     removeAnnotations(element, namespace)
     
-    module = generateModule(request, element)
-    if len(module) > 0:
-        hasModule = True
-    else:
-        hasModule = False
+    has_module = hasModule(request, element)
         
     if element.tag == "{0}element".format(namespace):
         minOccurs, maxOccurs = manageOccurences(element)
@@ -1053,8 +1066,8 @@ def generateElement(request, element, xmlTree, namespace, choiceInfo=None, fullP
             
             if len(removed) == 0:
                 # if module, replace element by module
-                if hasModule:
-                    formString += module
+                if has_module:
+                    formString += generateModule(request, element, namespace, xsd_xpath, fullPath+'['+ str(x+1) +']')
                 else:   
                     # if tag not closed:  <element/>
                     if len(list(element)) > 0 :                
@@ -1092,8 +1105,8 @@ def generateElement(request, element, xmlTree, namespace, choiceInfo=None, fullP
             formString += "<li class='"+ element_tag + removed +"' id='" + str(tagID) + "'>" + textCapitalized
                 
             # if module is present, replace input by module       
-            if hasModule:
-                formString += module
+            if has_module:
+                    formString += generateModule(request, element, namespace, xsd_xpath, fullPath+'['+ str(x+1) +']')
             else:
                 formString += " <input type='text' value='"+ defaultValue +"'/>" 
             
@@ -1136,8 +1149,8 @@ def generateElement(request, element, xmlTree, namespace, choiceInfo=None, fullP
                 
                 if len(removed) == 0 :
                     # if a module is present, replace the type by the module
-                    if hasModule:
-                        formString += module
+                    if has_module:
+                        formString += generateModule(request, element, namespace, xsd_xpath, fullPath+'['+ str(x+1) +']')
                     else:
                         if elementType is not None:
                             if elementType.tag == "{0}complexType".format(namespace):
