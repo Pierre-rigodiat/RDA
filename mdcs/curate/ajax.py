@@ -695,7 +695,9 @@ def generateSimpleType(request, element, xmlTree, namespace, fullPath):
     removeAnnotations(element, namespace)
     
     if hasModule(request, element):
-        formString += generateModule(request, element, namespace)
+        # XSD xpath: /element/complexType/sequence
+        xsd_xpath = etree.ElementTree(xmlTree).getpath(element)
+        formString += generateModule(request, element, namespace, xsd_xpath, fullPath)
         return formString
     
     if (list(element) != 0):
@@ -796,7 +798,9 @@ def generateComplexType(request, element, xmlTree, namespace, fullPath):
     removeAnnotations(element, namespace)
     
     if hasModule(request, element):
-        formString += generateModule(request, element, namespace)
+        # XSD xpath: /element/complexType/sequence
+        xsd_xpath = etree.ElementTree(xmlTree).getpath(element)
+        formString += generateModule(request, element, namespace, xsd_xpath, fullPath)
         return formString
     
     # is it a simple content?
@@ -864,12 +868,21 @@ def generateModule(request, element, namespace, xsd_xpath=None, xml_xpath=None):
     
     reload_data = None
     if edit:
+        edit_element = edit_data_tree.xpath(xml_xpath)[0]
         if element.tag == "{0}element".format(namespace):
-            reload_data = xml_element = edit_data_tree.xpath(xml_xpath)[0].text
+            # leaf: get the value            
+            if len(list(edit_element)) == 0:
+                reload_data = edit_data_tree.xpath(xml_xpath)[0].text
+            else: # branch: get the whole branch
+                reload_data = etree.tostring(edit_data_tree.xpath(xml_xpath)[0])
         elif element.tag == "{0}attribute".format(namespace):
             pass
         elif element.tag == "{0}complexType".format(namespace) or element.tag == "{0}simpleType".format(namespace):
-            pass
+            # leaf: get the value            
+            if len(list(edit_element)) == 0:
+                reload_data = edit_data_tree.xpath(xml_xpath)[0].text
+            else: # branch: get the whole branch
+                reload_data = etree.tostring(edit_data_tree.xpath(xml_xpath)[0])
     
     # check if a module is set for this element    
     if '{http://mdcs.ns}_mod_mdcs_' in element.attrib:
@@ -899,8 +912,8 @@ def hasModule(request, element):
     
     return has_module
 
-# path = "C:\\Users\\GAS2\\Documents\\Material Doc\\Carrie\\data\\data-3.xml"
-path = "C:\\Users\\GAS2\\Documents\\Material Doc\\Ken\\trc\\trc\\2012\\vol-57\\issue-1\\je200950f.xml" #800
+path = "C:\\Users\\GAS2\\Documents\\Material Doc\\Carrie\\data\\data-3.xml"
+# path = "C:\\Users\\GAS2\\Documents\\Material Doc\\Ken\\trc\\trc\\2012\\vol-57\\issue-1\\je200950f.xml" #800
 # path = "C:\\Users\\GAS2\\Documents\\Material Doc\\Ken\\trc\\trc\\2012\\vol-57\\issue-11\\je300530z.xml" #28000
 # path = "C:\\Users\\gas2\\Dev\\MGI\\mdcs\\inputs\\data\\diff\\data-3.xml"
 # path = "C:\\Users\\gas2\\Dev\\MGI\\mdcs\\inputs\\data\\trc\\je300530z.xml" #28000
