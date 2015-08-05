@@ -1898,7 +1898,7 @@ def update_user(request):
     if request.user.is_staff is True:
         username = request.QUERY_PARAMS.get('username', None)        
             
-        if id is not None:   
+        if username is not None:   
             try:
                 user = User.objects.get(username=username)        
             except:
