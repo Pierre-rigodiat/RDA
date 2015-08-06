@@ -875,7 +875,7 @@ def generateModule(request, element, namespace, xsd_xpath=None, xml_xpath=None):
             # leaf: get the value            
             if len(list(edit_element)) == 0:
                 reload_data = edit_data_tree.xpath(xml_xpath)[0].text
-            else: # branch: get the whole branch
+            else:  # branch: get the whole branch
                 reload_data = etree.tostring(edit_data_tree.xpath(xml_xpath)[0])
         elif element.tag == "{0}attribute".format(namespace):
             pass
@@ -883,12 +883,11 @@ def generateModule(request, element, namespace, xsd_xpath=None, xml_xpath=None):
             # leaf: get the value            
             if len(list(edit_element)) == 0:
                 reload_data = edit_data_tree.xpath(xml_xpath)[0].text
-            else: # branch: get the whole branch
+            else:  # branch: get the whole branch
                 reload_data = etree.tostring(edit_data_tree.xpath(xml_xpath)[0])
     
     # check if a module is set for this element    
     if '{http://mdcs.ns}_mod_mdcs_' in element.attrib:
-
         # get the url of the module
         url = element.attrib['{http://mdcs.ns}_mod_mdcs_']
         # check that the url is registered in the system
@@ -897,16 +896,12 @@ def generateModule(request, element, namespace, xsd_xpath=None, xml_xpath=None):
 
             request.GET = {
                 'url': url,
-                #     'data': '<xml> or value',
             }
 
+            if reload_data is not None:
+                request.GET['data'] = reload_data
+
             formString += view(request).content
-
-            # template = loader.get_template('module.html')
-            # params = {'url': url}
-            # context = Context(params)
-            # formString += template.render(context)
-
     
     return formString
 
