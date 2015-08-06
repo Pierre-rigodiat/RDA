@@ -401,6 +401,95 @@ def removeAnnotations(element, namespace):
             element.remove(element[0])
 
 
+def get_subnodes_xpath(element, xmlTree, namespace):
+    xpaths = []
+    
+    if len(list(element)) > 0:
+        for child in list(element):
+            if child.tag == "{0}element".format(namespace):
+                if 'name' in child.attrib:
+                    xpaths.append(child.attrib['name'])
+                elif 'ref' in child.attrib:
+                    ref = child.attrib['ref']
+                    refElement = None
+                    if ':' in ref:
+                        refSplit = ref.split(":")                    
+                        refName = refSplit[1]
+                        refElement = xmlTree.find("./{0}element[@name='{1}']".format(namespace, refName))
+                    else:
+                        refElement = xmlTree.find("./{0}element[@name='{1}']".format(namespace, ref))                        
+                    if refElement is not None:
+                        xpaths.append(refElement.attrib.get('name'))   
+            else:
+                xpaths.extend(get_subnodes_xpath(child, xmlTree, namespace))
+    return xpaths
+
+# get nodes' xpath, only one level deep. It's not going to every leaves. Only need to know if the node is here.
+def get_nodes_xpath(elements, xmlTree, namespace):
+    xpaths = []
+    
+    for element in elements:
+        if element.tag == "{0}element".format(namespace):        
+            if 'name' in element.attrib:
+                xpaths.append(element.attrib['name'])
+            elif 'ref' in element.attrib:
+                ref = element.attrib['ref']
+                refElement = None
+                if ':' in ref:
+                    refSplit = ref.split(":")                    
+                    refName = refSplit[1]
+                    refElement = xmlTree.find("./{0}element[@name='{1}']".format(namespace, refName))
+                else:
+                    refElement = xmlTree.find("./{0}element[@name='{1}']".format(namespace, ref))                        
+                if refElement is not None:
+                    xpaths.append(refElement.attrib.get('name'))            
+        else:
+            xpaths.extend(get_subnodes_xpath(element, xmlTree, namespace))
+    return xpaths
+
+    
+def isDeterministic(element, xmlTree, namespace):
+    deterministic = True
+    try:        
+        # look at sequence children, to see if it contains only elements 
+        if(len(list(element)) != 0):
+            for child in element:
+                if (child.tag != "{0}element".format(namespace)):
+                    deterministic = False
+                    break
+            # doesn't contain only elements, need to get sub elements xpath to see if they are deterministic
+            if deterministic == False:
+                # get xpath of all elements
+                xpaths = get_nodes_xpath(list(element), xmlTree, namespace)
+                # check that xpaths are unique
+                if len(xpaths) == len(set(xpaths)):
+                    deterministic = True
+                else:
+                    print "NOT DETERMINISTIC"
+    except:
+        print "ERROR"
+        return False
+        
+    return deterministic
+
+
+# get the number of times the sequence appears in the XML document that we are loading for editing
+# algorithm:
+#     get all the possible nodes that can appear in the sequence
+#     for each node, count how many times it's found in the data
+#     the maximum count is the number of occurrences of the sequence
+# only works if data are determinist: means we don't have an element outside the sequence, and the same in the sequence
+def lookup_Occurs(element, xmlTree, namespace, fullPath):
+    xpaths = get_nodes_xpath(element, xmlTree, namespace)
+    maxOccursFound = 0
+    for xpath in xpaths:
+        edit_elements = edit_data_tree.xpath(fullPath + '/' + xpath)
+        if len(edit_elements) > maxOccursFound:
+            maxOccursFound = len(edit_elements)
+    
+    return maxOccursFound
+    
+
 ################################################################################
 # 
 # Function Name: generateSequence(request, element, xmlTree, namespace)
@@ -424,28 +513,33 @@ def generateSequence(request, element, xmlTree, namespace, choiceInfo=None, full
     
     minOccurs, maxOccurs = manageOccurences(element)
     
+#     if edit:
+#         # see if the tree is deterministic enough to set values to edit
+#         is_deterministic = isDeterministic()
+    
     if (minOccurs != 1) or (maxOccurs != 1):       
         text = "Sequence"
         addButton, deleteButton, nbOccurrences = manageButtons(minOccurs, maxOccurs)
         # XSD xpath
         xsd_xpath = etree.ElementTree(xmlTree).getpath(element)
 
-        if edit:
-            edit_elements = edit_data_tree.xpath(fullPath)
+#         if edit:            
+#             edit_elements = edit_data_tree.xpath(fullPath)
 
         # save xml element to duplicate sequence
         nbOccurs_to_save = nbOccurrences
         # Update element information to match the number of elements from the XML document
         if edit:
-            # if the element is absent, nbOccurences is 0
-            if len(edit_elements) == 0:
-                nbOccurs_to_save = 0
+            nbOccurrences = nbOccurs_to_save = lookup_Occurs(element, xmlTree, namespace, fullPath)
+#             # if the element is absent, nbOccurences is 0
+#             if len(edit_elements) == 0:
+#                 nbOccurs_to_save = 0
 
         xml_element = XMLElement(xsd_xpath=xsd_xpath, nbOccurs=nbOccurs_to_save, minOccurs=minOccurs, maxOccurs=maxOccurs).save()
         if choiceInfo:
             choiceID = choiceInfo.chooseIDStr + "-" + str(choiceInfo.counter)
             if edit:
-                if len(edit_elements) == 0:
+                if nbOccurrences == 0:
                     formString += "<ul id=\"" + choiceID + "\" class=\"notchosen\">"
                     if min_build == True:
                         form_element = FormElement(html_id=choiceID, xml_element=xml_element, xml_xpath=None).save()
@@ -467,42 +561,53 @@ def generateSequence(request, element, xmlTree, namespace, choiceInfo=None, full
         else:
             formString += "<ul>"
         
-        for x in range (0,int(nbOccurrences)):
+        # editing data and sequence not found in data
+        if edit and nbOccurrences == 0:
             tagID = "element" + str(nb_html_tags)
             nb_html_tags += 1
             request.session['nb_html_tags'] = str(nb_html_tags)
-            if (minOccurs != 1) or (maxOccurs != 1):
-                form_element = FormElement(html_id=tagID, xml_element=xml_element, xml_xpath=fullPath + '[' + str(x+1) +']').save()
-                request.session['mapTagID'][tagID] = str(form_element.id)
-            # if tag not closed:  <element/>
-            if len(list(element)) > 0 :
-                formString += "<li class='sequence' id='" + str(tagID) + "'>" + "<span class='collapse' style='cursor:pointer;' onclick='showhideCurate(event);'></span>"  + text
-            else:
-                formString += "<li class='sequence' id='" + str(tagID) + "'>" + text
+            form_element = FormElement(html_id=tagID, xml_element=xml_element, xml_xpath=fullPath + '[1]').save()
+            request.session['mapTagID'][tagID] = str(form_element.id)
+            formString += "<li class='sequence removed' id='" + str(tagID) + "'>" + "<span class='collapse' style='cursor:pointer;' onclick='showhideCurate(event);'></span>"  + text
+            formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" onclick=\"changeHTMLForm('add',"+str(tagID[7:])+");\"></span>"
+            formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" style=\"display:none;\" onclick=\"changeHTMLForm('remove',"+str(tagID[7:])+");\"></span>"
+        else:
+            for x in range (0,int(nbOccurrences)):
+                tagID = "element" + str(nb_html_tags)
+                nb_html_tags += 1
+                request.session['nb_html_tags'] = str(nb_html_tags)
+                if (minOccurs != 1) or (maxOccurs != 1):
+                    form_element = FormElement(html_id=tagID, xml_element=xml_element, xml_xpath=fullPath + '[' + str(x+1) +']').save()
+                    request.session['mapTagID'][tagID] = str(form_element.id)
+                # if tag not closed:  <element/>
+                if len(list(element)) > 0 :
+                    formString += "<li class='sequence' id='" + str(tagID) + "'>" + "<span class='collapse' style='cursor:pointer;' onclick='showhideCurate(event);'></span>"  + text
+                else:
+                    formString += "<li class='sequence' id='" + str(tagID) + "'>" + text
+                    
+                if (addButton == True):                                
+                    formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" onclick=\"changeHTMLForm('add',"+str(tagID[7:])+");\"></span>"
+                else:
+                    formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" style=\"display:none;\" onclick=\"changeHTMLForm('add',"+str(tagID[7:])+");\"></span>"                                                                             
+                if (deleteButton == True):
+                    formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" onclick=\"changeHTMLForm('remove',"+str(tagID[7:])+");\"></span>"
+                else:
+                    formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" style=\"display:none;\" onclick=\"changeHTMLForm('remove',"+str(tagID[7:])+");\"></span>"
                 
-            if (addButton == True):                                
-                formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" onclick=\"changeHTMLForm('add',"+str(tagID[7:])+");\"></span>"
-            else:
-                formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" style=\"display:none;\" onclick=\"changeHTMLForm('add',"+str(tagID[7:])+");\"></span>"                                                                             
-            if (deleteButton == True):
-                formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" onclick=\"changeHTMLForm('remove',"+str(tagID[7:])+");\"></span>"
-            else:
-                formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" style=\"display:none;\" onclick=\"changeHTMLForm('remove',"+str(tagID[7:])+");\"></span>"
-            
-            # generates the sequence
-            if(len(list(element)) != 0):
-                for child in element:
-                    if (child.tag == "{0}element".format(namespace)):            
-                        formString += generateElement(request, child, xmlTree, namespace, choiceInfo, fullPath=fullPath)
-                    elif (child.tag == "{0}sequence".format(namespace)):
-                        formString += generateSequence(request, child, xmlTree, namespace, choiceInfo, fullPath=fullPath)
-                    elif (child.tag == "{0}choice".format(namespace)):
-                        formString += generateChoice(request, child, xmlTree, namespace, choiceInfo, fullPath=fullPath)
-                    elif (child.tag == "{0}any".format(namespace)):
-                        pass
-                    elif (child.tag == "{0}group".format(namespace)):
-                        pass
-            formString += "</li>"
+                # generates the sequence
+                if(len(list(element)) != 0):
+                    for child in element:
+                        if (child.tag == "{0}element".format(namespace)):            
+                            formString += generateElement(request, child, xmlTree, namespace, choiceInfo, fullPath=fullPath)
+                        elif (child.tag == "{0}sequence".format(namespace)):
+                            formString += generateSequence(request, child, xmlTree, namespace, choiceInfo, fullPath=fullPath)
+                        elif (child.tag == "{0}choice".format(namespace)):
+                            formString += generateChoice(request, child, xmlTree, namespace, choiceInfo, fullPath=fullPath)
+                        elif (child.tag == "{0}any".format(namespace)):
+                            pass
+                        elif (child.tag == "{0}group".format(namespace)):
+                            pass
+                formString += "</li>"
         formString += "</ul>"
         
     else:
@@ -617,7 +722,8 @@ def generateChoice(request, element, xmlTree, namespace, choiceInfo=None, fullPa
         formString += "<li class='choice' id='" + str(tagID) + "'>Choose<select id='"+ chooseIDStr +"' onchange=\"changeChoice(this);\">"
         
         nbSequence = 1
-
+#         nbChoice = 1
+        
         # generates the choice
         if(len(list(element)) != 0):
             for child in element:
@@ -642,6 +748,8 @@ def generateChoice(request, element, xmlTree, namespace, choiceInfo=None, fullPa
                     pass
                 elif (child.tag == "{0}choice".format(namespace)):
                     pass
+#                     formString += "<option value='choice" + str(nbChoice) + "'>Choice " + str(nbChoice) + "</option></b><br>"
+#                     nbChoice += 1
                 elif (child.tag == "{0}sequence".format(namespace)):
                     formString += "<option value='sequence" + str(nbSequence) + "'>Sequence " + str(nbSequence) + "</option></b><br>"
                     nbSequence += 1
@@ -666,6 +774,7 @@ def generateChoice(request, element, xmlTree, namespace, choiceInfo=None, fullPa
                 pass
             elif (choiceChild.tag == "{0}choice".format(namespace)):
                 pass
+#                 formString += generateChoice(request, choiceChild, xmlTree, namespace, common.ChoiceInfo(chooseIDStr,counter), fullPath=fullPath)
             elif (choiceChild.tag == "{0}sequence".format(namespace)):
                 formString += generateSequence(request, choiceChild, xmlTree, namespace, common.ChoiceInfo(chooseIDStr,counter), fullPath=fullPath)
             elif (choiceChild.tag == "{0}any".format(namespace)):
@@ -912,8 +1021,8 @@ def hasModule(request, element):
     
     return has_module
 
-path = "C:\\Users\\GAS2\\Documents\\Material Doc\\Carrie\\data\\data-3.xml"
-# path = "C:\\Users\\GAS2\\Documents\\Material Doc\\Ken\\trc\\trc\\2012\\vol-57\\issue-1\\je200950f.xml" #800
+# path = "C:\\Users\\GAS2\\Documents\\Material Doc\\Carrie\\data\\data-3.xml"
+path = "C:\\Users\\GAS2\\Documents\\Material Doc\\Ken\\trc\\trc\\2012\\vol-57\\issue-1\\je200950f.xml" #800
 # path = "C:\\Users\\GAS2\\Documents\\Material Doc\\Ken\\trc\\trc\\2012\\vol-57\\issue-11\\je300530z.xml" #28000
 # path = "C:\\Users\\gas2\\Dev\\MGI\\mdcs\\inputs\\data\\diff\\data-3.xml"
 # path = "C:\\Users\\gas2\\Dev\\MGI\\mdcs\\inputs\\data\\trc\\je300530z.xml" #28000
@@ -950,6 +1059,7 @@ def generateElement(request, element, xmlTree, namespace, choiceInfo=None, fullP
     # remove the annotations
     removeAnnotations(element, namespace)
     
+    # check if the element has a module
     has_module = hasModule(request, element)
         
     if element.tag == "{0}element".format(namespace):
@@ -982,6 +1092,8 @@ def generateElement(request, element, xmlTree, namespace, choiceInfo=None, fullP
             element = refElement
             # remove the annotations
             removeAnnotations(element, namespace)
+            # check if the element has a module
+            has_module = hasModule(request, element)
     else:
         textCapitalized = element.attrib.get('name')
     
