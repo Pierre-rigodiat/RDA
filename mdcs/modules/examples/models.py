@@ -8,7 +8,6 @@ RESOURCES_PATH = os.path.join(settings.SITE_ROOT, 'modules/examples/resources/')
 class PositiveIntegerInputModule(InputModule):
     
     def __init__(self):
-
         InputModule.__init__(self, label='Enter positive integer', default_value=1)
 
     def _get_module(self, request):
@@ -36,41 +35,16 @@ class PositiveIntegerInputModule(InputModule):
     def _get_result(self, request):
         return ''
 
-    def _post_module(self, request):
-        return ''
+    # def _post_module(self, request):
+    #     return ''
 
     def _post_display(self, request):
-        return str(request.POST['data']) + " is not a positive integer"
+        data = str(request.POST['data'])
+
+        return data + " is a positive integer" if self._is_data_valid(data) else data + " is not a positive integer"
 
     def _post_result(self, request):
         return ''
-
-    # def get_default_display(self, request):
-    #     return "1 is a valid positive integer"
-    #
-    # def get_default_result(self, request):
-    #     return 1
-    #
-    # def process_data(self, request):
-    #     if 'value' in request.POST:
-    #         moduleDisplay = ""
-    #         moduleResult = ""
-    #
-    #         try:
-    #             value = int(request.POST['value'])
-    #             if value > 0:
-    #                 moduleDisplay = str(value) + " is a valid positive integer"
-    #                 moduleResult = value
-    #             else:
-    #                 moduleDisplay = str(value) + " is not a positive integer"
-    #                 moduleResult = ""
-    #         except:
-    #             moduleDisplay = str(request.POST['value']) + " is not a positive integer"
-    #             moduleResult = ""
-    #
-    #         return moduleDisplay, moduleResult
-    #     else:
-    #         raise ModuleError('Value not properly sent to server. Please set "value" in POST data.')
 
 
 class ChemicalElementMappingModule(OptionsModule):

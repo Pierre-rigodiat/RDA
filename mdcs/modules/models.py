@@ -1,3 +1,4 @@
+from HTMLParser import HTMLParser
 import importlib
 import os
 from django.conf import settings
@@ -87,21 +88,29 @@ class Module(object):
 
         request.POST = post_data
 
-        if not self._is_data_valid(request.POST['data']):
+        if not self._is_data_well_formed(request.POST['data']):
             return HttpResponse(status=HTTP_400_BAD_REQUEST)
 
         template_data = {
-            # 'module': '',
+            'module': '',
             'display': '',
             'result': '',
+            'url': ''
         }
 
         try:
             # template_data['module'] = self._post_module(request)
             template_data['display'] = self._post_display(request)
             template_data['result'] = self._post_result(request)
+
+            html_parser = HTMLParser()
+            for key in template_data.keys():
+                template_data[key] = html_parser.unescape(template_data[key])
         except Exception, e:
             raise ModuleError('Something went wrong during module initialization: ' + e.message)
+
+        html_code = render_module(self.template, template_data)
+        return HttpResponse(html_code, status=HTTP_200_OK)
     
     def _get_resources(self):
         """
@@ -113,6 +122,10 @@ class Module(object):
         }
 
         return HttpResponse(json.dumps(response), status=HTTP_200_OK)
+
+    def _is_data_well_formed(self, data):
+        # TODO Implement this function
+        return True
 
     @abstractmethod
     def _is_data_valid(self, data):

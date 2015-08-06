@@ -89,17 +89,26 @@ saveModuleData = function($module, modData, asyncOpt=true) {
     var ajaxOptions = {
         url : '/modules'+moduleURL,
         type : "POST",
-        dataType: "json",
+//        dataType: "json",
         data: modData,
         async: asyncOpt,
         success: function(data){
-            if('moduleDisplay' in data && 'moduleResult' in data) {
+            console.log(data);
+
+            var $moduleDisplay = $(data).find('.moduleDisplay').text();
+//            var $moduleDisplay = $(data).find('.moduleDisplay').text();
+            console.log($moduleDisplay);
+
+            $module.find('.moduleDisplay').text($moduleDisplay);
+
+            /*if('moduleDisplay' in data && 'moduleResult' in data) {
             	$module.find('.moduleDisplay').html(data.moduleDisplay);
                 $module.find('.moduleResult').html(data.moduleResult);
-            }
+            }*/
         },
-        error: function() {
-
+        error: function(data) {
+            console.log(data)
+            console.log("l'erreur de tes morts");
         }
     }
 

@@ -931,10 +931,10 @@ def hasModule(request, element):
 # path = "C:\\Users\\gas2\\Dev\\MGI\\mdcs\\inputs\\data\\trc\\je200950f.xml" #800
 path = "/home/pnd/data/trc/2012/vol-57/issue-1/je200950f.xml"
 
-with open(path,'r') as xml_file:
+with open(path, 'r') as xml_file:
     edit_data = xml_file.read()
 edit_data_tree = etree.fromstring(edit_data)
-edit = False
+edit = True
 siblings_xpath = False # store xpath of all leaves elements and modules (siblings module)
 min_build = True # build minimum tree
 

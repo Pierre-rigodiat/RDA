@@ -7,6 +7,11 @@ default_app_config = 'modules.apps.ModulesConfig'
 
 
 def get_module_view(url):
+    """
+
+    :param url:
+    :return:
+    """
     module = Module.objects.get(url=url)
     pkglist = module.view.split('.')
 
