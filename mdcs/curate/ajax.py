@@ -661,27 +661,31 @@ def generateChoice(request, element, xmlTree, namespace, choiceInfo=None, fullPa
         xsd_xpath = etree.ElementTree(xmlTree).getpath(element)
  
     
-    edit_elements = []
-    try:
-        edit_elements = edit_data_tree.xpath(fullPath)
-    except:
-        pass 
-
+#     edit_elements = []
+#     try:
+#         edit_elements = edit_data_tree.xpath(fullPath)
+#     except:
+#         pass
+     
+    
+    nbOccurs_to_save = nbOccurrences
     xml_element = None
     if not isinstance(element,list) and ((minOccurs != 1) or (maxOccurs != 1)):
-        # save xml element to duplicate sequence
-        nbOccurs_to_save = nbOccurrences
-        # Update element information to match the number of elements from the XML document
         if edit:
-            # if the element is absent, nbOccurences is 0
-            if len(edit_elements) == 0:
-                nbOccurs_to_save = 0
+            nbOccurrences = nbOccurs_to_save = lookup_Occurs(element, xmlTree, namespace, fullPath)
+#         # save xml element to duplicate sequence
+#         nbOccurs_to_save = nbOccurrences
+#         # Update element information to match the number of elements from the XML document
+#         if edit:
+#             # if the element is absent, nbOccurences is 0
+#             if len(edit_elements) == 0:
+#                 nbOccurs_to_save = 0
         xml_element = XMLElement(xsd_xpath=xsd_xpath, nbOccurs=nbOccurs_to_save, minOccurs=minOccurs, maxOccurs=maxOccurs).save()
 
     if choiceInfo:
         choiceID = choiceInfo.chooseIDStr + "-" + str(choiceInfo.counter)
         if edit:
-            if len(edit_elements) == 0:
+            if nbOccurrences == 0:
                 formString += "<ul id=\"" + choiceID + "\" class=\"notchosen\">"
                 if min_build == True:
                     form_element = FormElement(html_id=choiceID, xml_element=xml_element, xml_xpath=None).save()
@@ -703,23 +707,22 @@ def generateChoice(request, element, xmlTree, namespace, choiceInfo=None, fullPa
     else:
         formString += "<ul>"
     
-    if edit:
-        if len(edit_elements) > 0:
-            nbOccurrences = len(edit_elements)
+#     if edit:
+#         if len(edit_elements) > 0:
+#             nbOccurrences = len(edit_elements)
     
-    for x in range (0,int(nbOccurrences)):
+    if edit and nbOccurrences == 0:
         tagID = "element" + str(nb_html_tags)
         nb_html_tags += 1  
         request.session['nb_html_tags'] = str(nb_html_tags)
-        if not isinstance(element,list) and ((minOccurs != 1) or (maxOccurs != 1)):
-            form_element = FormElement(html_id=tagID, xml_element=xml_element, xml_xpath=fullPath + '[' + str(x+1) +']').save()
-            request.session['mapTagID'][tagID] = str(form_element.id)
+        form_element = FormElement(html_id=tagID, xml_element=xml_element, xml_xpath=fullPath + '[1]').save()
+        request.session['mapTagID'][tagID] = str(form_element.id)
         chooseID = nbChoicesID
         chooseIDStr = 'choice' + str(chooseID)
         nbChoicesID += 1
         request.session['nbChoicesID'] = str(nbChoicesID)
         
-        formString += "<li class='choice' id='" + str(tagID) + "'>Choose<select id='"+ chooseIDStr +"' onchange=\"changeChoice(this);\">"
+        formString += "<li class='choice removed' id='" + str(tagID) + "'>Choose<select id='"+ chooseIDStr +"' onchange=\"changeChoice(this);\">"
         
         nbSequence = 1
 #         nbChoice = 1
@@ -758,29 +761,83 @@ def generateChoice(request, element, xmlTree, namespace, choiceInfo=None, fullPa
     
         formString += "</select>"
         
-        if (addButton == True):                                
-            formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" onclick=\"changeHTMLForm('add',"+str(tagID[7:])+");\"></span>"
-        else:
-            formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" style=\"display:none;\" onclick=\"changeHTMLForm('add',"+str(tagID[7:])+");\"></span>"                                                                             
-        if (deleteButton == True):
-            formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" onclick=\"changeHTMLForm('remove',"+str(tagID[7:])+");\"></span>"
-        else:
-            formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" style=\"display:none;\" onclick=\"changeHTMLForm('remove',"+str(tagID[7:])+");\"></span>"
+        formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" onclick=\"changeHTMLForm('add',"+str(tagID[7:])+");\"></span>"                                                                             
+        formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" style=\"display:none;\" onclick=\"changeHTMLForm('remove',"+str(tagID[7:])+");\"></span>"
+    else:
+        for x in range (0,int(nbOccurrences)):
+            tagID = "element" + str(nb_html_tags)
+            nb_html_tags += 1  
+            request.session['nb_html_tags'] = str(nb_html_tags)
+            if not isinstance(element,list) and ((minOccurs != 1) or (maxOccurs != 1)):
+                form_element = FormElement(html_id=tagID, xml_element=xml_element, xml_xpath=fullPath + '[' + str(x+1) +']').save()
+                request.session['mapTagID'][tagID] = str(form_element.id)
+            chooseID = nbChoicesID
+            chooseIDStr = 'choice' + str(chooseID)
+            nbChoicesID += 1
+            request.session['nbChoicesID'] = str(nbChoicesID)
             
-        for (counter, choiceChild) in enumerate(list(element)):       
-            if choiceChild.tag == "{0}element".format(namespace):
-                formString += generateElement(request, choiceChild, xmlTree, namespace, common.ChoiceInfo(chooseIDStr,counter), fullPath=fullPath)
-            elif (choiceChild.tag == "{0}group".format(namespace)):
-                pass
-            elif (choiceChild.tag == "{0}choice".format(namespace)):
-                pass
-#                 formString += generateChoice(request, choiceChild, xmlTree, namespace, common.ChoiceInfo(chooseIDStr,counter), fullPath=fullPath)
-            elif (choiceChild.tag == "{0}sequence".format(namespace)):
-                formString += generateSequence(request, choiceChild, xmlTree, namespace, common.ChoiceInfo(chooseIDStr,counter), fullPath=fullPath)
-            elif (choiceChild.tag == "{0}any".format(namespace)):
-                pass
+            formString += "<li class='choice' id='" + str(tagID) + "'>Choose<select id='"+ chooseIDStr +"' onchange=\"changeChoice(this);\">"
+            
+            nbSequence = 1
+    #         nbChoice = 1
+            
+            # generates the choice
+            if(len(list(element)) != 0):
+                for child in element:
+                    if (child.tag == "{0}element".format(namespace)):                    
+                        if child.attrib.get('name') is not None:
+                            opt_value = opt_label = child.attrib.get('name')
+                        else:
+                            opt_value = opt_label = child.attrib.get('ref')
+                            if ':' in opt_label:
+                                opt_label = opt_label.split(':')[1]
+                        # look for active choice when editing                
+                        elementPath = fullPath + '/' + opt_label
+                        
+                        if edit:
+                            if len(edit_data_tree.xpath(elementPath)) == 0:    
+                                formString += "<option value='" + opt_value + "'>" + opt_label + "</option></b><br>"
+                            else:
+                                formString += "<option value='" + opt_value + "' selected>" + opt_label + "</option></b><br>"
+                        else:
+                            formString += "<option value='" + opt_value + "'>" + opt_label + "</option></b><br>"
+                    elif (child.tag == "{0}group".format(namespace)):
+                        pass
+                    elif (child.tag == "{0}choice".format(namespace)):
+                        pass
+    #                     formString += "<option value='choice" + str(nbChoice) + "'>Choice " + str(nbChoice) + "</option></b><br>"
+    #                     nbChoice += 1
+                    elif (child.tag == "{0}sequence".format(namespace)):
+                        formString += "<option value='sequence" + str(nbSequence) + "'>Sequence " + str(nbSequence) + "</option></b><br>"
+                        nbSequence += 1
+                    elif (child.tag == "{0}any".format(namespace)):
+                        pass
         
-        formString += "</li>"
+            formString += "</select>"
+            
+            if (addButton == True):                                
+                formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" onclick=\"changeHTMLForm('add',"+str(tagID[7:])+");\"></span>"
+            else:
+                formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" style=\"display:none;\" onclick=\"changeHTMLForm('add',"+str(tagID[7:])+");\"></span>"                                                                             
+            if (deleteButton == True):
+                formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" onclick=\"changeHTMLForm('remove',"+str(tagID[7:])+");\"></span>"
+            else:
+                formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" style=\"display:none;\" onclick=\"changeHTMLForm('remove',"+str(tagID[7:])+");\"></span>"
+                
+            for (counter, choiceChild) in enumerate(list(element)):       
+                if choiceChild.tag == "{0}element".format(namespace):
+                    formString += generateElement(request, choiceChild, xmlTree, namespace, common.ChoiceInfo(chooseIDStr,counter), fullPath=fullPath)
+                elif (choiceChild.tag == "{0}group".format(namespace)):
+                    pass
+                elif (choiceChild.tag == "{0}choice".format(namespace)):
+                    pass
+    #                 formString += generateChoice(request, choiceChild, xmlTree, namespace, common.ChoiceInfo(chooseIDStr,counter), fullPath=fullPath)
+                elif (choiceChild.tag == "{0}sequence".format(namespace)):
+                    formString += generateSequence(request, choiceChild, xmlTree, namespace, common.ChoiceInfo(chooseIDStr,counter), fullPath=fullPath)
+                elif (choiceChild.tag == "{0}any".format(namespace)):
+                    pass
+            
+            formString += "</li>"
     formString += "</ul>"
     
     return formString
