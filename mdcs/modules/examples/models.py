@@ -1,12 +1,13 @@
+from HTMLParser import HTMLParser
 from modules.builtin.models import InputModule, OptionsModule, AsyncInputModule, AutoCompleteModule
 from modules.exceptions import ModuleError
 from django.conf import settings
 import os
+from lxml import etree
 
 RESOURCES_PATH = os.path.join(settings.SITE_ROOT, 'modules/examples/resources/')
 
 class PositiveIntegerInputModule(InputModule):
-    
     def __init__(self):
         InputModule.__init__(self, label='Enter positive integer', default_value=1)
 
@@ -45,6 +46,77 @@ class PositiveIntegerInputModule(InputModule):
 
     def _post_result(self, request):
         return ''
+
+
+class CitationRefIdModule(InputModule):
+    def __init__(self):
+        InputModule.__init__(self, label='TRC Ref ID', default_value='YYYY;nam;nam;n')
+
+    def _get_module(self, request):
+        if 'data' in request.GET:
+            self.default_value = self._parse_data(request.GET['data'])
+
+        return InputModule.get_module(self, request)
+
+    def _is_data_valid(self, data):
+        # try:
+        #     value = int(data)
+        #     if value > 0:
+        #         return True
+        #     else:
+        #         return False
+        # except ValueError:
+        #     return False
+        return True
+
+    def _parse_data(self, data):
+        if not self._is_data_valid(data):
+            return None
+
+        hp = HTMLParser()
+        data = hp.unescape(data)
+
+        xml_data = etree.fromstring(data)
+        _data = []
+
+        for xml_child in xml_data.getchildren():
+            _data.append(xml_child.text)
+
+        return ";".join(_data)
+
+    def _get_display(self, request):
+        if 'data' in request.GET:
+            self.default_value = self._parse_data(request.GET['data'])
+
+        return str(self.default_value)
+
+    def _get_result(self, request):
+        if 'data' in request.GET:
+            return request.GET['data']
+
+        return '<TRCRefID>' \
+               '<yrYrPub></yrYrPub>' \
+               '<sAuthor1></sAuthor1>' \
+               '<sAuthor2></sAuthor2>' \
+               '<nAuthorn></nAuthorn>' \
+               '</TRCRefID>'
+
+    def _post_display(self, request):
+        data = str(request.POST['data'])
+        return data
+
+    def _post_result(self, request):
+        data = str(request.POST['data']).split(';')
+
+        datastr = '<TRCRefID>' \
+                  '<yrYrPub>'+data[0]+'</yrYrPub>' \
+                  '<sAuthor1>'+data[1]+'</sAuthor1>' \
+                  '<sAuthor2>'+data[2]+'</sAuthor2>' \
+                  '<nAuthorn>'+data[3]+'</nAuthorn>' \
+                  '</TRCRefID>'
+
+        return datastr
+
 
 
 class ChemicalElementMappingModule(OptionsModule):

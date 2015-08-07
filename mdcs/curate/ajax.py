@@ -930,8 +930,8 @@ with open(path, 'r') as xml_file:
     edit_data = xml_file.read()
 edit_data_tree = etree.fromstring(edit_data)
 edit = True
-siblings_xpath = False # store xpath of all leaves elements and modules (siblings module)
-min_build = True # build minimum tree
+siblings_xpath = False  # store xpath of all leaves elements and modules (siblings module)
+min_build = True  # build minimum tree
 
 from mgi.models import FormElement, XMLElement, FormData
 # temp_data = TempData(user="user_id", template="template_id", xml_data="")

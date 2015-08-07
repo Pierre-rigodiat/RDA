@@ -1,7 +1,11 @@
-from models import PositiveIntegerInputModule, ExampleAutoCompleteModule, ChemicalElementMappingModule, ListToGraphInputModule
+from models import PositiveIntegerInputModule, ExampleAutoCompleteModule, ChemicalElementMappingModule, \
+    ListToGraphInputModule, CitationRefIdModule
 
 def positive_integer(request):
     return PositiveIntegerInputModule().render(request)
+
+def citation(request):
+    return CitationRefIdModule().render(request)
 
 def example_autocomplete(request):
     return ExampleAutoCompleteModule().render(request)

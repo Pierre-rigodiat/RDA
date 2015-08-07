@@ -95,11 +95,13 @@ saveModuleData = function($module, modData, asyncOpt=true) {
         success: function(data){
             console.log(data);
 
-            var $moduleDisplay = $(data).find('.moduleDisplay').text();
+            var moduleDisplay = $(data).find('.moduleDisplay').text();
+            var moduleResult = $(data).find('.moduleResult').text();
 //            var $moduleDisplay = $(data).find('.moduleDisplay').text();
-            console.log($moduleDisplay);
+//            console.log($moduleDisplay);
 
-            $module.find('.moduleDisplay').text($moduleDisplay);
+            $module.find('.moduleDisplay').text(moduleDisplay);
+            $module.find('.moduleResult').text(moduleResult);
 
             /*if('moduleDisplay' in data && 'moduleResult' in data) {
             	$module.find('.moduleDisplay').html(data.moduleDisplay);
