@@ -1,18 +1,12 @@
 from HTMLParser import HTMLParser
-import importlib
 import os
 from django.conf import settings
 from django.http import HttpResponse
 import json
-from django.http.request import QueryDict
-from django.utils.html import escape
 from rest_framework.status import HTTP_200_OK, HTTP_403_FORBIDDEN, HTTP_400_BAD_REQUEST
 from exceptions import ModuleError
-
 from abc import ABCMeta, abstractmethod
 from modules.utils import sanitize
-# from mdcs.modules.urls import urlpatterns
-# from mgi import models
 from modules import render_module
 
 
@@ -25,12 +19,13 @@ class Module(object):
 
         self.template = os.path.join(settings.SITE_ROOT, 'templates/module.html')
 
-
     def add_scripts(self, scripts):
-        pass
+        for script in scripts:
+            self.scripts.append(script)
 
     def add_styles(self, styles):
-        pass
+        for style in styles:
+            self.styles.append(style)
 
     def render(self, request):
         if request.method == 'GET':
@@ -44,9 +39,6 @@ class Module(object):
             raise ModuleError('Only GET and POST methods can be used to communicate with a module.')
 
     def _get(self, request):
-        # FIXME add additional check
-        #   > TODO in get we only need url and data(optional)
-        #   > TODO parameters needs to be sanitized
         if 'data' in request.GET:
             request.GET = {
                 'data': sanitize(request.GET['data']),
@@ -54,7 +46,7 @@ class Module(object):
             }
 
             if not self._is_data_valid(request.GET['data']):
-                print 'Data ' + str(request.GET['data']) + ' is not valid'
+                # Data not valid are not
                 del request.GET['data']
 
         template_data = {
@@ -88,9 +80,6 @@ class Module(object):
 
         request.POST = post_data
 
-        if not self._is_data_well_formed(request.POST['data']):
-            return HttpResponse(status=HTTP_400_BAD_REQUEST)
-
         template_data = {
             'module': '',
             'display': '',
@@ -99,7 +88,6 @@ class Module(object):
         }
 
         try:
-            # template_data['module'] = self._post_module(request)
             template_data['display'] = self._post_display(request)
             template_data['result'] = self._post_result(request)
 
@@ -114,7 +102,6 @@ class Module(object):
     
     def _get_resources(self):
         """
-        
         """
         response = {
             'scripts': self.scripts,
@@ -122,10 +109,6 @@ class Module(object):
         }
 
         return HttpResponse(json.dumps(response), status=HTTP_200_OK)
-
-    def _is_data_well_formed(self, data):
-        # TODO Implement this function
-        return True
 
     @abstractmethod
     def _is_data_valid(self, data):
@@ -166,16 +149,6 @@ class Module(object):
                 default result value
         """
         raise NotImplementedError("This method is not implemented.")
-
-    # @abstractmethod
-    # def _post_module(self, request):
-    #     """
-    #         Method:
-    #             Get the default value to be stored in the form.
-    #         Outputs:
-    #             default result value
-    #     """
-    #     raise NotImplementedError("This method is not implemented.")
 
     @abstractmethod
     def _post_display(self, request):

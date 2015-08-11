@@ -20,7 +20,7 @@ class PositiveIntegerInputModule(InputModule):
     def _is_data_valid(self, data):
         try:
             value = int(data)
-            if value > 0:
+            if value >= 0:
                 return True
             else:
                 return False
@@ -34,18 +34,15 @@ class PositiveIntegerInputModule(InputModule):
         return str(self.default_value)+" is a valid positive integer"
 
     def _get_result(self, request):
-        return ''
-
-    # def _post_module(self, request):
-    #     return ''
+        return self.default_value
 
     def _post_display(self, request):
         data = str(request.POST['data'])
-
         return data + " is a positive integer" if self._is_data_valid(data) else data + " is not a positive integer"
 
     def _post_result(self, request):
-        return ''
+        data = str(request.POST['data'])
+        return data if self._is_data_valid(data) else ''
 
 
 class CitationRefIdModule(InputModule):
@@ -59,30 +56,22 @@ class CitationRefIdModule(InputModule):
         return InputModule.get_module(self, request)
 
     def _is_data_valid(self, data):
-        # try:
-        #     value = int(data)
-        #     if value > 0:
-        #         return True
-        #     else:
-        #         return False
-        # except ValueError:
-        #     return False
         return True
 
     def _parse_data(self, data):
         if not self._is_data_valid(data):
             return None
 
-        hp = HTMLParser()
-        data = hp.unescape(data)
+        html = HTMLParser()
+        data = html.unescape(data)
 
         xml_data = etree.fromstring(data)
-        _data = []
+        xml_children = []
 
         for xml_child in xml_data.getchildren():
-            _data.append(xml_child.text)
+            xml_children.append(xml_child.text)
 
-        return ";".join(_data)
+        return ";".join(xml_children)
 
     def _get_display(self, request):
         if 'data' in request.GET:
@@ -116,7 +105,6 @@ class CitationRefIdModule(InputModule):
                   '</TRCRefID>'
 
         return datastr
-
 
 
 class ChemicalElementMappingModule(OptionsModule):

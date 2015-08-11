@@ -7,23 +7,63 @@ from modules import render_module
 
 RESOURCES_PATH = os.path.join(settings.SITE_ROOT, 'modules/builtin/resources/')
 TEMPLATES_PATH = os.path.join(RESOURCES_PATH, 'html/')
+SCRIPTS_PATH = os.path.join(RESOURCES_PATH, 'js/')
+
+class InputModule(Module):
+    def __init__(self, scripts=list(), styles=list(), label=None, default_value=None):
+        Module.__init__(self)
+
+        self.add_scripts([os.path.join(SCRIPTS_PATH, 'input.js')])
+        self.add_scripts(scripts)
+
+        self.add_styles(styles)
+
+        self.label = label
+        self.default_value = default_value
+
+    def get_module(self, request):
+        template = os.path.join(TEMPLATES_PATH, 'input.html')
+        params = {}
+
+        if self.label is not None:
+            params.update({"label": self.label})
+
+        if self.default_value is not None:
+            params.update({"default_value": self.default_value})
+
+        return render_module(template, params)
 
 
-# def render_module(template, params):
-#     """
-#         Purpose:
-#             renders the template with its context
-#         Input:
-#             template: path to HTML template to render
-#             params: parameters to create a context for the template
-#     """
-#     with open(template, 'r') as template_file:
-#         template_content = template_file.read()
-#         template = Template(template_content)
-#         context = Context(params)
-#         module = template.render(context)
-#         return module
+class OptionsModule(Module):
+    def __init__(self, scripts=None, styles=None, label=None, opt_values=None, opt_labels=None):
+        Module.__init__(self)
 
+        self.add_scripts([os.path.join(SCRIPTS_PATH, 'options.js')])
+        self.add_scripts(scripts)
+
+        self.add_styles(styles)
+
+        if opt_values is None or opt_labels is None:
+            raise ModuleError("'opt_values' and 'opt_labels' are required.")
+        else:
+            if len(opt_values) != len(opt_labels):
+                raise ModuleError("'opt_values' and 'opt_labels' should have the same size.")
+            else:
+                self.opt_values = opt_values
+                self.opt_labels = opt_labels
+
+        self.label = label
+
+    def get_module(self, request):
+        template = os.path.join(TEMPLATES_PATH, 'options.html')
+        options = ""
+        for i in range(0, len(self.opt_values)):
+            options += "<option value='" + self.opt_values[i] + "'>" + self.opt_labels[i] +"</option>"
+
+        params = {"options": options}
+        if self.label is not None:
+            params.update({"label": self.label})
+        return render_module(template, params)
 
 class PopupModule(Module):
     def __init__(self, scripts=None, styles=None, popup_content=None, button_label=None):
@@ -64,49 +104,7 @@ class PopupModule(Module):
         pass
 
 
-class InputModule(Module):
-    def __init__(self, scripts=list(), styles=list(), label=None, default_value=None):
-        input_script = os.path.join(RESOURCES_PATH, 'js/input.js')
 
-        # FIXME use module function
-        if scripts is not None:
-            scripts.append(input_script)
-        else:
-            scripts = [input_script]
-        
-        Module.__init__(self, scripts=scripts, styles=styles)
-
-        self.label = label
-        self.default_value = default_value
-
-    # FIXME Simplify code!
-    def _get_module(self, request):
-        return self.get_module(request)
-
-    def get_module(self, request):
-        template = os.path.join(TEMPLATES_PATH, 'input.html')
-        params = {}
-        if self.label is not None:
-            params.update({"label": self.label})
-        if self.default_value is not None:
-            params.update({"default_value": self.default_value})
-        return render_module(template, params)
-
-    # @abstractmethod
-    # def get_default_display(self, request):
-    #     pass
-    #
-    # @abstractmethod
-    # def get_default_result(self, request):
-    #     pass
-    #
-    # @abstractmethod
-    # def get_default_result(self, request):
-    #     pass
-    #
-    # @abstractmethod
-    # def process_data(self, request):
-    #     pass
 
 
 class AsyncInputModule(Module):
@@ -137,18 +135,6 @@ class AsyncInputModule(Module):
             params.update({"default_value": self.default_value})
         return render_module(template, params)
 
-    @abstractmethod
-    def get_default_display(self, request):
-        pass
-
-    @abstractmethod
-    def get_default_result(self, request):
-        pass
-
-    @abstractmethod
-    def process_data(self, request):
-        pass
-
 
 class InputButtonModule(Module):
     def __init__(self, scripts=None, styles=None, button_label=None, label=None, default_value=None):
@@ -170,65 +156,6 @@ class InputButtonModule(Module):
         if self.default_value is not None:
             params.update({"default_value": self.default_value})
         return render_module(template, params)
-
-
-    @abstractmethod
-    def get_default_display(self, request):
-        pass
-
-    @abstractmethod
-    def get_default_result(self, request):
-        pass
-
-    @abstractmethod
-    def process_data(self, request):
-        pass
-
-
-class OptionsModule(Module):
-    def __init__(self, scripts=None, styles=None, label=None, opt_values=None, opt_labels=None):
-        options_script = os.path.join(RESOURCES_PATH, 'js/options.js')
-        
-        if scripts is not None:
-            scripts.append(options_script)
-        else:
-            scripts =[options_script]
-        
-        Module.__init__(self, scripts=scripts, styles=styles)
-
-        if opt_values is None or opt_labels is None:
-            raise ModuleError("'opt_values' and 'opt_labels' are required.")
-        else:
-            if len(opt_values) != len(opt_labels):
-                raise ModuleError("'opt_values' and 'opt_labels' should have the same size.")
-            else:
-                self.opt_values = opt_values
-                self.opt_labels = opt_labels
-
-        self.label = label
-
-    def get_module(self, request):
-        template = os.path.join(TEMPLATES_PATH, 'options.html')
-        options = ""
-        for i in range(0, len(self.opt_values)):
-            options += "<option value='" + self.opt_values[i] + "'>" + self.opt_labels[i] +"</option>"
-        
-        params = {"options": options}
-        if self.label is not None:
-            params.update({"label": self.label})
-        return render_module(template, params)
-
-    @abstractmethod
-    def get_default_display(self, request):
-        pass
-
-    @abstractmethod
-    def get_default_result(self, request):
-        pass
-
-    @abstractmethod
-    def process_data(self, request):
-        pass
 
 
 class AutoCompleteModule(Module):
@@ -255,15 +182,3 @@ class AutoCompleteModule(Module):
             params.update({"label": self.label})
 
         return render_module(template, params)
-
-    @abstractmethod
-    def get_default_display(self, request):
-        pass
-
-    @abstractmethod
-    def get_default_result(self, request):
-        pass
-
-    @abstractmethod
-    def process_data(self, request):
-        pass
