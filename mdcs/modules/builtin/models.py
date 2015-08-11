@@ -35,13 +35,16 @@ class InputModule(Module):
 
 
 class OptionsModule(Module):
-    def __init__(self, scripts=None, styles=None, label=None, options=dict()):
+    def __init__(self, scripts=list(), styles=list(), label=None, options=dict()):
         Module.__init__(self)
 
         self.add_scripts([os.path.join(SCRIPTS_PATH, 'options.js')])
+        self.add_scripts(scripts)
+
+        self.add_styles(styles)
 
         if len(options) == 0:
-            raise ModuleError("'options are required' are required.")
+            raise ModuleError("'options' variablie is required.")
 
         self.options = options
         self.label = label
@@ -51,7 +54,7 @@ class OptionsModule(Module):
         options_html = ""
 
         for key, val in self.options.items():
-            options_html += "<option value='" + key + "'>" + val +"</option>"
+            options_html += "<option value='" + key + "'>" + val + "</option>"
 
         params = {"options": options_html}
 
@@ -59,6 +62,7 @@ class OptionsModule(Module):
             params.update({"label": self.label})
 
         return render_module(template, params)
+
 
 class PopupModule(Module):
     def __init__(self, scripts=None, styles=None, popup_content=None, button_label=None):
