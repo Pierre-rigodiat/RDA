@@ -110,46 +110,37 @@ class CitationRefIdModule(InputModule):
 class ChemicalElementMappingModule(OptionsModule):
     
     def __init__(self):
-        self.values = ['Ac', 
-                  'Al', 
-                  'Ag',
-                  'Am', 
-                  'Ar', 
-                  'As', 
-                  'At', 
-                  'Au']
-        self.labels = ['Actinium', 
-                  'Aluminum',
-                  'Silver', 
-                  'Americium', 
-                  'Argon', 
-                  'Arsenic', 
-                  'Astatine', 
-                  'Gold']
+        self.options = {
+            'Ac': 'Actinium',
+            'Al': 'Aluminum',
+            'Ag': 'Silver',
+            'Am': 'Americium',
+            'Ar': 'Argon',
+            'As': 'Arsenic',
+            'At': 'Astatine',
+            'Au': 'Gold'
+        }
                 
-        OptionsModule.__init__(self, opt_values=self.values, opt_labels=self.labels, label='Select an element')
+        OptionsModule.__init__(self, options=self.options, label='Select an element')
 
-    def get_default_display(self, request):
-        return self.labels[0] + " is selected"
-        
-    def get_default_result(self, request):
-        return self.values[0]
-    
-    def process_data(self, request):
-        if 'value' in request.POST:
-            try:
-                value = request.POST['value']
-                idxValue = self.values.index(value)
-                label = self.labels[idxValue]
-            except:
-                raise ModuleError('Bad value sent to server.')
-            moduleDisplay = label  + " is selected"
-            moduleResult = value
-            
-            return moduleDisplay, moduleResult
-        else:
-            raise ModuleError('Value not properly sent to server. Please set "value" in POST data.')
+    def _get_module(self, request):
+        return OptionsModule.get_module(self, request)
 
+    def _get_display(self, request):
+        return self.options.values()[0] + ' is selected'
+
+    def _get_result(self, request):
+        return self.options.keys()[0]
+
+    def _is_data_valid(self, data):
+        return data in self.options.keys()
+
+    def _post_display(self, request):
+        data = str(request.POST['data'])
+        return self.options[data] + ' is selected'
+
+    def _post_result(self, request):
+        return str(request.POST['data'])
 
 
 class ListToGraphInputModule(AsyncInputModule):

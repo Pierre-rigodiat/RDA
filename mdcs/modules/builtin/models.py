@@ -35,34 +35,29 @@ class InputModule(Module):
 
 
 class OptionsModule(Module):
-    def __init__(self, scripts=None, styles=None, label=None, opt_values=None, opt_labels=None):
+    def __init__(self, scripts=None, styles=None, label=None, options=dict()):
         Module.__init__(self)
 
         self.add_scripts([os.path.join(SCRIPTS_PATH, 'options.js')])
-        self.add_scripts(scripts)
 
-        self.add_styles(styles)
+        if len(options) == 0:
+            raise ModuleError("'options are required' are required.")
 
-        if opt_values is None or opt_labels is None:
-            raise ModuleError("'opt_values' and 'opt_labels' are required.")
-        else:
-            if len(opt_values) != len(opt_labels):
-                raise ModuleError("'opt_values' and 'opt_labels' should have the same size.")
-            else:
-                self.opt_values = opt_values
-                self.opt_labels = opt_labels
-
+        self.options = options
         self.label = label
 
     def get_module(self, request):
         template = os.path.join(TEMPLATES_PATH, 'options.html')
-        options = ""
-        for i in range(0, len(self.opt_values)):
-            options += "<option value='" + self.opt_values[i] + "'>" + self.opt_labels[i] +"</option>"
+        options_html = ""
 
-        params = {"options": options}
+        for key, val in self.options.items():
+            options_html += "<option value='" + key + "'>" + val +"</option>"
+
+        params = {"options": options_html}
+
         if self.label is not None:
             params.update({"label": self.label})
+
         return render_module(template, params)
 
 class PopupModule(Module):
