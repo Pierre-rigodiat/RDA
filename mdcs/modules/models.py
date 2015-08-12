@@ -17,6 +17,7 @@ class Module(object):
         self.scripts = scripts
         self.styles = styles
 
+        # Skeleton of the modules
         self.template = os.path.join(settings.SITE_ROOT, 'templates/module.html')
 
     def add_scripts(self, scripts):
@@ -91,9 +92,9 @@ class Module(object):
             template_data['display'] = self._post_display(request)
             template_data['result'] = self._post_result(request)
 
-            html_parser = HTMLParser()
-            for key in template_data.keys():
-                template_data[key] = html_parser.unescape(template_data[key])
+            # html_parser = HTMLParser()
+            # for key in template_data.keys():
+            #     template_data[key] = html_parser.unescape(template_data[key])
         except Exception, e:
             raise ModuleError('Something went wrong during module initialization: ' + e.message)
 

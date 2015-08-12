@@ -95,13 +95,13 @@ saveModuleData = function($module, modData, asyncOpt=true) {
         success: function(data){
             console.log(data);
 
-            var moduleDisplay = $(data).find('.moduleDisplay').text();
-            var moduleResult = $(data).find('.moduleResult').text();
+            var moduleDisplay = $(data).find('.moduleDisplay').html();
+            var moduleResult = $(data).find('.moduleResult').html();
 //            var $moduleDisplay = $(data).find('.moduleDisplay').text();
 //            console.log($moduleDisplay);
 
-            $module.find('.moduleDisplay').text(moduleDisplay);
-            $module.find('.moduleResult').text(moduleResult);
+            $module.find('.moduleDisplay').html(moduleDisplay);
+            $module.find('.moduleResult').html(moduleResult);
 
             /*if('moduleDisplay' in data && 'moduleResult' in data) {
             	$module.find('.moduleDisplay').html(data.moduleDisplay);
@@ -109,8 +109,7 @@ saveModuleData = function($module, modData, asyncOpt=true) {
             }*/
         },
         error: function(data) {
-            console.log(data)
-            console.log("l'erreur de tes morts");
+            console.error("Error when saving data");
         }
     }
 

@@ -6,6 +6,9 @@ import os
 from lxml import etree
 
 RESOURCES_PATH = os.path.join(settings.SITE_ROOT, 'modules/examples/resources/')
+# SCRIPTS = os.path.join(settings.SITE_ROOT, 'modules/examples/resources/')
+# RESOURCES_PATH = os.path.join(settings.SITE_ROOT, 'modules/examples/resources/')
+# RESOURCES_PATH = os.path.join(settings.SITE_ROOT, 'modules/examples/resources/')
 
 class PositiveIntegerInputModule(InputModule):
     def __init__(self):
@@ -147,35 +150,43 @@ class ListToGraphInputModule(AsyncInputModule):
     
     def __init__(self):
         AsyncInputModule.__init__(self, label='Enter a list of numbers', modclass='list_to_graph',
-                             styles=[os.path.join(RESOURCES_PATH, 'css/list_to_graph.css')],
-                             scripts=["https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js",
-                                      os.path.join(RESOURCES_PATH, 'js/list_to_graph.js')])
+                                  styles=[os.path.join(RESOURCES_PATH, 'css/list_to_graph.css')],
+                                  scripts=["https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js",
+                                           os.path.join(RESOURCES_PATH, 'js/list_to_graph.js')])
 
-    def get_default_display(self, request):
-        return ""
-        
-    def get_default_result(self, request):
-        return ""
-    
-    def process_data(self, request):
-        if 'value' in request.POST:
-            moduleDisplay = "<div class='chart'></div>"
-            moduleResult = request.POST['value']
-            
-            post_value = request.POST['value']
-            values = post_value.split(' ')
-            
-            for value in values:
-                try:
-                    int(value)
-                except:
-                    moduleDisplay = "<b style='color:red;'>Expecting a list of integer values separated by spaces.</b>"
-                    moduleResult = ""            
-                            
-            return moduleDisplay, moduleResult
-        else:
-            raise ModuleError('Value not properly sent to server. Please set "value" in POST data.')
-        
+    def _get_module(self, request):
+        return AsyncInputModule.get_module(self, request)
+
+    def _get_display(self, request):
+        return ''
+
+    def _get_result(self, request):
+        return ''
+
+    def _is_data_valid(self, data):
+        values = data.split(' ')
+
+        for value in values:
+            try:
+                int(value)
+            except ValueError:
+                return False
+
+        return True
+
+    def _post_display(self, request):
+        if 'data' not in request.POST:
+            raise ModuleError('No data sent to server.')
+
+        display = "<div class='chart'></div>"
+
+        if not self._is_data_valid(request.POST['data']):
+            display = "<b style='color:red;'>Expecting a list of integer values separated by spaces.</b>"
+
+        return display
+
+    def _post_result(self, request):
+        return request.POST['data']
 
 
 class ExampleAutoCompleteModule(AutoCompleteModule):

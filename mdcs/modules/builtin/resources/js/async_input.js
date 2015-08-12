@@ -1,7 +1,7 @@
 async_input = function(input, callback){	
     // Collect data
     var data = {
-        'value': $(input).val()
+        'data': $(input).val()
     }
 
     var module = $(input).parent().parent().parent();
