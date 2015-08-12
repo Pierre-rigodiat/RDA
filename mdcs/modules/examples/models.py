@@ -205,20 +205,47 @@ class ExampleAutoCompleteModule(AutoCompleteModule):
         AutoCompleteModule.__init__(self, label='Material Name', scripts=[os.path.join(RESOURCES_PATH,
                                                                                        'js/example_autocomplete.js')])
 
-    def get_default_display(self, request):
-        return ""
+    def _get_module(self, request):
+        return AutoCompleteModule.get_module(self, request)
 
-    def get_default_result(self, request):
-        return ""
+    def _get_display(self, request):
+        return ''
 
-    def process_data(self, request):
-        if 'term' in request.GET:
-            response_list = []
+    def _get_result(self, request):
+        return ''
 
-            for d in self.data:
-                if request.GET['term'].lower() in d.lower():
-                    response_list.append(d)
+    def _is_data_valid(self, data):
+        return True
 
-            return response_list
-        else:
-            pass
+    def _post_display(self, request):
+        if 'data' not in request.POST:
+            raise ModuleError('No data sent to server.')
+
+        response_list = []
+
+        for term in self.data:
+            if request.POST['data'].lower() in term.lower():
+                response_list.append(term)
+
+        return response_list
+
+    def _post_result(self, request):
+        return ''
+
+    # def get_default_display(self, request):
+    #     return ""
+    #
+    # def get_default_result(self, request):
+    #     return ""
+    #
+    # def process_data(self, request):
+    #     if 'term' in request.GET:
+    #         response_list = []
+    #
+    #         for d in self.data:
+    #             if request.GET['term'].lower() in d.lower():
+    #                 response_list.append(d)
+    #
+    #         return response_list
+    #     else:
+    #         pass

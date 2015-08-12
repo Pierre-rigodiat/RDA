@@ -198,9 +198,6 @@ class AutoCompleteModule(Module):
         self.label = label
 
     def get_module(self, request):
-        if 'term' in request.GET:
-            return self.process_data(request)
-
         template = os.path.join(TEMPLATES_PATH, 'autocomplete.html')
         params = {}
 
