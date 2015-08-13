@@ -6,9 +6,8 @@ import os
 from lxml import etree
 
 RESOURCES_PATH = os.path.join(settings.SITE_ROOT, 'modules/examples/resources/')
-# SCRIPTS = os.path.join(settings.SITE_ROOT, 'modules/examples/resources/')
-# RESOURCES_PATH = os.path.join(settings.SITE_ROOT, 'modules/examples/resources/')
-# RESOURCES_PATH = os.path.join(settings.SITE_ROOT, 'modules/examples/resources/')
+# SCRIPTS_PATH = os.path.join(settings.SITE_ROOT, 'modules/examples/resources/')
+# STYLES_PATH = os.path.join(settings.SITE_ROOT, 'modules/examples/resources/')
 
 class PositiveIntegerInputModule(InputModule):
     def __init__(self):
@@ -231,21 +230,3 @@ class ExampleAutoCompleteModule(AutoCompleteModule):
 
     def _post_result(self, request):
         return ''
-
-    # def get_default_display(self, request):
-    #     return ""
-    #
-    # def get_default_result(self, request):
-    #     return ""
-    #
-    # def process_data(self, request):
-    #     if 'term' in request.GET:
-    #         response_list = []
-    #
-    #         for d in self.data:
-    #             if request.GET['term'].lower() in d.lower():
-    #                 response_list.append(d)
-    #
-    #         return response_list
-    #     else:
-    #         pass

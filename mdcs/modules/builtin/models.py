@@ -66,15 +66,6 @@ class OptionsModule(Module):
 
 class PopupModule(Module):
     def __init__(self, scripts=list(), styles=list(), popup_content=None, button_label='Save'):
-        # input_script = os.path.join(RESOURCES_PATH, 'js/popup.js')
-        #
-        # if scripts is not None:
-        #     scripts.insert(0, input_script)
-        # else:
-        #     scripts = [input_script]
-        #
-        # Module.__init__(self, scripts=scripts, styles=styles)
-
         Module.__init__(self)
 
         self.add_scripts([os.path.join(SCRIPTS_PATH, 'popup.js')])
@@ -85,9 +76,6 @@ class PopupModule(Module):
         if popup_content is None:
             raise ModuleError("'popup_content' and is required. Cannot instantiate an empty popup")
 
-        # if popup_content is None or button_label is None:
-        #     raise ModuleError("'popup_content' and 'button_label' are required.")
-        # else:
         self.popup_content = popup_content
         self.button_label = button_label
 
@@ -99,18 +87,6 @@ class PopupModule(Module):
         }
 
         return render_module(template, params)
-
-    # @abstractmethod
-    # def get_default_display(self, request):
-    #     pass
-    #
-    # @abstractmethod
-    # def get_default_result(self, request):
-    #     pass
-    #
-    # @abstractmethod
-    # def process_data(self, request):
-    #     pass
 
 
 class AsyncInputModule(Module):
@@ -124,20 +100,6 @@ class AsyncInputModule(Module):
 
         if modclass is None:
             raise ModuleError("'modclass' is required.")
-
-        # input_script = os.path.join(RESOURCES_PATH, 'js/async_input.js')
-        #
-        # if modclass is None:
-        #     raise ModuleError("'modclass' is required.")
-        # else:
-        #     self.modclass = modclass
-        #
-        # if scripts is not None:
-        #     scripts.append(input_script)
-        # else:
-        #     scripts =[input_script]
-        #
-        # Module.__init__(self, scripts=scripts, styles=styles)
 
         self.modclass = modclass
         self.label = label
@@ -184,16 +146,8 @@ class AutoCompleteModule(Module):
 
         self.add_scripts([os.path.join(SCRIPTS_PATH, 'autocomplete.js')])
         self.add_scripts(scripts)
-        self.add_styles(styles)
 
-        # input_script = os.path.join(RESOURCES_PATH, 'js/autocomplete.js')
-        #
-        # if scripts is not None:
-        #     scripts.insert(0, input_script)
-        # else:
-        #     scripts = [input_script]
-        #
-        # Module.__init__(self, scripts=scripts, styles=styles)
+        self.add_styles(styles)
 
         self.label = label
 
