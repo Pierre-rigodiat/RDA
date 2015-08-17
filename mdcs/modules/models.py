@@ -77,7 +77,8 @@ class Module(object):
         # Sanitzing data from the request
         post_data = {}
         for key, value in request.POST.items():
-            post_data[key] = sanitize(value)
+            if value != '':
+                post_data[key] = sanitize(value)
 
         request.POST = post_data
 
@@ -91,12 +92,8 @@ class Module(object):
         try:
             template_data['display'] = self._post_display(request)
             template_data['result'] = self._post_result(request)
-
-            # html_parser = HTMLParser()
-            # for key in template_data.keys():
-            #     template_data[key] = html_parser.unescape(template_data[key])
         except Exception, e:
-            raise ModuleError('Something went wrong during module initialization: ' + e.message)
+            raise ModuleError('Something went wrong during module update: ' + e.message)
 
         html_code = render_module(self.template, template_data)
         return HttpResponse(html_code, status=HTTP_200_OK)

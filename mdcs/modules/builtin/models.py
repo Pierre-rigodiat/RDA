@@ -8,6 +8,7 @@ from modules import render_module
 RESOURCES_PATH = os.path.join(settings.SITE_ROOT, 'modules/builtin/resources/')
 TEMPLATES_PATH = os.path.join(RESOURCES_PATH, 'html/')
 SCRIPTS_PATH = os.path.join(RESOURCES_PATH, 'js/')
+STYLES_PATH = os.path.join(RESOURCES_PATH, 'css/')
 
 class InputModule(Module):
     def __init__(self, scripts=list(), styles=list(), label=None, default_value=None):
@@ -137,6 +138,32 @@ class InputButtonModule(Module):
             params.update({"label": self.label})
         if self.default_value is not None:
             params.update({"default_value": self.default_value})
+        return render_module(template, params)
+
+
+class TextAreaModule(Module):
+    def __init__(self, scripts=list(), styles=list(), label=None):
+        Module.__init__(self)
+
+        self.add_scripts([os.path.join(SCRIPTS_PATH, 'textarea.js')])
+        self.add_scripts(scripts)
+
+        self.add_styles([os.path.join(STYLES_PATH, 'textarea.css')])
+        self.add_styles(styles)
+
+        if label is None:
+            raise ModuleError("'label' is required.")
+
+        self.label = label
+
+    def get_module(self, request):
+        template = os.path.join(TEMPLATES_PATH, 'textarea.html')
+
+        params = {"label": self.label, "data": "Insert XML here..."}
+
+        if 'data' in request.GET:
+            params['data'] = request.GET['data']
+
         return render_module(template, params)
 
 
