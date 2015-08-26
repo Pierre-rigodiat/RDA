@@ -19,7 +19,7 @@ from django.http import HttpResponse
 from django.conf import settings
 from io import BytesIO
 from cStringIO import StringIO
-from mgi.models import Template, Htmlform, Jsondata, XML2Download, Module, MetaSchema
+from mgi.models import Template, Jsondata, XML2Download, Module, MetaSchema
 from mgi.models import FormElement, XMLElement, FormData
 import json
 from bson.objectid import ObjectId
@@ -84,32 +84,7 @@ def get_hdf5_string(request):
 
 ################################################################################
 #
-# Function Name: update_form_list(request)
-# Inputs:        request - 
-# Outputs:       
-# Exceptions:    None
-# Description:   
-#                
-#
-################################################################################
-def update_form_list(request):
-    template_id = request.session['currentTemplateID']
-
-    select_options = ""
-    saved_forms = Htmlform.objects(schema=template_id)
-    if len(saved_forms) > 0:
-        for htmlForm in saved_forms:
-            select_options += "<option value=\"" + str(htmlForm.id) + "\">" + htmlForm.title + "</option>"
-    else:
-        select_options = "<option value=\"none\">None Exist"
-
-    response_dict = {'options': select_options}
-    return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
-
-
-################################################################################
-#
-# Function Name: save_html_form(request)
+# Function Name: save_form(request)
 # Inputs:        request - 
 # Outputs:       
 # Exceptions:    None
@@ -117,14 +92,13 @@ def update_form_list(request):
 #                
 #
 ################################################################################
-def save_html_form(request):
-
-    save_as = request.POST['saveAs']
-    content = request.POST['content']
-    template_id = request.session['currentTemplateID']
-    occurrences = request.session['occurrences']
-
-    Htmlform(title=save_as, schema=template_id, content=content, occurrences=str(occurrences)).save()
+def save_form(request):
+    xmlString = request.POST['xmlString']
+    
+    form_data_id = request.session['curateFormData']
+    form_data = FormData.objects.get(id=form_data_id)
+    form_data.xml_data = xmlString
+    form_data.save()
 
     return HttpResponse(json.dumps({}), content_type='application/javascript')
 
@@ -232,28 +206,6 @@ def view_data(request):
     return HttpResponse(json.dumps({}), content_type='application/javascript')
 
     print 'END def saveXMLData(request)'
-
-
-################################################################################
-#
-# Function Name: load_form_for_entry(request)
-# Inputs:        request -
-# Outputs:       
-# Exceptions:    None
-# Description:   Load a saved form in the page
-#                
-#
-################################################################################
-def load_form_for_entry(request):
-    try:
-        form_selected = request.POST['form_selected']
-        html_form_object = Htmlform.objects.get(id=form_selected)
-        request.session['occurrences'] = eval(html_form_object.occurrences)
-
-        response_dict = {'xsdForm': html_form_object.content}
-        return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
-    except:
-        return HttpResponse(json.dumps({}), content_type='application/javascript')
 
 
 ################################################################################

@@ -29,8 +29,7 @@ from xlrd import open_workbook
 from django.contrib import messages
 import json 
 
-from mgi.models import Template, TemplateVersion, Htmlform, XML2Download,\
-    FormData
+from mgi.models import Template, TemplateVersion, XML2Download, FormData
 from curate.forms import NewForm, OpenForm, UploadForm, AdvancedOptionsForm
 from django.http.response import HttpResponseRedirect, HttpResponseBadRequest
 
@@ -269,41 +268,6 @@ def curate_enter_data_downloadxsd(request):
         request.session['next'] = '/curate'
         return redirect('/login')
 
-################################################################################
-#
-# Function Name: curate_view_data_downloadxml(request)
-# Inputs:        request -
-# Outputs:       XML representation of the current data instance
-# Exceptions:    None
-# Description:   Returns an XML representation of the current data instance.
-#                Used when user wants to download the XML file.
-#
-################################################################################
-def curate_enter_data_downloadform(request):
-    if request.user.is_authenticated():
-        if 'currentTemplateID' not in request.session:
-            return redirect('/curate/select-template')
-        else:
-            htmlFormId = request.GET.get('id', None)
-            
-            if htmlFormId is not None:
-                htmlFormObject = Htmlform.objects.get(pk=htmlFormId)
-    
-                formStringEncoded = htmlFormObject.content.encode('utf-8')
-                fileObj = StringIO(formStringEncoded)
-    
-                htmlFormObject.delete()
-    
-                response = HttpResponse(FileWrapper(fileObj), content_type='text/html')
-                response['Content-Disposition'] = 'attachment; filename=' + "form.html"
-                return response
-            else:
-                return redirect('/')
-    else:
-        if 'loggedOut' in request.session:
-            del request.session['loggedOut']
-        request.session['next'] = '/curate'
-        return redirect('/login')
 
 ################################################################################
 #
