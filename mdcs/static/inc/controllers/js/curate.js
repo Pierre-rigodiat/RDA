@@ -62,6 +62,23 @@ verifyTemplateIsSelectedCallback = function(data, selectedLink)
 
 
 /**
+ * Display message to block access to enter data from first step.
+ */
+enterDataError = function()
+{
+    $(function() {
+        $( "#dialog-enter-error-message" ).dialog({
+            modal: true,
+            buttons: {
+            	Ok: function() {
+                    $( this ).dialog( "close" );
+                }
+            }
+        });
+    });
+}
+
+/**
  * Display message to block access to view data from first step.
  */
 viewDataError = function()
@@ -812,13 +829,49 @@ displayTemplateSelectedDialog = function()
  $(function() {
     $( "#dialog-message" ).dialog({
       modal: true,
-      buttons: {
-        Ok: function() {
-          $( this ).dialog( "close" );
-        }
-      }
+      buttons:
+    	  [
+           {
+               text: "Start",
+               click: function() {
+            	   
+            	   if (validateStartCurate()){
+	            	   var formData = new FormData($( "#form_start" )[0]);
+	            	   $.ajax({
+	            	        url: "/curate/start_curate",
+	            	        type: 'POST',
+	            	        data: formData,
+	            	        cache: false,
+	            	        contentType: false,
+	            	        processData: false,
+	            	        async:false,
+	            	   		success: function(data){
+	            	   			window.location = '/curate/enter-data'
+	            	        },
+	            	        error:function(data){
+	            	        	$("#form_start_errors").html(data.responseText);
+	            	        },
+	            	    })
+	            	    ;
+            	   }
+               }
+           }
+          ]
     });
   });
+}
+
+/**
+ * AJAX call, launch the curation from the selected parameters
+ */
+start_curate = function(){
+    $.ajax({
+        url : "/curate/start_curate",
+        type : "POST",
+        dataType: "json",
+        success: function(data){
+        }
+    });
 }
 
 
@@ -1457,6 +1510,53 @@ set_current_user_template = function(templateID){
     });
 }
 
+load_start_form = function(){
+	$.ajax({
+        url : "/curate/start_curate",
+        type : "GET",
+        dataType: "json",
+        data : {
+        	
+        },
+        success: function(data){
+            $("#form_start_content").html(data.template);
+        }
+    });
+}
+
+validateStartCurate = function(){
+	errors = ""
+	
+	// check if an option has been selected
+	selected_option = $( "#form_start" ).find("input:radio[name='curate_form']:checked").val()
+	if (selected_option == undefined){
+		errors = "No option selected. Please check one radio button."
+		$("#form_start_errors").html(errors);
+		return (false);
+	}else{
+		if (selected_option == "new"){
+			if ($( "#id_document_name" ).val().trim() == ""){
+				errors = "You selected the option 'Create a new document'. Please provide a name for the document."
+			}
+		}else if (selected_option == "open"){
+			if ($( "#id_forms" ).val() == ""){
+				errors = "You selected the option 'Open a Form'. Please select an existing form from the list."
+			}
+		}else if (selected_option == "upload"){
+			if ($( "#id_file" ).val() == ""){
+				errors = "You selected the option 'Upload a File'. Please select an XML file."
+			}
+		}
+	}
+		
+	if (errors != ""){
+		$("#form_start_errors").html(errors);
+		return (false);
+	}else{
+		return (true)
+	}	
+}
+
 
 /**
  * Update page when template selected.
@@ -1467,9 +1567,12 @@ setCurrentTemplateCallback = function()
     console.log('BEGIN [setCurrentTemplateCallback]');
 
     $('#template_selection').load(document.URL +  ' #template_selection', function() {
-	loadTemplateSelectionControllers();
-	displayTemplateSelectedDialog();
+    	loadTemplateSelectionControllers();
+    	displayTemplateSelectedDialog();
     });
+    
+    load_start_form();
+    
     console.log('END [setCurrentTemplateCallback]');
 }
 

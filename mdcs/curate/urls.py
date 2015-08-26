@@ -48,4 +48,5 @@ urlpatterns = patterns('',
     url(r'^load_xml', 'curate.ajax.load_xml'),
     url(r'^download_xml', 'curate.ajax.download_xml'),
     url(r'^save_xml_data_to_db', 'curate.ajax.save_xml_data_to_db'),
+    url(r'^start_curate', 'curate.views.start_curate'),
 )
