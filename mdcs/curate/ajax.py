@@ -2052,6 +2052,9 @@ def generateForm(request):
     
     del request.session['mapTagID']
 
+    # data are loaded, switch Edit to False, we don't need to look at the original data anymore
+    request.session['curate_edit'] = False
+    
     return formString
 
 
