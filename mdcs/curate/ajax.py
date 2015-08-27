@@ -402,29 +402,29 @@ def get_nodes_xpath(elements, xmlTree, namespace):
     return xpaths
 
     
-def isDeterministic(element, xmlTree, namespace):
-    deterministic = True
+def isDeterminist(element, xmlTree, namespace):
+    determinist = True
     try:        
         # look at sequence children, to see if it contains only elements 
         if(len(list(element)) != 0):
             for child in element:
                 if (child.tag != "{0}element".format(namespace)):
-                    deterministic = False
+                    determinist = False
                     break
-            # doesn't contain only elements, need to get sub elements xpath to see if they are deterministic
-            if deterministic == False:
+            # doesn't contain only elements, need to get sub elements xpath to see if they are determinist
+            if determinist == False:
                 # get xpath of all elements
                 xpaths = get_nodes_xpath(list(element), xmlTree, namespace)
                 # check that xpaths are unique
                 if len(xpaths) == len(set(xpaths)):
-                    deterministic = True
+                    determinist = True
                 else:
                     print "NOT DETERMINISTIC"
     except:
         print "ERROR"
         return False
         
-    return deterministic
+    return determinist
 
 
 # get the number of times the sequence appears in the XML document that we are loading for editing
@@ -467,9 +467,9 @@ def generateSequence(request, element, xmlTree, namespace, choiceInfo=None, full
     
     minOccurs, maxOccurs = manageOccurences(element)
     
-#     if edit:
+#     if request.session['curate_edit']:
 #         # see if the tree is deterministic enough to set values to edit
-#         is_deterministic = isDeterministic()
+#         is_determinist = isDeterminist(element, xmlTree, namespace)
     
     if (minOccurs != 1) or (maxOccurs != 1):       
         text = "Sequence"
