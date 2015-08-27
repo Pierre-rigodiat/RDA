@@ -126,18 +126,22 @@ def compose_build_template(request):
 ################################################################################
 def compose_downloadxsd(request):
     if request.user.is_authenticated():
-        xml2downloadID = request.GET.get('id','')
-        xmlDataObject = XML2Download.objects.get(pk=xml2downloadID)
-
-
-        xmlStringEncoded = xmlDataObject.xml.encode('utf-8')
-        fileObj = StringIO(xmlStringEncoded)
-
-        xmlDataObject.delete()
-
-        response = HttpResponse(FileWrapper(fileObj), content_type='application/xml')
-        response['Content-Disposition'] = 'attachment; filename=' + "new_template.xsd"
-        return response
+        xml2downloadID = request.GET.get('id', None)
+        
+        if xml2downloadID is not None:
+            xmlDataObject = XML2Download.objects.get(pk=xml2downloadID)
+    
+    
+            xmlStringEncoded = xmlDataObject.xml.encode('utf-8')
+            fileObj = StringIO(xmlStringEncoded)
+    
+            xmlDataObject.delete()
+    
+            response = HttpResponse(FileWrapper(fileObj), content_type='application/xml')
+            response['Content-Disposition'] = 'attachment; filename=' + "new_template.xsd"
+            return response
+        else:
+            return redirect('/')
     else:
         if 'loggedOut' in request.session:
             del request.session['loggedOut']

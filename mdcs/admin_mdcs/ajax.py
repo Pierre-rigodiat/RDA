@@ -18,31 +18,13 @@ from django.http import HttpResponse
 import lxml.etree as etree
 import json
 from io import BytesIO
-from mgi.models import Template, TemplateVersion, Instance, Request, Module, ModuleResource, Type, TypeVersion, Message, Bucket, MetaSchema
+from mgi.models import Template, TemplateVersion, Instance, Request, Module, Type, TypeVersion, Message, Bucket, MetaSchema
 from django.contrib.auth.models import User
 from utils.XSDflattenerMDCS.XSDflattenerMDCS import XSDFlattenerMDCS
 from utils.XSDhash import XSDhash
 import random
 from utils.APIschemaLocator.APIschemaLocator import getSchemaLocation
 from mgi import common
-
-
-################################################################################
-# 
-# Class Name: ModuleResourceInfo
-#
-# Description: Store information about a resource for a module
-#
-################################################################################
-class ModuleResourceInfo:
-    """Class that stores information about a resource for a module"""
-    
-    def __init__(self, content="", filename=""):
-        self.content = content
-        self.filename = filename   
-
-    def __to_json__(self):
-        return json.dumps(self, default=lambda o: o.__dict__)
 
 
 ################################################################################
@@ -883,108 +865,6 @@ def deny_request(request):
 
 ################################################################################
 # 
-# Function Name: init_module_manager(request)
-# Inputs:        request - 
-# Outputs:        
-# Exceptions:    None
-# Description:   Empties the list of resources when coming to the module manager
-# 
-################################################################################
-def init_module_manager(request):
-    request.session['listModuleResource'] = []
-    return HttpResponse(json.dumps({}), content_type='application/javascript')
-
-
-################################################################################
-# 
-# Function Name: add_module_resource(request)
-# Inputs:        request - 
-# Outputs:        
-# Exceptions:    None
-# Description:   Add a resource for the module. Save the content and name before save.
-# 
-################################################################################
-def add_module_resource(request):
-    resource_content = request.POST['resourceContent']
-    resource_filename = request.POST['resourceFilename']
-    
-    request.session['currentResourceContent'] = resource_content
-    request.session['currentResourceFilename'] = resource_filename    
-    
-    return HttpResponse(json.dumps({}), content_type='application/javascript')
-
-
-################################################################################
-# 
-# Function Name: upload_resource(request)
-# Inputs:        request - 
-# Outputs:        
-# Exceptions:    None
-# Description:   Upload the resource
-# 
-################################################################################
-def upload_resource(request):
-    response_dict = {}
-    
-    if ('currentResourceContent' in request.session 
-        and request.session['currentResourceContent'] != ""
-        and 'currentResourceFilename' in request.session 
-        and request.session['currentResourceFilename'] != ""):
-            response_dict = {'filename': request.session['currentResourceFilename']}
-            request.session['listModuleResource'].append(ModuleResourceInfo(content=request.session['currentResourceContent'], filename=request.session['currentResourceFilename']).__to_json__())
-            request.session['currentResourceContent'] = ""
-            request.session['currentResourceFilename'] = ""
-    
-    return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
-
-
-################################################################################
-# 
-# Function Name: add_module(request)
-# Inputs:        request -  
-# Outputs:        
-# Exceptions:    None
-# Description:   Add a module in mongo db
-# 
-################################################################################
-def add_module(request): 
-    name = request.POST['name']
-    templates = request.POST.getlist('templates[]')
-    tag = request.POST['tag']
-    HTMLTag = request.POST['HTMLTag']
-    
-    module = Module(name=name, templates=templates, tag=tag, htmlTag=HTMLTag)
-    listModuleResource = request.session['listModuleResource']
-    for resource in listModuleResource: 
-        resource = eval(resource)        
-        moduleResource = ModuleResource(name=resource['filename'], content=resource['content'], type=resource['filename'].split(".")[-1])
-        module.resources.append(moduleResource)
-    
-    module.save()
-
-    return HttpResponse(json.dumps({}), content_type='application/javascript')
-
-
-################################################################################
-# 
-# Function Name: delete_module(request)
-# Inputs:        request - 
-# Outputs:        
-# Exceptions:    None
-# Description:   Delete a module
-# 
-################################################################################
-def delete_module(request):
-    object_id = request.POST['objectid']    
-    
-    module = Module.objects.get(pk=object_id)
-    module.delete()
-
-    return HttpResponse(json.dumps({}), content_type='application/javascript')
-
-
-################################################################################
-# 
 # Function Name: remove_message(request)
 # Inputs:        request -
 # Outputs:       
@@ -1059,3 +939,101 @@ def delete_bucket(request):
 ################################################################################
 def rdm_hex_color():
     return '#' +''.join([random.choice('0123456789ABCDEF') for x in range(6)])
+
+
+################################################################################
+# 
+# Function Name: insert_module(request)
+# Inputs:        request -
+# Outputs:       
+# Exceptions:    None
+# Description:   Insert a module in the template by adding an attribute.
+#
+################################################################################
+def insert_module(request):
+    module_id = request.POST['moduleID']
+    xpath = request.POST['xpath']
+    
+    defaultPrefix = request.session['moduleDefaultPrefix']
+    namespace = request.session['moduleNamespaces'][defaultPrefix]
+    template_content = request.session['moduleTemplateContent']
+    
+    dom = etree.parse(BytesIO(template_content.encode('utf-8')))
+    
+    # set the element namespace
+    xpath = xpath.replace(defaultPrefix +":", namespace)
+    # add the element to the sequence
+    element = dom.find(xpath)
+    
+    module = Module.objects.get(pk=module_id)
+        
+    element.attrib['{http://mdcs.ns}_mod_mdcs_'] =  module.url
+        
+    # save the tree in the session
+    request.session['moduleTemplateContent'] = etree.tostring(dom) 
+    print etree.tostring(element)
+    
+    return HttpResponse(json.dumps({}), content_type='application/javascript')
+
+
+################################################################################
+# 
+# Function Name: remove_module(request)
+# Inputs:        request -
+# Outputs:       
+# Exceptions:    None
+# Description:   Remove a module from the template by removing an attribute and the automatic namespace.
+#
+################################################################################
+def remove_module(request):
+    xpath = request.POST['xpath']
+    
+    defaultPrefix = request.session['moduleDefaultPrefix']
+    namespace = request.session['moduleNamespaces'][defaultPrefix]
+    template_content = request.session['moduleTemplateContent']
+    
+    dom = etree.parse(BytesIO(template_content.encode('utf-8')))
+    
+    # set the element namespace
+    xpath = xpath.replace(defaultPrefix +":", namespace)
+    # add the element to the sequence
+    element = dom.find(xpath)
+    
+    if '{http://mdcs.ns}_mod_mdcs_' in element.attrib:
+        del element.attrib['{http://mdcs.ns}_mod_mdcs_']
+    
+    # remove prefix from namespaces
+    nsmap = element.nsmap
+    for prefix, ns in nsmap.iteritems():
+        if ns == 'http://mdcs.ns':
+            del nsmap[prefix]
+            break
+    
+    # create a new element to replace the previous one (can't replace directly the nsmap using lxml)
+    element = etree.Element(element.tag, nsmap = nsmap);
+    
+    # save the tree in the session
+    request.session['moduleTemplateContent'] = etree.tostring(dom) 
+    print etree.tostring(element)
+    
+    return HttpResponse(json.dumps({}), content_type='application/javascript')
+    
+
+################################################################################
+# 
+# Function Name: save_modules(request)
+# Inputs:        request -
+# Outputs:       
+# Exceptions:    None
+# Description:   Save the template with its modules.
+#
+################################################################################
+def save_modules(request):
+    template_content = request.session['moduleTemplateContent']
+    template_id = request.session['moduleTemplateID']
+        
+    template = Template.objects.get(pk=template_id)
+    template.content = template_content
+    template.save()    
+    
+    return HttpResponse(json.dumps({}), content_type='application/javascript')

@@ -127,6 +127,13 @@
 								</span>
 								</xsl:when>
 							</xsl:choose>
+							<xsl:choose>
+								<xsl:when test="./@ref">
+								<span class="type">
+									<xsl:value-of select="@ref" />
+								</span>
+								</xsl:when>
+							</xsl:choose>
 							<xsl:if test="contains(name(.),'element')"> 
 								<span class="occurs">(
 								<xsl:choose>

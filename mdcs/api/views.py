@@ -577,6 +577,7 @@ def curate(request):
             return Response(content, status=status.HTTP_400_BAD_REQUEST)
         
         xmlStr = request.DATA['content']
+        docID = None
         try:
             try:
                 common.validateXMLDocument(schema.id, xmlStr)
@@ -609,6 +610,8 @@ def curate(request):
             rdfPublisher.sendRDF(rdfStr)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         except:
+            if docID is not None:
+                jsondata.delete(docID)
             content = {'message: Unable to insert data.'}
             return Response(content, status=status.HTTP_400_BAD_REQUEST)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -1895,7 +1898,7 @@ def update_user(request):
     if request.user.is_staff is True:
         username = request.QUERY_PARAMS.get('username', None)        
             
-        if id is not None:   
+        if username is not None:   
             try:
                 user = User.objects.get(username=username)        
             except:
@@ -2024,7 +2027,7 @@ def get_blob(request):
             if fs.exists(ObjectId(blob_id)):
                 blob = fs.get(ObjectId(blob_id))
                 response = HttpResponse(blob)
-                response['Content-Disposition'] = 'attachment; filename=' + str(blob_id)
+                response['Content-Disposition'] = 'attachment; filename=' + str(blob.filename)
                 return response
             else:
                 content={'message':'No file could be found with the given id.'}

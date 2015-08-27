@@ -114,19 +114,11 @@ class SavedQuery(Document):
     query = StringField(required=True)
     displayedQuery = StringField(required=True)
 
-class ModuleResource(EmbeddedDocument):
-    """Represents a resource file attached to a module"""
-    name = StringField(required=True)
-    content = StringField(required=True)
-    type = StringField(required=True)
-
 class Module(Document):
     """Represents a module, that will replace an existing input during curation"""
     name = StringField(required=True)
-    templates = ListField(StringField())
-    tag = StringField(required=True)
-    htmlTag = StringField(required=True)
-    resources = ListField(EmbeddedDocumentField(ModuleResource))  
+    url = StringField(required=True)
+    view = StringField(required=True)
     
 class XML2Download(Document):
     """Temporarily stores the content of an XML document to download"""
@@ -157,7 +149,42 @@ def postprocessor(path, key, value):
             return key, float(value)
         except (ValueError, TypeError):
             return key, value
-                                                                                                                                               
+
+
+# Admin
+class XSDElement(Document):
+    xsd_xpath = StringField()
+    minOccurs = FloatField()
+    maxOccurs = FloatField()
+
+class XSDStructure(Document):
+    template = ReferenceField(Template)
+    xsd_elements = ListField(ReferenceField(XSDElement))
+
+# Curate
+# good one
+class XMLElement(Document):
+    xsd_xpath = StringField() #xsd_element = ReferenceField(XSDElement)
+    nbOccurs = IntField()
+    minOccurs = FloatField()
+    maxOccurs = FloatField()
+
+# good one
+class FormElement(Document):
+    html_id = StringField()
+    xml_xpath = StringField() # pour siblings module
+    xml_element = ReferenceField(XMLElement)
+
+# good one
+class FormData(Document):
+    """
+        Stores data being entered and not yet curated
+    """
+    user = StringField(required=True)
+    template = StringField(required=True)
+    elements = DictField() # when loading form, just needed to work on the form, has to be regenerated when loading new document, can auto save that
+    xml_data = StringField() # on save data (get active with no parent, then active children, take the name + value...)
+
 class Jsondata():
     """                                                                                                                                                                                                                       
         Wrapper to manage JSON Documents, like mongoengine would have manage them (but with ordered data)                                                                                                                     

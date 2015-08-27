@@ -278,17 +278,21 @@ def curate_enter_data_downloadform(request):
         if 'currentTemplateID' not in request.session:
             return redirect('/curate/select-template')
         else:
-            htmlFormId = request.GET.get('id','')
-            htmlFormObject = Htmlform.objects.get(pk=htmlFormId)
-
-            formStringEncoded = htmlFormObject.content.encode('utf-8')
-            fileObj = StringIO(formStringEncoded)
-
-            htmlFormObject.delete()
-
-            response = HttpResponse(FileWrapper(fileObj), content_type='text/html')
-            response['Content-Disposition'] = 'attachment; filename=' + "form.html"
-            return response
+            htmlFormId = request.GET.get('id', None)
+            
+            if htmlFormId is not None:
+                htmlFormObject = Htmlform.objects.get(pk=htmlFormId)
+    
+                formStringEncoded = htmlFormObject.content.encode('utf-8')
+                fileObj = StringIO(formStringEncoded)
+    
+                htmlFormObject.delete()
+    
+                response = HttpResponse(FileWrapper(fileObj), content_type='text/html')
+                response['Content-Disposition'] = 'attachment; filename=' + "form.html"
+                return response
+            else:
+                return redirect('/')
     else:
         if 'loggedOut' in request.session:
             del request.session['loggedOut']
@@ -310,18 +314,22 @@ def curate_view_data_downloadxml(request):
         if 'currentTemplateID' not in request.session:
             return redirect('/curate/select-template')
         else:
-            xml2downloadID = request.GET.get('id','')
-            xmlDataObject = XML2Download.objects.get(pk=xml2downloadID)
-
-
-            xmlStringEncoded = xmlDataObject.xml.encode('utf-8')
-            fileObj = StringIO(xmlStringEncoded)
-
-            xmlDataObject.delete()
-
-            response = HttpResponse(FileWrapper(fileObj), content_type='application/xml')
-            response['Content-Disposition'] = 'attachment; filename=' + "data.xml" #templateFilename
-            return response
+            xml2downloadID = request.GET.get('id', None)
+            
+            if xml2downloadID is not None:
+                xmlDataObject = XML2Download.objects.get(pk=xml2downloadID)
+    
+    
+                xmlStringEncoded = xmlDataObject.xml.encode('utf-8')
+                fileObj = StringIO(xmlStringEncoded)
+    
+                xmlDataObject.delete()
+    
+                response = HttpResponse(FileWrapper(fileObj), content_type='application/xml')
+                response['Content-Disposition'] = 'attachment; filename=' + "data.xml" #templateFilename
+                return response
+            else:
+                return redirect('/')
     else:
         if 'loggedOut' in request.session:
             del request.session['loggedOut']

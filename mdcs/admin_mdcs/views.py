@@ -30,6 +30,9 @@ from datetime import timedelta
 from bson.objectid import ObjectId
 from dateutil import tz
 from collections import OrderedDict
+import lxml.etree as etree
+from io import BytesIO
+from mgi import common
 
 
 ################################################################################
@@ -208,54 +211,6 @@ def manage_schemas(request):
         context = RequestContext(request, {
             'objects':currentTemplates,
             'objectType': "Template"
-        })
-        return HttpResponse(template.render(context))
-    else:
-        if 'loggedOut' in request.session:
-            del request.session['loggedOut']
-        request.session['next'] = '/'
-        return redirect('/login')
-
-
-################################################################################
-#
-# Function Name: manage_modules(request)
-# Inputs:        request -
-# Outputs:       Manage Modules Page
-# Exceptions:    None
-# Description:   Page that allows to list all existing modules
-#
-################################################################################
-def module_management(request):
-    if request.user.is_authenticated() and request.user.is_staff:
-        template = loader.get_template('admin/manage_modules.html')
-
-        context = RequestContext(request, {
-            'modules': Module.objects
-        })
-        return HttpResponse(template.render(context))
-    else:
-        if 'loggedOut' in request.session:
-            del request.session['loggedOut']
-        request.session['next'] = '/'
-        return redirect('/login')
-
-
-################################################################################
-#
-# Function Name: module_add(request)
-# Inputs:        request -
-# Outputs:       Add Module Page
-# Exceptions:    None
-# Description:   Page that allows to add a new module
-#
-################################################################################
-def module_add(request):
-    if request.user.is_authenticated() and request.user.is_staff:
-        template = loader.get_template('admin/add_module.html')
-
-        context = RequestContext(request, {
-            'templates':Template.objects
         })
         return HttpResponse(template.render(context))
     else:
@@ -494,41 +449,103 @@ def manage_versions(request):
     if request.user.is_authenticated() and request.user.is_staff:
         template = loader.get_template('admin/manage_versions.html')
 
-        id = request.GET.get('id','')
-        objectType = request.GET.get('type','')
-
-        if objectType == "Template":
-            object = Template.objects.get(pk=id)
-            objectVersions = TemplateVersion.objects.get(pk=object.templateVersion)
+        id = request.GET.get('id', None)
+        objectType = request.GET.get('type', None)
+        
+        if id is not None and objectType is not None:
+            try:
+                if objectType == "Template":
+                    object = Template.objects.get(pk=id)
+                    objectVersions = TemplateVersion.objects.get(pk=object.templateVersion)
+                else:
+                    object = Type.objects.get(pk=id)
+                    objectVersions = TypeVersion.objects.get(pk=object.typeVersion)
+        
+                versions = OrderedDict()
+                reversedVersions = list(reversed(objectVersions.versions))
+                for version_id in reversedVersions:
+                    if objectType == "Template":
+                        version = Template.objects.get(pk=version_id)
+                    else:
+                        version = Type.objects.get(pk=version_id)
+                    objectid = ObjectId(version.id)
+                    from_zone = tz.tzutc()
+                    to_zone = tz.tzlocal()
+                    datetimeUTC = objectid.generation_time
+                    datetimeUTC = datetimeUTC.replace(tzinfo=from_zone)
+                    datetimeLocal = datetimeUTC.astimezone(to_zone)
+                    datetime = datetimeLocal.strftime('%m/%d/%Y %H&#58;%M&#58;%S')
+                    versions[version] = datetime
+        
+        
+                context = RequestContext(request, {
+                    'versions': versions,
+                    'objectVersions': objectVersions,
+                    'objectType': objectType,
+                })
+                return HttpResponse(template.render(context))
+            except:
+                return redirect('/')
         else:
-            object = Type.objects.get(pk=id)
-            objectVersions = TypeVersion.objects.get(pk=object.typeVersion)
-
-        versions = OrderedDict()
-        reversedVersions = list(reversed(objectVersions.versions))
-        for version_id in reversedVersions:
-            if objectType == "Template":
-                version = Template.objects.get(pk=version_id)
-            else:
-                version = Type.objects.get(pk=version_id)
-            objectid = ObjectId(version.id)
-            from_zone = tz.tzutc()
-            to_zone = tz.tzlocal()
-            datetimeUTC = objectid.generation_time
-            datetimeUTC = datetimeUTC.replace(tzinfo=from_zone)
-            datetimeLocal = datetimeUTC.astimezone(to_zone)
-            datetime = datetimeLocal.strftime('%m/%d/%Y %H&#58;%M&#58;%S')
-            versions[version] = datetime
-
-
-        context = RequestContext(request, {
-            'versions': versions,
-            'objectVersions': objectVersions,
-            'objectType': objectType,
-        })
-        return HttpResponse(template.render(context))
+            return redirect('/')
     else:
         if 'loggedOut' in request.session:
             del request.session['loggedOut']
         request.session['next'] = '/'
         return redirect('/login')
+
+
+################################################################################
+#
+# Function Name: modules(request)
+# Inputs:        request -
+# Outputs:       User Request Page
+# Exceptions:    None
+# Description:   Page that allows to add modules to a template
+#
+################################################################################
+def modules(request):
+    if request.user.is_authenticated() and request.user.is_staff:
+        template = loader.get_template('admin/modules.html')
+        id = request.GET.get('id', None)
+        if id is not None:
+            try:
+                object = Template.objects.get(pk=id)
+                xsltPath = os.path.join(settings.SITE_ROOT, 'static/resources/xsl/xsd2html4modules.xsl')
+                xslt = etree.parse(xsltPath)
+                transform = etree.XSLT(xslt)            
+
+                dom = etree.parse(BytesIO(object.content.encode('utf-8')))
+                annotations = dom.findall(".//{http://www.w3.org/2001/XMLSchema}annotation")
+                for annotation in annotations:
+                    annotation.getparent().remove(annotation)
+                newdom = transform(dom)
+                xsdTree = str(newdom)
+                
+                request.session['moduleTemplateID'] = id
+                request.session['moduleTemplateContent'] = object.content
+                
+                request.session['moduleNamespaces'] = common.get_namespaces(BytesIO(str(object.content)))
+                for prefix, url in request.session['moduleNamespaces'].items():
+                    if (url == "{http://www.w3.org/2001/XMLSchema}"):            
+                        request.session['moduleDefaultPrefix'] = prefix
+                        break
+                
+                context = RequestContext(request, {
+                    'xsdTree': xsdTree,      
+                    'modules': Module.objects              
+                })
+                
+                
+                return HttpResponse(template.render(context))
+            except:
+                return redirect('/')
+        else:
+            return redirect('/')
+    else:
+        if 'loggedOut' in request.session:
+            del request.session['loggedOut']
+        request.session['next'] = '/'
+        return redirect('/login')
+    
+    

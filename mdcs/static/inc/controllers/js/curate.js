@@ -779,14 +779,25 @@ changeChoice = function(selectObj)
     console.log('BEGIN [changeChoice(' + selectObj.id + ' : ' + selectObj.selectedIndex + ')]');
 
     // get the index of the selected option 
-    var idx = selectObj.selectedIndex;  
+    var idx = selectObj.selectedIndex;
 
+    // change the displayed choice
     for (i=0; i < selectObj.options.length;i++) {
     	if (i == idx){
     		$("#" + selectObj.id + "-" + i).removeAttr("class");
 		} else {
 			$("#" + selectObj.id + "-" + i).attr("class","notchosen");
-		}    	
+		}
+    }
+    // the choice is not yet generated
+    if ($("#" + selectObj.id + "-" + idx).children().length == 0){
+        // save values in the form
+        $("input").each(function(){
+	        $(this).attr("value", $(this).val());
+	    });
+	    $('select option').each(function(){ this.defaultSelected = this.selected; });
+	    // generate selected choice
+        generate(selectObj.id.substr(6) + "-" + idx, "choice");
     }
 
     console.log('END [changeChoice(' + selectObj.id + ' : ' + selectObj.selectedIndex + ')]');
@@ -869,7 +880,7 @@ loadCurrentTemplateFormForCuration = function()
     $('.btn.save-form').on('click', saveForm);
     $('.btn.download').on('click', downloadOptions);
 
-    generate_xsd_form()
+    generate_xsd_form();
     update_form_list();
 
     console.log('END [loadCurrentTemplateFormForCuration]');
@@ -889,6 +900,9 @@ generate_xsd_form = function(){
             $('#periodicTable').html(data.periodicTable);
             $('#periodicTableMultiple').html(data.periodicTableMultiple);
             $('#xsdForm').html(data.xsdForm);
+            setTimeout(disable_elements ,0);
+            
+            initModules();
         },
     });
 }
@@ -1206,20 +1220,54 @@ changeHTMLForm = function(operation, tagID)
 	    $(this).attr("value", $(this).val());
 	});
 	$('select option').each(function(){ this.defaultSelected = this.selected; });
-	
-	
+
     if (operation == 'add') {
-    	$("#element"+tagID).children(".expand").attr("class","collapse");    
-		duplicate(tagID);
-    } else if (operation == 'remove') {    	
+        // the element has to be created
+        if ($("#element"+tagID).children("ul").length == 0 &&
+        $("#element"+tagID).children("input").length == 0 &&
+        $("#element"+tagID).children("select").length == 0){
+            generate(tagID, "element");
+        }
+        else{
+            // the element is already generated
+            $("#element"+tagID).children(".expand").attr("class","collapse");
+            duplicate(tagID);
+        }
+    } else if (operation == 'remove') {
     	$("#element"+tagID).children(".collapse").attr("class","expand");
 		remove(tagID);
     }
+
     console.log('END [changeHTMLForm(' + operation + ')]');
 
     return false;
 }
 
+
+/**
+ * AJAX call, generate an element from the form
+ * @param tagID HTML id of the element to generate
+ */
+generate = function(tagID, tag){
+    var xsdForm = $("#xsdForm").html();
+    $.ajax({
+        url : "/curate/generate",
+        type : "POST",
+        dataType: "json",
+        data : {
+            tagID : tagID,
+            tag: tag,
+            xsdForm: xsdForm
+        },
+        success: function(data){
+            $("#xsdForm").html(data.xsdForm);
+            $("#element" + tagID).prop("disabled",false);
+            $("#element" + tagID).children('select').prop("disabled",false);
+            $("#element" + tagID).removeClass("removed");
+            $("#element" + tagID).children("ul").show(500);
+        }
+    });
+}
 
 /**
  * AJAX call, duplicate an element from the form
@@ -1241,7 +1289,7 @@ duplicate = function(tagID){
                 $("#" + data.tagID).prop("disabled",false);
                 $("#" + data.tagID).children('select').prop("disabled",false);
                 $("#" + data.tagID).removeClass("removed");
-                $("#" + data.tagID).children("ul").show(500);
+                $("#" + data.tagID).children("ul").attr('style','');
 	            }
 	            else{
 	            	var xsdForm = $("#xsdForm").html();
@@ -1264,6 +1312,28 @@ duplicate = function(tagID){
     });
 }
 
+/**
+ * disable removed element
+ * @param tagID HTML id of the element to disable
+ */
+disable_element = function(tagID){
+	$("#" + tagID).children(".collapse").attr("class","expand");
+	$('#add' + tagID.substring(7)).attr('style','');
+    $('#remove' + tagID.substring(7)).attr('style','display:none');
+    $("#" + tagID).prop("disabled",true);
+    $("#" + tagID).children('select').prop("disabled",true);
+    $("#" + tagID).children("ul").hide();
+}
+
+/**
+ * disable all removed elements
+ * @param tagID HTML id of the element to disable
+ */
+disable_elements = function(){
+	$("#xsdForm").find(".removed").each(function(){
+		disable_element($(this).attr('id'));
+	});
+}
 
 /**
  * AJAX call, remove an element from the form
@@ -1280,11 +1350,11 @@ $.ajax({
         success: function(data){
         	if ('occurs' in data){
         		if (data.occurs == "zero"){
-                    $('#add' + data.id).attr('style','');
-                    $('#remove' + data.id).attr('style','display:none');
+                    $("#" + data.tagID).addClass("removed");
+                    $('#add' + data.tagID.substring(7)).attr('style','');
+                    $('#remove' + data.tagID.substring(7)).attr('style','display:none');
                     $("#" + data.tagID).prop("disabled",true);
                     $("#" + data.tagID).children('select').prop("disabled",true);
-                    $("#" + data.tagID).addClass("removed");
                     $("#" + data.tagID).children("ul").hide(500);
         		}else{
         			var xsdForm = $("#xsdForm").html();     			

@@ -165,7 +165,8 @@ def getXSDTypes(prefix):
             "{0}:double".format(prefix),  
             "{0}:float".format(prefix),
             "{0}:hexBinary".format(prefix),
-            "{0}:QName".format(prefix)]
+            "{0}:QName".format(prefix),
+            "{0}:anyType".format(prefix)]
     
     
 ################################################################################
@@ -181,3 +182,26 @@ class ChoiceInfo:
     def __init__(self, chooseIDStr, counter):
         self.chooseIDStr = chooseIDStr
         self.counter = counter        
+        
+        
+################################################################################
+# 
+# Function Name: get_namespaces(file)
+# Inputs:        file -
+# Outputs:       namespaces
+# Exceptions:    None
+# Description:   Get the namespaces used in the document
+#
+################################################################################
+def get_namespaces(file):
+    "Reads and returns the namespaces in the schema tag"
+    events = "start", "start-ns"
+    ns = {}
+    for event, elem in etree.iterparse(file, events):
+        if event == "start-ns":
+            if elem[0] in ns and ns[elem[0]] != elem[1]:
+                raise Exception("Duplicate prefix with different URI found.")
+            ns[elem[0]] = "{%s}" % elem[1]
+        elif event == "start":
+            break
+    return ns

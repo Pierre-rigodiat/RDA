@@ -77,18 +77,19 @@
 {% if isDeleted == True %}     
 	<td><span style="color:red;">Deleted</span></td>
     <td>
-    <div class="icon legend long retrieve" objectType="{{ objectType }}" objectid="{{ object.id }}">Restore {{ objectType }} </div>
+    <div class="icon legend retrieve" objectType="{{ objectType }}" objectid="{{ object.id }}">Restore {{ objectType }} </div>
 {% else %}
 
     <td><span style="color:green;">Registered</span></td>
     <td>
-    <div class="icon legend long version" objectType="{{ objectType }}" objectid="{{ object.id }}">Versions</div>
-    <div class="icon legend long edit" objectType="{{ objectType }}" objectid="{{ object.id }}">Edit</div>
+    <div class="icon legend version" objectType="{{ objectType }}" objectid="{{ object.id }}">Versions</div>
+    <div class="icon legend edit" objectType="{{ objectType }}" objectid="{{ object.id }}">Edit</div>    
     <div class="icon legend delete" objectType="{{ objectType }}" objectid="{{ object.id }}">Delete</div>
-    </td>
-
 {% endif %}
-
+ 	{% if objectType == "Template" %}
+    <div class="icon legend modules" objectType="{{ objectType }}" objectid="{{ object.id }}">Modules</div>
+    {% endif %}
+	</td>
   </tr>
 
 {% endfor %}

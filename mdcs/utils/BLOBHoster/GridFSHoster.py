@@ -60,11 +60,11 @@ class GridFSHoster(BLOBHoster):
             handles.append(handle)
         return handles
         
-    def save(self, blob):            
-        blob_id = self.fs.put(blob)
+    def save(self, blob, filename=None, contentType=None):            
+        blob_id = self.fs.put(blob, filename=filename, contentType=contentType)
         handle = self.uri + 'rest/get-blob?id=' + str(blob_id)
-        return handle
-        
+        return handle    
+    
     def delete(self, handle):
         try:
             url = urlparse(handle)
@@ -73,4 +73,7 @@ class GridFSHoster(BLOBHoster):
             raise ValueError('The handle is not well formed.') 
         if self.fs.exists(ObjectId(blob_id)):
             self.fs.delete(ObjectId(blob_id))
+            
+    def query(self, query):
+        BLOBHoster.query(self)
         

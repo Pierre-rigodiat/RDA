@@ -12,232 +12,193 @@
  */
 
 /**
- * Load modules controllers
+ * Show/hide
+ * @param event
  */
-loadModuleManagerHandler = function()
-{
-    console.log('BEGIN [loadModuleManagerHandler]');    
-    $('.delete.module').on('click', deleteModule);
-    console.log('END [loadModuleManagerHandler]');
-}
-
-/**
- * Delete a module
- */
-deleteModule = function(){
-	var objectid = $(this).attr("objectid");
-	$(function() {
-        $( "#dialog-delete" ).dialog({
-            modal: true,
-            buttons: {
-            	Yes: function() {	
-            		$( this ).dialog( "close" );
-            		delete_module(objectid);
-                },
-                No:function() {	
-            		$( this ).dialog( "close" );
-                }
-            }
-        });
-    });
-}
-
-
-
-/**
- * AJAX call, deletes a module
- * @param objectid
- */
-delete_module = function(objectid){
-    $.ajax({
-        url : "/admin/delete_module",
-        type : "POST",
-        dataType: "json",
-        data : {
-        	objectid : objectid,
-        },
-        success: function(data){
-            $('#model_selection').load(document.URL +  ' #model_selection', function() {
-            	loadModuleManagerHandler();
-            });
-        }
-    });
-}
-
-
-/**
- * Load controllers for module addition
- */
-loadAddModuleHandler = function()
-{
-    console.log('BEGIN [loadAddModuleHandler]');
-    document.getElementById('moduleResource').addEventListener('change',handleModuleResourceUpload, false);
-    init_module_manager();
-    console.log('END [loadAddModuleHandler]');
-}
-
-
-/**
- * AJAX call, inits the module manager
- */
-init_module_manager = function(){
-    $.ajax({
-        url : "/admin/init_module_manager",
-        type : "POST",
-        dataType: "json",
-        success: function(data){
-            
-        }
-    });
-}
-
-
-/**
- * Handler for reading of resources files
- * @param evt
- */
-function handleModuleResourceUpload(evt) {
-	var files = evt.target.files; // FileList object
-    reader = new FileReader();
-    reader.onload = function(e){
-    	resourceContent = reader.result;
-    	resourceFilename = files[0].name;
-    	add_module_resource(resourceContent, resourceFilename);
-    }
-    reader.readAsText(files[0]);
-}
-
-
-/**
- * AJAX call, add a resource to a module
- * @param resourceContent content of the resource
- * @param resourceFilename name of the resource file
- */
-add_module_resource = function(resourceContent, resourceFilename){
-    $.ajax({
-        url : "/admin/add_module_resource",
-        type : "POST",
-        dataType: "json",
-        data : {
-        	resourceContent : resourceContent,
-        	resourceFilename : resourceFilename,
-        },
-        success: function(data){
-            
-        }
-    });
-}
-
-
-/**
- * Upload a resource
- */
-uploadResource = function()
-{
-	upload_resource();
-}
-
-
-/**
- * AJAX call, uploads a resource
- */
-upload_resource = function(){
-    $.ajax({
-        url : "/admin/upload_resource",
-        type : "GET",
-        dataType: "json",
-        success: function(data){
-        	if("filename" in data){
-            	$("#uploadedResources").append(data.filename + "<br/>");
-            	$("#moduleResource").val("");
-        	}
-        }
-    });
-}
-
-
-/**
- * Add a module
- */
-addModule = function()
-{
-	var templates = $("#module-templates").val();
-	var name = $("#module-name").val();
-	var tag = $("#module-tag").val();
-	var HTMLTag = $("#module-HTMLTag").val();
+showhide = function(event){
+	console.log('BEGIN [showhide]');
 	
-	errors = "";
-	if (templates == null || templates.length == 0){
-		errors += "Please select at least one template. <br/>"
-	}
-	if (name.trim().length == 0){
-		errors += "Please enter a valid name for the module. <br/>"
-	}
-	if (tag.trim().length == 0){
-		errors += "Please enter a valid tag name. <br/>"
-	}
-	if (HTMLTag.trim().length == 0){
-		errors += "Please enter a valid HTML tag. <br/>"
-	}
-	if (errors == ""){
-		add_module(templates, name, tag, HTMLTag);
+	button = event.target
+	parent = $(event.target).parent()
+	$(parent.children('ul')).toggle("blind",500);
+	if ($(button).attr("class") == "expand"){
+		$(button).attr("class","collapse");
 	}else{
-		$("#errors").html(errors);
-		$(function() {
-	        $( "#dialog-errors" ).dialog({
-	            modal: true,
-	            buttons: {
-	            	Ok: function() {	
-	            		$( this ).dialog( "close" );
-	                }
-	            }
-	        });
-	    });
-	}	
+		$(button).attr("class","expand");
+	}
+		
+	console.log('END [showhide]');
 }
+
+var target;
+
+var showModuleManager=function(event){	
+	target = event.target;
+	$( "#dialog-modules" ).dialog({
+      modal: true,
+      width: 600,
+      height: 400,
+      buttons: {
+        Cancel: function() {
+          $( this ).dialog( "close" );
+        }
+      }
+    });
+};		
 
 
 /**
- * AJAX call, adds a module
- * @param templates list of selected templates 
- * @param name name of the module
- * @param tag XML tag to replace
- * @param HTMLTag HTML tag to appear in the form
+ * Build xpath of selected element
+ * @returns
  */
-add_module = function(templates, name, tag, HTMLTag){
+getXPath = function(){
+	current = $(target).parent().siblings('.path');
+	xpath = $(current).text();	
+	current = $(current).parent().parent().parent().siblings('.path');
+	while(current != null){
+		current_path = $(current).text() ;
+		if (current_path.indexOf("schema") != -1){
+			current = null;
+		}else{			
+			xpath = current_path + "/" + xpath;	
+			current = $(current).parent().parent().parent().siblings('.path');
+		}		
+	}
+	
+	return xpath;
+}
+
+
+manageXPath = function(){	
+	namespace = $(target).text().split(":")[0];
+	i = 1;
+	$(target).closest("ul").children().each(function(){
+	  if(!($(this).find(".path").html() == $(target).closest("li").find(".path").html() )){
+		  $(this).find(".path").html(namespace + ":element["+i+"]");
+		  i += 1;
+	  }	  
+	})
+}
+
+
+
+/**
+ * Insert a module in the XML tree
+ * @param event
+ */
+insertModule = function(event){	
+	// change the sequence style
+	parent = $(target).parent()
+	
+	insertButton = event.target;
+	moduleURL = $(insertButton).parent().siblings(':nth-of-type(2)').text();
+	moduleID = $(insertButton).parent().siblings(':first').attr('moduleID');
+	
+	xpath = getXPath();
+	
+	// add the module attribute
+	if ($(parent).parent().find('.module').length == 1 ){
+		$(parent).parent().find(".module").html(moduleURL);
+	}else{
+		$(parent).after("<span class='module'>"+
+						moduleURL +
+						"</span>");
+	}
+	
+	
+	$( "#dialog-modules" ).dialog("close");
+	
+	insert_module(moduleID, xpath);
+}
+
+
+
+/**
+ * AJAX call, inserts a module
+ */
+insert_module = function(moduleID, xpath){
     $.ajax({
-        url : "/admin/add_module",
+        url : "/admin/insert_module",
         type : "POST",
         dataType: "json",
-        data : {
-        	templates : templates,
-        	name: name,
-        	tag: tag,
-        	HTMLTag: HTMLTag
+        data:{
+        	moduleID: moduleID,
+        	xpath: xpath,
         },
         success: function(data){
-        	addModuleCallback();
+
         }
     });
 }
 
 
+
 /**
- * Display a message when the module is added.
+ * Remove a module
+ * @param event
  */
-addModuleCallback = function(){
-	$(function() {
-        $( "#dialog-added" ).dialog({
-            modal: true,
-            close: function(){
-            	window.location = "module-management"
-            },
-            buttons: {
-            	Ok: function() {	
-            		$( this ).dialog( "close" );
-                }
-            }
-        });
+noModule = function(event){	
+	// change the sequence style
+	parent = $(target).parent()
+	
+	insertButton = event.target;
+	
+	xpath = getXPath();
+	
+	// remove the module
+	$(parent).parent().find('.module').remove()	
+	
+	$( "#dialog-modules" ).dialog("close");
+	
+	no_module(xpath);
+}
+
+
+/**
+ * AJAX call, removes a module
+ */
+no_module = function(xpath){
+    $.ajax({
+        url : "/admin/remove_module",
+        type : "POST",
+        dataType: "json",
+        data:{
+        	xpath: xpath,
+        },
+        success: function(data){
+
+        }
     });
 }
 
+
+saveTemplate = function(){
+    $.ajax({
+        url : "/admin/save_modules",
+        type : "POST",
+        dataType: "json",
+        success: function(data){
+        	saveTemplateCallback();
+        }
+    });
+}
+
+/**
+ * Display success window
+ */
+saveTemplateCallback = function(){
+	console.log('BEGIN [saveTemplate]');
+	
+	$(function() {
+		$("#dialog-save").dialog({
+		  modal: true,
+		  buttons: {
+			OK: function() {
+					window.location = '/admin/xml-schemas/manage-schemas'
+			   	}
+		      }
+		    });
+	  });
+	
+	console.log('END [saveTemplate]');
+}
