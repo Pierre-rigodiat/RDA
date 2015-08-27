@@ -17,6 +17,7 @@
 from django.http import HttpResponse
 from django.template import RequestContext, loader
 from django.shortcuts import redirect
+from django.conf import settings
 from datetime import date
 from mgi.models import Template, TemplateVersion, Instance, SavedQuery, QueryResults, SparqlQueryResults
 from cStringIO import StringIO
@@ -50,7 +51,8 @@ def index(request):
     
         context = RequestContext(request, {
             'templates':currentTemplates,
-           'userTemplates': Template.objects(user=str(request.user.id)),
+            'userTemplates': Template.objects(user=str(request.user.id)),
+            'enable_sparql': settings.ENABLE_SPARQL
         })
         return HttpResponse(template.render(context))
     else:
@@ -96,7 +98,7 @@ def explore_customize_template(request):
     if request.user.is_authenticated():
         template = loader.get_template('explore_customize_template.html')
         context = RequestContext(request, {
-            '': '',
+            'enable_sparql': settings.ENABLE_SPARQL
         })    
         if 'exploreCurrentTemplateID' not in request.session:
             return redirect('/explore/select-template')
@@ -139,6 +141,7 @@ def explore_perform_search(request):
                 'instances': listInstances,
                 'template_hash': template_hash,
                 'queries':queries,
+                'enable_sparql': settings.ENABLE_SPARQL
             })
             if 'exploreCurrentTemplateID' not in request.session:
                 return redirect('/explore/select-template')

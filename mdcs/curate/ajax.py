@@ -158,27 +158,28 @@ def save_xml_data_to_db(request):
             newJSONData = Jsondata(schemaID=templateID, xml=xmlString, title=request.POST['saveAs'])
             docID = newJSONData.save()
             
-            xsltPath = os.path.join(settings.SITE_ROOT, 'static/resources/xsl/xml2rdf3.xsl')
-            xslt = etree.parse(xsltPath)
-            root = xslt.getroot()
-            namespace = root.nsmap['xsl']
-            URIparam = root.find("{" + namespace +"}param[@name='BaseURI']") #find BaseURI tag to insert the project URI
-            URIparam.text = settings.PROJECT_URI + str(docID)
-        
-            # SPARQL : transform the XML into RDF/XML
-            transform = etree.XSLT(xslt)
-            # add a namespace to the XML string, transformation didn't work well using XML DOM    
-            template = Template.objects.get(pk=templateID)
-            xmlStr = xmlString.replace('>',' xmlns="' + settings.PROJECT_URI + template.hash + '">', 1) #TODO: OR schema name...
-            # domXML.attrib['xmlns'] = projectURI + schemaID #didn't work well
-            domXML = etree.fromstring(xmlStr)
-            domRDF = transform(domXML)
-        
-            # SPARQL : get the rdf string
-            rdfStr = etree.tostring(domRDF)
-        
-            # SPARQL : send the rdf to the triplestore
-            rdfPublisher.sendRDF(rdfStr)
+            if settings.ENABLE_SPARQL is True:
+                xsltPath = os.path.join(settings.SITE_ROOT, 'static/resources/xsl/xml2rdf3.xsl')
+                xslt = etree.parse(xsltPath)
+                root = xslt.getroot()
+                namespace = root.nsmap['xsl']
+                URIparam = root.find("{" + namespace +"}param[@name='BaseURI']") #find BaseURI tag to insert the project URI
+                URIparam.text = settings.PROJECT_URI + str(docID)
+            
+                # SPARQL : transform the XML into RDF/XML
+                transform = etree.XSLT(xslt)
+                # add a namespace to the XML string, transformation didn't work well using XML DOM    
+                template = Template.objects.get(pk=templateID)
+                xmlStr = xmlString.replace('>',' xmlns="' + settings.PROJECT_URI + template.hash + '">', 1) #TODO: OR schema name...
+                # domXML.attrib['xmlns'] = projectURI + schemaID #didn't work well
+                domXML = etree.fromstring(xmlStr)
+                domRDF = transform(domXML)
+            
+                # SPARQL : get the rdf string
+                rdfStr = etree.tostring(domRDF)
+            
+                # SPARQL : send the rdf to the triplestore
+                rdfPublisher.sendRDF(rdfStr)
     
         except Exception, e:
             message = e.message.replace('"', '\'')
@@ -432,7 +433,7 @@ def isDeterminist(element, xmlTree, namespace):
 #     get all the possible nodes that can appear in the sequence
 #     for each node, count how many times it's found in the data
 #     the maximum count is the number of occurrences of the sequence
-# only works if data are determinist: means we don't have an element outside the sequence, and the same in the sequence
+# only works if data are determinist enough: means we don't have an element outside the sequence, and the same in the sequence
 def lookup_Occurs(element, xmlTree, namespace, fullPath, edit_data_tree):
     xpaths = get_nodes_xpath(element, xmlTree, namespace)
     maxOccursFound = 0
