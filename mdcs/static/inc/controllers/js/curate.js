@@ -62,6 +62,23 @@ verifyTemplateIsSelectedCallback = function(data, selectedLink)
 
 
 /**
+ * Display message to block access to enter data from first step.
+ */
+enterDataError = function()
+{
+    $(function() {
+        $( "#dialog-enter-error-message" ).dialog({
+            modal: true,
+            buttons: {
+            	Ok: function() {
+                    $( this ).dialog( "close" );
+                }
+            }
+        });
+    });
+}
+
+/**
  * Display message to block access to view data from first step.
  */
 viewDataError = function()
@@ -145,92 +162,6 @@ clear_fields = function(){
 
 
 /**
- * Load an existing form. Show the window.
- */
-loadForm = function()
-{
-    console.log('BEGIN [loadForm]');
-
-    $(function() {
-        $( "#dialog-load-form-message" ).dialog({
-            modal: true,
-            buttons: {
-		Load: function() {
-                    $( this ).dialog( "close" );
-                    doLoadForm();
-                },
-		Cancel: function() {
-                    $( this ).dialog( "close" );
-                }
-	    }
-        });
-    });
-	
-    console.log('END [loadForm]');
-}
-
-
-/**
- * Load an existing form.
- * @returns {Boolean}
- */
-doLoadForm = function()
-{
-    console.log('BEGIN [doLoadForm]');
-
-    var formSelectedArray = document.getElementById('listOfForms');
-    var form_selected = formSelectedArray.options[formSelectedArray.selectedIndex].value;
-
-    load_form_for_entry(form_selected);
-
-    console.log('END [doLoadForm]');
-
-    return false;
-}
-
-
-/**
- * AJAX call, load the form from the server
- * @param form_selected
- */
-load_form_for_entry = function(form_selected){
-    $.ajax({
-        url : "/curate/load_form_for_entry",
-        type : "POST",
-        dataType: "json",
-        data : {
-            form_selected : form_selected,
-        },
-        success: function(data){
-            $('#xsdForm').html(data.xsdForm);
-        }
-    });
-}
-
-
-/**
- * Display message when form loaded.
- */
-formLoaded = function()
-{
-    console.log('BEGIN [loadForm]');
-
-    $(function() {
-        $( "#dialog-form-loaded-message" ).dialog({
-            modal: true,
-            buttons: {
-		Ok: function() {
-                    $( this ).dialog( "close" );
-                }
-	    }
-        });
-    });
-	
-    console.log('END [loadForm]');
-}
-
-
-/**
  * Save the current form. Show the window.
  */
 saveForm = function()
@@ -238,21 +169,20 @@ saveForm = function()
     console.log('BEGIN [saveForm]');
 
     $(function() {
-        $( "#dialog-save-as-message" ).dialog({
+        $( "#dialog-save-form-message" ).dialog({
             modal: true,
             buttons: {
-		Save: function() {
-		    if (document.getElementById('saveAsInput').value.length>0) {
-			$( this ).dialog( "close" );
-			doSave();
-		    } else {
-			document.getElementById('saveAsErrorMessage').innerHTML = "<font color=\"red\">Please enter a name</font>";
-		    }
+				Save: function() {				 
+					$( this ).dialog( "close" );
+					var rootElement = document.getElementsByName("xsdForm")[0];
+					var xmlString = '';						
+				    xmlString = generateXMLString (rootElement);
+					save_form(xmlString);
                 },
-		Cancel: function() {
+			Cancel: function() {
                     $( this ).dialog( "close" );
                 }
-	    }
+            }
         });
     });
 	
@@ -261,64 +191,26 @@ saveForm = function()
 
 
 /**
- * Save an existing form. 
+ * AJAX call, saves the current form 
+ * @param xmlString xml string to save
  */
-doSave = function()
-{
-    console.log('BEGIN [doSave]');
-
-    // Need to Set input values explicitiy before sending innerHTML for save
-    var elems = document.getElementsByName("xsdForm")[0].getElementsByTagName("input");
-    for(var i = 0; i < elems.length; i++) {
-	// sent attribute to property value
-	elems[i].setAttribute("value", elems[i].value);
-    }
-
-    var elems = document.getElementsByName("xsdForm")[0].getElementsByTagName("select");
-    for(var i = 0; i < elems.length; i++) {
-	// get the index of the selected option 
-	var idx = elems[i].selectedIndex; 
-	// set the value of the selected option to selected
-	elems[i].selectedIndex = idx;
-    }
-
-    saveAs = document.getElementById('saveAsInput').value;
-    content = document.getElementById('xsdForm').innerHTML;
-    save_html_form(saveAs , content);
-
-    $(function() {
-        $( "#dialog-saved-message" ).dialog({
-            modal: true,
-            buttons: {
-		Ok: function() {
-                    $( this ).dialog( "close" );
-		    document.getElementById('saveAsInput').value = "";
-		    document.getElementById('saveAsErrorMessage').innerHTML = "";
-                }
-	    }
-        });
-    });
-	
-    console.log('END [doSave]');
-}
-
-
-/**
- * AJAX call, saves the HTML form 
- * @param save_as title of the form
- * @param content form content of the form
- */
-save_html_form = function(save_as, content){
+save_form = function(xmlString){
     $.ajax({
-        url : "/curate/save_html_form",
+        url : "/curate/save_form",
         type : "POST",
         dataType: "json",
         data : {
-            saveAs : saveAs,
-            content: content
+        	xmlString : xmlString,
         },
         success: function(data){
-            update_form_list();
+        	$( "#dialog-saved-message" ).dialog({
+            modal: true,
+            buttons: {
+    		Ok: function() {
+                        $( this ).dialog( "close" );
+                    }
+    	    	}
+            });
         }
     });
 }
@@ -812,13 +704,49 @@ displayTemplateSelectedDialog = function()
  $(function() {
     $( "#dialog-message" ).dialog({
       modal: true,
-      buttons: {
-        Ok: function() {
-          $( this ).dialog( "close" );
-        }
-      }
+      buttons:
+    	  [
+           {
+               text: "Start",
+               click: function() {
+            	   
+            	   if (validateStartCurate()){
+	            	   var formData = new FormData($( "#form_start" )[0]);
+	            	   $.ajax({
+	            	        url: "/curate/start_curate",
+	            	        type: 'POST',
+	            	        data: formData,
+	            	        cache: false,
+	            	        contentType: false,
+	            	        processData: false,
+	            	        async:false,
+	            	   		success: function(data){
+	            	   			window.location = '/curate/enter-data'
+	            	        },
+	            	        error:function(data){
+	            	        	$("#form_start_errors").html(data.responseText);
+	            	        },
+	            	    })
+	            	    ;
+            	   }
+               }
+           }
+          ]
     });
   });
+}
+
+/**
+ * AJAX call, launch the curation from the selected parameters
+ */
+start_curate = function(){
+    $.ajax({
+        url : "/curate/start_curate",
+        type : "POST",
+        dataType: "json",
+        success: function(data){
+        }
+    });
 }
 
 
@@ -876,12 +804,10 @@ loadCurrentTemplateFormForCuration = function()
     console.log('BEGIN [loadCurrentTemplateFormForCuration]');
 
     $('.btn.clear-fields').on('click', clearFields);
-    $('.btn.load-form').on('click', loadForm);
     $('.btn.save-form').on('click', saveForm);
     $('.btn.download').on('click', downloadOptions);
 
     generate_xsd_form();
-    update_form_list();
 
     console.log('END [loadCurrentTemplateFormForCuration]');
 }
@@ -904,21 +830,6 @@ generate_xsd_form = function(){
             
             initModules();
         },
-    });
-}
-
-
-/**
- * AJAX call, updates the list of availlable forms to load
- */
-update_form_list = function(){
-    $.ajax({
-        url : "/curate/update_form_list",
-        type : "GET",
-        dataType: "json",
-        success : function(data) {
-            $('#listOfForms').html(data.options);
-        }
     });
 }
 
@@ -1091,21 +1002,17 @@ saveToRepository = function()
     console.log('BEGIN [saveToRepository]');
 
     $(function() {
-        $( "#dialog-save-as-message" ).dialog({
+        $( "#dialog-save-data-message" ).dialog({
             modal: true,
             buttons: {
-		Save: function() {
-		    if (document.getElementById('saveAsInput').value.length>0) {
-			$( this ).dialog( "close" );
-			doSaveToRepository();
-		    } else {
-			document.getElementById('saveAsErrorMessage').innerHTML = "<font color=\"red\">Please enter a name</font>";
-		    }
+            	Save: function() {
+					$( this ).dialog( "close" );
+					doSaveToRepository();
                 },
-		Cancel: function() {
+				Cancel: function() {
                     $( this ).dialog( "close" );
                 }
-	    }
+            }
         });
     });
 	
@@ -1457,6 +1364,53 @@ set_current_user_template = function(templateID){
     });
 }
 
+load_start_form = function(){
+	$.ajax({
+        url : "/curate/start_curate",
+        type : "GET",
+        dataType: "json",
+        data : {
+        	
+        },
+        success: function(data){
+            $("#form_start_content").html(data.template);
+        }
+    });
+}
+
+validateStartCurate = function(){
+	errors = ""
+	
+	// check if an option has been selected
+	selected_option = $( "#form_start" ).find("input:radio[name='curate_form']:checked").val()
+	if (selected_option == undefined){
+		errors = "No option selected. Please check one radio button."
+		$("#form_start_errors").html(errors);
+		return (false);
+	}else{
+		if (selected_option == "new"){
+			if ($( "#id_document_name" ).val().trim() == ""){
+				errors = "You selected the option 'Create a new document'. Please provide a name for the document."
+			}
+		}else if (selected_option == "open"){
+			if ($( "#id_forms" ).val() == ""){
+				errors = "You selected the option 'Open a Form'. Please select an existing form from the list."
+			}
+		}else if (selected_option == "upload"){
+			if ($( "#id_file" ).val() == ""){
+				errors = "You selected the option 'Upload a File'. Please select an XML file."
+			}
+		}
+	}
+		
+	if (errors != ""){
+		$("#form_start_errors").html(errors);
+		return (false);
+	}else{
+		return (true)
+	}	
+}
+
 
 /**
  * Update page when template selected.
@@ -1467,9 +1421,12 @@ setCurrentTemplateCallback = function()
     console.log('BEGIN [setCurrentTemplateCallback]');
 
     $('#template_selection').load(document.URL +  ' #template_selection', function() {
-	loadTemplateSelectionControllers();
-	displayTemplateSelectedDialog();
+    	loadTemplateSelectionControllers();
+    	displayTemplateSelectedDialog();
     });
+    
+    load_start_form();
+    
     console.log('END [setCurrentTemplateCallback]');
 }
 

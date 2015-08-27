@@ -30,10 +30,6 @@ DEBUG = True
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
-#SPARQL project URI
-PROJECT_URI = "http://www.example.com/"
-
-
 
 if DEBUG == True:
     SECRET_KEY = 'ponq)(gd8hm57799)$lup4g9kyvp0l(9)k-3!em7dddn^(y)!5'
@@ -81,11 +77,16 @@ MONGO_MGI_PASSWORD = "mgi"
 MONGODB_URI = "mongodb://" + MONGO_MGI_USER + ":" + MONGO_MGI_PASSWORD + "@localhost/mgi"
 connect("mgi", host=MONGODB_URI)
 
+# BLOB Hoster module parameters
 BLOB_HOSTER = 'GridFS'
 BLOB_HOSTER_URI = MONGODB_URI
 BLOB_HOSTER_USER = MONGO_MGI_USER
 BLOB_HOSTER_PSWD = MONGO_MGI_PASSWORD
 MDCS_URI = 'http://127.0.0.1:8000'
+
+# SPARQL endpoint options
+ENABLE_SPARQL = False
+PROJECT_URI = "http://www.example.com/"
 
 TEMPLATE_DIRS = [os.path.join(BASE_DIR, 'templates')]
 

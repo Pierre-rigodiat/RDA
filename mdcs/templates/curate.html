@@ -29,7 +29,7 @@
 {% block submenu %}
 <ul class="tabbed">
   <li class="current_page_item"><a href="/curate/select-template">Select Template</a></li>
-  <li><div style="cursor:pointer"><a onclick="verifyTemplateIsSelected('/curate/enter-data');">Enter Data</a></div></li>
+  <li><div style="cursor:pointer"><a onclick="enterDataError();">Enter Data</a></div></li>
   <li><div style="cursor:pointer"><a onclick="viewDataError();">View Data</a></div></li>
 </ul>
 {% endblock %}
@@ -63,17 +63,7 @@
   <tr class="{{ rowcolors }}">
     <td templateID='{{template.id}}'>{{ template.title }}</td>
     <td>{{ template.filename }}</td>
-
-{% if request.session.currentTemplateID == template.id|stringformat:"s" %} 
-
-    <td><span style="color:green;font-weight:bold">Current template</span></td>
-
-{% else %}
-
     <td><button class="btn set-template" ><i class="icon-plus-sign"></i> Set as current template</button></td>
-
-{% endif %}
-
   </tr>
   
 {% endif %}
@@ -94,19 +84,8 @@
   {% cycle 'even' '' as rowcolors silent %}
   <tr class="{{ rowcolors }}">
     <td templateID='{{template.id}}'>{{ template.title }}</td>
-
-{% if request.session.currentTemplateID == template.id|stringformat:"s" %} 
-
-    <td><span style="color:green;font-weight:bold">Current template</span></td>
-
-{% else %}
-
     <td><button class="btn set-curate-user-template" ><i class="icon-plus-sign"></i> Set as current template</button></td>    
-
-{% endif %}
-
-  </tr>  
-
+  </tr>
 {% endfor %}
 </table>
 {%else%}
@@ -124,7 +103,7 @@
 	<div class="box-content">
 		<ul class="nice-list">
 			<li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'resources/img/Orange_Number_1.png' %}"></td><td><strong><a href="/curate/select-template">Select Template</a></strong></td></tr></table></li>
-			<li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'resources/img/Orange_Number_2.png' %}"></td><td><div style="cursor:pointer"><a onclick="verifyTemplateIsSelected('/curate/enter-data');">Enter Data</a></div></td></tr></table></li>
+			<li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'resources/img/Orange_Number_2.png' %}"></td><td><div style="cursor:pointer"><a onclick="enterDataError();">Enter Data</a></div></td></tr></table></li>
 			<li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'resources/img/Orange_Number_3.png' %}"></td><td><div style="cursor:pointer"><a onclick="viewDataError();">View Data</a></td></tr></table></li>
 		</ul>
 	</div>
@@ -134,17 +113,18 @@
 
 {% block extra %}
 <div id="dialog-message" title="Template Loaded" style="display:none;">
-<p></p>
-  <p>
-    <span class="ui-icon ui-icon-circle-check" style="float:left; margin:0 7px 10px 0;"></span>
-    Template selected successfully. 
-  </p>
-  <p>
-    Currently using {{ request.session.currentTemplate }}
-  </p>
-  <p>
-    To proceed to the next step, click on step 2: <b>'Enter Data'</b>
-  </p>
+	<p>
+	  Please Choose one of the following option to start curating data: 
+	</p>
+	<p>
+		<form id="form_start" action="/curate/start_curate" method="post">
+			{% csrf_token %}
+			<div id="form_start_content"></div>
+		</form>
+	</p>
+	<div id="form_start_errors" style="color:red;">
+	
+	</div>
 </div>
 
 <div id="dialog-error-message" title="No template selected" style="display:none;">
@@ -157,14 +137,20 @@
 <div id="dialog-view-error-message" title="No data to view" style="display:none;">
 <p></p>
   <p>
-    No data to view yet. Please proceed to step 2 first.
+    No data to view yet. Please select a template and enter data first.
+  </p>
+</div>
+
+<div id="dialog-enter-error-message" title="No template selected" style="display:none;">
+<p></p>
+  <p>
+    Please select a template first.
   </p>
 </div>
 
 <script src="{% static 'inc/controllers/js/curate.js' %}"></script>
 <script>
   loadTemplateSelectionControllers();
-
 </script>
 {% endblock %}
 

@@ -41,8 +41,7 @@
 {% block content %}
 <div class="toolbar">
 	<div class="btn-group pull-right">
-		<button class="btn clear-fields"><i class="icon-file"></i> Clear fields </button>
-    	<button class="btn load-form"><i class="icon-folder-open"></i> Load form </button>
+		<button class="btn clear-fields"><i class="icon-file"></i> Clear fields </button>    	
     	<button class="btn save-form"><i class="icon-hdd"></i> Save form </button>
     	<button class="btn download"><i class="icon-arrow-down"></i> Download </button>
 	</div>
@@ -81,56 +80,16 @@ verifyTemplateIsSelectedCurateEnterData();
   </p>
 </div>
 
-
-<div id="dialog-load-form-message" title="Load Form" style="display:none;">
-<p></p>
-  <p>
-    Select Form to Load:
-    <select id="listOfForms"><option value="none">None Exist</select>
-  </p>
-<!--  <p>
-    Currently using <a href="/view-schema/{{ request.session.currentTemplate }}" target="_new">{{ request.session.currentTemplate }}</a>
-  </p>
--->
-</div>
-
-
-<div id="dialog-form-loaded-message" title="Form Loaded" style="display:none;">
-<p></p>
-  <p>
-    <span class="ui-icon ui-icon-circle-check" style="float:left; margin:0 7px 10px 0;"></span>
-    Form is loaded.
-  </p>
-<!--  <p>
-    Currently using <a href="/view-schema/{{ request.session.currentTemplate }}" target="_new">{{ request.session.currentTemplate }}</a>
-  </p>
--->
-</div>
-
-
-<div id="dialog-save-as-message" title="Save Form" style="display:none;">
-<p></p>
-<!--  <p>
-    <span class="ui-icon ui-icon-circle-check" style="float:left; margin:0 7px 10px 0;"></span>
-    Save form
-  </p>
--->
-  <p>
-    Save As: <input type="text" size="30" id="saveAsInput">
-  </p>
-  <p id="saveAsErrorMessage"></p>
+<div id="dialog-save-form-message" title="Save Form" style="display:none;">
+  Are you sure you want to save the form? If you are editing an existing form, this will replace the previous version of the form.
 </div>
 
 <div id="dialog-saved-message" title="Form Saved" style="display:none;">
 <p></p>
   <p>
     <span class="ui-icon ui-icon-circle-check" style="float:left; margin:0 7px 10px 0;"></span>
-    Form fields are saved.
+    Form saved with success.
   </p>
-<!--  <p>
-    Currently using <a href="/view-schema/{{ request.session.currentTemplate }}" target="_new">{{ request.session.currentTemplate }}</a>
-  </p>
--->
 </div>
 
 <div id="dialog-download-options" title="Download Options" style="display:none;">

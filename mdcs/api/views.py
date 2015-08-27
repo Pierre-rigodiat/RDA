@@ -587,27 +587,29 @@ def curate(request):
             jsondata = Jsondata(schemaID = request.DATA['schema'], xml = xmlStr, title = request.DATA['title'])
             docID = jsondata.save()            
             
-            xsltPath = os.path.join(settings.SITE_ROOT, 'static/resources/xsl/xml2rdf3.xsl')
-            xslt = etree.parse(xsltPath)
-            root = xslt.getroot()
-            namespace = root.nsmap['xsl']
-            URIparam = root.find("{" + namespace +"}param[@name='BaseURI']") #find BaseURI tag to insert the project URI
-            URIparam.text = settings.PROJECT_URI + str(docID)
-        
-            # SPARQL : transform the XML into RDF/XML
-            transform = etree.XSLT(xslt)
-            # add a namespace to the XML string, transformation didn't work well using XML DOM
-            template = Template.objects.get(pk=schema.id)
-            xmlStr = xmlStr.replace('>',' xmlns="' + settings.PROJECT_URI + template.hash + '">', 1) #TODO: OR schema name...                
-            # domXML.attrib['xmlns'] = projectURI + schemaID #didn't work well
-            domXML = etree.fromstring(xmlStr)
-            domRDF = transform(domXML)
-        
-            # SPARQL : get the rdf string
-            rdfStr = etree.tostring(domRDF)
-        
-            # SPARQL : send the rdf to the triplestore
-            rdfPublisher.sendRDF(rdfStr)
+            if settings.ENABLE_SPARQL:
+                xsltPath = os.path.join(settings.SITE_ROOT, 'static/resources/xsl/xml2rdf3.xsl')
+                xslt = etree.parse(xsltPath)
+                root = xslt.getroot()
+                namespace = root.nsmap['xsl']
+                URIparam = root.find("{" + namespace +"}param[@name='BaseURI']") #find BaseURI tag to insert the project URI
+                URIparam.text = settings.PROJECT_URI + str(docID)
+            
+                # SPARQL : transform the XML into RDF/XML
+                transform = etree.XSLT(xslt)
+                # add a namespace to the XML string, transformation didn't work well using XML DOM
+                template = Template.objects.get(pk=schema.id)
+                xmlStr = xmlStr.replace('>',' xmlns="' + settings.PROJECT_URI + template.hash + '">', 1) #TODO: OR schema name...                
+                # domXML.attrib['xmlns'] = projectURI + schemaID #didn't work well
+                domXML = etree.fromstring(xmlStr)
+                domRDF = transform(domXML)
+            
+                # SPARQL : get the rdf string
+                rdfStr = etree.tostring(domRDF)
+            
+                # SPARQL : send the rdf to the triplestore
+                rdfPublisher.sendRDF(rdfStr)
+                
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         except:
             if docID is not None:

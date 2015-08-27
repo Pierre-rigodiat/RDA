@@ -82,13 +82,6 @@ class MetaSchema(Document):
     flat_content = StringField(required=True)
     api_content = StringField(required=True)
 
-class Htmlform(Document):
-    """Represents an HTML form saved during curation"""
-    title = StringField(required=True)
-    schema = StringField(required=True)
-    content = StringField(required=True)
-    occurrences = StringField(required=True)
-
 class Instance(Document):
     """Represents an instance of a remote MDCS"""
     name = StringField(required=True, unique=True)
@@ -150,27 +143,20 @@ def postprocessor(path, key, value):
         except (ValueError, TypeError):
             return key, value
 
-
-# Admin
-class XSDElement(Document):
-    xsd_xpath = StringField()
-    minOccurs = FloatField()
-    maxOccurs = FloatField()
-
-class XSDStructure(Document):
-    template = ReferenceField(Template)
-    xsd_elements = ListField(ReferenceField(XSDElement))
-
-# Curate
-# good one
 class XMLElement(Document):
-    xsd_xpath = StringField() #xsd_element = ReferenceField(XSDElement)
+    """
+        Stores information about an XML element and its occurrences
+    """
+    xsd_xpath = StringField() 
     nbOccurs = IntField()
     minOccurs = FloatField()
     maxOccurs = FloatField()
 
-# good one
+
 class FormElement(Document):
+    """
+        Stores information about an element in the HTML form
+    """
     html_id = StringField()
     xml_xpath = StringField() # pour siblings module
     xml_element = ReferenceField(XMLElement)
@@ -182,8 +168,9 @@ class FormData(Document):
     """
     user = StringField(required=True)
     template = StringField(required=True)
-    elements = DictField() # when loading form, just needed to work on the form, has to be regenerated when loading new document, can auto save that
-    xml_data = StringField() # on save data (get active with no parent, then active children, take the name + value...)
+    name = StringField(required=True)
+    elements = DictField()
+    xml_data = StringField()
 
 class Jsondata():
     """                                                                                                                                                                                                                       

@@ -19,14 +19,19 @@ from datetime import date
 from cStringIO import StringIO
 
 from django.http import HttpResponse
-from django.template import RequestContext, loader
-from django.shortcuts import redirect
+from django.template import RequestContext, loader, Context
+from django.shortcuts import redirect, render
 from django.core.servers.basehttp import FileWrapper
 from bson.objectid import ObjectId
 import lxml.etree as etree
+from lxml.etree import XMLSyntaxError
 from xlrd import open_workbook
+from django.contrib import messages
+import json 
 
-from mgi.models import Template, TemplateVersion, Htmlform, XML2Download
+from mgi.models import Template, TemplateVersion, XML2Download, FormData
+from curate.forms import NewForm, OpenForm, UploadForm, AdvancedOptionsForm
+from django.http.response import HttpResponseRedirect, HttpResponseBadRequest
 
 
 ################################################################################
@@ -263,41 +268,6 @@ def curate_enter_data_downloadxsd(request):
         request.session['next'] = '/curate'
         return redirect('/login')
 
-################################################################################
-#
-# Function Name: curate_view_data_downloadxml(request)
-# Inputs:        request -
-# Outputs:       XML representation of the current data instance
-# Exceptions:    None
-# Description:   Returns an XML representation of the current data instance.
-#                Used when user wants to download the XML file.
-#
-################################################################################
-def curate_enter_data_downloadform(request):
-    if request.user.is_authenticated():
-        if 'currentTemplateID' not in request.session:
-            return redirect('/curate/select-template')
-        else:
-            htmlFormId = request.GET.get('id', None)
-            
-            if htmlFormId is not None:
-                htmlFormObject = Htmlform.objects.get(pk=htmlFormId)
-    
-                formStringEncoded = htmlFormObject.content.encode('utf-8')
-                fileObj = StringIO(formStringEncoded)
-    
-                htmlFormObject.delete()
-    
-                response = HttpResponse(FileWrapper(fileObj), content_type='text/html')
-                response['Content-Disposition'] = 'attachment; filename=' + "form.html"
-                return response
-            else:
-                return redirect('/')
-    else:
-        if 'loggedOut' in request.session:
-            del request.session['loggedOut']
-        request.session['next'] = '/curate'
-        return redirect('/login')
 
 ################################################################################
 #
@@ -330,6 +300,73 @@ def curate_view_data_downloadxml(request):
                 return response
             else:
                 return redirect('/')
+    else:
+        if 'loggedOut' in request.session:
+            del request.session['loggedOut']
+        request.session['next'] = '/curate'
+        return redirect('/login')
+
+
+def start_curate(request):
+    if request.user.is_authenticated():
+        if 'currentTemplateID' not in request.session:
+            return redirect('/curate/select-template')
+        else:
+            if request.method == 'POST':                                              
+                # parameters to build FormData object in db
+                user = request.user.id
+                template_id = request.session['currentTemplateID']
+                
+                form_data = None
+                
+                selected_option = request.POST['curate_form']
+                if selected_option == "new":
+                    request.session['curate_edit'] = False
+                    new_form = NewForm(request.POST)
+                    form_data = FormData(user=str(user), template=template_id, name=new_form.data['document_name'], xml_data=None).save()
+                elif selected_option == "open":
+                    request.session['curate_edit'] = True
+                    open_form = OpenForm(request.POST)
+                    form_data = FormData.objects.get(pk=ObjectId(open_form.data['forms']))
+                    request.session['curate_edit_data'] = form_data.xml_data
+                elif selected_option == "upload":
+                    request.session['curate_edit'] = True
+                    upload_form = UploadForm(request.POST, request.FILES)
+                    xml_file = request.FILES['file']
+                    # put the cursor at the beginning of the file
+                    xml_file.seek(0)
+                    # read the content of the file
+                    xml_data = xml_file.read()
+                    # check XML data or not?
+                    try:
+                        etree.fromstring(xml_data)
+                    except XMLSyntaxError:
+                        return HttpResponseBadRequest('Uploaded File is not well formed XML.')
+                    form_data = FormData(user=str(user), template=template_id, name=xml_file.name, xml_data=xml_data).save()
+                        
+                    
+                
+                # parameters that will be used during curation
+                request.session['curateFormData'] = str(form_data.id)                
+                
+                options_form = AdvancedOptionsForm(request.POST)
+                if 'options' in options_form.data:
+                    if 'min_tree' in options_form.data['options']:
+                        request.session['curate_min_tree'] = True
+                    if 'siblings_mod' in options_form.data['options']:
+                        request.session['curate_siblings_mod'] = True
+                
+                return HttpResponse('ok')
+            else:
+                new_form = NewForm()
+                open_form = OpenForm(forms=FormData.objects(user=str(request.user.id), template=request.session['currentTemplateID']))
+                upload_form = UploadForm()
+                options_form = AdvancedOptionsForm()
+                
+                template = loader.get_template('curate_start.html')
+                context = Context({'new_form':new_form, 'open_form': open_form, 'upload_form': upload_form, 'options_form': options_form})
+                
+                return HttpResponse(json.dumps({'template': template.render(context)}), content_type='application/javascript')           
     else:
         if 'loggedOut' in request.session:
             del request.session['loggedOut']
