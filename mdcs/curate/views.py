@@ -349,6 +349,10 @@ def start_curate(request):
                 # parameters that will be used during curation
                 request.session['curateFormData'] = str(form_data.id)                
                 
+                # TODO: remove default options to True 
+                request.session['curate_min_tree'] = True                
+                request.session['curate_siblings_mod'] = True
+                
                 options_form = AdvancedOptionsForm(request.POST)
                 if 'options' in options_form.data:
                     if 'min_tree' in options_form.data['options']:
