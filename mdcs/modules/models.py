@@ -28,7 +28,7 @@ class Module(object):
         for style in styles:
             self.styles.append(style)
 
-    def render(self, request):
+    def render(self, request):        
         if request.method == 'GET':
             if 'resources' in request.GET:
                 return self._get_resources()
@@ -46,9 +46,9 @@ class Module(object):
                 'url': request.GET['url']
             }
 
-            if not self._is_data_valid(request.GET['data']):
-                # Data not valid are not
-                del request.GET['data']
+#             if not self._is_data_valid(request.GET['data']):
+#                 # Data not valid are not
+#                 del request.GET['data']
 
         template_data = {
             'module': '',

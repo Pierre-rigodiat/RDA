@@ -36,6 +36,7 @@ import rdfPublisher
 
 #XSL file loading
 import os
+from django.http.request import HttpRequest
 
 
 #Class definition
@@ -1015,14 +1016,17 @@ def generateModule(request, element, namespace, xsd_xpath=None, xml_xpath=None, 
         if url in Module.objects.all().values_list('url'):
             view = get_module_view(url)
 
-            request.GET = {
+            mod_req = HttpRequest()
+            mod_req.method = 'GET'
+            
+            mod_req.GET = {
                 'url': url,
             }
 
             if reload_data is not None:
-                request.GET['data'] = reload_data
+                mod_req.GET['data'] = reload_data
 
-            formString += view(request).content
+            formString += view(mod_req).content
     
     return formString
 
