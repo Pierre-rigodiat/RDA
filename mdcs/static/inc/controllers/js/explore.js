@@ -1354,3 +1354,53 @@ showErrorInstancesDialog = function()
         });
     });
 }
+
+showhideResults = function(event)
+{
+	console.log('BEGIN [showhideResults]');
+	button = event.target
+	parent = $(event.target).parent()
+	$(parent.children(".xmlResult")).toggle("blind",500);
+	if ($(button).attr("class") == "expand"){
+		$(button).attr("class","collapse");
+	}else{
+		$(button).attr("class","expand");
+	}
+		
+	console.log('END [showhideResults]');
+}
+
+deleteResult = function(result_id){
+	$(function() {
+        $( "#dialog-delete-result" ).dialog({
+            modal: true,
+            buttons: {
+            	Cancel: function() {
+                    $( this ).dialog( "close" );
+                },
+            	Delete: function() {
+                    $( this ).dialog( "close" );
+                    delete_result(result_id);
+                },
+            }
+        });
+    });
+}
+
+/**
+ * AJAX call, preapres the sub element query
+ * @param leavesID
+ */
+delete_result = function(result_id){
+	$.ajax({
+        url : "/explore/delete_result",
+        type : "GET",
+        dataType: "json",
+        data : {
+        	result_id: result_id,
+        },
+		success: function(data){
+			   $("#" + result_id).remove();
+	    }
+    });
+}

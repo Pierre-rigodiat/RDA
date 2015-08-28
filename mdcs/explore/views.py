@@ -19,7 +19,8 @@ from django.template import RequestContext, loader
 from django.shortcuts import redirect
 from django.conf import settings
 from datetime import date
-from mgi.models import Template, TemplateVersion, Instance, SavedQuery, QueryResults, SparqlQueryResults
+from mgi.models import Template, TemplateVersion, Instance, SavedQuery, QueryResults, SparqlQueryResults,\
+    XMLdata
 from cStringIO import StringIO
 from django.core.servers.basehttp import FileWrapper
 import zipfile
@@ -141,7 +142,8 @@ def explore_perform_search(request):
                 'instances': listInstances,
                 'template_hash': template_hash,
                 'queries':queries,
-                'enable_sparql': settings.ENABLE_SPARQL
+                'enable_sparql': settings.ENABLE_SPARQL,
+                'template_id': request.session['exploreCurrentTemplateID']
             })
             if 'exploreCurrentTemplateID' not in request.session:
                 return redirect('/explore/select-template')
@@ -181,6 +183,43 @@ def explore_results(request):
         request.session['next'] = '/explore/results'
         return redirect('/login')
 
+
+################################################################################
+#
+# Function Name: explore_results(request)
+# Inputs:        request -
+# Outputs:       Query results page
+# Exceptions:    None
+# Description:   Page that allows to see results from a query
+#
+################################################################################
+def explore_all_results(request):
+    if request.user.is_authenticated():
+        template_id = request.GET['id']
+    
+        if 'HTTPS' in request.META['SERVER_PROTOCOL']:
+            protocol = "https"
+        else:
+            protocol = "http"
+                           
+        request.session['queryExplore'] = {"schema": template_id}
+        json_instances = [Instance(name="Local", protocol=protocol, address=request.META['REMOTE_ADDR'], port=request.META['SERVER_PORT'], access_token="token", refresh_token="token").to_json()]
+        request.session['instancesExplore'] = json_instances       
+        
+        template = loader.get_template('explore_results.html')
+        
+        context = RequestContext(request, {
+            '': '',
+        })
+        if 'exploreCurrentTemplateID' not in request.session:
+            return redirect('/explore/select-template')
+        else:
+            return HttpResponse(template.render(context))
+    else:
+        if 'loggedOut' in request.session:
+            del request.session['loggedOut']
+        request.session['next'] = '/explore/results'
+        return redirect('/login')
 
 ################################################################################
 #

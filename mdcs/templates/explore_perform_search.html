@@ -29,10 +29,10 @@
 
 {% block description %}
 {% if request.session.currentExploreTab == "tab-1" %}	
-<p id="QbEDesc" class="large">Click on a field of the Query Builder to add an element to your query. The custom tree defined in Step 2 will appear and you will be able to select one of the highlighted elements. Click on plus/minus icons to add/remove criteria. You can save queries to build more complex queries and you will retrieve them on your next connection. When your query is done, please click on Submit Query to get XML documents that match the criterias.</p>
+<p id="QbEDesc" class="large">Click on a field of the Query Builder to add an element to your query. The custom tree defined in Step 2 will appear and you will be able to select one of the highlighted elements. Click on plus/minus icons to add/remove criteria. You can save queries to build more complex queries and you will retrieve them on your next connection. When your query is done, please click on Submit Query to get XML documents that match the criterias. <a href="/explore/all_results?id={{template_id}}">Click here to get all documents of selected template.</a> or <a href="/explore/all_versions_results?id={{template_id}}">Click here to get all documents from all versions of selected template.</a></p>
 <p id="SPARQLDesc" class="large" style="display: none;">Write a SPARQL query into the text field and submit the query to get the results.</p>
 {% else %}
-<p id="QbEDesc" class="large" style="display: none;">Click on a field of the Query Builder to add an element to your query. The custom tree defined in Step 2 will appear and you will be able to select one of the hilighted elements. Click on plus/minus icons to add/remove criteria. You can save queries to build more complex queries and you will retrieve them on your next connection. When your query is done, please click on Submit Query to get XML documents that match the criterias.</p>
+<p id="QbEDesc" class="large" style="display: none;">Click on a field of the Query Builder to add an element to your query. The custom tree defined in Step 2 will appear and you will be able to select one of the hilighted elements. Click on plus/minus icons to add/remove criteria. You can save queries to build more complex queries and you will retrieve them on your next connection. When your query is done, please click on Submit Query to get XML documents that match the criterias. <a href="/explore/all_results?id={{template_id}}">Click here to get all documents of selected template.</a> or <a href="/explore/all_versions_results?id={{template_id}}">Click here to get all documents from all versions of selected template.</a></p>
 <p id="SPARQLDesc" class="large">Write a SPARQL query into the text field and submit the query to get the results.</p>
 {% endif %}
 {% endblock %}
@@ -74,7 +74,7 @@
 	        </p>        
 	        <span class="btn" onclick="saveQuery()">Save Query</span>
 	        <span class="btn" onclick="clearCriterias()">Clear</span>    
-	        <span class="btn" onclick="query()">Submit Query</span>           
+	        <span class="btn" onclick="query()">Submit Query</span>  
 	    </form>                        
 	</div>
 	<hr>

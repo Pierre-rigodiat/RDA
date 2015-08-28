@@ -1,0 +1,13 @@
+<div id="{{id}}">
+	<input type='checkbox' result_id='{{id}}'/>
+    <span class='expand' style='cursor:pointer;' onclick='showhideResults(event);'></span>
+    <span style='font-weight:bold;'>{{title}}</span>
+    {% if canDelete %}
+    <span class="icon invalid" onclick="deleteResult('{{id}}')"></span>
+    {% endif %}   	
+    <div class='xmlResult' readonly='true' style='display:none;'>
+    	{% autoescape off %}
+    	{{xml}}
+    	{% endautoescape %}
+    </div> 
+</div>

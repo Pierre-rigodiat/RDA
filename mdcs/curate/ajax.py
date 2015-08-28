@@ -19,7 +19,7 @@ from django.http import HttpResponse
 from django.conf import settings
 from io import BytesIO
 from cStringIO import StringIO
-from mgi.models import Template, Jsondata, XML2Download, Module, MetaSchema
+from mgi.models import Template, XMLdata, XML2Download, Module, MetaSchema
 from mgi.models import FormElement, XMLElement, FormData
 import json
 from bson.objectid import ObjectId
@@ -161,7 +161,7 @@ def save_xml_data_to_db(request):
             # get form data from the database
             form_data_id = request.session['curateFormData']
             form_data = FormData.objects.get(pk=ObjectId(form_data_id))
-            newJSONData = Jsondata(schemaID=templateID, xml=xmlString, title=form_data.name)
+            newJSONData = XMLdata(schemaID=templateID, xml=xmlString, title=form_data.name)
             docID = newJSONData.save()
             
             if settings.ENABLE_SPARQL is True:

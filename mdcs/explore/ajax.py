@@ -26,9 +26,10 @@ import os
 import json
 import copy
 import lxml.etree as etree
-from mgi.models import Template, QueryResults, SparqlQueryResults, SavedQuery, Jsondata, Instance, MetaSchema
+from mgi.models import Template, QueryResults, SparqlQueryResults, SavedQuery, XMLdata, Instance, MetaSchema
 import sparqlPublisher
 from mgi import common
+from django.template import loader, Context
 #Class definition
 
 ################################################################################
@@ -868,7 +869,7 @@ def manageRegexBeforeExe(query):
 #     resultString += "<b>From " + instance['name'] + ":</b> <br/>"
 #     if instance['name'] == "Local":
 #         manageRegexBeforeExe(query)
-#         instanceResults = Jsondata.executeQuery(query)
+#         instanceResults = XMLdata.executeQuery(query)
 #         if len(instanceResults) > 0:
 #             for instanceResult in instanceResults:
 #                 results.append(xmltodict.unparse(instanceResult))
@@ -942,25 +943,27 @@ def get_results_by_instance(request):
         results = []
         instance = eval(instances[int(i)])
         sessionName = "resultsExplore" + instance['name']
-        resultString += "<b>From " + instance['name'] + ":</b> <br/>"
+        resultString += "<p style='font-weight:bold; color:#369;'>From " + instance['name'] + ":</p>"
         if instance['name'] == "Local":
             query = copy.deepcopy(request.session['queryExplore'])
             manageRegexBeforeExe(query)
-            instanceResults = Jsondata.executeQuery(query)
+            instanceResults = XMLdata.executeQueryFullResult(query)
             if len(instanceResults) > 0:
                 for instanceResult in instanceResults:
-                    results.append(xmltodict.unparse(instanceResult))
-    #                 resultString += "<textarea class='xmlResult' readonly='true'>"
-                    resultString += "<div class='xmlResult' readonly='true'>"
+                    results.append(xmltodict.unparse(instanceResult['content']))
                     xsltPath = os.path.join(settings.SITE_ROOT, 'static/resources/xsl/xml2html.xsl')
                     xslt = etree.parse(xsltPath)
                     transform = etree.XSLT(xslt)
-                    dom = etree.fromstring(str(xmltodict.unparse(instanceResult).replace('<?xml version="1.0" encoding="utf-8"?>\n',"")))
+                    dom = etree.fromstring(str(xmltodict.unparse(instanceResult['content']).replace('<?xml version="1.0" encoding="utf-8"?>\n',"")))
                     newdom = transform(dom)
-                    resultString += str(newdom)
-    #                 resultString += str(xmltodict.unparse(instanceResult, pretty=True))
-    #                 resultString += "</textarea> <br/>"
-                    resultString += "</div> <br/>"
+                    template = loader.get_template('explore_result.html')
+                    context = Context({'id':str(instanceResult['_id']),
+                                       'xml': str(newdom),
+                                       'title': instanceResult['title'],
+                                       'canDelete':True})
+
+                    resultString+= template.render(context)
+                    
                 resultString += "<br/>"
             else:
                 resultString += "<span style='font-style:italic; color:red;'> No Results found... </span><br/><br/>"
@@ -974,18 +977,18 @@ def get_results_by_instance(request):
             instanceResults = json.loads(result,object_pairs_hook=OrderedDict)
             if len(instanceResults) > 0:
                 for instanceResult in instanceResults:
-                    results.append(instanceResult['content'])
-    #                 resultString += "<textarea class='xmlResult' readonly='true'>"  
-    #                 resultString += str(xmltodict.unparse(instanceResult['content'], pretty=True))
-    #                 resultString += "</textarea> <br/>"
-                    resultString += "<div class='xmlResult' readonly='true'>"
+                    results.append(instanceResult['content'])                    
                     xsltPath = os.path.join(settings.SITE_ROOT, 'static/resources/xsl/xml2html.xsl')
                     xslt = etree.parse(xsltPath)
                     transform = etree.XSLT(xslt)
-                    dom = etree.fromstring(str(instanceResult['content'].replace('<?xml version="1.0" encoding="utf-8"?>\n',"")))
+                    dom = etree.fromstring(str(xmltodict.unparse(instanceResult['content']).replace('<?xml version="1.0" encoding="utf-8"?>\n',"")))
                     newdom = transform(dom)
-                    resultString += str(newdom)
-                    resultString += "</div> <br/>"
+                    template = loader.get_template('explore_result.html')
+                    context = Context({'id':str(instanceResult['_id']),
+                                       'xml': str(newdom),
+                                       'title': instanceResult['title']})
+
+                    resultString+= template.render(context)
                 resultString += "<br/>"
             else:
                 resultString += "<span style='font-style:italic; color:red;'> No Results found... </span><br/><br/>"
@@ -2958,3 +2961,17 @@ def subElementfieldsToPrettyQuery(request, liElements, listLeavesId):
     query =  parentName + elemMatch
         
     return query 
+
+
+
+def delete_result(request):
+    result_id = request.GET['result_id']
+    
+    try:
+        XMLdata.delete(result_id)
+    except:
+        # XML can't be found
+        pass
+    
+    return HttpResponse(json.dumps({}), content_type='application/javascript')
+

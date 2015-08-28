@@ -20,7 +20,7 @@ from rest_framework import generics
 from rest_framework import status
 from rest_framework.response import Response
 # Models
-from mgi.models import SavedQuery, Jsondata, Template, TemplateVersion, Type, TypeVersion, Instance, MetaSchema
+from mgi.models import SavedQuery, XMLdata, Template, TemplateVersion, Type, TypeVersion, Instance, MetaSchema
 from django.contrib.auth.models import User
 # Serializers
 from api.serializers import savedQuerySerializer, jsonDataSerializer, querySerializer, sparqlQuerySerializer, sparqlResultsSerializer, schemaSerializer, templateSerializer, typeSerializer, resTypeSerializer, TemplateVersionSerializer, TypeVersionSerializer, instanceSerializer, resInstanceSerializer, UserSerializer, insertUserSerializer, resSavedQuerySerializer, updateUserSerializer, newInstanceSerializer
@@ -251,7 +251,7 @@ def explore(request):
     """
     dataformat = request.QUERY_PARAMS.get('dataformat', None)
 
-    jsonData = Jsondata.objects()
+    jsonData = XMLdata.objects()
     
     if dataformat== None or dataformat=="xml":
         for jsonDoc in jsonData:
@@ -306,7 +306,7 @@ def explore_detail(request):
             content = {'message':'No parameters given.'}
             return Response(content, status=status.HTTP_400_BAD_REQUEST)
         else:
-            jsonData = Jsondata.executeQueryFullResult(query)
+            jsonData = XMLdata.executeQueryFullResult(query)
         
             if dataformat== None or dataformat=="xml":
                 for jsonDoc in jsonData:
@@ -348,7 +348,7 @@ def explore_detail(request):
 #             content = {'message':'No id given.'}
 #             return Response(content, status=status.HTTP_400_BAD_REQUEST)
 #         else:
-#             Jsondata.delete(id)
+#             XMLdata.delete(id)
 #             content = {'message':'Data deleted with success.'}
 #             return Response(content, status=status.HTTP_204_NO_CONTENT)
 #     except:
@@ -421,7 +421,7 @@ def query_by_example(request):
                     try:
                         query = eval(request.DATA['query'])
                         manageRegexInAPI(query)
-                        instanceResults = instanceResults + Jsondata.executeQueryFullResult(query)                        
+                        instanceResults = instanceResults + XMLdata.executeQueryFullResult(query)                        
                     except:
                         content = {'message':'Bad query: use the following format {\'element\':\'value\'}'}
                         return Response(content, status=status.HTTP_400_BAD_REQUEST)
@@ -449,7 +449,7 @@ def query_by_example(request):
             try:
                 query = eval(request.DATA['query'])
                 manageRegexInAPI(query)
-                results = Jsondata.executeQueryFullResult(query)
+                results = XMLdata.executeQueryFullResult(query)
             
                 if dataformat== None or dataformat=="xml":
                     for jsonDoc in results:
@@ -584,7 +584,7 @@ def curate(request):
             except Exception, e:
                 content = {'message':e.message}
                 return Response(content, status=status.HTTP_400_BAD_REQUEST)
-            jsondata = Jsondata(schemaID = request.DATA['schema'], xml = xmlStr, title = request.DATA['title'])
+            jsondata = XMLdata(schemaID = request.DATA['schema'], xml = xmlStr, title = request.DATA['title'])
             docID = jsondata.save()            
             
             if settings.ENABLE_SPARQL:

@@ -172,7 +172,7 @@ class FormData(Document):
     elements = DictField()
     xml_data = StringField()
 
-class Jsondata():
+class XMLdata():
     """                                                                                                                                                                                                                       
         Wrapper to manage JSON Documents, like mongoengine would have manage them (but with ordered data)                                                                                                                     
     """
