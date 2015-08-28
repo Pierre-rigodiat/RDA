@@ -186,11 +186,11 @@ def explore_results(request):
 
 ################################################################################
 #
-# Function Name: explore_results(request)
+# Function Name: explore_all_results(request)
 # Inputs:        request -
 # Outputs:       Query results page
 # Exceptions:    None
-# Description:   Page that allows to see results from a query
+# Description:   Page that allows to see all results from a template
 #
 ################################################################################
 def explore_all_results(request):
@@ -220,7 +220,54 @@ def explore_all_results(request):
             del request.session['loggedOut']
         request.session['next'] = '/explore/results'
         return redirect('/login')
-
+    
+################################################################################
+#
+# Function Name: explore_all_versions_results(request)
+# Inputs:        request -
+# Outputs:       Query results page
+# Exceptions:    None
+# Description:   Page that allows to see all results from all versions of a template
+#
+################################################################################
+def explore_all_versions_results(request):
+    if request.user.is_authenticated():
+        template_id = request.GET['id']
+        template = Template.objects().get(pk=template_id)
+        version_id = template.templateVersion
+        template_version = TemplateVersion.objects().get(pk=version_id)
+        
+        if len(template_version.versions) == 1:
+                query = {"schema": template_id}
+        else:
+            list_query = []
+            for version in template_version.versions:
+                list_query.append({'schema': version})
+            query = {"$or": list_query}
+                
+        request.session['queryExplore'] = query
+        
+        if 'HTTPS' in request.META['SERVER_PROTOCOL']:
+            protocol = "https"
+        else:
+            protocol = "http"
+        json_instances = [Instance(name="Local", protocol=protocol, address=request.META['REMOTE_ADDR'], port=request.META['SERVER_PORT'], access_token="token", refresh_token="token").to_json()]
+        request.session['instancesExplore'] = json_instances       
+        
+        template = loader.get_template('explore_results.html')
+        
+        context = RequestContext(request, {
+            '': '',
+        })
+        if 'exploreCurrentTemplateID' not in request.session:
+            return redirect('/explore/select-template')
+        else:
+            return HttpResponse(template.render(context))
+    else:
+        if 'loggedOut' in request.session:
+            del request.session['loggedOut']
+        request.session['next'] = '/explore/results'
+        return redirect('/login')
 ################################################################################
 #
 # Function Name: explore_sparqlresults(request)
