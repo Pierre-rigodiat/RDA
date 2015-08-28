@@ -317,10 +317,8 @@ def explore_download_results(request):
                 in_memory = StringIO()
                 zip = zipfile.ZipFile(in_memory, "a")
     
-                resultNumber = 1
                 for result in ResultsObject.results:
-                    zip.writestr("result"+str(resultNumber)+".xml", result)
-                    resultNumber += 1
+                    zip.writestr(result['title'], result['content'])
     
                 # fix for Linux zip files read in Windows
                 for xmlFile in zip.filelist:
