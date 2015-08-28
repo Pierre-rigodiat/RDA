@@ -158,7 +158,10 @@ def save_xml_data_to_db(request):
 
     if xmlString != "":
         try:
-            newJSONData = Jsondata(schemaID=templateID, xml=xmlString, title=request.POST['saveAs'])
+            # get form data from the database
+            form_data_id = request.session['curateFormData']
+            form_data = FormData.objects.get(pk=ObjectId(form_data_id))
+            newJSONData = Jsondata(schemaID=templateID, xml=xmlString, title=form_data.name)
             docID = newJSONData.save()
             
             if settings.ENABLE_SPARQL is True:

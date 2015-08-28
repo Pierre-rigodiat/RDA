@@ -1027,8 +1027,7 @@ doSaveToRepository = function()
 {
     console.log('BEGIN [doSaveToRepository]');
 
-    saveAs = document.getElementById('saveAsInput').value
-    save_xml_data_to_db(saveAs);
+    save_xml_data_to_db();
 
     console.log('END [doSaveToRepository]');
 }
@@ -1044,7 +1043,6 @@ save_xml_data_to_db = function(saveAs){
         type : "POST",
         dataType: "json",
         data:{
-            saveAs: saveAs
         },
         success : function(data) {
             if ('errors' in data){
@@ -1080,8 +1078,7 @@ savedXMLDataToDB = function()
             buttons: {
 		Ok: function() {
                     $( this ).dialog( "close" );
-                    document.getElementById('saveAsInput').value = "";
-                    document.getElementById('saveAsErrorMessage').innerHTML = "";
+                    window.location = "/curate"
                 }
 	    }
         });
