@@ -115,7 +115,8 @@ class Module(Document):
     
 class XML2Download(Document):
     """Temporarily stores the content of an XML document to download"""
-    xml = StringField(required=True)
+    title = StringField(required=True)
+    xml = StringField(required=True)    
     
 class PrivacyPolicy(Document):
     """Privacy Policy of the MDCS"""

@@ -296,7 +296,7 @@ def curate_view_data_downloadxml(request):
                 xmlDataObject.delete()
     
                 response = HttpResponse(FileWrapper(fileObj), content_type='application/xml')
-                response['Content-Disposition'] = 'attachment; filename=' + "data.xml" #templateFilename
+                response['Content-Disposition'] = 'attachment; filename=' + xmlDataObject.title
                 return response
             else:
                 return redirect('/')

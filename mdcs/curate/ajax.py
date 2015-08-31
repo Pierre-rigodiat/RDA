@@ -2108,7 +2108,10 @@ def generate_xsd_form(request):
 def download_xml(request):
     xmlString = request.session['xmlString']
     
-    xml2download = XML2Download(xml=xmlString).save()
+    form_data_id = request.session['curateFormData']
+    form_data = FormData.objects().get(pk=form_data_id)
+    
+    xml2download = XML2Download(title=form_data.name, xml=xmlString).save()
     xml2downloadID = str(xml2download.id)
 
     response_dict = {"xml2downloadID": xml2downloadID}
@@ -2127,7 +2130,10 @@ def download_xml(request):
 def download_current_xml(request):
     xmlString = request.POST['xmlString']
     
-    xml2download = XML2Download(xml=xmlString).save()
+    form_data_id = request.session['curateFormData']
+    form_data = FormData.objects().get(pk=form_data_id)
+    
+    xml2download = XML2Download(title=form_data.name, xml=xmlString).save()
     xml2downloadID = str(xml2download.id)
 
     response_dict = {"xml2downloadID": xml2downloadID}
