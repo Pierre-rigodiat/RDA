@@ -2088,7 +2088,6 @@ def generate_xsd_form(request):
     if (formString == ""):     
         # this form was not created, generates it from the schema           
         formString += generateForm(request)
-        request.session['originalForm'] = formString
 
     response_dict['xsdForm'] = formString
     request.session['formString'] = formString
@@ -2144,14 +2143,9 @@ def download_current_xml(request):
 # Description:   Clears fields of the HTML form. Also restore the occurrences.
 #
 ################################################################################
-def clear_fields(request):
-    
-    # get the original version of the form
-    original_form = request.session['originalForm']
-    
-    reinitOccurrences(request)    
-
-    response_dict = {'xsdForm': original_form}
+def clear_fields(request):    
+    form = generateForm(request)
+    response_dict = {'xsdForm': form}
     return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
 
 
