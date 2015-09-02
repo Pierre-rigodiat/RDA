@@ -31,6 +31,7 @@
 		<a href="/admin/repositories/add-repository">Add new instance</a>
 	</span>
 </div>
+{% if instances %}
 <table class="data-table">
   <tr>
     <th>Instance Name</th>
@@ -38,6 +39,7 @@
     <th>Token expires</th>
     <th>Actions</th>
   </tr>
+
 
 
 {% for instance in instances %}
@@ -54,7 +56,14 @@
   </tr>
 {% endfor %}
 
+
+
 </table>
+{% else %}
+
+	No other MDCS instance registered. Click on 'Add new instance' to add a connection to another repositroy.
+
+{% endif %}
 {% endblock %}
 
 {% block extra %}
