@@ -1133,7 +1133,7 @@ def generateElement(request, element, xmlTree, namespace, choiceInfo=None, fullP
   
     
     xml_element = None
-    if not(minOccurs == 1 and maxOccurs == 1) or request.session['curate_min_tree'] == True:
+    if not(minOccurs == 1 and maxOccurs == 1) or request.session['curate_min_tree'] == True or request.session['curate_siblings_mod'] == True:
         nbOccurs_to_save = nbOccurrences 
         # Update element information to match the number of elements from the XML document
         if request.session['curate_edit']:

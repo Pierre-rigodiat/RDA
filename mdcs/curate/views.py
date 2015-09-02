@@ -344,20 +344,18 @@ def start_curate(request):
                         return HttpResponseBadRequest('Uploaded File is not well formed XML.')
                     form_data = FormData(user=str(user), template=template_id, name=xml_file.name, xml_data=xml_data).save()
                         
-                    
-                
                 # parameters that will be used during curation
                 request.session['curateFormData'] = str(form_data.id)                
                 
                 # TODO: remove default options to True 
-                request.session['curate_min_tree'] = True                
-                request.session['curate_siblings_mod'] = True
+                request.session['curate_min_tree'] = False                
+                request.session['curate_siblings_mod'] = False
                 
                 options_form = AdvancedOptionsForm(request.POST)
                 if 'options' in options_form.data:
-                    if 'min_tree' in options_form.data['options']:
+                    if 'min_tree' in dict(options_form.data)['options']:
                         request.session['curate_min_tree'] = True
-                    if 'siblings_mod' in options_form.data['options']:
+                    if 'siblings_mod' in dict(options_form.data)['options']:
                         request.session['curate_siblings_mod'] = True
                 
                 return HttpResponse('ok')
