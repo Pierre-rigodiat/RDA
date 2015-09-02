@@ -27,6 +27,7 @@ CONTENTTYPE = (
             ('application/x-nacl', 'application/x-nacl'),
             ('application/x-pnacl', 'application/x-pnacl'),
             ('application/smil+xml', 'application/smil+xml'),
+            ('application/x-python', 'application/x-python'),            
             ('image/gif', 'image/gif'),
             ('image/jpeg', 'image/jpeg'),
             ('image/pjpeg', 'image/pjpeg'),
@@ -38,5 +39,5 @@ CONTENTTYPE = (
             ('image/example', 'image/example'))
 
 class BLOBHosterForm(forms.Form):
-    contentType = forms.ChoiceField(label='Content Type', choices=CONTENTTYPE, required=True)
+#     contentType = forms.ChoiceField(label='Content Type', choices=CONTENTTYPE, required=True)
     file = forms.FileField()

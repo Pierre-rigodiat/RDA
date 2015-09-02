@@ -114,7 +114,7 @@ class AsyncInputModule(Module):
         if self.default_value is not None:
             params.update({"default_value": self.default_value})
         return render_module(template, params)
-
+    
 
 class InputButtonModule(Module):
     def __init__(self, scripts=list(), styles=list(), button_label='Send', label=None, default_value=None):

@@ -42,11 +42,11 @@ class BlobHosterModule(PopupModule):
         if not form.is_valid():
             raise ModuleError('Data not properly sent to server. Please set "contentType" and "file" in POST data.')
 
-        content_type = request.POST['contentType']
+#         content_type = request.POST['contentType']
         uploaded_file = request.FILES['file']
         bh_factory = BLOBHosterFactory(BLOB_HOSTER, BLOB_HOSTER_URI, BLOB_HOSTER_USER, BLOB_HOSTER_PSWD, MDCS_URI)
         blob_hoster = bh_factory.createBLOBHoster()
-        self.handle = blob_hoster.save(blob=uploaded_file, filename=uploaded_file.name, contentType=content_type)
+        self.handle = blob_hoster.save(blob=uploaded_file, filename=uploaded_file.name, contentType="")
 
         with open(RESOURCES_PATH + 'html/BLOBHosterDisplay.html', 'r') as display_file:
             display = display_file.read()

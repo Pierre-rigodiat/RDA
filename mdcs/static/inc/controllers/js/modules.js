@@ -80,28 +80,34 @@ loadModuleResources = function(moduleURLList) {
 }
 
 saveModuleData = function($module, modData, asyncOpt=true) {
+	var moduleId = $module.parents('.element').attr('id'); //TODO: test if id always class element (could it be choice or sequence?)
     var moduleURL = $module.find('.moduleURL').text();
 
     if(moduleURL === '') {
         return;
     }
+    
+    modData['htmlId'] = moduleId;
 
     var ajaxOptions = {
         url : '/modules'+moduleURL,
         type : "POST",
-//        dataType: "json",
+        dataType: "json",
         data: modData,
         async: asyncOpt,
         success: function(data){
-            console.log(data);
 
-            var moduleDisplay = $(data).find('.moduleDisplay').html();
-            var moduleResult = $(data).find('.moduleResult').html();
+            var moduleDisplay = $(data.html).find('.moduleDisplay').html();
+            var moduleResult = $(data.html).find('.moduleResult').html();
 //            var $moduleDisplay = $(data).find('.moduleDisplay').text();
 //            console.log($moduleDisplay);
 
             $module.find('.moduleDisplay').html(moduleDisplay);
-            $module.find('.moduleResult').html(moduleResult);
+            $module.find('.moduleResult').html(moduleResult);     
+            
+            if ('xpath_accessor' in data){
+            	xpath_accessor(data.xpath_accessor);
+            }
 
             /*if('moduleDisplay' in data && 'moduleResult' in data) {
             	$module.find('.moduleDisplay').html(data.moduleDisplay);
@@ -118,7 +124,7 @@ saveModuleData = function($module, modData, asyncOpt=true) {
         ajaxOptions.contentType = false;
     }
 
-    $.ajax(ajaxOptions);
+    $.ajax(ajaxOptions);   
 };
 
 // Modules initialisation
@@ -141,3 +147,14 @@ initModules = function() {
     loadModuleResources(moduleURLList)
 };
 
+
+xpath_accessor = function(data){
+	
+	for (id in data){
+		console.log(id + " -> " + data[id]);
+		if ($("#" + id).children("input").length == 1){
+			$($("#" + id).children("input")[0]).val(data[id]);
+		}
+		
+	}
+}

@@ -44,3 +44,4 @@ def sanitize(input_value):
         # Default sanitizing
         # print 'default: '+str(input_type)
         return escape(str(input_value))
+

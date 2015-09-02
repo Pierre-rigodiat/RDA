@@ -8,6 +8,7 @@ from exceptions import ModuleError
 from abc import ABCMeta, abstractmethod
 from modules.utils import sanitize
 from modules import render_module
+from modules.xpathaccessor import XPathAccessor
 
 
 class Module(object):
@@ -96,7 +97,22 @@ class Module(object):
             raise ModuleError('Something went wrong during module update: ' + e.message)
 
         html_code = render_module(self.template, template_data)
-        return HttpResponse(html_code, status=HTTP_200_OK)
+        
+        response_dict = {}
+        response_dict['html'] = html_code
+        if hasattr(self, "get_XpathAccessor"):
+            response_dict.update(self.get_XpathAccessor())
+        
+
+        return HttpResponse(json.dumps(response_dict))
+
+        
+#     def _get_extra_data(self):
+#         return self.get_extra_data()    
+#     
+#     @abstractmethod
+#     def get_extra_data(self):
+#         raise NotImplementedError("This method is not implemented.")
     
     def _get_resources(self):
         """
@@ -152,9 +168,9 @@ class Module(object):
     def _post_display(self, request):
         """
             Method:
-                Get the default value to be stored in the form.
+                Get the value to be displayed in the form.
             Outputs:
-                default result value
+                default displayed value
         """
         raise NotImplementedError("This method is not implemented.")
 
@@ -162,12 +178,13 @@ class Module(object):
     def _post_result(self, request):
         """
             Method:
-                Get the default value to be stored in the form.
+                Get the value to be stored in the form.
             Outputs:
                 default result value
         """
         raise NotImplementedError("This method is not implemented.")
 
+    
     # @abstractmethod
     # def process_data(self, request):
     #     """

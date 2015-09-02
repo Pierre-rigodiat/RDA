@@ -1,5 +1,5 @@
 from models import PositiveIntegerInputModule, ExampleAutoCompleteModule, ChemicalElementMappingModule, \
-    ListToGraphInputModule, CitationRefIdModule
+    ListToGraphInputModule, CitationRefIdModule, SiblingsAccessorModule
 
 def positive_integer(request):
     return PositiveIntegerInputModule().render(request)
@@ -15,4 +15,7 @@ def chemical_element_mapping(request):
 
 def list_to_graph(request):
     return ListToGraphInputModule().render(request)
+
+def siblings_accessor(request):
+    return SiblingsAccessorModule().render(request)
 

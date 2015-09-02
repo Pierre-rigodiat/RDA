@@ -4,6 +4,8 @@ from modules.exceptions import ModuleError
 from django.conf import settings
 import os
 from lxml import etree
+from modules.xpathaccessor import XPathAccessor
+from django.http.request import HttpRequest
 
 RESOURCES_PATH = os.path.join(settings.SITE_ROOT, 'modules/examples/resources/')
 # SCRIPTS_PATH = os.path.join(settings.SITE_ROOT, 'modules/examples/resources/')
@@ -230,3 +232,69 @@ class ExampleAutoCompleteModule(AutoCompleteModule):
 
     def _post_result(self, request):
         return ''
+
+
+class SiblingsAccessorModule(OptionsModule, XPathAccessor):
+    country_codes = {
+                     'FRANCE': 'FR',
+                     'UNITED STATES OF AMERICA': 'USA',
+                     }
+    
+    capitals = {
+                'FRANCE': 'PARIS',
+                'UNITED STATES OF AMERICA': 'WASHINGTON DC',
+                }
+    
+    anthems = {
+               'FRANCE': 'La Marseillaise',
+               'UNITED STATES OF AMERICA': 'The Star-Sprangled Banner',
+               }
+    
+    def __init__(self):
+        self.options = {
+            'FRANCE': 'France',
+            'UNITED STATES OF AMERICA': 'USA',
+        }
+                
+        OptionsModule.__init__(self, options=self.options, label='Select a Country')
+
+    def _get_module(self, request):
+        return OptionsModule.get_module(self, request)
+
+    def _get_display(self, request):
+        return ''
+
+    def _get_result(self, request):        
+        return self.options.keys()[0]
+
+    def _is_data_valid(self, data):
+        return data in self.options.keys()
+
+    def _post_display(self, request):
+        return ''
+
+    def _post_result(self, request):
+        # get the selected value
+        value = str(request.POST['data'])
+        
+        # create the XPathAccessor
+        XPathAccessor.__init__(self, request)
+        
+        return value
+        
+    def set_XpathAccessor(self, request):
+        # get the selected value
+        value = str(request.POST['data'])
+        
+        # get values to return for siblings
+        country_code = self.country_codes[value]
+        capital = self.capitals[value]
+        anthem = self.anthems[value]
+         
+        # get xpath of current node (for dynamic xpath building)
+        self.get_xpath()
+         
+        # set nodes with values
+        self.set_value('/Countries[1]/country_code[1]', country_code)
+        self.set_value('/Countries[1]/details[1]/capital[1]', capital)
+        self.set_value('/Countries[1]/details[1]/anthem[1]', anthem)
