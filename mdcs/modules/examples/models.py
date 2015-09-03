@@ -5,7 +5,8 @@ from django.conf import settings
 import os
 from lxml import etree
 from modules.xpathaccessor import XPathAccessor
-from django.http.request import HttpRequest
+from modules.models import Module
+
 
 RESOURCES_PATH = os.path.join(settings.SITE_ROOT, 'modules/examples/resources/')
 # SCRIPTS_PATH = os.path.join(settings.SITE_ROOT, 'modules/examples/resources/')
@@ -250,6 +251,16 @@ class SiblingsAccessorModule(OptionsModule, XPathAccessor):
                'UNITED STATES OF AMERICA': 'The Star-Sprangled Banner',
                }
     
+    flags = {
+             'FRANCE': 'Tricolour',
+             'UNITED STATES OF AMERICA': 'The Stars and Stripes',
+             }
+    
+    languages = {
+             'FRANCE': 'FRENCH',
+             'UNITED STATES OF AMERICA': 'ENGLISH',
+             }
+    
     def __init__(self):
         self.options = {
             'FRANCE': 'France',
@@ -290,11 +301,49 @@ class SiblingsAccessorModule(OptionsModule, XPathAccessor):
         country_code = self.country_codes[value]
         capital = self.capitals[value]
         anthem = self.anthems[value]
+        language = self.languages[value]
+        flag = self.flags[value]
+        
          
         # get xpath of current node (for dynamic xpath building)
-        self.get_xpath()
+        module_xpath = self.get_xpath()
+        parent_xpath = "/".join(module_xpath.split("/")[:-1])
+        parent_xpath_idx = parent_xpath[parent_xpath.rfind("[")+1:-1]
+        idx = "[" + str(parent_xpath_idx) + "]"
          
         # set nodes with values
-        self.set_value('/Countries[1]/country_code[1]', country_code)
-        self.set_value('/Countries[1]/details[1]/capital[1]', capital)
-        self.set_value('/Countries[1]/details[1]/anthem[1]', anthem)
+        self.set_xpath_value('/Countries[1]/country' + idx + '/country_code[1]', country_code)
+        self.set_xpath_value('/Countries[1]/country' + idx + '/details[1]/capital[1]', capital)
+        self.set_xpath_value('/Countries[1]/country' + idx + '/details[1]/anthem[1]', anthem)
+        self.set_xpath_value('/Countries[1]/country' + idx + '/details[1]/language[1]', language)
+        self.set_xpath_value('/Countries[1]/country' + idx + '/details[1]/flag[1]', {'data': flag})
+
+
+class FlagModule(Module):
+    
+    
+    images = {
+             'The Stars and Stripes': "https://upload.wikimedia.org/wikipedia/en/a/a4/Flag_of_the_United_States.svg",
+             'Tricolour': "https://upload.wikimedia.org/wikipedia/commons/c/c3/Flag_of_France.svg"
+             }
+    
+    def __init__(self):                
+        Module.__init__(self)
+
+    def _get_module(self, request):
+        return ''
+
+    def _get_display(self, request):        
+        return ''
+
+    def _get_result(self, request):
+        return ''
+
+    def _is_data_valid(self, data):
+        return ''
+
+    def _post_display(self, request):
+        return "<img src='" + self.images[str(request.POST['data'])] + "' height='42' width='42'/>"
+
+    def _post_result(self, request):
+        return str(request.POST['data'])

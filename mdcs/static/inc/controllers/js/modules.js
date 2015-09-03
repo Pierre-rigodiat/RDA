@@ -105,6 +105,7 @@ saveModuleData = function($module, modData, asyncOpt=true) {
             $module.find('.moduleDisplay').html(moduleDisplay);
             $module.find('.moduleResult').html(moduleResult);     
             
+            /* look at extra data received from the server */
             if ('xpath_accessor' in data){
             	xpath_accessor(data.xpath_accessor);
             }
@@ -149,12 +150,17 @@ initModules = function() {
 
 
 xpath_accessor = function(data){
-	
 	for (id in data){
 		console.log(id + " -> " + data[id]);
-		if ($("#" + id).children("input").length == 1){
-			$($("#" + id).children("input")[0]).val(data[id]);
+		if ($("#" + id).children("input").length == 1){ /* input */
+			$("#" + id).children("input").val(data[id]);
+		}else if($("#" + id).children("select").length == 1){ /* select */
+			$("#" + id).children("select").val(data[id]);
+		}else if($("#" + id).children("div.module").length == 1){ /* module */
+			var module = $("#" + id).children("div.module");		
+			saveModuleData(module, data[id]);
+		}else{ /* other */
+			console.log("Unable to set " + id + " with value " + data[id]);
 		}
-		
 	}
 }

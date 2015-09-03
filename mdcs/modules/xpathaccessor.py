@@ -29,7 +29,7 @@ class XPathAccessor():
         return self.xpath
         
 
-    def set_value(self, xpath, value):        
+    def set_xpath_value(self, xpath, value):        
         form_element = self._get_element(xpath)
         html_id = form_element.html_id
         if xpath in self.values.keys():
