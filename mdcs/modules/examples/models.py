@@ -237,32 +237,38 @@ class ExampleAutoCompleteModule(AutoCompleteModule):
 
 class SiblingsAccessorModule(OptionsModule, XPathAccessor):
     country_codes = {
+                     'None': '',
                      'FRANCE': 'FR',
                      'UNITED STATES OF AMERICA': 'USA',
                      }
     
     capitals = {
+                'None': '',
                 'FRANCE': 'PARIS',
                 'UNITED STATES OF AMERICA': 'WASHINGTON DC',
                 }
     
     anthems = {
+               'None': '',
                'FRANCE': 'La Marseillaise',
                'UNITED STATES OF AMERICA': 'The Star-Sprangled Banner',
                }
     
     flags = {
+             'None': 'None',
              'FRANCE': 'Tricolour',
              'UNITED STATES OF AMERICA': 'The Stars and Stripes',
              }
     
     languages = {
+             'None': '',
              'FRANCE': 'FRENCH',
              'UNITED STATES OF AMERICA': 'ENGLISH',
              }
     
     def __init__(self):
         self.options = {
+            'None': '--------',
             'FRANCE': 'France',
             'UNITED STATES OF AMERICA': 'USA',
         }
@@ -275,7 +281,7 @@ class SiblingsAccessorModule(OptionsModule, XPathAccessor):
     def _get_display(self, request):
         return ''
 
-    def _get_result(self, request):        
+    def _get_result(self, request):     
         return self.options.keys()[0]
 
     def _is_data_valid(self, data):
@@ -323,8 +329,9 @@ class FlagModule(Module):
     
     
     images = {
-             'The Stars and Stripes': "https://upload.wikimedia.org/wikipedia/en/a/a4/Flag_of_the_United_States.svg",
-             'Tricolour': "https://upload.wikimedia.org/wikipedia/commons/c/c3/Flag_of_France.svg"
+             'None':'',
+             'The Stars and Stripes': "<img src='https://upload.wikimedia.org/wikipedia/en/a/a4/Flag_of_the_United_States.svg' height='42' width='42'/>",
+             'Tricolour': "<img src='https://upload.wikimedia.org/wikipedia/commons/c/c3/Flag_of_France.svg' height='42' width='42'/>"
              }
     
     def __init__(self):                
@@ -343,7 +350,7 @@ class FlagModule(Module):
         return ''
 
     def _post_display(self, request):
-        return "<img src='" + self.images[str(request.POST['data'])] + "' height='42' width='42'/>"
+        return self.images[str(request.POST['data'])]
 
     def _post_result(self, request):
         return str(request.POST['data'])
