@@ -15,23 +15,21 @@
 ################################################################################
 
 
-from datetime import date
 from cStringIO import StringIO
 
 from django.http import HttpResponse
 from django.template import RequestContext, loader, Context
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect
 from django.core.servers.basehttp import FileWrapper
 from bson.objectid import ObjectId
 import lxml.etree as etree
 from lxml.etree import XMLSyntaxError
 from xlrd import open_workbook
-from django.contrib import messages
 import json 
 
 from mgi.models import Template, TemplateVersion, XML2Download, FormData
 from curate.forms import NewForm, OpenForm, UploadForm, AdvancedOptionsForm
-from django.http.response import HttpResponseRedirect, HttpResponseBadRequest
+from django.http.response import HttpResponseBadRequest
 
 
 ################################################################################
@@ -348,25 +346,25 @@ def start_curate(request):
                 request.session['curateFormData'] = str(form_data.id)                
                 
                 # TODO: remove default options to True 
-                request.session['curate_min_tree'] = False                
-                request.session['curate_siblings_mod'] = False
+                request.session['curate_min_tree'] = True          
+#                 request.session['curate_siblings_mod'] = False
                 
-                options_form = AdvancedOptionsForm(request.POST)
-                if 'options' in options_form.data:
-                    if 'min_tree' in dict(options_form.data)['options']:
-                        request.session['curate_min_tree'] = True
-                    if 'siblings_mod' in dict(options_form.data)['options']:
-                        request.session['curate_siblings_mod'] = True
+#                 options_form = AdvancedOptionsForm(request.POST)
+#                 if 'options' in options_form.data:
+#                     if 'min_tree' in dict(options_form.data)['options']:
+#                         request.session['curate_min_tree'] = True
+#                     if 'siblings_mod' in dict(options_form.data)['options']:
+#                         request.session['curate_siblings_mod'] = True
                 
                 return HttpResponse('ok')
             else:
                 new_form = NewForm()
                 open_form = OpenForm(forms=FormData.objects(user=str(request.user.id), template=request.session['currentTemplateID']))
                 upload_form = UploadForm()
-                options_form = AdvancedOptionsForm()
+#                 options_form = AdvancedOptionsForm()
                 
                 template = loader.get_template('curate_start.html')
-                context = Context({'new_form':new_form, 'open_form': open_form, 'upload_form': upload_form, 'options_form': options_form})
+                context = Context({'new_form':new_form, 'open_form': open_form, 'upload_form': upload_form})#, 'options_form': options_form})
                 
                 return HttpResponse(json.dumps({'template': template.render(context)}), content_type='application/javascript')           
     else:
