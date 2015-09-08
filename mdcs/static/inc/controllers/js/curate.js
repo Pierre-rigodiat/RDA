@@ -316,27 +316,28 @@ generateXMLString = function(elementObj)
     var children = $(elementObj).children();
     for(var i = 0; i < children.length; i++) {
 	    if (children[i].tagName == "UL") {
+	    	// don't generate branches not chosen
 	    	if (! $(children[i]).hasClass("notchosen") ) {
 	    		xmlString += generateXMLString(children[i]);
 	    	}
 		} else if (children[i].tagName == "LI") {
+			// don't generate removed branches/leaves
 			if (! $(children[i]).hasClass("removed") ) {
-				
-				if($(children[i]).hasClass("choice") ) {
+				if($(children[i]).hasClass("choice") ) { // the node is a choice
 					xmlString += generateXMLString(children[i]);
-				}else if ($(children[i]).hasClass("sequence") ) {
+				}else if ($(children[i]).hasClass("sequence") ) { // the node is a sequence
 					xmlString += generateXMLString(children[i]);
-				}else if ($(children[i]).hasClass("element") ){
+				}else if ($(children[i]).hasClass("element") ){ // the node is an element
 					var textNode = $(children[i]).contents().filter(function(){
 				        return this.nodeType === 3;
-				    }).text();
+				    }).text().trim();
 					
 					// get attributes
 					var attributes = ""
 					$(children[i]).children("ul").children("li.attribute:not(.removed)").each(function(){
 						var text = $(this).contents().filter(function(){
 					        return this.nodeType === 3;
-					    }).text();
+					    }).text().trim();
 					
 						attrChildren = $(this).children();					
  
@@ -354,36 +355,40 @@ generateXMLString = function(elementObj)
 						}						
 						attributes += " " + text + "='" + value + "'";
 					});
+					// build opening tag with potential attributes
 					xmlString += "<" + textNode + attributes + ">";
-					
+					// build the content of the element
 				    xmlString += generateXMLString(children[i]);
+				    // build the closing tag
 				    xmlString += "</" + textNode + ">";
-					
 				}			    	
 			}
-		}
-		else if (children[i].tagName == "DIV" && $(children[i]).hasClass("module") ){
+		} else if (children[i].tagName == "DIV" && $(children[i]).hasClass("module") ){
 			xmlString += $($(children[i]).parent()).find(".moduleResult").html();		
-		} 	
-		else if (children[i].tagName == "SELECT") {
+		} else if (children[i].tagName == "SELECT") {
 		    // get the index of the selected option 
 		    var idx = children[i].selectedIndex; 
-		    // get the value of the selected option 		    
-		    var which = children[i].options[idx].value; 
-		    	    
-		    if (children[i].getAttribute("id") != null && children[i].getAttribute("id").indexOf("choice") > -1){
-		    	xmlString += generateXMLString(children[i]);
-		    }else {
-		    	xmlString += which;
-		    }	    
-		} else if (children[i].tagName == "INPUT") {
+		    
+		    if (idx > 0){
+			    // get the value of the selected option 		    
+			    var which = children[i].options[idx].value;
+			    
+			    if (children[i].getAttribute("id") != null && children[i].getAttribute("id").indexOf("choice") > -1){
+				    // choice
+			    	xmlString += generateXMLString(children[i]);
+			    }else { 
+			    	// enumeration
+			    	xmlString += which;
+			    }
+		    }
+		} else if (children[i].tagName == "INPUT") { // the node is an input
 		    xmlString += children[i].value;
 		}  else {
 		    xmlString += generateXMLString(children[i]);
 		}
     }
 
-    return xmlString
+    return xmlString    
 }
 
 
