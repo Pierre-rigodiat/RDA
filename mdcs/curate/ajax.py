@@ -672,18 +672,30 @@ def generateChoice(request, element, xmlTree, namespace, choiceInfo=None, fullPa
 #         if len(edit_elements) > 0:
 #             nbOccurrences = len(edit_elements)
     
+    # nbEditOccurrences = nb of occurrences from data
+    # nbOccurrences = nb of occurrences to rended
+    nbEditOccurrences = nbOccurrences
     if request.session['curate_edit'] and nbOccurrences == 0:
+        # 0 occurrences in data
+        nbEditOccurrences = 0
+        # 1 occurence to display but disabled. If let at 0, won't be able to have it at all.
+        nbOccurrences = 1
+    for x in range (0,int(nbOccurrences)):
         tagID = "element" + str(nb_html_tags)
         nb_html_tags += 1  
         request.session['nb_html_tags'] = str(nb_html_tags)
-        form_element = FormElement(html_id=tagID, xml_element=xml_element, xml_xpath=fullPath + '[1]').save()
-        request.session['mapTagID'][tagID] = str(form_element.id)
+        if not isinstance(element,list) and ((minOccurs != 1) or (maxOccurs != 1)):
+            form_element = FormElement(html_id=tagID, xml_element=xml_element, xml_xpath=fullPath + '[' + str(x+1) +']').save()
+            request.session['mapTagID'][tagID] = str(form_element.id)
         chooseID = nbChoicesID
         chooseIDStr = 'choice' + str(chooseID)
         nbChoicesID += 1
         request.session['nbChoicesID'] = str(nbChoicesID)
         
-        formString += "<li class='choice removed' id='" + str(tagID) + "'>Choose<select id='"+ chooseIDStr +"' onchange=\"changeChoice(this);\">"
+        if request.session['curate_edit'] and nbEditOccurrences == 0:
+            formString += "<li class='choice removed' id='" + str(tagID) + "'>Choose<select id='"+ chooseIDStr +"' onchange=\"changeChoice(this);\">"
+        else:
+            formString += "<li class='choice' id='" + str(tagID) + "'>Choose<select id='"+ chooseIDStr +"' onchange=\"changeChoice(this);\">"
         
         nbSequence = 1
 #         nbChoice = 1
@@ -722,60 +734,10 @@ def generateChoice(request, element, xmlTree, namespace, choiceInfo=None, fullPa
     
         formString += "</select>"
         
-        formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" onclick=\"changeHTMLForm('add',"+str(tagID[7:])+");\"></span>"                                                                             
-        formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" style=\"display:none;\" onclick=\"changeHTMLForm('remove',"+str(tagID[7:])+");\"></span>"
-    else:
-        for x in range (0,int(nbOccurrences)):
-            tagID = "element" + str(nb_html_tags)
-            nb_html_tags += 1  
-            request.session['nb_html_tags'] = str(nb_html_tags)
-            if not isinstance(element,list) and ((minOccurs != 1) or (maxOccurs != 1)):
-                form_element = FormElement(html_id=tagID, xml_element=xml_element, xml_xpath=fullPath + '[' + str(x+1) +']').save()
-                request.session['mapTagID'][tagID] = str(form_element.id)
-            chooseID = nbChoicesID
-            chooseIDStr = 'choice' + str(chooseID)
-            nbChoicesID += 1
-            request.session['nbChoicesID'] = str(nbChoicesID)
-            
-            formString += "<li class='choice' id='" + str(tagID) + "'>Choose<select id='"+ chooseIDStr +"' onchange=\"changeChoice(this);\">"
-            
-            nbSequence = 1
-    #         nbChoice = 1
-            
-            # generates the choice
-            if(len(list(element)) != 0):
-                for child in element:
-                    if (child.tag == "{0}element".format(namespace)):                    
-                        if child.attrib.get('name') is not None:
-                            opt_value = opt_label = child.attrib.get('name')
-                        else:
-                            opt_value = opt_label = child.attrib.get('ref')
-                            if ':' in opt_label:
-                                opt_label = opt_label.split(':')[1]
-                        # look for active choice when editing                
-                        elementPath = fullPath + '/' + opt_label
-                        
-                        if request.session['curate_edit']:
-                            if len(edit_data_tree.xpath(elementPath)) == 0:    
-                                formString += "<option value='" + opt_value + "'>" + opt_label + "</option></b><br>"
-                            else:
-                                formString += "<option value='" + opt_value + "' selected>" + opt_label + "</option></b><br>"
-                        else:
-                            formString += "<option value='" + opt_value + "'>" + opt_label + "</option></b><br>"
-                    elif (child.tag == "{0}group".format(namespace)):
-                        pass
-                    elif (child.tag == "{0}choice".format(namespace)):
-                        pass
-    #                     formString += "<option value='choice" + str(nbChoice) + "'>Choice " + str(nbChoice) + "</option></b><br>"
-    #                     nbChoice += 1
-                    elif (child.tag == "{0}sequence".format(namespace)):
-                        formString += "<option value='sequence" + str(nbSequence) + "'>Sequence " + str(nbSequence) + "</option></b><br>"
-                        nbSequence += 1
-                    elif (child.tag == "{0}any".format(namespace)):
-                        pass
-        
-            formString += "</select>"
-            
+        if request.session['curate_edit'] and nbEditOccurrences == 0:
+            formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" onclick=\"changeHTMLForm('add',"+str(tagID[7:])+");\"></span>"                                                                             
+            formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" style=\"display:none;\" onclick=\"changeHTMLForm('remove',"+str(tagID[7:])+");\"></span>"
+        else:
             if (addButton == True):                                
                 formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" onclick=\"changeHTMLForm('add',"+str(tagID[7:])+");\"></span>"
             else:
@@ -784,21 +746,21 @@ def generateChoice(request, element, xmlTree, namespace, choiceInfo=None, fullPa
                 formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" onclick=\"changeHTMLForm('remove',"+str(tagID[7:])+");\"></span>"
             else:
                 formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" style=\"display:none;\" onclick=\"changeHTMLForm('remove',"+str(tagID[7:])+");\"></span>"
-                
-            for (counter, choiceChild) in enumerate(list(element)):       
-                if choiceChild.tag == "{0}element".format(namespace):
-                    formString += generateElement(request, choiceChild, xmlTree, namespace, common.ChoiceInfo(chooseIDStr,counter), fullPath=fullPath, edit_data_tree=edit_data_tree)
-                elif (choiceChild.tag == "{0}group".format(namespace)):
-                    pass
-                elif (choiceChild.tag == "{0}choice".format(namespace)):
-                    pass
-    #                 formString += generateChoice(request, choiceChild, xmlTree, namespace, common.ChoiceInfo(chooseIDStr,counter), fullPath=fullPath)
-                elif (choiceChild.tag == "{0}sequence".format(namespace)):
-                    formString += generateSequence(request, choiceChild, xmlTree, namespace, common.ChoiceInfo(chooseIDStr,counter), fullPath=fullPath, edit_data_tree=edit_data_tree)
-                elif (choiceChild.tag == "{0}any".format(namespace)):
-                    pass
             
-            formString += "</li>"
+        for (counter, choiceChild) in enumerate(list(element)):       
+            if choiceChild.tag == "{0}element".format(namespace):
+                formString += generateElement(request, choiceChild, xmlTree, namespace, common.ChoiceInfo(chooseIDStr,counter), fullPath=fullPath, edit_data_tree=edit_data_tree)
+            elif (choiceChild.tag == "{0}group".format(namespace)):
+                pass
+            elif (choiceChild.tag == "{0}choice".format(namespace)):
+                pass
+#                 formString += generateChoice(request, choiceChild, xmlTree, namespace, common.ChoiceInfo(chooseIDStr,counter), fullPath=fullPath)
+            elif (choiceChild.tag == "{0}sequence".format(namespace)):
+                formString += generateSequence(request, choiceChild, xmlTree, namespace, common.ChoiceInfo(chooseIDStr,counter), fullPath=fullPath, edit_data_tree=edit_data_tree)
+            elif (choiceChild.tag == "{0}any".format(namespace)):
+                pass
+        
+        formString += "</li>"
     formString += "</ul>"
     
     return formString
@@ -1133,7 +1095,7 @@ def generateElement(request, element, xmlTree, namespace, choiceInfo=None, fullP
   
     
     xml_element = None
-    if not(minOccurs == 1 and maxOccurs == 1) or request.session['curate_min_tree'] == True or request.session['curate_siblings_mod'] == True:
+    if not(minOccurs == 1 and maxOccurs == 1) or request.session['curate_min_tree'] == True:
         nbOccurs_to_save = nbOccurrences 
         # Update element information to match the number of elements from the XML document
         if request.session['curate_edit']:
