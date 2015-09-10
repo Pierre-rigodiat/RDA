@@ -345,9 +345,11 @@ generateXMLString = function(elementObj)
 						for(var j = 0; j < attrChildren.length; j++) {
 							if (attrChildren[j].tagName == "SELECT") {
 							    // get the index of the selected option 
-							    var idx = attrChildren[j].selectedIndex; 
-							    // get the value of the selected option 		    
-							    value = attrChildren[j].options[idx].value; 						    	    
+							    var idx = attrChildren[j].selectedIndex;
+							    if (idx >= 0){
+								    // get the value of the selected option 		    
+								    value = attrChildren[j].options[idx].value; 
+							    }
 							} else if (attrChildren[j].tagName == "INPUT") {
 								console.log(attrChildren[j]);
 								value = attrChildren[j].value;
@@ -369,7 +371,7 @@ generateXMLString = function(elementObj)
 		    // get the index of the selected option 
 		    var idx = children[i].selectedIndex; 
 		    
-		    if (idx > 0){
+		    if (idx >= 0){
 			    // get the value of the selected option 		    
 			    var which = children[i].options[idx].value;
 			    
