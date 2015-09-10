@@ -22,7 +22,7 @@ class PositiveIntegerInputModule(InputModule):
 
         return InputModule.get_module(self, request)
 
-    def _is_data_valid(self, data):
+    def is_data_valid(self, data):
         try:
             value = int(data)
             if value >= 0:
@@ -60,13 +60,8 @@ class CitationRefIdModule(InputModule):
 
         return InputModule.get_module(self, request)
 
-    def _is_data_valid(self, data):
-        return True
 
     def _parse_data(self, data):
-        if not self._is_data_valid(data):
-            return None
-
         html = HTMLParser()
         data = html.unescape(data)
 

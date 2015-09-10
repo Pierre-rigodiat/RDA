@@ -34,9 +34,6 @@ class BlobHosterModule(PopupModule):
     def _get_result(self, request):
         return ''
 
-    def _is_data_valid(self, data):
-        return True
-
     def _post_display(self, request):
         form = BLOBHosterForm(request.POST, request.FILES)
         if not form.is_valid():

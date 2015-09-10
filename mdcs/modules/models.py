@@ -124,15 +124,15 @@ class Module(object):
 
         return HttpResponse(json.dumps(response), status=HTTP_200_OK)
 
-    @abstractmethod
-    def _is_data_valid(self, data):
-        """
-            Method:
-                Get the default value to be stored in the form.
-            Outputs:
-                default result value
-        """
-        raise NotImplementedError("This method is not implemented.")
+#     @abstractmethod
+#     def _is_data_valid(self, data):
+#         """
+#             Method:
+#                 Get the default value to be stored in the form.
+#             Outputs:
+#                 default result value
+#         """
+#         raise NotImplementedError("This method is not implemented.")
 
     @abstractmethod
     def _get_module(self, request):
