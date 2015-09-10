@@ -132,9 +132,6 @@ class ChemicalElementMappingModule(OptionsModule):
     def _get_result(self, request):
         return self.options.keys()[0]
 
-    def _is_data_valid(self, data):
-        return data in self.options.keys()
-
     def _post_display(self, request):
         data = str(request.POST['data'])
         return self.options[data] + ' is selected'
@@ -211,9 +208,6 @@ class ExampleAutoCompleteModule(AutoCompleteModule):
     def _get_result(self, request):
         return ''
 
-    def _is_data_valid(self, data):
-        return True
-
     def _post_display(self, request):
         if 'data' not in request.POST:
             raise ModuleError('No data sent to server.')
@@ -279,9 +273,6 @@ class SiblingsAccessorModule(OptionsModule, XPathAccessor):
     def _get_result(self, request):     
         return self.options.keys()[0]
 
-    def _is_data_valid(self, data):
-        return data in self.options.keys()
-
     def _post_display(self, request):
         return ''
 
@@ -339,9 +330,6 @@ class FlagModule(Module):
         return ''
 
     def _get_result(self, request):
-        return ''
-
-    def _is_data_valid(self, data):
         return ''
 
     def _post_display(self, request):

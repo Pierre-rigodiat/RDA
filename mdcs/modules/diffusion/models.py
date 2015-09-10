@@ -30,9 +30,6 @@ class PeriodicTableModule(PopupModule):
     def _get_result(self, request):
         return ''
 
-    def _is_data_valid(self, data):
-        return True
-
     def _post_display(self, request):
         if 'selectedElement' not in request.POST:
             return self._get_display(request)
@@ -65,9 +62,6 @@ class PeriodicTableMultipleModule(PopupModule):
 
     def _get_result(self, request):
         return ''
-
-    def _is_data_valid(self, data):
-        return True
 
     def _post_display(self, request):
         if 'elementList' in request.POST:
@@ -191,9 +185,6 @@ class ExcelUploaderModule(PopupModule):
 
     def _get_result(self, request):
         return ''
-
-    def _is_data_valid(self, data):
-        return True
 
     def _post_display(self, request):
         form = ExcelUploaderForm(request.POST, request.FILES)
