@@ -601,75 +601,6 @@ removeMultipleElement = function(removeButton){
 
 
 /**
- * Select an Excel Spreadseet. Show the dialog box.
- * @param hdf5File
- * @param divElement
- */
-selectHDF5File = function(hdf5File,divElement)
-{	
-    $(function() {
-        //$("#dialog-select-hdf5file" ).dialog({
-    	$('<div id="dialog-select-hdf5file" title="Upload Spreadsheet File" style="display:none;">'+
-    	'<iframe src="/curate/select-hdf5file">'+
-    	'</iframe>'+	
-    	'</div>' ).dialog({
-            modal: true,
-            buttons: {
-            	Done: function() {
-            		doSelectHDF5File(divElement);
-                    $( this ).dialog( "close" );
-                },
-                Cancel: function() {
-                    $( this ).dialog( "close" );
-                }
-	    }
-        });
-    });
-	
-    console.log('END [selectElement]');
-}
-
-var moduleTag;
-/**
- * Select an Excel Spreadseet. 
- * @param divElement
- */
-doSelectHDF5File = function(divElement)
-{
-	moduleTag = $(divElement).parent();
-    get_hdf5_string();
-}
-
-
-/**
- * AJAX call, gets XML String from spreadsheet
- */
-get_hdf5_string = function(){
-    $.ajax({
-        url : "/curate/get_hdf5_string",
-        type : "GET",
-        dataType: "json",
-        success: function(data){
-            getHDF5StringCallback(data.spreadsheetXML);
-        }
-    });
-}
-
-
-/**
- * Insert the Spreadsheet information in the form.
- * @param data
- */
-getHDF5StringCallback = function(spreadsheetXML)
-{
-	if (spreadsheetXML != ""){
-		moduleTag.children(".moduleResult").html(spreadsheetXML);
-		moduleTag.children(".moduleDisplay").html("Spreadsheet successfully loaded.");
-	}
-}
-
-
-/**
  * Update the display regarding the choice of the user.
  * @param selectObj
  */
@@ -1136,7 +1067,8 @@ changeHTMLForm = function(operation, tagID)
         // the element has to be created
         if ($("#element"+tagID).children("ul").length == 0 &&
         $("#element"+tagID).children("input").length == 0 &&
-        $("#element"+tagID).children("select").length == 0){
+        $("#element"+tagID).children("select").length == 0 &&
+        $("#element"+tagID).children("div.module").length == 0){
             generate(tagID, "element");
         }
         else{

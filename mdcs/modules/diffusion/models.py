@@ -3,6 +3,10 @@ from django.conf import settings
 import os
 from modules.exceptions import ModuleError
 import json
+from modules.diffusion.forms import ExcelUploaderForm
+from django.template import Context, Template
+from lxml import etree
+from xlrd import open_workbook
 
 RESOURCES_PATH = os.path.join(settings.SITE_ROOT, 'modules/diffusion/resources/')
 
@@ -164,3 +168,72 @@ class PeriodicTableMultipleModule(PopupModule):
     #     else:
     #         raise ModuleError('Selected Element not properly sent to server. '
     #                           'Please set "selectedElement" in POST data.')
+
+
+class ExcelUploaderModule(PopupModule):
+    def __init__(self):
+        self.xml = None
+        
+        with open(RESOURCES_PATH + 'html/ExcelUploader.html', 'r') as excel_uploader_file:        
+            excel_uploader = excel_uploader_file.read()            
+            template = Template(excel_uploader)
+            context = Context({'form': ExcelUploaderForm()})
+            popup_content = template.render(context)
+        
+        PopupModule.__init__(self, popup_content=popup_content, button_label='Upload Excel File',
+                             scripts=[os.path.join(RESOURCES_PATH, 'js/exceluploader.js')])
+
+    def _get_module(self, request):
+        return PopupModule.get_module(self, request)
+
+    def _get_display(self, request):
+        return 'No file selected'
+
+    def _get_result(self, request):
+        return ''
+
+    def _is_data_valid(self, data):
+        return True
+
+    def _post_display(self, request):
+        form = ExcelUploaderForm(request.POST, request.FILES)
+        if not form.is_valid():
+            raise ModuleError('Data not properly sent to server. Please set "file" in POST data.')
+
+        
+        try:
+            input_excel = request.FILES['file']
+            book = open_workbook(file_contents=input_excel.read())
+        
+            root = etree.Element("table")
+            root.set("name", str(input_excel))
+            header = etree.SubElement(root, "headers")
+            values = etree.SubElement(root, "rows")
+        
+            for sheet in book.sheets():
+                for rowIndex in range(sheet.nrows):
+                    if rowIndex != 0:
+                        row = etree.SubElement(values, "row")
+                        row.set("id", str(rowIndex))
+        
+                    for colIndex in range(sheet.ncols):
+                        if rowIndex == 0:
+                            col = etree.SubElement(header, "column")
+                        else:
+                            col = etree.SubElement(row, "column")
+        
+                        col.set("id", str(colIndex))
+                        col.text = str(sheet.cell(rowIndex, colIndex).value)
+        
+            xmlString = etree.tostring(header)
+            xmlString += etree.tostring(values)
+        
+            self.xml = xmlString
+            
+            return input_excel.name + ' uploaded with success.'
+        except:
+            return 'Something went wrong. Be sure to upload an Excel file, with correct format.' 
+
+    def _post_result(self, request):
+        return self.xml if self.xml is not None else ''
+    

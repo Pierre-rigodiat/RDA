@@ -63,28 +63,6 @@ class ElementOccurrences:
         return json.dumps(self, default=lambda o:o.__dict__)
         
 
-
-################################################################################
-#
-# Function Name: get_hdf5_string(request)
-# Inputs:        request - 
-# Outputs:       
-# Exceptions:    None
-# Description:   Get the values of an excel spreadsheet from the session variable
-#                
-#
-################################################################################
-def get_hdf5_string(request):
-    if 'spreadsheetXML' in request.session:
-        spreadsheetXML = request.session['spreadsheetXML']
-        request.session['spreadsheetXML'] = ""
-    else:
-        spreadsheetXML = ""
-
-    response_dict = {'spreadsheetXML': spreadsheetXML}
-    return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
-
-
 ################################################################################
 #
 # Function Name: save_form(request)

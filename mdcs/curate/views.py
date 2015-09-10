@@ -24,7 +24,6 @@ from django.core.servers.basehttp import FileWrapper
 from bson.objectid import ObjectId
 import lxml.etree as etree
 from lxml.etree import XMLSyntaxError
-from xlrd import open_workbook
 import json 
 
 from mgi.models import Template, TemplateVersion, XML2Download, FormData
@@ -89,93 +88,6 @@ def curate_select_template(request):
         if 'loggedOut' in request.session:
             del request.session['loggedOut']
         request.session['next'] = '/curate/select-template'
-        return redirect('/login')
-
-
-################################################################################
-#
-# Function Name: curate_select_hdf5file(request)
-# Inputs:        request -
-# Outputs:       Select Spreadsheet page
-# Exceptions:    None
-# Description:   Page that allows to select an Excel Spreadsheet
-#
-#
-################################################################################
-def curate_select_hdf5file(request):
-    if request.user.is_authenticated():
-        template = loader.get_template('curate_select_hdf5file.html')
-        context = RequestContext(request, {
-            '': '',
-        })
-        return HttpResponse(template.render(context))
-    else:
-        if 'loggedOut' in request.session:
-            del request.session['loggedOut']
-        request.session['next'] = '/curate/select-template'
-        return redirect('/login')
-
-################################################################################
-#
-# Function Name: curate_upload_hdf5file(request)
-# Inputs:        request -
-# Outputs:       Result of the upload
-# Exceptions:    None
-# Description:   Transforms the spreadsheet into XML and displays a success or error message
-#
-################################################################################
-def curate_upload_spreadsheet(request):
-    if request.user.is_authenticated():
-        template = loader.get_template('curate_upload_successful.html')
-
-        context = RequestContext(request, {
-            '': '',
-        })
-        if 'currentTemplateID' not in request.session:
-            return redirect('/curate/select-template')
-        else:
-            if request.method == 'POST':
-                try:
-                    print request.FILES
-                    input_excel = request.FILES['excelSpreadsheet']
-                    print input_excel
-                    book = open_workbook(file_contents=input_excel.read())
-
-                    root = etree.Element("table")
-                    root.set("name", str(input_excel))
-                    header = etree.SubElement(root, "headers")
-                    values = etree.SubElement(root, "rows")
-
-                    for sheet in book.sheets():
-                        for rowIndex in range(sheet.nrows):
-
-                            if rowIndex != 0:
-                                row = etree.SubElement(values, "row")
-                                row.set("id", str(rowIndex))
-
-                            for colIndex in range(sheet.ncols):
-                                if rowIndex == 0:
-                                    col = etree.SubElement(header, "column")
-                                else:
-                                    col = etree.SubElement(row, "column")
-
-                                col.set("id", str(colIndex))
-                                col.text = str(sheet.cell(rowIndex, colIndex).value)
-
-#                     xmlString = etree.tostring(root)
-                    xmlString = etree.tostring(header)
-                    xmlString += etree.tostring(values)
-
-                    request.session['spreadsheetXML'] = xmlString
-                except:
-                    templateError = loader.get_template('curate_upload_failed.html')
-                    return HttpResponse(templateError.render(context))
-
-            return HttpResponse(template.render(context))
-    else:
-        if 'loggedOut' in request.session:
-            del request.session['loggedOut']
-        request.session['next'] = '/curate/enter-data'
         return redirect('/login')
 
 
@@ -304,7 +216,14 @@ def curate_view_data_downloadxml(request):
         request.session['next'] = '/curate'
         return redirect('/login')
 
-
+################################################################################
+#
+# Function Name: start_curate(request)
+# Inputs:        request -
+# Exceptions:    None
+# Description:   Load forms to start curation
+#
+################################################################################
 def start_curate(request):
     if request.user.is_authenticated():
         if 'currentTemplateID' not in request.session:
@@ -346,7 +265,7 @@ def start_curate(request):
                 request.session['curateFormData'] = str(form_data.id)                
                 
                 # TODO: remove default options to True 
-                request.session['curate_min_tree'] = True          
+                request.session['curate_min_tree'] = False          
 #                 request.session['curate_siblings_mod'] = False
                 
 #                 options_form = AdvancedOptionsForm(request.POST)

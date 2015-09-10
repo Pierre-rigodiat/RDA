@@ -109,73 +109,11 @@ verifyTemplateIsSelectedCurateEnterData();
 
 </div>
 
-<div id="dialog-select-element" title="Select Element" style="display:none;">
-<p></p>
-<p>
-<div id="periodicTable"></div>
-<br/>
-<div id="chosenElement">Chosen Element: <b id="selectedElement">None</b></div>
-</p>
-</div>
-
-<style>
-#tableChosenElements{
-   border: 1px solid black;
-}
- 
-#tableChosenElements th{
-   border: 1px solid black;
-   width:50px;
-   text-align:center;
-}
-
-#tableChosenElements td{
-   border: 1px solid black;
-   width:50px;
-   text-align:center;
-}
-
-#tableChosenElements input{
-	width:90%;
-}
-
-</style>
-
-<div id="dialog-select-element-multiple" title="Select Elements" style="display:none;">
-<p></p>
-<p>
-	<div id="periodicTableMultiple"></div>
-</p>
-<hr/>
-<div id="chosenMultipleElements">
-	<table id="tableChosenElements">
-		<tr>
-			<th>Element</th>
-			<th>Quantity</th>
-			<th>Purity</th>
-			<th>Error</th>
-			<th>Actions</th>
-		</tr>
-		<tr>
-			<td colspan="5" style="text-align:center; color:red;">No selected elements.</td>
-		</tr>
-	</table>
-</div>
-</div>
-
-<div id="dialog-select-hdf5file" title="Upload Spreadsheet File" style="display:none;">
-<iframe src="/curate/select-hdf5file">
-</iframe>	
-</div>
- 
-
 <div id="dialog-save-error-message" title="XML Data Error" style="display:none;">
 <p></p>
   <div id="saveErrorMessage">
   </div>
 </div>
 
-<div id="modules">
-</div>
 {% endblock %}
 
