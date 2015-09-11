@@ -265,7 +265,7 @@ def start_curate(request):
                 request.session['curateFormData'] = str(form_data.id)                
                 
                 # TODO: remove default options to True 
-                request.session['curate_min_tree'] = False          
+                request.session['curate_min_tree'] = True          
 #                 request.session['curate_siblings_mod'] = False
                 
 #                 options_form = AdvancedOptionsForm(request.POST)
