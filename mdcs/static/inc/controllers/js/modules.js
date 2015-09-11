@@ -149,6 +149,7 @@ initModules = function() {
 };
 
 
+// set sibling nodes with values from the server
 xpath_accessor = function(data){
 	for (id in data){
 		console.log(id + " -> " + data[id]);

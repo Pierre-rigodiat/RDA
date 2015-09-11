@@ -43,7 +43,8 @@ class Module(object):
     def _get(self, request):
         if 'data' in request.GET:
             request.GET = {
-                'data': sanitize(request.GET['data']),
+                # TODO: removed sanitize here to keep XML tags in the module and not &lt;
+                'data': request.GET['data'],#'data': sanitize(request.GET['data']),
                 'url': request.GET['url']
             }
 
@@ -61,7 +62,8 @@ class Module(object):
         try:
             template_data['module'] = self._get_module(request)
             template_data['display'] = self._get_display(request)
-            template_data['result'] = self._get_result(request)
+            # TODO: sanitize the string that goes back to the page instead
+            template_data['result'] = sanitize(self._get_result(request)) #self._get_result(request)
         except Exception, e:
             raise ModuleError('Something went wrong during module initialization: ' + e.message)
 
@@ -75,6 +77,7 @@ class Module(object):
         return HttpResponse(html_code, status=HTTP_200_OK)
 
     def _post(self, request):
+        # TODO: do we need to sanitize data received on the server, or just the one we send back?
         # Sanitzing data from the request
         post_data = {}
         for key, value in request.POST.items():
@@ -92,7 +95,8 @@ class Module(object):
 
         try:
             template_data['display'] = self._post_display(request)
-            template_data['result'] = self._post_result(request)
+            # TODO: sanitize the string that goes back to the page
+            template_data['result'] = sanitize(self._post_result(request))
         except Exception, e:
             raise ModuleError('Something went wrong during module update: ' + e.message)
 

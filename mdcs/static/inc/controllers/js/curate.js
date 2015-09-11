@@ -366,7 +366,7 @@ generateXMLString = function(elementObj)
 				}			    	
 			}
 		} else if (children[i].tagName == "DIV" && $(children[i]).hasClass("module") ){
-			xmlString += $($(children[i]).parent()).find(".moduleResult").html();		
+			xmlString += $($(children[i]).parent()).find(".moduleResult").text();		
 		} else if (children[i].tagName == "SELECT") {
 		    // get the index of the selected option 
 		    var idx = children[i].selectedIndex; 
