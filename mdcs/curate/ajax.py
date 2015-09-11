@@ -935,21 +935,29 @@ def generateModule(request, element, namespace, xsd_xpath=None, xml_xpath=None, 
     
     reload_data = None
     if request.session['curate_edit']:
-        edit_element = edit_data_tree.xpath(xml_xpath)[0]
-        if element.tag == "{0}element".format(namespace):
-            # leaf: get the value            
-            if len(list(edit_element)) == 0:
-                reload_data = edit_data_tree.xpath(xml_xpath)[0].text
-            else: # branch: get the whole branch
-                reload_data = etree.tostring(edit_data_tree.xpath(xml_xpath)[0])
-        elif element.tag == "{0}attribute".format(namespace):
-            pass
-        elif element.tag == "{0}complexType".format(namespace) or element.tag == "{0}simpleType".format(namespace):
-            # leaf: get the value            
-            if len(list(edit_element)) == 0:
-                reload_data = edit_data_tree.xpath(xml_xpath)[0].text
-            else: # branch: get the whole branch
-                reload_data = etree.tostring(edit_data_tree.xpath(xml_xpath)[0])
+        edit_elements = edit_data_tree.xpath(xml_xpath)
+        if len(edit_elements) > 0:
+            edit_element = edit_elements[0]
+            if element.tag == "{0}element".format(namespace):
+                # leaf: get the value            
+                if len(list(edit_element)) == 0:
+                    reload_data = edit_element.text
+                else: # branch: get the whole branch
+                    reload_data = ""
+                    # only send children of the element and not the root node
+                    for sub_edit_element in edit_element:
+                        reload_data += etree.tostring(sub_edit_element) 
+            elif element.tag == "{0}attribute".format(namespace):
+                pass
+            elif element.tag == "{0}complexType".format(namespace) or element.tag == "{0}simpleType".format(namespace):
+                # leaf: get the value            
+                if len(list(edit_element)) == 0:
+                    reload_data = edit_element.text
+                else: # branch: get the whole branch
+                    reload_data = ""
+                    # only send children of the element and not the root node
+                    for sub_edit_element in edit_element:
+                        reload_data += etree.tostring(sub_edit_element) 
     
     # check if a module is set for this element    
     if '{http://mdcs.ns}_mod_mdcs_' in element.attrib:
@@ -973,6 +981,18 @@ def generateModule(request, element, namespace, xsd_xpath=None, xml_xpath=None, 
     
     return formString
 
+################################################################################
+# 
+# Function Name: hasModule(request, element)
+# Inputs:        request - 
+#                element - XML element
+# Outputs:       
+#                True - the element has a module attribute
+#                False - the element doesn't have a module attribute
+# Exceptions:    None
+# Description:   Look for a module in XML element's attributes
+# 
+################################################################################
 def hasModule(request, element):
     has_module = False
     
@@ -1048,7 +1068,7 @@ def generateElement(request, element, xmlTree, namespace, choiceInfo=None, fullP
     
     # XML xpath:/root/element
     fullPath += "/" + textCapitalized
-#     print fullPath
+    print fullPath
     
     # XSD xpath: /element/complexType/sequence
     xsd_xpath = etree.ElementTree(xmlTree).getpath(element)
