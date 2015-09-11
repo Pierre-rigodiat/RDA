@@ -25,9 +25,13 @@ class PeriodicTableModule(PopupModule):
         return PopupModule.get_module(self, request)
 
     def _get_display(self, request):
-        return 'No element selected'
+        if 'data' in request.GET:
+            return 'Chosen element: ' + str(request.GET['data'])
+        return 'No selected element.'
 
     def _get_result(self, request):
+        if 'data' in request.GET:
+            return str(request.GET['data'])
         return ''
 
     def _post_display(self, request):
@@ -58,9 +62,13 @@ class PeriodicTableMultipleModule(PopupModule):
         return PopupModule.get_module(self, request)
 
     def _get_display(self, request):
-        return 'No elements selected'
+        if 'data' in request.GET:
+            return 'BUILD THE TABLE WITH VALUES'
+        return ''
 
     def _get_result(self, request):
+        if 'data' in request.GET:
+            return str(request.GET['data'])
         return ''
 
     def _post_display(self, request):
@@ -181,9 +189,13 @@ class ExcelUploaderModule(PopupModule):
         return PopupModule.get_module(self, request)
 
     def _get_display(self, request):
+        if 'data' in request.GET:
+            return 'Data uploaded.'
         return 'No file selected'
 
     def _get_result(self, request):
+        if 'data' in request.GET:
+            return str(request.GET['data'])
         return ''
 
     def _post_display(self, request):
