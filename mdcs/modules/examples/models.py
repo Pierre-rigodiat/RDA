@@ -271,7 +271,9 @@ class SiblingsAccessorModule(OptionsModule, XPathAccessor):
         return ''
 
     def _get_result(self, request):     
-        return self.options.keys()[0]
+        if 'data' in request.GET:
+            return str(request.GET['data'])
+        return ''
 
     def _post_display(self, request):
         return ''
@@ -326,10 +328,14 @@ class FlagModule(Module):
     def _get_module(self, request):
         return ''
 
-    def _get_display(self, request):        
+    def _get_display(self, request):
+        if 'data' in request.GET:
+            return self.images[str(request.GET['data'])]
         return ''
 
     def _get_result(self, request):
+        if 'data' in request.GET:
+            return str(request.GET['data'])
         return ''
 
     def _post_display(self, request):

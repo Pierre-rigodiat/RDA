@@ -5,7 +5,7 @@ from modules.exceptions import ModuleError
 import json
 from modules.diffusion.forms import ExcelUploaderForm
 from django.template import Context, Template
-from lxml import etree
+import lxml.etree as etree
 from xlrd import open_workbook
 
 RESOURCES_PATH = os.path.join(settings.SITE_ROOT, 'modules/diffusion/resources/')
@@ -63,12 +63,56 @@ class PeriodicTableMultipleModule(PopupModule):
 
     def _get_display(self, request):
         if 'data' in request.GET:
-            return 'BUILD THE TABLE WITH VALUES'
-        return ''
+            constituents = etree.XML(request.GET['data'])
+            
+            if len(constituents) == 0:
+                return 'No element selected.'
+            else:
+                constituents_disp = '<table class="table table-striped element-list">'
+                constituents_disp += '<thead><tr>'
+                constituents_disp += '<th>Element</th>'
+                constituents_disp += '<th>Quantity</th>'
+                constituents_disp += '<th>Purity</th>'
+                constituents_disp += '<th>Error</th>'
+                constituents_disp += '</tr></thead>'
+                constituents_disp += '<tbody>'
+
+                for constituent in constituents:
+                    constituent_elements = list(constituent)
+                    name = ""
+                    quantity = ""
+                    purity = ""
+                    error = ""
+                    for constituent_element in constituent_elements:
+                        if constituent_element.tag == 'element':
+                            name = constituent_element.text
+                        elif constituent_element.tag == 'quantity':
+                            quantity = constituent_element.text
+                        elif constituent_element.tag == 'purity':
+                            purity = constituent_element.text
+                        elif constituent_element.tag == 'error':
+                            error = constituent_element.text
+                
+                    constituents_disp += '<tr>'
+                    constituents_disp += "<td>" + name + "</td>"
+                    constituents_disp += "<td>" + quantity + "</td>"
+                    constituents_disp += "<td>" + purity + "</td>"
+                    constituents_disp += "<td>" + error + "</td>"
+                    constituents_disp += '</tr>'
+
+                constituents_disp += '</tbody>'
+                constituents_disp += '</table>'
+
+            return constituents_disp
+        return 'No element selected.'
 
     def _get_result(self, request):
         if 'data' in request.GET:
-            return str(request.GET['data'])
+            result = ''
+            constituents = etree.XML(request.GET['data'])
+            for constituent in constituents:
+                result += etree.tostring(constituent)
+            return result
         return ''
 
     def _post_display(self, request):
@@ -76,7 +120,7 @@ class PeriodicTableMultipleModule(PopupModule):
             element_list = json.loads(request.POST['elementList'])
 
             if len(element_list) == 0:
-                element_list_disp = self._get_display(request)
+                return 'No element selected.'
             else:
                 element_list_disp = '<table class="table table-striped element-list">'
                 element_list_disp += '<thead><tr>'
@@ -195,7 +239,11 @@ class ExcelUploaderModule(PopupModule):
 
     def _get_result(self, request):
         if 'data' in request.GET:
-            return str(request.GET['data'])
+            result = ''
+            elements = etree.XML(request.GET['data'])
+            for element in elements:
+                result += etree.tostring(element)
+            return result
         return ''
 
     def _post_display(self, request):
