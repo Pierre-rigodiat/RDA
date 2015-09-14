@@ -33,21 +33,24 @@ class PositiveIntegerInputModule(InputModule):
             return False
 
     def _get_display(self, request):
+        
         if 'data' in request.GET:
-            self.default_value = request.GET['data']
-
-        return str(self.default_value)+" is a valid positive integer"
+            data = str(request.GET['data'])
+            return data + " is a positive integer" if self.is_data_valid(data) else data + " is not a positive integer"
+        return ''
 
     def _get_result(self, request):
-        return self.default_value
+        if 'data' in request.GET:
+            return str(request.GET['data'])
+        return ''
 
     def _post_display(self, request):
         data = str(request.POST['data'])
-        return data + " is a positive integer" if self._is_data_valid(data) else data + " is not a positive integer"
+        return data + " is a positive integer" if self.is_data_valid(data) else data + " is not a positive integer"
 
     def _post_result(self, request):
-        data = str(request.POST['data'])
-        return data if self._is_data_valid(data) else ''
+        return str(request.POST['data'])
+        
 
 
 class CitationRefIdModule(InputModule):
