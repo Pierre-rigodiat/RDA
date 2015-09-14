@@ -79,7 +79,11 @@ loadModuleResources = function(moduleURLList) {
     });
 }
 
-saveModuleData = function($module, modData, asyncOpt=true) {
+saveModuleData = function($module, modData, asyncOpt) {
+    if(typeof asyncOpt === 'undefined') {
+        asyncOpt = true;
+    }
+
 	var moduleId = $module.parents('.element').attr('id'); //TODO: test if id always class element (could it be choice or sequence?)
     var moduleURL = $module.find('.moduleURL').text();
 
