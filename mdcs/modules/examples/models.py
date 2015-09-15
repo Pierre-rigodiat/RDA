@@ -37,12 +37,12 @@ class PositiveIntegerInputModule(InputModule):
         if 'data' in request.GET:
             data = str(request.GET['data'])
             return data + " is a positive integer" if self.is_data_valid(data) else data + " is not a positive integer"
-        return ''
+        return str(self.default_value) + ' is a positive integer'
 
     def _get_result(self, request):
         if 'data' in request.GET:
             return str(request.GET['data'])
-        return ''
+        return str(self.default_value)
 
     def _post_display(self, request):
         data = str(request.POST['data'])
