@@ -22,7 +22,7 @@ class PositiveIntegerInputModule(InputModule):
 
         return InputModule.get_module(self, request)
 
-    def _is_data_valid(self, data):
+    def is_data_valid(self, data):
         try:
             value = int(data)
             if value >= 0:
@@ -33,7 +33,6 @@ class PositiveIntegerInputModule(InputModule):
             return False
 
     def _get_display(self, request):
-        
         if 'data' in request.GET:
             data = str(request.GET['data'])
             return data + " is a positive integer" if self.is_data_valid(data) else data + " is not a positive integer"
