@@ -100,10 +100,9 @@ def validate_xml_data(request):
     
     template_id = request.session['currentTemplateID']    
     request.session['xmlString'] = ""
-    
-    # TODO: namespaces
-    xmlString = common.manageNamespace(template_id, request.POST['xmlString'])      
     try:
+        # TODO: namespaces
+        xmlString = common.manageNamespace(template_id, request.POST['xmlString'])          
         common.validateXMLDocument(template_id, xmlString)
     except Exception, e:
         message= e.message.replace('"', '\'')
