@@ -573,6 +573,9 @@ def generateSequence(request, element, xmlTree, namespace, choiceInfo=None, full
 #                element - XML element
 #                xmlTree - XML Tree
 #                namespace - namespace
+#                choiceInfo - to keep track of branches to display (chosen ones) when going recursively down the tree
+#                fullPath - XML xpath being built
+#                edit_data_tree - XML tree of data being edited
 # Outputs:       HTML string representing a sequence
 # Exceptions:    None
 # Description:   Generates a section of the form that represents an XML choice
@@ -588,38 +591,41 @@ def generateChoice(request, element, xmlTree, namespace, choiceInfo=None, fullPa
     #remove the annotations
     removeAnnotations(element, namespace)
          
-    # multiple roots or no min/maxOccurs
+    # init variables for buttons management
     addButton = False
     deleteButton = False
-    nbOccurrences = 1
-    if (not isinstance(element,list)):
-        minOccurs, maxOccurs = manageOccurences(element)
-        if (minOccurs != 1) or (maxOccurs != 1):
-            addButton, deleteButton, nbOccurrences = manageButtons(minOccurs, maxOccurs)
-        # XSD xpath
-        xsd_xpath = etree.ElementTree(xmlTree).getpath(element)
- 
-    
-#     edit_elements = []
-#     try:
-#         edit_elements = edit_data_tree.xpath(fullPath)
-#     except:
-#         pass
-     
-    
-    nbOccurs_to_save = nbOccurrences
+    nbOccurrences = 1 #nb of occurrences to render (can't be 0 or the user won't see this element at all)
+    nbOccurrences_data = 1 # nb of occurrences in loaded data or in form being rendered (can be 0)
     xml_element = None
-    if not isinstance(element,list) and ((minOccurs != 1) or (maxOccurs != 1)):
+    
+    # multiple roots or no min/maxOccurs
+    if (not isinstance(element,list)):
+        # XSD xpath: don't need it when multiple root (can't duplicate a root)
+        xsd_xpath = etree.ElementTree(xmlTree).getpath(element)        
+        
+        # get element's min/max occurs attributes
+        minOccurs, maxOccurs = manageOccurences(element)
+            
+        # loading data in the form 
         if request.session['curate_edit']:
-            nbOccurrences = nbOccurs_to_save = lookup_Occurs(element, xmlTree, namespace, fullPath, edit_data_tree)
-#         # save xml element to duplicate sequence
-#         nbOccurs_to_save = nbOccurrences
-#         # Update element information to match the number of elements from the XML document
-#         if edit:
-#             # if the element is absent, nbOccurences is 0
-#             if len(edit_elements) == 0:
-#                 nbOccurs_to_save = 0
-        xml_element = XMLElement(xsd_xpath=xsd_xpath, nbOccurs=nbOccurs_to_save, minOccurs=minOccurs, maxOccurs=maxOccurs).save()
+            # get the number of occurrences in the data
+            nbOccurrences_data = lookup_Occurs(element, xmlTree, namespace, fullPath, edit_data_tree)
+            # manage buttons
+            if nbOccurrences_data < maxOccurs:
+                addButton = True
+            if nbOccurrences_data > minOccurs:
+                deleteButton = True
+        else: # starting an empty form
+            if (minOccurs != 1) or (maxOccurs != 1):
+                addButton, deleteButton, nbOccurrences = manageButtons(minOccurs, maxOccurs)
+            
+        if nbOccurrences_data > nbOccurrences:
+            nbOccurrences = nbOccurrences_data    
+        
+        # if nb of occurrences not set to one, save the element
+        if (minOccurs != 1) or (maxOccurs != 1):
+            xml_element = XMLElement(xsd_xpath=xsd_xpath, nbOccurs=nbOccurrences_data, minOccurs=minOccurs, maxOccurs=maxOccurs).save()
+
 
     if choiceInfo:
         choiceID = choiceInfo.chooseIDStr + "-" + str(choiceInfo.counter)
@@ -650,14 +656,7 @@ def generateChoice(request, element, xmlTree, namespace, choiceInfo=None, fullPa
 #         if len(edit_elements) > 0:
 #             nbOccurrences = len(edit_elements)
     
-    # nbEditOccurrences = nb of occurrences from data
-    # nbOccurrences = nb of occurrences to rended
-    nbEditOccurrences = nbOccurrences
-    if request.session['curate_edit'] and nbOccurrences == 0:
-        # 0 occurrences in data
-        nbEditOccurrences = 0
-        # 1 occurence to display but disabled. If let at 0, won't be able to have it at all.
-        nbOccurrences = 1
+
     for x in range (0,int(nbOccurrences)):
         tagID = "element" + str(nb_html_tags)
         nb_html_tags += 1  
@@ -670,7 +669,7 @@ def generateChoice(request, element, xmlTree, namespace, choiceInfo=None, fullPa
         nbChoicesID += 1
         request.session['nbChoicesID'] = str(nbChoicesID)
         
-        if request.session['curate_edit'] and nbEditOccurrences == 0:
+        if request.session['curate_edit'] and nbOccurrences_data == 0:
             formString += "<li class='choice removed' id='" + str(tagID) + "'>Choose<select id='"+ chooseIDStr +"' onchange=\"changeChoice(this);\">"
         else:
             formString += "<li class='choice' id='" + str(tagID) + "'>Choose<select id='"+ chooseIDStr +"' onchange=\"changeChoice(this);\">"
@@ -693,11 +692,11 @@ def generateChoice(request, element, xmlTree, namespace, choiceInfo=None, fullPa
                     
                     if request.session['curate_edit']:
                         if len(edit_data_tree.xpath(elementPath)) == 0:    
-                            formString += "<option value='" + opt_value + "'>" + opt_label + "</option></b><br>"
+                            formString += "<option value='" + opt_value + "'>" + opt_label + "</option><br>"
                         else:
-                            formString += "<option value='" + opt_value + "' selected>" + opt_label + "</option></b><br>"
+                            formString += "<option value='" + opt_value + "' selected>" + opt_label + "</option><br>"
                     else:
-                        formString += "<option value='" + opt_value + "'>" + opt_label + "</option></b><br>"
+                        formString += "<option value='" + opt_value + "'>" + opt_label + "</option><br>"
                 elif (child.tag == "{0}group".format(namespace)):
                     pass
                 elif (child.tag == "{0}choice".format(namespace)):
@@ -712,18 +711,18 @@ def generateChoice(request, element, xmlTree, namespace, choiceInfo=None, fullPa
     
         formString += "</select>"
         
-        if request.session['curate_edit'] and nbEditOccurrences == 0:
-            formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" onclick=\"changeHTMLForm('add',"+str(tagID[7:])+");\"></span>"                                                                             
-            formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" style=\"display:none;\" onclick=\"changeHTMLForm('remove',"+str(tagID[7:])+");\"></span>"
+#         if request.session['curate_edit'] and nbOccurrences_data == 0:
+#             formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" onclick=\"changeHTMLForm('add',"+str(tagID[7:])+");\"></span>"                                                                             
+#             formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" style=\"display:none;\" onclick=\"changeHTMLForm('remove',"+str(tagID[7:])+");\"></span>"
+#         else:
+        if (addButton == True):                                
+            formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" onclick=\"changeHTMLForm('add',"+str(tagID[7:])+");\"></span>"
         else:
-            if (addButton == True):                                
-                formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" onclick=\"changeHTMLForm('add',"+str(tagID[7:])+");\"></span>"
-            else:
-                formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" style=\"display:none;\" onclick=\"changeHTMLForm('add',"+str(tagID[7:])+");\"></span>"                                                                             
-            if (deleteButton == True):
-                formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" onclick=\"changeHTMLForm('remove',"+str(tagID[7:])+");\"></span>"
-            else:
-                formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" style=\"display:none;\" onclick=\"changeHTMLForm('remove',"+str(tagID[7:])+");\"></span>"
+            formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" style=\"display:none;\" onclick=\"changeHTMLForm('add',"+str(tagID[7:])+");\"></span>"                                                                             
+        if (deleteButton == True):
+            formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" onclick=\"changeHTMLForm('remove',"+str(tagID[7:])+");\"></span>"
+        else:
+            formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" style=\"display:none;\" onclick=\"changeHTMLForm('remove',"+str(tagID[7:])+");\"></span>"
             
         for (counter, choiceChild) in enumerate(list(element)):       
             if choiceChild.tag == "{0}element".format(namespace):
@@ -732,7 +731,7 @@ def generateChoice(request, element, xmlTree, namespace, choiceInfo=None, fullPa
                 pass
             elif (choiceChild.tag == "{0}choice".format(namespace)):
                 pass
-#                 formString += generateChoice(request, choiceChild, xmlTree, namespace, common.ChoiceInfo(chooseIDStr,counter), fullPath=fullPath)
+#                 formString += generateChoice(request, choiceChild, xmlTree, namespace, common.ChoiceInfo(chooseIDStr,counter), fullPath=fullPath, edit_data_tree=edit_data_tree)
             elif (choiceChild.tag == "{0}sequence".format(namespace)):
                 formString += generateSequence(request, choiceChild, xmlTree, namespace, common.ChoiceInfo(chooseIDStr,counter), fullPath=fullPath, edit_data_tree=edit_data_tree)
             elif (choiceChild.tag == "{0}any".format(namespace)):
@@ -941,7 +940,10 @@ def generateModule(request, element, namespace, xsd_xpath=None, xml_xpath=None, 
             if element.tag == "{0}element".format(namespace):
                 # leaf: get the value            
                 if len(list(edit_element)) == 0:
-                    reload_data = edit_element.text
+                    if edit_element.text is not None: # when tag is present but value empty, takes value None (we need empty text)
+                        reload_data = edit_element.text
+                    else:
+                        reload_data = ''
                 else: # branch: get the whole branch
                     reload_data = etree.tostring(edit_element)
 #                     reload_data = ""
@@ -953,7 +955,10 @@ def generateModule(request, element, namespace, xsd_xpath=None, xml_xpath=None, 
             elif element.tag == "{0}complexType".format(namespace) or element.tag == "{0}simpleType".format(namespace):
                 # leaf: get the value            
                 if len(list(edit_element)) == 0:
-                    reload_data = edit_element.text
+                    if edit_element.text is not None: # when tag is present but value empty, takes value None (we need empty text)
+                        reload_data = edit_element.text
+                    else:
+                        reload_data = ''
                 else: # branch: get the whole branch
                     reload_data = etree.tostring(edit_element)
 #                     reload_data = ""
@@ -1070,7 +1075,7 @@ def generateElement(request, element, xmlTree, namespace, choiceInfo=None, fullP
     
     # XML xpath:/root/element
     fullPath += "/" + textCapitalized
-    print fullPath
+#     print fullPath
     
     # XSD xpath: /element/complexType/sequence
     xsd_xpath = etree.ElementTree(xmlTree).getpath(element)
@@ -1535,7 +1540,7 @@ def generate_absent(request):
         if generated_element.tag == "ul":
             currentElement.append(generated_element)
         else:
-            currentElement.insert(1, generated_element)
+            currentElement.insert(0, generated_element)
     except:
         for generated_element in html.fragments_fromstring(formString):
             currentElement.append(generated_element)
