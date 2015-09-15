@@ -943,10 +943,11 @@ def generateModule(request, element, namespace, xsd_xpath=None, xml_xpath=None, 
                 if len(list(edit_element)) == 0:
                     reload_data = edit_element.text
                 else: # branch: get the whole branch
-                    reload_data = ""
-                    # only send children of the element and not the root node
-                    for sub_edit_element in edit_element:
-                        reload_data += etree.tostring(sub_edit_element) 
+                    reload_data = etree.tostring(edit_element)
+#                     reload_data = ""
+#                     # only send children of the element and not the root node
+#                     for sub_edit_element in edit_element:
+#                         reload_data += etree.tostring(sub_edit_element) 
             elif element.tag == "{0}attribute".format(namespace):
                 pass
             elif element.tag == "{0}complexType".format(namespace) or element.tag == "{0}simpleType".format(namespace):
@@ -954,10 +955,11 @@ def generateModule(request, element, namespace, xsd_xpath=None, xml_xpath=None, 
                 if len(list(edit_element)) == 0:
                     reload_data = edit_element.text
                 else: # branch: get the whole branch
-                    reload_data = ""
-                    # only send children of the element and not the root node
-                    for sub_edit_element in edit_element:
-                        reload_data += etree.tostring(sub_edit_element) 
+                    reload_data = etree.tostring(edit_element)
+#                     reload_data = ""
+#                     # only send children of the element and not the root node
+#                     for sub_edit_element in edit_element:
+#                         reload_data += etree.tostring(sub_edit_element) 
     
     # check if a module is set for this element    
     if '{http://mdcs.ns}_mod_mdcs_' in element.attrib:
@@ -1928,26 +1930,36 @@ def generateForm(request):
     form_data_id = request.session['curateFormData']
     form_data = FormData.objects.get(pk=ObjectId(form_data_id))
     
-    # if editing, get the XML data
+    # if editing, get the XML data to fill the form
     edit_data_tree = None
     if request.session['curate_edit']:
         # build the tree from data
         # transform unicode to str to support XML declaration
         if form_data.xml_data is not None:
+            # Load a parser able to clean the XML from blanks, comments and processing instructions
+            clean_parser = etree.XMLParser(remove_blank_text=True,remove_comments=True,remove_pis=True)
+            # set the parser
+            etree.set_default_parser(parser=clean_parser)
+            # load the XML tree from the text
             edit_data_tree = etree.XML(str(form_data.xml_data))
         else: #no data found, not editing
             request.session['curate_edit'] = False
             
     
+    # get the namespace for the default prefix
     namespace = request.session['namespaces'][defaultPrefix]
+    
+    # find all root elements
     elements = xmlDocTree.findall("./{0}element".format(namespace))
 
         
     try:
+        # one root
         if len(elements) == 1:
             formString += "<div xmlID='root' name='xsdForm'>"
             formString += generateElement(request, elements[0], xmlDocTree,namespace, edit_data_tree=edit_data_tree)
             formString += "</div>"
+        # multiple roots
         elif len(elements) > 1:     
             formString += "<div xmlID='root' name='xsdForm'>"
             formString += generateChoice(request, elements, xmlDocTree, namespace, edit_data_tree=edit_data_tree)
@@ -1955,9 +1967,12 @@ def generateForm(request):
     except Exception, e:
         formString = "UNSUPPORTED ELEMENT FOUND (" + e.message + ")" 
 
+    # save the list of elements for the form
     form_data.elements = request.session['mapTagID']
+    # save data for the current form
     form_data.save()
     
+    # delete temporary data structure for forms elements
     del request.session['mapTagID']
 
     # data are loaded, switch Edit to False, we don't need to look at the original data anymore
