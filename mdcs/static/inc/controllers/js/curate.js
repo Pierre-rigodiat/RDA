@@ -1108,6 +1108,8 @@ generate = function(tagID, tag){
             $("#element" + tagID).children('select').prop("disabled",false);
             $("#element" + tagID).removeClass("removed");
             $("#element" + tagID).children("ul").show(500);
+
+            initModules();
         }
     });
 }
