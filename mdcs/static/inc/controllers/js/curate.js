@@ -1065,10 +1065,10 @@ changeHTMLForm = function(operation, tagID)
 
     if (operation == 'add') {
         // the element has to be created
-        if ($("#element"+tagID).children("ul").length == 0 &&
-        $("#element"+tagID).children("input").length == 0 &&
-        $("#element"+tagID).children("select").length == 0 &&
-        $("#element"+tagID).children("div.module").length == 0){
+        if ($("#element"+tagID).children("ul").length == 0 && // complex element not generated
+        $("#element"+tagID).children("input").length == 0 && // input element not generated
+        $("#element"+tagID).children("select").length == 0 && // enumeration not generated 
+        $("#element"+tagID).children("div.module").length == 0){ // module not generated
             generate(tagID, "element");
         }
         else{
@@ -1127,12 +1127,15 @@ duplicate = function(tagID){
         success: function(data){
         	if ('occurs' in data){
         		if (data.occurs == "zero"){
-                $('#add' + data.id).attr('style', data.styleAdd);
-                $('#remove' + data.id).attr('style','');
-                $("#" + data.tagID).prop("disabled",false);
-                $("#" + data.tagID).children('select').prop("disabled",false);
-                $("#" + data.tagID).removeClass("removed");
-                $("#" + data.tagID).children("ul").attr('style','');
+		            $('#add' + data.id).attr('style', data.styleAdd);
+		            $('#remove' + data.id).attr('style','');
+		            $("#" + data.tagID).prop("disabled",false);
+		            $("#" + data.tagID).children('select').prop("disabled",false);
+		            $("#" + data.tagID).removeClass("removed");
+		            $("#" + data.tagID).children("ul").attr('style','');
+		            if($("#element"+tagID).attr("class").split(" ").indexOf("choice") > -1 && $("#element"+tagID).children("ul").children().length == 0){ // choice element not generated
+		            	changeChoice($("#element"+tagID).children("select")[0]);
+		            }
 	            }
 	            else{
 	            	var xsdForm = $("#xsdForm").html();
