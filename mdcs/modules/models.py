@@ -1,14 +1,12 @@
-from HTMLParser import HTMLParser
 import os
 from django.conf import settings
 from django.http import HttpResponse
 import json
-from rest_framework.status import HTTP_200_OK, HTTP_403_FORBIDDEN, HTTP_400_BAD_REQUEST
+from rest_framework.status import HTTP_200_OK
 from exceptions import ModuleError
 from abc import ABCMeta, abstractmethod
 from modules.utils import sanitize
 from modules import render_module
-from modules.xpathaccessor import XPathAccessor
 
 
 class Module(object):
@@ -43,14 +41,9 @@ class Module(object):
     def _get(self, request):
         if 'data' in request.GET:
             request.GET = {
-                # TODO: removed sanitize here to keep XML tags in the module and not &lt;
-                'data': request.GET['data'],#'data': sanitize(request.GET['data']),
+                'data': request.GET['data'],
                 'url': request.GET['url']
             }
-
-#             if not self._is_data_valid(request.GET['data']):
-#                 # Data not valid are not
-#                 del request.GET['data']
 
         template_data = {
             'module': '',
@@ -62,8 +55,7 @@ class Module(object):
         try:
             template_data['module'] = self._get_module(request)
             template_data['display'] = self._get_display(request)
-            # TODO: sanitize the string that goes back to the page instead
-            template_data['result'] = sanitize(self._get_result(request)) #self._get_result(request)
+            template_data['result'] = sanitize(self._get_result(request))
         except Exception, e:
             raise ModuleError('Something went wrong during module initialization: ' + e.message)
 
@@ -88,7 +80,6 @@ class Module(object):
 #         request.POST = post_data
 
         template_data = {
-            'module': '',
             'display': '',
             'result': '',
             'url': ''
@@ -96,28 +87,19 @@ class Module(object):
 
         try:
             template_data['display'] = self._post_display(request)
-            # TODO: sanitize the string that goes back to the page
             template_data['result'] = sanitize(self._post_result(request))
         except Exception, e:
             raise ModuleError('Something went wrong during module update: ' + e.message)
 
         html_code = render_module(self.template, template_data)
         
-        response_dict = {}
+        response_dict = dict()
         response_dict['html'] = html_code
+
         if hasattr(self, "get_XpathAccessor"):
             response_dict.update(self.get_XpathAccessor())
-        
 
         return HttpResponse(json.dumps(response_dict))
-
-        
-#     def _get_extra_data(self):
-#         return self.get_extra_data()    
-#     
-#     @abstractmethod
-#     def get_extra_data(self):
-#         raise NotImplementedError("This method is not implemented.")
     
     def _get_resources(self):
         """
@@ -128,16 +110,6 @@ class Module(object):
         }
 
         return HttpResponse(json.dumps(response), status=HTTP_200_OK)
-
-#     @abstractmethod
-#     def _is_data_valid(self, data):
-#         """
-#             Method:
-#                 Get the default value to be stored in the form.
-#             Outputs:
-#                 default result value
-#         """
-#         raise NotImplementedError("This method is not implemented.")
 
     @abstractmethod
     def _get_module(self, request):
@@ -188,50 +160,3 @@ class Module(object):
                 default result value
         """
         raise NotImplementedError("This method is not implemented.")
-
-    
-    # @abstractmethod
-    # def process_data(self, request):
-    #     """
-    #         Method:
-    #             Process data received from the client and send back the result and what to display.
-    #         Input:
-    #             request: HTTP request
-    #             request.POST['moduleDisplay']: value of moduleDisplay
-    #             request.POST['moduleResult']: value of moduleResult
-    #         Outputs:
-    #             moduleDisplay: Value to display
-    #             moduleResult: Result (can be a value or valid XML)
-    #     """
-    #     raise NotImplementedError("This method is not implemented.")
-    #
-    # @abstractmethod
-    # def get_module(self, request):
-    #     """
-    #         Method:
-    #             Get the module to insert in the form.
-    #         Outputs:
-    #             module: input to be inserted in the form
-    #     """
-    #     raise NotImplementedError("This method is not implemented.")
-    #
-    #
-    # @abstractmethod
-    # def get_default_display(self, request):
-    #     """
-    #         Method:
-    #             Get the default value to be displayed in the form.
-    #         Outputs:
-    #             default displayed value
-    #     """
-    #     raise NotImplementedError("This method is not implemented.")
-    #
-    # @abstractmethod
-    # def get_default_result(self, request):
-    #     """
-    #         Method:
-    #             Get the default value to be stored in the form.
-    #         Outputs:
-    #             default result value
-    #     """
-    #     raise NotImplementedError("This method is not implemented.")
