@@ -1,32 +1,3 @@
-//loadModule = function($module) {
-//    var moduleURL = $module.find('.moduleURL').text();
-//
-//    if(moduleURL === '') {
-//        return;
-//    }
-//
-//    $.ajax({
-//        url : '/modules'+moduleURL,
-//        type : "GET",
-//        dataType: "json",
-//        success: function(data){
-//            if('module' in data) {
-//                $module.find(".moduleContent").html(data.module);
-//
-//                if('moduleDisplay' in data && 'moduleResult' in data) {
-//                    $module.find('.moduleDisplay').html(data.moduleDisplay);
-//                    $module.find('.moduleResult').html(data.moduleResult);
-//                }
-//            } else {
-//                //raise error, no module provided
-//            }
-//        },
-//        error: function() {
-//            // Raise error
-//        }
-//    });
-//}
-
 loadModuleResources = function(moduleURLList) {
     $.ajax({
         url: '/modules/resources',
@@ -50,7 +21,8 @@ saveModuleData = function($module, modData, asyncOpt) {
         asyncOpt = true;
     }
 
-	var moduleId = $module.parents('.element').attr('id'); //TODO: test if id always class element (could it be choice or sequence?)
+    //TODO: test if id always class element (could it be choice or sequence?)
+	var moduleId = $module.parents('.element').attr('id');
     var moduleURL = $module.find('.moduleURL').text();
 
     if(moduleURL === '') {
@@ -66,11 +38,13 @@ saveModuleData = function($module, modData, asyncOpt) {
         data: modData,
         async: asyncOpt,
         success: function(data){
+            if(!'html' in data) {
+                console.error('No data sent back by the server');
+                return;
+            }
 
             var moduleDisplay = $(data.html).find('.moduleDisplay').html();
             var moduleResult = $(data.html).find('.moduleResult').html();
-//            var $moduleDisplay = $(data).find('.moduleDisplay').text();
-//            console.log($moduleDisplay);
 
             $module.find('.moduleDisplay').html(moduleDisplay);
             $module.find('.moduleResult').html(moduleResult);     
@@ -79,11 +53,6 @@ saveModuleData = function($module, modData, asyncOpt) {
             if ('xpath_accessor' in data){
             	xpath_accessor(data.xpath_accessor);
             }
-
-            /*if('moduleDisplay' in data && 'moduleResult' in data) {
-            	$module.find('.moduleDisplay').html(data.moduleDisplay);
-                $module.find('.moduleResult').html(data.moduleResult);
-            }*/
         },
         error: function(data) {
             console.error("Error when saving data");
