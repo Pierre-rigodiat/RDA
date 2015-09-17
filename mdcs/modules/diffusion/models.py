@@ -85,13 +85,25 @@ class PeriodicTableMultipleModule(PopupModule):
                     error = ""
                     for constituent_element in constituent_elements:
                         if constituent_element.tag == 'element':
-                            name = constituent_element.text
+                            if constituent_element.text is None:
+                                name = ''
+                            else:
+                                name = constituent_element.text
                         elif constituent_element.tag == 'quantity':
-                            quantity = constituent_element.text
+                            if constituent_element.text is None:
+                                quantity = ''
+                            else:
+                                quantity = constituent_element.text
                         elif constituent_element.tag == 'purity':
-                            purity = constituent_element.text
+                            if constituent_element.text is None:
+                                purity = ''
+                            else:
+                                purity = constituent_element.text
                         elif constituent_element.tag == 'error':
-                            error = constituent_element.text
+                            if constituent_element.text is None:
+                                error = ''
+                            else:
+                                error = constituent_element.text
                 
                     constituents_disp += '<tr>'
                     constituents_disp += "<td>" + name + "</td>"
