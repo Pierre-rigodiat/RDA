@@ -60,8 +60,8 @@ class GridFSHoster(BLOBHoster):
             handles.append(handle)
         return handles
         
-    def save(self, blob, filename=None, contentType=None):            
-        blob_id = self.fs.put(blob, filename=filename, contentType=contentType)
+    def save(self, blob, filename=None):            
+        blob_id = self.fs.put(blob, filename=filename)
         handle = self.uri + 'rest/get-blob?id=' + str(blob_id)
         return handle    
     

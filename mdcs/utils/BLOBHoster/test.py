@@ -29,7 +29,7 @@ class TestGridFS(unittest.TestCase):
     def testImage(self):
         self.assertEqual(len(self.blobHoster.list()), 0)        
         with open('Penguins.jpg','rb') as imageFile:
-            handle = self.blobHoster.save(imageFile, filename='Penguins.jpg', contentType='image/jpeg')        
+            handle = self.blobHoster.save(imageFile, filename='Penguins.jpg')        
           
         out = self.blobHoster.get(handle)
           
