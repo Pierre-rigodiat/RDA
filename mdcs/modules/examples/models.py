@@ -35,7 +35,7 @@ class PositiveIntegerInputModule(InputModule):
     def _get_display(self, request):
         if 'data' in request.GET:
             data = str(request.GET['data'])
-            return data + " is a positive integer" if self.is_data_valid(data) else data + " is not a positive integer"
+            return data + " is a positive integer" if self.is_data_valid(data) else "<div style='color:red;'>This is not a positive integer</div>"
         return str(self.default_value) + ' is a positive integer'
 
     def _get_result(self, request):
@@ -45,7 +45,7 @@ class PositiveIntegerInputModule(InputModule):
 
     def _post_display(self, request):
         data = str(request.POST['data'])
-        return data + " is a positive integer" if self.is_data_valid(data) else data + " is not a positive integer"
+        return data + " is a positive integer" if self.is_data_valid(data) else "<div style='color:red;'>This is not a positive integer</div>"
 
     def _post_result(self, request):
         return str(request.POST['data'])
