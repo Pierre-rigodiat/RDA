@@ -96,10 +96,6 @@ class QueryResults(Document):
     """Stores results from a query (Query By Example)"""
     results = ListField(required=True) 
     
-class SparqlQueryResults(Document):
-    """Stores results from a query (SPARQL endpoint)"""
-    results = StringField(required=True)
-    
 class SavedQuery(Document):
     """Represents a query saved by the user (Query by Example)"""
     user = StringField(required=True)

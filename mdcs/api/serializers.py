@@ -66,27 +66,6 @@ class resSavedQuerySerializer(serializers.Serializer):
 class querySerializer(serializers.Serializer):
     query = serializers.CharField()
 
-################################################################################
-# 
-# Class Name: sparqlQuerySerializer
-#
-# Description:   Serializer for SPARQL queries
-# 
-################################################################################
-class sparqlQuerySerializer(serializers.Serializer):
-    query = serializers.CharField()
-    format = serializers.CharField(required=False)
-
-################################################################################
-# 
-# Class Name: sparqlResultsSerializer
-#
-# Description:   Serializer for result set of SPARQL queries
-# 
-################################################################################
-class sparqlResultsSerializer(serializers.Serializer):
-    content = serializers.CharField()
-
 
 ################################################################################
 # 

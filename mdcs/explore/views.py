@@ -19,8 +19,7 @@ from django.template import RequestContext, loader
 from django.shortcuts import redirect
 from django.conf import settings
 from datetime import date
-from mgi.models import Template, TemplateVersion, Instance, SavedQuery, QueryResults, SparqlQueryResults,\
-    XMLdata
+from mgi.models import Template, TemplateVersion, Instance, SavedQuery, QueryResults, XMLdata
 from cStringIO import StringIO
 from django.core.servers.basehttp import FileWrapper
 import zipfile
@@ -53,7 +52,6 @@ def index(request):
         context = RequestContext(request, {
             'templates':currentTemplates,
             'userTemplates': Template.objects(user=str(request.user.id)),
-            'enable_sparql': settings.ENABLE_SPARQL
         })
         return HttpResponse(template.render(context))
     else:
@@ -99,7 +97,6 @@ def explore_customize_template(request):
     if request.user.is_authenticated():
         template = loader.get_template('explore_customize_template.html')
         context = RequestContext(request, {
-            'enable_sparql': settings.ENABLE_SPARQL
         })    
         if 'exploreCurrentTemplateID' not in request.session:
             return redirect('/explore/select-template')
@@ -142,7 +139,6 @@ def explore_perform_search(request):
                 'instances': listInstances,
                 'template_hash': template_hash,
                 'queries':queries,
-                'enable_sparql': settings.ENABLE_SPARQL,
                 'template_id': request.session['exploreCurrentTemplateID']
             })
             if 'exploreCurrentTemplateID' not in request.session:
@@ -268,31 +264,6 @@ def explore_all_versions_results(request):
             del request.session['loggedOut']
         request.session['next'] = '/explore/results'
         return redirect('/login')
-################################################################################
-#
-# Function Name: explore_sparqlresults(request)
-# Inputs:        request -
-# Outputs:       SPARQL Results Page
-# Exceptions:    None
-# Description:   Page that allows to see SPARQL results
-#
-################################################################################
-def explore_sparqlresults(request):
-    if request.user.is_authenticated():
-        template = loader.get_template('explore_sparqlresults.html')
-        context = RequestContext(request, {
-            '': '',
-        })
-
-        if 'exploreCurrentTemplateID' not in request.session:
-            return redirect('/explore/select-template')
-        else:
-            return HttpResponse(template.render(context))
-    else:
-        if 'loggedOut' in request.session:
-            del request.session['loggedOut']
-        request.session['next'] = '/explore/sparqlresults'
-        return redirect('/login')
 
 
 ################################################################################
@@ -342,39 +313,3 @@ def explore_download_results(request):
             del request.session['loggedOut']
         request.session['next'] = '/explore'
         return redirect('/login')
-
-
-################################################################################
-#
-# Function Name: explore_download_sparqlresults(request)
-# Inputs:        request -
-# Outputs:       Results of a sparql query
-# Exceptions:    None
-# Description:   Download SPARQL results
-#
-################################################################################
-def explore_download_sparqlresults(request):
-    if request.user.is_authenticated():
-        if 'exploreCurrentTemplateID' not in request.session:
-            return redirect('/explore/select-template')
-        else:
-            savedResultsID = request.GET.get('id', None)
-            
-            if savedResultsID is not None:
-                sparqlResults = SparqlQueryResults.objects.get(pk=savedResultsID)
-    
-                sparqlResultsEncoded = sparqlResults.results.encode('utf-8')
-                fileObj = StringIO(sparqlResultsEncoded)
-    
-                response = HttpResponse(FileWrapper(fileObj), content_type='application/text')
-                response['Content-Disposition'] = 'attachment; filename=sparql_results.txt'
-                return response
-            else:
-                return redirect('/')
-    else:
-        if 'loggedOut' in request.session:
-            del request.session['loggedOut']
-        request.session['next'] = '/explore'
-        return redirect('/login')
-
-

@@ -26,8 +26,7 @@ import os
 import json
 import copy
 import lxml.etree as etree
-from mgi.models import Template, QueryResults, SparqlQueryResults, SavedQuery, XMLdata, Instance, MetaSchema
-import sparqlPublisher
+from mgi.models import Template, QueryResults, SavedQuery, XMLdata, Instance, MetaSchema
 from mgi import common
 from django.template import loader, Context
 #Class definition
@@ -2151,27 +2150,14 @@ def get_custom_form(request):
     if (customFormString != ""):
         if 'currentExploreTab' in request.session and request.session['currentExploreTab'] == "tab-1":
             customForm = customFormString
-            sparqlCustomForm = ""
         elif 'currentExploreTab' in request.session and request.session['currentExploreTab'] == "tab-2":
-            sparqlCustomForm = customFormString
             customForm = ""
     else:
         customFormErrorMsg = "<p style='color:red;'>You should customize the template first. <a href='/explore/customize-template' style='color:red;font-weight:bold;'>Go back to Step 2 </a> and select the elements that you want to use in your queries.</p>"
         customForm = customFormErrorMsg
-        sparqlCustomForm = customFormErrorMsg
     
     response_dict['customForm'] = customForm
-    response_dict['sparqlCustomForm'] = sparqlCustomForm
-    
-    if 'sparqlQueryExplore' in request.session and request.session['sparqlQueryExplore'] != "":
-        sparqlQuery = request.session['sparqlQueryExplore']
-    else:
-        sparqlQuery = ""
-        
-    if sparqlQuery != "" :
-        response_dict['sparqlQuery'] = sparqlQuery    
-        request.session['sparqlQueryExplore'] = ""
-    
+
     return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
 
 
@@ -2364,7 +2350,7 @@ def back_to_query(request):
 def redirect_explore(request):
     request.session['currentExploreTab'] = "tab-2"
 
-
+ 
 ################################################################################
 #
 # Function Name: redirectExploreTabs(request)
@@ -2376,10 +2362,10 @@ def redirect_explore(request):
 ################################################################################
 def redirect_explore_tabs(request):
     if 'currentExploreTab' in request.session and request.session['currentExploreTab'] == "tab-2":
-        response_dict = {'tab':'sparql'}
+        response_dict = {'tab':'tab-2'}
     else:
-        response_dict = {'tab':'qbe'}
-    
+        response_dict = {'tab':'tab-1'}
+     
     return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
 
 
@@ -2394,7 +2380,6 @@ def redirect_explore_tabs(request):
 ################################################################################
 def switch_explore_tab(request):    
     request.session["currentExploreTab"] = request.POST['tab']
-    sparqlCustomForm = ""
     customForm = ""
     
     if 'customFormStringExplore' in request.session:   
@@ -2405,12 +2390,10 @@ def switch_explore_tab(request):
     if (customFormString != ""):
         if 'currentExploreTab' in request.session and request.session['currentExploreTab'] == "tab-1":
             customForm = customFormString
-            sparqlCustomForm = ""
         elif 'currentExploreTab' in request.session and request.session['currentExploreTab'] == "tab-2":
-            sparqlCustomForm = customFormString
             customForm = ""
     
-    response_dict = {"customForm": customForm, "sparqlCustomForm": sparqlCustomForm}
+    response_dict = {"customForm": customForm}
     return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
 
 
@@ -2453,230 +2436,9 @@ def select_element(request):
     elif 'currentExploreTab' in request.session and request.session['currentExploreTab'] == "tab-2":
         mapTagIDElementInfo = request.session['mapTagIDElementInfoExplore']
         elementPath = eval(mapTagIDElementInfo[str(element_id)])['path']
-        elementPath = elementPath.replace(".","/tpl:")
-        elementPath = "tpl:" + elementPath
-        
-        queryExample = """SELECT ?""" + element_name + """Value
-WHERE {
-?s """ + elementPath + """ ?o .
-?o rdf:value ?""" + element_name + """Value .
-}
-"""
         response_dict = {"tab": "tab-2", 
-                         "elementPath": elementPath,
-                         "queryExample": queryExample} 
+                         "elementPath": elementPath} 
 
-    return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
-
-################################################################################
-#
-# Function Name: execute_sparql_query(request)
-# Inputs:        request - 
-# Outputs:       
-# Exceptions:    None
-# Description:   Execute a SPARQL query
-#                
-################################################################################
-def execute_sparql_query(request):
-    print 'BEGIN def executeSPARQLQuery(request)'        
-    
-    fed_of_queries = request.POST['fedOfQueries']
-    query_str = request.POST['queryStr']
-    sparql_format_index = request.POST['sparqlFormatIndex']
-    
-    response_dict = {}
-    
-    instances = getInstances(request, fed_of_queries)
-    if (len(instances)==0):
-        response_dict = {'errors':'zero'}
-    else:
-        json_instances = []
-        for instance in instances:
-            json_instances.append(instance.to_json()) 
-        request.session['instancesExplore'] = json_instances
-        request.session['sparqlQueryExplore'] = query_str
-        request.session['sparqlFormatExplore'] = str(sparql_format_index)
-
-    print 'END def executeSPARQLQuery(request)'
-    return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
-
-################################################################################
-#
-# Function Name: get_sparql_results(request)
-# Inputs:        request - 
-# Outputs:       
-# Exceptions:    None
-# Description:   Gets results from a SPARQL query
-#                
-################################################################################
-def get_sparql_results(request):
-    instances = request.session['instancesExplore']    
-    request.session['sparqlResultsExplore'] = ""    
-    response_dict = {'numInstance': str(len(instances))}
-    return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
-
-# from threading import Thread, Lock
-# mutex = Lock()
-
-# @dajaxice_register
-# def getSparqlResultsByInstance(request, numInstance):
-#     dajax = Dajax()
-#     global mutex
-#     mutex.acquire()
-#     try:      
-#         instances = request.session['instancesExplore']
-#         sparqlQuery = request.session['sparqlQueryExplore']    
-#         sparqlFormat = request.session['sparqlFormatExplore']
-#         
-#         resultString = ""
-#         instance = eval(instances[int(numInstance)])
-#         sessionName = "sparqlResultsExplore" + instance['name']
-#         print sessionName + "lock"
-#         resultString += "<b>From " + instance['name'] + ":</b> <br/>"
-#         if instance['name'] == "Local":
-#             instanceResults = sparqlPublisher.sendSPARQL(sparqlFormat + sparqlQuery)
-#             request.session[sessionName] = instanceResults
-#             displayedSparqlResults = instanceResults.replace("<", "&#60;")
-#             displayedSparqlResults = displayedSparqlResults.replace(">", "&#62;")
-#             resultString += "<pre class='sparqlResult' readonly='true'>"
-#             resultString += displayedSparqlResults
-#             resultString += "</pre>"
-#             resultString += "<br/>"
-#         else:
-#             url = instance['protocol'] + "://" + instance['address'] + ":" + str(instance['port']) + "/rest/explore/sparql-query"
-#             resFormat = ""
-#             if (sparqlFormat == "0"):
-#                 resFormat = "TEXT"
-#             elif (sparqlFormat == "1"):
-#                 resFormat = "XML"
-#             elif (sparqlFormat == "2"):
-#                 resFormat = "CSV"
-#             elif (sparqlFormat == "3"):
-#                 resFormat = "TSV"
-#             elif (sparqlFormat == "4"):
-#                 resFormat = "JSON"
-#             data = {"query": sparqlQuery, "format": resFormat}
-#             try:
-#                 r = requests.post(url, data, auth=(instance['user'], instance['password']))
-#                 instanceResultsDict = eval(r.text)
-#                 instanceResults = instanceResultsDict['content']  
-#                 request.session[sessionName] = instanceResults
-#                 displayedSparqlResults = instanceResults.replace("<", "&#60;")
-#                 displayedSparqlResults = displayedSparqlResults.replace(">", "&#62;")        
-#                 resultString += "<pre class='sparqlResult' readonly='true'>"
-#                 resultString += displayedSparqlResults
-#                 resultString += "</pre>"
-#                 resultString += "<br/>"
-#             except:            
-#                 request.session[sessionName] = ""
-#                 resultString += "<p style='color:red;'>Unable to contact the remote instance.</p>"
-#     
-#         dajax.append("#results", "innerHTML", resultString)
-#         
-#         request.session.modified = True
-#         request.session.save()
-#     except Exception, e:
-#         print "error in :" + sessionName
-#         print e.message
-#         mutex.release()
-#         return dajax.json()
-#     mutex.release()
-#     print sessionName + "release"
-#     return dajax.json()
-
-
-################################################################################
-#
-# Function Name: get_sparql_results_by_instance(request)
-# Inputs:        request -
-# Outputs:       
-# Exceptions:    None
-# Description:   Gets results from a SPARQL query for the given instances
-#                
-################################################################################
-def get_sparql_results_by_instance(request):
-    num_instance = request.GET['numInstance']
-    
-    resultString = ""
-    
-    for i in range(int(num_instance)):
-        instances = request.session['instancesExplore']
-        sparqlQuery = request.session['sparqlQueryExplore']    
-        sparqlFormat = request.session['sparqlFormatExplore']
-                
-        instance = eval(instances[int(i)])
-        sessionName = "sparqlResultsExplore" + instance['name']
-        resultString += "<b>From " + instance['name'] + ":</b> <br/>"
-        if instance['name'] == "Local":
-            instanceResults = sparqlPublisher.sendSPARQL(sparqlFormat + sparqlQuery)
-            request.session[sessionName] = instanceResults
-            displayedSparqlResults = instanceResults.replace("<", "&#60;")
-            displayedSparqlResults = displayedSparqlResults.replace(">", "&#62;")
-            resultString += "<pre class='sparqlResult' readonly='true'>"
-            resultString += displayedSparqlResults
-            resultString += "</pre>"
-            resultString += "<br/>"
-        else:
-            url = instance['protocol'] + "://" + instance['address'] + ":" + str(instance['port']) + "/rest/explore/sparql-query"
-            resFormat = ""
-            if (sparqlFormat == "0"):
-                resFormat = "TEXT"
-            elif (sparqlFormat == "1"):
-                resFormat = "XML"
-            elif (sparqlFormat == "2"):
-                resFormat = "CSV"
-            elif (sparqlFormat == "3"):
-                resFormat = "TSV"
-            elif (sparqlFormat == "4"):
-                resFormat = "JSON"
-            data = {"query": sparqlQuery, "dataformat": resFormat}
-            try:
-                headers = {'Authorization': 'Bearer ' + instance['access_token']}
-                r = requests.post(url, data=data, headers=headers)
-                instanceResultsDict = eval(r.text)
-                instanceResults = instanceResultsDict['content']  
-                request.session[sessionName] = instanceResults
-                displayedSparqlResults = instanceResults.replace("<", "&#60;")
-                displayedSparqlResults = displayedSparqlResults.replace(">", "&#62;")        
-                resultString += "<pre class='sparqlResult' readonly='true'>"
-                resultString += displayedSparqlResults
-                resultString += "</pre>"
-                resultString += "<br/>"
-            except:
-                request.session[sessionName] = ""
-                resultString += "<p style='color:red;'>Unable to contact the remote instance.</p>"
-        
-    response_dict = {'results' : resultString}   
-    return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
-
-
-################################################################################
-#
-# Function Name: download_sparql_results(request)
-# Inputs:        request -
-# Outputs:       
-# Exceptions:    None
-# Description:   Download Results gotten from a SPARQL query
-#                
-################################################################################  
-def download_sparql_results(request):
-    print '>>>>  BEGIN def downloadSparqlResults(request)'
-
-    instances = request.session['instancesExplore']
-    sparqlResults = ""
-    for instance in instances:
-        sessionName = "sparqlResultsExplore" + eval(instance)['name']
-        results = request.session[sessionName]
-    
-        if (len(results) > 0):            
-            sparqlResults += results
-
-        
-    savedResults = SparqlQueryResults(results=sparqlResults).save()
-    savedResultsID = str(savedResults.id)
-    
-    print '>>>> END def downloadSparqlResults(request)'
-    response_dict = {'savedResultsID': savedResultsID}
     return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
 
 

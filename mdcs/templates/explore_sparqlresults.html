@@ -43,7 +43,6 @@
 <div class="toolbar">
 	<div class="btn-group pull-right">
 		<span class="btn" onclick="backToQuery();" style="text-decoration:none">Back to Query</span>    
-		<span class="btn" onclick="downloadSparqlResults()"><i class="icon-arrow-down"></i> Download</span>
 	</div>
 	<br/><br/>
 </div>
@@ -77,8 +76,5 @@
 {% endblock %}
 
 {% block extra %}
-<script src="{% static 'inc/controllers/js/explore.js' %}"></script>
-<script>
-get_sparql_results();
-</script>
+
 {% endblock %}
