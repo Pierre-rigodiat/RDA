@@ -79,7 +79,7 @@ so that we can better evaluate our system. You can also click the download butto
                 <div class="l-img">
                     <img width="40" height="40" src="{% static 'resources/img/Orange_Number_3.png' %}" alt="3">
                 </div>
-                <div class="r-txt-selected"><a onclick="/curate/view-data">View Data</a></div>
+                <div class="r-txt-selected"><a href="/curate/view-data">View Data</a></div>
             </li>
 		</ul>
 	</div>
@@ -99,7 +99,7 @@ verifyTemplateIsSelectedViewData();
     XML File Downloaded.
   </p>
   <p>
-    Currently using <a href="/view-schema/{{ request.session.currentTemplate }}" target="_new">{{ request.session.currentTemplate }}</a>
+    Currently using <a href="/view-schema/{{ request.session.currentTemplate }}" target="_blank">{{ request.session.currentTemplate }}</a>
   </p>
 </div>
 
