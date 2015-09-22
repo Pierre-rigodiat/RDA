@@ -291,6 +291,10 @@ textarea.inform{
     padding-left: 50px;
 }
 
+.r-txt a {
+    cursor: pointer;
+}
+
 .r-txt-selected {
     font-weight: bold;
     height: 40px;

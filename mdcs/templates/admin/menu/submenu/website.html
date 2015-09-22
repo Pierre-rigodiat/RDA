@@ -1,4 +1,5 @@
-<!-- 
+{% comment %}
+<!--
 ################################################################################
 #
 # File Name: submenu-website.html
@@ -15,7 +16,12 @@
 #
 ################################################################################
 -->
+{% endcomment %}
 <ul class="tabbed">
-	<li class="{% if active_tab == 'tab1' %} current_page_item {% endif %}"><a href="/admin/website/privacy-policy">Privacy Policy</a></li>	  
-	<li class="{% if active_tab == 'tab2' %} current_page_item {% endif %}"><a href="/admin/website/terms-of-use">Terms of Use</a></li>  	
+	<li class="{% if active_tab == 'tab1' %} current_page_item {% endif %}">
+        <a href="/admin/website/privacy-policy">Privacy Policy</a>
+    </li>
+	<li class="{% if active_tab == 'tab2' %} current_page_item {% endif %}">
+        <a href="/admin/website/terms-of-use">Terms of Use</a>
+    </li>
 </ul>
