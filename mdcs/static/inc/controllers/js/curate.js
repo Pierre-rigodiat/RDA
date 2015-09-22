@@ -646,8 +646,7 @@ displayTemplateSelectedDialog = function()
     	  [
            {
                text: "Start",
-               click: function() {
-            	   
+               click: function() {            	   
             	   if (validateStartCurate()){
 	            	   var formData = new FormData($( "#form_start" )[0]);
 	            	   $.ajax({
@@ -941,82 +940,55 @@ saveToRepository = function()
 
     $(function() {
         $( "#dialog-save-data-message" ).dialog({
-            modal: true,
-            buttons: {
-            	Save: function() {
-					$( this ).dialog( "close" );
-					doSaveToRepository();
-                },
-				Cancel: function() {
-                    $( this ).dialog( "close" );
-                }
-            }
+          modal: true,
+          buttons:
+        	  [
+               {
+                   text: "Save",
+                   click: function() {            	   
+	            	   var formData = new FormData($( "#form_save" )[0]);
+	            	   $.ajax({
+	            		   	url : "/curate/save_xml_data_to_db",
+	            	        type: 'POST',
+	            	        data: formData,
+	            	        cache: false,
+	            	        contentType: false,
+	            	        processData: false,
+	            	        async:false,
+	            	        success : function(data) {
+	            	        	$( "#dialog-save-data-message" ).dialog( "close" );
+	            	        	XMLDataSaved();
+	            	        },
+	            	        error:function(data){
+            	                $("#saveErrorMessage").html(data.responseText);             
+	            	        },
+	            	    });
+                   }
+               }
+              ]
         });
-    });
+      });
+    
 	
     console.log('END [saveToRepository]');
 }
 
-
-/**
- * Save XML data to repository. 
- */
-doSaveToRepository = function()
-{
-    console.log('BEGIN [doSaveToRepository]');
-
-    save_xml_data_to_db();
-
-    console.log('END [doSaveToRepository]');
-}
-
-
-/**
- * AJAX call, saves data to database
- * @param saveAs title of the document
- */
-save_xml_data_to_db = function(saveAs){
-    $.ajax({
-        url : "/curate/save_xml_data_to_db",
-        type : "POST",
-        dataType: "json",
-        data:{
-        },
-        success : function(data) {
-            if ('errors' in data){
-                $("#saveErrorMessage").html(data.errors);
-                $(function() {
-                    $( "#dialog-save-error-message" ).dialog({
-                        modal: true,
-                        buttons: {
-                        	Ok: function() {
-                                $( this ).dialog( "close" );
-                            }
-                        }
-                    });
-                });                
-            }else{
-                savedXMLDataToDB();
-            }
-        }
-    });
-}
-
-
 /**
  * Saved XML data to DB message.
  */
-savedXMLDataToDB = function()
+XMLDataSaved = function()
 {
     console.log('BEGIN [savedXMLDataToDB]');
 
     $(function() {
         $( "#dialog-saved-message" ).dialog({
             modal: true,
+            close: function(){
+            	window.location = "/curate"
+            },
             buttons: {
-		Ok: function() {
-                    $( this ).dialog( "close" );
-                    window.location = "/curate"
+            	Ok: function() {
+                    $( this ).dialog( "close" );                    
                 }
 	    }
         });
@@ -1371,3 +1343,17 @@ setCurrentTemplateCallback = function()
     console.log('END [setCurrentTemplateCallback]');
 }
 
+
+deleteForm = function(formID){
+	$.ajax({
+        url : "/curate/delete-form?id=" + formID,
+        type : "GET",
+        dataType: "json",
+        success: function(data){
+            $('#my-forms').load(document.URL +  ' #my-forms', function() {}); 
+        },
+        error:function(data){
+        	$('#my-forms').load(document.URL +  ' #my-forms', function() {}); 
+        }
+    });
+}

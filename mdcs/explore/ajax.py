@@ -956,10 +956,18 @@ def get_results_by_instance(request):
                     dom = etree.fromstring(str(xmltodict.unparse(instanceResult['content']).replace('<?xml version="1.0" encoding="utf-8"?>\n',"")))
                     newdom = transform(dom)
                     template = loader.get_template('explore_result.html')
+                    canDelete = False
+                    canEdit = False
+                    # only admins can edit/delete for now
+                    if request.user.is_staff:
+                        canDelete = True
+                        canEdit = True
+                    
                     context = Context({'id':str(instanceResult['_id']),
                                        'xml': str(newdom),
                                        'title': instanceResult['title'],
-                                       'canDelete':True})
+                                       'canDelete':canDelete,
+                                       'canEdit': canEdit})
 
                     resultString+= template.render(context)
                     
@@ -2738,7 +2746,8 @@ def delete_result(request):
     result_id = request.GET['result_id']
     
     try:
-        XMLdata.delete(result_id)
+        if request.user.is_staff:
+            XMLdata.delete(result_id)
     except:
         # XML can't be found
         pass

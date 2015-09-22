@@ -1,0 +1,69 @@
+<!-- 
+################################################################################
+#
+# File Name: my_profile_change_password.html
+# Application: templates
+# Description: 
+#
+# Author: Sharief Youssef
+#         sharief.youssef@nist.gov
+#
+#		  Guillaume SOUSA AMARAL
+#		  guillaume.sousa@nist.gov
+#
+# Sponsor: National Institute of Standards and Technology
+#
+################################################################################
+-->
+
+{% extends "base.html" %}
+{% load staticfiles %}
+
+{% block extrastyle %}
+<link rel="stylesheet" type="text/css" href="{% static 'resources/css/style.add.css' %}"  media="screen" />
+<link rel="stylesheet" type="text/css" href="{% static 'resources/css/exploreTabs.css' %}"  media="screen" />
+{% endblock %}
+{% block title %}<h1><span>My Profile - My Forms</span></h1>{% endblock %}
+
+{% block menu %}{% include 'menu.html' with active_tab='profile' %}{% endblock %}
+
+{% block content%}
+<span>
+You can review all forms you have created and delete the ones you don't need.
+</span>
+<br/>
+
+<div id="my-forms">
+{% if forms %}
+
+<table class="data-table">
+  <tr>
+  	<th>Name</th>
+    <th>Actions</th>
+  </tr>
+
+{% for form in forms %}
+  {% cycle 'even' '' as rowcolors silent %}
+  <tr class="{{ rowcolors }}">
+    <td>{{ form.name }}</td>	
+    <td>    
+    <div class="icon legend delete" onclick='deleteForm("{{form.id}}")'>Delete</div>
+	</td>
+  </tr>
+
+{% endfor %}
+
+</table>
+
+{% else %}
+<br/>
+There are no forms saved for now.
+<br/>
+{% endif %}
+</div>
+{% endblock %}
+
+{% block extra %}
+<script src="{% static 'inc/controllers/js/curate.js' %}"></script>
+{% endblock %}
+

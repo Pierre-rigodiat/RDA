@@ -20,7 +20,7 @@ from django.contrib.auth import authenticate, logout
 from django.template import RequestContext, loader
 from django.shortcuts import redirect
 from datetime import date
-from mgi.models import Template, Request, Message, TermsOfUse, PrivacyPolicy
+from mgi.models import Template, Request, Message, TermsOfUse, PrivacyPolicy, FormData
 from admin_mdcs.forms import RequestAccountForm, EditProfileForm, ChangePasswordForm, ContactForm
 from django.contrib.auth.models import User
 from django.contrib import messages
@@ -223,6 +223,25 @@ def my_profile_change_password(request):
         
         return render(request, 'my_profile_change_password.html', {'form':form})
     
+    else:
+        if 'loggedOut' in request.session:
+            del request.session['loggedOut']
+        request.session['next'] = '/my-profile'
+        return redirect('/login')
+
+################################################################################
+#
+# Function Name: my_profile_my_forms(request)
+# Inputs:        request - 
+# Outputs:       Review forms page
+# Exceptions:    None
+# Description:   Page that allows to review user forms
+#
+################################################################################
+def my_profile_my_forms(request):
+    if request.user.is_authenticated():        
+        forms = FormData.objects(user=str(request.user.id))
+        return render(request, 'my_profile_my_forms.html', {'forms':forms})    
     else:
         if 'loggedOut' in request.session:
             del request.session['loggedOut']

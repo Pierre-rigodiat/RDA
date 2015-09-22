@@ -155,10 +155,10 @@ class FormElement(Document):
         Stores information about an element in the HTML form
     """
     html_id = StringField()
-    xml_xpath = StringField() # pour siblings module
+    xml_xpath = StringField() # for siblings module
     xml_element = ReferenceField(XMLElement)
 
-# good one
+
 class FormData(Document):
     """
         Stores data being entered and not yet curated
@@ -168,6 +168,7 @@ class FormData(Document):
     name = StringField(required=True)
     elements = DictField()
     xml_data = StringField()
+    xml_data_id = StringField()
 
 class XMLdata():
     """                                                                                                                                                                                                                       
@@ -306,8 +307,32 @@ class XMLdata():
         xmldata = db['xmldata']
         xmldata.remove({'_id': ObjectId(postID)})
     
+    # TODO: to be tested
+#     @staticmethod
+#     def update(postID, json=None, xml=None):
+#         """
+#             Update the object with the given id
+#         """
+#         # create a connection
+#         client = MongoClient(MONGODB_URI)
+#         # connect to the db 'mgi'
+#         db = client['mgi']
+#         # get the xmldata collection
+#         xmldata = db['xmldata']
+#         
+#         data = None
+#         if (json is not None):                                                                                                                                                                                       
+#             data = json
+#             if '_id' in json:
+#                 del json['_id']
+#         else:            
+#             data = xmltodict.parse(xml, postprocessor=postprocessor)
+#             
+#         if data is not None:
+#             xmldata.update({'_id': ObjectId(postID)}, {"$set":data}, upsert=False)
+            
     @staticmethod
-    def update(postID, json):
+    def update_content(postID, content=None):
         """
             Update the object with the given id
         """
@@ -317,8 +342,10 @@ class XMLdata():
         db = client['mgi']
         # get the xmldata collection
         xmldata = db['xmldata']
-        if '_id' in json:
-            del json['_id']
+                
+        json_content = xmltodict.parse(content, postprocessor=postprocessor)
+        json = {'content': json_content}
+                    
         xmldata.update({'_id': ObjectId(postID)}, {"$set":json}, upsert=False)
     
         

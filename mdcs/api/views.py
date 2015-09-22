@@ -24,7 +24,6 @@ from mgi.models import SavedQuery, XMLdata, Template, TemplateVersion, Type, Typ
 from django.contrib.auth.models import User
 # Serializers
 from api.serializers import savedQuerySerializer, jsonDataSerializer, querySerializer, schemaSerializer, templateSerializer, typeSerializer, resTypeSerializer, TemplateVersionSerializer, TypeVersionSerializer, instanceSerializer, resInstanceSerializer, UserSerializer, insertUserSerializer, resSavedQuerySerializer, updateUserSerializer, newInstanceSerializer
-from curate import rdfPublisher
 from lxml import etree
 from django.conf import settings
 import os
@@ -42,7 +41,6 @@ from collections import OrderedDict
 from StringIO import StringIO
 from django.http.response import HttpResponse
 from utils.XSDhash import XSDhash
-from mgi import common
 from io import BytesIO
 from utils.APIschemaLocator.APIschemaLocator import getSchemaLocation
 from utils.XSDflattenerMDCS.XSDflattenerMDCS import XSDFlattenerMDCS

@@ -117,41 +117,6 @@ def validate_xml_data(request):
 
 ################################################################################
 #
-# Function Name: save_xml_data_to_db(request)
-# Inputs:        request -
-# Outputs:       
-# Exceptions:    None
-# Description:   Save the current XML document in MongoDB. The document is also
-#                converted to RDF format and sent to a Jena triplestore.
-#                
-#
-################################################################################
-def save_xml_data_to_db(request):
-    print 'BEGIN def saveXMLDataToDB(request)'
-
-    response_dict = {}
-    xmlString = request.session['xmlString']
-    templateID = request.session['currentTemplateID']
-
-    if xmlString != "":
-        try:
-            # get form data from the database
-            form_data_id = request.session['curateFormData']
-            form_data = FormData.objects.get(pk=ObjectId(form_data_id))
-            newJSONData = XMLdata(schemaID=templateID, xml=xmlString, title=form_data.name)
-            docID = newJSONData.save()    
-        except Exception, e:
-            message = e.message.replace('"', '\'')
-            response_dict['errors'] = message
-    else:
-        response_dict['errors'] = "No data to save."
-
-    print 'END def saveXMLDataToDB(request,saveAs)'
-    return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
-
-
-################################################################################
-#
 # Function Name: view_data(request)
 # Inputs:        request -
 # Outputs:       
@@ -2146,3 +2111,23 @@ def load_xml(request):
 
     response_dict = {"XMLHolder": xmlTree}
     return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
+
+################################################################################
+#
+# Function Name: delete_form(request)
+# Inputs:        request -
+# Outputs:       
+# Exceptions:    None
+# Description:   Deletes a saved form
+#
+################################################################################
+def delete_form(request):
+    if 'id' in request.GET:
+        form_data_id = request.GET['id']
+        try:
+            form_data = FormData.objects().get(pk=form_data_id)
+            form_data.delete()
+        except:
+            return HttpResponse({},status=400)
+    return HttpResponse({})
+

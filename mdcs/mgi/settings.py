@@ -22,7 +22,7 @@
 #ttest
 import os
 
-VERSION = "1.1.1"
+VERSION = "1.2"
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True

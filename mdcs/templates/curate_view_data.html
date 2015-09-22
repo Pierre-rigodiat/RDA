@@ -86,7 +86,12 @@ verifyTemplateIsSelectedViewData();
 
 
 <div id="dialog-save-data-message" title="Save to Repository" style="display:none;">
-Are you sure you want to save this document?
+	Save data to the repository.
+	<form id="form_save" action="/curate/save_data" method="post">
+	{% csrf_token %}
+	{{form_save}}
+	</form>
+	<div id="saveErrorMessage" style="color:red;"></div>
 </div>
 
 <div id="dialog-saved-message" title="XML Data Saved" style="display:none;">
@@ -95,12 +100,6 @@ Are you sure you want to save this document?
     <span class="ui-icon ui-icon-circle-check" style="float:left; margin:0 7px 10px 0;"></span>
     Save to repository successful.
   </p>
-</div>
-
-<div id="dialog-save-error-message" title="XML Data Error" style="display:none;">
-<p></p>
-  <div id="saveErrorMessage">
-  </div>
 </div>
 
 {% endblock %}
