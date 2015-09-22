@@ -1,4 +1,8 @@
-<!-- 
+{% extends "base_featured.html" %}
+{% load staticfiles %}
+
+{% comment %}
+<!--
 ################################################################################
 #
 # File Name: manage_modules.html
@@ -15,14 +19,13 @@
 #
 ################################################################################
 -->
-
-{% extends "base.html" %}
-{% load staticfiles %}
+{% endcomment %}
 
 {% block extrastyle %}
 <link rel="stylesheet" type="text/css" href="{% static 'resources/css/XMLTree.css' %}" media="screen" />
 <link rel="stylesheet" type="text/css" href="{% static 'resources/css/bucket.css' %}" media="screen" />
 {% endblock %}
+
 {% block extrahead %}
 <script src="{% static 'inc/controllers/js/module_mgr.js' %}"></script>
 {% endblock %}
@@ -30,11 +33,13 @@
 {% block title %}
 <h1>Module Manager</h1>
 <p>
-Click on an element from the following tree to associate it with a module. Elements will then be replaced by the chosen module during the curation process.
+    Click on an element from the following tree to associate it with a module. Elements will then be replaced by the
+    chosen module during the curation process.
 </p>
 {% endblock %}
-{% block menu %}{% include 'admin/menu-admin.html' with active_tab='tab3' %}{% endblock %}
-{% block submenu %}{% include 'admin/submenu-template.html' with active_tab='tab1' %}{% endblock %}
+
+{% block menu %}{% include 'admin/menu/main.html' with active_tab='tab3' %}{% endblock %}
+{% block submenu %}{% include 'admin/menu/submenu/template.html' with active_tab='tab1' %}{% endblock %}
 
 {% block content%}	
 <div class="btn-group pull-right">
@@ -42,7 +47,7 @@ Click on an element from the following tree to associate it with a module. Eleme
 </div>
 <div class="clearer">&nbsp;</div>
 {% autoescape off %}	 
-<div>     
+<div>
 {{xsdTree}}
 </div>
 {% endautoescape %}
@@ -53,7 +58,7 @@ Click on an element from the following tree to associate it with a module. Eleme
 		Select the module you want to associate with the selected element.
 	</p>
 	<table class="table table-bordered">
-		<tr>		
+		<tr>
 			<td><b>Default</b></td>
 			<td>Default behavior</td>
 			<td><button class="btn" onclick="noModule(event)"><i class="icon-plus-sign"></i>Insert</button></td>
