@@ -486,7 +486,7 @@ ul.tabbed a {text-decoration: none;}
 	display: block;
 	font-weight: bold;
 	font-size: 1.3em;
-	padding: 12px 12px 11px;
+	padding: 12px 12px 14px;
 }
 #navigation a:hover {color: #FFF;}
 #navigation li.current_page_item a, #navigation li.current_page_parent a {color: #FFE;}
