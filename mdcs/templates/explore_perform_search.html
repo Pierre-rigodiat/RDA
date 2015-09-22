@@ -1,4 +1,8 @@
-<!-- 
+{% extends "base.html" %}
+{% load staticfiles %}
+
+{% comment %}
+<!--
 ################################################################################
 #
 # File Name: explore_perform_search.html
@@ -15,26 +19,39 @@
 #
 ################################################################################
 -->
-
-{% extends "base.html" %}
-{% load staticfiles %}
+{% endcomment %}
 
 {% block extrastyle %}
-<link rel="stylesheet" type="text/css" href="{% static 'resources/css/style.add.css' %}"  media="screen" />
-<link media="screen" href="{% static 'resources/css/queryForm.css' %}" type="text/css" rel="stylesheet"></link>
+<link media="screen" href="{% static 'resources/css/queryForm.css' %}" type="text/css" rel="stylesheet" />
 <link rel="stylesheet" type="text/css" href="{% static 'resources/css/exploreTabs.css' %}"  media="screen" />
 {% endblock %}
 
 {% block title %}<h1>Perform Search</h1>{% endblock %}
 
 {% block description %}
-{% if request.session.currentExploreTab == "tab-1" %}	
-<p id="tab1Desc" class="large">Click on a field of the Query Builder to add an element to your query. The custom tree defined in Step 2 will appear and you will be able to select one of the highlighted elements. Click on plus/minus icons to add/remove criteria. You can save queries to build more complex queries and you will retrieve them on your next connection. When your query is done, please click on Submit Query to get XML documents that match the criterias. <a href="/explore/all_results?id={{template_id}}">Click here to get all documents of selected template.</a> or <a href="/explore/all_versions_results?id={{template_id}}">Click here to get all documents from all versions of selected template.</a></p>
-<p id="tab2Desc" class="large" style="display:none;">Enter your query in the field below.</a></p>
-{%else%}
-<p id="tab1Desc" class="large" style="display:none;">Click on a field of the Query Builder to add an element to your query. The custom tree defined in Step 2 will appear and you will be able to select one of the highlighted elements. Click on plus/minus icons to add/remove criteria. You can save queries to build more complex queries and you will retrieve them on your next connection. When your query is done, please click on Submit Query to get XML documents that match the criterias. <a href="/explore/all_results?id={{template_id}}">Click here to get all documents of selected template.</a> or <a href="/explore/all_versions_results?id={{template_id}}">Click here to get all documents from all versions of selected template.</a></p>
-<p id="tab2Desc" class="large">Enter your query in the field below.</a></p>
-{%endif%}
+    {% if request.session.currentExploreTab == "tab-1" %}
+        <span id="tab1Desc">
+            Click on a field of the Query Builder to add an element to your query. The custom tree defined in Step 2
+            will appear and you will be able to select one of the highlighted elements. Click on plus/minus icons to
+            add/remove criteria. You can save queries to build more complex queries and you will retrieve them on your
+            next connection. When your query is done, please click on Submit Query to get XML documents that match the
+            criterias. <a href="/explore/all_results?id={{template_id}}">Click here to get all documents of selected
+            template.</a> or <a href="/explore/all_versions_results?id={{template_id}}">Click here to get all documents
+            from all versions of selected template.</a>
+        </span>
+        <span id="tab2Desc" class="large" style="display:none;">Enter your query in the field below.</span>
+    {%else%}
+        <span id="tab1Desc" style="display:none;">
+            Click on a field of the Query Builder to add an element to your query. The custom tree defined in Step 2
+            will appear and you will be able to select one of the highlighted elements. Click on plus/minus icons to
+            add/remove criteria. You can save queries to build more complex queries and you will retrieve them on your
+            next connection. When your query is done, please click on Submit Query to get XML documents that match the
+            criterias. <a href="/explore/all_results?id={{template_id}}">Click here to get all documents of selected
+            template.</a> or <a href="/explore/all_versions_results?id={{template_id}}">Click here to get all documents
+            from all versions of selected template.</a>
+        </span>
+        <span id="tab2Desc" class="large">Enter your query in the field below.</span>
+    {%endif%}
 {% endblock %}
 
 {% block menu %}{% include 'menu.html' with active_tab='tab3' %}{% endblock %}
@@ -47,30 +64,33 @@
 </ul>
 <ul id="subnav-tab-2" class="tabbed" style="display: none;">
   <li><a href="/explore/select-template">Select Template</a></li>
-  <li><div style="cursor:pointer"><a onclick="verifyTemplateIsSelected('/explore/customize-template');">Select Fields</a></div></li>
-  <li class="current_page_item"><div style="cursor:pointer"><a onclick="verifyTemplateIsSelected('/explore/perform-search');">Perform Search</a></div></li>
+  <li><div style="cursor:pointer">
+      <a onclick="verifyTemplateIsSelected('/explore/customize-template');">Select Fields</a>
+  </div></li>
+  <li class="current_page_item"><div style="cursor:pointer">
+      <a onclick="verifyTemplateIsSelected('/explore/perform-search');">Perform Search</a>
+  </div></li>
 </ul>
 {% endblock %}
 
 {% block content %}
+    {% if request.session.currentExploreTab == "tab-1" %}
+    <div id="queryBuilder">
+    {% else %}
+    <div id="queryBuilder" style="display: none;">
+    {% endif %}
 
-{% if request.session.currentExploreTab == "tab-1" %}
-<div id="queryBuilder">
-{% else %}
-<div id="queryBuilder" style="display: none;">
-{% endif %}
 	<h2>Query Builder</h2>		
 	<div id="queryForm">
 	    <form>
 	        <p id="crit0">
-	            <select>
-	              <option value=""></option>
-	              <option value="NOT">NOT</option>
-	            </select> 
-	            <input onclick="showCustomTree('crit0')" readonly="readonly" type="text" class="elementInput"/>
-	            <span id="ui0">
-	            </span>                
-	            <span class="icon add" onclick="addField()"></span>                                 
+                <select>
+                    <option value=""></option>
+                    <option value="NOT">NOT</option>
+                </select>
+                <input onclick="showCustomTree('crit0')" readonly="readonly" type="text" class="elementInput"/>
+                <span id="ui0"></span>
+                <span class="icon add" onclick="addField()"></span>
 	        </p>        
 	        <span class="btn" onclick="saveQuery()">Save Query</span>
 	        <span class="btn" onclick="clearCriterias()">Clear</span>    
@@ -79,18 +99,16 @@
 	</div>
 	<hr>
 	<div id="queries">
-	    <p>
-	    	<h2>Saved Queries</h2>
-	        <form>                
-	            <span class="btn" onclick="clearQueries()" >Delete All</span>   
-	        </form>
-	    </p>
+        <h2>Saved Queries</h2>
+        <form>
+            <span class="btn" onclick="clearQueries()" >Delete All</span>
+        </form>
 	    <div id="queriesTable">
 	        <table>
 	            <tr>	                
-	                <th width="15px">Add to Builder</th>
+	                <th class="th-15px">Add to Builder</th>
 	                <th>Queries</th>
-	                <th width="15px">Delete</th>
+	                <th class="th-15px">Delete</th>
 	            </tr>
 	            {% if queries %}
 		            {% for query in queries %}
@@ -132,14 +150,12 @@
 		    {% else %}
 		    <input type="radio" id="tab-1" name="tab-group-1">
 		    {% endif %}
-		    <label for="tab-1" onclick="switchTab('tab-1')"><nobr>Query by Example</nobr></label>
+		    <label for="tab-1" onclick="switchTab('tab-1')">Query by Example</label>
 	
 		    <div class="content">
 		        <div class="box-content">
 				  <ul class="nice-list">
-				    <li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'resources/img/Orange_Number_1.png' %}"></td><td><nobr><a href="/explore/select-template">Select Template</a></nobr></td></tr></table></li>
-				    <li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'resources/img/Orange_Number_2.png' %}"></td><td><nobr><a href="/explore/customize-template">Select Fields</a></nobr></td></tr></table></li>
-				    <li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'resources/img/Orange_Number_3.png' %}"></td><td><strong><nobr><a href="/explore/perform-search">Perform Search</a></nobr></strong></td></tr></table></li>
+				    {% include 'explore/menu/menu-items.html' with step='s3' %}
 				  </ul>
 				</div>	
 		    </div> 
@@ -151,15 +167,12 @@
 	       {% else %}
 	       <input type="radio" id="tab-2" name="tab-group-1" disabled>
 	       {% endif %}
-	       <!-- <label for="tab-2" onclick="switchTab('tab-2')"><nobr>SPARQL Endpoint</nobr></label> -->
-	       <label for="tab-2" style="color:grey;"><nobr>SPARQL Endpoint</nobr></label>
+	       <label for="tab-2" class="unavailable">SPARQL Endpoint</label>
 		
 		    <div class="content">
 	           <div class="box-content">
 				  <ul class="nice-list">
-				    <li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'resources/img/Orange_Number_1.png' %}"></td><td><nobr><a href="/explore/select-template">Select Template</a></nobr></td></tr></table></li>
-				    <li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'resources/img/Orange_Number_2.png' %}"></td><td><nobr><a href="/explore/customize-template">Select Fields</a></nobr></td></tr></table></li>						    
-				    <li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'resources/img/Orange_Number_3.png' %}"></td><td><strong><nobr><a href="/explore/perform-search">Perform Search</a></nobr></strong></td></tr></table></li>
+				    {% include 'explore/menu/menu-items.html' with step='s3' %}
 				  </ul>
 				</div>	
 	       </div> 
@@ -173,13 +186,18 @@
 	<div id="fed_of_queries_instances">
 	{% for instance in instances %}
 		{% if instance.name == "Local" %}
-		<nobr><input type="checkbox" value="{{ instance.name }}" checked="checked"><span class="instance_name"> {{ instance.name }} </span><br/>
+            <input type="checkbox" value="{{ instance.name }}" checked="checked">
+            <span class="instance_name">{{ instance.name }}</span>
 		{% else %}
-		<nobr><input type="checkbox" value="{{ instance.name }}"><span class="instance_name" title="{{instance.protocol}}://{{instance.address}}:{{instance.port}}"> {{ instance.name }} </span></nobr><br/>
+            <input type="checkbox" value="{{ instance.name }}">
+            <span class="instance_name" title="{{instance.protocol}}://{{instance.address}}:{{instance.port}}">
+                {{instance.name}}
+            </span>
 		{% endif %}
+        <br/>
 	{% endfor %}
 	</div>
-	<br/>
+    <br/>
 </div>
 {% endblock %} 
 
