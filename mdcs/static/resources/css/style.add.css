@@ -147,7 +147,7 @@
 }
 
 #help {
-	text-align:center;
+	text-align: center;
 }
 
 #main>h2 {
@@ -178,14 +178,13 @@ b
 	margin-top: 7px;
 }
 
-.debug-wrapper /* TODO make it an id */
+/*.debug-wrapper
 {
 	float: right;
 	width: 460px;
 	
 	margin-left: 5px;
 }
-	
 
 .debug-panel
 {
@@ -196,15 +195,11 @@ b
 	
 	border: 2px solid red;
 	border-radius: 5px;
-	/* XXX test working stuff on all browser */
+
 	background: -webkit-gradient(linear, right top, right bottom, from(#BFBFBF), to(#707070));
 	background: -moz-linear-gradient(top,  #BFBFBF,  #707070);
 	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#BFBFBF', endColorstr='#707070');
-	
-	/*background: #BFBFBF;*/
-}
-
-
+}*/
 
 /**
  * 	DHTMLX form additional css
@@ -327,3 +322,36 @@ textarea.inform{
 {
 	min-height:0px;
 }
+
+.tpl-title {
+	text-align: center;
+	font-size: 18px;
+	margin-bottom: 0.5em;
+}
+
+.l-img {
+    float: left;
+    height: 40px;
+}
+
+.r-txt {
+    height: 40px;
+    padding-top: 10px;
+    padding-left: 50px;
+}
+
+.r-txt-selected {
+    font-weight: bold;
+    height: 40px;
+    padding-top: 10px;
+    padding-left: 50px;
+}
+
+.th-actions {
+    width: 200px;
+}
+
+.th-15px {
+	width: 15px;
+}
+

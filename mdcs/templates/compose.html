@@ -1,4 +1,8 @@
-<!-- 
+{% extends "base.html" %}
+{% load staticfiles %}
+
+{% comment %}
+<!--
 ################################################################################
 #
 # File Name: compose.html
@@ -15,148 +19,130 @@
 #
 ################################################################################
 -->
-
-{% extends "base.html" %}
-{% load staticfiles %}
-
-{% block extrastyle %}
-<link rel="stylesheet" type="text/css" href="{% static 'resources/css/style.add.css' %}"  media="screen" />
-{% endblock %}
+{% endcomment %}
 
 {% block title %}<h1>Start Template</h1>{% endblock %}
-{% block description %}Select a new or existing start template from the following table to start composing. Once you make your selection, click on "Compose Template" to proceed.  It will automatically load the appropriate template and display it on the next page.{% endblock %}
+{% block description %}
+Select a new or existing start template from the following table to start composing. Once you make your selection, click
+on "Compose Template" to proceed.  It will automatically load the appropriate template and display it on the next page.
+{% endblock %}
 
 {% block menu %}{% include 'menu.html' with active_tab='tab4' %}{% endblock %}
 {% block submenu %}
 <ul class="tabbed">
 	<li class="current_page_item"><a href="/compose/select-template">Start Template</a></li>
-	<li><div style="cursor:pointer"><a onclick="verifyTemplateIsSelected('/compose/build-template');">Compose Template</a></div></li>
+	<li><div style="cursor:pointer">
+        <a onclick="verifyTemplateIsSelected('/compose/build-template');">Compose Template</a>
+    </div></li>
 </ul>
 {% endblock %}
 
 {% block content %}
-			
 <div id="template_selection">
-		      
 {% if request.session.currentComposeTemplateID %} 
 
 {% else %}
-
-<div class="alert">
-  <button type="button" class="close" data-dismiss="alert">&times;</button>
-  <i class="icon warning disable-selection"></i> No template selected. Select one in the table below. 
-</div>
-
+    <div class="alert">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        <i class="icon warning disable-selection"></i> No template selected. Select one in the table below.
+    </div>
 {% endif %}
-<div style="text-align: center; font-size: 18px;">Global Templates</div>
-<br/>
+
+<div class="tpl-title">Global Templates</div>
 <table class="table table-bordered">
-  <tr>
-    <th>Template name</th>
-    <th>File name</th>
-    <th width="200">Actions</th>
-  </tr>
-			  
-  <tr class="{{ rowcolors }}">
-    <td templateID='new'>New Base Template</td>
-    <td>new_base_template.xsd</td>
-    {% if request.session.currentComposeTemplateID == "new" %} 
-    <td><span style="color:green;font-weight:bold">Current template</span></td>
-    {% else %}
-    <td><button class="btn set-compose-template" ><i class="icon-plus-sign"></i> Select as start template</button></td>
-    {% endif %}
-  </tr>
+    <tr>
+        <th>Template name</th>
+        <th>File name</th>
+        <th class="th-actions">Actions</th>
+    </tr>
 
-{% for template, isDeleted in templates.items %}
-  
-    {% if isDeleted == False %}
-    {% cycle 'even' '' as rowcolors silent %} 
-  <tr class="{{ rowcolors }}">
-    <td templateID='{{template.id}}'>{{ template.title }}</td>
-    <td>{{ template.filename }}</td>
+    <tr class="{{ rowcolors }}">
+        <td templateID='new'>New Base Template</td>
+        <td>new_base_template.xsd</td>
+        {% if request.session.currentComposeTemplateID == "new" %}
+            <td><span style="color:green;font-weight:bold">Current template</span></td>
+        {% else %}
+            <td>
+                <button class="btn set-compose-template" >
+                    <i class="icon-plus-sign"></i> Select as start template
+                </button>
+            </td>
+        {% endif %}
+    </tr>
 
-{% if request.session.currentComposeTemplateID == template.id|stringformat:"s" %} 
-
-    <td><span style="color:green;font-weight:bold">Current template</span></td>
-
-{% else %}
-
-    <td><button class="btn set-compose-template" ><i class="icon-plus-sign"></i> Set as current template</button></td>
-
-{% endif %}
-
-  </tr>
-  
-{% endif %}
-
-{% endfor %}
-
+    {% for template, isDeleted in templates.items %}
+        {% if isDeleted == False %}
+            {% cycle 'even' '' as rowcolors silent %}
+            <tr class="{{ rowcolors }}">
+                <td templateID='{{template.id}}'>{{ template.title }}</td>
+                <td>{{ template.filename }}</td>
+                {% if request.session.currentComposeTemplateID == template.id|stringformat:"s" %}
+                    <td><span style="color:green;font-weight:bold">Current template</span></td>
+                {% else %}
+                    <td>
+                        <button class="btn set-compose-template">
+                            <i class="icon-plus-sign"></i> Set as current template
+                        </button>
+                    </td>
+                {% endif %}
+                </tr>
+        {% endif %}
+    {% endfor %}
 </table>
 
 
-<div style="text-align: center; font-size: 18px;">User Defined Templates</div>
-<br/>
+<div class="tpl-title">User Defined Templates</div>
 {% if userTemplates %}
-<table class="table table-bordered">
-  <tr>
-    <th>Template name</th>
-    <th width="200">Actions</th>
-  </tr>
-{% for template in userTemplates %}
-  {% cycle 'even' '' as rowcolors silent %}
-  <tr class="{{ rowcolors }}">
-    <td templateID='{{template.id}}'>{{ template.title }}</td>
-
-{% if request.session.currentComposeTemplateID == template.id|stringformat:"s" %} 
-
-    <td><span style="color:green;font-weight:bold">Current template</span></td>
-
-{% else %}
-
-    <td><button class="btn set-compose-user-template" ><i class="icon-plus-sign"></i> Set as current template</button></td>    
-
-{% endif %}
-
-  </tr>  
-
-{% endfor %}
-</table>
-
+    <table class="table table-bordered">
+    <tr>
+        <th>Template name</th>
+        <th class="th-actions">Actions</th>
+    </tr>
+    {% for template in userTemplates %}
+        {% cycle 'even' '' as rowcolors silent %}
+        <tr class="{{ rowcolors }}">
+            <td templateID='{{template.id}}'>{{ template.title }}</td>
+            {% if request.session.currentComposeTemplateID == template.id|stringformat:"s" %}
+                <td><span style="color:green;font-weight:bold">Current template</span></td>
+            {% else %}
+                <td><button class="btn set-compose-user-template" >
+                    <i class="icon-plus-sign"></i> Set as current template
+                </button></td>
+            {% endif %}
+        </tr>
+    {% endfor %}
+    </table>
 {%else%}
-
-<div style="color:grey;">Create your own templates using the <a href="/compose">Composer</a> and you will be able to use them from this section.</div>
-
+<div class="unavailable">
+    Create your own templates using the <a href="/compose">Composer</a> and you will be able to use them from this
+    section.
+</div>
 {% endif %}
 </div>
 {% endblock %}
-
 
 {% block sidebar %}
 <div class="box" >
 	<div class="box-title">Composer</div>
 	<div class="box-content">
-		<ul class="nice-list">
-			<li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'resources/img/Orange_Number_1.png' %}"></td><td><strong><a href="/compose/select-template">Start Template</a></strong></td></tr></table></li>
-			<li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'resources/img/Orange_Number_2.png' %}"></td><td><div style="cursor:pointer"><a onclick="verifyTemplateIsSelected('/compose/build-template');">Compose Template</a></div></td></tr></table></li>
-		</ul>
+		{% include 'compose/menu.html' with step='s1' %}
 	</div>
 </div>
 {% endblock %}
 
-
 {% block extra %}
 <div id="dialog-message" title="Template Loaded" style="display:none;">
-<p></p>
-  <p>
-    <span class="ui-icon ui-icon-circle-check" style="float:left; margin:0 7px 10px 0;"></span>
-    Template selected successfully. 
-  </p>
-  <p>
-    Currently using {{ request.session.currentComposeTemplate }}
-  </p>
-  <p>
-    To proceed to the next step, click on step 2: <b>'Enter Data'</b>
-  </p>
+    <p></p>
+    <p>
+        <span class="ui-icon ui-icon-circle-check" style="float:left; margin:0 7px 10px 0;"></span>
+        Template selected successfully.
+    </p>
+    <p>
+        Currently using {{ request.session.currentComposeTemplate }}
+    </p>
+    <p>
+        To proceed to the next step, click on step 2: <b>'Enter Data'</b>
+    </p>
 </div>
 
 <div id="dialog-error-message" title="Template Loaded" style="display:none;">
@@ -166,6 +152,7 @@
     Please select a template first.
   </p>
 </div>
+
 <script src="{% static 'inc/controllers/js/composer.js' %}"></script>
 <script>
 	loadTemplateSelectionControllers();
