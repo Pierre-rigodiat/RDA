@@ -1013,8 +1013,11 @@ def generateElement(request, element, xmlTree, namespace, choiceInfo=None, fullP
     else:
         textCapitalized = element.attrib.get('name')
     
-    # XML xpath:/root/element
-    fullPath += "/" + textCapitalized
+    if element_tag =='element':
+        # XML xpath:/root/element
+        fullPath += "/" + textCapitalized
+    elif element_tag =='attribute':
+        fullPath += "/@" + textCapitalized
 #     print fullPath
     
     # XSD xpath: /element/complexType/sequence
@@ -1113,10 +1116,18 @@ def generateElement(request, element, xmlTree, namespace, choiceInfo=None, fullP
                     if request.session['curate_edit']:
                         # if elements are found at this xpath
                         if len(edit_elements) > 0:
-                            # get the value of the element x
-                            if edit_elements[x].text is not None:
-                                # set the value of the element
-                                defaultValue = edit_elements[x].text
+                            # it is an XML element
+                            if element_tag == 'element':
+                                # get the value of the element x
+                                if edit_elements[x].text is not None:
+                                    # set the value of the element
+                                    defaultValue = edit_elements[x].text
+                            # it is an XMl attribute
+                            elif element_tag == 'attribute':
+                                # get the value of the attribute
+                                if edit_elements[x] is not None:
+                                    # set the value of the element
+                                    defaultValue = edit_elements[x]
                     elif 'default' in element.attrib:
                         # if the default attribute is present
                         defaultValue = element.attrib['default']
