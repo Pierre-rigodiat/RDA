@@ -1,4 +1,8 @@
-<!-- 
+{% extends "base_featured.html" %}
+{% load staticfiles %}
+
+{% comment %}
+<!--
 ################################################################################
 #
 # File Name: all-options.html
@@ -15,23 +19,25 @@
 #
 ################################################################################
 -->
-
-{% extends "base.html" %}
-{% load staticfiles %}
+{% endcomment %}
 
 {% block title %}<h1>All Options</h1>{% endblock %}
-
 {% block menu %}{% include 'menu.html' with active_tab='options' %}{% endblock %}
 
-
 {% block content %}
-
 <div class="left" style="width: 350px">
 	<div class="clearer">&nbsp;</div>
 	<br/>
 	<img src="{% static 'resources/img/edit-big.png' %}" width="64" height="64" alt="" class="left bordered" />
 	<h3><a href="curate">Curate your Materials Data</a></h3>
 	<p>Click here to select a form template and then fill out the corresponding form.</p>
+	<div class="clearer">&nbsp;</div>
+
+    <div class="clearer">&nbsp;</div>
+	<br/>
+	<img src="{% static 'resources/img/edit-big.png' %}" width="64" height="64" alt="" class="left bordered" />
+	<h3><a href="compose">Compose a template</a></h3>
+	<p>Click here to compose your own template.</p>
 	<div class="clearer">&nbsp;</div>
 </div>
 
@@ -41,15 +47,6 @@
 	<img src="{% static 'resources/img/search-big.png' %}" width="64" height="64" alt="" class="left bordered" />
 	<h3><a href="explore">Explore the repository</a></h3>
 	<p>Click here to search for Material Data in the repository using flexible queries.</p>
-	<div class="clearer">&nbsp;</div>
-</div>
-					
-<div class="left" style="width: 350px">
-	<div class="clearer">&nbsp;</div>
-	<br/>
-	<img src="{% static 'resources/img/edit-big.png' %}" width="64" height="64" alt="" class="left bordered" />
-	<h3><a href="compose">Compose a template</a></h3>
-	<p>Click here to compose your own template.</p>
 	<div class="clearer">&nbsp;</div>
 </div>
 
