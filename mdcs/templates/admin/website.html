@@ -1,4 +1,8 @@
-<!-- 
+{% extends "base_featured.html" %}
+{% load staticfiles %}
+
+{% comment %}
+<!--
 ################################################################################
 #
 # File Name: website.html
@@ -15,18 +19,15 @@
 #
 ################################################################################
 -->
-
-{% extends "base.html" %}
-{% load staticfiles %}
+{% endcomment %}
 
 {% block title %}<h1>Website Management</h1>{% endblock %}
 
-{% block menu %}{% include 'admin/menu-admin.html' with active_tab='tab5' %}{% endblock %}
-{% block submenu %}{% include 'admin/submenu-website.html' %}{% endblock %}
+{% block menu %}{% include 'admin/menu/main.html' with active_tab='tab5' %}{% endblock %}
+{% block submenu %}{% include 'admin/menu/submenu/website.html' %}{% endblock %}
 
 
 {% block content%}
-		      
 <div class="left" style="width: 350px">			
 	<div class="clearer">&nbsp;</div>
 	<br/>
