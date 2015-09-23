@@ -26,11 +26,12 @@
 
 
 {% block content%}
-Use the following form to register a remote instance of the MDCS. Please provide required information to get an access to the remote system.
-
+<p>
+    Use the following form to register a remote instance of the MDCS. Please provide required information to get an
+    access to the remote system.
+</p>
 
 <div>
-	<br/>
 	<form action="/admin/repositories/add-repository/" method="post" onsubmit="return validateInstance()">
 	 	{% csrf_token %}
 	    {{ form }}
