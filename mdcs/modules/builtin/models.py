@@ -93,15 +93,10 @@ class PopupModule(Module):
         return render_module(template, params)
 
 
-class AsyncInputModule(Module):
+class SyncInputModule(Module):
     def __init__(self, scripts=list(), styles=list(), label=None, default_value=None, modclass=None):
-        scripts = [os.path.join(SCRIPTS_PATH, 'async_input.js')] + scripts
+        scripts = [os.path.join(SCRIPTS_PATH, 'sync_input.js')] + scripts
         Module.__init__(self, scripts=scripts, styles=styles)
-
-        # self.add_scripts([os.path.join(SCRIPTS_PATH, 'async_input.js')])
-        # self.add_scripts(scripts)
-        #
-        # self.add_styles(styles)
 
         if modclass is None:
             raise ModuleError("'modclass' is required.")
@@ -111,7 +106,7 @@ class AsyncInputModule(Module):
         self.default_value = default_value
 
     def get_module(self, request):
-        template = os.path.join(TEMPLATES_PATH, 'async_input.html')
+        template = os.path.join(TEMPLATES_PATH, 'sync_input.html')
         params = {'class': self.modclass}
         if self.label is not None:
             params.update({"label": self.label})

@@ -1,5 +1,5 @@
 from HTMLParser import HTMLParser
-from modules.builtin.models import InputModule, OptionsModule, AsyncInputModule, AutoCompleteModule
+from modules.builtin.models import InputModule, OptionsModule, SyncInputModule, AutoCompleteModule
 from modules.exceptions import ModuleError
 from django.conf import settings
 import os
@@ -45,68 +45,69 @@ class PositiveIntegerInputModule(InputModule):
 
     def _post_display(self, request):
         data = str(request.POST['data'])
-        return data + " is a positive integer" if self.is_data_valid(data) else "<div style='color:red;'>This is not a positive integer</div>"
+        return data + " is a positive integer" if self.is_data_valid(data) \
+            else "<div style='color:red;'>This is not a positive integer</div>"
 
     def _post_result(self, request):
         return str(request.POST['data'])
         
 
 
-class CitationRefIdModule(InputModule):
-    def __init__(self):
-        InputModule.__init__(self, label='TRC Ref ID', default_value='YYYY;nam;nam;n')
-
-    def _get_module(self, request):
-        if 'data' in request.GET:
-            self.default_value = self._parse_data(request.GET['data'])
-
-        return InputModule.get_module(self, request)
-
-
-    def _parse_data(self, data):
-        html = HTMLParser()
-        data = html.unescape(data)
-
-        xml_data = etree.fromstring(data)
-        xml_children = []
-
-        for xml_child in xml_data.getchildren():
-            xml_children.append(xml_child.text)
-
-        return ";".join(xml_children)
-
-    def _get_display(self, request):
-        if 'data' in request.GET:
-            self.default_value = self._parse_data(request.GET['data'])
-
-        return str(self.default_value)
-
-    def _get_result(self, request):
-        if 'data' in request.GET:
-            return request.GET['data']
-
-        return '<TRCRefID>' \
-               '<yrYrPub></yrYrPub>' \
-               '<sAuthor1></sAuthor1>' \
-               '<sAuthor2></sAuthor2>' \
-               '<nAuthorn></nAuthorn>' \
-               '</TRCRefID>'
-
-    def _post_display(self, request):
-        data = str(request.POST['data'])
-        return data
-
-    def _post_result(self, request):
-        data = str(request.POST['data']).split(';')
-
-        datastr = '<TRCRefID>' \
-                  '<yrYrPub>'+data[0]+'</yrYrPub>' \
-                  '<sAuthor1>'+data[1]+'</sAuthor1>' \
-                  '<sAuthor2>'+data[2]+'</sAuthor2>' \
-                  '<nAuthorn>'+data[3]+'</nAuthorn>' \
-                  '</TRCRefID>'
-
-        return datastr
+# class CitationRefIdModule(InputModule):
+#     def __init__(self):
+#         InputModule.__init__(self, label='TRC Ref ID', default_value='YYYY;nam;nam;n')
+#
+#     def _get_module(self, request):
+#         if 'data' in request.GET:
+#             self.default_value = self._parse_data(request.GET['data'])
+#
+#         return InputModule.get_module(self, request)
+#
+#
+#     def _parse_data(self, data):
+#         html = HTMLParser()
+#         data = html.unescape(data)
+#
+#         xml_data = etree.fromstring(data)
+#         xml_children = []
+#
+#         for xml_child in xml_data.getchildren():
+#             xml_children.append(xml_child.text)
+#
+#         return ";".join(xml_children)
+#
+#     def _get_display(self, request):
+#         if 'data' in request.GET:
+#             self.default_value = self._parse_data(request.GET['data'])
+#
+#         return str(self.default_value)
+#
+#     def _get_result(self, request):
+#         if 'data' in request.GET:
+#             return request.GET['data']
+#
+#         return '<TRCRefID>' \
+#                '<yrYrPub></yrYrPub>' \
+#                '<sAuthor1></sAuthor1>' \
+#                '<sAuthor2></sAuthor2>' \
+#                '<nAuthorn></nAuthorn>' \
+#                '</TRCRefID>'
+#
+#     def _post_display(self, request):
+#         data = str(request.POST['data'])
+#         return data
+#
+#     def _post_result(self, request):
+#         data = str(request.POST['data']).split(';')
+#
+#         datastr = '<TRCRefID>' \
+#                   '<yrYrPub>'+data[0]+'</yrYrPub>' \
+#                   '<sAuthor1>'+data[1]+'</sAuthor1>' \
+#                   '<sAuthor2>'+data[2]+'</sAuthor2>' \
+#                   '<nAuthorn>'+data[3]+'</nAuthorn>' \
+#                   '</TRCRefID>'
+#
+#         return datastr
 
 
 class ChemicalElementMappingModule(OptionsModule):
@@ -142,16 +143,16 @@ class ChemicalElementMappingModule(OptionsModule):
         return str(request.POST['data'])
 
 
-class ListToGraphInputModule(AsyncInputModule):
+class ListToGraphInputModule(SyncInputModule):
     
     def __init__(self):
-        AsyncInputModule.__init__(self, label='Enter a list of numbers', modclass='list_to_graph',
+        SyncInputModule.__init__(self, label='Enter a list of numbers', modclass='list_to_graph',
                                   styles=[os.path.join(RESOURCES_PATH, 'css/list_to_graph.css')],
                                   scripts=["https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js",
                                            os.path.join(RESOURCES_PATH, 'js/list_to_graph.js')])
 
     def _get_module(self, request):
-        return AsyncInputModule.get_module(self, request)
+        return SyncInputModule.get_module(self, request)
 
     def _get_display(self, request):
         return ''
