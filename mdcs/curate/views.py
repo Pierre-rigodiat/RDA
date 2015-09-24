@@ -29,7 +29,7 @@ import xmltodict
 from django.contrib import messages
 
 from mgi.models import Template, TemplateVersion, XML2Download, FormData,\
-    XMLdata
+    XMLdata, FormElement, XMLElement
 from curate.forms import NewForm, OpenForm, UploadForm, AdvancedOptionsForm, SaveDataForm
 from django.http.response import HttpResponseBadRequest, HttpResponseRedirect,\
     HttpResponseNotAllowed
@@ -360,7 +360,26 @@ def save_xml_data_to_db(request):
                         newJSONData = XMLdata(schemaID=templateID, xml=xmlString, title=form_data.name)
                         newJSONData.save()
                     # delete form data
-                    form_data.delete()
+                    try:
+                        form_data = FormData.objects().get(pk=form_data_id)
+                        # cascade delete references
+                        for form_element_id in form_data.elements.values():
+                            try:
+                                form_element = FormElement.objects().get(pk=form_element_id)
+                                if form_element.xml_element is not None:
+                                    try:
+                                        xml_element = XMLElement.objects().get(pk=str(form_element.xml_element.id))
+                                        xml_element.delete()
+                                    except:
+                                        # raise an exception when element not found
+                                        pass
+                                form_element.delete()
+                            except:
+                                # raise an exception when element not found
+                                pass
+                        form_data.delete()
+                    except Exception, e:
+                        return HttpResponseBadRequest('Unable to save data.')
                     return HttpResponse('ok')
                 except Exception, e:
                     message = e.message.replace('"', '\'')

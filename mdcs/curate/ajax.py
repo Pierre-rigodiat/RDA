@@ -2157,7 +2157,6 @@ def delete_form(request):
                     # raise an exception when element not found
                     pass
             form_data.delete()
-#             ref_form_elements = FormElement.objects().get()
         except Exception, e:
             return HttpResponse({},status=400)
     return HttpResponse({})
