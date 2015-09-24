@@ -28,11 +28,10 @@ from django.template import Context, loader
 
 import lxml.html as html
 import lxml.etree as etree
+import django.utils.html
 
-# Specific to RDF
-# from modules.models import ModuleFactory
 from modules import get_module_view
-import rdfPublisher
+
 
 #XSL file loading
 import os
@@ -287,7 +286,7 @@ def get_subnodes_xpath(element, xmlTree, namespace):
         for child in list(element):
             if child.tag == "{0}element".format(namespace):
                 if 'name' in child.attrib:
-                    xpaths.append(child.attrib['name'])
+                    xpaths.append({'name': child.attrib['name'], 'element': child})
                 elif 'ref' in child.attrib:
                     ref = child.attrib['ref']
                     refElement = None
@@ -298,7 +297,7 @@ def get_subnodes_xpath(element, xmlTree, namespace):
                     else:
                         refElement = xmlTree.find("./{0}element[@name='{1}']".format(namespace, ref))                        
                     if refElement is not None:
-                        xpaths.append(refElement.attrib.get('name'))   
+                        xpaths.append({'name': refElement.attrib.get('name'), 'element': refElement})
             else:
                 xpaths.extend(get_subnodes_xpath(child, xmlTree, namespace))
     return xpaths
@@ -310,7 +309,7 @@ def get_nodes_xpath(elements, xmlTree, namespace):
     for element in elements:
         if element.tag == "{0}element".format(namespace):        
             if 'name' in element.attrib:
-                xpaths.append(element.attrib['name'])
+                xpaths.append({'name': element.attrib['name'], 'element': element})
             elif 'ref' in element.attrib:
                 ref = element.attrib['ref']
                 refElement = None
@@ -321,35 +320,35 @@ def get_nodes_xpath(elements, xmlTree, namespace):
                 else:
                     refElement = xmlTree.find("./{0}element[@name='{1}']".format(namespace, ref))                        
                 if refElement is not None:
-                    xpaths.append(refElement.attrib.get('name'))            
+                    xpaths.append({'name': refElement.attrib.get('name'), 'element': refElement})          
         else:
             xpaths.extend(get_subnodes_xpath(element, xmlTree, namespace))
     return xpaths
 
     
-def isDeterminist(element, xmlTree, namespace):
-    determinist = True
-    try:        
-        # look at sequence children, to see if it contains only elements 
-        if(len(list(element)) != 0):
-            for child in element:
-                if (child.tag != "{0}element".format(namespace)):
-                    determinist = False
-                    break
-            # doesn't contain only elements, need to get sub elements xpath to see if they are determinist
-            if determinist == False:
-                # get xpath of all elements
-                xpaths = get_nodes_xpath(list(element), xmlTree, namespace)
-                # check that xpaths are unique
-                if len(xpaths) == len(set(xpaths)):
-                    determinist = True
-                else:
-                    print "NOT DETERMINISTIC"
-    except:
-        print "ERROR"
-        return False
-        
-    return determinist
+# def isDeterminist(element, xmlTree, namespace):
+#     determinist = True
+#     try:        
+#         # look at sequence children, to see if it contains only elements 
+#         if(len(list(element)) != 0):
+#             for child in element:
+#                 if (child.tag != "{0}element".format(namespace)):
+#                     determinist = False
+#                     break
+#             # doesn't contain only elements, need to get sub elements xpath to see if they are determinist
+#             if determinist == False:
+#                 # get xpath of all elements
+#                 xpaths = get_nodes_xpath(list(element), xmlTree, namespace)
+#                 # check that xpaths are unique
+#                 if len(xpaths) == len(set(xpaths)):
+#                     determinist = True
+#                 else:
+#                     print "NOT DETERMINISTIC"
+#     except:
+#         print "ERROR"
+#         return False
+#         
+#     return determinist
 
 
 # get the number of times the sequence appears in the XML document that we are loading for editing
@@ -362,9 +361,14 @@ def lookup_Occurs(element, xmlTree, namespace, fullPath, edit_data_tree):
     xpaths = get_nodes_xpath(element, xmlTree, namespace)
     maxOccursFound = 0
     for xpath in xpaths:
-        edit_elements = edit_data_tree.xpath(fullPath + '/' + xpath)
+        edit_elements = edit_data_tree.xpath(fullPath + '/' + xpath['name'])
         if len(edit_elements) > maxOccursFound:
-            maxOccursFound = len(edit_elements)
+            maxOccursFound = 1
+            if 'maxOccurs' in xpath['element'].attrib:
+                if xpath['element'].attrib != "unbounded":
+                    if xpath['element'].attrib < len(edit_elements):
+                        maxOccursFound = len(edit_elements)
+                        raise Exception("These data can't be loaded for now, because of the following element: " + fullPath + '/' + xpath['name']) 
     
     return maxOccursFound
     
@@ -779,7 +783,7 @@ def generateExtension(request, element, xmlTree, namespace, fullPath="", edit_da
             if len(edit_elements) > 0:
                 if edit_elements[0].text is not None:
                     defaultValue = edit_elements[0].text
-        formString += " <input type='text' value='"+ defaultValue +"'/>" 
+        formString += " <input type='text' value='"+ django.utils.html.escape(defaultValue) +"'/>" 
             
     return formString
 
@@ -1129,10 +1133,10 @@ def generateElement(request, element, xmlTree, namespace, choiceInfo=None, fullP
                                     # set the value of the element
                                     defaultValue = edit_elements[x]
                     elif 'default' in element.attrib:
-                        # if the default attribute is present
+                        # if the default attribute is present                        
                         defaultValue = element.attrib['default']
-               
-                    formString += " <input type='text' value='"+ defaultValue +"'/>" 
+                    
+                    formString += " <input type='text' value='"+ django.utils.html.escape(defaultValue) +"'/>" 
                     formString += buttons
                 else: # complex/simple type 
                     formString += buttons             
@@ -1419,7 +1423,7 @@ def generateElement_absent(request, element, xmlDocTree, form_element):
             # if the default attribute is present
             defaultValue = element.attrib['default']
    
-        formString += " <input type='text' value='"+ defaultValue +"'/>" 
+        formString += " <input type='text' value='"+ django.utils.html.escape(defaultValue) +"'/>" 
     else: # complex/simple type      
         if elementType.tag == "{0}complexType".format(namespace):
             formString += generateComplexType(request, elementType, xmlDocTree, namespace, fullPath=form_element.xml_xpath)
@@ -2137,8 +2141,24 @@ def delete_form(request):
         form_data_id = request.GET['id']
         try:
             form_data = FormData.objects().get(pk=form_data_id)
+            # cascade delete references
+            for form_element_id in form_data.elements.values():
+                try:
+                    form_element = FormElement.objects().get(pk=form_element_id)
+                    if form_element.xml_element is not None:
+                        try:
+                            xml_element = XMLElement.objects().get(pk=str(form_element.xml_element.id))
+                            xml_element.delete()
+                        except:
+                            # raise an exception when element not found
+                            pass
+                    form_element.delete()
+                except:
+                    # raise an exception when element not found
+                    pass
             form_data.delete()
-        except:
+#             ref_form_elements = FormElement.objects().get()
+        except Exception, e:
             return HttpResponse({},status=400)
     return HttpResponse({})
 
