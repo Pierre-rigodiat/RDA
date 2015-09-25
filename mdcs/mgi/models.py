@@ -128,17 +128,6 @@ class Bucket(Document):
     color = StringField(required=True, unique=True)
     types = ListField()
 
-def postprocessor(path, key, value):
-    """Called after XML to JSON transformation"""
-    if(key == "#text"):
-        return key, str(value)
-    try:
-        return key, int(value)
-    except (ValueError, TypeError):
-        try:
-            return key, float(value)
-        except (ValueError, TypeError):
-            return key, value
 
 class XMLElement(Document):
     """
@@ -169,6 +158,20 @@ class FormData(Document):
     elements = DictField()
     xml_data = StringField()
     xml_data_id = StringField()
+
+
+def postprocessor(path, key, value):
+    """Called after XML to JSON transformation"""
+    if(key == "#text"):
+        return key, str(value)
+    try:
+        return key, int(value)
+    except (ValueError, TypeError):
+        try:
+            return key, float(value)
+        except (ValueError, TypeError):
+            return key, value
+
 
 class XMLdata():
     """                                                                                                                                                                                                                       
