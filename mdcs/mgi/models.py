@@ -292,7 +292,7 @@ class XMLdata():
         db = client['mgi']
         # get the xmldata collection
         xmldata = db['xmldata']
-        return xmldata.find_one({'_id': ObjectId(postID)})
+        return xmldata.find_one({'_id': ObjectId(postID)}, as_class = OrderedDict)
     
     @staticmethod
     def delete(postID):
