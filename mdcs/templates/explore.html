@@ -60,7 +60,7 @@ automatically load the appropriate form and display it on the next page.
 
 {% block content %}
 <div id="template_selection">
-    {% if request.session.exploreCurrentTemplate %}
+    {% if request.session.exploreCurrentTemplateID %}
 
     {% else %}
         <div class="alert">
@@ -174,7 +174,6 @@ automatically load the appropriate form and display it on the next page.
         <span class="ui-icon ui-icon-circle-check" style="float:left; margin:0 7px 10px 0;"></span>
         Template selected successfully.
     </p>
-    <p>Currently using {{ request.session.exploreCurrentTemplate }}</p>
     <p>To proceed to the next step, click on step 2: <b>'Select Fields'</b></p>
 </div>
 

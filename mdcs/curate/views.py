@@ -193,19 +193,18 @@ def curate_enter_data_downloadxsd(request):
         if 'currentTemplateID' not in request.session:
             return redirect('/curate/select-template')
         else:
-            templateFilename = request.session['currentTemplate']
             templateID = request.session['currentTemplateID']
 
             templateObject = Template.objects.get(pk=ObjectId(templateID))
-
-            print templateObject
+            template_filename = templateObject.filename
+            
             xsdDocData = templateObject.content
 
             xsdEncoded = xsdDocData.encode('utf-8')
             fileObj = StringIO(xsdEncoded)
 
             response = HttpResponse(FileWrapper(fileObj), content_type='application/xml')
-            response['Content-Disposition'] = 'attachment; filename=' + templateFilename
+            response['Content-Disposition'] = 'attachment; filename=' + template_filename
             return response
     else:
         if 'loggedOut' in request.session:

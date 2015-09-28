@@ -145,14 +145,12 @@ def view_data(request):
 def set_current_template(request):
     print 'BEGIN def set_current_template(request)'
 
-    template_filename = request.POST['templateFilename']
     template_id = request.POST['templateID']
 
     # reset global variables
     request.session['xmlString'] = ""
     request.session['formString'] = ""
 
-    request.session['currentTemplate'] = template_filename
     request.session['currentTemplateID'] = template_id
     request.session.modified = True
 
@@ -194,7 +192,6 @@ def set_current_user_template(request):
     request.session.modified = True
 
     templateObject = Template.objects.get(pk=template_id)
-    request.session['currentTemplate'] = templateObject.title
     
     if template_id in MetaSchema.objects.all().values_list('schemaId'):
         meta = MetaSchema.objects.get(schemaId=template_id)

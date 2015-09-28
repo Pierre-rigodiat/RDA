@@ -100,17 +100,13 @@ redirect_explore_tabs = function(){
  */
 setExploreCurrentTemplate = function()
 {
-    var templateName = $(this).parent().parent().children(':first').text();
     var templateID = $(this).parent().parent().children(':first').attr('templateID');
-    var templateFilename = $(this).parent().parent().children(':nth-child(2)').text();
     var tdElement = $(this).parent();
 		
     tdElement.html('<img src="/static/resources/img/ajax-loader.gif" alt="Loading..."/>');
     $('.btn.set-template').off('click');
     
-    console.log('[setExploreCurrentTemplate] Setting '+templateName+' with filename '+templateFilename+' as current template...');
-
-    set_current_template(templateFilename, templateID);
+    set_current_template(templateID);
 
     return false;
 }
@@ -121,13 +117,12 @@ setExploreCurrentTemplate = function()
  * @param templateFilename name of the selected template
  * @param templateID id of the selected template
  */
-set_current_template = function(templateFilename,templateID){
+set_current_template = function(templateID){
     $.ajax({
         url : "/explore/set_current_template",
         type : "POST",
         dataType: "json",
         data : {
-            templateFilename : templateFilename,
             templateID: templateID
         },
         success: function(){

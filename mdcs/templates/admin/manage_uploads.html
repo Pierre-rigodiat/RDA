@@ -126,18 +126,6 @@
   loadUploadManagerHandler();
 </script>
 
-<div id="dialog-copied-message" title="Copy Successful" style="display:none;">
-    <p></p>
-    <p>
-        <span class="ui-icon ui-icon-circle-check" style="float:left; margin:0 7px 10px 0;"></span>
-        {{ objectType }} copied successfully.
-    </p>
-    <p>
-        Currently using <a href="/view-schema/{{ request.session.currentTemplate }}" target="_blank">
-        {{ request.session.currentTemplate }}</a>
-    </p>
-</div>
-
 <div id="dialog-edit-info" title="Edit {{ objectType }} Information" style="display:none;">
 <p>
     <b>{{ objectType }} name:</b> <input type="text" id="edit-name"/><br/>

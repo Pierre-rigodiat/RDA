@@ -112,10 +112,9 @@ class BranchInfo:
 def set_current_template(request):
     print 'BEGIN def setCurrentTemplate(request)'    
 
-    template_filename = request.POST['templateFilename']
     template_id = request.POST['templateID']
 
-    setCurrentTemplate(request, template_filename, template_id)
+    setCurrentTemplate(request, template_id)
 
     print 'END def setCurrentTemplate(request)'
     return HttpResponse(json.dumps({}), content_type='application/javascript')
@@ -133,14 +132,13 @@ def set_current_template(request):
 #                an xsdDocTree for use later.
 #
 ################################################################################
-def setCurrentTemplate(request, template_filename, template_id):
+def setCurrentTemplate(request, template_id):
     print 'BEGIN def setCurrentTemplate(request)'    
 
     # reset global variables
     request.session['formStringExplore'] = ""
     request.session['customFormStringExplore'] = ""
-    
-    request.session['exploreCurrentTemplate'] = template_filename
+
     request.session['exploreCurrentTemplateID'] = template_id
     request.session.modified = True
 
@@ -180,7 +178,6 @@ def set_current_user_template(request):
     request.session.modified = True
 
     templateObject = Template.objects.get(pk=template_id)
-    request.session['exploreCurrentTemplate'] = templateObject.title
     
     if template_id in MetaSchema.objects.all().values_list('schemaId'):
         meta = MetaSchema.objects.get(schemaId=template_id)
@@ -713,7 +710,6 @@ def generate_xsd_tree_for_querying_data(request):
     else:
         xmlDocTreeStr = ""
     
-    templateFilename = request.session['exploreCurrentTemplate']
     templateID = request.session['exploreCurrentTemplateID']
     
     # get the namespaces of the schema and the default prefix
@@ -727,7 +723,7 @@ def generate_xsd_tree_for_querying_data(request):
     request.session['defaultNamespaceExplore'] = defaultNamespace
     
     if xmlDocTreeStr == "":
-        setCurrentTemplate(request,templateFilename, templateID)        
+        setCurrentTemplate(request, templateID)        
     if (formString == ""):
         formString = "<form id=\"dataQueryForm\" name=\"xsdForm\">"
         formString += generateForm(request)        
