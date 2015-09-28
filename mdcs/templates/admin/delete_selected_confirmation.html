@@ -1,4 +1,8 @@
-<!-- 
+{% extends "base.html" %}
+{% load i18n admin_urls %}
+
+{% comment %}
+<!--
 ################################################################################
 #
 # File Name: delete_selected_confirmation.html
@@ -15,14 +19,12 @@
 #
 ################################################################################
 -->
-
-{% extends "base.html" %}
-{% load i18n l10n admin_urls %}
+{% endcomment %}
 
 {% block title %}<h1>Are you sure?</h1>{% endblock %}
 
-{% block menu %}{% include 'admin/menu-admin.html' with active_tab='tab2' %}{% endblock %}
-{% block submenu %}{% include 'admin/submenu-user.html' with active_tab='tab1' %}{% endblock %}
+{% block menu %}{% include 'admin/menu/main.html' with active_tab='tab2' %}{% endblock %}
+{% block submenu %}{% include 'admin/menu/submenu/user.html' with active_tab='tab1' %}{% endblock %}
 
 
 {% block content %}

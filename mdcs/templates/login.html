@@ -1,4 +1,8 @@
-<!-- 
+{% extends "base_featured.html" %}
+{% load staticfiles %}
+
+{% comment %}
+<!--
 ################################################################################
 #
 # File Name: login.html
@@ -15,14 +19,10 @@
 #
 ################################################################################
 -->
-
-{% extends "base.html" %}
-{% load staticfiles %}
+{% endcomment %}
 
 {% block title %}<h1>Login</h1>{% endblock %}
-
 {% block menu %}{% include 'menu.html' with active_tab='login' %}{% endblock %}
-
 
 {% block content %}
 <div style="margin-left:20px;">
@@ -50,7 +50,7 @@ You have successfully logged out
 	</tr>
 	<tr>
 	  <td></td>
-	  <td><button class="btn" type="submit" value="login" style="height:25px;width:50px;">Login</button></td>
+	  <td><button class="btn" type="submit" value="login">Login</button></td>
 	</tr>
 </table>
 
