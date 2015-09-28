@@ -456,9 +456,10 @@ def generateSequence(request, element, xmlTree, namespace, choiceInfo=None, full
                 tagID = "element" + str(nb_html_tags)
                 nb_html_tags += 1
                 request.session['nb_html_tags'] = str(nb_html_tags)
-                if (minOccurs != 1) or (maxOccurs != 1):
-                    form_element = FormElement(html_id=tagID, xml_element=xml_element, xml_xpath=fullPath + '[' + str(x+1) +']').save()
-                    request.session['mapTagID'][tagID] = str(form_element.id)
+#                 if (minOccurs != 1) or (maxOccurs != 1):
+                form_element = FormElement(html_id=tagID, xml_element=xml_element, xml_xpath=fullPath + '[' + str(x+1) +']').save()
+                request.session['mapTagID'][tagID] = str(form_element.id)
+                    
                 # if tag not closed:  <element/>
                 if len(list(element)) > 0 :
                     formString += "<li class='sequence' id='" + str(tagID) + "'>" + "<span class='collapse' style='cursor:pointer;' onclick='showhideCurate(event);'></span>"  + text
@@ -539,7 +540,7 @@ def generateChoice(request, element, xmlTree, namespace, choiceInfo=None, fullPa
     nbOccurrences_data = 1 # nb of occurrences in loaded data or in form being rendered (can be 0)
     xml_element = None
     
-    # multiple roots or no min/maxOccurs
+    # not multiple roots
     if (not isinstance(element,list)):
         # XSD xpath: don't need it when multiple root (can't duplicate a root)
         xsd_xpath = etree.ElementTree(xmlTree).getpath(element)        
@@ -564,8 +565,8 @@ def generateChoice(request, element, xmlTree, namespace, choiceInfo=None, fullPa
             nbOccurrences = nbOccurrences_data    
         
         # if nb of occurrences not set to one, save the element
-        if (minOccurs != 1) or (maxOccurs != 1):
-            xml_element = XMLElement(xsd_xpath=xsd_xpath, nbOccurs=nbOccurrences_data, minOccurs=minOccurs, maxOccurs=maxOccurs).save()
+#         if (minOccurs != 1) or (maxOccurs != 1):
+        xml_element = XMLElement(xsd_xpath=xsd_xpath, nbOccurs=nbOccurrences_data, minOccurs=minOccurs, maxOccurs=maxOccurs).save()
 
 
     if choiceInfo:
@@ -602,9 +603,10 @@ def generateChoice(request, element, xmlTree, namespace, choiceInfo=None, fullPa
         tagID = "element" + str(nb_html_tags)
         nb_html_tags += 1  
         request.session['nb_html_tags'] = str(nb_html_tags)
-        if not isinstance(element,list) and ((minOccurs != 1) or (maxOccurs != 1)):
-            form_element = FormElement(html_id=tagID, xml_element=xml_element, xml_xpath=fullPath + '[' + str(x+1) +']').save()
-            request.session['mapTagID'][tagID] = str(form_element.id)
+#         if not isinstance(element,list) and ((minOccurs != 1) or (maxOccurs != 1)):
+        form_element = FormElement(html_id=tagID, xml_element=xml_element, xml_xpath=fullPath + '[' + str(x+1) +']').save()
+        request.session['mapTagID'][tagID] = str(form_element.id)
+        
         chooseID = nbChoicesID
         chooseIDStr = 'choice' + str(chooseID)
         nbChoicesID += 1
