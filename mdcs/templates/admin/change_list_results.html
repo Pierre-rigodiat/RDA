@@ -1,4 +1,7 @@
-<!-- 
+{% load i18n admin_static %}{% load cycle from future %}
+
+{% comment %}
+<!--
 ################################################################################
 #
 # File Name: change_list_results.html
@@ -15,9 +18,8 @@
 #
 ################################################################################
 -->
+{% endcomment %}
 
-
-{% load i18n admin_static %}{% load cycle from future %}
 {% if result_hidden_fields %}
 <div class="hiddenfields">{# DIV for HTML validation #}
 {% for item in result_hidden_fields %}{{ item }}{% endfor %}

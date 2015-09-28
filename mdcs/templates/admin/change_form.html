@@ -1,4 +1,8 @@
-<!-- 
+{% extends "base_featured.html" %}
+{% load i18n admin_urls admin_static admin_modify %}
+
+{% comment %}
+<!--
 ################################################################################
 #
 # File Name: change_form.html
@@ -15,10 +19,7 @@
 #
 ################################################################################
 -->
-
-{% extends "base.html" %}
-{% load i18n admin_urls admin_static admin_modify %}
-
+{% endcomment %}
 
 {% block extrahead %}{{ block.super }}
 <script type="text/javascript" src="{% url 'admin:jsi18n' %}"></script>
