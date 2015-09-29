@@ -63,68 +63,74 @@ class PeriodicTableMultipleModule(PopupModule):
 
     def _get_display(self, request):
         if 'data' in request.GET:
-            constituents = etree.XML(request.GET['data'])
-            
-            if len(constituents) == 0:
-                return 'No element selected.'
-            else:
-                constituents_disp = '<table class="table table-striped element-list">'
-                constituents_disp += '<thead><tr>'
-                constituents_disp += '<th>Element</th>'
-                constituents_disp += '<th>Quantity</th>'
-                constituents_disp += '<th>Purity</th>'
-                constituents_disp += '<th>Error</th>'
-                constituents_disp += '</tr></thead>'
-                constituents_disp += '<tbody>'
-
-                for constituent in constituents:
-                    constituent_elements = list(constituent)
-                    name = ""
-                    quantity = ""
-                    purity = ""
-                    error = ""
-                    for constituent_element in constituent_elements:
-                        if constituent_element.tag == 'element':
-                            if constituent_element.text is None:
-                                name = ''
-                            else:
-                                name = constituent_element.text
-                        elif constituent_element.tag == 'quantity':
-                            if constituent_element.text is None:
-                                quantity = ''
-                            else:
-                                quantity = constituent_element.text
-                        elif constituent_element.tag == 'purity':
-                            if constituent_element.text is None:
-                                purity = ''
-                            else:
-                                purity = constituent_element.text
-                        elif constituent_element.tag == 'error':
-                            if constituent_element.text is None:
-                                error = ''
-                            else:
-                                error = constituent_element.text
+            if len(request.GET['data']) > 0:
+                constituents = etree.XML(request.GET['data'])
                 
-                    constituents_disp += '<tr>'
-                    constituents_disp += "<td>" + name + "</td>"
-                    constituents_disp += "<td>" + quantity + "</td>"
-                    constituents_disp += "<td>" + purity + "</td>"
-                    constituents_disp += "<td>" + error + "</td>"
-                    constituents_disp += '</tr>'
-
-                constituents_disp += '</tbody>'
-                constituents_disp += '</table>'
-
-            return constituents_disp
+                if len(constituents) == 0:
+                    return 'No element selected.'
+                else:
+                    constituents_disp = '<table class="table table-striped element-list">'
+                    constituents_disp += '<thead><tr>'
+                    constituents_disp += '<th>Element</th>'
+                    constituents_disp += '<th>Quantity</th>'
+                    constituents_disp += '<th>Purity</th>'
+                    constituents_disp += '<th>Error</th>'
+                    constituents_disp += '</tr></thead>'
+                    constituents_disp += '<tbody>'
+    
+                    for constituent in constituents:
+                        constituent_elements = list(constituent)
+                        name = ""
+                        quantity = ""
+                        purity = ""
+                        error = ""
+                        for constituent_element in constituent_elements:
+                            if constituent_element.tag == 'element':
+                                if constituent_element.text is None:
+                                    name = ''
+                                else:
+                                    name = constituent_element.text
+                            elif constituent_element.tag == 'quantity':
+                                if constituent_element.text is None:
+                                    quantity = ''
+                                else:
+                                    quantity = constituent_element.text
+                            elif constituent_element.tag == 'purity':
+                                if constituent_element.text is None:
+                                    purity = ''
+                                else:
+                                    purity = constituent_element.text
+                            elif constituent_element.tag == 'error':
+                                if constituent_element.text is None:
+                                    error = ''
+                                else:
+                                    error = constituent_element.text
+                    
+                        constituents_disp += '<tr>'
+                        constituents_disp += "<td>" + name + "</td>"
+                        constituents_disp += "<td>" + quantity + "</td>"
+                        constituents_disp += "<td>" + purity + "</td>"
+                        constituents_disp += "<td>" + error + "</td>"
+                        constituents_disp += '</tr>'
+    
+                    constituents_disp += '</tbody>'
+                    constituents_disp += '</table>'
+    
+                return constituents_disp
+            else:
+                return 'No element selected.'
         return 'No element selected.'
 
     def _get_result(self, request):
         if 'data' in request.GET:
             result = ''
-            constituents = etree.XML(request.GET['data'])
-            for constituent in constituents:
-                result += etree.tostring(constituent)
-            return result
+            if len(request.GET['data']) > 0:
+                constituents = etree.XML(request.GET['data'])
+                for constituent in constituents:
+                    result += etree.tostring(constituent)
+                return result
+            else:
+                return ''
         return ''
 
     def _post_display(self, request):
