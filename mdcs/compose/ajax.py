@@ -228,7 +228,7 @@ def insert_element_sequence(request):
     
     # get the type to add
     includedType = Type.objects.get(pk=type_id)
-    typeTree = etree.fromstring(includedType.content)
+    typeTree = etree.XML(str(includedType.content))
     elementType = typeTree.find("{http://www.w3.org/2001/XMLSchema}complexType")
     if elementType is None:
         elementType = typeTree.find("{http://www.w3.org/2001/XMLSchema}simpleType")
