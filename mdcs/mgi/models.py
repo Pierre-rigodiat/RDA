@@ -335,7 +335,7 @@ class XMLdata():
 #             xmldata.update({'_id': ObjectId(postID)}, {"$set":data}, upsert=False)
             
     @staticmethod
-    def update_content(postID, content=None):
+    def update_content(postID, content=None, title=None):
         """
             Update the object with the given id
         """
@@ -347,7 +347,7 @@ class XMLdata():
         xmldata = db['xmldata']
                 
         json_content = xmltodict.parse(content, postprocessor=postprocessor)
-        json = {'content': json_content}
+        json = {'content': json_content, 'title': title}
                     
         xmldata.update({'_id': ObjectId(postID)}, {"$set":json}, upsert=False)
     

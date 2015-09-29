@@ -353,10 +353,10 @@ def save_xml_data_to_db(request):
                     form_data = FormData.objects.get(pk=ObjectId(form_data_id))
                     # update data if id is present
                     if form_data.xml_data_id is not None:
-                        XMLdata.update_content(form_data.xml_data_id, xmlString)
+                        XMLdata.update_content(form_data.xml_data_id, xmlString, title=form.data['title'])
                     else:
                         #create new data otherwise
-                        newJSONData = XMLdata(schemaID=templateID, xml=xmlString, title=form_data.name)
+                        newJSONData = XMLdata(schemaID=templateID, xml=xmlString, title=form.data['title'])
                         newJSONData.save()
                     # delete form data
                     try:
