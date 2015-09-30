@@ -2,7 +2,7 @@ from django.apps import AppConfig
 from modules import discover
 
 
-# TODO: loaded two times (not a problem and may not happen in production) 
+# FIXME: loaded two times (not a problem and may not happen in production)
 # see http://stackoverflow.com/a/16111968 
 class ModulesConfig(AppConfig):
     name = 'modules'

@@ -1,8 +1,6 @@
 from modules.models import Module, ModuleError
 from django.conf import settings
 import os
-# from django.template import Context, Template
-# from abc import abstractmethod
 from modules import render_module
 
 RESOURCES_PATH = os.path.join(settings.SITE_ROOT, 'modules/builtin/resources/')
@@ -14,11 +12,6 @@ class InputModule(Module):
     def __init__(self, scripts=list(), styles=list(), label=None, default_value=None):
         scripts = [os.path.join(SCRIPTS_PATH, 'input.js')] + scripts
         Module.__init__(self, scripts=scripts, styles=styles)
-
-        # self.add_scripts([os.path.join(SCRIPTS_PATH, 'input.js')])
-        # self.add_scripts(scripts)
-        #
-        # self.add_styles(styles)
 
         self.label = label
         self.default_value = default_value
@@ -40,11 +33,6 @@ class OptionsModule(Module):
     def __init__(self, scripts=list(), styles=list(), label=None, options=dict()):
         scripts = [os.path.join(SCRIPTS_PATH, 'options.js')] + scripts
         Module.__init__(self, scripts=scripts, styles=styles)
-
-        # self.add_scripts([os.path.join(SCRIPTS_PATH, 'options.js')])
-        # self.add_scripts(scripts)
-        #
-        # self.add_styles(styles)
 
         if len(options) == 0:
             raise ModuleError("'options' variablie is required.")
@@ -71,12 +59,6 @@ class PopupModule(Module):
     def __init__(self, scripts=list(), styles=list(), popup_content=None, button_label='Save'):
         scripts = [os.path.join(SCRIPTS_PATH, 'popup.js')] + scripts
         Module.__init__(self, scripts=scripts, styles=styles)
-
-        # self.add_scripts([os.path.join(SCRIPTS_PATH, 'popup.js')])
-        # self.add_scripts(scripts)
-        #
-        # self.add_styles(styles)
-
         if popup_content is None:
             raise ModuleError("'popup_content' and is required. Cannot instantiate an empty popup")
 
@@ -118,14 +100,6 @@ class SyncInputModule(Module):
 class InputButtonModule(Module):
     def __init__(self, scripts=list(), styles=list(), button_label='Send', label=None, default_value=None):
         Module.__init__(self, scripts=scripts, styles=styles)
-
-        # self.add_scripts([os.path.join(SCRIPTS_PATH, 'async_input.js')])
-        # self.add_scripts(scripts)
-        # self.add_styles(styles)
-
-        # if button_label is None:
-        #     raise ModuleError("'button_label' is required.")
-        # else:
         self.button_label = button_label
         self.label = label
         self.default_value = default_value
@@ -145,12 +119,6 @@ class TextAreaModule(Module):
         scripts = [os.path.join(SCRIPTS_PATH, 'textarea.js')] + scripts
         styles = [os.path.join(STYLES_PATH, 'textarea.css')] + styles
         Module.__init__(self, scripts=scripts, styles=styles)
-
-        # self.add_scripts([os.path.join(SCRIPTS_PATH, 'textarea.js')])
-        # self.add_scripts(scripts)
-
-        # self.add_styles([os.path.join(STYLES_PATH, 'textarea.css')])
-        # self.add_styles(styles)
 
         if label is None:
             raise ModuleError("'label' is required.")
@@ -172,11 +140,6 @@ class AutoCompleteModule(Module):
     def __init__(self, scripts=list(), styles=list(), label=None):
         scripts = [os.path.join(SCRIPTS_PATH, 'autocomplete.js')] + scripts
         Module.__init__(self, scripts=scripts, styles=styles)
-
-        # self.add_scripts([os.path.join(SCRIPTS_PATH, 'autocomplete.js')])
-        # self.add_scripts(scripts)
-        #
-        # self.add_styles(styles)
 
         self.label = label
 

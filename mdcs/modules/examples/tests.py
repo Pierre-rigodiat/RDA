@@ -22,8 +22,7 @@ class TestPositiveInteger(unittest.TestCase):
         self.assertEqual(data['moduleResult'], 1)
         
         request.method = 'POST'
-        request.POST['value'] = '4' 
-        
+        request.POST['value'] = '4'
         
         response = module.view(request)  
         data = json.loads(response.content)      
