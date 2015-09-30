@@ -69,16 +69,6 @@ class Module(object):
         return HttpResponse(html_code, status=HTTP_200_OK)
 
     def _post(self, request):
-        # TODO: do we need to sanitize data received on the server, or just the one we send back?
-        # Sanitzing data from the request
-#         post_data = {}
-        
-#         for key, value in request.POST.items():
-#             if value != '': #this does not allow empty values in the form
-#                 post_data[key] = sanitize(value)
-
-#         request.POST = post_data
-
         template_data = {
             'display': '',
             'result': '',

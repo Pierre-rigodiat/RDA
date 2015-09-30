@@ -74,4 +74,3 @@ class XPathAccessorError(Exception):
         
     def __str__(self):
         return repr(self.message)
-    
