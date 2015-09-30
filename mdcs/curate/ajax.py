@@ -257,6 +257,7 @@ def manageButtons(minOccurs, maxOccurs):
 
     return addButton, deleteButton, nbOccurrences
 
+
 ################################################################################
 # 
 # Function Name: removeAnnotations(element, namespace)
@@ -276,6 +277,17 @@ def removeAnnotations(element, namespace):
             element.remove(element[0])
 
 
+################################################################################
+# 
+# Function Name: get_subnodes_xpath(element, xmlTree, namespace)
+# Inputs:        element - XML element 
+#                xmlTree - xmlTree
+#                namespace - namespace
+# Outputs:       None
+# Exceptions:    None
+# Description:   Do a lookup in subelements to build xpath
+# 
+################################################################################
 def get_subnodes_xpath(element, xmlTree, namespace):
     xpaths = []
     
@@ -299,7 +311,19 @@ def get_subnodes_xpath(element, xmlTree, namespace):
                 xpaths.extend(get_subnodes_xpath(child, xmlTree, namespace))
     return xpaths
 
-# get nodes' xpath, only one level deep. It's not going to every leaves. Only need to know if the node is here.
+
+################################################################################
+# 
+# Function Name: get_subnodes_xpath(element, xmlTree, namespace)
+# Inputs:        element - XML element 
+#                xmlTree - xmlTree
+#                namespace - namespace
+# Outputs:       None
+# Exceptions:    None
+# Description:   Do a lookup in subelements to build xpath.
+#                Get nodes' xpath, only one level deep. It's not going to every leaves. Only need to know if the node is here.
+# 
+################################################################################
 def get_nodes_xpath(elements, xmlTree, namespace):
     xpaths = []
     
@@ -348,12 +372,26 @@ def get_nodes_xpath(elements, xmlTree, namespace):
 #     return determinist
 
 
-# get the number of times the sequence appears in the XML document that we are loading for editing
-# algorithm:
-#     get all the possible nodes that can appear in the sequence
-#     for each node, count how many times it's found in the data
-#     the maximum count is the number of occurrences of the sequence
-# only works if data are determinist enough: means we don't have an element outside the sequence, and the same in the sequence
+
+
+################################################################################
+# 
+# Function Name: lookup_Occurs(element, xmlTree, namespace, fullPath, edit_data_tree)
+# Inputs:        element - XML element 
+#                xmlTree - xmlTree
+#                namespace - namespace
+#                fullPath - current node XPath
+#                edit_data_tree - XML data
+# Outputs:       None
+# Exceptions:    None
+# Description:   Do a lookup in data to get the number of occurences of a sequence or choice without a name (not within a named complextype).
+#                get the number of times the sequence appears in the XML document that we are loading for editing
+#                algorithm:
+#                get all the possible nodes that can appear in the sequence
+#                for each node, count how many times it's found in the data
+#                the maximum count is the number of occurrences of the sequence
+#                only works if data are determinist enough: means we don't have an element outside the sequence, and the same in the sequence
+################################################################################
 def lookup_Occurs(element, xmlTree, namespace, fullPath, edit_data_tree):
     xpaths = get_nodes_xpath(element, xmlTree, namespace)
     maxOccursFound = 0
@@ -393,29 +431,22 @@ def generateSequence(request, element, xmlTree, namespace, choiceInfo=None, full
     
     minOccurs, maxOccurs = manageOccurences(element)
     
-#     if request.session['curate_edit']:
-#         # see if the tree is deterministic enough to set values to edit
-#         is_determinist = isDeterminist(element, xmlTree, namespace)
-    
     if (minOccurs != 1) or (maxOccurs != 1):       
         text = "Sequence"
         addButton, deleteButton, nbOccurrences = manageButtons(minOccurs, maxOccurs)
         # XSD xpath
         xsd_xpath = etree.ElementTree(xmlTree).getpath(element)
 
-#         if edit:            
-#             edit_elements = edit_data_tree.xpath(fullPath)
-
         # save xml element to duplicate sequence
         nbOccurs_to_save = nbOccurrences
         # Update element information to match the number of elements from the XML document
         if request.session['curate_edit']:
             nbOccurrences = nbOccurs_to_save = lookup_Occurs(element, xmlTree, namespace, fullPath, edit_data_tree)
-#             # if the element is absent, nbOccurences is 0
-#             if len(edit_elements) == 0:
-#                 nbOccurs_to_save = 0
 
+        # store the XML element
         xml_element = XMLElement(xsd_xpath=xsd_xpath, nbOccurs=nbOccurs_to_save, minOccurs=minOccurs, maxOccurs=maxOccurs).save()
+        
+        # keeps track of elements to display depending on the selected choice
         if choiceInfo:
             choiceID = choiceInfo.chooseIDStr + "-" + str(choiceInfo.counter)
             if request.session['curate_edit']:
@@ -568,7 +599,7 @@ def generateChoice(request, element, xmlTree, namespace, choiceInfo=None, fullPa
 #         if (minOccurs != 1) or (maxOccurs != 1):
         xml_element = XMLElement(xsd_xpath=xsd_xpath, nbOccurs=nbOccurrences_data, minOccurs=minOccurs, maxOccurs=maxOccurs).save()
 
-
+    # keeps track of elements to display depending on the selected choice
     if choiceInfo:
         choiceID = choiceInfo.chooseIDStr + "-" + str(choiceInfo.counter)
         if request.session['curate_edit']:
@@ -594,11 +625,6 @@ def generateChoice(request, element, xmlTree, namespace, choiceInfo=None, fullPa
     else:
         formString += "<ul>"
     
-#     if edit:
-#         if len(edit_elements) > 0:
-#             nbOccurrences = len(edit_elements)
-    
-
     for x in range (0,int(nbOccurrences)):
         tagID = "element" + str(nb_html_tags)
         nb_html_tags += 1  
@@ -654,10 +680,6 @@ def generateChoice(request, element, xmlTree, namespace, choiceInfo=None, fullPa
     
         formString += "</select>"
         
-#         if request.session['curate_edit'] and nbOccurrences_data == 0:
-#             formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" onclick=\"changeHTMLForm('add',"+str(tagID[7:])+");\"></span>"                                                                             
-#             formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" style=\"display:none;\" onclick=\"changeHTMLForm('remove',"+str(tagID[7:])+");\"></span>"
-#         else:
         if (addButton == True):                                
             formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" onclick=\"changeHTMLForm('add',"+str(tagID[7:])+");\"></span>"
         else:
@@ -694,7 +716,7 @@ def generateChoice(request, element, xmlTree, namespace, choiceInfo=None, fullPa
 #                namespace - namespace
 # Outputs:       HTML string representing a sequence
 # Exceptions:    None
-# Description:   Generates a section of the form that represents an XML choice
+# Description:   Generates a section of the form that represents an XML simple type
 # 
 ################################################################################
 def generateSimpleType(request, element, xmlTree, namespace, fullPath, edit_data_tree=None):
@@ -767,6 +789,18 @@ def generateRestriction(request, element, xmlTree, namespace, fullPath="", edit_
     return formString
 
 
+################################################################################
+# 
+# Function Name: generateExtension(request, element, xmlTree, namespace)
+# Inputs:        request - 
+#                element - XML element
+#                xmlTree - XML Tree
+#                namespace - namespace
+# Outputs:       HTML string representing a sequence
+# Exceptions:    None
+# Description:   Generates a section of the form that represents an XML extension
+# 
+################################################################################
 def generateExtension(request, element, xmlTree, namespace, fullPath="", edit_data_tree=None):
     formString = ""
     
@@ -785,6 +819,7 @@ def generateExtension(request, element, xmlTree, namespace, fullPath="", edit_da
         formString += " <input type='text' value='"+ django.utils.html.escape(defaultValue) +"'/>" 
             
     return formString
+
 
 ################################################################################
 # 
@@ -843,6 +878,18 @@ def generateComplexType(request, element, xmlTree, namespace, fullPath, edit_dat
     return formString 
 
 
+################################################################################
+# 
+# Function Name: generateSimpleContent(request, element, xmlTree, namespace)
+# Inputs:        request - 
+#                element - XML element
+#                xmlTree - XML Tree
+#                namespace - namespace
+# Outputs:       HTML string representing a sequence
+# Exceptions:    None
+# Description:   Generates a section of the form that represents an XML simple content
+# 
+################################################################################
 def generateSimpleContent(request, element, xmlTree, namespace, fullPath, edit_data_tree=None):
     #(annotation?,(restriction|extension))
     
@@ -851,7 +898,7 @@ def generateSimpleContent(request, element, xmlTree, namespace, fullPath, edit_d
     # remove the annotations
     removeAnnotations(element, namespace)
     
-    # generates the sequence
+    # generates the content
     if(len(list(element)) != 0):
         child = element[0]    
         if (child.tag == "{0}restriction".format(namespace)):            
@@ -889,10 +936,6 @@ def generateModule(request, element, namespace, xsd_xpath=None, xml_xpath=None, 
                         reload_data = ''
                 else: # branch: get the whole branch
                     reload_data = etree.tostring(edit_element)
-#                     reload_data = ""
-#                     # only send children of the element and not the root node
-#                     for sub_edit_element in edit_element:
-#                         reload_data += etree.tostring(sub_edit_element) 
             elif element.tag == "{0}attribute".format(namespace):
                 pass
             elif element.tag == "{0}complexType".format(namespace) or element.tag == "{0}simpleType".format(namespace):
@@ -903,11 +946,7 @@ def generateModule(request, element, namespace, xsd_xpath=None, xml_xpath=None, 
                     else:
                         reload_data = ''
                 else: # branch: get the whole branch
-                    reload_data = etree.tostring(edit_element)
-#                     reload_data = ""
-#                     # only send children of the element and not the root node
-#                     for sub_edit_element in edit_element:
-#                         reload_data += etree.tostring(sub_edit_element) 
+                    reload_data = etree.tostring(edit_element) 
     
     # check if a module is set for this element    
     if '{http://mdcs.ns}_mod_mdcs_' in element.attrib:
@@ -917,6 +956,7 @@ def generateModule(request, element, namespace, xsd_xpath=None, xml_xpath=None, 
         if url in Module.objects.all().values_list('url'):
             view = get_module_view(url)
 
+            # build a request to send to the module to initialize it
             mod_req = HttpRequest()
             mod_req.method = 'GET'
             
@@ -924,9 +964,11 @@ def generateModule(request, element, namespace, xsd_xpath=None, xml_xpath=None, 
                 'url': url,
             }
 
+            # if the loaded doc has data, send them to the module for initialization
             if reload_data is not None:
                 mod_req.GET['data'] = reload_data
 
+            # renders the module
             formString += view(mod_req).content
     
     return formString
@@ -1201,6 +1243,17 @@ def getElementType(element, xmlTree, namespace, defaultPrefix):
     return None
 
 
+################################################################################
+# 
+# Function Name: renderButtons(addButton, deleteButton, tagID)
+# Inputs:        addButton - boolean
+#                deleteButton - boolean
+#                tagID - id of the tag to associate buttons to it
+# Outputs:       JSON data 
+# Exceptions:    None
+# Description:   Displays buttons for a duplicable/removable element 
+#
+################################################################################
 def renderButtons(addButton, deleteButton, tagID):
     formString = ""
     
@@ -1378,6 +1431,7 @@ def remove(request):
 
     return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
 
+
 ################################################################################
 # 
 # Function Name: generateElement_absent(request)
@@ -1430,6 +1484,7 @@ def generateElement_absent(request, element, xmlDocTree, form_element):
             formString += generateSimpleType(request, elementType, xmlDocTree, namespace, fullPath=form_element.xml_xpath)
 
     return formString
+
 
 ################################################################################
 # 
@@ -1592,8 +1647,6 @@ def duplicate(request):
     form_element = FormElement.objects.get(id=form_element_id)
     xml_element = form_element.xml_element
     
-
-
     # Check that the element can be duplicated
     if (xml_element.nbOccurs <= xml_element.maxOccurs):   
         nb_html_tags = int(request.session['nb_html_tags'])
@@ -1783,17 +1836,9 @@ def duplicate(request):
                         else:
                             opt_value = opt_label = child.attrib.get('ref')
                             if ':' in opt_label:
-                                opt_label = opt_label.split(':')[1]
-                        # look for active choice when editing                
-                        elementPath = form_element.xml_xpath + '/' + opt_label
+                                opt_label = opt_label.split(':')[1]               
                         
-                        if request.session['curate_edit']:
-                            if len(edit_data_tree.xpath(elementPath)) == 0:    
-                                formString += "<option value='" + opt_value + "'>" + opt_label + "</option></b><br>"
-                            else:
-                                formString += "<option value='" + opt_value + "' selected>" + opt_label + "</option></b><br>"
-                        else:
-                            formString += "<option value='" + opt_value + "'>" + opt_label + "</option></b><br>"
+                        formString += "<option value='" + opt_value + "'>" + opt_label + "</option></b><br>"
                     elif (child.tag == "{0}group".format(namespace)):
                         pass
                     elif (child.tag == "{0}choice".format(namespace)):
