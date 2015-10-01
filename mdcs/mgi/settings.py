@@ -19,7 +19,7 @@
 # Sponsor: National Institute of Standards and Technology (NIST)
 #
 ################################################################################
-#ttest
+
 import os
 
 VERSION = "1.2"

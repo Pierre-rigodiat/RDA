@@ -64,6 +64,7 @@ def getValidityErrorsForMDCS(xmlTree, type):
 
     return errors
 
+
 ################################################################################
 #
 # Function Name: validateXMLDocument(templateID, xmlString)
@@ -120,6 +121,7 @@ def manageNamespace(templateID, xmlString):
             xmlString = etree.tostring(xmlTree)
 
     return xmlString
+
 
 ################################################################################
 #

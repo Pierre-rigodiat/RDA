@@ -229,6 +229,7 @@ def my_profile_change_password(request):
         request.session['next'] = '/my-profile'
         return redirect('/login')
 
+
 ################################################################################
 #
 # Function Name: my_profile_my_forms(request)
