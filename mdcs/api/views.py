@@ -46,7 +46,7 @@ from utils.APIschemaLocator.APIschemaLocator import getSchemaLocation
 from utils.XSDflattenerMDCS.XSDflattenerMDCS import XSDFlattenerMDCS
 from datetime import datetime
 from datetime import timedelta
-
+from mgi import common
 
 ################################################################################
 # 
