@@ -9,7 +9,6 @@ Prerequisites
 
 Python 2.7.2 (brew install python)
 pip (http://pip.readthedocs.org/en/latest) 
-Java 1.7 or higher
 
 Install Python:
 cd ~/
@@ -27,12 +26,6 @@ alias pip=~/usr/local/bin/pip
 
 Any installed package via pip will now go under your '~/usr/local/lib/python2.7/site-packages' directory.
 
-Install Java:
-Make sure Java JDK 1.7 or higher is installed (http://www.oracle.com/technetwork/java/javase/downloads/index.html)
-Debian, Ubuntu, etc.:
-sudo apt-get install openjdk-7-jdk 
-Fedora, Oracle Linux, Red Hat Enterprise Linux, etc.:
-su -c "yum install java-1.7.0-openjdk-devel"
 
 Setup:
 
@@ -54,25 +47,8 @@ workon mgi
 Configure MongoDB:
 Please follow general instructions provided in the file called MongoDB Configuration.
 
-For Apache Jena (in a new terminal):
-
-There are two options, depending on if you have the Java jar file or source code:
-
-Option 1: Compile the source code and run the jar
-cd <PROJECT PATH>/mdcs/rdf
-javac -classpath "lib/*" RdfServer.java SparqlServer.java JenaServers.java
-java -cp ".:lib/*" JenaServers -rdfserver_endpoint 'tcp://127.0.0.1:5555' -sparqlserver_endpoint 'tcp://127.0.0.1:5556' -tdb_directory '/path/to/mdcs/data/ts' -project_uri 'http://www.example.com/'
-
-Option 2: Run the jar
-cd <PROJECT PATH>/mdcs/rdf
-java -cp ".:lib/*" JenaServers -rdfserver_endpoint 'tcp://127.0.0.1:5555' -sparqlserver_endpoint 'tcp://127.0.0.1:5556' -tdb_directory '/path/to/mdcs/data/ts' -project_uri 'http://www.example.com/'
-
-To query the RDF DB:
-sh fuseki-server --loc=/path/to/mdcs/data/ts /ts
-
 Install all required python packages:
 Use the file called Required Python Packages to install them in their good version. If you are using a virtual environment, make sure it is activated before starting the installation. Instructions specific to Linux platform can be found below.
-
 
 For lxml:
 
@@ -96,10 +72,7 @@ To Run the software:
 1)	Run mongodb (if not already running). In a command prompt :
 mongod --config /path/to/mdcs/conf/mongodb.conf
 
-2)	Run Jena. In a command prompt :
-java -cp “lib/*;.” JenaServers -rdfserver_endpoint “tcp://127.0.0.1:5555” -sparqlserver_endpoint “tcp://127.0.0.1:5556” -tdb_directory <path/to/mdcs/data/ts> -project_uri <”http://www.example.com”>
-
-3)	Run the MDCS. In a command prompt :
+2)	Run the MDCS. In a command prompt :
 workon mgi
 cd path/to/mdcs
 python manage.py runserver
