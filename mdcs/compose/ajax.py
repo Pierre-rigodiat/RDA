@@ -44,10 +44,8 @@ import os
 def set_current_template(request):
     print 'BEGIN def setCurrentTemplate(request)'
 
-    template_filename = request.POST['templateFilename']
     template_id = request.POST['templateID']
 
-    request.session['currentComposeTemplate'] = template_filename
     request.session['currentComposeTemplateID'] = template_id
     request.session.modified = True
 
@@ -97,7 +95,6 @@ def set_current_user_template(request):
     else:
         xmlDocData = templateObject.content
     
-    request.session['currentComposeTemplate'] = templateObject.title
     request.session['xmlTemplateCompose'] = xmlDocData
     request.session['newXmlTemplateCompose'] = xmlDocData
 
@@ -158,7 +155,7 @@ def is_new_template(request):
 def download_template(request):
     xmlString = request.session['newXmlTemplateCompose']
     
-    xml2download = XML2Download(xml=xmlString).save()
+    xml2download = XML2Download(xml=xmlString, title='schema.xsd').save()
     xml2downloadID = str(xml2download.id)
     
     response_dict = {'xml2downloadID': xml2downloadID}
@@ -231,7 +228,7 @@ def insert_element_sequence(request):
     
     # get the type to add
     includedType = Type.objects.get(pk=type_id)
-    typeTree = etree.fromstring(includedType.content)
+    typeTree = etree.XML(str(includedType.content))
     elementType = typeTree.find("{http://www.w3.org/2001/XMLSchema}complexType")
     if elementType is None:
         elementType = typeTree.find("{http://www.w3.org/2001/XMLSchema}simpleType")

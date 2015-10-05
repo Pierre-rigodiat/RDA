@@ -1,4 +1,8 @@
-<!-- 
+{% extends "base_featured.html" %}
+{% load staticfiles %}
+
+{% comment %}
+<!--
 ################################################################################
 #
 # File Name: terms-of-use.html
@@ -15,21 +19,18 @@
 #
 ################################################################################
 -->
-
-{% extends "base.html" %}
-{% load staticfiles %}
+{% endcomment %}
 
 {% block title %}<h1><span>Privacy Policy</span></h1>{% endblock %}
-
 {% block menu %}{% include 'menu.html' with active_tab='terms' %}{% endblock %}
 
 {% block content%}
 <div class="left" style="width: 830px">
 	<br/>
 	{% if terms %}
-	{{ terms.content | safe}}
+	    {{ terms.content | safe}}
 	{% else %}
-	<a href="/contact">Contact the administrator</a>
+	    <a href="/contact">Contact the administrator</a>
 	{% endif %}
 </div>
 <div class="clearer">&nbsp;</div>

@@ -1,4 +1,8 @@
-<!-- 
+{% extends "base_featured.html" %}
+{% load staticfiles %}
+
+{% comment %}
+<!--
 ################################################################################
 #
 # File Name: request_new_account.html
@@ -15,17 +19,12 @@
 #
 ################################################################################
 -->
-
-{% extends "base.html" %}
-{% load staticfiles %}
+{% endcomment %}
 
 {% block title %}<h1><span>Request New Account</span></h1>{% endblock %}
-
 {% block menu %}{% include 'menu.html' with active_tab='request' %}{% endblock %}
 
 {% block content%}
-
-
 <div id="main" style="margin-left:20px;">
 Use the following form to request an user account on the Materials Data Curation System.
 	<div>

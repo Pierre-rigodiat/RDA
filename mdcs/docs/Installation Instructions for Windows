@@ -33,26 +33,6 @@ mkvirtualenv mgi
 workon mgi (the prompt will change and become mgi. You should always see the mgi prompt when installing new packages)
 
 
-For Jena:
-
-1)	Be sure that the folder <PROJECT PATH>\mdcs\data exists and contains a folder named ts. Otherwise, in a command prompt:
-cd <PROJECT PATH>\mdcs
-2)	Be sure that a jdk7 is installed on your computer and that it is in your path. In a command prompt, the following command should display the version of javac (1.7.*):
-javac –version
-
-Otherwise:
--	Download a jdk7 from http://www.oracle.com/technetwork/java/javase/downloads/jdk7-downloads-1880260.html 
--	Install the jdk
--	Add C:\Program Files\Java\jdk1.7.0_60\bin to your path.
-
-3)	In a command prompt:
-cd <PROJECT PATH>\mdcs\rdf
-javac -cp “lib/*” RdfServer.java SparqlServer.java JenaServers.java
-java -cp “lib/*;.” JenaServers -rdfserver_endpoint “tcp://127.0.0.1:5555” -sparqlserver_endpoint “tcp://127.0.0.1:5556” -tdb_directory <TS PATH> -project_uri <PROJECT URI>
-
-Command Example: C:\Users\<username>\workspace\MDCS_PROJECT\mdcs\rdf>java -cp "lib/*;." JenaServers -rdfserver_endpoint "tcp://127.0.0.1:5555" -sparqlserver_endpoint "tcp://127.0.0.1:5556"  -tdb_directory "C:\Users\<username>\workspace\MDCS_Project\mdcs\data\ts" -project_uri “http://www.example.com/”
-
-
 Configure MongoDB:
 Please follow general instructions provided in the file called MongoDB Configuration.
 
@@ -95,10 +75,7 @@ To Run the software:
 1)	Run mongodb (if not already running). In a command prompt :
 mongod --config /path/to/mdcs/conf/mongodb.conf
 
-2)	Run Jena. In a command prompt :
-java -cp “lib/*;.” JenaServers -rdfserver_endpoint “tcp://127.0.0.1:5555” -sparqlserver_endpoint “tcp://127.0.0.1:5556” -tdb_directory <path/to/mdcs/data/ts> -project_uri <”http://www.example.com”>
-
-3)	Run the MDCS. In a command prompt :
+2)	Run the MDCS. In a command prompt :
 workon mgi
 cd path/to/mdcs
 python manage.py runserver

@@ -109,10 +109,7 @@ class Instance(Document):
 class QueryResults(Document):
     """Stores results from a query (Query By Example)"""
     results = ListField(required=True) 
-    
-class SparqlQueryResults(Document):
-    """Stores results from a query (SPARQL endpoint)"""
-    results = StringField(required=True)
+
     
 class SavedQuery(Document):
     """Represents a query saved by the user (Query by Example)"""
@@ -127,6 +124,7 @@ class Module(Document):
     url = StringField(required=True)
     view = StringField(required=True)
 
+    
 class XML2Download(Document):
     """Temporarily stores the content of an XML document to download"""
     title = StringField(required=True)
@@ -146,17 +144,6 @@ class Bucket(Document):
     color = StringField(required=True, unique=True)
     types = ListField()
 
-def postprocessor(path, key, value):
-    """Called after XML to JSON transformation"""
-    if(key == "#text"):
-        return key, str(value)
-    try:
-        return key, int(value)
-    except (ValueError, TypeError):
-        try:
-            return key, float(value)
-        except (ValueError, TypeError):
-            return key, value
 
 class XMLElement(Document):
     """
@@ -173,24 +160,35 @@ class FormElement(Document):
         Stores information about an element in the HTML form
     """
     html_id = StringField()
-    xml_xpath = StringField() # pour siblings module
+    xml_xpath = StringField() # for siblings module
     xml_element = ReferenceField(XMLElement)
 
-# good one
+
 class FormData(Document):
-    """
-        Stores data being entered and not yet curated
-    """
+    """Stores data being entered and not yet curated"""
     user = StringField(required=True)
     template = StringField(required=True)
     name = StringField(required=True)
     elements = DictField()
     xml_data = StringField()
+    xml_data_id = StringField()
+
+
+def postprocessor(path, key, value):
+    """Called after XML to JSON transformation"""
+    if(key == "#text"):
+        return key, str(value)
+    try:
+        return key, int(value)
+    except (ValueError, TypeError):
+        try:
+            return key, float(value)
+        except (ValueError, TypeError):
+            return key, value
+
 
 class XMLdata():
-    """                                                                                                                                                                                                                       
-        Wrapper to manage JSON Documents, like mongoengine would have manage them (but with ordered data)                                                                                                                     
-    """
+    """Wrapper to manage JSON Documents, like mongoengine would have manage them (but with ordered data)"""
 
     def __init__(self, schemaID=None, xml=None, json=None, title=""):
         """                                                                                                                                                                                                                   
@@ -218,11 +216,13 @@ class XMLdata():
             # insert the json content after                                                                                                                                                                                       
             self.content['content'] = xmltodict.parse(xml, postprocessor=postprocessor)
 
+
     def save(self):
         """save into mongo db"""
         # insert the content into mongo db                                                                                                                                                                                    
         docID = self.xmldata.insert(self.content)
         return docID
+    
     
     @staticmethod
     def objects():        
@@ -244,6 +244,7 @@ class XMLdata():
             results.append(result)
         return results
     
+    
     @staticmethod
     def find(params):        
         """
@@ -264,6 +265,7 @@ class XMLdata():
             results.append(result)
         return results
     
+    
     @staticmethod
     def executeQuery(query):
         """queries mongo db and returns results data"""
@@ -280,6 +282,7 @@ class XMLdata():
         for result in cursor:
             queryResults.append(result['content'])
         return queryResults
+    
     
     @staticmethod
     def executeQueryFullResult(query):
@@ -298,6 +301,7 @@ class XMLdata():
             results.append(result)
         return results
 
+
     @staticmethod
     def get(postID):
         """
@@ -309,7 +313,8 @@ class XMLdata():
         db = client['mgi']
         # get the xmldata collection
         xmldata = db['xmldata']
-        return xmldata.find_one({'_id': ObjectId(postID)})
+        return xmldata.find_one({'_id': ObjectId(postID)}, as_class = OrderedDict)
+    
     
     @staticmethod
     def delete(postID):
@@ -324,8 +329,32 @@ class XMLdata():
         xmldata = db['xmldata']
         xmldata.remove({'_id': ObjectId(postID)})
     
+    # TODO: to be tested
+#     @staticmethod
+#     def update(postID, json=None, xml=None):
+#         """
+#             Update the object with the given id
+#         """
+#         # create a connection
+#         client = MongoClient(MONGODB_URI)
+#         # connect to the db 'mgi'
+#         db = client['mgi']
+#         # get the xmldata collection
+#         xmldata = db['xmldata']
+#         
+#         data = None
+#         if (json is not None):                                                                                                                                                                                       
+#             data = json
+#             if '_id' in json:
+#                 del json['_id']
+#         else:            
+#             data = xmltodict.parse(xml, postprocessor=postprocessor)
+#             
+#         if data is not None:
+#             xmldata.update({'_id': ObjectId(postID)}, {"$set":data}, upsert=False)
+            
     @staticmethod
-    def update(postID, json):
+    def update_content(postID, content=None, title=None):
         """
             Update the object with the given id
         """
@@ -335,8 +364,10 @@ class XMLdata():
         db = client['mgi']
         # get the xmldata collection
         xmldata = db['xmldata']
-        if '_id' in json:
-            del json['_id']
+                
+        json_content = xmltodict.parse(content, postprocessor=postprocessor)
+        json = {'content': json_content, 'title': title}
+                    
         xmldata.update({'_id': ObjectId(postID)}, {"$set":json}, upsert=False)
     
         

@@ -1,11 +1,8 @@
 from models import PositiveIntegerInputModule, ExampleAutoCompleteModule, ChemicalElementMappingModule, \
-    ListToGraphInputModule, CitationRefIdModule, SiblingsAccessorModule, FlagModule
+    ListToGraphInputModule, SiblingsAccessorModule, FlagModule
 
 def positive_integer(request):
     return PositiveIntegerInputModule().render(request)
-
-def citation(request):
-    return CitationRefIdModule().render(request)
 
 def example_autocomplete(request):
     return ExampleAutoCompleteModule().render(request)
@@ -21,4 +18,3 @@ def siblings_accessor(request):
 
 def flag(request):
     return FlagModule().render(request)
-

@@ -24,7 +24,7 @@ class BLOBHoster(object):
         self.BLOB_HOSTER_PSWD = BLOB_HOSTER_PSWD
     
     @abstractmethod
-    def save(self, blob, filename, contentType):
+    def save(self, blob, filename):
         # data is str or binaries
         # returns an URI
         raise NotImplementedError("This method is not implemented.")

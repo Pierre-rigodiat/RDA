@@ -31,10 +31,11 @@
   margin-left: -1px; 
   left: 1px;  
   height:23px; 
-  font-size: 12px;
+  font-size: 11px;
   width:104px;
   position: relative;
   font-weight: normal;
+  text-align: center
 }
 #explore-tabs .tab [type=radio] {
   display: none;   

@@ -1,4 +1,8 @@
-<!-- 
+{% extends "base_featured.html" %}
+{% load staticfiles %}
+
+{% comment %}
+<!--
 ################################################################################
 #
 # File Name: manage_uploads.html
@@ -15,8 +19,7 @@
 #
 ################################################################################
 -->
-{% extends "base.html" %}
-{% load staticfiles %}
+{% endcomment %}
 
 {% block extrastyle %}
 <link rel="stylesheet" type="text/css" href="{% static 'resources/css/bucket.css' %}" media="screen" />
@@ -25,15 +28,15 @@
 
 {% block title %}<h1>{{ objectType }} Manager</h1>{% endblock %}
 
-{% block menu %}{% include 'admin/menu-admin.html' with active_tab='tab3' %}{% endblock %}
+{% block menu %}{% include 'admin/menu/main.html' with active_tab='tab3' %}{% endblock %}
 {% block submenu %}
-{% if objectType == "Template" %}
-	{% include 'admin/submenu-template.html' with active_tab='tab1' %}
-{% elif objectType == "Type" %}
-	{% include 'admin/submenu-template.html' with active_tab='tab2' %}
-{% else %}
-	{% include 'admin/submenu-template.html' with active_tab='tab3' %}
-{% endif %}
+    {% if objectType == "Template" %}
+        {% include 'admin/menu/submenu/template.html' with active_tab='tab1' %}
+    {% elif objectType == "Type" %}
+        {% include 'admin/menu/submenu/template.html' with active_tab='tab2' %}
+    {% else %}
+        {% include 'admin/menu/submenu/template.html' with active_tab='tab3' %}
+    {% endif %}
 {% endblock %}
 
 
@@ -49,72 +52,80 @@
 {% if objects %}
 
 <table class="data-table">
-  <tr>
-  	<th>{{ objectType }} name</th>
-    <th>Filename</th>
-    {% if objectType == "Type" %}
-    <th>Buckets</th>
-    {% endif %}
-    <th>Status</th>
-    <th>Actions</th>
-  </tr>
+    <tr>
+        <th>{{ objectType }} name</th>
+        <th>Filename</th>
+        {% if objectType == "Type" %}
+            <th>Buckets</th>
+        {% endif %}
+        <th>Status</th>
+        <th>Actions</th>
+    </tr>
+    {% for object, isDeleted in objects.items %}
+        {% cycle 'even' '' as rowcolors silent %}
+        <tr class="{{ rowcolors }}">
+            <td>{{ object.title }}</td>
+            <td>{{ object.filename }}</td>
 
-{% for object, isDeleted in objects.items %}
-  {% cycle 'even' '' as rowcolors silent %}
-  <tr class="{{ rowcolors }}">
-    <td>{{ object.title }}</td>
-    <td>{{ object.filename }}</td>
-    {% if objectType == "Type" %}
-		<td>
-		{% for bucket in buckets %}		
-			{% if object.typeVersion|stringformat:"s" in bucket.types %}
-				<span class="bucket" style="background:{{ bucket.color}};" bucketid="{{bucket.id}}">{{ bucket.label }}</span>			
-			{% endif %}		
-		{% endfor %}
-		</td>
-	{% endif %}
-	
-{% if isDeleted == True %}     
-	<td><span style="color:red;">Deleted</span></td>
-    <td>
-    <div class="icon legend retrieve" objectType="{{ objectType }}" objectid="{{ object.id }}">Restore {{ objectType }} </div>
-{% else %}
+            {% if objectType == "Type" %}
+                <td>
+                {% for bucket in buckets %}
+                    {% if object.typeVersion|stringformat:"s" in bucket.types %}
+                        <span class="bucket" style="background:{{ bucket.color}};" bucketid="{{bucket.id}}">
+                            {{ bucket.label }}
+                        </span>
+                    {% endif %}
+                {% endfor %}
+                </td>
+            {% endif %}
 
-    <td><span style="color:green;">Registered</span></td>
-    <td>
-    <div class="icon legend version" objectType="{{ objectType }}" objectid="{{ object.id }}">Versions</div>
-    <div class="icon legend edit" objectType="{{ objectType }}" objectid="{{ object.id }}">Edit</div>    
-    <div class="icon legend delete" objectType="{{ objectType }}" objectid="{{ object.id }}">Delete</div>
-{% endif %}
- 	{% if objectType == "Template" %}
-    <div class="icon legend modules" objectType="{{ objectType }}" objectid="{{ object.id }}">Modules</div>
-    <div class="icon legend exporters" objectType="{{ objectType }}" objectid="{{ object.id }}">Exporters</div>
-    {% endif %}
-	</td>
-  </tr>
-
-{% endfor %}
-
+            {% if isDeleted == True %}
+                <td><span style="color:red;">Deleted</span></td>
+                <td>
+                    <span class="icon legend retrieve" objectType="{{ objectType }}" objectid="{{ object.id }}">
+                        Restore {{ objectType }}
+                    </span>
+                </td>
+            {% else %}
+                <td><span style="color:green;">Registered</span></td>
+                <td>
+                    <span class="icon legend version" objectType="{{ objectType }}" objectid="{{ object.id }}">
+                        Versions
+                    </span>
+                    <span class="icon legend edit" objectType="{{ objectType }}" objectid="{{ object.id }}">
+                        Edit
+                    </span>
+                    <span class="icon legend delete" objectType="{{ objectType }}" objectid="{{ object.id }}">
+                        Delete
+                    </span>
+                    {% if objectType == "Template" %}
+                        <span class="icon legend modules" objectType="{{ objectType }}" objectid="{{ object.id }}">
+                            Modules
+                        </span>
+			<span class="icon legend exporters" objectType="{{ objectType }}" objectid="{{ object.id }}">
+			    Exporters
+			</span>
+                    {% endif %}
+                </td>
+            {% endif %}
+        </tr>
+    {% endfor %}
 </table>
 
 {% else %}
-<br>
-There are currently no {{ objectType }} uploaded.  Please click "Upload {{ objectType }}" to the right to add {{ objectType }}.
-<br>
-<br>
-{% endif %}
-
-
+<div class="empty-table">
+    There are currently no {{ objectType }} uploaded. Please click "Upload {{ objectType }}" to the right to add
+    {{ objectType }}.
 </div>
+{% endif %}
 
 {% if objectType == "Type" %}
 <div class="right-side">
-<span class="ctx_menu">
-<div class="icon legend bluelabel buckets long">Manage Buckets</div>
-</span>
+    <span class="ctx_menu">
+        <div class="icon legend bluelabel buckets long">Manage Buckets</div>
+    </span>
 </div>
 {% endif %}
-
 {% endblock %}  
 
 {% block extra %}
@@ -123,31 +134,20 @@ There are currently no {{ objectType }} uploaded.  Please click "Upload {{ objec
   loadUploadManagerHandler();
 </script>
 
-<div id="dialog-copied-message" title="Copy Successful" style="display:none;">
-<p></p>
-  <p>
-    <span class="ui-icon ui-icon-circle-check" style="float:left; margin:0 7px 10px 0;"></span>
-    {{ objectType }} copied successfully. 
-  </p>
-  <p>
-    Currently using <a href="/view-schema/{{ request.session.currentTemplate }}" target="_new">{{ request.session.currentTemplate }}</a>
-  </p>
-</div>
-
 <div id="dialog-edit-info" title="Edit {{ objectType }} Information" style="display:none;">
 <p>
-<b>{{ objectType }} name:</b> <input type="text" id="edit-name"/><br/>
-<b>Filename:</b> <input type="text" id="edit-filename"/><br/>
-{% if objectType == "Type" %}
-<b>Buckets:</b>
-<div id="model_select_edit_buckets">
-	<select multiple="multiple" id="select_edit_buckets">
-		{% for bucket in buckets %}
-			<option bucketid="{{ bucket.id }}">{{ bucket.label }}</option>
-		{% endfor %}
-	</select>
-</div>
-{% endif %}
+    <b>{{ objectType }} name:</b> <input type="text" id="edit-name"/><br/>
+    <b>Filename:</b> <input type="text" id="edit-filename"/><br/>
+    {% if objectType == "Type" %}
+    <b>Buckets:</b>
+    <span id="model_select_edit_buckets">
+        <select multiple="multiple" id="select_edit_buckets">
+            {% for bucket in buckets %}
+                <option bucketid="{{ bucket.id }}">{{ bucket.label }}</option>
+            {% endfor %}
+        </select>
+    </span>
+    {% endif %}
 </p>
 </div>
 
@@ -276,11 +276,11 @@ There are currently no {{ objectType }} uploaded.  Please click "Upload {{ objec
 
 <div id="dialog-upload-error" title="Upload Error" style="display:none;">
 <p></p>
-  <p>
+  <div>
     <span class="ui-icon ui-icon-circle-close" style="float:left; margin:0 7px 10px 0;"></span>
     <p>No file selected.</p>
     <p>Please select a file before trying to upload a schema.</p>
-  </p>
+  </div>
 </div>
 <script>
 // Check for the various File API support.
@@ -326,9 +326,9 @@ if (window.File && window.FileReader && window.FileList && window.Blob) {
 	</div>
 	
 	<div class="right-side">
-		<span class="ctx_menu">
-    		<div class="icon legend long add buckets" onclick="addBucket()">Add a Bucket</div>
-		</span>
+		<div class="ctx_menu">
+    		<span class="icon legend long add buckets" onclick="addBucket()">Add a Bucket</span>
+		</div>
 	</div>
 </div>
 
@@ -338,8 +338,8 @@ if (window.File && window.FileReader && window.FileList && window.Blob) {
 	
 	<table>
 		<tr>
-			<td>Label</th>
-			<td><input type="text" id="label_bucket"/></th>
+			<th>Label</th>
+			<th><input type="text" id="label_bucket"/></th>
 		</tr>
 	</table>
 	<div id="errorAddBucket"></div>

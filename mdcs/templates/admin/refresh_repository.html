@@ -1,4 +1,8 @@
-<!-- 
+{% extends "base_featured.html" %}
+{% load staticfiles %}
+
+{% comment %}
+<!--
 ################################################################################
 #
 # File Name: refresh_repository.html
@@ -15,19 +19,17 @@
 #
 ################################################################################
 -->
-
-{% extends "base.html" %}
-{% load staticfiles %}
+{% endcomment %}
 
 {% block title %}<h1>Refresh Instance Token</h1>{% endblock %}
-
-{% block menu %}{% include 'admin/menu-admin.html' with active_tab='tab4' %}{% endblock %}
+{% block menu %}{% include 'admin/menu/main.html' with active_tab='tab4' %}{% endblock %}
 
 {% block content %}
-Use the following form to refresh the token of the selected instance.
+<p>
+    Use the following form to refresh the token of the selected instance.
+</p>
 
 <div>
-<br/>
 <form action="/admin/repositories/refresh-repository/" method="post">
  	{% csrf_token %}
     {{ form }}
@@ -38,8 +40,8 @@ Use the following form to refresh the token of the selected instance.
     <input type="submit" class="btn" name="action" value="Refresh"/>
 </form>
 </div>
-
 {% endblock %}
+
 {% block extra %}
 <script src="{% static 'inc/controllers/js/fed_of_queries.js' %}"></script>
 {% endblock %}

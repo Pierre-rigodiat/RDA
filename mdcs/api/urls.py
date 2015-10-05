@@ -28,7 +28,6 @@ urlpatterns = patterns(
     url(r'^explore/select$', 'explore_detail', name='explore_detail'),
     url(r'^explore/delete$', 'explore_delete', name='explore_delete'),
     url(r'^explore/query-by-example$', 'query_by_example', name='query_by_example'),
-    url(r'^explore/sparql-query$', 'sparql_query', name='sparql_query'),
     url(r'^templates/add$','add_schema', name='add_schema'),
     url(r'^templates/select$','select_schema'),
     url(r'^templates/delete$','delete_schema'),

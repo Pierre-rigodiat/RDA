@@ -47,3 +47,6 @@ ADVANCED_OPTIONS = (
 class AdvancedOptionsForm(forms.Form):
     options = forms.MultipleChoiceField(label='', required=False, widget=forms.CheckboxSelectMultiple, choices=ADVANCED_OPTIONS)
     
+class SaveDataForm(forms.Form):
+    title = forms.CharField(label='Save As', min_length=1, max_length=100, required=True)
+    

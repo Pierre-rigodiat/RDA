@@ -316,27 +316,28 @@ generateXMLString = function(elementObj)
     var children = $(elementObj).children();
     for(var i = 0; i < children.length; i++) {
 	    if (children[i].tagName == "UL") {
+	    	// don't generate branches not chosen
 	    	if (! $(children[i]).hasClass("notchosen") ) {
 	    		xmlString += generateXMLString(children[i]);
 	    	}
 		} else if (children[i].tagName == "LI") {
+			// don't generate removed branches/leaves
 			if (! $(children[i]).hasClass("removed") ) {
-				
-				if($(children[i]).hasClass("choice") ) {
+				if($(children[i]).hasClass("choice") ) { // the node is a choice
 					xmlString += generateXMLString(children[i]);
-				}else if ($(children[i]).hasClass("sequence") ) {
+				}else if ($(children[i]).hasClass("sequence") ) { // the node is a sequence
 					xmlString += generateXMLString(children[i]);
-				}else if ($(children[i]).hasClass("element") ){
+				}else if ($(children[i]).hasClass("element") ){ // the node is an element
 					var textNode = $(children[i]).contents().filter(function(){
 				        return this.nodeType === 3;
-				    }).text();
+				    }).text().trim();
 					
 					// get attributes
 					var attributes = ""
 					$(children[i]).children("ul").children("li.attribute:not(.removed)").each(function(){
 						var text = $(this).contents().filter(function(){
 					        return this.nodeType === 3;
-					    }).text();
+					    }).text().trim();
 					
 						attrChildren = $(this).children();					
  
@@ -344,9 +345,11 @@ generateXMLString = function(elementObj)
 						for(var j = 0; j < attrChildren.length; j++) {
 							if (attrChildren[j].tagName == "SELECT") {
 							    // get the index of the selected option 
-							    var idx = attrChildren[j].selectedIndex; 
-							    // get the value of the selected option 		    
-							    value = attrChildren[j].options[idx].value; 						    	    
+							    var idx = attrChildren[j].selectedIndex;
+							    if (idx >= 0){
+								    // get the value of the selected option 		    
+								    value = attrChildren[j].options[idx].value; 
+							    }
 							} else if (attrChildren[j].tagName == "INPUT") {
 								console.log(attrChildren[j]);
 								value = attrChildren[j].value;
@@ -354,312 +357,42 @@ generateXMLString = function(elementObj)
 						}						
 						attributes += " " + text + "='" + value + "'";
 					});
+					// build opening tag with potential attributes
 					xmlString += "<" + textNode + attributes + ">";
-					
+					// build the content of the element
 				    xmlString += generateXMLString(children[i]);
+				    // build the closing tag
 				    xmlString += "</" + textNode + ">";
-					
 				}			    	
 			}
-		}
-		else if (children[i].tagName == "DIV" && $(children[i]).hasClass("module") ){
-			xmlString += $($(children[i]).parent()).find(".moduleResult").html();		
-		} 	
-		else if (children[i].tagName == "SELECT") {
+		} else if (children[i].tagName == "DIV" && $(children[i]).hasClass("module") ){
+			xmlString += $($(children[i]).parent()).find(".moduleResult").text();		
+		} else if (children[i].tagName == "SELECT") {
 		    // get the index of the selected option 
 		    var idx = children[i].selectedIndex; 
-		    // get the value of the selected option 		    
-		    var which = children[i].options[idx].value; 
-		    	    
-		    if (children[i].getAttribute("id") != null && children[i].getAttribute("id").indexOf("choice") > -1){
-		    	xmlString += generateXMLString(children[i]);
-		    }else {
-		    	xmlString += which;
-		    }	    
-		} else if (children[i].tagName == "INPUT") {
+		    
+		    if (idx >= 0){
+			    // get the value of the selected option 		    
+			    var which = children[i].options[idx].value;
+			    
+			    if (children[i].getAttribute("id") != null && children[i].getAttribute("id").indexOf("choice") > -1){
+				    // choice
+			    	xmlString += generateXMLString(children[i]);
+			    }else { 
+			    	// enumeration
+			    	xmlString += which;
+			    }
+		    }
+		} else if (children[i].tagName == "INPUT") { // the node is an input
 		    xmlString += children[i].value;
 		}  else {
 		    xmlString += generateXMLString(children[i]);
 		}
     }
 
-    return xmlString
+    return xmlString    
 }
 
-
-/**
- * Display the periodic table to select a chemical element
- * @param divElement
- */
-selectElement = function(divElement)
-{   
-	console.log('BEGIN [selectElement('+divElement+')]');
-    document.getElementById('chosenElement').innerHTML = "Chosen Element: <b>None</b>";
-
-    $(function() {
-	$("#dialog-select-element" ).dialog({ width: 700 });
-        $("#dialog-select-element" ).dialog({
-            modal: true,
-            buttons: {
-		Select: function() {
-		    		doSelectElement(divElement);
-                    $( this ).dialog( "close" );
-                },
-		Cancel: function() {
-                    $( this ).dialog( "close" );
-                }
-	    }
-        });
-    });
-	console.log('END [selectElement('+divElement+')]');
-}
-
-
-/**
- * Display the selected element
- * @param element
- */
-chooseElement = function(element)
-{
-    console.log('BEGIN [chooseElement(' + element + ')]');
-
-    document.getElementById('chosenElement').innerHTML = "Chosen Element: <b id=\"selectedElement\">" + element + "</b>";
-
-    console.log('END [chooseElement(' + element + ')]');
-}
-
-
-/**
- * Save the selected element into the form
- * @param divElement
- */
-doSelectElement = function(divElement)
-{
-    console.log('BEGIN [doSelectElement(' + divElement + ')]');
-
-    var selectedElement = document.getElementById('selectedElement').innerHTML;
-    console.log('[selected Element(' + selectedElement + ')]');
-    divElement.onclick = function onclick(event) { selectElement(this); }	
-	$($(divElement).parent()).children(".moduleDisplay").html("Current Selection: "+selectedElement);
-	//$($(divElement).parent()).children(".moduleResult").html("<element>" + selectedElement + "</element>");
-	$($(divElement).parent()).children(".moduleResult").html(selectedElement);
-	
-    // reset for next selection
-    document.getElementById('chosenElement').innerHTML = "Chosen Element: <b>None</b>";
-
-    console.log('END [doSelectElement(' + divElement + ')]');
-}
-
-
-/**
- * Display the periodic table to select multiple chemical elements
- * @param divElement
- */
-selectMultipleElements = function(divElement)
-{
-  console.log('BEGIN [selectElement(' + divElement + ')]');
-  
-  
-  if ($($(divElement).parent()).children(".moduleDisplay").html() != ""){	  
-	  var newTable = "<table>";
-	  newTable += "<tr><th>Element</th><th>Quantity</th><th>Purity</th><th>Error</th><th>Actions</th></tr>";
-	  console.log($($(divElement).parent()).children(".moduleDisplay").children("table").children("tbody").children())
-	  $($(divElement).parent()).children(".moduleDisplay").children("table").children("tbody").children().each(function(i,tr){
-			// not the headers
-			if (i != 0){  
-				console.log(i,tr)				
-				newTable += "<tr>";
-				newTable += "<td style='text-align:center'>"  + $($(tr).children()[0]).html() + "</td>";
-				newTable += "<td><input type='text' value='"  + $($(tr).children()[1]).html() + "'/></td>"; 
-				newTable += "<td><input type='text' value='"  + $($(tr).children()[2]).html() + "'/></td>";
-				newTable += "<td><input type='text' value='"  + $($(tr).children()[3]).html() + "'/></td>";
-				newTable += "<td><span class='btn' onclick='removeMultipleElement(this)'>Remove</span></td>"
-				newTable += "</tr>";
-			}
-	  });
-	  
-	  newTable += "</table>"  
-	  $("#tableChosenElements").html(newTable);
-  }
-  
-  $(function() {
-      $("#dialog-select-element-multiple" ).dialog({
-          modal: true,
-          width: 700,
-          height: 550,
-          buttons: {
-        	  Save: function() {
-		    		doSelectMultipleElements(divElement);
-                  $( this ).dialog( "close" );
-              },
-              Cancel: function() {
-                  $( this ).dialog( "close" );
-              }
-	    }
-      });
-  });
-	
-  console.log('END [selectElement]');
-}
-
-
-/**
- * Display the selected elements
- * @param element
- */
-chooseMultipleElements = function(element)
-{
-  console.log('BEGIN [chooseElement(' + element + ')]');
-  
-  // if 2 rows: headers + 1 row
-  if ($("#tableChosenElements").children("tbody").children().length == 2){
-  	// if the second row contains 1 cel: no selected elements
-  	if ($($("#tableChosenElements").children("tbody").children()[1]).children().length == 1){
-  		$("#tableChosenElements").children("tbody").children()[1].remove();
-  	}
-  }
-  $("#tableChosenElements").children("tbody").append("<tr><td>"+ element +"</td><td><input type='text'/></td><td><input type='text'/></td><td><input type='text'/></td><td><span class='btn' onclick='removeMultipleElement(this)'>Remove</span></td></tr>");
-  
-
-  console.log('END [chooseElement(' + element + ')]');
-}
-
-
-/**
- * Save the selected elements into the form
- * @param divElement
- */
-doSelectMultipleElements = function(divElement)
-{
-console.log('BEGIN [selectElement(' + divElement + ')]');
-
-
-var xmlResult = "";
-var displayedResults = "";
-//if the second row contains 1 cel: no selected elements
-if (!($("#tableChosenElements").children("tbody").children().length == 2 && $($("#tableChosenElements").children("tbody").children()[1]).children().length == 1)){
-	displayedResults = "<table>"
-	displayedResults += "<tr><th>Element</th><th>Quantity</th><th>Purity</th><th>Error</th></tr>"
-	
-	$("#tableChosenElements").children("tbody").children().each(function(i,tr){
-		// not the headers
-		if (i != 0){  			
-			xmlResult += "<constituent>";
-			xmlResult += "<element>"  + $($(tr).children()[0]).html() + "</element>";
-			xmlResult += "<quantity>"  + $($(tr).children()[1]).children().val() + "</quantity>"; 
-			xmlResult += "<purity>"  + $($(tr).children()[2]).children().val() + "</purity>";
-			xmlResult += "<error>"  + $($(tr).children()[3]).children().val() + "</error>";
-			xmlResult += "</constituent>";
-			
-			displayedResults += "<tr>";
-			displayedResults += "<td style='text-align:center'>"  + $($(tr).children()[0]).html() + "</td>";
-			displayedResults += "<td style='text-align:center'>"  + $($(tr).children()[1]).children().val() + "</td>"; 
-			displayedResults += "<td style='text-align:center'>"  + $($(tr).children()[2]).children().val() + "</td>";
-			displayedResults += "<td style='text-align:center'>"  + $($(tr).children()[3]).children().val() + "</td>";
-			displayedResults += "</tr>";
-		}
-	})
-	displayedResults += "</table>"
-}
-
-$($(divElement).parent()).children(".moduleDisplay").html(displayedResults);
-$($(divElement).parent()).children(".moduleResult").html(xmlResult);
-
-// reset for next selection
-document.getElementById('chosenMultipleElements').innerHTML = "<table id='tableChosenElements'>" +
-															"<tr><th>Element</th><th>Quantity</th><th>Purity</th><th>Error</th><th>Actions</th></tr>" +
-															"<tr><td colspan='5' style='text-align:center; color:red;'>No selected elements.</td></tr>" +
-													"</table>" 
-console.log('END [selectElement(' + divElement + ')]');
-}
-
-
-/**
- * Remove an element from the selection
- */
-removeMultipleElement = function(removeButton){
-	console.log('BEGIN [removeMultipleElement)]');
-	
-	$($($(removeButton).parent()).parent()).remove();
-	
-	if ($("#tableChosenElements").children("tbody").children().length == 1){
-		document.getElementById('chosenMultipleElements').innerHTML = "<table id='tableChosenElements'>" +
-		"<tr><th>Element</th><th>Quantity</th><th>Purity</th><th>Error</th><th>Actions</th></tr>" +
-		"<tr><td colspan='5' style='text-align:center; color:red;'>No selected elements.</td></tr>" +
-		"</table>" 
-	}
-	
-	console.log('END [removeMultipleElement]');
-}
-
-
-/**
- * Select an Excel Spreadseet. Show the dialog box.
- * @param hdf5File
- * @param divElement
- */
-selectHDF5File = function(hdf5File,divElement)
-{	
-    $(function() {
-        //$("#dialog-select-hdf5file" ).dialog({
-    	$('<div id="dialog-select-hdf5file" title="Upload Spreadsheet File" style="display:none;">'+
-    	'<iframe src="/curate/select-hdf5file">'+
-    	'</iframe>'+	
-    	'</div>' ).dialog({
-            modal: true,
-            buttons: {
-            	Done: function() {
-            		doSelectHDF5File(divElement);
-                    $( this ).dialog( "close" );
-                },
-                Cancel: function() {
-                    $( this ).dialog( "close" );
-                }
-	    }
-        });
-    });
-	
-    console.log('END [selectElement]');
-}
-
-var moduleTag;
-/**
- * Select an Excel Spreadseet. 
- * @param divElement
- */
-doSelectHDF5File = function(divElement)
-{
-	moduleTag = $(divElement).parent();
-    get_hdf5_string();
-}
-
-
-/**
- * AJAX call, gets XML String from spreadsheet
- */
-get_hdf5_string = function(){
-    $.ajax({
-        url : "/curate/get_hdf5_string",
-        type : "GET",
-        dataType: "json",
-        success: function(data){
-            getHDF5StringCallback(data.spreadsheetXML);
-        }
-    });
-}
-
-
-/**
- * Insert the Spreadsheet information in the form.
- * @param data
- */
-getHDF5StringCallback = function(spreadsheetXML)
-{
-	if (spreadsheetXML != ""){
-		moduleTag.children(".moduleResult").html(spreadsheetXML);
-		moduleTag.children(".moduleDisplay").html("Spreadsheet successfully loaded.");
-	}
-}
 
 
 /**
@@ -708,8 +441,7 @@ displayTemplateSelectedDialog = function()
     	  [
            {
                text: "Start",
-               click: function() {
-            	   
+               click: function() {            	   
             	   if (validateStartCurate()){
 	            	   var formData = new FormData($( "#form_start" )[0]);
 	            	   $.ajax({
@@ -1003,82 +735,55 @@ saveToRepository = function()
 
     $(function() {
         $( "#dialog-save-data-message" ).dialog({
-            modal: true,
-            buttons: {
-            	Save: function() {
-					$( this ).dialog( "close" );
-					doSaveToRepository();
-                },
-				Cancel: function() {
-                    $( this ).dialog( "close" );
-                }
-            }
+          modal: true,
+          buttons:
+        	  [
+               {
+                   text: "Save",
+                   click: function() {            	   
+	            	   var formData = new FormData($( "#form_save" )[0]);
+	            	   $.ajax({
+	            		   	url : "/curate/save_xml_data_to_db",
+	            	        type: 'POST',
+	            	        data: formData,
+	            	        cache: false,
+	            	        contentType: false,
+	            	        processData: false,
+	            	        async:false,
+	            	        success : function(data) {
+	            	        	$( "#dialog-save-data-message" ).dialog( "close" );
+	            	        	XMLDataSaved();
+	            	        },
+	            	        error:function(data){
+            	                $("#saveErrorMessage").html(data.responseText);             
+	            	        },
+	            	    });
+                   }
+               }
+              ]
         });
-    });
+      });
+    
 	
     console.log('END [saveToRepository]');
 }
 
-
-/**
- * Save XML data to repository. 
- */
-doSaveToRepository = function()
-{
-    console.log('BEGIN [doSaveToRepository]');
-
-    save_xml_data_to_db();
-
-    console.log('END [doSaveToRepository]');
-}
-
-
-/**
- * AJAX call, saves data to database
- * @param saveAs title of the document
- */
-save_xml_data_to_db = function(saveAs){
-    $.ajax({
-        url : "/curate/save_xml_data_to_db",
-        type : "POST",
-        dataType: "json",
-        data:{
-        },
-        success : function(data) {
-            if ('errors' in data){
-                $("#saveErrorMessage").html(data.errors);
-                $(function() {
-                    $( "#dialog-save-error-message" ).dialog({
-                        modal: true,
-                        buttons: {
-                        	Ok: function() {
-                                $( this ).dialog( "close" );
-                            }
-                        }
-                    });
-                });                
-            }else{
-                savedXMLDataToDB();
-            }
-        }
-    });
-}
-
-
 /**
  * Saved XML data to DB message.
  */
-savedXMLDataToDB = function()
+XMLDataSaved = function()
 {
     console.log('BEGIN [savedXMLDataToDB]');
 
     $(function() {
         $( "#dialog-saved-message" ).dialog({
             modal: true,
+            close: function(){
+            	window.location = "/curate"
+            },
             buttons: {
-		Ok: function() {
-                    $( this ).dialog( "close" );
-                    window.location = "/curate"
+            	Ok: function() {
+                    $( this ).dialog( "close" );                    
                 }
 	    }
         });
@@ -1127,9 +832,10 @@ changeHTMLForm = function(operation, tagID)
 
     if (operation == 'add') {
         // the element has to be created
-        if ($("#element"+tagID).children("ul").length == 0 &&
-        $("#element"+tagID).children("input").length == 0 &&
-        $("#element"+tagID).children("select").length == 0){
+        if ($("#element"+tagID).children("ul").length == 0 && // complex element not generated
+        $("#element"+tagID).children("input").length == 0 && // input element not generated
+        $("#element"+tagID).children("select").length == 0 && // enumeration not generated 
+        $("#element"+tagID).children("div.module").length == 0){ // module not generated
             generate(tagID, "element");
         }
         else{
@@ -1169,6 +875,8 @@ generate = function(tagID, tag){
             $("#element" + tagID).children('select').prop("disabled",false);
             $("#element" + tagID).removeClass("removed");
             $("#element" + tagID).children("ul").show(500);
+
+            initModules();
         }
     });
 }
@@ -1188,12 +896,15 @@ duplicate = function(tagID){
         success: function(data){
         	if ('occurs' in data){
         		if (data.occurs == "zero"){
-                $('#add' + data.id).attr('style', data.styleAdd);
-                $('#remove' + data.id).attr('style','');
-                $("#" + data.tagID).prop("disabled",false);
-                $("#" + data.tagID).children('select').prop("disabled",false);
-                $("#" + data.tagID).removeClass("removed");
-                $("#" + data.tagID).children("ul").attr('style','');
+		            $('#add' + data.id).attr('style', data.styleAdd);
+		            $('#remove' + data.id).attr('style','');
+		            $("#" + data.tagID).prop("disabled",false);
+		            $("#" + data.tagID).children('select').prop("disabled",false);
+		            $("#" + data.tagID).removeClass("removed");
+		            $("#" + data.tagID).children("ul").attr('style','');
+		            if($("#element"+tagID).attr("class").split(" ").indexOf("choice") > -1 && $("#element"+tagID).children("ul").children().length == 0){ // choice element not generated
+		            	changeChoice($("#element"+tagID).children("select")[0]);
+		            }
 	            }
 	            else{
 	            	var xsdForm = $("#xsdForm").html();
@@ -1287,17 +998,13 @@ $.ajax({
  */
 setCurrentTemplate = function()
 {
-	var templateName = $(this).parent().parent().children(':first').text();
 	var templateID = $(this).parent().parent().children(':first').attr('templateID');
-	var templateFilename = $(this).parent().parent().children(':nth-child(2)').text();
 	var tdElement = $(this).parent();
 		
 	tdElement.html('<img src="/static/resources/img/ajax-loader.gif" alt="Loading..."/>');
 	$('.btn.set-template').off('click');
 	
-	console.log('[setCurrentTemplate] Setting '+templateName+' with filename '+templateFilename+' as current template...');
-
-    set_current_template(templateFilename,templateID);
+    set_current_template(templateID);
 
     return false;
 }
@@ -1308,13 +1015,12 @@ setCurrentTemplate = function()
  * @param templateFilename name of the selected template
  * @param templateID id of the selected template
  */
-set_current_template = function(templateFilename,templateID){
+set_current_template = function(templateID){
     $.ajax({
         url : "/curate/set_current_template",
         type : "POST",
         dataType: "json",
         data : {
-            templateFilename : templateFilename,
             templateID: templateID
         },
         success: function(){
@@ -1427,3 +1133,17 @@ setCurrentTemplateCallback = function()
     console.log('END [setCurrentTemplateCallback]');
 }
 
+
+deleteForm = function(formID){
+	$.ajax({
+        url : "/curate/delete-form?id=" + formID,
+        type : "GET",
+        dataType: "json",
+        success: function(data){
+            $('#my-forms').load(document.URL +  ' #my-forms', function() {}); 
+        },
+        error:function(data){
+        	$('#my-forms').load(document.URL +  ' #my-forms', function() {}); 
+        }
+    });
+}
