@@ -37,6 +37,18 @@ class Message(Document):
     name = StringField(max_length=100)
     email = EmailField()
     content = StringField()
+
+class Exporter(Document, EmbeddedDocument):
+    """Represents an exporter"""
+    name = StringField(required=True, unique=True)
+    url = StringField(required=True)
+
+class ExporterXslt(Document, EmbeddedDocument):
+    """Represents an exporter"""
+    title = StringField(required=True, unique=True)
+    filename = StringField(required=True)
+    content = StringField(required=True)
+    available_for_all = BooleanField(required=True)
     
 class Template(Document):
     """Represents an XML schema template that defines the structure of data for curation"""
@@ -48,6 +60,8 @@ class Template(Document):
     hash = StringField(required=True)
     user = StringField(required=False)
     dependencies = ListField(StringField())
+    exporters = ListField(ReferenceField(Exporter, reverse_delete_rule=PULL))
+    XSLTFiles = ListField(ReferenceField(ExporterXslt, reverse_delete_rule=PULL))
     
 class TemplateVersion(Document):
     """Manages versions of templates"""
@@ -112,7 +126,7 @@ class Module(Document):
     name = StringField(required=True)
     url = StringField(required=True)
     view = StringField(required=True)
-    
+
 class XML2Download(Document):
     """Temporarily stores the content of an XML document to download"""
     title = StringField(required=True)

@@ -48,9 +48,11 @@
 <div class="toolbar">
 	<div class="btn-group pull-right">
     	<span class="btn" onclick="backToQuery();" style="text-decoration:none">Back to Query</span>
-    	<span class="btn" onclick="downloadResults()"><i class="icon-arrow-down"></i> Download</span>
+		<span class="btn" onclick="exportRes();"><i class="icon-arrow-down"></i> Export</span>
+		<span class="btn" onclick="backToQuery();"><i class="icon-eye-open"></i> Render</span>
   	</div>
 	<br/><br/>
+	<div id="btn_errors" style="color:red;font-style: italic;text-align: right;"></div>
 </div>
 <div id="results"></div>
 {% endblock %}	
@@ -80,7 +82,21 @@
 </div>
 {% endblock %}
 
-{% block extra %}		
+{% block extra %}
+
+<div id="dialog-message" title="Export" style="display:none;">
+	<p>
+	  Please Choose one of the following export format:
+	</p>
+	<p>
+		<form id="form_start" action="/explore/start_export" method="post">
+			{% csrf_token %}
+			<div id="form_start_current"></div>
+		</form>
+	</p>
+	<div id="form_start_errors" style="color:red;">
+	</div>
+</div>
 
 
 <div id="dialog-delete-result" title="Delete Document" style="display:none;">

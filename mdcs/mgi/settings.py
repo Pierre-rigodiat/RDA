@@ -117,6 +117,7 @@ INSTALLED_APPS = (
     'mongoengine.django.mongo_auth',
     'admin_mdcs',
     'curate',
+    'exporter',
     'explore',
     'compose',
     'modules',

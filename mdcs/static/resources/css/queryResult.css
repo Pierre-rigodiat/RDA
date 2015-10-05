@@ -24,6 +24,13 @@
 	background-color: #F8F8F8 ;
 }
 
+#detail_results .xmlResult
+{
+	overflow:auto;
+	cursor:text;
+	background-color: #F8F8F8 ;
+}
+
 #results .sparqlResult
 {
 	width:610px;

@@ -853,37 +853,6 @@ clearFields = function()
     console.log('END [clearFields]');
 }
 
-
-/**
- * Download all results
- */
-downloadResults = function()
-{
-	console.log('BEGIN [downloadResults]');
-		
-	download_results();
-	
-	console.log('END [downloadResults]');
-}
-
-
-/**
- * AJAX call, redirects to download view
- */
-download_results = function(){
-    $.ajax({
-        url : "/explore/download_results",
-        type : "GET",
-        dataType: "json",
-        success: function(data){
-        	if ('savedResultsID' in data){
-        		window.location = "/explore/results/download-results?id=" + data.savedResultsID;
-        	}
-        }
-    });
-}
-
-
 /**
  * Display errors
  */
@@ -1403,4 +1372,123 @@ delete_result = function(result_id){
 			   $("#" + result_id).remove();
 	    }
     });
+}
+
+/**
+ * Show/hide
+ * @param event
+ */
+showhide = function(event){
+	console.log('BEGIN [showhide]');
+	button = event.target
+	parent = $(event.target).parent()
+	$(parent.children(".tree")).toggle("blind",500);
+	if ($(button).attr("class") == "expand"){
+		$(button).attr("class","collapse");
+	}else{
+		$(button).attr("class","expand");
+	}
+
+	console.log('END [showhide]');
+}
+
+/**
+ * Comes back to the query, keeping the current criterias
+ */
+backToResults = function()
+{
+	console.log('BEGIN [backToResults]');
+
+	window.history.back()
+
+	console.log('END [backToResults]');
+}
+
+
+/**
+* Export files
+*/
+exportRes = function() {
+
+	console.log('BEGIN [downloadSelectedResults]');
+
+    $("#btn_errors").html("")
+    var existOne = false;
+    // Need to Set input values explicitiy before sending innerHTML for save
+    var elems = document.getElementById("results").getElementsByTagName("input")
+    var listId = [];
+    for(var i = 0; i < elems.length; i++) {
+    	if(elems[i].checked == true)
+    	{
+    	    existOne = true;
+    	    listId.push(elems[i].getAttribute("result_id"));
+    	}
+    }
+
+    if(existOne > 0)
+        displayExportSelectedDialog(listId);
+     else
+        $("#btn_errors").html("Please check results to export");
+
+	console.log('END [downloadSelectedResults]');
+}
+
+
+/**
+ * Show a dialog when a result is selected
+ */
+displayExportSelectedDialog = function(listId)
+{
+ $(function() {
+    $( "#dialog-message" ).dialog({
+      modal: true,
+      buttons:
+    	  [
+           {
+               text: "Export",
+               click: function() {
+                    if(validateExport())
+                    {
+                       $(form_start).submit();
+                       $( this ).dialog( "close" );
+                    }
+               }
+           }
+          ]
+    });
+    load_start_form(listId);
+  });
+}
+
+
+load_start_form = function(listId){
+	$.ajax({
+        url : "/explore/start_export",
+        type : "GET",
+        dataType: "json",
+        data : {
+            listId : listId,
+        },
+        success: function(data){
+            $("#form_start_errors").html("");
+            $("#form_start_current").html(data.template);
+        }
+    });
+}
+
+validateExport = function(){
+	errors = ""
+	// check if an option has been selected
+	selected_option = $( "#form_start" ).find("input:checkbox[name='my_exporters']:checked").val()
+	selected_option_XSLT = $( "#form_start" ).find("input:checkbox[name='my_xslts']:checked").val()
+	if (selected_option == undefined && selected_option_XSLT == undefined){
+		errors = "No option selected. Please check export format."
+	}
+
+	if (errors != ""){
+		$("#form_start_errors").html(errors);
+		return (false);
+	}else{
+		return (true)
+	}
 }
