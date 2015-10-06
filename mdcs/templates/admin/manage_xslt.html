@@ -1,9 +1,12 @@
-<!-- 
+{% extends "base_featured.html" %}
+{% load staticfiles %}
+{% comment %}
+<!--
 ################################################################################
 #
-# File Name: manage_versions.html
+# File Name: website.html
 # Application: templates/admin
-# Description: 
+# Description:
 #
 # Author: Sharief Youssef
 #         sharief.youssef@nist.gov
@@ -11,16 +14,11 @@
 #		  Guillaume SOUSA AMARAL
 #		  guillaume.sousa@nist.gov
 #
-#		  Pierre Francois RIGODIAT
-#		  pierre-francois.rigodiat@nist.gov
-#
 # Sponsor: National Institute of Standards and Technology (NIST)
 #
 ################################################################################
 -->
-{% extends "base.html" %}
-{% load staticfiles %}
-
+{% endcomment %}
 {% block extrastyle %}
 <link rel="stylesheet" type="text/css" href="{% static 'resources/css/style.add.css' %}" media="screen" />
 {% endblock %}
@@ -30,16 +28,8 @@
 
 {% block title %}<h1> XSLT Manager</h1>{% endblock %}
 
-{% block menu %}{% include 'admin/menu-admin.html' with active_tab='tab3' %}{% endblock %}
-{% block submenu %}
-{% if objectType == "Template" %}
-	{% include 'admin/submenu-template.html' with active_tab='tab1' %}
-{% elif objectType == "Type" %}
-	{% include 'admin/submenu-template.html' with active_tab='tab2' %}
-{% else %}
-	{% include 'admin/submenu-template.html' with active_tab='tab3' %}
-{% endif %}
-{% endblock %}
+{% block menu %}{% include 'admin/menu/main.html' with active_tab='tab3' %}{% endblock %}
+{% block submenu %}{% include 'admin/menu/submenu/template.html' with active_tab='tab3' %}{% endblock %}
 
 {% block content%}
 

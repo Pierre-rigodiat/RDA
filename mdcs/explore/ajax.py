@@ -945,7 +945,7 @@ def get_results_by_instance(request):
             instanceResults = XMLdata.executeQueryFullResult(query)
             if len(instanceResults) > 0:
                 for instanceResult in instanceResults:
-                    results.append({'title':instanceResult['title'], 'content':xmltodict.unparse(instanceResult['content'])})
+                    results.append({'title':instanceResult['title'], 'content':xmltodict.unparse(instanceResult['content']),'id':str(instanceResult['_id'])})
                     xsltPath = os.path.join(settings.SITE_ROOT, 'static/resources/xsl/xml2html.xsl')
                     xslt = etree.parse(xsltPath)
                     transform = etree.XSLT(xslt)
@@ -980,7 +980,7 @@ def get_results_by_instance(request):
             instanceResults = json.loads(result,object_pairs_hook=OrderedDict)
             if len(instanceResults) > 0:
                 for instanceResult in instanceResults:
-                    results.append({'title':instanceResult['title'], 'content':instanceResult['content']})                  
+                    results.append({'title':instanceResult['title'], 'content':instanceResult['content'],'id':str(instanceResult['_id'])})
                     xsltPath = os.path.join(settings.SITE_ROOT, 'static/resources/xsl/xml2html.xsl')
                     xslt = etree.parse(xsltPath)
                     transform = etree.XSLT(xslt)
