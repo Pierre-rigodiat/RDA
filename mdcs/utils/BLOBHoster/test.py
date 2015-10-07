@@ -34,7 +34,7 @@ class TestGridFS(unittest.TestCase):
         out = self.blobHoster.get(handle)
           
         with open("Penguins.out.jpg", "wb") as imageFile:
-            imageFile.write(out)             
+            out.write(imageFile)             
          
         self.assertEqual(len(self.blobHoster.list()), 1)   
         self.blobHoster.delete(handle)

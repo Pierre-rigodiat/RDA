@@ -47,6 +47,9 @@ from utils.XSDflattenerMDCS.XSDflattenerMDCS import XSDFlattenerMDCS
 from datetime import datetime
 from datetime import timedelta
 from mgi import common
+from mgi.settings import BLOB_HOSTER, BLOB_HOSTER_URI, BLOB_HOSTER_USER, BLOB_HOSTER_PSWD, MDCS_URI
+from utils.BLOBHoster.BLOBHosterFactory import BLOBHosterFactory
+
 
 ################################################################################
 # 
@@ -1893,43 +1896,56 @@ def get_dependency(request):
             return Response(content, status=status.HTTP_400_BAD_REQUEST)
 
 
-
-from mgi import settings as mgi_settings
-import gridfs
 ################################################################################
 # 
-# Function Name: get_blob(request)
+# Function Name: blob(request)
 # Inputs:        request - 
 # Outputs:        
 # Exceptions:    None
 # Description:   Get a file from its handle
 # 
 ################################################################################   
-@api_view(['GET'])
-def get_blob(request):
+@api_view(['GET', 'POST'])
+def blob(request):
     """
-    GET http://localhost/rest/get-blob?id=id
-    """  
-    # TODO: can change to the hash
-    blob_id = request.QUERY_PARAMS.get('id', None)
+    GET    http://localhost/rest/blob?id=id
     
-    if blob_id is None:
-        content={'message':'No id provided.'}
-        return Response(content, status=status.HTTP_400_BAD_REQUEST)
-    else:
-        try:
-            client = MongoClient(mgi_settings.BLOB_HOSTER_URI)    
-            db = client['mgi']
-            fs = gridfs.GridFS(db)
-            if fs.exists(ObjectId(blob_id)):
-                blob = fs.get(ObjectId(blob_id))
-                response = HttpResponse(blob)
-                response['Content-Disposition'] = 'attachment; filename=' + str(blob.filename)
-                return response
-            else:
+    POST   http://localhost/rest/blob
+    POST data: {'blob': FILE}
+    """  
+    
+    if request.method == 'GET':
+        blob_id = request.QUERY_PARAMS.get('id', None)
+        if blob_id is None:
+            content={'message':'No id provided.'}
+            return Response(content, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            try:
+                bh_factory = BLOBHosterFactory(BLOB_HOSTER, BLOB_HOSTER_URI, BLOB_HOSTER_USER, BLOB_HOSTER_PSWD, MDCS_URI)
+                blob_hoster = bh_factory.createBLOBHoster()
+                try:
+                    blob = blob_hoster.get(request.get_full_path())
+                    response = HttpResponse(blob)
+                    response['Content-Disposition'] = 'attachment; filename=' + str(blob.filename)
+                    return response
+                except:
+                    content={'message':'No file could be found with the given id.'}
+                    return Response(content, status=status.HTTP_400_BAD_REQUEST)                            
+            except: 
                 content={'message':'No file could be found with the given id.'}
                 return Response(content, status=status.HTTP_400_BAD_REQUEST)
-        except: 
-            content={'message':'No file could be found with the given id.'}
+
+    elif request.method == 'POST':
+        try:
+            blob = request.FILES.get('blob')            
+            bh_factory = BLOBHosterFactory(BLOB_HOSTER, BLOB_HOSTER_URI, BLOB_HOSTER_USER, BLOB_HOSTER_PSWD, MDCS_URI)
+            blob_hoster = bh_factory.createBLOBHoster()
+            handle = blob_hoster.save(blob=blob, filename=blob.name)
+            content={'handle': handle}
+            return Response(content, status=status.HTTP_201_CREATED)
+        except:
+            content={'message':'blob parameter not found'}
             return Response(content, status=status.HTTP_400_BAD_REQUEST)
+    
+    
         

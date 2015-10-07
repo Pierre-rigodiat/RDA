@@ -46,8 +46,9 @@ class GridFSHoster(BLOBHoster):
             except:
                 raise ValueError('The handle is not well formed.') 
             if self.fs.exists(ObjectId(blob_id)):
-                with self.fs.get(ObjectId(blob_id)) as blob:
-                    return blob.read()
+                return self.fs.get(ObjectId(blob_id))
+#                 with self.fs.get(ObjectId(blob_id)) as blob:
+#                     return blob.read()
             else:
                 raise ValueError('id not found')
         except:
@@ -56,13 +57,13 @@ class GridFSHoster(BLOBHoster):
     def list(self):
         handles = []
         for blob in self.fs.find():
-            handle = self.uri + 'rest/get-blob?id=' + str(blob._id)
+            handle = self.uri + 'rest/blob?id=' + str(blob._id)
             handles.append(handle)
         return handles
         
     def save(self, blob, filename=None):            
         blob_id = self.fs.put(blob, filename=filename)
-        handle = self.uri + 'rest/get-blob?id=' + str(blob_id)
+        handle = self.uri + 'rest/blob?id=' + str(blob_id)
         return handle    
     
     def delete(self, handle):

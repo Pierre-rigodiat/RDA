@@ -52,7 +52,7 @@ urlpatterns = patterns(
     url(r'^users/add$','add_user'),
     url(r'^users/delete$','delete_user'),
     url(r'^users/update$','update_user'),
-    url(r'^get-blob$','get_blob'),    
+    url(r'^blob$','blob'),    
     url('', include([url(r'^ping$', ping)], namespace='ping')),
     url(r'^.*$', include([url(r'', docs)], namespace='error_redirect')),    
 )
