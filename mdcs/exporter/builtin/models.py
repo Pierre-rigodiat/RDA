@@ -23,7 +23,7 @@ class XSLTExporter(Exporter):
                 xml = result['content']
                 if xml != "":
                     try:
-                        dom = etree.fromstring(str(xml.replace('<?xml version="1.0" encoding="utf-8"?>\n',""))) ##TODO regarder nouveau code .XML()
+                        dom = etree.fromstring(str(xml.replace('<?xml version="1.0" encoding="utf-8"?>\n',"")))
                         newdom = self.transform(dom)
                         resultsTransform.append({'title':result['title'], 'content': str(newdom)})
                     except etree.ParseError as e:

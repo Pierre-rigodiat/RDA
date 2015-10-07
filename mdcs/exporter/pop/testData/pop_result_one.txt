@@ -1,0 +1,27 @@
+$$  POP File
+$$ CREATED 10-28-2014
+$$
+$$
+TABLE
+CREATE_NEW_EQ @@,0
+CHANGE_ST COMP Ti, Ho ENT
+CHANGE_STATUS PHASE phase1 =ENT 1
+S-COND  N=1 P=101325
+S-COND  w(Ti)=3, w(Ho)=4
+S-COND  T=@
+EXPERIMENT DT (phase1,Ru)=
+TABLE VALUES
+Temp (K)		Sample ID (undefined)		Al impurity diffusion coeffcient in Mg (m2/s)		Average Diffusion Coefficient (m2/s)		Error  +/-  (m2/s)		
+573.0		1_1		2.53e-17		2.7e-17		3.4e-18		
+573.0		1_2		2.94e-17		2.7e-17		3.4e-18		
+573.0		1_3		2.14e-17		2.7e-17		3.4e-18		
+573.0		2_1		2.81e-17		2.7e-17		3.4e-18		
+573.0		2_2		2.96e-17		2.7e-17		3.4e-18		
+623.0		1_1		6.1e-16		5.6e-16		1e-16		
+623.0		2_1		5.2e-16		5.6e-16		1e-16		
+673.0		1_1		3.59e-15		3.3e-15		9.6e-16		
+673.0		1_2		4.01e-15		3.3e-15		9.6e-16		
+673.0		2_1		2.18e-15		3.3e-15		9.6e-16		
+TABLE END
+
+

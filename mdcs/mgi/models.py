@@ -42,6 +42,7 @@ class Exporter(Document, EmbeddedDocument):
     """Represents an exporter"""
     name = StringField(required=True, unique=True)
     url = StringField(required=True)
+    available_for_all = BooleanField(required=True)
 
 class ExporterXslt(Document, EmbeddedDocument):
     """Represents an exporter"""

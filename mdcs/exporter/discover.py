@@ -1,6 +1,6 @@
 import urls
 import re
-from mgi.models import Exporter
+from mgi.models import Exporter, Template
 from mongoengine.errors import ValidationError
 from modules.exceptions import ModuleError
 from django.core.urlresolvers import RegexURLResolver, RegexURLPattern
@@ -24,7 +24,8 @@ def __assemble_endpoint_data__(pattern, prefix='', filter_path=None):
     return {
         'url': path,
         'view': pattern._callback_str,
-        'name': pattern.name,
+        'name': pattern.default_args['name'],
+        'available_for_all': pattern.default_args['available_for_all'],
     }
 
 
@@ -60,22 +61,38 @@ def __flatten_patterns_tree__(patterns, prefix='', filter_path=None):
 
 def discover_exporter():
     patterns = __flatten_patterns_tree__(urls.urlpatterns)
-    list_add_or_update_exporters = []
+    list_add_exporters = []
+    list_update_exporters = []
 
     try:
         for pattern in patterns:
             try:
                 #We try to instanciate the exporter to be sure that it will worked. If not, just print an error in the python console
                 instance = get_exporter(pattern['view'])
-                Exporter.objects.filter(name=pattern['name']).update(set__url=pattern['view'], set__name=pattern['name'], upsert=True)
-                list_add_or_update_exporters.append(pattern['name'])
+                currentExporter = None
+                try:
+                    currentExporter = Exporter.objects.get(name=pattern['name'])
+                except Exception, e:
+                    pass
+
+                update = Exporter.objects.filter(name=pattern['name']).update(set__url=pattern['view'], set__name=pattern['name'], set__available_for_all = pattern['available_for_all'], upsert=True, full_result=True)
+                if update['updatedExisting'] == False:
+                    list_add_exporters.append(pattern['name'])
+                    #Check if this new exporter is available for all. If yes, we add this exporter by default for all templates
+                    if pattern['available_for_all'] == True:
+                        Template.objects.all().update(push__exporters=update[u'upserted'])
+                else:
+                    if pattern['available_for_all'] == True and currentExporter.available_for_all == False:
+                        Template.objects(exporters__nin=[currentExporter]).update(push__exporters=currentExporter)
+
+                    list_update_exporters.append(pattern['name'])
 
             except Exception, e:
                 print('ERROR : Impossible to load the following exporter, class not found : ' + pattern['view'])
 
         #If there is an old exporter, we delete it.
         list_exporters = Exporter.objects.all().values_list("name")
-        list_to_delete = list(set(list_exporters) - set(list_add_or_update_exporters))
+        list_to_delete = list(set(list_exporters) - set(list_add_exporters) - set(list_update_exporters))
         if len(list_to_delete) > 0:
             Exporter.objects(name__in=list_to_delete).delete()
 
