@@ -119,8 +119,6 @@ def request_new_account(request):
 ################################################################################
 def logout_view(request):
     logout(request)
-    if 'loggedOut' in request.session:
-        request.session['loggedOut'] = 'true'
     request.session['next'] = '/'
     return redirect('/login')
 
@@ -142,8 +140,6 @@ def my_profile(request):
         })
         return HttpResponse(template.render(context))
     else:
-        if 'loggedOut' in request.session:
-            del request.session['loggedOut']
         request.session['next'] = '/my-profile'
         return redirect('/login')
 
@@ -188,8 +184,6 @@ def my_profile_edit(request):
         return render(request, 'my_profile_edit.html', {'form':form})
     
     else:
-        if 'loggedOut' in request.session:
-            del request.session['loggedOut']
         request.session['next'] = '/my-profile'
         return redirect('/login')
 
@@ -224,8 +218,6 @@ def my_profile_change_password(request):
         return render(request, 'my_profile_change_password.html', {'form':form})
     
     else:
-        if 'loggedOut' in request.session:
-            del request.session['loggedOut']
         request.session['next'] = '/my-profile'
         return redirect('/login')
 
@@ -244,8 +236,6 @@ def my_profile_my_forms(request):
         forms = FormData.objects(user=str(request.user.id))
         return render(request, 'my_profile_my_forms.html', {'forms':forms})    
     else:
-        if 'loggedOut' in request.session:
-            del request.session['loggedOut']
         request.session['next'] = '/my-profile'
         return redirect('/login')
 

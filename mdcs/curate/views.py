@@ -65,8 +65,6 @@ def index(request):
 
         return HttpResponse(template.render(context))
     else:
-        if 'loggedOut' in request.session:
-            del request.session['loggedOut']
         request.session['next'] = '/curate'
         return redirect('/login')
 
@@ -89,8 +87,6 @@ def curate_select_template(request):
         })
         return HttpResponse(template.render(context))
     else:
-        if 'loggedOut' in request.session:
-            del request.session['loggedOut']
         request.session['next'] = '/curate/select-template'
         return redirect('/login')
 
@@ -141,8 +137,6 @@ def curate_enter_data(request):
                     return redirect('/curate/select-template')
             return HttpResponse(template.render(context))
     else:
-        if 'loggedOut' in request.session:
-            del request.session['loggedOut']
         request.session['next'] = request.get_full_path()
         return redirect('/login')
 
@@ -172,8 +166,6 @@ def curate_view_data(request):
         else:
             return HttpResponse(template.render(context))
     else:
-        if 'loggedOut' in request.session:
-            del request.session['loggedOut']
         request.session['next'] = '/curate/view-data'
         return redirect('/login')
 
@@ -206,8 +198,6 @@ def curate_enter_data_downloadxsd(request):
             response['Content-Disposition'] = 'attachment; filename=' + template_filename
             return response
     else:
-        if 'loggedOut' in request.session:
-            del request.session['loggedOut']
         request.session['next'] = '/curate'
         return redirect('/login')
 
@@ -244,8 +234,6 @@ def curate_view_data_downloadxml(request):
             else:
                 return redirect('/')
     else:
-        if 'loggedOut' in request.session:
-            del request.session['loggedOut']
         request.session['next'] = '/curate'
         return redirect('/login')
 
@@ -320,8 +308,6 @@ def start_curate(request):
                 
                 return HttpResponse(json.dumps({'template': template.render(context)}), content_type='application/javascript')           
     else:
-        if 'loggedOut' in request.session:
-            del request.session['loggedOut']
         request.session['next'] = '/curate'
         return redirect('/login')
 

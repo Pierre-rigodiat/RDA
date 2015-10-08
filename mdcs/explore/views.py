@@ -55,8 +55,6 @@ def index(request):
         })
         return HttpResponse(template.render(context))
     else:
-        if 'loggedOut' in request.session:
-            del request.session['loggedOut']
         request.session['next'] = '/explore'
         return redirect('/login')
 
@@ -78,8 +76,6 @@ def explore_select_template(request):
         })
         return HttpResponse(template.render(context))
     else:
-        if 'loggedOut' in request.session:
-            del request.session['loggedOut']
         request.session['next'] = '/curate/select-template'
         return redirect('/login')
 
@@ -103,8 +99,6 @@ def explore_customize_template(request):
         else:
             return HttpResponse(template.render(context))
     else:
-        if 'loggedOut' in request.session:
-            del request.session['loggedOut']
         request.session['next'] = '/explore/customize-template'
         return redirect('/login')
 
@@ -146,8 +140,6 @@ def explore_perform_search(request):
             else:
                 return HttpResponse(template.render(context))
         else:
-            if 'loggedOut' in request.session:
-                del request.session['loggedOut']
             request.session['next'] = '/explore/perform-search'
             return redirect('/login')
     except:
@@ -174,8 +166,6 @@ def explore_results(request):
         else:
             return HttpResponse(template.render(context))
     else:
-        if 'loggedOut' in request.session:
-            del request.session['loggedOut']
         request.session['next'] = '/explore/results'
         return redirect('/login')
 
@@ -212,8 +202,6 @@ def explore_all_results(request):
         else:
             return HttpResponse(template.render(context))
     else:
-        if 'loggedOut' in request.session:
-            del request.session['loggedOut']
         request.session['next'] = '/explore/results'
         return redirect('/login')
     
@@ -259,9 +247,7 @@ def explore_all_versions_results(request):
             return redirect('/explore/select-template')
         else:
             return HttpResponse(template.render(context))
-    else:
-        if 'loggedOut' in request.session:
-            del request.session['loggedOut']
+    else:    
         request.session['next'] = '/explore/results'
         return redirect('/login')
 
@@ -309,7 +295,5 @@ def explore_download_results(request):
             else:
                 return redirect('/')
     else:
-        if 'loggedOut' in request.session:
-            del request.session['loggedOut']
         request.session['next'] = '/explore'
         return redirect('/login')
