@@ -112,39 +112,38 @@ def curate_enter_data(request):
         context = RequestContext(request, {
             '': '',
         })
-        if 'currentTemplateID' not in request.session:
-            return redirect('/curate/select-template')
-        else:
-            if 'id' in request.GET:
-                if request.user.is_staff:
-                    try:
-                        xml_data_id = request.GET['id']
-                        xml_data = XMLdata.get(xml_data_id)
-                        json_content = xml_data['content']
-                        xml_content = xmltodict.unparse(json_content)
-                        request.session['curate_edit_data'] = xml_content
-                        request.session['curate_edit'] = True
-                        request.session['curate_min_tree'] = True  
-                        request.session['currentTemplateID'] = xml_data['schema']
-                        form_data = FormData(user=str(request.user.id), template=xml_data['schema'], name=xml_data['title'], xml_data=xml_content, xml_data_id=xml_data_id).save()                        
-                        request.session['curateFormData'] = str(form_data.id)
-                        if 'formString' in request.session:
-                            del request.session['formString']                           
-                        if 'xmlDocTree' in request.session:
-                            del request.session['xmlDocTree'] 
-                        
-                        return HttpResponse(template.render(context))
-                    except:
-                        # can't find the data
-                        messages.add_message(request, messages.INFO, 'XML data not found.')
-                        return redirect('/')
-                else:
-                    return redirect('/login')
+
+        if 'id' in request.GET:
+            if request.user.is_staff:
+                try:
+                    xml_data_id = request.GET['id']
+                    xml_data = XMLdata.get(xml_data_id)
+                    json_content = xml_data['content']
+                    xml_content = xmltodict.unparse(json_content)
+                    request.session['curate_edit_data'] = xml_content
+                    request.session['curate_edit'] = True
+                    request.session['curate_min_tree'] = True  
+                    request.session['currentTemplateID'] = xml_data['schema']
+                    form_data = FormData(user=str(request.user.id), template=xml_data['schema'], name=xml_data['title'], xml_data=xml_content, xml_data_id=xml_data_id).save()                        
+                    request.session['curateFormData'] = str(form_data.id)
+                    if 'formString' in request.session:
+                        del request.session['formString']                           
+                    if 'xmlDocTree' in request.session:
+                        del request.session['xmlDocTree'] 
+                    
+                    return HttpResponse(template.render(context))
+                except:
+                    # can't find the data
+                    messages.add_message(request, messages.INFO, 'XML data not found.')
+                    return redirect('/')
+            else:
+                if 'currentTemplateID' not in request.session:
+                    return redirect('/curate/select-template')
             return HttpResponse(template.render(context))
     else:
         if 'loggedOut' in request.session:
             del request.session['loggedOut']
-        request.session['next'] = '/curate/enter-data'
+        request.session['next'] = request.get_full_path()
         return redirect('/login')
 
 ################################################################################
