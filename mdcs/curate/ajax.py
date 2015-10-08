@@ -539,6 +539,39 @@ def generateSequence(request, element, xmlTree, namespace, choiceInfo=None, full
     
     return formString
 
+
+################################################################################
+# 
+# Function Name: generateSequence_absent(request, element, xmlTree, namespace)
+# Inputs:        request - 
+#                element - XML element
+#                xmlTree - XML Tree
+#                namespace - namespace
+# Outputs:       HTML string representing a sequence
+# Exceptions:    None
+# Description:   Generates a section of the form that represents an XML sequence
+# 
+################################################################################
+def generateSequence_absent(request, element, xmlTree, namespace):
+
+    formString = ""
+    # generates the sequence
+    if(len(list(element)) != 0):
+        for child in element:
+            if (child.tag == "{0}element".format(namespace)):            
+                formString += generateElement(request, child, xmlTree, namespace)
+            elif (child.tag == "{0}sequence".format(namespace)):
+                formString += generateSequence(request, child, xmlTree, namespace)
+            elif (child.tag == "{0}choice".format(namespace)):
+                formString += generateChoice(request, child, xmlTree, namespace)
+            elif (child.tag == "{0}any".format(namespace)):
+                pass
+            elif (child.tag == "{0}group".format(namespace)):
+                pass
+    
+    return formString
+
+
 ################################################################################
 # 
 # Function Name: generateChoice(request, element, xmlTree, namespace)
@@ -1523,20 +1556,23 @@ def generate_absent(request):
     for prefix, ns in request.session['namespaces'].iteritems():
         xpath_namespaces[prefix] = ns[1:-1]
 
-    sequenceChild = xmlDocTree.xpath(xml_element.xsd_xpath, namespaces=xpath_namespaces)[0]
+    element = xmlDocTree.xpath(xml_element.xsd_xpath, namespaces=xpath_namespaces)[0]
 
     # remove the annotations
-    removeAnnotations(sequenceChild, namespace)
+    removeAnnotations(element, namespace)
 
     # generating a choice, generate the parent element
     if tag == "choice":
         # can use generateElement to generate a choice never generated
-        formString = generateElement(request, sequenceChild, xmlDocTree, namespace, fullPath=form_element.xml_xpath)
+        formString = generateElement(request, element, xmlDocTree, namespace, fullPath=form_element.xml_xpath)
         # remove the opening and closing ul tags
         formString = formString[4:-4]
     else:
-        # can't directly use generateElement because only need the body of the element not its title
-        formString = generateElement_absent(request, sequenceChild, xmlDocTree, form_element)
+        if 'sequence' in element.tag:
+            formString = generateSequence_absent(request, element, xmlDocTree, namespace)
+        else:
+            # can't directly use generateElement because only need the body of the element not its title
+            formString = generateElement_absent(request, element, xmlDocTree, form_element)
 
     
     # build HTML tree for the form
