@@ -1937,12 +1937,20 @@ def blob(request):
 
     elif request.method == 'POST':
         try:
-            blob = request.FILES.get('blob')            
-            bh_factory = BLOBHosterFactory(BLOB_HOSTER, BLOB_HOSTER_URI, BLOB_HOSTER_USER, BLOB_HOSTER_PSWD, MDCS_URI)
-            blob_hoster = bh_factory.createBLOBHoster()
-            handle = blob_hoster.save(blob=blob, filename=blob.name)
-            content={'handle': handle}
-            return Response(content, status=status.HTTP_201_CREATED)
+            blob = request.FILES.get('blob')
+            try:        
+                bh_factory = BLOBHosterFactory(BLOB_HOSTER, BLOB_HOSTER_URI, BLOB_HOSTER_USER, BLOB_HOSTER_PSWD, MDCS_URI)
+                blob_hoster = bh_factory.createBLOBHoster()
+                try:
+                    handle = blob_hoster.save(blob=blob, filename=blob.name)
+                    content={'handle': handle}
+                    return Response(content, status=status.HTTP_201_CREATED)
+                except:
+                    content={'message':'Something went wrong with BLOB upload.'}
+                    return Response(content, status=status.HTTP_400_BAD_REQUEST)
+            except:
+                content={'message':'Something went wrong with BLOB Hoster Initialization. Please check the settings.'}
+                return Response(content, status=status.HTTP_400_BAD_REQUEST)
         except:
             content={'message':'blob parameter not found'}
             return Response(content, status=status.HTTP_400_BAD_REQUEST)
