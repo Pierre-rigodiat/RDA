@@ -1,4 +1,8 @@
-<!-- 
+{% extends "base.html" %}
+{% load staticfiles %}
+
+{% comment %}
+<!--
 ################################################################################
 #
 # File Name: curate_view_data.html
@@ -15,18 +19,21 @@
 #
 ################################################################################
 -->
-{% extends "base2.html" %}
-{% load staticfiles %}
+{% endcomment %}
 
 {% block extrastyle %}
-<link rel="stylesheet" type="text/css" href="{% static 'resources/css/style.add.css' %}"  media="screen" />
 <link rel="stylesheet" type="text/css" href="{% static 'resources/css/XMLTree.css' %}" media="screen" />
 {% endblock %}
+
 {% block extrahead %}
 <script src="{% static 'inc/controllers/js/XMLTree.js' %}"></script>
 {% endblock %}
+
 {% block title %}<h1>View Data</h1>{% endblock %}
-{% block description %}This is a preview of the curated data in XML format. As part of this demo, please save your data to the repository so that we can better evaluate our system. You can also click the download button for a copy on your local machine.{% endblock %}
+{% block description %}
+This is a preview of the curated data in XML format. As part of this demo, please save your data to the repository
+so that we can better evaluate our system. You can also click the download button for a copy on your local machine.
+{% endblock %}
 
 {% block menu %}{% include 'menu.html' with active_tab='tab2' %}{% endblock %}
 {% block submenu %}
@@ -37,21 +44,17 @@
 </ul>
 {% endblock %}
 
-
 {% block content %}
-	      
 <div class="btn-group pull-right">
 	<button class="btn download-xml"><i class="icon-arrow-down"></i> Download XML</button>
 	<button class="btn save-to-repo"><i class="icon-star"></i> Save to repository</button>
 </div>
-		      
 
 <div class="clearer">&nbsp;</div>
 
 <div id="XMLHolder"></div>
 
 <br/><br/>
-
 {% endblock %}
 
 {% block sidebar %}
@@ -59,9 +62,24 @@
 	<div class="box-title">Data Curation</div>
 	<div class="box-content">
 		<ul class="nice-list">
-			<li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'resources/img/Orange_Number_1.png' %}"></td><td><a href="/curate/select-template">Select Template</a></td></tr></table></li>
-			<li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'resources/img/Orange_Number_2.png' %}"></td><td><a href="/curate/enter-data">Enter Data</a></td></tr></table></li>
-			<li><table><tr><td width="40"><img width="40" height="40" valign="center" src="{% static 'resources/img/Orange_Number_3.png' %}"></td><td><strong><a href="/curate/view-data">View Data</a></strong></td></tr></table></li>
+            <li>
+                <div class="l-img">
+                    <img width="40" height="40" src="{% static 'resources/img/Orange_Number_1.png' %}" alt="1">
+                </div>
+                <div class="r-txt"><a href="/curate/select-template">Select Template</a></div>
+            </li>
+            <li>
+                <div class="l-img">
+                    <img width="40" height="40" src="{% static 'resources/img/Orange_Number_2.png' %}" alt="2">
+                </div>
+                <div class="r-txt"><a href="/curate/enter-data">Enter Data</a></div>
+            </li>
+            <li>
+                <div class="l-img">
+                    <img width="40" height="40" src="{% static 'resources/img/Orange_Number_3.png' %}" alt="3">
+                </div>
+                <div class="r-txt-selected"><a href="/curate/view-data">View Data</a></div>
+            </li>
 		</ul>
 	</div>
 </div>
@@ -79,14 +97,16 @@ verifyTemplateIsSelectedViewData();
     <span class="ui-icon ui-icon-circle-check" style="float:left; margin:0 7px 10px 0;"></span>
     XML File Downloaded.
   </p>
-  <p>
-    Currently using <a href="/view-schema/{{ request.session.currentTemplate }}" target="_new">{{ request.session.currentTemplate }}</a>
-  </p>
 </div>
 
 
 <div id="dialog-save-data-message" title="Save to Repository" style="display:none;">
-Are you sure you want to save this document?
+	Save data to the repository.
+	<form id="form_save" action="/curate/save_data" method="post">
+	{% csrf_token %}
+	{{form_save}}
+	</form>
+	<div id="saveErrorMessage" style="color:red;"></div>
 </div>
 
 <div id="dialog-saved-message" title="XML Data Saved" style="display:none;">
@@ -95,12 +115,6 @@ Are you sure you want to save this document?
     <span class="ui-icon ui-icon-circle-check" style="float:left; margin:0 7px 10px 0;"></span>
     Save to repository successful.
   </p>
-</div>
-
-<div id="dialog-save-error-message" title="XML Data Error" style="display:none;">
-<p></p>
-  <div id="saveErrorMessage">
-  </div>
 </div>
 
 {% endblock %}

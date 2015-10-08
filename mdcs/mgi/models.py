@@ -32,12 +32,14 @@ class Request(Document):
     last_name = StringField(required=True)
     email = StringField(required=True)    
 
+
 class Message(Document):
     """Represents a message sent via the Contact form"""
     name = StringField(max_length=100)
     email = EmailField()
     content = StringField()
-    
+
+
 class Template(Document):
     """Represents an XML schema template that defines the structure of data for curation"""
     title = StringField(required=True)
@@ -48,7 +50,8 @@ class Template(Document):
     hash = StringField(required=True)
     user = StringField(required=False)
     dependencies = ListField(StringField())
-    
+
+
 class TemplateVersion(Document):
     """Manages versions of templates"""
     versions = ListField(StringField())
@@ -56,7 +59,8 @@ class TemplateVersion(Document):
     current = StringField()
     nbVersions = IntField(required=True)
     isDeleted = BooleanField(required=True)
-    
+
+
 class Type(Document):    
     """Represents an XML schema type to use to compose XML Schemas"""
     title = StringField(required=True)
@@ -67,7 +71,8 @@ class Type(Document):
     hash = StringField(required=True)
     user = StringField(required=False)
     dependencies = ListField(StringField())
-    
+
+
 class TypeVersion(Document):
     """Manages versions of types"""
     versions = ListField(StringField())
@@ -75,12 +80,14 @@ class TypeVersion(Document):
     current = StringField()
     nbVersions = IntField(required=True)
     isDeleted = BooleanField(required=True)
-    
+
+
 class MetaSchema(Document):
     """Stores more information about templates/types"""
     schemaId = StringField(required=True, unique=True)
     flat_content = StringField(required=True)
     api_content = StringField(required=True)
+
 
 class Instance(Document):
     """Represents an instance of a remote MDCS"""
@@ -92,13 +99,11 @@ class Instance(Document):
     refresh_token = StringField(required=True)
     expires = DateTimeField(required=True)
 
+
 class QueryResults(Document):
     """Stores results from a query (Query By Example)"""
     results = ListField(required=True) 
-    
-class SparqlQueryResults(Document):
-    """Stores results from a query (SPARQL endpoint)"""
-    results = StringField(required=True)
+
     
 class SavedQuery(Document):
     """Represents a query saved by the user (Query by Example)"""
@@ -107,28 +112,61 @@ class SavedQuery(Document):
     query = StringField(required=True)
     displayedQuery = StringField(required=True)
 
+
 class Module(Document):
     """Represents a module, that will replace an existing input during curation"""
     name = StringField(required=True)
-    url = StringField(required=True)  
+    url = StringField(required=True)
+    view = StringField(required=True)
+
     
 class XML2Download(Document):
     """Temporarily stores the content of an XML document to download"""
-    xml = StringField(required=True)
+    title = StringField(required=True)
+    xml = StringField(required=True)    
+
     
 class PrivacyPolicy(Document):
     """Privacy Policy of the MDCS"""
     content = StringField()
+
     
 class TermsOfUse(Document):
     """Terms of Use of the MDCS"""
     content = StringField()
+
     
 class Bucket(Document):
     """Represents a bucket to store types by domain"""
     label = StringField(required=True, unique=True)
     color = StringField(required=True, unique=True)
     types = ListField()
+
+
+class XMLElement(Document):
+    """Stores information about an XML element and its occurrences"""
+    xsd_xpath = StringField() 
+    nbOccurs = IntField()
+    minOccurs = FloatField()
+    maxOccurs = FloatField()
+
+
+class FormElement(Document):
+    """Stores information about an element in the HTML form"""
+    html_id = StringField()
+    xml_xpath = StringField() # for siblings module
+    xml_element = ReferenceField(XMLElement)
+
+
+class FormData(Document):
+    """Stores data being entered and not yet curated"""
+    user = StringField(required=True)
+    template = StringField(required=True)
+    name = StringField(required=True)
+    elements = DictField()
+    xml_data = StringField()
+    xml_data_id = StringField()
+
 
 def postprocessor(path, key, value):
     """Called after XML to JSON transformation"""
@@ -142,39 +180,9 @@ def postprocessor(path, key, value):
         except (ValueError, TypeError):
             return key, value
 
-class XMLElement(Document):
-    """
-        Stores information about an XML element and its occurrences
-    """
-    xsd_xpath = StringField() 
-    nbOccurs = IntField()
-    minOccurs = FloatField()
-    maxOccurs = FloatField()
 
-
-class FormElement(Document):
-    """
-        Stores information about an element in the HTML form
-    """
-    html_id = StringField()
-    xml_xpath = StringField() # pour siblings module
-    xml_element = ReferenceField(XMLElement)
-
-# good one
-class FormData(Document):
-    """
-        Stores data being entered and not yet curated
-    """
-    user = StringField(required=True)
-    template = StringField(required=True)
-    name = StringField(required=True)
-    elements = DictField()
-    xml_data = StringField()
-
-class Jsondata():
-    """                                                                                                                                                                                                                       
-        Wrapper to manage JSON Documents, like mongoengine would have manage them (but with ordered data)                                                                                                                     
-    """
+class XMLdata():
+    """Wrapper to manage JSON Documents, like mongoengine would have manage them (but with ordered data)"""
 
     def __init__(self, schemaID=None, xml=None, json=None, title=""):
         """                                                                                                                                                                                                                   
@@ -202,11 +210,13 @@ class Jsondata():
             # insert the json content after                                                                                                                                                                                       
             self.content['content'] = xmltodict.parse(xml, postprocessor=postprocessor)
 
+
     def save(self):
         """save into mongo db"""
         # insert the content into mongo db                                                                                                                                                                                    
         docID = self.xmldata.insert(self.content)
         return docID
+    
     
     @staticmethod
     def objects():        
@@ -228,6 +238,7 @@ class Jsondata():
             results.append(result)
         return results
     
+    
     @staticmethod
     def find(params):        
         """
@@ -248,6 +259,7 @@ class Jsondata():
             results.append(result)
         return results
     
+    
     @staticmethod
     def executeQuery(query):
         """queries mongo db and returns results data"""
@@ -264,6 +276,7 @@ class Jsondata():
         for result in cursor:
             queryResults.append(result['content'])
         return queryResults
+    
     
     @staticmethod
     def executeQueryFullResult(query):
@@ -282,6 +295,7 @@ class Jsondata():
             results.append(result)
         return results
 
+
     @staticmethod
     def get(postID):
         """
@@ -293,7 +307,8 @@ class Jsondata():
         db = client['mgi']
         # get the xmldata collection
         xmldata = db['xmldata']
-        return xmldata.find_one({'_id': ObjectId(postID)})
+        return xmldata.find_one({'_id': ObjectId(postID)}, as_class = OrderedDict)
+    
     
     @staticmethod
     def delete(postID):
@@ -308,8 +323,32 @@ class Jsondata():
         xmldata = db['xmldata']
         xmldata.remove({'_id': ObjectId(postID)})
     
+    # TODO: to be tested
+#     @staticmethod
+#     def update(postID, json=None, xml=None):
+#         """
+#             Update the object with the given id
+#         """
+#         # create a connection
+#         client = MongoClient(MONGODB_URI)
+#         # connect to the db 'mgi'
+#         db = client['mgi']
+#         # get the xmldata collection
+#         xmldata = db['xmldata']
+#         
+#         data = None
+#         if (json is not None):                                                                                                                                                                                       
+#             data = json
+#             if '_id' in json:
+#                 del json['_id']
+#         else:            
+#             data = xmltodict.parse(xml, postprocessor=postprocessor)
+#             
+#         if data is not None:
+#             xmldata.update({'_id': ObjectId(postID)}, {"$set":data}, upsert=False)
+            
     @staticmethod
-    def update(postID, json):
+    def update_content(postID, content=None, title=None):
         """
             Update the object with the given id
         """
@@ -319,8 +358,10 @@ class Jsondata():
         db = client['mgi']
         # get the xmldata collection
         xmldata = db['xmldata']
-        if '_id' in json:
-            del json['_id']
+                
+        json_content = xmltodict.parse(content, postprocessor=postprocessor)
+        json = {'content': json_content, 'title': title}
+                    
         xmldata.update({'_id': ObjectId(postID)}, {"$set":json}, upsert=False)
     
         

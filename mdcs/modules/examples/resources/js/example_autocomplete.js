@@ -1,15 +1,24 @@
 configureAutocomplete({
-    source: "/modules/examples/autocomplete",
-    minLength: 0,
-    response: function(event, ui) {
-        var content = ui.content[1];
+    source: function(request, response) {
+        var term = request.term;
 
-        while(ui.content.length !== 0) {
-            ui.content.pop();
-        }
+        $.ajax({
+            url: '/modules/examples/autocomplete',
+            method: 'POST',
+            data: {
+                'data': term
+            },
+            success: function(data) {
+                var textData = $(data).find('.moduleDisplay').text();
+                var re = new RegExp("'", 'g');
 
-        $.each(content, function(key, value) {
-            ui.content.push({label: value, value: value});
+                textData = textData.replace(re, '\"');
+                console.log(textData);
+
+                var jsonData = JSON.parse(textData);
+                response(jsonData);
+            }
         });
-    }
+    },
+    minLength: 0
 })

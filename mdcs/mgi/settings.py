@@ -19,10 +19,10 @@
 # Sponsor: National Institute of Standards and Technology (NIST)
 #
 ################################################################################
-#ttest
+
 import os
 
-VERSION = "1.1.1"
+VERSION = "1.2"
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -83,10 +83,6 @@ BLOB_HOSTER_URI = MONGODB_URI
 BLOB_HOSTER_USER = MONGO_MGI_USER
 BLOB_HOSTER_PSWD = MONGO_MGI_PASSWORD
 MDCS_URI = 'http://127.0.0.1:8000'
-
-# SPARQL endpoint options
-ENABLE_SPARQL = False
-PROJECT_URI = "http://www.example.com/"
 
 TEMPLATE_DIRS = [os.path.join(BASE_DIR, 'templates')]
 

@@ -5,7 +5,8 @@ from django.contrib.admindocs.views import simplify_regex
 from mgi.models import Module
 from mongoengine.errors import ValidationError
 from modules.exceptions import ModuleError
-    
+
+
 def __assemble_endpoint_data__(pattern, prefix='', filter_path=None):
     """
     Creates a dictionary for matched API urls
@@ -22,6 +23,7 @@ def __assemble_endpoint_data__(pattern, prefix='', filter_path=None):
     
     return {
         'url': path,
+        'view': pattern._callback_str,
         'name': pattern.name,        
     }
 
@@ -63,12 +65,15 @@ def discover_modules():
     patterns = __flatten_patterns_tree__(urls.urlpatterns, excluded=urls.excluded)
     for pattern in patterns:
         print pattern
+
     # Remove all existing modules
     Module.objects.all().delete()
         
     try:
         for pattern in patterns:
-            Module(url=pattern['url'], name=pattern['name']).save()
+            # Module(url=pattern['url'], name=pattern['name']).save()
+            Module(url=pattern['url'], name=pattern['name'], view=pattern['view']).save()
+
     except ValidationError:
         raise ModuleError('A validation error occured during the module discovery. Please provide a name to all modules urls using the name argument.')
         # something went wrong, delete already added modules

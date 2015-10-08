@@ -24,7 +24,7 @@ class DSpaceHoster(BLOBHoster):
     def list(self):
         BLOBHoster.list(self)
         
-    def save(self, blob, filename=None, contentType=None):
+    def save(self, blob, filename=None):
         BLOBHoster.save(self)
     
     def delete(self, handle):

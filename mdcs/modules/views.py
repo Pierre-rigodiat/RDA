@@ -1,27 +1,79 @@
 import json
 from rest_framework import status
-from models import ModuleManager
+from modules.utils import sanitize
+# from mgi.models import Module
+from modules import get_module_view
+# from models import ModuleManager
 from django.http import HttpResponse
 
 def load_resources_view(request):
-    script_set = []
-    style_set = []
+    """ Load resources for a given list of modules
 
-    for script in request.POST.getlist('scripts[]'):
-        if script not in script_set:
-            script_set.append(script)
+    :param request:
+    :return:
+    """
+    if not request.method == 'GET':
+        return HttpResponse({}, status=status.HTTP_400_BAD_REQUEST)
 
-    for style in request.POST.getlist('styles[]'):
-        if style not in style_set:
-            style_set.append(style)
+    if 'urls' not in request.GET:
+        return HttpResponse({}, status=status.HTTP_403_FORBIDDEN)
 
-    response = {
-        'styles': [],
-        'scripts': []
+    mod_urls_qs = sanitize(request.GET['urls'])
+    mod_urls = json.loads(mod_urls_qs)
+
+    # Request hack to get module resources
+    request.GET = {
+        'resources': True
     }
 
-    m = ModuleManager()
-    response['styles'] = m.load_styles(style_set)
-    response['scripts'] = m.load_scripts(script_set)
+    # List of resources
+    resources = {
+        'scripts': [],
+        'styles': []
+    }
 
+    for url in mod_urls:
+        module_view = get_module_view(url)
+        mod_resources = module_view(request).content
+
+        mod_resources = sanitize(mod_resources)
+        mod_resources = json.loads(mod_resources)
+
+        # Append resource to the list
+        for key in resources.keys():
+            if mod_resources[key] is None:
+                continue
+
+            for resource in mod_resources[key]:
+                if resource not in resources[key]:
+                    resources[key].append(resource)
+
+    # Build response content
+    response = {
+        'scripts': "",
+        'styles': ""
+    }
+
+    # Aggregate scripts
+    for script in resources['scripts']:
+        if script.startswith('http://') or script.startswith('https://'):
+            script_tag = '<script src="' + script + '"></script>'
+        else:
+            with open(script, 'r') as script_file:
+                script_tag = '<script>' + script_file.read() + '</script>'
+
+        response['scripts'] += script_tag
+
+    # Aggregate styles
+    for style in resources['styles']:
+        if style.startswith('http://') or style.startswith('https://'):
+            script_tag = '<link rel="stylesheet" type="text/css" href="' + style + '"></link>'
+        else:
+            with open(style, 'r') as script_file:
+                script_tag = '<style>' + script_file.read() + '</style>'
+
+        response['styles'] += script_tag
+
+    # Send response
     return HttpResponse(json.dumps(response), status=status.HTTP_200_OK)
+

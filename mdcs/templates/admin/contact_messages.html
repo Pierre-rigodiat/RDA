@@ -1,4 +1,8 @@
-<!-- 
+{% extends "base_featured.html" %}
+{% load staticfiles %}
+
+{% comment %}
+<!--
 ################################################################################
 #
 # File Name: contact_messages.html
@@ -15,43 +19,39 @@
 #
 ################################################################################
 -->
-
-{% extends "base.html" %}
-{% load staticfiles %}
+{% endcomment %}
 
 {% block title %}<h1>Contact Messages</h1>{% endblock %}
 
-{% block menu %}{% include 'admin/menu-admin.html' with active_tab='tab2' %}{% endblock %}
-{% block submenu %}{% include 'admin/submenu-user.html' with active_tab='tab3' %}{% endblock %}
+{% block menu %}{% include 'admin/menu/main.html' with active_tab='tab2' %}{% endblock %}
+{% block submenu %}{% include 'admin/menu/submenu/user.html' with active_tab='tab3' %}{% endblock %}
 
 {% block content%}
+    {% if contacts %}
+    <table class="data-table">
+        <tr>
+            <th>Name</th>
+            <th>Email Address</th>
+            <th>Message</th>
+            <th>Actions</th>
+        </tr>
 
-{% if contacts %}
-	<table class="data-table">
-	  <tr>
-	  	<th>Name</th>
-	    <th>Email Address</th>
-	    <th>Message</th>
-	    <th>Actions</th>
-	  </tr>
-	
-	{% for message in contacts %}
-	  {% cycle 'even' '' as rowcolors silent %}
-	  <tr class="{{ rowcolors }}">
-	    <td>{{ message.name }}</td>
-	    <td>{{ message.email }}</td>
-	    <td>{{ message.content }}</td>
-	    <td>
-	    	<div class="icon legend long remove message" messageid="{{ message.id }}">Delete</div>    
-	    </td>
-	  </tr>
-	{% endfor %}
-	</table>
+        {% for message in contacts %}
+            {% cycle 'even' '' as rowcolors silent %}
+            <tr class="{{ rowcolors }}">
+                <td>{{ message.name }}</td>
+                <td>{{ message.email }}</td>
+                <td>{{ message.content }}</td>
+                <td>
+                    <div class="icon legend long remove message" messageid="{{ message.id }}">Delete</div>
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
 
-{% else %}	
-	No contact messages pending at the moment.
-{% endif %}
-
+    {% else %}
+        No contact messages pending at the moment.
+    {% endif %}
 {% endblock %}  
 
 {% block extra %}

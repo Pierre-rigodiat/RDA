@@ -83,8 +83,8 @@ redirect_explore_tabs = function(){
         type : "GET",
         dataType: "json",
         success: function(data){
-        	if (data.tab == "sparql"){
-        		redirectSPARQLTab();
+        	if (data.tab == "tab-2"){
+        		redirectTab2();
         	}else{
         		switchTabRefresh();
         	}
@@ -100,17 +100,13 @@ redirect_explore_tabs = function(){
  */
 setExploreCurrentTemplate = function()
 {
-    var templateName = $(this).parent().parent().children(':first').text();
     var templateID = $(this).parent().parent().children(':first').attr('templateID');
-    var templateFilename = $(this).parent().parent().children(':nth-child(2)').text();
     var tdElement = $(this).parent();
 		
     tdElement.html('<img src="/static/resources/img/ajax-loader.gif" alt="Loading..."/>');
     $('.btn.set-template').off('click');
     
-    console.log('[setExploreCurrentTemplate] Setting '+templateName+' with filename '+templateFilename+' as current template...');
-
-    set_current_template(templateFilename, templateID);
+    set_current_template(templateID);
 
     return false;
 }
@@ -121,13 +117,12 @@ setExploreCurrentTemplate = function()
  * @param templateFilename name of the selected template
  * @param templateID id of the selected template
  */
-set_current_template = function(templateFilename,templateID){
+set_current_template = function(templateID){
     $.ajax({
         url : "/explore/set_current_template",
         type : "POST",
         dataType: "json",
         data : {
-            templateFilename : templateFilename,
             templateID: templateID
         },
         success: function(){
@@ -151,7 +146,7 @@ get_custom_form = function(){
         		$('#queryForm').html(data.queryForm);
         	}  
         	$("#customForm").html(data.customForm);
-        	$("#sparqlCustomForm").html(data.sparqlCustomForm);
+        	
         	if ('sparqlQuery' in data){
         		$('#SPARQLqueryBuilder .SPARQLTextArea').html(data.sparqlQuery);
         	}        	
@@ -963,15 +958,15 @@ switchTab = function(tab)
 	if (tab == "tab-1"){
 		$("#queryBuilder").removeAttr("style");
 		$("#customForm").removeAttr("style");
-		$("#QbEDesc").removeAttr("style");
+		$("#tab1Desc").removeAttr("style");
 		$("#SPARQLqueryBuilder").attr("style","display:none;");		
-		$("#SPARQLDesc").attr("style","display:none;");	
+		$("#tab2Desc").attr("style","display:none;");	
 	}else{
 		$("#queryBuilder").attr("style","display:none;");
 		$("#customForm").attr("style","display:none;");
-		$("#QbEDesc").attr("style","display:none;");
+		$("#tab1Desc").attr("style","display:none;");
 		$("#SPARQLqueryBuilder").removeAttr("style");
-		$("#SPARQLDesc").removeAttr("style");	
+		$("#tab2Desc").removeAttr("style");	
 	}
 	switch_explore_tab(tab);
 	
@@ -1026,15 +1021,15 @@ redirect_explore = function(){
 /**
  * Manage the display of the tabs
  */
-redirectSPARQLTab = function()
+redirectTab2 = function()
 {
-	console.log('BEGIN [redirectSPARQLTab]');
+	console.log('BEGIN [redirectTab2]');
 	
 	$("#explore-tabs").find("input:radio").removeAttr('checked');
 	$("#tab-2").prop("checked",true);
 	switchTabRefresh();
 	
-	console.log('END [redirectSPARQLTab]');
+	console.log('END [redirectTab2]');
 }
 
 
@@ -1352,5 +1347,55 @@ showErrorInstancesDialog = function()
                 }
             }
         });
+    });
+}
+
+showhideResults = function(event)
+{
+	console.log('BEGIN [showhideResults]');
+	button = event.target
+	parent = $(event.target).parent()
+	$(parent.children(".xmlResult")).toggle("blind",500);
+	if ($(button).attr("class") == "expand"){
+		$(button).attr("class","collapse");
+	}else{
+		$(button).attr("class","expand");
+	}
+		
+	console.log('END [showhideResults]');
+}
+
+deleteResult = function(result_id){
+	$(function() {
+        $( "#dialog-delete-result" ).dialog({
+            modal: true,
+            buttons: {
+            	Cancel: function() {
+                    $( this ).dialog( "close" );
+                },
+            	Delete: function() {
+                    $( this ).dialog( "close" );
+                    delete_result(result_id);
+                },
+            }
+        });
+    });
+}
+
+/**
+ * AJAX call, preapres the sub element query
+ * @param leavesID
+ */
+delete_result = function(result_id){
+	$.ajax({
+        url : "/explore/delete_result",
+        type : "GET",
+        dataType: "json",
+        data : {
+        	result_id: result_id,
+        },
+		success: function(data){
+			   $("#" + result_id).remove();
+	    }
     });
 }

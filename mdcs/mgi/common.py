@@ -64,6 +64,7 @@ def getValidityErrorsForMDCS(xmlTree, type):
 
     return errors
 
+
 ################################################################################
 #
 # Function Name: validateXMLDocument(templateID, xmlString)
@@ -105,7 +106,7 @@ def validateXMLDocument(templateID, xmlString):
 #                
 #
 ################################################################################
-def manageNamespace(templateID, xmlString):
+def manageNamespace(templateID, xmlString):    
     # the schema has no dependencies
     if str(templateID) not in MetaSchema.objects.all().values_list('schemaId'):
         templateObject = Template.objects.get(pk=templateID)
@@ -113,13 +114,14 @@ def manageNamespace(templateID, xmlString):
         templateTree = etree.parse(StringIO(templateData.encode('utf-8')))
         templateTreeRoot = templateTree.getroot()
         # The schema is using a target namespace
-        if 'targetNamespace' in templateTreeRoot.attrib:
+        if 'targetNamespace' in templateTreeRoot.attrib:    
             xmlTree = etree.parse(StringIO(xmlString.encode('utf-8')))
             xmlRoot = xmlTree.getroot()
             xmlRoot.attrib['xmlns'] = templateTreeRoot.attrib['targetNamespace']
             xmlString = etree.tostring(xmlTree)
-    
+
     return xmlString
+
 
 ################################################################################
 #

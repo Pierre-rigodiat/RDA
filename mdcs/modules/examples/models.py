@@ -1,122 +1,127 @@
-from modules.builtin.models import InputModule, OptionsModule, AsyncInputModule, AutoCompleteModule
+from modules.builtin.models import InputModule, OptionsModule, SyncInputModule, AutoCompleteModule
 from modules.exceptions import ModuleError
 from django.conf import settings
 import os
+from modules.xpathaccessor import XPathAccessor
+from modules.models import Module
+
 
 RESOURCES_PATH = os.path.join(settings.SITE_ROOT, 'modules/examples/resources/')
 
 class PositiveIntegerInputModule(InputModule):
-    
     def __init__(self):
-
         InputModule.__init__(self, label='Enter positive integer', default_value=1)
 
-    def get_default_display(self, request):
-        return "1 is a valid positive integer"
-        
-    def get_default_result(self, request):
-        return 1
-    
-    def process_data(self, request):
-        if 'value' in request.POST:
-            moduleDisplay = ""
-            moduleResult = "" 
-            
-            try:
-                value = int(request.POST['value'])
-                if value > 0:
-                    moduleDisplay = str(value) + " is a valid positive integer"
-                    moduleResult = value
-                else:
-                    moduleDisplay = str(value) + " is not a positive integer"
-                    moduleResult = ""
-            except:                            
-                moduleDisplay = str(request.POST['value']) + " is not a positive integer"
-                moduleResult = ""
-                            
-            return moduleDisplay, moduleResult
-        else:
-            raise ModuleError('Value not properly sent to server. Please set "value" in POST data.')
+    def _get_module(self, request):
+        if 'data' in request.GET:
+            self.default_value = request.GET['data']
+
+        return InputModule.get_module(self, request)
+
+    def is_data_valid(self, data):
+        try:
+            value = int(data)
+            if value >= 0:
+                return True
+            else:
+                return False
+        except ValueError:
+            return False
+
+    def _get_display(self, request):
+        if 'data' in request.GET:
+            data = str(request.GET['data'])
+            return data + " is a positive integer" if self.is_data_valid(data) else "<div style='color:red;'>This is not a positive integer</div>"
+        return str(self.default_value) + ' is a positive integer'
+
+    def _get_result(self, request):
+        if 'data' in request.GET:
+            return str(request.GET['data'])
+        return str(self.default_value)
+
+    def _post_display(self, request):
+        data = str(request.POST['data'])
+        return data + " is a positive integer" if self.is_data_valid(data) \
+            else "<div style='color:red;'>This is not a positive integer</div>"
+
+    def _post_result(self, request):
+        return str(request.POST['data'])
 
 
 class ChemicalElementMappingModule(OptionsModule):
     
     def __init__(self):
-        self.values = ['Ac', 
-                  'Al', 
-                  'Ag',
-                  'Am', 
-                  'Ar', 
-                  'As', 
-                  'At', 
-                  'Au']
-        self.labels = ['Actinium', 
-                  'Aluminum',
-                  'Silver', 
-                  'Americium', 
-                  'Argon', 
-                  'Arsenic', 
-                  'Astatine', 
-                  'Gold']
+        self.options = {
+            'Ac': 'Actinium',
+            'Al': 'Aluminum',
+            'Ag': 'Silver',
+            'Am': 'Americium',
+            'Ar': 'Argon',
+            'As': 'Arsenic',
+            'At': 'Astatine',
+            'Au': 'Gold'
+        }
                 
-        OptionsModule.__init__(self, opt_values=self.values, opt_labels=self.labels, label='Select an element')
+        OptionsModule.__init__(self, options=self.options, label='Select an element')
 
-    def get_default_display(self, request):
-        return self.labels[0] + " is selected"
-        
-    def get_default_result(self, request):
-        return self.values[0]
-    
-    def process_data(self, request):
-        if 'value' in request.POST:
-            try:
-                value = request.POST['value']
-                idxValue = self.values.index(value)
-                label = self.labels[idxValue]
-            except:
-                raise ModuleError('Bad value sent to server.')
-            moduleDisplay = label  + " is selected"
-            moduleResult = value
-            
-            return moduleDisplay, moduleResult
-        else:
-            raise ModuleError('Value not properly sent to server. Please set "value" in POST data.')
+    def _get_module(self, request):
+        return OptionsModule.get_module(self, request)
+
+    def _get_display(self, request):
+        return self.options.values()[0] + ' is selected'
+
+    def _get_result(self, request):
+        return self.options.keys()[0]
+
+    def _post_display(self, request):
+        data = str(request.POST['data'])
+        return self.options[data] + ' is selected'
+
+    def _post_result(self, request):
+        return str(request.POST['data'])
 
 
-
-class ListToGraphInputModule(AsyncInputModule):
+class ListToGraphInputModule(SyncInputModule):
     
     def __init__(self):
-        AsyncInputModule.__init__(self, label='Enter a list of numbers', modclass='list_to_graph',
-                             styles=[os.path.join(RESOURCES_PATH, 'css/list_to_graph.css')],
-                             scripts=["https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js",
-                                      os.path.join(RESOURCES_PATH, 'js/list_to_graph.js')])
+        SyncInputModule.__init__(self, label='Enter a list of numbers', modclass='list_to_graph',
+                                  styles=[os.path.join(RESOURCES_PATH, 'css/list_to_graph.css')],
+                                  scripts=["https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js",
+                                           os.path.join(RESOURCES_PATH, 'js/list_to_graph.js')])
 
-    def get_default_display(self, request):
-        return ""
-        
-    def get_default_result(self, request):
-        return ""
-    
-    def process_data(self, request):
-        if 'value' in request.POST:
-            moduleDisplay = "<div class='chart'></div>"
-            moduleResult = request.POST['value']
-            
-            post_value = request.POST['value']
-            values = post_value.split(' ')
-            
-            for value in values:
-                try:
-                    int(value)
-                except:
-                    moduleDisplay = "<b style='color:red;'>Expecting a list of integer values separated by spaces.</b>"
-                    moduleResult = ""            
-                            
-            return moduleDisplay, moduleResult
-        else:
-            raise ModuleError('Value not properly sent to server. Please set "value" in POST data.')
-        
+    def _get_module(self, request):
+        return SyncInputModule.get_module(self, request)
+
+    def _get_display(self, request):
+        return ''
+
+    def _get_result(self, request):
+        return ''
+
+    def _is_data_valid(self, data):
+        values = data.split(' ')
+
+        for value in values:
+            try:
+                int(value)
+            except ValueError:
+                return False
+
+        return True
+
+    def _post_display(self, request):
+        if 'data' not in request.POST:
+            raise ModuleError('No data sent to server.')
+
+        display = "<div class='chart'></div>"
+
+        if not self._is_data_valid(request.POST['data']):
+            display = "<b style='color:red;'>Expecting a list of integer values separated by spaces.</b>"
+
+        return display
+
+    def _post_result(self, request):
+        return request.POST['data']
 
 
 class ExampleAutoCompleteModule(AutoCompleteModule):
@@ -135,20 +140,146 @@ class ExampleAutoCompleteModule(AutoCompleteModule):
         AutoCompleteModule.__init__(self, label='Material Name', scripts=[os.path.join(RESOURCES_PATH,
                                                                                        'js/example_autocomplete.js')])
 
-    def get_default_display(self, request):
-        return ""
+    def _get_module(self, request):
+        return AutoCompleteModule.get_module(self, request)
 
-    def get_default_result(self, request):
-        return ""
+    def _get_display(self, request):
+        return ''
 
-    def process_data(self, request):
-        if 'term' in request.GET:
-            response_list = []
+    def _get_result(self, request):
+        return ''
 
-            for d in self.data:
-                if request.GET['term'].lower() in d.lower():
-                    response_list.append(d)
+    def _post_display(self, request):
+        if 'data' not in request.POST:
+            raise ModuleError('No data sent to server.')
 
-            return response_list
-        else:
-            pass
+        response_list = []
+
+        for term in self.data:
+            if request.POST['data'].lower() in term.lower():
+                response_list.append(term)
+
+        return response_list
+
+    def _post_result(self, request):
+        return ''
+
+
+class SiblingsAccessorModule(OptionsModule, XPathAccessor):
+    country_codes = {
+                     'None': '',
+                     'FRANCE': 'FR',
+                     'UNITED STATES OF AMERICA': 'USA',
+                     }
+    
+    capitals = {
+                'None': '',
+                'FRANCE': 'PARIS',
+                'UNITED STATES OF AMERICA': 'WASHINGTON DC',
+                }
+    
+    anthems = {
+               'None': '',
+               'FRANCE': 'La Marseillaise',
+               'UNITED STATES OF AMERICA': 'The Star-Sprangled Banner',
+               }
+    
+    flags = {
+             'None': 'None',
+             'FRANCE': 'Tricolour',
+             'UNITED STATES OF AMERICA': 'The Stars and Stripes',
+             }
+    
+    languages = {
+             'None': '',
+             'FRANCE': 'FRENCH',
+             'UNITED STATES OF AMERICA': 'ENGLISH',
+             }
+    
+    def __init__(self):
+        self.options = {
+            'None': '--------',
+            'FRANCE': 'France',
+            'UNITED STATES OF AMERICA': 'USA',
+        }
+                
+        OptionsModule.__init__(self, options=self.options, label='Select a Country')
+
+    def _get_module(self, request):
+        return OptionsModule.get_module(self, request)
+
+    def _get_display(self, request):
+        return ''
+
+    def _get_result(self, request):     
+        if 'data' in request.GET:
+            return str(request.GET['data'])
+        return ''
+
+    def _post_display(self, request):
+        return ''
+
+    def _post_result(self, request):
+        # get the selected value
+        value = str(request.POST['data'])
+        
+        # create the XPathAccessor
+        XPathAccessor.__init__(self, request)
+        
+        return value
+        
+    def set_XpathAccessor(self, request):
+        # get the selected value
+        value = str(request.POST['data'])
+        
+        # get values to return for siblings
+        country_code = self.country_codes[value]
+        capital = self.capitals[value]
+        anthem = self.anthems[value]
+        language = self.languages[value]
+        flag = self.flags[value]
+        
+         
+        # get xpath of current node (for dynamic xpath building)
+        module_xpath = self.get_xpath()
+        parent_xpath = "/".join(module_xpath.split("/")[:-1])
+        parent_xpath_idx = parent_xpath[parent_xpath.rfind("[")+1:-1]
+        idx = "[" + str(parent_xpath_idx) + "]"
+         
+        # set nodes with values
+        self.set_xpath_value('/Countries[1]/country' + idx + '/country_code[1]', country_code)
+        self.set_xpath_value('/Countries[1]/country' + idx + '/details[1]/capital[1]', capital)
+        self.set_xpath_value('/Countries[1]/country' + idx + '/details[1]/anthem[1]', anthem)
+        self.set_xpath_value('/Countries[1]/country' + idx + '/details[1]/language[1]', language)
+        self.set_xpath_value('/Countries[1]/country' + idx + '/details[1]/flag[1]', {'data': flag})
+
+
+class FlagModule(Module):
+    
+    images = {
+             'None':'',
+             'The Stars and Stripes': "<img src='https://upload.wikimedia.org/wikipedia/en/a/a4/Flag_of_the_United_States.svg' height='42' width='42'/>",
+             'Tricolour': "<img src='https://upload.wikimedia.org/wikipedia/commons/c/c3/Flag_of_France.svg' height='42' width='42'/>"
+             }
+    
+    def __init__(self):                
+        Module.__init__(self)
+
+    def _get_module(self, request):
+        return ''
+
+    def _get_display(self, request):
+        if 'data' in request.GET:
+            return self.images[str(request.GET['data'])]
+        return ''
+
+    def _get_result(self, request):
+        if 'data' in request.GET:
+            return str(request.GET['data'])
+        return ''
+
+    def _post_display(self, request):
+        return self.images[str(request.POST['data'])]
+
+    def _post_result(self, request):
+        return str(request.POST['data'])

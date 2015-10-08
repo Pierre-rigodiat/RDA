@@ -195,17 +195,13 @@ change_root_type_name = function(typeName){
  */
 setComposeCurrentTemplate = function()
 {
-    var templateName = $(this).parent().parent().children(':first').text();
-    var templateFilename = $(this).parent().parent().children(':nth-child(2)').text();
     var tdElement = $(this).parent();
     var templateID = $(this).parent().parent().children(':first').attr('templateid');
 		
     tdElement.html('<img src="/static/resources/img/ajax-loader.gif" alt="Loading..."/>');
     $('.btn.set-template').off('click');
-    
-    console.log('[setCurrentComposeTemplate] Setting '+templateName+' with filename '+templateFilename+' as current template...');
 
-    set_current_template(templateFilename, templateID);
+    set_current_template(templateID);
 
     return false;
 }
@@ -213,16 +209,14 @@ setComposeCurrentTemplate = function()
 
 /**
  * AJAX call, sets the current template
- * @param templateFilename name of the file
  * @param templateID id of the template
  */
-set_current_template = function (templateFilename, templateID){
+set_current_template = function (templateID){
     $.ajax({
         url : "/compose/set_current_template",
         type : "POST",
         dataType: "json",
         data:{
-        	templateFilename: templateFilename,
         	templateID: templateID
         },
         success: function(data){

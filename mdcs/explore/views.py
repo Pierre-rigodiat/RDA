@@ -19,7 +19,7 @@ from django.template import RequestContext, loader
 from django.shortcuts import redirect
 from django.conf import settings
 from datetime import date
-from mgi.models import Template, TemplateVersion, Instance, SavedQuery, QueryResults, SparqlQueryResults
+from mgi.models import Template, TemplateVersion, Instance, SavedQuery, QueryResults, XMLdata
 from cStringIO import StringIO
 from django.core.servers.basehttp import FileWrapper
 import zipfile
@@ -52,7 +52,6 @@ def index(request):
         context = RequestContext(request, {
             'templates':currentTemplates,
             'userTemplates': Template.objects(user=str(request.user.id)),
-            'enable_sparql': settings.ENABLE_SPARQL
         })
         return HttpResponse(template.render(context))
     else:
@@ -98,7 +97,6 @@ def explore_customize_template(request):
     if request.user.is_authenticated():
         template = loader.get_template('explore_customize_template.html')
         context = RequestContext(request, {
-            'enable_sparql': settings.ENABLE_SPARQL
         })    
         if 'exploreCurrentTemplateID' not in request.session:
             return redirect('/explore/select-template')
@@ -141,7 +139,7 @@ def explore_perform_search(request):
                 'instances': listInstances,
                 'template_hash': template_hash,
                 'queries':queries,
-                'enable_sparql': settings.ENABLE_SPARQL
+                'template_id': request.session['exploreCurrentTemplateID']
             })
             if 'exploreCurrentTemplateID' not in request.session:
                 return redirect('/explore/select-template')
@@ -184,20 +182,31 @@ def explore_results(request):
 
 ################################################################################
 #
-# Function Name: explore_sparqlresults(request)
+# Function Name: explore_all_results(request)
 # Inputs:        request -
-# Outputs:       SPARQL Results Page
+# Outputs:       Query results page
 # Exceptions:    None
-# Description:   Page that allows to see SPARQL results
+# Description:   Page that allows to see all results from a template
 #
 ################################################################################
-def explore_sparqlresults(request):
+def explore_all_results(request):
     if request.user.is_authenticated():
-        template = loader.get_template('explore_sparqlresults.html')
+        template_id = request.GET['id']
+    
+        if 'HTTPS' in request.META['SERVER_PROTOCOL']:
+            protocol = "https"
+        else:
+            protocol = "http"
+                           
+        request.session['queryExplore'] = {"schema": template_id}
+        json_instances = [Instance(name="Local", protocol=protocol, address=request.META['REMOTE_ADDR'], port=request.META['SERVER_PORT'], access_token="token", refresh_token="token").to_json()]
+        request.session['instancesExplore'] = json_instances       
+        
+        template = loader.get_template('explore_results.html')
+        
         context = RequestContext(request, {
             '': '',
         })
-
         if 'exploreCurrentTemplateID' not in request.session:
             return redirect('/explore/select-template')
         else:
@@ -205,7 +214,55 @@ def explore_sparqlresults(request):
     else:
         if 'loggedOut' in request.session:
             del request.session['loggedOut']
-        request.session['next'] = '/explore/sparqlresults'
+        request.session['next'] = '/explore/results'
+        return redirect('/login')
+    
+################################################################################
+#
+# Function Name: explore_all_versions_results(request)
+# Inputs:        request -
+# Outputs:       Query results page
+# Exceptions:    None
+# Description:   Page that allows to see all results from all versions of a template
+#
+################################################################################
+def explore_all_versions_results(request):
+    if request.user.is_authenticated():
+        template_id = request.GET['id']
+        template = Template.objects().get(pk=template_id)
+        version_id = template.templateVersion
+        template_version = TemplateVersion.objects().get(pk=version_id)
+        
+        if len(template_version.versions) == 1:
+                query = {"schema": template_id}
+        else:
+            list_query = []
+            for version in template_version.versions:
+                list_query.append({'schema': version})
+            query = {"$or": list_query}
+                
+        request.session['queryExplore'] = query
+        
+        if 'HTTPS' in request.META['SERVER_PROTOCOL']:
+            protocol = "https"
+        else:
+            protocol = "http"
+        json_instances = [Instance(name="Local", protocol=protocol, address=request.META['REMOTE_ADDR'], port=request.META['SERVER_PORT'], access_token="token", refresh_token="token").to_json()]
+        request.session['instancesExplore'] = json_instances       
+        
+        template = loader.get_template('explore_results.html')
+        
+        context = RequestContext(request, {
+            '': '',
+        })
+        if 'exploreCurrentTemplateID' not in request.session:
+            return redirect('/explore/select-template')
+        else:
+            return HttpResponse(template.render(context))
+    else:
+        if 'loggedOut' in request.session:
+            del request.session['loggedOut']
+        request.session['next'] = '/explore/results'
         return redirect('/login')
 
 
@@ -231,10 +288,8 @@ def explore_download_results(request):
                 in_memory = StringIO()
                 zip = zipfile.ZipFile(in_memory, "a")
     
-                resultNumber = 1
                 for result in ResultsObject.results:
-                    zip.writestr("result"+str(resultNumber)+".xml", result)
-                    resultNumber += 1
+                    zip.writestr(result['title'], result['content'])
     
                 # fix for Linux zip files read in Windows
                 for xmlFile in zip.filelist:
@@ -258,39 +313,3 @@ def explore_download_results(request):
             del request.session['loggedOut']
         request.session['next'] = '/explore'
         return redirect('/login')
-
-
-################################################################################
-#
-# Function Name: explore_download_sparqlresults(request)
-# Inputs:        request -
-# Outputs:       Results of a sparql query
-# Exceptions:    None
-# Description:   Download SPARQL results
-#
-################################################################################
-def explore_download_sparqlresults(request):
-    if request.user.is_authenticated():
-        if 'exploreCurrentTemplateID' not in request.session:
-            return redirect('/explore/select-template')
-        else:
-            savedResultsID = request.GET.get('id', None)
-            
-            if savedResultsID is not None:
-                sparqlResults = SparqlQueryResults.objects.get(pk=savedResultsID)
-    
-                sparqlResultsEncoded = sparqlResults.results.encode('utf-8')
-                fileObj = StringIO(sparqlResultsEncoded)
-    
-                response = HttpResponse(FileWrapper(fileObj), content_type='application/text')
-                response['Content-Disposition'] = 'attachment; filename=sparql_results.txt'
-                return response
-            else:
-                return redirect('/')
-    else:
-        if 'loggedOut' in request.session:
-            del request.session['loggedOut']
-        request.session['next'] = '/explore'
-        return redirect('/login')
-
-

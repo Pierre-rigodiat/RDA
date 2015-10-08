@@ -26,9 +26,9 @@ import os
 import json
 import copy
 import lxml.etree as etree
-from mgi.models import Template, QueryResults, SparqlQueryResults, SavedQuery, Jsondata, Instance, MetaSchema
-import sparqlPublisher
+from mgi.models import Template, QueryResults, SavedQuery, XMLdata, Instance, MetaSchema
 from mgi import common
+from django.template import loader, Context
 #Class definition
 
 ################################################################################
@@ -112,10 +112,9 @@ class BranchInfo:
 def set_current_template(request):
     print 'BEGIN def setCurrentTemplate(request)'    
 
-    template_filename = request.POST['templateFilename']
     template_id = request.POST['templateID']
 
-    setCurrentTemplate(request, template_filename, template_id)
+    setCurrentTemplate(request, template_id)
 
     print 'END def setCurrentTemplate(request)'
     return HttpResponse(json.dumps({}), content_type='application/javascript')
@@ -133,14 +132,13 @@ def set_current_template(request):
 #                an xsdDocTree for use later.
 #
 ################################################################################
-def setCurrentTemplate(request, template_filename, template_id):
+def setCurrentTemplate(request, template_id):
     print 'BEGIN def setCurrentTemplate(request)'    
 
     # reset global variables
     request.session['formStringExplore'] = ""
     request.session['customFormStringExplore'] = ""
-    
-    request.session['exploreCurrentTemplate'] = template_filename
+
     request.session['exploreCurrentTemplateID'] = template_id
     request.session.modified = True
 
@@ -180,7 +178,6 @@ def set_current_user_template(request):
     request.session.modified = True
 
     templateObject = Template.objects.get(pk=template_id)
-    request.session['exploreCurrentTemplate'] = templateObject.title
     
     if template_id in MetaSchema.objects.all().values_list('schemaId'):
         meta = MetaSchema.objects.get(schemaId=template_id)
@@ -284,6 +281,7 @@ def generateSequence(request, element, fullPath, xmlTree, choiceInfo=None):
     
     return formString
 
+
 ################################################################################
 # 
 # Function Name: generateChoice(request, element, fullPath, xmlTree)
@@ -360,6 +358,7 @@ def generateChoice(request, element, fullPath, xmlTree, choiceInfo=None):
     
     return formString
 
+
 ################################################################################
 # 
 # Function Name: generateSimpleType(request, element, elementName, elementType, fullPath, xmlTree)
@@ -397,6 +396,7 @@ def generateSimpleType(request, element, elementName, elementType, fullPath, xml
             pass
     
     return formString 
+
 
 ################################################################################
 # 
@@ -441,6 +441,7 @@ def generateRestriction(request, element, fullPath, elementName, xmlTree):
             
     return formString
 
+
 ################################################################################
 # 
 # Function Name: generateExtension(request, element, fullPath, elementName)
@@ -468,6 +469,7 @@ def generateExtension(request, element, fullPath, elementName):
         formString += "</li>"
             
     return formString
+
 
 ################################################################################
 # 
@@ -556,6 +558,7 @@ def generateSimpleContent(request, element, fullPath, elementName):
             formString += generateExtension(request, child, fullPath, elementName)
     
     return formString
+
 
 ################################################################################
 # 
@@ -650,6 +653,7 @@ def generateElement(request, element, fullPath, xmlTree, choiceInfo=None):
     formString += "</ul>"
     return formString
 
+
 ################################################################################
 # 
 # Function Name: generateForm(request)
@@ -691,6 +695,7 @@ def generateForm(request):
 
     return formString
 
+
 ################################################################################
 # 
 # Function Name: generate_xsd_tree_for_querying_data(request)
@@ -713,7 +718,6 @@ def generate_xsd_tree_for_querying_data(request):
     else:
         xmlDocTreeStr = ""
     
-    templateFilename = request.session['exploreCurrentTemplate']
     templateID = request.session['exploreCurrentTemplateID']
     
     # get the namespaces of the schema and the default prefix
@@ -727,7 +731,7 @@ def generate_xsd_tree_for_querying_data(request):
     request.session['defaultNamespaceExplore'] = defaultNamespace
     
     if xmlDocTreeStr == "":
-        setCurrentTemplate(request,templateFilename, templateID)        
+        setCurrentTemplate(request, templateID)        
     if (formString == ""):
         formString = "<form id=\"dataQueryForm\" name=\"xsdForm\">"
         formString += generateForm(request)        
@@ -779,6 +783,7 @@ def execute_query(request):
     print 'END def executeQuery(request, queryForm, queryBuilder, fedOfQueries)'
     return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
 
+
 ################################################################################
 # 
 # Function Name: getInstances(request, fedOfQueries)
@@ -808,6 +813,7 @@ def getInstances(request, fedOfQueries):
     
     return instances  
 
+
 ################################################################################
 # 
 # Function Name: get_results(request)
@@ -821,6 +827,7 @@ def get_results(request):
     instances = request.session['instancesExplore']    
     response_dict = {'numInstance': str(len(instances))}
     return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
+
 
 ################################################################################
 # 
@@ -841,6 +848,7 @@ def manageRegexBeforeExe(query):
                 query[key] = re.compile(value[1:-1])
         elif isinstance(value, dict):
             manageRegexBeforeExe(value)
+
 
 # ################################################################################
 # # 
@@ -868,7 +876,7 @@ def manageRegexBeforeExe(query):
 #     resultString += "<b>From " + instance['name'] + ":</b> <br/>"
 #     if instance['name'] == "Local":
 #         manageRegexBeforeExe(query)
-#         instanceResults = Jsondata.executeQuery(query)
+#         instanceResults = XMLdata.executeQuery(query)
 #         if len(instanceResults) > 0:
 #             for instanceResult in instanceResults:
 #                 results.append(xmltodict.unparse(instanceResult))
@@ -942,25 +950,35 @@ def get_results_by_instance(request):
         results = []
         instance = eval(instances[int(i)])
         sessionName = "resultsExplore" + instance['name']
-        resultString += "<b>From " + instance['name'] + ":</b> <br/>"
+        resultString += "<p style='font-weight:bold; color:#369;'>From " + instance['name'] + ":</p>"
         if instance['name'] == "Local":
             query = copy.deepcopy(request.session['queryExplore'])
             manageRegexBeforeExe(query)
-            instanceResults = Jsondata.executeQuery(query)
+            instanceResults = XMLdata.executeQueryFullResult(query)
             if len(instanceResults) > 0:
                 for instanceResult in instanceResults:
-                    results.append(xmltodict.unparse(instanceResult))
-    #                 resultString += "<textarea class='xmlResult' readonly='true'>"
-                    resultString += "<div class='xmlResult' readonly='true'>"
+                    results.append({'title':instanceResult['title'], 'content':xmltodict.unparse(instanceResult['content'])})
                     xsltPath = os.path.join(settings.SITE_ROOT, 'static/resources/xsl/xml2html.xsl')
                     xslt = etree.parse(xsltPath)
                     transform = etree.XSLT(xslt)
-                    dom = etree.fromstring(str(xmltodict.unparse(instanceResult).replace('<?xml version="1.0" encoding="utf-8"?>\n',"")))
+                    dom = etree.fromstring(str(xmltodict.unparse(instanceResult['content']).replace('<?xml version="1.0" encoding="utf-8"?>\n',"")))
                     newdom = transform(dom)
-                    resultString += str(newdom)
-    #                 resultString += str(xmltodict.unparse(instanceResult, pretty=True))
-    #                 resultString += "</textarea> <br/>"
-                    resultString += "</div> <br/>"
+                    template = loader.get_template('explore_result.html')
+                    canDelete = False
+                    canEdit = False
+                    # only admins can edit/delete for now
+                    if request.user.is_staff:
+                        canDelete = True
+                        canEdit = True
+                    
+                    context = Context({'id':str(instanceResult['_id']),
+                                       'xml': str(newdom),
+                                       'title': instanceResult['title'],
+                                       'canDelete':canDelete,
+                                       'canEdit': canEdit})
+
+                    resultString+= template.render(context)
+                    
                 resultString += "<br/>"
             else:
                 resultString += "<span style='font-style:italic; color:red;'> No Results found... </span><br/><br/>"
@@ -974,18 +992,18 @@ def get_results_by_instance(request):
             instanceResults = json.loads(result,object_pairs_hook=OrderedDict)
             if len(instanceResults) > 0:
                 for instanceResult in instanceResults:
-                    results.append(instanceResult['content'])
-    #                 resultString += "<textarea class='xmlResult' readonly='true'>"  
-    #                 resultString += str(xmltodict.unparse(instanceResult['content'], pretty=True))
-    #                 resultString += "</textarea> <br/>"
-                    resultString += "<div class='xmlResult' readonly='true'>"
+                    results.append({'title':instanceResult['title'], 'content':instanceResult['content']})                  
                     xsltPath = os.path.join(settings.SITE_ROOT, 'static/resources/xsl/xml2html.xsl')
                     xslt = etree.parse(xsltPath)
                     transform = etree.XSLT(xslt)
-                    dom = etree.fromstring(str(instanceResult['content'].replace('<?xml version="1.0" encoding="utf-8"?>\n',"")))
+                    dom = etree.fromstring(str(xmltodict.unparse(instanceResult['content']).replace('<?xml version="1.0" encoding="utf-8"?>\n',"")))
                     newdom = transform(dom)
-                    resultString += str(newdom)
-                    resultString += "</div> <br/>"
+                    template = loader.get_template('explore_result.html')
+                    context = Context({'id':str(instanceResult['_id']),
+                                       'xml': str(newdom),
+                                       'title': instanceResult['title']})
+
+                    resultString+= template.render(context)
                 resultString += "<br/>"
             else:
                 resultString += "<span style='font-style:italic; color:red;'> No Results found... </span><br/><br/>"
@@ -1019,6 +1037,7 @@ def manageRegexBeforeAPI(query, queryStr):
         elif isinstance(value, dict):
             queryStr = manageRegexBeforeAPI(value, queryStr)
     return queryStr
+
 
 ################################################################################
 # 
@@ -1079,6 +1098,7 @@ def floatCriteria(path, comparison, value, isNot=False):
 
     return criteria
 
+
 ################################################################################
 # 
 # Function Name: stringCriteria(path, comparison, value, isNot=False)
@@ -1108,6 +1128,7 @@ def stringCriteria(path, comparison, value, isNot=False):
     
     return criteria
 
+
 ################################################################################
 # 
 # Function Name: queryToCriteria(query, isNot=False)
@@ -1123,6 +1144,7 @@ def queryToCriteria(query, isNot=False):
         return invertQuery(query.copy())
     else:
         return query
+
 
 ################################################################################
 # 
@@ -1157,6 +1179,7 @@ def invertQuery(query):
                     query[key]["$ne"] = savedValue
     return query
 
+
 ################################################################################
 # 
 # Function Name: enumCriteria(path, value, isNot=False)
@@ -1178,6 +1201,7 @@ def enumCriteria(path, value, isNot=False):
             
     return criteria
 
+
 ################################################################################
 # 
 # Function Name: ANDCriteria(criteria1, criteria2)
@@ -1195,6 +1219,7 @@ def ANDCriteria(criteria1, criteria2):
     ANDcriteria["$and"].append(criteria2)
     return ANDcriteria
 
+
 ################################################################################
 # 
 # Function Name: ORCriteria(criteria1, criteria2)
@@ -1211,6 +1236,7 @@ def ORCriteria(criteria1, criteria2):
     ORcriteria["$or"].append(criteria1)
     ORcriteria["$or"].append(criteria2)
     return ORcriteria
+
 
 ################################################################################
 # 
@@ -1250,6 +1276,7 @@ def buildCriteria(request, elemPath, comparison, value, elemType, isNot=False):
         return stringCriteria(elemPath, comparison, value, isNot)
     else:
         return stringCriteria(elemPath, comparison, value, isNot)
+
 
 ################################################################################
 # 
@@ -1308,6 +1335,7 @@ def fieldsToQuery(request, htmlTree):
                 query = ANDCriteria(query, criteria)
         
     return query
+
 
 ################################################################################
 # 
@@ -1392,7 +1420,8 @@ def checkQueryForm(request, htmlTree):
                         errors.append(element + " must be a valid regular expression ! (" + str(e) + ")")
                     
     return errors
-                    
+                
+    
 ################################################################################
 # 
 # Function Name: add_field(request)
@@ -1488,6 +1517,7 @@ def remove_field(request):
     response_dict = {'queryForm': html.tostring(htmlTree)}
     return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
 
+
 ################################################################################
 # 
 # Function Name: renderYESORNOT()
@@ -1504,6 +1534,7 @@ def renderYESORNOT():
       <option value="NOT">NOT</option>
     </select> 
     """
+
 
 ################################################################################
 # 
@@ -1522,6 +1553,7 @@ def renderANDORNOT():
       <option value="NOT">NOT</option>
     </select> 
     """
+
 
 ################################################################################
 # 
@@ -1543,6 +1575,7 @@ def renderNumericSelect():
     </select> 
     """
 
+
 ################################################################################
 # 
 # Function Name: renderValueInput()
@@ -1556,6 +1589,7 @@ def renderValueInput():
     return """
     <input style="margin-left:4px;" type="text" class="valueInput"/>
     """
+
 
 ################################################################################
 # 
@@ -1574,6 +1608,7 @@ def renderStringSelect():
     </select> 
     """
 
+
 ################################################################################
 # 
 # Function Name: renderEnum()
@@ -1591,8 +1626,6 @@ def renderEnum(request, fromElementID):
     enum += "</select>"
     return enum
 
-def renderSelectForm(tagID):
-    pass
 
 ################################################################################
 # 
@@ -1638,6 +1671,7 @@ def buildPrettyCriteria(elementName, comparison, value, isNot=False):
     
     return prettyCriteria
 
+
 ################################################################################
 # 
 # Function Name: queryToPrettyCriteria(queryValue, isNot)
@@ -1653,6 +1687,7 @@ def queryToPrettyCriteria(queryValue, isNot):
         return "NOT(" + queryValue + ")"
     else:
         return queryValue
+
 
 ################################################################################
 # 
@@ -1671,6 +1706,7 @@ def enumToPrettyCriteria(element, value, isNot=False):
     else:
         return str(element) + " is " + str(value)
 
+
 ################################################################################
 # 
 # Function Name: ORPrettyCriteria(query, criteria)
@@ -1684,6 +1720,7 @@ def enumToPrettyCriteria(element, value, isNot=False):
 def ORPrettyCriteria(query, criteria):
     return "(" + query + " OR " + criteria + ")"
 
+
 ################################################################################
 # 
 # Function Name: ANDPrettyCriteria(query, criteria)
@@ -1696,6 +1733,7 @@ def ORPrettyCriteria(query, criteria):
 ################################################################################
 def ANDPrettyCriteria(query, criteria):
     return "(" + query + " AND " + criteria + ")"
+
 
 ################################################################################
 # 
@@ -1757,6 +1795,7 @@ def fieldsToPrettyQuery(request, queryFormTree):
                 query = ANDPrettyCriteria(query, criteria)
         
     return query    
+
 
 ################################################################################
 # 
@@ -2148,27 +2187,14 @@ def get_custom_form(request):
     if (customFormString != ""):
         if 'currentExploreTab' in request.session and request.session['currentExploreTab'] == "tab-1":
             customForm = customFormString
-            sparqlCustomForm = ""
         elif 'currentExploreTab' in request.session and request.session['currentExploreTab'] == "tab-2":
-            sparqlCustomForm = customFormString
             customForm = ""
     else:
         customFormErrorMsg = "<p style='color:red;'>You should customize the template first. <a href='/explore/customize-template' style='color:red;font-weight:bold;'>Go back to Step 2 </a> and select the elements that you want to use in your queries.</p>"
         customForm = customFormErrorMsg
-        sparqlCustomForm = customFormErrorMsg
     
     response_dict['customForm'] = customForm
-    response_dict['sparqlCustomForm'] = sparqlCustomForm
-    
-    if 'sparqlQueryExplore' in request.session and request.session['sparqlQueryExplore'] != "":
-        sparqlQuery = request.session['sparqlQueryExplore']
-    else:
-        sparqlQuery = ""
-        
-    if sparqlQuery != "" :
-        response_dict['sparqlQuery'] = sparqlQuery    
-        request.session['sparqlQueryExplore'] = ""
-    
+
     return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
 
 
@@ -2217,6 +2243,7 @@ def createCustomTreeForQuery(request, htmlTree):
     request.session['anyCheckedExplore'] = False
     for li in htmlTree.findall("./ul/li"):
         manageLiForQuery(request, li)
+
 
 ################################################################################
 #
@@ -2361,7 +2388,7 @@ def back_to_query(request):
 def redirect_explore(request):
     request.session['currentExploreTab'] = "tab-2"
 
-
+ 
 ################################################################################
 #
 # Function Name: redirectExploreTabs(request)
@@ -2373,10 +2400,10 @@ def redirect_explore(request):
 ################################################################################
 def redirect_explore_tabs(request):
     if 'currentExploreTab' in request.session and request.session['currentExploreTab'] == "tab-2":
-        response_dict = {'tab':'sparql'}
+        response_dict = {'tab':'tab-2'}
     else:
-        response_dict = {'tab':'qbe'}
-    
+        response_dict = {'tab':'tab-1'}
+     
     return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
 
 
@@ -2391,7 +2418,6 @@ def redirect_explore_tabs(request):
 ################################################################################
 def switch_explore_tab(request):    
     request.session["currentExploreTab"] = request.POST['tab']
-    sparqlCustomForm = ""
     customForm = ""
     
     if 'customFormStringExplore' in request.session:   
@@ -2402,12 +2428,10 @@ def switch_explore_tab(request):
     if (customFormString != ""):
         if 'currentExploreTab' in request.session and request.session['currentExploreTab'] == "tab-1":
             customForm = customFormString
-            sparqlCustomForm = ""
         elif 'currentExploreTab' in request.session and request.session['currentExploreTab'] == "tab-2":
-            sparqlCustomForm = customFormString
             customForm = ""
     
-    response_dict = {"customForm": customForm, "sparqlCustomForm": sparqlCustomForm}
+    response_dict = {"customForm": customForm}
     return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
 
 
@@ -2450,230 +2474,9 @@ def select_element(request):
     elif 'currentExploreTab' in request.session and request.session['currentExploreTab'] == "tab-2":
         mapTagIDElementInfo = request.session['mapTagIDElementInfoExplore']
         elementPath = eval(mapTagIDElementInfo[str(element_id)])['path']
-        elementPath = elementPath.replace(".","/tpl:")
-        elementPath = "tpl:" + elementPath
-        
-        queryExample = """SELECT ?""" + element_name + """Value
-WHERE {
-?s """ + elementPath + """ ?o .
-?o rdf:value ?""" + element_name + """Value .
-}
-"""
         response_dict = {"tab": "tab-2", 
-                         "elementPath": elementPath,
-                         "queryExample": queryExample} 
+                         "elementPath": elementPath} 
 
-    return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
-
-################################################################################
-#
-# Function Name: execute_sparql_query(request)
-# Inputs:        request - 
-# Outputs:       
-# Exceptions:    None
-# Description:   Execute a SPARQL query
-#                
-################################################################################
-def execute_sparql_query(request):
-    print 'BEGIN def executeSPARQLQuery(request)'        
-    
-    fed_of_queries = request.POST['fedOfQueries']
-    query_str = request.POST['queryStr']
-    sparql_format_index = request.POST['sparqlFormatIndex']
-    
-    response_dict = {}
-    
-    instances = getInstances(request, fed_of_queries)
-    if (len(instances)==0):
-        response_dict = {'errors':'zero'}
-    else:
-        json_instances = []
-        for instance in instances:
-            json_instances.append(instance.to_json()) 
-        request.session['instancesExplore'] = json_instances
-        request.session['sparqlQueryExplore'] = query_str
-        request.session['sparqlFormatExplore'] = str(sparql_format_index)
-
-    print 'END def executeSPARQLQuery(request)'
-    return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
-
-################################################################################
-#
-# Function Name: get_sparql_results(request)
-# Inputs:        request - 
-# Outputs:       
-# Exceptions:    None
-# Description:   Gets results from a SPARQL query
-#                
-################################################################################
-def get_sparql_results(request):
-    instances = request.session['instancesExplore']    
-    request.session['sparqlResultsExplore'] = ""    
-    response_dict = {'numInstance': str(len(instances))}
-    return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
-
-# from threading import Thread, Lock
-# mutex = Lock()
-
-# @dajaxice_register
-# def getSparqlResultsByInstance(request, numInstance):
-#     dajax = Dajax()
-#     global mutex
-#     mutex.acquire()
-#     try:      
-#         instances = request.session['instancesExplore']
-#         sparqlQuery = request.session['sparqlQueryExplore']    
-#         sparqlFormat = request.session['sparqlFormatExplore']
-#         
-#         resultString = ""
-#         instance = eval(instances[int(numInstance)])
-#         sessionName = "sparqlResultsExplore" + instance['name']
-#         print sessionName + "lock"
-#         resultString += "<b>From " + instance['name'] + ":</b> <br/>"
-#         if instance['name'] == "Local":
-#             instanceResults = sparqlPublisher.sendSPARQL(sparqlFormat + sparqlQuery)
-#             request.session[sessionName] = instanceResults
-#             displayedSparqlResults = instanceResults.replace("<", "&#60;")
-#             displayedSparqlResults = displayedSparqlResults.replace(">", "&#62;")
-#             resultString += "<pre class='sparqlResult' readonly='true'>"
-#             resultString += displayedSparqlResults
-#             resultString += "</pre>"
-#             resultString += "<br/>"
-#         else:
-#             url = instance['protocol'] + "://" + instance['address'] + ":" + str(instance['port']) + "/rest/explore/sparql-query"
-#             resFormat = ""
-#             if (sparqlFormat == "0"):
-#                 resFormat = "TEXT"
-#             elif (sparqlFormat == "1"):
-#                 resFormat = "XML"
-#             elif (sparqlFormat == "2"):
-#                 resFormat = "CSV"
-#             elif (sparqlFormat == "3"):
-#                 resFormat = "TSV"
-#             elif (sparqlFormat == "4"):
-#                 resFormat = "JSON"
-#             data = {"query": sparqlQuery, "format": resFormat}
-#             try:
-#                 r = requests.post(url, data, auth=(instance['user'], instance['password']))
-#                 instanceResultsDict = eval(r.text)
-#                 instanceResults = instanceResultsDict['content']  
-#                 request.session[sessionName] = instanceResults
-#                 displayedSparqlResults = instanceResults.replace("<", "&#60;")
-#                 displayedSparqlResults = displayedSparqlResults.replace(">", "&#62;")        
-#                 resultString += "<pre class='sparqlResult' readonly='true'>"
-#                 resultString += displayedSparqlResults
-#                 resultString += "</pre>"
-#                 resultString += "<br/>"
-#             except:            
-#                 request.session[sessionName] = ""
-#                 resultString += "<p style='color:red;'>Unable to contact the remote instance.</p>"
-#     
-#         dajax.append("#results", "innerHTML", resultString)
-#         
-#         request.session.modified = True
-#         request.session.save()
-#     except Exception, e:
-#         print "error in :" + sessionName
-#         print e.message
-#         mutex.release()
-#         return dajax.json()
-#     mutex.release()
-#     print sessionName + "release"
-#     return dajax.json()
-
-
-################################################################################
-#
-# Function Name: get_sparql_results_by_instance(request)
-# Inputs:        request -
-# Outputs:       
-# Exceptions:    None
-# Description:   Gets results from a SPARQL query for the given instances
-#                
-################################################################################
-def get_sparql_results_by_instance(request):
-    num_instance = request.GET['numInstance']
-    
-    resultString = ""
-    
-    for i in range(int(num_instance)):
-        instances = request.session['instancesExplore']
-        sparqlQuery = request.session['sparqlQueryExplore']    
-        sparqlFormat = request.session['sparqlFormatExplore']
-                
-        instance = eval(instances[int(i)])
-        sessionName = "sparqlResultsExplore" + instance['name']
-        resultString += "<b>From " + instance['name'] + ":</b> <br/>"
-        if instance['name'] == "Local":
-            instanceResults = sparqlPublisher.sendSPARQL(sparqlFormat + sparqlQuery)
-            request.session[sessionName] = instanceResults
-            displayedSparqlResults = instanceResults.replace("<", "&#60;")
-            displayedSparqlResults = displayedSparqlResults.replace(">", "&#62;")
-            resultString += "<pre class='sparqlResult' readonly='true'>"
-            resultString += displayedSparqlResults
-            resultString += "</pre>"
-            resultString += "<br/>"
-        else:
-            url = instance['protocol'] + "://" + instance['address'] + ":" + str(instance['port']) + "/rest/explore/sparql-query"
-            resFormat = ""
-            if (sparqlFormat == "0"):
-                resFormat = "TEXT"
-            elif (sparqlFormat == "1"):
-                resFormat = "XML"
-            elif (sparqlFormat == "2"):
-                resFormat = "CSV"
-            elif (sparqlFormat == "3"):
-                resFormat = "TSV"
-            elif (sparqlFormat == "4"):
-                resFormat = "JSON"
-            data = {"query": sparqlQuery, "dataformat": resFormat}
-            try:
-                headers = {'Authorization': 'Bearer ' + instance['access_token']}
-                r = requests.post(url, data=data, headers=headers)
-                instanceResultsDict = eval(r.text)
-                instanceResults = instanceResultsDict['content']  
-                request.session[sessionName] = instanceResults
-                displayedSparqlResults = instanceResults.replace("<", "&#60;")
-                displayedSparqlResults = displayedSparqlResults.replace(">", "&#62;")        
-                resultString += "<pre class='sparqlResult' readonly='true'>"
-                resultString += displayedSparqlResults
-                resultString += "</pre>"
-                resultString += "<br/>"
-            except:
-                request.session[sessionName] = ""
-                resultString += "<p style='color:red;'>Unable to contact the remote instance.</p>"
-        
-    response_dict = {'results' : resultString}   
-    return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
-
-
-################################################################################
-#
-# Function Name: download_sparql_results(request)
-# Inputs:        request -
-# Outputs:       
-# Exceptions:    None
-# Description:   Download Results gotten from a SPARQL query
-#                
-################################################################################  
-def download_sparql_results(request):
-    print '>>>>  BEGIN def downloadSparqlResults(request)'
-
-    instances = request.session['instancesExplore']
-    sparqlResults = ""
-    for instance in instances:
-        sessionName = "sparqlResultsExplore" + eval(instance)['name']
-        results = request.session[sessionName]
-    
-        if (len(results) > 0):            
-            sparqlResults += results
-
-        
-    savedResults = SparqlQueryResults(results=sparqlResults).save()
-    savedResultsID = str(savedResults.id)
-    
-    print '>>>> END def downloadSparqlResults(request)'
-    response_dict = {'savedResultsID': savedResultsID}
     return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
 
 
@@ -2802,6 +2605,7 @@ def insert_sub_element_query(request):
     
     return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
 
+
 ################################################################################
 #
 # Function Name: checkSubElementField(request, liElement, elementName, elementType)
@@ -2857,6 +2661,7 @@ def checkSubElementField(request, liElement, elementName, elementType):
 
     return error
 
+
 ################################################################################
 #
 # Function Name: subElementfieldsToQuery(request, liElement, listLeavesId)
@@ -2908,6 +2713,7 @@ def subElementfieldsToQuery(request, liElements, listLeavesId):
     
     return query
 
+
 ################################################################################
 #
 # Function Name: subElementfieldsToQuery(request, liElement, listLeavesId)
@@ -2958,3 +2764,26 @@ def subElementfieldsToPrettyQuery(request, liElements, listLeavesId):
     query =  parentName + elemMatch
         
     return query 
+
+
+################################################################################
+#
+# Function Name: delete_result(request)
+# Inputs:        request -
+# Outputs:       
+# Exceptions:    None
+# Description:   Delete an XML document from the database
+#                
+################################################################################
+def delete_result(request):
+    result_id = request.GET['result_id']
+    
+    try:
+        if request.user.is_staff:
+            XMLdata.delete(result_id)
+    except:
+        # XML can't be found
+        pass
+    
+    return HttpResponse(json.dumps({}), content_type='application/javascript')
+
