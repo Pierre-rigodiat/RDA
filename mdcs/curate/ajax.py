@@ -628,8 +628,6 @@ def generateChoice(request, element, xmlTree, namespace, choiceInfo=None, fullPa
         if nbOccurrences_data > nbOccurrences:
             nbOccurrences = nbOccurrences_data    
         
-        # if nb of occurrences not set to one, save the element
-#         if (minOccurs != 1) or (maxOccurs != 1):
         xml_element = XMLElement(xsd_xpath=xsd_xpath, nbOccurs=nbOccurrences_data, minOccurs=minOccurs, maxOccurs=maxOccurs).save()
 
     # keeps track of elements to display depending on the selected choice
@@ -1137,22 +1135,23 @@ def generateElement(request, element, xmlTree, namespace, choiceInfo=None, fullP
     if nbOccurrences_data > nbOccurrences:
         nbOccurrences = nbOccurrences_data    
     
-#     xml_element = XMLElement(xsd_xpath=xsd_xpath, nbOccurs=nbOccurrences_data, minOccurs=minOccurs, maxOccurs=maxOccurs).save()
+    xml_element = XMLElement(xsd_xpath=xsd_xpath, nbOccurs=nbOccurrences_data, minOccurs=minOccurs, maxOccurs=maxOccurs).save()
 
+    # this reduce the number of xml_element stored, but may crash for xpath accessor if xpath not found
     # not a choice: we need to store all options if choice
-    if not isInAChoice: 
-        # data being edited
-        if request.session['curate_edit']:
-            # cannot remove or add occurrences
-            if not(minOccurs == maxOccurs == nbOccurrences_data):
-                xml_element = XMLElement(xsd_xpath=xsd_xpath, nbOccurs=nbOccurrences_data, minOccurs=minOccurs, maxOccurs=maxOccurs).save()
-        # empty form
-        else: 
-            # cannot remove or add occurrences
-            if not(minOccurs == maxOccurs):
-                xml_element = XMLElement(xsd_xpath=xsd_xpath, nbOccurs=nbOccurrences_data, minOccurs=minOccurs, maxOccurs=maxOccurs).save()
-    else:
-        xml_element = XMLElement(xsd_xpath=xsd_xpath, nbOccurs=nbOccurrences_data, minOccurs=minOccurs, maxOccurs=maxOccurs).save()
+#     if not isInAChoice: 
+#         # data being edited
+#         if request.session['curate_edit']:
+#             # cannot remove or add occurrences
+#             if not(minOccurs == maxOccurs == nbOccurrences_data):
+#                 xml_element = XMLElement(xsd_xpath=xsd_xpath, nbOccurs=nbOccurrences_data, minOccurs=minOccurs, maxOccurs=maxOccurs).save()
+#         # empty form
+#         else: 
+#             # cannot remove or add occurrences
+#             if not(minOccurs == maxOccurs):
+#                 xml_element = XMLElement(xsd_xpath=xsd_xpath, nbOccurs=nbOccurrences_data, minOccurs=minOccurs, maxOccurs=maxOccurs).save()
+#     else:
+#         xml_element = XMLElement(xsd_xpath=xsd_xpath, nbOccurs=nbOccurrences_data, minOccurs=minOccurs, maxOccurs=maxOccurs).save()
     
     
     # management of elements inside a choice (don't display if not part of the currently selected choice)
