@@ -136,6 +136,8 @@ def curate_enter_data(request):
                 if 'currentTemplateID' not in request.session:
                     return redirect('/curate/select-template')
             return HttpResponse(template.render(context))
+        else:
+            return HttpResponse(template.render(context))
     else:
         request.session['next'] = request.get_full_path()
         return redirect('/login')
