@@ -23,7 +23,7 @@
 {% block title %}<h1>Select Template</h1>{% endblock %}
 
 {% block description %}
-Select a template from the following table. Once you make your selection, click on "Enter Data" to proceed.  It will
+Select a template from the following table. Once you make your selection, choose between starting a new document, open an existing form or start from a dile.  It will
 automatically load the appropriate form and display it on the next page.
 {% endblock %}
 
@@ -128,7 +128,7 @@ automatically load the appropriate form and display it on the next page.
 {% block extra %}
 <div id="dialog-message" title="Template Loaded" style="display:none;">
 	<p>
-	  Please Choose one of the following options to start curating data: 
+	  Please choose one of the following options to start curating data: 
 	</p>
     <form id="form_start" action="/curate/start_curate" method="post">
         {% csrf_token %}
