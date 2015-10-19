@@ -719,6 +719,7 @@ def select_schema(request):
         content = {'message':'No template found with the given parameters.'}
         return Response(content, status=status.HTTP_404_NOT_FOUND)
 
+
 ################################################################################
 # 
 # Function Name: select_all_schemas(request)
