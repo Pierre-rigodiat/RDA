@@ -5,15 +5,16 @@ configureAutocomplete({
         $.ajax({
             url: '/modules/examples/autocomplete',
             method: 'POST',
+            dataType: 'json',
             data: {
-                'data': term
+                'list': term
             },
             success: function(data) {
-                var textData = $(data).find('.moduleDisplay').text();
-                var re = new RegExp("'", 'g');
+                var $data = $(data.html);
 
+                var textData = $data.find('.moduleDisplay').text();
+                var re = new RegExp("'", 'g');
                 textData = textData.replace(re, '\"');
-                console.log(textData);
 
                 var jsonData = JSON.parse(textData);
                 response(jsonData);
@@ -21,4 +22,9 @@ configureAutocomplete({
         });
     },
     minLength: 0
-})
+});
+
+$('body').on('blur', '.mod_autocomplete input[type="text"]', function(event) {
+    var $this = $(this);
+    saveModuleData($this.parents('.module'), {'data': $this.val()});
+});
