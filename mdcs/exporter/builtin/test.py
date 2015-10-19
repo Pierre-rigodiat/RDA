@@ -1,9 +1,5 @@
 from models import XSLTExporter, BasicExporter
 import unittest
-import lxml.etree as etree
-from io import BytesIO
-from exporter import get_exporter
-import inspect
 
 class Test(unittest.TestCase):
     def setUp(self):

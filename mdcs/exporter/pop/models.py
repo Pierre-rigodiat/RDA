@@ -1,51 +1,65 @@
 from exporter.models import Exporter
-from django.conf import settings
 import lxml.etree as etree
 from io import BytesIO
-from exporter.builtin.models import XSLTExporter
 import os
+import datetime
+from django.utils.timezone import activate
+from django.conf import settings
+from django.utils import timezone
+from dateutil import tz
 
-RESOURCES_PATH = os.path.join(os.path.dirname(__file__), 'resources')
+RESOURCES_PATH = os.path.join(settings.SITE_ROOT, 'exporter/pop/resources/')
 
 class POPExporter(Exporter):
 
     def __init__(self):
         #Invoke parent constructor
         self.name = "POP"
+        self.data = []
+
+
+    def params(self, context):
+    # this is the extension function
+        return self.data
 
     def _transform(self, results):
-        transformation = ""
+        transformation = []
+        self.data = []
         try:
-            contentXml = '<root>'
             for result in results:
-                xml = result['content'].replace('<?xml version="1.0" encoding="utf-8"?>',"")
+                xml = result['content'].encode('utf-8')
                 if xml != "":
-                    contentXml += xml
-            contentXml += '</root>'
-
-            dataXML = []
-            dataXML.append({'title':'Results.pop', 'content': str(contentXml)})
-
-            #Transform many xml results files into one file
-            dir = os.path.join(RESOURCES_PATH, 'xslt/many2one.xsl')
-            xslt = open(dir,'r')
-            contentXslt = xslt.read()
-            xslt.close()
-            many_to_one = XSLTExporter(contentXslt)
-            res = many_to_one._transform(dataXML)
+                    self.data.append(etree.XML(xml))
 
             #Take the previous file and generate one POP file
             dir = os.path.join(RESOURCES_PATH, 'xslt/xml2pop.xsl')
             xslt = open(dir,'r')
             contentXslt = xslt.read()
             xslt.close()
-            xml_to_pop = XSLTExporter(contentXslt)
-            transformation = xml_to_pop._transform(res)
+
+            xsltParsed = etree.parse(BytesIO(contentXslt.encode('utf-8')))
+            transform = etree.XSLT(xsltParsed)
+
+            from_zone = tz.tzutc()
+            to_zone = tz.tzlocal()
+            datetimeUTC = datetime.datetime.now().replace(tzinfo=from_zone)
+            datetimeLocal = datetimeUTC.astimezone(to_zone)
+            now = datetimeLocal.strftime("%m-%d-%Y %I:%M %p")
+            args = ({"Date": "\""+now+"\""})
+            dom = etree.XML(xml)
+            ns = etree.FunctionNamespace('uri:params') # register global namespace
+            ns['params'] = self.params # define function in new global namespace
+            newdom = transform(dom, **(args))
+            transformation.append({'title':'Results.pop', 'content': str(newdom)})
 
         except etree.ParseError as e:
             raise
         except:
             raise
 
+
         return transformation
+
+
+
 

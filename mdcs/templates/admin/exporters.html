@@ -64,7 +64,7 @@ Select exporters you want to associate with the template.
 				{% for xslt in xsltFiles %}
 				{% with key=xslt.id %}
 					<tr>
-						<td>{{xslt.title}}</td>
+						<td>{{xslt.name}}</td>
 						<td id="ButtonSet{{xslt.id}}">{% if xslt.available_for_all == True %}
 							<input id="{{xslt.id}}" class="cmn-toggle cmn-toggle-round2" name="xslt" type="checkbox" disabled="True" checked>
 							{% elif useXsltFiles|access:key  == True  %}

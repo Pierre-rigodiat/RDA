@@ -1,11 +1,5 @@
-from models import XSLTExporter, POPExporter
+from models import POPExporter
 import unittest
-import lxml.etree as etree
-from io import BytesIO
-from exporter import get_exporter
-import inspect
-import os
-from django.conf import settings
 
 class Test(unittest.TestCase):
     def setUp(self):
@@ -32,7 +26,8 @@ class Test(unittest.TestCase):
 
         #Comparison
         self.assertEquals(contentRes[0]['title'], 'Results.pop')
-        self.assertEquals(contentRes[0]['content'], "\n".join(contentResExpected.splitlines()))
+        #We don't take into account the first 2 lines cause of the current date
+        self.assertEquals("\n".join(contentRes[0]['content'].splitlines()[2:]), "\n".join(contentResExpected.splitlines()[2:]))
 
 
     def test_many_files(self):
@@ -45,9 +40,9 @@ class Test(unittest.TestCase):
         contentXml2 = open('testData/result2.xml','r').read()
         contentXml3 = open('testData/result3.xml','r').read()
         #Add the xml content to the list of data to transform
-        dataXML.append({'title':'Results ', 'content': str(contentXml)})
-        dataXML.append({'title':'Results ', 'content': str(contentXml2)})
-        dataXML.append({'title':'Results ', 'content': str(contentXml3)})
+        dataXML.append({'title':'Results.pop', 'content': str(contentXml)})
+        dataXML.append({'title':'Results.pop', 'content': str(contentXml2)})
+        dataXML.append({'title':'Results.pop', 'content': str(contentXml3)})
 
         #Transformation
         contentRes = exporter._transform(dataXML)
@@ -58,7 +53,8 @@ class Test(unittest.TestCase):
 
         #Comparison
         self.assertEquals(contentRes[0]['title'], 'Results.pop')
-        self.assertEquals(contentRes[0]['content'], "\n".join(contentResExpected.splitlines()))
+        #We don't take into account the first 2 lines cause of the current date
+        self.assertEquals("\n".join(contentRes[0]['content'].splitlines()[2:]), "\n".join(contentResExpected.splitlines()[2:]))
 
 
 

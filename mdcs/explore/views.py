@@ -368,9 +368,9 @@ def start_export(request):
                                 xslt = ExporterXslt.objects.get(pk=xslt)
                                 exporter._setXslt(xslt.content)
                                 if folder_name == None:
-                                    exporter._transformAndZip(xslt.title, xmlResults, zip)
+                                    exporter._transformAndZip(xslt.name, xmlResults, zip)
                                 else:
-                                    exporter._transformAndZip(folder_name+"/"+xslt.title, xmlResults, zip)
+                                    exporter._transformAndZip(folder_name+"/"+xslt.name, xmlResults, zip)
 
                         #We export for others exporters
                         for exporter in listExporter:

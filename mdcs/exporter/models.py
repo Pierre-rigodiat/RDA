@@ -1,6 +1,4 @@
 from abc import ABCMeta, abstractmethod
-from cStringIO import StringIO
-import zipfile
 
 class Exporter(object):
     __metaclass__ = ABCMeta

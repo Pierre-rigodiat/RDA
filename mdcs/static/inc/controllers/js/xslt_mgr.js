@@ -51,7 +51,7 @@ displayImport = function()
 validateExport = function()
 {
     errors = ""
-    if ($( "#id_title" ).val().trim() == ""){
+    if ($( "#id_name" ).val().trim() == ""){
         errors = "Please enter a name."
     }
 	// check if an option has been selected

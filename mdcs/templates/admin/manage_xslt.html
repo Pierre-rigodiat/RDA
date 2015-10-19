@@ -51,7 +51,7 @@
 {% for object in xslt_files %}
   {% cycle 'even' '' as rowcolors silent %}
   <tr class="{{ rowcolors }}">
-    <td>{{ object.title }}</td>
+    <td>{{ object.name }}</td>
     <td>{{ object.filename }}</td>
     <td id="ButtonSet{{object.id}}">
 			{% if object.available_for_all %}
@@ -87,8 +87,8 @@
 		{% csrf_token %}
 		<table>
 			<tr>
-				<td>{{upload_xslt_Form.title.label}}</td>
-				<td>{{upload_xslt_Form.title}}</td>
+				<td>{{upload_xslt_Form.name.label}}</td>
+				<td>{{upload_xslt_Form.name}}</td>
 			</tr>
 			<tr>
 				<td>{{upload_xslt_Form.xslt_file.label}}</td>
@@ -108,7 +108,7 @@
 <div id="dialog-edit-message" title="Edit XSLT" style="display: none;">
 	<table>
 		<tr>
-			<td>{{upload_xslt_Form.title.label}}</td>
+			<td>{{upload_xslt_Form.name.label}}</td>
 			<td><input type="text" id="edit-name"/></td>
 		</tr>
 		<tr>

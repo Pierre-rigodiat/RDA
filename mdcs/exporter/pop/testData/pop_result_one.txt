@@ -24,4 +24,3 @@ Temp (K)		Sample ID (undefined)		Al impurity diffusion coeffcient in Mg (m2/s)		
 673.0		2_1		2.18e-15		3.3e-15		9.6e-16		
 TABLE END
 
-

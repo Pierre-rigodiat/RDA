@@ -80,6 +80,73 @@ class schemaSerializer(MongoEngineModelSerializer):
         exclude = (['templateVersion','version','hash'])
 
 
+
+################################################################################
+#
+# Class Name: exporterSerializer
+#
+# Description:   Serializer for result set of exporters
+#
+################################################################################
+class exporterSerializer(serializers.Serializer):
+    id = serializers.CharField()
+    name = serializers.CharField()
+    # available_for_all = serializers.CharField()
+    # class Meta:
+    #     model = Exporter
+    #     exclude = ()
+
+
+################################################################################
+#
+# Class Name: jsonXSLTSerializer
+#
+# Description:   Serializer for JSON XSLT
+#
+################################################################################
+class jsonXSLTSerializer(serializers.Serializer):
+    _id = serializers.CharField(required=False)
+    name = serializers.CharField()
+    filename = serializers.CharField()
+    content = serializers.CharField()
+    available_for_all = serializers.BooleanField()
+
+################################################################################
+#
+# Class Name: jsonExportSerializer
+#
+# Description:   Serializer for JSON export request
+#
+################################################################################
+class jsonExportSerializer(serializers.Serializer):
+    files = serializers.CharField(required=False)
+    exporter = serializers.CharField()
+
+################################################################################
+#
+# Class Name: jsonExportSerializer
+#
+# Description:   Serializer for JSON export result
+#
+################################################################################
+class jsonExportResSerializer(serializers.Serializer):
+    title = serializers.CharField()
+    content = serializers.CharField()
+
+################################################################################
+#
+# Class Name: exporterSerializer
+#
+# Description:   Serializer for result set of exporters
+#
+################################################################################
+class exporterXSLTSerializer(serializers.Serializer):
+    id = serializers.CharField()
+    name = serializers.CharField()
+    filename = serializers.CharField()
+    # content = serializers.CharField()
+    # available_for_all = serializers.CharField()
+
 ################################################################################
 # 
 # Class Name: templateSerializer
@@ -95,7 +162,12 @@ class templateSerializer(serializers.Serializer):
     version = serializers.IntegerField()
     hash = serializers.CharField()
     dependencies = serializers.CharField()
+    exporters = exporterSerializer()
+    XSLTFiles = exporterXSLTSerializer()
     id = serializers.CharField(required=False)
+    # class Meta:
+    #     model = Template
+    #     exclude = ()
 
 ################################################################################
 # 
@@ -231,3 +303,5 @@ class updateUserSerializer(serializers.Serializer):
     first_name = serializers.CharField(required=False)
     last_name = serializers.CharField(required=False)
     email = serializers.CharField(required=False)
+
+

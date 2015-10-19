@@ -46,7 +46,7 @@ class Exporter(Document, EmbeddedDocument):
 
 class ExporterXslt(Document, EmbeddedDocument):
     """Represents an exporter"""
-    title = StringField(required=True, unique=True)
+    name = StringField(required=True, unique=True)
     filename = StringField(required=True)
     content = StringField(required=True)
     available_for_all = BooleanField(required=True)

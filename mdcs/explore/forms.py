@@ -38,7 +38,7 @@ class ExportForm(forms.Form):
 
 class FormDataModelChoiceField(forms.ModelChoiceField):
     def label_from_instance(self, obj):
-        return "XSLT: "+ obj.title
+        return "XSLT: "+ obj.name
 
 class UploadXSLTForm(forms.Form):
     my_xslts = forms.MultipleChoiceField(label='', choices=[], widget=forms.CheckboxSelectMultiple())
@@ -49,7 +49,7 @@ class UploadXSLTForm(forms.Form):
         xslts = Template.objects.get(pk=templateId).XSLTFiles
         for xslt in xslts:
             #We add them
-            self.EXPORT_OPTIONS.append((xslt.id, xslt.title))
+            self.EXPORT_OPTIONS.append((xslt.id, xslt.name))
 
         super(UploadXSLTForm, self).__init__()
         self.fields['my_xslts'].choices = []

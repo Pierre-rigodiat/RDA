@@ -626,8 +626,8 @@ def manage_xslt(request, id=None):
     if request.user.is_authenticated() and request.user.is_staff:
         if request.method == 'POST':
             upload_form = UploadXSLTForm(request.POST, request.FILES)
-            title = upload_form['title'].value()
-            title = title.strip(' \t\n\r')
+            name = upload_form['name'].value()
+            name = name.strip(' \t\n\r')
             available = upload_form['available_for_all'].value()
             xml_file = upload_form['xslt_file'].value()
             # put the cursor at the beginning of the file
@@ -641,7 +641,7 @@ def manage_xslt(request, id=None):
                 return HttpResponseBadRequest('Uploaded File is not well formed XML.')
             #No exceptions, we can add it in DB
             try:
-                xslt = ExporterXslt(title=title, filename=xml_file.name, content=xml_data, available_for_all=available).save()
+                xslt = ExporterXslt(name=name, filename=xml_file.name, content=xml_data, available_for_all=available).save()
                 #IF it's available for all templates, we add the reference for all templates using the XSLT exporter
                 if available:
                     xslt_exporter = None
@@ -715,7 +715,7 @@ def edit_xslt(request, id=None):
             new_name = request.POST['new_name']
             new_name = new_name.strip(' \t\n\r')
             try:
-                ExporterXslt.objects.get(pk=object_id).update(set__title=str(new_name))
+                ExporterXslt.objects.get(pk=object_id).update(set__name=str(new_name))
             except OperationError, e:
                return HttpResponseBadRequest('This XSLT name already exists. Please enter an other name.')
 
