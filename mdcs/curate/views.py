@@ -110,7 +110,7 @@ def curate_enter_data(request):
         })
 
         if 'id' in request.GET:
-            if request.user.is_staff:
+            if request.user.is_superuser:
                 try:
                     xml_data_id = request.GET['id']
                     xml_data = XMLdata.get(xml_data_id)

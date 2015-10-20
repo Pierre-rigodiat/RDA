@@ -969,7 +969,7 @@ def get_results_by_instance(request):
                     canDelete = False
                     canEdit = False
                     # only admins can edit/delete for now
-                    if request.user.is_staff:
+                    if request.user.is_superuser:
                         canDelete = True
                         canEdit = True
                     
@@ -2789,7 +2789,7 @@ def delete_result(request):
     result_id = request.GET['result_id']
     
     try:
-        if request.user.is_staff:
+        if request.user.is_superuser:
             XMLdata.delete(result_id)
     except:
         # XML can't be found
