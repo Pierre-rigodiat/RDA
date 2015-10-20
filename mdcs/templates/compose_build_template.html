@@ -143,7 +143,7 @@ interact with that element.
 <div id="dialog-occurrences-element" title="Manage occurrences" style="display:none;">
 	<p>
 		Use the following form to manage the occurrences of the selected element.
-		Accepted values are integers. The keyword "unbounded" can be used for Maximum Occurrences.
+		Accepted values are integers.
 	</p>
 	<table>
 		<tr>
@@ -153,6 +153,8 @@ interact with that element.
 		<tr>
 			<td>Maximum Occurrences:</td>
 			<td><input type="text" id="maxOccurrences"/></td>
+			<td><label>Unbounded</label></td>
+			<td><input type="checkbox" id="unbounded" onclick='OnClickUnbounded();'/></td>
 		</tr>
 	</table>
 	<div id="manage-occurrences-error" style="color:red;">
