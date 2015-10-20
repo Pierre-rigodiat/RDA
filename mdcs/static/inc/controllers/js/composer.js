@@ -650,6 +650,26 @@ change_xsd_type = function(xpath, newType){
 
 
 /**
+* Management of the unbounded checkbox
+*/
+
+OnClickUnbounded = function()
+{
+    unbounded = document.getElementById('unbounded').checked
+
+    if(unbounded)
+    {
+        $("#maxOccurrences").prop('disabled', true);
+        $("#maxOccurrences").val("unbounded");
+    }
+    else
+    {
+        $("#maxOccurrences").prop('disabled', false);
+        $("#maxOccurrences").val("");
+    }
+}
+
+/**
  * Show dialog to set occurrences
  */
 displayOccurrencesElementDialog = function()
@@ -728,9 +748,21 @@ get_occurrences = function(xpath){
         success: function(data){
         	$("#minOccurrences").val(data.minOccurs);
         	$("#maxOccurrences").val(data.maxOccurs);
+
+        	if(data.maxOccurs == 'unbounded')
+        	{
+        	    $("#maxOccurrences").prop('disabled', true);
+        	    $('#unbounded').prop('checked', true);
+        	}
+        	else
+        	{
+        	    $("#maxOccurrences").prop('disabled', false);
+        	    $('#unbounded').prop('checked', false);
+        	}
         }
     });
 }
+
 
 /**
  * AJAX call, sets the occurrences of an element
