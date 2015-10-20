@@ -314,3 +314,7 @@ textarea.inform{
     margin: 2em;
 }
 
+div.moduleDisplay {
+    overflow: scroll;
+}
+
