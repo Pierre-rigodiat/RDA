@@ -233,7 +233,7 @@ def my_profile_change_password(request):
 ################################################################################
 def my_profile_my_forms(request):
     if request.user.is_authenticated():        
-        forms = FormData.objects(user=str(request.user.id))
+        forms = FormData.objects(user=str(request.user.id), xml_data_id__exists=False)
         return render(request, 'my_profile_my_forms.html', {'forms':forms})    
     else:
         request.session['next'] = '/my-profile'
