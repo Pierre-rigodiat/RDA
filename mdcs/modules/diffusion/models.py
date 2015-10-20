@@ -188,7 +188,8 @@ class PeriodicTableMultipleModule(PopupModule):
 
 class ExcelUploaderModule(PopupModule):
     def __init__(self):
-        self.xml = None
+        self.table = None
+        self.table_name = None
         
         with open(RESOURCES_PATH + 'html/ExcelUploader.html', 'r') as excel_uploader_file:        
             excel_uploader = excel_uploader_file.read()            
@@ -197,24 +198,127 @@ class ExcelUploaderModule(PopupModule):
             popup_content = template.render(context)
         
         PopupModule.__init__(self, popup_content=popup_content, button_label='Upload Excel File',
-                             scripts=[os.path.join(RESOURCES_PATH, 'js/exceluploader.js')])
+                             scripts=[os.path.join(RESOURCES_PATH, 'js/exceluploader.js')],
+                             styles=[os.path.join(RESOURCES_PATH, 'css/exceluploader.css')])
 
     def _get_module(self, request):
+        if 'data' in request.GET:
+            xml_table = etree.XML(request.GET['data'])
+
+            self.table_name = 'name'
+            self.table = {
+                'headers': [],
+                'values': []
+            }
+
+            headers = xml_table[0]
+            for header in headers.iter('column'):
+                print etree.tostring(header)
+                self.table['headers'].append(header.text)
+
+            values = xml_table[1]
+
+            for row in values.iter('row'):
+                value_list = []
+
+                for data in row.iter('column'):
+                    value_list.append(data.text)
+
+                self.table['values'].append(value_list)
+
+            print self.table_name
+            print self.table
+
         return PopupModule.get_module(self, request)
 
     def _get_display(self, request):
         if 'data' in request.GET:
-            return 'Data uploaded.'
+            return self.extract_html_from_table()
+
         return 'No file selected'
 
     def _get_result(self, request):
         if 'data' in request.GET:
-            result = ''
-            elements = etree.XML(request.GET['data'])
-            for element in elements:
-                result += etree.tostring(element)
-            return result
+            return self.extract_xml_from_table()
+
         return ''
+
+    def is_valid_table(self):
+        if self.table_name is None:
+            return False
+
+        if type(self.table) != dict:
+            return False
+
+        table_keys_set = set(self.table.keys())
+
+        if len(table_keys_set.intersection(('headers', 'values'))) != 2:
+            return False
+
+        return True
+
+    def extract_xml_from_table(self):
+        if not self.is_valid_table():
+            return ""
+
+        root = etree.Element("table")
+        root.set("name", self.table_name)
+        header = etree.SubElement(root, "headers")
+        values = etree.SubElement(root, "rows")
+
+        col_index = 0
+        for header_name in self.table['headers']:
+            header_cell = etree.SubElement(header, 'column')
+
+            header_cell.set('id', str(col_index))
+            header_cell.text = header_name
+
+            col_index += 1
+
+        row_index = 0
+        for value_list in self.table['values']:
+            value_row = etree.SubElement(values, 'row')
+            value_row.set('id', str(row_index))
+            col_index = 0
+
+            for value in value_list:
+                value_cell = etree.SubElement(value_row, 'column')
+
+                value_cell.set('id', str(col_index))
+                value_cell.text = value
+
+                col_index += 1
+
+            row_index += 1
+
+        xml_string = etree.tostring(header)
+        xml_string += etree.tostring(values)
+
+        return xml_string
+
+    def extract_html_from_table(self):
+        if not self.is_valid_table():
+            return "Table has not been uploaded or is not of correct format."
+
+        root = etree.Element("table")
+        root.set('class', 'table table-striped excel-file')
+        header = etree.SubElement(root, "thead")
+        header_row = etree.SubElement(header, "tr")
+
+        for header_name in self.table['headers']:
+            header_cell = etree.SubElement(header_row, 'th')
+            header_cell.text = header_name
+
+        values = etree.SubElement(root, "tbody")
+
+        for value_list in self.table['values']:
+            value_row = etree.SubElement(values, 'tr')
+
+            for value in value_list:
+                value_cell = etree.SubElement(value_row, 'td')
+                value_cell.text = value
+
+        return etree.tostring(root)
 
     def _post_display(self, request):
         form = ExcelUploaderForm(request.POST, request.FILES)
@@ -224,35 +328,33 @@ class ExcelUploaderModule(PopupModule):
         try:
             input_excel = request.FILES['file']
             book = open_workbook(file_contents=input_excel.read())
-        
-            root = etree.Element("table")
-            root.set("name", str(input_excel))
-            header = etree.SubElement(root, "headers")
-            values = etree.SubElement(root, "rows")
-        
-            for sheet in book.sheets():
-                for rowIndex in range(sheet.nrows):
-                    if rowIndex != 0:
-                        row = etree.SubElement(values, "row")
-                        row.set("id", str(rowIndex))
-        
-                    for colIndex in range(sheet.ncols):
-                        if rowIndex == 0:
-                            col = etree.SubElement(header, "column")
-                        else:
-                            col = etree.SubElement(row, "column")
-        
-                        col.set("id", str(colIndex))
-                        col.text = str(sheet.cell(rowIndex, colIndex).value)
-        
-            xmlString = etree.tostring(header)
-            xmlString += etree.tostring(values)
-        
-            self.xml = xmlString
-            
-            return input_excel.name + ' uploaded with success.'
+            sheet = book.sheet_by_index(0)
+
+            table = {
+                'headers': [],
+                'values': []
+            }
+
+            for row_index in range(sheet.nrows):
+                row_values = []
+
+                for col_index in range(sheet.ncols):
+                    cell_text = str(sheet.cell(row_index, col_index).value)
+
+                    if row_index == 0:
+                        table['headers'].append(cell_text)
+                    else:
+                        row_values.append(cell_text)
+
+                if len(row_values) != 0:
+                    table['values'].append(row_values)
+
+            self.table = table
+            self.table_name = str(input_excel)
+
+            return self.extract_html_from_table()
         except:
             return 'Something went wrong. Be sure to upload an Excel file, with correct format.' 
 
     def _post_result(self, request):
-        return self.xml if self.xml is not None else ''
+        return self.extract_xml_from_table()
