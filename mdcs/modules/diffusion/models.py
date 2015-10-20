@@ -300,16 +300,16 @@ class ExcelUploaderModule(PopupModule):
         if not self.is_valid_table():
             return "Table has not been uploaded or is not of correct format."
 
-        root = etree.Element("table")
-        root.set('class', 'table table-striped excel-file')
-        header = etree.SubElement(root, "thead")
+        table = etree.Element("table")
+        table.set('class', 'table table-striped excel-file')
+        header = etree.SubElement(table, "thead")
         header_row = etree.SubElement(header, "tr")
 
         for header_name in self.table['headers']:
             header_cell = etree.SubElement(header_row, 'th')
             header_cell.text = header_name
 
-        values = etree.SubElement(root, "tbody")
+        values = etree.SubElement(table, "tbody")
 
         for value_list in self.table['values']:
             value_row = etree.SubElement(values, 'tr')
@@ -318,7 +318,11 @@ class ExcelUploaderModule(PopupModule):
                 value_cell = etree.SubElement(value_row, 'td')
                 value_cell.text = value
 
-        return etree.tostring(root)
+        div = etree.Element("div")
+        div.set('class', 'excel_table')
+        div.append(table)
+
+        return etree.tostring(div)
 
     def _post_display(self, request):
         form = ExcelUploaderForm(request.POST, request.FILES)

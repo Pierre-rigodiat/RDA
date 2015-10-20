@@ -314,8 +314,3 @@ textarea.inform{
     margin: 2em;
 }
 
-div.moduleDisplay {
-    max-height: 20em;
-    overflow: scroll;
-}
-
