@@ -36,7 +36,7 @@ class XPathAccessor():
             raise XPathAccessorError('Same XPath set more than once.')
         else:
             self.values[html_id] = value
-        
+
     
     def _get_element(self, xpath):
         if self.xpath != xpath:
