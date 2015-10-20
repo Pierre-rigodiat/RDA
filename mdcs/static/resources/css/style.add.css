@@ -315,6 +315,7 @@ textarea.inform{
 }
 
 div.moduleDisplay {
+    max-height: 20em;
     overflow: scroll;
 }
 
