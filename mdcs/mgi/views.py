@@ -39,7 +39,7 @@ def home(request):
     template = loader.get_template('index.html')
 
     context = RequestContext(request, {
-        'templates': Template.objects.order_by('-id')[:7]
+        'templates': Template.objects(user__ne=None).order_by('-id')[:7]
     })
     return HttpResponse(template.render(context))
 
@@ -74,7 +74,7 @@ def browse_all(request):
     template = loader.get_template('browse-all.html')
 
     context = RequestContext(request, {
-        'templates': Template.objects.order_by('title')
+        'templates': Template.objects(user__ne=None).order_by('title')
     })
     return HttpResponse(template.render(context))
 
