@@ -103,13 +103,7 @@ loadTemplateSelectionControllers = function()
     console.log('BEGIN [loadTemplateSelectionControllers]');
     $('.btn.set-template').on('click', setCurrentTemplate);
     $('.btn.set-curate-user-template').on('click', setCurrentUserTemplate);
-    $('#id_document_name').keypress(function(event) {
-        if(event.which == $.ui.keyCode.ENTER) {
-            event.preventDefault();
-            event.stopPropagation();
-            displayTemplateProcess();
-        }
-    });
+
     init_curate();
     console.log('END [loadTemplateSelectionControllers]');    
 }
@@ -1092,6 +1086,18 @@ load_start_form = function(){
         },
         success: function(data){
             $("#form_start_content").html(data.template);
+            enterKeyPressSubscription();
+        }
+    });
+}
+
+enterKeyPressSubscription = function ()
+{
+    $('#id_document_name').keypress(function(event) {
+        if(event.which == $.ui.keyCode.ENTER) {
+            event.preventDefault();
+            event.stopPropagation();
+            displayTemplateProcess();
         }
     });
 }
@@ -1142,9 +1148,9 @@ setCurrentTemplateCallback = function()
     	loadTemplateSelectionControllers();
     	displayTemplateSelectedDialog();
     });
-    
+
     load_start_form();
-    
+
     console.log('END [setCurrentTemplateCallback]');
 }
 
