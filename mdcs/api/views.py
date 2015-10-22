@@ -248,8 +248,10 @@ def explore(request):
     """
     GET http://localhost/rest/explore/select/all
     dataformat: [xml,json]
+    contentonly: [True,False] Default False
     """
     dataformat = request.QUERY_PARAMS.get('dataformat', None)
+    contentonly = request.QUERY_PARAMS.get('contentonly', None) == 'True'
 
     jsonData = XMLdata.objects()
     
@@ -257,10 +259,22 @@ def explore(request):
         for jsonDoc in jsonData:
             jsonDoc['content'] = xmltodict.unparse(jsonDoc['content'])  
         serializer = jsonDataSerializer(jsonData)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        if contentonly:
+            allContent = []
+            for data in serializer.data:
+                allContent.append(data['content'])
+            return Response(allContent, status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.data, status=status.HTTP_200_OK)
     elif dataformat == "json":
         serializer = jsonDataSerializer(jsonData)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        if contentonly:
+            allContent = []
+            for data in serializer.data:
+                allContent.append(data['content'])
+            return Response(allContent, status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.data, status=status.HTTP_200_OK)
     else:
         content = {'message':'The specified format is not accepted.'}
         return Response(content, status=status.HTTP_400_BAD_REQUEST)
