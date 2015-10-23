@@ -178,7 +178,7 @@ class ExampleAutoCompleteModule(AutoCompleteModule):
         return ''
 
 
-class SiblingsAccessorModule(OptionsModule, XPathAccessor):
+class CountriesModule(OptionsModule, XPathAccessor):
     country_codes = {
                      'None': '',
                      'FRANCE': 'FR',
