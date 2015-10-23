@@ -27,12 +27,6 @@
 {% block content %}
 <div style="margin-left:20px;">
 
-{% if request.session.loggedOut %} 
-You have successfully logged out
-{% else %}
-
-{% endif %}
-
 {% if form.errors %}
 <p>Your username and password didn't match. Please try again.</p>
 {% endif %}

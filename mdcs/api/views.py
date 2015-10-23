@@ -24,7 +24,7 @@ from mgi.models import SavedQuery, XMLdata, Template, TemplateVersion, Type, Typ
 from exporter.builtin.models import XSLTExporter
 from django.contrib.auth.models import User
 # Serializers
-from api.serializers import savedQuerySerializer, jsonDataSerializer, querySerializer, schemaSerializer, templateSerializer, typeSerializer, resTypeSerializer, TemplateVersionSerializer, TypeVersionSerializer, instanceSerializer, resInstanceSerializer, UserSerializer, insertUserSerializer, resSavedQuerySerializer, updateUserSerializer, newInstanceSerializer, exporterSerializer, exporterXSLTSerializer, jsonXSLTSerializer, jsonExportSerializer, jsonExportResSerializer
+from api.serializers import savedQuerySerializer, jsonDataSerializer, querySerializer, schemaSerializer, templateSerializer, typeSerializer, resTypeSerializer, TemplateVersionSerializer, TypeVersionSerializer, instanceSerializer, resInstanceSerializer, UserSerializer, insertUserSerializer, resSavedQuerySerializer, updateUserSerializer, newInstanceSerializer
 from lxml import etree
 from django.conf import settings
 import os
@@ -49,7 +49,10 @@ from utils.XSDflattenerMDCS.XSDflattenerMDCS import XSDFlattenerMDCS
 from datetime import datetime
 from datetime import timedelta
 from mgi import common
+from mgi.settings import BLOB_HOSTER, BLOB_HOSTER_URI, BLOB_HOSTER_USER, BLOB_HOSTER_PSWD, MDCS_URI
+from utils.BLOBHoster.BLOBHosterFactory import BLOBHosterFactory
 from exporter import get_exporter
+
 
 ################################################################################
 # 
@@ -248,8 +251,10 @@ def explore(request):
     """
     GET http://localhost/rest/explore/select/all
     dataformat: [xml,json]
+    contentonly: [True,False] Default False
     """
     dataformat = request.QUERY_PARAMS.get('dataformat', None)
+    contentonly = request.QUERY_PARAMS.get('contentonly', None) == 'True'
 
     jsonData = XMLdata.objects()
     
@@ -257,10 +262,22 @@ def explore(request):
         for jsonDoc in jsonData:
             jsonDoc['content'] = xmltodict.unparse(jsonDoc['content'])  
         serializer = jsonDataSerializer(jsonData)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        if contentonly:
+            allContent = []
+            for data in serializer.data:
+                allContent.append(data['content'])
+            return Response(allContent, status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.data, status=status.HTTP_200_OK)
     elif dataformat == "json":
         serializer = jsonDataSerializer(jsonData)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        if contentonly:
+            allContent = []
+            for data in serializer.data:
+                allContent.append(data['content'])
+            return Response(allContent, status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.data, status=status.HTTP_200_OK)
     else:
         content = {'message':'The specified format is not accepted.'}
         return Response(content, status=status.HTTP_400_BAD_REQUEST)
@@ -282,12 +299,14 @@ def explore_detail(request):
     schema: string (ObjectId)
     title: string
     dataformat: [xml,json]
+    contentonly: [True,False] Default False
     """        
     id = request.QUERY_PARAMS.get('id', None)
     schema = request.QUERY_PARAMS.get('schema', None)
     title = request.QUERY_PARAMS.get('title', None)
     dataformat = request.QUERY_PARAMS.get('dataformat', None)
-    
+    contentonly = request.QUERY_PARAMS.get('contentonly', None) == 'True'
+
     try:        
         query = dict()
         if id is not None:            
@@ -312,10 +331,22 @@ def explore_detail(request):
                 for jsonDoc in jsonData:
                     jsonDoc['content'] = xmltodict.unparse(jsonDoc['content'])  
                 serializer = jsonDataSerializer(jsonData)
-                return Response(serializer.data, status=status.HTTP_200_OK)
+                if contentonly:
+                    allContent = []
+                    for data in serializer.data:
+                        allContent.append(data['content'])
+                    return Response(allContent, status=status.HTTP_200_OK)
+                else:
+                    return Response(serializer.data, status=status.HTTP_200_OK)
             elif dataformat == "json":
                 serializer = jsonDataSerializer(jsonData)
-                return Response(serializer.data, status=status.HTTP_200_OK)
+                if contentonly:
+                    allContent = []
+                    for data in serializer.data:
+                        allContent.append(data['content'])
+                    return Response(allContent, status=status.HTTP_200_OK)
+                else:
+                    return Response(serializer.data, status=status.HTTP_200_OK)
             else:
                 content = {'message':'The specified format is not accepted.'}
                 return Response(content, status=status.HTTP_400_BAD_REQUEST)
@@ -1697,7 +1728,7 @@ def select_user(request):
             else:
                 predicates.append(['email',email])
         
-        q_list = [QDJ(x) for x in predicates]
+        q_list = [Q(x) for x in predicates]
         if len(q_list) != 0:
             try:
                 users = User.objects.get(reduce(operator.and_, q_list))
@@ -1910,47 +1941,67 @@ def get_dependency(request):
             return Response(content, status=status.HTTP_400_BAD_REQUEST)
 
 
-
-from mgi import settings as mgi_settings
-import gridfs
 ################################################################################
 # 
-# Function Name: get_blob(request)
+# Function Name: blob(request)
 # Inputs:        request - 
 # Outputs:        
 # Exceptions:    None
 # Description:   Get a file from its handle
 # 
 ################################################################################   
-@api_view(['GET'])
-def get_blob(request):
+@api_view(['GET', 'POST'])
+def blob(request):
     """
-    GET http://localhost/rest/get-blob?id=id
-    """  
-    # TODO: can change to the hash
-    blob_id = request.QUERY_PARAMS.get('id', None)
+    GET    http://localhost/rest/blob?id=id
     
-    if blob_id is None:
-        content={'message':'No id provided.'}
-        return Response(content, status=status.HTTP_400_BAD_REQUEST)
-    else:
-        try:
-            client = MongoClient(mgi_settings.BLOB_HOSTER_URI)    
-            db = client['mgi']
-            fs = gridfs.GridFS(db)
-            if fs.exists(ObjectId(blob_id)):
-                blob = fs.get(ObjectId(blob_id))
-                response = HttpResponse(blob)
-                response['Content-Disposition'] = 'attachment; filename=' + str(blob.filename)
-                return response
-            else:
+    POST   http://localhost/rest/blob
+    POST data: {'blob': FILE}
+    """  
+    
+    if request.method == 'GET':
+        blob_id = request.QUERY_PARAMS.get('id', None)
+        if blob_id is None:
+            content={'message':'No id provided.'}
+            return Response(content, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            try:
+                bh_factory = BLOBHosterFactory(BLOB_HOSTER, BLOB_HOSTER_URI, BLOB_HOSTER_USER, BLOB_HOSTER_PSWD, MDCS_URI)
+                blob_hoster = bh_factory.createBLOBHoster()
+                try:
+                    blob = blob_hoster.get(request.get_full_path())
+                    response = HttpResponse(blob)
+                    response['Content-Disposition'] = 'attachment; filename=' + str(blob.filename)
+                    return response
+                except:
+                    content={'message':'No file could be found with the given id.'}
+                    return Response(content, status=status.HTTP_400_BAD_REQUEST)                            
+            except: 
                 content={'message':'No file could be found with the given id.'}
                 return Response(content, status=status.HTTP_400_BAD_REQUEST)
-        except: 
-            content={'message':'No file could be found with the given id.'}
-            return Response(content, status=status.HTTP_400_BAD_REQUEST)
-        
 
+    elif request.method == 'POST':
+        try:
+            blob = request.FILES.get('blob')
+            try:        
+                bh_factory = BLOBHosterFactory(BLOB_HOSTER, BLOB_HOSTER_URI, BLOB_HOSTER_USER, BLOB_HOSTER_PSWD, MDCS_URI)
+                blob_hoster = bh_factory.createBLOBHoster()
+                try:
+                    handle = blob_hoster.save(blob=blob, filename=blob.name)
+                    content={'handle': handle}
+                    return Response(content, status=status.HTTP_201_CREATED)
+                except:
+                    content={'message':'Something went wrong with BLOB upload.'}
+                    return Response(content, status=status.HTTP_400_BAD_REQUEST)
+            except:
+                content={'message':'Something went wrong with BLOB Hoster Initialization. Please check the settings.'}
+                return Response(content, status=status.HTTP_400_BAD_REQUEST)
+        except:
+            content={'message':'blob parameter not found'}
+            return Response(content, status=status.HTTP_400_BAD_REQUEST)
+    
+    
+        
 ################################################################################
 #
 # Function Name: select_all_exporters(request)

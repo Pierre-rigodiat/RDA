@@ -29,6 +29,7 @@ import lxml.etree as etree
 from mgi.models import Template, QueryResults, SavedQuery, XMLdata, Instance, MetaSchema
 from mgi import common
 from django.template import loader, Context
+from __builtin__ import True
 #Class definition
 
 ################################################################################
@@ -353,7 +354,8 @@ def generateChoice(request, element, fullPath, xmlTree, choiceInfo=None):
             pass
                                   
     
-    formString += "</li></ul>"
+    formString += "</li>"
+    formString += "</ul>"
     
     return formString
 
@@ -955,7 +957,7 @@ def get_results_by_instance(request):
                     canDelete = False
                     canEdit = False
                     # only admins can edit/delete for now
-                    if request.user.is_staff:
+                    if request.user.is_superuser:
                         canDelete = True
                         canEdit = True
                     
@@ -2230,26 +2232,21 @@ def manageUlForQuery(request, ul):
             branchInfo.keepTheBranch = True
         if (liBranchInfo.selectedLeave is not None):
             selectedLeaves.append(liBranchInfo.selectedLeave)
+            branchInfo.selectedLeave = liBranchInfo.selectedLeave
     
     # ul can contain ul, because XSD allows recursive sequence or sequence with choices
     for ul in ul.findall("./ul"):
         ulBranchInfo = manageUlForQuery(request, ul)
         if(ulBranchInfo.keepTheBranch == True):
-                branchInfo.keepTheBranch = True
+            branchInfo.keepTheBranch = True
+        if (ulBranchInfo.selectedLeave is not None):
+            if branchInfo.selectedLeave is None:
+                branchInfo.selectedLeave = []
+            branchInfo.selectedLeave.append(ulBranchInfo.selectedLeave)
                 
     if(not branchInfo.keepTheBranch):
         ul.attrib['style'] = "display:none;"
-#     elif(hasOnlyLeaves and nbSelectedLeaves >1): # starting at 2 because 1 is the regular case
-    elif(len(selectedLeaves) >1):
-        parent = ul.getparent()
-        parent.attrib['style'] = "color:purple;font-weight:bold;cursor:pointer;"
-        leavesID = ""
-        for leave in selectedLeaves[:-1]:
-            leavesID += leave + " "
-        leavesID += selectedLeaves[-1]
-#         parent.attrib['onclick'] = "selectParent('"+ leavesID +"')"
-        parent.insert(0, html.fragment_fromstring("""<span onclick="selectParent('"""+ leavesID +"""')">"""+ parent.text +"""</span>"""))
-        parent.text = ""
+        
     return branchInfo
 
 
@@ -2267,10 +2264,23 @@ def manageLiForQuery(request, li):
     listUl = li.findall("./ul")
     branchInfo = BranchInfo(keepTheBranch = False, selectedLeave = None)
     if (len(listUl) != 0):
+        selectedLeaves = []
         for ul in listUl:
             ulBranchInfo = manageUlForQuery(request, ul)
             if(ulBranchInfo.keepTheBranch == True):
                 branchInfo.keepTheBranch = True
+            if(ulBranchInfo.selectedLeave is not None):
+                selectedLeaves.extend(ulBranchInfo.selectedLeave)
+        # subelement queries
+        if len(selectedLeaves) > 1: # starting at 2 because 1 is the regular case
+            li.attrib['style'] = "color:purple;font-weight:bold;cursor:pointer;"
+            leavesID = ""
+            for leave in selectedLeaves[:-1]:
+                leavesID += leave + " "
+            leavesID += selectedLeaves[-1]
+    #         parent.attrib['onclick'] = "selectParent('"+ leavesID +"')"
+            li.insert(0, html.fragment_fromstring("""<span onclick="selectParent('"""+ leavesID +"""')">"""+ li.text +"""</span>"""))
+            li.text = ""
         if(not branchInfo.keepTheBranch):
             li.attrib['style'] = "display:none;"
         return branchInfo
@@ -2708,7 +2718,7 @@ def delete_result(request):
     result_id = request.GET['result_id']
     
     try:
-        if request.user.is_staff:
+        if request.user.is_superuser:
             XMLdata.delete(result_id)
     except:
         # XML can't be found

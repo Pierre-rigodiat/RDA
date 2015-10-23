@@ -26,9 +26,10 @@ saveModuleData = function($module, modData, asyncOpt) {
     var moduleURL = $module.find('.moduleURL').text();
 
     if(moduleURL === '') {
+        console.error('moduleURL is not defined')
         return;
     }
-    
+
     modData['htmlId'] = moduleId;
 
     var ajaxOptions = {

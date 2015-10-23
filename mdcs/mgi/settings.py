@@ -111,16 +111,16 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'mongoengine.django.mongo_auth',
+    'rest_framework',
+    'rest_framework_swagger',
+    'oauth2_provider',
     'admin_mdcs',
+    'api',
     'curate',
     'exporter',
     'explore',
     'compose',
-    'modules',
-    'rest_framework',  # djangorestframework
-    'rest_framework_swagger', #django-rest-swagger for api documentation
-    'api', # djangorestframework
-    'oauth2_provider',
+    'modules',    
 )
 
 OAUTH2_PROVIDER = {

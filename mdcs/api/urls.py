@@ -52,7 +52,7 @@ urlpatterns = patterns(
     url(r'^users/add$','add_user'),
     url(r'^users/delete$','delete_user'),
     url(r'^users/update$','update_user'),
-    url(r'^get-blob$','get_blob'),
+    url(r'^blob$','blob'),
     url(r'^exporter/select/all$','select_all_exporters'),
     url(r'^exporter/select$','select_exporter'),
     url(r'^exporter/xslt/add$','add_xslt', name='add_xslt'),

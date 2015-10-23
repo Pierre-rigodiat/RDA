@@ -103,6 +103,7 @@ loadTemplateSelectionControllers = function()
     console.log('BEGIN [loadTemplateSelectionControllers]');
     $('.btn.set-template').on('click', setCurrentTemplate);
     $('.btn.set-curate-user-template').on('click', setCurrentUserTemplate);
+
     init_curate();
     console.log('END [loadTemplateSelectionControllers]');    
 }
@@ -442,30 +443,38 @@ displayTemplateSelectedDialog = function()
            {
                text: "Start",
                click: function() {            	   
-            	   if (validateStartCurate()){
-	            	   var formData = new FormData($( "#form_start" )[0]);
-	            	   $.ajax({
-	            	        url: "/curate/start_curate",
-	            	        type: 'POST',
-	            	        data: formData,
-	            	        cache: false,
-	            	        contentType: false,
-	            	        processData: false,
-	            	        async:false,
-	            	   		success: function(data){
-	            	   			window.location = '/curate/enter-data'
-	            	        },
-	            	        error:function(data){
-	            	        	$("#form_start_errors").html(data.responseText);
-	            	        },
-	            	    })
-	            	    ;
-            	   }
+            	   displayTemplateProcess();
                }
            }
           ]
     });
   });
+}
+
+/**
+* AJAX call, show the template
+*/
+displayTemplateProcess = function ()
+{
+    if (validateStartCurate()){
+       var formData = new FormData($( "#form_start" )[0]);
+       $.ajax({
+            url: "/curate/start_curate",
+            type: 'POST',
+            data: formData,
+            cache: false,
+            contentType: false,
+            processData: false,
+            async:false,
+            success: function(data){
+                window.location = '/curate/enter-data'
+            },
+            error:function(data){
+                $("#form_start_errors").html(data.responseText);
+            },
+        })
+        ;
+   }
 }
 
 /**
@@ -1077,6 +1086,18 @@ load_start_form = function(){
         },
         success: function(data){
             $("#form_start_content").html(data.template);
+            enterKeyPressSubscription();
+        }
+    });
+}
+
+enterKeyPressSubscription = function ()
+{
+    $('#dialog-message').keypress(function(event) {
+        if(event.which == $.ui.keyCode.ENTER) {
+            event.preventDefault();
+            event.stopPropagation();
+            displayTemplateProcess();
         }
     });
 }
@@ -1127,9 +1148,9 @@ setCurrentTemplateCallback = function()
     	loadTemplateSelectionControllers();
     	displayTemplateSelectedDialog();
     });
-    
+
     load_start_form();
-    
+
     console.log('END [setCurrentTemplateCallback]');
 }
 

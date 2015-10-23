@@ -150,22 +150,35 @@ class ExampleAutoCompleteModule(AutoCompleteModule):
         return ''
 
     def _post_display(self, request):
-        if 'data' not in request.POST:
-            raise ModuleError('No data sent to server.')
+        # available_options = set()
+        # available_options.add('list')
+        # available_options.add('data')
+        #
+        # post_options = set(request.POST)
+        #
+        # if len(available_options.intersection(post_options)) == 0:
+        #     raise ModuleError('No data sent to server.')
 
-        response_list = []
+        if 'list' in request.POST:
+            response_list = []
 
-        for term in self.data:
-            if request.POST['data'].lower() in term.lower():
-                response_list.append(term)
+            for term in self.data:
+                if request.POST['list'].lower() in term.lower():
+                    response_list.append(term)
 
-        return response_list
+            return response_list
+
+        if 'data' in request.POST:
+            return request.POST['data']
 
     def _post_result(self, request):
+        if 'data' in request.POST:
+            return request.POST['data']
+
         return ''
 
 
-class SiblingsAccessorModule(OptionsModule, XPathAccessor):
+class CountriesModule(OptionsModule, XPathAccessor):
     country_codes = {
                      'None': '',
                      'FRANCE': 'FR',

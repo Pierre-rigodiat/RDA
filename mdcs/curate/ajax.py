@@ -539,6 +539,39 @@ def generateSequence(request, element, xmlTree, namespace, choiceInfo=None, full
     
     return formString
 
+
+################################################################################
+# 
+# Function Name: generateSequence_absent(request, element, xmlTree, namespace)
+# Inputs:        request - 
+#                element - XML element
+#                xmlTree - XML Tree
+#                namespace - namespace
+# Outputs:       HTML string representing a sequence
+# Exceptions:    None
+# Description:   Generates a section of the form that represents an XML sequence
+# 
+################################################################################
+def generateSequence_absent(request, element, xmlTree, namespace):
+
+    formString = ""
+    # generates the sequence
+    if(len(list(element)) != 0):
+        for child in element:
+            if (child.tag == "{0}element".format(namespace)):            
+                formString += generateElement(request, child, xmlTree, namespace)
+            elif (child.tag == "{0}sequence".format(namespace)):
+                formString += generateSequence(request, child, xmlTree, namespace)
+            elif (child.tag == "{0}choice".format(namespace)):
+                formString += generateChoice(request, child, xmlTree, namespace)
+            elif (child.tag == "{0}any".format(namespace)):
+                pass
+            elif (child.tag == "{0}group".format(namespace)):
+                pass
+    
+    return formString
+
+
 ################################################################################
 # 
 # Function Name: generateChoice(request, element, xmlTree, namespace)
@@ -595,8 +628,6 @@ def generateChoice(request, element, xmlTree, namespace, choiceInfo=None, fullPa
         if nbOccurrences_data > nbOccurrences:
             nbOccurrences = nbOccurrences_data    
         
-        # if nb of occurrences not set to one, save the element
-#         if (minOccurs != 1) or (maxOccurs != 1):
         xml_element = XMLElement(xsd_xpath=xsd_xpath, nbOccurs=nbOccurrences_data, minOccurs=minOccurs, maxOccurs=maxOccurs).save()
 
     # keeps track of elements to display depending on the selected choice
@@ -1021,15 +1052,16 @@ def generateElement(request, element, xmlTree, namespace, choiceInfo=None, fullP
     
     # check if the element has a module
     has_module = hasModule(request, element)
+    isInAChoice = 'choice' in element.getparent().tag
     
     # check if XML element or attribute
     if element.tag == "{0}element".format(namespace):
         minOccurs, maxOccurs = manageOccurences(element)
-        addButton, deleteButton, nbOccurrences = manageButtons(minOccurs, maxOccurs)
+#         addButton, deleteButton, nbOccurrences = manageButtons(minOccurs, maxOccurs)
         element_tag='element'
     elif element.tag == "{0}attribute".format(namespace):
         minOccurs, maxOccurs = manageAttrOccurrences(element)
-        addButton, deleteButton, nbOccurrences = manageButtons(minOccurs, maxOccurs)
+#         addButton, deleteButton, nbOccurrences = manageButtons(minOccurs, maxOccurs)
         element_tag='attribute'
         
     # get the name of the element, go find the reference if there's one
@@ -1067,41 +1099,60 @@ def generateElement(request, element, xmlTree, namespace, choiceInfo=None, fullP
     
     # XSD xpath: /element/complexType/sequence
     xsd_xpath = etree.ElementTree(xmlTree).getpath(element)
-
+  
+    # init variables for buttons management
+    addButton = False
+    deleteButton = False
+    nbOccurrences = 1 #nb of occurrences to render (can't be 0 or the user won't see this element at all)
+    nbOccurrences_data = 1 # nb of occurrences in loaded data or in form being rendered (can be 0)
+    xml_element = None      
     removed = ""
+    
+    # loading data in the form 
     if request.session['curate_edit']:
-        # See if the element is present in the XML document
+        # get the number of occurrences in the data
         edit_elements = edit_data_tree.xpath(fullPath)
-        if len(edit_elements) > 0:
-            nbOccurrences = len(edit_elements)
+        nbOccurrences_data = len(edit_elements)
+        
+        if nbOccurrences_data > 0:
+            # manage buttons
+            if nbOccurrences_data < maxOccurs:
+                addButton = True
+            if nbOccurrences_data > minOccurs:
+                deleteButton = True
         else:
-            # Disable element from the GUI if not present in the XML document
             if minOccurs == 0:
                 removed = " removed"
                 addButton = True
                 deleteButton = False
-    else:
+    else: # starting an empty form
         # Don't generate the element if not necessary
         if request.session['curate_min_tree'] and minOccurs == 0:
             removed = " removed"
             addButton = True
             deleteButton = False
-  
+        
+    if nbOccurrences_data > nbOccurrences:
+        nbOccurrences = nbOccurrences_data    
     
-    xml_element = None
-    if not(minOccurs == 1 and maxOccurs == 1) or request.session['curate_min_tree'] == True:
-        nbOccurs_to_save = nbOccurrences 
-        # Update element information to match the number of elements from the XML document
-        if request.session['curate_edit']:
-            # if the element is absent, nbOccurences is 0
-            if len(removed) > 0:
-                nbOccurs_to_save = 0
-        else:
-            if len(removed) > 0:
-                nbOccurs_to_save = 0
-        # store info about element in database
-        xml_element = XMLElement(xsd_xpath=xsd_xpath, nbOccurs=nbOccurs_to_save, minOccurs=minOccurs, maxOccurs=maxOccurs).save()
-  
+    xml_element = XMLElement(xsd_xpath=xsd_xpath, nbOccurs=nbOccurrences_data, minOccurs=minOccurs, maxOccurs=maxOccurs).save()
+
+    # this reduce the number of xml_element stored, but may crash for xpath accessor if xpath not found
+    # not a choice: we need to store all options if choice
+#     if not isInAChoice: 
+#         # data being edited
+#         if request.session['curate_edit']:
+#             # cannot remove or add occurrences
+#             if not(minOccurs == maxOccurs == nbOccurrences_data):
+#                 xml_element = XMLElement(xsd_xpath=xsd_xpath, nbOccurs=nbOccurrences_data, minOccurs=minOccurs, maxOccurs=maxOccurs).save()
+#         # empty form
+#         else: 
+#             # cannot remove or add occurrences
+#             if not(minOccurs == maxOccurs):
+#                 xml_element = XMLElement(xsd_xpath=xsd_xpath, nbOccurs=nbOccurrences_data, minOccurs=minOccurs, maxOccurs=maxOccurs).save()
+#     else:
+#         xml_element = XMLElement(xsd_xpath=xsd_xpath, nbOccurs=nbOccurrences_data, minOccurs=minOccurs, maxOccurs=maxOccurs).save()
+    
     
     # management of elements inside a choice (don't display if not part of the currently selected choice)
     if choiceInfo:
@@ -1523,20 +1574,23 @@ def generate_absent(request):
     for prefix, ns in request.session['namespaces'].iteritems():
         xpath_namespaces[prefix] = ns[1:-1]
 
-    sequenceChild = xmlDocTree.xpath(xml_element.xsd_xpath, namespaces=xpath_namespaces)[0]
+    element = xmlDocTree.xpath(xml_element.xsd_xpath, namespaces=xpath_namespaces)[0]
 
     # remove the annotations
-    removeAnnotations(sequenceChild, namespace)
+    removeAnnotations(element, namespace)
 
     # generating a choice, generate the parent element
     if tag == "choice":
         # can use generateElement to generate a choice never generated
-        formString = generateElement(request, sequenceChild, xmlDocTree, namespace, fullPath=form_element.xml_xpath)
+        formString = generateElement(request, element, xmlDocTree, namespace, fullPath=form_element.xml_xpath)
         # remove the opening and closing ul tags
         formString = formString[4:-4]
     else:
-        # can't directly use generateElement because only need the body of the element not its title
-        formString = generateElement_absent(request, sequenceChild, xmlDocTree, form_element)
+        if 'sequence' in element.tag:
+            formString = generateSequence_absent(request, element, xmlDocTree, namespace)
+        else:
+            # can't directly use generateElement because only need the body of the element not its title
+            formString = generateElement_absent(request, element, xmlDocTree, form_element)
 
     
     # build HTML tree for the form

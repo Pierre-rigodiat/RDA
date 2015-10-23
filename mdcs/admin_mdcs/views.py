@@ -57,8 +57,6 @@ def user_requests(request):
     if request.user.is_authenticated() and request.user.is_staff:
         return HttpResponse(template.render(context))
     else:
-        if 'loggedOut' in request.session:
-            del request.session['loggedOut']
         request.session['next'] = '/'
         return redirect('/login')
 
@@ -82,8 +80,6 @@ def contact_messages(request):
     if request.user.is_authenticated() and request.user.is_staff:
         return HttpResponse(template.render(context))
     else:
-        if 'loggedOut' in request.session:
-            del request.session['loggedOut']
         request.session['next'] = '/'
         return redirect('/login')
 
@@ -106,8 +102,6 @@ def website(request):
 
         return HttpResponse(template.render(context))
     else:
-        if 'loggedOut' in request.session:
-            del request.session['loggedOut']
         request.session['next'] = '/'
         return redirect('/login')
 
@@ -144,8 +138,6 @@ def privacy_policy_admin(request):
 
         return render(request, 'admin/privacy_policy.html', {'form':form})
     else:
-        if 'loggedOut' in request.session:
-            del request.session['loggedOut']
         request.session['next'] = '/'
         return redirect('/login')
 
@@ -182,8 +174,6 @@ def terms_of_use_admin(request):
 
         return render(request, 'admin/terms_of_use.html', {'form':form})
     else:
-        if 'loggedOut' in request.session:
-            del request.session['loggedOut']
         request.session['next'] = '/'
         return redirect('/login')
 
@@ -217,8 +207,6 @@ def manage_schemas(request):
         })
         return HttpResponse(template.render(context))
     else:
-        if 'loggedOut' in request.session:
-            del request.session['loggedOut']
         request.session['next'] = '/'
         return redirect('/login')
 
@@ -254,8 +242,6 @@ def manage_types(request):
         })
         return HttpResponse(template.render(context))
     else:
-        if 'loggedOut' in request.session:
-            del request.session['loggedOut']
         request.session['next'] = '/'
         return redirect('/login')
 
@@ -279,8 +265,6 @@ def federation_of_queries(request):
         })
         return HttpResponse(template.render(context))
     else:
-        if 'loggedOut' in request.session:
-            del request.session['loggedOut']
         request.session['next'] = '/'
         return redirect('/login')
 
@@ -375,8 +359,6 @@ def add_repository(request):
 
         return render(request, 'admin/add_repository.html', {'form':form})
     else:
-        if 'loggedOut' in request.session:
-            del request.session['loggedOut']
         request.session['next'] = '/'
         return redirect('/login')
 
@@ -433,8 +415,6 @@ def refresh_repository(request):
 
         return render(request, 'admin/refresh_repository.html', {'form':form})
     else:
-        if 'loggedOut' in request.session:
-            del request.session['loggedOut']
         request.session['next'] = '/'
         return redirect('/login')
 
@@ -492,8 +472,6 @@ def manage_versions(request):
         else:
             return redirect('/')
     else:
-        if 'loggedOut' in request.session:
-            del request.session['loggedOut']
         request.session['next'] = '/'
         return redirect('/login')
 
@@ -546,8 +524,6 @@ def modules(request):
         else:
             return redirect('/')
     else:
-        if 'loggedOut' in request.session:
-            del request.session['loggedOut']
         request.session['next'] = '/'
         return redirect('/login')
 

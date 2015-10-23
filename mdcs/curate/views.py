@@ -65,8 +65,6 @@ def index(request):
 
         return HttpResponse(template.render(context))
     else:
-        if 'loggedOut' in request.session:
-            del request.session['loggedOut']
         request.session['next'] = '/curate'
         return redirect('/login')
 
@@ -89,8 +87,6 @@ def curate_select_template(request):
         })
         return HttpResponse(template.render(context))
     else:
-        if 'loggedOut' in request.session:
-            del request.session['loggedOut']
         request.session['next'] = '/curate/select-template'
         return redirect('/login')
 
@@ -112,39 +108,57 @@ def curate_enter_data(request):
         context = RequestContext(request, {
             '': '',
         })
-        if 'currentTemplateID' not in request.session:
-            return redirect('/curate/select-template')
+
+        if 'id' in request.GET:
+            if request.user.is_superuser:
+                try:
+                    xml_data_id = request.GET['id']
+                    xml_data = XMLdata.get(xml_data_id)
+                    json_content = xml_data['content']
+                    xml_content = xmltodict.unparse(json_content)
+                    request.session['curate_edit_data'] = xml_content
+                    request.session['curate_edit'] = True
+                    request.session['curate_min_tree'] = True  
+                    request.session['currentTemplateID'] = xml_data['schema']
+                    # remove previously created forms when editing a new one
+                    previous_forms = FormData.objects(user=str(request.user.id), xml_data_id__exists=True)
+                    for previous_form in previous_forms:
+                        # cascade delete references
+                        for form_element_id in previous_form.elements.values():
+                            try:
+                                form_element = FormElement.objects().get(pk=form_element_id)
+                                if form_element.xml_element is not None:
+                                    try:
+                                        xml_element = XMLElement.objects().get(pk=str(form_element.xml_element.id))
+                                        xml_element.delete()
+                                    except:
+                                        # raise an exception when element not found
+                                        pass
+                                form_element.delete()
+                            except:
+                                # raise an exception when element not found
+                                pass
+                        previous_form.delete()
+                    form_data = FormData(user=str(request.user.id), template=xml_data['schema'], name=xml_data['title'], xml_data=xml_content, xml_data_id=xml_data_id).save()                        
+                    request.session['curateFormData'] = str(form_data.id)
+                    if 'formString' in request.session:
+                        del request.session['formString']                           
+                    if 'xmlDocTree' in request.session:
+                        del request.session['xmlDocTree'] 
+                    
+                    return HttpResponse(template.render(context))
+                except:
+                    # can't find the data
+                    messages.add_message(request, messages.INFO, 'XML data not found.')
+                    return redirect('/')
+            else:
+                if 'currentTemplateID' not in request.session:
+                    return redirect('/curate/select-template')
+            return HttpResponse(template.render(context))
         else:
-            if 'id' in request.GET:
-                if request.user.is_staff:
-                    try:
-                        xml_data_id = request.GET['id']
-                        xml_data = XMLdata.get(xml_data_id)
-                        json_content = xml_data['content']
-                        xml_content = xmltodict.unparse(json_content)
-                        request.session['curate_edit_data'] = xml_content
-                        request.session['curate_edit'] = True
-                        request.session['curate_min_tree'] = True  
-                        request.session['currentTemplateID'] = xml_data['schema']
-                        form_data = FormData(user=str(request.user.id), template=xml_data['schema'], name=xml_data['title'], xml_data=xml_content, xml_data_id=xml_data_id).save()                        
-                        request.session['curateFormData'] = str(form_data.id)
-                        if 'formString' in request.session:
-                            del request.session['formString']                           
-                        if 'xmlDocTree' in request.session:
-                            del request.session['xmlDocTree'] 
-                        
-                        return HttpResponse(template.render(context))
-                    except:
-                        # can't find the data
-                        messages.add_message(request, messages.INFO, 'XML data not found.')
-                        return redirect('/')
-                else:
-                    return redirect('/login')
             return HttpResponse(template.render(context))
     else:
-        if 'loggedOut' in request.session:
-            del request.session['loggedOut']
-        request.session['next'] = '/curate/enter-data'
+        request.session['next'] = request.get_full_path()
         return redirect('/login')
 
 ################################################################################
@@ -173,8 +187,6 @@ def curate_view_data(request):
         else:
             return HttpResponse(template.render(context))
     else:
-        if 'loggedOut' in request.session:
-            del request.session['loggedOut']
         request.session['next'] = '/curate/view-data'
         return redirect('/login')
 
@@ -207,8 +219,6 @@ def curate_enter_data_downloadxsd(request):
             response['Content-Disposition'] = 'attachment; filename=' + template_filename
             return response
     else:
-        if 'loggedOut' in request.session:
-            del request.session['loggedOut']
         request.session['next'] = '/curate'
         return redirect('/login')
 
@@ -245,8 +255,6 @@ def curate_view_data_downloadxml(request):
             else:
                 return redirect('/')
     else:
-        if 'loggedOut' in request.session:
-            del request.session['loggedOut']
         request.session['next'] = '/curate'
         return redirect('/login')
 
@@ -312,7 +320,7 @@ def start_curate(request):
                 return HttpResponse('ok')
             else:
                 new_form = NewForm()
-                open_form = OpenForm(forms=FormData.objects(user=str(request.user.id), template=request.session['currentTemplateID']))
+                open_form = OpenForm(forms=FormData.objects(user=str(request.user.id), template=request.session['currentTemplateID'], xml_data_id__exists=False))
                 upload_form = UploadForm()
 #                 options_form = AdvancedOptionsForm()
                 
@@ -321,8 +329,6 @@ def start_curate(request):
                 
                 return HttpResponse(json.dumps({'template': template.render(context)}), content_type='application/javascript')           
     else:
-        if 'loggedOut' in request.session:
-            del request.session['loggedOut']
         request.session['next'] = '/curate'
         return redirect('/login')
 

@@ -57,8 +57,6 @@ def index(request):
 
         return HttpResponse(template.render(context))
     else:
-        if 'loggedOut' in request.session:
-            del request.session['loggedOut']
         request.session['next'] = '/compose'
         return redirect('/login')
 
@@ -108,8 +106,6 @@ def compose_build_template(request):
 
         return HttpResponse(template.render(context))
     else:
-        if 'loggedOut' in request.session:
-            del request.session['loggedOut']
         request.session['next'] = '/compose/build-template'
         return redirect('/login')
 
@@ -143,7 +139,5 @@ def compose_downloadxsd(request):
         else:
             return redirect('/')
     else:
-        if 'loggedOut' in request.session:
-            del request.session['loggedOut']
         request.session['next'] = '/compose'
         return redirect('/login')
