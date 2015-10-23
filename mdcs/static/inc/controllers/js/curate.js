@@ -1093,7 +1093,7 @@ load_start_form = function(){
 
 enterKeyPressSubscription = function ()
 {
-    $('#id_document_name').keypress(function(event) {
+    $('#dialog-message').keypress(function(event) {
         if(event.which == $.ui.keyCode.ENTER) {
             event.preventDefault();
             event.stopPropagation();
