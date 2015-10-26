@@ -150,7 +150,13 @@ editInformation = function(objectID)
             buttons: {
             	Ok: function() {
 					var newName = $("#edit-name")[0].value;
-					edit_information(objectID, newName);
+					if (newName == ""){
+                        $("#form_edit_errors").html("<font color='red'>Please enter a name.</font><br/>");
+                    }
+                    else
+                    {
+					    edit_information(objectID, newName);
+					}
                 },
                 Cancel: function() {
                     $( this ).dialog( "close" );
