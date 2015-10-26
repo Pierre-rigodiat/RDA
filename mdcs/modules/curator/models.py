@@ -53,26 +53,33 @@ class BlobHosterModule(PopupModule):
 
     def _post_result(self, request):
         return self.handle if self.handle is not None else ''
-
+    
 
 class RawXMLModule(TextAreaModule):
     def __init__(self):
         self.parser = HTMLParser()
 
-        TextAreaModule.__init__(self, label="Raw XML")
+        TextAreaModule.__init__(self, label="Raw XML", data="Insert XML Data here...")
 
     def _get_module(self, request):
+        xml_string = ''
+        if 'data' in request.GET:
+            data = request.GET['data']
+            xml_data = etree.fromstring(data)
+            for xml_data_element in xml_data:
+                xml_string += etree.tostring(xml_data_element)
+        
+        if xml_string != '':
+            self.data = xml_string
         return TextAreaModule.get_module(self, request)
 
     def _get_display(self, request):
         data = request.GET['data'] if 'data' in request.GET else ''
-
         return self.disp(data)
 
     def disp(self, data):
         if data == '':
             return '<span class="notice">Please enter XML in the text area located above</span>'
-
         try:
             self.parse_data(data)
             return '<span class="success">XML entered is well-formed</span>'
@@ -80,15 +87,9 @@ class RawXMLModule(TextAreaModule):
             return '<span class="error">XML error: ' + e.message + '</span>'
 
     def parse_data(self, data):
-        xml_string = ''
-
         unescaped_data = self.parser.unescape(data)
-        xml_data = etree.fromstring(unescaped_data)
-
-        for xml_child in xml_data.getchildren():
-            xml_string += etree.tostring(xml_child)
-
-        return xml_string
+        etree.fromstring(''.join(['<root>', unescaped_data ,'</root>']))
+        return data
 
     def _get_result(self, request):
         if 'data' not in request.GET:
