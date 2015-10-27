@@ -741,6 +741,7 @@ download_current_xml = function(xmlString){
 saveToRepository = function()
 {
     console.log('BEGIN [saveToRepository]');
+    enterKeyPressSaveRepositorySubscription();
 
     $(function() {
         $( "#dialog-save-data-message" ).dialog({
@@ -750,23 +751,7 @@ saveToRepository = function()
                {
                    text: "Save",
                    click: function() {            	   
-	            	   var formData = new FormData($( "#form_save" )[0]);
-	            	   $.ajax({
-	            		   	url : "/curate/save_xml_data_to_db",
-	            	        type: 'POST',
-	            	        data: formData,
-	            	        cache: false,
-	            	        contentType: false,
-	            	        processData: false,
-	            	        async:false,
-	            	        success : function(data) {
-	            	        	$( "#dialog-save-data-message" ).dialog( "close" );
-	            	        	XMLDataSaved();
-	            	        },
-	            	        error:function(data){
-            	                $("#saveErrorMessage").html(data.responseText);             
-	            	        },
-	            	    });
+	            	   saveToRepositoryProcess();
                    }
                }
               ]
@@ -775,6 +760,38 @@ saveToRepository = function()
     
 	
     console.log('END [saveToRepository]');
+}
+
+saveToRepositoryProcess = function()
+{
+   var formData = new FormData($( "#form_save" )[0]);
+   $.ajax({
+        url : "/curate/save_xml_data_to_db",
+        type: 'POST',
+        data: formData,
+        cache: false,
+        contentType: false,
+        processData: false,
+        async:false,
+        success : function(data) {
+            $( "#dialog-save-data-message" ).dialog( "close" );
+            XMLDataSaved();
+        },
+        error:function(data){
+            $("#saveErrorMessage").html(data.responseText);
+        },
+    });
+}
+
+enterKeyPressSaveRepositorySubscription = function ()
+{
+    $('#id_title').keypress(function(event) {
+        if(event.which == $.ui.keyCode.ENTER) {
+            event.preventDefault();
+            event.stopPropagation();
+            saveToRepositoryProcess();
+        }
+    });
 }
 
 /**
