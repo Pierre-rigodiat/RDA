@@ -1155,14 +1155,43 @@ setCurrentTemplateCallback = function()
 }
 
 
+/**
+ * Delete a form
+ * @param formID
+ */
 deleteForm = function(formID){
+	$(function() {
+        $( "#dialog-delete-form" ).dialog({
+            modal: true,
+            buttons: {
+            	Cancel: function() {
+                    $( this ).dialog( "close" );
+                },
+            	Delete: function() {
+                    delete_form(formID);
+                    $( this ).dialog( "close" );
+                },
+            }
+        });
+    });
+}
+
+
+/**
+ * AJAX call, delete a form
+ * @param formID
+ */
+delete_form = function(formID){
 	$.ajax({
         url : "/curate/delete-form?id=" + formID,
         type : "GET",
         dataType: "json",
-        success: function(data){
-            $('#my-forms').load(document.URL +  ' #my-forms', function() {}); 
+        data : {
+        	formID: formID,
         },
+		success: function(data){
+			$('#my-forms').load(document.URL +  ' #my-forms', function() {}); 
+	    },
         error:function(data){
         	$('#my-forms').load(document.URL +  ' #my-forms', function() {}); 
         }
