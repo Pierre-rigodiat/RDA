@@ -1076,6 +1076,10 @@ set_current_user_template = function(templateID){
     });
 }
 
+
+/**
+ * AJAX call, loads the start curate form
+ */
 load_start_form = function(){
 	$.ajax({
         url : "/curate/start_curate",
@@ -1091,6 +1095,10 @@ load_start_form = function(){
     });
 }
 
+
+/**
+ * 
+ */
 enterKeyPressSubscription = function ()
 {
     $('#dialog-message').keypress(function(event) {
@@ -1102,6 +1110,10 @@ enterKeyPressSubscription = function ()
     });
 }
 
+
+/**
+ * Validate fields of the start curate form
+ */
 validateStartCurate = function(){
 	errors = ""
 	
