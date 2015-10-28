@@ -6,6 +6,7 @@ class XSLTExporter(Exporter):
 
     def __init__(self, xslt=""):
         self.name = "XSLT"
+        self.extension= ".xml"
         if xslt != "":
             self._setXslt(xslt)
 
@@ -36,6 +37,7 @@ class XSLTExporter(Exporter):
 class BasicExporter(Exporter):
     def __init__(self):
         self.name = "XML"
+        self.extension = ".xml"
 
     def _transform(self, results):
         return results

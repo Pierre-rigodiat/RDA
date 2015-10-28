@@ -15,6 +15,7 @@ class POPExporter(Exporter):
     def __init__(self):
         #Invoke parent constructor
         self.name = "POP"
+        self.extension= ".pop"
         self.data = []
 
 

@@ -1,15 +1,23 @@
 from abc import ABCMeta, abstractmethod
+import os
 
 class Exporter(object):
     __metaclass__ = ABCMeta
 
     def __init__(self):
         self.name = "Results"
+        self.extension= ".xml"
 
 
     def _transformAndZip(self, instance, results, zip):
         resultsTransform = self._transform(results)
         for result in resultsTransform:
+            # We check if the extension is already ok
+            if self.extension and not result['title'].endswith(self.extension):
+                #We remove the extension
+                result['title'] = os.path.splitext(result['title'])[0]
+                result['title'] += self.extension
+
             if instance == None:
                 zip.writestr(self.name+"/"+result['title'], result['content'])
             else:

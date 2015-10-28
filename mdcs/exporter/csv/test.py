@@ -12,10 +12,10 @@ class Test(unittest.TestCase):
         #Instanciate the exporter
         exporter = CSVExporter()
         #Open the XML File
-        xml = open('testData/result1.xml','r')
+        xml = open('testData/example-2.xml','r')
         contentXml = xml.read()
         #Add the xml content to the list of data to transform
-        dataXML.append({'title':'Results.pop', 'content': str(contentXml)})
+        dataXML.append({'title':'Results.csv', 'content': str(contentXml)})
 
         #Transformation
         contentRes = exporter._transform(dataXML)
@@ -25,9 +25,9 @@ class Test(unittest.TestCase):
         contentResExpected = resExpected.read()
 
         #Comparison
-        self.assertEquals(contentRes[0]['title'], 'Results.pop')
+        self.assertEquals(contentRes[0]['title'], 'Results.csv')
         #We don't take into account the first 2 lines cause of the current date
-        self.assertEquals("\n".join(contentRes[0]['content'].splitlines()[2:]), "\n".join(contentRes[0]['content'].splitlines()[2:]))
+        self.assertEquals("\n".join(contentRes[0]['content'].splitlines()), "\n".join(contentRes[0]['content'].splitlines()))
 
 
     # def test_many_files(self):
