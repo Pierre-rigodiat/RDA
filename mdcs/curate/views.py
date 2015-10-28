@@ -177,6 +177,8 @@ def curate_view_data(request):
         # get form data from the database
         form_data_id = request.session['curateFormData']
         form_data = FormData.objects.get(pk=ObjectId(form_data_id))
+        if not form_data.name.lower().endswith('.xml'):
+            form_data.name += ".xml"
         form_name = form_data.name
         
         context = RequestContext(request, {
@@ -357,6 +359,8 @@ def save_xml_data_to_db(request):
                     # get form data from the database
                     form_data_id = request.session['curateFormData']
                     form_data = FormData.objects.get(pk=ObjectId(form_data_id))
+                    if not form.data['title'].lower().endswith('.xml'):
+                        form.data['title'] += ".xml"
                     # update data if id is present
                     if form_data.xml_data_id is not None:
                         XMLdata.update_content(form_data.xml_data_id, xmlString, title=form.data['title'])
