@@ -1104,7 +1104,7 @@ def generateElement(request, element, xmlTree, namespace, choiceInfo=None, fullP
     addButton = False
     deleteButton = False
     nbOccurrences = 1 #nb of occurrences to render (can't be 0 or the user won't see this element at all)
-    nbOccurrences_data = 1 # nb of occurrences in loaded data or in form being rendered (can be 0)
+    nbOccurrences_data = minOccurs # nb of occurrences in loaded data or in form being rendered (can be 0)
     xml_element = None      
     removed = ""
     
@@ -1131,6 +1131,11 @@ def generateElement(request, element, xmlTree, namespace, choiceInfo=None, fullP
             removed = " removed"
             addButton = True
             deleteButton = False
+        else:
+            if nbOccurrences_data < maxOccurs:
+                addButton = True
+            if nbOccurrences_data > minOccurs:
+                deleteButton = True
         
     if nbOccurrences_data > nbOccurrences:
         nbOccurrences = nbOccurrences_data    
