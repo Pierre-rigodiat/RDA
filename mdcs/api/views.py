@@ -49,6 +49,7 @@ from datetime import timedelta
 from mgi import common
 from mgi.settings import BLOB_HOSTER, BLOB_HOSTER_URI, BLOB_HOSTER_USER, BLOB_HOSTER_PSWD, MDCS_URI
 from utils.BLOBHoster.BLOBHosterFactory import BLOBHosterFactory
+from mimetypes import guess_type
 
 
 ################################################################################
@@ -1954,7 +1955,7 @@ def blob(request):
                 blob_hoster = bh_factory.createBLOBHoster()
                 try:
                     blob = blob_hoster.get(request.get_full_path())
-                    response = HttpResponse(blob)
+                    response = HttpResponse(blob, content_type=guess_type(blob.filename))
                     response['Content-Disposition'] = 'attachment; filename=' + str(blob.filename)
                     return response
                 except:
