@@ -23,10 +23,11 @@ def sanitize(input_value):
 
             input_value = etree.tostring(xml_data)
         except XMLSyntaxError, e:
-            if e is not None and e.message is not None:
-                print 'Sanitizing XML (' + input_value + '): ' + e.message
-            else:
-                print 'Sanitizing XML (' + input_value + '): '
+            pass
+#             if e is not None and e.message is not None:
+#                 print 'Sanitizing XML (' + input_value + '): ' + e.message
+#             else:
+#                 print 'Sanitizing XML (' + input_value + '): '
         finally:
             try:
                 json_value = json.loads(input_value)
