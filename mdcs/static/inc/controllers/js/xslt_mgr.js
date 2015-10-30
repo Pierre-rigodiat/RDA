@@ -122,6 +122,15 @@ delete_XSLT = function(xslt_id){
     });
 }
 
+enterKeyPressSubscription = function ()
+{
+    $('#id_name').keypress(function(event) {
+        if(event.which == $.ui.keyCode.ENTER){
+            event.preventDefault();
+            event.stopPropagation();
+        }
+    });
+}
 
 Init = function(){
     $('.edit').on('click',editInformation);
@@ -129,6 +138,7 @@ Init = function(){
     $.each(buttonsetElts, function(index, props) {
          $("#"+props.id).buttonset();
     });
+    enterKeyPressSubscription();
 
 }
 

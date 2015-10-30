@@ -42,11 +42,16 @@ Select exporters you want to associate with the template.
 
 {% block content%}
 <div id="dialog-exporters" title="Manage Exporter">
-	<table class="table table-bordered">
+	<table class="data-table">
+		<tr>
+			<th>Exporter name</th>
+			<th></th>
+		</tr>
 		{% for exporter in exporters %}
+		{% cycle 'even' '' as rowcolors silent %}
 		{% with key=exporter.id %}
 		{% if  exporter.name == 'XSLT' %}
-		<tr>
+  		<tr class="{{ rowcolors }}">
 			<td exporterID="{{exporter.id}}"><b>{{exporter.name}}</b></td>
 			<td id="ButtonSet{{exporter.id}}">
 				{% if useExporter|access:key  == True %}
@@ -57,20 +62,25 @@ Select exporters you want to associate with the template.
   				<label for="{{exporter.id}}"></label>
 			</td>
 		</tr>
-		<tr id="xslts">
+		<tr id="xslts" class="{{ rowcolors }}">
 			<td></td>
 			<td>
-				<table class="table table-bordered">
+				<table class="data-table">
+				<tr>
+					<th>XSLT name</th>
+					<th></th>
+			  	</tr>
 				{% for xslt in xsltFiles %}
+				{% cycle 'even' '' as rowcolorsXSLT silent %}
 				{% with key=xslt.id %}
-					<tr>
+					<tr class="{{ rowcolorsXSLT }}">
 						<td>{{xslt.name}}</td>
 						<td id="ButtonSet{{xslt.id}}">{% if xslt.available_for_all == True %}
-							<input id="{{xslt.id}}" class="cmn-toggle cmn-toggle-round2" name="xslt" type="checkbox" disabled="True" checked>
+							<input id="{{xslt.id}}" class="cmn-toggle cmn-toggle-round2" name="xslt" type="checkbox" disabled="True" checked/>
 							{% elif useXsltFiles|access:key  == True  %}
-							<input id="{{xslt.id}}" class="cmn-toggle cmn-toggle-round2" name="xslt" type="checkbox" checked >
+							<input id="{{xslt.id}}" class="cmn-toggle cmn-toggle-round2" name="xslt" type="checkbox" checked />
 							{% else  %}
-							<input id="{{xslt.id}}" class="cmn-toggle cmn-toggle-round2" name="xslt" type="checkbox" >
+							<input id="{{xslt.id}}" class="cmn-toggle cmn-toggle-round2" name="xslt" type="checkbox" />
 							{% endif %}
 							<label for="{{xslt.id}}"></label>
 						</td>
@@ -81,7 +91,7 @@ Select exporters you want to associate with the template.
 			</td>
 		</tr>
 		{% else %}
-		<tr>
+		<tr class="{{ rowcolors }}">
 			<td exporterID="{{exporter.id}}"><b>{{exporter.name}}</b></td>
 			<td id="ButtonSet{{exporter.id}}">
 				{% if useExporter|access:key  == True %}

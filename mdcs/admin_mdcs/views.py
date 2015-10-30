@@ -691,7 +691,11 @@ def edit_xslt(request, id=None):
             new_name = request.POST['new_name']
             new_name = new_name.strip(' \t\n\r')
             try:
-                ExporterXslt.objects.get(pk=object_id).update(set__name=str(new_name))
+                exporter = ExporterXslt.objects.get(pk=object_id)
+                if exporter.name == new_name:
+                    return HttpResponseBadRequest('Please enter a different name.')
+                else:
+                    exporter.update(set__name=str(new_name))
             except OperationError, e:
                return HttpResponseBadRequest('This XSLT name already exists. Please enter an other name.')
 

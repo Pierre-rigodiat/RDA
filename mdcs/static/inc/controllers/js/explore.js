@@ -1423,7 +1423,7 @@ exportRes = function() {
     if(existOne > 0)
         displayExportSelectedDialog(listId);
      else
-        $("#btn_errors").html("Please check results to export");
+        $("#btn_errors").html("Please select results to export");
 
 	console.log('END [downloadSelectedResults]');
 }
@@ -1434,25 +1434,31 @@ exportRes = function() {
  */
 displayExportSelectedDialog = function(listId)
 {
- $(function() {
-    $( "#dialog-message" ).dialog({
-      modal: true,
-      buttons:
-    	  [
-           {
-               text: "Export",
-               click: function() {
-                    if(validateExport())
-                    {
-                       $(form_start).submit();
-                       $( this ).dialog( "close" );
-                    }
+    exist = load_start_form(listId);
+    $(function() {
+        $( "#dialog-message" ).dialog({
+          modal: true,
+          buttons:
+              [
+               {
+                   text: "OK",
+                   click: function() {
+                        if ($("#form_start_current").val() != ""){
+                            if(validateExport())
+                            {
+                               $(form_start).submit();
+                               $( this ).dialog( "close" );
+                            }
+                        }
+                        else
+                        {
+                            $( this ).dialog( "close" );
+                        }
+                   }
                }
-           }
-          ]
+              ]
+        });
     });
-    load_start_form(listId);
-  });
 }
 
 

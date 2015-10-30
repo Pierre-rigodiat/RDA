@@ -343,7 +343,9 @@ input.cmn-toggle-round + label:after {
   transition: margin 0.4s;
 }
 input.cmn-toggle-round:checked + label:before {
-  background-color: #8ce196;
+  background: #8ce196 no-repeat url('../img/check.png');
+  background-size:  16px;
+  background-position: 15%;
 }
 input.cmn-toggle-round:checked + label:after {
   margin-left: 33px;
