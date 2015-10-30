@@ -421,9 +421,7 @@ def lookup_Occurs(element, xmlTree, namespace, fullPath, edit_data_tree):
 # 
 ################################################################################
 def generateSequence(request, element, xmlTree, namespace, choiceInfo=None, fullPath="", edit_data_tree=None):
-    #(annotation?,(element|group|choice|sequence|any)*)
-    nb_html_tags = int(request.session['nb_html_tags'])
-    
+    #(annotation?,(element|group|choice|sequence|any)*)    
     formString = ""
     
     # remove the annotations
@@ -474,6 +472,7 @@ def generateSequence(request, element, xmlTree, namespace, choiceInfo=None, full
         
         # editing data and sequence not found in data
         if request.session['curate_edit'] and nbOccurrences == 0:
+            nb_html_tags = int(request.session['nb_html_tags'])
             tagID = "element" + str(nb_html_tags)
             nb_html_tags += 1
             request.session['nb_html_tags'] = str(nb_html_tags)
@@ -484,6 +483,7 @@ def generateSequence(request, element, xmlTree, namespace, choiceInfo=None, full
             formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" style=\"display:none;\" onclick=\"changeHTMLForm('remove',"+str(tagID[7:])+");\"></span>"
         else:
             for x in range (0,int(nbOccurrences)):
+                nb_html_tags = int(request.session['nb_html_tags'])
                 tagID = "element" + str(nb_html_tags)
                 nb_html_tags += 1
                 request.session['nb_html_tags'] = str(nb_html_tags)
@@ -590,7 +590,7 @@ def generateSequence_absent(request, element, xmlTree, namespace):
 def generateChoice(request, element, xmlTree, namespace, choiceInfo=None, fullPath="", edit_data_tree=None):
     #(annotation?,(element|group|choice|sequence|any)*)
     nbChoicesID = int(request.session['nbChoicesID'])
-    nb_html_tags = int(request.session['nb_html_tags'])
+    
     
     formString = ""
     
@@ -657,6 +657,7 @@ def generateChoice(request, element, xmlTree, namespace, choiceInfo=None, fullPa
         formString += "<ul>"
     
     for x in range (0,int(nbOccurrences)):
+        nb_html_tags = int(request.session['nb_html_tags'])
         tagID = "element" + str(nb_html_tags)
         nb_html_tags += 1  
         request.session['nb_html_tags'] = str(nb_html_tags)
