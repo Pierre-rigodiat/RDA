@@ -31,12 +31,12 @@
 
 {% block title %}<h1>Data Entry</h1>{% endblock %}
 {% block description %}
-    Here you can fill in the Material Data form. Once it is completed, you can go to 'View Data' to review what you have entered.
+    Here you can fill in the Materials Data form. Once it is completed, you can go to 'View Data' to review what you have entered.
     You won't be able to reach the review page before the document is valid according to the selected template. From the review page, you will be able to curate the data.
-    The 'Save Form' button allows you to save partial data that you may want to edit later. This will only save a temporary document to edit later and won't actually curate data.
-    Grayed elements are optional. Thus, all elements written in black are required. The document may still be valid with empty elements.
+    The 'Save Form' button allows you to save partial data that you may want to edit later. This will only save a temporary document and won't actually curate data.
+    All grayed elements are optional. Thus, all elements written in black are required. The document may still be valid with empty elements.
     There are no validation on empty fields if no such constraint is defined in the template.
-    Thus, an empty string of characters can be valid, but an empty number will never be valid.    
+    Thus, an empty string of characters may not raise a validation error, but an empty number will.    
 {% endblock %}
 
 {% block menu %}{% include 'menu.html' with active_tab='tab2' %}{% endblock %}

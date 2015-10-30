@@ -98,7 +98,7 @@ class Module(object):
             'scripts': self.scripts,
             'styles': self.styles
         }
-
+    
         return HttpResponse(json.dumps(response), status=HTTP_200_OK)
 
     @abstractmethod
