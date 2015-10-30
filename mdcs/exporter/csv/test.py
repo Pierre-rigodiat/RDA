@@ -21,13 +21,17 @@ class Test(unittest.TestCase):
         contentRes = exporter._transform(dataXML)
 
         #Open the expected res
-        resExpected = open('testData/csv_result_one.txt','r')
-        contentResExpected = resExpected.read()
+        resExpectedTable1 = open('testData/csv_result_one_Table1.txt','r')
+        contentResExpectedTable1 = resExpectedTable1.read()
+        resExpectedTable2 = open('testData/csv_result_one_Table2.txt','r')
+        contentResExpectedTable2 = resExpectedTable2.read()
 
         #Comparison
-        self.assertEquals(contentRes[0]['title'], 'Results.csv')
+        self.assertEquals(contentRes[0]['title'], 'Results_Table1')
+        self.assertEquals(contentRes[1]['title'], 'Results_Table2')
         #We don't take into account the first 2 lines cause of the current date
-        self.assertEquals("\n".join(contentRes[0]['content'].splitlines()), "\n".join(contentRes[0]['content'].splitlines()))
+        self.assertEquals("\n".join(contentRes[0]['content'].splitlines()), "\n".join(contentResExpectedTable1.splitlines()))
+        self.assertEquals("\n".join(contentRes[1]['content'].splitlines()), "\n".join(contentResExpectedTable2.splitlines()))
 
 
     # def test_many_files(self):

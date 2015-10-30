@@ -32,7 +32,7 @@ class CSVExporter(XSLTExporter):
                     #We remove the extension
                     result['title'] = os.path.splitext(result['title'])[0]
                     try:
-                        data = xml.split("---END TABLE---\n")
+                        data = xml.split("\t\t\n")
                         data = filter(None, data)
                         if len(data) == 1:
                             returnTransformation.append({'title':result['title'], 'content': str(data[0])})
