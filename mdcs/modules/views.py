@@ -15,11 +15,16 @@ def load_resources_view(request):
     if not request.method == 'GET':
         return HttpResponse({}, status=status.HTTP_400_BAD_REQUEST)
 
-    if 'urls' not in request.GET:
+    if 'urlsToLoad' not in request.GET or 'urlsLoaded' not in request.GET:
         return HttpResponse({}, status=status.HTTP_403_FORBIDDEN)
 
-    mod_urls_qs = sanitize(request.GET['urls'])
+    # URLs of the modules to load
+    mod_urls_qs = sanitize(request.GET['urlsToLoad'])
     mod_urls = json.loads(mod_urls_qs)
+
+    # URLs of the loaded modules
+    mod_urls_loaded_qs = sanitize(request.GET['urlsLoaded'])
+    mod_urls_loaded = json.loads(mod_urls_loaded_qs)
 
     # Request hack to get module resources
     request.GET = {
@@ -32,6 +37,12 @@ def load_resources_view(request):
         'styles': []
     }
 
+    # loaded_resources = {
+    #     'scripts': [],
+    #     'styles': []
+    # }
+
+    # Add all resources from requested modules
     for url in mod_urls:
         module_view = get_module_view(url)
         mod_resources = module_view(request).content
@@ -47,6 +58,25 @@ def load_resources_view(request):
             for resource in mod_resources[key]:
                 if resource not in resources[key]:
                     resources[key].append(resource)
+
+    # Remove possible dependencies form already loaded modules
+    for url in mod_urls_loaded:
+        module_view = get_module_view(url)
+        mod_resources = module_view(request).content
+
+        mod_resources = sanitize(mod_resources)
+        mod_resources = json.loads(mod_resources)
+
+        # Remove resources already loaded
+        for key in resources.keys():
+            if mod_resources[key] is None:
+                continue
+
+            for resource in mod_resources[key]:
+                if resource in resources[key]:
+                    i = resources[key].index(resource)
+                    del resources[key][i]
+
 
     # Build response content
     response = {
