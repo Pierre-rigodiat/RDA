@@ -233,8 +233,11 @@ def my_profile_change_password(request):
 ################################################################################
 def my_profile_my_forms(request):
     if request.user.is_authenticated():        
-        forms = FormData.objects(user=str(request.user.id), xml_data_id__exists=False)
-        return render(request, 'my_profile_my_forms.html', {'forms':forms})    
+        forms = FormData.objects(user=str(request.user.id), xml_data_id__exists=False).order_by('template') # xml_data_id False if document not curated
+        detailed_forms = []
+        for form in forms:
+            detailed_forms.append({'form': form, 'template_name': Template.objects().get(pk=form.template).title})
+        return render(request, 'my_profile_my_forms.html', {'forms':detailed_forms})    
     else:
         request.session['next'] = '/my-profile'
         return redirect('/login')

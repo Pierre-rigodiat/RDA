@@ -115,7 +115,7 @@ class InputButtonModule(Module):
 
 
 class TextAreaModule(Module):
-    def __init__(self, scripts=list(), styles=list(), label=None):
+    def __init__(self, scripts=list(), styles=list(), label=None, data=None):
         scripts = [os.path.join(SCRIPTS_PATH, 'textarea.js')] + scripts
         styles = [os.path.join(STYLES_PATH, 'textarea.css')] + styles
         Module.__init__(self, scripts=scripts, styles=styles)
@@ -124,14 +124,15 @@ class TextAreaModule(Module):
             raise ModuleError("'label' is required.")
 
         self.label = label
+        self.data = data
 
     def get_module(self, request):
         template = os.path.join(TEMPLATES_PATH, 'textarea.html')
 
-        params = {"label": self.label, "data": "Insert XML here..."}
+        params = {"label": self.label}
 
-        if 'data' in request.GET:
-            params['data'] = request.GET['data']
+        if self.data is not None:
+            params.update({'data': self.data})
 
         return render_module(template, params)
 

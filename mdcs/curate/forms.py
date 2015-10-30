@@ -48,5 +48,8 @@ class AdvancedOptionsForm(forms.Form):
     options = forms.MultipleChoiceField(label='', required=False, widget=forms.CheckboxSelectMultiple, choices=ADVANCED_OPTIONS)
     
 class SaveDataForm(forms.Form):
+
+    def is_valid(self):
+        return super(SaveDataForm, self).is_valid() and self.data['title'].strip() != ""
+
     title = forms.CharField(label='Save As', min_length=1, max_length=100, required=True)
-    

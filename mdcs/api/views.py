@@ -51,6 +51,7 @@ from datetime import timedelta
 from mgi import common
 from mgi.settings import BLOB_HOSTER, BLOB_HOSTER_URI, BLOB_HOSTER_USER, BLOB_HOSTER_PSWD, MDCS_URI
 from utils.BLOBHoster.BLOBHosterFactory import BLOBHosterFactory
+from mimetypes import guess_type
 from exporter import get_exporter
 
 
@@ -251,10 +252,8 @@ def explore(request):
     """
     GET http://localhost/rest/explore/select/all
     dataformat: [xml,json]
-    contentonly: [True,False] Default False
     """
     dataformat = request.QUERY_PARAMS.get('dataformat', None)
-    contentonly = request.QUERY_PARAMS.get('contentonly', None) == 'True'
 
     jsonData = XMLdata.objects()
     
@@ -262,22 +261,10 @@ def explore(request):
         for jsonDoc in jsonData:
             jsonDoc['content'] = xmltodict.unparse(jsonDoc['content'])  
         serializer = jsonDataSerializer(jsonData)
-        if contentonly:
-            allContent = []
-            for data in serializer.data:
-                allContent.append(data['content'])
-            return Response(allContent, status=status.HTTP_200_OK)
-        else:
-            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.data, status=status.HTTP_200_OK)
     elif dataformat == "json":
         serializer = jsonDataSerializer(jsonData)
-        if contentonly:
-            allContent = []
-            for data in serializer.data:
-                allContent.append(data['content'])
-            return Response(allContent, status=status.HTTP_200_OK)
-        else:
-            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.data, status=status.HTTP_200_OK)
     else:
         content = {'message':'The specified format is not accepted.'}
         return Response(content, status=status.HTTP_400_BAD_REQUEST)
@@ -299,13 +286,11 @@ def explore_detail(request):
     schema: string (ObjectId)
     title: string
     dataformat: [xml,json]
-    contentonly: [True,False] Default False
     """        
     id = request.QUERY_PARAMS.get('id', None)
     schema = request.QUERY_PARAMS.get('schema', None)
     title = request.QUERY_PARAMS.get('title', None)
     dataformat = request.QUERY_PARAMS.get('dataformat', None)
-    contentonly = request.QUERY_PARAMS.get('contentonly', None) == 'True'
 
     try:        
         query = dict()
@@ -329,24 +314,65 @@ def explore_detail(request):
         
             if dataformat== None or dataformat=="xml":
                 for jsonDoc in jsonData:
-                    jsonDoc['content'] = xmltodict.unparse(jsonDoc['content'])  
+                    jsonDoc['content'] = xmltodict.unparse(jsonDoc['content'])
                 serializer = jsonDataSerializer(jsonData)
-                if contentonly:
-                    allContent = []
-                    for data in serializer.data:
-                        allContent.append(data['content'])
-                    return Response(allContent, status=status.HTTP_200_OK)
-                else:
-                    return Response(serializer.data, status=status.HTTP_200_OK)
+                return Response(serializer.data, status=status.HTTP_200_OK)
             elif dataformat == "json":
                 serializer = jsonDataSerializer(jsonData)
-                if contentonly:
-                    allContent = []
-                    for data in serializer.data:
-                        allContent.append(data['content'])
-                    return Response(allContent, status=status.HTTP_200_OK)
-                else:
-                    return Response(serializer.data, status=status.HTTP_200_OK)
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            else:
+                content = {'message':'The specified format is not accepted.'}
+                return Response(content, status=status.HTTP_400_BAD_REQUEST)
+    except:
+        content = {'message':'No data found with the given parameters.'}
+        return Response(content, status=status.HTTP_404_NOT_FOUND)
+
+
+################################################################################
+#
+# Function Name: explore_detail_data_download(request)
+# Inputs:        request -
+# Outputs:
+# Exceptions:    None
+# Description:   Download document content
+#
+################################################################################
+@api_view(['GET'])
+def explore_detail_data_download(request):
+    """
+    GET http://localhost/rest/explore/data/download
+    id: string (ObjectId)
+    dataformat: [xml,json]
+    """
+    id = request.QUERY_PARAMS.get('id', None)
+    dataformat = request.QUERY_PARAMS.get('dataformat', None)
+
+    try:
+        query = dict()
+        if id is not None:
+            query['_id'] = ObjectId(id)
+        if len(query.keys()) == 0:
+            content = {'message':'No parameters given.'}
+            return Response(content, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            jsonData = XMLdata.executeQueryFullResult(query)
+            jsonData = jsonData.pop()
+            #We remove the extension
+            filename = os.path.splitext(jsonData['title'])[0]
+
+            if dataformat== None or dataformat=="xml":
+                jsonData['content'] = xmltodict.unparse(jsonData['content'])
+                contentEncoded = jsonData['content'].encode('utf-8')
+                fileObj = StringIO(contentEncoded)
+                response = HttpResponse(fileObj, content_type='application/xml')
+                response['Content-Disposition'] = 'attachment; filename=' + filename
+                return response
+            elif dataformat == "json":
+                contentEncoded = json.dumps(jsonData['content'])
+                fileObj = StringIO(contentEncoded)
+                response = HttpResponse(fileObj, content_type='application/json')
+                response['Content-Disposition'] = 'attachment; filename=' + filename
+                return response
             else:
                 content = {'message':'The specified format is not accepted.'}
                 return Response(content, status=status.HTTP_400_BAD_REQUEST)
@@ -763,6 +789,7 @@ def select_schema(request):
     except:
         content = {'message':'No template found with the given parameters.'}
         return Response(content, status=status.HTTP_404_NOT_FOUND)
+
 
 ################################################################################
 # 
@@ -1970,7 +1997,7 @@ def blob(request):
                 blob_hoster = bh_factory.createBLOBHoster()
                 try:
                     blob = blob_hoster.get(request.get_full_path())
-                    response = HttpResponse(blob)
+                    response = HttpResponse(blob, content_type=guess_type(blob.filename))
                     response['Content-Disposition'] = 'attachment; filename=' + str(blob.filename)
                     return response
                 except:

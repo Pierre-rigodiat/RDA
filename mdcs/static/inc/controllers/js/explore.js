@@ -1334,6 +1334,10 @@ showhideResults = function(event)
 	console.log('END [showhideResults]');
 }
 
+/**
+ * Delete a curated document
+ * @param result_id
+ */
 deleteResult = function(result_id){
 	$(function() {
         $( "#dialog-delete-result" ).dialog({
@@ -1352,8 +1356,8 @@ deleteResult = function(result_id){
 }
 
 /**
- * AJAX call, preapres the sub element query
- * @param leavesID
+ * AJAX call, delete a curated document
+ * @param result_id
  */
 delete_result = function(result_id){
 	$.ajax({

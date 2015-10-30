@@ -25,6 +25,7 @@ urlpatterns = patterns(
     url(r'^saved_queries/add$','add_savedquery'),
     url(r'^curate$', 'curate', name='curate'),
     url(r'^explore/select/all$', 'explore', name='explore'),
+    url(r'^explore/data/download$', 'explore_detail_data_download', name='explore_detail_data_download'),
     url(r'^explore/select$', 'explore_detail', name='explore_detail'),
     url(r'^explore/delete$', 'explore_delete', name='explore_delete'),
     url(r'^explore/query-by-example$', 'query_by_example', name='query_by_example'),
