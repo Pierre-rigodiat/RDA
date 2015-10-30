@@ -1,14 +1,32 @@
+var loadedModules = [];
+
 loadModuleResources = function(moduleURLList) {
+    neededURLList = [];
+
+    for(var modIndex=0; modIndex<moduleURLList.length; modIndex++) {
+        var moduleURL = moduleURLList[modIndex];
+
+        if(loadedModules.indexOf(moduleURL) === -1) {
+            neededURLList.push(moduleURL);
+        }
+    }
+
     $.ajax({
         url: '/modules/resources',
         type: "GET",
         dataType: "json",
         data: {
-            'urls': JSON.stringify(moduleURLList)
+            'urls': JSON.stringify(neededURLList)
         },
         success: function(data){
             $('head').append(data.styles);
             $('body').append(data.scripts);
+
+            for(var modIndex=0; modIndex<neededURLList.length; modIndex++) {
+                loadedModules.push(neededURLList[modIndex]);
+            }
+
+            //console.log(loadedModules);
         },
         error: function() {
             // Raise error

@@ -327,17 +327,17 @@ def explore_detail(request):
 
 ################################################################################
 #
-# Function Name: explore_detail(request)
+# Function Name: explore_detail_data_download(request)
 # Inputs:        request -
 # Outputs:
 # Exceptions:    None
-# Description:   Get XML data that match the parameters
+# Description:   Download document content
 #
 ################################################################################
 @api_view(['GET'])
-def explore_detail_content_only(request):
+def explore_detail_data_download(request):
     """
-    GET http://localhost/rest/explore/select/contentonly
+    GET http://localhost/rest/explore/data/download
     id: string (ObjectId)
     dataformat: [xml,json]
     """
