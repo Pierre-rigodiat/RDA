@@ -217,7 +217,7 @@ def curate_enter_data_downloadxsd(request):
             xsdEncoded = xsdDocData.encode('utf-8')
             fileObj = StringIO(xsdEncoded)
 
-            response = HttpResponse(FileWrapper(fileObj), content_type='application/xml')
+            response = HttpResponse(FileWrapper(fileObj), content_type='application/xsd')
             response['Content-Disposition'] = 'attachment; filename=' + template_filename
             return response
     else:
@@ -250,6 +250,9 @@ def curate_view_data_downloadxml(request):
                 fileObj = StringIO(xmlStringEncoded)
     
                 xmlDataObject.delete()
+
+                if not xmlDataObject.title.lower().endswith('.xml'):
+                    xmlDataObject.title += ".xml"
     
                 response = HttpResponse(FileWrapper(fileObj), content_type='application/xml')
                 response['Content-Disposition'] = 'attachment; filename=' + xmlDataObject.title
