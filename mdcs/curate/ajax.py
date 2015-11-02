@@ -29,6 +29,7 @@ from django.template import Context, loader
 import lxml.html as html
 import lxml.etree as etree
 import django.utils.html
+from django.contrib import messages
 
 from modules import get_module_view
 
@@ -2260,6 +2261,7 @@ def delete_form(request):
                     # raise an exception when element not found
                     pass
             form_data.delete()
+            messages.add_message(request, messages.INFO, 'Form deleted with success.')
         except Exception, e:
             return HttpResponse({},status=400)
     return HttpResponse({})
