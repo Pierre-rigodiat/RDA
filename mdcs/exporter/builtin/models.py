@@ -8,10 +8,11 @@ class XSLTExporter(Exporter):
         self.name = "XSLT"
         if xslt != "":
             self._setXslt(xslt)
-        self.extension= "xml"
 
     def _setXslt(self, xslt):
         self.xslt = xslt
+        #Default extension
+        self.extension= "xml"
 
         xsltParsed = etree.parse(BytesIO(xslt.encode('utf-8')))
         #We define the extension
