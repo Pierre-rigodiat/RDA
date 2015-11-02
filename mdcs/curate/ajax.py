@@ -432,8 +432,6 @@ def generateSequence(request, element, xmlTree, namespace, choiceInfo=None, full
     if (minOccurs != 1) or (maxOccurs != 1):       
         text = "Sequence"
         
-        
-#         addButton, deleteButton, nbOccurrences = manageButtons(minOccurs, maxOccurs)
         # XSD xpath
         xsd_xpath = etree.ElementTree(xmlTree).getpath(element)
 
@@ -449,16 +447,12 @@ def generateSequence(request, element, xmlTree, namespace, choiceInfo=None, full
             # get the number of occurrences in the data
             nbOccurrences_data = lookup_Occurs(element, xmlTree, namespace, fullPath, edit_data_tree)
             
-            if nbOccurrences_data > 0:
-                # manage buttons
-                if nbOccurrences_data < maxOccurs:
-                    addButton = True
-                if nbOccurrences_data > minOccurs:
-                    deleteButton = True
-            else:
-                if minOccurs == 0:
-                    addButton = True
-                    deleteButton = False
+            # manage buttons
+            if nbOccurrences_data < maxOccurs:
+                addButton = True
+            if nbOccurrences_data > minOccurs:
+                deleteButton = True
+                    
         else: # starting an empty form
             # Don't generate the element if not necessary
             if request.session['curate_min_tree'] and minOccurs == 0:
@@ -474,18 +468,6 @@ def generateSequence(request, element, xmlTree, namespace, choiceInfo=None, full
             nbOccurrences = nbOccurrences_data    
         
         xml_element = XMLElement(xsd_xpath=xsd_xpath, nbOccurs=nbOccurrences_data, minOccurs=minOccurs, maxOccurs=maxOccurs).save()
-
-#         # save xml element to duplicate sequence
-#         nbOccurs_to_save = nbOccurrences
-#         # Update element information to match the number of elements from the XML document
-#         if request.session['curate_edit']:
-#             nbOccurrences = nbOccurs_to_save = lookup_Occurs(element, xmlTree, namespace, fullPath, edit_data_tree)
-# 
-#         # store the XML element
-#         xml_element = XMLElement(xsd_xpath=xsd_xpath, nbOccurs=nbOccurs_to_save, minOccurs=minOccurs, maxOccurs=maxOccurs).save()
-        
-        
-        
         
         # keeps track of elements to display depending on the selected choice
         if choiceInfo:
@@ -660,16 +642,11 @@ def generateChoice(request, element, xmlTree, namespace, choiceInfo=None, fullPa
             # get the number of occurrences in the data
             nbOccurrences_data = lookup_Occurs(element, xmlTree, namespace, fullPath, edit_data_tree)
             
-            if nbOccurrences_data > 0:
-                # manage buttons
-                if nbOccurrences_data < maxOccurs:
-                    addButton = True
-                if nbOccurrences_data > minOccurs:
-                    deleteButton = True
-            else:
-                if minOccurs == 0:
-                    addButton = True
-                    deleteButton = False
+            if nbOccurrences_data < maxOccurs:
+                addButton = True
+            if nbOccurrences_data > minOccurs:
+                deleteButton = True
+                
         else: # starting an empty form
             # Don't generate the element if not necessary
             if request.session['curate_min_tree'] and minOccurs == 0:
@@ -1189,28 +1166,24 @@ def generateElement(request, element, xmlTree, namespace, choiceInfo=None, fullP
         edit_elements = edit_data_tree.xpath(fullPath)
         nbOccurrences_data = len(edit_elements)
         
-        if nbOccurrences_data > 0:
-            # manage buttons
-            if nbOccurrences_data < maxOccurs:
-                addButton = True
-            if nbOccurrences_data > minOccurs:
-                deleteButton = True
-        else:
-            if minOccurs == 0:
-                removed = " removed"
-                addButton = True
-                deleteButton = False
+        if request.session['curate_min_tree'] and minOccurs == 0 and nbOccurrences_data == 0:
+            removed = " removed"
+
+        # manage buttons
+        if nbOccurrences_data < maxOccurs:
+            addButton = True
+        if nbOccurrences_data > minOccurs:
+            deleteButton = True
+
     else: # starting an empty form
         # Don't generate the element if not necessary
         if request.session['curate_min_tree'] and minOccurs == 0:
             removed = " removed"
+        
+        if nbOccurrences_data < maxOccurs:
             addButton = True
-            deleteButton = False
-        else:
-            if nbOccurrences_data < maxOccurs:
-                addButton = True
-            if nbOccurrences_data > minOccurs:
-                deleteButton = True
+        if nbOccurrences_data > minOccurs:
+            deleteButton = True
         
     if nbOccurrences_data > nbOccurrences:
         nbOccurrences = nbOccurrences_data    
