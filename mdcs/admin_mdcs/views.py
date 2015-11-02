@@ -631,6 +631,7 @@ def manage_xslt(request, id=None):
             except NotUniqueError, e:
                return HttpResponseBadRequest('This XSLT name already exists. Please enter an other name.')
 
+            messages.add_message(request, messages.INFO, 'XSLT saved with success.')
             return HttpResponse('ok')
         else:
             template = loader.get_template('admin/manage_xslt.html')
@@ -667,6 +668,7 @@ def delete_xslt(request):
             except Exception:
                 return HttpResponseBadRequest('Something went wrong during the deletion')
 
+            messages.add_message(request, messages.INFO, 'XSLT deleted with success.')
             return HttpResponse(json.dumps({}), content_type='application/javascript')
     else:
         if 'loggedOut' in request.session:
@@ -699,6 +701,7 @@ def edit_xslt(request, id=None):
             except OperationError, e:
                return HttpResponseBadRequest('This XSLT name already exists. Please enter an other name.')
 
+            messages.add_message(request, messages.INFO, 'XSLT edited with success.')
             return HttpResponse(json.dumps({}), content_type='application/javascript')
     else:
         if 'loggedOut' in request.session:

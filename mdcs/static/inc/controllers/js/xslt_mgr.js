@@ -25,15 +25,7 @@ displayImport = function()
 	            	        processData: false,
 	            	        async:false,
 	            	   		success: function(data){
-	            	   		    $( "#dialog-success" ).dialog({
-                                modal: true,
-                                buttons: {
-                                Ok: function() {
-                                    $( this ).dialog( "close" );
-                                    window.location = '/admin/xml-schemas/manage-xslt'
-                                  },
-                                }
-                                });
+                                window.location = '/admin/xml-schemas/manage-xslt'
 	            	        },
 	            	        error:function(data){
 	            	        	$("#form_start_errors").html(data.responseText);
@@ -98,15 +90,7 @@ delete_XSLT = function(xslt_id){
         	xslt_id : xslt_id,
         },
         success: function(data){
-            $( "#dialog-success-delete" ).dialog({
-                modal: true,
-                buttons: {
-                Ok: function() {
-                    $( this ).dialog( "close" );
-                    window.location = '/admin/xml-schemas/manage-xslt'
-                  },
-                }
-            });
+            window.location = '/admin/xml-schemas/manage-xslt'
         },
         error:function(data){
             $("#form_start_errors").html(data.responseText);
@@ -192,15 +176,7 @@ edit_information = function(objectID, newName, newFilename, newAvailableForAll){
         	new_name : newName,
         },
         success: function(data){
-           $( "#dialog-success-update" ).dialog({
-                modal: true,
-                buttons: {
-                Ok: function() {
-                    $( this ).dialog( "close" );
-                    window.location = '/admin/xml-schemas/manage-xslt'
-                  },
-                }
-            });
+            window.location = '/admin/xml-schemas/manage-xslt'
         },
         error:function(data){
             $("#form_edit_errors").html(data.responseText);
