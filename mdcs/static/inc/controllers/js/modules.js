@@ -16,7 +16,8 @@ loadModuleResources = function(moduleURLList) {
         type: "GET",
         dataType: "json",
         data: {
-            'urls': JSON.stringify(neededURLList)
+            'urlsToLoad': JSON.stringify(neededURLList),
+            'urlsLoaded': JSON.stringify(loadedModules)
         },
         success: function(data){
             $('head').append(data.styles);
