@@ -431,18 +431,61 @@ def generateSequence(request, element, xmlTree, namespace, choiceInfo=None, full
     
     if (minOccurs != 1) or (maxOccurs != 1):       
         text = "Sequence"
-        addButton, deleteButton, nbOccurrences = manageButtons(minOccurs, maxOccurs)
+        
+        
+#         addButton, deleteButton, nbOccurrences = manageButtons(minOccurs, maxOccurs)
         # XSD xpath
         xsd_xpath = etree.ElementTree(xmlTree).getpath(element)
 
-        # save xml element to duplicate sequence
-        nbOccurs_to_save = nbOccurrences
-        # Update element information to match the number of elements from the XML document
+        # init variables for buttons management
+        addButton = False
+        deleteButton = False
+        nbOccurrences = 1 #nb of occurrences to render (can't be 0 or the user won't see this element at all)
+        nbOccurrences_data = minOccurs # nb of occurrences in loaded data or in form being rendered (can be 0)
+        xml_element = None      
+        
+        # loading data in the form 
         if request.session['curate_edit']:
-            nbOccurrences = nbOccurs_to_save = lookup_Occurs(element, xmlTree, namespace, fullPath, edit_data_tree)
+            # get the number of occurrences in the data
+            nbOccurrences_data = lookup_Occurs(element, xmlTree, namespace, fullPath, edit_data_tree)
+            
+            if nbOccurrences_data > 0:
+                # manage buttons
+                if nbOccurrences_data < maxOccurs:
+                    addButton = True
+                if nbOccurrences_data > minOccurs:
+                    deleteButton = True
+            else:
+                if minOccurs == 0:
+                    addButton = True
+                    deleteButton = False
+        else: # starting an empty form
+            # Don't generate the element if not necessary
+            if request.session['curate_min_tree'] and minOccurs == 0:
+                addButton = True
+                deleteButton = False
+            else:
+                if nbOccurrences_data < maxOccurs:
+                    addButton = True
+                if nbOccurrences_data > minOccurs:
+                    deleteButton = True
+            
+        if nbOccurrences_data > nbOccurrences:
+            nbOccurrences = nbOccurrences_data    
+        
+        xml_element = XMLElement(xsd_xpath=xsd_xpath, nbOccurs=nbOccurrences_data, minOccurs=minOccurs, maxOccurs=maxOccurs).save()
 
-        # store the XML element
-        xml_element = XMLElement(xsd_xpath=xsd_xpath, nbOccurs=nbOccurs_to_save, minOccurs=minOccurs, maxOccurs=maxOccurs).save()
+#         # save xml element to duplicate sequence
+#         nbOccurs_to_save = nbOccurrences
+#         # Update element information to match the number of elements from the XML document
+#         if request.session['curate_edit']:
+#             nbOccurrences = nbOccurs_to_save = lookup_Occurs(element, xmlTree, namespace, fullPath, edit_data_tree)
+# 
+#         # store the XML element
+#         xml_element = XMLElement(xsd_xpath=xsd_xpath, nbOccurs=nbOccurs_to_save, minOccurs=minOccurs, maxOccurs=maxOccurs).save()
+        
+        
+        
         
         # keeps track of elements to display depending on the selected choice
         if choiceInfo:
@@ -471,7 +514,7 @@ def generateSequence(request, element, xmlTree, namespace, choiceInfo=None, full
             formString += "<ul>"
         
         # editing data and sequence not found in data
-        if request.session['curate_edit'] and nbOccurrences == 0:
+        if nbOccurrences_data == 0:
             nb_html_tags = int(request.session['nb_html_tags'])
             tagID = "element" + str(nb_html_tags)
             nb_html_tags += 1
@@ -594,39 +637,72 @@ def generateChoice(request, element, xmlTree, namespace, choiceInfo=None, fullPa
     
     #remove the annotations
     removeAnnotations(element, namespace)
-         
+    
     # init variables for buttons management
     addButton = False
     deleteButton = False
     nbOccurrences = 1 #nb of occurrences to render (can't be 0 or the user won't see this element at all)
-    nbOccurrences_data = 1 # nb of occurrences in loaded data or in form being rendered (can be 0)
+    nbOccurrences_data = 1
     xml_element = None
     
     # not multiple roots
-    if (not isinstance(element,list)):
+    if (not isinstance(element,list)):       
         # XSD xpath: don't need it when multiple root (can't duplicate a root)
         xsd_xpath = etree.ElementTree(xmlTree).getpath(element)        
-        
+ 
         # get element's min/max occurs attributes
         minOccurs, maxOccurs = manageOccurences(element)
-            
+        nbOccurrences_data = minOccurs # nb of occurrences in loaded data or in form being rendered (can be 0)
+        
+        
         # loading data in the form 
         if request.session['curate_edit']:
             # get the number of occurrences in the data
             nbOccurrences_data = lookup_Occurs(element, xmlTree, namespace, fullPath, edit_data_tree)
-            # manage buttons
-            if nbOccurrences_data < maxOccurs:
-                addButton = True
-            if nbOccurrences_data > minOccurs:
-                deleteButton = True
+            
+            if nbOccurrences_data > 0:
+                # manage buttons
+                if nbOccurrences_data < maxOccurs:
+                    addButton = True
+                if nbOccurrences_data > minOccurs:
+                    deleteButton = True
+            else:
+                if minOccurs == 0:
+                    addButton = True
+                    deleteButton = False
         else: # starting an empty form
-            if (minOccurs != 1) or (maxOccurs != 1):
-                addButton, deleteButton, nbOccurrences = manageButtons(minOccurs, maxOccurs)
+            # Don't generate the element if not necessary
+            if request.session['curate_min_tree'] and minOccurs == 0:
+                addButton = True
+                deleteButton = False
+            else:
+                if nbOccurrences_data < maxOccurs:
+                    addButton = True
+                if nbOccurrences_data > minOccurs:
+                    deleteButton = True
             
         if nbOccurrences_data > nbOccurrences:
             nbOccurrences = nbOccurrences_data    
         
         xml_element = XMLElement(xsd_xpath=xsd_xpath, nbOccurs=nbOccurrences_data, minOccurs=minOccurs, maxOccurs=maxOccurs).save()
+              
+#         # loading data in the form 
+#         if request.session['curate_edit']:
+#             # get the number of occurrences in the data
+#             nbOccurrences_data = lookup_Occurs(element, xmlTree, namespace, fullPath, edit_data_tree)
+#             # manage buttons
+#             if nbOccurrences_data < maxOccurs:
+#                 addButton = True
+#             if nbOccurrences_data > minOccurs:
+#                 deleteButton = True
+#         else: # starting an empty form
+#             if (minOccurs != 1) or (maxOccurs != 1):
+#                 addButton, deleteButton, nbOccurrences = manageButtons(minOccurs, maxOccurs)
+#             
+#         if nbOccurrences_data > nbOccurrences:
+#             nbOccurrences = nbOccurrences_data    
+#         
+#         xml_element = XMLElement(xsd_xpath=xsd_xpath, nbOccurs=nbOccurrences_data, minOccurs=minOccurs, maxOccurs=maxOccurs).save()
 
     # keeps track of elements to display depending on the selected choice
     if choiceInfo:
@@ -668,7 +744,7 @@ def generateChoice(request, element, xmlTree, namespace, choiceInfo=None, fullPa
         nbChoicesID += 1
         request.session['nbChoicesID'] = str(nbChoicesID)
         
-        if request.session['curate_edit'] and nbOccurrences_data == 0:
+        if nbOccurrences_data == 0:
             formString += "<li class='choice removed' id='" + str(tagID) + "'>Choose<select id='"+ chooseIDStr +"' onchange=\"changeChoice(this);\">"
         else:
             formString += "<li class='choice' id='" + str(tagID) + "'>Choose<select id='"+ chooseIDStr +"' onchange=\"changeChoice(this);\">"
