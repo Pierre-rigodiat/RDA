@@ -6,13 +6,21 @@ class XSLTExporter(Exporter):
 
     def __init__(self, xslt=""):
         self.name = "XSLT"
-        self.extension= ".xml"
         if xslt != "":
             self._setXslt(xslt)
+        self.extension= "xml"
 
     def _setXslt(self, xslt):
         self.xslt = xslt
+
         xsltParsed = etree.parse(BytesIO(xslt.encode('utf-8')))
+        #We define the extension
+        try:
+            method = xsltParsed.find("//xsl:output",namespaces={'xsl': 'http://www.w3.org/1999/XSL/Transform'}).attrib['method']
+            self.extension = ".{!s}".format(method)
+        except:
+            pass
+
         self.transform = etree.XSLT(xsltParsed)
 
     def _transform(self, results):

@@ -1445,19 +1445,14 @@ displayExportSelectedDialog = function(listId)
           buttons:
               [
                {
-                   text: "OK",
+                   text: "Export",
                    click: function() {
-                        if ($("#form_start_current").val() != ""){
+
                             if(validateExport())
                             {
                                $(form_start).submit();
                                $( this ).dialog( "close" );
                             }
-                        }
-                        else
-                        {
-                            $( this ).dialog( "close" );
-                        }
                    }
                }
               ]

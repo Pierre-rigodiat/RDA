@@ -19,9 +19,11 @@ class Exporter(object):
                 result['title'] += self.extension
 
             if instance == None:
-                zip.writestr(self.name+"/"+result['title'], result['content'])
+                path = "{!s}/{!s}".format(self.name,result['title'])
+                zip.writestr(path, result['content'])
             else:
-                zip.writestr(self.name+"/"+self.name+instance+"/"+result['title'], result['content'])
+                path = "{!s}/{!s} {!s}/{!s}".format(self.name,self.name,instance,result['title'])
+                zip.writestr(path, result['content'])
 
          # fix for Linux zip files read in Windows
         for xmlFile in zip.filelist:
