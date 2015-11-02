@@ -588,9 +588,7 @@ def generateSequence_absent(request, element, xmlTree, namespace):
 # 
 ################################################################################
 def generateChoice(request, element, xmlTree, namespace, choiceInfo=None, fullPath="", edit_data_tree=None):
-    #(annotation?,(element|group|choice|sequence|any)*)
-    nbChoicesID = int(request.session['nbChoicesID'])
-    
+    #(annotation?,(element|group|choice|sequence|any)*)    
     
     formString = ""
     
@@ -664,7 +662,7 @@ def generateChoice(request, element, xmlTree, namespace, choiceInfo=None, fullPa
 #         if not isinstance(element,list) and ((minOccurs != 1) or (maxOccurs != 1)):
         form_element = FormElement(html_id=tagID, xml_element=xml_element, xml_xpath=fullPath + '[' + str(x+1) +']').save()
         request.session['mapTagID'][tagID] = str(form_element.id)
-        
+        nbChoicesID = int(request.session['nbChoicesID'])
         chooseID = nbChoicesID
         chooseIDStr = 'choice' + str(chooseID)
         nbChoicesID += 1
