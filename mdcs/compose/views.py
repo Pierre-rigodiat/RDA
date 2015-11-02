@@ -133,7 +133,7 @@ def compose_downloadxsd(request):
     
             xmlDataObject.delete()
     
-            response = HttpResponse(FileWrapper(fileObj), content_type='application/xml')
+            response = HttpResponse(FileWrapper(fileObj), content_type='application/xsd')
             response['Content-Disposition'] = 'attachment; filename=' + "new_template.xsd"
             return response
         else:

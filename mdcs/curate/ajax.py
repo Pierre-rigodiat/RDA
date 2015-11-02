@@ -1166,7 +1166,7 @@ def generateElement(request, element, xmlTree, namespace, choiceInfo=None, fullP
         edit_elements = edit_data_tree.xpath(fullPath)
         nbOccurrences_data = len(edit_elements)
         
-        if request.session['curate_min_tree'] and minOccurs == 0 and nbOccurrences_data == 0:
+        if nbOccurrences_data == 0:
             removed = " removed"
 
         # manage buttons
@@ -1669,17 +1669,23 @@ def generate_absent(request):
     if tag == "element":
         # updates buttons
         addButton = False
+        deleteButton = False
         
         if (xml_element.nbOccurs < xml_element.maxOccurs):
             addButton = True
-        
+        if (xml_element.nbOccurs > xml_element.minOccurs):
+            deleteButton = True
+            
         # enable add button if we can add more
         if(addButton == True):
             htmlTree.get_element_by_id("add" + str(id)).attrib['style'] = ''
         else:
             htmlTree.get_element_by_id("add" + str(id)).attrib['style'] = 'display:none'
         # enable delete button to come back to 0 occurs
-        htmlTree.get_element_by_id("remove" + str(id)).attrib['style'] = ''
+        if(deleteButton == True):
+            htmlTree.get_element_by_id("remove" + str(id)).attrib['style'] = ''
+        else:
+            htmlTree.get_element_by_id("remove" + str(id)).attrib['style'] = 'display:none'
 
     response_dict['xsdForm'] = html.tostring(htmlTree)
 
