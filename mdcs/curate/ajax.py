@@ -1555,6 +1555,9 @@ def generateElement_absent(request, element, xmlDocTree, form_element):
     namespace = namespaces[defaultPrefix]
 
     removeAnnotations(element, namespace)
+    
+    # check if the element has a module
+    has_module = hasModule(request, element)
 
     # type is a reference included in the document
     if 'ref' in element.attrib:
@@ -1571,22 +1574,27 @@ def generateElement_absent(request, element, xmlDocTree, form_element):
             element = refElement
             # remove the annotations
             removeAnnotations(element, namespace)
+            # check if the element has a module
+            has_module = hasModule(request, element)
 
     elementType = getElementType(element, xmlDocTree, namespace, defaultPrefix)
 
-    # render the type
-    if elementType is None: # no complex/simple type            
-        defaultValue = ""
-        if 'default' in element.attrib:
-            # if the default attribute is present
-            defaultValue = element.attrib['default']
-   
-        formString += " <input type='text' value='"+ django.utils.html.escape(defaultValue) +"'/>" 
-    else: # complex/simple type      
-        if elementType.tag == "{0}complexType".format(namespace):
-            formString += generateComplexType(request, elementType, xmlDocTree, namespace, fullPath=form_element.xml_xpath)
-        elif elementType.tag == "{0}simpleType".format(namespace):
-            formString += generateSimpleType(request, elementType, xmlDocTree, namespace, fullPath=form_element.xml_xpath)
+    if has_module:
+        formString += generateModule(request, element, namespace, form_element.xml_element.xsd_xpath, form_element.xml_xpath)
+    else:
+        # render the type
+        if elementType is None: # no complex/simple type            
+            defaultValue = ""
+            if 'default' in element.attrib:
+                # if the default attribute is present
+                defaultValue = element.attrib['default']
+       
+            formString += " <input type='text' value='"+ django.utils.html.escape(defaultValue) +"'/>" 
+        else: # complex/simple type      
+            if elementType.tag == "{0}complexType".format(namespace):
+                formString += generateComplexType(request, elementType, xmlDocTree, namespace, fullPath=form_element.xml_xpath)
+            elif elementType.tag == "{0}simpleType".format(namespace):
+                formString += generateSimpleType(request, elementType, xmlDocTree, namespace, fullPath=form_element.xml_xpath)
 
     return formString
 
