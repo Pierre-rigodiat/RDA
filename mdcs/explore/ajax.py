@@ -29,7 +29,6 @@ import lxml.etree as etree
 from mgi.models import Template, QueryResults, SavedQuery, XMLdata, Instance, MetaSchema
 from mgi import common
 from django.template import loader, Context
-from __builtin__ import True
 #Class definition
 
 ################################################################################
