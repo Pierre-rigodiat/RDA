@@ -281,7 +281,6 @@ def generateSequence(request, element, fullPath, xmlTree, choiceInfo=None):
     
     return formString
 
-
 ################################################################################
 # 
 # Function Name: generateChoice(request, element, fullPath, xmlTree)
@@ -359,7 +358,6 @@ def generateChoice(request, element, fullPath, xmlTree, choiceInfo=None):
     
     return formString
 
-
 ################################################################################
 # 
 # Function Name: generateSimpleType(request, element, elementName, elementType, fullPath, xmlTree)
@@ -397,7 +395,6 @@ def generateSimpleType(request, element, elementName, elementType, fullPath, xml
             pass
     
     return formString 
-
 
 ################################################################################
 # 
@@ -442,7 +439,6 @@ def generateRestriction(request, element, fullPath, elementName, xmlTree):
             
     return formString
 
-
 ################################################################################
 # 
 # Function Name: generateExtension(request, element, fullPath, elementName)
@@ -470,7 +466,6 @@ def generateExtension(request, element, fullPath, elementName):
         formString += "</li>"
             
     return formString
-
 
 ################################################################################
 # 
@@ -559,7 +554,6 @@ def generateSimpleContent(request, element, fullPath, elementName):
             formString += generateExtension(request, child, fullPath, elementName)
     
     return formString
-
 
 ################################################################################
 # 
@@ -654,7 +648,6 @@ def generateElement(request, element, fullPath, xmlTree, choiceInfo=None):
     formString += "</ul>"
     return formString
 
-
 ################################################################################
 # 
 # Function Name: generateForm(request)
@@ -695,7 +688,6 @@ def generateForm(request):
     print 'END def generateForm(request)'
 
     return formString
-
 
 ################################################################################
 # 
@@ -784,7 +776,6 @@ def execute_query(request):
     print 'END def executeQuery(request, queryForm, queryBuilder, fedOfQueries)'
     return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
 
-
 ################################################################################
 # 
 # Function Name: getInstances(request, fedOfQueries)
@@ -814,7 +805,6 @@ def getInstances(request, fedOfQueries):
     
     return instances  
 
-
 ################################################################################
 # 
 # Function Name: get_results(request)
@@ -828,7 +818,6 @@ def get_results(request):
     instances = request.session['instancesExplore']    
     response_dict = {'numInstance': str(len(instances))}
     return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
-
 
 ################################################################################
 # 
@@ -849,7 +838,6 @@ def manageRegexBeforeExe(query):
                 query[key] = re.compile(value[1:-1])
         elif isinstance(value, dict):
             manageRegexBeforeExe(value)
-
 
 # ################################################################################
 # # 
@@ -958,7 +946,7 @@ def get_results_by_instance(request):
             instanceResults = XMLdata.executeQueryFullResult(query)
             if len(instanceResults) > 0:
                 for instanceResult in instanceResults:
-                    results.append({'title':instanceResult['title'], 'content':xmltodict.unparse(instanceResult['content'])})
+                    results.append({'title':instanceResult['title'], 'content':xmltodict.unparse(instanceResult['content']),'id':str(instanceResult['_id'])})
                     xsltPath = os.path.join(settings.SITE_ROOT, 'static/resources/xsl/xml2html.xsl')
                     xslt = etree.parse(xsltPath)
                     transform = etree.XSLT(xslt)
@@ -993,7 +981,7 @@ def get_results_by_instance(request):
             instanceResults = json.loads(result,object_pairs_hook=OrderedDict)
             if len(instanceResults) > 0:
                 for instanceResult in instanceResults:
-                    results.append({'title':instanceResult['title'], 'content':instanceResult['content']})                  
+                    results.append({'title':instanceResult['title'], 'content':instanceResult['content'],'id':str(instanceResult['_id'])})
                     xsltPath = os.path.join(settings.SITE_ROOT, 'static/resources/xsl/xml2html.xsl')
                     xslt = etree.parse(xsltPath)
                     transform = etree.XSLT(xslt)
@@ -1038,7 +1026,6 @@ def manageRegexBeforeAPI(query, queryStr):
         elif isinstance(value, dict):
             queryStr = manageRegexBeforeAPI(value, queryStr)
     return queryStr
-
 
 ################################################################################
 # 
@@ -1099,7 +1086,6 @@ def floatCriteria(path, comparison, value, isNot=False):
 
     return criteria
 
-
 ################################################################################
 # 
 # Function Name: stringCriteria(path, comparison, value, isNot=False)
@@ -1129,7 +1115,6 @@ def stringCriteria(path, comparison, value, isNot=False):
     
     return criteria
 
-
 ################################################################################
 # 
 # Function Name: queryToCriteria(query, isNot=False)
@@ -1145,7 +1130,6 @@ def queryToCriteria(query, isNot=False):
         return invertQuery(query.copy())
     else:
         return query
-
 
 ################################################################################
 # 
@@ -1180,7 +1164,6 @@ def invertQuery(query):
                     query[key]["$ne"] = savedValue
     return query
 
-
 ################################################################################
 # 
 # Function Name: enumCriteria(path, value, isNot=False)
@@ -1202,7 +1185,6 @@ def enumCriteria(path, value, isNot=False):
             
     return criteria
 
-
 ################################################################################
 # 
 # Function Name: ANDCriteria(criteria1, criteria2)
@@ -1220,7 +1202,6 @@ def ANDCriteria(criteria1, criteria2):
     ANDcriteria["$and"].append(criteria2)
     return ANDcriteria
 
-
 ################################################################################
 # 
 # Function Name: ORCriteria(criteria1, criteria2)
@@ -1237,7 +1218,6 @@ def ORCriteria(criteria1, criteria2):
     ORcriteria["$or"].append(criteria1)
     ORcriteria["$or"].append(criteria2)
     return ORcriteria
-
 
 ################################################################################
 # 
@@ -1277,7 +1257,6 @@ def buildCriteria(request, elemPath, comparison, value, elemType, isNot=False):
         return stringCriteria(elemPath, comparison, value, isNot)
     else:
         return stringCriteria(elemPath, comparison, value, isNot)
-
 
 ################################################################################
 # 
@@ -1336,7 +1315,6 @@ def fieldsToQuery(request, htmlTree):
                 query = ANDCriteria(query, criteria)
         
     return query
-
 
 ################################################################################
 # 
@@ -1518,7 +1496,6 @@ def remove_field(request):
     response_dict = {'queryForm': html.tostring(htmlTree)}
     return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
 
-
 ################################################################################
 # 
 # Function Name: renderYESORNOT()
@@ -1535,7 +1512,6 @@ def renderYESORNOT():
       <option value="NOT">NOT</option>
     </select> 
     """
-
 
 ################################################################################
 # 
@@ -1554,7 +1530,6 @@ def renderANDORNOT():
       <option value="NOT">NOT</option>
     </select> 
     """
-
 
 ################################################################################
 # 
@@ -1576,7 +1551,6 @@ def renderNumericSelect():
     </select> 
     """
 
-
 ################################################################################
 # 
 # Function Name: renderValueInput()
@@ -1590,7 +1564,6 @@ def renderValueInput():
     return """
     <input style="margin-left:4px;" type="text" class="valueInput"/>
     """
-
 
 ################################################################################
 # 
@@ -1608,7 +1581,6 @@ def renderStringSelect():
       <option value="like">like</option>                      
     </select> 
     """
-
 
 ################################################################################
 # 
@@ -1672,7 +1644,6 @@ def buildPrettyCriteria(elementName, comparison, value, isNot=False):
     
     return prettyCriteria
 
-
 ################################################################################
 # 
 # Function Name: queryToPrettyCriteria(queryValue, isNot)
@@ -1688,7 +1659,6 @@ def queryToPrettyCriteria(queryValue, isNot):
         return "NOT(" + queryValue + ")"
     else:
         return queryValue
-
 
 ################################################################################
 # 
@@ -1707,7 +1677,6 @@ def enumToPrettyCriteria(element, value, isNot=False):
     else:
         return str(element) + " is " + str(value)
 
-
 ################################################################################
 # 
 # Function Name: ORPrettyCriteria(query, criteria)
@@ -1721,7 +1690,6 @@ def enumToPrettyCriteria(element, value, isNot=False):
 def ORPrettyCriteria(query, criteria):
     return "(" + query + " OR " + criteria + ")"
 
-
 ################################################################################
 # 
 # Function Name: ANDPrettyCriteria(query, criteria)
@@ -1734,7 +1702,6 @@ def ORPrettyCriteria(query, criteria):
 ################################################################################
 def ANDPrettyCriteria(query, criteria):
     return "(" + query + " AND " + criteria + ")"
-
 
 ################################################################################
 # 
@@ -1796,7 +1763,6 @@ def fieldsToPrettyQuery(request, queryFormTree):
                 query = ANDPrettyCriteria(query, criteria)
         
     return query    
-
 
 ################################################################################
 # 
@@ -2245,7 +2211,6 @@ def createCustomTreeForQuery(request, htmlTree):
     for li in htmlTree.findall("./ul/li"):
         manageLiForQuery(request, li)
 
-
 ################################################################################
 #
 # Function Name: manageUlForQuery(request, ul)
@@ -2340,39 +2305,6 @@ def manageLiForQuery(request, li):
 
 ################################################################################
 #
-# Function Name: download_results(request)
-# Inputs:        request - 
-# Outputs:       
-# Exceptions:    None
-# Description:   Download results from a query
-#                
-################################################################################
-def download_results(request):
-    print '>>>>  BEGIN def downloadResults(request)'
-
-    instances = request.session['instancesExplore']
-    
-    response_dict = {}
-    xmlResults = []
-    for instance in instances:
-        sessionName = "resultsExplore" + eval(instance)['name']
-        results = request.session[sessionName]
-    
-        if (len(results) > 0):            
-            for result in results:
-                xmlResults.append(result)
-     
-    if len(xmlResults) > 0:       
-        savedResults = QueryResults(results=xmlResults).save()
-        savedResultsID = str(savedResults.id)
-        response_dict = {'savedResultsID': savedResultsID}
-        
-    print '>>>> END def downloadResults(request)'    
-    return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
-  
-
-################################################################################
-#
 # Function Name: back_to_query(request)
 # Inputs:        request - 
 # Outputs:       
@@ -2397,7 +2329,7 @@ def back_to_query(request):
 def redirect_explore(request):
     request.session['currentExploreTab'] = "tab-2"
 
- 
+
 ################################################################################
 #
 # Function Name: redirectExploreTabs(request)
@@ -2614,7 +2546,6 @@ def insert_sub_element_query(request):
     
     return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
 
-
 ################################################################################
 #
 # Function Name: checkSubElementField(request, liElement, elementName, elementType)
@@ -2670,7 +2601,6 @@ def checkSubElementField(request, liElement, elementName, elementType):
 
     return error
 
-
 ################################################################################
 #
 # Function Name: subElementfieldsToQuery(request, liElement, listLeavesId)
@@ -2721,7 +2651,6 @@ def subElementfieldsToQuery(request, liElements, listLeavesId):
     
     
     return query
-
 
 ################################################################################
 #

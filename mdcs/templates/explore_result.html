@@ -1,7 +1,7 @@
-<div id="{{id}}">
-	<!-- <input type='checkbox' result_id='{{id}}'/> -->
+<div id="{{id}}" name="result">
+	<input type='checkbox' name='checks' result_id='{{id}}'/>
     <span class='expand' style='cursor:pointer;' onclick='showhideResults(event);'></span>
-    <span style='font-weight:bold;'>{{title}}</span>
+    <span style='font-weight:bold;'><a href="/explore/detail_result?id={{id}}">{{title}}</a></span>
     {% if canDelete %}
     <a href="/curate/enter-data?id={{id}}"><span class="icon edit"></span></a>
     {% endif %}   	

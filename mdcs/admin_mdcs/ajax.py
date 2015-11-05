@@ -18,7 +18,7 @@ from django.http import HttpResponse
 import lxml.etree as etree
 import json
 from io import BytesIO
-from mgi.models import Template, TemplateVersion, Instance, Request, Module, Type, TypeVersion, Message, Bucket, MetaSchema
+from mgi.models import Template, TemplateVersion, Instance, Request, Module, Type, TypeVersion, Message, Bucket, MetaSchema, Exporter, ExporterXslt
 from django.contrib.auth.models import User
 from utils.XSDflattenerMDCS.XSDflattenerMDCS import XSDFlattenerMDCS
 from utils.XSDhash import XSDhash
@@ -1020,10 +1020,10 @@ def remove_module(request):
     
 
 ################################################################################
-# 
+#
 # Function Name: save_modules(request)
 # Inputs:        request -
-# Outputs:       
+# Outputs:
 # Exceptions:    None
 # Description:   Save the template with its modules.
 #
@@ -1031,9 +1031,41 @@ def remove_module(request):
 def save_modules(request):
     template_content = request.session['moduleTemplateContent']
     template_id = request.session['moduleTemplateID']
-        
+
     template = Template.objects.get(pk=template_id)
     template.content = template_content
-    template.save()    
-    
+    template.save()
+
+    return HttpResponse(json.dumps({}), content_type='application/javascript')
+
+
+################################################################################
+#
+# Function Name: save_exporters(request)
+# Inputs:        request -
+# Outputs:
+# Exceptions:    None
+# Description:   Save exporters and XSLT for a template.
+#
+################################################################################
+def save_exporters(request):
+    template_id = request.session['moduleTemplateID']
+    listIdOn = request.POST.getlist('listIdOn[]')
+    listIdOnXslt = request.POST.getlist('listIdOnXslt[]')
+    #We retrieve the exporter
+    template = Template.objects.get(pk=template_id)
+    #We reinitialise exporters and XSLT
+    template.exporters = None
+    template.XSLTFiles = None
+    template.save()
+    #We add exporters
+    for exp in listIdOn:
+        exp = Exporter.objects.get(pk=exp)
+        Template.objects(id=template_id).update_one(push__exporters=exp)
+    #We add XSLT files
+    for xslt in listIdOnXslt:
+        xslt = ExporterXslt.objects.get(pk=xslt)
+        Template.objects(id=template_id).update_one(push__XSLTFiles=xslt)
+    template.save()
+
     return HttpResponse(json.dumps({}), content_type='application/javascript')

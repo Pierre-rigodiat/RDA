@@ -20,13 +20,27 @@ loadUploadManagerHandler = function()
     $('.retrieve').on('click',restoreObject);
     $('.edit').on('click',editInformation);
     $('.version').on('click', manageVersions);
-    $('.modules').on('click', manageModules); 
+    $('.modules').on('click', manageModules);
+    $('.exporters').on('click', manageExporters);
     $('.delete').on('click', deleteObject);
     $('.upload').on('click', uploadObject);
     $('.buckets').on('click', manageBuckets);
     console.log('END [loadUploadManagerHandler]');
 }
 
+/**
+ * Redirects to exporter management page
+ */
+manageExporters = function()
+{
+    var modelName = $(this).parent().siblings(':first').text();
+    var modelFilename = $(this).parent().siblings(':nth-child(2)').text();
+    var tdElement = $(this).parent();
+    var objectID = $(this).attr("objectid");
+    var objectType = $(this).attr("objectType");
+
+    window.location = "/admin/exporters?id=" + objectID
+}
 
 /**
  * Redirects to module management page

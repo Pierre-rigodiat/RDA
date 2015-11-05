@@ -32,14 +32,25 @@ class Request(Document):
     last_name = StringField(required=True)
     email = StringField(required=True)    
 
-
 class Message(Document):
     """Represents a message sent via the Contact form"""
     name = StringField(max_length=100)
     email = EmailField()
     content = StringField()
 
+class Exporter(Document, EmbeddedDocument):
+    """Represents an exporter"""
+    name = StringField(required=True, unique=True)
+    url = StringField(required=True)
+    available_for_all = BooleanField(required=True)
 
+class ExporterXslt(Document, EmbeddedDocument):
+    """Represents an exporter"""
+    name = StringField(required=True, unique=True)
+    filename = StringField(required=True)
+    content = StringField(required=True)
+    available_for_all = BooleanField(required=True)
+    
 class Template(Document):
     """Represents an XML schema template that defines the structure of data for curation"""
     title = StringField(required=True)
@@ -50,8 +61,9 @@ class Template(Document):
     hash = StringField(required=True)
     user = StringField(required=False)
     dependencies = ListField(StringField())
-
-
+    exporters = ListField(ReferenceField(Exporter, reverse_delete_rule=PULL))
+    XSLTFiles = ListField(ReferenceField(ExporterXslt, reverse_delete_rule=PULL))
+    
 class TemplateVersion(Document):
     """Manages versions of templates"""
     versions = ListField(StringField())
@@ -59,8 +71,7 @@ class TemplateVersion(Document):
     current = StringField()
     nbVersions = IntField(required=True)
     isDeleted = BooleanField(required=True)
-
-
+    
 class Type(Document):    
     """Represents an XML schema type to use to compose XML Schemas"""
     title = StringField(required=True)
@@ -71,8 +82,7 @@ class Type(Document):
     hash = StringField(required=True)
     user = StringField(required=False)
     dependencies = ListField(StringField())
-
-
+    
 class TypeVersion(Document):
     """Manages versions of types"""
     versions = ListField(StringField())
@@ -80,14 +90,12 @@ class TypeVersion(Document):
     current = StringField()
     nbVersions = IntField(required=True)
     isDeleted = BooleanField(required=True)
-
-
+    
 class MetaSchema(Document):
     """Stores more information about templates/types"""
     schemaId = StringField(required=True, unique=True)
     flat_content = StringField(required=True)
     api_content = StringField(required=True)
-
 
 class Instance(Document):
     """Represents an instance of a remote MDCS"""
@@ -98,7 +106,6 @@ class Instance(Document):
     access_token = StringField(required=True)
     refresh_token = StringField(required=True)
     expires = DateTimeField(required=True)
-
 
 class QueryResults(Document):
     """Stores results from a query (Query By Example)"""
@@ -112,7 +119,6 @@ class SavedQuery(Document):
     query = StringField(required=True)
     displayedQuery = StringField(required=True)
 
-
 class Module(Document):
     """Represents a module, that will replace an existing input during curation"""
     name = StringField(required=True)
@@ -124,17 +130,14 @@ class XML2Download(Document):
     """Temporarily stores the content of an XML document to download"""
     title = StringField(required=True)
     xml = StringField(required=True)    
-
     
 class PrivacyPolicy(Document):
     """Privacy Policy of the MDCS"""
     content = StringField()
-
     
 class TermsOfUse(Document):
     """Terms of Use of the MDCS"""
     content = StringField()
-
     
 class Bucket(Document):
     """Represents a bucket to store types by domain"""
@@ -144,7 +147,9 @@ class Bucket(Document):
 
 
 class XMLElement(Document):
-    """Stores information about an XML element and its occurrences"""
+    """
+        Stores information about an XML element and its occurrences
+    """
     xsd_xpath = StringField() 
     nbOccurs = IntField()
     minOccurs = FloatField()
@@ -152,7 +157,9 @@ class XMLElement(Document):
 
 
 class FormElement(Document):
-    """Stores information about an element in the HTML form"""
+    """
+        Stores information about an element in the HTML form
+    """
     html_id = StringField()
     xml_xpath = StringField() # for siblings module
     xml_element = ReferenceField(XMLElement)

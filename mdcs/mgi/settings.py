@@ -117,6 +117,7 @@ INSTALLED_APPS = (
     'admin_mdcs',
     'api',
     'curate',
+    'exporter',
     'explore',
     'compose',
     'modules',    

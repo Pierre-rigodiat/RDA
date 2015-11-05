@@ -23,6 +23,7 @@
 
 {% block extrastyle %}
 <link rel="stylesheet" type="text/css" href="{% static 'resources/css/bucket.css' %}" media="screen" />
+<link rel="stylesheet" type="text/css" href="{% static 'resources/css/style.add.css' %}" media="screen" />
 {% endblock %}
 
 {% block title %}<h1>{{ objectType }} Manager</h1>{% endblock %}
@@ -38,15 +39,18 @@
     {% endif %}
 {% endblock %}
 
+
+
 {% block content%}
 
 <div class="right-side">
 <span class="ctx_menu">
 <div class="icon legend long upload">Upload {{ objectType }}</div>
 </span>
-</div>
+</div>      
 
 {% if objects %}
+
 <table class="data-table">
     <tr>
         <th>{{ objectType }} name</th>
@@ -98,12 +102,16 @@
                         <span class="icon legend modules" objectType="{{ objectType }}" objectid="{{ object.id }}">
                             Modules
                         </span>
+			            <span class="icon legend exporters" objectType="{{ objectType }}" objectid="{{ object.id }}">
+			                Exporters
+			            </span>
                     {% endif %}
                 </td>
             {% endif %}
         </tr>
     {% endfor %}
 </table>
+
 {% else %}
 <div class="empty-table">
     There are currently no {{ objectType }} uploaded. Please click "Upload {{ objectType }}" to the right to add

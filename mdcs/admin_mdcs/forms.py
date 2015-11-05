@@ -64,5 +64,10 @@ class PrivacyPolicyForm(forms.Form):
 
 class TermsOfUseForm(forms.Form):
     content = forms.CharField(label="Terms of Use", widget=forms.Textarea, required=False)
+
+class UploadXSLTForm(forms.Form):
+    name = forms.CharField(label='Enter XSLT name', max_length=100, required=True)
+    xslt_file = forms.FileField(label='Select a file',required=True)
+    available_for_all = forms.BooleanField(widget=forms.CheckboxInput(attrs={'class':'cmn-toggle cmn-toggle-round'}))
     
     

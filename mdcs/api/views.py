@@ -20,10 +20,11 @@ from rest_framework import generics
 from rest_framework import status
 from rest_framework.response import Response
 # Models
-from mgi.models import SavedQuery, XMLdata, Template, TemplateVersion, Type, TypeVersion, Instance, MetaSchema
+from mgi.models import SavedQuery, XMLdata, Template, TemplateVersion, Type, TypeVersion, Instance, MetaSchema, Exporter, ExporterXslt
+from exporter.builtin.models import XSLTExporter
 from django.contrib.auth.models import User
 # Serializers
-from api.serializers import savedQuerySerializer, jsonDataSerializer, querySerializer, schemaSerializer, templateSerializer, typeSerializer, resTypeSerializer, TemplateVersionSerializer, TypeVersionSerializer, instanceSerializer, resInstanceSerializer, UserSerializer, insertUserSerializer, resSavedQuerySerializer, updateUserSerializer, newInstanceSerializer
+from api.serializers import exporterSerializer, exporterXSLTSerializer, jsonExportSerializer, jsonExportResSerializer, jsonXSLTSerializer, savedQuerySerializer, jsonDataSerializer, querySerializer, schemaSerializer, templateSerializer, typeSerializer, resTypeSerializer, TemplateVersionSerializer, TypeVersionSerializer, instanceSerializer, resInstanceSerializer, UserSerializer, insertUserSerializer, resSavedQuerySerializer, updateUserSerializer, newInstanceSerializer
 from lxml import etree
 from django.conf import settings
 import os
@@ -33,7 +34,8 @@ from mgi.settings import MONGODB_URI
 from bson.objectid import ObjectId
 import re
 import requests
-from django.db.models import Q
+from django.db.models import Q as QDJ
+from mongoengine.queryset.visitor import Q
 import operator
 import json
 import xmltodict
@@ -50,6 +52,7 @@ from mgi import common
 from mgi.settings import BLOB_HOSTER, BLOB_HOSTER_URI, BLOB_HOSTER_USER, BLOB_HOSTER_PSWD, MDCS_URI
 from utils.BLOBHoster.BLOBHosterFactory import BLOBHosterFactory
 from mimetypes import guess_type
+from exporter import get_exporter
 
 
 ################################################################################
@@ -729,7 +732,8 @@ def select_schema(request):
         template = db['template']
         query = dict()
         if id is not None:            
-            query['_id'] = ObjectId(id)            
+            query['_id'] = ObjectId(id)
+            # query['id'] = ObjectId(id)
         if filename is not None:
             if len(filename) >= 2 and filename[0] == '/' and filename[-1] == '/':
                 query['filename'] = re.compile(filename[1:-1])
@@ -767,8 +771,21 @@ def select_schema(request):
                 resultTemplate['id'] = resultTemplate['_id']
                 del resultTemplate['_id']
                 templates.append(resultTemplate)
-            serializer = templateSerializer(templates)
-            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        # q_list = {Q(**({key:value})) for key, value in query.iteritems()}
+        # if len(q_list) > 0:
+        #     try:
+        #         templates = Template.objects.get(reduce(operator.and_, q_list))
+        #     except Exception, e:
+        #         content = {'message':'No template found with the given parameters.'}
+        #         return Response(content, status=status.HTTP_404_NOT_FOUND)
+        # else:
+        #    content = {'message':'No parameters given.'}
+        #    return Response(content, status=status.HTTP_400_BAD_REQUEST)
+
+
+        serializer = templateSerializer(templates)
+        return Response(serializer.data, status=status.HTTP_200_OK)
     except:
         content = {'message':'No template found with the given parameters.'}
         return Response(content, status=status.HTTP_404_NOT_FOUND)
@@ -2012,3 +2029,322 @@ def blob(request):
     
     
         
+################################################################################
+#
+# Function Name: select_all_exporters(request)
+# Inputs:        request -
+# Outputs:
+# Exceptions:    None
+# Description:   Get all exporters
+#
+################################################################################
+@api_view(['GET'])
+def select_all_exporters(request):
+    """
+    GET http://localhost/rest/exporter/select/all
+    """
+    exporters = Exporter.objects(name__ne='XSLT')
+    serializer = exporterSerializer(exporters)
+    exporters = ExporterXslt.objects
+    serializerXSLT = exporterXSLTSerializer(exporters)
+
+    data = serializer.data + serializerXSLT.data
+    return Response(data, status=status.HTTP_200_OK)
+
+
+################################################################################
+#
+# Function Name: select_exporter(request)
+# Inputs:        request -
+# Outputs:
+# Exceptions:    None
+# Description:   Get exporter that match the parameters
+#
+################################################################################
+@api_view(['GET'])
+def select_exporter(request):
+    """
+    GET http://localhost/rest/exporter/select?param1=value1&amp;param2=value2
+    URL parameters:
+    id: string (ObjectId)
+    name: string
+
+    For string fields, you can use regular expressions: /exp/
+    """
+    id = request.QUERY_PARAMS.get('id', None)
+    name = request.QUERY_PARAMS.get('name', None)
+
+    try:
+        query = dict()
+        if id is not None:
+            query['id'] = ObjectId(id)
+        if name is not None:
+            if len(name) >= 2 and name[0] == '/' and name[-1] == '/':
+                query['name'] = re.compile(name[1:-1])
+            else:
+                query['name'] = name
+
+        q_list = {Q(**({key:value})) for key, value in query.iteritems()}
+        if len(q_list) > 0:
+            try:
+                exporters = Exporter.objects(name__ne='XSLT').filter(reduce(operator.and_, q_list))
+                exportersXSLT = ExporterXslt.objects.filter(reduce(operator.and_, q_list))
+                if len(exporters) == 0 and len(exportersXSLT) == 0:
+                    raise
+            except:
+                content = {'message':'No exporter found with the given parameters.'}
+                return Response(content, status=status.HTTP_404_NOT_FOUND)
+        else:
+           content = {'message':'No parameters given.'}
+           return Response(content, status=status.HTTP_400_BAD_REQUEST)
+
+
+        serializer = exporterSerializer(exporters)
+        serializerXSLT = exporterXSLTSerializer(exportersXSLT)
+        data = serializer.data + serializerXSLT.data
+
+        return Response(data, status=status.HTTP_200_OK)
+    except Exception, e:
+        content = {'message':'No exporter found with the given parameters.'}
+        return Response(content, status=status.HTTP_404_NOT_FOUND)
+
+
+
+################################################################################
+#
+# Function Name: add_xslt(request)
+# Inputs:        request -
+# Outputs:
+# Exceptions:    None
+# Description:   Add a xslt
+#
+################################################################################
+@api_view(['POST'])
+def add_xslt(request):
+    """
+    POST http://localhost/rest/exporter/xslt/add
+    POST data name="name", filename="filename", content="...", available_for_all="True or False"
+    """
+    if request.user.is_staff is True:
+        serializer = jsonXSLTSerializer(data=request.DATA)
+        if serializer.is_valid():
+            xmlStr = request.DATA['content']
+            try:
+                try:
+                    etree.XML(xmlStr.encode('utf-8'))
+                except Exception, e:
+                    content = {'message':e.message}
+                    return Response(content, status=status.HTTP_400_BAD_REQUEST)
+
+                try:
+                    available = request.DATA['available_for_all'] == 'True'
+                    jsondata = ExporterXslt(name=request.DATA['name'], filename=request.DATA['filename'], content=request.DATA['content'], available_for_all=available)
+                    docID = jsondata.save()
+                    #IF it's available for all templates, we add the reference for all templates using the XSLT exporter
+                    if available:
+                        xslt_exporter = None
+                        try:
+                            xslt_exporter = Exporter.objects.get(name='XSLT')
+                        except:
+                            None
+
+                        if xslt_exporter != None:
+                            Template.objects(exporters__all=[xslt_exporter]).update(push__XSLTFiles=docID)
+
+                    return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+                except NotUniqueError, e:
+                    content = {'message: This XSLT name already exists. Please enter an other name.'}
+                    return Response(content, status=status.HTTP_400_BAD_REQUEST)
+            except:
+                if docID is not None:
+                    jsondata.delete(docID)
+                content = {'message: Unable to insert XSLT.'}
+                return Response(content, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    else:
+        content = {'message':'Only an administrator can use this feature.'}
+        return Response(content, status=status.HTTP_401_UNAUTHORIZED)
+
+################################################################################
+#
+# Function Name: delete_xslt(request)
+# Inputs:        request -
+# Outputs:
+# Exceptions:    None
+# Description:   Delete a xslt
+#
+################################################################################
+@api_view(['DELETE'])
+def delete_xslt(request):
+    """
+    GET http://localhost/rest/exporter/xslt/delete?id=id
+    URL parameters:
+    id: string
+    """
+    if request.user.is_staff is True:
+        id = request.QUERY_PARAMS.get('id', None)
+        if id is not None:
+            try:
+                xslt = ExporterXslt.objects.get(pk=id)
+                xslt.delete()
+                content = {'message':"XSLT deleted with success."}
+                return Response(content, status=status.HTTP_200_OK)
+            except:
+                content = {'message':"No XSLT found with the given id."}
+                return Response(content, status=status.HTTP_404_NOT_FOUND)
+        else:
+            content = {'message':"No id provided."}
+            return Response(content, status=status.HTTP_404_NOT_FOUND)
+    else:
+        content = {'message':'Only an administrator can use this feature.'}
+        return Response(content, status=status.HTTP_401_UNAUTHORIZED)
+
+################################################################################
+#
+# Function Name: select_all_xslt_exporters(request)
+# Inputs:        request -
+# Outputs:
+# Exceptions:    None
+# Description:   Get all xslt exporters
+#
+################################################################################
+# @api_view(['GET'])
+# def select_all_xslt_exporters(request):
+#     """
+#     GET http://localhost/rest/exporter/xslt/select/all
+#     """
+#     exporters = ExporterXslt.objects
+#     serializer = exporterXSLTSerializer(exporters)
+#     return Response(serializer.data, status=status.HTTP_200_OK)
+
+################################################################################
+#
+# Function Name: select_xslt_exporter(request)
+# Inputs:        request -
+# Outputs:
+# Exceptions:    None
+# Description:   Get exporter that match the parameters
+#
+################################################################################
+# @api_view(['GET'])
+# def select_xslt_exporter(request):
+#     """
+#     GET http://localhost/rest/exporter/xslt/select?param1=value1&param2=value2
+#     URL parameters:
+#     id: string (ObjectId)
+#     name: string
+#     title: string
+#     For string fields, you can use regular expressions: /exp/
+#     """
+#     id = request.QUERY_PARAMS.get('id', None)
+#     filename = request.QUERY_PARAMS.get('filename', None)
+#     title = request.QUERY_PARAMS.get('title', None)
+#
+#
+#     try:
+#         query = dict()
+#         if id is not None:
+#             query['id'] = ObjectId(id)
+#         if filename is not None:
+#             if len(filename) >= 2 and filename[0] == '/' and filename[-1] == '/':
+#                 query['filename'] = re.compile(filename[1:-1])
+#             else:
+#                 query['filename'] = filename
+#         if title is not None:
+#             if len(title) >= 2 and title[0] == '/' and title[-1] == '/':
+#                 query['title'] = re.compile(title[1:-1])
+#             else:
+#                 query['title'] = title
+#
+#         q_list = {Q(**({key:value})) for key, value in query.iteritems()}
+#         if len(q_list) > 0:
+#             try:
+#                 exportersXslt = ExporterXslt.objects.filter(reduce(operator.and_, q_list))
+#                 if len(exportersXslt) == 0:
+#                     raise
+#             except:
+#                 content = {'message':'No XSLT found with the given parameters.'}
+#                 return Response(content, status=status.HTTP_404_NOT_FOUND)
+#         else:
+#            content = {'message':'No parameters given.'}
+#            return Response(content, status=status.HTTP_400_BAD_REQUEST)
+#
+#
+#         serializer = exporterXSLTSerializer(exportersXslt)
+#         return Response(serializer.data, status=status.HTTP_200_OK)
+#     except:
+#         content = {'message':'No XSLT found with the given parameters.'}
+#         return Response(content, status=status.HTTP_404_NOT_FOUND)
+
+
+################################################################################
+#
+# Function Name: export(request)
+# Inputs:        request -
+# Outputs:
+# Exceptions:    None
+# Description:   export an XML document: save the data in MongoDB and Jena
+#
+################################################################################
+@api_view(['POST'])
+def export(request):
+    """
+    POST http://localhost/rest/export
+    POST data files[]="fileID,fileID,...", exporter="exporterID"
+    """
+    dataXML = []
+    query = dict()
+    serializer = jsonExportSerializer(data=request.DATA)
+    if serializer.is_valid():
+        #We retrieve files to export
+        files = []
+        filesId = re.sub('[\s+]', '', request.DATA['files[]']).split(",")
+        idExporter = request.DATA['exporter']
+
+        for fileId in filesId:
+            fileTmp = file = XMLdata.get(fileId)
+            if file == None:
+                content = {'message: No file found with the given id: ' + fileId}
+                return Response(content, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                files.append(fileTmp)
+
+        #We retrieve the good exporter
+        #Standard exporter
+        try:
+            exporter = Exporter.objects.get(pk=idExporter)
+            exporter = get_exporter(exporter.url)
+        except:
+            #Exporter not found in standard exporters collection.
+            #XSLT exporter
+            try:
+                xslt = ExporterXslt.objects.get(pk=request.DATA['exporter'])
+                exporter = XSLTExporter(xslt.content)
+            except:
+                content = {'message: No exporter found with the given id.'}
+                return Response(content, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            try:
+                #Retrieve the XML content
+                for file in files:
+                    xmlStr = xmltodict.unparse(file['content'])
+                    dataXML.append({'title':file['title'], 'content': str(xmlStr)})
+
+                #Transformation
+                contentRes = exporter._transform(dataXML)
+                # common.validateXMLDocument(schema.id, xmlStr)
+            except Exception, e:
+                content = {'message':e.message}
+                return Response(content, status=status.HTTP_400_BAD_REQUEST)
+
+            serializerBis = jsonExportResSerializer(contentRes)
+            return Response(serializerBis.data, status=status.HTTP_200_OK)
+        except Exporter, e:
+            content = {'message: Unable to export data.'}
+            return Response(content, status=status.HTTP_400_BAD_REQUEST)
+
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
