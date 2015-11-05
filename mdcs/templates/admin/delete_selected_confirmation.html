@@ -1,5 +1,6 @@
-{% extends "base.html" %}
+{% extends "base_featured.html" %}
 {% load i18n admin_urls %}
+{% load l10n %}
 
 {% comment %}
 <!--
@@ -64,7 +65,7 @@
     {% endfor %}
     <input type="hidden" name="action" value="delete_selected" />
     <input type="hidden" name="post" value="yes" />
-    <input type="submit" value="{% trans "Yes, I'm sure" %}" />
+    <input type="submit" class="btn" value="{% trans "Yes, I'm sure" %}" />
     </div>
     </form>
 {% endif %}

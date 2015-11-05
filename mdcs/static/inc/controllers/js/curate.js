@@ -1219,10 +1219,10 @@ delete_form = function(formID){
         	formID: formID,
         },
 		success: function(data){
-			$('#my-forms').load(document.URL +  ' #my-forms', function() {}); 
+			window.location = "/my-profile/my-forms"
 	    },
         error:function(data){
-        	$('#my-forms').load(document.URL +  ' #my-forms', function() {}); 
+        	window.location = "/my-profile/my-forms"
         }
     });
 }
