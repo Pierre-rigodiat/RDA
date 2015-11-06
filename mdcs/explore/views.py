@@ -280,7 +280,7 @@ def explore_detail_result(request) :
         xmlString = XMLdata.get(result_id)
         xmlString = xmltodict.unparse(xmlString['content'])
 
-        xsltPath = os.path.join(settings.SITE_ROOT, 'static/resources/xsl/xml2html.xsl')
+        xsltPath = os.path.join(settings.SITE_ROOT, 'static', 'resources', 'xsl', 'xml2html.xsl')
         xslt = etree.parse(xsltPath)
         transform = etree.XSLT(xslt)
         xmlTree = ""

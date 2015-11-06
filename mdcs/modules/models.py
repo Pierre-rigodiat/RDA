@@ -17,7 +17,7 @@ class Module(object):
         self.styles = styles
 
         # Skeleton of the modules
-        self.template = os.path.join(settings.SITE_ROOT, 'templates/module.html')
+        self.template = os.path.join(settings.SITE_ROOT, 'templates', 'module.html')
 
     def add_scripts(self, scripts):
         for script in scripts:

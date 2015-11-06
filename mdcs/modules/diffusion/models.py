@@ -8,18 +8,20 @@ from django.template import Context, Template
 import lxml.etree as etree
 from xlrd import open_workbook
 
-RESOURCES_PATH = os.path.join(settings.SITE_ROOT, 'modules/diffusion/resources/')
-
+RESOURCES_PATH = os.path.join(settings.SITE_ROOT, 'modules', 'diffusion', 'resources')
+TEMPLATES_PATH = os.path.join(RESOURCES_PATH, 'html')
+SCRIPTS_PATH = os.path.join(RESOURCES_PATH, 'js')
+STYLES_PATH = os.path.join(RESOURCES_PATH, 'css')
 
 class PeriodicTableModule(PopupModule):
     
     def __init__(self):
-        with open(RESOURCES_PATH + 'html/periodic.html', 'r') as periodic_file:        
+        with open(os.path.join(TEMPLATES_PATH, 'periodic.html'), 'r') as periodic_file:        
             periodic_table = periodic_file.read()
 
         PopupModule.__init__(self, popup_content=periodic_table, button_label='Select Element',
-                             styles=[os.path.join(RESOURCES_PATH, 'css/periodic.css')],
-                             scripts=[os.path.join(RESOURCES_PATH, 'js/periodic.js')])
+                             styles=[os.path.join(STYLES_PATH, 'periodic.css')],
+                             scripts=[os.path.join(SCRIPTS_PATH, 'periodic.js')])
 
     def _get_module(self, request):
         return PopupModule.get_module(self, request)
@@ -50,13 +52,13 @@ class PeriodicTableModule(PopupModule):
 class PeriodicTableMultipleModule(PopupModule):
 
     def __init__(self):
-        with open(RESOURCES_PATH + 'html/periodic_multiple.html', 'r') as periodic_file:
+        with open(TEMPLATES_PATH, 'periodic_multiple.html', 'r') as periodic_file:
             periodic_table = periodic_file.read()
 
         PopupModule.__init__(self, popup_content=periodic_table, button_label='Select Elements',
-                             styles=[os.path.join(RESOURCES_PATH, 'css/periodic.css'),
-                                     os.path.join(RESOURCES_PATH, 'css/periodic_multiple.css')],
-                             scripts=[os.path.join(RESOURCES_PATH, 'js/periodic_multiple.js')])
+                             styles=[os.path.join(STYLES_PATH, 'periodic.css'),
+                                     os.path.join(STYLES_PATH, 'periodic_multiple.css')],
+                             scripts=[os.path.join(SCRIPTS_PATH, 'periodic_multiple.js')])
 
     def _get_module(self, request):
         return PopupModule.get_module(self, request)
@@ -191,15 +193,15 @@ class ExcelUploaderModule(PopupModule):
         self.table = None
         self.table_name = None
         
-        with open(RESOURCES_PATH + 'html/ExcelUploader.html', 'r') as excel_uploader_file:        
+        with open(os.path.join(TEMPLATES_PATH, 'ExcelUploader.html'), 'r') as excel_uploader_file:        
             excel_uploader = excel_uploader_file.read()            
             template = Template(excel_uploader)
             context = Context({'form': ExcelUploaderForm()})
             popup_content = template.render(context)
         
         PopupModule.__init__(self, popup_content=popup_content, button_label='Upload Excel File',
-                             scripts=[os.path.join(RESOURCES_PATH, 'js/exceluploader.js')],
-                             styles=[os.path.join(RESOURCES_PATH, 'css/exceluploader.css')])
+                             scripts=[os.path.join(SCRIPTS_PATH, 'exceluploader.js')],
+                             styles=[os.path.join(STYLES_PATH, 'exceluploader.css')])
 
     def _get_module(self, request):
         if 'data' in request.GET:

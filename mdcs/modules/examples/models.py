@@ -6,7 +6,10 @@ from modules.xpathaccessor import XPathAccessor
 from modules.models import Module
 
 
-RESOURCES_PATH = os.path.join(settings.SITE_ROOT, 'modules/examples/resources/')
+RESOURCES_PATH = os.path.join(settings.SITE_ROOT, 'modules', 'examples', 'resources')
+TEMPLATES_PATH = os.path.join(RESOURCES_PATH, 'html')
+SCRIPTS_PATH = os.path.join(RESOURCES_PATH, 'js')
+STYLES_PATH = os.path.join(RESOURCES_PATH, 'css')
 
 class PositiveIntegerInputModule(InputModule):
     def __init__(self):
@@ -85,9 +88,9 @@ class ListToGraphInputModule(SyncInputModule):
     
     def __init__(self):
         SyncInputModule.__init__(self, label='Enter a list of numbers', modclass='list_to_graph',
-                                  styles=[os.path.join(RESOURCES_PATH, 'css/list_to_graph.css')],
+                                  styles=[os.path.join(STYLES_PATH, 'list_to_graph.css')],
                                   scripts=["https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js",
-                                           os.path.join(RESOURCES_PATH, 'js/list_to_graph.js')])
+                                           os.path.join(SCRIPTS_PATH, 'list_to_graph.js')])
 
     def _get_module(self, request):
         return SyncInputModule.get_module(self, request)
@@ -137,8 +140,8 @@ class ExampleAutoCompleteModule(AutoCompleteModule):
             'Others'
         ]
 
-        AutoCompleteModule.__init__(self, label='Material Name', scripts=[os.path.join(RESOURCES_PATH,
-                                                                                       'js/example_autocomplete.js')])
+        AutoCompleteModule.__init__(self, label='Material Name', scripts=[os.path.join(SCRIPTS_PATH,
+                                                                                       'example_autocomplete.js')])
 
     def _get_module(self, request):
         return AutoCompleteModule.get_module(self, request)

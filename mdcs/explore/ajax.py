@@ -947,7 +947,7 @@ def get_results_by_instance(request):
             if len(instanceResults) > 0:
                 for instanceResult in instanceResults:
                     results.append({'title':instanceResult['title'], 'content':xmltodict.unparse(instanceResult['content']),'id':str(instanceResult['_id'])})
-                    xsltPath = os.path.join(settings.SITE_ROOT, 'static/resources/xsl/xml2html.xsl')
+                    xsltPath = os.path.join(settings.SITE_ROOT, 'static', 'resources', 'xsl', 'xml2html.xsl')
                     xslt = etree.parse(xsltPath)
                     transform = etree.XSLT(xslt)
                     dom = etree.fromstring(str(xmltodict.unparse(instanceResult['content']).replace('<?xml version="1.0" encoding="utf-8"?>\n',"")))
@@ -982,7 +982,7 @@ def get_results_by_instance(request):
             if len(instanceResults) > 0:
                 for instanceResult in instanceResults:
                     results.append({'title':instanceResult['title'], 'content':instanceResult['content'],'id':str(instanceResult['_id'])})
-                    xsltPath = os.path.join(settings.SITE_ROOT, 'static/resources/xsl/xml2html.xsl')
+                    xsltPath = os.path.join(settings.SITE_ROOT, 'static', 'resources', 'xsl', 'xml2html.xsl')
                     xslt = etree.parse(xsltPath)
                     transform = etree.XSLT(xslt)
                     dom = etree.fromstring(str(xmltodict.unparse(instanceResult['content']).replace('<?xml version="1.0" encoding="utf-8"?>\n',"")))
