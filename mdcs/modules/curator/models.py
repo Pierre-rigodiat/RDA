@@ -10,20 +10,23 @@ from utils.BLOBHoster.BLOBHosterFactory import BLOBHosterFactory
 from lxml import etree
 from lxml.etree import XMLSyntaxError
 
-RESOURCES_PATH = os.path.join(settings.SITE_ROOT, 'modules/curator/resources/')
+RESOURCES_PATH = os.path.join(settings.SITE_ROOT, 'modules', 'curator', 'resources')
+TEMPLATES_PATH = os.path.join(RESOURCES_PATH, 'html')
+SCRIPTS_PATH = os.path.join(RESOURCES_PATH, 'js')
+STYLES_PATH = os.path.join(RESOURCES_PATH, 'css')
 
 class BlobHosterModule(PopupModule):
     def __init__(self):
         self.handle = None
 
-        with open(RESOURCES_PATH + 'html/BLOBHoster.html', 'r') as blobhoster_file:        
+        with open(os.path.join(TEMPLATES_PATH, 'BLOBHoster.html'), 'r') as blobhoster_file:        
             blobhoster = blobhoster_file.read()            
             template = Template(blobhoster)
             context = Context({'form': BLOBHosterForm()})
             popup_content = template.render(context)
         
         PopupModule.__init__(self, popup_content=popup_content, button_label='Upload File',
-                             scripts=[os.path.join(RESOURCES_PATH, 'js/blobhoster.js')])
+                             scripts=[os.path.join(SCRIPTS_PATH, 'blobhoster.js')])
 
     def _get_module(self, request):
         return PopupModule.get_module(self, request)
@@ -44,7 +47,7 @@ class BlobHosterModule(PopupModule):
         blob_hoster = bh_factory.createBLOBHoster()
         self.handle = blob_hoster.save(blob=uploaded_file, filename=uploaded_file.name)
 
-        with open(RESOURCES_PATH + 'html/BLOBHosterDisplay.html', 'r') as display_file:
+        with open(os.path.join(TEMPLATES_PATH, 'BLOBHosterDisplay.html'), 'r') as display_file:
             display = display_file.read()
             template = Template(display)
             context = Context({'filename': uploaded_file.name, 'handle': self.handle})
@@ -119,3 +122,57 @@ class RawXMLModule(TextAreaModule):
             return self.parse_data(request.POST['data'])
         except XMLSyntaxError:
             return ''
+
+
+class HandleModule(PopupModule):
+    def __init__(self):
+        scripts = [os.path.join(SCRIPTS_PATH, 'handle.js')]
+        styles = []
+        
+        popup_content = "<p style='color:red;'> Warning message: You are about to request an handle. </p>"
+        button_label = "Get a unique handle"
+                
+        PopupModule.__init__(self, scripts, styles, popup_content, button_label)
+
+
+    def _get_module(self, request):
+        self.handle = ""
+        if 'data' in request.GET:
+            self.handle = request.GET['data']        
+        return PopupModule.get_module(self, request)
+
+
+    def _get_display(self, request):
+        if self.handle == '':
+            message = "<b style='color:red;'>"
+            message += "This document is not associated to any handle."
+            message += "</b><br/>"
+            return message
+        else:
+            return '<b>Handle</b>: ' + self.handle 
+
+
+    def _get_result(self, request):
+        return self.handle
+
+
+    def _post_display(self, request):        
+        if 'data' in request.POST:
+            if request.POST['data'] != '':
+                self.handle = request.POST['data']
+                message = "<b style='color:red;'>"
+                message += "An handle has already been associated to this document."
+                message += "</b><br/>"
+                message += '<b>Handle</b>: ' + self.handle                  
+                return message
+            
+            # get a unique handle from the handle provider
+            self.handle = 'HANDLE'
+            return '<b>Handle</b>: ' + self.handle 
+        else:
+            return ''
+
+
+    def _post_result(self, request):
+        return self.handle
+    
