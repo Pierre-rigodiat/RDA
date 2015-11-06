@@ -88,10 +88,16 @@ class RemoteBlobHosterModule(InputModule):
 
  
     def _get_display(self, request):
+        if 'data' in request.GET:
+            if len(request.GET['data']) > 0:
+                return '<b>Handle: </b> <a href="' + request.GET['data'] + '">' + request.GET['data'] + '</a>' 
         return 'No files selected'
 
     
     def _get_result(self, request):
+        if 'data' in request.GET:
+            if len(request.GET['data']) > 0:
+                return request.GET['data']
         return ''
 
 
@@ -131,7 +137,7 @@ class AdvancedBlobHosterModule(PopupModule):
             popup_content = template.render(context)
         
         PopupModule.__init__(self, popup_content=popup_content, button_label='Upload File',
-                             scripts=[os.path.join(SCRIPTS_PATH, 'blobhoster.js')])
+                             scripts=[os.path.join(SCRIPTS_PATH, 'advancedblobhoster.js')])
 
     
     def _get_module(self, request):
@@ -139,29 +145,45 @@ class AdvancedBlobHosterModule(PopupModule):
 
     
     def _get_display(self, request):
+        if 'data' in request.GET:
+            if len(request.GET['data']) > 0:
+                return '<b>Handle: </b> <a href="' + request.GET['data'] + '">' + request.GET['data'] + '</a>' 
         return 'No files selected'
 
     
     def _get_result(self, request):
+        if 'data' in request.GET:
+            if len(request.GET['data']) > 0:
+                return request.GET['data']
         return ''
 
     
-    def _post_display(self, request):
-        form = BLOBHosterForm(request.POST, request.FILES)
-        if not form.is_valid():
-            raise ModuleError('Data not properly sent to server. Please "file" in POST data.')
+    def _post_display(self, request):     
+        self.handle = '' 
+        selected_option = request.POST['blob_form']
+        if selected_option == "url":
+            url_form = URLForm(request.POST)
+            if url_form.is_valid():
+                self.handle = url_form.data['url']
+                with open(os.path.join(TEMPLATES_PATH, 'RemoteBLOBHosterDisplay.html'), 'r') as display_file:
+                    display = display_file.read()
+                    template = Template(display)
+                    context = Context({'handle': self.handle})
+                return template.render(context)
+            else:
+                return '<b style="color:red;">Enter a valid URL.</b>'           
+        elif selected_option == "file":            
+            uploaded_file = request.FILES['file']
+            bh_factory = BLOBHosterFactory(BLOB_HOSTER, BLOB_HOSTER_URI, BLOB_HOSTER_USER, BLOB_HOSTER_PSWD, MDCS_URI)
+            blob_hoster = bh_factory.createBLOBHoster()
+            self.handle = blob_hoster.save(blob=uploaded_file, filename=uploaded_file.name)
 
-        uploaded_file = request.FILES['file']
-        bh_factory = BLOBHosterFactory(BLOB_HOSTER, BLOB_HOSTER_URI, BLOB_HOSTER_USER, BLOB_HOSTER_PSWD, MDCS_URI)
-        blob_hoster = bh_factory.createBLOBHoster()
-        self.handle = blob_hoster.save(blob=uploaded_file, filename=uploaded_file.name)
+            with open(os.path.join(TEMPLATES_PATH, 'BLOBHosterDisplay.html'), 'r') as display_file:
+                display = display_file.read()
+                template = Template(display)
+                context = Context({'filename': uploaded_file.name, 'handle': self.handle})
 
-        with open(os.path.join(TEMPLATES_PATH, 'BLOBHosterDisplay.html'), 'r') as display_file:
-            display = display_file.read()
-            template = Template(display)
-            context = Context({'filename': uploaded_file.name, 'handle': self.handle})
-
-        return template.render(context)
+            return template.render(context)
 
     
     def _post_result(self, request):
