@@ -52,7 +52,7 @@ class PeriodicTableModule(PopupModule):
 class PeriodicTableMultipleModule(PopupModule):
 
     def __init__(self):
-        with open(TEMPLATES_PATH, 'periodic_multiple.html', 'r') as periodic_file:
+        with open(os.path.join(TEMPLATES_PATH, 'periodic_multiple.html'), 'r') as periodic_file:
             periodic_table = periodic_file.read()
 
         PopupModule.__init__(self, popup_content=periodic_table, button_label='Select Elements',
