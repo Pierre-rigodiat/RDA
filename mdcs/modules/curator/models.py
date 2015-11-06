@@ -1,7 +1,7 @@
 from HTMLParser import HTMLParser
-from modules.builtin.models import PopupModule, TextAreaModule
+from modules.builtin.models import PopupModule, TextAreaModule, InputModule
 from modules.exceptions import ModuleError
-from modules.curator.forms import BLOBHosterForm
+from modules.curator.forms import BLOBHosterForm, URLForm
 from django.template import Context, Template
 from django.conf import settings
 import os
@@ -9,13 +9,18 @@ from mgi.settings import BLOB_HOSTER, BLOB_HOSTER_URI, BLOB_HOSTER_USER, BLOB_HO
 from utils.BLOBHoster.BLOBHosterFactory import BLOBHosterFactory
 from lxml import etree
 from lxml.etree import XMLSyntaxError
+from django.core.validators import URLValidator
+from django.core.exceptions import ValidationError
 
 RESOURCES_PATH = os.path.join(settings.SITE_ROOT, 'modules', 'curator', 'resources')
 TEMPLATES_PATH = os.path.join(RESOURCES_PATH, 'html')
 SCRIPTS_PATH = os.path.join(RESOURCES_PATH, 'js')
 STYLES_PATH = os.path.join(RESOURCES_PATH, 'css')
 
+
 class BlobHosterModule(PopupModule):
+    
+    
     def __init__(self):
         self.handle = None
 
@@ -28,15 +33,25 @@ class BlobHosterModule(PopupModule):
         PopupModule.__init__(self, popup_content=popup_content, button_label='Upload File',
                              scripts=[os.path.join(SCRIPTS_PATH, 'blobhoster.js')])
 
+    
     def _get_module(self, request):
         return PopupModule.get_module(self, request)
 
+    
     def _get_display(self, request):
+        if 'data' in request.GET:
+            if len(request.GET['data']) > 0:
+                return '<b>Handle: </b> <a href="' + request.GET['data'] + '">' + request.GET['data'] + '</a>' 
         return 'No files selected'
 
+    
     def _get_result(self, request):
+        if 'data' in request.GET:
+            if len(request.GET['data']) > 0:
+                return request.GET['data']
         return ''
 
+    
     def _post_display(self, request):
         form = BLOBHosterForm(request.POST, request.FILES)
         if not form.is_valid():
@@ -54,9 +69,104 @@ class BlobHosterModule(PopupModule):
 
         return template.render(context)
 
+    
     def _post_result(self, request):
         return self.handle if self.handle is not None else ''
+        
+
+class RemoteBlobHosterModule(InputModule):
+   
     
+    def __init__(self):
+        self.handle = None
+        
+        InputModule.__init__(self, label='Enter the URL of a file :')
+
+
+    def _get_module(self, request):
+        return InputModule.get_module(self, request)
+
+ 
+    def _get_display(self, request):
+        return 'No files selected'
+
+    
+    def _get_result(self, request):
+        return ''
+
+
+    def _post_display(self, request):
+        url = ''
+        if 'data' in request.POST:
+            url = request.POST['data']
+        
+        url_validator = URLValidator()
+        self.handle = ''
+        try:
+            url_validator(url)
+            self.handle = url
+            with open(os.path.join(TEMPLATES_PATH, 'RemoteBLOBHosterDisplay.html'), 'r') as display_file:
+                display = display_file.read()
+                template = Template(display)
+                context = Context({'handle': url})
+            return template.render(context)
+        except ValidationError, e:
+            return '<b style="color:red;">' + '<br/>'.join(e.messages) + '</b>'
+
+
+    def _post_result(self, request):
+        return self.handle if self.handle is not None else ''
+
+
+class AdvancedBlobHosterModule(PopupModule):
+    
+    
+    def __init__(self):
+        self.handle = None
+
+        with open(os.path.join(TEMPLATES_PATH, 'AdvancedBLOBHoster.html'), 'r') as blobhoster_file:        
+            blobhoster = blobhoster_file.read()            
+            template = Template(blobhoster)
+            context = Context({'url_form': URLForm() ,'file_form': BLOBHosterForm()})
+            popup_content = template.render(context)
+        
+        PopupModule.__init__(self, popup_content=popup_content, button_label='Upload File',
+                             scripts=[os.path.join(SCRIPTS_PATH, 'blobhoster.js')])
+
+    
+    def _get_module(self, request):
+        return PopupModule.get_module(self, request)
+
+    
+    def _get_display(self, request):
+        return 'No files selected'
+
+    
+    def _get_result(self, request):
+        return ''
+
+    
+    def _post_display(self, request):
+        form = BLOBHosterForm(request.POST, request.FILES)
+        if not form.is_valid():
+            raise ModuleError('Data not properly sent to server. Please "file" in POST data.')
+
+        uploaded_file = request.FILES['file']
+        bh_factory = BLOBHosterFactory(BLOB_HOSTER, BLOB_HOSTER_URI, BLOB_HOSTER_USER, BLOB_HOSTER_PSWD, MDCS_URI)
+        blob_hoster = bh_factory.createBLOBHoster()
+        self.handle = blob_hoster.save(blob=uploaded_file, filename=uploaded_file.name)
+
+        with open(os.path.join(TEMPLATES_PATH, 'BLOBHosterDisplay.html'), 'r') as display_file:
+            display = display_file.read()
+            template = Template(display)
+            context = Context({'filename': uploaded_file.name, 'handle': self.handle})
+
+        return template.render(context)
+
+    
+    def _post_result(self, request):
+        return self.handle if self.handle is not None else ''
+
 
 class RawXMLModule(TextAreaModule):
     def __init__(self):
@@ -166,7 +276,7 @@ class HandleModule(PopupModule):
                 message += '<b>Handle</b>: ' + self.handle                  
                 return message
             
-            # get a unique handle from the handle provider
+            # get a unique handle from the handle provider           
             self.handle = 'HANDLE'
             return '<b>Handle</b>: ' + self.handle 
         else:
