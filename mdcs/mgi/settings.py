@@ -84,6 +84,20 @@ BLOB_HOSTER_USER = MONGO_MGI_USER
 BLOB_HOSTER_PSWD = MONGO_MGI_PASSWORD
 MDCS_URI = 'http://127.0.0.1:8000'
 
+# Customization: MGI
+CUSTOM_TITLE = 'Materials Data'
+CUSTOM_SUBTITLE = 'Part of the Materials Genome Initiative'
+CUSTOM_DATA = 'Materials Data'
+CUSTOM_DESCRIPTION = """This system allows for the curation of Material Data in a repository using predefined templates. <br/><br/>
+                     This is being developed at the National Institute of Standards and Technology and is made available to solicit comments from the Material Science community. Please do not enter any proprietary data into this system. """
+
+# Customization: NIST
+# CUSTOM_TITLE = 'NIST Data'
+# CUSTOM_SUBTITLE = 'Repository of the National Institute of Standards and Technology'
+# CUSTOM_DATA = 'NIST Data'
+# CUSTOM_DESCRIPTION = """This system allows for the curation of NIST Data in a repository using predefined templates. <br/><br/>
+#                      This is being developed at the National Institute of Standards and Technology and is made available to solicit comments from the Science community. Please do not enter any proprietary data into this system. """
+                     
 TEMPLATE_DIRS = [os.path.join(BASE_DIR, 'templates')]
 
 TEMPLATE_LOADERS = (
@@ -99,7 +113,8 @@ TEMPLATE_CONTEXT_PROCESSORS = ("django.contrib.auth.context_processors.auth",
 "django.core.context_processors.media",
 "django.core.context_processors.static",
 "django.core.context_processors.tz",
-"django.contrib.messages.context_processors.messages")
+"django.contrib.messages.context_processors.messages",
+"utils.custom_context_processors.domain_context_processor")
 
 # Application definition
 
