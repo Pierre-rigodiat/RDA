@@ -5,12 +5,15 @@ from modules.curator.forms import BLOBHosterForm, URLForm
 from django.template import Context, Template
 from django.conf import settings
 import os
-from mgi.settings import BLOB_HOSTER, BLOB_HOSTER_URI, BLOB_HOSTER_USER, BLOB_HOSTER_PSWD, MDCS_URI
+from mgi.settings import BLOB_HOSTER, BLOB_HOSTER_URI, BLOB_HOSTER_USER, BLOB_HOSTER_PSWD, MDCS_URI,\
+    HANDLE_SERVER_URL, HANDLE_SERVER_SCHEMA, HANDLE_SERVER_USER, HANDLE_SERVER_PSWD
 from utils.BLOBHoster.BLOBHosterFactory import BLOBHosterFactory
 from lxml import etree
 from lxml.etree import XMLSyntaxError
 from django.core.validators import URLValidator
 from django.core.exceptions import ValidationError
+import requests
+import json
 
 RESOURCES_PATH = os.path.join(settings.SITE_ROOT, 'modules', 'curator', 'resources')
 TEMPLATES_PATH = os.path.join(RESOURCES_PATH, 'html')
@@ -261,7 +264,11 @@ class HandleModule(PopupModule):
         scripts = [os.path.join(SCRIPTS_PATH, 'handle.js')]
         styles = []
         
-        popup_content = "<p style='color:red;'> Warning message: You are about to request an handle. </p>"
+        popup_content = "<p style='color:red;'>"
+        popup_content += "Warning: You are about to request an handle for this document.<br/>" 
+        popup_content += "Clicking on 'Save' will generate a request to the Handle System."
+        popup_content += "A unique handle will be created for this document and it will be registered on the Handle System." 
+        popup_content += "</p>"
         button_label = "Get a unique handle"
                 
         PopupModule.__init__(self, scripts, styles, popup_content, button_label)
@@ -288,7 +295,8 @@ class HandleModule(PopupModule):
         return self.handle
 
 
-    def _post_display(self, request):        
+    def _post_display(self, request):
+        self.handle = ''    
         if 'data' in request.POST:
             if request.POST['data'] != '':
                 self.handle = request.POST['data']
@@ -298,8 +306,26 @@ class HandleModule(PopupModule):
                 message += '<b>Handle</b>: ' + self.handle                  
                 return message
             
-            # get a unique handle from the handle provider           
-            self.handle = 'HANDLE'
+            # get a unique handle from the handle provider
+            url_validator = URLValidator()
+            try:
+                handle_server_api = HANDLE_SERVER_URL + '/registrar/objects/?type=' + HANDLE_SERVER_SCHEMA
+                url_validator(handle_server_api)
+                try:
+                    headers = {}
+                    data = json.dumps({})
+                    r = requests.post(handle_server_api, data=data, headers=headers, auth=(HANDLE_SERVER_USER, HANDLE_SERVER_PSWD))
+                    if r.status_code != 200:
+                        return 'The Handle System returned an error.'
+                    try:
+                        location = r.headers['location']
+                        self.handle = HANDLE_SERVER_URL + '/registrar' + location
+                    except:
+                        return 'The Handle System did not return a valid handle.'
+                except:
+                    return 'An error occurred while trying to contact the Handle System.'
+            except:
+                return 'Invalid URL for the Handle System.'
             return '<b>Handle</b>: ' + self.handle 
         else:
             return ''

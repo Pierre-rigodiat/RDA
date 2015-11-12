@@ -84,6 +84,12 @@ BLOB_HOSTER_USER = MONGO_MGI_USER
 BLOB_HOSTER_PSWD = MONGO_MGI_PASSWORD
 MDCS_URI = 'http://127.0.0.1:8000'
 
+# Handle system module parameters
+HANDLE_SERVER_URL = ''
+HANDLE_SERVER_SCHEMA = ''
+HANDLE_SERVER_USER = ''
+HANDLE_SERVER_PSWD = ''
+
 # Customization: MGI
 CUSTOM_TITLE = 'Materials Data'
 CUSTOM_SUBTITLE = 'Part of the Materials Genome Initiative'
