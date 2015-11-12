@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load staticfiles %}
+{% load auth_extras %}
 
 {% comment %}
 <!--
@@ -91,31 +92,40 @@
                 <input onclick="showCustomTree('crit0')" readonly="readonly" type="text" class="elementInput"/>
                 <span id="ui0"></span>
                 <span class="icon add" onclick="addField()"></span>
-	        </p>        
+	        </p>
+			{% if user|has_perm:'explore.explore_save_query' %}
 	        <span class="btn" onclick="saveQuery()">Save Query</span>
+			{%endif%}
 	        <span class="btn" onclick="clearCriterias()">Clear</span>    
 	        <span class="btn" onclick="query()">Submit Query</span>  
 	    </form>                        
 	</div>
 	<hr>
+	{% if user.is_authenticated %}
 	<div id="queries">
         <h2>Saved Queries</h2>
         <form>
+			{% if user|has_perm:'explore.explore_delete_query' %}
             <span class="btn" onclick="clearQueries()" >Delete All</span>
+			{%endif%}
         </form>
 	    <div id="queriesTable">
 	        <table>
 	            <tr>	                
 	                <th class="th-15px">Add to Builder</th>
 	                <th>Queries</th>
+					{% if user|has_perm:'explore.explore_delete_query' %}
 	                <th class="th-15px">Delete</th>
+					{%endif%}
 	            </tr>
 	            {% if queries %}
 		            {% for query in queries %}
 					  <tr>
 					    <td><span class="icon upload" onclick="addSavedQueryToForm('query{{ query.id }}')"></span></td>
 					    <td>{{ query.displayedQuery|safe }}</td>
-					    <td><span class="icon invalid" onclick="deleteQuery('query{{ query.id }}')"></span></td>									
+					    {% if user|has_perm:'explore.explore_delete_query' %}
+					    <td><span class="icon invalid" onclick="deleteQuery('query{{ query.id }}')"></span></td>
+						{%endif%}
 					  </tr>									
 					{% endfor %}
 				{% else %}
@@ -124,6 +134,7 @@
 	        </table>
 	    </div>            
 	</div>
+	{% endif %}
 </div>
 					 
 {% if request.session.currentExploreTab == "tab-2" %}
@@ -180,24 +191,25 @@
 	</div>
 </div>
 
-		
 <div class="box">
 	<div class="box-title">Repositories</div><br/>
 	<div id="fed_of_queries_instances">
 	{% for instance in instances %}
 		{% if instance.name == "Local" %}
-            <input type="checkbox" value="{{ instance.name }}" checked="checked">
-            <span class="instance_name">{{ instance.name }}</span>
+			<input type="checkbox" value="{{ instance.name }}" checked="checked">
+			<span class="instance_name">{{ instance.name }}</span>
 		{% else %}
-            <input type="checkbox" value="{{ instance.name }}">
-            <span class="instance_name" title="{{instance.protocol}}://{{instance.address}}:{{instance.port}}">
-                {{instance.name}}
-            </span>
+			{% if user.is_authenticated %}
+				<input type="checkbox" value="{{ instance.name }}">
+				<span class="instance_name" title="{{instance.protocol}}://{{instance.address}}:{{instance.port}}">
+					{{instance.name}}
+				</span>
+			{% endif %}
 		{% endif %}
-        <br/>
+		<br/>
 	{% endfor %}
 	</div>
-    <br/>
+	<br/>
 </div>
 {% endblock %} 
 

@@ -2,12 +2,12 @@
 	<input type='checkbox' name='checks' result_id='{{id}}'/>
     <span class='expand' style='cursor:pointer;' onclick='showhideResults(event);'></span>
     <span style='font-weight:bold;'><a href="/explore/detail_result?id={{id}}">{{title}}</a></span>
-    {% if canDelete %}
+    {% if canEdit %}
     <a href="/curate/enter-data?id={{id}}"><span class="icon edit"></span></a>
-    {% endif %}   	
+    {% endif %}
     {% if canDelete %}
     <span class="icon invalid" onclick="deleteResult('{{id}}')"></span>
-    {% endif %}   	
+    {% endif %}
     <div class='xmlResult' readonly='true' style='display:none;'>
     	{% autoescape off %}
     	{{xml}}

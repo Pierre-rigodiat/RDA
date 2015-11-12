@@ -18,7 +18,6 @@ from django.shortcuts import render, HttpResponse, HttpResponseRedirect
 from django.http.response import HttpResponseBadRequest
 from django.template import RequestContext, loader
 from django.shortcuts import redirect
-from datetime import date
 from mgi.models import Request, Message, PrivacyPolicy, TermsOfUse, Template, TemplateVersion, Type, TypeVersion, \
     Module, Bucket, Instance, Exporter, ExporterXslt
 from forms import PrivacyPolicyForm, TermsOfUseForm, RepositoryForm, RefreshRepositoryForm, UploadXSLTForm
@@ -37,6 +36,7 @@ from io import BytesIO
 from mgi import common
 import json
 from mongoengine import NotUniqueError, OperationError
+from django.contrib.auth.decorators import login_required
 
 ################################################################################
 #
@@ -47,6 +47,7 @@ from mongoengine import NotUniqueError, OperationError
 # Description:   Page that allows to accept or deny user requests
 #
 ################################################################################
+@login_required(login_url='/login')
 def user_requests(request):
     template = loader.get_template('admin/user_requests.html')
 

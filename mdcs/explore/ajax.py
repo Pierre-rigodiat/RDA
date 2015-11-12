@@ -29,6 +29,9 @@ import lxml.etree as etree
 from mgi.models import Template, QueryResults, SavedQuery, XMLdata, Instance, MetaSchema
 from mgi import common
 from django.template import loader, Context
+from django.contrib.auth.models import Group
+from django.db.models import Q
+import mgi.rights as RIGHTS
 #Class definition
 
 ################################################################################
@@ -945,21 +948,29 @@ def get_results_by_instance(request):
             manageRegexBeforeExe(query)
             instanceResults = XMLdata.executeQueryFullResult(query)
             if len(instanceResults) > 0:
-                for instanceResult in instanceResults:
-                    results.append({'title':instanceResult['title'], 'content':xmltodict.unparse(instanceResult['content']),'id':str(instanceResult['_id'])})
-                    xsltPath = os.path.join(settings.SITE_ROOT, 'static/resources/xsl/xml2html.xsl')
-                    xslt = etree.parse(xsltPath)
-                    transform = etree.XSLT(xslt)
-                    dom = etree.fromstring(str(xmltodict.unparse(instanceResult['content']).replace('<?xml version="1.0" encoding="utf-8"?>\n',"")))
-                    newdom = transform(dom)
-                    template = loader.get_template('explore_result.html')
-                    canDelete = False
-                    canEdit = False
-                    # only admins can edit/delete for now
+                canDelete = False
+                canEdit = False
+                # only admins can edit/delete for now
+                try:
+                    if request.user.is_anonymous():
+                        canDelete = Group.objects.filter(Q(name=RIGHTS.anonymous_group) & Q(permissions__name=RIGHTS.explore_delete_document))
+                        canEdit = Group.objects.filter(Q(name=RIGHTS.anonymous_group) & Q(permissions__name=RIGHTS.explore_edit_document))
+                    else:
+                        canDelete = request.user.has_perms('explore.'+RIGHTS.explore_delete_document)
+                        canEdit = request.user.has_perms('explore.'+RIGHTS.explore_edit_document)
+                except:
                     if request.user.is_superuser:
                         canDelete = True
                         canEdit = True
-                    
+
+                template = loader.get_template('explore_result.html')
+                xsltPath = os.path.join(settings.SITE_ROOT, 'static/resources/xsl/xml2html.xsl')
+                xslt = etree.parse(xsltPath)
+                transform = etree.XSLT(xslt)
+                for instanceResult in instanceResults:
+                    results.append({'title':instanceResult['title'], 'content':xmltodict.unparse(instanceResult['content']),'id':str(instanceResult['_id'])})
+                    dom = etree.fromstring(str(xmltodict.unparse(instanceResult['content']).replace('<?xml version="1.0" encoding="utf-8"?>\n',"")))
+                    newdom = transform(dom)
                     context = Context({'id':str(instanceResult['_id']),
                                        'xml': str(newdom),
                                        'title': instanceResult['title'],
@@ -967,7 +978,6 @@ def get_results_by_instance(request):
                                        'canEdit': canEdit})
 
                     resultString+= template.render(context)
-                    
                 resultString += "<br/>"
             else:
                 resultString += "<span style='font-style:italic; color:red;'> No Results found... </span><br/><br/>"

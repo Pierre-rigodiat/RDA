@@ -21,9 +21,9 @@ from django.http import HttpResponse
 from django.template import RequestContext, loader
 from django.shortcuts import redirect
 from django.core.servers.basehttp import FileWrapper
-from datetime import date
 from cStringIO import StringIO
 from mgi.models import Template, TemplateVersion, XML2Download, Type, TypeVersion, Bucket
+from django.contrib.auth.decorators import login_required
 
 
 ################################################################################
@@ -35,30 +35,25 @@ from mgi.models import Template, TemplateVersion, XML2Download, Type, TypeVersio
 # Description:   Page that allows to select a template to start composing         
 #
 ################################################################################
+@login_required(login_url='/login')
 def index(request):
     template = loader.get_template('compose.html')
-    if request.user.is_authenticated():
-    
-        
-        currentTemplateVersions = []
-        for tpl_version in TemplateVersion.objects():
-            currentTemplateVersions.append(tpl_version.current)
-        
-        currentTemplates = dict()
-        for tpl_version in currentTemplateVersions:
-            tpl = Template.objects.get(pk=tpl_version)
-            templateVersions = TemplateVersion.objects.get(pk=tpl.templateVersion)
-            currentTemplates[tpl] = templateVersions.isDeleted
-    
-        context = RequestContext(request, {
-           'templates':currentTemplates,
-           'userTemplates': Template.objects(user=str(request.user.id)),
-        })
+    currentTemplateVersions = []
+    for tpl_version in TemplateVersion.objects():
+        currentTemplateVersions.append(tpl_version.current)
 
-        return HttpResponse(template.render(context))
-    else:
-        request.session['next'] = '/compose'
-        return redirect('/login')
+    currentTemplates = dict()
+    for tpl_version in currentTemplateVersions:
+        tpl = Template.objects.get(pk=tpl_version)
+        templateVersions = TemplateVersion.objects.get(pk=tpl.templateVersion)
+        currentTemplates[tpl] = templateVersions.isDeleted
+
+    context = RequestContext(request, {
+       'templates':currentTemplates,
+       'userTemplates': Template.objects(user=str(request.user.id)),
+    })
+
+    return HttpResponse(template.render(context))
 
 
 ################################################################################
@@ -70,44 +65,39 @@ def index(request):
 # Description:   Page that allows to Compose the Template
 #
 ################################################################################
+@login_required(login_url='/login')
 def compose_build_template(request):
     template = loader.get_template('compose_build_template.html')
-    if request.user.is_authenticated():
+    # 1) user types: list of ids
+    userTypes = []
+    for user_type in Type.objects(user=str(request.user.id)):
+        userTypes.append(user_type)
+    # 2) buckets: label -> list of type that are not deleted
+    # 3) nobuckets: list of types that are not assigned to a specific bucket
+    bucketsTypes = dict()
+    nobucketsTypes = []
 
-        # 1) user types: list of ids
-        userTypes = []
-        for user_type in Type.objects(user=str(request.user.id)):
-            userTypes.append(user_type)
+    buckets = Bucket.objects
 
-        # 2) buckets: label -> list of type that are not deleted
-        # 3) nobuckets: list of types that are not assigned to a specific bucket
-        bucketsTypes = dict()
-        nobucketsTypes = []
+    for type_version in TypeVersion.objects():
+        if type_version.isDeleted == False:
+            hasBucket = False
+            for bucket in buckets:
+                if str(type_version.id) in bucket.types:
+                    if bucket not in bucketsTypes.keys():
+                        bucketsTypes[bucket] = []
+                    bucketsTypes[bucket].append(Type.objects.get(pk=type_version.current))
+                    hasBucket = True
+            if hasBucket == False:
+                nobucketsTypes.append(Type.objects.get(pk=type_version.current))
 
-        buckets = Bucket.objects
+    context = RequestContext(request, {
+       'bucketsTypes': bucketsTypes,
+       'nobucketsTypes': nobucketsTypes,
+       'userTypes': userTypes,
+    })
 
-        for type_version in TypeVersion.objects():
-            if type_version.isDeleted == False:
-                hasBucket = False
-                for bucket in buckets:
-                    if str(type_version.id) in bucket.types:
-                        if bucket not in bucketsTypes.keys():
-                            bucketsTypes[bucket] = []
-                        bucketsTypes[bucket].append(Type.objects.get(pk=type_version.current))
-                        hasBucket = True
-                if hasBucket == False:
-                    nobucketsTypes.append(Type.objects.get(pk=type_version.current))
-
-        context = RequestContext(request, {
-           'bucketsTypes': bucketsTypes,
-           'nobucketsTypes': nobucketsTypes,
-           'userTypes': userTypes,
-        })
-
-        return HttpResponse(template.render(context))
-    else:
-        request.session['next'] = '/compose/build-template'
-        return redirect('/login')
+    return HttpResponse(template.render(context))
 
 
 ################################################################################
@@ -120,24 +110,16 @@ def compose_build_template(request):
 #                Used when user wants to download the XML file.
 #
 ################################################################################
+@login_required(login_url='/login')
 def compose_downloadxsd(request):
-    if request.user.is_authenticated():
-        xml2downloadID = request.GET.get('id', None)
-        
-        if xml2downloadID is not None:
-            xmlDataObject = XML2Download.objects.get(pk=xml2downloadID)
-    
-    
-            xmlStringEncoded = xmlDataObject.xml.encode('utf-8')
-            fileObj = StringIO(xmlStringEncoded)
-    
-            xmlDataObject.delete()
-    
-            response = HttpResponse(FileWrapper(fileObj), content_type='application/xsd')
-            response['Content-Disposition'] = 'attachment; filename=' + "new_template.xsd"
-            return response
-        else:
-            return redirect('/')
+    xml2downloadID = request.GET.get('id', None)
+    if xml2downloadID is not None:
+        xmlDataObject = XML2Download.objects.get(pk=xml2downloadID)
+        xmlStringEncoded = xmlDataObject.xml.encode('utf-8')
+        fileObj = StringIO(xmlStringEncoded)
+        xmlDataObject.delete()
+        response = HttpResponse(FileWrapper(fileObj), content_type='application/xsd')
+        response['Content-Disposition'] = 'attachment; filename=' + "new_template.xsd"
+        return response
     else:
-        request.session['next'] = '/compose'
-        return redirect('/login')
+        return redirect('/')
