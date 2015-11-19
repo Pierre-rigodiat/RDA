@@ -1,6 +1,6 @@
 {% extends "base_featured.html" %}
 {% load staticfiles %}
-
+{% load auth_extras %}
 {% comment %}
 <!--
 ################################################################################
@@ -26,28 +26,34 @@
 
 {% block content %}
 <div class="left" style="width: 350px">
-	<div class="clearer">&nbsp;</div>
-	<br/>
-	<img src="{% static 'resources/img/edit-big.png' %}" width="64" height="64" alt="" class="left bordered" />
-	<h3><a href="curate">Curate your Materials Data</a></h3>
-	<p>Click here to select a form template and then fill out the corresponding form.</p>
-	<div class="clearer">&nbsp;</div>
-
-    <div class="clearer">&nbsp;</div>
-	<br/>
-	<img src="{% static 'resources/img/edit-big.png' %}" width="64" height="64" alt="" class="left bordered" />
-	<h3><a href="compose">Compose a template</a></h3>
-	<p>Click here to compose your own template.</p>
-	<div class="clearer">&nbsp;</div>
-</div>
-
-<div class="right" style="width: 350px">
+	{% if user|has_perm:'explore.explore_access' %}
 	<div class="clearer">&nbsp;</div>
 	<br/>
 	<img src="{% static 'resources/img/search-big.png' %}" width="64" height="64" alt="" class="left bordered" />
 	<h3><a href="explore">Explore the repository</a></h3>
 	<p>Click here to search for Material Data in the repository using flexible queries.</p>
 	<div class="clearer">&nbsp;</div>
+	{% endif %}
+	
+	{% if user|has_perm:'curate.curate_access' %}
+	<div class="clearer">&nbsp;</div>
+	<br/>
+	<img src="{% static 'resources/img/edit-big.png' %}" width="64" height="64" alt="" class="left bordered" />
+	<h3><a href="curate">Curate your Materials Data</a></h3>
+	<p>Click here to select a form template and then fill out the corresponding form.</p>
+	<div class="clearer">&nbsp;</div>
+	{% endif %}
+</div>
+
+<div class="right" style="width: 350px">
+	{% if user|has_perm:'compose.compose_access' %}
+    <div class="clearer">&nbsp;</div>
+	<br/>
+	<img src="{% static 'resources/img/edit-big.png' %}" width="64" height="64" alt="" class="left bordered" />
+	<h3><a href="compose">Compose a template</a></h3>
+	<p>Click here to compose your own template.</p>
+	<div class="clearer">&nbsp;</div>
+	{% endif %}
 </div>
 
 <div class="clearer">&nbsp;</div>

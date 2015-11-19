@@ -34,11 +34,12 @@
 				<div id="help-wrapper">
 					<div id="help">
 						{% if user.is_authenticated %}
-    						<a href="/logout">Logout</a> 
+    						<a href="/logout">Logout</a>
+							<span class="text-separator">|</span> <a href="/my-profile">My Profile</a>
 						{% else %}
     						<a href="/login">Login</a> 
 						{% endif %}
-						<span class="text-separator">|</span> <a href="/my-profile">My Profile</a> <span class="text-separator">|</span> <a href="/help">Help</a> 
+						<span class="text-separator">|</span> <a href="/help">Help</a>
 					</div>
 				</div>
 			</div>
