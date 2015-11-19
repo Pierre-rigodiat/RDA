@@ -53,7 +53,7 @@ available in the query screen. When you are done, please click on Perform Search
 
 {% block sidebar %}
 <div class="box">
-	<div class="box-title">Data Exploration</div>
+	<div class="box-title">{{CUSTOM_EXPLORE}}</div>
 	<div id="explore-tabs">	
 		<div class="tab">
 			{% if request.session.currentExploreTab == "tab-1" %}
