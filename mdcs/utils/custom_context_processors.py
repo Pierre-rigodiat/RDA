@@ -6,5 +6,8 @@ def domain_context_processor(request):
         'CUSTOM_SUBTITLE': settings.CUSTOM_SUBTITLE,
         'CUSTOM_DATA': settings.CUSTOM_DATA,
         'CUSTOM_DESCRIPTION': settings.CUSTOM_DESCRIPTION,
+        'CUSTOM_CURATE': settings.CUSTOM_CURATE,
+        'CUSTOM_EXPLORE': settings.CUSTOM_EXPLORE,
+        'CUSTOM_COMPOSE': settings.CUSTOM_COMPOSE,
     }
     return domain_params
