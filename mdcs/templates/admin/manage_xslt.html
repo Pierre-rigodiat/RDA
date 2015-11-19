@@ -33,6 +33,8 @@
 
 {% block content%}
 
+<h2 class="left">Exporter XSLT</h2>
+<div class="clearer">&nbsp;</div>
 <div class="right-side">
 <span class="ctx_menu">
 		<div class="icon legend long upload" onclick="displayImport();">​Upload XSLT​</div>​
@@ -73,10 +75,57 @@
 
 {% else %}
 <br>
-	There are currently no XSLT uploaded.  Please click "Upload XSLT" to the right to add XSLT files.
+	There are currently no Exporter XSLT uploaded.  Please click "Upload XSLT" to the right to add XSLT files.
 	<br>
 	<br>
 {% endif %}
+
+<h2 class="left">Result XSLT</h2>
+<div class="clearer">&nbsp;</div>
+<div class="right-side">
+<span class="ctx_menu">
+		<div class="icon legend long upload" onclick="displayImport();">​Upload XSLT​</div>​
+</span>
+</div>
+{% if xslt_files %}
+<table class="data-table">
+  <tr>
+  	<th>XSLT name</th>
+    <th>Filename</th>
+    <th>All templates</th>
+    <th>Actions</th>
+  </tr>
+
+{% for object in xslt_fileds %}
+  {% cycle 'even' '' as rowcolors silent %}
+  <tr class="{{ rowcolors }}">
+    <td>{{ object.name }}</td>
+    <td>{{ object.filename }}</td>
+    <td id="ButtonSet{{object.id}}">
+			{% if object.available_for_all %}
+				<input id="{{object.id}}" class="cmn-toggle cmn-toggle-round" disabled="True" type="checkbox" checked >
+			{% else %}
+				<input id="{{object.id}}" class="cmn-toggle cmn-toggle-round" type="checkbox" disabled="True">
+			{% endif %}
+			<label for="{{object.id}}"></label>
+	</td>
+    <td>
+    	<div class="icon legend edit" objectid="{{ object.id }}">Edit</div>
+    	<div class="icon legend delete" onclick="deleteXSLT('{{ object.id }}')">Delete</div>
+	</td>
+  </tr>
+
+{% endfor %}
+
+</table>
+
+{% else %}
+<br>
+	There are currently no Result XSLT uploaded.  Please click "Upload XSLT" to the right to add XSLT files.
+	<br>
+	<br>
+{% endif %}
+
 
 {% endblock %}
 
