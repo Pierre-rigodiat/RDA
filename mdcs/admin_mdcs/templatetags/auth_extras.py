@@ -15,7 +15,7 @@ def has_perm(user, permission):
         prefixed_permission = "{!s}.{!s}".format(app_name, permission_name)
         if user.is_anonymous():
             #We can give directly the permission name
-            access = Group.objects.filter(Q(name=RIGHTS.anonymous_group) & Q(permissions__name=permission_name))
+            access = Group.objects.filter(Q(name=RIGHTS.anonymous_group) & Q(permissions__codename=permission_name))
         else:
             #We need to prefix with the app name
             access = user.has_perm(prefixed_permission)

@@ -20,8 +20,9 @@ import mgi.rights as RIGHTS
 class Compose(models.Model):
     # model stuff here
     class Meta:
+        default_permissions = ()
         permissions = (
-            (RIGHTS.compose_access, RIGHTS.compose_access),
-            (RIGHTS.compose_save_template, RIGHTS.compose_save_template),
-            (RIGHTS.compose_save_type, RIGHTS.compose_save_type),
+            (RIGHTS.compose_access, RIGHTS.get_description(RIGHTS.compose_access)),
+            (RIGHTS.compose_save_template, RIGHTS.get_description(RIGHTS.compose_save_template)),
+            (RIGHTS.compose_save_type, RIGHTS.get_description(RIGHTS.compose_save_type)),
         )

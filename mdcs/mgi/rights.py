@@ -41,3 +41,7 @@ explore_delete_query="explore_delete_query"
 explore_edit_document="explore_edit_document"
 explore_delete_document="explore_delete_document"
 ### End Explore Rights ###
+
+
+def get_description(right):
+    return "Can " + right.replace("_", " ")

@@ -31,7 +31,7 @@ def login_or_anonymous_perm_required(anonymous_permission, function=None, redire
         def wrapper(request, *args, **kwargs):
             request.has_anonymous_access = False
             if request.user.is_anonymous():
-                access = Group.objects.filter(Q(name=RIGHTS.anonymous_group) & Q(permissions__name=anonymous_permission))
+                access = Group.objects.filter(Q(name=RIGHTS.anonymous_group) & Q(permissions__codename=anonymous_permission))
             else:
                 access = request.user.is_authenticated()
 
@@ -65,7 +65,7 @@ def permission_required(perm, login_url=None, raise_exception=False, redirect_fi
                 perms = perm
 
             if request.user.is_anonymous():
-                access = Group.objects.filter(Q(name=RIGHTS.anonymous_group) & Q(permissions__name=perm))
+                access = Group.objects.filter(Q(name=RIGHTS.anonymous_group) & Q(permissions__codename=perm))
             else:
                 access = request.user.has_perms(perms)
 

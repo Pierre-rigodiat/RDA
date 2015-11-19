@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load staticfiles %}
+{% load auth_extras %}
 {% comment %}
 <!--
 ################################################################################
@@ -68,6 +69,7 @@ automatically load the appropriate form and display it on the next page.
     {% endfor %}
 </table>
 
+{% if user.is_authenticated %}
 <div class="tpl-title">User Defined Templates</div>
 {% if userTemplates %}
     <table class="table table-bordered">
@@ -88,10 +90,13 @@ automatically load the appropriate form and display it on the next page.
         {% endfor %}
     </table>
 {% else %}
+    {% if user|has_perm:'compose.compose_access' %}
     <div class="unavailable">
         Create your own templates using the <a href="/compose">Composer</a> and you will be able to use them from this
         section.
     </div>
+    {% endif %}
+{% endif %}
 {% endif %}
 </div>
 {% endblock %}

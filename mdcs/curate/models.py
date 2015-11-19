@@ -19,7 +19,8 @@ import mgi.rights as RIGHTS
 class Curate(models.Model):
     # model stuff here
     class Meta:
+        default_permissions = ()
         permissions = (
-            (RIGHTS.curate_access, RIGHTS.curate_access),
-            (RIGHTS.curate_view_data_save_repo, RIGHTS.curate_view_data_save_repo),
+            (RIGHTS.curate_access, RIGHTS.get_description(RIGHTS.curate_access)),
+            (RIGHTS.curate_view_data_save_repo, RIGHTS.get_description(RIGHTS.curate_view_data_save_repo)),
         )

@@ -16,14 +16,14 @@
 from django.db import models
 import mgi.rights as RIGHTS
 
-
 class Explore(models.Model):
     # model stuff here
     class Meta:
+        default_permissions = ()
         permissions = (
-            (RIGHTS.explore_access, RIGHTS.explore_access),
-            (RIGHTS.explore_save_query, RIGHTS.explore_save_query),
-            (RIGHTS.explore_delete_query, RIGHTS.explore_delete_query),
-            (RIGHTS.explore_edit_document, RIGHTS.explore_edit_document),
-            (RIGHTS.explore_delete_document, RIGHTS.explore_delete_document),
+            (RIGHTS.explore_access, RIGHTS.get_description(RIGHTS.explore_access)),
+            (RIGHTS.explore_save_query, RIGHTS.get_description(RIGHTS.explore_save_query)),
+            (RIGHTS.explore_delete_query, RIGHTS.get_description(RIGHTS.explore_delete_query)),
+            (RIGHTS.explore_edit_document, RIGHTS.get_description(RIGHTS.explore_edit_document)),
+            (RIGHTS.explore_delete_document, RIGHTS.get_description(RIGHTS.explore_delete_document)),
         )
