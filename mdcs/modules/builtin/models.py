@@ -152,3 +152,4 @@ class AutoCompleteModule(Module):
             params.update({"label": self.label})
 
         return render_module(template, params)
+    

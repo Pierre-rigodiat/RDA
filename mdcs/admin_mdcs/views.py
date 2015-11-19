@@ -493,7 +493,7 @@ def modules(request):
         if id is not None:
             try:
                 object = Template.objects.get(pk=id)
-                xsltPath = os.path.join(settings.SITE_ROOT, 'static/resources/xsl/xsd2html4modules.xsl')
+                xsltPath = os.path.join(settings.SITE_ROOT, 'static', 'resources', 'xsl', 'xsd2html4modules.xsl')
                 xslt = etree.parse(xsltPath)
                 transform = etree.XSLT(xslt)            
 

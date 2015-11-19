@@ -21,6 +21,7 @@ from django.conf import settings
 from mgi.models import TemplateVersion, Instance, SavedQuery, XMLdata, ExporterXslt
 import mgi.rights as RIGHTS
 from cStringIO import StringIO
+from django.core.servers.basehttp import FileWrapper
 import zipfile
 import lxml.etree as etree
 import os
@@ -30,6 +31,7 @@ from explore.forms import *
 from exporter import get_exporter
 from exporter.builtin.models import XSLTExporter
 from admin_mdcs.models import login_or_anonymous_perm_required
+
 ################################################################################
 #
 # Function Name: index(request)
@@ -249,12 +251,12 @@ def explore_detail_result(request) :
     xmlString = XMLdata.get(result_id)
     xmlString = xmltodict.unparse(xmlString['content'])
 
-    xsltPath = os.path.join(settings.SITE_ROOT, 'static/resources/xsl/xml2html.xsl')
+    xsltPath = os.path.join(settings.SITE_ROOT, 'static', 'resources', 'xsl', 'xml2html.xsl')
     xslt = etree.parse(xsltPath)
     transform = etree.XSLT(xslt)
     xmlTree = ""
     if (xmlString != ""):
-        dom = etree.fromstring(str(xmlString))
+   	dom = etree.fromstring(str(xmlString))
         newdom = transform(dom)
         xmlTree = str(newdom)
 
