@@ -53,6 +53,8 @@ from mgi.settings import BLOB_HOSTER, BLOB_HOSTER_URI, BLOB_HOSTER_USER, BLOB_HO
 from utils.BLOBHoster.BLOBHosterFactory import BLOBHosterFactory
 from mimetypes import guess_type
 from exporter import get_exporter
+import zipfile
+import mongoengine.errors as MONGO_ERRORS
 
 
 ################################################################################
@@ -2292,57 +2294,72 @@ def delete_xslt(request):
 @api_view(['POST'])
 def export(request):
     """
-    POST http://localhost/rest/export
-    POST data files[]="fileID,fileID,...", exporter="exporterID"
+    POST http://localhost/rest/exporter/export
+    POST data files[]="fileID,fileID,...", exporter="exporterID", dataformat: [json,zip]
     """
     dataXML = []
-    query = dict()
     serializer = jsonExportSerializer(data=request.DATA)
     if serializer.is_valid():
         #We retrieve files to export
-        files = []
-        filesId = re.sub('[\s+]', '', request.DATA['files[]']).split(",")
-        idExporter = request.DATA['exporter']
-
-        for fileId in filesId:
-            fileTmp = file = XMLdata.get(fileId)
-            if file == None:
-                content = {'message: No file found with the given id: ' + fileId}
-                return Response(content, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            files = []
+            filesId = re.sub('[\s+]', '', request.DATA['files[]']).split(",")
+            idExporter = request.DATA['exporter']
+            if "dataformat" in request.DATA:
+                dataformat = request.DATA['dataformat']
             else:
-                files.append(fileTmp)
-
-        #We retrieve the good exporter
-        #Standard exporter
-        try:
-            exporter = Exporter.objects.get(pk=idExporter)
-            exporter = get_exporter(exporter.url)
-        except:
-            #Exporter not found in standard exporters collection.
-            #XSLT exporter
+                dataformat =  None
+            for fileId in filesId:
+                fileTmp = file = XMLdata.get(fileId)
+                if file == None:
+                    content = {'message: No file found with the given id: ' + fileId}
+                    return Response(content, status=status.HTTP_400_BAD_REQUEST)
+                else:
+                    files.append(fileTmp)
+            #We retrieve the good exporter
+            #Standard exporter
             try:
-                xslt = ExporterXslt.objects.get(pk=request.DATA['exporter'])
-                exporter = XSLTExporter(xslt.content)
-            except:
-                content = {'message: No exporter found with the given id.'}
+                exporter = Exporter.objects.get(pk=idExporter)
+                exporter = get_exporter(exporter.url)
+            except MONGO_ERRORS.DoesNotExist, e:
+                #Exporter not found in standard exporters collection.
+                #XSLT exporter
+                try:
+                    xslt = ExporterXslt.objects.get(pk=idExporter)
+                    exporter = XSLTExporter(xslt.content)
+                except MONGO_ERRORS.DoesNotExist, e:
+                    content = {'message: No exporter found with the given id.'}
+                    return Response(content, status=status.HTTP_400_BAD_REQUEST)
+
+            #Retrieve the XML content
+            for file in files:
+                xmlStr = xmltodict.unparse(file['content'])
+                dataXML.append({'title':file['title'], 'content': str(xmlStr)})
+
+            #Transformation
+            if dataformat== None or dataformat=="json":
+                try:
+                    contentRes = exporter._transform(dataXML)
+                    serializerBis = jsonExportResSerializer(contentRes)
+                    response = Response(serializerBis.data, status=status.HTTP_200_OK)
+                except:
+                    content = {'message' : 'Unable to export data in JSON. Could be a format issue'}
+                    return Response(content, status=status.HTTP_400_BAD_REQUEST)
+            elif dataformat=="zip":
+                in_memory = StringIO()
+                zip = zipfile.ZipFile(in_memory, "a")
+                exporter._transformAndZip(None, dataXML, zip)
+                zip.close()
+                #ZIP file to be downloaded
+                in_memory.seek(0)
+                response = HttpResponse(in_memory.read())
+                response["Content-Disposition"] = "attachment; filename=Results.zip"
+                response['Content-Type'] = 'application/x-zip'
+            else:
+                content = {'message':'The specified format is not accepted.'}
                 return Response(content, status=status.HTTP_400_BAD_REQUEST)
 
-        try:
-            try:
-                #Retrieve the XML content
-                for file in files:
-                    xmlStr = xmltodict.unparse(file['content'])
-                    dataXML.append({'title':file['title'], 'content': str(xmlStr)})
-
-                #Transformation
-                contentRes = exporter._transform(dataXML)
-                # common.validateXMLDocument(schema.id, xmlStr)
-            except Exception, e:
-                content = {'message':e.message}
-                return Response(content, status=status.HTTP_400_BAD_REQUEST)
-
-            serializerBis = jsonExportResSerializer(contentRes)
-            return Response(serializerBis.data, status=status.HTTP_200_OK)
+            return response
         except Exporter, e:
             content = {'message: Unable to export data.'}
             return Response(content, status=status.HTTP_400_BAD_REQUEST)
