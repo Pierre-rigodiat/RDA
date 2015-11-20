@@ -19,7 +19,7 @@ from django.http import HttpResponse
 from django.contrib.auth import authenticate, logout
 from django.template import RequestContext, loader
 from django.shortcuts import redirect
-from mgi.models import Template, Request, Message, TermsOfUse, PrivacyPolicy, FormData
+from mgi.models import Template, Request, Message, TermsOfUse, PrivacyPolicy, Help, FormData
 from admin_mdcs.forms import RequestAccountForm, EditProfileForm, ChangePasswordForm, ContactForm
 from django.contrib.auth.models import User
 from django.contrib import messages
@@ -304,7 +304,11 @@ def terms_of_use(request):
 ################################################################################
 def help(request):
     template = loader.get_template('help.html')
-    context = RequestContext(request, {
-        '': '',
+    help = None
+    if len(Help.objects) != 0:
+        help = Help.objects[0] 
+
+    context = RequestContext(request, { 
+        'help': help
     })
     return HttpResponse(template.render(context))

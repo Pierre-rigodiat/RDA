@@ -106,7 +106,8 @@ CUSTOM_COMPOSE = 'Composer'
 # CUSTOM_SUBTITLE = 'Repository of the National Institute of Standards and Technology'
 # CUSTOM_DATA = 'NIST Data'
 # CUSTOM_DESCRIPTION = """This system allows for the curation of NIST Data in a repository using predefined templates. <br/><br/>
-#                      This is being developed at the National Institute of Standards and Technology and is made available to solicit comments from the Science community. Please do not enter any proprietary data into this system. """
+#                      This is being developed at the National Institute of Standards and Technology and is made available to solicit comments from the Science community. 
+#                      Please do not enter any proprietary data into this system. """
 #CUSTOM_CURATE = 'Curate'
 #CUSTOM_EXPLORE = 'Search'
 #CUSTOM_COMPOSE = 'Compose'

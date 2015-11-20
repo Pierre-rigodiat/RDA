@@ -64,6 +64,9 @@ class PrivacyPolicyForm(forms.Form):
 
 class TermsOfUseForm(forms.Form):
     content = forms.CharField(label="Terms of Use", widget=forms.Textarea, required=False)
+    
+class HelpForm(forms.Form):
+    content = forms.CharField(label="Help", widget=forms.Textarea, required=False)
 
 class UploadXSLTForm(forms.Form):
     name = forms.CharField(label='Enter XSLT name', max_length=100, required=True)

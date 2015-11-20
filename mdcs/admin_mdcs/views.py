@@ -18,9 +18,10 @@ from django.shortcuts import render, HttpResponse, HttpResponseRedirect
 from django.http.response import HttpResponseBadRequest
 from django.template import RequestContext, loader
 from django.shortcuts import redirect
-from mgi.models import Request, Message, PrivacyPolicy, TermsOfUse, Template, TemplateVersion, Type, TypeVersion, \
-    Module, Bucket, Instance, Exporter, ExporterXslt
-from forms import PrivacyPolicyForm, TermsOfUseForm, RepositoryForm, RefreshRepositoryForm, UploadXSLTForm
+from mgi.models import Request, Message, PrivacyPolicy, TermsOfUse, Help, Template, TemplateVersion, Type, \
+    TypeVersion, Module, Bucket, Instance, Exporter, ExporterXslt
+from forms import PrivacyPolicyForm, TermsOfUseForm, HelpForm, RepositoryForm, RefreshRepositoryForm, \
+    UploadXSLTForm
 from django.contrib import messages
 import os
 from django.conf import settings
@@ -174,6 +175,42 @@ def terms_of_use_admin(request):
                 form = TermsOfUseForm()
 
         return render(request, 'admin/terms_of_use.html', {'form':form})
+    else:
+        request.session['next'] = '/'
+        return redirect('/login')
+
+
+################################################################################
+#
+# Function Name: help_admin(request)
+# Inputs:        request -
+# Outputs:       User Request Page
+# Exceptions:    None
+# Description:   Page that allows to edit Help
+#
+################################################################################
+def help_admin(request):
+    if request.user.is_authenticated() and request.user.is_staff:
+        if request.method == 'POST':
+            form = HelpForm(request.POST)
+            if form.is_valid():
+                for help in Help.objects:
+                    help.delete()
+
+                if (request.POST['content'] != ""):
+                    newHelp = Help(content = request.POST['content'])
+                    newHelp.save()
+                messages.add_message(request, messages.INFO, 'Help saved with success.')
+                return redirect('/admin/website')
+        else:
+            if len(Help.objects) != 0:
+                help = Help.objects[0]
+                data = {'content':help.content}
+                form = HelpForm(data)
+            else:
+                form = HelpForm()
+
+        return render(request, 'admin/help.html', {'form':form})
     else:
         request.session['next'] = '/'
         return redirect('/login')
