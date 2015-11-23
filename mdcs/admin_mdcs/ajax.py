@@ -142,6 +142,12 @@ def save_object(request):
         if objectType == "Template":            
             objectVersions = TemplateVersion(nbVersions=1, isDeleted=False).save()            
             object = Template(title=objectName, filename=objectFilename, content=objectContent, version=1, templateVersion=str(objectVersions.id), hash=hash).save()
+            #We add default exporters
+            try:
+                exporters = Exporter.objects.filter(available_for_all=True)
+                object.exporters = exporters
+            except:
+                pass
         elif objectType == "Type":                                                                                    
             objectVersions = TypeVersion(nbVersions=1, isDeleted=False).save()
             object = Type(title=objectName, filename=objectFilename, content=objectContent, version=1, typeVersion=str(objectVersions.id), hash=hash).save()
