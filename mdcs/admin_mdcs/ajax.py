@@ -18,7 +18,7 @@ from django.http import HttpResponse
 import lxml.etree as etree
 import json
 from io import BytesIO
-from mgi.models import Template, TemplateVersion, Instance, Request, Module, Type, TypeVersion, Message, Bucket, MetaSchema, Exporter, ExporterXslt
+from mgi.models import Template, TemplateVersion, Instance, Request, Module, Type, TypeVersion, Message, Bucket, MetaSchema, Exporter, ExporterXslt, ResultXslt
 from django.contrib.auth.models import User
 from utils.XSDflattenerMDCS.XSDflattenerMDCS import XSDFlattenerMDCS
 from utils.XSDhash import XSDhash
@@ -1067,5 +1067,38 @@ def save_exporters(request):
         xslt = ExporterXslt.objects.get(pk=xslt)
         Template.objects(id=template_id).update_one(push__XSLTFiles=xslt)
     template.save()
+
+    return HttpResponse(json.dumps({}), content_type='application/javascript')
+
+################################################################################
+#
+# Function Name: save_result_xslt(request)
+# Inputs:        request -
+# Outputs:
+# Exceptions:    None
+# Description:   Save result XSLT for a template.
+#
+################################################################################
+def save_result_xslt(request):
+    template_id = request.session['moduleTemplateID']
+    idXsltShort = request.POST.get('idXsltShort')
+    idXsltDetailed = request.POST.get('idXsltDetailed')
+    #We retrieve the exporter
+    template = Template.objects.get(pk=template_id)
+    #We reinitialise exporters and XSLT
+    template.ResultXsltShort = None
+    template.ResultXsltDetailed = None
+    template.save()
+    #We add short XSLT
+    if idXsltShort:
+        shortXslt = ResultXslt.objects.get(pk=idXsltShort)
+        template.ResultXsltShort = shortXslt
+    #We add detailed XSLT
+    if idXsltDetailed:
+        detailedXSLT = ResultXslt.objects.get(pk=idXsltDetailed)
+        template.ResultXsltDetailed = detailedXSLT
+
+    if idXsltShort or idXsltDetailed:
+        template.save()
 
     return HttpResponse(json.dumps({}), content_type='application/javascript')

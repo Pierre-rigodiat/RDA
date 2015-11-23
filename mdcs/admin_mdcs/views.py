@@ -19,8 +19,8 @@ from django.http.response import HttpResponseBadRequest
 from django.template import RequestContext, loader
 from django.shortcuts import redirect
 from mgi.models import Request, Message, PrivacyPolicy, TermsOfUse, Template, TemplateVersion, Type, TypeVersion, \
-    Module, Bucket, Instance, Exporter, ExporterXslt
-from forms import PrivacyPolicyForm, TermsOfUseForm, RepositoryForm, RefreshRepositoryForm, UploadXSLTForm
+    Module, Bucket, Instance, Exporter, ExporterXslt, ResultXslt
+from forms import PrivacyPolicyForm, TermsOfUseForm, RepositoryForm, RefreshRepositoryForm, UploadXSLTForm, UploadResultXSLTForm
 from django.contrib import messages
 import os
 from django.conf import settings
@@ -637,11 +637,15 @@ def manage_xslt(request, id=None):
         else:
             template = loader.get_template('admin/manage_xslt.html')
             upload_xslt_Form = UploadXSLTForm()
+            upload_result_xslt_Form = UploadResultXSLTForm()
 
             xslt_files = ExporterXslt.objects.all()
+            result_xslt_files = ResultXslt.objects.all()
             context = RequestContext(request, {
                 'upload_xslt_Form': upload_xslt_Form,
                 'xslt_files': xslt_files,
+                'upload_result_xslt_Form': upload_result_xslt_Form,
+                'result_xslt_files': result_xslt_files,
             })
 
             return HttpResponse(template.render(context))
@@ -704,6 +708,150 @@ def edit_xslt(request, id=None):
 
             messages.add_message(request, messages.INFO, 'XSLT edited with success.')
             return HttpResponse(json.dumps({}), content_type='application/javascript')
+    else:
+        if 'loggedOut' in request.session:
+            del request.session['loggedOut']
+        request.session['next'] = '/'
+        return redirect('/login')
+
+
+################################################################################
+#
+# Function Name: manage_result_xslt(request)
+# Inputs:        request -
+# Outputs:       Manage Result XSLT Page
+# Exceptions:    None
+# Description:   Page that allows to upload new Result XSLT and manage the existing ones
+#
+################################################################################
+def manage_result_xslt(request, id=None):
+    if request.user.is_authenticated() and request.user.is_staff:
+        if request.method == 'POST':
+            upload_form = UploadResultXSLTForm(request.POST, request.FILES)
+            name = upload_form['result_name'].value()
+            name = name.strip(' \t\n\r')
+            xml_file = upload_form['result_xslt_file'].value()
+            # put the cursor at the beginning of the file
+            xml_file.seek(0)
+            # read the content of the file
+            xml_data = xml_file.read()
+            # check XML data or not?
+            try:
+                etree.fromstring(xml_data)
+            except XMLSyntaxError:
+                return HttpResponseBadRequest('Uploaded File is not well formed XML.')
+            #No exceptions, we can add it in DB
+            try:
+                ResultXslt(name=name, filename=xml_file.name, content=xml_data).save()
+            except NotUniqueError, e:
+               return HttpResponseBadRequest('This XSLT name already exists. Please enter an other name.')
+
+            messages.add_message(request, messages.INFO, 'XSLT saved with success.')
+            return HttpResponse('ok')
+
+        else:
+            return HttpResponseBadRequest('This method should not be called on GET.')
+    else:
+        if 'loggedOut' in request.session:
+            del request.session['loggedOut']
+        request.session['next'] = '/'
+        return redirect('/login')
+
+################################################################################
+#
+# Function Name: delete_result_xslt(request)
+# Inputs:        request -
+# Outputs:       Delete Result XSLT document
+# Exceptions:    None
+# Description:   Page that allows to delete an XSLT
+#
+################################################################################
+def delete_result_xslt(request):
+    if request.user.is_authenticated() and request.user.is_staff:
+        if request.method == 'POST':
+            try:
+                xslt_id = request.POST['xslt_id']
+                ResultXslt.objects(pk=xslt_id).delete()
+            except Exception:
+                return HttpResponseBadRequest('Something went wrong during the deletion')
+
+            messages.add_message(request, messages.INFO, 'XSLT deleted with success.')
+            return HttpResponse(json.dumps({}), content_type='application/javascript')
+    else:
+        if 'loggedOut' in request.session:
+            del request.session['loggedOut']
+        request.session['next'] = '/'
+        return redirect('/login')
+
+
+################################################################################
+#
+# Function Name: edit_result_xslt(request)
+# Inputs:        request -
+# Outputs:       Edit XSLT
+# Exceptions:    None
+# Description:   Page that allows to edit an existing XSLT
+#
+################################################################################
+def edit_result_xslt(request, id=None):
+    if request.user.is_authenticated() and request.user.is_staff:
+        if request.method == 'POST':
+            object_id = request.POST['object_id']
+            new_name = request.POST['new_name']
+            new_name = new_name.strip(' \t\n\r')
+            try:
+                xslt = ResultXslt.objects.get(pk=object_id)
+                if xslt.name == new_name:
+                    return HttpResponseBadRequest('Please enter a different name.')
+                else:
+                    xslt.update(set__name=str(new_name))
+            except OperationError, e:
+               return HttpResponseBadRequest('This XSLT name already exists. Please enter an other name.')
+
+            messages.add_message(request, messages.INFO, 'XSLT edited with success.')
+            return HttpResponse(json.dumps({}), content_type='application/javascript')
+    else:
+        if 'loggedOut' in request.session:
+            del request.session['loggedOut']
+        request.session['next'] = '/'
+        return redirect('/login')
+
+################################################################################
+#
+# Function Name: result_xslt(request)
+# Inputs:        request -
+# Outputs:       User Request Page
+# Exceptions:    None
+# Description:   Page that allows to add result xslt to a template
+#
+################################################################################
+def result_xslt(request):
+    if request.user.is_authenticated() and request.user.is_staff:
+        #Get the HTML template
+        template = loader.get_template('admin/result_xslt.html')
+        id = request.GET.get('id', None)
+        if id is not None:
+            try:
+                object = Template.objects.get(pk=id)
+                request.session['moduleTemplateID'] = id
+                #Get exporters already bind with the template
+                templateShort = Template.objects.get(pk=id).ResultXsltShort
+                #Get exporters already bind with the template
+                templateDetailed = Template.objects.get(pk=id).ResultXsltDetailed
+                #Get all XSLT
+                allXsltFiles = ResultXslt.objects.all()
+
+                context = RequestContext(request, {
+                    'templateShort': templateShort,
+                    'templateDetailed': templateDetailed,
+                    'xsltFiles': allXsltFiles,
+                })
+
+                return HttpResponse(template.render(context))
+            except:
+                return redirect('/')
+        else:
+            return redirect('/')
     else:
         if 'loggedOut' in request.session:
             del request.session['loggedOut']

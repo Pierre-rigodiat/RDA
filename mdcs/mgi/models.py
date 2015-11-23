@@ -45,11 +45,17 @@ class Exporter(Document, EmbeddedDocument):
     available_for_all = BooleanField(required=True)
 
 class ExporterXslt(Document, EmbeddedDocument):
-    """Represents an exporter"""
+    """Represents an xslt file for exporter"""
     name = StringField(required=True, unique=True)
     filename = StringField(required=True)
     content = StringField(required=True)
     available_for_all = BooleanField(required=True)
+
+class ResultXslt(Document, EmbeddedDocument):
+    """Represents an xslt file for result representation"""
+    name = StringField(required=True, unique=True)
+    filename = StringField(required=True)
+    content = StringField(required=True)
     
 class Template(Document):
     """Represents an XML schema template that defines the structure of data for curation"""
@@ -63,7 +69,9 @@ class Template(Document):
     dependencies = ListField(StringField())
     exporters = ListField(ReferenceField(Exporter, reverse_delete_rule=PULL))
     XSLTFiles = ListField(ReferenceField(ExporterXslt, reverse_delete_rule=PULL))
-    
+    ResultXsltShort = ReferenceField(ResultXslt, reverse_delete_rule=NULLIFY)
+    ResultXsltDetailed = ReferenceField(ResultXslt, reverse_delete_rule=NULLIFY)
+
 class TemplateVersion(Document):
     """Manages versions of templates"""
     versions = ListField(StringField())

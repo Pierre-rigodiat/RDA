@@ -69,5 +69,9 @@ class UploadXSLTForm(forms.Form):
     name = forms.CharField(label='Enter XSLT name', max_length=100, required=True)
     xslt_file = forms.FileField(label='Select a file',required=True)
     available_for_all = forms.BooleanField(widget=forms.CheckboxInput(attrs={'class':'cmn-toggle cmn-toggle-round'}))
-    
+
+class UploadResultXSLTForm(forms.Form):
+    result_name = forms.CharField(label='Enter XSLT name', max_length=100, required=True)
+    result_xslt_file = forms.FileField(label='Select a file',required=True)
+
     
