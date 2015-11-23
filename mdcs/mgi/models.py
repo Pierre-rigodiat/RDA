@@ -147,6 +147,10 @@ class TermsOfUse(Document):
     """Terms of Use of the MDCS"""
     content = StringField()
     
+class Help(Document):
+    """Help of the MDCS"""
+    content = StringField()
+    
 class Bucket(Document):
     """Represents a bucket to store types by domain"""
     label = StringField(required=True, unique=True)
