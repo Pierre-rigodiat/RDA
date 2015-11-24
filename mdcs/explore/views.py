@@ -29,6 +29,7 @@ import xmltodict
 import json
 from explore.forms import *
 from exporter import get_exporter
+from io import BytesIO
 from exporter.builtin.models import XSLTExporter
 from admin_mdcs.models import login_or_anonymous_perm_required
 
@@ -245,25 +246,33 @@ def explore_all_versions_results(request):
 @login_or_anonymous_perm_required(anonymous_permission=RIGHTS.explore_access, login_url='/login')
 def explore_detail_result(request) :
     result_id = request.GET['id']
-
     template = loader.get_template('explore_detail_results.html')
 
     xmlString = XMLdata.get(result_id)
-    xmlString = xmltodict.unparse(xmlString['content'])
-
+    schemaId = xmlString['schema']
+    xmlString = xmltodict.unparse(xmlString['content']).encode('utf-8')
     xsltPath = os.path.join(settings.SITE_ROOT, 'static', 'resources', 'xsl', 'xml2html.xsl')
     xslt = etree.parse(xsltPath)
     transform = etree.XSLT(xslt)
-    xmlTree = ""
-    if (xmlString != ""):
-   	dom = etree.fromstring(str(xmlString))
+
+    #Check if a custom short result XSLT has to be used
+    try:
+        if (xmlString != ""):
+            dom = etree.fromstring(str(xmlString))
+            schema = Template.objects.get(pk=schemaId)
+            if schema.ResultXsltDetailed:
+                shortXslt = etree.parse(BytesIO(schema.ResultXsltDetailed.content.encode('utf-8')))
+                shortTransform = etree.XSLT(shortXslt)
+                newdom = shortTransform(dom)
+            else:
+                newdom = transform(dom)
+    except Exception, e:
+        #We use the default one
         newdom = transform(dom)
-        xmlTree = str(newdom)
 
-    response_dict = {"XMLHolder": xmlTree}
-
+    result = str(newdom)
     context = RequestContext(request, {
-        'XMLHolder': xmlTree
+        'XMLHolder': result
     })
 
     if 'exploreCurrentTemplateID' not in request.session:

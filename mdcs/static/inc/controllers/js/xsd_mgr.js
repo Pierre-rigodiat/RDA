@@ -22,11 +22,27 @@ loadUploadManagerHandler = function()
     $('.version').on('click', manageVersions);
     $('.modules').on('click', manageModules);
     $('.exporters').on('click', manageExporters);
+    $('.resultXslt').on('click', manageResultXslt);
     $('.delete').on('click', deleteObject);
     $('.upload').on('click', uploadObject);
     $('.buckets').on('click', manageBuckets);
     console.log('END [loadUploadManagerHandler]');
 }
+
+/**
+ * Redirects to result XSLT management page
+ */
+manageResultXslt = function()
+{
+    var modelName = $(this).parent().siblings(':first').text();
+    var modelFilename = $(this).parent().siblings(':nth-child(2)').text();
+    var tdElement = $(this).parent();
+    var objectID = $(this).attr("objectid");
+    var objectType = $(this).attr("objectType");
+
+    window.location = "/admin/resultXslt?id=" + objectID
+}
+
 
 /**
  * Redirects to exporter management page
