@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "mdcs/extra/two_columns.html" %}
 {% load staticfiles %}
 
 {% comment %}
@@ -23,10 +23,6 @@
 
 {% block extrastyle %}
 <link rel="stylesheet" type="text/css" href="{% static 'resources/css/XMLTree.css' %}" media="screen" />
-{% endblock %}
-
-{% block extrahead %}
-<script src="{% static 'inc/controllers/js/XMLTree.js' %}"></script>
 {% endblock %}
 
 {% block title %}<h1>View Data</h1>{% endblock %}
@@ -85,12 +81,7 @@ so that we can better evaluate our system. You can also click the download butto
 </div>
 {% endblock %}
 
-{% block extra %}
-<script src="{% static 'inc/controllers/js/curate.js' %}"></script>
-<script>
-verifyTemplateIsSelectedViewData();
-</script>
-
+{% block popups %}
 <div id="dialog-downloaded-message" title="Download Complete" style="display:none;">
 <p></p>
   <p>
@@ -98,7 +89,6 @@ verifyTemplateIsSelectedViewData();
     XML File Downloaded.
   </p>
 </div>
-
 
 <div id="dialog-save-data-message" title="Save to Repository" style="display:none;">
 	Save data to the repository.
@@ -117,4 +107,12 @@ verifyTemplateIsSelectedViewData();
   </p>
 </div>
 
+{% endblock %}
+
+{% block extrajs %}
+<script src="{% static 'inc/controllers/js/XMLTree.js' %}"></script>
+<script src="{% static 'inc/controllers/js/curate.js' %}"></script>
+<script>
+verifyTemplateIsSelectedViewData();
+</script>
 {% endblock %}

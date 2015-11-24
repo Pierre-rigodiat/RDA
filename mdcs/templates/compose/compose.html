@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "mdcs/extra/two_columns.html" %}
 {% load staticfiles %}
 {% load auth_extras %}
 {% comment %}
@@ -133,7 +133,7 @@ on "Compose Template" to proceed.  It will automatically load the appropriate te
 </div>
 {% endblock %}
 
-{% block extra %}
+{% block popups %}
 <div id="dialog-message" title="Template Loaded" style="display:none;">
     <p></p>
     <p>
@@ -152,11 +152,14 @@ on "Compose Template" to proceed.  It will automatically load the appropriate te
     Please select a template first.
   </p>
 </div>
+{% endblock %}
 
+{% block extrajs %}
 <script src="{% static 'inc/controllers/js/composer.js' %}"></script>
 <script>
 	loadTemplateSelectionControllers();
 </script>
 {% endblock %}
+
 
 

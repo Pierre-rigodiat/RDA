@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "mdcs/extra/two_columns.html" %}
 {% load staticfiles %}
 {% load auth_extras %}
 
@@ -26,6 +26,7 @@
 <link rel="stylesheet" type="text/css" href="{% static 'resources/css/exploreTabs.css' %}"  media="screen" />
 <link rel="stylesheet" type="text/css" href="{% static 'resources/css/explore.css' %}"  media="screen" />
 {% endblock %}
+
 {% block title %}<h1>Select Fields</h1>{% endblock %}
 {% block description %}
 Select the fields that you want to use in your query by clicking on the checkboxes. Only the checked fields will be
@@ -91,12 +92,7 @@ available in the query screen. When you are done, please click on Perform Search
 </div>
 {% endblock %}
 
-{% block extra %}
-<script src="{% static 'inc/controllers/js/explore.js' %}"></script>
-<script>
-verifyTemplateIsSelectedCustomize();
-</script>
-
+{% block popups %}
 <div id="dialog-cleared-message" title="Fields Cleared" style="display:none;">
     <p></p>
     <p>
@@ -112,4 +108,11 @@ verifyTemplateIsSelectedCustomize();
         Form fields are saved.
     </p>
 </div>
+{% endblock %}
+
+{% block extrajs %}
+<script src="{% static 'inc/controllers/js/explore.js' %}"></script>
+<script>
+verifyTemplateIsSelectedCustomize();
+</script>
 {% endblock %}

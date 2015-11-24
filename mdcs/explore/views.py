@@ -45,7 +45,7 @@ from admin_mdcs.models import login_or_anonymous_perm_required
 
 @login_or_anonymous_perm_required(anonymous_permission=RIGHTS.explore_access, login_url='/login')
 def index(request):
-    template = loader.get_template('explore.html')
+    template = loader.get_template('explore/explore.html')
     currentTemplateVersions = []
     for tpl_version in TemplateVersion.objects():
         currentTemplateVersions.append(tpl_version.current)
@@ -73,7 +73,7 @@ def index(request):
 ################################################################################
 @login_or_anonymous_perm_required(anonymous_permission=RIGHTS.explore_access, login_url='/login')
 def explore_select_template(request):
-    template = loader.get_template('explore.html')
+    template = loader.get_template('explore/explore.html')
     context = RequestContext(request, {
         '': '',
     })
@@ -90,7 +90,7 @@ def explore_select_template(request):
 ################################################################################
 @login_or_anonymous_perm_required(anonymous_permission=RIGHTS.explore_access, login_url='/login')
 def explore_customize_template(request):
-    template = loader.get_template('explore_customize_template.html')
+    template = loader.get_template('explore/explore_customize_template.html')
     context = RequestContext(request, {
     })
     if 'exploreCurrentTemplateID' not in request.session:
@@ -110,7 +110,7 @@ def explore_customize_template(request):
 @login_or_anonymous_perm_required(anonymous_permission=RIGHTS.explore_access, login_url='/login')
 def explore_perform_search(request):
     try:
-        template = loader.get_template('explore_perform_search.html')
+        template = loader.get_template('explore/explore_perform_search.html')
         instances = Instance.objects()
         if 'HTTPS' in request.META['SERVER_PROTOCOL']:
             protocol = "https"
@@ -149,7 +149,7 @@ def explore_perform_search(request):
 ################################################################################
 @login_or_anonymous_perm_required(anonymous_permission=RIGHTS.explore_access, login_url='/login')
 def explore_results(request):
-    template = loader.get_template('explore_results.html')
+    template = loader.get_template('explore/explore_results.html')
     context = RequestContext(request, {
         '': '',
     })
@@ -180,7 +180,7 @@ def explore_all_results(request):
     json_instances = [Instance(name="Local", protocol=protocol, address=request.META['REMOTE_ADDR'], port=request.META['SERVER_PORT'], access_token="token", refresh_token="token").to_json()]
     request.session['instancesExplore'] = json_instances
 
-    template = loader.get_template('explore_results.html')
+    template = loader.get_template('explore/explore_results.html')
 
     context = RequestContext(request, {
         '': '',
@@ -223,7 +223,7 @@ def explore_all_versions_results(request):
     json_instances = [Instance(name="Local", protocol=protocol, address=request.META['REMOTE_ADDR'], port=request.META['SERVER_PORT'], access_token="token", refresh_token="token").to_json()]
     request.session['instancesExplore'] = json_instances
 
-    template = loader.get_template('explore_results.html')
+    template = loader.get_template('explore/explore_results.html')
 
     context = RequestContext(request, {
         '': '',
@@ -246,7 +246,7 @@ def explore_all_versions_results(request):
 def explore_detail_result(request) :
     result_id = request.GET['id']
 
-    template = loader.get_template('explore_detail_results.html')
+    template = loader.get_template('explore/explore_detail_results.html')
 
     xmlString = XMLdata.get(result_id)
     xmlString = xmltodict.unparse(xmlString['content'])
@@ -344,7 +344,7 @@ def start_export(request):
         request.session['listIdToExport'] = listId
         export_form = ExportForm(request.session['exploreCurrentTemplateID'])
         upload_xslt_Form = UploadXSLTForm(request.session['exploreCurrentTemplateID'])
-        template = loader.get_template('export_start.html')
+        template = loader.get_template('explore/export_start.html')
         context = Context({'export_form':export_form, 'upload_xslt_Form':upload_xslt_Form, 'nb_elts_exp': len(export_form.EXPORT_OPTIONS), 'nb_elts_xslt' : len(upload_xslt_Form.EXPORT_OPTIONS)})
 
         return HttpResponse(json.dumps({'template': template.render(context)}), content_type='application/javascript')

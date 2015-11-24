@@ -22,11 +22,11 @@
 <!DOCTYPE html>
 <html lang="{{ LANGUAGE_CODE|default:'en-us' }}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
 <head>
-	<meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+    <meta charset="UTF-8">
 	<meta name="description" content=""/>
 	<meta name="keywords" content="" />
 	<meta name="author" content="" />
-	{% block blockbots %}<meta name="robots" content="NONE,NOARCHIVE" />{% endblock %}
+	<meta name="robots" content="NONE,NOARCHIVE" />
 
 	<title>{{CUSTOM_TITLE}} Curation System</title>
 
@@ -43,8 +43,11 @@
     {% endif %}
 
     {% block extrastyle %}{% endblock %}
+</head>
+<body>
+    {% block body %}{% endblock %}
 
-	<!-- JQuery & JQuery UI -->
+    <!-- JQuery & JQuery UI -->
 	<script src="{% static 'resources/lib/jquery/jquery-1.11.1.min.js' %}"></script>
 	<script src="{% static 'resources/js/bootstrap.min.js' %}"></script>
     <script src="{% static 'resources/lib/jquery-ui/themes/smoothness/jquery-ui.js' %}"></script>
@@ -53,55 +56,6 @@
     <script type="text/javascript">
         window.__admin_media_prefix__ = "{% filter escapejs %}{% static "admin/" %}{% endfilter %}";
     </script>
-
-    {% block extrahead %}{% endblock %}
-</head>
-<body class="{% if is_popup %}popup {% endif %}{% block bodyclass %}{% endblock %}">
-<!-- Container -->
-<div id="container">
-	<!-- Header -->
-    {% if not is_popup %}
-        {% include 'base/header.html' %}
-        <div id="navigation-wrapper">
-            <div id="navigation-wrapper-2">
-                <div class="center-wrapper">
-                    <div id="navigation">
-                        {% block menu %}{% endblock %}
-                        <div class="clearer">&nbsp;</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div id="subnav-wrapper">
-            <div id="subnav-wrapper-2">
-                <div class="center-wrapper">
-                    <div id="subnav">
-                        {% block submenu %}{% endblock %}
-                        <div class="clearer">&nbsp;</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-	{% endif %}
-	<!-- END Header -->
-	
-	<!-- Content -->
-	<div id="content" class="{% block coltype %}colM{% endblock %}">
-		{% block pretitle %}{% endblock %}
-		<div id="content-wrapper">
-			<div class="center-wrapper">
-                {% block container %}{% endblock %}
-			</div>
-		</div>
-	</div>
-	
-	<!-- END Content -->
-	{% include 'base/footer.html' %}
-	{% include 'base/bottom.html' %}
-
-</div>
-<!-- END Container -->
-{% block extra %}{% endblock %}
+    {% block extrajs %}{% endblock %}
 </body>
 </html>

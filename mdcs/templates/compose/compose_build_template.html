@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "mdcs/extra/two_columns.html" %}
 {% load staticfiles %}
 
 {% comment %}
@@ -24,10 +24,6 @@
 {% block extrastyle %}
 <link rel="stylesheet" type="text/css" href="{% static 'resources/css/XMLTree.css' %}" media="screen" />
 <link rel="stylesheet" type="text/css" href="{% static 'resources/css/bucket.css' %}" media="screen" />
-{% endblock %}
-
-{% block extrahead %}
-<script src="{% static 'inc/controllers/js/composer.js' %}"></script>
 {% endblock %}
 
 {% block title %}<h1>Compose Template</h1>{% endblock %}
@@ -77,7 +73,7 @@ interact with that element.
 </div>
 {% endblock %}
 
-{% block extra %}
+{% block popups %}
 <div id="dialog-insert-element-sequence" title="Insert an Element" style="display:none;">
   <p>
     Please select the type of the element that you want to insert in the template.
@@ -167,7 +163,6 @@ interact with that element.
 	</p>
 </div>
 
-
 <div id="dialog-save-template" title="Save Template" style="display:none;">
 	<p>
 		Enter a name for this template.
@@ -216,10 +211,6 @@ Select the new element type:
  </div>
 </div>
 
-<script>
-verifyTemplateIsSelectedBuild();
-</script>
-
 <div id="dialog-new-template" title="New Template" style="display:none;">
 <p></p>
   <p>
@@ -234,4 +225,12 @@ verifyTemplateIsSelectedBuild();
   <div style="color:red;" id="newTemplateTypeNameError">
   </div>
 </div>
+{% endblock %}
+
+{% block extrajs %}
+<script src="{% static 'inc/controllers/js/composer.js' %}"></script>
+
+<script>
+verifyTemplateIsSelectedBuild();
+</script>
 {% endblock %}

@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "mdcs/extra/two_columns.html" %}
 {% load staticfiles %}
 
 {% comment %}
@@ -23,10 +23,6 @@
 
 {% block extrastyle %}
     <link rel="stylesheet" type="text/css" href="{% static 'resources/css/XMLTreeCurator.css' %}" media="screen" />
-{% endblock %}
-
-{% block extrahead %}
-    <script src="{% static 'inc/controllers/js/XMLTreeCurator.js' %}"></script>
 {% endblock %}
 
 {% block title %}<h1>Data Entry</h1>{% endblock %}
@@ -88,16 +84,7 @@
 </div>
 {% endblock %}
 
-		 
-
-{% block extra %}
-<script src="{% static 'inc/controllers/js/modules.js' %}"></script>
-<script src="{% static 'inc/controllers/js/curate.js' %}"></script>
-<script>
-verifyTemplateIsSelectedCurateEnterData();
-</script>
-
-
+{% block popups %}
 <div id="dialog-cleared-message" title="Fields Cleared" style="display:none;">
 <p></p>
   <p>
@@ -137,6 +124,14 @@ verifyTemplateIsSelectedCurateEnterData();
   <div id="saveErrorMessage">
   </div>
 </div>
+{% endblock %}
 
+{% block extrajs %}
+<script src="{% static 'inc/controllers/js/XMLTreeCurator.js' %}"></script>
+<script src="{% static 'inc/controllers/js/modules.js' %}"></script>
+<script src="{% static 'inc/controllers/js/curate.js' %}"></script>
+<script>
+verifyTemplateIsSelectedCurateEnterData();
+</script>
 {% endblock %}
 
