@@ -1,4 +1,4 @@
-{% extends "base_featured.html" %}
+{% extends "mdcs/extra/one_column.html" %}
 {% load i18n admin_urls admin_static admin_modify %}
 
 {% comment %}
@@ -20,11 +20,6 @@
 ################################################################################
 -->
 {% endcomment %}
-
-{% block extrahead %}{{ block.super }}
-<script type="text/javascript" src="{% url 'admin:jsi18n' %}"></script>
-{{ media }}
-{% endblock %}
 
 {% block menu %}{% include 'admin/menu/main.html' with active_tab='tab2' %}{% endblock %}
 {% block submenu %}{% include 'admin/menu/submenu/user.html' with active_tab='tab1' %}{% endblock %}
@@ -100,4 +95,10 @@
 </form>
 
 
+{% endblock %}
+
+{% block extrajs %}
+{{ block.super }}
+<script type="text/javascript" src="{% url 'admin:jsi18n' %}"></script>
+{{ media }}
 {% endblock %}

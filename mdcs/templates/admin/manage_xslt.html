@@ -1,4 +1,4 @@
-{% extends "base_featured.html" %}
+{% extends "mdcs/extra/one_column.html" %}
 {% load staticfiles %}
 {% comment %}
 <!--
@@ -21,9 +21,6 @@
 {% endcomment %}
 {% block extrastyle %}
 <link rel="stylesheet" type="text/css" href="{% static 'resources/css/style.add.css' %}" media="screen" />
-{% endblock %}
-{% block extrahead %}
-<script src="{% static 'inc/controllers/js/xslt_mgr.js' %}"></script>
 {% endblock %}
 
 {% block title %}<h1> XSLT Manager</h1>{% endblock %}
@@ -129,8 +126,7 @@
 
 {% endblock %}
 
-{% block extra %}
-
+{% block popups %}
 <div id="dialog-message" title="Upload XSLT" style="display: none;">
 	<form id="form_start" action="/admin/xml-schemas/manage-xslt" method="post" enctype="multipart/form-data">
 		{% csrf_token %}
@@ -182,7 +178,10 @@
     An XSLT with this filename already exists.
   </p>
 </div>
+{% endblock %}
 
+{% block extrajs %}
+<script src="{% static 'inc/controllers/js/xslt_mgr.js' %}"></script>
 <script>
 Init();
 </script>
