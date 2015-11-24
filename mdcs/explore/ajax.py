@@ -970,7 +970,19 @@ def get_results_by_instance(request):
                 for instanceResult in instanceResults:
                     results.append({'title':instanceResult['title'], 'content':xmltodict.unparse(instanceResult['content']),'id':str(instanceResult['_id'])})
                     dom = etree.fromstring(str(xmltodict.unparse(instanceResult['content']).replace('<?xml version="1.0" encoding="utf-8"?>\n',"")))
-                    newdom = transform(dom)
+                    #Check if a custom short result XSLT has to be used
+                    try:
+                        schema = Template.objects.get(pk=instanceResult['schema'])
+                        if schema.ResultXsltShort:
+                            shortXslt = etree.parse(BytesIO(schema.ResultXsltShort.content.encode('utf-8')))
+                            shortTransform = etree.XSLT(shortXslt)
+                            newdom = shortTransform(dom)
+                        else:
+                            newdom = transform(dom)
+                    except Exception, e:
+                        #We use the default one
+                        newdom = transform(dom)
+
                     context = Context({'id':str(instanceResult['_id']),
                                        'xml': str(newdom),
                                        'title': instanceResult['title'],
@@ -991,14 +1003,26 @@ def get_results_by_instance(request):
             result = r.text
             instanceResults = json.loads(result,object_pairs_hook=OrderedDict)
             if len(instanceResults) > 0:
+                template = loader.get_template('explore_result.html')
+                xsltPath = os.path.join(settings.SITE_ROOT, 'static', 'resources', 'xsl', 'xml2html.xsl')
+                xslt = etree.parse(xsltPath)
+                transform = etree.XSLT(xslt)
                 for instanceResult in instanceResults:
                     results.append({'title':instanceResult['title'], 'content':instanceResult['content'],'id':str(instanceResult['_id'])})
-                    xsltPath = os.path.join(settings.SITE_ROOT, 'static', 'resources', 'xsl', 'xml2html.xsl')
-                    xslt = etree.parse(xsltPath)
-                    transform = etree.XSLT(xslt)
                     dom = etree.fromstring(str(xmltodict.unparse(instanceResult['content']).replace('<?xml version="1.0" encoding="utf-8"?>\n',"")))
-                    newdom = transform(dom)
-                    template = loader.get_template('explore_result.html')
+                    #Check if a custom short result XSLT has to be used
+                    try:
+                        schema = Template.objects.get(pk=instanceResult['schema'])
+                        if schema.ResultXsltShort:
+                            shortXslt = etree.parse(BytesIO(schema.ResultXsltShort.content.encode('utf-8')))
+                            shortTransform = etree.XSLT(shortXslt)
+                            newdom = shortTransform(dom)
+                        else:
+                            newdom = transform(dom)
+                    except Exception, e:
+                        #We use the default one
+                        newdom = transform(dom)
+
                     context = Context({'id':str(instanceResult['_id']),
                                        'xml': str(newdom),
                                        'title': instanceResult['title']})

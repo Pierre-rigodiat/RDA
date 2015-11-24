@@ -40,6 +40,7 @@ displayImport = function()
   });
 }
 
+
 validateExport = function()
 {
     errors = ""
@@ -81,9 +82,15 @@ deleteXSLT = function(xslt_id)
  * AJAX call, deletes an XSLT File
  * @param bucket_id id of the bucket
  */
-delete_XSLT = function(xslt_id){
+delete_XSLT = function(elt){
+    var xslt_id = $(elt).attr("objectid");
+    var typeXSLT = $(elt).attr("typeXSLT");
+
+    var urlDelete = "/admin/xml-schemas/delete-xslt"
+    if (typeXSLT == "Result")
+        urlDelete = "/admin/xml-schemas/delete-result-xslt"
     $.ajax({
-        url : "/admin/xml-schemas/delete-xslt",
+        url : urlDelete,
         type : "POST",
         dataType: "json",
         data : {
@@ -114,6 +121,13 @@ enterKeyPressSubscription = function ()
             event.stopPropagation();
         }
     });
+
+    $('#id_result_name').keypress(function(event) {
+        if(event.which == $.ui.keyCode.ENTER){
+            event.preventDefault();
+            event.stopPropagation();
+        }
+    });
 }
 
 Init = function(){
@@ -133,8 +147,8 @@ editInformation = function(objectID)
 {
     var objectName = $(this).parent().siblings(':first').text();
     var objectID = $(this).attr("objectid");
+    var typeXSLT = $(this).attr("typeXSLT");
     $("#form_edit_errors").html("");
-
     $("#edit-name")[0].value = objectName;
 
 	$(function() {
@@ -149,7 +163,7 @@ editInformation = function(objectID)
                     }
                     else
                     {
-					    edit_information(objectID, newName);
+					    edit_information(objectID, newName, typeXSLT);
 					}
                 },
                 Cancel: function() {
@@ -166,9 +180,12 @@ editInformation = function(objectID)
  * @param objectID id of the object
  * @param newName new name of the object
  */
-edit_information = function(objectID, newName, newFilename, newAvailableForAll){
+edit_information = function(objectID, newName, typeXSLT){
+    var urlEdit = "/admin/xml-schemas/edit-xslt"
+    if (typeXSLT == "Result")
+        urlEdit = "/admin/xml-schemas/edit-result-xslt"
     $.ajax({
-        url : "/admin/xml-schemas/edit-xslt",
+        url : urlEdit,
         type : "POST",
         dataType: "json",
         data : {
@@ -184,19 +201,67 @@ edit_information = function(objectID, newName, newFilename, newAvailableForAll){
     });
 }
 
+/*********************/
+/** Result xslt Part */
+/*********************/
 
-/**
- * Display error message when bad edition of type
- */
-showErrorEditType = function(){
-	$(function() {
-        $( "#dialog-error-edit" ).dialog({
-            modal: true,
-            buttons: {
-			Ok: function() {
-                $( this ).dialog( "close" );
-	          },
-		    }
-        });
+
+displayResultImport = function()
+{
+ $(function() {
+    $("#form_result_start_errors").html("");
+    $( "#dialog-result-message" ).dialog({
+      modal: true,
+      width: 500,
+      buttons:
+    	  [
+           {
+               text: "Upload",
+               click: function() {
+                    if(validateResultExport())
+                    {
+                       var formData = new FormData($( "#form_result_start" )[0]);
+	            	   $.ajax({
+	            	        url: "/admin/xml-schemas/manage-result-xslt",
+	            	        type: 'POST',
+	            	        data: formData,
+	            	        cache: false,
+	            	        contentType: false,
+	            	        processData: false,
+	            	        async:false,
+	            	   		success: function(data){
+                                window.location = '/admin/xml-schemas/manage-xslt'
+	            	        },
+	            	        error:function(data){
+	            	        	$("#form_result_start_errors").html(data.responseText);
+	            	        },
+	            	    })
+	            	    ;
+                    }
+               }
+           }
+          ]
     });
+  });
 }
+
+
+validateResultExport = function()
+{
+    errors = ""
+    if ($( "#id_result_name" ).val().trim() == ""){
+        errors = "Please enter a name."
+    }
+	// check if an option has been selected
+    else if ($( "#id_result_xslt_file" ).val() == ""){
+        errors = "Please select an XSLT file."
+    }
+
+	if (errors != ""){
+		$("#form_result_start_errors").html(errors);
+		return (false);
+	}else{
+		return (true)
+	}
+}
+
