@@ -1,4 +1,4 @@
-{% extends "base_featured.html" %}
+{% extends "mdcs/extra/one_column.html" %}
 {% load staticfiles %}
 
 {% comment %}
@@ -24,9 +24,9 @@
 {% block extrastyle %}
 <link rel="stylesheet" type="text/css" href="{% static 'resources/css/fed_of_queries.css' %}" media="screen" />
 {% endblock %}
+
 {% block title %}<h1>Repositories</h1>{% endblock %}
 {% block menu %}{% include 'admin/menu/main.html' with active_tab='tab4' %}{% endblock %}
-
 
 {% block content%}
 <div class="right-side">
@@ -65,7 +65,7 @@
 {% endif %}
 {% endblock %}
 
-{% block extra %}
+{% block popups %}
 <div id="dialog-deleteinstance-message" title="Confirm Delete" style="display:none;">
 <p></p>
   <p>
@@ -81,7 +81,9 @@
 	<div id="edit_instance_error">
 	</div>
 </div>
+{% endblock %}
 
+{% block extrajs %}
 <script src="{% static 'inc/controllers/js/fed_of_queries.js' %}"></script>
 <script>
 	loadFedOfQueriesHandler();

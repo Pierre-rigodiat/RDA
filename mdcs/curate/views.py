@@ -42,7 +42,7 @@ from django.contrib.auth.decorators import login_required
 ################################################################################
 @login_required(login_url='/login')
 def index(request):
-    template = loader.get_template('curate.html')
+    template = loader.get_template('curate/curate.html')
     currentTemplateVersions = []
     for tpl_version in TemplateVersion.objects():
         currentTemplateVersions.append(tpl_version.current)
@@ -72,7 +72,7 @@ def index(request):
 ################################################################################
 @login_required(login_url='/login')
 def curate_select_template(request):
-    template = loader.get_template('curate.html')
+    template = loader.get_template('curate/curate.html')
     context = RequestContext(request, {
         '': '',
     })
@@ -91,7 +91,7 @@ def curate_select_template(request):
 @login_required(login_url='/login')
 def curate_enter_data(request):
     print "BEGIN curate_enter_data(request)"
-    template = loader.get_template('curate_enter_data.html')
+    template = loader.get_template('curate/curate_enter_data.html')
     context = RequestContext(request, {
         '': '',
     })
@@ -156,7 +156,7 @@ def curate_enter_data(request):
 ################################################################################
 @login_required(login_url='/login')
 def curate_view_data(request):
-    template = loader.get_template('curate_view_data.html')
+    template = loader.get_template('curate/curate_view_data.html')
 
     # get form data from the database
     form_data_id = request.session['curateFormData']
@@ -303,7 +303,7 @@ def start_curate(request):
             upload_form = UploadForm()
 #                 options_form = AdvancedOptionsForm()
 
-            template = loader.get_template('curate_start.html')
+            template = loader.get_template('curate/curate_start.html')
             context = Context({'new_form':new_form, 'open_form': open_form, 'upload_form': upload_form})#, 'options_form': options_form})
 
             return HttpResponse(json.dumps({'template': template.render(context)}), content_type='application/javascript')

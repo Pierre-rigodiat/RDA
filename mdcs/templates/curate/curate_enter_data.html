@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "mdcs/extra/two_columns.html" %}
 {% load staticfiles %}
 
 {% comment %}
@@ -25,10 +25,6 @@
     <link rel="stylesheet" type="text/css" href="{% static 'resources/css/XMLTreeCurator.css' %}" media="screen" />
 {% endblock %}
 
-{% block extrahead %}
-    <script src="{% static 'inc/controllers/js/XMLTreeCurator.js' %}"></script>
-{% endblock %}
-
 {% block title %}<h1>Data Entry</h1>{% endblock %}
 {% block description %}
     Here you can fill in the {{CUSTOM_DATA}} form. Once it is completed, you can go to 'View Data' to review what you have entered.
@@ -39,7 +35,7 @@
     Thus, an empty string of characters may not raise a validation error, but an empty number will.    
 {% endblock %}
 
-{% block menu %}{% include 'menu.html' with active_tab='tab2' %}{% endblock %}
+{% block menu %}{% include 'mdcs/menus/main.html' with active_tab='tab2' %}{% endblock %}
 {% block submenu %}
 <ul class="tabbed">
 	<li><a href="/curate/select-template">Select Template</a></li>
@@ -88,16 +84,7 @@
 </div>
 {% endblock %}
 
-		 
-
-{% block extra %}
-<script src="{% static 'inc/controllers/js/modules.js' %}"></script>
-<script src="{% static 'inc/controllers/js/curate.js' %}"></script>
-<script>
-verifyTemplateIsSelectedCurateEnterData();
-</script>
-
-
+{% block popups %}
 <div id="dialog-cleared-message" title="Fields Cleared" style="display:none;">
 <p></p>
   <p>
@@ -137,6 +124,14 @@ verifyTemplateIsSelectedCurateEnterData();
   <div id="saveErrorMessage">
   </div>
 </div>
+{% endblock %}
 
+{% block extrajs %}
+<script src="{% static 'inc/controllers/js/XMLTreeCurator.js' %}"></script>
+<script src="{% static 'inc/controllers/js/modules.js' %}"></script>
+<script src="{% static 'inc/controllers/js/curate.js' %}"></script>
+<script>
+verifyTemplateIsSelectedCurateEnterData();
+</script>
 {% endblock %}
 

@@ -1,4 +1,4 @@
-{% extends "base_featured.html" %}
+{% extends "mdcs/extra/one_column.html" %}
 {% load staticfiles %}
 
 {% comment %}
@@ -57,7 +57,7 @@
     {% endif %}
 {% endblock %}
 
-{% block extra %}
+{% block popups %}
 <div id="dialog-error-request" title="Error Request" style="display:none;">  
   <p>
   This request can't be accepted. Please check that the user does not already exists.
@@ -76,7 +76,9 @@
   User created with success.
   </p>
 </div>
+{% endblock %}
 
+{% block extrajs %}
 <script src="{% static 'inc/controllers/js/user_requests.js' %}"></script>
 <script>
 	loadUserRequestsHandler();

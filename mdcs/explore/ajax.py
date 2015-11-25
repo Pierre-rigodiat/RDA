@@ -963,7 +963,7 @@ def get_results_by_instance(request):
                         canDelete = True
                         canEdit = True
 
-                template = loader.get_template('explore_result.html')
+                template = loader.get_template('explore/explore_result.html')
                 xsltPath = os.path.join(settings.SITE_ROOT, 'static/resources/xsl/xml2html.xsl')
                 xslt = etree.parse(xsltPath)
                 transform = etree.XSLT(xslt)
