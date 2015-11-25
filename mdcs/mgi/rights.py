@@ -22,6 +22,7 @@ anonymous_group = "anonymous"
 #######################
 
 ### Compose Rights ###
+compose_content_type = "compose"
 compose_access = "compose_access"
 compose_save_template = "compose_save_template"
 compose_save_type = "compose_save_type"
@@ -29,12 +30,14 @@ compose_save_type = "compose_save_type"
 
 
 ### Curate Rights ###
+curate_content_type = "curate"
 curate_access = "curate_access"
 curate_view_data_save_repo = "curate_view_data_save_repo"
 ### End Curate Rights ###
 
 
 ### Explore Rights ###
+explore_content_type = "explore"
 explore_access = "explore_access"
 explore_save_query="explore_save_query"
 explore_delete_query="explore_delete_query"

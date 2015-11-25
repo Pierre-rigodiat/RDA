@@ -31,7 +31,7 @@ from explore.forms import *
 from exporter import get_exporter
 from io import BytesIO
 from exporter.builtin.models import XSLTExporter
-from admin_mdcs.models import login_or_anonymous_perm_required
+from admin_mdcs.models import permission_required
 
 ################################################################################
 #
@@ -44,7 +44,8 @@ from admin_mdcs.models import login_or_anonymous_perm_required
 #
 ################################################################################
 
-@login_or_anonymous_perm_required(anonymous_permission=RIGHTS.explore_access, login_url='/login')
+
+@permission_required(content_type=RIGHTS.explore_content_type, permission=RIGHTS.explore_access, login_url='/login')
 def index(request):
     template = loader.get_template('explore.html')
     currentTemplateVersions = []
@@ -72,7 +73,7 @@ def index(request):
 # Description:   Page that allows to select a template to start Exploring
 #
 ################################################################################
-@login_or_anonymous_perm_required(anonymous_permission=RIGHTS.explore_access, login_url='/login')
+@permission_required(content_type=RIGHTS.explore_content_type, permission=RIGHTS.explore_access, login_url='/login')
 def explore_select_template(request):
     template = loader.get_template('explore.html')
     context = RequestContext(request, {
@@ -89,7 +90,7 @@ def explore_select_template(request):
 # Description:   Page that allows to select fields being used during Exploration
 #
 ################################################################################
-@login_or_anonymous_perm_required(anonymous_permission=RIGHTS.explore_access, login_url='/login')
+@permission_required(content_type=RIGHTS.explore_content_type, permission=RIGHTS.explore_access, login_url='/login')
 def explore_customize_template(request):
     template = loader.get_template('explore_customize_template.html')
     context = RequestContext(request, {
@@ -108,7 +109,7 @@ def explore_customize_template(request):
 # Description:   Page that allows to submit queries
 #
 ################################################################################
-@login_or_anonymous_perm_required(anonymous_permission=RIGHTS.explore_access, login_url='/login')
+@permission_required(content_type=RIGHTS.explore_content_type, permission=RIGHTS.explore_access, login_url='/login')
 def explore_perform_search(request):
     try:
         template = loader.get_template('explore_perform_search.html')
@@ -148,7 +149,7 @@ def explore_perform_search(request):
 # Description:   Page that allows to see results from a query
 #
 ################################################################################
-@login_or_anonymous_perm_required(anonymous_permission=RIGHTS.explore_access, login_url='/login')
+@permission_required(content_type=RIGHTS.explore_content_type, permission=RIGHTS.explore_access, login_url='/login')
 def explore_results(request):
     template = loader.get_template('explore_results.html')
     context = RequestContext(request, {
@@ -168,7 +169,7 @@ def explore_results(request):
 # Description:   Page that allows to see all results from a template
 #
 ################################################################################
-@login_or_anonymous_perm_required(anonymous_permission=RIGHTS.explore_access, login_url='/login')
+@permission_required(content_type=RIGHTS.explore_content_type, permission=RIGHTS.explore_access, login_url='/login')
 def explore_all_results(request):
     template_id = request.GET['id']
 
@@ -200,7 +201,7 @@ def explore_all_results(request):
 # Description:   Page that allows to see all results from all versions of a template
 #
 ################################################################################
-@login_or_anonymous_perm_required(anonymous_permission=RIGHTS.explore_access, login_url='/login')
+@permission_required(content_type=RIGHTS.explore_content_type, permission=RIGHTS.explore_access, login_url='/login')
 def explore_all_versions_results(request):
     template_id = request.GET['id']
     template = Template.objects().get(pk=template_id)
@@ -243,7 +244,7 @@ def explore_all_versions_results(request):
 # Description:   Page that allows to see all selected detail result from a template
 #
 ################################################################################
-@login_or_anonymous_perm_required(anonymous_permission=RIGHTS.explore_access, login_url='/login')
+@permission_required(content_type=RIGHTS.explore_content_type, permission=RIGHTS.explore_access, login_url='/login')
 def explore_detail_result(request) :
     result_id = request.GET['id']
     template = loader.get_template('explore_detail_results.html')
@@ -289,7 +290,7 @@ def explore_detail_result(request) :
 # Description:   Page that allows to see all selected detail results from a template
 #
 ################################################################################
-@login_or_anonymous_perm_required(anonymous_permission=RIGHTS.explore_access, login_url='/login')
+@permission_required(content_type=RIGHTS.explore_content_type, permission=RIGHTS.explore_access, login_url='/login')
 def start_export(request):
     if request.method == 'POST':
         if 'exploreCurrentTemplateID' not in request.session:

@@ -29,7 +29,8 @@ from mgi.models import Template, TemplateVersion, XML2Download, FormData,\
     XMLdata, FormElement, XMLElement
 from curate.forms import NewForm, OpenForm, UploadForm, SaveDataForm
 from django.http.response import HttpResponseBadRequest
-from django.contrib.auth.decorators import login_required
+from admin_mdcs.models import permission_required
+import mgi.rights as RIGHTS
 
 ################################################################################
 #
@@ -40,7 +41,7 @@ from django.contrib.auth.decorators import login_required
 # Description:   Page that allows to select a template to start curating         
 #
 ################################################################################
-@login_required(login_url='/login')
+@permission_required(content_type=RIGHTS.curate_content_type, permission=RIGHTS.curate_access, login_url='/login')
 def index(request):
     template = loader.get_template('curate.html')
     currentTemplateVersions = []
@@ -70,7 +71,7 @@ def index(request):
 #
 #
 ################################################################################
-@login_required(login_url='/login')
+@permission_required(content_type=RIGHTS.curate_content_type, permission=RIGHTS.curate_access, login_url='/login')
 def curate_select_template(request):
     template = loader.get_template('curate.html')
     context = RequestContext(request, {
@@ -88,7 +89,7 @@ def curate_select_template(request):
 #
 #
 ################################################################################
-@login_required(login_url='/login')
+@permission_required(content_type=RIGHTS.curate_content_type, permission=RIGHTS.curate_access, login_url='/login')
 def curate_enter_data(request):
     print "BEGIN curate_enter_data(request)"
     template = loader.get_template('curate_enter_data.html')
@@ -154,7 +155,7 @@ def curate_enter_data(request):
 # Description:   Page that allows to view XML data to be curated
 #
 ################################################################################
-@login_required(login_url='/login')
+@permission_required(content_type=RIGHTS.curate_content_type, permission=RIGHTS.curate_access, login_url='/login')
 def curate_view_data(request):
     template = loader.get_template('curate_view_data.html')
 
@@ -183,7 +184,7 @@ def curate_view_data(request):
 #                Used when user wants to download the form / xml schema.
 #
 ################################################################################
-@login_required(login_url='/login')
+@permission_required(content_type=RIGHTS.curate_content_type, permission=RIGHTS.curate_access, login_url='/login')
 def curate_enter_data_downloadxsd(request):
     if 'currentTemplateID' not in request.session:
         return redirect('/curate/select-template')
@@ -212,7 +213,7 @@ def curate_enter_data_downloadxsd(request):
 #                Used when user wants to download the XML file.
 #
 ################################################################################
-@login_required(login_url='/login')
+@permission_required(content_type=RIGHTS.curate_content_type, permission=RIGHTS.curate_access, login_url='/login')
 def curate_view_data_downloadxml(request):
     if 'currentTemplateID' not in request.session:
         return redirect('/curate/select-template')
@@ -245,7 +246,7 @@ def curate_view_data_downloadxml(request):
 # Description:   Load forms to start curation
 #
 ################################################################################
-@login_required(login_url='/login')
+@permission_required(content_type=RIGHTS.curate_content_type, permission=RIGHTS.curate_access, login_url='/login')
 def start_curate(request):
     if 'currentTemplateID' not in request.session:
         return redirect('/curate/select-template')
@@ -319,7 +320,7 @@ def start_curate(request):
 #                
 #
 ################################################################################
-@login_required(login_url='/login')
+@permission_required(content_type=RIGHTS.curate_content_type, permission=RIGHTS.curate_access, login_url='/login')
 def save_xml_data_to_db(request):
     xmlString = request.session['xmlString']
     templateID = request.session['currentTemplateID']

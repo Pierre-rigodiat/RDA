@@ -23,6 +23,9 @@ from urlparse import urlparse
 from django.utils import six
 from django.core.exceptions import PermissionDenied
 import mgi.rights as RIGHTS
+from rest_framework.response import Response
+from rest_framework import status
+
 
 # Create your models here.
 def login_or_anonymous_perm_required(anonymous_permission, function=None, redirect_field_name=REDIRECT_FIELD_NAME, login_url=None):
@@ -55,19 +58,15 @@ def login_or_anonymous_perm_required(anonymous_permission, function=None, redire
     return _check_group
 
 
-def permission_required(perm, login_url=None, raise_exception=False, redirect_field_name=REDIRECT_FIELD_NAME):
+def permission_required(content_type, permission, login_url=None, raise_exception=False, redirect_field_name=REDIRECT_FIELD_NAME):
     def _check_group(view_func):
         @wraps(view_func)
         def wrapper(request, *args, **kwargs):
-            if isinstance(perm, six.string_types):
-                perms = (perm, )
-            else:
-                perms = perm
-
             if request.user.is_anonymous():
-                access = Group.objects.filter(Q(name=RIGHTS.anonymous_group) & Q(permissions__codename=perm))
+                access = Group.objects.filter(Q(name=RIGHTS.anonymous_group) & Q(permissions__codename=permission))
             else:
-                access = request.user.has_perms(perms)
+                prefixed_permission = "{!s}.{!s}".format(content_type, permission)
+                access = request.user.has_perm(prefixed_permission)
 
             if access:
                 return view_func(request, *args, **kwargs)
@@ -88,6 +87,44 @@ def permission_required(perm, login_url=None, raise_exception=False, redirect_fi
                     from django.contrib.auth.views import redirect_to_login
                     return redirect_to_login(
                         path, resolved_login_url, redirect_field_name)
+
+        return wrapper
+    return _check_group
+
+
+def api_staff_member_required():
+    def _check_group(view_func):
+        @wraps(view_func)
+        def wrapper(request, *args, **kwargs):
+            if request.user.is_staff:
+                return view_func(request, *args, **kwargs)
+            else:
+                content = {'message':'Only administrators can use this feature.'}
+                return Response(content, status=status.HTTP_401_UNAUTHORIZED)
+
+        return wrapper
+    return _check_group
+
+
+def api_permission_required(content_type, permission, raise_exception=False):
+    def _check_group(view_func):
+        @wraps(view_func)
+        def wrapper(request, *args, **kwargs):
+            if request.user.is_anonymous():
+                access = Group.objects.filter(Q(name=RIGHTS.anonymous_group) & Q(permissions__codename=permission))
+            else:
+                prefixed_permission = "{!s}.{!s}".format(content_type, permission)
+                access = request.user.has_perm(prefixed_permission)
+
+            if access:
+                return view_func(request, *args, **kwargs)
+            else:
+                # In case the 403 handler should be called raise the exception
+                if raise_exception:
+                    raise PermissionDenied
+                else:
+                    content = {'message':'You don\'t have enough rights to use this feature.'}
+                    return Response(content, status=status.HTTP_401_UNAUTHORIZED)
 
         return wrapper
     return _check_group

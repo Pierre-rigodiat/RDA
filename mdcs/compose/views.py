@@ -23,8 +23,8 @@ from django.shortcuts import redirect
 from django.core.servers.basehttp import FileWrapper
 from cStringIO import StringIO
 from mgi.models import Template, TemplateVersion, XML2Download, Type, TypeVersion, Bucket
-from django.contrib.auth.decorators import login_required
-
+from admin_mdcs.models import permission_required
+import mgi.rights as RIGHTS
 
 ################################################################################
 #
@@ -35,7 +35,7 @@ from django.contrib.auth.decorators import login_required
 # Description:   Page that allows to select a template to start composing         
 #
 ################################################################################
-@login_required(login_url='/login')
+@permission_required(content_type=RIGHTS.compose_content_type, permission=RIGHTS.compose_access, login_url='/login')
 def index(request):
     template = loader.get_template('compose.html')
     currentTemplateVersions = []
@@ -65,7 +65,7 @@ def index(request):
 # Description:   Page that allows to Compose the Template
 #
 ################################################################################
-@login_required(login_url='/login')
+@permission_required(content_type=RIGHTS.compose_content_type, permission=RIGHTS.compose_access, login_url='/login')
 def compose_build_template(request):
     template = loader.get_template('compose_build_template.html')
     # 1) user types: list of ids
@@ -110,7 +110,7 @@ def compose_build_template(request):
 #                Used when user wants to download the XML file.
 #
 ################################################################################
-@login_required(login_url='/login')
+@permission_required(content_type=RIGHTS.compose_content_type, permission=RIGHTS.compose_access, login_url='/login')
 def compose_downloadxsd(request):
     xml2downloadID = request.GET.get('id', None)
     if xml2downloadID is not None:
