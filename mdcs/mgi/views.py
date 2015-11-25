@@ -134,7 +134,7 @@ def logout_view(request):
 ################################################################################
 @login_required(login_url='/login')
 def my_profile(request):
-    template = loader.get_template('my_profile.html')
+    template = loader.get_template('profile/my_profile.html')
     context = RequestContext(request, {
         '': '',
     })
@@ -178,7 +178,7 @@ def my_profile_edit(request):
                 'email':user.email}
         form = EditProfileForm(data)
 
-    return render(request, 'my_profile_edit.html', {'form':form})
+    return render(request, 'profile/my_profile_edit.html', {'form':form})
 
 
 ################################################################################
@@ -208,7 +208,7 @@ def my_profile_change_password(request):
     else:
         form = ChangePasswordForm()
 
-    return render(request, 'my_profile_change_password.html', {'form':form})
+    return render(request, 'profile/my_profile_change_password.html', {'form':form})
 
 ################################################################################
 #
@@ -225,7 +225,7 @@ def my_profile_my_forms(request):
     detailed_forms = []
     for form in forms:
         detailed_forms.append({'form': form, 'template_name': Template.objects().get(pk=form.template).title})
-    return render(request, 'my_profile_my_forms.html', {'forms':detailed_forms})
+    return render(request, 'profile/my_profile_my_forms.html', {'forms':detailed_forms})
 
 
 ################################################################################

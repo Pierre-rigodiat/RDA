@@ -16,8 +16,9 @@
 ################################################################################
 -->
 
-{% extends "base.html" %}
+{% extends "mdcs/extra/two_columns.html" %}
 {% load staticfiles %}
+
 {% block extrastyle %}
 <link rel="stylesheet" type="text/css" href="{% static 'resources/css/style.add.css' %}"  media="screen" />	
 <link rel="stylesheet" type="text/css" href="{% static 'resources/css/queryResult.css' %}"  media="screen" />
@@ -25,15 +26,11 @@
 <link rel="stylesheet" type="text/css" href="{% static 'resources/css/XMLTree.css' %}"  media="screen" />
 {% endblock %}
 
-{% block extrahead %}
-<script src="{% static 'inc/controllers/js/XMLTree.js' %}"></script>
-{% endblock %}
-
 {% block title %}<h1>Query Results</h1>{% endblock %}
 
 {% block description %}From here you can view the results of your query.{% endblock %}
 
-{% block menu %}{% include 'menu.html' with active_tab='tab3' %}{% endblock %}
+{% block menu %}{% include 'mdcs/menus/main.html' with active_tab='tab3' %}{% endblock %}
 
 {% block submenu %}	
 <ul id="subnav-tab-1" class="tabbed">
@@ -96,8 +93,7 @@
 </div>
 {% endblock %}
 
-{% block extra %}
-
+{% block popups %}
 <div id="dialog-message" title="Export" style="display:none;">
 	<p>
 	  Please Choose one of the following export format:
@@ -112,10 +108,13 @@
 	</div>
 </div>
 
-
 <div id="dialog-delete-result" title="Delete Document" style="display:none;">
 Are you sure you want to delete this document?
 </div>
+{% endblock %}
+
+{% block extrajs %}
+<script src="{% static 'inc/controllers/js/XMLTree.js' %}"></script>
 
 <script src="{% static 'inc/controllers/js/explore.js' %}"></script>
 <script>

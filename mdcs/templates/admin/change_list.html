@@ -1,4 +1,4 @@
-{% extends "base_featured.html" %}
+{% extends "mdcs/extra/one_column.html" %}
 {% load i18n admin_urls admin_static admin_list %}
 
 {% comment %}
@@ -39,20 +39,6 @@
       #changelist table thead th:first-child {width: inherit}
     </style>
   {% endif %}
-{% endblock %}
-
-{% block extrahead %}
-{{ block.super }}
-{{ media.js }}
-{% if action_form %}{% if actions_on_top or actions_on_bottom %}
-<script type="text/javascript">
-(function($) {
-    $(document).ready(function($) {
-        $("tr input.action-select").actions();
-    });
-})(django.jQuery);
-</script>
-{% endif %}{% endif %}
 {% endblock %}
 
 {% block bodyclass %}change-list{% endblock %}
@@ -164,4 +150,18 @@
 		</div>
 
 	</div>
+{% endblock %}
+
+{% block extrajs %}
+{{ block.super }}
+{{ media.js }}
+{% if action_form %}{% if actions_on_top or actions_on_bottom %}
+<script type="text/javascript">
+(function($) {
+    $(document).ready(function($) {
+        $("tr input.action-select").actions();
+    });
+})(django.jQuery);
+</script>
+{% endif %}{% endif %}
 {% endblock %}

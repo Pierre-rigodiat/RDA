@@ -16,7 +16,7 @@
 ################################################################################
 -->
 
-{% extends "base.html" %}
+{% extends "mdcs/extra/two_columns.html" %}
 {% load staticfiles %}
 
 {% block extrastyle %}
@@ -29,7 +29,7 @@
 
 {% block description %}From here you can view the results of your query.{% endblock %}
 
-{% block menu %}{% include 'menu.html' with active_tab='tab3' %}{% endblock %}
+{% block menu %}{% include 'mdcs/menus/main.html' with active_tab='tab3' %}{% endblock %}
 
 {% block submenu %}	
 <ul id="subnav-tab-2" class="tabbed" style="display: none;">
@@ -50,7 +50,6 @@
 {% endblock %}
 
 {% block sidebar %}
-
 <div class="box">
 	<div class="box-title">{{CUSTOM_EXPLORE}}</div>
 	<div id="explore-tabs">
@@ -73,8 +72,4 @@
 	   </div>
 	</div>
 </div>
-{% endblock %}
-
-{% block extra %}
-
 {% endblock %}

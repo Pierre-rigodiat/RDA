@@ -37,7 +37,7 @@ import mgi.rights as RIGHTS
 ################################################################################
 @permission_required(content_type=RIGHTS.compose_content_type, permission=RIGHTS.compose_access, login_url='/login')
 def index(request):
-    template = loader.get_template('compose.html')
+    template = loader.get_template('compose/compose.html')
     currentTemplateVersions = []
     for tpl_version in TemplateVersion.objects():
         currentTemplateVersions.append(tpl_version.current)
@@ -67,7 +67,7 @@ def index(request):
 ################################################################################
 @permission_required(content_type=RIGHTS.compose_content_type, permission=RIGHTS.compose_access, login_url='/login')
 def compose_build_template(request):
-    template = loader.get_template('compose_build_template.html')
+    template = loader.get_template('compose/compose_build_template.html')
     # 1) user types: list of ids
     userTypes = []
     for user_type in Type.objects(user=str(request.user.id)):

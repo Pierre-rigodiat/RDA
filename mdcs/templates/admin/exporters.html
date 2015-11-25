@@ -1,4 +1,4 @@
-{% extends "base_featured.html" %}
+{% extends "mdcs/extra/one_column.html" %}
 {% load staticfiles %}
 {% load dictionary_extras %}
 
@@ -25,9 +25,6 @@
 {% block extrastyle %}
 <link rel="stylesheet" type="text/css" href="{% static 'resources/css/style.add.css' %}"  media="screen" />
 <link rel="stylesheet" type="text/css" href="{% static 'resources/css/exporters.css' %}" media="screen" />
-{% endblock %}
-{% block extrahead %}
-<script src="{% static 'inc/controllers/js/exporter_mgr.js' %}"></script>
 {% endblock %}
 
 {% block title %}
@@ -114,14 +111,17 @@ Select exporters you want to associate with the template.
 {% autoescape off %}
 {% endautoescape %}
 {% endblock %}
-{% block extra %}
 
+{% block popups %}
 <div id="dialog-save" title="Template" style="display:none;">
 	<p>
 		Template saved with success!
 	</p>
 </div>
+{% endblock %}
 
+{% block extrajs %}
+<script src="{% static 'inc/controllers/js/exporter_mgr.js' %}"></script>
 <script>
 Init();
 </script>

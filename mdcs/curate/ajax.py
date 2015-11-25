@@ -890,6 +890,12 @@ def generateExtension(request, element, xmlTree, namespace, fullPath="", edit_da
     
     removeAnnotations(element, namespace)
     
+#     # does it contain any attributes?
+#     complexTypeChildren = element.findall('{0}attribute'.format(namespace))
+#     if len(complexTypeChildren) > 0:
+#         for attribute in complexTypeChildren:
+#             formString += generateElement(request, attribute, xmlTree, namespace, fullPath=fullPath, edit_data_tree=edit_data_tree)
+    
     simpleType = element.find('{0}simpleType'.format(namespace))
     if simpleType is not None:
         formString += generateSimpleType(request, simpleType, xmlTree, namespace, fullPath=fullPath, edit_data_tree=edit_data_tree)
@@ -937,7 +943,7 @@ def generateComplexType(request, element, xmlTree, namespace, fullPath, edit_dat
         formString += generateSimpleContent(request, complexTypeChild, xmlTree, namespace, fullPath=fullPath, edit_data_tree=edit_data_tree)
         return formString
     
-    # does it contain a attributes?
+    # does it contain any attributes?
     complexTypeChildren = element.findall('{0}attribute'.format(namespace))
     if len(complexTypeChildren) > 0:
         for attribute in complexTypeChildren:

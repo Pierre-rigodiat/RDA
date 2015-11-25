@@ -19,7 +19,7 @@
 #
 ################################################################################
 -->
-{% extends "base.html" %}
+{% extends "mdcs/extra/two_columns.html" %}
 {% load staticfiles %}
 
 {% block extrastyle %}
@@ -29,10 +29,11 @@
 <link rel="stylesheet" type="text/css" href="{% static 'resources/css/XMLTree.css' %}" media="screen" />
 <link rel="stylesheet" type="text/css" href="{% static 'resources/css/queryResult.css' %}" media="screen" />
 {% endblock %}
+
 {% block title %}<h1>Detail Data</h1>{% endblock %}
 {% block description %}From here you can view the detail of the selected result.{% endblock %}
 
-{% block menu %}{% include 'menu.html' with active_tab='tab3' %}{% endblock %}
+{% block menu %}{% include 'mdcs/menus/main.html' with active_tab='tab3' %}{% endblock %}
 {% block submenu %}
 <ul id="subnav-tab-1" class="tabbed">
 	<li><a href="/explore/select-template">Select Template</a></li>
@@ -40,7 +41,6 @@
 	<li class="current_page_item"><a href="/explore/perform-search">Perform Search</a></li>
 </ul>
 {% endblock %}
-
 
 {% block content %}
 <div class="toolbar">
@@ -101,9 +101,6 @@
 </div>
 {% endblock %}
 
-{% block extra %}
+{% block extrajs %}
 <script src="{% static 'inc/controllers/js/explore.js' %}"></script>
-<script>
-
-</script>
 {% endblock %}
