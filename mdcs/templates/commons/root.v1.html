@@ -1,3 +1,6 @@
+{% load admin_static %}
+{% load staticfiles %}
+{% load i18n %}
 {% comment %}
 <!--
 ################################################################################
@@ -17,36 +20,24 @@
 ################################################################################
 -->
 {% endcomment %}
-{% load admin_static %}
-{% load staticfiles %}
-{% load i18n %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
-    <!--nmrr added-->
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <meta name="viewport" content="width=device-width, minimum-scale=1, maximum-scale=1" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!--nmrr added end-->
 
     <meta charset="UTF-8">
 	<meta name="description" content=""/>
-	<meta name="keywords" content="" />
-	<meta name="author" content="" />
-	<meta name="robots" content="NONE,NOARCHIVE" />
+	<meta name="keywords" content=""/>
+	<meta name="author" content=""/>
+	<meta name="robots" content="NONE,NOARCHIVE"/>
 
 	<title>{{CUSTOM_TITLE}} Curation System</title>
 
-    <!--nmrr added-->
-    <link rel="stylesheet" type="text/css" href="{% static 'css/reset.css' %}"  />
-    <link rel="stylesheet" type="text/css" href="{% static 'css/font-awesome.min.css">
-    <!--<link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}"/>-->
-    <!--nmrr added (end)-->
+    <link rel="stylesheet" type="text/css" href="{% static 'libs/reset/2.0/reset.css' %}"  />
+    <link rel="stylesheet" type="text/css" href="{% static 'libs/font-awesome/4.4.0/css/font-awesome.min.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'resources/css/lib/bootstrap.min.css' %}"  media="screen" />
-	<!--<link rel="stylesheet" type="text/css" href="{% static 'resources/css/style.css' %}" media="screen" />-->
-	<!--<link rel="stylesheet" type="text/css" href="{% static 'resources/css/style.add.css' %}" media="screen" />-->
 	<link rel="stylesheet" type="text/css" href="{% static 'resources/css/icons.css' %}" media="screen" />
     <link rel="stylesheet" type="text/css"
           href="{% static 'resources/lib/jquery-ui/themes/smoothness/jquery-ui.css' %}"/>
@@ -72,16 +63,16 @@
     <script src="{% static 'resources/lib/jquery-ui/themes/smoothness/jquery-ui.js' %}"></script>
     <script src="{% static 'inc/controllers/js/csrf.js' %}"></script>
 
-    <!--nmrr added-->
-    <script src="http://code.jquery.com/jquery-migrate-1.2.1.js"></script>
-    <script type="text/javascript" src="{% static 'js/superfish.js' %}"></script>
-    <script type="text/javascript" src="{% static 'js/slider.js' %}"></script>
-    <script type="text/javascript" src="{% static 'js/custom.js' %}"></script>
-    <!--nmrr added(end)-->
+    {% block themejs %}{% endblock %}
+    <!--<script src="http://code.jquery.com/jquery-migrate-1.2.1.js"></script>-->
+    <!--<script type="text/javascript" src="{% static 'js/superfish.js' %}"></script>-->
+    <!--<script type="text/javascript" src="{% static 'js/slider.js' %}"></script>-->
+    <!--<script type="text/javascript" src="{% static 'js/custom.js' %}"></script>-->
 
     <script type="text/javascript">
         window.__admin_media_prefix__ = "{% filter escapejs %}{% static "admin/" %}{% endfilter %}";
     </script>
+
     {% block extrajs %}{% endblock %}
 </body>
 </html>

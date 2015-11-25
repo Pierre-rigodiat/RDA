@@ -1,4 +1,4 @@
-{% extends 'commons/root.html' %}
+{% extends 'commons/root.v1.html' %}
 {% load staticfiles %}
 {% comment %}
 <!--
@@ -21,8 +21,8 @@
 {% endcomment %}
 
 {% block theme %}
-<link rel="stylesheet" type="text/css" href="{% static 'mdcs/style.css' %}"/>
-<link rel="stylesheet" type="text/css" href="{% static 'mdcs/style.add.css' %}"/>
+<link rel="stylesheet" type="text/css" href="{% static 'css/mdcs/style.css' %}"/>
+<link rel="stylesheet" type="text/css" href="{% static 'css/mdcs/style.add.css' %}"/>
 {% endblock %}
 
 {% block body %}

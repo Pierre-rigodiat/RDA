@@ -963,7 +963,7 @@ def get_results_by_instance(request):
                         canDelete = True
                         canEdit = True
 
-                template = loader.get_template('explore_result.html')
+                template = loader.get_template('explore/explore_result.html')
                 xsltPath = os.path.join(settings.SITE_ROOT, 'static/resources/xsl/xml2html.xsl')
                 xslt = etree.parse(xsltPath)
                 transform = etree.XSLT(xslt)
@@ -998,7 +998,7 @@ def get_results_by_instance(request):
                     transform = etree.XSLT(xslt)
                     dom = etree.fromstring(str(xmltodict.unparse(instanceResult['content']).replace('<?xml version="1.0" encoding="utf-8"?>\n',"")))
                     newdom = transform(dom)
-                    template = loader.get_template('explore_result.html')
+                    template = loader.get_template('explore/explore_result.html')
                     context = Context({'id':str(instanceResult['_id']),
                                        'xml': str(newdom),
                                        'title': instanceResult['title']})
