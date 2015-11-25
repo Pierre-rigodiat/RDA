@@ -1,4 +1,5 @@
 {% extends 'commons/root.html' %}
+{% load staticfiles %}
 {% comment %}
 <!--
 ################################################################################
@@ -18,6 +19,11 @@
 ################################################################################
 -->
 {% endcomment %}
+
+{% block theme %}
+<link rel="stylesheet" type="text/css" href="{% static 'mdcs/style.css' %}"/>
+<link rel="stylesheet" type="text/css" href="{% static 'mdcs/style.add.css' %}"/>
+{% endblock %}
 
 {% block body %}
 <div id="container">

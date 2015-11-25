@@ -18,10 +18,19 @@
 -->
 {% endcomment %}
 {% load admin_static %}
+{% load staticfiles %}
 {% load i18n %}
 <!DOCTYPE html>
-<html lang="{{ LANGUAGE_CODE|default:'en-us' }}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
+<html lang="en">
 <head>
+
+    <!--nmrr added-->
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, minimum-scale=1, maximum-scale=1" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!--nmrr added end-->
+
     <meta charset="UTF-8">
 	<meta name="description" content=""/>
 	<meta name="keywords" content="" />
@@ -30,19 +39,29 @@
 
 	<title>{{CUSTOM_TITLE}} Curation System</title>
 
+    <!--nmrr added-->
+    <link rel="stylesheet" type="text/css" href="{% static 'css/reset.css' %}"  />
+    <link rel="stylesheet" type="text/css" href="{% static 'css/font-awesome.min.css">
+    <!--<link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}"/>-->
+    <!--nmrr added (end)-->
     <link rel="stylesheet" type="text/css" href="{% static 'resources/css/lib/bootstrap.min.css' %}"  media="screen" />
-	<link rel="stylesheet" type="text/css" href="{% static 'resources/css/style.css' %}" media="screen" />
-	<link rel="stylesheet" type="text/css" href="{% static 'resources/css/style.add.css' %}" media="screen" />
+	<!--<link rel="stylesheet" type="text/css" href="{% static 'resources/css/style.css' %}" media="screen" />-->
+	<!--<link rel="stylesheet" type="text/css" href="{% static 'resources/css/style.add.css' %}" media="screen" />-->
 	<link rel="stylesheet" type="text/css" href="{% static 'resources/css/icons.css' %}" media="screen" />
     <link rel="stylesheet" type="text/css"
           href="{% static 'resources/lib/jquery-ui/themes/smoothness/jquery-ui.css' %}"/>
 
-    {% if LANGUAGE_BIDI %}
-    <link rel="stylesheet" type="text/css"
-          href="{% block stylesheet_rtl %}{% static 'admin/css/rtl.css' %}{% endblock %}"/>
-    {% endif %}
-
+    {% block theme %}{% endblock %}
     {% block extrastyle %}{% endblock %}
+
+    <!--nmrr added-->
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!--nmrr added end-->
 </head>
 <body>
     {% block body %}{% endblock %}
@@ -52,6 +71,13 @@
 	<script src="{% static 'resources/js/bootstrap.min.js' %}"></script>
     <script src="{% static 'resources/lib/jquery-ui/themes/smoothness/jquery-ui.js' %}"></script>
     <script src="{% static 'inc/controllers/js/csrf.js' %}"></script>
+
+    <!--nmrr added-->
+    <script src="http://code.jquery.com/jquery-migrate-1.2.1.js"></script>
+    <script type="text/javascript" src="{% static 'js/superfish.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/slider.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/custom.js' %}"></script>
+    <!--nmrr added(end)-->
 
     <script type="text/javascript">
         window.__admin_media_prefix__ = "{% filter escapejs %}{% static "admin/" %}{% endfilter %}";
