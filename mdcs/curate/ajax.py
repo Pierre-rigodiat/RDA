@@ -2067,7 +2067,7 @@ def generateForm(request):
             # set the parser
             etree.set_default_parser(parser=clean_parser)
             # load the XML tree from the text
-            edit_data_tree = etree.XML(str(form_data.xml_data))
+            edit_data_tree = etree.XML(str(form_data.xml_data.encode('utf-8')))
         else: #no data found, not editing
             request.session['curate_edit'] = False
             

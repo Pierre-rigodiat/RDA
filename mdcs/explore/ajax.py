@@ -971,7 +971,8 @@ def get_results_by_instance(request):
                 transform = etree.XSLT(xslt)
                 for instanceResult in instanceResults:
                     results.append({'title':instanceResult['title'], 'content':xmltodict.unparse(instanceResult['content']),'id':str(instanceResult['_id'])})
-                    dom = etree.fromstring(str(xmltodict.unparse(instanceResult['content']).replace('<?xml version="1.0" encoding="utf-8"?>\n',"")))
+                    #dom = etree.fromstring(str(xmltodict.unparse(instanceResult['content']).replace('<?xml version="1.0" encoding="utf-8"?>\n',"")))
+                    dom = etree.XML(str(xmltodict.unparse(instanceResult['content']).encode('utf-8')))
                     #Check if a custom short result XSLT has to be used
                     try:
                         schema = Template.objects.get(pk=instanceResult['schema'])
@@ -1011,7 +1012,8 @@ def get_results_by_instance(request):
                 transform = etree.XSLT(xslt)
                 for instanceResult in instanceResults:
                     results.append({'title':instanceResult['title'], 'content':instanceResult['content'],'id':str(instanceResult['_id'])})
-                    dom = etree.fromstring(str(xmltodict.unparse(instanceResult['content']).replace('<?xml version="1.0" encoding="utf-8"?>\n',"")))
+                    #dom = etree.fromstring(str(xmltodict.unparse(instanceResult['content']).replace('<?xml version="1.0" encoding="utf-8"?>\n',"")))
+                    dom = etree.XML(str(xmltodict.unparse(instanceResult['content']).encode('utf-8')))
                     #Check if a custom short result XSLT has to be used
                     try:
                         schema = Template.objects.get(pk=instanceResult['schema'])
