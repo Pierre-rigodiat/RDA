@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "mdcs/extra/two_columns.html" %}
 {% load staticfiles %}
 {% load auth_extras %}
 {% comment %}
@@ -33,7 +33,7 @@ Select a template from the following table. Once you make your selection, click 
 automatically load the appropriate form and display it on the next page.
 {% endblock %}
 
-{% block menu %}{% include 'menu.html' with active_tab='tab3' %}{% endblock %}
+{% block menu %}{% include 'mdcs/menus/main.html' with active_tab='tab3' %}{% endblock %}
 
 {% block submenu %}	
 <ul id="subnav-tab-1" class="tabbed">
@@ -166,11 +166,7 @@ automatically load the appropriate form and display it on the next page.
 </div>
 {% endblock %}
 
-{% block extra %}
-<script src="{% static 'inc/controllers/js/explore.js' %}"></script>
-<script>
-    loadTemplateSelectionControllers();
-</script>
+{% block popups %}
 <div id="dialog-message" title="Template Loaded" style="display:none;">
     <p></p>
     <p>
@@ -187,5 +183,12 @@ automatically load the appropriate form and display it on the next page.
         Please select a template first.
     </p>
 </div>
+{% endblock %}
+
+{% block extrajs %}
+<script src="{% static 'inc/controllers/js/explore.js' %}"></script>
+<script>
+    loadTemplateSelectionControllers();
+</script>
 {% endblock %}
 

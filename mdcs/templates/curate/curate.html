@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "mdcs/extra/two_columns.html" %}
 {% load staticfiles %}
 {% load auth_extras %}
 {% comment %}
@@ -28,7 +28,7 @@ Select a template from the following table. Once you make your selection, start 
 automatically load the appropriate form and display it on the next page.
 {% endblock %}
 
-{% block menu %}{% include 'menu.html' with active_tab='tab2' %}{% endblock %}
+{% block menu %}{% include 'mdcs/menus/main.html' with active_tab='tab2' %}{% endblock %}
 {% block submenu %}
 <ul class="tabbed">
   <li class="current_page_item"><a href="/curate/select-template">Select Template</a></li>
@@ -130,7 +130,7 @@ automatically load the appropriate form and display it on the next page.
 {% endblock %}
 
 
-{% block extra %}
+{% block popups %}
 <div id="dialog-message" title="Template Loaded" style="display:none;">
 	<p>
 	  Please choose one of the following options to start curating data: 
@@ -164,7 +164,10 @@ automatically load the appropriate form and display it on the next page.
     Please select a template first.
   </p>
 </div>
+{% endblock %}
 
+
+{% block extrajs %}
 <script src="{% static 'inc/controllers/js/curate.js' %}"></script>
 <script>
     loadTemplateSelectionControllers();

@@ -1,4 +1,4 @@
-{% extends "base_featured.html" %}
+{% extends "mdcs/extra/one_column.html" %}
 {% load staticfiles %}
 
 {% comment %}
@@ -22,7 +22,7 @@
 {% endcomment %}
 
 {% block title %}<h1>Login</h1>{% endblock %}
-{% block menu %}{% include 'menu.html' with active_tab='login' %}{% endblock %}
+{% block menu %}{% include 'mdcs/menus/main.html' with active_tab='login' %}{% endblock %}
 
 {% block content %}
 <div style="margin-left:20px;">

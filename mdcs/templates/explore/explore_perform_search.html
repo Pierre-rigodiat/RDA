@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "mdcs/extra/two_columns.html" %}
 {% load staticfiles %}
 {% load auth_extras %}
 
@@ -55,7 +55,7 @@
     {%endif%}
 {% endblock %}
 
-{% block menu %}{% include 'menu.html' with active_tab='tab3' %}{% endblock %}
+{% block menu %}{% include 'mdcs/menus/main.html' with active_tab='tab3' %}{% endblock %}
 
 {% block submenu %}	
 <ul id="subnav-tab-1" class="tabbed">
@@ -213,12 +213,7 @@
 </div>
 {% endblock %} 
 
-{% block extra %}
-<script src="{% static 'inc/controllers/js/explore.js' %}"></script>
-<script>
-get_custom_form();
-</script>
-
+{% block popups %}
 <div id="dialog-errors-message" title="Errors" style="display:none;">
 <p></p>
   <p id="listErrors">
@@ -268,4 +263,11 @@ get_custom_form();
 	No instance selected. Please, select one or more instances in the section Repositories.
 	</p>
 </div>
+{% endblock %}
+
+{% block extrajs %}
+<script src="{% static 'inc/controllers/js/explore.js' %}"></script>
+<script>
+get_custom_form();
+</script>
 {% endblock %}

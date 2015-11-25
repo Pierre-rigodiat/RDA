@@ -1,4 +1,4 @@
-{% extends "base_featured.html" %}
+{% extends "mdcs/extra/one_column.html" %}
 {% load staticfiles %}
 {% load auth_extras %}
 {% comment %}
@@ -21,7 +21,7 @@
 -->
 {% endcomment %}
 
-{% block menu %}{% include 'menu.html' with active_tab='tab1' %}{% endblock %}
+{% block menu %}{% include 'mdcs/menus/main.html' with active_tab='tab1' %}{% endblock %}
 
 {% block title %}	
 <div class="left" style="width: 400px">		
