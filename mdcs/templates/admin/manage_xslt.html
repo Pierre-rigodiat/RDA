@@ -61,8 +61,8 @@
 			<label for="{{object.id}}"></label>
 	</td>
     <td>
-    	<div class="icon legend edit" objectid="{{ object.id }}">Edit</div>
-    	<div class="icon legend delete" onclick="deleteXSLT('{{ object.id }}')">Delete</div>
+    	<div class="icon legend edit" objectid="{{ object.id }}" typeXSLT="Exporter">Edit</div>
+    	<div class="icon legend delete" objectid="{{ object.id }}" typeXSLT="Exporter" onclick="deleteXSLT(this)">Delete</div>
 	</td>
   </tr>
 
@@ -72,7 +72,7 @@
 
 {% else %}
 <br>
-	There are currently no Exporter XSLT uploaded.  Please click "Upload XSLT" to the right to add XSLT files.
+	There are currently no Exporter XSLT uploaded.  Please click "Upload XSLT" to the right to add Exporter XSLT files.
 	<br>
 	<br>
 {% endif %}
@@ -81,34 +81,25 @@
 <div class="clearer">&nbsp;</div>
 <div class="right-side">
 <span class="ctx_menu">
-		<div class="icon legend long upload" onclick="displayImport();">​Upload XSLT​</div>​
+		<div class="icon legend long upload" onclick="displayResultImport();">​Upload XSLT​</div>​
 </span>
 </div>
-{% if xslt_files %}
+{% if result_xslt_files %}
 <table class="data-table">
   <tr>
   	<th>XSLT name</th>
     <th>Filename</th>
-    <th>All templates</th>
     <th>Actions</th>
   </tr>
 
-{% for object in xslt_fileds %}
+{% for object in result_xslt_files %}
   {% cycle 'even' '' as rowcolors silent %}
   <tr class="{{ rowcolors }}">
     <td>{{ object.name }}</td>
     <td>{{ object.filename }}</td>
-    <td id="ButtonSet{{object.id}}">
-			{% if object.available_for_all %}
-				<input id="{{object.id}}" class="cmn-toggle cmn-toggle-round" disabled="True" type="checkbox" checked >
-			{% else %}
-				<input id="{{object.id}}" class="cmn-toggle cmn-toggle-round" type="checkbox" disabled="True">
-			{% endif %}
-			<label for="{{object.id}}"></label>
-	</td>
     <td>
-    	<div class="icon legend edit" objectid="{{ object.id }}">Edit</div>
-    	<div class="icon legend delete" onclick="deleteXSLT('{{ object.id }}')">Delete</div>
+    	<div class="icon legend edit" objectid="{{ object.id }}" typeXSLT="Result">Edit</div>
+    	<div class="icon legend delete" objectid="{{ object.id }}" typeXSLT="Result" onclick="deleteXSLT(this)">Delete</div>
 	</td>
   </tr>
 
@@ -118,7 +109,7 @@
 
 {% else %}
 <br>
-	There are currently no Result XSLT uploaded.  Please click "Upload XSLT" to the right to add XSLT files.
+	There are currently no Result XSLT uploaded.  Please click "Upload XSLT" to the right to add Result XSLT files.
 	<br>
 	<br>
 {% endif %}
@@ -127,7 +118,7 @@
 {% endblock %}
 
 {% block popups %}
-<div id="dialog-message" title="Upload XSLT" style="display: none;">
+<div id="dialog-message" title="Upload Exporter XSLT" style="display: none;">
 	<form id="form_start" action="/admin/xml-schemas/manage-xslt" method="post" enctype="multipart/form-data">
 		{% csrf_token %}
 		<table>
@@ -147,6 +138,26 @@
 		<div id="form_start_current"></div>
 	</form>
 	<div id="form_start_errors" style="color:red;">
+	</div>
+</div>
+
+
+<div id="dialog-result-message" title="Upload Result XSLT" style="display: none;">
+	<form id="form_result_start" action="/admin/xml-schemas/manage-result-xslt" method="post" enctype="multipart/form-data">
+		{% csrf_token %}
+		<table>
+			<tr>
+				<td>{{upload_result_xslt_Form.result_name.label}}</td>
+				<td>{{upload_result_xslt_Form.result_name}}</td>
+			</tr>
+			<tr>
+				<td>{{upload_result_xslt_Form.result_xslt_file.label}}</td>
+				<td>{{upload_result_xslt_Form.result_xslt_file}}</td>
+			</tr>
+		</table>
+		<div id="form_result_start_current"></div>
+	</form>
+	<div id="form_result_start_errors" style="color:red;">
 	</div>
 </div>
 
