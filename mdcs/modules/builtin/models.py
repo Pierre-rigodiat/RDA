@@ -169,9 +169,10 @@ class CheckboxesModule(Module):
         template = os.path.join(TEMPLATES_PATH, 'checkboxes.html')
         checkboxes_html = ""
 
-        for key, val in self.options.items():
-            checkboxes_html += " <input type='checkbox' value='" + key + "'> " + val
+        for key, val in self.options.items():            
+            checkboxes_html += "<span style='white-space:no-wrap;'><input type='checkbox' value='" + key + "'/> " + val+" </span>"
 
+        
         params = {"options": checkboxes_html}
 
         if self.label is not None:
