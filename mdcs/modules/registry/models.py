@@ -2,7 +2,7 @@ from modules.builtin.models import CheckboxesModule
 from modules.models import Module
 from django.conf import settings
 import os
-from forms import NamePIDForm
+from forms import NamePIDForm, DateForm
 import lxml.etree as etree
 from django.template import Context, Template
 
@@ -65,8 +65,9 @@ class RegistryCheckboxesModule(CheckboxesModule):
     
 class NamePIDModule(Module):
     
-    def __init__(self):
-        Module.__init__(self)
+    def __init__(self, xml_tag):
+        self.xml_tag = xml_tag
+        Module.__init__(self, scripts=[os.path.join(SCRIPTS_PATH, 'namepid.js')])
 
     def _get_module(self, request):
         with open(os.path.join(TEMPLATES_PATH, 'name_pid.html'), 'r') as template_file:
@@ -85,10 +86,63 @@ class NamePIDModule(Module):
 
 
     def _post_display(self, request):
+        form = NamePIDForm(request.POST)
+        if not form.is_valid():
+            return '<p style="color:red;">Entered values are not correct.</p>'
         return ''
 
 
     def _post_result(self, request):
+        result_xml = ''
+        
+        form = NamePIDForm(request.POST)
+        if form.is_valid():
+            if 'name' in request.POST and request.POST['name'] != '':
+                role = ' pid="'+ request.POST['pid'] +'"' if 'pid' in request.POST else ''
+                return '<' + self.xml_tag + role + '>' +  request.POST['name'] + '</' + self.xml_tag + '>'
+            
+        return result_xml
+
+
+  
+class RelevantDateModule(Module):
+    
+    def __init__(self, xml_tag):
+        self.xml_tag = xml_tag
+        Module.__init__(self, scripts=[os.path.join(SCRIPTS_PATH, 'relevantdate.js')])
+
+
+    def _get_module(self, request):
+        with open(os.path.join(TEMPLATES_PATH, 'relevant_date.html'), 'r') as template_file:
+            template_content = template_file.read()    
+            template = Template(template_content)
+            context = Context({'form': DateForm()})
+            return template.render(context)        
+
+
+    def _get_display(self, request):
         return ''
 
+
+    def _get_result(self, request):
+        return ''
+
+
+    def _post_display(self, request):
+        form = DateForm(request.POST)
+        if not form.is_valid():
+            return '<p style="color:red;">Entered values are not correct.</p>'
+        return ''
+
+
+    def _post_result(self, request):
+        result_xml = ''
+        
+        form = DateForm(request.POST)
+        if form.is_valid():
+            if 'date' in request.POST and request.POST['date'] != '':
+                role = ' role="'+ request.POST['role'] +'"' if 'role' in request.POST else ''
+                return '<' + self.xml_tag + role + '>' +  request.POST['date'] + '</' + self.xml_tag + '>'
+            
+        return result_xml
     
