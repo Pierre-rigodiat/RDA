@@ -269,11 +269,21 @@ validateXML = function()
 	
     xmlString = generateXMLString (rootElement);
     
-    $("input").each(function(){
+    $("input:text").each(function(){
 	    $(this).attr("value", $(this).val());
 	});
 	$('select option').each(function(){ this.defaultSelected = this.selected; });
+	$("input:checkbox:not(:checked)").each(function(){
+	    
+	    $(this).removeAttr("checked");
+	});
+	$("input:checkbox:checked").each(function(){
+    
+	    $(this).attr("checked", true);
+	});
 
+
+	
     xsdForm = $('#xsdForm').html();
     validate_xml_data(xmlString, xsdForm);
 }
