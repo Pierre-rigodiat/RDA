@@ -1047,11 +1047,13 @@ def generateModule(request, element, namespace, xsd_xpath=None, xml_xpath=None, 
             view = get_module_view(url)
 
             # build a request to send to the module to initialize it
-            mod_req = HttpRequest()
+            mod_req = request
             mod_req.method = 'GET'
             
             mod_req.GET = {
                 'url': url,
+                'xsd_xpath': xsd_xpath,
+                'xml_xpath': xml_xpath,
             }
 
             # if the loaded doc has data, send them to the module for initialization
@@ -1670,6 +1672,8 @@ def generate_absent(request):
         generated_element = html.fragment_fromstring(formString)
         if generated_element.tag == "ul":
             currentElement.append(generated_element)
+        elif generated_element.tag == "div":
+            currentElement.insert(3, generated_element)
         else:
             currentElement.insert(0, generated_element)
     except:

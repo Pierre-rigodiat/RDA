@@ -1,17 +1,17 @@
 $('body').on('click', '.mod_checkboxes input:checkbox', function(event) {
-	$checkboxes = $(this).parent();
-	
+	$checkboxes = $(this).closest('.mod_checkboxes');
+	console.log($checkboxes);
 	var values = [];
-	$checkboxes.children("input:checked").each(function() {
+	$checkboxes.find("input:checked").each(function() {
 		  values.push($(this).val());
 	});
 
 	
 	// Collect data
     var data = {
-        'data': values
+        'data[]': values
     }
 
-    var module = $(this).parent().parent().parent()
+    var module = $checkboxes.parent().parent();
     saveModuleData(module, data);
 });
