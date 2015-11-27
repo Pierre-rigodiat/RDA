@@ -5,6 +5,7 @@ urlpatterns = patterns('',
     url(r'^curator/', include('modules.curator.urls')),
     url(r'^diffusion/', include('modules.diffusion.urls')),    
     url(r'^examples/', include('modules.examples.urls')),
+    url(r'^registry/', include('modules.registry.urls')),
 )
 
 excluded = ['load_resources']
