@@ -698,7 +698,7 @@ def add_schema(request):
 # 
 ################################################################################
 @api_view(['GET'])
-@api_permission_required(RIGHTS.explore_content_type, RIGHTS.explore_access)
+@api_staff_member_required()
 def select_schema(request):
     """
     GET http://localhost/rest/templates/select?param1=value1&param2=value2
@@ -799,7 +799,7 @@ def select_schema(request):
 # 
 ################################################################################
 @api_view(['GET'])
-@api_permission_required(RIGHTS.explore_access, RIGHTS.explore_access)
+@api_staff_member_required()
 def select_all_schemas(request):
     """
     GET http://localhost/rest/templates/select/all
@@ -837,7 +837,7 @@ def select_all_schemas_versions(request):
 # 
 ################################################################################
 @api_view(['GET'])
-@api_permission_required(RIGHTS.curate_content_type, RIGHTS.curate_access)
+@api_staff_member_required()
 def current_template_version(request):
     """
     GET http://localhost/rest/templates/versions/current?id=IdToBeCurrent
@@ -1497,7 +1497,7 @@ def restore_type(request):
 # 
 ################################################################################
 @api_view(['GET'])
-@api_permission_required(RIGHTS.explore_content_type, RIGHTS.explore_access)
+@api_staff_member_required()
 def select_all_repositories(request):
     """
     GET http://localhost/rest/repositories/select/all
@@ -1516,7 +1516,7 @@ def select_all_repositories(request):
 # 
 ################################################################################
 @api_view(['GET'])
-@api_permission_required(RIGHTS.explore_content_type, RIGHTS.explore_access)
+@api_staff_member_required()
 def select_repository(request):
     """
     GET http://localhost/rest/repositories/select?param1=value1&param2=value2
