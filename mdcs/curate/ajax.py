@@ -1242,6 +1242,7 @@ def generateElement(request, element, xmlTree, namespace, choiceInfo=None, fullP
     else:
         formString += "<ul>"
     
+
     elementType = getElementType(element, xmlTree, namespace, defaultPrefix)
     
     for x in range (0,int(nbOccurrences)): 
@@ -1268,6 +1269,8 @@ def generateElement(request, element, xmlTree, namespace, choiceInfo=None, fullP
             # if module is present, replace default input by module       
             if has_module:
                 formString += generateModule(request, element, namespace, xsd_xpath, fullPath+'['+ str(x+1) +']', edit_data_tree=edit_data_tree)
+                # block maxOccurs to one, the module should take care of occurrences at this level
+                form_element.xml_element.maxOccurs = 1
             else: # generate the type
                 if elementType is None: # no complex/simple type            
                     defaultValue = ""
@@ -1589,6 +1592,8 @@ def generateElement_absent(request, element, xmlDocTree, form_element):
 
     if has_module:
         formString += generateModule(request, element, namespace, form_element.xml_element.xsd_xpath, form_element.xml_xpath)
+        # block maxOccurs to one, the module should take care of occurrences at this level
+        form_element.xml_element.maxOccurs = 1
     else:
         # render the type
         if elementType is None: # no complex/simple type            
@@ -1684,7 +1689,7 @@ def generate_absent(request):
     # update the number of elements in database
     xml_element.nbOccurs = 1
     xml_element.save()
-
+    
     if tag == "element":
         # updates buttons
         addButton = False
