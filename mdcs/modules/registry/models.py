@@ -33,10 +33,8 @@ class RegistryCheckboxesModule(CheckboxesModule):
         
         # get the element where the module is attached
         xsd_element = xmlDocTree.xpath(request.GET['xsd_xpath'], namespaces=xpath_namespaces)[0]
-        # get the child element
-        child_element = xsd_element.find('.//{0}element'.format(namespace))
-        child_type = child_element.attrib['type']
-        xpath_type = "./{0}simpleType[@name='{1}']".format(namespace, child_type)
+        xsd_element_type = xsd_element.attrib['type']
+        xpath_type = "./{0}simpleType[@name='{1}']".format(namespace, xsd_element_type)
         elementType = xmlDocTree.find(xpath_type)
         enumeration_list = elementType.findall('./{0}restriction/{0}enumeration'.format(namespace))
         
