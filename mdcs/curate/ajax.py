@@ -1019,8 +1019,8 @@ def generateModule(request, element, namespace, xsd_xpath=None, xml_xpath=None, 
         if len(edit_elements) > 0:
             edit_element = edit_elements[0]
             # get attributes
-            if 'attrib' in edit_element:
-                reload_attrib = edit_element['attib']
+            if len(edit_element.attrib) > 0:
+                reload_attrib = dict(edit_element.attrib)
             # get data
             if element.tag == "{0}element".format(namespace):
                 # leaf: get the value            
