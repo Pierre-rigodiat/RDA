@@ -7,4 +7,5 @@ urlpatterns = patterns('',
     url(r'list-to-graph', 'modules.examples.views.list_to_graph', name='List to Graph'),
     url(r'countries-module', 'modules.examples.views.countries', name='Countries'),
     url(r'flag-module', 'modules.examples.views.flag', name='Flags'),
+    url(r'chemical-element-selection', 'modules.examples.views.chemical_element_selection', name='Chemical Element Selection'),
 )
