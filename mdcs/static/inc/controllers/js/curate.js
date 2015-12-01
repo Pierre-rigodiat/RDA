@@ -367,14 +367,7 @@ generateXMLString = function(elementObj)
 						}						
 						attributes += " " + text + "='" + value + "'";
 					});
-					
-//					for(var j = 0; j < $(children[i]).children().length; j++) {
-//						if (children[i].tagName == "DIV" && $(children[i]).hasClass("module") ){
-//							console.log(children[i]);
-//						}
-//					}											
-					
-
+										
 					// build the tag with its value
 					xml_value = generateXMLString(children[i]);
 					if ($(children[i]).children('div.module').length != 0 && xml_value.match("^<" + textNode)){
