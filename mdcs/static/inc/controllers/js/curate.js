@@ -269,21 +269,11 @@ validateXML = function()
 	
     xmlString = generateXMLString (rootElement);
     
-    $("input:text").each(function(){
+    $("input").each(function(){
 	    $(this).attr("value", $(this).val());
 	});
 	$('select option').each(function(){ this.defaultSelected = this.selected; });
-	$("input:checkbox:not(:checked)").each(function(){
-	    
-	    $(this).removeAttr("checked");
-	});
-	$("input:checkbox:checked").each(function(){
-    
-	    $(this).attr("checked", true);
-	});
 
-
-	
     xsdForm = $('#xsdForm').html();
     validate_xml_data(xmlString, xsdForm);
 }
@@ -362,37 +352,22 @@ generateXMLString = function(elementObj)
 								    value = attrChildren[j].options[idx].value; 
 							    }
 							} else if (attrChildren[j].tagName == "INPUT") {
+								console.log(attrChildren[j]);
 								value = attrChildren[j].value;
 							}
 						}						
 						attributes += " " + text + "='" + value + "'";
 					});
-					
-//					for(var j = 0; j < $(children[i]).children().length; j++) {
-//						if (children[i].tagName == "DIV" && $(children[i]).hasClass("module") ){
-//							console.log(children[i]);
-//						}
-//					}											
-					
-
-					// build the tag with its value
-					xml_value = generateXMLString(children[i]);
-					if ($(children[i]).children('div.module').length != 0 && xml_value.match("^<" + textNode)){
-						// if the module returns the tag, replace the tag
-						xmlString += xml_value;
-					}else{
-						// build opening tag with potential attributes
-						xmlString += "<" + textNode + attributes + ">";
-						// build opening tag with potential attributes
-						xmlString += xml_value;
-						// build the closing tag
-					    xmlString += "</" + textNode + ">";
-					}
+					// build opening tag with potential attributes
+					xmlString += "<" + textNode + attributes + ">";
+					// build the content of the element
+				    xmlString += generateXMLString(children[i]);
+				    // build the closing tag
+				    xmlString += "</" + textNode + ">";
 				}			    	
 			}
 		} else if (children[i].tagName == "DIV" && $(children[i]).hasClass("module") ){
-//			console.log(children[i]);
-			xmlString += $($(children[i]).parent()).find(".moduleResult").text();
+			xmlString += $($(children[i]).parent()).find(".moduleResult").text();		
 		} else if (children[i].tagName == "SELECT") {
 		    // get the index of the selected option 
 		    var idx = children[i].selectedIndex; 

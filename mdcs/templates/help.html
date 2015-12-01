@@ -1,4 +1,4 @@
-{% extends "mdcs/extra/one_column.html" %}
+{% extends "nmrr/extra/small_intro.html" %}
 {% load staticfiles %}
 
 {% comment %}
@@ -22,7 +22,7 @@
 {% endcomment %}
 
 {% block title %}<h1><span>Help</span></h1>{% endblock %}
-{% block menu %}{% include 'menu.html' with active_tab='help' %}{% endblock %}
+{% block menu %}{% include 'mdcs/menus/main.html' with active_tab='help' %}{% endblock %}
 
 {% block content%}
 <div class="left" style="width: 830px">
