@@ -39,12 +39,6 @@ class Module(object):
             raise ModuleError('Only GET and POST methods can be used to communicate with a module.')
 
     def _get(self, request):
-        if 'data' in request.GET:
-            request.GET = {
-                'data': request.GET['data'],
-                'url': request.GET['url']
-            }
-
         template_data = {
             'module': '',
             'display': '',
