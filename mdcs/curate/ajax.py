@@ -1013,10 +1013,15 @@ def generateModule(request, element, namespace, xsd_xpath=None, xml_xpath=None, 
     formString = ""
     
     reload_data = None
+    reload_attrib = None
     if request.session['curate_edit']:
         edit_elements = edit_data_tree.xpath(xml_xpath)
         if len(edit_elements) > 0:
             edit_element = edit_elements[0]
+            # get attributes
+            if 'attrib' in edit_element:
+                reload_attrib = edit_element['attib']
+            # get data
             if element.tag == "{0}element".format(namespace):
                 # leaf: get the value            
                 if len(list(edit_element)) == 0:
@@ -1059,6 +1064,8 @@ def generateModule(request, element, namespace, xsd_xpath=None, xml_xpath=None, 
             # if the loaded doc has data, send them to the module for initialization
             if reload_data is not None:
                 mod_req.GET['data'] = reload_data
+            if reload_attrib is not None:
+                mod_req.GET['attributes'] = reload_attrib
 
             # renders the module
             formString += view(mod_req).content
