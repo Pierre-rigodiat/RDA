@@ -71,10 +71,14 @@ class NamePIDModule(Module):
         with open(os.path.join(TEMPLATES_PATH, 'name_pid.html'), 'r') as template_file:
             template_content = template_file.read()    
             template = Template(template_content)
-            params = {}
+            
+            self.params = {}
             if 'data' in request.GET:
-                params['name'] = request.GET['data']
-            context = Context({'form': NamePIDForm(params)})
+                self.params['name'] = request.GET['data']
+            if 'attributes' in request.GET:
+                if 'pid' in request.GET['attributes']:
+                    self.params['pid'] = request.GET['attributes']['pid']
+            context = Context({'form': NamePIDForm(self.params)})
             return template.render(context)        
 
 
@@ -83,7 +87,9 @@ class NamePIDModule(Module):
 
 
     def _get_result(self, request):
-        return ''
+        pid = ' pid="'+ self.params['pid'] +'"' if 'pid' in self.params else ''
+        name = self.params['name'] if 'name' in self.params else ''
+        return '<' + self.xml_tag + pid + '>' +  name + '</' + self.xml_tag + '>'
 
 
     def _post_display(self, request):
@@ -99,8 +105,8 @@ class NamePIDModule(Module):
         form = NamePIDForm(request.POST)
         if form.is_valid():
             if 'name' in request.POST and request.POST['name'] != '':
-                role = ' pid="'+ request.POST['pid'] +'"' if 'pid' in request.POST else ''
-                return '<' + self.xml_tag + role + '>' +  request.POST['name'] + '</' + self.xml_tag + '>'
+                pid = ' pid="'+ request.POST['pid'] +'"' if 'pid' in request.POST else ''
+                return '<' + self.xml_tag + pid + '>' +  request.POST['name'] + '</' + self.xml_tag + '>'
             
         return result_xml
 
