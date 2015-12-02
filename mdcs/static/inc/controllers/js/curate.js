@@ -367,12 +367,20 @@ generateXMLString = function(elementObj)
 						}						
 						attributes += " " + text + "='" + value + "'";
 					});
-					// build opening tag with potential attributes
-					xmlString += "<" + textNode + attributes + ">";
-					// build the content of the element
-				    xmlString += generateXMLString(children[i]);
-				    // build the closing tag
-				    xmlString += "</" + textNode + ">";
+					
+					// build the tag with its value
+					xml_value = generateXMLString(children[i]);
+					if ($(children[i]).children('div.module').length != 0 && xml_value.match("^<" + textNode)){
+						// if the module returns the tag, replace the tag
+						xmlString += xml_value;
+					}else{
+						// build opening tag with potential attributes
+						xmlString += "<" + textNode + attributes + ">";
+						// build opening tag with potential attributes
+						xmlString += xml_value;
+						// build the closing tag
+					    xmlString += "</" + textNode + ">";
+					}
 				}			    	
 			}
 		} else if (children[i].tagName == "DIV" && $(children[i]).hasClass("module") ){
