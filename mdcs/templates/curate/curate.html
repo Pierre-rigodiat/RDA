@@ -1,4 +1,4 @@
-{% extends "mdcs/extra/two_columns.html" %}
+{% extends "nmrr/extra/small_intro.html" %}
 {% load staticfiles %}
 {% load auth_extras %}
 {% comment %}
@@ -21,157 +21,71 @@
 -->
 {% endcomment %}
 
-{% block title %}<h1>Select Template</h1>{% endblock %}
-
-{% block description %}
-Select a template from the following table. Once you make your selection, start a new document or open an existing form or start from an uploaded document.  It will
-automatically load the appropriate form and display it on the next page.
-{% endblock %}
-
-{% block menu %}{% include 'mdcs/menus/main.html' with active_tab='tab2' %}{% endblock %}
-{% block submenu %}
-<ul class="tabbed">
-  <li class="current_page_item"><a href="/curate/select-template">Select Template</a></li>
-  <li><div style="cursor:pointer"><a onclick="enterDataError();">Enter Data</a></div></li>
-  <li><div style="cursor:pointer"><a onclick="viewDataError();">View Data</a></div></li>
-</ul>
-{% endblock %}
+{% block title %}<h3>Select a Resource type to add</h3>{% endblock %}
 
 {% block content %}
-<div id="template_selection">
-{% if request.session.currentTemplateID %} 
 
-{% else %}
-<div class="alert">
-  <button type="button" class="close" data-dismiss="alert">&times;</button>
-  <i class="icon warning disable-selection"></i> No template selected. Select one in the table below. 
-</div>
-{% endif %}
-
-<div class="tpl-title">Global Templates</div>
-<table class="table table-bordered">
-    <tr>
-        <th>Template name</th>
-        <th>File name</th>
-        <th class="th-actions">Actions</th>
-    </tr>
-    {% for template, isDeleted in templates.items %}
-        {% if isDeleted == False %}
-            {% cycle 'even' '' as rowcolors silent %}
-            <tr class="{{ rowcolors }}">
-                <td templateID='{{template.id}}'>{{ template.title }}</td>
-                <td>{{ template.filename }}</td>
-                <td>
-                    <button class="btn set-template"><i class="icon-plus-sign"></i> Set as current template</button>
-                </td>
-            </tr>
-        {% endif %}
-    {% endfor %}
+<table>
+<tr>
+<td align="center">
+<a href="/dashboard/resources/add/organization">
+<img width="100" src="/static/img/organization.png"><br>
+Organization
+</a>
+</td>
+<td align="center">
+<a href="/dashboard/resources/add/datacollection">
+<img width="100" src="/static/img/datacollection.png"><br>
+Data Collection
+</a>
+</td>
+<td align="center">
+<a href="/dashboard/resources/add/dataset">
+<img width="100" src="/static/img/dataset.png"><br>
+Dataset
+</a>
+</td>
+<td align="center">
+<a href="/dashboard/resources/add/service">
+<img width="100" src="/static/img/service.png"><br>
+Service
+</a>
+</td>
+<td align="center">
+<a href="/dashboard/resources/add/informational">
+<img width="100" src="/static/img/informational.png"><br>
+Informational
+</a>
+</td>
+<td align="center">
+<a href="/dashboard/resources/add/software">
+<img width="100" src="/static/img/software.jpg"><br>
+Software
+</a>
+</td>
+</tr>
+<tr>
+<td colspan="7">
+<br><br>
+<a href="/dashboard/resources/add/organization">Organization</a> - 
+a group of people that come together to contribute to or participate in a federated data operation. Organizations can be hierarchical: an organization can contain or sponsor other organizations. Organizations can also aggregate or participate with other organizations in broader collaborations.
+<br><br>
+<a href="/dashboard/resources/add/datacollection">Data Collection</a> - An aggregation of one or more datasets, possibly spanning many research projects or teams. 
+<br><br>
+<ul>
+<li> <a href="/dashboard/resources/add/repository">Repository</a> - A data collection service that specializes in hosting data from many different research teams and projects.
+<li> <a href="/dashboard/resources/add/projectarchive">Project Archive</a> - A large collection of data resulting from a project that produces and publishes data over an extended period of time and made accessible through a common portal or interface. 
+<li> <a href="/dashboard/resources/add/database">Database</a> - A collection of data that is not formally file-based but stored in a database system. Here, a database is not assumed to be relational and can be quite complex in structure.
+</ul>
+<a href="/dashboard/resources/add/dataset">Dataset</a> - 
+a set of data (can be one or more separate files or other digital objects) that is unified by a common set of research goals and/or results. This is intended to be a single publishable unit of scientific output that might be described in a single journal article.
+<br><br>
+<a href="/dashboard/resources/add/services">Service</a> - A set of stand-alone services not associated with a particular collection of data but which can either operate on data or produce data. Such a resource might typically accessed either through a web-based portal, a suite of web services, or both. 
+<br><br>
+<a href="/dashboard/resources/add/informational">Informational</a> - A (web) site that aggregates useful information for research. The information is not generally machine-processable, but rather is intended for consumption by a human (e.g. via a web browser).
+<br><br>
+<a href="/dashboard/resources/add/software">Software</a> - A software tool or library.
+<br><br>
+</td>
 </table>
-
-{% if user.is_authenticated %}
-<div class="tpl-title">User Defined Templates</div>
-{% if userTemplates %}
-    <table class="table table-bordered">
-        <tr>
-            <th>Template name</th>
-            <th class="th-actions">Actions</th>
-        </tr>
-        {% for template in userTemplates %}
-            {% cycle 'even' '' as rowcolors silent %}
-            <tr class="{{ rowcolors }}">
-                <td templateID='{{template.id}}'>{{ template.title }}</td>
-                <td>
-                    <button class="btn set-curate-user-template" >
-                        <i class="icon-plus-sign"></i> Set as current template
-                    </button>
-                </td>
-            </tr>
-        {% endfor %}
-    </table>
-{% else %}
-    {% if user|has_perm:'compose.compose_access' %}
-    <div class="unavailable">
-        Create your own templates using the <a href="/compose">Composer</a> and you will be able to use them from this
-        section.
-    </div>
-    {% endif %}
-{% endif %}
-{% endif %}
-</div>
 {% endblock %}
-
-{% block sidebar %}
-<div class="box" >
-	<div class="box-title">{{CUSTOM_CURATE}}</div>
-	<div class="box-content">
-		<ul class="nice-list">
-            <li>
-                <div class="l-img">
-                    <img width="40" height="40" src="{% static 'resources/img/Orange_Number_1.png' %}" alt="1">
-                </div>
-                <div class="r-txt-selected"><a href="/curate/select-template">Select Template</a></div>
-            </li>
-            <li>
-                <div class="l-img">
-                    <img width="40" height="40" src="{% static 'resources/img/Orange_Number_2.png' %}" alt="2">
-                </div>
-                <div class="r-txt"><a onclick="enterDataError();">Enter Data</a></div>
-            </li>
-            <li>
-                <div class="l-img">
-                    <img width="40" height="40" src="{% static 'resources/img/Orange_Number_3.png' %}" alt="3">
-                </div>
-                <div class="r-txt"><a onclick="viewDataError();">View Data</a></div>
-            </li>
-        </ul>
-    </div>
-</div>
-{% endblock %}
-
-
-{% block popups %}
-<div id="dialog-message" title="Template Loaded" style="display:none;">
-	<p>
-	  Please choose one of the following options to start curating data: 
-	</p>
-    <form id="form_start" action="/curate/start_curate" method="post">
-        {% csrf_token %}
-        <div id="form_start_content"></div>
-    </form>
-	<div id="form_start_errors" style="color:red;">
-	
-	</div>
-</div>
-
-<div id="dialog-error-message" title="No template selected" style="display:none;">
-    <p></p>
-    <p>
-        Please select a template first.
-    </p>
-</div>
-
-<div id="dialog-view-error-message" title="No data to view" style="display:none;">
-    <p></p>
-    <p>
-        No data to view yet. Please select a template and enter data first.
-    </p>
-</div>
-
-<div id="dialog-enter-error-message" title="No template selected" style="display:none;">
-<p></p>
-  <p>
-    Please select a template first.
-  </p>
-</div>
-{% endblock %}
-
-
-{% block extrajs %}
-<script src="{% static 'inc/controllers/js/curate.js' %}"></script>
-<script>
-    loadTemplateSelectionControllers();
-</script>
-{% endblock %}
-
-

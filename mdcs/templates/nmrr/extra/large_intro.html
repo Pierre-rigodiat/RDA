@@ -24,11 +24,11 @@
 <div class="width">
 <div class="intro-content">
 
-<h2>NIST Materials Resource Registry</h2>
-<p>Part of the Materials Genome Initiative</p>
+<h2>{{CUSTOM_TITLE}}</h2>
+<p>{{CUSTOM_SUBTITLE}}</p>
 
-<p><a href="/services/search" class="button button-slider"><i class="fa"></i>Search for Resources</a>
-<a href="/dashboard/resources/add" class="button button-reversed button-slider"><i class="fa"></i>Add your Resource</a></p>
+<p><a href="/explore" class="button button-slider"><i class="fa"></i>{{CUSTOM_EXPLORE}}</a>
+<a href="/curate" class="button button-reversed button-slider"><i class="fa"></i>{{CUSTOM_CURATE}}</a></p>
 </div>
 
 </div>
@@ -49,8 +49,8 @@
     <li><a class="selected" href="/">Home Page</a></li>
 
     <li><a href="/services#">Services</a>
-    <ul><li><a href="/services/search#">Search for Resources</a></li>
-    <li><a href="/dashboard/resources/add">Add Your Resource</a></li></ul>
+    <ul><li><a href="/explore">{{CUSTOM_EXPLORE}}</a></li>
+    <li><a href="/curate">{{CUSTOM_CURATE}}</a></li></ul>
     </li>
 
     {% if user.is_authenticated %}
