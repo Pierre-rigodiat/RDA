@@ -999,6 +999,34 @@ def generateSimpleContent(request, element, xmlTree, namespace, fullPath, edit_d
     return formString
 
 
+def get_Xml_element_data(xsd_element, xml_element, namespace):
+    reload_data = None
+    
+    # get data
+    if xsd_element.tag == "{0}element".format(namespace):
+        # leaf: get the value            
+        if len(list(xml_element)) == 0:
+            if xml_element.text is not None: # when tag is present but value empty, takes value None (we need empty text)
+                reload_data = xml_element.text
+            else:
+                reload_data = ''
+        else: # branch: get the whole branch
+            reload_data = etree.tostring(xml_element)
+    elif xsd_element.tag == "{0}attribute".format(namespace):
+        pass
+    elif xsd_element.tag == "{0}complexType".format(namespace) or xsd_element.tag == "{0}simpleType".format(namespace):
+        # leaf: get the value            
+        if len(list(xml_element)) == 0:
+            if xml_element.text is not None: # when tag is present but value empty, takes value None (we need empty text)
+                reload_data = xml_element.text
+            else:
+                reload_data = ''
+        else: # branch: get the whole branch
+            reload_data = etree.tostring(xml_element)
+            
+    return reload_data
+
+
 ################################################################################
 # 
 # Function Name: generateModule(request, element)
@@ -1017,31 +1045,20 @@ def generateModule(request, element, namespace, xsd_xpath=None, xml_xpath=None, 
     if request.session['curate_edit']:
         edit_elements = edit_data_tree.xpath(xml_xpath)
         if len(edit_elements) > 0:
-            edit_element = edit_elements[0]
-            # get attributes
-            if len(edit_element.attrib) > 0:
-                reload_attrib = dict(edit_element.attrib)
-            # get data
-            if element.tag == "{0}element".format(namespace):
-                # leaf: get the value            
-                if len(list(edit_element)) == 0:
-                    if edit_element.text is not None: # when tag is present but value empty, takes value None (we need empty text)
-                        reload_data = edit_element.text
-                    else:
-                        reload_data = ''
-                else: # branch: get the whole branch
-                    reload_data = etree.tostring(edit_element)
-            elif element.tag == "{0}attribute".format(namespace):
-                pass
-            elif element.tag == "{0}complexType".format(namespace) or element.tag == "{0}simpleType".format(namespace):
-                # leaf: get the value            
-                if len(list(edit_element)) == 0:
-                    if edit_element.text is not None: # when tag is present but value empty, takes value None (we need empty text)
-                        reload_data = edit_element.text
-                    else:
-                        reload_data = ''
-                else: # branch: get the whole branch
-                    reload_data = etree.tostring(edit_element) 
+            if len(edit_elements) == 1:
+                edit_element = edit_elements[0]
+                # get attributes
+                if len(edit_element.attrib) > 0:
+                    reload_attrib = dict(edit_element.attrib)
+                reload_data = get_Xml_element_data(element, edit_element, namespace)
+            else:
+                reload_data = []
+                reload_attrib = []
+                for edit_element in edit_elements:                
+                    reload_attrib.append(dict(edit_element.attrib))
+                    reload_data.append(get_Xml_element_data(element, edit_element, namespace))
+                    
+                    
     
     # check if a module is set for this element    
     if '{http://mdcs.ns}_mod_mdcs_' in element.attrib:
@@ -1275,7 +1292,8 @@ def generateElement(request, element, xmlTree, namespace, choiceInfo=None, fullP
         if len(removed) == 0:
             # if module is present, replace default input by module       
             if has_module:
-                formString += generateModule(request, element, namespace, xsd_xpath, fullPath+'['+ str(x+1) +']', edit_data_tree=edit_data_tree)
+#                 formString += generateModule(request, element, namespace, xsd_xpath, fullPath+'['+ str(x+1) +']', edit_data_tree=edit_data_tree)
+                formString += generateModule(request, element, namespace, xsd_xpath, fullPath, edit_data_tree=edit_data_tree)
                 # block maxOccurs to one, the module should take care of occurrences at this level
                 form_element.xml_element.maxOccurs = 1
             else: # generate the type
