@@ -1,0 +1,70 @@
+{% load staticfiles %}
+{% comment %}
+<!--
+################################################################################
+#
+# File Name: header.html
+# Application: templates
+# Description: 
+#
+# Author: Sharief Youssef
+#         sharief.youssef@nist.gov
+#
+#		  Guillaume SOUSA AMARAL
+#		  guillaume.sousa@nist.gov
+#
+# Sponsor: National Institute of Standards and Technology
+#
+################################################################################
+-->
+{% endcomment %}
+<header>
+<div class="width">
+<h1>
+    <a href="http://www.nist.gov/"><img src="{% static 'img/NIST_logo.svg' %}" width="150"></a>
+</h1>
+
+<nav>
+<ul class="sf-menu dropdown sf-js-enabled sf-shadow">
+<li {% block menuItemHomeClass %}{% endblock %}><a href="/">Home</a></li>
+<li {% block menuItemServicesClass %}{% endblock %}>
+<a href="/services/" class="sf-with-ul">Services<span class="sf-sub-indicator"></span></a>
+
+<ul style="display: none; visibility: hidden;">
+<li><a href="/explore">Search for Resources</a></li>
+<li><a href="/curate"><nobr>Add Your Resource</nobr></a></li>
+</ul>
+
+</li>
+
+{% if user.is_authenticated %}
+<li {% block menuItemDashboardClass %}{% endblock %}><a href="/dashboard">Dashboard</a></li>
+{% else %}
+
+<li {% block menuItemLoginClass %}{% endblock %}><a href="/login" class="sf-with-ul">Login</a></li>
+{% endif %}
+
+
+
+<li {% block menuItemHelpClass %}{% endblock %}>
+
+<a href="/help" class="sf-with-ul">Help</a>
+
+
+</li>
+
+<li {% block menuItemContactClass %}{% endblock %}><a href="/contact">Contact</a></li>
+<li {% block menuItemApiClass %}{% endblock %}>
+
+<a href="/api" class="sf-with-ul">API</a>
+
+
+</li></ul>
+
+
+<div class="clear"></div>
+</nav>
+</div>
+
+<div class="clear"></div>
+</header>
