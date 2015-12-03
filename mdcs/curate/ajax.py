@@ -1217,9 +1217,15 @@ def generateElement(request, element, xmlTree, namespace, choiceInfo=None, fullP
             addButton = True
         if nbOccurrences_data > minOccurs:
             deleteButton = True
-        
-    if nbOccurrences_data > nbOccurrences:
+    
+    if has_module:
+        # block maxOccurs to one, the module should take care of occurrences when the element is replaced
+        nbOccurrences = 1
+        maxOccurs = 1
+    elif nbOccurrences_data > nbOccurrences:
         nbOccurrences = nbOccurrences_data    
+    
+        
     
     xml_element = XMLElement(xsd_xpath=xsd_xpath, nbOccurs=nbOccurrences_data, minOccurs=minOccurs, maxOccurs=maxOccurs).save()
 
@@ -1292,10 +1298,7 @@ def generateElement(request, element, xmlTree, namespace, choiceInfo=None, fullP
         if len(removed) == 0:
             # if module is present, replace default input by module       
             if has_module:
-#                 formString += generateModule(request, element, namespace, xsd_xpath, fullPath+'['+ str(x+1) +']', edit_data_tree=edit_data_tree)
                 formString += generateModule(request, element, namespace, xsd_xpath, fullPath, edit_data_tree=edit_data_tree)
-                # block maxOccurs to one, the module should take care of occurrences at this level
-                form_element.xml_element.maxOccurs = 1
             else: # generate the type
                 if elementType is None: # no complex/simple type            
                     defaultValue = ""
@@ -1612,14 +1615,11 @@ def generateElement_absent(request, element, xmlDocTree, form_element):
             removeAnnotations(element, namespace)
             # check if the element has a module
             has_module = hasModule(request, element)
-
-    elementType = getElementType(element, xmlDocTree, namespace, defaultPrefix)
-
+  
     if has_module:
         formString += generateModule(request, element, namespace, form_element.xml_element.xsd_xpath, form_element.xml_xpath)
-        # block maxOccurs to one, the module should take care of occurrences at this level
-        form_element.xml_element.maxOccurs = 1
     else:
+        elementType = getElementType(element, xmlDocTree, namespace, defaultPrefix)
         # render the type
         if elementType is None: # no complex/simple type            
             defaultValue = ""
