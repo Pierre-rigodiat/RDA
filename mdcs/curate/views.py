@@ -154,6 +154,14 @@ def curate_from_schema(request):
         if len(set(templates.values_list('templateVersion'))) == 1:
             template_id = TemplateVersion.objects().get(pk=templates[0].templateVersion).current
             request.session['currentTemplateID'] = template_id
+            
+            form_data = FormData(user=str(request.user.id), template=template_id, name=schema_name).save()
+            request.session['curateFormData'] = str(form_data.id)
+            
+            request.session['curate_edit'] = False
+            request.session['curate_min_tree'] = True
+            
+            
             if 'formString' in request.session:
                 del request.session['formString']
             if 'xmlDocTree' in request.session:
