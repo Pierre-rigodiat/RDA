@@ -1,4 +1,5 @@
-{% extends "mdcs/extra/two_columns.html" %}
+{#% extends "mdcs/extra/two_columns.html" %#}
+{% extends "nmrr/extra/small_intro.html" %}
 {% load staticfiles %}
 
 {% comment %}
@@ -23,6 +24,7 @@
 
 {% block extrastyle %}
     <link rel="stylesheet" type="text/css" href="{% static 'resources/css/XMLTreeCurator.css' %}" media="screen" />
+    <link rel="stylesheet" type="text/css" href="{% static 'css/nmrr/repo.css' %}" media="screen" />
 {% endblock %}
 
 {% block title %}<h1>Data Entry</h1>{% endblock %}
