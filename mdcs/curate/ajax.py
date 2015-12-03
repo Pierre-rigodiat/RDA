@@ -21,6 +21,7 @@ from io import BytesIO
 from cStringIO import StringIO
 from mgi.models import Template, XMLdata, XML2Download, Module, MetaSchema
 from mgi.models import FormElement, XMLElement, FormData
+from mgi.settings import CURATE_MIN_TREE, CURATE_COLLAPSE
 import json
 from bson.objectid import ObjectId
 from mgi import common
@@ -456,7 +457,7 @@ def generateSequence(request, element, xmlTree, namespace, choiceInfo=None, full
                     
         else: # starting an empty form
             # Don't generate the element if not necessary
-            if request.session['curate_min_tree'] and minOccurs == 0:
+            if CURATE_MIN_TREE and minOccurs == 0:
                 addButton = True
                 deleteButton = False
             else:
@@ -476,7 +477,7 @@ def generateSequence(request, element, xmlTree, namespace, choiceInfo=None, full
             if request.session['curate_edit']:
                 if nbOccurrences == 0:
                     formString += "<ul id=\"" + choiceID + "\" class=\"notchosen\">"
-                    if request.session['curate_min_tree'] == True:
+                    if CURATE_MIN_TREE:
                         form_element = FormElement(html_id=choiceID, xml_element=xml_element, xml_xpath=None).save()
                         request.session['mapTagID'][choiceID] = str(form_element.id)
                         formString += "</ul>"
@@ -486,7 +487,7 @@ def generateSequence(request, element, xmlTree, namespace, choiceInfo=None, full
             else:
                 if (choiceInfo.counter > 0):
                     formString += "<ul id=\"" + choiceID + "\" class=\"notchosen\">"
-                    if request.session['curate_min_tree'] == True:
+                    if CURATE_MIN_TREE:
                         form_element = FormElement(html_id=choiceID, xml_element=xml_element, xml_xpath=None).save()
                         request.session['mapTagID'][choiceID] = str(form_element.id)
                         formString += "</ul>"
@@ -504,7 +505,9 @@ def generateSequence(request, element, xmlTree, namespace, choiceInfo=None, full
             request.session['nb_html_tags'] = str(nb_html_tags)
             form_element = FormElement(html_id=tagID, xml_element=xml_element, xml_xpath=fullPath + '[1]').save()
             request.session['mapTagID'][tagID] = str(form_element.id)
-            formString += "<li class='sequence removed' id='" + str(tagID) + "'>" + "<span class='collapse' style='cursor:pointer;' onclick='showhideCurate(event);'></span>"  + text
+            formString += "<li class='sequence removed' id='" + str(tagID) + "'>"
+            formString += "<span class='collapse' style='cursor:pointer;' onclick='showhideCurate(event);'></span>" if CURATE_COLLAPSE else "" 
+            formString += text
             formString += "<span id='add"+ str(tagID[7:]) +"' class=\"icon add\" onclick=\"changeHTMLForm('add',"+str(tagID[7:])+");\"></span>"
             formString += "<span id='remove"+ str(tagID[7:]) +"' class=\"icon remove\" style=\"display:none;\" onclick=\"changeHTMLForm('remove',"+str(tagID[7:])+");\"></span>"
         else:
@@ -519,7 +522,9 @@ def generateSequence(request, element, xmlTree, namespace, choiceInfo=None, full
                     
                 # if tag not closed:  <element/>
                 if len(list(element)) > 0 :
-                    formString += "<li class='sequence' id='" + str(tagID) + "'>" + "<span class='collapse' style='cursor:pointer;' onclick='showhideCurate(event);'></span>"  + text
+                    formString += "<li class='sequence' id='" + str(tagID) + "'>"
+                    formString += "<span class='collapse' style='cursor:pointer;' onclick='showhideCurate(event);'></span>" if CURATE_COLLAPSE else ""
+                    formString += text
                 else:
                     formString += "<li class='sequence' id='" + str(tagID) + "'>" + text
                     
@@ -650,7 +655,7 @@ def generateChoice(request, element, xmlTree, namespace, choiceInfo=None, fullPa
                 
         else: # starting an empty form
             # Don't generate the element if not necessary
-            if request.session['curate_min_tree'] and minOccurs == 0:
+            if CURATE_MIN_TREE and minOccurs == 0:
                 addButton = True
                 deleteButton = False
             else:
@@ -688,7 +693,7 @@ def generateChoice(request, element, xmlTree, namespace, choiceInfo=None, fullPa
         if request.session['curate_edit']:
             if nbOccurrences == 0:
                 formString += "<ul id=\"" + choiceID + "\" class=\"notchosen\">"
-                if request.session['curate_min_tree'] == True:
+                if CURATE_MIN_TREE:
                     form_element = FormElement(html_id=choiceID, xml_element=xml_element, xml_xpath=None).save()
                     request.session['mapTagID'][choiceID] = str(form_element.id)
                     formString += "</ul>"
@@ -698,7 +703,7 @@ def generateChoice(request, element, xmlTree, namespace, choiceInfo=None, fullPa
         else:
             if (choiceInfo.counter > 0):
                 formString += "<ul id=\"" + choiceID + "\" class=\"notchosen\">"
-                if request.session['curate_min_tree'] == True:
+                if CURATE_MIN_TREE:
                     form_element = FormElement(html_id=choiceID, xml_element=xml_element, xml_xpath=None).save()
                     request.session['mapTagID'][choiceID] = str(form_element.id)
                     formString += "</ul>"
@@ -1210,7 +1215,7 @@ def generateElement(request, element, xmlTree, namespace, choiceInfo=None, fullP
 
     else: # starting an empty form
         # Don't generate the element if not necessary
-        if request.session['curate_min_tree'] and minOccurs == 0:
+        if CURATE_MIN_TREE and minOccurs == 0:
             removed = " removed"
         
         if nbOccurrences_data < maxOccurs:
@@ -1252,7 +1257,7 @@ def generateElement(request, element, xmlTree, namespace, choiceInfo=None, fullP
         if request.session['curate_edit']:
             if len(edit_elements) == 0:
                 formString += "<ul id=\"" + choiceID + "\" class=\"notchosen\">"
-                if request.session['curate_min_tree'] == True:
+                if CURATE_MIN_TREE:
                     form_element = FormElement(html_id=choiceID, xml_element=xml_element, xml_xpath=fullPath).save()
                     request.session['mapTagID'][choiceID] = str(form_element.id)
                     formString += "</ul>"
@@ -1262,7 +1267,7 @@ def generateElement(request, element, xmlTree, namespace, choiceInfo=None, fullP
         else:
             if (choiceInfo.counter > 0):
                 formString += "<ul id=\"" + choiceID + "\" class=\"notchosen\">"
-                if request.session['curate_min_tree'] == True:
+                if CURATE_MIN_TREE:
                     form_element = FormElement(html_id=choiceID, xml_element=xml_element, xml_xpath=fullPath).save()
                     request.session['mapTagID'][choiceID] = str(form_element.id)
                     formString += "</ul>"
@@ -1285,8 +1290,9 @@ def generateElement(request, element, xmlTree, namespace, choiceInfo=None, fullP
     
         # renders the name of the element
         formString += "<li class='"+ element_tag + removed +"' id='" + str(tagID) + "'>"
-        if elementType is not None and elementType.tag == "{0}complexType".format(namespace): # the type is complex, can be collapsed
-            formString += "<span class='collapse' style='cursor:pointer;' onclick='showhideCurate(event);'></span>"
+        if CURATE_COLLAPSE:
+            if elementType is not None and elementType.tag == "{0}complexType".format(namespace): # the type is complex, can be collapsed
+                formString += "<span class='collapse' style='cursor:pointer;' onclick='showhideCurate(event);'></span>"
         
         formString += textCapitalized
         # add buttons to add/remove elements
@@ -1875,8 +1881,9 @@ def duplicate(request):
             
             # renders the name of the element
             formString += "<li class='"+ element_tag +"' id='" + str(newTagID) + "'>"
-            if elementType is not None and elementType.tag == "{0}complexType".format(namespace): # the type is complex, can be collapsed
-                formString += "<span class='collapse' style='cursor:pointer;' onclick='showhideCurate(event);'></span>"
+            if CURATE_COLLAPSE:
+                if elementType is not None and elementType.tag == "{0}complexType".format(namespace): # the type is complex, can be collapsed
+                    formString += "<span class='collapse' style='cursor:pointer;' onclick='showhideCurate(event);'></span>"
             
             formString += textCapitalized
             
@@ -1917,7 +1924,9 @@ def duplicate(request):
             text = "Sequence"
             
             if len(list(sequenceChild)) > 0 :
-                formString += "<li class='sequence' id='" + str(newTagID) + "'>" + "<span class='collapse' style='cursor:pointer;' onclick='showhideCurate(event);'></span>"  + text
+                formString += "<li class='sequence' id='" + str(newTagID) + "'>" 
+                formString += "<span class='collapse' style='cursor:pointer;' onclick='showhideCurate(event);'></span>" if CURATE_COLLAPSE else ""
+                formString += text
             else:
                 formString += "<li class='sequence' id='" + str(newTagID) + "'>" + text
                 

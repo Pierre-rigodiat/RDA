@@ -96,6 +96,9 @@ CUSTOM_SUBTITLE = 'Part of the Materials Genome Initiative'
 CUSTOM_DATA = 'Materials Data' 
 CUSTOM_CURATE = 'Add your resource' 
 CUSTOM_EXPLORE = 'Search for resources'
+#CURATE
+CURATE_MIN_TREE = True
+CURATE_COLLAPSE = True
 
 #KEYWORD
 EXPLORE_BY_KEYWORD = False  #True or False
