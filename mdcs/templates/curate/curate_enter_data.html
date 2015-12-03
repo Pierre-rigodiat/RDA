@@ -27,63 +27,20 @@
     <link rel="stylesheet" type="text/css" href="{% static 'css/nmrr/repo.css' %}" media="screen" />
 {% endblock %}
 
-{% block title %}<h1>Data Entry</h1>{% endblock %}
-{% block description %}
-    Here you can fill in the {{CUSTOM_DATA}} form. Once it is completed, you can go to 'View Data' to review what you have entered.
-    You won't be able to reach the review page before the document is valid according to the selected template. From the review page, you will be able to curate the data.
-    The 'Save Form' button allows you to save partial data that you may want to edit later. This will only save a temporary document and won't actually curate data.
-    All grayed elements are optional. Thus, all elements written in black are required. The document may still be valid with empty elements.
-    There are no validation on empty fields if no such constraint is defined in the template.
-    Thus, an empty string of characters may not raise a validation error, but an empty number will.    
-{% endblock %}
+{% block title %}<h3>Add your {{template_name}}</h3>{% endblock %}
 
-{% block menu %}{% include 'mdcs/menus/main.html' with active_tab='tab2' %}{% endblock %}
-{% block submenu %}
-<ul class="tabbed">
-	<li><a href="/curate/select-template">Select Template</a></li>
-	<li class="current_page_item"><a href="/curate/enter-data">Enter Data</a></li>
-	<li><a onclick="validateXML();" style="cursor: pointer;">View Data</a></li>
-</ul>
-{% endblock %}
 
 {% block content %}
 <div class="toolbar">
 	<div class="btn-group pull-right">
-		<button class="btn clear-fields"><i class="icon-file"></i> Clear Fields </button>    	
-    	<button class="btn save-form"><i class="icon-hdd"></i> Save Form </button>
-    	<button class="btn download"><i class="icon-arrow-down"></i> Download </button>
+		<button class="btn"><i class="icon-file"></i> My {{template_name|capfirst|pluralize}} </button>    	
+    	<button class="btn"><i class="icon-hdd"></i> My Resources </button>
 	</div>
 <br/><br/>
 <div id="xsdForm"></div>
 </div>
-{% endblock %}
-
-{% block sidebar %}
-<div class="box">
-	<div class="box-title">{{CUSTOM_CURATE}}</div>
-	<div class="box-content">
-		<ul class="nice-list">
-            <li>
-                <div class="l-img">
-                    <img width="40" height="40" src="{% static 'resources/img/Orange_Number_1.png' %}" alt="1">
-                </div>
-                <div class="r-txt"><a href="/curate/select-template">Select Template</a></div>
-            </li>
-            <li>
-                <div class="l-img">
-                    <img width="40" height="40" src="{% static 'resources/img/Orange_Number_2.png' %}" alt="2">
-                </div>
-                <div class="r-txt-selected"><a href="/curate/enter-data">Enter Data</a></div>
-            </li>
-            <li>
-                <div class="l-img">
-                    <img width="40" height="40" src="{% static 'resources/img/Orange_Number_3.png' %}" alt="3">
-                </div>
-                <div class="r-txt"><a onclick="validateXML();">View Data</a></div>
-            </li>
-		</ul>
-	</div>
-</div>
+<a class="button">ADD {{template_name}}</a>
+<a class="button button-reversed clear-fields">Clear</a>
 {% endblock %}
 
 {% block popups %}
@@ -92,33 +49,6 @@
   <p>
     Are you sure you want to reset the form?
   </p>
-</div>
-
-<div id="dialog-save-form-message" title="Save Form" style="display:none;">
-  Are you sure you want to save the form? If you are editing an existing form, this will replace the previous version of the form.
-</div>
-
-<div id="dialog-saved-message" title="Form Saved" style="display:none;">
-<p></p>
-  <p>
-    <span class="ui-icon ui-icon-circle-check" style="float:left; margin:0 7px 10px 0;"></span>
-    Form saved with success.
-  </p>
-</div>
-
-<div id="dialog-download-options" title="Download Options" style="display:none;">
-<p></p>
-<p>
-  <span class="btn-group">
-    <button class="btn" onclick="downloadXSD();"><i class="icon-arrow-down"></i> Download Schema</button>
-  </span>
-</p>
-<p>
-  <span class="btn-group">
-    <button class="btn" onclick="downloadCurrentXML();"><i class="icon-arrow-down"></i> Download Document</button>
-  </span>
-</p>
-
 </div>
 
 <div id="dialog-save-error-message" title="XML Data Error" style="display:none;">
