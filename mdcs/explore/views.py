@@ -47,22 +47,43 @@ from admin_mdcs.models import permission_required
 
 @permission_required(content_type=RIGHTS.explore_content_type, permission=RIGHTS.explore_access, login_url='/login')
 def index(request):
-    template = loader.get_template('explore/explore.html')
     currentTemplateVersions = []
     for tpl_version in TemplateVersion.objects():
         currentTemplateVersions.append(tpl_version.current)
 
-    currentTemplates = dict()
-    for tpl_version in currentTemplateVersions:
-        tpl = Template.objects.get(pk=tpl_version)
-        templateVersions = TemplateVersion.objects.get(pk=tpl.templateVersion)
-        currentTemplates[tpl] = templateVersions.isDeleted
+    if not settings.EXPLORE_BY_KEYWORD:
+        template = loader.get_template('explore/explore.html')
+        currentTemplates = dict()
+        for tpl_version in currentTemplateVersions:
+            tpl = Template.objects.get(pk=tpl_version)
+            templateVersions = TemplateVersion.objects.get(pk=tpl.templateVersion)
+            currentTemplates[tpl] = templateVersions.isDeleted
 
-    context = RequestContext(request, {
-        'templates':currentTemplates,
-        'userTemplates': Template.objects(user=str(request.user.id)),
-    })
+        context = RequestContext(request, {
+            'templates':currentTemplates,
+            'userTemplates': Template.objects(user=str(request.user.id)),
+        })
+    else:
+        template = loader.get_template('explore/explore_keyword.html')
+        currentTemplate = Template.objects.get(title=settings.TEMPLATE_NAME_FOR_KEYWORD, pk__in=currentTemplateVersions)
+        template_id = str(currentTemplate.id)
+        request.session['exploreCurrentTemplateID'] = template_id
+
+        if 'HTTPS' in request.META['SERVER_PROTOCOL']:
+            protocol = "https"
+        else:
+            protocol = "http"
+        request.session['queryExplore'] = {"schema": template_id}
+        json_instances = [Instance(name="Local", protocol=protocol, address=request.META['REMOTE_ADDR'], port=request.META['SERVER_PORT'], access_token="token", refresh_token="token").to_json()]
+        request.session['instancesExplore'] = json_instances
+        search_form = KeywordForm()
+
+        context = RequestContext(request, {
+            'search_Form':search_form
+        })
+
     return HttpResponse(template.render(context))
+
 
 ################################################################################
 #
@@ -247,17 +268,19 @@ def explore_all_versions_results(request):
 @permission_required(content_type=RIGHTS.explore_content_type, permission=RIGHTS.explore_access, login_url='/login')
 def explore_detail_result(request) :
     result_id = request.GET['id']
+    keywordSearch = settings.EXPLORE_BY_KEYWORD
 
     template = loader.get_template('explore/explore_detail_results.html')
 
     xmlString = XMLdata.get(result_id)
     schemaId = xmlString['schema']
+    title = xmlString['title']
     xmlString = xmltodict.unparse(xmlString['content']).encode('utf-8')
     xsltPath = os.path.join(settings.SITE_ROOT, 'static', 'resources', 'xsl', 'xml2html.xsl')
     xslt = etree.parse(xsltPath)
     transform = etree.XSLT(xslt)
 
-    #Check if a custom short result XSLT has to be used
+    #Check if a custom detailed result XSLT has to be used
     try:
         if (xmlString != ""):
             dom = etree.fromstring(str(xmlString))
@@ -274,7 +297,9 @@ def explore_detail_result(request) :
 
     result = str(newdom)
     context = RequestContext(request, {
-        'XMLHolder': result
+        'XMLHolder': result,
+        'keyword': keywordSearch,
+        'title': title
     })
 
     if 'exploreCurrentTemplateID' not in request.session:
@@ -359,3 +384,4 @@ def start_export(request):
         context = Context({'export_form':export_form, 'upload_xslt_Form':upload_xslt_Form, 'nb_elts_exp': len(export_form.EXPORT_OPTIONS), 'nb_elts_xslt' : len(upload_xslt_Form.EXPORT_OPTIONS)})
 
         return HttpResponse(json.dumps({'template': template.render(context)}), content_type='application/javascript')
+

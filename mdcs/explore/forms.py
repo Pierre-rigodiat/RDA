@@ -54,3 +54,6 @@ class UploadXSLTForm(forms.Form):
         super(UploadXSLTForm, self).__init__()
         self.fields['my_xslts'].choices = []
         self.fields['my_xslts'].choices = self.EXPORT_OPTIONS
+
+class KeywordForm(forms.Form):
+    search_entry = forms.CharField(widget=forms.TextInput(attrs={'class': 'research', 'placeholder': 'Search...'}))

@@ -383,7 +383,7 @@ def explore_detail_data_download(request):
 # 
 ################################################################################
 @api_view(['DELETE'])
-@api_permission_required(RIGHTS.explore_content_type, RIGHTS.explore_delete_document)
+@api_permission_required(RIGHTS.curate_content_type, RIGHTS.curate_delete_document)
 def explore_delete(request):
     """
     GET http://localhost/rest/explore/delete

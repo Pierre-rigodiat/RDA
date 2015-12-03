@@ -343,7 +343,7 @@ input.cmn-toggle-round + label:after {
   transition: margin 0.4s;
 }
 input.cmn-toggle-round:checked + label:before {
-  background: #8ce196 no-repeat url('../img/check.png');
+  background: #8ce196 no-repeat url('../../resources/img/check.png');
   background-size:  16px;
   background-position: 15%;
 }

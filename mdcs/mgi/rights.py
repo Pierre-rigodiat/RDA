@@ -33,6 +33,8 @@ compose_save_type = "compose_save_type"
 curate_content_type = "curate"
 curate_access = "curate_access"
 curate_view_data_save_repo = "curate_view_data_save_repo"
+curate_edit_document="curate_edit_document"
+curate_delete_document="curate_delete_document"
 ### End Curate Rights ###
 
 
@@ -41,8 +43,6 @@ explore_content_type = "explore"
 explore_access = "explore_access"
 explore_save_query="explore_save_query"
 explore_delete_query="explore_delete_query"
-explore_edit_document="explore_edit_document"
-explore_delete_document="explore_delete_document"
 ### End Explore Rights ###
 
 
