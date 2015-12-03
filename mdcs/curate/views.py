@@ -185,14 +185,16 @@ def curate_enter_data(request):
    
     try:
         if 'id' in request.GET:
+            context = RequestContext(request, {})
             curate_edit_data(request)
         elif 'template' in request.GET:
+            context = RequestContext(request, {'template_name': request.GET['template']})
             curate_from_schema(request)
         elif 'templateid' in request.GET:
             pass
         
         template = loader.get_template('curate/curate_enter_data.html')
-        context = RequestContext(request, {})
+        
         return HttpResponse(template.render(context))
     except MDCSError, e:
         template = loader.get_template('curate/errors.html')
