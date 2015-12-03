@@ -23,9 +23,8 @@
 {% endcomment %}
 
 {% block extrastyle %}
-<link rel="stylesheet" type="text/css" href="{% static 'resources/css/style.add.css' %}"  media="screen" />
+<link rel="stylesheet" type="text/css" href="{% static 'css/mdcs/style.add.css' %}"  media="screen" />
 <link rel="stylesheet" type="text/css" href="{% static 'resources/css/exporters.css' %}" media="screen" />
-<script src="{% static 'inc/controllers/js/result_xslt_mgr.js' %}"></script>
 {% endblock %}
 
 {% block title %}
@@ -143,7 +142,7 @@ Select results XSLT you want to associate with the template.
 {% endblock %}
 
 {% block extrajs %}
-<script src="{% static 'inc/controllers/js/exporter_mgr.js' %}"></script>
+<script src="{% static 'inc/controllers/js/result_xslt_mgr.js' %}"></script>
 <script>
 Init();
 </script>

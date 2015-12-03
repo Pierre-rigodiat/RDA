@@ -96,6 +96,10 @@ CUSTOM_SUBTITLE = 'Part of the Materials Genome Initiative'
 CUSTOM_DATA = 'Materials Data' 
 CUSTOM_CURATE = 'Add your resource' 
 CUSTOM_EXPLORE = 'Search for resources'
+
+#KEYWORD
+EXPLORE_BY_KEYWORD = False  #True or False
+TEMPLATE_NAME_FOR_KEYWORD = 'Library'
                
 TEMPLATE_DIRS = [os.path.join(BASE_DIR, 'templates')]
 
@@ -134,7 +138,7 @@ INSTALLED_APPS = (
     'exporter',
     'explore',
     'compose',
-    'modules',    
+    'modules',
 )
 
 OAUTH2_PROVIDER = {

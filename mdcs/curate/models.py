@@ -23,4 +23,6 @@ class Curate(models.Model):
         permissions = (
             (RIGHTS.curate_access, RIGHTS.get_description(RIGHTS.curate_access)),
             (RIGHTS.curate_view_data_save_repo, RIGHTS.get_description(RIGHTS.curate_view_data_save_repo)),
+            (RIGHTS.curate_edit_document, RIGHTS.get_description(RIGHTS.curate_edit_document)),
+            (RIGHTS.curate_delete_document, RIGHTS.get_description(RIGHTS.curate_delete_document)),
         )
