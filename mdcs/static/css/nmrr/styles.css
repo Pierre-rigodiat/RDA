@@ -108,6 +108,7 @@ font-weight: bold;
 
 a.button:hover {
 	background:#699BBA;
+	cursor: pointer;
 }
 
 a.button-reversed { 

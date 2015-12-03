@@ -27,19 +27,31 @@
     <link rel="stylesheet" type="text/css" href="{% static 'css/nmrr/repo.css' %}" media="screen" />
 {% endblock %}
 
-{% block title %}<h3>Add your {{template_name}}</h3>{% endblock %}
+{% block title %}
+<h3>
+{% if template_name == 'repository' %}
+<img width="100" src="http://www.iconexperience.com/_img/o_collection_png/green_dark_grey/512x512/plain/tables.png">
+{% else %}
+{% endif %}
+
+Add your {{template_name}}
+</h3>
+{% endblock %}
 
 
 {% block content %}
 <div class="toolbar">
 	<div class="btn-group pull-right">
-		<button class="btn"><i class="icon-file"></i> My {{template_name|capfirst|pluralize}} </button>    	
+		<button class="btn"><i class="icon-file"></i> My {{template_name|capfirst}}(s) </button>    	
     	<button class="btn"><i class="icon-hdd"></i> My Resources </button>
 	</div>
 <br/><br/>
-<div id="xsdForm"></div>
+<div id="xsdForm">
+Please wait while the form is loading...
+<br/><br/>
 </div>
-<a class="button">ADD {{template_name}}</a>
+</div>
+<a class="button save-to-repo" >ADD {{template_name}}</a>
 <a class="button button-reversed clear-fields">Clear</a>
 {% endblock %}
 
@@ -56,6 +68,23 @@
   <div id="saveErrorMessage">
   </div>
 </div>
+
+<div id="dialog-save-data-message" title="Save to Repository" style="display:none;">
+	Save data to the repository.
+	<form id="form_save" action="/curate/save_data" method="post">
+	{% csrf_token %}
+	{{form_save}}
+	</form>
+	<div id="saveErrorMessage" style="color:red;"></div>
+</div>
+
+<div id="dialog-saved-message" title="XML Data Saved" style="display:none;">
+<p></p>
+  <p>
+    <span class="ui-icon ui-icon-circle-check" style="float:left; margin:0 7px 10px 0;"></span>
+    Save to repository successful.
+  </p>
+</div>
 {% endblock %}
 
 {% block extrajs %}
@@ -64,6 +93,8 @@
 <script src="{% static 'inc/controllers/js/curate.js' %}"></script>
 <script>
 verifyTemplateIsSelectedCurateEnterData();
+$('.button.clear-fields').on('click', clearFields);
+$('.button.save-to-repo').on('click', validateXML);
 </script>
 {% endblock %}
 
