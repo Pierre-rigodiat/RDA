@@ -152,4 +152,34 @@ class AutoCompleteModule(Module):
             params.update({"label": self.label})
 
         return render_module(template, params)
-    
+
+
+class CheckboxesModule(Module):
+    def __init__(self, scripts=list(), styles=list(), label=None, name=None, options=dict(), selected=[]):
+        scripts = [os.path.join(SCRIPTS_PATH, 'checkboxes.js')] + scripts
+        Module.__init__(self, scripts=scripts, styles=styles)
+        
+        if name is None:
+            raise ModuleError("The name can't be empty.")
+
+        self.selected = selected
+        self.options = options
+        self.label = label
+
+    def get_module(self, request):
+        template = os.path.join(TEMPLATES_PATH, 'checkboxes.html')
+        checkboxes_html = ""
+
+        for key, val in self.options.items():  
+            if key in self.selected:
+                checkboxes_html += "<span style='white-space:no-wrap;'><input type='checkbox' checked value='" + key + "'/> " + val+" </span>"
+            else:          
+                checkboxes_html += "<span style='white-space:no-wrap;'><input type='checkbox' value='" + key + "'/> " + val+" </span>"
+
+        
+        params = {"options": checkboxes_html}
+
+        if self.label is not None:
+            params.update({"label": self.label})
+
+        return render_module(template, params)

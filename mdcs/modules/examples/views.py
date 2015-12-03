@@ -1,5 +1,5 @@
 from models import PositiveIntegerInputModule, ExampleAutoCompleteModule, ChemicalElementMappingModule, \
-    ListToGraphInputModule, CountriesModule, FlagModule
+    ListToGraphInputModule, CountriesModule, FlagModule, ChemicalElementCheckboxesModule
 
 def positive_integer(request):
     return PositiveIntegerInputModule().render(request)
@@ -18,3 +18,6 @@ def countries(request):
 
 def flag(request):
     return FlagModule().render(request)
+
+def chemical_element_selection(request):
+    return ChemicalElementCheckboxesModule().render(request)
