@@ -22,6 +22,7 @@ from bson.objectid import ObjectId
 import xmltodict
 from pymongo import MongoClient
 from mgi.settings import MONGODB_URI
+import re
 
  
 class Request(Document):
@@ -229,7 +230,6 @@ class XMLdata():
             # insert the json content after                                                                                                                                                                                       
             self.content['content'] = xmltodict.parse(xml, postprocessor=postprocessor)
 
-
     def save(self):
         """save into mongo db"""
         # insert the content into mongo db                                                                                                                                                                                    
@@ -307,13 +307,12 @@ class XMLdata():
         # get the xmldata collection
         xmldata = db['xmldata']
         # query mongo db
-        cursor = xmldata.find(query,as_class = OrderedDict)  
-        # build a list with the xml representation of objects that match the query              
+        cursor = xmldata.find(query,as_class = OrderedDict)
+        # build a list with the xml representation of objects that match the query
         results = []
         for result in cursor:
             results.append(result)
         return results
-
 
     @staticmethod
     def get(postID):
@@ -382,5 +381,23 @@ class XMLdata():
         json = {'content': json_content, 'title': title}
                     
         xmldata.update({'_id': ObjectId(postID)}, {"$set":json}, upsert=False)
-    
+
+    @staticmethod
+    def executeFullTextQuery(text):
+        #create a connection
+        client = MongoClient(MONGODB_URI)
+        # connect to the db 'mgi'
+        db = client['mgi']
+        # get the xmldata collection
+        xmldata = db['xmldata']
+        wordList = re.sub("[^\w]", " ",  text).split()
+        wordList = [x + ".*" for x in wordList]
+        wordList = '|'.join(wordList)
+        cursor = xmldata.find({'content.records.record.title': {'$regex': ".*\\b("+ wordList +")\\b"}})
+        # build a list with the xml representation of objects that match the query
+        results = []
+        for result in cursor:
+            results.append(result)
+        return results
+
 

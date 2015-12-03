@@ -24,6 +24,4 @@ class Explore(models.Model):
             (RIGHTS.explore_access, RIGHTS.get_description(RIGHTS.explore_access)),
             (RIGHTS.explore_save_query, RIGHTS.get_description(RIGHTS.explore_save_query)),
             (RIGHTS.explore_delete_query, RIGHTS.get_description(RIGHTS.explore_delete_query)),
-            (RIGHTS.explore_edit_document, RIGHTS.get_description(RIGHTS.explore_edit_document)),
-            (RIGHTS.explore_delete_document, RIGHTS.get_description(RIGHTS.explore_delete_document)),
         )

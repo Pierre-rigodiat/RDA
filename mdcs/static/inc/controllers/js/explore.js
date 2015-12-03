@@ -330,7 +330,6 @@ getAsyncResults = function(numInstance)
 	get_results_by_instance(numInstance);
 }
 
-
 /**
  * AJAX call, gets query results
  * @param numInstance
@@ -349,7 +348,6 @@ get_results_by_instance = function(numInstance){
     });
 }
 
-
 /**
  * AJAX call, gets the results
  */
@@ -363,7 +361,6 @@ get_results = function(){
         }
     });	
 }
-
 
 /**
  * Get SPARQL results asynchronously (disabled)
@@ -1492,3 +1489,79 @@ validateExport = function(){
 		return (true)
 	}
 }
+
+
+/**
+ * Get results asynchronously (disabled)
+ * @param numInstance
+ */
+getAsyncResultsKeyword = function(numInstance)
+{
+	/*for (i=0; i < Number(nbInstances); ++i){
+		Dajaxice.explore.getResultsByInstance(Dajax.process,{"numInstance": i});
+	}*/
+	get_results_by_instance_keyword(numInstance);
+}
+
+/**
+ * AJAX call, gets query results
+ * @param numInstance
+ */
+get_results_by_instance_keyword = function(numInstance){
+    $('.toolbar').hide();
+    var keyword = $("#id_search_entry").val();
+    $.ajax({
+        url : "/explore/get_results_by_instance",
+        type : "GET",
+        dataType: "json",
+        data : {
+        	numInstance: numInstance,
+        	keyword: keyword,
+        },
+        success: function(data){
+        	$("#results").html(data.results);
+        	if(data.results)
+        	{
+                $('.toolbar').show();
+        	}
+        }
+    });
+}
+
+/**
+ * AJAX call, gets the results
+ */
+get_results_keyword = function(){
+    $("#results").html('');
+    $.ajax({
+        url : "/explore/get_results",
+        type : "GET",
+        dataType: "json",
+        success: function(data){
+        	getAsyncResultsKeyword(data.numInstance);
+        }
+    });
+}
+
+$(function() {
+  $("#id_search_entry").autocomplete({
+      source: function(request, response) {
+        $.getJSON("/explore/get_results_by_instance", { numInstance: 1, keyword: this.term },
+                  response);
+      },
+      minLength: 2,
+      select: function( event, ui ) {
+        //$( "#project" ).val( ui.item.label );
+        $( "#results" ).html( ui.item.value );
+       // $( "#project-description" ).html( ui.item.desc );
+       // $( "#project-icon" ).attr( "src", "images/" + ui.item.icon );
+
+        return false;
+      },
+  }).autocomplete( "instance" )._renderItem = function( ul, item ) {
+      return $( "<li>" )
+        .append( item.label + "<br>" )
+        .append( "<hr>" )
+        .appendTo( ul );
+    };;
+});

@@ -111,6 +111,10 @@ CUSTOM_COMPOSE = 'Composer'
 #CUSTOM_CURATE = 'Curate'
 #CUSTOM_EXPLORE = 'Search'
 #CUSTOM_COMPOSE = 'Compose'
+
+#KEYWORD
+EXPLORE_BY_KEYWORD = False  #True or False
+TEMPLATE_NAME_FOR_KEYWORD = 'Library'
                
 TEMPLATE_DIRS = [os.path.join(BASE_DIR, 'templates')]
 
@@ -149,7 +153,7 @@ INSTALLED_APPS = (
     'exporter',
     'explore',
     'compose',
-    'modules',    
+    'modules',
 )
 
 OAUTH2_PROVIDER = {
