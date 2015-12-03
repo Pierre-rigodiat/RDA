@@ -98,7 +98,7 @@ CUSTOM_CURATE = 'Add your resource'
 CUSTOM_EXPLORE = 'Search for resources'
 #CURATE
 CURATE_MIN_TREE = True
-CURATE_COLLAPSE = True
+CURATE_COLLAPSE = False
 
 #KEYWORD
 EXPLORE_BY_KEYWORD = False  #True or False
