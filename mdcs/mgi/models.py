@@ -383,7 +383,7 @@ class XMLdata():
         xmldata.update({'_id': ObjectId(postID)}, {"$set":json}, upsert=False)
 
     @staticmethod
-    def executeFullTextQuery(text):
+    def executeFullTextQuery(text, templatesID):
         #create a connection
         client = MongoClient(MONGODB_URI)
         # connect to the db 'mgi'
@@ -393,7 +393,7 @@ class XMLdata():
         wordList = re.sub("[^\w]", " ",  text).split()
         wordList = [x + ".*" for x in wordList]
         wordList = '|'.join(wordList)
-        cursor = xmldata.find({'content.records.record.title': {'$regex': ".*\\b("+ wordList +")\\b"}})
+        cursor = xmldata.find({'content.records.record.title': {'$regex': ".*\\b("+ wordList +")\\b"}, 'schema' : {'$in': templatesID} })
         # build a list with the xml representation of objects that match the query
         results = []
         for result in cursor:

@@ -60,6 +60,7 @@ automatically load the appropriate form and display it on the next page.
 				<input id="submit" name="submit" type="button" onclick="get_results_keyword()" value="Search" />
 			</div>
         </div>
+		<div style="display: none;">{{search_Form.my_schemas}}</div>
         <div id="form_result_start_current"></div>
 </div>
 <div id="results"></div>
@@ -87,8 +88,5 @@ Are you sure you want to delete this document?
 
 {% block extrajs %}
 <script src="{% static 'inc/controllers/js/explore.js' %}"></script>
-<script>
-    loadTemplateSelectionControllers();
-</script>
 {% endblock %}
 
