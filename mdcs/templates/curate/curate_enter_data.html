@@ -24,6 +24,7 @@
 {% block extrastyle %}
     <link rel="stylesheet" type="text/css" href="{% static 'resources/css/XMLTreeCurator.css' %}" media="screen" />
     <link rel="stylesheet" type="text/css" href="{% static 'css/nmrr/repo.css' %}" media="screen" />
+    <link rel="stylesheet" type="text/css" href="{% static 'css/nmrr/form_validation.css' %}" media="screen" />
 {% endblock %}
 
 {% block title %}
@@ -67,15 +68,23 @@ Please wait while the form is loading...
   <div id="saveErrorMessage">
   </div>
 </div>
+
+<div id="form_validation" title="Errors" style="display:none;">
+<p></p>
+  <div id="validation_errors">
+  
+  </div>
+</div>
 {% endblock %}
 
 {% block extrajs %}
 <script src="{% static 'inc/controllers/js/XMLTreeCurator.js' %}"></script>
 <script src="{% static 'inc/controllers/js/modules.js' %}"></script>
 <script src="{% static 'inc/controllers/js/curate.js' %}"></script>
+<script src="{% static 'inc/controllers/js/nmrr/form_validation.js' %}"></script>
 <script>
 verifyTemplateIsSelectedCurateEnterData();
-$('.button.save-to-repo').on('click', validateXML);
+$('.button.save-to-repo').on('click', validate_form);
 $('.button.clear-fields').on('click', clearFields);
 </script>
 {% endblock %}

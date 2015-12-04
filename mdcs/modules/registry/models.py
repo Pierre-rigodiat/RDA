@@ -19,6 +19,7 @@ class RegistryCheckboxesModule(CheckboxesModule):
         CheckboxesModule.__init__(self, options={}, label='', name='')
 
     def _get_module(self, request):
+        # get the values of the enumeration
         namespaces = request.session['namespaces']
         defaultPrefix = request.session['defaultPrefix']
         xmlDocTreeStr = request.session['xmlDocTree']
@@ -43,20 +44,23 @@ class RegistryCheckboxesModule(CheckboxesModule):
         return CheckboxesModule.get_module(self, request)
 
     def _get_display(self, request):
-        return ''
+        return '<div class="error_nmrr">The element ' + self.xml_tag + ' should be removed if no checkboxes are checked.</div>'
 
     def _get_result(self, request):
         return ''
 
     def _post_display(self, request):
-        return ''
+        display = ''
+        if not 'data[]' in request.POST:
+            return '<div class="error_nmrr">The element ' + request.xml_tag + ' should be removed if no checkboxes are checked.</div>'
+        return display
+                
 
     def _post_result(self, request):
         xml_result = ''        
-        if 'data[]' in request.POST:
+        if 'data[]' in request.POST:        
             for value in dict(request.POST)['data[]']:
-                xml_result += '<' + self.xml_tag + '>' + value + '</' + self.xml_tag + '>'
-        print xml_result
+                xml_result += '<' + self.xml_tag + '>' + value + '</' + self.xml_tag + '>'    
         return xml_result
     
     
@@ -148,7 +152,7 @@ class RelevantDateModule(Module):
 
 
     def _get_display(self, request):
-        return ''
+        return '<div class="error_nmrr">The element ' + self.params['tag'] + ' should respect the following format yyyy-mm-dd.</div>'
 
 
     def _get_result(self, request):
@@ -160,7 +164,7 @@ class RelevantDateModule(Module):
     def _post_display(self, request):
         form = DateForm(request.POST)
         if not form.is_valid():
-            return '<p style="color:red;">Entered values are not correct.</p>'
+            return '<div class="error_nmrr">The element ' + self.params['tag'] + ' should respect the following format yyyy-mm-dd.</div>'
         return ''
 
 
