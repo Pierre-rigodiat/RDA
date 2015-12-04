@@ -436,10 +436,18 @@ changeChoice = function(selectObj)
     // the choice is not yet generated
     if ($("#" + selectObj.id + "-" + idx).children().length == 0){
         // save values in the form
-        $("input").each(function(){
-	        $(this).attr("value", $(this).val());
-	    });
-	    $('select option').each(function(){ this.defaultSelected = this.selected; });
+        $("input:text").each(function(){
+    	    $(this).attr("value", $(this).val());
+    	});
+    	$('select option').each(function(){ this.defaultSelected = this.selected; });
+    	$("input:checkbox:not(:checked)").each(function(){
+    	    
+    	    $(this).removeAttr("checked");
+    	});
+    	$("input:checkbox:checked").each(function(){
+        
+    	    $(this).attr("checked", true);
+    	});
 	    // generate selected choice
         generate(selectObj.id.substr(6) + "-" + idx, "choice");
     }
@@ -869,10 +877,19 @@ changeHTMLForm = function(operation, tagID)
 {
     console.log('BEGIN [changeHTMLForm(' + operation + ')]');
     
-    $("input").each(function(){
+    // save values in the form
+    $("input:text").each(function(){
 	    $(this).attr("value", $(this).val());
 	});
 	$('select option').each(function(){ this.defaultSelected = this.selected; });
+	$("input:checkbox:not(:checked)").each(function(){
+	    
+	    $(this).removeAttr("checked");
+	});
+	$("input:checkbox:checked").each(function(){
+    
+	    $(this).attr("checked", true);
+	});
 
     if (operation == 'add') {
         // the element has to be created
