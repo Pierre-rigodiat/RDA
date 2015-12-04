@@ -1,12 +1,14 @@
+from __future__ import division
 from modules.models import Module, ModuleError
 from django.conf import settings
 import os
 from modules import render_module
+from math import ceil
 
 RESOURCES_PATH = os.path.join(settings.SITE_ROOT, 'modules/builtin/resources/')
-TEMPLATES_PATH = os.path.join(RESOURCES_PATH, 'html/')
-SCRIPTS_PATH = os.path.join(RESOURCES_PATH, 'js/')
-STYLES_PATH = os.path.join(RESOURCES_PATH, 'css/')
+TEMPLATES_PATH = os.path.join(RESOURCES_PATH, 'html')
+SCRIPTS_PATH = os.path.join(RESOURCES_PATH, 'js')
+STYLES_PATH = os.path.join(RESOURCES_PATH, 'css')
 
 class InputModule(Module):
     def __init__(self, scripts=list(), styles=list(), label=None, default_value=None):
@@ -155,29 +157,59 @@ class AutoCompleteModule(Module):
 
 
 class CheckboxesModule(Module):
-    def __init__(self, scripts=list(), styles=list(), label=None, name=None, options=dict(), selected=[]):
+    def __init__(self, scripts=list(), styles=list(), label=None, name=None, options=None, selected=list()):
         scripts = [os.path.join(SCRIPTS_PATH, 'checkboxes.js')] + scripts
+        styles = [os.path.join(STYLES_PATH, 'checkboxes.css')] + styles
         Module.__init__(self, scripts=scripts, styles=styles)
         
         if name is None:
             raise ModuleError("The name can't be empty.")
 
         self.selected = selected
-        self.options = options
+        self.options = options if options is not None else dict()
         self.label = label
 
     def get_module(self, request):
+        def _create_html_checkbox(input_key, input_value, checked=False):
+            input_tag = '<input type="checkbox" '
+            if checked:
+                input_tag += 'checked '
+            input_tag += 'value="' + input_key + '"/> ' + input_value
+
+            return '<span>' + input_tag + '</span>'
+
         template = os.path.join(TEMPLATES_PATH, 'checkboxes.html')
+
+        # Compute number of items in each columns
+        col_nb = 3
+        opt_nb = len(self.options)
+        max_item_nb = int(ceil(opt_nb / col_nb))
+
+        # Parameters initialization
+        params = {
+            "column1": "",
+            "column2": "",
+            "column3": "",
+        }
+        item_nb = 0
+        col_id = 1
         checkboxes_html = ""
 
-        for key, val in self.options.items():  
-            if key in self.selected:
-                checkboxes_html += "<span style='white-space:no-wrap;'><input type='checkbox' checked value='" + key + "'/> " + val+" </span>"
-            else:          
-                checkboxes_html += "<span style='white-space:no-wrap;'><input type='checkbox' value='" + key + "'/> " + val+" </span>"
+        # Filling the parameters
+        for key, val in self.options.items():
+            if item_nb == max_item_nb:
+                params['column' + str(col_id)] = checkboxes_html
 
-        
-        params = {"options": checkboxes_html}
+                checkboxes_html = ""
+                item_nb = 0
+                col_id += 1
+
+            checkboxes_html += _create_html_checkbox(key, val, checked=(key in self.selected))
+            item_nb += 1
+
+        params['column' + str(col_id)] = checkboxes_html
+
+        # params = {"options": checkboxes_html}
 
         if self.label is not None:
             params.update({"label": self.label})

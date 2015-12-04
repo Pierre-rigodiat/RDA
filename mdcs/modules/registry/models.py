@@ -16,8 +16,7 @@ class RegistryCheckboxesModule(CheckboxesModule):
     def __init__(self, xml_tag):
                  
         self.xml_tag = xml_tag
-        CheckboxesModule.__init__(self, options={}, label='', name='',
-                                  styles=[os.path.join(STYLES_PATH, 'checkboxes.css')],)
+        CheckboxesModule.__init__(self, options={}, label='', name='')
 
     def _get_module(self, request):
         namespaces = request.session['namespaces']
