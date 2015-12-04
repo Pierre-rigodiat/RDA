@@ -51,7 +51,7 @@ Please wait while the form is loading...
 <br/><br/>
 </div>
 </div>
-<a class="button save-to-repo" >ADD {{template_name}}</a>
+<a class="button save-to-repo">ADD {{template_name}}</a>
 <a class="button button-reversed clear-fields">Clear</a>
 {% endblock %}
 
@@ -68,23 +68,6 @@ Please wait while the form is loading...
   <div id="saveErrorMessage">
   </div>
 </div>
-
-<div id="dialog-save-data-message" title="Save to Repository" style="display:none;">
-	Save data to the repository.
-	<form id="form_save" action="/curate/save_data" method="post">
-	{% csrf_token %}
-	{{form_save}}
-	</form>
-	<div id="saveErrorMessage" style="color:red;"></div>
-</div>
-
-<div id="dialog-saved-message" title="XML Data Saved" style="display:none;">
-<p></p>
-  <p>
-    <span class="ui-icon ui-icon-circle-check" style="float:left; margin:0 7px 10px 0;"></span>
-    Save to repository successful.
-  </p>
-</div>
 {% endblock %}
 
 {% block extrajs %}
@@ -93,8 +76,8 @@ Please wait while the form is loading...
 <script src="{% static 'inc/controllers/js/curate.js' %}"></script>
 <script>
 verifyTemplateIsSelectedCurateEnterData();
+$('.button.save-to-repo').on('click', validateXML);
 $('.button.clear-fields').on('click', clearFields);
-$('.button.save-to-repo').on('click', saveToRepository);
 </script>
 {% endblock %}
 
