@@ -102,8 +102,7 @@ CURATE_COLLAPSE = False
 
 #KEYWORD
 EXPLORE_BY_KEYWORD = False  #True or False
-TEMPLATE_NAME_FOR_KEYWORD = 'Library'
-               
+
 TEMPLATE_DIRS = [os.path.join(BASE_DIR, 'templates')]
 
 TEMPLATE_LOADERS = (

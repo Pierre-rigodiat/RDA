@@ -1490,37 +1490,25 @@ validateExport = function(){
 	}
 }
 
-
-/**
- * Get results asynchronously (disabled)
- * @param numInstance
- */
-getAsyncResultsKeyword = function(numInstance)
-{
-	/*for (i=0; i < Number(nbInstances); ++i){
-		Dajaxice.explore.getResultsByInstance(Dajax.process,{"numInstance": i});
-	}*/
-	get_results_by_instance_keyword(numInstance);
-}
-
 /**
  * AJAX call, gets query results
  * @param numInstance
  */
-get_results_by_instance_keyword = function(numInstance){
+get_results_keyword = function(numInstance){
+    $("#results").html('');
     $('.toolbar').hide();
     var keyword = $("#id_search_entry").val();
     $.ajax({
-        url : "/explore/get_results_by_instance",
+        url : "/explore/get_results_by_instance_keyword",
         type : "GET",
         dataType: "json",
         data : {
-        	numInstance: numInstance,
         	keyword: keyword,
+        	schemas: getSchemas(),
         },
         success: function(data){
-        	$("#results").html(data.results);
-        	if(data.results)
+        	$("#results").html(data.resultString);
+        	if(data.resultString)
         	{
                 $('.toolbar').show();
         	}
@@ -1528,40 +1516,33 @@ get_results_by_instance_keyword = function(numInstance){
     });
 }
 
-/**
- * AJAX call, gets the results
- */
-get_results_keyword = function(){
-    $("#results").html('');
-    $.ajax({
-        url : "/explore/get_results",
-        type : "GET",
-        dataType: "json",
-        success: function(data){
-        	getAsyncResultsKeyword(data.numInstance);
-        }
-    });
-}
-
 $(function() {
-  $("#id_search_entry").autocomplete({
-      source: function(request, response) {
-        $.getJSON("/explore/get_results_by_instance", { numInstance: 1, keyword: this.term },
-                  response);
-      },
-      minLength: 2,
-      select: function( event, ui ) {
-        //$( "#project" ).val( ui.item.label );
-        $( "#results" ).html( ui.item.value );
-       // $( "#project-description" ).html( ui.item.desc );
-       // $( "#project-icon" ).attr( "src", "images/" + ui.item.icon );
+    $("#id_search_entry").autocomplete({
+          source: function(request, response) {
+            $.getJSON("/explore/get_results_by_instance_keyword", { keyword: this.term, schemas: getSchemas(), },
+                      function (data) {
+                        response(data.resultsByKeyword);
+                        });
+          },
+          minLength: 2,
+          select: function( event, ui ) {
+            $( "#results" ).html( ui.item.value );
+            $('.toolbar').show();
 
-        return false;
-      },
-  }).autocomplete( "instance" )._renderItem = function( ul, item ) {
-      return $( "<li>" )
-        .append( item.label + "<br>" )
-        .append( "<hr>" )
-        .appendTo( ul );
-    };;
+            return false;
+          },
+    }).autocomplete( "instance" )._renderItem = function( ul, item ) {
+          return $( "<li>" )
+            .append( item.label + "<br>" )
+            .appendTo( ul );
+    };
 });
+
+getSchemas = function(numInstance){
+    var values = [];
+    $('#id_my_schemas input:checked').each(function() {
+        values.push(this.value);
+    });
+
+    return values;
+}

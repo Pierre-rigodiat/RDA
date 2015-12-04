@@ -26,7 +26,7 @@ import os
 import json
 import copy
 import lxml.etree as etree
-from mgi.models import Template, QueryResults, SavedQuery, XMLdata, Instance, MetaSchema
+from mgi.models import Template, QueryResults, SavedQuery, XMLdata, Instance, MetaSchema, TemplateVersion
 from mgi import common
 from django.template import loader, Context
 from django.contrib.auth.models import Group
@@ -822,7 +822,6 @@ def get_results(request):
     response_dict = {'numInstance': str(len(instances))}
     return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
 
-
 ################################################################################
 # 
 # Function Name: getResults(query)
@@ -922,6 +921,100 @@ def manageRegexBeforeExe(query):
 
 
 ################################################################################
+#
+# Function Name: get_results_by_instance_keyword(request)
+# Inputs:        request -
+# Outputs:
+# Exceptions:    None
+# Description:   Get results of a query for a specific keyword
+#
+################################################################################
+def get_results_by_instance_keyword(request):
+    print 'BEGIN def getResultsKeyword(request)'
+    resultsByKeyword = []
+    results = []
+    resultString = ""
+    sessionName = "resultsExploreLocal"
+
+    if settings.EXPLORE_BY_KEYWORD:
+        try:
+            keyword = request.GET['keyword']
+            schemas = request.GET.getlist('schemas[]')
+            # all = request.GET['all']
+        except:
+            keyword = ''
+            schemas = []
+
+        #We get all template versions for the given schemas
+        templatesVersions = Template.objects(title__in=schemas).distinct(field="templateVersion")
+        #We get all templates ID, for all versions
+        templatesID = TemplateVersion.objects(pk__in=templatesVersions).distinct(field="versions")
+        instanceResults = XMLdata.executeFullTextQuery(keyword, templatesID)
+        if len(instanceResults) > 0:
+            canDelete = False
+            canEdit = False
+            # only admins can edit/delete for now
+            try:
+                if request.user.is_anonymous():
+                    canDelete = Group.objects.filter(Q(name=RIGHTS.anonymous_group) & Q(permissions__name=RIGHTS.curate_delete_document))
+                    canEdit = Group.objects.filter(Q(name=RIGHTS.anonymous_group) & Q(permissions__name=RIGHTS.curate_edit_document))
+                else:
+                    prefixed_permission_delete = "{!s}.{!s}".format(RIGHTS.curate_content_type, RIGHTS.curate_delete_document)
+                    prefixed_permission_edit = "{!s}.{!s}".format(RIGHTS.curate_content_type, RIGHTS.curate_edit_document)
+                    canDelete = request.user.has_perm(prefixed_permission_delete)
+                    canEdit = request.user.has_perm(prefixed_permission_edit)
+            except:
+                if request.user.is_superuser:
+                    canDelete = True
+                    canEdit = True
+
+            template = loader.get_template('explore/explore_result_keyword.html')
+            xsltPath = os.path.join(settings.SITE_ROOT, 'static/resources/xsl/xml2html.xsl')
+            xslt = etree.parse(xsltPath)
+            transform = etree.XSLT(xslt)
+            for instanceResult in instanceResults:
+                results.append({'title':instanceResult['title'], 'content':xmltodict.unparse(instanceResult['content']),'id':str(instanceResult['_id'])})
+                dom = etree.XML(str(xmltodict.unparse(instanceResult['content']).encode('utf-8')))
+                #Check if a custom short result XSLT has to be used
+                try:
+                    schema = Template.objects.get(pk=instanceResult['schema'])
+                    if schema.ResultXsltShort:
+                        shortXslt = etree.parse(BytesIO(schema.ResultXsltShort.content.encode('utf-8')))
+                        shortTransform = etree.XSLT(shortXslt)
+                        newdom = shortTransform(dom)
+                    else:
+                        newdom = transform(dom)
+                except Exception, e:
+                    #We use the default one
+                    newdom = transform(dom)
+
+                context = Context({'id':str(instanceResult['_id']),
+                                   'xml': str(newdom),
+                                   'title': instanceResult['title'],
+                                   'canDelete':canDelete,
+                                   'canEdit': canEdit})
+
+                result_json = {}
+                result_json['id'] = str(instanceResult['_id'])
+                result_json['label'] = instanceResult['title']
+                result_json['desc'] = str(newdom)
+                result_json['value'] = template.render(context)
+                resultsByKeyword.append(result_json)
+
+                resultString+= template.render(context)
+
+            result_json = {}
+            result_json['resultString'] = resultString
+            resultsByKeyword.append(result_json)
+
+    request.session[sessionName] = results
+    print 'END def getResultsKeyword(request)'
+
+    return HttpResponse(json.dumps({'resultsByKeyword' : resultsByKeyword, 'resultString' : resultString}), content_type='application/javascript')
+
+
+
+################################################################################
 # 
 # Function Name: get_results_by_instance(request)
 # Inputs:        request -
@@ -933,15 +1026,8 @@ def manageRegexBeforeExe(query):
 def get_results_by_instance(request):
     print 'BEGIN def getResults(request)'
     num_instance = request.GET['numInstance']
-    if settings.EXPLORE_BY_KEYWORD:
-        try:
-            keyword = request.GET['keyword']
-        except:
-            keyword = ''
-
     instances = request.session['instancesExplore']
     resultString = ""
-    resultsByKeyword = []
 
     for i in range(int(num_instance)):
         results = []
@@ -949,12 +1035,9 @@ def get_results_by_instance(request):
         sessionName = "resultsExplore" + instance['name']
         resultString += "<p style='font-weight:bold; color:#369;'>From " + instance['name'] + ":</p>"
         if instance['name'] == "Local":
-            if settings.EXPLORE_BY_KEYWORD:
-                instanceResults = XMLdata.executeFullTextQuery(keyword)
-            else:
-                query = copy.deepcopy(request.session['queryExplore'])
-                manageRegexBeforeExe(query)
-                instanceResults = XMLdata.executeQueryFullResult(query)
+            query = copy.deepcopy(request.session['queryExplore'])
+            manageRegexBeforeExe(query)
+            instanceResults = XMLdata.executeQueryFullResult(query)
 
             if len(instanceResults) > 0:
                 canDelete = False
@@ -999,22 +1082,13 @@ def get_results_by_instance(request):
                                        'xml': str(newdom),
                                        'title': instanceResult['title'],
                                        'canDelete':canDelete,
-                                       'canEdit': canEdit,
-                                       'keyword': settings.EXPLORE_BY_KEYWORD})
+                                       'canEdit': canEdit})
 
                     resultString+= template.render(context)
-                    if settings.EXPLORE_BY_KEYWORD:
-                        result_json = {}
-                        result_json['id'] = str(instanceResult['_id'])
-                        result_json['label'] = instanceResult['title']
-                        result_json['desc'] = str(newdom)
-                        result_json['value'] = template.render(context)
-                        resultsByKeyword.append(result_json)
-                    
+
                 resultString += "<br/>"
             else:
                 resultString += "<span style='font-style:italic; color:red;'> No Results found... </span><br/><br/>"
-
 
         else:
             url = instance['protocol'] + "://" + instance['address'] + ":" + str(instance['port']) + "/rest/explore/query-by-example"
@@ -1031,7 +1105,6 @@ def get_results_by_instance(request):
                 transform = etree.XSLT(xslt)
                 for instanceResult in instanceResults:
                     results.append({'title':instanceResult['title'], 'content':instanceResult['content'],'id':str(instanceResult['_id'])})
-                    #dom = etree.fromstring(str(xmltodict.unparse(instanceResult['content']).replace('<?xml version="1.0" encoding="utf-8"?>\n',"")))
                     dom = etree.XML(str(xmltodict.unparse(instanceResult['content']).encode('utf-8')))
                     #Check if a custom short result XSLT has to be used
                     try:
@@ -1058,13 +1131,7 @@ def get_results_by_instance(request):
         request.session[sessionName] = results
     
     print 'END def getResults(request)'
-
-
-    if settings.EXPLORE_BY_KEYWORD:
-        response_dict = resultsByKeyword
-    else:
-        response_dict = {'results': resultString}
-
+    response_dict = {'results': resultString}
     return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
  
  
