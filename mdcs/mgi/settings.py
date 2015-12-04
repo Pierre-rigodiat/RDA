@@ -101,16 +101,9 @@ CUSTOM_CURATE = 'Data Curation'
 CUSTOM_EXPLORE = 'Data Exploration'
 CUSTOM_COMPOSE = 'Composer'
 
-# Customization: NIST
-# CUSTOM_TITLE = 'NIST Data'
-# CUSTOM_SUBTITLE = 'Repository of the National Institute of Standards and Technology'
-# CUSTOM_DATA = 'NIST Data'
-# CUSTOM_DESCRIPTION = """This system allows for the curation of NIST Data in a repository using predefined templates. <br/><br/>
-#                      This is being developed at the National Institute of Standards and Technology and is made available to solicit comments from the Science community. 
-#                      Please do not enter any proprietary data into this system. """
-#CUSTOM_CURATE = 'Curate'
-#CUSTOM_EXPLORE = 'Search'
-#CUSTOM_COMPOSE = 'Compose'
+#CURATE
+CURATE_MIN_TREE = True
+CURATE_COLLAPSE = True
 
 #KEYWORD
 EXPLORE_BY_KEYWORD = False  #True or False

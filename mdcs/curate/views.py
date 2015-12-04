@@ -100,7 +100,6 @@ def curate_edit_data(request):
         xml_content = xmltodict.unparse(json_content)
         request.session['curate_edit_data'] = xml_content
         request.session['curate_edit'] = True
-        request.session['curate_min_tree'] = True
         request.session['currentTemplateID'] = xml_data['schema']
         # remove previously created forms when editing a new one
         previous_forms = FormData.objects(user=str(request.user.id), xml_data_id__exists=True)
@@ -158,9 +157,7 @@ def curate_from_schema(request):
             form_data = FormData(user=str(request.user.id), template=template_id, name=schema_name).save()
             request.session['curateFormData'] = str(form_data.id)
             
-            request.session['curate_edit'] = False
-            request.session['curate_min_tree'] = True
-            
+            request.session['curate_edit'] = False            
             
             if 'formString' in request.session:
                 del request.session['formString']
@@ -188,14 +185,16 @@ def curate_enter_data(request):
    
     try:
         if 'id' in request.GET:
+            context = RequestContext(request, {})
             curate_edit_data(request)
         elif 'template' in request.GET:
+            context = RequestContext(request, {'template_name': request.GET['template']})
             curate_from_schema(request)
         elif 'templateid' in request.GET:
             pass
         
         template = loader.get_template('curate/curate_enter_data.html')
-        context = RequestContext(request, {})
+        
         return HttpResponse(template.render(context))
     except MDCSError, e:
         template = loader.get_template('curate/errors.html')
@@ -345,14 +344,10 @@ def start_curate(request):
             # parameters that will be used during curation
             request.session['curateFormData'] = str(form_data.id)
 
-            # TODO: remove default options to True
-            request.session['curate_min_tree'] = True
 #                 request.session['curate_siblings_mod'] = False
 
 #                 options_form = AdvancedOptionsForm(request.POST)
 #                 if 'options' in options_form.data:
-#                     if 'min_tree' in dict(options_form.data)['options']:
-#                         request.session['curate_min_tree'] = True
 #                     if 'siblings_mod' in dict(options_form.data)['options']:
 #                         request.session['curate_siblings_mod'] = True
 
