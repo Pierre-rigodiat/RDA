@@ -228,8 +228,8 @@
           </xs:annotation>
        </xs:element>
 
-       <xs:element name="creator" type="NamePID" 
-         minOccurs="0" maxOccurs="unbounded" xmlns:ns0="http://mdcs.ns" ns0:_mod_mdcs_="/registry/creator-name-pid">
+       <xs:element name="creator" type="NamePID" xmlns:ns0="http://mdcs.ns" ns0:_mod_mdcs_="/registry/creator-name-pid"
+         minOccurs="0" maxOccurs="unbounded">
           <xs:annotation>
              <xs:appinfo>
                <dcterm>Creator</dcterm>
@@ -241,8 +241,8 @@
           </xs:annotation>
        </xs:element>
 
-       <xs:element name="contributor" type="NamePID" 
-         minOccurs="0" maxOccurs="unbounded" xmlns:ns0="http://mdcs.ns" ns0:_mod_mdcs_="/registry/contributor-name-pid">
+       <xs:element name="contributor" type="NamePID" xmlns:ns0="http://mdcs.ns" ns0:_mod_mdcs_="/registry/contributor-name-pid" 
+         minOccurs="0" maxOccurs="unbounded">
           <xs:annotation>
              <xs:appinfo>
                <dcterm>Contributor</dcterm>
@@ -254,8 +254,8 @@
           </xs:annotation>
        </xs:element>
 
-       <xs:element name="date" type="RelevantDate" 
-         minOccurs="0" maxOccurs="unbounded" xmlns:ns0="http://mdcs.ns" ns0:_mod_mdcs_="/registry/relevant-date">
+       <xs:element name="date" type="RelevantDate" xmlns:ns0="http://mdcs.ns" ns0:_mod_mdcs_="/registry/relevant-date" 
+         minOccurs="0" maxOccurs="unbounded">
           <xs:annotation>
              <xs:appinfo>
                <dcterm>Date</dcterm>
