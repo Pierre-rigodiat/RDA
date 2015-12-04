@@ -184,6 +184,7 @@ def curate_enter_data(request):
     print "BEGIN curate_enter_data(request)"
    
     try:
+        context = RequestContext(request, {})
         if 'id' in request.GET:
             context = RequestContext(request, {})
             curate_edit_data(request)
