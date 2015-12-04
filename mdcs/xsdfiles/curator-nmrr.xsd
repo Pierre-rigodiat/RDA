@@ -216,7 +216,7 @@
      </xs:annotation>
 
      <xs:sequence>
-       <xs:element name="publisher" type="NamePID" xmlns:ns0="http://mdcs.ns" ns0:_mod_mdcs_="/registry/publisher-name-pid">
+       <xs:element name="publisher" type="NamePID">
           <xs:annotation>
              <xs:appinfo>
                <dcterm>Publisher</dcterm>
@@ -228,7 +228,7 @@
           </xs:annotation>
        </xs:element>
 
-       <xs:element name="creator" type="NamePID" xmlns:ns0="http://mdcs.ns" ns0:_mod_mdcs_="/registry/creator-name-pid"
+       <xs:element name="creator" type="NamePID"
          minOccurs="0" maxOccurs="unbounded">
           <xs:annotation>
              <xs:appinfo>
@@ -241,7 +241,7 @@
           </xs:annotation>
        </xs:element>
 
-       <xs:element name="contributor" type="NamePID" xmlns:ns0="http://mdcs.ns" ns0:_mod_mdcs_="/registry/contributor-name-pid" 
+       <xs:element name="contributor" type="NamePID" 
          minOccurs="0" maxOccurs="unbounded">
           <xs:annotation>
              <xs:appinfo>
@@ -254,8 +254,7 @@
           </xs:annotation>
        </xs:element>
 
-       <xs:element name="date" type="RelevantDate" xmlns:ns0="http://mdcs.ns" ns0:_mod_mdcs_="/registry/relevant-date" 
-         minOccurs="0" maxOccurs="unbounded">
+       <xs:element name="date" type="RelevantDate" minOccurs="0" maxOccurs="unbounded">
           <xs:annotation>
              <xs:appinfo>
                <dcterm>Date</dcterm>
@@ -284,7 +283,7 @@
      </xs:sequence>
    </xs:complexType>
 
-  <xs:complexType name="NamePID">
+  <xs:complexType name="NamePID" xmlns:ns0="http://mdcs.ns" ns0:_mod_mdcs_="/registry/name-pid">
      <xs:annotation>
        <xs:documentation>
          a name or title that can potentially have an associated identifier.
@@ -315,7 +314,7 @@
      </xs:simpleContent>
    </xs:complexType>   
 
-  <xs:complexType name="RelevantDate">
+  <xs:complexType name="RelevantDate" xmlns:ns0="http://mdcs.ns" ns0:_mod_mdcs_="/registry/relevant-date">
      <xs:simpleContent>
        <xs:extension base="Date"> 
 
@@ -357,7 +356,7 @@
        </xs:documentation>
      </xs:annotation>
      <xs:sequence>
-       <xs:element name="name" type="NamePID" xmlns:ns0="http://mdcs.ns" ns0:_mod_mdcs_="/registry/name-name-pid">
+       <xs:element name="name" type="NamePID">
           <xs:annotation>
              <xs:documentation>
                  the name or title of the contact person.
@@ -427,7 +426,7 @@
 
      <xs:sequence>
        <xs:element name="type" type="NamePID" 
-         minOccurs="0" maxOccurs="unbounded" xmlns:ns0="http://mdcs.ns" ns0:_mod_mdcs_="/registry/type-name-pid">
+         minOccurs="0" maxOccurs="unbounded">
           <xs:annotation>
              <xs:appinfo>
                <dcterm>Type</dcterm>
@@ -476,7 +475,7 @@
        </xs:element>
 
        <xs:element name="referenceCitation" type="NamePID" 
-         minOccurs="0" maxOccurs="unbounded" xmlns:ns0="http://mdcs.ns" ns0:_mod_mdcs_="/registry/ref-citation-name-pid">
+         minOccurs="0" maxOccurs="unbounded">
           <xs:annotation>
              <xs:documentation>
                 a bibliographic reference to a literature article that 
@@ -643,7 +642,7 @@
           </xs:annotation>
        </xs:element>
 
-       <xs:element name="title" type="NamePID" minOccurs="0" xmlns:ns0="http://mdcs.ns" ns0:_mod_mdcs_="/registry/title-name-pid"> 
+       <xs:element name="title" type="NamePID" minOccurs="0"> 
           <xs:annotation>
              <xs:documentation>
                A title for the portal.

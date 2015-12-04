@@ -63,8 +63,7 @@ class RegistryCheckboxesModule(CheckboxesModule):
     
 class NamePIDModule(Module):
     
-    def __init__(self, xml_tag):
-        self.xml_tag = xml_tag
+    def __init__(self):        
         Module.__init__(self, scripts=[os.path.join(SCRIPTS_PATH, 'namepid.js')])
 
     def _get_module(self, request):
@@ -78,6 +77,14 @@ class NamePIDModule(Module):
             if 'attributes' in request.GET:
                 if 'pid' in request.GET['attributes']:
                     self.params['pid'] = request.GET['attributes']['pid']
+                    
+            xml_xpath = request.GET['xml_xpath']
+            xml_xpath = xml_xpath.split('/')[-1]
+            idx = xml_xpath.rfind("[")
+            xml_xpath = xml_xpath[0:idx]        
+
+            self.params['tag'] = xml_xpath
+        
             context = Context({'form': NamePIDForm(self.params)})
             return template.render(context)        
 
@@ -89,7 +96,7 @@ class NamePIDModule(Module):
     def _get_result(self, request):
         pid = ' pid="'+ self.params['pid'] +'"' if 'pid' in self.params else ''
         name = self.params['name'] if 'name' in self.params else ''
-        return '<' + self.xml_tag + pid + '>' +  name + '</' + self.xml_tag + '>'
+        return '<' + self.params['tag'] + pid + '>' +  name + '</' + self.params['tag'] + '>'
 
 
     def _post_display(self, request):
@@ -105,8 +112,8 @@ class NamePIDModule(Module):
         form = NamePIDForm(request.POST)
         if form.is_valid():
             if 'name' in request.POST and request.POST['name'] != '':
-                pid = ' pid="'+ request.POST['pid'] +'"' if 'pid' in request.POST else ''
-                return '<' + self.xml_tag + pid + '>' +  request.POST['name'] + '</' + self.xml_tag + '>'
+                pid = ' pid="'+ request.POST['pid'] +'"' if 'pid' in request.POST and len(request.POST['pid']) > 0 else ''
+                return '<' + request.POST['tag'] + pid + '>' +  request.POST['name'] + '</' + request.POST['tag'] + '>'
             
         return result_xml
 
@@ -114,8 +121,7 @@ class NamePIDModule(Module):
   
 class RelevantDateModule(Module):
     
-    def __init__(self, xml_tag):
-        self.xml_tag = xml_tag
+    def __init__(self):
         Module.__init__(self, scripts=[os.path.join(SCRIPTS_PATH, 'relevantdate.js')])
 
 
@@ -123,7 +129,22 @@ class RelevantDateModule(Module):
         with open(os.path.join(TEMPLATES_PATH, 'relevant_date.html'), 'r') as template_file:
             template_content = template_file.read()    
             template = Template(template_content)
-            context = Context({'form': DateForm()})
+            
+            self.params = {}
+            if 'data' in request.GET:
+                self.params['date'] = request.GET['data']
+            if 'attributes' in request.GET:
+                if 'role' in request.GET['attributes']:
+                    self.params['role'] = request.GET['attributes']['role']
+                    
+            xml_xpath = request.GET['xml_xpath']
+            xml_xpath = xml_xpath.split('/')[-1]
+            idx = xml_xpath.rfind("[")
+            xml_xpath = xml_xpath[0:idx]        
+
+            self.params['tag'] = xml_xpath
+            
+            context = Context({'form': DateForm(self.params)})
             return template.render(context)        
 
 
@@ -132,7 +153,9 @@ class RelevantDateModule(Module):
 
 
     def _get_result(self, request):
-        return ''
+        role = ' role="'+ self.params['role'] +'"' if 'role' in self.params else ''
+        date = self.params['date'] if 'date' in self.params else ''
+        return '<' + self.params['tag'] + role + '>' +  date + '</' + self.params['tag'] + '>'
 
 
     def _post_display(self, request):
@@ -148,8 +171,8 @@ class RelevantDateModule(Module):
         form = DateForm(request.POST)
         if form.is_valid():
             if 'date' in request.POST and request.POST['date'] != '':
-                role = ' role="'+ request.POST['role'] +'"' if 'role' in request.POST else ''
-                return '<' + self.xml_tag + role + '>' +  request.POST['date'] + '</' + self.xml_tag + '>'
+                role = ' role="'+ request.POST['role'] +'"' if 'role' in request.POST and len(request.POST['role']) > 0 else ''
+                return '<' + request.POST['tag'] + role + '>' +  request.POST['date'] + '</' + request.POST['tag'] + '>'
             
         return result_xml
     
