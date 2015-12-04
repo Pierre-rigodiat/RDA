@@ -25,23 +25,19 @@
 <link rel="stylesheet" type="text/css" href="{% static 'resources/css/XMLTree.css' %}" media="screen" />
 {% endblock %}
 
-{% block title %}<h3>View Data</h3>{% endblock %}
+{% block title %}<h3>Review Data</h3>{% endblock %}
 {% block description %}
 
 {% endblock %}
 
 
 {% block content %}
-<div class="btn-group pull-right">
-	<!--<button class="btn download-xml"><i class="icon-arrow-down"></i> Download XML</button>-->
-	<button class="btn save-to-repo"><i class="icon-star"></i> Save to repository</button>
-</div>
-
 <div class="clearer">&nbsp;</div>
 
 <div id="XMLHolder"></div>
 
 <br/><br/>
+<a class="button save-to-repo">ADD RESOURCE</a>
 {% endblock %}
 
 
@@ -69,6 +65,7 @@
 <script src="{% static 'inc/controllers/js/XMLTree.js' %}"></script>
 <script src="{% static 'inc/controllers/js/curate.js' %}"></script>
 <script>
-verifyTemplateIsSelectedViewData();
+load_xml();
+$('.button.save-to-repo').on('click', saveToRepository);
 </script>
 {% endblock %}
