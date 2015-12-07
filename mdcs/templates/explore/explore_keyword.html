@@ -35,15 +35,6 @@
 {% block content %}
 
 <div id="search">
-		<div class="toolbar" style="display: none;">
-			<!-- 
-			<div class="btn-group pull-right">
-				<span class="btn" onclick="exportRes();"><i class="icon-arrow-down"></i> Export</span>
-			</div>
-			-->
-			<br/><br/>
-			<div id="btn_errors" style="color:red;font-style: italic;text-align: right;"></div>
-		</div>
         <div id="searchContainer">
 			<div>
 				{{search_Form.search_entry}}
@@ -62,7 +53,7 @@
 All Resources
 </a>
 </td>
-<td>
+<td align="center">
 <a>
 <img width="100" src="/static/img/organization.png"><br>
 Organizations
@@ -74,25 +65,25 @@ Organizations
 Data Collections
 </a>
 </td>
-<td>
+<td align="center">
 <a>
 <img width="100" src="/static/img/dataset.png"><br>
 Datasets
 </a>
 </td>
-<td>
+<td align="center">
 <a>
 <img width="100" src="/static/img/service.png"><br>
 Services
 </a>
 </td>
-<td>
+<td align="center">
 <a>
 <img width="100" src="/static/img/informational.png"><br>
 Informational Sites
 </a>
 </td>
-<td>
+<td align="center">
 <a>
 <img width="100" src="/static/img/software.jpg"><br>
 Software
@@ -101,33 +92,23 @@ Software
 </tr>
 </table>
 
-<br>
-<br>
+<br/>
+<br/>
 
 <table>
 <tr>
 <td style="background-color:#fafafa;">
 <select onchange="document.getElementById('searchAgainForm').submit();" name="results_view">
-<option value="simple" {% if request.GET.results_view == "simple" %} selected {% endif %}> Simple Results View
-<option value="detailed" {% if request.GET.results_view == "detailed" %} selected {% endif %}> Detailed Results View
-<option value="custom" {% if request.GET.results_view == "custom" %} selected {% endif %}> Custom View
+<option value="simple"> Simple Results View
+<option value="detailed"> Detailed Results View
+<option value="custom"> Custom View
 </select>
 <table style="margin-top:-40px">
 <tr><td style="width:220px">
 <br>
-<nobr>Resource Type:</nobr><br> 
-<input type="checkbox" name="resource_type" value="all"> All Resources<br>
-<input type="checkbox" name="resource_type" value="organization"> Organization<br>
-<input type="checkbox" name="resource_type" value="datacollection"> Data Collection<br>
-<input type="checkbox" name="resource_type" value="repository"> Repostiory<br>
-<input type="checkbox" name="resource_type" value="projectarchive"> Project Archive<br>
-<input type="checkbox" name="resource_type" value="database"> Database<br>
-<input type="checkbox" name="resource_type" value="dataset"> Dataset<br>
-<input type="checkbox" name="resource_type" value="service"> Service<br>
-<input type="checkbox" name="resource_type" value="informational"> Informational Site<br>
-<input type="checkbox" name="resource_type" value="software"> Software
-<br>
-<br>
+<form>
+{{resources_form}}
+</form>
 <div id="refine_common"></div>
 <div id="refine_resource"></div>
 </td>
