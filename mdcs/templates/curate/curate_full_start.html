@@ -1,4 +1,4 @@
-{% extends "mdcs/extra/two_columns.html" %}
+{% extends "nmrr/extra/small_intro.html" %}
 {% load staticfiles %}
 
 {% comment %}
@@ -22,21 +22,11 @@
 {% endcomment %}
 
 {% block extrastyle %}
-    <link rel="stylesheet" type="text/css" href="{% static 'resources/css/XMLTreeCurator.css' %}" media="screen" />
 {% endblock %}
 
-{% block title %}<h1>Data Entry</h1>{% endblock %}
-{% block menu %}{% include 'mdcs/menus/main.html' with active_tab='tab1' %}{% endblock %}
-{% block submenu %}
-<ul class="tabbed">
-	<li><a href="/curate/select-template">Select Template</a></li>
-	<li class="current_page_item"><a href="/curate/enter-data">Enter Data</a></li>
-	<li><a onclick="validateXML();" style="cursor: pointer;">View Data</a></li>
-</ul>
-{% endblock %}
+{% block title %}<h3>Add your Resource</h3>{% endblock %}
 
 {% block content %}
-<h3>Please choose one of the following options to start curating data:</h3>
 <div class="clearer">&nbsp;</div>
 <div id="dialog-message" title="Template Loaded">
 	<div id="form_start_errors" style="color:red;"></div>
@@ -46,34 +36,6 @@
 	</form>
 	<div class="clearer">&nbsp;</div>
 	<button class="btn btn-default" onclick="displayTemplateProcess();">Start </button>
-</div>
-{% endblock %}
-
-{% block sidebar %}
-<div class="box">
-	<div class="box-title">{{CUSTOM_CURATE}}</div>
-	<div class="box-content">
-		<ul class="nice-list">
-            <li>
-                <div class="l-img">
-                    <img width="40" height="40" src="{% static 'resources/img/Orange_Number_1.png' %}" alt="1">
-                </div>
-                <div class="r-txt"><a href="/curate/select-template">Select Template</a></div>
-            </li>
-            <li>
-                <div class="l-img">
-                    <img width="40" height="40" src="{% static 'resources/img/Orange_Number_2.png' %}" alt="2">
-                </div>
-                <div class="r-txt-selected"><a href="/curate/enter-data">Enter Data</a></div>
-            </li>
-            <li>
-                <div class="l-img">
-                    <img width="40" height="40" src="{% static 'resources/img/Orange_Number_3.png' %}" alt="3">
-                </div>
-                <div class="r-txt"><a href="/curate/view-data">View Data</a></div>
-            </li>
-		</ul>
-	</div>
 </div>
 {% endblock %}
 

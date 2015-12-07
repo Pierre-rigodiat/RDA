@@ -398,7 +398,8 @@ def start_curate(request):
                 context = RequestContext(request, {
                     'errors': e.message,
                 })
-                return HttpResponse(template.render(context))
+                return HttpResponse(template.render(context))          
+
 
 ################################################################################
 #
