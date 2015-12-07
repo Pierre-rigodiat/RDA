@@ -356,8 +356,10 @@ def start_curate(request):
         else:
             try:
                 ajaxCall = False
+                context_params = dict()
                 if 'template' in request.GET:
                     schema_name = request.GET['template']
+                    context_params['template_name'] = schema_name
                     try:
                         templates = Template.objects(title=schema_name)
                     except:
@@ -385,8 +387,12 @@ def start_curate(request):
                 new_form = NewForm()
                 upload_form = UploadForm()
     #           options_form = AdvancedOptionsForm()
-
-                context = RequestContext(request, {'new_form':new_form, 'open_form': open_form, 'upload_form': upload_form})#, 'options_form': options_form})
+                
+                context_params['new_form']= new_form
+                context_params['open_form']= open_form
+                context_params['upload_form']= upload_form
+                
+                context = RequestContext(request, context_params)#, 'options_form': options_form})
 
                 if ajaxCall:
                     return HttpResponse(json.dumps({'template': template.render(context)}), content_type='application/javascript')
