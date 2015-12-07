@@ -790,7 +790,7 @@
           </xs:element>
 
            <xs:element name="propertyClass" type="xs:token"
-                       minOccurs="0" maxOccurs="unbounded">
+             minOccurs="0" maxOccurs="unbounded" xmlns:ns0="http://mdcs.ns" ns0:_mod_mdcs_="/registry/propertyClass">
              <xs:annotation>
                <xs:documentation>
                  a category of property that is sampled by the contained data
