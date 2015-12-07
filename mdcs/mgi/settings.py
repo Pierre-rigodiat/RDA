@@ -96,12 +96,13 @@ CUSTOM_SUBTITLE = 'Part of the Materials Genome Initiative'
 CUSTOM_DATA = 'Materials Data' 
 CUSTOM_CURATE = 'Add your resource' 
 CUSTOM_EXPLORE = 'Search for resources'
+
 #CURATE
 CURATE_MIN_TREE = True
 CURATE_COLLAPSE = False
 
 #KEYWORD
-EXPLORE_BY_KEYWORD = False  #True or False
+EXPLORE_BY_KEYWORD = True  #True or False
 
 TEMPLATE_DIRS = [os.path.join(BASE_DIR, 'templates')]
 
