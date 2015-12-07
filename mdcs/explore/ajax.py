@@ -1005,7 +1005,6 @@ def get_results_by_instance_keyword(request):
 
             result_json = {}
             result_json['resultString'] = resultString
-            resultsByKeyword.append(result_json)
 
     request.session[sessionName] = results
     print 'END def getResultsKeyword(request)'
