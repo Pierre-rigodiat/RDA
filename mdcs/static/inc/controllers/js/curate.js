@@ -503,6 +503,32 @@ displayTemplateProcess = function ()
 }
 
 /**
+* AJAX call, redirects to enter data
+*/
+load_enter_data = function (template_name)
+{
+    if (validateStartCurate()){
+       var formData = new FormData($( "#form_start" )[0]);
+       $.ajax({
+            url: "/curate/start_curate",
+            type: 'POST',
+            data: formData,
+            cache: false,
+            contentType: false,
+            processData: false,
+            async:false,
+            success: function(data){
+                window.location = '/curate/enter-data?template=' + template_name
+            },
+            error:function(data){
+                $("#form_start_errors").html(data.responseText);
+            },
+        })
+        ;
+   }
+}
+
+/**
  * AJAX call, launch the curation from the selected parameters
  */
 start_curate = function(){
