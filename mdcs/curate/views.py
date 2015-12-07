@@ -307,7 +307,7 @@ def curate_view_data_downloadxml(request):
 ################################################################################
 @permission_required(content_type=RIGHTS.curate_content_type, permission=RIGHTS.curate_access, login_url='/login')
 def start_curate(request):
-    if 'currentTemplateID' not in request.session:
+    if 'currentTemplateID' not in request.session and not 'template' in request.GET:
         return redirect('/curate/select-template')
     else:
         if request.method == 'POST':
@@ -354,15 +354,51 @@ def start_curate(request):
 
             return HttpResponse('ok')
         else:
-            new_form = NewForm()
-            open_form = OpenForm(forms=FormData.objects(user=str(request.user.id), template=request.session['currentTemplateID'], xml_data_id__exists=False))
-            upload_form = UploadForm()
-#                 options_form = AdvancedOptionsForm()
+            try:
+                ajaxCall = False
+                if 'template' in request.GET:
+                    schema_name = request.GET['template']
+                    try:
+                        templates = Template.objects(title=schema_name)
+                    except:
+                        raise MDCSError("The template you are looking for doesn't exist.")
 
-            template = loader.get_template('curate/curate_start.html')
-            context = Context({'new_form':new_form, 'open_form': open_form, 'upload_form': upload_form})#, 'options_form': options_form})
+                    # if the schemas are all versions of the same schema
+                    if len(set(templates.values_list('templateVersion'))) == 1:
+                        template_id = TemplateVersion.objects().get(pk=templates[0].templateVersion).current
+                        request.session['currentTemplateID'] = template_id
+                    else:
+                        raise MDCSError("The selection of template by name can't be used if the MDCS contain more than one template with the same name.")
 
-            return HttpResponse(json.dumps({'template': template.render(context)}), content_type='application/javascript')
+                    template = loader.get_template('curate/curate_full_start.html')
+
+                    if 'formString' in request.session:
+                        del request.session['formString']
+                    if 'xmlDocTree' in request.session:
+                        del request.session['xmlDocTree']
+
+                else:
+                    ajaxCall = True
+                    template = loader.get_template('curate/curate_start.html')
+
+                open_form = OpenForm(forms=FormData.objects(user=str(request.user.id), template=request.session['currentTemplateID'], xml_data_id__exists=False))
+                new_form = NewForm()
+                upload_form = UploadForm()
+    #           options_form = AdvancedOptionsForm()
+
+                context = RequestContext(request, {'new_form':new_form, 'open_form': open_form, 'upload_form': upload_form})#, 'options_form': options_form})
+
+                if ajaxCall:
+                    return HttpResponse(json.dumps({'template': template.render(context)}), content_type='application/javascript')
+                else:
+                    return HttpResponse(template.render(context))
+
+            except MDCSError, e:
+                template = loader.get_template('curate/errors.html')
+                context = RequestContext(request, {
+                    'errors': e.message,
+                })
+                return HttpResponse(template.render(context))
 
 ################################################################################
 #

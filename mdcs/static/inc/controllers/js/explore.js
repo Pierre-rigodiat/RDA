@@ -1496,7 +1496,7 @@ validateExport = function(){
  */
 get_results_keyword = function(numInstance){
     $("#results").html('');
-    $('.toolbar').hide();
+//    $('.toolbar').hide();
     var keyword = $("#id_search_entry").val();
     $.ajax({
         url : "/explore/get_results_by_instance_keyword",
@@ -1508,16 +1508,20 @@ get_results_keyword = function(numInstance){
         },
         success: function(data){
         	$("#results").html(data.resultString);
-        	if(data.resultString)
-        	{
-                $('.toolbar').show();
-        	}
+//        	if(data.resultString)
+//        	{
+//                $('.toolbar').show();
+//        	}
         }
     });
 }
 
 $(function() {
     $("#id_search_entry").autocomplete({
+          focus: function (event, ui) {
+               //this.value = ui.item.label;
+               event.preventDefault(); // Prevent the default focus behavior.
+          },
           source: function(request, response) {
             $.getJSON("/explore/get_results_by_instance_keyword", { keyword: this.term, schemas: getSchemas(), },
                       function (data) {
@@ -1527,7 +1531,7 @@ $(function() {
           minLength: 2,
           select: function( event, ui ) {
             $( "#results" ).html( ui.item.value );
-            $('.toolbar').show();
+//            $('.toolbar').show();
 
             return false;
           },
