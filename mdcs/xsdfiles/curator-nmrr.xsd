@@ -759,7 +759,8 @@
      </xs:annotation>
      
        <xs:sequence>
-         <xs:element name="materialType" type="MaterialType" minOccurs="0" maxOccurs="unbounded" xmlns:ns0="http://mdcs.ns" ns0:_mod_mdcs_="/registry/materialType">
+         <xs:element name="materialType" type="MaterialType" 
+           minOccurs="0" maxOccurs="unbounded" xmlns:ns0="http://mdcs.ns" ns0:_mod_mdcs_="/registry/materialType">
               <xs:annotation>
                 <xs:documentation>
                   the category of material studied in the data contained in 
@@ -789,7 +790,7 @@
                  </xs:annotation>
           </xs:element>
 
-           <xs:element name="propertyClass" type="xs:token"
+           <xs:element name="propertyClass" type="PropertyClass"
              minOccurs="0" maxOccurs="unbounded" xmlns:ns0="http://mdcs.ns" ns0:_mod_mdcs_="/registry/propertyClass">
              <xs:annotation>
                <xs:documentation>
