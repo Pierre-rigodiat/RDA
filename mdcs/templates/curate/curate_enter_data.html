@@ -95,6 +95,7 @@ Please wait while the form is loading...
 </div>
 <a class="button save-to-repo">ADD RESOURCE</a>
 <a class="button button-reversed clear-fields">Clear</a>
+<a class="button save-form">Save Form </a>
 {% endblock %}
 
 {% block popups %}
@@ -128,6 +129,7 @@ Please wait while the form is loading...
 generate_xsd_form();
 $('.button.save-to-repo').on('click', validate_form);
 $('.button.clear-fields').on('click', clearFields);
+$('.button.save-form').on('click', saveForm);
 </script>
 {% endblock %}
 
