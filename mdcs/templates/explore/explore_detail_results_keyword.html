@@ -1,27 +1,28 @@
-<!-- 
+{% extends "nmrr/extra/small_intro.html" %}
+{% load staticfiles %}
+{% load auth_extras %}
+{% comment %}
+<!--
 ################################################################################
 #
-# File Name: explore_detail_results.html
+# File Name: explore_keyword.html
 # Application: templates
-# Description: 
+# Description: This is the keyword explore template used by the system.
 #
 # Author: Sharief Youssef
 #         sharief.youssef@nist.gov
 #
-#		  Guillaume SOUSA AMARAL
+#		  Guillaume Sousa Amaral
 #		  guillaume.sousa@nist.gov
 #
-#
 #         Pierre Francois RIGODIAT
-#		  pierre-francois.rigodiat@nist.gov
+#         pierre-francois.rigodiat@nist.gov
 #
-# Sponsor: National Institute of Standards and Technology
+# Sponsor: National Institute of Standards and Technology (NIST)
 #
 ################################################################################
 -->
-{% extends "mdcs/extra/one_column.html" %}
-
-{% load staticfiles %}
+{% endcomment %}
 
 {% block extrastyle %}
 <link rel="stylesheet" type="text/css" href="{% static 'resources/css/style.add.css' %}"  media="screen" />
@@ -31,15 +32,7 @@
 <link rel="stylesheet" type="text/css" href="{% static 'resources/css/queryResult.css' %}" media="screen" />
 {% endblock %}
 
-{% block title %}<h1>{{title}}</h1>{% endblock %}
-{% block description %}From here you can view the detail of the selected result.{% endblock %}
-
-{% block menu %}{% include 'mdcs/menus/main.html' with active_tab='tab3' %}{% endblock %}
-
-{% block submenu %}
-{% endblock %}
-
-
+{% block title %}<h3>{{title}}</h3>{% endblock %}
 
 {% block content %}
 <div class="toolbar">

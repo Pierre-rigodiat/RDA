@@ -26,16 +26,21 @@
 
 {% block extrastyle %}
 <link rel="stylesheet" type="text/css" href="{% static 'resources/css/explore.css' %}"  media="screen" />
+<link rel="stylesheet" type="text/css" href="{% static 'resources/css/XMLTree.css' %}"  media="screen" />
+<link rel="stylesheet" type="text/css" href="{% static 'css/nmrr/keyword.css' %}"  media="screen" />
 {% endblock %}
 
 {% block title %}<h3>Search for Resources</h3>{% endblock %}
 
 {% block content %}
+
 <div id="search">
 		<div class="toolbar" style="display: none;">
+			<!-- 
 			<div class="btn-group pull-right">
 				<span class="btn" onclick="exportRes();"><i class="icon-arrow-down"></i> Export</span>
 			</div>
+			-->
 			<br/><br/>
 			<div id="btn_errors" style="color:red;font-style: italic;text-align: right;"></div>
 		</div>
@@ -48,7 +53,97 @@
 		<div style="display: none;">{{search_Form.my_schemas}}</div>
         <div id="form_result_start_current"></div>
 </div>
-<div id="results"></div>
+
+<table id="icons_table">
+<tr>
+<td align="center">
+<a>
+<img width="100" src="/static/img/allresources.png"><br/>
+All Resources
+</a>
+</td>
+<td>
+<a>
+<img width="100" src="/static/img/organization.png"><br>
+Organizations
+</a>
+</td>
+<td align="center">
+<a>
+<img width="100" src="/static/img/datacollection.png"><br>
+Data Collections
+</a>
+</td>
+<td>
+<a>
+<img width="100" src="/static/img/dataset.png"><br>
+Datasets
+</a>
+</td>
+<td>
+<a>
+<img width="100" src="/static/img/service.png"><br>
+Services
+</a>
+</td>
+<td>
+<a>
+<img width="100" src="/static/img/informational.png"><br>
+Informational Sites
+</a>
+</td>
+<td>
+<a>
+<img width="100" src="/static/img/software.jpg"><br>
+Software
+</a>
+</td>
+</tr>
+</table>
+
+<br>
+<br>
+
+<table>
+<tr>
+<td style="background-color:#fafafa;">
+<select onchange="document.getElementById('searchAgainForm').submit();" name="results_view">
+<option value="simple" {% if request.GET.results_view == "simple" %} selected {% endif %}> Simple Results View
+<option value="detailed" {% if request.GET.results_view == "detailed" %} selected {% endif %}> Detailed Results View
+<option value="custom" {% if request.GET.results_view == "custom" %} selected {% endif %}> Custom View
+</select>
+<table style="margin-top:-40px">
+<tr><td style="width:220px">
+<br>
+<nobr>Resource Type:</nobr><br> 
+<input type="checkbox" name="resource_type" value="all"> All Resources<br>
+<input type="checkbox" name="resource_type" value="organization"> Organization<br>
+<input type="checkbox" name="resource_type" value="datacollection"> Data Collection<br>
+<input type="checkbox" name="resource_type" value="repository"> Repostiory<br>
+<input type="checkbox" name="resource_type" value="projectarchive"> Project Archive<br>
+<input type="checkbox" name="resource_type" value="database"> Database<br>
+<input type="checkbox" name="resource_type" value="dataset"> Dataset<br>
+<input type="checkbox" name="resource_type" value="service"> Service<br>
+<input type="checkbox" name="resource_type" value="informational"> Informational Site<br>
+<input type="checkbox" name="resource_type" value="software"> Software
+<br>
+<br>
+<div id="refine_common"></div>
+<div id="refine_resource"></div>
+</td>
+<td style="background-color:#e0e0e0">
+
+<div id="results">
+No Results found.
+</div>
+		
+</td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+
 {% endblock %}
 
 {% block popups %}
