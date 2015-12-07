@@ -4,11 +4,22 @@
 validate_form = function(){
     console.log('BEGIN [validate_form]');
     
-    if ($(".error_nmrr").length == 0){
+    errors = []
+    
+    // get errors    
+    $(".error_nmrr").each(function(){
+    	// not in removed parts of the form
+    	if (! $(this).closest("li").hasClass("removed")){
+    		errors.push($(this));
+    	}
+    });
+    
+    
+    if (errors.length == 0){
     	validateXML();
     }else{
-    	var errors_nmrr = "<ul>"
-		$(".error_nmrr").each(function(){
+    	var errors_nmrr = "<ul>"    		
+		$(errors).each(function(){
 			errors_nmrr += "<li>" + $(this).text() + "</li>";
 		});
     	errors_nmrr += "</ul>"
