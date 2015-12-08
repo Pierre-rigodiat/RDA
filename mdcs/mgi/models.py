@@ -393,7 +393,7 @@ class XMLdata():
         wordList = re.sub("[^\w]", " ",  text).split()
         wordList = [x + ".*" for x in wordList]
         wordList = '|'.join(wordList)
-        cursor = xmldata.find({'$text': {'$search': ".*\\b("+ wordList +")\\b"}, 'schema' : {'$in': templatesID} })
+        cursor = xmldata.find({'$text': {'$search': "\\b("+ wordList +")\\b"}, 'schema' : {'$in': templatesID} })
         # build a list with the xml representation of objects that match the query
         results = []
         for result in cursor:
