@@ -1495,7 +1495,7 @@ validateExport = function(){
  * @param numInstance
  */
 get_results_keyword = function(numInstance){
-    $("#results").html('');
+    $("#results").html('Please wait...');
 //    $('.toolbar').hide();
     var keyword = $("#id_search_entry").val();
     $.ajax({

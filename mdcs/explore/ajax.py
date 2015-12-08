@@ -2855,3 +2855,5 @@ def delete_result(request):
     
     return HttpResponse(json.dumps({}), content_type='application/javascript')
 
+
+
