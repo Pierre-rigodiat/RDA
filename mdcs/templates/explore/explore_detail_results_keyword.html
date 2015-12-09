@@ -1,60 +1,9 @@
-{% extends "nmrr/extra/small_intro.html" %}
-{% load staticfiles %}
-{% load auth_extras %}
-{% comment %}
-<!--
-################################################################################
-#
-# File Name: explore_keyword.html
-# Application: templates
-# Description: This is the keyword explore template used by the system.
-#
-# Author: Sharief Youssef
-#         sharief.youssef@nist.gov
-#
-#		  Guillaume Sousa Amaral
-#		  guillaume.sousa@nist.gov
-#
-#         Pierre Francois RIGODIAT
-#         pierre-francois.rigodiat@nist.gov
-#
-# Sponsor: National Institute of Standards and Technology (NIST)
-#
-################################################################################
--->
-{% endcomment %}
-
-{% block extrastyle %}
-<link rel="stylesheet" type="text/css" href="{% static 'resources/css/style.add.css' %}"  media="screen" />
-<link rel="stylesheet" type="text/css" href="{% static 'resources/css/exploreTabs.css' %}"  media="screen" />
-<link rel="stylesheet" type="text/css" href="{% static 'resources/css/explore.css' %}"  media="screen" />
-<link rel="stylesheet" type="text/css" href="{% static 'resources/css/XMLTree.css' %}" media="screen" />
-<link rel="stylesheet" type="text/css" href="{% static 'resources/css/queryResult.css' %}" media="screen" />
-{% endblock %}
-
-{% block title %}<h3>{{title}}</h3>{% endblock %}
 
 {% block content %}
-<div class="toolbar">
-	<div class="btn-group pull-right">
-    	<span class="btn" onclick="backToResults();" style="text-decoration:none">Back to Results</span>
-  	</div>
-	<br/><br/>
-</div>
 
-<div class="clearer">&nbsp;</div>
+{% autoescape off %}
+{{XMLHolder}}
+{% endautoescape %}
 
-<div id="XMLHolder">
-        {% autoescape off %}
-    	{{XMLHolder}}
-    	{% endautoescape %} </div>
-<br/><br/>
 
-{% endblock %}
-
-{% block sidebar %}
-{% endblock %}
-
-{% block extrajs %}
-<script src="{% static 'inc/controllers/js/explore.js' %}"></script>
 {% endblock %}

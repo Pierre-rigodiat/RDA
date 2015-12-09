@@ -54,3 +54,29 @@ loadRefinements = function(schema){
         }
     });
 }
+
+
+dialog_detail = function(id){
+	$.ajax({
+        url : "/explore/detail_result_keyword?id=" + id,
+        type : "GET",
+        success: function(data){
+        	console.log(data);
+        	$("#result_detail").html(data);
+        	
+        	$(function() {
+                $( "#dialog-detail-result" ).dialog({
+                    modal: true,
+                    buttons: {
+                        Ok: function() {
+                        $( this ).dialog( "close" );
+                        }
+                    }
+                });
+            });
+        }
+    });
+	
+}
+
+
