@@ -2868,6 +2868,9 @@ def delete_result(request):
 def load_refinements(request):
     schema_name = request.GET['schema']
     
+    if schema_name == 'all':
+        return HttpResponse(json.dumps({'refinements': ''}), content_type='application/javascript')
+    
     schema = Template.objects().get(title=schema_name)
     
     xmlDocTree = etree.parse(BytesIO(schema.content.encode('utf-8')))
@@ -2883,12 +2886,41 @@ def load_refinements(request):
     # building refinement options based on the schema
     refinement_options = ""
     
+    # TODO: change enumeration look up by something more generic (using annotations in the schema)
     # looking for enumerations
     simple_types = xmlDocTree.findall("./{0}simpleType".format(default_namespace))
     for simple_type in simple_types:
         enums = simple_type.findall("./{0}restriction/{0}enumeration".format(default_namespace))
         refinement = ""
         if len(enums) > 0:
+            # build dot notation query
+            # find the element using the enumeration            
+            element = xmlDocTree.findall(".//{0}element[@type='{1}']".format(default_namespace, simple_type.attrib['name']))
+            if len(element) > 1:
+                print "error: more than one element using the enumeration (" +str(len(element)) +")"
+            else:
+                element = element[0]
+                query = []
+                while element is not None:
+                    if element.tag == "{0}element".format(default_namespace):
+                        query.insert(0,element.attrib['name'])
+                    elif element.tag == "{0}simpleType".format(default_namespace):
+                        element = xmlDocTree.findall(".//{0}element[@type='{1}']".format(default_namespace, element.attrib['name']))
+                        if len(element) > 1:
+                            print "error: more than one element using the enumeration (" +str(len(element)) +")"
+                        else:
+                            element = element[0]
+                            query.insert(0,element.attrib['name'])
+                    elif element.tag == "{0}complexType".format(default_namespace):
+                        element = xmlDocTree.findall(".//{0}element[@type='{1}']".format(default_namespace, element.attrib['name']))
+                        if len(element) > 1:
+                            print "error: more than one element using the enumeration (" +str(len(element)) +")"
+                        else:
+                            element = element[0]
+                            query.insert(0,element.attrib['name'])
+                    element = element.getparent()
+                print ".".join(query)
+            
             # get the name of the enumeration
             refinement += simple_type.attrib['name'] + ": <br/>" 
             for enum in enums:
