@@ -56,17 +56,18 @@ class UploadXSLTForm(forms.Form):
         self.fields['my_xslts'].choices = self.EXPORT_OPTIONS
 
 class KeywordForm(forms.Form):
-    my_schemas = forms.MultipleChoiceField(label='', choices=[], widget=forms.CheckboxSelectMultiple(attrs={"checked":""}))
+    my_schemas = forms.MultipleChoiceField(label='', choices=[], widget=forms.CheckboxSelectMultiple(attrs={"checked":"checked"}))
     search_entry = forms.CharField(widget=forms.TextInput(attrs={'class': 'research', 'placeholder': 'Search...'}))
     SCHEMAS_OPTIONS = []
     def __init__(self, templateId=""):
         self.SCHEMAS_OPTIONS = []
-        #We retrieve all XSLTFiles available for this template
+        # Retrieve all schemas
         schemas = Template.objects.all().distinct(field="title")
         for schema in schemas:
-            #We add them
+            # Add them to available options
             self.SCHEMAS_OPTIONS.append((schema, schema))
 
         super(KeywordForm, self).__init__()
         self.fields['my_schemas'].choices = []
         self.fields['my_schemas'].choices = self.SCHEMAS_OPTIONS
+        

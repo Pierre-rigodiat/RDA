@@ -2856,4 +2856,47 @@ def delete_result(request):
     return HttpResponse(json.dumps({}), content_type='application/javascript')
 
 
-
+################################################################################
+#
+# Function Name: load_refinements(request)
+# Inputs:        request -
+# Outputs:       
+# Exceptions:    None
+# Description:   Load refinements criterias from selected schemas
+#                
+################################################################################
+def load_refinements(request):
+    schema_name = request.GET['schema']
+    
+    schema = Template.objects().get(title=schema_name)
+    
+    xmlDocTree = etree.parse(BytesIO(schema.content.encode('utf-8')))
+    
+    # find the namespaces
+    namespaces = common.get_namespaces(BytesIO(schema.content.encode('utf-8')))
+    default_namespace = "{http://www.w3.org/2001/XMLSchema}"
+    for prefix, url in namespaces.items():
+        if (url == default_namespace):            
+            defaultPrefix = prefix
+            break
+    
+    # building refinement options based on the schema
+    refinement_options = ""
+    
+    # looking for enumerations
+    simple_types = xmlDocTree.findall("./{0}simpleType".format(default_namespace))
+    for simple_type in simple_types:
+        enums = simple_type.findall("./{0}restriction/{0}enumeration".format(default_namespace))
+        refinement = ""
+        if len(enums) > 0:
+            # get the name of the enumeration
+            refinement += simple_type.attrib['name'] + ": <br/>" 
+            for enum in enums:
+                refinement += "<input type='checkbox' value='" + enum.attrib['value'] + "'> " + enum.attrib['value'] + "<br/>"
+            refinement += "<br/>"
+        refinement_options += refinement
+    
+    return HttpResponse(json.dumps({'refinements': refinement_options}), content_type='application/javascript')
+    
+    
+    

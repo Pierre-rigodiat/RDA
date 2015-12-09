@@ -106,9 +106,9 @@ Software
 <table style="margin-top:-40px;">
 <tr>
 <td style="width:220px">
-<br>
+<br/><br/>
 Resource Type:
-<form id="resource_type"> 
+<form id="refine_resource_type"> 
 <input type="radio" name="resource_type" value="all"> All Resources<br/>
 <input type="radio" name="resource_type" value="organization"> Organization<br/>
 <input type="radio" name="resource_type" value="datacollection"> Data Collection<br/>
@@ -145,9 +145,9 @@ Are you sure you want to delete this document?
 
 {% block extrajs %}
 <script src="{% static 'inc/controllers/js/explore.js' %}"></script>
-<script src="{% static 'inc/controllers/nmrr/js/search.js' %}"></script>
-<!-- <script>
-loadSearch();
-</script> -->
+<script src="{% static 'inc/controllers/js/nmrr/search.js' %}"></script>
+<script>
+initSearch();
+</script>
 {% endblock %}
 
