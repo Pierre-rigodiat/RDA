@@ -39,7 +39,34 @@
       #changelist table thead th:first-child {width: inherit}
     </style>
   {% endif %}
+
+{{ media.js }}
+{% if action_form %}{% if actions_on_top or actions_on_bottom %}
+<script type="text/javascript">
+(function($) {
+    $(document).ready(function($) {
+        $("tr input.action-select").actions();
+    });
+})(django.jQuery);
+</script>
+{% endif %}{% endif %}
 {% endblock %}
+
+{% comment %}
+{% block extrahead %}
+{{ block.super }}
+{{ media.js }}
+{% if action_form %}{% if actions_on_top or actions_on_bottom %}
+<script type="text/javascript">
+(function($) {
+    $(document).ready(function($) {
+        $("tr input.action-select").actions();
+    });
+})(django.jQuery);
+</script>
+{% endif %}{% endif %}
+{% endblock %}
+{% endcomment %}
 
 {% block bodyclass %}change-list{% endblock %}
 
@@ -150,18 +177,4 @@
 		</div>
 
 	</div>
-{% endblock %}
-
-{% block extrajs %}
-{{ block.super }}
-{{ media.js }}
-{% if action_form %}{% if actions_on_top or actions_on_bottom %}
-<script type="text/javascript">
-(function($) {
-    $(document).ready(function($) {
-        $("tr input.action-select").actions();
-    });
-})(django.jQuery);
-</script>
-{% endif %}{% endif %}
 {% endblock %}
