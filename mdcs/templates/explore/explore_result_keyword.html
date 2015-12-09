@@ -1,14 +1,5 @@
 <div id="{{id}}" name="result">
-	<input type='checkbox' name='checks' result_id='{{id}}'/>
-    <span class='expand' style='cursor:pointer;' onclick='showhideResults(event);'></span>
-    <span style='font-weight:bold;'><a href="/explore/detail_result_keyword?id={{id}}">{{title}}</a></span>
-    {% if canEdit %}
-    <a href="/curate/enter-data?id={{id}}"><span class="icon edit"></span></a>
-    {% endif %}
-    {% if canDelete %}
-    <span class="icon invalid" onclick="deleteResult('{{id}}')"></span>
-    {% endif %}
-    <div class='xmlResult' readonly='true' style='display:none;'>
+    <div class='xmlResult' readonly='true'>
     	{% autoescape off %}
     	{{xml}}
     	{% endautoescape %}

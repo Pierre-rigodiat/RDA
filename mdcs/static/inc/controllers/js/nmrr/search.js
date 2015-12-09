@@ -12,7 +12,7 @@ initResources = function(){
 	var radio_btns = $("#refine_resource_type").children("input:radio")
 	for(var i = 0; i < radio_btns.length; i++) {
 		// when value change
-		radio_btns[i].onchange = function() {
+		radio_btns[i].onclick = function() {
 			// update refinements options based on the selected schema
 			loadRefinements($(this).val());
 			// update values for the search
