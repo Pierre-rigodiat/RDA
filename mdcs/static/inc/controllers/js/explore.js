@@ -1507,7 +1507,12 @@ get_results_keyword = function(numInstance){
         	schemas: getSchemas(),
         },
         success: function(data){
-        	$("#results").html(data.resultString);
+        	if (data.resultString.length == 0){
+        		$("#results").html("No results found");
+        	}
+        	else{
+        		$("#results").html(data.resultString);
+        	}
 //        	if(data.resultString)
 //        	{
 //                $('.toolbar').show();
