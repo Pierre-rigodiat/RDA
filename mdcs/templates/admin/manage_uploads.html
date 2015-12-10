@@ -43,14 +43,22 @@
 
 {% block content%}
 
-<div class="right-side">
-<span class="ctx_menu">
-<div class="icon legend long upload">Upload {{ objectType }}</div>
-</span>
-</div>      
+<div class="btn-group pull-right">
+<!--<span class="ctx_menu">-->
+    <span class="btn btn-default upload"><i class="fa fa-upload"></i> Upload {{ objectType }}</span>
+    {% if objectType == "Type" %}
+        <span class="btn btn-default buckets"><i class="fa fa-tags"></i> Manage Buckets</span>
+    {% endif %}
+<!--</span>-->
+</div>
+
+<!--<div class="right-side">-->
+<!--<span class="ctx_menu">-->
+<!--<div class="icon legend long upload">Upload {{ objectType }}</div>-->
+<!--</span>-->
+<!--</div>-->
 
 {% if objects %}
-
 <table class="data-table">
     <tr>
         <th>{{ objectType }} name</th>
@@ -119,14 +127,6 @@
 <div class="empty-table">
     There are currently no {{ objectType }} uploaded. Please click "Upload {{ objectType }}" to the right to add
     {{ objectType }}.
-</div>
-{% endif %}
-
-{% if objectType == "Type" %}
-<div class="right-side">
-    <span class="ctx_menu">
-        <div class="icon legend bluelabel buckets long">Manage Buckets</div>
-    </span>
 </div>
 {% endif %}
 {% endblock %}  

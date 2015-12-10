@@ -244,7 +244,10 @@ div#changelist-filter h2 {font-size:20px;}
 
 div#changelist-filter ul li a {font-size:14px; line-height:14px;}
 
-nav#nmrr_admin_main_menu a {color:#699BBA}
+nav#nmrr_admin_main_menu a {
+    color:#699BBA;
+    font-size: 1.1em;
+}
 
 nav#nmrr_admin_user_menu a {color:#699BBA}
 
@@ -312,7 +315,7 @@ header h1 a {
 
  header h1 a:hover { color: #fff }
 
-nav {
+nav#main {
 	float: right;
 	margin-top: 0px;
 }

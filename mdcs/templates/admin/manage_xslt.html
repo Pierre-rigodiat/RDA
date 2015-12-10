@@ -32,11 +32,19 @@
 
 <h2 class="left">Exporter XSLT</h2>
 <div class="clearer">&nbsp;</div>
-<div class="right-side">
-<span class="ctx_menu">
-		<div class="icon legend long upload" onclick="displayImport();">​Upload XSLT​</div>​
-</span>
+<div class="btn-group pull-right">
+<!--<span class="ctx_menu">-->
+    <span class="btn btn-default upload" onclick="displayImport();">
+        <i class="fa fa-upload"></i> Upload XSLT
+    </span>
+<!--</span>-->
 </div>
+
+<!--<div class="right-side">-->
+<!--<span class="ctx_menu">-->
+		<!--<div class="icon legend long upload" onclick="displayImport();">​Upload XSLT​</div>​-->
+<!--</span>-->
+<!--</div>-->
 
 {% if xslt_files %}
 <table class="data-table">
@@ -79,11 +87,20 @@
 
 <h2 class="left">Result XSLT</h2>
 <div class="clearer">&nbsp;</div>
-<div class="right-side">
-<span class="ctx_menu">
-		<div class="icon legend long upload" onclick="displayResultImport();">​Upload XSLT​</div>​
-</span>
+
+<div class="btn-group pull-right">
+<!--<span class="ctx_menu">-->
+    <span class="btn btn-default upload" onclick="displayResultImport();">
+        <i class="fa fa-upload"></i> Upload XSLT
+    </span>
+<!--</span>-->
 </div>
+
+<!--<div class="right-side">-->
+<!--<span class="ctx_menu">-->
+		<!--<div class="icon legend long upload" onclick="displayResultImport();">​Upload XSLT​</div>​-->
+<!--</span>-->
+<!--</div>-->
 {% if result_xslt_files %}
 <table class="data-table">
   <tr>
