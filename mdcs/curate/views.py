@@ -140,6 +140,7 @@ def curate_edit_data(request):
 #                If many template of the same name:
 #                    - take the current one if from the same version
 #                    - raise exception otherwise
+#                TODO: is used in addition to start_curate, can't be used by itself in magic URL
 #
 #
 ################################################################################
@@ -149,22 +150,21 @@ def curate_from_schema(request):
         schema_name = request.GET['template']
         templates = Template.objects(title=schema_name)
         
-        # if the schemas are all versions of the same schema
-        if len(set(templates.values_list('templateVersion'))) == 1:
-            template_id = TemplateVersion.objects().get(pk=templates[0].templateVersion).current
-            request.session['currentTemplateID'] = template_id
+        if 'curate_edit' in request.session and request.session['curate_edit'] == False:   
+            # if the schemas are all versions of the same schema
+            if len(set(templates.values_list('templateVersion'))) == 1:
+                template_id = TemplateVersion.objects().get(pk=templates[0].templateVersion).current
+#                 request.session['currentTemplateID'] = template_id
+#                 form_data = FormData(user=str(request.user.id), template=template_id, name=schema_name).save()
+#                 request.session['curateFormData'] = str(form_data.id)
+#                 request.session['curate_edit'] = False            
             
-            form_data = FormData(user=str(request.user.id), template=template_id, name=schema_name).save()
-            request.session['curateFormData'] = str(form_data.id)
-            
-            request.session['curate_edit'] = False            
-            
-            if 'formString' in request.session:
-                del request.session['formString']
-            if 'xmlDocTree' in request.session:
-                del request.session['xmlDocTree']
-        else:
-            raise MDCSError("The selection of template by name can't be used if the MDCS contain more than one template with the same name.")
+                if 'formString' in request.session:
+                    del request.session['formString']
+                if 'xmlDocTree' in request.session:
+                    del request.session['xmlDocTree']
+            else:
+                raise MDCSError("The selection of template by name can't be used if the MDCS contain more than one template with the same name.")
     except:
         raise MDCSError("The template you are looking for doesn't exist.")
     

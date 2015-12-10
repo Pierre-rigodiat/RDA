@@ -518,7 +518,7 @@ load_enter_data = function (template_name)
             processData: false,
             async:false,
             success: function(data){
-                window.location = '/curate/enter-data?template=' + template_name
+            	window.location = '/curate/enter-data?template=' + template_name
             },
             error:function(data){
                 $("#form_start_errors").html(data.responseText);
