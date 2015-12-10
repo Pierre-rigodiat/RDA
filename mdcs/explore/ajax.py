@@ -940,10 +940,11 @@ def get_results_by_instance_keyword(request):
         try:
             keyword = request.GET['keyword']
             schemas = request.GET.getlist('schemas[]')
-            # all = request.GET['all']
+            onlySuggestions = json.loads(request.GET['onlySuggestions'])
         except:
             keyword = ''
             schemas = []
+            onlySuggestions = True
 
         #We get all template versions for the given schemas
         templatesVersions = Template.objects(title__in=schemas).distinct(field="templateVersion")
@@ -951,57 +952,66 @@ def get_results_by_instance_keyword(request):
         templatesID = TemplateVersion.objects(pk__in=templatesVersions).distinct(field="versions")
         instanceResults = XMLdata.executeFullTextQuery(keyword, templatesID)
         if len(instanceResults) > 0:
-            canDelete = False
-            canEdit = False
-            # only admins can edit/delete for now
-            try:
-                if request.user.is_anonymous():
-                    canDelete = Group.objects.filter(Q(name=RIGHTS.anonymous_group) & Q(permissions__name=RIGHTS.curate_delete_document))
-                    canEdit = Group.objects.filter(Q(name=RIGHTS.anonymous_group) & Q(permissions__name=RIGHTS.curate_edit_document))
-                else:
-                    prefixed_permission_delete = "{!s}.{!s}".format(RIGHTS.curate_content_type, RIGHTS.curate_delete_document)
-                    prefixed_permission_edit = "{!s}.{!s}".format(RIGHTS.curate_content_type, RIGHTS.curate_edit_document)
-                    canDelete = request.user.has_perm(prefixed_permission_delete)
-                    canEdit = request.user.has_perm(prefixed_permission_edit)
-            except:
-                if request.user.is_superuser:
-                    canDelete = True
-                    canEdit = True
+            if not onlySuggestions:
+                canDelete = False
+                canEdit = False
+                # only admins can edit/delete for now
+                try:
+                    if request.user.is_anonymous():
+                        canDelete = Group.objects.filter(Q(name=RIGHTS.anonymous_group) & Q(permissions__name=RIGHTS.curate_delete_document))
+                        canEdit = Group.objects.filter(Q(name=RIGHTS.anonymous_group) & Q(permissions__name=RIGHTS.curate_edit_document))
+                    else:
+                        prefixed_permission_delete = "{!s}.{!s}".format(RIGHTS.curate_content_type, RIGHTS.curate_delete_document)
+                        prefixed_permission_edit = "{!s}.{!s}".format(RIGHTS.curate_content_type, RIGHTS.curate_edit_document)
+                        canDelete = request.user.has_perm(prefixed_permission_delete)
+                        canEdit = request.user.has_perm(prefixed_permission_edit)
+                except:
+                    if request.user.is_superuser:
+                        canDelete = True
+                        canEdit = True
+
+                xsltPath = os.path.join(settings.SITE_ROOT, 'static/resources/xsl/xml2html.xsl')
+                xslt = etree.parse(xsltPath)
+                transform = etree.XSLT(xslt)
 
             template = loader.get_template('explore/explore_result_keyword.html')
-            xsltPath = os.path.join(settings.SITE_ROOT, 'static/resources/xsl/xml2html.xsl')
-            xslt = etree.parse(xsltPath)
-            transform = etree.XSLT(xslt)
+
             for instanceResult in instanceResults:
-                results.append({'title':instanceResult['title'], 'content':xmltodict.unparse(instanceResult['content']),'id':str(instanceResult['_id'])})
-                dom = etree.XML(str(xmltodict.unparse(instanceResult['content']).encode('utf-8')))
-                #Check if a custom short result XSLT has to be used
-                try:
-                    schema = Template.objects.get(pk=instanceResult['schema'])
-                    if schema.ResultXsltShort:
-                        shortXslt = etree.parse(BytesIO(schema.ResultXsltShort.content.encode('utf-8')))
-                        shortTransform = etree.XSLT(shortXslt)
-                        newdom = shortTransform(dom)
-                    else:
+                if not onlySuggestions:
+                    results.append({'title':instanceResult['title'], 'content':xmltodict.unparse(instanceResult['content']),'id':str(instanceResult['_id'])})
+                    dom = etree.XML(str(xmltodict.unparse(instanceResult['content']).encode('utf-8')))
+                    #Check if a custom short result XSLT has to be used
+                    try:
+                        schema = Template.objects.get(pk=instanceResult['schema'])
+                        if schema.ResultXsltShort:
+                            shortXslt = etree.parse(BytesIO(schema.ResultXsltShort.content.encode('utf-8')))
+                            shortTransform = etree.XSLT(shortXslt)
+                            newdom = shortTransform(dom)
+                        else:
+                            newdom = transform(dom)
+                    except Exception, e:
+                        #We use the default one
                         newdom = transform(dom)
-                except Exception, e:
-                    #We use the default one
-                    newdom = transform(dom)
 
-                context = Context({'id':str(instanceResult['_id']),
-                                   'xml': str(newdom),
-                                   'title': instanceResult['title'],
-                                   'canDelete':canDelete,
-                                   'canEdit': canEdit})
+                    context = Context({'id':str(instanceResult['_id']),
+                                       'xml': str(newdom),
+                                       'title': instanceResult['title'],
+                                       'canDelete':canDelete,
+                                       'canEdit': canEdit})
 
-                result_json = {}
-                result_json['id'] = str(instanceResult['_id'])
-                result_json['label'] = instanceResult['title']
-                result_json['desc'] = str(newdom)
-                result_json['value'] = template.render(context)
-                resultsByKeyword.append(result_json)
+                    resultString+= template.render(context)
+                else:
+                    wordList = re.sub("[^\w]", " ",  keyword).split()
+                    wordList = [x + "|" + x +"\w+" for x in wordList]
+                    wordList = '|'.join(wordList)
+                    listWholeKeywords = re.findall(".*\\b("+ wordList +")\\b", xmltodict.unparse(instanceResult['content']).encode('utf-8'), flags=re.IGNORECASE)
+                    label = list(set(listWholeKeywords))
 
-                resultString+= template.render(context)
+                    result_json = {}
+                    result_json['label'] = label
+                    result_json['value'] = label
+                    if not result_json in resultsByKeyword:
+                        resultsByKeyword.append(result_json)
 
             result_json = {}
             result_json['resultString'] = resultString
@@ -1010,6 +1020,7 @@ def get_results_by_instance_keyword(request):
     print 'END def getResultsKeyword(request)'
 
     return HttpResponse(json.dumps({'resultsByKeyword' : resultsByKeyword, 'resultString' : resultString}), content_type='application/javascript')
+
 
 
 

@@ -28,6 +28,7 @@
 <link rel="stylesheet" type="text/css" href="{% static 'resources/css/exploreTabs.css' %}"  media="screen" />
 <link rel="stylesheet" type="text/css" href="{% static 'resources/css/explore.css' %}"  media="screen" />
 <link rel="stylesheet" type="text/css" href="{% static 'resources/css/XMLTree.css' %}"  media="screen" />
+<link rel="stylesheet" type="text/css" href="{% static 'resources/css/lib/jquery.tagit.css' %}"  media="screen" />
 {% endblock %}
 
 {% block title %}<h1>Search by keyword</h1>{% endblock %}
@@ -88,5 +89,6 @@ Are you sure you want to delete this document?
 
 {% block extrajs %}
 <script src="{% static 'inc/controllers/js/explore.js' %}"></script>
+<script src="{% static 'libs/tags/tag-it.js' %}"></script>
 {% endblock %}
 
