@@ -1,10 +1,18 @@
-
-
 $(document).ready(function(){
-
 	$('ul.dropdown').superfish({
-		autoArrows: true,
-		animation: {height:'show'}
+		animation: {height: 'show'},
+		onBeforeShow: function() {
+		    var $input = $(this).siblings('a:first');
+
+		    inputHTML = $input.html().replace('right', 'down');
+		    $input.html(inputHTML);
+		},
+		onHide: function() {
+            var $input = $(this).siblings('a:first');
+
+		    inputHTML = $input.html().replace('down', 'right');
+		    $input.html(inputHTML);
+		}
 	});  
 
 });
