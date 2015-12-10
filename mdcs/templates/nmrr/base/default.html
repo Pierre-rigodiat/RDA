@@ -34,6 +34,21 @@
 	{% endif %}
 	<!-- END Header -->
 
+	<div class="width">
+        <nav id="nmrr_admin_main_menu">
+        {% block menu %}{% endblock %}
+		</nav>
+    </div>
+	<div class="clear"></div>
+    <div class="width">
+		<nav id="nmrr_admin_user_menu">
+        {% block submenu %}{% endblock %}
+		</nav>
+	</div>
+	<div class="clear"></div>
+    <div class="width"> </div>
+    <div class="clear"></div>
+
 	<!-- Content -->
     <div id="body">
 	    <div class="width">
