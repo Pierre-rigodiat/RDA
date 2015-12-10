@@ -1525,13 +1525,14 @@ get_results_keyword = function(numInstance){
 $(function() {
      $("#id_search_entry").tagit({
         allowSpaces: false,
+        placeholderText: 'Enter a keyword..',
         autocomplete: ({
               focus: function (event, ui) {
                    this.value = ui.item.label;
                    event.preventDefault(); // Prevent the default focus behavior.
               },
               source: function(request, response) {
-                $.getJSON("/explore/get_results_by_instance_keyword", { keyword: request.term, schemas: getSchemas(), onlySuggestions: true, },
+                $.getJSON("/explore/get_results_by_instance_keyword", { keyword: request.term, schemas: getSchemas(), onlySuggestions: true},
                 function (data) {
                     response($.map(data.resultsByKeyword, function (item) {
                         if(item.label != '')
@@ -1543,7 +1544,7 @@ $(function() {
                         }
                  }));}
               )},
-              minLength: 2,
+              minLength: 2,              
               select: function( event, ui ) {
                   this.value = ui.item.label;
                   $("#id_search_entry").tagit("createTag", this.value);

@@ -28,6 +28,7 @@
 <link rel="stylesheet" type="text/css" href="{% static 'resources/css/explore.css' %}"  media="screen" />
 <link rel="stylesheet" type="text/css" href="{% static 'resources/css/XMLTree.css' %}"  media="screen" />
 <link rel="stylesheet" type="text/css" href="{% static 'css/nmrr/keyword.css' %}"  media="screen" />
+<link rel="stylesheet" type="text/css" href="{% static 'resources/css/lib/jquery.tagit.css' %}"  media="screen" />
 {% endblock %}
 
 {% block title %}<h3>Search for Resources</h3>{% endblock %}
@@ -38,12 +39,13 @@
         <div id="searchContainer">
 			<div>
 				{{search_Form.search_entry}}
-				<input id="submit" name="submit" type="button" onclick="get_results_keyword()" value="Search" />
+				<input id="submit" name="submit" onclick="get_results_keyword()" value="Search" />
 			</div>
         </div>
 		<div style="display: none;">{{search_Form.my_schemas}}</div>
         <div id="form_result_start_current"></div>
 </div>
+<br/>
 
 <table id="icons_table">
 <tr>
@@ -91,9 +93,7 @@ Software
 </td>
 </tr>
 </table>
-
-<br/>
-<br/>
+<br/><br/>
 
 <table>
 <tr>
@@ -148,6 +148,7 @@ No Results Found.
 <script src="{% static 'inc/controllers/js/explore.js' %}"></script>
 <script src="{% static 'inc/controllers/js/result_utils.js' %}"></script>
 <script src="{% static 'inc/controllers/js/nmrr/search.js' %}"></script>
+<script src="{% static 'libs/tags/tag-it.js' %}"></script>
 <script>
 initSearch();
 </script>
