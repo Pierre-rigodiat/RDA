@@ -29,20 +29,32 @@
 <div id="container">
 	<!-- Header -->
     {% if not is_popup %}
-        {% include 'nmrr/base/header.html' %}
+        <header>
+		<div class="width">
+		<h1>
+			<a href="http://www.nist.gov/"><img src="{% static 'img/NIST_logo.svg' %}" width="150"></a>
+		</h1>
+		<nav>
+		<!--<ul class="sf-menu dropdown sf-js-enabled sf-shadow">-->
+			{% block menu %}{% endblock %}
+		</nav>
+		</div>
+
+		<div class="clear"></div>
+		</header>
         {% block intro %}{% endblock %}
 	{% endif %}
 	<!-- END Header -->
 
 	<div class="width">
         <nav id="nmrr_admin_main_menu">
-        {% block menu %}{% endblock %}
+        {% block admin_menu %}{% endblock %}
 		</nav>
     </div>
 	<div class="clear"></div>
     <div class="width">
 		<nav id="nmrr_admin_user_menu">
-        {% block submenu %}{% endblock %}
+        {% block admin_submenu %}{% endblock %}
 		</nav>
 	</div>
 	<div class="clear"></div>

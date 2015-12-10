@@ -28,8 +28,8 @@
 
 {% block title %}<h1>{{ objectType }} Manager</h1>{% endblock %}
 
-{% block menu %}{% include 'admin/menu/main.html' with active_tab='tab3' %}{% endblock %}
-{% block submenu %}
+{% block admin_menu %}{% include 'admin/menu/main.html' with active_tab='tab3' %}{% endblock %}
+{% block admin_submenu %}
     {% if objectType == "Template" %}
         {% include 'admin/menu/submenu/template.html' with active_tab='tab1' %}
     {% elif objectType == "Type" %}

@@ -29,8 +29,8 @@
 
 {% block title %}<h1>User Management</h1>{% endblock %}
 
-{% block menu %}{% include 'admin/menu/main.html' with active_tab='tab2' %}{% endblock %}
-{% block submenu %}{% include 'admin/menu/submenu/user.html' with active_tab='tab1' %}{% endblock %}
+{% block admin_menu %}{% include 'admin/menu/main.html' with active_tab='tab2' %}{% endblock %}
+{% block admin_submenu %}{% include 'admin/menu/submenu/user.html' with active_tab='tab1' %}{% endblock %}
 
 {% block coltype %}colMS{% endblock %}
 {% block bodyclass %}dashboard{% endblock %}

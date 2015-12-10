@@ -25,6 +25,10 @@
 <link rel="stylesheet" type="text/css" href="{% static 'css/nmrr/repo.css' %}" media="screen" />
 {% endblock %}
 
+{% block menu %}
+    {% include 'nmrr/menus/main.html' with active_tab='tab2' %}
+{% endblock %}
+
 {% block title %}
 <h3>
 {% if template_name == 'organization' %}

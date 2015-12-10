@@ -23,8 +23,8 @@
 
 {% block title %}<h1>Account Requests</h1>{% endblock %}
 
-{% block menu %}{% include 'admin/menu/main.html' with active_tab='tab2' %}{% endblock %}
-{% block submenu %}{% include 'admin/menu/submenu/user.html' with active_tab='tab2' %}{% endblock %}
+{% block admin_menu %}{% include 'admin/menu/main.html' with active_tab='tab2' %}{% endblock %}
+{% block admin_submenu %}{% include 'admin/menu/submenu/user.html' with active_tab='tab2' %}{% endblock %}
 
 {% block content %}
     {% if requests %}

@@ -31,8 +31,8 @@ textarea {
 </style>
 {% endblock %}
 
-{% block menu %}{% include 'admin/menu/main.html' with active_tab='tab5' %}{% endblock %}
-{% block submenu %}{% include 'admin/menu/submenu/website.html' with active_tab='tab2' %}{% endblock %}
+{% block admin_menu %}{% include 'admin/menu/main.html' with active_tab='tab5' %}{% endblock %}
+{% block admin_submenu %}{% include 'admin/menu/submenu/website.html' with active_tab='tab2' %}{% endblock %}
 
 {% block content %}
 You can use this form to provide terms of use for the website. You can use HTML syntax and HTML tags to write the text.

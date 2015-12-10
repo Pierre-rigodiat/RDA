@@ -32,6 +32,10 @@
 
 {% block title %}<h3>Search for Resources</h3>{% endblock %}
 
+{% block menu %}
+    {% include 'nmrr/menus/main.html' with active_tab='tab2' %}
+{% endblock %}
+
 {% block content %}
 
 <div id="search">
