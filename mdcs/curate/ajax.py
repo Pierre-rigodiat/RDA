@@ -857,8 +857,12 @@ def generateRestriction(request, element, xmlTree, namespace, fullPath="", edit_
             edit_elements = edit_data_tree.xpath(fullPath) 
             selected_value = None   
             if len(edit_elements) > 0:
-                if edit_elements[0].text is not None:
-                    selected_value = edit_elements[0].text                 
+                if '@' in fullPath:
+                    if edit_elements[0] is not None:
+                        selected_value = edit_elements[0]
+                else:
+                    if edit_elements[0].text is not None:
+                        selected_value = edit_elements[0].text
             for enum in enumeration:
                 if selected_value is not None and enum.attrib.get('value') == selected_value:
                     formString += "<option value='" + enum.attrib.get('value')  + "' selected>" + enum.attrib.get('value') + "</option>"
