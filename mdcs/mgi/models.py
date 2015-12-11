@@ -20,7 +20,7 @@ from mongoengine import *
 from collections import OrderedDict
 from bson.objectid import ObjectId
 import xmltodict
-from pymongo import MongoClient
+from pymongo import MongoClient, TEXT, ASCENDING, DESCENDING
 from mgi.settings import MONGODB_URI
 import re
 
@@ -390,11 +390,14 @@ class XMLdata():
         db = client['mgi']
         # get the xmldata collection
         xmldata = db['xmldata']
+        # xmldata.create_index([('$**', TEXT)], default_language="en", language_override="en")
         wordList = re.sub("[^\w]", " ",  text).split()
-        wordList = [x + ".*" for x in wordList]
-        wordList = '|'.join(wordList)
-        cursor = xmldata.find({'$text': {'$search': "\\b("+ wordList +")\\b"}, 'schema' : {'$in': templatesID} })
-        # build a list with the xml representation of objects that match the query
+        wordList = ['"{0}"'.format(x) for x in wordList]
+        wordList = ' '.join(wordList)
+        if len(wordList) > 0:
+            cursor = xmldata.find({'$text': {'$search': wordList}, 'schema' : {'$in': templatesID} }, as_class = OrderedDict)
+        else:
+            cursor = xmldata.find({'schema' : {'$in': templatesID} }, as_class = OrderedDict)
         results = []
         for result in cursor:
             results.append(result)
