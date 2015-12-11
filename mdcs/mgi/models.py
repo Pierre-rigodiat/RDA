@@ -383,7 +383,7 @@ class XMLdata():
         xmldata.update({'_id': ObjectId(postID)}, {"$set":json}, upsert=False)
 
     @staticmethod
-    def executeFullTextQuery(text, templatesID):
+    def executeFullTextQuery(text, templatesID, refinements=None):
         #create a connection
         client = MongoClient(MONGODB_URI)
         # connect to the db 'mgi'
@@ -394,10 +394,17 @@ class XMLdata():
         wordList = re.sub("[^\w]", " ",  text).split()
         wordList = ['"{0}"'.format(x) for x in wordList]
         wordList = ' '.join(wordList)
+    
         if len(wordList) > 0:
-            cursor = xmldata.find({'$text': {'$search': wordList}, 'schema' : {'$in': templatesID} }, as_class = OrderedDict)
+            full_text_query = {'$text': {'$search': wordList}, 'schema' : {'$in': templatesID}, }
         else:
-            cursor = xmldata.find({'schema' : {'$in': templatesID} }, as_class = OrderedDict)
+            full_text_query = {'schema' : {'$in': templatesID} } 
+        
+        if refinements is not None:
+            full_text_query.update(refinements)
+            
+        cursor = xmldata.find(full_text_query, as_class = OrderedDict)
+        
         results = []
         for result in cursor:
             results.append(result)
