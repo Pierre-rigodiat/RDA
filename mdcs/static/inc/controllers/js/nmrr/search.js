@@ -1,6 +1,7 @@
 initSearch = function(){
 	initResources();
 	loadRefinements();
+	initFilters();
 }
 
 
@@ -77,6 +78,23 @@ dialog_detail = function(id){
         }
     });
 	
+}
+
+initFilters = function(){
+	$("#results_view").on('change',function(){
+		filter_result_display($("#results_view").val());
+	});
+}
+
+
+filter_result_display = function(filter){
+	if (filter == 'simple'){
+		$(".nmrr_line").hide();
+		$(".nmrr_line.line_publisher").show();
+		$(".nmrr_line.line_type").show();
+	}else if (filter == 'detailed'){
+		$(".nmrr_line").show();
+	}
 }
 
 
