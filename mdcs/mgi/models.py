@@ -395,9 +395,9 @@ class XMLdata():
         wordList = ['"{0}"'.format(x) for x in wordList]
         wordList = ' '.join(wordList)
         if len(wordList) > 0:
-            cursor = xmldata.find({'$text': {'$search': wordList}, 'schema' : {'$in': templatesID} })
+            cursor = xmldata.find({'$text': {'$search': wordList}, 'schema' : {'$in': templatesID} }, as_class = OrderedDict)
         else:
-            cursor = xmldata.find({'schema' : {'$in': templatesID} })
+            cursor = xmldata.find({'schema' : {'$in': templatesID} }, as_class = OrderedDict)
         results = []
         for result in cursor:
             results.append(result)
