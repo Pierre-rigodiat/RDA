@@ -50,8 +50,8 @@
 #submit {
 	float: right;
 	cursor:pointer;
-	width:4em;
-	height:2em;
+	width:2.4em;
+	height:3.2em;
 	text-indent:-999px;
 	color: transparent;
 	background: url(../img/search.png) no-repeat #4d90fe center;
@@ -73,4 +73,16 @@
 
 h1.search {
     font-size: 10;
+}
+
+#loading.isloading {
+    background:url('../img/indicator.gif') no-repeat right center;
+}
+
+.loading {
+	float:right;
+    display: inline-block;
+    vertical-align: middle;
+    width:4em;
+	height:2em;
 }

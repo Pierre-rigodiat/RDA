@@ -973,11 +973,11 @@ def get_results_by_instance_keyword(request):
                 xsltPath = os.path.join(settings.SITE_ROOT, 'static/resources/xsl/xml2html.xsl')
                 xslt = etree.parse(xsltPath)
                 transform = etree.XSLT(xslt)
-
-            template = loader.get_template('explore/explore_result_keyword.html')
+                template = loader.get_template('explore/explore_result_keyword.html')
 
             for instanceResult in instanceResults:
                 if not onlySuggestions:
+                    custom_xslt = False
                     results.append({'title':instanceResult['title'], 'content':xmltodict.unparse(instanceResult['content']),'id':str(instanceResult['_id'])})
                     dom = etree.XML(str(xmltodict.unparse(instanceResult['content']).encode('utf-8')))
                     #Check if a custom short result XSLT has to be used
@@ -987,31 +987,36 @@ def get_results_by_instance_keyword(request):
                             shortXslt = etree.parse(BytesIO(schema.ResultXsltShort.content.encode('utf-8')))
                             shortTransform = etree.XSLT(shortXslt)
                             newdom = shortTransform(dom)
+                            custom_xslt = True
                         else:
                             newdom = transform(dom)
                     except Exception, e:
                         #We use the default one
                         newdom = transform(dom)
+                        custom_xslt = False
 
                     context = Context({'id':str(instanceResult['_id']),
                                        'xml': str(newdom),
                                        'title': instanceResult['title'],
                                        'canDelete':canDelete,
-                                       'canEdit': canEdit})
+                                       'canEdit': canEdit,
+                                       'custom_xslt': custom_xslt})
 
                     resultString+= template.render(context)
                 else:
                     wordList = re.sub("[^\w]", " ",  keyword).split()
                     wordList = [x + "|" + x +"\w+" for x in wordList]
                     wordList = '|'.join(wordList)
-                    listWholeKeywords = re.findall(".*\\b("+ wordList +")\\b", xmltodict.unparse(instanceResult['content']).encode('utf-8'), flags=re.IGNORECASE)
-                    label = list(set(listWholeKeywords))
+                    listWholeKeywords = re.findall("\\b("+ wordList +")\\b", xmltodict.unparse(instanceResult['content']).encode('utf-8'), flags=re.IGNORECASE)
+                    labels = list(set(listWholeKeywords))
 
-                    result_json = {}
-                    result_json['label'] = label
-                    result_json['value'] = label
-                    if not result_json in resultsByKeyword:
-                        resultsByKeyword.append(result_json)
+                    for label in labels:
+                        label = label.lower()
+                        result_json = {}
+                        result_json['label'] = label
+                        result_json['value'] = label
+                        if not result_json in resultsByKeyword:
+                            resultsByKeyword.append(result_json)
 
             result_json = {}
             result_json['resultString'] = resultString
@@ -1020,7 +1025,6 @@ def get_results_by_instance_keyword(request):
     print 'END def getResultsKeyword(request)'
 
     return HttpResponse(json.dumps({'resultsByKeyword' : resultsByKeyword, 'resultString' : resultString}), content_type='application/javascript')
-
 
 
 
@@ -1072,6 +1076,7 @@ def get_results_by_instance(request):
                 xslt = etree.parse(xsltPath)
                 transform = etree.XSLT(xslt)
                 for instanceResult in instanceResults:
+                    custom_xslt = False
                     results.append({'title':instanceResult['title'], 'content':xmltodict.unparse(instanceResult['content']),'id':str(instanceResult['_id'])})
                     #dom = etree.fromstring(str(xmltodict.unparse(instanceResult['content']).replace('<?xml version="1.0" encoding="utf-8"?>\n',"")))
                     dom = etree.XML(str(xmltodict.unparse(instanceResult['content']).encode('utf-8')))
@@ -1082,17 +1087,20 @@ def get_results_by_instance(request):
                             shortXslt = etree.parse(BytesIO(schema.ResultXsltShort.content.encode('utf-8')))
                             shortTransform = etree.XSLT(shortXslt)
                             newdom = shortTransform(dom)
+                            custom_xslt = True
                         else:
                             newdom = transform(dom)
                     except Exception, e:
                         #We use the default one
                         newdom = transform(dom)
+                        custom_xslt = False
 
                     context = Context({'id':str(instanceResult['_id']),
                                        'xml': str(newdom),
                                        'title': instanceResult['title'],
                                        'canDelete':canDelete,
-                                       'canEdit': canEdit})
+                                       'canEdit': canEdit,
+                                       'custom_xslt': custom_xslt})
 
                     resultString+= template.render(context)
 
@@ -1114,6 +1122,7 @@ def get_results_by_instance(request):
                 xslt = etree.parse(xsltPath)
                 transform = etree.XSLT(xslt)
                 for instanceResult in instanceResults:
+                    custom_xslt = False
                     results.append({'title':instanceResult['title'], 'content':instanceResult['content'],'id':str(instanceResult['_id'])})
                     dom = etree.XML(str(xmltodict.unparse(instanceResult['content']).encode('utf-8')))
                     #Check if a custom short result XSLT has to be used
@@ -1123,15 +1132,18 @@ def get_results_by_instance(request):
                             shortXslt = etree.parse(BytesIO(schema.ResultXsltShort.content.encode('utf-8')))
                             shortTransform = etree.XSLT(shortXslt)
                             newdom = shortTransform(dom)
+                            custom_xslt = True
                         else:
                             newdom = transform(dom)
                     except Exception, e:
                         #We use the default one
                         newdom = transform(dom)
+                        custom_xslt = False
 
                     context = Context({'id':str(instanceResult['_id']),
                                        'xml': str(newdom),
-                                       'title': instanceResult['title']})
+                                       'title': instanceResult['title'],
+                                       'custom_xslt': custom_xslt})
 
                     resultString+= template.render(context)
                 resultString += "<br/>"

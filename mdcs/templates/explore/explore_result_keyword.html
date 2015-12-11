@@ -1,4 +1,9 @@
-<div id="{{id}}" name="result">
+{% load render_extras %}
+
+{% if custom_xslt %}
+    {% render_as_template xml %}
+{% else %}
+    <div id="{{id}}" name="result">
 	<input type='checkbox' name='checks' result_id='{{id}}'/>
     <span class='expand' style='cursor:pointer;' onclick='showhideResults(event);'></span>
     <span style='font-weight:bold;'><a href="/explore/detail_result_keyword?id={{id}}">{{title}}</a></span>
@@ -14,3 +19,4 @@
     	{% endautoescape %}
     </div> 
 </div>
+{% endif %}

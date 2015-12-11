@@ -57,7 +57,7 @@ class UploadXSLTForm(forms.Form):
 
 class KeywordForm(forms.Form):
     my_schemas = forms.MultipleChoiceField(label='', choices=[], widget=forms.CheckboxSelectMultiple(attrs={"checked":""}))
-    search_entry = forms.CharField(widget=forms.TextInput(attrs={'class': 'research', 'placeholder': 'Search...'}))
+    search_entry = forms.CharField(widget=forms.TextInput(attrs={'class': 'research'}))
     SCHEMAS_OPTIONS = []
     def __init__(self, templateId=""):
         self.SCHEMAS_OPTIONS = []
