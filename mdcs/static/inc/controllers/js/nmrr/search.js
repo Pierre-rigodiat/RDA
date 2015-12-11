@@ -1,6 +1,6 @@
 initSearch = function(){
 	initResources();
-	loadRefinements();
+	loadRefinements('all');
 	initFilters();
 }
 
