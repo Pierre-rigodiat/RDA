@@ -2302,7 +2302,7 @@ def load_xml(request):
     
     xmlString = request.session['xmlString']
     
-    xsltPath = os.path.join(settings.SITE_ROOT, 'static', 'resources', 'xsl', 'xml2html.xsl')
+    xsltPath = os.path.join(settings.SITE_ROOT, 'static', 'resources', 'xsl', 'nmrr-detail.xsl')
     xslt = etree.parse(xsltPath)
     transform = etree.XSLT(xslt)
     xmlTree = ""
