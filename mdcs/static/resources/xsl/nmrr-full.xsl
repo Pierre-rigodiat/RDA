@@ -40,7 +40,8 @@
 		</div>
 	</xsl:template>
 	<xsl:template match="//*[not(*)]">
-		<tr>
+		<xsl:variable name="name" select="name(.)" />
+		<tr class="nmrr_line line_{$name}">
 			<td width="180">
 				<xsl:value-of select="name(.)" />
 			</td>
