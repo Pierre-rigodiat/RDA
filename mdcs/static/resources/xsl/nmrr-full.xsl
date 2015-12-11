@@ -29,7 +29,7 @@
 						</div>
 						<div style="margin-top:5px;font-size:20px;float:right">
 							<div style="float:right;margin:-10px 0px 0px 0px">
-								<button class="btn" onclick="dialog_detail(res_utils_get_id(event));" title="Click to view this resource.">Resource Details</button>
+								<button class="btn" onclick="dialog_detail('{{{{id}}}}');" title="Click to view this resource.">Resource Details</button>
 								<xsl:variable name="url" select="//Resource/content/referenceURL" />
 								<a href="{$url}"><button class="btn" title="Click to view this resource.">Go To</button></a>
 							</div></div>
