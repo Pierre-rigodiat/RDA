@@ -16,6 +16,19 @@ validate_form = function(){
     
     
     if (errors.length == 0){
+    	// save values in the form
+        $("input:text").each(function(){
+    	    $(this).attr("value", $(this).val());
+    	});
+    	$('select option').each(function(){ this.defaultSelected = this.selected; });
+    	$("input:checkbox:not(:checked)").each(function(){
+    	    
+    	    $(this).removeAttr("checked");
+    	});
+    	$("input:checkbox:checked").each(function(){
+        
+    	    $(this).attr("checked", true);
+    	});
     	validateXML();
     }else{
     	var errors_nmrr = "<ul>"    		
