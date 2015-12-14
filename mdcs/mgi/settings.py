@@ -90,7 +90,7 @@ HANDLE_SERVER_SCHEMA = ''
 HANDLE_SERVER_USER = ''
 HANDLE_SERVER_PSWD = ''
 
-# Customization: MGI
+# Customization: Registry
 CUSTOM_TITLE = 'NIST Materials Resource Registry'
 CUSTOM_SUBTITLE = 'Part of the Materials Genome Initiative'
 CUSTOM_DATA = 'Materials Data' 
