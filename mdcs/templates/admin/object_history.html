@@ -21,6 +21,11 @@
 -->
 {% endcomment %}
 
+{% block extrastyle %}
+    {{ block.super }}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/nmrr/admin.css' %}" />
+{% endblock %}
+
 {% block admin_menu %}{% include 'admin/menu/main.html' with active_tab='tab2' %}{% endblock %}
 {% block admin_submenu %}{% include 'admin/menu/submenu/user.html' with active_tab='tab1' %}{% endblock %}
 
