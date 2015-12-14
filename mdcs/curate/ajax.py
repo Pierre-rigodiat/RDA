@@ -2347,3 +2347,37 @@ def delete_form(request):
             return HttpResponse({},status=400)
     return HttpResponse({})
 
+
+################################################################################
+#
+# Function Name: cancel_form(request)
+# Inputs:        request -
+# Outputs:       
+# Exceptions:    None
+# Description:   Cancel a form being entered
+#
+################################################################################
+def cancel_form(request):
+    try:
+        form_data_id = request.session['curateFormData']
+        form_data = FormData.objects().get(pk=form_data_id)
+        # cascade delete references
+        for form_element_id in form_data.elements.values():
+            try:
+                form_element = FormElement.objects().get(pk=form_element_id)
+                if form_element.xml_element is not None:
+                    try:
+                        xml_element = XMLElement.objects().get(pk=str(form_element.xml_element.id))
+                        xml_element.delete()
+                    except:
+                        # raise an exception when element not found
+                        pass
+                form_element.delete()
+            except:
+                # raise an exception when element not found
+                pass
+        form_data.delete()
+        messages.add_message(request, messages.INFO, 'Form deleted with success.')
+        return HttpResponse({},status=204)
+    except Exception, e:
+        return HttpResponse({},status=400)
