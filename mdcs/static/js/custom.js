@@ -4,8 +4,10 @@ $(document).ready(function(){
 		onBeforeShow: function() {
 		    var $input = $(this).siblings('a:first');
 
-		    inputHTML = $input.html().replace('right', 'down');
-		    $input.html(inputHTML);
+            if($input.html()) {
+                inputHTML = $input.html().replace('right', 'down');
+		        $input.html(inputHTML);
+            }
 		},
 		onHide: function() {
             var $input = $(this).siblings('a:first');
