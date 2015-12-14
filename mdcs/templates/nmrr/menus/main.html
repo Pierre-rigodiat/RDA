@@ -30,6 +30,7 @@
 
     {% if user.is_authenticated %}
     <li class="{% if active_tab == 'tab3' %} selected {% endif %}"><a href="/dashboard">Dashboard</a></li>
+    <li><a href="/logout">Logout</a></li>
     {% else %}
     <li class="{% if active_tab == 'tab3' %} selected {% endif %}"><a href="/login">Login</a></li>
     {% endif %}
