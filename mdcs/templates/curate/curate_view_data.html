@@ -69,8 +69,10 @@
 {% block extrajs %}
 <script src="{% static 'inc/controllers/js/XMLTree.js' %}"></script>
 <script src="{% static 'inc/controllers/js/curate.js' %}"></script>
+<script src="{% static 'inc/controllers/js/nmrr/nmrr_curate.js' %}"></script>
 <script>
 load_xml();
 $('.button.save-to-repo').on('click', saveToRepository);
+$('.button.edit').on('click', editForm);
 </script>
 {% endblock %}

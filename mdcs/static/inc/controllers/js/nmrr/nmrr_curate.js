@@ -51,3 +51,14 @@ validate_form = function(){
     }
     console.log('END [validate_form]');
 }
+
+
+
+editForm = function(){
+	if (document.referrer.indexOf('&useForm=true')){
+		window.location = document.referrer;
+	}else{
+		window.location = document.referrer + '&useForm=true';
+	}
+}
+
