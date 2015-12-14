@@ -23,7 +23,8 @@
 
 {% block extrastyle %}
 <link rel="stylesheet" type="text/css" href="{% static 'resources/css/bucket.css' %}" media="screen" />
-<link rel="stylesheet" type="text/css" href="{% static 'resources/css/style.add.css' %}" media="screen" />
+<link rel="stylesheet" type="text/css" href="{% static 'css/mdcs/style.add.css' %}" media="screen" />
+<link rel="stylesheet" type="text/css" href="{% static 'css/nmrr/admin.css' %}" media="screen" />
 {% endblock %}
 
 {% block title %}<h1>{{ objectType }} Manager</h1>{% endblock %}
@@ -43,6 +44,8 @@
 
 {% block content%}
 
+<div class="row">
+    <div class="col-md-12">
 <div class="btn-group pull-right">
 <!--<span class="ctx_menu">-->
     <span class="btn btn-default upload"><i class="fa fa-upload"></i> Upload {{ objectType }}</span>
@@ -51,13 +54,16 @@
     {% endif %}
 <!--</span>-->
 </div>
+        </div>
+    </div>
 
 <!--<div class="right-side">-->
 <!--<span class="ctx_menu">-->
 <!--<div class="icon legend long upload">Upload {{ objectType }}</div>-->
 <!--</span>-->
 <!--</div>-->
-
+<div class="row toppadded">
+    <div class="col-md-12">
 {% if objects %}
 <table class="data-table">
     <tr>
@@ -90,30 +96,37 @@
             {% if isDeleted == True %}
                 <td><span style="color:red;">Deleted</span></td>
                 <td>
-                    <span class="icon legend retrieve" objectType="{{ objectType }}" objectid="{{ object.id }}">
+                    <span class="btn btn-default retrieve" objectType="{{ objectType }}" objectid="{{ object.id }}">
+                        <i class="fa fa-undo"></i>
                         Restore {{ objectType }}
                     </span>
                 </td>
             {% else %}
                 <td><span style="color:green;">Registered</span></td>
                 <td>
-                    <span class="icon legend version" objectType="{{ objectType }}" objectid="{{ object.id }}">
+                    <span class="btn btn-default version" objectType="{{ objectType }}" objectid="{{ object.id }}">
+                        <i class="fa fa-check"></i>
                         Versions
                     </span>
-                    <span class="icon legend edit" objectType="{{ objectType }}" objectid="{{ object.id }}">
+                    <span class="btn btn-default edit" objectType="{{ objectType }}" objectid="{{ object.id }}">
+                        <i class="fa fa-edit"></i>
                         Edit
                     </span>
-                    <span class="icon legend delete" objectType="{{ objectType }}" objectid="{{ object.id }}">
+                    <span class="btn btn-default delete" objectType="{{ objectType }}" objectid="{{ object.id }}">
+                        <i class="fa fa-trash"></i>
                         Delete
                     </span>
                     {% if objectType == "Template" %}
-                        <span class="icon legend modules" objectType="{{ objectType }}" objectid="{{ object.id }}">
+                        <span class="btn btn-default modules" objectType="{{ objectType }}" objectid="{{ object.id }}">
+                            <i class="fa fa-cubes"></i>
                             Modules
                         </span>
-			            <span class="icon legend exporters" objectType="{{ objectType }}" objectid="{{ object.id }}">
+			            <span class="btn btn-default exporters" objectType="{{ objectType }}" objectid="{{ object.id }}">
+                            <i class="fa fa-plug"></i>
 			                Exporters
 			            </span>
-                        <span class="icon legend resultXslt" objectType="{{ objectType }}" objectid="{{ object.id }}">
+                        <span class="btn btn-default resultXslt" objectType="{{ objectType }}" objectid="{{ object.id }}">
+                            <i class="fa fa-eye"></i>
 			                Results
 			            </span>
                     {% endif %}
@@ -129,6 +142,8 @@
     {{ objectType }}.
 </div>
 {% endif %}
+          </div>
+    </div>
 {% endblock %}  
 
 {% block popups %}
@@ -185,6 +200,9 @@
 	</tr>
 	{% endif %}
 </table>
+
+
+
 <div id="objectUploadErrorMessage"></div>
 <div id="dependenciesArea"></div>
 
