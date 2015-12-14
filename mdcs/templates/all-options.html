@@ -22,6 +22,9 @@
 {% endcomment %}
 
 {% block title %}<h3>Services</h3>{% endblock %}
+{% block menu %}
+    {% include 'nmrr/menus/main.html' with active_tab='tab2' %}
+{% endblock %}
 
 {% block content %}
 The NIST Materials Resource Registry allows for the registration and discovery of materials resources.
