@@ -104,7 +104,47 @@ loadRefinementQueries = function(){
 	$("#refine_resource").find("input:checked").each(function(){
 		query = $(this).closest("div.refine_criteria").attr("query");
 		val = $(this).val();
-		refinements.push({query:query, val:val});
+		refinements.push(query + ":" + val);
 	});
 	console.log(refinements);
+
+	return refinements;
+}
+
+/**
+ * AJAX call, gets query results
+ * @param numInstance
+ */
+get_results_keyword_refined = function(numInstance){
+    $("#results").html('Please wait...');
+    var keyword = $("#id_search_entry").val();
+    $.ajax({
+        url : "/explore/get_results_by_instance_keyword",
+        type : "GET",
+        dataType: "json",
+        data : {
+        	keyword: keyword,
+        	schemas: getSchemas(),
+        	refinements: loadRefinementQueries(),
+        	onlySuggestions: false,
+        },
+        beforeSend: function( xhr ) {
+            $("#loading").addClass("isloading");
+        },
+        success: function(data){
+        	if (data.resultString.length == 0){
+        		// get no results
+        		$("#results").html("No results found");
+        	}
+        	else{
+        		// get results
+        		$("#results").html(data.resultString);
+        		// filter the view
+        		filter_result_display($("#results_view").val());
+        	}
+        },
+        complete: function(){
+            $("#loading").removeClass("isloading");
+        }
+    });
 }
