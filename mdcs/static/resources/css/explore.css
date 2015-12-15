@@ -81,7 +81,6 @@ h1.search {
 }
 
 .loading {
-	float:right;
     display: inline-block;
     vertical-align: middle;
     width:4em;

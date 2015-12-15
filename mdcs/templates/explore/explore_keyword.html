@@ -40,12 +40,11 @@
 {% block content %}
 
 <div id="search">
-        <div id="searchContainer">
-			<div class="loading" id="loading"></div>
-			<input id="submit" name="submit" type="button" onclick="get_results_keyword()" value="Search" />
-			<div>
-				{{search_Form.search_entry}}
-			</div>
+        <div id="searchContainer">			
+			
+			{{search_Form.search_entry}}
+			
+			<input id="submit" name="submit" type="button" onclick="get_results_keyword()" value="Search" /><div class="loading" id="loading"></div>
         </div>
 		<div style="display: none;">{{search_Form.my_schemas}}</div>
         <div id="form_result_start_current"></div>
