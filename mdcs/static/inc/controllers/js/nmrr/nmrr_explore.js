@@ -99,4 +99,12 @@ filter_result_display = function(filter){
 	}
 }
 
-
+loadRefinementQueries = function(){
+	var refinements = [];
+	$("#refine_resource").find("input:checked").each(function(){
+		query = $(this).closest("div.refine_criteria").attr("query");
+		val = $(this).val();
+		refinements.push({query:query, val:val});
+	});
+	console.log(refinements);
+}
