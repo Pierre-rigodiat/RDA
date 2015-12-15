@@ -2933,10 +2933,11 @@ def load_refinements(request):
             
             dot_query = ".".join(query)
             # get the name of the enumeration
-            refinement += "<div class='refine_criteria' query='" + dot_query + "'>" + simple_type.attrib['name'] + ": </div>" 
+            refinement += "<div class='refine_criteria' query='" + dot_query + "'>" + simple_type.attrib['name'] + ": <br/>"
             for enum in enums:
                 refinement += "<input type='checkbox' value='" + enum.attrib['value'] + "'> " + enum.attrib['value'] + "<br/>"
             refinement += "<br/>"
+            refinement += "</div>"
         refinement_options += refinement
     
     return HttpResponse(json.dumps({'refinements': refinement_options}), content_type='application/javascript')
