@@ -295,7 +295,10 @@ def explore_detail_result_process(request) :
     result_id = request.GET['id']
     xmlString = XMLdata.get(result_id)
     schemaId = xmlString['schema']
-    title = xmlString['title']
+    if 'title' in request.GET:
+        title = request.GET['title']
+    else:
+        title = xmlString['title']
     xmlString = xmltodict.unparse(xmlString['content']).encode('utf-8')
     xsltPath = os.path.join(settings.SITE_ROOT, 'static', 'resources', 'xsl', 'xml2html.xsl')
     xslt = etree.parse(xsltPath)

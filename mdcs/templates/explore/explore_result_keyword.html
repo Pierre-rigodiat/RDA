@@ -1,7 +1,13 @@
-<div id="{{id}}" name="result">
+{% load render_extras %}
+
+{% if custom_xslt %}
+    {% render_as_template xml %}
+{% else %}
+    <div id="{{id}}" name="result">
     <div class='xmlResult' readonly='true'>
     	{% autoescape off %}
     	{{xml}}
     	{% endautoescape %}
     </div>
 </div>
+{% endif %}

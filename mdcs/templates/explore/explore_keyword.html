@@ -41,9 +41,10 @@
 
 <div id="search">
         <div id="searchContainer">
+			<div class="loading" id="loading"></div>
+			<input id="submit" name="submit" type="button" onclick="get_results_keyword()" value="Search" />
 			<div>
 				{{search_Form.search_entry}}
-				<input id="submit" name="submit" onclick="get_results_keyword()" value="Search" />
 			</div>
         </div>
 		<div style="display: none;">{{search_Form.my_schemas}}</div>
@@ -152,8 +153,8 @@ No Results Found.
 <script src="{% static 'inc/controllers/js/explore.js' %}"></script>
 <script src="{% static 'libs/tags/tag-it.js' %}"></script>
 <script src="{% static 'inc/controllers/js/nmrr/nmrr_explore.js' %}"></script>
-<script src="{% static 'libs/tags/tag-it.js' %}"></script>
 <script>
+    initAutocomplete();
 initSearch();
 </script>
 {% endblock %}

@@ -1507,6 +1507,9 @@ get_results_keyword = function(numInstance){
         	schemas: getSchemas(),
         	onlySuggestions: false,
         },
+        beforeSend: function( xhr ) {
+            $("#loading").addClass("isloading");
+        },
         success: function(data){
         	if (data.resultString.length == 0){
         		$("#results").html("No results found");
@@ -1514,24 +1517,29 @@ get_results_keyword = function(numInstance){
         	else{
         		$("#results").html(data.resultString);
         	}
-//        	if(data.resultString)
-//        	{
-//                $('.toolbar').show();
-//        	}
+        },
+        complete: function(){
+            $("#loading").removeClass("isloading");
         }
     });
 }
 
-$(function() {
-     $("#id_search_entry").tagit({
-        allowSpaces: false,
+initAutocomplete = function() {
+         $("#id_search_entry").tagit({
+            allowSpaces: false,
         placeholderText: 'Enter a keyword..',
-        autocomplete: ({
-              focus: function (event, ui) {
+            autocomplete: ({
+                search: function(event, ui) {
+                    $("#loading").addClass("isloading");
+                },
+                response: function(event, ui) {
+                    $("#loading").removeClass("isloading");
+                },
+                focus: function (event, ui) {
                    this.value = ui.item.label;
                    event.preventDefault(); // Prevent the default focus behavior.
-              },
-              source: function(request, response) {
+                },
+                source: function(request, response) {
                 $.getJSON("/explore/get_results_by_instance_keyword", { keyword: request.term, schemas: getSchemas(), onlySuggestions: true},
                 function (data) {
                     response($.map(data.resultsByKeyword, function (item) {
@@ -1543,17 +1551,18 @@ $(function() {
                             }
                         }
                  }));}
-              )},
+                )},
               minLength: 2,              
-              select: function( event, ui ) {
+                select: function( event, ui ) {
                   this.value = ui.item.label;
                   $("#id_search_entry").tagit("createTag", this.value);
                   //$( "#results" ).html( ui.item.value );
                 return false;
-              }
+                }
+            })
         })
-    })
-});
+}
+
 
 getSchemas = function(numInstance){
     var values = [];
