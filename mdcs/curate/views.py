@@ -154,17 +154,16 @@ def curate_from_schema(request):
             # if the schemas are all versions of the same schema
             if len(set(templates.values_list('templateVersion'))) == 1:
                 template_id = TemplateVersion.objects().get(pk=templates[0].templateVersion).current
-#                 request.session['currentTemplateID'] = template_id
-#                 form_data = FormData(user=str(request.user.id), template=template_id, name=schema_name).save()
-#                 request.session['curateFormData'] = str(form_data.id)
-#                 request.session['curate_edit'] = False            
-            
-                if 'formString' in request.session:
-                    del request.session['formString']
-                if 'xmlDocTree' in request.session:
-                    del request.session['xmlDocTree']
+                
+                if 'useForm' in request.GET and request.GET['useForm'] == 'true':
+                    pass
+                else:
+                    if 'formString' in request.session:
+                        del request.session['formString']
+                    if 'xmlDocTree' in request.session:
+                        del request.session['xmlDocTree']
             else:
-                raise MDCSError("The selection of template by name can't be used if the MDCS contain more than one template with the same name.")
+                raise MDCSError("The selection of template by name can't be used if the MDCS contain more than one template with the same name.")            
     except:
         raise MDCSError("The template you are looking for doesn't exist.")
     

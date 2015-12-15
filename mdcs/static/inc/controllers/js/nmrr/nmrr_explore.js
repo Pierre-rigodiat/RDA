@@ -7,7 +7,10 @@ initSearch = function(){
 
 initResources = function(){
 	// select all resources by default
-	$("#refine_resource_type").children("input:radio[value=all]").attr("checked","checked")
+	$("#refine_resource_type").children("input:radio[value=all]").prop("checked", true);
+	$("#id_my_schemas").find("input").each(function(){
+		$(this).prop("checked", true);
+	});
 	
 	// get radio to refine resource type
 	var radio_btns = $("#refine_resource_type").children("input:radio")
@@ -23,19 +26,18 @@ initResources = function(){
 	        if (selected_val == 'all'){
 	        	// check all options
 	        	$("#id_my_schemas").find("input").each(function(){
-	        		$(this).attr("checked","checked");
+	        		$(this).prop("checked", true);
 	        	});
 	        }else{
 	        	// uncheck all options except the selected one
 	        	$("#id_my_schemas").find("input").each(function(){
 	        		if ($(this).val() == selected_val){
-	        			$(this).attr("checked","checked");
+	        			$(this).prop("checked",true);
 	        		}else{
 	        			$(this).removeAttr("checked");
 	        		}	        		
 	        	});
 	        }
-	        
 	    };
 	}
 }
