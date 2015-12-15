@@ -940,17 +940,20 @@ def get_results_by_instance_keyword(request):
         try:
             keyword = request.GET['keyword']
             schemas = request.GET.getlist('schemas[]')
+            refinements = refinements_to_mongo(request.GET.getlist('refinements[]'))
             onlySuggestions = json.loads(request.GET['onlySuggestions'])
         except:
             keyword = ''
             schemas = []
+            refinements = {}
             onlySuggestions = True
 
         #We get all template versions for the given schemas
         templatesVersions = Template.objects(title__in=schemas).distinct(field="templateVersion")
         #We get all templates ID, for all versions
         templatesID = TemplateVersion.objects(pk__in=templatesVersions).distinct(field="versions")
-        instanceResults = XMLdata.executeFullTextQuery(keyword, templatesID)
+        
+        instanceResults = XMLdata.executeFullTextQuery(keyword, templatesID, refinements)
         if len(instanceResults) > 0:
             if not onlySuggestions:
                 canDelete = False
@@ -2878,3 +2881,19 @@ def delete_result(request):
     
     return HttpResponse(json.dumps({}), content_type='application/javascript')
 
+
+            dot_query = "content." + dot_query
+
+
+def refinements_to_mongo(refinements):
+    try:
+        # transform the refinement in mongo query
+        mongo_queries = {}
+        for refinement in refinements:
+            splited_refinement = refinement.split(':')
+            dot_notation = splited_refinement[0]
+            value = splited_refinement[1]
+            mongo_queries[dot_notation] = value
+        return mongo_queries
+    except:
+        return []

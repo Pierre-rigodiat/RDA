@@ -383,7 +383,7 @@ class XMLdata():
         xmldata.update({'_id': ObjectId(postID)}, {"$set":json}, upsert=False)
 
     @staticmethod
-    def executeFullTextQuery(text, templatesID, refinements=None):
+    def executeFullTextQuery(text, templatesID, refinements={}):
         #create a connection
         client = MongoClient(MONGODB_URI)
         # connect to the db 'mgi'
@@ -400,7 +400,7 @@ class XMLdata():
         else:
             full_text_query = {'schema' : {'$in': templatesID} } 
         
-        if refinements is not None:
+        if len(refinements.keys()) > 0:
             full_text_query.update(refinements)
             
         cursor = xmldata.find(full_text_query, as_class = OrderedDict)
