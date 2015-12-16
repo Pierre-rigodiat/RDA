@@ -1124,6 +1124,17 @@ def hasModule(request, element):
     return has_module
 
 
+def getAppInfo(element, namespace):
+    app_info = {}
+    
+    app_info_elements = element.findall("./{0}annotation/{0}appinfo".format(namespace))
+    for app_info_element in app_info_elements:
+        for app_info_child in app_info_element.getchildren():
+            if app_info_child.tag in ['label', 'placeholder']:
+                app_info[app_info_child.tag] = app_info_child.text
+    
+    return app_info
+
 ################################################################################
 # 
 # Function Name: generateElement(request, element, xmlTree, namespace)
@@ -1141,21 +1152,18 @@ def generateElement(request, element, xmlTree, namespace, choiceInfo=None, fullP
     
     formString = ""
 
-    # remove the annotations
-    removeAnnotations(element, namespace)
+    # get appinfo elements
+    app_info = getAppInfo(element, namespace)        
     
     # check if the element has a module
     has_module = hasModule(request, element)
-    isInAChoice = 'choice' in element.getparent().tag
     
     # check if XML element or attribute
     if element.tag == "{0}element".format(namespace):
         minOccurs, maxOccurs = manageOccurences(element)
-#         addButton, deleteButton, nbOccurrences = manageButtons(minOccurs, maxOccurs)
         element_tag='element'
     elif element.tag == "{0}attribute".format(namespace):
         minOccurs, maxOccurs = manageAttrOccurrences(element)
-#         addButton, deleteButton, nbOccurrences = manageButtons(minOccurs, maxOccurs)
         element_tag='attribute'
         
     # get the name of the element, go find the reference if there's one
@@ -1177,8 +1185,6 @@ def generateElement(request, element, xmlTree, namespace, choiceInfo=None, fullP
         if refElement is not None:
             textCapitalized = refElement.attrib.get('name')            
             element = refElement
-            # remove the annotations
-            removeAnnotations(element, namespace)
             # check if the element has a module
             has_module = hasModule(request, element)
     else:
@@ -1234,26 +1240,7 @@ def generateElement(request, element, xmlTree, namespace, choiceInfo=None, fullP
     elif nbOccurrences_data > nbOccurrences:
         nbOccurrences = nbOccurrences_data    
     
-        
-    
-    xml_element = XMLElement(xsd_xpath=xsd_xpath, nbOccurs=nbOccurrences_data, minOccurs=minOccurs, maxOccurs=maxOccurs).save()
-
-    # this reduce the number of xml_element stored, but may crash for xpath accessor if xpath not found
-    # not a choice: we need to store all options if choice
-#     if not isInAChoice: 
-#         # data being edited
-#         if request.session['curate_edit']:
-#             # cannot remove or add occurrences
-#             if not(minOccurs == maxOccurs == nbOccurrences_data):
-#                 xml_element = XMLElement(xsd_xpath=xsd_xpath, nbOccurs=nbOccurrences_data, minOccurs=minOccurs, maxOccurs=maxOccurs).save()
-#         # empty form
-#         else: 
-#             # cannot remove or add occurrences
-#             if not(minOccurs == maxOccurs):
-#                 xml_element = XMLElement(xsd_xpath=xsd_xpath, nbOccurs=nbOccurrences_data, minOccurs=minOccurs, maxOccurs=maxOccurs).save()
-#     else:
-#         xml_element = XMLElement(xsd_xpath=xsd_xpath, nbOccurs=nbOccurrences_data, minOccurs=minOccurs, maxOccurs=maxOccurs).save()
-    
+    xml_element = XMLElement(xsd_xpath=xsd_xpath, nbOccurs=nbOccurrences_data, minOccurs=minOccurs, maxOccurs=maxOccurs).save()  
     
     # management of elements inside a choice (don't display if not part of the currently selected choice)
     if choiceInfo:
@@ -1293,12 +1280,13 @@ def generateElement(request, element, xmlTree, namespace, choiceInfo=None, fullP
         request.session['mapTagID'][tagID] = str(form_element.id)
     
         # renders the name of the element
-        formString += "<li class='"+ element_tag + removed +"' id='" + str(tagID) + "'>"
+        formString += "<li class='"+ element_tag + removed +"' id='" + str(tagID) + "' tag='"+textCapitalized+"'>"
         if CURATE_COLLAPSE:
             if elementType is not None and elementType.tag == "{0}complexType".format(namespace): # the type is complex, can be collapsed
                 formString += "<span class='collapse' style='cursor:pointer;' onclick='showhideCurate(event);'></span>"
         
-        formString += textCapitalized
+        label = app_info['label'] if 'label' in app_info else textCapitalized
+        formString += label
         # add buttons to add/remove elements
         buttons = ""
         if not (addButton is False and deleteButton is False):
@@ -1331,7 +1319,8 @@ def generateElement(request, element, xmlTree, namespace, choiceInfo=None, fullP
                         # if the default attribute is present                        
                         defaultValue = element.attrib['default']
                     
-                    formString += " <input type='text' value='"+ django.utils.html.escape(defaultValue) +"'/>" 
+                    placeholder = 'placeholder="'+app_info['placeholder']+ '"' if 'placeholder' in app_info else ''
+                    formString += " <input type='text' value='"+ django.utils.html.escape(defaultValue) +"'" + placeholder + "/>" 
                     formString += buttons
                 else: # complex/simple type 
                     formString += buttons             
@@ -1370,8 +1359,14 @@ def getElementType(element, xmlTree, namespace, defaultPrefix):
     try:
         if 'type' not in element.attrib: # element with type declared below it
             # if tag not closed:  <element/>
-            if len(list(element)) > 0 :
-                return element[0]
+            if len(list(element)) == 1:
+                if element[0].tag == "{0}annotation".format(namespace):
+                    return None
+                else:
+                    return element[0]
+            # with annotations
+            elif len(list(element)) == 2:
+                return element[1]
             else:
                 return None
         else: # element with type attribute
@@ -1603,7 +1598,8 @@ def generateElement_absent(request, element, xmlDocTree, form_element):
 
     namespace = namespaces[defaultPrefix]
 
-    removeAnnotations(element, namespace)
+    # get appinfo elements
+    app_info = getAppInfo(element, namespace)
     
     # check if the element has a module
     has_module = hasModule(request, element)
@@ -1621,8 +1617,6 @@ def generateElement_absent(request, element, xmlDocTree, form_element):
 
         if refElement is not None:
             element = refElement
-            # remove the annotations
-            removeAnnotations(element, namespace)
             # check if the element has a module
             has_module = hasModule(request, element)
   
@@ -1636,8 +1630,9 @@ def generateElement_absent(request, element, xmlDocTree, form_element):
             if 'default' in element.attrib:
                 # if the default attribute is present
                 defaultValue = element.attrib['default']
-       
-            formString += " <input type='text' value='"+ django.utils.html.escape(defaultValue) +"'/>" 
+
+            placeholder = 'placeholder="'+app_info['placeholder']+ '"' if 'placeholder' in app_info else ''
+            formString += " <input type='text' value='"+ django.utils.html.escape(defaultValue) +"'" + placeholder + "/>" 
         else: # complex/simple type      
             if elementType.tag == "{0}complexType".format(namespace):
                 formString += generateComplexType(request, elementType, xmlDocTree, namespace, fullPath=form_element.xml_xpath)
@@ -1685,9 +1680,6 @@ def generate_absent(request):
         xpath_namespaces[prefix] = ns[1:-1]
 
     element = xmlDocTree.xpath(xml_element.xsd_xpath, namespaces=xpath_namespaces)[0]
-
-    # remove the annotations
-    removeAnnotations(element, namespace)
 
     # generating a choice, generate the parent element
     if tag == "choice":
