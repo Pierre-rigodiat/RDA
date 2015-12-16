@@ -75,3 +75,14 @@
 h1.search {
     font-size: 10;
 }
+
+#loading.isloading {
+    background:url('../img/indicator.gif') no-repeat right center;
+}
+
+.loading {
+    display: inline-block;
+    vertical-align: middle;
+    width:4em;
+	height:2em;
+}

@@ -97,9 +97,14 @@ Please wait while the form is loading...
 <br/><br/>
 </div>
 </div>
+<div style="float:left;">
 <a class="button save-to-repo">ADD RESOURCE</a>
-<a class="button button-reversed clear-fields">Clear</a>
+</div>
+<div style="float:right;">
 <a class="button save-form">Save Form </a>
+<a class="button button-reversed clear-fields">Clear Form</a>
+<a class="button button-reversed cancel">Cancel Form</a>
+</div>
 {% endblock %}
 
 {% block popups %}
@@ -140,11 +145,12 @@ Please wait while the form is loading...
 <script src="{% static 'inc/controllers/js/XMLTreeCurator.js' %}"></script>
 <script src="{% static 'inc/controllers/js/modules.js' %}"></script>
 <script src="{% static 'inc/controllers/js/curate.js' %}"></script>
-<script src="{% static 'inc/controllers/js/nmrr/form_validation.js' %}"></script>
+<script src="{% static 'inc/controllers/js/nmrr/nmrr_curate.js' %}"></script>
 <script>
 generate_xsd_form();
 $('.button.save-to-repo').on('click', validate_form);
 $('.button.clear-fields').on('click', clearFields);
+$('.button.cancel').on('click', cancelForm);
 $('.button.save-form').on('click', saveForm);
 </script>
 {% endblock %}

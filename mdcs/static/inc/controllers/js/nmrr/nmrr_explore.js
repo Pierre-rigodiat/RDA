@@ -7,7 +7,10 @@ initSearch = function(){
 
 initResources = function(){
 	// select all resources by default
-	$("#refine_resource_type").children("input:radio[value=all]").attr("checked","checked")
+	$("#refine_resource_type").children("input:radio[value=all]").prop("checked", true);
+	$("#id_my_schemas").find("input").each(function(){
+		$(this).prop("checked", true);
+	});
 	
 	// get radio to refine resource type
 	var radio_btns = $("#refine_resource_type").children("input:radio")
@@ -23,19 +26,18 @@ initResources = function(){
 	        if (selected_val == 'all'){
 	        	// check all options
 	        	$("#id_my_schemas").find("input").each(function(){
-	        		$(this).attr("checked","checked");
+	        		$(this).prop("checked", true);
 	        	});
 	        }else{
 	        	// uncheck all options except the selected one
 	        	$("#id_my_schemas").find("input").each(function(){
 	        		if ($(this).val() == selected_val){
-	        			$(this).attr("checked","checked");
+	        			$(this).prop("checked",true);
 	        		}else{
 	        			$(this).removeAttr("checked");
 	        		}	        		
 	        	});
 	        }
-	        
 	    };
 	}
 }
@@ -97,4 +99,52 @@ filter_result_display = function(filter){
 	}
 }
 
+loadRefinementQueries = function(){
+	var refinements = [];
+	$("#refine_resource").find("input:checked").each(function(){
+		query = $(this).closest("div.refine_criteria").attr("query");
+		val = $(this).val();
+		refinements.push(query + ":" + val);
+	});
+	console.log(refinements);
 
+	return refinements;
+}
+
+/**
+ * AJAX call, gets query results
+ * @param numInstance
+ */
+get_results_keyword_refined = function(numInstance){
+    $("#results").html('Please wait...');
+    var keyword = $("#id_search_entry").val();
+    $.ajax({
+        url : "/explore/get_results_by_instance_keyword",
+        type : "GET",
+        dataType: "json",
+        data : {
+        	keyword: keyword,
+        	schemas: getSchemas(),
+        	refinements: loadRefinementQueries(),
+        	onlySuggestions: false,
+        },
+        beforeSend: function( xhr ) {
+            $("#loading").addClass("isloading");
+        },
+        success: function(data){
+        	if (data.resultString.length == 0){
+        		// get no results
+        		$("#results").html("No results found");
+        	}
+        	else{
+        		// get results
+        		$("#results").html(data.resultString);
+        		// filter the view
+        		filter_result_display($("#results_view").val());
+        	}
+        },
+        complete: function(){
+            $("#loading").removeClass("isloading");
+        }
+    });
+}

@@ -1286,3 +1286,18 @@ delete_form = function(formID){
         }
     });
 }
+
+
+/**
+ * AJAX call, cancel a form currently being entered
+ */
+cancelForm = function(){
+	$.ajax({
+        url : "/curate/cancel-form",
+        type : "GET",
+        dataType: "json",
+		success: function(data){
+			window.location = "/curate"
+	    },
+    });
+}

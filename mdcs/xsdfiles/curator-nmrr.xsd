@@ -18,6 +18,10 @@
    
    <xs:complexType name="Resource">
       <xs:annotation>
+        <xs:appinfo>
+          <label></label>
+          <placeholder></placeholder>
+        </xs:appinfo>
          <xs:documentation>
            an identified, described, and discoverable component of the 
            distributed data environment. 
@@ -26,7 +30,7 @@
       <xs:sequence>
 
          <xs:element name="identity" type="Identity">
-            <xs:annotation>
+            <xs:annotation>                            
                <xs:documentation>
                   a collection of metadata that help identify the resource in 
                   various contexts.  It includes its title and unique 

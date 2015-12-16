@@ -54,13 +54,12 @@
     </li>
 
     {% if user.is_authenticated %}
+    <li><a href="/dashboard/my-profile">My Profile</a></li>
     <li><a href="/logout" class="sf-with-ul">Logout</a></li>
     {% else %}
     <li><a href="/login" class="sf-with-ul">Login</a></li>
     {% endif %}
 
-
-    <li><a href="/dashboard/my-profile">My Profile</a></li>
     <li><a href="/help">Help</a></li>
     <li><a href="/contact">Contact</a></li>
     <li><a href="/api">API</a></li></ul>
