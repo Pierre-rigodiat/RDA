@@ -2882,9 +2882,6 @@ def delete_result(request):
     return HttpResponse(json.dumps({}), content_type='application/javascript')
 
 
-            dot_query = "content." + dot_query
-
-
 def refinements_to_mongo(refinements):
     try:
         # transform the refinement in mongo query
