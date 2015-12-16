@@ -2947,7 +2947,6 @@ def load_refinements(request):
                     element = element.getparent()            
             
             dot_query = ".".join(query)
-            dot_query = "content." + dot_query
             # get the name of the enumeration
             refinement += "<div class='refine_criteria' query='" + dot_query + "'>" + simple_type.attrib['name'] + ": <br/>"
             for enum in enums:
