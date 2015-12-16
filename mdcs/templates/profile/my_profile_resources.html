@@ -25,7 +25,6 @@
 -->
 {% endcomment %}
 
-
 {% block content %}
   <div id="body">
 
@@ -50,43 +49,43 @@
 <table>
 <tr>
 <td align="center" style="border-color:#000000;border-size:15px">
-<a href="/my-profile/resources/all">
+<a href="/my-profile/resources?template=all">
 <img width="100" src="http://blogs.msdn.com/cfs-filesystemfile.ashx/__key/communityserver-blogs-components-weblogfiles/00-00-01-38-39-metablogapi/6874.Icons_5F00_globeAsia_5F00_blue_5F00_74E47332.png"><br>
 All Resources
 </a>
 </td>
 <td align="center">
-<a href="/my-profile/resources/organizations">
+<a href="/my-profile/resources?template=organization">
 <img width="100" src="http://www.salesneuron.com/images/organization.png"><br>
 Organizations
 </a>
 </td>
 <td align="center">
-<a href="/my-profile/resources/datacollections">
+<a href="/my-profile/resources?template=datacollection">
 <img width="100" src="http://www.iconexperience.com/_img/o_collection_png/green_dark_grey/512x512/plain/tables.png"><br>
 Data Collections
 </a>
 </td>
 <td align="center">
-<a href="/my-profile/resources/datasets">
+<a href="/my-profile/resources?template=dataset">
 <img width="100" src="http://www.iconexperience.com/_img/o_collection_png/green_dark_grey/512x512/plain/table.png"><br>
 Datasets
 </a>
 </td>
 <td align="center">
-<a href="/my-profile/resources/services">
+<a href="/my-profile/resources?template=service">
 <img width="100" src="http://www.optimusinfo.com/wp-content/uploads/2015/02/API-icon.png"><br>
 Services
 </a>
 </td>
 <td align="center">
-<a href="/my-profile/resources/informationalsites">
+<a href="/my-profile/resources?template=informational">
 <img width="100" src="http://www.prosemedia.com/wp-content/uploads/2013/02/Prose-Icon-(Web-Pages).png"><br>
 Informationals
 </a>
 </td>
 <td align="center">
-<a href="/my-profile/resources/softwares">
+<a href="/my-profile/resources?template=software">
 <img width="100" src="http://www.ukgermanconnection.org/domains/ukgermanconnection.org/local/media/images/doubleclub/icons/dc_icon_mouse.jpg"><br>
 Softwares
 </a>
@@ -102,7 +101,6 @@ Softwares
     {% with XMLdata|get:"_id" as XMLdata_id %}
 <div style="background-color:#eeeeee" id="{{XMLdata_id}}">
     {% endwith%}
-<form id="registerForm" method="post">
 
 <table>
 <tr>
@@ -111,27 +109,22 @@ Softwares
 <td>
 {{ XMLdata.title }}
 <div style="float:right">
-	<button class="btn clear-fields" onclick="location.href='/my-profile/resources/add'">View Resource Details</button>
+    {% with XMLdata|get:"_id" as id %}
+	<button class="btn clear-fields" onclick="dialog_detail('{{id}}');">View Resource Details</button>
+    {% endwith %}
 </div>
 </td>
 </tr>
-<tr style="display:none">
-<td>Description</td>
-<td><textarea name="" placeholder="Enter repository's description" style="width:350px" rows="5" title="Enter your repository's description. Try to use as many keywords as possible the would accurately describe your repository's data and deposits.">{{ XMLdata.content.Resource.content.description }}</textarea></td></tr>
-<tr style="display:none">
-<td>Base URL</td>
-<td><input type="text" name="" style="width:350px" placeholder="Enter base url" title="Enter your repository's landing page." value="{{ XMLdata.content.Resource.content.reference_url }}"></td>
-</tr>
 </table>
 
-</form>
+
 
 <table>
 <tr>
 <td>
 <!---
 	{% if canEdit %} -->
-    	<!---{% endif %}   deleteResult('{{XMLdata_id}}')
+    	<!---{% endif %}
 	 {% if canDelete %} -->
 <!---{% endif %} -->
 	{% with XMLdata|get:"_id" as XMLdata_id %}
@@ -143,7 +136,7 @@ Softwares
 <td align="right">
 <font size="2">Last Published: Never &nbsp;&nbsp;&nbsp;</font>
 		<a href="#" class="button">Publish</a>
-</div>
+
 </td></tr></table>
 </div>
 <br>
@@ -167,6 +160,10 @@ Softwares
 <div id="dialog-delete-result" title="Delete Document" style="display:none;">
 Are you sure you want to delete this document?
 </div>
+<div id="dialog-detail-result" title="Resource Details" style="display:none;">
+<div id="result_detail">
+</div>
+</div>
 {% endblock %}
 
   {% block extrajs %}
@@ -178,7 +175,7 @@ Are you sure you want to delete this document?
   });
   </script>
   <script src="{% static 'inc/controllers/js/explore.js' %}"></script>
-
+  <script src="{% static 'inc/controllers/js/nmrr/nmrr_explore.js' %}"></script>
 
 
   {% endblock %}
