@@ -1836,8 +1836,8 @@ def duplicate(request):
         elif sequenceChild.tag == "{0}choice".format(namespace):
             element_tag = 'choice'
         
-        # remove the annotations
-        removeAnnotations(sequenceChild, namespace)
+        # get appinfo elements
+        app_info = getAppInfo(sequenceChild, namespace)  
         
         has_module = hasModule(request, sequenceChild)        
             
@@ -1860,8 +1860,6 @@ def duplicate(request):
                 if refElement is not None:
                     textCapitalized = refElement.attrib.get('name')            
                     sequenceChild = refElement
-                    # remove the annotations
-                    removeAnnotations(sequenceChild, namespace)
             else:
                 textCapitalized = sequenceChild.attrib.get('name')
     
@@ -1881,7 +1879,8 @@ def duplicate(request):
                 if elementType is not None and elementType.tag == "{0}complexType".format(namespace): # the type is complex, can be collapsed
                     formString += "<span class='collapse' style='cursor:pointer;' onclick='showhideCurate(event);'></span>"
             
-            formString += textCapitalized
+            label = app_info['label'] if 'label' in app_info else textCapitalized
+            formString += label
             
             # if module is present, replace default input by module       
             if has_module:
@@ -1895,7 +1894,9 @@ def duplicate(request):
                         # if the default attribute is present                        
                         defaultValue = sequenceChild.attrib['default']
                     
-                    formString += " <input type='text' value='"+ django.utils.html.escape(defaultValue) +"'/>" 
+                    placeholder = 'placeholder="'+app_info['placeholder']+ '"' if 'placeholder' in app_info else ''
+                    formString += " <input type='text' value='"+ django.utils.html.escape(defaultValue) +"'" + placeholder + "/>" 
+                    
                     formString += "<span id='add"+ str(newTagID[7:]) +"' class=\"icon add\" onclick=\"changeHTMLForm('add',"+str(newTagID[7:])+");\"></span>"
                     formString += "<span id='remove"+ str(newTagID[7:]) +"' class=\"icon remove\" onclick=\"changeHTMLForm('remove',"+str(newTagID[7:])+");\"></span>"         
                 else: # complex/simple type 
