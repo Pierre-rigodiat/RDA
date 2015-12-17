@@ -70,6 +70,9 @@ dialog_detail = function(id){
         	$(function() {
                 $( "#dialog-detail-result" ).dialog({
                     modal: true,
+                    width:500,
+                    height:500,
+                    resizable:false,
                     buttons: {
                         Ok: function() {
                         $( this ).dialog( "close" );
