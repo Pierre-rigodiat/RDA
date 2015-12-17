@@ -6,5 +6,6 @@ urlpatterns = patterns('',
     url(r'propertyClass', 'modules.registry.views.registry_checkboxes_propertyClass', name='Registry propertyClass Checkboxes'),
     url(r'relevant-date', 'modules.registry.views.relevant_date', name='Relevant Date'),
     url(r'name-pid', 'modules.registry.views.name_pid', name='Name PID'),
+    url(r'status', 'modules.registry.views.status', name='Status'),
 )
 

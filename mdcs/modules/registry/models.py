@@ -1,4 +1,4 @@
-from modules.builtin.models import CheckboxesModule
+from modules.builtin.models import CheckboxesModule, OptionsModule
 from modules.models import Module
 from django.conf import settings
 import os
@@ -178,4 +178,38 @@ class RelevantDateModule(Module):
                 return '<' + request.POST['tag'] + role + '>' +  request.POST['date'] + '</' + request.POST['tag'] + '>'
             
         return result_xml
+    
+
+
+class StatusModule(OptionsModule):
+    
+    def __init__(self):
+        self.options = {
+            'inactive': 'Inactive',
+            'active': 'Active',
+            'deleted': 'Deleted',
+        }
+                
+        OptionsModule.__init__(self, options=self.options, disabled=True)
+
+    def _get_module(self, request):
+        self.selected = "inactive"
+        return OptionsModule.get_module(self, request)
+
+    def _get_display(self, request):
+        self.selected = "inactive"
+        if 'data' in request.GET:
+            if request.GET['data'] in self.options.keys():
+                self.selected = request.GET['data']
+        return ''
+
+    def _get_result(self, request):
+        return self.selected
+
+    def _post_display(self, request):
+        return ''
+
+    def _post_result(self, request):
+        return str(request.POST['data'])
+    
     
