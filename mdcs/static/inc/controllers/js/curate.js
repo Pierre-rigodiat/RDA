@@ -337,18 +337,14 @@ generateXMLString = function(elementObj)
 					xmlString += generateXMLString(children[i]);
 				}else if ($(children[i]).hasClass("sequence") ) { // the node is a sequence
 					xmlString += generateXMLString(children[i]);
-				}else if ($(children[i]).hasClass("element") ){ // the node is an element
-					var textNode = $(children[i]).contents().filter(function(){
-				        return this.nodeType === 3;
-				    }).text().trim();
+				}else if ($(children[i]).hasClass("element") ){ // the node is an element				
+					var tag = $(children[i]).attr('tag');
 					
 					// get attributes
 					var attributes = ""
 					$(children[i]).children("ul").children("li.attribute:not(.removed)").each(function(){
-						var text = $(this).contents().filter(function(){
-					        return this.nodeType === 3;
-					    }).text().trim();
-					
+						var attr_tag = $(this).attr('tag');
+										
 						attrChildren = $(this).children();					
  
 						var value= ""
@@ -365,21 +361,21 @@ generateXMLString = function(elementObj)
 								value = attrChildren[j].value;
 							}
 						}						
-						attributes += " " + text + "='" + value + "'";
+						attributes += " " + attr_tag + "='" + value + "'";
 					});
 					
 					// build the tag with its value
 					xml_value = generateXMLString(children[i]);
-					if ($(children[i]).children('div.module').length != 0 && xml_value.match("^<" + textNode)){
+					if ($(children[i]).children('div.module').length != 0 && xml_value.match("^<" + tag)){
 						// if the module returns the tag, replace the tag
 						xmlString += xml_value;
 					}else{
 						// build opening tag with potential attributes
-						xmlString += "<" + textNode + attributes + ">";
+						xmlString += "<" + tag + attributes + ">";
 						// build opening tag with potential attributes
 						xmlString += xml_value;
 						// build the closing tag
-					    xmlString += "</" + textNode + ">";
+					    xmlString += "</" + tag + ">";
 					}
 				}			    	
 			}
