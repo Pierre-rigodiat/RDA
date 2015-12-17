@@ -139,7 +139,12 @@ def save_object(request):
             
         hash = XSDhash.get_hash(objectContent)
         # save the object
-        if objectType == "Template":            
+        if objectType == "Template":
+
+            if Template.objects.filter(title=objectName):
+                response_dict = {'errorsTemplateName': 'True'}
+                return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
+
             objectVersions = TemplateVersion(nbVersions=1, isDeleted=False).save()            
             object = Template(title=objectName, filename=objectFilename, content=objectContent, version=1, templateVersion=str(objectVersions.id), hash=hash).save()
             #We add default exporters
