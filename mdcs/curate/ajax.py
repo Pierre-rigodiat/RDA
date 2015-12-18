@@ -1286,6 +1286,7 @@ def generateElement(request, element, xmlTree, namespace, choiceInfo=None, fullP
                 formString += "<span class='collapse' style='cursor:pointer;' onclick='showhideCurate(event);'></span>"
         
         label = app_info['label'] if 'label' in app_info else textCapitalized
+        label = label if label is not None else ''
         formString += label
         # add buttons to add/remove elements
         buttons = ""
@@ -1320,6 +1321,7 @@ def generateElement(request, element, xmlTree, namespace, choiceInfo=None, fullP
                         defaultValue = element.attrib['default']
                     
                     placeholder = 'placeholder="'+app_info['placeholder']+ '"' if 'placeholder' in app_info else ''
+                    placeholder = placeholder if placeholder is not None else ''
                     formString += " <input type='text' value='"+ django.utils.html.escape(defaultValue) +"'" + placeholder + "/>" 
                     formString += buttons
                 else: # complex/simple type 
@@ -1632,6 +1634,7 @@ def generateElement_absent(request, element, xmlDocTree, form_element):
                 defaultValue = element.attrib['default']
 
             placeholder = 'placeholder="'+app_info['placeholder']+ '"' if 'placeholder' in app_info else ''
+            placeholder = placeholder if placeholder is not None else ''
             formString += " <input type='text' value='"+ django.utils.html.escape(defaultValue) +"'" + placeholder + "/>" 
         else: # complex/simple type      
             if elementType.tag == "{0}complexType".format(namespace):
@@ -1880,6 +1883,7 @@ def duplicate(request):
                     formString += "<span class='collapse' style='cursor:pointer;' onclick='showhideCurate(event);'></span>"
             
             label = app_info['label'] if 'label' in app_info else textCapitalized
+            label = label if label is not None else ''
             formString += label
             
             # if module is present, replace default input by module       
@@ -1895,6 +1899,7 @@ def duplicate(request):
                         defaultValue = sequenceChild.attrib['default']
                     
                     placeholder = 'placeholder="'+app_info['placeholder']+ '"' if 'placeholder' in app_info else ''
+                    placeholder = placeholder if placeholder is not None else ''
                     formString += " <input type='text' value='"+ django.utils.html.escape(defaultValue) +"'" + placeholder + "/>" 
                     
                     formString += "<span id='add"+ str(newTagID[7:]) +"' class=\"icon add\" onclick=\"changeHTMLForm('add',"+str(newTagID[7:])+");\"></span>"
