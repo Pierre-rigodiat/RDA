@@ -7,5 +7,6 @@ urlpatterns = patterns('',
     url(r'relevant-date', 'modules.registry.views.relevant_date', name='Relevant Date'),
     url(r'name-pid', 'modules.registry.views.name_pid', name='Name PID'),
     url(r'status', 'modules.registry.views.status', name='Status'),
+    url(r'local-id', 'modules.registry.views.localid', name='Local ID'),
 )
 
