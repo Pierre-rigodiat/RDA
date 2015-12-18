@@ -1,7 +1,7 @@
 initSearch = function(){
 	initResources();
 	loadRefinements('all');
-	initFilters();
+	initFilters();	
 }
 
 
@@ -17,11 +17,32 @@ initResources = function(){
 	for(var i = 0; i < radio_btns.length; i++) {
 		// when value change
 		radio_btns[i].onclick = function() {
-			// update refinements options based on the selected schema
-			loadRefinements($(this).val());
-			// update values for the search
 			// get the value
 	        selected_val = $(this).val();
+			
+			// update selected icon
+	        if (selected_val == 'repository'
+	        	|| selected_val == 'projectarchive'
+	        		|| selected_val == 'database'){
+	        	$("#icons_table").find("td").each(function(){
+		        	$(this).removeClass("selected_resource");
+		        	if ($(this).attr("value") == 'datacollection'){
+		        		$(this).addClass("selected_resource");
+		        	}	        	
+	        	});
+	        }else{
+	        	$("#icons_table").find("td").each(function(){
+		        	$(this).removeClass("selected_resource");
+		        	if ($(this).attr("value") == selected_val){
+		        		$(this).addClass("selected_resource");
+		        	}	        	
+	        	});
+	        }	        
+			
+			// update refinements options based on the selected schema
+			loadRefinements(selected_val);
+			// update values for the search
+
 	        // update the value of the search form
 	        if (selected_val == 'all'){
 	        	// check all options
