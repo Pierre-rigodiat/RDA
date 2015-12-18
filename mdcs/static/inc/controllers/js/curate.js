@@ -359,7 +359,9 @@ generateXMLString = function(elementObj)
 							} else if (attrChildren[j].tagName == "INPUT") {
 								console.log(attrChildren[j]);
 								value = attrChildren[j].value;
-							}
+							} else if (attrChildren[j].tagName == "DIV" && $(attrChildren[j]).hasClass("module") ){
+								value += $($(attrChildren[j]).parent()).find(".moduleResult").text();		
+							} 
 						}						
 						attributes += " " + attr_tag + "='" + value + "'";
 					});
