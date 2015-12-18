@@ -38,6 +38,7 @@ initResources = function(){
 	        		}	        		
 	        	});
 	        }
+	        get_results_keyword_refined();
 	    };
 	}
 }
