@@ -11,12 +11,13 @@ SCRIPTS_PATH = os.path.join(RESOURCES_PATH, 'js')
 STYLES_PATH = os.path.join(RESOURCES_PATH, 'css')
 
 class InputModule(Module):
-    def __init__(self, scripts=list(), styles=list(), label=None, default_value=None):
+    def __init__(self, scripts=list(), styles=list(), label=None, default_value=None, disabled=False):
         scripts = [os.path.join(SCRIPTS_PATH, 'input.js')] + scripts
         Module.__init__(self, scripts=scripts, styles=styles)
 
         self.label = label
         self.default_value = default_value
+        self.disabled = disabled
 
     def get_module(self, request):
         template = os.path.join(TEMPLATES_PATH, 'input.html')
@@ -27,9 +28,11 @@ class InputModule(Module):
 
         if self.default_value is not None:
             params.update({"default_value": self.default_value})
+            
+        if self.disabled is not None:
+            params.update({"disabled": self.disabled})
 
         return render_module(template, params)
-
 
 class OptionsModule(Module):
     def __init__(self, scripts=list(), styles=list(), label=None, options=dict(), disabled=False, selected=None):
