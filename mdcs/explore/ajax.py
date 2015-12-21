@@ -32,6 +32,7 @@ from django.template import loader, Context
 from django.contrib.auth.models import Group
 from django.db.models import Q
 import mgi.rights as RIGHTS
+import random
 #Class definition
 
 ################################################################################
@@ -1027,7 +1028,7 @@ def get_results_by_instance_keyword(request):
     request.session[sessionName] = results
     print 'END def getResultsKeyword(request)'
 
-    return HttpResponse(json.dumps({'resultsByKeyword' : resultsByKeyword, 'resultString' : resultString}), content_type='application/javascript')
+    return HttpResponse(json.dumps({'resultsByKeyword' : resultsByKeyword, 'resultString' : resultString, 'count' : len(instanceResults)}), content_type='application/javascript')
 
 
 
@@ -2881,6 +2882,91 @@ def delete_result(request):
     
     return HttpResponse(json.dumps({}), content_type='application/javascript')
 
+################################################################################
+#
+# Function Name: load_refinements(request)
+# Inputs:        request -
+# Outputs:
+# Exceptions:    None
+# Description:   Load refinements criterias from selected schemas
+#
+################################################################################
+def load_refinements(request):
+    schema_name = request.GET['schema']
+    button_type = ['primary', 'success', 'info', 'warning', 'danger']
+    if schema_name == 'all':
+        return HttpResponse(json.dumps({'refinements': ''}), content_type='application/javascript')
+
+    templates = Template.objects(title=schema_name)
+    # if the schemas are all versions of the same schema
+    if len(set(templates.values_list('templateVersion'))) == 1:
+        schemaId = TemplateVersion.objects().get(pk=templates[0].templateVersion).current
+        schema = Template.objects.get(pk=schemaId)
+
+    xmlDocTree = etree.parse(BytesIO(schema.content.encode('utf-8')))
+
+    # find the namespaces
+    namespaces = common.get_namespaces(BytesIO(schema.content.encode('utf-8')))
+    default_namespace = "{http://www.w3.org/2001/XMLSchema}"
+    for prefix, url in namespaces.items():
+        if (url == default_namespace):
+            defaultPrefix = prefix
+            break
+
+    # building refinement options based on the schema
+    refinement_options = ""
+
+    # TODO: change enumeration look up by something more generic (using annotations in the schema)
+    # looking for enumerations
+    simple_types = xmlDocTree.findall("./{0}simpleType".format(default_namespace))
+    for simple_type in simple_types:
+        enums = simple_type.findall("./{0}restriction/{0}enumeration".format(default_namespace))
+        refinement = ""
+        if len(enums) > 0:
+            # build dot notation query
+            # find the element using the enumeration
+            element = xmlDocTree.findall(".//{0}element[@type='{1}']".format(default_namespace, simple_type.attrib['name']))
+            if len(element) > 1:
+                print "error: more than one element using the enumeration (" +str(len(element)) +")"
+            else:
+                element = element[0]
+                query = []
+                while element is not None:
+                    if element.tag == "{0}element".format(default_namespace):
+                        query.insert(0,element.attrib['name'])
+                    elif element.tag == "{0}simpleType".format(default_namespace):
+                        element = xmlDocTree.findall(".//{0}element[@type='{1}']".format(default_namespace, element.attrib['name']))
+                        if len(element) > 1:
+                            print "error: more than one element using the enumeration (" +str(len(element)) +")"
+                        else:
+                            element = element[0]
+                            query.insert(0,element.attrib['name'])
+                    elif element.tag == "{0}complexType".format(default_namespace):
+                        try:
+                            element = xmlDocTree.findall(".//{0}element[@type='{1}']".format(default_namespace, element.attrib['name']))
+                            if len(element) > 1:
+                                print "error: more than one element using the enumeration (" +str(len(element)) +")"
+                            else:
+                                element = element[0]
+                                query.insert(0,element.attrib['name'])
+                        except:
+                            pass
+                    element = element.getparent()
+
+            dot_query = ".".join(query)
+            dot_query = "content." + dot_query
+            name = simple_type.attrib['name']
+            # get the name of the enumeration
+            refinement +="<button onclick='showHide(this,\""+name+"\");' type='button' class='btn btn-"+random.choice(button_type)+"'><i class='fa fa-crop'></i> "+ name+"</button>" + "&nbsp;"
+            refinement += "<div id='"+name+"' style='display:none;' class='refine_criteria' query='" + dot_query + "'>"
+            for enum in enums:
+                refinement += "<input type='checkbox' value='" + enum.attrib['value'] + "'> " + enum.attrib['value'] + "<br/>"
+            refinement += "<br/>"
+            refinement += "</div>"
+        refinement_options += refinement
+
+    return HttpResponse(json.dumps({'refinements': refinement_options}), content_type='application/javascript')
+
 
 def refinements_to_mongo(refinements):
     try:
@@ -2894,3 +2980,5 @@ def refinements_to_mongo(refinements):
         return mongo_queries
     except:
         return []
+
+

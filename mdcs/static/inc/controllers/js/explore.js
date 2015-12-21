@@ -1490,12 +1490,19 @@ validateExport = function(){
 	}
 }
 
+
+clearSearch = function() {
+    $("#results").html('');
+    $("#results_errors").html('');
+    $("#results_infos").html('');
+}
+
 /**
  * AJAX call, gets query results
  * @param numInstance
  */
 get_results_keyword = function(numInstance){
-    $("#results").html('');
+    clearSearch();
 //    $('.toolbar').hide();
     var keyword = $("#id_search_entry").val();
     $.ajax({
@@ -1505,6 +1512,7 @@ get_results_keyword = function(numInstance){
         data : {
         	keyword: keyword,
         	schemas: getSchemas(),
+        	refinements: loadRefinementQueries(),
         	onlySuggestions: false,
         },
         beforeSend: function( xhr ) {
@@ -1512,9 +1520,14 @@ get_results_keyword = function(numInstance){
         },
         success: function(data){
         	if (data.resultString.length == 0){
-        		$("#results").html("No results found");
+        		$("#results_errors").html("<i>No results found</i>");
         	}
         	else{
+        	    if(data.count > 1)
+        	        $("#results_infos").html(data.count + " results");
+                else
+                    $("#results_infos").html(data.count + " result");
+
         		$("#results").html(data.resultString);
         	}
         },
@@ -1528,6 +1541,9 @@ initAutocomplete = function() {
          $("#id_search_entry").tagit({
             allowSpaces: false,
             placeholderText : 'Keywords...',
+            afterTagRemoved: function(event, ui) {
+                clearSearch();
+            },
             autocomplete: ({
                 search: function(event, ui) {
                     $("#loading").addClass("isloading");
@@ -1556,7 +1572,6 @@ initAutocomplete = function() {
                 select: function( event, ui ) {
                   this.value = ui.item.label;
                   $("#id_search_entry").tagit("createTag", this.value);
-                  //$( "#results" ).html( ui.item.value );
                 return false;
                 }
             })
@@ -1571,4 +1586,47 @@ getSchemas = function(numInstance){
     });
 
     return values;
+}
+
+initSearch = function(){
+    var schemas = $("#id_my_schemas").find("input:checkbox").prop("checked", true);
+    if(schemas.length == 1)
+    {
+        name = schemas.val();
+	    loadRefinements(name);
+    }
+}
+
+loadRefinements = function(schema){
+	$.ajax({
+        url : "/explore/load_refinements",
+        type : "GET",
+        dataType: "json",
+        data : {
+        	schema:schema,
+        },
+        success: function(data){
+            $("#refinement").show();
+        	$("#refine_resource").html(data.refinements);
+        }
+    });
+}
+
+loadRefinementQueries = function(){
+	var refinements = [];
+	$("#refine_resource").find("input:checked").each(function(){
+		query = $(this).closest("div.refine_criteria").attr("query");
+		val = $(this).val();
+		refinements.push(query + ":" + val);
+	});
+	console.log(refinements);
+
+	return refinements;
+}
+
+
+showHide = function(button, id){
+    $("#"+id).toggle("slow");
+    var color = $(button).css("background-color");
+    $("#"+id).css("color", color);
 }
