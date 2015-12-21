@@ -57,4 +57,5 @@ urlpatterns = patterns('',
     url(r'^delete_result', 'explore.ajax.delete_result'),
     url(r'^start_export', 'explore.views.start_export'),
     url(r'^load_refinements', 'explore.ajax.load_refinements'),
+    url(r'^custom-view', 'explore.ajax.custom_view'),
 )

@@ -91,7 +91,7 @@ Software
 <select id="results_view" name="results_view">
 <option value="simple"> Simple Results View
 <option value="detailed"> Detailed Results View
-<option value="custom"> Custom View
+<option value="custom" onclick="configure_custom_view();"> Custom View
 </select>
 <table style="margin-top:-40px;">
 <tr>
@@ -132,6 +132,16 @@ No Results Found.
 <div id="result_detail">
 </div>
 </div>
+
+<div id="dialog-custom-view" title="Custom View" style="display:none;">
+Select the fields that you want to display in the result page and click on 'Apply'. <br/><br/>
+<div id="custom_view">
+</div>
+</div>
+
+<div id="dialog-custom-view-error" title="Custom View" style="display:none;">
+No Custom View available for this type of resource.
+</div>
 {% endblock %}
 
 {% block extrajs %}
@@ -140,7 +150,7 @@ No Results Found.
 <script src="{% static 'inc/controllers/js/nmrr/nmrr_explore.js' %}"></script>
 <script>
     initAutocomplete();
-initSearch();
+	initSearch();
 </script>
 {% endblock %}
 
