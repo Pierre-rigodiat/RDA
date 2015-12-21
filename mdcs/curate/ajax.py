@@ -1124,17 +1124,6 @@ def hasModule(request, element):
     return has_module
 
 
-def getAppInfo(element, namespace):
-    app_info = {}
-    
-    app_info_elements = element.findall("./{0}annotation/{0}appinfo".format(namespace))
-    for app_info_element in app_info_elements:
-        for app_info_child in app_info_element.getchildren():
-            if app_info_child.tag in ['label', 'placeholder']:
-                app_info[app_info_child.tag] = app_info_child.text
-    
-    return app_info
-
 ################################################################################
 # 
 # Function Name: generateElement(request, element, xmlTree, namespace)
@@ -1153,7 +1142,7 @@ def generateElement(request, element, xmlTree, namespace, choiceInfo=None, fullP
     formString = ""
 
     # get appinfo elements
-    app_info = getAppInfo(element, namespace)        
+    app_info = common.getAppInfo(element, namespace)        
     
     # check if the element has a module
     has_module = hasModule(request, element)
@@ -1601,7 +1590,7 @@ def generateElement_absent(request, element, xmlDocTree, form_element):
     namespace = namespaces[defaultPrefix]
 
     # get appinfo elements
-    app_info = getAppInfo(element, namespace)
+    app_info = common.getAppInfo(element, namespace)
     
     # check if the element has a module
     has_module = hasModule(request, element)
@@ -1840,7 +1829,7 @@ def duplicate(request):
             element_tag = 'choice'
         
         # get appinfo elements
-        app_info = getAppInfo(sequenceChild, namespace)  
+        app_info = common.getAppInfo(sequenceChild, namespace)  
         
         has_module = hasModule(request, sequenceChild)        
             
