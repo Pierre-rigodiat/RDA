@@ -395,7 +395,7 @@ class XMLdata():
         # get the xmldata collection
         xmldata = db['xmldata']
         # create the full text index
-        # xmldata.create_index([('$**', TEXT)], default_language="en", language_override="en")
+        xmldata.create_index([('$**', TEXT)], default_language="en", language_override="en")
         wordList = re.sub("[^\w]", " ",  text).split()
         wordList = ['"{0}"'.format(x) for x in wordList]
         wordList = ' '.join(wordList)
