@@ -31,7 +31,7 @@
 							<div style="float:right;margin:-10px 0px 0px 0px">
 								<button class="btn" onclick="dialog_detail('{{{{id}}}}');" title="Click to view this resource.">Resource Details</button>
 								<xsl:variable name="url" select="//Resource/content/referenceURL" />
-								<a href="{$url}"><button class="btn" title="Click to view this resource.">Go To</button></a>
+								<a target="_blank" href="{$url}"><button class="btn" title="Click to view this resource.">Go To</button></a>
 							</div></div>
 					</td>
 				</tr>
