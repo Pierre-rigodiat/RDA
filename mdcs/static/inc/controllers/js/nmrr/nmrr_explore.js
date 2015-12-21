@@ -100,6 +100,8 @@ dialog_detail = function(id){
         	$(function() {
                 $( "#dialog-detail-result" ).dialog({
                     modal: true,
+                    height: 430,
+                    width: 700,
                     buttons: {
                         Ok: function() {
                         $( this ).dialog( "close" );
@@ -168,6 +170,8 @@ configure_custom_view = function(){
 custom_view_dialog = function(){
     $( "#dialog-custom-view" ).dialog({
         modal: true,
+        height: 500,
+        width: 400,
         buttons: {
             Cancel: function() {
             	$( this ).dialog( "close" );
