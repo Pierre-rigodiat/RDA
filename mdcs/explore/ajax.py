@@ -984,13 +984,13 @@ def get_results_by_instance_keyword(request):
                     custom_xslt = False
                     results.append({'title':instanceResult['title'], 'content':xmltodict.unparse(instanceResult['content']),'id':str(instanceResult['_id'])})
                     dom = etree.XML(str(xmltodict.unparse(instanceResult['content']).encode('utf-8')))
-                    #Check if a custom short result XSLT has to be used
+                    #Check if a custom list result XSLT has to be used
                     try:
                         schema = Template.objects.get(pk=instanceResult['schema'])
-                        if schema.ResultXsltShort:
-                            shortXslt = etree.parse(BytesIO(schema.ResultXsltShort.content.encode('utf-8')))
-                            shortTransform = etree.XSLT(shortXslt)
-                            newdom = shortTransform(dom)
+                        if schema.ResultXsltList:
+                            listXslt = etree.parse(BytesIO(schema.ResultXsltList.content.encode('utf-8')))
+                            listTransform = etree.XSLT(listXslt)
+                            newdom = listTransform(dom)
                             custom_xslt = True
                         else:
                             newdom = transform(dom)
@@ -1084,13 +1084,13 @@ def get_results_by_instance(request):
                     results.append({'title':instanceResult['title'], 'content':xmltodict.unparse(instanceResult['content']),'id':str(instanceResult['_id'])})
                     #dom = etree.fromstring(str(xmltodict.unparse(instanceResult['content']).replace('<?xml version="1.0" encoding="utf-8"?>\n',"")))
                     dom = etree.XML(str(xmltodict.unparse(instanceResult['content']).encode('utf-8')))
-                    #Check if a custom short result XSLT has to be used
+                    #Check if a custom list result XSLT has to be used
                     try:
                         schema = Template.objects.get(pk=instanceResult['schema'])
-                        if schema.ResultXsltShort:
-                            shortXslt = etree.parse(BytesIO(schema.ResultXsltShort.content.encode('utf-8')))
-                            shortTransform = etree.XSLT(shortXslt)
-                            newdom = shortTransform(dom)
+                        if schema.ResultXsltList:
+                            listXslt = etree.parse(BytesIO(schema.ResultXsltList.content.encode('utf-8')))
+                            listTransform = etree.XSLT(listXslt)
+                            newdom = listTransform(dom)
                             custom_xslt = True
                         else:
                             newdom = transform(dom)
@@ -1129,13 +1129,13 @@ def get_results_by_instance(request):
                     custom_xslt = False
                     results.append({'title':instanceResult['title'], 'content':instanceResult['content'],'id':str(instanceResult['_id'])})
                     dom = etree.XML(str(xmltodict.unparse(instanceResult['content']).encode('utf-8')))
-                    #Check if a custom short result XSLT has to be used
+                    #Check if a custom list result XSLT has to be used
                     try:
                         schema = Template.objects.get(pk=instanceResult['schema'])
-                        if schema.ResultXsltShort:
-                            shortXslt = etree.parse(BytesIO(schema.ResultXsltShort.content.encode('utf-8')))
-                            shortTransform = etree.XSLT(shortXslt)
-                            newdom = shortTransform(dom)
+                        if schema.ResultXsltList:
+                            listXslt = etree.parse(BytesIO(schema.ResultXsltList.content.encode('utf-8')))
+                            listTransform = etree.XSLT(listXslt)
+                            newdom = listTransform(dom)
                             custom_xslt = True
                         else:
                             newdom = transform(dom)

@@ -70,7 +70,7 @@ class Template(Document):
     dependencies = ListField(StringField())
     exporters = ListField(ReferenceField(Exporter, reverse_delete_rule=PULL))
     XSLTFiles = ListField(ReferenceField(ExporterXslt, reverse_delete_rule=PULL))
-    ResultXsltShort = ReferenceField(ResultXslt, reverse_delete_rule=NULLIFY)
+    ResultXsltList = ReferenceField(ResultXslt, reverse_delete_rule=NULLIFY)
     ResultXsltDetailed = ReferenceField(ResultXslt, reverse_delete_rule=NULLIFY)
 
 class TemplateVersion(Document):
