@@ -200,14 +200,14 @@ class StatusModule(OptionsModule):
         OptionsModule.__init__(self, options=self.options, disabled=True)
 
     def _get_module(self, request):
-        self.selected = "inactive"
+        self.selected = "active"
+        if 'data' in request.GET:            
+            if request.GET['data'] in self.options.keys():
+                self.disabled = False
+                self.selected = request.GET['data']
         return OptionsModule.get_module(self, request)
 
     def _get_display(self, request):
-        self.selected = "inactive"
-        if 'data' in request.GET:
-            if request.GET['data'] in self.options.keys():
-                self.selected = request.GET['data']
         return ''
 
     def _get_result(self, request):
@@ -267,10 +267,11 @@ class LocalIDModule(InputModule):
 
 class DescriptionModule(TextAreaModule):
     
-    def __init__(self):                
+    def __init__(self):            
+        self.data=''    
         TextAreaModule.__init__(self)
 
-    def _get_module(self, request):
+    def _get_module(self, request):        
         if 'data' in request.GET:
             self.data = request.GET['data']
         return TextAreaModule.get_module(self, request)
@@ -286,3 +287,5 @@ class DescriptionModule(TextAreaModule):
 
     def _post_result(self, request):
         return str(request.POST['data'])
+    
+    
