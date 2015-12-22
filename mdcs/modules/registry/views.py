@@ -1,5 +1,5 @@
 from modules.registry.models import RegistryCheckboxesModule, NamePIDModule, \
-    RelevantDateModule, StatusModule, LocalIDModule
+    RelevantDateModule, StatusModule, LocalIDModule, DescriptionModule
 
 
 def registry_checkboxes_materialType(request):
@@ -28,3 +28,7 @@ def status(request):
 
 def localid(request):
     return LocalIDModule().render(request)
+
+
+def description(request):
+    return DescriptionModule().render(request)

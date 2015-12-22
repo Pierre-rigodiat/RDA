@@ -8,5 +8,6 @@ urlpatterns = patterns('',
     url(r'name-pid', 'modules.registry.views.name_pid', name='Name PID'),
     url(r'status', 'modules.registry.views.status', name='Status'),
     url(r'local-id', 'modules.registry.views.localid', name='Local ID'),
+    url(r'description', 'modules.registry.views.description', name='Description'),
 )
 

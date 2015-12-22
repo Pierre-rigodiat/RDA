@@ -45,6 +45,8 @@ class RegistryCheckboxesModule(CheckboxesModule):
         
         for enumeration in enumeration_list:
             self.options[enumeration.attrib['value']] = enumeration.attrib['value']
+        if 'data' in request.GET:
+            self.selected = request.GET['data']
         
         return CheckboxesModule.get_module(self, request)
 
@@ -269,11 +271,11 @@ class DescriptionModule(TextAreaModule):
         TextAreaModule.__init__(self)
 
     def _get_module(self, request):
+        if 'data' in request.GET:
+            self.data = request.GET['data']
         return TextAreaModule.get_module(self, request)
 
     def _get_display(self, request):
-        if 'data' in request.GET:
-            self.data = request.GET['data']
         return ''
 
     def _get_result(self, request):
