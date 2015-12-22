@@ -28,7 +28,7 @@ import copy
 import lxml.etree as etree
 from mgi.models import Template, QueryResults, SavedQuery, XMLdata, Instance, MetaSchema, TemplateVersion
 from mgi import common
-from django.template import loader, Context
+from django.template import loader, Context, RequestContext
 from django.contrib.auth.models import Group
 from django.db.models import Q
 import mgi.rights as RIGHTS
@@ -957,23 +957,6 @@ def get_results_by_instance_keyword(request):
         instanceResults = XMLdata.executeFullTextQuery(keyword, templatesID, refinements)
         if len(instanceResults) > 0:
             if not onlySuggestions:
-                canDelete = False
-                canEdit = False
-                # only admins can edit/delete for now
-                try:
-                    if request.user.is_anonymous():
-                        canDelete = Group.objects.filter(Q(name=RIGHTS.anonymous_group) & Q(permissions__name=RIGHTS.curate_delete_document))
-                        canEdit = Group.objects.filter(Q(name=RIGHTS.anonymous_group) & Q(permissions__name=RIGHTS.curate_edit_document))
-                    else:
-                        prefixed_permission_delete = "{!s}.{!s}".format(RIGHTS.curate_content_type, RIGHTS.curate_delete_document)
-                        prefixed_permission_edit = "{!s}.{!s}".format(RIGHTS.curate_content_type, RIGHTS.curate_edit_document)
-                        canDelete = request.user.has_perm(prefixed_permission_delete)
-                        canEdit = request.user.has_perm(prefixed_permission_edit)
-                except:
-                    if request.user.is_superuser:
-                        canDelete = True
-                        canEdit = True
-
                 xsltPath = os.path.join(settings.SITE_ROOT, 'static/resources/xsl/xml2html.xsl')
                 xslt = etree.parse(xsltPath)
                 transform = etree.XSLT(xslt)
@@ -999,11 +982,9 @@ def get_results_by_instance_keyword(request):
                         newdom = transform(dom)
                         custom_xslt = False
 
-                    context = Context({'id':str(instanceResult['_id']),
+                    context = RequestContext(request, {'id':str(instanceResult['_id']),
                                        'xml': str(newdom),
                                        'title': instanceResult['title'],
-                                       'canDelete':canDelete,
-                                       'canEdit': canEdit,
                                        'custom_xslt': custom_xslt})
 
                     resultString+= template.render(context)
@@ -1058,23 +1039,6 @@ def get_results_by_instance(request):
             instanceResults = XMLdata.executeQueryFullResult(query)
 
             if len(instanceResults) > 0:
-                canDelete = False
-                canEdit = False
-                # only admins can edit/delete for now
-                try:
-                    if request.user.is_anonymous():
-                        canDelete = Group.objects.filter(Q(name=RIGHTS.anonymous_group) & Q(permissions__name=RIGHTS.curate_delete_document))
-                        canEdit = Group.objects.filter(Q(name=RIGHTS.anonymous_group) & Q(permissions__name=RIGHTS.curate_edit_document))
-                    else:
-                        prefixed_permission_delete = "{!s}.{!s}".format(RIGHTS.curate_content_type, RIGHTS.curate_delete_document)
-                        prefixed_permission_edit = "{!s}.{!s}".format(RIGHTS.curate_content_type, RIGHTS.curate_edit_document)
-                        canDelete = request.user.has_perm(prefixed_permission_delete)
-                        canEdit = request.user.has_perm(prefixed_permission_edit)
-                except:
-                    if request.user.is_superuser:
-                        canDelete = True
-                        canEdit = True
-
                 template = loader.get_template('explore/explore_result.html')
                 xsltPath = os.path.join(settings.SITE_ROOT, 'static/resources/xsl/xml2html.xsl')
                 xslt = etree.parse(xsltPath)
@@ -1099,12 +1063,10 @@ def get_results_by_instance(request):
                         newdom = transform(dom)
                         custom_xslt = False
 
-                    context = Context({'id':str(instanceResult['_id']),
-                                       'xml': str(newdom),
-                                       'title': instanceResult['title'],
-                                       'canDelete':canDelete,
-                                       'canEdit': canEdit,
-                                       'custom_xslt': custom_xslt})
+                    context = RequestContext(request, {'id':str(instanceResult['_id']),
+                                               'xml': str(newdom),
+                                               'title': instanceResult['title'],
+                                               'custom_xslt': custom_xslt})
 
                     resultString+= template.render(context)
 
