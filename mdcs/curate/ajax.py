@@ -1869,7 +1869,7 @@ def duplicate(request):
             form_data.save()
             
             # renders the name of the element
-            formString += "<li class='"+ element_tag +"' id='" + str(newTagID) + "'>"
+            formString += "<li class='"+ element_tag +"' id='" + str(newTagID) + "' tag='"+textCapitalized+"'>"
             if CURATE_COLLAPSE:
                 if elementType is not None and elementType.tag == "{0}complexType".format(namespace): # the type is complex, can be collapsed
                     formString += "<span class='collapse' style='cursor:pointer;' onclick='showhideCurate(event);'></span>"
