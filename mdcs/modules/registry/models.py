@@ -1,4 +1,5 @@
-from modules.builtin.models import CheckboxesModule, OptionsModule, InputModule
+from modules.builtin.models import CheckboxesModule, OptionsModule, InputModule,\
+    TextAreaModule
 from modules.models import Module
 from django.conf import settings
 import os
@@ -261,3 +262,25 @@ class LocalIDModule(InputModule):
     def _post_result(self, request):
         return str(request.POST['data'])
     
+
+class DescriptionModule(TextAreaModule):
+    
+    def __init__(self):                
+        TextAreaModule.__init__(self)
+
+    def _get_module(self, request):
+        return TextAreaModule.get_module(self, request)
+
+    def _get_display(self, request):
+        if 'data' in request.GET:
+            self.data = request.GET['data']
+        return ''
+
+    def _get_result(self, request):
+        return self.data
+
+    def _post_display(self, request):
+        return ''
+
+    def _post_result(self, request):
+        return str(request.POST['data'])
