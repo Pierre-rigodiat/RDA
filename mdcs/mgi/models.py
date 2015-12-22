@@ -23,7 +23,7 @@ import xmltodict
 from pymongo import MongoClient, TEXT, ASCENDING, DESCENDING
 from mgi.settings import MONGODB_URI
 import re
-
+from mgi import settings
  
 class Request(Document):
     """Represents a request sent by an user to get an account"""
@@ -230,6 +230,19 @@ class XMLdata():
             # insert the json content after                                                                                                                                                                                       
             self.content['content'] = xmltodict.parse(xml, postprocessor=postprocessor)
 
+    @staticmethod
+    def initIndexes():
+        if settings.EXPLORE_BY_KEYWORD:
+            #create a connection
+            client = MongoClient(MONGODB_URI)
+            # connect to the db 'mgi'
+            db = client['mgi']
+            # get the xmldata collection
+            xmldata = db['xmldata']
+            # create the full text index
+            xmldata.create_index([('$**', TEXT)], default_language="en", language_override="en")
+
+
     def save(self):
         """save into mongo db"""
         # insert the content into mongo db                                                                                                                                                                                    
@@ -390,8 +403,6 @@ class XMLdata():
         db = client['mgi']
         # get the xmldata collection
         xmldata = db['xmldata']
-        # create the full text index
-        # xmldata.create_index([('$**', TEXT)], default_language="en", language_override="en")
         wordList = re.sub("[^\w]", " ",  text).split()
         wordList = ['"{0}"'.format(x) for x in wordList]
         wordList = ' '.join(wordList)
