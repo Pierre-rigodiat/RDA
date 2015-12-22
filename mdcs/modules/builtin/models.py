@@ -131,9 +131,6 @@ class TextAreaModule(Module):
         styles = [os.path.join(STYLES_PATH, 'textarea.css')] + styles
         Module.__init__(self, scripts=scripts, styles=styles)
 
-        if label is None:
-            raise ModuleError("'label' is required.")
-
         self.label = label
         self.data = data
 
