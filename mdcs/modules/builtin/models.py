@@ -11,12 +11,13 @@ SCRIPTS_PATH = os.path.join(RESOURCES_PATH, 'js')
 STYLES_PATH = os.path.join(RESOURCES_PATH, 'css')
 
 class InputModule(Module):
-    def __init__(self, scripts=list(), styles=list(), label=None, default_value=None):
+    def __init__(self, scripts=list(), styles=list(), label=None, default_value=None, disabled=False):
         scripts = [os.path.join(SCRIPTS_PATH, 'input.js')] + scripts
         Module.__init__(self, scripts=scripts, styles=styles)
 
         self.label = label
         self.default_value = default_value
+        self.disabled = disabled
 
     def get_module(self, request):
         template = os.path.join(TEMPLATES_PATH, 'input.html')
@@ -27,32 +28,40 @@ class InputModule(Module):
 
         if self.default_value is not None:
             params.update({"default_value": self.default_value})
+            
+        if self.disabled is not None:
+            params.update({"disabled": self.disabled})
 
         return render_module(template, params)
 
-
 class OptionsModule(Module):
-    def __init__(self, scripts=list(), styles=list(), label=None, options=dict()):
+    def __init__(self, scripts=list(), styles=list(), label=None, options=dict(), disabled=False, selected=None):
         scripts = [os.path.join(SCRIPTS_PATH, 'options.js')] + scripts
         Module.__init__(self, scripts=scripts, styles=styles)
 
-        if len(options) == 0:
-            raise ModuleError("'options' variablie is required.")
-
         self.options = options
         self.label = label
+        self.disabled = disabled
+        self.selected = selected
+        
 
     def get_module(self, request):
         template = os.path.join(TEMPLATES_PATH, 'options.html')
         options_html = ""
 
         for key, val in self.options.items():
-            options_html += "<option value='" + key + "'>" + val + "</option>"
+            if self.selected is not None and key == self.selected:
+                options_html += "<option value='" + key + "' selected>" + val + "</option>"
+            else:
+                options_html += "<option value='" + key + "'>" + val + "</option>"
 
         params = {"options": options_html}
 
         if self.label is not None:
             params.update({"label": self.label})
+            
+        if self.disabled is not None:
+            params.update({"disabled": self.disabled})
 
         return render_module(template, params)
 
