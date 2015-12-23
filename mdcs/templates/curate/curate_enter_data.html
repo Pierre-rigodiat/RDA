@@ -71,25 +71,25 @@ Add New Software
 <div class="toolbar">
 	<div class="btn-group pull-right">
 		{% if template_name == 'organization' %}
-		<button class="btn"><i class="icon-file"></i> My Organizations </button>
+		<button class="btn" onclick="location.href='/my-profile/resources?template=organization';"><i class="icon-file"></i> My Organizations </button>
 		{% elif template_name == 'datacollection' %}
-		<button class="btn"><i class="icon-file"></i> My Data Collections </button>	
+		<button class="btn" onclick="location.href='/my-profile/resources?template=datacollection';"><i class="icon-file"></i> My Data Collections </button>
 		{% elif template_name == 'repository' %}
-		<button class="btn"><i class="icon-file"></i> My Repositories </button>
+		<button class="btn" onclick="location.href='/my-profile/resources?template=datacollection';"><i class="icon-file"></i> My Repositories </button>
 		{% elif template_name == 'projectarchive' %}
-		<button class="btn"><i class="icon-file"></i> My Project Archives </button>
+		<button class="btn" onclick="location.href='/my-profile/resources?template=datacollection';"><i class="icon-file"></i> My Project Archives </button>
 		{% elif template_name == 'database' %}
-		<button class="btn"><i class="icon-file"></i> My Databases </button>
+		<button class="btn" onclick="location.href='/my-profile/resources?template=datacollection';"><i class="icon-file"></i> My Databases </button>
 		{% elif template_name == 'dataset' %}
-		<button class="btn"><i class="icon-file"></i> My Datasets </button>
+		<button class="btn" onclick="location.href='/my-profile/resources?template=dataset';"><i class="icon-file"></i> My Datasets </button>
 		{% elif template_name == 'service' %}
-		<button class="btn"><i class="icon-file"></i> My Services </button>
+		<button class="btn" onclick="location.href='/my-profile/resources?template=service';"><i class="icon-file"></i> My Services </button>
 		{% elif template_name == 'informational' %}
-		<button class="btn"><i class="icon-file"></i> My Informational Sites </button>
+		<button class="btn" onclick="location.href='/my-profile/resources?template=informational';"><i class="icon-file"></i> My Informational Sites </button>
 		{% elif template_name == 'software' %}
-		<button class="btn"><i class="icon-file"></i> My Software </button>
+		<button class="btn" onclick="location.href='/my-profile/resources?template=software';"><i class="icon-file"></i> My Software </button>
 		{% endif %}
-    	<button class="btn"><i class="icon-hdd"></i> My Resources </button>
+    	<button class="btn" onclick="location.href='/my-profile/resources?template=all';"><i class="icon-hdd"></i> My Resources </button>
 	</div>
 <br/><br/>
 <div id="xsdForm">
