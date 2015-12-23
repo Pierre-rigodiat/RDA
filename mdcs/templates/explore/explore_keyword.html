@@ -31,7 +31,7 @@
 <link rel="stylesheet" type="text/css" href="{% static 'resources/css/lib/jquery.tagit.css' %}"  media="screen" />
 {% endblock %}
 
-{% block title %}<h1>Search by keyword*</h1>{% endblock %}
+{% block title %}<h1>Search by keyword</h1>{% endblock %}
 {% block menu %}{% include 'mdcs/menus/main.html' with active_tab='tab3' %}{% endblock %}
 {% block submenu %}	
 <!--<ul id="subnav-tab-1" class="tabbed">-->
@@ -47,7 +47,6 @@
         <div class="clearer">&nbsp;</div>
         <div id="refine_resource"></div>
         <hr/>
-        <p><i>* If blank, browse all</i></p>
 </div>
 {% endblock %}
 {% block content %}

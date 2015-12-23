@@ -1540,9 +1540,13 @@ get_results_keyword = function(numInstance){
 initAutocomplete = function() {
          $("#id_search_entry").tagit({
             allowSpaces: false,
-            placeholderText : 'Keywords...',
+            placeholderText : 'Enter keywords, or leave blank to retrieve all records',
             afterTagRemoved: function(event, ui) {
                 clearSearch();
+                $("#id_search_entry").tagit("addPlaceHolder", this.value);
+            },
+            onTagAdded: function(event, ui) {
+                $("#id_search_entry").tagit("removePlaceHolder", this.value);
             },
             autocomplete: ({
                 search: function(event, ui) {
@@ -1608,6 +1612,7 @@ loadRefinements = function(schema){
         success: function(data){
             $("#refinement").show();
         	$("#refine_resource").html(data.refinements);
+            initResources();
         }
     });
 }
@@ -1624,6 +1629,11 @@ loadRefinementQueries = function(){
 	return refinements;
 }
 
+initResources = function(){
+	$("#refine_resource").find("input[type=checkbox]").change(function(){
+	    get_results_keyword();
+	});
+}
 
 showHide = function(button, id){
     $("#"+id).toggle("slow");

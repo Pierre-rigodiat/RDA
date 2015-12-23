@@ -34,7 +34,7 @@
 /* Style the search input field. */
 #id_search_entry {
 	float:left;
-	width:28em;
+	width:30em;
 	height:2em;
 
 	font-family:arial, sans-serif;
@@ -50,7 +50,7 @@
 #submit {
 	float: right;
 	cursor:pointer;
-	width:2.4em;
+	width:1.8em;
 	height:3.2em;
 	text-indent:-999px;
 	color: transparent;
@@ -85,4 +85,8 @@ h1.search {
     vertical-align: middle;
     width:4em;
 	height:2em;
+}
+
+li.tagit-new {
+    width: 100%;
 }
