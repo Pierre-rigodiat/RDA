@@ -24,7 +24,8 @@ from pymongo import MongoClient, TEXT, ASCENDING, DESCENDING
 from mgi.settings import MONGODB_URI
 import re
 from mgi import settings
- 
+import datetime
+
 class Request(Document):
     """Represents a request sent by an user to get an account"""
     username = StringField(required=True)
@@ -204,7 +205,7 @@ def postprocessor(path, key, value):
 class XMLdata():
     """Wrapper to manage JSON Documents, like mongoengine would have manage them (but with ordered data)"""
 
-    def __init__(self, schemaID=None, xml=None, json=None, title="", iduser=None):
+    def __init__(self, schemaID=None, xml=None, json=None, title="", iduser=None, ispublished=False, publicationdate=None):
         """                                                                                                                                                                                                                   
             initialize the object                                                                                                                                                                                             
             schema = ref schema (Document)                                                                                                                                                                                    
@@ -233,6 +234,9 @@ class XMLdata():
         if (iduser is not None):
             self.content['iduser'] = iduser
 
+        self.content['ispublished'] = ispublished
+        if (publicationdate is not None):
+            self.content['publicationdate'] = publicationdate
 
     @staticmethod
     def initIndexes():
@@ -398,6 +402,32 @@ class XMLdata():
         json = {'content': json_content, 'title': title}
                     
         xmldata.update({'_id': ObjectId(postID)}, {"$set":json}, upsert=False)
+
+    @staticmethod
+    def update_publish(postID):
+        """
+            Update the object with the given id
+        """
+        # create a connection
+        client = MongoClient(MONGODB_URI)
+        # connect to the db 'mgi'
+        db = client['mgi']
+        # get the xmldata collection
+        xmldata = db['xmldata']
+        xmldata.update({'_id': ObjectId(postID)}, {'$set':{'publicationdate': datetime.datetime.now(), 'ispublished': True}}, upsert=False)
+
+    @staticmethod
+    def update_unpublish(postID):
+        """
+            Update the object with the given id
+        """
+        # create a connection
+        client = MongoClient(MONGODB_URI)
+        # connect to the db 'mgi'
+        db = client['mgi']
+        # get the xmldata collection
+        xmldata = db['xmldata']
+        xmldata.update({'_id': ObjectId(postID)}, {'$set':{'ispublished': False}}, upsert=False)
 
     @staticmethod
     def executeFullTextQuery(text, templatesID, refinements={}):
