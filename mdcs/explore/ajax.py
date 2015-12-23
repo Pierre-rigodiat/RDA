@@ -2944,3 +2944,26 @@ def refinements_to_mongo(refinements):
         return []
 
 
+def refinements_to_mongo_OR(refinements):
+    try:
+        # transform the refinement in mongo query
+        mongo_queries = dict()
+        mongo_in = {}
+        for refinement in refinements:
+            splited_refinement = refinement.split(':')
+            dot_notation = splited_refinement[0]
+            value = splited_refinement[1]
+            if dot_notation in mongo_queries:
+                mongo_queries[dot_notation].append(value)
+            else:
+                mongo_queries[dot_notation] = [value]
+
+        for query in mongo_queries:
+            key = query
+            values = ({ '$in' : mongo_queries[query]})
+            mongo_in[key] = values
+
+        mongo_or = {'$or' : [mongo_in]}
+        return mongo_or
+    except:
+        return []
