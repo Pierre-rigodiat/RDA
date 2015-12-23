@@ -1,10 +1,15 @@
-from modules.builtin.models import CheckboxesModule
+from modules.builtin.models import CheckboxesModule, OptionsModule, InputModule,\
+    TextAreaModule
 from modules.models import Module
 from django.conf import settings
 import os
 from forms import NamePIDForm, DateForm
 import lxml.etree as etree
 from django.template import Context, Template
+from pymongo import MongoClient
+from mgi.settings import MONGODB_URI
+import random
+import string
 
 RESOURCES_PATH = os.path.join(settings.SITE_ROOT, 'modules', 'registry', 'resources')
 TEMPLATES_PATH = os.path.join(RESOURCES_PATH, 'html')
@@ -40,6 +45,8 @@ class RegistryCheckboxesModule(CheckboxesModule):
         
         for enumeration in enumeration_list:
             self.options[enumeration.attrib['value']] = enumeration.attrib['value']
+        if 'data' in request.GET:
+            self.selected = request.GET['data']
         
         return CheckboxesModule.get_module(self, request)
 
@@ -179,3 +186,103 @@ class RelevantDateModule(Module):
             
         return result_xml
     
+
+
+class StatusModule(OptionsModule):
+    
+    def __init__(self):
+        self.options = {
+            'inactive': 'Inactive',
+            'active': 'Active',
+            'deleted': 'Deleted',
+        }
+                
+        OptionsModule.__init__(self, options=self.options, disabled=True)
+
+    def _get_module(self, request):
+        self.selected = "inactive"
+        return OptionsModule.get_module(self, request)
+
+    def _get_display(self, request):
+        self.selected = "inactive"
+        if 'data' in request.GET:
+            if request.GET['data'] in self.options.keys():
+                self.selected = request.GET['data']
+        return ''
+
+    def _get_result(self, request):
+        return self.selected
+
+    def _post_display(self, request):
+        return ''
+
+    def _post_result(self, request):
+        return str(request.POST['data'])
+    
+
+class LocalIDModule(InputModule):
+    
+    def __init__(self):               
+        InputModule.__init__(self, disabled=True)
+
+    def _get_module(self, request):
+        # create a connection
+        client = MongoClient(MONGODB_URI)
+        # connect to the db 'mgi'
+        db = client['mgi']
+        # get the xmldata collection
+        xmldata = db['xmldata']
+        # find all objects of the collection
+        cursor = xmldata.find()
+        # build a list with the objects        
+        existing_localids = []
+        for result in cursor:
+            try:
+                existing_localids.append(result['content']['Resource']['@localid'])
+            except:
+                pass
+        
+        N = 20
+        localid = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(N))
+        while localid in existing_localids:
+            localid = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(N))
+        
+        self.default_value = localid
+        return InputModule.get_module(self, request)
+
+    def _get_display(self, request):        
+        if 'data' in request.GET:
+            self.default_value = request.GET['data']
+        return ''
+
+    def _get_result(self, request):
+        return self.default_value
+
+    def _post_display(self, request):
+        return ''
+
+    def _post_result(self, request):
+        return str(request.POST['data'])
+    
+
+class DescriptionModule(TextAreaModule):
+    
+    def __init__(self):                
+        TextAreaModule.__init__(self)
+
+    def _get_module(self, request):
+        if 'data' in request.GET:
+            self.data = request.GET['data']
+        return TextAreaModule.get_module(self, request)
+
+    def _get_display(self, request):
+        return ''
+
+    def _get_result(self, request):
+        return self.data
+
+    def _post_display(self, request):
+        return ''
+
+    def _post_result(self, request):
+        return str(request.POST['data'])

@@ -1,7 +1,10 @@
+var custom_view_done;
+
 initSearch = function(){
 	initResources();
 	loadRefinements('all');
-	initFilters();
+	initFilters();	
+	custom_view_done = false;
 }
 
 
@@ -17,11 +20,38 @@ initResources = function(){
 	for(var i = 0; i < radio_btns.length; i++) {
 		// when value change
 		radio_btns[i].onclick = function() {
-			// update refinements options based on the selected schema
-			loadRefinements($(this).val());
-			// update values for the search
 			// get the value
 	        selected_val = $(this).val();
+			
+			// update selected icon
+	        if (selected_val == 'repository'
+	        	|| selected_val == 'projectarchive'
+	        		|| selected_val == 'database'){
+	        	$("#icons_table").find("td").each(function(){
+		        	$(this).removeClass("selected_resource");
+		        	if ($(this).attr("value") == 'datacollection'){
+		        		$(this).addClass("selected_resource");
+		        	}	        	
+	        	});
+	        }else{
+	        	$("#icons_table").find("td").each(function(){
+		        	$(this).removeClass("selected_resource");
+		        	if ($(this).attr("value") == selected_val){
+		        		$(this).addClass("selected_resource");
+		        	}	        	
+	        	});
+	        }	        
+			
+			// update refinements options based on the selected schema
+			loadRefinements(selected_val);
+			
+			// update filters: if custom, switch to default simple
+			if ($("#results_view").val() == "custom"){
+				$("#results_view").val("simple");
+			}
+			filter_result_display($("#results_view").val());
+			custom_view_done = false;
+
 	        // update the value of the search form
 	        if (selected_val == 'all'){
 	        	// check all options
@@ -38,10 +68,10 @@ initResources = function(){
 	        		}	        		
 	        	});
 	        }
+	        get_results_keyword_refined();
 	    };
 	}
 }
-
 
 
 loadRefinements = function(schema){
@@ -85,7 +115,12 @@ dialog_detail = function(id){
 	
 }
 
+
 initFilters = function(){
+	// Set filter to simple by default
+	$("#results_view").val("simple");
+	
+	// update view on filter change
 	$("#results_view").on('change',function(){
 		filter_result_display($("#results_view").val());
 	});
@@ -99,9 +134,82 @@ filter_result_display = function(filter){
 		$(".nmrr_line.line_type").show();
 	}else if (filter == 'detailed'){
 		$(".nmrr_line").show();
+	}else if (filter == 'custom'){
+		if (custom_view_done == true){
+	    	$(".nmrr_line").hide();
+			$("#custom_view").children("input:checked").each(function(){
+				$(".nmrr_line." + $(this).val()).show();
+			});
+		}
 	}
 }
 
+
+configure_custom_view = function(){
+	if ($('input[name=resource_type]:checked').val() == 'all'){
+	    $( "#dialog-custom-view-error" ).dialog({
+	        modal: true,
+	        buttons: {
+	            OK: function() {
+	            	$( this ).dialog( "close" );
+	            	$("#results_view").val("simple");
+	            }
+	        }
+	    });
+	}
+	else{
+		if (custom_view_done == false){
+			load_custom_view($('input[name=resource_type]:checked').val());
+			custom_view_dialog();
+		}else{
+			custom_view_dialog();
+		}
+	}		
+}
+
+
+custom_view_dialog = function(){
+    $( "#dialog-custom-view" ).dialog({
+        modal: true,
+        height: 500,
+        width: 400,
+        buttons: {
+            Cancel: function() {
+            	$( this ).dialog( "close" );
+            },
+            Apply: function() {
+            	$( this ).dialog( "close" );
+            	custom_view_done = true;
+            	$(".nmrr_line").hide();
+    			$("#custom_view").children("input:checked").each(function(){
+    				$(".nmrr_line." + $(this).val()).show();
+    			});
+            }
+        }
+    });
+}
+
+
+/**
+ * Load custom view
+ */
+load_custom_view = function(schema){
+	$.ajax({
+        url : "/explore/custom-view?schema=" + schema,
+        type : "GET",
+        dataType: "json",
+        success: function(data){
+        	if('custom_fields' in data){
+        		$("#custom_view").html(data.custom_fields);
+        	}
+    	}
+    });
+}
+
+
+/**
+ * Load refinement queries
+ */
 loadRefinementQueries = function(){
 	var refinements = [];
 	$("#refine_resource").find("input:checked").each(function(){
@@ -113,6 +221,7 @@ loadRefinementQueries = function(){
 
 	return refinements;
 }
+
 
 /**
  * AJAX call, gets query results
@@ -151,3 +260,4 @@ get_results_keyword_refined = function(numInstance){
         }
     });
 }
+

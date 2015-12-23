@@ -53,47 +53,33 @@
 
 <table id="icons_table">
 <tr>
-<td align="center">
-<a>
+<td align="center" class="selected_resource" value="all">
 <img width="100" src="/static/img/allresources.png"><br/>
 All Resources
-</a>
 </td>
-<td align="center">
-<a>
+<td align="center" value="organization">
 <img width="100" src="/static/img/organization.png"><br>
 Organizations
-</a>
 </td>
-<td align="center">
-<a>
+<td align="center" value="datacollection">
 <img width="100" src="/static/img/datacollection.png"><br>
 Data Collections
-</a>
 </td>
-<td align="center">
-<a>
+<td align="center" value="dataset">
 <img width="100" src="/static/img/dataset.png"><br>
 Datasets
-</a>
 </td>
-<td align="center">
-<a>
+<td align="center" value="service">
 <img width="100" src="/static/img/service.png"><br>
 Services
-</a>
 </td>
-<td align="center">
-<a>
+<td align="center" value="informational">
 <img width="100" src="/static/img/informational.png"><br>
 Informational Sites
-</a>
 </td>
-<td align="center">
-<a>
+<td align="center" value="software">
 <img width="100" src="/static/img/software.jpg"><br>
 Software
-</a>
 </td>
 </tr>
 </table>
@@ -105,7 +91,7 @@ Software
 <select id="results_view" name="results_view">
 <option value="simple"> Simple Results View
 <option value="detailed"> Detailed Results View
-<option value="custom"> Custom View
+<option value="custom" onclick="configure_custom_view();"> Custom View
 </select>
 <table style="margin-top:-40px;">
 <tr>
@@ -146,6 +132,16 @@ No Results Found.
 <div id="result_detail">
 </div>
 </div>
+
+<div id="dialog-custom-view" title="Custom View" style="display:none;">
+Select the fields that you want to display in the result page and click on 'Apply'. <br/><br/>
+<div id="custom_view">
+</div>
+</div>
+
+<div id="dialog-custom-view-error" title="Custom View" style="display:none;">
+No Custom View available for this type of resource.
+</div>
 {% endblock %}
 
 {% block extrajs %}
@@ -154,7 +150,7 @@ No Results Found.
 <script src="{% static 'inc/controllers/js/nmrr/nmrr_explore.js' %}"></script>
 <script>
     initAutocomplete();
-initSearch();
+	initSearch();
 </script>
 {% endblock %}
 

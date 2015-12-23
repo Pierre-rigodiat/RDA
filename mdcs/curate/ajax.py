@@ -1031,7 +1031,10 @@ def get_Xml_element_data(xsd_element, xml_element, namespace):
             else:
                 reload_data = ''
         else: # branch: get the whole branch
-            reload_data = etree.tostring(xml_element)
+            try:
+                reload_data = etree.tostring(xml_element)
+            except:
+                reload_data = str(xml_element)
             
     return reload_data
 
@@ -1057,7 +1060,7 @@ def generateModule(request, element, namespace, xsd_xpath=None, xml_xpath=None, 
             if len(edit_elements) == 1:
                 edit_element = edit_elements[0]
                 # get attributes
-                if len(edit_element.attrib) > 0:
+                if 'attrib' in element and len(edit_element.attrib) > 0:
                     reload_attrib = dict(edit_element.attrib)
                 reload_data = get_Xml_element_data(element, edit_element, namespace)
             else:
@@ -1124,17 +1127,6 @@ def hasModule(request, element):
     return has_module
 
 
-def getAppInfo(element, namespace):
-    app_info = {}
-    
-    app_info_elements = element.findall("./{0}annotation/{0}appinfo".format(namespace))
-    for app_info_element in app_info_elements:
-        for app_info_child in app_info_element.getchildren():
-            if app_info_child.tag in ['label', 'placeholder']:
-                app_info[app_info_child.tag] = app_info_child.text
-    
-    return app_info
-
 ################################################################################
 # 
 # Function Name: generateElement(request, element, xmlTree, namespace)
@@ -1153,7 +1145,7 @@ def generateElement(request, element, xmlTree, namespace, choiceInfo=None, fullP
     formString = ""
 
     # get appinfo elements
-    app_info = getAppInfo(element, namespace)        
+    app_info = common.getAppInfo(element, namespace)        
     
     # check if the element has a module
     has_module = hasModule(request, element)
@@ -1286,6 +1278,7 @@ def generateElement(request, element, xmlTree, namespace, choiceInfo=None, fullP
                 formString += "<span class='collapse' style='cursor:pointer;' onclick='showhideCurate(event);'></span>"
         
         label = app_info['label'] if 'label' in app_info else textCapitalized
+        label = label if label is not None else ''
         formString += label
         # add buttons to add/remove elements
         buttons = ""
@@ -1320,6 +1313,7 @@ def generateElement(request, element, xmlTree, namespace, choiceInfo=None, fullP
                         defaultValue = element.attrib['default']
                     
                     placeholder = 'placeholder="'+app_info['placeholder']+ '"' if 'placeholder' in app_info else ''
+                    placeholder = placeholder if placeholder is not None else ''
                     formString += " <input type='text' value='"+ django.utils.html.escape(defaultValue) +"'" + placeholder + "/>" 
                     formString += buttons
                 else: # complex/simple type 
@@ -1599,7 +1593,7 @@ def generateElement_absent(request, element, xmlDocTree, form_element):
     namespace = namespaces[defaultPrefix]
 
     # get appinfo elements
-    app_info = getAppInfo(element, namespace)
+    app_info = common.getAppInfo(element, namespace)
     
     # check if the element has a module
     has_module = hasModule(request, element)
@@ -1632,6 +1626,7 @@ def generateElement_absent(request, element, xmlDocTree, form_element):
                 defaultValue = element.attrib['default']
 
             placeholder = 'placeholder="'+app_info['placeholder']+ '"' if 'placeholder' in app_info else ''
+            placeholder = placeholder if placeholder is not None else ''
             formString += " <input type='text' value='"+ django.utils.html.escape(defaultValue) +"'" + placeholder + "/>" 
         else: # complex/simple type      
             if elementType.tag == "{0}complexType".format(namespace):
@@ -1836,8 +1831,8 @@ def duplicate(request):
         elif sequenceChild.tag == "{0}choice".format(namespace):
             element_tag = 'choice'
         
-        # remove the annotations
-        removeAnnotations(sequenceChild, namespace)
+        # get appinfo elements
+        app_info = common.getAppInfo(sequenceChild, namespace)  
         
         has_module = hasModule(request, sequenceChild)        
             
@@ -1860,8 +1855,6 @@ def duplicate(request):
                 if refElement is not None:
                     textCapitalized = refElement.attrib.get('name')            
                     sequenceChild = refElement
-                    # remove the annotations
-                    removeAnnotations(sequenceChild, namespace)
             else:
                 textCapitalized = sequenceChild.attrib.get('name')
     
@@ -1881,7 +1874,9 @@ def duplicate(request):
                 if elementType is not None and elementType.tag == "{0}complexType".format(namespace): # the type is complex, can be collapsed
                     formString += "<span class='collapse' style='cursor:pointer;' onclick='showhideCurate(event);'></span>"
             
-            formString += textCapitalized
+            label = app_info['label'] if 'label' in app_info else textCapitalized
+            label = label if label is not None else ''
+            formString += label
             
             # if module is present, replace default input by module       
             if has_module:
@@ -1895,7 +1890,10 @@ def duplicate(request):
                         # if the default attribute is present                        
                         defaultValue = sequenceChild.attrib['default']
                     
-                    formString += " <input type='text' value='"+ django.utils.html.escape(defaultValue) +"'/>" 
+                    placeholder = 'placeholder="'+app_info['placeholder']+ '"' if 'placeholder' in app_info else ''
+                    placeholder = placeholder if placeholder is not None else ''
+                    formString += " <input type='text' value='"+ django.utils.html.escape(defaultValue) +"'" + placeholder + "/>" 
+                    
                     formString += "<span id='add"+ str(newTagID[7:]) +"' class=\"icon add\" onclick=\"changeHTMLForm('add',"+str(newTagID[7:])+");\"></span>"
                     formString += "<span id='remove"+ str(newTagID[7:]) +"' class=\"icon remove\" onclick=\"changeHTMLForm('remove',"+str(newTagID[7:])+");\"></span>"         
                 else: # complex/simple type 

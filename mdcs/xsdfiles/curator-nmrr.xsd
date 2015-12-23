@@ -87,6 +87,9 @@
 
       <xs:attribute name="localid">
          <xs:annotation>
+           <xs:appinfo>
+             <label>Local ID</label>
+           </xs:appinfo>
             <xs:documentation>
               An unambiguous identifier for this resource description as 
               assigned by its author or its curating registry.  
@@ -95,6 +98,9 @@
               This attribute is required on export.
             </xs:documentation>
          </xs:annotation>
+        <xs:simpleType xmlns:ns0="http://mdcs.ns" ns0:_mod_mdcs_="/registry/localid">
+          <xs:restriction base="xs:string"/>                      
+        </xs:simpleType>
       </xs:attribute>
 
       <xs:attribute name="status" use="required">
@@ -104,7 +110,7 @@
               actively maintained.
             </xs:documentation>
          </xs:annotation>
-         <xs:simpleType>
+         <xs:simpleType xmlns:ns0="http://mdcs.ns" ns0:_mod_mdcs_="/registry/status">
             <xs:restriction base="xs:string">
                <xs:enumeration value="active">
                  <xs:annotation>
@@ -143,6 +149,10 @@
      <xs:sequence>
          <xs:element name="title" type="xs:token">
             <xs:annotation>
+              <xs:appinfo>
+                <label>Repository Name</label>
+                <placeholder>Enter your repository's name (ex. Materials Data Curation System)</placeholder>
+              </xs:appinfo>
                <xs:appinfo>
                  <dcterm>Title</dcterm>
                </xs:appinfo>           
@@ -154,6 +164,10 @@
 
          <xs:element name="shortName" type="xs:token" minOccurs="0">
             <xs:annotation>
+              <xs:appinfo>
+                <label>Short Name</label>
+                <placeholder>Enter your repository's short name (ex. MDCS)</placeholder>
+              </xs:appinfo>
                <xs:documentation>
                  a short name or abbreviation given to the resource.
                </xs:documentation>
@@ -443,6 +457,10 @@
 
        <xs:element name="description" type="xs:token">
           <xs:annotation>
+            <xs:appinfo>
+              <label>Description</label>
+              <placeholder>Enter repository's description</placeholder>
+            </xs:appinfo>
              <xs:appinfo>
                <dcterm>Description</dcterm>
              </xs:appinfo>           
@@ -459,6 +477,10 @@
 
        <xs:element name="subject" type="xs:token" maxOccurs="unbounded">
           <xs:annotation>
+            <xs:appinfo>
+              <label>Subject</label>
+              <placeholder>Enter a subject(ex. molecular dynamics, metals, force fields)</placeholder>
+            </xs:appinfo>
              <xs:appinfo>
                <dcterm>Subject</dcterm>
              </xs:appinfo>           
@@ -471,6 +493,10 @@
 
        <xs:element name="referenceURL" type="xs:anyURI">
           <xs:annotation>
+            <xs:appinfo>
+              <label>Reference URL</label>
+              <placeholder>Enter a reference url</placeholder>
+            </xs:appinfo>
              <xs:documentation>
                 URL pointing to a human-readable document describing this 
                 resource.   
@@ -1196,4 +1222,5 @@
    </xs:simpleType>
 
 </xs:schema>
+
 

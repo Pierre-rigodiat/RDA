@@ -2,7 +2,12 @@
 	{% if label %}
 	<label>{{label}}</label>
 	{% endif %}
-    <select>
+    
+	{% if disabled %}
+	<select disabled>
+	{%else%}
+	<select>
+	{% endif %}
     	{% autoescape off %}
 		{{options}}
 		{% endautoescape %}
