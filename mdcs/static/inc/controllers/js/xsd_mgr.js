@@ -642,6 +642,8 @@ save_object = function(buckets){
         success: function(data){
         	if('errors' in data){
         		$("#objectUploadErrorMessage").html("<font color='red'>Please upload a valid XML schema first.</font>");
+        	}else if('errorsTemplateName' in data){
+        	    $("#objectUploadErrorMessage").html("<font color='red'>The template's name is already used. Please give another name to the template first.</font>");
         	}else{
                 $( "#dialog-upload-message" ).dialog("close");
                 $('#model_selection').load(document.URL +  ' #model_selection', function() {
