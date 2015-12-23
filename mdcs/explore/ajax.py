@@ -940,7 +940,7 @@ def get_results_by_instance_keyword(request):
         try:
             keyword = request.GET['keyword']
             schemas = request.GET.getlist('schemas[]')
-            refinements = refinements_to_mongo(request.GET.getlist('refinements[]'))
+            refinements = refinements_to_mongo_and(request.GET.getlist('refinements[]'))
             onlySuggestions = json.loads(request.GET['onlySuggestions'])
         except:
             keyword = ''
@@ -2963,19 +2963,24 @@ def load_refinements(request):
     
     
     
-def refinements_to_mongo(refinements):
+def refinements_to_mongo_and(refinements):
     try:
-        # transform the refinement in mongo query
-        mongo_queries = {}
-        for refinement in refinements:
-            splited_refinement = refinement.split(':')
-            dot_notation = splited_refinement[0]
-            value = splited_refinement[1]
-            mongo_queries[dot_notation] = value
-        return mongo_queries
+        if len(refinements) != 0:
+            # transform the refinement in mongo query
+            mongo_and_list = []
+            for refinement in refinements:
+                mongo_query = {}
+                splited_refinement = refinement.split(':')
+                dot_notation = splited_refinement[0]
+                value = splited_refinement[1]
+                mongo_query[dot_notation] = value
+                mongo_and_list.append(mongo_query)
+            return {'$and': mongo_and_list}
+        else:
+            return {}
     except:
-        return []
-
+        return {}
+    
 
 ################################################################################
 #
