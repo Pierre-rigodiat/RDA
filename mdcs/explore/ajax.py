@@ -2881,6 +2881,32 @@ def delete_result(request):
     
     return HttpResponse(json.dumps({}), content_type='application/javascript')
 
+################################################################################
+#
+# Function Name: update_publish(request)
+# Inputs:        request -
+# Outputs:
+# Exceptions:    None
+# Description:   Publish and update the publish date of an XMLdata
+#
+################################################################################
+def update_publish(request):
+    XMLdata.update_publish(request.GET['result_id'])
+    return HttpResponse(json.dumps({}), content_type='application/javascript')
+
+################################################################################
+#
+# Function Name: update_unpublish(request)
+# Inputs:        request -
+# Outputs:
+# Exceptions:    None
+# Description:   Unpublish an XMLdata
+#
+################################################################################
+def update_unpublish(request):
+    XMLdata.update_unpublish(request.GET['result_id'])
+    return HttpResponse(json.dumps({}), content_type='application/javascript')
+
 
 ################################################################################
 #

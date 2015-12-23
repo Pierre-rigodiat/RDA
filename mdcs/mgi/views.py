@@ -24,6 +24,9 @@ from admin_mdcs.forms import RequestAccountForm, EditProfileForm, ChangePassword
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import Group
+from django.db.models import Q
+import mgi.rights as RIGHTS
 
 
 ################################################################################
@@ -361,30 +364,23 @@ def my_profile_favorites(request):
 @login_required(login_url='/login')
 def my_profile_resources(request):
     template = loader.get_template('profile/my_profile_resources.html')
-    context = RequestContext(request, {
-            'XMLdatas': XMLdata.find({'iduser' : str(request.user.id)}),
-        })
     if 'template' in request.GET:
         template_name = request.GET['template']
-        if template_name != 'all':
-            template = loader.get_template('profile/my_profile_resources_'+template_name+'.html')
-        if template_name == 'organization' or template_name == 'dataset' or template_name == 'informational' or template_name == 'service' or template_name == 'software':
+        if template_name == 'datacollection':
+            templateNames = [str(Template.objects.get(title=template_name).id), str(Template.objects.get(title='repository').id),  str(Template.objects.get(title='projectarchive').id), str(Template.objects.get(title='database').id)]
             context = RequestContext(request, {
-                'XMLdatas': XMLdata.find({'iduser' : str(request.user.id), 'schema' : str(Template.objects.get(title=template_name).id)}),
+                'XMLdatas': XMLdata.find({'iduser' : str(request.user.id), 'schema' : {"$in": templateNames}}), 'template': template_name
             })
-        elif template_name == 'datacollection':
-            xmldata_selected = []
-            for xmldata in XMLdata.find({'iduser' : str(request.user.id), 'schema' : str(Template.objects.get(title=template_name).id)}) :
-                xmldata_selected.append(xmldata)
-            for xmldata in XMLdata.find({'iduser' : str(request.user.id), 'schema' : str(Template.objects.get(title='repository').id)}) :
-                xmldata_selected.append(xmldata)
-            for xmldata in XMLdata.find({'iduser' : str(request.user.id), 'schema' : str(Template.objects.get(title='projectarchive').id)}) :
-                xmldata_selected.append(xmldata)
-            for xmldata in XMLdata.find({'iduser' : str(request.user.id), 'schema' : str(Template.objects.get(title='database').id)}) :
-                xmldata_selected.append(xmldata)
-
+        elif template_name == 'all':
             context = RequestContext(request, {
-                'XMLdatas': xmldata_selected,
+                'XMLdatas': XMLdata.find({'iduser' : str(request.user.id)}),
             })
-
+        else :
+            context = RequestContext(request, {
+                'XMLdatas': XMLdata.find({'iduser' : str(request.user.id), 'schema' : str(Template.objects.get(title=template_name).id)}), 'template': template_name
+            })
+    else :
+        context = RequestContext(request, {
+                'XMLdatas': XMLdata.find({'iduser' : str(request.user.id)}),
+        })
     return HttpResponse(template.render(context))
