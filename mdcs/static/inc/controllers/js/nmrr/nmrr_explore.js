@@ -229,7 +229,7 @@ loadRefinementQueries = function(){
  */
 get_results_keyword_refined = function(numInstance){
     $("#results").html('Please wait...');
-    var keyword = $("#id_search_entry").val();
+    var keyword = $("#id_search_entry").val();    
     $.ajax({
         url : "/explore/get_results_by_instance_keyword",
         type : "GET",

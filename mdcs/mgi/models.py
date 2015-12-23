@@ -437,7 +437,8 @@ class XMLdata():
         
         if len(refinements.keys()) > 0:
             full_text_query.update(refinements)
-            
+        
+        full_text_query.update({'ispublished': True})
         cursor = xmldata.find(full_text_query, as_class = OrderedDict)
         
         results = []
