@@ -21,6 +21,7 @@ class RegistryCheckboxesModule(CheckboxesModule):
     def __init__(self, xml_tag):
                  
         self.xml_tag = xml_tag
+        self.selected = []
         CheckboxesModule.__init__(self, options={}, label='', name='')
 
     def _get_module(self, request):
@@ -46,15 +47,24 @@ class RegistryCheckboxesModule(CheckboxesModule):
         for enumeration in enumeration_list:
             self.options[enumeration.attrib['value']] = enumeration.attrib['value']
         if 'data' in request.GET:
-            self.selected = request.GET['data']
+            if isinstance(request.GET['data'], str):
+                self.selected = [request.GET['data']]
+            else:
+                self.selected = request.GET['data']
         
         return CheckboxesModule.get_module(self, request)
 
     def _get_display(self, request):
-        return '<div class="error_nmrr">The element ' + self.xml_tag + ' should be removed if no checkboxes are checked.</div>'
+        if len(self.selected) == 0:
+            return '<div class="error_nmrr">The element ' + self.xml_tag + ' should be removed if no checkboxes are checked.</div>'
+        else:
+            return ''
 
     def _get_result(self, request):
-        return ''
+        xml_result = ''
+        for value in self.selected:
+            xml_result += '<' + self.xml_tag + '>' + value + '</' + self.xml_tag + '>'
+        return xml_result  
 
     def _post_display(self, request):
         display = ''
