@@ -2859,12 +2859,11 @@ def load_refinements(request):
     if schema_name == 'all':
         return HttpResponse(json.dumps({'refinements': ''}), content_type='application/javascript')
 
-    templates = Template.objects(title=schema_name)
-    # if the schemas are all versions of the same schema
-    if len(set(templates.values_list('templateVersion'))) == 1:
-        schemaId = TemplateVersion.objects().get(pk=templates[0].templateVersion).current
-        schema = Template.objects.get(pk=schemaId)
-
+    schemas = Template.objects(title=schema_name)
+    schema_id = TemplateVersion.objects().get(pk=schemas[0].templateVersion).current
+    
+    schema = Template.objects().get(pk=schema_id)
+    
     xmlDocTree = etree.parse(BytesIO(schema.content.encode('utf-8')))
 
     # find the namespaces
