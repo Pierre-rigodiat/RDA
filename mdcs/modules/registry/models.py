@@ -169,7 +169,7 @@ class RelevantDateModule(Module):
 
 
     def _get_display(self, request):
-        return '<div class="error_nmrr">The element ' + self.params['tag'] + ' should respect the following format yyyy-mm-dd.</div>'
+        return ''
 
 
     def _get_result(self, request):
