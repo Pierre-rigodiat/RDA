@@ -138,6 +138,7 @@ Software
 <br>
 <br>
 
+{% if XMLdatas%}
 {% with canEdit=request.user|has_perm:'curate.curate_edit_document' canDelete=request.user|has_perm:'curate.curate_delete_document' %}
 
 {% for XMLdata in XMLdatas %}
@@ -191,6 +192,9 @@ Software
 {% endwith%}
 {% endfor %}
 {% endwith%}
+{%else%}
+No Resources found
+{%endif%}
 		
 		</article>
 	
