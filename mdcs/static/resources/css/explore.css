@@ -24,6 +24,8 @@
 }
 
 #searchContainer {
+    width: 75%;
+    height: 75%;
     overflow: auto;
     margin: auto;
     top: 0; left: 0; bottom: 0; right: 0;
@@ -31,8 +33,10 @@
 
 /* Style the search input field. */
 #id_search_entry {
-	width:90%;
-	float:left;	
+	float:left;
+	width:30em;
+	height:2em;
+
 	font-family:arial, sans-serif;
 	font-size:1em;
 	color:#333;
@@ -42,21 +46,16 @@
 	border-right:none;
 }
 
-#search {
-	border: solid 1px #d9d9d9;
-	padding: 5px;
-}
-
 /* Syle the search button. Settings of line-height, font-size, text-indent used to hide submit value in IE */
 #submit {
-	margin-left:40%;
+	float: right;
 	cursor:pointer;
-	width:20em;
-	height:2.7em;
+	width:2em;
+	height:2.6em;
 	text-indent:-999px;
 	color: transparent;
-	background: url(../img/search.png) no-repeat #8CB2CA center;
-	border: 1px solid #8CB2CA;
+	background: url(../img/search.png) no-repeat #4d90fe center;
+	border: 1px solid #3079ED;
 	-moz-border-radius: 2px;
 	-webkit-border-radius: 2px;
 }
@@ -81,8 +80,13 @@ h1.search {
 }
 
 .loading {
+	float:right;
     display: inline-block;
     vertical-align: middle;
     width:4em;
 	height:2em;
+}
+
+li.tagit-new {
+    width: 100%;
 }

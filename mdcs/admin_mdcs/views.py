@@ -796,7 +796,7 @@ def result_xslt(request):
             object = Template.objects.get(pk=id)
             request.session['moduleTemplateID'] = id
             #Get exporters already bind with the template
-            templateShort = Template.objects.get(pk=id).ResultXsltShort
+            templateShort = Template.objects.get(pk=id).ResultXsltList
             #Get exporters already bind with the template
             templateDetailed = Template.objects.get(pk=id).ResultXsltDetailed
             #Get all XSLT

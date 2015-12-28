@@ -1545,6 +1545,13 @@ validateExport = function(){
 	}
 }
 
+
+clearSearch = function() {
+    $("#results").html('No Results Found.');
+    $("#results_errors").html('');
+    $("#results_infos").html('');
+}
+
 /**
  * AJAX call, gets query results
  * @param numInstance
@@ -1560,6 +1567,7 @@ get_results_keyword = function(numInstance){
         data : {
         	keyword: keyword,
         	schemas: getSchemas(),
+        	refinements: loadRefinementQueries(),
         	onlySuggestions: false,
         },
         beforeSend: function( xhr ) {
@@ -1567,9 +1575,14 @@ get_results_keyword = function(numInstance){
         },
         success: function(data){
         	if (data.resultString.length == 0){
-        		$("#results").html("No results found");
+        		$("#results_errors").html("<i>No results found</i>");
         	}
         	else{
+        	    if(data.count > 1)
+        	        $("#results_infos").html(data.count + " results");
+                else
+                    $("#results_infos").html(data.count + " result");
+
         		$("#results").html(data.resultString);
         	}
         },
@@ -1582,7 +1595,14 @@ get_results_keyword = function(numInstance){
 initAutocomplete = function() {
          $("#id_search_entry").tagit({
             allowSpaces: false,
-        placeholderText: 'Enter a keyword..',
+            placeholderText : 'Enter keywords, or leave blank to retrieve all records',
+            afterTagRemoved: function(event, ui) {
+                clearSearch();
+                $("#id_search_entry").tagit("addPlaceHolder", this.value);
+            },
+            onTagAdded: function(event, ui) {
+                $("#id_search_entry").tagit("removePlaceHolder", this.value);
+            },
             autocomplete: ({
                 search: function(event, ui) {
                     $("#loading").addClass("isloading");
@@ -1611,7 +1631,6 @@ initAutocomplete = function() {
                 select: function( event, ui ) {
                   this.value = ui.item.label;
                   $("#id_search_entry").tagit("createTag", this.value);
-                  //$( "#results" ).html( ui.item.value );
                 return false;
                 }
             })
@@ -1626,4 +1645,10 @@ getSchemas = function(numInstance){
     });
 
     return values;
+}
+
+showHide = function(button, id){
+    $("#"+id).toggle("slow");
+    var color = $(button).css("background-color");
+    $("#"+id).css("color", color);
 }

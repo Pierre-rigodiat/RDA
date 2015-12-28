@@ -28,10 +28,11 @@ import copy
 import lxml.etree as etree
 from mgi.models import Template, QueryResults, SavedQuery, XMLdata, Instance, MetaSchema, TemplateVersion
 from mgi import common
-from django.template import loader, Context
+from django.template import loader, Context, RequestContext
 from django.contrib.auth.models import Group
 from django.db.models import Q
 import mgi.rights as RIGHTS
+import random
 #Class definition
 
 ################################################################################
@@ -956,23 +957,6 @@ def get_results_by_instance_keyword(request):
         instanceResults = XMLdata.executeFullTextQuery(keyword, templatesID, refinements)
         if len(instanceResults) > 0:
             if not onlySuggestions:
-                canDelete = False
-                canEdit = False
-                # only admins can edit/delete for now
-                try:
-                    if request.user.is_anonymous():
-                        canDelete = Group.objects.filter(Q(name=RIGHTS.anonymous_group) & Q(permissions__name=RIGHTS.curate_delete_document))
-                        canEdit = Group.objects.filter(Q(name=RIGHTS.anonymous_group) & Q(permissions__name=RIGHTS.curate_edit_document))
-                    else:
-                        prefixed_permission_delete = "{!s}.{!s}".format(RIGHTS.curate_content_type, RIGHTS.curate_delete_document)
-                        prefixed_permission_edit = "{!s}.{!s}".format(RIGHTS.curate_content_type, RIGHTS.curate_edit_document)
-                        canDelete = request.user.has_perm(prefixed_permission_delete)
-                        canEdit = request.user.has_perm(prefixed_permission_edit)
-                except:
-                    if request.user.is_superuser:
-                        canDelete = True
-                        canEdit = True
-
                 xsltPath = os.path.join(settings.SITE_ROOT, 'static/resources/xsl/xml2html.xsl')
                 xslt = etree.parse(xsltPath)
                 transform = etree.XSLT(xslt)
@@ -983,13 +967,13 @@ def get_results_by_instance_keyword(request):
                     custom_xslt = False
                     results.append({'title':instanceResult['title'], 'content':xmltodict.unparse(instanceResult['content']),'id':str(instanceResult['_id'])})
                     dom = etree.XML(str(xmltodict.unparse(instanceResult['content']).encode('utf-8')))
-                    #Check if a custom short result XSLT has to be used
+                    #Check if a custom list result XSLT has to be used
                     try:
                         schema = Template.objects.get(pk=instanceResult['schema'])
-                        if schema.ResultXsltShort:
-                            shortXslt = etree.parse(BytesIO(schema.ResultXsltShort.content.encode('utf-8')))
-                            shortTransform = etree.XSLT(shortXslt)
-                            newdom = shortTransform(dom)
+                        if schema.ResultXsltList:
+                            listXslt = etree.parse(BytesIO(schema.ResultXsltList.content.encode('utf-8')))
+                            listTransform = etree.XSLT(listXslt)
+                            newdom = listTransform(dom)
                             custom_xslt = True
                         else:
                             newdom = transform(dom)
@@ -998,11 +982,9 @@ def get_results_by_instance_keyword(request):
                         newdom = transform(dom)
                         custom_xslt = False
 
-                    context = Context({'id':str(instanceResult['_id']),
+                    context = RequestContext(request, {'id':str(instanceResult['_id']),
                                        'xml': str(newdom),
                                        'title': instanceResult['title'],
-                                       'canDelete':canDelete,
-                                       'canEdit': canEdit,
                                        'custom_xslt': custom_xslt})
 
                     resultString+= template.render(context)
@@ -1027,7 +1009,7 @@ def get_results_by_instance_keyword(request):
     request.session[sessionName] = results
     print 'END def getResultsKeyword(request)'
 
-    return HttpResponse(json.dumps({'resultsByKeyword' : resultsByKeyword, 'resultString' : resultString}), content_type='application/javascript')
+    return HttpResponse(json.dumps({'resultsByKeyword' : resultsByKeyword, 'resultString' : resultString, 'count' : len(instanceResults)}), content_type='application/javascript')
 
 
 
@@ -1057,23 +1039,6 @@ def get_results_by_instance(request):
             instanceResults = XMLdata.executeQueryFullResult(query)
 
             if len(instanceResults) > 0:
-                canDelete = False
-                canEdit = False
-                # only admins can edit/delete for now
-                try:
-                    if request.user.is_anonymous():
-                        canDelete = Group.objects.filter(Q(name=RIGHTS.anonymous_group) & Q(permissions__name=RIGHTS.curate_delete_document))
-                        canEdit = Group.objects.filter(Q(name=RIGHTS.anonymous_group) & Q(permissions__name=RIGHTS.curate_edit_document))
-                    else:
-                        prefixed_permission_delete = "{!s}.{!s}".format(RIGHTS.curate_content_type, RIGHTS.curate_delete_document)
-                        prefixed_permission_edit = "{!s}.{!s}".format(RIGHTS.curate_content_type, RIGHTS.curate_edit_document)
-                        canDelete = request.user.has_perm(prefixed_permission_delete)
-                        canEdit = request.user.has_perm(prefixed_permission_edit)
-                except:
-                    if request.user.is_superuser:
-                        canDelete = True
-                        canEdit = True
-
                 template = loader.get_template('explore/explore_result.html')
                 xsltPath = os.path.join(settings.SITE_ROOT, 'static/resources/xsl/xml2html.xsl')
                 xslt = etree.parse(xsltPath)
@@ -1083,13 +1048,13 @@ def get_results_by_instance(request):
                     results.append({'title':instanceResult['title'], 'content':xmltodict.unparse(instanceResult['content']),'id':str(instanceResult['_id'])})
                     #dom = etree.fromstring(str(xmltodict.unparse(instanceResult['content']).replace('<?xml version="1.0" encoding="utf-8"?>\n',"")))
                     dom = etree.XML(str(xmltodict.unparse(instanceResult['content']).encode('utf-8')))
-                    #Check if a custom short result XSLT has to be used
+                    #Check if a custom list result XSLT has to be used
                     try:
                         schema = Template.objects.get(pk=instanceResult['schema'])
-                        if schema.ResultXsltShort:
-                            shortXslt = etree.parse(BytesIO(schema.ResultXsltShort.content.encode('utf-8')))
-                            shortTransform = etree.XSLT(shortXslt)
-                            newdom = shortTransform(dom)
+                        if schema.ResultXsltList:
+                            listXslt = etree.parse(BytesIO(schema.ResultXsltList.content.encode('utf-8')))
+                            listTransform = etree.XSLT(listXslt)
+                            newdom = listTransform(dom)
                             custom_xslt = True
                         else:
                             newdom = transform(dom)
@@ -1098,12 +1063,10 @@ def get_results_by_instance(request):
                         newdom = transform(dom)
                         custom_xslt = False
 
-                    context = Context({'id':str(instanceResult['_id']),
-                                       'xml': str(newdom),
-                                       'title': instanceResult['title'],
-                                       'canDelete':canDelete,
-                                       'canEdit': canEdit,
-                                       'custom_xslt': custom_xslt})
+                    context = RequestContext(request, {'id':str(instanceResult['_id']),
+                                               'xml': str(newdom),
+                                               'title': instanceResult['title'],
+                                               'custom_xslt': custom_xslt})
 
                     resultString+= template.render(context)
 
@@ -1128,13 +1091,13 @@ def get_results_by_instance(request):
                     custom_xslt = False
                     results.append({'title':instanceResult['title'], 'content':instanceResult['content'],'id':str(instanceResult['_id'])})
                     dom = etree.XML(str(xmltodict.unparse(instanceResult['content']).encode('utf-8')))
-                    #Check if a custom short result XSLT has to be used
+                    #Check if a custom list result XSLT has to be used
                     try:
                         schema = Template.objects.get(pk=instanceResult['schema'])
-                        if schema.ResultXsltShort:
-                            shortXslt = etree.parse(BytesIO(schema.ResultXsltShort.content.encode('utf-8')))
-                            shortTransform = etree.XSLT(shortXslt)
-                            newdom = shortTransform(dom)
+                        if schema.ResultXsltList:
+                            listXslt = etree.parse(BytesIO(schema.ResultXsltList.content.encode('utf-8')))
+                            listTransform = etree.XSLT(listXslt)
+                            newdom = listTransform(dom)
                             custom_xslt = True
                         else:
                             newdom = transform(dom)
@@ -2883,6 +2846,93 @@ def delete_result(request):
 
 ################################################################################
 #
+# Function Name: load_refinements(request)
+# Inputs:        request -
+# Outputs:
+# Exceptions:    None
+# Description:   Load refinements criterias from selected schemas
+#
+################################################################################
+def load_refinements(request):
+    schema_name = request.GET['schema']
+    button_type = ['primary', 'success', 'info', 'warning', 'danger']
+    if schema_name == 'all':
+        return HttpResponse(json.dumps({'refinements': ''}), content_type='application/javascript')
+
+    schemas = Template.objects(title=schema_name)
+    schema_id = TemplateVersion.objects().get(pk=schemas[0].templateVersion).current
+    
+    schema = Template.objects().get(pk=schema_id)
+    
+    xmlDocTree = etree.parse(BytesIO(schema.content.encode('utf-8')))
+
+    # find the namespaces
+    namespaces = common.get_namespaces(BytesIO(schema.content.encode('utf-8')))
+    default_namespace = "{http://www.w3.org/2001/XMLSchema}"
+    for prefix, url in namespaces.items():
+        if (url == default_namespace):
+            defaultPrefix = prefix
+            break
+
+    # building refinement options based on the schema
+    refinement_options = ""
+
+    # TODO: change enumeration look up by something more generic (using annotations in the schema)
+    # looking for enumerations
+    simple_types = xmlDocTree.findall("./{0}simpleType".format(default_namespace))
+    for simple_type in simple_types:
+        try:
+            enums = simple_type.findall("./{0}restriction/{0}enumeration".format(default_namespace))
+            refinement = ""
+            if len(enums) > 0:
+                # build dot notation query
+                # find the element using the enumeration
+                element = xmlDocTree.findall(".//{0}element[@type='{1}']".format(default_namespace, simple_type.attrib['name']))
+                if len(element) > 1:
+                    print "error: more than one element using the enumeration (" +str(len(element)) +")"
+                else:
+                    element = element[0]
+                    query = []
+                    while element is not None:
+                        if element.tag == "{0}element".format(default_namespace):
+                            query.insert(0,element.attrib['name'])
+                        elif element.tag == "{0}simpleType".format(default_namespace):
+                            element = xmlDocTree.findall(".//{0}element[@type='{1}']".format(default_namespace, element.attrib['name']))
+                            if len(element) > 1:
+                                print "error: more than one element using the enumeration (" +str(len(element)) +")"
+                            else:
+                                element = element[0]
+                                query.insert(0,element.attrib['name'])
+                        elif element.tag == "{0}complexType".format(default_namespace):
+                            try:
+                                element = xmlDocTree.findall(".//{0}element[@type='{1}']".format(default_namespace, element.attrib['name']))
+                                if len(element) > 1:
+                                    print "error: more than one element using the enumeration (" +str(len(element)) +")"
+                                else:
+                                    element = element[0]
+                                    query.insert(0,element.attrib['name'])
+                            except:
+                                pass
+                        element = element.getparent()
+    
+                dot_query = ".".join(query)
+                dot_query = "content." + dot_query
+                label = simple_type.attrib['name']
+                # get the name of the enumeration
+                refinement += "<div style='display:none;' class='refine_criteria' query='" + dot_query + "'>" + label + ": <br/>"
+                for enum in enums:
+                    refinement += "<input type='checkbox' value='" + enum.attrib['value'] + "'> " + enum.attrib['value'] + "<br/>"
+                refinement += "<br/>"
+                refinement += "</div>"
+        except:
+            print "ERROR AUTO GENERATION OF REFINEMENTS."
+        refinement_options += refinement
+
+    return HttpResponse(json.dumps({'refinements': refinement_options}), content_type='application/javascript')
+
+
+################################################################################
+#
 # Function Name: update_publish(request)
 # Inputs:        request -
 # Outputs:
@@ -2894,6 +2944,7 @@ def update_publish(request):
     XMLdata.update_publish(request.GET['result_id'])
     return HttpResponse(json.dumps({}), content_type='application/javascript')
 
+    
 ################################################################################
 #
 # Function Name: update_unpublish(request)
@@ -3009,7 +3060,32 @@ def refinements_to_mongo_and(refinements):
             return {}
     except:
         return {}
-    
+
+def refinements_to_mongo_OR(refinements):
+    try:
+        # transform the refinement in mongo query
+        mongo_queries = dict()
+        mongo_in = {}
+        for refinement in refinements:
+            splited_refinement = refinement.split(':')
+            dot_notation = splited_refinement[0]
+            value = splited_refinement[1]
+            if dot_notation in mongo_queries:
+                mongo_queries[dot_notation].append(value)
+            else:
+                mongo_queries[dot_notation] = [value]
+
+        for query in mongo_queries:
+            key = query
+            values = ({ '$in' : mongo_queries[query]})
+            mongo_in[key] = values
+
+        mongo_or = {'$or' : [mongo_in]}
+        return mongo_or
+    except:
+        return []
+        
+        
 
 ################################################################################
 #

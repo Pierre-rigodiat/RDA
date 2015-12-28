@@ -584,8 +584,19 @@
             this._tags().each(function(index, tag) {
                 that.removeTag(tag, false);
             });
+        },
+        removePlaceHolder: function(value, additionalClass, duringInitialization) {
+            if (this._tags().length == 0){
+                this.tagInput.attr('placeholder', '');
+                $("li.tagit-new").width(150);
+            }
+        },
+        addPlaceHolder: function(value, additionalClass, duringInitialization) {
+            if (this._tags().length == 0){
+                this.tagInput.attr('placeholder', this.options.placeholderText);
+                $("li.tagit-new").css('width', '100%');
+            }
         }
-
     });
 })(jQuery);
 

@@ -32,25 +32,25 @@
 {% endblock %}
 
 {% block title %}<h3>Search for Resources</h3>{% endblock %}
-
 {% block menu %}
     {% include 'nmrr/menus/main.html' with active_tab='tab2' %}
 {% endblock %}
 
 {% block content %}
-
 <div id="search">
         <div id="searchContainer">			
-			
-			{{search_Form.search_entry}}
-			
-			<input id="submit" name="submit" type="button" onclick="get_results_keyword_refined()" value="Search" /><div class="loading" id="loading"></div>
+			<div class="loading" id="loading"></div>
+			<input id="submit" name="submit" type="button" onclick="get_results_keyword_refined()" value="Search" />
+			<div>
+				{{search_Form.search_entry}}
+			</div>
         </div>
 		<div style="display: none;">{{search_Form.my_schemas}}</div>
         <div id="form_result_start_current"></div>
 </div>
-<br/>
-
+<div id="results_infos" style="color:grey;"></div>
+<div class="clearer">&nbsp;</div>
+<div id="results_errors" style="color:red;"></div>
 <table id="icons_table">
 <tr>
 <td align="center" class="selected_resource" value="all">
@@ -153,7 +153,7 @@ No Custom View available for this type of resource.
 <script src="{% static 'inc/controllers/js/nmrr/nmrr_explore.js' %}"></script>
 <script>
     initAutocomplete();
-	initSearch();
+    initSearch();
 </script>
 {% endblock %}
 

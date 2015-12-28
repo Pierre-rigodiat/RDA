@@ -254,8 +254,15 @@ get_results_keyword_refined = function(numInstance){
         	if (data.resultString.length == 0){
         		// get no results
         		$("#results").html("No results found");
+        		// get no results
+        		$("#results_infos").html("0 results");
         	}
         	else{
+        		// get result count
+        		if(data.count > 1)
+        	        $("#results_infos").html(data.count + " results");
+                else
+                    $("#results_infos").html(data.count + " result");
         		// get results
         		$("#results").html(data.resultString);
         		// filter the view
