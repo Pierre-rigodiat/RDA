@@ -172,6 +172,8 @@
               <xs:appinfo>
                 <label>Repository Name</label>
                 <placeholder>Enter your repository's name (ex. Materials Data Curation System)</placeholder>
+                <use>required</use>
+                <tooltip>The full name given to the resource</tooltip>
               </xs:appinfo>
                <xs:appinfo>
                  <dcterm>Title</dcterm>
@@ -187,6 +189,8 @@
               <xs:appinfo>
                 <label>Short Name</label>
                 <placeholder>Enter your repository's short name (ex. MDCS)</placeholder>
+                <use>recommended</use>
+                <tooltip>A short name or abbreviation given to the resource.</tooltip>
               </xs:appinfo>
                <xs:documentation>
                  a short name or abbreviation given to the resource.
