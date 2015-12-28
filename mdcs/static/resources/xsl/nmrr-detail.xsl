@@ -21,9 +21,15 @@
 			<table>
 				<tr style="background-color:#f0f0f0">
 					<td style="width:180px" colspan="2">
-						<div>
-							<xsl:value-of select="//Resource/identity/title"/>
-						</div>
+						<xsl:variable name="url" select="//Resource/content/referenceURL" />
+						<xsl:choose>
+							<xsl:when test="//Resource/content/referenceURL!=''">
+								<a target="_blank" href="{$url}"><xsl:value-of select="//Resource/identity/title"/></a>	
+							</xsl:when>
+							<xsl:otherwise>
+								<xsl:value-of select="//Resource/identity/title"/>
+							</xsl:otherwise>
+						</xsl:choose>
 					</td>
 				</tr>
 				<xsl:apply-templates />
@@ -31,16 +37,27 @@
 		</div>
 	</xsl:template>
 	<xsl:template match="//*[not(*)]">
-		<tr>
+		
+		<xsl:variable name="name" select="name(.)" />
+		<xsl:variable name="value" select="." />		
+		
+		<tr class="nmrr_line line_{$name}">
 			<td width="180">
-				<xsl:value-of select="name(.)" />
+				<xsl:value-of select="$name" />
 			</td>
 			<td>
 				<span class='value'>
-					<xsl:value-of select="." />
+					<xsl:choose>
+						<xsl:when test="contains($name, 'URL')">
+							<a target="_blank" href="{$value}"><xsl:value-of select="$value"/></a>							
+						</xsl:when>
+						<xsl:otherwise>
+							<xsl:value-of select="$value"/>
+						</xsl:otherwise>
+					</xsl:choose>
 				</span>
 			</td>
 		</tr>
 	</xsl:template>
-
+	
 </xsl:stylesheet>
