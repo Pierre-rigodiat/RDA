@@ -275,3 +275,8 @@ get_results_keyword_refined = function(numInstance){
     });
 }
 
+// clear all refinements
+clearRefinements = function(){
+	$("#refine_resource").find('input:checked').prop('checked',false);
+	get_results_keyword_refined();
+}
