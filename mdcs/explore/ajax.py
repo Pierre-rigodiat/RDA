@@ -2904,7 +2904,7 @@ def load_refinements(request):
             break
     
     # building refinement options based on the schema
-    refinement_options = "<a onclick='clearRefinements();' style='cursor:pointer; font-size=16px;'>Clear Refinements</a> <br/><br/>"
+    refinement_options = "<a onclick='clearRefinements();' style='cursor:pointer;'>Clear Refinements</a> <br/><br/>"
     
     # TODO: change enumeration look up by something more generic (using annotations in the schema)
     # looking for enumerations
