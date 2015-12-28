@@ -2904,7 +2904,7 @@ def load_refinements(request):
             break
     
     # building refinement options based on the schema
-    refinement_options = "<a onclick='clearRefinements();' style='cursor:pointer; font-size=16px;'>Clear Refinements</a> <br/>"
+    refinement_options = "<a onclick='clearRefinements();' style='cursor:pointer; font-size=16px;'>Clear Refinements</a> <br/><br/>"
     
     # TODO: change enumeration look up by something more generic (using annotations in the schema)
     # looking for enumerations
@@ -2921,6 +2921,11 @@ def load_refinements(request):
                     print "error: more than one element using the enumeration (" +str(len(element)) +")"
                 else:
                     element = element[0]
+                    
+                    # get the label of refinements
+                    app_info = common.getAppInfo(element, default_namespace)
+                    label = app_info['label'] if 'label' in app_info else element.attrib['name']
+                    label = label if label is not None else ''
                     query = []
                     while element is not None:
                         if element.tag == "{0}element".format(default_namespace):
@@ -2943,8 +2948,9 @@ def load_refinements(request):
                 
                 dot_query = ".".join(query)
                 dot_query = "content." + dot_query
+                
                 # get the name of the enumeration
-                refinement += "<div class='refine_criteria' query='" + dot_query + "'>" + simple_type.attrib['name'] + ": <br/>"
+                refinement += "<div class='refine_criteria' query='" + dot_query + "'>" + label + ": <br/>"
                 for enum in enums:
                     refinement += "<input type='checkbox' value='" + enum.attrib['value'] + "' onchange='get_results_keyword_refined();'> " + enum.attrib['value'] + "<br/>"
                 refinement += "<br/>"
