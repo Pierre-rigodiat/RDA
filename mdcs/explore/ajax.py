@@ -2882,49 +2882,52 @@ def load_refinements(request):
     # looking for enumerations
     simple_types = xmlDocTree.findall("./{0}simpleType".format(default_namespace))
     for simple_type in simple_types:
-        enums = simple_type.findall("./{0}restriction/{0}enumeration".format(default_namespace))
-        refinement = ""
-        if len(enums) > 0:
-            # build dot notation query
-            # find the element using the enumeration
-            element = xmlDocTree.findall(".//{0}element[@type='{1}']".format(default_namespace, simple_type.attrib['name']))
-            if len(element) > 1:
-                print "error: more than one element using the enumeration (" +str(len(element)) +")"
-            else:
-                element = element[0]
-                query = []
-                while element is not None:
-                    if element.tag == "{0}element".format(default_namespace):
-                        query.insert(0,element.attrib['name'])
-                    elif element.tag == "{0}simpleType".format(default_namespace):
-                        element = xmlDocTree.findall(".//{0}element[@type='{1}']".format(default_namespace, element.attrib['name']))
-                        if len(element) > 1:
-                            print "error: more than one element using the enumeration (" +str(len(element)) +")"
-                        else:
-                            element = element[0]
+        try:
+            enums = simple_type.findall("./{0}restriction/{0}enumeration".format(default_namespace))
+            refinement = ""
+            if len(enums) > 0:
+                # build dot notation query
+                # find the element using the enumeration
+                element = xmlDocTree.findall(".//{0}element[@type='{1}']".format(default_namespace, simple_type.attrib['name']))
+                if len(element) > 1:
+                    print "error: more than one element using the enumeration (" +str(len(element)) +")"
+                else:
+                    element = element[0]
+                    query = []
+                    while element is not None:
+                        if element.tag == "{0}element".format(default_namespace):
                             query.insert(0,element.attrib['name'])
-                    elif element.tag == "{0}complexType".format(default_namespace):
-                        try:
+                        elif element.tag == "{0}simpleType".format(default_namespace):
                             element = xmlDocTree.findall(".//{0}element[@type='{1}']".format(default_namespace, element.attrib['name']))
                             if len(element) > 1:
                                 print "error: more than one element using the enumeration (" +str(len(element)) +")"
                             else:
                                 element = element[0]
                                 query.insert(0,element.attrib['name'])
-                        except:
-                            pass
-                    element = element.getparent()
-
-            dot_query = ".".join(query)
-            dot_query = "content." + dot_query
-            name = simple_type.attrib['name']
-            # get the name of the enumeration
-            refinement +="<button onclick='showHide(this,\""+name+"\");' type='button' class='btn btn-"+random.choice(button_type)+"'><i class='fa fa-crop'></i> "+ name+"</button>" + "&nbsp;"
-            refinement += "<div id='"+name+"' style='display:none;' class='refine_criteria' query='" + dot_query + "'>"
-            for enum in enums:
-                refinement += "<input type='checkbox' value='" + enum.attrib['value'] + "'> " + enum.attrib['value'] + "<br/>"
-            refinement += "<br/>"
-            refinement += "</div>"
+                        elif element.tag == "{0}complexType".format(default_namespace):
+                            try:
+                                element = xmlDocTree.findall(".//{0}element[@type='{1}']".format(default_namespace, element.attrib['name']))
+                                if len(element) > 1:
+                                    print "error: more than one element using the enumeration (" +str(len(element)) +")"
+                                else:
+                                    element = element[0]
+                                    query.insert(0,element.attrib['name'])
+                            except:
+                                pass
+                        element = element.getparent()
+    
+                dot_query = ".".join(query)
+                dot_query = "content." + dot_query
+                name = simple_type.attrib['name']
+                # get the name of the enumeration
+                refinement +="<button onclick='showHide(this,\""+name+"\");' type='button' class='btn btn-"+random.choice(button_type)+"'><i class='fa fa-crop'></i> "+ name+"</button>" + "&nbsp;"
+                refinement += "<div id='"+name+"' style='display:none;' class='refine_criteria' query='" + dot_query + "'>"
+                for enum in enums:
+                    refinement += "<input type='checkbox' value='" + enum.attrib['value'] + "'> " + enum.attrib['value'] + "<br/>"
+                refinement += "<br/>"
+                refinement += "</div>"
+        except:
+            print "ERROR AUTO GENERATION OF REFINEMENTS."
         refinement_options += refinement
 
     return HttpResponse(json.dumps({'refinements': refinement_options}), content_type='application/javascript')
