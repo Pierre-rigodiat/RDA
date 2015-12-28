@@ -127,6 +127,8 @@ initFilters = function(){
 
 
 filter_result_display = function(filter){
+	$("#config_custom").css('display','none');
+	
 	if (filter == 'simple'){
 		$(".nmrr_line").hide();
 		$(".nmrr_line.line_publisher").show();
@@ -134,11 +136,17 @@ filter_result_display = function(filter){
 	}else if (filter == 'detailed'){
 		$(".nmrr_line").show();
 	}else if (filter == 'custom'){
+		if ($('input[name=resource_type]:checked').val() != 'all'){
+			$("#config_custom").css('display','');
+		}
 		if (custom_view_done == true){
 	    	$(".nmrr_line").hide();
 			$("#custom_view").children("input:checked").each(function(){
 				$(".nmrr_line." + $(this).val()).show();
 			});
+		}
+		else{
+			configure_custom_view();
 		}
 	}
 }
@@ -167,7 +175,7 @@ configure_custom_view = function(){
 }
 
 
-custom_view_dialog = function(){
+custom_view_dialog = function(){	
     $( "#dialog-custom-view" ).dialog({
         modal: true,
         height: 500,

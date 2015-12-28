@@ -91,8 +91,11 @@ Software
 <select id="results_view" name="results_view">
 <option value="simple"> Simple Results View
 <option value="detailed"> Detailed Results View
-<option value="custom" onclick="configure_custom_view();"> Custom View
+<option value="custom"> Custom View
 </select>
+<div id="config_custom" style="display:none;cursor: pointer; font-size: 16px;">
+<a onclick="configure_custom_view();">Change Custom View</a>
+</div>
 <table style="margin-top:-40px;">
 <tr>
 <td style="width:220px">
