@@ -215,7 +215,7 @@ def getAppInfo(element, namespace):
     app_info_elements = element.findall("./{0}annotation/{0}appinfo".format(namespace))
     for app_info_element in app_info_elements:
         for app_info_child in app_info_element.getchildren():
-            if app_info_child.tag in ['label', 'placeholder']:
+            if app_info_child.tag in ['label', 'placeholder', 'tooltip', 'use']:
                 app_info[app_info_child.tag] = app_info_child.text
     
     return app_info
