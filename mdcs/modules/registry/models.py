@@ -55,10 +55,7 @@ class RegistryCheckboxesModule(CheckboxesModule):
         return CheckboxesModule.get_module(self, request)
 
     def _get_display(self, request):
-        if len(self.selected) == 0:
-            return '<div class="error_nmrr">The element ' + self.xml_tag + ' should be removed if no checkboxes are checked.</div>'
-        else:
-            return ''
+        return ''
 
     def _get_result(self, request):
         xml_result = ''
@@ -67,11 +64,7 @@ class RegistryCheckboxesModule(CheckboxesModule):
         return xml_result  
 
     def _post_display(self, request):
-        display = ''
-        if not 'data[]' in request.POST:
-            return '<div class="error_nmrr">The element ' + request.xml_tag + ' should be removed if no checkboxes are checked.</div>'
-        return display
-                
+        return ''                
 
     def _post_result(self, request):
         xml_result = ''        
@@ -179,9 +172,6 @@ class RelevantDateModule(Module):
 
 
     def _post_display(self, request):
-        form = DateForm(request.POST)
-        if not form.is_valid():
-            return '<div class="error_nmrr">The element ' + self.params['tag'] + ' should respect the following format yyyy-mm-dd.</div>'
         return ''
 
 
