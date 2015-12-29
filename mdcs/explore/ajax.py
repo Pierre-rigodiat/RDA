@@ -3054,5 +3054,11 @@ def is_field(element, xmlDocTree, default_namespace, defaultPrefix):
             simple_type = xmlDocTree.find(".//{0}simpleType[@name='{1}']".format(default_namespace, element.attrib['type']))
             if simple_type is not None:
                 return True
+            else:
+                complex_type = xmlDocTree.find(".//{0}complexType[@name='{1}']".format(default_namespace, element.attrib['type']))
+                if complex_type is not None:
+                    simple_content = complex_type.find("./{0}simpleContent".format(default_namespace))
+                    if simple_content is not None:
+                        return True
     return False
     
