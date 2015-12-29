@@ -2951,7 +2951,7 @@ def load_refinements(request):
                 
                 # get the name of the enumeration
                 refinement += "<div class='refine_criteria' query='" + dot_query + "'>" + label + ": <br/>"
-                for enum in enums:
+                for enum in sorted(enums, key=lambda x: x.attrib['value']):
                     refinement += "<input type='checkbox' value='" + enum.attrib['value'] + "' onchange='get_results_keyword_refined();'> " + enum.attrib['value'].title() + "<br/>"
                 refinement += "<br/>"
                 refinement += "</div>"
