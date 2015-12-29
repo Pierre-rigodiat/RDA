@@ -94,38 +94,41 @@ def curate_select_template(request):
 @permission_required(content_type=RIGHTS.curate_content_type, permission=RIGHTS.curate_edit_document, login_url='/login')
 def curate_edit_data(request):
     try:
-        xml_data_id = request.GET['id']
-        xml_data = XMLdata.get(xml_data_id)
-        json_content = xml_data['content']
-        xml_content = xmltodict.unparse(json_content)
-        request.session['curate_edit_data'] = xml_content
-        request.session['curate_edit'] = True
-        request.session['currentTemplateID'] = xml_data['schema']
-        # remove previously created forms when editing a new one
-        previous_forms = FormData.objects(user=str(request.user.id), xml_data_id__exists=True)
-        for previous_form in previous_forms:
-            # cascade delete references
-            for form_element_id in previous_form.elements.values():
-                try:
-                    form_element = FormElement.objects().get(pk=form_element_id)
-                    if form_element.xml_element is not None:
-                        try:
-                            xml_element = XMLElement.objects().get(pk=str(form_element.xml_element.id))
-                            xml_element.delete()
-                        except:
-                            # raise an exception when element not found
-                            pass
-                    form_element.delete()
-                except:
-                    # raise an exception when element not found
-                    pass
-            previous_form.delete()
-        form_data = FormData(user=str(request.user.id), template=xml_data['schema'], name=xml_data['title'], xml_data=xml_content, xml_data_id=xml_data_id).save()
-        request.session['curateFormData'] = str(form_data.id)
-        if 'formString' in request.session:
-            del request.session['formString']
-        if 'xmlDocTree' in request.session:
-            del request.session['xmlDocTree']
+        if 'useForm' in request.GET and request.GET['useForm'] == 'true':
+            pass
+        else:
+            xml_data_id = request.GET['id']
+            xml_data = XMLdata.get(xml_data_id)
+            json_content = xml_data['content']
+            xml_content = xmltodict.unparse(json_content)
+            request.session['curate_edit_data'] = xml_content
+            request.session['curate_edit'] = True
+            request.session['currentTemplateID'] = xml_data['schema']
+            # remove previously created forms when editing a new one
+            previous_forms = FormData.objects(user=str(request.user.id), xml_data_id__exists=True)
+            for previous_form in previous_forms:
+                # cascade delete references
+                for form_element_id in previous_form.elements.values():
+                    try:
+                        form_element = FormElement.objects().get(pk=form_element_id)
+                        if form_element.xml_element is not None:
+                            try:
+                                xml_element = XMLElement.objects().get(pk=str(form_element.xml_element.id))
+                                xml_element.delete()
+                            except:
+                                # raise an exception when element not found
+                                pass
+                        form_element.delete()
+                    except:
+                        # raise an exception when element not found
+                        pass
+                previous_form.delete()
+            form_data = FormData(user=str(request.user.id), template=xml_data['schema'], name=xml_data['title'], xml_data=xml_content, xml_data_id=xml_data_id).save()
+            request.session['curateFormData'] = str(form_data.id)
+            if 'formString' in request.session:
+                del request.session['formString']
+            if 'xmlDocTree' in request.session:
+                del request.session['xmlDocTree']
     except:
         raise MDCSError("The document you are looking for doesn't exist.")
 
