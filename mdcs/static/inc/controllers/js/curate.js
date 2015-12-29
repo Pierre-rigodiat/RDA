@@ -371,15 +371,15 @@ generateXMLString = function(elementObj)
 					if ($(children[i]).children('div.module').length != 0 && xml_value.match("^<" + tag)){
 						// if the module returns the tag, replace the tag
 						xmlString += xml_value;
+					}else if($(children[i]).children('div.module').length != 0 && xml_value == ""){
+						xmlString += ""
 					}else{
-						if (xml_value){
-							// build opening tag with potential attributes
-							xmlString += "<" + tag + attributes + ">";
-							// build opening tag with potential attributes
-							xmlString += xml_value;
-							// build the closing tag
-						    xmlString += "</" + tag + ">";
-						}
+						// build opening tag with potential attributes
+						xmlString += "<" + tag + attributes + ">";
+						// build opening tag with potential attributes
+						xmlString += xml_value;
+						// build the closing tag
+					    xmlString += "</" + tag + ">";
 					}
 				}			    	
 			}

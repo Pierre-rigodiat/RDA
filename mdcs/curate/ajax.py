@@ -1229,9 +1229,12 @@ def generateElement(request, element, xmlTree, namespace, choiceInfo=None, fullP
             deleteButton = True
     
     if has_module:
-        # block maxOccurs to one, the module should take care of occurrences when the element is replaced
+        # block minOccurs/maxOccurs to one, the module should take care of occurrences when the element is replaced
         nbOccurrences = 1
         maxOccurs = 1
+        minOccurs = 1
+        removed = False
+        use = ""
     elif nbOccurrences_data > nbOccurrences:
         nbOccurrences = nbOccurrences_data    
     
