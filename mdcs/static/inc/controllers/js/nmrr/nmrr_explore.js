@@ -137,9 +137,7 @@ filter_result_display = function(filter){
 	}else if (filter == 'detailed'){
 		$(".nmrr_line").show();
 	}else if (filter == 'custom'){
-		if ($('input[name=resource_type]:checked').val() != 'all'){
-			$("#config_custom").css('display','');
-		}
+		$("#config_custom").css('display','');
 		if (custom_view_done == true){
 	    	$(".nmrr_line").hide();
 			$("#custom_view").children("input:checked").each(function(){
@@ -154,25 +152,12 @@ filter_result_display = function(filter){
 
 
 configure_custom_view = function(){
-	if ($('input[name=resource_type]:checked').val() == 'all'){
-	    $( "#dialog-custom-view-error" ).dialog({
-	        modal: true,
-	        buttons: {
-	            OK: function() {
-	            	$( this ).dialog( "close" );
-	            	$("#results_view").val("simple");
-	            }
-	        }
-	    });
+	if (custom_view_done == false){
+		load_custom_view($('input[name=resource_type]:checked').val());
+		custom_view_dialog();
+	}else{
+		custom_view_dialog();
 	}
-	else{
-		if (custom_view_done == false){
-			load_custom_view($('input[name=resource_type]:checked').val());
-			custom_view_dialog();
-		}else{
-			custom_view_dialog();
-		}
-	}		
 }
 
 

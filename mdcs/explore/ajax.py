@@ -2883,11 +2883,7 @@ def update_unpublish(request):
 #                
 ################################################################################
 def load_refinements(request):
-    schema_name = request.GET['schema']
-    
-    if schema_name == 'all':
-        return HttpResponse(json.dumps({'refinements': ''}), content_type='application/javascript')
-    
+    schema_name = request.GET['schema']    
     schemas = Template.objects(title=schema_name)
     schema_id = TemplateVersion.objects().get(pk=schemas[0].templateVersion).current
     
@@ -3018,9 +3014,6 @@ def refinements_to_mongo_OR(refinements):
 ################################################################################
 def custom_view(request):
     schema_name = request.GET['schema']
-    
-    if schema_name == 'all':
-        return HttpResponse(json.dumps({}), content_type='application/javascript')
     
     schema = Template.objects().get(title=schema_name)
     
