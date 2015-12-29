@@ -450,7 +450,7 @@ class XMLdata():
             full_text_query.update(refinements)
         
         full_text_query.update({'ispublished': True})
-        cursor = xmldata.find(full_text_query, as_class = OrderedDict)
+        cursor = xmldata.find(full_text_query, as_class = OrderedDict).sort('publicationdate', DESCENDING)
         
         results = []
         for result in cursor:
