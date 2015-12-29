@@ -5,6 +5,7 @@ initSearch = function(){
 	loadRefinements('all');
 	initFilters();	
 	custom_view_done = false;
+	get_results_keyword_refined();
 }
 
 
