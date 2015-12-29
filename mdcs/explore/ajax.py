@@ -941,7 +941,7 @@ def get_results_by_instance_keyword(request):
         try:
             keyword = request.GET['keyword']
             schemas = request.GET.getlist('schemas[]')
-            refinements = refinements_to_mongo_and(request.GET.getlist('refinements[]'))
+            refinements = refinements_to_mongo_OR(request.GET.getlist('refinements[]'))
             onlySuggestions = json.loads(request.GET['onlySuggestions'])
         except:
             keyword = ''
@@ -2963,7 +2963,7 @@ def load_refinements(request):
     
     
     
-def refinements_to_mongo_and(refinements):
+def refinements_to_mongo_AND(refinements):
     try:
         if len(refinements) != 0:
             # transform the refinement in mongo query
