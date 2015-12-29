@@ -172,12 +172,14 @@ custom_view_dialog = function(){
             },
             Apply: function() {
             	$( this ).dialog( "close" );
-            	custom_view_done = true;
             	$(".nmrr_line").hide();
     			$("#custom_view").children("input:checked").each(function(){
     				$(".nmrr_line." + $(this).val()).show();
     			});
             }
+        },
+        close: function(){
+        	custom_view_done = true;
         }
     });
 }
