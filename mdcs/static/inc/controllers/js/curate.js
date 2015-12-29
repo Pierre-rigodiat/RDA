@@ -372,12 +372,14 @@ generateXMLString = function(elementObj)
 						// if the module returns the tag, replace the tag
 						xmlString += xml_value;
 					}else{
-						// build opening tag with potential attributes
-						xmlString += "<" + tag + attributes + ">";
-						// build opening tag with potential attributes
-						xmlString += xml_value;
-						// build the closing tag
-					    xmlString += "</" + tag + ">";
+						if (xml_value){
+							// build opening tag with potential attributes
+							xmlString += "<" + tag + attributes + ">";
+							// build opening tag with potential attributes
+							xmlString += xml_value;
+							// build the closing tag
+						    xmlString += "</" + tag + ">";
+						}
 					}
 				}			    	
 			}
