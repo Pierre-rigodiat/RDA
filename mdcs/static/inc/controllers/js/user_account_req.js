@@ -39,7 +39,7 @@ checkPasswords = function(pass1, pass2){
 	errors = ""
 		
 	if (pass1 != pass2){
-		errors += "Passwords should be identic.";
+		errors += "Passwords should be identical.";
 	}else{
 		if(checkPassword(pass1) == false){
 			errors += "Password should respect the following requirements:<br/>";
