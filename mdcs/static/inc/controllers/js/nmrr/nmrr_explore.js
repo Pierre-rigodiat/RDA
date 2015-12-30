@@ -1,4 +1,5 @@
 var custom_view_done;
+var timeout;
 
 initSearch = function(){
 	initResources();
@@ -68,7 +69,7 @@ initResources = function(){
 	        			$(this).removeAttr("checked");
 	        		}	        		
 	        	});
-	        }
+	        }	        
 	        get_results_keyword_refined();
 	    };
 	}
@@ -76,6 +77,7 @@ initResources = function(){
 
 
 loadRefinements = function(schema){
+	$("#refine_resource").html('');
 	$.ajax({
         url : "/explore/load_refinements",
         type : "GET",
@@ -223,44 +225,49 @@ loadRefinementQueries = function(){
  * @param numInstance
  */
 get_results_keyword_refined = function(numInstance){
-    $("#results").html('Please wait...');
-    var keyword = $("#id_search_entry").val();    
-    $.ajax({
-        url : "/explore/get_results_by_instance_keyword",
-        type : "GET",
-        dataType: "json",
-        data : {
-        	keyword: keyword,
-        	schemas: getSchemas(),
-        	refinements: loadRefinementQueries(),
-        	onlySuggestions: false,
-        },
-        beforeSend: function( xhr ) {
-            $("#loading").addClass("isloading");
-        },
-        success: function(data){
-        	if (data.resultString.length == 0){
-        		// get no results
-        		$("#results").html("No results found");
-        		// get no results
-        		$("#results_infos").html("0 results");
-        	}
-        	else{
-        		// get result count
-        		if(data.count > 1)
-        	        $("#results_infos").html(data.count + " results");
-                else
-                    $("#results_infos").html(data.count + " result");
-        		// get results
-        		$("#results").html(data.resultString);
-        		// filter the view
-        		filter_result_display($("#results_view").val());
-        	}
-        },
-        complete: function(){
-            $("#loading").removeClass("isloading");
-        }
-    });
+	// clear the timeout
+	clearTimeout(timeout);
+	// send request if no parameter changed during the timeout
+    timeout = setTimeout(function(){
+    	$("#results").html('Please wait...');
+        var keyword = $("#id_search_entry").val();    
+        $.ajax({
+            url : "/explore/get_results_by_instance_keyword",
+            type : "GET",
+            dataType: "json",
+            data : {
+            	keyword: keyword,
+            	schemas: getSchemas(),
+            	refinements: loadRefinementQueries(),
+            	onlySuggestions: false,
+            },
+            beforeSend: function( xhr ) {
+                $("#loading").addClass("isloading");
+            },
+            success: function(data){
+            	if (data.resultString.length == 0){
+            		// get no results
+            		$("#results").html("No results found");
+            		// get no results
+            		$("#results_infos").html("0 results");
+            	}
+            	else{
+            		// get result count
+            		if(data.count > 1)
+            	        $("#results_infos").html(data.count + " results");
+                    else
+                        $("#results_infos").html(data.count + " result");
+            		// get results
+            		$("#results").html(data.resultString);
+            		// filter the view
+            		filter_result_display($("#results_view").val());
+            	}
+            },
+            complete: function(){
+                $("#loading").removeClass("isloading");
+            }
+        });
+    }, 1500);
 }
 
 // clear all refinements
