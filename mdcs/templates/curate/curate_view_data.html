@@ -41,7 +41,11 @@
 <div id="XMLHolder"></div>
 
 <br/><br/>
+{% if not edit %}
 <a class="button save-to-repo">ADD RESOURCE</a>
+{% else %}
+<a class="button save-to-repo">SAVE CHANGES</a>
+{% endif %}
 <a class="button button-reversed edit">Edit Form</a>
 {% endblock %}
 

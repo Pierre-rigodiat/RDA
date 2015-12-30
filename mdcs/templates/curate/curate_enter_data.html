@@ -98,10 +98,16 @@ Please wait while the form is loading...
 </div>
 </div>
 <div style="float:left;">
-<a class="button save-to-repo">ADD RESOURCE</a>
+{% if not edit %}
+<a class="button save-to-repo">REVIEW AND ADD RESOURCE</a>
+{% else %}
+<a class="button save-to-repo">REVIEW AND SAVE CHANGES</a>
+{% endif %}
 </div>
 <div style="float:right;">
+{% if not edit %}
 <a class="button save-form">Save Form </a>
+{% endif %}
 <a class="button button-reversed clear-fields">Clear Form</a>
 <a class="button button-reversed cancel">Cancel Form</a>
 </div>

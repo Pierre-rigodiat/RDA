@@ -188,7 +188,10 @@ def curate_enter_data(request):
     try:
         context = RequestContext(request, {})
         if 'id' in request.GET:
-            context = RequestContext(request, {})
+            xml_data_id = request.GET['id']
+            xml_data = XMLdata.get(xml_data_id)
+            template = Template.objects().get(pk=ObjectId(xml_data['schema']))
+            context = RequestContext(request, {'edit': True, 'template_name':template.title})
             curate_edit_data(request)
         elif 'template' in request.GET:
             context = RequestContext(request, {'template_name': request.GET['template']})
@@ -227,8 +230,15 @@ def curate_view_data(request):
         form_data.name += ".xml"
     form_name = form_data.name
 
+    # detect if new document, or editing
+    if form_data.xml_data_id is not None:
+        edit =True
+    else:
+        edit = False
+        
     context = RequestContext(request, {
         'form_save': SaveDataForm({"title": form_name}),
+        'edit': edit,
     })
     if 'currentTemplateID' not in request.session:
         return redirect('/curate/select-template')
