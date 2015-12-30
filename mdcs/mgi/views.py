@@ -27,6 +27,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import Group
 from django.db.models import Q
 import mgi.rights as RIGHTS
+from itertools import chain
 
 
 ################################################################################
@@ -366,18 +367,21 @@ def my_profile_resources(request):
     template = loader.get_template('profile/my_profile_resources.html')
     if 'template' in request.GET:
         template_name = request.GET['template']
-        if template_name == 'datacollection':
-            templateNames = [str(Template.objects.get(title=template_name).id), str(Template.objects.get(title='repository').id),  str(Template.objects.get(title='projectarchive').id), str(Template.objects.get(title='database').id)]
-            context = RequestContext(request, {
-                'XMLdatas': XMLdata.find({'iduser' : str(request.user.id), 'schema' : {"$in": templateNames}}), 'template': template_name
-            })
-        elif template_name == 'all':
+        if template_name == 'all':
             context = RequestContext(request, {
                 'XMLdatas': XMLdata.find({'iduser' : str(request.user.id)}),
             })
         else :
+            if template_name == 'datacollection':
+                templateNamesQuery = list(chain(Template.objects.filter(title=template_name).values_list('id'), Template.objects.filter(title='repository').values_list('id'), Template.objects.filter(title='database').values_list('id'), Template.objects.filter(title='projectarchive').values_list('id')))
+            else :
+                templateNamesQuery = Template.objects.filter(title=template_name).values_list('id')
+            templateNames = []
+            for templateQuery in templateNamesQuery:
+                templateNames.append(str(templateQuery))
+
             context = RequestContext(request, {
-                'XMLdatas': XMLdata.find({'iduser' : str(request.user.id), 'schema' : str(Template.objects.get(title=template_name).id)}), 'template': template_name
+                'XMLdatas': XMLdata.find({'iduser' : str(request.user.id), 'schema':{"$in" : templateNames}}), 'template': template_name
             })
     else :
         context = RequestContext(request, {

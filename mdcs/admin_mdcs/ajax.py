@@ -140,12 +140,7 @@ def save_object(request):
         hash = XSDhash.get_hash(objectContent)
         # save the object
         if objectType == "Template":
-
-            if Template.objects.filter(title=objectName):
-                response_dict = {'errorsTemplateName': 'True'}
-                return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
-
-            objectVersions = TemplateVersion(nbVersions=1, isDeleted=False).save()            
+            objectVersions = TemplateVersion(nbVersions=1, isDeleted=False).save()
             object = Template(title=objectName, filename=objectFilename, content=objectContent, version=1, templateVersion=str(objectVersions.id), hash=hash).save()
             #We add default exporters
             try:
@@ -906,10 +901,9 @@ def add_bucket(request):
     
     # check that the label is unique
     labels = Bucket.objects.all().values_list('label') 
-    if label in labels:        
+    if label in labels:
         response_dict = {"errors": "True"}
         return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
-    
     # get an unique color
     colors = Bucket.objects.all().values_list('color') 
     color = rdm_hex_color()
@@ -1112,4 +1106,23 @@ def save_result_xslt(request):
     if idXsltShort or idXsltDetailed:
         template.save()
 
+    return HttpResponse(json.dumps({}), content_type='application/javascript')
+
+
+################################################################################
+#
+# Function Name: check_name(request)
+# Inputs:        request -
+# Outputs:
+# Exceptions:    None
+# Description:   Check the name of the template.
+#
+################################################################################
+def check_name(request):
+    name = request.POST['name']
+    # check that the name is unique
+    names = Template.objects.all().values_list('title')
+    if name in names:
+        response_dict = {'errors': 'True'}
+        return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
     return HttpResponse(json.dumps({}), content_type='application/javascript')
