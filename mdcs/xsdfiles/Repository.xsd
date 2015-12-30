@@ -521,7 +521,7 @@
           </xs:annotation>
        </xs:element>
 
-       <xs:element name="description" type="xs:token">
+       <xs:element name="description" type="xs:token" xmlns:ns0="http://mdcs.ns" ns0:_mod_mdcs_="/registry/description">
           <xs:annotation>
             <xs:appinfo>
               <label>Description</label>
@@ -744,7 +744,7 @@
      </xs:annotation>
 
      <xs:sequence>
-       <xs:element name="description" type="xs:token" minOccurs="0">
+       <xs:element name="description" type="xs:token" minOccurs="0" xmlns:ns0="http://mdcs.ns" ns0:_mod_mdcs_="/registry/description">
           <xs:annotation>
             <xs:appinfo>
               <label>Description</label>

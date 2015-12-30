@@ -170,8 +170,8 @@
       <xs:element name="title" type="xs:token">
         <xs:annotation>
           <xs:appinfo>
-            <label>Repository Name</label>
-            <placeholder>Enter your repository's name (ex. Materials Data Curation System)</placeholder>
+            <label>Database Name</label>
+            <placeholder>Enter your database's name</placeholder>
           </xs:appinfo>
           <xs:appinfo>
             <dcterm>Title</dcterm>
@@ -518,7 +518,7 @@
         </xs:annotation>
       </xs:element>
       
-      <xs:element name="description" type="xs:token">
+      <xs:element name="description" type="xs:token" xmlns:ns0="http://mdcs.ns" ns0:_mod_mdcs_="/registry/description">
         <xs:annotation>
           <xs:appinfo>
             <label>Description</label>
@@ -651,7 +651,13 @@
      </xs:annotation>
 
      <xs:sequence>
-       <xs:element name="materialsScience" type="MaterialsScience"/>
+       <xs:element name="materialsScience" type="MaterialsScience">
+         <xs:annotation>
+           <xs:appinfo>
+             <label>Materials Science</label>
+           </xs:appinfo>
+         </xs:annotation>
+       </xs:element>
      </xs:sequence>
    </xs:complexType>
 
@@ -764,7 +770,7 @@
     </xs:annotation>
     
     <xs:sequence>
-      <xs:element name="description" type="xs:token" minOccurs="0">
+      <xs:element name="description" type="xs:token" minOccurs="0" xmlns:ns0="http://mdcs.ns" ns0:_mod_mdcs_="/registry/description">
         <xs:annotation>
           <xs:appinfo>
             <label>Description</label>
@@ -815,7 +821,7 @@
     </xs:annotation>
     
     <xs:sequence>
-      <xs:element name="description" type="xs:token" minOccurs="0">
+      <xs:element name="description" type="xs:token" minOccurs="0" xmlns:ns0="http://mdcs.ns" ns0:_mod_mdcs_="/registry/description">
         <xs:annotation>
           <xs:appinfo>
             <label>Description</label>
@@ -904,7 +910,7 @@
      </xs:annotation>
 
      <xs:sequence>
-       <xs:element name="description" type="xs:token" minOccurs="0">
+       <xs:element name="description" type="xs:token" minOccurs="0" xmlns:ns0="http://mdcs.ns" ns0:_mod_mdcs_="/registry/description">
           <xs:annotation>
             <xs:appinfo>
               <label>Description</label>

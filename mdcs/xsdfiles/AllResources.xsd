@@ -34,8 +34,8 @@
       <xs:element name="identity" type="Identity">
         <xs:annotation>
           <xs:appinfo>
-                <label>Identity</label>
-              </xs:appinfo>
+            <label>Identity</label>
+          </xs:appinfo>
           <xs:documentation>
                   a collection of metadata that help identify the resource in 
                   various contexts.  It includes its title and unique 
@@ -169,10 +169,7 @@
       <xs:element name="title" type="xs:token">
         <xs:annotation>
           <xs:appinfo>
-                <label>Repository Name</label>
-                <placeholder>Enter your repository's name (ex. Materials Data Curation System)</placeholder>
-                <use>required</use>
-                <tooltip>The full name given to the resource</tooltip>
+                <label>Resource Name</label>
               </xs:appinfo>
           <xs:appinfo>
                  <dcterm>Title</dcterm>
@@ -187,9 +184,6 @@
         <xs:annotation>
           <xs:appinfo>
                 <label>Short Name</label>
-                <placeholder>Enter your repository's short name (ex. MDCS)</placeholder>
-                <use>recommended</use>
-                <tooltip>A short name or abbreviation given to the resource.</tooltip>
               </xs:appinfo>
           <xs:documentation>
                  a short name or abbreviation given to the resource.
@@ -517,7 +511,7 @@
         </xs:annotation>
       </xs:element>
 
-      <xs:element name="description" type="xs:token">
+      <xs:element name="description" type="xs:token" xmlns:ns0="http://mdcs.ns" ns0:_mod_mdcs_="/registry/description">
         <xs:annotation>
           <xs:appinfo>
               <label>Description</label>
@@ -728,7 +722,7 @@
     </xs:annotation>
 
     <xs:sequence>
-      <xs:element name="description" type="xs:token" minOccurs="0">
+      <xs:element name="description" type="xs:token" minOccurs="0" xmlns:ns0="http://mdcs.ns" ns0:_mod_mdcs_="/registry/description">
         <xs:annotation>
           <xs:appinfo>
               <label>Description</label>
