@@ -21,18 +21,26 @@
 			<table>
 				<tr style="background-color:#f0f0f0">
 					<td style="width:180px" colspan="2">
-						<div style="font-size: 25px; float: left; text-decoration: none; cursor: pointer; color: rgb(136, 136, 136);" 
-							onmouseover="this.style.textDecoration='underline';this.style.cursor='pointer';this.style.color='blue';" 
-							onmouseout="this.style.textDecoration='none';style.color='#888888'" 
-							onclick="">
-							<xsl:value-of select="//Resource/identity/title"/>
-						</div>
+						<xsl:variable name="url" select="//Resource/content/referenceURL" />
+						<xsl:choose>
+							<xsl:when test="//Resource/content/referenceURL!=''">
+								<a target="_blank" href="{$url}"><xsl:value-of select="//Resource/identity/title"/></a>	
+							</xsl:when>
+							<xsl:otherwise>
+								<xsl:value-of select="//Resource/identity/title"/>
+							</xsl:otherwise>
+						</xsl:choose>
+						
 						<div style="margin-top:5px;font-size:20px;float:right">
 							<div style="float:right;margin:-10px 0px 0px 0px">
-								<button class="btn" onclick="dialog_detail('{{{{id}}}}');" title="Click to view this resource.">Resource Details</button>
-								<xsl:variable name="url" select="//Resource/content/referenceURL" />
-								<a target="_blank" href="{$url}"><button class="btn" title="Click to view this resource.">Go To</button></a>
-							</div></div>
+								<button class="btn" onclick="dialog_detail('{{{{id}}}}');" title="Click to view this resource.">Resource Details</button>								
+								<xsl:choose>
+									<xsl:when test="//Resource/content/referenceURL!=''">
+										<a target="_blank" href="{$url}"><button class="btn" title="Click to view this resource.">Go To</button></a>
+									</xsl:when>
+								</xsl:choose>
+							</div>
+						</div>
 					</td>
 				</tr>
 				<xsl:apply-templates />
@@ -40,14 +48,24 @@
 		</div>
 	</xsl:template>
 	<xsl:template match="//*[not(*)]">
+
 		<xsl:variable name="name" select="name(.)" />
+		<xsl:variable name="value" select="." />		
+		
 		<tr class="nmrr_line line_{$name}">
 			<td width="180">
-				<xsl:value-of select="name(.)" />
+				<xsl:value-of select="$name" />
 			</td>
 			<td>
 				<span class='value'>
-					<xsl:value-of select="." />
+					<xsl:choose>
+						<xsl:when test="contains($name, 'URL')">
+							<a target="_blank" href="{$value}"><xsl:value-of select="$value"/></a>							
+						</xsl:when>
+						<xsl:otherwise>
+							<xsl:value-of select="$value"/>
+						</xsl:otherwise>
+					</xsl:choose>
 				</span>
 			</td>
 		</tr>

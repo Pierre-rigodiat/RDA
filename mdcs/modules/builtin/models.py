@@ -126,7 +126,7 @@ class InputButtonModule(Module):
 
 
 class TextAreaModule(Module):
-    def __init__(self, scripts=list(), styles=list(), label=None, data=None):
+    def __init__(self, scripts=list(), styles=list(), label=None, data=''):
         scripts = [os.path.join(SCRIPTS_PATH, 'textarea.js')] + scripts
         styles = [os.path.join(STYLES_PATH, 'textarea.css')] + styles
         Module.__init__(self, scripts=scripts, styles=styles)
@@ -137,10 +137,8 @@ class TextAreaModule(Module):
     def get_module(self, request):
         template = os.path.join(TEMPLATES_PATH, 'textarea.html')
 
-        params = {"label": self.label}
-
-        if self.data is not None:
-            params.update({'data': self.data})
+        params = {"label": self.label,
+                  'data': self.data}
 
         return render_module(template, params)
 

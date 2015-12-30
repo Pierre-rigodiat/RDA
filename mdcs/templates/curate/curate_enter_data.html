@@ -98,10 +98,16 @@ Please wait while the form is loading...
 </div>
 </div>
 <div style="float:left;">
-<a class="button save-to-repo">ADD RESOURCE</a>
+{% if not edit %}
+<a class="button save-to-repo">REVIEW AND ADD RESOURCE</a>
+{% else %}
+<a class="button save-to-repo">REVIEW AND SAVE CHANGES</a>
+{% endif %}
 </div>
 <div style="float:right;">
+{% if not edit %}
 <a class="button save-form">Save Form </a>
+{% endif %}
 <a class="button button-reversed clear-fields">Clear Form</a>
 <a class="button button-reversed cancel">Cancel Form</a>
 </div>
@@ -112,6 +118,13 @@ Please wait while the form is loading...
 <p></p>
   <p>
     Are you sure you want to reset the form?
+  </p>
+</div>
+
+<div id="dialog-cancel-message" title="Cancel Form" style="display:none;">
+<p></p>
+  <p>
+    Are you sure you want to cancel the form? All your changes will be lost.
   </p>
 </div>
 
@@ -133,12 +146,6 @@ Please wait while the form is loading...
   </div>
 </div>
 
-<div id="form_validation" title="Errors" style="display:none;">
-<p></p>
-  <div id="validation_errors">
-  
-  </div>
-</div>
 {% endblock %}
 
 {% block extrajs %}
@@ -148,7 +155,7 @@ Please wait while the form is loading...
 <script src="{% static 'inc/controllers/js/nmrr/nmrr_curate.js' %}"></script>
 <script>
 generate_xsd_form();
-$('.button.save-to-repo').on('click', validate_form);
+$('.button.save-to-repo').on('click', validateXML);
 $('.button.clear-fields').on('click', clearFields);
 $('.button.cancel').on('click', cancelForm);
 $('.button.save-form').on('click', saveForm);

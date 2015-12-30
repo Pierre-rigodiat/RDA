@@ -1198,7 +1198,8 @@ def generateElement(request, element, xmlTree, namespace, choiceInfo=None, fullP
     nbOccurrences = 1 #nb of occurrences to render (can't be 0 or the user won't see this element at all)
     nbOccurrences_data = minOccurs # nb of occurrences in loaded data or in form being rendered (can be 0)
     xml_element = None      
-    removed = ""
+    use = ""
+    removed = False
     
     # loading data in the form 
     if request.session['curate_edit']:
@@ -1207,7 +1208,8 @@ def generateElement(request, element, xmlTree, namespace, choiceInfo=None, fullP
         nbOccurrences_data = len(edit_elements)
         
         if nbOccurrences_data == 0:
-            removed = " removed"
+            use = "removed"
+            removed = True
 
         # manage buttons
         if nbOccurrences_data < maxOccurs:
@@ -1218,7 +1220,8 @@ def generateElement(request, element, xmlTree, namespace, choiceInfo=None, fullP
     else: # starting an empty form
         # Don't generate the element if not necessary
         if CURATE_MIN_TREE and minOccurs == 0:
-            removed = " removed"
+            use = "removed"
+            removed = True
         
         if nbOccurrences_data < maxOccurs:
             addButton = True
@@ -1226,9 +1229,12 @@ def generateElement(request, element, xmlTree, namespace, choiceInfo=None, fullP
             deleteButton = True
     
     if has_module:
-        # block maxOccurs to one, the module should take care of occurrences when the element is replaced
+        # block minOccurs/maxOccurs to one, the module should take care of occurrences when the element is replaced
         nbOccurrences = 1
         maxOccurs = 1
+        minOccurs = 1
+        removed = False
+        use = ""
     elif nbOccurrences_data > nbOccurrences:
         nbOccurrences = nbOccurrences_data    
     
@@ -1271,8 +1277,13 @@ def generateElement(request, element, xmlTree, namespace, choiceInfo=None, fullP
         form_element = FormElement(html_id=tagID, xml_element=xml_element, xml_xpath=fullPath + '[' + str(x+1) +']', name=textCapitalized).save()
         request.session['mapTagID'][tagID] = str(form_element.id)
     
+        # get the use from app info element
+        app_info_use = app_info['use'] if 'use' in app_info else ''
+        app_info_use = app_info_use if app_info_use is not None else ''
+        use += ' ' + app_info_use
+        
         # renders the name of the element
-        formString += "<li class='"+ element_tag + removed +"' id='" + str(tagID) + "' tag='"+textCapitalized+"'>"
+        formString += "<li class='"+ element_tag + ' ' + use +"' id='" + str(tagID) + "' tag='"+textCapitalized+"'>"
         if CURATE_COLLAPSE:
             if elementType is not None and elementType.tag == "{0}complexType".format(namespace): # the type is complex, can be collapsed
                 formString += "<span class='collapse' style='cursor:pointer;' onclick='showhideCurate(event);'></span>"
@@ -1286,7 +1297,7 @@ def generateElement(request, element, xmlTree, namespace, choiceInfo=None, fullP
             buttons = renderButtons(addButton, deleteButton, tagID[7:])
         
         # if element not removed
-        if len(removed) == 0:
+        if removed == False:
             # if module is present, replace default input by module       
             if has_module:
                 formString += generateModule(request, element, namespace, xsd_xpath, fullPath, edit_data_tree=edit_data_tree)
@@ -1314,7 +1325,11 @@ def generateElement(request, element, xmlTree, namespace, choiceInfo=None, fullP
                     
                     placeholder = 'placeholder="'+app_info['placeholder']+ '"' if 'placeholder' in app_info else ''
                     placeholder = placeholder if placeholder is not None else ''
-                    formString += " <input type='text' value='"+ django.utils.html.escape(defaultValue) +"'" + placeholder + "/>" 
+                    
+                    tooltip = 'title="'+app_info['tooltip']+ '"' if 'tooltip' in app_info else ''
+                    tooltip = tooltip if tooltip is not None else ''
+                    
+                    formString += " <input type='text' value='"+ django.utils.html.escape(defaultValue) +"'" + placeholder + tooltip +"/>" 
                     formString += buttons
                 else: # complex/simple type 
                     formString += buttons             
@@ -1624,10 +1639,14 @@ def generateElement_absent(request, element, xmlDocTree, form_element):
             if 'default' in element.attrib:
                 # if the default attribute is present
                 defaultValue = element.attrib['default']
-
+           
             placeholder = 'placeholder="'+app_info['placeholder']+ '"' if 'placeholder' in app_info else ''
             placeholder = placeholder if placeholder is not None else ''
-            formString += " <input type='text' value='"+ django.utils.html.escape(defaultValue) +"'" + placeholder + "/>" 
+            
+            tooltip = 'title="'+app_info['tooltip']+ '"' if 'tooltip' in app_info else ''
+            tooltip = tooltip if tooltip is not None else ''
+            
+            formString += " <input type='text' value='"+ django.utils.html.escape(defaultValue) +"'" + placeholder + tooltip +"/>" 
         else: # complex/simple type      
             if elementType.tag == "{0}complexType".format(namespace):
                 formString += generateComplexType(request, elementType, xmlDocTree, namespace, fullPath=form_element.xml_xpath)
@@ -1868,8 +1887,13 @@ def duplicate(request):
             form_data.elements[newTagID] = new_form_element.id
             form_data.save()
             
+            # get the use from app info element
+            app_info_use = app_info['use'] if 'use' in app_info else ''
+            app_info_use = app_info_use if app_info_use is not None else ''
+            use = app_info_use
+            
             # renders the name of the element
-            formString += "<li class='"+ element_tag +"' id='" + str(newTagID) + "'>"
+            formString += "<li class='"+ element_tag + ' ' + use +"' id='" + str(newTagID) + "' tag='"+textCapitalized+"'>"
             if CURATE_COLLAPSE:
                 if elementType is not None and elementType.tag == "{0}complexType".format(namespace): # the type is complex, can be collapsed
                     formString += "<span class='collapse' style='cursor:pointer;' onclick='showhideCurate(event);'></span>"
@@ -1892,7 +1916,11 @@ def duplicate(request):
                     
                     placeholder = 'placeholder="'+app_info['placeholder']+ '"' if 'placeholder' in app_info else ''
                     placeholder = placeholder if placeholder is not None else ''
-                    formString += " <input type='text' value='"+ django.utils.html.escape(defaultValue) +"'" + placeholder + "/>" 
+                    
+                    tooltip = 'title="'+app_info['tooltip']+ '"' if 'tooltip' in app_info else ''
+                    tooltip = tooltip if tooltip is not None else ''
+                    
+                    formString += " <input type='text' value='"+ django.utils.html.escape(defaultValue) +"'" + placeholder + tooltip +"/>" 
                     
                     formString += "<span id='add"+ str(newTagID[7:]) +"' class=\"icon add\" onclick=\"changeHTMLForm('add',"+str(newTagID[7:])+");\"></span>"
                     formString += "<span id='remove"+ str(newTagID[7:]) +"' class=\"icon remove\" onclick=\"changeHTMLForm('remove',"+str(newTagID[7:])+");\"></span>"         

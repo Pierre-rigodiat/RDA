@@ -371,6 +371,8 @@ generateXMLString = function(elementObj)
 					if ($(children[i]).children('div.module').length != 0 && xml_value.match("^<" + tag)){
 						// if the module returns the tag, replace the tag
 						xmlString += xml_value;
+					}else if($(children[i]).children('div.module').length != 0 && xml_value == ""){
+						xmlString += ""
 					}else{
 						// build opening tag with potential attributes
 						xmlString += "<" + tag + attributes + ">";
@@ -613,8 +615,6 @@ generate_xsd_form = function(){
         dataType: "json",
         success : function(data) {
             $('#modules').html(data.modules);
-            $('#periodicTable').html(data.periodicTable);
-            $('#periodicTableMultiple').html(data.periodicTableMultiple);
             $('#xsdForm').html(data.xsdForm);
             setTimeout(disable_elements ,0);
             
@@ -1290,12 +1290,24 @@ delete_form = function(formID){
  * AJAX call, cancel a form currently being entered
  */
 cancelForm = function(){
-	$.ajax({
-        url : "/curate/cancel-form",
-        type : "GET",
-        dataType: "json",
-		success: function(data){
-			window.location = "/curate"
-	    },
+	$(function() {
+        $( "#dialog-cancel-message" ).dialog({
+            modal: true,
+            buttons: {
+            	Cancel: function() {
+                    $( this ).dialog( "close" );
+                },
+            	Confirm: function() {
+            		$.ajax({
+            	        url : "/curate/cancel-form",
+            	        type : "GET",
+            	        dataType: "json",
+            			success: function(data){
+            				window.location = "/curate"
+            		    },
+            	    });
+                },
+            }
+        });
     });
 }

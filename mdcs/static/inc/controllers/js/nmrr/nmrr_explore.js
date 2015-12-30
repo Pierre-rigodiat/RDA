@@ -1,10 +1,12 @@
 var custom_view_done;
+var timeout;
 
 initSearch = function(){
 	initResources();
 	loadRefinements('all');
 	initFilters();	
 	custom_view_done = false;
+	get_results_keyword_refined();
 }
 
 
@@ -67,7 +69,7 @@ initResources = function(){
 	        			$(this).removeAttr("checked");
 	        		}	        		
 	        	});
-	        }
+	        }	        
 	        get_results_keyword_refined();
 	    };
 	}
@@ -75,6 +77,7 @@ initResources = function(){
 
 
 loadRefinements = function(schema){
+	$("#refine_resource").html('');
 	$.ajax({
         url : "/explore/load_refinements",
         type : "GET",
@@ -100,9 +103,8 @@ dialog_detail = function(id){
         	$(function() {
                 $( "#dialog-detail-result" ).dialog({
                     modal: true,
-                    width:500,
-                    height:500,
-                    resizable:false,
+                    height: 430,
+                    width: 700,
                     buttons: {
                         Ok: function() {
                         $( this ).dialog( "close" );
@@ -128,6 +130,8 @@ initFilters = function(){
 
 
 filter_result_display = function(filter){
+	$("#config_custom").css('display','none');
+	
 	if (filter == 'simple'){
 		$(".nmrr_line").hide();
 		$(".nmrr_line.line_publisher").show();
@@ -135,40 +139,31 @@ filter_result_display = function(filter){
 	}else if (filter == 'detailed'){
 		$(".nmrr_line").show();
 	}else if (filter == 'custom'){
+		$("#config_custom").css('display','');
 		if (custom_view_done == true){
 	    	$(".nmrr_line").hide();
 			$("#custom_view").children("input:checked").each(function(){
 				$(".nmrr_line." + $(this).val()).show();
 			});
 		}
+		else{
+			configure_custom_view();
+		}
 	}
 }
 
 
 configure_custom_view = function(){
-	if ($('input[name=resource_type]:checked').val() == 'all'){
-	    $( "#dialog-custom-view-error" ).dialog({
-	        modal: true,
-	        buttons: {
-	            OK: function() {
-	            	$( this ).dialog( "close" );
-	            	$("#results_view").val("simple");
-	            }
-	        }
-	    });
+	if (custom_view_done == false){
+		load_custom_view($('input[name=resource_type]:checked').val());
+		custom_view_dialog();
+	}else{
+		custom_view_dialog();
 	}
-	else{
-		if (custom_view_done == false){
-			load_custom_view($('input[name=resource_type]:checked').val());
-			custom_view_dialog();
-		}else{
-			custom_view_dialog();
-		}
-	}		
 }
 
 
-custom_view_dialog = function(){
+custom_view_dialog = function(){	
     $( "#dialog-custom-view" ).dialog({
         modal: true,
         height: 500,
@@ -179,12 +174,14 @@ custom_view_dialog = function(){
             },
             Apply: function() {
             	$( this ).dialog( "close" );
-            	custom_view_done = true;
             	$(".nmrr_line").hide();
     			$("#custom_view").children("input:checked").each(function(){
     				$(".nmrr_line." + $(this).val()).show();
     			});
             }
+        },
+        close: function(){
+        	custom_view_done = true;
         }
     });
 }
@@ -228,36 +225,53 @@ loadRefinementQueries = function(){
  * @param numInstance
  */
 get_results_keyword_refined = function(numInstance){
-    $("#results").html('Please wait...');
-    var keyword = $("#id_search_entry").val();
-    $.ajax({
-        url : "/explore/get_results_by_instance_keyword",
-        type : "GET",
-        dataType: "json",
-        data : {
-        	keyword: keyword,
-        	schemas: getSchemas(),
-        	refinements: loadRefinementQueries(),
-        	onlySuggestions: false,
-        },
-        beforeSend: function( xhr ) {
-            $("#loading").addClass("isloading");
-        },
-        success: function(data){
-        	if (data.resultString.length == 0){
-        		// get no results
-        		$("#results").html("No results found");
-        	}
-        	else{
-        		// get results
-        		$("#results").html(data.resultString);
-        		// filter the view
-        		filter_result_display($("#results_view").val());
-        	}
-        },
-        complete: function(){
-            $("#loading").removeClass("isloading");
-        }
-    });
+	// clear the timeout
+	clearTimeout(timeout);
+	// send request if no parameter changed during the timeout
+    timeout = setTimeout(function(){
+    	$("#results").html('Please wait...');
+        var keyword = $("#id_search_entry").val();    
+        $.ajax({
+            url : "/explore/get_results_by_instance_keyword",
+            type : "GET",
+            dataType: "json",
+            data : {
+            	keyword: keyword,
+            	schemas: getSchemas(),
+            	refinements: loadRefinementQueries(),
+            	onlySuggestions: false,
+            },
+            beforeSend: function( xhr ) {
+                $("#loading").addClass("isloading");
+            },
+            success: function(data){
+            	if (data.resultString.length == 0){
+            		// get no results
+            		$("#results").html("No results found");
+            		// get no results
+            		$("#results_infos").html("0 results");
+            	}
+            	else{
+            		// get result count
+            		if(data.count > 1)
+            	        $("#results_infos").html(data.count + " results");
+                    else
+                        $("#results_infos").html(data.count + " result");
+            		// get results
+            		$("#results").html(data.resultString);
+            		// filter the view
+            		filter_result_display($("#results_view").val());
+            	}
+            },
+            complete: function(){
+                $("#loading").removeClass("isloading");
+            }
+        });
+    }, 1500);
 }
 
+// clear all refinements
+clearRefinements = function(){
+	$("#refine_resource").find('input:checked').prop('checked',false);
+	get_results_keyword_refined();
+}

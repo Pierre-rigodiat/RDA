@@ -24,7 +24,7 @@ from pymongo import MongoClient, TEXT, ASCENDING, DESCENDING
 from mgi.settings import MONGODB_URI
 import re
 import datetime
-
+from mgi import settings
  
 class Request(Document):
     """Represents a request sent by an user to get an account"""
@@ -71,7 +71,7 @@ class Template(Document):
     dependencies = ListField(StringField())
     exporters = ListField(ReferenceField(Exporter, reverse_delete_rule=PULL))
     XSLTFiles = ListField(ReferenceField(ExporterXslt, reverse_delete_rule=PULL))
-    ResultXsltShort = ReferenceField(ResultXslt, reverse_delete_rule=NULLIFY)
+    ResultXsltList = ReferenceField(ResultXslt, reverse_delete_rule=NULLIFY)
     ResultXsltDetailed = ReferenceField(ResultXslt, reverse_delete_rule=NULLIFY)
 
 class TemplateVersion(Document):
@@ -237,6 +237,19 @@ class XMLdata():
         self.content['ispublished'] = ispublished
         if (publicationdate is not None):
             self.content['publicationdate'] = publicationdate
+
+    @staticmethod
+    def initIndexes():
+        if settings.EXPLORE_BY_KEYWORD:
+            #create a connection
+            client = MongoClient(MONGODB_URI)
+            # connect to the db 'mgi'
+            db = client['mgi']
+            # get the xmldata collection
+            xmldata = db['xmldata']
+            # create the full text index
+            xmldata.create_index([('$**', TEXT)], default_language="en", language_override="en")
+
 
     def save(self):
         """save into mongo db"""
@@ -424,8 +437,6 @@ class XMLdata():
         db = client['mgi']
         # get the xmldata collection
         xmldata = db['xmldata']
-        # create the full text index
-        xmldata.create_index([('$**', TEXT)], default_language="en", language_override="en")
         wordList = re.sub("[^\w]", " ",  text).split()
         wordList = ['"{0}"'.format(x) for x in wordList]
         wordList = ' '.join(wordList)
@@ -437,8 +448,9 @@ class XMLdata():
         
         if len(refinements.keys()) > 0:
             full_text_query.update(refinements)
-            
-        cursor = xmldata.find(full_text_query, as_class = OrderedDict)
+        
+        full_text_query.update({'ispublished': True})
+        cursor = xmldata.find(full_text_query, as_class = OrderedDict).sort('publicationdate', DESCENDING)
         
         results = []
         for result in cursor:

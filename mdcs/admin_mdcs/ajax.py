@@ -1091,13 +1091,13 @@ def save_result_xslt(request):
     #We retrieve the exporter
     template = Template.objects.get(pk=template_id)
     #We reinitialise exporters and XSLT
-    template.ResultXsltShort = None
+    template.ResultXsltList = None
     template.ResultXsltDetailed = None
     template.save()
     #We add short XSLT
     if idXsltShort:
         shortXslt = ResultXslt.objects.get(pk=idXsltShort)
-        template.ResultXsltShort = shortXslt
+        template.ResultXsltList = shortXslt
     #We add detailed XSLT
     if idXsltDetailed:
         detailedXSLT = ResultXslt.objects.get(pk=idXsltDetailed)

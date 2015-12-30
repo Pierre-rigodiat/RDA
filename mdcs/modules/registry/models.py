@@ -21,6 +21,7 @@ class RegistryCheckboxesModule(CheckboxesModule):
     def __init__(self, xml_tag):
                  
         self.xml_tag = xml_tag
+        self.selected = []
         CheckboxesModule.__init__(self, options={}, label='', name='')
 
     def _get_module(self, request):
@@ -46,22 +47,24 @@ class RegistryCheckboxesModule(CheckboxesModule):
         for enumeration in enumeration_list:
             self.options[enumeration.attrib['value']] = enumeration.attrib['value']
         if 'data' in request.GET:
-            self.selected = request.GET['data']
+            if isinstance(request.GET['data'], str):
+                self.selected = [request.GET['data']]
+            else:
+                self.selected = request.GET['data']
         
         return CheckboxesModule.get_module(self, request)
 
     def _get_display(self, request):
-        return '<div class="error_nmrr">The element ' + self.xml_tag + ' should be removed if no checkboxes are checked.</div>'
-
-    def _get_result(self, request):
         return ''
 
+    def _get_result(self, request):
+        xml_result = ''
+        for value in self.selected:
+            xml_result += '<' + self.xml_tag + '>' + value + '</' + self.xml_tag + '>'
+        return xml_result  
+
     def _post_display(self, request):
-        display = ''
-        if not 'data[]' in request.POST:
-            return '<div class="error_nmrr">The element ' + request.xml_tag + ' should be removed if no checkboxes are checked.</div>'
-        return display
-                
+        return ''                
 
     def _post_result(self, request):
         xml_result = ''        
@@ -159,7 +162,7 @@ class RelevantDateModule(Module):
 
 
     def _get_display(self, request):
-        return '<div class="error_nmrr">The element ' + self.params['tag'] + ' should respect the following format yyyy-mm-dd.</div>'
+        return ''
 
 
     def _get_result(self, request):
@@ -169,9 +172,6 @@ class RelevantDateModule(Module):
 
 
     def _post_display(self, request):
-        form = DateForm(request.POST)
-        if not form.is_valid():
-            return '<div class="error_nmrr">The element ' + self.params['tag'] + ' should respect the following format yyyy-mm-dd.</div>'
         return ''
 
 
@@ -200,14 +200,14 @@ class StatusModule(OptionsModule):
         OptionsModule.__init__(self, options=self.options, disabled=True)
 
     def _get_module(self, request):
-        self.selected = "inactive"
+        self.selected = "active"
+        if 'data' in request.GET:            
+            if request.GET['data'] in self.options.keys():
+                self.disabled = False
+                self.selected = request.GET['data']
         return OptionsModule.get_module(self, request)
 
     def _get_display(self, request):
-        self.selected = "inactive"
-        if 'data' in request.GET:
-            if request.GET['data'] in self.options.keys():
-                self.selected = request.GET['data']
         return ''
 
     def _get_result(self, request):
@@ -267,10 +267,11 @@ class LocalIDModule(InputModule):
 
 class DescriptionModule(TextAreaModule):
     
-    def __init__(self):                
+    def __init__(self):            
+        self.data=''    
         TextAreaModule.__init__(self)
 
-    def _get_module(self, request):
+    def _get_module(self, request):        
         if 'data' in request.GET:
             self.data = request.GET['data']
         return TextAreaModule.get_module(self, request)
@@ -286,3 +287,5 @@ class DescriptionModule(TextAreaModule):
 
     def _post_result(self, request):
         return str(request.POST['data'])
+    
+    

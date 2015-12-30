@@ -9,6 +9,6 @@ class NamePIDForm(forms.Form):
     
 
 class DateForm(forms.Form):
-    date = forms.DateField(label='', widget=forms.TextInput(attrs={'placeholder': 'yyyy-mm-dd'}), required=False)
+    date = forms.CharField(label='', widget=forms.TextInput(attrs={'placeholder': 'yyyy-mm-dd'}), required=False)
     role = forms.CharField(label='Role', required=False)
     tag = forms.CharField(widget=HiddenInput(), required=True)
