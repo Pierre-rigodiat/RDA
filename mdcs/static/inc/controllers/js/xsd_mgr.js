@@ -626,7 +626,6 @@ saveObject = function()
 	console.log('END [saveObject]');
 }
 
-
 /**
  * AJAX call, save an object
  * @param buckets
@@ -797,6 +796,8 @@ add_bucket = function(label){
         success: function(data){
             if ("errors" in data){
             	$("#errorAddBucket").html("<font color='red'>A bucket with the same label already exists.</font><br/>");
+            }else if("errors" in data){
+                $("#errorsTemplateName").html("<font color='red'>The template's name is already used. Please give another name to the template.</font><br/>");
             }else{
                 $('#dialog-add-bucket').dialog('close');
                 $('#model_buckets').load(document.URL +  ' #model_buckets', function() {});
@@ -807,6 +808,31 @@ add_bucket = function(label){
     });
 }
 
+/**
+ * AJAX call, check the name of the template
+ * @param name name of the object
+ */
+check_name = function(name){
+    success = false;
+    $.ajax({
+        url : "/admin/check_name",
+        type : "POST",
+        dataType: "json",
+        async: false,
+        data : {
+        	name : name,
+        },
+        success: function(data){
+            if ("errors" in data){
+                success = false;
+            } else {
+                success = true;
+            }
+        }
+    });
+
+    return success;
+}
 
 /**
  * Display window to delete a bucket
