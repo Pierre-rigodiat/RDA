@@ -941,7 +941,7 @@ def get_results_by_instance_keyword(request):
         try:
             keyword = request.GET['keyword']
             schemas = request.GET.getlist('schemas[]')
-            refinements = refinements_to_mongo_OR(request.GET.getlist('refinements[]'))
+            refinements = refinements_to_mongo(request.GET.getlist('refinements[]'))
             onlySuggestions = json.loads(request.GET['onlySuggestions'])
         except:
             keyword = ''
@@ -2957,27 +2957,8 @@ def load_refinements(request):
     
     return HttpResponse(json.dumps({'refinements': refinement_options}), content_type='application/javascript')
     
-    
-    
-def refinements_to_mongo_AND(refinements):
-    try:
-        if len(refinements) != 0:
-            # transform the refinement in mongo query
-            mongo_and_list = []
-            for refinement in refinements:
-                mongo_query = {}
-                splited_refinement = refinement.split(':')
-                dot_notation = splited_refinement[0]
-                value = splited_refinement[1]
-                mongo_query[dot_notation] = value
-                mongo_and_list.append(mongo_query)
-            return {'$and': mongo_and_list}
-        else:
-            return {}
-    except:
-        return {}
 
-def refinements_to_mongo_OR(refinements):
+def refinements_to_mongo(refinements):
     try:
         # transform the refinement in mongo query
         mongo_queries = dict()
@@ -2996,12 +2977,12 @@ def refinements_to_mongo_OR(refinements):
             values = ({ '$in' : mongo_queries[query]})
             mongo_in[key] = values
 
-        mongo_or = {'$or' : [mongo_in]}
+        mongo_or = {'$and' : [mongo_in]}
         return mongo_or
     except:
         return []
         
-        
+
 
 ################################################################################
 #
