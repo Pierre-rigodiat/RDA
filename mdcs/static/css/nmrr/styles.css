@@ -898,3 +898,7 @@ footer .footer-content li div.social-icons a:hover {
 #search{
 	font-size: 0.8em;
 }
+
+input[placeholder]{
+	text-overflow:ellipsis;
+}
