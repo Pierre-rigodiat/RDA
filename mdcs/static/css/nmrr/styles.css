@@ -894,3 +894,7 @@ footer .footer-content li div.social-icons a:hover {
 	border-radius:5px; 
 	font-size: 30px;
 }
+
+#search{
+	font-size: 0.8em;
+}
