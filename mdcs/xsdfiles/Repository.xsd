@@ -213,6 +213,7 @@
             <xs:annotation>
               <xs:appinfo>
                 <label>Version</label>
+                <placeholder>Enter your repository's version</placeholder>
               </xs:appinfo>
                <xs:documentation>
                  Label a particular release or variation of the resource.
@@ -248,6 +249,7 @@
            <xs:annotation>
              <xs:appinfo>
                <label>Logo</label>
+               <placeholder>Enter your repository's logo url</placeholder>
              </xs:appinfo>
               <xs:documentation>
                 URL pointing to a graphical logo, which may be used to help 
@@ -271,6 +273,7 @@
           <xs:annotation>
             <xs:appinfo>
               <label>Publisher</label>
+              <use>required</use>
             </xs:appinfo>
              <xs:appinfo>
                <dcterm>Publisher</dcterm>
@@ -287,6 +290,7 @@
           <xs:annotation>
             <xs:appinfo>
               <label>Creator</label>
+              <use>required</use>
             </xs:appinfo>
              <xs:appinfo>
                <dcterm>Creator</dcterm>
@@ -303,6 +307,7 @@
           <xs:annotation>
             <xs:appinfo>
               <label>Contributor</label>
+              <use>required</use>
             </xs:appinfo>
              <xs:appinfo>
                <dcterm>Contributor</dcterm>
@@ -318,6 +323,7 @@
           <xs:annotation>
             <xs:appinfo>
               <label>Date</label>
+              <use>required</use>
             </xs:appinfo>
              <xs:appinfo>
                <dcterm>Date</dcterm>
@@ -526,6 +532,7 @@
             <xs:appinfo>
               <label>Description</label>
               <placeholder>Enter repository's description</placeholder>
+              <use>required</use>
             </xs:appinfo>
              <xs:appinfo>
                <dcterm>Description</dcterm>
@@ -546,6 +553,7 @@
             <xs:appinfo>
               <label>Subject</label>
               <placeholder>Enter a subject(ex. molecular dynamics, metals, force fields)</placeholder>
+              <use>recommended</use>
             </xs:appinfo>
              <xs:appinfo>
                <dcterm>Subject</dcterm>
@@ -562,6 +570,7 @@
             <xs:appinfo>
               <label>Reference URL</label>
               <placeholder>Enter a reference url</placeholder>
+              <use>required</use>
             </xs:appinfo>
              <xs:documentation>
                 URL pointing to a human-readable document describing this 
@@ -575,6 +584,7 @@
           <xs:annotation>
             <xs:appinfo>
               <label>Reference Citation</label>
+              <placeholder>Enter your repository's reference citation</placeholder>
             </xs:appinfo>
              <xs:documentation>
                 a bibliographic reference to a literature article that 
@@ -594,6 +604,7 @@
           <xs:annotation>
             <xs:appinfo>
               <label>Primary Audience</label>
+              <placeholder>Enter your repository's primary audience</placeholder>
             </xs:appinfo>
              <xs:appinfo>
                <dcterm>Subject</dcterm>
