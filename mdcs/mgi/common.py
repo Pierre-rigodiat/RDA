@@ -209,6 +209,16 @@ def get_namespaces(file):
     return ns
 
 
+################################################################################
+# 
+# Function Name: getAppInfo(element, namespace)
+# Inputs:        element -
+#                namespace - 
+# Outputs:       app info
+# Exceptions:    None
+# Description:   Get app info if present
+#
+################################################################################
 def getAppInfo(element, namespace):
     app_info = {}
     
