@@ -17,7 +17,9 @@ SCRIPTS_PATH = os.path.join(RESOURCES_PATH, 'js')
 STYLES_PATH = os.path.join(RESOURCES_PATH, 'css')
 
 class RegistryCheckboxesModule(CheckboxesModule):
-    
+    """
+    Module to transform an enumeration in checkboxes
+    """
     def __init__(self, xml_tag):
                  
         self.xml_tag = xml_tag
@@ -75,7 +77,9 @@ class RegistryCheckboxesModule(CheckboxesModule):
     
     
 class NamePIDModule(Module):
-    
+    """
+    Name PID Module
+    """
     def __init__(self):        
         Module.__init__(self, scripts=[os.path.join(SCRIPTS_PATH, 'namepid.js')])
 
@@ -133,7 +137,9 @@ class NamePIDModule(Module):
 
   
 class RelevantDateModule(Module):
-    
+    """
+    Relevant Date Module
+    """
     def __init__(self):
         Module.__init__(self, scripts=[os.path.join(SCRIPTS_PATH, 'relevantdate.js')])
 
@@ -189,7 +195,9 @@ class RelevantDateModule(Module):
 
 
 class StatusModule(OptionsModule):
-    
+    """
+    Module to manage the status attribute
+    """
     def __init__(self):
         self.options = {
             'inactive': 'Inactive',
@@ -221,7 +229,9 @@ class StatusModule(OptionsModule):
     
 
 class LocalIDModule(InputModule):
-    
+    """
+    Module to manage the Local ID attribute
+    """
     def __init__(self):               
         InputModule.__init__(self, disabled=True)
 
@@ -266,7 +276,9 @@ class LocalIDModule(InputModule):
     
 
 class DescriptionModule(TextAreaModule):
-    
+    """
+    Module to replace description fields by textareas
+    """
     def __init__(self):            
         self.data=''    
         TextAreaModule.__init__(self)
