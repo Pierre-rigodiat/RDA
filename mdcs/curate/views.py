@@ -437,7 +437,7 @@ def save_xml_data_to_db(request):
                     XMLdata.update_content(form_data.xml_data_id, xmlString, title=form.data['title'])
                 else:
                     #create new data otherwise
-                    newJSONData = XMLdata(schemaID=templateID, xml=xmlString, title=form.data['title'])
+                    newJSONData = XMLdata(schemaID=templateID, xml=xmlString, title=form.data['title'], iduser=str(request.user.id))
                     newJSONData.save()
                 # delete form data
                 try:

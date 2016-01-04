@@ -204,7 +204,7 @@ def postprocessor(path, key, value):
 class XMLdata():
     """Wrapper to manage JSON Documents, like mongoengine would have manage them (but with ordered data)"""
 
-    def __init__(self, schemaID=None, xml=None, json=None, title=""):
+    def __init__(self, schemaID=None, xml=None, json=None, title="", iduser=None):
         """                                                                                                                                                                                                                   
             initialize the object                                                                                                                                                                                             
             schema = ref schema (Document)                                                                                                                                                                                    
@@ -229,6 +229,10 @@ class XMLdata():
         else:
             # insert the json content after                                                                                                                                                                                       
             self.content['content'] = xmltodict.parse(xml, postprocessor=postprocessor)
+        #id user
+        if (iduser is not None):
+            self.content['iduser'] = iduser
+
 
     @staticmethod
     def initIndexes():

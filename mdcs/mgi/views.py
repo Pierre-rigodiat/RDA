@@ -19,7 +19,7 @@ from django.http import HttpResponse
 from django.contrib.auth import authenticate, logout
 from django.template import RequestContext, loader
 from django.shortcuts import redirect
-from mgi.models import Template, Request, Message, TermsOfUse, PrivacyPolicy, Help, FormData
+from mgi.models import Template, Request, Message, TermsOfUse, PrivacyPolicy, Help, FormData, XMLdata
 from admin_mdcs.forms import RequestAccountForm, EditProfileForm, ChangePasswordForm, ContactForm
 from django.contrib.auth.models import User
 from django.contrib import messages
@@ -310,5 +310,58 @@ def help(request):
 
     context = RequestContext(request, { 
         'help': help
+    })
+    return HttpResponse(template.render(context))
+
+################################################################################
+#
+# Function Name: dashboard(request)
+# Inputs:        request -
+# Outputs:       My Profile Page
+# Exceptions:    None
+# Description:   Page that allows to look at user's profile information
+#
+################################################################################
+@login_required(login_url='/login')
+def dashboard(request):
+    template = loader.get_template('dashboard.html')
+    context = RequestContext(request, {
+        '': '',
+    })
+    return HttpResponse(template.render(context))
+
+
+################################################################################
+#
+# Function Name: my_profile_favorites(request)
+# Inputs:        request -
+# Outputs:       My Favorites Page
+# Exceptions:    None
+# Description:
+#
+################################################################################
+@login_required(login_url='/login')
+def my_profile_favorites(request):
+    template = loader.get_template('profile/my_profile_favorites.html')
+    context = RequestContext(request, {
+        '': '',
+    })
+    return HttpResponse(template.render(context))
+
+
+################################################################################
+#
+# Function Name: my_profile_resources(request)
+# Inputs:        request -
+# Outputs:       My Resources Page
+# Exceptions:    None
+# Description:
+#
+################################################################################
+@login_required(login_url='/login')
+def my_profile_resources(request):
+    template = loader.get_template('profile/my_profile_resources.html')
+    context = RequestContext(request, {
+        'XMLdatas': XMLdata.find({'iduser' : str(request.user.id)}),
     })
     return HttpResponse(template.render(context))
