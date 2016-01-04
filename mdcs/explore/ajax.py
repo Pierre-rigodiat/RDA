@@ -2957,7 +2957,15 @@ def load_refinements(request):
     
     return HttpResponse(json.dumps({'refinements': refinement_options}), content_type='application/javascript')
     
-
+################################################################################
+#
+# Function Name: refinements_to_mongo(request)
+# Inputs:        request -
+# Outputs:       
+# Exceptions:    None
+# Description:   Build a refined mongo query (AND between types + OR between values of the same type) 
+#                
+################################################################################
 def refinements_to_mongo(refinements):
     try:
         # transform the refinement in mongo query
@@ -3024,7 +3032,15 @@ def custom_view(request):
     return HttpResponse(json.dumps({'custom_fields': custom_fields}), content_type='application/javascript')
 
 
-
+################################################################################
+#
+# Function Name: is_field(request)
+# Inputs:        request -
+# Outputs:       
+# Exceptions:    None
+# Description:   Look if the element is a field, and not a node
+#                
+################################################################################
 def is_field(element, xmlDocTree, default_namespace, defaultPrefix):
     # the element has a type
     if 'type' in element.attrib:
