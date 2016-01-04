@@ -31,6 +31,22 @@
 	box-shadow: 0 0 3px red; 
 }
 
+.recommended textarea{ 
+	box-shadow: 0 0 3px blue; 
+}
+
+.required textarea{ 
+	box-shadow: 0 0 3px red; 
+}
+
+.recommended select{ 
+	box-shadow: 0 0 3px blue; 
+}
+
+.required select{ 
+	box-shadow: 0 0 3px red; 
+}
+
 input{
 	margin-left: 5px;
 	margin-right: 5px;
