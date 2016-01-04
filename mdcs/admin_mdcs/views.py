@@ -622,7 +622,7 @@ def manage_xslt(request, id=None):
                 if xslt_exporter != None:
                     Template.objects(exporters__all=[xslt_exporter]).update(push__XSLTFiles=xslt)
         except NotUniqueError, e:
-           return HttpResponseBadRequest('This XSLT name already exists. Please enter an other name.')
+            return HttpResponseBadRequest('This XSLT name already exists. Please enter an other name.')
 
         messages.add_message(request, messages.INFO, 'XSLT saved with success.')
         return HttpResponse('ok')
@@ -685,7 +685,7 @@ def edit_xslt(request, id=None):
             else:
                 exporter.update(set__name=str(new_name))
         except OperationError, e:
-           return HttpResponseBadRequest('This XSLT name already exists. Please enter an other name.')
+            return HttpResponseBadRequest('This XSLT name already exists. Please enter an other name.')
 
         messages.add_message(request, messages.INFO, 'XSLT edited with success.')
         return HttpResponse(json.dumps({}), content_type='application/javascript')
@@ -720,7 +720,7 @@ def manage_result_xslt(request, id=None):
         try:
             ResultXslt(name=name, filename=xml_file.name, content=xml_data).save()
         except NotUniqueError, e:
-           return HttpResponseBadRequest('This XSLT name already exists. Please enter an other name.')
+            return HttpResponseBadRequest('This XSLT name already exists. Please enter an other name.')
 
         messages.add_message(request, messages.INFO, 'XSLT saved with success.')
         return HttpResponse('ok')
@@ -772,7 +772,7 @@ def edit_result_xslt(request, id=None):
             else:
                 xslt.update(set__name=str(new_name))
         except OperationError, e:
-           return HttpResponseBadRequest('This XSLT name already exists. Please enter an other name.')
+            return HttpResponseBadRequest('This XSLT name already exists. Please enter an other name.')
 
         messages.add_message(request, messages.INFO, 'XSLT edited with success.')
         return HttpResponse(json.dumps({}), content_type='application/javascript')

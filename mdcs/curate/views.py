@@ -345,13 +345,6 @@ def start_curate(request):
             # parameters that will be used during curation
             request.session['curateFormData'] = str(form_data.id)
 
-#                 request.session['curate_siblings_mod'] = False
-
-#                 options_form = AdvancedOptionsForm(request.POST)
-#                 if 'options' in options_form.data:
-#                     if 'siblings_mod' in dict(options_form.data)['options']:
-#                         request.session['curate_siblings_mod'] = True
-
             return HttpResponse('ok')
         else:
             try:
@@ -386,7 +379,6 @@ def start_curate(request):
                 open_form = OpenForm(forms=FormData.objects(user=str(request.user.id), template=request.session['currentTemplateID'], xml_data_id__exists=False))
                 new_form = NewForm()
                 upload_form = UploadForm()
-    #           options_form = AdvancedOptionsForm()
                 
                 context_params['new_form']= new_form
                 context_params['open_form']= open_form
