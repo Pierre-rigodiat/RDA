@@ -46,7 +46,7 @@ class RequestAccountForm(forms.Form):
 class EditProfileForm(forms.Form):
     firstname = forms.CharField(label='First Name', max_length=100, required=True)
     lastname = forms.CharField(label='Last Name', max_length=100, required=True)
-    username = forms.CharField(label='Username', max_length=100, required=True)
+    username = forms.CharField(label='Username', max_length=100, required=True, widget=forms.HiddenInput())
     email = forms.EmailField(label='Email Address', max_length=100, required=True)
     
 class ChangePasswordForm(forms.Form):
