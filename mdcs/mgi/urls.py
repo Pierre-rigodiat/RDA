@@ -34,8 +34,6 @@ urlpatterns = patterns('',
     url(r'^request-new-account', 'mgi.views.request_new_account', name='request-new-account'),   
     url(r'^logout', 'mgi.views.logout_view', name='logout'),
     url(r'^my-profile$', 'mgi.views.my_profile', name='my-profile'),
-    url(r'^my-profile/resources$', 'mgi.views.my_profile_resources', name='my-profile-resources'),
-    url(r'^my-profile/favorites$', 'mgi.views.my_profile_favorites', name='my-profile-favorites'),
     url(r'^my-profile/edit', 'mgi.views.my_profile_edit', name='my-profile-edit'),
     url(r'^my-profile/change-password', 'mgi.views.my_profile_change_password', name='my-profile-change-password'),
     url(r'^my-profile/my-forms', 'mgi.views.my_profile_my_forms', name='my-profile-my-forms'),
@@ -44,7 +42,6 @@ urlpatterns = patterns('',
     url(r'^privacy-policy', 'mgi.views.privacy_policy', name='privacy-policy'),
     url(r'^terms-of-use', 'mgi.views.terms_of_use', name='terms-of-use'),
     url(r'^o/', include('oauth2_provider.urls', namespace='oauth2_provider')),
-    url(r'^dashboard$', 'mgi.views.dashboard', name='dashboard'),
 )+static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 
