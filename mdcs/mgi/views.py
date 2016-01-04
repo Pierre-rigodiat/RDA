@@ -362,6 +362,29 @@ def my_profile_favorites(request):
 def my_profile_resources(request):
     template = loader.get_template('profile/my_profile_resources.html')
     context = RequestContext(request, {
-        'XMLdatas': XMLdata.find({'iduser' : str(request.user.id)}),
-    })
+            'XMLdatas': XMLdata.find({'iduser' : str(request.user.id)}),
+        })
+    if 'template' in request.GET:
+        template_name = request.GET['template']
+        if template_name != 'all':
+            template = loader.get_template('profile/my_profile_resources_'+template_name+'.html')
+        if template_name == 'organization' or template_name == 'dataset' or template_name == 'informational' or template_name == 'service' or template_name == 'software':
+            context = RequestContext(request, {
+                'XMLdatas': XMLdata.find({'iduser' : str(request.user.id), 'schema' : str(Template.objects.get(title=template_name).id)}),
+            })
+        elif template_name == 'datacollection':
+            xmldata_selected = []
+            for xmldata in XMLdata.find({'iduser' : str(request.user.id), 'schema' : str(Template.objects.get(title=template_name).id)}) :
+                xmldata_selected.append(xmldata)
+            for xmldata in XMLdata.find({'iduser' : str(request.user.id), 'schema' : str(Template.objects.get(title='repository').id)}) :
+                xmldata_selected.append(xmldata)
+            for xmldata in XMLdata.find({'iduser' : str(request.user.id), 'schema' : str(Template.objects.get(title='projectarchive').id)}) :
+                xmldata_selected.append(xmldata)
+            for xmldata in XMLdata.find({'iduser' : str(request.user.id), 'schema' : str(Template.objects.get(title='database').id)}) :
+                xmldata_selected.append(xmldata)
+
+            context = RequestContext(request, {
+                'XMLdatas': xmldata_selected,
+            })
+
     return HttpResponse(template.render(context))
