@@ -14,7 +14,7 @@
 #
 ################################################################################
 from functools import wraps
-from django.contrib.auth.models import Group
+from django.contrib.auth.models import Group, User
 from django.db.models import Q
 from django.conf import settings
 from django.contrib.auth import REDIRECT_FIELD_NAME
@@ -25,6 +25,29 @@ from django.core.exceptions import PermissionDenied
 import mgi.rights as RIGHTS
 from rest_framework.response import Response
 from rest_framework import status
+from mgi.rights import default_group
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+
+################################################################################
+#
+# Function Name: add_default_group(request)
+# Inputs:        sender, kwargs -
+# Outputs:       -
+# Exceptions:    None
+# Description:   Assigns the user in the default group after its creation
+#                We catch the post_save signal for the User model
+#
+################################################################################
+@receiver(post_save, sender=User)
+def add_default_group(sender, **kwargs):
+    #We retrieve the user
+    user = kwargs["instance"]
+    #If it's a creation
+    if kwargs["created"]:
+        group = Group.objects.get(name=default_group)
+        user.groups.add(group)
+        user.save()
 
 
 # Create your models here.

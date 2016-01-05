@@ -16,18 +16,31 @@
 #
 ################################################################################
 from django.contrib.auth.models import Permission, Group
-from mgi.rights import anonymous_group, explore_access
+from mgi.rights import anonymous_group, default_group, explore_access, curate_access
 
 
 def init_rules():
-    #We check if the anonymous group exists. If not, we create it
+    """
+    Init of group and permissions for the application.
+    If the anonymous group does not exist, creation of the group with associate permissions
+    If the default group does not exist, creation of the group with associate permissions
+    """
     try:
-        # Get or Create the Group
-        group, created = Group.objects.get_or_create(name=anonymous_group)
+        # Get or Create the Group anonymous
+        anonymousGroup, created = Group.objects.get_or_create(name=anonymous_group)
         if created:
             #We add the exploration_access by default
             explore_access_perm = Permission.objects.get(codename=explore_access)
-            group.permissions.add(explore_access_perm)
+            anonymousGroup.permissions.add(explore_access_perm)
+
+        # Get or Create the default basic
+        defaultGroup, created = Group.objects.get_or_create(name=default_group)
+        if created:
+            #We add the exploration_access and curate_acces by default
+            explore_access_perm = Permission.objects.get(codename=explore_access)
+            curate_access_perm = Permission.objects.get(codename=curate_access)
+            defaultGroup.permissions.add(explore_access_perm)
+            defaultGroup.permissions.add(curate_access_perm)
     except Exception, e:
         print('ERROR : Impossible to init the rules : ' + e.message)
 
