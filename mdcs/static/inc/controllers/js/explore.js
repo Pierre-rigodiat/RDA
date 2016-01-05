@@ -1371,10 +1371,31 @@ delete_result = function(result_id){
 }
 
 /**
- * AJAX call, update the publish state and date of a XMLdata
+ * Publish a curated document
  * @param result_id
  */
 updatePublish = function(result_id){
+	$(function() {
+        $( "#dialog-publish" ).dialog({
+            modal: true,
+            buttons: {
+            	Cancel: function() {
+                    $( this ).dialog( "close" );
+                },
+            	Publish: function() {
+                    $( this ).dialog( "close" );
+                    update_publish(result_id);
+                },
+            }
+        });
+    });
+}
+
+/**
+ * AJAX call, update the publish state and date of a XMLdata
+ * @param result_id
+ */
+update_publish = function(result_id){
 	$.ajax({
         url : "/explore/update_publish",
         type : "GET",
@@ -1389,10 +1410,31 @@ updatePublish = function(result_id){
 }
 
 /**
- * AJAX call, update the publish state of a XMLdata
+ * Unpublish a curated document
  * @param result_id
  */
 updateUnpublish = function(result_id){
+	$(function() {
+        $( "#dialog-unpublish" ).dialog({
+            modal: true,
+            buttons: {
+            	Cancel: function() {
+                    $( this ).dialog( "close" );
+                },
+            	Unpublish: function() {
+                    $( this ).dialog( "close" );
+                    update_unpublish(result_id);
+                },
+            }
+        });
+    });
+}
+
+/**
+ * AJAX call, update the publish state of a XMLdata
+ * @param result_id
+ */
+update_unpublish = function(result_id){
 	$.ajax({
         url : "/explore/update_unpublish",
         type : "GET",
