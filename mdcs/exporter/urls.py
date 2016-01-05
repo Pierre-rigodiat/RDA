@@ -5,6 +5,6 @@ urlpatterns = patterns('',
    url('', include('exporter.pop.urls')),
    url('', include('exporter.csv.urls')),
    url('', include('exporter.json.urls')),
-   url('', include('exporter.graph.urls')),
+   # url('', include('exporter.graph.urls')),
 )
 
