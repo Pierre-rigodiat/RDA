@@ -2839,7 +2839,7 @@ def delete_result(request):
         if request.user.is_superuser:
             XMLdata.delete(result_id)
     except:
-        # XML can't be foundajax.py
+        # XML can't be found
         pass
     
     return HttpResponse(json.dumps({}), content_type='application/javascript')
