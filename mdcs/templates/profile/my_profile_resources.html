@@ -170,7 +170,7 @@ Software
                     {% if canEdit %}
                     <a onclick="editResource('{{XMLdata_id}}')" class="button">Edit</a>
                     {% endif %}
-                    {% if canDelete %}
+                    {% if canDelete and not XMLdata.publicationdate %}
                     <a onclick="deleteResult('{{XMLdata_id}}')" class="button button-reversed">Delete</a>
                     {% endif %}
 
@@ -178,13 +178,10 @@ Software
                 </td>
                 <td align="right">
                     {% if XMLdata.publicationdate %}
-                        <font size="2">Last Published: {{ XMLdata.publicationdate }} &nbsp;&nbsp;&nbsp;</font>
+                        <font size="2">Published on: {{ XMLdata.publicationdate }} &nbsp;&nbsp;&nbsp;</font>
                     {% endif %}
                     {% if not XMLdata.publicationdate %}
-                        <font size="2">Last Published: Never &nbsp;&nbsp;&nbsp;</font>
-                    {% endif %}
-                    {% if XMLdata.ispublished %}
-                        <a onclick="updateUnpublish('{{XMLdata_id}}')" class="button button-reversed">Unpublish</a>
+                        <font size="2">Published on: Never &nbsp;&nbsp;&nbsp;</font>
                     {% endif %}
                     {% if not XMLdata.ispublished %}
                         <a onclick="updatePublish('{{XMLdata_id}}')" class="button">Publish</a>
