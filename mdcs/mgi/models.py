@@ -25,7 +25,8 @@ from mgi.settings import MONGODB_URI
 import re
 import datetime
 from mgi import settings
- 
+import datetime
+
 class Request(Document):
     """Represents a request sent by an user to get an account"""
     username = StringField(required=True)
@@ -430,7 +431,36 @@ class XMLdata():
         xmldata.update({'_id': ObjectId(postID)}, {'$set':{'ispublished': False}}, upsert=False)
 
     @staticmethod
+    def update_publish(postID):
+        """
+            Update the object with the given id
+        """
+        # create a connection
+        client = MongoClient(MONGODB_URI)
+        # connect to the db 'mgi'
+        db = client['mgi']
+        # get the xmldata collection
+        xmldata = db['xmldata']
+        xmldata.update({'_id': ObjectId(postID)}, {'$set':{'publicationdate': datetime.datetime.now(), 'ispublished': True}}, upsert=False)
+
+    @staticmethod
+    def update_unpublish(postID):
+        """
+            Update the object with the given id
+        """
+        # create a connection
+        client = MongoClient(MONGODB_URI)
+        # connect to the db 'mgi'
+        db = client['mgi']
+        # get the xmldata collection
+        xmldata = db['xmldata']
+        xmldata.update({'_id': ObjectId(postID)}, {'$set':{'ispublished': False}}, upsert=False)
+
+    @staticmethod
     def executeFullTextQuery(text, templatesID, refinements={}):
+        """
+        Execute a full text query with possible refinements
+        """
         #create a connection
         client = MongoClient(MONGODB_URI)
         # connect to the db 'mgi'

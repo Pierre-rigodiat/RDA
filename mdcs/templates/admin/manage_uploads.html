@@ -330,6 +330,9 @@
     } else if (!check_name($("#object_name").val())) {
         $('#objectUploadErrorMessage').html("<font color=\"red\">Template name is already used. Please enter another name</font>");
         return false;
+    } else if (!check_name($("#object_name").val())) {
+        $('#objectUploadErrorMessage').html("<font color=\"red\">Template name is already used. Please enter another name</font>");
+        return false;
     } else {
         $('#objectUploadErrorMessage').html("")
     }

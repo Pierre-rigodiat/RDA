@@ -19,13 +19,22 @@ from mgi.models import FormData
 
 
 class NewForm(forms.Form):
+    """
+    Form to start curating from an empty form
+    """
     document_name = forms.CharField(label='', max_length=100, required=True)
 
 class FormDataModelChoiceField(forms.ModelChoiceField):
+    """
+    Choice Field to select an existing form
+    """
     def label_from_instance(self, obj):
         return obj.name
 
 class OpenForm(forms.Form):
+    """
+    Form to open an existing form
+    """
     forms = FormDataModelChoiceField(label='', queryset=FormData.objects().none())
 
     def __init__(self, *args, **kwargs):
@@ -37,18 +46,15 @@ class OpenForm(forms.Form):
         self.fields['forms'].queryset = qs
 
 class UploadForm(forms.Form):
+    """
+    Form to start curating from a file
+    """
     file = forms.FileField(label='')
-
-ADVANCED_OPTIONS = (
-                    ('min_tree','Minimum Tree'),
-                    ('siblings_mod','Siblings Modules'),
-                    )
-
-class AdvancedOptionsForm(forms.Form):
-    options = forms.MultipleChoiceField(label='', required=False, widget=forms.CheckboxSelectMultiple, choices=ADVANCED_OPTIONS)
     
 class SaveDataForm(forms.Form):
-
+    """
+    Form to save a form
+    """
     def is_valid(self):
         return super(SaveDataForm, self).is_valid() and self.data['title'].strip() != ""
 

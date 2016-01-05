@@ -2839,10 +2839,37 @@ def delete_result(request):
         if request.user.is_superuser:
             XMLdata.delete(result_id)
     except:
-        # XML can't be found
+        # XML can't be foundajax.py
         pass
     
     return HttpResponse(json.dumps({}), content_type='application/javascript')
+
+################################################################################
+#
+# Function Name: update_publish(request)
+# Inputs:        request -
+# Outputs:
+# Exceptions:    None
+# Description:   Publish and update the publish date of an XMLdata
+#
+################################################################################
+def update_publish(request):
+    XMLdata.update_publish(request.GET['result_id'])
+    return HttpResponse(json.dumps({}), content_type='application/javascript')
+
+################################################################################
+#
+# Function Name: update_unpublish(request)
+# Inputs:        request -
+# Outputs:
+# Exceptions:    None
+# Description:   Unpublish an XMLdata
+#
+################################################################################
+def update_unpublish(request):
+    XMLdata.update_unpublish(request.GET['result_id'])
+    return HttpResponse(json.dumps({}), content_type='application/javascript')
+
 
 
 ################################################################################
@@ -2957,7 +2984,15 @@ def load_refinements(request):
     
     return HttpResponse(json.dumps({'refinements': refinement_options}), content_type='application/javascript')
     
-
+################################################################################
+#
+# Function Name: refinements_to_mongo(request)
+# Inputs:        request -
+# Outputs:       
+# Exceptions:    None
+# Description:   Build a refined mongo query (AND between types + OR between values of the same type) 
+#                
+################################################################################
 def refinements_to_mongo(refinements):
     try:
         # transform the refinement in mongo query
@@ -3024,7 +3059,15 @@ def custom_view(request):
     return HttpResponse(json.dumps({'custom_fields': custom_fields}), content_type='application/javascript')
 
 
-
+################################################################################
+#
+# Function Name: is_field(request)
+# Inputs:        request -
+# Outputs:       
+# Exceptions:    None
+# Description:   Look if the element is a field, and not a node
+#                
+################################################################################
 def is_field(element, xmlDocTree, default_namespace, defaultPrefix):
     # the element has a type
     if 'type' in element.attrib:

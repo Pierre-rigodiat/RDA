@@ -267,7 +267,7 @@ get_results_keyword_refined = function(numInstance){
                 $("#loading").removeClass("isloading");
             }
         });
-    }, 1500);
+    }, 1000);
 }
 
 // clear all refinements
