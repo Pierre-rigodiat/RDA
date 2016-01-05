@@ -150,7 +150,13 @@ Software
                 <td style="width:250px">
                 <div style="margin-top:10px;">Resource Name</div></td>
                 <td>
-                {{ XMLdata.title }}
+                    {% if XMLdata.content.Resource.identity.title %}
+                        {{ XMLdata.content.Resource.identity.title }}
+                    {%else%}
+                        <script>
+                            document.write('{{ XMLdata.title }}'.replace(/\.[^/.]+$/, ""));
+                        </script>
+                    {% endif %}
                 <div style="float:right">
                     <button class="btn clear-fields" onclick="dialog_detail('{{XMLdata_id}}');">View Resource Details</button>
                 </div>
@@ -211,6 +217,12 @@ No Resources found
 {% block popups %}
 <div id="dialog-delete-result" title="Delete Document" style="display:none;">
 Are you sure you want to delete this document?
+</div>
+<div id="dialog-publish" title="Publish Document" style="display:none;">
+Are you sure you want to publish this document?
+</div>
+<div id="dialog-unpublish" title="Unpublish Document" style="display:none;">
+Are you sure you want to unpublish this document?
 </div>
 <div id="dialog-detail-result" title="Resource Details" style="display:none;">
 <div id="result_detail">
