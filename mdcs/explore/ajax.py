@@ -3048,13 +3048,29 @@ def custom_view(request):
         
     # look for elements
     elements = xmlDocTree.findall(".//{0}element".format(default_namespace))
+    added_element_names = []
     for element in elements:
-        if is_field(element, xmlDocTree, default_namespace, defaultPrefix):   
-            app_info = common.getAppInfo(element, default_namespace)
-            label = app_info['label'] if 'label' in app_info else element.attrib['name']
-            label = label if label is not None else ''
-            value = 'line_' + element.attrib['name']
-            custom_fields += "<input type='checkbox' value='" + value + "'> " + label + "<br/>"
+        if element.attrib['name'] not in added_element_names:
+            added_element_names.append(element.attrib['name'])
+            if is_field(element, xmlDocTree, default_namespace, defaultPrefix):   
+                app_info = common.getAppInfo(element, default_namespace)
+                label = app_info['label'] if 'label' in app_info else element.attrib['name']
+                label = label if label is not None else ''
+                value = 'line_' + element.attrib['name']
+                custom_fields += "<input type='checkbox' value='" + value + "'> " + label + "<br/>"
+    
+    # look for attributes
+    attributes = xmlDocTree.findall(".//{0}attribute".format(default_namespace))
+    added_attribute_names = []
+    for attribute in attributes:
+        if attribute.attrib['name'] not in added_attribute_names:
+            added_attribute_names.append(attribute.attrib['name'])
+            if is_field(attribute, xmlDocTree, default_namespace, defaultPrefix):   
+                app_info = common.getAppInfo(attribute, default_namespace)
+                label = app_info['label'] if 'label' in app_info else attribute.attrib['name']
+                label = label if label is not None else ''
+                value = 'line_' + attribute.attrib['name']
+                custom_fields += "<input type='checkbox' value='" + value + "'> " + label + "<br/>"
     
     return HttpResponse(json.dumps({'custom_fields': custom_fields}), content_type='application/javascript')
 
@@ -3084,5 +3100,15 @@ def is_field(element, xmlDocTree, default_namespace, defaultPrefix):
                     simple_content = complex_type.find("./{0}simpleContent".format(default_namespace))
                     if simple_content is not None:
                         return True
+    else:
+        simple_type = xmlDocTree.find("./{0}simpleType".format(default_namespace))
+        if simple_type is not None:
+            return True
+        else:
+            complex_type = xmlDocTree.find(".//{0}complexType".format(default_namespace))
+            if complex_type is not None:
+                simple_content = complex_type.find("./{0}simpleContent".format(default_namespace))
+                if simple_content is not None:
+                    return True
     return False
     
