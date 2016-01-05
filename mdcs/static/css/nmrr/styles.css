@@ -912,3 +912,13 @@ input[placeholder]:hover{
 	text-indent: -1000px;
 	opacity: 1;
 }
+
+input[placeholder]:focus{
+	-moz-transition: text-indent 0s 0s linear;  
+	-webkit-transition: text-indent 0s 0s linear;   
+	-ms-transition: text-indent 0s 0s linear; 
+	-o-transition: text-indent 0s 0s linear; 
+	transition: text-indent 0s 0s linear;  
+	text-indent: 0;
+	opacity: 1;
+}
