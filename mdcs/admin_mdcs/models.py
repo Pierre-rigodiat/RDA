@@ -14,7 +14,7 @@
 #
 ################################################################################
 from functools import wraps
-from django.contrib.auth.models import Group
+from django.contrib.auth.models import Group, User
 from django.db.models import Q
 from django.conf import settings
 from django.contrib.auth import REDIRECT_FIELD_NAME
@@ -25,9 +25,42 @@ from django.core.exceptions import PermissionDenied
 import mgi.rights as RIGHTS
 from rest_framework.response import Response
 from rest_framework import status
+from mgi.rights import default_group
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+
+################################################################################
+#
+# Function Name: add_default_group(request)
+# Inputs:        sender, kwargs -
+# Outputs:       -
+# Exceptions:    None
+# Description:   Assigns the user in the default group after its creation
+#                We catch the post_save signal for the User model
+#
+################################################################################
+@receiver(post_save, sender=User)
+def add_default_group(sender, **kwargs):
+    #We retrieve the user
+    user = kwargs["instance"]
+    #If it's a creation
+    if kwargs["created"]:
+        group = Group.objects.get(name=default_group)
+        user.groups.add(group)
+        user.save()
 
 
-# Create your models here.
+################################################################################
+#
+# Function Name: login_or_anonymous_perm_required(request)
+# Inputs:        anonymous_permission, function=None, redirect_field_name=REDIRECT_FIELD_NAME, login_url=None -
+# Outputs:       decorator
+# Exceptions:    None
+# Description:   Custom decorator for checking user authentication or anonymous user permission.
+#                Manages the authorisation to execute a function decorated by this decorator.
+#                Conditions: user connected or anonymous_group assigned with the anonymous_permission in parameter.
+#
+################################################################################
 def login_or_anonymous_perm_required(anonymous_permission, function=None, redirect_field_name=REDIRECT_FIELD_NAME, login_url=None):
     def _check_group(view_func):
         @wraps(view_func)
@@ -57,14 +90,26 @@ def login_or_anonymous_perm_required(anonymous_permission, function=None, redire
         return wrapper
     return _check_group
 
-
+################################################################################
+#
+# Function Name: permission_required(request)
+# Inputs:        content_type, permission, login_url=None, raise_exception=False,
+#                redirect_field_name=REDIRECT_FIELD_NAME -
+# Outputs:       decorator
+# Exceptions:    None
+# Description:   Check if the user has the required permission given in parameter
+#                If the user is anonymous, check if the anonymous_group has the required permission
+#
+################################################################################
 def permission_required(content_type, permission, login_url=None, raise_exception=False, redirect_field_name=REDIRECT_FIELD_NAME):
     def _check_group(view_func):
         @wraps(view_func)
         def wrapper(request, *args, **kwargs):
             if request.user.is_anonymous():
+                #Check in the anonymous_group
                 access = Group.objects.filter(Q(name=RIGHTS.anonymous_group) & Q(permissions__codename=permission))
             else:
+                #Check the permission for the current user
                 prefixed_permission = "{!s}.{!s}".format(content_type, permission)
                 access = request.user.has_perm(prefixed_permission)
 
@@ -91,7 +136,15 @@ def permission_required(content_type, permission, login_url=None, raise_exceptio
         return wrapper
     return _check_group
 
-
+################################################################################
+#
+# Function Name: api_staff_member_required(request)
+# Inputs:        -
+# Outputs:       decorator
+# Exceptions:    None
+# Description:   Check if the user is an admin user. Used by the API
+#
+################################################################################
 def api_staff_member_required():
     def _check_group(view_func):
         @wraps(view_func)
@@ -105,7 +158,17 @@ def api_staff_member_required():
         return wrapper
     return _check_group
 
-
+################################################################################
+#
+# Function Name: api_permission_required(request)
+# Inputs:        -
+# Outputs:       decorator
+# Exceptions:    None
+# Description:   Check if the user has the required permission given in parameter.
+#                If the user is anonymous, check if the anonymous_group has the required permission
+#                Used by the API
+#
+################################################################################
 def api_permission_required(content_type, permission, raise_exception=False):
     def _check_group(view_func):
         @wraps(view_func)

@@ -21,6 +21,10 @@
 anonymous_group = "anonymous"
 #######################
 
+### Default group ###
+default_group = "default"
+#######################
+
 ### Compose Rights ###
 compose_content_type = "compose"
 compose_access = "compose_access"
