@@ -496,9 +496,7 @@ edit_information = function(objectID, objectType, newName, newFilename, newBucke
             	showErrorEditType();
             }else{
                 $("#dialog-edit-info").dialog( "close" );
-                $('#model_selection').load(document.URL +  ' #model_selection', function() {
-                      loadUploadManagerHandler();
-                });
+                location.reload();
             }
         }
     });
@@ -553,9 +551,7 @@ delete_object = function(objectID, objectType){
         	objectType : objectType,
         },
         success: function(data){
-            $('#model_selection').load(document.URL +  ' #model_selection', function() {
-            	loadUploadManagerHandler();
-            });
+            location.reload();
         }
     });
 }
@@ -640,12 +636,10 @@ save_object = function(buckets){
         },
         success: function(data){
         	if('errors' in data){
-        		$("#objectUploadErrorMessage").html("<font color='red'>Please upload a valid XML schema first.</font>");
-        	}else{
+        		$("#objectUploadErrorMessage").html("<font color='red'>Please upload a valid XML schema.</font>");
+        	} else {
                 $( "#dialog-upload-message" ).dialog("close");
-                $('#model_selection').load(document.URL +  ' #model_selection', function() {
-                loadUploadManagerHandler();
-                });
+                location.reload();
         	}
         }
     });
@@ -796,9 +790,9 @@ add_bucket = function(label){
         success: function(data){
             if ("errors" in data){
             	$("#errorAddBucket").html("<font color='red'>A bucket with the same label already exists.</font><br/>");
-            }else if("errors" in data){
+            } else if("errors" in data) {
                 $("#errorsTemplateName").html("<font color='red'>The template's name is already used. Please give another name to the template.</font><br/>");
-            }else{
+            } else {
                 $('#dialog-add-bucket').dialog('close');
                 $('#model_buckets').load(document.URL +  ' #model_buckets', function() {});
                 $('#model_select_buckets').load(document.URL +  ' #model_select_buckets', function() {});
