@@ -15,8 +15,7 @@
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 	<xsl:output method="html" indent="yes" encoding="UTF-8" />	
 	
-	<xsl:preserve-space elements="*" />
-	<xsl:template match="/">	
+	<xsl:template match="/">		
 		<div style="background-color:#fafafa">
 			<table>
 				<tr style="background-color:#f0f0f0">
@@ -32,10 +31,16 @@
 						</xsl:choose>
 					</td>
 				</tr>
-				<xsl:apply-templates />
+				<xsl:apply-templates select="/*" />
+				<xsl:apply-templates select="//*[not(*)]" />
 			</table>
 		</div>
 	</xsl:template>
+	
+	<xsl:template match="/*">
+		<xsl:apply-templates select="@*"/>
+	</xsl:template>
+	
 	<xsl:template match="//*[not(*)]">
 		
 		<xsl:variable name="name" select="name(.)" />
@@ -58,6 +63,29 @@
 				</span>
 			</td>
 		</tr>
+		<xsl:apply-templates select="@*" />
 	</xsl:template>
 	
+	<xsl:template match="@*">
+		<xsl:variable name="name" select="name(.)" />
+		<xsl:variable name="value" select="." />		
+		
+		<tr class="nmrr_line line_{$name}">
+			<td width="180">
+				<xsl:value-of select="$name" />
+			</td>
+			<td>
+				<span class='value'>
+					<xsl:choose>
+						<xsl:when test="contains($name, 'URL')">
+							<a target="_blank" href="{$value}"><xsl:value-of select="$value"/></a>							
+						</xsl:when>
+						<xsl:otherwise>
+							<xsl:value-of select="$value"/>
+						</xsl:otherwise>
+					</xsl:choose>
+				</span>
+			</td>
+		</tr>
+	</xsl:template>
 </xsl:stylesheet>
