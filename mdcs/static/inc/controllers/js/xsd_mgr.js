@@ -378,9 +378,7 @@ restore_object = function(objectID, objectType){
         	objectType : objectType,
         },
         success: function(data){
-            $('#model_selection').load(document.URL +  ' #model_selection', function() {
-                loadUploadManagerHandler();
-          });
+            location.reload();
         }
     });
 }
