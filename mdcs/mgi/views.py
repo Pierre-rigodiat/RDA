@@ -316,20 +316,3 @@ def help(request):
         'help': help
     })
     return HttpResponse(template.render(context))
-
-################################################################################
-#
-# Function Name: my_profile_favorites(request)
-# Inputs:        request -
-# Outputs:       My Favorites Page
-# Exceptions:    None
-# Description:
-#
-################################################################################
-@login_required(login_url='/login')
-def my_profile_favorites(request):
-    template = loader.get_template('profile/my_profile_favorites.html')
-    context = RequestContext(request, {
-        '': '',
-    })
-    return HttpResponse(template.render(context))
