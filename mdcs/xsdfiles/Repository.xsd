@@ -230,6 +230,7 @@
             <xs:annotation>
               <xs:appinfo>
                 <label>Identifier</label>
+                <placeholder>Enter your repository's identifier</placeholder>
               </xs:appinfo>
                <xs:appinfo>
                  <dcterm>Identifier</dcterm>
