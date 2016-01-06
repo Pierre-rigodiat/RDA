@@ -246,7 +246,7 @@
             </xs:annotation>
          </xs:element>
        
-        <xs:element name="logo" type="xs:anyURI" minOccurs="0">
+        <xs:element name="logoURL" type="xs:anyURI" minOccurs="0">
            <xs:annotation>
              <xs:appinfo>
                <label>Logo</label>
