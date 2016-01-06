@@ -60,7 +60,7 @@
 	<div id="saveErrorMessage" style="color:red;"></div>
 </div>
 
-<div id="dialog-saved-message" title="XML Data Saved" style="display:none;">
+<div id="dialog-saved-message" title="Data Saved" style="display:none;">
 <p></p>
   <p>
     <span class="ui-icon ui-icon-circle-check" style="float:left; margin:0 7px 10px 0;"></span>
@@ -76,7 +76,7 @@
 <script src="{% static 'inc/controllers/js/nmrr/nmrr_curate.js' %}"></script>
 <script>
 load_xml();
-$('.button.save-to-repo').on('click', saveToRepository);
+$('.button.save-to-repo').on('click', saveToRepositoryProcess);
 $('.button.edit').on('click', editForm);
 </script>
 {% endblock %}

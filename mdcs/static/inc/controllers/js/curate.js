@@ -828,7 +828,10 @@ saveToRepositoryProcess = function()
         processData: false,
         async:false,
         success : function(data) {
-            $( "#dialog-save-data-message" ).dialog( "close" );
+        	try{
+        		// try to close the popup if opened to change the name
+        		$( "#dialog-save-data-message" ).dialog( "close" );
+        	}catch(err){}
             XMLDataSaved();
         },
         error:function(data){
@@ -858,6 +861,8 @@ XMLDataSaved = function()
     $(function() {
         $( "#dialog-saved-message" ).dialog({
             modal: true,
+            width: 350,
+        	height: 215,
             close: function(){
             	window.location = "/curate"
             },
