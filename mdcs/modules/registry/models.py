@@ -8,6 +8,7 @@ import lxml.etree as etree
 from django.template import Context, Template
 from pymongo import MongoClient
 from mgi.settings import MONGODB_URI
+from mgi import models as mgi_models
 import random
 import string
 
@@ -300,4 +301,65 @@ class DescriptionModule(TextAreaModule):
     def _post_result(self, request):
         return str(request.POST['data'])
     
+
+class TypeModule(InputModule):
+    """
+    Module to lock type field to selected resource type
+    """
+    
+    templates = {
+        'organization': 'Organization',
+        'datacollection': 'Data Collection',
+        'repository': 'Repository',
+        'projectarchive': 'Project Archive',
+        'database': 'Database',
+        'dataset': 'Dataset',
+        'service': 'Service',
+        'informational': 'Informational',
+        'software': 'Software',
+    }
+    
+    def __init__(self):            
+        self.default_value=''    
+        InputModule.__init__(self, disabled=True)
+
+    def _get_module(self, request):        
+        if 'data' in request.GET:
+            self.default_value = request.GET['data']
+            # if data present and not in enumeration, can be edited
+            if self.default_value not in self.templates.values():
+                self.disabled = False
+        else:
+            if 'currentTemplateID' in request.session:
+                try:
+                    template = mgi_models.Template.objects().get(pk=request.session['currentTemplateID'])
+                    template_name = template.title
+                    try:
+                        self.default_value = self.templates[template_name]
+                    except:
+                        self.disabled = False
+                        self.default_value = ''
+                except:
+                    self.disabled = False
+                    self.default_value = ''
+            else:
+                self.disabled = False
+                self.default_value = ''
+        return InputModule.get_module(self, request)
+
+    def _get_display(self, request):
+        if self.default_value not in self.templates.values():
+            return '<span style="color:red;">Type should be in ' + ','.join(self.templates.values()) + ' </span>'
+        return ''
+
+    def _get_result(self, request):
+        return self.default_value
+
+    def _post_display(self, request):
+        if request.POST['data'] not in self.templates.values():
+            return '<span style="color:red;">Type should be in ' + ', '.join(self.templates.values()) + ' </span>'
+        return ''
+
+    def _post_result(self, request):
+        return str(request.POST['data'])
     
