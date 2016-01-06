@@ -12,43 +12,6 @@
  */
 
 /**
- * Help functions
- */
-
-if (!String.prototype.encodeXML) {
-  String.prototype.encodeXML = function () {
-    return this.replace(/&/g, '&amp;')
-               .replace(/</g, '&lt;')
-               .replace(/>/g, '&gt;');
-  };
-}
-
-if (!String.prototype.decodeXML) {
-  String.prototype.decodeXML = function () {
-    return this.replace(/&gt;/g, '>')
-               .replace(/&lt;/g, '<')
-               .replace(/&amp;/g, '&');
-  };
-}
-
-encodeInputs = function()
-{    //	Escape all input
-    $("#xsdForm :input:visible").each(function(){
-        var htmlString = $( this ).val().encodeXML();
-        $( this ).val(htmlString);
-    });
-}
-
-decodeInputs = function()
-{    //	Escape all input
-    $("#xsdForm :input:visible").each(function(){
-        var htmlString = $( this ).val().decodeXML();
-        $( this ).val(htmlString);
-    });
-}
-
-
-/**
  * AJAX call, checks that a template is selected
  * @param selectedLink redirection link
  */
@@ -213,10 +176,8 @@ saveForm = function()
 					$( this ).dialog( "close" );
 					var rootElement = document.getElementsByName("xsdForm")[0];
 					var xmlString = '';
-                    encodeInputs();
 				    xmlString = generateXMLString (rootElement);
 					save_form(xmlString);
-					decodeInputs();
                 },
 			Cancel: function() {
                     $( this ).dialog( "close" );
@@ -302,7 +263,6 @@ view_data = function(formContent){
  */
 validateXML = function()
 {
-    encodeInputs();
 	var rootElement = document.getElementsByName("xsdForm")[0];
 	var xmlString = '';
 
@@ -325,7 +285,6 @@ validateXML = function()
 	
     xsdForm = $('#xsdForm').html();
     validate_xml_data(xmlString, xsdForm);
-    decodeInputs();
 }
 
 
@@ -633,9 +592,6 @@ generate_xsd_form = function(){
             $('#xsdForm').html(data.xsdForm);
             setTimeout(disable_elements ,0);
 
-            //	Escape all input
-            decodeInputs();
-
             initModules();
         },
     });
@@ -772,14 +728,12 @@ downloadCurrentXML = function()
 {
     console.log('BEGIN [downloadCurrentXML]');
 
-    encodeInputs();
 	var rootElement = document.getElementsByName("xsdForm")[0];
 	var xmlString = '';
 
     xmlString = generateXMLString (rootElement);   
     
     download_current_xml(xmlString);
-    decodeInputs();
 
     console.log('END [downloadCurrentXML]');
 }
