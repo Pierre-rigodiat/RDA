@@ -1102,7 +1102,7 @@ def generateModule(request, element, namespace, xsd_xpath=None, xml_xpath=None, 
                 mod_req.GET['attributes'] = reload_attrib
 
             # renders the module
-            formString += view(mod_req).content
+            formString += view(mod_req).content.decode("utf-8")
     
     return formString
 
