@@ -1129,7 +1129,7 @@
            <xs:annotation>
              <xs:appinfo>
                <label>Experimental Data Acquisition Method</label>
-             </xs:appinfo>PropertyClass
+             </xs:appinfo>
              <xs:documentation>
                the experimental or computational technique used to 
                acquire the data within this resource 
