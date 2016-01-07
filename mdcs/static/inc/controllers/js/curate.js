@@ -307,7 +307,12 @@ validate_xml_data = function(xmlString, xsdForm){
                  $("#saveErrorMessage").html(data.errors);
                 saveXMLDataToDBError();
             }else{
-                viewData();
+            	useErrors = checkElementUse();
+            	if (useErrors.length > 0){
+            		useErrosAndView(useErrors);
+            	}else{
+            		viewData();
+            	}
             }
         }
     });
@@ -1281,6 +1286,79 @@ cancelForm = function(){
             		    },
             	    });
                 },
+            }
+        });
+    });
+}
+
+
+/**
+ * Check required, recommended elements
+ */
+checkElementUse = function(){
+	required_count = 0
+	$(".required input:visible").each(function(){
+		if (!$(this).closest("li").hasClass("removed")){
+		  if($(this).val().trim() == ""){
+		    required_count += 1;
+		  }
+		}
+	});
+	$(".required textarea:visible").each(function(){
+		if (!$(this).closest("li").hasClass("removed")){
+			if($(this).val().trim() == ""){
+		    required_count += 1;
+		  }
+		}
+	});
+	
+	recommended_count = 0
+	$(".recommended input:visible").each(function(){
+		if (!$(this).closest("li").hasClass("removed")){
+		  if($(this).val().trim() == ""){
+			  recommended_count += 1;
+		  }
+		}
+	});
+	$(".recommended textarea:visible").each(function(){
+		if (!$(this).closest("li").hasClass("removed")){
+			if($(this).val().trim() == ""){
+			  recommended_count += 1;
+		  }
+		}
+	});
+	
+	errors = ""
+	if (required_count > 0 || recommended_count > 0){
+		errors = "<ul>"
+		errors += "<li>" + required_count.toString() + " required element(s) are empty.</li>"
+		errors += "<li>" + recommended_count.toString() + " recommended element(s) are empty.</li>"
+		errors += "</ul>"
+	}
+	
+	return errors;
+}
+
+/**
+ * Displays use error before viewing data
+ */
+useErrosAndView = function(errors){
+	$("#useErrorMessage").html(errors);
+	$(function() {
+        $( "#dialog-use-message" ).dialog({
+            modal: true,
+            height: 280,
+            width: 500,
+            buttons: {
+            	Edit: function() {
+            		$( this ).dialog( "close" );
+                },
+                Review: function() {
+                    viewData();
+                },
+            },
+            close: function(){
+            	$("#useErrorMessage").html("");
             }
         });
     });

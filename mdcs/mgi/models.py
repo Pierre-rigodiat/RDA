@@ -431,6 +431,9 @@ class XMLdata():
 
     @staticmethod
     def executeFullTextQuery(text, templatesID, refinements={}):
+        """
+        Execute a full text query with possible refinements
+        """
         #create a connection
         client = MongoClient(MONGODB_URI)
         # connect to the db 'mgi'

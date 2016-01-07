@@ -126,10 +126,19 @@
 
 </div>
 
-<div id="dialog-save-error-message" title="XML Data Error" style="display:none;">
+<div id="dialog-save-error-message" title="Validation Error" style="display:none;">
 <p></p>
   <div id="saveErrorMessage">
   </div>
+</div>
+
+<div id="dialog-use-message" title="Validation Warning" style="display:none;">
+<p>
+Some <span style="color:red;">required</span> or <span style="color:blue;">recommended</span> fields are present but empty:
+</p>
+  <div id="useErrorMessage">
+  </div>
+ <p>Edit the form or proceed to review page.</p> 
 </div>
 {% endblock %}
 
