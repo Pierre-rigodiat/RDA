@@ -190,6 +190,9 @@
         <xs:annotation>
           <xs:appinfo>
             <label>Organization Name</label>
+            <placeholder>Enter your organization's name (ex. Materials Data Curation System)</placeholder>
+            <use>required</use>
+            <tooltip>The full name given to the resource</tooltip>
           </xs:appinfo>
           <xs:appinfo>
                  <dcterm>Title</dcterm>
@@ -204,6 +207,9 @@
         <xs:annotation>
           <xs:appinfo>
             <label>Short Name</label>
+            <placeholder>Enter your organization's short name (ex. MDCS)</placeholder>
+            <use>recommended</use>
+            <tooltip>A short name or abbreviation given to the resource.</tooltip>
           </xs:appinfo>
           <xs:documentation>
                  a short name or abbreviation given to the resource.
@@ -226,6 +232,7 @@
         <xs:annotation>
           <xs:appinfo>
             <label>Version</label>
+            <placeholder>Enter your organization's version</placeholder>
           </xs:appinfo>
           <xs:documentation>
                  Label a particular release or variation of the resource.
@@ -241,6 +248,7 @@
         <xs:annotation>
           <xs:appinfo>
             <label>Identifier</label>
+            <placeholder>Enter your organization's identifier</placeholder>
           </xs:appinfo>
           <xs:appinfo>
                  <dcterm>Identifier</dcterm>
@@ -256,10 +264,11 @@
         </xs:annotation>
       </xs:element>
 
-      <xs:element name="logo" type="xs:anyURI" minOccurs="0">
+      <xs:element name="logoURL" type="xs:anyURI" minOccurs="0">
         <xs:annotation>
           <xs:appinfo>
             <label>Logo</label>
+            <placeholder>Enter your organization's logo url</placeholder>
           </xs:appinfo>
           <xs:documentation>
                 URL pointing to a graphical logo, which may be used to help 
@@ -283,6 +292,7 @@
         <xs:annotation>
           <xs:appinfo>
             <label>Publisher</label>
+            <use>required</use>
           </xs:appinfo>
           <xs:appinfo>
                <dcterm>Publisher</dcterm>
@@ -298,6 +308,7 @@
         <xs:annotation>
           <xs:appinfo>
             <label>Creator</label>
+            <use>required</use>
           </xs:appinfo>
           <xs:appinfo>
                <dcterm>Creator</dcterm>
@@ -313,6 +324,7 @@
         <xs:annotation>
           <xs:appinfo>
             <label>Contributor</label>
+            <use>required</use>
           </xs:appinfo>
           <xs:appinfo>
                <dcterm>Contributor</dcterm>
@@ -328,6 +340,7 @@
         <xs:annotation>
           <xs:appinfo>
             <label>Date</label>
+            <use>required</use>
           </xs:appinfo>
           <xs:appinfo>
                <dcterm>Date</dcterm>
@@ -535,6 +548,8 @@
         <xs:annotation>
           <xs:appinfo>
             <label>Description</label>
+            <placeholder>Enter organization's description</placeholder>
+            <use>required</use>
           </xs:appinfo>
           <xs:appinfo>
                <dcterm>Description</dcterm>
@@ -554,6 +569,8 @@
         <xs:annotation>
           <xs:appinfo>
             <label>Subject</label>
+            <placeholder>Enter a subject(ex. molecular dynamics, metals, force fields)</placeholder>
+            <use>recommended</use>
           </xs:appinfo>
           <xs:appinfo>
                <dcterm>Subject</dcterm>
@@ -569,6 +586,8 @@
         <xs:annotation>
           <xs:appinfo>
             <label>Reference URL</label>
+            <placeholder>Enter a reference url</placeholder>
+            <use>required</use>
           </xs:appinfo>
           <xs:documentation>
                 URL pointing to a human-readable document describing this 
@@ -581,6 +600,7 @@
         <xs:annotation>
           <xs:appinfo>
             <label>Reference Citation</label>
+            <placeholder>Enter your organization's reference citation</placeholder>
           </xs:appinfo>
           <xs:documentation>
                 a bibliographic reference to a literature article that 
@@ -600,6 +620,7 @@
         <xs:annotation>
           <xs:appinfo>
             <label>Primary Audience</label>
+            <placeholder>Enter your organization's primary audience</placeholder>
           </xs:appinfo>
           <xs:appinfo>
                <dcterm>Subject</dcterm>
@@ -1062,29 +1083,57 @@
         </xs:annotation>
       </xs:element>
 
-      <xs:element name="acquisitionMethod" type="xs:token" minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="experimentalDataAcquisitionMethod" type="DataAcquisitionMethod" minOccurs="0"
+        maxOccurs="unbounded" xmlns:ns0="http://mdcs.ns" ns0:_mod_mdcs_="/registry/experimentalDataAcquisitionMethod">
         <xs:annotation>
           <xs:appinfo>
-            <label>Acquisition Method</label>
+            <label>Experimental Data Acquisition Method</label>
           </xs:appinfo>
           <xs:documentation>
-                  the experimental or computational technique used to 
-                  acquire the data within this resource 
-               </xs:documentation>
+            the experimental or computational technique used to
+            acquire the data within this resource
+          </xs:documentation>
           <xs:documentation>
-                 one or more of recommended values:
-                  electron microscopy, scattering-diffraction, calorimetry, 
-                  load frame testing, atom probe microscopy, spectroscopy, 
-                  optical microscopy, impact testing, indentation, dilatometry,
-                  density functional theory calculation, 
-                  molecular dynamics simulation, numerical simulations, 
-                  multiscale simulations, finite element analysis, 
-                  computational thermodynamics, statistical mechanics, 
-                  dislocation dynamics, phase field calculation, 
-                  crystal plasticity calculation, Monte-Carlo simulation, 
-                  boundary tracking/level set, non-specific
-                 Other values are allowed.
-               </xs:documentation>
+            one or more of recommended values:
+            electron microscopy, scattering-diffraction, calorimetry,
+            load frame testing, atom probe microscopy, spectroscopy,
+            optical microscopy, impact testing, indentation, dilatometry,
+            density functional theory calculation,
+            molecular dynamics simulation, numerical simulations,
+            multiscale simulations, finite element analysis,
+            computational thermodynamics, statistical mechanics,
+            dislocation dynamics, phase field calculation,
+            crystal plasticity calculation, Monte-Carlo simulation,
+            boundary tracking/level set, non-specific
+            Other values are allowed.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+
+      <xs:element name="computationalDataAcquisitionMethod" type="DataAcquisitionMethod" minOccurs="0"
+        maxOccurs="unbounded" xmlns:ns0="http://mdcs.ns" ns0:_mod_mdcs_="/registry/computationalDataAcquisitionMethod">
+        <xs:annotation>
+          <xs:appinfo>
+            <label>Computational Data Acquisition Method</label>
+          </xs:appinfo>
+          <xs:documentation>
+            the experimental or computational technique used to
+            acquire the data within this resource
+          </xs:documentation>
+          <xs:documentation>
+            one or more of recommended values:
+            electron microscopy, scattering-diffraction, calorimetry,
+            load frame testing, atom probe microscopy, spectroscopy,
+            optical microscopy, impact testing, indentation, dilatometry,
+            density functional theory calculation,
+            molecular dynamics simulation, numerical simulations,
+            multiscale simulations, finite element analysis,
+            computational thermodynamics, statistical mechanics,
+            dislocation dynamics, phase field calculation,
+            crystal plasticity calculation, Monte-Carlo simulation,
+            boundary tracking/level set, non-specific
+            Other values are allowed.
+          </xs:documentation>
         </xs:annotation>
       </xs:element>
 
@@ -1201,6 +1250,15 @@
              material capable of being an electrical conductor with zero 
              resistance.
            </xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+
+      <xs:enumeration value="ceramic">
+        <xs:annotation>
+          <xs:documentation>
+            material capable of being an electrical conductor with zero
+            resistance.
+          </xs:documentation>
         </xs:annotation>
       </xs:enumeration>
 
@@ -1546,4 +1604,36 @@
     </xs:sequence>
   </xs:complexType>
 
+  <xs:simpleType name="DataAcquisitionMethod">
+    <xs:annotation>
+      <xs:documentation>
+         allowed values representing categories of data acquisition method
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:token">
+      <xs:enumeration value="electron microscopy"/>
+      <xs:enumeration value="scattering-diffraction"/>
+      <xs:enumeration value="calorimetry"/>
+      <xs:enumeration value="load frame testing"/>
+      <xs:enumeration value="atom probe microscopy"/>
+      <xs:enumeration value="spectroscopy"/>
+      <xs:enumeration value="optical microscopy"/>
+      <xs:enumeration value="impact testing"/>
+      <xs:enumeration value="indentation"/>
+      <xs:enumeration value="dilatometry"/>
+      <xs:enumeration value="density functional theory calculation"/>
+      <xs:enumeration value="molecular dynamics simulation"/>
+      <xs:enumeration value="numerical simulations"/>
+      <xs:enumeration value="multiscale simulations"/>
+      <xs:enumeration value="finite element analysis"/>
+      <xs:enumeration value="computational thermodynamics"/>
+      <xs:enumeration value="statistical mechanics"/>
+      <xs:enumeration value="dislocation dynamics"/>
+      <xs:enumeration value="phase field calculation"/>
+      <xs:enumeration value="crystal plasticity calculation"/>
+      <xs:enumeration value="Monte-Carlo simulation"/>
+      <xs:enumeration value="boundary tracking/level set"/>
+      <xs:enumeration value="non-specific"/>
+    </xs:restriction>
+  </xs:simpleType>
 </xs:schema>
