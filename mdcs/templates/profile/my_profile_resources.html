@@ -168,7 +168,7 @@ Software
                 <tr>
                 <td>
                     {% if canEdit %}
-                    <a onclick="editResource('{{XMLdata_id}}')" class="button">Edit</a>
+                    <a href="/curate/enter-data?id={{XMLdata_id}}" class="button">Edit</a>
                     {% endif %}
                     {% if canDelete and not XMLdata.publicationdate %}
                     <a onclick="deleteResult('{{XMLdata_id}}')" class="button button-reversed">Delete</a>

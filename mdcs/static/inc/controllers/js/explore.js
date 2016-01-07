@@ -1450,25 +1450,6 @@ update_unpublish = function(result_id){
 }
 
 /**
- * AJAX call, update the publish state of a XMLdata and redirect to edit page
- * @param result_id
- */
-editResource = function(result_id){
-	$.ajax({
-        url : "/explore/update_unpublish",
-        type : "GET",
-        dataType: "json",
-        data : {
-        	result_id: result_id,
-        },
-		success: function(data){
-		    $("#" + result_id).load(document.URL +  " #" + result_id);
-            location.href = "/curate/enter-data?id="+result_id
-	    }
-    });
-}
-
-/**
  * Show/hide
  * @param event
  */

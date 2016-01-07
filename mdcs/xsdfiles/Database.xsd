@@ -1091,7 +1091,7 @@
            minOccurs="0" maxOccurs="unbounded" xmlns:ns0="http://mdcs.ns" ns0:_mod_mdcs_="/registry/structuralMorphology">  
                  <xs:annotation>
                    <xs:appinfo>
-                     <label>Structural Morphology</label>
+                     <label>Morphology/Structures</label>
                    </xs:appinfo>
                    <xs:documentation>
                      the primary or prevalent characteristic of the structure of 
@@ -1112,7 +1112,7 @@
              minOccurs="0" maxOccurs="unbounded" xmlns:ns0="http://mdcs.ns" ns0:_mod_mdcs_="/registry/propertyClass">
              <xs:annotation>
                <xs:appinfo>
-                 <label>Property Class</label>
+                 <label>Material Property Classes</label>
                </xs:appinfo>
                <xs:documentation>
                  a category of property that is sampled by the contained data
@@ -1128,7 +1128,7 @@
            maxOccurs="unbounded" xmlns:ns0="http://mdcs.ns" ns0:_mod_mdcs_="/registry/experimentalDataAcquisitionMethod">
            <xs:annotation>
              <xs:appinfo>
-               <label>Experimental Data Acquisition Method</label>
+               <label>Experimental Data Acquisition Methods</label>
              </xs:appinfo>
              <xs:documentation>
                the experimental or computational technique used to 
@@ -1155,7 +1155,7 @@
            maxOccurs="unbounded" xmlns:ns0="http://mdcs.ns" ns0:_mod_mdcs_="/registry/computationalDataAcquisitionMethod">
            <xs:annotation>
              <xs:appinfo>
-               <label>Computational Data Acquisition Method</label>
+               <label>Computational Data Acquisition Methods</label>
              </xs:appinfo>
              <xs:documentation>
                the experimental or computational technique used to 
@@ -1178,11 +1178,11 @@
            </xs:annotation>
          </xs:element>
 
-           <xs:element name="sampleProcessing" type="xs:token"
-                       minOccurs="0" maxOccurs="unbounded">
+           <xs:element name="sampleProcessing" type="SampleProcessing"
+                       minOccurs="0" maxOccurs="unbounded" xmlns:ns0="http://mdcs.ns" ns0:_mod_mdcs_="/registry/sampleProcessing">
              <xs:annotation>
                <xs:appinfo>
-                 <label>Sample Processing</label>
+                 <label>Sample Processing Methods</label>
                </xs:appinfo>
                <xs:documentation>
                  the physical processing or preparation technique applied 
@@ -1583,6 +1583,28 @@
       <xs:enumeration value="crystal plasticity calculation"/>
       <xs:enumeration value="Monte-Carlo simulation"/>
       <xs:enumeration value="boundary tracking/level set"/>
+      <xs:enumeration value="non-specific"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="SampleProcessing">
+    <xs:annotation>
+      <xs:documentation>
+         allowed values representing categories of sample processing method
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:token">
+      <xs:enumeration value="casting"/>
+      <xs:enumeration value="annealing"/>
+      <xs:enumeration value="vapor deposition"/>
+      <xs:enumeration value="milling"/>
+      <xs:enumeration value="extrusion"/>
+      <xs:enumeration value="pressing"/>
+      <xs:enumeration value="exfoliation"/>
+      <xs:enumeration value="melt blending"/>
+      <xs:enumeration value="polymerisation"/>
+      <xs:enumeration value="curing"/>
+      <xs:enumeration value="evaporation"/>
       <xs:enumeration value="non-specific"/>
     </xs:restriction>
   </xs:simpleType>
