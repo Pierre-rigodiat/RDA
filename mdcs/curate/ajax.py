@@ -1060,7 +1060,7 @@ def generateModule(request, element, namespace, xsd_xpath=None, xml_xpath=None, 
             if len(edit_elements) == 1:
                 edit_element = edit_elements[0]
                 # get attributes
-                if 'attrib' in element and len(edit_element.attrib) > 0:
+                if 'attribute' not in xsd_xpath and len(edit_element.attrib) > 0:
                     reload_attrib = dict(edit_element.attrib)
                 reload_data = get_Xml_element_data(element, edit_element, namespace)
             else:
