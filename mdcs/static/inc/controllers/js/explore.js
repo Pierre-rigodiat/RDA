@@ -1571,7 +1571,7 @@ validateExport = function(){
 
 
 clearSearch = function() {
-    $("#results").html('No Results Found.');
+    $("#results").html('Please wait...');
     $("#results_errors").html('');
     $("#results_infos").html('');
 }
@@ -1631,13 +1631,13 @@ initAutocomplete = function() {
             afterTagRemoved: function(event, ui) {
                 clearSearch();
                 $("#id_search_entry").tagit("addPlaceHolder", this.value);
-                get_results_keyword();
+                get_results_keyword_refined();
             },
             onTagAdded: function(event, ui) {
                 $("#id_search_entry").tagit("removePlaceHolder", this.value);
             },
             afterTagAdded: function(event, ui) {
-                get_results_keyword();
+                get_results_keyword_refined();
             },
             autocomplete: ({
                 search: function(event, ui) {
