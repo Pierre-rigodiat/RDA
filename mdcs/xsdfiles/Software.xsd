@@ -1098,29 +1098,57 @@
         </xs:annotation>
       </xs:element>
 
-      <xs:element name="acquisitionMethod" type="xs:token" minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="experimentalDataAcquisitionMethod" type="DataAcquisitionMethod" minOccurs="0"
+        maxOccurs="unbounded" xmlns:ns0="http://mdcs.ns" ns0:_mod_mdcs_="/registry/experimentalDataAcquisitionMethod">
         <xs:annotation>
           <xs:appinfo>
-            <label>Acquisition Method</label>
+            <label>Experimental Data Acquisition Method</label>
           </xs:appinfo>
           <xs:documentation>
-                  the experimental or computational technique used to 
-                  acquire the data within this resource 
-               </xs:documentation>
+            the experimental or computational technique used to
+            acquire the data within this resource
+          </xs:documentation>
           <xs:documentation>
-                 one or more of recommended values:
-                  electron microscopy, scattering-diffraction, calorimetry, 
-                  load frame testing, atom probe microscopy, spectroscopy, 
-                  optical microscopy, impact testing, indentation, dilatometry,
-                  density functional theory calculation, 
-                  molecular dynamics simulation, numerical simulations, 
-                  multiscale simulations, finite element analysis, 
-                  computational thermodynamics, statistical mechanics, 
-                  dislocation dynamics, phase field calculation, 
-                  crystal plasticity calculation, Monte-Carlo simulation, 
-                  boundary tracking/level set, non-specific
-                 Other values are allowed.
-               </xs:documentation>
+            one or more of recommended values:
+            electron microscopy, scattering-diffraction, calorimetry,
+            load frame testing, atom probe microscopy, spectroscopy,
+            optical microscopy, impact testing, indentation, dilatometry,
+            density functional theory calculation,
+            molecular dynamics simulation, numerical simulations,
+            multiscale simulations, finite element analysis,
+            computational thermodynamics, statistical mechanics,
+            dislocation dynamics, phase field calculation,
+            crystal plasticity calculation, Monte-Carlo simulation,
+            boundary tracking/level set, non-specific
+            Other values are allowed.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+
+      <xs:element name="computationalDataAcquisitionMethod" type="DataAcquisitionMethod" minOccurs="0"
+        maxOccurs="unbounded" xmlns:ns0="http://mdcs.ns" ns0:_mod_mdcs_="/registry/computationalDataAcquisitionMethod">
+        <xs:annotation>
+          <xs:appinfo>
+            <label>Computational Data Acquisition Method</label>
+          </xs:appinfo>
+          <xs:documentation>
+            the experimental or computational technique used to
+            acquire the data within this resource
+          </xs:documentation>
+          <xs:documentation>
+            one or more of recommended values:
+            electron microscopy, scattering-diffraction, calorimetry,
+            load frame testing, atom probe microscopy, spectroscopy,
+            optical microscopy, impact testing, indentation, dilatometry,
+            density functional theory calculation,
+            molecular dynamics simulation, numerical simulations,
+            multiscale simulations, finite element analysis,
+            computational thermodynamics, statistical mechanics,
+            dislocation dynamics, phase field calculation,
+            crystal plasticity calculation, Monte-Carlo simulation,
+            boundary tracking/level set, non-specific
+            Other values are allowed.
+          </xs:documentation>
         </xs:annotation>
       </xs:element>
 
@@ -1499,4 +1527,36 @@
     </xs:restriction>
   </xs:simpleType>
 
+  <xs:simpleType name="DataAcquisitionMethod">
+    <xs:annotation>
+      <xs:documentation>
+         allowed values representing categories of data acquisition method
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:token">
+      <xs:enumeration value="electron microscopy"/>
+      <xs:enumeration value="scattering-diffraction"/>
+      <xs:enumeration value="calorimetry"/>
+      <xs:enumeration value="load frame testing"/>
+      <xs:enumeration value="atom probe microscopy"/>
+      <xs:enumeration value="spectroscopy"/>
+      <xs:enumeration value="optical microscopy"/>
+      <xs:enumeration value="impact testing"/>
+      <xs:enumeration value="indentation"/>
+      <xs:enumeration value="dilatometry"/>
+      <xs:enumeration value="density functional theory calculation"/>
+      <xs:enumeration value="molecular dynamics simulation"/>
+      <xs:enumeration value="numerical simulations"/>
+      <xs:enumeration value="multiscale simulations"/>
+      <xs:enumeration value="finite element analysis"/>
+      <xs:enumeration value="computational thermodynamics"/>
+      <xs:enumeration value="statistical mechanics"/>
+      <xs:enumeration value="dislocation dynamics"/>
+      <xs:enumeration value="phase field calculation"/>
+      <xs:enumeration value="crystal plasticity calculation"/>
+      <xs:enumeration value="Monte-Carlo simulation"/>
+      <xs:enumeration value="boundary tracking/level set"/>
+      <xs:enumeration value="non-specific"/>
+    </xs:restriction>
+  </xs:simpleType>
 </xs:schema>
