@@ -58,12 +58,20 @@ class RegistryCheckboxesModule(CheckboxesModule):
         return CheckboxesModule.get_module(self, request)
 
     def _get_display(self, request):
+        self.wrong_values = []
+        for value in self.selected:
+            if value not in self.options.values():
+                self.wrong_values.append(value)
+        if len(self.wrong_values) > 0:
+            return '<span style="color:red;">Incorrect values found: ' + ', '.join(self.wrong_values) + "</span>"
+                
         return ''
 
     def _get_result(self, request):
         xml_result = ''
         for value in self.selected:
-            xml_result += '<' + self.xml_tag + '>' + value + '</' + self.xml_tag + '>'
+            if value not in self.wrong_values:
+                xml_result += '<' + self.xml_tag + '>' + value + '</' + self.xml_tag + '>'
         return xml_result  
 
     def _post_display(self, request):
@@ -133,7 +141,7 @@ class NamePIDModule(Module):
                 pid = ' pid="'+ request.POST['pid'] +'"' if 'pid' in request.POST and len(request.POST['pid']) > 0 else ''
                 return '<' + request.POST['tag'] + pid + '>' +  request.POST['name'] + '</' + request.POST['tag'] + '>'
             
-        return result_xml
+        return '<' + request.POST['tag'] + '></' + request.POST['tag'] + '>'
 
 
   
@@ -191,7 +199,7 @@ class RelevantDateModule(Module):
                 role = ' role="'+ request.POST['role'] +'"' if 'role' in request.POST and len(request.POST['role']) > 0 else ''
                 return '<' + request.POST['tag'] + role + '>' +  request.POST['date'] + '</' + request.POST['tag'] + '>'
             
-        return result_xml
+        return '<' + request.POST['tag'] + '></' + request.POST['tag'] + '>'
     
 
 
@@ -286,20 +294,20 @@ class DescriptionModule(TextAreaModule):
 
     def _get_module(self, request):        
         if 'data' in request.GET:
-            self.data = request.GET['data']
+            self.data = str(request.GET['data'])
         return TextAreaModule.get_module(self, request)
 
     def _get_display(self, request):
         return ''
 
     def _get_result(self, request):
-        return self.data
+        return '<description>' + self.data + '</description>'
 
     def _post_display(self, request):
         return ''
 
     def _post_result(self, request):
-        return str(request.POST['data'])
+        return '<description>' + str(request.POST['data']) + '</description>'
     
 
 class TypeModule(InputModule):
