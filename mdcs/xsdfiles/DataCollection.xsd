@@ -1207,6 +1207,15 @@
         </xs:annotation>
       </xs:enumeration>
 
+      <xs:enumeration value="ceramic">
+        <xs:annotation>
+          <xs:documentation>
+            material capable of being an electrical conductor with zero
+            resistance.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+
       <xs:enumeration value="non-specific">
         <xs:annotation>
           <xs:documentation>
