@@ -564,6 +564,7 @@
           <xs:appinfo>
             <label>Reference URL</label>
             <placeholder>Enter a reference url</placeholder>
+            <use>required</use>
           </xs:appinfo>
           <xs:documentation>
                 URL pointing to a human-readable document describing this 
