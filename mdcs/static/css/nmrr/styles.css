@@ -886,8 +886,8 @@ footer .footer-content li div.social-icons a:hover {
 
 
 .alpha{
-	border:3px solid #f00;
-	color:red;
+	border:3px solid grey;
+	color:grey;
 	padding:3px;
 	padding-top: 0px; 
 	padding-bottom: 0px;
@@ -910,5 +910,15 @@ input[placeholder]:hover{
 	-o-transition: text-indent 8s 0.5s linear; 
 	transition: text-indent 8s 0.5s linear;  
 	text-indent: -1000px;
+	opacity: 1;
+}
+
+input[placeholder]:focus{
+	-moz-transition: text-indent 0s 0s linear;  
+	-webkit-transition: text-indent 0s 0s linear;   
+	-ms-transition: text-indent 0s 0s linear; 
+	-o-transition: text-indent 0s 0s linear; 
+	transition: text-indent 0s 0s linear;  
+	text-indent: 0;
 	opacity: 1;
 }

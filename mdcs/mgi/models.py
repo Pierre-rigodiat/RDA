@@ -479,7 +479,8 @@ class XMLdata():
         if len(refinements.keys()) > 0:
             full_text_query.update(refinements)
         
-        full_text_query.update({'ispublished': True})
+        # only get published and active resources
+        full_text_query.update({'ispublished': True, 'content.Resource.@status': 'active'})
         cursor = xmldata.find(full_text_query, as_class = OrderedDict).sort('publicationdate', DESCENDING)
         
         results = []

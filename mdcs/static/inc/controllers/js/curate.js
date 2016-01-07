@@ -11,7 +11,6 @@
  * 
  */
 
-
 /**
  * AJAX call, checks that a template is selected
  * @param selectedLink redirection link
@@ -176,7 +175,7 @@ saveForm = function()
 				Save: function() {				 
 					$( this ).dialog( "close" );
 					var rootElement = document.getElementsByName("xsdForm")[0];
-					var xmlString = '';						
+					var xmlString = '';
 				    xmlString = generateXMLString (rootElement);
 					save_form(xmlString);
                 },
@@ -266,7 +265,7 @@ validateXML = function()
 {
 	var rootElement = document.getElementsByName("xsdForm")[0];
 	var xmlString = '';
-	
+
     xmlString = generateXMLString (rootElement);
     
     $("input:text").each(function(){
@@ -309,7 +308,12 @@ validate_xml_data = function(xmlString, xsdForm){
                  $("#saveErrorMessage").html(data.errors);
                 saveXMLDataToDBError();
             }else{
-                viewData();
+            	useErrors = checkElementUse();
+            	if (useErrors.length > 0){
+            		useErrosAndView(useErrors);
+            	}else{
+            		viewData();
+            	}
             }
         }
     });
@@ -622,7 +626,7 @@ generate_xsd_form = function(){
             $('#modules').html(data.modules);
             $('#xsdForm').html(data.xsdForm);
             setTimeout(disable_elements ,0);
-            
+
             initModules();
         },
     });
@@ -758,14 +762,14 @@ downloadXSD = function()
 downloadCurrentXML = function()
 {
     console.log('BEGIN [downloadCurrentXML]');
-    
+
 	var rootElement = document.getElementsByName("xsdForm")[0];
 	var xmlString = '';
-    
+
     xmlString = generateXMLString (rootElement);   
     
     download_current_xml(xmlString);
-    
+
     console.log('END [downloadCurrentXML]');
 }
 
@@ -828,7 +832,10 @@ saveToRepositoryProcess = function()
         processData: false,
         async:false,
         success : function(data) {
-            $( "#dialog-save-data-message" ).dialog( "close" );
+        	try{
+        		// try to close the popup if opened to change the name
+        		$( "#dialog-save-data-message" ).dialog( "close" );
+        	}catch(err){}
             XMLDataSaved();
         },
         error:function(data){
@@ -858,6 +865,8 @@ XMLDataSaved = function()
     $(function() {
         $( "#dialog-saved-message" ).dialog({
             modal: true,
+            width: 350,
+        	height: 215,
             close: function(){
             	window.location = "/curate"
             },
@@ -1315,6 +1324,79 @@ cancelForm = function(){
             		    },
             	    });
                 },
+            }
+        });
+    });
+}
+
+
+/**
+ * Check required, recommended elements
+ */
+checkElementUse = function(){
+	required_count = 0
+	$(".required input:visible").each(function(){
+		if (!$(this).closest("li").hasClass("removed")){
+		  if($(this).val().trim() == ""){
+		    required_count += 1;
+		  }
+		}
+	});
+	$(".required textarea:visible").each(function(){
+		if (!$(this).closest("li").hasClass("removed")){
+			if($(this).val().trim() == ""){
+		    required_count += 1;
+		  }
+		}
+	});
+	
+	recommended_count = 0
+	$(".recommended input:visible").each(function(){
+		if (!$(this).closest("li").hasClass("removed")){
+		  if($(this).val().trim() == ""){
+			  recommended_count += 1;
+		  }
+		}
+	});
+	$(".recommended textarea:visible").each(function(){
+		if (!$(this).closest("li").hasClass("removed")){
+			if($(this).val().trim() == ""){
+			  recommended_count += 1;
+		  }
+		}
+	});
+	
+	errors = ""
+	if (required_count > 0 || recommended_count > 0){
+		errors = "<ul>"
+		errors += "<li>" + required_count.toString() + " required element(s) are empty.</li>"
+		errors += "<li>" + recommended_count.toString() + " recommended element(s) are empty.</li>"
+		errors += "</ul>"
+	}
+	
+	return errors;
+}
+
+/**
+ * Displays use error before viewing data
+ */
+useErrosAndView = function(errors){
+	$("#useErrorMessage").html(errors);
+	$(function() {
+        $( "#dialog-use-message" ).dialog({
+            modal: true,
+            height: 280,
+            width: 500,
+            buttons: {
+            	Edit: function() {
+            		$( this ).dialog( "close" );
+                },
+                Review: function() {
+                    viewData();
+                },
+            },
+            close: function(){
+            	$("#useErrorMessage").html("");
             }
         });
     });

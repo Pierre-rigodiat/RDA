@@ -105,6 +105,11 @@ def validate_xml_data(request):
         # TODO: namespaces
         xmlString = common.manageNamespace(template_id, request.POST['xmlString'])          
         common.validateXMLDocument(template_id, xmlString)
+    except etree.XMLSyntaxError, xse:
+        #xmlParseEntityRef exception: use of & < > forbidden
+        message= "Validation Failed. </br> May be caused by : </br> - Syntax problem </br> - Use of forbidden symbols : '&' or '<' or '>'"
+        response_dict = {'errors': message}
+        return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
     except Exception, e:
         message= e.message.replace('"', '\'')
         response_dict = {'errors': message}
@@ -1060,7 +1065,7 @@ def generateModule(request, element, namespace, xsd_xpath=None, xml_xpath=None, 
             if len(edit_elements) == 1:
                 edit_element = edit_elements[0]
                 # get attributes
-                if 'attrib' in element and len(edit_element.attrib) > 0:
+                if 'attribute' not in xsd_xpath and len(edit_element.attrib) > 0:
                     reload_attrib = dict(edit_element.attrib)
                 reload_data = get_Xml_element_data(element, edit_element, namespace)
             else:
@@ -1097,7 +1102,7 @@ def generateModule(request, element, namespace, xsd_xpath=None, xml_xpath=None, 
                 mod_req.GET['attributes'] = reload_attrib
 
             # renders the module
-            formString += view(mod_req).content
+            formString += view(mod_req).content.decode("utf-8")
     
     return formString
 

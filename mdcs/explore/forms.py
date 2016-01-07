@@ -1,7 +1,7 @@
 ################################################################################
 #
 # File Name: forms.py
-# Application: curate
+# Application: explore
 # Purpose:
 #
 # Author: Sharief Youssef
@@ -21,6 +21,9 @@ from django import forms
 from mgi.models import Template
 
 class ExportForm(forms.Form):
+    """
+    Create the form for exporting data
+    """
     my_exporters = forms.MultipleChoiceField(label='', choices=[], widget=forms.CheckboxSelectMultiple())
     EXPORT_OPTIONS = []
     def __init__(self, templateId=""):
@@ -41,6 +44,9 @@ class FormDataModelChoiceField(forms.ModelChoiceField):
         return "XSLT: "+ obj.name
 
 class UploadXSLTForm(forms.Form):
+    """
+    Create the form for exporting data with an XSLT
+    """
     my_xslts = forms.MultipleChoiceField(label='', choices=[], widget=forms.CheckboxSelectMultiple())
     EXPORT_OPTIONS = []
     def __init__(self, templateId=""):
@@ -56,7 +62,10 @@ class UploadXSLTForm(forms.Form):
         self.fields['my_xslts'].choices = self.EXPORT_OPTIONS
 
 class KeywordForm(forms.Form):
-    my_schemas = forms.MultipleChoiceField(label='', choices=[], widget=forms.CheckboxSelectMultiple(attrs={"checked":"checked"}))
+    """
+    Create the form for the keyword search: input and checkboxes
+    """
+    my_schemas = forms.MultipleChoiceField(label='', choices=[], widget=forms.CheckboxSelectMultiple(attrs={"checked":""}))
     search_entry = forms.CharField(widget=forms.TextInput(attrs={'class': 'research'}))
     SCHEMAS_OPTIONS = []
     def __init__(self, templateId=""):

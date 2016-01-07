@@ -1,3 +1,21 @@
+################################################################################
+#
+# File Name: models.py
+# Application: exporter/csv
+# Purpose:
+#
+# Author: Sharief Youssef
+#         sharief.youssef@nist.gov
+#
+#         Guillaume SOUSA AMARAL
+#         guillaume.sousa@nist.gov
+#
+#         Pierre Francois RIGODIAT
+#		  pierre-francois.rigodiat@nist.gov
+#
+# Sponsor: National Institute of Standards and Technology (NIST)
+#
+################################################################################
 from exporter.builtin.models import XSLTExporter
 import lxml.etree as etree
 import os
@@ -7,7 +25,9 @@ from django.conf import settings
 RESOURCES_PATH = os.path.join(settings.SITE_ROOT, 'exporter/csv/resources/')
 
 class CSVExporter(XSLTExporter):
-
+    """
+    CSV Exporter. Allows to transform a XML document to a CSV file thanks to a XSLT file.
+    """
     def __init__(self):
         #Invoke parent constructor
         dir = os.path.join(RESOURCES_PATH, 'xslt/xml2csv.xsl')
@@ -19,6 +39,10 @@ class CSVExporter(XSLTExporter):
         self.extension= ".csv"
 
     def _transform(self, results):
+        """
+            Method: Implement the abstract method. Transforms each result thanks to the XSLT.
+            Outputs: Returns a list of results (title, content)
+        """
         transformation = ""
         returnTransformation = []
         try:

@@ -1674,6 +1674,10 @@ initAutocomplete = function() {
                   this.value = ui.item.label;
                   $("#id_search_entry").tagit("createTag", this.value);
                 return false;
+                },
+                close: function( event, ui ) {
+                  $("#id_search_entry").tagit("createTag", this.value);
+                return false;
                 }
             })
         })

@@ -1,5 +1,5 @@
 from modules.registry.models import RegistryCheckboxesModule, NamePIDModule, \
-    RelevantDateModule, StatusModule, LocalIDModule, DescriptionModule
+    RelevantDateModule, StatusModule, LocalIDModule, DescriptionModule, TypeModule
 
 
 def registry_checkboxes_materialType(request):
@@ -12,6 +12,14 @@ def registry_checkboxes_structuralMorphology(request):
 
 def registry_checkboxes_propertyClass(request):
     return RegistryCheckboxesModule(xml_tag='propertyClass').render(request)
+
+
+def registry_checkboxes_expAcquisitionMethod(request):
+    return RegistryCheckboxesModule(xml_tag='experimentalDataAcquisitionMethod').render(request)
+
+
+def registry_checkboxes_compAcquisitionMethod(request):
+    return RegistryCheckboxesModule(xml_tag='computationalDataAcquisitionMethod').render(request)
 
 
 def name_pid(request):
@@ -32,3 +40,6 @@ def localid(request):
 
 def description(request):
     return DescriptionModule().render(request)
+
+def resource_type(request):
+    return TypeModule().render(request)

@@ -6,4 +6,3 @@ editForm = function(){
 		window.location = document.referrer + '&useForm=true';
 	}
 }
-

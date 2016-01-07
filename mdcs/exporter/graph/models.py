@@ -1,3 +1,22 @@
+################################################################################
+#
+# File Name: models.py
+# Application: exporter/graph
+# Purpose:
+#
+# Author: Sharief Youssef
+#         sharief.youssef@nist.gov
+#
+#         Guillaume SOUSA AMARAL
+#         guillaume.sousa@nist.gov
+#
+#         Pierre Francois RIGODIAT
+#		  pierre-francois.rigodiat@nist.gov
+#
+# Sponsor: National Institute of Standards and Technology (NIST)
+#
+################################################################################
+
 from exporter.builtin.models import Exporter
 import lxml.etree as etree
 import os
@@ -6,12 +25,19 @@ import matplotlib.pyplot as plt
 
 
 class GRAPHExporter(Exporter):
-
+    """
+    Graph Exporter. Allows to transform a XML document to several graph
+    Works for demo.diffusion schema
+    """
     def __init__(self):
         self.name = "GRAPH"
         self.extension= ".png"
 
     def _transform(self, results):
+        """
+            Method: Implement the abstract method.
+            Outputs: Returns a list of results (title, content)
+        """
         returnTransformation = []
         percentage = 0.3
         try:
@@ -37,7 +63,6 @@ class GRAPHExporter(Exporter):
                                 plt.ylabel(label)
                                 y = table.xpath("./rows/row/column[@id='"+id+"']")
                                 y = [float(value.text) for value in iter(y)]
-                                # plt.axis([xmin, xmax, ymin, ymax])
                                 plt.plot(list(x), list(y), marker='+', mec='b', mew=1, linestyle='--', color='r', lw=0.4)
                                 plt.grid(True)
                                 fig = plt.gcf()
