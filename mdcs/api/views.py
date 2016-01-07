@@ -556,6 +556,10 @@ def curate(request):
         try:
             try:
                 common.validateXMLDocument(schema.id, xmlStr)
+            except etree.XMLSyntaxError, xse:
+                #xmlParseEntityRef exception: use of & < > forbidden
+                content= {'message': "Validation Failed. May be caused by : Syntax problem, use of forbidden symbols like '&' or '<' or '>'"}
+                return Response(content, status=status.HTTP_400_BAD_REQUEST)
             except Exception, e:
                 content = {'message':e.message}
                 return Response(content, status=status.HTTP_400_BAD_REQUEST)

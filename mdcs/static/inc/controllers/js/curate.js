@@ -11,7 +11,6 @@
  * 
  */
 
-
 /**
  * AJAX call, checks that a template is selected
  * @param selectedLink redirection link
@@ -176,7 +175,7 @@ saveForm = function()
 				Save: function() {				 
 					$( this ).dialog( "close" );
 					var rootElement = document.getElementsByName("xsdForm")[0];
-					var xmlString = '';						
+					var xmlString = '';
 				    xmlString = generateXMLString (rootElement);
 					save_form(xmlString);
                 },
@@ -266,7 +265,7 @@ validateXML = function()
 {
 	var rootElement = document.getElementsByName("xsdForm")[0];
 	var xmlString = '';
-	
+
     xmlString = generateXMLString (rootElement);
     
     $("input:text").each(function(){
@@ -627,7 +626,7 @@ generate_xsd_form = function(){
             $('#modules').html(data.modules);
             $('#xsdForm').html(data.xsdForm);
             setTimeout(disable_elements ,0);
-            
+
             initModules();
         },
     });
@@ -763,14 +762,14 @@ downloadXSD = function()
 downloadCurrentXML = function()
 {
     console.log('BEGIN [downloadCurrentXML]');
-    
+
 	var rootElement = document.getElementsByName("xsdForm")[0];
 	var xmlString = '';
-    
+
     xmlString = generateXMLString (rootElement);   
     
     download_current_xml(xmlString);
-    
+
     console.log('END [downloadCurrentXML]');
 }
 

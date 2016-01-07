@@ -53,10 +53,10 @@ class Exporter(object):
 
             if instance == None:
                 path = "{!s}/{!s}".format(self.name,result['title'])
-                zip.writestr(path, result['content'])
+                zip.writestr(path, result['content'].encode('utf-8'))
             else:
                 path = "{!s}/{!s} {!s}/{!s}".format(self.name,self.name,instance,result['title'])
-                zip.writestr(path, result['content'])
+                zip.writestr(path, result['content'].encode('utf-8'))
 
          # fix for Linux zip files read in Windows
         for xmlFile in zip.filelist:
