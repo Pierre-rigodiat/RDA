@@ -11,6 +11,7 @@
  * 
  */
 
+var timeout;
 
 /**
  * AJAX call, checks that a template is selected
@@ -1552,44 +1553,52 @@ clearSearch = function() {
     $("#results_infos").html('');
 }
 
+
 /**
  * AJAX call, gets query results
  * @param numInstance
  */
 get_results_keyword = function(numInstance){
-    clearSearch();
-//    $('.toolbar').hide();
-    var keyword = $("#id_search_entry").val();
-    $.ajax({
-        url : "/explore/get_results_by_instance_keyword",
-        type : "GET",
-        dataType: "json",
-        data : {
-        	keyword: keyword,
-        	schemas: getSchemas(),
-        	refinements: loadRefinementQueries(),
-        	onlySuggestions: false,
-        },
-        beforeSend: function( xhr ) {
-            $("#loading").addClass("isloading");
-        },
-        success: function(data){
-        	if (data.resultString.length == 0){
-        		$("#results_errors").html("<i>No results found</i>");
-        	}
-        	else{
-        	    if(data.count > 1)
-        	        $("#results_infos").html(data.count + " results");
-                else
-                    $("#results_infos").html(data.count + " result");
+    $("#id_search_entry").tagit("createTagIfNeeded");
+    // clear the timeout
+	clearTimeout(timeout);
+	// send request if no parameter changed during the timeout
+    timeout = setTimeout(function(){
+        clearSearch();
+        $("#results").html('Please wait...');
+        var keyword = $("#id_search_entry").val();
+        $.ajax({
+            url : "/explore/get_results_by_instance_keyword",
+            type : "GET",
+            dataType: "json",
+            data : {
+                keyword: keyword,
+                schemas: getSchemas(),
+                refinements: loadRefinementQueries(),
+                onlySuggestions: false,
+            },
+            beforeSend: function( xhr ) {
+                $("#loading").addClass("isloading");
+            },
+            success: function(data){
+                if (data.resultString.length == 0){
+                    clearSearch();
+                    $("#results_errors").html("<i>No results found</i>");
+                }
+                else{
+                    if(data.count > 1)
+                        $("#results_infos").html(data.count + " results");
+                    else
+                        $("#results_infos").html(data.count + " result");
 
-        		$("#results").html(data.resultString);
-        	}
-        },
-        complete: function(){
-            $("#loading").removeClass("isloading");
-        }
-    });
+                    $("#results").html(data.resultString);
+                }
+            },
+            complete: function(){
+                $("#loading").removeClass("isloading");
+            }
+        });
+    }, 1000);
 }
 
 initAutocomplete = function() {
@@ -1599,9 +1608,13 @@ initAutocomplete = function() {
             afterTagRemoved: function(event, ui) {
                 clearSearch();
                 $("#id_search_entry").tagit("addPlaceHolder", this.value);
+                get_results_keyword();
             },
             onTagAdded: function(event, ui) {
                 $("#id_search_entry").tagit("removePlaceHolder", this.value);
+            },
+            afterTagAdded: function(event, ui) {
+                get_results_keyword();
             },
             autocomplete: ({
                 search: function(event, ui) {
@@ -1630,10 +1643,6 @@ initAutocomplete = function() {
                 minLength: 2,
                 select: function( event, ui ) {
                   this.value = ui.item.label;
-                  $("#id_search_entry").tagit("createTag", this.value);
-                return false;
-                },
-                close: function( event, ui ) {
                   $("#id_search_entry").tagit("createTag", this.value);
                 return false;
                 }
