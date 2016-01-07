@@ -14,6 +14,14 @@ def registry_checkboxes_propertyClass(request):
     return RegistryCheckboxesModule(xml_tag='propertyClass').render(request)
 
 
+def registry_checkboxes_expAcquisitionMethod(request):
+    return RegistryCheckboxesModule(xml_tag='experimentalDataAcquisitionMethod').render(request)
+
+
+def registry_checkboxes_compAcquisitionMethod(request):
+    return RegistryCheckboxesModule(xml_tag='computationalDataAcquisitionMethod').render(request)
+
+
 def name_pid(request):
     return NamePIDModule().render(request)
 
