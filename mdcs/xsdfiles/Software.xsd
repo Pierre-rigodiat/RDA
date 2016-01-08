@@ -270,6 +270,8 @@
           <xs:appinfo>
             <label>Publisher</label>
             <use>required</use>
+            <tooltip>Entity (e.g. person or organisation) responsible for making the
+            resource available.</tooltip>
           </xs:appinfo>
           <xs:appinfo>
                <dcterm>Publisher</dcterm>
@@ -286,6 +288,8 @@
           <xs:appinfo>
             <label>Creator</label>
             <use>required</use>
+            <tooltip>The entity (e.g. person or organization) primarily responsible
+             for creating the content or constitution of the resource.</tooltip>
           </xs:appinfo>
           <xs:appinfo>
                <dcterm>Creator</dcterm>
@@ -302,6 +306,8 @@
           <xs:appinfo>
             <label>Contributor</label>
             <use>required</use>
+            <tooltip>Entity responsible for contributions to the content of
+             the resource</tooltip>
           </xs:appinfo>
           <xs:appinfo>
                <dcterm>Contributor</dcterm>
@@ -318,6 +324,8 @@
           <xs:appinfo>
             <label>Date</label>
             <use>required</use>
+            <tooltip>Date associated with an event in the life cycle of the
+             resource.</tooltip>
           </xs:appinfo>
           <xs:appinfo>
                <dcterm>Date</dcterm>
@@ -527,6 +535,7 @@
             <label>Description</label>
             <placeholder>Enter repository's description</placeholder>
             <use>required</use>
+            <tooltip>An account of the nature of the resource</tooltip>
           </xs:appinfo>
           <xs:appinfo>
                <dcterm>Description</dcterm>
@@ -548,6 +557,8 @@
             <label>Subject</label>
             <placeholder>Enter a subject(ex. molecular dynamics, metals, force fields)</placeholder>
             <use>recommended</use>
+            <tooltip>a topic, object type, or other descriptive keywords
+             about the resource.</tooltip>
           </xs:appinfo>
           <xs:appinfo>
                <dcterm>Subject</dcterm>
@@ -565,6 +576,8 @@
             <label>Reference URL</label>
             <placeholder>Enter a reference url</placeholder>
             <use>required</use>
+            <tooltip>URL pointing to a human-readable document describing this
+              resource.</tooltip>
           </xs:appinfo>
           <xs:documentation>
                 URL pointing to a human-readable document describing this 
