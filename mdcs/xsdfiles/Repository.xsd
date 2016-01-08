@@ -966,7 +966,7 @@
              </xs:annotation>
            </xs:element>
 
-         <xs:element name="experimentalDataAcquisitionMethod" type="DataAcquisitionMethod" minOccurs="0"
+         <xs:element name="experimentalDataAcquisitionMethod" type="ExperimentalDataAcquisitionMethod" minOccurs="0"
            maxOccurs="unbounded" xmlns:ns0="http://mdcs.ns" ns0:_mod_mdcs_="/registry/experimentalDataAcquisitionMethod">
            <xs:annotation>
              <xs:appinfo>
@@ -993,7 +993,7 @@
            </xs:annotation>
          </xs:element>
 
-         <xs:element name="computationalDataAcquisitionMethod" type="DataAcquisitionMethod" minOccurs="0"
+         <xs:element name="computationalDataAcquisitionMethod" type="ComputationalDataAcquisitionMethod" minOccurs="0"
            maxOccurs="unbounded" xmlns:ns0="http://mdcs.ns" ns0:_mod_mdcs_="/registry/computationalDataAcquisitionMethod">
            <xs:annotation>
              <xs:appinfo>
@@ -1397,11 +1397,10 @@
      </xs:restriction>
    </xs:simpleType>
 
-
-  <xs:simpleType name="DataAcquisitionMethod">
+  <xs:simpleType name="ExperimentalDataAcquisitionMethod">
     <xs:annotation>
       <xs:documentation>
-         allowed values representing categories of data acquisition method
+        allowed values representing categories of data acquisition method
       </xs:documentation>
     </xs:annotation>
     <xs:restriction base="xs:token">
@@ -1415,6 +1414,19 @@
       <xs:enumeration value="impact testing"/>
       <xs:enumeration value="indentation"/>
       <xs:enumeration value="dilatometry"/>
+      <xs:enumeration value="other"/>
+      <xs:enumeration value="non-specific"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+
+  <xs:simpleType name="ComputationalDataAcquisitionMethod">
+    <xs:annotation>
+      <xs:documentation>
+         allowed values representing categories of data acquisition method
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:token">
       <xs:enumeration value="density functional theory calculation"/>
       <xs:enumeration value="molecular dynamics simulation"/>
       <xs:enumeration value="numerical simulations"/>
@@ -1425,7 +1437,7 @@
       <xs:enumeration value="dislocation dynamics"/>
       <xs:enumeration value="phase field calculation"/>
       <xs:enumeration value="crystal plasticity calculation"/>
-      <xs:enumeration value="Monte-Carlo simulation"/>
+      <xs:enumeration value="monte-carlo simulation"/>
       <xs:enumeration value="boundary tracking/level set"/>
       <xs:enumeration value="non-specific"/>
     </xs:restriction>

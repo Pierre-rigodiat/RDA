@@ -22,6 +22,10 @@ def registry_checkboxes_compAcquisitionMethod(request):
     return RegistryCheckboxesModule(xml_tag='computationalDataAcquisitionMethod').render(request)
 
 
+def registry_checkboxes_sampleProcessing(request):
+    return RegistryCheckboxesModule(xml_tag='sampleProcessing').render(request)
+
+
 def name_pid(request):
     return NamePIDModule().render(request)
 

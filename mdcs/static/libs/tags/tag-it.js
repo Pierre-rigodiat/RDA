@@ -596,6 +596,9 @@
                 this.tagInput.attr('placeholder', this.options.placeholderText);
                 $("li.tagit-new").css('width', '100%');
             }
+        },
+        createTagIfNeeded: function() {
+            this.createTag(this._cleanedInput());
         }
     });
 })(jQuery);
