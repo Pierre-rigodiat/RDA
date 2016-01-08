@@ -16,7 +16,7 @@
 #
 ################################################################################
 from django.contrib.auth.models import Permission, Group
-from mgi.rights import anonymous_group, default_group, explore_access, curate_access
+from mgi.rights import anonymous_group, default_group, explore_access, curate_access, api_access
 
 
 def init_rules():
@@ -28,19 +28,25 @@ def init_rules():
     try:
         # Get or Create the Group anonymous
         anonymousGroup, created = Group.objects.get_or_create(name=anonymous_group)
-        if created:
-            #We add the exploration_access by default
-            explore_access_perm = Permission.objects.get(codename=explore_access)
-            anonymousGroup.permissions.add(explore_access_perm)
+        if not created:
+            anonymousGroup.permissions.clear()
+
+        #We add the exploration_access by default
+        explore_access_perm = Permission.objects.get(codename=explore_access)
+        anonymousGroup.permissions.add(explore_access_perm)
 
         # Get or Create the default basic
         defaultGroup, created = Group.objects.get_or_create(name=default_group)
-        if created:
-            #We add the exploration_access and curate_acces by default
-            explore_access_perm = Permission.objects.get(codename=explore_access)
-            curate_access_perm = Permission.objects.get(codename=curate_access)
-            defaultGroup.permissions.add(explore_access_perm)
-            defaultGroup.permissions.add(curate_access_perm)
+        if not created:
+            defaultGroup.permissions.clear()
+
+        #We add the exploration_access and curate_acces by default
+        explore_access_perm = Permission.objects.get(codename=explore_access)
+        curate_access_perm = Permission.objects.get(codename=curate_access)
+        api_access_perm = Permission.objects.get(codename=api_access)
+        defaultGroup.permissions.add(explore_access_perm)
+        defaultGroup.permissions.add(curate_access_perm)
+        defaultGroup.permissions.add(api_access_perm)
     except Exception, e:
         print('ERROR : Impossible to init the rules : ' + e.message)
 

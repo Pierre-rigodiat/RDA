@@ -25,6 +25,11 @@ anonymous_group = "anonymous"
 default_group = "default"
 #######################
 
+### API Rights ###
+api_content_type = "api"
+api_access = "api_access"
+### End API Rights ###
+
 ### Compose Rights ###
 compose_content_type = "compose"
 compose_access = "compose_access"

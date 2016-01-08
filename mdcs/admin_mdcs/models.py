@@ -174,12 +174,15 @@ def api_permission_required(content_type, permission, raise_exception=False):
         @wraps(view_func)
         def wrapper(request, *args, **kwargs):
             if request.user.is_anonymous():
+                access_api = Group.objects.filter(Q(name=RIGHTS.anonymous_group) & Q(permissions__codename=RIGHTS.api_access))
                 access = Group.objects.filter(Q(name=RIGHTS.anonymous_group) & Q(permissions__codename=permission))
             else:
+                prefixed_api_permission = "{!s}.{!s}".format(RIGHTS.api_content_type, RIGHTS.api_access)
+                access_api = request.user.has_perm(prefixed_api_permission)
                 prefixed_permission = "{!s}.{!s}".format(content_type, permission)
                 access = request.user.has_perm(prefixed_permission)
 
-            if access:
+            if access_api and access:
                 return view_func(request, *args, **kwargs)
             else:
                 # In case the 403 handler should be called raise the exception
