@@ -16,7 +16,8 @@
 #
 ################################################################################
 from django.contrib.auth.models import Permission, Group
-from mgi.rights import anonymous_group, default_group, explore_access, curate_access
+from mgi.rights import anonymous_group, default_group, explore_access, curate_access, \
+    curate_edit_document, curate_delete_document
 
 
 def init_rules():
@@ -39,8 +40,12 @@ def init_rules():
             #We add the exploration_access and curate_acces by default
             explore_access_perm = Permission.objects.get(codename=explore_access)
             curate_access_perm = Permission.objects.get(codename=curate_access)
+            curate_edit_perm = Permission.objects.get(codename=curate_edit_document)
+            curate_delete_perm = Permission.objects.get(codename=curate_delete_document)
             defaultGroup.permissions.add(explore_access_perm)
             defaultGroup.permissions.add(curate_access_perm)
+            defaultGroup.permissions.add(curate_edit_perm)
+            defaultGroup.permissions.add(curate_delete_perm)
     except Exception, e:
         print('ERROR : Impossible to init the rules : ' + e.message)
 
