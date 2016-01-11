@@ -19,10 +19,9 @@ from django.contrib.auth.models import Permission, Group
 from mgi.rights import anonymous_group, default_group, explore_access, curate_access, \
     curate_edit_document, curate_delete_document
 from pymongo import MongoClient
-from pymongo.errors import OperationFailure
 from mgi.settings import MONGODB_URI, SITE_ROOT
 import os
-from mgi.models import Template, TemplateVersion, ResultXslt
+from mgi.models import Template, TemplateVersion
 from utils.XSDhash import XSDhash
 
 def init_rules():
