@@ -36,8 +36,11 @@
 
 
 {% block content %}
-Click on 'Add Resource' to add the resource to the repository. You will then be able to publish it from your Dashboard to make it publicly discoverable by everyone.
-
+{% if not edit %}
+You can now review your data. Click on 'Add Resource' to add the resource to the registry. You will then be able to publish it from your Dashboard to make it publicly discoverable by everyone.
+{% else %}
+You can now review your data. Click on 'Save Changes' to update the resource in the registry.
+{% endif %}
 <div class="clearer">&nbsp;</div>
 
 <div id="XMLHolder"></div>

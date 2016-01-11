@@ -245,33 +245,34 @@ class LocalIDModule(InputModule):
         InputModule.__init__(self, disabled=True)
 
     def _get_module(self, request):
-        # create a connection
-        client = MongoClient(MONGODB_URI)
-        # connect to the db 'mgi'
-        db = client['mgi']
-        # get the xmldata collection
-        xmldata = db['xmldata']
-        # find all objects of the collection
-        cursor = xmldata.find()
-        # build a list with the objects        
-        existing_localids = []
-        for result in cursor:
-            try:
-                existing_localids.append(result['content']['Resource']['@localid'])
-            except:
-                pass
-        
-        N = 20
-        localid = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(N))
-        while localid in existing_localids:
+        if 'data' in request.GET:
+            self.default_value = request.GET['data']
+        else:
+            # create a connection
+            client = MongoClient(MONGODB_URI)
+            # connect to the db 'mgi'
+            db = client['mgi']
+            # get the xmldata collection
+            xmldata = db['xmldata']
+            # find all objects of the collection
+            cursor = xmldata.find()
+            # build a list with the objects        
+            existing_localids = []
+            for result in cursor:
+                try:
+                    existing_localids.append(result['content']['Resource']['@localid'])
+                except:
+                    pass
+            
+            N = 20
             localid = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(N))
-        
-        self.default_value = localid
+            while localid in existing_localids:
+                localid = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(N))
+            
+            self.default_value = localid
         return InputModule.get_module(self, request)
 
     def _get_display(self, request):        
-        if 'data' in request.GET:
-            self.default_value = request.GET['data']
         return ''
 
     def _get_result(self, request):
