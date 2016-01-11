@@ -22,7 +22,7 @@
 
 import os
 
-VERSION = "1.3"
+VERSION = "alpha"
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
