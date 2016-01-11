@@ -868,7 +868,7 @@ XMLDataSaved = function()
             width: 350,
         	height: 215,
             close: function(){
-            	window.location = "/curate"
+            	window.location = "/my-profile/resources"
             },
             buttons: {
             	Ok: function() {
