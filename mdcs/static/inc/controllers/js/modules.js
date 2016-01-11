@@ -56,7 +56,7 @@ saveModuleData = function($module, modData, asyncOpt) {
         type : "POST",
         dataType: "json",
         data: modData,
-        async: asyncOpt,
+        async: false,
         success: function(data){
             if(!'html' in data) {
                 console.error('No data sent back by the server');
