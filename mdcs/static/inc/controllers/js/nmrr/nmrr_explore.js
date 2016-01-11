@@ -134,6 +134,7 @@ filter_result_display = function(filter){
 	
 	if (filter == 'simple'){
 		$(".nmrr_line").hide();
+		$(".nmrr_line.line_publisher").show();
 		$(".nmrr_line.line_creator").show();
 		$(".nmrr_line.line_subject").show();
 	}else if (filter == 'detailed'){
