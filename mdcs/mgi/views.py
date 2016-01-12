@@ -386,6 +386,3 @@ def my_profile_resources(request):
                 'XMLdatas': XMLdata.find({'iduser' : str(request.user.id)}),
         })
     return HttpResponse(template.render(context))
-
-################################################################################
-#
