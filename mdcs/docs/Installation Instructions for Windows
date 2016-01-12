@@ -1,5 +1,5 @@
 Installation Instructions (Windows)
-for Materials Data Curation Project
+for Materials Resource Registry
 
 Setup:
 
@@ -58,10 +58,10 @@ a.	If you use a virtual environment.
 You can’t change the destination folder set in the installer so you will have to install the package in the specified folder (C:\Python27\Lib\site-packages\) and then copy the lxml directories from C:\Python27\Lib\site-packages\ to %USERPROFILE%\Develop\Envs\mgi\Lib\site-packages.
 
 
-Running the MDCS for the first time:
+Running the MRR for the first time:
 
 1)	Run mongodb (if not already running). In a command prompt :
-mongod --config /path/to/mdcs/conf/mongodb.conf
+mongod --config /path/to/mrr/conf/mongodb.conf
 
 2)	python manage.py syncdb
 
@@ -73,11 +73,11 @@ Would you like to create one now? (yes/no):yes
 To Run the software:
 
 1)	Run mongodb (if not already running). In a command prompt :
-mongod --config /path/to/mdcs/conf/mongodb.conf
+mongod --config /path/to/mrr/conf/mongodb.conf
 
-2)	Run the MDCS. In a command prompt :
+2)	Run the MRR. In a command prompt :
 workon mgi
-cd path/to/mdcs
+cd path/to/mrr
 python manage.py runserver
 
 

@@ -1,5 +1,5 @@
 Installation Instructions (LINUX)
-for Materials Data Curation System
+for Materials Resource Registry
 
 For Operating System:
 
@@ -55,10 +55,10 @@ For lxml:
 If you get the error “clang error: linker command failed”, then run the following command instead:
 STATIC_DEPS=true pip install lxml (http://lxml.de/installation.html)
 
-Running the MDCS for the first time:
+Running the MRR for the first time:
 
 1)	Run mongodb (if not already running). In a command prompt :
-mongod --config /path/to/mdcs/conf/mongodb.conf
+mongod --config /path/to/mrr/conf/mongodb.conf
 
 2)	python manage.py syncdb
 
@@ -70,11 +70,11 @@ Would you like to create one now? (yes/no):yes
 To Run the software:
 
 1)	Run mongodb (if not already running). In a command prompt :
-mongod --config /path/to/mdcs/conf/mongodb.conf
+mongod --config /path/to/mrr/conf/mongodb.conf
 
-2)	Run the MDCS. In a command prompt :
+2)	Run the MRR. In a command prompt :
 workon mgi
-cd path/to/mdcs
+cd path/to/mrr
 python manage.py runserver
 
 To be able to access the system remotely, instead of using python manage.py runserver, use: python manage.py runserver 0.0.0.0:<port>
