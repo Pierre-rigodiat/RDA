@@ -347,7 +347,22 @@ class XMLdata():
         # get the xmldata collection
         xmldata = db['xmldata']
         return xmldata.find_one({'_id': ObjectId(postID)}, as_class = OrderedDict)
-    
+
+
+    @staticmethod
+    def getByIDsAndDistinctBy(listIDs, distinctBy=None):
+        """
+            Returns the object with the given id
+        """
+        # create a connection
+        client = MongoClient(MONGODB_URI)
+        # connect to the db 'mgi'
+        db = client['mgi']
+        # get the xmldata collection
+        xmldata = db['xmldata']
+        listIDs = [ObjectId(x) for x in listIDs]
+        return xmldata.find({'_id': { '$in': listIDs }}, as_class = OrderedDict).distinct(distinctBy)
+
     
     @staticmethod
     def delete(postID):
