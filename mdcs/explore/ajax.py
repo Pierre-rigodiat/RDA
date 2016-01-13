@@ -985,7 +985,8 @@ def get_results_by_instance_keyword(request):
                     context = RequestContext(request, {'id':str(instanceResult['_id']),
                                        'xml': str(newdom),
                                        'title': instanceResult['title'],
-                                       'custom_xslt': custom_xslt})
+                                       'custom_xslt': custom_xslt,
+                                       'template_name': schema.title})
 
                     resultString+= template.render(context)
                 else:
@@ -1066,7 +1067,8 @@ def get_results_by_instance(request):
                     context = RequestContext(request, {'id':str(instanceResult['_id']),
                                                'xml': str(newdom),
                                                'title': instanceResult['title'],
-                                               'custom_xslt': custom_xslt})
+                                               'custom_xslt': custom_xslt,
+                                               'template_name': schema.title})
 
                     resultString+= template.render(context)
 
