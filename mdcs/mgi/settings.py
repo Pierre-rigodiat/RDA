@@ -22,7 +22,7 @@
 
 import os
 
-VERSION = "1.2"
+VERSION = "1.3"
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -94,9 +94,6 @@ HANDLE_SERVER_PSWD = ''
 CUSTOM_TITLE = 'Materials Data'
 CUSTOM_SUBTITLE = 'Part of the Materials Genome Initiative'
 CUSTOM_DATA = 'Materials Data'
-CUSTOM_DESCRIPTION = """This system allows for the curation of Material Data in a repository using predefined templates. <br/><br/>
-                     This is being developed at the National Institute of Standards and Technology and is made available to solicit comments from the Material Science community. 
-                     Please do not enter any proprietary data into this system. """
 CUSTOM_CURATE = 'Data Curation'
 CUSTOM_EXPLORE = 'Data Exploration'
 CUSTOM_COMPOSE = 'Composer'
@@ -106,7 +103,7 @@ CURATE_MIN_TREE = True
 CURATE_COLLAPSE = True
 
 #KEYWORD
-EXPLORE_BY_KEYWORD = False  #True or False
+EXPLORE_BY_KEYWORD = True  #True or False
 
 TEMPLATE_DIRS = [os.path.join(BASE_DIR, 'templates')]
 
