@@ -1457,14 +1457,23 @@ backToResults = function()
 }
 
 
+clearExport = function() {
+    $("#btn_errors").html("")
+    $("#banner_errors").hide(200)
+    $("#form_start_errors").html("");
+    $("#form_start_current").html("");
+    $("#results_errors").html("")
+    $("#banner_results_errors").hide(200);
+}
+
+
 /**
 * Export files
 */
 exportRes = function() {
 
 	console.log('BEGIN [downloadSelectedResults]');
-
-    $("#btn_errors").html("")
+    clearExport();
     var existOne = false;
     // Need to Set input values explicitiy before sending innerHTML for save
     var elems = document.getElementById("results").getElementsByTagName("input")
@@ -1477,10 +1486,14 @@ exportRes = function() {
     	}
     }
 
-    if(existOne > 0)
+    if(existOne > 0){
         displayExportSelectedDialog(listId);
-     else
+    }
+    else
+    {
         $("#btn_errors").html("Please select results to export");
+        $("#banner_errors").show(500)
+    }
 
 	console.log('END [downloadSelectedResults]');
 }
@@ -1548,11 +1561,13 @@ validateExport = function(){
 
 
 clearSearch = function() {
+    $("#btn_errors").html('');
+    $("#banner_errors").hide(200);
     $("#results").html('');
     $("#results_errors").html('');
+    $("#banner_results_errors").hide(200);
     $("#results_infos").html('');
 }
-
 
 /**
  * AJAX call, gets query results
@@ -1583,7 +1598,8 @@ get_results_keyword = function(numInstance){
             success: function(data){
                 if (data.resultString.length == 0){
                     clearSearch();
-                    $("#results_errors").html("<i>No results found</i>");
+                    $("#results_errors").html("<i class='fa fa-info fa-2x'></i>  No results found");
+                    $("#banner_results_errors").show(200)
                 }
                 else{
                     if(data.count > 1)
@@ -1608,7 +1624,6 @@ initAutocomplete = function() {
             afterTagRemoved: function(event, ui) {
                 clearSearch();
                 $("#id_search_entry").tagit("addPlaceHolder", this.value);
-                get_results_keyword();
             },
             onTagAdded: function(event, ui) {
                 $("#id_search_entry").tagit("removePlaceHolder", this.value);

@@ -398,8 +398,14 @@ def start_export(request):
         # We retrieve the result_id for each file the user wants to export
         listId = request.GET.getlist('listId[]')
         request.session['listIdToExport'] = listId
-        export_form = ExportForm(request.session['exploreCurrentTemplateID'])
-        upload_xslt_Form = UploadXSLTForm(request.session['exploreCurrentTemplateID'])
+
+        # Get all schemaId from the listId
+        listSchemas = XMLdata.getByIDsAndDistinctBy(listId, "schema")
+            # XMLdata.objects(pk__in=listId).distinct(field="schema")
+
+        export_form = ExportForm(listSchemas)
+
+        upload_xslt_Form = UploadXSLTForm(listSchemas)
         template = loader.get_template('explore/export_start.html')
         context = Context({'export_form':export_form, 'upload_xslt_Form':upload_xslt_Form, 'nb_elts_exp': len(export_form.EXPORT_OPTIONS), 'nb_elts_xslt' : len(upload_xslt_Form.EXPORT_OPTIONS)})
 

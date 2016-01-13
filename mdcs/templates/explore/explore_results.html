@@ -47,7 +47,11 @@
 		<span class="btn" onclick="exportRes();"><i class="icon-arrow-down"></i> Export</span>
   	</div>
 	<br/><br/>
-	<div id="btn_errors" style="color:red;font-style: italic;text-align: right;"></div>
+	<div class="alert alert-error" id="banner_errors" style="display: none;">
+				<h4><i class="fa fa-exclamation-circle fa-1x"></i> Error</h4>
+				<div id="btn_errors">
+				</div>
+	</div>
 </div>
 <div id="results"></div>
 {% endblock %}	
