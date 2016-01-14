@@ -66,7 +66,7 @@ def index(request):
 
     else:
         template = loader.get_template('explore/explore_keyword.html')
-        search_form = KeywordForm()
+        search_form = KeywordForm(request.user.id)
         context = RequestContext(request, {
             'search_Form':search_form,
         })

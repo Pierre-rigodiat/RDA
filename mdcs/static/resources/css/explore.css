@@ -90,3 +90,7 @@ h1.search {
 li.tagit-new {
     width: 100%;
 }
+
+div#templates ul {
+	list-style:none;
+}

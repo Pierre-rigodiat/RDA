@@ -941,19 +941,27 @@ def get_results_by_instance_keyword(request):
         try:
             keyword = request.GET['keyword']
             schemas = request.GET.getlist('schemas[]')
+            userSchemas = request.GET.getlist('userSchemas[]')
             refinements = refinements_to_mongo(request.GET.getlist('refinements[]'))
             onlySuggestions = json.loads(request.GET['onlySuggestions'])
         except:
             keyword = ''
             schemas = []
+            userSchemas = []
             refinements = {}
             onlySuggestions = True
 
         #We get all template versions for the given schemas
+        #First, we take care of user defined schema
+        templatesIDUser = Template.objects(title__in=userSchemas).distinct(field="id")
+        templatesIDUser = [str(x) for x in templatesIDUser]
+
+        #Take care of the rest, with versions
         templatesVersions = Template.objects(title__in=schemas).distinct(field="templateVersion")
         #We get all templates ID, for all versions
-        templatesID = TemplateVersion.objects(pk__in=templatesVersions).distinct(field="versions")
-        
+        templatesIDCommon = TemplateVersion.objects(pk__in=templatesVersions).distinct(field="versions")
+
+        templatesID = templatesIDUser + templatesIDCommon
         instanceResults = XMLdata.executeFullTextQuery(keyword, templatesID, refinements)
         if len(instanceResults) > 0:
             if not onlySuggestions:

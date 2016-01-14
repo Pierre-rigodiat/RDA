@@ -1589,6 +1589,7 @@ get_results_keyword = function(numInstance){
             data : {
                 keyword: keyword,
                 schemas: getSchemas(),
+                userSchemas: getUserSchemas(),
                 refinements: loadRefinementQueries(),
                 onlySuggestions: false,
             },
@@ -1643,7 +1644,7 @@ initAutocomplete = function() {
                    event.preventDefault(); // Prevent the default focus behavior.
                 },
                 source: function(request, response) {
-                $.getJSON("/explore/get_results_by_instance_keyword", { keyword: request.term, schemas: getSchemas(), onlySuggestions: true, },
+                $.getJSON("/explore/get_results_by_instance_keyword", { keyword: request.term, schemas: getSchemas(), userSchemas: getUserSchemas(), onlySuggestions: true, },
                 function (data) {
                     response($.map(data.resultsByKeyword, function (item) {
                         if(item.label != '')
@@ -1669,6 +1670,15 @@ initAutocomplete = function() {
 getSchemas = function(numInstance){
     var values = [];
     $('#id_my_schemas input:checked').each(function() {
+        values.push(this.value);
+    });
+
+    return values;
+}
+
+getUserSchemas = function(numInstance){
+    var values = [];
+    $('#id_my_user_schemas input:checked').each(function() {
         values.push(this.value);
     });
 

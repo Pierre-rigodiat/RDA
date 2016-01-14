@@ -41,15 +41,32 @@
 
 
 {% block sidebar %}
-{% if search_Form.my_schemas_nb > 1 %}
-<div id="templates" style="display: block;margin-left: 1.5em;">
+{% if search_Form.my_schemas_nb|add:search_Form.my_user_schemas_nb > 1 %}
 	<hr/>
+	<div id="templates" style="display: block;margin-left: 1.5em;">
 	<h3 style="color: #4d90fe">Browse in Templates</h3>
-	<div style="display: block;">{{search_Form.my_schemas}}</div>
 	<hr/>
-</div>
+	{% if search_Form.my_schemas_nb > 0 %}
+		<h8 style="color: #4d90fe">Global Templates</h8>
+		<div style="display: block;ul{list-style-type: none;}">{{search_Form.my_schemas}}</div>
+		<hr/>
+	{% endif %}
+	{% if user.is_authenticated %}
+		<h8 style="color: #4d90fe">User Defined Templates</h8>
+		{% if search_Form.my_user_schemas_nb > 0 %}
+		<div style="display: block;">{{search_Form.my_user_schemas}}</div>
+		<hr/>
+		{% else %}
+			<div class="unavailable">
+            Create your own templates using the <a href="/compose">Composer</a> and you will be able to use them from
+            this section.
+        	</div>
+		{% endif %}
+	{% endif %}
+	</div>
 {% else %}
 <div style="display: none;">{{search_Form.my_schemas}}</div>
+<div style="display: none;">{{search_Form.my_user_schemas}}</div>
 {% endif %}
 
 <div id="refinement" style="display: none;margin-left: 1.5em;">

@@ -99,18 +99,33 @@ class KeywordForm(forms.Form):
     Create the form for the keyword search: input and checkboxes
     """
     my_schemas = forms.MultipleChoiceField(label='', choices=[], widget=forms.CheckboxSelectMultiple(attrs={"checked":""}))
+    my_user_schemas = forms.MultipleChoiceField(label='', choices=[], widget=forms.CheckboxSelectMultiple(attrs={"checked":""}))
+
     search_entry = forms.CharField(widget=forms.TextInput(attrs={'class': 'research'}))
     my_schemas_nb = 0
+    my_user_schemas_nb = 0
     SCHEMAS_OPTIONS = []
-    def __init__(self, templateId=""):
+    SCHEMAS_USER_OPTIONS = []
+    def __init__(self, userId=""):
         self.SCHEMAS_OPTIONS = []
-        #We retrieve all template
-        schemas = Template.objects.all().distinct(field="title")
+        self.SCHEMAS_USER_OPTIONS = []
+        #We retrieve all common template + user template
+        schemas = Template.objects(user=None).distinct(field="title")
+        userSchemas = Template.objects(user=str(userId)).distinct(field="title")
+
         for schema in schemas:
             #We add them
             self.SCHEMAS_OPTIONS.append((schema, schema))
 
+        for schema in userSchemas:
+            #We add them
+            self.SCHEMAS_USER_OPTIONS.append((schema, schema))
+
         super(KeywordForm, self).__init__()
         self.fields['my_schemas'].choices = []
         self.fields['my_schemas'].choices = self.SCHEMAS_OPTIONS
+        self.fields['my_user_schemas'].choices = []
+        self.fields['my_user_schemas'].choices = self.SCHEMAS_USER_OPTIONS
+
         self.my_schemas_nb = len(self.SCHEMAS_OPTIONS)
+        self.my_user_schemas_nb = len(self.SCHEMAS_USER_OPTIONS)
