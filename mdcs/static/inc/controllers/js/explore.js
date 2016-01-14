@@ -1305,7 +1305,6 @@ get_results_keyword = function(numInstance){
                 keyword: keyword,
                 schemas: getSchemas(),
                 userSchemas: getUserSchemas(),
-                refinements: loadRefinementQueries(),
                 onlySuggestions: false,
             },
             beforeSend: function( xhr ) {
@@ -1398,44 +1397,6 @@ getUserSchemas = function(numInstance){
     });
 
     return values;
-}
-
-initSearch = function(){
-    var schemas = $("#id_my_schemas").find("input:checkbox").prop("checked", true);
-    var userSchemas = $("#id_my_user_schemas").find("input:checkbox").prop("checked", true);
-    if(schemas.length + userSchemas.length == 1)
-    {
-        name = schemas.val();
-	    loadRefinements(name);
-    }
-}
-
-loadRefinements = function(schema){
-	$.ajax({
-        url : "/explore/load_refinements",
-        type : "GET",
-        dataType: "json",
-        data : {
-        	schema:schema,
-        },
-        success: function(data){
-            $("#refinement").show();
-        	$("#refine_resource").html(data.refinements);
-            initResources();
-        }
-    });
-}
-
-loadRefinementQueries = function(){
-	var refinements = [];
-	$("#refine_resource").find("input:checked").each(function(){
-		query = $(this).closest("div.refine_criteria").attr("query");
-		val = $(this).val();
-		refinements.push(query + ":" + val);
-	});
-	console.log(refinements);
-
-	return refinements;
 }
 
 initResources = function(){

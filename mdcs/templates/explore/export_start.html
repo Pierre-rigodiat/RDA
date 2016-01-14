@@ -23,9 +23,11 @@
         <li>
           {{export_form.my_exporters_disabled}}
         </li>
+        {% if upload_xslt_Form.my_xslts_disabled %}
         <li>
           XSLT Files: {{upload_xslt_Form.my_xslts_disabled}}
          </li>
+        {% endif %}
        </ul>
     </div>
  {% endif %}
