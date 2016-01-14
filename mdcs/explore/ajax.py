@@ -935,7 +935,17 @@ def get_results_by_instance_keyword(request):
     resultsByKeyword = []
     results = []
     resultString = ""
-    sessionName = "resultsExploreLocal"
+
+    #Instance
+    json_instances = []
+    if 'HTTPS' in request.META['SERVER_PROTOCOL']:
+        protocol = "https"
+    else:
+        protocol = "http"
+    instance = Instance(name="Local", protocol=protocol, address=request.META['REMOTE_ADDR'], port=request.META['SERVER_PORT'], access_token="token", refresh_token="token")
+    json_instances.append(instance.to_json())
+    request.session['instancesExplore'] = json_instances
+    sessionName = "resultsExplore" + instance['name']
 
     if settings.EXPLORE_BY_KEYWORD:
         try:

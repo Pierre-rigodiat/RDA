@@ -339,61 +339,58 @@ def explore_detail_result_process(request) :
 @permission_required(content_type=RIGHTS.explore_content_type, permission=RIGHTS.explore_access, login_url='/login')
 def start_export(request):
     if request.method == 'POST':
-        if 'exploreCurrentTemplateID' not in request.session:
-            return redirect('/explore/select-template')
-        else:
-            #We retrieve all selected exporters
-            listExporter = request.POST.getlist('my_exporters')
-            instances = request.session['instancesExplore']
-            listId = request.session['listIdToExport']
-            xmlResults = []
-            #Creation of ZIP file
-            in_memory = StringIO()
-            zip = zipfile.ZipFile(in_memory, "a")
-            is_many_inst = len(instances) > 1
-            for instance in instances:
-                #Retrieve data
-                sessionName = "resultsExplore" + eval(instance)['name']
-                results = request.session[sessionName]
-                if (len(results) > 0):
-                    for result in results:
-                        if result['id'] in listId:
-                            xmlResults.append(result)
+        #We retrieve all selected exporters
+        listExporter = request.POST.getlist('my_exporters')
+        instances = request.session['instancesExplore']
+        listId = request.session['listIdToExport']
+        xmlResults = []
+        #Creation of ZIP file
+        in_memory = StringIO()
+        zip = zipfile.ZipFile(in_memory, "a")
+        is_many_inst = len(instances) > 1
+        for instance in instances:
+            #Retrieve data
+            sessionName = "resultsExplore" + eval(instance)['name']
+            results = request.session[sessionName]
+            if (len(results) > 0):
+                for result in results:
+                    if result['id'] in listId:
+                        xmlResults.append(result)
 
-                #For each data, we convert
-                if len(xmlResults) > 0:
-                    #Init the folder name
-                    folder_name = None
-                    if is_many_inst:
-                        folder_name = eval(instance)['name']
-                    #Check if the XSLT converter is asked. If yes, we start with this one because there is a specific treatment
-                    listXslt = request.POST.getlist('my_xslts')
-                    #Get the content of the file
-                    if len(listXslt) > 0:
-                        exporter = XSLTExporter()
-                        for xslt in listXslt:
-                            xslt = ExporterXslt.objects.get(pk=xslt)
-                            exporter._setXslt(xslt.content)
-                            if folder_name == None:
-                                exporter._transformAndZip(xslt.name, xmlResults, zip)
-                            else:
-                                exporter._transformAndZip(folder_name+"/"+xslt.name, xmlResults, zip)
+            #For each data, we convert
+            if len(xmlResults) > 0:
+                #Init the folder name
+                folder_name = None
+                if is_many_inst:
+                    folder_name = eval(instance)['name']
+                #Check if the XSLT converter is asked. If yes, we start with this one because there is a specific treatment
+                listXslt = request.POST.getlist('my_xslts')
+                #Get the content of the file
+                if len(listXslt) > 0:
+                    exporter = XSLTExporter()
+                    for xslt in listXslt:
+                        xslt = ExporterXslt.objects.get(pk=xslt)
+                        exporter._setXslt(xslt.content)
+                        if folder_name == None:
+                            exporter._transformAndZip(xslt.name, xmlResults, zip)
+                        else:
+                            exporter._transformAndZip(folder_name+"/"+xslt.name, xmlResults, zip)
 
-                    #We export for others exporters
-                    for exporter in listExporter:
-                        exporter = get_exporter(exporter)
-                        exporter._transformAndZip(folder_name, xmlResults, zip)
+                #We export for others exporters
+                for exporter in listExporter:
+                    exporter = get_exporter(exporter)
+                    exporter._transformAndZip(folder_name, xmlResults, zip)
 
-            zip.close()
+        zip.close()
 
-            #ZIP file to be downloaded
-            in_memory.seek(0)
-            response = HttpResponse(in_memory.read())
-            response["Content-Disposition"] = "attachment; filename=Results.zip"
-            response['Content-Type'] = 'application/x-zip'
-            request.session['listIdToExport'] = ''
+        #ZIP file to be downloaded
+        in_memory.seek(0)
+        response = HttpResponse(in_memory.read())
+        response["Content-Disposition"] = "attachment; filename=Results.zip"
+        response['Content-Type'] = 'application/x-zip'
+        request.session['listIdToExport'] = ''
 
-            return response
+        return response
     else:
         # We retrieve the result_id for each file the user wants to export
         listId = request.GET.getlist('listId[]')
