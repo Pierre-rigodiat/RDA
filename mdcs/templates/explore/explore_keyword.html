@@ -34,9 +34,16 @@
 {% block title %}<h1>Search by keyword</h1>{% endblock %}
 {% block menu %}{% include 'mdcs/menus/main.html' with active_tab='tab3' %}{% endblock %}
 {% block submenu %}	
-<!--<ul id="subnav-tab-1" class="tabbed">-->
-    <!--<li class="current_page_item"><a href="/explore/select-template">Search by keyword</a></li>-->
-<!--</ul>-->
+<ul id="subnav-tab-1" class="tabbed">
+    <li>
+    	<div style="cursor:pointer">
+    		<a href="/explore">Query by Example</a>
+    	</div>
+   	</li>
+    <li class="current_page_item">
+    	<a href="/explore/keyword">Search by Keyword</a>
+    </li>
+</ul>
 {% endblock %}
 
 
