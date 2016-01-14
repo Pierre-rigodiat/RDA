@@ -132,3 +132,7 @@ class KeywordForm(forms.Form):
 
         self.my_schemas_nb = len(self.SCHEMAS_OPTIONS)
         self.my_user_schemas_nb = len(self.SCHEMAS_USER_OPTIONS)
+
+        if self.my_schemas_nb + self.my_user_schemas_nb == 1:
+            self.fields['my_schemas'].widget.attrs['disabled'] = True
+            self.fields['my_user_schemas'].widget.attrs['disabled'] = True
