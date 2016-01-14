@@ -1059,6 +1059,24 @@ def get_results_by_instance(request):
         if instance['name'] == "Local":
             query = copy.deepcopy(request.session['queryExplore'])
             manageRegexBeforeExe(query)
+            
+            selected_template_id = request.session['exploreCurrentTemplateID']
+            template = Template.objects().get(pk=selected_template_id)
+            
+            # template is user defined
+            if template.user is not None:
+                # update the query
+                query.update({'schema': str(selected_template_id)})
+            else:
+                # template is global
+                template_version_id = template.templateVersion
+                # get version manager
+                template_version = TemplateVersion.objects().get(pk=template_version_id)
+                # get all versions, not deleted
+                versions = [version for version in template_version.versions if version not in template_version.deletedVersions]
+                # update the query
+                query.update({'schema' : {'$in': versions} } ) 
+            
             instanceResults = XMLdata.executeQueryFullResult(query)
 
             if len(instanceResults) > 0:
