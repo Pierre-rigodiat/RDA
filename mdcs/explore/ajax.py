@@ -968,8 +968,12 @@ def get_results_by_instance_keyword(request):
 
         #Take care of the rest, with versions
         templatesVersions = Template.objects(title__in=schemas).distinct(field="templateVersion")
+
         #We get all templates ID, for all versions
-        templatesIDCommon = TemplateVersion.objects(pk__in=templatesVersions).distinct(field="versions")
+        allTemplatesIDCommon = TemplateVersion.objects(pk__in=templatesVersions, isDeleted=False).distinct(field="versions")
+        #We remove the removed version
+        allTemplatesIDCommonRemoved = TemplateVersion.objects(pk__in=templatesVersions, isDeleted=False).distinct(field="deletedVersions")
+        templatesIDCommon = list(set(allTemplatesIDCommon) - set(allTemplatesIDCommonRemoved))
 
         templatesID = templatesIDUser + templatesIDCommon
         instanceResults = XMLdata.executeFullTextQuery(keyword, templatesID, refinements)

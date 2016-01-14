@@ -1687,7 +1687,8 @@ getUserSchemas = function(numInstance){
 
 initSearch = function(){
     var schemas = $("#id_my_schemas").find("input:checkbox").prop("checked", true);
-    if(schemas.length == 1)
+    var userSchemas = $("#id_my_user_schemas").find("input:checkbox").prop("checked", true);
+    if(schemas.length + userSchemas.length == 1)
     {
         name = schemas.val();
 	    loadRefinements(name);

@@ -18,7 +18,7 @@
 ################################################################################
 
 from django import forms
-from mgi.models import Template
+from mgi.models import Template, TemplateVersion
 
 class ExportForm(forms.Form):
     """
@@ -109,8 +109,11 @@ class KeywordForm(forms.Form):
     def __init__(self, userId=""):
         self.SCHEMAS_OPTIONS = []
         self.SCHEMAS_USER_OPTIONS = []
+
         #We retrieve all common template + user template
-        schemas = Template.objects(user=None).distinct(field="title")
+        currentSchemas = TemplateVersion.objects(isDeleted=False).distinct(field="current")
+        schemas = Template.objects(pk__in=currentSchemas, user=None).distinct(field="title")
+
         userSchemas = Template.objects(user=str(userId)).distinct(field="title")
 
         for schema in schemas:
