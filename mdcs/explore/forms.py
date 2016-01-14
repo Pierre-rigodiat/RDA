@@ -38,12 +38,12 @@ class ExportForm(forms.Form):
             dictExporters.append(set(template.exporters))
 
         mutualExporters = []
+        diffExporters = []
         if len(dictExporters) > 0:
             mutualExporters = set.intersection(*dictExporters)
 
-        diffExporters = []
         if len(dictExporters) > 1:
-            diffExporters = set.symmetric_difference(*dictExporters)
+            diffExporters = set.union(*dictExporters) - mutualExporters
 
         for exporter in mutualExporters:
             if exporter.name != 'XSLT':
@@ -82,7 +82,7 @@ class UploadXSLTForm(forms.Form):
 
         diffXslts = []
         if len(dictExporters) > 1:
-            diffXslts = set.symmetric_difference(*dictExporters)
+            diffXslts = set.union(*dictExporters) - xslts
 
         for xslt in xslts:
             #We add them

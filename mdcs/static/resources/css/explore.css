@@ -94,3 +94,7 @@ li.tagit-new {
 div#templates ul {
 	list-style:none;
 }
+
+div#form_start_current ul {
+	list-style:none;
+}
