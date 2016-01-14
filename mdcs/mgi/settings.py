@@ -102,9 +102,6 @@ CUSTOM_COMPOSE = 'Composer'
 CURATE_MIN_TREE = True
 CURATE_COLLAPSE = True
 
-#KEYWORD
-EXPLORE_BY_KEYWORD = True  #True or False
-
 TEMPLATE_DIRS = [os.path.join(BASE_DIR, 'templates')]
 
 TEMPLATE_LOADERS = (

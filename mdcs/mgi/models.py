@@ -240,15 +240,14 @@ class XMLdata():
 
     @staticmethod
     def initIndexes():
-        if settings.EXPLORE_BY_KEYWORD:
-            #create a connection
-            client = MongoClient(MONGODB_URI)
-            # connect to the db 'mgi'
-            db = client['mgi']
-            # get the xmldata collection
-            xmldata = db['xmldata']
-            # create the full text index
-            xmldata.create_index([('$**', TEXT)], default_language="en", language_override="en")
+        #create a connection
+        client = MongoClient(MONGODB_URI)
+        # connect to the db 'mgi'
+        db = client['mgi']
+        # get the xmldata collection
+        xmldata = db['xmldata']
+        # create the full text index
+        xmldata.create_index([('$**', TEXT)], default_language="en", language_override="en")
 
 
     def save(self):

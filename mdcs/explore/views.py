@@ -43,36 +43,44 @@ from admin_mdcs.models import permission_required
 #                (index.html)
 #
 ################################################################################
-
-
 @permission_required(content_type=RIGHTS.explore_content_type, permission=RIGHTS.explore_access, login_url='/login')
 def index(request):
-    if not settings.EXPLORE_BY_KEYWORD:
-        currentTemplateVersions = []
-        for tpl_version in TemplateVersion.objects():
-            currentTemplateVersions.append(tpl_version.current)
+    currentTemplateVersions = []
+    for tpl_version in TemplateVersion.objects():
+        currentTemplateVersions.append(tpl_version.current)
 
-        currentTemplates = dict()
-        for tpl_version in currentTemplateVersions:
-            tpl = Template.objects.get(pk=tpl_version)
-            templateVersions = TemplateVersion.objects.get(pk=tpl.templateVersion)
-            currentTemplates[tpl] = templateVersions.isDeleted
+    currentTemplates = dict()
+    for tpl_version in currentTemplateVersions:
+        tpl = Template.objects.get(pk=tpl_version)
+        templateVersions = TemplateVersion.objects.get(pk=tpl.templateVersion)
+        currentTemplates[tpl] = templateVersions.isDeleted
 
-        template = loader.get_template('explore/explore.html')
-        context = RequestContext(request, {
-        'templates':currentTemplates,
-        'userTemplates': Template.objects(user=str(request.user.id)),
-        })
-
-    else:
-        template = loader.get_template('explore/explore_keyword.html')
-        search_form = KeywordForm(request.user.id)
-        context = RequestContext(request, {
-            'search_Form':search_form,
-        })
+    template = loader.get_template('explore/explore.html')
+    context = RequestContext(request, {
+    'templates':currentTemplates,
+    'userTemplates': Template.objects(user=str(request.user.id)),
+    })
 
     return HttpResponse(template.render(context))
 
+################################################################################
+#
+# Function Name: index(request)
+# Inputs:        request - 
+# Outputs:       Data Exploration by keyword homepage
+# Exceptions:    None
+# Description:   renders the data exploration by keyword home page from template 
+#                (index.html)
+#
+################################################################################
+@permission_required(content_type=RIGHTS.explore_content_type, permission=RIGHTS.explore_access, login_url='/login')
+def index_keyword(request):
+    template = loader.get_template('explore/explore_keyword.html')
+    search_form = KeywordForm(request.user.id)
+    context = RequestContext(request, {
+        'search_Form':search_form,
+    })
+    return HttpResponse(template.render(context))
 
 ################################################################################
 #
