@@ -280,7 +280,9 @@ validateXML = function()
     
 	    $(this).attr("checked", true);
 	});
-
+	$("textarea").each(function(){
+	    $(this).text($(this).val());
+	});
 
 	
     xsdForm = $('#xsdForm').html();
@@ -449,6 +451,9 @@ changeChoice = function(selectObj)
     	$("input:checkbox:checked").each(function(){
         
     	    $(this).attr("checked", true);
+    	});
+    	$("textarea").each(function(){
+    	    $(this).text($(this).val());
     	});
 	    // generate selected choice
         generate(selectObj.id.substr(6) + "-" + idx, "choice");
@@ -891,6 +896,9 @@ changeHTMLForm = function(operation, tagID)
 	$("input:checkbox:checked").each(function(){
     
 	    $(this).attr("checked", true);
+	});
+	$("textarea").each(function(){
+	    $(this).text($(this).val());
 	});
 
     if (operation == 'add') {
