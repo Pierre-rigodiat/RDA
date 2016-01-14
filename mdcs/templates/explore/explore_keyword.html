@@ -69,16 +69,8 @@
 <div style="display: none;">{{search_Form.my_schemas}}</div>
 <div style="display: none;">{{search_Form.my_user_schemas}}</div>
 {% endif %}
-
-<div id="refinement" style="display: none;margin-left: 1.5em;">
-        <hr/>
-		<h3>Refinement</h3>
-		<hr/>
-        <div class="clearer">&nbsp;</div>
-        <div id="refine_resource"></div>
-        <hr/>
-</div>
 {% endblock %}
+
 {% block content %}
 <div id="search">
 		<div class="toolbar" style="display: block;">
@@ -137,7 +129,6 @@ Are you sure you want to delete this document?
 <script src="{% static 'libs/tags/tag-it.js' %}"></script>
 <script>
     initAutocomplete();
-    initSearch();
 </script>
 {% endblock %}
 

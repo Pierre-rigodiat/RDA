@@ -952,13 +952,11 @@ def get_results_by_instance_keyword(request):
             keyword = request.GET['keyword']
             schemas = request.GET.getlist('schemas[]')
             userSchemas = request.GET.getlist('userSchemas[]')
-            refinements = refinements_to_mongo(request.GET.getlist('refinements[]'))
             onlySuggestions = json.loads(request.GET['onlySuggestions'])
         except:
             keyword = ''
             schemas = []
             userSchemas = []
-            refinements = {}
             onlySuggestions = True
 
         #We get all template versions for the given schemas
@@ -976,7 +974,7 @@ def get_results_by_instance_keyword(request):
         templatesIDCommon = list(set(allTemplatesIDCommon) - set(allTemplatesIDCommonRemoved))
 
         templatesID = templatesIDUser + templatesIDCommon
-        instanceResults = XMLdata.executeFullTextQuery(keyword, templatesID, refinements)
+        instanceResults = XMLdata.executeFullTextQuery(keyword, templatesID)
         if len(instanceResults) > 0:
             if not onlySuggestions:
                 xsltPath = os.path.join(settings.SITE_ROOT, 'static/resources/xsl/xml2html.xsl')
@@ -2911,130 +2909,3 @@ def update_publish(request):
 def update_unpublish(request):
     XMLdata.update_unpublish(request.GET['result_id'])
     return HttpResponse(json.dumps({}), content_type='application/javascript')
-
-
-################################################################################
-#
-# Function Name: load_refinements(request)
-# Inputs:        request -
-# Outputs:
-# Exceptions:    None
-# Description:   Load refinements criterias from selected schemas
-#
-################################################################################
-def load_refinements(request):
-    schema_name = request.GET['schema']
-    button_type = ['primary', 'success', 'info', 'warning', 'danger']
-    if schema_name == 'all':
-        return HttpResponse(json.dumps({'refinements': ''}), content_type='application/javascript')
-
-    schemas = Template.objects(title=schema_name)
-    schema_id = TemplateVersion.objects().get(pk=schemas[0].templateVersion).current
-    
-    schema = Template.objects().get(pk=schema_id)
-    
-    xmlDocTree = etree.parse(BytesIO(schema.content.encode('utf-8')))
-
-    # find the namespaces
-    namespaces = common.get_namespaces(BytesIO(schema.content.encode('utf-8')))
-    default_namespace = "{http://www.w3.org/2001/XMLSchema}"
-    for prefix, url in namespaces.items():
-        if (url == default_namespace):
-            defaultPrefix = prefix
-            break
-
-    # building refinement options based on the schema
-    refinement_options = ""
-
-    # TODO: change enumeration look up by something more generic (using annotations in the schema)
-    # looking for enumerations
-    simple_types = xmlDocTree.findall("./{0}simpleType".format(default_namespace))
-    for simple_type in simple_types:
-        try:
-            enums = simple_type.findall("./{0}restriction/{0}enumeration".format(default_namespace))
-            refinement = ""
-            if len(enums) > 0:
-                # build dot notation query
-                # find the element using the enumeration
-                element = xmlDocTree.findall(".//{0}element[@type='{1}']".format(default_namespace, simple_type.attrib['name']))
-                if len(element) > 1:
-                    print "error: more than one element using the enumeration (" +str(len(element)) +")"
-                else:
-                    element = element[0]
-                    query = []
-                    while element is not None:
-                        if element.tag == "{0}element".format(default_namespace):
-                            query.insert(0,element.attrib['name'])
-                        elif element.tag == "{0}simpleType".format(default_namespace):
-                            element = xmlDocTree.findall(".//{0}element[@type='{1}']".format(default_namespace, element.attrib['name']))
-                            if len(element) > 1:
-                                print "error: more than one element using the enumeration (" +str(len(element)) +")"
-                            else:
-                                element = element[0]
-                                query.insert(0,element.attrib['name'])
-                        elif element.tag == "{0}complexType".format(default_namespace):
-                            try:
-                                element = xmlDocTree.findall(".//{0}element[@type='{1}']".format(default_namespace, element.attrib['name']))
-                                if len(element) > 1:
-                                    print "error: more than one element using the enumeration (" +str(len(element)) +")"
-                                else:
-                                    element = element[0]
-                                    query.insert(0,element.attrib['name'])
-                            except:
-                                pass
-                        element = element.getparent()
-    
-                dot_query = ".".join(query)
-                dot_query = "content." + dot_query
-                name = simple_type.attrib['name']
-                # get the name of the enumeration
-                refinement +="<button onclick='showHide(this,\""+name+"\");' type='button' class='btn btn-"+random.choice(button_type)+"'><i class='fa fa-crop'></i> "+ name+"</button>" + "&nbsp;"
-                refinement += "<div id='"+name+"' style='display:none;' class='refine_criteria' query='" + dot_query + "'>"
-                for enum in enums:
-                    refinement += "<input type='checkbox' value='" + enum.attrib['value'] + "'> " + enum.attrib['value'] + "<br/>"
-                refinement += "<br/>"
-                refinement += "</div>"
-        except:
-            print "ERROR AUTO GENERATION OF REFINEMENTS."
-        refinement_options += refinement
-
-    return HttpResponse(json.dumps({'refinements': refinement_options}), content_type='application/javascript')
-
-
-def refinements_to_mongo(refinements):
-    try:
-        # transform the refinement in mongo query
-        mongo_queries = {}
-        for refinement in refinements:
-            splited_refinement = refinement.split(':')
-            dot_notation = splited_refinement[0]
-            value = splited_refinement[1]
-            mongo_queries[dot_notation] = value
-        return mongo_queries
-    except:
-        return []
-
-
-def refinements_to_mongo_OR(refinements):
-    try:
-        # transform the refinement in mongo query
-        mongo_queries = dict()
-        mongo_in = {}
-        for refinement in refinements:
-            splited_refinement = refinement.split(':')
-            dot_notation = splited_refinement[0]
-            value = splited_refinement[1]
-            if dot_notation in mongo_queries:
-                mongo_queries[dot_notation].append(value)
-            else:
-                mongo_queries[dot_notation] = [value]
-
-        for query in mongo_queries:
-            key = query
-            values = ({ '$in' : mongo_queries[query]})
-            mongo_in[key] = values
-
-        mongo_or = {'$or' : [mongo_in]}
-        return mongo_or
-    except:
-        return []
