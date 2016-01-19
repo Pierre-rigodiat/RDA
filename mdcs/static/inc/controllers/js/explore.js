@@ -311,6 +311,7 @@ getAsyncResults = function(numInstance)
  * @param numInstance
  */
 get_results_by_instance = function(numInstance){
+    $("#banner_results_wait").show(200);
     $.ajax({
         url : "/explore/get_results_by_instance",
         type : "GET",
@@ -319,6 +320,7 @@ get_results_by_instance = function(numInstance){
         	numInstance: numInstance,
         },
         success: function(data){
+            $("#banner_results_wait").hide(200);
         	$("#results").html(data.results);
         }
     });
