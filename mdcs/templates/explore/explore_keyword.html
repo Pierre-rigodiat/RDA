@@ -38,13 +38,18 @@
 {% block content %}
 <div id="search">
 		<div class="toolbar" style="display: block;">
+			<div class="alert alert-warning" id="banner_results_wait" style="display: none;">
+		 		<h4><i class='fa fa-circle-o-notch fa-spin fa-2x'></i>  </i>&nbsp;&nbsp;Please wait...</h4>
+    		</div>
 			<div class="alert alert-error" id="banner_errors" style="display: none;">
+				<a href="#" class="close" data-hide="alert" aria-label="close">&times;</a>
 				<h4><i class="fa fa-exclamation-circle fa-1x"></i> Error</h4>
 				<div id="btn_errors">
 				</div>
 			</div>
 			<div class="alert alert-info" id="banner_results_errors" style="display: none;">
 				<h4>
+					<a href="#" class="close" data-hide="alert" aria-label="close">&times;</a>
 					<p id="results_errors">
 					</p>
 				</h4>
