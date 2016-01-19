@@ -36,10 +36,15 @@
 {% endblock %}
 
 {% block content %}
+<div class="alert alert-danger" id="banner_errors" style="display: none;">
+        <a href="#" class="close" data-hide="alert" aria-label="close">&times;</a>
+     	<h4><i class="fa fa-exclamation-circle fa-1x"></i> Error</h4>
+        <div id="form_start_errors">
+</div>
+</div>
 <h3>Please choose one of the following options to start curating data:</h3>
 <div class="clearer">&nbsp;</div>
 <div id="dialog-message" title="Template Loaded">
-	<div id="form_start_errors" style="color:red;"></div>
     <form id="form_start" action="/curate/start_curate" method="post">
         {% csrf_token %}
 		{% include 'curate/curate_start.html' %}
@@ -81,5 +86,6 @@
 <script src="{% static 'inc/controllers/js/curate.js' %}"></script>
 <script>
     enterKeyPressSubscription();
+    initBanner();
 </script>
 {% endblock %}

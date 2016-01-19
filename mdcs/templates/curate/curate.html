@@ -132,6 +132,12 @@ automatically load the appropriate form and display it on the next page.
 
 {% block popups %}
 <div id="dialog-message" title="Template Loaded" style="display:none;">
+    <div class="alert alert-danger" id="banner_errors" style="display: none;">
+        <a href="#" class="close" data-hide="alert" aria-label="close">&times;</a>
+     	<h4><i class="fa fa-exclamation-circle fa-1x"></i> Error</h4>
+        <div id="form_start_errors">
+        </div>
+    </div>
 	<p>
 	  Please choose one of the following options to start curating data: 
 	</p>
@@ -139,9 +145,6 @@ automatically load the appropriate form and display it on the next page.
         {% csrf_token %}
         <div id="form_start_content"></div>
     </form>
-	<div id="form_start_errors" style="color:red;">
-	
-	</div>
 </div>
 
 <div id="dialog-error-message" title="No template selected" style="display:none;">
@@ -171,6 +174,7 @@ automatically load the appropriate form and display it on the next page.
 <script src="{% static 'inc/controllers/js/curate.js' %}"></script>
 <script>
     loadTemplateSelectionControllers();
+    initBanner();
 </script>
 {% endblock %}
 

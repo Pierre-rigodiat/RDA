@@ -1295,7 +1295,7 @@ get_results_keyword = function(numInstance){
 	// send request if no parameter changed during the timeout
     timeout = setTimeout(function(){
         clearSearch();
-        $("#results").html('Please wait...');
+        $("#banner_results_wait").show(200);
         var keyword = $("#id_search_entry").val();
         $.ajax({
             url : "/explore/get_results_by_instance_keyword",
@@ -1307,10 +1307,8 @@ get_results_keyword = function(numInstance){
                 userSchemas: getUserSchemas(),
                 onlySuggestions: false,
             },
-            beforeSend: function( xhr ) {
-                $("#loading").addClass("isloading");
-            },
             success: function(data){
+                $("#banner_results_wait").hide(200)
                 if (data.resultString.length == 0){
                     clearSearch();
                     $("#results_errors").html("<i class='fa fa-info fa-2x'></i>  No results found");
@@ -1324,9 +1322,6 @@ get_results_keyword = function(numInstance){
 
                     $("#results").html(data.resultString);
                 }
-            },
-            complete: function(){
-                $("#loading").removeClass("isloading");
             }
         });
     }, 1000);
@@ -1409,4 +1404,11 @@ showHide = function(button, id){
     $("#"+id).toggle("slow");
     var color = $(button).css("background-color");
     $("#"+id).css("color", color);
+}
+
+initBanner = function()
+{
+    $("[data-hide]").on("click", function(){
+        $(this).closest("." + $(this).attr("data-hide")).hide(200);
+    });
 }
