@@ -20,7 +20,7 @@ from django.contrib.auth import authenticate, logout
 from django.template import RequestContext, loader
 from django.shortcuts import redirect
 from mgi.models import Template, Request, Message, TermsOfUse, PrivacyPolicy, Help, FormData, XMLdata
-from admin_mdcs.forms import RequestAccountForm, EditProfileForm, ChangePasswordForm, ContactForm
+from admin_mdcs.forms import RequestAccountForm, EditProfileForm, ChangePasswordForm, ContactForm, UserForm
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -229,7 +229,9 @@ def my_profile_my_forms(request):
     detailed_forms = []
     for form in forms:
         detailed_forms.append({'form': form, 'template_name': Template.objects().get(pk=form.template).title})
-    return render(request, 'profile/my_profile_my_forms.html', {'forms':detailed_forms})
+    user_form = UserForm(request.user)
+
+    return render(request, 'profile/my_profile_my_forms.html', {'forms':detailed_forms, 'user_form': user_form})
 
 
 ################################################################################

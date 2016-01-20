@@ -2403,3 +2403,26 @@ def cancel_form(request):
         return HttpResponse({},status=204)
     except Exception, e:
         return HttpResponse({},status=400)
+
+
+################################################################################
+#
+# Function Name: change_owner_form(request)
+# Inputs:        request -
+# Outputs:
+# Exceptions:    None
+# Description:   Change the form owner
+#
+################################################################################
+def change_owner_form(request):
+    if 'formId' and 'userID' in request.POST:
+        form_data_id = request.POST['formID']
+        user_id = request.POST['userID']
+        try:
+            form_data = FormData.objects().get(pk=form_data_id)
+            form_data.user = user_id
+            form_data.save()
+            messages.add_message(request, messages.INFO, 'Form Owner changed with success !')
+        except Exception, e:
+            return HttpResponse({},status=400)
+    return HttpResponse({})

@@ -1278,6 +1278,76 @@ delete_form = function(formID){
 
 
 /**
+ * Change form owner
+ * @param formID
+ */
+changeOwnerForm = function(formID){
+    $("#banner_errors").hide();
+	$(function() {
+        $( "#dialog-change-owner-form" ).dialog({
+            modal: true,
+            buttons: {
+            	Cancel: function() {
+                    $( this ).dialog( "close" );
+                },
+            	"Change": function() {
+            	    if (validateChangeOwner()){
+                        var formData = new FormData($( "#form_start" )[0]);
+                        change_owner_form(formID);
+                        $( this ).dialog( "close" );
+                    }
+                },
+            }
+        });
+    });
+}
+
+/**
+ * Validate fields of the start curate form
+ */
+validateChangeOwner = function(){
+	errors = ""
+
+	$("#banner_errors").hide()
+	// check if a user has been selected
+    if ($( "#id_users" ).val().trim() == ""){
+        errors = "Please provide a user."
+    }
+
+	if (errors != ""){
+		$("#form_start_errors").html(errors);
+		$("#banner_errors").show(500)
+		return (false);
+	}else{
+		return (true);
+	}
+}
+
+
+/**
+ * AJAX call, change form owner
+ * @param formID
+ */
+change_owner_form = function(formID){
+    var userId = $( "#id_users" ).val().trim();
+	$.ajax({
+        url : "/curate/change-owner-form",
+        type : "POST",
+        dataType: "json",
+        data : {
+        	formID: formID,
+        	userID: userId,
+        },
+		success: function(data){
+			window.location = "/my-profile/my-forms"
+	    },
+        error:function(data){
+        	window.location = "/my-profile/my-forms"
+        }
+    });
+}
+
+/**
  * AJAX call, cancel a form currently being entered
  */
 cancelForm = function(){

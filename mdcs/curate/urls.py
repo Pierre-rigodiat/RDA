@@ -46,4 +46,5 @@ urlpatterns = patterns('',
     url(r'^start_curate', 'curate.views.start_curate'),
     url(r'^delete-form', 'curate.ajax.delete_form'),
     url(r'^cancel-form', 'curate.ajax.cancel_form'),
+    url(r'^change-owner-form', 'curate.ajax.change_owner_form'),
 )
