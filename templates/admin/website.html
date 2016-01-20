@@ -1,0 +1,59 @@
+{% extends "mdcs/extra/one_column.html" %}
+{% load staticfiles %}
+
+{% comment %}
+<!--
+################################################################################
+#
+# File Name: website.html
+# Application: templates/admin
+# Description: 
+#
+# Author: Sharief Youssef
+#         sharief.youssef@nist.gov
+#
+#		  Guillaume SOUSA AMARAL
+#		  guillaume.sousa@nist.gov
+#
+# Sponsor: National Institute of Standards and Technology (NIST)
+#
+################################################################################
+-->
+{% endcomment %}
+
+{% block title %}<h1>Website Management</h1>{% endblock %}
+
+{% block menu %}{% include 'admin/menu/main.html' with active_tab='tab5' %}{% endblock %}
+{% block submenu %}{% include 'admin/menu/submenu/website.html' %}{% endblock %}
+
+
+{% block content%}
+<div class="left" style="width: 350px">			
+	<div class="clearer">&nbsp;</div>
+	<br/>
+	<img src="{% static 'resources/img/edit-big.png' %}" width="64" height="64" alt="" class="left bordered" />
+	<h3><a href="website/privacy-policy">Privacy Policy</a></h3>
+	<p>Click here to edit the Privacy Policy page of the system.</p>
+	<div class="clearer">&nbsp;</div>
+</div>
+
+<div class="right" style="width: 350px">
+	<div class="clearer">&nbsp;</div>
+	<br/>
+	<img src="{% static 'resources/img/edit-big.png' %}" width="64" height="64" alt="" class="left bordered" />
+	<h3><a href="website/terms-of-use">Terms of Use</a></h3>
+	<p>Click here to edit the Terms of Use page of the system.</p>
+	<div class="clearer">&nbsp;</div>
+</div>
+
+<div class="left" style="width: 350px">			
+	<div class="clearer">&nbsp;</div>
+	<br/>
+	<img src="{% static 'resources/img/edit-big.png' %}" width="64" height="64" alt="" class="left bordered" />
+	<h3><a href="website/help">Help</a></h3>
+	<p>Click here to edit the Help page of the system.</p>
+	<div class="clearer">&nbsp;</div>
+</div>
+
+<div class="clearer">&nbsp;</div>
+{% endblock %}  
