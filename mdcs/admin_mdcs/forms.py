@@ -132,10 +132,10 @@ class UserForm(forms.Form):
 
         #We retrieve all users
         sortUsers = User.objects.all()
-        #We sort by username, case insensitive
-        sorted(sortUsers, key=lambda s: s.username.lower())
         #We exclude the current user
         sortUsers = sortUsers.exclude(pk=currentUser.pk)
+        #We sort by username, case insensitive
+        sortUsers = sorted(sortUsers, key=lambda s: s.username.lower())
 
         #We add them
         for user in sortUsers:
