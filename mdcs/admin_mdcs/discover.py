@@ -62,7 +62,7 @@ def load_templates():
     """
     Loads templates/xslt for NMRR the first time
     """  
-    # if templates are already preset, initialization already happened
+    # if templates are already present, initialization already happened
     existing_templates = Template.objects()
     if len(existing_templates) == 0:
         templates = {
