@@ -103,7 +103,7 @@ class Module(object):
             Outputs:
                 default result value
         """
-        raise NotImplementedError("This method is not implemented.")
+        raise NotImplementedError("_get_module method is not implemented.")
 
     @abstractmethod
     def _get_display(self, request):
@@ -113,7 +113,7 @@ class Module(object):
             Outputs:
                 default result value
         """
-        raise NotImplementedError("This method is not implemented.")
+        raise NotImplementedError("_get_display method is not implemented.")
 
     @abstractmethod
     def _get_result(self, request):
@@ -123,7 +123,7 @@ class Module(object):
             Outputs:
                 default result value
         """
-        raise NotImplementedError("This method is not implemented.")
+        raise NotImplementedError("_get_result method is not implemented.")
 
     @abstractmethod
     def _post_display(self, request):
@@ -133,7 +133,7 @@ class Module(object):
             Outputs:
                 default displayed value
         """
-        raise NotImplementedError("This method is not implemented.")
+        raise NotImplementedError("_post_display method is not implemented.")
 
     @abstractmethod
     def _post_result(self, request):
@@ -143,4 +143,4 @@ class Module(object):
             Outputs:
                 default result value
         """
-        raise NotImplementedError("This method is not implemented.")
+        raise NotImplementedError("_post_result method is not implemented.")

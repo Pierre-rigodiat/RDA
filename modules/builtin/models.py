@@ -35,7 +35,10 @@ class InputModule(Module):
         return render_module(template, params)
 
 class OptionsModule(Module):
-    def __init__(self, scripts=list(), styles=list(), label=None, options=dict(), disabled=False, selected=None):
+    def __init__(self, scripts=list(), styles=list(), label=None, options=None, disabled=False, selected=None):
+        if options is None:
+            options = dict()
+
         scripts = [os.path.join(SCRIPTS_PATH, 'options.js')] + scripts
         Module.__init__(self, scripts=scripts, styles=styles)
 
@@ -144,6 +147,9 @@ class TextAreaModule(Module):
 
 
 class AutoCompleteModule(Module):
+    """ AutoCompleteModule class
+    """
+
     def __init__(self, scripts=list(), styles=list(), label=None):
         scripts = [os.path.join(SCRIPTS_PATH, 'autocomplete.js')] + scripts
         Module.__init__(self, scripts=scripts, styles=styles)
@@ -154,10 +160,29 @@ class AutoCompleteModule(Module):
         template = os.path.join(TEMPLATES_PATH, 'autocomplete.html')
         params = {}
 
+        if 'data' in request.GET:
+            params['value'] = request.GET['data']
+
         if self.label is not None:
             params.update({"label": self.label})
 
         return render_module(template, params)
+
+    # Unimplemented method (to be implemented by children classes)
+    def _get_module(self, request):
+        Module._get_module(self, request)
+
+    def _get_display(self, request):
+        Module._get_display(self, request)
+
+    def _get_result(self, request):
+        Module._get_result(self, request)
+
+    def _post_display(self, request):
+        Module._post_display(self, request)
+
+    def _post_result(self, request):
+        Module._post_result(self, request)
 
 
 class CheckboxesModule(Module):

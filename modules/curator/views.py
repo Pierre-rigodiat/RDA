@@ -1,5 +1,6 @@
 from models import BlobHosterModule, RawXMLModule, HandleModule,\
     RemoteBlobHosterModule, AdvancedBlobHosterModule
+from modules.curator.models import EnumAutoCompleteModule
 
 
 def blob_hoster(request):
@@ -20,3 +21,7 @@ def raw_xml(request):
 
 def handle(request):
     return HandleModule().render(request)
+
+
+def enum_autocomplete(request):
+    return EnumAutoCompleteModule().render(request)

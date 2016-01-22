@@ -1,5 +1,5 @@
 from HTMLParser import HTMLParser
-from modules.builtin.models import PopupModule, TextAreaModule, InputModule
+from modules.builtin.models import PopupModule, TextAreaModule, InputModule, AutoCompleteModule
 from modules.exceptions import ModuleError
 from modules.curator.forms import BLOBHosterForm, URLForm
 from django.template import Context, Template
@@ -22,8 +22,7 @@ STYLES_PATH = os.path.join(RESOURCES_PATH, 'css')
 
 
 class BlobHosterModule(PopupModule):
-    
-    
+
     def __init__(self):
         self.handle = None
 
@@ -36,25 +35,21 @@ class BlobHosterModule(PopupModule):
         PopupModule.__init__(self, popup_content=popup_content, button_label='Upload File',
                              scripts=[os.path.join(SCRIPTS_PATH, 'blobhoster.js')])
 
-    
     def _get_module(self, request):
         return PopupModule.get_module(self, request)
 
-    
     def _get_display(self, request):
         if 'data' in request.GET:
             if len(request.GET['data']) > 0:
                 return '<b>Handle: </b> <a href="' + request.GET['data'] + '">' + request.GET['data'] + '</a>' 
         return 'No files selected'
 
-    
     def _get_result(self, request):
         if 'data' in request.GET:
             if len(request.GET['data']) > 0:
                 return request.GET['data']
         return ''
 
-    
     def _post_display(self, request):
         form = BLOBHosterForm(request.POST, request.FILES)
         if not form.is_valid():
@@ -72,7 +67,6 @@ class BlobHosterModule(PopupModule):
 
         return template.render(context)
 
-    
     def _post_result(self, request):
         return self.handle if self.handle is not None else ''
         
@@ -273,13 +267,11 @@ class HandleModule(PopupModule):
                 
         PopupModule.__init__(self, scripts, styles, popup_content, button_label)
 
-
     def _get_module(self, request):
         self.handle = ""
         if 'data' in request.GET:
             self.handle = request.GET['data']        
         return PopupModule.get_module(self, request)
-
 
     def _get_display(self, request):
         if self.handle == '':
@@ -290,10 +282,8 @@ class HandleModule(PopupModule):
         else:
             return '<b>Handle</b>: ' + self.handle 
 
-
     def _get_result(self, request):
         return self.handle
-
 
     def _post_display(self, request):
         self.handle = ''    
@@ -330,7 +320,99 @@ class HandleModule(PopupModule):
         else:
             return ''
 
-
     def _post_result(self, request):
         return self.handle
-    
+
+
+class EnumAutoCompleteModule(AutoCompleteModule):
+
+    def __init__(self):
+        scripts = [os.path.join(SCRIPTS_PATH, 'enum_auto_complete.js')]
+        AutoCompleteModule.__init__(self, scripts=scripts)
+
+    @staticmethod
+    def display_element(element=None, data=None):
+        if element is None or element == "":
+            return "No element selected"
+        else:
+            display_str = "Selected element: "+str(element) + " "
+
+            if element in data:
+                display_str += '<i class="fa fa-check" style="color: green"></i>'
+            else:
+                display_str += '<i class="fa fa-times" style="color: red"></i>'
+
+            return display_str
+
+    @staticmethod
+    def get_enumerations(namespaces, prefix, doctree, xsd_xpath=None):
+        enums = []
+
+        # get the values of the enumeration
+        xml_doctree_str = doctree
+        xml_doctree = etree.fromstring(xml_doctree_str)
+
+        namespace = namespaces[prefix]
+
+        xpath_namespaces = {}
+        for prefix, ns in namespaces.iteritems():
+            xpath_namespaces[prefix] = ns[1:-1]
+
+        # get the element where the module is attached
+        xsd_element = xml_doctree.xpath(xsd_xpath, namespaces=xpath_namespaces)[0]
+        enumeration_list = xsd_element.findall('./{0}restriction/{0}enumeration'.format(namespace))
+
+        for enumeration in enumeration_list:
+            enums.append(enumeration.attrib['value'])
+
+        return enums
+
+    def _get_module(self, request):
+        return AutoCompleteModule.get_module(self, request)
+
+    def _get_display(self, request):
+        xsd_xpath = request.GET['xsd_xpath']
+        display_str = '<span class="hide">' + xsd_xpath + '</span>'
+
+        if 'data' in request.GET:
+            data = self.get_enumerations(request.session['namespaces'], request.session['defaultPrefix'],
+                                         request.session['xmlDocTree'], xsd_xpath)
+
+            display_str += self.display_element(request.GET['data'], data)
+        else:
+            display_str += self.display_element()
+
+        return display_str
+
+    def _get_result(self, request):
+        return request.GET['data'] if 'data' in request.GET else ''
+
+    def _post_display(self, request):
+        xsd_xpath = request.POST['xsd_xpath']
+
+        if 'list' in request.POST:
+            data = self.get_enumerations(request.session['namespaces'], request.session['defaultPrefix'],
+                                         request.session['xmlDocTree'], xsd_xpath)
+            response_list = []
+
+            for term in data:
+                if request.POST['list'].lower() in term.lower():
+                    response_list.append(term)
+
+            return response_list
+
+        if 'data' in request.POST:
+            display_str = '<span class="hide">' + xsd_xpath + '</span>'
+
+            if 'data' in request.POST:
+                data = self.get_enumerations(request.session['namespaces'], request.session['defaultPrefix'],
+                                             request.session['xmlDocTree'], xsd_xpath)
+
+                display_str += self.display_element(request.POST['data'], data)
+            else:
+                display_str += self.display_element()
+
+            return display_str
+
+    def _post_result(self, request):
+        return request.POST['data'] if 'data' in request.POST else ''

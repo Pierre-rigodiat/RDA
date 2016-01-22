@@ -75,6 +75,7 @@ from mongoengine import connect
 MONGO_MGI_USER = "mgi_user"
 MONGO_MGI_PASSWORD = "mgi_password"
 MONGODB_URI = "mongodb://" + MONGO_MGI_USER + ":" + MONGO_MGI_PASSWORD + "@localhost/mgi"
+MONGODB_TEST_URI = "mongodb://" + MONGO_MGI_USER + ":" + MONGO_MGI_PASSWORD + "@localhost/mgi.test"
 connect("mgi", host=MONGODB_URI)
 
 # BLOB Hoster module parameters
