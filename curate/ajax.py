@@ -833,7 +833,8 @@ def generateSimpleType(request, element, xmlTree, namespace, fullPath, edit_data
             #TODO: list can contain a restriction/enumeration, what can we do about that?
             formString += "<input type='text'/>"
         elif child.tag == "{0}union".format(namespace):
-            pass
+            #TODO: provide UI for unions
+            formString += "<input type='text'/>"
     
     return formString 
 
