@@ -903,25 +903,62 @@ def generateExtension(request, element, xmlTree, namespace, fullPath="", edit_da
     formString = ""
     
     removeAnnotations(element, namespace)
-    
-#     # does it contain any attributes?
-#     complexTypeChildren = element.findall('{0}attribute'.format(namespace))
-#     if len(complexTypeChildren) > 0:
-#         for attribute in complexTypeChildren:
-#             formString += generateElement(request, attribute, xmlTree, namespace, fullPath=fullPath, edit_data_tree=edit_data_tree)
-    
-    simpleType = element.find('{0}simpleType'.format(namespace))
-    if simpleType is not None:
-        formString += generateSimpleType(request, simpleType, xmlTree, namespace, fullPath=fullPath, edit_data_tree=edit_data_tree)
+
+    # get the base attibute being extended
+    if 'base' in element.attrib:
+        base = element.attrib['base']
+
+        defaultPrefix = request.session['defaultPrefix']
+        # test if base is a built-in data types
+        if base in common.getXSDTypes(defaultPrefix):
+            pass
+            #formString +=
+        else: #not a built-in data type
+            if ':' in base:
+                splittedBase = base.split(":")
+                baseNSPrefix = splittedBase[0]
+                baseName = splittedBase[1]
+                namespaces = request.session['namespaces']
+                # TODO: look at namespaces, target namespaces
+                # baseNS = namespaces[baseNSPrefix]
+                baseNS = namespace
+            else:
+                baseName = base
+                baseNS = namespace
+
+            # test if base is a simple type
+            baseType = xmlTree.find(".//{0}simpleType[@name='{1}']".format(baseNS, baseName))
+            if baseType is not None:
+                formString += generateSimpleType(request, baseType, xmlTree, namespace, fullPath, edit_data_tree)
+            else:
+                # test if base is a complex type
+                baseType = xmlTree.find(".//{0}complexType[@name='{1}']".format(baseNS, baseName))
+                if baseType is not None:
+                    formString += generateComplexType(request, baseType, xmlTree, namespace, fullPath, edit_data_tree)
+
+
+    # does it contain any attributes?
+    complexTypeChildren = element.findall('{0}attribute'.format(namespace))
+    if len(complexTypeChildren) > 0:
+        for attribute in complexTypeChildren:
+            formString += generateElement(request, attribute, xmlTree, namespace, fullPath=fullPath, edit_data_tree=edit_data_tree)
+
+    # does it contain sequence or all?
+    complexTypeChild = element.find('{0}sequence'.format(namespace))
+    if complexTypeChild is not None:
+        formString += generateSequence(request, complexTypeChild, xmlTree, namespace, fullPath=fullPath, edit_data_tree=edit_data_tree)
     else:
-        defaultValue = ""
-        if request.session['curate_edit']:
-            edit_elements = edit_data_tree.xpath(fullPath)
-            if len(edit_elements) > 0:
-                if edit_elements[0].text is not None:
-                    defaultValue = edit_elements[0].text
-        formString += " <input type='text' value='"+ django.utils.html.escape(defaultValue) +"'/>" 
-            
+        complexTypeChild = element.find('{0}all'.format(namespace))
+        if complexTypeChild is not None:
+            formString += generateSequence(request, complexTypeChild, xmlTree, namespace, fullPath=fullPath, edit_data_tree=edit_data_tree)
+        else:
+            # does it contain choice ?
+            complexTypeChild = element.find('{0}choice'.format(namespace))
+            if complexTypeChild is not None:
+                formString += generateChoice(request, complexTypeChild, xmlTree, namespace, fullPath=fullPath, edit_data_tree=edit_data_tree)
+            else:
+                formString += ""
+
     return formString
 
 
@@ -956,7 +993,13 @@ def generateComplexType(request, element, xmlTree, namespace, fullPath, edit_dat
     if complexTypeChild is not None:
         formString += generateSimpleContent(request, complexTypeChild, xmlTree, namespace, fullPath=fullPath, edit_data_tree=edit_data_tree)
         return formString
-    
+
+    # is it a complex content?
+    complexTypeChild = element.find('{0}complexContent'.format(namespace))
+    if complexTypeChild is not None:
+        formString += generateComplexContent(request, complexTypeChild, xmlTree, namespace, fullPath=fullPath, edit_data_tree=edit_data_tree)
+        return formString
+
     # does it contain any attributes?
     complexTypeChildren = element.findall('{0}attribute'.format(namespace))
     if len(complexTypeChildren) > 0:
@@ -1010,6 +1053,37 @@ def generateSimpleContent(request, element, xmlTree, namespace, fullPath, edit_d
         elif (child.tag == "{0}extension".format(namespace)):
             formString += generateExtension(request, child, xmlTree, namespace, fullPath, edit_data_tree=edit_data_tree)
     
+    return formString
+
+
+################################################################################
+#
+# Function Name: generateComplexContent(request, element, xmlTree, namespace)
+# Inputs:        request -
+#                element - XML element
+#                xmlTree - XML Tree
+#                namespace - namespace
+# Outputs:       HTML string representing a sequence
+# Exceptions:    None
+# Description:   Generates a section of the form that represents an XML simple content
+#
+################################################################################
+def generateComplexContent(request, element, xmlTree, namespace, fullPath, edit_data_tree=None):
+    #(annotation?,(restriction|extension))
+
+    formString = ""
+
+    # remove the annotations
+    removeAnnotations(element, namespace)
+
+    # generates the content
+    if(len(list(element)) != 0):
+        child = element[0]
+        if (child.tag == "{0}restriction".format(namespace)):
+            formString += generateRestriction(request, child, xmlTree, namespace, fullPath, edit_data_tree=edit_data_tree)
+        elif (child.tag == "{0}extension".format(namespace)):
+            formString += generateExtension(request, child, xmlTree, namespace, fullPath, edit_data_tree=edit_data_tree)
+
     return formString
 
 
