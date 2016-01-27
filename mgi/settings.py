@@ -74,7 +74,8 @@ else:
 from mongoengine import connect
 MONGO_MGI_USER = "mgi_user"
 MONGO_MGI_PASSWORD = "mgi_password"
-MONGODB_URI = "mongodb://" + MONGO_MGI_USER + ":" + MONGO_MGI_PASSWORD + "@localhost/mgi"
+MGI_DB = "mgi"
+MONGODB_URI = "mongodb://" + MONGO_MGI_USER + ":" + MONGO_MGI_PASSWORD + "@localhost/" + MGI_DB
 connect("mgi", host=MONGODB_URI)
 
 # BLOB Hoster module parameters
@@ -83,6 +84,11 @@ BLOB_HOSTER_URI = MONGODB_URI
 BLOB_HOSTER_USER = MONGO_MGI_USER
 BLOB_HOSTER_PSWD = MONGO_MGI_PASSWORD
 MDCS_URI = 'http://127.0.0.1:8000'
+
+# OAI_PMH parameters
+OAI_HOST_URI = 'http://127.0.0.1:8000'
+OAI_USER = 'admin'
+OAI_PASS = 'rest123'
 
 # Handle system module parameters
 HANDLE_SERVER_URL = ''
