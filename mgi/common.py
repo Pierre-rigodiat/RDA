@@ -203,7 +203,8 @@ def get_namespaces(file):
         if event == "start-ns":
             if elem[0] in ns and ns[elem[0]] != elem[1]:
                 raise Exception("Duplicate prefix with different URI found.")
-            ns[elem[0]] = "{%s}" % elem[1]
+            if len(elem[0]) > 0 and len(elem[1]) > 0:
+                ns[elem[0]] = "{%s}" % elem[1]
         elif event == "start":
             break
     return ns
