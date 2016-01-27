@@ -1022,8 +1022,48 @@ def generateComplexType(request, element, xmlTree, namespace, fullPath, edit_dat
                 formString += generateChoice(request, complexTypeChild, xmlTree, namespace, fullPath=fullPath, edit_data_tree=edit_data_tree)
             else:
                 formString += ""        
-    
-    return formString 
+
+    # check if the type has a name (for reference)
+    if 'name' in element.attrib:
+        # check if types extend this one
+        extensions = request.session['extensions']
+
+        # the complextype has some possible extensions
+        if element.attrib['name'] in extensions.keys():
+            # get all extensions associated with the type
+            current_type_extensions = extensions[element.attrib['name']]
+
+            # build namesapces to use with xpath
+            xpath_namespaces = {}
+            for prefix, ns in request.session['namespaces'].iteritems() :
+                xpath_namespaces[prefix] = ns[1:-1]
+
+            # get extension types using XPath
+            extension_types = []
+            for current_type_extension in current_type_extensions:
+                # get the extension using its xpath
+                extension_element = xmlTree.xpath(current_type_extension, namespaces=xpath_namespaces)[0]
+                extension_types.append(extension_element)
+
+
+            formString += '<div class="extension">'
+            formString += 'Extend <select onchange="changeExtension()">'
+            formString += '<option> --------- </option>'
+
+            # browse extension types
+            for extension_type in extension_types:
+                formString += '<option>'
+                # get the closest type name: parent -> xxxContent, parent -> xxxType
+                formString += extension_type.getparent().getparent().attrib['name']
+                formString += '</option>'
+
+            formString += '</select>'
+            formString += '</div>'
+            # if extension_element.tag == "{0}complexType".format(namespace):
+            #     pass
+            # elif extension_element.tag == "{0}simpleType".format(namespace):
+            #     pass
+    return formString
 
 
 ################################################################################
@@ -2190,11 +2230,13 @@ def generateForm(request):
     
     # get the namespace for the default prefix
     namespace = request.session['namespaces'][defaultPrefix]
-    
+
+    # find extensions
+    request.session['extensions'] = getExtensions(request, xmlDocTree, namespace, defaultPrefix)
+
     # find all root elements
     elements = xmlDocTree.findall("./{0}element".format(namespace))
 
-        
     try:
         # one root
         if len(elements) == 1:
@@ -2222,6 +2264,32 @@ def generateForm(request):
     
     return formString
 
+
+################################################################################
+#
+# Function Name: getExtensions(request, xmlDocTree, namespace, defaultPrefix)
+# Inputs:        request -
+#                xmlDocTree -
+#                namespace -
+#                defaultPrefix -
+# Outputs:
+# Exceptions:    None
+# Description:   Get XSD extensions
+#
+################################################################################
+def getExtensions(request, xmlDocTree, namespace, defaultPrefix):
+    # get all extensions of the document
+    extensions = xmlDocTree.findall(".//{0}extension".format(namespace))
+    # keep only simple/complex type extensions, no built-in types
+    custom_type_extensions = {}
+    for extension in extensions:
+        base = extension.attrib['base']
+        if base not in common.getXSDTypes(defaultPrefix):
+            if base not in custom_type_extensions.keys():
+                custom_type_extensions[base] = []
+            custom_type_extensions[base].append(etree.ElementTree(xmlDocTree).getpath(extension))
+
+    return custom_type_extensions
 
 ################################################################################
 # 
