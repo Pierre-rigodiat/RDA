@@ -13,7 +13,7 @@
 from django.conf.urls import patterns, url
 
 urlpatterns = patterns(
-    'oai_pmh.rest_views',
+    'oai_pmh.api.views',
     url(r'^add/registry$', 'add_registry'),
     url(r'^add/record$', 'add_record'),
     url(r'^select/all/registries$', 'select_all_registries'),

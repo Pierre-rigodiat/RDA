@@ -88,7 +88,7 @@ MDCS_URI = 'http://127.0.0.1:8000'
 # OAI_PMH parameters
 OAI_HOST_URI = 'http://127.0.0.1:8000'
 OAI_USER = 'admin'
-OAI_PASS = 'rest123'
+OAI_PASS = 'admin'
 
 # Handle system module parameters
 HANDLE_SERVER_URL = ''

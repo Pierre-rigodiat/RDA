@@ -15,7 +15,7 @@ from django import forms
 PROTOCOLS = (('http', 'HTTP'),
             ('https', 'HTTPS'))
 
-class Registry(forms.Form):
+class RegistryForm(forms.Form):
     """
         A registry form
     """

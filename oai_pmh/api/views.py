@@ -18,10 +18,10 @@ from rest_framework.response import Response
 # OAI-PMH
 from sickle import Sickle
 # Serializers
-from oai_pmh.serializers import RegistrySerializer, ListRecordsSerializer, RegistryURLSerializer, RecordSerializer, \
+from oai_pmh.api.serializers import RegistrySerializer, ListRecordsSerializer, RegistryURLSerializer, RecordSerializer, \
     IdentifySerializer, SaveRecordSerializer, UpdateRecordSerializer, DeleteRecordSerializer, UpdateRegistrySerializer, DeleteRegistrySerializer
 # Models
-from oai_pmh.models import Registry
+from mgi.models import Registry
 # DB Connection
 from pymongo import MongoClient
 from mgi.settings import MONGODB_URI, MGI_DB

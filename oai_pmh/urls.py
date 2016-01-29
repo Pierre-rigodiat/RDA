@@ -14,7 +14,7 @@ from django.conf.urls import patterns, url
 
 
 urlpatterns = patterns(
-    'oai_pmh.html_views',
+    'oai_pmh.views',
     url(r'^add/registry$', 'addregistry'),
     url(r'^add/result$', 'added_registry'),
     url(r'^select/all/registries$', 'selectallregistries'),
@@ -33,12 +33,11 @@ urlpatterns = patterns(
     url(r'^update/record/select$', 'update_record_select'),
     url(r'^update/record/result$', 'update_record_result'),
     url(r'^delete/record$', 'delete_record'),
-
-    url(r'^(?i)listrecords$', 'listRecords'),
-    url(r'^(?i)identify$', 'identify'),
-    url(r'^(?i)listmetadataformats$', 'listMetadataFormats'),
-    url(r'^(?i)listsets$', 'listSets'),
-    url(r'^(?i)listidentifiers$', 'listIdentifiers'),
-    url(r'^(?i)getrecord', 'getRecord'),
+    # url(r'^(?i)listrecords$', 'listRecords'),
+    # url(r'^(?i)identify$', 'identify'),
+    # url(r'^(?i)listmetadataformats$', 'listMetadataFormats'),
+    # url(r'^(?i)listsets$', 'listSets'),
+    # url(r'^(?i)listidentifiers$', 'listIdentifiers'),
+    # url(r'^(?i)getrecord', 'getRecord'),
 )
 

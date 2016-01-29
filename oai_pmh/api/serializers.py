@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from rest_framework_mongoengine.serializers import MongoEngineModelSerializer
-from oai_pmh.models import Record, Registry, UpdateRecord, DeleteRecord, SelectRecord, UpdateRegistry, DeleteRegistry
+from mgi.models import Record, Registry, UpdateRecord, DeleteRecord, SelectRecord, UpdateRegistry, DeleteRegistry
 
 ################################################################################
 #

@@ -18,7 +18,7 @@ from django.shortcuts import render
 from django.shortcuts import redirect
 # Requests
 import requests
-from oai_pmh.forms import Registry, AddRecord, GetRecord, Url, IdentifierForm, ListRecordForm
+from oai_pmh.forms import RegistryForm, AddRecord, GetRecord, Url, IdentifierForm, ListRecordForm
 import json
 import xmltodict
 from mgi.settings import OAI_HOST_URI, OAI_USER, OAI_PASS
@@ -37,13 +37,13 @@ from mgi.settings import OAI_HOST_URI, OAI_USER, OAI_PASS
 def added_registry(request):
     if request.user.is_authenticated():
         if request.method == 'POST':
-            form = Registry(request.POST)
+            form = RegistryForm(request.POST)
 
             if form.is_valid():
 
                 try:
                     errors = []
-                    uri=OAI_HOST_URI+"/oai_pmh/add/registry"
+                    uri= OAI_HOST_URI + "/oai_pmh/add/registry"
                     try:
                         name = request.POST.get('name')
                     except ValueError:
@@ -62,10 +62,14 @@ def added_registry(request):
                         metadataprefix = ""
                     if 'identity' in request.POST:
                         identity = request.POST.get('identity')
+                        if not identity:
+                            identity = {}
                     else:
                         identity = {}
                     if 'sets' in request.POST:
                         sets = request.POST.get('sets')
+                        if sets == '':
+                            sets = {}
                     else:
                         sets = {}
                     if 'description' in request.POST:
