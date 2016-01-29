@@ -54,6 +54,11 @@ explore_save_query="explore_save_query"
 explore_delete_query="explore_delete_query"
 ### End Explore Rights ###
 
+### OAI PMH Rights ###
+oai_pmh_content_type = "oaipmh"
+oai_pmh_access = "oaipmh_access"
+### End OAI PMH Rights ###
+
 
 def get_description(right):
     return "Can " + right.replace("_", " ")

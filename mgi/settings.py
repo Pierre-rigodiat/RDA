@@ -84,6 +84,11 @@ BLOB_HOSTER_USER = MONGO_MGI_USER
 BLOB_HOSTER_PSWD = MONGO_MGI_PASSWORD
 MDCS_URI = 'http://127.0.0.1:8000'
 
+# OAI_PMH parameters
+OAI_HOST_URI = 'http://127.0.0.1:8000'
+OAI_USER = 'admin'
+OAI_PASS = 'admin'
+
 # Handle system module parameters
 HANDLE_SERVER_URL = ''
 HANDLE_SERVER_SCHEMA = ''
