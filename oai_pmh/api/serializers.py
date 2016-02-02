@@ -12,10 +12,12 @@ from mgi.models import Record, Registry, UpdateRecord, DeleteRecord, SelectRecor
 class RegistrySerializer(MongoEngineModelSerializer):
     class Meta:
         model = Registry
+        exclude = (['identity','sets'])
 
 class UpdateRegistrySerializer(MongoEngineModelSerializer):
     class Meta:
         model = UpdateRegistry
+        exclude = (['identity','sets', 'metadataprefix', 'name', 'url'])
 
 class DeleteRegistrySerializer(MongoEngineModelSerializer):
     class Meta:
@@ -24,7 +26,7 @@ class DeleteRegistrySerializer(MongoEngineModelSerializer):
 class ListRecordsSerializer(serializers.Serializer):
     url            = serializers.URLField(required=True)
     metadataprefix = serializers.CharField(required=True)
-    setH           = serializers.CharField(required=False)
+    set            = serializers.CharField(required=False)
     resumptionToken= serializers.CharField(required=False)
     fromDate       = serializers.DateField(required=False)
     untilDate      = serializers.DateField(required=False)
@@ -32,7 +34,7 @@ class ListRecordsSerializer(serializers.Serializer):
 class RegistryURLSerializer(serializers.Serializer):
     url            = serializers.URLField(required=True)
     metadataprefix = serializers.CharField(required=True)
-    setH           = serializers.CharField(required=False)
+    set            = serializers.CharField(required=False)
     fromDate       = serializers.DateField(required=False)
     untilDate      = serializers.DateField(required=False)
 
