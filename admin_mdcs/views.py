@@ -19,7 +19,7 @@ from django.http.response import HttpResponseBadRequest
 from django.template import RequestContext, loader
 from django.shortcuts import redirect
 from mgi.models import Request, Message, PrivacyPolicy, TermsOfUse, Help, Template, TemplateVersion, Type, \
-    TypeVersion, Module, Bucket, Instance, Exporter, ExporterXslt, ResultXslt
+    TypeVersion, Module, Bucket, Instance, Exporter, ExporterXslt, ResultXslt, Registry
 from forms import UploadResultXSLTForm, PrivacyPolicyForm, TermsOfUseForm, HelpForm, RepositoryForm, RefreshRepositoryForm, UploadXSLTForm, UploadResultXSLTForm
 from django.contrib import messages
 import os
@@ -37,6 +37,7 @@ from mgi import common
 import json
 from mongoengine import NotUniqueError, OperationError
 from django.contrib.admin.views.decorators import staff_member_required
+from oai_pmh.forms import RegistryForm
 
 ################################################################################
 #
@@ -822,3 +823,27 @@ def result_xslt(request):
             return redirect('/')
     else:
         return redirect('/')
+
+
+################################################################################
+#
+# Function Name: oai_pmh(request)
+# Inputs:        request -
+# Outputs:       OAI-PMH Page
+# Exceptions:    None
+# Description:   Page that allows to manage OAI-PMH
+#
+################################################################################
+@staff_member_required
+def oai_pmh(request):
+    template = loader.get_template('admin/oai_pmh/oai_pmh.html')
+
+    registry_form = RegistryForm();
+    registries = Registry.objects.all()
+    context = RequestContext(request, {
+        'contacts': Message.objects,
+        'registry_form': registry_form,
+        'registries': registries,
+    })
+
+    return HttpResponse(template.render(context))

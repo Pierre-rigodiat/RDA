@@ -25,6 +25,7 @@ from mgi.models import Registry
 # DB Connection
 from pymongo import MongoClient
 from mgi.settings import MONGODB_URI, MGI_DB
+from mongoengine import NotUniqueError
 
 ################################################################################
 #
@@ -285,11 +286,6 @@ def add_registry(request):
     if request.user.is_authenticated():
         serializer = RegistrySerializer(data=request.DATA)
         if serializer.is_valid():
-            try:
-                reg_collection = MongoClient(MONGODB_URI)[MGI_DB]['registry']
-            except Exception:
-                return Response({'message':'Error connecting to database.'}, status=status.HTTP_400_BAD_REQUEST)
-
             errors = []
             try:
                 name = request.DATA['name']
@@ -303,6 +299,10 @@ def add_registry(request):
                 harvestrate = request.DATA['harvestrate']
             else:
                 harvestrate = ""
+            if 'harvest' in request.DATA:
+                harvest = request.DATA['harvest'] == 'True'
+            else:
+                harvest = False
             if 'metadataprefix' in request.DATA:
                 metadataprefix = request.DATA['metadataprefix']
             else:
@@ -323,9 +323,20 @@ def add_registry(request):
             if len(errors) > 0:
                 return Response(errors, status=status.HTTP_400_BAD_REQUEST)
             try:
-                reg_collection.insert({"name":name, "url":url, "harvestrate":harvestrate, "metadataprefix":metadataprefix, "identity":identity, "sets":sets, "description":description})
+                registry = Registry()
+                registry.name = name
+                registry.url = url
+                registry.harvestrate = harvestrate
+                registry.metadataprefix = metadataprefix
+                registry.identity = identity
+                registry.sets = sets
+                registry.description = description
+                registry.harvest = harvest
+                registry.save()
 
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
+            except NotUniqueError as e:
+                return Response({'message':'Unable to create the registry. The registry already exists.%s'%e.message}, status=status.HTTP_409_CONFLICT)
             except Exception as e:
                 return Response({'message':'An error occured when trying to save document. %s'%e.message}, status=status.HTTP_400_BAD_REQUEST)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -419,6 +430,7 @@ def select_registry(request):
 #                400 Serializer failed validation.
 #                401 Unauthorized.
 #                404 No registry found with the given identity.
+#                409 Duplicate name.
 # Description:   OAI-PMH Update Registry
 #
 ################################################################################
@@ -428,49 +440,59 @@ def update_registry(request):
     PUT http://localhost/oai_pmh/update/registry
     """
     if request.user.is_authenticated():
-        # errors = []
         serializer = UpdateRegistrySerializer(data=request.DATA)
 
         if serializer.is_valid():
             try:
-                rec_collection = MongoClient(MONGODB_URI)[MGI_DB]['registry']
-            except Exception:
-                return Response({'message':'Error connecting to database.'}, status=status.HTTP_400_BAD_REQUEST)
-
-            try:
-                identifier = request.DATA['identifier']
+                if 'id' in request.DATA:
+                    id = request.DATA['id']
+                    registry = Registry.objects.get(pk=id)
+                else:
+                    rsp = {'message':'\'Id\' not found in request.'}
+                    return Response(rsp, status=status.HTTP_400_BAD_REQUEST)
             except:
-                rsp = {'message':'\'Identifier\' not found in request.'}
-                return Response(rsp, status=status.HTTP_400_BAD_REQUEST)
-            content = []
-            if 'name' in request.DATA:
-                content.append({"name" : request.DATA['name']})
-            if 'url' in request.DATA:
-                content.append({"url" : request.DATA['url']})
-            if 'harvestrate' in request.DATA:
-                content.append({"harvestrate" : request.DATA['harvestrate']})
-            if 'metadataprefix' in request.DATA:
-                content.append({"metadataprefix" : request.DATA['metadataprefix']})
-            if 'description' in request.DATA:
-                content.append({"description" : request.DATA['description']})
-            if 'identity' in request.DATA:
-                content.append({"identity" : request.DATA['identity']})
-            if 'sets' in request.DATA:
-                content.append({"sets" : request.DATA['sets']})
-            try:
-                record = rec_collection.find_one({"identifier":identifier})
-                if record is "null":
-                    pass
-            except:
-                content = {'message':'No registry found with the given identity.'}
+                content = {'message':'No registry found with the given id.'}
                 return Response(content, status=status.HTTP_404_NOT_FOUND)
 
-            for dict in content:
-                for key, value in dict.items():
-                    try:
-                        rec_collection.update({"name":identifier}, { "$set": {key:value} })
-                    except Exception as e:
-                        return Response({'message':'Unable to update registry. \n%s'%e.message}, status=status.HTTP_400_BAD_REQUEST)
+            if 'name' in request.DATA:
+                name = request.DATA['name']
+                if name:
+                    registry.name = name
+            if 'url' in request.DATA:
+                url = request.DATA['url']
+                if url:
+                    registry.url = url
+            if 'harvestrate' in request.DATA:
+                harvestrate = request.DATA['harvestrate']
+                if harvestrate:
+                    registry.harvestrate = harvestrate
+            if 'metadataprefix' in request.DATA:
+                metadataprefix = request.DATA['metadataprefix']
+                if metadataprefix:
+                    registry.metadataprefix = metadataprefix
+            if 'description' in request.DATA:
+                description = request.DATA['description']
+                if description:
+                    registry.description = description
+            if 'identity' in request.DATA:
+                identity = request.DATA['identity']
+                if identity:
+                    registry.identity = identity
+            if 'sets' in request.DATA:
+                sets = request.DATA['sets']
+                if sets:
+                    registry.sets = sets
+            if 'harvest' in request.DATA:
+                harvest = request.DATA['harvest']
+                if harvest:
+                    registry.harvest =  harvest == 'True'
+
+            try:
+               registry.save()
+            except NotUniqueError as e:
+                return Response({'message':'Unable to update registry. The registry already exists.'}, status=status.HTTP_409_CONFLICT)
+            except Exception as e:
+                return Response({'message':'Unable to update registry. \n%s'%e.message}, status=status.HTTP_400_BAD_REQUEST)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
             return Response({'message':'Serializer failed validation. '}, status=status.HTTP_400_BAD_REQUEST)
@@ -505,23 +527,17 @@ def delete_registry(request):
 
         if serializer.is_valid():
             try:
-                reg_collection = MongoClient(MONGODB_URI)[MGI_DB]['registry']
-            except Exception:
-                return Response({'message':'Error connecting to database.'}, status=status.HTTP_400_BAD_REQUEST)
-
-            try:
-                name = request.DATA['name']
+                id = request.DATA['RegistryId']
             except:
-                rsp = {'message':'\'Name\' not found in request.'}
+                rsp = {'message':'\'ResgistryId\' not found in request.'}
                 return Response(rsp, status=status.HTTP_400_BAD_REQUEST)
 
             try:
-                record = reg_collection.find_one({"name":name})
-                if record is not 'null':
-                    reg_collection.remove({"name":name})
-                    content = {'message':"Deleted registry \'%s\' with success."%name}
-                    return Response(content, status=status.HTTP_204_NO_CONTENT)
-            except ValueError as e:
+                registry = Registry.objects.get(pk=id)
+                registry.delete()
+                content = {'message':"Deleted registry with success."}
+                return Response(content, status=status.HTTP_200_OK)
+            except Exception as e:
                 Response({"message":e.message}, status=status.HTTP_400_BAD_REQUEST)
 
             content = {'message':'Bad request.'}
@@ -724,8 +740,8 @@ def listRecords(request):
                     resumptionToken = request.DATA['resumptionToken']
                 else:
                     resumptionToken = ""
-                if 'setH' in request.DATA:
-                    set_h = request.DATA['setH']
+                if 'set' in request.DATA:
+                    set_h = request.DATA['set']
                 else:
                     set_h = ""
                 if 'fromDate' in request.DATA:
@@ -844,8 +860,8 @@ def listIdentifiers(request):
                     metadataprefix = request.DATA['metadataprefix']
                 except ValueError:
                     errors.append("Error in Metadata Prefix value.")
-                if 'setH' in request.DATA:
-                    setH = request.DATA['setH']
+                if 'set' in request.DATA:
+                    setH = request.DATA['set']
                 else:
                     setH = ""
 

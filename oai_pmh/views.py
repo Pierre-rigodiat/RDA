@@ -12,7 +12,9 @@
 ################################################################################
 
 # Responses
+from rest_framework import status
 from django.http import HttpResponse
+from django.http.response import HttpResponseBadRequest
 from django.template.response import TemplateResponse
 from django.shortcuts import render
 from django.shortcuts import redirect
@@ -22,63 +24,66 @@ from oai_pmh.forms import RegistryForm, AddRecord, GetRecord, Url, IdentifierFor
 import json
 import xmltodict
 from mgi.settings import OAI_HOST_URI, OAI_USER, OAI_PASS
-
+from django.contrib import messages
+from django.template import RequestContext, loader
+from mgi.models import Registry
 
 ################################################################################
 #
-# Function Name: added_registry(request)
+# Function Name: add_registry(request)
 # Inputs:        request -
 # Outputs:
 # Exceptions:    None
-# Description:   OAI-PMH Client added registry page
+# Description:   OAI-PMH Client add registry page
 #
 ################################################################################
 
-def added_registry(request):
+def add_registry(request):
     if request.user.is_authenticated():
         if request.method == 'POST':
             form = RegistryForm(request.POST)
 
             if form.is_valid():
-
                 try:
                     errors = []
-                    uri= OAI_HOST_URI + "/oai_pmh/add/registry"
+                    #We retrieve repository information
                     try:
-                        name = request.POST.get('name')
-                    except ValueError:
-                        errors.append("Invalid Name")
+                        uri= OAI_HOST_URI + "/oai_pmh/identify"
+                        req = requests.post(uri, {"url":request.POST.get("url")}, auth=(OAI_USER, OAI_PASS))
+                        if req.status_code == status.HTTP_200_OK:
+                            infos = json.loads( req.text )
+                            try:
+                                name = infos['message']['repositoryName'][0]
+                            except:
+                                name = ''
+                            try:
+                                description = infos['message']['description'][0]
+                            except:
+                                description = ""
+
+                            metadataprefix = ""
+                            identity = {}
+                            sets = {}
+                        else:
+                            return HttpResponseBadRequest('Impossible to retrieve information from the repository.')
+                    except:
+                        return HttpResponseBadRequest('Impossible to retrieve information from the repository.')
+
+                    #We add the registry
+                    uri = OAI_HOST_URI + "/oai_pmh/add/registry"
                     try:
                         url = request.POST.get('url')
                     except ValueError:
-                        errors.append("Invalid URL")
+                        return HttpResponseBadRequest('Please provide a URL.')
+
                     if 'harvestrate' in request.POST:
                         harvestrate = request.POST.get('harvestrate')
                     else:
                         harvestrate = ""
-                    if 'metadataprefix' in request.POST:
-                        metadataprefix = request.POST.get('metadataprefix')
+                    if 'harvest' in request.POST:
+                        harvest = request.POST.get('harvest') == 'on'
                     else:
-                        metadataprefix = ""
-                    if 'identity' in request.POST:
-                        identity = request.POST.get('identity')
-                        if not identity:
-                            identity = {}
-                    else:
-                        identity = {}
-                    if 'sets' in request.POST:
-                        sets = request.POST.get('sets')
-                        if sets == '':
-                            sets = {}
-                    else:
-                        sets = {}
-                    if 'description' in request.POST:
-                        description = request.POST.get('description')
-                    else:
-                        description = ""
-                    if len(errors) > 0:
-                        print len(errors),' errors'
-
+                        harvest = False
                     try:
                         req = requests.post(uri, {"name":name,
                                                   "url":url,
@@ -86,118 +91,29 @@ def added_registry(request):
                                                   "sets":sets,
                                                   "description":description,
                                                   "identity":identity,
-                                                  "harvestrate":harvestrate},
+                                                  "harvestrate":harvestrate,
+                                                  "harvest":harvest},
                                             auth=(OAI_USER, OAI_PASS))
-                        if str(req.status_code) == "201":
-                            return TemplateResponse(request, 'added_registry.html', {})
-                        if str(req.status_code) == "400":
-                            return TemplateResponse(request, 'existing_registry.html', {"form":form, "response":req.text})
-                        if str(req.status_code) == "401":
-                            return TemplateResponse(request, 'permission_denied.html', {"form":req.text})
+                        if req.status_code == status.HTTP_201_CREATED:
+                            messages.add_message(request, messages.SUCCESS, 'Registry {0} added with success.'.format(name))
+                            return HttpResponse('CREATED')
+                        elif req.status_code == status.HTTP_400_BAD_REQUEST:
+                            return HttpResponseBadRequest('An error occurred while trying to save the repository. Please contact your administrator.')
+                        elif req.status_code == status.HTTP_401_UNAUTHORIZED:
+                            return HttpResponseBadRequest('You don\'t have enough rights to do this add. Please contact your administrator.')
+                        elif req.status_code == status.HTTP_409_CONFLICT:
+                            return HttpResponseBadRequest('Unable to add the registry. The registry already exists')
                         else:
-                            return HttpResponse(req.status_code)
+                            return HttpResponseBadRequest('An error occurred. Please contact your administrator.')
                     except Exception as e:
-                        return render(request, 'error.html', {"response":"An error occurred. Please contact your administrator. %s"%e.message})
+                        return HttpResponseBadRequest('An error occurred. Please contact your administrator.')
                 except Exception as e:
-                    print 'exception reading ',e
-                    return render(request, 'error.html', {"response":"An error occurred. Please contact your administrator. %s"%e.message})
+                    return HttpResponseBadRequest('An error occurred. Please contact your administrator.')
             else:
-                print form.errors
-        return render(request, 'added_registry.html', {})
+                return HttpResponseBadRequest('Bad entries. Please verified your entry')
     else:
         return redirect('/login')
 
-################################################################################
-#
-# Function Name: addregistry(request)
-# Inputs:        request -
-# Outputs:
-# Exceptions:    None
-# Description:   OAI-PMH Add Registry
-#
-################################################################################
-def addregistry(request):
-    """
-    GET GET http://localhost/client/add/registry
-    """
-
-    if request.user.is_authenticated():
-        try:
-            response = TemplateResponse(request, 'add_registry.html', {})
-            return response
-        except:
-            return render(request, 'error.html', {"response":"An error occurred. Please contact your administrator."})
-    else:
-        return redirect('/login')
-
-################################################################################
-#
-# Function Name: selectallregistries(request)
-# Inputs:        request -
-# Outputs:
-# Exceptions:    None
-# Description:   OAI-PMH client select all registries
-#
-################################################################################
-def selectallregistries(request):
-    if request.user.is_authenticated():
-        try:
-            uri=OAI_HOST_URI+"/oai_pmh/select/all/registries"
-
-            try:
-                req = requests.get(uri, auth=(OAI_USER, OAI_PASS))
-                response = json.loads(req.text)
-                if str(req.status_code) == '200':
-                    return render(request, 'select_registry.html', {"registries":response})
-                if str(req.status_code) == '401':
-                    return TemplateResponse(request, 'permission_denied.html', {})
-            except Exception as e:
-                return 'e ',e.message
-        except Exception as e:
-            print 'exception reading ',e
-            return render(request, 'error.html', {"response":"An error occurred. Please contact your administrator. %s"%e.message})
-
-        return render(request, 'added_registry.html', {})
-    else:
-        return redirect('/login')
-
-################################################################################
-#
-# Function Name: select_registry(request)
-# Inputs:        request -
-# Outputs:
-# Exceptions:    None
-# Description:   OAI-PMH client select registries
-#
-################################################################################
-def select_registry(request):
-    if request.user.is_authenticated():
-        try:
-            uri=OAI_HOST_URI+"/oai_pmh/select/registry"
-            errors = []
-            try:
-                name = request.POST.get('Registry')
-            except ValueError:
-                errors.append("Invalid Name")
-            if len(errors):
-                return render(request, 'error.html', {"response":"An error occurred. Please contact your administrator. %s"%str(errors)})
-            try:
-                req = requests.get(uri+"?name="+name, auth=(OAI_USER, OAI_PASS))
-
-                response = json.loads(req.text)
-                if str(req.status_code) == '200':
-                    return render(request, 'view_registry.html', {"registry":response})
-                if str(req.status_code) == '401':
-                    return TemplateResponse(request, 'permission_denied.html', {})
-            except Exception as e:
-                return 'e ',e.message
-        except Exception as e:
-            print 'exception reading ',e
-            return render(request, 'error.html', {"response":"An error occurred. Please contact your administrator. %s"%e.message})
-
-        return render(request, 'added_registry.html', {})
-    else:
-        return redirect('/login')
 
 ################################################################################
 #
@@ -207,218 +123,100 @@ def select_registry(request):
 # Exceptions:    None
 # Description:   OAI-PMH update one registry
 #
-################################################################################
+# ################################################################################
 def update_registry(request):
     if request.user.is_authenticated():
-        try:
-            uri=OAI_HOST_URI+"/oai_pmh/select/all/registries"
-
+        if request.method == 'POST':
             try:
-                req = requests.get(uri, auth=(OAI_USER, OAI_PASS))
-                response = json.loads(req.text)
-
-                if str(req.status_code) == '200':
-                    return render(request, 'update_registry.html', {"registries":response})
-                if str(req.status_code) == '401':
-                    return TemplateResponse(request, 'permission_denied.html', {})
-            except Exception as e:
-                return 'e ',e.message
-        except Exception as e:
-            print 'exception reading ',e
-            return render(request, 'error.html', {"response":"An error occurred. Please contact your administrator. %s"%e.message})
-
-        return render(request, 'added_registry.html', {})
-    else:
-        return render(request, 'login.html')
-
-################################################################################
-#
-# Function Name: update_registry_select(request)
-# Inputs:        request -
-# Outputs:
-# Exceptions:    None
-# Description:   OAI-PMH returns page for selecting one registry
-#
-################################################################################
-def update_registry_select(request):
-    if request.user.is_authenticated():
-        try:
-            uri=OAI_HOST_URI+"/oai_pmh/select/registry"
-            errors = []
-            try:
-                name = request.POST.get('Registry')
-            except ValueError:
-                errors.append("Invalid Name")
-            if len(errors):
-                return render(request, 'error.html', {"response":"An error occurred. Please contact your administrator. %s"%str(errors)})
-
-            try:
-                req = requests.get(uri+"?name=%s"%name, auth=(OAI_USER, OAI_PASS))
-                response = json.loads(req.text)
-                if str(req.status_code) == '200':
-                    identifier = name
-                    response.update({"identifier":identifier})
-                    return render(request, 'update_registry_select.html', {"registry":response})
-                if str(req.status_code) == '401':
-                    return TemplateResponse(request, 'permission_denied.html', {})
-            except Exception as e:
-                return 'e ',e.message
-        except Exception as e:
-            print 'exception reading ',e
-            return render(request, 'error.html', {"response":"An error occurred. Please contact your administrator. %s"%e.message})
-
-        return render(request, 'added_registry.html', {})
-    else:
-        return render(request, 'login.html')
-
-def update_registry_result(request):
-    if request.user.is_authenticated():
-        try:
-            uri=OAI_HOST_URI+"/oai_pmh/update/registry"
-            errors = []
-            try:
-                name = request.POST.get('name')
-            except ValueError:
-                errors.append("Invalid Name.")
-            try:
-                url = request.POST.get('url')
-            except ValueError:
-                errors.append("Invalid URL.")
-            try:
-                identifier = request.POST.get('identifier')
-            except ValueError:
-                errors.append("Invalid identifier.")
-
-            harvestrate = request.POST.get('harvestrate')
-            metadataprefix = request.POST.get('metadataprefix')
-
-            if request.POST.get('sets') == "":
-                sets = {}
-            else:
+                uri = OAI_HOST_URI + "/oai_pmh/update/registry"
                 try:
-                    sets = json.loads( request.POST.get('sets'))
-                except Exception as e:
-                    return TemplateResponse(request, e.message, '')
+                    id = request.POST.get('id')
+                except ValueError:
+                    return HttpResponseBadRequest('Please provide an ID in order to edit the registry.')
 
-            if request.POST.get('identity') == "":
-                identity = {}
-            else:
+                if 'harvestrate' in request.POST:
+                    harvestrate = request.POST.get('harvestrate')
+                else:
+                    harvestrate = ''
+                if 'harvest' in request.POST:
+                    harvest = request.POST.get('harvest') == 'on'
+                else:
+                    harvest = False
+
                 try:
-                    identity = json.loads( request.POST.get('identity'))
+                    req = requests.put(uri,
+                                       {"id":id,
+                                        "harvestrate":harvestrate,
+                                        "harvest": harvest},
+                                       auth=(OAI_USER, OAI_PASS))
+
+                    if req.status_code == status.HTTP_201_CREATED:
+                        messages.add_message(request, messages.INFO, 'Registry edited with success.')
+                        return HttpResponse(json.dumps({}), content_type='application/javascript')
+                    elif req.status_code == status.HTTP_400_BAD_REQUEST:
+                        return HttpResponseBadRequest('An error occurred. Please contact your administrator..')
+                    elif req.status_code == status.HTTP_401_UNAUTHORIZED:
+                        return HttpResponseBadRequest('You don\'t have enough rights to do this edition. Please contact your administrator.')
+                    elif req.status_code == status.HTTP_409_CONFLICT:
+                        return HttpResponseBadRequest('Unable to update the registry. The registry already exists. Please enter an other name.')
+                    else:
+                        return HttpResponseBadRequest('An error occurred. Please contact your administrator.')
                 except Exception as e:
-                    return TemplateResponse(request, e.message, '')
-
-            description = request.POST.get('description')
-
-            if len(errors):
-                return render(request, 'error.html', {"response":"An error occurred. Please contact your administrator. %s"%str(errors)})
-
-            try:
-                req = requests.put(uri, {"identifier":identifier, "name":name, "url":url, "harvestrate":harvestrate, "metadataprefix":metadataprefix,
-                                          "identity":identity, "sets":sets, "description":description}, auth=(OAI_USER, OAI_PASS))
-
-                if str(req.status_code) == '201':
-                    try:
-                        uri=OAI_HOST_URI+"/oai_pmh/select/registry"
-                        req = requests.get(uri+"?name="+name, auth=(OAI_USER, OAI_PASS))
-
-                        response = json.loads(req.text)
-                        if str(req.status_code) == '200':
-                            return render(request, 'update_registry_result.html', {"registry":response})
-                        if str(req.status_code) == '401':
-                            return TemplateResponse(request, 'permission_denied.html', {})
-
-                    except Exception as e:
-                        return render(request, 'error.html', {"response":"An error occurred. Please contact your administrator. %s"%e.message})
-                if str(req.status_code) == '401':
-                    return TemplateResponse(request, 'permission_denied.html', {})
+                    return HttpResponseBadRequest('An error occurred. Please contact your administrator.')
             except Exception as e:
-                return render(request, 'error.html', {"response":"An error occurred. Please contact your administrator. %s"%e.message})
-        except Exception as e:
-            print 'exception reading ',e
-            return render(request, 'error.html', {"response":"An error occurred. Please contact your administrator. %s"%e.message})
-
-        return render(request, 'error.html', {"response":"An error occurred. Please contact your administrator."})
-
-def delete_registry(request):
-    if request.user.is_authenticated():
-        try:
-            uri=OAI_HOST_URI+"/oai_pmh/select/all/registries"
-
+                return HttpResponseBadRequest('An error occurred. Please contact your administrator.')
+        elif request.method == 'GET':
+            template = loader.get_template('admin/oai_pmh/form_registry_edit.html')
+            registry_id = request.GET['registry_id']
             try:
-                req = requests.get(uri, auth=(OAI_USER, OAI_PASS))
-                response = json.loads(req.text)
-                if str(req.status_code) == '200':
-                    return render(request, 'delete_registry.html', {"registries":response})
-                if str(req.status_code) == '401':
-                    return TemplateResponse(request, 'permission_denied.html', {})
-            except Exception as e:
-                return 'e ',e.message
-        except Exception as e:
-            print 'exception reading ',e
-            return render(request, 'error.html', {"response":"An error occurred. Please contact your administrator. %s"%e.message})
+                registry = Registry.objects.get(pk=registry_id)
+                data = {'id': registry.id, 'name': registry.name,
+                        'url': registry.url, 'harvestrate': registry.harvestrate,
+                        'metadataprefix': registry.metadataprefix,
+                        'identity': registry.identity, 'sets': registry.sets,
+                        'description': registry.description, 'harvest': registry.harvest}
+                registry_form= RegistryForm(data)
+            except:
+                registry_form = RegistryForm()
 
-        return render(request, 'error.html', {"response":"An error occurred. Please contact your administrator."})
+            context = RequestContext(request, {
+                'registry_form': registry_form,
+            })
 
-def delete_registry_select(request):
-    if request.user.is_authenticated():
-        try:
-            uri=OAI_HOST_URI+"/oai_pmh/select/registry"
-            errors = []
-            try:
-                name = request.POST.get('Registry')
-            except ValueError:
-                errors.append("Invalid Name")
-            if len(errors):
-                return render(request, 'error.html', {"response":"An error occurred. Please contact your administrator. %s"%str(errors)})
-
-            try:
-                req = requests.get(uri+"?name="+name, auth=(OAI_USER, OAI_PASS))
-                response = json.loads(req.text)
-
-                if str(req.status_code) == '200':
-                    return render(request, 'delete_registry_select.html', {"registry":response})
-                if str(req.status_code) == '401':
-                    return TemplateResponse(request, 'permission_denied.html', {})
-            except Exception as e:
-                return render(request, 'error.html', {"response":"An error occurred. Please contact your administrator. %s"%e.message})
-        except Exception as e:
-            print 'exception reading ',e
-            return render(request, 'error.html', {"response":"An error occurred. %s."%e.message})
-
-        return render(request, 'error.html', {"response":"An error occurred. Please contact your administrator."})
+            return HttpResponse(json.dumps({'template': template.render(context)}), content_type='application/javascript')
     else:
         return redirect('/login')
 
-def delete_registry_result(request):
+################################################################################
+#
+# Function Name: delete_registry(request)
+# Inputs:        request -
+# Outputs:
+# Exceptions:    None
+# Description:   OAI-PMH Delete Registry
+#
+################################################################################
+def delete_registry(request):
     if request.user.is_authenticated():
+        uri = OAI_HOST_URI+"/oai_pmh/delete/registry"
         try:
-            uri=OAI_HOST_URI+"/oai_pmh/delete/registry"
-            errors = []
-            try:
-                name = request.POST.get('identifier')
-            except ValueError:
-                errors.append("Invalid Name")
-            if len(errors):
-                return render(request, 'error.html', {"response":"An error occurred. Please contact your administrator. %s"%str(errors)})
+            id = request.POST.get('RegistryId')
+        except ValueError:
+            return HttpResponseBadRequest('Please provide an ID in order to delete the registry.')
+        try:
+            req = requests.post(uri, {"RegistryId":id}, auth=(OAI_USER, OAI_PASS))
 
-            try:
-                req = requests.post(uri, {"name":name}, auth=(OAI_USER, OAI_PASS))
-
-                if str(req.status_code) == '204':
-                    return render(request, 'delete_registry_result.html', {"registry":{"name":name}})
-                if str(req.status_code) == '401':
-                    return render(request, 'permission_denied.html', {})
-                if str(req.status_code) == '400':
-                    print req.text
-                    return render(request, 'error.html', {})
-            except Exception as e:
-                return 'e ',e.message
+            if req.status_code == status.HTTP_200_OK:
+                messages.add_message(request, messages.INFO, 'Registry deleted with success.')
+                return HttpResponse(json.dumps({}), content_type='application/javascript')
+            elif req.status_code == status.HTTP_401_UNAUTHORIZED:
+                return HttpResponseBadRequest('You don\'t have enough rights to do this edition. Please contact your administrator.')
+            elif req.status_code == status.HTTP_400_BAD_REQUEST:
+                return HttpResponseBadRequest('An error occurred. Impossible to delete the registry. Please contact your administrator.')
+            else:
+                return HttpResponseBadRequest('An error occurred. Please contact your administrator.')
         except Exception as e:
-            print 'exception reading ',e
-            return render(request, 'error.html', {"response":"An error occurred. Please contact your administrator. %s"%e.message})
-
-        return render(request, 'error.html', {"response":"An error occurred. Please contact your administrator."})
+            return HttpResponseBadRequest('An error occurred. Please contact your administrator.')
     else:
         return redirect('/login')
 
@@ -477,62 +275,6 @@ def add_record_result(request):
     else:
         return redirect('/login')
 
-################################################################################
-#
-# Function Name: view_record(request)
-# Inputs:        request -
-# Outputs:
-# Exceptions:    None
-# Description:   OAI-PMH Add Registry
-#
-################################################################################
-def view_record(request):
-    if request.user.is_authenticated():
-        try:
-            return render(request, 'oai_pmh/records/view_record.html', {})
-        except Exception as e:
-            return render(request, 'error.html', {"response":"An error occurred. Please contact your administrator. %s"%e.message})
-    else:
-        return redirect('/login')
-
-################################################################################
-#
-# Function Name: view_record_result(request)
-# Inputs:        request -
-# Outputs:
-# Exceptions:    None
-# Description:   OAI-PMH Add Registry
-#
-################################################################################
-def view_record_result(request):
-    if request.user.is_authenticated():
-        try:
-            uri=OAI_HOST_URI+"/oai_pmh/select/record"
-            errors = []
-            try:
-                identifier = request.POST.get('identifier')
-            except ValueError:
-                errors.append("Invalid identifier")
-            if len(errors):
-                return render(request, 'error.html', {"response":"An error occurred. Please contact your administrator. %s"%str(errors)})
-            try:
-                req = requests.post(uri, {"identifier":identifier}, auth=(OAI_USER, OAI_PASS))
-                response = json.loads(req.text)
-                # response = parseString( dicttoxml.dicttoxml( json.loads(req.text) ) ).toprettyxml()
-                print response
-                if str(req.status_code) == '200':
-                    return render(request, 'oai_pmh/records/view_record_result.html', {"record":response})
-                if str(req.status_code) == '401':
-                    return TemplateResponse(request, 'permission_denied.html', {})
-            except Exception as e:
-                return 'e ',e.message
-        except Exception as e:
-            print 'exception reading ',e
-            return render(request, 'error.html', {"response":"An error occurred. Please contact your administrator. %s"%e.message})
-
-        return render(request, 'error.html', {"previouspage":"/client/view/record"})
-    else:
-        return redirect('/login')
 
 ################################################################################
 #
@@ -544,64 +286,6 @@ def view_record_result(request):
 #
 ################################################################################
 def update_record(request):
-    if request.user.is_authenticated():
-        try:
-            return render(request, 'oai_pmh/records/update_record.html', {})
-        except:
-            return render(request, 'error.html', {"response":"An error occurred. Please contact your administrator."})
-    else:
-        return redirect('/login')
-
-################################################################################
-#
-# Function Name: update_record_select(request)
-# Inputs:        request -
-# Outputs:
-# Exceptions:    None
-# Description:   OAI-PMH Add Registry
-#
-################################################################################
-def update_record_select(request):
-    if request.user.is_authenticated():
-        try:
-            uri=OAI_HOST_URI+"/oai_pmh/select/record"
-            errors = []
-            try:
-                identifier = request.POST.get('identifier')
-            except ValueError:
-                errors.append("Invalid identifier.")
-            if len(errors):
-                return render(request, 'error.html', {"response":"An error occurred. Please contact your administrator. %s"%str(errors)})
-
-            try:
-                req = requests.post(uri, {"identifier":identifier}, auth=(OAI_USER, OAI_PASS))
-                # pretty_print = pprint.PrettyPrinter(indent=4)
-                # p_req = pretty_print.pformat(req.text)
-
-                if str(req.status_code) == '200':
-                    return render(request, 'oai_pmh/records/update_record_select.html', {"record":req.text, "identifier":identifier} )
-                if str(req.status_code) == '401':
-                    return TemplateResponse(request, 'permission_denied.html', {})
-            except Exception as e:
-                return 'e ',e.message
-        except Exception as e:
-            print 'exception reading ',e
-            return render(request, 'error.html', {"response":"An error occurred. Please contact your administrator. %s"%e.message})
-
-        return render(request, 'error.html', {"response":"An error occurred. Please contact your administrator."})
-    else:
-        return redirect('/login')
-
-################################################################################
-#
-# Function Name: update_record_select(request)
-# Inputs:        request -
-# Outputs:
-# Exceptions:    None
-# Description:   OAI-PMH Add Registry
-#
-################################################################################
-def update_record_result(request):
     if request.user.is_authenticated():
         try:
             uri=OAI_HOST_URI+"/oai_pmh/update/record"
@@ -638,21 +322,31 @@ def update_record_result(request):
     else:
         return redirect('/login')
 
+
 ################################################################################
 #
-# Function Name: add_record(request)
+# Function Name: check_registry(request)
 # Inputs:        request -
 # Outputs:
 # Exceptions:    None
-# Description:   OAI-PMH Add Registry
+# Description:   OAI-PMH Check if the Registry is available
 #
 ################################################################################
-def delete_record(request):
+def check_registry(request):
     if request.user.is_authenticated():
         try:
-            return render(request, 'oai_pmh/records/delete_record.html', {})
+            form = Url(request.POST)
+            if form.is_valid():
+                uri= OAI_HOST_URI + "/oai_pmh/identify"
+                req = requests.post(uri, {"url":request.POST.get("url")}, auth=(OAI_USER, OAI_PASS))
+                isAvailable = str(req.status_code) == "200"
+            else:
+                isAvailable = False
         except:
-            return render(request, 'error.html', {"response":"An error occurred. Please contact your administrator."})
+            req= {}
+            isAvailable = False
+
+        return HttpResponse(json.dumps({'isAvailable' : isAvailable }), content_type='application/javascript')
     else:
         return redirect('/login')
 
@@ -697,7 +391,7 @@ def getRecord(request):
 
 ################################################################################
 #
-# Function Name: add_record(request)
+# Function Name: identify(request)
 # Inputs:        request -
 # Outputs:
 # Exceptions:    None
@@ -798,7 +492,7 @@ def listIdentifiers(request):
             form = IdentifierForm(request.POST)
             if form.is_valid():
                 uri=OAI_HOST_URI+"/oai_pmh/listIdentifiers"
-                req = requests.post(uri, {"url":request.POST.get("url"), "setH":request.POST.get("set"),
+                req = requests.post(uri, {"url":request.POST.get("url"), "set":request.POST.get("set"),
                                           "metadataprefix":request.POST.get("metadataprefix")}, auth=(OAI_USER, OAI_PASS))
                 print request.POST.get("url")
                 print request.POST.get("set")
@@ -832,7 +526,7 @@ def listRecords(request):
             if form.is_valid():
                 uri=OAI_HOST_URI+"/oai_pmh/listIdentifiers"
                 req = requests.post(uri, {"url":request.POST.get("url"),
-                                          "setH":request.POST.get("set"),
+                                          "set":request.POST.get("set"),
                                           "metadataprefix":request.POST.get("metadataprefix"),
                                           "resumptionToken":request.POST.get("resumptionToken"),
                                           "fromDate":request.POST.get("fromDate"),

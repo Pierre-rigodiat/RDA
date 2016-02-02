@@ -478,13 +478,14 @@ class Registry(Document):
     """
         A registry object
     """
-    name           = StringField(required=True, unique=True)
-    url            = URLField(required=True)
+    name           = StringField(required=True)
+    url            = URLField(required=True, unique=True)
     harvestrate    = StringField(required=False)
     metadataprefix = StringField(required=False)
     identity       = DictField(required=False)
     sets           = DictField(required=False)
     description    = StringField(required=False)
+    harvest        = BooleanField()
 
 class Record(Document):
     """
@@ -534,10 +535,10 @@ class UpdateRegistry(Document):
     identity       = DictField(required=False)
     sets           = DictField(required=False)
     description    = StringField(required=False)
-    identifier     = StringField(required=True)
+    id             = StringField(required=True)
 
 class DeleteRegistry(Document):
     """
         Delete registry model
     """
-    name = StringField(required=True)
+    id = StringField(required=True)

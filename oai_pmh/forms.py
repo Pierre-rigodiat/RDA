@@ -19,13 +19,15 @@ class RegistryForm(forms.Form):
     """
         A registry form
     """
-    name           = forms.CharField(label='name', required=True)
-    url            = forms.CharField(label='url', required=True)
-    harvestrate    = forms.CharField(label='harvestrate', required=False)
-    metadataprefix = forms.CharField(label='metadataprefix', required=False)
-    identity       = forms.CharField(label='identity', required=False)
-    sets           = forms.CharField(label='sets', required=False)
-    description    = forms.CharField(label='description', required=False)
+    name           = forms.CharField(widget=forms.HiddenInput(), required=False)
+    url            = forms.CharField(label='URL', required=True)
+    harvestrate    = forms.CharField(label='Harvestrate', required=False)
+    # metadataprefix = forms.CharField(label='Metadataprefix', required=False)
+    # identity       = forms.CharField(label='Identity', required=False)
+    # sets           = forms.CharField(label='Sets', required=False)
+    # description    = forms.CharField(label='Description', required=False)
+    harvest        = forms.BooleanField(widget=forms.CheckboxInput(attrs={'class':'cmn-toggle cmn-toggle-round'}), required=False)
+    id             = forms.CharField(widget=forms.HiddenInput(), required=False)
 
 class AddRecord(forms.Form):
     """
