@@ -20,7 +20,7 @@ from django.shortcuts import render
 from django.shortcuts import redirect
 # Requests
 import requests
-from oai_pmh.forms import RegistryForm, AddRecord, GetRecord, Url, IdentifierForm, ListRecordForm
+from oai_pmh.forms import UpdateRegistryForm, RegistryForm, AddRecord, GetRecord, Url, IdentifierForm, ListRecordForm
 import json
 import xmltodict
 from mgi.settings import OAI_HOST_URI, OAI_USER, OAI_PASS
@@ -81,7 +81,7 @@ def add_registry(request):
                     else:
                         harvestrate = ""
                     if 'harvest' in request.POST:
-                        harvest = request.POST.get('harvest') == 'on'
+                        harvest = True
                     else:
                         harvest = False
                     try:
@@ -138,8 +138,8 @@ def update_registry(request):
                     harvestrate = request.POST.get('harvestrate')
                 else:
                     harvestrate = ''
-                if 'harvest' in request.POST:
-                    harvest = request.POST.get('harvest') == 'on'
+                if 'edit_harvest' in request.POST:
+                    harvest = True
                 else:
                     harvest = False
 
@@ -174,10 +174,10 @@ def update_registry(request):
                         'url': registry.url, 'harvestrate': registry.harvestrate,
                         'metadataprefix': registry.metadataprefix,
                         'identity': registry.identity, 'sets': registry.sets,
-                        'description': registry.description, 'harvest': registry.harvest}
-                registry_form= RegistryForm(data)
+                        'description': registry.description, 'edit_harvest': registry.harvest}
+                registry_form= UpdateRegistryForm(data)
             except:
-                registry_form = RegistryForm()
+                registry_form = UpdateRegistryForm()
 
             context = RequestContext(request, {
                 'registry_form': registry_form,

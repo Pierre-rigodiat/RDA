@@ -29,6 +29,14 @@ class RegistryForm(forms.Form):
     harvest        = forms.BooleanField(widget=forms.CheckboxInput(attrs={'class':'cmn-toggle cmn-toggle-round'}), required=False)
     id             = forms.CharField(widget=forms.HiddenInput(), required=False)
 
+class UpdateRegistryForm(forms.Form):
+    """
+        A registry update form
+    """
+    id             = forms.CharField(widget=forms.HiddenInput(), required=False)
+    harvestrate    = forms.CharField(label='Harvestrate', required=False)
+    edit_harvest   = forms.BooleanField(widget=forms.CheckboxInput(attrs={'class':'cmn-toggle cmn-toggle-round'}), required=False)
+
 class AddRecord(forms.Form):
     """
         Add record form
