@@ -177,7 +177,7 @@ delete_registry = function(registry_id){
         },
         error:function(data){
             $("#form_delete_errors").html(data.responseText);
-            $("#banner_delete_errors").show(200)
+            $("#banner_delete_errors").show(200);
 	    }
     });
 }
