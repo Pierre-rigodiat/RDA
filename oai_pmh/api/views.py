@@ -17,16 +17,18 @@ from rest_framework import status
 from rest_framework.response import Response
 # OAI-PMH
 from sickle import Sickle
+from sickle.models import Set, MetadataFormat
 # Serializers
-from oai_pmh.api.serializers import RegistrySerializer, ListRecordsSerializer, RegistryURLSerializer, RecordSerializer, \
+from oai_pmh.api.serializers import MetadataFormatSerializer, SetSerializer, RegistrySerializer, ListRecordsSerializer, RegistryURLSerializer, RecordSerializer, \
     IdentifySerializer, SaveRecordSerializer, UpdateRecordSerializer, DeleteRecordSerializer, UpdateRegistrySerializer, DeleteRegistrySerializer
 # Models
-from mgi.models import Registry
+from mgi.models import Registry, Set as SetModel, MetadataFormat as MetadataFormatModel
 # DB Connection
 from pymongo import MongoClient
 from mgi.settings import MONGODB_URI, MGI_DB
 from mongoengine import NotUniqueError
-
+import json
+import xmltodict
 ################################################################################
 #
 # Function Name: add_record(request)
@@ -287,6 +289,18 @@ def add_registry(request):
         serializer = RegistrySerializer(data=request.DATA)
         if serializer.is_valid():
             errors = []
+            if 'sets' in request.DATA:
+                sets = json.loads(request.DATA['sets'])
+                serializerSet = SetSerializer(data=sets)
+                if not serializerSet.is_valid():
+                    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+            if 'metadataformats' in request.DATA:
+                metadataformats = json.loads(request.DATA['metadataformats'])
+                serializerMetadataFormat = MetadataFormatSerializer(data=metadataformats)
+                if not serializerMetadataFormat.is_valid():
+                    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
             try:
                 name = request.DATA['name']
             except ValueError:
@@ -303,18 +317,10 @@ def add_registry(request):
                 harvest = request.DATA['harvest'] == 'True'
             else:
                 harvest = False
-            if 'metadataprefix' in request.DATA:
-                metadataprefix = request.DATA['metadataprefix']
-            else:
-                metadataprefix = ""
             if 'identity' in request.DATA:
                 identity = request.DATA['identity']
             else:
                 identity = {}
-            if 'sets' in request.DATA:
-                sets = request.DATA['sets']
-            else:
-                sets = {}
             if 'description' in request.DATA:
                 description = request.DATA['description']
             else:
@@ -327,11 +333,23 @@ def add_registry(request):
                 registry.name = name
                 registry.url = url
                 registry.harvestrate = harvestrate
-                registry.metadataprefix = metadataprefix
                 registry.identity = identity
-                registry.sets = sets
                 registry.description = description
                 registry.harvest = harvest
+                listSet = []
+                listMetadataFormats = []
+                for set in sets:
+                    raw = xmltodict.parse(set['raw'])
+                    obj = SetModel(setName=set['setName'], setSpec=set['setSpec'], raw= raw).save()
+                    listSet.append(obj)
+                for metadataformat in metadataformats:
+                    raw = xmltodict.parse(set['raw'])
+                    obj = MetadataFormatModel(metadataPrefix=metadataformat['metadataPrefix'], metadataNamespace=metadataformat['metadataNamespace'], schema=metadataformat['schema'], raw= raw).save()
+                    # TODO: Add the schema (template) in database and link the record to the template
+                    listMetadataFormats.append(obj)
+
+                registry.sets = listSet
+                registry.metadataformats = listMetadataFormats
                 registry.save()
 
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -435,6 +453,7 @@ def select_registry(request):
 #
 ################################################################################
 @api_view(['PUT'])
+# TODO Take care of sets and metadataformats
 def update_registry(request):
     """
     PUT http://localhost/oai_pmh/update/registry
@@ -466,10 +485,10 @@ def update_registry(request):
                 harvestrate = request.DATA['harvestrate']
                 if harvestrate:
                     registry.harvestrate = harvestrate
-            if 'metadataprefix' in request.DATA:
-                metadataprefix = request.DATA['metadataprefix']
-                if metadataprefix:
-                    registry.metadataprefix = metadataprefix
+            if 'metadataformats' in request.DATA:
+                metadataformats = request.DATA['metadataformats']
+                if metadataformats:
+                    registry.metadataprefix = metadataformats
             if 'description' in request.DATA:
                 description = request.DATA['description']
                 if description:
@@ -534,6 +553,11 @@ def delete_registry(request):
 
             try:
                 registry = Registry.objects.get(pk=id)
+                for set in registry.sets:
+                    set.delete()
+                for metadataformat in registry.metadataformats:
+                    metadataformat.delete()
+
                 registry.delete()
                 content = {'message':"Deleted registry with success."}
                 return Response(content, status=status.HTTP_200_OK)
@@ -694,7 +718,67 @@ def listMetadataFormats(request):
                 return Response({'message':'Serializer failed validation.'}, status=status.HTTP_400_BAD_REQUEST)
             sickle = Sickle(url)
             rsp = sickle.ListMetadataFormats()
+
             return Response(rsp, status=status.HTTP_200_OK)
+        except Exception as e:
+            content = {'message':'An error occurred when attempting to identify resource: %s'%e.message}
+            return Response(content, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    else:
+        content = {'message':'Only an administrator can use this feature.'}
+        return Response(content, status=status.HTTP_401_UNAUTHORIZED)
+
+
+################################################################################
+#
+# Function Name: listObjectMetadataFormats(request)
+# Inputs:        request -
+# Outputs:       200 Response successful.
+# Exceptions:    400 Error in URL value.
+#                400 Serializer failed validation.
+#                401 Unauthorized.
+#                500 An error occurred when attempting to identify resource.
+# Description:   OAI-PMH List Object Metadata Formats
+#
+################################################################################
+@api_view(['POST'])
+def listObjectMetadataFormats(request):
+    """
+    POST http://localhost/oai_pmh/listobjectmetadataformats
+    """
+    if request.user.is_authenticated():
+        try:
+            serializer = IdentifySerializer(data=request.DATA)
+
+            if serializer.is_valid():
+                errors = []
+                try:
+                    url = request.DATA['url']
+                except ValueError:
+                    errors.append("Error in URL value.")
+
+                if len(errors) > 0:
+                    return Response({"message":errors}, status=status.HTTP_400_BAD_REQUEST)
+
+            else:
+                return Response({'message':'Serializer failed validation.'}, status=status.HTTP_400_BAD_REQUEST)
+            sickle = Sickle(url)
+            rsp = sickle.ListMetadataFormats()
+            rtn = []
+
+            try:
+                while True:
+                    obj = rsp.next()
+                    metadata = MetadataFormat(obj.xml)
+                    rtn.append({  "metadataPrefix": metadata.metadataPrefix,
+                                  "metadataNamespace": metadata.metadataNamespace,
+                                  "schema": metadata.schema,
+                                  "raw": metadata.raw})
+            except StopIteration:
+                pass
+
+            serializer = MetadataFormatSerializer(rtn)
+            return Response(serializer.data, status=status.HTTP_200_OK)
         except Exception as e:
             content = {'message':'An error occurred when attempting to identify resource: %s'%e.message}
             return Response(content, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -816,12 +900,67 @@ def listSets(request):
             sickle = Sickle(url)
             rsp = sickle.ListSets()
             rtn = []
+
             try:
                 while True:
                     rtn.append( dict(rsp.next()) )
             except StopIteration:
                 pass
             return Response(rtn, status=status.HTTP_200_OK)
+        except Exception as e:
+            content = {'message':'An error occurred when attempting to identify resource: %s'%e.message}
+            return Response(content, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    else:
+        content = {'message':'Only an administrator can use this feature.'}
+        return Response(content, status=status.HTTP_401_UNAUTHORIZED)
+
+################################################################################
+#
+# Function Name: listObjectSets(request)
+# Inputs:        request -
+# Outputs:       200 Response successful.
+# Exceptions:    400 Error(s) in required values value.
+#                400 Serializer failed validation.
+#                401 Unauthorized.
+#                500 An error occurred when attempting to identify resource.
+# Description:   OAI-PMH List object Sets
+#
+################################################################################
+@api_view(['POST'])
+def listObjectSets(request):
+    """
+    POST http://localhost/oai_pmh/listsets
+    """
+    if request.user.is_authenticated():
+        try:
+            serializer = IdentifySerializer(data=request.DATA)
+            if serializer.is_valid():
+                errors = []
+                try:
+                    url = request.DATA['url']
+                except ValueError:
+                    errors.append("Error in URL value.")
+                if len(errors) > 0:
+                    return Response({"message":errors}, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                return Response({'message':'serializer failed validation.'}, status=status.HTTP_400_BAD_REQUEST)
+            sickle = Sickle(url)
+            rsp = sickle.ListSets()
+            rtn = []
+
+            try:
+                while True:
+                    obj = rsp.next()
+                    set = Set(obj.xml)
+                    rtn.append({  "setName":set.setName,
+                                  "setSpec":set.setSpec,
+                                  "raw":set.raw})
+            except StopIteration:
+                pass
+
+            serializer = SetSerializer(rtn)
+            return Response(serializer.data, status=status.HTTP_200_OK)
         except Exception as e:
             content = {'message':'An error occurred when attempting to identify resource: %s'%e.message}
             return Response(content, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

@@ -27,7 +27,9 @@ urlpatterns = patterns(
     url(r'^(?i)listrecords$', 'listRecords'),
     url(r'^(?i)identify$', 'identify'),
     url(r'^(?i)listmetadataformats$', 'listMetadataFormats'),
+    url(r'^(?i)listobjectmetadataformats$', 'listObjectMetadataFormats'),
     url(r'^(?i)listsets$', 'listSets'),
+    url(r'^(?i)listobjectsets$', 'listObjectSets'),
     url(r'^(?i)listidentifiers$', 'listIdentifiers'),
     url(r'^(?i)getrecord', 'getRecord'),
 )

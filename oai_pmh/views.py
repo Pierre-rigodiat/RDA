@@ -26,7 +26,9 @@ import xmltodict
 from mgi.settings import OAI_HOST_URI, OAI_USER, OAI_PASS
 from django.contrib import messages
 from django.template import RequestContext, loader
-from mgi.models import Registry
+from mgi.models import Registry, Set as SetModel
+from sickle.models import Set
+from oai_pmh.api.serializers import SetSerializer
 
 ################################################################################
 #
@@ -60,10 +62,28 @@ def add_registry(request):
                                 description = infos['message']['description'][0]
                             except:
                                 description = ""
+                        else:
+                            return HttpResponseBadRequest('Impossible to retrieve information from the repository.')
+                    except:
+                        return HttpResponseBadRequest('Impossible to retrieve information from the repository.')
 
-                            metadataprefix = ""
-                            identity = {}
-                            sets = {}
+                    #We retrieve set information
+                    try:
+                        uri= OAI_HOST_URI + "/oai_pmh/listobjectsets"
+                        req = requests.post(uri, {"url":request.POST.get("url")}, auth=(OAI_USER, OAI_PASS))
+                        if req.status_code == status.HTTP_200_OK:
+                            sets = req.text
+                        else:
+                            return HttpResponseBadRequest('Impossible to retrieve information from the repository.')
+                    except:
+                        return HttpResponseBadRequest('Impossible to retrieve information from the repository.')
+
+                    #We retrieve metadata formats information
+                    try:
+                        uri= OAI_HOST_URI + "/oai_pmh/listobjectmetadataformats"
+                        req = requests.post(uri, {"url":request.POST.get("url")}, auth=(OAI_USER, OAI_PASS))
+                        if req.status_code == status.HTTP_200_OK:
+                            metadataformats = req.text
                         else:
                             return HttpResponseBadRequest('Impossible to retrieve information from the repository.')
                     except:
@@ -84,10 +104,12 @@ def add_registry(request):
                         harvest = True
                     else:
                         harvest = False
+
+                    identity = {}
                     try:
                         req = requests.post(uri, {"name":name,
                                                   "url":url,
-                                                  "metadataprefix":metadataprefix,
+                                                  "metadataformats":metadataformats,
                                                   "sets":sets,
                                                   "description":description,
                                                   "identity":identity,
@@ -172,7 +194,7 @@ def update_registry(request):
                 registry = Registry.objects.get(pk=registry_id)
                 data = {'id': registry.id, 'name': registry.name,
                         'url': registry.url, 'harvestrate': registry.harvestrate,
-                        'metadataprefix': registry.metadataprefix,
+                        'metadataformats': registry.metadataformats,
                         'identity': registry.identity, 'sets': registry.sets,
                         'description': registry.description, 'edit_harvest': registry.harvest}
                 registry_form= UpdateRegistryForm(data)
@@ -432,7 +454,7 @@ def listMetadataFormats(request):
         try:
             form = Url(request.POST)
             if form.is_valid():
-                uri=OAI_HOST_URI+"/oai_pmh/listmetadataformats"
+                uri= OAI_HOST_URI + "/oai_pmh/listmetadataformats"
                 req = requests.post(uri, {"url":request.POST.get("url")}, auth=(OAI_USER, OAI_PASS))
                 if str(req.status_code) == "200":
                     return render(request, 'oai_pmh/client/listmetadataformats.html', {"response":req.text, "code":"200"})

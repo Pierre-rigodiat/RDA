@@ -208,7 +208,7 @@
 	background-position: -180px 0px;
 }
 
-.icon.resultXslt
+.icon.resultXslt, .icon.result
 {
 	background-position: -80px -180px;
 	border-left: -10000px;

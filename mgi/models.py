@@ -477,19 +477,37 @@ class XMLdata():
             results.append(result)
         return results
 
+class Set(Document):
+    """
+        A set object
+    """
+    setSpec  = StringField(required=True, unique=True)
+    setName = StringField(required=True, unique=True)
+    raw = DictField(required=True)
+
+class MetadataFormat(Document):
+    """
+        A set object
+    """
+    metadataPrefix  = StringField(required=True)
+    schema = StringField(required=True)
+    metadataNamespace  = StringField(required=True)
+    raw = DictField(required=True)
 
 class Registry(Document):
     """
         A registry object
     """
-    name           = StringField(required=True)
-    url            = URLField(required=True, unique=True)
-    harvestrate    = StringField(required=False)
-    metadataprefix = StringField(required=False)
-    identity       = DictField(required=False)
-    sets           = DictField(required=False)
-    description    = StringField(required=False)
-    harvest        = BooleanField()
+    name = StringField(required=True)
+    url = URLField(required=True, unique=True)
+    harvestrate = StringField(required=False)
+    # metadataprefix = StringField(required=False)
+    metadataformats = ListField(ReferenceField(MetadataFormat, reverse_delete_rule=PULL))
+    identity = DictField(required=False)
+    # sets           = DictField(required=False)
+    sets = ListField(ReferenceField(Set, reverse_delete_rule=PULL))
+    description = StringField(required=False)
+    harvest = BooleanField()
 
 class Record(Document):
     """
@@ -503,11 +521,11 @@ class Identity(Document):
     """
     content = DictField(required=True)
 
-class Sets(Document):
-    """
-        A set object
-    """
-    content = DictField(required=True)
+# class Sets(Document):
+#     """
+#         A set object
+#     """
+#     content = DictField(required=True)
 
 class UpdateRecord(Document):
     """
@@ -527,19 +545,6 @@ class SelectRecord(Document):
         A record object
     """
     identifier = StringField(required=True)
-
-class UpdateRegistry(Document):
-    """
-        A registry object
-    """
-    name           = StringField(required=True, unique=True)
-    url            = URLField(required=True)
-    harvestrate    = StringField(required=False)
-    metadataprefix = StringField(required=False)
-    identity       = DictField(required=False)
-    sets           = DictField(required=False)
-    description    = StringField(required=False)
-    id             = StringField(required=True)
 
 class DeleteRegistry(Document):
     """
