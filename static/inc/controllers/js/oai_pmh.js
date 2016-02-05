@@ -14,9 +14,12 @@ displayAddRegistry = function()
 {
  $(function() {
     clearAdd();
+    $('#duration').durationPicker();
+
     $( "#dialog-registry" ).dialog({
       modal: true,
       width: 500,
+      height: 370,
       buttons:
     	  [
            {

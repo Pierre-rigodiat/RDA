@@ -847,3 +847,20 @@ def oai_pmh(request):
     })
 
     return HttpResponse(template.render(context))
+
+################################################################################
+#
+# Function Name: oai_pmh(request)
+# Inputs:        request -
+# Outputs:       OAI-PMH Page
+# Exceptions:    None
+# Description:   Page that allows to manage OAI-PMH
+#
+################################################################################
+@staff_member_required
+def oai_pmh_build_request(request):
+    template = loader.get_template('admin/oai_pmh/oai_pmh_build_request.html')
+
+    context = RequestContext(request, {})
+
+    return HttpResponse(template.render(context))

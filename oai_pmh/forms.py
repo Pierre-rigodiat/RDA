@@ -26,7 +26,7 @@ class RegistryForm(forms.Form):
     # identity       = forms.CharField(label='Identity', required=False)
     # sets           = forms.CharField(label='Sets', required=False)
     # description    = forms.CharField(label='Description', required=False)
-    harvest        = forms.BooleanField(widget=forms.CheckboxInput(attrs={'class':'cmn-toggle cmn-toggle-round'}), required=False)
+    harvest        = forms.BooleanField(label='Harvest ?', widget=forms.CheckboxInput(attrs={'class':'cmn-toggle cmn-toggle-round'}), required=False, initial=True)
     id             = forms.CharField(widget=forms.HiddenInput(), required=False)
 
 class UpdateRegistryForm(forms.Form):
