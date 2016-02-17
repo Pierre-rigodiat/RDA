@@ -84,6 +84,10 @@
 {% endblock %}  
 
 {% block popups %}
+<div id="dialog-detail-registry" title="Data Provider Details" style="display:none;">
+    <div id="registry_detail"></div>
+</div>
+
 <div id="dialog-registry" title="Add Data Provider" style="display: none;">
     <div class="alert alert-warning" id="banner_add_wait" style="display: none;">
         <h4><i class='fa fa-circle-o-notch fa-spin fa-1x'></i>  </i>&nbsp;&nbsp;Please wait for connection verification ...</h4>
@@ -113,6 +117,9 @@
 </div>
 
 <div id="dialog-confirm-delete" title="Delete" style="display:none;">
+    <div class="alert alert-warning" id="banner_delete_wait" style="display: none;">
+        <h4><i class='fa fa-circle-o-notch fa-spin fa-1x'></i>  </i>&nbsp;&nbsp;Please wait ...</h4>
+    </div>
     <div class="alert alert-error" id="banner_delete_errors" style="display: none;">
         <h4><i class="fa fa-exclamation-circle fa-1x"></i> Error</h4>
         <div id="form_delete_errors">

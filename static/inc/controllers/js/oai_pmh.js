@@ -10,15 +10,21 @@ clearAddError = function ()
     $("#form_add_errors").html("");
 }
 
+clearEditError = function ()
+{
+    $("#banner_edit_errors").hide()
+    $("#form_edit_errors").html("");
+}
+
 displayAddRegistry = function()
 {
  $(function() {
     clearAdd();
-    $('#duration').durationPicker();
+//    $('#duration').durationPicker();
 
     $( "#dialog-registry" ).dialog({
       modal: true,
-      width: 500,
+      width: 550,
       height: 370,
       buttons:
     	  [
@@ -60,9 +66,7 @@ displayAddRegistry = function()
 validateRegistry = function()
 {
     errors = ""
-//    if ($( "#id_name" ).val().trim() == ""){
-//        errors = "<li>Please enter a name.</li>"
-//    }
+
     if ($( "#id_url" ).val().trim() == ""){
         errors += "<li>Please enter a URL.</li>"
     }
@@ -82,6 +86,22 @@ validateRegistry = function()
 
 validateRegistryEdit = function()
 {
+    errors = ""
+
+    if ($( "#form_edit_current #id_harvestrate" ).val().trim() == ""){
+        errors += "<li>Please enter an  harvest rate.</li>"
+    }
+
+    if (errors != ""){
+	    error = "<ul>";
+	    error += errors
+	    error += "</ul>";
+		$("#form_edit_errors").html(errors);
+		$("#banner_edit_errors").show(200)
+		return (false);
+	}else{
+		return (true)
+	}
     return true;
 }
 
@@ -95,12 +115,14 @@ editRegistry = function(registryId)
     $(function() {
         $( "#dialog-edit" ).dialog({
           modal: true,
-          width: 500,
+          width: 400,
+          height: 370,
           buttons:
               [
                {
                    text: "Edit",
                    click: function() {
+                        clearEditError();
                         if(validateRegistryEdit())
                         {
                             var formData = new FormData($( "#form_edit" )[0]);
@@ -141,6 +163,7 @@ load_edit_form = function(registryId){
         success: function(data){
             $("#form_edit_errors").html("");
             $("#form_edit_current").html(data.template);
+//            $('#id_harvestrate').durationPicker();
             Reinit();
         }
     });
@@ -168,6 +191,7 @@ deleteRegistry = function(registry_id)
  * @param registry_id id of the registry
  */
 delete_registry = function(registry_id){
+    $("#banner_delete_wait").show(200);
     $.ajax({
         url : '/oai_pmh/client/delete/registry',
         type : "POST",
@@ -179,6 +203,7 @@ delete_registry = function(registry_id){
             window.location = '/admin/oai-pmh'
         },
         error:function(data){
+            $("#banner_delete_wait").hide(200);
             $("#form_delete_errors").html(data.responseText);
             $("#banner_delete_errors").show(200);
 	    }
@@ -258,4 +283,28 @@ checkStatus = function (registry_id, url)
             $("#Status"+registry_id).css("color", "#d9534f");
         },
     });
+}
+
+viewRegistry = function(id){
+	$.ajax({
+        url : "/admin/oai-pmh-detail-registry?id=" + id,
+        type : "GET",
+        success: function(data){
+//        	console.log(data);
+        	$("#registry_detail").html(data);
+        	$(function() {
+                $( "#dialog-detail-registry" ).dialog({
+                    modal: true,
+                    height: 530,
+                    width: 700,
+                    buttons: {
+                        Ok: function() {
+                        $( this ).dialog( "close" );
+                        }
+                    }
+                });
+            });
+        }
+    });
+
 }

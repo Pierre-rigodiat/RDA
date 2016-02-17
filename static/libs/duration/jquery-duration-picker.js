@@ -137,6 +137,7 @@
                     html: true,
                     content: picker
                 });
+
             }
             init();
             mainInput.change(init);

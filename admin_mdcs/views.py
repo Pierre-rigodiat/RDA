@@ -855,3 +855,25 @@ def oai_pmh_build_request(request):
     context = RequestContext(request, {})
 
     return HttpResponse(template.render(context))
+
+
+################################################################################
+#
+# Function Name: oai_pmh(request)
+# Inputs:        request -
+# Outputs:       OAI-PMH Page
+# Exceptions:    None
+# Description:   Page that allows to manage OAI-PMH
+#
+################################################################################
+@staff_member_required
+def oai_pmh_detail_registry(request):
+    result_id = request.GET['id']
+    template = loader.get_template('admin/oai_pmh/oai_pmh_detail_registry.html')
+    registry = Registry.objects.get(pk=result_id)
+
+    context = RequestContext(request, {
+        'registry': registry,
+    })
+
+    return HttpResponse(template.render(context))
