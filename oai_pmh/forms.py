@@ -21,7 +21,7 @@ class RegistryForm(forms.Form):
     """
     name           = forms.CharField(widget=forms.HiddenInput(), required=False)
     url            = forms.CharField(label='URL', required=True)
-    harvestrate    = forms.CharField(label='Harvestrate', required=False)
+    harvestrate    = forms.CharField(label='Harvestrate (seconds)', required=False)
     # metadataprefix = forms.CharField(label='Metadataprefix', required=False)
     # identity       = forms.CharField(label='Identity', required=False)
     # sets           = forms.CharField(label='Sets', required=False)
@@ -34,7 +34,7 @@ class UpdateRegistryForm(forms.Form):
         A registry update form
     """
     id             = forms.CharField(widget=forms.HiddenInput(), required=False)
-    harvestrate    = forms.CharField(label='Harvestrate', required=False)
+    harvestrate    = forms.CharField(label='Harvestrate (seconds)', required=False)
     edit_harvest   = forms.BooleanField(widget=forms.CheckboxInput(attrs={'class':'cmn-toggle cmn-toggle-round'}), required=False)
 
 class AddRecord(forms.Form):

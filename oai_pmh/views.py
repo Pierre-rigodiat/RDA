@@ -117,7 +117,7 @@ def add_registry(request):
                                                   "harvest":harvest},
                                             auth=(OAI_USER, OAI_PASS))
                         if req.status_code == status.HTTP_201_CREATED:
-                            messages.add_message(request, messages.SUCCESS, 'Registry {0} added with success.'.format(name))
+                            messages.add_message(request, messages.SUCCESS, 'Registry {0} added with success.'.format(name.encode('utf-8')))
                             return HttpResponse('CREATED')
                         elif req.status_code == status.HTTP_400_BAD_REQUEST:
                             return HttpResponseBadRequest('An error occurred while trying to save the repository. Please contact your administrator.')
@@ -194,9 +194,7 @@ def update_registry(request):
                 registry = Registry.objects.get(pk=registry_id)
                 data = {'id': registry.id, 'name': registry.name,
                         'url': registry.url, 'harvestrate': registry.harvestrate,
-                        'metadataformats': registry.metadataformats,
-                        'identity': registry.identity, 'sets': registry.sets,
-                        'description': registry.description, 'edit_harvest': registry.harvest}
+                        'edit_harvest': registry.harvest}
                 registry_form= UpdateRegistryForm(data)
             except:
                 registry_form = UpdateRegistryForm()
