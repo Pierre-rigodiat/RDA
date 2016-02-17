@@ -339,19 +339,24 @@ def add_registry(request):
                 listSet = []
                 listMetadataFormats = []
                 for set in sets:
-                    raw = xmltodict.parse(set['raw'])
-                    obj = SetModel(setName=set['setName'], setSpec=set['setSpec'], raw= raw).save()
-                    listSet.append(obj)
+                    try:
+                        raw = xmltodict.parse(set['raw'])
+                        obj = SetModel(setName=set['setName'], setSpec=set['setSpec'], raw= raw).save()
+                        listSet.append(obj)
+                    except:
+                        pass
                 for metadataformat in metadataformats:
-                    raw = xmltodict.parse(set['raw'])
-                    obj = MetadataFormatModel(metadataPrefix=metadataformat['metadataPrefix'], metadataNamespace=metadataformat['metadataNamespace'], schema=metadataformat['schema'], raw= raw).save()
+                    try:
+                        raw = xmltodict.parse(set['raw'])
+                        obj = MetadataFormatModel(metadataPrefix=metadataformat['metadataPrefix'], metadataNamespace=metadataformat['metadataNamespace'], schema=metadataformat['schema'], raw= raw).save()
+                    except:
+                        pass
                     # TODO: Add the schema (template) in database and link the record to the template
                     listMetadataFormats.append(obj)
 
                 registry.sets = listSet
                 registry.metadataformats = listMetadataFormats
                 registry.save()
-
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             except NotUniqueError as e:
                 return Response({'message':'Unable to create the registry. The registry already exists.%s'%e.message}, status=status.HTTP_409_CONFLICT)
