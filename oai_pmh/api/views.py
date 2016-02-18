@@ -17,12 +17,12 @@ from rest_framework import status
 from rest_framework.response import Response
 # OAI-PMH
 from sickle import Sickle
-from sickle.models import Set, MetadataFormat
+from sickle.models import Set, MetadataFormat, Identify
 # Serializers
-from oai_pmh.api.serializers import MetadataFormatSerializer, SetSerializer, RegistrySerializer, ListRecordsSerializer, RegistryURLSerializer, RecordSerializer, \
+from oai_pmh.api.serializers import IdentifyObjectSerializer, MetadataFormatSerializer, SetSerializer, RegistrySerializer, ListRecordsSerializer, RegistryURLSerializer, RecordSerializer, \
     IdentifySerializer, SaveRecordSerializer, UpdateRecordSerializer, DeleteRecordSerializer, UpdateRegistrySerializer, DeleteRegistrySerializer
 # Models
-from mgi.models import Registry, Set as SetModel, MetadataFormat as MetadataFormatModel
+from mgi.models import Registry, Set as SetModel, MetadataFormat as MetadataFormatModel, Identify as IdentifyModel
 # DB Connection
 from pymongo import MongoClient
 from mgi.settings import MONGODB_URI, MGI_DB
@@ -288,66 +288,77 @@ def add_registry(request):
     if request.user.is_authenticated():
         serializer = RegistrySerializer(data=request.DATA)
         if serializer.is_valid():
-            errors = []
-            if 'sets' in request.DATA:
-                sets = json.loads(request.DATA['sets'])
-                serializerSet = SetSerializer(data=sets)
-                if not serializerSet.is_valid():
-                    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-            if 'metadataformats' in request.DATA:
-                metadataformats = json.loads(request.DATA['metadataformats'])
-                serializerMetadataFormat = MetadataFormatSerializer(data=metadataformats)
-                if not serializerMetadataFormat.is_valid():
-                    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-            try:
-                name = request.DATA['name']
-            except ValueError:
-                errors.append("Invalid Name")
             try:
                 url = request.DATA['url']
             except ValueError:
-                errors.append("Invalid URL")
+                return Response("Invalid URL", status=status.HTTP_400_BAD_REQUEST)
+
             if 'harvestrate' in request.DATA:
                 harvestrate = request.DATA['harvestrate']
             else:
                 harvestrate = ""
+
             if 'harvest' in request.DATA:
                 harvest = request.DATA['harvest'] == 'True'
             else:
                 harvest = False
-            if 'identity' in request.DATA:
-                identity = request.DATA['identity']
-            else:
-                identity = {}
-            if 'description' in request.DATA:
-                description = request.DATA['description']
-            else:
-                description = ""
 
-            if len(errors) > 0:
-                return Response(errors, status=status.HTTP_400_BAD_REQUEST)
+            identify = objectIdentify(request)
+            identifyData = identify.data
+            serializerIdentify = IdentifyObjectSerializer(data=identifyData)
+            if not serializerIdentify.is_valid():
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+            sets = listObjectSets(request)
+            setsData = sets.data
+            serializerSet = SetSerializer(data=setsData)
+            if not serializerSet.is_valid():
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+            metadataformats = listObjectMetadataFormats(request)
+            metadataformatsData = metadataformats.data
+            serializerMetadataFormat = MetadataFormatSerializer(data=metadataformatsData)
+            if not serializerMetadataFormat.is_valid():
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
             try:
                 registry = Registry()
-                registry.name = name
+                try:
+                    identifyRaw = xmltodict.parse(identifyData['raw'])
+                except:
+                    identifyRaw = {}
+                identify = IdentifyModel(adminEmail=identifyData['adminEmail'],
+                                          baseURL=identifyData['baseURL'],
+                                          repositoryName=identifyData['repositoryName'],
+                                          deletedRecord=identifyData['deletedRecord'],
+                                          delimiter=identifyData['delimiter'],
+                                          description=identifyData['description'],
+                                          earliestDatestamp=identifyData['earliestDatestamp'],
+                                          granularity=identifyData['granularity'],
+                                          oai_identifier=identifyData['oai_identifier'],
+                                          protocolVersion=identifyData['protocolVersion'],
+                                          repositoryIdentifier=identifyData['repositoryIdentifier'],
+                                          sampleIdentifier=identifyData['sampleIdentifier'],
+                                          scheme=identifyData['scheme'],
+                                          raw=identifyRaw).save()
+                registry.identify = identify
+                registry.name = identify.repositoryName
                 registry.url = url
                 registry.harvestrate = harvestrate
-                registry.identity = identity
-                registry.description = description
+                registry.description = identify.description
                 registry.harvest = harvest
                 listSet = []
                 listMetadataFormats = []
-                for set in sets:
+                for set in setsData:
                     try:
                         raw = xmltodict.parse(set['raw'])
                         obj = SetModel(setName=set['setName'], setSpec=set['setSpec'], raw= raw).save()
                         listSet.append(obj)
                     except:
                         pass
-                for metadataformat in metadataformats:
+                for metadataformat in metadataformatsData:
                     try:
-                        raw = xmltodict.parse(set['raw'])
+                        raw = xmltodict.parse(metadataformat['raw'])
                         obj = MetadataFormatModel(metadataPrefix=metadataformat['metadataPrefix'], metadataNamespace=metadataformat['metadataNamespace'], schema=metadataformat['schema'], raw= raw).save()
                     except:
                         pass
@@ -558,6 +569,7 @@ def delete_registry(request):
 
             try:
                 registry = Registry.objects.get(pk=id)
+                registry.identify.delete()
                 for set in registry.sets:
                     set.delete()
                 for metadataformat in registry.metadataformats:
@@ -688,6 +700,61 @@ def identify(request):
         content = {'message':'Only an administrator can use this feature.'}
         return Response(content, status=status.HTTP_401_UNAUTHORIZED)
 
+
+################################################################################
+#
+# Function Name: objectIdentify(request)
+# Inputs:        request -
+# Outputs:       200 Response successful.
+# Exceptions:    400 Error getting URL.
+#                401 Unauthorized.
+#                500 An error occurred when attempting to identify resource.
+# Description:   OAI-PMH Identify
+#
+################################################################################
+@api_view(['POST'])
+def objectIdentify(request):
+    """
+    POST http://localhost/oai_pmh/objectidentify
+    """
+    if request.user.is_authenticated():
+        try:
+            serializer = IdentifySerializer(data=request.DATA)
+            if serializer.is_valid():
+                try:
+                    url = request.DATA['url']
+                except ValueError:
+                   return Response({'message':'Error getting URL.'}, status=status.HTTP_400_BAD_REQUEST)
+
+                sickle = Sickle(url)
+                identify = sickle.Identify()
+                rtn= {"adminEmail": identify.adminEmail,
+                      "baseURL": identify.baseURL,
+                      "repositoryName": identify.repositoryName,
+                      "deletedRecord": identify.deletedRecord,
+                      "delimiter": identify.delimiter,
+                      "description": identify.description,
+                      "earliestDatestamp": identify.earliestDatestamp,
+                      "granularity": identify.granularity,
+                      "oai_identifier": identify.oai_identifier,
+                      "protocolVersion": identify.protocolVersion,
+                      "repositoryIdentifier": identify.repositoryIdentifier,
+                      "sampleIdentifier": identify.sampleIdentifier,
+                      "scheme": identify.scheme,
+                      "raw": identify.raw}
+
+                serializer = IdentifyObjectSerializer(rtn)
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            else:
+                return Response({'message':'Serializer failed validation.'}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception:
+            content = {'message':'An error occurred when attempting to identify resource.'}
+            return Response(content, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    else:
+        content = {'message':'Only an administrator can use this feature.'}
+        return Response(content, status=status.HTTP_401_UNAUTHORIZED)
+
 ################################################################################
 #
 # Function Name: listMetadataFormats(request)
@@ -770,7 +837,6 @@ def listObjectMetadataFormats(request):
             sickle = Sickle(url)
             rsp = sickle.ListMetadataFormats()
             rtn = []
-
             try:
                 while True:
                     obj = rsp.next()

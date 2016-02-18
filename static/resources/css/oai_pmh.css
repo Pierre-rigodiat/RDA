@@ -1,0 +1,33 @@
+/*
+################################################################################
+#
+# File Name: oai_pmh.css
+# Purpose:   For explore app
+#
+# Author: Sharief Youssef
+#         sharief.youssef@nist.gov
+#
+#         Guillaume SOUSA AMARAL
+#         guillaume.sousa@nist.gov
+#
+# Sponsor: National Institute of Standards and Technology (NIST)
+#
+################################################################################ 
+*/
+
+div.collapse{
+	background-image: none;
+	background-color: #f0f0f0;
+}
+
+.collapse-data{
+	height:0px;
+	width:100%;
+	word-break: break-all;
+}
+
+table.data td:first-child {
+	width: 180px;
+}
+
+a { tabindex: -1; }

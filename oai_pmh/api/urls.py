@@ -26,6 +26,7 @@ urlpatterns = patterns(
     url(r'^delete/record$', 'delete_record'),
     url(r'^(?i)listrecords$', 'listRecords'),
     url(r'^(?i)identify$', 'identify'),
+    url(r'^(?i)objectidentify$', 'objectIdentify'),
     url(r'^(?i)listmetadataformats$', 'listMetadataFormats'),
     url(r'^(?i)listobjectmetadataformats$', 'listObjectMetadataFormats'),
     url(r'^(?i)listsets$', 'listSets'),

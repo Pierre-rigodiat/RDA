@@ -26,9 +26,7 @@ import xmltodict
 from mgi.settings import OAI_HOST_URI, OAI_USER, OAI_PASS
 from django.contrib import messages
 from django.template import RequestContext, loader
-from mgi.models import Registry, Set as SetModel
-from sickle.models import Set
-from oai_pmh.api.serializers import SetSerializer
+from mgi.models import Registry
 
 ################################################################################
 #
@@ -47,48 +45,6 @@ def add_registry(request):
 
             if form.is_valid():
                 try:
-                    errors = []
-                    #We retrieve repository information
-                    try:
-                        uri= OAI_HOST_URI + "/oai_pmh/identify"
-                        req = requests.post(uri, {"url":request.POST.get("url")}, auth=(OAI_USER, OAI_PASS))
-                        if req.status_code == status.HTTP_200_OK:
-                            infos = json.loads( req.text )
-                            try:
-                                name = infos['message']['repositoryName'][0]
-                            except:
-                                name = ''
-                            try:
-                                description = infos['message']['description'][0]
-                            except:
-                                description = ""
-                        else:
-                            return HttpResponseBadRequest('Impossible to retrieve information from the repository.')
-                    except:
-                        return HttpResponseBadRequest('Impossible to retrieve information from the repository.')
-
-                    #We retrieve set information
-                    try:
-                        uri= OAI_HOST_URI + "/oai_pmh/listobjectsets"
-                        req = requests.post(uri, {"url":request.POST.get("url")}, auth=(OAI_USER, OAI_PASS))
-                        if req.status_code == status.HTTP_200_OK:
-                            sets = req.text
-                        else:
-                            return HttpResponseBadRequest('Impossible to retrieve information from the repository.')
-                    except:
-                        return HttpResponseBadRequest('Impossible to retrieve information from the repository.')
-
-                    #We retrieve metadata formats information
-                    try:
-                        uri= OAI_HOST_URI + "/oai_pmh/listobjectmetadataformats"
-                        req = requests.post(uri, {"url":request.POST.get("url")}, auth=(OAI_USER, OAI_PASS))
-                        if req.status_code == status.HTTP_200_OK:
-                            metadataformats = req.text
-                        else:
-                            return HttpResponseBadRequest('Impossible to retrieve information from the repository.')
-                    except:
-                        return HttpResponseBadRequest('Impossible to retrieve information from the repository.')
-
                     #We add the registry
                     uri = OAI_HOST_URI + "/oai_pmh/add/registry"
                     try:
@@ -105,26 +61,20 @@ def add_registry(request):
                     else:
                         harvest = False
 
-                    identity = {}
                     try:
-                        req = requests.post(uri, {"name":name,
-                                                  "url":url,
-                                                  "metadataformats":metadataformats,
-                                                  "sets":sets,
-                                                  "description":description,
-                                                  "identity":identity,
+                        req = requests.post(uri, {"url":url,
                                                   "harvestrate":harvestrate,
                                                   "harvest":harvest},
                                             auth=(OAI_USER, OAI_PASS))
                         if req.status_code == status.HTTP_201_CREATED:
-                            messages.add_message(request, messages.SUCCESS, 'Registry {0} added with success.'.format(name.encode('utf-8')))
+                            messages.add_message(request, messages.SUCCESS, 'Data provider added with success.')
                             return HttpResponse('CREATED')
                         elif req.status_code == status.HTTP_400_BAD_REQUEST:
-                            return HttpResponseBadRequest('An error occurred while trying to save the repository. Please contact your administrator.')
+                            return HttpResponseBadRequest('An error occurred while trying to save the data provider. Please contact your administrator.')
                         elif req.status_code == status.HTTP_401_UNAUTHORIZED:
                             return HttpResponseBadRequest('You don\'t have enough rights to do this add. Please contact your administrator.')
                         elif req.status_code == status.HTTP_409_CONFLICT:
-                            return HttpResponseBadRequest('Unable to add the registry. The registry already exists')
+                            return HttpResponseBadRequest('Unable to add the data provider. The registry already exists')
                         else:
                             return HttpResponseBadRequest('An error occurred. Please contact your administrator.')
                     except Exception as e:
@@ -173,14 +123,14 @@ def update_registry(request):
                                        auth=(OAI_USER, OAI_PASS))
 
                     if req.status_code == status.HTTP_201_CREATED:
-                        messages.add_message(request, messages.INFO, 'Registry edited with success.')
+                        messages.add_message(request, messages.INFO, 'Data provider edited with success.')
                         return HttpResponse(json.dumps({}), content_type='application/javascript')
                     elif req.status_code == status.HTTP_400_BAD_REQUEST:
                         return HttpResponseBadRequest('An error occurred. Please contact your administrator..')
                     elif req.status_code == status.HTTP_401_UNAUTHORIZED:
                         return HttpResponseBadRequest('You don\'t have enough rights to do this edition. Please contact your administrator.')
                     elif req.status_code == status.HTTP_409_CONFLICT:
-                        return HttpResponseBadRequest('Unable to update the registry. The registry already exists. Please enter an other name.')
+                        return HttpResponseBadRequest('Unable to update the data provider. The registry already exists. Please enter an other name.')
                     else:
                         return HttpResponseBadRequest('An error occurred. Please contact your administrator.')
                 except Exception as e:
@@ -222,17 +172,17 @@ def delete_registry(request):
         try:
             id = request.POST.get('RegistryId')
         except ValueError:
-            return HttpResponseBadRequest('Please provide an ID in order to delete the registry.')
+            return HttpResponseBadRequest('Please provide an ID in order to delete the data provider.')
         try:
             req = requests.post(uri, {"RegistryId":id}, auth=(OAI_USER, OAI_PASS))
 
             if req.status_code == status.HTTP_200_OK:
-                messages.add_message(request, messages.INFO, 'Registry deleted with success.')
+                messages.add_message(request, messages.INFO, 'Data provider deleted with success.')
                 return HttpResponse(json.dumps({}), content_type='application/javascript')
             elif req.status_code == status.HTTP_401_UNAUTHORIZED:
                 return HttpResponseBadRequest('You don\'t have enough rights to do this edition. Please contact your administrator.')
             elif req.status_code == status.HTTP_400_BAD_REQUEST:
-                return HttpResponseBadRequest('An error occurred. Impossible to delete the registry. Please contact your administrator.')
+                return HttpResponseBadRequest('An error occurred. Impossible to delete the data provider. Please contact your administrator.')
             else:
                 return HttpResponseBadRequest('An error occurred. Please contact your administrator.')
         except Exception as e:
