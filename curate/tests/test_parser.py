@@ -5,10 +5,11 @@ from django.test import TestCase
 from django.utils.importlib import import_module
 from mongoengine.connection import connect, disconnect
 from os.path import join
-from curate.parser import renderButtons, removeAnnotations, generateChoice, generateRestriction, \
-    generateSimpleType, generateExtension, generateSimpleContent, get_subnodes_xpath, lookup_Occurs, manageOccurences, \
-    manageAttrOccurrences, hasModule, get_Xml_element_data, getElementType, get_nodes_xpath, generateSequence, \
-    generateElement, generateComplexType, generateElement_absent, generateSequence_absent, generateForm, generateModule
+from curate.parser import render_buttons, removeAnnotations, generateChoice, generateRestriction, \
+    generateSimpleType, generateExtension, generateSimpleContent, get_subnodes_xpath, lookup_occurs, \
+    manage_occurences, manage_attr_occurrences, hasModule, get_Xml_element_data, getElementType, get_nodes_xpath, \
+    generateSequence, generateElement, generateComplexType, generateElement_absent, generateSequence_absent, \
+    generateForm, generateModule
 from mgi.models import Module, FormElement, FormData
 from mgi.tests import VariableTypesGenerator, DataHandler, are_equals
 from lxml import etree
@@ -358,14 +359,14 @@ class ParserLookupOccursTestSuite(TestCase):
         lookup_xsd = self.occurs_data_handler.get_xsd2('document')
         compliant_xml = self.occurs_data_handler.get_xml('compliant')
 
-        max_occurs_found = lookup_Occurs(lookup_xsd, lookup_xsd, '', '.', compliant_xml)
+        max_occurs_found = lookup_occurs(lookup_xsd, lookup_xsd, '', '.', compliant_xml)
         self.assertEqual(max_occurs_found, 1)
 
     def test_reload_noncompliant_element(self):
         lookup_xsd = self.occurs_data_handler.get_xsd2('document')
         noncompliant_xml = self.occurs_data_handler.get_xml('noncompliant')
 
-        max_occurs_found = lookup_Occurs(lookup_xsd, lookup_xsd, '', '.', noncompliant_xml)
+        max_occurs_found = lookup_occurs(lookup_xsd, lookup_xsd, '', '.', noncompliant_xml)
         self.assertEqual(max_occurs_found, 1)
 
 
@@ -379,19 +380,19 @@ class ParserManageOccurencesTestSuite(TestCase):
 
     def test_element_with_min_occurs_parsable(self):
         xsd_element = self.occurs_data_handler.get_xsd2('min_occurs_parsable')
-        (min_occ, max_occ) = manageOccurences(xsd_element)
+        (min_occ, max_occ) = manage_occurences(xsd_element)
 
         self.assertEqual(min_occ, 1)
 
     def test_element_with_max_occurs_unbounded(self):
         xsd_element = self.occurs_data_handler.get_xsd2('max_occurs_unbounded')
-        (min_occ, max_occ) = manageOccurences(xsd_element)
+        (min_occ, max_occ) = manage_occurences(xsd_element)
 
         self.assertEqual(max_occ, float('inf'))
 
     def test_element_with_max_occurs_parsable(self):
         xsd_element = self.occurs_data_handler.get_xsd2('max_occurs_parsable')
-        (min_occ, max_occ) = manageOccurences(xsd_element)
+        (min_occ, max_occ) = manage_occurences(xsd_element)
 
         self.assertEqual(max_occ, 5)
 
@@ -406,28 +407,28 @@ class ParserManageAttrOccurencesTestSuite(TestCase):
 
     def test_use_optional(self):
         xsd_element = self.occurs_data_handler.get_xsd2('attr_use_optional')
-        (min_occ, max_occ) = manageAttrOccurrences(xsd_element)
+        (min_occ, max_occ) = manage_attr_occurrences(xsd_element)
 
         self.assertEqual(min_occ, 0)
         self.assertEqual(max_occ, 1)
 
     def test_use_prohibited(self):
         xsd_element = self.occurs_data_handler.get_xsd2('attr_use_prohibited')
-        (min_occ, max_occ) = manageAttrOccurrences(xsd_element)
+        (min_occ, max_occ) = manage_attr_occurrences(xsd_element)
 
         self.assertEqual(min_occ, 0)
         self.assertEqual(max_occ, 0)
 
     def test_use_required(self):
         xsd_element = self.occurs_data_handler.get_xsd2('attr_use_required')
-        (min_occ, max_occ) = manageAttrOccurrences(xsd_element)
+        (min_occ, max_occ) = manage_attr_occurrences(xsd_element)
 
         self.assertEqual(min_occ, 1)
         self.assertEqual(max_occ, 1)
 
     def test_use_not_present(self):
         xsd_element = self.occurs_data_handler.get_xsd2('attr_use_undefined')
-        (min_occ, max_occ) = manageAttrOccurrences(xsd_element)
+        (min_occ, max_occ) = manage_attr_occurrences(xsd_element)
 
         # FIXME test broken with current parser
         # self.assertEqual(min_occ, 0)
@@ -435,7 +436,7 @@ class ParserManageAttrOccurencesTestSuite(TestCase):
 
 
 class ParserRenderButtonTestSuite(TestCase):
-    """ renderButtons test suite
+    """ render_buttons test suite
     """
 
     def setUp(self):
@@ -462,14 +463,14 @@ class ParserRenderButtonTestSuite(TestCase):
         is_add_present = False
         is_del_present = False
 
-        form = renderButtons(is_add_present, is_del_present, self.default_tag_id)
+        form = render_buttons(is_add_present, is_del_present, self.default_tag_id)
         self.assertEqual(form, "")
 
     def test_add_true_del_false(self):
         is_add_present = True
         is_del_present = False
 
-        form_string = renderButtons(is_add_present, is_del_present, self.default_tag_id)
+        form_string = render_buttons(is_add_present, is_del_present, self.default_tag_id)
         form = etree.fromstring('<span>' + form_string + '</span>')
 
         expected_form = self._expected_form(is_add_present, is_del_present)
@@ -484,7 +485,7 @@ class ParserRenderButtonTestSuite(TestCase):
         is_add_present = True
         is_del_present = True
 
-        form_string = renderButtons(is_add_present, is_del_present, self.default_tag_id)
+        form_string = render_buttons(is_add_present, is_del_present, self.default_tag_id)
         # form_wrapped = '<span>' + form + '</span>'
         form = etree.fromstring('<span>' + form_string + '</span>')
 
@@ -500,7 +501,7 @@ class ParserRenderButtonTestSuite(TestCase):
         is_add_present = False
         is_del_present = True
 
-        form_string = renderButtons(is_add_present, is_del_present, self.default_tag_id)
+        form_string = render_buttons(is_add_present, is_del_present, self.default_tag_id)
         # form_wrapped = '<span>' + form + '</span>'
         form = etree.fromstring('<span>' + form_string + '</span>')
 
@@ -517,7 +518,7 @@ class ParserRenderButtonTestSuite(TestCase):
         try:
             for is_add_present in self.types_generator.generate_types_excluding(['bool']):
                 with self.assertRaises(Exception):
-                    renderButtons(is_add_present, True, self.default_tag_id)
+                    render_buttons(is_add_present, True, self.default_tag_id)
         except AssertionError as error:
             is_add_present_type = str(type(is_add_present))
             error.message += ' (is_add_present type: ' + is_add_present_type + ')'
@@ -528,7 +529,7 @@ class ParserRenderButtonTestSuite(TestCase):
         try:
             for is_del_present in self.types_generator.generate_types_excluding(['bool']):
                 with self.assertRaises(Exception):
-                    renderButtons(True, is_del_present, self.default_tag_id)
+                    render_buttons(True, is_del_present, self.default_tag_id)
         except AssertionError as error:
             is_del_present_type = str(type(is_del_present))
             error.message += ' (is_del_present type: ' + is_del_present_type + ')'
@@ -539,7 +540,7 @@ class ParserRenderButtonTestSuite(TestCase):
             for is_add_present in [True, False]:
                 for is_del_present in [True, False]:
                     try:
-                        renderButtons(is_add_present, is_del_present, tag_id)
+                        render_buttons(is_add_present, is_del_present, tag_id)
                     except Exception as exc:
                         tag_id_type = str(type(tag_id))
                         self.fail('Unexpected exception raised with tag_id of type ' + tag_id_type + ':' + exc.message)
@@ -738,6 +739,323 @@ class ParserRemoveAnnotationTestSuite(TestCase):
 # Part II: Schema parsing testing
 ##################################################
 
+class ParserGenerateFormTestSuite(TestCase):
+    """
+    """
+    # FIXME test suite is not complete
+
+    def setUp(self):
+        schema_data = join('curate', 'tests', 'data', 'parser', 'schema')
+        self.schema_data_handler = DataHandler(schema_data)
+
+        self.request = HttpRequest()
+        engine = import_module('django.contrib.sessions.backends.db')
+        session_key = None
+        self.request.session = engine.SessionStore(session_key)
+
+        self.request.session['curate_edit'] = False  # Data edition
+        self.request.session['curateFormData'] = "56c2261476dd090fcf002319"  # Data edition
+        self.request.session['nb_html_tags'] = 0
+        self.request.session['mapTagID'] = {}
+        self.request.session['nbChoicesID'] = 0
+        self.request.session['defaultPrefix'] = 'test'
+        self.request.session['namespaces'] = {'test': ''}
+
+    def test_create_include(self):
+        xsd_files = join('include', 'basic')
+        xsd_tree = self.schema_data_handler.get_xsd2(xsd_files)
+
+        self.request.session['xmlDocTree'] = etree.tostring(xsd_tree)
+
+        result_string = generateForm(self.request)
+        # print result_string
+        self.assertEqual(result_string, '')
+
+        # result_html = etree.fromstring(result_string)
+        # expected_html = self.schema_data_handler.get_html2(xsd_files)
+        #
+        # self.assertTrue(are_equals(result_html, expected_html))
+
+    def test_create_import(self):
+        xsd_files = join('import', 'basic')
+        xsd_tree = self.schema_data_handler.get_xsd2(xsd_files)
+
+        self.request.session['xmlDocTree'] = etree.tostring(xsd_tree)
+
+        result_string = generateForm(self.request)
+        # print result_string
+        self.assertEqual(result_string, '')
+
+        # result_html = etree.fromstring(result_string)
+        # expected_html = self.schema_data_handler.get_html2(xsd_files)
+        #
+        # self.assertTrue(are_equals(result_html, expected_html))
+
+    def test_create_redefine(self):
+        xsd_files = join('redefine', 'basic')
+        xsd_tree = self.schema_data_handler.get_xsd2(xsd_files)
+
+        self.request.session['xmlDocTree'] = etree.tostring(xsd_tree)
+
+        result_string = generateForm(self.request)
+        # print result_string
+        self.assertEqual(result_string, '')
+
+        # result_html = etree.fromstring(result_string)
+        # expected_html = self.schema_data_handler.get_html2(xsd_files)
+        #
+        # self.assertTrue(are_equals(result_html, expected_html))
+
+    def test_create_simple_type(self):
+        xsd_files = join('simple_type', 'basic')
+        xsd_tree = self.schema_data_handler.get_xsd2(xsd_files)
+
+        self.request.session['xmlDocTree'] = etree.tostring(xsd_tree)
+
+        result_string = generateForm(self.request)
+        # print result_string
+        self.assertEqual(result_string, '')
+
+        # result_html = etree.fromstring(result_string)
+        # expected_html = self.schema_data_handler.get_html2(xsd_files)
+        #
+        # self.assertTrue(are_equals(result_html, expected_html))
+
+    def test_create_complex_type(self):
+        xsd_files = join('complex_type', 'basic')
+        xsd_tree = self.schema_data_handler.get_xsd2(xsd_files)
+
+        self.request.session['xmlDocTree'] = etree.tostring(xsd_tree)
+
+        result_string = generateForm(self.request)
+        # print result_string
+        self.assertEqual(result_string, '')
+
+        # result_html = etree.fromstring(result_string)
+        # expected_html = self.schema_data_handler.get_html2(xsd_files)
+        #
+        # self.assertTrue(are_equals(result_html, expected_html))
+
+    def test_create_group(self):
+        xsd_files = join('group', 'basic')
+        xsd_tree = self.schema_data_handler.get_xsd2(xsd_files)
+
+        self.request.session['xmlDocTree'] = etree.tostring(xsd_tree)
+
+        result_string = generateForm(self.request)
+        # print result_string
+        self.assertEqual(result_string, '')
+
+        # result_html = etree.fromstring(result_string)
+        # expected_html = self.schema_data_handler.get_html2(xsd_files)
+        #
+        # self.assertTrue(are_equals(result_html, expected_html))
+
+    def test_create_attribute_group(self):
+        xsd_files = join('attribute_group', 'basic')
+        xsd_tree = self.schema_data_handler.get_xsd2(xsd_files)
+
+        self.request.session['xmlDocTree'] = etree.tostring(xsd_tree)
+
+        result_string = generateForm(self.request)
+        # print result_string
+        self.assertEqual(result_string, '')
+
+        # result_html = etree.fromstring(result_string)
+        # expected_html = self.schema_data_handler.get_html2(xsd_files)
+        #
+        # self.assertTrue(are_equals(result_html, expected_html))
+
+    def test_create_element_basic(self):
+        xsd_files = join('element', 'basic')
+        xsd_tree = self.schema_data_handler.get_xsd2(xsd_files)
+
+        self.request.session['xmlDocTree'] = etree.tostring(xsd_tree)
+
+        result_string = generateForm(self.request)
+        # print result_string
+        # self.assertEqual(result_string, '')
+
+        result_html = etree.fromstring(result_string)
+        expected_html = self.schema_data_handler.get_html2(xsd_files)
+
+        self.assertTrue(are_equals(result_html, expected_html))
+
+    def test_create_element_multiple(self):
+        xsd_files = join('element', 'multiple')
+        xsd_tree = self.schema_data_handler.get_xsd2(xsd_files)
+
+        self.request.session['xmlDocTree'] = etree.tostring(xsd_tree)
+
+        result_string = generateForm(self.request)
+        # print result_string
+        # self.assertEqual(result_string, '')
+
+        result_html = etree.fromstring(result_string)
+        expected_html = self.schema_data_handler.get_html2(xsd_files)
+
+        self.assertTrue(are_equals(result_html, expected_html))
+
+    def test_create_attribute(self):
+        xsd_files = join('attribute', 'basic')
+        xsd_tree = self.schema_data_handler.get_xsd2(xsd_files)
+
+        self.request.session['xmlDocTree'] = etree.tostring(xsd_tree)
+
+        result_string = generateForm(self.request)
+        # print result_string
+        self.assertEqual(result_string, '')
+
+        # result_html = etree.fromstring(result_string)
+        # expected_html = self.schema_data_handler.get_html2(xsd_files)
+        #
+        # self.assertTrue(are_equals(result_html, expected_html))
+
+    def test_create_notation(self):
+        xsd_files = join('notation', 'basic')
+        xsd_files = join('notation', 'basic')
+        xsd_tree = self.schema_data_handler.get_xsd2(xsd_files)
+
+        self.request.session['xmlDocTree'] = etree.tostring(xsd_tree)
+
+        result_string = generateForm(self.request)
+        # print result_string
+        self.assertEqual(result_string, '')
+
+        # result_html = etree.fromstring(result_string)
+        # expected_html = self.schema_data_handler.get_html2(xsd_files)
+        #
+        # self.assertTrue(are_equals(result_html, expected_html))
+
+    def test_create_multiple(self):
+        xsd_files = join('multiple', 'basic')
+        xsd_tree = self.schema_data_handler.get_xsd2(xsd_files)
+
+        self.request.session['xmlDocTree'] = etree.tostring(xsd_tree)
+
+        result_string = generateForm(self.request)
+        # print result_string
+        # self.assertEqual(result_string, '')
+
+        result_html = etree.fromstring(result_string)
+        expected_html = self.schema_data_handler.get_html2(xsd_files)
+
+        self.assertTrue(are_equals(result_html, expected_html))
+
+    # def test_reload_include(self):
+    #     xsd_files = join('include', 'basic')
+    #     xsd_tree = self.schema_data_handler.get_xsd2(xsd_files)
+    #
+    #     self.request.session['xmlDocTree'] = etree.tostring(xsd_tree)
+    #     self.request.session['curate_edit'] = True
+    #
+    #     form_data = FormData()
+    #
+    #     xml_data = self.schema_data_handler.get_xml(xsd_files)
+    #
+    #     form_data.xml_data = etree.tostring(xml_data)
+    #     form_data.name = ''
+    #     form_data.user = ''
+    #     form_data.template = ''
+    #
+    #     form_data.save()
+    #
+    #     self.request.session['curateFormData'] = form_data.pk
+    #
+    #     result_string = generateForm(self.request)
+    #
+    #     print result_string
+    #     # result_string = '<div>' + result_string + '</div>'
+    #
+    #     # result_html = etree.fromstring(result_string)
+    #     # expected_html = self.schema_data_handler.get_html2(xsd_files + '.reload')
+    #     #
+    #     # self.assertTrue(are_equals(result_html, expected_html))
+    #
+    # def test_reload_import(self):
+    #     pass
+    #
+    # def test_reload_redefine(self):
+    #     pass
+    #
+    # def test_reload_simple_type(self):
+    #     pass
+    #
+    # def test_reload_complex_type(self):
+    #     pass
+    #
+    # def test_reload_group(self):
+    #     pass
+    #
+    # def test_reload_attribute_group(self):
+    #     pass
+
+    def test_reload_element(self):
+        xsd_files = join('element', 'basic')
+        xsd_reload_files = join('element', 'basic.reload')
+        xsd_tree = self.schema_data_handler.get_xsd2(xsd_files)
+
+        self.request.session['xmlDocTree'] = etree.tostring(xsd_tree)
+        self.request.session['curate_edit'] = True
+
+        form_data = FormData()
+
+        xml_data = self.schema_data_handler.get_xml(xsd_files)
+
+        form_data.xml_data = etree.tostring(xml_data)
+        form_data.name = ''
+        form_data.user = ''
+        form_data.template = ''
+
+        form_data.save()
+
+        self.request.session['curateFormData'] = form_data.pk
+
+        result_string = generateForm(self.request)
+        # print result_string
+        # self.assertEqual(result_string, '')
+
+        result_html = etree.fromstring(result_string)
+        expected_html = self.schema_data_handler.get_html2(xsd_reload_files)
+
+        self.assertTrue(are_equals(result_html, expected_html))
+
+    def test_reload_elements(self):
+        xsd_files = join('element', 'multiple')
+        xsd_tree = self.schema_data_handler.get_xsd2(xsd_files)
+
+        self.request.session['xmlDocTree'] = etree.tostring(xsd_tree)
+        self.request.session['curate_edit'] = True
+
+        form_data = FormData()
+
+        xml_data = self.schema_data_handler.get_xml(xsd_files)
+
+        form_data.xml_data = etree.tostring(xml_data)
+        form_data.name = ''
+        form_data.user = ''
+        form_data.template = ''
+
+        form_data.save()
+
+        self.request.session['curateFormData'] = form_data.pk
+
+        result_string = generateForm(self.request)
+        # print result_string
+        # self.assertEqual(result_string, '')
+
+        result_html = etree.fromstring(result_string)
+        expected_html = self.schema_data_handler.get_html2(xsd_files + '.reload')
+
+        self.assertTrue(are_equals(result_html, expected_html))
+
+    # def test_reload_attribute(self):
+    #     pass
+    #
+    # def test_reload_multiple(self):
+    #     pass
+
+
 class ParserGenerateElementTestSuite(TestCase):
     """
     """
@@ -762,7 +1080,7 @@ class ParserGenerateElementTestSuite(TestCase):
         xsd_tree = self.element_data_handler.get_xsd2(xsd_files)
         xsd_element = xsd_tree.xpath('/schema/element')[0]
 
-        result_string = generateElement(self.request, xsd_element, xsd_tree, '', fullPath='')
+        result_string = generateElement(self.request, xsd_element, xsd_tree, '', full_path='')
 
         result_html = etree.fromstring(result_string)
         expected_html = self.element_data_handler.get_html2(xsd_files)
@@ -774,7 +1092,7 @@ class ParserGenerateElementTestSuite(TestCase):
         xsd_tree = self.element_data_handler.get_xsd2(xsd_files)
         xsd_element = xsd_tree.xpath('/schema/complexType/sequence/element')[0]
 
-        result_string = generateElement(self.request, xsd_element, xsd_tree, '', fullPath='')
+        result_string = generateElement(self.request, xsd_element, xsd_tree, '', full_path='')
 
         result_html = etree.fromstring(result_string)
         expected_html = self.element_data_handler.get_html2(xsd_files)
@@ -786,7 +1104,7 @@ class ParserGenerateElementTestSuite(TestCase):
         xsd_tree = self.element_data_handler.get_xsd2(xsd_files)
         xsd_element = xsd_tree.xpath('/schema/element')[0]
 
-        result_string = generateElement(self.request, xsd_element, xsd_tree, '', fullPath='')
+        result_string = generateElement(self.request, xsd_element, xsd_tree, '', full_path='')
 
         result_html = etree.fromstring(result_string)
         expected_html = self.element_data_handler.get_html2(xsd_files)
@@ -798,7 +1116,7 @@ class ParserGenerateElementTestSuite(TestCase):
         xsd_tree = self.element_data_handler.get_xsd2(xsd_files)
         xsd_element = xsd_tree.xpath('/schema/complexType/sequence/element')[0]
 
-        result_string = generateElement(self.request, xsd_element, xsd_tree, '', fullPath='')
+        result_string = generateElement(self.request, xsd_element, xsd_tree, '', full_path='')
 
         result_html = etree.fromstring(result_string)
         expected_html = self.element_data_handler.get_html2(xsd_files)
@@ -1073,7 +1391,7 @@ class ParserGenerateElementTestSuite(TestCase):
         # load the XML tree from the text
         edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
 
-        result_string = generateElement(self.request, xsd_element, xsd_tree, '', fullPath='',
+        result_string = generateElement(self.request, xsd_element, xsd_tree, '', full_path='',
                                         edit_data_tree=edit_data_tree)
 
         result_html = etree.fromstring(result_string)
@@ -1095,7 +1413,7 @@ class ParserGenerateElementTestSuite(TestCase):
         etree.set_default_parser(parser=clean_parser)
         edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
 
-        result_string = generateElement(self.request, xsd_element, xsd_tree, '', fullPath='/root',
+        result_string = generateElement(self.request, xsd_element, xsd_tree, '', full_path='/root',
                                         edit_data_tree=edit_data_tree)
 
         result_html = etree.fromstring(result_string)
@@ -1118,7 +1436,7 @@ class ParserGenerateElementTestSuite(TestCase):
         # load the XML tree from the text
         edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
 
-        result_string = generateElement(self.request, xsd_element, xsd_tree, '', fullPath='',
+        result_string = generateElement(self.request, xsd_element, xsd_tree, '', full_path='',
                                         edit_data_tree=edit_data_tree)
 
         result_html = etree.fromstring(result_string)
@@ -1141,7 +1459,7 @@ class ParserGenerateElementTestSuite(TestCase):
         # load the XML tree from the text
         edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
 
-        result_string = generateElement(self.request, xsd_element, xsd_tree, '', fullPath='/root',
+        result_string = generateElement(self.request, xsd_element, xsd_tree, '', full_path='/root',
                                         edit_data_tree=edit_data_tree)
 
         result_html = etree.fromstring(result_string)
@@ -1454,395 +1772,6 @@ class ParserGenerateElementAbsentTestSuite(TestCase):
     #     # expected_html = self.element_data_handler.get_html2(xsd_files)
     #     #
     #     # self.assertTrue(are_equals(result_html, expected_html))
-
-
-class ParserGenerateModuleTestSuite(TestCase):
-    """
-    """
-
-    def setUp(self):
-        module_data = join('curate', 'tests', 'data', 'parser', 'module')
-        self.module_data_handler = DataHandler(module_data)
-
-        self.request = HttpRequest()
-        engine = import_module('django.contrib.sessions.backends.db')
-        session_key = None
-        self.request.session = engine.SessionStore(session_key)
-
-        self.request.session['curate_edit'] = False  # Data edition
-        self.request.session['curateFormData'] = "56c2261476dd090fcf002319"  # Data edition
-        self.request.session['nb_html_tags'] = 0
-        self.request.session['mapTagID'] = {}
-        self.request.session['nbChoicesID'] = 0
-        self.request.session['defaultPrefix'] = 'test'
-        self.request.session['namespaces'] = {'test': ''}
-
-    def test_create_module(self):
-        xsd_files = 'registered_module'
-        xsd_tree = self.module_data_handler.get_xsd2(xsd_files)
-        xsd_element = xsd_tree.xpath('/schema/complexType')[0]
-
-        self.request.session['xmlDocTree'] = etree.tostring(xsd_tree)
-
-        result_string = generateModule(self.request, xsd_element, '')
-
-        result_html = etree.fromstring(result_string)
-        expected_html = self.module_data_handler.get_html2('new')
-
-        self.assertTrue(are_equals(result_html, expected_html))
-
-    def test_reload_module(self):
-        xsd_files = 'registered_module'
-        # xsd_reload_files = join('element', 'basic.reload')
-        xsd_tree = self.module_data_handler.get_xsd2(xsd_files)
-        xsd_element = xsd_tree.xpath('/schema/complexType')[0]
-
-        # self.request.session['xmlDocTree'] = etree.tostring(xsd_tree)
-        self.request.session['curate_edit'] = True
-
-        xml_data = self.module_data_handler.get_xml(xsd_files)
-        xml_data = etree.tostring(xml_data)
-
-        clean_parser = etree.XMLParser(remove_blank_text=True, remove_comments=True, remove_pis=True)
-        # set the parser
-        etree.set_default_parser(parser=clean_parser)
-        # load the XML tree from the text
-        edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
-
-        result_string = generateModule(self.request, xsd_element, '', xsd_xpath='', xml_xpath='/module/child',
-                                       edit_data_tree=edit_data_tree)
-
-        result_html = etree.fromstring(result_string)
-        expected_html = self.module_data_handler.get_html2('reload')
-
-        self.assertTrue(are_equals(result_html, expected_html))
-
-
-class ParserGenerateChoiceTestSuite(TestCase):
-    """
-    """
-
-    def setUp(self):
-        choice_data = join('curate', 'tests', 'data', 'parser', 'choice')
-        self.choice_data_handler = DataHandler(choice_data)
-
-        self.request = HttpRequest()
-        engine = import_module('django.contrib.sessions.backends.db')
-        session_key = None
-        self.request.session = engine.SessionStore(session_key)
-
-        self.request.session['curate_edit'] = False  # Data edition
-        self.request.session['nb_html_tags'] = 0
-        self.request.session['mapTagID'] = {}
-        self.request.session['nbChoicesID'] = 0
-        self.request.session['defaultPrefix'] = 'test'
-
-    def test_create_element_basic(self):
-        xsd_files = join('element', 'basic')
-        xsd_tree = self.choice_data_handler.get_xsd2(xsd_files)
-        xsd_element = xsd_tree.xpath('/schema/complexType/choice')[0]
-
-        result_string = generateChoice(self.request, xsd_element, xsd_tree, '', fullPath='')
-        # print result_string
-
-        result_html = etree.fromstring(result_string)
-        expected_html = self.choice_data_handler.get_html2(xsd_files)
-
-        self.assertTrue(are_equals(result_html, expected_html))
-
-    def test_create_element_unbounded(self):
-        xsd_files = join('element', 'unbounded')
-        xsd_tree = self.choice_data_handler.get_xsd2(xsd_files)
-        xsd_element = xsd_tree.xpath('/schema/complexType/choice')[0]
-
-        result_string = generateChoice(self.request, xsd_element, xsd_tree, '', fullPath='')
-        # print result_string
-
-        result_html = etree.fromstring(result_string)
-        expected_html = self.choice_data_handler.get_html2(xsd_files)
-
-        self.assertTrue(are_equals(result_html, expected_html))
-
-    # FIXME group test are not good since it is not supported by the parser
-    # def test_create_group_basic(self):
-    #     xsd_files = join('group', 'basic')
-    #     xsd_tree = self.choice_data_handler.get_xsd2(xsd_files)
-    #     xsd_element = xsd_tree.xpath('/schema/complexType/choice')[0]
-    #
-    #     result_string = generateChoice(self.request, xsd_element, xsd_tree, '', fullPath='')
-    #     # print result_string
-    #
-    #     result_html = etree.fromstring(result_string)
-    #     expected_html = self.choice_data_handler.get_html2(xsd_files)
-    #
-    #     self.assertTrue(are_equals(result_html, expected_html))
-    #
-    # def test_create_group_unbounded(self):
-    #     xsd_files = join('group', 'unbounded')
-    #     xsd_tree = self.choice_data_handler.get_xsd2(xsd_files)
-    #     xsd_element = xsd_tree.xpath('/schema/complexType/choice')[0]
-    #
-    #     result_string = generateChoice(self.request, xsd_element, xsd_tree, '', fullPath='')
-    #     # print result_string
-    #
-    #     result_html = etree.fromstring(result_string)
-    #     expected_html = self.choice_data_handler.get_html2(xsd_files)
-    #
-    #     self.assertTrue(are_equals(result_html, expected_html))
-
-    # FIXME choice test are not good since it is not supported by the parser
-    # def test_create_choice_basic(self):
-    #     xsd_files = join('choice', 'basic')
-    #     xsd_tree = self.choice_data_handler.get_xsd2(xsd_files)
-    #     xsd_element = xsd_tree.xpath('/schema/complexType/choice')[0]
-    #
-    #     result_string = generateChoice(self.request, xsd_element, xsd_tree, '', fullPath='')
-    #     # print result_string
-    #
-    #     result_html = etree.fromstring(result_string)
-    #     expected_html = self.choice_data_handler.get_html2(xsd_files)
-    #
-    #     self.assertTrue(are_equals(result_html, expected_html))
-    #
-    # def test_create_choice_unbounded(self):
-    #     xsd_files = join('choice', 'unbounded')
-    #     xsd_tree = self.choice_data_handler.get_xsd2(xsd_files)
-    #     xsd_element = xsd_tree.xpath('/schema/complexType/choice')[0]
-    #
-    #     result_string = generateChoice(self.request, xsd_element, xsd_tree, '', fullPath='')
-    #     # print result_string
-    #
-    #     result_html = etree.fromstring(result_string)
-    #     expected_html = self.choice_data_handler.get_html2(xsd_files)
-    #
-    #     self.assertTrue(are_equals(result_html, expected_html))
-
-    def test_create_sequence_basic(self):
-        xsd_files = join('sequence', 'basic')
-        xsd_tree = self.choice_data_handler.get_xsd2(xsd_files)
-        xsd_element = xsd_tree.xpath('/schema/complexType/choice')[0]
-
-        result_string = generateChoice(self.request, xsd_element, xsd_tree, '', fullPath='')
-        # print result_string
-
-        result_html = etree.fromstring(result_string)
-        expected_html = self.choice_data_handler.get_html2(xsd_files)
-
-        self.assertTrue(are_equals(result_html, expected_html))
-
-    def test_create_sequence_unbounded(self):
-        xsd_files = join('sequence', 'unbounded')
-        xsd_tree = self.choice_data_handler.get_xsd2(xsd_files)
-        xsd_element = xsd_tree.xpath('/schema/complexType/choice')[0]
-
-        result_string = generateChoice(self.request, xsd_element, xsd_tree, '', fullPath='')
-        # print result_string
-
-        result_html = etree.fromstring(result_string)
-        expected_html = self.choice_data_handler.get_html2(xsd_files)
-
-        self.assertTrue(are_equals(result_html, expected_html))
-
-    # TODO implement later
-    # def test_create_any_basic(self):
-    #     pass
-    #
-    # def test_create_any_unbounded(self):
-    #     pass
-
-    def test_reload_element_basic(self):
-        xsd_files = join('element', 'basic')
-        xsd_tree = self.choice_data_handler.get_xsd2(xsd_files)
-        xsd_element = xsd_tree.xpath('/schema/complexType/choice')[0]
-
-        self.request.session['curate_edit'] = True
-
-        xml_tree = self.choice_data_handler.get_xml(xsd_files)
-        xml_data = etree.tostring(xml_tree)
-
-        clean_parser = etree.XMLParser(remove_blank_text=True, remove_comments=True, remove_pis=True)
-        etree.set_default_parser(parser=clean_parser)
-        # load the XML tree from the text
-        edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
-        result_string = generateChoice(self.request, xsd_element, xsd_tree, '', fullPath='/root',
-                                       edit_data_tree=edit_data_tree)
-        # print result_string
-
-        result_html = etree.fromstring(result_string)
-        expected_html = self.choice_data_handler.get_html2(xsd_files + '.reload')
-
-        self.assertTrue(are_equals(result_html, expected_html))
-
-    def test_reload_element_unbounded(self):
-        # FIXME correct the bug here
-        xsd_files = join('element', 'unbounded')
-        xsd_tree = self.choice_data_handler.get_xsd2(xsd_files)
-        xsd_element = xsd_tree.xpath('/schema/complexType/choice')[0]
-
-        self.request.session['curate_edit'] = True
-
-        xml_tree = self.choice_data_handler.get_xml(xsd_files)
-        xml_data = etree.tostring(xml_tree)
-
-        clean_parser = etree.XMLParser(remove_blank_text=True, remove_comments=True, remove_pis=True)
-        etree.set_default_parser(parser=clean_parser)
-        # load the XML tree from the text
-        edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
-        result_string = generateChoice(self.request, xsd_element, xsd_tree, '', fullPath='/root',
-                                       edit_data_tree=edit_data_tree)
-        # print result_string
-
-        result_html = etree.fromstring(result_string)
-        expected_html = self.choice_data_handler.get_html2(xsd_files + '.reload')
-
-        self.assertTrue(are_equals(result_html, expected_html))
-
-    # TODO implement later
-    # def test_reload_group_basic(self):
-    #     xsd_files = join('element', 'basic')
-    #     xsd_tree = self.choice_data_handler.get_xsd2(xsd_files)
-    #     xsd_element = xsd_tree.xpath('/schema/complexType/choice')[0]
-    #
-    #     self.request.session['curate_edit'] = True
-    #
-    #     xml_tree = self.choice_data_handler.get_xml(xsd_files)
-    #     xml_data = etree.tostring(xml_tree)
-    #
-    #     clean_parser = etree.XMLParser(remove_blank_text=True, remove_comments=True, remove_pis=True)
-    #     etree.set_default_parser(parser=clean_parser)
-    #     # load the XML tree from the text
-    #     edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
-    #     result_string = generateChoice(self.request, xsd_element, xsd_tree, '', fullPath='/root',
-    #                                    edit_data_tree=edit_data_tree)
-    #     print result_string
-    #
-    #     # result_html = etree.fromstring(result_string)
-    #     # expected_html = self.choice_data_handler.get_html2(xsd_files + '.reload')
-    #     #
-    #     # self.assertTrue(are_equals(result_html, expected_html))
-
-    # def test_reload_group_unbounded(self):
-    #     xsd_files = join('element', 'basic')
-    #     xsd_tree = self.choice_data_handler.get_xsd2(xsd_files)
-    #     xsd_element = xsd_tree.xpath('/schema/complexType/choice')[0]
-    #
-    #     self.request.session['curate_edit'] = True
-    #
-    #     xml_tree = self.choice_data_handler.get_xml(xsd_files)
-    #     xml_data = etree.tostring(xml_tree)
-    #
-    #     clean_parser = etree.XMLParser(remove_blank_text=True, remove_comments=True, remove_pis=True)
-    #     etree.set_default_parser(parser=clean_parser)
-    #     # load the XML tree from the text
-    #     edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
-    #     result_string = generateChoice(self.request, xsd_element, xsd_tree, '', fullPath='/root',
-    #                                    edit_data_tree=edit_data_tree)
-    #     print result_string
-    #
-    #     # result_html = etree.fromstring(result_string)
-    #     # expected_html = self.choice_data_handler.get_html2(xsd_files + '.reload')
-    #     #
-    #     # self.assertTrue(are_equals(result_html, expected_html))
-    #
-    # def test_reload_choice_basic(self):
-    #     xsd_files = join('element', 'basic')
-    #     xsd_tree = self.choice_data_handler.get_xsd2(xsd_files)
-    #     xsd_element = xsd_tree.xpath('/schema/complexType/choice')[0]
-    #
-    #     self.request.session['curate_edit'] = True
-    #
-    #     xml_tree = self.choice_data_handler.get_xml(xsd_files)
-    #     xml_data = etree.tostring(xml_tree)
-    #
-    #     clean_parser = etree.XMLParser(remove_blank_text=True, remove_comments=True, remove_pis=True)
-    #     etree.set_default_parser(parser=clean_parser)
-    #     # load the XML tree from the text
-    #     edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
-    #     result_string = generateChoice(self.request, xsd_element, xsd_tree, '', fullPath='/root',
-    #                                    edit_data_tree=edit_data_tree)
-    #     print result_string
-    #
-    #     # result_html = etree.fromstring(result_string)
-    #     # expected_html = self.choice_data_handler.get_html2(xsd_files + '.reload')
-    #     #
-    #     # self.assertTrue(are_equals(result_html, expected_html))
-    #
-    # def test_reload_choice_unbounded(self):
-    #     xsd_files = join('element', 'basic')
-    #     xsd_tree = self.choice_data_handler.get_xsd2(xsd_files)
-    #     xsd_element = xsd_tree.xpath('/schema/complexType/choice')[0]
-    #
-    #     self.request.session['curate_edit'] = True
-    #
-    #     xml_tree = self.choice_data_handler.get_xml(xsd_files)
-    #     xml_data = etree.tostring(xml_tree)
-    #
-    #     clean_parser = etree.XMLParser(remove_blank_text=True, remove_comments=True, remove_pis=True)
-    #     etree.set_default_parser(parser=clean_parser)
-    #     # load the XML tree from the text
-    #     edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
-    #     result_string = generateChoice(self.request, xsd_element, xsd_tree, '', fullPath='/root',
-    #                                    edit_data_tree=edit_data_tree)
-    #     print result_string
-    #
-    #     # result_html = etree.fromstring(result_string)
-    #     # expected_html = self.choice_data_handler.get_html2(xsd_files + '.reload')
-    #     #
-    #     # self.assertTrue(are_equals(result_html, expected_html))
-
-    def test_reload_sequence_basic(self):
-        xsd_files = join('sequence', 'basic')
-        xsd_tree = self.choice_data_handler.get_xsd2(xsd_files)
-        xsd_element = xsd_tree.xpath('/schema/complexType/choice')[0]
-
-        self.request.session['curate_edit'] = True
-
-        xml_tree = self.choice_data_handler.get_xml(xsd_files)
-        xml_data = etree.tostring(xml_tree)
-
-        clean_parser = etree.XMLParser(remove_blank_text=True, remove_comments=True, remove_pis=True)
-        etree.set_default_parser(parser=clean_parser)
-        # load the XML tree from the text
-        edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
-        result_string = generateChoice(self.request, xsd_element, xsd_tree, '', fullPath='/root',
-                                       edit_data_tree=edit_data_tree)
-        # print result_string
-
-        result_html = etree.fromstring(result_string)
-        expected_html = self.choice_data_handler.get_html2(xsd_files + '.reload')
-
-        self.assertTrue(are_equals(result_html, expected_html))
-
-    def test_reload_sequence_unbounded(self):
-        # fixme correct the bug
-        xsd_files = join('sequence', 'unbounded')
-        xsd_tree = self.choice_data_handler.get_xsd2(xsd_files)
-        xsd_element = xsd_tree.xpath('/schema/complexType/choice')[0]
-
-        self.request.session['curate_edit'] = True
-
-        xml_tree = self.choice_data_handler.get_xml(xsd_files)
-        xml_data = etree.tostring(xml_tree)
-
-        clean_parser = etree.XMLParser(remove_blank_text=True, remove_comments=True, remove_pis=True)
-        etree.set_default_parser(parser=clean_parser)
-        # load the XML tree from the text
-        edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
-        result_string = generateChoice(self.request, xsd_element, xsd_tree, '', fullPath='/root',
-                                       edit_data_tree=edit_data_tree)
-        # print result_string
-
-        result_html = etree.fromstring(result_string)
-        expected_html = self.choice_data_handler.get_html2(xsd_files + '.reload')
-
-        self.assertTrue(are_equals(result_html, expected_html))
-
-    # TODO implement later
-    # def test_reload_any_basic(self):
-    #     pass
-    #
-    # def test_reload_any_unbounded(self):
-    #     pass
 
 
 class ParserGenerateSequenceTestSuite(TestCase):
@@ -2448,6 +2377,333 @@ class ParserGenerateSequenceAbsentTestSuite(TestCase):
         self.assertTrue(are_equals(result_html, expected_html))
 
 
+class ParserGenerateChoiceTestSuite(TestCase):
+    """
+    """
+
+    def setUp(self):
+        choice_data = join('curate', 'tests', 'data', 'parser', 'choice')
+        self.choice_data_handler = DataHandler(choice_data)
+
+        self.request = HttpRequest()
+        engine = import_module('django.contrib.sessions.backends.db')
+        session_key = None
+        self.request.session = engine.SessionStore(session_key)
+
+        self.request.session['curate_edit'] = False  # Data edition
+        self.request.session['nb_html_tags'] = 0
+        self.request.session['mapTagID'] = {}
+        self.request.session['nbChoicesID'] = 0
+        self.request.session['defaultPrefix'] = 'test'
+
+    def test_create_element_basic(self):
+        xsd_files = join('element', 'basic')
+        xsd_tree = self.choice_data_handler.get_xsd2(xsd_files)
+        xsd_element = xsd_tree.xpath('/schema/complexType/choice')[0]
+
+        result_string = generateChoice(self.request, xsd_element, xsd_tree, '', fullPath='')
+        # print result_string
+
+        result_html = etree.fromstring(result_string)
+        expected_html = self.choice_data_handler.get_html2(xsd_files)
+
+        self.assertTrue(are_equals(result_html, expected_html))
+
+    def test_create_element_unbounded(self):
+        xsd_files = join('element', 'unbounded')
+        xsd_tree = self.choice_data_handler.get_xsd2(xsd_files)
+        xsd_element = xsd_tree.xpath('/schema/complexType/choice')[0]
+
+        result_string = generateChoice(self.request, xsd_element, xsd_tree, '', fullPath='')
+        # print result_string
+
+        result_html = etree.fromstring(result_string)
+        expected_html = self.choice_data_handler.get_html2(xsd_files)
+
+        self.assertTrue(are_equals(result_html, expected_html))
+
+    # FIXME group test are not good since it is not supported by the parser
+    # def test_create_group_basic(self):
+    #     xsd_files = join('group', 'basic')
+    #     xsd_tree = self.choice_data_handler.get_xsd2(xsd_files)
+    #     xsd_element = xsd_tree.xpath('/schema/complexType/choice')[0]
+    #
+    #     result_string = generateChoice(self.request, xsd_element, xsd_tree, '', fullPath='')
+    #     # print result_string
+    #
+    #     result_html = etree.fromstring(result_string)
+    #     expected_html = self.choice_data_handler.get_html2(xsd_files)
+    #
+    #     self.assertTrue(are_equals(result_html, expected_html))
+    #
+    # def test_create_group_unbounded(self):
+    #     xsd_files = join('group', 'unbounded')
+    #     xsd_tree = self.choice_data_handler.get_xsd2(xsd_files)
+    #     xsd_element = xsd_tree.xpath('/schema/complexType/choice')[0]
+    #
+    #     result_string = generateChoice(self.request, xsd_element, xsd_tree, '', fullPath='')
+    #     # print result_string
+    #
+    #     result_html = etree.fromstring(result_string)
+    #     expected_html = self.choice_data_handler.get_html2(xsd_files)
+    #
+    #     self.assertTrue(are_equals(result_html, expected_html))
+
+    # FIXME choice test are not good since it is not supported by the parser
+    # def test_create_choice_basic(self):
+    #     xsd_files = join('choice', 'basic')
+    #     xsd_tree = self.choice_data_handler.get_xsd2(xsd_files)
+    #     xsd_element = xsd_tree.xpath('/schema/complexType/choice')[0]
+    #
+    #     result_string = generateChoice(self.request, xsd_element, xsd_tree, '', fullPath='')
+    #     # print result_string
+    #
+    #     result_html = etree.fromstring(result_string)
+    #     expected_html = self.choice_data_handler.get_html2(xsd_files)
+    #
+    #     self.assertTrue(are_equals(result_html, expected_html))
+    #
+    # def test_create_choice_unbounded(self):
+    #     xsd_files = join('choice', 'unbounded')
+    #     xsd_tree = self.choice_data_handler.get_xsd2(xsd_files)
+    #     xsd_element = xsd_tree.xpath('/schema/complexType/choice')[0]
+    #
+    #     result_string = generateChoice(self.request, xsd_element, xsd_tree, '', fullPath='')
+    #     # print result_string
+    #
+    #     result_html = etree.fromstring(result_string)
+    #     expected_html = self.choice_data_handler.get_html2(xsd_files)
+    #
+    #     self.assertTrue(are_equals(result_html, expected_html))
+
+    def test_create_sequence_basic(self):
+        xsd_files = join('sequence', 'basic')
+        xsd_tree = self.choice_data_handler.get_xsd2(xsd_files)
+        xsd_element = xsd_tree.xpath('/schema/complexType/choice')[0]
+
+        result_string = generateChoice(self.request, xsd_element, xsd_tree, '', fullPath='')
+        # print result_string
+
+        result_html = etree.fromstring(result_string)
+        expected_html = self.choice_data_handler.get_html2(xsd_files)
+
+        self.assertTrue(are_equals(result_html, expected_html))
+
+    def test_create_sequence_unbounded(self):
+        xsd_files = join('sequence', 'unbounded')
+        xsd_tree = self.choice_data_handler.get_xsd2(xsd_files)
+        xsd_element = xsd_tree.xpath('/schema/complexType/choice')[0]
+
+        result_string = generateChoice(self.request, xsd_element, xsd_tree, '', fullPath='')
+        # print result_string
+
+        result_html = etree.fromstring(result_string)
+        expected_html = self.choice_data_handler.get_html2(xsd_files)
+
+        self.assertTrue(are_equals(result_html, expected_html))
+
+    # TODO implement later
+    # def test_create_any_basic(self):
+    #     pass
+    #
+    # def test_create_any_unbounded(self):
+    #     pass
+
+    def test_reload_element_basic(self):
+        xsd_files = join('element', 'basic')
+        xsd_tree = self.choice_data_handler.get_xsd2(xsd_files)
+        xsd_element = xsd_tree.xpath('/schema/complexType/choice')[0]
+
+        self.request.session['curate_edit'] = True
+
+        xml_tree = self.choice_data_handler.get_xml(xsd_files)
+        xml_data = etree.tostring(xml_tree)
+
+        clean_parser = etree.XMLParser(remove_blank_text=True, remove_comments=True, remove_pis=True)
+        etree.set_default_parser(parser=clean_parser)
+        # load the XML tree from the text
+        edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
+        result_string = generateChoice(self.request, xsd_element, xsd_tree, '', fullPath='/root',
+                                       edit_data_tree=edit_data_tree)
+        # print result_string
+
+        result_html = etree.fromstring(result_string)
+        expected_html = self.choice_data_handler.get_html2(xsd_files + '.reload')
+
+        self.assertTrue(are_equals(result_html, expected_html))
+
+    def test_reload_element_unbounded(self):
+        # FIXME correct the bug here
+        xsd_files = join('element', 'unbounded')
+        xsd_tree = self.choice_data_handler.get_xsd2(xsd_files)
+        xsd_element = xsd_tree.xpath('/schema/complexType/choice')[0]
+
+        self.request.session['curate_edit'] = True
+
+        xml_tree = self.choice_data_handler.get_xml(xsd_files)
+        xml_data = etree.tostring(xml_tree)
+
+        clean_parser = etree.XMLParser(remove_blank_text=True, remove_comments=True, remove_pis=True)
+        etree.set_default_parser(parser=clean_parser)
+        # load the XML tree from the text
+        edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
+        result_string = generateChoice(self.request, xsd_element, xsd_tree, '', fullPath='/root',
+                                       edit_data_tree=edit_data_tree)
+        # print result_string
+
+        result_html = etree.fromstring(result_string)
+        expected_html = self.choice_data_handler.get_html2(xsd_files + '.reload')
+
+        self.assertTrue(are_equals(result_html, expected_html))
+
+    # TODO implement later
+    # def test_reload_group_basic(self):
+    #     xsd_files = join('element', 'basic')
+    #     xsd_tree = self.choice_data_handler.get_xsd2(xsd_files)
+    #     xsd_element = xsd_tree.xpath('/schema/complexType/choice')[0]
+    #
+    #     self.request.session['curate_edit'] = True
+    #
+    #     xml_tree = self.choice_data_handler.get_xml(xsd_files)
+    #     xml_data = etree.tostring(xml_tree)
+    #
+    #     clean_parser = etree.XMLParser(remove_blank_text=True, remove_comments=True, remove_pis=True)
+    #     etree.set_default_parser(parser=clean_parser)
+    #     # load the XML tree from the text
+    #     edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
+    #     result_string = generateChoice(self.request, xsd_element, xsd_tree, '', fullPath='/root',
+    #                                    edit_data_tree=edit_data_tree)
+    #     print result_string
+    #
+    #     # result_html = etree.fromstring(result_string)
+    #     # expected_html = self.choice_data_handler.get_html2(xsd_files + '.reload')
+    #     #
+    #     # self.assertTrue(are_equals(result_html, expected_html))
+
+    # def test_reload_group_unbounded(self):
+    #     xsd_files = join('element', 'basic')
+    #     xsd_tree = self.choice_data_handler.get_xsd2(xsd_files)
+    #     xsd_element = xsd_tree.xpath('/schema/complexType/choice')[0]
+    #
+    #     self.request.session['curate_edit'] = True
+    #
+    #     xml_tree = self.choice_data_handler.get_xml(xsd_files)
+    #     xml_data = etree.tostring(xml_tree)
+    #
+    #     clean_parser = etree.XMLParser(remove_blank_text=True, remove_comments=True, remove_pis=True)
+    #     etree.set_default_parser(parser=clean_parser)
+    #     # load the XML tree from the text
+    #     edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
+    #     result_string = generateChoice(self.request, xsd_element, xsd_tree, '', fullPath='/root',
+    #                                    edit_data_tree=edit_data_tree)
+    #     print result_string
+    #
+    #     # result_html = etree.fromstring(result_string)
+    #     # expected_html = self.choice_data_handler.get_html2(xsd_files + '.reload')
+    #     #
+    #     # self.assertTrue(are_equals(result_html, expected_html))
+    #
+    # def test_reload_choice_basic(self):
+    #     xsd_files = join('element', 'basic')
+    #     xsd_tree = self.choice_data_handler.get_xsd2(xsd_files)
+    #     xsd_element = xsd_tree.xpath('/schema/complexType/choice')[0]
+    #
+    #     self.request.session['curate_edit'] = True
+    #
+    #     xml_tree = self.choice_data_handler.get_xml(xsd_files)
+    #     xml_data = etree.tostring(xml_tree)
+    #
+    #     clean_parser = etree.XMLParser(remove_blank_text=True, remove_comments=True, remove_pis=True)
+    #     etree.set_default_parser(parser=clean_parser)
+    #     # load the XML tree from the text
+    #     edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
+    #     result_string = generateChoice(self.request, xsd_element, xsd_tree, '', fullPath='/root',
+    #                                    edit_data_tree=edit_data_tree)
+    #     print result_string
+    #
+    #     # result_html = etree.fromstring(result_string)
+    #     # expected_html = self.choice_data_handler.get_html2(xsd_files + '.reload')
+    #     #
+    #     # self.assertTrue(are_equals(result_html, expected_html))
+    #
+    # def test_reload_choice_unbounded(self):
+    #     xsd_files = join('element', 'basic')
+    #     xsd_tree = self.choice_data_handler.get_xsd2(xsd_files)
+    #     xsd_element = xsd_tree.xpath('/schema/complexType/choice')[0]
+    #
+    #     self.request.session['curate_edit'] = True
+    #
+    #     xml_tree = self.choice_data_handler.get_xml(xsd_files)
+    #     xml_data = etree.tostring(xml_tree)
+    #
+    #     clean_parser = etree.XMLParser(remove_blank_text=True, remove_comments=True, remove_pis=True)
+    #     etree.set_default_parser(parser=clean_parser)
+    #     # load the XML tree from the text
+    #     edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
+    #     result_string = generateChoice(self.request, xsd_element, xsd_tree, '', fullPath='/root',
+    #                                    edit_data_tree=edit_data_tree)
+    #     print result_string
+    #
+    #     # result_html = etree.fromstring(result_string)
+    #     # expected_html = self.choice_data_handler.get_html2(xsd_files + '.reload')
+    #     #
+    #     # self.assertTrue(are_equals(result_html, expected_html))
+
+    def test_reload_sequence_basic(self):
+        xsd_files = join('sequence', 'basic')
+        xsd_tree = self.choice_data_handler.get_xsd2(xsd_files)
+        xsd_element = xsd_tree.xpath('/schema/complexType/choice')[0]
+
+        self.request.session['curate_edit'] = True
+
+        xml_tree = self.choice_data_handler.get_xml(xsd_files)
+        xml_data = etree.tostring(xml_tree)
+
+        clean_parser = etree.XMLParser(remove_blank_text=True, remove_comments=True, remove_pis=True)
+        etree.set_default_parser(parser=clean_parser)
+        # load the XML tree from the text
+        edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
+        result_string = generateChoice(self.request, xsd_element, xsd_tree, '', fullPath='/root',
+                                       edit_data_tree=edit_data_tree)
+        # print result_string
+
+        result_html = etree.fromstring(result_string)
+        expected_html = self.choice_data_handler.get_html2(xsd_files + '.reload')
+
+        self.assertTrue(are_equals(result_html, expected_html))
+
+    def test_reload_sequence_unbounded(self):
+        # fixme correct the bug
+        xsd_files = join('sequence', 'unbounded')
+        xsd_tree = self.choice_data_handler.get_xsd2(xsd_files)
+        xsd_element = xsd_tree.xpath('/schema/complexType/choice')[0]
+
+        self.request.session['curate_edit'] = True
+
+        xml_tree = self.choice_data_handler.get_xml(xsd_files)
+        xml_data = etree.tostring(xml_tree)
+
+        clean_parser = etree.XMLParser(remove_blank_text=True, remove_comments=True, remove_pis=True)
+        etree.set_default_parser(parser=clean_parser)
+        # load the XML tree from the text
+        edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
+        result_string = generateChoice(self.request, xsd_element, xsd_tree, '', fullPath='/root',
+                                       edit_data_tree=edit_data_tree)
+        # print result_string
+
+        result_html = etree.fromstring(result_string)
+        expected_html = self.choice_data_handler.get_html2(xsd_files + '.reload')
+
+        self.assertTrue(are_equals(result_html, expected_html))
+
+    # TODO implement later
+    # def test_reload_any_basic(self):
+    #     pass
+    #
+    # def test_reload_any_unbounded(self):
+    #     pass
+
+
 class ParserGenerateSimpleTypeTestSuite(TestCase):
     """
     """
@@ -2981,6 +3237,68 @@ class ParserGenerateComplexTypeTestSuite(TestCase):
         self.assertTrue(are_equals(result_html, expected_html))
 
 
+class ParserGenerateModuleTestSuite(TestCase):
+    """
+    """
+
+    def setUp(self):
+        module_data = join('curate', 'tests', 'data', 'parser', 'module')
+        self.module_data_handler = DataHandler(module_data)
+
+        self.request = HttpRequest()
+        engine = import_module('django.contrib.sessions.backends.db')
+        session_key = None
+        self.request.session = engine.SessionStore(session_key)
+
+        self.request.session['curate_edit'] = False  # Data edition
+        self.request.session['curateFormData'] = "56c2261476dd090fcf002319"  # Data edition
+        self.request.session['nb_html_tags'] = 0
+        self.request.session['mapTagID'] = {}
+        self.request.session['nbChoicesID'] = 0
+        self.request.session['defaultPrefix'] = 'test'
+        self.request.session['namespaces'] = {'test': ''}
+
+    def test_create_module(self):
+        xsd_files = 'registered_module'
+        xsd_tree = self.module_data_handler.get_xsd2(xsd_files)
+        xsd_element = xsd_tree.xpath('/schema/complexType')[0]
+
+        self.request.session['xmlDocTree'] = etree.tostring(xsd_tree)
+
+        result_string = generateModule(self.request, xsd_element, '')
+
+        result_html = etree.fromstring(result_string)
+        expected_html = self.module_data_handler.get_html2('new')
+
+        self.assertTrue(are_equals(result_html, expected_html))
+
+    def test_reload_module(self):
+        xsd_files = 'registered_module'
+        # xsd_reload_files = join('element', 'basic.reload')
+        xsd_tree = self.module_data_handler.get_xsd2(xsd_files)
+        xsd_element = xsd_tree.xpath('/schema/complexType')[0]
+
+        # self.request.session['xmlDocTree'] = etree.tostring(xsd_tree)
+        self.request.session['curate_edit'] = True
+
+        xml_data = self.module_data_handler.get_xml(xsd_files)
+        xml_data = etree.tostring(xml_data)
+
+        clean_parser = etree.XMLParser(remove_blank_text=True, remove_comments=True, remove_pis=True)
+        # set the parser
+        etree.set_default_parser(parser=clean_parser)
+        # load the XML tree from the text
+        edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
+
+        result_string = generateModule(self.request, xsd_element, '', xsd_xpath='', xml_xpath='/module/child',
+                                       edit_data_tree=edit_data_tree)
+
+        result_html = etree.fromstring(result_string)
+        expected_html = self.module_data_handler.get_html2('reload')
+
+        self.assertTrue(are_equals(result_html, expected_html))
+
+
 class ParserGenerateSimpleContentTestSuite(TestCase):
     """
     """
@@ -3499,320 +3817,3 @@ class ParserGenerateExtensionTestSuite(TestCase):
         expected_html = self.extension_data_handler.get_html2(xsd_files + '.reload')
 
         self.assertTrue(are_equals(result_html, expected_html))
-
-
-class ParserGenerateFormTestSuite(TestCase):
-    """
-    """
-    # FIXME test suite is not complete
-
-    def setUp(self):
-        schema_data = join('curate', 'tests', 'data', 'parser', 'schema')
-        self.schema_data_handler = DataHandler(schema_data)
-
-        self.request = HttpRequest()
-        engine = import_module('django.contrib.sessions.backends.db')
-        session_key = None
-        self.request.session = engine.SessionStore(session_key)
-
-        self.request.session['curate_edit'] = False  # Data edition
-        self.request.session['curateFormData'] = "56c2261476dd090fcf002319"  # Data edition
-        self.request.session['nb_html_tags'] = 0
-        self.request.session['mapTagID'] = {}
-        self.request.session['nbChoicesID'] = 0
-        self.request.session['defaultPrefix'] = 'test'
-        self.request.session['namespaces'] = {'test': ''}
-
-    def test_create_include(self):
-        xsd_files = join('include', 'basic')
-        xsd_tree = self.schema_data_handler.get_xsd2(xsd_files)
-
-        self.request.session['xmlDocTree'] = etree.tostring(xsd_tree)
-
-        result_string = generateForm(self.request)
-        # print result_string
-        self.assertEqual(result_string, '')
-
-        # result_html = etree.fromstring(result_string)
-        # expected_html = self.schema_data_handler.get_html2(xsd_files)
-        #
-        # self.assertTrue(are_equals(result_html, expected_html))
-
-    def test_create_import(self):
-        xsd_files = join('import', 'basic')
-        xsd_tree = self.schema_data_handler.get_xsd2(xsd_files)
-
-        self.request.session['xmlDocTree'] = etree.tostring(xsd_tree)
-
-        result_string = generateForm(self.request)
-        # print result_string
-        self.assertEqual(result_string, '')
-
-        # result_html = etree.fromstring(result_string)
-        # expected_html = self.schema_data_handler.get_html2(xsd_files)
-        #
-        # self.assertTrue(are_equals(result_html, expected_html))
-
-    def test_create_redefine(self):
-        xsd_files = join('redefine', 'basic')
-        xsd_tree = self.schema_data_handler.get_xsd2(xsd_files)
-
-        self.request.session['xmlDocTree'] = etree.tostring(xsd_tree)
-
-        result_string = generateForm(self.request)
-        # print result_string
-        self.assertEqual(result_string, '')
-
-        # result_html = etree.fromstring(result_string)
-        # expected_html = self.schema_data_handler.get_html2(xsd_files)
-        #
-        # self.assertTrue(are_equals(result_html, expected_html))
-
-    def test_create_simple_type(self):
-        xsd_files = join('simple_type', 'basic')
-        xsd_tree = self.schema_data_handler.get_xsd2(xsd_files)
-
-        self.request.session['xmlDocTree'] = etree.tostring(xsd_tree)
-
-        result_string = generateForm(self.request)
-        # print result_string
-        self.assertEqual(result_string, '')
-
-        # result_html = etree.fromstring(result_string)
-        # expected_html = self.schema_data_handler.get_html2(xsd_files)
-        #
-        # self.assertTrue(are_equals(result_html, expected_html))
-
-    def test_create_complex_type(self):
-        xsd_files = join('complex_type', 'basic')
-        xsd_tree = self.schema_data_handler.get_xsd2(xsd_files)
-
-        self.request.session['xmlDocTree'] = etree.tostring(xsd_tree)
-
-        result_string = generateForm(self.request)
-        # print result_string
-        self.assertEqual(result_string, '')
-
-        # result_html = etree.fromstring(result_string)
-        # expected_html = self.schema_data_handler.get_html2(xsd_files)
-        #
-        # self.assertTrue(are_equals(result_html, expected_html))
-
-    def test_create_group(self):
-        xsd_files = join('group', 'basic')
-        xsd_tree = self.schema_data_handler.get_xsd2(xsd_files)
-
-        self.request.session['xmlDocTree'] = etree.tostring(xsd_tree)
-
-        result_string = generateForm(self.request)
-        # print result_string
-        self.assertEqual(result_string, '')
-
-        # result_html = etree.fromstring(result_string)
-        # expected_html = self.schema_data_handler.get_html2(xsd_files)
-        #
-        # self.assertTrue(are_equals(result_html, expected_html))
-
-    def test_create_attribute_group(self):
-        xsd_files = join('attribute_group', 'basic')
-        xsd_tree = self.schema_data_handler.get_xsd2(xsd_files)
-
-        self.request.session['xmlDocTree'] = etree.tostring(xsd_tree)
-
-        result_string = generateForm(self.request)
-        # print result_string
-        self.assertEqual(result_string, '')
-
-        # result_html = etree.fromstring(result_string)
-        # expected_html = self.schema_data_handler.get_html2(xsd_files)
-        #
-        # self.assertTrue(are_equals(result_html, expected_html))
-
-    def test_create_element_basic(self):
-        xsd_files = join('element', 'basic')
-        xsd_tree = self.schema_data_handler.get_xsd2(xsd_files)
-
-        self.request.session['xmlDocTree'] = etree.tostring(xsd_tree)
-
-        result_string = generateForm(self.request)
-        # print result_string
-        # self.assertEqual(result_string, '')
-
-        result_html = etree.fromstring(result_string)
-        expected_html = self.schema_data_handler.get_html2(xsd_files)
-
-        self.assertTrue(are_equals(result_html, expected_html))
-
-    def test_create_element_multiple(self):
-        xsd_files = join('element', 'multiple')
-        xsd_tree = self.schema_data_handler.get_xsd2(xsd_files)
-
-        self.request.session['xmlDocTree'] = etree.tostring(xsd_tree)
-
-        result_string = generateForm(self.request)
-        # print result_string
-        # self.assertEqual(result_string, '')
-
-        result_html = etree.fromstring(result_string)
-        expected_html = self.schema_data_handler.get_html2(xsd_files)
-
-        self.assertTrue(are_equals(result_html, expected_html))
-
-    def test_create_attribute(self):
-        xsd_files = join('attribute', 'basic')
-        xsd_tree = self.schema_data_handler.get_xsd2(xsd_files)
-
-        self.request.session['xmlDocTree'] = etree.tostring(xsd_tree)
-
-        result_string = generateForm(self.request)
-        # print result_string
-        self.assertEqual(result_string, '')
-
-        # result_html = etree.fromstring(result_string)
-        # expected_html = self.schema_data_handler.get_html2(xsd_files)
-        #
-        # self.assertTrue(are_equals(result_html, expected_html))
-
-    def test_create_notation(self):
-        xsd_files = join('notation', 'basic')
-        xsd_files = join('notation', 'basic')
-        xsd_tree = self.schema_data_handler.get_xsd2(xsd_files)
-
-        self.request.session['xmlDocTree'] = etree.tostring(xsd_tree)
-
-        result_string = generateForm(self.request)
-        # print result_string
-        self.assertEqual(result_string, '')
-
-        # result_html = etree.fromstring(result_string)
-        # expected_html = self.schema_data_handler.get_html2(xsd_files)
-        #
-        # self.assertTrue(are_equals(result_html, expected_html))
-
-    def test_create_multiple(self):
-        xsd_files = join('multiple', 'basic')
-        xsd_tree = self.schema_data_handler.get_xsd2(xsd_files)
-
-        self.request.session['xmlDocTree'] = etree.tostring(xsd_tree)
-
-        result_string = generateForm(self.request)
-        # print result_string
-        # self.assertEqual(result_string, '')
-
-        result_html = etree.fromstring(result_string)
-        expected_html = self.schema_data_handler.get_html2(xsd_files)
-
-        self.assertTrue(are_equals(result_html, expected_html))
-
-    # def test_reload_include(self):
-    #     xsd_files = join('include', 'basic')
-    #     xsd_tree = self.schema_data_handler.get_xsd2(xsd_files)
-    #
-    #     self.request.session['xmlDocTree'] = etree.tostring(xsd_tree)
-    #     self.request.session['curate_edit'] = True
-    #
-    #     form_data = FormData()
-    #
-    #     xml_data = self.schema_data_handler.get_xml(xsd_files)
-    #
-    #     form_data.xml_data = etree.tostring(xml_data)
-    #     form_data.name = ''
-    #     form_data.user = ''
-    #     form_data.template = ''
-    #
-    #     form_data.save()
-    #
-    #     self.request.session['curateFormData'] = form_data.pk
-    #
-    #     result_string = generateForm(self.request)
-    #
-    #     print result_string
-    #     # result_string = '<div>' + result_string + '</div>'
-    #
-    #     # result_html = etree.fromstring(result_string)
-    #     # expected_html = self.schema_data_handler.get_html2(xsd_files + '.reload')
-    #     #
-    #     # self.assertTrue(are_equals(result_html, expected_html))
-    #
-    # def test_reload_import(self):
-    #     pass
-    #
-    # def test_reload_redefine(self):
-    #     pass
-    #
-    # def test_reload_simple_type(self):
-    #     pass
-    #
-    # def test_reload_complex_type(self):
-    #     pass
-    #
-    # def test_reload_group(self):
-    #     pass
-    #
-    # def test_reload_attribute_group(self):
-    #     pass
-
-    def test_reload_element(self):
-        xsd_files = join('element', 'basic')
-        xsd_reload_files = join('element', 'basic.reload')
-        xsd_tree = self.schema_data_handler.get_xsd2(xsd_files)
-
-        self.request.session['xmlDocTree'] = etree.tostring(xsd_tree)
-        self.request.session['curate_edit'] = True
-
-        form_data = FormData()
-
-        xml_data = self.schema_data_handler.get_xml(xsd_files)
-
-        form_data.xml_data = etree.tostring(xml_data)
-        form_data.name = ''
-        form_data.user = ''
-        form_data.template = ''
-
-        form_data.save()
-
-        self.request.session['curateFormData'] = form_data.pk
-
-        result_string = generateForm(self.request)
-        # print result_string
-        # self.assertEqual(result_string, '')
-
-        result_html = etree.fromstring(result_string)
-        expected_html = self.schema_data_handler.get_html2(xsd_reload_files)
-
-        self.assertTrue(are_equals(result_html, expected_html))
-
-    def test_reload_elements(self):
-        xsd_files = join('element', 'multiple')
-        xsd_tree = self.schema_data_handler.get_xsd2(xsd_files)
-
-        self.request.session['xmlDocTree'] = etree.tostring(xsd_tree)
-        self.request.session['curate_edit'] = True
-
-        form_data = FormData()
-
-        xml_data = self.schema_data_handler.get_xml(xsd_files)
-
-        form_data.xml_data = etree.tostring(xml_data)
-        form_data.name = ''
-        form_data.user = ''
-        form_data.template = ''
-
-        form_data.save()
-
-        self.request.session['curateFormData'] = form_data.pk
-
-        result_string = generateForm(self.request)
-        # print result_string
-        # self.assertEqual(result_string, '')
-
-        result_html = etree.fromstring(result_string)
-        expected_html = self.schema_data_handler.get_html2(xsd_files + '.reload')
-
-        self.assertTrue(are_equals(result_html, expected_html))
-
-    # def test_reload_attribute(self):
-    #     pass
-    #
-    # def test_reload_multiple(self):
-    #     pass
