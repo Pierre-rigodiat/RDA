@@ -473,6 +473,25 @@ class XMLdata():
             results.append(result)
         return results
 
+class Identify(Document):
+    """
+        An identity object
+    """
+    adminEmail = StringField(required=False)
+    baseURL = URLField(required=True, unique=True)
+    repositoryName = StringField(required=False)
+    deletedRecord = StringField(required=False)
+    delimiter = StringField(required=False)
+    description = StringField(required=False)
+    earliestDatestamp = StringField(required=False)
+    granularity = StringField(required=False)
+    oai_identifier = StringField(required=False)
+    protocolVersion = StringField(required=False)
+    repositoryIdentifier = StringField(required=False)
+    sampleIdentifier = StringField(required=False)
+    scheme = StringField(required=False)
+    raw = DictField(required=False)
+
 class Set(Document):
     """
         A set object
@@ -497,10 +516,8 @@ class Registry(Document):
     name = StringField(required=True)
     url = URLField(required=True, unique=True)
     harvestrate = StringField(required=False)
-    # metadataprefix = StringField(required=False)
     metadataformats = ListField(ReferenceField(MetadataFormat, reverse_delete_rule=PULL))
-    identity = DictField(required=False)
-    # sets           = DictField(required=False)
+    identify = ReferenceField(Identify, reverse_delete_rule=NULLIFY)
     sets = ListField(ReferenceField(Set, reverse_delete_rule=PULL))
     description = StringField(required=False)
     harvest = BooleanField()
@@ -508,12 +525,6 @@ class Registry(Document):
 class Record(Document):
     """
         A record object
-    """
-    content = DictField(required=True)
-
-class Identity(Document):
-    """
-        An identity object
     """
     content = DictField(required=True)
 

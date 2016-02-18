@@ -23,6 +23,8 @@
 
 {% block extrastyle %}
 <link rel="stylesheet" type="text/css" href="{% static 'resources/css/lib/jquery-duration-picker.css' %}"  media="screen" />
+<link rel="stylesheet" type="text/css" href="{% static 'resources/css/XMLTree.css' %}" media="screen" />
+<link rel="stylesheet" type="text/css" href="{% static 'resources/css/oai_pmh.css' %}" media="screen" />
 {% endblock %}
 
 {% block title %}<h1>Data Providers</h1>{% endblock %}
@@ -79,7 +81,7 @@
     </table>
 
     {% else %}
-        No registries available. Click on the Add button to add registries.
+        No data providers available. Click on the Add button to add data providers.
     {% endif %}
 {% endblock %}  
 

@@ -12,7 +12,7 @@ from mgi.models import Record, Registry, UpdateRecord, DeleteRecord, SelectRecor
 class RegistrySerializer(MongoEngineModelSerializer):
     class Meta:
         model = Registry
-        exclude = (['identity', 'metadataformats', 'sets'])
+        exclude = (['identity', 'metadataformats', 'sets', 'description', 'name'])
 
 class UpdateRegistrySerializer(MongoEngineModelSerializer):
     class Meta:
@@ -44,6 +44,22 @@ class RecordSerializer(MongoEngineModelSerializer):
 
 class IdentifySerializer(serializers.Serializer):
     url = serializers.URLField(required=True)
+
+class IdentifyObjectSerializer(serializers.Serializer):
+    adminEmail = serializers.CharField(required=False)
+    baseURL = serializers.URLField(required=True)
+    repositoryName = serializers.CharField(required=False)
+    deletedRecord = serializers.CharField(required=False)
+    delimiter = serializers.CharField(required=False)
+    description = serializers.CharField(required=False)
+    earliestDatestamp = serializers.CharField(required=False)
+    granularity = serializers.CharField(required=False)
+    oai_identifier = serializers.CharField(required=False)
+    protocolVersion = serializers.CharField(required=False)
+    repositoryIdentifier = serializers.CharField(required=False)
+    sampleIdentifier = serializers.CharField(required=False)
+    scheme = serializers.CharField(required=False)
+    raw = serializers.CharField(required=False)
 
 class SaveRecordSerializer(MongoEngineModelSerializer):
     class Meta:

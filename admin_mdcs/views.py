@@ -38,6 +38,7 @@ import json
 from mongoengine import NotUniqueError, OperationError
 from django.contrib.admin.views.decorators import staff_member_required
 from oai_pmh.forms import RegistryForm
+import xmltodict
 
 ################################################################################
 #

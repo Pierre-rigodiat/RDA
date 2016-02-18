@@ -290,7 +290,6 @@ viewRegistry = function(id){
         url : "/admin/oai-pmh-detail-registry?id=" + id,
         type : "GET",
         success: function(data){
-//        	console.log(data);
         	$("#registry_detail").html(data);
         	$(function() {
                 $( "#dialog-detail-registry" ).dialog({
@@ -299,7 +298,7 @@ viewRegistry = function(id){
                     width: 700,
                     buttons: {
                         Ok: function() {
-                        $( this ).dialog( "close" );
+                            $( this ).dialog( "close" );
                         }
                     }
                 });
@@ -307,4 +306,22 @@ viewRegistry = function(id){
         }
     });
 
+}
+
+/**
+ * Show/hide
+ * @param event
+ */
+showhide = function(event){
+	console.log('BEGIN [showhide]');
+	button = event.target
+	parent = $(event.target).parent()
+	$(parent.children()[2]).toggle("blind",500);
+	if ($(button).attr("class") == "expand"){
+		$(button).attr("class","collapse");
+	}else{
+		$(button).attr("class","expand");
+	}
+
+	console.log('END [showhide]');
 }
