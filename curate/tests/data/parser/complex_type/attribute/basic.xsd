@@ -1,0 +1,5 @@
+<schema>
+    <complexType name="id6">
+        <attribute name="child0" type="string"/>
+    </complexType>
+</schema>

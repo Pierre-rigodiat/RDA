@@ -1,0 +1,16 @@
+<element name="root">
+    <annotation>
+        <documentation>MDCS element type testing</documentation>
+    </annotation>
+    <simpleType>
+        <restriction base="xsd:string">
+            <enumeration value="child00"/>
+            <enumeration value="child01"/>
+            <enumeration value="child02"/>
+        </restriction>
+    </simpleType>
+    <unique name="unique">
+        <selector xpath="root" />
+        <field xpath="root" />
+    </unique>
+</element>

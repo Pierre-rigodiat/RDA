@@ -1,0 +1,8 @@
+<complexType name="parent">
+    <annotation>
+        <documentation>MDCS annotation removal test</documentation>
+    </annotation>
+    <element name="child_0" type="xsd:string"/>
+    <element name="child_1" type="xsd:string"/>
+    <element name="child_2" type="xsd:string"/>
+</complexType>

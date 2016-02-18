@@ -1,0 +1,10 @@
+<schema>
+    <complexType name="id7">
+        <attributeGroup ref="ag0"/>
+    </complexType>
+
+    <attributeGroup name="ag0">
+        <attribute name="attr1" type="string"/>
+        <attribute name="attr2" type="integer"/>
+    </attributeGroup>
+</schema>

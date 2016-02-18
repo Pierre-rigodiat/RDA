@@ -1,0 +1,25 @@
+<schema>
+    <complexType name="base0">
+        <sequence>
+            <element name="cchild0" type="string"/>
+            <element name="cchild1" type="string"/>
+        </sequence>
+    </complexType>
+
+    <group name="group0">
+        <sequence>
+            <element name="gchild0" type="string"/>
+            <element name="gchild1" type="string"/>
+        </sequence>
+    </group>
+
+    <element name="test0">
+        <complexType>
+            <complexContent>
+                <extension base="base0">
+                    <group ref="group0"/>
+                </extension>
+            </complexContent>
+        </complexType>
+    </element>
+</schema>

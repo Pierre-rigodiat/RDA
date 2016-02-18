@@ -1,0 +1,14 @@
+<schema>
+    <element name="root" type="id2" />
+
+    <complexType name="id2">
+        <choice>
+            <sequence>
+                <element name="id10" type="string"/>
+            </sequence>
+            <sequence>
+                <element name="id11" type="string"/>
+            </sequence>
+        </choice>
+    </complexType>
+</schema>

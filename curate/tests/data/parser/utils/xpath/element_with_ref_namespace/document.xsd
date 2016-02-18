@@ -1,0 +1,10 @@
+<schema>
+    <complexType name="parent">
+        <sequence>
+            <element name="child_0" type="string" minOccurs="0" maxOccurs="unbounded" />
+            <element ref="ref_0" />
+        </sequence>
+    </complexType>
+
+    <element name="ref_0" type="string" />
+</schema>

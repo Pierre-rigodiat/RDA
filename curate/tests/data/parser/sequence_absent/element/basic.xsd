@@ -1,0 +1,7 @@
+<schema>
+    <complexType>
+        <sequence>
+            <element name="id0" type="string"/>
+        </sequence>
+    </complexType>
+</schema>

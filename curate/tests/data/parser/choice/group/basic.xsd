@@ -1,0 +1,13 @@
+<schema>
+    <complexType name="id1">
+        <choice>
+            <group ref="grp0" />
+        </choice>
+    </complexType>
+
+    <group name="grp0">
+        <sequence>
+            <element name="id1" type="string"/>
+        </sequence>
+    </group>
+</schema>

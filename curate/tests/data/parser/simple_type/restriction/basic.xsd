@@ -1,0 +1,11 @@
+<schema>
+    <element name="root" type="simple" />
+
+    <simpleType name="simple">
+        <restriction base="string">
+            <enumeration value="child_0"/>
+            <enumeration value="child_1"/>
+            <enumeration value="child_2"/>
+        </restriction>
+    </simpleType>
+</schema>

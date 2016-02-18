@@ -1,0 +1,20 @@
+<schema>
+    <element name="root" type="complex"/>
+
+    <complexType name="complex">
+        <simpleContent>
+            <restriction base="test2" >
+                <enumeration value="child0"/>
+                <enumeration value="child1"/>
+            </restriction>
+        </simpleContent>
+    </complexType>
+
+    <complexType name="test2">
+        <simpleContent>
+            <extension base="string">
+                <attribute name="country" type="string" />
+            </extension>
+        </simpleContent>
+    </complexType>
+</schema>

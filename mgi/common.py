@@ -134,6 +134,7 @@ def manageNamespace(templateID, xmlString):
 #
 ################################################################################
 def getXSDTypes(prefix):
+    # FIXME Some datatypes are missing (https://www.w3.org/TR/xmlschema-2/#built-in-datatypes)
     return ["{0}:string".format(prefix), 
             "{0}:normalizedString".format(prefix),
             "{0}:token".format(prefix),

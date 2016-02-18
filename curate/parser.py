@@ -35,7 +35,7 @@ from modules import get_module_view
 # Description:   Reinitialize the number of occurrences with original values
 #
 ################################################################################
-# FIXME this function is never used
+# FIXME this function is never used anywhere in the code
 def reinitOccurrences(request):
     # reinitialize the map of occurrences with original values
     occurrences = request.session['occurrences']
@@ -67,7 +67,7 @@ def reinitOccurrences(request):
 #
 ################################################################################
 def generateForm(request):
-    print 'BEGIN def generateForm(key,xmlElement)'
+    # print 'BEGIN def generateForm(key,xmlElement)'
 
     defaultPrefix = request.session['defaultPrefix']
     xmlDocTreeStr = request.session['xmlDocTree']
@@ -277,6 +277,8 @@ def removeAnnotations(element, namespace):
 #
 ################################################################################
 def get_subnodes_xpath(element, xmlTree, namespace):
+    # FIXME References returns the same object several times
+    # TODO Check if min and maxOccurs are correctly reported (declared in ref but not reported elsewhere)
     xpaths = []
 
     if len(list(element)) > 0:
@@ -313,6 +315,8 @@ def get_subnodes_xpath(element, xmlTree, namespace):
 #
 ################################################################################
 def get_nodes_xpath(elements, xmlTree, namespace):
+    # FIXME Making one function with get_subnode_xpath should be possible, both are doing the same job
+    # FIXME same problems as in get_subnodes_xpath
     xpaths = []
 
     for element in elements:
@@ -334,7 +338,7 @@ def get_nodes_xpath(elements, xmlTree, namespace):
             xpaths.extend(get_subnodes_xpath(element, xmlTree, namespace))
     return xpaths
 
-# FIXME will this function be needed ? If not remove!
+# FIXME will this function be needed ? If not remove it!
 # def isDeterminist(element, xmlTree, namespace):
 #     determinist = True
 #     try:
@@ -406,6 +410,7 @@ def lookup_Occurs(element, xmlTree, namespace, fullPath, edit_data_tree):
 # Description:   Generates a section of the form that represents an XML sequence
 #
 ################################################################################
+# FIXME Implement group, any
 def generateSequence(request, element, xmlTree, namespace, choiceInfo=None, fullPath="", edit_data_tree=None):
     #(annotation?,(element|group|choice|sequence|any)*)
     formString = ""
@@ -550,7 +555,7 @@ def generateSequence(request, element, xmlTree, namespace, choiceInfo=None, full
                 elif (child.tag == "{0}any".format(namespace)):
                     pass
                 elif (child.tag == "{0}group".format(namespace)):
-                    pass
+                    pass  # TODO implement
 
     return formString
 
@@ -602,6 +607,8 @@ def generateSequence_absent(request, element, xmlTree, namespace):
 # Description:   Generates a section of the form that represents an XML choice
 #
 ################################################################################
+# FIXME Group not supported
+# FIXME Choice not supported
 def generateChoice(request, element, xmlTree, namespace, choiceInfo=None, fullPath="", edit_data_tree=None):
     #(annotation?,(element|group|choice|sequence|any)*)
 
@@ -734,19 +741,19 @@ def generateChoice(request, element, xmlTree, namespace, choiceInfo=None, fullPa
 
                     if request.session['curate_edit']:
                         if len(edit_data_tree.xpath(elementPath)) == 0:
-                            formString += "<option value='" + opt_value + "'>" + opt_label + "</option><br>"
+                            formString += "<option value='" + opt_value + "'>" + opt_label + "</option><br/>"
                         else:
-                            formString += "<option value='" + opt_value + "' selected>" + opt_label + "</option><br>"
+                            formString += "<option value='" + opt_value + "' selected='selected'>" + opt_label + "</option><br/>"
                     else:
-                        formString += "<option value='" + opt_value + "'>" + opt_label + "</option><br>"
+                        formString += "<option value='" + opt_value + "'>" + opt_label + "</option><br/>"
                 elif (child.tag == "{0}group".format(namespace)):
                     pass
                 elif (child.tag == "{0}choice".format(namespace)):
                     pass
-#                     formString += "<option value='choice" + str(nbChoice) + "'>Choice " + str(nbChoice) + "</option></b><br>"
+#                     formString += "<option value='choice" + str(nbChoice) + "'>Choice " + str(nbChoice) + "</option></b><br/>"
 #                     nbChoice += 1
                 elif (child.tag == "{0}sequence".format(namespace)):
-                    formString += "<option value='sequence" + str(nbSequence) + "'>Sequence " + str(nbSequence) + "</option></b><br>"
+                    formString += "<option value='sequence" + str(nbSequence) + "'>Sequence " + str(nbSequence) + "</option><br/>"
                     nbSequence += 1
                 elif (child.tag == "{0}any".format(namespace)):
                     pass
@@ -793,6 +800,7 @@ def generateChoice(request, element, xmlTree, namespace, choiceInfo=None, fullPa
 # Description:   Generates a section of the form that represents an XML simple type
 #
 ################################################################################
+# fixme implement union, correct list
 def generateSimpleType(request, element, xmlTree, namespace, fullPath, edit_data_tree=None):
     formString = ""
 
@@ -830,6 +838,7 @@ def generateSimpleType(request, element, xmlTree, namespace, fullPath, edit_data
 # Description:   Generates a section of the form that represents an XML restriction
 #
 ################################################################################
+# FIXME doesn't represent all the possibilities (http://www.w3schools.com/xml/el_restriction.asp)
 def generateRestriction(request, element, xmlTree, namespace, fullPath="", edit_data_tree=None):
     formString = ""
 
@@ -850,7 +859,7 @@ def generateRestriction(request, element, xmlTree, namespace, fullPath="", edit_
                         selected_value = edit_elements[0].text
             for enum in enumeration:
                 if selected_value is not None and enum.attrib.get('value') == selected_value:
-                    formString += "<option value='" + enum.attrib.get('value')  + "' selected>" + enum.attrib.get('value') + "</option>"
+                    formString += "<option value='" + enum.attrib.get('value')  + "' selected='selected'>" + enum.attrib.get('value') + "</option>"
                 else:
                     formString += "<option value='" + enum.attrib.get('value')  + "'>" + enum.attrib.get('value') + "</option>"
         else:
@@ -879,6 +888,7 @@ def generateRestriction(request, element, xmlTree, namespace, fullPath="", edit_
 # Description:   Generates a section of the form that represents an XML extension
 #
 ################################################################################
+# FIXME doesn't represent all the possibilities (http://www.w3schools.com/xml/el_extension.asp)
 def generateExtension(request, element, xmlTree, namespace, fullPath="", edit_data_tree=None):
     formString = ""
 
@@ -890,6 +900,7 @@ def generateExtension(request, element, xmlTree, namespace, fullPath="", edit_da
 #         for attribute in complexTypeChildren:
 #             formString += generateElement(request, attribute, xmlTree, namespace, fullPath=fullPath, edit_data_tree=edit_data_tree)
 
+    # FIXME simpleType cannot be the child of extension
     simpleType = element.find('{0}simpleType'.format(namespace))
     if simpleType is not None:
         formString += generateSimpleType(request, simpleType, xmlTree, namespace, fullPath=fullPath, edit_data_tree=edit_data_tree)
@@ -917,6 +928,7 @@ def generateExtension(request, element, xmlTree, namespace, fullPath="", edit_da
 # Description:   Generates a section of the form that represents an XML complexType
 #
 ################################################################################
+# FIXME add support for complexContent, group, attributeGroup, anyAttribute
 def generateComplexType(request, element, xmlTree, namespace, fullPath, edit_data_tree=None):
     #(annotation?,(simpleContent|complexContent|((group|all|choice|sequence)?,((attribute|attributeGroup)*,anyAttribute?))))
 
@@ -974,6 +986,7 @@ def generateComplexType(request, element, xmlTree, namespace, fullPath, edit_dat
 # Description:   Generates a section of the form that represents an XML simple content
 #
 ################################################################################
+# FIXME better support for extension
 def generateSimpleContent(request, element, xmlTree, namespace, fullPath, edit_data_tree=None):
     #(annotation?,(restriction|extension))
 
@@ -1019,6 +1032,7 @@ def get_Xml_element_data(xsd_element, xml_element, namespace):
             try:
                 reload_data = etree.tostring(xml_element)
             except:
+                # FIXME in which case would we need that?
                 reload_data = str(xml_element)
 
     return reload_data
@@ -1126,6 +1140,8 @@ def hasModule(request, element):
 # Description:   Generate an HTML string that represents an XML element.
 #
 ################################################################################
+# FIXME Support for unique is not present
+# FIXME Support for key / keyref
 def generateElement(request, element, xmlTree, namespace, choiceInfo=None, fullPath="", edit_data_tree=None):
     defaultPrefix = request.session['defaultPrefix']
 
@@ -1359,13 +1375,14 @@ def getElementType(element, xmlTree, namespace, defaultPrefix):
                     return element[0]
             # with annotations
             elif len(list(element)) == 2:
+                # FIXME Not all possibilities are tested in this case
                 return element[1]
             else:
                 return None
         else: # element with type attribute
             if element.attrib.get('type') in common.getXSDTypes(defaultPrefix):
                 return None
-            elif element.attrib.get('type') is not None:
+            elif element.attrib.get('type') is not None:  # FIXME is it possible?
                 # TODO: manage namespaces
                 # type of the element is complex
                 typeName = element.attrib.get('type')
@@ -1463,6 +1480,7 @@ def manageOccurences(element):
 #
 ################################################################################
 def manageAttrOccurrences(element):
+    # FIXME use defaults to optional not required
 
     minOccurrs = 1
     maxOccurrs = 1

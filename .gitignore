@@ -137,7 +137,7 @@ coverage.xml
 *.pot
 
 # Django stuff:
-data
+/data
 *.log
 logfile*
 db.sqlite3

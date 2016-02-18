@@ -1,0 +1,11 @@
+<schema>
+    <element name="test4">
+        <complexType>
+            <simpleContent>
+                <extension base="string">
+                    <attribute name="child0" type="string"/>
+                </extension>
+            </simpleContent>
+        </complexType>
+    </element>
+</schema>
