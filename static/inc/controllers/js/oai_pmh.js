@@ -286,10 +286,12 @@ checkStatus = function (registry_id, url)
 }
 
 viewRegistry = function(id){
+    $( "#pleaseWaitDialog").show();
 	$.ajax({
         url : "/admin/oai-pmh-detail-registry?id=" + id,
         type : "GET",
         success: function(data){
+            $( "#pleaseWaitDialog").hide();
         	$("#registry_detail").html(data);
         	$(function() {
                 $( "#dialog-detail-registry" ).dialog({

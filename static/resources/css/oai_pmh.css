@@ -30,3 +30,9 @@ table.data td:first-child {
 	width: 250px;
 	word-break: break-all;
 }
+
+#pleaseWaitDialog {
+	top:30%;
+	left:50%;
+	outline: none;
+}

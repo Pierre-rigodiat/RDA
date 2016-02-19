@@ -80,6 +80,13 @@
         {% endfor %}
     </table>
 
+    <div class="modal hide" id="pleaseWaitDialog" data-backdrop="static" data-keyboard="false">
+        <div class="modal-header">
+             <div class="alert alert-warning" style="display: block;">
+                <h4><i class='fa fa-circle-o-notch fa-spin fa-1x'></i>  </i>&nbsp;&nbsp;Please wait ...</h4>
+            </div>
+        </div>
+    </div>
     {% else %}
         No data providers available. Click on the Add button to add data providers.
     {% endif %}
