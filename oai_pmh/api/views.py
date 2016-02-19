@@ -299,6 +299,9 @@ def add_registry(request):
             #Check the URL
             try:
                 url = request.DATA['url']
+                #We check first if this repository already exists in database. If yes, we return a response 409
+                if Registry.objects(url__exact=url).count() > 0:
+                    return Response({'message':'Unable to create the data provider. The data provider already exists.'}, status=status.HTTP_409_CONFLICT)
             except ValueError:
                 return Response("Invalid URL", status=status.HTTP_400_BAD_REQUEST)
 
