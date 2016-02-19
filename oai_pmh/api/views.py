@@ -29,6 +29,11 @@ from mgi.settings import MONGODB_URI, MGI_DB
 from mongoengine import NotUniqueError
 import json
 import xmltodict
+import requests
+from lxml import etree
+import os
+from django.conf import settings
+from django.shortcuts import HttpResponse
 ################################################################################
 #
 # Function Name: add_record(request)
@@ -704,8 +709,9 @@ def identify(request):
                 sickle = Sickle(url)
                 idResponse = sickle.Identify()
                 rsp = dict(idResponse)
+                #id = Identify(idResponse.xml)
 
-                return Response({'message':rsp}, status=status.HTTP_200_OK)
+                return Response({'message':str(idResponse.xml)}, status=status.HTTP_200_OK)
         except Exception:
             content = {'message':'An error occurred when attempting to identify resource.'}
             return Response(content, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -1110,3 +1116,37 @@ def listIdentifiers(request):
     else:
         content = {'message':'Only an administrator can use this feature.'}
         return Response(content, status=status.HTTP_401_UNAUTHORIZED)
+
+
+def all_sets(request, registry):
+    current_registry = Registry.objects.get(id=registry)
+    sets = []
+    for set in current_registry.sets:
+        current_set = SetModel.objects.get(id=set.id)
+        sets.append(current_set.setName)
+    return HttpResponse(json.dumps(sets), content_type="application/javascript")
+
+
+def all_metadataprefix(request, registry):
+    current_registry = Registry.objects.get(id=registry)
+    prefix = []
+    for format in current_registry.metadataformats:
+        current_format = MetadataFormatModel.objects.get(id=format.id)
+        prefix.append(current_format.metadataPrefix)
+    return HttpResponse(json.dumps(prefix), content_type="application/javascript")
+
+def getData(request):
+    url = request.POST['url']
+    http_response = requests.get(url)
+
+    xsltPath = os.path.join(settings.SITE_ROOT, 'static', 'resources', 'xsl', 'xml2html.xsl')
+    xslt = etree.parse(xsltPath)
+    transform = etree.XSLT(xslt)
+
+    XMLParser = etree.XMLParser(remove_blank_text=True, recover=True)
+    dom = etree.XML(http_response.text.encode("utf8"),  parser=XMLParser)
+    newdom = transform(dom)
+    xmlTree = str(newdom)
+
+    content = {'message' : xmlTree}
+    return HttpResponse(json.dumps(content), content_type="application/javascript")
