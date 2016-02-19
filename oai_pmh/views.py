@@ -188,6 +188,33 @@ def delete_registry(request):
 
 ################################################################################
 #
+# Function Name: check_registry(request)
+# Inputs:        request -
+# Outputs:
+# Exceptions:    None
+# Description:   OAI-PMH Check if the Registry is available
+#
+################################################################################
+def check_registry(request):
+    if request.user.is_authenticated():
+        try:
+            form = Url(request.POST)
+            if form.is_valid():
+                #Call the identify function from the API.
+                uri= OAI_HOST_URI + "/oai_pmh/identify"
+                req = requests.post(uri, {"url":request.POST.get("url")}, auth=(OAI_USER, OAI_PASS))
+                #IF the return status is HTTP_200_OK, the registry is available
+                isAvailable = req.status_code == status.HTTP_200_OK
+            else:
+                isAvailable = False
+        except:
+            isAvailable = False
+        return HttpResponse(json.dumps({'isAvailable' : isAvailable }), content_type='application/javascript')
+    else:
+        return redirect('/login')
+    
+################################################################################
+#
 # Function Name: add_record(request)
 # Inputs:        request -
 # Outputs:
@@ -288,33 +315,6 @@ def update_record(request):
     else:
         return redirect('/login')
 
-
-################################################################################
-#
-# Function Name: check_registry(request)
-# Inputs:        request -
-# Outputs:
-# Exceptions:    None
-# Description:   OAI-PMH Check if the Registry is available
-#
-################################################################################
-def check_registry(request):
-    if request.user.is_authenticated():
-        try:
-            form = Url(request.POST)
-            if form.is_valid():
-                uri= OAI_HOST_URI + "/oai_pmh/identify"
-                req = requests.post(uri, {"url":request.POST.get("url")}, auth=(OAI_USER, OAI_PASS))
-                isAvailable = str(req.status_code) == "200"
-            else:
-                isAvailable = False
-        except:
-            req= {}
-            isAvailable = False
-
-        return HttpResponse(json.dumps({'isAvailable' : isAvailable }), content_type='application/javascript')
-    else:
-        return redirect('/login')
 
 ################################################################################
 #
