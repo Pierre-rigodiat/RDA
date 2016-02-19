@@ -3,7 +3,6 @@
 from django.http.request import HttpRequest
 from django.test import TestCase
 from django.utils.importlib import import_module
-from mongoengine.connection import connect, disconnect
 from os.path import join
 from curate.parser import renderButtons, removeAnnotations, generateChoice, generateRestriction, \
     generateSimpleType, generateExtension, generateSimpleContent, get_subnodes_xpath, lookup_Occurs, manageOccurences, \
@@ -560,9 +559,10 @@ class ParserHasModuleTestSuite(TestCase):
 
     def setUp(self):
         # connect to test database
-        self.db_name = "mgi_test"
-        disconnect()
-        connect(self.db_name, port=27018)
+        # FIXME Use the settings to automatically switch to this database for the tests
+        # self.db_name = "mgi_test"
+        # disconnect()
+        # connect(self.db_name, port=27018)
 
         module_data = join('curate', 'tests', 'data', 'parser', 'utils', 'modules')
         self.module_data_handler = DataHandler(module_data)
