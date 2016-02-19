@@ -277,6 +277,7 @@ def delete_record(request):
 #                400 An error occured when trying to save document.
 #                400 Serializer failed validation.
 #                401 Unauthorized.
+#                409 Registry already exists
 # Description:   OAI-PMH Add Registry
 #
 ################################################################################
@@ -286,47 +287,76 @@ def add_registry(request):
     POST http://localhost/oai_pmh/add/registry
     """
     if request.user.is_authenticated():
+        #Serialization of the input data
         serializer = RegistrySerializer(data=request.DATA)
+        #If all fields are okay
         if serializer.is_valid():
+            #Check the URL
             try:
                 url = request.DATA['url']
             except ValueError:
                 return Response("Invalid URL", status=status.HTTP_400_BAD_REQUEST)
 
+            #Chech the harvest rate. If not provided, set to none
             if 'harvestrate' in request.DATA:
                 harvestrate = request.DATA['harvestrate']
             else:
                 harvestrate = ""
 
+            #Chech the harvest action. If not provided, set to false
             if 'harvest' in request.DATA:
                 harvest = request.DATA['harvest'] == 'True'
             else:
                 harvest = False
 
+            #Get the identify information for the given URL
             identify = objectIdentify(request)
-            identifyData = identify.data
-            serializerIdentify = IdentifyObjectSerializer(data=identifyData)
-            if not serializerIdentify.is_valid():
-                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            #If status OK, we try to serialize data and check if it's valid
+            if identify.status_code == status.HTTP_200_OK:
+                identifyData = identify.data
+                serializerIdentify = IdentifyObjectSerializer(data=identifyData)
+                #If it's not valid, return with a bad request
+                if not serializerIdentify.is_valid():
+                    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            #Return a response with the status_code and the message provided by the called function
+            else:
+                return Response({'message': identify.data['message']}, status=identify.status_code)
 
+            #Get the sets information for the given URL
             sets = listObjectSets(request)
-            setsData = sets.data
-            serializerSet = SetSerializer(data=setsData)
-            if not serializerSet.is_valid():
-                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            #If status OK, we try to serialize data and check if it's valid
+            if sets.status_code == status.HTTP_200_OK:
+                setsData = sets.data
+                serializerSet = SetSerializer(data=setsData)
+                #If it's not valid, return with a bad request
+                if not serializerSet.is_valid():
+                    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+             #Return a response with the status_code and the message provided by the called function
+            else:
+                return Response({'message': sets.data['message']}, status=sets.status_code)
 
+            #Get the metadata formats information for the given URL
             metadataformats = listObjectMetadataFormats(request)
-            metadataformatsData = metadataformats.data
-            serializerMetadataFormat = MetadataFormatSerializer(data=metadataformatsData)
-            if not serializerMetadataFormat.is_valid():
-                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            #If status OK, we try to serialize data and check if it's valid
+            if metadataformats.status_code == status.HTTP_200_OK:
+                metadataformatsData = metadataformats.data
+                serializerMetadataFormat = MetadataFormatSerializer(data=metadataformatsData)
+                #If it's not valid, return with a bad request
+                if not serializerMetadataFormat.is_valid():
+                    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+             #Return a response with the status_code and the message provided by the called function
+            else:
+                return Response({'message': metadataformats.data['message']}, status=metadataformats.status_code)
 
             try:
+                #Creation of the registry
                 registry = Registry()
+                #Get the raw XML from a dictionary
                 try:
                     identifyRaw = xmltodict.parse(identifyData['raw'])
                 except:
                     identifyRaw = {}
+                #Constructor if Identity
                 identify = IdentifyModel(adminEmail=identifyData['adminEmail'],
                                           baseURL=identifyData['baseURL'],
                                           repositoryName=identifyData['repositoryName'],
@@ -341,6 +371,7 @@ def add_registry(request):
                                           sampleIdentifier=identifyData['sampleIdentifier'],
                                           scheme=identifyData['scheme'],
                                           raw=identifyRaw).save()
+                #Add identity
                 registry.identify = identify
                 registry.name = identify.repositoryName
                 registry.url = url
@@ -349,24 +380,30 @@ def add_registry(request):
                 registry.harvest = harvest
                 listSet = []
                 listMetadataFormats = []
+                #Creation of each set
                 for set in setsData:
                     try:
                         raw = xmltodict.parse(set['raw'])
                         obj = SetModel(setName=set['setName'], setSpec=set['setSpec'], raw= raw).save()
+                        #Add the set to the list
                         listSet.append(obj)
                     except:
                         pass
+                #Creation of each metadata format
                 for metadataformat in metadataformatsData:
                     try:
                         raw = xmltodict.parse(metadataformat['raw'])
                         obj = MetadataFormatModel(metadataPrefix=metadataformat['metadataPrefix'], metadataNamespace=metadataformat['metadataNamespace'], schema=metadataformat['schema'], raw= raw).save()
+                        #Add the metadata format to the list
+                        listMetadataFormats.append(obj)
+                        # TODO: Add the schema (template) in database and link the record to the template
                     except:
                         pass
-                    # TODO: Add the schema (template) in database and link the record to the template
-                    listMetadataFormats.append(obj)
 
+                #Set the list of reference field for the set and metadata format
                 registry.sets = listSet
                 registry.metadataformats = listMetadataFormats
+                #Save the registry
                 registry.save()
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             except NotUniqueError as e:
@@ -464,7 +501,6 @@ def select_registry(request):
 #                400 Serializer failed validation.
 #                401 Unauthorized.
 #                404 No registry found with the given identity.
-#                409 Duplicate name.
 # Description:   OAI-PMH Update Registry
 #
 ################################################################################
@@ -475,9 +511,11 @@ def update_registry(request):
     PUT http://localhost/oai_pmh/update/registry
     """
     if request.user.is_authenticated():
+        #Serialization of the input data
         serializer = UpdateRegistrySerializer(data=request.DATA)
-
+        #If it's valid
         if serializer.is_valid():
+            #We retrieve all information
             try:
                 if 'id' in request.DATA:
                     id = request.DATA['id']
@@ -489,43 +527,17 @@ def update_registry(request):
                 content = {'message':'No registry found with the given id.'}
                 return Response(content, status=status.HTTP_404_NOT_FOUND)
 
-            if 'name' in request.DATA:
-                name = request.DATA['name']
-                if name:
-                    registry.name = name
-            if 'url' in request.DATA:
-                url = request.DATA['url']
-                if url:
-                    registry.url = url
             if 'harvestrate' in request.DATA:
                 harvestrate = request.DATA['harvestrate']
                 if harvestrate:
                     registry.harvestrate = harvestrate
-            if 'metadataformats' in request.DATA:
-                metadataformats = request.DATA['metadataformats']
-                if metadataformats:
-                    registry.metadataprefix = metadataformats
-            if 'description' in request.DATA:
-                description = request.DATA['description']
-                if description:
-                    registry.description = description
-            if 'identity' in request.DATA:
-                identity = request.DATA['identity']
-                if identity:
-                    registry.identity = identity
-            if 'sets' in request.DATA:
-                sets = request.DATA['sets']
-                if sets:
-                    registry.sets = sets
             if 'harvest' in request.DATA:
                 harvest = request.DATA['harvest']
                 if harvest:
                     registry.harvest =  harvest == 'True'
-
             try:
+                #Save the modifications
                registry.save()
-            except NotUniqueError as e:
-                return Response({'message':'Unable to update registry. The registry already exists.'}, status=status.HTTP_409_CONFLICT)
             except Exception as e:
                 return Response({'message':'Unable to update registry. \n%s'%e.message}, status=status.HTTP_400_BAD_REQUEST)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -559,32 +571,34 @@ def delete_registry(request):
             serializer = DeleteRegistrySerializer(data=request.DATA)
         except Exception as e:
             return Response({"message":e.message}, status=status.HTTP_400_BAD_REQUEST)
-
         if serializer.is_valid():
+            #Get the ID
             try:
                 id = request.DATA['RegistryId']
             except:
                 rsp = {'message':'\'ResgistryId\' not found in request.'}
                 return Response(rsp, status=status.HTTP_400_BAD_REQUEST)
-
             try:
+                #Get the registry
                 registry = Registry.objects.get(pk=id)
+                #Delete all ReferenceFields
+                #Identify
                 registry.identify.delete()
+                #Sets
                 for set in registry.sets:
                     set.delete()
+                #Metadata formats
                 for metadataformat in registry.metadataformats:
                     metadataformat.delete()
-
+                #We can now delete the registry
                 registry.delete()
                 content = {'message':"Deleted registry with success."}
+
                 return Response(content, status=status.HTTP_200_OK)
             except Exception as e:
                 Response({"message":e.message}, status=status.HTTP_400_BAD_REQUEST)
-
-            content = {'message':'Bad request.'}
         else:
             return Response({'message':'Serializer failed validation.'}, status=status.HTTP_400_BAD_REQUEST)
-        return Response(content, status=status.HTTP_400_BAD_REQUEST)
     else:
         content = {'message':'Only an administrator can use this feature.'}
         return Response(content, status=status.HTTP_401_UNAUTHORIZED)
