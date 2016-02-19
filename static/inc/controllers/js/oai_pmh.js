@@ -25,7 +25,7 @@ displayAddRegistry = function()
     $( "#dialog-registry" ).dialog({
       modal: true,
       width: 550,
-      height: 370,
+      height: 'auto',
       buttons:
     	  [
            {
@@ -116,7 +116,7 @@ editRegistry = function(registryId)
         $( "#dialog-edit" ).dialog({
           modal: true,
           width: 400,
-          height: 370,
+          height: 'auto',
           buttons:
               [
                {

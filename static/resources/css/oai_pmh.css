@@ -27,7 +27,6 @@ div.collapse{
 }
 
 table.data td:first-child {
-	width: 180px;
+	width: 250px;
+	word-break: break-all;
 }
-
-a { tabindex: -1; }
