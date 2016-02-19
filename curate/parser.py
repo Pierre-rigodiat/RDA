@@ -249,9 +249,9 @@ def hasModule(request, element):
 def get_Xml_element_data(xsd_element, xml_element, namespace):
     """
 
-    :param xsd_element:
-    :param xml_element:
-    :param namespace:
+        xsd_element:
+        xml_element:
+        namespace:
     :return:
     """
     reload_data = None
@@ -1018,7 +1018,7 @@ def generateChoice(request, element, xmlTree, namespace, choiceInfo=None, fullPa
                 add_button = True
             if nb_occurrences_data > min_occurs:
                 delete_button = True
-        else: # starting an empty form
+        else:  # starting an empty form
             # Don't generate the element if not necessary
             if CURATE_MIN_TREE and min_occurs == 0:
                 add_button = True
@@ -1208,17 +1208,22 @@ def generateSimpleType(request, element, xmlTree, namespace, fullPath, edit_data
 
 
 def generateComplexType(request, element, xmlTree, namespace, fullPath, edit_data_tree=None):
-    """
-    # Inputs:        request -
-    #                element - XML element
-    #                xmlTree - XML Tree
-    #                namespace - namespace
-    # Outputs:       HTML string representing a sequence
-    # Exceptions:    None
-    # Description:   Generates a section of the form that represents an XML complexType
+    """Generates a section of the form that represents an XML complexType
+
+    Parameteres:
+        request -
+        element - XML element
+        xmlTree - XML Tree
+        namespace - namespace
+
+    Returns:
+        HTML string representing a sequence
     """
     # FIXME add support for complexContent, group, attributeGroup, anyAttribute
-    #(annotation?,(simpleContent|complexContent|((group|all|choice|sequence)?,((attribute|attributeGroup)*,anyAttribute?))))
+    # (
+    #   annotation?, (simpleContent|complexContent|((group|all|choice|sequence)?,
+    #   ((attribute|attributeGroup)*,anyAttribute?)))
+    # )
 
     form_string = ""
 
@@ -1232,30 +1237,35 @@ def generateComplexType(request, element, xmlTree, namespace, fullPath, edit_dat
         return form_string
 
     # is it a simple content?
-    complexTypeChild = element.find('{0}simpleContent'.format(namespace))
-    if complexTypeChild is not None:
-        form_string += generateSimpleContent(request, complexTypeChild, xmlTree, namespace, fullPath=fullPath, edit_data_tree=edit_data_tree)
+    complex_type_child = element.find('{0}simpleContent'.format(namespace))
+    if complex_type_child is not None:
+        form_string += generateSimpleContent(request, complex_type_child, xmlTree, namespace, fullPath=fullPath,
+                                             edit_data_tree=edit_data_tree)
         return form_string
 
     # does it contain any attributes?
-    complexTypeChildren = element.findall('{0}attribute'.format(namespace))
-    if len(complexTypeChildren) > 0:
-        for attribute in complexTypeChildren:
-            form_string += generateElement(request, attribute, xmlTree, namespace, full_path=fullPath, edit_data_tree=edit_data_tree)
+    complex_type_children = element.findall('{0}attribute'.format(namespace))
+    if len(complex_type_children) > 0:
+        for attribute in complex_type_children:
+            form_string += generateElement(request, attribute, xmlTree, namespace, full_path=fullPath,
+                                           edit_data_tree=edit_data_tree)
 
     # does it contain sequence or all?
-    complexTypeChild = element.find('{0}sequence'.format(namespace))
-    if complexTypeChild is not None:
-        form_string += generateSequence(request, complexTypeChild, xmlTree, namespace, fullPath=fullPath, edit_data_tree=edit_data_tree)
+    complex_type_child = element.find('{0}sequence'.format(namespace))
+    if complex_type_child is not None:
+        form_string += generateSequence(request, complex_type_child, xmlTree, namespace, fullPath=fullPath,
+                                        edit_data_tree=edit_data_tree)
     else:
-        complexTypeChild = element.find('{0}all'.format(namespace))
-        if complexTypeChild is not None:
-            form_string += generateSequence(request, complexTypeChild, xmlTree, namespace, fullPath=fullPath, edit_data_tree=edit_data_tree)
+        complex_type_child = element.find('{0}all'.format(namespace))
+        if complex_type_child is not None:
+            form_string += generateSequence(request, complex_type_child, xmlTree, namespace, fullPath=fullPath,
+                                            edit_data_tree=edit_data_tree)
         else:
             # does it contain choice ?
-            complexTypeChild = element.find('{0}choice'.format(namespace))
-            if complexTypeChild is not None:
-                form_string += generateChoice(request, complexTypeChild, xmlTree, namespace, fullPath=fullPath, edit_data_tree=edit_data_tree)
+            complex_type_child = element.find('{0}choice'.format(namespace))
+            if complex_type_child is not None:
+                form_string += generateChoice(request, complex_type_child, xmlTree, namespace, fullPath=fullPath,
+                                              edit_data_tree=edit_data_tree)
             else:
                 form_string += ""
 
@@ -1263,47 +1273,48 @@ def generateComplexType(request, element, xmlTree, namespace, fullPath, edit_dat
 
 
 def generateModule(request, element, namespace, xsd_xpath=None, xml_xpath=None, edit_data_tree=None):
-    """
-    # Inputs:        request -
-    #                element - XML element
-    # Outputs:       Module
-    # Exceptions:    None
-    # Description:   Generate a module to replace an element
+    """Generate a module to replace an element
 
-    :param request:
-    :param element:
-    :param namespace:
-    :param xsd_xpath:
-    :param xml_xpath:
-    :param edit_data_tree:
-    :return:
+    Parameters:
+        request:
+        element:
+        namespace:
+        xsd_xpath:
+        xml_xpath:
+        edit_data_tree:
+
+    Returns:
+        Module
     """
     form_string = ""
-
     reload_data = None
     reload_attrib = None
+    
     if request.session['curate_edit']:
         edit_elements = edit_data_tree.xpath(xml_xpath)
+        
         if len(edit_elements) > 0:
             if len(edit_elements) == 1:
                 edit_element = edit_elements[0]
+                
                 # get attributes
                 if 'attribute' not in xsd_xpath and len(edit_element.attrib) > 0:
                     reload_attrib = dict(edit_element.attrib)
+                    
                 reload_data = get_Xml_element_data(element, edit_element, namespace)
             else:
                 reload_data = []
                 reload_attrib = []
+                
                 for edit_element in edit_elements:
                     reload_attrib.append(dict(edit_element.attrib))
                     reload_data.append(get_Xml_element_data(element, edit_element, namespace))
-
-
 
     # check if a module is set for this element
     if '{http://mdcs.ns}_mod_mdcs_' in element.attrib:
         # get the url of the module
         url = element.attrib['{http://mdcs.ns}_mod_mdcs_']
+        
         # check that the url is registered in the system
         if url in Module.objects.all().values_list('url'):
             view = get_module_view(url)
@@ -1321,6 +1332,7 @@ def generateModule(request, element, namespace, xsd_xpath=None, xml_xpath=None, 
             # if the loaded doc has data, send them to the module for initialization
             if reload_data is not None:
                 mod_req.GET['data'] = reload_data
+                
             if reload_attrib is not None:
                 mod_req.GET['attributes'] = reload_attrib
 
@@ -1331,21 +1343,18 @@ def generateModule(request, element, namespace, xsd_xpath=None, xml_xpath=None, 
 
 
 def generateSimpleContent(request, element, xmlTree, namespace, fullPath, edit_data_tree=None):
-    """
-    # Inputs:        request -
-    #                element - XML element
-    #                xmlTree - XML Tree
-    #                namespace - namespace
-    # Outputs:       HTML string representing a sequence
-    # Exceptions:    None
-    # Description:   Generates a section of the form that represents an XML simple content
-    :param request:
-    :param element:
-    :param xmlTree:
-    :param namespace:
-    :param fullPath:
-    :param edit_data_tree:
-    :return:
+    """Generates a section of the form that represents an XML simple content
+
+    Parameters:
+        request:
+        element:
+        xmlTree:
+        namespace:
+        fullPath:
+        edit_data_tree:
+
+    Returns:
+        HTML string representing a simple content
     """
     # (annotation?,(restriction|extension))
     # FIXME better support for extension
@@ -1356,32 +1365,32 @@ def generateSimpleContent(request, element, xmlTree, namespace, fullPath, edit_d
     removeAnnotations(element, namespace)
 
     # generates the content
-    if(len(list(element)) != 0):
+    if len(list(element)) != 0:
         child = element[0]
-        if (child.tag == "{0}restriction".format(namespace)):
-            form_string += generateRestriction(request, child, xmlTree, namespace, fullPath, edit_data_tree=edit_data_tree)
-        elif (child.tag == "{0}extension".format(namespace)):
-            form_string += generateExtension(request, child, xmlTree, namespace, fullPath, edit_data_tree=edit_data_tree)
+
+        if child.tag == "{0}restriction".format(namespace):
+            form_string += generateRestriction(request, child, xmlTree, namespace, fullPath,
+                                               edit_data_tree=edit_data_tree)
+        elif child.tag == "{0}extension".format(namespace):
+            form_string += generateExtension(request, child, xmlTree, namespace, fullPath,
+                                             edit_data_tree=edit_data_tree)
 
     return form_string
 
 
 def generateRestriction(request, element, xmlTree, namespace, fullPath="", edit_data_tree=None):
-    """
-    # Inputs:        request -
-    #                element - XML element
-    #                xmlTree - XML Tree
-    #                namespace - namespace
-    # Outputs:       HTML string representing a sequence
-    # Exceptions:    None
-    # Description:   Generates a section of the form that represents an XML restriction
-    :param request:
-    :param element:
-    :param xmlTree:
-    :param namespace:
-    :param fullPath:
-    :param edit_data_tree:
-    :return:
+    """Generates a section of the form that represents an XML restriction
+
+    Parameters:
+        request:
+        element: XML element
+        xmlTree: XML Tree
+        namespace: namespace
+        fullPath:
+        edit_data_tree:
+
+    Returns:
+        HTML string representing a sequence
     """
     # FIXME doesn't represent all the possibilities (http://www.w3schools.com/xml/el_restriction.asp)
     form_string = ""
@@ -1389,11 +1398,14 @@ def generateRestriction(request, element, xmlTree, namespace, fullPath="", edit_
     removeAnnotations(element, namespace)
 
     enumeration = element.findall('{0}enumeration'.format(namespace))
+
     if len(enumeration) > 0:
         form_string += "<select>"
+
         if request.session['curate_edit']:
             edit_elements = edit_data_tree.xpath(fullPath)
             selected_value = None
+
             if len(edit_elements) > 0:
                 if '@' in fullPath:
                     if edit_elements[0] is not None:
@@ -1401,19 +1413,25 @@ def generateRestriction(request, element, xmlTree, namespace, fullPath="", edit_
                 else:
                     if edit_elements[0].text is not None:
                         selected_value = edit_elements[0].text
+
             for enum in enumeration:
                 if selected_value is not None and enum.attrib.get('value') == selected_value:
-                    form_string += "<option value='" + enum.attrib.get('value')  + "' selected='selected'>" + enum.attrib.get('value') + "</option>"
+                    form_string += "<option value='" + enum.attrib.get('value')  + "' selected='selected'>"
+                    form_string += enum.attrib.get('value') + "</option>"
                 else:
-                    form_string += "<option value='" + enum.attrib.get('value')  + "'>" + enum.attrib.get('value') + "</option>"
+                    form_string += "<option value='" + enum.attrib.get('value')  + "'>" + enum.attrib.get('value')
+                    form_string += "</option>"
         else:
             for enum in enumeration:
-                form_string += "<option value='" + enum.attrib.get('value')  + "'>" + enum.attrib.get('value') + "</option>"
+                form_string += "<option value='" + enum.attrib.get('value')  + "'>" + enum.attrib.get('value')
+                form_string += "</option>"
+
         form_string += "</select>"
     else:
-        simpleType = element.find('{0}simpleType'.format(namespace))
-        if simpleType is not None:
-            form_string += generateSimpleType(request, simpleType, xmlTree, namespace, fullPath=fullPath, edit_data_tree=edit_data_tree)
+        simple_type = element.find('{0}simpleType'.format(namespace))
+        if simple_type is not None:
+            form_string += generateSimpleType(request, simple_type, xmlTree, namespace, fullPath=fullPath,
+                                              edit_data_tree=edit_data_tree)
         else:
             form_string += " <input type='text'/>"
 
@@ -1421,21 +1439,18 @@ def generateRestriction(request, element, xmlTree, namespace, fullPath="", edit_
 
 
 def generateExtension(request, element, xmlTree, namespace, fullPath="", edit_data_tree=None):
-    """
-    # Inputs:        request -
-    #                element - XML element
-    #                xmlTree - XML Tree
-    #                namespace - namespace
-    # Outputs:       HTML string representing a sequence
-    # Exceptions:    None
-    # Description:   Generates a section of the form that represents an XML extension
-    :param request:
-    :param element:
-    :param xmlTree:
-    :param namespace:
-    :param fullPath:
-    :param edit_data_tree:
-    :return:
+    """Generates a section of the form that represents an XML extension
+
+    Parameters:
+        request:
+        element:
+        xmlTree:
+        namespace:
+        fullPath:
+        edit_data_tree:
+
+    Returns:
+        HTML string representing an extension
     """
     # FIXME doesn't represent all the possibilities (http://www.w3schools.com/xml/el_extension.asp)
     form_string = ""
@@ -1443,16 +1458,21 @@ def generateExtension(request, element, xmlTree, namespace, fullPath="", edit_da
     removeAnnotations(element, namespace)
 
     # FIXME simpleType cannot be the child of extension
-    simpleType = element.find('{0}simpleType'.format(namespace))
-    if simpleType is not None:
-        form_string += generateSimpleType(request, simpleType, xmlTree, namespace, fullPath=fullPath, edit_data_tree=edit_data_tree)
+    simple_type = element.find('{0}simpleType'.format(namespace))
+
+    if simple_type is not None:
+        form_string += generateSimpleType(request, simple_type, xmlTree, namespace, fullPath=fullPath,
+                                          edit_data_tree=edit_data_tree)
     else:
-        defaultValue = ""
+        default_value = ""
+
         if request.session['curate_edit']:
             edit_elements = edit_data_tree.xpath(fullPath)
+
             if len(edit_elements) > 0:
                 if edit_elements[0].text is not None:
-                    defaultValue = edit_elements[0].text
-        form_string += " <input type='text' value='"+ django.utils.html.escape(defaultValue) +"'/>"
+                    default_value = edit_elements[0].text
+
+        form_string += " <input type='text' value='" + django.utils.html.escape(default_value) + "'/>"
 
     return form_string
