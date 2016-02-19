@@ -358,6 +358,8 @@ def add_registry(request):
 
             try:
                 #Creation of the registry
+                listSet = []
+                listMetadataFormats = []
                 registry = Registry()
                 #Get the raw XML from a dictionary
                 try:
@@ -386,8 +388,6 @@ def add_registry(request):
                 registry.harvestrate = harvestrate
                 registry.description = identify.description
                 registry.harvest = harvest
-                listSet = []
-                listMetadataFormats = []
                 #Creation of each set
                 for set in setsData:
                     try:
@@ -407,7 +407,6 @@ def add_registry(request):
                         # TODO: Add the schema (template) in database and link the record to the template
                     except:
                         pass
-
                 #Set the list of reference field for the set and metadata format
                 registry.sets = listSet
                 registry.metadataformats = listMetadataFormats
@@ -415,9 +414,24 @@ def add_registry(request):
                 registry.save()
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             except NotUniqueError as e:
+                #Manual Rollback
+                if identify:
+                    identify.delete()
+                for set in listSet:
+                    set.delete()
+                for metadataformat in listMetadataFormats:
+                    metadataformat.delete()
                 return Response({'message':'Unable to create the registry. The registry already exists.%s'%e.message}, status=status.HTTP_409_CONFLICT)
             except Exception as e:
+                #Manual Rollback
+                if identify:
+                    identify.delete()
+                for set in listSet:
+                    set.delete()
+                for metadataformat in listMetadataFormats:
+                    metadataformat.delete()
                 return Response({'message':'An error occured when trying to save document. %s'%e.message}, status=status.HTTP_400_BAD_REQUEST)
+
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     else:
         return Response({}, status=status.HTTP_401_UNAUTHORIZED)
