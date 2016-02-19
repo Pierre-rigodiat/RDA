@@ -20,8 +20,8 @@ from django.conf import settings
 from io import BytesIO
 # from cStringIO import StringIO
 # from mgi.models import Template, XMLdata, XML2Download, Module, MetaSchema
-from curate.parser import generateForm, generateElement, generateSequence_absent, generateElement_absent, hasModule, \
-    getElementType, generateModule, generateComplexType, generateSimpleType, generateSequence, generateChoice
+from curate.parser import generate_form, generate_element, generate_sequence_absent, generate_element_absent, has_module, \
+    get_element_type, generate_module, generate_complex_type, generate_simple_type, generate_sequence, generate_choice
 from mgi.models import Template, XML2Download, MetaSchema
 from mgi.models import FormElement, XMLElement, FormData
 # from mgi.settings import CURATE_MIN_TREE, CURATE_COLLAPSE
@@ -196,7 +196,7 @@ def load_xml(request):
 #
 ################################################################################
 def clear_fields(request):
-    form = generateForm(request)
+    form = generate_form(request)
     response_dict = {'xsdForm': form}
     return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
 
@@ -308,7 +308,7 @@ def generate_xsd_form(request):
 
     if (formString == ""):
         # this form was not created, generates it from the schema
-        formString += generateForm(request)
+        formString += generate_form(request)
 
     response_dict['xsdForm'] = formString
     request.session['formString'] = formString
@@ -358,16 +358,16 @@ def generate_absent(request):
 
     # generating a choice, generate the parent element
     if tag == "choice":
-        # can use generateElement to generate a choice never generated
-        formString = generateElement(request, element, xmlDocTree, namespace, fullPath=form_element.xml_xpath)
+        # can use generate_element to generate a choice never generated
+        formString = generate_element(request, element, xmlDocTree, namespace, full_path=form_element.xml_xpath)
         # remove the opening and closing ul tags
         formString = formString[4:-4]
     else:
         if 'sequence' in element.tag:
-            formString = generateSequence_absent(request, element, xmlDocTree, namespace)
+            formString = generate_sequence_absent(request, element, xmlDocTree, namespace)
         else:
-            # can't directly use generateElement because only need the body of the element not its title
-            formString = generateElement_absent(request, element, xmlDocTree, form_element)
+            # can't directly use generate_element because only need the body of the element not its title
+            formString = generate_element_absent(request, element, xmlDocTree, form_element)
 
 
     # build HTML tree for the form
@@ -515,7 +515,7 @@ def duplicate(request):
         # get appinfo elements
         app_info = common.getAppInfo(sequenceChild, namespace)
 
-        has_module = hasModule(request, sequenceChild)
+        _has_module = has_module(request, sequenceChild)
 
         if element_tag == "element" or element_tag == "attribute":
             # type is a reference included in the document
@@ -539,7 +539,7 @@ def duplicate(request):
             else:
                 textCapitalized = sequenceChild.attrib.get('name')
 
-            elementType = getElementType(sequenceChild, xmlDocTree, namespace, defaultPrefix)
+            elementType = get_element_type(sequenceChild, xmlDocTree, namespace, defaultPrefix)
             nb_html_tags = int(request.session['nb_html_tags'])
             newTagID = "element" + str(nb_html_tags)
             nb_html_tags += 1
@@ -565,10 +565,10 @@ def duplicate(request):
             formString += label
 
             # if module is present, replace default input by module
-            if has_module:
+            if _has_module:
                 formString += "<span id='add"+ str(newTagID[7:]) +"' class=\"icon add\" onclick=\"changeHTMLForm('add',"+str(newTagID[7:])+");\"></span>"
                 formString += "<span id='remove"+ str(newTagID[7:]) +"' class=\"icon remove\" onclick=\"changeHTMLForm('remove',"+str(newTagID[7:])+");\"></span>"
-                formString += generateModule(request, sequenceChild, namespace, xml_element.xsd_xpath, new_xml_xpath)
+                formString += generate_module(request, sequenceChild, namespace, xml_element.xsd_xpath, new_xml_xpath)
             else: # generate the type
                 if elementType is None: # no complex/simple type
                     defaultValue = ""
@@ -590,9 +590,9 @@ def duplicate(request):
                     formString += "<span id='add"+ str(newTagID[7:]) +"' class=\"icon add\" onclick=\"changeHTMLForm('add',"+str(newTagID[7:])+");\"></span>"
                     formString += "<span id='remove"+ str(newTagID[7:]) +"' class=\"icon remove\" onclick=\"changeHTMLForm('remove',"+str(newTagID[7:])+");\"></span>"
                     if elementType.tag == "{0}complexType".format(namespace):
-                        formString += generateComplexType(request, elementType, xmlDocTree, namespace, fullPath=new_xml_xpath)
+                        formString += generate_complex_type(request, elementType, xmlDocTree, namespace, full_path=new_xml_xpath)
                     elif elementType.tag == "{0}simpleType".format(namespace):
-                        formString += generateSimpleType(request, elementType, xmlDocTree, namespace, fullPath=new_xml_xpath)
+                        formString += generate_simple_type(request, elementType, xmlDocTree, namespace, full_path=new_xml_xpath)
 
             formString += "</li>"
 
@@ -621,11 +621,11 @@ def duplicate(request):
             if(len(list(sequenceChild)) != 0):
                 for child in sequenceChild:
                     if (child.tag == "{0}element".format(namespace)):
-                        formString += generateElement(request, child, xmlDocTree, namespace, fullPath=new_xml_xpath)
+                        formString += generate_element(request, child, xmlDocTree, namespace, full_path=new_xml_xpath)
                     elif (child.tag == "{0}sequence".format(namespace)):
-                        formString += generateSequence(request, child, xmlDocTree, namespace, fullPath=new_xml_xpath)
+                        formString += generate_sequence(request, child, xmlDocTree, namespace, full_path=new_xml_xpath)
                     elif (child.tag == "{0}choice".format(namespace)):
-                        formString += generateChoice(request, child, xmlDocTree, namespace, fullPath=new_xml_xpath)
+                        formString += generate_choice(request, child, xmlDocTree, namespace, full_path=new_xml_xpath)
                     elif (child.tag == "{0}any".format(namespace)):
                         pass
                     elif (child.tag == "{0}group".format(namespace)):
@@ -681,13 +681,13 @@ def duplicate(request):
 
             for (counter, choiceChild) in enumerate(list(sequenceChild)):
                 if choiceChild.tag == "{0}element".format(namespace):
-                    formString += generateElement(request, choiceChild, xmlDocTree, namespace, common.ChoiceInfo(chooseIDStr,counter), fullPath=new_xml_xpath)
+                    formString += generate_element(request, choiceChild, xmlDocTree, namespace, common.ChoiceInfo(chooseIDStr,counter), full_path=new_xml_xpath)
                 elif (choiceChild.tag == "{0}group".format(namespace)):
                     pass
                 elif (choiceChild.tag == "{0}choice".format(namespace)):
                     pass
                 elif (choiceChild.tag == "{0}sequence".format(namespace)):
-                    formString += generateSequence(request, choiceChild, xmlDocTree, namespace, common.ChoiceInfo(chooseIDStr,counter), fullPath=new_xml_xpath)
+                    formString += generate_sequence(request, choiceChild, xmlDocTree, namespace, common.ChoiceInfo(chooseIDStr,counter), full_path=new_xml_xpath)
                 elif (choiceChild.tag == "{0}any".format(namespace)):
                     pass
 
