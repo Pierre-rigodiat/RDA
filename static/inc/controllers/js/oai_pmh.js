@@ -325,3 +325,144 @@ showhide = function(event){
 
 	console.log('END [showhide]');
 }
+
+/**
+* Perform check before submit
+*/
+checkSubmit = function() {
+    $("#result").text('');
+    var label = '';
+    if ($("select#reg").val() == '0') {
+        label = 'Pick a data provider.';
+    } else if ($("select#verb").val() == '0') {
+        label = 'Pick a verb.';
+    } else {
+        if ($("select#verb").val() == '2') {
+            if ($("#identifier").val() == '') {
+                label = 'Provide a identifier.';
+            } else if ($("select#pre").val() == '0') {
+                label = 'Pick a metadata prefix.';
+            }
+        } else if ($("select#verb").val() == '3') {
+            if ($("select#pre").val() == '0' && $("#token").val() == '') {
+                label = 'Pick a metadata prefix.';
+            }
+        } else if ($("select#verb").val() == '5') {
+            if ($("select#pre").val() == '0') {
+                label = 'Pick a metadata prefix.';
+            }
+        }
+    }
+    if (label == '') {
+        submit();
+    } else {
+        $( "#alert" ).html(label);
+        $( "#dialogError" ).dialog({
+            buttons : {
+                'Ok': function() {
+                    $(this).dialog("close");
+                }
+            }
+        });
+    }
+}
+
+submit = function() {
+                           $("#submitBtn").attr("disabled","disabled");
+                           $("#banner_submit_wait").show(200);
+                           var identifier = '';
+                           var set = '';
+                           var token = '';
+                           var metadata = '';
+
+                           if ($("select#set").val() != '0') {
+                                set += '&set='+$("select#set").val();
+                           }
+
+                           if ($("select#pre").val() != '0') {
+                                metadata += '&metadataPrefix='+$("select#pre").val();
+                           }
+
+                           if ($("#identifier").val() != '') {
+                                identifier += '&identifier='+$("#identifier").val();
+                           }
+
+                           if ($("#token").val() != '') {
+                                token += '&resumptionToken='+$("#token").val();
+                           }
+
+                           var callURL = '';
+                           if ($("select#reg").val() != '0') {
+                                    callURL = $("select#reg").val().split('|')[1];
+                           }
+                           switch($("select#verb").val()) {
+                               case '1': callURL+='?verb=Identify'; break;
+                               case '2': callURL+='?verb=GetRecord'+identifier+metadata; break;
+                               case '3': callURL+='?verb=ListRecords'+set+token+metadata; break;
+                               case '4': callURL+='?verb=ListSets'+token; break;
+                               case '5': callURL+='?verb=ListIdentifiers'+metadata+set+token; break;
+                               case '6': callURL+='?verb=ListMetadataFormats'+identifier; break;
+                           }
+
+                           $.ajax({
+                                    url : '/oai_pmh/getdata/',
+                                    type : "POST",
+                                    dataType: "json",
+                                    data : {
+                                        url : callURL,
+                                    },
+                                    success: function(data){
+                                        $("#banner_submit_wait").hide(200);
+                                        $("#result").html(data.message);
+                                    },
+                                    complete: function(data){
+                                        $("#submitBtn").removeAttr("disabled");
+                                        $("#banner_submit_wait").hide(200);
+                                    },
+                                });
+}
+
+populateSelect = function() {
+                             if ($("select#reg").val() == '0') {
+                                 $("select#set").html("<option>Pick one</option>");
+                                 $("select#set").attr('disabled', true);
+                                 $("select#pre").html("<option>Pick one</option>");
+                                 $("select#pre").attr('disabled', true);
+                             }
+                             else {
+                                var id = $("select#reg").val().split('|')[0];
+                                $.ajax({
+                                    url : '/oai_pmh/registry/' + id + '/all_sets/',
+                                    type : "POST",
+                                    dataType: "json",
+                                    success: function(data){
+                                        var options = '<option value="0">Pick one</option>';
+                                         for (var i = 0; i < data.length; i++) {
+                                            options += '<option value="' + data[i] + '">' + data[i] + '</option>';
+                                         }
+                                         $("select#set").attr('disabled', false);
+                                         $("select#set").html(options);
+                                         $("select#set option:first").attr('selected', 'selected');
+                                    },
+                                });
+
+                                $.ajax({
+                                    url : '/oai_pmh/registry/' + id + '/all_metadataprefix/',
+                                    type : "POST",
+                                    dataType: "json",
+                                    success: function(data){
+                                        var options = '<option value="0">Pick one</option>';
+                                         for (var i = 0; i < data.length; i++) {
+                                            options += '<option value="' + data[i] + '">' + data[i] + '</option>';
+                                         }
+                                         $("select#pre").attr('disabled', false);
+                                         $("select#pre").html(options);
+                                         $("select#pre option:first").attr('selected', 'selected');
+                                    },
+                                });
+                             }
+}
+
+init = function(){
+    populateSelect();
+}

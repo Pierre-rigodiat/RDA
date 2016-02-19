@@ -842,7 +842,7 @@ def oai_pmh(request):
 
 ################################################################################
 #
-# Function Name: oai_pmh(request)
+# Function Name: oai_pmh_build_request(request)
 # Inputs:        request -
 # Outputs:       OAI-PMH Page
 # Exceptions:    None
@@ -853,7 +853,7 @@ def oai_pmh(request):
 def oai_pmh_build_request(request):
     template = loader.get_template('admin/oai_pmh/oai_pmh_build_request.html')
 
-    context = RequestContext(request, {})
+    context = RequestContext(request, {'registries': Registry.objects.all()})
 
     return HttpResponse(template.render(context))
 
