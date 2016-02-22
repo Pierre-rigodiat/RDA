@@ -81,11 +81,11 @@
         </table>
 
         <div style="float: left">
-            <button id="submitBtn" onclick="checkSubmit()">Submit</button>
+            <button class="btn btn-default" id="submitBtn" onclick="checkSubmit()">Submit</button>
         </div>
 <br/><br/>
         {% autoescape off %}
-        <div id="result"></div>
+        <div style="background-color: #f0f0f0" id="result"></div>
         {% endautoescape %}
 
     {% else %}
