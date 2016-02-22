@@ -37,7 +37,7 @@ from mgi import common
 import json
 from mongoengine import NotUniqueError, OperationError
 from django.contrib.admin.views.decorators import staff_member_required
-from oai_pmh.forms import RegistryForm
+from oai_pmh.forms import RegistryForm, RequestForm
 import xmltodict
 
 ################################################################################
@@ -852,9 +852,8 @@ def oai_pmh(request):
 @staff_member_required
 def oai_pmh_build_request(request):
     template = loader.get_template('admin/oai_pmh/oai_pmh_build_request.html')
-
-    context = RequestContext(request, {'registries': Registry.objects.all()})
-
+    requestForm = RequestForm();
+    context = RequestContext(request, { 'request_form': requestForm })
     return HttpResponse(template.render(context))
 
 
@@ -871,10 +870,7 @@ def oai_pmh_build_request(request):
 def oai_pmh_detail_registry(request):
     result_id = request.GET['id']
     template = loader.get_template('admin/oai_pmh/oai_pmh_detail_registry.html')
-    registry = Registry.objects.get(pk=result_id)
-
     context = RequestContext(request, {
-        'registry': registry,
+        'registry': Registry.objects.get(pk=result_id),
     })
-
     return HttpResponse(template.render(context))
