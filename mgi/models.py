@@ -519,7 +519,7 @@ class Registry(Document):
     """
     name = StringField(required=True)
     url = URLField(required=True, unique=True)
-    harvestrate = StringField(required=False)
+    harvestrate = IntField(required=False)
     metadataformats = ListField(ReferenceField(MetadataFormat, reverse_delete_rule=PULL))
     identify = ReferenceField(Identify, reverse_delete_rule=NULLIFY)
     sets = ListField(ReferenceField(Set, reverse_delete_rule=PULL))

@@ -82,7 +82,7 @@ def add_registry(request):
             except Exception as e:
                 return HttpResponseBadRequest('An error occurred. Please contact your administrator.')
         else:
-            return HttpResponseBadRequest('Bad entries. Please verified your entry')
+            return HttpResponseBadRequest('Bad entries. Please enter a valid URL and a positive integer')
 
 
 ################################################################################
