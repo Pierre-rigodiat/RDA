@@ -243,7 +243,7 @@ def insert_element_sequence(request):
     # add the id of the type if not already present
     if includeURL not in request.session['includedTypesCompose']:
         request.session['includedTypesCompose'].append(includeURL)        
-        dom.getroot().insert(0,etree.Element(namespace+"include", attrib={'schemaLocation':includeURL}))
+        dom.getroot().insert(0, etree.Element(namespace+"include", attrib={'schemaLocation':includeURL}))
     
     # save the tree in the session
     request.session['newXmlTemplateCompose'] = etree.tostring(dom) 
@@ -290,45 +290,48 @@ def rename_element(request):
 # 
 ################################################################################
 def save_template(request):
-    template_name = request.POST['templateName']    
-    content=request.session['newXmlTemplateCompose']
+    template_name = request.POST['templateName']
+    content = request.session['newXmlTemplateCompose']
     
     response_dict = {}
-    # is it a valid XML document ?
-    try:            
-        xmlTree = etree.parse(BytesIO(content.encode('utf-8')))
+
+    try:  # Validate XML document
+        xml_tree = etree.parse(BytesIO(content.encode('utf-8')))
     except Exception, e:
-        response_dict['errors'] = e.message.replace("'","")
+        response_dict['errors'] = e.message.replace("'", "")
         return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
     
-    flattener = XSDFlattenerMDCS(etree.tostring(xmlTree))
-    flatStr = flattener.get_flat()
-    flatTree = etree.fromstring(flatStr)
+    flattener = XSDFlattenerMDCS(etree.tostring(xml_tree))
+    flat_str = flattener.get_flat()
+    flat_tree = etree.fromstring(flat_str)
     
-    try:
-        # is it a valid XML schema ?
-        xmlSchema = etree.XMLSchema(flatTree)
+    try:  # Validate XML schema
+        etree.XMLSchema(flat_tree)
     except Exception, e:
-        response_dict['errors'] = e.message.replace("'","")
+        response_dict['errors'] = e.message.replace("'", "")
         return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
     
-    hash = XSDhash.get_hash(content) 
+    xsd_hash = XSDhash.get_hash(content)
     dependencies = []
+
     for uri in request.session["includedTypesCompose"]:
         url = urlparse(uri)
-        id = url.query.split("=")[1]
-        dependencies.append(id)
-    template = Template(title=template_name, filename=template_name, content=content, hash=hash, user=str(request.user.id), dependencies=dependencies)
-    #We add default exporters
+        url_id = url.query.split("=")[1]
+        dependencies.append(url_id)
+
+    template = Template(title=template_name, filename=template_name, content=content, hash=xsd_hash,
+                        user=str(request.user.id), dependencies=dependencies)
+
+    # We add default exporters
     try:
         exporters = Exporter.objects.filter(available_for_all=True)
         template.exporters = exporters
-    except:
+    except:  # TODO add error message and redirection
         pass
 
     template.save()
     
-    MetaSchema(schemaId=str(template.id), flat_content=flatStr, api_content=content).save()
+    MetaSchema(schemaId=str(template.pk), flat_content=flat_str, api_content=content).save()
     
     return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
 

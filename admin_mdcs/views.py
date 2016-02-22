@@ -489,35 +489,44 @@ def manage_versions(request):
 @staff_member_required
 def modules(request):
     template = loader.get_template('admin/modules.html')
-    id = request.GET.get('id', None)
-    if id is not None:
+
+    object_id = request.GET.get('id', None)
+    object_type = request.GET.get('type', None)
+
+    if object_id is not None:
         try:
-            object = Template.objects.get(pk=id)
-            xsltPath = os.path.join(settings.SITE_ROOT, 'static', 'resources', 'xsl', 'xsd2html4modules.xsl')
-            xslt = etree.parse(xsltPath)
+            if object_type == 'Template':
+                db_object = Template.objects.get(pk=object_id)
+            elif object_type == 'Type':
+                db_object = Type.objects.get(pk=object_id)
+            else:
+                raise AttributeError('Type parameter unrecognized')
+
+            xslt_path = os.path.join(settings.SITE_ROOT, 'static', 'resources', 'xsl', 'xsd2html4modules.xsl')
+            xslt = etree.parse(xslt_path)
             transform = etree.XSLT(xslt)
 
-            dom = etree.parse(BytesIO(object.content.encode('utf-8')))
+            dom = etree.parse(BytesIO(db_object.content.encode('utf-8')))
             annotations = dom.findall(".//{http://www.w3.org/2001/XMLSchema}annotation")
             for annotation in annotations:
                 annotation.getparent().remove(annotation)
             newdom = transform(dom)
-            xsdTree = str(newdom)
+            xsd_tree = str(newdom)
 
-            request.session['moduleTemplateID'] = id
-            request.session['moduleTemplateContent'] = object.content
+            request.session['moduleTemplateID'] = object_id
+            request.session['moduleTemplateContent'] = db_object.content
 
-            request.session['moduleNamespaces'] = common.get_namespaces(BytesIO(str(object.content)))
+            request.session['moduleNamespaces'] = common.get_namespaces(BytesIO(str(db_object.content)))
             for prefix, url in request.session['moduleNamespaces'].items():
-                if (url == "{http://www.w3.org/2001/XMLSchema}"):
+                if url == "{http://www.w3.org/2001/XMLSchema}":
                     request.session['moduleDefaultPrefix'] = prefix
                     break
 
             context = RequestContext(request, {
-                'xsdTree': xsdTree,
-                'modules': Module.objects
+                'xsdTree': xsd_tree,
+                'modules': Module.objects,
+                'object_type': object_type
             })
-
 
             return HttpResponse(template.render(context))
         except:

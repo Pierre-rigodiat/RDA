@@ -69,7 +69,7 @@ manageModules = function()
     var objectID = $(this).attr("objectid");
     var objectType = $(this).attr("objectType");
     
-    window.location = "/admin/modules?id=" + objectID 
+    window.location = "/admin/modules?id=" + objectID  + '&type=' + objectType
 }
 
 /**

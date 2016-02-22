@@ -32,7 +32,7 @@ showhide = function(event){
 
 var target;
 
-var showModuleManager=function(event){	
+var showModuleManager = function(event){
 	target = event.target;
 	$( "#dialog-modules" ).dialog({
       modal: true,
@@ -171,12 +171,29 @@ no_module = function(xpath){
     });
 }
 
+var getUrlParameter = function getUrlParameter(sParam) {
+    var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+        sURLVariables = sPageURL.split('&'),
+        sParameterName,
+        i;
+
+    for (i = 0; i < sURLVariables.length; i++) {
+        sParameterName = sURLVariables[i].split('=');
+
+        if (sParameterName[0] === sParam) {
+            return sParameterName[1] === undefined ? true : sParameterName[1];
+        }
+    }
+};
 
 saveTemplate = function(){
     $.ajax({
         url : "/admin/save_modules",
         type : "POST",
         dataType: "json",
+        data: {
+            'type': getUrlParameter('type')
+        },
         success: function(data){
         	saveTemplateCallback();
         }

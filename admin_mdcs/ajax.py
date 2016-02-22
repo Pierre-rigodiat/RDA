@@ -13,11 +13,14 @@
 # Sponsor: National Institute of Standards and Technology (NIST)
 #
 ################################################################################
+from urlparse import urlparse
 
 from django.http import HttpResponse
 import lxml.etree as etree
 import json
 from io import BytesIO
+
+from rest_framework.status import HTTP_404_NOT_FOUND, HTTP_500_INTERNAL_SERVER_ERROR
 from mgi.models import Template, TemplateVersion, Instance, Request, Module, Type, TypeVersion, Message, Bucket, MetaSchema, Exporter, ExporterXslt, ResultXslt
 from django.contrib.auth.models import User
 from utils.XSDflattenerMDCS.XSDflattenerMDCS import XSDFlattenerMDCS
@@ -1034,12 +1037,80 @@ def remove_module(request):
 #
 ################################################################################
 def save_modules(request):
-    template_content = request.session['moduleTemplateContent']
-    template_id = request.session['moduleTemplateID']
+    object_content = request.session['moduleTemplateContent']
+    object_id = request.session['moduleTemplateID']
+    object_type = request.POST['type'] if 'type' in request.POST else None
 
-    template = Template.objects.get(pk=template_id)
-    template.content = template_content
-    template.save()
+    if object_type == 'Template':
+        db_object = Template.objects.get(pk=object_id)
+    elif object_type == 'Type':
+        db_object = Type.objects.get(pk=object_id)
+    else:
+        return HttpResponse(status=HTTP_404_NOT_FOUND)
+
+    db_object.content = object_content
+    db_object.save()
+
+    if object_type == 'Type':
+        # Need to regenerate all the existing templates
+        modified_templates = []
+
+        for template in Template.objects.all():
+            if object_id in template.dependencies:
+                modified_templates.append(template.pk)
+
+        for template_id in modified_templates:
+            template = Template.objects.get(pk=template_id)
+
+            # template_name = request.POST['templateName']
+            # content = request.session['newXmlTemplateCompose']
+            content = template.content
+            #
+            # # response_dict = {}
+            #
+            try:  # Validate XML document
+                xml_tree = etree.parse(BytesIO(content.encode('utf-8')))
+            except Exception, e:
+                # response_dict['errors'] = e.message.replace("'", "")
+                # return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
+                return HttpResponse(status=HTTP_500_INTERNAL_SERVER_ERROR)
+
+            flattener = XSDFlattenerMDCS(etree.tostring(xml_tree))
+            flat_str = flattener.get_flat()
+            flat_tree = etree.fromstring(flat_str)
+
+            try:  # Validate XML schema
+                etree.XMLSchema(flat_tree)
+            except Exception, e:
+                # response_dict['errors'] = e.message.replace("'", "")
+                # return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
+                return HttpResponse(status=HTTP_500_INTERNAL_SERVER_ERROR)
+
+            # xsd_hash = XSDhash.get_hash(content)
+            # dependencies = []
+            #
+            # for uri in request.session["includedTypesCompose"]:
+            #     url = urlparse(uri)
+            #     url_id = url.query.split("=")[1]
+            #     dependencies.append(url_id)
+
+            # template = Template(title=template_name, filename=template_name, content=content, hash=xsd_hash,
+            #                     user=str(request.user.id), dependencies=dependencies)
+
+            # We add default exporters
+            # try:
+            #     exporters = Exporter.objects.filter(available_for_all=True)
+            #     template.exporters = exporters
+            # except:  # TODO add error message and redirection
+            #     pass
+            #
+            # template.save()
+
+            meta_schema = MetaSchema.objects.get(schemaId=str(template_id))
+            meta_schema.flat_content = flat_str
+            meta_schema.save()
+
+            # MetaSchema(schemaId=str(template.pk), flat_content=flat_str, api_content=content).save()
 
     return HttpResponse(json.dumps({}), content_type='application/javascript')
 
