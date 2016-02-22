@@ -741,7 +741,6 @@ class ParserRemoveAnnotationTestSuite(TestCase):
 class ParserGenerateFormTestSuite(TestCase):
     """
     """
-    # FIXME test suite is not complete
 
     def setUp(self):
         schema_data = join('curate', 'tests', 'data', 'parser', 'schema')
@@ -775,13 +774,11 @@ class ParserGenerateFormTestSuite(TestCase):
         self.request.session['xmlDocTree'] = etree.tostring(xsd_tree)
 
         result_string = generate_form(self.request)
-        # print result_string
-        self.assertEqual(result_string, '')
 
-        # result_html = etree.fromstring(result_string)
-        # expected_html = self.schema_data_handler.get_html2(xsd_files)
-        #
-        # self.assertTrue(are_equals(result_html, expected_html))
+        result_html = etree.fromstring(result_string)
+        expected_html = self.schema_data_handler.get_html2(xsd_files)
+
+        self.assertTrue(are_equals(result_html, expected_html))
 
     def test_create_import(self):
         xsd_files = join('import', 'basic')
@@ -790,13 +787,11 @@ class ParserGenerateFormTestSuite(TestCase):
         self.request.session['xmlDocTree'] = etree.tostring(xsd_tree)
 
         result_string = generate_form(self.request)
-        # print result_string
-        self.assertEqual(result_string, '')
 
-        # result_html = etree.fromstring(result_string)
-        # expected_html = self.schema_data_handler.get_html2(xsd_files)
-        #
-        # self.assertTrue(are_equals(result_html, expected_html))
+        result_html = etree.fromstring(result_string)
+        expected_html = self.schema_data_handler.get_html2(xsd_files)
+
+        self.assertTrue(are_equals(result_html, expected_html))
 
     def test_create_redefine(self):
         xsd_files = join('redefine', 'basic')
@@ -806,12 +801,12 @@ class ParserGenerateFormTestSuite(TestCase):
 
         result_string = generate_form(self.request)
         # print result_string
-        self.assertEqual(result_string, '')
+        # self.assertEqual(result_string, '')
 
-        # result_html = etree.fromstring(result_string)
-        # expected_html = self.schema_data_handler.get_html2(xsd_files)
-        #
-        # self.assertTrue(are_equals(result_html, expected_html))
+        result_html = etree.fromstring(result_string)
+        expected_html = self.schema_data_handler.get_html2(xsd_files)
+
+        self.assertTrue(are_equals(result_html, expected_html))
 
     def test_create_simple_type(self):
         xsd_files = join('simple_type', 'basic')
@@ -821,12 +816,12 @@ class ParserGenerateFormTestSuite(TestCase):
 
         result_string = generate_form(self.request)
         # print result_string
-        self.assertEqual(result_string, '')
+        # self.assertEqual(result_string, '')
 
-        # result_html = etree.fromstring(result_string)
-        # expected_html = self.schema_data_handler.get_html2(xsd_files)
-        #
-        # self.assertTrue(are_equals(result_html, expected_html))
+        result_html = etree.fromstring(result_string)
+        expected_html = self.schema_data_handler.get_html2(xsd_files)
+
+        self.assertTrue(are_equals(result_html, expected_html))
 
     def test_create_complex_type(self):
         xsd_files = join('complex_type', 'basic')
@@ -836,12 +831,12 @@ class ParserGenerateFormTestSuite(TestCase):
 
         result_string = generate_form(self.request)
         # print result_string
-        self.assertEqual(result_string, '')
+        # self.assertEqual(result_string, '')
 
-        # result_html = etree.fromstring(result_string)
-        # expected_html = self.schema_data_handler.get_html2(xsd_files)
-        #
-        # self.assertTrue(are_equals(result_html, expected_html))
+        result_html = etree.fromstring(result_string)
+        expected_html = self.schema_data_handler.get_html2(xsd_files)
+
+        self.assertTrue(are_equals(result_html, expected_html))
 
     def test_create_group(self):
         xsd_files = join('group', 'basic')
@@ -851,12 +846,12 @@ class ParserGenerateFormTestSuite(TestCase):
 
         result_string = generate_form(self.request)
         # print result_string
-        self.assertEqual(result_string, '')
+        # self.assertEqual(result_string, '')
 
-        # result_html = etree.fromstring(result_string)
-        # expected_html = self.schema_data_handler.get_html2(xsd_files)
-        #
-        # self.assertTrue(are_equals(result_html, expected_html))
+        result_html = etree.fromstring(result_string)
+        expected_html = self.schema_data_handler.get_html2(xsd_files)
+
+        self.assertTrue(are_equals(result_html, expected_html))
 
     def test_create_attribute_group(self):
         xsd_files = join('attribute_group', 'basic')
@@ -866,12 +861,12 @@ class ParserGenerateFormTestSuite(TestCase):
 
         result_string = generate_form(self.request)
         # print result_string
-        self.assertEqual(result_string, '')
+        # self.assertEqual(result_string, '')
 
-        # result_html = etree.fromstring(result_string)
-        # expected_html = self.schema_data_handler.get_html2(xsd_files)
-        #
-        # self.assertTrue(are_equals(result_html, expected_html))
+        result_html = etree.fromstring(result_string)
+        expected_html = self.schema_data_handler.get_html2(xsd_files)
+
+        self.assertTrue(are_equals(result_html, expected_html))
 
     def test_create_element_basic(self):
         xsd_files = join('element', 'basic')
@@ -911,12 +906,12 @@ class ParserGenerateFormTestSuite(TestCase):
 
         result_string = generate_form(self.request)
         # print result_string
-        self.assertEqual(result_string, '')
+        # self.assertEqual(result_string, '')
 
-        # result_html = etree.fromstring(result_string)
-        # expected_html = self.schema_data_handler.get_html2(xsd_files)
-        #
-        # self.assertTrue(are_equals(result_html, expected_html))
+        result_html = etree.fromstring(result_string)
+        expected_html = self.schema_data_handler.get_html2(xsd_files)
+
+        self.assertTrue(are_equals(result_html, expected_html))
 
     def test_create_notation(self):
         xsd_files = join('notation', 'basic')
@@ -926,12 +921,12 @@ class ParserGenerateFormTestSuite(TestCase):
 
         result_string = generate_form(self.request)
         # print result_string
-        self.assertEqual(result_string, '')
+        # self.assertEqual(result_string, '')
 
-        # result_html = etree.fromstring(result_string)
-        # expected_html = self.schema_data_handler.get_html2(xsd_files)
-        #
-        # self.assertTrue(are_equals(result_html, expected_html))
+        result_html = etree.fromstring(result_string)
+        expected_html = self.schema_data_handler.get_html2(xsd_files)
+
+        self.assertTrue(are_equals(result_html, expected_html))
 
     def test_create_multiple(self):
         xsd_files = join('multiple', 'basic')

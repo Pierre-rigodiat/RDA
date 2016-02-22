@@ -1,12 +1,14 @@
 """
 """
 from os.path import join
+from curate.parser.renderer import render_buttons, render_collapse_button, render_form, render_form_error, \
+    render_input, render_empty_not_chosen_ul, render_li, render_ul, render_li_sequence, render_li_sequence_rem, \
+    render_select, render_buttons_2, render_li_choice
 from mgi.models import FormElement, XMLElement, FormData, Module
 from mgi.settings import CURATE_MIN_TREE, CURATE_COLLAPSE
 from bson.objectid import ObjectId
 from mgi import common
 from lxml import etree
-import django.utils.html
 from modules import get_module_view
 
 
@@ -60,7 +62,7 @@ def get_nodes_xpath(elements, xml_tree, namespace):
         namespace: namespace
     """
     # FIXME Making one function with get_subnode_xpath should be possible, both are doing the same job
-    # FIXME same problems as in get_subnodes_xpath
+ # FIXME same problems as in get_subnodes_xpath
     xpaths = []
 
     for element in elements:
@@ -69,13 +71,14 @@ def get_nodes_xpath(elements, xml_tree, namespace):
                 xpaths.append({'name': element.attrib['name'], 'element': element})
             elif 'ref' in element.attrib:
                 ref = element.attrib['ref']
-                # ref_element = None
+
                 if ':' in ref:
                     ref_split = ref.split(":")
                     ref_name = ref_split[1]
                     ref_element = xml_tree.find("./{0}element[@name='{1}']".format(namespace, ref_name))
                 else:
                     ref_element = xml_tree.find("./{0}element[@name='{1}']".format(namespace, ref))
+
                 if ref_element is not None:
                     xpaths.append({'name': ref_element.attrib.get('name'), 'element': ref_element})
         else:
@@ -176,51 +179,6 @@ def manage_attr_occurrences(element):
     return min_occurs, max_occurs
 
 
-def render_buttons(add_button, delete_button, tag_id):
-    """Displays buttons for a duplicable/removable element
-
-    Parameters:
-        add_button: boolean
-        delete_button: boolean
-        tag_id: id of the tag to associate buttons to it
-
-    Returns:
-        JSON data
-    """
-    add_button_type = type(add_button)
-    del_button_type = type(delete_button)
-
-    if add_button_type is not bool:
-        raise TypeError('add_button type is wrong (' + str(add_button_type) + 'received, bool needed')
-
-    if del_button_type is not bool:
-        raise TypeError('add_button type is wrong (' + str(del_button_type) + 'received, bool needed')
-
-    form_string = ""
-    tag_id = str(tag_id)  # Tag ID string conversion
-
-    # the number of occurrences is fixed, don't need buttons
-    if not add_button and not delete_button:
-        pass
-    else:
-        # FIXME remove onclick from buttons (use jquery instead)
-        if add_button:
-            form_string += "<span id='add" + tag_id + "' class='icon add' "
-            form_string += "onclick=\"changeHTMLForm('add'," + tag_id + ");\"></span>"
-        else:
-            form_string += "<span id='add" + tag_id + "' class='icon add' "
-            form_string += "style='display:none;' onclick=\"changeHTMLForm('add'," + tag_id + ");\"></span>"
-
-        if delete_button:
-            form_string += "<span id='remove" + tag_id + "' class='icon remove' "
-            form_string += "onclick=\"changeHTMLForm('remove'," + tag_id + ");\"></span>"
-        else:
-            form_string += "<span id='remove" + tag_id + "' class='icon remove' "
-            form_string += "style='display:none;' onclick=\"changeHTMLForm('remove'," + tag_id + ");\"></span>"
-
-    return form_string
-
-
 def has_module(request, element):
     """Look for a module in XML element's attributes
 
@@ -239,6 +197,7 @@ def has_module(request, element):
     if '{http://mdcs.ns}_mod_mdcs_' in element.attrib:
         # get the url of the module
         url = element.attrib['{http://mdcs.ns}_mod_mdcs_']
+
         # check that the url is registered in the system
         if url in Module.objects.all().values_list('url'):
             _has_module = True
@@ -410,17 +369,17 @@ def generate_form(request):
     try:
         # one root
         if len(elements) == 1:
-            form_string += "<div xmlID='root' name='xsdForm'>"
             form_string += generate_element(request, elements[0], xml_doc_tree, namespace,
                                             edit_data_tree=edit_data_tree)
-            form_string += "</div>"
         # multiple roots
         elif len(elements) > 1:
-            form_string += "<div xmlID='root' name='xsdForm'>"
             form_string += generate_choice(request, elements, xml_doc_tree, namespace, edit_data_tree=edit_data_tree)
-            form_string += "</div>"
-    except Exception, e:
-        form_string = "UNSUPPORTED ELEMENT FOUND (" + e.message + ")"
+        else:  # No root element detected
+            raise Exception("No root element detected")
+
+        form_string = render_form(form_string)
+    except Exception as e:
+        form_string = render_form_error(e.message)
 
     # save the list of elements for the form
     form_data.elements = request.session['mapTagID']
@@ -484,13 +443,10 @@ def generate_element(request, element, xml_tree, namespace, choice_info=None, fu
     # get the name of the element, go find the reference if there's one
     if 'ref' in element.attrib:  # type is a reference included in the document
         ref = element.attrib['ref']
-        # refElement = None
+
         if ':' in ref:
             ref_split = ref.split(":")
-            # ref_namespace_prefix = ref_split[0]
             ref_name = ref_split[1]
-            # namespaces = request.session['namespaces']
-            # ref_namespace = namespaces[ref_namespace_prefix]
             # TODO: manage namespaces/targetNamespaces, composed schema with different target namespaces
             # element = xml_tree.findall("./{0}element[@name='"+refName+"']".format(refNamespace))
             ref_element = xml_tree.find("./{0}element[@name='{1}']".format(namespace, ref_name))
@@ -564,31 +520,36 @@ def generate_element(request, element, xml_tree, namespace, choice_info=None, fu
     # management of elements inside a choice (don't display if not part of the currently selected choice)
     if choice_info:
         choice_id = choice_info.chooseIDStr + "-" + str(choice_info.counter)
+        chosen = True
 
         if request.session['curate_edit']:
             if len(edit_elements) == 0:
-                form_string += "<ul id=\"" + choice_id + "\" class=\"notchosen\">"
+                chosen = False
+
                 if CURATE_MIN_TREE:
                     form_element = FormElement(html_id=choice_id, xml_element=xml_element, xml_xpath=full_path).save()
+
                     request.session['mapTagID'][choice_id] = str(form_element.id)
-                    form_string += "</ul>"
+
+                    form_string += render_ul('', choice_id, chosen)
                     return form_string
-            else:
-                form_string += "<ul id=\"" + choice_id + "\" >"
         else:
             if choice_info.counter > 0:
-                form_string += "<ul id=\"" + choice_id + "\" class=\"notchosen\">"
+                chosen = False
+
                 if CURATE_MIN_TREE:
                     form_element = FormElement(html_id=choice_id, xml_element=xml_element, xml_xpath=full_path).save()
+
                     request.session['mapTagID'][choice_id] = str(form_element.id)
-                    form_string += "</ul>"
+
+                    form_string += render_ul('', choice_id, chosen)
                     return form_string
-            else:
-                form_string += "<ul id=\"" + choice_id + "\" >"
     else:
-        form_string += "<ul>"
+        chosen = True
+        choice_id = ''
 
     element_type = get_element_type(element, xml_tree, namespace, default_prefix)
+    ul_content = ''
 
     for x in range(0, int(nb_occurrences)):
         nb_html_tags = int(request.session['nb_html_tags'])
@@ -604,18 +565,16 @@ def generate_element(request, element, xml_tree, namespace, choice_info=None, fu
         app_info_use = app_info_use if app_info_use is not None else ''
         use += ' ' + app_info_use
 
-        # renders the name of the element
-        form_string += "<li class='" + element_tag + ' ' + use + "' id='" + str(tag_id) + "' "
-        form_string += "tag='" + text_capitalized + "'>"
+        li_content = ''
 
         if CURATE_COLLAPSE:
             # the type is complex, can be collapsed
             if element_type is not None and element_type.tag == "{0}complexType".format(namespace):
-                form_string += "<span class='collapse' style='cursor:pointer;' onclick='showhideCurate(event);'></span>"
+                li_content += render_collapse_button()
 
         label = app_info['label'] if 'label' in app_info else text_capitalized
         label = label if label is not None else ''
-        form_string += label
+        li_content += label
         # add buttons to add/remove elements
         buttons = ""
         if not (add_button is False and delete_button is False):
@@ -625,8 +584,8 @@ def generate_element(request, element, xml_tree, namespace, choice_info=None, fu
         if not removed:
             # if module is present, replace default input by module
             if _has_module:
-                form_string += generate_module(request, element, namespace, xsd_xpath, full_path,
-                                               edit_data_tree=edit_data_tree)
+                li_content += generate_module(request, element, namespace, xsd_xpath, full_path,
+                                              edit_data_tree=edit_data_tree)
             else:  # generate the type
                 if element_type is None:  # no complex/simple type
                     default_value = ""
@@ -650,32 +609,29 @@ def generate_element(request, element, xml_tree, namespace, choice_info=None, fu
                         # if the default attribute is present
                         default_value = element.attrib['default']
 
-                    placeholder = 'placeholder="' + app_info['placeholder'] + '"' if 'placeholder' in app_info else ''
-                    placeholder = placeholder if placeholder is not None else ''
+                    placeholder = app_info['placeholder'] if 'placeholder' in app_info else ''
+                    tooltip = app_info['tooltip'] if 'tooltip' in app_info else ''
 
-                    tooltip = 'title="'+app_info['tooltip'] + '"' if 'tooltip' in app_info else ''
-                    tooltip = tooltip if tooltip is not None else ''
-
-                    form_string += " <input type='text' value='" + django.utils.html.escape(default_value) + "'"
-                    form_string += placeholder + tooltip + "/>"
-                    form_string += buttons
+                    li_content += render_input(default_value, placeholder, tooltip)
+                    li_content += buttons
                 else:  # complex/simple type
-                    form_string += buttons
+                    li_content += buttons
 
                     if element_type.tag == "{0}complexType".format(namespace):
-                        form_string += generate_complex_type(request, element_type, xml_tree, namespace,
-                                                             full_path=full_path+'[' + str(x+1) + ']',
-                                                             edit_data_tree=edit_data_tree)
-                    elif element_type.tag == "{0}simpleType".format(namespace):
-                        form_string += generate_simple_type(request, element_type, xml_tree, namespace,
+                        li_content += generate_complex_type(request, element_type, xml_tree, namespace,
                                                             full_path=full_path+'[' + str(x+1) + ']',
                                                             edit_data_tree=edit_data_tree)
+                    elif element_type.tag == "{0}simpleType".format(namespace):
+                        li_content += generate_simple_type(request, element_type, xml_tree, namespace,
+                                                           full_path=full_path+'[' + str(x+1) + ']',
+                                                           edit_data_tree=edit_data_tree)
         else:
-            form_string += buttons
+            li_content += buttons
 
-        form_string += "</li>"
-    form_string += "</ul>"
+        # renders the name of the element
+        ul_content += render_li(li_content, element_tag, use, tag_id, text_capitalized)
 
+    form_string += render_ul(ul_content, choice_id, chosen)
     return form_string
 
 
@@ -737,14 +693,10 @@ def generate_element_absent(request, element, xml_doc_tree, form_element):
                 # if the default attribute is present
                 default_value = element.attrib['default']
 
-            placeholder = 'placeholder="' + app_info['placeholder'] + '"' if 'placeholder' in app_info else ''
-            placeholder = placeholder if placeholder is not None else ''
+            placeholder = app_info['placeholder'] if 'placeholder' in app_info else ''
+            tooltip = app_info['tooltip'] if 'tooltip' in app_info else ''
 
-            tooltip = 'title="' + app_info['tooltip'] + '"' if 'tooltip' in app_info else ''
-            tooltip = tooltip if tooltip is not None else ''
-
-            form_string += " <input type='text' value='" + django.utils.html.escape(default_value) + "'"
-            form_string += placeholder + tooltip + "/>"
+            form_string += render_input(default_value, placeholder, tooltip)
         else:  # complex/simple type
             if element_type.tag == "{0}complexType".format(namespace):
                 form_string += generate_complex_type(request, element_type, xml_doc_tree, namespace,
@@ -779,7 +731,7 @@ def generate_sequence(request, element, xml_tree, namespace, choice_info=None, f
 
     min_occurs, max_occurs = manage_occurences(element)
 
-    if (min_occurs != 1) or (max_occurs != 1):
+    if min_occurs != 1 or max_occurs != 1:
         text = "Sequence"
 
         # XSD xpath
@@ -821,29 +773,36 @@ def generate_sequence(request, element, xml_tree, namespace, choice_info=None, f
 
         # keeps track of elements to display depending on the selected choice
         if choice_info:
+            chosen = True
             choice_id = choice_info.chooseIDStr + "-" + str(choice_info.counter)
+
             if request.session['curate_edit']:
                 if nb_occurrences == 0:
-                    form_string += "<ul id=\"" + choice_id + "\" class=\"notchosen\">"
+                    chosen = False
+
                     if CURATE_MIN_TREE:
                         form_element = FormElement(html_id=choice_id, xml_element=xml_element, xml_xpath=None).save()
+
                         request.session['mapTagID'][choice_id] = str(form_element.id)
-                        form_string += "</ul>"
+
+                        form_string += render_ul('', choice_id, chosen)
                         return form_string
-                else:
-                    form_string += "<ul id=\"" + choice_id + "\" >"
             else:
                 if choice_info.counter > 0:
-                    form_string += "<ul id=\"" + choice_id + "\" class=\"notchosen\">"
+                    chosen = False
+
                     if CURATE_MIN_TREE:
                         form_element = FormElement(html_id=choice_id, xml_element=xml_element, xml_xpath=None).save()
+
                         request.session['mapTagID'][choice_id] = str(form_element.id)
-                        form_string += "</ul>"
+
+                        form_string += render_ul('', choice_id, chosen)
                         return form_string
-                else:
-                    form_string += "<ul id=\"" + choice_id + "\" >"
         else:
-            form_string += "<ul>"
+            chosen = True
+            choice_id = ''
+
+        ul_content = ''
 
         # editing data and sequence not found in data
         if nb_occurrences_data == 0:
@@ -853,16 +812,16 @@ def generate_sequence(request, element, xml_tree, namespace, choice_info=None, f
             request.session['nb_html_tags'] = str(nb_html_tags)
             form_element = FormElement(html_id=tag_id, xml_element=xml_element, xml_xpath=full_path + '[1]').save()
             request.session['mapTagID'][tag_id] = str(form_element.id)
-            form_string += "<li class='sequence removed' id='" + str(tag_id) + "'>"
+
+            li_content = ''
 
             if CURATE_COLLAPSE:
-                form_string += "<span class='collapse' style='cursor:pointer;' onclick='showhideCurate(event);'></span>"
+                li_content += render_collapse_button()
 
-            form_string += text
-            form_string += "<span id='add" + str(tag_id[7:]) + "' class=\"icon add\" onclick=\"changeHTMLForm('add',"
-            form_string += str(tag_id[7:])+");\"></span>"
-            form_string += "<span id='remove" + str(tag_id[7:]) + "' class=\"icon remove\" style=\"display:none;\" "
-            form_string += "onclick=\"changeHTMLForm('remove'," + str(tag_id[7:]) + ");\"></span>"
+            li_content += text
+            li_content += render_buttons(True, False, str(tag_id[7:]))
+
+            ul_content += render_li_sequence_rem(li_content, tag_id)
         else:
             for x in range(0, int(nb_occurrences)):
                 nb_html_tags = int(request.session['nb_html_tags'])
@@ -875,52 +834,34 @@ def generate_sequence(request, element, xml_tree, namespace, choice_info=None, f
                 form_element.save()
                 request.session['mapTagID'][tag_id] = str(form_element.pk)
 
-                # if tag not closed:  <element/>
-                if len(list(element)) > 0:
-                    form_string += "<li class='sequence' id='" + str(tag_id) + "'>"
+                li_content = ''
 
-                    if CURATE_COLLAPSE:
-                        form_string += "<span class='collapse' style='cursor:pointer;' "
-                        form_string += "onclick='showhideCurate(event);'></span>"
+                if len(list(element)) > 0 and CURATE_COLLAPSE:
+                    li_content += render_collapse_button()
 
-                    form_string += text
-                else:
-                    form_string += "<li class='sequence' id='" + str(tag_id) + "'>" + text
-
-                if add_button:
-                    form_string += "<span id='add" + str(tag_id[7:])
-                    form_string += "' class=\"icon add\" onclick=\"changeHTMLForm('add',"+str(tag_id[7:])+");\"></span>"
-                else:
-                    form_string += "<span id='add" + str(tag_id[7:]) + "' class=\"icon add\" style=\"display:none;\" "
-                    form_string += "onclick=\"changeHTMLForm('add'," + str(tag_id[7:]) + ");\"></span>"
-
-                if delete_button:
-                    form_string += "<span id='remove" + str(tag_id[7:]) + "' class=\"icon remove\" "
-                    form_string += "onclick=\"changeHTMLForm('remove',"+str(tag_id[7:])+");\"></span>"
-                else:
-                    form_string += "<span id='remove" + str(tag_id[7:]) + "' class=\"icon remove\" "
-                    form_string += "style=\"display:none;\" "
-                    form_string += "onclick=\"changeHTMLForm('remove'," + str(tag_id[7:]) + ");\">"
-                    form_string += "</span>"
+                li_content += text
+                li_content += render_buttons(add_button, delete_button, str(tag_id[7:]))
 
                 # generates the sequence
                 if len(list(element)) != 0:
                     for child in element:
                         if child.tag == "{0}element".format(namespace):
-                            form_string += generate_element(request, child, xml_tree, namespace, choice_info,
-                                                            full_path=full_path, edit_data_tree=edit_data_tree)
-                        elif child.tag == "{0}sequence".format(namespace):
-                            form_string += generate_sequence(request, child, xml_tree, namespace, choice_info,
-                                                             full_path=full_path, edit_data_tree=edit_data_tree)
-                        elif child.tag == "{0}choice".format(namespace):
-                            form_string += generate_choice(request, child, xml_tree, namespace, choice_info,
+                            li_content += generate_element(request, child, xml_tree, namespace, choice_info,
                                                            full_path=full_path, edit_data_tree=edit_data_tree)
+                        elif child.tag == "{0}sequence".format(namespace):
+                            li_content += generate_sequence(request, child, xml_tree, namespace, choice_info,
+                                                            full_path=full_path, edit_data_tree=edit_data_tree)
+                        elif child.tag == "{0}choice".format(namespace):
+                            li_content += generate_choice(request, child, xml_tree, namespace, choice_info,
+                                                          full_path=full_path, edit_data_tree=edit_data_tree)
                         elif child.tag == "{0}any".format(namespace):
                             pass
                         elif child.tag == "{0}group".format(namespace):
                             pass
-                form_string += "</li>"
-        form_string += "</ul>"
+
+                ul_content += render_li_sequence(li_content, tag_id)
+
+        form_string += render_ul(ul_content, choice_id, chosen)
     else:
         # generates the sequence
         if len(list(element)) != 0:
@@ -1000,7 +941,7 @@ def generate_choice(request, element, xml_tree, namespace, choice_info=None, ful
     add_button = False
     delete_button = False
     nb_occurrences = 1  # nb of occurrences to render (can't be 0 or the user won't see this element at all)
-    nb_occurrences_data = 1
+    # nb_occurrences_data = 1
     xml_element = None
 
     # not multiple roots
@@ -1042,31 +983,35 @@ def generate_choice(request, element, xml_tree, namespace, choice_info=None, ful
     # keeps track of elements to display depending on the selected choice
     if choice_info:
         choice_id = choice_info.chooseIDStr + "-" + str(choice_info.counter)
+        chosen = True
 
         if request.session['curate_edit']:
             if nb_occurrences == 0:
-                form_string += "<ul id=\"" + choice_id + "\" class=\"notchosen\">"
+                chosen = False
 
                 if CURATE_MIN_TREE:
                     form_element = FormElement(html_id=choice_id, xml_element=xml_element, xml_xpath=None).save()
+
                     request.session['mapTagID'][choice_id] = str(form_element.id)
-                    form_string += "</ul>"
+
+                    form_string += render_ul('', choice_id, chosen)
                     return form_string
-            else:
-                form_string += "<ul id=\"" + choice_id + "\" >"
         else:
             if choice_info.counter > 0:
-                form_string += "<ul id=\"" + choice_id + "\" class=\"notchosen\">"
+                chosen = False
 
                 if CURATE_MIN_TREE:
                     form_element = FormElement(html_id=choice_id, xml_element=xml_element, xml_xpath=None).save()
+
                     request.session['mapTagID'][choice_id] = str(form_element.id)
-                    form_string += "</ul>"
+
+                    form_string += render_ul('', choice_id, chosen)
                     return form_string
-            else:
-                form_string += "<ul id=\"" + choice_id + "\" >"
     else:
-        form_string += "<ul>"
+        choice_id = ''
+        chosen = True
+
+    ul_content = ''
 
     for x in range(0, int(nb_occurrences)):
         nb_html_tags = int(request.session['nb_html_tags'])
@@ -1087,84 +1032,71 @@ def generate_choice(request, element, xml_tree, namespace, choice_info=None, ful
 
         request.session['nbChoicesID'] = str(nb_choices_id)
 
-        if nb_occurrences_data == 0:
-            form_string += "<li class='choice removed' id='" + str(tag_id) + "'>Choose"
-            form_string += "<select id='" + choose_id_str + "' "
-            form_string += "onchange=\"changeChoice(this);\">"
-        else:
-            form_string += "<li class='choice' id='" + str(tag_id) + "'>Choose<select id='" + choose_id_str + "' "
-            form_string += "onchange=\"changeChoice(this);\">"
-
+        is_removed = (nb_occurrences == 0)
+        li_content = ''
         nb_sequence = 1
+        options = []
 
         # generates the choice
         if len(list(element)) != 0:
             for child in element:
+                entry = None
+
                 if child.tag == "{0}element".format(namespace):
                     if child.attrib.get('name') is not None:
                         opt_value = opt_label = child.attrib.get('name')
                     else:
                         opt_value = opt_label = child.attrib.get('ref')
 
-                        if ':' in opt_label:
+                        if ':' in child.attrib.get('ref'):
                             opt_label = opt_label.split(':')[1]
 
                     # look for active choice when editing
                     element_path = full_path + '/' + opt_label
+                    entry = (opt_label, opt_value)
 
-                    if request.session['curate_edit']:
-                        if len(edit_data_tree.xpath(element_path)) == 0:
-                            form_string += "<option value='" + opt_value + "'>" + opt_label + "</option><br/>"
-                        else:
-                            form_string += "<option value='" + opt_value + "' selected='selected'>" + opt_label
-                            form_string += "</option><br/>"
+                    # FIXME put all element as selected, not what we want
+                    if request.session['curate_edit'] and len(edit_data_tree.xpath(element_path)) != 0:
+                        entry += (True,)
                     else:
-                        form_string += "<option value='" + opt_value + "'>" + opt_label + "</option><br/>"
+                        entry += (False,)
+
                 elif child.tag == "{0}group".format(namespace):
                     pass
                 elif child.tag == "{0}choice".format(namespace):
                     pass
                 elif child.tag == "{0}sequence".format(namespace):
-                    form_string += "<option value='sequence" + str(nb_sequence) + "'>Sequence " + str(nb_sequence)
-                    form_string += "</option><br/>"
+                    entry = ('sequence' + str(nb_sequence), 'Sequence ' + str(nb_sequence), False)
                     nb_sequence += 1
                 elif child.tag == "{0}any".format(namespace):
                     pass
 
-        form_string += "</select>"
+                if entry is not None:
+                    options.append(entry)
 
-        if add_button:
-            form_string += "<span id='add" + str(tag_id[7:]) + "' class=\"icon add\" "
-            form_string += "onclick=\"changeHTMLForm('add'," + str(tag_id[7:]) + ");\"></span>"
-        else:
-            form_string += "<span id='add" + str(tag_id[7:]) + "' class=\"icon add\" style=\"display:none;\" "
-            form_string += "onclick=\"changeHTMLForm('add',"+str(tag_id[7:])+");\"></span>"
-
-        if delete_button:
-            form_string += "<span id='remove" + str(tag_id[7:]) + "' class=\"icon remove\" "
-            form_string += "onclick=\"changeHTMLForm('remove',"+str(tag_id[7:])+");\"></span>"
-        else:
-            form_string += "<span id='remove" + str(tag_id[7:]) + "' class=\"icon remove\" style=\"display:none;\" "
-            form_string += "onclick=\"changeHTMLForm('remove'," + str(tag_id[7:]) + ");\"></span>"
+        li_content += render_select(choose_id_str, options)
+        # FIXME this case generate buttons even when not needed (add and delete == False)
+        li_content += render_buttons_2(add_button, delete_button, tag_id[7:])
 
         for (counter, choiceChild) in enumerate(list(element)):
             if choiceChild.tag == "{0}element".format(namespace):
-                form_string += generate_element(request, choiceChild, xml_tree, namespace,
-                                                common.ChoiceInfo(choose_id_str, counter), full_path=full_path,
-                                                edit_data_tree=edit_data_tree)
+                li_content += generate_element(request, choiceChild, xml_tree, namespace,
+                                               common.ChoiceInfo(choose_id_str, counter), full_path=full_path,
+                                               edit_data_tree=edit_data_tree)
             elif choiceChild.tag == "{0}group".format(namespace):
                 pass
             elif choiceChild.tag == "{0}choice".format(namespace):
                 pass
             elif choiceChild.tag == "{0}sequence".format(namespace):
-                form_string += generate_sequence(request, choiceChild, xml_tree, namespace,
-                                                 common.ChoiceInfo(choose_id_str, counter), full_path=full_path,
-                                                 edit_data_tree=edit_data_tree)
+                li_content += generate_sequence(request, choiceChild, xml_tree, namespace,
+                                                common.ChoiceInfo(choose_id_str, counter), full_path=full_path,
+                                                edit_data_tree=edit_data_tree)
             elif choiceChild.tag == "{0}any".format(namespace):
                 pass
 
-        form_string += "</li>"
-    form_string += "</ul>"
+        ul_content += render_li_choice(li_content, tag_id, is_removed)
+
+    form_string += render_ul(ul_content, choice_id, chosen)
 
     return form_string
 
@@ -1203,7 +1135,7 @@ def generate_simple_type(request, element, xml_tree, namespace, full_path, edit_
                                                 edit_data_tree=edit_data_tree)
         elif child.tag == "{0}list".format(namespace):
             # TODO list can contain a restriction/enumeration
-            form_string += "<input type='text'/>"
+            form_string += render_input(None, '', '')
         elif child.tag == "{0}union".format(namespace):
             pass
 
@@ -1302,23 +1234,23 @@ def generate_module(request, element, namespace, xsd_xpath=None, xml_xpath=None,
     form_string = ""
     reload_data = None
     reload_attrib = None
-    
+
     if request.session['curate_edit']:
         edit_elements = edit_data_tree.xpath(xml_xpath)
-        
+
         if len(edit_elements) > 0:
             if len(edit_elements) == 1:
                 edit_element = edit_elements[0]
-                
+
                 # get attributes
                 if 'attribute' not in xsd_xpath and len(edit_element.attrib) > 0:
                     reload_attrib = dict(edit_element.attrib)
-                    
+
                 reload_data = get_xml_element_data(element, edit_element, namespace)
             else:
                 reload_data = []
                 reload_attrib = []
-                
+
                 for edit_element in edit_elements:
                     reload_attrib.append(dict(edit_element.attrib))
                     reload_data.append(get_xml_element_data(element, edit_element, namespace))
@@ -1327,7 +1259,7 @@ def generate_module(request, element, namespace, xsd_xpath=None, xml_xpath=None,
     if '{http://mdcs.ns}_mod_mdcs_' in element.attrib:
         # get the url of the module
         url = element.attrib['{http://mdcs.ns}_mod_mdcs_']
-        
+
         # check that the url is registered in the system
         if url in Module.objects.all().values_list('url'):
             view = get_module_view(url)
@@ -1345,7 +1277,7 @@ def generate_module(request, element, namespace, xsd_xpath=None, xml_xpath=None,
             # if the loaded doc has data, send them to the module for initialization
             if reload_data is not None:
                 mod_req.GET['data'] = reload_data
-                
+
             if reload_attrib is not None:
                 mod_req.GET['attributes'] = reload_attrib
 
@@ -1413,7 +1345,7 @@ def generate_restriction(request, element, xml_tree, namespace, full_path="", ed
     enumeration = element.findall('{0}enumeration'.format(namespace))
 
     if len(enumeration) > 0:
-        form_string += "<select>"
+        option_list = []
 
         if request.session['curate_edit']:
             edit_elements = edit_data_tree.xpath(full_path)
@@ -1429,24 +1361,24 @@ def generate_restriction(request, element, xml_tree, namespace, full_path="", ed
 
             for enum in enumeration:
                 if selected_value is not None and enum.attrib.get('value') == selected_value:
-                    form_string += "<option value='" + enum.attrib.get('value') + "' selected='selected'>"
-                    form_string += enum.attrib.get('value') + "</option>"
+                    entry = (enum.attrib.get('value'), enum.attrib.get('value'), True)
                 else:
-                    form_string += "<option value='" + enum.attrib.get('value') + "'>" + enum.attrib.get('value')
-                    form_string += "</option>"
+                    entry = (enum.attrib.get('value'), enum.attrib.get('value'), False)
+
+                option_list.append(entry)
         else:
             for enum in enumeration:
-                form_string += "<option value='" + enum.attrib.get('value') + "'>" + enum.attrib.get('value')
-                form_string += "</option>"
+                entry = (enum.attrib.get('value'), enum.attrib.get('value'), False)
+                option_list.append(entry)
 
-        form_string += "</select>"
+        form_string += render_select(None, option_list)
     else:
         simple_type = element.find('{0}simpleType'.format(namespace))
         if simple_type is not None:
             form_string += generate_simple_type(request, simple_type, xml_tree, namespace, full_path=full_path,
                                                 edit_data_tree=edit_data_tree)
         else:
-            form_string += " <input type='text'/>"
+            form_string += render_input(None, '', '')
 
     return form_string
 
@@ -1486,6 +1418,6 @@ def generate_extension(request, element, xml_tree, namespace, full_path="", edit
                 if edit_elements[0].text is not None:
                     default_value = edit_elements[0].text
 
-        form_string += " <input type='text' value='" + django.utils.html.escape(default_value) + "'/>"
+        form_string += render_input(default_value, '', '')
 
     return form_string
