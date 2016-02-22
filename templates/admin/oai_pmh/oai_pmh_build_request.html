@@ -33,68 +33,49 @@
 {% block content%}
 
 <div class="alert alert-warning" id="banner_submit_wait" style="display: none;">
-            <h4><i class='fa fa-circle-o-notch fa-spin fa-1x'></i>  </i>&nbsp;&nbsp;Please wait ...</h4>
+            <h4><i class='fa fa-circle-o-notch fa-spin fa-1x'></i>&nbsp;&nbsp;Please wait ...</h4>
         </div>
 
-    {% if registries %}
-
+    {% if request_form.dataProvider.choices|length > 1 %}
         <table>
             <tr>
                 <td>Data providers:</td>
-                <td>
-                    <select name="reg" id="reg" style="width:500px" onchange="populateSelect();">
-                        <option value="0">Pick one</option>
-                        {% for r in registries %}
-                            <option value="{{ r.id }}|{{ r.url }}">{{ r.name }}</option>
-                        {% endfor %}
-                    </select>
+                <td> {{request_form.dataProvider}}
                 </td>
             </tr>
 
             <tr>
                 <td>Verb:</td>
                 <td>
-                    <select name="verb" id="verb" style="width:500px">
-                        <option value="0">Pick one</option>
-                        <option value="1">Identify</option>
-                        <option value="2">Get Record</option>
-                        <option value="3">List Records</option>
-                        <option value="4">List Sets</option>
-                        <option value="5">List Identifiers</option>
-                        <option value="6">List Metadata Formats</option>
-                    </select>
+                    {{request_form.verb}}
                 </td>
             </tr>
 
             <tr>
                 <td>Set:</td>
                 <td>
-                    <select name="set" id="set" disabled="true" style="width:500px">
-                        <option>Pick one</option>
-                    </select>
+                    {{request_form.set}}
                 </td>
             </tr>
 
             <tr>
                 <td>Identifiers:</td>
                 <td>
-                    <input class="text" name="identifier" id="identifier" type="text">
+                    {{request_form.identifiers}}
                 </td>
             </tr>
 
             <tr>
                 <td>Metadata Prefix:</td>
                 <td>
-                    <select name="pre" id="pre" disabled="true" style="width:500px">
-                        <option value="0">Pick one</option>
-                    </select>
+                    {{request_form.metadataprefix}}
                 </td>
             </tr>
 
             <tr>
                 <td>Resumption Token:</td>
                 <td>
-                    <input class="text" name="token" id="token" type="text">
+                    {{request_form.resumptionToken}}
                 </td>
             </tr>
         </table>
@@ -127,5 +108,8 @@
 <script src="{% static 'inc/controllers/js/oai_pmh.js' %}"></script>
 <script type="text/javascript">
     init();
+    $("select#id_dataProvider").on('change', function() {
+      populateSelect();
+    });
 </script>
 {% endblock %}

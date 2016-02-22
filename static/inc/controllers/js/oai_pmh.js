@@ -343,23 +343,23 @@ showhide = function(event){
 checkSubmit = function() {
     $("#result").text('');
     var label = '';
-    if ($("select#reg").val() == '0') {
+    if ($("select#id_dataProvider").val() == '0') {
         label = 'Pick a data provider.';
-    } else if ($("select#verb").val() == '0') {
+    } else if ($("select#id_verb").val() == '0') {
         label = 'Pick a verb.';
     } else {
-        if ($("select#verb").val() == '2') {
-            if ($("#identifier").val() == '') {
+        if ($("select#id_verb").val() == '2') {
+            if ($("#id_identifiers").val() == '') {
                 label = 'Provide a identifier.';
-            } else if ($("select#pre").val() == '0') {
+            } else if ($("select#id_metadataprefix").val() == '0') {
                 label = 'Pick a metadata prefix.';
             }
-        } else if ($("select#verb").val() == '3') {
-            if ($("select#pre").val() == '0' && $("#token").val() == '') {
+        } else if ($("select#id_verb").val() == '3') {
+            if ($("select#id_metadataprefix").val() == '0' && $("#id_resumptionToken").val() == '') {
                 label = 'Pick a metadata prefix.';
             }
-        } else if ($("select#verb").val() == '5') {
-            if ($("select#pre").val() == '0') {
+        } else if ($("select#id_verb").val() == '5') {
+            if ($("select#id_metadataprefix").val() == '0') {
                 label = 'Pick a metadata prefix.';
             }
         }
@@ -386,27 +386,27 @@ submit = function() {
                            var token = '';
                            var metadata = '';
 
-                           if ($("select#set").val() != '0') {
-                                set += '&set='+$("select#set").val();
+                           if ($("select#id_set").val() != '0') {
+                                set += '&set='+$("select#id_set").val();
                            }
 
-                           if ($("select#pre").val() != '0') {
-                                metadata += '&metadataPrefix='+$("select#pre").val();
+                           if ($("select#id_metadataprefix").val() != '0') {
+                                metadata += '&metadataPrefix='+$("select#id_metadataprefix").val();
                            }
 
-                           if ($("#identifier").val() != '') {
-                                identifier += '&identifier='+$("#identifier").val();
+                           if ($("#id_identifiers").val() != '') {
+                                identifier += '&identifier='+$("#id_identifiers").val();
                            }
 
-                           if ($("#token").val() != '') {
-                                token += '&resumptionToken='+$("#token").val();
+                           if ($("#id_resumptionToken").val() != '') {
+                                token += '&resumptionToken='+$("#id_resumptionToken").val();
                            }
 
                            var callURL = '';
-                           if ($("select#reg").val() != '0') {
-                                    callURL = $("select#reg").val().split('|')[1];
+                           if ($("select#id_dataProvider").val() != '0') {
+                                    callURL = $("select#id_dataProvider").val().split('|')[1];
                            }
-                           switch($("select#verb").val()) {
+                           switch($("select#id_verb").val()) {
                                case '1': callURL+='?verb=Identify'; break;
                                case '2': callURL+='?verb=GetRecord'+identifier+metadata; break;
                                case '3': callURL+='?verb=ListRecords'+set+token+metadata; break;
@@ -434,14 +434,14 @@ submit = function() {
 }
 
 populateSelect = function() {
-                             if ($("select#reg").val() == '0') {
-                                 $("select#set").html("<option>Pick one</option>");
-                                 $("select#set").attr('disabled', true);
-                                 $("select#pre").html("<option>Pick one</option>");
-                                 $("select#pre").attr('disabled', true);
+                             if ($("select#id_dataProvider").val() == '0') {
+                                 $("select#id_set").html("<option>Pick one</option>");
+                                 $("select#id_set").attr('disabled', true);
+                                 $("select#id_metadataprefix").html("<option>Pick one</option>");
+                                 $("select#id_metadataprefix").attr('disabled', true);
                              }
                              else {
-                                var id = $("select#reg").val().split('|')[0];
+                                var id = $("select#id_dataProvider").val().split('|')[0];
                                 $.ajax({
                                     url : '/oai_pmh/registry/' + id + '/all_sets/',
                                     type : "POST",
@@ -451,9 +451,9 @@ populateSelect = function() {
                                          for (var i = 0; i < data.length; i++) {
                                             options += '<option value="' + data[i] + '">' + data[i] + '</option>';
                                          }
-                                         $("select#set").attr('disabled', false);
-                                         $("select#set").html(options);
-                                         $("select#set option:first").attr('selected', 'selected');
+                                         $("select#id_set").attr('disabled', false);
+                                         $("select#id_set").html(options);
+                                         $("select#id_set option:first").attr('selected', 'selected');
                                     },
                                 });
 
@@ -466,9 +466,9 @@ populateSelect = function() {
                                          for (var i = 0; i < data.length; i++) {
                                             options += '<option value="' + data[i] + '">' + data[i] + '</option>';
                                          }
-                                         $("select#pre").attr('disabled', false);
-                                         $("select#pre").html(options);
-                                         $("select#pre option:first").attr('selected', 'selected');
+                                         $("select#id_metadataprefix").attr('disabled', false);
+                                         $("select#id_metadataprefix").html(options);
+                                         $("select#id_metadataprefix option:first").attr('selected', 'selected');
                                     },
                                 });
                              }
