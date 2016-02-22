@@ -71,6 +71,11 @@ validateRegistry = function()
         errors += "<li>Please enter a URL.</li>"
     }
 
+    harvest = $( "#id_harvestrate" ).val();
+    if (!(Math.floor(harvest) == harvest && $.isNumeric(harvest) && harvest > 0)){
+        errors += "<li>Please enter a positive integer.</li>"
+    }
+
 	if (errors != ""){
 	    error = "<ul>";
 	    error += errors
@@ -88,8 +93,12 @@ validateRegistryEdit = function()
 {
     errors = ""
 
-    if ($( "#form_edit_current #id_harvestrate" ).val().trim() == ""){
+    harvest = $( "#form_edit_current #id_harvestrate" ).val();
+    if (harvest.trim() == ''){
         errors += "<li>Please enter an  harvest rate.</li>"
+    }
+    else if (!(Math.floor(harvest) == harvest && $.isNumeric(harvest) && harvest > 0)){
+        errors += "<li>Please enter a positive integer.</li>"
     }
 
     if (errors != ""){
