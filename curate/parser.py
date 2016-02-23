@@ -404,6 +404,10 @@ def generate_form(request):
     # get the namespace for the default prefix
     namespace = request.session['namespaces'][default_prefix]
 
+    # TODO: commented extensions Registry
+    # # find extensions
+    # request.session['extensions'] = get_extensions(request, xml_doc_tree, namespace, default_prefix)
+
     # find all root elements
     elements = xml_doc_tree.findall("./{0}element".format(namespace))
 
@@ -1205,7 +1209,8 @@ def generate_simple_type(request, element, xml_tree, namespace, full_path, edit_
             # TODO list can contain a restriction/enumeration
             form_string += "<input type='text'/>"
         elif child.tag == "{0}union".format(namespace):
-            pass
+            # TODO: provide UI for unions
+            form_string += "<input type='text'/>"
 
     return form_string
 
@@ -1238,7 +1243,7 @@ def generate_complex_type(request, element, xml_tree, namespace, full_path, edit
     #   )
     # )
 
-    form_string = ""
+    formString = ""
 
     # remove the annotations
     remove_annotations(element, namespace)
@@ -1246,41 +1251,130 @@ def generate_complex_type(request, element, xml_tree, namespace, full_path, edit
     if has_module(request, element):
         # XSD xpath: /element/complexType/sequence
         xsd_xpath = etree.ElementTree(xml_tree).getpath(element)
-        form_string += generate_module(request, element, namespace, xsd_xpath, full_path, edit_data_tree=edit_data_tree)
-        return form_string
+        formString += generate_module(request, element, namespace, xsd_xpath, full_path, edit_data_tree=edit_data_tree)
+        return formString
 
     # is it a simple content?
-    complex_type_child = element.find('{0}simpleContent'.format(namespace))
-    if complex_type_child is not None:
-        form_string += generate_simple_content(request, complex_type_child, xml_tree, namespace, full_path=full_path,
-                                               edit_data_tree=edit_data_tree)
-        return form_string
+    complexTypeChild = element.find('{0}simpleContent'.format(namespace))
+    if complexTypeChild is not None:
+        formString += generate_simple_content(request, complexTypeChild, xml_tree, namespace, full_path=full_path, edit_data_tree=edit_data_tree)
+        return formString
+
+    # is it a complex content?
+    complexTypeChild = element.find('{0}complexContent'.format(namespace))
+    if complexTypeChild is not None:
+        formString += generateComplexContent(request, complexTypeChild, xml_tree, namespace, full_path=full_path, edit_data_tree=edit_data_tree)
+        return formString
 
     # does it contain any attributes?
-    complex_type_children = element.findall('{0}attribute'.format(namespace))
-    if len(complex_type_children) > 0:
-        for attribute in complex_type_children:
-            form_string += generate_element(request, attribute, xml_tree, namespace, full_path=full_path,
-                                            edit_data_tree=edit_data_tree)
+    complexTypeChildren = element.findall('{0}attribute'.format(namespace))
+    if len(complexTypeChildren) > 0:
+        for attribute in complexTypeChildren:
+            formString += generate_element(request, attribute, xml_tree, namespace, full_path=full_path, edit_data_tree=edit_data_tree)
 
     # does it contain sequence or all?
-    complex_type_child = element.find('{0}sequence'.format(namespace))
-    if complex_type_child is not None:
-        form_string += generate_sequence(request, complex_type_child, xml_tree, namespace, full_path=full_path,
-                                         edit_data_tree=edit_data_tree)
+    complexTypeChild = element.find('{0}sequence'.format(namespace))
+    if complexTypeChild is not None:
+        formString += generate_sequence(request, complexTypeChild, xml_tree, namespace, full_path=full_path, edit_data_tree=edit_data_tree)
     else:
-        complex_type_child = element.find('{0}all'.format(namespace))
-        if complex_type_child is not None:
-            form_string += generate_sequence(request, complex_type_child, xml_tree, namespace, full_path=full_path,
-                                             edit_data_tree=edit_data_tree)
+        complexTypeChild = element.find('{0}all'.format(namespace))
+        if complexTypeChild is not None:
+            formString += generate_sequence(request, complexTypeChild, xml_tree, namespace, full_path=full_path, edit_data_tree=edit_data_tree)
         else:
             # does it contain choice ?
-            complex_type_child = element.find('{0}choice'.format(namespace))
-            if complex_type_child is not None:
-                form_string += generate_choice(request, complex_type_child, xml_tree, namespace, full_path=full_path,
-                                               edit_data_tree=edit_data_tree)
+            complexTypeChild = element.find('{0}choice'.format(namespace))
+            if complexTypeChild is not None:
+                formString += generate_choice(request, complexTypeChild, xml_tree, namespace, full_path=full_path, edit_data_tree=edit_data_tree)
             else:
-                form_string += ""
+                formString += ""
+
+    # TODO: commented extensions Registry
+    # # check if the type has a name (for reference)
+    # if 'name' in element.attrib:
+    #     # check if types extend this one
+    #     extensions = request.session['extensions']
+    #
+    #     # the complextype has some possible extensions
+    #     if element.attrib['name'] in extensions.keys():
+    #         # get all extensions associated with the type
+    #         current_type_extensions = extensions[element.attrib['name']]
+    #
+    #         # build namesapces to use with xpath
+    #         xpath_namespaces = {}
+    #         for prefix, ns in request.session['namespaces'].iteritems() :
+    #             xpath_namespaces[prefix] = ns[1:-1]
+    #
+    #         # get extension types using XPath
+    #         extension_types = []
+    #         for current_type_extension in current_type_extensions:
+    #             # get the extension using its xpath
+    #             extension_element = xml_tree.xpath(current_type_extension, namespaces=xpath_namespaces)[0]
+    #             extension_types.append(extension_element)
+    #
+    #
+    #         formString += '<div class="extension">'
+    #         formString += 'Extend <select onchange="changeExtension()">'
+    #         formString += '<option> --------- </option>'
+    #
+    #         # browse extension types
+    #         for extension_type in extension_types:
+    #             formString += '<option>'
+    #             # get the closest type name: parent -> xxxContent, parent -> xxxType
+    #             formString += extension_type.getparent().getparent().attrib['name']
+    #             formString += '</option>'
+    #
+    #         formString += '</select>'
+    #         formString += '</div>'
+    #         # if extension_element.tag == "{0}complexType".format(namespace):
+    #         #     pass
+    #         # elif extension_element.tag == "{0}simpleType".format(namespace):
+    #         #     pass
+    return formString
+
+
+################################################################################
+#
+# Function Name: generateComplexContent(request, element, xmlTree, namespace)
+# Inputs:        request -
+#                element - XML element
+#                xmlTree - XML Tree
+#                namespace - namespace
+# Outputs:       HTML string representing a sequence
+# Exceptions:    None
+# Description:   Generates a section of the form that represents an XML simple content
+#
+################################################################################
+def generateComplexContent(request, element, xml_tree, namespace, full_path, edit_data_tree=None):
+    """
+    Inputs:        request -
+                   element - XML element
+                   xmlTree - XML Tree
+                   namespace - namespace
+    Outputs:       HTML string representing a sequence
+    Exceptions:    None
+    Description:   Generates a section of the form that represents an XML simple content
+    :param request:
+    :param element:
+    :param xmlTree:
+    :param namespace:
+    :param fullPath:
+    :param edit_data_tree:
+    :return:
+    """
+    #(annotation?,(restriction|extension))
+
+    form_string = ""
+
+    # remove the annotations
+    remove_annotations(element, namespace)
+
+    # generates the content
+    if(len(list(element)) != 0):
+        child = element[0]
+        if (child.tag == "{0}restriction".format(namespace)):
+            form_string += generate_restriction(request, child, xml_tree, namespace, full_path, edit_data_tree=edit_data_tree)
+        elif (child.tag == "{0}extension".format(namespace)):
+            form_string += generate_extension(request, child, xml_tree, namespace, full_path, edit_data_tree=edit_data_tree)
 
     return form_string
 
@@ -1450,6 +1544,34 @@ def generate_restriction(request, element, xml_tree, namespace, full_path="", ed
 
     return form_string
 
+# TODO: commented extensions Registry
+# def get_extensions(request, xml_doc_tree, namespace, default_prefix):
+#     """Get all XML extensions of the XML Schema
+#
+#     Parameters:
+#         request:
+#         element:
+#         xml_tree:
+#         namespace:
+#         full_path:
+#         edit_data_tree:
+#
+#     Returns:
+#         HTML string representing an extension
+#     """
+#     # get all extensions of the document
+#     extensions = xml_doc_tree.findall(".//{0}extension".format(namespace))
+#     # keep only simple/complex type extensions, no built-in types
+#     custom_type_extensions = {}
+#     for extension in extensions:
+#         base = extension.attrib['base']
+#         if base not in common.getXSDTypes(default_prefix):
+#             if base not in custom_type_extensions.keys():
+#                 custom_type_extensions[base] = []
+#             custom_type_extensions[base].append(etree.ElementTree(xml_doc_tree).getpath(extension))
+#
+#     return custom_type_extensions
+
 
 def generate_extension(request, element, xml_tree, namespace, full_path="", edit_data_tree=None):
     """Generates a section of the form that represents an XML extension
@@ -1470,22 +1592,59 @@ def generate_extension(request, element, xml_tree, namespace, full_path="", edit
 
     remove_annotations(element, namespace)
 
-    # FIXME simpleType cannot be the child of extension
-    simple_type = element.find('{0}simpleType'.format(namespace))
+    # get the base attibute being extended
+    if 'base' in element.attrib:
+        base = element.attrib['base']
 
-    if simple_type is not None:
-        form_string += generate_simple_type(request, simple_type, xml_tree, namespace, full_path=full_path,
-                                            edit_data_tree=edit_data_tree)
+        defaultPrefix = request.session['defaultPrefix']
+        # test if base is a built-in data types
+        if base in common.getXSDTypes(defaultPrefix):
+            pass
+            #form_string +=
+        else: #not a built-in data type
+            if ':' in base:
+                splittedBase = base.split(":")
+                baseNSPrefix = splittedBase[0]
+                baseName = splittedBase[1]
+                namespaces = request.session['namespaces']
+                # TODO: look at namespaces, target namespaces
+                # baseNS = namespaces[baseNSPrefix]
+                baseNS = namespace
+            else:
+                baseName = base
+                baseNS = namespace
+
+            # test if base is a simple type
+            baseType = xml_tree.find(".//{0}simpleType[@name='{1}']".format(baseNS, baseName))
+            if baseType is not None:
+                form_string += generate_simple_type(request, baseType, xml_tree, namespace, full_path, edit_data_tree)
+            else:
+                # test if base is a complex type
+                baseType = xml_tree.find(".//{0}complexType[@name='{1}']".format(baseNS, baseName))
+                if baseType is not None:
+                    form_string += generate_complex_type(request, baseType, xml_tree, namespace, full_path, edit_data_tree)
+
+
+    # does it contain any attributes?
+    complexTypeChildren = element.findall('{0}attribute'.format(namespace))
+    if len(complexTypeChildren) > 0:
+        for attribute in complexTypeChildren:
+            form_string += generate_element(request, attribute, xml_tree, namespace, full_path=full_path, edit_data_tree=edit_data_tree)
+
+    # does it contain sequence or all?
+    complexTypeChild = element.find('{0}sequence'.format(namespace))
+    if complexTypeChild is not None:
+        form_string += generate_sequence(request, complexTypeChild, xml_tree, namespace, full_path=full_path, edit_data_tree=edit_data_tree)
     else:
-        default_value = ""
-
-        if request.session['curate_edit']:
-            edit_elements = edit_data_tree.xpath(full_path)
-
-            if len(edit_elements) > 0:
-                if edit_elements[0].text is not None:
-                    default_value = edit_elements[0].text
-
-        form_string += " <input type='text' value='" + django.utils.html.escape(default_value) + "'/>"
+        complexTypeChild = element.find('{0}all'.format(namespace))
+        if complexTypeChild is not None:
+            form_string += generate_sequence(request, complexTypeChild, xml_tree, namespace, full_path=full_path, edit_data_tree=edit_data_tree)
+        else:
+            # does it contain choice ?
+            complexTypeChild = element.find('{0}choice'.format(namespace))
+            if complexTypeChild is not None:
+                form_string += generate_choice(request, complexTypeChild, xml_tree, namespace, full_path=full_path, edit_data_tree=edit_data_tree)
+            else:
+                form_string += ""
 
     return form_string
