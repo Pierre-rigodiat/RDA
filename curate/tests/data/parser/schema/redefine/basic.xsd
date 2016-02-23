@@ -1,0 +1,13 @@
+<schema>
+    <redefine schemaLocation="schema.xsd">
+        <complexType name="pname">
+            <complexContent>
+                <extension base="pname">
+                    <sequence>
+                        <element name="country"/>
+                    </sequence>
+                </extension>
+            </complexContent>
+        </complexType>
+    </redefine>
+</schema>

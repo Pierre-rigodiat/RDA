@@ -1,0 +1,15 @@
+<schema>
+    <element name="root" type="complex"/>
+
+    <complexType name="complex">
+        <sequence>
+            <element minOccurs="2" maxOccurs="unbounded" name="id2">
+        <unique name="un2">
+            <selector xpath="id2"/>
+            <field xpath="@id2"/>
+        </unique>
+    </element>
+        </sequence>
+    </complexType>
+</schema>
+

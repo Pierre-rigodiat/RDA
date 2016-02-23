@@ -1,0 +1,7 @@
+<schema>
+    <complexType>
+        <sequence minOccurs="2" maxOccurs="unbounded">
+            <element name="id0" type="string"/>
+        </sequence>
+    </complexType>
+</schema>

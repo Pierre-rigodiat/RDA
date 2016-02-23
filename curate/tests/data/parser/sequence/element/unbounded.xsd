@@ -1,0 +1,9 @@
+<schema>
+    <element name="root" type="complex" />
+
+    <complexType name="complex">
+        <sequence minOccurs="2" maxOccurs="unbounded">
+            <element name="id0" type="string"/>
+        </sequence>
+    </complexType>
+</schema>

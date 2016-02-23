@@ -1,0 +1,11 @@
+<schema>
+    <element name="root" type="complex"/>
+
+    <complexType name="complex">
+        <simpleContent>
+            <extension base="integer">
+                <attribute name="attr0" type="string" />
+            </extension>
+        </simpleContent>
+    </complexType>
+</schema>

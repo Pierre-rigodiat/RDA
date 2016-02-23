@@ -1,0 +1,5 @@
+<element name="root">
+    <annotation>
+        <documentation>MDCS element type testing</documentation>
+    </annotation>
+</element>

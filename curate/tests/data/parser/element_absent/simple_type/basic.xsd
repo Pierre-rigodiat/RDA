@@ -1,0 +1,10 @@
+<schema>
+    <element name="id0">
+        <simpleType>
+            <restriction base="integer">
+                <minInclusive value="0"/>
+                <maxInclusive value="100"/>
+            </restriction>
+        </simpleType>
+    </element>
+</schema>

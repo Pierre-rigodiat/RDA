@@ -1,0 +1,15 @@
+<schema>
+    <element name="root" type="complex" />
+
+    <complexType name="complex">
+        <sequence minOccurs="2" maxOccurs="unbounded">
+            <group ref="grp0" />
+        </sequence>
+    </complexType>
+    
+    <group name="grp0">
+        <sequence>
+            <element name="id1" type="string"/>
+        </sequence>
+    </group>
+</schema>

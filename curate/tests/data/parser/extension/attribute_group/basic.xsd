@@ -1,0 +1,16 @@
+<schema>
+    <attributeGroup name="ag0">
+        <attribute name="child0" type="string"/>
+        <attribute name="child1" type="integer"/>
+    </attributeGroup>
+
+    <element name="test5">
+        <complexType>
+            <simpleContent>
+                <extension base="string">
+                    <attributeGroup ref="ag0"/>
+                </extension>
+            </simpleContent>
+        </complexType>
+    </element>
+</schema>

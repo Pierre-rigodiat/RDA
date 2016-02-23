@@ -1,0 +1,20 @@
+<schema>
+    <simpleType name="id2">
+        <union memberTypes="int0 st0"/>
+    </simpleType>
+    
+    <simpleType name="int0">
+        <restriction base="integer">
+            <maxInclusive value="10"/>
+            <minInclusive value="0"/>
+        </restriction>
+    </simpleType>
+    
+    <simpleType name="st0">
+        <restriction base="string">
+            <enumeration value="child0"/>
+            <enumeration value="child1"/>
+            <enumeration value="child2"/>
+        </restriction>
+    </simpleType>
+</schema>

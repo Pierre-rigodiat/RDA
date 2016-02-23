@@ -1,0 +1,18 @@
+<schema>
+    <complexType name="id1">
+        <complexContent>
+            <extension base="person">
+                <sequence>
+                    <element name="address" type="string"/>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+
+    <complexType name="person">
+        <sequence>
+            <element name="firstname" type="string"/>
+            <element name="lastname" type="string"/>
+        </sequence>
+    </complexType>
+</schema>

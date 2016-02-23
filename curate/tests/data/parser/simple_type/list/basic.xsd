@@ -1,0 +1,7 @@
+<schema>
+    <element name="root" type="simple" />
+
+    <simpleType name="simple">
+        <list itemType="integer"/>
+    </simpleType>
+</schema>

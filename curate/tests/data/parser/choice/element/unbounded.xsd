@@ -1,0 +1,10 @@
+<schema>
+    <element name="root" type="id0" />
+
+    <complexType name="id0">
+        <choice minOccurs="2" maxOccurs="unbounded">
+            <element name="child0" type="string"/>
+            <element name="child1" type="string"/>
+        </choice>
+    </complexType>
+</schema>

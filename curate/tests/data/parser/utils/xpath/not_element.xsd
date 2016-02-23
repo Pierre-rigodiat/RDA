@@ -1,0 +1,5 @@
+<simpleContent>
+    <extension base="string">
+        <attribute type="string" name="id" use="required" />
+    </extension>
+</simpleContent>

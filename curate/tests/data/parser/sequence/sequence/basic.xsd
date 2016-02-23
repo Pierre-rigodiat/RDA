@@ -1,0 +1,11 @@
+<schema>
+    <element name="root" type="complex" />
+
+    <complexType name="complex">
+        <sequence>
+            <sequence>
+                <element name="id3" type="string"/>
+            </sequence>
+        </sequence>
+    </complexType>
+</schema>

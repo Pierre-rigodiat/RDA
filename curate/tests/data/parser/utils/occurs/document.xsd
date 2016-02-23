@@ -1,0 +1,7 @@
+<element name="root">
+    <complexType>
+        <sequence>
+            <element name="child_0" type="string" minOccurs="1" maxOccurs="5"/>
+        </sequence>
+    </complexType>
+</element>

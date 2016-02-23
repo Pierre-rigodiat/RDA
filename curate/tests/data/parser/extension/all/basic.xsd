@@ -1,0 +1,18 @@
+<schema>
+    <complexType name="base1">
+        <attribute name="attr1" />
+    </complexType>
+
+    <element name="test1">
+        <complexType>
+            <complexContent>
+                <extension base="base1">
+                    <all>
+                        <element name="child0" type="string"/>
+                        <element name="child1" type="string"/>
+                    </all>
+                </extension>
+            </complexContent>
+        </complexType>
+    </element>
+</schema>

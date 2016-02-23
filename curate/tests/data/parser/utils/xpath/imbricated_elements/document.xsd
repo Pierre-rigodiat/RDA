@@ -1,0 +1,9 @@
+<complexType>
+    <sequence>
+        <element minOccurs="1" maxOccurs="unbounded" name="child_0" type="string"/>
+        <choice>
+            <element name="child_1" type="int"/>
+            <element name="child_2" type="string"/>
+        </choice>
+    </sequence>
+</complexType>
