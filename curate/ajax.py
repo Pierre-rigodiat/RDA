@@ -2226,8 +2226,8 @@ def generateForm(request):
             edit_data_tree = etree.XML(str(form_data.xml_data.encode('utf-8')))
         else: #no data found, not editing
             request.session['curate_edit'] = False
-            
-    
+
+
     # get the namespace for the default prefix
     namespace = request.session['namespaces'][defaultPrefix]
 
