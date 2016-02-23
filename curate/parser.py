@@ -1263,7 +1263,7 @@ def generate_complex_type(request, element, xml_tree, namespace, full_path, edit
     # is it a complex content?
     complexTypeChild = element.find('{0}complexContent'.format(namespace))
     if complexTypeChild is not None:
-        formString += generateComplexContent(request, complexTypeChild, xml_tree, namespace, full_path=full_path, edit_data_tree=edit_data_tree)
+        formString += generate_complex_content(request, complexTypeChild, xml_tree, namespace, full_path=full_path, edit_data_tree=edit_data_tree)
         return formString
 
     # does it contain any attributes?
@@ -1344,7 +1344,7 @@ def generate_complex_type(request, element, xml_tree, namespace, full_path, edit
 # Description:   Generates a section of the form that represents an XML simple content
 #
 ################################################################################
-def generateComplexContent(request, element, xml_tree, namespace, full_path, edit_data_tree=None):
+def generate_complex_content(request, element, xml_tree, namespace, full_path, edit_data_tree=None):
     """
     Inputs:        request -
                    element - XML element
