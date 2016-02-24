@@ -853,7 +853,7 @@ def oai_pmh(request):
 def oai_pmh_build_request(request):
     template = loader.get_template('admin/oai_pmh/oai_pmh_build_request.html')
     requestForm = RequestForm();
-    context = RequestContext(request, { 'request_form': requestForm })
+    context = RequestContext(request, {'request_form': requestForm})
     return HttpResponse(template.render(context))
 
 

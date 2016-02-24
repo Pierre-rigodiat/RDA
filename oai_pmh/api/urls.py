@@ -33,7 +33,5 @@ urlpatterns = patterns(
     url(r'^(?i)listobjectsets$', 'listObjectSets'),
     url(r'^(?i)listidentifiers$', 'listIdentifiers'),
     url(r'^(?i)getrecord', 'getRecord'),
-    url(r'^registry/(?P<registry>[-\w]+)/all_sets/$', 'all_sets'),
-    url(r'^registry/(?P<registry>[-\w]+)/all_metadataprefix/$', 'all_metadataprefix'),
     url(r'^getdata/$', 'getData'),
 )

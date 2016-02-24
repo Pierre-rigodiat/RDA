@@ -1134,38 +1134,35 @@ def listIdentifiers(request):
         content = {'message':'Only an administrator can use this feature.'}
         return Response(content, status=status.HTTP_401_UNAUTHORIZED)
 
-
-def all_sets(request, registry):
-    current_registry = Registry.objects.get(id=registry)
-    sets = []
-    for set in current_registry.sets:
-        current_set = SetModel.objects.get(id=set.id)
-        sets.append(current_set.setName)
-    return HttpResponse(json.dumps(sets), content_type="application/javascript")
-
-
-def all_metadataprefix(request, registry):
-    current_registry = Registry.objects.get(id=registry)
-    prefix = []
-    for format in current_registry.metadataformats:
-        current_format = MetadataFormatModel.objects.get(id=format.id)
-        prefix.append(current_format.metadataPrefix)
-    return HttpResponse(json.dumps(prefix), content_type="application/javascript")
-
+################################################################################
+#
+# Function Name: getData(request)
+# Inputs:        request -
+# Outputs:       OAI_PMH response.
+# Exceptions:    500 404
+# Description:   OAI_PMH response.
+#
+################################################################################
+@api_view(['POST'])
 def getData(request):
-    url = request.POST['url']
-    http_response = requests.get(url)
+    if request.user.is_authenticated():
+        url = request.POST['url']
+        if str(url).__contains__('?'):
+            registryURl = str(url).split('?')[0]
+            try:
+                sickle = Sickle(registryURl)
+                sickle.Identify()
+            except Exception:
+                return Response('An error occurred when attempting to identify resource.', status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    xsltPath = os.path.join(settings.SITE_ROOT, 'static', 'resources', 'xsl', 'xml2html.xsl')
-    xslt = etree.parse(xsltPath)
-    transform = etree.XSLT(xslt)
-
-    XMLParser = etree.XMLParser(remove_blank_text=True, recover=True)
-    dom = etree.XML(http_response.text.encode("utf8"),  parser=XMLParser)
-    #Put the XML in session if the user wants to dowmload it
-    request.session['xmlStringOAIPMH'] = http_response.text.encode("utf8")
-    newdom = transform(dom)
-    xmlTree = str(newdom)
-
-    content = {'message' : xmlTree}
-    return HttpResponse(json.dumps(content), content_type="application/javascript")
+            http_response = requests.get(url)
+            if str(http_response.status_code) == "200":
+                return Response(http_response.text, status=status.HTTP_200_OK)
+            elif str(http_response.status_code) == "404":
+                return Response('Server not found.', status=status.HTTP_404_NOT_FOUND)
+            else:
+                return Response('An error occurred.', status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        else:
+            return Response('An error occurred, url malformed.', status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    else:
+        return Response('Only an administrator can use this feature.', status=status.HTTP_401_UNAUTHORIZED)

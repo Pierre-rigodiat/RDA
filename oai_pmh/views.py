@@ -32,6 +32,12 @@ from django.template import RequestContext, loader
 from mgi.models import Registry, XML2Download
 from django.contrib.auth.decorators import login_required
 import datetime
+from mgi.models import Registry, Set, MetadataFormat
+from django.contrib.auth.decorators import login_required
+from django.conf import settings
+import lxml.etree as etree
+import os
+from StringIO import StringIO
 
 ################################################################################
 #
@@ -537,3 +543,74 @@ def download_xml_build_req(request):
             return response
         else:
             return redirect('/')
+
+
+################################################################################
+#
+# Function Name: all_sets(request)
+# Inputs:        request -
+# Outputs:       List of set's name
+# Exceptions:    None
+# Description:   Returns all the sets of a registry.
+#
+################################################################################
+@login_required(login_url='/login')
+def all_sets(request, registry):
+    current_registry = Registry.objects.get(id=registry)
+    sets = []
+    for set in current_registry.sets:
+        current_set = Set.objects.get(id=set.id)
+        sets.append(current_set.setName)
+    return HttpResponse(json.dumps(sets), content_type="application/javascript")
+
+################################################################################
+#
+# Function Name: all_metadataprefix(request)
+# Inputs:        request -
+# Outputs:       List of metadataprefix's name
+# Exceptions:    None
+# Description:   Returns all the sets of a registry.
+#
+################################################################################
+@login_required(login_url='/login')
+def all_metadataprefix(request, registry):
+    current_registry = Registry.objects.get(id=registry)
+    prefix = []
+    for format in current_registry.metadataformats:
+        current_format = MetadataFormat.objects.get(id=format.id)
+        prefix.append(current_format.metadataPrefix)
+    return HttpResponse(json.dumps(prefix), content_type="application/javascript")
+
+################################################################################
+#
+# Function Name: getData(request)
+# Inputs:        request -
+# Outputs:       XML representation of the build request response
+# Exceptions:    None
+# Description:   Returns OAI PMH response
+#
+################################################################################
+@login_required(login_url='/login')
+def getData(request):
+    url = request.POST['url']
+
+    uri=OAI_HOST_URI+"/oai_pmh/getdata/"
+    req = requests.post(uri, {"url":url}, auth=(OAI_USER, OAI_PASS))
+
+    if (str(req.status_code) == "200"):
+        data = json.load(StringIO(req.content))
+
+        xsltPath = os.path.join(settings.SITE_ROOT, 'static', 'resources', 'xsl', 'xml2html.xsl')
+        xslt = etree.parse(xsltPath)
+        transform = etree.XSLT(xslt)
+
+        XMLParser = etree.XMLParser(remove_blank_text=True, recover=True)
+        dom = etree.XML(str(data.encode("utf8")),  parser=XMLParser)
+        request.session['xmlStringOAIPMH'] = str(data.encode("utf8"))
+        newdom = transform(dom)
+        xmlTree = str(newdom)
+
+        content = {'message' : xmlTree}
+        return HttpResponse(json.dumps(content), content_type="application/javascript")
+    else:
+        return HttpResponse(json.dumps({'message' : req.content}), content_type="application/javascript")
