@@ -47,10 +47,6 @@ def render_input(value, placeholder, title):
     return ' <input type="text" ' + input_attrs + '/>'
 
 
-def render_empty_not_chosen_ul(element_id):
-    return "<ul id=\"" + element_id + "\" class=\"notchosen\"></ul>"
-
-
 def render_ul(content, element_id, chosen):
     form_string = '<ul'
 
@@ -67,40 +63,21 @@ def render_ul(content, element_id, chosen):
     return form_string
 
 
-# FIXME Group all li functions into one
-def render_li(content, element_tag, use, tag_id, text):
-    form_string = "<li class='" + element_tag + ' ' + use + "' id='" + str(tag_id) + "' "
-    form_string += "tag='" + text + "'>"
+def render_li(content, tag_id, element_tag, use=None, text=None):
+    form_string = "<li "
 
-    form_string += content
-    form_string += "</li>"
-
-    return form_string
-
-
-def render_li_sequence(content, tag_id):
-    form_string = "<li class='sequence' id='" + str(tag_id) + "'>"
-
-    form_string += content
-    form_string += "</li>"
-
-    return form_string
-
-
-def render_li_sequence_rem(content, tag_id):
-    form_string = "<li class='sequence removed' id='" + str(tag_id) + "'>"
-
-    form_string += content
-    form_string += "</li>"
-
-    return form_string
-
-
-def render_li_choice(content, tag_id, is_removed):
-    if is_removed:
-        form_string = "<li class='choice removed' id='" + str(tag_id) + "'>Choose"
+    if use is None:
+        li_class = element_tag
     else:
-        form_string = "<li class='choice' id='" + str(tag_id) + "'>Choose"
+        li_class = element_tag + ' ' + use
+
+    form_string += "class='" + li_class + "' "
+    form_string += "id='" + str(tag_id) + "' "
+
+    if text is not None:
+        form_string += "tag='" + text + "' "
+
+    form_string += ">"
 
     form_string += content
     form_string += "</li>"
@@ -174,46 +151,46 @@ def render_buttons(add_button, delete_button, tag_id):
 
 
 # TODO merge with render_buttons
-def render_buttons_2(add_button, delete_button, tag_id):
-    """Displays buttons for a duplicable/removable element
-
-    Parameters:
-        add_button: boolean
-        delete_button: boolean
-        tag_id: id of the tag to associate buttons to it
-
-    Returns:
-        JSON data
-    """
-    add_button_type = type(add_button)
-    del_button_type = type(delete_button)
-
-    if add_button_type is not bool:
-        raise TypeError('add_button type is wrong (' + str(add_button_type) + 'received, bool needed')
-
-    if del_button_type is not bool:
-        raise TypeError('add_button type is wrong (' + str(del_button_type) + 'received, bool needed')
-
-    form_string = ""
-    tag_id = str(tag_id)  # Tag ID string conversion
-
-    # the number of occurrences is fixed, don't need buttons
-    # FIXME remove onclick from buttons (use jquery instead)
-    if add_button:
-        form_string += "<span id='add" + tag_id + "' class='icon add' "
-        form_string += "onclick=\"changeHTMLForm('add'," + tag_id + ");\"></span>"
-    else:
-        form_string += "<span id='add" + tag_id + "' class='icon add' "
-        form_string += "style='display:none;' onclick=\"changeHTMLForm('add'," + tag_id + ");\"></span>"
-
-    if delete_button:
-        form_string += "<span id='remove" + tag_id + "' class='icon remove' "
-        form_string += "onclick=\"changeHTMLForm('remove'," + tag_id + ");\"></span>"
-    else:
-        form_string += "<span id='remove" + tag_id + "' class='icon remove' "
-        form_string += "style='display:none;' onclick=\"changeHTMLForm('remove'," + tag_id + ");\"></span>"
-
-    return form_string
+# def render_buttons_2(add_button, delete_button, tag_id):
+#     """Displays buttons for a duplicable/removable element
+#
+#     Parameters:
+#         add_button: boolean
+#         delete_button: boolean
+#         tag_id: id of the tag to associate buttons to it
+#
+#     Returns:
+#         JSON data
+#     """
+#     add_button_type = type(add_button)
+#     del_button_type = type(delete_button)
+#
+#     if add_button_type is not bool:
+#         raise TypeError('add_button type is wrong (' + str(add_button_type) + 'received, bool needed')
+#
+#     if del_button_type is not bool:
+#         raise TypeError('add_button type is wrong (' + str(del_button_type) + 'received, bool needed')
+#
+#     form_string = ""
+#     tag_id = str(tag_id)  # Tag ID string conversion
+#
+#     # the number of occurrences is fixed, don't need buttons
+#     # FIXME remove onclick from buttons (use jquery instead)
+#     if add_button:
+#         form_string += "<span id='add" + tag_id + "' class='icon add' "
+#         form_string += "onclick=\"changeHTMLForm('add'," + tag_id + ");\"></span>"
+#     else:
+#         form_string += "<span id='add" + tag_id + "' class='icon add' "
+#         form_string += "style='display:none;' onclick=\"changeHTMLForm('add'," + tag_id + ");\"></span>"
+#
+#     if delete_button:
+#         form_string += "<span id='remove" + tag_id + "' class='icon remove' "
+#         form_string += "onclick=\"changeHTMLForm('remove'," + tag_id + ");\"></span>"
+#     else:
+#         form_string += "<span id='remove" + tag_id + "' class='icon remove' "
+#         form_string += "style='display:none;' onclick=\"changeHTMLForm('remove'," + tag_id + ");\"></span>"
+#
+#     return form_string
 
 
 def render_collapse_button():

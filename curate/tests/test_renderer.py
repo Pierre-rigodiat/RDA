@@ -3,7 +3,7 @@
 from django.test import TestCase
 from os.path import join
 
-from curate.parser.renderer import render_buttons
+from curate.renderer import render_buttons
 from lxml import etree
 
 from mgi.tests import are_equals, DataHandler, VariableTypesGenerator

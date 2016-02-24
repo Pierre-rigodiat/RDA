@@ -1,9 +1,9 @@
 """
 """
 from os.path import join
-from curate.parser.renderer import render_buttons, render_collapse_button, render_form, render_form_error, \
-    render_input, render_empty_not_chosen_ul, render_li, render_ul, render_li_sequence, render_li_sequence_rem, \
-    render_select, render_buttons_2, render_li_choice
+from curate.renderer import render_buttons, render_collapse_button, render_form, render_form_error, \
+    render_input, render_li, render_ul, \
+    render_select
 from mgi.models import FormElement, XMLElement, FormData, Module
 from mgi.settings import CURATE_MIN_TREE, CURATE_COLLAPSE
 from bson.objectid import ObjectId
@@ -629,7 +629,7 @@ def generate_element(request, element, xml_tree, namespace, choice_info=None, fu
             li_content += buttons
 
         # renders the name of the element
-        ul_content += render_li(li_content, element_tag, use, tag_id, text_capitalized)
+        ul_content += render_li(li_content, tag_id, element_tag, use, text_capitalized)
 
     form_string += render_ul(ul_content, choice_id, chosen)
     return form_string
@@ -821,7 +821,7 @@ def generate_sequence(request, element, xml_tree, namespace, choice_info=None, f
             li_content += text
             li_content += render_buttons(True, False, str(tag_id[7:]))
 
-            ul_content += render_li_sequence_rem(li_content, tag_id)
+            ul_content += render_li(li_content, tag_id, 'sequence', 'removed')
         else:
             for x in range(0, int(nb_occurrences)):
                 nb_html_tags = int(request.session['nb_html_tags'])
@@ -859,7 +859,7 @@ def generate_sequence(request, element, xml_tree, namespace, choice_info=None, f
                         elif child.tag == "{0}group".format(namespace):
                             pass
 
-                ul_content += render_li_sequence(li_content, tag_id)
+                ul_content += render_li(li_content, tag_id, 'sequence')
 
         form_string += render_ul(ul_content, choice_id, chosen)
     else:
@@ -1076,7 +1076,7 @@ def generate_choice(request, element, xml_tree, namespace, choice_info=None, ful
 
         li_content += render_select(choose_id_str, options)
         # FIXME this case generate buttons even when not needed (add and delete == False)
-        li_content += render_buttons_2(add_button, delete_button, tag_id[7:])
+        li_content += render_buttons(add_button, delete_button, tag_id[7:])
 
         for (counter, choiceChild) in enumerate(list(element)):
             if choiceChild.tag == "{0}element".format(namespace):
@@ -1094,7 +1094,7 @@ def generate_choice(request, element, xml_tree, namespace, choice_info=None, ful
             elif choiceChild.tag == "{0}any".format(namespace):
                 pass
 
-        ul_content += render_li_choice(li_content, tag_id, is_removed)
+        ul_content += render_li('Choose'+li_content, tag_id, 'choice', 'removed' if is_removed else None)
 
     form_string += render_ul(ul_content, choice_id, chosen)
 
