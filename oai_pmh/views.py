@@ -613,4 +613,4 @@ def getData(request):
         content = {'message' : xmlTree}
         return HttpResponse(json.dumps(content), content_type="application/javascript")
     else:
-        return HttpResponse(json.dumps({'message' : req.content}), content_type="application/javascript")
+        return HttpResponseBadRequest(req.content, content_type="application/javascript")
