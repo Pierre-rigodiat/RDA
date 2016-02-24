@@ -417,7 +417,7 @@ submit = function() {
                            }
 
                            $.ajax({
-                                    url : '/oai_pmh/getdata/',
+                                    url : '/oai_pmh/client/getdata/',
                                     type : "POST",
                                     dataType: "json",
                                     data : {
@@ -445,7 +445,7 @@ populateSelect = function() {
                              else {
                                 var id = $("select#id_dataProvider").val().split('|')[0];
                                 $.ajax({
-                                    url : '/oai_pmh/registry/' + id + '/all_sets/',
+                                    url : '/oai_pmh/client/registry/' + id + '/all_sets/',
                                     type : "POST",
                                     dataType: "json",
                                     success: function(data){
@@ -460,7 +460,7 @@ populateSelect = function() {
                                 });
 
                                 $.ajax({
-                                    url : '/oai_pmh/registry/' + id + '/all_metadataprefix/',
+                                    url : '/oai_pmh/client/registry/' + id + '/all_metadataprefix/',
                                     type : "POST",
                                     dataType: "json",
                                     success: function(data){
