@@ -31,7 +31,7 @@
 {% block submenu %}{% include 'admin/menu/submenu/oai-pmh.html' with active_tab='tab2' %}{% endblock %}
 
 {% block content%}
-
+<div class="clearer">&nbsp;</div>
 <div class="alert alert-warning" id="banner_submit_wait" style="display: none;">
             <h4><i class='fa fa-circle-o-notch fa-spin fa-1x'></i>&nbsp;&nbsp;Please wait ...</h4>
         </div>
@@ -82,6 +82,7 @@
 
         <div style="float: left">
             <button class="btn btn-default" id="submitBtn" onclick="checkSubmit()">Submit</button>
+            <button id="downloadXML" class="btn download" style="display: none" onclick="downloadXmlBuildReq();"><i class="icon-arrow-down"></i> Download XML </button>
         </div>
 <br/><br/>
         {% autoescape off %}
