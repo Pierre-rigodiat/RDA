@@ -342,6 +342,8 @@ showhide = function(event){
 */
 checkSubmit = function() {
     $("#downloadXML").hide();
+    $("#banner_build_errors").hide(200);
+    $("#build_errors").html("");
     $("#result").text('');
     var label = '';
     if ($("select#id_dataProvider").val() == '0') {
@@ -432,6 +434,11 @@ submit = function() {
                                         $("#submitBtn").removeAttr("disabled");
                                         $("#banner_submit_wait").hide(200);
                                     },
+                                    error:function(data){
+                                        $("#banner_submit_wait").hide(200);
+                                        $("#banner_build_errors").show(200);
+                                        $("#build_errors").html(data.responseText);
+                                    }
                                 });
 }
 
@@ -488,7 +495,8 @@ downloadXmlBuildReq = function(){
             window.location = "/oai_pmh/client/download-xml-build-req?id="+ data.xml2downloadID
         },
         error : function(data) {
-            alert(data.responseText);
+            $("#banner_build_errors").show(200);
+            $("#build_errors").html(data.responseText);
         }
     });
 }
