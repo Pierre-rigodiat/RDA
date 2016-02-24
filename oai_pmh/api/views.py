@@ -1162,6 +1162,8 @@ def getData(request):
 
     XMLParser = etree.XMLParser(remove_blank_text=True, recover=True)
     dom = etree.XML(http_response.text.encode("utf8"),  parser=XMLParser)
+    #Put the XML in session if the user wants to dowmload it
+    request.session['xmlStringOAIPMH'] = http_response.text.encode("utf8")
     newdom = transform(dom)
     xmlTree = str(newdom)
 

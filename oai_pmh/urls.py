@@ -21,6 +21,7 @@ urlpatterns = patterns(
     url(r'^add/record$', 'add_record'),
     url(r'^update/record$', 'update_record'),
     url(r'^check/registry$', 'check_registry'),
+    url(r'^download-xml-build-req$', 'download_xml_build_req'),
     url(r'^(?i)listrecords$', 'listRecords'),
     url(r'^(?i)identify$', 'identify'),
     url(r'^(?i)listmetadataformats$', 'listMetadataFormats'),

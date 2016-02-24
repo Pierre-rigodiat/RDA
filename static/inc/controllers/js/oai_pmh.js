@@ -341,6 +341,7 @@ showhide = function(event){
 * Perform check before submit
 */
 checkSubmit = function() {
+    $("#downloadXML").hide();
     $("#result").text('');
     var label = '';
     if ($("select#id_dataProvider").val() == '0') {
@@ -425,6 +426,7 @@ submit = function() {
                                     success: function(data){
                                         $("#banner_submit_wait").hide(200);
                                         $("#result").html(data.message);
+                                        $("#downloadXML").show(100);
                                     },
                                     complete: function(data){
                                         $("#submitBtn").removeAttr("disabled");
@@ -474,6 +476,27 @@ populateSelect = function() {
                              }
 }
 
+/**
+ * AJAX call, get XML data and redirects to download view
+ */
+downloadXmlBuildReq = function(){
+    $.ajax({
+        url : "/oai_pmh/client/download-xml-build-req",
+        type : "POST",
+        dataType: "json",
+        success : function(data) {
+            window.location = "/oai_pmh/client/download-xml-build-req?id="+ data.xml2downloadID
+        },
+        error : function(data) {
+            alert(data.responseText);
+        }
+    });
+}
+
 init = function(){
     populateSelect();
 }
+
+
+
+

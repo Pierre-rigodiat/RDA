@@ -12,6 +12,9 @@
 ################################################################################
 
 # Responses
+import lxml.etree as etree
+from cStringIO import StringIO
+from django.core.servers.basehttp import FileWrapper
 from rest_framework import status
 from django.http import HttpResponse
 from django.http.response import HttpResponseBadRequest
@@ -26,8 +29,9 @@ import xmltodict
 from mgi.settings import OAI_HOST_URI, OAI_USER, OAI_PASS
 from django.contrib import messages
 from django.template import RequestContext, loader
-from mgi.models import Registry
+from mgi.models import Registry, XML2Download
 from django.contrib.auth.decorators import login_required
+import datetime
 
 ################################################################################
 #
@@ -485,3 +489,51 @@ def listRecords(request):
     except:
         return render(request, 'error.html', {"response":"An error occurred. Please contact your administrator."})
 
+################################################################################
+#
+# Function Name: oai_pmh_downloadxml(request)
+# Inputs:        request -
+# Outputs:       XML representation of the current build request
+# Exceptions:    None
+# Description:   Returns an XML representation of the current build request.
+#                Used when user wants to download the XML file.
+#
+################################################################################
+@login_required(login_url='/login')
+def download_xml_build_req(request):
+    if request.method == 'POST':
+        if 'xmlStringOAIPMH' in request.session:
+            xmlDataObject = request.session['xmlStringOAIPMH']
+            try:
+                xmlDoc = etree.XML(str(xmlDataObject.encode('utf-8')))
+                xmlStringEncoded = etree.tostring(xmlDoc, pretty_print=True)
+            except:
+                xmlStringEncoded = xmlDataObject
+
+            i = datetime.datetime.now()
+            title = "OAI_PMH_BUILD_REQ_%s_.xml" % i.isoformat()
+            xml2download = XML2Download(title=title, xml=xmlStringEncoded).save()
+            xml2downloadID = str(xml2download.id)
+
+            response_dict = {"xml2downloadID": xml2downloadID}
+            return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
+        else:
+            return HttpResponseBadRequest('An error occured. Please reload the page and try again.')
+    else:
+        xml2downloadID = request.GET.get('id', None)
+
+        if xml2downloadID is not None:
+            xmlDataObject = XML2Download.objects.get(pk=xml2downloadID)
+            xmlStringEncoded = xmlDataObject.xml.encode('utf-8')
+            fileObj = StringIO(xmlStringEncoded)
+            xmlDataObject.delete()
+            if not xmlDataObject.title.lower().endswith('.xml'):
+                xmlDataObject.title += ".xml"
+
+            response = HttpResponse(FileWrapper(fileObj), content_type='application/xml')
+            response['Content-Disposition'] = 'attachment; filename=' + xmlDataObject.title
+            request.session['xmlStringOAIPMH'] = xmlStringEncoded
+
+            return response
+        else:
+            return redirect('/')
