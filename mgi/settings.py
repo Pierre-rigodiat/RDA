@@ -74,6 +74,7 @@ else:
 from mongoengine import connect
 MONGO_MGI_USER = "mgi_user"
 MONGO_MGI_PASSWORD = "mgi_password"
+MGI_DB = 'mgi'
 MONGODB_URI = "mongodb://" + MONGO_MGI_USER + ":" + MONGO_MGI_PASSWORD + "@localhost/mgi"
 connect("mgi", host=MONGODB_URI)
 
