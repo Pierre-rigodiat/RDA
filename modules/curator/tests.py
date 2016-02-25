@@ -73,6 +73,9 @@ class EnumAutoCompleteModuleTestCase(SeleniumTestCase):
 
         pass
 
+    def test_choice_switch(self):
+        pass
+
     def test_multiple_autocomplete(self):
         pass
 
