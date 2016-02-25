@@ -154,15 +154,6 @@ class ExampleAutoCompleteModule(AutoCompleteModule):
         return ''
 
     def _post_display(self, request):
-        # available_options = set()
-        # available_options.add('list')
-        # available_options.add('data')
-        #
-        # post_options = set(request.POST)
-        #
-        # if len(available_options.intersection(post_options)) == 0:
-        #     raise ModuleError('No data sent to server.')
-
         if 'list' in request.POST:
             response_list = []
 
