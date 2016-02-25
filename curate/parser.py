@@ -574,7 +574,9 @@ def generate_element(request, element, xml_tree, namespace, choice_info=None, fu
 
         label = app_info['label'] if 'label' in app_info else text_capitalized
         label = label if label is not None else ''
+
         li_content += label
+
         # add buttons to add/remove elements
         buttons = ""
         if not (add_button is False and delete_button is False):
@@ -612,6 +614,7 @@ def generate_element(request, element, xml_tree, namespace, choice_info=None, fu
                     placeholder = app_info['placeholder'] if 'placeholder' in app_info else ''
                     tooltip = app_info['tooltip'] if 'tooltip' in app_info else ''
 
+                    li_content += ' '
                     li_content += render_input(default_value, placeholder, tooltip)
                     li_content += buttons
                 else:  # complex/simple type

@@ -120,6 +120,14 @@ def are_equals(xml_tree_a, xml_tree_b):
     attrib_b = xml_tree_b.attrib
 
     text_a = xml_tree_a.text
+
+    if type(text_a) == str:
+        text_a = text_a.lstrip('\r\n\t ')
+        text_a = text_a.rstrip('\r\n')
+
+        if text_a == '':
+            text_a = None
+
     text_b = xml_tree_b.text
 
     children_a = xml_tree_a.getchildren()
