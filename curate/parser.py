@@ -1138,7 +1138,7 @@ def generate_simple_type(request, element, xml_tree, namespace, full_path, edit_
                                                 edit_data_tree=edit_data_tree)
         elif child.tag == "{0}list".format(namespace):
             # TODO list can contain a restriction/enumeration
-            form_string += render_input(None, '', '')
+            form_string += render_input('', '', '')
         elif child.tag == "{0}union".format(namespace):
             pass
 
@@ -1381,7 +1381,7 @@ def generate_restriction(request, element, xml_tree, namespace, full_path="", ed
             form_string += generate_simple_type(request, simple_type, xml_tree, namespace, full_path=full_path,
                                                 edit_data_tree=edit_data_tree)
         else:
-            form_string += render_input(None, '', '')
+            form_string += render_input('', '', '')
 
     return form_string
 

@@ -1,5 +1,6 @@
 """
 """
+from types import NoneType
 from django.http.request import HttpRequest
 from django.template.context import RequestContext
 from django.template import loader
@@ -8,6 +9,9 @@ from os.path import join
 
 def load_template(template_path, template_data=None):
     context = RequestContext(HttpRequest())
+
+    if template_data is not None and type(template_data) != dict:
+        raise TypeError('Second parameter should be a dict (' + str(type(template_data)) + ' given)')
 
     if template_data is not None:
         context.update(template_data)
@@ -24,6 +28,9 @@ def render_form(content):
     :param content:
     :return:
     """
+    if type(content) not in [str, unicode]:
+        raise TypeError('Content should be a str (' + str(type(content)) + ' given)')
+
     data = {
         'content': content
     }
@@ -37,6 +44,9 @@ def render_form_error(message):
     :param message:
     :return:
     """
+    if type(message) not in [str, unicode]:
+        raise TypeError('Content should be a str (' + str(type(message)) + ' given)')
+
     return load_template('form-error.html', {'message': message})
 
 
@@ -48,6 +58,16 @@ def render_input(value, placeholder, title):
     :param title:
     :return:
     """
+
+    if type(value) not in [str, unicode]:
+        raise TypeError('First param (value) should be a str (' + str(type(value)) + ' given)')
+
+    if type(placeholder) not in [str, unicode]:
+        raise TypeError('Second param (placeholder) should be a str (' + str(type(value)) + ' given)')
+
+    if type(title) not in [str, unicode]:
+        raise TypeError('Third param (title) should be a str (' + str(type(value)) + ' given)')
+
     data = {
         'value': value,
         'placeholder': placeholder,
@@ -65,6 +85,16 @@ def render_ul(content, element_id, chosen):
     :param chosen:
     :return:
     """
+
+    if type(content) not in [str, unicode]:
+        raise TypeError('First param (content) should be a str (' + str(type(content)) + ' given)')
+
+    if type(element_id) not in [str, unicode, NoneType]:
+        raise TypeError('Second param (element_id) should be a str or None (' + str(type(element_id)) + ' given)')
+
+    if type(chosen) != bool:
+        raise TypeError('Third param (chosen) should be a bool (' + str(type(chosen)) + ' given)')
+
     data = {
         'content': content,
         'element_id': element_id,
@@ -84,6 +114,24 @@ def render_li(content, tag_id, element_tag, use=None, text=None):
     :param text:
     :return:
     """
+
+    if type(content) not in [str, unicode]:
+        raise TypeError('First param (content) should be a str (' + str(type(content)) + ' given)')
+
+    try:
+        tag_id = str(tag_id)
+    except:
+        raise TypeError('Second param (tag_id) should be a parsable as a string')
+
+    if type(element_tag) not in [str, unicode]:
+        raise TypeError('Third param (element_tag) should be a str (' + str(type(element_tag)) + ' given)')
+
+    if type(use) not in [str, unicode, NoneType]:
+        raise TypeError('Fourth param (use) should be a str or None (' + str(type(use)) + ' given)')
+
+    if type(text) not in [str, unicode, NoneType]:
+        raise TypeError('Fifth param (text) should be a str or None (' + str(type(text)) + ' given)')
+
     if use is None:
         li_class = element_tag
     else:
@@ -91,7 +139,7 @@ def render_li(content, tag_id, element_tag, use=None, text=None):
 
     data = {
         'li_class': li_class,
-        'tag_id': str(tag_id),
+        'tag_id': tag_id,
         'text': text,
         'content': content
     }
@@ -106,6 +154,29 @@ def render_select(select_id, option_list):
     :param option_list:
     :return:
     """
+
+    if type(select_id) not in [str, unicode, NoneType]:
+        raise TypeError('First param (select_id) should be a str or None (' + str(type(select_id)) + ' given)')
+
+    if type(option_list) != list:
+        raise TypeError('First param (option_list) should be a list (' + str(type(option_list)) + ' given)')
+
+    for option in option_list:
+        if type(option) != tuple:
+            raise TypeError('Malformed param (option_list): type of item not good')
+
+        if len(option) != 3:
+            raise TypeError('Malformed param (option_list): Length of item not good')
+
+        if type(option[0]) not in [str, unicode]:
+            raise TypeError('Malformed param (option_list): item[0] should be a str')
+
+        if type(option[1]) not in [str, unicode]:
+            raise TypeError('Malformed param (option_list): item[1] should be a str')
+
+        if type(option[2]) != bool:
+            raise TypeError('Malformed param (option_list): item[2] should be a bool')
+
     data = {
         'select_id': select_id,
         'option_list': option_list
