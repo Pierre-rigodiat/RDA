@@ -339,8 +339,6 @@ def generate_form(request):
         del request.session['mapTagID']
     request.session['mapTagID'] = {}
 
-    form_string = ""
-
     # get form data from the database (empty one or existing one)
     form_data_id = request.session['curateFormData']
     form_data = FormData.objects.get(pk=ObjectId(form_data_id))
@@ -369,15 +367,15 @@ def generate_form(request):
     try:
         # one root
         if len(elements) == 1:
-            form_string += generate_element(request, elements[0], xml_doc_tree, namespace,
+            form_content = generate_element(request, elements[0], xml_doc_tree, namespace,
                                             edit_data_tree=edit_data_tree)
         # multiple roots
         elif len(elements) > 1:
-            form_string += generate_choice(request, elements, xml_doc_tree, namespace, edit_data_tree=edit_data_tree)
+            form_content = generate_choice(request, elements, xml_doc_tree, namespace, edit_data_tree=edit_data_tree)
         else:  # No root element detected
             raise Exception("No root element detected")
 
-        form_string = render_form(form_string)
+        form_string = render_form(form_content)
     except Exception as e:
         form_string = render_form_error(e.message)
 
@@ -1214,8 +1212,8 @@ def generate_complex_type(request, element, xml_tree, namespace, full_path, edit
             if complex_type_child is not None:
                 form_string += generate_choice(request, complex_type_child, xml_tree, namespace, full_path=full_path,
                                                edit_data_tree=edit_data_tree)
-            else:
-                form_string += ""
+            # else:
+            #     form_string += ""
 
     return form_string
 
