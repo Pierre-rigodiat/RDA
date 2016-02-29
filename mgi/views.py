@@ -318,3 +318,46 @@ def help(request):
         'help': help
     })
     return HttpResponse(template.render(context))
+
+################################################################################
+#
+# Function Name: my_profile_dashboard_resources(request)
+# Inputs:        request -
+# Outputs:       Dashboard - Resources
+# Exceptions:    None
+# Description:   Dashboard - Resources
+#
+################################################################################
+@login_required(login_url='/login')
+def my_profile_dashboard_resources(request):
+    template = loader.get_template('profile/my_profile_dashboard_my_resources.html')
+    if 'template' in request.GET:
+        template_name = request.GET['template']
+        if template_name == 'all':
+            context = RequestContext(request, {
+                'XMLdatas': XMLdata.find({'iduser' : str(request.user.id)}),
+            })
+        else :
+            if template_name == 'datacollection':
+                templateNamesQuery = list(chain(Template.objects.filter(title=template_name).values_list('id'),
+                                                Template.objects.filter(title='repository').values_list('id'),
+                                                Template.objects.filter(title='database').values_list('id'),
+                                                Template.objects.filter(title='projectarchive').values_list('id')
+                                                ))
+            else :
+                templateNamesQuery = Template.objects.filter(title=template_name).values_list('id')
+            templateNames = []
+            for templateQuery in templateNamesQuery:
+                templateNames.append(str(templateQuery))
+
+            context = RequestContext(request, {
+                'XMLdatas': XMLdata.find({
+                    'iduser': str(request.user.id),
+                    'schema': {"$in": templateNames}}),
+                'template': template_name
+            })
+    else:
+        context = RequestContext(request, {
+                'XMLdatas': XMLdata.find({'iduser': str(request.user.id)}),
+        })
+    return HttpResponse(template.render(context))
