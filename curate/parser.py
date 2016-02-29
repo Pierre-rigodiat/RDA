@@ -16,38 +16,38 @@ from modules import get_module_view
 # Part I: Utilities
 ##################################################
 
-def get_subnodes_xpath(element, xml_tree, namespace):
-    """Perform a lookup in subelements to build xpath
-
-    Parameters:
-        element: XML element
-        xml_tree: xml_tree
-        namespace: namespace
-    """
-    # FIXME References returns the same object several times
-    # TODO Check if min and maxOccurs are correctly reported (declared in ref but not reported elsewhere)
-    xpaths = []
-
-    if len(list(element)) > 0:
-        for child in list(element):
-            if child.tag == "{0}element".format(namespace):
-                if 'name' in child.attrib:
-                    xpaths.append({'name': child.attrib['name'], 'element': child})
-                elif 'ref' in child.attrib:
-                    ref = child.attrib['ref']
-
-                    if ':' in ref:
-                        ref_split = ref.split(":")
-                        ref_name = ref_split[1]
-                        ref_element = xml_tree.find("./{0}element[@name='{1}']".format(namespace, ref_name))
-                    else:
-                        ref_element = xml_tree.find("./{0}element[@name='{1}']".format(namespace, ref))
-
-                    if ref_element is not None:
-                        xpaths.append({'name': ref_element.attrib.get('name'), 'element': ref_element})
-            else:
-                xpaths.extend(get_subnodes_xpath(child, xml_tree, namespace))
-    return xpaths
+# def get_subnodes_xpath(element, xml_tree, namespace):
+#     """Perform a lookup in subelements to build xpath
+#
+#     Parameters:
+#         element: XML element
+#         xml_tree: xml_tree
+#         namespace: namespace
+#     """
+#     # FIXME References returns the same object several times
+#     # TODO Check if min and maxOccurs are correctly reported (declared in ref but not reported elsewhere)
+#     xpaths = []
+#
+#     if len(list(element)) > 0:
+#         for child in list(element):
+#             if child.tag == "{0}element".format(namespace):
+#                 if 'name' in child.attrib:
+#                     xpaths.append({'name': child.attrib['name'], 'element': child})
+#                 elif 'ref' in child.attrib:
+#                     ref = child.attrib['ref']
+#
+#                     if ':' in ref:
+#                         ref_split = ref.split(":")
+#                         ref_name = ref_split[1]
+#                         ref_element = xml_tree.find("./{0}element[@name='{1}']".format(namespace, ref_name))
+#                     else:
+#                         ref_element = xml_tree.find("./{0}element[@name='{1}']".format(namespace, ref))
+#
+#                     if ref_element is not None:
+#                         xpaths.append({'name': ref_element.attrib.get('name'), 'element': ref_element})
+#             else:
+#                 xpaths.extend(get_subnodes_xpath(child, xml_tree, namespace))
+#     return xpaths
 
 
 def get_nodes_xpath(elements, xml_tree, namespace):
@@ -62,7 +62,7 @@ def get_nodes_xpath(elements, xml_tree, namespace):
         namespace: namespace
     """
     # FIXME Making one function with get_subnode_xpath should be possible, both are doing the same job
- # FIXME same problems as in get_subnodes_xpath
+    # FIXME same problems as in get_subnodes_xpath
     xpaths = []
 
     for element in elements:
@@ -82,7 +82,7 @@ def get_nodes_xpath(elements, xml_tree, namespace):
                 if ref_element is not None:
                     xpaths.append({'name': ref_element.attrib.get('name'), 'element': ref_element})
         else:
-            xpaths.extend(get_subnodes_xpath(element, xml_tree, namespace))
+            xpaths.extend(get_nodes_xpath(element, xml_tree, namespace))
     return xpaths
 
 

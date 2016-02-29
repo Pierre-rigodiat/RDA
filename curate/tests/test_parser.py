@@ -4,13 +4,13 @@ from django.http.request import HttpRequest
 from django.test import TestCase
 from django.utils.importlib import import_module
 from os.path import join
-from curate.parser import render_buttons, remove_annotations, generate_choice, generate_restriction, \
-    generate_simple_type, generate_extension, generate_simple_content, get_subnodes_xpath, lookup_occurs, \
+from curate.parser import remove_annotations, generate_choice, generate_restriction, \
+    generate_simple_type, generate_extension, generate_simple_content, lookup_occurs, \
     manage_occurences, manage_attr_occurrences, has_module, get_xml_element_data, get_element_type, get_nodes_xpath, \
     generate_sequence, generate_element, generate_complex_type, generate_element_absent, generate_sequence_absent, \
     generate_form, generate_module
 from mgi.models import Module, FormElement, FormData
-from mgi.tests import VariableTypesGenerator, DataHandler, are_equals
+from mgi.tests import DataHandler, are_equals
 from lxml import etree
 
 
@@ -18,167 +18,167 @@ from lxml import etree
 # Part I: Utilities testing
 ##################################################
 
-class ParserGetSubnodesXPathTestSuite(TestCase):
-    """
-    """
-
-    def setUp(self):
-        subnodes_data = join('curate', 'tests', 'data', 'parser', 'utils', 'xpath')
-        self.subnodes_data_handler = DataHandler(subnodes_data)
-
-    def test_not_element(self):
-        not_element_xsd = self.subnodes_data_handler.get_xsd2('not_element')
-        xpath_result = get_subnodes_xpath(not_element_xsd, not_element_xsd, '')
-
-        self.assertEqual(xpath_result, [])
-
-    def test_imbricated_elements(self):
-        document = join('imbricated_elements', 'document')
-        imbricated_elements_xsd = self.subnodes_data_handler.get_xsd2(document)
-
-        child_0 = join('imbricated_elements', 'child_0')
-        imbricated_element_0_xsd = self.subnodes_data_handler.get_xsd2(child_0)
-
-        child_1 = join('imbricated_elements', 'child_1')
-        imbricated_element_1_xsd = self.subnodes_data_handler.get_xsd2(child_1)
-
-        child_2 = join('imbricated_elements', 'child_2')
-        imbricated_element_2_xsd = self.subnodes_data_handler.get_xsd2(child_2)
-
-        xpath_result = get_subnodes_xpath(imbricated_elements_xsd, imbricated_elements_xsd, '')
-        expected_result = [
-            {
-                'name': 'child_0',
-                'element': imbricated_element_0_xsd
-            },
-            {
-                'name': 'child_1',
-                'element': imbricated_element_1_xsd
-            },
-            {
-                'name': 'child_2',
-                'element': imbricated_element_2_xsd
-            },
-        ]
-
-        self.assertEqual(len(xpath_result), len(expected_result))
-
-        for xpath in xpath_result:
-            xpath_elem = xpath['element']
-
-            expected_elem_list = [expect['element'] for expect in expected_result if expect['name'] == xpath['name']]
-            expect_elem = expected_elem_list[0] if len(expected_elem_list) == 1 else None
-
-            self.assertTrue(are_equals(xpath_elem, expect_elem))
-
-    def test_element_has_name(self):
-        document = join('element_with_name', 'document')
-        named_element_xsd = self.subnodes_data_handler.get_xsd2(document)
-
-        child_0 = join('element_with_name', 'child_0')
-        child_0_xsd = self.subnodes_data_handler.get_xsd2(child_0)
-
-        child_1 = join('element_with_name', 'child_1')
-        child_1_xsd = self.subnodes_data_handler.get_xsd2(child_1)
-
-        xpath_result = get_subnodes_xpath(named_element_xsd, named_element_xsd, '')
-        expected_result = [
-            {
-                'name': 'child_0',
-                'element': child_0_xsd
-            },
-            {
-                'name': 'child_1',
-                'element': child_1_xsd
-            }
-        ]
-
-        self.assertEqual(len(xpath_result), len(expected_result))
-
-        for xpath in xpath_result:
-            xpath_elem = xpath['element']
-
-            expected_elem_list = [expect['element'] for expect in expected_result if expect['name'] == xpath['name']]
-            expect_elem = expected_elem_list[0] if len(expected_elem_list) == 1 else None
-
-            self.assertTrue(are_equals(xpath_elem, expect_elem))
-
-    def test_element_ref_has_namespace(self):
-        # FIXME This test should not work (see how to correct it)
-        document = join('element_with_ref_namespace', 'document')
-        ref_element_no_namespace_xsd = self.subnodes_data_handler.get_xsd2(document)
-
-        child_0 = join('element_with_ref_namespace', 'child_0')
-        child_0_xsd = self.subnodes_data_handler.get_xsd2(child_0)
-
-        ref_0 = join('element_with_ref_namespace', 'ref_0')
-        ref_0_xsd = self.subnodes_data_handler.get_xsd2(ref_0)
-
-        xpath_result = get_subnodes_xpath(ref_element_no_namespace_xsd, ref_element_no_namespace_xsd, '')
-
-        expected_result = [
-            {
-                'name': 'child_0',
-                'element': child_0_xsd
-            },
-            {
-                'name': 'ref_0',
-                'element': ref_0_xsd
-            },
-            {  # FIXME the 2nd element shouldn't be here (not needed)
-                'name': 'ref_0',
-                'element': ref_0_xsd
-            }
-        ]
-
-        self.assertEqual(len(xpath_result), len(expected_result))
-
-        for xpath in xpath_result:
-            xpath_elem = xpath['element']
-
-            expected_elem_list = [expect['element'] for expect in expected_result if expect['name'] == xpath['name']]
-            # FIXME Having 2 element with the same content is not useful (>= 1 should be replaced by == 1)
-            expect_elem = expected_elem_list[0] if len(expected_elem_list) >= 1 else None
-
-            self.assertTrue(are_equals(xpath_elem, expect_elem))
-
-    def test_element_ref_has_no_namespace(self):
-        document = join('element_with_ref_no_namespace', 'document')
-        ref_element_no_namespace_xsd = self.subnodes_data_handler.get_xsd2(document)
-
-        child_0 = join('element_with_ref_no_namespace', 'child_0')
-        child_0_xsd = self.subnodes_data_handler.get_xsd2(child_0)
-
-        ref_0 = join('element_with_ref_no_namespace', 'ref_0')
-        ref_0_xsd = self.subnodes_data_handler.get_xsd2(ref_0)
-
-        xpath_result = get_subnodes_xpath(ref_element_no_namespace_xsd, ref_element_no_namespace_xsd, '')
-
-        expected_result = [
-            {
-                'name': 'child_0',
-                'element': child_0_xsd
-            },
-            {
-                'name': 'ref_0',
-                'element': ref_0_xsd
-            },
-            {  # FIXME the 2nd element shouldn't be here (not needed)
-                'name': 'ref_0',
-                'element': ref_0_xsd
-            }
-        ]
-
-        self.assertEqual(len(xpath_result), len(expected_result))
-
-        for xpath in xpath_result:
-            xpath_elem = xpath['element']
-
-            expected_elem_list = [expect['element'] for expect in expected_result if expect['name'] == xpath['name']]
-            # FIXME Having 2 element with the same content is not useful (>= 1 should be replaced by == 1)
-            expect_elem = expected_elem_list[0] if len(expected_elem_list) >= 1 else None
-
-            self.assertTrue(are_equals(xpath_elem, expect_elem))
+# class ParserGetSubnodesXPathTestSuite(TestCase):
+#     """
+#     """
+#
+#     def setUp(self):
+#         subnodes_data = join('curate', 'tests', 'data', 'parser', 'utils', 'xpath')
+#         self.subnodes_data_handler = DataHandler(subnodes_data)
+#
+#     def test_not_element(self):
+#         not_element_xsd = self.subnodes_data_handler.get_xsd2('not_element')
+#         xpath_result = get_subnodes_xpath(not_element_xsd, not_element_xsd, '')
+#
+#         self.assertEqual(xpath_result, [])
+#
+#     def test_imbricated_elements(self):
+#         document = join('imbricated_elements', 'document')
+#         imbricated_elements_xsd = self.subnodes_data_handler.get_xsd2(document)
+#
+#         child_0 = join('imbricated_elements', 'child_0')
+#         imbricated_element_0_xsd = self.subnodes_data_handler.get_xsd2(child_0)
+#
+#         child_1 = join('imbricated_elements', 'child_1')
+#         imbricated_element_1_xsd = self.subnodes_data_handler.get_xsd2(child_1)
+#
+#         child_2 = join('imbricated_elements', 'child_2')
+#         imbricated_element_2_xsd = self.subnodes_data_handler.get_xsd2(child_2)
+#
+#         xpath_result = get_subnodes_xpath(imbricated_elements_xsd, imbricated_elements_xsd, '')
+#         expected_result = [
+#             {
+#                 'name': 'child_0',
+#                 'element': imbricated_element_0_xsd
+#             },
+#             {
+#                 'name': 'child_1',
+#                 'element': imbricated_element_1_xsd
+#             },
+#             {
+#                 'name': 'child_2',
+#                 'element': imbricated_element_2_xsd
+#             },
+#         ]
+#
+#         self.assertEqual(len(xpath_result), len(expected_result))
+#
+#         for xpath in xpath_result:
+#             xpath_elem = xpath['element']
+#
+#             expected_elem_list = [expect['element'] for expect in expected_result if expect['name'] == xpath['name']]
+#             expect_elem = expected_elem_list[0] if len(expected_elem_list) == 1 else None
+#
+#             self.assertTrue(are_equals(xpath_elem, expect_elem))
+#
+#     def test_element_has_name(self):
+#         document = join('element_with_name', 'document')
+#         named_element_xsd = self.subnodes_data_handler.get_xsd2(document)
+#
+#         child_0 = join('element_with_name', 'child_0')
+#         child_0_xsd = self.subnodes_data_handler.get_xsd2(child_0)
+#
+#         child_1 = join('element_with_name', 'child_1')
+#         child_1_xsd = self.subnodes_data_handler.get_xsd2(child_1)
+#
+#         xpath_result = get_subnodes_xpath(named_element_xsd, named_element_xsd, '')
+#         expected_result = [
+#             {
+#                 'name': 'child_0',
+#                 'element': child_0_xsd
+#             },
+#             {
+#                 'name': 'child_1',
+#                 'element': child_1_xsd
+#             }
+#         ]
+#
+#         self.assertEqual(len(xpath_result), len(expected_result))
+#
+#         for xpath in xpath_result:
+#             xpath_elem = xpath['element']
+#
+#             expected_elem_list = [expect['element'] for expect in expected_result if expect['name'] == xpath['name']]
+#             expect_elem = expected_elem_list[0] if len(expected_elem_list) == 1 else None
+#
+#             self.assertTrue(are_equals(xpath_elem, expect_elem))
+#
+#     def test_element_ref_has_namespace(self):
+#         # FIXME This test should not work (see how to correct it)
+#         document = join('element_with_ref_namespace', 'document')
+#         ref_element_no_namespace_xsd = self.subnodes_data_handler.get_xsd2(document)
+#
+#         child_0 = join('element_with_ref_namespace', 'child_0')
+#         child_0_xsd = self.subnodes_data_handler.get_xsd2(child_0)
+#
+#         ref_0 = join('element_with_ref_namespace', 'ref_0')
+#         ref_0_xsd = self.subnodes_data_handler.get_xsd2(ref_0)
+#
+#         xpath_result = get_subnodes_xpath(ref_element_no_namespace_xsd, ref_element_no_namespace_xsd, '')
+#
+#         expected_result = [
+#             {
+#                 'name': 'child_0',
+#                 'element': child_0_xsd
+#             },
+#             {
+#                 'name': 'ref_0',
+#                 'element': ref_0_xsd
+#             },
+#             {  # FIXME the 2nd element shouldn't be here (not needed)
+#                 'name': 'ref_0',
+#                 'element': ref_0_xsd
+#             }
+#         ]
+#
+#         self.assertEqual(len(xpath_result), len(expected_result))
+#
+#         for xpath in xpath_result:
+#             xpath_elem = xpath['element']
+#
+#             expected_elem_list = [expect['element'] for expect in expected_result if expect['name'] == xpath['name']]
+#             # FIXME Having 2 element with the same content is not useful (>= 1 should be replaced by == 1)
+#             expect_elem = expected_elem_list[0] if len(expected_elem_list) >= 1 else None
+#
+#             self.assertTrue(are_equals(xpath_elem, expect_elem))
+#
+#     def test_element_ref_has_no_namespace(self):
+#         document = join('element_with_ref_no_namespace', 'document')
+#         ref_element_no_namespace_xsd = self.subnodes_data_handler.get_xsd2(document)
+#
+#         child_0 = join('element_with_ref_no_namespace', 'child_0')
+#         child_0_xsd = self.subnodes_data_handler.get_xsd2(child_0)
+#
+#         ref_0 = join('element_with_ref_no_namespace', 'ref_0')
+#         ref_0_xsd = self.subnodes_data_handler.get_xsd2(ref_0)
+#
+#         xpath_result = get_subnodes_xpath(ref_element_no_namespace_xsd, ref_element_no_namespace_xsd, '')
+#
+#         expected_result = [
+#             {
+#                 'name': 'child_0',
+#                 'element': child_0_xsd
+#             },
+#             {
+#                 'name': 'ref_0',
+#                 'element': ref_0_xsd
+#             },
+#             {  # FIXME the 2nd element shouldn't be here (not needed)
+#                 'name': 'ref_0',
+#                 'element': ref_0_xsd
+#             }
+#         ]
+#
+#         self.assertEqual(len(xpath_result), len(expected_result))
+#
+#         for xpath in xpath_result:
+#             xpath_elem = xpath['element']
+#
+#             expected_elem_list = [expect['element'] for expect in expected_result if expect['name'] == xpath['name']]
+#             # FIXME Having 2 element with the same content is not useful (>= 1 should be replaced by == 1)
+#             expect_elem = expected_elem_list[0] if len(expected_elem_list) >= 1 else None
+#
+#             self.assertTrue(are_equals(xpath_elem, expect_elem))
 
 
 class ParserGetNodesXPathTestSuite(TestCase):
