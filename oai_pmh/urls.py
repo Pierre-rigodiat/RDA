@@ -10,8 +10,7 @@
 # Sponsor: National Institute of Standards and Technology (NIST)
 #
 ################################################################################
-from django.conf.urls import patterns, url
-
+from django.conf.urls import patterns, url, include
 
 urlpatterns = patterns(
     'oai_pmh.views',
@@ -31,5 +30,8 @@ urlpatterns = patterns(
     url(r'^registry/(?P<registry>[-\w]+)/all_sets/$', 'all_sets'),
     url(r'^registry/(?P<registry>[-\w]+)/all_metadataprefix/$', 'all_metadataprefix'),
     url(r'^getdata/$', 'getData'),
+
+    url(r'^api/', include('oai_pmh.api.urls')),
+    url(r'^server/', include('oai_pmh.server.urls')),
 )
 

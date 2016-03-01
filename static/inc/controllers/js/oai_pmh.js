@@ -37,7 +37,7 @@ displayAddRegistry = function()
                        $("#banner_add_wait").show(200);
                        var formData = new FormData($( "#form_add" )[0]);
 	            	   $.ajax({
-	            	        url: "/oai_pmh/client/add/registry",
+	            	        url: "/oai_pmh/add/registry",
 	            	        type: 'POST',
 	            	        data: formData,
 	            	        cache: false,
@@ -136,7 +136,7 @@ editRegistry = function(registryId)
                         {
                             var formData = new FormData($( "#form_edit" )[0]);
                             $.ajax({
-                                url: "/oai_pmh/client/update/registry",
+                                url: "/oai_pmh/update/registry",
                                 type: 'POST',
                                 data: formData,
                                 cache: false,
@@ -163,7 +163,7 @@ editRegistry = function(registryId)
 
 load_edit_form = function(registryId){
 	$.ajax({
-        url : "/oai_pmh/client/update/registry",
+        url : "/oai_pmh/update/registry",
         type : "GET",
         dataType: "json",
         data : {
@@ -202,7 +202,7 @@ deleteRegistry = function(registry_id)
 delete_registry = function(registry_id){
     $("#banner_delete_wait").show(200);
     $.ajax({
-        url : '/oai_pmh/client/delete/registry',
+        url : '/oai_pmh/delete/registry',
         type : "POST",
         dataType: "json",
         data : {
@@ -268,7 +268,7 @@ checkStatus = function (registry_id, url)
     $("#Status"+registry_id).css("color", "#000000");
     $("#Status"+registry_id).html('<i class="fa fa-spinner fa-spin"></i>');
     $.ajax({
-        url : '/oai_pmh/client/check/registry',
+        url : '/oai_pmh/check/registry',
         type : "POST",
         dataType: "json",
         async: true,
@@ -419,7 +419,7 @@ submit = function() {
                            }
 
                            $.ajax({
-                                    url : '/oai_pmh/client/getdata/',
+                                    url : '/oai_pmh/getdata/',
                                     type : "POST",
                                     dataType: "json",
                                     data : {
@@ -452,7 +452,7 @@ populateSelect = function() {
                              else {
                                 var id = $("select#id_dataProvider").val().split('|')[0];
                                 $.ajax({
-                                    url : '/oai_pmh/client/registry/' + id + '/all_sets/',
+                                    url : '/oai_pmh/registry/' + id + '/all_sets/',
                                     type : "POST",
                                     dataType: "json",
                                     success: function(data){
@@ -467,7 +467,7 @@ populateSelect = function() {
                                 });
 
                                 $.ajax({
-                                    url : '/oai_pmh/client/registry/' + id + '/all_metadataprefix/',
+                                    url : '/oai_pmh/registry/' + id + '/all_metadataprefix/',
                                     type : "POST",
                                     dataType: "json",
                                     success: function(data){
@@ -488,11 +488,11 @@ populateSelect = function() {
  */
 downloadXmlBuildReq = function(){
     $.ajax({
-        url : "/oai_pmh/client/download-xml-build-req",
+        url : "/oai_pmh/download-xml-build-req",
         type : "POST",
         dataType: "json",
         success : function(data) {
-            window.location = "/oai_pmh/client/download-xml-build-req?id="+ data.xml2downloadID
+            window.location = "/oai_pmh/download-xml-build-req?id="+ data.xml2downloadID
         },
         error : function(data) {
             $("#banner_build_errors").show(200);

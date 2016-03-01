@@ -43,8 +43,7 @@ urlpatterns = patterns('',
     url(r'^terms-of-use', 'mgi.views.terms_of_use', name='terms-of-use'),
     url(r'^o/', include('oauth2_provider.urls', namespace='oauth2_provider')),
 
-    url(r'^oai_pmh/', include('oai_pmh.api.urls')),
-    url(r'^oai_pmh/client/', include('oai_pmh.urls')),
+    url(r'^oai_pmh/', include('oai_pmh.urls')),
 )+static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 

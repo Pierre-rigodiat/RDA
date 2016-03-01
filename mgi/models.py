@@ -362,6 +362,22 @@ class XMLdata():
         listIDs = [ObjectId(x) for x in listIDs]
         return xmldata.find({'_id': { '$in': listIDs }}, as_class = OrderedDict).distinct(distinctBy)
 
+    @staticmethod
+    def getMinValue(attr):
+        """
+            Returns the object with the given id
+        """
+        # create a connection
+        client = MongoClient(MONGODB_URI)
+        # connect to the db 'mgi'
+        db = client['mgi']
+        # get the xmldata collection
+        xmldata = db['xmldata']
+        cursor = xmldata.find(as_class = OrderedDict).sort([(attr, ASCENDING)]).distinct(attr)
+        results = cursor[0] if cursor[0] else None
+
+        return results
+
     
     @staticmethod
     def delete(postID):

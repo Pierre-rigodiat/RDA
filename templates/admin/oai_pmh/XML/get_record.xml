@@ -1,0 +1,18 @@
+{% extends "admin/oai_pmh/xml/base.xml" %}
+
+{% block content %}
+  <GetRecord>
+    <record>
+        <header>
+            <identifier>{{ identifier }}</identifier>
+            <datestamp>{{ last_modified|date:'c' }}</datestamp>
+            <setSpec>{{ set }}</setSpec>
+        </header>
+        <metadata>
+            {% autoescape off %}
+            {{ XML|safe }}
+            {% endautoescape %}
+        </metadata>
+    </record>
+  </GetRecord>
+{% endblock %}
