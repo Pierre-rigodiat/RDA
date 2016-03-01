@@ -18,6 +18,7 @@ from rest_framework.response import Response
 # OAI-PMH
 from sickle import Sickle
 from sickle.models import Set, MetadataFormat, Identify
+from sickle.oaiexceptions import NoSetHierarchy, NoMetadataFormat
 # Serializers
 from oai_pmh.api.serializers import IdentifyObjectSerializer, MetadataFormatSerializer, SetSerializer, RegistrySerializer, ListRecordsSerializer, RegistryURLSerializer, RecordSerializer, \
     IdentifySerializer, SaveRecordSerializer, UpdateRecordSerializer, DeleteRecordSerializer, UpdateRegistrySerializer, DeleteRegistrySerializer
@@ -30,10 +31,7 @@ from mongoengine import NotUniqueError
 import json
 import xmltodict
 import requests
-from lxml import etree
-import os
-from django.conf import settings
-from django.shortcuts import HttpResponse
+
 ################################################################################
 #
 # Function Name: add_record(request)
@@ -332,6 +330,7 @@ def add_registry(request):
 
             #Get the sets information for the given URL
             sets = listObjectSets(request)
+            setsData = []
             #If status OK, we try to serialize data and check if it's valid
             if sets.status_code == status.HTTP_200_OK:
                 setsData = sets.data
@@ -340,11 +339,12 @@ def add_registry(request):
                 if not serializerSet.is_valid():
                     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
              #Return a response with the status_code and the message provided by the called function
-            else:
+            elif sets.status_code != status.HTTP_204_NO_CONTENT:
                 return Response({'message': sets.data['message']}, status=sets.status_code)
 
             #Get the metadata formats information for the given URL
             metadataformats = listObjectMetadataFormats(request)
+            metadataformatsData = []
             #If status OK, we try to serialize data and check if it's valid
             if metadataformats.status_code == status.HTTP_200_OK:
                 metadataformatsData = metadataformats.data
@@ -353,7 +353,7 @@ def add_registry(request):
                 if not serializerMetadataFormat.is_valid():
                     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
              #Return a response with the status_code and the message provided by the called function
-            else:
+            elif metadataformats.status_code != status.HTTP_204_NO_CONTENT:
                 return Response({'message': metadataformats.data['message']}, status=metadataformats.status_code)
 
             try:
@@ -843,7 +843,8 @@ def listMetadataFormats(request):
 # Function Name: listObjectMetadataFormats(request)
 # Inputs:        request -
 # Outputs:       200 Response successful.
-# Exceptions:    400 Error in URL value.
+# Exceptions:    204 No metadata formats
+#                400 Error in URL value.
 #                400 Serializer failed validation.
 #                401 Unauthorized.
 #                500 An error occurred when attempting to identify resource.
@@ -887,6 +888,10 @@ def listObjectMetadataFormats(request):
 
             serializer = MetadataFormatSerializer(rtn)
             return Response(serializer.data, status=status.HTTP_200_OK)
+        except NoMetadataFormat as e:
+            #This repository does not support sets
+            content = {'message':'%s'%e.message}
+            return Response(content, status=status.HTTP_204_NO_CONTENT)
         except Exception as e:
             content = {'message':'An error occurred when attempting to identify resource: %s'%e.message}
             return Response(content, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -1028,6 +1033,7 @@ def listSets(request):
 # Function Name: listObjectSets(request)
 # Inputs:        request -
 # Outputs:       200 Response successful.
+#                204 No Sets
 # Exceptions:    400 Error(s) in required values value.
 #                400 Serializer failed validation.
 #                401 Unauthorized.
@@ -1069,6 +1075,10 @@ def listObjectSets(request):
 
             serializer = SetSerializer(rtn)
             return Response(serializer.data, status=status.HTTP_200_OK)
+        except NoSetHierarchy as e:
+            #This repository does not support sets
+            content = {'message':'%s'%e.message}
+            return Response(content, status=status.HTTP_204_NO_CONTENT)
         except Exception as e:
             content = {'message':'An error occurred when attempting to identify resource: %s'%e.message}
             return Response(content, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

@@ -12,8 +12,6 @@
 ################################################################################
 
 # Responses
-import lxml.etree as etree
-from cStringIO import StringIO
 from django.core.servers.basehttp import FileWrapper
 from rest_framework import status
 from django.http import HttpResponse
@@ -29,8 +27,7 @@ import xmltodict
 from mgi.settings import OAI_HOST_URI, OAI_USER, OAI_PASS
 from django.contrib import messages
 from django.template import RequestContext, loader
-from mgi.models import Registry, XML2Download
-from django.contrib.auth.decorators import login_required
+from mgi.models import XML2Download
 import datetime
 from mgi.models import Registry, Set, MetadataFormat
 from django.contrib.auth.decorators import login_required
@@ -57,7 +54,7 @@ def add_registry(request):
         if form.is_valid():
             try:
                 #We add the registry
-                uri = OAI_HOST_URI + "/oai_pmh/add/registry"
+                uri = OAI_HOST_URI + "/oai_pmh/api/add/registry"
                 try:
                     url = request.POST.get('url')
                 except ValueError:
@@ -109,7 +106,7 @@ def update_registry(request):
     if request.method == 'POST':
         #UPDATE the registry
         try:
-            uri = OAI_HOST_URI + "/oai_pmh/update/registry"
+            uri = OAI_HOST_URI + "/oai_pmh/api/update/registry"
             #Get the ID
             if 'id' in request.POST:
                 id = request.POST.get('id')
@@ -172,7 +169,7 @@ def update_registry(request):
 ################################################################################
 @login_required(login_url='/login')
 def delete_registry(request):
-    uri = OAI_HOST_URI+"/oai_pmh/delete/registry"
+    uri = OAI_HOST_URI+"/oai_pmh/api/delete/registry"
     try:
         id = request.POST.get('RegistryId')
     except ValueError:
@@ -207,7 +204,7 @@ def check_registry(request):
         form = Url(request.POST)
         if form.is_valid():
             #Call the identify function from the API.
-            uri= OAI_HOST_URI + "/oai_pmh/identify"
+            uri= OAI_HOST_URI + "/oai_pmh/api/identify"
             req = requests.post(uri, {"url":request.POST.get("url")}, auth=(OAI_USER, OAI_PASS))
             #IF the return status is HTTP_200_OK, the registry is available
             isAvailable = req.status_code == status.HTTP_200_OK
@@ -244,7 +241,7 @@ def add_record_result(request):
 
             try:
                 errors = []
-                uri=OAI_HOST_URI+"/oai_pmh/add/record"
+                uri=OAI_HOST_URI+"/oai_pmh/api/add/record"
                 try:
                     content = request.POST.get('content')
                 except ValueError:
@@ -282,7 +279,7 @@ def add_record_result(request):
 @login_required(login_url='/login')
 def update_record(request):
     try:
-        uri=OAI_HOST_URI+"/oai_pmh/update/record"
+        uri=OAI_HOST_URI+"/oai_pmh/api/update/record"
         errors = []
         try:
             identifier = request.POST.get('identifier')
@@ -329,7 +326,7 @@ def getRecord(request):
     try:
         form = GetRecord(request.POST)
         if form.is_valid():
-            uri=OAI_HOST_URI+"/oai_pmh/getRecord"
+            uri=OAI_HOST_URI+"/oai_pmh/api/getRecord"
             req = requests.post(uri, {"url":request.POST.get("url"), "identifier":request.POST.get("identifier"),
                                       "metadataprefix":request.POST.get("metadataprefix")}, auth=(OAI_USER, OAI_PASS))
 
@@ -366,7 +363,7 @@ def identify(request):
         form = Url(request.POST)
         if form.is_valid():
 
-            uri=OAI_HOST_URI+"/oai_pmh/identify"
+            uri=OAI_HOST_URI+"/oai_pmh/api/identify"
             req = requests.post(uri, {"url":request.POST.get("url")}, auth=(OAI_USER, OAI_PASS))
             if str(req.status_code) == "200":
                 return render(request, 'oai_pmh/client/identify.html', {"response":req.text, "code":"200"})
@@ -391,7 +388,7 @@ def listMetadataFormats(request):
     try:
         form = Url(request.POST)
         if form.is_valid():
-            uri= OAI_HOST_URI + "/oai_pmh/listmetadataformats"
+            uri= OAI_HOST_URI + "/oai_pmh/api/listmetadataformats"
             req = requests.post(uri, {"url":request.POST.get("url")}, auth=(OAI_USER, OAI_PASS))
             if str(req.status_code) == "200":
                 return render(request, 'oai_pmh/client/listmetadataformats.html', {"response":req.text, "code":"200"})
@@ -418,7 +415,7 @@ def listSets(request):
     try:
         form = Url(request.POST)
         if form.is_valid():
-            uri=OAI_HOST_URI+"/oai_pmh/listSets"
+            uri=OAI_HOST_URI+"/oai_pmh/api/listSets"
             req = requests.post(uri, {"url":request.POST.get("url")}, auth=(OAI_USER, OAI_PASS))
             if str(req.status_code) == "200":
                 return render(request, 'oai_pmh/client/listsets.html', {"response":req.text, "code":"200"})
@@ -444,7 +441,7 @@ def listIdentifiers(request):
     try:
         form = IdentifierForm(request.POST)
         if form.is_valid():
-            uri=OAI_HOST_URI+"/oai_pmh/listIdentifiers"
+            uri=OAI_HOST_URI+"/oai_pmh/api/listIdentifiers"
             req = requests.post(uri, {"url":request.POST.get("url"), "set":request.POST.get("set"),
                                       "metadataprefix":request.POST.get("metadataprefix")}, auth=(OAI_USER, OAI_PASS))
             print request.POST.get("url")
@@ -474,7 +471,7 @@ def listRecords(request):
     try:
         form = ListRecordForm(request.POST)
         if form.is_valid():
-            uri=OAI_HOST_URI+"/oai_pmh/listIdentifiers"
+            uri=OAI_HOST_URI+"/oai_pmh/api/listIdentifiers"
             req = requests.post(uri, {"url":request.POST.get("url"),
                                       "set":request.POST.get("set"),
                                       "metadataprefix":request.POST.get("metadataprefix"),
@@ -594,10 +591,10 @@ def all_metadataprefix(request, registry):
 def getData(request):
     url = request.POST['url']
 
-    uri=OAI_HOST_URI+"/oai_pmh/getdata/"
+    uri=OAI_HOST_URI+"/oai_pmh/api/getdata/"
     req = requests.post(uri, {"url":url}, auth=(OAI_USER, OAI_PASS))
 
-    if (str(req.status_code) == "200"):
+    if (req.status_code == status.HTTP_200_OK):
         data = json.load(StringIO(req.content))
 
         xsltPath = os.path.join(settings.SITE_ROOT, 'static', 'resources', 'xsl', 'xml2html.xsl')

@@ -86,9 +86,22 @@ BLOB_HOSTER_PSWD = MONGO_MGI_PASSWORD
 MDCS_URI = 'http://127.0.0.1:8000'
 
 # OAI_PMH parameters
+OAI_ADMINS = (
+    ('Administrator', 'admin@curator.com'),
+)
 OAI_HOST_URI = 'http://127.0.0.1:8000'
 OAI_USER = 'admin'
 OAI_PASS = 'admin'
+OAI_NAME = 'MDCS Admin 127.0.0.1 '
+OAI_DELIMITER = ':'
+OAI_DESCRIPTION = 'Test OAI-PMH CURATOR'
+OAI_GRANULARITY = 'YYYY-MM-DDThh:mm:ssZ' #the finest harvesting granularity supported by the repository
+OAI_PROTOCOLE_VERSION = '2.0' #the version of the OAI-PMH supported by the repository
+OAI_SAMPLE_IDENTIFIER = ''
+OAI_SCHEME = 'oai'
+OAI_REPO_IDENTIFIER = 'server-127.0.0.1'
+OAI_SAMPLE_IDENTIFIER = 'id/12345678a123aff6ff5f2d9e'
+OAI_DELETED_RECORD = 'no' #no ; transient ; persistent
 
 # Handle system module parameters
 HANDLE_SERVER_URL = ''
