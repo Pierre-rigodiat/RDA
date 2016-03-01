@@ -1,12 +1,13 @@
 """
 """
 from os.path import join
-from mgi.models import FormElement, XMLElement, FormData, Module
+from mgi.models import FormElement, XMLElement, FormData, Module, Template, MetaSchema
 from mgi.settings import CURATE_MIN_TREE, CURATE_COLLAPSE
 from bson.objectid import ObjectId
 from mgi import common
 from lxml import etree
 import django.utils.html
+from io import BytesIO
 from modules import get_module_view
 
 
@@ -83,7 +84,7 @@ def get_nodes_xpath(elements, xml_tree, namespace):
     return xpaths
 
 
-def lookup_occurs(element, xml_tree, namespace, full_path, edit_data_tree):
+def lookup_occurs(request, element, xml_tree, namespace, full_path, edit_data_tree):
     """Do a lookup in data to get the number of occurences of a sequence or choice without a name (not within a named
     complextype).
 
@@ -103,11 +104,20 @@ def lookup_occurs(element, xml_tree, namespace, full_path, edit_data_tree):
         edit_data_tree: XML data
     """
     # FIXME this function is not returning the correct output
+
+    # get all possible xpaths of subnodes
     xpaths = get_nodes_xpath(element, xml_tree, namespace)
     max_occurs_found = 0
 
+    # get target namespace prefix if one declared
+    if 'target_namespace_prefix' in request.session and request.session['target_namespace_prefix'] != '':
+        target_namespace_prefix = request.session['target_namespace_prefix'] + ":"
+    else:
+        target_namespace_prefix = ''
+
+    # check if xpaths find a match in the document
     for xpath in xpaths:
-        edit_elements = edit_data_tree.xpath(full_path + '/' + xpath['name'])
+        edit_elements = edit_data_tree.xpath(full_path + '/' + target_namespace_prefix + xpath['name'], namespaces=request.session['namespaces'])
 
         if len(edit_elements) > max_occurs_found:
             max_occurs_found = 1
@@ -368,14 +378,56 @@ def generate_form(request):
     Returns:
         rendered HTMl form
     """
-    default_prefix = request.session['defaultPrefix']
 
-    xml_doc_tree_str = request.session['xmlDocTree']
-    xml_doc_tree = etree.fromstring(xml_doc_tree_str)
+    # get the xsd tree when going back and forth with review step
+    if 'xmlDocTree' in request.session:
+        xml_doc_data = request.session['xmlDocTree']
+    else:
+        template_id = request.session['currentTemplateID']
+        if template_id in MetaSchema.objects.all().values_list('schemaId'):
+            meta = MetaSchema.objects.get(schemaId=template_id)
+            xml_doc_data = meta.flat_content
+        else:
+            template_object = Template.objects.get(pk=template_id)
+            xml_doc_data = template_object.content
 
+    # build Etree
+    xml_doc_tree = etree.parse(BytesIO(xml_doc_data.encode('utf-8')))
+    xml_doc_tree_str = etree.tostring(xml_doc_tree)
+    request.session['xmlDocTree'] = xml_doc_tree_str
+
+    # get target namespace
+    root_attributes = xml_doc_tree.getroot().attrib
+    target_namespace = root_attributes['targetNamespace'] if 'targetNamespace' in root_attributes else None
+    target_namespace_prefix = ''
+    default_prefix = ''
+    request.session['target_namespace_prefix'] = ''
+    request.session['defaultPrefix'] = ''
+
+    # find the namespaces
+    request.session['namespaces'] = common.get_namespaces(BytesIO(str(xml_doc_data)))
+    for prefix, url in request.session['namespaces'].items():
+        if url == "http://www.w3.org/2001/XMLSchema":
+            default_prefix = prefix
+        if target_namespace is not None:
+            if url == target_namespace:
+                target_namespace_prefix = prefix
+
+    # save default prefix in session
+    if default_prefix == '':
+        # if no default prefix, creates a mapping
+        default_prefix = 'xs'
+        request.session['namespaces'][default_prefix] = 'http://www.w3.org/2001/XMLSchema'
+    request.session['defaultPrefix'] = default_prefix
+
+    # save target namespace prefix in session
+    request.session['target_namespace_prefix'] = target_namespace_prefix
+
+    # init counters
     request.session['nbChoicesID'] = '0'
     request.session['nb_html_tags'] = '0'
 
+    # init id mapping structure (html/mongo)
     if 'mapTagID' in request.session:
         del request.session['mapTagID']
     request.session['mapTagID'] = {}
@@ -402,7 +454,7 @@ def generate_form(request):
             request.session['curate_edit'] = False
 
     # get the namespace for the default prefix
-    namespace = request.session['namespaces'][default_prefix]
+    namespace = "{" + request.session['namespaces'][default_prefix] + "}"
 
     # TODO: commented extensions Registry
     # # find extensions
@@ -432,6 +484,7 @@ def generate_form(request):
     form_data.save()
 
     # delete temporary data structure for forms elements
+    # TODO: use mongodb ids to avoid mapping
     del request.session['mapTagID']
 
     # data are loaded, switch Edit to False, we don't need to look at the original data anymore
@@ -468,7 +521,7 @@ def generate_element(request, element, xml_tree, namespace, choice_info=None, fu
     _has_module = has_module(request, element)
 
     # FIXME see if we can avoid these basic initialization
-    # FIXME this is not necessarly true
+    # FIXME this is not necessarily true
     min_occurs = 1
     max_occurs = 1
 
@@ -490,14 +543,19 @@ def generate_element(request, element, xml_tree, namespace, choice_info=None, fu
         ref = element.attrib['ref']
         # refElement = None
         if ':' in ref:
+            # split the ref element
             ref_split = ref.split(":")
-            # ref_namespace_prefix = ref_split[0]
+            # get the namespace prefix
+            ref_namespace_prefix = ref_split[0]
+            # get the element name
             ref_name = ref_split[1]
-            # namespaces = request.session['namespaces']
-            # ref_namespace = namespaces[ref_namespace_prefix]
-            # TODO: manage namespaces/targetNamespaces, composed schema with different target namespaces
-            # element = xml_tree.findall("./{0}element[@name='"+refName+"']".format(refNamespace))
-            ref_element = xml_tree.find("./{0}element[@name='{1}']".format(namespace, ref_name))
+            # test if referencing element within the same schema (same target namespace)
+            if 'target_namespace_prefix' in request.session and request.session['target_namespace_prefix']:
+                if ref_namespace_prefix == request.session['target_namespace_prefix']:
+                    ref_element = xml_tree.find("./{0}element[@name='{1}']".format(namespace, ref_name))
+                else:
+                    # TODO: manage ref to imported elements (different target namespace)
+                    raise Exception('Use of ref to imported element not supported')
         else:
             ref_element = xml_tree.find("./{0}element[@name='{1}']".format(namespace, ref))
 
@@ -509,14 +567,21 @@ def generate_element(request, element, xml_tree, namespace, choice_info=None, fu
     else:
         text_capitalized = element.attrib.get('name')
 
+    # build xpath in xml document
     if element_tag == 'element':
+        if 'target_namespace_prefix' in request.session and request.session['target_namespace_prefix'] != '':
+            target_namespace_prefix = request.session['target_namespace_prefix'] + ":"
+        else:
+            target_namespace_prefix = ''
         # XML xpath:/root/element
-        full_path += "/" + text_capitalized
+        full_path += "/" + target_namespace_prefix + text_capitalized
     elif element_tag == 'attribute':
         full_path += "/@" + text_capitalized
 
+    print full_path
+
     # XSD xpath: /element/complexType/sequence
-    xsd_xpath = etree.ElementTree(xml_tree).getpath(element)
+    xsd_xpath = xml_tree.getpath(element)
 
     # init variables for buttons management
     add_button = False
@@ -530,7 +595,7 @@ def generate_element(request, element, xml_tree, namespace, choice_info=None, fu
     # loading data in the form
     if request.session['curate_edit']:
         # get the number of occurrences in the data
-        edit_elements = edit_data_tree.xpath(full_path)
+        edit_elements = edit_data_tree.xpath(full_path, namespaces=request.session['namespaces'])
         nb_occurrences_data = len(edit_elements)
 
         if nb_occurrences_data == 0:
@@ -625,6 +690,27 @@ def generate_element(request, element, xml_tree, namespace, choice_info=None, fu
         if not (add_button is False and delete_button is False):
             buttons = render_buttons(add_button, delete_button, tag_id[7:])
 
+        # get the default value (from xsd or from loaded xml)
+        default_value = ""
+        if request.session['curate_edit']:
+            # if elements are found at this xpath
+            if len(edit_elements) > 0:
+                # it is an XML element
+                if element_tag == 'element':
+                    # get the value of the element x
+                    if edit_elements[x].text is not None:
+                        # set the value of the element
+                        default_value = edit_elements[x].text
+                # it is an XMl attribute
+                elif element_tag == 'attribute':
+                    # get the value of the attribute
+                    if edit_elements[x] is not None:
+                        # set the value of the element
+                        default_value = edit_elements[x]
+        elif 'default' in element.attrib:
+            # if the default attribute is present
+            default_value = element.attrib['default']
+
         # if element not removed
         if not removed:
             # if module is present, replace default input by module
@@ -633,27 +719,6 @@ def generate_element(request, element, xml_tree, namespace, choice_info=None, fu
                                                edit_data_tree=edit_data_tree)
             else:  # generate the type
                 if element_type is None:  # no complex/simple type
-                    default_value = ""
-
-                    if request.session['curate_edit']:
-                        # if elements are found at this xpath
-                        if len(edit_elements) > 0:
-                            # it is an XML element
-                            if element_tag == 'element':
-                                # get the value of the element x
-                                if edit_elements[x].text is not None:
-                                    # set the value of the element
-                                    default_value = edit_elements[x].text
-                            # it is an XMl attribute
-                            elif element_tag == 'attribute':
-                                # get the value of the attribute
-                                if edit_elements[x] is not None:
-                                    # set the value of the element
-                                    default_value = edit_elements[x]
-                    elif 'default' in element.attrib:
-                        # if the default attribute is present
-                        default_value = element.attrib['default']
-
                     placeholder = 'placeholder="' + app_info['placeholder'] + '"' if 'placeholder' in app_info else ''
                     placeholder = placeholder if placeholder is not None else ''
 
@@ -673,7 +738,7 @@ def generate_element(request, element, xml_tree, namespace, choice_info=None, fu
                     elif element_type.tag == "{0}simpleType".format(namespace):
                         form_string += generate_simple_type(request, element_type, xml_tree, namespace,
                                                             full_path=full_path+'[' + str(x+1) + ']',
-                                                            edit_data_tree=edit_data_tree)
+                                                            edit_data_tree=edit_data_tree, default_value=default_value)
         else:
             form_string += buttons
 
@@ -702,7 +767,7 @@ def generate_element_absent(request, element, xml_doc_tree, form_element):
 
     namespaces = request.session['namespaces']
     default_prefix = request.session['defaultPrefix']
-    namespace = namespaces[default_prefix]
+    namespace = "{" + namespaces[default_prefix] + "}"
 
     # get appinfo elements
     app_info = common.getAppInfo(element, namespace)
@@ -787,7 +852,7 @@ def generate_sequence(request, element, xml_tree, namespace, choice_info=None, f
         text = "Sequence"
 
         # XSD xpath
-        xsd_xpath = etree.ElementTree(xml_tree).getpath(element)
+        xsd_xpath = xml_tree.getpath(element)
 
         # init variables for buttons management
         add_button = False
@@ -799,7 +864,7 @@ def generate_sequence(request, element, xml_tree, namespace, choice_info=None, f
         # loading data in the form
         if request.session['curate_edit']:
             # get the number of occurrences in the data
-            nb_occurrences_data = lookup_occurs(element, xml_tree, namespace, full_path, edit_data_tree)
+            nb_occurrences_data = lookup_occurs(request, element, xml_tree, namespace, full_path, edit_data_tree)
 
             # manage buttons
             if nb_occurrences_data < max_occurs:
@@ -1010,7 +1075,7 @@ def generate_choice(request, element, xml_tree, namespace, choice_info=None, ful
     # not multiple roots
     if not isinstance(element, list):
         # XSD xpath: don't need it when multiple root (can't duplicate a root)
-        xsd_xpath = etree.ElementTree(xml_tree).getpath(element)
+        xsd_xpath = xml_tree.getpath(element)
 
         # get element's min/max occurs attributes
         min_occurs, max_occurs = manage_occurences(element)
@@ -1019,7 +1084,7 @@ def generate_choice(request, element, xml_tree, namespace, choice_info=None, ful
         # loading data in the form
         if request.session['curate_edit']:
             # get the number of occurrences in the data
-            nb_occurrences_data = lookup_occurs(element, xml_tree, namespace, full_path, edit_data_tree)
+            nb_occurrences_data = lookup_occurs(request, element, xml_tree, namespace, full_path, edit_data_tree)
 
             if nb_occurrences_data < max_occurs:
                 add_button = True
@@ -1117,7 +1182,7 @@ def generate_choice(request, element, xml_tree, namespace, choice_info=None, ful
                     element_path = full_path + '/' + opt_label
 
                     if request.session['curate_edit']:
-                        if len(edit_data_tree.xpath(element_path)) == 0:
+                        if len(edit_data_tree.xpath(element_path, namespaces=request.session['namespaces'])) == 0:
                             form_string += "<option value='" + opt_value + "'>" + opt_label + "</option><br/>"
                         else:
                             form_string += "<option value='" + opt_value + "' selected='selected'>" + opt_label
@@ -1173,7 +1238,7 @@ def generate_choice(request, element, xml_tree, namespace, choice_info=None, ful
     return form_string
 
 
-def generate_simple_type(request, element, xml_tree, namespace, full_path, edit_data_tree=None):
+def generate_simple_type(request, element, xml_tree, namespace, full_path, edit_data_tree=None, default_value=''):
     """Generates a section of the form that represents an XML simple type
 
     Parameters:
@@ -1185,7 +1250,7 @@ def generate_simple_type(request, element, xml_tree, namespace, full_path, edit_
         edit_data_tree:
 
     Returns:
-        HTML string representing a sequence
+        HTML string representing a simple type
     """
     # FIXME implement union, correct list
     form_string = ""
@@ -1195,7 +1260,7 @@ def generate_simple_type(request, element, xml_tree, namespace, full_path, edit_
 
     if has_module(request, element):
         # XSD xpath: /element/complexType/sequence
-        xsd_xpath = etree.ElementTree(xml_tree).getpath(element)
+        xsd_xpath = xml_tree.getpath(element)
         form_string += generate_module(request, element, namespace, xsd_xpath, full_path, edit_data_tree=edit_data_tree)
         return form_string
 
@@ -1207,10 +1272,10 @@ def generate_simple_type(request, element, xml_tree, namespace, full_path, edit_
                                                 edit_data_tree=edit_data_tree)
         elif child.tag == "{0}list".format(namespace):
             # TODO list can contain a restriction/enumeration
-            form_string += "<input type='text'/>"
+            form_string += " <input type='text' value='" + django.utils.html.escape(default_value) + "'/>"
         elif child.tag == "{0}union".format(namespace):
             # TODO: provide UI for unions
-            form_string += "<input type='text'/>"
+            form_string += " <input type='text' value='" + django.utils.html.escape(default_value) + "'/>"
 
     return form_string
 
@@ -1250,7 +1315,7 @@ def generate_complex_type(request, element, xml_tree, namespace, full_path, edit
 
     if has_module(request, element):
         # XSD xpath: /element/complexType/sequence
-        xsd_xpath = etree.ElementTree(xml_tree).getpath(element)
+        xsd_xpath = xml_tree.getpath(element)
         formString += generate_module(request, element, namespace, xsd_xpath, full_path, edit_data_tree=edit_data_tree)
         return formString
 
@@ -1398,7 +1463,7 @@ def generate_module(request, element, namespace, xsd_xpath=None, xml_xpath=None,
     reload_attrib = None
     
     if request.session['curate_edit']:
-        edit_elements = edit_data_tree.xpath(xml_xpath)
+        edit_elements = edit_data_tree.xpath(xml_xpath, namespaces=request.session['namespaces'])
         
         if len(edit_elements) > 0:
             if len(edit_elements) == 1:
@@ -1510,7 +1575,7 @@ def generate_restriction(request, element, xml_tree, namespace, full_path="", ed
         form_string += "<select>"
 
         if request.session['curate_edit']:
-            edit_elements = edit_data_tree.xpath(full_path)
+            edit_elements = edit_data_tree.xpath(full_path, namespaces=request.session['namespaces'])
             selected_value = None
 
             if len(edit_elements) > 0:
