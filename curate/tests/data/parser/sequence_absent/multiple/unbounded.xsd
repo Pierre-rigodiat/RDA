@@ -1,5 +1,5 @@
-<schema>
-    <complexType>
+<schema xmlns="http://www.w3.org/2001/XMLSchema">
+    <complexType name="complex">
         <sequence minOccurs="2" maxOccurs="unbounded">
             <choice>
                 <element name="id500" type="string"/>

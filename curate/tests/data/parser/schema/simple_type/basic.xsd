@@ -1,4 +1,4 @@
-<schema>
+<schema xmlns="http://www.w3.org/2001/XMLSchema">
     <simpleType name="id0">
         <restriction base="string">
             <enumeration value="child0" />
