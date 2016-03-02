@@ -375,7 +375,7 @@ def generate_form(request):
         else:  # No root element detected
             raise Exception("No root element detected")
 
-        form_string = render_form(form_content)
+        form_string = render_form(form_content[0])
     except Exception as e:
         form_string = render_form_error(e.message)
 
@@ -413,7 +413,6 @@ def generate_element(request, element, xml_tree, namespace, choice_info=None, fu
     # FIXME Support for key / keyref
     default_prefix = request.session['defaultPrefix']
     form_string = ""
-
     # get appinfo elements
     app_info = common.getAppInfo(element, namespace)
 
@@ -515,6 +514,14 @@ def generate_element(request, element, xml_tree, namespace, choice_info=None, fu
                              maxOccurs=max_occurs)
     xml_element.save()
 
+    db_element = {
+        'tag': 'element',
+        'occurs': (min_occurs, nb_occurrences_data, max_occurs),
+        'module': None if not _has_module else True,
+        'value': None,
+        'children': []
+    }
+
     # management of elements inside a choice (don't display if not part of the currently selected choice)
     if choice_info:
         choice_id = choice_info.chooseIDStr + "-" + str(choice_info.counter)
@@ -530,7 +537,7 @@ def generate_element(request, element, xml_tree, namespace, choice_info=None, fu
                     request.session['mapTagID'][choice_id] = str(form_element.id)
 
                     form_string += render_ul('', choice_id, chosen)
-                    return form_string
+                    return form_string, db_element
         else:
             if choice_info.counter > 0:
                 chosen = False
@@ -541,7 +548,7 @@ def generate_element(request, element, xml_tree, namespace, choice_info=None, fu
                     request.session['mapTagID'][choice_id] = str(form_element.id)
 
                     form_string += render_ul('', choice_id, chosen)
-                    return form_string
+                    return form_string, db_element
     else:
         chosen = True
         choice_id = ''
@@ -550,6 +557,14 @@ def generate_element(request, element, xml_tree, namespace, choice_info=None, fu
     ul_content = ''
 
     for x in range(0, int(nb_occurrences)):
+        db_elem_iter = {
+            'tag': 'elem-iter',
+            'occurs': (1, 1, 1),
+            'module': None,
+            'value': None,
+            'children': []
+        }
+
         nb_html_tags = int(request.session['nb_html_tags'])
         tag_id = "element" + str(nb_html_tags)
         nb_html_tags += 1
@@ -615,25 +630,41 @@ def generate_element(request, element, xml_tree, namespace, choice_info=None, fu
                     li_content += ' '
                     li_content += render_input(default_value, placeholder, tooltip)
                     li_content += buttons
+
+                    db_child = {
+                        'tag': 'input',
+                        'occurs': (1, 1, 1),
+                        'module': None,
+                        'value': default_value,
+                        'children': []
+                    }
+                    db_elem_iter['children'].append(db_child)
                 else:  # complex/simple type
                     li_content += buttons
 
                     if element_type.tag == "{0}complexType".format(namespace):
-                        li_content += generate_complex_type(request, element_type, xml_tree, namespace,
-                                                            full_path=full_path+'[' + str(x+1) + ']',
-                                                            edit_data_tree=edit_data_tree)
+                        complex_type_result = generate_complex_type(request, element_type, xml_tree, namespace,
+                                                                    full_path=full_path+'[' + str(x+1) + ']',
+                                                                    edit_data_tree=edit_data_tree)
+
+                        li_content += complex_type_result[0]
+                        db_elem_iter['children'].append(complex_type_result[1])
                     elif element_type.tag == "{0}simpleType".format(namespace):
-                        li_content += generate_simple_type(request, element_type, xml_tree, namespace,
-                                                           full_path=full_path+'[' + str(x+1) + ']',
-                                                           edit_data_tree=edit_data_tree)
+                        simple_type_result = generate_simple_type(request, element_type, xml_tree, namespace,
+                                                                  full_path=full_path+'[' + str(x+1) + ']',
+                                                                  edit_data_tree=edit_data_tree)
+
+                        li_content += simple_type_result[0]
+                        db_elem_iter['children'].append(simple_type_result[1])
         else:
             li_content += buttons
 
         # renders the name of the element
         ul_content += render_li(li_content, tag_id, element_tag, use, text_capitalized)
+        db_element['children'].append(db_elem_iter)
 
     form_string += render_ul(ul_content, choice_id, chosen)
-    return form_string
+    return form_string, db_element
 
 
 def generate_element_absent(request, element, xml_doc_tree, form_element):
@@ -652,6 +683,14 @@ def generate_element_absent(request, element, xml_doc_tree, form_element):
     """
     # TODO see if it is possibe to group with generate_element
     form_string = ""
+
+    db_element = {
+        'tag': 'elem-iter',
+        'occurs': (1, 1, 1),
+        'module': None,
+        'value': None,
+        'children': []
+    }
 
     namespaces = request.session['namespaces']
     default_prefix = request.session['defaultPrefix']
@@ -683,6 +722,8 @@ def generate_element_absent(request, element, xml_doc_tree, form_element):
     if _has_module:
         form_string += generate_module(request, element, namespace, form_element.xml_element.xsd_xpath,
                                        form_element.xml_xpath)
+
+        db_element['module'] = True
     else:
         element_type = get_element_type(element, xml_doc_tree, namespace, default_prefix)
 
@@ -700,13 +741,19 @@ def generate_element_absent(request, element, xml_doc_tree, form_element):
             form_string += render_input(default_value, placeholder, tooltip)
         else:  # complex/simple type
             if element_type.tag == "{0}complexType".format(namespace):
-                form_string += generate_complex_type(request, element_type, xml_doc_tree, namespace,
-                                                     full_path=form_element.xml_xpath)
-            elif element_type.tag == "{0}simpleType".format(namespace):
-                form_string += generate_simple_type(request, element_type, xml_doc_tree, namespace,
-                                                    full_path=form_element.xml_xpath)
+                complex_type_result = generate_complex_type(request, element_type, xml_doc_tree, namespace,
+                                                            full_path=form_element.xml_xpath)
 
-    return form_string
+                form_string += complex_type_result[0]
+                db_element['children'].append(complex_type_result[1])
+            elif element_type.tag == "{0}simpleType".format(namespace):
+                simple_type_result = generate_simple_type(request, element_type, xml_doc_tree, namespace,
+                                                          full_path=form_element.xml_xpath)
+
+                form_string += simple_type_result[0]
+                db_element['children'].append(simple_type_result[1])
+
+    return form_string, db_element
 
 
 def generate_sequence(request, element, xml_tree, namespace, choice_info=None, full_path="", edit_data_tree=None):
@@ -772,6 +819,14 @@ def generate_sequence(request, element, xml_tree, namespace, choice_info=None, f
         xml_element = XMLElement(xsd_xpath=xsd_xpath, nbOccurs=nb_occurrences_data, minOccurs=min_occurs,
                                  maxOccurs=max_occurs).save()
 
+        db_element = {
+            'tag': 'sequence',
+            'occurs': (min_occurs, nb_occurrences_data, max_occurs),
+            'module': None,
+            'value': None,
+            'children': []
+        }
+
         # keeps track of elements to display depending on the selected choice
         if choice_info:
             chosen = True
@@ -787,7 +842,7 @@ def generate_sequence(request, element, xml_tree, namespace, choice_info=None, f
                         request.session['mapTagID'][choice_id] = str(form_element.id)
 
                         form_string += render_ul('', choice_id, chosen)
-                        return form_string
+                        return form_string, db_element
             else:
                 if choice_info.counter > 0:
                     chosen = False
@@ -798,7 +853,7 @@ def generate_sequence(request, element, xml_tree, namespace, choice_info=None, f
                         request.session['mapTagID'][choice_id] = str(form_element.id)
 
                         form_string += render_ul('', choice_id, chosen)
-                        return form_string
+                        return form_string, db_element
         else:
             chosen = True
             choice_id = ''
@@ -825,6 +880,14 @@ def generate_sequence(request, element, xml_tree, namespace, choice_info=None, f
             ul_content += render_li(li_content, tag_id, 'sequence', 'removed')
         else:
             for x in range(0, int(nb_occurrences)):
+                db_elem_iter = {
+                    'tag': 'sequence-iter',
+                    'occurs': (1, 1, 1),
+                    'module': None,
+                    'value': None,
+                    'children': []
+                }
+
                 nb_html_tags = int(request.session['nb_html_tags'])
                 tag_id = "element" + str(nb_html_tags)
                 nb_html_tags += 1
@@ -847,41 +910,68 @@ def generate_sequence(request, element, xml_tree, namespace, choice_info=None, f
                 if len(list(element)) != 0:
                     for child in element:
                         if child.tag == "{0}element".format(namespace):
-                            li_content += generate_element(request, child, xml_tree, namespace, choice_info,
-                                                           full_path=full_path, edit_data_tree=edit_data_tree)
+                            element_result = generate_element(request, child, xml_tree, namespace, choice_info,
+                                                              full_path=full_path, edit_data_tree=edit_data_tree)
+
+                            li_content += element_result[0]
+                            db_elem_iter['children'].append(element_result[1])
                         elif child.tag == "{0}sequence".format(namespace):
-                            li_content += generate_sequence(request, child, xml_tree, namespace, choice_info,
-                                                            full_path=full_path, edit_data_tree=edit_data_tree)
+                            sequence_result = generate_sequence(request, child, xml_tree, namespace, choice_info,
+                                                                full_path=full_path, edit_data_tree=edit_data_tree)
+
+                            li_content += sequence_result[0]
+                            db_elem_iter['children'].append(sequence_result[1])
                         elif child.tag == "{0}choice".format(namespace):
-                            li_content += generate_choice(request, child, xml_tree, namespace, choice_info,
-                                                          full_path=full_path, edit_data_tree=edit_data_tree)
+                            choice_result = generate_choice(request, child, xml_tree, namespace, choice_info,
+                                                            full_path=full_path, edit_data_tree=edit_data_tree)
+
+                            li_content += choice_result[0]
+                            db_elem_iter['children'].append(choice_result[1])
                         elif child.tag == "{0}any".format(namespace):
                             pass
                         elif child.tag == "{0}group".format(namespace):
                             pass
 
+                db_element['children'].append(db_elem_iter)
                 ul_content += render_li(li_content, tag_id, 'sequence')
 
         form_string += render_ul(ul_content, choice_id, chosen)
     else:
+        db_element = {
+            'tag': 'sequence',
+            'occurs': (min_occurs, 1, max_occurs),
+            'module': None,
+            'value': None,
+            'children': []
+        }
+
         # generates the sequence
         if len(list(element)) != 0:
             for child in element:
                 if child.tag == "{0}element".format(namespace):
-                    form_string += generate_element(request, child, xml_tree, namespace, choice_info,
-                                                    full_path=full_path, edit_data_tree=edit_data_tree)
+                    element_result = generate_element(request, child, xml_tree, namespace, choice_info,
+                                                      full_path=full_path, edit_data_tree=edit_data_tree)
+
+                    form_string += element_result[0]
+                    db_element['children'].append(element_result[1])
                 elif child.tag == "{0}sequence".format(namespace):
-                    form_string += generate_sequence(request, child, xml_tree, namespace, choice_info,
-                                                     full_path=full_path, edit_data_tree=edit_data_tree)
+                    sequence_result = generate_sequence(request, child, xml_tree, namespace, choice_info,
+                                                        full_path=full_path, edit_data_tree=edit_data_tree)
+
+                    form_string += sequence_result[0]
+                    db_element['children'].append(sequence_result[1])
                 elif child.tag == "{0}choice".format(namespace):
-                    form_string += generate_choice(request, child, xml_tree, namespace, choice_info,
-                                                   full_path=full_path, edit_data_tree=edit_data_tree)
+                    choice_result = generate_choice(request, child, xml_tree, namespace, choice_info,
+                                                    full_path=full_path, edit_data_tree=edit_data_tree)
+
+                    form_string += choice_result[0]
+                    db_element['children'].append(choice_result[1])
                 elif child.tag == "{0}any".format(namespace):
                     pass
                 elif child.tag == "{0}group".format(namespace):
                     pass
 
-    return form_string
+    return form_string, db_element
 
 
 def generate_sequence_absent(request, element, xml_tree, namespace):
@@ -898,22 +988,38 @@ def generate_sequence_absent(request, element, xml_tree, namespace):
     """
     # TODO see if it can be merged in generate_sequence
     form_string = ""
+    db_element = {
+        'tag': 'sequence-iter',
+        'occurs': (1, 1, 1),
+        'module': None,
+        'value': None,
+        'children': []
+    }
 
     # generates the sequence
     if len(list(element)) != 0:
         for child in element:
             if child.tag == "{0}element".format(namespace):
-                form_string += generate_element(request, child, xml_tree, namespace)
+                element = generate_element(request, child, xml_tree, namespace)
+
+                form_string += element[0]
+                db_element['children'].append(element[1])
             elif child.tag == "{0}sequence".format(namespace):
-                form_string += generate_sequence(request, child, xml_tree, namespace)
+                sequence = generate_sequence(request, child, xml_tree, namespace)
+
+                form_string += sequence[0]
+                db_element['children'].append(sequence[1])
             elif child.tag == "{0}choice".format(namespace):
-                form_string += generate_choice(request, child, xml_tree, namespace)
+                choice = generate_choice(request, child, xml_tree, namespace)
+
+                form_string += choice[0]
+                db_element['children'].append(choice[1])
             elif child.tag == "{0}any".format(namespace):
                 pass
             elif child.tag == "{0}group".format(namespace):
                 pass
 
-    return form_string
+    return form_string, db_element
 
 
 def generate_choice(request, element, xml_tree, namespace, choice_info=None, full_path="", edit_data_tree=None):
@@ -930,10 +1036,17 @@ def generate_choice(request, element, xml_tree, namespace, choice_info=None, ful
 
     Returns:       HTML string representing a sequence
     """
-    # (annotation?,(element|group|choice|sequence|any)*)
+    # (annotation?, (element|group|choice|sequence|any)*)
     # FIXME Group not supported
     # FIXME Choice not supported
     form_string = ""
+    db_element = {
+        'tag': 'choice',
+        'occurs': (1, 1, 1),
+        'module': None,
+        'value': None,
+        'children': []
+    }
 
     # remove the annotations
     remove_annotations(element, namespace)
@@ -981,6 +1094,9 @@ def generate_choice(request, element, xml_tree, namespace, choice_info=None, ful
                                  maxOccurs=max_occurs)
         xml_element.save()
 
+        # 'occurs' key contains the tuple (minOccurs, nbOccurs, maxOccurs)
+        db_element['occurs'] = (min_occurs, nb_occurrences_data, max_occurs)
+
     # keeps track of elements to display depending on the selected choice
     if choice_info:
         choice_id = choice_info.chooseIDStr + "-" + str(choice_info.counter)
@@ -996,7 +1112,7 @@ def generate_choice(request, element, xml_tree, namespace, choice_info=None, ful
                     request.session['mapTagID'][choice_id] = str(form_element.id)
 
                     form_string += render_ul('', choice_id, chosen)
-                    return form_string
+                    return form_string, db_element
         else:
             if choice_info.counter > 0:
                 chosen = False
@@ -1007,7 +1123,7 @@ def generate_choice(request, element, xml_tree, namespace, choice_info=None, ful
                     request.session['mapTagID'][choice_id] = str(form_element.id)
 
                     form_string += render_ul('', choice_id, chosen)
-                    return form_string
+                    return form_string, db_element
     else:
         choice_id = ''
         chosen = True
@@ -1015,6 +1131,14 @@ def generate_choice(request, element, xml_tree, namespace, choice_info=None, ful
     ul_content = ''
 
     for x in range(0, int(nb_occurrences)):
+        db_child = {
+            'tag': 'choice-iter',
+            'occurs': (1, 1, 1),
+            'module': None,
+            'value': None,
+            'children': []
+        }
+
         nb_html_tags = int(request.session['nb_html_tags'])
         tag_id = "element" + str(nb_html_tags)
         nb_html_tags += 1
@@ -1038,6 +1162,7 @@ def generate_choice(request, element, xml_tree, namespace, choice_info=None, ful
         nb_sequence = 1
         options = []
 
+        # FIXME list of children is read twice (could be parsed in one pass)
         # generates the choice
         if len(list(element)) != 0:
             for child in element:
@@ -1076,30 +1201,38 @@ def generate_choice(request, element, xml_tree, namespace, choice_info=None, ful
                     options.append(entry)
 
         li_content += render_select(choose_id_str, options)
-        # FIXME this case generate buttons even when not needed (add and delete == False)
         li_content += render_buttons(add_button, delete_button, tag_id[7:])
 
         for (counter, choiceChild) in enumerate(list(element)):
             if choiceChild.tag == "{0}element".format(namespace):
-                li_content += generate_element(request, choiceChild, xml_tree, namespace,
-                                               common.ChoiceInfo(choose_id_str, counter), full_path=full_path,
-                                               edit_data_tree=edit_data_tree)
+                element_result = generate_element(request, choiceChild, xml_tree, namespace,
+                                                  common.ChoiceInfo(choose_id_str, counter), full_path=full_path,
+                                                  edit_data_tree=edit_data_tree)
+
+                li_content += element_result[0]
+                db_child_0 = element_result[1]
+                db_child['children'].append(db_child_0)
             elif choiceChild.tag == "{0}group".format(namespace):
                 pass
             elif choiceChild.tag == "{0}choice".format(namespace):
                 pass
             elif choiceChild.tag == "{0}sequence".format(namespace):
-                li_content += generate_sequence(request, choiceChild, xml_tree, namespace,
-                                                common.ChoiceInfo(choose_id_str, counter), full_path=full_path,
-                                                edit_data_tree=edit_data_tree)
+                sequence = generate_sequence(request, choiceChild, xml_tree, namespace,
+                                             common.ChoiceInfo(choose_id_str, counter), full_path=full_path,
+                                             edit_data_tree=edit_data_tree)
+
+                li_content += sequence[0]
+                db_child_0 = sequence[1]
+                db_child['children'].append(db_child_0)
             elif choiceChild.tag == "{0}any".format(namespace):
                 pass
 
         ul_content += render_li('Choose'+li_content, tag_id, 'choice', 'removed' if is_removed else None)
+        db_element['children'].append(db_child)
 
     form_string += render_ul(ul_content, choice_id, chosen)
 
-    return form_string
+    return form_string, db_element
 
 
 def generate_simple_type(request, element, xml_tree, namespace, full_path, edit_data_tree=None):
@@ -1118,6 +1251,13 @@ def generate_simple_type(request, element, xml_tree, namespace, full_path, edit_
     """
     # FIXME implement union, correct list
     form_string = ""
+    db_element = {
+        'tag': 'simple_type',
+        'occurs': (1, 1, 1),
+        'module': None,
+        'value': None,
+        'children': []
+    }
 
     # remove the annotations
     remove_annotations(element, namespace)
@@ -1126,21 +1266,57 @@ def generate_simple_type(request, element, xml_tree, namespace, full_path, edit_
         # XSD xpath: /element/complexType/sequence
         xsd_xpath = etree.ElementTree(xml_tree).getpath(element)
         form_string += generate_module(request, element, namespace, xsd_xpath, full_path, edit_data_tree=edit_data_tree)
+
+        db_element['module'] = True
+
         return form_string
 
     if list(element) != 0:
         child = element[0]
 
         if child.tag == "{0}restriction".format(namespace):
-            form_string += generate_restriction(request, child, xml_tree, namespace, full_path,
-                                                edit_data_tree=edit_data_tree)
+            # form_string += generate_restriction(request, child, xml_tree, namespace, full_path,
+            #                                     edit_data_tree=edit_data_tree)
+            restriction = generate_restriction(request, child, xml_tree, namespace, full_path,
+                                               edit_data_tree=edit_data_tree)
+
+            form_string += restriction[0]
+            db_child = restriction[1]
+
+            # db_child = {
+            #     'tag': 'restriction',
+            #     'module': None,
+            #     'value': None,
+            #     'children': []
+            # }
         elif child.tag == "{0}list".format(namespace):
             # TODO list can contain a restriction/enumeration
             form_string += render_input('', '', '')
-        elif child.tag == "{0}union".format(namespace):
-            pass
 
-    return form_string
+            db_child = {
+                'tag': 'list',
+                'occurs': (1, 1, 1),
+                'value': '',
+                'module': None,
+                'children': []
+            }
+        elif child.tag == "{0}union".format(namespace):
+            db_child = {
+                'tag': 'union',
+                'occurs': (1, 1, 1),
+                'value': None,
+                'module': None,
+                'children': []
+            }
+        else:
+            db_child = {
+                'tag': 'error'
+            }
+
+        db_element['children'].append(db_child)
+
+    return form_string, db_element
+    # return form_string
 
 
 def generate_complex_type(request, element, xml_tree, namespace, full_path, edit_data_tree=None):
@@ -1172,6 +1348,13 @@ def generate_complex_type(request, element, xml_tree, namespace, full_path, edit
     # )
 
     form_string = ""
+    db_element = {
+        'tag': 'complex_type',
+        'occurs': (1, 1, 1),
+        'module': None,
+        'value': None,
+        'children': []
+    }
 
     # remove the annotations
     remove_annotations(element, namespace)
@@ -1180,42 +1363,64 @@ def generate_complex_type(request, element, xml_tree, namespace, full_path, edit
         # XSD xpath: /element/complexType/sequence
         xsd_xpath = etree.ElementTree(xml_tree).getpath(element)
         form_string += generate_module(request, element, namespace, xsd_xpath, full_path, edit_data_tree=edit_data_tree)
-        return form_string
+        db_element['module'] = True
+
+        return form_string, db_element
 
     # is it a simple content?
     complex_type_child = element.find('{0}simpleContent'.format(namespace))
     if complex_type_child is not None:
-        form_string += generate_simple_content(request, complex_type_child, xml_tree, namespace, full_path=full_path,
-                                               edit_data_tree=edit_data_tree)
-        return form_string
+        result_simple_content = generate_simple_content(request, complex_type_child, xml_tree, namespace,
+                                                        full_path=full_path, edit_data_tree=edit_data_tree)
+
+        form_string += result_simple_content[0]
+        db_element['children'].append(result_simple_content[1])
+
+        return form_string, db_element
 
     # does it contain any attributes?
     complex_type_children = element.findall('{0}attribute'.format(namespace))
     if len(complex_type_children) > 0:
         for attribute in complex_type_children:
-            form_string += generate_element(request, attribute, xml_tree, namespace, full_path=full_path,
-                                            edit_data_tree=edit_data_tree)
+            element_result = generate_element(request, attribute, xml_tree, namespace, full_path=full_path,
+                                              edit_data_tree=edit_data_tree)
+
+            form_string += element_result[0]
+
+            element_result[1]['tag'] = 'attribute'
+            db_element['children'].append(element_result[1])
 
     # does it contain sequence or all?
     complex_type_child = element.find('{0}sequence'.format(namespace))
     if complex_type_child is not None:
-        form_string += generate_sequence(request, complex_type_child, xml_tree, namespace, full_path=full_path,
-                                         edit_data_tree=edit_data_tree)
+        sequence_result = generate_sequence(request, complex_type_child, xml_tree, namespace, full_path=full_path,
+                                            edit_data_tree=edit_data_tree)
+
+        form_string += sequence_result[0]
+        db_element['children'].append(sequence_result[1])
     else:
         complex_type_child = element.find('{0}all'.format(namespace))
         if complex_type_child is not None:
-            form_string += generate_sequence(request, complex_type_child, xml_tree, namespace, full_path=full_path,
-                                             edit_data_tree=edit_data_tree)
+            sequence_result = generate_sequence(request, complex_type_child, xml_tree, namespace, full_path=full_path,
+                                                edit_data_tree=edit_data_tree)
+
+            sequence_result[1]['tag'] = 'all'
+
+            form_string += sequence_result[0]
+            db_element['children'].append(sequence_result[1])
         else:
             # does it contain choice ?
             complex_type_child = element.find('{0}choice'.format(namespace))
             if complex_type_child is not None:
-                form_string += generate_choice(request, complex_type_child, xml_tree, namespace, full_path=full_path,
-                                               edit_data_tree=edit_data_tree)
+                choice_result = generate_choice(request, complex_type_child, xml_tree, namespace, full_path=full_path,
+                                                edit_data_tree=edit_data_tree)
+
+                form_string += choice_result[0]
+                db_element['children'].append(choice_result[1])
             # else:
             #     form_string += ""
 
-    return form_string
+    return form_string, db_element
 
 
 def generate_module(request, element, namespace, xsd_xpath=None, xml_xpath=None, edit_data_tree=None):
@@ -1306,6 +1511,13 @@ def generate_simple_content(request, element, xml_tree, namespace, full_path, ed
     # FIXME better support for extension
 
     form_string = ""
+    db_element = {
+        'tag': 'simple_content',
+        'occurs': (1, 1, 1),
+        'module': None,
+        'value': None,
+        'children': []
+    }
 
     # remove the annotations
     remove_annotations(element, namespace)
@@ -1315,13 +1527,19 @@ def generate_simple_content(request, element, xml_tree, namespace, full_path, ed
         child = element[0]
 
         if child.tag == "{0}restriction".format(namespace):
-            form_string += generate_restriction(request, child, xml_tree, namespace, full_path,
-                                                edit_data_tree=edit_data_tree)
-        elif child.tag == "{0}extension".format(namespace):
-            form_string += generate_extension(request, child, xml_tree, namespace, full_path,
-                                              edit_data_tree=edit_data_tree)
+            restriction_result = generate_restriction(request, child, xml_tree, namespace, full_path,
+                                                      edit_data_tree=edit_data_tree)
 
-    return form_string
+            form_string += restriction_result[0]
+            db_element['children'].append(restriction_result[1])
+        elif child.tag == "{0}extension".format(namespace):
+            extension_result = generate_extension(request, child, xml_tree, namespace, full_path,
+                                                  edit_data_tree=edit_data_tree)
+
+            form_string += extension_result[0]
+            db_element['children'].append(extension_result[1])
+
+    return form_string, db_element
 
 
 def generate_restriction(request, element, xml_tree, namespace, full_path="", edit_data_tree=None):
@@ -1340,6 +1558,13 @@ def generate_restriction(request, element, xml_tree, namespace, full_path="", ed
     """
     # FIXME doesn't represent all the possibilities (http://www.w3schools.com/xml/el_restriction.asp)
     form_string = ""
+    db_element = {
+        'tag': 'restriction',
+        'occurs': (1, 1, 1),
+        'module': None,
+        'value': None,
+        'children': []
+    }
 
     remove_annotations(element, namespace)
 
@@ -1361,27 +1586,59 @@ def generate_restriction(request, element, xml_tree, namespace, full_path="", ed
                         selected_value = edit_elements[0].text
 
             for enum in enumeration:
+                db_child = {
+                    'tag': 'enumeration',
+                    'occurs': (1, 1, 1),
+                    'module': None,
+                    'value': enum.attrib.get('value'),
+                    'children': []
+                }
+
                 if selected_value is not None and enum.attrib.get('value') == selected_value:
                     entry = (enum.attrib.get('value'), enum.attrib.get('value'), True)
+                    db_child['tag'] = 'enumeration/selected'
                 else:
                     entry = (enum.attrib.get('value'), enum.attrib.get('value'), False)
 
                 option_list.append(entry)
+                db_element['children'].append(db_child)
         else:
             for enum in enumeration:
+                db_child = {
+                    'tag': 'enumeration',
+                    'occurs': (1, 1, 1),
+                    'module': None,
+                    'value': enum.attrib.get('value'),
+                    'children': []
+                }
+
                 entry = (enum.attrib.get('value'), enum.attrib.get('value'), False)
                 option_list.append(entry)
+
+                db_element['children'].append(db_child)
 
         form_string += render_select(None, option_list)
     else:
         simple_type = element.find('{0}simpleType'.format(namespace))
         if simple_type is not None:
-            form_string += generate_simple_type(request, simple_type, xml_tree, namespace, full_path=full_path,
-                                                edit_data_tree=edit_data_tree)
+            simple_type_result = generate_simple_type(request, simple_type, xml_tree, namespace, full_path=full_path,
+                                                      edit_data_tree=edit_data_tree)
+
+            form_string += simple_type_result[0]
+            db_child = simple_type_result[1]
         else:
             form_string += render_input('', '', '')
+            db_child = {
+                'tag': 'input',
+                'occurs': (1, 1, 1),
+                'value': '',
+                'module': None,
+                'children': []
+            }
 
-    return form_string
+        db_element['children'].append(db_child)
+
+    return form_string, db_element
 
 
 def generate_extension(request, element, xml_tree, namespace, full_path="", edit_data_tree=None):
@@ -1400,6 +1657,13 @@ def generate_extension(request, element, xml_tree, namespace, full_path="", edit
     """
     # FIXME doesn't represent all the possibilities (http://www.w3schools.com/xml/el_extension.asp)
     form_string = ""
+    db_element = {
+        'tag': 'extension',
+        'occurs': (1, 1, 1),
+        'module': None,
+        'value': None,
+        'children': []
+    }
 
     remove_annotations(element, namespace)
 
@@ -1407,8 +1671,11 @@ def generate_extension(request, element, xml_tree, namespace, full_path="", edit
     simple_type = element.find('{0}simpleType'.format(namespace))
 
     if simple_type is not None:
-        form_string += generate_simple_type(request, simple_type, xml_tree, namespace, full_path=full_path,
-                                            edit_data_tree=edit_data_tree)
+        simple_type_result = generate_simple_type(request, simple_type, xml_tree, namespace, full_path=full_path,
+                                                  edit_data_tree=edit_data_tree)
+
+        form_string += simple_type_result[0]
+        db_element['children'].append(simple_type_result[1])
     else:
         default_value = ""
 
@@ -1420,5 +1687,14 @@ def generate_extension(request, element, xml_tree, namespace, full_path="", edit
                     default_value = edit_elements[0].text
 
         form_string += render_input(default_value, '', '')
+        db_child = {
+            'tag': 'input',
+            'occurs': (1, 1, 1),
+            'module': None,
+            'value': default_value,
+            'children': []
+        }
 
-    return form_string
+        db_element['children'].append(db_child)
+
+    return form_string, db_element

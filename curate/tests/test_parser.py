@@ -959,6 +959,8 @@ class ParserGenerateElementTestSuite(TestCase):
         session_key = None
         self.request.session = engine.SessionStore(session_key)
 
+        self.maxDiff = None
+
         self.request.session['curate_edit'] = False  # Data edition
         self.request.session['nb_html_tags'] = 0
         self.request.session['mapTagID'] = {}
@@ -972,7 +974,11 @@ class ParserGenerateElementTestSuite(TestCase):
 
         result_string = generate_element(self.request, xsd_element, xsd_tree, '', full_path='')
 
-        result_html = etree.fromstring(result_string)
+        expected_element = {'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'simple_type', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'restriction', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': 'child0', 'tag': 'enumeration', 'occurs': (1, 1, 1), 'module': None, 'children': []}, {'value': 'child1', 'tag': 'enumeration', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}]}]}
+
+        self.assertDictEqual(result_string[1], expected_element)
+
+        result_html = etree.fromstring(result_string[0])
         expected_html = self.element_data_handler.get_html2(xsd_files)
 
         self.assertTrue(are_equals(result_html, expected_html))
@@ -984,7 +990,14 @@ class ParserGenerateElementTestSuite(TestCase):
 
         result_string = generate_element(self.request, xsd_element, xsd_tree, '', full_path='')
 
-        result_html = etree.fromstring(result_string)
+        expected_element = {
+            'value': None,
+            'tag': 'element',
+            'occurs': (2.0, 2.0, float('infinity')), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'simple_type', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'restriction', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': 'child0', 'tag': 'enumeration', 'occurs': (1, 1, 1), 'module': None, 'children': []}, {'value': 'child1', 'tag': 'enumeration', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}]}, {'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'simple_type', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'restriction', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': 'child0', 'tag': 'enumeration', 'occurs': (1, 1, 1), 'module': None, 'children': []}, {'value': 'child1', 'tag': 'enumeration', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}]}]}
+
+        self.assertDictEqual(result_string[1], expected_element)
+
+        result_html = etree.fromstring(result_string[0])
         expected_html = self.element_data_handler.get_html2(xsd_files)
 
         self.assertTrue(are_equals(result_html, expected_html))
@@ -996,7 +1009,88 @@ class ParserGenerateElementTestSuite(TestCase):
 
         result_string = generate_element(self.request, xsd_element, xsd_tree, '', full_path='')
 
-        result_html = etree.fromstring(result_string)
+        expected_element = {
+            'tag': 'element',
+            'occurs': (1, 1, 1),
+            'module': None,
+            'value': None,
+            'children': [
+                {
+                    'tag': 'elem-iter',
+                    'occurs': (1, 1, 1),
+                    'module': None,
+                    'value': None,
+                    'children': [
+                        {
+                            'tag': 'complex_type',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'value': None,
+                            'children': [
+                                {
+                                    'tag': 'sequence',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'value': None,
+                                    'children': [
+                                        {
+                                            'tag': 'element',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'value': None,
+                                            'children': [
+                                                {
+                                                    'tag': 'elem-iter',
+                                                    'occurs': (1, 1, 1),
+                                                    'module': None,
+                                                    'value': None,
+                                                    'children': [
+                                                        {
+                                                            'tag': 'input',
+                                                            'occurs': (1, 1, 1),
+                                                            'module': None,
+                                                            'value': '',
+                                                            'children': []
+                                                        }
+                                                    ]
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            'tag': 'element',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'value': None,
+                                            'children': [
+                                                {
+                                                    'tag': 'elem-iter',
+                                                    'occurs': (1, 1, 1),
+                                                    'module': None,
+                                                    'value': None,
+                                                    'children': [
+                                                        {
+                                                            'tag': 'input',
+                                                            'occurs': (1, 1, 1),
+                                                            'module': None,
+                                                            'value': '',
+                                                            'children': []
+                                                        }
+                                                    ]
+                                                }
+                                            ]
+                                        },
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+
+        self.assertDictEqual(result_string[1], expected_element)
+
+        result_html = etree.fromstring(result_string[0])
         expected_html = self.element_data_handler.get_html2(xsd_files)
 
         self.assertTrue(are_equals(result_html, expected_html))
@@ -1008,7 +1102,158 @@ class ParserGenerateElementTestSuite(TestCase):
 
         result_string = generate_element(self.request, xsd_element, xsd_tree, '', full_path='')
 
-        result_html = etree.fromstring(result_string)
+        expected_element = {
+            'tag': 'element',
+            'occurs': (2., 2., float('infinity')),
+            'module': None,
+            'value': None,
+            'children': [
+                {
+                    'tag': 'elem-iter',
+                    'occurs': (1, 1, 1),
+                    'module': None,
+                    'value': None,
+                    'children': [
+                        {
+                            'tag': 'complex_type',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'value': None,
+                            'children': [
+                                {
+                                    'tag': 'sequence',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'value': None,
+                                    'children': [
+                                        {
+                                            'tag': 'element',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'value': None,
+                                            'children': [
+                                                {
+                                                    'tag': 'elem-iter',
+                                                    'occurs': (1, 1, 1),
+                                                    'module': None,
+                                                    'value': None,
+                                                    'children': [
+                                                        {
+                                                            'tag': 'input',
+                                                            'occurs': (1, 1, 1),
+                                                            'module': None,
+                                                            'value': '',
+                                                            'children': []
+                                                        }
+                                                    ]
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            'tag': 'element',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'value': None,
+                                            'children': [
+                                                {
+                                                    'tag': 'elem-iter',
+                                                    'occurs': (1, 1, 1),
+                                                    'module': None,
+                                                    'value': None,
+                                                    'children': [
+                                                        {
+                                                            'tag': 'input',
+                                                            'occurs': (1, 1, 1),
+                                                            'module': None,
+                                                            'value': '',
+                                                            'children': []
+                                                        }
+                                                    ]
+                                                }
+                                            ]
+                                        },
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    'tag': 'elem-iter',
+                    'occurs': (1, 1, 1),
+                    'module': None,
+                    'value': None,
+                    'children': [
+                        {
+                            'tag': 'complex_type',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'value': None,
+                            'children': [
+                                {
+                                    'tag': 'sequence',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'value': None,
+                                    'children': [
+                                        {
+                                            'tag': 'element',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'value': None,
+                                            'children': [
+                                                {
+                                                    'tag': 'elem-iter',
+                                                    'occurs': (1, 1, 1),
+                                                    'module': None,
+                                                    'value': None,
+                                                    'children': [
+                                                        {
+                                                            'tag': 'input',
+                                                            'occurs': (1, 1, 1),
+                                                            'module': None,
+                                                            'value': '',
+                                                            'children': []
+                                                        }
+                                                    ]
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            'tag': 'element',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'value': None,
+                                            'children': [
+                                                {
+                                                    'tag': 'elem-iter',
+                                                    'occurs': (1, 1, 1),
+                                                    'module': None,
+                                                    'value': None,
+                                                    'children': [
+                                                        {
+                                                            'tag': 'input',
+                                                            'occurs': (1, 1, 1),
+                                                            'module': None,
+                                                            'value': '',
+                                                            'children': []
+                                                        }
+                                                    ]
+                                                }
+                                            ]
+                                        },
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+
+        self.assertDictEqual(result_string[1], expected_element)
+
+        result_html = etree.fromstring(result_string[0])
         expected_html = self.element_data_handler.get_html2(xsd_files)
 
         self.assertTrue(are_equals(result_html, expected_html))
@@ -1284,7 +1529,11 @@ class ParserGenerateElementTestSuite(TestCase):
         result_string = generate_element(self.request, xsd_element, xsd_tree, '', full_path='',
                                          edit_data_tree=edit_data_tree)
 
-        result_html = etree.fromstring(result_string)
+        expected_element = {'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'simple_type', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'restriction', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': 'child0', 'tag': 'enumeration/selected', 'occurs': (1, 1, 1), 'module': None, 'children': []}, {'value': 'child1', 'tag': 'enumeration', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}]}]}
+
+        self.assertDictEqual(result_string[1], expected_element)
+
+        result_html = etree.fromstring(result_string[0])
         expected_html = self.element_data_handler.get_html2(xsd_files + '.reload')
 
         self.assertTrue(are_equals(result_html, expected_html))
@@ -1306,7 +1555,11 @@ class ParserGenerateElementTestSuite(TestCase):
         result_string = generate_element(self.request, xsd_element, xsd_tree, '', full_path='/root',
                                          edit_data_tree=edit_data_tree)
 
-        result_html = etree.fromstring(result_string)
+        expected_element = {'value': None, 'tag': 'element', 'occurs': (2.0, 3, float('infinity')), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'simple_type', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'restriction', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': 'child0', 'tag': 'enumeration', 'occurs': (1, 1, 1), 'module': None, 'children': []}, {'value': 'child1', 'tag': 'enumeration/selected', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}]}, {'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'simple_type', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'restriction', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': 'child0', 'tag': 'enumeration', 'occurs': (1, 1, 1), 'module': None, 'children': []}, {'value': 'child1', 'tag': 'enumeration/selected', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}]}, {'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'simple_type', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'restriction', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': 'child0', 'tag': 'enumeration/selected', 'occurs': (1, 1, 1), 'module': None, 'children': []}, {'value': 'child1', 'tag': 'enumeration', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}]}]}
+
+        self.assertDictEqual(result_string[1], expected_element)
+
+        result_html = etree.fromstring(result_string[0])
         expected_html = self.element_data_handler.get_html2(xsd_files + '.reload')
 
         self.assertTrue(are_equals(result_html, expected_html))
@@ -1329,7 +1582,88 @@ class ParserGenerateElementTestSuite(TestCase):
         result_string = generate_element(self.request, xsd_element, xsd_tree, '', full_path='',
                                          edit_data_tree=edit_data_tree)
 
-        result_html = etree.fromstring(result_string)
+        expected_element = {
+            'tag': 'element',
+            'occurs': (1, 1, 1),
+            'module': None,
+            'value': None,
+            'children': [
+                {
+                    'tag': 'elem-iter',
+                    'occurs': (1, 1, 1),
+                    'module': None,
+                    'value': None,
+                    'children': [
+                        {
+                            'tag': 'complex_type',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'value': None,
+                            'children': [
+                                {
+                                    'tag': 'sequence',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'value': None,
+                                    'children': [
+                                        {
+                                            'tag': 'element',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'value': None,
+                                            'children': [
+                                                {
+                                                    'tag': 'elem-iter',
+                                                    'occurs': (1, 1, 1),
+                                                    'module': None,
+                                                    'value': None,
+                                                    'children': [
+                                                        {
+                                                            'tag': 'input',
+                                                            'occurs': (1, 1, 1),
+                                                            'module': None,
+                                                            'value': 'entry0',
+                                                            'children': []
+                                                        }
+                                                    ]
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            'tag': 'element',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'value': None,
+                                            'children': [
+                                                {
+                                                    'tag': 'elem-iter',
+                                                    'occurs': (1, 1, 1),
+                                                    'module': None,
+                                                    'value': None,
+                                                    'children': [
+                                                        {
+                                                            'tag': 'input',
+                                                            'occurs': (1, 1, 1),
+                                                            'module': None,
+                                                            'value': 'entry1',
+                                                            'children': []
+                                                        }
+                                                    ]
+                                                }
+                                            ]
+                                        },
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+
+        self.assertDictEqual(result_string[1], expected_element)
+
+        result_html = etree.fromstring(result_string[0])
         expected_html = self.element_data_handler.get_html2(xsd_files + '.reload')
 
         self.assertTrue(are_equals(result_html, expected_html))
@@ -1352,7 +1686,229 @@ class ParserGenerateElementTestSuite(TestCase):
         result_string = generate_element(self.request, xsd_element, xsd_tree, '', full_path='/root',
                                          edit_data_tree=edit_data_tree)
 
-        result_html = etree.fromstring(result_string)
+        expected_element = {
+            'tag': 'element',
+            'occurs': (2., 3, float('infinity')),
+            'module': None,
+            'value': None,
+            'children': [
+                {
+                    'tag': 'elem-iter',
+                    'occurs': (1, 1, 1),
+                    'module': None,
+                    'value': None,
+                    'children': [
+                        {
+                            'tag': 'complex_type',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'value': None,
+                            'children': [
+                                {
+                                    'tag': 'sequence',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'value': None,
+                                    'children': [
+                                        {
+                                            'tag': 'element',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'value': None,
+                                            'children': [
+                                                {
+                                                    'tag': 'elem-iter',
+                                                    'occurs': (1, 1, 1),
+                                                    'module': None,
+                                                    'value': None,
+                                                    'children': [
+                                                        {
+                                                            'tag': 'input',
+                                                            'occurs': (1, 1, 1),
+                                                            'module': None,
+                                                            'value': 'entry0',
+                                                            'children': []
+                                                        }
+                                                    ]
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            'tag': 'element',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'value': None,
+                                            'children': [
+                                                {
+                                                    'tag': 'elem-iter',
+                                                    'occurs': (1, 1, 1),
+                                                    'module': None,
+                                                    'value': None,
+                                                    'children': [
+                                                        {
+                                                            'tag': 'input',
+                                                            'occurs': (1, 1, 1),
+                                                            'module': None,
+                                                            'value': 'entry1',
+                                                            'children': []
+                                                        }
+                                                    ]
+                                                }
+                                            ]
+                                        },
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    'tag': 'elem-iter',
+                    'occurs': (1, 1, 1),
+                    'module': None,
+                    'value': None,
+                    'children': [
+                        {
+                            'tag': 'complex_type',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'value': None,
+                            'children': [
+                                {
+                                    'tag': 'sequence',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'value': None,
+                                    'children': [
+                                        {
+                                            'tag': 'element',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'value': None,
+                                            'children': [
+                                                {
+                                                    'tag': 'elem-iter',
+                                                    'occurs': (1, 1, 1),
+                                                    'module': None,
+                                                    'value': None,
+                                                    'children': [
+                                                        {
+                                                            'tag': 'input',
+                                                            'occurs': (1, 1, 1),
+                                                            'module': None,
+                                                            'value': 'entry2',
+                                                            'children': []
+                                                        }
+                                                    ]
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            'tag': 'element',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'value': None,
+                                            'children': [
+                                                {
+                                                    'tag': 'elem-iter',
+                                                    'occurs': (1, 1, 1),
+                                                    'module': None,
+                                                    'value': None,
+                                                    'children': [
+                                                        {
+                                                            'tag': 'input',
+                                                            'occurs': (1, 1, 1),
+                                                            'module': None,
+                                                            'value': 'entry3',
+                                                            'children': []
+                                                        }
+                                                    ]
+                                                }
+                                            ]
+                                        },
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    'tag': 'elem-iter',
+                    'occurs': (1, 1, 1),
+                    'module': None,
+                    'value': None,
+                    'children': [
+                        {
+                            'tag': 'complex_type',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'value': None,
+                            'children': [
+                                {
+                                    'tag': 'sequence',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'value': None,
+                                    'children': [
+                                        {
+                                            'tag': 'element',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'value': None,
+                                            'children': [
+                                                {
+                                                    'tag': 'elem-iter',
+                                                    'occurs': (1, 1, 1),
+                                                    'module': None,
+                                                    'value': None,
+                                                    'children': [
+                                                        {
+                                                            'tag': 'input',
+                                                            'occurs': (1, 1, 1),
+                                                            'module': None,
+                                                            'value': 'entry4',
+                                                            'children': []
+                                                        }
+                                                    ]
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            'tag': 'element',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'value': None,
+                                            'children': [
+                                                {
+                                                    'tag': 'elem-iter',
+                                                    'occurs': (1, 1, 1),
+                                                    'module': None,
+                                                    'value': None,
+                                                    'children': [
+                                                        {
+                                                            'tag': 'input',
+                                                            'occurs': (1, 1, 1),
+                                                            'module': None,
+                                                            'value': 'entry5',
+                                                            'children': []
+                                                        }
+                                                    ]
+                                                }
+                                            ]
+                                        },
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+
+        self.maxDiff = None
+        self.assertDictEqual(result_string[1], expected_element)
+
+        result_html = etree.fromstring(result_string[0])
         expected_html = self.element_data_handler.get_html2(xsd_files + '.reload')
 
         self.assertTrue(are_equals(result_html, expected_html))
@@ -1514,6 +2070,8 @@ class ParserGenerateElementAbsentTestSuite(TestCase):
         self.request = HttpRequest()
         engine = import_module('django.contrib.sessions.backends.db')
         session_key = None
+
+        self.maxDiff = None
         self.request.session = engine.SessionStore(session_key)
 
         self.request.session['curate_edit'] = False  # Data edition
@@ -1533,7 +2091,11 @@ class ParserGenerateElementAbsentTestSuite(TestCase):
 
         result_string = generate_element_absent(self.request, xsd_element, xsd_tree, self.form_element)
 
-        result_html = etree.fromstring(result_string)
+        expected_element = {'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'simple_type', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'restriction', 'occurs': (1, 1, 1), 'module': None, 'children': [{'module': None, 'tag': 'input', 'occurs': (1, 1, 1), 'value': '', 'children': []}]}]}]}
+
+        self.assertDictEqual(result_string[1], expected_element)
+
+        result_html = etree.fromstring(result_string[0])
         expected_html = self.element_data_handler.get_html2(xsd_files)
 
         self.assertTrue(are_equals(result_html, expected_html))
@@ -1545,7 +2107,11 @@ class ParserGenerateElementAbsentTestSuite(TestCase):
 
         result_string = generate_element_absent(self.request, xsd_element, xsd_tree, self.form_element)
 
-        result_html = etree.fromstring(result_string)
+        expected_element = {'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'simple_type', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'restriction', 'occurs': (1, 1, 1), 'module': None, 'children': [{'module': None, 'tag': 'input', 'occurs': (1, 1, 1), 'value': '', 'children': []}]}]}]}
+
+        self.assertDictEqual(result_string[1], expected_element)
+
+        result_html = etree.fromstring(result_string[0])
         expected_html = self.element_data_handler.get_html2(xsd_files)
 
         self.assertTrue(are_equals(result_html, expected_html))
@@ -1556,7 +2122,81 @@ class ParserGenerateElementAbsentTestSuite(TestCase):
         xsd_element = xsd_tree.xpath('/schema/element')[0]
 
         result_string = generate_element_absent(self.request, xsd_element, xsd_tree, self.form_element)
-        result_string = '<div>' + result_string + '</div>'
+
+        expected_element = {
+            'tag': 'elem-iter',
+            'occurs': (1, 1, 1),
+            'module': None,
+            'value': None,
+            'children': [
+                {
+                    'tag': 'complex_type',
+                    'occurs': (1, 1, 1),
+                    'module': None,
+                    'value': None,
+                    'children': [
+                        {
+                            'tag': 'sequence',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'value': None,
+                            'children': [
+                                {
+                                    'tag': 'element',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'value': None,
+                                    'children': [
+                                        {
+                                            'tag': 'elem-iter',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'value': None,
+                                            'children': [
+                                                {
+                                                    'tag': 'input',
+                                                    'occurs': (1, 1, 1),
+                                                    'module': None,
+                                                    'value': '',
+                                                    'children': []
+                                                },
+                                            ]
+                                        },
+                                    ]
+                                },
+                                {
+                                    'tag': 'element',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'value': None,
+                                    'children': [
+                                        {
+                                            'tag': 'elem-iter',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'value': None,
+                                            'children': [
+                                                {
+                                                    'tag': 'input',
+                                                    'occurs': (1, 1, 1),
+                                                    'module': None,
+                                                    'value': '',
+                                                    'children': []
+                                                },
+                                            ]
+                                        },
+                                    ]
+                                },
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+
+        self.assertDictEqual(result_string[1], expected_element)
+
+        result_string = '<div>' + result_string[0] + '</div>'
 
         result_html = etree.fromstring(result_string)
         expected_html = self.element_data_handler.get_html2(xsd_files)
@@ -1569,7 +2209,81 @@ class ParserGenerateElementAbsentTestSuite(TestCase):
         xsd_element = xsd_tree.xpath('/schema/element')[0]
 
         result_string = generate_element_absent(self.request, xsd_element, xsd_tree, self.form_element)
-        result_string = '<div>' + result_string + '</div>'
+
+        expected_element = {
+            'tag': 'elem-iter',
+            'occurs': (1, 1, 1),
+            'module': None,
+            'value': None,
+            'children': [
+                {
+                    'tag': 'complex_type',
+                    'occurs': (1, 1, 1),
+                    'module': None,
+                    'value': None,
+                    'children': [
+                        {
+                            'tag': 'sequence',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'value': None,
+                            'children': [
+                                {
+                                    'tag': 'element',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'value': None,
+                                    'children': [
+                                        {
+                                            'tag': 'elem-iter',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'value': None,
+                                            'children': [
+                                                {
+                                                    'tag': 'input',
+                                                    'occurs': (1, 1, 1),
+                                                    'module': None,
+                                                    'value': '',
+                                                    'children': []
+                                                },
+                                            ]
+                                        },
+                                    ]
+                                },
+                                {
+                                    'tag': 'element',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'value': None,
+                                    'children': [
+                                        {
+                                            'tag': 'elem-iter',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'value': None,
+                                            'children': [
+                                                {
+                                                    'tag': 'input',
+                                                    'occurs': (1, 1, 1),
+                                                    'module': None,
+                                                    'value': '',
+                                                    'children': []
+                                                },
+                                            ]
+                                        },
+                                    ]
+                                },
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+
+        self.assertDictEqual(result_string[1], expected_element)
+
+        result_string = '<div>' + result_string[0] + '</div>'
 
         result_html = etree.fromstring(result_string)
         expected_html = self.element_data_handler.get_html2(xsd_files)
@@ -1672,6 +2386,8 @@ class ParserGenerateSequenceTestSuite(TestCase):
         sequence_data = join('curate', 'tests', 'data', 'parser', 'sequence')
         self.sequence_data_handler = DataHandler(sequence_data)
 
+        self.maxDiff = None
+
         self.request = HttpRequest()
         engine = import_module('django.contrib.sessions.backends.db')
         session_key = None
@@ -1689,7 +2405,11 @@ class ParserGenerateSequenceTestSuite(TestCase):
 
         result_string = generate_sequence(self.request, xsd_element, xsd_tree, '', full_path='')
 
-        result_html = etree.fromstring(result_string)
+        expected_element = {'value': None, 'tag': 'sequence', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': '', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}]}
+
+        self.assertDictEqual(result_string[1], expected_element)
+
+        result_html = etree.fromstring(result_string[0])
         expected_html = self.sequence_data_handler.get_html2(join('element', 'basic'))
 
         self.assertTrue(are_equals(result_html, expected_html))
@@ -1700,7 +2420,11 @@ class ParserGenerateSequenceTestSuite(TestCase):
 
         result_string = generate_sequence(self.request, xsd_element, xsd_tree, '', full_path='')
 
-        result_html = etree.fromstring(result_string)
+        expected_element = {'value': None, 'tag': 'sequence', 'occurs': (2.0, 2.0, float('infinity')), 'module': None, 'children': [{'value': None, 'tag': 'sequence-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': '', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}]}, {'value': None, 'tag': 'sequence-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': '', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}]}]}
+
+        self.assertDictEqual(result_string[1], expected_element)
+
+        result_html = etree.fromstring(result_string[0])
         expected_html = self.sequence_data_handler.get_html2(join('element', 'unbounded'))
 
         self.assertTrue(are_equals(result_html, expected_html))
@@ -1736,7 +2460,11 @@ class ParserGenerateSequenceTestSuite(TestCase):
         result_string = generate_sequence(self.request, xsd_element, xsd_tree, '', full_path='')
         # print result_string
 
-        result_html = etree.fromstring(result_string)
+        expected_element = {'value': None, 'tag': 'sequence', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'choice', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'choice-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': '', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}, {'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}]}
+
+        self.assertDictEqual(result_string[1], expected_element)
+
+        result_html = etree.fromstring(result_string[0])
         expected_html = self.sequence_data_handler.get_html2(join('choice', 'basic'))
 
         self.assertTrue(are_equals(result_html, expected_html))
@@ -1748,7 +2476,11 @@ class ParserGenerateSequenceTestSuite(TestCase):
         result_string = generate_sequence(self.request, xsd_element, xsd_tree, '', full_path='')
         # print result_string
 
-        result_html = etree.fromstring(result_string)
+        expected_element = {'value': None, 'tag': 'sequence', 'occurs': (2.0, 2.0, float('infinity')), 'module': None, 'children': [{'value': None, 'tag': 'sequence-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'choice', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'choice-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': '', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}, {'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}]}, {'value': None, 'tag': 'sequence-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'choice', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'choice-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': '', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}, {'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}]}]}
+
+        self.assertDictEqual(result_string[1], expected_element)
+
+        result_html = etree.fromstring(result_string[0])
         expected_html = self.sequence_data_handler.get_html2(join('choice', 'unbounded'))
 
         self.assertTrue(are_equals(result_html, expected_html))
@@ -1760,7 +2492,11 @@ class ParserGenerateSequenceTestSuite(TestCase):
         result_string = generate_sequence(self.request, xsd_element, xsd_tree, '', full_path='')
         # print result_string
 
-        result_html = etree.fromstring(result_string)
+        expected_element = {'value': None, 'tag': 'sequence', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'sequence', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': '', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}]}]}
+
+        self.assertDictEqual(result_string[1], expected_element)
+
+        result_html = etree.fromstring(result_string[0])
         expected_html = self.sequence_data_handler.get_html2(join('sequence', 'basic'))
 
         self.assertTrue(are_equals(result_html, expected_html))
@@ -1772,7 +2508,11 @@ class ParserGenerateSequenceTestSuite(TestCase):
         result_string = generate_sequence(self.request, xsd_element, xsd_tree, '', full_path='')
         # print result_string
 
-        result_html = etree.fromstring(result_string)
+        expected_element = {'value': None, 'tag': 'sequence', 'occurs': (2.0, 2.0, float('infinity')), 'module': None, 'children': [{'value': None, 'tag': 'sequence-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'sequence', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': '', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}]}]}, {'value': None, 'tag': 'sequence-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'sequence', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': '', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}]}]}]}
+
+        self.assertDictEqual(result_string[1], expected_element)
+
+        result_html = etree.fromstring(result_string[0])
         expected_html = self.sequence_data_handler.get_html2(join('sequence', 'unbounded'))
 
         self.assertTrue(are_equals(result_html, expected_html))
@@ -1803,7 +2543,12 @@ class ParserGenerateSequenceTestSuite(TestCase):
         xsd_element = xsd_tree.xpath('/schema/complexType/sequence')[0]
 
         result_string = generate_sequence(self.request, xsd_element, xsd_tree, '', full_path='')
-        result_string = '<div>' + result_string + '</div>'
+
+        expected_element = {'value': None, 'tag': 'sequence', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'choice', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'choice-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': '', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}, {'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}, {'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': '', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}, {'value': None, 'tag': 'sequence', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': '', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}, {'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': '', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}]}]}
+
+        self.assertDictEqual(result_string[1], expected_element)
+
+        result_string = '<div>' + result_string[0] + '</div>'
 
         result_html = etree.fromstring(result_string)
         expected_html = self.sequence_data_handler.get_html2(join('multiple', 'basic'))
@@ -1817,7 +2562,11 @@ class ParserGenerateSequenceTestSuite(TestCase):
         result_string = generate_sequence(self.request, xsd_element, xsd_tree, '', full_path='')
         # print result_string
 
-        result_html = etree.fromstring(result_string)
+        expected_element = {'value': None, 'tag': 'sequence', 'occurs': (2.0, 2.0, float('infinity')), 'module': None, 'children': [{'value': None, 'tag': 'sequence-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'choice', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'choice-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': '', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}, {'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}, {'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': '', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}, {'value': None, 'tag': 'sequence', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': '', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}, {'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': '', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}]}]}, {'value': None, 'tag': 'sequence-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'choice', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'choice-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': '', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}, {'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}, {'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': '', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}, {'value': None, 'tag': 'sequence', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': '', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}, {'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': '', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}]}]}]}
+
+        self.assertDictEqual(result_string[1], expected_element)
+
+        result_html = etree.fromstring(result_string[0])
         expected_html = self.sequence_data_handler.get_html2(join('multiple', 'unbounded'))
 
         self.assertTrue(are_equals(result_html, expected_html))
@@ -1840,7 +2589,11 @@ class ParserGenerateSequenceTestSuite(TestCase):
                                           edit_data_tree=edit_data_tree)
         # print result_string
 
-        result_html = etree.fromstring(result_string)
+        expected_element = {'value': None, 'tag': 'sequence', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': 'entry0', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}]}
+
+        self.assertDictEqual(result_string[1], expected_element)
+
+        result_html = etree.fromstring(result_string[0])
         expected_html = self.sequence_data_handler.get_html2(xsd_files + '.reload')
 
         self.assertTrue(are_equals(result_html, expected_html))
@@ -1864,7 +2617,11 @@ class ParserGenerateSequenceTestSuite(TestCase):
                                           edit_data_tree=edit_data_tree)
         # print result_string
 
-        result_html = etree.fromstring(result_string)
+        expected_element = {'value': None, 'tag': 'sequence', 'occurs': (2.0, 1, float('infinity')), 'module': None, 'children': [{'value': None, 'tag': 'sequence-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'element', 'occurs': (1, 3, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': 'entry0', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}, {'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': 'entry1', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}, {'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': 'entry2', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}]}]}
+
+        self.assertDictEqual(result_string[1], expected_element)
+
+        result_html = etree.fromstring(result_string[0])
         expected_html = self.sequence_data_handler.get_html2(xsd_files + '.reload')
 
         self.assertTrue(are_equals(result_html, expected_html))
@@ -1934,7 +2691,11 @@ class ParserGenerateSequenceTestSuite(TestCase):
                                           edit_data_tree=edit_data_tree)
         # print result_string
 
-        result_html = etree.fromstring(result_string)
+        expected_element = {'value': None, 'tag': 'sequence', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'choice', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'choice-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': 'entry0', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}, {'value': None, 'tag': 'element', 'occurs': (1, 0, 1), 'module': None, 'children': []}]}]}]}
+
+        self.assertDictEqual(result_string[1], expected_element)
+
+        result_html = etree.fromstring(result_string[0])
         expected_html = self.sequence_data_handler.get_html2(xsd_files + '.reload')
 
         self.assertTrue(are_equals(result_html, expected_html))
@@ -1957,7 +2718,11 @@ class ParserGenerateSequenceTestSuite(TestCase):
                                           edit_data_tree=edit_data_tree)
         # print result_string
 
-        result_html = etree.fromstring(result_string)
+        expected_element = {'value': None, 'tag': 'sequence', 'occurs': (2.0, 1, float('infinity')), 'module': None, 'children': [{'value': None, 'tag': 'sequence-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'choice', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'choice-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'element', 'occurs': (1, 2, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': 'entry1', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}, {'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': 'entry2', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}, {'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': 'entry0', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}]}]}]}]}
+
+        self.assertDictEqual(result_string[1], expected_element)
+
+        result_html = etree.fromstring(result_string[0])
         expected_html = self.sequence_data_handler.get_html2(xsd_files + '.reload')
 
         self.assertTrue(are_equals(result_html, expected_html))
@@ -1980,7 +2745,11 @@ class ParserGenerateSequenceTestSuite(TestCase):
                                           edit_data_tree=edit_data_tree)
         # print result_string
 
-        result_html = etree.fromstring(result_string)
+        expected_element = {'value': None, 'tag': 'sequence', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'sequence', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': 'entry0', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}]}]}
+
+        self.assertDictEqual(result_string[1], expected_element)
+
+        result_html = etree.fromstring(result_string[0])
         expected_html = self.sequence_data_handler.get_html2(xsd_files + '.reload')
 
         self.assertTrue(are_equals(result_html, expected_html))
@@ -2003,7 +2772,11 @@ class ParserGenerateSequenceTestSuite(TestCase):
                                           edit_data_tree=edit_data_tree)
         # print result_string
 
-        result_html = etree.fromstring(result_string)
+        expected_element = {'value': None, 'tag': 'sequence', 'occurs': (2.0, 1, float('infinity')), 'module': None, 'children': [{'value': None, 'tag': 'sequence-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'sequence', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'element', 'occurs': (1, 3, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': 'entry0', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}, {'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': 'entry1', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}, {'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': 'entry2', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}]}]}]}
+
+        self.assertDictEqual(result_string[1], expected_element)
+
+        result_html = etree.fromstring(result_string[0])
         expected_html = self.sequence_data_handler.get_html2(xsd_files + '.reload')
 
         self.assertTrue(are_equals(result_html, expected_html))
@@ -2071,7 +2844,13 @@ class ParserGenerateSequenceTestSuite(TestCase):
         edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
         result_string = generate_sequence(self.request, xsd_element, xsd_tree, '', full_path='/root',
                                           edit_data_tree=edit_data_tree)
-        result_string = '<div>' + result_string + '</div>'
+
+
+        expected_element = {'value': None, 'tag': 'sequence', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'choice', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'choice-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': 'entry0', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}, {'value': None, 'tag': 'element', 'occurs': (1, 0, 1), 'module': None, 'children': []}]}]}, {'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': 'entry1', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}, {'value': None, 'tag': 'sequence', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': 'entry2', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}, {'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': 'entry3', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}]}]}
+
+        self.assertDictEqual(result_string[1], expected_element)
+
+        result_string = '<div>' + result_string[0] + '</div>'
 
         result_html = etree.fromstring(result_string)
         expected_html = self.sequence_data_handler.get_html2(xsd_files + '.reload')
@@ -2095,7 +2874,11 @@ class ParserGenerateSequenceTestSuite(TestCase):
         result_string = generate_sequence(self.request, xsd_element, xsd_tree, '', full_path='/root',
                                           edit_data_tree=edit_data_tree)
 
-        result_html = etree.fromstring(result_string)
+        expected_element = {'value': None, 'tag': 'sequence', 'occurs': (2.0, 1, float('infinity')), 'module': None, 'children': [{'value': None, 'tag': 'sequence-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'choice', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'choice-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': 'entry0', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}, {'value': None, 'tag': 'element', 'occurs': (1, 2, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': 'entry4', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}, {'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': 'entry8', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}]}]}, {'value': None, 'tag': 'element', 'occurs': (1, 3, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': 'entry1', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}, {'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': 'entry5', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}, {'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': 'entry9', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}, {'value': None, 'tag': 'sequence', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'element', 'occurs': (1, 3, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': 'entry2', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}, {'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': 'entry6', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}, {'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': 'entry10', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}, {'value': None, 'tag': 'element', 'occurs': (1, 3, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': 'entry3', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}, {'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': 'entry7', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}, {'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': 'entry11', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}]}]}]}
+
+        self.assertDictEqual(result_string[1], expected_element)
+
+        result_html = etree.fromstring(result_string[0])
         expected_html = self.sequence_data_handler.get_html2(xsd_files + '.reload')
 
         self.assertTrue(are_equals(result_html, expected_html))
@@ -2114,6 +2897,8 @@ class ParserGenerateSequenceAbsentTestSuite(TestCase):
         session_key = None
         self.request.session = engine.SessionStore(session_key)
 
+        self.maxDiff = None
+
         self.request.session['curate_edit'] = False  # Data edition
         self.request.session['nb_html_tags'] = 0
         self.request.session['mapTagID'] = {}
@@ -2127,7 +2912,43 @@ class ParserGenerateSequenceAbsentTestSuite(TestCase):
         result_string = generate_sequence_absent(self.request, xsd_element, xsd_tree, '')
         # print result_string
 
-        result_html = etree.fromstring(result_string)
+        expected_element = {
+            'tag': 'sequence-iter',
+            'occurs': (1, 1, 1),
+            'module': None,
+            'value': None,
+            'children': [
+                {
+                    'tag': 'element',
+                    'occurs': (1, 1, 1),
+                    'module': None,
+                    'value': None,
+                    'children': [
+                        {
+                            'tag': 'elem-iter',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'value': None,
+                            'children': [
+                                {
+                                    'tag': 'input',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'value': '',
+                                    'children': []
+                                }
+                            ]
+                        }
+
+                    ]
+                }
+
+            ]
+        }
+
+        self.assertDictEqual(result_string[1], expected_element)
+
+        result_html = etree.fromstring(result_string[0])
         expected_html = self.sequence_data_handler.get_html2(join('element', 'basic'))
 
         self.assertTrue(are_equals(result_html, expected_html))
@@ -2139,7 +2960,43 @@ class ParserGenerateSequenceAbsentTestSuite(TestCase):
         result_string = generate_sequence_absent(self.request, xsd_element, xsd_tree, '')
         # print result_string
 
-        result_html = etree.fromstring(result_string)
+        expected_element = {
+            'tag': 'sequence-iter',
+            'occurs': (1, 1, 1),
+            'module': None,
+            'value': None,
+            'children': [
+                {
+                    'tag': 'element',
+                    'occurs': (1, 1, 1),
+                    'module': None,
+                    'value': None,
+                    'children': [
+                        {
+                            'tag': 'elem-iter',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'value': None,
+                            'children': [
+                                {
+                                    'tag': 'input',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'value': '',
+                                    'children': []
+                                }
+                            ]
+                        }
+
+                    ]
+                }
+
+            ]
+        }
+
+        self.assertDictEqual(result_string[1], expected_element)
+
+        result_html = etree.fromstring(result_string[0])
         expected_html = self.sequence_data_handler.get_html2(join('element', 'unbounded'))
 
         self.assertTrue(are_equals(result_html, expected_html))
@@ -2177,7 +3034,67 @@ class ParserGenerateSequenceAbsentTestSuite(TestCase):
         result_string = generate_sequence_absent(self.request, xsd_element, xsd_tree, '')
         # print result_string
 
-        result_html = etree.fromstring(result_string)
+        expected_element = {
+            'tag': 'sequence-iter',
+            'occurs': (1, 1, 1),
+            'module': None,
+            'value': None,
+            'children': [
+                {
+                    'tag': 'choice',
+                    'occurs': (1, 1, 1),
+                    'module': None,
+                    'value': None,
+                    'children': [
+                        {
+                            'tag': 'choice-iter',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'value': None,
+                            'children': [
+                                {
+                                    'tag': 'element',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'value': None,
+                                    'children': [
+                                        {
+                                            'tag': 'elem-iter',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'value': None,
+                                            'children': [
+                                                {
+                                                    'tag': 'input',
+                                                    'occurs': (1, 1, 1),
+                                                    'module': None,
+                                                    'value': '',
+                                                    'children': []
+                                                }
+                                            ]
+                                        }
+
+                                    ]
+                                },
+                                {
+                                    'tag': 'element',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'value': None,
+                                    'children': []
+                                },
+                            ]
+                        }
+
+                    ]
+                }
+
+            ]
+        }
+
+        self.assertDictEqual(result_string[1], expected_element)
+
+        result_html = etree.fromstring(result_string[0])
         expected_html = self.sequence_data_handler.get_html2(join('choice', 'basic'))
 
         self.assertTrue(are_equals(result_html, expected_html))
@@ -2189,7 +3106,67 @@ class ParserGenerateSequenceAbsentTestSuite(TestCase):
         result_string = generate_sequence_absent(self.request, xsd_element, xsd_tree, '')
         # print result_string
 
-        result_html = etree.fromstring(result_string)
+        expected_element = {
+            'tag': 'sequence-iter',
+            'occurs': (1, 1, 1),
+            'module': None,
+            'value': None,
+            'children': [
+                {
+                    'tag': 'choice',
+                    'occurs': (1, 1, 1),
+                    'module': None,
+                    'value': None,
+                    'children': [
+                        {
+                            'tag': 'choice-iter',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'value': None,
+                            'children': [
+                                {
+                                    'tag': 'element',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'value': None,
+                                    'children': [
+                                        {
+                                            'tag': 'elem-iter',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'value': None,
+                                            'children': [
+                                                {
+                                                    'tag': 'input',
+                                                    'occurs': (1, 1, 1),
+                                                    'module': None,
+                                                    'value': '',
+                                                    'children': []
+                                                }
+                                            ]
+                                        }
+
+                                    ]
+                                },
+                                {
+                                    'tag': 'element',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'value': None,
+                                    'children': []
+                                },
+                            ]
+                        }
+
+                    ]
+                }
+
+            ]
+        }
+
+        self.assertDictEqual(result_string[1], expected_element)
+
+        result_html = etree.fromstring(result_string[0])
         expected_html = self.sequence_data_handler.get_html2(join('choice', 'unbounded'))
 
         self.assertTrue(are_equals(result_html, expected_html))
@@ -2201,7 +3178,51 @@ class ParserGenerateSequenceAbsentTestSuite(TestCase):
         result_string = generate_sequence_absent(self.request, xsd_element, xsd_tree, '')
         # print result_string
 
-        result_html = etree.fromstring(result_string)
+        expected_element = {
+            'tag': 'sequence-iter',
+            'occurs': (1, 1, 1),
+            'module': None,
+            'value': None,
+            'children': [
+                {
+                    'tag': 'sequence',
+                    'occurs': (1, 1, 1),
+                    'module': None,
+                    'value': None,
+                    'children': [
+                        {
+                            'tag': 'element',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'value': None,
+                            'children': [
+                                {
+                                    'tag': 'elem-iter',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'value': None,
+                                    'children': [
+                                        {
+                                            'tag': 'input',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'value': '',
+                                            'children': []
+                                        }
+                                    ]
+                                }
+
+                            ]
+                        }
+                    ]
+                }
+
+            ]
+        }
+
+        self.assertDictEqual(result_string[1], expected_element)
+
+        result_html = etree.fromstring(result_string[0])
         expected_html = self.sequence_data_handler.get_html2(join('sequence', 'basic'))
 
         self.assertTrue(are_equals(result_html, expected_html))
@@ -2213,7 +3234,51 @@ class ParserGenerateSequenceAbsentTestSuite(TestCase):
         result_string = generate_sequence_absent(self.request, xsd_element, xsd_tree, '')
         # print result_string
 
-        result_html = etree.fromstring(result_string)
+        expected_element = {
+            'tag': 'sequence-iter',
+            'occurs': (1, 1, 1),
+            'module': None,
+            'value': None,
+            'children': [
+                {
+                    'tag': 'sequence',
+                    'occurs': (1, 1, 1),
+                    'module': None,
+                    'value': None,
+                    'children': [
+                        {
+                            'tag': 'element',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'value': None,
+                            'children': [
+                                {
+                                    'tag': 'elem-iter',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'value': None,
+                                    'children': [
+                                        {
+                                            'tag': 'input',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'value': '',
+                                            'children': []
+                                        }
+                                    ]
+                                }
+
+                            ]
+                        }
+                    ]
+                }
+
+            ]
+        }
+
+        self.assertDictEqual(result_string[1], expected_element)
+
+        result_html = etree.fromstring(result_string[0])
         expected_html = self.sequence_data_handler.get_html2(join('sequence', 'unbounded'))
 
         self.assertTrue(are_equals(result_html, expected_html))
@@ -2246,7 +3311,145 @@ class ParserGenerateSequenceAbsentTestSuite(TestCase):
 
         result_string = generate_sequence_absent(self.request, xsd_element, xsd_tree, '')
         # print result_string
-        result_string = '<div>' + result_string + '</div>'
+
+        expected_element = {
+            'tag': 'sequence-iter',
+            'occurs': (1, 1, 1),
+            'module': None,
+            'value': None,
+            'children': [
+                {
+                    'tag': 'choice',
+                    'occurs': (1, 1, 1),
+                    'module': None,
+                    'value': None,
+                    'children': [
+                        {
+                            'tag': 'choice-iter',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'value': None,
+                            'children': [
+                                {
+                                    'tag': 'element',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'value': None,
+                                    'children': [
+                                        {
+                                            'tag': 'elem-iter',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'value': None,
+                                            'children': [
+                                                {
+                                                    'tag': 'input',
+                                                    'occurs': (1, 1, 1),
+                                                    'module': None,
+                                                    'value': '',
+                                                    'children': []
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    'tag': 'element',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'value': None,
+                                    'children': []
+                                }
+
+                            ]
+                        }
+                    ]
+                },
+                {
+                    'tag': 'element',
+                    'occurs': (1, 1, 1),
+                    'module': None,
+                    'value': None,
+                    'children': [
+                        {
+                            'tag': 'elem-iter',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'value': None,
+                            'children': [
+                                {
+                                    'tag': 'input',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'value': '',
+                                    'children': []
+                                }
+                            ]
+                        }
+
+                    ]
+                },
+                {
+                    'tag': 'sequence',
+                    'occurs': (1, 1, 1),
+                    'module': None,
+                    'value': None,
+                    'children': [
+                        {
+                            'tag': 'element',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'value': None,
+                            'children': [
+                                {
+                                    'tag': 'elem-iter',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'value': None,
+                                    'children': [
+                                        {
+                                            'tag': 'input',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'value': '',
+                                            'children': []
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            'tag': 'element',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'value': None,
+                            'children': [
+                                {
+                                    'tag': 'elem-iter',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'value': None,
+                                    'children': [
+                                        {
+                                            'tag': 'input',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'value': '',
+                                            'children': []
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+
+            ]
+        }
+
+        self.assertDictEqual(result_string[1], expected_element)
+
+        result_string = '<div>' + result_string[0] + '</div>'
 
         result_html = etree.fromstring(result_string)
         expected_html = self.sequence_data_handler.get_html2(join('multiple', 'basic'))
@@ -2259,7 +3462,145 @@ class ParserGenerateSequenceAbsentTestSuite(TestCase):
 
         result_string = generate_sequence_absent(self.request, xsd_element, xsd_tree, '')
         # print result_string
-        result_string = '<div>' + result_string + '</div>'
+
+        expected_element = {
+            'tag': 'sequence-iter',
+            'occurs': (1, 1, 1),
+            'module': None,
+            'value': None,
+            'children': [
+                {
+                    'tag': 'choice',
+                    'occurs': (1, 1, 1),
+                    'module': None,
+                    'value': None,
+                    'children': [
+                        {
+                            'tag': 'choice-iter',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'value': None,
+                            'children': [
+                                {
+                                    'tag': 'element',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'value': None,
+                                    'children': [
+                                        {
+                                            'tag': 'elem-iter',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'value': None,
+                                            'children': [
+                                                {
+                                                    'tag': 'input',
+                                                    'occurs': (1, 1, 1),
+                                                    'module': None,
+                                                    'value': '',
+                                                    'children': []
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    'tag': 'element',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'value': None,
+                                    'children': []
+                                }
+
+                            ]
+                        }
+                    ]
+                },
+                {
+                    'tag': 'element',
+                    'occurs': (1, 1, 1),
+                    'module': None,
+                    'value': None,
+                    'children': [
+                        {
+                            'tag': 'elem-iter',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'value': None,
+                            'children': [
+                                {
+                                    'tag': 'input',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'value': '',
+                                    'children': []
+                                }
+                            ]
+                        }
+
+                    ]
+                },
+                {
+                    'tag': 'sequence',
+                    'occurs': (1, 1, 1),
+                    'module': None,
+                    'value': None,
+                    'children': [
+                        {
+                            'tag': 'element',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'value': None,
+                            'children': [
+                                {
+                                    'tag': 'elem-iter',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'value': None,
+                                    'children': [
+                                        {
+                                            'tag': 'input',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'value': '',
+                                            'children': []
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            'tag': 'element',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'value': None,
+                            'children': [
+                                {
+                                    'tag': 'elem-iter',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'value': None,
+                                    'children': [
+                                        {
+                                            'tag': 'input',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'value': '',
+                                            'children': []
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+
+            ]
+        }
+
+        self.assertDictEqual(result_string[1], expected_element)
+
+        result_string = '<div>' + result_string[0] + '</div>'
 
         result_html = etree.fromstring(result_string)
         expected_html = self.sequence_data_handler.get_html2(join('multiple', 'unbounded'))
@@ -2274,6 +3615,8 @@ class ParserGenerateChoiceTestSuite(TestCase):
     def setUp(self):
         choice_data = join('curate', 'tests', 'data', 'parser', 'choice')
         self.choice_data_handler = DataHandler(choice_data)
+
+        self.maxDiff = None
 
         self.request = HttpRequest()
         engine = import_module('django.contrib.sessions.backends.db')
@@ -2294,7 +3637,57 @@ class ParserGenerateChoiceTestSuite(TestCase):
         result_string = generate_choice(self.request, xsd_element, xsd_tree, '', full_path='')
         # print result_string
 
-        result_html = etree.fromstring(result_string)
+        expected_element = {
+            'tag': 'choice',
+            'occurs': (1, 1, 1),
+            'module': None,
+            'value': None,
+            'children': [
+                {
+                    'tag': 'choice-iter',
+                    'occurs': (1, 1, 1),
+                    'module': None,
+                    'value': None,
+                    'children': [
+                        {
+                            'tag': 'element',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'value': None,
+                            'children': [
+                                {
+                                    'tag': 'elem-iter',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'value': None,
+                                    'children': [
+                                        {
+                                            'tag': 'input',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'value': '',
+                                            'children': []
+                                        },
+                                    ]
+                                },
+                            ]
+                        },
+                        {
+                            'tag': 'element',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'value': None,
+                            'children': []
+                        }
+                    ]
+                }
+
+            ]
+        }
+
+        self.assertDictEqual(result_string[1], expected_element)
+
+        result_html = etree.fromstring(result_string[0])
         expected_html = self.choice_data_handler.get_html2(xsd_files)
 
         self.assertTrue(are_equals(result_html, expected_html))
@@ -2307,7 +3700,95 @@ class ParserGenerateChoiceTestSuite(TestCase):
         result_string = generate_choice(self.request, xsd_element, xsd_tree, '', full_path='')
         # print result_string
 
-        result_html = etree.fromstring(result_string)
+        expected_element = {
+            'tag': 'choice',
+            'occurs': (2., 2., float('infinity')),
+            'module': None,
+            'value': None,
+            'children': [
+                {
+                    'tag': 'choice-iter',
+                    'occurs': (1, 1, 1),
+                    'module': None,
+                    'value': None,
+                    'children': [
+                        {
+                            'tag': 'element',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'value': None,
+                            'children': [
+                                {
+                                    'tag': 'elem-iter',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'value': None,
+                                    'children': [
+                                        {
+                                            'tag': 'input',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'value': '',
+                                            'children': []
+                                        },
+                                    ]
+                                },
+                            ]
+                        },
+                        {
+                            'tag': 'element',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'value': None,
+                            'children': []
+                        }
+                    ]
+                },
+                {
+                    'tag': 'choice-iter',
+                    'occurs': (1, 1, 1),
+                    'module': None,
+                    'value': None,
+                    'children': [
+                        {
+                            'tag': 'element',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'value': None,
+                            'children': [
+                                {
+                                    'tag': 'elem-iter',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'value': None,
+                                    'children': [
+                                        {
+                                            'tag': 'input',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'value': '',
+                                            'children': []
+                                        },
+                                    ]
+                                },
+                            ]
+                        },
+                        {
+                            'tag': 'element',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'value': None,
+                            'children': []
+                        }
+                    ]
+                },
+
+            ]
+        }
+
+        self.assertDictEqual(result_string[1], expected_element)
+
+        result_html = etree.fromstring(result_string[0])
         expected_html = self.choice_data_handler.get_html2(xsd_files)
 
         self.assertTrue(are_equals(result_html, expected_html))
@@ -2374,7 +3855,74 @@ class ParserGenerateChoiceTestSuite(TestCase):
         result_string = generate_choice(self.request, xsd_element, xsd_tree, '', full_path='')
         # print result_string
 
-        result_html = etree.fromstring(result_string)
+        expected_element = {
+            'tag': 'choice',
+            'occurs': (1, 1, 1),
+            'module': None,
+            'value': None,
+            'children': [
+                {
+                    'tag': 'choice-iter',
+                    'occurs': (1, 1, 1),
+                    'module': None,
+                    'value': None,
+                    'children': [
+                        {
+                            'tag': 'sequence',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'value': None,
+                            'children': [
+                                {
+                                    'tag': 'element',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'value': None,
+                                    'children': [
+                                        {
+                                            'tag': 'elem-iter',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'value': None,
+                                            'children': [
+                                                {
+                                                    'tag': 'input',
+                                                    'occurs': (1, 1, 1),
+                                                    'module': None,
+                                                    'value': '',
+                                                    'children': []
+                                                },
+                                            ]
+                                        },
+                                    ]
+                                },
+                            ]
+                        },
+                        {
+                            'tag': 'sequence',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'value': None,
+                            'children': [
+
+                                {
+                                    'tag': 'element',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'value': None,
+                                    'children': []
+                                },
+                            ]
+                        }
+                    ]
+                }
+
+            ]
+        }
+
+        self.assertDictEqual(result_string[1], expected_element)
+
+        result_html = etree.fromstring(result_string[0])
         expected_html = self.choice_data_handler.get_html2(xsd_files)
 
         self.assertTrue(are_equals(result_html, expected_html))
@@ -2387,7 +3935,126 @@ class ParserGenerateChoiceTestSuite(TestCase):
         result_string = generate_choice(self.request, xsd_element, xsd_tree, '', full_path='')
         # print result_string
 
-        result_html = etree.fromstring(result_string)
+        expected_element = {
+            'value': None,
+            'tag': 'choice',
+            'occurs': (2.0, 2.0, float('infinity')),
+            'module': None,
+            'children': [
+                {
+                    'value': None,
+                    'tag': 'choice-iter',
+                    'occurs': (1, 1, 1),
+                    'module': None,
+                    'children': [
+                        {
+                            'value': None,
+                            'tag': 'sequence',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'children': [
+                                {
+                                    'value': None,
+                                    'tag': 'element',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'children': [
+                                        {
+                                            'value': None,
+                                            'tag': 'elem-iter',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'children': [
+                                                {
+                                                    'value': '',
+                                                    'tag': 'input',
+                                                    'occurs': (1, 1, 1),
+                                                    'module': None,
+                                                    'children': []
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            'value': None,
+                            'tag': 'sequence',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'children': [
+                                {
+                                    'value': None,
+                                    'tag': 'element',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'children': []
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    'value': None,
+                    'tag': 'choice-iter',
+                    'occurs': (1, 1, 1),
+                    'module': None,
+                    'children': [
+                        {
+                            'value': None,
+                            'tag': 'sequence',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'children': [
+                                {
+                                    'value': None,
+                                    'tag': 'element',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'children': [
+                                        {
+                                            'value': None,
+                                            'tag': 'elem-iter',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'children': [
+                                                {
+                                                    'value': '',
+                                                    'tag': 'input',
+                                                    'occurs': (1, 1, 1),
+                                                    'module': None,
+                                                    'children': []
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            'value': None,
+                            'tag': 'sequence',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'children': [
+                                {
+                                    'value': None,
+                                    'tag': 'element',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'children': []
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+
+        self.assertDictEqual(result_string[1], expected_element)
+
+        result_html = etree.fromstring(result_string[0])
         expected_html = self.choice_data_handler.get_html2(xsd_files)
 
         self.assertTrue(are_equals(result_html, expected_html))
@@ -2417,7 +4084,57 @@ class ParserGenerateChoiceTestSuite(TestCase):
                                         edit_data_tree=edit_data_tree)
         # print result_string
 
-        result_html = etree.fromstring(result_string)
+        expected_element = {
+            'tag': 'choice',
+            'occurs': (1, 1, 1),
+            'module': None,
+            'value': None,
+            'children': [
+                {
+                    'tag': 'choice-iter',
+                    'occurs': (1, 1, 1),
+                    'module': None,
+                    'value': None,
+                    'children': [
+                        {
+                            'tag': 'element',
+                            'occurs': (1, 0, 1),
+                            'module': None,
+                            'value': None,
+                            'children': []
+                        },
+                        {
+                            'tag': 'element',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'value': None,
+                            'children': [
+                                {
+                                    'tag': 'elem-iter',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'value': None,
+                                    'children': [
+                                        {
+                                            'tag': 'input',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'value': 'entry0',
+                                            'children': []
+                                        },
+                                    ]
+                                },
+                            ]
+                        },
+                    ]
+                }
+
+            ]
+        }
+
+        self.assertDictEqual(result_string[1], expected_element)
+
+        result_html = etree.fromstring(result_string[0])
         expected_html = self.choice_data_handler.get_html2(xsd_files + '.reload')
 
         self.assertTrue(are_equals(result_html, expected_html))
@@ -2441,7 +4158,87 @@ class ParserGenerateChoiceTestSuite(TestCase):
                                         edit_data_tree=edit_data_tree)
         # print result_string
 
-        result_html = etree.fromstring(result_string)
+        expected_element = {
+            'value': None,
+            'tag': 'choice',
+            'occurs': (2.0, 1, float('infinity')),
+            'module': None,
+            'children': [
+                {
+                    'value': None,
+                    'tag': 'choice-iter',
+                    'occurs': (1, 1, 1),
+                    'module': None,
+                    'children': [
+                        {
+                            'value': None,
+                            'tag': 'element',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'children': [
+                                {
+                                    'value': None,
+                                    'tag': 'elem-iter',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'children': [
+                                        {
+                                            'value': 'entry1',
+                                            'tag': 'input',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'children': []
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            'value': None,
+                            'tag': 'element',
+                            'occurs': (1, 2, 1),
+                            'module': None,
+                            'children': [
+                                {
+                                    'value': None,
+                                    'tag': 'elem-iter',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'children': [
+                                        {
+                                            'value': 'entry0',
+                                            'tag': 'input',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'children': []
+                                        }
+                                    ]
+                                },
+                                {
+                                    'value': None,
+                                    'tag': 'elem-iter',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'children': [
+                                        {
+                                            'value': 'entry2',
+                                            'tag': 'input',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'children': []
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+
+        self.assertDictEqual(result_string[1], expected_element)
+
+        result_html = etree.fromstring(result_string[0])
         expected_html = self.choice_data_handler.get_html2(xsd_files + '.reload')
 
         self.assertTrue(are_equals(result_html, expected_html))
@@ -2557,7 +4354,72 @@ class ParserGenerateChoiceTestSuite(TestCase):
                                         edit_data_tree=edit_data_tree)
         # print result_string
 
-        result_html = etree.fromstring(result_string)
+        expected_element = {
+            'value': None,
+            'tag': 'choice',
+            'occurs': (1, 1, 1),
+            'module': None,
+            'children': [
+                {
+                    'value': None,
+                    'tag': 'choice-iter',
+                    'occurs': (1, 1, 1),
+                    'module': None,
+                    'children': [
+                        {
+                            'value': None,
+                            'tag': 'sequence',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'children': [
+                                {
+                                    'value': None,
+                                    'tag': 'element',
+                                    'occurs': (1, 0, 1),
+                                    'module': None,
+                                    'children': []
+                                }
+                            ]
+                        },
+                        {
+                            'value': None,
+                            'tag': 'sequence',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'children': [
+                                {
+                                    'value': None,
+                                    'tag': 'element',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'children': [
+                                        {
+                                            'value': None,
+                                            'tag': 'elem-iter',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'children': [
+                                                {
+                                                    'value': 'entry0',
+                                                    'tag': 'input',
+                                                    'occurs': (1, 1, 1),
+                                                    'module': None,
+                                                    'children': []
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+
+        self.assertDictEqual(result_string[1], expected_element)
+
+        result_html = etree.fromstring(result_string[0])
         expected_html = self.choice_data_handler.get_html2(xsd_files + '.reload')
 
         self.assertTrue(are_equals(result_html, expected_html))
@@ -2581,7 +4443,103 @@ class ParserGenerateChoiceTestSuite(TestCase):
                                         edit_data_tree=edit_data_tree)
         # print result_string
 
-        result_html = etree.fromstring(result_string)
+        expected_element = {
+            'value': None,
+            'tag': 'choice',
+            'occurs': (2.0, 1, float('infinity')),
+            'module': None,
+            'children': [
+                {
+                    'value': None,
+                    'tag': 'choice-iter',
+                    'occurs': (1, 1, 1),
+                    'module': None,
+                    'children': [
+                        {
+                            'value': None,
+                            'tag': 'sequence',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'children': [
+                                {
+                                    'value': None,
+                                    'tag': 'element',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'children': [
+                                        {
+                                            'value': None,
+                                            'tag': 'elem-iter',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'children': [
+                                                {
+                                                    'value': 'entry2',
+                                                    'tag': 'input',
+                                                    'occurs': (1, 1, 1),
+                                                    'module': None,
+                                                    'children': []
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            'value': None,
+                            'tag': 'sequence',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'children': [
+                                {
+                                    'value': None,
+                                    'tag': 'element',
+                                    'occurs': (1, 2, 1),
+                                    'module': None,
+                                    'children': [
+                                        {
+                                            'value': None,
+                                            'tag': 'elem-iter',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'children': [
+                                                {
+                                                    'value': 'entry0',
+                                                    'tag': 'input',
+                                                    'occurs': (1, 1, 1),
+                                                    'module': None,
+                                                    'children': []
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            'value': None,
+                                            'tag': 'elem-iter',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'children': [
+                                                {
+                                                    'value': 'entry1',
+                                                    'tag': 'input',
+                                                    'occurs': (1, 1, 1),
+                                                    'module': None,
+                                                    'children': []
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+
+        self.assertDictEqual(result_string[1], expected_element)
+
+        result_html = etree.fromstring(result_string[0])
         expected_html = self.choice_data_handler.get_html2(xsd_files + '.reload')
 
         self.assertTrue(are_equals(result_html, expected_html))
@@ -2602,6 +4560,8 @@ class ParserGenerateSimpleTypeTestSuite(TestCase):
         simple_type_data = join('curate', 'tests', 'data', 'parser', 'simple_type')
         self.simple_type_data_handler = DataHandler(simple_type_data)
 
+        self.maxDiff = None
+
         self.request = HttpRequest()
         engine = import_module('django.contrib.sessions.backends.db')
         session_key = None
@@ -2621,7 +4581,47 @@ class ParserGenerateSimpleTypeTestSuite(TestCase):
         result_string = generate_simple_type(self.request, xsd_element, xsd_tree, '', full_path='')
         # print result_string
 
-        result_html = etree.fromstring(result_string)
+        expected_dict = {
+            'tag': 'simple_type',
+            'occurs': (1, 1, 1),
+            'module': None,
+            'value': None,
+            'children': [
+                {
+                    'tag': 'restriction',
+                    'occurs': (1, 1, 1),
+                    'module': None,
+                    'value': None,
+                    'children': [
+                        {
+                            'tag': 'enumeration',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'value': 'child_0',
+                            'children': []
+                        },
+                        {
+                            'tag': 'enumeration',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'value': 'child_1',
+                            'children': []
+                        },
+                        {
+                            'tag': 'enumeration',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'value': 'child_2',
+                            'children': []
+                        }
+                    ]
+                }
+            ]
+        }
+
+        self.assertDictEqual(result_string[1], expected_dict)
+
+        result_html = etree.fromstring(result_string[0])
         expected_html = self.simple_type_data_handler.get_html2(xsd_files)
 
         self.assertTrue(are_equals(result_html, expected_html))
@@ -2634,7 +4634,25 @@ class ParserGenerateSimpleTypeTestSuite(TestCase):
         result_string = generate_simple_type(self.request, xsd_element, xsd_tree, '', full_path='')
         # print result_string
 
-        result_html = etree.fromstring(result_string)
+        expected_dict = {
+            'tag': 'simple_type',
+            'occurs': (1, 1, 1),
+            'value': None,
+            'module': None,
+            'children': [
+                {
+                    'tag': 'list',
+                    'occurs': (1, 1, 1),
+                    'value': '',
+                    'module': None,
+                    'children': []
+                }
+            ]
+        }
+
+        self.assertDictEqual(result_string[1], expected_dict)
+
+        result_html = etree.fromstring(result_string[0])
         expected_html = self.simple_type_data_handler.get_html2(xsd_files)
 
         self.assertTrue(are_equals(result_html, expected_html))
@@ -2672,7 +4690,47 @@ class ParserGenerateSimpleTypeTestSuite(TestCase):
                                              edit_data_tree=edit_data_tree)
         # print result_string
 
-        result_html = etree.fromstring(result_string)
+        expected_dict = {
+            'tag': 'simple_type',
+            'occurs': (1, 1, 1),
+            'module': None,
+            'value': None,
+            'children': [
+                {
+                    'tag': 'restriction',
+                    'occurs': (1, 1, 1),
+                    'module': None,
+                    'value': None,
+                    'children': [
+                        {
+                            'tag': 'enumeration',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'value': 'child_0',
+                            'children': []
+                        },
+                        {
+                            'tag': 'enumeration/selected',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'value': 'child_1',
+                            'children': []
+                        },
+                        {
+                            'tag': 'enumeration',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'value': 'child_2',
+                            'children': []
+                        }
+                    ]
+                }
+            ]
+        }
+
+        self.assertDictEqual(result_string[1], expected_dict)
+
+        result_html = etree.fromstring(result_string[0])
         expected_html = self.simple_type_data_handler.get_html2(xsd_files + '.reload')
 
         self.assertTrue(are_equals(result_html, expected_html))
@@ -2696,7 +4754,25 @@ class ParserGenerateSimpleTypeTestSuite(TestCase):
                                              edit_data_tree=edit_data_tree)
         # print result_string
 
-        result_html = etree.fromstring(result_string)
+        expected_dict = {
+            'tag': 'simple_type',
+            'occurs': (1, 1, 1),
+            'value': None,
+            'module': None,
+            'children': [
+                {
+                    'tag': 'list',
+                    'occurs': (1, 1, 1),
+                    'value': '',
+                    'module': None,
+                    'children': []
+                }
+            ]
+        }
+
+        self.assertDictEqual(result_string[1], expected_dict)
+
+        result_html = etree.fromstring(result_string[0])
         expected_html = self.simple_type_data_handler.get_html2(xsd_files + '.reload')
 
         self.assertTrue(are_equals(result_html, expected_html))
@@ -2734,6 +4810,8 @@ class ParserGenerateComplexTypeTestSuite(TestCase):
         complex_type_data = join('curate', 'tests', 'data', 'parser', 'complex_type')
         self.complex_type_data_handler = DataHandler(complex_type_data)
 
+        self.maxDiff = None
+
         self.request = HttpRequest()
         engine = import_module('django.contrib.sessions.backends.db')
         session_key = None
@@ -2754,7 +4832,43 @@ class ParserGenerateComplexTypeTestSuite(TestCase):
         result_string = generate_complex_type(self.request, xsd_element, xsd_tree, '', full_path='')
         # print result_string
 
-        result_html = etree.fromstring(result_string)
+        expected_element = {
+            'tag': 'complex_type',
+            'occurs': (1, 1, 1),
+            'module': None,
+            'value': None,
+            'children': [
+                {
+                    'tag': 'simple_content',
+                    'occurs': (1, 1, 1),
+                    'module': None,
+                    'value': None,
+                    'children': [
+                        {
+                            'tag': 'extension',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'value': None,
+                            'children': [
+                                {
+                                    'tag': 'input',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'value': '',
+                                    'children': [
+
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+
+        self.assertDictEqual(result_string[1], expected_element)
+
+        result_html = etree.fromstring(result_string[0])
         expected_html = self.complex_type_data_handler.get_html2(xsd_files)
 
         self.assertTrue(are_equals(result_html, expected_html))
@@ -2767,7 +4881,18 @@ class ParserGenerateComplexTypeTestSuite(TestCase):
 
         result_string = generate_complex_type(self.request, xsd_element, xsd_tree, '', full_path='')
         # print result_string
-        self.assertEqual(result_string, '')
+
+        expected_element = {
+            'tag': 'complex_type',
+            'occurs': (1, 1, 1),
+            'module': None,
+            'value': None,
+            'children': []
+        }
+
+        self.assertDictEqual(result_string[1], expected_element)
+
+        self.assertEqual(result_string[0], '')
 
         # result_html = etree.fromstring(result_string)
         # expected_html = self.complex_type_data_handler.get_html2(xsd_files)
@@ -2782,7 +4907,17 @@ class ParserGenerateComplexTypeTestSuite(TestCase):
 
         result_string = generate_complex_type(self.request, xsd_element, xsd_tree, '', full_path='')
         # print result_string
-        self.assertEqual(result_string, '')
+        self.assertEqual(result_string[0], '')
+
+        expected_element = {
+            'tag': 'complex_type',
+            'occurs': (1, 1, 1),
+            'module': None,
+            'value': None,
+            'children': []
+        }
+
+        self.assertDictEqual(result_string[1], expected_element)
 
         # result_html = etree.fromstring(result_string)
         # expected_html = self.complex_type_data_handler.get_html2(xsd_files)
@@ -2795,8 +4930,75 @@ class ParserGenerateComplexTypeTestSuite(TestCase):
         xsd_element = xsd_tree.xpath('/schema/complexType')[0]
 
         result_string = generate_complex_type(self.request, xsd_element, xsd_tree, '', full_path='')
-        result_string = '<div>' + result_string + '</div>'
+
         # print result_string
+
+        expected_element = {
+            'tag': 'complex_type',
+            'occurs': (1, 1, 1),
+            'module': None,
+            'value': None,
+            'children': [
+                {
+                    'tag': 'all',
+                    'occurs': (1, 1, 1),
+                    'module': None,
+                    'value': None,
+                    'children': [
+                        {
+                            'tag': 'element',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'value': None,
+                            'children': [
+                                {
+                                    'tag': 'elem-iter',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'value': None,
+                                    'children': [
+                                        {
+                                            'tag': 'input',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'value': '',
+                                            'children': []
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            'tag': 'element',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'value': None,
+                            'children': [
+                                {
+                                    'tag': 'elem-iter',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'value': None,
+                                    'children': [
+                                        {
+                                            'tag': 'input',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'value': '',
+                                            'children': []
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+
+        self.assertDictEqual(result_string[1], expected_element)
+
+        result_string = '<div>' + result_string[0] + '</div>'
 
         result_html = etree.fromstring(result_string)
         expected_html = self.complex_type_data_handler.get_html2(xsd_files)
@@ -2811,7 +5013,64 @@ class ParserGenerateComplexTypeTestSuite(TestCase):
         result_string = generate_complex_type(self.request, xsd_element, xsd_tree, '', full_path='')
         # print result_string
 
-        result_html = etree.fromstring(result_string)
+        expected_element = {
+            'tag': 'complex_type',
+            'occurs': (1, 1, 1),
+            'module': None,
+            'value': None,
+            'children': [
+                {
+                    'tag': 'choice',
+                    'occurs': (1, 1, 1),
+                    'module': None,
+                    'value': None,
+                    'children': [
+                        {
+                            'tag': 'choice-iter',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'value': None,
+                            'children': [
+                                {
+                                    'tag': 'element',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'value': None,
+                                    'children': [
+                                        {
+                                            'tag': 'elem-iter',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'value': None,
+                                            'children': [
+                                                {
+                                                    'tag': 'input',
+                                                    'occurs': (1, 1, 1),
+                                                    'module': None,
+                                                    'value': '',
+                                                    'children': []
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    'tag': 'element',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'value': None,
+                                    'children': []
+                                },
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+
+        self.assertDictEqual(result_string[1], expected_element)
+
+        result_html = etree.fromstring(result_string[0])
         expected_html = self.complex_type_data_handler.get_html2(xsd_files)
 
         self.assertTrue(are_equals(result_html, expected_html))
@@ -2822,8 +5081,75 @@ class ParserGenerateComplexTypeTestSuite(TestCase):
         xsd_element = xsd_tree.xpath('/schema/complexType')[0]
 
         result_string = generate_complex_type(self.request, xsd_element, xsd_tree, '', full_path='')
-        result_string = '<div>' + result_string + '</div>'
+
         # print result_string
+
+        expected_element = {
+            'tag': 'complex_type',
+            'occurs': (1, 1, 1),
+            'module': None,
+            'value': None,
+            'children': [
+                {
+                    'tag': 'sequence',
+                    'occurs': (1, 1, 1),
+                    'module': None,
+                    'value': None,
+                    'children': [
+                        {
+                            'tag': 'element',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'value': None,
+                            'children': [
+                                {
+                                    'tag': 'elem-iter',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'value': None,
+                                    'children': [
+                                        {
+                                            'tag': 'input',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'value': '',
+                                            'children': []
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            'tag': 'element',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'value': None,
+                            'children': [
+                                {
+                                    'tag': 'elem-iter',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'value': None,
+                                    'children': [
+                                        {
+                                            'tag': 'input',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'value': '',
+                                            'children': []
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+
+        self.assertDictEqual(result_string[1], expected_element)
+
+        result_string = '<div>' + result_string[0] + '</div>'
 
         result_html = etree.fromstring(result_string)
         expected_html = self.complex_type_data_handler.get_html2(xsd_files)
@@ -2838,7 +5164,41 @@ class ParserGenerateComplexTypeTestSuite(TestCase):
         result_string = generate_complex_type(self.request, xsd_element, xsd_tree, '', full_path='')
         # print result_string
 
-        result_html = etree.fromstring(result_string)
+        expected_element = {
+            'tag': 'complex_type',
+            'occurs': (1, 1, 1),
+            'module': None,
+            'value': None,
+            'children': [
+                {
+                    'tag': 'attribute',
+                    'occurs': (1, 1, 1),
+                    'module': None,
+                    'value': None,
+                    'children': [
+                        {
+                            'tag': 'elem-iter',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'value': None,
+                            'children': [
+                                {
+                                    'tag': 'input',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'value': '',
+                                    'children': []
+                                },
+                            ]
+                        },
+                    ]
+                },
+            ]
+        }
+
+        self.assertDictEqual(result_string[1], expected_element)
+
+        result_html = etree.fromstring(result_string[0])
         expected_html = self.complex_type_data_handler.get_html2(xsd_files)
 
         self.assertTrue(are_equals(result_html, expected_html))
@@ -2879,7 +5239,120 @@ class ParserGenerateComplexTypeTestSuite(TestCase):
         xsd_element = xsd_tree.xpath('/schema/complexType')[0]
 
         result_string = generate_complex_type(self.request, xsd_element, xsd_tree, '', full_path='')
-        result_string = '<div>' + result_string + '</div>'
+
+        expected_element = {
+            'tag': 'complex_type',
+            'occurs': (1, 1, 1),
+            'module': None,
+            'value': None,
+            'children': [
+                # FIXME Order is wrong
+                {
+                    'tag': 'attribute',
+                    'occurs': (1, 1, 1),
+                    'module': None,
+                    'value': None,
+                    'children': [
+                        {
+                            'tag': 'elem-iter',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'value': None,
+                            'children': [
+                                {
+                                    'tag': 'input',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'value': '',
+                                    'children': []
+                                },
+                            ]
+                        },
+                    ]
+                },
+                {
+                    'tag': 'attribute',
+                    'occurs': (1, 1, 1),
+                    'module': None,
+                    'value': None,
+                    'children': [
+                        {
+                            'tag': 'elem-iter',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'value': None,
+                            'children': [
+                                {
+                                    'tag': 'input',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'value': '',
+                                    'children': []
+                                },
+                            ]
+                        },
+                    ]
+                },
+                {
+                    'tag': 'sequence',
+                    'occurs': (1, 1, 1),
+                    'module': None,
+                    'value': None,
+                    'children': [
+                        {
+                            'tag': 'element',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'value': None,
+                            'children': [
+                                {
+                                    'tag': 'elem-iter',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'value': None,
+                                    'children': [
+                                        {
+                                            'tag': 'input',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'value': '',
+                                            'children': []
+                                        },
+                                    ]
+                                },
+                            ]
+                        },
+                        {
+                            'tag': 'element',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'value': None,
+                            'children': [
+                                {
+                                    'tag': 'elem-iter',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'value': None,
+                                    'children': [
+                                        {
+                                            'tag': 'input',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'value': '',
+                                            'children': []
+                                        },
+                                    ]
+                                },
+                            ]
+                        },
+                    ]
+                },
+            ]
+        }
+
+        self.assertDictEqual(result_string[1], expected_element)
+
+        result_string = '<div>' + result_string[0] + '</div>'
         # print result_string
 
         result_html = etree.fromstring(result_string)
@@ -2905,7 +5378,43 @@ class ParserGenerateComplexTypeTestSuite(TestCase):
                                               edit_data_tree=edit_data_tree)
         # print result_string
 
-        result_html = etree.fromstring(result_string)
+        expected_element = {
+            'tag': 'complex_type',
+            'occurs': (1, 1, 1),
+            'module': None,
+            'value': None,
+            'children': [
+                {
+                    'tag': 'simple_content',
+                    'occurs': (1, 1, 1),
+                    'module': None,
+                    'value': None,
+                    'children': [
+                        {
+                            'tag': 'extension',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'value': None,
+                            'children': [
+                                {
+                                    'tag': 'input',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'value': '0',
+                                    'children': [
+
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+
+        self.assertDictEqual(result_string[1], expected_element)
+
+        result_html = etree.fromstring(result_string[0])
         expected_html = self.complex_type_data_handler.get_html2(xsd_files + '.reload')
 
         self.assertTrue(are_equals(result_html, expected_html))
@@ -2975,7 +5484,74 @@ class ParserGenerateComplexTypeTestSuite(TestCase):
         result_string = generate_complex_type(self.request, xsd_element, xsd_tree, '', full_path='/root',
                                               edit_data_tree=edit_data_tree)
         # print result_string
-        result_string = '<div>' + result_string + '</div>'
+
+        expected_element = {
+            'tag': 'complex_type',
+            'occurs': (1, 1, 1),
+            'module': None,
+            'value': None,
+            'children': [
+                {
+                    'tag': 'all',
+                    'occurs': (1, 1, 1),
+                    'module': None,
+                    'value': None,
+                    'children': [
+                        {
+                            'tag': 'element',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'value': None,
+                            'children': [
+                                {
+                                    'tag': 'elem-iter',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'value': None,
+                                    'children': [
+                                        {
+                                            'tag': 'input',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'value': 'entry0',
+                                            'children': []
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            'tag': 'element',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'value': None,
+                            'children': [
+                                {
+                                    'tag': 'elem-iter',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'value': None,
+                                    'children': [
+                                        {
+                                            'tag': 'input',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'value': 'entry1',
+                                            'children': []
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+
+
+        self.assertDictEqual(result_string[1], expected_element)
+
+        result_string = '<div>' + result_string[0] + '</div>'
 
         result_html = etree.fromstring(result_string)
         expected_html = self.complex_type_data_handler.get_html2(xsd_files + '.reload')
@@ -3000,7 +5576,64 @@ class ParserGenerateComplexTypeTestSuite(TestCase):
                                               edit_data_tree=edit_data_tree)
         # print result_string
 
-        result_html = etree.fromstring(result_string)
+        expected_element = {
+            'tag': 'complex_type',
+            'occurs': (1, 1, 1),
+            'module': None,
+            'value': None,
+            'children': [
+                {
+                    'tag': 'choice',
+                    'occurs': (1, 1, 1),
+                    'module': None,
+                    'value': None,
+                    'children': [
+                        {
+                            'tag': 'choice-iter',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'value': None,
+                            'children': [
+                                {
+                                    'tag': 'element',
+                                    'occurs': (1, 0, 1),
+                                    'module': None,
+                                    'value': None,
+                                    'children': []
+                                },
+                                {
+                                    'tag': 'element',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'value': None,
+                                    'children': [
+                                        {
+                                            'tag': 'elem-iter',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'value': None,
+                                            'children': [
+                                                {
+                                                    'tag': 'input',
+                                                    'occurs': (1, 1, 1),
+                                                    'module': None,
+                                                    'value': 'entry0',
+                                                    'children': []
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+
+        self.assertDictEqual(result_string[1], expected_element)
+
+        result_html = etree.fromstring(result_string[0])
         expected_html = self.complex_type_data_handler.get_html2(xsd_files + '.reload')
 
         self.assertTrue(are_equals(result_html, expected_html))
@@ -3022,7 +5655,73 @@ class ParserGenerateComplexTypeTestSuite(TestCase):
         result_string = generate_complex_type(self.request, xsd_element, xsd_tree, '', full_path='/root',
                                               edit_data_tree=edit_data_tree)
         # print result_string
-        result_string = '<div>' + result_string + '</div>'
+
+        expected_element = {
+            'tag': 'complex_type',
+            'occurs': (1, 1, 1),
+            'module': None,
+            'value': None,
+            'children': [
+                {
+                    'tag': 'sequence',
+                    'occurs': (1, 1, 1),
+                    'module': None,
+                    'value': None,
+                    'children': [
+                        {
+                            'tag': 'element',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'value': None,
+                            'children': [
+                                {
+                                    'tag': 'elem-iter',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'value': None,
+                                    'children': [
+                                        {
+                                            'tag': 'input',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'value': 'entry0',
+                                            'children': []
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            'tag': 'element',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'value': None,
+                            'children': [
+                                {
+                                    'tag': 'elem-iter',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'value': None,
+                                    'children': [
+                                        {
+                                            'tag': 'input',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'value': 'entry1',
+                                            'children': []
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+
+        self.assertDictEqual(result_string[1], expected_element)
+
+        result_string = '<div>' + result_string[0] + '</div>'
 
         result_html = etree.fromstring(result_string)
         expected_html = self.complex_type_data_handler.get_html2(xsd_files + '.reload')
@@ -3119,7 +5818,103 @@ class ParserGenerateComplexTypeTestSuite(TestCase):
         result_string = generate_complex_type(self.request, xsd_element, xsd_tree, '', full_path='/root',
                                               edit_data_tree=edit_data_tree)
         # print result_string
-        result_string = '<div>' + result_string + '</div>'
+
+        expected_element = {
+            'tag': 'complex_type',
+            'occurs': (1, 1, 1),
+            'module': None,
+            'value': None,
+            'children': [
+                # FIXME Order is wrong
+                {
+                    'tag': 'attribute',
+                    'occurs': (1, 0, 1),
+                    'module': None,
+                    'value': None,
+                    'children': [
+                        {
+                            'tag': 'elem-iter',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'value': None,
+                            'children': []
+                        },
+                    ]
+                },
+                {
+                    'tag': 'attribute',
+                    'occurs': (1, 0, 1),
+                    'module': None,
+                    'value': None,
+                    'children': [
+                        {
+                            'tag': 'elem-iter',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'value': None,
+                            'children': []
+                        },
+                    ]
+                },
+                {
+                    'tag': 'sequence',
+                    'occurs': (1, 1, 1),
+                    'module': None,
+                    'value': None,
+                    'children': [
+                        {
+                            'tag': 'element',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'value': None,
+                            'children': [
+                                {
+                                    'tag': 'elem-iter',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'value': None,
+                                    'children': [
+                                        {
+                                            'tag': 'input',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'value': 'entry0',
+                                            'children': []
+                                        },
+                                    ]
+                                },
+                            ]
+                        },
+                        {
+                            'tag': 'element',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'value': None,
+                            'children': [
+                                {
+                                    'tag': 'elem-iter',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'value': None,
+                                    'children': [
+                                        {
+                                            'tag': 'input',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'value': 'entry1',
+                                            'children': []
+                                        },
+                                    ]
+                                },
+                            ]
+                        },
+                    ]
+                },
+            ]
+        }
+
+        self.assertDictEqual(result_string[1], expected_element)
+        result_string = '<div>' + result_string[0] + '</div>'
 
         result_html = etree.fromstring(result_string)
         expected_html = self.complex_type_data_handler.get_html2(xsd_files + '.reload')
@@ -3209,6 +6004,8 @@ class ParserGenerateSimpleContentTestSuite(TestCase):
         simple_content_data = join('curate', 'tests', 'data', 'parser', 'simple_content')
         self.simple_content_data_handler = DataHandler(simple_content_data)
 
+        self.maxDiff = None
+
         self.request = HttpRequest()
         engine = import_module('django.contrib.sessions.backends.db')
         session_key = None
@@ -3228,7 +6025,40 @@ class ParserGenerateSimpleContentTestSuite(TestCase):
         result_string = generate_simple_content(self.request, xsd_element, xsd_tree, '', full_path='')
         # print result_string
 
-        result_html = etree.fromstring(result_string)
+        expected_element = {
+            'tag': 'simple_content',
+            'occurs': (1, 1, 1),
+            'value': None,
+            'module': None,
+            'children': [
+                {
+                    'tag': 'restriction',
+                    'occurs': (1, 1, 1),
+                    'value': None,
+                    'module': None,
+                    'children': [
+                        {
+                            'tag': 'enumeration',
+                            'occurs': (1, 1, 1),
+                            'value': 'child0',
+                            'module': None,
+                            'children': []
+                        },
+                        {
+                            'tag': 'enumeration',
+                            'occurs': (1, 1, 1),
+                            'value': 'child1',
+                            'module': None,
+                            'children': []
+                        }
+                    ]
+                }
+            ]
+        }
+
+        self.assertDictEqual(result_string[1], expected_element)
+
+        result_html = etree.fromstring(result_string[0])
         expected_html = self.simple_content_data_handler.get_html2(xsd_files)
 
         self.assertTrue(are_equals(result_html, expected_html))
@@ -3242,7 +6072,33 @@ class ParserGenerateSimpleContentTestSuite(TestCase):
         result_string = generate_simple_content(self.request, xsd_element, xsd_tree, '', full_path='')
         # print result_string
 
-        result_html = etree.fromstring(result_string)
+        expected_element = {
+            'tag': 'simple_content',
+            'occurs': (1, 1, 1),
+            'value': None,
+            'module': None,
+            'children': [
+                {
+                    'tag': 'extension',
+                    'occurs': (1, 1, 1),
+                    'value': None,
+                    'module': None,
+                    'children': [
+                        {
+                            'tag': 'input',
+                            'occurs': (1, 1, 1),
+                            'value': '',
+                            'module': None,
+                            'children': []
+                        }
+                    ]
+                }
+            ]
+        }
+
+        self.assertDictEqual(result_string[1], expected_element)
+
+        result_html = etree.fromstring(result_string[0])
         expected_html = self.simple_content_data_handler.get_html2(xsd_files)
 
         self.assertTrue(are_equals(result_html, expected_html))
@@ -3266,7 +6122,33 @@ class ParserGenerateSimpleContentTestSuite(TestCase):
         # print result_string
         # result_string = '<div>' + result_string + '</div>'
 
-        result_html = etree.fromstring(result_string)
+        expected_element = {
+            'tag': 'simple_content',
+            'occurs': (1, 1, 1),
+            'value': None,
+            'module': None,
+            'children': [
+                {
+                    'tag': 'extension',
+                    'occurs': (1, 1, 1),
+                    'value': None,
+                    'module': None,
+                    'children': [
+                        {
+                            'tag': 'input',
+                            'occurs': (1, 1, 1),
+                            'value': 'entry0',
+                            'module': None,
+                            'children': []
+                        }
+                    ]
+                }
+            ]
+        }
+
+        self.assertDictEqual(result_string[1], expected_element)
+
+        result_html = etree.fromstring(result_string[0])
         expected_html = self.simple_content_data_handler.get_html2(xsd_files + '.reload')
 
         self.assertTrue(are_equals(result_html, expected_html))
@@ -3290,7 +6172,40 @@ class ParserGenerateSimpleContentTestSuite(TestCase):
         # print result_string
         # result_string = '<div>' + result_string + '</div>'
 
-        result_html = etree.fromstring(result_string)
+        expected_element = {
+            'tag': 'simple_content',
+            'occurs': (1, 1, 1),
+            'value': None,
+            'module': None,
+            'children': [
+                {
+                    'tag': 'restriction',
+                    'occurs': (1, 1, 1),
+                    'value': None,
+                    'module': None,
+                    'children': [
+                        {
+                            'tag': 'enumeration/selected',
+                            'occurs': (1, 1, 1),
+                            'value': 'child0',
+                            'module': None,
+                            'children': []
+                        },
+                        {
+                            'tag': 'enumeration',
+                            'occurs': (1, 1, 1),
+                            'value': 'child1',
+                            'module': None,
+                            'children': []
+                        }
+                    ]
+                }
+            ]
+        }
+
+        self.assertDictEqual(result_string[1], expected_element)
+
+        result_html = etree.fromstring(result_string[0])
         expected_html = self.simple_content_data_handler.get_html2(xsd_files + '.reload')
 
         self.assertTrue(are_equals(result_html, expected_html))
@@ -3309,6 +6224,8 @@ class ParserGenerateRestrictionTestSuite(TestCase):
         session_key = None
         self.request.session = engine.SessionStore(session_key)
 
+        self.maxDiff = None
+
         self.request.session['curate_edit'] = False  # Data edition
         self.request.session['nb_html_tags'] = 0
         self.request.session['mapTagID'] = {}
@@ -3323,7 +6240,32 @@ class ParserGenerateRestrictionTestSuite(TestCase):
         result_string = generate_restriction(self.request, xsd_element, xsd_tree, '', full_path='')
         # print result_string
 
-        result_html = etree.fromstring(result_string)
+        expected_element = {
+            'tag': 'restriction',
+            'occurs': (1, 1, 1),
+            'value': None,
+            'module': None,
+            'children': [
+                {
+                    'tag': 'enumeration',
+                    'occurs': (1, 1, 1),
+                    'value': 'child0',
+                    'module': None,
+                    'children': []
+                },
+                {
+                    'tag': 'enumeration',
+                    'occurs': (1, 1, 1),
+                    'value': 'child1',
+                    'module': None,
+                    'children': []
+                }
+            ]
+        }
+
+        self.assertDictEqual(result_string[1], expected_element)
+
+        result_html = etree.fromstring(result_string[0])
         expected_html = self.restriction_data_handler.get_html2(xsd_files)
 
         self.assertTrue(are_equals(result_html, expected_html))
@@ -3336,7 +6278,48 @@ class ParserGenerateRestrictionTestSuite(TestCase):
         result_string = generate_restriction(self.request, xsd_element, xsd_tree, '', full_path='')
         # print result_string
 
-        result_html = etree.fromstring(result_string)
+        expected_element = {
+            'tag': 'restriction',
+            'occurs': (1, 1, 1),
+            'value': None,
+            'module': None,
+            'children': [
+                {
+                    'tag': 'simple_type',
+                    'occurs': (1, 1, 1),
+                    'value': None,
+                    'module': None,
+                    'children': [
+                        {
+                            'tag': 'restriction',
+                            'occurs': (1, 1, 1),
+                            'value': None,
+                            'module': None,
+                            'children': [
+                                {
+                                    'tag': 'enumeration',
+                                    'occurs': (1, 1, 1),
+                                    'value': 'child0',
+                                    'module': None,
+                                    'children': []
+                                },
+                                {
+                                    'tag': 'enumeration',
+                                    'occurs': (1, 1, 1),
+                                    'value': 'child1',
+                                    'module': None,
+                                    'children': []
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+
+        self.assertDictEqual(result_string[1], expected_element)
+
+        result_html = etree.fromstring(result_string[0])
         expected_html = self.restriction_data_handler.get_html2(xsd_files)
 
         self.assertTrue(are_equals(result_html, expected_html))
@@ -3360,7 +6343,32 @@ class ParserGenerateRestrictionTestSuite(TestCase):
         # print result_string
         # result_string = '<div>' + result_string + '</div>'
 
-        result_html = etree.fromstring(result_string)
+        expected_element = {
+            'tag': 'restriction',
+            'occurs': (1, 1, 1),
+            'value': None,
+            'module': None,
+            'children': [
+                {
+                    'tag': 'enumeration',
+                    'occurs': (1, 1, 1),
+                    'value': 'child0',
+                    'module': None,
+                    'children': []
+                },
+                {
+                    'tag': 'enumeration/selected',
+                    'occurs': (1, 1, 1),
+                    'value': 'child1',
+                    'module': None,
+                    'children': []
+                }
+            ]
+        }
+
+        self.assertDictEqual(result_string[1], expected_element)
+
+        result_html = etree.fromstring(result_string[0])
         expected_html = self.restriction_data_handler.get_html2(xsd_files + '.reload')
 
         self.assertTrue(are_equals(result_html, expected_html))
@@ -3384,7 +6392,48 @@ class ParserGenerateRestrictionTestSuite(TestCase):
         # print result_string
         # result_string = '<div>' + result_string + '</div>'
 
-        result_html = etree.fromstring(result_string)
+        expected_element = {
+            'tag': 'restriction',
+            'occurs': (1, 1, 1),
+            'value': None,
+            'module': None,
+            'children': [
+                {
+                    'tag': 'simple_type',
+                    'occurs': (1, 1, 1),
+                    'value': None,
+                    'module': None,
+                    'children': [
+                        {
+                            'tag': 'restriction',
+                            'occurs': (1, 1, 1),
+                            'value': None,
+                            'module': None,
+                            'children': [
+                                {
+                                    'tag': 'enumeration/selected',
+                                    'occurs': (1, 1, 1),
+                                    'value': 'child0',
+                                    'module': None,
+                                    'children': []
+                                },
+                                {
+                                    'tag': 'enumeration',
+                                    'occurs': (1, 1, 1),
+                                    'value': 'child1',
+                                    'module': None,
+                                    'children': []
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+
+        self.assertDictEqual(result_string[1], expected_element)
+
+        result_html = etree.fromstring(result_string[0])
         expected_html = self.restriction_data_handler.get_html2(xsd_files + '.reload')
 
         self.assertTrue(are_equals(result_html, expected_html))
@@ -3418,7 +6467,27 @@ class ParserGenerateExtensionTestSuite(TestCase):
         result_string = generate_extension(self.request, xsd_element, xsd_tree, '', full_path='')
         # print result_string
 
-        result_html = etree.fromstring(result_string)
+        expected_dict = {
+            'tag': 'extension',
+            'occurs': (1, 1, 1),
+            'module': None,
+            'value': None,
+            'children': [
+                {
+                    'tag': 'input',
+                    'occurs': (1, 1, 1),
+                    'module': None,
+                    'value': '',
+                    'children': [
+
+                    ]
+                }
+            ]
+        }
+
+        self.assertDictEqual(result_string[1], expected_dict)
+
+        result_html = etree.fromstring(result_string[0])
         expected_html = self.extension_data_handler.get_html2(xsd_files)
 
         self.assertTrue(are_equals(result_html, expected_html))
@@ -3431,7 +6500,27 @@ class ParserGenerateExtensionTestSuite(TestCase):
         result_string = generate_extension(self.request, xsd_element, xsd_tree, '', full_path='')
         # print result_string
 
-        result_html = etree.fromstring(result_string)
+        expected_dict = {
+            'tag': 'extension',
+            'occurs': (1, 1, 1),
+            'module': None,
+            'value': None,
+            'children': [
+                {
+                    'tag': 'input',
+                    'occurs': (1, 1, 1),
+                    'module': None,
+                    'value': '',
+                    'children': [
+
+                    ]
+                }
+            ]
+        }
+
+        self.assertDictEqual(result_string[1], expected_dict)
+
+        result_html = etree.fromstring(result_string[0])
         expected_html = self.extension_data_handler.get_html2(xsd_files)
 
         self.assertTrue(are_equals(result_html, expected_html))
@@ -3444,7 +6533,27 @@ class ParserGenerateExtensionTestSuite(TestCase):
         result_string = generate_extension(self.request, xsd_element, xsd_tree, '', full_path='')
         # print result_string
 
-        result_html = etree.fromstring(result_string)
+        expected_dict = {
+            'tag': 'extension',
+            'occurs': (1, 1, 1),
+            'module': None,
+            'value': None,
+            'children': [
+                {
+                    'tag': 'input',
+                    'occurs': (1, 1, 1),
+                    'module': None,
+                    'value': '',
+                    'children': [
+
+                    ]
+                }
+            ]
+        }
+
+        self.assertDictEqual(result_string[1], expected_dict)
+
+        result_html = etree.fromstring(result_string[0])
         expected_html = self.extension_data_handler.get_html2(xsd_files)
 
         self.assertTrue(are_equals(result_html, expected_html))
@@ -3457,7 +6566,27 @@ class ParserGenerateExtensionTestSuite(TestCase):
         result_string = generate_extension(self.request, xsd_element, xsd_tree, '', full_path='')
         # print result_string
 
-        result_html = etree.fromstring(result_string)
+        expected_dict = {
+            'tag': 'extension',
+            'occurs': (1, 1, 1),
+            'module': None,
+            'value': None,
+            'children': [
+                {
+                    'tag': 'input',
+                    'occurs': (1, 1, 1),
+                    'module': None,
+                    'value': '',
+                    'children': [
+
+                    ]
+                }
+            ]
+        }
+
+        self.assertDictEqual(result_string[1], expected_dict)
+
+        result_html = etree.fromstring(result_string[0])
         expected_html = self.extension_data_handler.get_html2(xsd_files)
 
         self.assertTrue(are_equals(result_html, expected_html))
@@ -3470,7 +6599,27 @@ class ParserGenerateExtensionTestSuite(TestCase):
         result_string = generate_extension(self.request, xsd_element, xsd_tree, '', full_path='')
         # print result_string
 
-        result_html = etree.fromstring(result_string)
+        expected_dict = {
+            'tag': 'extension',
+            'occurs': (1, 1, 1),
+            'module': None,
+            'value': None,
+            'children': [
+                {
+                    'tag': 'input',
+                    'occurs': (1, 1, 1),
+                    'module': None,
+                    'value': '',
+                    'children': [
+
+                    ]
+                }
+            ]
+        }
+
+        self.assertDictEqual(result_string[1], expected_dict)
+
+        result_html = etree.fromstring(result_string[0])
         expected_html = self.extension_data_handler.get_html2(xsd_files)
 
         self.assertTrue(are_equals(result_html, expected_html))
@@ -3483,7 +6632,27 @@ class ParserGenerateExtensionTestSuite(TestCase):
         result_string = generate_extension(self.request, xsd_element, xsd_tree, '', full_path='')
         # print result_string
 
-        result_html = etree.fromstring(result_string)
+        expected_dict = {
+            'tag': 'extension',
+            'occurs': (1, 1, 1),
+            'module': None,
+            'value': None,
+            'children': [
+                {
+                    'tag': 'input',
+                    'occurs': (1, 1, 1),
+                    'module': None,
+                    'value': '',
+                    'children': [
+
+                    ]
+                }
+            ]
+        }
+
+        self.assertDictEqual(result_string[1], expected_dict)
+
+        result_html = etree.fromstring(result_string[0])
         expected_html = self.extension_data_handler.get_html2(xsd_files)
 
         self.assertTrue(are_equals(result_html, expected_html))
@@ -3496,7 +6665,27 @@ class ParserGenerateExtensionTestSuite(TestCase):
         result_string = generate_extension(self.request, xsd_element, xsd_tree, '', full_path='')
         # print result_string
 
-        result_html = etree.fromstring(result_string)
+        expected_dict = {
+            'tag': 'extension',
+            'occurs': (1, 1, 1),
+            'module': None,
+            'value': None,
+            'children': [
+                {
+                    'tag': 'input',
+                    'occurs': (1, 1, 1),
+                    'module': None,
+                    'value': '',
+                    'children': [
+
+                    ]
+                }
+            ]
+        }
+
+        self.assertDictEqual(result_string[1], expected_dict)
+
+        result_html = etree.fromstring(result_string[0])
         expected_html = self.extension_data_handler.get_html2(xsd_files)
 
         self.assertTrue(are_equals(result_html, expected_html))
@@ -3509,7 +6698,27 @@ class ParserGenerateExtensionTestSuite(TestCase):
         result_string = generate_extension(self.request, xsd_element, xsd_tree, '', full_path='')
         # print result_string
 
-        result_html = etree.fromstring(result_string)
+        expected_dict = {
+            'tag': 'extension',
+            'occurs': (1, 1, 1),
+            'module': None,
+            'value': None,
+            'children': [
+                {
+                    'tag': 'input',
+                    'occurs': (1, 1, 1),
+                    'module': None,
+                    'value': '',
+                    'children': [
+
+                    ]
+                }
+            ]
+        }
+
+        self.assertDictEqual(result_string[1], expected_dict)
+
+        result_html = etree.fromstring(result_string[0])
         expected_html = self.extension_data_handler.get_html2(xsd_files)
 
         self.assertTrue(are_equals(result_html, expected_html))
@@ -3534,7 +6743,27 @@ class ParserGenerateExtensionTestSuite(TestCase):
         # print result_string
         # result_string = '<div>' + result_string + '</div>'
 
-        result_html = etree.fromstring(result_string)
+        expected_dict = {
+            'tag': 'extension',
+            'occurs': (1, 1, 1),
+            'module': None,
+            'value': None,
+            'children': [
+                {
+                    'tag': 'input',
+                    'occurs': (1, 1, 1),
+                    'module': None,
+                    'value': '',
+                    'children': [
+
+                    ]
+                }
+            ]
+        }
+
+        self.assertDictEqual(result_string[1], expected_dict)
+
+        result_html = etree.fromstring(result_string[0])
         expected_html = self.extension_data_handler.get_html2(xsd_files + '.reload')
 
         self.assertTrue(are_equals(result_html, expected_html))
@@ -3559,7 +6788,27 @@ class ParserGenerateExtensionTestSuite(TestCase):
         # print result_string
         # result_string = '<div>' + result_string + '</div>'
 
-        result_html = etree.fromstring(result_string)
+        expected_dict = {
+            'tag': 'extension',
+            'occurs': (1, 1, 1),
+            'module': None,
+            'value': None,
+            'children': [
+                {
+                    'tag': 'input',
+                    'occurs': (1, 1, 1),
+                    'module': None,
+                    'value': '',
+                    'children': [
+
+                    ]
+                }
+            ]
+        }
+
+        self.assertDictEqual(result_string[1], expected_dict)
+
+        result_html = etree.fromstring(result_string[0])
         expected_html = self.extension_data_handler.get_html2(xsd_files + '.reload')
 
         self.assertTrue(are_equals(result_html, expected_html))
@@ -3583,7 +6832,27 @@ class ParserGenerateExtensionTestSuite(TestCase):
         # print result_string
         # result_string = '<div>' + result_string + '</div>'
 
-        result_html = etree.fromstring(result_string)
+        expected_dict = {
+            'tag': 'extension',
+            'occurs': (1, 1, 1),
+            'module': None,
+            'value': None,
+            'children': [
+                {
+                    'tag': 'input',
+                    'occurs': (1, 1, 1),
+                    'module': None,
+                    'value': '',
+                    'children': [
+
+                    ]
+                }
+            ]
+        }
+
+        self.assertDictEqual(result_string[1], expected_dict)
+
+        result_html = etree.fromstring(result_string[0])
         expected_html = self.extension_data_handler.get_html2(xsd_files + '.reload')
 
         self.assertTrue(are_equals(result_html, expected_html))
@@ -3607,7 +6876,27 @@ class ParserGenerateExtensionTestSuite(TestCase):
         # print result_string
         # result_string = '<div>' + result_string + '</div>'
 
-        result_html = etree.fromstring(result_string)
+        expected_dict = {
+            'tag': 'extension',
+            'occurs': (1, 1, 1),
+            'module': None,
+            'value': None,
+            'children': [
+                {
+                    'tag': 'input',
+                    'occurs': (1, 1, 1),
+                    'module': None,
+                    'value': '',
+                    'children': [
+
+                    ]
+                }
+            ]
+        }
+
+        self.assertDictEqual(result_string[1], expected_dict)
+
+        result_html = etree.fromstring(result_string[0])
         expected_html = self.extension_data_handler.get_html2(xsd_files + '.reload')
 
         self.assertTrue(are_equals(result_html, expected_html))
@@ -3631,7 +6920,27 @@ class ParserGenerateExtensionTestSuite(TestCase):
         # print result_string
         # result_string = '<div>' + result_string + '</div>'
 
-        result_html = etree.fromstring(result_string)
+        expected_dict = {
+            'tag': 'extension',
+            'occurs': (1, 1, 1),
+            'module': None,
+            'value': None,
+            'children': [
+                {
+                    'tag': 'input',
+                    'occurs': (1, 1, 1),
+                    'module': None,
+                    'value': 'entry0',
+                    'children': [
+
+                    ]
+                }
+            ]
+        }
+
+        self.assertDictEqual(result_string[1], expected_dict)
+
+        result_html = etree.fromstring(result_string[0])
         expected_html = self.extension_data_handler.get_html2(xsd_files + '.reload')
 
         self.assertTrue(are_equals(result_html, expected_html))
@@ -3655,7 +6964,27 @@ class ParserGenerateExtensionTestSuite(TestCase):
         # print result_string
         # result_string = '<div>' + result_string + '</div>'
 
-        result_html = etree.fromstring(result_string)
+        expected_dict = {
+            'tag': 'extension',
+            'occurs': (1, 1, 1),
+            'module': None,
+            'value': None,
+            'children': [
+                {
+                    'tag': 'input',
+                    'occurs': (1, 1, 1),
+                    'module': None,
+                    'value': 'entry0',
+                    'children': [
+
+                    ]
+                }
+            ]
+        }
+
+        self.assertDictEqual(result_string[1], expected_dict)
+
+        result_html = etree.fromstring(result_string[0])
         expected_html = self.extension_data_handler.get_html2(xsd_files + '.reload')
 
         self.assertTrue(are_equals(result_html, expected_html))
@@ -3679,7 +7008,27 @@ class ParserGenerateExtensionTestSuite(TestCase):
         # print result_string
         # result_string = '<div>' + result_string + '</div>'
 
-        result_html = etree.fromstring(result_string)
+        expected_dict = {
+            'tag': 'extension',
+            'occurs': (1, 1, 1),
+            'module': None,
+            'value': None,
+            'children': [
+                {
+                    'tag': 'input',
+                    'occurs': (1, 1, 1),
+                    'module': None,
+                    'value': 'entry0',
+                    'children': [
+
+                    ]
+                }
+            ]
+        }
+
+        self.assertDictEqual(result_string[1], expected_dict)
+
+        result_html = etree.fromstring(result_string[0])
         expected_html = self.extension_data_handler.get_html2(xsd_files + '.reload')
 
         self.assertTrue(are_equals(result_html, expected_html))
@@ -3703,7 +7052,27 @@ class ParserGenerateExtensionTestSuite(TestCase):
         # print result_string
         # result_string = '<div>' + result_string + '</div>'
 
-        result_html = etree.fromstring(result_string)
+        expected_dict = {
+            'tag': 'extension',
+            'occurs': (1, 1, 1),
+            'module': None,
+            'value': None,
+            'children': [
+                {
+                    'tag': 'input',
+                    'occurs': (1, 1, 1),
+                    'module': None,
+                    'value': '',
+                    'children': [
+
+                    ]
+                }
+            ]
+        }
+
+        self.assertDictEqual(result_string[1], expected_dict)
+
+        result_html = etree.fromstring(result_string[0])
         expected_html = self.extension_data_handler.get_html2(xsd_files + '.reload')
 
         self.assertTrue(are_equals(result_html, expected_html))
