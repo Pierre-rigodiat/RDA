@@ -962,6 +962,36 @@ class ParserGenerateFormTestSuite(TestCase):
 
         self.assertTrue(are_equals(result_html, expected_html))
 
+    def test_create_target_namespace_element(self):
+        xsd_files = join('target_namespace', 'element', 'basic')
+        xsd_tree = self.schema_data_handler.get_xsd2(xsd_files)
+
+        self.request.session['xmlDocTree'] = etree.tostring(xsd_tree)
+
+        result_string = generate_form(self.request)
+        # print result_string
+        # self.assertEqual(result_string, '')
+
+        result_html = etree.fromstring(result_string)
+        expected_html = self.schema_data_handler.get_html2(xsd_files)
+
+        self.assertTrue(are_equals(result_html, expected_html))
+
+    def test_create_target_namespace_ref(self):
+        xsd_files = join('target_namespace', 'ref', 'basic')
+        xsd_tree = self.schema_data_handler.get_xsd2(xsd_files)
+
+        self.request.session['xmlDocTree'] = etree.tostring(xsd_tree)
+
+        result_string = generate_form(self.request)
+        print result_string
+        # self.assertEqual(result_string, '')
+
+        result_html = etree.fromstring(result_string)
+        expected_html = self.schema_data_handler.get_html2(xsd_files)
+
+        self.assertTrue(are_equals(result_html, expected_html))
+
     # def test_reload_include(self):
     #     xsd_files = join('include', 'basic')
     #     xsd_tree = self.schema_data_handler.get_xsd2(xsd_files)
@@ -1066,6 +1096,66 @@ class ParserGenerateFormTestSuite(TestCase):
 
         result_html = etree.fromstring(result_string)
         expected_html = self.schema_data_handler.get_html2(xsd_files + '.reload')
+
+        self.assertTrue(are_equals(result_html, expected_html))
+
+    def test_reload__target_namespace_element(self):
+        xsd_files = join('target_namespace', 'element', 'basic')
+        xsd_reload_files = join('target_namespace', 'element', 'basic.reload')
+        xsd_tree = self.schema_data_handler.get_xsd2(xsd_files)
+
+        self.request.session['xmlDocTree'] = etree.tostring(xsd_tree)
+        self.request.session['curate_edit'] = True
+
+        form_data = FormData()
+
+        xml_data = self.schema_data_handler.get_xml(xsd_files)
+
+        form_data.xml_data = etree.tostring(xml_data)
+        form_data.name = ''
+        form_data.user = ''
+        form_data.template = ''
+
+        form_data.save()
+
+        self.request.session['curateFormData'] = form_data.pk
+
+        result_string = generate_form(self.request)
+        # print result_string
+        # self.assertEqual(result_string, '')
+
+        result_html = etree.fromstring(result_string)
+        expected_html = self.schema_data_handler.get_html2(xsd_reload_files)
+
+        self.assertTrue(are_equals(result_html, expected_html))
+
+    def test_reload__target_namespace_ref(self):
+        xsd_files = join('target_namespace', 'ref', 'basic')
+        xsd_reload_files = join('target_namespace', 'ref', 'basic.reload')
+        xsd_tree = self.schema_data_handler.get_xsd2(xsd_files)
+
+        self.request.session['xmlDocTree'] = etree.tostring(xsd_tree)
+        self.request.session['curate_edit'] = True
+
+        form_data = FormData()
+
+        xml_data = self.schema_data_handler.get_xml(xsd_files)
+
+        form_data.xml_data = etree.tostring(xml_data)
+        form_data.name = ''
+        form_data.user = ''
+        form_data.template = ''
+
+        form_data.save()
+
+        self.request.session['curateFormData'] = form_data.pk
+
+        result_string = generate_form(self.request)
+        # print result_string
+        # self.assertEqual(result_string, '')
+
+        result_html = etree.fromstring(result_string)
+        expected_html = self.schema_data_handler.get_html2(xsd_reload_files)
 
         self.assertTrue(are_equals(result_html, expected_html))
 
