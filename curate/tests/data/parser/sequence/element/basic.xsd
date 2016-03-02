@@ -1,9 +1,9 @@
-<schema>
-    <element name="root" type="complex" />
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:element name="root" type="complex" />
 
-    <complexType name="complex">
-        <sequence>
-            <element name="id0" type="string"/>
-        </sequence>
-    </complexType>
-</schema>
+    <xs:complexType name="complex">
+        <xs:sequence>
+            <xs:element name="id0" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+</xs:schema>

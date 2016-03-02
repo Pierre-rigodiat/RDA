@@ -1,4 +1,4 @@
-<schema>
+<schema xmlns="http://www.w3.org/2001/XMLSchema">
     <element name="test6">
         <complexType>
             <simpleContent>

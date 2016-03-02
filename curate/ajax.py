@@ -233,8 +233,16 @@ def download_xml(request):
 #
 ################################################################################
 def download_current_xml(request):
+    # get the XML String built from form
     xmlString = request.POST['xmlString']
 
+    # set namespaces information in the XML document
+    xmlString = common.manage_namespaces(request.POST['xmlString'],
+                                         request.session['namespaces'],
+                                         request.session['defaultPrefix'],
+                                         request.session['target_namespace_prefix'])
+
+    # get form data information
     form_data_id = request.session['curateFormData']
     form_data = FormData.objects().get(pk=form_data_id)
 
@@ -276,42 +284,21 @@ def init_curate(request):
 def generate_xsd_form(request):
     print 'BEGIN def generate_xsd_form(request)'
 
-    template_id = request.session['currentTemplateID']
-    response_dict = {}
-
+    # get the form when going back and forth with review step
     if 'formString' in request.session:
-        formString = request.session['formString']
+        form_string = request.session['formString']
     else:
-        formString = ''
-        request.session['occurrences'] = dict()
+        form_string = ''
 
-    if 'xmlDocTree' in request.session:
-        xmlDocTree = request.session['xmlDocTree']
-    else:
-        if template_id in MetaSchema.objects.all().values_list('schemaId'):
-            meta = MetaSchema.objects.get(schemaId=template_id)
-            xmlDocData = meta.flat_content
-        else:
-            templateObject = Template.objects.get(pk=template_id)
-            xmlDocData = templateObject.content
-
-        xmlDocTree = etree.parse(BytesIO(xmlDocData.encode('utf-8')))
-        request.session['xmlDocTree'] = etree.tostring(xmlDocTree)
-        xmlDocTree = request.session['xmlDocTree']
-
-    # find the namespaces
-    request.session['namespaces'] = common.get_namespaces(BytesIO(str(xmlDocTree)))
-    for prefix, url in request.session['namespaces'].items():
-        if (url == "{http://www.w3.org/2001/XMLSchema}"):
-            request.session['defaultPrefix'] = prefix
-            break
-
-    if (formString == ""):
+    # if the form is not generated
+    if form_string == "":
         # this form was not created, generates it from the schema
-        formString += generate_form(request)
+        form_string += generate_form(request)
 
-    response_dict['xsdForm'] = formString
-    request.session['formString'] = formString
+    # set the response
+    response_dict = {'xsdForm': form_string}
+    # save the form in the session
+    request.session['formString'] = form_string
 
     return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
     print 'END def generate_xsd_form(request)'
@@ -345,16 +332,12 @@ def generate_absent(request):
     namespaces = request.session['namespaces']
     defaultPrefix = request.session['defaultPrefix']
     xmlDocTreeStr = request.session['xmlDocTree']
-    xmlDocTree = etree.fromstring(xmlDocTreeStr)
+    xmlDocTree = etree.ElementTree(etree.fromstring(xmlDocTreeStr))
 
     # render element
-    namespace = namespaces[defaultPrefix]
+    namespace = "{" + namespaces[defaultPrefix] + "}"
 
-    xpath_namespaces = {}
-    for prefix, ns in request.session['namespaces'].iteritems():
-        xpath_namespaces[prefix] = ns[1:-1]
-
-    element = xmlDocTree.xpath(xml_element.xsd_xpath, namespaces=xpath_namespaces)[0]
+    element = xmlDocTree.xpath(xml_element.xsd_xpath, namespaces=request.session['namespaces'])[0]
 
     # generating a choice, generate the parent element
     if tag == "choice":
@@ -493,15 +476,11 @@ def duplicate(request):
         namespaces = request.session['namespaces']
         defaultPrefix = request.session['defaultPrefix']
         xmlDocTreeStr = request.session['xmlDocTree']
-        xmlDocTree = etree.fromstring(xmlDocTreeStr)
+        xmlDocTree = etree.ElementTree(etree.fromstring(xmlDocTreeStr))
         # render element
-        namespace = namespaces[defaultPrefix]
+        namespace = "{" + namespaces[defaultPrefix] + "}"
 
-        xpath_namespaces = {}
-        for prefix, ns in request.session['namespaces'].iteritems() :
-            xpath_namespaces[prefix] = ns[1:-1]
-
-        sequenceChild = xmlDocTree.xpath(xml_element.xsd_xpath, namespaces=xpath_namespaces)[0]
+        sequenceChild = xmlDocTree.xpath(xml_element.xsd_xpath, namespaces=request.session['namespaces'])[0]
 
         if sequenceChild.tag == "{0}element".format(namespace):
             element_tag='element'
@@ -874,8 +853,12 @@ def validate_xml_data(request):
     template_id = request.session['currentTemplateID']
     request.session['xmlString'] = ""
     try:
-        # TODO: namespaces
-        xmlString = common.manageNamespace(template_id, request.POST['xmlString'])
+        # set namespaces information in the XML document
+        xmlString = common.manage_namespaces(request.POST['xmlString'],
+                                             request.session['namespaces'],
+                                             request.session['defaultPrefix'],
+                                             request.session['target_namespace_prefix'])
+        # validate XML document
         common.validateXMLDocument(template_id, xmlString)
     except etree.XMLSyntaxError, xse:
         #xmlParseEntityRef exception: use of & < > forbidden

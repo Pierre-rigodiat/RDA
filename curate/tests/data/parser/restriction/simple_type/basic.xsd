@@ -1,14 +1,14 @@
-<schema>
-    <element name="root" type="simple" />
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:element name="root" type="simple" />
 
-    <simpleType name="simple">
-        <restriction>
-            <simpleType>
-                <restriction base="string">
-                    <enumeration value="child0"/>
-                    <enumeration value="child1"/>
-                </restriction>
-            </simpleType>
-        </restriction>
-    </simpleType>
-</schema>
+    <xs:simpleType name="simple">
+        <xs:restriction>
+            <xs:simpleType>
+                <xs:restriction base="xs:string">
+                    <xs:enumeration value="child0"/>
+                    <xs:enumeration value="child1"/>
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:restriction>
+    </xs:simpleType>
+</xs:schema>
