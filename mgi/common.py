@@ -27,22 +27,23 @@ def getValidityErrorsForMDCS(xmlTree, type):
     elements = xmlTree.findall("{http://www.w3.org/2001/XMLSchema}element")
     
     if len(imports) != 0 or len(includes) != 0:
-        # V1: Only includes        
-        if len(imports) != 0:
-            errors.append("Import statements are not supported.")
-        else:
-            for el_include in includes:
-                if 'schemaLocation' not in el_include.attrib:
-                    errors.append("The attribute schemaLocation of include is required but missing.")
-                elif ' ' in el_include.attrib['schemaLocation']:
-                    errors.append("The use of namespace in include elements is not supported.")
+        for el_import in imports:
+            if 'schemaLocation' not in el_import.attrib:
+                errors.append("The attribute schemaLocation of import is required but missing.")
+            elif ' ' in el_import.attrib['schemaLocation']:
+                errors.append("The use of namespace in import elements is not supported.")
+        for el_include in includes:
+            if 'schemaLocation' not in el_include.attrib:
+                errors.append("The attribute schemaLocation of include is required but missing.")
+            elif ' ' in el_include.attrib['schemaLocation']:
+                errors.append("The use of namespace in include elements is not supported.")
 
     # Templates Tests
 
-    if type == "Template":
-        # Tests for templates
-        if len(elements) < 1 :
-            errors.append("Only templates with at least one root element are supported.")
+    # if type == "Template":
+    #     # Tests for templates
+    #     if len(elements) < 1 :
+    #         errors.append("Only templates with at least one root element are supported.")
 
     # Types Tests
     
@@ -106,21 +107,21 @@ def validateXMLDocument(templateID, xmlString):
 #                
 #
 ################################################################################
-def manageNamespace(templateID, xmlString):    
-    # the schema has no dependencies
-    if str(templateID) not in MetaSchema.objects.all().values_list('schemaId'):
-        templateObject = Template.objects.get(pk=templateID)
-        templateData = templateObject.content    
-        templateTree = etree.parse(StringIO(templateData.encode('utf-8')))
-        templateTreeRoot = templateTree.getroot()
-        # The schema is using a target namespace
-        if 'targetNamespace' in templateTreeRoot.attrib:    
-            xmlTree = etree.parse(StringIO(xmlString.encode('utf-8')))
-            xmlRoot = xmlTree.getroot()
-            xmlRoot.attrib['xmlns'] = templateTreeRoot.attrib['targetNamespace']
-            xmlString = etree.tostring(xmlTree)
+def manage_namespaces(xml_string, namespaces, default_prefix, target_namespace_prefix):
+    # the schema has a target namespace
+    if target_namespace_prefix != '':
+        # get the target namespace
+        target_namespace = namespaces[target_namespace_prefix]
+        # build the XML tree from the string
+        xml_tree = etree.parse(StringIO(xml_string.encode('utf-8')))
+        # get the root of the XML document
+        xml_root = xml_tree.getroot()
+        # set the namespace of the document to the target namespace
+        xml_root.attrib['xmlns'] = target_namespace
+        # set the xml string with the one updated with namespace information
+        xml_string = etree.tostring(xml_tree)
 
-    return xmlString
+    return xml_string
 
 
 ################################################################################
@@ -205,7 +206,7 @@ def get_namespaces(file):
             if elem[0] in ns and ns[elem[0]] != elem[1]:
                 raise Exception("Duplicate prefix with different URI found.")
             if len(elem[0]) > 0 and len(elem[1]) > 0:
-                ns[elem[0]] = "{%s}" % elem[1]
+                ns[elem[0]] = "%s" % elem[1]
         elif event == "start":
             break
     return ns

@@ -233,8 +233,16 @@ def download_xml(request):
 #
 ################################################################################
 def download_current_xml(request):
+    # get the XML String built from form
     xmlString = request.POST['xmlString']
 
+    # set namespaces information in the XML document
+    xmlString = common.manage_namespaces(request.POST['xmlString'],
+                                         request.session['namespaces'],
+                                         request.session['defaultPrefix'],
+                                         request.session['target_namespace_prefix'])
+
+    # get form data information
     form_data_id = request.session['curateFormData']
     form_data = FormData.objects().get(pk=form_data_id)
 
@@ -845,8 +853,12 @@ def validate_xml_data(request):
     template_id = request.session['currentTemplateID']
     request.session['xmlString'] = ""
     try:
-        # TODO: namespaces
-        xmlString = common.manageNamespace(template_id, request.POST['xmlString'])
+        # set namespaces information in the XML document
+        xmlString = common.manage_namespaces(request.POST['xmlString'],
+                                             request.session['namespaces'],
+                                             request.session['defaultPrefix'],
+                                             request.session['target_namespace_prefix'])
+        # validate XML document
         common.validateXMLDocument(template_id, xmlString)
     except etree.XMLSyntaxError, xse:
         #xmlParseEntityRef exception: use of & < > forbidden
