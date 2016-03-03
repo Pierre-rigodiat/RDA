@@ -10,18 +10,19 @@ import django.utils.html
 from io import BytesIO
 from modules import get_module_view
 
+from mgi.common import LXML_SCHEMA_NAMESPACE, SCHEMA_NAMESPACE
+
 
 ##################################################
 # Part I: Utilities
 ##################################################
 
-def get_subnodes_xpath(element, xml_tree, namespace):
+def get_subnodes_xpath(element, xml_tree):
     """Perform a lookup in subelements to build xpath
 
     Parameters:
         element: XML element
         xml_tree: xml_tree
-        namespace: namespace
     """
     # FIXME References returns the same object several times
     # TODO Check if min and maxOccurs are correctly reported (declared in ref but not reported elsewhere)
@@ -29,7 +30,7 @@ def get_subnodes_xpath(element, xml_tree, namespace):
 
     if len(list(element)) > 0:
         for child in list(element):
-            if child.tag == "{0}element".format(namespace):
+            if child.tag == "{0}element".format(LXML_SCHEMA_NAMESPACE):
                 if 'name' in child.attrib:
                     xpaths.append({'name': child.attrib['name'], 'element': child})
                 elif 'ref' in child.attrib:
@@ -38,18 +39,18 @@ def get_subnodes_xpath(element, xml_tree, namespace):
                     if ':' in ref:
                         ref_split = ref.split(":")
                         ref_name = ref_split[1]
-                        ref_element = xml_tree.find("./{0}element[@name='{1}']".format(namespace, ref_name))
+                        ref_element = xml_tree.find("./{0}element[@name='{1}']".format(LXML_SCHEMA_NAMESPACE, ref_name))
                     else:
-                        ref_element = xml_tree.find("./{0}element[@name='{1}']".format(namespace, ref))
+                        ref_element = xml_tree.find("./{0}element[@name='{1}']".format(LXML_SCHEMA_NAMESPACE, ref))
 
                     if ref_element is not None:
                         xpaths.append({'name': ref_element.attrib.get('name'), 'element': ref_element})
             else:
-                xpaths.extend(get_subnodes_xpath(child, xml_tree, namespace))
+                xpaths.extend(get_subnodes_xpath(child, xml_tree))
     return xpaths
 
 
-def get_nodes_xpath(elements, xml_tree, namespace):
+def get_nodes_xpath(elements, xml_tree):
     """Perform a lookup in subelements to build xpath.
 
     Get nodes' xpath, only one level deep. It's not going to every leaves. Only need to know if the
@@ -58,14 +59,13 @@ def get_nodes_xpath(elements, xml_tree, namespace):
     Parameters:
         elements: XML element
         xml_tree: xml_tree
-        namespace: namespace
     """
     # FIXME Making one function with get_subnode_xpath should be possible, both are doing the same job
     # FIXME same problems as in get_subnodes_xpath
     xpaths = []
 
     for element in elements:
-        if element.tag == "{0}element".format(namespace):
+        if element.tag == "{0}element".format(LXML_SCHEMA_NAMESPACE):
             if 'name' in element.attrib:
                 xpaths.append({'name': element.attrib['name'], 'element': element})
             elif 'ref' in element.attrib:
@@ -74,17 +74,17 @@ def get_nodes_xpath(elements, xml_tree, namespace):
                 if ':' in ref:
                     ref_split = ref.split(":")
                     ref_name = ref_split[1]
-                    ref_element = xml_tree.find("./{0}element[@name='{1}']".format(namespace, ref_name))
+                    ref_element = xml_tree.find("./{0}element[@name='{1}']".format(LXML_SCHEMA_NAMESPACE, ref_name))
                 else:
-                    ref_element = xml_tree.find("./{0}element[@name='{1}']".format(namespace, ref))
+                    ref_element = xml_tree.find("./{0}element[@name='{1}']".format(LXML_SCHEMA_NAMESPACE, ref))
                 if ref_element is not None:
                     xpaths.append({'name': ref_element.attrib.get('name'), 'element': ref_element})
         else:
-            xpaths.extend(get_subnodes_xpath(element, xml_tree, namespace))
+            xpaths.extend(get_subnodes_xpath(element, xml_tree))
     return xpaths
 
 
-def lookup_occurs(request, element, xml_tree, namespace, full_path, edit_data_tree):
+def lookup_occurs(request, element, xml_tree, full_path, edit_data_tree):
     """Do a lookup in data to get the number of occurences of a sequence or choice without a name (not within a named
     complextype).
 
@@ -99,14 +99,13 @@ def lookup_occurs(request, element, xml_tree, namespace, full_path, edit_data_tr
     Parameters:
         element: XML element
         xml_tree: xml_tree
-        namespace: namespace
         full_path: current node XPath
         edit_data_tree: XML data
     """
     # FIXME this function is not returning the correct output
 
     # get all possible xpaths of subnodes
-    xpaths = get_nodes_xpath(element, xml_tree, namespace)
+    xpaths = get_nodes_xpath(element, xml_tree)
     max_occurs_found = 0
 
     # get target namespace prefix if one declared
@@ -126,7 +125,7 @@ def lookup_occurs(request, element, xml_tree, namespace, full_path, edit_data_tr
                 if xpath['element'].attrib != "unbounded":
                     if xpath['element'].attrib < len(edit_elements):
                         # FIXME this part of code is not reachable (hence commented)
-                        # maxOccursFound = len(edit_elements)
+                        # max_occurs_found = len(edit_elements)
 
                         exc_mess = "These data can't be loaded for now, because of the following element: "
                         exc_mess += join(full_path, xpath['name'])  # XPath of the current element
@@ -256,20 +255,18 @@ def has_module(request, element):
     return _has_module
 
 
-def get_xml_element_data(xsd_element, xml_element, namespace):
+def get_xml_element_data(xsd_element, xml_element):
     """Return the content of an xml element
 
     Parameters:
         xsd_element:
         xml_element:
-        namespace:
-
     Returns:
     """
     reload_data = None
 
     # get data
-    if xsd_element.tag == "{0}element".format(namespace):
+    if xsd_element.tag == "{0}element".format(LXML_SCHEMA_NAMESPACE):
         # leaf: get the value
         if len(list(xml_element)) == 0:
             if xml_element.text is not None:
@@ -278,9 +275,9 @@ def get_xml_element_data(xsd_element, xml_element, namespace):
                 reload_data = ''
         else:  # branch: get the whole branch
             reload_data = etree.tostring(xml_element)
-    elif xsd_element.tag == "{0}attribute".format(namespace):
+    elif xsd_element.tag == "{0}attribute".format(LXML_SCHEMA_NAMESPACE):
         pass
-    elif xsd_element.tag == "{0}complexType".format(namespace) or xsd_element.tag == "{0}simpleType".format(namespace):
+    elif xsd_element.tag == "{0}complexType".format(LXML_SCHEMA_NAMESPACE) or xsd_element.tag == "{0}simpleType".format(LXML_SCHEMA_NAMESPACE):
         # leaf: get the value
         if len(list(xml_element)) == 0:
             if xml_element.text is not None:
@@ -297,13 +294,12 @@ def get_xml_element_data(xsd_element, xml_element, namespace):
     return reload_data
 
 
-def get_element_type(element, xml_tree, namespace, default_prefix):
+def get_element_type(element, xml_tree, default_prefix):
     """get XSD type to render.
 
     Parameters:
         element: XML element
         xml_tree: XML tree of the template
-        namespace: Namespace used in the template
         default_prefix:
 
     Returns:       JSON data
@@ -318,7 +314,7 @@ def get_element_type(element, xml_tree, namespace, default_prefix):
         if 'type' not in element.attrib:  # element with type declared below it
             # if tag not closed:  <element/>
             if len(list(element)) == 1:
-                if element[0].tag == "{0}annotation".format(namespace):
+                if element[0].tag == "{0}annotation".format(LXML_SCHEMA_NAMESPACE):
                     return None
                 else:
                     return element[0]
@@ -338,11 +334,11 @@ def get_element_type(element, xml_tree, namespace, default_prefix):
                 if ':' in type_name:
                     type_name = type_name.split(":")[1]
 
-                xpath = "./{0}complexType[@name='{1}']".format(namespace, type_name)
+                xpath = "./{0}complexType[@name='{1}']".format(LXML_SCHEMA_NAMESPACE, type_name)
                 element_type = xml_tree.find(xpath)
                 if element_type is None:
                     # type of the element is simple
-                    xpath = "./{0}simpleType[@name='{1}']".format(namespace, type_name)
+                    xpath = "./{0}simpleType[@name='{1}']".format(LXML_SCHEMA_NAMESPACE, type_name)
                     element_type = xml_tree.find(xpath)
                 return element_type
     except:
@@ -351,17 +347,16 @@ def get_element_type(element, xml_tree, namespace, default_prefix):
     return None
 
 
-def remove_annotations(element, namespace):
+def remove_annotations(element):
     """Remove annotations of an element if present
 
     Parameters:
         element: XML element
-        namespace: namespace
     """
     # FIXME annotation is not always the first child
 
     if len(list(element)) != 0:  # If element has children
-        if element[0].tag == "{0}annotation".format(namespace):  # If first child is annotation
+        if element[0].tag == "{0}annotation".format(LXML_SCHEMA_NAMESPACE):  # If first child is annotation
             element.remove(element[0])
 
 
@@ -401,13 +396,11 @@ def generate_form(request):
     target_namespace = root_attributes['targetNamespace'] if 'targetNamespace' in root_attributes else None
     target_namespace_prefix = ''
     default_prefix = ''
-    request.session['target_namespace_prefix'] = ''
-    request.session['defaultPrefix'] = ''
 
     # find the namespaces
     request.session['namespaces'] = common.get_namespaces(BytesIO(str(xml_doc_data)))
     for prefix, url in request.session['namespaces'].items():
-        if url == "http://www.w3.org/2001/XMLSchema":
+        if url == SCHEMA_NAMESPACE:
             default_prefix = prefix
         if target_namespace is not None:
             if url == target_namespace:
@@ -417,7 +410,7 @@ def generate_form(request):
     if default_prefix == '':
         # if no default prefix, creates a mapping
         default_prefix = 'xs'
-        request.session['namespaces'][default_prefix] = 'http://www.w3.org/2001/XMLSchema'
+        request.session['namespaces'][default_prefix] = SCHEMA_NAMESPACE
     request.session['defaultPrefix'] = default_prefix
 
     # save target namespace prefix in session
@@ -453,27 +446,24 @@ def generate_form(request):
         else:  # no data found, not editing
             request.session['curate_edit'] = False
 
-    # get the namespace for the default prefix
-    namespace = "{" + request.session['namespaces'][default_prefix] + "}"
-
     # TODO: commented extensions Registry
     # # find extensions
     # request.session['extensions'] = get_extensions(request, xml_doc_tree, namespace, default_prefix)
 
     # find all root elements
-    elements = xml_doc_tree.findall("./{0}element".format(namespace))
+    elements = xml_doc_tree.findall("./{0}element".format(LXML_SCHEMA_NAMESPACE))
 
     try:
         # one root
         if len(elements) == 1:
             form_string += "<div xmlID='root' name='xsdForm'>"
-            form_string += generate_element(request, elements[0], xml_doc_tree, namespace,
+            form_string += generate_element(request, elements[0], xml_doc_tree,
                                             edit_data_tree=edit_data_tree)
             form_string += "</div>"
         # multiple roots
         elif len(elements) > 1:
             form_string += "<div xmlID='root' name='xsdForm'>"
-            form_string += generate_choice(request, elements, xml_doc_tree, namespace, edit_data_tree=edit_data_tree)
+            form_string += generate_choice(request, elements, xml_doc_tree, edit_data_tree=edit_data_tree)
             form_string += "</div>"
     except Exception, e:
         form_string = "UNSUPPORTED ELEMENT FOUND (" + e.message + ")"
@@ -493,14 +483,13 @@ def generate_form(request):
     return form_string
 
 
-def generate_element(request, element, xml_tree, namespace, choice_info=None, full_path="", edit_data_tree=None):
+def generate_element(request, element, xml_tree, choice_info=None, full_path="", edit_data_tree=None):
     """Generate an HTML string that represents an XML element.
 
     Parameters:
         request: HTTP request
         element: XML element
         xml_tree: XML tree of the template
-        namespace: Namespace used in the template
         choice_info:
         full_path:
         edit_data_tree:
@@ -515,7 +504,7 @@ def generate_element(request, element, xml_tree, namespace, choice_info=None, fu
     form_string = ""
 
     # get appinfo elements
-    app_info = common.getAppInfo(element, namespace)
+    app_info = common.getAppInfo(element)
 
     # check if the element has a module
     _has_module = has_module(request, element)
@@ -531,10 +520,10 @@ def generate_element(request, element, xml_tree, namespace, choice_info=None, fu
     ##############################################
 
     # check if XML element or attribute
-    if element.tag == "{0}element".format(namespace):
+    if element.tag == "{0}element".format(LXML_SCHEMA_NAMESPACE):
         min_occurs, max_occurs = manage_occurences(element)
         element_tag = 'element'
-    elif element.tag == "{0}attribute".format(namespace):
+    elif element.tag == "{0}attribute".format(LXML_SCHEMA_NAMESPACE):
         min_occurs, max_occurs = manage_attr_occurrences(element)
         element_tag = 'attribute'
 
@@ -550,14 +539,14 @@ def generate_element(request, element, xml_tree, namespace, choice_info=None, fu
             # get the element name
             ref_name = ref_split[1]
             # test if referencing element within the same schema (same target namespace)
-            if 'target_namespace_prefix' in request.session and request.session['target_namespace_prefix']:
-                if ref_namespace_prefix == request.session['target_namespace_prefix']:
-                    ref_element = xml_tree.find("./{0}element[@name='{1}']".format(namespace, ref_name))
-                else:
-                    # TODO: manage ref to imported elements (different target namespace)
-                    raise Exception('Use of ref to imported element not supported')
+            if 'target_namespace_prefix' in request.session and request.session['target_namespace_prefix'] == ref_namespace_prefix:
+                ref_element = xml_tree.find("./{0}element[@name='{1}']".format(LXML_SCHEMA_NAMESPACE, ref_name))
+            else:
+                # TODO: manage ref to imported elements (different target namespace)
+                # imports = xml_tree.find('//{http://www.w3.org/2001/XMLSchema}import')
+                raise Exception('Use of ref to imported element not supported')
         else:
-            ref_element = xml_tree.find("./{0}element[@name='{1}']".format(namespace, ref))
+            ref_element = xml_tree.find("./{0}element[@name='{1}']".format(LXML_SCHEMA_NAMESPACE, ref))
 
         if ref_element is not None:
             text_capitalized = ref_element.attrib.get('name')
@@ -657,7 +646,7 @@ def generate_element(request, element, xml_tree, namespace, choice_info=None, fu
     else:
         form_string += "<ul>"
 
-    element_type = get_element_type(element, xml_tree, namespace, default_prefix)
+    element_type = get_element_type(element, xml_tree, default_prefix)
 
     for x in range(0, int(nb_occurrences)):
         nb_html_tags = int(request.session['nb_html_tags'])
@@ -679,7 +668,7 @@ def generate_element(request, element, xml_tree, namespace, choice_info=None, fu
 
         if CURATE_COLLAPSE:
             # the type is complex, can be collapsed
-            if element_type is not None and element_type.tag == "{0}complexType".format(namespace):
+            if element_type is not None and element_type.tag == "{0}complexType".format(LXML_SCHEMA_NAMESPACE):
                 form_string += "<span class='collapse' style='cursor:pointer;' onclick='showhideCurate(event);'></span>"
 
         label = app_info['label'] if 'label' in app_info else text_capitalized
@@ -715,7 +704,7 @@ def generate_element(request, element, xml_tree, namespace, choice_info=None, fu
         if not removed:
             # if module is present, replace default input by module
             if _has_module:
-                form_string += generate_module(request, element, namespace, xsd_xpath, full_path,
+                form_string += generate_module(request, element, xsd_xpath, full_path,
                                                edit_data_tree=edit_data_tree)
             else:  # generate the type
                 if element_type is None:  # no complex/simple type
@@ -731,12 +720,12 @@ def generate_element(request, element, xml_tree, namespace, choice_info=None, fu
                 else:  # complex/simple type
                     form_string += buttons
 
-                    if element_type.tag == "{0}complexType".format(namespace):
-                        form_string += generate_complex_type(request, element_type, xml_tree, namespace,
+                    if element_type.tag == "{0}complexType".format(LXML_SCHEMA_NAMESPACE):
+                        form_string += generate_complex_type(request, element_type, xml_tree,
                                                              full_path=full_path+'[' + str(x+1) + ']',
                                                              edit_data_tree=edit_data_tree)
-                    elif element_type.tag == "{0}simpleType".format(namespace):
-                        form_string += generate_simple_type(request, element_type, xml_tree, namespace,
+                    elif element_type.tag == "{0}simpleType".format(LXML_SCHEMA_NAMESPACE):
+                        form_string += generate_simple_type(request, element_type, xml_tree,
                                                             full_path=full_path+'[' + str(x+1) + ']',
                                                             edit_data_tree=edit_data_tree, default_value=default_value)
         else:
@@ -767,10 +756,9 @@ def generate_element_absent(request, element, xml_doc_tree, form_element):
 
     namespaces = request.session['namespaces']
     default_prefix = request.session['defaultPrefix']
-    namespace = "{" + namespaces[default_prefix] + "}"
 
     # get appinfo elements
-    app_info = common.getAppInfo(element, namespace)
+    app_info = common.getAppInfo(element)
 
     # check if the element has a module
     _has_module = has_module(request, element)
@@ -783,9 +771,9 @@ def generate_element_absent(request, element, xml_doc_tree, form_element):
         if ':' in ref:
             ref_split = ref.split(":")
             ref_name = ref_split[1]
-            ref_element = xml_doc_tree.find("./{0}element[@name='{1}']".format(namespace, ref_name))
+            ref_element = xml_doc_tree.find("./{0}element[@name='{1}']".format(LXML_SCHEMA_NAMESPACE, ref_name))
         else:
-            ref_element = xml_doc_tree.find("./{0}element[@name='{1}']".format(namespace, ref))
+            ref_element = xml_doc_tree.find("./{0}element[@name='{1}']".format(LXML_SCHEMA_NAMESPACE, ref))
 
         if ref_element is not None:
             element = ref_element
@@ -793,10 +781,10 @@ def generate_element_absent(request, element, xml_doc_tree, form_element):
             _has_module = has_module(request, element)
 
     if _has_module:
-        form_string += generate_module(request, element, namespace, form_element.xml_element.xsd_xpath,
+        form_string += generate_module(request, element, form_element.xml_element.xsd_xpath,
                                        form_element.xml_xpath)
     else:
-        element_type = get_element_type(element, xml_doc_tree, namespace, default_prefix)
+        element_type = get_element_type(element, xml_doc_tree, default_prefix)
 
         # render the type
         if element_type is None:  # no complex/simple type
@@ -815,24 +803,23 @@ def generate_element_absent(request, element, xml_doc_tree, form_element):
             form_string += " <input type='text' value='" + django.utils.html.escape(default_value) + "'"
             form_string += placeholder + tooltip + "/>"
         else:  # complex/simple type
-            if element_type.tag == "{0}complexType".format(namespace):
-                form_string += generate_complex_type(request, element_type, xml_doc_tree, namespace,
+            if element_type.tag == "{0}complexType".format(LXML_SCHEMA_NAMESPACE):
+                form_string += generate_complex_type(request, element_type, xml_doc_tree,
                                                      full_path=form_element.xml_xpath)
-            elif element_type.tag == "{0}simpleType".format(namespace):
-                form_string += generate_simple_type(request, element_type, xml_doc_tree, namespace,
+            elif element_type.tag == "{0}simpleType".format(LXML_SCHEMA_NAMESPACE):
+                form_string += generate_simple_type(request, element_type, xml_doc_tree,
                                                     full_path=form_element.xml_xpath)
 
     return form_string
 
 
-def generate_sequence(request, element, xml_tree, namespace, choice_info=None, full_path="", edit_data_tree=None):
+def generate_sequence(request, element, xml_tree, choice_info=None, full_path="", edit_data_tree=None):
     """Generates a section of the form that represents an XML sequence
 
     Parameters:
         request:
         element: XML element
         xml_tree: XML Tree
-        namespace: namespace
         choice_info:
         full_path:
         edit_data_tree:
@@ -844,7 +831,7 @@ def generate_sequence(request, element, xml_tree, namespace, choice_info=None, f
     form_string = ""
 
     # remove the annotations
-    remove_annotations(element, namespace)
+    remove_annotations(element)
 
     min_occurs, max_occurs = manage_occurences(element)
 
@@ -864,7 +851,7 @@ def generate_sequence(request, element, xml_tree, namespace, choice_info=None, f
         # loading data in the form
         if request.session['curate_edit']:
             # get the number of occurrences in the data
-            nb_occurrences_data = lookup_occurs(request, element, xml_tree, namespace, full_path, edit_data_tree)
+            nb_occurrences_data = lookup_occurs(request, element, xml_tree, full_path, edit_data_tree)
 
             # manage buttons
             if nb_occurrences_data < max_occurs:
@@ -975,18 +962,18 @@ def generate_sequence(request, element, xml_tree, namespace, choice_info=None, f
                 # generates the sequence
                 if len(list(element)) != 0:
                     for child in element:
-                        if child.tag == "{0}element".format(namespace):
-                            form_string += generate_element(request, child, xml_tree, namespace, choice_info,
+                        if child.tag == "{0}element".format(LXML_SCHEMA_NAMESPACE):
+                            form_string += generate_element(request, child, xml_tree, choice_info,
                                                             full_path=full_path, edit_data_tree=edit_data_tree)
-                        elif child.tag == "{0}sequence".format(namespace):
-                            form_string += generate_sequence(request, child, xml_tree, namespace, choice_info,
+                        elif child.tag == "{0}sequence".format(LXML_SCHEMA_NAMESPACE):
+                            form_string += generate_sequence(request, child, xml_tree, choice_info,
                                                              full_path=full_path, edit_data_tree=edit_data_tree)
-                        elif child.tag == "{0}choice".format(namespace):
-                            form_string += generate_choice(request, child, xml_tree, namespace, choice_info,
+                        elif child.tag == "{0}choice".format(LXML_SCHEMA_NAMESPACE):
+                            form_string += generate_choice(request, child, xml_tree, choice_info,
                                                            full_path=full_path, edit_data_tree=edit_data_tree)
-                        elif child.tag == "{0}any".format(namespace):
+                        elif child.tag == "{0}any".format(LXML_SCHEMA_NAMESPACE):
                             pass
-                        elif child.tag == "{0}group".format(namespace):
+                        elif child.tag == "{0}group".format(LXML_SCHEMA_NAMESPACE):
                             pass
                 form_string += "</li>"
         form_string += "</ul>"
@@ -994,32 +981,30 @@ def generate_sequence(request, element, xml_tree, namespace, choice_info=None, f
         # generates the sequence
         if len(list(element)) != 0:
             for child in element:
-                if child.tag == "{0}element".format(namespace):
-                    form_string += generate_element(request, child, xml_tree, namespace, choice_info,
+                if child.tag == "{0}element".format(LXML_SCHEMA_NAMESPACE):
+                    form_string += generate_element(request, child, xml_tree, choice_info,
                                                     full_path=full_path, edit_data_tree=edit_data_tree)
-                elif child.tag == "{0}sequence".format(namespace):
-                    form_string += generate_sequence(request, child, xml_tree, namespace, choice_info,
+                elif child.tag == "{0}sequence".format(LXML_SCHEMA_NAMESPACE):
+                    form_string += generate_sequence(request, child, xml_tree, choice_info,
                                                      full_path=full_path, edit_data_tree=edit_data_tree)
-                elif child.tag == "{0}choice".format(namespace):
-                    form_string += generate_choice(request, child, xml_tree, namespace, choice_info,
+                elif child.tag == "{0}choice".format(LXML_SCHEMA_NAMESPACE):
+                    form_string += generate_choice(request, child, xml_tree, choice_info,
                                                    full_path=full_path, edit_data_tree=edit_data_tree)
-                elif child.tag == "{0}any".format(namespace):
+                elif child.tag == "{0}any".format(LXML_SCHEMA_NAMESPACE):
                     pass
-                elif child.tag == "{0}group".format(namespace):
+                elif child.tag == "{0}group".format(LXML_SCHEMA_NAMESPACE):
                     pass
 
     return form_string
 
 
-def generate_sequence_absent(request, element, xml_tree, namespace):
+def generate_sequence_absent(request, element, xml_tree):
     """Generates a section of the form that represents an XML sequence
 
     Parameters:
         request:
         element: XML element
         xml_tree: XML Tree
-        namespace: namespace
-
     Returns:
         HTML string representing a sequence
     """
@@ -1029,28 +1014,27 @@ def generate_sequence_absent(request, element, xml_tree, namespace):
     # generates the sequence
     if len(list(element)) != 0:
         for child in element:
-            if child.tag == "{0}element".format(namespace):
-                form_string += generate_element(request, child, xml_tree, namespace)
-            elif child.tag == "{0}sequence".format(namespace):
-                form_string += generate_sequence(request, child, xml_tree, namespace)
-            elif child.tag == "{0}choice".format(namespace):
-                form_string += generate_choice(request, child, xml_tree, namespace)
-            elif child.tag == "{0}any".format(namespace):
+            if child.tag == "{0}element".format(LXML_SCHEMA_NAMESPACE):
+                form_string += generate_element(request, child, xml_tree)
+            elif child.tag == "{0}sequence".format(LXML_SCHEMA_NAMESPACE):
+                form_string += generate_sequence(request, child, xml_tree)
+            elif child.tag == "{0}choice".format(LXML_SCHEMA_NAMESPACE):
+                form_string += generate_choice(request, child, xml_tree)
+            elif child.tag == "{0}any".format(LXML_SCHEMA_NAMESPACE):
                 pass
-            elif child.tag == "{0}group".format(namespace):
+            elif child.tag == "{0}group".format(LXML_SCHEMA_NAMESPACE):
                 pass
 
     return form_string
 
 
-def generate_choice(request, element, xml_tree, namespace, choice_info=None, full_path="", edit_data_tree=None):
+def generate_choice(request, element, xml_tree, choice_info=None, full_path="", edit_data_tree=None):
     """Generates a section of the form that represents an XML choice
 
     Parameters:
         request:
         element: XML element
         xml_tree: XML Tree
-        namespace: namespace
         choice_info: to keep track of branches to display (chosen ones) when going recursively down the tree
         full_path: XML xpath being built
         edit_data_tree: XML tree of data being edited
@@ -1063,7 +1047,7 @@ def generate_choice(request, element, xml_tree, namespace, choice_info=None, ful
     form_string = ""
 
     # remove the annotations
-    remove_annotations(element, namespace)
+    remove_annotations(element)
 
     # init variables for buttons management
     add_button = False
@@ -1084,7 +1068,7 @@ def generate_choice(request, element, xml_tree, namespace, choice_info=None, ful
         # loading data in the form
         if request.session['curate_edit']:
             # get the number of occurrences in the data
-            nb_occurrences_data = lookup_occurs(request, element, xml_tree, namespace, full_path, edit_data_tree)
+            nb_occurrences_data = lookup_occurs(request, element, xml_tree, full_path, edit_data_tree)
 
             if nb_occurrences_data < max_occurs:
                 add_button = True
@@ -1169,7 +1153,7 @@ def generate_choice(request, element, xml_tree, namespace, choice_info=None, ful
         # generates the choice
         if len(list(element)) != 0:
             for child in element:
-                if child.tag == "{0}element".format(namespace):
+                if child.tag == "{0}element".format(LXML_SCHEMA_NAMESPACE):
                     if child.attrib.get('name') is not None:
                         opt_value = opt_label = child.attrib.get('name')
                     else:
@@ -1189,15 +1173,15 @@ def generate_choice(request, element, xml_tree, namespace, choice_info=None, ful
                             form_string += "</option><br/>"
                     else:
                         form_string += "<option value='" + opt_value + "'>" + opt_label + "</option><br/>"
-                elif child.tag == "{0}group".format(namespace):
+                elif child.tag == "{0}group".format(LXML_SCHEMA_NAMESPACE):
                     pass
-                elif child.tag == "{0}choice".format(namespace):
+                elif child.tag == "{0}choice".format(LXML_SCHEMA_NAMESPACE):
                     pass
-                elif child.tag == "{0}sequence".format(namespace):
+                elif child.tag == "{0}sequence".format(LXML_SCHEMA_NAMESPACE):
                     form_string += "<option value='sequence" + str(nb_sequence) + "'>Sequence " + str(nb_sequence)
                     form_string += "</option><br/>"
                     nb_sequence += 1
-                elif child.tag == "{0}any".format(namespace):
+                elif child.tag == "{0}any".format(LXML_SCHEMA_NAMESPACE):
                     pass
 
         form_string += "</select>"
@@ -1217,19 +1201,19 @@ def generate_choice(request, element, xml_tree, namespace, choice_info=None, ful
             form_string += "onclick=\"changeHTMLForm('remove'," + str(tag_id[7:]) + ");\"></span>"
 
         for (counter, choiceChild) in enumerate(list(element)):
-            if choiceChild.tag == "{0}element".format(namespace):
-                form_string += generate_element(request, choiceChild, xml_tree, namespace,
+            if choiceChild.tag == "{0}element".format(LXML_SCHEMA_NAMESPACE):
+                form_string += generate_element(request, choiceChild, xml_tree,
                                                 common.ChoiceInfo(choose_id_str, counter), full_path=full_path,
                                                 edit_data_tree=edit_data_tree)
-            elif choiceChild.tag == "{0}group".format(namespace):
+            elif choiceChild.tag == "{0}group".format(LXML_SCHEMA_NAMESPACE):
                 pass
-            elif choiceChild.tag == "{0}choice".format(namespace):
+            elif choiceChild.tag == "{0}choice".format(LXML_SCHEMA_NAMESPACE):
                 pass
-            elif choiceChild.tag == "{0}sequence".format(namespace):
-                form_string += generate_sequence(request, choiceChild, xml_tree, namespace,
+            elif choiceChild.tag == "{0}sequence".format(LXML_SCHEMA_NAMESPACE):
+                form_string += generate_sequence(request, choiceChild, xml_tree,
                                                  common.ChoiceInfo(choose_id_str, counter), full_path=full_path,
                                                  edit_data_tree=edit_data_tree)
-            elif choiceChild.tag == "{0}any".format(namespace):
+            elif choiceChild.tag == "{0}any".format(LXML_SCHEMA_NAMESPACE):
                 pass
 
         form_string += "</li>"
@@ -1238,14 +1222,13 @@ def generate_choice(request, element, xml_tree, namespace, choice_info=None, ful
     return form_string
 
 
-def generate_simple_type(request, element, xml_tree, namespace, full_path, edit_data_tree=None, default_value=''):
+def generate_simple_type(request, element, xml_tree, full_path, edit_data_tree=None, default_value=''):
     """Generates a section of the form that represents an XML simple type
 
     Parameters:
         request:
         element:
         xml_tree:
-        namespace:
         full_path:
         edit_data_tree:
 
@@ -1256,38 +1239,37 @@ def generate_simple_type(request, element, xml_tree, namespace, full_path, edit_
     form_string = ""
 
     # remove the annotations
-    remove_annotations(element, namespace)
+    remove_annotations(element)
 
     if has_module(request, element):
         # XSD xpath: /element/complexType/sequence
         xsd_xpath = xml_tree.getpath(element)
-        form_string += generate_module(request, element, namespace, xsd_xpath, full_path, edit_data_tree=edit_data_tree)
+        form_string += generate_module(request, element, xsd_xpath, full_path, edit_data_tree=edit_data_tree)
         return form_string
 
     if list(element) != 0:
         child = element[0]
 
-        if child.tag == "{0}restriction".format(namespace):
-            form_string += generate_restriction(request, child, xml_tree, namespace, full_path,
+        if child.tag == "{0}restriction".format(LXML_SCHEMA_NAMESPACE):
+            form_string += generate_restriction(request, child, xml_tree, full_path,
                                                 edit_data_tree=edit_data_tree)
-        elif child.tag == "{0}list".format(namespace):
+        elif child.tag == "{0}list".format(LXML_SCHEMA_NAMESPACE):
             # TODO list can contain a restriction/enumeration
             form_string += " <input type='text' value='" + django.utils.html.escape(default_value) + "'/>"
-        elif child.tag == "{0}union".format(namespace):
+        elif child.tag == "{0}union".format(LXML_SCHEMA_NAMESPACE):
             # TODO: provide UI for unions
             form_string += " <input type='text' value='" + django.utils.html.escape(default_value) + "'/>"
 
     return form_string
 
 
-def generate_complex_type(request, element, xml_tree, namespace, full_path, edit_data_tree=None):
+def generate_complex_type(request, element, xml_tree, full_path, edit_data_tree=None):
     """Generates a section of the form that represents an XML complexType
 
     Parameters:
         request:
         element: XML element
         xml_tree: XML Tree
-        namespace: namespace
         full_path:
         edit_data_tree:
 
@@ -1311,45 +1293,45 @@ def generate_complex_type(request, element, xml_tree, namespace, full_path, edit
     formString = ""
 
     # remove the annotations
-    remove_annotations(element, namespace)
+    remove_annotations(element)
 
     if has_module(request, element):
         # XSD xpath: /element/complexType/sequence
         xsd_xpath = xml_tree.getpath(element)
-        formString += generate_module(request, element, namespace, xsd_xpath, full_path, edit_data_tree=edit_data_tree)
+        formString += generate_module(request, element, xsd_xpath, full_path, edit_data_tree=edit_data_tree)
         return formString
 
     # is it a simple content?
-    complexTypeChild = element.find('{0}simpleContent'.format(namespace))
+    complexTypeChild = element.find('{0}simpleContent'.format(LXML_SCHEMA_NAMESPACE))
     if complexTypeChild is not None:
-        formString += generate_simple_content(request, complexTypeChild, xml_tree, namespace, full_path=full_path, edit_data_tree=edit_data_tree)
+        formString += generate_simple_content(request, complexTypeChild, xml_tree, full_path=full_path, edit_data_tree=edit_data_tree)
         return formString
 
     # is it a complex content?
-    complexTypeChild = element.find('{0}complexContent'.format(namespace))
+    complexTypeChild = element.find('{0}complexContent'.format(LXML_SCHEMA_NAMESPACE))
     if complexTypeChild is not None:
-        formString += generate_complex_content(request, complexTypeChild, xml_tree, namespace, full_path=full_path, edit_data_tree=edit_data_tree)
+        formString += generate_complex_content(request, complexTypeChild, xml_tree, full_path=full_path, edit_data_tree=edit_data_tree)
         return formString
 
     # does it contain any attributes?
-    complexTypeChildren = element.findall('{0}attribute'.format(namespace))
+    complexTypeChildren = element.findall('{0}attribute'.format(LXML_SCHEMA_NAMESPACE))
     if len(complexTypeChildren) > 0:
         for attribute in complexTypeChildren:
-            formString += generate_element(request, attribute, xml_tree, namespace, full_path=full_path, edit_data_tree=edit_data_tree)
+            formString += generate_element(request, attribute, xml_tree, full_path=full_path, edit_data_tree=edit_data_tree)
 
     # does it contain sequence or all?
-    complexTypeChild = element.find('{0}sequence'.format(namespace))
+    complexTypeChild = element.find('{0}sequence'.format(LXML_SCHEMA_NAMESPACE))
     if complexTypeChild is not None:
-        formString += generate_sequence(request, complexTypeChild, xml_tree, namespace, full_path=full_path, edit_data_tree=edit_data_tree)
+        formString += generate_sequence(request, complexTypeChild, xml_tree, full_path=full_path, edit_data_tree=edit_data_tree)
     else:
-        complexTypeChild = element.find('{0}all'.format(namespace))
+        complexTypeChild = element.find('{0}all'.format(LXML_SCHEMA_NAMESPACE))
         if complexTypeChild is not None:
-            formString += generate_sequence(request, complexTypeChild, xml_tree, namespace, full_path=full_path, edit_data_tree=edit_data_tree)
+            formString += generate_sequence(request, complexTypeChild, xml_tree, full_path=full_path, edit_data_tree=edit_data_tree)
         else:
             # does it contain choice ?
-            complexTypeChild = element.find('{0}choice'.format(namespace))
+            complexTypeChild = element.find('{0}choice'.format(LXML_SCHEMA_NAMESPACE))
             if complexTypeChild is not None:
-                formString += generate_choice(request, complexTypeChild, xml_tree, namespace, full_path=full_path, edit_data_tree=edit_data_tree)
+                formString += generate_choice(request, complexTypeChild, xml_tree, full_path=full_path, edit_data_tree=edit_data_tree)
             else:
                 formString += ""
 
@@ -1397,31 +1379,17 @@ def generate_complex_type(request, element, xml_tree, namespace, full_path, edit
     return formString
 
 
-################################################################################
-#
-# Function Name: generateComplexContent(request, element, xmlTree, namespace)
-# Inputs:        request -
-#                element - XML element
-#                xmlTree - XML Tree
-#                namespace - namespace
-# Outputs:       HTML string representing a sequence
-# Exceptions:    None
-# Description:   Generates a section of the form that represents an XML simple content
-#
-################################################################################
-def generate_complex_content(request, element, xml_tree, namespace, full_path, edit_data_tree=None):
+def generate_complex_content(request, element, xml_tree, full_path, edit_data_tree=None):
     """
     Inputs:        request -
                    element - XML element
                    xmlTree - XML Tree
-                   namespace - namespace
     Outputs:       HTML string representing a sequence
     Exceptions:    None
-    Description:   Generates a section of the form that represents an XML simple content
+    Description:   Generates a section of the form that represents an XML complex content
     :param request:
     :param element:
     :param xmlTree:
-    :param namespace:
     :param fullPath:
     :param edit_data_tree:
     :return:
@@ -1431,26 +1399,25 @@ def generate_complex_content(request, element, xml_tree, namespace, full_path, e
     form_string = ""
 
     # remove the annotations
-    remove_annotations(element, namespace)
+    remove_annotations(element)
 
     # generates the content
     if(len(list(element)) != 0):
         child = element[0]
-        if (child.tag == "{0}restriction".format(namespace)):
-            form_string += generate_restriction(request, child, xml_tree, namespace, full_path, edit_data_tree=edit_data_tree)
-        elif (child.tag == "{0}extension".format(namespace)):
-            form_string += generate_extension(request, child, xml_tree, namespace, full_path, edit_data_tree=edit_data_tree)
+        if (child.tag == "{0}restriction".format(LXML_SCHEMA_NAMESPACE)):
+            form_string += generate_restriction(request, child, xml_tree, full_path, edit_data_tree=edit_data_tree)
+        elif (child.tag == "{0}extension".format(LXML_SCHEMA_NAMESPACE)):
+            form_string += generate_extension(request, child, xml_tree, full_path, edit_data_tree=edit_data_tree)
 
     return form_string
 
 
-def generate_module(request, element, namespace, xsd_xpath=None, xml_xpath=None, edit_data_tree=None):
+def generate_module(request, element, xsd_xpath=None, xml_xpath=None, edit_data_tree=None):
     """Generate a module to replace an element
 
     Parameters:
         request:
         element:
-        namespace:
         xsd_xpath:
         xml_xpath:
         edit_data_tree:
@@ -1473,14 +1440,14 @@ def generate_module(request, element, namespace, xsd_xpath=None, xml_xpath=None,
                 if 'attribute' not in xsd_xpath and len(edit_element.attrib) > 0:
                     reload_attrib = dict(edit_element.attrib)
                     
-                reload_data = get_xml_element_data(element, edit_element, namespace)
+                reload_data = get_xml_element_data(element, edit_element)
             else:
                 reload_data = []
                 reload_attrib = []
                 
                 for edit_element in edit_elements:
                     reload_attrib.append(dict(edit_element.attrib))
-                    reload_data.append(get_xml_element_data(element, edit_element, namespace))
+                    reload_data.append(get_xml_element_data(element, edit_element))
 
     # check if a module is set for this element
     if '{http://mdcs.ns}_mod_mdcs_' in element.attrib:
@@ -1514,14 +1481,13 @@ def generate_module(request, element, namespace, xsd_xpath=None, xml_xpath=None,
     return form_string
 
 
-def generate_simple_content(request, element, xml_tree, namespace, full_path, edit_data_tree=None):
+def generate_simple_content(request, element, xml_tree, full_path, edit_data_tree=None):
     """Generates a section of the form that represents an XML simple content
 
     Parameters:
         request:
         element:
         xml_tree:
-        namespace:
         full_path:
         edit_data_tree:
 
@@ -1534,30 +1500,29 @@ def generate_simple_content(request, element, xml_tree, namespace, full_path, ed
     form_string = ""
 
     # remove the annotations
-    remove_annotations(element, namespace)
+    remove_annotations(element)
 
     # generates the content
     if len(list(element)) != 0:
         child = element[0]
 
-        if child.tag == "{0}restriction".format(namespace):
-            form_string += generate_restriction(request, child, xml_tree, namespace, full_path,
+        if child.tag == "{0}restriction".format(LXML_SCHEMA_NAMESPACE):
+            form_string += generate_restriction(request, child, xml_tree, full_path,
                                                 edit_data_tree=edit_data_tree)
-        elif child.tag == "{0}extension".format(namespace):
-            form_string += generate_extension(request, child, xml_tree, namespace, full_path,
+        elif child.tag == "{0}extension".format(LXML_SCHEMA_NAMESPACE):
+            form_string += generate_extension(request, child, xml_tree, full_path,
                                               edit_data_tree=edit_data_tree)
 
     return form_string
 
 
-def generate_restriction(request, element, xml_tree, namespace, full_path="", edit_data_tree=None):
+def generate_restriction(request, element, xml_tree, full_path="", edit_data_tree=None):
     """Generates a section of the form that represents an XML restriction
 
     Parameters:
         request:
         element: XML element
         xml_tree: XML Tree
-        namespace: namespace
         full_path:
         edit_data_tree:
 
@@ -1567,9 +1532,9 @@ def generate_restriction(request, element, xml_tree, namespace, full_path="", ed
     # FIXME doesn't represent all the possibilities (http://www.w3schools.com/xml/el_restriction.asp)
     form_string = ""
 
-    remove_annotations(element, namespace)
+    remove_annotations(element)
 
-    enumeration = element.findall('{0}enumeration'.format(namespace))
+    enumeration = element.findall('{0}enumeration'.format(LXML_SCHEMA_NAMESPACE))
 
     if len(enumeration) > 0:
         form_string += "<select>"
@@ -1600,9 +1565,9 @@ def generate_restriction(request, element, xml_tree, namespace, full_path="", ed
 
         form_string += "</select>"
     else:
-        simple_type = element.find('{0}simpleType'.format(namespace))
+        simple_type = element.find('{0}simpleType'.format(LXML_SCHEMA_NAMESPACE))
         if simple_type is not None:
-            form_string += generate_simple_type(request, simple_type, xml_tree, namespace, full_path=full_path,
+            form_string += generate_simple_type(request, simple_type, xml_tree, full_path=full_path,
                                                 edit_data_tree=edit_data_tree)
         else:
             form_string += " <input type='text'/>"
@@ -1610,14 +1575,13 @@ def generate_restriction(request, element, xml_tree, namespace, full_path="", ed
     return form_string
 
 # TODO: commented extensions Registry
-# def get_extensions(request, xml_doc_tree, namespace, default_prefix):
+# def get_extensions(request, xml_doc_tree, default_prefix):
 #     """Get all XML extensions of the XML Schema
 #
 #     Parameters:
 #         request:
 #         element:
 #         xml_tree:
-#         namespace:
 #         full_path:
 #         edit_data_tree:
 #
@@ -1625,7 +1589,7 @@ def generate_restriction(request, element, xml_tree, namespace, full_path="", ed
 #         HTML string representing an extension
 #     """
 #     # get all extensions of the document
-#     extensions = xml_doc_tree.findall(".//{0}extension".format(namespace))
+#     extensions = xml_doc_tree.findall(".//{0}extension".format(LXML_SCHEMA_NAMESPACE))
 #     # keep only simple/complex type extensions, no built-in types
 #     custom_type_extensions = {}
 #     for extension in extensions:
@@ -1638,14 +1602,13 @@ def generate_restriction(request, element, xml_tree, namespace, full_path="", ed
 #     return custom_type_extensions
 
 
-def generate_extension(request, element, xml_tree, namespace, full_path="", edit_data_tree=None):
+def generate_extension(request, element, xml_tree, full_path="", edit_data_tree=None):
     """Generates a section of the form that represents an XML extension
 
     Parameters:
         request:
         element:
         xml_tree:
-        namespace:
         full_path:
         edit_data_tree:
 
@@ -1655,7 +1618,7 @@ def generate_extension(request, element, xml_tree, namespace, full_path="", edit
     # FIXME doesn't represent all the possibilities (http://www.w3schools.com/xml/el_extension.asp)
     form_string = ""
 
-    remove_annotations(element, namespace)
+    remove_annotations(element)
 
     # get the base attibute being extended
     if 'base' in element.attrib:
@@ -1674,41 +1637,39 @@ def generate_extension(request, element, xml_tree, namespace, full_path="", edit
                 namespaces = request.session['namespaces']
                 # TODO: look at namespaces, target namespaces
                 # baseNS = namespaces[baseNSPrefix]
-                baseNS = namespace
             else:
                 baseName = base
-                baseNS = namespace
 
             # test if base is a simple type
-            baseType = xml_tree.find(".//{0}simpleType[@name='{1}']".format(baseNS, baseName))
+            baseType = xml_tree.find(".//{0}simpleType[@name='{1}']".format(LXML_SCHEMA_NAMESPACE, baseName))
             if baseType is not None:
-                form_string += generate_simple_type(request, baseType, xml_tree, namespace, full_path, edit_data_tree)
+                form_string += generate_simple_type(request, baseType, xml_tree, full_path, edit_data_tree)
             else:
                 # test if base is a complex type
-                baseType = xml_tree.find(".//{0}complexType[@name='{1}']".format(baseNS, baseName))
+                baseType = xml_tree.find(".//{0}complexType[@name='{1}']".format(LXML_SCHEMA_NAMESPACE, baseName))
                 if baseType is not None:
-                    form_string += generate_complex_type(request, baseType, xml_tree, namespace, full_path, edit_data_tree)
+                    form_string += generate_complex_type(request, baseType, xml_tree, full_path, edit_data_tree)
 
 
     # does it contain any attributes?
-    complexTypeChildren = element.findall('{0}attribute'.format(namespace))
+    complexTypeChildren = element.findall('{0}attribute'.format(LXML_SCHEMA_NAMESPACE))
     if len(complexTypeChildren) > 0:
         for attribute in complexTypeChildren:
-            form_string += generate_element(request, attribute, xml_tree, namespace, full_path=full_path, edit_data_tree=edit_data_tree)
+            form_string += generate_element(request, attribute, xml_tree, full_path=full_path, edit_data_tree=edit_data_tree)
 
     # does it contain sequence or all?
-    complexTypeChild = element.find('{0}sequence'.format(namespace))
+    complexTypeChild = element.find('{0}sequence'.format(LXML_SCHEMA_NAMESPACE))
     if complexTypeChild is not None:
-        form_string += generate_sequence(request, complexTypeChild, xml_tree, namespace, full_path=full_path, edit_data_tree=edit_data_tree)
+        form_string += generate_sequence(request, complexTypeChild, xml_tree, full_path=full_path, edit_data_tree=edit_data_tree)
     else:
-        complexTypeChild = element.find('{0}all'.format(namespace))
+        complexTypeChild = element.find('{0}all'.format(LXML_SCHEMA_NAMESPACE))
         if complexTypeChild is not None:
-            form_string += generate_sequence(request, complexTypeChild, xml_tree, namespace, full_path=full_path, edit_data_tree=edit_data_tree)
+            form_string += generate_sequence(request, complexTypeChild, xml_tree, full_path=full_path, edit_data_tree=edit_data_tree)
         else:
             # does it contain choice ?
-            complexTypeChild = element.find('{0}choice'.format(namespace))
+            complexTypeChild = element.find('{0}choice'.format(LXML_SCHEMA_NAMESPACE))
             if complexTypeChild is not None:
-                form_string += generate_choice(request, complexTypeChild, xml_tree, namespace, full_path=full_path, edit_data_tree=edit_data_tree)
+                form_string += generate_choice(request, complexTypeChild, xml_tree, full_path=full_path, edit_data_tree=edit_data_tree)
             else:
                 form_string += ""
 

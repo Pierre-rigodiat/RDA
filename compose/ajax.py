@@ -19,6 +19,8 @@ from django.http import HttpResponse
 import json
 from django.conf import settings
 from mongoengine import *
+
+from mgi.common import LXML_SCHEMA_NAMESPACE, SCHEMA_NAMESPACE
 from mgi.models import Template, Type, XML2Download, MetaSchema, Exporter
 import lxml.etree as etree
 from io import BytesIO
@@ -32,12 +34,12 @@ from mgi import common
 import os
 
 ################################################################################
-# 
+#
 # Function Name: set_current_template(request)
-# Inputs:        request - 
+# Inputs:        request -
 # Outputs:       JSON data with success or failure
 # Exceptions:    None
-# Description:   Set the current template to input argument.  Template is read 
+# Description:   Set the current template to input argument.  Template is read
 #                into an xsdDocTree for use later.
 #
 ################################################################################
@@ -56,7 +58,7 @@ def set_current_template(request):
             xmlDocData = meta.api_content
         else:
             xmlDocData = templateObject.content
-        
+
         request.session['xmlTemplateCompose'] = xmlDocData
         request.session['newXmlTemplateCompose'] = xmlDocData
     else:
@@ -71,30 +73,30 @@ def set_current_template(request):
 
 
 ################################################################################
-# 
+#
 # Function Name: set_current_user_template(request)
-# Inputs:        request - 
+# Inputs:        request -
 # Outputs:       JSON data with success or failure
 # Exceptions:    None
-# Description:   Set the current template to input argument.  Template is read 
+# Description:   Set the current template to input argument.  Template is read
 #                into an xsdDocTree for use later.
 #
 ################################################################################
 def set_current_user_template(request):
-    print 'BEGIN def setCurrentUserTemplate(request)'    
+    print 'BEGIN def setCurrentUserTemplate(request)'
 
     template_id = request.POST['templateID']
-    
+
     request.session['currentComposeTemplateID'] = template_id
     request.session.modified = True
-    
+
     templateObject = Template.objects.get(pk=template_id)
     if template_id in MetaSchema.objects.all().values_list('schemaId'):
         meta = MetaSchema.objects.get(schemaId=template_id)
         xmlDocData = meta.api_content
     else:
         xmlDocData = templateObject.content
-    
+
     request.session['xmlTemplateCompose'] = xmlDocData
     request.session['newXmlTemplateCompose'] = xmlDocData
 
@@ -103,13 +105,13 @@ def set_current_user_template(request):
 
 
 ################################################################################
-# 
+#
 # Function Name: verify_template_is_selected(request)
-# Inputs:        request - 
-# Outputs:       JSON data with templateSelected 
+# Inputs:        request -
+# Outputs:       JSON data with templateSelected
 # Exceptions:    None
 # Description:   Verifies the current template is selected.
-# 
+#
 ################################################################################
 def verify_template_is_selected(request):
     print 'BEGIN def verifyTemplateIsSelected(request)'
@@ -125,117 +127,117 @@ def verify_template_is_selected(request):
 
 
 ################################################################################
-# 
+#
 # Function Name: is_new_template(request)
-# Inputs:        request - 
-# Outputs:       JSON data with templateSelected 
+# Inputs:        request -
+# Outputs:       JSON data with templateSelected
 # Exceptions:    None
 # Description:   Verifies the current template is new.
-# 
+#
 ################################################################################
-def is_new_template(request):    
+def is_new_template(request):
     if 'currentComposeTemplateID' in request.session and request.session['currentComposeTemplateID'] == "new":
         newTemplate = 'yes'
     else:
         newTemplate = 'no'
-    
+
     response_dict = {'newTemplate': newTemplate}
     return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
 
 
 ################################################################################
-# 
+#
 # Function Name: download_template(request)
-# Inputs:        request - 
-# Outputs:       JSON data with templateSelected 
+# Inputs:        request -
+# Outputs:       JSON data with templateSelected
 # Exceptions:    None
 # Description:   Download the template file
-# 
+#
 ################################################################################
 def download_template(request):
     xmlString = request.session['newXmlTemplateCompose']
-    
+
     xml2download = XML2Download(xml=xmlString, title='schema.xsd').save()
     xml2downloadID = str(xml2download.id)
-    
+
     response_dict = {'xml2downloadID': xml2downloadID}
     return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
 
-    
+
 ################################################################################
-# 
+#
 # Function Name: load_xml(request)
-# Inputs:        request - 
-# Outputs:       JSON data with templateSelected 
+# Inputs:        request -
+# Outputs:       JSON data with templateSelected
 # Exceptions:    None
 # Description:   Loads the XML data in the compose page. First transforms the data.
-# 
+#
 ################################################################################
 def load_xml(request):
     # get the original string
     xmlString = request.session['xmlTemplateCompose']
     # reset the string
     request.session['newXmlTemplateCompose'] = xmlString
-    
+
     request.session['includedTypesCompose'] = []
-    
+
     xsltPath = os.path.join(settings.SITE_ROOT, 'static', 'resources', 'xsl', 'xsd2html.xsl')
     xslt = etree.parse(xsltPath)
     transform = etree.XSLT(xslt)
     xmlTree = ""
-    if (xmlString != ""):
+    if xmlString != "":
         request.session['namespacesCompose'] = common.get_namespaces(BytesIO(str(xmlString)))
         for prefix, url in request.session['namespacesCompose'].items():
-            if (url == "{http://www.w3.org/2001/XMLSchema}"):            
+            if url == SCHEMA_NAMESPACE:
                 request.session['defaultPrefixCompose'] = prefix
                 break
         dom = etree.parse(BytesIO(xmlString.encode('utf-8')))
-        annotations = dom.findall(".//{http://www.w3.org/2001/XMLSchema}annotation")
+        annotations = dom.findall(".//{}annotation".format(LXML_SCHEMA_NAMESPACE))
         for annotation in annotations:
             annotation.getparent().remove(annotation)
         newdom = transform(dom)
         xmlTree = str(newdom)
-    
+
     # store the current includes
-    includes = dom.findall("{http://www.w3.org/2001/XMLSchema}include")
+    includes = dom.findall("{}include".format(LXML_SCHEMA_NAMESPACE))
     for el_include in includes:
         if 'schemaLocation' in el_include.attrib:
             request.session['includedTypesCompose'].append(el_include.attrib['schemaLocation'])
-            
+
     response_dict = {'XMLHolder': xmlTree}
     return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
 
 
 ################################################################################
-# 
+#
 # Function Name: insert_element_sequence(request)
 # Inputs:        request - HTTP request
-# Outputs:       JSON 
+# Outputs:       JSON
 # Exceptions:    None
 # Description:   insert the type in the original schema
-# 
+#
 ################################################################################
 def insert_element_sequence(request):
     type_id = request.POST['typeID']
     type_name = request.POST['typeName']
     xpath = request.POST['xpath']
-    
+
     defaultPrefix = request.session['defaultPrefixCompose']
-    namespace = request.session['namespacesCompose'][defaultPrefix]
-    
+    namespace = LXML_SCHEMA_NAMESPACE
+
     xmlString = request.session['newXmlTemplateCompose']
     dom = etree.parse(BytesIO(xmlString.encode('utf-8')))
     
     # get the type to add
     includedType = Type.objects.get(pk=type_id)
     typeTree = etree.XML(str(includedType.content))
-    elementType = typeTree.find("{http://www.w3.org/2001/XMLSchema}complexType")
+    elementType = typeTree.find("{}complexType".format(LXML_SCHEMA_NAMESPACE))
     if elementType is None:
-        elementType = typeTree.find("{http://www.w3.org/2001/XMLSchema}simpleType")
+        elementType = typeTree.find("{}simpleType".format(LXML_SCHEMA_NAMESPACE))
     type = elementType.attrib["name"]
     
     # set the element namespace
-    xpath = xpath.replace(defaultPrefix +":", namespace)
+    xpath = xpath.replace(defaultPrefix + ":", namespace)
     # add the element to the sequence
     dom.find(xpath).append(etree.Element(namespace+"element", attrib={'type': type, 'name':type_name}))
     
@@ -251,6 +253,7 @@ def insert_element_sequence(request):
     
     return HttpResponse(json.dumps({}), content_type='application/javascript')
 
+
 ################################################################################
 # 
 # Function Name: rename_element(request)
@@ -265,13 +268,13 @@ def rename_element(request):
     xpath = request.POST['xpath']
     
     defaultPrefix = request.session['defaultPrefixCompose']
-    namespace = request.session['namespacesCompose'][defaultPrefix]
+    namespace = LXML_SCHEMA_NAMESPACE
     
     xmlString = request.session['newXmlTemplateCompose']
     dom = etree.parse(BytesIO(xmlString.encode('utf-8')))
     
     # set the element namespace
-    xpath = xpath.replace(defaultPrefix +":", namespace)
+    xpath = xpath.replace(defaultPrefix + ":", namespace)
     # add the element to the sequence
     dom.find(xpath).attrib['name'] = new_name
     
@@ -359,7 +362,7 @@ def save_type(request):
     try:            
         xmlTree = etree.parse(BytesIO(content.encode('utf-8')))
         # this is a type: remove the root element to only keep the type
-        root = xmlTree.find("{http://www.w3.org/2001/XMLSchema}element")
+        root = xmlTree.find("{}element".format(LXML_SCHEMA_NAMESPACE))
         root.getparent().remove(root)
         content = etree.tostring(xmlTree)
     except Exception, e:
@@ -406,13 +409,13 @@ def get_occurrences(request):
     xpath = request.POST['xpath']
     
     defaultPrefix = request.session['defaultPrefixCompose']
-    namespace = request.session['namespacesCompose'][defaultPrefix]
+    namespace = LXML_SCHEMA_NAMESPACE
     
     xmlString = request.session['newXmlTemplateCompose']
     dom = etree.parse(BytesIO(xmlString.encode('utf-8')))
     
     # set the element namespace
-    xpath = xpath.replace(defaultPrefix +":", namespace)
+    xpath = xpath.replace(defaultPrefix + ":", namespace)
     # add the element to the sequence
     element = dom.find(xpath)
     minOccurs = "1"
@@ -441,13 +444,13 @@ def set_occurrences(request):
     maxOccurs = request.POST['maxOccurs']
     
     defaultPrefix = request.session['defaultPrefixCompose']
-    namespace = request.session['namespacesCompose'][defaultPrefix]
+    namespace = LXML_SCHEMA_NAMESPACE
     
     xmlString = request.session['newXmlTemplateCompose']
     dom = etree.parse(BytesIO(xmlString.encode('utf-8')))
     
     # set the element namespace
-    xpath = xpath.replace(defaultPrefix +":", namespace)
+    xpath = xpath.replace(defaultPrefix + ":", namespace)
     # add the element to the sequence
     element = dom.find(xpath)
     element.attrib['minOccurs'] = minOccurs
@@ -470,13 +473,13 @@ def set_occurrences(request):
 def delete_element(request):
     xpath = request.POST['xpath']
     defaultPrefix = request.session['defaultPrefixCompose']
-    namespace = request.session['namespacesCompose'][defaultPrefix]
+    namespace = LXML_SCHEMA_NAMESPACE
     
     xmlString = request.session['newXmlTemplateCompose']
     dom = etree.parse(BytesIO(xmlString.encode('utf-8')))
     
     # set the element namespace
-    xpath = xpath.replace(defaultPrefix +":", namespace)
+    xpath = xpath.replace(defaultPrefix + ":", namespace)
     # add the element to the sequence
     toRemove = dom.find(xpath)
     toRemove.getparent().remove(toRemove)
@@ -499,7 +502,7 @@ def change_root_type_name(request):
     type_name = request.POST['typeName']
     
     defaultPrefix = request.session['defaultPrefixCompose']
-    namespace = request.session['namespacesCompose'][defaultPrefix]
+    namespace = LXML_SCHEMA_NAMESPACE
     
     xmlString = request.session['newXmlTemplateCompose']
     dom = etree.parse(BytesIO(xmlString.encode('utf-8')))
@@ -532,16 +535,15 @@ def change_xsd_type(request):
     new_type = request.POST['newType']
     
     defaultPrefix = request.session['defaultPrefixCompose']
-    namespace = request.session['namespacesCompose'][defaultPrefix]
+    namespace = LXML_SCHEMA_NAMESPACE
     
     xmlString = request.session['newXmlTemplateCompose']
     dom = etree.parse(BytesIO(xmlString.encode('utf-8')))
     
     # set the element namespace
-    xpath = xpath.replace(defaultPrefix +":", namespace)
+    xpath = xpath.replace(defaultPrefix + ":", namespace)
     dom.find(xpath).tag = namespace + new_type
     
     # save the tree in the session
     request.session['newXmlTemplateCompose'] = etree.tostring(dom) 
     return HttpResponse(json.dumps({}), content_type='application/javascript')
-    

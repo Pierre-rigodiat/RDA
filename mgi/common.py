@@ -3,6 +3,11 @@ import lxml.etree as etree
 from mgi.models import MetaSchema, Template
 from cStringIO import StringIO
 
+
+SCHEMA_NAMESPACE = "http://www.w3.org/2001/XMLSchema"
+LXML_SCHEMA_NAMESPACE = "{" + SCHEMA_NAMESPACE + "}"
+
+
 ################################################################################
 # 
 # Function Name: checkValidForMDCS(xmlTree, type)
@@ -20,11 +25,11 @@ def getValidityErrorsForMDCS(xmlTree, type):
     # General Tests
     
     # get the imports
-    imports = xmlTree.findall("{http://www.w3.org/2001/XMLSchema}import")
+    imports = xmlTree.findall("{}import".format(LXML_SCHEMA_NAMESPACE))
     # get the includes
-    includes = xmlTree.findall("{http://www.w3.org/2001/XMLSchema}include")
+    includes = xmlTree.findall("{}include".format(LXML_SCHEMA_NAMESPACE))
     # get the elements
-    elements = xmlTree.findall("{http://www.w3.org/2001/XMLSchema}element")
+    elements = xmlTree.findall("{}element".format(LXML_SCHEMA_NAMESPACE))
     
     if len(imports) != 0 or len(includes) != 0:
         for el_import in imports:
@@ -222,10 +227,10 @@ def get_namespaces(file):
 # Description:   Get app info if present
 #
 ################################################################################
-def getAppInfo(element, namespace):
+def getAppInfo(element):
     app_info = {}
     
-    app_info_elements = element.findall("./{0}annotation/{0}appinfo".format(namespace))
+    app_info_elements = element.findall("./{0}annotation/{0}appinfo".format(LXML_SCHEMA_NAMESPACE))
     for app_info_element in app_info_elements:
         for app_info_child in app_info_element.getchildren():
             if app_info_child.tag in ['label', 'placeholder', 'tooltip', 'use']:

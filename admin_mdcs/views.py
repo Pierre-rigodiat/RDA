@@ -18,6 +18,8 @@ from django.shortcuts import render, HttpResponse, HttpResponseRedirect
 from django.http.response import HttpResponseBadRequest
 from django.template import RequestContext, loader
 from django.shortcuts import redirect
+
+from mgi.common import LXML_SCHEMA_NAMESPACE, SCHEMA_NAMESPACE
 from mgi.models import Request, Message, PrivacyPolicy, TermsOfUse, Help, Template, TemplateVersion, Type, \
     TypeVersion, Module, Bucket, Instance, Exporter, ExporterXslt, ResultXslt
 from forms import UploadResultXSLTForm, PrivacyPolicyForm, TermsOfUseForm, HelpForm, RepositoryForm, RefreshRepositoryForm, UploadXSLTForm, UploadResultXSLTForm
@@ -498,7 +500,7 @@ def modules(request):
             transform = etree.XSLT(xslt)
 
             dom = etree.parse(BytesIO(object.content.encode('utf-8')))
-            annotations = dom.findall(".//{http://www.w3.org/2001/XMLSchema}annotation")
+            annotations = dom.findall(".//{}annotation".format(LXML_SCHEMA_NAMESPACE))
             for annotation in annotations:
                 annotation.getparent().remove(annotation)
             newdom = transform(dom)
@@ -509,7 +511,7 @@ def modules(request):
 
             request.session['moduleNamespaces'] = common.get_namespaces(BytesIO(str(object.content)))
             for prefix, url in request.session['moduleNamespaces'].items():
-                if (url == "{http://www.w3.org/2001/XMLSchema}"):
+                if url == SCHEMA_NAMESPACE:
                     request.session['moduleDefaultPrefix'] = prefix
                     break
 
@@ -517,7 +519,6 @@ def modules(request):
                 'xsdTree': xsdTree,
                 'modules': Module.objects
             })
-
 
             return HttpResponse(template.render(context))
         except:
