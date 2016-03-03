@@ -46,19 +46,19 @@ import os
 # Description: Store information about a occurrences of an element
 #
 ################################################################################
-class ElementOccurrences:
-    "Class that stores information about element occurrences"
-        
-    def __init__(self, minOccurrences = 1, maxOccurrences = 1, nbOccurrences = 1):
-        #min/max occurrence attributes
-        self.minOccurrences = minOccurrences
-        self.maxOccurrences = maxOccurrences
-        
-        #current number of occurrences of the element
-        self.nbOccurrences = nbOccurrences        
-    
-    def __to_json__(self):
-        return json.dumps(self, default=lambda o:o.__dict__)
+# class ElementOccurrences:
+#     "Class that stores information about element occurrences"
+#
+#     def __init__(self, minOccurrences = 1, maxOccurrences = 1, nbOccurrences = 1):
+#         #min/max occurrence attributes
+#         self.minOccurrences = minOccurrences
+#         self.maxOccurrences = maxOccurrences
+#
+#         #current number of occurrences of the element
+#         self.nbOccurrences = nbOccurrences
+#
+#     def __to_json__(self):
+#         return json.dumps(self, default=lambda o:o.__dict__)
 
 
 ######################################################################################################################
@@ -494,7 +494,7 @@ def duplicate(request):
         # get appinfo elements
         app_info = common.getAppInfo(sequenceChild, namespace)
 
-        _has_module = has_module(request, sequenceChild)
+        _has_module = has_module(sequenceChild)
 
         if element_tag == "element" or element_tag == "attribute":
             # type is a reference included in the document

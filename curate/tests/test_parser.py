@@ -1,9 +1,5 @@
 """
 """
-# TODO Build a class to test generate_complex_content
-from unicodedata import name
-from unittest import result
-
 from django.http.request import HttpRequest
 from django.test import TestCase
 from django.utils.importlib import import_module
@@ -12,7 +8,7 @@ from curate.parser import remove_annotations, generate_choice, generate_restrict
     generate_simple_type, generate_extension, generate_simple_content, lookup_occurs, \
     manage_occurences, manage_attr_occurrences, has_module, get_xml_element_data, get_element_type, get_nodes_xpath, \
     generate_sequence, generate_element, generate_complex_type, generate_element_absent, generate_sequence_absent, \
-    generate_form, generate_module
+    generate_form, generate_module, generate_complex_content
 from mgi.models import Module, FormElement, FormData
 from mgi.tests import DataHandler, are_equals
 from lxml import etree
@@ -487,23 +483,23 @@ class ParserHasModuleTestSuite(TestCase):
         self._save_module_to_db()
 
         xsd_element = self.module_data_handler.get_xsd2('registered_module')
-        result = has_module(None, xsd_element)
+        has_module_result = has_module(xsd_element)
 
-        self.assertTrue(result)
+        self.assertTrue(has_module_result)
 
     def test_element_is_module_not_registered(self):
         # expect false
         xsd_element = self.module_data_handler.get_xsd2('unregistered_module')
-        result = has_module(None, xsd_element)
+        has_module_result = has_module(xsd_element)
 
-        self.assertFalse(result)
+        self.assertFalse(has_module_result)
 
     def test_element_is_not_module(self):
         # expect false
         xsd_element = self.module_data_handler.get_xsd2('no_module')
-        result = has_module(None, xsd_element)
+        has_module_result = has_module(xsd_element)
 
-        self.assertFalse(result)
+        self.assertFalse(has_module_result)
 
 
 class ParserGetXmlElementDataTestSuite(TestCase):
@@ -853,6 +849,36 @@ class ParserGenerateFormTestSuite(TestCase):
 
         self.assertTrue(are_equals(result_html, expected_html))
 
+    def test_create_target_namespace_element(self):
+        xsd_files = join('target_namespace', 'element', 'basic')
+        xsd_tree = self.schema_data_handler.get_xsd2(xsd_files)
+
+        self.request.session['xmlDocTree'] = etree.tostring(xsd_tree)
+
+        result_string = generate_form(self.request)
+        # print result_string
+        # self.assertEqual(result_string, '')
+
+        result_html = etree.fromstring(result_string)
+        expected_html = self.schema_data_handler.get_html2(xsd_files)
+
+        self.assertTrue(are_equals(result_html, expected_html))
+
+    def test_create_target_namespace_ref(self):
+        xsd_files = join('target_namespace', 'ref', 'basic')
+        xsd_tree = self.schema_data_handler.get_xsd2(xsd_files)
+
+        self.request.session['xmlDocTree'] = etree.tostring(xsd_tree)
+
+        result_string = generate_form(self.request)
+        # print result_string
+        # self.assertEqual(result_string, '')
+
+        result_html = etree.fromstring(result_string)
+        expected_html = self.schema_data_handler.get_html2(xsd_files)
+
+        self.assertTrue(are_equals(result_html, expected_html))
+
     # def test_reload_include(self):
     #     xsd_files = join('include', 'basic')
     #     xsd_tree = self.schema_data_handler.get_xsd2(xsd_files)
@@ -960,11 +986,71 @@ class ParserGenerateFormTestSuite(TestCase):
 
         self.assertTrue(are_equals(result_html, expected_html))
 
-    # def test_reload_attribute(self):
-    #     pass
-    #
-    # def test_reload_multiple(self):
-    #     pass
+    def test_reload__target_namespace_element(self):
+        xsd_files = join('target_namespace', 'element', 'basic')
+        xsd_reload_files = join('target_namespace', 'element', 'basic.reload')
+        xsd_tree = self.schema_data_handler.get_xsd2(xsd_files)
+
+        self.request.session['xmlDocTree'] = etree.tostring(xsd_tree)
+        self.request.session['curate_edit'] = True
+
+        form_data = FormData()
+
+        xml_data = self.schema_data_handler.get_xml(xsd_files)
+
+        form_data.xml_data = etree.tostring(xml_data)
+        form_data.name = ''
+        form_data.user = ''
+        form_data.template = ''
+
+        form_data.save()
+
+        self.request.session['curateFormData'] = form_data.pk
+
+        result_string = generate_form(self.request)
+        # print result_string
+        # self.assertEqual(result_string, '')
+
+        result_html = etree.fromstring(result_string)
+        expected_html = self.schema_data_handler.get_html2(xsd_reload_files)
+
+        self.assertTrue(are_equals(result_html, expected_html))
+
+    def test_reload__target_namespace_ref(self):
+        xsd_files = join('target_namespace', 'ref', 'basic')
+        xsd_reload_files = join('target_namespace', 'ref', 'basic.reload')
+        xsd_tree = self.schema_data_handler.get_xsd2(xsd_files)
+
+        self.request.session['xmlDocTree'] = etree.tostring(xsd_tree)
+        self.request.session['curate_edit'] = True
+
+        form_data = FormData()
+
+        xml_data = self.schema_data_handler.get_xml(xsd_files)
+
+        form_data.xml_data = etree.tostring(xml_data)
+        form_data.name = ''
+        form_data.user = ''
+        form_data.template = ''
+
+        form_data.save()
+
+        self.request.session['curateFormData'] = form_data.pk
+
+        result_string = generate_form(self.request)
+        # print result_string
+        # self.assertEqual(result_string, '')
+
+        result_html = etree.fromstring(result_string)
+        expected_html = self.schema_data_handler.get_html2(xsd_reload_files)
+
+        self.assertTrue(are_equals(result_html, expected_html))
+
+        # def test_reload_attribute(self):
+        #     pass
+        #
+        # def test_reload_multiple(self):
+        #     pass
 
 
 class ParserGenerateElementTestSuite(TestCase):
@@ -1000,7 +1086,52 @@ class ParserGenerateElementTestSuite(TestCase):
 
         result_string = generate_element(self.request, xsd_element, xsd_tree, self.namespace, full_path='')
 
-        expected_element = {'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'simple_type', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'restriction', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': 'child0', 'tag': 'enumeration', 'occurs': (1, 1, 1), 'module': None, 'children': []}, {'value': 'child1', 'tag': 'enumeration', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}]}]}
+        expected_element = {
+            'value': None,
+            'tag': 'element',
+            'occurs': (1, 1, 1),
+            'module': None,
+            'children': [
+                {
+                    'value': None,
+                    'tag': 'elem-iter',
+                    'occurs': (1, 1, 1),
+                    'module': None,
+                    'children': [
+                        {
+                            'value': None,
+                            'tag': 'simple_type',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'children': [
+                                {
+                                    'value': None,
+                                    'tag': 'restriction',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'children': [
+                                        {
+                                            'value': 'child0',
+                                            'tag': 'enumeration',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'children': []
+                                        },
+                                        {
+                                            'value': 'child1',
+                                            'tag': 'enumeration',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'children': []
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
 
         self.assertDictEqual(result_string[1], expected_element)
 
@@ -1012,14 +1143,95 @@ class ParserGenerateElementTestSuite(TestCase):
     def test_create_simple_type_unbounded(self):
         xsd_files = join('simple_type', 'unbounded')
         xsd_tree = etree.ElementTree(self.element_data_handler.get_xsd2(xsd_files))
-        xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence/xs:element', namespaces=self.request.session['namespaces'])[0]
+        xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence/xs:element',
+                                     namespaces=self.request.session['namespaces'])[0]
 
         result_string = generate_element(self.request, xsd_element, xsd_tree, self.namespace, full_path='')
 
         expected_element = {
             'value': None,
             'tag': 'element',
-            'occurs': (2.0, 2.0, float('infinity')), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'simple_type', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'restriction', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': 'child0', 'tag': 'enumeration', 'occurs': (1, 1, 1), 'module': None, 'children': []}, {'value': 'child1', 'tag': 'enumeration', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}]}, {'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'simple_type', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'restriction', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': 'child0', 'tag': 'enumeration', 'occurs': (1, 1, 1), 'module': None, 'children': []}, {'value': 'child1', 'tag': 'enumeration', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}]}]}
+            'occurs': (2.0, 2.0, float('infinity')),
+            'module': None,
+            'children': [
+                {
+                    'value': None,
+                    'tag': 'elem-iter',
+                    'occurs': (1, 1, 1),
+                    'module': None,
+                    'children': [
+                        {
+                            'value': None,
+                            'tag': 'simple_type',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'children': [
+                                {
+                                    'value': None,
+                                    'tag': 'restriction',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'children': [
+                                        {
+                                            'value': 'child0',
+                                            'tag': 'enumeration',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'children': []
+                                        },
+                                        {
+                                            'value': 'child1',
+                                            'tag': 'enumeration',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'children': []
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    'value': None,
+                    'tag': 'elem-iter',
+                    'occurs': (1, 1, 1),
+                    'module': None,
+                    'children': [
+                        {
+                            'value': None,
+                            'tag': 'simple_type',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'children': [
+                                {
+                                    'value': None,
+                                    'tag': 'restriction',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'children': [
+                                        {
+                                            'value': 'child0',
+                                            'tag': 'enumeration',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'children': []
+                                        },
+                                        {
+                                            'value': 'child1',
+                                            'tag': 'enumeration',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'children': []
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
 
         self.assertDictEqual(result_string[1], expected_element)
 
@@ -1124,7 +1336,8 @@ class ParserGenerateElementTestSuite(TestCase):
     def test_create_complex_type_unbounded(self):
         xsd_files = join('complex_type', 'unbounded')
         xsd_tree = etree.ElementTree(self.element_data_handler.get_xsd2(xsd_files))
-        xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence/xs:element', namespaces=self.request.session['namespaces'])[0]
+        xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence/xs:element',
+                                     namespaces=self.request.session['namespaces'])[0]
 
         result_string = generate_element(self.request, xsd_element, xsd_tree, self.namespace, full_path='')
 
@@ -1555,7 +1768,52 @@ class ParserGenerateElementTestSuite(TestCase):
         result_string = generate_element(self.request, xsd_element, xsd_tree, self.namespace, full_path='',
                                          edit_data_tree=edit_data_tree)
 
-        expected_element = {'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'simple_type', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'restriction', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': 'child0', 'tag': 'enumeration/selected', 'occurs': (1, 1, 1), 'module': None, 'children': []}, {'value': 'child1', 'tag': 'enumeration', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}]}]}
+        expected_element = {
+            'value': None,
+            'tag': 'element',
+            'occurs': (1, 1, 1),
+            'module': None,
+            'children': [
+                {
+                    'value': None,
+                    'tag': 'elem-iter',
+                    'occurs': (1, 1, 1),
+                    'module': None,
+                    'children': [
+                        {
+                            'value': None,
+                            'tag': 'simple_type',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'children': [
+                                {
+                                    'value': None,
+                                    'tag': 'restriction',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'children': [
+                                        {
+                                            'value': 'child0',
+                                            'tag': 'enumeration/selected',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'children': []
+                                        },
+                                        {
+                                            'value': 'child1',
+                                            'tag': 'enumeration',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'children': []
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
 
         self.assertDictEqual(result_string[1], expected_element)
 
@@ -1567,7 +1825,8 @@ class ParserGenerateElementTestSuite(TestCase):
     def test_reload_simple_type_unbounded(self):
         xsd_files = join('simple_type', 'unbounded')
         xsd_tree = etree.ElementTree(self.element_data_handler.get_xsd2(xsd_files))
-        xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence/xs:element', namespaces=self.request.session['namespaces'])[0]
+        xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence/xs:element',
+                                     namespaces=self.request.session['namespaces'])[0]
 
         self.request.session['curate_edit'] = True
 
@@ -1581,7 +1840,128 @@ class ParserGenerateElementTestSuite(TestCase):
         result_string = generate_element(self.request, xsd_element, xsd_tree, self.namespace, full_path='/root',
                                          edit_data_tree=edit_data_tree)
 
-        expected_element = {'value': None, 'tag': 'element', 'occurs': (2.0, 3, float('infinity')), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'simple_type', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'restriction', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': 'child0', 'tag': 'enumeration', 'occurs': (1, 1, 1), 'module': None, 'children': []}, {'value': 'child1', 'tag': 'enumeration/selected', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}]}, {'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'simple_type', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'restriction', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': 'child0', 'tag': 'enumeration', 'occurs': (1, 1, 1), 'module': None, 'children': []}, {'value': 'child1', 'tag': 'enumeration/selected', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}]}, {'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'simple_type', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'restriction', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': 'child0', 'tag': 'enumeration/selected', 'occurs': (1, 1, 1), 'module': None, 'children': []}, {'value': 'child1', 'tag': 'enumeration', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}]}]}
+        expected_element = {
+            'value': None,
+            'tag': 'element',
+            'occurs': (2.0, 3, float('infinity')),
+            'module': None,
+            'children': [
+                {
+                    'value': None,
+                    'tag': 'elem-iter',
+                    'occurs': (1, 1, 1),
+                    'module': None,
+                    'children': [
+                        {
+                            'value': None,
+                            'tag': 'simple_type',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'children': [
+                                {
+                                    'value': None,
+                                    'tag': 'restriction',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'children': [
+                                        {
+                                            'value': 'child0',
+                                            'tag': 'enumeration',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'children': []
+                                        },
+                                        {
+                                            'value': 'child1',
+                                            'tag': 'enumeration/selected',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'children': []
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    'value': None,
+                    'tag': 'elem-iter',
+                    'occurs': (1, 1, 1),
+                    'module': None,
+                    'children': [
+                        {
+                            'value': None,
+                            'tag': 'simple_type',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'children': [
+                                {
+                                    'value': None,
+                                    'tag': 'restriction',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'children': [
+                                        {
+                                            'value': 'child0',
+                                            'tag': 'enumeration',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'children': []
+                                        },
+                                        {
+                                            'value': 'child1',
+                                            'tag': 'enumeration/selected',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'children': []
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    'value': None,
+                    'tag': 'elem-iter',
+                    'occurs': (1, 1, 1),
+                    'module': None,
+                    'children': [
+                        {
+                            'value': None,
+                            'tag': 'simple_type',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'children': [
+                                {
+                                    'value': None,
+                                    'tag': 'restriction',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'children': [
+                                        {
+                                            'value': 'child0',
+                                            'tag': 'enumeration/selected',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'children': []
+                                        },
+                                        {
+                                            'value': 'child1',
+                                            'tag': 'enumeration',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'children': []
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
 
         self.assertDictEqual(result_string[1], expected_element)
 
@@ -1697,7 +2077,8 @@ class ParserGenerateElementTestSuite(TestCase):
     def test_reload_complex_type_unbounded(self):
         xsd_files = join('complex_type', 'unbounded')
         xsd_tree = etree.ElementTree(self.element_data_handler.get_xsd2(xsd_files))
-        xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence/xs:element', namespaces=self.request.session['namespaces'])[0]
+        xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence/xs:element',
+                                     namespaces=self.request.session['namespaces'])[0]
 
         self.request.session['curate_edit'] = True
 
@@ -1938,150 +2319,150 @@ class ParserGenerateElementTestSuite(TestCase):
 
         self.assertTrue(are_equals(result_html, expected_html))
 
-    # todo implement these test when the parser implement the functionalities
-    # def test_reload_unique_basic(self):
-    #     xsd_files = join('unique', 'basic')
-    #     xsd_tree = self.element_data_handler.get_xsd2(xsd_files)
-    #     xsd_element = xsd_tree.xpath('/schema/element')[0]
-    #
-    #     self.request.session['curate_edit'] = True
-    #
-    #     xml_tree = self.element_data_handler.get_xml(xsd_files)
-    #     xml_data = etree.tostring(xml_tree)
-    #
-    #     clean_parser = etree.XMLParser(remove_blank_text=True, remove_comments=True, remove_pis=True)
-    #     etree.set_default_parser(parser=clean_parser)
-    #     # load the XML tree from the text
-    #     edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
-    #
-    #     result_string = generate_element(self.request, xsd_element, xsd_tree, '', full_path='',
-    #                                     edit_data_tree=edit_data_tree)
-    #     print result_string
-    #
-    #     # result_html = etree.fromstring(result_string)
-    #     # expected_html = self.element_data_handler.get_html2(xsd_files + '.reload')
-    #     #
-    #     # self.assertTrue(are_equals(result_html, expected_html))
+        # todo implement these test when the parser implement the functionalities
+        # def test_reload_unique_basic(self):
+        #     xsd_files = join('unique', 'basic')
+        #     xsd_tree = self.element_data_handler.get_xsd2(xsd_files)
+        #     xsd_element = xsd_tree.xpath('/schema/element')[0]
+        #
+        #     self.request.session['curate_edit'] = True
+        #
+        #     xml_tree = self.element_data_handler.get_xml(xsd_files)
+        #     xml_data = etree.tostring(xml_tree)
+        #
+        #     clean_parser = etree.XMLParser(remove_blank_text=True, remove_comments=True, remove_pis=True)
+        #     etree.set_default_parser(parser=clean_parser)
+        #     # load the XML tree from the text
+        #     edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
+        #
+        #     result_string = generate_element(self.request, xsd_element, xsd_tree, '', full_path='',
+        #                                     edit_data_tree=edit_data_tree)
+        #     print result_string
+        #
+        #     # result_html = etree.fromstring(result_string)
+        #     # expected_html = self.element_data_handler.get_html2(xsd_files + '.reload')
+        #     #
+        #     # self.assertTrue(are_equals(result_html, expected_html))
 
-    # def test_reload_unique_unbounded(self):
-    #     xsd_files = join('complex_type', 'unbounded')
-    #     xsd_tree = self.element_data_handler.get_xsd2(xsd_files)
-    #     xsd_element = xsd_tree.xpath('/schema/complexType/sequence/element')[0]
-    #
-    #     self.request.session['curate_edit'] = True
-    #
-    #     xml_tree = self.element_data_handler.get_xml(xsd_files)
-    #     xml_data = etree.tostring(xml_tree)
-    #
-    #     clean_parser = etree.XMLParser(remove_blank_text=True, remove_comments=True, remove_pis=True)
-    #     etree.set_default_parser(parser=clean_parser)
-    #     # load the XML tree from the text
-    #     edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
-    #
-    #     result_string = generate_element(self.request, xsd_element, xsd_tree, '', full_path='/root',
-    #                                     edit_data_tree=edit_data_tree)
-    #     print result_string
-    #
-    #     # result_html = etree.fromstring(result_string)
-    #     # expected_html = self.element_data_handler.get_html2(xsd_files + '.reload')
-    #     #
-    #     # self.assertTrue(are_equals(result_html, expected_html))
-    #
-    # def test_reload_key_basic(self):
-    #     xsd_files = join('simple_type', 'basic')
-    #     xsd_tree = self.element_data_handler.get_xsd2(xsd_files)
-    #     xsd_element = xsd_tree.xpath('/schema/element')[0]
-    #
-    #     self.request.session['curate_edit'] = True
-    #
-    #     xml_tree = self.element_data_handler.get_xml(xsd_files)
-    #     xml_data = etree.tostring(xml_tree)
-    #
-    #     clean_parser = etree.XMLParser(remove_blank_text=True, remove_comments=True, remove_pis=True)
-    #     etree.set_default_parser(parser=clean_parser)
-    #     # load the XML tree from the text
-    #     edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
-    #
-    #     result_string = generate_element(self.request, xsd_element, xsd_tree, '', full_path='',
-    #                                     edit_data_tree=edit_data_tree)
-    #     print result_string
-    #
-    #     # result_html = etree.fromstring(result_string)
-    #     # expected_html = self.element_data_handler.get_html2(xsd_files + '.reload')
-    #     #
-    #     # self.assertTrue(are_equals(result_html, expected_html))
-    #
-    # def test_reload_key_unbounded(self):
-    #     xsd_files = join('complex_type', 'unbounded')
-    #     xsd_tree = self.element_data_handler.get_xsd2(xsd_files)
-    #     xsd_element = xsd_tree.xpath('/schema/complexType/sequence/element')[0]
-    #
-    #     self.request.session['curate_edit'] = True
-    #
-    #     xml_tree = self.element_data_handler.get_xml(xsd_files)
-    #     xml_data = etree.tostring(xml_tree)
-    #
-    #     clean_parser = etree.XMLParser(remove_blank_text=True, remove_comments=True, remove_pis=True)
-    #     etree.set_default_parser(parser=clean_parser)
-    #     # load the XML tree from the text
-    #     edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
-    #
-    #     result_string = generate_element(self.request, xsd_element, xsd_tree, '', full_path='/root',
-    #                                     edit_data_tree=edit_data_tree)
-    #     print result_string
-    #
-    #     # result_html = etree.fromstring(result_string)
-    #     # expected_html = self.element_data_handler.get_html2(xsd_files + '.reload')
-    #     #
-    #     # self.assertTrue(are_equals(result_html, expected_html))
-    #
-    # def test_reload_keyref_basic(self):
-    #     xsd_files = join('simple_type', 'basic')
-    #     xsd_tree = self.element_data_handler.get_xsd2(xsd_files)
-    #     xsd_element = xsd_tree.xpath('/schema/element')[0]
-    #
-    #     self.request.session['curate_edit'] = True
-    #
-    #     xml_tree = self.element_data_handler.get_xml(xsd_files)
-    #     xml_data = etree.tostring(xml_tree)
-    #
-    #     clean_parser = etree.XMLParser(remove_blank_text=True, remove_comments=True, remove_pis=True)
-    #     etree.set_default_parser(parser=clean_parser)
-    #     # load the XML tree from the text
-    #     edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
-    #
-    #     result_string = generate_element(self.request, xsd_element, xsd_tree, '', full_path='',
-    #                                     edit_data_tree=edit_data_tree)
-    #     print result_string
-    #
-    #     # result_html = etree.fromstring(result_string)
-    #     # expected_html = self.element_data_handler.get_html2(xsd_files + '.reload')
-    #     #
-    #     # self.assertTrue(are_equals(result_html, expected_html))
-    #
-    # def test_reload_keyref_unbounded(self):
-    #     xsd_files = join('complex_type', 'unbounded')
-    #     xsd_tree = self.element_data_handler.get_xsd2(xsd_files)
-    #     xsd_element = xsd_tree.xpath('/schema/complexType/sequence/element')[0]
-    #
-    #     self.request.session['curate_edit'] = True
-    #
-    #     xml_tree = self.element_data_handler.get_xml(xsd_files)
-    #     xml_data = etree.tostring(xml_tree)
-    #
-    #     clean_parser = etree.XMLParser(remove_blank_text=True, remove_comments=True, remove_pis=True)
-    #     etree.set_default_parser(parser=clean_parser)
-    #     # load the XML tree from the text
-    #     edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
-    #
-    #     result_string = generate_element(self.request, xsd_element, xsd_tree, '', full_path='/root',
-    #                                     edit_data_tree=edit_data_tree)
-    #     print result_string
-    #
-    #     # result_html = etree.fromstring(result_string)
-    #     # expected_html = self.element_data_handler.get_html2(xsd_files + '.reload')
-    #     #
-    #     # self.assertTrue(are_equals(result_html, expected_html))
+        # def test_reload_unique_unbounded(self):
+        #     xsd_files = join('complex_type', 'unbounded')
+        #     xsd_tree = self.element_data_handler.get_xsd2(xsd_files)
+        #     xsd_element = xsd_tree.xpath('/schema/complexType/sequence/element')[0]
+        #
+        #     self.request.session['curate_edit'] = True
+        #
+        #     xml_tree = self.element_data_handler.get_xml(xsd_files)
+        #     xml_data = etree.tostring(xml_tree)
+        #
+        #     clean_parser = etree.XMLParser(remove_blank_text=True, remove_comments=True, remove_pis=True)
+        #     etree.set_default_parser(parser=clean_parser)
+        #     # load the XML tree from the text
+        #     edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
+        #
+        #     result_string = generate_element(self.request, xsd_element, xsd_tree, '', full_path='/root',
+        #                                     edit_data_tree=edit_data_tree)
+        #     print result_string
+        #
+        #     # result_html = etree.fromstring(result_string)
+        #     # expected_html = self.element_data_handler.get_html2(xsd_files + '.reload')
+        #     #
+        #     # self.assertTrue(are_equals(result_html, expected_html))
+        #
+        # def test_reload_key_basic(self):
+        #     xsd_files = join('simple_type', 'basic')
+        #     xsd_tree = self.element_data_handler.get_xsd2(xsd_files)
+        #     xsd_element = xsd_tree.xpath('/schema/element')[0]
+        #
+        #     self.request.session['curate_edit'] = True
+        #
+        #     xml_tree = self.element_data_handler.get_xml(xsd_files)
+        #     xml_data = etree.tostring(xml_tree)
+        #
+        #     clean_parser = etree.XMLParser(remove_blank_text=True, remove_comments=True, remove_pis=True)
+        #     etree.set_default_parser(parser=clean_parser)
+        #     # load the XML tree from the text
+        #     edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
+        #
+        #     result_string = generate_element(self.request, xsd_element, xsd_tree, '', full_path='',
+        #                                     edit_data_tree=edit_data_tree)
+        #     print result_string
+        #
+        #     # result_html = etree.fromstring(result_string)
+        #     # expected_html = self.element_data_handler.get_html2(xsd_files + '.reload')
+        #     #
+        #     # self.assertTrue(are_equals(result_html, expected_html))
+        #
+        # def test_reload_key_unbounded(self):
+        #     xsd_files = join('complex_type', 'unbounded')
+        #     xsd_tree = self.element_data_handler.get_xsd2(xsd_files)
+        #     xsd_element = xsd_tree.xpath('/schema/complexType/sequence/element')[0]
+        #
+        #     self.request.session['curate_edit'] = True
+        #
+        #     xml_tree = self.element_data_handler.get_xml(xsd_files)
+        #     xml_data = etree.tostring(xml_tree)
+        #
+        #     clean_parser = etree.XMLParser(remove_blank_text=True, remove_comments=True, remove_pis=True)
+        #     etree.set_default_parser(parser=clean_parser)
+        #     # load the XML tree from the text
+        #     edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
+        #
+        #     result_string = generate_element(self.request, xsd_element, xsd_tree, '', full_path='/root',
+        #                                     edit_data_tree=edit_data_tree)
+        #     print result_string
+        #
+        #     # result_html = etree.fromstring(result_string)
+        #     # expected_html = self.element_data_handler.get_html2(xsd_files + '.reload')
+        #     #
+        #     # self.assertTrue(are_equals(result_html, expected_html))
+        #
+        # def test_reload_keyref_basic(self):
+        #     xsd_files = join('simple_type', 'basic')
+        #     xsd_tree = self.element_data_handler.get_xsd2(xsd_files)
+        #     xsd_element = xsd_tree.xpath('/schema/element')[0]
+        #
+        #     self.request.session['curate_edit'] = True
+        #
+        #     xml_tree = self.element_data_handler.get_xml(xsd_files)
+        #     xml_data = etree.tostring(xml_tree)
+        #
+        #     clean_parser = etree.XMLParser(remove_blank_text=True, remove_comments=True, remove_pis=True)
+        #     etree.set_default_parser(parser=clean_parser)
+        #     # load the XML tree from the text
+        #     edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
+        #
+        #     result_string = generate_element(self.request, xsd_element, xsd_tree, '', full_path='',
+        #                                     edit_data_tree=edit_data_tree)
+        #     print result_string
+        #
+        #     # result_html = etree.fromstring(result_string)
+        #     # expected_html = self.element_data_handler.get_html2(xsd_files + '.reload')
+        #     #
+        #     # self.assertTrue(are_equals(result_html, expected_html))
+        #
+        # def test_reload_keyref_unbounded(self):
+        #     xsd_files = join('complex_type', 'unbounded')
+        #     xsd_tree = self.element_data_handler.get_xsd2(xsd_files)
+        #     xsd_element = xsd_tree.xpath('/schema/complexType/sequence/element')[0]
+        #
+        #     self.request.session['curate_edit'] = True
+        #
+        #     xml_tree = self.element_data_handler.get_xml(xsd_files)
+        #     xml_data = etree.tostring(xml_tree)
+        #
+        #     clean_parser = etree.XMLParser(remove_blank_text=True, remove_comments=True, remove_pis=True)
+        #     etree.set_default_parser(parser=clean_parser)
+        #     # load the XML tree from the text
+        #     edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
+        #
+        #     result_string = generate_element(self.request, xsd_element, xsd_tree, '', full_path='/root',
+        #                                     edit_data_tree=edit_data_tree)
+        #     print result_string
+        #
+        #     # result_html = etree.fromstring(result_string)
+        #     # expected_html = self.element_data_handler.get_html2(xsd_files + '.reload')
+        #     #
+        #     # self.assertTrue(are_equals(result_html, expected_html))
 
 
 class ParserGenerateElementAbsentTestSuite(TestCase):
@@ -2120,7 +2501,10 @@ class ParserGenerateElementAbsentTestSuite(TestCase):
 
         result_string = generate_element_absent(self.request, xsd_element, xsd_tree, self.form_element)
 
-        expected_element = {'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'simple_type', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'restriction', 'occurs': (1, 1, 1), 'module': None, 'children': [{'module': None, 'tag': 'input', 'occurs': (1, 1, 1), 'value': '', 'children': []}]}]}]}
+        expected_element = {'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [
+            {'value': None, 'tag': 'simple_type', 'occurs': (1, 1, 1), 'module': None, 'children': [
+                {'value': None, 'tag': 'restriction', 'occurs': (1, 1, 1), 'module': None,
+                 'children': [{'module': None, 'tag': 'input', 'occurs': (1, 1, 1), 'value': '', 'children': []}]}]}]}
 
         self.assertDictEqual(result_string[1], expected_element)
 
@@ -2136,7 +2520,10 @@ class ParserGenerateElementAbsentTestSuite(TestCase):
 
         result_string = generate_element_absent(self.request, xsd_element, xsd_tree, self.form_element)
 
-        expected_element = {'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'simple_type', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'restriction', 'occurs': (1, 1, 1), 'module': None, 'children': [{'module': None, 'tag': 'input', 'occurs': (1, 1, 1), 'value': '', 'children': []}]}]}]}
+        expected_element = {'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [
+            {'value': None, 'tag': 'simple_type', 'occurs': (1, 1, 1), 'module': None, 'children': [
+                {'value': None, 'tag': 'restriction', 'occurs': (1, 1, 1), 'module': None,
+                 'children': [{'module': None, 'tag': 'input', 'occurs': (1, 1, 1), 'value': '', 'children': []}]}]}]}
 
         self.assertDictEqual(result_string[1], expected_element)
 
@@ -2319,92 +2706,92 @@ class ParserGenerateElementAbsentTestSuite(TestCase):
 
         self.assertTrue(are_equals(result_html, expected_html))
 
-    # def test_create_unique_basic(self):
-    #     # TODO Verify this test is correct
-    #     xsd_files = join('unique', 'basic')
-    #     xsd_tree = self.element_data_handler.get_xsd2(xsd_files)
-    #     xsd_element = xsd_tree.xpath('/schema/element')[0]
-    #
-    #     result_string = generate_element_absent(self.request, xsd_element, xsd_tree, self.form_element)
-    #     # print result_string
-    #     self.assertEqual(result_string, '')
-    #
-    #     # result_html = etree.fromstring(result_string)
-    #     # expected_html = self.element_data_handler.get_html2(xsd_files)
-    #     #
-    #     # self.assertTrue(are_equals(result_html, expected_html))
-    #
-    # def test_create_unique_unbounded(self):
-    #     xsd_files = join('unique', 'unbounded')
-    #     xsd_tree = self.element_data_handler.get_xsd2(xsd_files)
-    #     xsd_element = xsd_tree.xpath('/schema/element')[0]
-    #
-    #     result_string = generate_element_absent(self.request, xsd_element, xsd_tree, self.form_element)
-    #     # print result_string
-    #     self.assertEqual(result_string, '')
-    #
-    #     # result_html = etree.fromstring(result_string)
-    #     # expected_html = self.element_data_handler.get_html2(xsd_files)
-    #     #
-    #     # self.assertTrue(are_equals(result_html, expected_html))
-    #
-    # def test_create_key_basic(self):
-    #     # TODO Rewrite the test for key / keyref
-    #     xsd_files = join('key', 'basic')
-    #     xsd_tree = self.element_data_handler.get_xsd2(xsd_files)
-    #     xsd_element = xsd_tree.xpath('/schema/element')[0]
-    #
-    #     result_string = generate_element_absent(self.request, xsd_element, xsd_tree, self.form_element)
-    #     # print result_string
-    #     self.assertEqual(result_string, '')
-    #
-    #     # result_html = etree.fromstring(result_string)
-    #     # expected_html = self.element_data_handler.get_html2(xsd_files)
-    #     #
-    #     # self.assertTrue(are_equals(result_html, expected_html))
-    #
-    # def test_create_key_unbounded(self):
-    #     xsd_files = join('key', 'unbounded')
-    #     xsd_tree = self.element_data_handler.get_xsd2(xsd_files)
-    #     xsd_element = xsd_tree.xpath('/schema/element')[0]
-    #
-    #     result_string = generate_element_absent(self.request, xsd_element, xsd_tree, self.form_element)
-    #     # print result_string
-    #     self.assertEqual(result_string, '')
-    #
-    #     # result_html = etree.fromstring(result_string)
-    #     # expected_html = self.element_data_handler.get_html2(xsd_files)
-    #     #
-    #     # self.assertTrue(are_equals(result_html, expected_html))
-    #
-    # def test_create_keyref_basic(self):
-    #     # TODO Rewrite the test for key / keyref
-    #     xsd_files = join('keyref', 'basic')
-    #     xsd_tree = self.element_data_handler.get_xsd2(xsd_files)
-    #     xsd_element = xsd_tree.xpath('/schema/element')[0]
-    #
-    #     result_string = generate_element_absent(self.request, xsd_element, xsd_tree, self.form_element)
-    #     # print result_string
-    #     self.assertEqual(result_string, '')
-    #
-    #     # result_html = etree.fromstring(result_string)
-    #     # expected_html = self.element_data_handler.get_html2(xsd_files)
-    #     #
-    #     # self.assertTrue(are_equals(result_html, expected_html))
-    #
-    # def test_create_keyref_unbounded(self):
-    #     xsd_files = join('keyref', 'unbounded')
-    #     xsd_tree = self.element_data_handler.get_xsd2(xsd_files)
-    #     xsd_element = xsd_tree.xpath('/schema/element')[0]
-    #
-    #     result_string = generate_element_absent(self.request, xsd_element, xsd_tree, self.form_element)
-    #     # print result_string
-    #     self.assertEqual(result_string, '')
-    #
-    #     # result_html = etree.fromstring(result_string)
-    #     # expected_html = self.element_data_handler.get_html2(xsd_files)
-    #     #
-    #     # self.assertTrue(are_equals(result_html, expected_html))
+        # def test_create_unique_basic(self):
+        #     # TODO Verify this test is correct
+        #     xsd_files = join('unique', 'basic')
+        #     xsd_tree = self.element_data_handler.get_xsd2(xsd_files)
+        #     xsd_element = xsd_tree.xpath('/schema/element')[0]
+        #
+        #     result_string = generate_element_absent(self.request, xsd_element, xsd_tree, self.form_element)
+        #     # print result_string
+        #     self.assertEqual(result_string, '')
+        #
+        #     # result_html = etree.fromstring(result_string)
+        #     # expected_html = self.element_data_handler.get_html2(xsd_files)
+        #     #
+        #     # self.assertTrue(are_equals(result_html, expected_html))
+        #
+        # def test_create_unique_unbounded(self):
+        #     xsd_files = join('unique', 'unbounded')
+        #     xsd_tree = self.element_data_handler.get_xsd2(xsd_files)
+        #     xsd_element = xsd_tree.xpath('/schema/element')[0]
+        #
+        #     result_string = generate_element_absent(self.request, xsd_element, xsd_tree, self.form_element)
+        #     # print result_string
+        #     self.assertEqual(result_string, '')
+        #
+        #     # result_html = etree.fromstring(result_string)
+        #     # expected_html = self.element_data_handler.get_html2(xsd_files)
+        #     #
+        #     # self.assertTrue(are_equals(result_html, expected_html))
+        #
+        # def test_create_key_basic(self):
+        #     # TODO Rewrite the test for key / keyref
+        #     xsd_files = join('key', 'basic')
+        #     xsd_tree = self.element_data_handler.get_xsd2(xsd_files)
+        #     xsd_element = xsd_tree.xpath('/schema/element')[0]
+        #
+        #     result_string = generate_element_absent(self.request, xsd_element, xsd_tree, self.form_element)
+        #     # print result_string
+        #     self.assertEqual(result_string, '')
+        #
+        #     # result_html = etree.fromstring(result_string)
+        #     # expected_html = self.element_data_handler.get_html2(xsd_files)
+        #     #
+        #     # self.assertTrue(are_equals(result_html, expected_html))
+        #
+        # def test_create_key_unbounded(self):
+        #     xsd_files = join('key', 'unbounded')
+        #     xsd_tree = self.element_data_handler.get_xsd2(xsd_files)
+        #     xsd_element = xsd_tree.xpath('/schema/element')[0]
+        #
+        #     result_string = generate_element_absent(self.request, xsd_element, xsd_tree, self.form_element)
+        #     # print result_string
+        #     self.assertEqual(result_string, '')
+        #
+        #     # result_html = etree.fromstring(result_string)
+        #     # expected_html = self.element_data_handler.get_html2(xsd_files)
+        #     #
+        #     # self.assertTrue(are_equals(result_html, expected_html))
+        #
+        # def test_create_keyref_basic(self):
+        #     # TODO Rewrite the test for key / keyref
+        #     xsd_files = join('keyref', 'basic')
+        #     xsd_tree = self.element_data_handler.get_xsd2(xsd_files)
+        #     xsd_element = xsd_tree.xpath('/schema/element')[0]
+        #
+        #     result_string = generate_element_absent(self.request, xsd_element, xsd_tree, self.form_element)
+        #     # print result_string
+        #     self.assertEqual(result_string, '')
+        #
+        #     # result_html = etree.fromstring(result_string)
+        #     # expected_html = self.element_data_handler.get_html2(xsd_files)
+        #     #
+        #     # self.assertTrue(are_equals(result_html, expected_html))
+        #
+        # def test_create_keyref_unbounded(self):
+        #     xsd_files = join('keyref', 'unbounded')
+        #     xsd_tree = self.element_data_handler.get_xsd2(xsd_files)
+        #     xsd_element = xsd_tree.xpath('/schema/element')[0]
+        #
+        #     result_string = generate_element_absent(self.request, xsd_element, xsd_tree, self.form_element)
+        #     # print result_string
+        #     self.assertEqual(result_string, '')
+        #
+        #     # result_html = etree.fromstring(result_string)
+        #     # expected_html = self.element_data_handler.get_html2(xsd_files)
+        #     #
+        #     # self.assertTrue(are_equals(result_html, expected_html))
 
 
 class ParserGenerateSequenceTestSuite(TestCase):
@@ -2435,11 +2822,15 @@ class ParserGenerateSequenceTestSuite(TestCase):
 
     def test_create_element_basic(self):
         xsd_tree = etree.ElementTree(self.sequence_data_handler.get_xsd2(join('element', 'basic')))
-        xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence', namespaces=self.request.session['namespaces'])[0]
+        xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence',
+                                     namespaces=self.request.session['namespaces'])[0]
 
         result_string = generate_sequence(self.request, xsd_element, xsd_tree, self.namespace, full_path='')
 
-        expected_element = {'value': None, 'tag': 'sequence', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': '', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}]}
+        expected_element = {'value': None, 'tag': 'sequence', 'occurs': (1, 1, 1), 'module': None, 'children': [
+            {'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [
+                {'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None,
+                 'children': [{'value': '', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}]}
 
         self.assertDictEqual(result_string[1], expected_element)
 
@@ -2450,11 +2841,26 @@ class ParserGenerateSequenceTestSuite(TestCase):
 
     def test_create_element_unbounded(self):
         xsd_tree = etree.ElementTree(self.sequence_data_handler.get_xsd2(join('element', 'unbounded')))
-        xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence', namespaces=self.request.session['namespaces'])[0]
+        xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence',
+                                     namespaces=self.request.session['namespaces'])[0]
 
         result_string = generate_sequence(self.request, xsd_element, xsd_tree, self.namespace, full_path='')
 
-        expected_element = {'value': None, 'tag': 'sequence', 'occurs': (2.0, 2.0, float('infinity')), 'module': None, 'children': [{'value': None, 'tag': 'sequence-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': '', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}]}, {'value': None, 'tag': 'sequence-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': '', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}]}]}
+        expected_element = {'value': None, 'tag': 'sequence', 'occurs': (2.0, 2.0, float('infinity')), 'module': None,
+                            'children': [{'value': None, 'tag': 'sequence-iter', 'occurs': (1, 1, 1), 'module': None,
+                                          'children': [
+                                              {'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None,
+                                               'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1),
+                                                             'module': None, 'children': [
+                                                       {'value': '', 'tag': 'input', 'occurs': (1, 1, 1),
+                                                        'module': None, 'children': []}]}]}]},
+                                         {'value': None, 'tag': 'sequence-iter', 'occurs': (1, 1, 1), 'module': None,
+                                          'children': [
+                                              {'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None,
+                                               'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1),
+                                                             'module': None, 'children': [
+                                                       {'value': '', 'tag': 'input', 'occurs': (1, 1, 1),
+                                                        'module': None, 'children': []}]}]}]}]}
 
         self.assertDictEqual(result_string[1], expected_element)
 
@@ -2489,12 +2895,19 @@ class ParserGenerateSequenceTestSuite(TestCase):
 
     def test_create_choice_basic(self):
         xsd_tree = etree.ElementTree(self.sequence_data_handler.get_xsd2(join('choice', 'basic')))
-        xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence', namespaces=self.request.session['namespaces'])[0]
+        xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence',
+                                     namespaces=self.request.session['namespaces'])[0]
 
         result_string = generate_sequence(self.request, xsd_element, xsd_tree, self.namespace, full_path='')
         # print result_string
 
-        expected_element = {'value': None, 'tag': 'sequence', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'choice', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'choice-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': '', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}, {'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}]}
+        expected_element = {'value': None, 'tag': 'sequence', 'occurs': (1, 1, 1), 'module': None, 'children': [
+            {'value': None, 'tag': 'choice', 'occurs': (1, 1, 1), 'module': None, 'children': [
+                {'value': None, 'tag': 'choice-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [
+                    {'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [
+                        {'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [
+                            {'value': '', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]},
+                    {'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}]}
 
         self.assertDictEqual(result_string[1], expected_element)
 
@@ -2505,12 +2918,39 @@ class ParserGenerateSequenceTestSuite(TestCase):
 
     def test_create_choice_unbounded(self):
         xsd_tree = etree.ElementTree(self.sequence_data_handler.get_xsd2(join('choice', 'unbounded')))
-        xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence', namespaces=self.request.session['namespaces'])[0]
+        xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence',
+                                     namespaces=self.request.session['namespaces'])[0]
 
         result_string = generate_sequence(self.request, xsd_element, xsd_tree, self.namespace, full_path='')
         # print result_string
 
-        expected_element = {'value': None, 'tag': 'sequence', 'occurs': (2.0, 2.0, float('infinity')), 'module': None, 'children': [{'value': None, 'tag': 'sequence-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'choice', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'choice-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': '', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}, {'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}]}, {'value': None, 'tag': 'sequence-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'choice', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'choice-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': '', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}, {'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}]}]}
+        expected_element = {'value': None, 'tag': 'sequence', 'occurs': (2.0, 2.0, float('infinity')), 'module': None,
+                            'children': [{'value': None, 'tag': 'sequence-iter', 'occurs': (1, 1, 1), 'module': None,
+                                          'children': [
+                                              {'value': None, 'tag': 'choice', 'occurs': (1, 1, 1), 'module': None,
+                                               'children': [{'value': None, 'tag': 'choice-iter', 'occurs': (1, 1, 1),
+                                                             'module': None, 'children': [
+                                                       {'value': None, 'tag': 'element', 'occurs': (1, 1, 1),
+                                                        'module': None, 'children': [
+                                                           {'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1),
+                                                            'module': None, 'children': [
+                                                               {'value': '', 'tag': 'input', 'occurs': (1, 1, 1),
+                                                                'module': None, 'children': []}]}]},
+                                                       {'value': None, 'tag': 'element', 'occurs': (1, 1, 1),
+                                                        'module': None, 'children': []}]}]}]},
+                                         {'value': None, 'tag': 'sequence-iter', 'occurs': (1, 1, 1), 'module': None,
+                                          'children': [
+                                              {'value': None, 'tag': 'choice', 'occurs': (1, 1, 1), 'module': None,
+                                               'children': [{'value': None, 'tag': 'choice-iter', 'occurs': (1, 1, 1),
+                                                             'module': None, 'children': [
+                                                       {'value': None, 'tag': 'element', 'occurs': (1, 1, 1),
+                                                        'module': None, 'children': [
+                                                           {'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1),
+                                                            'module': None, 'children': [
+                                                               {'value': '', 'tag': 'input', 'occurs': (1, 1, 1),
+                                                                'module': None, 'children': []}]}]},
+                                                       {'value': None, 'tag': 'element', 'occurs': (1, 1, 1),
+                                                        'module': None, 'children': []}]}]}]}]}
 
         self.assertDictEqual(result_string[1], expected_element)
 
@@ -2521,12 +2961,17 @@ class ParserGenerateSequenceTestSuite(TestCase):
 
     def test_create_sequence_basic(self):
         xsd_tree = etree.ElementTree(self.sequence_data_handler.get_xsd2(join('sequence', 'basic')))
-        xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence', namespaces=self.request.session['namespaces'])[0]
+        xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence',
+                                     namespaces=self.request.session['namespaces'])[0]
 
         result_string = generate_sequence(self.request, xsd_element, xsd_tree, self.namespace, full_path='')
         # print result_string
 
-        expected_element = {'value': None, 'tag': 'sequence', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'sequence', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': '', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}]}]}
+        expected_element = {'value': None, 'tag': 'sequence', 'occurs': (1, 1, 1), 'module': None, 'children': [
+            {'value': None, 'tag': 'sequence', 'occurs': (1, 1, 1), 'module': None, 'children': [
+                {'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [
+                    {'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [
+                        {'value': '', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}]}]}
 
         self.assertDictEqual(result_string[1], expected_element)
 
@@ -2537,12 +2982,31 @@ class ParserGenerateSequenceTestSuite(TestCase):
 
     def test_create_sequence_unbounded(self):
         xsd_tree = etree.ElementTree(self.sequence_data_handler.get_xsd2(join('sequence', 'unbounded')))
-        xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence', namespaces=self.request.session['namespaces'])[0]
+        xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence',
+                                     namespaces=self.request.session['namespaces'])[0]
 
         result_string = generate_sequence(self.request, xsd_element, xsd_tree, self.namespace, full_path='')
         # print result_string
 
-        expected_element = {'value': None, 'tag': 'sequence', 'occurs': (2.0, 2.0, float('infinity')), 'module': None, 'children': [{'value': None, 'tag': 'sequence-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'sequence', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': '', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}]}]}, {'value': None, 'tag': 'sequence-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'sequence', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': '', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}]}]}]}
+        expected_element = {'value': None, 'tag': 'sequence', 'occurs': (2.0, 2.0, float('infinity')), 'module': None,
+                            'children': [{'value': None, 'tag': 'sequence-iter', 'occurs': (1, 1, 1), 'module': None,
+                                          'children': [
+                                              {'value': None, 'tag': 'sequence', 'occurs': (1, 1, 1), 'module': None,
+                                               'children': [{'value': None, 'tag': 'element', 'occurs': (1, 1, 1),
+                                                             'module': None, 'children': [
+                                                       {'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1),
+                                                        'module': None, 'children': [
+                                                           {'value': '', 'tag': 'input', 'occurs': (1, 1, 1),
+                                                            'module': None, 'children': []}]}]}]}]},
+                                         {'value': None, 'tag': 'sequence-iter', 'occurs': (1, 1, 1), 'module': None,
+                                          'children': [
+                                              {'value': None, 'tag': 'sequence', 'occurs': (1, 1, 1), 'module': None,
+                                               'children': [{'value': None, 'tag': 'element', 'occurs': (1, 1, 1),
+                                                             'module': None, 'children': [
+                                                       {'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1),
+                                                        'module': None, 'children': [
+                                                           {'value': '', 'tag': 'input', 'occurs': (1, 1, 1),
+                                                            'module': None, 'children': []}]}]}]}]}]}
 
         self.assertDictEqual(result_string[1], expected_element)
 
@@ -2574,11 +3038,28 @@ class ParserGenerateSequenceTestSuite(TestCase):
 
     def test_create_multiple_basic(self):
         xsd_tree = etree.ElementTree(self.sequence_data_handler.get_xsd2(join('multiple', 'basic')))
-        xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence', namespaces=self.request.session['namespaces'])[0]
+        xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence',
+                                     namespaces=self.request.session['namespaces'])[0]
 
         result_string = generate_sequence(self.request, xsd_element, xsd_tree, self.namespace, full_path='')
 
-        expected_element = {'value': None, 'tag': 'sequence', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'choice', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'choice-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': '', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}, {'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}, {'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': '', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}, {'value': None, 'tag': 'sequence', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': '', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}, {'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': '', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}]}]}
+        expected_element = {'value': None, 'tag': 'sequence', 'occurs': (1, 1, 1), 'module': None, 'children': [
+            {'value': None, 'tag': 'choice', 'occurs': (1, 1, 1), 'module': None, 'children': [
+                {'value': None, 'tag': 'choice-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [
+                    {'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [
+                        {'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [
+                            {'value': '', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]},
+                    {'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]},
+            {'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [
+                {'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None,
+                 'children': [{'value': '', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]},
+            {'value': None, 'tag': 'sequence', 'occurs': (1, 1, 1), 'module': None, 'children': [
+                {'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [
+                    {'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [
+                        {'value': '', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]},
+                {'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [
+                    {'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [
+                        {'value': '', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}]}]}
 
         self.assertDictEqual(result_string[1], expected_element)
 
@@ -2591,12 +3072,75 @@ class ParserGenerateSequenceTestSuite(TestCase):
 
     def test_create_multiple_unbounded(self):
         xsd_tree = etree.ElementTree(self.sequence_data_handler.get_xsd2(join('multiple', 'unbounded')))
-        xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence', namespaces=self.request.session['namespaces'])[0]
+        xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence',
+                                     namespaces=self.request.session['namespaces'])[0]
 
         result_string = generate_sequence(self.request, xsd_element, xsd_tree, self.namespace, full_path='')
         # print result_string
 
-        expected_element = {'value': None, 'tag': 'sequence', 'occurs': (2.0, 2.0, float('infinity')), 'module': None, 'children': [{'value': None, 'tag': 'sequence-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'choice', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'choice-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': '', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}, {'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}, {'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': '', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}, {'value': None, 'tag': 'sequence', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': '', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}, {'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': '', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}]}]}, {'value': None, 'tag': 'sequence-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'choice', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'choice-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': '', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}, {'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}, {'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': '', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}, {'value': None, 'tag': 'sequence', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': '', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}, {'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': '', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}]}]}]}
+        expected_element = {'value': None, 'tag': 'sequence', 'occurs': (2.0, 2.0, float('infinity')), 'module': None,
+                            'children': [{'value': None, 'tag': 'sequence-iter', 'occurs': (1, 1, 1), 'module': None,
+                                          'children': [
+                                              {'value': None, 'tag': 'choice', 'occurs': (1, 1, 1), 'module': None,
+                                               'children': [{'value': None, 'tag': 'choice-iter', 'occurs': (1, 1, 1),
+                                                             'module': None, 'children': [
+                                                       {'value': None, 'tag': 'element', 'occurs': (1, 1, 1),
+                                                        'module': None, 'children': [
+                                                           {'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1),
+                                                            'module': None, 'children': [
+                                                               {'value': '', 'tag': 'input', 'occurs': (1, 1, 1),
+                                                                'module': None, 'children': []}]}]},
+                                                       {'value': None, 'tag': 'element', 'occurs': (1, 1, 1),
+                                                        'module': None, 'children': []}]}]},
+                                              {'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None,
+                                               'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1),
+                                                             'module': None, 'children': [
+                                                       {'value': '', 'tag': 'input', 'occurs': (1, 1, 1),
+                                                        'module': None, 'children': []}]}]},
+                                              {'value': None, 'tag': 'sequence', 'occurs': (1, 1, 1), 'module': None,
+                                               'children': [{'value': None, 'tag': 'element', 'occurs': (1, 1, 1),
+                                                             'module': None, 'children': [
+                                                       {'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1),
+                                                        'module': None, 'children': [
+                                                           {'value': '', 'tag': 'input', 'occurs': (1, 1, 1),
+                                                            'module': None, 'children': []}]}]},
+                                                            {'value': None, 'tag': 'element', 'occurs': (1, 1, 1),
+                                                             'module': None, 'children': [
+                                                                {'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1),
+                                                                 'module': None, 'children': [
+                                                                    {'value': '', 'tag': 'input', 'occurs': (1, 1, 1),
+                                                                     'module': None, 'children': []}]}]}]}]},
+                                         {'value': None, 'tag': 'sequence-iter', 'occurs': (1, 1, 1), 'module': None,
+                                          'children': [
+                                              {'value': None, 'tag': 'choice', 'occurs': (1, 1, 1), 'module': None,
+                                               'children': [{'value': None, 'tag': 'choice-iter', 'occurs': (1, 1, 1),
+                                                             'module': None, 'children': [
+                                                       {'value': None, 'tag': 'element', 'occurs': (1, 1, 1),
+                                                        'module': None, 'children': [
+                                                           {'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1),
+                                                            'module': None, 'children': [
+                                                               {'value': '', 'tag': 'input', 'occurs': (1, 1, 1),
+                                                                'module': None, 'children': []}]}]},
+                                                       {'value': None, 'tag': 'element', 'occurs': (1, 1, 1),
+                                                        'module': None, 'children': []}]}]},
+                                              {'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None,
+                                               'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1),
+                                                             'module': None, 'children': [
+                                                       {'value': '', 'tag': 'input', 'occurs': (1, 1, 1),
+                                                        'module': None, 'children': []}]}]},
+                                              {'value': None, 'tag': 'sequence', 'occurs': (1, 1, 1), 'module': None,
+                                               'children': [{'value': None, 'tag': 'element', 'occurs': (1, 1, 1),
+                                                             'module': None, 'children': [
+                                                       {'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1),
+                                                        'module': None, 'children': [
+                                                           {'value': '', 'tag': 'input', 'occurs': (1, 1, 1),
+                                                            'module': None, 'children': []}]}]},
+                                                            {'value': None, 'tag': 'element', 'occurs': (1, 1, 1),
+                                                             'module': None, 'children': [
+                                                                {'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1),
+                                                                 'module': None, 'children': [
+                                                                    {'value': '', 'tag': 'input', 'occurs': (1, 1, 1),
+                                                                     'module': None, 'children': []}]}]}]}]}]}
 
         self.assertDictEqual(result_string[1], expected_element)
 
@@ -2608,7 +3152,8 @@ class ParserGenerateSequenceTestSuite(TestCase):
     def test_reload_element_basic(self):
         xsd_files = join('element', 'basic')
         xsd_tree = etree.ElementTree(self.sequence_data_handler.get_xsd2(xsd_files))
-        xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence', namespaces=self.request.session['namespaces'])[0]
+        xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence',
+                                     namespaces=self.request.session['namespaces'])[0]
 
         self.request.session['curate_edit'] = True
 
@@ -2623,7 +3168,10 @@ class ParserGenerateSequenceTestSuite(TestCase):
                                           edit_data_tree=edit_data_tree)
         # print result_string
 
-        expected_element = {'value': None, 'tag': 'sequence', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': 'entry0', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}]}
+        expected_element = {'value': None, 'tag': 'sequence', 'occurs': (1, 1, 1), 'module': None, 'children': [
+            {'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [
+                {'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [
+                    {'value': 'entry0', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}]}
 
         self.assertDictEqual(result_string[1], expected_element)
 
@@ -2636,7 +3184,8 @@ class ParserGenerateSequenceTestSuite(TestCase):
         # fixme correct bug
         xsd_files = join('element', 'unbounded')
         xsd_tree = etree.ElementTree(self.sequence_data_handler.get_xsd2(xsd_files))
-        xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence', namespaces=self.request.session['namespaces'])[0]
+        xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence',
+                                     namespaces=self.request.session['namespaces'])[0]
 
         self.request.session['curate_edit'] = True
 
@@ -2651,7 +3200,22 @@ class ParserGenerateSequenceTestSuite(TestCase):
                                           edit_data_tree=edit_data_tree)
         # print result_string
 
-        expected_element = {'value': None, 'tag': 'sequence', 'occurs': (2.0, 1, float('infinity')), 'module': None, 'children': [{'value': None, 'tag': 'sequence-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'element', 'occurs': (1, 3, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': 'entry0', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}, {'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': 'entry1', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}, {'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': 'entry2', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}]}]}
+        expected_element = {'value': None, 'tag': 'sequence', 'occurs': (2.0, 1, float('infinity')), 'module': None,
+                            'children': [{'value': None, 'tag': 'sequence-iter', 'occurs': (1, 1, 1), 'module': None,
+                                          'children': [
+                                              {'value': None, 'tag': 'element', 'occurs': (1, 3, 1), 'module': None,
+                                               'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1),
+                                                             'module': None, 'children': [
+                                                       {'value': 'entry0', 'tag': 'input', 'occurs': (1, 1, 1),
+                                                        'module': None, 'children': []}]},
+                                                            {'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1),
+                                                             'module': None, 'children': [
+                                                                {'value': 'entry1', 'tag': 'input', 'occurs': (1, 1, 1),
+                                                                 'module': None, 'children': []}]},
+                                                            {'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1),
+                                                             'module': None, 'children': [
+                                                                {'value': 'entry2', 'tag': 'input', 'occurs': (1, 1, 1),
+                                                                 'module': None, 'children': []}]}]}]}]}
 
         self.assertDictEqual(result_string[1], expected_element)
 
@@ -2710,7 +3274,8 @@ class ParserGenerateSequenceTestSuite(TestCase):
     def test_reload_choice_basic(self):
         xsd_files = join('choice', 'basic')
         xsd_tree = etree.ElementTree(self.sequence_data_handler.get_xsd2(xsd_files))
-        xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence', namespaces=self.request.session['namespaces'])[0]
+        xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence',
+                                     namespaces=self.request.session['namespaces'])[0]
 
         self.request.session['curate_edit'] = True
 
@@ -2725,7 +3290,14 @@ class ParserGenerateSequenceTestSuite(TestCase):
                                           edit_data_tree=edit_data_tree)
         # print result_string
 
-        expected_element = {'value': None, 'tag': 'sequence', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'choice', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'choice-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': 'entry0', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}, {'value': None, 'tag': 'element', 'occurs': (1, 0, 1), 'module': None, 'children': []}]}]}]}
+        expected_element = {'value': None, 'tag': 'sequence', 'occurs': (1, 1, 1), 'module': None, 'children': [
+            {'value': None, 'tag': 'choice', 'occurs': (1, 1, 1), 'module': None, 'children': [
+                {'value': None, 'tag': 'choice-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [
+                    {'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [
+                        {'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [
+                            {'value': 'entry0', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None,
+                             'children': []}]}]},
+                    {'value': None, 'tag': 'element', 'occurs': (1, 0, 1), 'module': None, 'children': []}]}]}]}
 
         self.assertDictEqual(result_string[1], expected_element)
 
@@ -2737,7 +3309,8 @@ class ParserGenerateSequenceTestSuite(TestCase):
     def test_reload_choice_unbounded(self):
         xsd_files = join('choice', 'unbounded')
         xsd_tree = etree.ElementTree(self.sequence_data_handler.get_xsd2(xsd_files))
-        xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence', namespaces=self.request.session['namespaces'])[0]
+        xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence',
+                                     namespaces=self.request.session['namespaces'])[0]
 
         self.request.session['curate_edit'] = True
 
@@ -2752,7 +3325,28 @@ class ParserGenerateSequenceTestSuite(TestCase):
                                           edit_data_tree=edit_data_tree)
         # print result_string
 
-        expected_element = {'value': None, 'tag': 'sequence', 'occurs': (2.0, 1, float('infinity')), 'module': None, 'children': [{'value': None, 'tag': 'sequence-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'choice', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'choice-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'element', 'occurs': (1, 2, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': 'entry1', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}, {'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': 'entry2', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}, {'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': 'entry0', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}]}]}]}]}
+        expected_element = {'value': None, 'tag': 'sequence', 'occurs': (2.0, 1, float('infinity')), 'module': None,
+                            'children': [{'value': None, 'tag': 'sequence-iter', 'occurs': (1, 1, 1), 'module': None,
+                                          'children': [
+                                              {'value': None, 'tag': 'choice', 'occurs': (1, 1, 1), 'module': None,
+                                               'children': [{'value': None, 'tag': 'choice-iter', 'occurs': (1, 1, 1),
+                                                             'module': None, 'children': [
+                                                       {'value': None, 'tag': 'element', 'occurs': (1, 2, 1),
+                                                        'module': None, 'children': [
+                                                           {'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1),
+                                                            'module': None, 'children': [
+                                                               {'value': 'entry1', 'tag': 'input', 'occurs': (1, 1, 1),
+                                                                'module': None, 'children': []}]},
+                                                           {'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1),
+                                                            'module': None, 'children': [
+                                                               {'value': 'entry2', 'tag': 'input', 'occurs': (1, 1, 1),
+                                                                'module': None, 'children': []}]}]},
+                                                       {'value': None, 'tag': 'element', 'occurs': (1, 1, 1),
+                                                        'module': None, 'children': [
+                                                           {'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1),
+                                                            'module': None, 'children': [
+                                                               {'value': 'entry0', 'tag': 'input', 'occurs': (1, 1, 1),
+                                                                'module': None, 'children': []}]}]}]}]}]}]}
 
         self.assertDictEqual(result_string[1], expected_element)
 
@@ -2764,7 +3358,8 @@ class ParserGenerateSequenceTestSuite(TestCase):
     def test_reload_sequence_basic(self):
         xsd_files = join('sequence', 'basic')
         xsd_tree = etree.ElementTree(self.sequence_data_handler.get_xsd2(xsd_files))
-        xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence', namespaces=self.request.session['namespaces'])[0]
+        xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence',
+                                     namespaces=self.request.session['namespaces'])[0]
 
         self.request.session['curate_edit'] = True
 
@@ -2779,7 +3374,11 @@ class ParserGenerateSequenceTestSuite(TestCase):
                                           edit_data_tree=edit_data_tree)
         # print result_string
 
-        expected_element = {'value': None, 'tag': 'sequence', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'sequence', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': 'entry0', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}]}]}
+        expected_element = {'value': None, 'tag': 'sequence', 'occurs': (1, 1, 1), 'module': None, 'children': [
+            {'value': None, 'tag': 'sequence', 'occurs': (1, 1, 1), 'module': None, 'children': [
+                {'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [
+                    {'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [
+                        {'value': 'entry0', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}]}]}
 
         self.assertDictEqual(result_string[1], expected_element)
 
@@ -2791,7 +3390,8 @@ class ParserGenerateSequenceTestSuite(TestCase):
     def test_reload_sequence_unbounded(self):
         xsd_files = join('sequence', 'unbounded')
         xsd_tree = etree.ElementTree(self.sequence_data_handler.get_xsd2(xsd_files))
-        xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence', namespaces=self.request.session['namespaces'])[0]
+        xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence',
+                                     namespaces=self.request.session['namespaces'])[0]
 
         self.request.session['curate_edit'] = True
 
@@ -2806,7 +3406,24 @@ class ParserGenerateSequenceTestSuite(TestCase):
                                           edit_data_tree=edit_data_tree)
         # print result_string
 
-        expected_element = {'value': None, 'tag': 'sequence', 'occurs': (2.0, 1, float('infinity')), 'module': None, 'children': [{'value': None, 'tag': 'sequence-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'sequence', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'element', 'occurs': (1, 3, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': 'entry0', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}, {'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': 'entry1', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}, {'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': 'entry2', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}]}]}]}
+        expected_element = {'value': None, 'tag': 'sequence', 'occurs': (2.0, 1, float('infinity')), 'module': None,
+                            'children': [{'value': None, 'tag': 'sequence-iter', 'occurs': (1, 1, 1), 'module': None,
+                                          'children': [
+                                              {'value': None, 'tag': 'sequence', 'occurs': (1, 1, 1), 'module': None,
+                                               'children': [{'value': None, 'tag': 'element', 'occurs': (1, 3, 1),
+                                                             'module': None, 'children': [
+                                                       {'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1),
+                                                        'module': None, 'children': [
+                                                           {'value': 'entry0', 'tag': 'input', 'occurs': (1, 1, 1),
+                                                            'module': None, 'children': []}]},
+                                                       {'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1),
+                                                        'module': None, 'children': [
+                                                           {'value': 'entry1', 'tag': 'input', 'occurs': (1, 1, 1),
+                                                            'module': None, 'children': []}]},
+                                                       {'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1),
+                                                        'module': None, 'children': [
+                                                           {'value': 'entry2', 'tag': 'input', 'occurs': (1, 1, 1),
+                                                            'module': None, 'children': []}]}]}]}]}]}
 
         self.assertDictEqual(result_string[1], expected_element)
 
@@ -2865,7 +3482,8 @@ class ParserGenerateSequenceTestSuite(TestCase):
     def test_reload_multiple_basic(self):
         xsd_files = join('multiple', 'basic')
         xsd_tree = etree.ElementTree(self.sequence_data_handler.get_xsd2(xsd_files))
-        xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence', namespaces=self.request.session['namespaces'])[0]
+        xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence',
+                                     namespaces=self.request.session['namespaces'])[0]
 
         self.request.session['curate_edit'] = True
 
@@ -2879,8 +3497,24 @@ class ParserGenerateSequenceTestSuite(TestCase):
         result_string = generate_sequence(self.request, xsd_element, xsd_tree, self.namespace, full_path='/root',
                                           edit_data_tree=edit_data_tree)
 
-
-        expected_element = {'value': None, 'tag': 'sequence', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'choice', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'choice-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': 'entry0', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}, {'value': None, 'tag': 'element', 'occurs': (1, 0, 1), 'module': None, 'children': []}]}]}, {'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': 'entry1', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}, {'value': None, 'tag': 'sequence', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': 'entry2', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}, {'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': 'entry3', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}]}]}
+        expected_element = {'value': None, 'tag': 'sequence', 'occurs': (1, 1, 1), 'module': None, 'children': [
+            {'value': None, 'tag': 'choice', 'occurs': (1, 1, 1), 'module': None, 'children': [
+                {'value': None, 'tag': 'choice-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [
+                    {'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [
+                        {'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [
+                            {'value': 'entry0', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None,
+                             'children': []}]}]},
+                    {'value': None, 'tag': 'element', 'occurs': (1, 0, 1), 'module': None, 'children': []}]}]},
+            {'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [
+                {'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [
+                    {'value': 'entry1', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]},
+            {'value': None, 'tag': 'sequence', 'occurs': (1, 1, 1), 'module': None, 'children': [
+                {'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [
+                    {'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [
+                        {'value': 'entry2', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]},
+                {'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [
+                    {'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [
+                        {'value': 'entry3', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}]}]}
 
         self.assertDictEqual(result_string[1], expected_element)
 
@@ -2894,7 +3528,8 @@ class ParserGenerateSequenceTestSuite(TestCase):
     def test_reload_multiple_unbounded(self):
         xsd_files = join('multiple', 'unbounded')
         xsd_tree = etree.ElementTree(self.sequence_data_handler.get_xsd2(xsd_files))
-        xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence', namespaces=self.request.session['namespaces'])[0]
+        xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence',
+                                     namespaces=self.request.session['namespaces'])[0]
 
         self.request.session['curate_edit'] = True
 
@@ -2908,7 +3543,73 @@ class ParserGenerateSequenceTestSuite(TestCase):
         result_string = generate_sequence(self.request, xsd_element, xsd_tree, self.namespace, full_path='/root',
                                           edit_data_tree=edit_data_tree)
 
-        expected_element = {'value': None, 'tag': 'sequence', 'occurs': (2.0, 1, float('infinity')), 'module': None, 'children': [{'value': None, 'tag': 'sequence-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'choice', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'choice-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': 'entry0', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}, {'value': None, 'tag': 'element', 'occurs': (1, 2, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': 'entry4', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}, {'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': 'entry8', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}]}]}, {'value': None, 'tag': 'element', 'occurs': (1, 3, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': 'entry1', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}, {'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': 'entry5', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}, {'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': 'entry9', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}, {'value': None, 'tag': 'sequence', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'element', 'occurs': (1, 3, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': 'entry2', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}, {'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': 'entry6', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}, {'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': 'entry10', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}, {'value': None, 'tag': 'element', 'occurs': (1, 3, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': 'entry3', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}, {'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': 'entry7', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}, {'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': 'entry11', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}]}]}]}
+        expected_element = {'value': None, 'tag': 'sequence', 'occurs': (2.0, 1, float('infinity')), 'module': None,
+                            'children': [{'value': None, 'tag': 'sequence-iter', 'occurs': (1, 1, 1), 'module': None,
+                                          'children': [
+                                              {'value': None, 'tag': 'choice', 'occurs': (1, 1, 1), 'module': None,
+                                               'children': [{'value': None, 'tag': 'choice-iter', 'occurs': (1, 1, 1),
+                                                             'module': None, 'children': [
+                                                       {'value': None, 'tag': 'element', 'occurs': (1, 1, 1),
+                                                        'module': None, 'children': [
+                                                           {'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1),
+                                                            'module': None, 'children': [
+                                                               {'value': 'entry0', 'tag': 'input', 'occurs': (1, 1, 1),
+                                                                'module': None, 'children': []}]}]},
+                                                       {'value': None, 'tag': 'element', 'occurs': (1, 2, 1),
+                                                        'module': None, 'children': [
+                                                           {'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1),
+                                                            'module': None, 'children': [
+                                                               {'value': 'entry4', 'tag': 'input', 'occurs': (1, 1, 1),
+                                                                'module': None, 'children': []}]},
+                                                           {'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1),
+                                                            'module': None, 'children': [
+                                                               {'value': 'entry8', 'tag': 'input', 'occurs': (1, 1, 1),
+                                                                'module': None, 'children': []}]}]}]}]},
+                                              {'value': None, 'tag': 'element', 'occurs': (1, 3, 1), 'module': None,
+                                               'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1),
+                                                             'module': None, 'children': [
+                                                       {'value': 'entry1', 'tag': 'input', 'occurs': (1, 1, 1),
+                                                        'module': None, 'children': []}]},
+                                                            {'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1),
+                                                             'module': None, 'children': [
+                                                                {'value': 'entry5', 'tag': 'input', 'occurs': (1, 1, 1),
+                                                                 'module': None, 'children': []}]},
+                                                            {'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1),
+                                                             'module': None, 'children': [
+                                                                {'value': 'entry9', 'tag': 'input', 'occurs': (1, 1, 1),
+                                                                 'module': None, 'children': []}]}]},
+                                              {'value': None, 'tag': 'sequence', 'occurs': (1, 1, 1), 'module': None,
+                                               'children': [{'value': None, 'tag': 'element', 'occurs': (1, 3, 1),
+                                                             'module': None, 'children': [
+                                                       {'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1),
+                                                        'module': None, 'children': [
+                                                           {'value': 'entry2', 'tag': 'input', 'occurs': (1, 1, 1),
+                                                            'module': None, 'children': []}]},
+                                                       {'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1),
+                                                        'module': None, 'children': [
+                                                           {'value': 'entry6', 'tag': 'input', 'occurs': (1, 1, 1),
+                                                            'module': None, 'children': []}]},
+                                                       {'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1),
+                                                        'module': None, 'children': [
+                                                           {'value': 'entry10', 'tag': 'input', 'occurs': (1, 1, 1),
+                                                            'module': None, 'children': []}]}]},
+                                                            {'value': None, 'tag': 'element', 'occurs': (1, 3, 1),
+                                                             'module': None, 'children': [
+                                                                {'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1),
+                                                                 'module': None, 'children': [
+                                                                    {'value': 'entry3', 'tag': 'input',
+                                                                     'occurs': (1, 1, 1), 'module': None,
+                                                                     'children': []}]},
+                                                                {'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1),
+                                                                 'module': None, 'children': [
+                                                                    {'value': 'entry7', 'tag': 'input',
+                                                                     'occurs': (1, 1, 1), 'module': None,
+                                                                     'children': []}]},
+                                                                {'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1),
+                                                                 'module': None, 'children': [
+                                                                    {'value': 'entry11', 'tag': 'input',
+                                                                     'occurs': (1, 1, 1), 'module': None,
+                                                                     'children': []}]}]}]}]}]}
 
         self.assertDictEqual(result_string[1], expected_element)
 
@@ -2946,7 +3647,8 @@ class ParserGenerateSequenceAbsentTestSuite(TestCase):
 
     def test_create_element_basic(self):
         xsd_tree = etree.ElementTree(self.sequence_data_handler.get_xsd2(join('element', 'basic')))
-        xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence', namespaces=self.request.session['namespaces'])[0]
+        xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence',
+                                     namespaces=self.request.session['namespaces'])[0]
 
         result_string = generate_sequence_absent(self.request, xsd_element, xsd_tree, self.namespace)
         # print result_string
@@ -2994,7 +3696,8 @@ class ParserGenerateSequenceAbsentTestSuite(TestCase):
 
     def test_create_element_unbounded(self):
         xsd_tree = etree.ElementTree(self.sequence_data_handler.get_xsd2(join('element', 'unbounded')))
-        xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence', namespaces=self.request.session['namespaces'])[0]
+        xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence',
+                                     namespaces=self.request.session['namespaces'])[0]
 
         result_string = generate_sequence_absent(self.request, xsd_element, xsd_tree, self.namespace)
         # print result_string
@@ -3068,7 +3771,8 @@ class ParserGenerateSequenceAbsentTestSuite(TestCase):
 
     def test_create_choice_basic(self):
         xsd_tree = etree.ElementTree(self.sequence_data_handler.get_xsd2(join('choice', 'basic')))
-        xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence', namespaces=self.request.session['namespaces'])[0]
+        xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence',
+                                     namespaces=self.request.session['namespaces'])[0]
 
         result_string = generate_sequence_absent(self.request, xsd_element, xsd_tree, self.namespace)
         # print result_string
@@ -3140,7 +3844,8 @@ class ParserGenerateSequenceAbsentTestSuite(TestCase):
 
     def test_create_choice_unbounded(self):
         xsd_tree = etree.ElementTree(self.sequence_data_handler.get_xsd2(join('choice', 'unbounded')))
-        xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence', namespaces=self.request.session['namespaces'])[0]
+        xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence',
+                                     namespaces=self.request.session['namespaces'])[0]
 
         result_string = generate_sequence_absent(self.request, xsd_element, xsd_tree, self.namespace)
         # print result_string
@@ -3212,7 +3917,8 @@ class ParserGenerateSequenceAbsentTestSuite(TestCase):
 
     def test_create_sequence_basic(self):
         xsd_tree = etree.ElementTree(self.sequence_data_handler.get_xsd2(join('sequence', 'basic')))
-        xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence', namespaces=self.request.session['namespaces'])[0]
+        xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence',
+                                     namespaces=self.request.session['namespaces'])[0]
 
         result_string = generate_sequence_absent(self.request, xsd_element, xsd_tree, self.namespace)
         # print result_string
@@ -3268,7 +3974,8 @@ class ParserGenerateSequenceAbsentTestSuite(TestCase):
 
     def test_create_sequence_unbounded(self):
         xsd_tree = etree.ElementTree(self.sequence_data_handler.get_xsd2(join('sequence', 'unbounded')))
-        xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence', namespaces=self.request.session['namespaces'])[0]
+        xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence',
+                                     namespaces=self.request.session['namespaces'])[0]
 
         result_string = generate_sequence_absent(self.request, xsd_element, xsd_tree, self.namespace)
         # print result_string
@@ -3346,7 +4053,8 @@ class ParserGenerateSequenceAbsentTestSuite(TestCase):
 
     def test_create_multiple_basic(self):
         xsd_tree = etree.ElementTree(self.sequence_data_handler.get_xsd2(join('multiple', 'basic')))
-        xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence', namespaces=self.request.session['namespaces'])[0]
+        xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence',
+                                     namespaces=self.request.session['namespaces'])[0]
 
         result_string = generate_sequence_absent(self.request, xsd_element, xsd_tree, self.namespace)
         # print result_string
@@ -3497,7 +4205,8 @@ class ParserGenerateSequenceAbsentTestSuite(TestCase):
 
     def test_create_multiple_valid(self):
         xsd_tree = etree.ElementTree(self.sequence_data_handler.get_xsd2(join('multiple', 'unbounded')))
-        xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence', namespaces=self.request.session['namespaces'])[0]
+        xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence',
+                                     namespaces=self.request.session['namespaces'])[0]
 
         result_string = generate_sequence_absent(self.request, xsd_element, xsd_tree, self.namespace)
         # print result_string
@@ -3676,7 +4385,8 @@ class ParserGenerateChoiceTestSuite(TestCase):
     def test_create_element_basic(self):
         xsd_files = join('element', 'basic')
         xsd_tree = etree.ElementTree(self.choice_data_handler.get_xsd2(xsd_files))
-        xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:choice', namespaces=self.request.session['namespaces'])[0]
+        xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:choice',
+                                     namespaces=self.request.session['namespaces'])[0]
 
         result_string = generate_choice(self.request, xsd_element, xsd_tree, self.namespace, full_path='')
         # print result_string
@@ -3739,7 +4449,8 @@ class ParserGenerateChoiceTestSuite(TestCase):
     def test_create_element_unbounded(self):
         xsd_files = join('element', 'unbounded')
         xsd_tree = etree.ElementTree(self.choice_data_handler.get_xsd2(xsd_files))
-        xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:choice', namespaces=self.request.session['namespaces'])[0]
+        xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:choice',
+                                     namespaces=self.request.session['namespaces'])[0]
 
         result_string = generate_choice(self.request, xsd_element, xsd_tree, self.namespace, full_path='')
         # print result_string
@@ -3894,7 +4605,8 @@ class ParserGenerateChoiceTestSuite(TestCase):
     def test_create_sequence_basic(self):
         xsd_files = join('sequence', 'basic')
         xsd_tree = etree.ElementTree(self.choice_data_handler.get_xsd2(xsd_files))
-        xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:choice', namespaces=self.request.session['namespaces'])[0]
+        xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:choice',
+                                     namespaces=self.request.session['namespaces'])[0]
 
         result_string = generate_choice(self.request, xsd_element, xsd_tree, self.namespace, full_path='')
         # print result_string
@@ -3974,7 +4686,8 @@ class ParserGenerateChoiceTestSuite(TestCase):
     def test_create_sequence_unbounded(self):
         xsd_files = join('sequence', 'unbounded')
         xsd_tree = etree.ElementTree(self.choice_data_handler.get_xsd2(xsd_files))
-        xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:choice', namespaces=self.request.session['namespaces'])[0]
+        xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:choice',
+                                     namespaces=self.request.session['namespaces'])[0]
 
         result_string = generate_choice(self.request, xsd_element, xsd_tree, self.namespace, full_path='')
         # print result_string
@@ -4113,7 +4826,8 @@ class ParserGenerateChoiceTestSuite(TestCase):
     def test_reload_element_basic(self):
         xsd_files = join('element', 'basic')
         xsd_tree = etree.ElementTree(self.choice_data_handler.get_xsd2(xsd_files))
-        xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:choice', namespaces=self.request.session['namespaces'])[0]
+        xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:choice',
+                                     namespaces=self.request.session['namespaces'])[0]
 
         self.request.session['curate_edit'] = True
 
@@ -4187,7 +4901,8 @@ class ParserGenerateChoiceTestSuite(TestCase):
         # FIXME correct the bug here
         xsd_files = join('element', 'unbounded')
         xsd_tree = etree.ElementTree(self.choice_data_handler.get_xsd2(xsd_files))
-        xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:choice', namespaces=self.request.session['namespaces'])[0]
+        xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:choice',
+                                     namespaces=self.request.session['namespaces'])[0]
 
         self.request.session['curate_edit'] = True
 
@@ -4383,7 +5098,8 @@ class ParserGenerateChoiceTestSuite(TestCase):
     def test_reload_sequence_basic(self):
         xsd_files = join('sequence', 'basic')
         xsd_tree = etree.ElementTree(self.choice_data_handler.get_xsd2(xsd_files))
-        xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:choice', namespaces=self.request.session['namespaces'])[0]
+        xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:choice',
+                                     namespaces=self.request.session['namespaces'])[0]
 
         self.request.session['curate_edit'] = True
 
@@ -4472,7 +5188,8 @@ class ParserGenerateChoiceTestSuite(TestCase):
         # fixme correct the bug
         xsd_files = join('sequence', 'unbounded')
         xsd_tree = etree.ElementTree(self.choice_data_handler.get_xsd2(xsd_files))
-        xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:choice', namespaces=self.request.session['namespaces'])[0]
+        xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:choice',
+                                     namespaces=self.request.session['namespaces'])[0]
 
         self.request.session['curate_edit'] = True
 
@@ -4588,12 +5305,12 @@ class ParserGenerateChoiceTestSuite(TestCase):
 
         self.assertTrue(are_equals(result_html, expected_html))
 
-    # TODO implement later
-    # def test_reload_any_basic(self):
-    #     pass
-    #
-    # def test_reload_any_unbounded(self):
-    #     pass
+        # TODO implement later
+        # def test_reload_any_basic(self):
+        #     pass
+        #
+        # def test_reload_any_unbounded(self):
+        #     pass
 
 
 class ParserGenerateSimpleTypeTestSuite(TestCase):
@@ -4826,29 +5543,29 @@ class ParserGenerateSimpleTypeTestSuite(TestCase):
 
         self.assertTrue(are_equals(result_html, expected_html))
 
-    # fixme support for union is not there yet
-    # def test_reload_union(self):
-    #     xsd_files = join('restriction', 'basic')
-    #     xsd_tree = self.simple_type_data_handler.get_xsd2(xsd_files)
-    #     xsd_element = xsd_tree.xpath('/schema/simpleType')[0]
-    #
-    #     self.request.session['curate_edit'] = True
-    #
-    #     xml_tree = self.simple_type_data_handler.get_xml(xsd_files)
-    #     xml_data = etree.tostring(xml_tree)
-    #
-    #     clean_parser = etree.XMLParser(remove_blank_text=True, remove_comments=True, remove_pis=True)
-    #     etree.set_default_parser(parser=clean_parser)
-    #     # load the XML tree from the text
-    #     edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
-    #     result_string = generate_simple_type(self.request, xsd_element, xsd_tree, '', full_path='/root',
-    #                                        edit_data_tree=edit_data_tree)
-    #     print result_string
-    #
-    #     # result_html = etree.fromstring(result_string)
-    #     # expected_html = self.simple_type_data_handler.get_html2(xsd_files + '.reload')
-    #     #
-    #     # self.assertTrue(are_equals(result_html, expected_html))
+        # fixme support for union is not there yet
+        # def test_reload_union(self):
+        #     xsd_files = join('restriction', 'basic')
+        #     xsd_tree = self.simple_type_data_handler.get_xsd2(xsd_files)
+        #     xsd_element = xsd_tree.xpath('/schema/simpleType')[0]
+        #
+        #     self.request.session['curate_edit'] = True
+        #
+        #     xml_tree = self.simple_type_data_handler.get_xml(xsd_files)
+        #     xml_data = etree.tostring(xml_tree)
+        #
+        #     clean_parser = etree.XMLParser(remove_blank_text=True, remove_comments=True, remove_pis=True)
+        #     etree.set_default_parser(parser=clean_parser)
+        #     # load the XML tree from the text
+        #     edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
+        #     result_string = generate_simple_type(self.request, xsd_element, xsd_tree, '', full_path='/root',
+        #                                        edit_data_tree=edit_data_tree)
+        #     print result_string
+        #
+        #     # result_html = etree.fromstring(result_string)
+        #     # expected_html = self.simple_type_data_handler.get_html2(xsd_files + '.reload')
+        #     #
+        #     # self.assertTrue(are_equals(result_html, expected_html))
 
 
 class ParserGenerateComplexTypeTestSuite(TestCase):
@@ -5738,7 +6455,6 @@ class ParserGenerateComplexTypeTestSuite(TestCase):
             ]
         }
 
-
         self.assertDictEqual(result_string[1], expected_element)
 
         result_string = '<div>' + result_string[0] + '</div>'
@@ -6176,7 +6892,8 @@ class ParserGenerateModuleTestSuite(TestCase):
         # load the XML tree from the text
         edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
 
-        result_string = generate_module(self.request, xsd_element, self.namespace, xsd_xpath='', xml_xpath='/module/child',
+        result_string = generate_module(self.request, xsd_element, self.namespace, xsd_xpath='',
+                                        xml_xpath='/module/child',
                                         edit_data_tree=edit_data_tree)
 
         result_html = etree.fromstring(result_string)
@@ -6226,7 +6943,8 @@ class ParserGenerateSimpleContentTestSuite(TestCase):
     def test_create_restriction(self):
         xsd_files = join('restriction', 'basic')
         xsd_tree = etree.ElementTree(self.simple_content_data_handler.get_xsd2(xsd_files))
-        xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:simpleContent', namespaces=self.request.session['namespaces'])[0]
+        xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:simpleContent',
+                                     namespaces=self.request.session['namespaces'])[0]
 
         result_string = generate_simple_content(self.request, xsd_element, xsd_tree, self.namespace, full_path='')
         # print result_string
@@ -6273,12 +6991,51 @@ class ParserGenerateSimpleContentTestSuite(TestCase):
     def test_create_extension(self):
         xsd_files = join('extension', 'basic')
         xsd_tree = etree.ElementTree(self.simple_content_data_handler.get_xsd2(xsd_files))
-        xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:simpleContent', namespaces=self.request.session['namespaces'])[0]
+        xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:simpleContent',
+                                     namespaces=self.request.session['namespaces'])[0]
 
         result_string = generate_simple_content(self.request, xsd_element, xsd_tree, self.namespace, full_path='')
         # print result_string
 
-        expected_element = {'value': None, 'tag': 'simple_content', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'extension', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': '', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}]}]}
+        expected_element = {
+            'value': None,
+            'tag': 'simple_content',
+            'occurs': (1, 1, 1),
+            'module': None,
+            'children': [
+                {
+                    'value': None,
+                    'tag': 'extension',
+                    'occurs': (1, 1, 1),
+                    'module': None,
+                    'children': [
+                        {
+                            'value': None,
+                            'tag': 'element',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'children': [
+                                {
+                                    'value': None,
+                                    'tag': 'elem-iter',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'children': [
+                                        {
+                                            'value': '',
+                                            'tag': 'input',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'children': []
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
 
         self.assertDictEqual(result_string[1], expected_element)
 
@@ -6290,7 +7047,8 @@ class ParserGenerateSimpleContentTestSuite(TestCase):
     def test_reload_extension(self):
         xsd_files = join('extension', 'basic')
         xsd_tree = etree.ElementTree(self.simple_content_data_handler.get_xsd2(xsd_files))
-        xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:simpleContent', namespaces=self.request.session['namespaces'])[0]
+        xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:simpleContent',
+                                     namespaces=self.request.session['namespaces'])[0]
 
         self.request.session['curate_edit'] = True
 
@@ -6306,7 +7064,45 @@ class ParserGenerateSimpleContentTestSuite(TestCase):
         # print result_string
         # result_string = '<div>' + result_string + '</div>'
 
-        expected_element = {'value': None, 'tag': 'simple_content', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'extension', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': 'attr0', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}]}]}
+        expected_element = {
+            'value': None,
+            'tag': 'simple_content',
+            'occurs': (1, 1, 1),
+            'module': None,
+            'children': [
+                {
+                    'value': None,
+                    'tag': 'extension',
+                    'occurs': (1, 1, 1),
+                    'module': None,
+                    'children': [
+                        {
+                            'value': None,
+                            'tag': 'element',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'children': [
+                                {
+                                    'value': None,
+                                    'tag': 'elem-iter',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'children': [
+                                        {
+                                            'value': 'attr0',
+                                            'tag': 'input',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'children': []
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
 
         self.assertDictEqual(result_string[1], expected_element)
 
@@ -6318,7 +7114,8 @@ class ParserGenerateSimpleContentTestSuite(TestCase):
     def test_reload_restriction(self):
         xsd_files = join('restriction', 'basic')
         xsd_tree = etree.ElementTree(self.simple_content_data_handler.get_xsd2(xsd_files))
-        xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:simpleContent', namespaces=self.request.session['namespaces'])[0]
+        xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:simpleContent',
+                                     namespaces=self.request.session['namespaces'])[0]
 
         self.request.session['curate_edit'] = True
 
@@ -6373,6 +7170,263 @@ class ParserGenerateSimpleContentTestSuite(TestCase):
         self.assertTrue(are_equals(result_html, expected_html))
 
 
+class ParserGenerateComplexContentTestSuite(TestCase):
+    """
+    """
+
+    # FIXME restriction for complexContent are not working
+
+    def setUp(self):
+        extension_data = join('curate', 'tests', 'data', 'parser', 'complex_content')
+        self.extension_data_handler = DataHandler(extension_data)
+
+        self.maxDiff = None
+
+        self.request = HttpRequest()
+        engine = import_module('django.contrib.sessions.backends.db')
+        session_key = None
+        self.request.session = engine.SessionStore(session_key)
+
+        self.request.session['curate_edit'] = False  # Data edition
+        self.request.session['nb_html_tags'] = 0
+        self.request.session['mapTagID'] = {}
+        self.request.session['nbChoicesID'] = 0
+
+        # set default namespace
+        namespace = "http://www.w3.org/2001/XMLSchema"
+        self.namespace = "{" + namespace + "}"
+        self.request.session['defaultPrefix'] = 'xs'
+        self.request.session['namespaces'] = {'xs': namespace}
+
+    def test_create_restriction(self):
+        xsd_files = join('restriction', 'basic')
+        xsd_tree = etree.ElementTree(self.extension_data_handler.get_xsd2(xsd_files))
+        xsd_element = xsd_tree.xpath('/xs:schema/xs:element/xs:complexType/xs:complexContent',
+                                     namespaces=self.request.session['namespaces'])[0]
+
+        result_string = generate_complex_content(self.request, xsd_element, xsd_tree, self.namespace, full_path='')
+        # print result_string
+
+        expected_dict = {'value': None, 'tag': 'complex_content', 'occurs': (1, 1, 1), 'module': None, 'children': [
+            {'value': None, 'tag': 'restriction', 'occurs': (1, 1, 1), 'module': None,
+             'children': [{'module': None, 'tag': 'input', 'occurs': (1, 1, 1), 'value': '', 'children': []}]}]}
+
+        self.assertDictEqual(result_string[1], expected_dict)
+
+        # result_string = '<div>' + result_string[0] + '</div>'
+        result_html = etree.fromstring(result_string[0])
+        expected_html = self.extension_data_handler.get_html2(xsd_files)
+
+        self.assertTrue(are_equals(result_html, expected_html))
+
+    def test_create_extension(self):
+        xsd_files = join('extension', 'basic')
+        xsd_tree = etree.ElementTree(self.extension_data_handler.get_xsd2(xsd_files))
+        xsd_element = xsd_tree.xpath('/xs:schema/xs:element/xs:complexType/xs:complexContent',
+                                     namespaces=self.request.session['namespaces'])[0]
+
+        result_string = generate_complex_content(self.request, xsd_element, xsd_tree, self.namespace, full_path='')
+        # print result_string
+
+        expected_dict = {
+            'value': None,
+            'tag': 'complex_content',
+            'occurs': (1, 1, 1),
+            'module': None,
+            'children': [
+                {
+                    'value': None,
+                    'tag': 'extension',
+                    'occurs': (1, 1, 1),
+                    'module': None,
+                    'children': [
+                        {
+                            'value': None,
+                            'tag': 'complex_type',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'children': [
+                                {
+                                    'value': None,
+                                    'tag': 'sequence',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'children': [
+                                        {
+                                            'value': None,
+                                            'tag': 'element',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'children': [
+                                                {
+                                                    'value': None,
+                                                    'tag': 'elem-iter',
+                                                    'occurs': (1, 1, 1),
+                                                    'module': None,
+                                                    'children': [
+                                                        {
+                                                            'value': '',
+                                                            'tag': 'input',
+                                                            'occurs': (1, 1, 1),
+                                                            'module': None,
+                                                            'children': []
+                                                        }
+                                                    ]
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            'value': None,
+                                            'tag': 'element',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'children': [
+                                                {
+                                                    'value': None,
+                                                    'tag': 'elem-iter',
+                                                    'occurs': (1, 1, 1),
+                                                    'module': None,
+                                                    'children': [
+                                                        {
+                                                            'value': '',
+                                                            'tag': 'input',
+                                                            'occurs': (1, 1, 1),
+                                                            'module': None,
+                                                            'children': []
+                                                        }
+                                                    ]
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            'value': None,
+                            'tag': 'sequence',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'children': [
+                                {
+                                    'value': None,
+                                    'tag': 'element',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'children': [
+                                        {
+                                            'value': None,
+                                            'tag': 'elem-iter',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'children': [
+                                                {
+                                                    'value': '',
+                                                    'tag': 'input',
+                                                    'occurs': (1, 1, 1),
+                                                    'module': None,
+                                                    'children': []
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+
+        self.assertDictEqual(result_string[1], expected_dict)
+
+        result_string = '<div>' + result_string[0] + '</div>'
+        result_html = etree.fromstring(result_string)
+        expected_html = self.extension_data_handler.get_html2(xsd_files)
+
+        self.assertTrue(are_equals(result_html, expected_html))
+
+    def test_reload_restriction(self):
+        xsd_files = join('restriction', 'basic')
+        xsd_tree = etree.ElementTree(self.extension_data_handler.get_xsd2(xsd_files))
+        xsd_element = xsd_tree.xpath('/xs:schema/xs:element/xs:complexType/xs:complexContent',
+                                     namespaces=self.request.session['namespaces'])[0]
+
+        self.request.session['curate_edit'] = True
+
+        xml_tree = self.extension_data_handler.get_xml(xsd_files)
+        xml_data = etree.tostring(xml_tree)
+
+        clean_parser = etree.XMLParser(remove_blank_text=True, remove_comments=True, remove_pis=True)
+        etree.set_default_parser(parser=clean_parser)
+        # load the XML tree from the text
+        edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
+
+        result_string = generate_complex_content(self.request, xsd_element, xsd_tree, self.namespace,
+                                                 full_path='/root', edit_data_tree=edit_data_tree)
+        # print result_string
+        # result_string = '<div>' + result_string + '</div>'
+
+        expected_dict = {'value': None, 'tag': 'complex_content', 'occurs': (1, 1, 1), 'module': None, 'children': [
+            {'value': None, 'tag': 'restriction', 'occurs': (1, 1, 1), 'module': None,
+             'children': [{'module': None, 'tag': 'input', 'occurs': (1, 1, 1), 'value': '', 'children': []}]}]}
+
+        self.assertDictEqual(result_string[1], expected_dict)
+
+        # result_string = '<div>' + result_string[0] + '</div>'
+        result_html = etree.fromstring(result_string[0])
+        expected_html = self.extension_data_handler.get_html2(xsd_files + '.reload')
+
+        self.assertTrue(are_equals(result_html, expected_html))
+
+    def test_reload_extension(self):
+        xsd_files = join('extension', 'basic')
+        xsd_tree = etree.ElementTree(self.extension_data_handler.get_xsd2(xsd_files))
+        xsd_element = xsd_tree.xpath('/xs:schema/xs:element/xs:complexType/xs:complexContent',
+                                     namespaces=self.request.session['namespaces'])[0]
+
+        self.request.session['curate_edit'] = True
+
+        xml_tree = self.extension_data_handler.get_xml(xsd_files)
+        xml_data = etree.tostring(xml_tree)
+
+        clean_parser = etree.XMLParser(remove_blank_text=True, remove_comments=True, remove_pis=True)
+        etree.set_default_parser(parser=clean_parser)
+        # load the XML tree from the text
+        edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
+
+        result_string = generate_complex_content(self.request, xsd_element, xsd_tree, self.namespace,
+                                                 full_path='/root', edit_data_tree=edit_data_tree)
+        # print result_string
+        # result_string = '<div>' + result_string + '</div>'
+
+        expected_dict = {'value': None, 'tag': 'complex_content', 'occurs': (1, 1, 1), 'module': None, 'children': [
+            {'value': None, 'tag': 'extension', 'occurs': (1, 1, 1), 'module': None, 'children': [
+                {'value': None, 'tag': 'complex_type', 'occurs': (1, 1, 1), 'module': None, 'children': [
+                    {'value': None, 'tag': 'sequence', 'occurs': (1, 1, 1), 'module': None, 'children': [
+                        {'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [
+                            {'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [
+                                {'value': 'entry0', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None,
+                                 'children': []}]}]},
+                        {'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [
+                            {'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [
+                                {'value': 'entry1', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None,
+                                 'children': []}]}]}]}]},
+                {'value': None, 'tag': 'sequence', 'occurs': (1, 1, 1), 'module': None, 'children': [
+                    {'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [
+                        {'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [
+                            {'value': 'entry2', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None,
+                             'children': []}]}]}]}]}]}
+
+        self.assertDictEqual(result_string[1], expected_dict)
+
+        result_string = '<div>' + result_string[0] + '</div>'
+        result_html = etree.fromstring(result_string)
+        expected_html = self.extension_data_handler.get_html2(xsd_files + '.reload')
+
+        self.assertTrue(are_equals(result_html, expected_html))
+
+
 class ParserGenerateRestrictionTestSuite(TestCase):
     """
     """
@@ -6408,7 +7462,8 @@ class ParserGenerateRestrictionTestSuite(TestCase):
     def test_create_enumeration(self):
         xsd_files = join('enumeration', 'basic')
         xsd_tree = etree.ElementTree(self.restriction_data_handler.get_xsd2(xsd_files))
-        xsd_element = xsd_tree.xpath('/xs:schema/xs:simpleType/xs:restriction', namespaces=self.request.session['namespaces'])[0]
+        xsd_element = xsd_tree.xpath('/xs:schema/xs:simpleType/xs:restriction',
+                                     namespaces=self.request.session['namespaces'])[0]
 
         result_string = generate_restriction(self.request, xsd_element, xsd_tree, self.namespace, full_path='')
         # print result_string
@@ -6446,7 +7501,8 @@ class ParserGenerateRestrictionTestSuite(TestCase):
     def test_create_simple_type(self):
         xsd_files = join('simple_type', 'basic')
         xsd_tree = etree.ElementTree(self.restriction_data_handler.get_xsd2(xsd_files))
-        xsd_element = xsd_tree.xpath('/xs:schema/xs:simpleType/xs:restriction', namespaces=self.request.session['namespaces'])[0]
+        xsd_element = xsd_tree.xpath('/xs:schema/xs:simpleType/xs:restriction',
+                                     namespaces=self.request.session['namespaces'])[0]
 
         result_string = generate_restriction(self.request, xsd_element, xsd_tree, self.namespace, full_path='')
         # print result_string
@@ -6500,7 +7556,8 @@ class ParserGenerateRestrictionTestSuite(TestCase):
     def test_reload_enumeration(self):
         xsd_files = join('enumeration', 'basic')
         xsd_tree = etree.ElementTree(self.restriction_data_handler.get_xsd2(xsd_files))
-        xsd_element = xsd_tree.xpath('/xs:schema/xs:simpleType/xs:restriction', namespaces=self.request.session['namespaces'])[0]
+        xsd_element = xsd_tree.xpath('/xs:schema/xs:simpleType/xs:restriction',
+                                     namespaces=self.request.session['namespaces'])[0]
 
         self.request.session['curate_edit'] = True
 
@@ -6730,12 +7787,24 @@ class ParserGenerateExtensionTestSuite(TestCase):
     def test_create_all(self):
         xsd_files = join('all', 'basic')
         xsd_tree = etree.ElementTree(self.extension_data_handler.get_xsd2(xsd_files))
-        xsd_element = xsd_tree.xpath('/xs:schema/xs:element/xs:complexType/xs:complexContent/xs:extension', namespaces=self.request.session['namespaces'])[0]
+        xsd_element = xsd_tree.xpath('/xs:schema/xs:element/xs:complexType/xs:complexContent/xs:extension',
+                                     namespaces=self.request.session['namespaces'])[0]
 
         result_string = generate_extension(self.request, xsd_element, xsd_tree, self.namespace, full_path='')
         # print result_string
 
-        expected_dict = {'value': None, 'tag': 'extension', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'complex_type', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'attribute', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': '', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}]}, {'value': None, 'tag': 'sequence', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': '', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}, {'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': '', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}]}]}
+        expected_dict = {'value': None, 'tag': 'extension', 'occurs': (1, 1, 1), 'module': None, 'children': [
+            {'value': None, 'tag': 'complex_type', 'occurs': (1, 1, 1), 'module': None, 'children': [
+                {'value': None, 'tag': 'attribute', 'occurs': (1, 1, 1), 'module': None, 'children': [
+                    {'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [
+                        {'value': '', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}]},
+            {'value': None, 'tag': 'sequence', 'occurs': (1, 1, 1), 'module': None, 'children': [
+                {'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [
+                    {'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [
+                        {'value': '', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]},
+                {'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [
+                    {'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [
+                        {'value': '', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}]}]}
 
         self.assertDictEqual(result_string[1], expected_dict)
 
@@ -6748,12 +7817,27 @@ class ParserGenerateExtensionTestSuite(TestCase):
     def test_create_choice(self):
         xsd_files = join('choice', 'basic')
         xsd_tree = etree.ElementTree(self.extension_data_handler.get_xsd2(xsd_files))
-        xsd_element = xsd_tree.xpath('/xs:schema/xs:element/xs:complexType/xs:complexContent/xs:extension', namespaces=self.request.session['namespaces'])[0]
+        xsd_element = xsd_tree.xpath('/xs:schema/xs:element/xs:complexType/xs:complexContent/xs:extension',
+                                     namespaces=self.request.session['namespaces'])[0]
 
         result_string = generate_extension(self.request, xsd_element, xsd_tree, self.namespace, full_path='')
         # print result_string
 
-        expected_dict = {'value': None, 'tag': 'extension', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'complex_type', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'sequence', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': '', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}, {'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': '', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}]}]}, {'value': None, 'tag': 'choice', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'choice-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': '', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}, {'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}]}
+        expected_dict = {'value': None, 'tag': 'extension', 'occurs': (1, 1, 1), 'module': None, 'children': [
+            {'value': None, 'tag': 'complex_type', 'occurs': (1, 1, 1), 'module': None, 'children': [
+                {'value': None, 'tag': 'sequence', 'occurs': (1, 1, 1), 'module': None, 'children': [
+                    {'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [
+                        {'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [
+                            {'value': '', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]},
+                    {'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [
+                        {'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [
+                            {'value': '', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}]}]},
+            {'value': None, 'tag': 'choice', 'occurs': (1, 1, 1), 'module': None, 'children': [
+                {'value': None, 'tag': 'choice-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [
+                    {'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [
+                        {'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [
+                            {'value': '', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]},
+                    {'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}]}
 
         self.assertDictEqual(result_string[1], expected_dict)
 
@@ -6766,12 +7850,137 @@ class ParserGenerateExtensionTestSuite(TestCase):
     def test_create_sequence(self):
         xsd_files = join('sequence', 'basic')
         xsd_tree = etree.ElementTree(self.extension_data_handler.get_xsd2(xsd_files))
-        xsd_element = xsd_tree.xpath('/xs:schema/xs:element/xs:complexType/xs:complexContent/xs:extension', namespaces=self.request.session['namespaces'])[0]
+        xsd_element = xsd_tree.xpath('/xs:schema/xs:element/xs:complexType/xs:complexContent/xs:extension',
+                                     namespaces=self.request.session['namespaces'])[0]
 
         result_string = generate_extension(self.request, xsd_element, xsd_tree, self.namespace, full_path='')
         # print result_string
 
-        expected_dict = {'value': None, 'tag': 'extension', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'complex_type', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'sequence', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': '', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}, {'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': '', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}]}]}, {'value': None, 'tag': 'sequence', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': '', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}, {'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': '', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}]}]}
+        expected_dict = {
+            'value': None,
+            'tag': 'extension',
+            'occurs': (1, 1, 1),
+            'module': None,
+            'children': [
+                {
+                    'value': None,
+                    'tag': 'complex_type',
+                    'occurs': (1, 1, 1),
+                    'module': None,
+                    'children': [
+                        {
+                            'value': None,
+                            'tag': 'sequence',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'children': [
+                                {
+                                    'value': None,
+                                    'tag': 'element',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'children': [
+                                        {
+                                            'value': None,
+                                            'tag': 'elem-iter',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'children': [
+                                                {
+                                                    'value': '',
+                                                    'tag': 'input',
+                                                    'occurs': (1, 1, 1),
+                                                    'module': None,
+                                                    'children': []
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    'value': None,
+                                    'tag': 'element',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'children': [
+                                        {
+                                            'value': None,
+                                            'tag': 'elem-iter',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'children': [
+                                                {
+                                                    'value': '',
+                                                    'tag': 'input',
+                                                    'occurs': (1, 1, 1),
+                                                    'module': None,
+                                                    'children': []
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+
+                    ]
+                },
+                {
+                    'value': None,
+                    'tag': 'sequence',
+                    'occurs': (1, 1, 1),
+                    'module': None,
+                    'children': [
+                        {
+                            'value': None,
+                            'tag': 'element',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'children': [
+                                {
+                                    'value': None,
+                                    'tag': 'elem-iter',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'children': [
+                                        {
+                                            'value': '',
+                                            'tag': 'input',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'children': []
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            'value': None,
+                            'tag': 'element',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'children': [
+                                {
+                                    'value': None,
+                                    'tag': 'elem-iter',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'children': [
+                                        {
+                                            'value': '',
+                                            'tag': 'input',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'children': []
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
 
         self.assertDictEqual(result_string[1], expected_dict)
 
@@ -6784,12 +7993,43 @@ class ParserGenerateExtensionTestSuite(TestCase):
     def test_create_attribute(self):
         xsd_files = join('attribute', 'basic')
         xsd_tree = etree.ElementTree(self.extension_data_handler.get_xsd2(xsd_files))
-        xsd_element = xsd_tree.xpath('/xs:schema/xs:element/xs:complexType/xs:simpleContent/xs:extension', namespaces=self.request.session['namespaces'])[0]
+        xsd_element = xsd_tree.xpath('/xs:schema/xs:element/xs:complexType/xs:simpleContent/xs:extension',
+                                     namespaces=self.request.session['namespaces'])[0]
 
         result_string = generate_extension(self.request, xsd_element, xsd_tree, self.namespace, full_path='')
         # print result_string
 
-        expected_dict = {'value': None, 'tag': 'extension', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': '', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}]}
+        expected_dict = {
+            'value': None,
+            'tag': 'extension',
+            'occurs': (1, 1, 1),
+            'module': None,
+            'children': [
+                {
+                    'value': None,
+                    'tag': 'element',
+                    'occurs': (1, 1, 1),
+                    'module': None,
+                    'children': [
+                        {
+                            'value': None,
+                            'tag': 'elem-iter',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'children': [
+                                {
+                                    'value': '',
+                                    'tag': 'input',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'children': []
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
 
         self.assertDictEqual(result_string[1], expected_dict)
 
@@ -6801,7 +8041,8 @@ class ParserGenerateExtensionTestSuite(TestCase):
     def test_create_attribute_group(self):
         xsd_files = join('attribute_group', 'basic')
         xsd_tree = etree.ElementTree(self.extension_data_handler.get_xsd2(xsd_files))
-        xsd_element = xsd_tree.xpath('/xs:schema/xs:element/xs:complexType/xs:simpleContent/xs:extension', namespaces=self.request.session['namespaces'])[0]
+        xsd_element = xsd_tree.xpath('/xs:schema/xs:element/xs:complexType/xs:simpleContent/xs:extension',
+                                     namespaces=self.request.session['namespaces'])[0]
 
         result_string = generate_extension(self.request, xsd_element, xsd_tree, self.namespace, full_path='')
         # print result_string
@@ -6840,12 +8081,159 @@ class ParserGenerateExtensionTestSuite(TestCase):
     def test_create_multiple(self):
         xsd_files = join('multiple', 'basic')
         xsd_tree = etree.ElementTree(self.extension_data_handler.get_xsd2(xsd_files))
-        xsd_element = xsd_tree.xpath('/xs:schema/xs:element/xs:complexType/xs:complexContent/xs:extension', namespaces=self.request.session['namespaces'])[0]
+        xsd_element = xsd_tree.xpath('/xs:schema/xs:element/xs:complexType/xs:complexContent/xs:extension',
+                                     namespaces=self.request.session['namespaces'])[0]
 
         result_string = generate_extension(self.request, xsd_element, xsd_tree, self.namespace, full_path='')
         # print result_string
 
-        expected_dict = {'value': None, 'tag': 'extension', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'complex_type', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'sequence', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': '', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}, {'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': '', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}]}]}, {'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': '', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}, {'value': None, 'tag': 'sequence', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': '', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}, {'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': '', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}]}]}
+        expected_dict = {
+            'value': None,
+            'tag': 'extension',
+            'occurs': (1, 1, 1),
+            'module': None,
+            'children': [
+                {
+                    'value': None,
+                    'tag': 'complex_type',
+                    'occurs': (1, 1, 1),
+                    'module': None,
+                    'children': [
+                        {
+                            'value': None,
+                            'tag': 'sequence',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'children': [
+                                {
+                                    'value': None,
+                                    'tag': 'element',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'children': [
+                                        {
+                                            'value': None,
+                                            'tag': 'elem-iter',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'children': [
+                                                {
+                                                    'value': '',
+                                                    'tag': 'input',
+                                                    'occurs': (1, 1, 1),
+                                                    'module': None,
+                                                    'children': []
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    'value': None,
+                                    'tag': 'element',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'children': [
+                                        {
+                                            'value': None,
+                                            'tag': 'elem-iter',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'children': [
+                                                {
+                                                    'value': '',
+                                                    'tag': 'input',
+                                                    'occurs': (1, 1, 1),
+                                                    'module': None,
+                                                    'children': []
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    'value': None,
+                    'tag': 'element',
+                    'occurs': (1, 1, 1),
+                    'module': None,
+                    'children': [
+                        {
+                            'value': None,
+                            'tag': 'elem-iter',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'children': [
+                                {
+                                    'value': '',
+                                    'tag': 'input',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'children': []
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    'value': None,
+                    'tag': 'sequence',
+                    'occurs': (1, 1, 1),
+                    'module': None,
+                    'children': [
+                        {
+                            'value': None,
+                            'tag': 'element',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'children': [
+                                {
+                                    'value': None,
+                                    'tag': 'elem-iter',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'children': [
+                                        {
+                                            'value': '',
+                                            'tag': 'input',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'children': []
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            'value': None,
+                            'tag': 'element',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'children': [
+                                {
+                                    'value': None,
+                                    'tag': 'elem-iter',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'children': [
+                                        {
+                                            'value': '',
+                                            'tag': 'input',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'children': []
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
 
         self.assertDictEqual(result_string[1], expected_dict)
 
@@ -6859,7 +8247,8 @@ class ParserGenerateExtensionTestSuite(TestCase):
         # fixme display is not correct
         xsd_files = join('group', 'basic')
         xsd_tree = etree.ElementTree(self.extension_data_handler.get_xsd2(xsd_files))
-        xsd_element = xsd_tree.xpath('/xs:schema/xs:element/xs:complexType/xs:complexContent/xs:extension', namespaces=self.request.session['namespaces'])[0]
+        xsd_element = xsd_tree.xpath('/xs:schema/xs:element/xs:complexType/xs:complexContent/xs:extension',
+                                     namespaces=self.request.session['namespaces'])[0]
 
         self.request.session['curate_edit'] = True
 
@@ -6875,7 +8264,76 @@ class ParserGenerateExtensionTestSuite(TestCase):
         # print result_string
         # result_string = '<div>' + result_string + '</div>'
 
-        expected_dict = {'value': None, 'tag': 'extension', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'complex_type', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'sequence', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': 'entry0', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}, {'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': 'entry1', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}]}]}]}
+        expected_dict = {
+            'value': None,
+            'tag': 'extension',
+            'occurs': (1, 1, 1),
+            'module': None,
+            'children': [
+                {
+                    'value': None,
+                    'tag': 'complex_type',
+                    'occurs': (1, 1, 1),
+                    'module': None,
+                    'children': [
+                        {
+                            'value': None,
+                            'tag': 'sequence',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'children': [
+                                {
+                                    'value': None,
+                                    'tag': 'element',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'children': [
+                                        {
+                                            'value': None,
+                                            'tag': 'elem-iter',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'children': [
+                                                {
+                                                    'value': 'entry0',
+                                                    'tag': 'input',
+                                                    'occurs': (1, 1, 1),
+                                                    'module': None,
+                                                    'children': []
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    'value': None,
+                                    'tag': 'element',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'children': [
+                                        {
+                                            'value': None,
+                                            'tag': 'elem-iter',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'children': [
+                                                {
+                                                    'value': 'entry1',
+                                                    'tag': 'input',
+                                                    'occurs': (1, 1, 1),
+                                                    'module': None,
+                                                    'children': []
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
 
         self.assertDictEqual(result_string[1], expected_dict)
 
@@ -6889,7 +8347,8 @@ class ParserGenerateExtensionTestSuite(TestCase):
         # fixme bugs
         xsd_files = join('all', 'basic')
         xsd_tree = etree.ElementTree(self.extension_data_handler.get_xsd2(xsd_files))
-        xsd_element = xsd_tree.xpath('/xs:schema/xs:element/xs:complexType/xs:complexContent/xs:extension', namespaces=self.request.session['namespaces'])[0]
+        xsd_element = xsd_tree.xpath('/xs:schema/xs:element/xs:complexType/xs:complexContent/xs:extension',
+                                     namespaces=self.request.session['namespaces'])[0]
 
         self.request.session['curate_edit'] = True
 
@@ -6905,7 +8364,99 @@ class ParserGenerateExtensionTestSuite(TestCase):
         # print result_string
         # result_string = '<div>' + result_string + '</div>'
 
-        expected_dict = {'value': None, 'tag': 'extension', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'complex_type', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'attribute', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': 'attr1', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}]}, {'value': None, 'tag': 'sequence', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': 'entry0', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}, {'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': 'entry1', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}]}]}
+        expected_dict = {
+            'value': None,
+            'tag': 'extension',
+            'occurs': (1, 1, 1),
+            'module': None,
+            'children': [
+                {
+                    'value': None,
+                    'tag': 'complex_type',
+                    'occurs': (1, 1, 1),
+                    'module': None,
+                    'children': [
+                        {
+                            'value': None,
+                            'tag': 'attribute',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'children': [
+                                {
+                                    'value': None,
+                                    'tag': 'elem-iter',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'children': [
+                                        {
+                                            'value': 'attr1',
+                                            'tag': 'input',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'children': []
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    'value': None,
+                    'tag': 'sequence',
+                    'occurs': (1, 1, 1),
+                    'module': None,
+                    'children': [
+                        {
+                            'value': None,
+                            'tag': 'element',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'children': [
+                                {
+                                    'value': None,
+                                    'tag': 'elem-iter',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'children': [
+                                        {
+                                            'value': 'entry0',
+                                            'tag': 'input',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'children': []
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            'value': None,
+                            'tag': 'element',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'children': [
+                                {
+                                    'value': None,
+                                    'tag': 'elem-iter',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'children': [
+                                        {
+                                            'value': 'entry1',
+                                            'tag': 'input',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'children': []
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
 
         self.assertDictEqual(result_string[1], expected_dict)
 
@@ -6918,7 +8469,8 @@ class ParserGenerateExtensionTestSuite(TestCase):
     def test_reload_choice(self):
         xsd_files = join('choice', 'basic')
         xsd_tree = etree.ElementTree(self.extension_data_handler.get_xsd2(xsd_files))
-        xsd_element = xsd_tree.xpath('/xs:schema/xs:element/xs:complexType/xs:complexContent/xs:extension', namespaces=self.request.session['namespaces'])[0]
+        xsd_element = xsd_tree.xpath('/xs:schema/xs:element/xs:complexType/xs:complexContent/xs:extension',
+                                     namespaces=self.request.session['namespaces'])[0]
 
         self.request.session['curate_edit'] = True
 
@@ -6934,7 +8486,122 @@ class ParserGenerateExtensionTestSuite(TestCase):
         # print result_string
         # result_string = '<div>' + result_string + '</div>'
 
-        expected_dict = {'value': None, 'tag': 'extension', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'complex_type', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'sequence', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': 'entry0', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}, {'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': 'entry1', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}]}]}, {'value': None, 'tag': 'choice', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'choice-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'element', 'occurs': (1, 0, 1), 'module': None, 'children': []}, {'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': 'entry2', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}]}]}]}
+        expected_dict = {
+            'value': None,
+            'tag': 'extension',
+            'occurs': (1, 1, 1),
+            'module': None,
+            'children': [
+                {
+                    'value': None,
+                    'tag': 'complex_type',
+                    'occurs': (1, 1, 1),
+                    'module': None,
+                    'children': [
+                        {
+                            'value': None,
+                            'tag': 'sequence',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'children': [
+                                {
+                                    'value': None,
+                                    'tag': 'element',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'children': [
+                                        {
+                                            'value': None,
+                                            'tag': 'elem-iter',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'children': [
+                                                {
+                                                    'value': 'entry0',
+                                                    'tag': 'input',
+                                                    'occurs': (1, 1, 1),
+                                                    'module': None,
+                                                    'children': []
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    'value': None,
+                                    'tag': 'element',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'children': [
+                                        {
+                                            'value': None,
+                                            'tag': 'elem-iter',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'children': [
+                                                {
+                                                    'value': 'entry1',
+                                                    'tag': 'input',
+                                                    'occurs': (1, 1, 1),
+                                                    'module': None,
+                                                    'children': []
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    'value': None,
+                    'tag': 'choice',
+                    'occurs': (1, 1, 1),
+                    'module': None,
+                    'children': [
+                        {
+                            'value': None,
+                            'tag': 'choice-iter',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'children': [
+                                {
+                                    'value': None,
+                                    'tag': 'element',
+                                    'occurs': (1, 0, 1),
+                                    'module': None,
+                                    'children': []
+                                },
+                                {
+                                    'value': None,
+                                    'tag': 'element',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'children': [
+                                        {
+                                            'value': None,
+                                            'tag': 'elem-iter',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'children': [
+                                                {
+                                                    'value': 'entry2',
+                                                    'tag': 'input',
+                                                    'occurs': (1, 1, 1),
+                                                    'module': None,
+                                                    'children': []
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
 
         self.assertDictEqual(result_string[1], expected_dict)
 
@@ -6947,7 +8614,8 @@ class ParserGenerateExtensionTestSuite(TestCase):
     def test_reload_sequence(self):
         xsd_files = join('sequence', 'basic')
         xsd_tree = etree.ElementTree(self.extension_data_handler.get_xsd2(xsd_files))
-        xsd_element = xsd_tree.xpath('/xs:schema/xs:element/xs:complexType/xs:complexContent/xs:extension', namespaces=self.request.session['namespaces'])[0]
+        xsd_element = xsd_tree.xpath('/xs:schema/xs:element/xs:complexType/xs:complexContent/xs:extension',
+                                     namespaces=self.request.session['namespaces'])[0]
 
         self.request.session['curate_edit'] = True
 
@@ -6963,7 +8631,98 @@ class ParserGenerateExtensionTestSuite(TestCase):
         # print result_string
         # result_string = '<div>' + result_string + '</div>'
 
-        expected_dict = {'value': None, 'tag': 'extension', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'complex_type', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'sequence', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'element', 'occurs': (1, 0, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}, {'value': None, 'tag': 'element', 'occurs': (1, 0, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}]}, {'value': None, 'tag': 'sequence', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'element', 'occurs': (1, 0, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}, {'value': None, 'tag': 'element', 'occurs': (1, 0, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}]}
+        expected_dict = {
+            'value': None,
+            'tag': 'extension',
+            'occurs': (1, 1, 1),
+            'module': None,
+            'children': [
+                {
+                    'value': None,
+                    'tag': 'complex_type',
+                    'occurs': (1, 1, 1),
+                    'module': None,
+                    'children': [
+                        {
+                            'value': None,
+                            'tag': 'sequence',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'children': [
+                                {
+                                    'value': None,
+                                    'tag': 'element',
+                                    'occurs': (1, 0, 1),
+                                    'module': None,
+                                    'children': [
+                                        {
+                                            'value': None,
+                                            'tag': 'elem-iter',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'children': []
+                                        }
+                                    ]
+                                },
+                                {
+                                    'value': None,
+                                    'tag': 'element',
+                                    'occurs': (1, 0, 1),
+                                    'module': None,
+                                    'children': [
+                                        {
+                                            'value': None,
+                                            'tag': 'elem-iter',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'children': []
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    'value': None,
+                    'tag': 'sequence',
+                    'occurs': (1, 1, 1),
+                    'module': None,
+                    'children': [
+                        {
+                            'value': None,
+                            'tag': 'element',
+                            'occurs': (1, 0, 1),
+                            'module': None,
+                            'children': [
+                                {
+                                    'value': None,
+                                    'tag': 'elem-iter',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'children': []
+                                }
+                            ]
+                        },
+                        {
+                            'value': None,
+                            'tag': 'element',
+                            'occurs': (1, 0, 1),
+                            'module': None,
+                            'children': [
+                                {
+                                    'value': None,
+                                    'tag': 'elem-iter',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'children': []
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
 
         self.assertDictEqual(result_string[1], expected_dict)
 
@@ -6976,7 +8735,8 @@ class ParserGenerateExtensionTestSuite(TestCase):
     def test_reload_attribute(self):
         xsd_files = join('attribute', 'basic')
         xsd_tree = etree.ElementTree(self.extension_data_handler.get_xsd2(xsd_files))
-        xsd_element = xsd_tree.xpath('/xs:schema/xs:element/xs:complexType/xs:simpleContent/xs:extension', namespaces=self.request.session['namespaces'])[0]
+        xsd_element = xsd_tree.xpath('/xs:schema/xs:element/xs:complexType/xs:simpleContent/xs:extension',
+                                     namespaces=self.request.session['namespaces'])[0]
 
         self.request.session['curate_edit'] = True
 
@@ -6992,7 +8752,37 @@ class ParserGenerateExtensionTestSuite(TestCase):
         # print result_string
         # result_string = '<div>' + result_string + '</div>'
 
-        expected_dict = {'value': None, 'tag': 'extension', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': 'attr0', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}]}
+        expected_dict = {
+            'value': None,
+            'tag': 'extension',
+            'occurs': (1, 1, 1),
+            'module': None,
+            'children': [
+                {
+                    'value': None,
+                    'tag': 'element',
+                    'occurs': (1, 1, 1),
+                    'module': None,
+                    'children': [
+                        {
+                            'value': None,
+                            'tag': 'elem-iter',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'children': [
+                                {
+                                    'value': 'attr0',
+                                    'tag': 'input',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'children': []
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
 
         self.assertDictEqual(result_string[1], expected_dict)
 
@@ -7004,7 +8794,8 @@ class ParserGenerateExtensionTestSuite(TestCase):
     def test_reload_attribute_group(self):
         xsd_files = join('attribute_group', 'basic')
         xsd_tree = etree.ElementTree(self.extension_data_handler.get_xsd2(xsd_files))
-        xsd_element = xsd_tree.xpath('/xs:schema/xs:element/xs:complexType/xs:simpleContent/xs:extension', namespaces=self.request.session['namespaces'])[0]
+        xsd_element = xsd_tree.xpath('/xs:schema/xs:element/xs:complexType/xs:simpleContent/xs:extension',
+                                     namespaces=self.request.session['namespaces'])[0]
 
         self.request.session['curate_edit'] = True
 
@@ -7034,7 +8825,8 @@ class ParserGenerateExtensionTestSuite(TestCase):
     def test_reload_any_attribute(self):
         xsd_files = join('any_attribute', 'basic')
         xsd_tree = etree.ElementTree(self.extension_data_handler.get_xsd2(xsd_files))
-        xsd_element = xsd_tree.xpath('/xs:schema/xs:element/xs:complexType/xs:simpleContent/xs:extension', namespaces=self.request.session['namespaces'])[0]
+        xsd_element = xsd_tree.xpath('/xs:schema/xs:element/xs:complexType/xs:simpleContent/xs:extension',
+                                     namespaces=self.request.session['namespaces'])[0]
 
         self.request.session['curate_edit'] = True
 
@@ -7064,7 +8856,8 @@ class ParserGenerateExtensionTestSuite(TestCase):
     def test_reload_multiple(self):
         xsd_files = join('multiple', 'basic')
         xsd_tree = etree.ElementTree(self.extension_data_handler.get_xsd2(xsd_files))
-        xsd_element = xsd_tree.xpath('/xs:schema/xs:element/xs:complexType/xs:complexContent/xs:extension', namespaces=self.request.session['namespaces'])[0]
+        xsd_element = xsd_tree.xpath('/xs:schema/xs:element/xs:complexType/xs:complexContent/xs:extension',
+                                     namespaces=self.request.session['namespaces'])[0]
 
         self.request.session['curate_edit'] = True
 
@@ -7080,7 +8873,153 @@ class ParserGenerateExtensionTestSuite(TestCase):
         # print result_string
         # result_string = '<div>' + result_string + '</div>'
 
-        expected_dict = {'value': None, 'tag': 'extension', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'complex_type', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'sequence', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': 'entry0', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}, {'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': 'entry1', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}]}]}, {'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': '0', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}, {'value': None, 'tag': 'sequence', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': 'entry2', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}, {'value': None, 'tag': 'element', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': None, 'tag': 'elem-iter', 'occurs': (1, 1, 1), 'module': None, 'children': [{'value': 'entry3', 'tag': 'input', 'occurs': (1, 1, 1), 'module': None, 'children': []}]}]}]}]}
+        expected_dict = {
+            'value': None,
+            'tag': 'extension',
+            'occurs': (1, 1, 1),
+            'module': None,
+            'children': [
+                {
+                    'value': None,
+                    'tag': 'complex_type',
+                    'occurs': (1, 1, 1),
+                    'module': None,
+                    'children': [
+                        {
+                            'value': None,
+                            'tag': 'sequence',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'children': [
+                                {
+                                    'value': None,
+                                    'tag': 'element',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'children': [
+                                        {
+                                            'value': None,
+                                            'tag': 'elem-iter',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'children': [
+                                                {
+                                                    'value': 'entry0',
+                                                    'tag': 'input',
+                                                    'occurs': (1, 1, 1),
+                                                    'module': None,
+                                                    'children': []
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    'value': None,
+                                    'tag': 'element',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'children': [
+                                        {
+                                            'value': None,
+                                            'tag': 'elem-iter',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'children': [
+                                                {
+                                                    'value': 'entry1',
+                                                    'tag': 'input',
+                                                    'occurs': (1, 1, 1),
+                                                    'module': None,
+                                                    'children': []
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    'value': None,
+                    'tag': 'element',
+                    'occurs': (1, 1, 1),
+                    'module': None,
+                    'children': [
+                        {
+                            'value': None,
+                            'tag': 'elem-iter',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'children': [
+                                {
+                                    'value': '0',
+                                    'tag': 'input',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'children': []
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    'value': None,
+                    'tag': 'sequence',
+                    'occurs': (1, 1, 1),
+                    'module': None,
+                    'children': [
+                        {
+                            'value': None,
+                            'tag': 'element',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'children': [
+                                {
+                                    'value': None,
+                                    'tag': 'elem-iter',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'children': [
+                                        {
+                                            'value': 'entry2',
+                                            'tag': 'input',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'children': []
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            'value': None,
+                            'tag': 'element',
+                            'occurs': (1, 1, 1),
+                            'module': None,
+                            'children': [
+                                {
+                                    'value': None,
+                                    'tag': 'elem-iter',
+                                    'occurs': (1, 1, 1),
+                                    'module': None,
+                                    'children': [
+                                        {
+                                            'value': 'entry3',
+                                            'tag': 'input',
+                                            'occurs': (1, 1, 1),
+                                            'module': None,
+                                            'children': []
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
 
         self.assertDictEqual(result_string[1], expected_dict)
 
