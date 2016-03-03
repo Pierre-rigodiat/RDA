@@ -386,6 +386,8 @@ submit = function() {
                            $("#banner_submit_wait").show(200);
                            var identifier = '';
                            var set = '';
+                           var from = '';
+                           var until = '';
                            var token = '';
                            var metadata = '';
 
@@ -405,6 +407,14 @@ submit = function() {
                                 token += '&resumptionToken='+$("#id_resumptionToken").val();
                            }
 
+                           if ($("#id_From").val() != '') {
+                                from += '&from='+$("#id_From").val();
+                           }
+
+                           if ($("#id_until").val() != '') {
+                                until += '&until='+$("#id_until").val();
+                           }
+
                            var callURL = '';
                            if ($("select#id_dataProvider").val() != '0') {
                                     callURL = $("select#id_dataProvider").val().split('|')[1];
@@ -412,9 +422,9 @@ submit = function() {
                            switch($("select#id_verb").val()) {
                                case '1': callURL+='?verb=Identify'; break;
                                case '2': callURL+='?verb=GetRecord'+identifier+metadata; break;
-                               case '3': callURL+='?verb=ListRecords'+set+token+metadata; break;
+                               case '3': callURL+='?verb=ListRecords'+set+token+metadata+from+until; break;
                                case '4': callURL+='?verb=ListSets'+token; break;
-                               case '5': callURL+='?verb=ListIdentifiers'+metadata+set+token; break;
+                               case '5': callURL+='?verb=ListIdentifiers'+metadata+set+token+from+until; break;
                                case '6': callURL+='?verb=ListMetadataFormats'+identifier; break;
                            }
 
@@ -503,6 +513,24 @@ downloadXmlBuildReq = function(){
 
 init = function(){
     populateSelect();
+    $('#id_until').datetimepicker({
+        weekStart: 1,
+        todayBtn:  1,
+		autoclose: 1,
+		todayHighlight: 1,
+		startView: 2,
+		forceParse: 0,
+        showMeridian: 1
+    });
+    $('#id_From').datetimepicker({
+        weekStart: 1,
+        todayBtn:  1,
+		autoclose: 1,
+		todayHighlight: 1,
+		startView: 2,
+		forceParse: 0,
+        showMeridian: 1
+    });
 }
 
 

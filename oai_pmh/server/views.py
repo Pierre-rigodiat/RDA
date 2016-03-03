@@ -317,6 +317,7 @@ class OAIProvider(TemplateView):
         except Exception, e:
             return self.error(e.code, e.message)
         #TODO
+        #Illegal date/time for "until" (55)
         except badResumptionToken, e:
             return self.error(badResumptionToken.code, badResumptionToken.message)
 

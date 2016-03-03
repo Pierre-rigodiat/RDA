@@ -11,8 +11,9 @@
 #
 ################################################################################
 from django import forms
-from django.core.validators import MinValueValidator, URLValidator
+from django.core.validators import MinValueValidator
 from mgi.models import Registry
+from django.forms.extras.widgets import SelectDateWidget
 
 PROTOCOLS = (('http', 'HTTP'),
             ('https', 'HTTPS'))
@@ -92,11 +93,13 @@ class RequestForm(forms.Form):
     """
         A request form
     """
-    dataProvider    = forms.ChoiceField(label='pre', choices=[], required=False, widget=forms.Select(attrs={'style':'width:500px'}))
-    verb            = forms.ChoiceField(label='verb', choices=VERBS, required=False, widget=forms.Select(attrs={'style':'width:500px'}))
-    set             = forms.ChoiceField(label='set', choices=[], required=False, widget=forms.Select(attrs={'style':'width:500px', 'disabled':'true'}))
-    identifiers     = forms.CharField(label='identifier', required=False)
-    metadataprefix  = forms.ChoiceField(label='pre', choices=[], required=False, widget=forms.Select(attrs={'style':'width:500px', 'disabled':'true'}))
+    dataProvider= forms.ChoiceField(label='pre', choices=[], required=False, widget=forms.Select(attrs={'style':'width:500px'}))
+    verb = forms.ChoiceField(label='verb', choices=VERBS, required=False, widget=forms.Select(attrs={'style':'width:500px'}))
+    set = forms.ChoiceField(label='set', choices=[], required=False, widget=forms.Select(attrs={'style':'width:500px', 'disabled':'true', 'class':'form-control'}))
+    identifiers = forms.CharField(label='identifier', required=False)
+    metadataprefix = forms.ChoiceField(label='pre', choices=[], required=False, widget=forms.Select(attrs={'style':'width:500px', 'disabled':'true'}))
+    From = forms.CharField(label='From', required=False, widget=forms.DateInput(attrs={'data-date-format':'yyyy-mm-ddThh:ii:00Z'}))
+    until = forms.CharField(label='Until', required=False, widget=forms.DateInput(attrs={'data-date-format':'yyyy-mm-ddThh:ii:00Z'}))
     resumptionToken = forms.CharField(label='token', required=False)
 
     def __init__ (self):
