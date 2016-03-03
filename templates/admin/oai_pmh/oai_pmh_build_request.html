@@ -23,6 +23,7 @@
 
 {% block extrastyle %}
 <link rel="stylesheet" type="text/css" href="{% static 'resources/css/XMLTree.css' %}" media="screen" />
+<link rel="stylesheet" type="text/css" href="{% static 'libs/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css' %}" media="screen" />
 {% endblock %}
 
 {% block title %}<h1>Build Request</h1>{% endblock %}
@@ -78,6 +79,26 @@
             </tr>
 
             <tr>
+                <td>{{request_form.From.label}}:</td>
+                <td>
+                    <div class="input-append date form_datetime">
+                        {{request_form.From}}
+                        <span class="add-on"><i class="icon-calendar" onclick="$('#{{request_form.From.id_for_label}}').focus();"></i></span>
+                    </div>
+                </td>
+            </tr>
+
+            <tr>
+                <td>{{request_form.until.label}}:</td>
+                <td>
+                    <div class="input-append date form_datetime">
+                        {{request_form.until}}
+                        <span class="add-on"><i class="icon-calendar" onclick="$('#{{request_form.until.id_for_label}}').focus();"></i></span>
+                    </div>
+                </td>
+            </tr>
+
+            <tr>
                 <td>Resumption Token:</td>
                 <td>
                     {{request_form.resumptionToken}}
@@ -112,6 +133,7 @@
 
 {% block extrajs %}
 <script src="{% static 'inc/controllers/js/oai_pmh.js' %}"></script>
+<script src="{% static 'libs/bootstrap-datetimepicker/js/bootstrap-datetimepicker.js' %}"></script>
 <script type="text/javascript">
     init();
     $("select#id_dataProvider").on('change', function() {
