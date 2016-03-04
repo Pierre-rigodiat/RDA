@@ -16,9 +16,12 @@ class OAIException (Exception):
         return repr(self.message)
 
 class badArgument(OAIException):
-    def __init__(self):
-        self.message = 'The request includes illegal arguments, is missing required arguments, includes a repeated' \
-                       ' argument, or values for arguments have an illegal syntax.'
+    def __init__(self, customMessage):
+        if customMessage:
+            self.message = customMessage
+        else:
+            self.message = 'The request includes illegal arguments, is missing required arguments, includes a repeated' \
+                        ' argument, or values for arguments have an illegal syntax.'
         self.code = 'badArgument'
 
 class badResumptionToken(OAIException):
