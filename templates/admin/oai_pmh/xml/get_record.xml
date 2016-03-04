@@ -5,8 +5,10 @@
     <record>
         <header>
             <identifier>{{ identifier }}</identifier>
-            <datestamp>{{ last_modified|date:'c' }}</datestamp>
-            <setSpec>{{ set }}</setSpec>
+            <datestamp>{{ last_modified }}</datestamp>
+            {% for set in sets %}
+                <setSpec>{{ set }}</setSpec>
+            {% endfor %}
         </header>
         <metadata>
             {% autoescape off %}
