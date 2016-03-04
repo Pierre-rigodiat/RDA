@@ -19,7 +19,7 @@ from django.http import HttpResponse
 from django.contrib.auth import authenticate, logout
 from django.template import RequestContext, loader
 from django.shortcuts import redirect
-from mgi.models import Template, Request, Message, TermsOfUse, PrivacyPolicy, Help, FormData, XMLdata
+from mgi.models import Template, Request, Message, TermsOfUse, PrivacyPolicy, Help, FormData, XMLdata, Type
 from admin_mdcs.forms import RequestAccountForm, EditProfileForm, ChangePasswordForm, ContactForm, UserForm
 from django.contrib.auth.models import User
 from django.contrib import messages
@@ -28,6 +28,7 @@ from django.contrib.auth.models import Group
 from django.db.models import Q
 import mgi.rights as RIGHTS
 from itertools import chain
+import json
 
 
 ################################################################################
@@ -361,3 +362,124 @@ def my_profile_dashboard_resources(request):
                 'XMLdatas': XMLdata.find({'iduser': str(request.user.id)}),
         })
     return HttpResponse(template.render(context))
+
+################################################################################
+#
+# Function Name: my_profile_dashboard_templates(request)
+# Inputs:        request -
+# Outputs:       Dashboard - Templates
+# Exceptions:    None
+# Description:   Dashboard - Templates
+#
+################################################################################
+@login_required(login_url='/login')
+def my_profile_dashboard_templates(request):
+    template = loader.get_template('profile/my_profile_dashboard_my_templates_types.html')
+    context = RequestContext(request, {
+                'objects': Template.objects(user=str(request.user.id)),
+                'objectType': "Template",
+            })
+    return HttpResponse(template.render(context))
+
+
+################################################################################
+#
+# Function Name: my_profile_dashboard_types(request)
+# Inputs:        request -
+# Outputs:       Dashboard - Templates
+# Exceptions:    None
+# Description:   Dashboard - Templates
+#
+################################################################################
+@login_required(login_url='/login')
+def my_profile_dashboard_types(request):
+    template = loader.get_template('profile/my_profile_dashboard_my_templates_types.html')
+    context = RequestContext(request, {
+                'objects': Type.objects(user=str(request.user.id)),
+                'objectType': "Type",
+            })
+    return HttpResponse(template.render(context))
+
+################################################################################
+#
+# Function Name: edit_information(request)
+# Inputs:        request -
+# Outputs:
+# Exceptions:    None
+# Description:   Edit information of an object (template or type)
+#
+################################################################################
+def edit_information(request):
+    object_id = request.POST['objectID']
+    object_type = request.POST['objectType']
+    new_name = request.POST['newName']
+    new_filename = request.POST['newFilename']
+
+    if object_type == "Template":
+        object = Template.objects.get(pk=object_id)
+        testFilenameObjects = Template.objects(filename=new_filename)
+        testNameObjects = Template.objects(title=new_name)
+    else:
+        object = Type.objects.get(pk=object_id)
+        testFilenameObjects = Type.objects(filename=new_filename)
+        testNameObjects = Type.objects(title=new_name)
+
+    if len(testNameObjects) == 1: # 0 is ok, more than 1 can't happen
+            #check that the type with the same filename is the current one
+        if testNameObjects[0].id != object.id:
+            response_dict = {'name': 'True'}
+            return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
+
+    if len(testFilenameObjects) == 1: # 0 is ok, more than 1 can't happen
+            #check that the type with the same filename is the current one
+        if testFilenameObjects[0].id != object.id:
+            response_dict = {'filename': 'True'}
+            return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
+
+    object.title = new_name
+    object.filename = new_filename
+    object.save()
+
+    return HttpResponse(json.dumps({}), content_type='application/javascript')
+
+################################################################################
+#
+# Function Name: delete_object(request)
+# Inputs:        request -
+# Outputs:       JSON data
+# Exceptions:    None
+# Description:   Delete an object (template or type).
+#
+################################################################################
+def delete_object(request):
+    print 'BEGIN def delete_object(request)'
+    object_id = request.POST['objectID']
+    object_type = request.POST['objectType']
+
+    listObject = ''
+    if object_type == "Template":
+        object = Template.objects.get(pk=object_id)
+        dependenciesData = XMLdata.find({'schema' : str(object_id)})
+        if len(dependenciesData) >= 1:
+            for temp in dependenciesData:
+                listObject += temp['title'] + ', '
+    else:
+        object = Type.objects.get(pk=object_id)
+        dependenciesTemplate = list(Template.objects(dependencies=object_id))
+        dependenciesType = list(Type.objects(dependencies=object_id))
+        if len(dependenciesType) >= 1:
+            for temp in dependenciesType:
+                listObject += temp.title + ', '
+        if len(dependenciesTemplate) >= 1:
+            for temp in dependenciesTemplate:
+                listObject += temp.title + ', '
+
+    if listObject != '':
+        response_dict = {object_type: listObject[:-2]}
+        return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
+    else:
+        object.delete()
+
+    print 'END def delete_object(request)'
+    return HttpResponse(json.dumps({}), content_type='application/javascript')
+
