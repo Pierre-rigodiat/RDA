@@ -4,6 +4,6 @@
          xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/
          http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
   <responseDate>{% now 'c' %}</responseDate>
-  <request{% if verb %} verb="{{ verb }}"{% endif %}{% if identifier %} identifier="{{ identifier }}"{% endif %}{% if metadataPrefix %} metadataPrefix="{{ metadataPrefix }}"{% endif %}>{{ url }}</request>
+  <request{% if verb %} verb="{{ verb }}"{% endif %}{% if identifier %} identifier="{{ identifier }}"{% endif %}{% if metadataPrefix %} metadataPrefix="{{ metadataPrefix }}"{% endif %}{% if from %} from="{{ from }}"{% endif %}{% if until %} until="{{ until }}"{% endif %}>{{ url }}</request>
   {% block content %}{% endblock %}
 </OAI-PMH>
