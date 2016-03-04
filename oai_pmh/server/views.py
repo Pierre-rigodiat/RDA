@@ -106,6 +106,8 @@ class OAIProvider(TemplateView):
         # items = []
         try:
             raise noSetHierarchy
+        except OAIExceptions, e:
+            return self.errors(e.errors)
         except OAIException, e:
             return self.error(e)
         except Exception, e:
@@ -163,6 +165,8 @@ class OAIProvider(TemplateView):
                     items.append(item_info)
 
             return self.render_to_response({'items': items})
+        except OAIExceptions, e:
+            return self.errors(e.errors)
         except OAIException, e:
             return self.error(e)
         except Exception, e:
@@ -189,7 +193,13 @@ class OAIProvider(TemplateView):
             query = dict()
             query['schema'] = str(templates.id)
             items = []
-            #TODO FROM and UNTIL
+            #FROM AND UNTIL
+            if self.until:
+                endDate = datestamp.datestamp_to_datetime(self.until)
+                query['publicationdate'] = { "$lte" : endDate}
+            if self.From:
+                startDate = datestamp.datestamp_to_datetime(self.From)
+                query['publicationdate'] = { "$gte" : startDate}
             data = XMLdata.executeQueryFullResult(query)
             if len(data) == 0:
                 raise noRecordsMatch
@@ -197,12 +207,14 @@ class OAIProvider(TemplateView):
                 identifier = '%s:%s:id/%s' % (settings.OAI_SCHEME, settings.OAI_REPO_IDENTIFIER, str(i['_id']))
                 item_info = {
                     'identifier': identifier,
-                    'last_modified': self.last_modified(i),
+                    'last_modified': i['publicationdate'] if 'publicationdate' in i else None,
                     'sets': ''
                 }
                 items.append(item_info)
 
             return self.render_to_response({'items': items})
+        except OAIExceptions, e:
+            return self.errors(e.errors)
         except OAIException, e:
             return self.error(e)
         except Exception, e:
@@ -259,13 +271,15 @@ class OAIProvider(TemplateView):
             xmlStr = etree.tostring(xmlEncoding)
             record_info = {
                 'identifier': self.identifier,
-                'last_modified': '',
+                'last_modified': data['publicationdate'] if 'publicationdate' in data else None,
                 'sets': '',
                 'XML': xmlStr
             }
             return self.render_to_response(record_info)
+        except OAIExceptions, e:
+            return self.errors(e.errors)
         except OAIException, e:
-            return self.errors(e)
+            return self.error(e)
         except Exception, e:
             return self.error(e.code, e.message)
 
@@ -290,7 +304,13 @@ class OAIProvider(TemplateView):
                 raise cannotDisseminateFormat(self.metadataPrefix)
             query = dict()
             query['schema'] = str(templates.id)
-            #TODO FROM and UNTIL
+            #FROM AND UNTIL
+            if self.until:
+                endDate = datestamp.datestamp_to_datetime(self.until)
+                query['publicationdate'] = { "$lte" : endDate}
+            if self.From:
+                startDate = datestamp.datestamp_to_datetime(self.From)
+                query['publicationdate'] = { "$gte" : startDate}
             data = XMLdata.executeQueryFullResult(query)
             if len(data) == 0:
                 raise noRecordsMatch
@@ -306,12 +326,14 @@ class OAIProvider(TemplateView):
                 xmlStr = etree.tostring(xmlEncoding)
                 record_info = {
                     'identifier': identifier,
-                    'last_modified': '',
+                    'last_modified': elt['publicationdate'] if 'publicationdate' in elt else None,
                     'sets': '',
                     'XML': xmlStr
                 }
                 items.append(record_info)
             return self.render_to_response({'items': items})
+        except OAIExceptions, e:
+            return self.errors(e.errors)
         except OAIException, e:
             return self.error(e)
         except Exception, e:
