@@ -341,43 +341,45 @@ showhide = function(event){
 * Perform check before submit
 */
 checkSubmit = function() {
-    $("#downloadXML").hide();
-    $("#banner_build_errors").hide(200);
     $("#build_errors").html("");
+    $("#banner_build_errors").hide(200);
+    $("#downloadXML").hide();
     $("#result").text('');
     var label = '';
     if ($("select#id_dataProvider").val() == '0') {
-        label = 'Pick a data provider.';
+        label = 'Please pick a data provider.';
     } else if ($("select#id_verb").val() == '0') {
-        label = 'Pick a verb.';
+        label = 'Please pick a verb.';
     } else {
         if ($("select#id_verb").val() == '2') {
-            if ($("#id_identifiers").val() == '') {
-                label = 'Provide a identifier.';
-            } else if ($("select#id_metadataprefix").val() == '0') {
-                label = 'Pick a metadata prefix.';
+            if ($("select#id_metadataprefix").val() == '0') {
+                label = 'Please pick a metadata prefix.';
+            } else if ($("#id_identifiers").val().trim() == '') {
+                label = 'Please provide an identifier.';
             }
         } else if ($("select#id_verb").val() == '3') {
             if ($("select#id_metadataprefix").val() == '0' && $("#id_resumptionToken").val() == '') {
-                label = 'Pick a metadata prefix.';
+                label = 'Please pick a metadata prefix.';
             }
         } else if ($("select#id_verb").val() == '5') {
             if ($("select#id_metadataprefix").val() == '0') {
-                label = 'Pick a metadata prefix.';
+                label = 'Please pick a metadata prefix.';
             }
         }
     }
     if (label == '') {
         submit();
     } else {
-        $( "#alert" ).html(label);
-        $( "#dialogError" ).dialog({
-            buttons : {
-                'Ok': function() {
-                    $(this).dialog("close");
-                }
-            }
-        });
+//        $( "#alert" ).html(label);
+//        $( "#dialogError" ).dialog({
+//            buttons : {
+//                'Ok': function() {
+//                    $(this).dialog("close");
+//                }
+//            }
+//        });
+        $("#banner_build_errors").show(200);
+        $("#build_errors").html(label);
     }
 }
 
@@ -513,6 +515,19 @@ downloadXmlBuildReq = function(){
 
 init = function(){
     populateSelect();
+    $("select").on('change', function() {
+      $("#build_errors").html("");
+      $("#banner_build_errors").hide(200);
+    });
+    $("input").on('change', function() {
+      $("#build_errors").html("");
+      $("#banner_build_errors").hide(200);
+    });
+
+    $("select#id_dataProvider").on('change', function() {
+      populateSelect();
+    });
+
     $('#id_until').datetimepicker({
         weekStart: 1,
         todayBtn:  1,

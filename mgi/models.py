@@ -20,7 +20,8 @@ from mongoengine import *
 from collections import OrderedDict
 from bson.objectid import ObjectId
 import xmltodict
-from pymongo import MongoClient, TEXT, ASCENDING, DESCENDING
+from pymongo import MongoClient, TEXT, ASCENDING
+
 from mgi.settings import MONGODB_URI
 import re
 import datetime
@@ -335,6 +336,7 @@ class XMLdata():
         for result in cursor:
             results.append(result)
         return results
+
 
     @staticmethod
     def get(postID):

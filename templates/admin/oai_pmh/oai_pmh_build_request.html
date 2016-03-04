@@ -39,8 +39,8 @@
     </div>
 </div>
 <div class="alert alert-warning" id="banner_submit_wait" style="display: none;">
-            <h4><i class='fa fa-circle-o-notch fa-spin fa-1x'></i>&nbsp;&nbsp;Please wait ...</h4>
-        </div>
+    <h4><i class='fa fa-circle-o-notch fa-spin fa-1x'></i>&nbsp;&nbsp;Please wait ...</h4>
+</div>
 
     {% if request_form.dataProvider.choices|length > 1 %}
         <table>
@@ -65,18 +65,19 @@
             </tr>
 
             <tr>
+                <td>Metadata Prefix:</td>
+                <td>
+                    {{request_form.metadataprefix}}
+                </td>
+            </tr>
+
+            <tr>
                 <td>Identifiers:</td>
                 <td>
                     {{request_form.identifiers}}
                 </td>
             </tr>
 
-            <tr>
-                <td>Metadata Prefix:</td>
-                <td>
-                    {{request_form.metadataprefix}}
-                </td>
-            </tr>
 
             <tr>
                 <td>{{request_form.From.label}}:</td>
@@ -136,8 +137,5 @@
 <script src="{% static 'libs/bootstrap-datetimepicker/js/bootstrap-datetimepicker.js' %}"></script>
 <script type="text/javascript">
     init();
-    $("select#id_dataProvider").on('change', function() {
-      populateSelect();
-    });
 </script>
 {% endblock %}
