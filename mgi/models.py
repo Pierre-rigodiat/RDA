@@ -375,10 +375,23 @@ class XMLdata():
         db = client['mgi']
         # get the xmldata collection
         xmldata = db['xmldata']
-        cursor = xmldata.find(as_class = OrderedDict).sort([(attr, ASCENDING)]).distinct(attr)
-        results = cursor[0] if cursor[0] else None
+        cursor  = xmldata.aggregate(
+           [
+             {
+               '$group':
+               {
+                 '_id': {},
+                 'minAttr': { '$min': '$'+attr}
+               }
+             }
+           ]
+          );
+        results = []
+        for result in cursor['result']:
+            results.append(result['minAttr'])
 
-        return results
+        return results[0] if results[0] else None
+
 
     
     @staticmethod
