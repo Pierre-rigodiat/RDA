@@ -54,6 +54,8 @@ class OAIProvider(TemplateView):
             'identifier': self.identifier,
             'metadataPrefix': self.metadataPrefix,
             'url': self.request.build_absolute_uri(self.request.path),
+            'from': self.From,
+            'until': self.until,
         })
 
         return super(TemplateView, self) \
@@ -61,10 +63,13 @@ class OAIProvider(TemplateView):
 
 
     def getEarliestDate(self):
-        data = XMLdata.getMinValue('publicationdate')
-        if data != None:
-            return datestamp.datetime_to_datestamp(data)
-        else:
+        try:
+            data = XMLdata.getMinValue('publicationdate')
+            if data != None:
+                return datestamp.datetime_to_datestamp(data)
+            else:
+                return ''
+        except Exception:
             return ''
 
 ################################################################################
@@ -296,21 +301,32 @@ class OAIProvider(TemplateView):
         try:
             items = []
             self.template_name = 'admin/oai_pmh/xml/list_records.xml'
+            query = dict()
+            #FROM AND UNTIL
+            date_errors = []
+            if self.until:
+                try:
+                    endDate = datestamp.datestamp_to_datetime(self.until)
+                    query['publicationdate'] = { "$lte" : endDate}
+                except:
+                    error = 'Illegal date/time for "until" (%s)' % self.until
+                    date_errors.append(badArgument(error))
+            if self.From:
+                try:
+                    startDate = datestamp.datestamp_to_datetime(self.From)
+                    query['publicationdate'] = { "$gte" : startDate}
+                except:
+                    error = 'Illegal date/time for "from" (%s)' % self.From
+                    date_errors.append(badArgument(error))
+            if len(date_errors) > 0:
+                raise OAIExceptions(date_errors)
             try:
                 templatesVersionID = Template.objects(title=self.metadataPrefix).distinct(field="templateVersion")
                 templateID = TemplateVersion.objects(pk__in=templatesVersionID, isDeleted=False).distinct(field="current")
                 templates = Template.objects.get(pk__in=templateID)
             except:
                 raise cannotDisseminateFormat(self.metadataPrefix)
-            query = dict()
             query['schema'] = str(templates.id)
-            #FROM AND UNTIL
-            if self.until:
-                endDate = datestamp.datestamp_to_datetime(self.until)
-                query['publicationdate'] = { "$lte" : endDate}
-            if self.From:
-                startDate = datestamp.datestamp_to_datetime(self.From)
-                query['publicationdate'] = { "$gte" : startDate}
             data = XMLdata.executeQueryFullResult(query)
             if len(data) == 0:
                 raise noRecordsMatch
@@ -387,13 +403,13 @@ class OAIProvider(TemplateView):
             for arg in illegal:
                 error = 'Arguments ("%s") was passed that was not valid for ' \
                             'this verb' % arg
-                errors.append(badVerb(error))
+                errors.append(badArgument(error))
 
         missing = [arg for arg in required if arg not in data]
         if len(missing) > 0:
             for arg in missing:
                 error = 'Missing required argument - %s' % arg
-                errors.append(badVerb(error))
+                errors.append(badArgument(error))
 
         if len(errors) > 0:
             raise OAIExceptions(errors)
@@ -414,7 +430,7 @@ class OAIProvider(TemplateView):
         if len(duplicates) > 0:
             error_msg = 'An argument ("multiple occurances of %s") was passed that was not valid for ' \
                         'this verb' % ', '.join(duplicates)
-            raise badVerb(error_msg)
+            raise badArgument(error_msg)
 
         #Check illegal and required arguments
         if self.oai_verb != None:
