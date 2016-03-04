@@ -508,6 +508,11 @@ def download_xml_build_req(request):
         if 'xmlStringOAIPMH' in request.session:
             xmlDataObject = request.session['xmlStringOAIPMH']
             try:
+                # Load a parser able to clean the XML from blanks, comments and processing instructions
+                clean_parser = etree.XMLParser(remove_blank_text=True, remove_comments=True, remove_pis=True)
+                # set the parser
+                etree.set_default_parser(parser=clean_parser)
+                # load the XML tree from the text
                 xmlDoc = etree.XML(str(xmlDataObject.encode('utf-8')))
                 xmlStringEncoded = etree.tostring(xmlDoc, pretty_print=True)
             except:
