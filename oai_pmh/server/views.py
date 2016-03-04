@@ -50,6 +50,7 @@ class OAIProvider(TemplateView):
 
         # add common context data needed for all responses
         context.update({
+            'now': datestamp.datetime_to_datestamp(datetime.datetime.now()),
             'verb': self.oai_verb,
             'identifier': self.identifier,
             'metadataPrefix': self.metadataPrefix,
@@ -189,22 +190,33 @@ class OAIProvider(TemplateView):
     def list_identifiers(self):
         try:
             self.template_name = 'admin/oai_pmh/xml/list_identifiers.xml'
+            query = dict()
+            #FROM AND UNTIL
+            date_errors = []
+            if self.until:
+                try:
+                    endDate = datestamp.datestamp_to_datetime(self.until)
+                    query['publicationdate'] = { "$lte" : endDate}
+                except:
+                    error = 'Illegal date/time for "until" (%s)' % self.until
+                    date_errors.append(badArgument(error))
+            if self.From:
+                try:
+                    startDate = datestamp.datestamp_to_datetime(self.From)
+                    query['publicationdate'] = { "$gte" : startDate}
+                except:
+                    error = 'Illegal date/time for "from" (%s)' % self.From
+                    date_errors.append(badArgument(error))
+            if len(date_errors) > 0:
+                raise OAIExceptions(date_errors)
             try:
                 templatesVersionID = Template.objects(title=self.metadataPrefix).distinct(field="templateVersion")
                 templateID = TemplateVersion.objects(pk__in=templatesVersionID, isDeleted=False).distinct(field="current")
                 templates = Template.objects.get(pk__in=templateID)
             except:
                 raise cannotDisseminateFormat(self.metadataPrefix)
-            query = dict()
             query['schema'] = str(templates.id)
             items = []
-            #FROM AND UNTIL
-            if self.until:
-                endDate = datestamp.datestamp_to_datetime(self.until)
-                query['publicationdate'] = { "$lte" : endDate}
-            if self.From:
-                startDate = datestamp.datestamp_to_datetime(self.From)
-                query['publicationdate'] = { "$gte" : startDate}
             data = XMLdata.executeQueryFullResult(query)
             if len(data) == 0:
                 raise noRecordsMatch
@@ -212,7 +224,7 @@ class OAIProvider(TemplateView):
                 identifier = '%s:%s:id/%s' % (settings.OAI_SCHEME, settings.OAI_REPO_IDENTIFIER, str(i['_id']))
                 item_info = {
                     'identifier': identifier,
-                    'last_modified': i['publicationdate'] if 'publicationdate' in i else None,
+                    'last_modified': datestamp.datetime_to_datestamp(i['publicationdate']) if 'publicationdate' in i else datestamp.datetime_to_datestamp(datetime.datetime.min),
                     'sets': ''
                 }
                 items.append(item_info)
@@ -276,7 +288,7 @@ class OAIProvider(TemplateView):
             xmlStr = etree.tostring(xmlEncoding)
             record_info = {
                 'identifier': self.identifier,
-                'last_modified': data['publicationdate'] if 'publicationdate' in data else None,
+                'last_modified': datestamp.datetime_to_datestamp(data['publicationdate']) if 'publicationdate' in data else datestamp.datetime_to_datestamp(datetime.datetime.min),
                 'sets': '',
                 'XML': xmlStr
             }
@@ -342,7 +354,7 @@ class OAIProvider(TemplateView):
                 xmlStr = etree.tostring(xmlEncoding)
                 record_info = {
                     'identifier': identifier,
-                    'last_modified': elt['publicationdate'] if 'publicationdate' in elt else None,
+                    'last_modified': datestamp.datetime_to_datestamp(elt['publicationdate']) if 'publicationdate' in elt else datestamp.datetime_to_datestamp(datetime.datetime.min),
                     'sets': '',
                     'XML': xmlStr
                 }
