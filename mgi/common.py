@@ -2,7 +2,7 @@
 import lxml.etree as etree
 from mgi.models import MetaSchema, Template
 from cStringIO import StringIO
-
+from io import BytesIO
 
 SCHEMA_NAMESPACE = "http://www.w3.org/2001/XMLSchema"
 LXML_SCHEMA_NAMESPACE = "{" + SCHEMA_NAMESPACE + "}"
@@ -205,7 +205,7 @@ class ChoiceInfo:
 def get_namespaces(file):
     "Reads and returns the namespaces in the schema tag"
     events = "start", "start-ns"
-    ns = {}
+    ns = {'xml':'http://www.w3.org/XML/1998/namespace'}
     for event, elem in etree.iterparse(file, events):
         if event == "start-ns":
             if elem[0] in ns and ns[elem[0]] != elem[1]:
@@ -216,6 +216,25 @@ def get_namespaces(file):
             break
     return ns
 
+
+def get_default_prefix(namespaces):
+    default_prefix = ''
+    for prefix, url in namespaces.items():
+        if url == SCHEMA_NAMESPACE:
+            default_prefix = prefix
+
+    return default_prefix
+
+
+def get_target_namespace_prefix(namespaces, xsd_tree):
+    root_attributes = xsd_tree.getroot().attrib
+    target_namespace = root_attributes['targetNamespace'] if 'targetNamespace' in root_attributes else None
+    target_namespace_prefix = ''
+    if target_namespace is not None:
+        for prefix, url in namespaces.items():
+            if url == target_namespace:
+                target_namespace_prefix = prefix
+    return target_namespace_prefix
 
 ################################################################################
 # 

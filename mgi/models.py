@@ -164,7 +164,8 @@ class XMLElement(Document):
     """
         Stores information about an XML element and its occurrences
     """
-    xsd_xpath = StringField() 
+    xsd_xpath = StringField()
+    schema_location = StringField()
     nbOccurs = IntField()
     minOccurs = FloatField()
     maxOccurs = FloatField()

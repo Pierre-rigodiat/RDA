@@ -579,7 +579,7 @@ def generateElement(request, element, fullPath, xmlTree, choiceInfo=None):
             refSplit = ref.split(":")
             refNamespacePrefix = refSplit[0]
             refName = refSplit[1]
-            namespaces = request.session['namespaces']
+            # namespaces = request.session['namespaces']
             # refNamespace = namespaces[refNamespacePrefix]
             # TODO: manage namespaces/targetNamespaces, composed schema with different target namespaces
             # element = xmlTree.findall("./{0}element[@name='"+refName+"']".format(refNamespace))

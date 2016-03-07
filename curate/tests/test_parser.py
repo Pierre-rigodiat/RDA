@@ -31,7 +31,7 @@ class ParserGetSubnodesXPathTestSuite(TestCase):
 
     def test_not_element(self):
         not_element_xsd = self.subnodes_data_handler.get_xsd2('not_element')
-        xpath_result = get_subnodes_xpath(not_element_xsd, not_element_xsd, '')
+        xpath_result = get_subnodes_xpath(not_element_xsd, not_element_xsd)
 
         self.assertEqual(xpath_result, [])
 
@@ -48,7 +48,7 @@ class ParserGetSubnodesXPathTestSuite(TestCase):
         child_2 = join('imbricated_elements', 'child_2')
         imbricated_element_2_xsd = self.subnodes_data_handler.get_xsd2(child_2)
 
-        xpath_result = get_subnodes_xpath(imbricated_elements_xsd, imbricated_elements_xsd, '')
+        xpath_result = get_subnodes_xpath(imbricated_elements_xsd, imbricated_elements_xsd)
         expected_result = [
             {
                 'name': 'child_0',
@@ -84,7 +84,7 @@ class ParserGetSubnodesXPathTestSuite(TestCase):
         child_1 = join('element_with_name', 'child_1')
         child_1_xsd = self.subnodes_data_handler.get_xsd2(child_1)
 
-        xpath_result = get_subnodes_xpath(named_element_xsd, named_element_xsd, '')
+        xpath_result = get_subnodes_xpath(named_element_xsd, named_element_xsd)
         expected_result = [
             {
                 'name': 'child_0',
@@ -117,7 +117,7 @@ class ParserGetSubnodesXPathTestSuite(TestCase):
         ref_0 = join('element_with_ref_namespace', 'ref_0')
         ref_0_xsd = self.subnodes_data_handler.get_xsd2(ref_0)
 
-        xpath_result = get_subnodes_xpath(ref_element_no_namespace_xsd, ref_element_no_namespace_xsd, '')
+        xpath_result = get_subnodes_xpath(ref_element_no_namespace_xsd, ref_element_no_namespace_xsd)
 
         expected_result = [
             {
@@ -155,7 +155,7 @@ class ParserGetSubnodesXPathTestSuite(TestCase):
         ref_0 = join('element_with_ref_no_namespace', 'ref_0')
         ref_0_xsd = self.subnodes_data_handler.get_xsd2(ref_0)
 
-        xpath_result = get_subnodes_xpath(ref_element_no_namespace_xsd, ref_element_no_namespace_xsd, '')
+        xpath_result = get_subnodes_xpath(ref_element_no_namespace_xsd, ref_element_no_namespace_xsd)
 
         expected_result = [
             {
@@ -194,7 +194,7 @@ class ParserGetNodesXPathTestSuite(TestCase):
 
     def test_not_element(self):
         not_element_xsd = self.subnodes_data_handler.get_xsd2('not_element')
-        xpath_result = get_nodes_xpath(not_element_xsd, not_element_xsd, '')
+        xpath_result = get_nodes_xpath(not_element_xsd, not_element_xsd)
 
         self.assertEqual(xpath_result, [])
 
@@ -211,7 +211,7 @@ class ParserGetNodesXPathTestSuite(TestCase):
         child_2 = join('imbricated_elements', 'child_2')
         imbricated_element_2_xsd = self.subnodes_data_handler.get_xsd2(child_2)
 
-        xpath_result = get_nodes_xpath(imbricated_elements_xsd, imbricated_elements_xsd, '')
+        xpath_result = get_nodes_xpath(imbricated_elements_xsd, imbricated_elements_xsd)
         expected_result = [
             {
                 'name': 'child_0',
@@ -247,7 +247,7 @@ class ParserGetNodesXPathTestSuite(TestCase):
         child_1 = join('element_with_name', 'child_1')
         child_1_xsd = self.subnodes_data_handler.get_xsd2(child_1)
 
-        xpath_result = get_nodes_xpath(named_element_xsd, named_element_xsd, '')
+        xpath_result = get_nodes_xpath(named_element_xsd, named_element_xsd)
         expected_result = [
             {
                 'name': 'child_0',
@@ -280,7 +280,7 @@ class ParserGetNodesXPathTestSuite(TestCase):
         ref_0 = join('element_with_ref_namespace', 'ref_0')
         ref_0_xsd = self.subnodes_data_handler.get_xsd2(ref_0)
 
-        xpath_result = get_nodes_xpath(ref_element_no_namespace_xsd, ref_element_no_namespace_xsd, '')
+        xpath_result = get_nodes_xpath(ref_element_no_namespace_xsd, ref_element_no_namespace_xsd)
 
         expected_result = [
             {
@@ -320,7 +320,7 @@ class ParserGetNodesXPathTestSuite(TestCase):
         ref_0 = join('element_with_ref_no_namespace', 'ref_0')
         ref_0_xsd = self.subnodes_data_handler.get_xsd2(ref_0)
 
-        xpath_result = get_nodes_xpath(ref_element_no_namespace_xsd, ref_element_no_namespace_xsd, '')
+        xpath_result = get_nodes_xpath(ref_element_no_namespace_xsd, ref_element_no_namespace_xsd)
 
         expected_result = [
             {
@@ -369,7 +369,6 @@ class ParserLookupOccursTestSuite(TestCase):
 
         # set default namespace
         namespace = "http://www.w3.org/2001/XMLSchema"
-        self.namespace = "{" + namespace + "}"
         self.request.session['defaultPrefix'] = 'xs'
         self.request.session['namespaces'] = {'xs': namespace}
 
@@ -377,14 +376,14 @@ class ParserLookupOccursTestSuite(TestCase):
         lookup_xsd = self.occurs_data_handler.get_xsd2('document')
         compliant_xml = self.occurs_data_handler.get_xml('compliant')
 
-        max_occurs_found = lookup_occurs(self.request, lookup_xsd, lookup_xsd, self.namespace, '.', compliant_xml)
+        max_occurs_found = lookup_occurs(self.request, lookup_xsd, lookup_xsd, '.', compliant_xml)
         self.assertEqual(max_occurs_found, 1)
 
     def test_reload_noncompliant_element(self):
         lookup_xsd = self.occurs_data_handler.get_xsd2('document')
         noncompliant_xml = self.occurs_data_handler.get_xml('noncompliant')
 
-        max_occurs_found = lookup_occurs(self.request, lookup_xsd, lookup_xsd, self.namespace, '.', noncompliant_xml)
+        max_occurs_found = lookup_occurs(self.request, lookup_xsd, lookup_xsd, '.', noncompliant_xml)
         self.assertEqual(max_occurs_found, 1)
 
 
@@ -622,48 +621,48 @@ class ParserGetXmlElementDataTestSuite(TestCase):
         xsd_element = self.xml_element_data_handler.get_xsd2(join('element', 'simple'))
         xml_element = self.xml_element_data_handler.get_xml(join('element', 'simple'))
 
-        reload_data = get_xml_element_data(xsd_element, xml_element, '')
+        reload_data = get_xml_element_data(xsd_element, xml_element)
         self.assertEqual(reload_data, 'test')
 
     def test_element_xml_branch(self):
         xsd_element = self.xml_element_data_handler.get_xsd2(join('element', 'complex'))
         xml_element = self.xml_element_data_handler.get_xml(join('element', 'complex'))
 
-        reload_data = get_xml_element_data(xsd_element, xml_element, '')
+        reload_data = get_xml_element_data(xsd_element, xml_element)
         self.assertEqual(reload_data, etree.tostring(xml_element))
 
     def test_attribute(self):
         xsd_element = self.xml_element_data_handler.get_xsd2(join('attribute', 'schema'))
 
-        reload_data = get_xml_element_data(xsd_element, None, '')
+        reload_data = get_xml_element_data(xsd_element, None)
         self.assertEqual(reload_data, None)
 
     def test_complex_type_xml_empty(self):
         xsd_element = self.xml_element_data_handler.get_xsd2(join('complex_type', 'complex'))
         xml_element = self.xml_element_data_handler.get_xml(join('complex_type', 'empty'))
 
-        reload_data = get_xml_element_data(xsd_element, xml_element, '')
+        reload_data = get_xml_element_data(xsd_element, xml_element)
         self.assertEqual(reload_data, "")
 
     def test_complex_type_xml_branch(self):
         xsd_element = self.xml_element_data_handler.get_xsd2(join('complex_type', 'complex'))
         xml_element = self.xml_element_data_handler.get_xml(join('complex_type', 'complex'))
 
-        reload_data = get_xml_element_data(xsd_element, xml_element, '')
+        reload_data = get_xml_element_data(xsd_element, xml_element)
         self.assertEqual(reload_data, etree.tostring(xml_element))
 
     def test_simple_type_xml_text(self):
         xsd_element = self.xml_element_data_handler.get_xsd2(join('simple_type', 'simple'))
         xml_element = self.xml_element_data_handler.get_xml(join('simple_type', 'simple'))
 
-        reload_data = get_xml_element_data(xsd_element, xml_element, '')
+        reload_data = get_xml_element_data(xsd_element, xml_element)
         self.assertEqual(reload_data, "child_0")
 
     def test_simple_type_empty(self):
         xsd_element = self.xml_element_data_handler.get_xsd2(join('simple_type', 'simple'))
         xml_element = self.xml_element_data_handler.get_xml(join('simple_type', 'empty'))
 
-        reload_data = get_xml_element_data(xsd_element, xml_element, '')
+        reload_data = get_xml_element_data(xsd_element, xml_element)
         self.assertEqual(reload_data, "")
 
 
@@ -673,7 +672,6 @@ class ParserGetElementTypeTestSuite(TestCase):
 
     def setUp(self):
         self.defaultPrefix = 'xsd'
-        self.namespace = ''
 
         xml_element_data = join('curate', 'tests', 'data', 'parser', 'element_type')
         self.xml_element_data_handler = DataHandler(xml_element_data)
@@ -681,31 +679,31 @@ class ParserGetElementTypeTestSuite(TestCase):
     def test_no_type_one_child_no_annot(self):
         xsd_element = self.xml_element_data_handler.get_xsd2(join('no_type', 'one_child_no_annot'))
 
-        element_type = get_element_type(xsd_element, None, '', 'xsd')
+        element_type = get_element_type(xsd_element, None, 'xsd')
         self.assertEqual(element_type, list(xsd_element)[0])
 
     def test_no_type_one_child_annot(self):
         xsd_element = self.xml_element_data_handler.get_xsd2(join('no_type', 'one_child_annot'))
 
-        element_type = get_element_type(xsd_element, None, '', 'xsd')
+        element_type = get_element_type(xsd_element, None, 'xsd')
         self.assertEqual(element_type, None)
 
     def test_no_type_two_children_annot(self):
         xsd_element = self.xml_element_data_handler.get_xsd2(join('no_type', 'two_children_annot'))
 
-        element_type = get_element_type(xsd_element, None, '', 'xsd')
+        element_type = get_element_type(xsd_element, None, 'xsd')
         self.assertEqual(element_type, list(xsd_element)[1])
 
     def test_no_type_more_children(self):
         xsd_element = self.xml_element_data_handler.get_xsd2(join('no_type', 'more_children'))
 
-        element_type = get_element_type(xsd_element, None, '', 'xsd')
+        element_type = get_element_type(xsd_element, None, 'xsd')
         self.assertEqual(element_type, None)
 
     def test_type_is_common_type(self):
         xsd_element = self.xml_element_data_handler.get_xsd2('common_type')
 
-        element_type = get_element_type(xsd_element, None, '', 'xsd')
+        element_type = get_element_type(xsd_element, None, 'xsd')
         self.assertEqual(element_type, None)
 
     # todo make more tests
@@ -715,7 +713,7 @@ class ParserGetElementTypeTestSuite(TestCase):
 
         result_element = self.xml_element_data_handler.get_xsd2(join('complex_type', 'result'))
 
-        element_type = get_element_type(xsd_element, xsd_schema, '', 'xsd')
+        element_type = get_element_type(xsd_element, xsd_schema, 'xsd')
         self.assertTrue(are_equals(element_type, result_element))
 
     def test_type_is_simple_type(self):
@@ -724,7 +722,7 @@ class ParserGetElementTypeTestSuite(TestCase):
 
         result_element = self.xml_element_data_handler.get_xsd2(join('simple_type', 'result'))
 
-        element_type = get_element_type(xsd_element, xsd_schema, '', 'xsd')
+        element_type = get_element_type(xsd_element, xsd_schema, 'xsd')
         self.assertTrue(are_equals(element_type, result_element))
 
 
@@ -736,19 +734,17 @@ class ParserRemoveAnnotationTestSuite(TestCase):
         annotation_data = join('curate', 'tests', 'data', 'parser', 'utils', 'annotation')
         self.annotation_data_handler = DataHandler(annotation_data)
 
-        self.namespace = ''
-
         self.result = self.annotation_data_handler.get_xsd2('not_annot')
 
     def test_annotation_is_removed(self):
         annotated_schema = self.annotation_data_handler.get_xsd2('annot')
-        remove_annotations(annotated_schema, self.namespace)
+        remove_annotations(annotated_schema)
 
         self.assertTrue(are_equals(annotated_schema, self.result))
 
     def test_no_annotation_no_change(self):
         not_annotated_schema = self.annotation_data_handler.get_xsd2('not_annot')
-        remove_annotations(not_annotated_schema, self.namespace)
+        remove_annotations(not_annotated_schema)
 
         self.assertTrue(are_equals(not_annotated_schema, self.result))
 
@@ -1186,7 +1182,6 @@ class ParserGenerateElementTestSuite(TestCase):
 
         # set default namespace
         namespace = "http://www.w3.org/2001/XMLSchema"
-        self.namespace = "{" + namespace + "}"
         self.request.session['defaultPrefix'] = 'xs'
         self.request.session['namespaces'] = {'xs': namespace}
 
@@ -1195,7 +1190,7 @@ class ParserGenerateElementTestSuite(TestCase):
         xsd_tree = etree.ElementTree(self.element_data_handler.get_xsd2(xsd_files))
         xsd_element = xsd_tree.xpath('/xs:schema/xs:element', namespaces=self.request.session['namespaces'])[0]
 
-        result_string = generate_element(self.request, xsd_element, xsd_tree, self.namespace, full_path='')
+        result_string = generate_element(self.request, xsd_element, xsd_tree, full_path='')
 
         result_html = etree.fromstring(result_string)
         expected_html = self.element_data_handler.get_html2(xsd_files)
@@ -1207,7 +1202,7 @@ class ParserGenerateElementTestSuite(TestCase):
         xsd_tree = etree.ElementTree(self.element_data_handler.get_xsd2(xsd_files))
         xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence/xs:element', namespaces=self.request.session['namespaces'])[0]
 
-        result_string = generate_element(self.request, xsd_element, xsd_tree, self.namespace, full_path='')
+        result_string = generate_element(self.request, xsd_element, xsd_tree, full_path='')
 
         result_html = etree.fromstring(result_string)
         expected_html = self.element_data_handler.get_html2(xsd_files)
@@ -1219,7 +1214,7 @@ class ParserGenerateElementTestSuite(TestCase):
         xsd_tree = etree.ElementTree(self.element_data_handler.get_xsd2(xsd_files))
         xsd_element = xsd_tree.xpath('/xs:schema/xs:element', namespaces=self.request.session['namespaces'])[0]
 
-        result_string = generate_element(self.request, xsd_element, xsd_tree, self.namespace, full_path='')
+        result_string = generate_element(self.request, xsd_element, xsd_tree, full_path='')
 
         result_html = etree.fromstring(result_string)
         expected_html = self.element_data_handler.get_html2(xsd_files)
@@ -1231,7 +1226,7 @@ class ParserGenerateElementTestSuite(TestCase):
         xsd_tree = etree.ElementTree(self.element_data_handler.get_xsd2(xsd_files))
         xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence/xs:element', namespaces=self.request.session['namespaces'])[0]
 
-        result_string = generate_element(self.request, xsd_element, xsd_tree, self.namespace, full_path='')
+        result_string = generate_element(self.request, xsd_element, xsd_tree, full_path='')
 
         result_html = etree.fromstring(result_string)
         expected_html = self.element_data_handler.get_html2(xsd_files)
@@ -1506,7 +1501,7 @@ class ParserGenerateElementTestSuite(TestCase):
         # load the XML tree from the text
         edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
 
-        result_string = generate_element(self.request, xsd_element, xsd_tree, self.namespace, full_path='',
+        result_string = generate_element(self.request, xsd_element, xsd_tree, full_path='',
                                          edit_data_tree=edit_data_tree)
 
         result_html = etree.fromstring(result_string)
@@ -1528,7 +1523,7 @@ class ParserGenerateElementTestSuite(TestCase):
         etree.set_default_parser(parser=clean_parser)
         edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
 
-        result_string = generate_element(self.request, xsd_element, xsd_tree, self.namespace, full_path='/root',
+        result_string = generate_element(self.request, xsd_element, xsd_tree, full_path='/root',
                                          edit_data_tree=edit_data_tree)
 
         result_html = etree.fromstring(result_string)
@@ -1551,7 +1546,7 @@ class ParserGenerateElementTestSuite(TestCase):
         # load the XML tree from the text
         edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
 
-        result_string = generate_element(self.request, xsd_element, xsd_tree, self.namespace, full_path='',
+        result_string = generate_element(self.request, xsd_element, xsd_tree, full_path='',
                                          edit_data_tree=edit_data_tree)
 
         result_html = etree.fromstring(result_string)
@@ -1574,7 +1569,7 @@ class ParserGenerateElementTestSuite(TestCase):
         # load the XML tree from the text
         edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
 
-        result_string = generate_element(self.request, xsd_element, xsd_tree, self.namespace, full_path='/root',
+        result_string = generate_element(self.request, xsd_element, xsd_tree, full_path='/root',
                                          edit_data_tree=edit_data_tree)
 
         result_html = etree.fromstring(result_string)
@@ -1748,7 +1743,6 @@ class ParserGenerateElementAbsentTestSuite(TestCase):
 
         # set default namespace
         namespace = "http://www.w3.org/2001/XMLSchema"
-        self.namespace = "{" + namespace + "}"
         self.request.session['defaultPrefix'] = 'xs'
         self.request.session['namespaces'] = {'xs': namespace}
 
@@ -1913,7 +1907,6 @@ class ParserGenerateSequenceTestSuite(TestCase):
 
         # set default namespace
         namespace = "http://www.w3.org/2001/XMLSchema"
-        self.namespace = "{" + namespace + "}"
         self.request.session['defaultPrefix'] = 'xs'
         self.request.session['namespaces'] = {'xs': namespace}
 
@@ -1921,7 +1914,7 @@ class ParserGenerateSequenceTestSuite(TestCase):
         xsd_tree = etree.ElementTree(self.sequence_data_handler.get_xsd2(join('element', 'basic')))
         xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence', namespaces=self.request.session['namespaces'])[0]
 
-        result_string = generate_sequence(self.request, xsd_element, xsd_tree, self.namespace, full_path='')
+        result_string = generate_sequence(self.request, xsd_element, xsd_tree, full_path='')
 
         result_html = etree.fromstring(result_string)
         expected_html = self.sequence_data_handler.get_html2(join('element', 'basic'))
@@ -1932,7 +1925,7 @@ class ParserGenerateSequenceTestSuite(TestCase):
         xsd_tree = etree.ElementTree(self.sequence_data_handler.get_xsd2(join('element', 'unbounded')))
         xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence', namespaces=self.request.session['namespaces'])[0]
 
-        result_string = generate_sequence(self.request, xsd_element, xsd_tree, self.namespace, full_path='')
+        result_string = generate_sequence(self.request, xsd_element, xsd_tree, full_path='')
 
         result_html = etree.fromstring(result_string)
         expected_html = self.sequence_data_handler.get_html2(join('element', 'unbounded'))
@@ -1967,7 +1960,7 @@ class ParserGenerateSequenceTestSuite(TestCase):
         xsd_tree = etree.ElementTree(self.sequence_data_handler.get_xsd2(join('choice', 'basic')))
         xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence', namespaces=self.request.session['namespaces'])[0]
 
-        result_string = generate_sequence(self.request, xsd_element, xsd_tree, self.namespace, full_path='')
+        result_string = generate_sequence(self.request, xsd_element, xsd_tree, full_path='')
         # print result_string
 
         result_html = etree.fromstring(result_string)
@@ -1979,7 +1972,7 @@ class ParserGenerateSequenceTestSuite(TestCase):
         xsd_tree = etree.ElementTree(self.sequence_data_handler.get_xsd2(join('choice', 'unbounded')))
         xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence', namespaces=self.request.session['namespaces'])[0]
 
-        result_string = generate_sequence(self.request, xsd_element, xsd_tree, self.namespace, full_path='')
+        result_string = generate_sequence(self.request, xsd_element, xsd_tree, full_path='')
         # print result_string
 
         result_html = etree.fromstring(result_string)
@@ -1991,7 +1984,7 @@ class ParserGenerateSequenceTestSuite(TestCase):
         xsd_tree = etree.ElementTree(self.sequence_data_handler.get_xsd2(join('sequence', 'basic')))
         xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence', namespaces=self.request.session['namespaces'])[0]
 
-        result_string = generate_sequence(self.request, xsd_element, xsd_tree, self.namespace, full_path='')
+        result_string = generate_sequence(self.request, xsd_element, xsd_tree, full_path='')
         # print result_string
 
         result_html = etree.fromstring(result_string)
@@ -2003,7 +1996,7 @@ class ParserGenerateSequenceTestSuite(TestCase):
         xsd_tree = etree.ElementTree(self.sequence_data_handler.get_xsd2(join('sequence', 'unbounded')))
         xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence', namespaces=self.request.session['namespaces'])[0]
 
-        result_string = generate_sequence(self.request, xsd_element, xsd_tree, self.namespace, full_path='')
+        result_string = generate_sequence(self.request, xsd_element, xsd_tree, full_path='')
         # print result_string
 
         result_html = etree.fromstring(result_string)
@@ -2036,7 +2029,7 @@ class ParserGenerateSequenceTestSuite(TestCase):
         xsd_tree = etree.ElementTree(self.sequence_data_handler.get_xsd2(join('multiple', 'basic')))
         xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence', namespaces=self.request.session['namespaces'])[0]
 
-        result_string = generate_sequence(self.request, xsd_element, xsd_tree, self.namespace, full_path='')
+        result_string = generate_sequence(self.request, xsd_element, xsd_tree, full_path='')
         result_string = '<div>' + result_string + '</div>'
 
         result_html = etree.fromstring(result_string)
@@ -2048,7 +2041,7 @@ class ParserGenerateSequenceTestSuite(TestCase):
         xsd_tree = etree.ElementTree(self.sequence_data_handler.get_xsd2(join('multiple', 'unbounded')))
         xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence', namespaces=self.request.session['namespaces'])[0]
 
-        result_string = generate_sequence(self.request, xsd_element, xsd_tree, self.namespace, full_path='')
+        result_string = generate_sequence(self.request, xsd_element, xsd_tree, full_path='')
         # print result_string
 
         result_html = etree.fromstring(result_string)
@@ -2070,7 +2063,7 @@ class ParserGenerateSequenceTestSuite(TestCase):
         etree.set_default_parser(parser=clean_parser)
         # load the XML tree from the text
         edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
-        result_string = generate_sequence(self.request, xsd_element, xsd_tree, self.namespace, full_path='/root',
+        result_string = generate_sequence(self.request, xsd_element, xsd_tree, full_path='/root',
                                           edit_data_tree=edit_data_tree)
         # print result_string
 
@@ -2094,7 +2087,7 @@ class ParserGenerateSequenceTestSuite(TestCase):
         etree.set_default_parser(parser=clean_parser)
         # load the XML tree from the text
         edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
-        result_string = generate_sequence(self.request, xsd_element, xsd_tree, self.namespace, full_path='/root',
+        result_string = generate_sequence(self.request, xsd_element, xsd_tree, full_path='/root',
                                           edit_data_tree=edit_data_tree)
         # print result_string
 
@@ -2164,7 +2157,7 @@ class ParserGenerateSequenceTestSuite(TestCase):
         etree.set_default_parser(parser=clean_parser)
         # load the XML tree from the text
         edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
-        result_string = generate_sequence(self.request, xsd_element, xsd_tree, self.namespace, full_path='/root',
+        result_string = generate_sequence(self.request, xsd_element, xsd_tree, full_path='/root',
                                           edit_data_tree=edit_data_tree)
         # print result_string
 
@@ -2187,7 +2180,7 @@ class ParserGenerateSequenceTestSuite(TestCase):
         etree.set_default_parser(parser=clean_parser)
         # load the XML tree from the text
         edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
-        result_string = generate_sequence(self.request, xsd_element, xsd_tree, self.namespace, full_path='/root',
+        result_string = generate_sequence(self.request, xsd_element, xsd_tree, full_path='/root',
                                           edit_data_tree=edit_data_tree)
         # print result_string
 
@@ -2210,7 +2203,7 @@ class ParserGenerateSequenceTestSuite(TestCase):
         etree.set_default_parser(parser=clean_parser)
         # load the XML tree from the text
         edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
-        result_string = generate_sequence(self.request, xsd_element, xsd_tree, self.namespace, full_path='/root',
+        result_string = generate_sequence(self.request, xsd_element, xsd_tree, full_path='/root',
                                           edit_data_tree=edit_data_tree)
         # print result_string
 
@@ -2233,7 +2226,7 @@ class ParserGenerateSequenceTestSuite(TestCase):
         etree.set_default_parser(parser=clean_parser)
         # load the XML tree from the text
         edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
-        result_string = generate_sequence(self.request, xsd_element, xsd_tree, self.namespace, full_path='/root',
+        result_string = generate_sequence(self.request, xsd_element, xsd_tree, full_path='/root',
                                           edit_data_tree=edit_data_tree)
         # print result_string
 
@@ -2303,7 +2296,7 @@ class ParserGenerateSequenceTestSuite(TestCase):
         etree.set_default_parser(parser=clean_parser)
         # load the XML tree from the text
         edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
-        result_string = generate_sequence(self.request, xsd_element, xsd_tree, self.namespace, full_path='/root',
+        result_string = generate_sequence(self.request, xsd_element, xsd_tree, full_path='/root',
                                           edit_data_tree=edit_data_tree)
         result_string = '<div>' + result_string + '</div>'
 
@@ -2326,7 +2319,7 @@ class ParserGenerateSequenceTestSuite(TestCase):
         etree.set_default_parser(parser=clean_parser)
         # load the XML tree from the text
         edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
-        result_string = generate_sequence(self.request, xsd_element, xsd_tree, self.namespace, full_path='/root',
+        result_string = generate_sequence(self.request, xsd_element, xsd_tree, full_path='/root',
                                           edit_data_tree=edit_data_tree)
 
         result_html = etree.fromstring(result_string)
@@ -2355,7 +2348,6 @@ class ParserGenerateSequenceAbsentTestSuite(TestCase):
 
         # set default namespace
         namespace = "http://www.w3.org/2001/XMLSchema"
-        self.namespace = "{" + namespace + "}"
         self.request.session['defaultPrefix'] = 'xs'
         self.request.session['namespaces'] = {'xs': namespace}
 
@@ -2363,7 +2355,7 @@ class ParserGenerateSequenceAbsentTestSuite(TestCase):
         xsd_tree = etree.ElementTree(self.sequence_data_handler.get_xsd2(join('element', 'basic')))
         xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence', namespaces=self.request.session['namespaces'])[0]
 
-        result_string = generate_sequence_absent(self.request, xsd_element, xsd_tree, self.namespace)
+        result_string = generate_sequence_absent(self.request, xsd_element, xsd_tree)
         # print result_string
 
         result_html = etree.fromstring(result_string)
@@ -2375,7 +2367,7 @@ class ParserGenerateSequenceAbsentTestSuite(TestCase):
         xsd_tree = etree.ElementTree(self.sequence_data_handler.get_xsd2(join('element', 'unbounded')))
         xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence', namespaces=self.request.session['namespaces'])[0]
 
-        result_string = generate_sequence_absent(self.request, xsd_element, xsd_tree, self.namespace)
+        result_string = generate_sequence_absent(self.request, xsd_element, xsd_tree)
         # print result_string
 
         result_html = etree.fromstring(result_string)
@@ -2413,7 +2405,7 @@ class ParserGenerateSequenceAbsentTestSuite(TestCase):
         xsd_tree = etree.ElementTree(self.sequence_data_handler.get_xsd2(join('choice', 'basic')))
         xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence', namespaces=self.request.session['namespaces'])[0]
 
-        result_string = generate_sequence_absent(self.request, xsd_element, xsd_tree, self.namespace)
+        result_string = generate_sequence_absent(self.request, xsd_element, xsd_tree)
         # print result_string
 
         result_html = etree.fromstring(result_string)
@@ -2425,7 +2417,7 @@ class ParserGenerateSequenceAbsentTestSuite(TestCase):
         xsd_tree = etree.ElementTree(self.sequence_data_handler.get_xsd2(join('choice', 'unbounded')))
         xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence', namespaces=self.request.session['namespaces'])[0]
 
-        result_string = generate_sequence_absent(self.request, xsd_element, xsd_tree, self.namespace)
+        result_string = generate_sequence_absent(self.request, xsd_element, xsd_tree)
         # print result_string
 
         result_html = etree.fromstring(result_string)
@@ -2437,7 +2429,7 @@ class ParserGenerateSequenceAbsentTestSuite(TestCase):
         xsd_tree = etree.ElementTree(self.sequence_data_handler.get_xsd2(join('sequence', 'basic')))
         xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence', namespaces=self.request.session['namespaces'])[0]
 
-        result_string = generate_sequence_absent(self.request, xsd_element, xsd_tree, self.namespace)
+        result_string = generate_sequence_absent(self.request, xsd_element, xsd_tree)
         # print result_string
 
         result_html = etree.fromstring(result_string)
@@ -2449,7 +2441,7 @@ class ParserGenerateSequenceAbsentTestSuite(TestCase):
         xsd_tree = etree.ElementTree(self.sequence_data_handler.get_xsd2(join('sequence', 'unbounded')))
         xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence', namespaces=self.request.session['namespaces'])[0]
 
-        result_string = generate_sequence_absent(self.request, xsd_element, xsd_tree, self.namespace)
+        result_string = generate_sequence_absent(self.request, xsd_element, xsd_tree)
         # print result_string
 
         result_html = etree.fromstring(result_string)
@@ -2483,7 +2475,7 @@ class ParserGenerateSequenceAbsentTestSuite(TestCase):
         xsd_tree = etree.ElementTree(self.sequence_data_handler.get_xsd2(join('multiple', 'basic')))
         xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence', namespaces=self.request.session['namespaces'])[0]
 
-        result_string = generate_sequence_absent(self.request, xsd_element, xsd_tree, self.namespace)
+        result_string = generate_sequence_absent(self.request, xsd_element, xsd_tree)
         # print result_string
         result_string = '<div>' + result_string + '</div>'
 
@@ -2496,7 +2488,7 @@ class ParserGenerateSequenceAbsentTestSuite(TestCase):
         xsd_tree = etree.ElementTree(self.sequence_data_handler.get_xsd2(join('multiple', 'unbounded')))
         xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence', namespaces=self.request.session['namespaces'])[0]
 
-        result_string = generate_sequence_absent(self.request, xsd_element, xsd_tree, self.namespace)
+        result_string = generate_sequence_absent(self.request, xsd_element, xsd_tree)
         # print result_string
         result_string = '<div>' + result_string + '</div>'
 
@@ -2526,7 +2518,6 @@ class ParserGenerateChoiceTestSuite(TestCase):
 
         # set default namespace
         namespace = "http://www.w3.org/2001/XMLSchema"
-        self.namespace = "{" + namespace + "}"
         self.request.session['defaultPrefix'] = 'xs'
         self.request.session['namespaces'] = {'xs': namespace}
 
@@ -2535,7 +2526,7 @@ class ParserGenerateChoiceTestSuite(TestCase):
         xsd_tree = etree.ElementTree(self.choice_data_handler.get_xsd2(xsd_files))
         xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:choice', namespaces=self.request.session['namespaces'])[0]
 
-        result_string = generate_choice(self.request, xsd_element, xsd_tree, self.namespace, full_path='')
+        result_string = generate_choice(self.request, xsd_element, xsd_tree, full_path='')
         # print result_string
 
         result_html = etree.fromstring(result_string)
@@ -2548,7 +2539,7 @@ class ParserGenerateChoiceTestSuite(TestCase):
         xsd_tree = etree.ElementTree(self.choice_data_handler.get_xsd2(xsd_files))
         xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:choice', namespaces=self.request.session['namespaces'])[0]
 
-        result_string = generate_choice(self.request, xsd_element, xsd_tree, self.namespace, full_path='')
+        result_string = generate_choice(self.request, xsd_element, xsd_tree, full_path='')
         # print result_string
 
         result_html = etree.fromstring(result_string)
@@ -2615,7 +2606,7 @@ class ParserGenerateChoiceTestSuite(TestCase):
         xsd_tree = etree.ElementTree(self.choice_data_handler.get_xsd2(xsd_files))
         xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:choice', namespaces=self.request.session['namespaces'])[0]
 
-        result_string = generate_choice(self.request, xsd_element, xsd_tree, self.namespace, full_path='')
+        result_string = generate_choice(self.request, xsd_element, xsd_tree, full_path='')
         # print result_string
 
         result_html = etree.fromstring(result_string)
@@ -2628,7 +2619,7 @@ class ParserGenerateChoiceTestSuite(TestCase):
         xsd_tree = etree.ElementTree(self.choice_data_handler.get_xsd2(xsd_files))
         xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:choice', namespaces=self.request.session['namespaces'])[0]
 
-        result_string = generate_choice(self.request, xsd_element, xsd_tree, self.namespace, full_path='')
+        result_string = generate_choice(self.request, xsd_element, xsd_tree, full_path='')
         # print result_string
 
         result_html = etree.fromstring(result_string)
@@ -2657,7 +2648,7 @@ class ParserGenerateChoiceTestSuite(TestCase):
         etree.set_default_parser(parser=clean_parser)
         # load the XML tree from the text
         edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
-        result_string = generate_choice(self.request, xsd_element, xsd_tree, self.namespace, full_path='/root',
+        result_string = generate_choice(self.request, xsd_element, xsd_tree, full_path='/root',
                                         edit_data_tree=edit_data_tree)
         # print result_string
 
@@ -2681,7 +2672,7 @@ class ParserGenerateChoiceTestSuite(TestCase):
         etree.set_default_parser(parser=clean_parser)
         # load the XML tree from the text
         edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
-        result_string = generate_choice(self.request, xsd_element, xsd_tree, self.namespace, full_path='/root',
+        result_string = generate_choice(self.request, xsd_element, xsd_tree, full_path='/root',
                                         edit_data_tree=edit_data_tree)
         # print result_string
 
@@ -2797,7 +2788,7 @@ class ParserGenerateChoiceTestSuite(TestCase):
         etree.set_default_parser(parser=clean_parser)
         # load the XML tree from the text
         edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
-        result_string = generate_choice(self.request, xsd_element, xsd_tree, self.namespace, full_path='/root',
+        result_string = generate_choice(self.request, xsd_element, xsd_tree, full_path='/root',
                                         edit_data_tree=edit_data_tree)
         # print result_string
 
@@ -2821,7 +2812,7 @@ class ParserGenerateChoiceTestSuite(TestCase):
         etree.set_default_parser(parser=clean_parser)
         # load the XML tree from the text
         edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
-        result_string = generate_choice(self.request, xsd_element, xsd_tree, self.namespace, full_path='/root',
+        result_string = generate_choice(self.request, xsd_element, xsd_tree, full_path='/root',
                                         edit_data_tree=edit_data_tree)
         # print result_string
 
@@ -2858,7 +2849,6 @@ class ParserGenerateSimpleTypeTestSuite(TestCase):
 
         # set default namespace
         namespace = "http://www.w3.org/2001/XMLSchema"
-        self.namespace = "{" + namespace + "}"
         self.request.session['defaultPrefix'] = 'xs'
         self.request.session['namespaces'] = {'xs': namespace}
 
@@ -2867,7 +2857,7 @@ class ParserGenerateSimpleTypeTestSuite(TestCase):
         xsd_tree = etree.ElementTree(self.simple_type_data_handler.get_xsd2(xsd_files))
         xsd_element = xsd_tree.xpath('/xs:schema/xs:simpleType', namespaces=self.request.session['namespaces'])[0]
 
-        result_string = generate_simple_type(self.request, xsd_element, xsd_tree, self.namespace, full_path='')
+        result_string = generate_simple_type(self.request, xsd_element, xsd_tree, full_path='')
         # print result_string
 
         result_html = etree.fromstring(result_string)
@@ -2880,7 +2870,7 @@ class ParserGenerateSimpleTypeTestSuite(TestCase):
         xsd_tree = etree.ElementTree(self.simple_type_data_handler.get_xsd2(xsd_files))
         xsd_element = xsd_tree.xpath('/xs:schema/xs:simpleType', namespaces=self.request.session['namespaces'])[0]
 
-        result_string = generate_simple_type(self.request, xsd_element, xsd_tree, self.namespace, full_path='')
+        result_string = generate_simple_type(self.request, xsd_element, xsd_tree, full_path='')
         # print result_string
 
         result_html = etree.fromstring(result_string)
@@ -2917,7 +2907,7 @@ class ParserGenerateSimpleTypeTestSuite(TestCase):
         etree.set_default_parser(parser=clean_parser)
         # load the XML tree from the text
         edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
-        result_string = generate_simple_type(self.request, xsd_element, xsd_tree, self.namespace, full_path='/root',
+        result_string = generate_simple_type(self.request, xsd_element, xsd_tree, full_path='/root',
                                              edit_data_tree=edit_data_tree)
         # print result_string
 
@@ -2941,7 +2931,7 @@ class ParserGenerateSimpleTypeTestSuite(TestCase):
         etree.set_default_parser(parser=clean_parser)
         # load the XML tree from the text
         edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
-        result_string = generate_simple_type(self.request, xsd_element, xsd_tree, self.namespace, full_path='/root',
+        result_string = generate_simple_type(self.request, xsd_element, xsd_tree, full_path='/root',
                                              edit_data_tree=edit_data_tree)
         # print result_string
 
@@ -2995,7 +2985,6 @@ class ParserGenerateComplexTypeTestSuite(TestCase):
 
         # set default namespace
         namespace = "http://www.w3.org/2001/XMLSchema"
-        self.namespace = "{" + namespace + "}"
         self.request.session['defaultPrefix'] = 'xs'
         self.request.session['namespaces'] = {'xs': namespace}
 
@@ -3005,7 +2994,7 @@ class ParserGenerateComplexTypeTestSuite(TestCase):
         xsd_tree = etree.ElementTree(self.complex_type_data_handler.get_xsd2(xsd_files))
         xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType', namespaces=self.request.session['namespaces'])[0]
 
-        result_string = generate_complex_type(self.request, xsd_element, xsd_tree, self.namespace, full_path='')
+        result_string = generate_complex_type(self.request, xsd_element, xsd_tree, full_path='')
         # print result_string
 
         result_html = etree.fromstring(result_string)
@@ -3019,7 +3008,7 @@ class ParserGenerateComplexTypeTestSuite(TestCase):
         xsd_tree = etree.ElementTree(self.complex_type_data_handler.get_xsd2(xsd_files))
         xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType', namespaces=self.request.session['namespaces'])[0]
 
-        result_string = generate_complex_type(self.request, xsd_element, xsd_tree, self.namespace, full_path='')
+        result_string = generate_complex_type(self.request, xsd_element, xsd_tree, full_path='')
         # print result_string
         self.assertEqual(result_string, '')
 
@@ -3034,7 +3023,7 @@ class ParserGenerateComplexTypeTestSuite(TestCase):
         xsd_tree = etree.ElementTree(self.complex_type_data_handler.get_xsd2(xsd_files))
         xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType', namespaces=self.request.session['namespaces'])[0]
 
-        result_string = generate_complex_type(self.request, xsd_element, xsd_tree, self.namespace, full_path='')
+        result_string = generate_complex_type(self.request, xsd_element, xsd_tree, full_path='')
         # print result_string
         self.assertEqual(result_string, '')
 
@@ -3048,7 +3037,7 @@ class ParserGenerateComplexTypeTestSuite(TestCase):
         xsd_tree = etree.ElementTree(self.complex_type_data_handler.get_xsd2(xsd_files))
         xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType', namespaces=self.request.session['namespaces'])[0]
 
-        result_string = generate_complex_type(self.request, xsd_element, xsd_tree, self.namespace, full_path='')
+        result_string = generate_complex_type(self.request, xsd_element, xsd_tree, full_path='')
         result_string = '<div>' + result_string + '</div>'
         # print result_string
 
@@ -3062,7 +3051,7 @@ class ParserGenerateComplexTypeTestSuite(TestCase):
         xsd_tree = etree.ElementTree(self.complex_type_data_handler.get_xsd2(xsd_files))
         xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType', namespaces=self.request.session['namespaces'])[0]
 
-        result_string = generate_complex_type(self.request, xsd_element, xsd_tree, self.namespace, full_path='')
+        result_string = generate_complex_type(self.request, xsd_element, xsd_tree, full_path='')
         # print result_string
 
         result_html = etree.fromstring(result_string)
@@ -3075,7 +3064,7 @@ class ParserGenerateComplexTypeTestSuite(TestCase):
         xsd_tree = etree.ElementTree(self.complex_type_data_handler.get_xsd2(xsd_files))
         xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType', namespaces=self.request.session['namespaces'])[0]
 
-        result_string = generate_complex_type(self.request, xsd_element, xsd_tree, self.namespace, full_path='')
+        result_string = generate_complex_type(self.request, xsd_element, xsd_tree, full_path='')
         result_string = '<div>' + result_string + '</div>'
         # print result_string
 
@@ -3089,7 +3078,7 @@ class ParserGenerateComplexTypeTestSuite(TestCase):
         xsd_tree = etree.ElementTree(self.complex_type_data_handler.get_xsd2(xsd_files))
         xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType', namespaces=self.request.session['namespaces'])[0]
 
-        result_string = generate_complex_type(self.request, xsd_element, xsd_tree, self.namespace, full_path='')
+        result_string = generate_complex_type(self.request, xsd_element, xsd_tree, full_path='')
         # print result_string
 
         result_html = etree.fromstring(result_string)
@@ -3132,7 +3121,7 @@ class ParserGenerateComplexTypeTestSuite(TestCase):
         xsd_tree = etree.ElementTree(self.complex_type_data_handler.get_xsd2(xsd_files))
         xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType', namespaces=self.request.session['namespaces'])[0]
 
-        result_string = generate_complex_type(self.request, xsd_element, xsd_tree, self.namespace, full_path='')
+        result_string = generate_complex_type(self.request, xsd_element, xsd_tree, full_path='')
         result_string = '<div>' + result_string + '</div>'
         # print result_string
 
@@ -3155,7 +3144,7 @@ class ParserGenerateComplexTypeTestSuite(TestCase):
         etree.set_default_parser(parser=clean_parser)
         # load the XML tree from the text
         edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
-        result_string = generate_complex_type(self.request, xsd_element, xsd_tree, self.namespace, full_path='/root',
+        result_string = generate_complex_type(self.request, xsd_element, xsd_tree, full_path='/root',
                                               edit_data_tree=edit_data_tree)
         # print result_string
 
@@ -3226,7 +3215,7 @@ class ParserGenerateComplexTypeTestSuite(TestCase):
         etree.set_default_parser(parser=clean_parser)
         # load the XML tree from the text
         edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
-        result_string = generate_complex_type(self.request, xsd_element, xsd_tree, self.namespace, full_path='/root',
+        result_string = generate_complex_type(self.request, xsd_element, xsd_tree, full_path='/root',
                                               edit_data_tree=edit_data_tree)
         # print result_string
         result_string = '<div>' + result_string + '</div>'
@@ -3250,7 +3239,7 @@ class ParserGenerateComplexTypeTestSuite(TestCase):
         etree.set_default_parser(parser=clean_parser)
         # load the XML tree from the text
         edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
-        result_string = generate_complex_type(self.request, xsd_element, xsd_tree, self.namespace, full_path='/root',
+        result_string = generate_complex_type(self.request, xsd_element, xsd_tree, full_path='/root',
                                               edit_data_tree=edit_data_tree)
         # print result_string
 
@@ -3273,7 +3262,7 @@ class ParserGenerateComplexTypeTestSuite(TestCase):
         etree.set_default_parser(parser=clean_parser)
         # load the XML tree from the text
         edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
-        result_string = generate_complex_type(self.request, xsd_element, xsd_tree, self.namespace, full_path='/root',
+        result_string = generate_complex_type(self.request, xsd_element, xsd_tree, full_path='/root',
                                               edit_data_tree=edit_data_tree)
         # print result_string
         result_string = '<div>' + result_string + '</div>'
@@ -3370,7 +3359,7 @@ class ParserGenerateComplexTypeTestSuite(TestCase):
         etree.set_default_parser(parser=clean_parser)
         # load the XML tree from the text
         edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
-        result_string = generate_complex_type(self.request, xsd_element, xsd_tree, self.namespace, full_path='/root',
+        result_string = generate_complex_type(self.request, xsd_element, xsd_tree, full_path='/root',
                                               edit_data_tree=edit_data_tree)
         # print result_string
         result_string = '<div>' + result_string + '</div>'
@@ -3409,7 +3398,6 @@ class ParserGenerateModuleTestSuite(TestCase):
 
         # set default namespace
         namespace = "http://www.w3.org/2001/XMLSchema"
-        self.namespace = "{" + namespace + "}"
         self.request.session['defaultPrefix'] = 'xs'
         self.request.session['namespaces'] = {'xs': namespace}
 
@@ -3420,7 +3408,7 @@ class ParserGenerateModuleTestSuite(TestCase):
 
         self.request.session['xmlDocTree'] = etree.tostring(xsd_tree)
 
-        result_string = generate_module(self.request, xsd_element, self.namespace)
+        result_string = generate_module(self.request, xsd_element)
 
         result_html = etree.fromstring(result_string)
         expected_html = self.module_data_handler.get_html2('new')
@@ -3445,7 +3433,7 @@ class ParserGenerateModuleTestSuite(TestCase):
         # load the XML tree from the text
         edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
 
-        result_string = generate_module(self.request, xsd_element, self.namespace, xsd_xpath='', xml_xpath='/module/child',
+        result_string = generate_module(self.request, xsd_element, xsd_xpath='', xml_xpath='/module/child',
                                         edit_data_tree=edit_data_tree)
 
         result_html = etree.fromstring(result_string)
@@ -3486,7 +3474,6 @@ class ParserGenerateSimpleContentTestSuite(TestCase):
 
         # set default namespace
         namespace = "http://www.w3.org/2001/XMLSchema"
-        self.namespace = "{" + namespace + "}"
         self.request.session['defaultPrefix'] = 'xs'
         self.request.session['namespaces'] = {'xs': namespace}
 
@@ -3495,7 +3482,7 @@ class ParserGenerateSimpleContentTestSuite(TestCase):
         xsd_tree = etree.ElementTree(self.simple_content_data_handler.get_xsd2(xsd_files))
         xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:simpleContent', namespaces=self.request.session['namespaces'])[0]
 
-        result_string = generate_simple_content(self.request, xsd_element, xsd_tree, self.namespace, full_path='')
+        result_string = generate_simple_content(self.request, xsd_element, xsd_tree, full_path='')
         # print result_string
 
         result_html = etree.fromstring(result_string)
@@ -3509,7 +3496,7 @@ class ParserGenerateSimpleContentTestSuite(TestCase):
         xsd_tree = etree.ElementTree(self.simple_content_data_handler.get_xsd2(xsd_files))
         xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:simpleContent', namespaces=self.request.session['namespaces'])[0]
 
-        result_string = generate_simple_content(self.request, xsd_element, xsd_tree, self.namespace, full_path='')
+        result_string = generate_simple_content(self.request, xsd_element, xsd_tree, full_path='')
         # print result_string
 
         result_html = etree.fromstring(result_string)
@@ -3531,7 +3518,7 @@ class ParserGenerateSimpleContentTestSuite(TestCase):
         etree.set_default_parser(parser=clean_parser)
         # load the XML tree from the text
         edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
-        result_string = generate_simple_content(self.request, xsd_element, xsd_tree, self.namespace, full_path='/root',
+        result_string = generate_simple_content(self.request, xsd_element, xsd_tree, full_path='/root',
                                                 edit_data_tree=edit_data_tree)
         # print result_string
         # result_string = '<div>' + result_string + '</div>'
@@ -3555,7 +3542,7 @@ class ParserGenerateSimpleContentTestSuite(TestCase):
         etree.set_default_parser(parser=clean_parser)
         # load the XML tree from the text
         edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
-        result_string = generate_simple_content(self.request, xsd_element, xsd_tree, self.namespace, full_path='/root',
+        result_string = generate_simple_content(self.request, xsd_element, xsd_tree, full_path='/root',
                                                 edit_data_tree=edit_data_tree)
         # print result_string
         # result_string = '<div>' + result_string + '</div>'
@@ -3586,13 +3573,11 @@ class ParserGenerateRestrictionTestSuite(TestCase):
 
         # set default namespace
         namespace = "http://www.w3.org/2001/XMLSchema"
-        self.namespace = "{" + namespace + "}"
         self.request.session['defaultPrefix'] = 'xs'
         self.request.session['namespaces'] = {'xs': namespace}
 
         # set default namespace
         namespace = "http://www.w3.org/2001/XMLSchema"
-        self.namespace = "{" + namespace + "}"
         self.request.session['defaultPrefix'] = 'xs'
         self.request.session['namespaces'] = {'xs': namespace}
 
@@ -3601,7 +3586,7 @@ class ParserGenerateRestrictionTestSuite(TestCase):
         xsd_tree = etree.ElementTree(self.restriction_data_handler.get_xsd2(xsd_files))
         xsd_element = xsd_tree.xpath('/xs:schema/xs:simpleType/xs:restriction', namespaces=self.request.session['namespaces'])[0]
 
-        result_string = generate_restriction(self.request, xsd_element, xsd_tree, self.namespace, full_path='')
+        result_string = generate_restriction(self.request, xsd_element, xsd_tree, full_path='')
         # print result_string
 
         result_html = etree.fromstring(result_string)
@@ -3614,7 +3599,7 @@ class ParserGenerateRestrictionTestSuite(TestCase):
         xsd_tree = etree.ElementTree(self.restriction_data_handler.get_xsd2(xsd_files))
         xsd_element = xsd_tree.xpath('/xs:schema/xs:simpleType/xs:restriction', namespaces=self.request.session['namespaces'])[0]
 
-        result_string = generate_restriction(self.request, xsd_element, xsd_tree, self.namespace, full_path='')
+        result_string = generate_restriction(self.request, xsd_element, xsd_tree, full_path='')
         # print result_string
 
         result_html = etree.fromstring(result_string)
@@ -3636,7 +3621,7 @@ class ParserGenerateRestrictionTestSuite(TestCase):
         etree.set_default_parser(parser=clean_parser)
         # load the XML tree from the text
         edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
-        result_string = generate_restriction(self.request, xsd_element, xsd_tree, self.namespace, full_path='/root',
+        result_string = generate_restriction(self.request, xsd_element, xsd_tree, full_path='/root',
                                              edit_data_tree=edit_data_tree)
         # print result_string
         # result_string = '<div>' + result_string + '</div>'
@@ -3660,7 +3645,7 @@ class ParserGenerateRestrictionTestSuite(TestCase):
         etree.set_default_parser(parser=clean_parser)
         # load the XML tree from the text
         edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
-        result_string = generate_restriction(self.request, xsd_element, xsd_tree, self.namespace, full_path='/root',
+        result_string = generate_restriction(self.request, xsd_element, xsd_tree, full_path='/root',
                                              edit_data_tree=edit_data_tree)
         # print result_string
         # result_string = '<div>' + result_string + '</div>'
@@ -3692,7 +3677,6 @@ class ParserGenerateExtensionTestSuite(TestCase):
 
         # set default namespace
         namespace = "http://www.w3.org/2001/XMLSchema"
-        self.namespace = "{" + namespace + "}"
         self.request.session['defaultPrefix'] = 'xs'
         self.request.session['namespaces'] = {'xs': namespace}
 
@@ -3701,7 +3685,7 @@ class ParserGenerateExtensionTestSuite(TestCase):
         xsd_tree = etree.ElementTree(self.extension_data_handler.get_xsd2(xsd_files))
         xsd_element = xsd_tree.xpath('/xs:schema/xs:element/xs:complexType/xs:complexContent/xs:extension', namespaces=self.request.session['namespaces'])[0]
 
-        result_string = generate_extension(self.request, xsd_element, xsd_tree, self.namespace, full_path='')
+        result_string = generate_extension(self.request, xsd_element, xsd_tree, full_path='')
         # print result_string
 
         result_html = etree.fromstring(result_string)
@@ -3714,7 +3698,7 @@ class ParserGenerateExtensionTestSuite(TestCase):
         xsd_tree = etree.ElementTree(self.extension_data_handler.get_xsd2(xsd_files))
         xsd_element = xsd_tree.xpath('/xs:schema/xs:element/xs:complexType/xs:complexContent/xs:extension', namespaces=self.request.session['namespaces'])[0]
 
-        result_string = generate_extension(self.request, xsd_element, xsd_tree, self.namespace, full_path='')
+        result_string = generate_extension(self.request, xsd_element, xsd_tree, full_path='')
         # print result_string
 
         result_html = etree.fromstring(result_string)
@@ -3727,7 +3711,7 @@ class ParserGenerateExtensionTestSuite(TestCase):
         xsd_tree = etree.ElementTree(self.extension_data_handler.get_xsd2(xsd_files))
         xsd_element = xsd_tree.xpath('/xs:schema/xs:element/xs:complexType/xs:complexContent/xs:extension', namespaces=self.request.session['namespaces'])[0]
 
-        result_string = generate_extension(self.request, xsd_element, xsd_tree, self.namespace, full_path='')
+        result_string = generate_extension(self.request, xsd_element, xsd_tree, full_path='')
         # print result_string
 
         result_html = etree.fromstring(result_string)
@@ -3740,7 +3724,7 @@ class ParserGenerateExtensionTestSuite(TestCase):
         xsd_tree = etree.ElementTree(self.extension_data_handler.get_xsd2(xsd_files))
         xsd_element = xsd_tree.xpath('/xs:schema/xs:element/xs:complexType/xs:complexContent/xs:extension', namespaces=self.request.session['namespaces'])[0]
 
-        result_string = generate_extension(self.request, xsd_element, xsd_tree, self.namespace, full_path='')
+        result_string = generate_extension(self.request, xsd_element, xsd_tree, full_path='')
         # print result_string
 
         result_html = etree.fromstring(result_string)
@@ -3753,7 +3737,7 @@ class ParserGenerateExtensionTestSuite(TestCase):
         xsd_tree = etree.ElementTree(self.extension_data_handler.get_xsd2(xsd_files))
         xsd_element = xsd_tree.xpath('/xs:schema/xs:element/xs:complexType/xs:complexContent/xs:extension', namespaces=self.request.session['namespaces'])[0]
 
-        result_string = generate_extension(self.request, xsd_element, xsd_tree, self.namespace, full_path='')
+        result_string = generate_extension(self.request, xsd_element, xsd_tree, full_path='')
         # print result_string
 
         result_html = etree.fromstring(result_string)
@@ -3766,7 +3750,7 @@ class ParserGenerateExtensionTestSuite(TestCase):
         xsd_tree = etree.ElementTree(self.extension_data_handler.get_xsd2(xsd_files))
         xsd_element = xsd_tree.xpath('/xs:schema/xs:element/xs:complexType/xs:complexContent/xs:extension', namespaces=self.request.session['namespaces'])[0]
 
-        result_string = generate_extension(self.request, xsd_element, xsd_tree, self.namespace, full_path='')
+        result_string = generate_extension(self.request, xsd_element, xsd_tree, full_path='')
         # print result_string
 
         result_html = etree.fromstring(result_string)
@@ -3779,7 +3763,7 @@ class ParserGenerateExtensionTestSuite(TestCase):
         xsd_tree = etree.ElementTree(self.extension_data_handler.get_xsd2(xsd_files))
         xsd_element = xsd_tree.xpath('/xs:schema/xs:element/xs:complexType/xs:complexContent/xs:extension', namespaces=self.request.session['namespaces'])[0]
 
-        result_string = generate_extension(self.request, xsd_element, xsd_tree, self.namespace, full_path='')
+        result_string = generate_extension(self.request, xsd_element, xsd_tree, full_path='')
         # print result_string
 
         result_html = etree.fromstring(result_string)
@@ -3792,7 +3776,7 @@ class ParserGenerateExtensionTestSuite(TestCase):
         xsd_tree = etree.ElementTree(self.extension_data_handler.get_xsd2(xsd_files))
         xsd_element = xsd_tree.xpath('/xs:schema/xs:element/xs:complexType/xs:complexContent/xs:extension', namespaces=self.request.session['namespaces'])[0]
 
-        result_string = generate_extension(self.request, xsd_element, xsd_tree, self.namespace, full_path='')
+        result_string = generate_extension(self.request, xsd_element, xsd_tree, full_path='')
         # print result_string
 
         result_html = etree.fromstring(result_string)
@@ -3815,7 +3799,7 @@ class ParserGenerateExtensionTestSuite(TestCase):
         etree.set_default_parser(parser=clean_parser)
         # load the XML tree from the text
         edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
-        result_string = generate_extension(self.request, xsd_element, xsd_tree, self.namespace, full_path='/test0',
+        result_string = generate_extension(self.request, xsd_element, xsd_tree, full_path='/test0',
                                            edit_data_tree=edit_data_tree)
         # print result_string
         # result_string = '<div>' + result_string + '</div>'
@@ -3840,7 +3824,7 @@ class ParserGenerateExtensionTestSuite(TestCase):
         etree.set_default_parser(parser=clean_parser)
         # load the XML tree from the text
         edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
-        result_string = generate_extension(self.request, xsd_element, xsd_tree, self.namespace, full_path='/test1',
+        result_string = generate_extension(self.request, xsd_element, xsd_tree, full_path='/test1',
                                            edit_data_tree=edit_data_tree)
         # print result_string
         # result_string = '<div>' + result_string + '</div>'
@@ -3864,7 +3848,7 @@ class ParserGenerateExtensionTestSuite(TestCase):
         etree.set_default_parser(parser=clean_parser)
         # load the XML tree from the text
         edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
-        result_string = generate_extension(self.request, xsd_element, xsd_tree, self.namespace, full_path='/test2',
+        result_string = generate_extension(self.request, xsd_element, xsd_tree, full_path='/test2',
                                            edit_data_tree=edit_data_tree)
         # print result_string
         # result_string = '<div>' + result_string + '</div>'
@@ -3888,7 +3872,7 @@ class ParserGenerateExtensionTestSuite(TestCase):
         etree.set_default_parser(parser=clean_parser)
         # load the XML tree from the text
         edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
-        result_string = generate_extension(self.request, xsd_element, xsd_tree, self.namespace, full_path='/test3',
+        result_string = generate_extension(self.request, xsd_element, xsd_tree, full_path='/test3',
                                            edit_data_tree=edit_data_tree)
         # print result_string
         # result_string = '<div>' + result_string + '</div>'
@@ -3912,7 +3896,7 @@ class ParserGenerateExtensionTestSuite(TestCase):
         etree.set_default_parser(parser=clean_parser)
         # load the XML tree from the text
         edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
-        result_string = generate_extension(self.request, xsd_element, xsd_tree, self.namespace, full_path='/test4',
+        result_string = generate_extension(self.request, xsd_element, xsd_tree, full_path='/test4',
                                            edit_data_tree=edit_data_tree)
         # print result_string
         # result_string = '<div>' + result_string + '</div>'
@@ -3936,7 +3920,7 @@ class ParserGenerateExtensionTestSuite(TestCase):
         etree.set_default_parser(parser=clean_parser)
         # load the XML tree from the text
         edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
-        result_string = generate_extension(self.request, xsd_element, xsd_tree, self.namespace, full_path='/test5',
+        result_string = generate_extension(self.request, xsd_element, xsd_tree, full_path='/test5',
                                            edit_data_tree=edit_data_tree)
         # print result_string
         # result_string = '<div>' + result_string + '</div>'
@@ -3960,7 +3944,7 @@ class ParserGenerateExtensionTestSuite(TestCase):
         etree.set_default_parser(parser=clean_parser)
         # load the XML tree from the text
         edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
-        result_string = generate_extension(self.request, xsd_element, xsd_tree, self.namespace, full_path='/test6',
+        result_string = generate_extension(self.request, xsd_element, xsd_tree, full_path='/test6',
                                            edit_data_tree=edit_data_tree)
         # print result_string
         # result_string = '<div>' + result_string + '</div>'
@@ -3984,7 +3968,7 @@ class ParserGenerateExtensionTestSuite(TestCase):
         etree.set_default_parser(parser=clean_parser)
         # load the XML tree from the text
         edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
-        result_string = generate_extension(self.request, xsd_element, xsd_tree, self.namespace, full_path='/test7',
+        result_string = generate_extension(self.request, xsd_element, xsd_tree, full_path='/test7',
                                            edit_data_tree=edit_data_tree)
         # print result_string
         # result_string = '<div>' + result_string + '</div>'
