@@ -1,3 +1,5 @@
+var emptyEntry = '----------'
+
 clearAdd = function ()
 {
     clearAddError();
@@ -37,7 +39,7 @@ displayAddRegistry = function()
                        $("#banner_add_wait").show(200);
                        var formData = new FormData($( "#form_add" )[0]);
 	            	   $.ajax({
-	            	        url: "/oai_pmh/add/registry",
+	            	        url: "add/registry",
 	            	        type: 'POST',
 	            	        data: formData,
 	            	        cache: false,
@@ -45,7 +47,7 @@ displayAddRegistry = function()
 	            	        processData: false,
 	            	        async:true,
 	            	   		success: function(data){
-                                window.location = '/admin/oai-pmh'
+                                window.location = 'oai-pmh'
 	            	        },
 	            	        error:function(data){
 	            	            $("#banner_add_wait").hide(200);
@@ -136,7 +138,7 @@ editRegistry = function(registryId)
                         {
                             var formData = new FormData($( "#form_edit" )[0]);
                             $.ajax({
-                                url: "/oai_pmh/update/registry",
+                                url: "update/registry",
                                 type: 'POST',
                                 data: formData,
                                 cache: false,
@@ -144,7 +146,7 @@ editRegistry = function(registryId)
                                 processData: false,
                                 async:false,
                                 success: function(data){
-                                    window.location = '/admin/oai-pmh'
+                                    window.location = 'oai-pmh'
                                 },
                                 error:function(data){
                                     $("#form_edit_errors").html(data.responseText);
@@ -163,7 +165,7 @@ editRegistry = function(registryId)
 
 load_edit_form = function(registryId){
 	$.ajax({
-        url : "/oai_pmh/update/registry",
+        url : "update/registry",
         type : "GET",
         dataType: "json",
         data : {
@@ -202,14 +204,14 @@ deleteRegistry = function(registry_id)
 delete_registry = function(registry_id){
     $("#banner_delete_wait").show(200);
     $.ajax({
-        url : '/oai_pmh/delete/registry',
+        url : 'delete/registry',
         type : "POST",
         dataType: "json",
         data : {
         	RegistryId : registry_id,
         },
         success: function(data){
-            window.location = '/admin/oai-pmh'
+            window.location = 'oai-pmh'
         },
         error:function(data){
             $("#banner_delete_wait").hide(200);
@@ -233,7 +235,7 @@ Reinit = function(){
     $.each(buttonsetElts, function(index, props) {
          $("#"+props.id).buttonset();
     });
-//    enterKeyPressSubscription();
+    enterKeyPressSubscription();
 }
 
 enterKeyPressSubscription = function ()
@@ -246,6 +248,13 @@ enterKeyPressSubscription = function ()
     });
 
     $('#id_result_name').keypress(function(event) {
+        if(event.which == $.ui.keyCode.ENTER){
+            event.preventDefault();
+            event.stopPropagation();
+        }
+    });
+
+    $('#id_name').keypress(function(event) {
         if(event.which == $.ui.keyCode.ENTER){
             event.preventDefault();
             event.stopPropagation();
@@ -268,7 +277,7 @@ checkStatus = function (registry_id, url)
     $("#Status"+registry_id).css("color", "#000000");
     $("#Status"+registry_id).html('<i class="fa fa-spinner fa-spin"></i>');
     $.ajax({
-        url : '/oai_pmh/check/registry',
+        url : 'check/registry',
         type : "POST",
         dataType: "json",
         async: true,
@@ -297,7 +306,7 @@ checkStatus = function (registry_id, url)
 viewRegistry = function(id){
     $( "#pleaseWaitDialog").show();
 	$.ajax({
-        url : "/admin/oai-pmh-detail-registry?id=" + id,
+        url : "oai-pmh-detail-registry?id=" + id,
         type : "GET",
         success: function(data){
             $( "#pleaseWaitDialog").hide();
@@ -431,7 +440,7 @@ submit = function() {
                            }
 
                            $.ajax({
-                                    url : '/oai_pmh/getdata/',
+                                    url : 'getdata/',
                                     type : "POST",
                                     dataType: "json",
                                     data : {
@@ -456,19 +465,19 @@ submit = function() {
 
 populateSelect = function() {
                              if ($("select#id_dataProvider").val() == '0') {
-                                 $("select#id_set").html("<option>Pick one</option>");
+                                 $("select#id_set").html("<option>"+emptyEntry+'</option>');
                                  $("select#id_set").attr('disabled', true);
-                                 $("select#id_metadataprefix").html("<option>Pick one</option>");
+                                 $("select#id_metadataprefix").html('<option>'+emptyEntry+'</option>');
                                  $("select#id_metadataprefix").attr('disabled', true);
                              }
                              else {
                                 var id = $("select#id_dataProvider").val().split('|')[0];
                                 $.ajax({
-                                    url : '/oai_pmh/registry/' + id + '/all_sets/',
+                                    url : 'registry/' + id + '/all_sets/',
                                     type : "POST",
                                     dataType: "json",
                                     success: function(data){
-                                        var options = '<option value="0">Pick one</option>';
+                                        var options = '<option value="0">'+emptyEntry+'</option>';
                                          for (var i = 0; i < data.length; i++) {
                                             options += '<option value="' + data[i] + '">' + data[i] + '</option>';
                                          }
@@ -479,11 +488,11 @@ populateSelect = function() {
                                 });
 
                                 $.ajax({
-                                    url : '/oai_pmh/registry/' + id + '/all_metadataprefix/',
+                                    url : 'registry/' + id + '/all_metadataprefix/',
                                     type : "POST",
                                     dataType: "json",
                                     success: function(data){
-                                        var options = '<option value="0">Pick one</option>';
+                                        var options = '<option value="0">'+emptyEntry+'</option>';
                                          for (var i = 0; i < data.length; i++) {
                                             options += '<option value="' + data[i] + '">' + data[i] + '</option>';
                                          }
@@ -500,11 +509,11 @@ populateSelect = function() {
  */
 downloadXmlBuildReq = function(){
     $.ajax({
-        url : "/oai_pmh/download-xml-build-req",
+        url : "download-xml-build-req",
         type : "POST",
         dataType: "json",
         success : function(data) {
-            window.location = "/oai_pmh/download-xml-build-req?id="+ data.xml2downloadID
+            window.location = "download-xml-build-req?id="+ data.xml2downloadID
         },
         error : function(data) {
             $("#banner_build_errors").show(200);
@@ -548,6 +557,89 @@ init = function(){
     });
 }
 
+clearMyEditError = function ()
+{
+    $("#banner_edit_my_errors").hide()
+    $("#form_edit_errors").html("");
+}
+
+editMyRegistry = function()
+{
+ clearMyEditError();
+ exist = load_edit_my_registry_form();
+ $(function() {
+    $( "#dialog-edit-my-registry" ).dialog({
+      modal: true,
+      width: 550,
+      height: 'auto',
+      buttons:
+    	  [
+           {
+               text: "Edit",
+               click: function() {
+                    clearMyEditError();
+                    if(validateEditMyRegistry())
+                    {
+                       $("#banner_add_wait").show(200);
+                       var formData = new FormData($( "#form_edit_my_registry" )[0]);
+	            	   $.ajax({
+	            	        url: "update/my-registry",
+	            	        type: 'POST',
+	            	        data: formData,
+	            	        cache: false,
+	            	        contentType: false,
+	            	        processData: false,
+	            	        async:true,
+	            	   		success: function(data){
+                                window.location = 'oai-pmh-my-infos'
+	            	        },
+	            	        error:function(data){
+	            	        	$("#form_edit_errors").html(data.responseText);
+                                $("#banner_edit_my_errors").show(200)
+	            	        },
+	            	    })
+	            	    ;
+                    }
+               }
+           }
+          ]
+    });
+  });
+}
 
 
+load_edit_my_registry_form = function(registryId){
+	$.ajax({
+        url : "update/my-registry",
+        type : "GET",
+        dataType: "json",
+        data : {
+        },
+        success: function(data){
+            $("#form_edit_errors").html("");
+            $("#form_edit_current").html(data.template);
+            Reinit();
+        }
+    });
+}
 
+validateEditMyRegistry = function()
+{
+    errors = ""
+
+    if ($( "#id_name" ).val().trim() == ""){
+        errors += "<li>Please enter a name.</li>"
+    }
+
+	if (errors != ""){
+	    error = "<ul>";
+	    error += errors
+	    error += "</ul>";
+		$("#form_edit_errors").html(errors);
+		$("#banner_edit_my_errors").show(200)
+		return (false);
+	}else{
+		return (true)
+	}
+    return true;
+}

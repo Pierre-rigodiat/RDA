@@ -11,10 +11,10 @@
 #
 ################################################################################
 
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseNotFound
 from django.conf import settings
 from django.views.generic import TemplateView
-from mgi.models import Template, TemplateVersion, XMLdata
+from mgi.models import Template, TemplateVersion, XMLdata, OaiPmhSettings
 import os
 from oai_pmh.server.exceptions import *
 import xmltodict
@@ -84,15 +84,23 @@ class OAIProvider(TemplateView):
 ################################################################################
     def identify(self):
         self.template_name = 'admin/oai_pmh/xml/identify.xml'
+        information = OaiPmhSettings.objects.get()
+        if information:
+            name = information.repositoryName
+            repoIdentifier = information.repositoryIdentifier
+        else:
+            name = settings.OAI_NAME
+            repoIdentifier = settings.OAI_REPO_IDENTIFIER
+
         identify_data = {
-            'name': settings.OAI_NAME,
+            'name': name,
             'protocole_version': settings.OAI_PROTOCOLE_VERSION,
             'admins': (email for name, email in settings.OAI_ADMINS),
             'earliest_date': self.getEarliestDate(),   # placeholder
             'deleted': settings.OAI_DELETED_RECORD,  # no, transient, persistent
             'granularity': settings.OAI_GRANULARITY,  # or YYYY-MM-DD
             'identifier_scheme': settings.OAI_SCHEME,
-            'repository_identifier': settings.OAI_REPO_IDENTIFIER,
+            'repository_identifier': repoIdentifier,
             'identifier_delimiter': settings.OAI_DELIMITER,
             'sample_identifier': settings.OAI_SAMPLE_IDENTIFIER
         }
@@ -267,7 +275,10 @@ class OAIProvider(TemplateView):
             except:
                 raise cannotDisseminateFormat(self.metadataPrefix)
             query = dict()
-            query['_id'] = ObjectId(id)
+            try:
+                query['_id'] = ObjectId(id)
+            except Exception:
+                raise idDoesNotExist(self.identifier)
             data = XMLdata.executeQueryFullResult(query)
             #This id doesn't exist
             if len(data) == 0:
@@ -485,6 +496,9 @@ class OAIProvider(TemplateView):
 ################################################################################
     def get(self, request, *args, **kwargs):
         try:
+            information = OaiPmhSettings.objects.get()
+            if information and not information.enableHarvesting:
+                return HttpResponseNotFound('<h1>OAI-PMH not available for harvesting</h1>')
             self.oai_verb = request.GET.get('verb', None)
             if self.oai_verb is None:
                 error_msg = 'The request did not provide any verb.'

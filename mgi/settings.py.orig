@@ -157,8 +157,11 @@ INSTALLED_APPS = (
     'explore',
     'compose',
     'modules',
+<<<<<<< HEAD
     'user_dashboard',
+=======
     'oai_pmh',
+>>>>>>> a8d5dd9... - Reorganization of admin in OAI-PMH
 )
 
 OAUTH2_PROVIDER = {

@@ -21,6 +21,7 @@ urlpatterns = patterns(
     url(r'^select/registry$', 'select_registry'),
     url(r'^select/record$', 'select_record'),
     url(r'^update/registry$', 'update_registry'),
+    url(r'^update/my-registry$', 'update_my_registry'),
     url(r'^update/record$', 'update_record'),
     url(r'^delete/registry$', 'delete_registry'),
     url(r'^delete/record$', 'delete_record'),
