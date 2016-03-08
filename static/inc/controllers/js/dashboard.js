@@ -17,9 +17,41 @@
 loadUploadManagerHandler = function()
 {
     console.log('BEGIN [loadUploadManagerHandler]');
+    $('.view').on('click',viewInformation);
     $('.edit').on('click',editInformation);
     $('.delete').on('click', deleteObject);
     console.log('END [loadUploadManagerHandler]');
+}
+
+/**
+ * View general information of a template or a type
+ */
+viewInformation = function(objectContent)
+{
+    var objectContent = $(this).attr("content");
+    $.ajax({
+        url : "/my-profile/my-dashboard/toXML",
+        type : "POST",
+        dataType: "json",
+        data : {
+        	xml : objectContent,
+        },
+        success: function(data){
+            $("#XMLHolder").html(data.XMLHolder);
+            $(function() {
+                $( "#dialog-view-info" ).dialog({
+                    modal: true,
+                    height: 430,
+                    width: 500,
+                    buttons: {
+                        Ok: function() {
+                            $( this ).dialog( "close" );
+                        }
+                    }
+                });
+            });
+        }
+    });
 }
 
 /**
@@ -137,7 +169,7 @@ delete_object = function(objectID, objectType){
                 var text = 'You cannot delete this Type because it is used by at least one template or type: '+data['Type'];
                 showErrorDelete(text);
             } else if('Template' in data) {
-                var text = 'You cannot delete this Template because it is used by at least one resource: '+data['Template'];
+                var text = 'You cannot delete this Template because it is used by at least one resource or form: '+data['Template'];
                 showErrorDelete(text);
             } else {
                 location.reload();

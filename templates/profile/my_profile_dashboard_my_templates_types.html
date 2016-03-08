@@ -22,6 +22,7 @@
 
 {% block extrastyle %}
 <link rel="stylesheet" type="text/css" href="{% static 'resources/css/bucket.css' %}" media="screen" />
+<link rel="stylesheet" type="text/css" href="{% static 'resources/css/XMLTree.css' %}" media="screen" />
 {% endblock %}
 
 {% block title %}<h1><span>My Dashboard - My {{ objectType }}s</span></h1>{% endblock %}
@@ -51,20 +52,17 @@
             <td>{{ object.title }}</td>
             <td>{{ object.filename }}</td>
                 <td>
+                    {% autoescape on %}
+                    <span class="icon legend view" objectType="{{ objectType }}" objectid="{{ object.id }}"  content="{{ object.content|escape }}" >
+                        View
+                    </span>
+                    {% endautoescape %}
                     <span class="icon legend edit" objectType="{{ objectType }}" objectid="{{ object.id }}">
                         Edit
                     </span>
                     <span class="icon legend delete" objectType="{{ objectType }}" objectid="{{ object.id }}">
                         Delete
                     </span>
-                    {% if objectType == "Template" %}
-			            <span class="icon legend exporters" objectType="{{ objectType }}" objectid="{{ object.id }}">
-			                Exporters
-			            </span>
-                        <span class="icon legend resultXslt" objectType="{{ objectType }}" objectid="{{ object.id }}">
-			                Results
-			            </span>
-                    {% endif %}
                 </td>
         </tr>
     {% endfor %}
@@ -78,6 +76,12 @@
 {% endblock %}
 
 {% block popups %}
+
+<div id="dialog-view-info" title="View {{ objectType }}" style="display:none;">
+    <div id="XMLHolder">
+    </div>
+</div>
+
 <div id="dialog-edit-info" title="Edit {{ objectType }} Information" style="display:none;">
 <p>
     <b>{{ objectType }} name:</b> <input type="text" id="edit-name"/><br/>
@@ -113,82 +117,6 @@
 <script>
   loadUploadManagerHandler();
 </script>
-<script>
-  var files;
 
-  function errorHandler(evt) {
-    switch(evt.target.error.code) {
-      case evt.target.error.NOT_FOUND_ERR:
-        alert('File Not Found!');
-        break;
-      case evt.target.error.NOT_READABLE_ERR:
-        alert('File is not readable');
-        break;
-      case evt.target.error.ABORT_ERR:
-        break; // noop
-      default:
-        alert('An error occurred reading this file.');
-    };
-  }
-
-  function handleFileUpload(evt) {
-    console.log('BEGIN handleFileUpload(evt)');
-
-    if ($("#object_name").val().trim().length == 0) {
-        $('#objectUploadErrorMessage').html("<font color=\"red\">Please enter a name</font>");
-        return false;
-    } else if (!check_name($("#object_name").val())) {
-        $('#objectUploadErrorMessage').html("<font color=\"red\">Template name is already used. Please enter another name</font>");
-        return false;
-    } else {
-        $('#objectUploadErrorMessage').html("")
-    }
-    var reader;
-
-    document.getElementById('uploadFile').disabled = true;
-
-    reader = new FileReader();
-    reader.onerror = errorHandler;
-    reader.onabort = function(e) {
-      alert('File read cancelled');
-    };
-    reader.onload = function(e) {
-
-      var objectName = document.getElementById('object_name').value.trim();
-
-      objectFilename = files[0].name;
-      objectContent = reader.result;
-      upload_object(objectName, objectFilename, objectContent, '{{ objectType }}');
-    }
-
-    // Read in the image file as a binary string.
-    reader.readAsText(files[0]);
-
-    console.log('END handleFileUpload(evt)');
-  }
-
-  function handleFileSelect(evt) {
-    files = evt.target.files; // FileList object
-
-    // files is a FileList of File objects. List some properties.
-    var output = [];
-    for (var i = 0, f; f = files[i]; i++) {
-      output.push('<button id=\'uploadFile\'>Upload</button>');
-    }
-    document.getElementById('list').innerHTML = output.join('');
-    document.getElementById('uploadFile').disabled = false;
-    document.getElementById('uploadFile').addEventListener('click', handleFileUpload, false);
-  }
-
-</script>
-<script>
-// Check for the various File API support.
-if (window.File && window.FileReader && window.FileList && window.Blob) {
-  // Great success! All the File APIs are supported.
-  // alert('The File APIs are fully supported in this browser.');
-} else {
-  alert('The File APIs are not fully supported in this browser.');
-}
-</script>
 
 {% endblock %}

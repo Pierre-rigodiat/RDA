@@ -29,6 +29,13 @@ from django.db.models import Q
 import mgi.rights as RIGHTS
 from itertools import chain
 import json
+import lxml.etree as etree
+from io import BytesIO
+from mgi import common
+from django.conf import settings
+
+# XSL file loading
+import os
 
 
 ################################################################################
@@ -409,6 +416,7 @@ def my_profile_dashboard_types(request):
 # Description:   Edit information of an object (template or type)
 #
 ################################################################################
+@login_required(login_url='/login')
 def edit_information(request):
     object_id = request.POST['objectID']
     object_type = request.POST['objectType']
@@ -451,6 +459,7 @@ def edit_information(request):
 # Description:   Delete an object (template or type).
 #
 ################################################################################
+@login_required(login_url='/login')
 def delete_object(request):
     print 'BEGIN def delete_object(request)'
     object_id = request.POST['objectID']
@@ -460,9 +469,14 @@ def delete_object(request):
     if object_type == "Template":
         object = Template.objects.get(pk=object_id)
         dependenciesData = XMLdata.find({'schema' : str(object_id)})
+        dependenciesForm = list(FormData.objects(template=object_id))
         if len(dependenciesData) >= 1:
             for temp in dependenciesData:
                 listObject += temp['title'] + ', '
+        if len(dependenciesForm):
+            for temp in dependenciesForm:
+                listObject += temp.name + ', '
+
     else:
         object = Type.objects.get(pk=object_id)
         dependenciesTemplate = list(Template.objects(dependencies=object_id))
@@ -483,3 +497,31 @@ def delete_object(request):
     print 'END def delete_object(request)'
     return HttpResponse(json.dumps({}), content_type='application/javascript')
 
+################################################################################
+#
+# Function Name: my_profile_dashboard_toXML(request)
+# Inputs:        request -
+# Outputs:
+# Exceptions:    None
+# Description:   Page that display XML
+#
+################################################################################
+@login_required(login_url='/login')
+def my_profile_dashboard_toXML(request):
+    xmlString = request.POST['xml']
+
+    xsltPath = os.path.join(settings.SITE_ROOT, 'static', 'resources', 'xsl', 'xsd2html.xsl')
+    xslt = etree.parse(xsltPath)
+    transform = etree.XSLT(xslt)
+    xmlTree = ""
+    if (xmlString != ""):
+
+        dom = etree.parse(BytesIO(xmlString.encode('utf-8')))
+        annotations = dom.findall(".//{http://www.w3.org/2001/XMLSchema}annotation")
+        for annotation in annotations:
+            annotation.getparent().remove(annotation)
+        newdom = transform(dom)
+        xmlTree = str(newdom)
+
+    response_dict = {'XMLHolder': xmlTree}
+    return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
