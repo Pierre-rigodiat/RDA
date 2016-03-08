@@ -21,9 +21,9 @@ from sickle.models import Set, MetadataFormat, Identify
 from sickle.oaiexceptions import NoSetHierarchy, NoMetadataFormat
 # Serializers
 from oai_pmh.api.serializers import IdentifyObjectSerializer, MetadataFormatSerializer, SetSerializer, RegistrySerializer, ListRecordsSerializer, RegistryURLSerializer, RecordSerializer, \
-    IdentifySerializer, SaveRecordSerializer, UpdateRecordSerializer, DeleteRecordSerializer, UpdateRegistrySerializer, DeleteRegistrySerializer
+    IdentifySerializer, SaveRecordSerializer, UpdateRecordSerializer, DeleteRecordSerializer, UpdateRegistrySerializer, DeleteRegistrySerializer, UpdateMyRegistrySerializer
 # Models
-from mgi.models import Registry, Set as SetModel, MetadataFormat as MetadataFormatModel, Identify as IdentifyModel
+from mgi.models import Registry, Set as SetModel, MetadataFormat as MetadataFormatModel, Identify as IdentifyModel, OaiPmhSettings, Template
 # DB Connection
 from pymongo import MongoClient
 from mgi.settings import MONGODB_URI, MGI_DB
@@ -31,6 +31,7 @@ from mongoengine import NotUniqueError
 import json
 import xmltodict
 import requests
+from utils.XSDhash import XSDhash
 
 ################################################################################
 #
@@ -401,10 +402,17 @@ def add_registry(request):
                 for metadataformat in metadataformatsData:
                     try:
                         raw = xmltodict.parse(metadataformat['raw'])
-                        obj = MetadataFormatModel(metadataPrefix=metadataformat['metadataPrefix'], metadataNamespace=metadataformat['metadataNamespace'], schema=metadataformat['schema'], raw= raw).save()
+                        obj = MetadataFormatModel(metadataPrefix=metadataformat['metadataPrefix'], metadataNamespace=metadataformat['metadataNamespace'], schema=metadataformat['schema'], raw= raw)
+                        # TODO: Hash the schema and see if a template corresponds
+                        http_response = requests.get(obj.schema)
+                        if str(http_response.status_code) == "200":
+                            hash = XSDhash.get_hash(http_response.text)
+                            template = Template.objects(hash=hash).first()
+                            if template:
+                                obj.template = template
+                        obj.save()
                         #Add the metadata format to the list
                         listMetadataFormats.append(obj)
-                        # TODO: Add the schema (template) in database and link the record to the template
                     except:
                         pass
                 #Set the list of reference field for the set and metadata format
@@ -560,6 +568,62 @@ def update_registry(request):
             try:
                 #Save the modifications
                registry.save()
+            except Exception as e:
+                return Response({'message':'Unable to update registry. \n%s'%e.message}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response({'message':'Serializer failed validation. '}, status=status.HTTP_400_BAD_REQUEST)
+    else:
+        content = {'message':'Only an administrator can use this feature.'}
+        return Response(content, status=status.HTTP_401_UNAUTHORIZED)
+
+
+################################################################################
+#
+# Function Name: update_my_registry(request)
+# Inputs:        request -
+# Outputs:       201 Registry updated.
+# Exceptions:    400 Error connecting to database.
+#                400 [Identifier] not found in request.
+#                400 Unable to update record.
+#                400 Serializer failed validation.
+#                401 Unauthorized.
+#                404 No registry found with the given identity.
+# Description:   OAI-PMH Update Registry
+#
+################################################################################
+@api_view(['PUT'])
+# TODO Take care of sets and metadataformats
+def update_my_registry(request):
+    """
+    PUT http://localhost/oai_pmh/update/my-registry
+    """
+    if request.user.is_authenticated():
+        #Serialization of the input data
+        serializer = UpdateMyRegistrySerializer(data=request.DATA)
+        #If it's valid
+        if serializer.is_valid():
+            #We retrieve all information
+            try:
+                if 'repositoryName' in request.DATA:
+                    repositoryName = request.DATA['repositoryName']
+                # if 'repositoryIdentifier' in request.DATA:
+                #     repositoryIdentifier = request.DATA['repositoryIdentifier']
+                if 'enableHarvesting' in request.DATA:
+                    enableHarvesting = request.DATA['enableHarvesting']
+                    if enableHarvesting:
+                        enableHarvesting =  enableHarvesting == 'True'
+            except:
+                content = {'message':'Error while retrieving information.'}
+                return Response(content, status=status.HTTP_404_NOT_FOUND)
+
+            try:
+                #Save the modifications
+                information = OaiPmhSettings.objects.get()
+                information.repositoryName = repositoryName
+                # information.repositoryIdentifier = repositoryIdentifier
+                information.enableHarvesting = enableHarvesting
+                information.save()
             except Exception as e:
                 return Response({'message':'Unable to update registry. \n%s'%e.message}, status=status.HTTP_400_BAD_REQUEST)
             return Response(serializer.data, status=status.HTTP_201_CREATED)

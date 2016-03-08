@@ -504,6 +504,12 @@ class XMLdata():
             results.append(result)
         return results
 
+
+class OaiPmhSettings(Document):
+    repositoryName = StringField(required=True)
+    repositoryIdentifier = StringField(required=True)
+    enableHarvesting = BooleanField()
+
 class Identify(Document):
     """
         An identity object
@@ -539,6 +545,7 @@ class MetadataFormat(Document):
     schema = StringField(required=True)
     metadataNamespace  = StringField(required=True)
     raw = DictField(required=True)
+    template = ReferenceField(Template, reverse_delete_rule=NULLIFY)
 
 class Registry(Document):
     """

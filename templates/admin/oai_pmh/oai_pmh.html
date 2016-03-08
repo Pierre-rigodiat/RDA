@@ -30,7 +30,7 @@
 {% block title %}<h1>Data Providers</h1>{% endblock %}
 
 {% block menu %}{% include 'admin/menu/main.html' with active_tab='tab6' %}{% endblock %}
-{% block submenu %}{% include 'admin/menu/submenu/oai-pmh.html' with active_tab='tab1' %}{% endblock %}
+{% block submenu %}{% include 'admin/menu/submenu/oai-pmh.html' with active_tab='tab2' %}{% endblock %}
 
 {% block content%}
 <div class="clearer">&nbsp;</div>
@@ -61,7 +61,7 @@
                 <td>{{ registry.harvestrate }}</td>
                 <td>{{ registry.description }}</td>
                 <td style="text-align:center;" url="{{registry.url}}" registryID="{{registry.id}}" id="Status{{registry.id}}">
-                    <span id="toto" class="btn" onclick="checkStatus('{{registry.id}}', '{{registry.url}}');" style="text-decoration:none">Check status</span>
+                    <span class="btn" onclick="checkStatus('{{registry.id}}', '{{registry.url}}');" style="text-decoration:none">Check status</span>
                 </td>
                 <td id="ButtonSet{{registry.id}}">
                         {% if registry.harvest %}

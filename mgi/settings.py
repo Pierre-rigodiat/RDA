@@ -97,10 +97,9 @@ OAI_DELIMITER = ':'
 OAI_DESCRIPTION = 'Test OAI-PMH CURATOR'
 OAI_GRANULARITY = 'YYYY-MM-DDThh:mm:ssZ' #the finest harvesting granularity supported by the repository
 OAI_PROTOCOLE_VERSION = '2.0' #the version of the OAI-PMH supported by the repository
-OAI_SAMPLE_IDENTIFIER = ''
 OAI_SCHEME = 'oai'
 OAI_REPO_IDENTIFIER = 'server-127.0.0.1'
-OAI_SAMPLE_IDENTIFIER = 'id/12345678a123aff6ff5f2d9e'
+OAI_SAMPLE_IDENTIFIER = OAI_SCHEME+OAI_DELIMITER+OAI_REPO_IDENTIFIER+OAI_DELIMITER+'id/12345678a123aff6ff5f2d9e'
 OAI_DELETED_RECORD = 'no' #no ; transient ; persistent
 
 # Handle system module parameters
@@ -159,6 +158,7 @@ INSTALLED_APPS = (
     'explore',
     'compose',
     'modules',
+    'oai_pmh',
 )
 
 OAUTH2_PROVIDER = {

@@ -29,7 +29,7 @@
 {% block title %}<h1>Build Request</h1>{% endblock %}
 
 {% block menu %}{% include 'admin/menu/main.html' with active_tab='tab6' %}{% endblock %}
-{% block submenu %}{% include 'admin/menu/submenu/oai-pmh.html' with active_tab='tab2' %}{% endblock %}
+{% block submenu %}{% include 'admin/menu/submenu/oai-pmh.html' with active_tab='tab1' %}{% endblock %}
 
 {% block content%}
 <div class="clearer">&nbsp;</div>
@@ -45,34 +45,34 @@
     {% if request_form.dataProvider.choices|length > 1 %}
         <table>
             <tr>
-                <td>Data providers:</td>
+                <td>{{request_form.dataProvider.label}}:</td>
                 <td> {{request_form.dataProvider}}
                 </td>
             </tr>
 
             <tr>
-                <td>Verb:</td>
+                <td>{{request_form.verb.label}}:</td>
                 <td>
                     {{request_form.verb}}
                 </td>
             </tr>
 
             <tr>
-                <td>Set:</td>
+                <td>{{request_form.set.label}}:</td>
                 <td>
                     {{request_form.set}}
                 </td>
             </tr>
 
             <tr>
-                <td>Metadata Prefix:</td>
+                <td>{{request_form.metadataprefix.label}}:</td>
                 <td>
                     {{request_form.metadataprefix}}
                 </td>
             </tr>
 
             <tr>
-                <td>Identifiers:</td>
+                <td>{{request_form.identifiers.label}}:</td>
                 <td>
                     {{request_form.identifiers}}
                 </td>
@@ -100,7 +100,7 @@
             </tr>
 
             <tr>
-                <td>Resumption Token:</td>
+                <td>{{request_form.resumptionToken.label}}:</td>
                 <td>
                     {{request_form.resumptionToken}}
                 </td>

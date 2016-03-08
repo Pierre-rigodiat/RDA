@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from rest_framework_mongoengine.serializers import MongoEngineModelSerializer
-from mgi.models import Record, Registry, UpdateRecord, DeleteRecord, SelectRecord, DeleteRegistry
+from mgi.models import Record, Registry, UpdateRecord, DeleteRecord, SelectRecord, DeleteRegistry, OaiPmhSettings
 
 ################################################################################
 #
@@ -87,3 +87,8 @@ class MetadataFormatSerializer(serializers.Serializer):
     metadataNamespace = serializers.CharField()
     schema = serializers.CharField()
     raw = serializers.CharField()
+
+class UpdateMyRegistrySerializer(MongoEngineModelSerializer):
+    class Meta:
+        model = OaiPmhSettings
+        exclude = (['repositoryIdentifier'])

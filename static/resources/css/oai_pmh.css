@@ -36,3 +36,11 @@ table.data td:first-child {
 	left:50%;
 	outline: none;
 }
+
+#data-provider-my-info td:first-child {
+	font-weight: bold;
+}
+
+.invisible {
+	background: rgba(255,255,255,0.5);
+}
