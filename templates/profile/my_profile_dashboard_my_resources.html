@@ -83,46 +83,46 @@
 <tr>
 
 <td align="center" style={% if template == "all" or not template %}" border-color:#000000;border-size:15px"{% endif%}>
-<a href="/my-profile/my-dashboard/resources?template=all">
-<img width="100" src="/static/img/allresources.png"><br>
-All Resources
-</a>
+    <a href="/my-profile/my-dashboard/resources?template=all">
+    <div align="center"><img width="100" src="/static/img/allresources.png"><br>
+    All Resources</div>
+    </a>
 </td>
 <td align="center" style={% if template == "organization" %}"border-color:#000000;border-size:15px"{% endif%}>
-<a href="/my-profile/my-dashboard/resources?template=organization">
-<img width="100" src="/static/img/organization.png"><br>
-Organizations
-</a>
+    <a href="/my-profile/my-dashboard/resources?template=organization">
+    <div align="center"><img width="100" src="/static/img/organization.png"><br>
+    Organizations</div>
+    </a>
 </td>
 <td align="center" style={% if template == "datacollection" %}"border-color:#000000;border-size:15px"{% endif%}>
-<a href="/my-profile/my-dashboard/resources?template=datacollection">
-<img width="100" src="/static/img/datacollection.png"><br>
-Data Collections
-</a>
+    <a href="/my-profile/my-dashboard/resources?template=datacollection">
+    <div align="center"><img width="100" src="/static/img/datacollection.png"><br>
+    Data Collections</div>
+    </a>
 </td>
 <td align="center" style={% if template == "dataset" %}"border-color:#000000;border-size:15px"{% endif%}>
-<a href="/my-profile/my-dashboard/resources?template=dataset">
-<img width="100" src="/static/img/dataset.png"><br>
-Datasets
-</a>
+    <a href="/my-profile/my-dashboard/resources?template=dataset">
+    <div align="center"><img width="100" src="/static/img/dataset.png"><br>
+    Datasets</div>
+    </a>
 </td>
 <td align="center" style={% if template == "service" %}"border-color:#000000;border-size:15px"{% endif%}>
-<a href="/my-profile/my-dashboard/resources?template=service">
-<img width="100" src="/static/img/service.png"><br>
-Services
-</a>
+    <a href="/my-profile/my-dashboard/resources?template=service">
+    <div align="center"><img width="100" src="/static/img/service.png"><br>
+    Services</div>
+    </a>
 </td>
 <td align="center" style={% if template == "informational" %}"border-color:#000000;border-size:15px"{% endif%}>
-<a href="/my-profile/my-dashboard/resources?template=informational">
-<img width="100" src="/static/img/informational.png"><br>
-Informational
-</a>
+    <a href="/my-profile/my-dashboard/resources?template=informational">
+    <div align="center"><img width="100" src="/static/img/informational.png"><br>
+    Informational</div>
+    </a>
 </td>
 <td align="center" style={% if template == "software" %}"border-color:#000000;border-size:15px"{% endif%}>
-<a href="/my-profile/my-dashboard/resources?template=software">
-<img width="100" src="/static/img/software.jpg"><br>
-Software
-</a>
+    <a href="/my-profile/my-dashboard/resources?template=software">
+    <div align="center"><img width="100" src="/static/img/software.jpg"><br>
+    Software</div>
+    </a>
 </td>
 </tr>
 </table>
@@ -133,61 +133,47 @@ Software
 {% if XMLdatas%}
 {% with canEdit=request.user|has_perm:'curate.curate_edit_document' canDelete=request.user|has_perm:'curate.curate_delete_document' %}
 
-{% for XMLdata in XMLdatas %}
-    {% with XMLdata|get:"_id" as XMLdata_id %}
 
-            <div style="background-color:#eeeeee" id="{{XMLdata_id}}">
-                <table class="data-table">
-                <tr>
-                <td style="width:250px">
-                <div style="margin-top:10px;">Resource Name</div></td>
-                <td>
-                    {% if XMLdata.content.Resource.identity.title %}
-                        {{ XMLdata.content.Resource.identity.title }}
-                    {%else%}
-                        <script>
-                            document.write('{{ XMLdata.title }}'.replace(/\.[^/.]+$/, ""));
-                        </script>
-                    {% endif %}
-                <div style="float:right">
-                    <button class="btn clear-fields" onclick="dialog_detail('{{XMLdata_id}}');">View Resource Details</button>
-                </div>
-                </td>
+        <table class="data-table">
+            <tr>
+                <th>Resource name</th>
+                <th>Actions</th>
+            </tr>
+            {% for XMLdata in XMLdatas %}
+
+                {% cycle 'even' '' as rowcolors silent %}
+                <tr class="{{ rowcolors }}">
+                    <td>
+                            {% if XMLdata.content.Resource.identity.title %}
+                                {{ XMLdata.content.Resource.identity.title }}
+                            {%else%}
+                                <script>
+                                    document.write('{{ XMLdata.title }}'.replace(/\.[^/.]+$/, ""));
+                                </script>
+                            {% endif %}
+                    </td>
+                        <td>
+                            {% with XMLdata|get:"_id" as XMLdata_id %}
+                            {% autoescape on %}
+                            <span class="icon legend view" onclick="dialog_detail('{{XMLdata_id}}');" >
+                                View
+                            </span>
+                            {% endautoescape %}
+                            <a href="/curate/enter-data?id={{XMLdata_id}}"><span class="icon legend edit" href="/curate/enter-data?id={{XMLdata_id}}">
+                                Edit
+                            </span></a>
+                            <span class="icon legend delete" onclick="deleteResult('{{XMLdata_id}}')">
+                                Delete
+                            </span>
+                            {% endwith%}
+                        </td>
                 </tr>
-                <tr>
-                <td>
-                    {% if canEdit %}
-                    <a href="/curate/enter-data?id={{XMLdata_id}}" class="btn clear-fields">Edit</a>
-                    {% endif %}
-                    {% if canDelete and not XMLdata.publicationdate %}
-                    <a onclick="deleteResult('{{XMLdata_id}}')" class="button button-reversed">Delete</a>
-                    {% endif %}
-
-                </td>
-                <td align="right">
-                    <div style="float:right">
-                    {% if XMLdata.publicationdate %}
-                        <font size="2">Published on: {{ XMLdata.publicationdate }} &nbsp;&nbsp;&nbsp;</font>
-                    {% endif %}
-                    {% if not XMLdata.publicationdate %}
-                        <font size="2">Published on: Never &nbsp;&nbsp;&nbsp;</font>
-                    {% endif %}
-                    {% if not XMLdata.ispublished %}
-                        <a onclick="updatePublish('{{XMLdata_id}}')" class="btn clear-fields">Publish</a>
-                    {% endif %}
-                        </div>
-                </td></tr></table>
-                </div>
-
-{% endwith%}
-{% endfor %}
+            {% endfor %}
+        </table>
 {% endwith%}
 {%else%}
-No Resources found
+    No Resources found
 {%endif%}
-
-
-
 
     	<div class="clear"></div>
     </div>
