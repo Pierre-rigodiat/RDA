@@ -1,0 +1,115 @@
+{
+  "tag": "extension",
+  "children": [
+    {
+      "tag": "complex_type",
+      "children": [
+        {
+          "tag": "sequence",
+          "options": {
+            "max": 1,
+            "min": 1
+          },
+          "value": null,
+          "children": [
+            {
+              "tag": "element",
+              "options": {
+                "max": 1,
+                "module": null,
+                "min": 1,
+                "name": "child0"
+              },
+              "value": null,
+              "children": [
+                {
+                  "tag": "elem-iter",
+                  "children": [
+                    {
+                      "tag": "input",
+                      "value": "entry0"
+                    }
+                  ],
+                  "value": null
+                }
+              ]
+            },
+            {
+              "tag": "element",
+              "options": {
+                "max": 1,
+                "module": null,
+                "min": 1,
+                "name": "child1"
+              },
+              "value": null,
+              "children": [
+                {
+                  "tag": "elem-iter",
+                  "children": [
+                    {
+                      "tag": "input",
+                      "value": "entry1"
+                    }
+                  ],
+                  "value": null
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "tag": "choice",
+          "children": [
+            {
+              "tag": "choice-iter",
+              "children": [
+                {
+                  "tag": "element",
+                  "options": {
+                    "max": 1,
+                    "module": null,
+                    "min": 1,
+                    "name": "child2"
+                  },
+                  "value": null,
+                  "children": []
+                },
+                {
+                  "tag": "element",
+                  "options": {
+                    "max": 1,
+                    "module": null,
+                    "min": 1,
+                    "name": "child3"
+                  },
+                  "value": null,
+                  "children": [
+                    {
+                      "tag": "elem-iter",
+                      "children": [
+                        {
+                          "tag": "input",
+                          "value": "entry2"
+                        }
+                      ],
+                      "value": null
+                    }
+                  ]
+                }
+              ],
+              "value": null
+            }
+          ],
+          "value": null,
+          "options": {
+            "max": 1,
+            "min": 1
+          }
+        }
+      ],
+      "value": null
+    }
+  ],
+  "value": null
+}

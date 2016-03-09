@@ -1,0 +1,86 @@
+{
+  "tag": "sequence",
+  "options": {
+    "max": -1,
+    "min": 2
+  },
+  "value": null,
+  "children": [
+    {
+      "tag": "sequence-iter",
+      "children": [
+        {
+          "tag": "choice",
+          "children": [
+            {
+              "tag": "choice-iter",
+              "children": [
+                {
+                  "tag": "element",
+                  "options": {
+                    "max": 1,
+                    "module": null,
+                    "min": 1,
+                    "name": "id20"
+                  },
+                  "value": null,
+                  "children": [
+                    {
+                      "tag": "elem-iter",
+                      "children": [
+                        {
+                          "tag": "input",
+                          "value": "entry1"
+                        }
+                      ],
+                      "value": null
+                    },
+                    {
+                      "tag": "elem-iter",
+                      "children": [
+                        {
+                          "tag": "input",
+                          "value": "entry2"
+                        }
+                      ],
+                      "value": null
+                    }
+                  ]
+                },
+                {
+                  "tag": "element",
+                  "options": {
+                    "max": 1,
+                    "module": null,
+                    "min": 1,
+                    "name": "id21"
+                  },
+                  "value": null,
+                  "children": [
+                    {
+                      "tag": "elem-iter",
+                      "children": [
+                        {
+                          "tag": "input",
+                          "value": "entry0"
+                        }
+                      ],
+                      "value": null
+                    }
+                  ]
+                }
+              ],
+              "value": null
+            }
+          ],
+          "value": null,
+          "options": {
+            "max": 1,
+            "min": 1
+          }
+        }
+      ],
+      "value": null
+    }
+  ]
+}

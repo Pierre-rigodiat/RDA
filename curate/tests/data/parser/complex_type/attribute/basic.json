@@ -1,0 +1,28 @@
+{
+  "tag": "complex_type",
+  "value": null,
+  "children": [
+    {
+      "tag": "attribute",
+      "options": {
+        "min": 1,
+        "max": 1,
+        "module": null,
+        "name": "id"
+      },
+      "value": null,
+      "children": [
+        {
+          "tag": "elem-iter",
+          "value": null,
+          "children": [
+            {
+              "tag": "input",
+              "value": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

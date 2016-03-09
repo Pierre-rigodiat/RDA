@@ -1,0 +1,38 @@
+{
+  "value": null,
+  "tag": "simple_content",
+  "children": [
+    {
+      "value": null,
+      "tag": "extension",
+      "children": [
+        {
+          "value": "",
+          "tag": "input"
+        },
+        {
+          "value": null,
+          "tag": "attribute",
+          "options": {
+            "min": 1,
+            "max": 1,
+            "module": null,
+            "name": "id"
+          },
+          "children": [
+            {
+              "value": null,
+              "tag": "elem-iter",
+              "children": [
+                {
+                  "value": "",
+                  "tag": "input"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

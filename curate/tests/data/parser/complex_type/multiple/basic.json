@@ -1,0 +1,104 @@
+{
+  "tag": "complex_type",
+  "value": null,
+  "children": [
+    {
+      "tag": "sequence",
+      "options": {
+        "min": 1,
+        "max": 1
+      },
+      "value": null,
+      "children": [
+        {
+          "tag": "element",
+          "options": {
+            "min": 1,
+            "max": 1,
+            "module": null,
+            "name": "child0"
+          },
+          "value": null,
+          "children": [
+            {
+              "tag": "elem-iter",
+              "value": null,
+              "children": [
+                {
+                  "tag": "input",
+                  "value": ""
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "tag": "element",
+          "options": {
+            "min": 1,
+            "max": 1,
+            "module": null,
+            "name": "child1"
+          },
+          "value": null,
+          "children": [
+            {
+              "tag": "elem-iter",
+              "value": null,
+              "children": [
+                {
+                  "tag": "input",
+                  "value": ""
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "attribute",
+      "options": {
+        "min": 1,
+        "max": 1,
+        "module": null,
+        "name": "child2"
+      },
+      "value": null,
+      "children": [
+        {
+          "tag": "elem-iter",
+          "value": null,
+          "children": [
+            {
+              "tag": "input",
+              "value": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "attribute",
+      "options": {
+        "min": 1,
+        "max": 1,
+        "module": null,
+        "name": "child3"
+      },
+      "value": null,
+      "children": [
+        {
+          "tag": "elem-iter",
+          "value": null,
+          "children": [
+            {
+              "tag": "input",
+              "value": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

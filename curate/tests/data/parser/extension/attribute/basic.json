@@ -1,0 +1,32 @@
+{
+  "tag": "extension",
+  "children": [
+    {
+      "tag": "input",
+      "value": ""
+    },
+    {
+      "tag": "attribute",
+      "options": {
+        "max": 1,
+        "module": null,
+        "min": 1,
+        "name": "child0"
+      },
+      "value": null,
+      "children": [
+        {
+          "tag": "elem-iter",
+          "children": [
+            {
+              "tag": "input",
+              "value": ""
+            }
+          ],
+          "value": null
+        }
+      ]
+    }
+  ],
+  "value": null
+}

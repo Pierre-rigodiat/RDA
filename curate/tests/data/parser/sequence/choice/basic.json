@@ -1,0 +1,59 @@
+{
+  "value": null,
+  "tag": "sequence",
+  "options": {
+    "min": 1,
+    "max": 1
+  },
+  "children": [
+    {
+      "value": null,
+      "tag": "choice",
+      "options": {
+        "min": 1,
+        "max": 1
+      },
+      "children": [
+        {
+          "value": null,
+          "tag": "choice-iter",
+          "children": [
+            {
+              "value": null,
+              "tag": "element",
+              "options": {
+                "min": 1,
+                "max": 1,
+                "module": null,
+                "name": "id20"
+              },
+              "children": [
+                {
+                  "value": null,
+                  "tag": "elem-iter",
+                  "children": [
+                    {
+                      "value": "",
+                      "tag": "input"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "value": null,
+              "tag": "element",
+              "options": {
+                "min": 1,
+                "max": 1,
+                "module": null,
+                "name": "id21"
+              },
+              "children": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,90 @@
+{
+  "tag": "choice",
+  "children": [
+    {
+      "tag": "choice-iter",
+      "children": [
+        {
+          "tag": "sequence",
+          "options": {
+            "max": 1,
+            "min": 1
+          },
+          "value": null,
+          "children": [
+            {
+              "tag": "element",
+              "options": {
+                "max": 1,
+                "module": null,
+                "min": 1,
+                "name": "id10"
+              },
+              "value": null,
+              "children": [
+                {
+                  "tag": "elem-iter",
+                  "children": [
+                    {
+                      "tag": "input",
+                      "value": "entry2"
+                    }
+                  ],
+                  "value": null
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "tag": "sequence",
+          "options": {
+            "max": 1,
+            "min": 1
+          },
+          "value": null,
+          "children": [
+            {
+              "tag": "element",
+              "options": {
+                "max": 1,
+                "module": null,
+                "min": 1,
+                "name": "id11"
+              },
+              "value": null,
+              "children": [
+                {
+                  "tag": "elem-iter",
+                  "children": [
+                    {
+                      "tag": "input",
+                      "value": "entry0"
+                    }
+                  ],
+                  "value": null
+                },
+                {
+                  "tag": "elem-iter",
+                  "children": [
+                    {
+                      "tag": "input",
+                      "value": "entry1"
+                    }
+                  ],
+                  "value": null
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "value": null
+    }
+  ],
+  "value": null,
+  "options": {
+    "max": -1,
+    "min": 2
+  }
+}

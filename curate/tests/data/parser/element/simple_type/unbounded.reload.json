@@ -1,0 +1,99 @@
+{
+  "value": null,
+  "tag": "element",
+  "options": {
+    "min": 2,
+    "max": -1,
+    "module": null,
+    "name": "child"
+  },
+  "children": [
+    {
+      "value": null,
+      "tag": "elem-iter",
+      "children": [
+        {
+          "value": null,
+          "tag": "simple_type",
+          "children": [
+            {
+              "value": "child1",
+              "tag": "restriction",
+              "options": {
+                "base": "xs:string"
+              },
+              "children": [
+                {
+                  "value": "child0",
+                  "tag": "enumeration"
+                },
+                {
+                  "value": "child1",
+                  "tag": "enumeration"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "value": null,
+      "tag": "elem-iter",
+      "children": [
+        {
+          "value": null,
+          "tag": "simple_type",
+          "children": [
+            {
+              "value": "child1",
+              "tag": "restriction",
+              "options": {
+                "base": "xs:string"
+              },
+              "children": [
+                {
+                  "value": "child0",
+                  "tag": "enumeration"
+                },
+                {
+                  "value": "child1",
+                  "tag": "enumeration"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "value": null,
+      "tag": "elem-iter",
+      "children": [
+        {
+          "value": null,
+          "tag": "simple_type",
+          "children": [
+            {
+              "value": "child0",
+              "tag": "restriction",
+              "options": {
+                "base": "xs:string"
+              },
+              "children": [
+                {
+                  "value": "child0",
+                  "tag": "enumeration"
+                },
+                {
+                  "value": "child1",
+                  "tag": "enumeration"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

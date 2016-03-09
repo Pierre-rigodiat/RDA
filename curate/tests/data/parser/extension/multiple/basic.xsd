@@ -6,7 +6,7 @@
         </xs:sequence>
     </xs:complexType>
 
-    <xs:element name="test7">
+    <xs:element name="root">
         <xs:complexType>
             <xs:complexContent>
                 <xs:extension base="base0">

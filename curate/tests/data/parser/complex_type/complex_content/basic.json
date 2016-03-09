@@ -1,0 +1,110 @@
+{
+  "value": null,
+  "tag": "complex_type",
+  "children": [
+    {
+      "value": null,
+      "tag": "complex_content",
+      "children": [
+        {
+          "value": null,
+          "tag": "extension",
+          "children": [
+            {
+              "value": null,
+              "tag": "complex_type",
+              "children": [
+                {
+                  "value": null,
+                  "tag": "sequence",
+                  "options": {
+                    "min": 1,
+                    "max": 1
+                  },
+                  "children": [
+                    {
+                      "value": null,
+                      "tag": "element",
+                      "options": {
+                        "min": 1,
+                        "max": 1,
+                        "module": null,
+                        "name": "child0"
+                      },
+                      "children": [
+                        {
+                          "value": null,
+                          "tag": "elem-iter",
+                          "children": [
+                            {
+                              "value": "",
+                              "tag": "input"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "value": null,
+                      "tag": "element",
+                      "options": {
+                        "min": 1,
+                        "max": 1,
+                        "module": null,
+                        "name": "child1"
+                      },
+                      "children": [
+                        {
+                          "value": null,
+                          "tag": "elem-iter",
+                          "children": [
+                            {
+                              "value": "",
+                              "tag": "input"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "value": null,
+                  "tag": "sequence",
+                  "options": {
+                    "min": 1,
+                    "max": 1
+                  },
+                  "children": [
+                    {
+                      "value": null,
+                      "tag": "element",
+                      "options": {
+                        "min": 1,
+                        "max": 1,
+                        "module": null,
+                        "name": "child2"
+                      },
+                      "children": [
+                        {
+                          "value": null,
+                          "tag": "elem-iter",
+                          "children": [
+                            {
+                              "value": "",
+                              "tag": "input"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

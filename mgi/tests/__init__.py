@@ -1,6 +1,8 @@
+import json
 from os.path import join
 from lxml import etree
 from mgi.settings import SITE_ROOT
+import collections
 
 
 class VariableTypesGenerator(object):
@@ -111,6 +113,15 @@ class DataHandler(object):
         self.filename = join(self.dirname, filename)
         return self.get_html()
 
+    def get_json(self, filename=''):
+        self.filename = join(self.dirname, filename)
+        html_name = self.filename + '.json'
+
+        with open(html_name, 'r') as json_file:
+            json_data = json.load(json_file, encoding='utf-8')
+
+        return convert(json_data)
+
 
 def are_equals(xml_tree_a, xml_tree_b):
     tag_a = xml_tree_a.tag
@@ -154,3 +165,14 @@ def are_equals(xml_tree_a, xml_tree_b):
             return False
 
     return tag_a == tag_b and attrib_a == attrib_b and text_a == text_b
+
+
+def convert(data):
+    if isinstance(data, basestring):
+        return str(data)
+    elif isinstance(data, collections.Mapping):
+        return dict(map(convert, data.iteritems()))
+    elif isinstance(data, collections.Iterable):
+        return type(data)(map(convert, data))
+    else:
+        return data
