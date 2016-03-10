@@ -15,7 +15,6 @@
 ################################################################################
 
 
-
 # For now:
 # - just provide the URL to the API call that returns the schema
 #

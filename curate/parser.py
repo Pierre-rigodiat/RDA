@@ -381,12 +381,12 @@ def generate_form(request):
         xml_doc_data = request.session['xmlDocTree']
     else:
         template_id = request.session['currentTemplateID']
-        if template_id in MetaSchema.objects.all().values_list('schemaId'):
-            meta = MetaSchema.objects.get(schemaId=template_id)
-            xml_doc_data = meta.flat_content
-        else:
-            template_object = Template.objects.get(pk=template_id)
-            xml_doc_data = template_object.content
+        # if template_id in MetaSchema.objects.all().values_list('schemaId'):
+        #     meta = MetaSchema.objects.get(schemaId=template_id)
+        #     xml_doc_data = meta.flat_content
+        # else:
+        template_object = Template.objects.get(pk=template_id)
+        xml_doc_data = template_object.content
 
     # build Etree
     xml_doc_tree = etree.parse(BytesIO(xml_doc_data.encode('utf-8')))

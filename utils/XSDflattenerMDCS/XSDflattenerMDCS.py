@@ -20,8 +20,9 @@
 ################################################################################
 
 from utils.XSDflattener.XSDflattener import XSDFlattener
-from mgi.models import Type, MetaSchema
+from mgi.models import Type, MetaSchema, Template
 from urlparse import urlparse
+
 
 ################################################################################
 #
@@ -31,7 +32,7 @@ from urlparse import urlparse
 #
 ################################################################################
 class XSDFlattenerMDCS(XSDFlattener):
-			
+
 	def get_dependency_content(self, uri):
 		content = ""
 		try:
@@ -41,10 +42,12 @@ class XSDFlattenerMDCS(XSDFlattener):
 				meta = MetaSchema.objects.get(schemaId=id)
 				content = meta.api_content
 			else:
-				type = Type.objects.get(pk=str(id))
-				content = type.content
+				try:
+					type = Type.objects.get(pk=str(id))
+					content = type.content
+				except:
+					template = Template.objects.get(pk=str(id))
+					content = template.content
 		except:
 			pass
 		return content
-	
-	

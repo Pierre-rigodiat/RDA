@@ -20,6 +20,7 @@ from rest_framework import generics
 from rest_framework import status
 from rest_framework.response import Response
 # Models
+from mgi.common import LXML_SCHEMA_NAMESPACE
 from mgi.models import SavedQuery, XMLdata, Template, TemplateVersion, Type, TypeVersion, Instance, MetaSchema, Exporter, ExporterXslt
 from exporter.builtin.models import XSLTExporter
 from django.contrib.auth.models import User
@@ -611,7 +612,7 @@ def add_schema(request):
             return Response(content, status=status.HTTP_400_BAD_REQUEST)
 
         # manage the dependencies
-        includes = xmlTree.findall("{http://www.w3.org/2001/XMLSchema}include")
+        includes = xmlTree.findall("{}include".format(LXML_SCHEMA_NAMESPACE))
         idxInclude = 0
         dependencies = []
 
@@ -1080,7 +1081,7 @@ def add_type(request):
             return Response(content, status=status.HTTP_400_BAD_REQUEST)
 
         # manage the dependencies
-        includes = xmlTree.findall("{http://www.w3.org/2001/XMLSchema}include")
+        includes = xmlTree.findall("{}include".format(LXML_SCHEMA_NAMESPACE))
         idxInclude = 0
         dependencies = []
 
@@ -1947,8 +1948,12 @@ def get_dependency(request):
                 meta = MetaSchema.objects.get(schemaId=id)
                 content = meta.api_content
             else:
-                type = Type.objects.get(pk=str(id))
-                content = type.content
+                try:
+                    type = Type.objects.get(pk=str(id))
+                    content = type.content
+                except:
+                    template = Template.objects.get(pk=str(id))
+                    content = template.content
             
             xsdEncoded = content.encode('utf-8')
             fileObj = StringIO(xsdEncoded)

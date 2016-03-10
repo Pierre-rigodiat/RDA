@@ -45,28 +45,31 @@ def getValidityErrorsForMDCS(xmlTree, type):
 
     # Templates Tests
 
-    # if type == "Template":
-    #     # Tests for templates
-    #     if len(elements) < 1 :
-    #         errors.append("Only templates with at least one root element are supported.")
+    if type == "Template":
+        # Tests for templates
+        if len(elements) < 1 :
+            errors.append("Only templates with at least one root element are supported.")
 
     # Types Tests
     
     elif type == "Type":        
         elements = xmlTree.findall("*")
-        # only simpleType, complexType or include
-        for element in elements:
-            if 'complexType' not in element.tag and 'simpleType' not in element.tag and 'include' not in element.tag:
-                errors.append("A type should be a valid XML schema containing only one type definition (Allowed tags are: simpleType or complexType and include).")
-                break
-        # only one type
-        for element in elements:
-            cptType = 0 
-            if 'complexType' in element.tag or 'simpleType' in element.tag:
-                cptType += 1
-                if cptType > 1:
-                    errors.append("A type should be a valid XML schema containing only one type definition (only one simpleType or complexType).")
+        if len(elements) > 0:
+            # only simpleType, complexType or include
+            for element in elements:
+                if 'complexType' not in element.tag and 'simpleType' not in element.tag and 'include' not in element.tag:
+                    errors.append("A type should be a valid XML schema containing only one type definition (Allowed tags are: simpleType or complexType and include).")
                     break
+            # only one type
+            for element in elements:
+                cptType = 0
+                if 'complexType' in element.tag or 'simpleType' in element.tag:
+                    cptType += 1
+                    if cptType > 1:
+                        errors.append("A type should be a valid XML schema containing only one type definition (only one simpleType or complexType).")
+                        break
+        else:
+            errors.append("A type should be a valid XML schema containing only one type definition (only one simpleType or complexType).")
 
     return errors
 
