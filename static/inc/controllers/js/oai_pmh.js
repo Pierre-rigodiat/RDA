@@ -643,3 +643,30 @@ validateEditMyRegistry = function()
 	}
     return true;
 }
+
+/**
+ * AJAX call, deletes a Registry
+ * @param registry_id id of the registry
+ */
+fetchData = function(registry_id){
+    $("#banner"+registry_id).show(200);
+    $("#fetch"+registry_id).hide(200);
+    $.ajax({
+        url : 'update/all/records',
+        type : "POST",
+        dataType: "json",
+        async: true,
+        data : {
+        	registry_id : registry_id,
+        },
+        success: function(data){
+            $("#banner"+registry_id).hide(200);
+            $("#fetch"+registry_id).show(200);
+        },
+        error:function(data){
+//            $("#banner_delete_wait").hide(200);
+//            $("#form_delete_errors").html(data.responseText);
+//            $("#banner_delete_errors").show(200);
+	    }
+    });
+}

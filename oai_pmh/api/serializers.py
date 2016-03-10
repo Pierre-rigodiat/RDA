@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from rest_framework_mongoengine.serializers import MongoEngineModelSerializer
-from mgi.models import Record, Registry, UpdateRecord, DeleteRecord, SelectRecord, DeleteRegistry, OaiPmhSettings
+from mgi.models import OaiRegistry, UpdateRecord, DeleteRecord, SelectRecord, DeleteRegistry, OaiSettings
 
 ################################################################################
 #
@@ -11,12 +11,12 @@ from mgi.models import Record, Registry, UpdateRecord, DeleteRecord, SelectRecor
 ################################################################################
 class RegistrySerializer(MongoEngineModelSerializer):
     class Meta:
-        model = Registry
+        model = OaiRegistry
         exclude = (['identity', 'metadataformats', 'sets', 'description', 'name'])
 
 class UpdateRegistrySerializer(MongoEngineModelSerializer):
     class Meta:
-        model = Registry
+        model = OaiRegistry
         exclude = (['identity','sets', 'metadataformats', 'name', 'url'])
 
 class DeleteRegistrySerializer(MongoEngineModelSerializer):
@@ -38,9 +38,14 @@ class RegistryURLSerializer(serializers.Serializer):
     fromDate = serializers.DateField(required=False)
     untilDate = serializers.DateField(required=False)
 
-class RecordSerializer(MongoEngineModelSerializer):
-    class Meta:
-        model = Record
+class RecordSerializer(serializers.Serializer):
+    identifier = serializers.CharField()
+    datestamp = serializers.CharField()
+    deleted = serializers.BooleanField()
+    sets = serializers.CharField()
+    metadataPrefix = serializers.CharField()
+    metadata = serializers.CharField()
+    raw = serializers.CharField()
 
 class IdentifySerializer(serializers.Serializer):
     url = serializers.URLField(required=True)
@@ -61,13 +66,11 @@ class IdentifyObjectSerializer(serializers.Serializer):
     scheme = serializers.CharField(required=False)
     raw = serializers.CharField(required=False)
 
-class SaveRecordSerializer(MongoEngineModelSerializer):
-    class Meta:
-        model = Record
-
 class UpdateRecordSerializer(MongoEngineModelSerializer):
     class Meta:
         model = UpdateRecord
+
+
 
 class DeleteRecordSerializer(MongoEngineModelSerializer):
     class Meta:
@@ -90,5 +93,7 @@ class MetadataFormatSerializer(serializers.Serializer):
 
 class UpdateMyRegistrySerializer(MongoEngineModelSerializer):
     class Meta:
-        model = OaiPmhSettings
+        model = OaiSettings
         exclude = (['repositoryIdentifier'])
+
+

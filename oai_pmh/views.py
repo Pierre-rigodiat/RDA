@@ -25,12 +25,14 @@ from mgi.settings import OAI_HOST_URI, OAI_USER, OAI_PASS
 from django.template import RequestContext, loader
 from mgi.models import XML2Download
 import datetime
-from mgi.models import Registry, Set, MetadataFormat
+from mgi.models import OaiRegistry, OaiSet, OaiMetadataFormat
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
 import lxml.etree as etree
 import os
 from StringIO import StringIO
+from django.contrib import messages
+from oai_pmh.forms import KeywordForm
 
 ################################################################################
 #
@@ -98,11 +100,10 @@ def download_xml_build_req(request):
 ################################################################################
 @login_required(login_url='/login')
 def all_sets(request, registry):
-    current_registry = Registry.objects.get(id=registry)
     sets = []
-    for set in current_registry.sets:
-        current_set = Set.objects.get(id=set.id)
-        sets.append(current_set.setName)
+    registrySets = OaiSet.objects(registry=registry).order_by("setName")
+    for set in registrySets:
+        sets.append(set.setName)
     return HttpResponse(json.dumps(sets), content_type="application/javascript")
 
 ################################################################################
@@ -116,11 +117,10 @@ def all_sets(request, registry):
 ################################################################################
 @login_required(login_url='/login')
 def all_metadataprefix(request, registry):
-    current_registry = Registry.objects.get(id=registry)
     prefix = []
-    for format in current_registry.metadataformats:
-        current_format = MetadataFormat.objects.get(id=format.id)
-        prefix.append(current_format.metadataPrefix)
+    metadataformats = OaiMetadataFormat.objects(registry=registry).order_by("metadataPrefix")
+    for format in metadataformats:
+        prefix.append(format.metadataPrefix)
     return HttpResponse(json.dumps(prefix), content_type="application/javascript")
 
 ################################################################################
@@ -169,7 +169,27 @@ def getData(request):
 ################################################################################
 @login_required(login_url='/login')
 def oai_pmh_build_request(request):
-    template = loader.get_template('admin/oai_pmh/oai_pmh_build_request.html')
+    template = loader.get_template('oai_pmh/oai_pmh_build_request.html')
     requestForm = RequestForm();
     context = RequestContext(request, {'request_form': requestForm})
+    return HttpResponse(template.render(context))
+
+
+################################################################################
+#
+# Function Name: index(request)
+# Inputs:        request -
+# Outputs:       Data Exploration by keyword homepage
+# Exceptions:    None
+# Description:   renders the data exploration by keyword home page from template
+#                (index.html)
+#
+################################################################################
+@login_required(login_url='/login')
+def index_keyword(request):
+    template = loader.get_template('oai_pmh/explore/explore_keyword.html')
+    search_form = KeywordForm(request.user.id)
+    context = RequestContext(request, {
+        'search_Form':search_form,
+    })
     return HttpResponse(template.render(context))

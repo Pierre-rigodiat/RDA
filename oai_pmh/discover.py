@@ -16,7 +16,7 @@
 #
 ################################################################################
 from django.conf import settings
-from mgi.models import OaiPmhSettings
+from mgi.models import OaiSettings
 
 
 def init_settings():
@@ -25,9 +25,9 @@ def init_settings():
     Set the name, identifier and the harvesting information
     """
     try:
-        information = OaiPmhSettings.objects.all()
+        information = OaiSettings.objects.all()
         if not information:
-            OaiPmhSettings(repositoryName = settings.OAI_NAME, repositoryIdentifier = settings.OAI_REPO_IDENTIFIER,
+            OaiSettings(repositoryName = settings.OAI_NAME, repositoryIdentifier = settings.OAI_REPO_IDENTIFIER,
                         enableHarvesting= False).save()
 
     except Exception, e:

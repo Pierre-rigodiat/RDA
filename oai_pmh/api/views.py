@@ -17,13 +17,13 @@ from rest_framework import status
 from rest_framework.response import Response
 # OAI-PMH
 from sickle import Sickle
-from sickle.models import Set, MetadataFormat, Identify
+from sickle.models import Set, MetadataFormat, Identify, Record
 from sickle.oaiexceptions import NoSetHierarchy, NoMetadataFormat
 # Serializers
 from oai_pmh.api.serializers import IdentifyObjectSerializer, MetadataFormatSerializer, SetSerializer, RegistrySerializer, ListRecordsSerializer, RegistryURLSerializer, RecordSerializer, \
-    IdentifySerializer, SaveRecordSerializer, UpdateRecordSerializer, DeleteRecordSerializer, UpdateRegistrySerializer, DeleteRegistrySerializer, UpdateMyRegistrySerializer
+    IdentifySerializer, UpdateRecordSerializer, DeleteRecordSerializer, UpdateRegistrySerializer, DeleteRegistrySerializer, UpdateMyRegistrySerializer
 # Models
-from mgi.models import Registry, Set as SetModel, MetadataFormat as MetadataFormatModel, Identify as IdentifyModel, OaiPmhSettings, Template
+from mgi.models import OaiRegistry, OaiSet, OaiMetadataFormat, OaiIdentify, OaiSettings, Template, OaiRecord
 # DB Connection
 from pymongo import MongoClient
 from mgi.settings import MONGODB_URI, MGI_DB
@@ -32,6 +32,9 @@ import json
 import xmltodict
 import requests
 from utils.XSDhash import XSDhash
+from lxml import etree
+import datetime
+from oai_pmh import datestamp
 
 ################################################################################
 #
@@ -53,8 +56,8 @@ def add_record(request):
     """
     if request.user.is_authenticated():
         try:
-            serializer = SaveRecordSerializer(data=request.DATA)
-            if serializer.is_valid():
+            # serializer = SaveRecordSerializer(data=request.DATA)
+            # if serializer.is_valid():
                 try:
                     rec_collection = MongoClient(MONGODB_URI)[MGI_DB]['records']
                 except Exception:
@@ -69,7 +72,7 @@ def add_record(request):
                     rec_collection.insert(content)
                 except Exception as e:
                     return Response({'message':'An error occured when trying to save document. %s'%e.message}, status=status.HTTP_400_BAD_REQUEST)
-                return Response({'message':'Record Added. %s'%serializer.data}, status=status.HTTP_200_OK)
+                # return Response({'message':'Record Added. %s'%serializer.data}, status=status.HTTP_200_OK)
         except Exception as e:
             content = {'message':'An error occurred when attempting to identify resource: %s'%e.message}
             return Response(content, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -299,7 +302,7 @@ def add_registry(request):
             try:
                 url = request.DATA['url']
                 #We check first if this repository already exists in database. If yes, we return a response 409
-                if Registry.objects(url__exact=url).count() > 0:
+                if OaiRegistry.objects(url__exact=url).count() > 0:
                     return Response({'message':'Unable to create the data provider. The data provider already exists.'}, status=status.HTTP_409_CONFLICT)
             except ValueError:
                 return Response("Invalid URL", status=status.HTTP_400_BAD_REQUEST)
@@ -359,16 +362,14 @@ def add_registry(request):
 
             try:
                 #Creation of the registry
-                listSet = []
-                listMetadataFormats = []
-                registry = Registry()
+                registry = OaiRegistry()
                 #Get the raw XML from a dictionary
                 try:
                     identifyRaw = xmltodict.parse(identifyData['raw'])
                 except:
                     identifyRaw = {}
                 #Constructor if Identity
-                identify = IdentifyModel(adminEmail=identifyData['adminEmail'],
+                identify = OaiIdentify(adminEmail=identifyData['adminEmail'],
                                           baseURL=identifyData['baseURL'],
                                           repositoryName=identifyData['repositoryName'],
                                           deletedRecord=identifyData['deletedRecord'],
@@ -389,20 +390,24 @@ def add_registry(request):
                 registry.harvestrate = harvestrate
                 registry.description = identify.description
                 registry.harvest = harvest
+                #Save the registry
+                registry.save()
                 #Creation of each set
                 for set in setsData:
                     try:
                         raw = xmltodict.parse(set['raw'])
-                        obj = SetModel(setName=set['setName'], setSpec=set['setSpec'], raw= raw).save()
-                        #Add the set to the list
-                        listSet.append(obj)
+                        obj = OaiSet(setName=set['setName'], setSpec=set['setSpec'], raw= raw,
+                                     registry=str(registry.id))
+                        obj.save()
                     except:
                         pass
                 #Creation of each metadata format
                 for metadataformat in metadataformatsData:
                     try:
                         raw = xmltodict.parse(metadataformat['raw'])
-                        obj = MetadataFormatModel(metadataPrefix=metadataformat['metadataPrefix'], metadataNamespace=metadataformat['metadataNamespace'], schema=metadataformat['schema'], raw= raw)
+                        obj = OaiMetadataFormat(metadataPrefix=metadataformat['metadataPrefix'],
+                                                metadataNamespace=metadataformat['metadataNamespace'],
+                                                schema=metadataformat['schema'], raw= raw, registry=str(registry.id))
                         # TODO: Hash the schema and see if a template corresponds
                         http_response = requests.get(obj.schema)
                         if str(http_response.status_code) == "200":
@@ -411,13 +416,8 @@ def add_registry(request):
                             if template:
                                 obj.template = template
                         obj.save()
-                        #Add the metadata format to the list
-                        listMetadataFormats.append(obj)
                     except:
                         pass
-                #Set the list of reference field for the set and metadata format
-                registry.sets = listSet
-                registry.metadataformats = listMetadataFormats
                 #Save the registry
                 registry.save()
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -425,19 +425,15 @@ def add_registry(request):
                 #Manual Rollback
                 if identify:
                     identify.delete()
-                for set in listSet:
-                    set.delete()
-                for metadataformat in listMetadataFormats:
-                    metadataformat.delete()
+                OaiSet.objects(registry=registry.id).delete()
+                OaiMetadataFormat.objects(registry=registry.id).delete()
                 return Response({'message':'Unable to create the registry. The registry already exists.%s'%e.message}, status=status.HTTP_409_CONFLICT)
             except Exception as e:
                 #Manual Rollback
                 if identify:
                     identify.delete()
-                for set in listSet:
-                    set.delete()
-                for metadataformat in listMetadataFormats:
-                    metadataformat.delete()
+                OaiSet.objects(registry=registry.id).delete()
+                OaiMetadataFormat.objects(registry=registry.id).delete()
                 return Response({'message':'An error occured when trying to save document. %s'%e.message}, status=status.HTTP_400_BAD_REQUEST)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -502,7 +498,7 @@ def select_registry(request):
         if len(errors) > 0:
             Response(errors, status=status.HTTP_400_BAD_REQUEST)
         try:
-            registry = Registry.objects.get(name=name)
+            registry = OaiRegistry.objects.get(name=name)
         except Exception as e:
             registry = {}
 
@@ -549,7 +545,7 @@ def update_registry(request):
             try:
                 if 'id' in request.DATA:
                     id = request.DATA['id']
-                    registry = Registry.objects.get(pk=id)
+                    registry = OaiRegistry.objects.get(pk=id)
                 else:
                     rsp = {'message':'\'Id\' not found in request.'}
                     return Response(rsp, status=status.HTTP_400_BAD_REQUEST)
@@ -619,7 +615,7 @@ def update_my_registry(request):
 
             try:
                 #Save the modifications
-                information = OaiPmhSettings.objects.get()
+                information = OaiSettings.objects.get()
                 information.repositoryName = repositoryName
                 # information.repositoryIdentifier = repositoryIdentifier
                 information.enableHarvesting = enableHarvesting
@@ -665,21 +661,20 @@ def delete_registry(request):
                 rsp = {'message':'\'ResgistryId\' not found in request.'}
                 return Response(rsp, status=status.HTTP_400_BAD_REQUEST)
             try:
-                #Get the registry
-                registry = Registry.objects.get(pk=id)
+                registry = OaiRegistry.objects.get(pk=id)
                 #Delete all ReferenceFields
                 #Identify
                 registry.identify.delete()
                 #Sets
-                for set in registry.sets:
-                    set.delete()
+                OaiSet.objects(registry=id).delete()
+                #Records
+                OaiRecord.objects(registry=id).delete()
                 #Metadata formats
-                for metadataformat in registry.metadataformats:
-                    metadataformat.delete()
+                OaiMetadataFormat.objects(registry=id).delete()
                 #We can now delete the registry
                 registry.delete()
-                content = {'message':"Deleted registry with success."}
 
+                content = {'message':"Deleted registry with success."}
                 return Response(content, status=status.HTTP_200_OK)
             except Exception as e:
                 Response({"message":e.message}, status=status.HTTP_400_BAD_REQUEST)
@@ -966,86 +961,6 @@ def listObjectMetadataFormats(request):
 
 ################################################################################
 #
-# Function Name: listRecords(request)
-# Inputs:        request -
-# Outputs:       200 Response successful.
-# Exceptions:    400 Error(s) in required values value.
-#                400 Serializer failed validation.
-#                401 Unauthorized.
-#                500 An error occurred when attempting to identify resource.
-# Description:   OAI-PMH List Records
-#
-################################################################################
-@api_view(['POST'])
-def listRecords(request):
-    """
-    POST http://localhost/oai_pmh/listrecords
-    """
-
-    if request.user.is_authenticated():
-        try:
-            serializer = ListRecordsSerializer(data=request.DATA)
-
-            if serializer.is_valid():
-                errors = []
-                try:
-                    url = request.DATA['url']
-                except ValueError:
-                    errors.append("Error in URL value.")
-                try:
-                    metadataprefix = request.DATA['metadataprefix']
-                except ValueError:
-                    errors.append("Error in Metadata Prefix value.")
-
-                if 'resumptionToken' in request.DATA:
-                    resumptionToken = request.DATA['resumptionToken']
-                else:
-                    resumptionToken = ""
-                if 'set' in request.DATA:
-                    set_h = request.DATA['set']
-                else:
-                    set_h = ""
-                if 'fromDate' in request.DATA:
-                    fromDate = request.DATA['fromDate']
-                else:
-                    fromDate = ""
-                if 'until' in request.DATA:
-                    untilDate = request.DATA['until']
-                else:
-                    untilDate = ""
-
-                if len(errors) > 0:
-                    return Response({"message":errors}, status=status.HTTP_400_BAD_REQUEST)
-
-                sickle = Sickle(url)
-                rsp = sickle.ListRecords(**{
-                    'metadataPrefix':metadataprefix,
-                    'set':set_h,
-                    'resumptionToken':resumptionToken,
-                    'from':fromDate, # from is reserved in python: Sickle instructions say to use a pointer: http://sickle.readthedocs.org/en/latest/tutorial.html
-                    'until':untilDate
-                })
-                rtn = []
-                try:
-                    while True:
-                        rtn.append( dict(rsp.next()) )
-                except StopIteration:
-                    pass
-
-                return Response(rtn, status=status.HTTP_200_OK)
-            else:
-                 return Response({'message':'Serializer failed validation.'}, status=status.HTTP_400_BAD_REQUEST)
-
-        except Exception as e:
-            content = {'message':'An error occurred when attempting to identify resource: %s'%e.message}
-            return Response(content, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-    else:
-        content = {'message':'Only an administrator can use this feature.'}
-        return Response(content, status=status.HTTP_401_UNAUTHORIZED)
-
-################################################################################
-#
 # Function Name: listSets(request)
 # Inputs:        request -
 # Outputs:       200 Response successful.
@@ -1240,3 +1155,226 @@ def getData(request):
             return Response('An error occurred, url malformed.', status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     else:
         return Response('Only an administrator can use this feature.', status=status.HTTP_401_UNAUTHORIZED)
+
+
+
+
+################################################################################
+#
+# Function Name: listRecords(request)
+# Inputs:        request -
+# Outputs:       200 Response successful.
+# Exceptions:    400 Error(s) in required values value.
+#                400 Serializer failed validation.
+#                401 Unauthorized.
+#                500 An error occurred when attempting to identify resource.
+# Description:   OAI-PMH List Records
+#
+################################################################################
+@api_view(['POST'])
+def update_all_records(request):
+    if request.user.is_authenticated():
+        try:
+            # serializer = RegistryURLSerializer(data=request.DATA)
+            # if serializer.is_valid():
+                try:
+                    registry_id = request.DATA['registry_id']
+                except ValueError:
+                    content = {'message':'Please provide a data provider'}
+                    return Response(content, status=status.HTTP_400_BAD_REQUEST)
+
+                #We retrieve the registry (data provider)
+                registry = OaiRegistry.objects(pk=registry_id).get()
+                url = registry.url
+                try:
+                    lastUpdate = datestamp.datetime_to_datestamp(registry.lastUpdate)
+                except:
+                    lastUpdate = None
+                registry.lastUpdate = datetime.datetime.now()
+                registry.isFetching = True
+                registry.save()
+                records = []
+                metadataformats = OaiMetadataFormat.objects(registry=registry_id)
+                registrySets = OaiSet.objects(registry=registry_id).order_by("setName")
+                for metadataFormat in metadataformats:
+                    http_response = getListRecords(url=url, metadataPrefix=metadataFormat.metadataPrefix)#, fromDate=lastUpdate)
+                    if http_response.status_code == status.HTTP_200_OK:
+                        rtn = http_response.data
+                        for info in rtn:
+                            sets = [x for x in registrySets if x.setSpec in info['sets']]
+                            raw = xmltodict.parse(info['raw'])
+                            metadata = xmltodict.parse(info['metadata'])
+                            obj = OaiRecord(identifier=info['identifier'], datestamp=info['datestamp'], deleted=info['deleted'],
+                                   metadataformat=metadataFormat, metadata=metadata, sets=sets, raw=raw, registry=registry_id).save()
+                            records.append(obj)
+                    #Else, we return a bad request response with the message provided by the API
+                    else:
+                        content = http_response.data['error']
+                        return Response(content, status=http_response.status_code)
+
+                registry.isFetching = False
+                registry.save()
+
+                serializer = RecordSerializer(rtn)
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            # else:
+            #     return Response({'message':'Serializer failed validation.'}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            content = {'message':'An error occurred when attempting to identify resource: %s'%e.message}
+            return Response(content, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    else:
+        content = {'message':'Only an administrator can use this feature.'}
+        return Response(content, status=status.HTTP_401_UNAUTHORIZED)
+
+
+################################################################################
+#
+# Function Name: listRecords(request)
+# Inputs:        request -
+# Outputs:       200 Response successful.
+# Exceptions:    400 Error(s) in required values value.
+#                400 Serializer failed validation.
+#                401 Unauthorized.
+#                500 An error occurred when attempting to identify resource.
+# Description:   OAI-PMH List Records
+#
+################################################################################
+@api_view(['POST'])
+def listObjectAllRecords(request):
+    """
+    POST http://localhost/oai_pmh/listobjectrecords
+    """
+    if request.user.is_authenticated():
+        try:
+            serializer = ListRecordsSerializer(data=request.DATA)
+
+            if serializer.is_valid():
+                errors = []
+                try:
+                    url = request.DATA['url']
+                except ValueError:
+                    errors.append("Error in URL value.")
+                try:
+                    metadataPrefix = request.DATA['metadataprefix']
+                except ValueError:
+                    errors.append("Error in Metadata Prefix value.")
+
+                if len(errors) > 0:
+                    return Response({"message":errors}, status=status.HTTP_400_BAD_REQUEST)
+
+                set_h = None
+                if 'set' in request.DATA:
+                    set_h = request.DATA['set']
+
+                fromDate = None
+                if 'fromDate' in request.DATA:
+                    fromDate = request.DATA['fromDate']
+
+                untilDate = None
+                if 'until' in request.DATA:
+                    untilDate = request.DATA['until']
+
+                if len(errors) > 0:
+                    return Response({"message":errors}, status=status.HTTP_400_BAD_REQUEST)
+
+                http_response = getListRecords(url, metadataPrefix, set_h, fromDate, untilDate)
+
+                if http_response.status_code == status.HTTP_200_OK:
+                    rtn = http_response.data
+                #Else, we return a bad request response with the message provided by the API
+                else:
+                    content = http_response.data['error']
+                    return Response(content, status=http_response.status_code)
+
+                serializer = RecordSerializer(rtn)
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            else:
+                 return Response({'message':'Serializer failed validation.'}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            content = {'message':'An error occurred when attempting to identify resource: %s'%e.message}
+            return Response(content, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    else:
+        content = {'message':'Only an administrator can use this feature.'}
+        return Response(content, status=status.HTTP_401_UNAUTHORIZED)
+
+
+################################################################################
+#
+# Function Name: getListRecords(url, metadataPrefix, resumptionToken, set_h, fromDate, untilDate)
+# Inputs:        request -
+# Outputs:       200 Response successful.
+# Exceptions:    400 Error(s) in required values value.
+#                400 Serializer failed validation.
+#                401 Unauthorized.
+#                500 An error occurred when attempting to identify resource.
+# Description:   OAI-PMH List Records
+#
+################################################################################
+def getListRecords(url, metadataPrefix=None, resumptionToken=None, set_h=None, fromDate=None, untilDate=None):
+    """
+    POST http://localhost/oai_pmh/listrecords
+    """
+    XMLParser = etree.XMLParser(remove_blank_text=True, recover=True)
+    try:
+        needed = True
+        metadataPrefixQuery = ''
+        if metadataPrefix != None:
+            metadataPrefixQuery = '&metadataPrefix=%s' % metadataPrefix
+
+        resumptionTokenQuery = ""
+        if resumptionToken != None:
+            resumptionTokenQuery = '&resumptionToken=%s' % resumptionToken
+
+        setQuery = ""
+        if set_h != None:
+            setQuery = '&set=%s' % set_h
+
+        fromDateQuery = ""
+        if fromDate != None:
+            fromDateQuery = '&from=%s' % fromDate
+
+        untilDateQuery = ""
+        if untilDate != None:
+            untilDateQuery = '&until=%s' % untilDate
+        rtn = []
+        callUrl = url + '?verb=ListRecords' + metadataPrefixQuery + setQuery + resumptionTokenQuery + fromDateQuery + untilDateQuery
+
+        while needed:
+            http_response = requests.get(callUrl)
+            if http_response.status_code == status.HTTP_200_OK:
+                xml = http_response.text
+                elements = etree.XML(xml.encode("utf8"), parser=XMLParser).iterfind('.//' + '{http://www.openarchives.org/OAI/2.0/}' + 'record')
+                for elt in elements:
+                    record = Record(elt)
+                    rtn.append({"identifier": record.header.identifier,
+                              "datestamp": record.header.datestamp,
+                              "deleted": record.deleted,
+                              "sets": record.header.setSpecs,
+                              "metadataPrefix": metadataPrefix,
+                              "metadata": etree.tostring(record.xml.find('.//' + '{http://www.openarchives.org/OAI/2.0/}' + 'metadata/')),
+                              "raw": record.raw})
+
+                resumptionTokenElt = etree.XML(xml.encode("utf8"), parser=XMLParser).iterfind('.//' + '{http://www.openarchives.org/OAI/2.0/}' + 'resumptionToken')
+                for res in resumptionTokenElt:
+                    resumptionToken = res.text
+                if resumptionToken != None and resumptionToken != '':
+                    #Only the URL and the resumptionToken
+                    # callUrl = url + '?verb=ListRecords' + '&resumptionToken=%s' % resumptionToken
+                    needed = False
+                else:
+                    needed = False
+
+            elif http_response.status_code == status.HTTP_404_NOT_FOUND:
+                content = {'error':'Server not found.'}
+                return Response(content, status=status.HTTP_404_NOT_FOUND)
+            else:
+                content = {'error': 'An error occurred.'}
+                return Response(content, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        return Response(rtn, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        content = {'error':'An error occurred when attempting to identify resource: %s'%e.message}
+        return Response(content, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

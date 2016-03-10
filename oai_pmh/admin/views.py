@@ -27,9 +27,9 @@ from django.http import HttpResponse
 # Requests
 from oai_pmh.forms import RegistryForm, MyRegistryForm
 from django.template import RequestContext, loader
-from mgi.models import Registry, OaiPmhSettings
+from mgi.models import OaiRegistry, OaiSettings
 from django.contrib.admin.views.decorators import staff_member_required
-from mgi.models import Message
+from mgi.models import Message, OaiMetadataFormat, OaiSet, OaiRecord
 from oai_pmh.forms import Url
 
 ################################################################################
@@ -152,7 +152,7 @@ def update_registry(request):
                                    auth=(OAI_USER, OAI_PASS))
                 #If the status is OK, sucess message
                 if req.status_code == status.HTTP_201_CREATED:
-                    messages.add_message(request, messages.INFO, 'Data provider edited with success.')
+                    messages.add_message(request, messages.INFO, 'Data Provider successfully edited.')
                     return HttpResponse(json.dumps({}), content_type='application/javascript')
                 #Else, we return a bad request response with the message provided by the API
                 else:
@@ -164,10 +164,10 @@ def update_registry(request):
             return HttpResponseBadRequest('An error occurred. Please contact your administrator.')
     elif request.method == 'GET':
         #Build the template to render for the registry edition
-        template = loader.get_template('admin/oai_pmh/form_registry_edit.html')
+        template = loader.get_template('oai_pmh/admin/form_registry_edit.html')
         registry_id = request.GET['registry_id']
         try:
-            registry = Registry.objects.get(pk=registry_id)
+            registry = OaiRegistry.objects.get(pk=registry_id)
             data = {'id': registry.id, 'harvestrate': registry.harvestrate,
                     'edit_harvest': registry.harvest}
             registry_form= UpdateRegistryForm(data)
@@ -222,10 +222,10 @@ def delete_registry(request):
 ################################################################################
 @staff_member_required
 def oai_pmh(request):
-    template = loader.get_template('admin/oai_pmh/oai_pmh.html')
+    template = loader.get_template('oai_pmh/admin/oai_pmh.html')
 
     registry_form = RegistryForm();
-    registries = Registry.objects.all()
+    registries = OaiRegistry.objects.all()
     context = RequestContext(request, {
         'contacts': Message.objects,
         'registry_form': registry_form,
@@ -246,8 +246,8 @@ def oai_pmh(request):
 ################################################################################
 @staff_member_required
 def oai_pmh_my_infos(request):
-    template = loader.get_template('admin/oai_pmh/oai_pmh_my_infos.html')
-    information = OaiPmhSettings.objects.get()
+    template = loader.get_template('oai_pmh/admin/oai_pmh_my_infos.html')
+    information = OaiSettings.objects.get()
     if information:
         name = information.repositoryName
         repoIdentifier = information.repositoryIdentifier
@@ -291,9 +291,12 @@ def oai_pmh_my_infos(request):
 @staff_member_required
 def oai_pmh_detail_registry(request):
     result_id = request.GET['id']
-    template = loader.get_template('admin/oai_pmh/oai_pmh_detail_registry.html')
+    template = loader.get_template('oai_pmh/admin/oai_pmh_detail_registry.html')
     context = RequestContext(request, {
-        'registry': Registry.objects.get(pk=result_id),
+        'registry': OaiRegistry.objects.get(pk=result_id),
+        'metadataformats': OaiMetadataFormat.objects(registry=result_id),
+        'sets': OaiSet.objects(registry=result_id),
+        'nbRecords': OaiRecord.objects(registry=result_id).count(),
     })
     return HttpResponse(template.render(context))
 
@@ -313,17 +316,11 @@ def update_my_registry(request):
         #UPDATE the registry
         try:
             uri = OAI_HOST_URI + "/oai_pmh/api/update/my-registry"
-            #Get the ID
-
             #Get all form information
             if 'name' in request.POST:
                 name = request.POST.get('name')
             else:
                 name = ''
-            # if 'repo_identifier' in request.POST:
-            #     repo_identifier = request.POST.get('repo_identifier')
-            # else:
-            #     repo_identifier = ''
             if 'enable_harvesting' in request.POST:
                 enable_harvesting = True
             else:
@@ -349,9 +346,9 @@ def update_my_registry(request):
             return HttpResponseBadRequest('An error occurred. Please contact your administrator.')
     elif request.method == 'GET':
         #Build the template to render for the registry edition
-        template = loader.get_template('admin/oai_pmh/form_my_registry_edit.html')
+        template = loader.get_template('oai_pmh/admin/form_my_registry_edit.html')
         try:
-            information = OaiPmhSettings.objects.get()
+            information = OaiSettings.objects.get()
             data = {'name': information.repositoryName, 'repo_identifier': information.repositoryIdentifier,
                     'enable_harvesting': information.enableHarvesting}
             registry_form= MyRegistryForm(data)
@@ -363,3 +360,40 @@ def update_my_registry(request):
         })
 
         return HttpResponse(json.dumps({'template': template.render(context)}), content_type='application/javascript')
+
+
+################################################################################
+#
+# Function Name: update_my_registry(request)
+# Inputs:        request -
+# Outputs:
+# Exceptions:    None
+# Description:   OAI-PMH update my registry
+#
+# ################################################################################
+@login_required(login_url='/login')
+def update_all_records(request):
+    if request.method == 'POST':
+        try:
+            #Get the ID
+            registry_id = request.POST['registry_id']
+            uri = OAI_HOST_URI + "/oai_pmh/api/update/all/records"
+
+            #Call the API to update all records for this registry
+            try:
+                req = requests.post(uri,
+                                   {"registry_id": registry_id},
+                                   auth=(OAI_USER, OAI_PASS))
+                #If the status is OK, sucess message
+                # if req.status_code == status.HTTP_201_CREATED:
+                #     messages.add_message(request, messages.INFO, 'Data provider edited with success.')
+                #     return HttpResponse(json.dumps({}), content_type='application/javascript')
+                # #Else, we return a bad request response with the message provided by the API
+                # else:
+                #     data = json.loads(req.text)
+                #     return HttpResponseBadRequest(data['message'])
+                return HttpResponse(json.dumps({}), content_type='application/javascript')
+            except Exception as e:
+                return HttpResponseBadRequest('An error occurred. Please contact your administrator.')
+        except Exception as e:
+            return HttpResponseBadRequest('An error occurred. Please contact your administrator.')

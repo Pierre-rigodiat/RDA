@@ -27,7 +27,7 @@
 <link rel="stylesheet" type="text/css" href="{% static 'resources/css/oai_pmh.css' %}" media="screen" />
 {% endblock %}
 
-{% block title %}<h1>My information</h1>{% endblock %}
+{% block title %}<h1>My Information</h1>{% endblock %}
 
 {% block menu %}{% include 'admin/menu/main.html' with active_tab='tab6' %}{% endblock %}
 {% block submenu %}{% include 'admin/menu/submenu/oai-pmh.html' with active_tab='tab3' %}{% endblock %}
@@ -35,7 +35,7 @@
 {% block content%}
 <div class="toolbar">
 	<div class="btn-group pull-right">
-    	<span class="btn" onclick="editMyRegistry();" style="text-decoration:none"><i class="fa fa-cogs"></i>&nbsp;&nbsp;Modifiy Data Provider</span>
+    	<span class="btn" onclick="editMyRegistry();" style="text-decoration:none"><i class="fa fa-cogs"></i>&nbsp;&nbsp;Edit my Server’s Identity</span>
         <span class="btn" onclick="checkStatus('', '{{data_provider.baseURL}}');" style="text-decoration:none"><i class="fa fa-check-circle"></i> Check status</span>
   	</div>
 </div>
@@ -164,7 +164,7 @@
     <div id="registry_detail"></div>
 </div>
 
-<div id="dialog-edit-my-registry" title="Edit" style="display:none;">
+<div id="dialog-edit-my-registry" title="Edit my Server’s Identity" style="display:none;">
     <div class="alert alert-error" id="banner_edit_my_errors" style="display: none;">
         <h4><i class="fa fa-exclamation-circle fa-1x"></i> Error</h4>
         <div id="form_edit_errors">

@@ -36,7 +36,7 @@
 <div class="clearer">&nbsp;</div>
 <div class="toolbar">
 	<div class="btn-group pull-right">
-    	<span class="btn" onclick="displayAddRegistry();" style="text-decoration:none">Add Data Provider</span>
+    	<span class="btn" onclick="displayAddRegistry();" style="text-decoration:none">Add new Data Provider</span>
 		<span class="btn" onclick="checkAllStatus();"><i class="fa fa-check-circle"></i> Check all Data Providers</span>
   	</div>
 </div>
@@ -47,19 +47,32 @@
             <th>Name</th>
             <th>URL</th>
             <th>Harvest Rate</th>
-            <th>Description</th>
+            <!--<th>Description</th>-->
             <th>Status</th>
             <th>Harvest</th>
+            <th>Last update</th>
+            <!--<th>Harvested records</th>-->
             <th>Actions</th>
         </tr>
 
         {% for registry in registries %}
             {% cycle 'even' '' as rowcolors silent %}
+            {% if registry.isFetching %}
+            <tr class="alertTr">
+            {% else %}
+            <tr id="banner{{registry.id}}" class="alertTr" style="display: none;">
+            {% endif %}
+                <td class="alert alert-warning" colspan="7">
+                    <!--<span class="alert alert-warning" style="display: block;">-->
+                        <h4><i class='fa fa-circle-o-notch fa-spin fa-1x'></i>  </i>&nbsp;&nbsp;Data fetching ...</h4>
+                    <!--</span>-->
+                </td>
+            </tr>
             <tr class="{{ rowcolors }}">
                 <td>{{ registry.name }}</td>
                 <td>{{ registry.url }}</td>
                 <td>{{ registry.harvestrate }}</td>
-                <td>{{ registry.description }}</td>
+                <!--<td>{{ registry.description }}</td>-->
                 <td style="text-align:center;" url="{{registry.url}}" registryID="{{registry.id}}" id="Status{{registry.id}}">
                     <span class="btn" onclick="checkStatus('{{registry.id}}', '{{registry.url}}');" style="text-decoration:none">Check status</span>
                 </td>
@@ -69,12 +82,17 @@
                         {% else %}
                             <input id="{{registry.id}}" class="cmn-toggle cmn-toggle-round" type="checkbox" disabled="True">
                         {% endif %}
-                        <label for="{{registry.id}}"></label>
+                        <label onclick="editRegistry('{{ registry.id }}')" for="{{registry.id}}"></label>
                 </td>
+                <td>{{ registry.lastUpdate }}</td>
+                <!--<td>{{ registry.records|length }}</td>-->
                 <td>
-                    <div class="icon legend result" onclick="viewRegistry('{{ registry.id }}')">View</div>
-                    <div class="icon legend edit" onclick="editRegistry('{{ registry.id }}')">Edit</div>
-                    <div class="icon legend delete" onclick="deleteRegistry('{{ registry.id }}')">Delete</div>
+                    <span class="icon legend result" onclick="viewRegistry('{{ registry.id }}')">View</span>
+                    <span class="icon legend edit" onclick="editRegistry('{{ registry.id }}')">Edit</span>
+                    <span class="icon legend delete" onclick="deleteRegistry('{{ registry.id }}')">Delete</span>
+                    {% if not registry.isFetching %}
+                    <span id="fetch{{registry.id}}"  class="icon legend refresh" onclick="fetchData('{{ registry.id }}')">Fetch data</span>
+                    {% endif %}
                 </td>
             </tr>
         {% endfor %}
@@ -97,7 +115,7 @@
     <div id="registry_detail"></div>
 </div>
 
-<div id="dialog-registry" title="Add Data Provider" style="display: none;">
+<div id="dialog-registry" title="Add new Data Provider" style="display: none;">
     <div class="alert alert-warning" id="banner_add_wait" style="display: none;">
         <h4><i class='fa fa-circle-o-notch fa-spin fa-1x'></i>  </i>&nbsp;&nbsp;Please wait for connection verification ...</h4>
     </div>
@@ -108,7 +126,7 @@
     </div>
 	<form id="form_add"  enctype="multipart/form-data">
 		{% csrf_token %}
-		{% include 'admin/oai_pmh/form_registry_add.html'%}
+		{% include 'oai_pmh/admin/form_registry_add.html'%}
 		<div id="form_add_current"></div>
 	</form>
 </div>

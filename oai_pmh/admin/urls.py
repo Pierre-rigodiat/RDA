@@ -22,5 +22,6 @@ urlpatterns = patterns(
     url(r'^oai-pmh$', 'oai_pmh', name='oai_pmh'),
     url(r'^oai-pmh-my-infos', 'oai_pmh_my_infos', name='oai_pmh_my_infos'),
     url(r'^oai-pmh-detail-registry$', 'oai_pmh_detail_registry', name='oai_pmh_detail_registry'),
+    url(r'^update/all/records', 'update_all_records', name='update_all_records'),
 )
 
