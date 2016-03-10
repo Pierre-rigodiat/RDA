@@ -1,7 +1,7 @@
 """
 """
 from os.path import join
-from mgi.models import FormElement, XMLElement, FormData, Module, Template, MetaSchema
+from mgi.models import FormElement, XMLElement, FormData, Module, Template
 from mgi.settings import CURATE_MIN_TREE, CURATE_COLLAPSE
 from bson.objectid import ObjectId
 from mgi import common
@@ -12,12 +12,12 @@ from modules import get_module_view
 import urllib2
 
 from mgi.common import LXML_SCHEMA_NAMESPACE, SCHEMA_NAMESPACE
+from utils.XSDflattener.XSDflattener import XSDFlattenerURL
 
 
 ##################################################
 # Part I: Utilities
 ##################################################
-
 def get_subnodes_xpath(element, xml_tree):
     """Perform a lookup in subelements to build xpath
 
@@ -331,7 +331,7 @@ def get_element_type(element, xml_tree, default_prefix):
                 return None
             elif element.attrib.get('type') is not None:  # FIXME is it possible?
                 # TODO: manage namespaces
-                # type of the element is complex
+                # test if type of the element is a simpleType
                 type_name = element.attrib.get('type')
                 if ':' in type_name:
                     type_name = type_name.split(":")[1]
@@ -339,9 +339,13 @@ def get_element_type(element, xml_tree, default_prefix):
                 xpath = "./{0}complexType[@name='{1}']".format(LXML_SCHEMA_NAMESPACE, type_name)
                 element_type = xml_tree.find(xpath)
                 if element_type is None:
-                    # type of the element is simple
+                    # test if type of the element is a simpleType
                     xpath = "./{0}simpleType[@name='{1}']".format(LXML_SCHEMA_NAMESPACE, type_name)
                     element_type = xml_tree.find(xpath)
+
+                    # No matching complex/simple type found in the document
+                    if element_type is None:
+                        pass
                 return element_type
     except:
         print "get_element_type: Something went wrong"
@@ -381,16 +385,14 @@ def generate_form(request):
         xml_doc_data = request.session['xmlDocTree']
     else:
         template_id = request.session['currentTemplateID']
-        # if template_id in MetaSchema.objects.all().values_list('schemaId'):
-        #     meta = MetaSchema.objects.get(schemaId=template_id)
-        #     xml_doc_data = meta.flat_content
-        # else:
         template_object = Template.objects.get(pk=template_id)
         xml_doc_data = template_object.content
 
-    # build Etree
-    xml_doc_tree = etree.parse(BytesIO(xml_doc_data.encode('utf-8')))
-    xml_doc_tree_str = etree.tostring(xml_doc_tree)
+    # flatten the includes
+    flattener = XSDFlattenerURL(xml_doc_data)
+    xml_doc_tree_str = flattener.get_flat()
+    xml_doc_tree = etree.parse(BytesIO(xml_doc_tree_str.encode('utf-8')))
+
     request.session['xmlDocTree'] = xml_doc_tree_str
 
     # init counters

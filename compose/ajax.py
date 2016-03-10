@@ -21,11 +21,12 @@ from django.conf import settings
 from mongoengine import *
 
 from mgi.common import LXML_SCHEMA_NAMESPACE, SCHEMA_NAMESPACE
-from mgi.models import Template, Type, XML2Download, MetaSchema, Exporter
+from mgi.models import Template, Type, XML2Download, Exporter, create_template, create_type
 import lxml.etree as etree
 from io import BytesIO
+
+from utils.XMLValidation.xml_schema import validate_xml_schema
 from utils.XSDhash import XSDhash
-from utils.XSDflattenerMDCS.XSDflattenerMDCS import XSDFlattenerMDCS
 from utils.APIschemaLocator.APIschemaLocator import getSchemaLocation
 from urlparse import urlparse
 from mgi import common
@@ -53,11 +54,8 @@ def set_current_template(request):
 
     if template_id != "new":
         templateObject = Template.objects.get(pk=template_id)
-        if template_id in MetaSchema.objects.all().values_list('schemaId'):
-            meta = MetaSchema.objects.get(schemaId=template_id)
-            xmlDocData = meta.api_content
-        else:
-            xmlDocData = templateObject.content
+
+        xmlDocData = templateObject.content
 
         request.session['xmlTemplateCompose'] = xmlDocData
         request.session['newXmlTemplateCompose'] = xmlDocData
@@ -91,11 +89,8 @@ def set_current_user_template(request):
     request.session.modified = True
 
     templateObject = Template.objects.get(pk=template_id)
-    if template_id in MetaSchema.objects.all().values_list('schemaId'):
-        meta = MetaSchema.objects.get(schemaId=template_id)
-        xmlDocData = meta.api_content
-    else:
-        xmlDocData = templateObject.content
+
+    xmlDocData = templateObject.content
 
     request.session['xmlTemplateCompose'] = xmlDocData
     request.session['newXmlTemplateCompose'] = xmlDocData
@@ -303,36 +298,22 @@ def save_template(request):
     except Exception, e:
         response_dict['errors'] = e.message.replace("'","")
         return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
-    
-    flattener = XSDFlattenerMDCS(etree.tostring(xmlTree))
-    flatStr = flattener.get_flat()
-    flatTree = etree.fromstring(flatStr)
-    
-    try:
-        # is it a valid XML schema ?
-        xmlSchema = etree.XMLSchema(flatTree)
-    except Exception, e:
-        response_dict['errors'] = e.message.replace("'","")
+
+    # validate the schema
+    error = validate_xml_schema(xmlTree)
+
+    if error is not None:
+        response_dict['errors'] = 'This is not a valid XML schema.' + error.replace("'","")
         return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
-    
-    hash = XSDhash.get_hash(content) 
+
     dependencies = []
     for uri in request.session["includedTypesCompose"]:
         url = urlparse(uri)
         id = url.query.split("=")[1]
         dependencies.append(id)
-    template = Template(title=template_name, filename=template_name, content=content, hash=hash, user=str(request.user.id), dependencies=dependencies)
-    #We add default exporters
-    try:
-        exporters = Exporter.objects.filter(available_for_all=True)
-        template.exporters = exporters
-    except:
-        pass
 
-    template.save()
-    
-    MetaSchema(schemaId=str(template.id), flat_content=flatStr, api_content=content).save()
-    
+    create_template(content, template_name, template_name, dependencies, user=str(request.user.id))
+
     return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
 
 
@@ -369,30 +350,23 @@ def save_type(request):
         response_dict['errors'] = "Not a valid XML document."
         response_dict['message'] = e.message.replace("'","")
         return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
-    
-    flattener = XSDFlattenerMDCS(content)
-    flatStr = flattener.get_flat()
-    flatTree = etree.fromstring(flatStr)
-    
-    try:
-        # is it a valid XML schema ?
-        xmlSchema = etree.XMLSchema(flatTree)
-    except Exception, e:
+
+    # validate the schema
+    error = validate_xml_schema(xmlTree)
+
+    if error is not None:
         response_dict['errors'] = "Not a valid XML document."
-        response_dict['message'] = e.message.replace("'","")
+        response_dict['message'] = error.message.replace("'","")
         return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
-    
-    
-    hash = XSDhash.get_hash(content)
+
     dependencies = []
     for uri in request.session["includedTypesCompose"]:
         url = urlparse(uri)
         id = url.query.split("=")[1]
         dependencies.append(id)
-    type = Type(title=type_name, filename=type_name, content=content, user=str(request.user.id), hash=hash, dependencies=dependencies)
-    type.save()
-    MetaSchema(schemaId=str(type.id), flat_content=flatStr, api_content=content).save()
-    
+
+    create_type(content, type_name, type_name, [], dependencies, user=str(request.user.id))
+
     return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
 
 

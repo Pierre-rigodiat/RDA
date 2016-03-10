@@ -21,7 +21,7 @@ from io import BytesIO
 
 from mgi.common import LXML_SCHEMA_NAMESPACE, SCHEMA_NAMESPACE
 from mgi.models import Template, TemplateVersion, Instance, Request, Module, Type, TypeVersion, Message, Bucket, \
-    MetaSchema, Exporter, ExporterXslt, ResultXslt, create_template, create_type, create_template_version, \
+    Exporter, ExporterXslt, ResultXslt, create_template, create_type, create_template_version, \
     create_type_version
 from django.contrib.auth.models import User
 
@@ -91,6 +91,7 @@ def resolve_dependencies(request):
     error = validate_xml_schema(xsd_tree)
 
     if error is None:
+        object_content = etree.tostring(xsd_tree)
         # create a new version
         if 'uploadVersion' in request.session and request.session['uploadVersion'] is not None:
             object_versions_id = request.session['uploadVersion']

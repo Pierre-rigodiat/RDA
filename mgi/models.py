@@ -82,12 +82,12 @@ class Template(Document):
     ResultXsltDetailed = ReferenceField(ResultXslt, reverse_delete_rule=NULLIFY)
 
 
-def create_template(content, name, filename, dependencies=[]):
+def create_template(content, name, filename, dependencies=[], user=None):
     hash_value = XSDhash.get_hash(content)
     # save the template
     template_versions = TemplateVersion(nbVersions=1, isDeleted=False).save()
     new_template = Template(title=name, filename=filename, content=content,
-                            version=1, templateVersion=str(template_versions.id), hash=hash_value).save()
+                            version=1, templateVersion=str(template_versions.id), hash=hash_value, user=user).save()
     new_template.dependencies = dependencies
     # Add default exporters
     try:
@@ -103,12 +103,12 @@ def create_template(content, name, filename, dependencies=[]):
     return new_template
 
 
-def create_type(content, name, filename, buckets, dependencies=[]):
+def create_type(content, name, filename, buckets=[], dependencies=[], user=None):
     hash_value = XSDhash.get_hash(content)
     # save the type
     type_versions = TypeVersion(nbVersions=1, isDeleted=False).save()
     new_type = Type(title=name, filename=filename, content=content,
-                    version=1, typeVersion=str(type_versions.id), hash=hash_value).save()
+                    version=1, typeVersion=str(type_versions.id), hash=hash_value, user=user).save()
     new_type.dependencies = dependencies
     # Add to the selected buckets
     for bucket_id in buckets:
@@ -181,13 +181,6 @@ class TypeVersion(Document):
     current = StringField()
     nbVersions = IntField(required=True)
     isDeleted = BooleanField(required=True)
-
-
-class MetaSchema(Document):
-    """Stores more information about templates/types"""
-    schemaId = StringField(required=True, unique=True)
-    flat_content = StringField(required=True)
-    api_content = StringField(required=True)
 
 
 class Instance(Document):

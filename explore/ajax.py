@@ -28,7 +28,7 @@ import copy
 import lxml.etree as etree
 
 from mgi.common import SCHEMA_NAMESPACE, LXML_SCHEMA_NAMESPACE
-from mgi.models import Template, QueryResults, SavedQuery, XMLdata, Instance, MetaSchema, TemplateVersion
+from mgi.models import Template, QueryResults, SavedQuery, XMLdata, Instance, TemplateVersion
 from mgi import common
 from django.template import loader, Context, RequestContext
 from django.contrib.auth.models import Group
@@ -148,12 +148,8 @@ def setCurrentTemplate(request, template_id):
     request.session['exploreCurrentTemplateID'] = template_id
     request.session.modified = True
 
-    if template_id in MetaSchema.objects.all().values_list('schemaId'):
-        meta = MetaSchema.objects.get(schemaId=template_id)
-        xmlDocData = meta.flat_content
-    else:
-        templateObject = Template.objects.get(pk=template_id)
-        xmlDocData = templateObject.content
+    templateObject = Template.objects.get(pk=template_id)
+    xmlDocData = templateObject.content
 
     XMLtree = etree.parse(BytesIO(xmlDocData.encode('utf-8')))
     request.session['xmlDocTreeExplore'] = etree.tostring(XMLtree)
@@ -184,13 +180,8 @@ def set_current_user_template(request):
     request.session.modified = True
 
     templateObject = Template.objects.get(pk=template_id)
-    
-    if template_id in MetaSchema.objects.all().values_list('schemaId'):
-        meta = MetaSchema.objects.get(schemaId=template_id)
-        xmlDocData = meta.flat_content
-    else:
-        xmlDocData = templateObject.content
 
+    xmlDocData = templateObject.content
 
     XMLtree = etree.parse(BytesIO(xmlDocData.encode('utf-8')))
     request.session['xmlDocTreeExplore'] = etree.tostring(XMLtree)

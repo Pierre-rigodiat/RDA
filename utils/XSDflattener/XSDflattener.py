@@ -22,6 +22,7 @@
 import lxml.etree as etree
 from io import BytesIO
 from abc import ABCMeta, abstractmethod
+import urllib2
 
 
 class XSDFlattener(object):
@@ -37,20 +38,6 @@ class XSDFlattener(object):
 
         # parse the XML String removing blanks, comments, processing instructions
         xmlTree = etree.parse(BytesIO(self.xmlString.encode('utf-8')))
-
-        # check if it has imports
-        imports = xmlTree.findall("{http://www.w3.org/2001/XMLSchema}import")
-        if len(imports) > 0:
-            for el_import in imports:
-                uri = el_import.attrib['schemaLocation']
-                flatDependency = self.get_flat_dependency(uri)
-                if flatDependency is not None:
-                    # append flatDependency to the tree
-                    dependencyTree = etree.fromstring(flatDependency)
-                    dependencyElements = dependencyTree.getchildren()
-                    for element in dependencyElements:
-                        xmlTree.getroot().append(element)
-                el_import.getparent().remove(el_import)
 
         # check if it has includes
         includes = xmlTree.findall("{http://www.w3.org/2001/XMLSchema}include")
@@ -114,9 +101,6 @@ class XSDFlattenerURL(XSDFlattener):
     # 		r = requests.get(uri,auth=(self.user, self.password))
     # 		return r.text
 
-    def registerServer(self, url, user, password):
-        self.servers[url] = {'user': user, 'password': password}
-
 
 ################################################################################
 #
@@ -139,6 +123,12 @@ class XSDFlattenerLocal(XSDFlattener):
 # future: flattener that could work using URL and local files
 #
 ################################################################################
-class XSDFlattenerFull(XSDFlattener):
+class XSDFlattenerURL(XSDFlattener):
     def get_dependency_content(self, uri):
-        pass
+        content = ""
+        try:
+            file = urllib2.urlopen(uri)
+            content = file.read()
+        except:
+            pass
+        return content

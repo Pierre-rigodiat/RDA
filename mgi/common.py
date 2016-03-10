@@ -1,8 +1,10 @@
 
 import lxml.etree as etree
-from mgi.models import MetaSchema, Template
+from mgi.models import Template
 from cStringIO import StringIO
 from io import BytesIO
+
+from utils.XMLValidation.xml_schema import validate_xml_data
 
 SCHEMA_NAMESPACE = "http://www.w3.org/2001/XMLSchema"
 LXML_SCHEMA_NAMESPACE = "{" + SCHEMA_NAMESPACE + "}"
@@ -87,20 +89,16 @@ def getValidityErrorsForMDCS(xmlTree, type):
 #
 ################################################################################
 def validateXMLDocument(templateID, xmlString):
-    
-    if str(templateID) in MetaSchema.objects.all().values_list('schemaId'):
-        meta = MetaSchema.objects.get(schemaId=str(templateID))
-        xmlDocData = meta.flat_content
-    else:
-        templateObject = Template.objects.get(pk=templateID)
-        xmlDocData = templateObject.content
-    
-    xmlTree = etree.parse(StringIO(xmlDocData.encode('utf-8')))
-    
-    xmlSchema = etree.XMLSchema(xmlTree)    
-    xmlDoc = etree.XML(str(xmlString.encode('utf-8')))
-    prettyXMLString = etree.tostring(xmlDoc, pretty_print=True)  
-    xmlSchema.assertValid(etree.parse(StringIO(prettyXMLString)))
+
+    template = Template.objects.get(pk=templateID)
+    xml_doc_data = template.content
+
+    xsd_tree = etree.parse(StringIO(xml_doc_data.encode('utf-8')))
+    xml_tree = etree.parse(StringIO(xmlString.encode('utf-8')))
+
+    errors = validate_xml_data(xsd_tree, xml_tree)
+    if errors is not None:
+        raise Exception(errors)
     
 
 ################################################################################

@@ -18,12 +18,11 @@
 from django.http import HttpResponse
 from django.conf import settings
 from io import BytesIO
-# from cStringIO import StringIO
-# from mgi.models import Template, XMLdata, XML2Download, Module, MetaSchema
+
 from curate.parser import generate_form, generate_element, generate_sequence_absent, generate_element_absent, has_module, \
     get_element_type, generate_module, generate_complex_type, generate_simple_type, generate_sequence, generate_choice
 from mgi.common import LXML_SCHEMA_NAMESPACE
-from mgi.models import Template, XML2Download, MetaSchema
+from mgi.models import Template, XML2Download
 from mgi.models import FormElement, XMLElement, FormData
 # from mgi.settings import CURATE_MIN_TREE, CURATE_COLLAPSE
 from mgi.settings import CURATE_COLLAPSE
@@ -960,12 +959,8 @@ def set_current_template(request):
     request.session['currentTemplateID'] = template_id
     request.session.modified = True
 
-    if template_id in MetaSchema.objects.all().values_list('schemaId'):
-        meta = MetaSchema.objects.get(schemaId=template_id)
-        xmlDocData = meta.flat_content
-    else:
-        templateObject = Template.objects.get(pk=template_id)
-        xmlDocData = templateObject.content
+    templateObject = Template.objects.get(pk=template_id)
+    xmlDocData = templateObject.content
 
     XMLtree = etree.parse(BytesIO(xmlDocData.encode('utf-8')))
     request.session['xmlDocTree'] = etree.tostring(XMLtree)
@@ -999,11 +994,7 @@ def set_current_user_template(request):
 
     templateObject = Template.objects.get(pk=template_id)
 
-    if template_id in MetaSchema.objects.all().values_list('schemaId'):
-        meta = MetaSchema.objects.get(schemaId=template_id)
-        xmlDocData = meta.flat_content
-    else:
-        xmlDocData = templateObject.content
+    xmlDocData = templateObject.content
 
     XMLtree = etree.parse(BytesIO(xmlDocData.encode('utf-8')))
     request.session['xmlDocTree'] = etree.tostring(XMLtree)
