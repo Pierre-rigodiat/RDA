@@ -25,7 +25,7 @@ urlpatterns = patterns(
     url(r'^update/record$', 'update_record'),
     url(r'^delete/registry$', 'delete_registry'),
     url(r'^delete/record$', 'delete_record'),
-    url(r'^(?i)listrecords$', 'listRecords'),
+    url(r'^(?i)listobjectallrecords$', 'listObjectAllRecords'),
     url(r'^(?i)identify$', 'identify'),
     url(r'^(?i)objectidentify$', 'objectIdentify'),
     url(r'^(?i)listmetadataformats$', 'listMetadataFormats'),
@@ -35,4 +35,6 @@ urlpatterns = patterns(
     url(r'^(?i)listidentifiers$', 'listIdentifiers'),
     url(r'^(?i)getrecord', 'getRecord'),
     url(r'^getdata/$', 'getData'),
+
+    url(r'^update/all/records$', 'update_all_records'),
 )

@@ -1,4 +1,4 @@
-{% extends "admin/oai_pmh/xml/base.xml" %}
+{% extends "oai_pmh/xml/base.xml" %}
 
 {% block content %}
   <ListMetadataFormats>

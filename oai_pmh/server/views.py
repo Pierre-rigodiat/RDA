@@ -14,7 +14,7 @@
 from django.http import HttpResponse, HttpResponseNotFound
 from django.conf import settings
 from django.views.generic import TemplateView
-from mgi.models import Template, TemplateVersion, XMLdata, OaiPmhSettings
+from mgi.models import Template, TemplateVersion, XMLdata, OaiSettings
 import os
 from oai_pmh.server.exceptions import *
 import xmltodict
@@ -22,7 +22,7 @@ from bson.objectid import ObjectId
 from StringIO import StringIO
 import lxml.etree as etree
 import re
-import datestamp
+from oai_pmh import datestamp
 import datetime
 
 RESOURCES_PATH = os.path.join(settings.SITE_ROOT, 'oai_pmh/server/resources/')
@@ -83,8 +83,8 @@ class OAIProvider(TemplateView):
 #
 ################################################################################
     def identify(self):
-        self.template_name = 'admin/oai_pmh/xml/identify.xml'
-        information = OaiPmhSettings.objects.get()
+        self.template_name = 'oai_pmh/xml/identify.xml'
+        information = OaiSettings.objects.get()
         if information:
             name = information.repositoryName
             repoIdentifier = information.repositoryIdentifier
@@ -141,7 +141,7 @@ class OAIProvider(TemplateView):
 ################################################################################
     def list_metadata_formats(self):
         try:
-            self.template_name = 'admin/oai_pmh/xml/list_metadata_formats.xml'
+            self.template_name = 'oai_pmh/xml/list_metadata_formats.xml'
             items = []
             # If an identifier is provided, with look for its metaformats
             if self.identifier != None:
@@ -197,7 +197,7 @@ class OAIProvider(TemplateView):
 ################################################################################
     def list_identifiers(self):
         try:
-            self.template_name = 'admin/oai_pmh/xml/list_identifiers.xml'
+            self.template_name = 'oai_pmh/xml/list_identifiers.xml'
             query = dict()
             #FROM AND UNTIL
             date_errors = []
@@ -267,7 +267,7 @@ class OAIProvider(TemplateView):
                 id = idMatch.group(1)
             else:
                 raise idDoesNotExist(self.identifier)
-            self.template_name = 'admin/oai_pmh/xml/get_record.xml'
+            self.template_name = 'oai_pmh/xml/get_record.xml'
             try:
                 templatesVersionID = Template.objects(title=self.metadataPrefix).distinct(field="templateVersion")
                 templateID = TemplateVersion.objects(pk__in=templatesVersionID, isDeleted=False).distinct(field="current")
@@ -323,7 +323,7 @@ class OAIProvider(TemplateView):
     def list_records(self):
         try:
             items = []
-            self.template_name = 'admin/oai_pmh/xml/list_records.xml'
+            self.template_name = 'oai_pmh/xml/list_records.xml'
             query = dict()
             #FROM AND UNTIL
             date_errors = []
@@ -404,7 +404,7 @@ class OAIProvider(TemplateView):
 #
 ################################################################################
     def errors(self, errors):
-        self.template_name = 'admin/oai_pmh/xml/error.xml'
+        self.template_name = 'oai_pmh/xml/error.xml'
         return self.render_to_response({
             'errors': errors,
         })
@@ -496,7 +496,7 @@ class OAIProvider(TemplateView):
 ################################################################################
     def get(self, request, *args, **kwargs):
         try:
-            information = OaiPmhSettings.objects.get()
+            information = OaiSettings.objects.get()
             if information and not information.enableHarvesting:
                 return HttpResponseNotFound('<h1>OAI-PMH not available for harvesting</h1>')
             self.oai_verb = request.GET.get('verb', None)

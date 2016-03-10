@@ -31,7 +31,7 @@
 <link rel="stylesheet" type="text/css" href="{% static 'resources/css/lib/jquery.tagit.css' %}"  media="screen" />
 {% endblock %}
 
-{% block title %}<h1>Search by keyword</h1>{% endblock %}
+{% block title %}<h1>OAI-PMH Search by keyword</h1>{% endblock %}
 {% block menu %}{% include 'mdcs/menus/main.html' with active_tab='tab3' %}{% endblock %}
 {% block submenu %}	
 <ul id="subnav-tab-1" class="tabbed">
@@ -40,10 +40,10 @@
     		<a href="/explore">Query by Example</a>
     	</div>
    	</li>
-    <li class="current_page_item">
+    <li>
     	<a href="/explore/keyword">Search by Keyword</a>
     </li>
-	<li>
+	<li class="current_page_item">
         <div style="cursor:pointer">
             <a href="/oai_pmh/keyword">OAI-PMH Search by Keyword</a>
         </div>
@@ -67,22 +67,9 @@
 	<h3>Refine by Template</h3>
 	<hr/>
 	{% if search_Form.my_schemas_nb > 0 %}
-		<h8 style="color: #951">Global Templates</h8>
+		<h8 style="color: #951">OAI-PMH Templates</h8>
 		<div style="display: block;">{{search_Form.my_schemas}}</div>
 		<hr/>
-	{% endif %}
-	{% if user.is_authenticated %}
-		<h8 style="color: #951">User Defined Templates</h8>
-		{% if search_Form.my_user_schemas_nb > 0 %}
-		<div style="display: block;">{{search_Form.my_user_schemas}}</div>
-		<hr/>
-		{% else %}
-			<div class="unavailable">
-            Create your own templates using the <a href="/compose">Composer</a> and you will be able to use them from
-            this section.
-        	</div>
-        	<br/>
-		{% endif %}
 	{% endif %}
 	</div>
 {% else %}

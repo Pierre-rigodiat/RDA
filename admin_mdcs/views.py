@@ -19,7 +19,7 @@ from django.http.response import HttpResponseBadRequest
 from django.template import RequestContext, loader
 from django.shortcuts import redirect
 from mgi.models import Request, Message, PrivacyPolicy, TermsOfUse, Help, Template, TemplateVersion, Type, \
-    TypeVersion, Module, Bucket, Instance, Exporter, ExporterXslt, ResultXslt, Registry
+    TypeVersion, Module, Bucket, Instance, Exporter, ExporterXslt, ResultXslt
 from forms import UploadResultXSLTForm, PrivacyPolicyForm, TermsOfUseForm, HelpForm, RepositoryForm, RefreshRepositoryForm, UploadXSLTForm, UploadResultXSLTForm
 from django.contrib import messages
 import os

@@ -505,12 +505,12 @@ class XMLdata():
         return results
 
 
-class OaiPmhSettings(Document):
+class OaiSettings(Document):
     repositoryName = StringField(required=True)
     repositoryIdentifier = StringField(required=True)
     enableHarvesting = BooleanField()
 
-class Identify(Document):
+class OaiIdentify(Document):
     """
         An identity object
     """
@@ -529,15 +529,16 @@ class Identify(Document):
     scheme = StringField(required=False)
     raw = DictField(required=False)
 
-class Set(Document):
+class OaiSet(Document):
     """
         A set object
     """
     setSpec  = StringField(required=True, unique=True)
     setName = StringField(required=True, unique=True)
     raw = DictField(required=True)
+    registry = StringField(required=False)
 
-class MetadataFormat(Document):
+class OaiMetadataFormat(Document):
     """
         A set object
     """
@@ -545,26 +546,35 @@ class MetadataFormat(Document):
     schema = StringField(required=True)
     metadataNamespace  = StringField(required=True)
     raw = DictField(required=True)
-    template = ReferenceField(Template, reverse_delete_rule=NULLIFY)
+    template = ReferenceField(Template, reverse_delete_rule=PULL)
+    registry = StringField(required=False)
 
-class Registry(Document):
+class OaiRecord(Document):
+    """
+        A record object
+    """
+    identifier = StringField(required=True)
+    datestamp = DateTimeField(required=True)
+    deleted = BooleanField()
+    sets = ListField(ReferenceField(OaiSet, reverse_delete_rule=PULL))
+    metadataformat = ReferenceField(OaiMetadataFormat, reverse_delete_rule=PULL)
+    metadata = DictField(required=True)
+    raw = DictField(required=True)
+    registry = StringField(required=False)
+
+class OaiRegistry(Document):
     """
         A registry object
     """
     name = StringField(required=True)
     url = URLField(required=True, unique=True)
     harvestrate = IntField(required=False)
-    metadataformats = ListField(ReferenceField(MetadataFormat, reverse_delete_rule=PULL))
-    identify = ReferenceField(Identify, reverse_delete_rule=NULLIFY)
-    sets = ListField(ReferenceField(Set, reverse_delete_rule=PULL))
+    identify = ReferenceField(OaiIdentify, reverse_delete_rule=NULLIFY)
     description = StringField(required=False)
     harvest = BooleanField()
+    lastUpdate = DateTimeField(required=False)
+    isFetching = BooleanField()
 
-class Record(Document):
-    """
-        A record object
-    """
-    content = DictField(required=True)
 
 # class Sets(Document):
 #     """

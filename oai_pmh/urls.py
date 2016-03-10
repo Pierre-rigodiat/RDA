@@ -20,6 +20,8 @@ urlpatterns = patterns(
     url(r'^registry/(?P<registry>[-\w]+)/all_metadataprefix/$', 'all_metadataprefix'),
     url(r'^getdata/$', 'getData'),
 
+    url(r'^keyword',  'index_keyword', name='index-keyword'),
+
     url(r'^admin/', include('oai_pmh.admin.urls')),
     url(r'^api/', include('oai_pmh.api.urls')),
     url(r'^server/', include('oai_pmh.server.urls')),
