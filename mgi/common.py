@@ -25,7 +25,16 @@ def getValidityErrorsForMDCS(xmlTree, type):
     errors = []
     
     # General Tests
-    
+
+    # only support unqualified elements/attributes
+    # root = xmlTree.getroot()
+    # if 'elementFormDefault' in root.attrib:
+    #     if root.attrib['elementFormDefault'] == 'qualified':
+    #         errors.append('Only templates with elementFormDefault set to unqualified are accepted.')
+    # if 'attributeFormDefault' in root.attrib:
+    #     if root.attrib['attributeFormDefault'] == 'qualified':
+    #         errors.append('Only templates with attributeFormDefault set to unqualified are accepted.')
+
     # get the imports
     imports = xmlTree.findall("{}import".format(LXML_SCHEMA_NAMESPACE))
     # get the includes
@@ -122,10 +131,11 @@ def manage_namespaces(xml_string, namespaces, default_prefix, target_namespace_p
         xml_tree = etree.parse(StringIO(xml_string.encode('utf-8')))
         # get the root of the XML document
         xml_root = xml_tree.getroot()
-        # set the namespace of the document to the target namespace
-        xml_root.attrib['xmlns'] = target_namespace
-        # set the xml string with the one updated with namespace information
-        xml_string = etree.tostring(xml_tree)
+        if 'elementFormDefault' in xml_root.attrib and xml_root.attrib['elementFormDefault'] == 'qualified':
+            # set the namespace of the document to the target namespace
+            xml_root.attrib['xmlns'] = target_namespace
+            # set the xml string with the one updated with namespace information
+            xml_string = etree.tostring(xml_tree)
 
     return xml_string
 

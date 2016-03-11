@@ -46,8 +46,7 @@ def resolve_dependencies(request):
     print 'BEGIN def resolveDependencies(request)'
     schema_locations = request.POST.getlist('schemaLocations[]')
     dependencies = request.POST.getlist('dependencies[]')
-    
-    response_dict = {}
+
     if ('uploadObjectName' in request.session and request.session['uploadObjectName'] is not None and
         'uploadObjectFilename' in request.session and request.session['uploadObjectFilename'] is not None and
         'uploadObjectContent' in request.session and request.session['uploadObjectContent'] is not None and

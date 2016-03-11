@@ -592,6 +592,7 @@ def manage_versions(request):
                             # TODO: use a better method to store schema information
                             # TODO: can create an entry in db
                             request.session['uploadObjectFilename'] = xsd_file.name
+                            request.session['uploadObjectName'] = xsd_file.name
                             request.session['uploadObjectContent'] = xsd_data
                             request.session['uploadObjectType'] = object_type
                             request.session['uploadVersion'] = str(object_versions.id)

@@ -296,45 +296,79 @@ def get_xml_element_data(xsd_element, xml_element):
     return reload_data
 
 
-def get_element_type(element, xml_tree, default_prefix):
-    """get XSD type to render.
+def get_element_type(element, xml_tree, namespaces, default_prefix, target_namespace_prefix, schema_location=None):
+    """get XSD type to render. Returns the tree where the type was found.
 
     Parameters:
         element: XML element
         xml_tree: XML tree of the template
         default_prefix:
 
-    Returns:       JSON data
+    Returns:
                     Returns the type if found
                         - complexType
                         - simpleType
                     Returns None otherwise:
                         - type from default namespace (xsd:...)
                         - no type
+                    Returns:
+                        - tree where the type has been found
+                        - schema location where the type has been found
     """
+
+    element_type = None
     try:
         if 'type' not in element.attrib:  # element with type declared below it
             # if tag not closed:  <element/>
             if len(list(element)) == 1:
                 if element[0].tag == "{0}annotation".format(LXML_SCHEMA_NAMESPACE):
-                    return None
+                    element_type = None
                 else:
-                    return element[0]
+                    element_type = element[0]
             # with annotations
             elif len(list(element)) == 2:
                 # FIXME Not all possibilities are tested in this case
-                return element[1]
+                element_type = element[1]
             else:
-                return None
+                element_type = None
         else:  # element with type attribute
             if element.attrib.get('type') in common.getXSDTypes(default_prefix):
-                return None
+                element_type = None
             elif element.attrib.get('type') is not None:  # FIXME is it possible?
                 # TODO: manage namespaces
                 # test if type of the element is a simpleType
                 type_name = element.attrib.get('type')
                 if ':' in type_name:
+                    type_ns_prefix = type_name.split(":")[0]
                     type_name = type_name.split(":")[1]
+                    if type_ns_prefix != target_namespace_prefix:
+                        # TODO: manage ref to imported elements (different target namespace)
+                        # get all import elements
+                        imports = xml_tree.findall('//{}import'.format(LXML_SCHEMA_NAMESPACE))
+                        # find the referred document using the prefix
+                        for el_import in imports:
+                            import_ns = el_import.attrib['namespace']
+                            if namespaces[type_ns_prefix] == import_ns:
+                                # get the location of the schema
+                                ref_xml_schema_url = el_import.attrib['schemaLocation']
+                                schema_location = ref_xml_schema_url
+                                # download the file
+                                ref_xml_schema_file = urllib2.urlopen(ref_xml_schema_url)
+                                # read the content of the file
+                                ref_xml_schema_content = ref_xml_schema_file.read()
+                                # build the tree
+                                xml_tree = etree.parse(BytesIO(ref_xml_schema_content.encode('utf-8')))
+                                # look for includes
+                                includes = xml_tree.findall('//{}include'.format(LXML_SCHEMA_NAMESPACE))
+                                # if includes are present
+                                if len(includes) > 0:
+                                    # create a flattener with the file content
+                                    flattener = XSDFlattenerURL(ref_xml_schema_content)
+                                    # flatten the includes
+                                    ref_xml_schema_content = flattener.get_flat()
+                                    # build the tree
+                                    xml_tree = etree.parse(BytesIO(ref_xml_schema_content.encode('utf-8')))
+                                break
 
                 xpath = "./{0}complexType[@name='{1}']".format(LXML_SCHEMA_NAMESPACE, type_name)
                 element_type = xml_tree.find(xpath)
@@ -342,15 +376,10 @@ def get_element_type(element, xml_tree, default_prefix):
                     # test if type of the element is a simpleType
                     xpath = "./{0}simpleType[@name='{1}']".format(LXML_SCHEMA_NAMESPACE, type_name)
                     element_type = xml_tree.find(xpath)
-
-                    # No matching complex/simple type found in the document
-                    if element_type is None:
-                        pass
-                return element_type
     except:
         print "get_element_type: Something went wrong"
-        return None
-    return None
+        element_type = None
+    return element_type, xml_tree, schema_location
 
 
 def remove_annotations(element):
@@ -533,11 +562,27 @@ def generate_element(request, element, xml_tree, choice_info=None, full_path="",
                 for el_import in imports:
                     import_ns = el_import.attrib['namespace']
                     if namespaces[ref_namespace_prefix] == import_ns:
+                        # get the location of the schema
                         ref_xml_schema_url = el_import.attrib['schemaLocation']
+                        # set the schema location to save in database
                         schema_location = ref_xml_schema_url
+                        # download the file
                         ref_xml_schema_file = urllib2.urlopen(ref_xml_schema_url)
+                        # read the content of the file
                         ref_xml_schema_content = ref_xml_schema_file.read()
+                        # build the tree
                         xml_tree = etree.parse(BytesIO(ref_xml_schema_content.encode('utf-8')))
+                        # look for includes
+                        includes = xml_tree.findall('//{}include'.format(LXML_SCHEMA_NAMESPACE))
+                        # if includes are present
+                        if len(includes) > 0:
+                            # create a flattener with the file content
+                            flattener = XSDFlattenerURL(ref_xml_schema_content)
+                            # flatten the includes
+                            ref_xml_schema_content = flattener.get_flat()
+                            # build the tree
+                            xml_tree = etree.parse(BytesIO(ref_xml_schema_content.encode('utf-8')))
+
                         ref_element = xml_tree.find("./{0}{1}[@name='{2}']".format(LXML_SCHEMA_NAMESPACE,
                                                                                    element_tag, ref_name))
                         break
@@ -617,6 +662,14 @@ def generate_element(request, element, xml_tree, choice_info=None, full_path="",
     elif nb_occurrences_data > nb_occurrences:
         nb_occurrences = nb_occurrences_data
 
+    xml_tree_str = etree.tostring(xml_tree)
+    namespaces = common.get_namespaces(BytesIO(str(xml_tree_str)))
+    default_prefix = common.get_default_prefix(namespaces)
+    target_namespace_prefix = common.get_target_namespace_prefix(namespaces, xml_tree)
+    element_type, xml_tree, schema_location = get_element_type(element, xml_tree, namespaces,
+                                                               default_prefix, target_namespace_prefix,
+                                                               schema_location)
+
     xml_element = XMLElement(xsd_xpath=xsd_xpath, nbOccurs=nb_occurrences_data, minOccurs=min_occurs,
                              maxOccurs=max_occurs, schema_location=schema_location)
     xml_element.save()
@@ -648,10 +701,7 @@ def generate_element(request, element, xml_tree, choice_info=None, full_path="",
     else:
         form_string += "<ul>"
 
-    xml_tree_str = etree.tostring(xml_tree)
-    namespaces = common.get_namespaces(BytesIO(str(xml_tree_str)))
-    default_prefix = common.get_default_prefix(namespaces)
-    element_type = get_element_type(element, xml_tree, default_prefix)
+
 
     for x in range(0, int(nb_occurrences)):
         nb_html_tags = int(request.session['nb_html_tags'])
@@ -791,7 +841,10 @@ def generate_element_absent(request, element, xml_doc_tree, form_element, schema
         xml_tree_str = etree.tostring(xml_doc_tree)
         namespaces = common.get_namespaces(BytesIO(str(xml_tree_str)))
         default_prefix = common.get_default_prefix(namespaces)
-        element_type = get_element_type(element, xml_doc_tree, default_prefix)
+        target_namespace_prefix = common.get_target_namespace_prefix(namespaces, xml_doc_tree)
+        element_type, xml_doc_tree, schema_location = get_element_type(element, xml_doc_tree, namespaces,
+                                                                       default_prefix, target_namespace_prefix,
+                                                                       schema_location)
 
         # render the type
         if element_type is None:  # no complex/simple type
@@ -1692,9 +1745,12 @@ def generate_extension(request, element, xml_tree, full_path="", edit_data_tree=
     if 'base' in element.attrib:
         base = element.attrib['base']
 
-        defaultPrefix = request.session['defaultPrefix']
+        xml_tree_str = etree.tostring(xml_tree)
+        namespaces = common.get_namespaces(BytesIO(str(xml_tree_str)))
+        default_prefix = common.get_default_prefix(namespaces)
+
         # test if base is a built-in data types
-        if base in common.getXSDTypes(defaultPrefix):
+        if base in common.getXSDTypes(default_prefix):
             pass
             #form_string +=
         else: #not a built-in data type
@@ -1719,7 +1775,6 @@ def generate_extension(request, element, xml_tree, full_path="", edit_data_tree=
                 if baseType is not None:
                     form_string += generate_complex_type(request, baseType, xml_tree, full_path,
                                                          edit_data_tree, schema_location=schema_location)
-
 
     # does it contain any attributes?
     complexTypeChildren = element.findall('{0}attribute'.format(LXML_SCHEMA_NAMESPACE))
