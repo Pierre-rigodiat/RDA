@@ -411,7 +411,10 @@ def add_registry(request):
                         # TODO: Hash the schema and see if a template corresponds
                         http_response = requests.get(obj.schema)
                         if str(http_response.status_code) == "200":
+                            xmlSchema = xmltodict.parse(http_response.text)
+                            obj.xmlSchema = xmlSchema
                             hash = XSDhash.get_hash(http_response.text)
+                            obj.hash = hash
                             template = Template.objects(hash=hash).first()
                             if template:
                                 obj.template = template

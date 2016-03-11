@@ -548,10 +548,12 @@ class OaiMetadataFormat(Document):
     """
     metadataPrefix  = StringField(required=True)
     schema = StringField(required=True)
+    xmlSchema = DictField(required=False)
     metadataNamespace  = StringField(required=True)
     raw = DictField(required=True)
     template = ReferenceField(Template, reverse_delete_rule=PULL)
     registry = StringField(required=False)
+    hash = StringField(required=True)
 
 class OaiRecord(Document):
     """
@@ -565,6 +567,45 @@ class OaiRecord(Document):
     metadata = DictField(required=True)
     raw = DictField(required=True)
     registry = StringField(required=False)
+
+    @staticmethod
+    def initIndexes():
+        #create a connection
+        client = MongoClient(MONGODB_URI)
+        # connect to the db 'mgi'
+        db = client['mgi']
+        # get the xmldata collection
+        xmldata = db['oai_record']
+        # create the full text index
+        xmldata.create_index([('$**', TEXT)], default_language="en", language_override="en")
+
+    @staticmethod
+    def executeFullTextQuery(text, listMetadataFormatId):
+        """
+        Execute a full text query with possible refinements
+        """
+        #create a connection
+        client = MongoClient(MONGODB_URI)
+        # connect to the db 'mgi'
+        db = client['mgi']
+        # get the xmldata collection
+        xmldata = db['oai_record']
+        wordList = re.sub("[^\w]", " ",  text).split()
+        wordList = ['"{0}"'.format(x) for x in wordList]
+        wordList = ' '.join(wordList)
+        listMetadataFormatObjectId = [ObjectId(x) for x in listMetadataFormatId]
+
+        if len(wordList) > 0:
+            full_text_query = {'$text': {'$search': wordList}, 'metadataformat' : {'$in': listMetadataFormatObjectId}, }
+        else:
+            full_text_query = {'metadataformat' : {'$in': listMetadataFormatObjectId} }
+
+        cursor = xmldata.find(full_text_query, as_class = OrderedDict)
+
+        results = []
+        for result in cursor:
+            results.append(result)
+        return results
 
 class OaiRegistry(Document):
     """

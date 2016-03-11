@@ -25,8 +25,7 @@
 {% endcomment %}
 
 {% block extrastyle %}
-<link rel="stylesheet" type="text/css" href="{% static 'resources/css/exploreTabs.css' %}"  media="screen" />
-<link rel="stylesheet" type="text/css" href="{% static 'resources/css/explore.css' %}"  media="screen" />
+<link rel="stylesheet" type="text/css" href="{% static 'resources/css/oai_pmh_explore.css' %}"  media="screen" />
 <link rel="stylesheet" type="text/css" href="{% static 'resources/css/XMLTree.css' %}"  media="screen" />
 <link rel="stylesheet" type="text/css" href="{% static 'resources/css/lib/jquery.tagit.css' %}"  media="screen" />
 {% endblock %}
@@ -45,7 +44,7 @@
     </li>
 	<li class="current_page_item">
         <div style="cursor:pointer">
-            <a href="/oai_pmh/keyword">OAI-PMH Search by Keyword</a>
+            <a href="/oai_pmh/explore/keyword">OAI-PMH Search by Keyword</a>
         </div>
     </li>
 </ul>
@@ -61,20 +60,26 @@
 		<div style="display: block;">{{search_Form.my_user_schemas}}</div>
 		<hr/>
 	</div>
-{% elif search_Form.my_schemas_nb|add:search_Form.my_user_schemas_nb > 1 %}
+{% elif search_Form.my_schemas_nb|add:search_Form.my_registries_nb > 1 %}
 	<hr/>
-	<div id="templates" style="display: block;margin-left: 1.5em;">
-	<h3>Refine by Template</h3>
-	<hr/>
-	{% if search_Form.my_schemas_nb > 0 %}
-		<h8 style="color: #951">OAI-PMH Templates</h8>
-		<div style="display: block;">{{search_Form.my_schemas}}</div>
+	<div id="registries" style="display: block;margin-left: 1.5em;">
+		<h3>Refine by Data Provider</h3>
 		<hr/>
-	{% endif %}
+		{% if search_Form.my_registries_nb > 0 %}
+			<h8 style="color: #951">OAI-PMH Registries</h8>
+			<div style="display: block;">{{search_Form.my_registries}}</div>
+		{% endif %}
+		<hr/>
+	</div>
+	<h8 style="color: #951;margin-left: 1.5em;">OAI-PMH Schemas in common</h8>
+	<br><br>
+	<div id="metadataFormats" style="margin-left: 1.5em;">
+	</div>
+	<div id="wait_metadat_formats" style="text-align: center;display: none">
+		<br><h4><i class='fa fa-circle-o-notch fa-spin'></i></h4>
 	</div>
 {% else %}
 <div style="display: none;">{{search_Form.my_schemas}}</div>
-<div style="display: none;">{{search_Form.my_user_schemas}}</div>
 {% endif %}
 {% endblock %}
 
@@ -113,6 +118,7 @@
 </div>
 <div id="results_infos" style="color:grey;"></div>
 <div class="clearer">&nbsp;</div>
+<hr>
 <div id="results"></div>
 {% endblock %}
 
@@ -137,11 +143,12 @@ Are you sure you want to delete this document?
 {% endblock %}
 
 {% block extrajs %}
-<script src="{% static 'inc/controllers/js/explore.js' %}"></script>
+<script src="{% static 'inc/controllers/js/oai_pmh_explore.js' %}"></script>
 <script src="{% static 'libs/tags/tag-it.js' %}"></script>
 <script>
     initAutocomplete();
     initBanner();
+    initMetadataFormats();
 </script>
 {% endblock %}
 
