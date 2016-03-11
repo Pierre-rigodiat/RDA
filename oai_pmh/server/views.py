@@ -563,6 +563,7 @@ class OAIProvider(TemplateView):
 #
 ################################################################################
 def get_xsd(request, schema):
+    #TODO Available if publication ok and no user template
     #We retrieve the schema filename in the schema attribute
     #Get the templateVersion ID
     templatesVersionID = Template.objects(filename=schema).distinct(field="templateVersion")

@@ -1,5 +1,6 @@
 from django.apps import AppConfig
 from oai_pmh import discover
+from mgi.models import OaiRecord
 
 
 # TODO: loaded two times (not a problem and may not happen in production) 
@@ -10,3 +11,4 @@ class OAIPMHConfig(AppConfig):
 
     def ready(self):
         discover.init_settings()
+        OaiRecord.initIndexes()

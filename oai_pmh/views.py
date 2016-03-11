@@ -32,7 +32,6 @@ import lxml.etree as etree
 import os
 from StringIO import StringIO
 from django.contrib import messages
-from oai_pmh.forms import KeywordForm
 
 ################################################################################
 #
@@ -172,24 +171,4 @@ def oai_pmh_build_request(request):
     template = loader.get_template('oai_pmh/oai_pmh_build_request.html')
     requestForm = RequestForm();
     context = RequestContext(request, {'request_form': requestForm})
-    return HttpResponse(template.render(context))
-
-
-################################################################################
-#
-# Function Name: index(request)
-# Inputs:        request -
-# Outputs:       Data Exploration by keyword homepage
-# Exceptions:    None
-# Description:   renders the data exploration by keyword home page from template
-#                (index.html)
-#
-################################################################################
-@login_required(login_url='/login')
-def index_keyword(request):
-    template = loader.get_template('oai_pmh/explore/explore_keyword.html')
-    search_form = KeywordForm(request.user.id)
-    context = RequestContext(request, {
-        'search_Form':search_form,
-    })
     return HttpResponse(template.render(context))
