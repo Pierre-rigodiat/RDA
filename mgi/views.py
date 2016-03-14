@@ -33,7 +33,8 @@ import lxml.etree as etree
 from io import BytesIO
 from mgi import common
 from django.conf import settings
-
+from mgi.settings import BLOB_HOSTER, BLOB_HOSTER_URI, BLOB_HOSTER_USER, BLOB_HOSTER_PSWD, MDCS_URI
+from utils.BLOBHoster.BLOBHosterFactory import BLOBHosterFactory
 # XSL file loading
 import os
 
@@ -407,6 +408,36 @@ def my_profile_dashboard_types(request):
             })
     return HttpResponse(template.render(context))
 
+
+################################################################################
+#
+# Function Name: my_profile_dashboard_files(request)
+# Inputs:        request -
+# Outputs:       Dashboard - Templates
+# Exceptions:    None
+# Description:   Dashboard - Templates
+#
+################################################################################
+@login_required(login_url='/login')
+def my_profile_dashboard_files(request):
+    template = loader.get_template('profile/my_profile_dashboard_my_files.html')
+
+    bh_factory = BLOBHosterFactory(BLOB_HOSTER, BLOB_HOSTER_URI, BLOB_HOSTER_USER, BLOB_HOSTER_PSWD, MDCS_URI)
+    blob_hoster = bh_factory.createBLOBHoster()
+
+    files = []
+    for grid in blob_hoster.find("metadata.iduser", str(request.user.id)):
+        item={'name':grid.name,
+              'id':str(grid._id),
+              'uploadDate':grid.upload_date
+        }
+        files.append(item)
+    context = RequestContext(request, {
+                'files': files,
+                'url': MDCS_URI,
+    })
+    return HttpResponse(template.render(context))
+
 ################################################################################
 #
 # Function Name: edit_information(request)
@@ -477,7 +508,7 @@ def delete_object(request):
             for temp in dependenciesForm:
                 listObject += temp.name + ', '
 
-    else:
+    elif object_type == "Type":
         object = Type.objects.get(pk=object_id)
         dependenciesTemplate = list(Template.objects(dependencies=object_id))
         dependenciesType = list(Type.objects(dependencies=object_id))
@@ -488,10 +519,19 @@ def delete_object(request):
             for temp in dependenciesTemplate:
                 listObject += temp.title + ', '
 
+    else:
+        bh_factory = BLOBHosterFactory(BLOB_HOSTER, BLOB_HOSTER_URI, BLOB_HOSTER_USER, BLOB_HOSTER_PSWD, MDCS_URI)
+        blob_hoster = bh_factory.createBLOBHoster()
+        blob_hoster.delete("http://localhost:8000/rest/blob?id="+object_id)
+        messages.add_message(request, messages.INFO, 'File deleted with success.')
+        print 'END def delete_object(request)'
+        return HttpResponse(json.dumps({}), content_type='application/javascript')
+
     if listObject != '':
         response_dict = {object_type: listObject[:-2]}
         return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
     else:
+        messages.add_message(request, messages.INFO, object_type+' deleted with success.')
         object.delete()
 
     print 'END def delete_object(request)'

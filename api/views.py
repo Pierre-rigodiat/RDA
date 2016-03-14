@@ -2006,7 +2006,7 @@ def blob(request):
                 bh_factory = BLOBHosterFactory(BLOB_HOSTER, BLOB_HOSTER_URI, BLOB_HOSTER_USER, BLOB_HOSTER_PSWD, MDCS_URI)
                 blob_hoster = bh_factory.createBLOBHoster()
                 try:
-                    handle = blob_hoster.save(blob=blob, filename=blob.name)
+                    handle = blob_hoster.save(blob=blob, filename=blob.name, userid=str(request.user.id))
                     content={'handle': handle}
                     return Response(content, status=status.HTTP_201_CREATED)
                 except:

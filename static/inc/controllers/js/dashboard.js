@@ -59,11 +59,10 @@ viewInformation = function(objectContent)
  */
 editInformation = function()
 {
-    var objectName = $(this).parent().siblings(':first').text();
-    var objectFilename = $(this).parent().siblings(':nth-child(2)').text();
-
     var objectID = $(this).attr("objectid");
-    var objectType = $(this).attr("objectType");
+    var objectType = $(this).attr("objecttype");
+    var objectFilename = $(this).attr("objectfilename");
+    var objectName = $(this).attr("objectname");
 
     $("#edit-name")[0].value = objectName;
     $("#edit-filename")[0].value = objectFilename;
@@ -124,13 +123,12 @@ edit_information = function(objectID, objectType, newName, newFilename){
 deleteObject = function()
 {
     console.log('BEGIN [deleteObject]');
-    var objectName = $(this).parent().siblings(':first').text();
-    var objectFilename = $(this).parent().siblings(':nth-child(2)').text();
     var objectID = $(this).attr("objectid");
-    var objectType = $(this).attr("objectType");
+    var objectType = $(this).attr("objecttype");
+    var objectFilename = $(this).attr("objectfilename");
+    var objectName = $(this).attr("objectname");
 
     document.getElementById("object-to-delete").innerHTML = objectName;
-
     $(function() {
         $( "#dialog-deleteconfirm-message" ).dialog({
             modal: true,
@@ -215,5 +213,12 @@ showErrorEditType = function(name){
 	          },
 		    }
         });
+    });
+}
+
+initBanner = function()
+{
+    $("[data-hide]").on("click", function(){
+        $(this).closest("." + $(this).attr("data-hide")).hide(200);
     });
 }

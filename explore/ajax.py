@@ -33,6 +33,7 @@ from django.contrib.auth.models import Group
 from django.db.models import Q
 import mgi.rights as RIGHTS
 import random
+from django.contrib import messages
 #Class definition
 
 ################################################################################
@@ -2809,6 +2810,7 @@ def delete_result(request):
     try:
         if request.user.is_superuser:
             XMLdata.delete(result_id)
+            messages.add_message(request, messages.INFO, 'Resource deleted with success.')
     except:
         # XML can't be found
         pass

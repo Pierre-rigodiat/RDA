@@ -140,7 +140,6 @@
                 <th>Actions</th>
             </tr>
             {% for XMLdata in XMLdatas %}
-
                 {% cycle 'even' '' as rowcolors silent %}
                 <tr class="{{ rowcolors }}">
                     <td>
@@ -170,6 +169,7 @@
                 </tr>
             {% endfor %}
         </table>
+
 {% endwith%}
 {%else%}
     No Resources found

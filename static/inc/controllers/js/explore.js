@@ -1083,7 +1083,7 @@ delete_result = function(result_id){
         	result_id: result_id,
         },
 		success: function(data){
-			   $("#" + result_id).remove();
+			   location.reload();
 	    }
     });
 }
