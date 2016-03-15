@@ -1,38 +1,42 @@
 {
-  "value": null,
   "tag": "simple_content",
   "children": [
     {
-      "value": null,
       "tag": "extension",
       "children": [
         {
-          "value": "",
-          "tag": "input"
+          "tag": "input",
+          "value": ""
         },
         {
-          "value": null,
           "tag": "attribute",
           "options": {
-            "min": 1,
+            "xpath": {
+              "xml": "/@id",
+              "xsd": "/xs:schema/xs:complexType/xs:simpleContent/xs:extension/xs:attribute"
+            },
             "max": 1,
+            "name": "id",
             "module": null,
-            "name": "id"
+            "min": 1
           },
+          "value": null,
           "children": [
             {
-              "value": null,
               "tag": "elem-iter",
               "children": [
                 {
-                  "value": "",
-                  "tag": "input"
+                  "tag": "input",
+                  "value": ""
                 }
-              ]
+              ],
+              "value": null
             }
           ]
         }
-      ]
+      ],
+      "value": null
     }
-  ]
+  ],
+  "value": null
 }

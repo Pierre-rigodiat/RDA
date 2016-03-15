@@ -1,9 +1,14 @@
 """
 """
+import logging
 from os.path import join
+
+from curate.models import SchemaElement
 from curate.renderer import render_buttons, render_collapse_button, render_form, render_form_error, \
     render_input, render_li, render_ul, \
     render_select
+from curate.renderer.list import ListRenderer
+from curate.renderer.table import TableRenderer
 from mgi.models import FormElement, XMLElement, FormData, Module, Template, MetaSchema
 from mgi.settings import CURATE_MIN_TREE, CURATE_COLLAPSE
 from bson.objectid import ObjectId
@@ -12,43 +17,33 @@ from lxml import etree
 from io import BytesIO
 from modules import get_module_view
 
+logger = logging.getLogger(__name__)
+
 
 ##################################################
 # Part I: Utilities
 ##################################################
 
-# def get_subnodes_xpath(element, xml_tree, namespace):
-#     """Perform a lookup in subelements to build xpath
-#
-#     Parameters:
-#         element: XML element
-#         xml_tree: xml_tree
-#         namespace: namespace
-#     """
-#     # FIXME References returns the same object several times
-#     # TODO Check if min and maxOccurs are correctly reported (declared in ref but not reported elsewhere)
-#     xpaths = []
-#
-#     if len(list(element)) > 0:
-#         for child in list(element):
-#             if child.tag == "{0}element".format(namespace):
-#                 if 'name' in child.attrib:
-#                     xpaths.append({'name': child.attrib['name'], 'element': child})
-#                 elif 'ref' in child.attrib:
-#                     ref = child.attrib['ref']
-#
-#                     if ':' in ref:
-#                         ref_split = ref.split(":")
-#                         ref_name = ref_split[1]
-#                         ref_element = xml_tree.find("./{0}element[@name='{1}']".format(namespace, ref_name))
-#                     else:
-#                         ref_element = xml_tree.find("./{0}element[@name='{1}']".format(namespace, ref))
-#
-#                     if ref_element is not None:
-#                         xpaths.append({'name': ref_element.attrib.get('name'), 'element': ref_element})
-#             else:
-#                 xpaths.extend(get_subnodes_xpath(child, xml_tree, namespace))
-#     return xpaths
+def load_schema_data_in_db(xsd_data):
+    xsd_element = SchemaElement()
+    xsd_element.tag = xsd_data['tag']
+    xsd_element.value = xsd_data['value']
+
+    if 'options' in xsd_data:
+        xsd_element.options = xsd_data['options']
+
+    if 'children' in xsd_data:
+        children = []
+
+        for child in xsd_data['children']:
+            child_db = load_schema_data_in_db(child)
+            children.append(child_db)
+
+        if len(children) > 0:
+            xsd_element.children = children
+
+    xsd_element.save()
+    return xsd_element
 
 
 def get_nodes_xpath(elements, xml_tree, namespace):
@@ -432,25 +427,33 @@ def generate_form(request):
         else:  # No root element detected
             raise Exception("No root element detected")
 
+        root_element = load_schema_data_in_db(form_content[1])
+        # request.session['form_id'] = root_element.pk
 
+        # renderer = ListRenderer(root_element)
+        # # renderer = TableRenderer(form_content[1])
+        # form_string = renderer.render()
 
-        form_string = render_form(form_content[0])
+        # form_string = render_form(form_content[0])
+        return root_element.pk
     except Exception as e:
-        form_string = render_form_error(e.message)
+        # form_string = render_form_error(e.message)
+        logger.fatal("Form generation failed: " + str(e))
+        return -1
 
-    # save the list of elements for the form
-    form_data.elements = request.session['mapTagID']
-    # save data for the current form
-    form_data.save()
+    # # save the list of elements for the form
+    # form_data.elements = request.session['mapTagID']
+    # # save data for the current form
+    # form_data.save()
+    #
+    # # delete temporary data structure for forms elements
+    # # TODO: use mongodb ids to avoid mapping
+    # del request.session['mapTagID']
 
-    # delete temporary data structure for forms elements
-    # TODO: use mongodb ids to avoid mapping
-    del request.session['mapTagID']
-
-    # data are loaded, switch Edit to False, we don't need to look at the original data anymore
-    request.session['curate_edit'] = False
-
-    return form_string
+    # # data are loaded, switch Edit to False, we don't need to look at the original data anymore
+    # request.session['curate_edit'] = False
+    #
+    # return form_string
 
 
 def generate_element(request, element, xml_tree, namespace, choice_info=None, full_path="", edit_data_tree=None):
@@ -596,7 +599,11 @@ def generate_element(request, element, xml_tree, namespace, choice_info=None, fu
             'name': text_capitalized,
             'min': min_occurs,
             'max': max_occurs,
-            'module': None if not _has_module else True
+            'module': None if not _has_module else True,
+            'xpath': {
+                'xsd': xsd_xpath,
+                'xml': full_path
+            }
         },
         'value': None,
         'children': []
@@ -649,7 +656,9 @@ def generate_element(request, element, xml_tree, namespace, choice_info=None, fu
         request.session['nb_html_tags'] = str(nb_html_tags)
         form_element = FormElement(html_id=tag_id, xml_element=xml_element, xml_xpath=full_path + '[' + str(x+1) + ']',
                                    name=text_capitalized).save()
-        request.session['mapTagID'][tag_id] = str(form_element.id)
+
+        if 'mapTagID' in request.session:
+            request.session['mapTagID'][tag_id] = str(form_element.id)
 
         # get the use from app info element
         app_info_use = app_info['use'] if 'use' in app_info else ''
@@ -736,7 +745,9 @@ def generate_element(request, element, xml_tree, namespace, choice_info=None, fu
             li_content += buttons
 
         # renders the name of the element
-        ul_content += render_li(li_content, tag_id, element_tag, use, text_capitalized)
+        # ul_content += render_li(li_content, tag_id, element_tag, use, text_capitalized)
+
+        # if len(db_elem_iter['children']) > 0:
         db_element['children'].append(db_elem_iter)
 
     form_string += render_ul(ul_content, choice_id, chosen)
@@ -813,20 +824,32 @@ def generate_element_absent(request, element, xml_doc_tree, form_element):
             tooltip = app_info['tooltip'] if 'tooltip' in app_info else ''
 
             form_string += render_input(default_value, placeholder, tooltip)
+
+            db_child = {
+                'tag': 'input',
+                'value': ''
+            }
+
+            db_element['children'].append(db_child)
         else:  # complex/simple type
             if element_type.tag == "{0}complexType".format(namespace):
+                # complex_type_result = generate_complex_type(request, element_type, xml_doc_tree, namespace,
+                #                                             full_path=form_element.xml_xpath)
                 complex_type_result = generate_complex_type(request, element_type, xml_doc_tree, namespace,
-                                                            full_path=form_element.xml_xpath)
+                                                            full_path=form_element.options['xpath']['xml'])
 
                 form_string += complex_type_result[0]
                 db_element['children'].append(complex_type_result[1])
             elif element_type.tag == "{0}simpleType".format(namespace):
+                # simple_type_result = generate_simple_type(request, element_type, xml_doc_tree, namespace,
+                #                                           full_path=form_element.xml_xpath)
                 simple_type_result = generate_simple_type(request, element_type, xml_doc_tree, namespace,
-                                                          full_path=form_element.xml_xpath)
+                                                          full_path=form_element.options['xpath']['xml'])
 
                 form_string += simple_type_result[0]
                 db_element['children'].append(simple_type_result[1])
 
+    # return form_string, db_element
     return form_string, db_element
 
 
@@ -853,11 +876,25 @@ def generate_sequence(request, element, xml_tree, namespace, choice_info=None, f
 
     min_occurs, max_occurs = manage_occurences(element)
 
+    # XSD xpath
+    xsd_xpath = xml_tree.getpath(element)
+
+    db_element = {
+        'tag': 'sequence',
+        'options': {
+            'min': min_occurs,
+            'max': max_occurs,
+            'xpath': {
+                'xsd': xsd_xpath,
+                'xml': full_path
+            }
+        },
+        'value': None,
+        'children': []
+    }
+
     if min_occurs != 1 or max_occurs != 1:
         text = "Sequence"
-
-        # XSD xpath
-        xsd_xpath = xml_tree.getpath(element)
 
         # init variables for buttons management
         add_button = False
@@ -893,16 +930,6 @@ def generate_sequence(request, element, xml_tree, namespace, choice_info=None, f
         xml_element = XMLElement(xsd_xpath=xsd_xpath, nbOccurs=nb_occurrences_data, minOccurs=min_occurs,
                                  maxOccurs=max_occurs).save()
 
-        db_element = {
-            'tag': 'sequence',
-            'options': {
-                'min': min_occurs,
-                'max': max_occurs
-            },
-            'value': None,
-            'children': []
-        }
-
         # keeps track of elements to display depending on the selected choice
         if choice_info:
             chosen = True
@@ -937,86 +964,82 @@ def generate_sequence(request, element, xml_tree, namespace, choice_info=None, f
         ul_content = ''
 
         # editing data and sequence not found in data
-        if nb_occurrences_data == 0:
+        # if nb_occurrences_data == 0:
+        #     nb_html_tags = int(request.session['nb_html_tags'])
+        #     tag_id = "element" + str(nb_html_tags)
+        #     nb_html_tags += 1
+        #     request.session['nb_html_tags'] = str(nb_html_tags)
+        #     form_element = FormElement(html_id=tag_id, xml_element=xml_element, xml_xpath=full_path + '[1]').save()
+        #     request.session['mapTagID'][tag_id] = str(form_element.id)
+        #
+        #     li_content = ''
+        #
+        #     if CURATE_COLLAPSE:
+        #         li_content += render_collapse_button()
+        #
+        #     li_content += text
+        #     li_content += render_buttons(True, False, str(tag_id[7:]))
+        #
+        #     # ul_content += render_li(li_content, tag_id, 'sequence', 'removed')
+        # else:
+        for x in range(0, int(nb_occurrences)):
+            db_elem_iter = {
+                'tag': 'sequence-iter',
+                'value': None,
+                'children': []
+            }
+
             nb_html_tags = int(request.session['nb_html_tags'])
             tag_id = "element" + str(nb_html_tags)
             nb_html_tags += 1
             request.session['nb_html_tags'] = str(nb_html_tags)
-            form_element = FormElement(html_id=tag_id, xml_element=xml_element, xml_xpath=full_path + '[1]').save()
-            request.session['mapTagID'][tag_id] = str(form_element.id)
+#                 if (minOccurs != 1) or (maxOccurs != 1):
+            form_element = FormElement(html_id=tag_id, xml_element=xml_element,
+                                       xml_xpath=full_path + '[' + str(x+1) + ']')
+            form_element.save()
+            request.session['mapTagID'][tag_id] = str(form_element.pk)
 
             li_content = ''
 
-            if CURATE_COLLAPSE:
+            if len(list(element)) > 0 and CURATE_COLLAPSE:
                 li_content += render_collapse_button()
 
             li_content += text
-            li_content += render_buttons(True, False, str(tag_id[7:]))
+            li_content += render_buttons(add_button, delete_button, str(tag_id[7:]))
 
-            ul_content += render_li(li_content, tag_id, 'sequence', 'removed')
-        else:
-            for x in range(0, int(nb_occurrences)):
-                db_elem_iter = {
-                    'tag': 'sequence-iter',
-                    'value': None,
-                    'children': []
-                }
+            # generates the sequence
+            # if len(list(element)) != 0:
+            for child in element:
+                if child.tag == "{0}element".format(namespace):
+                    element_result = generate_element(request, child, xml_tree, namespace, choice_info,
+                                                      full_path=full_path, edit_data_tree=edit_data_tree)
 
-                nb_html_tags = int(request.session['nb_html_tags'])
-                tag_id = "element" + str(nb_html_tags)
-                nb_html_tags += 1
-                request.session['nb_html_tags'] = str(nb_html_tags)
-#                 if (minOccurs != 1) or (maxOccurs != 1):
-                form_element = FormElement(html_id=tag_id, xml_element=xml_element,
-                                           xml_xpath=full_path + '[' + str(x+1) + ']')
-                form_element.save()
-                request.session['mapTagID'][tag_id] = str(form_element.pk)
-
-                li_content = ''
-
-                if len(list(element)) > 0 and CURATE_COLLAPSE:
-                    li_content += render_collapse_button()
-
-                li_content += text
-                li_content += render_buttons(add_button, delete_button, str(tag_id[7:]))
-
-                # generates the sequence
-                # if len(list(element)) != 0:
-                for child in element:
-                    if child.tag == "{0}element".format(namespace):
-                        element_result = generate_element(request, child, xml_tree, namespace, choice_info,
-                                                          full_path=full_path, edit_data_tree=edit_data_tree)
-
-                        li_content += element_result[0]
-                        db_elem_iter['children'].append(element_result[1])
-                    elif child.tag == "{0}sequence".format(namespace):
-                        sequence_result = generate_sequence(request, child, xml_tree, namespace, choice_info,
-                                                            full_path=full_path, edit_data_tree=edit_data_tree)
-
-                        li_content += sequence_result[0]
-                        db_elem_iter['children'].append(sequence_result[1])
-                    elif child.tag == "{0}choice".format(namespace):
-                        choice_result = generate_choice(request, child, xml_tree, namespace, choice_info,
+                    li_content += element_result[0]
+                    db_elem_iter['children'].append(element_result[1])
+                elif child.tag == "{0}sequence".format(namespace):
+                    sequence_result = generate_sequence(request, child, xml_tree, namespace, choice_info,
                                                         full_path=full_path, edit_data_tree=edit_data_tree)
 
-                        li_content += choice_result[0]
-                        db_elem_iter['children'].append(choice_result[1])
-                    elif child.tag == "{0}any".format(namespace):
-                        pass
-                    elif child.tag == "{0}group".format(namespace):
-                        pass
+                    li_content += sequence_result[0]
+                    db_elem_iter['children'].append(sequence_result[1])
+                elif child.tag == "{0}choice".format(namespace):
+                    choice_result = generate_choice(request, child, xml_tree, namespace, choice_info,
+                                                    full_path=full_path, edit_data_tree=edit_data_tree)
 
-                db_element['children'].append(db_elem_iter)
-                ul_content += render_li(li_content, tag_id, 'sequence')
+                    li_content += choice_result[0]
+                    db_elem_iter['children'].append(choice_result[1])
+                elif child.tag == "{0}any".format(namespace):
+                    pass
+                elif child.tag == "{0}group".format(namespace):
+                    pass
+
+            db_element['children'].append(db_elem_iter)
+            # ul_content += render_li(li_content, tag_id, 'sequence')
 
         form_string += render_ul(ul_content, choice_id, chosen)
-    else:
-        db_element = {
-            'tag': 'sequence',
-            'options': {
-                'min': min_occurs,
-                'max': max_occurs
-            },
+    else:  # min_occurs == 1 and max_occurs == 1
+        db_elem_iter = {
+            'tag': 'sequence-iter',
             'value': None,
             'children': []
         }
@@ -1029,23 +1052,25 @@ def generate_sequence(request, element, xml_tree, namespace, choice_info=None, f
                                                   full_path=full_path, edit_data_tree=edit_data_tree)
 
                 form_string += element_result[0]
-                db_element['children'].append(element_result[1])
+                db_elem_iter['children'].append(element_result[1])
             elif child.tag == "{0}sequence".format(namespace):
                 sequence_result = generate_sequence(request, child, xml_tree, namespace, choice_info,
                                                     full_path=full_path, edit_data_tree=edit_data_tree)
 
                 form_string += sequence_result[0]
-                db_element['children'].append(sequence_result[1])
+                db_elem_iter['children'].append(sequence_result[1])
             elif child.tag == "{0}choice".format(namespace):
                 choice_result = generate_choice(request, child, xml_tree, namespace, choice_info,
                                                 full_path=full_path, edit_data_tree=edit_data_tree)
 
                 form_string += choice_result[0]
-                db_element['children'].append(choice_result[1])
+                db_elem_iter['children'].append(choice_result[1])
             elif child.tag == "{0}any".format(namespace):
                 pass
             elif child.tag == "{0}group".format(namespace):
                 pass
+
+        db_element['children'].append(db_elem_iter)
 
     return form_string, db_element
 
@@ -1093,6 +1118,7 @@ def generate_sequence_absent(request, element, xml_tree, namespace):
         elif child.tag == "{0}group".format(namespace):
             pass
 
+    # return form_string, db_element
     return form_string, db_element
 
 
@@ -1116,6 +1142,10 @@ def generate_choice(request, element, xml_tree, namespace, choice_info=None, ful
     form_string = ""
     db_element = {
         'tag': 'choice',
+        'xpath': {
+            'xsd': None,
+            'xml': full_path
+        },
         'value': None,
         'children': []
     }
@@ -1131,9 +1161,12 @@ def generate_choice(request, element, xml_tree, namespace, choice_info=None, ful
     xml_element = None
 
     # not multiple roots
+    # FIXME process differently this part
     if not isinstance(element, list):
         # XSD xpath: don't need it when multiple root (can't duplicate a root)
         xsd_xpath = xml_tree.getpath(element)
+
+        db_element['xpath']['xsd'] = xsd_xpath
 
         # get element's min/max occurs attributes
         min_occurs, max_occurs = manage_occurences(element)
@@ -1306,7 +1339,7 @@ def generate_choice(request, element, xml_tree, namespace, choice_info=None, ful
             elif choiceChild.tag == "{0}any".format(namespace):
                 pass
 
-        ul_content += render_li('Choose'+li_content, tag_id, 'choice', 'removed' if is_removed else None)
+        # ul_content += render_li('Choose'+li_content, tag_id, 'choice', 'removed' if is_removed else None)
         db_element['children'].append(db_child)
 
     form_string += render_ul(ul_content, choice_id, chosen)

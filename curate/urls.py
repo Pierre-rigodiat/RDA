@@ -17,8 +17,10 @@
 from django.conf.urls import patterns, url
 
 from curate import views
+from curate import ajax
 
-urlpatterns = patterns('',
+urlpatterns = patterns(
+    '',
     url(r'^$', views.index, name='index'),
     url(r'^select-template', views.index),
     url(r'^enter-data$', 'curate.views.curate_enter_data', name='curate-enter-data'),
@@ -33,11 +35,11 @@ urlpatterns = patterns('',
     url(r'^view_data', 'curate.ajax.view_data'),
     url(r'^validate_xml_data', 'curate.ajax.validate_xml_data'),
     url(r'^verify_template_is_selected', 'curate.ajax.verify_template_is_selected'),
-    url(r'^generate', 'curate.ajax.generate_absent'),
+    url(r'^generate$', 'curate.ajax.generate_absent'),
     url(r'^can_duplicate', 'curate.ajax.can_duplicate'),
     url(r'^duplicate', 'curate.ajax.duplicate'),
     url(r'^can_remove', 'curate.ajax.can_remove'),
-    url(r'^remove', 'curate.ajax.remove'),
+    url(r'^remove$', 'curate.ajax.remove'),
     url(r'^set_current_template', 'curate.ajax.set_current_template'),
     url(r'^set_current_user_template', 'curate.ajax.set_current_user_template'),
     url(r'^load_xml', 'curate.ajax.load_xml'),
@@ -47,4 +49,6 @@ urlpatterns = patterns('',
     url(r'^delete-form', 'curate.ajax.delete_form'),
     url(r'^cancel-form', 'curate.ajax.cancel_form'),
     url(r'^change-owner-form', 'curate.ajax.change_owner_form'),
+    url(r'^generate-bis', ajax.gen_abs),
+    url(r'^remove-bis', ajax.rem_bis)
 )

@@ -1,86 +1,118 @@
 {
-  "value": null,
   "tag": "sequence",
   "options": {
-    "min": 2,
-    "max": -1
+    "xpath": {
+      "xml": "",
+      "xsd": "/xs:schema/xs:complexType/xs:sequence"
+    },
+    "max": -1,
+    "min": 2
   },
+  "value": null,
   "children": [
     {
-      "value": null,
       "tag": "sequence-iter",
       "children": [
         {
-          "value": null,
           "tag": "sequence",
           "options": {
-            "min": 1,
-            "max": 1
+            "xpath": {
+              "xml": "",
+              "xsd": "/xs:schema/xs:complexType/xs:sequence/xs:sequence"
+            },
+            "max": 1,
+            "min": 1
           },
+          "value": null,
           "children": [
             {
-              "value": null,
-              "tag": "element",
-              "options": {
-                "min": 1,
-                "max": 1,
-                "module": null,
-                "name": "id3"
-              },
+              "tag": "sequence-iter",
               "children": [
                 {
+                  "tag": "element",
+                  "options": {
+                    "xpath": {
+                      "xml": "/id3",
+                      "xsd": "/xs:schema/xs:complexType/xs:sequence/xs:sequence/xs:element"
+                    },
+                    "max": 1,
+                    "name": "id3",
+                    "module": null,
+                    "min": 1
+                  },
                   "value": null,
-                  "tag": "elem-iter",
                   "children": [
                     {
-                      "value": "",
-                      "tag": "input"
+                      "tag": "elem-iter",
+                      "children": [
+                        {
+                          "tag": "input",
+                          "value": ""
+                        }
+                      ],
+                      "value": null
                     }
                   ]
                 }
-              ]
+              ],
+              "value": null
             }
           ]
         }
-      ]
+      ],
+      "value": null
     },
     {
-      "value": null,
       "tag": "sequence-iter",
       "children": [
         {
-          "value": null,
           "tag": "sequence",
           "options": {
-            "min": 1,
-            "max": 1
+            "xpath": {
+              "xml": "",
+              "xsd": "/xs:schema/xs:complexType/xs:sequence/xs:sequence"
+            },
+            "max": 1,
+            "min": 1
           },
+          "value": null,
           "children": [
             {
-              "value": null,
-              "tag": "element",
-              "options": {
-                "min": 1,
-                "max": 1,
-                "module": null,
-                "name": "id3"
-              },
+              "tag": "sequence-iter",
               "children": [
                 {
+                  "tag": "element",
+                  "options": {
+                    "xpath": {
+                      "xml": "/id3",
+                      "xsd": "/xs:schema/xs:complexType/xs:sequence/xs:sequence/xs:element"
+                    },
+                    "max": 1,
+                    "name": "id3",
+                    "module": null,
+                    "min": 1
+                  },
                   "value": null,
-                  "tag": "elem-iter",
                   "children": [
                     {
-                      "value": "",
-                      "tag": "input"
+                      "tag": "elem-iter",
+                      "children": [
+                        {
+                          "tag": "input",
+                          "value": ""
+                        }
+                      ],
+                      "value": null
                     }
                   ]
                 }
-              ]
+              ],
+              "value": null
             }
           ]
         }
-      ]
+      ],
+      "value": null
     }
   ]
 }

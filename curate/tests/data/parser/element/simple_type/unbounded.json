@@ -1,70 +1,74 @@
 {
-  "value": null,
   "tag": "element",
   "options": {
-    "min": 2,
+    "xpath": {
+      "xml": "/child",
+      "xsd": "/xs:schema/xs:complexType/xs:sequence/xs:element"
+    },
     "max": -1,
+    "name": "child",
     "module": null,
-    "name": "child"
+    "min": 2
   },
+  "value": null,
   "children": [
     {
-      "value": null,
       "tag": "elem-iter",
       "children": [
         {
-          "value": null,
           "tag": "simple_type",
           "children": [
             {
-              "value": null,
               "tag": "restriction",
               "options": {
                 "base": "xs:string"
               },
+              "value": null,
               "children": [
                 {
-                  "value": "child0",
-                  "tag": "enumeration"
+                  "tag": "enumeration",
+                  "value": "child0"
                 },
                 {
-                  "value": "child1",
-                  "tag": "enumeration"
+                  "tag": "enumeration",
+                  "value": "child1"
                 }
               ]
             }
-          ]
+          ],
+          "value": null
         }
-      ]
+      ],
+      "value": null
     },
     {
-      "value": null,
       "tag": "elem-iter",
       "children": [
         {
-          "value": null,
           "tag": "simple_type",
           "children": [
             {
-              "value": null,
               "tag": "restriction",
               "options": {
                 "base": "xs:string"
               },
+              "value": null,
               "children": [
                 {
-                  "value": "child0",
-                  "tag": "enumeration"
+                  "tag": "enumeration",
+                  "value": "child0"
                 },
                 {
-                  "value": "child1",
-                  "tag": "enumeration"
+                  "tag": "enumeration",
+                  "value": "child1"
                 }
               ]
             }
-          ]
+          ],
+          "value": null
         }
-      ]
+      ],
+      "value": null
     }
   ]
 }

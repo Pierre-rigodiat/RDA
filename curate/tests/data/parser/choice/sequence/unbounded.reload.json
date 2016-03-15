@@ -1,4 +1,8 @@
 {
+  "xpath": {
+    "xml": "/root",
+    "xsd": "/xs:schema/xs:complexType/xs:choice"
+  },
   "tag": "choice",
   "children": [
     {
@@ -7,74 +11,102 @@
         {
           "tag": "sequence",
           "options": {
+            "xpath": {
+              "xml": "/root",
+              "xsd": "/xs:schema/xs:complexType/xs:choice/xs:sequence[1]"
+            },
             "max": 1,
             "min": 1
           },
           "value": null,
           "children": [
             {
-              "tag": "element",
-              "options": {
-                "max": 1,
-                "module": null,
-                "min": 1,
-                "name": "id10"
-              },
-              "value": null,
+              "tag": "sequence-iter",
               "children": [
                 {
-                  "tag": "elem-iter",
+                  "tag": "element",
+                  "options": {
+                    "xpath": {
+                      "xml": "/root/id10",
+                      "xsd": "/xs:schema/xs:complexType/xs:choice/xs:sequence[1]/xs:element"
+                    },
+                    "max": 1,
+                    "name": "id10",
+                    "module": null,
+                    "min": 1
+                  },
+                  "value": null,
                   "children": [
                     {
-                      "tag": "input",
-                      "value": "entry2"
+                      "tag": "elem-iter",
+                      "children": [
+                        {
+                          "tag": "input",
+                          "value": "entry2"
+                        }
+                      ],
+                      "value": null
                     }
-                  ],
-                  "value": null
+                  ]
                 }
-              ]
+              ],
+              "value": null
             }
           ]
         },
         {
           "tag": "sequence",
           "options": {
+            "xpath": {
+              "xml": "/root",
+              "xsd": "/xs:schema/xs:complexType/xs:choice/xs:sequence[2]"
+            },
             "max": 1,
             "min": 1
           },
           "value": null,
           "children": [
             {
-              "tag": "element",
-              "options": {
-                "max": 1,
-                "module": null,
-                "min": 1,
-                "name": "id11"
-              },
-              "value": null,
+              "tag": "sequence-iter",
               "children": [
                 {
-                  "tag": "elem-iter",
+                  "tag": "element",
+                  "options": {
+                    "xpath": {
+                      "xml": "/root/id11",
+                      "xsd": "/xs:schema/xs:complexType/xs:choice/xs:sequence[2]/xs:element"
+                    },
+                    "max": 1,
+                    "name": "id11",
+                    "module": null,
+                    "min": 1
+                  },
+                  "value": null,
                   "children": [
                     {
-                      "tag": "input",
-                      "value": "entry0"
-                    }
-                  ],
-                  "value": null
-                },
-                {
-                  "tag": "elem-iter",
-                  "children": [
+                      "tag": "elem-iter",
+                      "children": [
+                        {
+                          "tag": "input",
+                          "value": "entry0"
+                        }
+                      ],
+                      "value": null
+                    },
                     {
-                      "tag": "input",
-                      "value": "entry1"
+                      "tag": "elem-iter",
+                      "children": [
+                        {
+                          "tag": "input",
+                          "value": "entry1"
+                        }
+                      ],
+                      "value": null
                     }
-                  ],
-                  "value": null
+                  ]
                 }
-              ]
+              ],
+              "value": null
             }
           ]
         }

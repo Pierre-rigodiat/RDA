@@ -1,5 +1,6 @@
 """
 """
+import types
 from types import NoneType
 from django.http.request import HttpRequest
 from django.template.context import RequestContext
@@ -7,7 +8,7 @@ from django.template import loader
 from os.path import join
 
 
-def load_template(template_path, template_data=None):
+def load_template(template_path, template_data=None, template_dir='default'):
     context = RequestContext(HttpRequest())
 
     if template_data is not None and type(template_data) != dict:
@@ -16,7 +17,7 @@ def load_template(template_path, template_data=None):
     if template_data is not None:
         context.update(template_data)
 
-    template_path = join('renderer', 'default', template_path)
+    template_path = join('renderer', template_dir, template_path)
 
     template = loader.get_template(template_path)
     return template.render(context)
@@ -85,9 +86,9 @@ def render_ul(content, element_id, chosen):
     :param chosen:
     :return:
     """
-
-    if type(content) not in [str, unicode]:
-        raise TypeError('First param (content) should be a str (' + str(type(content)) + ' given)')
+    # FIXME Django SafeText type cause the test to fail
+    # if type(content) not in [str, unicode]:
+    #     raise TypeError('First param (content) should be a str (' + str(type(content)) + ' given)')
 
     if type(element_id) not in [str, unicode, NoneType]:
         raise TypeError('Second param (element_id) should be a str or None (' + str(type(element_id)) + ' given)')
@@ -104,43 +105,44 @@ def render_ul(content, element_id, chosen):
     return load_template('ul.html', data)
 
 
-def render_li(content, tag_id, element_tag, use=None, text=None):
+def render_li(content, li_class, li_id):
     """
 
-    :param content:
-    :param tag_id:
-    :param element_tag:
-    :param use:
-    :param text:
+    Parameters:
+        content:
+        li_class:
+        li_id:
+
     :return:
     """
 
-    if type(content) not in [str, unicode]:
-        raise TypeError('First param (content) should be a str (' + str(type(content)) + ' given)')
-
-    try:
-        tag_id = str(tag_id)
-    except:
-        raise TypeError('Second param (tag_id) should be a parsable as a string')
-
-    if type(element_tag) not in [str, unicode]:
-        raise TypeError('Third param (element_tag) should be a str (' + str(type(element_tag)) + ' given)')
-
-    if type(use) not in [str, unicode, NoneType]:
-        raise TypeError('Fourth param (use) should be a str or None (' + str(type(use)) + ' given)')
-
-    if type(text) not in [str, unicode, NoneType]:
-        raise TypeError('Fifth param (text) should be a str or None (' + str(type(text)) + ' given)')
-
-    if use is None:
-        li_class = element_tag
-    else:
-        li_class = element_tag + ' ' + use
+    # if type(content) not in [str, unicode]:
+    #     raise TypeError('First param (content) should be a str (' + str(type(content)) + ' given)')
+    #
+    # try:
+    #     tag_id = str(tag_id)
+    # except:
+    #     raise TypeError('Second param (tag_id) should be a parsable as a string')
+    #
+    # if type(element_tag) not in [str, unicode]:
+    #     raise TypeError('Third param (element_tag) should be a str (' + str(type(element_tag)) + ' given)')
+    #
+    # if type(use) not in [str, unicode, NoneType]:
+    #     raise TypeError('Fourth param (use) should be a str or None (' + str(type(use)) + ' given)')
+    #
+    # if type(text) not in [str, unicode, NoneType]:
+    #     raise TypeError('Fifth param (text) should be a str or None (' + str(type(text)) + ' given)')
+    #
+    # if use is None:
+    #     li_class = element_tag
+    # else:
+    #     li_class = element_tag + ' ' + use
 
     data = {
         'li_class': li_class,
-        'tag_id': tag_id,
-        'text': text,
+        # 'tag_id': tag_id,
+        'li_id': str(li_id),
+        # 'text': text,
         'content': content
     }
 
@@ -158,11 +160,11 @@ def render_select(select_id, option_list):
     if type(select_id) not in [str, unicode, NoneType]:
         raise TypeError('First param (select_id) should be a str or None (' + str(type(select_id)) + ' given)')
 
-    if type(option_list) != list:
+    if not isinstance(option_list, types.ListType):
         raise TypeError('First param (option_list) should be a list (' + str(type(option_list)) + ' given)')
 
     for option in option_list:
-        if type(option) != tuple:
+        if not isinstance(option, types.TupleType):
             raise TypeError('Malformed param (option_list): type of item not good')
 
         if len(option) != 3:
@@ -232,3 +234,70 @@ def render_collapse_button():
     :return:
     """
     return load_template('buttons/collapse.html')
+
+
+class DefaultRenderer(object):
+
+    def __init__(self, xsd_data, template_list):
+        self.data = xsd_data
+
+        default_renderer_path = join('renderer', 'default')
+        self.templates = {
+            'input': loader.get_template(join(default_renderer_path, 'inputs', 'input.html')),
+            'select': loader.get_template(join(default_renderer_path, 'inputs', 'select.html')),
+            'btn_add': loader.get_template(join(default_renderer_path, 'buttons', 'add.html')),
+            'btn_del': loader.get_template(join(default_renderer_path, 'buttons', 'delete.html'))
+        }
+
+    def __load_template(self, tpl_key, tpl_data=None):
+        context = RequestContext(HttpRequest())
+
+        if tpl_key not in self.templates.keys():
+            raise IndexError('Template "' + tpl_key + '" not found in registered templates ' +
+                             str(self.templates.keys()))
+
+        if tpl_data is not None and type(tpl_data) != dict:
+            raise TypeError('Second parameter should be a dict (' + str(type(tpl_data)) + ' given)')
+
+        if tpl_data is not None:
+            context.update(tpl_data)
+
+        return self.templates[tpl_key].render(context)
+
+    def __render_form(self, content):
+        pass
+
+    def __render_form_error(self, err_message):
+        pass
+
+    def render_input(self, value, placeholder, title):
+        """
+
+        :param value:
+        :param placeholder:
+        :param title:
+        :return:
+        """
+
+        if type(value) not in [str, unicode]:
+            raise TypeError('First param (value) should be a str (' + str(type(value)) + ' given)')
+
+        if type(placeholder) not in [str, unicode]:
+            raise TypeError('Second param (placeholder) should be a str (' + str(type(value)) + ' given)')
+
+        if type(title) not in [str, unicode]:
+            raise TypeError('Third param (title) should be a str (' + str(type(value)) + ' given)')
+
+        data = {
+            'value': value,
+            'placeholder': placeholder,
+            'title': title
+        }
+
+        return self.__load_template('input', data)
+
+    def __render_select(self):
+        pass
+
+    def __render_buttons(self):
+        pass

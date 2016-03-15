@@ -1,49 +1,61 @@
 {
-  "tag": "choice",
-  "value": null,
-  "options": {
-    "min": 1,
-    "max": 1
+  "xpath": {
+    "xml": "",
+    "xsd": "/xs:schema/xs:complexType/xs:choice"
   },
+  "tag": "choice",
   "children": [
     {
       "tag": "choice-iter",
-      "value": null,
       "children": [
         {
           "tag": "element",
-          "value": null,
           "options": {
-            "min": 1,
+            "xpath": {
+              "xml": "/child0",
+              "xsd": "/xs:schema/xs:complexType/xs:choice/xs:element[1]"
+            },
             "max": 1,
+            "name": "child0",
             "module": null,
-            "name": "child0"
+            "min": 1
           },
+          "value": null,
           "children": [
             {
               "tag": "elem-iter",
-              "value": null,
               "children": [
                 {
                   "tag": "input",
                   "value": ""
                 }
-              ]
+              ],
+              "value": null
             }
           ]
         },
         {
           "tag": "element",
           "options": {
-            "min": 1,
+            "xpath": {
+              "xml": "/child1",
+              "xsd": "/xs:schema/xs:complexType/xs:choice/xs:element[2]"
+            },
             "max": 1,
+            "name": "child1",
             "module": null,
-            "name": "child1"
+            "min": 1
           },
           "value": null,
           "children": []
         }
-      ]
+      ],
+      "value": null
     }
-  ]
+  ],
+  "value": null,
+  "options": {
+    "max": 1,
+    "min": 1
+  }
 }

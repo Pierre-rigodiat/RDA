@@ -1,59 +1,81 @@
 {
-  "value": null,
   "tag": "sequence",
   "options": {
-    "min": 1,
-    "max": 1
+    "xpath": {
+      "xml": "/root",
+      "xsd": "/xs:schema/xs:complexType/xs:sequence"
+    },
+    "max": 1,
+    "min": 1
   },
+  "value": null,
   "children": [
     {
-      "value": null,
-      "tag": "choice",
-      "options": {
-        "min": 1,
-        "max": 1
-      },
+      "tag": "sequence-iter",
       "children": [
         {
-          "value": null,
-          "tag": "choice-iter",
+          "xpath": {
+            "xml": "/root",
+            "xsd": "/xs:schema/xs:complexType/xs:sequence/xs:choice"
+          },
+          "tag": "choice",
           "children": [
             {
-              "value": null,
-              "tag": "element",
-              "options": {
-                "min": 1,
-                "max": 1,
-                "module": null,
-                "name": "id20"
-              },
+              "tag": "choice-iter",
               "children": [
                 {
+                  "tag": "element",
+                  "options": {
+                    "xpath": {
+                      "xml": "/root/id20",
+                      "xsd": "/xs:schema/xs:complexType/xs:sequence/xs:choice/xs:element[1]"
+                    },
+                    "max": 1,
+                    "name": "id20",
+                    "module": null,
+                    "min": 1
+                  },
                   "value": null,
-                  "tag": "elem-iter",
                   "children": [
                     {
-                      "value": "entry0",
-                      "tag": "input"
+                      "tag": "elem-iter",
+                      "children": [
+                        {
+                          "tag": "input",
+                          "value": "entry0"
+                        }
+                      ],
+                      "value": null
                     }
                   ]
+                },
+                {
+                  "tag": "element",
+                  "options": {
+                    "xpath": {
+                      "xml": "/root/id21",
+                      "xsd": "/xs:schema/xs:complexType/xs:sequence/xs:choice/xs:element[2]"
+                    },
+                    "max": 1,
+                    "name": "id21",
+                    "module": null,
+                    "min": 1
+                  },
+                  "value": null,
+                  "children": []
                 }
-              ]
-            },
-            {
-              "value": null,
-              "tag": "element",
-              "options": {
-                "min": 1,
-                "max": 1,
-                "module": null,
-                "name": "id21"
-              },
-              "children": []
+              ],
+              "value": null
             }
-          ]
+          ],
+          "value": null,
+          "options": {
+            "max": 1,
+            "min": 1
+          }
         }
-      ]
+      ],
+      "value": null
     }
   ]
 }

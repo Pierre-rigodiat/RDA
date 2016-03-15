@@ -1,6 +1,10 @@
 {
   "tag": "sequence",
   "options": {
+    "xpath": {
+      "xml": "/root",
+      "xsd": "/xs:schema/xs:complexType/xs:sequence"
+    },
     "max": -1,
     "min": 2
   },
@@ -10,6 +14,10 @@
       "tag": "sequence-iter",
       "children": [
         {
+          "xpath": {
+            "xml": "/root",
+            "xsd": "/xs:schema/xs:complexType/xs:sequence/xs:choice"
+          },
           "tag": "choice",
           "children": [
             {
@@ -18,10 +26,14 @@
                 {
                   "tag": "element",
                   "options": {
+                    "xpath": {
+                      "xml": "/root/id20",
+                      "xsd": "/xs:schema/xs:complexType/xs:sequence/xs:choice/xs:element[1]"
+                    },
                     "max": 1,
+                    "name": "id20",
                     "module": null,
-                    "min": 1,
-                    "name": "id20"
+                    "min": 1
                   },
                   "value": null,
                   "children": [
@@ -50,10 +62,14 @@
                 {
                   "tag": "element",
                   "options": {
+                    "xpath": {
+                      "xml": "/root/id21",
+                      "xsd": "/xs:schema/xs:complexType/xs:sequence/xs:choice/xs:element[2]"
+                    },
                     "max": 1,
+                    "name": "id21",
                     "module": null,
-                    "min": 1,
-                    "name": "id21"
+                    "min": 1
                   },
                   "value": null,
                   "children": [

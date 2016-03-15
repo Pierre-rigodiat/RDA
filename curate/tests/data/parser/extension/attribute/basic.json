@@ -8,10 +8,14 @@
     {
       "tag": "attribute",
       "options": {
+        "xpath": {
+          "xml": "/@child0",
+          "xsd": "/xs:schema/xs:element/xs:complexType/xs:simpleContent/xs:extension/xs:attribute"
+        },
         "max": 1,
+        "name": "child0",
         "module": null,
-        "min": 1,
-        "name": "child0"
+        "min": 1
       },
       "value": null,
       "children": [

@@ -15,13 +15,19 @@
 ################################################################################
 
 # import re
+from copy import deepcopy
+
+from bson.objectid import ObjectId
 from django.http import HttpResponse
 from django.conf import settings
 from io import BytesIO
 # from cStringIO import StringIO
 # from mgi.models import Template, XMLdata, XML2Download, Module, MetaSchema
+from curate.models import SchemaElement
 from curate.parser import generate_form, generate_element, generate_sequence_absent, generate_element_absent, has_module, \
-    get_element_type, generate_module, generate_complex_type, generate_simple_type, generate_sequence, generate_choice
+    get_element_type, generate_module, generate_complex_type, generate_simple_type, generate_sequence, generate_choice, \
+    load_schema_data_in_db
+from curate.renderer.list import ListRenderer
 from mgi.models import Template, XML2Download, MetaSchema
 from mgi.models import FormElement, XMLElement, FormData
 # from mgi.settings import CURATE_MIN_TREE, CURATE_COLLAPSE
@@ -266,6 +272,9 @@ def init_curate(request):
     if 'formString' in request.session:
         del request.session['formString']
 
+    if 'form_id' in request.session:
+        del request.session['form_id']
+
     if 'xmlDocTree' in request.session:
         del request.session['xmlDocTree']
 
@@ -285,23 +294,38 @@ def generate_xsd_form(request):
     print 'BEGIN def generate_xsd_form(request)'
 
     # get the form when going back and forth with review step
-    if 'formString' in request.session:
-        form_string = request.session['formString']
-    else:
-        form_string = ''
+    # if 'formString' in request.session:
+    #     form_string = request.session['formString']
+    # else:
+    #     form_string = ''
+    #
+    # # if the form is not generated
+    # if form_string == "":
+    #     # this form was not created, generates it from the schema
+    #     form_string += generate_form(request)
+    #
+    # # set the response
+    # response_dict = {'xsdForm': form_string}
+    # # save the form in the session
+    # request.session['formString'] = form_string
 
-    # if the form is not generated
-    if form_string == "":
-        # this form was not created, generates it from the schema
-        form_string += generate_form(request)
+    if 'form_id' in request.session:
+        root_element_id = request.session['form_id']
+    else:  # If this is a new form, generate it and store the root ID
+        root_element_id = generate_form(request)
+        request.session['form_id'] = str(root_element_id)
+
+    root_element = SchemaElement.objects.get(pk=root_element_id)
+
+    renderer = ListRenderer(root_element)
+    form_string = renderer.render()
 
     # set the response
     response_dict = {'xsdForm': form_string}
     # save the form in the session
-    request.session['formString'] = form_string
+    # request.session['formString'] = form_string
 
     return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
-    print 'END def generate_xsd_form(request)'
 
 
 ################################################################################
@@ -988,3 +1012,126 @@ def verify_template_is_selected(request):
 
     response_dict = {'templateSelected': templateSelected}
     return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
+
+
+def gen_abs(request):
+    """
+
+    :param request:
+    :return:
+    """
+    # TODO Most of the function can be moved to the parser core
+    element_id = request.POST['id']
+    sub_element = SchemaElement.objects.get(pk=element_id)
+    element_list = SchemaElement.objects(children=element_id)
+
+    if len(element_list) == 0:
+        raise ValueError("No SchemaElement found")
+    elif len(element_list) > 1:
+        raise ValueError("More than one SchemaElement found")
+
+    schema_element = element_list[0]
+
+    # rendering_element = element_list[0]
+    rendering_element = SchemaElement()
+    rendering_element.tag = schema_element.tag
+    rendering_element.options = schema_element.options
+    rendering_element.value = schema_element.value
+    # rendering_element.save()
+
+    namespaces = request.session['namespaces']
+    default_prefix = request.session['defaultPrefix']
+    xml_doc_tree_str = request.session['xmlDocTree']
+    xml_doc_tree = etree.ElementTree(etree.fromstring(xml_doc_tree_str))
+
+    # render element
+    namespace = "{" + namespaces[default_prefix] + "}"
+
+    xpath_element = schema_element.options['xpath']
+    xsd_xpath = xpath_element['xsd']
+
+    xml_xpath = None
+    if 'xml' in xpath_element:
+        xml_xpath = xpath_element['xml']
+
+    xml_element = xml_doc_tree.xpath(xsd_xpath, namespaces=request.session['namespaces'])[0]
+
+    # generating a choice, generate the parent element
+    if schema_element.tag == "choice":
+        # can use generate_element to generate a choice never generated
+        form_string = generate_element(request, xml_element, xml_doc_tree, namespace, full_path=xml_xpath)
+    elif schema_element.tag == 'sequence':
+        form_string = generate_sequence_absent(request, xml_element, xml_doc_tree, namespace)
+    else:
+        # can't directly use generate_element because only need the body of the element not its title
+        form_string = generate_element_absent(request, xml_element, xml_doc_tree, schema_element)
+        # form_string = generate_element(request, xml_element, xml_doc_tree, schema_element)
+
+    db_tree = form_string[1]
+
+    # Saving the tree in MongoDB
+    tree_root = load_schema_data_in_db(db_tree)
+
+    # Updating the elements
+    rendering_element.children = [tree_root]
+    schema_element.update(add_to_set__children=[tree_root])
+
+    if len(sub_element.children) == 0:
+        schema_element.update(pull__children=element_id)
+
+    schema_element.reload()
+    rendering_element.save(force_insert=True)
+
+    # Rendering the generated element
+    # FIXME add the ability to render just a subelement (only one elem-iter)
+    renderer = ListRenderer(rendering_element)
+    html_form = renderer.render(True)
+
+    rendering_element.delete()
+
+    return HttpResponse(html_form)
+    # return HttpResponse()
+
+
+def rem_bis(request):
+    element_id = request.POST['id']
+    # sub_element = SchemaElement.objects.get(pk=element_id)
+    element_list = SchemaElement.objects(children=element_id)
+
+    if len(element_list) == 0:
+        raise ValueError("No SchemaElement found")
+    elif len(element_list) > 1:
+        raise ValueError("More than one SchemaElement found")
+
+    # Removing the element from the data structure
+    schema_element = element_list[0]
+    schema_element.update(pull__children=element_id)
+
+    schema_element.reload()
+
+    children_number = len(schema_element.children)
+
+    # TODO Move it to parser function
+    # FIXME Sequence elem it might not work
+    if len(schema_element.children) == 0:
+        elem_iter = SchemaElement()
+
+        if schema_element.tag == 'element':
+            elem_iter.tag = 'elem-iter'
+        elif schema_element.tag == 'choice':
+            elem_iter.tag = 'choice-iter'
+        elif schema_element.tag == 'sequence':
+            elem_iter.tag = 'sequence-iter'
+
+        elem_iter.save()
+        schema_element.update(add_to_set__children=[elem_iter])
+        schema_element.reload()
+
+    if children_number > schema_element.options['min']:
+        return HttpResponse()
+    else:  # len(schema_element.children) == schema_element.options['min']
+        renderer = ListRenderer(schema_element)
+        html_form = renderer.render(True)
+
+        return HttpResponse(html_form)
+

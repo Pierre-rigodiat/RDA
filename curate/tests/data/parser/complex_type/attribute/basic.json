@@ -1,28 +1,32 @@
 {
   "tag": "complex_type",
-  "value": null,
   "children": [
     {
       "tag": "attribute",
       "options": {
-        "min": 1,
+        "xpath": {
+          "xml": "/@id",
+          "xsd": "/xs:schema/xs:complexType/xs:attribute"
+        },
         "max": 1,
+        "name": "id",
         "module": null,
-        "name": "id"
+        "min": 1
       },
       "value": null,
       "children": [
         {
           "tag": "elem-iter",
-          "value": null,
           "children": [
             {
               "tag": "input",
               "value": ""
             }
-          ]
+          ],
+          "value": null
         }
       ]
     }
-  ]
+  ],
+  "value": null
 }

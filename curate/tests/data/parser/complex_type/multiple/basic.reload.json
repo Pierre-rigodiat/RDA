@@ -1,104 +1,130 @@
 {
   "tag": "complex_type",
-  "value": null,
   "children": [
     {
       "tag": "sequence",
       "options": {
-        "min": 1,
-        "max": 1
+        "xpath": {
+          "xml": "/root",
+          "xsd": "/xs:schema/xs:complexType/xs:sequence"
+        },
+        "max": 1,
+        "min": 1
       },
       "value": null,
       "children": [
         {
-          "tag": "element",
-          "options": {
-            "min": 1,
-            "max": 1,
-            "module": null,
-            "name": "child0"
-          },
-          "value": null,
+          "tag": "sequence-iter",
           "children": [
             {
-              "tag": "elem-iter",
+              "tag": "element",
+              "options": {
+                "xpath": {
+                  "xml": "/root/child0",
+                  "xsd": "/xs:schema/xs:complexType/xs:sequence/xs:element[1]"
+                },
+                "max": 1,
+                "name": "child0",
+                "module": null,
+                "min": 1
+              },
               "value": null,
               "children": [
                 {
-                  "tag": "input",
-                  "value": "entry0"
+                  "tag": "elem-iter",
+                  "children": [
+                    {
+                      "tag": "input",
+                      "value": "entry0"
+                    }
+                  ],
+                  "value": null
                 }
               ]
-            }
-          ]
-        },
-        {
-          "tag": "element",
-          "options": {
-            "min": 1,
-            "max": 1,
-            "module": null,
-            "name": "child1"
-          },
-          "value": null,
-          "children": [
+            },
             {
-              "tag": "elem-iter",
+              "tag": "element",
+              "options": {
+                "xpath": {
+                  "xml": "/root/child1",
+                  "xsd": "/xs:schema/xs:complexType/xs:sequence/xs:element[2]"
+                },
+                "max": 1,
+                "name": "child1",
+                "module": null,
+                "min": 1
+              },
               "value": null,
               "children": [
                 {
-                  "tag": "input",
-                  "value": "entry1"
+                  "tag": "elem-iter",
+                  "children": [
+                    {
+                      "tag": "input",
+                      "value": "entry1"
+                    }
+                  ],
+                  "value": null
                 }
               ]
             }
-          ]
+          ],
+          "value": null
         }
       ]
     },
     {
       "tag": "attribute",
       "options": {
-        "min": 1,
+        "xpath": {
+          "xml": "/root/@child2",
+          "xsd": "/xs:schema/xs:complexType/xs:attribute[1]"
+        },
         "max": 1,
+        "name": "child2",
         "module": null,
-        "name": "child2"
+        "min": 1
       },
       "value": null,
       "children": [
         {
           "tag": "elem-iter",
-          "value": null,
           "children": [
             {
               "tag": "input",
               "value": "attr2"
             }
-          ]
+          ],
+          "value": null
         }
       ]
     },
     {
       "tag": "attribute",
       "options": {
-        "min": 1,
+        "xpath": {
+          "xml": "/root/@child3",
+          "xsd": "/xs:schema/xs:complexType/xs:attribute[2]"
+        },
         "max": 1,
+        "name": "child3",
         "module": null,
-        "name": "child3"
+        "min": 1
       },
       "value": null,
       "children": [
         {
           "tag": "elem-iter",
-          "value": null,
           "children": [
             {
               "tag": "input",
               "value": "attr3"
             }
-          ]
+          ],
+          "value": null
         }
       ]
     }
-  ]
+  ],
+  "value": null
 }
