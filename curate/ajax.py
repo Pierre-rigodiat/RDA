@@ -20,7 +20,8 @@ from django.conf import settings
 from io import BytesIO
 
 from curate.parser import generate_form, generate_element, generate_sequence_absent, generate_element_absent, has_module, \
-    get_element_type, generate_module, generate_complex_type, generate_simple_type, generate_sequence, generate_choice
+    get_element_type, generate_module, generate_complex_type, generate_simple_type, generate_sequence, generate_choice, \
+    get_element_namespace
 from mgi.common import LXML_SCHEMA_NAMESPACE
 from mgi.models import Template, XML2Download
 from mgi.models import FormElement, XMLElement, FormData
@@ -240,13 +241,9 @@ def download_current_xml(request):
     xml_string = request.POST['xmlString']
 
     xml_tree_str = str(request.session['xmlDocTree'])
-    namespaces = common.get_namespaces(BytesIO(xml_tree_str))
-    default_prefix = common.get_default_prefix(namespaces)
-    xml_tree = etree.parse(BytesIO(xml_tree_str.encode('utf-8')))
-    target_namespace_prefix = common.get_target_namespace_prefix(namespaces, xml_tree)
 
     # set namespaces information in the XML document
-    xml_string = common.manage_namespaces(xml_string, namespaces, default_prefix, target_namespace_prefix)
+    xml_string = common.manage_namespaces(xml_string, xml_tree_str)
 
     # get form data information
     form_data_id = request.session['curateFormData']
@@ -603,6 +600,10 @@ def duplicate(request):
             default_prefix = common.get_default_prefix(namespaces)
             target_namespace_prefix = common.get_target_namespace_prefix(namespaces, xmlDocTree)
 
+            # get the element namespace
+            element_ns = get_element_namespace(sequenceChild, xmlDocTree)
+            tag_ns = " xmlns={0} ".format(element_ns) if element_ns is not None else ''
+
             element_type, xmlDocTree, schema_location = get_element_type(sequenceChild, xmlDocTree, namespaces,
                                                                          default_prefix, target_namespace_prefix)
 
@@ -621,7 +622,9 @@ def duplicate(request):
             use = app_info_use
 
             # renders the name of the element
-            formString += "<li class='"+ element_tag + ' ' + use +"' id='" + str(newTagID) + "' tag='"+textCapitalized+"'>"
+            formString += "<li class='"+ element_tag + ' ' + use +"' id='" + str(newTagID) + "' "
+            formString += "tag='{0}' {1}>".format(django.utils.html.escape(textCapitalized),
+                                            django.utils.html.escape(tag_ns))
             if CURATE_COLLAPSE:
                 if element_type is not None and element_type.tag == "{0}complexType".format(LXML_SCHEMA_NAMESPACE): # the type is complex, can be collapsed
                     formString += "<span class='collapse' style='cursor:pointer;' onclick='showhideCurate(event);'></span>"
@@ -950,19 +953,13 @@ def validate_xml_data(request):
     template_id = request.session['currentTemplateID']
     request.session['xmlString'] = ""
     try:
-        xml_tree_str = str(request.session['xmlDocTree'])
-        namespaces = common.get_namespaces(BytesIO(xml_tree_str))
-        default_prefix = common.get_default_prefix(namespaces)
-        xml_tree = etree.parse(BytesIO(xml_tree_str.encode('utf-8')))
-        target_namespace_prefix = common.get_target_namespace_prefix(namespaces, xml_tree)
+        xsd_tree_str = str(request.session['xmlDocTree'])
 
         # set namespaces information in the XML document
-        xmlString = common.manage_namespaces(request.POST['xmlString'],
-                                             namespaces,
-                                             default_prefix,
-                                             target_namespace_prefix)
+        xmlString = common.manage_namespaces(request.POST['xmlString'], xsd_tree_str)
+        # xmlString = request.POST['xmlString']
         # validate XML document
-        common.validateXMLDocument(template_id, xmlString)
+        common.validateXMLDocument(xmlString, xsd_tree_str)
     except etree.XMLSyntaxError, xse:
         #xmlParseEntityRef exception: use of & < > forbidden
         message= "Validation Failed. </br> May be caused by : </br> - Syntax problem </br> - Use of forbidden symbols : '&' or '<' or '>'"

@@ -346,7 +346,13 @@ generateXMLString = function(elementObj)
 					xmlString += generateXMLString(children[i]);
 				}else if ($(children[i]).hasClass("element") ){ // the node is an element				
 					var tag = $(children[i]).attr('tag');
-					
+					var xmlns = $(children[i]).attr('xmlns');
+					console.log(xmlns);
+					var tag_ns = '';
+					if (xmlns != undefined){
+					    tag_ns = ' xmlns="' + xmlns + '"';
+					}
+
 					// get attributes
 					var attributes = ""
 					$(children[i]).children("ul").children("li.attribute:not(.removed)").each(function(){
@@ -379,11 +385,13 @@ generateXMLString = function(elementObj)
 						xmlString += xml_value;
 					}else{
 						// build opening tag with potential attributes
-						xmlString += "<" + tag + attributes + ">";
+						xmlString += "<" + tag + tag_ns + attributes + ">";
+						console.log(tag + tag_ns + attributes);
 						// build opening tag with potential attributes
 						xmlString += xml_value;
 						// build the closing tag
 					    xmlString += "</" + tag + ">";
+					    console.log(tag);
 					}
 				}			    	
 			}
@@ -741,8 +749,9 @@ downloadCurrentXML = function()
 	var rootElement = document.getElementsByName("xsdForm")[0];
 	var xmlString = '';
 
-    xmlString = generateXMLString (rootElement);   
-    
+    xmlString = generateXMLString (rootElement);
+    console.log(xmlString);
+
     download_current_xml(xmlString);
 
     console.log('END [downloadCurrentXML]');

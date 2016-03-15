@@ -562,13 +562,13 @@ def curate(request):
         docID = None
         try:
             try:
-                common.validateXMLDocument(schema.id, xmlStr)
+                common.validateXMLDocument(xmlStr, schema.content)
             except etree.XMLSyntaxError, xse:
                 #xmlParseEntityRef exception: use of & < > forbidden
                 content= {'message': "Validation Failed. May be caused by : Syntax problem, use of forbidden symbols like '&' or '<' or '>'"}
                 return Response(content, status=status.HTTP_400_BAD_REQUEST)
             except Exception, e:
-                content = {'message':e.message}
+                content = {'message': e.message}
                 return Response(content, status=status.HTTP_400_BAD_REQUEST)
             jsondata = XMLdata(schemaID = request.DATA['schema'], xml = xmlStr, title = request.DATA['title'])
             docID = jsondata.save()            

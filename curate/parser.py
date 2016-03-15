@@ -491,7 +491,8 @@ def generate_form(request):
     return form_string
 
 
-def generate_element(request, element, xml_tree, choice_info=None, full_path="", edit_data_tree=None, schema_location=None):
+def generate_element(request, element, xml_tree, choice_info=None, full_path="",
+                     edit_data_tree=None, schema_location=None):
     """Generate an HTML string that represents an XML element.
 
     Parameters:
@@ -662,6 +663,10 @@ def generate_element(request, element, xml_tree, choice_info=None, full_path="",
     elif nb_occurrences_data > nb_occurrences:
         nb_occurrences = nb_occurrences_data
 
+    # get the element namespace
+    element_ns = get_element_namespace(element, xml_tree)
+    tag_ns = " xmlns={0} ".format(element_ns) if element_ns is not None else ''
+
     xml_tree_str = etree.tostring(xml_tree)
     namespaces = common.get_namespaces(BytesIO(str(xml_tree_str)))
     default_prefix = common.get_default_prefix(namespaces)
@@ -701,8 +706,6 @@ def generate_element(request, element, xml_tree, choice_info=None, full_path="",
     else:
         form_string += "<ul>"
 
-
-
     for x in range(0, int(nb_occurrences)):
         nb_html_tags = int(request.session['nb_html_tags'])
         tag_id = "element" + str(nb_html_tags)
@@ -719,7 +722,8 @@ def generate_element(request, element, xml_tree, choice_info=None, full_path="",
 
         # renders the name of the element
         form_string += "<li class='" + element_tag + ' ' + use + "' id='" + str(tag_id) + "' "
-        form_string += "tag='" + text_capitalized + "'>"
+        form_string += "tag='{0}' {1}>".format(django.utils.html.escape(text_capitalized),
+                                                    django.utils.html.escape(tag_ns))
 
         if CURATE_COLLAPSE:
             # the type is complex, can be collapsed
@@ -792,6 +796,52 @@ def generate_element(request, element, xml_tree, choice_info=None, full_path="",
     form_string += "</ul>"
 
     return form_string
+
+
+def get_element_namespace(element, xsd_tree):
+    """
+    get_element_tag
+    :param element:
+    :param xsd_tree:
+    :param is_root:
+    :return:
+    """
+    # get the root of the XSD document
+    xsd_root = xsd_tree.getroot()
+
+    # None by default, None means no namespace information needed, different from empty namespace
+    element_ns = None
+
+    # check if the element is root
+    is_root = False
+    # get XSD xpath
+    xsd_path = xsd_tree.getpath(element)
+    # the element is global (/xs:schema/xs:element)
+    if xsd_path.count('/') == 2:
+        is_root = True
+
+    # root is always qualified
+    if is_root:
+        # if in a targetNamespace
+        if 'targetNamespace' in xsd_root.attrib:
+            # get the target namespace
+            target_namespace = xsd_root.attrib['targetNamespace']
+            element_ns = target_namespace
+    else:
+        # qualified elements
+        if 'elementFormDefault' in xsd_root.attrib and xsd_root.attrib['elementFormDefault'] == 'qualified'\
+                or 'attributeFormDefault' in xsd_root.attrib and xsd_root.attrib['attributeFormDefault'] == 'qualified':
+            if 'targetNamespace' in xsd_root.attrib:
+                # get the target namespace
+                target_namespace = xsd_root.attrib['targetNamespace']
+                element_ns = target_namespace
+        # unqualified elements
+        else:
+            if 'targetNamespace' in xsd_root.attrib:
+                element_ns = ""
+
+    # print tag_ns
+    return element_ns
 
 
 def generate_element_absent(request, element, xml_doc_tree, form_element, schema_location=None):

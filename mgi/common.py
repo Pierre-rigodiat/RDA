@@ -97,13 +97,10 @@ def getValidityErrorsForMDCS(xmlTree, type):
 #                
 #
 ################################################################################
-def validateXMLDocument(templateID, xmlString):
+def validateXMLDocument(xml_string, xsd_string):
 
-    template = Template.objects.get(pk=templateID)
-    xml_doc_data = template.content
-
-    xsd_tree = etree.parse(StringIO(xml_doc_data.encode('utf-8')))
-    xml_tree = etree.parse(StringIO(xmlString.encode('utf-8')))
+    xsd_tree = etree.parse(StringIO(xsd_string.encode('utf-8')))
+    xml_tree = etree.parse(StringIO(xml_string.encode('utf-8')))
 
     errors = validate_xml_data(xsd_tree, xml_tree)
     if errors is not None:
@@ -122,22 +119,79 @@ def validateXMLDocument(templateID, xmlString):
 #                
 #
 ################################################################################
-def manage_namespaces(xml_string, namespaces, default_prefix, target_namespace_prefix):
-    # the schema has a target namespace
-    if target_namespace_prefix != '':
-        # get the target namespace
-        target_namespace = namespaces[target_namespace_prefix]
+def manage_namespaces(xml_string, xsd_string):
+    # check the schema has a target namespace
+    # build the XSD tree from the string
+    xsd_tree = etree.parse(StringIO(xsd_string.encode('utf-8')))
+    # get the root of the XML document
+    xsd_root = xsd_tree.getroot()
+    if 'targetNamespace' in xsd_root.attrib:
         # build the XML tree from the string
         xml_tree = etree.parse(StringIO(xml_string.encode('utf-8')))
         # get the root of the XML document
         xml_root = xml_tree.getroot()
-        if 'elementFormDefault' in xml_root.attrib and xml_root.attrib['elementFormDefault'] == 'qualified':
-            # set the namespace of the document to the target namespace
-            xml_root.attrib['xmlns'] = target_namespace
-            # set the xml string with the one updated with namespace information
-            xml_string = etree.tostring(xml_tree)
+        xml_root = clean_namespaces(xml_root)
+        xml_string = etree.tostring(xml_root)
 
     return xml_string
+
+
+def clean_namespaces(element, namespace=None):
+    """
+    Clean redundant namespace declarations: an element doesn't need to declare a namespace if it is the same as its
+    parent.
+    The function goes recursively down the XML tree, and removes namespace declarations from elements where they are not
+    necessary.
+    Look for None in the map of namespaces, because the data are created without a namespace prefix.
+    :param namespace:
+    :param element:
+    :return:
+    """
+    # copy the current element
+    element_text = element.text
+    new_element = etree.Element(element.tag, element.attrib, nsmap=element.nsmap)
+    new_element.text = element_text
+    # browse all the children
+    for child in list(element):
+        # namespace = None, the parent didn't have a namespace
+        if namespace is None:
+            # the parent element has a xmlns attribute
+            if len(element.nsmap) == 1 and None in element.nsmap.keys():
+                # the child element has a xmlns attribute
+                if len(child.nsmap) == 1 and None in child.nsmap.keys():
+                    # the parent and the child are in the same namespace
+                    if child.nsmap[None] == element.nsmap[None]:
+                        # remove child namespaces
+                        nsmap = child.nsmap
+                        del nsmap[None]
+                        # create a new element to replace the previous one (can't replace directly the nsmap using lxml)
+                        new_child_text = child.text
+                        new_child = etree.Element(child.tag, child.attrib, nsmap=nsmap)
+                        new_child.text = new_child_text
+                        # add the child back to the element
+                        new_element.append(clean_namespaces(child, element.nsmap[None]))
+                    else:
+                        new_element.append(clean_namespaces(child))
+            else:
+                new_element.append(clean_namespaces(child))
+        # a namespace has been passed from a parent
+        else:
+            # the parent and the child are in the same namespace
+            if len(child.nsmap) == 1 and None in child.nsmap.keys():
+                if child.nsmap[None] == namespace:
+                    # remove prefix from namespaces
+                    nsmap = child.nsmap
+                    del nsmap[None]
+                    # create a new element to replace the previous one (can't replace directly the nsmap using lxml)
+                    new_child_text = child.text
+                    new_child = etree.Element(child.tag, child.attrib, nsmap=nsmap)
+                    new_child.text = new_child_text
+                    new_element.append(clean_namespaces(child, element.nsmap[None]))
+                else:
+                    new_element.append(clean_namespaces(child))
+            else:
+                new_element.append(clean_namespaces(child))
+    return new_element
 
 
 ################################################################################
