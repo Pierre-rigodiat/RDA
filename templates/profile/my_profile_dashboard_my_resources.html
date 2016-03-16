@@ -30,55 +30,6 @@
 
 	<div class="width">
 
-    {% if template == "all" or not template %}
-            <div class="btn-group pull-right">
-	            <button class="btn clear-fields" onclick="location.href='/curate'"><i class="icon-file"></i> Add New Resource</button>
-            </div>
-            <h3>My Resources</h3>
-    {% endif%}
-    {% if template == "organization" %}
-            <div class="btn-group pull-right">
-                <button class="btn clear-fields" onclick="location.href='/curate/start_curate?template=organization'"><i class="icon-file"></i> Add New Organization</button>
-            </div>
-            <h3>My Organizations</h3>
-    {% endif%}
-    {% if template == "datacollection" %}
-      <div class="btn-group pull-right">
-        <button class="btn clear-fields" onclick="location.href='/curate/start_curate?template=datacollection'"><i class="icon-file"></i> Add New Data Collection</button>
-        <button class="btn clear-fields" onclick="location.href='/curate/start_curate?template=repository'"><i class="icon-file"></i> New Repository</button>
-        <button class="btn clear-fields" onclick="location.href='/curate/start_curate?template=projectarchive'"><i class="icon-file"></i> New Project Archive</button>
-        <button class="btn clear-fields" onclick="location.href='/curate/start_curate?template=database'"><i class="icon-file"></i> New Database</button>
-      </div>
-      <h3>My Data Collections</h3>
-    {% endif%}
-    {% if template == "dataset" %}
-        <div class="btn-group pull-right">
-            <button class="btn clear-fields" onclick="location.href='/curate/start_curate?template=dataset'"><i class="icon-file"></i> Add New Dataset</button>
-        </div>
-        <h3>My Datasets</h3>
-    {% endif%}
-    {% if template == "service" %}
-        <div class="btn-group pull-right">
-            <button class="btn clear-fields" onclick="location.href='/curate/start_curate?template=service'"><i class="icon-file"></i> Add New Service</button>
-        </div>
-        <h3>My Services</h3>
-    {% endif%}
-    {% if template == "informational" %}
-        <div class="btn-group pull-right">
-            <button class="btn clear-fields" onclick="location.href='/curate/start_curate?template=informational'"><i class="icon-file"></i> Add New Informational Site</button>
-        </div>
-            <h3>My Informational Sites</h3>
-    {% endif%}
-    {% if template == "software" %}
-        <div class="btn-group pull-right">
-            <button class="btn clear-fields" onclick="location.href='/curate/start_curate?template=software'"><i class="icon-file"></i> Add New Software</button>
-        </div>
-        <h3>My Software</h3>
-    {% endif%}
-
-<br>
-<br>
-
 <table>
 <tr>
 
@@ -154,11 +105,11 @@
                         <td>
                             {% with XMLdata|get:"_id" as XMLdata_id %}
                             {% autoescape on %}
-                            <span class="icon legend view" onclick="dialog_detail('{{XMLdata_id}}');" >
+                            <a href="/explore/detail_result_keyword?id={{XMLdata_id}}"><span class="icon legend view">
                                 View
-                            </span>
+                            </span></a>
                             {% endautoescape %}
-                            <a href="/curate/enter-data?id={{XMLdata_id}}"><span class="icon legend edit" href="/curate/enter-data?id={{XMLdata_id}}">
+                            <a href="/curate/enter-data?id={{XMLdata_id}}"><span class="icon legend edit">
                                 Edit
                             </span></a>
                             <span class="icon legend delete" onclick="deleteResult('{{XMLdata_id}}')">

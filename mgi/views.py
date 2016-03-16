@@ -19,7 +19,7 @@ from django.http import HttpResponse
 from django.contrib.auth import authenticate, logout
 from django.template import RequestContext, loader
 from django.shortcuts import redirect
-from mgi.models import Template, Request, Message, TermsOfUse, PrivacyPolicy, Help, FormData, XMLdata, Type
+from mgi.models import Template, Request, Message, TermsOfUse, PrivacyPolicy, Help, FormData, XMLdata, Type, Module
 from admin_mdcs.forms import RequestAccountForm, EditProfileForm, ChangePasswordForm, ContactForm, UserForm
 from django.contrib.auth.models import User
 from django.contrib import messages
@@ -437,6 +437,64 @@ def my_profile_dashboard_files(request):
                 'url': MDCS_URI,
     })
     return HttpResponse(template.render(context))
+
+
+################################################################################
+#
+# Function Name: my_profile_dashboard_modules(request)
+# Inputs:        request -
+# Outputs:       User Request Page
+# Exceptions:    None
+# Description:   Page that allows to add modules to a template
+#
+################################################################################
+@login_required(login_url='/login')
+def my_profile_dashboard_modules(request):
+    template = loader.get_template('profile/my_profile_dashboard_modules.html')
+
+    object_id = request.GET.get('id', None)
+    object_type = request.GET.get('type', None)
+
+    if object_id is not None:
+        try:
+            if object_type == 'Template':
+                db_object = Template.objects.get(pk=object_id)
+            elif object_type == 'Type':
+                db_object = Type.objects.get(pk=object_id)
+            else:
+                raise AttributeError('Type parameter unrecognized')
+
+            xslt_path = os.path.join(settings.SITE_ROOT, 'static', 'resources', 'xsl', 'xsd2html4modules.xsl')
+            xslt = etree.parse(xslt_path)
+            transform = etree.XSLT(xslt)
+
+            dom = etree.parse(BytesIO(db_object.content.encode('utf-8')))
+            annotations = dom.findall(".//{http://www.w3.org/2001/XMLSchema}annotation")
+            for annotation in annotations:
+                annotation.getparent().remove(annotation)
+            newdom = transform(dom)
+            xsd_tree = str(newdom)
+
+            request.session['moduleTemplateID'] = object_id
+            request.session['moduleTemplateContent'] = db_object.content
+
+            request.session['moduleNamespaces'] = common.get_namespaces(BytesIO(str(db_object.content)))
+            for prefix, url in request.session['moduleNamespaces'].items():
+                if url == "{http://www.w3.org/2001/XMLSchema}":
+                    request.session['moduleDefaultPrefix'] = prefix
+                    break
+
+            context = RequestContext(request, {
+                'xsdTree': xsd_tree,
+                'modules': Module.objects,
+                'object_type': object_type
+            })
+
+            return HttpResponse(template.render(context))
+        except:
+            return redirect('/')
+    else:
+        return redirect('/')
 
 ################################################################################
 #

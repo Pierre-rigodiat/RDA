@@ -57,10 +57,13 @@
                         View
                     </span>
                     {% endautoescape %}
-                    <span class="icon legend edit" objectType="{{ objectType }}" objectid="{{ object.id }}">
+                    <span class="icon legend edit" objectfilename="{{ object.filename }}" objectname="{{ object.title }}" objecttype="{{ objectType }}" objectid="{{ object.id }}">
                         Edit
                     </span>
-                    <span class="icon legend delete" objectFilename="{{ object.filename }}" objectname="{{ object.title }}" objectType="{{ objectType }}" objectid="{{ object.id }}">
+                    <span class="icon legend modules" objectType="{{ objectType }}" objectid="{{ object.id }}">
+                        Modules
+                    </span>
+                    <span class="icon legend delete" objectfilename="{{ object.filename }}" objectname="{{ object.title }}" objecttype="{{ objectType }}" objectid="{{ object.id }}">
                         Delete
                     </span>
                 </td>

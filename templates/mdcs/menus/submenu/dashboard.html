@@ -18,6 +18,7 @@
 -->
 {% endcomment %}
 <ul class="tabbed">
+	<li class="{% if active_tab == 'tab0' %} current_page_item {% endif %}"><a href="/my-profile">My Profile</a></li>
 	<li class="{% if active_tab == 'tab1' %} current_page_item {% endif %}"><a href="/my-profile/my-dashboard/resources">Resources</a></li>
 	<li class="{% if active_tab == 'tab2' %} current_page_item {% endif %}"><a href="/my-profile/my-forms">Forms</a></li>
 	<li class="{% if active_tab == 'tab3' %} current_page_item {% endif %}"><a href="/my-profile/my-dashboard/templates">Templates</a></li>

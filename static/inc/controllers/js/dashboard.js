@@ -19,6 +19,7 @@ loadUploadManagerHandler = function()
     console.log('BEGIN [loadUploadManagerHandler]');
     $('.view').on('click',viewInformation);
     $('.edit').on('click',editInformation);
+    $('.modules').on('click', manageModules);
     $('.delete').on('click', deleteObject);
     console.log('END [loadUploadManagerHandler]');
 }
@@ -175,6 +176,20 @@ delete_object = function(objectID, objectType){
 
         }
     });
+}
+
+/**
+ * Redirects to module management page
+ */
+manageModules = function()
+{
+    var modelName = $(this).parent().siblings(':first').text();
+    var modelFilename = $(this).parent().siblings(':nth-child(2)').text();
+    var tdElement = $(this).parent();
+    var objectID = $(this).attr("objectid");
+    var objectType = $(this).attr("objectType");
+
+    window.location = "modules?id=" + objectID  + '&type=' + objectType
 }
 
 /**

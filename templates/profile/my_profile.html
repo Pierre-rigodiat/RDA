@@ -21,8 +21,11 @@
 -->
 {% endcomment %}
 
-{% block title %}<h1><span>My Profile</span></h1>{% endblock %}
+{% block title %}<h1><span>My Dashboard - My Profile</span></h1>{% endblock %}
 {% block menu %}{% include 'mdcs/menus/main.html' with active_tab='profile' %}{% endblock %}
+{% block submenu %}
+    {% include 'mdcs/menus/submenu/dashboard.html' with active_tab='tab0' %}
+{% endblock %}
 
 {% block content%}
 <div class="clearer">&nbsp;</div>
@@ -32,9 +35,6 @@
     </button>
 	<button class="btn" onclick="location.href='/my-profile/change-password'">
         <i class="icon-hdd"></i> Change Password
-    </button>
-	<button class="btn" onclick="location.href='/my-profile/my-dashboard/resources'">
-        <i class="icon-file"></i> My Dashboard
     </button>
 </div>
 <br/><br/>

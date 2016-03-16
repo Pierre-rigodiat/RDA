@@ -186,6 +186,34 @@ var getUrlParameter = function getUrlParameter(sParam) {
     }
 };
 
+saveTemplateUser = function(){
+    var type = getUrlParameter('type');
+    $.ajax({
+        url : "/admin/save_modules",
+        type : "POST",
+        dataType: "json",
+        data: {
+            'type': type
+        },
+        success: function(data){
+        	$(function() {
+                $("#dialog-save").dialog({
+                  modal: true,
+                  buttons: {
+                    OK: function() {
+                        if(type == "template") {
+                            window.location = '/my-profile/my-dashboard/templates'
+                        } else {
+                            window.location = '/my-profile/my-dashboard/types'
+                        }
+                    }
+                  }
+            });
+        });
+        }
+    });
+}
+
 saveTemplate = function(){
     $.ajax({
         url : "/admin/save_modules",
