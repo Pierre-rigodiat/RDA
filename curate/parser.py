@@ -603,17 +603,38 @@ def generate_element(request, element, xml_tree, choice_info=None, full_path="",
     else:
         text_capitalized = element.attrib.get('name')
 
-    # build xpath in xml document
+    xml_tree_str = etree.tostring(xml_tree)
+    namespaces = common.get_namespaces(BytesIO(str(xml_tree_str)))
+    target_namespace, target_namespace_prefix = common.get_target_namespace(namespaces, xml_tree)
+
+    # build xpath
+    # XML xpath:/root/element
     if element_tag == 'element':
-        xml_tree_str = etree.tostring(xml_tree)
-        namespaces = common.get_namespaces(BytesIO(str(xml_tree_str)))
-        target_namespace_prefix = common.get_target_namespace_prefix(namespaces, xml_tree)
-        if target_namespace_prefix != '':
-            target_namespace_prefix += ":"
-        # XML xpath:/root/element
-        full_path += "/" + target_namespace_prefix + text_capitalized
+        if target_namespace is not None:
+            if target_namespace_prefix != '':
+                if get_element_form_default(xml_tree) == "qualified":
+                    full_path += '/{0}:{1}'.format(target_namespace_prefix, text_capitalized)
+                elif "{1}:".format(target_namespace_prefix) in full_path:
+                    full_path += '/{0}'.format(text_capitalized)
+                else:
+                    full_path += '/{0}:{1}'.format(target_namespace_prefix, text_capitalized)
+            else:
+                full_path += '/*[local-name()="{0}"]'.format(text_capitalized)
+        else:
+            full_path += "/{0}".format(text_capitalized)
     elif element_tag == 'attribute':
-        full_path += "/@" + text_capitalized
+        if target_namespace is not None:
+            if target_namespace_prefix != '':
+                if get_attribute_form_default(xml_tree) == "qualified":
+                    full_path += '/@{0}:{1}'.format(target_namespace_prefix, text_capitalized)
+                elif "{0}:".format(target_namespace_prefix) in full_path:
+                    full_path += '/@{0}'.format(text_capitalized)
+                else:
+                    full_path += '/@{0}:{1}'.format(target_namespace_prefix, text_capitalized)
+            else:
+                full_path += '/@*[local-name()="{0}"]'.format(text_capitalized)
+        else:
+            full_path += "/@{0}".format(text_capitalized)
 
     print full_path
 
@@ -663,14 +684,20 @@ def generate_element(request, element, xml_tree, choice_info=None, full_path="",
     elif nb_occurrences_data > nb_occurrences:
         nb_occurrences = nb_occurrences_data
 
+
     # get the element namespace
     element_ns = get_element_namespace(element, xml_tree)
+    # set the element namespace
     tag_ns = " xmlns={0} ".format(element_ns) if element_ns is not None else ''
+    tag_ns_prefix = ''
+    if element_tag == "attribute" and target_namespace is not None:
+        for prefix, ns in namespaces.iteritems():
+            if ns == target_namespace:
+                tag_ns_prefix = " ns_prefix={0} ".format(prefix)
+                break
 
-    xml_tree_str = etree.tostring(xml_tree)
-    namespaces = common.get_namespaces(BytesIO(str(xml_tree_str)))
+    # get the element type
     default_prefix = common.get_default_prefix(namespaces)
-    target_namespace_prefix = common.get_target_namespace_prefix(namespaces, xml_tree)
     element_type, xml_tree, schema_location = get_element_type(element, xml_tree, namespaces,
                                                                default_prefix, target_namespace_prefix,
                                                                schema_location)
@@ -722,8 +749,9 @@ def generate_element(request, element, xml_tree, choice_info=None, full_path="",
 
         # renders the name of the element
         form_string += "<li class='" + element_tag + ' ' + use + "' id='" + str(tag_id) + "' "
-        form_string += "tag='{0}' {1}>".format(django.utils.html.escape(text_capitalized),
-                                                    django.utils.html.escape(tag_ns))
+        form_string += "tag='{0}' {1} {2}>".format(django.utils.html.escape(text_capitalized),
+                                                   django.utils.html.escape(tag_ns),
+                                                   django.utils.html.escape(tag_ns_prefix),)
 
         if CURATE_COLLAPSE:
             # the type is complex, can be collapsed
@@ -754,7 +782,7 @@ def generate_element(request, element, xml_tree, choice_info=None, full_path="",
                     # get the value of the attribute
                     if edit_elements[x] is not None:
                         # set the value of the element
-                        default_value = edit_elements[x]
+                        default_value = str(edit_elements[x])
         elif 'default' in element.attrib:
             # if the default attribute is present
             default_value = element.attrib['default']
@@ -798,6 +826,30 @@ def generate_element(request, element, xml_tree, choice_info=None, full_path="",
     return form_string
 
 
+def get_element_form_default(xsd_tree):
+
+    # default value
+    element_form_default = "unqualified"
+
+    root = xsd_tree.getroot()
+    if 'elementFormDefault' in root.attrib:
+        element_form_default = root.attrib['elementFormDefault']
+
+    return element_form_default
+
+
+def get_attribute_form_default(xsd_tree):
+
+    # default value
+    attribute_form_default = "unqualified"
+
+    root = xsd_tree.getroot()
+    if 'attributeFormDefault' in root.attrib:
+        attribute_form_default = root.attrib['attributeFormDefault']
+
+    return attribute_form_default
+
+
 def get_element_namespace(element, xsd_tree):
     """
     get_element_tag
@@ -820,7 +872,7 @@ def get_element_namespace(element, xsd_tree):
     if xsd_path.count('/') == 2:
         is_root = True
 
-    # root is always qualified
+    # root is always qualified, root from other schemas too
     if is_root:
         # if in a targetNamespace
         if 'targetNamespace' in xsd_root.attrib:
@@ -1377,7 +1429,8 @@ def generate_choice(request, element, xml_tree, choice_info=None, full_path="", 
     return form_string
 
 
-def generate_simple_type(request, element, xml_tree, full_path, edit_data_tree=None, default_value='', schema_location=None):
+def generate_simple_type(request, element, xml_tree, full_path, edit_data_tree=None,
+                         default_value=None, schema_location=None):
     """Generates a section of the form that represents an XML simple type
 
     Parameters:
@@ -1407,13 +1460,15 @@ def generate_simple_type(request, element, xml_tree, full_path, edit_data_tree=N
         child = element[0]
 
         if child.tag == "{0}restriction".format(LXML_SCHEMA_NAMESPACE):
-            form_string += generate_restriction(request, child, xml_tree, full_path,
-                                                edit_data_tree=edit_data_tree, schema_location=schema_location)
+            form_string += generate_restriction(request, child, xml_tree, full_path, edit_data_tree=edit_data_tree,
+                                                default_value=default_value, schema_location=schema_location)
         elif child.tag == "{0}list".format(LXML_SCHEMA_NAMESPACE):
             # TODO list can contain a restriction/enumeration
+            default_value = default_value if default_value is not None else ''
             form_string += " <input type='text' value='" + django.utils.html.escape(default_value) + "'/>"
         elif child.tag == "{0}union".format(LXML_SCHEMA_NAMESPACE):
             # TODO: provide UI for unions
+            default_value = default_value if default_value is not None else ''
             form_string += " <input type='text' value='" + django.utils.html.escape(default_value) + "'/>"
 
     return form_string
@@ -1684,7 +1739,8 @@ def generate_simple_content(request, element, xml_tree, full_path, edit_data_tre
     return form_string
 
 
-def generate_restriction(request, element, xml_tree, full_path="", edit_data_tree=None, schema_location=None):
+def generate_restriction(request, element, xml_tree, full_path="", edit_data_tree=None,
+                         default_value=None, schema_location=None):
     """Generates a section of the form that represents an XML restriction
 
     Parameters:
@@ -1708,22 +1764,9 @@ def generate_restriction(request, element, xml_tree, full_path="", edit_data_tre
         form_string += "<select>"
 
         if request.session['curate_edit']:
-            # get the schema namespaces
-            xml_tree_str = etree.tostring(xml_tree)
-            namespaces = common.get_namespaces(BytesIO(str(xml_tree_str)))
-            edit_elements = edit_data_tree.xpath(full_path, namespaces=namespaces)
-            selected_value = None
-
-            if len(edit_elements) > 0:
-                if '@' in full_path:
-                    if edit_elements[0] is not None:
-                        selected_value = edit_elements[0]
-                else:
-                    if edit_elements[0].text is not None:
-                        selected_value = edit_elements[0].text
-
+            default_value = default_value if default_value is not None else ''
             for enum in enumeration:
-                if selected_value is not None and enum.attrib.get('value') == selected_value:
+                if default_value is not None and enum.attrib.get('value') == default_value:
                     form_string += "<option value='" + enum.attrib.get('value') + "' selected='selected'>"
                     form_string += enum.attrib.get('value') + "</option>"
                 else:
@@ -1739,9 +1782,11 @@ def generate_restriction(request, element, xml_tree, full_path="", edit_data_tre
         simple_type = element.find('{0}simpleType'.format(LXML_SCHEMA_NAMESPACE))
         if simple_type is not None:
             form_string += generate_simple_type(request, simple_type, xml_tree, full_path=full_path,
-                                                edit_data_tree=edit_data_tree, schema_location=schema_location)
+                                                edit_data_tree=edit_data_tree, default_value=default_value,
+                                                schema_location=schema_location)
         else:
-            form_string += " <input type='text'/>"
+            default_value = default_value if default_value is not None else ''
+            form_string += " <input type='text' value='{0}'/>".format(default_value)
 
     return form_string
 

@@ -120,18 +120,12 @@ def validateXMLDocument(xml_string, xsd_string):
 #
 ################################################################################
 def manage_namespaces(xml_string, xsd_string):
-    # check the schema has a target namespace
-    # build the XSD tree from the string
-    xsd_tree = etree.parse(StringIO(xsd_string.encode('utf-8')))
+    # build the XML tree from the string
+    xml_tree = etree.parse(StringIO(xml_string.encode('utf-8')))
     # get the root of the XML document
-    xsd_root = xsd_tree.getroot()
-    if 'targetNamespace' in xsd_root.attrib:
-        # build the XML tree from the string
-        xml_tree = etree.parse(StringIO(xml_string.encode('utf-8')))
-        # get the root of the XML document
-        xml_root = xml_tree.getroot()
-        xml_root = clean_namespaces(xml_root)
-        xml_string = etree.tostring(xml_root)
+    xml_root = xml_tree.getroot()
+    xml_root = clean_namespaces(xml_root)
+    xml_string = etree.tostring(xml_root)
 
     return xml_string
 
@@ -275,8 +269,8 @@ def get_namespaces(file):
         if event == "start-ns":
             if elem[0] in ns and ns[elem[0]] != elem[1]:
                 raise Exception("Duplicate prefix with different URI found.")
-            if len(elem[0]) > 0 and len(elem[1]) > 0:
-                ns[elem[0]] = "%s" % elem[1]
+            # if len(elem[0]) > 0 and len(elem[1]) > 0:
+            ns[elem[0]] = "%s" % elem[1]
         elif event == "start":
             break
     return ns
@@ -299,7 +293,29 @@ def get_target_namespace_prefix(namespaces, xsd_tree):
         for prefix, url in namespaces.items():
             if url == target_namespace:
                 target_namespace_prefix = prefix
+        # no target prefix found
+        # TODO: check local conflict
+        # if target_namespace_prefix == '':
+        #     target_namespace_prefix = 'local'
+        #     namespaces[target_namespace_prefix] = target_namespace
+
     return target_namespace_prefix
+
+def get_target_namespace(namespaces, xsd_tree):
+    root_attributes = xsd_tree.getroot().attrib
+    target_namespace = root_attributes['targetNamespace'] if 'targetNamespace' in root_attributes else None
+    target_namespace_prefix = ''
+    if target_namespace is not None:
+        for prefix, url in namespaces.items():
+            if url == target_namespace:
+                target_namespace_prefix = prefix
+        # no target prefix found
+        # TODO: check local conflict
+        # if target_namespace_prefix == '':
+        #      target_namespace_prefix = 'local'
+        #      namespaces[target_namespace_prefix] = target_namespace
+
+    return target_namespace, target_namespace_prefix
 
 ################################################################################
 # 

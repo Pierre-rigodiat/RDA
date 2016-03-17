@@ -267,7 +267,8 @@ validateXML = function()
 	var xmlString = '';
 
     xmlString = generateXMLString (rootElement);
-    
+    console.log(xmlString);
+
     $("input:text").each(function(){
 	    $(this).attr("value", $(this).val());
 	});
@@ -321,6 +322,11 @@ validate_xml_data = function(xmlString, xsdForm){
 }
 
 
+function onlyUnique(value, index, self) {
+    return self.indexOf(value) === index;
+}
+
+
 /**
  * Generate an XML String from values entered in the form.
  * @param elementObj
@@ -354,10 +360,21 @@ generateXMLString = function(elementObj)
 					}
 
 					// get attributes
-					var attributes = ""
+					var attributes = "";
+					var attr_ns_prefixes = [];
 					$(children[i]).children("ul").children("li.attribute:not(.removed)").each(function(){
 						var attr_tag = $(this).attr('tag');
-										
+						var attr_xmlns = $(this).attr('xmlns');
+						var attr_ns = '';
+						if (attr_xmlns != undefined){
+                            if (attr_xmlns != xmlns){
+                                var ns_prefix = $(this).attr('ns_prefix');
+                                if (ns_prefix != undefined){
+                                    attr_ns_prefixes.push(' xmlns:' + ns_prefix + '="' + attr_xmlns + '"');
+                                    attr_ns = ns_prefix + ':';
+                                }
+                            }
+                        }
 						attrChildren = $(this).children();					
  
 						var value= ""
@@ -375,8 +392,12 @@ generateXMLString = function(elementObj)
 								value += $($(attrChildren[j]).parent()).find(".moduleResult").text();		
 							} 
 						}						
-						attributes += " " + attr_tag + "='" + value + "'";
+						attributes += " " + attr_ns + attr_tag + "='" + value + "'";
 					});
+                    var unique_attr_ns_prefixes = attr_ns_prefixes.filter( onlyUnique );
+					for ( var i in unique_attr_ns_prefixes ) {
+                        attributes += unique_attr_ns_prefixes[i];
+                    }
 										
 					// build the tag with its value
 					xml_value = generateXMLString(children[i]);
@@ -386,12 +407,10 @@ generateXMLString = function(elementObj)
 					}else{
 						// build opening tag with potential attributes
 						xmlString += "<" + tag + tag_ns + attributes + ">";
-						console.log(tag + tag_ns + attributes);
 						// build opening tag with potential attributes
 						xmlString += xml_value;
 						// build the closing tag
 					    xmlString += "</" + tag + ">";
-					    console.log(tag);
 					}
 				}			    	
 			}
