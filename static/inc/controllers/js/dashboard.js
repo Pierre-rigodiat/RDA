@@ -4,8 +4,8 @@
  * Author: Sharief Youssef
  * 		   sharief.youssef@nist.gov
  *
- *		  Xavier SCHMITT
- *		  xavier.schmitt@nist.gov
+ *		   Xavier SCHMITT
+ *		   xavier.schmitt@nist.gov
  *
  * Sponsor: National Institute of Standards and Technology (NIST)
  *
@@ -31,7 +31,7 @@ viewInformation = function(objectContent)
 {
     var objectContent = $(this).attr("content");
     $.ajax({
-        url : "/my-profile/my-dashboard/toXML",
+        url : "/my-dashboard/toXML",
         type : "POST",
         dataType: "json",
         data : {
@@ -95,7 +95,7 @@ editInformation = function()
  */
 edit_information = function(objectID, objectType, newName, newFilename){
     $.ajax({
-        url : "/my-profile/my-dashboard/edit_information",
+        url : "/my-dashboard/edit_information",
         type : "POST",
         dataType: "json",
         data : {
@@ -128,6 +128,7 @@ deleteObject = function()
     var objectType = $(this).attr("objecttype");
     var objectFilename = $(this).attr("objectfilename");
     var objectName = $(this).attr("objectname");
+    var url = $(this).attr("url");
 
     document.getElementById("object-to-delete").innerHTML = objectName;
     $(function() {
@@ -135,7 +136,7 @@ deleteObject = function()
             modal: true,
             buttons: {
 		Yes: function() {
-					delete_object(objectID, objectType);
+					delete_object(objectID, objectType, url);
                     $( this ).dialog( "close" );
                 },
 		No: function() {
@@ -153,15 +154,17 @@ deleteObject = function()
  * AJAX call, delete an object
  * @param objectID id of the object
  * @param objectType type of the object
+ * @param url mdcs url
  */
-delete_object = function(objectID, objectType){
+delete_object = function(objectID, objectType, url){
     $.ajax({
-        url : "/my-profile/my-dashboard/delete_object",
+        url : "/my-dashboard/delete_object",
         type : "POST",
         dataType: "json",
         data : {
         	objectID : objectID,
         	objectType : objectType,
+        	url : url,
         },
         success: function(data){
             if ('Type' in data) {

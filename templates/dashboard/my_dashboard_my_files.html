@@ -42,7 +42,7 @@
             <td>{{ file.name }}</td>
             <td>{{ file.uploadDate }} </td>
                 <td>
-                    <span class="icon legend delete" objectname="{{ file.name }}" objecttype="File" objectid="{{ file.id }}" onclick="deleteObject()">
+                    <span class="icon legend delete" objectname="{{ file.name }}" objecttype="File" objectid="{{ file.id }}" onclick="deleteObject()" url="{{url}}">
                         Delete
                     </span>
                     <a href="{{url}}/rest/blob?id={{file.id}}">

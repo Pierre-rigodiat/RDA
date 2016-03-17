@@ -202,9 +202,9 @@ saveTemplateUser = function(){
                   buttons: {
                     OK: function() {
                         if(type == "template") {
-                            window.location = '/my-profile/my-dashboard/templates'
+                            window.location = '/my-dashboard/templates'
                         } else {
-                            window.location = '/my-profile/my-dashboard/types'
+                            window.location = '/my-dashboard/types'
                         }
                     }
                   }
