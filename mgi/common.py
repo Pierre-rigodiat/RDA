@@ -269,10 +269,13 @@ def get_namespaces(file):
         if event == "start-ns":
             if elem[0] in ns and ns[elem[0]] != elem[1]:
                 raise Exception("Duplicate prefix with different URI found.")
-            # if len(elem[0]) > 0 and len(elem[1]) > 0:
-            ns[elem[0]] = "%s" % elem[1]
+            if len(elem[0]) > 0 and len(elem[1]) > 0:
+                ns[elem[0]] = "%s" % elem[1]
         elif event == "start":
             break
+
+    if SCHEMA_NAMESPACE not in ns.values():
+        ns['xs'] = SCHEMA_NAMESPACE
     return ns
 
 
@@ -300,6 +303,7 @@ def get_target_namespace_prefix(namespaces, xsd_tree):
         #     namespaces[target_namespace_prefix] = target_namespace
 
     return target_namespace_prefix
+
 
 def get_target_namespace(namespaces, xsd_tree):
     root_attributes = xsd_tree.getroot().attrib

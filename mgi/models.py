@@ -258,7 +258,7 @@ class FormElement(Document):
         Stores information about an element in the HTML form
     """
     html_id = StringField()
-    xml_xpath = StringField() # for siblings module
+    xml_xpath = StringField()
     xml_element = ReferenceField(XMLElement)
 
 

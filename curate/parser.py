@@ -684,16 +684,15 @@ def generate_element(request, element, xml_tree, choice_info=None, full_path="",
     elif nb_occurrences_data > nb_occurrences:
         nb_occurrences = nb_occurrences_data
 
-
     # get the element namespace
     element_ns = get_element_namespace(element, xml_tree)
     # set the element namespace
-    tag_ns = " xmlns={0} ".format(element_ns) if element_ns is not None else ''
+    tag_ns = ' xmlns="{0}" '.format(element_ns) if element_ns is not None else ''
     tag_ns_prefix = ''
     if element_tag == "attribute" and target_namespace is not None:
         for prefix, ns in namespaces.iteritems():
             if ns == target_namespace:
-                tag_ns_prefix = " ns_prefix={0} ".format(prefix)
+                tag_ns_prefix = ' ns_prefix="{0}" '.format(prefix)
                 break
 
     # get the element type
@@ -749,9 +748,9 @@ def generate_element(request, element, xml_tree, choice_info=None, full_path="",
 
         # renders the name of the element
         form_string += "<li class='" + element_tag + ' ' + use + "' id='" + str(tag_id) + "' "
-        form_string += "tag='{0}' {1} {2}>".format(django.utils.html.escape(text_capitalized),
-                                                   django.utils.html.escape(tag_ns),
-                                                   django.utils.html.escape(tag_ns_prefix),)
+        form_string += 'tag="{0}" {1} {2}>'.format(django.utils.html.escape(text_capitalized),
+                                                   tag_ns,
+                                                   tag_ns_prefix)
 
         if CURATE_COLLAPSE:
             # the type is complex, can be collapsed

@@ -373,17 +373,19 @@ class ParserLookupOccursTestSuite(TestCase):
         self.request.session['namespaces'] = {'xs': namespace}
 
     def test_reload_compliant_element(self):
-        lookup_xsd = self.occurs_data_handler.get_xsd2('document')
+        lookup_xsd_element = self.occurs_data_handler.get_xsd2('document')
+        lookup_xsd_tree = etree.ElementTree(lookup_xsd_element)
         compliant_xml = self.occurs_data_handler.get_xml('compliant')
 
-        max_occurs_found = lookup_occurs(self.request, lookup_xsd, lookup_xsd, '.', compliant_xml)
+        max_occurs_found = lookup_occurs(self.request, lookup_xsd_element, lookup_xsd_tree, '.', compliant_xml)
         self.assertEqual(max_occurs_found, 1)
 
     def test_reload_noncompliant_element(self):
-        lookup_xsd = self.occurs_data_handler.get_xsd2('document')
+        lookup_xsd_element = self.occurs_data_handler.get_xsd2('document')
+        lookup_xsd_tree = etree.ElementTree(lookup_xsd_element)
         noncompliant_xml = self.occurs_data_handler.get_xml('noncompliant')
 
-        max_occurs_found = lookup_occurs(self.request, lookup_xsd, lookup_xsd, '.', noncompliant_xml)
+        max_occurs_found = lookup_occurs(self.request, lookup_xsd_element, lookup_xsd_tree, '.', noncompliant_xml)
         self.assertEqual(max_occurs_found, 1)
 
 
@@ -679,32 +681,32 @@ class ParserGetElementTypeTestSuite(TestCase):
     def test_no_type_one_child_no_annot(self):
         xsd_element = self.xml_element_data_handler.get_xsd2(join('no_type', 'one_child_no_annot'))
 
-        element_type = get_element_type(xsd_element, None, 'xsd')
-        self.assertEqual(element_type, list(xsd_element)[0])
+        element_type = get_element_type(xsd_element, None, 'xsd', '', None)
+        self.assertEqual(element_type, (list(xsd_element)[0], None, None))
 
     def test_no_type_one_child_annot(self):
         xsd_element = self.xml_element_data_handler.get_xsd2(join('no_type', 'one_child_annot'))
 
-        element_type = get_element_type(xsd_element, None, 'xsd')
-        self.assertEqual(element_type, None)
+        element_type = get_element_type(xsd_element, None, 'xsd', '', None)
+        self.assertEqual(element_type, (None, None, None))
 
     def test_no_type_two_children_annot(self):
         xsd_element = self.xml_element_data_handler.get_xsd2(join('no_type', 'two_children_annot'))
 
-        element_type = get_element_type(xsd_element, None, 'xsd')
-        self.assertEqual(element_type, list(xsd_element)[1])
+        element_type = get_element_type(xsd_element, None, 'xsd', '', None)
+        self.assertEqual(element_type, (list(xsd_element)[1], None, None))
 
     def test_no_type_more_children(self):
         xsd_element = self.xml_element_data_handler.get_xsd2(join('no_type', 'more_children'))
 
-        element_type = get_element_type(xsd_element, None, 'xsd')
-        self.assertEqual(element_type, None)
+        element_type = get_element_type(xsd_element, None, 'xsd', '', None)
+        self.assertEqual(element_type, (None, None, None))
 
     def test_type_is_common_type(self):
         xsd_element = self.xml_element_data_handler.get_xsd2('common_type')
 
-        element_type = get_element_type(xsd_element, None, 'xsd')
-        self.assertEqual(element_type, None)
+        element_type = get_element_type(xsd_element, None, 'xsd', '', None)
+        self.assertEqual(element_type, (None, None, None))
 
     # todo make more tests
     def test_type_is_complex_type(self):
@@ -713,8 +715,8 @@ class ParserGetElementTypeTestSuite(TestCase):
 
         result_element = self.xml_element_data_handler.get_xsd2(join('complex_type', 'result'))
 
-        element_type = get_element_type(xsd_element, xsd_schema, 'xsd')
-        self.assertTrue(are_equals(element_type, result_element))
+        element_type = get_element_type(xsd_element, xsd_schema, 'xsd', '', None)
+        self.assertEqual(element_type, (result_element, None, None))
 
     def test_type_is_simple_type(self):
         xsd_element = self.xml_element_data_handler.get_xsd2(join('simple_type', 'element'))
@@ -722,8 +724,8 @@ class ParserGetElementTypeTestSuite(TestCase):
 
         result_element = self.xml_element_data_handler.get_xsd2(join('simple_type', 'result'))
 
-        element_type = get_element_type(xsd_element, xsd_schema, 'xsd')
-        self.assertTrue(are_equals(element_type, result_element))
+        element_type = get_element_type(xsd_element, xsd_schema, 'xsd', '', None)
+        self.assertEqual(element_type, (result_element, None, None))
 
 
 class ParserRemoveAnnotationTestSuite(TestCase):
@@ -3398,13 +3400,12 @@ class ParserGenerateModuleTestSuite(TestCase):
 
         # set default namespace
         namespace = "http://www.w3.org/2001/XMLSchema"
-        self.request.session['defaultPrefix'] = 'xs'
-        self.request.session['namespaces'] = {'xs': namespace}
+        self.namespaces = {'xs': namespace}
 
     def test_create_module(self):
         xsd_files = 'registered_module'
         xsd_tree = etree.ElementTree(self.module_data_handler.get_xsd2(xsd_files))
-        xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType', namespaces=self.request.session['namespaces'])[0]
+        xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType', namespaces=self.namespaces)[0]
 
         self.request.session['xmlDocTree'] = etree.tostring(xsd_tree)
 
@@ -3419,7 +3420,7 @@ class ParserGenerateModuleTestSuite(TestCase):
         xsd_files = 'registered_module'
         # xsd_reload_files = join('element', 'basic.reload')
         xsd_tree = etree.ElementTree(self.module_data_handler.get_xsd2(xsd_files))
-        xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType', namespaces=self.request.session['namespaces'])[0]
+        xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType', namespaces=self.namespaces)[0]
 
         # self.request.session['xmlDocTree'] = etree.tostring(xsd_tree)
         self.request.session['curate_edit'] = True
@@ -3434,7 +3435,7 @@ class ParserGenerateModuleTestSuite(TestCase):
         edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
 
         result_string = generate_module(self.request, xsd_element, xsd_xpath='', xml_xpath='/module/child',
-                                        edit_data_tree=edit_data_tree)
+                                        xml_tree=xsd_tree, edit_data_tree=edit_data_tree)
 
         result_html = etree.fromstring(result_string)
         expected_html = self.module_data_handler.get_html2('reload')
@@ -3573,18 +3574,12 @@ class ParserGenerateRestrictionTestSuite(TestCase):
 
         # set default namespace
         namespace = "http://www.w3.org/2001/XMLSchema"
-        self.request.session['defaultPrefix'] = 'xs'
-        self.request.session['namespaces'] = {'xs': namespace}
-
-        # set default namespace
-        namespace = "http://www.w3.org/2001/XMLSchema"
-        self.request.session['defaultPrefix'] = 'xs'
-        self.request.session['namespaces'] = {'xs': namespace}
+        self.namespaces = {'xs': namespace}
 
     def test_create_enumeration(self):
         xsd_files = join('enumeration', 'basic')
         xsd_tree = etree.ElementTree(self.restriction_data_handler.get_xsd2(xsd_files))
-        xsd_element = xsd_tree.xpath('/xs:schema/xs:simpleType/xs:restriction', namespaces=self.request.session['namespaces'])[0]
+        xsd_element = xsd_tree.xpath('/xs:schema/xs:simpleType/xs:restriction', namespaces=self.namespaces)[0]
 
         result_string = generate_restriction(self.request, xsd_element, xsd_tree, full_path='')
         # print result_string
@@ -3597,7 +3592,7 @@ class ParserGenerateRestrictionTestSuite(TestCase):
     def test_create_simple_type(self):
         xsd_files = join('simple_type', 'basic')
         xsd_tree = etree.ElementTree(self.restriction_data_handler.get_xsd2(xsd_files))
-        xsd_element = xsd_tree.xpath('/xs:schema/xs:simpleType/xs:restriction', namespaces=self.request.session['namespaces'])[0]
+        xsd_element = xsd_tree.xpath('/xs:schema/xs:simpleType/xs:restriction', namespaces=self.namespaces)[0]
 
         result_string = generate_restriction(self.request, xsd_element, xsd_tree, full_path='')
         # print result_string
@@ -3610,7 +3605,7 @@ class ParserGenerateRestrictionTestSuite(TestCase):
     def test_reload_enumeration(self):
         xsd_files = join('enumeration', 'basic')
         xsd_tree = etree.ElementTree(self.restriction_data_handler.get_xsd2(xsd_files))
-        xsd_element = xsd_tree.xpath('/xs:schema/xs:simpleType/xs:restriction', namespaces=self.request.session['namespaces'])[0]
+        xsd_element = xsd_tree.xpath('/xs:schema/xs:simpleType/xs:restriction', namespaces=self.namespaces)[0]
 
         self.request.session['curate_edit'] = True
 
@@ -3634,7 +3629,7 @@ class ParserGenerateRestrictionTestSuite(TestCase):
     def test_reload_simple_type(self):
         xsd_files = join('simple_type', 'basic')
         xsd_tree = etree.ElementTree(self.restriction_data_handler.get_xsd2(xsd_files))
-        xsd_element = xsd_tree.xpath('/xs:schema/xs:simpleType/xs:restriction', namespaces=self.request.session['namespaces'])[0]
+        xsd_element = xsd_tree.xpath('/xs:schema/xs:simpleType/xs:restriction', namespaces=self.namespaces)[0]
 
         self.request.session['curate_edit'] = True
 
@@ -3696,7 +3691,8 @@ class ParserGenerateExtensionTestSuite(TestCase):
     def test_create_all(self):
         xsd_files = join('all', 'basic')
         xsd_tree = etree.ElementTree(self.extension_data_handler.get_xsd2(xsd_files))
-        xsd_element = xsd_tree.xpath('/xs:schema/xs:element/xs:complexType/xs:complexContent/xs:extension', namespaces=self.request.session['namespaces'])[0]
+        xsd_element = xsd_tree.xpath('/xs:schema/xs:element/xs:complexType/xs:complexContent/xs:extension',
+                                     namespaces=self.request.session['namespaces'])[0]
 
         result_string = generate_extension(self.request, xsd_element, xsd_tree, full_path='')
         # print result_string
