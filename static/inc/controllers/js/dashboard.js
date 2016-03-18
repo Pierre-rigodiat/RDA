@@ -31,7 +31,7 @@ viewInformation = function(objectContent)
 {
     var objectContent = $(this).attr("content");
     $.ajax({
-        url : "/my-dashboard/toXML",
+        url : "/dashboard/toXML",
         type : "POST",
         dataType: "json",
         data : {
@@ -95,7 +95,7 @@ editInformation = function()
  */
 edit_information = function(objectID, objectType, newName, newFilename){
     $.ajax({
-        url : "/my-dashboard/edit_information",
+        url : "/dashboard/edit_information",
         type : "POST",
         dataType: "json",
         data : {
@@ -158,7 +158,7 @@ deleteObject = function()
  */
 delete_object = function(objectID, objectType, url){
     $.ajax({
-        url : "/my-dashboard/delete_object",
+        url : "/dashboard/delete_object",
         type : "POST",
         dataType: "json",
         data : {

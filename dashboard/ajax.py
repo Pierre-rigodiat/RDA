@@ -45,12 +45,12 @@ def edit_information(request):
 
     if object_type == "Template":
         object = Template.objects.get(pk=object_id)
-        testFilenameObjects = Template.objects(filename=new_filename)
-        testNameObjects = Template.objects(title=new_name)
+        testFilenameObjects = Template.objects(filename=new_filename.strip())
+        testNameObjects = Template.objects(title=new_name.strip())
     else:
         object = Type.objects.get(pk=object_id)
-        testFilenameObjects = Type.objects(filename=new_filename)
-        testNameObjects = Type.objects(title=new_name)
+        testFilenameObjects = Type.objects(filename=new_filename.strip())
+        testNameObjects = Type.objects(title=new_name.strip())
 
     if len(testNameObjects) == 1: # 0 is ok, more than 1 can't happen
             #check that the type with the same filename is the current one
@@ -64,8 +64,8 @@ def edit_information(request):
             response_dict = {'filename': 'True'}
             return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
 
-    object.title = new_name
-    object.filename = new_filename
+    object.title = new_name.strip()
+    object.filename = new_filename.strip()
     object.save()
 
     return HttpResponse(json.dumps({}), content_type='application/javascript')
