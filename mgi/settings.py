@@ -94,13 +94,20 @@ OAI_USER = 'admin'
 OAI_PASS = 'admin'
 OAI_NAME = 'MDCS Admin 127.0.0.1 '
 OAI_DELIMITER = ':'
-OAI_DESCRIPTION = 'Test OAI-PMH CURATOR'
+OAI_DESCRIPTION = 'OAI-PMH CURATOR'
 OAI_GRANULARITY = 'YYYY-MM-DDThh:mm:ssZ' #the finest harvesting granularity supported by the repository
 OAI_PROTOCOLE_VERSION = '2.0' #the version of the OAI-PMH supported by the repository
 OAI_SCHEME = 'oai'
 OAI_REPO_IDENTIFIER = 'server-127.0.0.1'
 OAI_SAMPLE_IDENTIFIER = OAI_SCHEME+OAI_DELIMITER+OAI_REPO_IDENTIFIER+OAI_DELIMITER+'id/12345678a123aff6ff5f2d9e'
 OAI_DELETED_RECORD = 'no' #no ; transient ; persistent
+
+#Celery configuration
+BROKER_URL = 'redis://localhost:6379/0'
+BROKER_TRANSPORT_OPTIONS = {'visibility_timeout': 3600}
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+BROKER_TRANSPORT_OPTIONS = {'fanout_prefix': True}
+BROKER_TRANSPORT_OPTIONS = {'fanout_patterns': True}
 
 # Handle system module parameters
 HANDLE_SERVER_URL = ''

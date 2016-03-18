@@ -25,9 +25,7 @@
 
 {% block extrastyle %}
 <link rel="stylesheet" type="text/css" href="{% static 'resources/css/exploreTabs.css' %}"  media="screen" />
-<link rel="stylesheet" type="text/css" href="{% static 'resources/css/explore.css' %}"  media="screen" />
 <link rel="stylesheet" type="text/css" href="{% static 'resources/css/XMLTree.css' %}" media="screen" />
-<link rel="stylesheet" type="text/css" href="{% static 'resources/css/queryResult.css' %}" media="screen" />
 {% endblock %}
 
 {% block title %}<h1>{{title}}</h1>{% endblock %}
@@ -42,14 +40,16 @@
     		<a href="/explore">Query by Example</a>
     	</div>
    	</li>
-    <li class="current_page_item">
+    <li>
     	<a href="/explore/keyword">Search by Keyword</a>
+    </li>
+	<li class="current_page_item">
+        <div style="cursor:pointer">
+            <a href="/oai_pmh/explore/keyword">OAI-PMH Search by Keyword</a>
+        </div>
     </li>
 </ul>
 {% endblock %}	
-
-
-
 
 {% block content %}
 <div class="toolbar">
@@ -73,5 +73,5 @@
 {% endblock %}
 
 {% block extrajs %}
-<script src="{% static 'inc/controllers/js/explore.js' %}"></script>
+<script src="{% static 'inc/controllers/js/oai_pmh_explore.js' %}"></script>
 {% endblock %}

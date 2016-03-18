@@ -1,3 +1,16 @@
+################################################################################
+#
+# File Name: exceptions.py
+# Application: Informatics Core
+# Description:
+#
+# Author: Pierre Francois RIGODIAT
+#         pierre-francois.rigodiat@nist.gov
+#
+# Sponsor: National Institute of Standards and Technology (NIST)
+#
+################################################################################
+
 class OAIExceptions(Exception):
     def __init__(self, errors):
         self.message = 'Error'

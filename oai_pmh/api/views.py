@@ -1,11 +1,11 @@
 ################################################################################
 #
-# File Name: rest_views.py
+# File Name: views.py
 # Application: Informatics Core
 # Description:
 #
-# Author: Marcus Newrock
-#         marcus.newrock@nist.gov
+# Author: Pierre Francois RIGODIAT
+#         pierre-francois.rigodiat@nist.gov
 #
 # Sponsor: National Institute of Standards and Technology (NIST)
 #
@@ -28,7 +28,6 @@ from mgi.models import OaiRegistry, OaiSet, OaiMetadataFormat, OaiIdentify, OaiS
 from pymongo import MongoClient
 from mgi.settings import MONGODB_URI, MGI_DB
 from mongoengine import NotUniqueError
-import json
 import xmltodict
 import requests
 from utils.XSDhash import XSDhash
@@ -1194,28 +1193,33 @@ def update_all_records(request):
                 except:
                     lastUpdate = None
                 registry.lastUpdate = datetime.datetime.now()
-                registry.isFetching = True
+                registry.isHarvesting = True
                 registry.save()
                 records = []
                 metadataformats = OaiMetadataFormat.objects(registry=registry_id)
                 registrySets = OaiSet.objects(registry=registry_id).order_by("setName")
                 for metadataFormat in metadataformats:
-                    http_response = getListRecords(url=url, metadataPrefix=metadataFormat.metadataPrefix)#, fromDate=lastUpdate)
-                    if http_response.status_code == status.HTTP_200_OK:
-                        rtn = http_response.data
-                        for info in rtn:
-                            sets = [x for x in registrySets if x.setSpec in info['sets']]
-                            raw = xmltodict.parse(info['raw'])
-                            metadata = xmltodict.parse(info['metadata'])
-                            obj = OaiRecord(identifier=info['identifier'], datestamp=info['datestamp'], deleted=info['deleted'],
-                                   metadataformat=metadataFormat, metadata=metadata, sets=sets, raw=raw, registry=registry_id).save()
-                            records.append(obj)
-                    #Else, we return a bad request response with the message provided by the API
-                    else:
-                        content = http_response.data['error']
-                        return Response(content, status=http_response.status_code)
+                    dataLeft = True
+                    resumptionToken = None
+                    while dataLeft:
+                        http_response, resumptionToken = getListRecords(url=url, metadataPrefix=metadataFormat.metadataPrefix, fromDate=lastUpdate, resumptionToken=resumptionToken)
+                        if http_response.status_code == status.HTTP_200_OK:
+                            rtn = http_response.data
+                            for info in rtn:
+                                sets = [x for x in registrySets if x.setSpec in info['sets']]
+                                raw = xmltodict.parse(info['raw'])
+                                metadata = xmltodict.parse(info['metadata'])
+                                obj = OaiRecord(identifier=info['identifier'], datestamp=info['datestamp'], deleted=info['deleted'],
+                                       metadataformat=metadataFormat, metadata=metadata, sets=sets, raw=raw, registry=registry_id).save()
+                                records.append(obj)
 
-                registry.isFetching = False
+                        dataLeft = resumptionToken != None and resumptionToken != ''
+                        # #Else, we return a bad request response with the message provided by the API
+                        # else:
+                        #     content = http_response.data['error']
+                        #     return Response(content, status=http_response.status_code)
+
+                registry.isHarvesting = False
                 registry.save()
 
                 serializer = RecordSerializer(rtn)
@@ -1223,13 +1227,14 @@ def update_all_records(request):
             # else:
             #     return Response({'message':'Serializer failed validation.'}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
+            registry.isHarvesting = False
+            registry.save()
             content = {'message':'An error occurred when attempting to identify resource: %s'%e.message}
             return Response(content, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     else:
         content = {'message':'Only an administrator can use this feature.'}
         return Response(content, status=status.HTTP_401_UNAUTHORIZED)
-
 
 ################################################################################
 #
@@ -1321,7 +1326,7 @@ def getListRecords(url, metadataPrefix=None, resumptionToken=None, set_h=None, f
     """
     XMLParser = etree.XMLParser(remove_blank_text=True, recover=True)
     try:
-        needed = True
+        # needed = True
         metadataPrefixQuery = ''
         if metadataPrefix != None:
             metadataPrefixQuery = '&metadataPrefix=%s' % metadataPrefix
@@ -1342,41 +1347,49 @@ def getListRecords(url, metadataPrefix=None, resumptionToken=None, set_h=None, f
         if untilDate != None:
             untilDateQuery = '&until=%s' % untilDate
         rtn = []
-        callUrl = url + '?verb=ListRecords' + metadataPrefixQuery + setQuery + resumptionTokenQuery + fromDateQuery + untilDateQuery
 
-        while needed:
-            http_response = requests.get(callUrl)
-            if http_response.status_code == status.HTTP_200_OK:
-                xml = http_response.text
-                elements = etree.XML(xml.encode("utf8"), parser=XMLParser).iterfind('.//' + '{http://www.openarchives.org/OAI/2.0/}' + 'record')
-                for elt in elements:
-                    record = Record(elt)
-                    rtn.append({"identifier": record.header.identifier,
-                              "datestamp": record.header.datestamp,
-                              "deleted": record.deleted,
-                              "sets": record.header.setSpecs,
-                              "metadataPrefix": metadataPrefix,
-                              "metadata": etree.tostring(record.xml.find('.//' + '{http://www.openarchives.org/OAI/2.0/}' + 'metadata/')),
-                              "raw": record.raw})
+        #Check if the resumptionToken is None
+        if resumptionToken == None:
+            callUrl = url + '?verb=ListRecords' + metadataPrefixQuery + setQuery  + fromDateQuery + untilDateQuery
+        #If not None, call the ListRecords verb with only the resumption tokem
+        else:
+            callUrl = url + '?verb=ListRecords' + resumptionTokenQuery
 
-                resumptionTokenElt = etree.XML(xml.encode("utf8"), parser=XMLParser).iterfind('.//' + '{http://www.openarchives.org/OAI/2.0/}' + 'resumptionToken')
-                for res in resumptionTokenElt:
-                    resumptionToken = res.text
-                if resumptionToken != None and resumptionToken != '':
-                    #Only the URL and the resumptionToken
-                    # callUrl = url + '?verb=ListRecords' + '&resumptionToken=%s' % resumptionToken
-                    needed = False
-                else:
-                    needed = False
+        # while needed:
+        http_response = requests.get(callUrl)
+        resumptionToken = None
+        if http_response.status_code == status.HTTP_200_OK:
+            xml = http_response.text
+            elements = etree.XML(xml.encode("utf8"), parser=XMLParser).iterfind('.//' + '{http://www.openarchives.org/OAI/2.0/}' + 'record')
+            for elt in elements:
+                record = Record(elt)
+                rtn.append({"identifier": record.header.identifier,
+                          "datestamp": record.header.datestamp,
+                          "deleted": record.deleted,
+                          "sets": record.header.setSpecs,
+                          "metadataPrefix": metadataPrefix,
+                          "metadata": etree.tostring(record.xml.find('.//' + '{http://www.openarchives.org/OAI/2.0/}' + 'metadata/')),
+                          "raw": record.raw})
 
-            elif http_response.status_code == status.HTTP_404_NOT_FOUND:
-                content = {'error':'Server not found.'}
-                return Response(content, status=status.HTTP_404_NOT_FOUND)
-            else:
-                content = {'error': 'An error occurred.'}
-                return Response(content, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            resumptionTokenElt = etree.XML(xml.encode("utf8"), parser=XMLParser).iterfind('.//' + '{http://www.openarchives.org/OAI/2.0/}' + 'resumptionToken')
+            for res in resumptionTokenElt:
+                resumptionToken = res.text
 
-        return Response(rtn, status=status.HTTP_200_OK)
+            # if resumptionToken != None and resumptionToken != '':
+            #     #Only the URL and the resumptionToken
+            #     callUrl = url + '?verb=ListRecords' + '&resumptionToken=%s' % resumptionToken
+                # needed = False
+            # else:
+            #     needed = False
+
+        elif http_response.status_code == status.HTTP_404_NOT_FOUND:
+            content = {'error':'Server not found.'}
+            return Response(content, status=status.HTTP_404_NOT_FOUND)
+        else:
+            content = {'error': 'An error occurred.'}
+            return Response(content, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        return Response(rtn, status=status.HTTP_200_OK), resumptionToken
 
     except Exception as e:
         content = {'error':'An error occurred when attempting to identify resource: %s'%e.message}

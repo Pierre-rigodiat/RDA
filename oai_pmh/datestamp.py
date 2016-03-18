@@ -1,3 +1,16 @@
+################################################################################
+#
+# File Name: datestamp.py
+# Application: Informatics Core
+# Description:
+#
+# Author: Pierre Francois RIGODIAT
+#         pierre-francois.rigodiat@nist.gov
+#
+# Sponsor: National Institute of Standards and Technology (NIST)
+#
+################################################################################
+
 import datetime
 
 def datetime_to_datestamp(dt, day_granularity=False):

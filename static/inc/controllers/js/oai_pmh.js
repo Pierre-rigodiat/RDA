@@ -221,23 +221,6 @@ delete_registry = function(registry_id){
     });
 }
 
-
-Init = function(){
-    var buttonsetElts = $("td[id^=ButtonSet]")
-    $.each(buttonsetElts, function(index, props) {
-         $("#"+props.id).buttonset();
-    });
-//    enterKeyPressSubscription();
-}
-
-Reinit = function(){
-    var buttonsetElts = $("#form_edit_current td[id^=ButtonSet]")
-    $.each(buttonsetElts, function(index, props) {
-         $("#"+props.id).buttonset();
-    });
-    enterKeyPressSubscription();
-}
-
 enterKeyPressSubscription = function ()
 {
     $('#id_name').keypress(function(event) {
@@ -522,40 +505,6 @@ downloadXmlBuildReq = function(){
     });
 }
 
-init = function(){
-    populateSelect();
-    $("select").on('change', function() {
-      $("#build_errors").html("");
-      $("#banner_build_errors").hide(200);
-    });
-    $("input").on('change', function() {
-      $("#build_errors").html("");
-      $("#banner_build_errors").hide(200);
-    });
-
-    $("select#id_dataProvider").on('change', function() {
-      populateSelect();
-    });
-
-    $('#id_until').datetimepicker({
-        weekStart: 1,
-        todayBtn:  1,
-		autoclose: 1,
-		todayHighlight: 1,
-		startView: 2,
-		forceParse: 0,
-        showMeridian: 1
-    });
-    $('#id_From').datetimepicker({
-        weekStart: 1,
-        todayBtn:  1,
-		autoclose: 1,
-		todayHighlight: 1,
-		startView: 2,
-		forceParse: 0,
-        showMeridian: 1
-    });
-}
 
 clearMyEditError = function ()
 {
@@ -644,13 +593,27 @@ validateEditMyRegistry = function()
     return true;
 }
 
+
 /**
- * AJAX call, deletes a Registry
+ * AJAX call, harvest all data
+ */
+harvestAllData = function ()
+{
+    var registriesCheck = $("td[id^=Status]")
+
+    $.each(registriesCheck, function(index, props) {
+         harvestData($(props).attr('registryID'));
+    });
+}
+
+
+/**
+ * AJAX call, harvest data for a Registry
  * @param registry_id id of the registry
  */
-fetchData = function(registry_id){
+harvestData = function(registry_id){
     $("#banner"+registry_id).show(200);
-    $("#fetch"+registry_id).hide(200);
+    $("#harvest"+registry_id).hide(200);
     $.ajax({
         url : 'update/all/records',
         type : "POST",
@@ -660,13 +623,100 @@ fetchData = function(registry_id){
         	registry_id : registry_id,
         },
         success: function(data){
-            $("#banner"+registry_id).hide(200);
-            $("#fetch"+registry_id).show(200);
+            checkHarvestData();
         },
         error:function(data){
-//            $("#banner_delete_wait").hide(200);
-//            $("#form_delete_errors").html(data.responseText);
-//            $("#banner_delete_errors").show(200);
 	    }
+    });
+}
+
+/**
+ * AJAX call, check harvest data for all Registries
+ */
+checkHarvestData = function()
+{
+    $.ajax({
+        url : 'check/harvest-data',
+        type : "POST",
+        dataType: "json",
+        async: true,
+        data : {
+        },
+        success: function(data){
+            $.map(data, function (item) {
+                if(item.isHarvesting)
+                {
+                    $("#harvest" + item.registry_id).hide(200);
+                    $("#banner"+ item.registry_id).show(200);
+                }
+                else
+                {
+                    $("#banner"+ item.registry_id).hide(200);
+                    $("#harvest" + item.registry_id).show(200);
+                    if(item.lastUpdate != '')
+                        $("#lastUpdate"+ item.registry_id).html(item.lastUpdate);
+                }
+             });
+        },
+        error:function(data){
+	    }
+    });
+//    Refresh every 30 seconds
+    setTimeout(checkHarvestData, 30000);
+}
+
+
+
+
+
+Init = function(){
+    var buttonsetElts = $("td[id^=ButtonSet]")
+    $.each(buttonsetElts, function(index, props) {
+         $("#"+props.id).buttonset();
+    });
+    checkHarvestData();
+}
+
+Reinit = function(){
+    var buttonsetElts = $("#form_edit_current td[id^=ButtonSet]")
+    $.each(buttonsetElts, function(index, props) {
+         $("#"+props.id).buttonset();
+    });
+    enterKeyPressSubscription();
+}
+
+
+init = function(){
+    populateSelect();
+    $("select").on('change', function() {
+      $("#build_errors").html("");
+      $("#banner_build_errors").hide(200);
+    });
+    $("input").on('change', function() {
+      $("#build_errors").html("");
+      $("#banner_build_errors").hide(200);
+    });
+
+    $("select#id_dataProvider").on('change', function() {
+      populateSelect();
+    });
+
+    $('#id_until').datetimepicker({
+        weekStart: 1,
+        todayBtn:  1,
+		autoclose: 1,
+		todayHighlight: 1,
+		startView: 2,
+		forceParse: 0,
+        showMeridian: 1
+    });
+    $('#id_From').datetimepicker({
+        weekStart: 1,
+        todayBtn:  1,
+		autoclose: 1,
+		todayHighlight: 1,
+		startView: 2,
+		forceParse: 0,
+        showMeridian: 1
     });
 }
