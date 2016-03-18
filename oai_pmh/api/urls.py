@@ -1,11 +1,11 @@
 ################################################################################
 #
-# File Name: rest_urls.py
+# File Name: urls.py
 # Application: Informatics Core
 # Description:
 #
-# Author: Marcus Newrock
-#         marcus.newrock@nist.gov
+# Author: Pierre Francois RIGODIAT
+#         pierre-francois.rigodiat@nist.gov
 #
 # Sponsor: National Institute of Standards and Technology (NIST)
 #

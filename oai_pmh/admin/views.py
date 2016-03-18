@@ -1,11 +1,11 @@
 ################################################################################
 #
-# File Name: html_views.py
+# File Name: views.py
 # Application: Informatics Core
 # Description:
 #
-# Author: Marcus Newrock
-#         marcus.newrock@nist.gov
+# Author: Pierre Francois RIGODIAT
+#         pierre-francois.rigodiat@nist.gov
 #
 # Sponsor: National Institute of Standards and Technology (NIST)
 #
@@ -31,6 +31,7 @@ from mgi.models import OaiRegistry, OaiSettings
 from django.contrib.admin.views.decorators import staff_member_required
 from mgi.models import Message, OaiMetadataFormat, OaiSet, OaiRecord
 from oai_pmh.forms import Url
+from django.utils.dateformat import DateFormat
 
 ################################################################################
 #
@@ -395,5 +396,38 @@ def update_all_records(request):
                 return HttpResponse(json.dumps({}), content_type='application/javascript')
             except Exception as e:
                 return HttpResponseBadRequest('An error occurred. Please contact your administrator.')
+        except Exception as e:
+            return HttpResponseBadRequest('An error occurred. Please contact your administrator.')
+
+################################################################################
+#
+# Function Name: check_harvest_data(request)
+# Inputs:        request -
+# Outputs:
+# Exceptions:    None
+# Description:   OAI-PMH Return the state of the registries (isHarvesting)
+#
+# ################################################################################
+@login_required(login_url='/login')
+def check_harvest_data(request):
+    if request.method == 'POST':
+        try:
+            resultsByKeyword = []
+            #Get all registries
+            registries = OaiRegistry.objects.only('id', 'isHarvesting', 'lastUpdate').all()
+            #Build array with registry id and isHarvesting value
+            for registry in registries:
+                result_json = {}
+                result_json['registry_id'] = str(registry.id)
+                result_json['isHarvesting'] = registry.isHarvesting
+                if registry.lastUpdate:
+                    df =  DateFormat(registry.lastUpdate)
+                    lastUpdate = df.format('F j, Y, g:i a')
+                else:
+                    lastUpdate = ''
+                result_json['lastUpdate'] = lastUpdate
+                resultsByKeyword.append(result_json)
+
+            return HttpResponse(json.dumps(resultsByKeyword), content_type='application/javascript')
         except Exception as e:
             return HttpResponseBadRequest('An error occurred. Please contact your administrator.')

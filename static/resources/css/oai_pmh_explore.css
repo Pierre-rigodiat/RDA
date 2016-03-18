@@ -72,6 +72,24 @@ div#metadataFormats ul {
 	background: url(../img/search.png) no-repeat center #357AE8;
 	border: 1px solid #2F5BB7;
 }
+
+#submit:disabled {
+	float: right;
+	cursor:pointer;
+	width:1.8em;
+	height:3.2em;
+	text-indent:-999px;
+	color: transparent;
+	background: url(../img/search.png) no-repeat #4d90fe center;
+	border: 1px solid #3079ED;
+	-moz-border-radius: 2px;
+	-webkit-border-radius: 2px;
+	opacity: 0.6;
+}
+
+.ui-widget-content:disabled {
+	opacity: 0.6;
+}
 /* Clear floats */
 .fclear {clear:both}
 
@@ -108,4 +126,13 @@ div#form_start_current ul {
 	color:grey;
 	font-style: italic;
 	margin-right: 1.5em;
+}
+
+.no-decoration a:link
+{
+ text-decoration:none;
+}
+
+.local {
+	color: red;
 }

@@ -11,10 +11,10 @@
 #
 ################################################################################
 from django import forms
-from django.core.validators import MinValueValidator
-from mgi.models import OaiRegistry, OaiMetadataFormat
-from django.forms.extras.widgets import SelectDateWidget
+from mgi.models import OaiRegistry, OaiMetadataFormat, Template
 from itertools import groupby
+from django.utils.html import format_html
+import json
 
 class KeywordForm(forms.Form):
     """
@@ -29,7 +29,7 @@ class KeywordForm(forms.Form):
         self.REGISTRIES_OPTIONS = []
 
         #We retrieve all registries (data providers)
-        registries = OaiRegistry.objects()
+        registries = OaiRegistry.objects().order_by('name')
 
         for registry in registries:
             #We add them
@@ -38,6 +38,7 @@ class KeywordForm(forms.Form):
         self.fields['my_registries'].choices = []
         self.fields['my_registries'].choices = self.REGISTRIES_OPTIONS
         self.my_registries_nb = len(self.REGISTRIES_OPTIONS)
+
 
 class MetadataFormatsForm(forms.Form):
     """
@@ -56,25 +57,31 @@ class MetadataFormatsForm(forms.Form):
             registriesName[str(registryId)] = obj.name
 
         #We retrieve all common schemas
-        schemas = OaiMetadataFormat.objects(registry__in=listRegistriesId)
+        schemas = OaiMetadataFormat.objects(registry__in=listRegistriesId).order_by('metadataPrefix')
         groups = []
-        uniquekeys = []
+
         for k, g in groupby(schemas, lambda x: x.hash):
             groups.append(list(g))      # Store group iterator as a list
-            uniquekeys.append(k)
-        #TODO Group by HASH + First Name (Cacher tous sauf le premier) Premier checkbox pr tous + collapse avec les checkbox des autres
 
-        # for schema in schemas:
-        #     #We add them
-        #     self.SCHEMAS_OPTIONS.append((schema.id, schema.metadataPrefix))
         for group in groups:
             name = group[0].metadataPrefix
+            template = group[0].template
             listValues = []
             for elt in group:
-                listValues.append((str(elt.id), elt.metadataPrefix + ' (' + registriesName[str(elt.registry)] +")"))
+                listValues.append((str(elt.id)))
 
-            self.SCHEMAS_OPTIONS.append(((name, ( listValues ) )))
-            # self.SCHEMAS_OPTIONS.append((('Library', ( ('vinyl', 'Vinyl'),('cd', 'CD') ) )))
+            if len(listValues) == 1: name = format_html(name + "<br> (in 1 Registry)")
+            else: name = format_html(name + "<br> (in %s Registries)" % len(listValues))
+
+            templateId = ''
+            if template != None:
+                name += format_html(" <text class='local'> + Local </text>")
+                template = Template.objects.only('id', 'title').get(pk=template.id)
+                t = json.dumps({'oai-pmh': listValues, 'local': template.title})
+            else:
+                t = json.dumps({'oai-pmh': listValues})
+
+            self.SCHEMAS_OPTIONS.append((( t , name)))
 
         super(MetadataFormatsForm, self).__init__()
         self.fields['my_schemas'].choices = []

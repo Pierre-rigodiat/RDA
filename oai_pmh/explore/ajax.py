@@ -4,11 +4,8 @@
 # Application: explore
 # Purpose:   AJAX methods used for Explore purposes
 #
-# Author: Sharief Youssef
-#         sharief.youssef@nist.gov
-#
-#         Guillaume Sousa Amaral
-#         guillaume.sousa@nist.gov
+# Author: Pierre Francois RIGODIAT
+#         pierre-francois.rigodiat@nist.gov
 #
 # Sponsor: National Institute of Standards and Technology (NIST)
 #
@@ -76,14 +73,17 @@ def get_results_by_instance_keyword(request):
     try:
         keyword = request.GET['keyword']
         schemas = request.GET.getlist('schemas[]')
+        mergedSchemas = []
+        for schema in schemas:
+            t = json.loads(schema)
+            mergedSchemas += t['oai-pmh']
         onlySuggestions = json.loads(request.GET['onlySuggestions'])
     except:
         keyword = ''
         schemas = []
         onlySuggestions = True
 
-
-    instanceResults = OaiRecord.executeFullTextQuery(keyword, schemas)
+    instanceResults = OaiRecord.executeFullTextQuery(keyword, mergedSchemas)
     if len(instanceResults) > 0:
         if not onlySuggestions:
             xsltPath = os.path.join(settings.SITE_ROOT, 'static/resources/xsl/xml2html.xsl')

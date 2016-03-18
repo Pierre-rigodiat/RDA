@@ -205,10 +205,23 @@ validateExport = function(){
 clearSearch = function() {
     $("#btn_errors").html('');
     $("#banner_errors").hide(200);
-    $("#results").html('');
     $("#results_errors").html('');
     $("#banner_results_errors").hide(200);
+    $("#results").html('');
+    $("#results_local").html('');
     $("#results_infos").html('');
+    $("#results_infos_local").html('');
+}
+
+verificationSearch = function() {
+    isOK = true;
+    if($("#id_my_schemas").length == 0)
+    {
+        $("#results_errors").html("<i class='fa fa-info fa-2x'></i>  Please wait for schemas.");
+        $("#banner_results_errors").show(200);
+        isOK = false;
+    }
+    return isOK;
 }
 
 /**
@@ -220,38 +233,73 @@ get_results_keyword = function(numInstance){
     // clear the timeout
 	clearTimeout(timeout);
 	// send request if no parameter changed during the timeout
-    timeout = setTimeout(function(){
-        clearSearch();
-        $("#banner_results_wait").show(200);
-        var keyword = $("#id_search_entry").val();
-        $.ajax({
-            url : "get_results_by_instance_keyword",
+    if (verificationSearch())
+    {
+        timeout = setTimeout(function(){
+            clearSearch();
+            $("#banner_results_wait").show(200);
+            var keyword = $("#id_search_entry").val();
+            //Call to AJAX functions and wait for the end
+            $.when(AJAXOAIPMH(keyword), AJAXLocal(keyword)).done(function(a1, a2){
+                $("#banner_results_wait").hide(200);
+            });
+
+        }, 1000);
+    }
+}
+
+AJAXOAIPMH = function (keyword)
+{
+    //OAI-PMH Search
+    $("#banner_tab_results_wait").show(200);
+    return $.ajax({
+        url : "get_results_by_instance_keyword",
+        type : "GET",
+        dataType: "json",
+        data : {
+            keyword: keyword,
+            schemas: getSchemas(),
+            onlySuggestions: false,
+        },
+        success: function(data){
+            if(data.count > 1)
+                $("#results_infos").html(data.count + " results");
+            else
+                $("#results_infos").html(data.count + " result");
+            $("#results").html(data.resultString);
+            $("#banner_tab_results_wait").hide(200);
+        }
+    });
+}
+
+AJAXLocal = function (keyword)
+{
+    //LOCAL Search
+    var localSchemas = getLocalSchema();
+    if(localSchemas.length > 0)
+    {
+       $("#banner_tab_results_local_wait").show(200);
+       return $.ajax({
+            url : "/explore/get_results_by_instance_keyword",
             type : "GET",
             dataType: "json",
             data : {
                 keyword: keyword,
-                schemas: getSchemas(),
+                schemas: localSchemas,
                 onlySuggestions: false,
             },
             success: function(data){
-                $("#banner_results_wait").hide(200)
-                if (data.resultString.length == 0){
-                    clearSearch();
-                    $("#results_errors").html("<i class='fa fa-info fa-2x'></i>  No results found");
-                    $("#banner_results_errors").show(200)
-                }
-                else{
-                    if(data.count > 1)
-                        $("#results_infos").html(data.count + " results");
-                    else
-                        $("#results_infos").html(data.count + " result");
-
-                    $("#results").html(data.resultString);
-                }
+                if(data.count > 1)
+                    $("#results_infos_local").html(data.count + " results");
+                else
+                    $("#results_infos_local").html(data.count + " result");
+                $("#results_local").html(data.resultString);
+                $("#banner_tab_results_local_wait").hide(200);
             }
         });
-    }, 1000);
+    }
 }
+
 
 initAutocomplete = function() {
          $("#id_search_entry").tagit({
@@ -311,6 +359,17 @@ getSchemas = function(numInstance){
     return values;
 }
 
+getLocalSchema = function(numInstance){
+    var values = [];
+    $('#id_my_schemas input:checked').each(function() {
+        var obj = jQuery.parseJSON(this.value);
+        if(obj.local)
+            values.push(obj.local);
+    });
+
+    return values;
+}
+
 
 getRegistries = function(numInstance){
     var values = [];
@@ -347,11 +406,26 @@ initMetadataFormats = function(){
 	get_metadata_formats();
 }
 
+
+disableKeywordSearch = function()
+{
+    $('#submit').prop('disabled', true)
+    $('.ui-autocomplete-input').prop('disabled', true).val('');
+}
+
+enableKeywordSearch = function()
+{
+    $('.ui-autocomplete-input').prop('disabled', false);
+    $('#submit').prop('disabled', false)
+}
+
+
 /**
  * AJAX call, get metadata format for the selected registries
  * @param
  */
 get_metadata_formats = function(){
+    disableKeywordSearch();
     $("#metadataFormats").html("");
     $("#metadataFormats").hide(200);
     $("#wait_metadat_formats").show(200);
@@ -371,7 +445,37 @@ get_metadata_formats = function(){
                 $("#wait_metadat_formats").hide(200);
                 $("#metadataFormats").html(data.form);
                 $("#metadataFormats").show(200);
+                enableKeywordSearch();
+//                $("<span>Select/Deselect All</span>").insertBefore("ul[id^=id_my_schemas_]");
+//                $("<input checked='' type='checkbox' style='float: left;' onclick='handleCheckBoxMDF(this);'>").insertBefore("#id_my_schemas > li");
             }
         });
     }, 1000);
+}
+
+
+viewMetadataFormats = function(metadataFormats){
+	$.ajax({
+        url : "get_metadata_formats_detail",
+        type : "GET",
+        dataType: "json",
+        data : {
+            metadataFormats: metadataFormats,
+        },
+        success: function(data){
+        	$("#metadataformats_detail").html(data);
+        	$(function() {
+                $( "#dialog-detail-metadataformats" ).dialog({
+                    modal: true,
+                    height: 'auto',
+                    width: 'auto',
+                    buttons: {
+                        Ok: function() {
+                            $( this ).dialog( "close" );
+                        }
+                    }
+                });
+            });
+        }
+    });
 }

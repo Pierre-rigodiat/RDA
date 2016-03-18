@@ -1,14 +1,19 @@
-from rest_framework import serializers
-from rest_framework_mongoengine.serializers import MongoEngineModelSerializer
-from mgi.models import OaiRegistry, UpdateRecord, DeleteRecord, SelectRecord, DeleteRegistry, OaiSettings
-
 ################################################################################
 #
 # Class Name: RegistrySerializer
 #
 # Description:   Serializer for OAI-PMH Registries
 #
+# Author: Pierre Francois RIGODIAT
+#         pierre-francois.rigodiat@nist.gov
+#
 ################################################################################
+
+
+from rest_framework import serializers
+from rest_framework_mongoengine.serializers import MongoEngineModelSerializer
+from mgi.models import OaiRegistry, UpdateRecord, DeleteRecord, SelectRecord, DeleteRegistry, OaiSettings
+
 class RegistrySerializer(MongoEngineModelSerializer):
     class Meta:
         model = OaiRegistry

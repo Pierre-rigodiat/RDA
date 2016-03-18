@@ -4,8 +4,8 @@
 # Application: Informatics Core
 # Description:
 #
-# Author: Marcus Newrock
-#         marcus.newrock@nist.gov
+# Author: Pierre Francois RIGODIAT
+#         pierre-francois.rigodiat@nist.gov
 #
 # Sponsor: National Institute of Standards and Technology (NIST)
 #
@@ -23,5 +23,6 @@ urlpatterns = patterns(
     url(r'^oai-pmh-my-infos', 'oai_pmh_my_infos', name='oai_pmh_my_infos'),
     url(r'^oai-pmh-detail-registry$', 'oai_pmh_detail_registry', name='oai_pmh_detail_registry'),
     url(r'^update/all/records', 'update_all_records', name='update_all_records'),
+    url(r'^check/harvest-data', 'check_harvest_data', name='check_harvest_data'),
 )
 

@@ -1,11 +1,11 @@
 ################################################################################
 #
-# File Name: html_views.py
+# File Name: views.py
 # Application: Informatics Core
 # Description:
 #
-# Author: Marcus Newrock
-#         marcus.newrock@nist.gov
+# Author: Pierre Francois RIGODIAT
+#         pierre-francois.rigodiat@nist.gov
 #
 # Sponsor: National Institute of Standards and Technology (NIST)
 #
@@ -25,13 +25,12 @@ from mgi.settings import OAI_HOST_URI, OAI_USER, OAI_PASS
 from django.template import RequestContext, loader
 from mgi.models import XML2Download
 import datetime
-from mgi.models import OaiRegistry, OaiSet, OaiMetadataFormat
+from mgi.models import OaiSet, OaiMetadataFormat
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
 import lxml.etree as etree
 import os
 from StringIO import StringIO
-from django.contrib import messages
 
 ################################################################################
 #

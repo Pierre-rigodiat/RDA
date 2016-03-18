@@ -614,7 +614,7 @@ class OaiRegistry(Document):
     description = StringField(required=False)
     harvest = BooleanField()
     lastUpdate = DateTimeField(required=False)
-    isFetching = BooleanField()
+    isHarvesting = BooleanField()
 
 
 # class Sets(Document):

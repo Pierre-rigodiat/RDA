@@ -1,6 +1,6 @@
 ################################################################################
 #
-# File Name: rest_views.py
+# File Name: views.py
 # Application: Informatics Core
 # Description:
 #
