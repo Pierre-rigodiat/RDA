@@ -1123,7 +1123,7 @@ update_publish = function(result_id){
         	result_id: result_id,
         },
 		success: function(data){
-		    $("#" + result_id).load(document.URL +  " #" + result_id);
+		    location.reload();
 	    }
     });
 }
