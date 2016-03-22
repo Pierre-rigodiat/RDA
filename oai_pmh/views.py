@@ -101,7 +101,7 @@ def all_sets(request, registry):
     sets = []
     registrySets = OaiSet.objects(registry=registry).order_by("setName")
     for set in registrySets:
-        sets.append(set.setName)
+        sets.append({'key': set.setName, 'value': set.setSpec})
     return HttpResponse(json.dumps(sets), content_type="application/javascript")
 
 ################################################################################
