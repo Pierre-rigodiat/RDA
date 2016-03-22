@@ -353,9 +353,7 @@ def upload_xsd(request):
                     # is it supported by the MDCS ?
                     errors = common.getValidityErrorsForMDCS(xsd_tree, object_type)
                     if len(errors) > 0:
-                        errors_str = ""
-                        for error in errors:
-                            errors_str += error + "<br/>"
+                        errors_str = ", ".join(errors)
                         context = RequestContext(request, {
                             'upload_form': form,
                             'object_type':  object_type,
@@ -531,9 +529,7 @@ def manage_versions(request):
                     # is it supported by the MDCS ?
                     errors = common.getValidityErrorsForMDCS(xsd_tree, object_type)
                     if len(errors) > 0:
-                        errors_str = ""
-                        for error in errors:
-                            errors_str += error + "<br/>"
+                        errors_str = ", ".join(errors)
 
                         context = RequestContext(request, {
                             'upload_form': form,

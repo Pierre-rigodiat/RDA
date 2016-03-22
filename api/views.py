@@ -594,7 +594,7 @@ def curate(request):
 def add_schema(request):
     """
     POST http://localhost/rest/templates/add
-    POST data title="title", filename="filename", content="<xsd:schema>...</xsd:schema>" templateVersion="id", dependencies[]="id,id"
+    POST data title="title", filename="filename", content="<xsd:schema>...</xsd:schema>" templateVersion="id", dependencies{}="id,id"
     """
 
     sSerializer = schemaSerializer(data=request.DATA)

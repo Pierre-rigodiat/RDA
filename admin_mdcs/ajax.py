@@ -19,7 +19,7 @@ import lxml.etree as etree
 import json
 from io import BytesIO
 
-from mgi.common import LXML_SCHEMA_NAMESPACE, SCHEMA_NAMESPACE
+from mgi.common import LXML_SCHEMA_NAMESPACE, SCHEMA_NAMESPACE, update_dependencies
 from mgi.models import Template, TemplateVersion, Instance, Request, Module, Type, TypeVersion, Message, Bucket, \
     Exporter, ExporterXslt, ResultXslt, create_template, create_type, create_template_version, \
     create_type_version
@@ -68,23 +68,7 @@ def resolve_dependencies(request):
     includes = xsd_tree.findall("{}include".format(LXML_SCHEMA_NAMESPACE))
 
     # replace includes/imports by API calls (get dependencies starting by the imports)
-    idx = 0
-    while idx < len(schema_locations):
-        # no dependency selected
-        if dependencies[idx] == 'None':
-            idx += 1
-        else:
-            for el_import in imports:
-                if schema_locations[idx] == el_import.attrib['schemaLocation']:
-                    schema_location = getSchemaLocation(request, str(dependencies[idx]))
-                    el_import.attrib['schemaLocation'] = schema_location
-                    break
-            for el_include in includes:
-                if schema_locations[idx] == el_include.attrib['schemaLocation']:
-                    schema_location = getSchemaLocation(request, str(dependencies[idx]))
-                    el_include.attrib['schemaLocation'] = schema_location
-                    break
-            idx += 1
+    update_dependencies(xsd_tree, dict(zip(schema_locations, dependencies)))
 
     # validate the schema
     error = validate_xml_schema(xsd_tree)

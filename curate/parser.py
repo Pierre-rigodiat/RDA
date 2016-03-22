@@ -588,7 +588,7 @@ def generate_element(request, element, xml_tree, choice_info=None, full_path="",
                                                                                    element_tag, ref_name))
                         break
         else:
-            ref_element = xml_tree.find("./{0}element[@name='{1}']".format(LXML_SCHEMA_NAMESPACE, ref))
+            ref_element = xml_tree.find("./{0}{1}[@name='{2}']".format(LXML_SCHEMA_NAMESPACE, element_tag, ref))
 
         if ref_element is not None:
             text_capitalized = ref_element.attrib.get('name')
@@ -614,7 +614,7 @@ def generate_element(request, element, xml_tree, choice_info=None, full_path="",
             if target_namespace_prefix != '':
                 if get_element_form_default(xml_tree) == "qualified":
                     full_path += '/{0}:{1}'.format(target_namespace_prefix, text_capitalized)
-                elif "{1}:".format(target_namespace_prefix) in full_path:
+                elif "{0}:".format(target_namespace_prefix) in full_path:
                     full_path += '/{0}'.format(text_capitalized)
                 else:
                     full_path += '/{0}:{1}'.format(target_namespace_prefix, text_capitalized)

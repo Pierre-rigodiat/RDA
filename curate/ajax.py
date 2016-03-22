@@ -582,7 +582,8 @@ def duplicate(request):
                                                                                            element_tag, ref_name))
                                 break
                 else:
-                    ref_element = xmlDocTree.find("./{0}element[@name='{1}']".format(LXML_SCHEMA_NAMESPACE, ref))
+                    ref_element = xmlDocTree.find("./{0}{1}[@name='{2}']".format(LXML_SCHEMA_NAMESPACE,
+                                                                                 element_tag, ref))
 
                 if ref_element is not None:
                     text_capitalized = ref_element.attrib.get('name')

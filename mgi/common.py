@@ -4,6 +4,7 @@ from mgi.models import Template
 from cStringIO import StringIO
 from io import BytesIO
 
+from utils.APIschemaLocator.APIschemaLocator import getSchemaLocation
 from utils.XMLValidation.xml_schema import validate_xml_data
 
 SCHEMA_NAMESPACE = "http://www.w3.org/2001/XMLSchema"
@@ -25,15 +26,6 @@ def getValidityErrorsForMDCS(xmlTree, type):
     errors = []
     
     # General Tests
-
-    # only support unqualified elements/attributes
-    # root = xmlTree.getroot()
-    # if 'elementFormDefault' in root.attrib:
-    #     if root.attrib['elementFormDefault'] == 'qualified':
-    #         errors.append('Only templates with elementFormDefault set to unqualified are accepted.')
-    # if 'attributeFormDefault' in root.attrib:
-    #     if root.attrib['attributeFormDefault'] == 'qualified':
-    #         errors.append('Only templates with attributeFormDefault set to unqualified are accepted.')
 
     # get the imports
     imports = xmlTree.findall("{}import".format(LXML_SCHEMA_NAMESPACE))
@@ -341,3 +333,19 @@ def getAppInfo(element):
                 app_info[app_info_child.tag] = app_info_child.text
     
     return app_info
+
+
+def update_dependencies(xsd_tree, dependencies):
+    # get the imports
+    xsd_imports = xsd_tree.findall("{}import".format(LXML_SCHEMA_NAMESPACE))
+    # get the includes
+    xsd_includes = xsd_tree.findall("{}include".format(LXML_SCHEMA_NAMESPACE))
+
+    for schema_location, dependency_id in dependencies.iteritems():
+        for xsd_include in xsd_includes:
+            if schema_location == xsd_include.attrib['schemaLocation']:
+                xsd_include.attrib['schemaLocation'] = getSchemaLocation(dependency_id)
+
+        for xsd_import in xsd_imports:
+            if schema_location == xsd_import.attrib['schemaLocation']:
+                xsd_import.attrib['schemaLocation'] = getSchemaLocation(dependency_id)
