@@ -187,13 +187,12 @@ def render_select(select_id, option_list):
     return load_template('inputs/select.html', data)
 
 
-def render_buttons(add_button, delete_button, tag_id):
+def render_buttons(add_button, delete_button):
     """Displays buttons for a duplicable/removable element
 
     Parameters:
         add_button: boolean
         delete_button: boolean
-        tag_id: id of the tag to associate buttons to it
 
     Returns:
         JSON data
@@ -208,22 +207,20 @@ def render_buttons(add_button, delete_button, tag_id):
         raise TypeError('add_button type is wrong (' + str(del_button_type) + 'received, bool needed')
 
     form_string = ""
-    tag_id = str(tag_id)  # Tag ID string conversion
 
-    # the number of occurrences is fixed, don't need buttons
+    # Fixed number of occurences, don't need buttons
     if not add_button and not delete_button:
         pass
     else:
-        # FIXME remove onclick from buttons (use jquery instead)
         if add_button:
-            form_string += load_template('buttons/add.html', {'tag_id': tag_id, 'is_hidden': False})
+            form_string += load_template('buttons/add.html', {'is_hidden': False})
         else:
-            form_string += load_template('buttons/add.html', {'tag_id': tag_id, 'is_hidden': True})
+            form_string += load_template('buttons/add.html', {'is_hidden': True})
 
         if delete_button:
-            form_string += load_template('buttons/delete.html', {'tag_id': tag_id, 'is_hidden': False})
+            form_string += load_template('buttons/delete.html', {'is_hidden': False})
         else:
-            form_string += load_template('buttons/delete.html', {'tag_id': tag_id, 'is_hidden': True})
+            form_string += load_template('buttons/delete.html', {'is_hidden': True})
 
     return form_string
 
