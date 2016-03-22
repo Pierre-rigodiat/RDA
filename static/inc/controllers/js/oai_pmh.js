@@ -462,7 +462,7 @@ populateSelect = function() {
                                     success: function(data){
                                         var options = '<option value="0">'+emptyEntry+'</option>';
                                          for (var i = 0; i < data.length; i++) {
-                                            options += '<option value="' + data[i] + '">' + data[i] + '</option>';
+                                            options += '<option value="' + data[i]['value'] + '">' + data[i]['key'] + '</option>';
                                          }
                                          $("select#id_set").attr('disabled', false);
                                          $("select#id_set").html(options);
@@ -599,7 +599,7 @@ validateEditMyRegistry = function()
  */
 harvestAllData = function ()
 {
-    var registriesCheck = $("td[id^=Status]")
+    var registriesCheck = $("span[id^=harvest]:visible")
 
     $.each(registriesCheck, function(index, props) {
          harvestData($(props).attr('registryID'));
