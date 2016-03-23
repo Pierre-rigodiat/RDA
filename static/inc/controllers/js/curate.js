@@ -267,7 +267,8 @@ validateXML = function()
 	var xmlString = '';
 
     xmlString = generateXMLString (rootElement);
-    
+    console.log(xmlString);
+
     $("input:text").each(function(){
 	    $(this).attr("value", $(this).val());
 	});
@@ -321,6 +322,11 @@ validate_xml_data = function(xmlString, xsdForm){
 }
 
 
+function onlyUnique(value, index, self) {
+    return self.indexOf(value) === index;
+}
+
+
 /**
  * Generate an XML String from values entered in the form.
  * @param elementObj
@@ -346,12 +352,29 @@ generateXMLString = function(elementObj)
 					xmlString += generateXMLString(children[i]);
 				}else if ($(children[i]).hasClass("element") ){ // the node is an element				
 					var tag = $(children[i]).attr('tag');
-					
+					var xmlns = $(children[i]).attr('xmlns');
+					console.log(xmlns);
+					var tag_ns = '';
+					if (xmlns != undefined){
+					    tag_ns = ' xmlns="' + xmlns + '"';
+					}
+
 					// get attributes
-					var attributes = ""
+					var attributes = "";
+					var attr_ns_prefixes = [];
 					$(children[i]).children("ul").children("li.attribute:not(.removed)").each(function(){
 						var attr_tag = $(this).attr('tag');
-										
+						var attr_xmlns = $(this).attr('xmlns');
+						var attr_ns = '';
+						if (attr_xmlns != undefined){
+                            if (attr_xmlns != xmlns){
+                                var ns_prefix = $(this).attr('ns_prefix');
+                                if (ns_prefix != undefined){
+                                    attr_ns_prefixes.push(' xmlns:' + ns_prefix + '="' + attr_xmlns + '"');
+                                    attr_ns = ns_prefix + ':';
+                                }
+                            }
+                        }
 						attrChildren = $(this).children();					
  
 						var value= ""
@@ -369,8 +392,12 @@ generateXMLString = function(elementObj)
 								value += $($(attrChildren[j]).parent()).find(".moduleResult").text();		
 							} 
 						}						
-						attributes += " " + attr_tag + "='" + value + "'";
+						attributes += " " + attr_ns + attr_tag + "='" + value + "'";
 					});
+                    var unique_attr_ns_prefixes = attr_ns_prefixes.filter( onlyUnique );
+					for ( var i in unique_attr_ns_prefixes ) {
+                        attributes += unique_attr_ns_prefixes[i];
+                    }
 										
 					// build the tag with its value
 					xml_value = generateXMLString(children[i]);
@@ -379,7 +406,7 @@ generateXMLString = function(elementObj)
 						xmlString += xml_value;
 					}else{
 						// build opening tag with potential attributes
-						xmlString += "<" + tag + attributes + ">";
+						xmlString += "<" + tag + tag_ns + attributes + ">";
 						// build opening tag with potential attributes
 						xmlString += xml_value;
 						// build the closing tag
@@ -741,8 +768,9 @@ downloadCurrentXML = function()
 	var rootElement = document.getElementsByName("xsdForm")[0];
 	var xmlString = '';
 
-    xmlString = generateXMLString (rootElement);   
-    
+    xmlString = generateXMLString (rootElement);
+    console.log(xmlString);
+
     download_current_xml(xmlString);
 
     console.log('END [downloadCurrentXML]');

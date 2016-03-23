@@ -21,10 +21,15 @@ from bson.objectid import ObjectId
 from django.http import HttpResponse
 from django.conf import settings
 from io import BytesIO
+
 # from cStringIO import StringIO
 # from mgi.models import Template, XMLdata, XML2Download, Module, MetaSchema
 from curate.models import SchemaElement
 from curate.parser import generate_form, generate_element, generate_sequence_absent, generate_element_absent, has_module, \
+    get_element_type, generate_module, generate_complex_type, generate_simple_type, generate_sequence, generate_choice, \
+    get_element_namespace
+from mgi.common import LXML_SCHEMA_NAMESPACE
+from mgi.models import Template, XML2Download
     get_element_type, generate_module, generate_complex_type, generate_simple_type, generate_sequence, generate_choice, \
     load_schema_data_in_db
 from curate.renderer.list import ListRenderer
@@ -43,29 +48,8 @@ from django.contrib import messages
 # from modules import get_module_view
 import os
 # from django.http.request import HttpRequest
-
-
-################################################################################
-# 
-# Class Name: ElementOccurrences
-#
-# Description: Store information about a occurrences of an element
-#
-################################################################################
-# class ElementOccurrences:
-#     "Class that stores information about element occurrences"
-#
-#     def __init__(self, minOccurrences = 1, maxOccurrences = 1, nbOccurrences = 1):
-#         #min/max occurrence attributes
-#         self.minOccurrences = minOccurrences
-#         self.maxOccurrences = maxOccurrences
-#
-#         #current number of occurrences of the element
-#         self.nbOccurrences = nbOccurrences
-#
-#     def __to_json__(self):
-#         return json.dumps(self, default=lambda o:o.__dict__)
-
+import urllib2
+from utils.XSDflattener.XSDflattener import XSDFlattenerURL
 
 ######################################################################################################################
 # AJAX Requests
@@ -240,19 +224,18 @@ def download_xml(request):
 ################################################################################
 def download_current_xml(request):
     # get the XML String built from form
-    xmlString = request.POST['xmlString']
+    xml_string = request.POST['xmlString']
+
+    xml_tree_str = str(request.session['xmlDocTree'])
 
     # set namespaces information in the XML document
-    xmlString = common.manage_namespaces(request.POST['xmlString'],
-                                         request.session['namespaces'],
-                                         request.session['defaultPrefix'],
-                                         request.session['target_namespace_prefix'])
+    xml_string = common.manage_namespaces(xml_string, xml_tree_str)
 
     # get form data information
     form_data_id = request.session['curateFormData']
     form_data = FormData.objects().get(pk=form_data_id)
 
-    xml2download = XML2Download(title=form_data.name, xml=xmlString).save()
+    xml2download = XML2Download(title=form_data.name, xml=xml_string).save()
     xml2downloadID = str(xml2download.id)
 
     response_dict = {"xml2downloadID": xml2downloadID}
@@ -353,29 +336,45 @@ def generate_absent(request):
     form_element = FormElement.objects.get(id=form_element_id)
     xml_element = form_element.xml_element
 
-    namespaces = request.session['namespaces']
-    defaultPrefix = request.session['defaultPrefix']
-    xmlDocTreeStr = request.session['xmlDocTree']
-    xmlDocTree = etree.ElementTree(etree.fromstring(xmlDocTreeStr))
+    # if the xml element is from an imported schema
+    if xml_element.schema_location is not None:
+        # open the imported file
+        ref_xml_schema_file = urllib2.urlopen(xml_element.schema_location)
+        # get the content of the file
+        ref_xml_schema_content = ref_xml_schema_file.read()
+        # build the XML tree
+        xmlDocTree = etree.parse(BytesIO(ref_xml_schema_content.encode('utf-8')))
+        # get the namespaces from the imported schema
+        namespaces = common.get_namespaces(BytesIO(str(ref_xml_schema_content)))
+    else:
+        # get the content of the XML tree
+        xmlDocTreeStr = request.session['xmlDocTree']
+        # build the XML tree
+        xmlDocTree = etree.ElementTree(etree.fromstring(xmlDocTreeStr))
+        # get the namespaces
+        namespaces = common.get_namespaces(BytesIO(str(xmlDocTreeStr)))
+
+    # flatten the includes
+    flattener = XSDFlattenerURL(etree.tostring(xmlDocTree))
+    xml_doc_tree_str = flattener.get_flat()
+    xmlDocTree = etree.parse(BytesIO(xml_doc_tree_str.encode('utf-8')))
 
     # render element
-    namespace = "{" + namespaces[defaultPrefix] + "}"
+    element = xmlDocTree.xpath(xml_element.xsd_xpath, namespaces=namespaces)[0]
 
-    element = xmlDocTree.xpath(xml_element.xsd_xpath, namespaces=request.session['namespaces'])[0]
-
-    # generating a choice, generate the parent element
-    if tag == "choice":
+    if "element" in element.tag and tag == "choice":
         # can use generate_element to generate a choice never generated
-        formString = generate_element(request, element, xmlDocTree, namespace, full_path=form_element.xml_xpath)
+        formString = generate_element(request, element, xmlDocTree, full_path=form_element.xml_xpath,
+                                      schema_location=xml_element.schema_location)
         # remove the opening and closing ul tags
         formString = formString[4:-4]
-    else:
-        if 'sequence' in element.tag:
-            formString = generate_sequence_absent(request, element, xmlDocTree, namespace)
-        else:
-            # can't directly use generate_element because only need the body of the element not its title
-            formString = generate_element_absent(request, element, xmlDocTree, form_element)
-
+    elif "element" in element.tag:
+        # generate only the body of the element (not the title)
+        formString = generate_element_absent(request, element, xmlDocTree, form_element,
+                                                 schema_location=xml_element.schema_location)
+    elif "sequence" in element.tag:
+        formString = generate_sequence_absent(request, element, xmlDocTree,
+                                                  schema_location=xml_element.schema_location)
 
     # build HTML tree for the form
     htmlTree = html.fromstring(request.POST['xsdForm'])
@@ -442,26 +441,26 @@ def generate_absent(request):
 def can_duplicate(request):
     response_dict = {}
 
-    tagID = "element"+ str(request.POST['tagID'])
+    tag_id = "element" + str(request.POST['tagID'])
     form_data_id = request.session['curateFormData']
     form_data = FormData.objects.get(id=form_data_id)
-    form_element_id = form_data.elements[tagID]
+    form_element_id = form_data.elements[tag_id]
     form_element = FormElement.objects.get(id=form_element_id)
     xml_element = form_element.xml_element
 
     # Check that the element can be duplicated (should always be true)
-    if (xml_element.nbOccurs < xml_element.maxOccurs):
+    if xml_element.nbOccurs < xml_element.maxOccurs:
         xml_element.nbOccurs += 1
         xml_element.save()
         # from 0 occurrence to 1, just enable the GUI
-        if(xml_element.nbOccurs == 1):
-            styleAdd=''
-            if (xml_element.maxOccurs == 1):
-                styleAdd = 'display:none'
+        if xml_element.nbOccurs == 1:
+            style_add = ''
+            if xml_element.maxOccurs == 1:
+                style_add = 'display:none'
             response_dict['occurs'] = 'zero'
-            response_dict['tagID'] = str(tagID)
-            response_dict['id'] = str(tagID[7:])
-            response_dict['styleAdd'] = styleAdd
+            response_dict['tagID'] = str(tag_id)
+            response_dict['id'] = str(tag_id[7:])
+            response_dict['styleAdd'] = style_add
         else:
             response_dict['occurs'] = 'notzero'
     else:
@@ -495,54 +494,124 @@ def duplicate(request):
     xml_element = form_element.xml_element
 
     # Check that the element can be duplicated
-    if (xml_element.nbOccurs <= xml_element.maxOccurs):
+    if xml_element.nbOccurs <= xml_element.maxOccurs:
+        # if the xml element is from an imported schema
+        if xml_element.schema_location is not None:
+            # open the imported file
+            ref_xml_schema_file = urllib2.urlopen(xml_element.schema_location)
+            # get the content of the file
+            ref_xml_schema_content = ref_xml_schema_file.read()
+            # build the XML tree
+            xmlDocTree = etree.parse(BytesIO(ref_xml_schema_content.encode('utf-8')))
+            # get the namespaces from the imported schema
+            namespaces = common.get_namespaces(BytesIO(str(ref_xml_schema_content)))
+        else:
+            # get the content of the XML tree
+            xmlDocTreeStr = request.session['xmlDocTree']
+            # build the XML tree
+            xmlDocTree = etree.ElementTree(etree.fromstring(xmlDocTreeStr))
+            # get the namespaces
+            namespaces = common.get_namespaces(BytesIO(str(xmlDocTreeStr)))
         nb_html_tags = int(request.session['nb_html_tags'])
-        namespaces = request.session['namespaces']
-        defaultPrefix = request.session['defaultPrefix']
-        xmlDocTreeStr = request.session['xmlDocTree']
-        xmlDocTree = etree.ElementTree(etree.fromstring(xmlDocTreeStr))
+
+        # flatten the includes
+        flattener = XSDFlattenerURL(etree.tostring(xmlDocTree))
+        xml_doc_tree_str = flattener.get_flat()
+        xmlDocTree = etree.parse(BytesIO(xml_doc_tree_str.encode('utf-8')))
+
         # render element
-        namespace = "{" + namespaces[defaultPrefix] + "}"
+        sequenceChild = xmlDocTree.xpath(xml_element.xsd_xpath, namespaces=namespaces)[0]
 
-        sequenceChild = xmlDocTree.xpath(xml_element.xsd_xpath, namespaces=request.session['namespaces'])[0]
-
-        if sequenceChild.tag == "{0}element".format(namespace):
+        if sequenceChild.tag == "{0}element".format(LXML_SCHEMA_NAMESPACE):
             element_tag='element'
-        elif sequenceChild.tag == "{0}attribute".format(namespace):
+        elif sequenceChild.tag == "{0}attribute".format(LXML_SCHEMA_NAMESPACE):
             element_tag='attribute'
-        elif sequenceChild.tag == "{0}sequence".format(namespace):
+        elif sequenceChild.tag == "{0}sequence".format(LXML_SCHEMA_NAMESPACE):
             element_tag = 'sequence'
-        elif sequenceChild.tag == "{0}choice".format(namespace):
+        elif sequenceChild.tag == "{0}choice".format(LXML_SCHEMA_NAMESPACE):
             element_tag = 'choice'
 
         # get appinfo elements
-        app_info = common.getAppInfo(sequenceChild, namespace)
+        app_info = common.getAppInfo(sequenceChild)
 
         _has_module = has_module(sequenceChild)
 
         if element_tag == "element" or element_tag == "attribute":
-            # type is a reference included in the document
-            if 'ref' in sequenceChild.attrib:
+            # get the name of the element, go find the reference if there's one
+            if 'ref' in sequenceChild.attrib:  # type is a reference included in the document
                 ref = sequenceChild.attrib['ref']
-                refElement = None
+                # refElement = None
                 if ':' in ref:
-                    refSplit = ref.split(":")
-                    refNamespacePrefix = refSplit[0]
-                    refName = refSplit[1]
-                    refNamespace = namespaces[refNamespacePrefix]
-                    # TODO: manage namespaces/targetNamespaces, composed schema with different target namespaces
-                    # element = xmlTree.findall("./{0}element[@name='"+refName+"']".format(refNamespace))
-                    refElement = xmlDocTree.find("./{0}element[@name='{1}']".format(namespace, refName))
-                else:
-                    refElement = xmlDocTree.find("./{0}element[@name='{1}']".format(namespace, ref))
+                    # split the ref element
+                    ref_split = ref.split(":")
+                    # get the namespace prefix
+                    ref_namespace_prefix = ref_split[0]
+                    # get the element name
+                    ref_name = ref_split[1]
+                    # test if referencing element within the same schema (same target namespace)
+                    target_namespace_prefix = common.get_target_namespace_prefix(namespaces, xmlDocTree)
+                    if target_namespace_prefix == ref_namespace_prefix:
+                        ref_element = xmlDocTree.find("./{0}{1}[@name='{2}']".format(LXML_SCHEMA_NAMESPACE,
+                                                                                   element_tag, ref_name))
+                    else:
+                        # TODO: manage ref to imported elements (different target namespace)
+                        # get all import elements
+                        imports = xmlDocTree.findall('//{}import'.format(LXML_SCHEMA_NAMESPACE))
+                        # find the referred document using the prefix
+                        for el_import in imports:
+                            import_ns = el_import.attrib['namespace']
+                            if namespaces[ref_namespace_prefix] == import_ns:
+                                # get the location of the schema
+                                ref_xml_schema_url = el_import.attrib['schemaLocation']
+                                # set the schema location to save in database
+                                schema_location = ref_xml_schema_url
+                                # download the file
+                                ref_xml_schema_file = urllib2.urlopen(ref_xml_schema_url)
+                                # read the content of the file
+                                ref_xml_schema_content = ref_xml_schema_file.read()
+                                # build the tree
+                                xml_tree = etree.parse(BytesIO(ref_xml_schema_content.encode('utf-8')))
+                                # look for includes
+                                includes = xml_tree.findall('//{}include'.format(LXML_SCHEMA_NAMESPACE))
+                                # if includes are present
+                                if len(includes) > 0:
+                                    # create a flattener with the file content
+                                    flattener = XSDFlattenerURL(ref_xml_schema_content)
+                                    # flatten the includes
+                                    ref_xml_schema_content = flattener.get_flat()
+                                    # build the tree
+                                    xml_tree = etree.parse(BytesIO(ref_xml_schema_content.encode('utf-8')))
 
-                if refElement is not None:
-                    textCapitalized = refElement.attrib.get('name')
-                    sequenceChild = refElement
+                                ref_element = xml_tree.find("./{0}{1}[@name='{2}']".format(LXML_SCHEMA_NAMESPACE,
+                                                                                           element_tag, ref_name))
+                                break
+                else:
+                    ref_element = xmlDocTree.find("./{0}{1}[@name='{2}']".format(LXML_SCHEMA_NAMESPACE,
+                                                                                 element_tag, ref))
+
+                if ref_element is not None:
+                    text_capitalized = ref_element.attrib.get('name')
+                    sequenceChild = ref_element
+                    # check if the element has a module
+                    _has_module = has_module(request, sequenceChild)
+                else:
+                    # the element was not found where it was supposed to be
+                    # could be a use case too complex for the current parser
+                    print "Ref element not found" + str(sequenceChild.attrib)
+                    return formString
             else:
                 textCapitalized = sequenceChild.attrib.get('name')
 
-            elementType = get_element_type(sequenceChild, xmlDocTree, namespace, defaultPrefix)
+            default_prefix = common.get_default_prefix(namespaces)
+            target_namespace_prefix = common.get_target_namespace_prefix(namespaces, xmlDocTree)
+
+            # get the element namespace
+            element_ns = get_element_namespace(sequenceChild, xmlDocTree)
+            tag_ns = " xmlns={0} ".format(element_ns) if element_ns is not None else ''
+
+            element_type, xmlDocTree, schema_location = get_element_type(sequenceChild, xmlDocTree, namespaces,
+                                                                         default_prefix, target_namespace_prefix)
+
             nb_html_tags = int(request.session['nb_html_tags'])
             newTagID = "element" + str(nb_html_tags)
             nb_html_tags += 1
@@ -558,9 +627,11 @@ def duplicate(request):
             use = app_info_use
 
             # renders the name of the element
-            formString += "<li class='"+ element_tag + ' ' + use +"' id='" + str(newTagID) + "' tag='"+textCapitalized+"'>"
+            formString += "<li class='"+ element_tag + ' ' + use +"' id='" + str(newTagID) + "' "
+            formString += "tag='{0}' {1}>".format(django.utils.html.escape(textCapitalized),
+                                            django.utils.html.escape(tag_ns))
             if CURATE_COLLAPSE:
-                if elementType is not None and elementType.tag == "{0}complexType".format(namespace): # the type is complex, can be collapsed
+                if element_type is not None and element_type.tag == "{0}complexType".format(LXML_SCHEMA_NAMESPACE): # the type is complex, can be collapsed
                     formString += "<span class='collapse' style='cursor:pointer;' onclick='showhideCurate(event);'></span>"
 
             label = app_info['label'] if 'label' in app_info else textCapitalized
@@ -571,9 +642,10 @@ def duplicate(request):
             if _has_module:
                 formString += "<span id='add"+ str(newTagID[7:]) +"' class=\"icon add\" onclick=\"changeHTMLForm('add',"+str(newTagID[7:])+");\"></span>"
                 formString += "<span id='remove"+ str(newTagID[7:]) +"' class=\"icon remove\" onclick=\"changeHTMLForm('remove',"+str(newTagID[7:])+");\"></span>"
-                formString += generate_module(request, sequenceChild, namespace, xml_element.xsd_xpath, new_xml_xpath)
+                formString += generate_module(request, sequenceChild, xml_element.xsd_xpath, new_xml_xpath,
+                                              xml_tree=xmlDocTree)
             else: # generate the type
-                if elementType is None: # no complex/simple type
+                if element_type is None: # no complex/simple type
                     defaultValue = ""
                     if 'default' in sequenceChild.attrib:
                         # if the default attribute is present
@@ -592,10 +664,12 @@ def duplicate(request):
                 else: # complex/simple type
                     formString += "<span id='add"+ str(newTagID[7:]) +"' class=\"icon add\" onclick=\"changeHTMLForm('add',"+str(newTagID[7:])+");\"></span>"
                     formString += "<span id='remove"+ str(newTagID[7:]) +"' class=\"icon remove\" onclick=\"changeHTMLForm('remove',"+str(newTagID[7:])+");\"></span>"
-                    if elementType.tag == "{0}complexType".format(namespace):
-                        formString += generate_complex_type(request, elementType, xmlDocTree, namespace, full_path=new_xml_xpath)
-                    elif elementType.tag == "{0}simpleType".format(namespace):
-                        formString += generate_simple_type(request, elementType, xmlDocTree, namespace, full_path=new_xml_xpath)
+                    if element_type.tag == "{0}complexType".format(LXML_SCHEMA_NAMESPACE):
+                        formString += generate_complex_type(request, element_type, xmlDocTree, full_path=new_xml_xpath,
+                                                            schema_location=xml_element.schema_location)
+                    elif element_type.tag == "{0}simpleType".format(LXML_SCHEMA_NAMESPACE):
+                        formString += generate_simple_type(request, element_type, xmlDocTree, full_path=new_xml_xpath,
+                                                           schema_location=xml_element.schema_location)
 
             formString += "</li>"
 
@@ -623,15 +697,18 @@ def duplicate(request):
             # generates the sequence
             if(len(list(sequenceChild)) != 0):
                 for child in sequenceChild:
-                    if (child.tag == "{0}element".format(namespace)):
-                        formString += generate_element(request, child, xmlDocTree, namespace, full_path=new_xml_xpath)
-                    elif (child.tag == "{0}sequence".format(namespace)):
-                        formString += generate_sequence(request, child, xmlDocTree, namespace, full_path=new_xml_xpath)
-                    elif (child.tag == "{0}choice".format(namespace)):
-                        formString += generate_choice(request, child, xmlDocTree, namespace, full_path=new_xml_xpath)
-                    elif (child.tag == "{0}any".format(namespace)):
+                    if (child.tag == "{0}element".format(LXML_SCHEMA_NAMESPACE)):
+                        formString += generate_element(request, child, xmlDocTree, full_path=new_xml_xpath,
+                                                       schema_location=xml_element.schema_location)
+                    elif (child.tag == "{0}sequence".format(LXML_SCHEMA_NAMESPACE)):
+                        formString += generate_sequence(request, child, xmlDocTree, full_path=new_xml_xpath,
+                                                        schema_location=xml_element.schema_location)
+                    elif (child.tag == "{0}choice".format(LXML_SCHEMA_NAMESPACE)):
+                        formString += generate_choice(request, child, xmlDocTree, full_path=new_xml_xpath,
+                                                      schema_location=xml_element.schema_location)
+                    elif (child.tag == "{0}any".format(LXML_SCHEMA_NAMESPACE)):
                         pass
-                    elif (child.tag == "{0}group".format(namespace)):
+                    elif (child.tag == "{0}group".format(LXML_SCHEMA_NAMESPACE)):
                         pass
             formString += "</li>"
         elif element_tag == "choice":
@@ -656,7 +733,7 @@ def duplicate(request):
             # generates the choice
             if(len(list(sequenceChild)) != 0):
                 for child in sequenceChild:
-                    if (child.tag == "{0}element".format(namespace)):
+                    if (child.tag == "{0}element".format(LXML_SCHEMA_NAMESPACE)):
                         if child.attrib.get('name') is not None:
                             opt_value = opt_label = child.attrib.get('name')
                         else:
@@ -665,14 +742,14 @@ def duplicate(request):
                                 opt_label = opt_label.split(':')[1]
 
                         formString += "<option value='" + opt_value + "'>" + opt_label + "</option></b><br>"
-                    elif (child.tag == "{0}group".format(namespace)):
+                    elif (child.tag == "{0}group".format(LXML_SCHEMA_NAMESPACE)):
                         pass
-                    elif (child.tag == "{0}choice".format(namespace)):
+                    elif (child.tag == "{0}choice".format(LXML_SCHEMA_NAMESPACE)):
                         pass
-                    elif (child.tag == "{0}sequence".format(namespace)):
+                    elif (child.tag == "{0}sequence".format(LXML_SCHEMA_NAMESPACE)):
                         formString += "<option value='sequence" + str(nbSequence) + "'>Sequence " + str(nbSequence) + "</option></b><br>"
                         nbSequence += 1
-                    elif (child.tag == "{0}any".format(namespace)):
+                    elif (child.tag == "{0}any".format(LXML_SCHEMA_NAMESPACE)):
                         pass
 
             formString += "</select>"
@@ -683,15 +760,19 @@ def duplicate(request):
 
 
             for (counter, choiceChild) in enumerate(list(sequenceChild)):
-                if choiceChild.tag == "{0}element".format(namespace):
-                    formString += generate_element(request, choiceChild, xmlDocTree, namespace, common.ChoiceInfo(chooseIDStr,counter), full_path=new_xml_xpath)
-                elif (choiceChild.tag == "{0}group".format(namespace)):
+                if choiceChild.tag == "{0}element".format(LXML_SCHEMA_NAMESPACE):
+                    formString += generate_element(request, choiceChild, xmlDocTree,
+                                                   common.ChoiceInfo(chooseIDStr,counter), full_path=new_xml_xpath,
+                                                   schema_location=xml_element.schema_location)
+                elif (choiceChild.tag == "{0}group".format(LXML_SCHEMA_NAMESPACE)):
                     pass
-                elif (choiceChild.tag == "{0}choice".format(namespace)):
+                elif (choiceChild.tag == "{0}choice".format(LXML_SCHEMA_NAMESPACE)):
                     pass
-                elif (choiceChild.tag == "{0}sequence".format(namespace)):
-                    formString += generate_sequence(request, choiceChild, xmlDocTree, namespace, common.ChoiceInfo(chooseIDStr,counter), full_path=new_xml_xpath)
-                elif (choiceChild.tag == "{0}any".format(namespace)):
+                elif (choiceChild.tag == "{0}sequence".format(LXML_SCHEMA_NAMESPACE)):
+                    formString += generate_sequence(request, choiceChild, xmlDocTree,
+                                                    common.ChoiceInfo(chooseIDStr,counter), full_path=new_xml_xpath,
+                                                    schema_location=xml_element.schema_location)
+                elif (choiceChild.tag == "{0}any".format(LXML_SCHEMA_NAMESPACE)):
                     pass
 
             formString += "</li>"
@@ -877,13 +958,13 @@ def validate_xml_data(request):
     template_id = request.session['currentTemplateID']
     request.session['xmlString'] = ""
     try:
+        xsd_tree_str = str(request.session['xmlDocTree'])
+
         # set namespaces information in the XML document
-        xmlString = common.manage_namespaces(request.POST['xmlString'],
-                                             request.session['namespaces'],
-                                             request.session['defaultPrefix'],
-                                             request.session['target_namespace_prefix'])
+        xmlString = common.manage_namespaces(request.POST['xmlString'], xsd_tree_str)
+        # xmlString = request.POST['xmlString']
         # validate XML document
-        common.validateXMLDocument(template_id, xmlString)
+        common.validateXMLDocument(xmlString, xsd_tree_str)
     except etree.XMLSyntaxError, xse:
         #xmlParseEntityRef exception: use of & < > forbidden
         message= "Validation Failed. </br> May be caused by : </br> - Syntax problem </br> - Use of forbidden symbols : '&' or '<' or '>'"
@@ -940,12 +1021,8 @@ def set_current_template(request):
     request.session['currentTemplateID'] = template_id
     request.session.modified = True
 
-    if template_id in MetaSchema.objects.all().values_list('schemaId'):
-        meta = MetaSchema.objects.get(schemaId=template_id)
-        xmlDocData = meta.flat_content
-    else:
-        templateObject = Template.objects.get(pk=template_id)
-        xmlDocData = templateObject.content
+    templateObject = Template.objects.get(pk=template_id)
+    xmlDocData = templateObject.content
 
     XMLtree = etree.parse(BytesIO(xmlDocData.encode('utf-8')))
     request.session['xmlDocTree'] = etree.tostring(XMLtree)
@@ -979,11 +1056,7 @@ def set_current_user_template(request):
 
     templateObject = Template.objects.get(pk=template_id)
 
-    if template_id in MetaSchema.objects.all().values_list('schemaId'):
-        meta = MetaSchema.objects.get(schemaId=template_id)
-        xmlDocData = meta.flat_content
-    else:
-        xmlDocData = templateObject.content
+    xmlDocData = templateObject.content
 
     XMLtree = etree.parse(BytesIO(xmlDocData.encode('utf-8')))
     request.session['xmlDocTree'] = etree.tostring(XMLtree)

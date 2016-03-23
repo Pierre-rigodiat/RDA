@@ -24,12 +24,14 @@ class NewForm(forms.Form):
     """
     document_name = forms.CharField(label='', max_length=100, required=True)
 
+
 class FormDataModelChoiceField(forms.ModelChoiceField):
     """
     Choice Field to select an existing form
     """
     def label_from_instance(self, obj):
         return obj.name
+
 
 class OpenForm(forms.Form):
     """
@@ -45,12 +47,14 @@ class OpenForm(forms.Form):
         super(OpenForm, self).__init__(*args, **kwargs)
         self.fields['forms'].queryset = qs
 
+
 class UploadForm(forms.Form):
     """
     Form to start curating from a file
     """
     file = forms.FileField(label='')
-    
+
+
 class SaveDataForm(forms.Form):
     """
     Form to save a form

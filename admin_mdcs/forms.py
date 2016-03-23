@@ -18,6 +18,8 @@ from django import forms
 from django.contrib.auth.models import User
 
 # list of possible protocols available in the form
+from mgi.models import Bucket
+
 PROTOCOLS = (('http', 'HTTP'),
             ('https', 'HTTPS'))
 
@@ -102,7 +104,7 @@ class UploadXSLTForm(forms.Form):
     Form to upload a new XSLT
     """
     name = forms.CharField(label='Enter XSLT name', max_length=100, required=True)
-    xslt_file = forms.FileField(label='Select a file',required=True)
+    xslt_file = forms.FileField(label='Select a file', required=True)
     available_for_all = forms.BooleanField(widget=forms.CheckboxInput(attrs={'class':'cmn-toggle cmn-toggle-round'}))
 
 class UploadResultXSLTForm(forms.Form):
@@ -110,7 +112,7 @@ class UploadResultXSLTForm(forms.Form):
     Form to upload a new XSLT to display results
     """
     result_name = forms.CharField(label='Enter XSLT name', max_length=100, required=True)
-    result_xslt_file = forms.FileField(label='Select a file',required=True)
+    result_xslt_file = forms.FileField(label='Select a file', required=True)
 
 class FormDataModelChoiceField(forms.ModelChoiceField):
     """
@@ -145,3 +147,34 @@ class UserForm(forms.Form):
         self.fields['users'].choices = []
         self.fields['users'].choices = self.USERS_OPTIONS
 
+
+class UploadTemplateForm(forms.Form):
+    """
+    Form to upload a new Template
+    """
+    name = forms.CharField(label='Enter Template name', max_length=100, required=True)
+    xsd_file = forms.FileField(label='Select a file', required=True)
+
+
+class BucketDataModelChoiceField(forms.ModelMultipleChoiceField):
+    """
+    Choice Field to select an existing form
+    """
+    def label_from_instance(self, obj):
+        return obj.label
+
+
+class UploadTypeForm(forms.Form):
+    """
+    Form to upload a new Type
+    """
+    name = forms.CharField(label='Enter Type name', max_length=100, required=True)
+    xsd_file = forms.FileField(label='Select a file', required=True)
+    buckets = BucketDataModelChoiceField(label='Select buckets', queryset=Bucket.objects(), required=False)
+
+
+class UploadVersionForm(forms.Form):
+    """
+    Form to upload a new version of a Template or a Type
+    """
+    xsd_file = forms.FileField(label='Select a file', required=True)
