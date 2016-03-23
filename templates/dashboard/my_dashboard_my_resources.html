@@ -6,7 +6,7 @@
 <!--
 ################################################################################
 #
-# File Name: my_profile_dashboard_my_resources.html
+# File Name: my_dashboard_my_resources.html
 # Application: profile/dashboard
 # Description:
 #
@@ -63,7 +63,7 @@
                         <td>
                             {% with XMLdata|get:"_id" as XMLdata_id %}
                             {% autoescape on %}
-                            <a href="/explore/detail_result_keyword?id={{XMLdata_id}}"><span class="icon legend view">
+                            <a href="/dashboard/detail?id={{XMLdata_id}}"><span class="icon legend result">
                                 View
                             </span></a>
                             {% endautoescape %}

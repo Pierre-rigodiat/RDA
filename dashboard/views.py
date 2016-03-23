@@ -30,8 +30,8 @@ from django.contrib.auth import authenticate
 import lxml.etree as etree
 from io import BytesIO
 from mgi import common
-from itertools import chain
 import os
+import xmltodict
 
 ################################################################################
 #
@@ -132,35 +132,9 @@ def my_profile_change_password(request):
 @login_required(login_url='/login')
 def dashboard_resources(request):
     template = loader.get_template('dashboard/my_dashboard_my_resources.html')
-    if 'template' in request.GET:
-        template_name = request.GET['template']
-        if template_name == 'all':
-            context = RequestContext(request, {
-                'XMLdatas': XMLdata.find({'iduser' : str(request.user.id)}),
-            })
-        else :
-            if template_name == 'datacollection':
-                templateNamesQuery = list(chain(Template.objects.filter(title=template_name).values_list('id'),
-                                                Template.objects.filter(title='repository').values_list('id'),
-                                                Template.objects.filter(title='database').values_list('id'),
-                                                Template.objects.filter(title='projectarchive').values_list('id')
-                                                ))
-            else :
-                templateNamesQuery = Template.objects.filter(title=template_name).values_list('id')
-            templateNames = []
-            for templateQuery in templateNamesQuery:
-                templateNames.append(str(templateQuery))
-
-            context = RequestContext(request, {
-                'XMLdatas': XMLdata.find({
-                    'iduser': str(request.user.id),
-                    'schema': {"$in": templateNames}}),
-                'template': template_name
-            })
-    else:
-        context = RequestContext(request, {
-                'XMLdatas': XMLdata.find({'iduser': str(request.user.id)}),
-        })
+    context = RequestContext(request, {
+            'XMLdatas': XMLdata.find({'iduser': str(request.user.id)}),
+    })
     return HttpResponse(template.render(context))
 
 
@@ -307,4 +281,50 @@ def dashboard_files(request):
                 'files': files,
                 'url': MDCS_URI,
     })
+    return HttpResponse(template.render(context))
+
+
+################################################################################
+#
+# Function Name: dashboard_detail_resource
+# Inputs:        request -
+# Outputs:       Detail of a resource
+# Exceptions:    None
+# Description:   Page that allows to see detail resource from a selected resource
+#
+################################################################################
+@login_required(login_url='/login')
+def dashboard_detail_resource(request) :
+    template = loader.get_template('dashboard/my_dashboard_detail_resource.html')
+    result_id = request.GET['id']
+    xmlString = XMLdata.get(result_id)
+    title = xmlString['title']
+    schemaId = xmlString['schema']
+
+    xmlString = xmltodict.unparse(xmlString['content']).encode('utf-8')
+    xsltPath = os.path.join(settings.SITE_ROOT, 'static', 'resources', 'xsl', 'xml2html.xsl')
+    xslt = etree.parse(xsltPath)
+    transform = etree.XSLT(xslt)
+
+    #Check if a custom detailed result XSLT has to be used
+    try:
+        if (xmlString != ""):
+            dom = etree.fromstring(str(xmlString))
+            schema = Template.objects.get(pk=schemaId)
+            if schema.ResultXsltDetailed:
+                shortXslt = etree.parse(BytesIO(schema.ResultXsltDetailed.content.encode('utf-8')))
+                shortTransform = etree.XSLT(shortXslt)
+                newdom = shortTransform(dom)
+            else:
+                newdom = transform(dom)
+    except Exception, e:
+        #We use the default one
+        newdom = transform(dom)
+
+    result = str(newdom)
+    context = RequestContext(request, {
+        'XMLHolder': result,
+        'title': title
+    })
+
     return HttpResponse(template.render(context))

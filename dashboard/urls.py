@@ -33,6 +33,7 @@ urlpatterns = patterns('',
     url(r'^edit_information$', 'dashboard.ajax.edit_information'),
     url(r'^delete_object$', 'dashboard.ajax.delete_object'),
     url(r'^modules$', 'dashboard.views.dashboard_modules'),
+    url(r'^detail$', 'dashboard.views.dashboard_detail_resource'),
 )+static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 
