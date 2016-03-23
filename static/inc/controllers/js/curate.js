@@ -1342,6 +1342,36 @@ cancelForm = function(){
     });
 }
 
+cancelChanges = function(){
+    $(function() {
+        $( "#dialog-cancel-changes-message" ).dialog({
+            modal: true,
+            buttons: {
+            	"Revert to my previously Saved Form": function() {
+                    reload_form();
+                    $( this ).dialog( "close" );
+                },
+            	"Return to Add Resources": function() {
+            		cancelForm();
+            		$( this ).dialog( "close" );
+                },
+            }
+        });
+    });
+}
+
+
+reload_form = function(){
+    $.ajax({
+        url : "/curate/reload-form",
+        type : "GET",
+        dataType: "json",
+        success: function(data){
+            $("#xsdForm").html(data.xsdForm);
+        },
+    });
+}
+
 
 /**
  * Check required, recommended elements

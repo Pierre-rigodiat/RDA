@@ -2403,6 +2403,29 @@ def cancel_form(request):
                 pass
         form_data.delete()
         messages.add_message(request, messages.INFO, 'Form deleted with success.')
-        return HttpResponse({},status=204)
+        return HttpResponse({}, status=204)
     except Exception, e:
-        return HttpResponse({},status=400)
+        return HttpResponse({}, status=400)
+
+
+def reload_form(request):
+    """
+    Reload the form string from latest version saved
+    :param request:
+    :return:
+    """
+    try:
+        form_data_id = request.session['curateFormData']
+        form_data = FormData.objects().get(pk=form_data_id)
+        xml_data = form_data.xml_data
+        # TODO: use generate_xsd_form from parser once merged
+        # the form has been saved already
+        if xml_data is not None:
+            request.session['curate_edit'] = True
+            form = generateForm(request)
+        else: # the form has never been saved
+            form = generateForm(request)
+        response_dict = {'xsdForm': form}
+        return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
+    except Exception, e:
+        return HttpResponse({}, status=400)

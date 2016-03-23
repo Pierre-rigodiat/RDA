@@ -108,11 +108,19 @@ Please wait while the form is loading...
 {% if not edit %}
 <a class="button save-form">Save Form </a>
 {% endif %}
+<a class="button button-reversed cancel-changes">Cancel Changes </a>
 <a class="button button-reversed clear-fields">Clear Form</a>
 </div>
 {% endblock %}
 
 {% block popups %}
+<div id="dialog-cancel-changes-message" title="Cancel Changes" style="display:none;">
+<p></p>
+  <p>
+    Please choose one the following options.
+  </p>
+</div>
+
 <div id="dialog-cleared-message" title="Clear Form" style="display:none;">
 <p></p>
   <p>
@@ -174,7 +182,7 @@ Some <span style="color:red;">required</span> or <span style="color:blue;">recom
 generate_xsd_form();
 $('.button.save-to-repo').on('click', validateXML);
 $('.button.clear-fields').on('click', clearFields);
-$('.button.cancel').on('click', cancelForm);
+$('.button.cancel-changes').on('click', cancelChanges);
 $('.button.save-form').on('click', saveForm);
 </script>
 {% endblock %}
