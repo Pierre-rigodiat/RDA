@@ -253,6 +253,7 @@ class XMLdata():
     def save(self):
         """save into mongo db"""
         # insert the content into mongo db                                                                                                                                                                                    
+        self.content['lastmodificationdate'] = datetime.datetime.now()
         docID = self.xmldata.insert(self.content)
         return docID
     
@@ -385,7 +386,7 @@ class XMLdata():
 #         # create a connection
 #         client = MongoClient(MONGODB_URI)
 #         # connect to the db 'mgi'
-#         db = client['mgi']
+#         db = client['mgi']publi
 #         # get the xmldata collection
 #         xmldata = db['xmldata']
 #         
@@ -413,7 +414,7 @@ class XMLdata():
         xmldata = db['xmldata']
                 
         json_content = xmltodict.parse(content, postprocessor=postprocessor)
-        json = {'content': json_content, 'title': title}
+        json = {'content': json_content, 'title': title, 'lastmodificationdate': datetime.datetime.now()}
                     
         xmldata.update({'_id': ObjectId(postID)}, {"$set":json}, upsert=False)
 

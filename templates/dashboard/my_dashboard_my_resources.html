@@ -33,12 +33,20 @@
 {% if XMLdatas%}
 {% with canEdit=request.user|has_perm:'curate.curate_edit_document' canDelete=request.user|has_perm:'curate.curate_delete_document' %}
 
+
+
+           <ul class="nav nav-tabs">
+                {% if not ispublished %} <li class="active"> {%else%} <li> {% endif%} <a href="/dashboard/resources">All</a></li>
+                {% if ispublished == "true" %} <li class="active"> {%else%} <li> {% endif%}<a href="/dashboard/resources?ispublished=true">Published</a></li>
+                {% if ispublished == "false" %} <li class="active"> {%else%} <li> {% endif%}<a href="/dashboard/resources?ispublished=false">Not Published</a></li>
+            </ul>
+
         <table class="data-table">
             <tr>
                 <th>Resource name</th>
                 <th>Published</th>
-                <th>Publication date</th>
-                <th>Actions</th>
+                <th width="175em">Last Publication date</th>
+                <th width="175em">Actions</th>
             </tr>
             {% for XMLdata in XMLdatas %}
                 {% cycle 'even' '' as rowcolors silent %}
@@ -52,12 +60,12 @@
                                 </script>
                             {% endif %}
                     </td>
-                    <td>{{XMLdata.ispublished}}</td>
+                    <td>{% if XMLdata.ispublished %}Yes {%else%} No {% endif %}</td>
                     <td>
                         {% if XMLdata.publicationdate %}
                             {{XMLdata.publicationdate}}
                         {%else%}
-                            Never published yet.
+                            Never published before
                         {% endif %}
                     </td>
                         <td>

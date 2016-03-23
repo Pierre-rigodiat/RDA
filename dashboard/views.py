@@ -132,9 +132,24 @@ def my_profile_change_password(request):
 @login_required(login_url='/login')
 def dashboard_resources(request):
     template = loader.get_template('dashboard/my_dashboard_my_resources.html')
-    context = RequestContext(request, {
-            'XMLdatas': XMLdata.find({'iduser': str(request.user.id)}),
-    })
+    if 'ispublished' in request.GET:
+        ispublished = request.GET['ispublished']
+        if ispublished == 'true':
+            context = RequestContext(request, {
+                        'XMLdatas': sorted(XMLdata.find({'iduser': str(request.user.id), 'ispublished': True}), key=lambda data: data['lastmodificationdate'], reverse=True),
+                        'ispublished': 'true',
+                    })
+        else:
+            context = RequestContext(request, {
+                        'XMLdatas': sorted(XMLdata.find({'iduser': str(request.user.id), 'ispublished': False}), key=lambda data: data['lastmodificationdate'], reverse=True),
+                        'ispublished': 'false',
+                    })
+    else:
+        context = RequestContext(request, {
+            'XMLdatas': sorted(XMLdata.find({'iduser': str(request.user.id), 'ispublished': False}), key=lambda data: data['lastmodificationdate'], reverse=True)
+                        + sorted(XMLdata.find({'iduser': str(request.user.id), 'ispublished': True}), key=lambda data: data['lastmodificationdate'], reverse=True),
+        })
+
     return HttpResponse(template.render(context))
 
 
