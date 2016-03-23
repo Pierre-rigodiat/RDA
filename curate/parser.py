@@ -680,7 +680,7 @@ def generate_element(request, element, xml_tree, namespace, choice_info=None, fu
         # add buttons to add/remove elements
         buttons = ""
         if not (add_button is False and delete_button is False):
-            buttons = render_buttons(add_button, delete_button, tag_id[7:])
+            buttons = render_buttons(add_button, delete_button)
 
         # get the default value (from xsd or from loaded xml)
         default_value = ""

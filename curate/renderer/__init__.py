@@ -246,7 +246,9 @@ class DefaultRenderer(object):
             'btn_del': loader.get_template(join(default_renderer_path, 'buttons', 'delete.html'))
         }
 
-    def __load_template(self, tpl_key, tpl_data=None):
+        self.templates.update(template_list)
+
+    def _load_template(self, tpl_key, tpl_data=None):
         context = RequestContext(HttpRequest())
 
         if tpl_key not in self.templates.keys():
@@ -261,13 +263,13 @@ class DefaultRenderer(object):
 
         return self.templates[tpl_key].render(context)
 
-    def __render_form(self, content):
+    def _render_form(self, content):
         pass
 
-    def __render_form_error(self, err_message):
+    def _render_form_error(self, err_message):
         pass
 
-    def render_input(self, value, placeholder, title):
+    def _render_input(self, value, placeholder, title):
         """
 
         :param value:
@@ -291,10 +293,55 @@ class DefaultRenderer(object):
             'title': title
         }
 
-        return self.__load_template('input', data)
+        return self._load_template('input', data)
 
-    def __render_select(self):
+    def _render_select(self):
         pass
 
-    def __render_buttons(self):
+    def _render_buttons(self, min_occurs, max_occurs, occurence_count):
+        """
+
+        :param min_occurs:
+        :param max_occurs:
+        :param occurence_count:
+        :return:
+        """
+        add_button = False
+        del_button = False
+
+        if occurence_count < max_occurs or max_occurs == -1:
+            add_button = True
+
+        if occurence_count > min_occurs:
+            del_button = True
+
+        if occurence_count < min_occurs:
+            pass
+
+        add_button_type = type(add_button)
+        del_button_type = type(del_button)
+
+        if add_button_type is not bool:
+            raise TypeError('add_button type is wrong (' + str(add_button_type) + 'received, bool needed')
+
+        if del_button_type is not bool:
+            raise TypeError('add_button type is wrong (' + str(del_button_type) + 'received, bool needed')
+
+        form_string = ""
+
+        # Fixed number of occurences, don't need buttons
+        if add_button or del_button:
+            if add_button:
+                form_string += self._load_template('btn_add', {'is_hidden': False})
+            else:
+                form_string += self._load_template('btn_add', {'is_hidden': True})
+
+            if del_button:
+                form_string += self._load_template('btn_del', {'is_hidden': False})
+            else:
+                form_string += self._load_template('btn_del', {'is_hidden': True})
+
+        return form_string
+
+    def _render_collapse_button(self):
         pass
