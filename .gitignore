@@ -206,3 +206,6 @@ apache
 
 # mongodb
 conf/my-mongodb.conf
+
+# tests
+curate/tests/data/parser/schema/namespace/results*
