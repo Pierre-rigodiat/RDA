@@ -1204,6 +1204,15 @@ enterKeyPressSubscription = function ()
 }
 
 
+syncRadioButtons =function()
+{
+	// auto set radio buttons value according to what option the user is choosing
+	$("#id_document_name").on("click", function(){$("input:radio[name=curate_form][value='new']").prop("checked", true)});
+	$("#id_forms").on("change", function(){$("input:radio[name=curate_form][value='open']").prop("checked", true)});
+	$("#id_file").on("change", function(){$("input:radio[name=curate_form][value='upload']").prop("checked", true)});
+}
+
+
 /**
  * Validate fields of the start curate form
  */
