@@ -58,7 +58,7 @@ class BlobHosterModule(PopupModule):
         uploaded_file = request.FILES['file']
         bh_factory = BLOBHosterFactory(BLOB_HOSTER, BLOB_HOSTER_URI, BLOB_HOSTER_USER, BLOB_HOSTER_PSWD, MDCS_URI)
         blob_hoster = bh_factory.createBLOBHoster()
-        self.handle = blob_hoster.save(blob=uploaded_file, filename=uploaded_file.name)
+        self.handle = blob_hoster.save(blob=uploaded_file, filename=uploaded_file.name, userid=str(request.user.id))
 
         with open(os.path.join(TEMPLATES_PATH, 'BLOBHosterDisplay.html'), 'r') as display_file:
             display = display_file.read()
@@ -173,7 +173,7 @@ class AdvancedBlobHosterModule(PopupModule):
             uploaded_file = request.FILES['file']
             bh_factory = BLOBHosterFactory(BLOB_HOSTER, BLOB_HOSTER_URI, BLOB_HOSTER_USER, BLOB_HOSTER_PSWD, MDCS_URI)
             blob_hoster = bh_factory.createBLOBHoster()
-            self.handle = blob_hoster.save(blob=uploaded_file, filename=uploaded_file.name)
+            self.handle = blob_hoster.save(blob=uploaded_file, filename=uploaded_file.name, userid=str(request.user.id))
 
             with open(os.path.join(TEMPLATES_PATH, 'BLOBHosterDisplay.html'), 'r') as display_file:
                 display = display_file.read()

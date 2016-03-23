@@ -1,0 +1,81 @@
+{% extends "mdcs/extra/one_column.html" %}
+{% load staticfiles %}
+{% comment %}
+<!--
+################################################################################
+#
+# File Name: my_profile_dashboard_my_files.html
+# Application: templates/dashboard
+# Description:
+#
+# Author: Sharief Youssef
+#         sharief.youssef@nist.gov
+#
+#		  Xavier SCHMITT
+#		  xavier.schmitt@nist.gov
+#
+# Sponsor: National Institute of Standards and Technology (NIST)
+#
+################################################################################
+-->
+{% endcomment %}
+
+{% block title %}<h1><span>My Files</span></h1>{% endblock %}
+{% block menu %}{% include 'mdcs/menus/main.html' with active_tab='profile' %}{% endblock %}
+
+{% block submenu %}
+    {% include 'mdcs/menus/submenu/dashboard.html' with active_tab='tab5' %}
+{% endblock %}
+
+{% block content%}
+
+{% if files %}
+<table class="data-table">
+    <tr>
+        <th>File name</th>
+        <th>Upload date</th>
+        <th>Actions</th>
+    </tr>
+    {% for file in files %}
+        {% cycle 'even' '' as rowcolors silent %}
+        <tr class="{{ rowcolors }}">
+            <td>{{ file.name }}</td>
+            <td>{{ file.uploadDate }} </td>
+                <td>
+                    <span class="icon legend delete" objectname="{{ file.name }}" objecttype="File" objectid="{{ file.id }}" onclick="deleteObject()" url="{{url}}">
+                        Delete
+                    </span>
+                    <a href="{{url}}/rest/blob?id={{file.id}}">
+                        <span class="icon legend download" >
+                            Download
+                        </span>
+                    </a>
+                </td>
+        </tr>
+    {% endfor %}
+</table>
+{% else %}
+<div class="empty-table">
+    You don't currently own any files.
+</div>
+{% endif %}
+{% endblock %}
+
+{% block popups %}
+
+<div id="dialog-deleteconfirm-message" title="Confirm Delete" style="display:none;">
+<p></p>
+  <p>
+    <span class="ui-icon ui-icon-circle-check" style="float:left; margin:0 7px 10px 0;"></span>
+    Are you sure you want to delete <b id="object-to-delete"></b>?
+  </p>
+</div>
+
+{% endblock %}
+
+{% block extrajs %}
+<script src="{% static 'inc/controllers/js/dashboard.js' %}"></script>
+<script>
+loadUploadManagerHandler();
+</script>
+{% endblock %}

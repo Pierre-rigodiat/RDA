@@ -1268,10 +1268,10 @@ delete_form = function(formID){
         	formID: formID,
         },
 		success: function(data){
-			window.location = "/my-profile/my-forms"
+			window.location = "/dashboard/forms"
 	    },
         error:function(data){
-        	window.location = "/my-profile/my-forms"
+        	window.location = "/dashboard/forms"
         }
     });
 }
@@ -1339,10 +1339,10 @@ change_owner_form = function(formID){
         	userID: userId,
         },
 		success: function(data){
-			window.location = "/my-profile/my-forms"
+			window.location = "/dashboard/forms"
 	    },
         error:function(data){
-        	window.location = "/my-profile/my-forms"
+        	window.location = "/dashboard/forms"
         }
     });
 }

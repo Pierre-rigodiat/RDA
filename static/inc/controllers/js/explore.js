@@ -1083,8 +1083,30 @@ delete_result = function(result_id){
         	result_id: result_id,
         },
 		success: function(data){
-			   $("#" + result_id).remove();
+			   location.reload();
 	    }
+    });
+}
+
+
+/**
+ * Publish a curated document
+ * @param result_id
+ */
+updatePublish = function(result_id){
+	$(function() {
+        $( "#dialog-publish" ).dialog({
+            modal: true,
+            buttons: {
+            	Cancel: function() {
+                    $( this ).dialog( "close" );
+                },
+            	Publish: function() {
+                    $( this ).dialog( "close" );
+                    update_publish(result_id);
+                },
+            }
+        });
     });
 }
 
@@ -1092,7 +1114,7 @@ delete_result = function(result_id){
  * AJAX call, update the publish state and date of a XMLdata
  * @param result_id
  */
-updatePublish = function(result_id){
+update_publish = function(result_id){
 	$.ajax({
         url : "/explore/update_publish",
         type : "GET",
@@ -1101,8 +1123,29 @@ updatePublish = function(result_id){
         	result_id: result_id,
         },
 		success: function(data){
-		    $("#" + result_id).load(document.URL +  " #" + result_id);
+		    location.reload();
 	    }
+    });
+}
+
+/**
+ * Unpublish a curated document
+ * @param result_id
+ */
+updateUnpublish = function(result_id){
+	$(function() {
+        $( "#dialog-unpublish" ).dialog({
+            modal: true,
+            buttons: {
+            	Cancel: function() {
+                    $( this ).dialog( "close" );
+                },
+            	Unpublish: function() {
+                    $( this ).dialog( "close" );
+                    update_unpublish(result_id);
+                },
+            }
+        });
     });
 }
 
@@ -1110,7 +1153,7 @@ updatePublish = function(result_id){
  * AJAX call, update the publish state of a XMLdata
  * @param result_id
  */
-updateUnpublish = function(result_id){
+update_unpublish = function(result_id){
 	$.ajax({
         url : "/explore/update_unpublish",
         type : "GET",
@@ -1121,6 +1164,29 @@ updateUnpublish = function(result_id){
 		success: function(data){
             $("#" + result_id).load(document.URL +  " #" + result_id);
 	    }
+    });
+}
+
+dialog_detail = function(id){
+	$.ajax({
+        url : "/explore/detail_result_keyword?id=" + id,
+        type : "GET",
+        success: function(data){
+        	$("#result_detail").html(data);
+
+        	$(function() {
+                $( "#dialog-detail-result" ).dialog({
+                    modal: true,
+                    height: 430,
+                    width: 700,
+                    buttons: {
+                        Ok: function() {
+                        $( this ).dialog( "close" );
+                        }
+                    }
+                });
+            });
+        }
     });
 }
 

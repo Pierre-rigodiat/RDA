@@ -27,7 +27,9 @@
 {% block title %}<h1><span>My Profile - Edit</span></h1>{% endblock %}
 
 {% block menu %}{% include 'mdcs/menus/main.html' with active_tab='profile' %}{% endblock %}
-
+{% block submenu %}
+    {% include 'mdcs/menus/submenu/dashboard.html' with active_tab='tab0' %}
+{% endblock %}
 {% block content%}
 
 
@@ -35,7 +37,7 @@
 Use the following form to edit your information.
 <div>
 <br/>
-<form action="/my-profile/edit" method="post">
+<form action="/dashboard/my-profile/edit" method="post">
  	{% csrf_token %}
     {{ form }}
     <br/>

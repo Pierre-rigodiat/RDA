@@ -25,17 +25,18 @@
 <link rel="stylesheet" type="text/css" href="{% static 'resources/css/exploreTabs.css' %}"  media="screen" />
 {% endblock %}
 
-{% block title %}<h1><span>My Profile - My Forms</span></h1>{% endblock %}
+{% block title %}<h1><span>My Forms</span></h1>{% endblock %}
 {% block menu %}{% include 'mdcs/menus/main.html' with active_tab='profile' %}{% endblock %}
+{% block submenu %}{% include 'mdcs/menus/submenu/dashboard.html' with active_tab='tab2' %}{% endblock %}
 
 {% block content%}
+{% if forms %}
 <span>
 You can review all forms you have created. You can either delete your form or change the owner.
 </span>
 <br/><br/>
 
 <div id="my-forms">
-{% if forms %}
     <table class="data-table">
         <tr>
         	<th>Name</th>
@@ -58,8 +59,9 @@ You can review all forms you have created. You can either delete your form or ch
     <br/>
         There are no forms saved for now.
     <br/>
-{% endif %}
 </div>
+{% endif %}
+
 {% endblock %}
 
 {% block popups %}
