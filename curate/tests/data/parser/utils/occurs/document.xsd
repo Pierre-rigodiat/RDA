@@ -2,7 +2,7 @@
     <xs:element name="root">
         <xs:complexType>
             <xs:sequence minOccurs="1" maxOccurs="5">
-                <xs:element name="child_0" type="xs:string"/>
+                <xs:element name="a" type="xs:string"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>

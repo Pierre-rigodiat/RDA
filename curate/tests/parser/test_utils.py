@@ -5,52 +5,67 @@ from django.test.testcases import TestCase
 from os.path import join
 from django.utils.importlib import import_module
 from lxml import etree
+from mgi.common import SCHEMA_NAMESPACE
 from mgi.models import Module
 from mgi.tests import DataHandler, are_equals
-from curate.parser import get_nodes_xpath, lookup_occurs, manage_occurences, manage_attr_occurrences, has_module, \
-    get_xml_element_data, get_element_type, remove_annotations
+from curate.parser import get_nodes_xpath, lookup_occurs, manage_occurences, remove_annotations, \
+    manage_attr_occurrences, has_module, get_xml_element_data, get_element_type
 
 
 class ParserGetNodesXPathTestSuite(TestCase):
     """
     """
+    # FIXME One of the test is not returning a proper output
+    # FIXME 1 test not implemented
 
     def setUp(self):
         subnodes_data = join('curate', 'tests', 'data', 'parser', 'utils', 'xpath')
         self.subnodes_data_handler = DataHandler(subnodes_data)
 
+        self.namespace = {
+            'xs': SCHEMA_NAMESPACE
+        }
+
     def test_not_element(self):
-        not_element_xsd = self.subnodes_data_handler.get_xsd2('not_element')
-        xpath_result = get_nodes_xpath(not_element_xsd, not_element_xsd, '')
+        document_schema = self.subnodes_data_handler.get_xsd2('no_element')
+
+        complex_type_xpath = '/xs:schema/xs:complexType'
+        complex_type = document_schema.xpath(complex_type_xpath, namespaces=self.namespace)[0]
+
+        xpath_result = get_nodes_xpath(complex_type, document_schema)
 
         self.assertEqual(xpath_result, [])
 
     def test_imbricated_elements(self):
-        document = join('imbricated_elements', 'document')
-        imbricated_elements_xsd = self.subnodes_data_handler.get_xsd2(document)
+        document_schema = self.subnodes_data_handler.get_xsd2('imbricated')
 
-        child_0 = join('imbricated_elements', 'child_0')
-        imbricated_element_0_xsd = self.subnodes_data_handler.get_xsd2(child_0)
+        complex_type_xpath = '/xs:schema/xs:complexType'
+        complex_type = document_schema.xpath(complex_type_xpath, namespaces=self.namespace)[0]
 
-        child_1 = join('imbricated_elements', 'child_1')
-        imbricated_element_1_xsd = self.subnodes_data_handler.get_xsd2(child_1)
+        sequence_xpath = complex_type_xpath + '/xs:sequence'
 
-        child_2 = join('imbricated_elements', 'child_2')
-        imbricated_element_2_xsd = self.subnodes_data_handler.get_xsd2(child_2)
+        element_xpath = sequence_xpath + '/xs:element'
+        element_a = document_schema.xpath(element_xpath, namespaces=self.namespace)[0]
 
-        xpath_result = get_nodes_xpath(imbricated_elements_xsd, imbricated_elements_xsd, '')
+        choice_element_xpath = sequence_xpath + '/xs:choice/xs:element'
+        choice_elements = document_schema.xpath(choice_element_xpath, namespaces=self.namespace)
+
+        element_b = choice_elements[0]
+        element_c = choice_elements[1]
+
+        xpath_result = get_nodes_xpath(complex_type, document_schema)
         expected_result = [
             {
-                'name': 'child_0',
-                'element': imbricated_element_0_xsd
+                'name': 'a',
+                'element': element_a
             },
             {
-                'name': 'child_1',
-                'element': imbricated_element_1_xsd
+                'name': 'b',
+                'element': element_b
             },
             {
-                'name': 'child_2',
-                'element': imbricated_element_2_xsd
+                'name': 'c',
+                'element': element_c
             },
         ]
 
@@ -65,27 +80,32 @@ class ParserGetNodesXPathTestSuite(TestCase):
             self.assertTrue(are_equals(xpath_elem, expect_elem))
 
     def test_element_has_name(self):
-        document = join('element_with_name', 'document')
-        named_element_xsd = self.subnodes_data_handler.get_xsd2(document)
+        document_schema = self.subnodes_data_handler.get_xsd2('name')
 
-        child_0 = join('element_with_name', 'child_0')
-        child_0_xsd = self.subnodes_data_handler.get_xsd2(child_0)
+        # Retrieving the needed elements
+        sequence_xpath = '/xs:schema/xs:complexType/xs:sequence'
+        sequence = document_schema.xpath(sequence_xpath, namespaces=self.namespace)[0]
 
-        child_1 = join('element_with_name', 'child_1')
-        child_1_xsd = self.subnodes_data_handler.get_xsd2(child_1)
+        element_xpath = sequence_xpath + '/xs:element'
+        elements = document_schema.xpath(element_xpath, namespaces=self.namespace)
 
-        xpath_result = get_nodes_xpath(named_element_xsd, named_element_xsd, '')
+        element_a = elements[0]
+        element_b = elements[1]
+
+        # Building resulting and expected structures
+        xpath_result = get_nodes_xpath(sequence, document_schema)
         expected_result = [
             {
-                'name': 'child_0',
-                'element': child_0_xsd
+                'name': 'a',
+                'element': element_a
             },
             {
-                'name': 'child_1',
-                'element': child_1_xsd
+                'name': 'b',
+                'element': element_b
             }
         ]
 
+        # Testing equality
         self.assertEqual(len(xpath_result), len(expected_result))
 
         for xpath in xpath_result:
@@ -96,71 +116,32 @@ class ParserGetNodesXPathTestSuite(TestCase):
 
             self.assertTrue(are_equals(xpath_elem, expect_elem))
 
-    def test_element_ref_has_namespace(self):
-        # FIXME Correct the test for correct expected output
-        document = join('element_with_ref_namespace', 'document')
-        ref_element_no_namespace_xsd = self.subnodes_data_handler.get_xsd2(document)
+    def test_element_ref_local(self):
+        document_schema = self.subnodes_data_handler.get_xsd2('ref_local')
 
-        child_0 = join('element_with_ref_namespace', 'child_0')
-        child_0_xsd = self.subnodes_data_handler.get_xsd2(child_0)
+        complex_type_xpath = '/xs:schema/xs:complexType'
+        complex_type = document_schema.xpath(complex_type_xpath, namespaces=self.namespace)[0]
 
-        ref_0 = join('element_with_ref_namespace', 'ref_0')
-        ref_0_xsd = self.subnodes_data_handler.get_xsd2(ref_0)
+        element_a_xpath = complex_type_xpath + '/xs:sequence/xs:element'
+        element_a = document_schema.xpath(element_a_xpath, namespaces=self.namespace)[0]
 
-        xpath_result = get_nodes_xpath(ref_element_no_namespace_xsd, ref_element_no_namespace_xsd, '')
+        element_r0_xpath = '/xs:schema/xs:element'
+        element_r0 = document_schema.xpath(element_r0_xpath, namespaces=self.namespace)[0]
 
-        expected_result = [
-            {
-                'name': 'child_0',
-                'element': child_0_xsd
-            },
-            {
-                'name': 'ref_0',
-                'element': ref_0_xsd
-            },
-            {  # FIXME the 2nd element shouldn't be here (not needed)
-                'name': 'ref_0',
-                'element': ref_0_xsd
-            }
-        ]
-
-        self.assertEqual(len(xpath_result), len(expected_result))
-
-        for xpath in xpath_result:
-            # print xpath['name']
-            # print etree.tostring(xpath['element'])
-            xpath_elem = xpath['element']
-
-            expected_elem_list = [expect['element'] for expect in expected_result if expect['name'] == xpath['name']]
-            # FIXME Having 2 element with the same content is not useful (>= 1 should be replaced by == 1)
-            expect_elem = expected_elem_list[0] if len(expected_elem_list) >= 1 else None
-
-            self.assertTrue(are_equals(xpath_elem, expect_elem))
-
-    def test_element_ref_has_no_namespace(self):
-        document = join('element_with_ref_no_namespace', 'document')
-        ref_element_no_namespace_xsd = self.subnodes_data_handler.get_xsd2(document)
-
-        child_0 = join('element_with_ref_no_namespace', 'child_0')
-        child_0_xsd = self.subnodes_data_handler.get_xsd2(child_0)
-
-        ref_0 = join('element_with_ref_no_namespace', 'ref_0')
-        ref_0_xsd = self.subnodes_data_handler.get_xsd2(ref_0)
-
-        xpath_result = get_nodes_xpath(ref_element_no_namespace_xsd, ref_element_no_namespace_xsd, '')
+        xpath_result = get_nodes_xpath(complex_type, document_schema)
 
         expected_result = [
             {
-                'name': 'child_0',
-                'element': child_0_xsd
+                'name': 'a',
+                'element': element_a
             },
             {
-                'name': 'ref_0',
-                'element': ref_0_xsd
+                'name': 'r0',
+                'element': element_r0
             },
             {  # FIXME the 2nd element shouldn't be here (not needed)
-                'name': 'ref_0',
-                'element': ref_0_xsd
+                'name': 'r0',
+                'element': element_r0
             }
         ]
 
@@ -174,6 +155,47 @@ class ParserGetNodesXPathTestSuite(TestCase):
             expect_elem = expected_elem_list[0] if len(expected_elem_list) >= 1 else None
 
             self.assertTrue(are_equals(xpath_elem, expect_elem))
+
+    # FIXME test not working
+    # def test_element_ref_import(self):
+    #     document = join('ref_import', 'document')
+    #     document_schema = self.subnodes_data_handler.get_xsd2(document)
+    #
+    #     reference = join('element_with_ref_no_namespace', 'reference')
+    #     reference_schema = self.subnodes_data_handler.get_xsd2(reference)
+    #
+    #     sequence_xpath = '/xs:schema/xs:complexType/xs:sequence'
+    #     sequence = document_schema.xpath(sequence_xpath, namespaces=self.namespace)[0]
+    #
+    #     element_a_xpath = sequence_xpath + '/xs:element'
+    #     element_a = document_schema.xpath(element_a_xpath, namespaces=self.namespace)[0]
+    #
+    #     element_r0_xpath = '/xs:schema/xs:element'
+    #     element_r0 = reference_schema.xpath(element_r0_xpath, namespaces=self.namespace)[0]
+    #
+    #     xpath_result = get_nodes_xpath(sequence, document_schema)
+    #
+    #     expected_result = [
+    #         {
+    #             'name': 'a',
+    #             'element': element_a
+    #         },
+    #         {
+    #             'name': 'r0',
+    #             'element': element_r0
+    #         }
+    #     ]
+    #
+    #     self.assertEqual(len(xpath_result), len(expected_result))
+    #
+    #     for xpath in xpath_result:
+    #         xpath_elem = xpath['element']
+    #
+    #         expected_elem_list = [expect['element'] for expect in expected_result if expect['name'] == xpath['name']]
+    #         # FIXME Having 2 element with the same content is not useful (>= 1 should be replaced by == 1)
+    #         expect_elem = expected_elem_list[0] if len(expected_elem_list) >= 1 else None
+    #
+    #         self.assertTrue(are_equals(xpath_elem, expect_elem))
 
 
 class ParserLookupOccursTestSuite(TestCase):
@@ -196,28 +218,30 @@ class ParserLookupOccursTestSuite(TestCase):
 
         # set default namespace
         namespace = "http://www.w3.org/2001/XMLSchema"
-        self.namespace = "{" + namespace + "}"
         self.request.session['defaultPrefix'] = 'xs'
         self.request.session['namespaces'] = {'xs': namespace}
 
+        self.xml_xpath = '/root'
+
+        document_schema = self.occurs_data_handler.get_xsd2('document')
+        self.document_schema = etree.ElementTree(document_schema)
+
+        sequence_xpath = '/xs:schema/xs:element/xs:complexType/xs:sequence'
+        self.sequence = self.document_schema.xpath(sequence_xpath, namespaces=self.request.session['namespaces'])[0]
+
     def test_reload_compliant_element(self):
-        lookup_xsd = self.occurs_data_handler.get_xsd2('document')
-        element_xsd = lookup_xsd.xpath('/xs:schema/xs:element/xs:complexType/xs:sequence',
-                                       namespaces=self.request.session['namespaces'])
 
         compliant_xml = self.occurs_data_handler.get_xml('compliant')
 
-        max_occurs_found = lookup_occurs(self.request, element_xsd, lookup_xsd, self.namespace, '.', compliant_xml)
+        max_occurs_found = lookup_occurs(self.request, self.sequence, self.document_schema, self.xml_xpath,
+                                         compliant_xml)
         self.assertEqual(max_occurs_found, 1)
 
     def test_reload_noncompliant_element(self):
-        lookup_xsd = self.occurs_data_handler.get_xsd2('document')
-        element_xsd = lookup_xsd.xpath('/xs:schema/xs:element/xs:complexType/xs:sequence',
-                                       namespaces=self.request.session['namespaces'])
-
         noncompliant_xml = self.occurs_data_handler.get_xml('noncompliant')
 
-        max_occurs_found = lookup_occurs(self.request, element_xsd, lookup_xsd, self.namespace, '.', noncompliant_xml)
+        max_occurs_found = lookup_occurs(self.request, self.sequence, self.document_schema, self.xml_xpath,
+                                         noncompliant_xml)
         self.assertEqual(max_occurs_found, 1)
 
 
@@ -340,52 +364,85 @@ class ParserGetXmlElementDataTestSuite(TestCase):
         xml_element_data = join('curate', 'tests', 'data', 'parser', 'utils', 'xml_data')
         self.xml_element_data_handler = DataHandler(xml_element_data)
 
+        self.namespace = {
+            'xs': SCHEMA_NAMESPACE
+        }
+
     def test_element_xml_text(self):
-        xsd_element = self.xml_element_data_handler.get_xsd2(join('element', 'simple'))
+        xml_schema = self.xml_element_data_handler.get_xsd2(join('element', 'simple'))
+
+        element_root_xpath = '/xs:schema/xs:element'
+        element_root = xml_schema.xpath(element_root_xpath, namespaces=self.namespace)[0]
+
         xml_element = self.xml_element_data_handler.get_xml(join('element', 'simple'))
 
-        reload_data = get_xml_element_data(xsd_element, xml_element, '')
-        self.assertEqual(reload_data, 'test')
+        reload_data = get_xml_element_data(element_root, xml_element)
+        self.assertEqual(reload_data, 'string')
 
     def test_element_xml_branch(self):
-        xsd_element = self.xml_element_data_handler.get_xsd2(join('element', 'complex'))
+        xml_schema = self.xml_element_data_handler.get_xsd2(join('element', 'complex'))
+
+        element_root_xpath = '/xs:schema/xs:element'
+        element_root = xml_schema.xpath(element_root_xpath, namespaces=self.namespace)[0]
+
         xml_element = self.xml_element_data_handler.get_xml(join('element', 'complex'))
 
-        reload_data = get_xml_element_data(xsd_element, xml_element, '')
+        reload_data = get_xml_element_data(element_root, xml_element)
         self.assertEqual(reload_data, etree.tostring(xml_element))
 
     def test_attribute(self):
-        xsd_element = self.xml_element_data_handler.get_xsd2(join('attribute', 'schema'))
+        xml_schema = self.xml_element_data_handler.get_xsd2(join('attribute', 'schema'))
 
-        reload_data = get_xml_element_data(xsd_element, None, '')
+        attribute_xpath = '/xs:schema/xs:element/xs:complexType/xs:attribute'
+        attribute = xml_schema.xpath(attribute_xpath, namespaces=self.namespace)[0]
+
+        xml_element = self.xml_element_data_handler.get_xml(join('attribute', 'instance'))
+
+        reload_data = get_xml_element_data(attribute, xml_element)
         self.assertEqual(reload_data, None)
 
     def test_complex_type_xml_empty(self):
-        xsd_element = self.xml_element_data_handler.get_xsd2(join('complex_type', 'complex'))
+        xml_schema = self.xml_element_data_handler.get_xsd2(join('complex_type', 'schema'))
+
+        complex_type_xpath = '/xs:schema/xs:complexType'
+        complex_type = xml_schema.xpath(complex_type_xpath, namespaces=self.namespace)[0]
+
         xml_element = self.xml_element_data_handler.get_xml(join('complex_type', 'empty'))
 
-        reload_data = get_xml_element_data(xsd_element, xml_element, '')
+        reload_data = get_xml_element_data(complex_type, xml_element)
         self.assertEqual(reload_data, "")
 
     def test_complex_type_xml_branch(self):
-        xsd_element = self.xml_element_data_handler.get_xsd2(join('complex_type', 'complex'))
-        xml_element = self.xml_element_data_handler.get_xml(join('complex_type', 'complex'))
+        xml_schema = self.xml_element_data_handler.get_xsd2(join('complex_type', 'schema'))
 
-        reload_data = get_xml_element_data(xsd_element, xml_element, '')
+        complex_type_xpath = '/xs:schema/xs:complexType'
+        complex_type = xml_schema.xpath(complex_type_xpath, namespaces=self.namespace)[0]
+
+        xml_element = self.xml_element_data_handler.get_xml(join('complex_type', 'filled'))
+
+        reload_data = get_xml_element_data(complex_type, xml_element)
         self.assertEqual(reload_data, etree.tostring(xml_element))
 
     def test_simple_type_xml_text(self):
-        xsd_element = self.xml_element_data_handler.get_xsd2(join('simple_type', 'simple'))
-        xml_element = self.xml_element_data_handler.get_xml(join('simple_type', 'simple'))
+        xml_schema = self.xml_element_data_handler.get_xsd2(join('simple_type', 'schema'))
 
-        reload_data = get_xml_element_data(xsd_element, xml_element, '')
-        self.assertEqual(reload_data, "child_0")
+        simple_type_xpath = '/xs:schema/xs:simpleType'
+        simple_type = xml_schema.xpath(simple_type_xpath, namespaces=self.namespace)[0]
+
+        xml_element = self.xml_element_data_handler.get_xml(join('simple_type', 'filled'))
+
+        reload_data = get_xml_element_data(simple_type, xml_element)
+        self.assertEqual(reload_data, "child0")
 
     def test_simple_type_empty(self):
-        xsd_element = self.xml_element_data_handler.get_xsd2(join('simple_type', 'simple'))
+        xml_schema = self.xml_element_data_handler.get_xsd2(join('simple_type', 'schema'))
+
+        simple_type_xpath = '/xs:schema/xs:simpleType'
+        simple_type = xml_schema.xpath(simple_type_xpath, namespaces=self.namespace)[0]
+
         xml_element = self.xml_element_data_handler.get_xml(join('simple_type', 'empty'))
 
-        reload_data = get_xml_element_data(xsd_element, xml_element, '')
+        reload_data = get_xml_element_data(simple_type, xml_element)
         self.assertEqual(reload_data, "")
 
 
@@ -395,59 +452,82 @@ class ParserGetElementTypeTestSuite(TestCase):
 
     def setUp(self):
         self.defaultPrefix = 'xsd'
-        self.namespace = ''
 
         xml_element_data = join('curate', 'tests', 'data', 'parser', 'element_type')
         self.xml_element_data_handler = DataHandler(xml_element_data)
 
-    def test_no_type_one_child_no_annot(self):
-        xsd_element = self.xml_element_data_handler.get_xsd2(join('no_type', 'one_child_no_annot'))
+        self.namespace = {
+            'xs': SCHEMA_NAMESPACE
+        }
 
-        element_type = get_element_type(xsd_element, None, '', 'xsd')
-        self.assertEqual(element_type, list(xsd_element)[0])
+    def test_no_type_one_child_no_annot(self):
+        xml_schema = self.xml_element_data_handler.get_xsd2(join('no_type', 'one_child_no_annot'))
+
+        element_root_xpath = '/xs:schema/xs:element'
+        element_root = xml_schema.xpath(element_root_xpath, namespaces=self.namespace)[0]
+
+        element_type = get_element_type(element_root, xml_schema, self.namespace, 'xs', None)
+        self.assertEqual(element_type, (list(element_root)[0], xml_schema, None))
 
     def test_no_type_one_child_annot(self):
-        xsd_element = self.xml_element_data_handler.get_xsd2(join('no_type', 'one_child_annot'))
+        xml_schema = self.xml_element_data_handler.get_xsd2(join('no_type', 'one_child_annot'))
 
-        element_type = get_element_type(xsd_element, None, '', 'xsd')
-        self.assertEqual(element_type, None)
+        element_root_xpath = '/xs:schema/xs:element'
+        element_root = xml_schema.xpath(element_root_xpath, namespaces=self.namespace)[0]
+
+        element_type = get_element_type(element_root, xml_schema, self.namespace, 'xs', None)
+        self.assertEqual(element_type, (None, xml_schema, None))
 
     def test_no_type_two_children_annot(self):
-        xsd_element = self.xml_element_data_handler.get_xsd2(join('no_type', 'two_children_annot'))
+        xml_schema = self.xml_element_data_handler.get_xsd2(join('no_type', 'two_children_annot'))
 
-        element_type = get_element_type(xsd_element, None, '', 'xsd')
-        self.assertEqual(element_type, list(xsd_element)[1])
+        element_root_xpath = '/xs:schema/xs:element'
+        element_root = xml_schema.xpath(element_root_xpath, namespaces=self.namespace)[0]
+
+        element_type = get_element_type(element_root, xml_schema, self.namespace, 'xs', None)
+        self.assertEqual(element_type, (list(element_root)[1], xml_schema, None))
 
     def test_no_type_more_children(self):
-        xsd_element = self.xml_element_data_handler.get_xsd2(join('no_type', 'more_children'))
+        xml_schema = self.xml_element_data_handler.get_xsd2(join('no_type', 'more_children'))
 
-        element_type = get_element_type(xsd_element, None, '', 'xsd')
-        self.assertEqual(element_type, None)
+        element_root_xpath = '/xs:schema/xs:element'
+        element_root = xml_schema.xpath(element_root_xpath, namespaces=self.namespace)[0]
+
+        element_type = get_element_type(element_root, xml_schema, self.namespace, 'xs', None)
+        self.assertEqual(element_type, (None, xml_schema, None))
 
     def test_type_is_common_type(self):
-        xsd_element = self.xml_element_data_handler.get_xsd2('common_type')
+        xml_schema = self.xml_element_data_handler.get_xsd2('common_type')
 
-        element_type = get_element_type(xsd_element, None, '', 'xsd')
-        self.assertEqual(element_type, None)
+        element_root_xpath = '/xs:schema/xs:element'
+        element_root = xml_schema.xpath(element_root_xpath, namespaces=self.namespace)[0]
 
-    # todo make more tests
+        element_type = get_element_type(element_root, xml_schema, 'xsd', '', None)
+        self.assertEqual(element_type, (None, xml_schema, None))
+
     def test_type_is_complex_type(self):
-        xsd_element = self.xml_element_data_handler.get_xsd2(join('complex_type', 'element'))
-        xsd_schema = self.xml_element_data_handler.get_xsd2(join('complex_type', 'schema'))
+        xml_schema = self.xml_element_data_handler.get_xsd2(join('complex_type'))
 
-        result_element = self.xml_element_data_handler.get_xsd2(join('complex_type', 'result'))
+        element_root_xpath = '/xs:schema/xs:element'
+        element_root = xml_schema.xpath(element_root_xpath, namespaces=self.namespace)[0]
 
-        element_type = get_element_type(xsd_element, xsd_schema, '', 'xsd')
-        self.assertTrue(are_equals(element_type, result_element))
+        complex_type_xpath = '/xs:schema/xs:complexType'
+        complex_type = xml_schema.xpath(complex_type_xpath, namespaces=self.namespace)[0]
+
+        element_type = get_element_type(element_root, xml_schema, self.namespace, 'xs', None)
+        self.assertEqual(element_type, (complex_type, xml_schema, None))
 
     def test_type_is_simple_type(self):
-        xsd_element = self.xml_element_data_handler.get_xsd2(join('simple_type', 'element'))
-        xsd_schema = self.xml_element_data_handler.get_xsd2(join('simple_type', 'schema'))
+        xml_schema = self.xml_element_data_handler.get_xsd2(join('simple_type'))
 
-        result_element = self.xml_element_data_handler.get_xsd2(join('simple_type', 'result'))
+        element_root_xpath = '/xs:schema/xs:element'
+        element_root = xml_schema.xpath(element_root_xpath, namespaces=self.namespace)[0]
 
-        element_type = get_element_type(xsd_element, xsd_schema, '', 'xsd')
-        self.assertTrue(are_equals(element_type, result_element))
+        simple_type_xpath = '/xs:schema/xs:simpleType'
+        simple_type = xml_schema.xpath(simple_type_xpath, namespaces=self.namespace)[0]
+
+        element_type = get_element_type(element_root, xml_schema, self.namespace, 'xs', None)
+        self.assertEqual(element_type, (simple_type, xml_schema, None))
 
 
 class ParserRemoveAnnotationTestSuite(TestCase):
@@ -458,18 +538,32 @@ class ParserRemoveAnnotationTestSuite(TestCase):
         annotation_data = join('curate', 'tests', 'data', 'parser', 'utils', 'annotation')
         self.annotation_data_handler = DataHandler(annotation_data)
 
-        self.namespace = ''
+        self.namespaces = {
+            'xs': SCHEMA_NAMESPACE
+        }
 
-        self.result = self.annotation_data_handler.get_xsd2('not_annot')
+        xsd_result = self.annotation_data_handler.get_xsd2('not_annot')
+        xsd_etree = etree.ElementTree(xsd_result)
+
+        self.xsd_xpath = '/xs:schema/xs:complexType/xs:sequence'
+        self.expected_xsd = xsd_etree.xpath(self.xsd_xpath, namespaces=self.namespaces)[0]
 
     def test_annotation_is_removed(self):
         annotated_schema = self.annotation_data_handler.get_xsd2('annot')
-        remove_annotations(annotated_schema, self.namespace)
+        annotated_etree = etree.ElementTree(annotated_schema)
 
-        self.assertTrue(are_equals(annotated_schema, self.result))
+        annotated_element = annotated_etree.xpath(self.xsd_xpath, namespaces=self.namespaces)[0]
+
+        remove_annotations(annotated_element)
+
+        self.assertTrue(are_equals(annotated_element, self.expected_xsd))
 
     def test_no_annotation_no_change(self):
         not_annotated_schema = self.annotation_data_handler.get_xsd2('not_annot')
-        remove_annotations(not_annotated_schema, self.namespace)
+        not_annotated_etree = etree.ElementTree(not_annotated_schema)
 
-        self.assertTrue(are_equals(not_annotated_schema, self.result))
+        not_annotated_element = not_annotated_etree.xpath(self.xsd_xpath, namespaces=self.namespaces)[0]
+
+        remove_annotations(not_annotated_element)
+
+        self.assertTrue(are_equals(not_annotated_element, self.expected_xsd))

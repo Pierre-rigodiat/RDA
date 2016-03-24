@@ -1,5 +1,0 @@
-<complexType name="root">
-    <sequence>
-        <element name="child" type="string" minOccurs="1" maxOccurs="5"/>
-    </sequence>
-</complexType>

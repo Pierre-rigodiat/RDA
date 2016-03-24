@@ -1,6 +1,0 @@
-<simpleType name="simple">
-    <restriction base="xs:string">
-        <enumeration value="child0"/>
-        <enumeration value="child1"/>
-    </restriction>
-</simpleType>

@@ -27,13 +27,11 @@ from io import BytesIO
 from curate.models import SchemaElement
 from curate.parser import generate_form, generate_element, generate_sequence_absent, generate_element_absent, has_module, \
     get_element_type, generate_module, generate_complex_type, generate_simple_type, generate_sequence, generate_choice, \
-    get_element_namespace
+    get_element_namespace, load_schema_data_in_db
 from mgi.common import LXML_SCHEMA_NAMESPACE
-from mgi.models import Template, XML2Download
-    get_element_type, generate_module, generate_complex_type, generate_simple_type, generate_sequence, generate_choice, \
-    load_schema_data_in_db
+# from mgi.models import Template, XML2Download
 from curate.renderer.list import ListRenderer
-from mgi.models import Template, XML2Download, MetaSchema
+from mgi.models import Template, XML2Download
 from mgi.models import FormElement, XMLElement, FormData
 # from mgi.settings import CURATE_MIN_TREE, CURATE_COLLAPSE
 from mgi.settings import CURATE_COLLAPSE
