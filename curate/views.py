@@ -321,7 +321,12 @@ def start_curate(request):
             if selected_option == "new":
                 request.session['curate_edit'] = False
                 new_form = NewForm(request.POST)
-                form_data = FormData(user=str(user), template=template_id, name=new_form.data['document_name'], xml_data=None).save()
+                try:
+                    form_data = FormData(user=str(user), template=template_id, name=new_form.data['document_name'],
+                                         xml_data=None).save()
+                except:
+                    return HttpResponseBadRequest(
+                        'Unable to create the form. A form with the same name may already exist.')
             elif selected_option == "open":
                 request.session['curate_edit'] = True
                 open_form = OpenForm(request.POST)
@@ -340,7 +345,12 @@ def start_curate(request):
                     etree.fromstring(xml_data)
                 except XMLSyntaxError:
                     return HttpResponseBadRequest('Uploaded File is not well formed XML.')
-                form_data = FormData(user=str(user), template=template_id, name=xml_file.name, xml_data=xml_data).save()
+                try:
+                    form_data = FormData(user=str(user), template=template_id, name=xml_file.name,
+                                         xml_data=xml_data).save()
+                except:
+                    return HttpResponseBadRequest(
+                        'Unable to create the form. A form with the same name may already exist.')
 
             # parameters that will be used during curation
             request.session['curateFormData'] = str(form_data.id)

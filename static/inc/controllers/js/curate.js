@@ -510,19 +510,6 @@ displayTemplateProcess = function ()
    }
 }
 
-/**
- * AJAX call, launch the curation from the selected parameters
- */
-start_curate = function(){
-    $.ajax({
-        url : "/curate/start_curate",
-        type : "POST",
-        dataType: "json",
-        success: function(data){
-        }
-    });
-}
-
 
 /**
  * Check if the template is selected, to prevent manual navigation.
@@ -1195,7 +1182,7 @@ validateStartCurate = function(){
 			}
 		}else if (selected_option == "open"){
 			if ($( "#id_forms" ).val() == ""){
-				errors = "You selected the option 'Open a Form'. Please select an existing form from the list."
+				errors = "You selected the option 'Open a Form'. Please select a form from the list."
 			}
 		}else if (selected_option == "upload"){
 			if ($( "#id_file" ).val() == ""){
