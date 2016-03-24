@@ -15,6 +15,7 @@
 ################################################################################
 
 from django import forms
+from django.contrib.auth.models import User
 
 # list of possible protocols available in the form
 PROTOCOLS = (('http', 'HTTP'),
@@ -110,5 +111,31 @@ class UploadResultXSLTForm(forms.Form):
     """
     result_name = forms.CharField(label='Enter XSLT name', max_length=100, required=True)
     result_xslt_file = forms.FileField(label='Select a file',required=True)
+
+class UserForm(forms.Form):
+    """
+    Form to contact the administrator
+    """
+    users = forms.ChoiceField(label='', required=True)
+    USERS_OPTIONS = []
+
+    def __init__(self, currentUser):
+        self.USERS_OPTIONS = []
+        self.USERS_OPTIONS.append(('', '-----------'))
+
+        #We retrieve all users
+        sortUsers = User.objects.all()
+        #We exclude the current user
+        sortUsers = sortUsers.exclude(pk=currentUser.pk)
+        #We sort by username, case insensitive
+        sortUsers = sorted(sortUsers, key=lambda s: s.username.lower())
+
+        #We add them
+        for user in sortUsers:
+            self.USERS_OPTIONS.append((user.id, user.username))
+
+        super(UserForm, self).__init__()
+        self.fields['users'].choices = []
+        self.fields['users'].choices = self.USERS_OPTIONS
 
     

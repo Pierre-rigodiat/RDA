@@ -19,15 +19,19 @@ from django.http import HttpResponse
 from django.contrib.auth import authenticate, logout
 from django.template import RequestContext, loader
 from django.shortcuts import redirect
-from mgi.models import Template, Request, Message, TermsOfUse, PrivacyPolicy, Help, FormData, XMLdata
-from admin_mdcs.forms import RequestAccountForm, EditProfileForm, ChangePasswordForm, ContactForm
+from mgi.models import FormData, XMLdata
+from admin_mdcs.forms import  EditProfileForm, ChangePasswordForm, UserForm
+from django.contrib.auth.decorators import login_required
+from itertools import chain
+from mgi.models import Template, Request, Message, TermsOfUse, PrivacyPolicy, Help
+from admin_mdcs.forms import RequestAccountForm, ContactForm
 from django.contrib.auth.models import User
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import Group
-from django.db.models import Q
-import mgi.rights as RIGHTS
-from itertools import chain
+import lxml.etree as etree
+from io import BytesIO
+import os
+import xmltodict
+from django.conf import settings
 
 
 ################################################################################
@@ -138,7 +142,7 @@ def logout_view(request):
 ################################################################################
 @login_required(login_url='/login')
 def my_profile(request):
-    template = loader.get_template('profile/my_profile.html')
+    template = loader.get_template('dashboard/my_profile.html')
     context = RequestContext(request, {
         '': '',
     })
@@ -164,7 +168,7 @@ def my_profile_edit(request):
                 try:
                     user = User.objects.get(username=request.POST['username'])
                     message = "A user with the same username already exists."
-                    return render(request, 'my_profile_edit.html', {'form':form, 'action_result':message})
+                    return render(request, 'dashboard/my_profile_edit.html', {'form':form, 'action_result':message})
                 except:
                     user.username = request.POST['username']
 
@@ -173,7 +177,7 @@ def my_profile_edit(request):
             user.email = request.POST['email']
             user.save()
             messages.add_message(request, messages.INFO, 'Profile information edited with success.')
-            return redirect('/my-profile')
+            return redirect('/dashboard/my-profile')
     else:
         user = User.objects.get(id=request.user.id)
         data = {'firstname':user.first_name,
@@ -182,7 +186,7 @@ def my_profile_edit(request):
                 'email':user.email}
         form = EditProfileForm(data)
 
-    return render(request, 'profile/my_profile_edit.html', {'form':form})
+    return render(request, 'dashboard/my_profile_edit.html', {'form':form})
 
 
 ################################################################################
@@ -203,16 +207,16 @@ def my_profile_change_password(request):
             auth_user = authenticate(username=user.username, password=request.POST['old'])
             if auth_user is None:
                 message = "The old password is incorrect."
-                return render(request, 'my_profile_change_password.html', {'form':form, 'action_result':message})
+                return render(request, 'dashboard/my_profile_change_password.html', {'form':form, 'action_result':message})
             else:
                 user.set_password(request.POST['new1'])
                 user.save()
                 messages.add_message(request, messages.INFO, 'Password changed with success.')
-                return redirect('/my-profile')
+                return redirect('/dashboard/my-profile')
     else:
         form = ChangePasswordForm()
 
-    return render(request, 'profile/my_profile_change_password.html', {'form':form})
+    return render(request, 'dashboard/my_profile_change_password.html', {'form':form})
 
 ################################################################################
 #
@@ -229,7 +233,7 @@ def my_profile_my_forms(request):
     detailed_forms = []
     for form in forms:
         detailed_forms.append({'form': form, 'template_name': Template.objects().get(pk=form.template).title})
-    return render(request, 'profile/my_profile_my_forms.html', {'forms':detailed_forms})
+    return render(request, 'dashboard/my_dashboard_my_forms.html', {'forms':detailed_forms})
 
 
 ################################################################################
@@ -361,28 +365,107 @@ def my_profile_favorites(request):
 #
 ################################################################################
 @login_required(login_url='/login')
-def my_profile_resources(request):
-    template = loader.get_template('profile/my_profile_resources.html')
+def dashboard_resources(request):
+    template = loader.get_template('dashboard/my_dashboard_my_resources.html')
     if 'template' in request.GET:
         template_name = request.GET['template']
-        if template_name == 'all':
-            context = RequestContext(request, {
-                'XMLdatas': XMLdata.find({'iduser' : str(request.user.id)}),
-            })
-        else :
-            if template_name == 'datacollection':
-                templateNamesQuery = list(chain(Template.objects.filter(title=template_name).values_list('id'), Template.objects.filter(title='repository').values_list('id'), Template.objects.filter(title='database').values_list('id'), Template.objects.filter(title='projectarchive').values_list('id')))
-            else :
-                templateNamesQuery = Template.objects.filter(title=template_name).values_list('id')
-            templateNames = []
-            for templateQuery in templateNamesQuery:
-                templateNames.append(str(templateQuery))
 
+        if template_name == 'datacollection':
+            templateNamesQuery = list(chain(Template.objects.filter(title=template_name).values_list('id'), Template.objects.filter(title='repository').values_list('id'), Template.objects.filter(title='database').values_list('id'), Template.objects.filter(title='projectarchive').values_list('id')))
+        else :
+            templateNamesQuery = Template.objects.filter(title=template_name).values_list('id')
+        templateNames = []
+        for templateQuery in templateNamesQuery:
+            templateNames.append(str(templateQuery))
+
+
+        if 'ispublished' in request.GET:
+            ispublished = request.GET['ispublished']
             context = RequestContext(request, {
-                'XMLdatas': XMLdata.find({'iduser' : str(request.user.id), 'schema':{"$in" : templateNames}}), 'template': template_name
+                'XMLdatas': sorted(XMLdata.find({'iduser' : str(request.user.id), 'schema':{"$in" : templateNames}, 'ispublished': ispublished=='true'}), key=lambda data: data['lastmodificationdate'], reverse=True),
+                'template': template_name,
+                'ispublished': ispublished,
+             })
+        else:
+            context = RequestContext(request, {
+                'XMLdatas': sorted(XMLdata.find({'iduser' : str(request.user.id), 'schema':{"$in" : templateNames}}), key=lambda data: data['lastmodificationdate'], reverse=True),
+                'template': template_name,
             })
-    else :
-        context = RequestContext(request, {
-                'XMLdatas': XMLdata.find({'iduser' : str(request.user.id)}),
-        })
+    else:
+        if 'ispublished' in request.GET:
+            ispublished = request.GET['ispublished']
+            context = RequestContext(request, {
+                    'XMLdatas': sorted(XMLdata.find({'iduser' : str(request.user.id), 'ispublished': ispublished=='true'}), key=lambda data: data['lastmodificationdate'], reverse=True),
+                    'ispublished': ispublished,
+            })
+        else:
+            context = RequestContext(request, {
+                    'XMLdatas': sorted(XMLdata.find({'iduser' : str(request.user.id)}), key=lambda data: data['lastmodificationdate'], reverse=True),
+            })
     return HttpResponse(template.render(context))
+
+
+################################################################################
+#
+# Function Name: dashboard_detail_resource
+# Inputs:        request -
+# Outputs:       Detail of a resource
+# Exceptions:    None
+# Description:   Page that allows to see detail resource from a selected resource
+#
+################################################################################
+@login_required(login_url='/login')
+def dashboard_detail_resource(request) :
+    template = loader.get_template('dashboard/my_dashboard_detail_resource.html')
+    result_id = request.GET['id']
+    xmlString = XMLdata.get(result_id)
+    title = xmlString['title']
+    schemaId = xmlString['schema']
+
+    xmlString = xmltodict.unparse(xmlString['content']).encode('utf-8')
+    xsltPath = os.path.join(settings.SITE_ROOT, 'static', 'resources', 'xsl', 'xml2html.xsl')
+    xslt = etree.parse(xsltPath)
+    transform = etree.XSLT(xslt)
+
+    #Check if a custom detailed result XSLT has to be used
+    try:
+        if (xmlString != ""):
+            dom = etree.fromstring(str(xmlString))
+            schema = Template.objects.get(pk=schemaId)
+            if schema.ResultXsltDetailed:
+                shortXslt = etree.parse(BytesIO(schema.ResultXsltDetailed.content.encode('utf-8')))
+                shortTransform = etree.XSLT(shortXslt)
+                newdom = shortTransform(dom)
+            else:
+                newdom = transform(dom)
+    except Exception, e:
+        #We use the default one
+        newdom = transform(dom)
+
+    result = str(newdom)
+    context = RequestContext(request, {
+        'XMLHolder': result,
+        'title': title
+    })
+
+    return HttpResponse(template.render(context))
+
+
+################################################################################
+#
+# Function Name: dashboard_my_forms(request)
+# Inputs:        request -
+# Outputs:       Review forms page
+# Exceptions:    None
+# Description:   Page that allows to review user forms
+#
+################################################################################
+@login_required(login_url='/login')
+def dashboard_my_forms(request):
+    forms = FormData.objects(user=str(request.user.id), xml_data_id__exists=False).order_by('template') # xml_data_id False if document not curated
+    detailed_forms = []
+    for form in forms:
+        detailed_forms.append({'form': form, 'template_name': Template.objects().get(pk=form.template).title})
+    user_form = UserForm(request.user)
+
+    return render(request, 'dashboard/my_dashboard_my_forms.html', {'forms':detailed_forms, 'user_form': user_form})

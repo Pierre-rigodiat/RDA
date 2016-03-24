@@ -171,7 +171,6 @@ no_module = function(xpath){
     });
 }
 
-
 saveTemplate = function(){
     $.ajax({
         url : "/admin/save_modules",

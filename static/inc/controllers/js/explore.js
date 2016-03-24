@@ -1088,6 +1088,7 @@ delete_result = function(result_id){
     });
 }
 
+
 /**
  * Publish a curated document
  * @param result_id
@@ -1122,7 +1123,7 @@ update_publish = function(result_id){
         	result_id: result_id,
         },
 		success: function(data){
-		    $("#" + result_id).load(document.URL +  " #" + result_id);
+		    location.reload();
 	    }
     });
 }
@@ -1145,6 +1146,29 @@ updateUnpublish = function(result_id){
                 },
             }
         });
+    });
+}
+
+dialog_detail = function(id){
+	$.ajax({
+        url : "/explore/detail_result_keyword?id=" + id,
+        type : "GET",
+        success: function(data){
+        	$("#result_detail").html(data);
+
+        	$(function() {
+                $( "#dialog-detail-result" ).dialog({
+                    modal: true,
+                    height: 430,
+                    width: 700,
+                    buttons: {
+                        Ok: function() {
+                        $( this ).dialog( "close" );
+                        }
+                    }
+                });
+            });
+        }
     });
 }
 
