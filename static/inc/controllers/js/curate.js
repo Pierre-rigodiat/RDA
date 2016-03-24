@@ -1388,6 +1388,8 @@ cancelChanges = function(){
     $(function() {
         $( "#dialog-cancel-changes-message" ).dialog({
             modal: true,
+            height: 215,
+            width: 650,
             buttons: {
             	"Revert to my previously Saved Form": function() {
                     reload_form();
