@@ -654,7 +654,9 @@ loadCurrentTemplateView = function()
     console.log('BEGIN [loadCurrentTemplateView]');
 
     $('.btn.download-xml').on('click', downloadXML);
-    $('.btn.save-to-repo').on('click', saveToRepository);
+    $('.btn.save-to-repo').on('click',  function(event) {
+        saveToRepositoryProcess(XMLDataSaved);
+    });
 
     console.log('END [loadCurrentTemplateView]');
 }
@@ -778,6 +780,7 @@ saveToRepository = function()
                    text: "Save",
                    click: function() {            	   
 	            	   saveToRepositoryProcess();
+	            	   $( "#dialog-save-data-message" ).dialog( "close" );
                    }
                }
               ]
@@ -788,7 +791,7 @@ saveToRepository = function()
     console.log('END [saveToRepository]');
 }
 
-saveToRepositoryProcess = function()
+saveToRepositoryProcess = function(successFunction)
 {
    var formData = new FormData($( "#form_save" )[0]);
    $.ajax({
@@ -800,8 +803,7 @@ saveToRepositoryProcess = function()
         processData: false,
         async:false,
         success : function(data) {
-            $( "#dialog-save-data-message" ).dialog( "close" );
-            XMLDataSaved();
+            successFunction();
         },
         error:function(data){
             $("#saveErrorMessage").html(data.responseText);
