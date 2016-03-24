@@ -1429,8 +1429,8 @@ useErrosAndView = function(errors){
 	$(function() {
         $( "#dialog-use-message" ).dialog({
             modal: true,
-            height: 340,
-            width: 560,
+            height: 250,
+            width: 485,
             buttons: {
             	Cancel: function() {
             		$( this ).dialog( "close" );
