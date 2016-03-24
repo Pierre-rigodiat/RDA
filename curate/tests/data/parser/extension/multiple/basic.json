@@ -5,6 +5,32 @@
       "tag": "complex_type",
       "children": [
         {
+          "tag": "attribute",
+          "options": {
+            "xpath": {
+              "xml": "/@id",
+              "xsd": "/xs:schema/xs:element/xs:complexType/xs:complexContent/xs:extension/xs:attribute"
+            },
+            "max": 1,
+            "name": "id",
+            "module": null,
+            "min": 1
+          },
+          "value": null,
+          "children": [
+            {
+              "tag": "elem-iter",
+              "children": [
+                {
+                  "tag": "input",
+                  "value": ""
+                }
+              ],
+              "value": null
+            }
+          ]
+        },
+        {
           "tag": "sequence",
           "options": {
             "xpath": {
@@ -142,32 +168,6 @@
                       "value": null
                     }
                   ]
-                }
-              ],
-              "value": null
-            }
-          ]
-        },
-        {
-          "tag": "attribute",
-          "options": {
-            "xpath": {
-              "xml": "/@id",
-              "xsd": "/xs:schema/xs:element/xs:complexType/xs:complexContent/xs:extension/xs:attribute"
-            },
-            "max": 1,
-            "name": "id",
-            "module": null,
-            "min": 1
-          },
-          "value": null,
-          "children": [
-            {
-              "tag": "elem-iter",
-              "children": [
-                {
-                  "tag": "input",
-                  "value": ""
                 }
               ],
               "value": null

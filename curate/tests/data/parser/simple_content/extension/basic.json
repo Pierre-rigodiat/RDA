@@ -5,10 +5,6 @@
       "tag": "extension",
       "children": [
         {
-          "tag": "input",
-          "value": ""
-        },
-        {
           "tag": "attribute",
           "options": {
             "xpath": {
@@ -33,6 +29,10 @@
               "value": null
             }
           ]
+        },
+        {
+          "tag": "input",
+          "value": ""
         }
       ],
       "value": null

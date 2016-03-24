@@ -453,7 +453,7 @@ class ParserGetElementTypeTestSuite(TestCase):
     def setUp(self):
         self.defaultPrefix = 'xsd'
 
-        xml_element_data = join('curate', 'tests', 'data', 'parser', 'element_type')
+        xml_element_data = join('curate', 'tests', 'data', 'parser', 'utils', 'element_type')
         self.xml_element_data_handler = DataHandler(xml_element_data)
 
         self.namespace = {

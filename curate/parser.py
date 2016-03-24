@@ -1235,25 +1235,25 @@ def generate_sequence(request, element, xml_tree, choice_info=None, full_path=""
         for child in element:
             if child.tag == "{0}element".format(LXML_SCHEMA_NAMESPACE):
                 element_result = generate_element(request, child, xml_tree, choice_info,
+                                                  full_path=full_path, edit_data_tree=edit_data_tree,
+                                                  schema_location=schema_location)
+
+                form_string += element_result[0]
+                db_elem_iter['children'].append(element_result[1])
+            elif child.tag == "{0}sequence".format(LXML_SCHEMA_NAMESPACE):
+                sequence_result = generate_sequence(request, child, xml_tree, choice_info,
+                                                    full_path=full_path, edit_data_tree=edit_data_tree,
+                                                    schema_location=schema_location)
+
+                form_string += sequence_result[0]
+                db_elem_iter['children'].append(sequence_result[1])
+            elif child.tag == "{0}choice".format(LXML_SCHEMA_NAMESPACE):
+                choice_result = generate_choice(request, child, xml_tree, choice_info,
                                                 full_path=full_path, edit_data_tree=edit_data_tree,
                                                 schema_location=schema_location)
 
-                form_string += element_result[0]
-                db_element['children'].append(element_result[1])
-            elif child.tag == "{0}sequence".format(LXML_SCHEMA_NAMESPACE):
-                sequence_result = generate_sequence(request, child, xml_tree, choice_info,
-                                                 full_path=full_path, edit_data_tree=edit_data_tree,
-                                                 schema_location=schema_location)
-
-                form_string += sequence_result[0]
-                db_element['children'].append(sequence_result[1])
-            elif child.tag == "{0}choice".format(LXML_SCHEMA_NAMESPACE):
-                choice_result = generate_choice(request, child, xml_tree, choice_info,
-                                               full_path=full_path, edit_data_tree=edit_data_tree,
-                                               schema_location=schema_location)
-
                 form_string += choice_result[0]
-                db_element['children'].append(choice_result[1])
+                db_elem_iter['children'].append(choice_result[1])
             elif child.tag == "{0}any".format(LXML_SCHEMA_NAMESPACE):
                 pass
             elif child.tag == "{0}group".format(LXML_SCHEMA_NAMESPACE):
@@ -1500,13 +1500,13 @@ def generate_choice(request, element, xml_tree, choice_info=None, full_path="", 
             options.append(entry)
 
         li_content += render_select(choose_id_str, options)
-        li_content += render_buttons(add_button, delete_button, tag_id[7:])
+        li_content += render_buttons(add_button, delete_button)
 
         for (counter, choiceChild) in enumerate(list(element)):
             if choiceChild.tag == "{0}element".format(LXML_SCHEMA_NAMESPACE):
                 element_result = generate_element(request, choiceChild, xml_tree,
-                                                common.ChoiceInfo(choose_id_str, counter), full_path=full_path,
-                                                edit_data_tree=edit_data_tree, schema_location=schema_location)
+                                                  common.ChoiceInfo(choose_id_str, counter), full_path=full_path,
+                                                  edit_data_tree=edit_data_tree, schema_location=schema_location)
 
                 li_content += element_result[0]
                 db_child_0 = element_result[1]
@@ -1517,8 +1517,8 @@ def generate_choice(request, element, xml_tree, choice_info=None, full_path="", 
                 pass
             elif choiceChild.tag == "{0}sequence".format(LXML_SCHEMA_NAMESPACE):
                 sequence = generate_sequence(request, choiceChild, xml_tree,
-                                                 common.ChoiceInfo(choose_id_str, counter), full_path=full_path,
-                                                 edit_data_tree=edit_data_tree, schema_location=schema_location)
+                                             common.ChoiceInfo(choose_id_str, counter), full_path=full_path,
+                                             edit_data_tree=edit_data_tree, schema_location=schema_location)
 
                 li_content += sequence[0]
                 db_child_0 = sequence[1]
@@ -1544,6 +1544,7 @@ def generate_simple_type(request, element, xml_tree, full_path, edit_data_tree=N
         full_path:
         edit_data_tree:
         default_value:
+        schema_location:
 
     Returns:
         HTML string representing a simple type
@@ -1873,7 +1874,7 @@ def generate_module(request, element, xsd_xpath=None, xml_xpath=None, xml_tree=N
     return form_string
 
 
-def generate_simple_content(request, element, xml_tree, full_path, edit_data_tree=None, schema_location=None):
+def generate_simple_content(request, element, xml_tree, full_path='', edit_data_tree=None, schema_location=None):
     """Generates a section of the form that represents an XML simple content
 
     Parameters:
@@ -1882,6 +1883,7 @@ def generate_simple_content(request, element, xml_tree, full_path, edit_data_tre
         xml_tree:
         full_path:
         edit_data_tree:
+        schema_location:
 
     Returns:
         HTML string representing a simple content
@@ -1905,13 +1907,13 @@ def generate_simple_content(request, element, xml_tree, full_path, edit_data_tre
 
         if child.tag == "{0}restriction".format(LXML_SCHEMA_NAMESPACE):
             restriction_result = generate_restriction(request, child, xml_tree, full_path,
-                                                edit_data_tree=edit_data_tree, schema_location=schema_location)
+                                                      edit_data_tree=edit_data_tree, schema_location=schema_location)
 
             form_string += restriction_result[0]
             db_element['children'].append(restriction_result[1])
         elif child.tag == "{0}extension".format(LXML_SCHEMA_NAMESPACE):
             extension_result = generate_extension(request, child, xml_tree, full_path,
-                                              edit_data_tree=edit_data_tree, schema_location=schema_location)
+                                                  edit_data_tree=edit_data_tree, schema_location=schema_location)
 
             form_string += extension_result[0]
             db_element['children'].append(extension_result[1])
@@ -1919,8 +1921,8 @@ def generate_simple_content(request, element, xml_tree, full_path, edit_data_tre
     return form_string, db_element
 
 
-def generate_restriction(request, element, xml_tree, full_path="", edit_data_tree=None,
-                         default_value=None, schema_location=None):
+def generate_restriction(request, element, xml_tree, full_path="", edit_data_tree=None, default_value=None,
+                         schema_location=None):
     """Generates a section of the form that represents an XML restriction
 
     Parameters:
@@ -1929,6 +1931,8 @@ def generate_restriction(request, element, xml_tree, full_path="", edit_data_tre
         xml_tree: XML Tree
         full_path:
         edit_data_tree:
+        default_value:
+        schema_location:
 
     Returns:
         HTML string representing a sequence
@@ -1986,8 +1990,8 @@ def generate_restriction(request, element, xml_tree, full_path="", edit_data_tre
         simple_type = element.find('{0}simpleType'.format(LXML_SCHEMA_NAMESPACE))
         if simple_type is not None:
             simple_type_result = generate_simple_type(request, simple_type, xml_tree, full_path=full_path,
-                                                edit_data_tree=edit_data_tree, default_value=default_value,
-                                                schema_location=schema_location)
+                                                      edit_data_tree=edit_data_tree, default_value=default_value,
+                                                      schema_location=schema_location)
 
             form_string += simple_type_result[0]
             db_child = simple_type_result[1]
@@ -2039,6 +2043,7 @@ def generate_extension(request, element, xml_tree, full_path="", edit_data_tree=
         xml_tree:
         full_path:
         edit_data_tree:
+        schema_location:
 
     Returns:
         HTML string representing an extension
@@ -2097,7 +2102,7 @@ def generate_extension(request, element, xml_tree, full_path="", edit_data_tree=
             baseType = xml_tree.find(".//{0}simpleType[@name='{1}']".format(LXML_SCHEMA_NAMESPACE, base_name))
             if baseType is not None:
                 simple_type_result = generate_simple_type(request, baseType, xml_tree, full_path,
-                                                    edit_data_tree, schema_location=schema_location)
+                                                          edit_data_tree, schema_location=schema_location)
 
                 form_string += simple_type_result[0]
                 db_element['children'].append(simple_type_result[1])
@@ -2106,7 +2111,7 @@ def generate_extension(request, element, xml_tree, full_path="", edit_data_tree=
                 baseType = xml_tree.find(".//{0}complexType[@name='{1}']".format(LXML_SCHEMA_NAMESPACE, base_name))
                 if baseType is not None:
                     complex_type_result = generate_complex_type(request, baseType, xml_tree, full_path,
-                                                         edit_data_tree, schema_location=schema_location)
+                                                                edit_data_tree, schema_location=schema_location)
 
                     form_string += complex_type_result[0]
                     db_element['children'].append(complex_type_result[1])
@@ -2125,16 +2130,18 @@ def generate_extension(request, element, xml_tree, full_path="", edit_data_tree=
     if len(complexTypeChildren) > 0:
         for attribute in complexTypeChildren:
             element_result = generate_element(request, attribute, xml_tree, full_path=full_path,
-                                            edit_data_tree=edit_data_tree, schema_location=schema_location)
+                                              edit_data_tree=edit_data_tree, schema_location=schema_location)
 
             form_string += element_result[0]
-            extended_element.append(element_result[1])
+
+            # Attribute is pushed on top of the list of children
+            extended_element.insert(0, element_result[1])
 
     # does it contain sequence or all?
     complexTypeChild = element.find('{0}sequence'.format(LXML_SCHEMA_NAMESPACE))
     if complexTypeChild is not None:
         sequence_result = generate_sequence(request, complexTypeChild, xml_tree, full_path=full_path,
-                                         edit_data_tree=edit_data_tree, schema_location=schema_location)
+                                            edit_data_tree=edit_data_tree, schema_location=schema_location)
 
         form_string += sequence_result[0]
         extended_element.append(sequence_result[1])
@@ -2142,7 +2149,7 @@ def generate_extension(request, element, xml_tree, full_path="", edit_data_tree=
         complexTypeChild = element.find('{0}all'.format(LXML_SCHEMA_NAMESPACE))
         if complexTypeChild is not None:
             sequence_result = generate_sequence(request, complexTypeChild, xml_tree, full_path=full_path,
-                                             edit_data_tree=edit_data_tree, schema_location=schema_location)
+                                                edit_data_tree=edit_data_tree, schema_location=schema_location)
 
             form_string += sequence_result[0]
             extended_element.append(sequence_result[1])
@@ -2151,7 +2158,7 @@ def generate_extension(request, element, xml_tree, full_path="", edit_data_tree=
             complexTypeChild = element.find('{0}choice'.format(LXML_SCHEMA_NAMESPACE))
             if complexTypeChild is not None:
                 choice_result = generate_choice(request, complexTypeChild, xml_tree, full_path=full_path,
-                                               edit_data_tree=edit_data_tree, schema_location=schema_location)
+                                                edit_data_tree=edit_data_tree, schema_location=schema_location)
 
                 form_string += choice_result[0]
                 extended_element.append(choice_result[1])
