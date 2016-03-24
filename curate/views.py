@@ -22,16 +22,17 @@ from django.core.servers.basehttp import FileWrapper
 from bson.objectid import ObjectId
 import lxml.etree as etree
 from lxml.etree import XMLSyntaxError
-import json 
+import json
 import xmltodict
 from django.contrib import messages
-from mgi.models import Template, TemplateVersion, XML2Download, FormData,\
+from mgi.models import Template, TemplateVersion, XML2Download, FormData, \
     XMLdata, FormElement, XMLElement
 from curate.forms import NewForm, OpenForm, UploadForm, SaveDataForm
 from django.http.response import HttpResponseBadRequest
 from admin_mdcs.models import permission_required
 import mgi.rights as RIGHTS
 from mgi.exceptions import MDCSError
+
 
 ################################################################################
 #
@@ -56,11 +57,12 @@ def index(request):
         currentTemplates[tpl] = templateVersions.isDeleted
 
     context = RequestContext(request, {
-       'templates':currentTemplates,
-       'userTemplates': Template.objects(user=str(request.user.id)),
+        'templates': currentTemplates,
+        'userTemplates': Template.objects(user=str(request.user.id)),
     })
 
     return HttpResponse(template.render(context))
+
 
 ################################################################################
 #
@@ -91,7 +93,8 @@ def curate_select_template(request):
 #
 #
 ################################################################################
-@permission_required(content_type=RIGHTS.curate_content_type, permission=RIGHTS.curate_edit_document, login_url='/login')
+@permission_required(content_type=RIGHTS.curate_content_type, permission=RIGHTS.curate_edit_document,
+                     login_url='/login')
 def curate_edit_data(request):
     try:
         if 'useForm' in request.GET and request.GET['useForm'] == 'true':
@@ -123,7 +126,8 @@ def curate_edit_data(request):
                         # raise an exception when element not found
                         pass
                 previous_form.delete()
-            form_data = FormData(user=str(request.user.id), template=xml_data['schema'], name=xml_data['title'], xml_data=xml_content, xml_data_id=xml_data_id).save()
+            form_data = FormData(user=str(request.user.id), template=xml_data['schema'], name=xml_data['title'],
+                                 xml_data=xml_content, xml_data_id=xml_data_id).save()
             request.session['curateFormData'] = str(form_data.id)
             if 'formString' in request.session:
                 del request.session['formString']
@@ -152,12 +156,12 @@ def curate_from_schema(request):
     try:
         schema_name = request.GET['template']
         templates = Template.objects(title=schema_name)
-        
-        if 'curate_edit' in request.session and request.session['curate_edit'] == False:   
+
+        if 'curate_edit' in request.session and request.session['curate_edit'] == False:
             # if the schemas are all versions of the same schema
             if len(set(templates.values_list('templateVersion'))) == 1:
                 template_id = TemplateVersion.objects().get(pk=templates[0].templateVersion).current
-                
+
                 if 'useForm' in request.GET and request.GET['useForm'] == 'true':
                     pass
                 else:
@@ -166,11 +170,12 @@ def curate_from_schema(request):
                     if 'xmlDocTree' in request.session:
                         del request.session['xmlDocTree']
             else:
-                raise MDCSError("The selection of template by name can't be used if the MDCS contain more than one template with the same name.")            
+                raise MDCSError(
+                    "The selection of template by name can't be used if the MDCS contain more than one template with the same name.")
     except:
         raise MDCSError("The template you are looking for doesn't exist.")
-    
-    
+
+
 ################################################################################
 #
 # Function Name: curate_enter_data(request)
@@ -184,23 +189,23 @@ def curate_from_schema(request):
 @permission_required(content_type=RIGHTS.curate_content_type, permission=RIGHTS.curate_access, login_url='/login')
 def curate_enter_data(request):
     print "BEGIN curate_enter_data(request)"
-   
+
     try:
         context = RequestContext(request, {})
         if 'id' in request.GET:
             xml_data_id = request.GET['id']
             xml_data = XMLdata.get(xml_data_id)
             template = Template.objects().get(pk=ObjectId(xml_data['schema']))
-            context = RequestContext(request, {'edit': True, 'template_name':template.title})
+            context = RequestContext(request, {'edit': True, 'template_name': template.title})
             curate_edit_data(request)
         elif 'template' in request.GET:
             context = RequestContext(request, {'template_name': request.GET['template']})
             curate_from_schema(request)
         elif 'templateid' in request.GET:
             pass
-        
+
         template = loader.get_template('curate/curate_enter_data.html')
-        
+
         return HttpResponse(template.render(context))
     except MDCSError, e:
         template = loader.get_template('curate/errors.html')
@@ -232,10 +237,10 @@ def curate_view_data(request):
 
     # detect if new document, or editing
     if form_data.xml_data_id is not None:
-        edit =True
+        edit = True
     else:
         edit = False
-        
+
     context = RequestContext(request, {
         'form_save': SaveDataForm({"title": form_name}),
         'edit': edit,
@@ -244,6 +249,7 @@ def curate_view_data(request):
         return redirect('/curate/select-template')
     else:
         return HttpResponse(template.render(context))
+
 
 ################################################################################
 #
@@ -274,6 +280,7 @@ def curate_enter_data_downloadxsd(request):
         response['Content-Disposition'] = 'attachment; filename=' + template_filename
         return response
 
+
 ################################################################################
 #
 # Function Name: curate_view_data_downloadxml(request)
@@ -294,7 +301,6 @@ def curate_view_data_downloadxml(request):
         if xml2downloadID is not None:
             xmlDataObject = XML2Download.objects.get(pk=xml2downloadID)
 
-
             xmlStringEncoded = xmlDataObject.xml.encode('utf-8')
             fileObj = StringIO(xmlStringEncoded)
 
@@ -308,6 +314,7 @@ def curate_view_data_downloadxml(request):
             return response
         else:
             return redirect('/')
+
 
 ################################################################################
 #
@@ -333,7 +340,12 @@ def start_curate(request):
             if selected_option == "new":
                 request.session['curate_edit'] = False
                 new_form = NewForm(request.POST)
-                form_data = FormData(user=str(user), template=template_id, name=new_form.data['document_name'], xml_data=None).save()
+                try:
+                    form_data = FormData(user=str(user), template=template_id, name=new_form.data['document_name'],
+                                         xml_data=None).save()
+                except:
+                    return HttpResponseBadRequest(
+                        'Unable to create the form. A form with the same name may already exist.')
             elif selected_option == "open":
                 request.session['curate_edit'] = True
                 open_form = OpenForm(request.POST)
@@ -352,7 +364,12 @@ def start_curate(request):
                     etree.fromstring(xml_data)
                 except XMLSyntaxError:
                     return HttpResponseBadRequest('Uploaded File is not well formed XML.')
-                form_data = FormData(user=str(user), template=template_id, name=xml_file.name, xml_data=xml_data).save()
+                try:
+                    form_data = FormData(user=str(user), template=template_id, name=xml_file.name,
+                                         xml_data=xml_data).save()
+                except:
+                    return HttpResponseBadRequest(
+                        'Unable to create the form. A form with the same name may already exist.')
 
             # parameters that will be used during curation
             request.session['curateFormData'] = str(form_data.id)
@@ -375,7 +392,8 @@ def start_curate(request):
                         template_id = TemplateVersion.objects().get(pk=templates[0].templateVersion).current
                         request.session['currentTemplateID'] = template_id
                     else:
-                        raise MDCSError("The selection of template by name can't be used if the MDCS contain more than one template with the same name.")
+                        raise MDCSError(
+                            "The selection of template by name can't be used if the MDCS contain more than one template with the same name.")
 
                     template = loader.get_template('curate/curate_full_start.html')
 
@@ -388,18 +406,21 @@ def start_curate(request):
                     ajaxCall = True
                     template = loader.get_template('curate/curate_start.html')
 
-                open_form = OpenForm(forms=FormData.objects(user=str(request.user.id), template=request.session['currentTemplateID'], xml_data_id__exists=False))
+                open_form = OpenForm(
+                    forms=FormData.objects(user=str(request.user.id), template=request.session['currentTemplateID'],
+                                           xml_data_id__exists=False))
                 new_form = NewForm()
                 upload_form = UploadForm()
-                
-                context_params['new_form']= new_form
-                context_params['open_form']= open_form
-                context_params['upload_form']= upload_form
-                
-                context = RequestContext(request, context_params)#, 'options_form': options_form})
+
+                context_params['new_form'] = new_form
+                context_params['open_form'] = open_form
+                context_params['upload_form'] = upload_form
+
+                context = RequestContext(request, context_params)  # , 'options_form': options_form})
 
                 if ajaxCall:
-                    return HttpResponse(json.dumps({'template': template.render(context)}), content_type='application/javascript')
+                    return HttpResponse(json.dumps({'template': template.render(context)}),
+                                        content_type='application/javascript')
                 else:
                     return HttpResponse(template.render(context))
 
@@ -408,10 +429,12 @@ def start_curate(request):
                 context = RequestContext(request, {
                     'errors': e.message,
                 })
-                return HttpResponse(template.render(context))          
+                return HttpResponse(template.render(context))
 
 
-################################################################################
+            ################################################################################
+
+
 #
 # Function Name: save_xml_data_to_db(request)
 # Inputs:        request -
@@ -441,8 +464,9 @@ def save_xml_data_to_db(request):
                 if form_data.xml_data_id is not None:
                     XMLdata.update_content(form_data.xml_data_id, xmlString, title=form.data['title'])
                 else:
-                    #create new data otherwise
-                    newJSONData = XMLdata(schemaID=templateID, xml=xmlString, title=form.data['title'], iduser=str(request.user.id))
+                    # create new data otherwise
+                    newJSONData = XMLdata(schemaID=templateID, xml=xmlString, title=form.data['title'],
+                                          iduser=str(request.user.id))
                     newJSONData.save()
                 # delete form data
                 try:
@@ -473,5 +497,3 @@ def save_xml_data_to_db(request):
             return HttpResponseBadRequest('No data to save.')
     else:
         return HttpResponseBadRequest('Invalid title.')
-
-    

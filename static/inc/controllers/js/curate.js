@@ -530,24 +530,17 @@ load_enter_data = function (template_name)
             	window.location = '/curate/enter-data?template=' + template_name
             },
             error:function(data){
-                $("#form_start_errors").html(data.responseText);
+                if (data.responseText != ""){
+                    $("#form_start_errors").html(data.responseText);
+                    $("#banner_errors").show(500)
+                    return (false);
+                }else{
+                    return (true)
+                }
             },
         })
         ;
    }
-}
-
-/**
- * AJAX call, launch the curation from the selected parameters
- */
-start_curate = function(){
-    $.ajax({
-        url : "/curate/start_curate",
-        type : "POST",
-        dataType: "json",
-        success: function(data){
-        }
-    });
 }
 
 
@@ -1277,7 +1270,7 @@ validateStartCurate = function(){
 			}
 		}else if (selected_option == "open"){
 			if ($( "#id_forms" ).val() == ""){
-				errors = "You selected the option 'Open a Form'. Please select an existing form from the list."
+				errors = "You selected the option 'Open a Form'. Please select a form from the list."
 			}
 		}else if (selected_option == "upload"){
 			if ($( "#id_file" ).val() == ""){

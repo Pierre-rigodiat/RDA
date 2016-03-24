@@ -184,7 +184,7 @@ class FormData(Document):
     """Stores data being entered and not yet curated"""
     user = StringField(required=True)
     template = StringField(required=True)
-    name = StringField(required=True)
+    name = StringField(required=True, unique_with=['user', 'template'])
     elements = DictField()
     xml_data = StringField()
     xml_data_id = StringField()
