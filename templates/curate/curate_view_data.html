@@ -50,7 +50,7 @@ You can now review your data. Click on 'Save Changes' to update the resource in 
 {% if not edit %}
 <a class="button save-to-repo">ADD RESOURCE</a>
 {% else %}
-<a class="button save-to-repo">SAVE CHANGES</a>
+<a class="button save-changes">SAVE CHANGES</a>
 {% endif %}
 {% endblock %}
 
@@ -73,6 +73,23 @@ You can now review your data. Click on 'Save Changes' to update the resource in 
   </p>
 </div>
 
+<div id="dialog-save-redirect-dashboard-message" title="Data Saved" style="display:none;">
+<p></p>
+  <p>
+	  <span class="ui-icon ui-icon-circle-check" style="float:left; margin:0 7px 10px 0;"></span>
+	  The resource has been successfully added.
+	  You can now publish it from the section My Resources of your Dashboard.
+  </p>
+</div>
+
+<div id="dialog-update-redirect-dashboard-message" title="Data Saved" style="display:none;">
+<p></p>
+  <p>
+	  <span class="ui-icon ui-icon-circle-check" style="float:left; margin:0 7px 10px 0;"></span>
+	  The resource has been successfully updated.
+  </p>
+</div>
+
 {% endblock %}
 
 {% block extrajs %}
@@ -81,7 +98,12 @@ You can now review your data. Click on 'Save Changes' to update the resource in 
 <script src="{% static 'inc/controllers/js/nmrr/nmrr_curate.js' %}"></script>
 <script>
 load_xml();
-$('.button.save-to-repo').on('click', saveToRepositoryProcess);
+$('.button.save-to-repo').on('click',  function(event) {
+    saveToRepositoryProcess(XMLDataSavedToPublish);
+});
+$('.button.save-changes').on('click', function(event) {
+	saveToRepositoryProcess(XMLDataUpdated);
+});
 $('.button.edit').on('click', editForm);
 </script>
 {% endblock %}

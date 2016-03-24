@@ -796,7 +796,7 @@ download_current_xml = function(xmlString){
 /**
  * Save XML data to repository. Shows dialog.
  */
-saveToRepository = function()
+saveToRepository = function(successFunction)
 {
     console.log('BEGIN [saveToRepository]');
     enterKeyPressSaveRepositorySubscription();
@@ -809,21 +809,22 @@ saveToRepository = function()
                {
                    text: "Save",
                    click: function() {            	   
-	            	   saveToRepositoryProcess();
+	            	   saveToRepositoryProcess(successFunction);
+	            	   $( "#dialog-save-data-message" ).dialog( "close" );
                    }
                }
               ]
         });
       });
-    
-	
+
     console.log('END [saveToRepository]');
 }
 
-saveToRepositoryProcess = function()
+saveToRepositoryProcess = function(successFunction)
 {
-   var formData = new FormData($( "#form_save" )[0]);
-   $.ajax({
+    console.log('saveToRepositoryProcess');
+    var formData = new FormData($( "#form_save" )[0]);
+    $.ajax({
         url : "/curate/save_xml_data_to_db",
         type: 'POST',
         data: formData,
@@ -832,17 +833,59 @@ saveToRepositoryProcess = function()
         processData: false,
         async:false,
         success : function(data) {
-        	try{
-        		// try to close the popup if opened to change the name
-        		$( "#dialog-save-data-message" ).dialog( "close" );
-        	}catch(err){}
-            XMLDataSaved();
+            successFunction();
         },
         error:function(data){
             $("#saveErrorMessage").html(data.responseText);
         },
     });
 }
+
+
+XMLDataSavedToPublish = function()
+{
+    console.log('XMLDataSavedToPublish');
+    $( "#dialog-save-redirect-dashboard-message" ).dialog({
+        modal: true,
+        width: 390,
+        height: 295,
+        close: function(){
+            window.location = "/"
+        },
+        buttons: {
+            "Home": function() {
+                $( this ).dialog( "close" );
+                window.location = "/"
+            },
+            "Go to My Resources": function() {
+                $( this ).dialog( "close" );
+                window.location = "/my-profile/resources"
+            }
+        }
+    });
+}
+
+XMLDataUpdated = function(){
+    $( "#dialog-update-redirect-dashboard-message" ).dialog({
+        modal: true,
+        width: 390,
+        height: 240,
+        close: function(){
+            window.location = "/"
+        },
+        buttons: {
+            "Home": function() {
+                $( this ).dialog( "close" );
+                window.location = "/"
+            },
+            "Go to My Resources": function() {
+                $( this ).dialog( "close" );
+                window.location = "/my-profile/resources"
+            }
+        }
+    });
+}
+
 
 enterKeyPressSaveRepositorySubscription = function ()
 {
@@ -862,21 +905,21 @@ XMLDataSaved = function()
 {
     console.log('BEGIN [savedXMLDataToDB]');
 
-    $(function() {
-        $( "#dialog-saved-message" ).dialog({
-            modal: true,
-            width: 350,
-        	height: 215,
-            close: function(){
-            	window.location = "/my-profile/resources"
-            },
-            buttons: {
-            	Ok: function() {
-                    $( this ).dialog( "close" );                    
-                }
-	    }
-        });
+
+    $( "#dialog-saved-message" ).dialog({
+        modal: true,
+        width: 350,
+        height: 215,
+        close: function(){
+            window.location = "/my-profile/resources"
+        },
+        buttons: {
+            Ok: function() {
+                $( this ).dialog( "close" );
+            }
+    }
     });
+
     
     console.log('END [savedXMLDataToDB]');
 }
