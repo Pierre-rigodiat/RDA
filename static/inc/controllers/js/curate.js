@@ -503,7 +503,13 @@ displayTemplateProcess = function ()
                 window.location = '/curate/enter-data'
             },
             error:function(data){
-                $("#form_start_errors").html(data.responseText);
+                if (data.responseText != ""){
+                    $("#form_start_errors").html(data.responseText);
+                    $("#banner_errors").show(500)
+                    return (false);
+                }else{
+                    return (true)
+                }
             },
         })
         ;
