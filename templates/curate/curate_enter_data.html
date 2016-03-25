@@ -112,10 +112,21 @@ Please wait while the form is loading...
 
 {% block popups %}
 <div id="dialog-cancel-changes-message" title="Cancel Changes" style="display:none;">
-<p></p>
-  <p>
-    Please choose one the following options.
-  </p>
+    Please choose one of the following options:
+    <br/>
+    <style>
+        th{
+            background: white;
+            padding: 0px;
+        }
+        td{
+            border-bottom:none;
+        }
+    </style>
+    <form id="cancel-form" action="/curate/start_curate" method="post">
+    {% csrf_token %}
+    {{cancel_form}}
+    </form>
 </div>
 
 <div id="dialog-cleared-message" title="Clear Form" style="display:none;">

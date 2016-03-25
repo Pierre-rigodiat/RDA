@@ -1385,22 +1385,48 @@ cancelForm = function(){
 }
 
 cancelChanges = function(){
-    $(function() {
-        $( "#dialog-cancel-changes-message" ).dialog({
-            modal: true,
-            autoResize: 'auto',
-            width: 650,
-            buttons: {
-            	"Revert to my previously Saved Form": function() {
-                    reload_form();
-                    $( this ).dialog( "close" );
-                },
-            	"Return to Add Resources": function() {
-            	    window.location = "/curate";
-            		$( this ).dialog( "close" );
-                },
-            }
+    // GET the form, if not loaded (1 because at least csrf token)
+    if( $( "#cancel-form" ).children().size() == 1){
+        $.ajax({
+            url : "/curate/cancel-changes",
+            type : "GET",
+            dataType: "json",
+            success: function(data){
+                $("#cancel-form").append(data.form);
+            },
         });
+    }
+
+    $( "#dialog-cancel-changes-message" ).dialog({
+        modal: true,
+        autoResize: 'auto',
+        width: 650,
+        buttons: {
+            "Cancel": function() {
+                $( this ).dialog( "close" );
+            },
+            "OK": function() {
+                // POST the form
+                var formData = new FormData($( "#cancel-form" )[0]);
+                $.ajax({
+                    url : "/curate/cancel-changes",
+                    type : "POST",
+                    cache: false,
+                    contentType: false,
+                    processData: false,
+                    async:false,
+                    data: formData,
+                    success: function(data){
+                        if(data == 'revert'){
+                            reload_form();
+                        }else{
+                            window.location = '/curate';
+                        }
+                    },
+                });
+                $( this ).dialog( "close" );
+            },
+        }
     });
 }
 
