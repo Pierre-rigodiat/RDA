@@ -1388,7 +1388,7 @@ cancelChanges = function(){
     $(function() {
         $( "#dialog-cancel-changes-message" ).dialog({
             modal: true,
-            height: 215,
+            autoResize: 'auto',
             width: 650,
             buttons: {
             	"Revert to my previously Saved Form": function() {
@@ -1472,8 +1472,8 @@ useErrosAndView = function(errors){
 	$(function() {
         $( "#dialog-use-message" ).dialog({
             modal: true,
-            height: 340,
-            width: 560,
+            autoResize: 'auto',
+            width: 500,
             buttons: {
             	Cancel: function() {
             		$( this ).dialog( "close" );
