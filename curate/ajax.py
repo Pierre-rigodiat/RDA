@@ -158,8 +158,8 @@ def delete_form(request):
 #
 ################################################################################
 def load_xml(request):
-
     xmlString = request.session['xmlString']
+    
 
     xsltPath = os.path.join(settings.SITE_ROOT, 'static', 'resources', 'xsl', 'xml2html.xsl')
     xslt = etree.parse(xsltPath)
