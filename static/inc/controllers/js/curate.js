@@ -856,7 +856,7 @@ XMLDataSavedToPublish = function()
                 $( this ).dialog( "close" );
                 window.location = "/"
             },
-            "Go to My Resources": function() {
+            "Go to My Dashboard": function() {
                 $( this ).dialog( "close" );
                 window.location = "/my-profile/resources"
             }
