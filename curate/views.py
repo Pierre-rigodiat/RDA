@@ -345,7 +345,7 @@ def start_curate(request):
                                          xml_data=None).save()
                 except:
                     return HttpResponseBadRequest(
-                        'Unable to create the form. A form with the same name may already exist.')
+                        'Unable to create the form. A form with the same name may already exists.')
             elif selected_option == "open":
                 request.session['curate_edit'] = True
                 open_form = OpenForm(request.POST)
