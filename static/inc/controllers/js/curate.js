@@ -1396,7 +1396,7 @@ cancelChanges = function(){
                     $( this ).dialog( "close" );
                 },
             	"Return to Add Resources": function() {
-            		cancelForm();
+            	    window.location = "/curate";
             		$( this ).dialog( "close" );
                 },
             }
@@ -1493,5 +1493,18 @@ initBanner = function()
 {
     $("[data-hide]").on("click", function(){
         $(this).closest("." + $(this).attr("data-hide")).hide(200);
+    });
+}
+
+check_leaving_page = function(){
+    window.btn_clicked = false;         // set btn_clicked to false on load
+    document.querySelector('.save-to-repo').addEventListener("click", function(){
+        window.btn_clicked = true;      //set btn_clicked to true
+    });
+
+    $(window).bind('beforeunload', function(){
+        if(!window.btn_clicked){
+            return 'Are you sure you want to leave the page. All unsaved changes will be lost.';
+        }
     });
 }
