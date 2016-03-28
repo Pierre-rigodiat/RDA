@@ -1076,7 +1076,7 @@ deleteResult = function(result_id){
  */
 delete_result = function(result_id){
 	$.ajax({
-        url : "/explore/delete_result",
+        url : "/dashboard/delete_result",
         type : "GET",
         dataType: "json",
         data : {
@@ -1116,7 +1116,7 @@ updatePublish = function(result_id){
  */
 update_publish = function(result_id){
 	$.ajax({
-        url : "/explore/update_publish",
+        url : "/dashboard/update_publish",
         type : "GET",
         dataType: "json",
         data : {
@@ -1178,7 +1178,7 @@ dialog_detail = function(id){
  */
 update_unpublish = function(result_id){
 	$.ajax({
-        url : "/explore/update_unpublish",
+        url : "/dashboard/update_unpublish",
         type : "GET",
         dataType: "json",
         data : {

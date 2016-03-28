@@ -188,3 +188,122 @@ showErrorEditType = function(name){
         });
     });
 }
+
+
+/**
+ * Delete a curated document
+ * @param result_id
+ */
+deleteResult = function(result_id){
+	$(function() {
+        $( "#dialog-delete-result" ).dialog({
+            modal: true,
+            buttons: {
+            	Cancel: function() {
+                    $( this ).dialog( "close" );
+                },
+            	Delete: function() {
+                    $( this ).dialog( "close" );
+                    delete_result(result_id);
+                },
+            }
+        });
+    });
+}
+
+/**
+ * AJAX call, delete a curated document
+ * @param result_id
+ */
+delete_result = function(result_id){
+	$.ajax({
+        url : "/dashboard/delete_result",
+        type : "GET",
+        dataType: "json",
+        data : {
+        	result_id: result_id,
+        },
+		success: function(data){
+		        location.reload(true);
+	    }
+    });
+}
+
+
+/**
+ * Publish a curated document
+ * @param result_id
+ */
+updatePublish = function(result_id){
+	$(function() {
+        $( "#dialog-publish" ).dialog({
+            modal: true,
+            buttons: {
+            	Cancel: function() {
+                    $( this ).dialog( "close" );
+                },
+            	Publish: function() {
+                    $( this ).dialog( "close" );
+                    update_publish(result_id);
+                },
+            }
+        });
+    });
+}
+
+/**
+ * AJAX call, update the publish state and date of a XMLdata
+ * @param result_id
+ */
+update_publish = function(result_id){
+	$.ajax({
+        url : "/dashboard/update_publish",
+        type : "GET",
+        dataType: "json",
+        data : {
+        	result_id: result_id,
+        },
+		success: function(data){
+		    location.reload();
+	    }
+    });
+}
+
+/**
+ * Unpublish a curated document
+ * @param result_id
+ */
+updateUnpublish = function(result_id){
+	$(function() {
+        $( "#dialog-unpublish" ).dialog({
+            modal: true,
+            buttons: {
+            	Cancel: function() {
+                    $( this ).dialog( "close" );
+                },
+            	Unpublish: function() {
+                    $( this ).dialog( "close" );
+                    update_unpublish(result_id);
+                },
+            }
+        });
+    });
+}
+
+/**
+ * AJAX call, update the publish state of a XMLdata
+ * @param result_id
+ */
+update_unpublish = function(result_id){
+	$.ajax({
+        url : "/dashboard/update_unpublish",
+        type : "GET",
+        dataType: "json",
+        data : {
+        	result_id: result_id,
+        },
+		success: function(data){
+            $("#" + result_id).load(document.URL +  " #" + result_id);
+	    }
+    });
+}

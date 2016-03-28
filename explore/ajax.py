@@ -26,13 +26,9 @@ import os
 import json
 import copy
 import lxml.etree as etree
-from mgi.models import Template, QueryResults, SavedQuery, XMLdata, Instance, MetaSchema, TemplateVersion
+from mgi.models import Template, SavedQuery, XMLdata, Instance, MetaSchema, TemplateVersion
 from mgi import common
 from django.template import loader, Context, RequestContext
-from django.contrib.auth.models import Group
-from django.db.models import Q
-import mgi.rights as RIGHTS
-import random
 #Class definition
 
 ################################################################################
@@ -2794,57 +2790,6 @@ def subElementfieldsToPrettyQuery(request, liElements, listLeavesId):
     query =  parentName + elemMatch
         
     return query 
-
-
-################################################################################
-#
-# Function Name: delete_result(request)
-# Inputs:        request -
-# Outputs:       
-# Exceptions:    None
-# Description:   Delete an XML document from the database
-#                
-################################################################################
-def delete_result(request):
-    result_id = request.GET['result_id']
-    
-    try:
-        if request.user.is_superuser:
-            XMLdata.delete(result_id)
-    except:
-        # XML can't be found
-        pass
-    
-    return HttpResponse(json.dumps({}), content_type='application/javascript')
-
-
-################################################################################
-#
-# Function Name: update_publish(request)
-# Inputs:        request -
-# Outputs:
-# Exceptions:    None
-# Description:   Publish and update the publish date of an XMLdata
-#
-################################################################################
-def update_publish(request):
-    XMLdata.update_publish(request.GET['result_id'])
-    return HttpResponse(json.dumps({}), content_type='application/javascript')
-
-    
-################################################################################
-#
-# Function Name: update_unpublish(request)
-# Inputs:        request -
-# Outputs:
-# Exceptions:    None
-# Description:   Unpublish an XMLdata
-#
-################################################################################
-def update_unpublish(request):
-    XMLdata.update_unpublish(request.GET['result_id'])
-    return HttpResponse(json.dumps({}), content_type='application/javascript')
-
 
 ################################################################################
 #
