@@ -6,8 +6,8 @@
 <!--
 ################################################################################
 #
-# File Name: my_dashboard_my_resources.html
-# Application: profile/dashboard
+# File Name: my_dashboard_my_records.html
+# Application: user_dashboard
 # Description:
 #
 # Author: Sharief Youssef
@@ -21,7 +21,7 @@
 ################################################################################
 -->
 {% endcomment %}
-{% block title %}<h1><span>My Resources</span></h1>{% endblock %}
+{% block title %}<h1><span>My Records</span></h1>{% endblock %}
 {% block menu %}{% include 'mdcs/menus/main.html' with active_tab='profile' %}{% endblock %}
 {% block submenu %}{% include 'mdcs/menus/submenu/dashboard.html' with active_tab='tab1' %}{% endblock %}
 
@@ -36,9 +36,9 @@
 
 
            <ul class="nav nav-tabs">
-                {% if not ispublished %} <li class="active"> {%else%} <li> {% endif%} <a href="/dashboard/resources">All</a></li>
-                {% if ispublished == "true" %} <li class="active"> {%else%} <li> {% endif%}<a href="/dashboard/resources?ispublished=true">Published</a></li>
-                {% if ispublished == "false" %} <li class="active"> {%else%} <li> {% endif%}<a href="/dashboard/resources?ispublished=false">Not Published</a></li>
+                {% if not ispublished %} <li class="active"> {%else%} <li> {% endif%} <a href="/dashboard/records">All</a></li>
+                {% if ispublished == "true" %} <li class="active"> {%else%} <li> {% endif%}<a href="/dashboard/records?ispublished=true">Published</a></li>
+                {% if ispublished == "false" %} <li class="active"> {%else%} <li> {% endif%}<a href="/dashboard/records?ispublished=false">Not Published</a></li>
             </ul>
 
         <table class="data-table">

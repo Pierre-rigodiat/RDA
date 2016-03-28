@@ -122,16 +122,16 @@ def my_profile_change_password(request):
 
 ################################################################################
 #
-# Function Name: dashboard_resources(request)
+# Function Name: dashboard_records(request)
 # Inputs:        request -
-# Outputs:       Dashboard - Resources
+# Outputs:       Dashboard - Records
 # Exceptions:    None
-# Description:   Dashboard - Resources
+# Description:   Dashboard - Records
 #
 ################################################################################
 @login_required(login_url='/login')
-def dashboard_resources(request):
-    template = loader.get_template('dashboard/my_dashboard_my_resources.html')
+def dashboard_records(request):
+    template = loader.get_template('dashboard/my_dashboard_my_records.html')
     if 'ispublished' in request.GET:
         ispublished = request.GET['ispublished']
         if ispublished == 'true':
@@ -300,16 +300,16 @@ def dashboard_files(request):
 
 ################################################################################
 #
-# Function Name: dashboard_detail_resource
+# Function Name: dashboard_detail_record
 # Inputs:        request -
-# Outputs:       Detail of a resource
+# Outputs:       Detail of a record
 # Exceptions:    None
-# Description:   Page that allows to see detail resource from a selected resource
+# Description:   Page that allows to see detail record from a selected record
 #
 ################################################################################
 @login_required(login_url='/login')
-def dashboard_detail_resource(request) :
-    template = loader.get_template('dashboard/my_dashboard_detail_resource.html')
+def dashboard_detail_record(request) :
+    template = loader.get_template('dashboard/my_dashboard_detail_record.html')
     result_id = request.GET['id']
     xmlString = XMLdata.get(result_id)
     title = xmlString['title']
