@@ -164,7 +164,7 @@ clear_fields = function(){
 /**
  * Save the current form. Show the window.
  */
-saveForm = function()
+/*saveForm = function()
 {
     console.log('BEGIN [saveForm]');
 
@@ -172,7 +172,7 @@ saveForm = function()
         $( "#dialog-save-form-message" ).dialog({
             modal: true,
             buttons: {
-				Save: function() {				 
+				Save: function() {
 					$( this ).dialog( "close" );
 					var rootElement = document.getElementsByName("xsdForm")[0];
 					var xmlString = '';
@@ -185,16 +185,16 @@ saveForm = function()
             }
         });
     });
-	
+
     console.log('END [saveForm]');
-}
+}*/
 
 
 /**
  * AJAX call, saves the current form 
  * @param xmlString xml string to save
  */
-save_form = function(xmlString){
+/*save_form = function(xmlString){
     $.ajax({
         url : "/curate/save_form",
         type : "POST",
@@ -213,7 +213,7 @@ save_form = function(xmlString){
             });
         }
     });
-}
+}*/
 
 
 /**
@@ -605,7 +605,7 @@ loadCurrentTemplateFormForCuration = function()
     console.log('BEGIN [loadCurrentTemplateFormForCuration]');
 
     $('.btn.clear-fields').on('click', clearFields);
-    $('.btn.save-form').on('click', saveForm);
+    //$('.btn.save-form').on('click', saveForm);
     $('.btn.download').on('click', downloadOptions);
 
     generate_xsd_form();
@@ -765,13 +765,15 @@ downloadCurrentXML = function()
 {
     console.log('BEGIN [downloadCurrentXML]');
 
-	var rootElement = document.getElementsByName("xsdForm")[0];
+	/*var rootElement = document.getElementsByName("xsdForm")[0];
 	var xmlString = '';
 
     xmlString = generateXMLString (rootElement);
     console.log(xmlString);
 
-    download_current_xml(xmlString);
+    download_current_xml(xmlString);*/
+
+    window.location = '/curate/enter-data/download_current_xml'
 
     console.log('END [downloadCurrentXML]');
 }
@@ -780,7 +782,7 @@ downloadCurrentXML = function()
 /**
  * AJAX call, download XML document in its current form
  */
-download_current_xml = function(xmlString){
+/*download_current_xml = function(xmlString){
     $.ajax({
         url : "/curate/enter-data/download_current_xml",
         type : "POST",
@@ -793,7 +795,7 @@ download_current_xml = function(xmlString){
         	$("#dialog-download-options").dialog("close");
         }
     });
-}
+}*/
 
 
 /**

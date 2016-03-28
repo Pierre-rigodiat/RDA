@@ -21,11 +21,12 @@ from bson.objectid import ObjectId
 from django.http import HttpResponse
 from django.conf import settings
 from io import BytesIO
+from django.core.servers.basehttp import FileWrapper
+from cStringIO import StringIO
 
 # from cStringIO import StringIO
 # from mgi.models import Template, XMLdata, XML2Download, Module, MetaSchema
-from rest_framework.status import HTTP_404_NOT_FOUND
-
+from rest_framework.status import HTTP_404_NOT_FOUND, HTTP_400_BAD_REQUEST
 from curate.models import SchemaElement
 from curate.parser import generate_form, generate_element, generate_sequence_absent, generate_element_absent, has_module, \
     get_element_type, generate_module, generate_complex_type, generate_simple_type, generate_sequence, generate_choice, \
@@ -193,9 +194,12 @@ def load_xml(request):
 #
 ################################################################################
 def clear_fields(request):
-    form = generate_form(request)
-    response_dict = {'xsdForm': form}
-    return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
+    # form = generate_form(request)
+    # response_dict = {'xsdForm': form}
+    # return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
+    del request.session['form_id']
+
+    return generate_xsd_form(request)
 
 
 ################################################################################
@@ -208,15 +212,15 @@ def clear_fields(request):
 #
 ################################################################################
 def download_xml(request):
-    xmlString = request.session['xmlString']
-
-    form_data_id = request.session['curateFormData']
-    form_data = FormData.objects().get(pk=form_data_id)
-
-    xml2download = XML2Download(title=form_data.name, xml=xmlString).save()
-    xml2downloadID = str(xml2download.id)
-
-    response_dict = {"xml2downloadID": xml2downloadID}
+    # xmlString = request.session['xmlString']
+    #
+    # form_data_id = request.session['curateFormData']
+    # form_data = FormData.objects().get(pk=form_data_id)
+    #
+    # xml2download = XML2Download(title=form_data.name, xml=xmlString).save()
+    # xml2downloadID = str(xml2download.id)
+    xml_renderer = XmlRenderer(request.session['form_id'])
+    response_dict = {"xml2downloadID": xml_renderer.render()}
     return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
 
 
@@ -231,22 +235,31 @@ def download_xml(request):
 ################################################################################
 def download_current_xml(request):
     # get the XML String built from form
-    xml_string = request.POST['xmlString']
+    # xml_string = request.POST['xmlString']
+    #
+    # xml_tree_str = str(request.session['xmlDocTree'])
+    #
+    # # set namespaces information in the XML document
+    # xml_string = common.manage_namespaces(xml_string, xml_tree_str)
+    #
+    # # get form data information
+    # form_data_id = request.session['curateFormData']
+    # form_data = FormData.objects().get(pk=form_data_id)
+    #
+    # xml2download = XML2Download(title=form_data.name, xml=xml_string).save()
+    # xml2downloadID = str(xml2download.id)
+    #
+    # response_dict = {"xml2downloadID": xml2downloadID}
+    # return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
 
-    xml_tree_str = str(request.session['xmlDocTree'])
+    form_id = request.session['form_id']
+    xml_root_element = SchemaElement.objects.get(pk=form_id)
+    xml_renderer = XmlRenderer(xml_root_element)
+    xml_data = StringIO(xml_renderer.render())
 
-    # set namespaces information in the XML document
-    xml_string = common.manage_namespaces(xml_string, xml_tree_str)
-
-    # get form data information
-    form_data_id = request.session['curateFormData']
-    form_data = FormData.objects().get(pk=form_data_id)
-
-    xml2download = XML2Download(title=form_data.name, xml=xml_string).save()
-    xml2downloadID = str(xml2download.id)
-
-    response_dict = {"xml2downloadID": xml2downloadID}
-    return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
+    response = HttpResponse(FileWrapper(xml_data), content_type='application/xml')
+    response['Content-Disposition'] = 'attachment; filename=' + form_id + '.xml'
+    return response
 
 
 ################################################################################
@@ -938,14 +951,25 @@ def remove(request):
 #
 ################################################################################
 def save_form(request):
-    xmlString = request.POST['xmlString']
+    # xmlString = request.POST['xmlString']
+    #
+    # form_data_id = request.session['curateFormData']
+    # form_data = FormData.objects.get(id=form_data_id)
+    # form_data.xml_data = xmlString
+    # form_data.save()
+    #
+    # return HttpResponse(json.dumps({}), content_type='application/javascript')
 
-    form_data_id = request.session['curateFormData']
-    form_data = FormData.objects.get(id=form_data_id)
-    form_data.xml_data = xmlString
-    form_data.save()
+    if 'id' not in request.POST or 'value' not in request.POST:
+        return HttpResponse(status=HTTP_400_BAD_REQUEST)
 
-    return HttpResponse(json.dumps({}), content_type='application/javascript')
+    # print request.POST['inputs']
+
+    input_element = SchemaElement.objects.get(pk=request.POST['id'])
+    input_element.value = request.POST['value']
+    input_element.save()
+
+    return HttpResponse(json.dumps({}), content_type='application/json')
 
 
 ################################################################################

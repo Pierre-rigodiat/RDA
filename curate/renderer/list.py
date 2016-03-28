@@ -118,7 +118,7 @@ class ListRenderer(AbstractListRenderer):
                     sub_elements.append(self.render_complex_type(child))
                     sub_inputs.append(False)
                 elif child.tag == 'input':
-                    sub_elements.append(self._render_input(child.value, '', ''))
+                    sub_elements.append(self._render_input(child.pk, child.value, '', ''))
                     sub_inputs.append(True)
                 elif child.tag == 'simple_type':
                     sub_elements.append(self.render_simple_type(child))
@@ -181,7 +181,7 @@ class ListRenderer(AbstractListRenderer):
             if child.tag == 'simple_type':
                 html_content += self.render_simple_type(child)
             elif child.tag == 'input':
-                html_content += self._render_input(child.value, '', '')
+                html_content += self._render_input(child.pk, child.value, '', '')
             else:
                 print child.tag + ' not handled (rend_attr)'
 
@@ -254,7 +254,7 @@ class ListRenderer(AbstractListRenderer):
 
         for child in element.children:
             if child.tag == 'input':
-                html_content += self._render_input(child.value, '', '')
+                html_content += self._render_input(child.pk, child.value, '', '')
             elif child.tag == 'attribute':
                 html_content += self.render_attribute(child)
             elif child.tag == 'simple_type':
@@ -277,7 +277,7 @@ class ListRenderer(AbstractListRenderer):
             if child.tag == 'enumeration':
                 options.append((child.value, child.value, False))
             elif child.tag == 'input':
-                subhtml += self._render_input(child.value, '', '')
+                subhtml += self._render_input(child.pk, child.value, '', '')
             else:
                 print child.tag + ' not handled (rend_ext)'
 

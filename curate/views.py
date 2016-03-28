@@ -25,6 +25,8 @@ from lxml.etree import XMLSyntaxError
 import json 
 import xmltodict
 from django.contrib import messages
+
+from curate.renderer.xml import XmlRenderer
 from mgi.models import Template, TemplateVersion, XML2Download, FormData,\
     XMLdata, FormElement, XMLElement
 from curate.forms import NewForm, OpenForm, UploadForm, SaveDataForm
@@ -296,6 +298,8 @@ def curate_view_data_downloadxml(request):
             return response
         else:
             return redirect('/')
+
+
 
 ################################################################################
 #
