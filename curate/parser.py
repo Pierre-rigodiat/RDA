@@ -473,6 +473,7 @@ def generate_element(request, element, xml_tree, choice_info=None, full_path="",
         choice_info:
         full_path:
         edit_data_tree:
+        schema_location:
 
     Returns:
         JSON data
@@ -685,7 +686,8 @@ def generate_element(request, element, xml_tree, choice_info=None, full_path="",
             'xpath': {
                 'xsd': xsd_xpath,
                 'xml': full_path
-            }
+            },
+            'schema_location': schema_location
         },
         'value': None,
         'children': []
@@ -814,17 +816,18 @@ def generate_element(request, element, xml_tree, choice_info=None, full_path="",
 
                     if element_type.tag == "{0}complexType".format(LXML_SCHEMA_NAMESPACE):
                         complex_type_result = generate_complex_type(request, element_type, xml_tree,
-                                                             full_path=full_path+'[' + str(x+1) + ']',
-                                                             edit_data_tree=edit_data_tree,
-                                                             schema_location=schema_location)
+                                                                    full_path=full_path+'[' + str(x+1) + ']',
+                                                                    edit_data_tree=edit_data_tree,
+                                                                    schema_location=schema_location)
 
                         li_content += complex_type_result[0]
                         db_elem_iter['children'].append(complex_type_result[1])
                     elif element_type.tag == "{0}simpleType".format(LXML_SCHEMA_NAMESPACE):
                         simple_type_result = generate_simple_type(request, element_type, xml_tree,
-                                                            full_path=full_path+'[' + str(x+1) + ']',
-                                                            edit_data_tree=edit_data_tree, default_value=default_value,
-                                                            schema_location=schema_location)
+                                                                  full_path=full_path+'[' + str(x+1) + ']',
+                                                                  edit_data_tree=edit_data_tree,
+                                                                  default_value=default_value,
+                                                                  schema_location=schema_location)
 
                         li_content += simple_type_result[0]
                         db_elem_iter['children'].append(simple_type_result[1])
@@ -870,7 +873,7 @@ def get_element_namespace(element, xsd_tree):
     get_element_tag
     :param element:
     :param xsd_tree:
-    :param is_root:
+
     :return:
     """
     # get the root of the XSD document
@@ -917,11 +920,13 @@ def generate_element_absent(request, element, xml_doc_tree, form_element, schema
     # Outputs:       JSON data
     # Exceptions:    None
     # Description:   Generate XML element for which the element is absent from the form
+
     Parameters:
         request:
         element:
         xml_doc_tree:
         form_element:
+        schema_location:
 
     Returns:
     """
@@ -993,13 +998,15 @@ def generate_element_absent(request, element, xml_doc_tree, form_element, schema
         else:  # complex/simple type
             if element_type.tag == "{0}complexType".format(LXML_SCHEMA_NAMESPACE):
                 complex_type_result = generate_complex_type(request, element_type, xml_doc_tree,
-                                                     full_path=form_element.options['xpath']['xml'], schema_location=schema_location)
+                                                            full_path=form_element.options['xpath']['xml'],
+                                                            schema_location=schema_location)
 
                 form_string += complex_type_result[0]
                 db_element['children'].append(complex_type_result[1])
             elif element_type.tag == "{0}simpleType".format(LXML_SCHEMA_NAMESPACE):
                 simple_type_result = generate_simple_type(request, element_type, xml_doc_tree,
-                                                    full_path=form_element.options['xpath']['xml'], schema_location=schema_location)
+                                                          full_path=form_element.options['xpath']['xml'],
+                                                          schema_location=schema_location)
 
                 form_string += simple_type_result[0]
                 db_element['children'].append(simple_type_result[1])
@@ -1008,7 +1015,8 @@ def generate_element_absent(request, element, xml_doc_tree, form_element, schema
     return form_string, db_element
 
 
-def generate_sequence(request, element, xml_tree, choice_info=None, full_path="", edit_data_tree=None, schema_location=None):
+def generate_sequence(request, element, xml_tree, choice_info=None, full_path="", edit_data_tree=None,
+                      schema_location=None):
     """Generates a section of the form that represents an XML sequence
 
     Parameters:
@@ -1018,6 +1026,7 @@ def generate_sequence(request, element, xml_tree, choice_info=None, full_path=""
         choice_info:
         full_path:
         edit_data_tree:
+        schema_location:
 
     Returns:       HTML string representing a sequence
     """
@@ -1041,7 +1050,8 @@ def generate_sequence(request, element, xml_tree, choice_info=None, full_path=""
             'xpath': {
                 'xsd': xsd_xpath,
                 'xml': full_path
-            }
+            },
+            'schema_location': schema_location
         },
         'value': None,
         'children': []
@@ -1157,28 +1167,28 @@ def generate_sequence(request, element, xml_tree, choice_info=None, full_path=""
                 li_content += render_collapse_button()
 
             li_content += text
-            li_content += render_buttons(add_button, delete_button, str(tag_id[7:]))
+            li_content += render_buttons(add_button, delete_button)
 
             # generates the sequence
             for child in element:
                 if child.tag == "{0}element".format(LXML_SCHEMA_NAMESPACE):
                     element_result = generate_element(request, child, xml_tree, choice_info,
-                                                    full_path=full_path, edit_data_tree=edit_data_tree,
-                                                    schema_location=schema_location)
+                                                      full_path=full_path, edit_data_tree=edit_data_tree,
+                                                      schema_location=schema_location)
 
                     li_content += element_result[0]
                     db_elem_iter['children'].append(element_result[1])
                 elif child.tag == "{0}sequence".format(LXML_SCHEMA_NAMESPACE):
                     sequence_result = generate_sequence(request, child, xml_tree, choice_info,
-                                                     full_path=full_path, edit_data_tree=edit_data_tree,
-                                                     schema_location=schema_location)
+                                                        full_path=full_path, edit_data_tree=edit_data_tree,
+                                                        schema_location=schema_location)
 
                     li_content += sequence_result[0]
                     db_elem_iter['children'].append(sequence_result[1])
                 elif child.tag == "{0}choice".format(LXML_SCHEMA_NAMESPACE):
                     choice_result = generate_choice(request, child, xml_tree, choice_info,
-                                                   full_path=full_path, edit_data_tree=edit_data_tree,
-                                                   schema_location=schema_location)
+                                                    full_path=full_path, edit_data_tree=edit_data_tree,
+                                                    schema_location=schema_location)
 
                     li_content += choice_result[0]
                     db_elem_iter['children'].append(choice_result[1])
@@ -1275,6 +1285,8 @@ def generate_sequence_absent(request, element, xml_tree, schema_location=None):
         request:
         element: XML element
         xml_tree: XML Tree
+        schema_location:
+
     Returns:
         HTML string representing a sequence
     """
@@ -1331,9 +1343,12 @@ def generate_choice(request, element, xml_tree, choice_info=None, full_path="", 
     form_string = ""
     db_element = {
         'tag': 'choice',
-        'xpath': {
-            'xsd': None,
-            'xml': full_path
+        'options': {
+            'xpath': {
+                'xsd': None,
+                'xml': full_path
+            },
+            'schema_location': schema_location
         },
         'value': None,
         'children': []

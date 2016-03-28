@@ -254,7 +254,7 @@ class ChoiceInfo:
 #
 ################################################################################
 def get_namespaces(file):
-    "Reads and returns the namespaces in the schema tag"
+    """Reads and returns the namespaces in the schema tag"""
     events = "start", "start-ns"
     ns = {'xml':'http://www.w3.org/XML/1998/namespace'}
     for event, elem in etree.iterparse(file, events):

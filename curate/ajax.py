@@ -378,10 +378,10 @@ def generate_absent(request):
     elif "element" in element.tag:
         # generate only the body of the element (not the title)
         formString = generate_element_absent(request, element, xmlDocTree, form_element,
-                                                 schema_location=xml_element.schema_location)
+                                             schema_location=xml_element.schema_location)
     elif "sequence" in element.tag:
         formString = generate_sequence_absent(request, element, xmlDocTree,
-                                                  schema_location=xml_element.schema_location)
+                                              schema_location=xml_element.schema_location)
 
     # build HTML tree for the form
     htmlTree = html.fromstring(request.POST['xsdForm'])
@@ -1112,20 +1112,40 @@ def gen_abs(request):
 
     schema_element = element_list[0]
 
-    # rendering_element = element_list[0]
     rendering_element = SchemaElement()
     rendering_element.tag = schema_element.tag
     rendering_element.options = schema_element.options
     rendering_element.value = schema_element.value
-    # rendering_element.save()
 
-    namespaces = request.session['namespaces']
-    default_prefix = request.session['defaultPrefix']
+    # namespaces = request.session['namespaces']
+    # default_prefix = request.session['defaultPrefix']
     xml_doc_tree_str = request.session['xmlDocTree']
     xml_doc_tree = etree.ElementTree(etree.fromstring(xml_doc_tree_str))
 
+    schema_location = None
+    if 'schema_location' in schema_element.options:
+        schema_location = schema_element.options['schema_location']
+
+    # if the xml element is from an imported schema
+    if schema_location is not None:
+        # open the imported file
+        ref_xml_schema_file = urllib2.urlopen(schema_element.schema_location)
+        # get the content of the file
+        ref_xml_schema_content = ref_xml_schema_file.read()
+        # build the XML tree
+        # xmlDocTree = etree.parse(BytesIO(ref_xml_schema_content.encode('utf-8')))
+        # get the namespaces from the imported schema
+        namespaces = common.get_namespaces(BytesIO(str(ref_xml_schema_content)))
+    else:
+        # get the content of the XML tree
+        # xmlDocTreeStr = request.session['xmlDocTree']
+        # # build the XML tree
+        # xmlDocTree = etree.ElementTree(etree.fromstring(xmlDocTreeStr))
+        # get the namespaces
+        namespaces = common.get_namespaces(BytesIO(str(xml_doc_tree_str)))
+
     # render element
-    namespace = "{" + namespaces[default_prefix] + "}"
+    # namespace = "{" + namespaces[default_prefix] + "}"
 
     xpath_element = schema_element.options['xpath']
     xsd_xpath = xpath_element['xsd']
@@ -1134,14 +1154,14 @@ def gen_abs(request):
     if 'xml' in xpath_element:
         xml_xpath = xpath_element['xml']
 
-    xml_element = xml_doc_tree.xpath(xsd_xpath, namespaces=request.session['namespaces'])[0]
+    xml_element = xml_doc_tree.xpath(xsd_xpath, namespaces=namespaces)[0]
 
     # generating a choice, generate the parent element
     if schema_element.tag == "choice":
         # can use generate_element to generate a choice never generated
-        form_string = generate_element(request, xml_element, xml_doc_tree, namespace, full_path=xml_xpath)
+        form_string = generate_element(request, xml_element, xml_doc_tree, full_path=xml_xpath)
     elif schema_element.tag == 'sequence':
-        form_string = generate_sequence_absent(request, xml_element, xml_doc_tree, namespace)
+        form_string = generate_sequence_absent(request, xml_element, xml_doc_tree)
     else:
         # can't directly use generate_element because only need the body of the element not its title
         form_string = generate_element_absent(request, xml_element, xml_doc_tree, schema_element)
