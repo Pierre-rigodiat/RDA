@@ -434,13 +434,7 @@ def generate_form(request):
             raise Exception("No root element detected")
 
         root_element = load_schema_data_in_db(form_content[1])
-        # request.session['form_id'] = root_element.pk
 
-        # renderer = ListRenderer(root_element)
-        # # renderer = TableRenderer(form_content[1])
-        # form_string = renderer.render()
-
-        # form_string = render_form(form_content[0])
         return root_element.pk
     except Exception as e:
         # form_string = render_form_error(e.message)

@@ -18,7 +18,7 @@ RESOURCES_PATH = join(BASE_DIR, 'curate', 'tests', 'data', 'parser', 'schema', '
 USER = "admin"
 PASSWORD = "admin"
 BASE_URL = "http://127.0.0.1:8000"
-TIMEOUT = 5;
+TIMEOUT = 5
 
 
 def clean_db():
@@ -84,10 +84,11 @@ class LoadFormToXML(TestCase):
 
         # define Firefox web driver
         self.driver = webdriver.Firefox(profile)
-        self.driver.implicitly_wait(30)
+        self.driver.implicitly_wait(10)
         self.base_url = BASE_URL
         self.verificationErrors = []
         self.accept_next_alert = True
+
         # login to MDCS
         login(self.driver, self.base_url, USER, PASSWORD)
 
@@ -158,7 +159,6 @@ class LoadFormToXML(TestCase):
         self.driver.quit()
         self.assertEqual([], self.verificationErrors)
         time.sleep(TIMEOUT)
-
 
 
 class LoadFormIncludeToXML(TestCase):

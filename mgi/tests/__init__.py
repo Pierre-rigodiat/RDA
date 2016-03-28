@@ -141,6 +141,13 @@ def are_equals(xml_tree_a, xml_tree_b):
 
     text_b = xml_tree_b.text
 
+    if type(text_b) == str:
+        text_b = text_b.lstrip('\r\n\t ')
+        text_b = text_b.rstrip('\r\n')
+
+        if text_b == '':
+            text_b = None
+
     children_a = xml_tree_a.getchildren()
     children_b = xml_tree_b.getchildren()
 

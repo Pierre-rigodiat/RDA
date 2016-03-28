@@ -252,13 +252,16 @@ def download_current_xml(request):
     # response_dict = {"xml2downloadID": xml2downloadID}
     # return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
 
+    form_data_id = request.session['curateFormData']
+    form_data = FormData.objects.get(pk=ObjectId(form_data_id))
+
     form_id = request.session['form_id']
     xml_root_element = SchemaElement.objects.get(pk=form_id)
     xml_renderer = XmlRenderer(xml_root_element)
     xml_data = StringIO(xml_renderer.render())
 
     response = HttpResponse(FileWrapper(xml_data), content_type='application/xml')
-    response['Content-Disposition'] = 'attachment; filename=' + form_id + '.xml'
+    response['Content-Disposition'] = 'attachment; filename=' + form_data.name + '.xml'
     return response
 
 
@@ -277,6 +280,9 @@ def init_curate(request):
 
     if 'form_id' in request.session:
         del request.session['form_id']
+
+    if 'form_name' in request.session:
+        del request.session['form_name']
 
     if 'xmlDocTree' in request.session:
         del request.session['xmlDocTree']

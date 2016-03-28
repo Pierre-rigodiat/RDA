@@ -311,7 +311,7 @@ def curate_view_data_downloadxml(request):
 ################################################################################
 @permission_required(content_type=RIGHTS.curate_content_type, permission=RIGHTS.curate_access, login_url='/login')
 def start_curate(request):
-    if 'currentTemplateID' not in request.session and not 'template' in request.GET:
+    if 'currentTemplateID' not in request.session and 'template' not in request.GET:
         return redirect('/curate/select-template')
     else:
         if request.method == 'POST':
@@ -373,6 +373,7 @@ def start_curate(request):
 
                     if 'formString' in request.session:
                         del request.session['formString']
+
                     if 'xmlDocTree' in request.session:
                         del request.session['xmlDocTree']
 
@@ -384,11 +385,11 @@ def start_curate(request):
                 new_form = NewForm()
                 upload_form = UploadForm()
                 
-                context_params['new_form']= new_form
-                context_params['open_form']= open_form
-                context_params['upload_form']= upload_form
+                context_params['new_form'] = new_form
+                context_params['open_form'] = open_form
+                context_params['upload_form'] = upload_form
                 
-                context = RequestContext(request, context_params)#, 'options_form': options_form})
+                context = RequestContext(request, context_params)  # , 'options_form': options_form})
 
                 if ajaxCall:
                     return HttpResponse(json.dumps({'template': template.render(context)}), content_type='application/javascript')
