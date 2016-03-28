@@ -146,8 +146,7 @@ def dashboard_resources(request):
                     })
     else:
         context = RequestContext(request, {
-            'XMLdatas': sorted(XMLdata.find({'iduser': str(request.user.id), 'ispublished': False}), key=lambda data: data['lastmodificationdate'], reverse=True)
-                        + sorted(XMLdata.find({'iduser': str(request.user.id), 'ispublished': True}), key=lambda data: data['lastmodificationdate'], reverse=True),
+            'XMLdatas': sorted(XMLdata.find({'iduser': str(request.user.id)}), key=lambda data: data['lastmodificationdate'], reverse=True)
         })
 
     return HttpResponse(template.render(context))
