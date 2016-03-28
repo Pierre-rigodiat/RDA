@@ -504,7 +504,13 @@ displayTemplateProcess = function ()
                 window.location = '/curate/enter-data'
             },
             error:function(data){
-                $("#form_start_errors").html(data.responseText);
+                if (data.responseText != ""){
+                    $("#form_start_errors").html(data.responseText);
+                    $("#banner_errors").show(500)
+                    return (false);
+                }else{
+                    return (true)
+                }
             },
         })
         ;
@@ -850,7 +856,7 @@ XMLDataSavedToPublish = function()
                 $( this ).dialog( "close" );
                 window.location = "/"
             },
-            "Go to My Resources": function() {
+            "Go to My Dashboard": function() {
                 $( this ).dialog( "close" );
                 window.location = "/dashboard/resources"
             }
@@ -1449,20 +1455,48 @@ cancelForm = function(){
 }
 
 cancelChanges = function(){
-    $(function() {
-        $( "#dialog-cancel-changes-message" ).dialog({
-            modal: true,
-            buttons: {
-            	"Revert to my previously Saved Form": function() {
-                    reload_form();
-                    $( this ).dialog( "close" );
-                },
-            	"Return to Add Resources": function() {
-            		cancelForm();
-            		$( this ).dialog( "close" );
-                },
-            }
+    // GET the form, if not loaded (1 because at least csrf token)
+    if( $( "#cancel-form" ).children().size() == 1){
+        $.ajax({
+            url : "/curate/cancel-changes",
+            type : "GET",
+            dataType: "json",
+            success: function(data){
+                $("#cancel-form").append(data.form);
+            },
         });
+    }
+
+    $( "#dialog-cancel-changes-message" ).dialog({
+        modal: true,
+        autoResize: 'auto',
+        width: 650,
+        buttons: {
+            "Cancel": function() {
+                $( this ).dialog( "close" );
+            },
+            "OK": function() {
+                // POST the form
+                var formData = new FormData($( "#cancel-form" )[0]);
+                $.ajax({
+                    url : "/curate/cancel-changes",
+                    type : "POST",
+                    cache: false,
+                    contentType: false,
+                    processData: false,
+                    async:false,
+                    data: formData,
+                    success: function(data){
+                        if(data == 'revert'){
+                            reload_form();
+                        }else{
+                            window.location = '/curate';
+                        }
+                    },
+                });
+                $( this ).dialog( "close" );
+            },
+        }
     });
 }
 
@@ -1534,8 +1568,8 @@ useErrosAndView = function(errors){
 	$(function() {
         $( "#dialog-use-message" ).dialog({
             modal: true,
-            height: 340,
-            width: 560,
+            autoResize: 'auto',
+            width: 500,
             buttons: {
             	Cancel: function() {
             		$( this ).dialog( "close" );
@@ -1555,5 +1589,18 @@ initBanner = function()
 {
     $("[data-hide]").on("click", function(){
         $(this).closest("." + $(this).attr("data-hide")).hide(200);
+    });
+}
+
+check_leaving_page = function(){
+    window.btn_clicked = false;         // set btn_clicked to false on load
+    document.querySelector('.save-to-repo').addEventListener("click", function(){
+        window.btn_clicked = true;      //set btn_clicked to true
+    });
+
+    $(window).bind('beforeunload', function(){
+        if(!window.btn_clicked){
+            return 'Are you sure you want to leave the page. All unsaved changes will be lost.';
+        }
     });
 }

@@ -63,3 +63,10 @@ class SaveDataForm(forms.Form):
         return super(SaveDataForm, self).is_valid() and self.data['title'].strip() != ""
 
     title = forms.CharField(label='Save As', min_length=1, max_length=100, required=True)
+
+
+class CancelChangesForm(forms.Form):
+    CANCEL_CHOICES = [('revert', 'Revert to my previously Saved Form'),
+                      ('return', 'Return to Add Resources')]
+
+    cancel = forms.ChoiceField(label='', choices=CANCEL_CHOICES, widget=forms.RadioSelect())

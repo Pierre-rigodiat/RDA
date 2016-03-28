@@ -27,7 +27,7 @@ import xmltodict
 from django.contrib import messages
 from mgi.models import Template, TemplateVersion, XML2Download, FormData, \
     XMLdata, FormElement, XMLElement
-from curate.forms import NewForm, OpenForm, UploadForm, SaveDataForm
+from curate.forms import NewForm, OpenForm, UploadForm, SaveDataForm, CancelChangesForm
 from django.http.response import HttpResponseBadRequest
 from admin_mdcs.models import permission_required
 import mgi.rights as RIGHTS
@@ -345,7 +345,7 @@ def start_curate(request):
                                          xml_data=None).save()
                 except:
                     return HttpResponseBadRequest(
-                        'Unable to create the form. A form with the same name may already exist.')
+                        'Unable to create the form. A form with the same name may already exists.')
             elif selected_option == "open":
                 request.session['curate_edit'] = True
                 open_form = OpenForm(request.POST)
@@ -432,9 +432,7 @@ def start_curate(request):
                 return HttpResponse(template.render(context))
 
 
-            ################################################################################
-
-
+################################################################################
 #
 # Function Name: save_xml_data_to_db(request)
 # Inputs:        request -
@@ -497,3 +495,14 @@ def save_xml_data_to_db(request):
             return HttpResponseBadRequest('No data to save.')
     else:
         return HttpResponseBadRequest('Invalid title.')
+
+
+def cancel_changes(request):
+    if request.method == 'POST':
+        form = CancelChangesForm(request.POST)
+        if form.is_valid():
+            return HttpResponse(request.POST['cancel'])
+    else:
+        form = CancelChangesForm({'cancel': 'revert'})
+
+    return HttpResponse(json.dumps({'form': str(form)}), content_type='application/javascript')
