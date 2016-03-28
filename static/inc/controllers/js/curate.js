@@ -858,7 +858,7 @@ XMLDataSavedToPublish = function()
             },
             "Go to My Dashboard": function() {
                 $( this ).dialog( "close" );
-                window.location = "/dashboard/resources"
+                window.location = "/dashboard/resources?ispublished=false"
             }
         }
     });
@@ -879,7 +879,7 @@ XMLDataUpdated = function(){
             },
             "Go to My Resources": function() {
                 $( this ).dialog( "close" );
-                window.location = "/dashboard/resources"
+                window.location = "/dashboard/resources?ispublished=false"
             }
         }
     });
@@ -910,7 +910,7 @@ XMLDataSaved = function()
         width: 350,
         height: 215,
         close: function(){
-            window.location = "/dashboard/resources"
+            window.location = "/dashboard/resources?ispublished=false"
         },
         buttons: {
             Ok: function() {
