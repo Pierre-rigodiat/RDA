@@ -1153,7 +1153,7 @@ def gen_abs(request):
     # if the xml element is from an imported schema
     if schema_location is not None:
         # open the imported file
-        ref_xml_schema_file = urllib2.urlopen(schema_element.schema_location)
+        ref_xml_schema_file = urllib2.urlopen(schema_element.options['schema_location'])
         # get the content of the file
         ref_xml_schema_content = ref_xml_schema_file.read()
         # build the XML tree
