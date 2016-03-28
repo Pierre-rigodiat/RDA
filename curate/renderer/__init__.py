@@ -269,7 +269,7 @@ class DefaultRenderer(object):
     def _render_form_error(self, err_message):
         pass
 
-    def _render_input(self, value, placeholder, title):
+    def _render_input(self, input_id, value, placeholder, title):
         """
 
         :param value:
@@ -288,6 +288,7 @@ class DefaultRenderer(object):
             raise TypeError('Third param (title) should be a str (' + str(type(value)) + ' given)')
 
         data = {
+            'id': input_id,
             'value': value,
             'placeholder': placeholder,
             'title': title
