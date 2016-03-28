@@ -141,7 +141,7 @@ INSTALLED_APPS = (
     'explore',
     'compose',
     'modules',
-    'dashboard',
+    'user_dashboard',
 )
 
 OAUTH2_PROVIDER = {
