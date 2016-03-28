@@ -43,16 +43,6 @@ class XmlRenderer(AbstractXmlRenderer):
         """
         return self.render_element(self.data)
 
-        # if self.data.tag == 'element':
-        #     html_content += self.render_element(self.data)
-        # else:
-        #     print self.data.tag + ' not handled (render_data)'
-        #
-        # if not partial:
-        #     return self._render_ul(html_content, '', True)
-        # else:
-        #     return html_content
-
     def render_element(self, element):
         """
 

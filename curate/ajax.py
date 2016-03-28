@@ -24,10 +24,13 @@ from io import BytesIO
 
 # from cStringIO import StringIO
 # from mgi.models import Template, XMLdata, XML2Download, Module, MetaSchema
+from rest_framework.status import HTTP_404_NOT_FOUND
+
 from curate.models import SchemaElement
 from curate.parser import generate_form, generate_element, generate_sequence_absent, generate_element_absent, has_module, \
     get_element_type, generate_module, generate_complex_type, generate_simple_type, generate_sequence, generate_choice, \
     get_element_namespace, load_schema_data_in_db
+from curate.renderer.xml import XmlRenderer
 from mgi.common import LXML_SCHEMA_NAMESPACE
 # from mgi.models import Template, XML2Download
 from curate.renderer.list import ListRenderer
@@ -158,19 +161,25 @@ def delete_form(request):
 #
 ################################################################################
 def load_xml(request):
-    xmlString = request.session['xmlString']
-    
+    if 'form_id' not in request.session:
+        return HttpResponse(status=HTTP_404_NOT_FOUND)
 
-    xsltPath = os.path.join(settings.SITE_ROOT, 'static', 'resources', 'xsl', 'xml2html.xsl')
-    xslt = etree.parse(xsltPath)
+    xml_form_id = SchemaElement.objects.get(pk=request.session['form_id'])
+
+    xml_renderer = XmlRenderer(xml_form_id)
+    xml_string = xml_renderer.render()
+
+    xslt_path = os.path.join(settings.SITE_ROOT, 'static', 'resources', 'xsl', 'xml2html.xsl')
+    xslt = etree.parse(xslt_path)
     transform = etree.XSLT(xslt)
-    xmlTree = ""
-    if (xmlString != ""):
-        dom = etree.fromstring(xmlString)
-        newdom = transform(dom)
-        xmlTree = str(newdom)
 
-    response_dict = {"XMLHolder": xmlTree}
+    xml_tree = ""
+    if xml_string != "":
+        dom = etree.fromstring(xml_string)
+        newdom = transform(dom)
+        xml_tree = str(newdom)
+
+    response_dict = {"XMLHolder": xml_tree}
     return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
 
 
