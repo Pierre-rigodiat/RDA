@@ -112,6 +112,7 @@ class ParserReloadSimpleTypeTestSuite(TestCase):
         self.request.session['namespaces'] = {'xs': namespace}
 
     def test_reload_restriction(self):
+        # FIXME relaod restriction doesn't work
         xsd_files = join('restriction', 'basic')
         xsd_tree = etree.ElementTree(self.simple_type_data_handler.get_xsd2(xsd_files))
         xsd_element = xsd_tree.xpath('/xs:schema/xs:simpleType', namespaces=self.request.session['namespaces'])[0]

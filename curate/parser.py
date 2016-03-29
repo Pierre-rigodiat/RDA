@@ -1629,6 +1629,7 @@ def generate_complex_type(request, element, xml_tree, full_path, edit_data_tree=
         xml_tree: XML Tree
         full_path:
         edit_data_tree:
+        schema_location:
 
     Returns:
         HTML string representing a sequence
@@ -1673,7 +1674,7 @@ def generate_complex_type(request, element, xml_tree, full_path, edit_data_tree=
     complexTypeChild = element.find('{0}simpleContent'.format(LXML_SCHEMA_NAMESPACE))
     if complexTypeChild is not None:
         result_simple_content = generate_simple_content(request, complexTypeChild, xml_tree, full_path=full_path,
-                                              edit_data_tree=edit_data_tree, schema_location=schema_location)
+                                                        edit_data_tree=edit_data_tree, schema_location=schema_location)
 
         form_string += result_simple_content[0]
         db_element['children'].append(result_simple_content[1])

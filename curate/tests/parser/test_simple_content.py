@@ -86,6 +86,7 @@ class ParserReloadSimpleContentTestSuite(TestCase):
         self.request.session['namespaces'] = self.namespace
 
     def test_restriction(self):
+        # FIXME test not passing (default value is wrong)
         xsd_files = join('restriction', 'basic')
 
         xsd_tree = self.simple_content_data_handler.get_xsd2(xsd_files)
