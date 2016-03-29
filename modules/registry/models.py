@@ -308,7 +308,7 @@ class DescriptionModule(TextAreaModule):
         return ''
 
     def _post_result(self, request):
-        return '<description>' + str(request.POST['data']) + '</description>'
+        return '<description>' + request.POST['data'] + '</description>'
     
 
 class TypeModule(InputModule):
