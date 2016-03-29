@@ -240,10 +240,10 @@ get_results_keyword = function(numInstance){
             $("#banner_results_wait").show(200);
             var keyword = $("#id_search_entry").val();
             //Call to AJAX functions and wait for the end
-            $.when(AJAXOAIPMH(keyword), AJAXLocal(keyword)).done(function(a1, a2){
+//            $.when(AJAXOAIPMH(keyword), AJAXLocal(keyword)).done(function(a1, a2){
+            $.when(AJAXOAIPMH(keyword)).done(function(a1){
                 $("#banner_results_wait").hide(200);
             });
-
         }, 1000);
     }
 }
