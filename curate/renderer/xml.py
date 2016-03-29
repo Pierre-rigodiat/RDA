@@ -78,6 +78,11 @@ class XmlRenderer(AbstractXmlRenderer):
                 else:
                     print child.tag + ' not handled (re_elem)'
 
+                # namespaces
+                if 'xmlns' in element.options and element.options['xmlns'] is not None:
+                    xmlns = ' xmlns="{}"'.format(element.options['xmlns'])
+                    content[0] += xmlns
+
                 xml_string += self._render_xml(element_name, content[0], content[1])
 
         return xml_string
@@ -113,7 +118,14 @@ class XmlRenderer(AbstractXmlRenderer):
             #     attr_list.append(attr_key)
             # else:
             #     attr_list.append(attr_key + '="' + attr_value + '"')
-            attr_list.append(attr_key + '="' + attr_value + '"')
+
+            # namespaces
+            if 'xmlns' in element.options and element.options['xmlns'] is not None:
+                xmlns = ' xmlns="{}"'.format(element.options['xmlns'])
+                ns_prefix = element.options['ns_prefix'] if element.options['ns_prefix'] is not None else 'ns0'
+                attr_list.append(xmlns + ' ' + ns_prefix + ':' + attr_key + '="' + attr_value + '"')
+            else:
+                attr_list.append(attr_key + '="' + attr_value + '"')
 
         return ' '.join(attr_list)
 

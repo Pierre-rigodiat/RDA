@@ -658,12 +658,13 @@ def generate_element(request, element, xml_tree, choice_info=None, full_path="",
     # get the element namespace
     element_ns = get_element_namespace(element, xml_tree)
     # set the element namespace
-    tag_ns = ' xmlns="{0}" '.format(element_ns) if element_ns is not None else ''
-    tag_ns_prefix = ''
+    # tag_ns = ' xmlns="{0}" '.format(element_ns) if element_ns is not None else ''
+    ns_prefix = None
     if element_tag == "attribute" and target_namespace is not None:
         for prefix, ns in namespaces.iteritems():
             if ns == target_namespace:
-                tag_ns_prefix = ' ns_prefix="{0}" '.format(prefix)
+                # tag_ns_prefix = ' ns_prefix="{0}" '.format(prefix)
+                ns_prefix = prefix
                 break
 
     # get the element type
@@ -675,6 +676,9 @@ def generate_element(request, element, xml_tree, choice_info=None, full_path="",
     xml_element = XMLElement(xsd_xpath=xsd_xpath, nbOccurs=nb_occurrences_data, minOccurs=min_occurs,
                              maxOccurs=max_occurs, schema_location=schema_location)
     xml_element.save()
+
+    db_element['options']['xmlns'] = element_ns
+    db_element['options']['ns_prefix'] = ns_prefix
 
     # management of elements inside a choice (don't display if not part of the currently selected choice)
     if choice_info:
