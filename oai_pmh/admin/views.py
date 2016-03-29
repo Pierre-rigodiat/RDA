@@ -16,7 +16,7 @@ from rest_framework import status
 from django.http.response import HttpResponseBadRequest
 # Requests
 import requests
-from oai_pmh.forms import UpdateRegistryForm
+from oai_pmh.forms import UpdateRegistryForm, MyMetadataFormatForm, RegistryForm, MyRegistryForm, UpdateMyMetadataFormatForm
 import json
 from mgi.settings import OAI_HOST_URI, OAI_USER, OAI_PASS
 from django.contrib import messages
@@ -25,13 +25,16 @@ from django.conf import settings
 # Responses
 from django.http import HttpResponse
 # Requests
-from oai_pmh.forms import RegistryForm, MyRegistryForm
 from django.template import RequestContext, loader
-from mgi.models import OaiRegistry, OaiSettings
+from mgi.models import OaiRegistry, OaiSettings, OaiMyMetadataFormat, OaiXslt, OaiTemplMfXslt, Template
 from django.contrib.admin.views.decorators import staff_member_required
 from mgi.models import Message, OaiMetadataFormat, OaiSet, OaiRecord
 from oai_pmh.forms import Url
+from oai_pmh.admin.forms import UploadOaiPmhXSLTForm
 from django.utils.dateformat import DateFormat
+import lxml.etree as etree
+from lxml.etree import XMLSyntaxError
+from mongoengine import NotUniqueError, OperationError
 
 ################################################################################
 #
@@ -114,6 +117,160 @@ def add_registry(request):
         else:
             return HttpResponseBadRequest('Bad entries. Please enter a valid URL and a positive integer')
 
+
+@login_required(login_url='/login')
+def add_my_metadataFormat(request):
+    if request.method == 'POST':
+        form = MyMetadataFormatForm(request.POST, request.FILES)
+
+        if form.is_valid():
+            try:
+                #We add the metadata Format
+                uri = OAI_HOST_URI + "/oai_pmh/api/add/my-metadataFormat"
+                #We retrieve information from the form
+                if 'metadataPrefix' in request.POST:
+                    metadataprefix = request.POST.get('metadataPrefix')
+
+                if 'schema' in request.POST:
+                    schema = request.POST.get('schema')
+
+                if 'metadataNamespace' in request.POST:
+                    namespace = request.POST.get('metadataNamespace')
+
+                if 'xmlSchema' in request.FILES:
+                    xml_schema = request.FILES.get('xmlSchema')
+                    # put the cursor at the beginning of the file
+                    xml_schema.seek(0)
+                    # read the content of the file
+                    xml_data = xml_schema.read()
+                    # check XML data or not?
+                    try:
+                        etree.fromstring(xml_data)
+                    except XMLSyntaxError:
+                        return HttpResponseBadRequest('Uploaded File is not well formed XML.')
+
+                #Call to the API to add the registry
+                try:
+                    req = requests.post(uri, {"metadataPrefix": metadataprefix,
+                                              "schema": schema,
+                                              "metadataNamespace": namespace,
+                                              "xmlSchema": xml_data},
+                                        auth=(OAI_USER, OAI_PASS))
+
+                    #If the status is OK, sucess message
+                    if req.status_code == status.HTTP_201_CREATED:
+                        messages.add_message(request, messages.SUCCESS, 'Metadata Format added with success.')
+                        return HttpResponse('CREATED')
+                    #Else, we return a bad request response with the message provided by the API
+                    else:
+                        data = json.loads(req.text)
+                        return HttpResponseBadRequest(data['message'])
+                except Exception as e:
+                    return HttpResponseBadRequest('An error occurred. Please contact your administrator.')
+            except Exception as e:
+                return HttpResponseBadRequest('An error occurred. Please contact your administrator.')
+        else:
+            return HttpResponseBadRequest('Bad entries. Check your entry')
+
+
+
+################################################################################
+#
+# Function Name: delete_my_metadataFormat(request)
+# Inputs:        request -
+# Outputs:
+# Exceptions:    None
+# Description:   OAI-PMH Delete MyMetadata format
+#
+################################################################################
+@login_required(login_url='/login')
+def delete_my_metadataFormat(request):
+    uri = OAI_HOST_URI+"/oai_pmh/api/delete/my-metadataFormat"
+    try:
+        id = request.POST.get('MetadataFormatId')
+    except ValueError:
+        return HttpResponseBadRequest('Please provide an ID in order to delete the metadata format.')
+    try:
+        req = requests.post(uri, {"MetadataFormatId":id}, auth=(OAI_USER, OAI_PASS))
+
+        #If the status is OK, sucess message
+        if req.status_code == status.HTTP_200_OK:
+            messages.add_message(request, messages.INFO, 'Metadata Format deleted with success.')
+            return HttpResponse(json.dumps({}), content_type='application/javascript')
+        #Else, we return a bad request response with the message provided by the API
+        else:
+            data = json.loads(req.text)
+            return HttpResponseBadRequest(data['message'])
+    except Exception as e:
+        return HttpResponseBadRequest('An error occurred. Please contact your administrator.')
+
+
+
+################################################################################
+#
+# Function Name: update_my_metadataFormat(request)
+# Inputs:        request -
+# Outputs:
+# Exceptions:    None
+# Description:   OAI-PMH update my metadata format
+#
+# ################################################################################
+@login_required(login_url='/login')
+def update_my_metadataFormat(request):
+    if request.method == 'POST':
+        #UPDATE the registry
+        try:
+            uri = OAI_HOST_URI + "/oai_pmh/api/update/my-metadataFormat"
+            #Get all form information
+            if 'id' in request.POST:
+                id = request.POST.get('id')
+
+            if 'metadataPrefix' in request.POST:
+                metadataprefix = request.POST.get('metadataPrefix')
+
+            if 'schema' in request.POST:
+                schema = request.POST.get('schema')
+
+            if 'metadataNamespace' in request.POST:
+                namespace = request.POST.get('metadataNamespace')
+
+            #Call the API to update my metadataFormat
+            try:
+                req = requests.put(uri, { "id": id,
+                                          "metadataPrefix": metadataprefix,
+                                          "schema": schema,
+                                          "metadataNamespace": namespace},
+                                        auth=(OAI_USER, OAI_PASS))
+
+                #If the status is OK, sucess message
+                if req.status_code == status.HTTP_201_CREATED:
+                    messages.add_message(request, messages.INFO, 'Metadata Format edited with success.')
+                    return HttpResponse(json.dumps({}), content_type='application/javascript')
+                #Else, we return a bad request response with the message provided by the API
+                else:
+                    data = json.loads(req.text)
+                    return HttpResponseBadRequest(data['message'])
+            except Exception as e:
+                return HttpResponseBadRequest('An error occurred. Please contact your administrator.')
+        except Exception as e:
+            return HttpResponseBadRequest('An error occurred. Please contact your administrator.')
+    elif request.method == 'GET':
+        #Build the template to render for the metadata format edition
+        template = loader.get_template('oai_pmh/admin/form_my_metadata_format_edit.html')
+        metadata_format_id = request.GET['metadata_format_id']
+        try:
+            information = OaiMyMetadataFormat.objects.get(pk=metadata_format_id)
+            data = {'id': metadata_format_id, 'metadataPrefix': information.metadataPrefix, 'schema': information.schema,
+                    'metadataNamespace': information.metadataNamespace}
+            metadataformat_form = UpdateMyMetadataFormatForm(data)
+        except:
+            metadataformat_form = UpdateMyMetadataFormatForm()
+
+        context = RequestContext(request, {
+            'metadataformat_form': metadataformat_form,
+        })
+
+        return HttpResponse(json.dumps({'template': template.render(context)}), content_type='application/javascript')
 
 ################################################################################
 #
@@ -273,8 +430,14 @@ def oai_pmh_my_infos(request):
             'enable_harvesting': enableHarvesting,
         }
 
+    metadataformat_form = MyMetadataFormatForm()
+    metadataFormats = OaiMyMetadataFormat.objects(isDefault=False).all()
+    defaultMetadataFormats = OaiMyMetadataFormat.objects(isDefault=True).all()
     context = RequestContext(request, {
         'data_provider': data_provider,
+        'metadataformat_form': metadataformat_form,
+        'metadataFormats': metadataFormats,
+        'defaultMetadataFormats': defaultMetadataFormats,
     })
 
     return HttpResponse(template.render(context))
@@ -431,3 +594,145 @@ def check_harvest_data(request):
             return HttpResponse(json.dumps(resultsByKeyword), content_type='application/javascript')
         except Exception as e:
             return HttpResponseBadRequest('An error occurred. Please contact your administrator.')
+
+
+from django.forms import formset_factory
+from oai_pmh.admin.forms import AssociateXSLT
+################################################################################
+#
+# Function Name: oai_pmh_conf_xslt(request)
+# Inputs:        request -
+# Outputs:
+# Exceptions:    None
+# Description:   OAI-PMH Return the state of the registries (isHarvesting)
+#
+# ################################################################################
+@login_required(login_url='/login')
+def oai_pmh_conf_xslt(request):
+    if request.method == 'POST':
+        AssociateFormSet = formset_factory(AssociateXSLT, extra=3)
+        article_formset = AssociateFormSet(request.POST)
+        if article_formset.is_valid():
+            for f in article_formset:
+                cd = f.cleaned_data
+                myMetadataFormat = cd.get('oai_my_mf_id')
+                template = cd.get('template_id')
+                activated = cd.get('activated')
+                xslt = cd.get('oai_pmh_xslt_file')
+                if xslt: xslt = xslt.id
+                OaiTemplMfXslt.objects.filter(myMetadataFormat=myMetadataFormat, template=template).update(set__myMetadataFormat = myMetadataFormat, set__template = template, set__xslt = xslt,  set__activated = activated, upsert=True)
+
+        return HttpResponse(json.dumps({}), content_type='application/javascript')
+    else:
+        template = loader.get_template('oai_pmh/admin/oai_pmh_conf_xslt.html')
+        template_id = request.GET.get('id', None)
+        if template_id is not None:
+            allXsltFiles = OaiXslt.objects.all()
+            myMetadataFormats = OaiMyMetadataFormat.objects().all()
+
+            infos= dict()
+            for myMetadataFormat in myMetadataFormats:
+                try:
+                    obj = OaiTemplMfXslt.objects(template=template_id, myMetadataFormat=myMetadataFormat).get()
+                    infos[myMetadataFormat] = {'oai_pmh_xslt_file': obj.xslt.id if obj.xslt else None, 'activated': obj.activated}
+                except:
+                    infos[myMetadataFormat] = {'oai_pmh_xslt_file': None, 'activated': False}
+
+            AssociateFormSet = formset_factory(AssociateXSLT, extra=0)
+            init = [{'template_id': template_id, 'oai_my_mf_id': x.id, 'oai_name': x.metadataPrefix, 'oai_pmh_xslt_file': infos[x]['oai_pmh_xslt_file'], 'activated': infos[x]['activated']} for x in myMetadataFormats]
+            formset = AssociateFormSet(initial=init)
+
+            context = RequestContext(request,{
+                'metadataFormats': myMetadataFormats,
+                'xsltFiles': allXsltFiles,
+                'formSet': formset,
+            })
+
+            return HttpResponse(template.render(context))
+
+
+################################################################################
+#
+# Function Name: manage_oai_pmh_xslt(request)
+# Inputs:        request -
+# Outputs:       Manage OAI-PMH XSLT Page
+# Exceptions:    None
+# Description:   Page that allows to upload new OAI-PMH XSLT and manage the existing ones
+#
+################################################################################
+@staff_member_required
+def manage_oai_pmh_xslt(request, id=None):
+    if request.method == 'POST':
+        upload_form = UploadOaiPmhXSLTForm(request.POST, request.FILES)
+        name = upload_form['oai_name'].value()
+        name = name.strip(' \t\n\r')
+        xml_file = upload_form['oai_pmh_xslt_file'].value()
+        # put the cursor at the beginning of the file
+        xml_file.seek(0)
+        # read the content of the file
+        xml_data = xml_file.read()
+        # check XML data or not?
+        try:
+            etree.fromstring(xml_data)
+        except XMLSyntaxError:
+            return HttpResponseBadRequest('Uploaded File is not well formed XML.')
+        #No exceptions, we can add it in DB
+        try:
+            OaiXslt(name=name, filename=xml_file.name, content=xml_data).save()
+        except NotUniqueError, e:
+            return HttpResponseBadRequest('This XSLT name already exists. Please enter an other name.')
+
+        messages.add_message(request, messages.INFO, 'XSLT saved with success.')
+        return HttpResponse('ok')
+
+    else:
+        return HttpResponseBadRequest('This method should not be called on GET.')
+
+################################################################################
+#
+# Function Name: delete_oai_pmh_xslt(request)
+# Inputs:        request -
+# Outputs:       Delete OAI-PMH XSLT document
+# Exceptions:    None
+# Description:   Page that allows to delete an OAI-PMH XSLT
+#
+################################################################################
+@staff_member_required
+def delete_oai_pmh_xslt(request):
+    if request.method == 'POST':
+        try:
+            xslt_id = request.POST['xslt_id']
+            OaiXslt.objects(pk=xslt_id).delete()
+        except Exception:
+            return HttpResponseBadRequest('Something went wrong during the deletion')
+
+        messages.add_message(request, messages.INFO, 'XSLT deleted with success.')
+        return HttpResponse(json.dumps({}), content_type='application/javascript')
+
+
+################################################################################
+#
+# Function Name: edit_oai_pmh_xslt(request)
+# Inputs:        request -
+# Outputs:       Edit XSLT
+# Exceptions:    None
+# Description:   Page that allows to edit an existing XSLT
+#
+################################################################################
+@staff_member_required
+def edit_oai_pmh_xslt(request, id=None):
+    if request.method == 'POST':
+        object_id = request.POST['object_id']
+        new_name = request.POST['new_name']
+        new_name = new_name.strip(' \t\n\r')
+        try:
+            xslt = OaiXslt.objects.get(pk=object_id)
+            if xslt.name == new_name:
+                return HttpResponseBadRequest('Please enter a different name.')
+            else:
+                xslt.update(set__name=str(new_name))
+        except OperationError, e:
+            return HttpResponseBadRequest('This XSLT name already exists. Please enter an other name.')
+
+        messages.add_message(request, messages.INFO, 'XSLT edited with success.')
+        return HttpResponse(json.dumps({}), content_type='application/javascript')

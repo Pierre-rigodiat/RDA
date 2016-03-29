@@ -11,7 +11,6 @@ logger = getLogger(__name__)
 
 def init_harvest():
     #Purge all current tasks in the harvest queue
-    t = 't'
     harvest_task()
 
 def harvest_task():

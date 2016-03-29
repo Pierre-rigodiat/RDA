@@ -93,7 +93,7 @@ div#metadataFormats ul {
 /* Clear floats */
 .fclear {clear:both}
 
-#results {
+#results, #results_local {
     min-height: 20em;
 }
 

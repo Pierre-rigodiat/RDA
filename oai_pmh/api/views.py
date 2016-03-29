@@ -20,10 +20,14 @@ from sickle import Sickle
 from sickle.models import Set, MetadataFormat, Identify, Record
 from sickle.oaiexceptions import NoSetHierarchy, NoMetadataFormat
 # Serializers
-from oai_pmh.api.serializers import IdentifyObjectSerializer, MetadataFormatSerializer, SetSerializer, RegistrySerializer, ListRecordsSerializer, RegistryURLSerializer, RecordSerializer, \
-    IdentifySerializer, UpdateRecordSerializer, DeleteRecordSerializer, UpdateRegistrySerializer, DeleteRegistrySerializer, UpdateMyRegistrySerializer
+from oai_pmh.api.serializers import IdentifyObjectSerializer, MetadataFormatSerializer, SetSerializer,\
+    RegistrySerializer, ListRecordsSerializer, RegistryURLSerializer, RecordSerializer, \
+    IdentifySerializer, UpdateRecordSerializer, DeleteRecordSerializer, UpdateRegistrySerializer, \
+    DeleteRegistrySerializer, UpdateMyRegistrySerializer, MyMetadataFormatSerializer, DeleteMyMetadataFormatSerializer,\
+    UpdateMyMetadataFormatSerializer
 # Models
-from mgi.models import OaiRegistry, OaiSet, OaiMetadataFormat, OaiIdentify, OaiSettings, Template, OaiRecord
+from mgi.models import OaiRegistry, OaiSet, OaiMetadataFormat, OaiIdentify, OaiSettings, Template, OaiRecord,\
+OaiMyMetadataFormat
 # DB Connection
 from pymongo import MongoClient
 from mgi.settings import MONGODB_URI, MGI_DB
@@ -1394,3 +1398,168 @@ def getListRecords(url, metadataPrefix=None, resumptionToken=None, set_h=None, f
     except Exception as e:
         content = {'error':'An error occurred when attempting to identify resource: %s'%e.message}
         return Response(content, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+################################################################################
+#
+# Function Name: update_registry(request)
+# Inputs:        request -
+# Outputs:       201 Registry updated.
+# Exceptions:    400 Error connecting to database.
+#                400 [Identifier] not found in request.
+#                400 Unable to update record.
+#                400 Serializer failed validation.
+#                401 Unauthorized.
+#                404 No registry found with the given identity.
+# Description:   OAI-PMH Update my_metadataFormat
+#
+################################################################################
+@api_view(['POST'])
+def add_my_metadataFormat(request):
+    """
+    PUT http://localhost/oai_pmh/add/my-metadataformat
+    """
+    if request.user.is_authenticated():
+        #Serialization of the input data
+        serializer = MyMetadataFormatSerializer(data=request.DATA)
+        #If it's valid
+        if serializer.is_valid():
+            #We retrieve all information
+            if 'metadataPrefix' in request.POST:
+                metadataprefix = request.DATA['metadataPrefix']
+            if 'schema' in request.POST:
+                schema = request.DATA['schema']
+            if 'metadataNamespace' in request.POST:
+                namespace = request.DATA['metadataNamespace']
+
+            if 'xmlSchema' in request.POST:
+                xml_schema = request.DATA['xmlSchema']
+
+            try:
+                #Add in database
+               OaiMyMetadataFormat(metadataPrefix=metadataprefix, schema=schema, metadataNamespace=namespace, xmlSchema=xml_schema, isDefault=False).save()
+            except Exception as e:
+                return Response({'message':'Unable to add the new metadata format. \n%s'%e.message}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response({'message':'Serializer failed validation. '}, status=status.HTTP_400_BAD_REQUEST)
+    else:
+        content = {'message':'Only an administrator can use this feature.'}
+        return Response(content, status=status.HTTP_401_UNAUTHORIZED)
+
+
+################################################################################
+#
+# Function Name: delete_my_metadataFormat(request)
+# Inputs:        request -
+# Outputs:       204 Record deleted.
+# Exceptions:    400 Error connecting to database.
+#                400 [Name] not found in request.
+#                400 Unspecified.
+#                400 Serializer failed validation.
+#                401 Unauthorized.
+#                404 No record found with the given identity.
+# Description:   OAI-PMH Delete my_metadataFormat
+#
+################################################################################
+@api_view(['POST'])
+def delete_my_metadataFormat(request):
+    """
+    POST http://localhost/oai_pmh/delete/my-metadataFormat
+    """
+    if request.user.is_authenticated():
+        try:
+            serializer = DeleteMyMetadataFormatSerializer(data=request.DATA)
+        except Exception as e:
+            return Response({"message":e.message}, status=status.HTTP_400_BAD_REQUEST)
+        if serializer.is_valid():
+            #Get the ID
+            try:
+                id = request.DATA['MetadataFormatId']
+            except:
+                rsp = {'message':'\'MetadataFormatId\' not found in request.'}
+                return Response(rsp, status=status.HTTP_400_BAD_REQUEST)
+            try:
+                metadataFormat = OaiMyMetadataFormat.objects.get(pk=id)
+                #We can now delete the registry
+                metadataFormat.delete()
+
+                content = {'message':"Deleted metadata format with success."}
+                return Response(content, status=status.HTTP_200_OK)
+            except Exception as e:
+                Response({"message":e.message}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({'message':'Serializer failed validation.'}, status=status.HTTP_400_BAD_REQUEST)
+    else:
+        content = {'message':'Only an administrator can use this feature.'}
+        return Response(content, status=status.HTTP_401_UNAUTHORIZED)
+
+
+################################################################################
+#
+# Function Name: update_my_metadataFormat(request)
+# Inputs:        request -
+# Outputs:       201 Registry updated.
+# Exceptions:    400 Error connecting to database.
+#                400 [Identifier] not found in request.
+#                400 Unable to update record.
+#                400 Serializer failed validation.
+#                401 Unauthorized.
+#                404 No registry found with the given identity.
+# Description:   OAI-PMH Update my_metadataFormat
+#
+################################################################################
+@api_view(['PUT'])
+def update_my_metadataFormat(request):
+    """
+    PUT http://localhost/oai_pmh/update/my-registry
+    """
+    if request.user.is_authenticated():
+        #Serialization of the input data
+        serializer = UpdateMyMetadataFormatSerializer(data=request.DATA)
+        #If it's valid
+        if serializer.is_valid():
+            #We retrieve all information
+            try:
+                try:
+                    if 'id' in request.DATA:
+                        id = request.DATA['id']
+                        metadataFormat = OaiMyMetadataFormat.objects.get(pk=id)
+                    else:
+                        rsp = {'message':'\'Id\' not found in request.'}
+                        return Response(rsp, status=status.HTTP_400_BAD_REQUEST)
+                except:
+                    content = {'message':'No metadata format found with the given id.'}
+                    return Response(content, status=status.HTTP_404_NOT_FOUND)
+
+                if 'metadataPrefix' in request.DATA:
+                    metadataprefix = request.DATA['metadataPrefix']
+                    if metadataprefix:
+                        metadataFormat.metadataPrefix = metadataprefix
+
+                if 'schema' in request.DATA:
+                    schema = request.DATA['schema']
+                    if schema:
+                        metadataFormat.schema = schema
+
+                if 'metadataNamespace' in request.DATA:
+                    namespace = request.DATA['metadataNamespace']
+                    if namespace:
+                        metadataFormat.metadataNamespace = namespace
+            except:
+                content = {'message':'Error while retrieving information.'}
+                return Response(content, status=status.HTTP_404_NOT_FOUND)
+
+            try:
+                #Save the modifications
+                 metadataFormat.save()
+            except Exception as e:
+                return Response({'message':'Unable to update the metadata format. \n%s'%e.message}, status=status.HTTP_400_BAD_REQUEST)
+
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response({'message':'Serializer failed validation. '}, status=status.HTTP_400_BAD_REQUEST)
+    else:
+        content = {'message':'Only an administrator can use this feature.'}
+        return Response(content, status=status.HTTP_401_UNAUTHORIZED)

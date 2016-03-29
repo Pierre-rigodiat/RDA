@@ -12,7 +12,8 @@
 
 from rest_framework import serializers
 from rest_framework_mongoengine.serializers import MongoEngineModelSerializer
-from mgi.models import OaiRegistry, UpdateRecord, DeleteRecord, SelectRecord, DeleteRegistry, OaiSettings
+from mgi.models import OaiRegistry, UpdateRecord, DeleteRecord, SelectRecord, DeleteRegistry, OaiSettings,\
+OaiMyMetadataFormat
 
 class RegistrySerializer(MongoEngineModelSerializer):
     class Meta:
@@ -75,8 +76,6 @@ class UpdateRecordSerializer(MongoEngineModelSerializer):
     class Meta:
         model = UpdateRecord
 
-
-
 class DeleteRecordSerializer(MongoEngineModelSerializer):
     class Meta:
         model = DeleteRecord
@@ -102,3 +101,16 @@ class UpdateMyRegistrySerializer(MongoEngineModelSerializer):
         exclude = (['repositoryIdentifier'])
 
 
+class MyMetadataFormatSerializer(serializers.Serializer):
+    metadataPrefix = serializers.CharField()
+    metadataNamespace = serializers.CharField()
+    schema = serializers.CharField()
+    xmlSchema = serializers.CharField()
+
+class DeleteMyMetadataFormatSerializer(serializers.Serializer):
+    MetadataFormatId  = serializers.CharField(required=True)
+
+class UpdateMyMetadataFormatSerializer(MongoEngineModelSerializer):
+    class Meta:
+        model = OaiMyMetadataFormat
+        exclude = (['xmlSchema'])

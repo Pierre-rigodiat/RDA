@@ -540,7 +540,7 @@ class OaiSet(Document):
 
 class OaiMetadataFormat(Document):
     """
-        A set object
+        A OaiMetadataFormat object
     """
     metadataPrefix  = StringField(required=True)
     schema = StringField(required=True)
@@ -550,6 +550,19 @@ class OaiMetadataFormat(Document):
     template = ReferenceField(Template, reverse_delete_rule=PULL)
     registry = StringField(required=False)
     hash = StringField(required=True)
+
+
+class OaiMyMetadataFormat(Document):
+    """
+        A OaiMyMetadataFormat object
+    """
+    metadataPrefix  = StringField(required=True, unique=True)
+    schema = StringField(required=True)
+    metadataNamespace  = StringField(required=True)
+    xmlSchema = StringField(required=True)
+    isDefault = BooleanField(required=False)
+    # isTemplate = BooleanField()
+    # template = ReferenceField(Template, reverse_delete_rule=CASCADE)
 
 class OaiRecord(Document):
     """
@@ -585,7 +598,7 @@ class OaiRecord(Document):
         # connect to the db 'mgi'
         db = client['mgi']
         # get the xmldata collection
-        xmldata = db['oai_record']
+        xmlrecord = db['oai_record']
         wordList = re.sub("[^\w]", " ",  text).split()
         wordList = ['"{0}"'.format(x) for x in wordList]
         wordList = ' '.join(wordList)
@@ -596,7 +609,7 @@ class OaiRecord(Document):
         else:
             full_text_query = {'metadataformat' : {'$in': listMetadataFormatObjectId} }
 
-        cursor = xmldata.find(full_text_query, as_class = OrderedDict)
+        cursor = xmlrecord.find(full_text_query, as_class = OrderedDict)
 
         results = []
         for result in cursor:
@@ -616,6 +629,18 @@ class OaiRegistry(Document):
     lastUpdate = DateTimeField(required=False)
     isHarvesting = BooleanField()
 
+class OaiXslt(Document):
+    """Represents an xslt file for Oai-Pmh"""
+    name = StringField(required=True, unique=True)
+    filename = StringField(required=True)
+    content = StringField(required=True)
+
+class OaiTemplMfXslt(Document):
+    """Represents an xslt file for Oai-Pmh"""
+    template = ReferenceField(Template, reverse_delete_rule=CASCADE)
+    myMetadataFormat = ReferenceField(OaiMyMetadataFormat, reverse_delete_rule=CASCADE)
+    xslt = ReferenceField(OaiXslt, reverse_delete_rule=CASCADE, unique_with=['template', 'myMetadataFormat'])
+    activated = BooleanField()
 
 # class Sets(Document):
 #     """

@@ -166,6 +166,7 @@ INSTALLED_APPS = (
     'compose',
     'modules',
     'oai_pmh',
+
 )
 
 OAUTH2_PROVIDER = {
