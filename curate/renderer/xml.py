@@ -210,11 +210,33 @@ class XmlRenderer(AbstractXmlRenderer):
             tmp_content = ['', '']
 
             if child.tag == 'restriction':
-                tmp_content[1] = child.value if child.value is not None else ''
+                tmp_content = self.render_restriction(child)
             elif child.tag == 'attribute':
                 tmp_content[0] = self.render_attribute(child)
             else:
                 print child.tag + '  not handled (rend_stype)'
+
+            content[0] = ' '.join([content[0], tmp_content[0]]).strip()
+            content[1] += tmp_content[1]
+
+        return content
+
+    def render_restriction(self, element):
+        content = ['', '']
+        value = element.value
+
+        for child in element.children:
+            tmp_content = ['', '']
+
+            if child.tag == 'enumeration':
+                tmp_content[1] = value if value is not None else ''
+                value = None  # Avoid to copy the value several times
+            elif child.tag == 'input':
+                tmp_content[1] = child.value if child.value is not None else ''
+            elif child.tag == 'simple_type':
+                tmp_content = self.render_simple_type()
+            else:
+                print child.tag + '  not handled (rend_restriction)'
 
             content[0] = ' '.join([content[0], tmp_content[0]]).strip()
             content[1] += tmp_content[1]

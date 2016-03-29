@@ -6,7 +6,8 @@
       "xsd": "/xs:schema/xs:complexType/xs:sequence"
     },
     "max": -1,
-    "min": 2
+    "min": 2,
+    "schema_location": null
   },
   "value": null,
   "children": [
@@ -23,7 +24,10 @@
             "max": 1,
             "name": "id0",
             "module": null,
-            "min": 1
+            "min": 1,
+            "ns_prefix": null,
+            "xmlns": null,
+            "schema_location": null
           },
           "value": null,
           "children": [

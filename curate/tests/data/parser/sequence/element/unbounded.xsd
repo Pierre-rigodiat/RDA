@@ -1,5 +1,5 @@
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
-    <xs:element name="root" type="complex" />
+    <xs:element name="root" type="complex"/>
 
     <xs:complexType name="complex">
         <xs:sequence minOccurs="2" maxOccurs="unbounded">

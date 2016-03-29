@@ -296,7 +296,7 @@ class DefaultRenderer(object):
 
         return self._load_template('input', data)
 
-    def _render_select(self):
+    def _render_select(self, select_id, options_list):
         pass
 
     def _render_buttons(self, min_occurs, max_occurs, occurence_count):

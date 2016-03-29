@@ -1,8 +1,4 @@
 {
-  "xpath": {
-    "xml": "",
-    "xsd": "/xs:schema/xs:complexType/xs:choice"
-  },
   "tag": "choice",
   "children": [
     {
@@ -16,7 +12,8 @@
               "xsd": "/xs:schema/xs:complexType/xs:choice/xs:sequence[1]"
             },
             "max": 1,
-            "min": 1
+            "min": 1,
+            "schema_location": null
           },
           "value": null,
           "children": [
@@ -33,7 +30,10 @@
                     "max": 1,
                     "name": "id10",
                     "module": null,
-                    "min": 1
+                    "min": 1,
+                    "ns_prefix": null,
+                    "xmlns": null,
+                    "schema_location": null
                   },
                   "value": null,
                   "children": [
@@ -62,7 +62,8 @@
               "xsd": "/xs:schema/xs:complexType/xs:choice/xs:sequence[2]"
             },
             "max": 1,
-            "min": 1
+            "min": 1,
+            "schema_location": null
           },
           "value": null,
           "children": [
@@ -79,7 +80,10 @@
                     "max": 1,
                     "name": "id11",
                     "module": null,
-                    "min": 1
+                    "min": 1,
+                    "ns_prefix": null,
+                    "xmlns": null,
+                    "schema_location": null
                   },
                   "value": null,
                   "children": []
@@ -103,7 +107,8 @@
               "xsd": "/xs:schema/xs:complexType/xs:choice/xs:sequence[1]"
             },
             "max": 1,
-            "min": 1
+            "min": 1,
+            "schema_location": null
           },
           "value": null,
           "children": [
@@ -120,7 +125,10 @@
                     "max": 1,
                     "name": "id10",
                     "module": null,
-                    "min": 1
+                    "min": 1,
+                    "ns_prefix": null,
+                    "xmlns": null,
+                    "schema_location": null
                   },
                   "value": null,
                   "children": [
@@ -149,7 +157,8 @@
               "xsd": "/xs:schema/xs:complexType/xs:choice/xs:sequence[2]"
             },
             "max": 1,
-            "min": 1
+            "min": 1,
+            "schema_location": null
           },
           "value": null,
           "children": [
@@ -166,7 +175,10 @@
                     "max": 1,
                     "name": "id11",
                     "module": null,
-                    "min": 1
+                    "min": 1,
+                    "ns_prefix": null,
+                    "xmlns": null,
+                    "schema_location": null
                   },
                   "value": null,
                   "children": []
@@ -183,6 +195,11 @@
   "value": null,
   "options": {
     "max": -1,
-    "min": 2
+    "min": 2,
+    "xpath": {
+      "xml": "",
+      "xsd": "/xs:schema/xs:complexType/xs:choice"
+    },
+    "schema_location": null
   }
 }

@@ -51,8 +51,6 @@ class ParserGenerateFormTestSuite(TestCase):
         report_content = []
 
         for filepath in filepath_list:
-            # print "**********************"
-            # print filepath
             report_line = filepath
 
             try:
@@ -68,8 +66,6 @@ class ParserGenerateFormTestSuite(TestCase):
             except Exception as e:
                 print e
                 report_line += ',EXC,' + e.message + '\n'
-            # finally:
-            #     print "**********************"
 
             report_content.append(report_line)
 

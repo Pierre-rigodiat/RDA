@@ -124,6 +124,7 @@ class ParserCreateChoiceTestSuite(TestCase):
     #     self.assertTrue(are_equals(result_html, expected_html))
 
     def test_create_sequence_basic(self):
+        # FIXME Not working
         xsd_files = join('sequence', 'basic')
         xsd_tree = etree.ElementTree(self.choice_data_handler.get_xsd2(xsd_files))
         xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:choice',
@@ -141,6 +142,7 @@ class ParserCreateChoiceTestSuite(TestCase):
         # self.assertTrue(are_equals(result_html, expected_html))
 
     def test_create_sequence_unbounded(self):
+        # FIXME Not working
         xsd_files = join('sequence', 'unbounded')
         xsd_tree = etree.ElementTree(self.choice_data_handler.get_xsd2(xsd_files))
         xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:choice',
