@@ -48,12 +48,12 @@
     </li>
 	<li>
         <div style="cursor:pointer">
-            <a href="/oai_pmh/keyword">OAI-PMH Search by Keyword</a>
+            <a href="/oai_pmh/explore/keyword">OAI-PMH Search by Keyword</a>
         </div>
     </li>
 </ul>
 {% endblock %}
->>>>>>> 3a4b3cf... Reorganization
+>>>>>>> 32dbfa5... Explore for the OAI-PMH
 
 
 

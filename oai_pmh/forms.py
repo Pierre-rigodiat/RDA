@@ -54,6 +54,25 @@ class UpdateRegistryForm(forms.Form):
     harvestrate = forms.IntegerField(label='Harvestrate (seconds)', required=False)
     edit_harvest = forms.BooleanField(widget=forms.CheckboxInput(attrs={'class':'cmn-toggle cmn-toggle-round'}), required=False)
 
+
+class MyMetadataFormatForm(forms.Form):
+    """
+        A MyMetadataFormatForm form
+    """
+    metadataPrefix = forms.CharField(label='Metadata Prefix', required=True)
+    schema = forms.CharField(label='Schema', required=True)
+    metadataNamespace = forms.CharField(label='Namespace', required=True)
+    xmlSchema = forms.FileField(label='Select a file')
+
+class UpdateMyMetadataFormatForm(forms.Form):
+    """
+        A UpdateMyMetadataFormatForm update form
+    """
+    id = forms.CharField(widget=forms.HiddenInput(), required=False)
+    metadataPrefix = forms.CharField(label='Metadata Prefix', required=True)
+    schema = forms.CharField(label='Schema', required=True)
+    metadataNamespace = forms.CharField(label='Namespace', required=True)
+
 class AddRecord(forms.Form):
     """
         Add record form

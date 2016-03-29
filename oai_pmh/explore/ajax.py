@@ -89,7 +89,6 @@ def get_results_by_instance_keyword(request):
             xsltPath = os.path.join(settings.SITE_ROOT, 'static/resources/xsl/xml2html.xsl')
             xslt = etree.parse(xsltPath)
             transform = etree.XSLT(xslt)
-            template = loader.get_template('oai_pmh/explore/explore_result_keyword.html')
 
         #Retrieve schema and registries. Avoid to retrieve the information for each result
         registriesName = {}
@@ -103,17 +102,23 @@ def get_results_by_instance_keyword(request):
             obj = OaiMetadataFormat.objects(pk=schemaId).get()
             schemasName[str(schemaId)] = obj
 
-        for instanceResult in instanceResults:
-            if not onlySuggestions:
+        listItems = []
+        xmltodictunparse = xmltodict.unparse
+        appendResult = results.append
+        toXML = etree.XML
+        parse = etree.parse
+        XSLT = etree.XSLT
+        if not onlySuggestions:
+            for instanceResult in instanceResults:
                 custom_xslt = False
-                results.append({'title':instanceResult['identifier'], 'content':xmltodict.unparse(instanceResult['metadata']),'id':str(instanceResult['_id'])})
-                dom = etree.XML(str(xmltodict.unparse(instanceResult['metadata']).encode('utf-8')))
+                appendResult({'title':instanceResult['identifier'], 'content':xmltodictunparse(instanceResult['metadata']),'id':str(instanceResult['_id'])})
+                dom = toXML(str(xmltodictunparse(instanceResult['metadata']).encode('utf-8')))
                 #Check if a custom list result XSLT has to be used
                 try:
                     schema = schemasName[str(instanceResult['metadataformat'])]
                     if schema.ResultXsltList:
-                        listXslt = etree.parse(BytesIO(schema.ResultXsltList.content.encode('utf-8')))
-                        listTransform = etree.XSLT(listXslt)
+                        listXslt = parse(BytesIO(schema.ResultXsltList.content.encode('utf-8')))
+                        listTransform = XSLT(listXslt)
                         newdom = listTransform(dom)
                         custom_xslt = True
                     else:
@@ -123,15 +128,18 @@ def get_results_by_instance_keyword(request):
                     newdom = transform(dom)
                     custom_xslt = False
 
-                context = RequestContext(request, {'id':str(instanceResult['_id']),
+                item = {'id':str(instanceResult['_id']),
                                    'xml': str(newdom),
                                    'title': instanceResult['identifier'],
                                    'custom_xslt': custom_xslt,
                                    'schema_name': schema.metadataPrefix,
-                                   'registry_name': registriesName[instanceResult['registry']]})
+                                   'registry_name': registriesName[instanceResult['registry']]}
 
-                resultString+= template.render(context)
-            else:
+                listItems.append(item)
+                context = RequestContext(request, {'list_results': listItems})
+
+        else:
+            for instanceResult in instanceResults[:20]:
                 wordList = re.sub("[^\w]", " ",  keyword).split()
                 wordList = [x + "|" + x +"\w+" for x in wordList]
                 wordList = '|'.join(wordList)
@@ -146,8 +154,12 @@ def get_results_by_instance_keyword(request):
                     if not result_json in resultsByKeyword:
                         resultsByKeyword.append(result_json)
 
-        result_json = {}
-        result_json['resultString'] = resultString
+        if not onlySuggestions:
+            template = loader.get_template('oai_pmh/explore/explore_result_keyword.html')
+            resultString+= template.render(context)
+            # result_json = {}
+            # result_json['resultString'] = resultString
+
 
     request.session[sessionName] = results
     print 'END def getResultsKeyword(request)'

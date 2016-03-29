@@ -19,7 +19,7 @@ from django.http.response import HttpResponseBadRequest
 from django.template import RequestContext, loader
 from django.shortcuts import redirect
 from mgi.models import Request, Message, PrivacyPolicy, TermsOfUse, Help, Template, TemplateVersion, Type, \
-    TypeVersion, Module, Bucket, Instance, Exporter, ExporterXslt, ResultXslt
+    TypeVersion, Module, Bucket, Instance, Exporter, ExporterXslt, ResultXslt, OaiXslt
 from forms import UploadResultXSLTForm, PrivacyPolicyForm, TermsOfUseForm, HelpForm, RepositoryForm, RefreshRepositoryForm, UploadXSLTForm, UploadResultXSLTForm
 from django.contrib import messages
 import os
@@ -38,7 +38,8 @@ import json
 from mongoengine import NotUniqueError, OperationError
 from django.contrib.admin.views.decorators import staff_member_required
 import xmltodict
-
+#TODO Move to OAI-PMH
+from oai_pmh.admin.forms import UploadOaiPmhXSLTForm
 ################################################################################
 #
 # Function Name: user_requests(request)
@@ -631,13 +632,20 @@ def manage_xslt(request, id=None):
         template = loader.get_template('admin/manage_xslt.html')
         upload_xslt_Form = UploadXSLTForm()
         upload_result_xslt_Form = UploadResultXSLTForm()
+        #TODO Move to OAI-PMH
+        upload_oai_pmh_xslt_Form = UploadOaiPmhXSLTForm()
         xslt_files = ExporterXslt.objects.all()
         result_xslt_files = ResultXslt.objects.all()
+        #TODO Move to OAI-PMH
+        oai_pmh_xslt = OaiXslt.objects.all()
         context = RequestContext(request, {
             'upload_xslt_Form': upload_xslt_Form,
             'upload_result_xslt_Form': upload_result_xslt_Form,
+            'upload_oai_pmh_xslt_Form': upload_oai_pmh_xslt_Form,
             'xslt_files': xslt_files,
             'result_xslt_files': result_xslt_files,
+            #TODO Move to OAI-PMH
+            'oai_pmh_xslt': oai_pmh_xslt,
         })
 
         return HttpResponse(template.render(context))

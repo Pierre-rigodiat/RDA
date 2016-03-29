@@ -55,3 +55,12 @@ tr.alertTr td {
 	background-repeat: repeat-x;
 	border-color: #f5e79e;
 }
+
+.no-decoration a:link
+{
+ text-decoration:none;
+}
+
+.myinfos td{
+	word-break: break-all;
+}

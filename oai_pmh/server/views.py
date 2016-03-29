@@ -14,7 +14,7 @@
 from django.http import HttpResponse, HttpResponseNotFound
 from django.conf import settings
 from django.views.generic import TemplateView
-from mgi.models import Template, TemplateVersion, XMLdata, OaiSettings
+from mgi.models import Template, TemplateVersion, XMLdata, OaiSettings, OaiMyMetadataFormat, OaiTemplMfXslt
 import os
 from oai_pmh.server.exceptions import *
 import xmltodict
@@ -24,6 +24,7 @@ import lxml.etree as etree
 import re
 from oai_pmh import datestamp
 import datetime
+from exporter.builtin.models import XSLTExporter
 
 RESOURCES_PATH = os.path.join(settings.SITE_ROOT, 'oai_pmh/server/resources/')
 
@@ -157,24 +158,21 @@ class OAIProvider(TemplateView):
                 listId = []
                 listId.append(id)
                 listSchemaIds = XMLdata.getByIDsAndDistinctBy(listId, 'schema')
-                #Remove templates which are not current or deleted
-                templatesCurrent = TemplateVersion.objects(current__in=listSchemaIds, isDeleted=False)\
-                                  .distinct(field="current")
-                #Get templates
-                templates = Template.objects(pk__in=templatesCurrent)
+                if len(listSchemaIds) == 0:
+                    raise idDoesNotExist(self.identifier)
+                metadataFormats = OaiTemplMfXslt.objects(template__in=listSchemaIds, activated=True).distinct(field='myMetadataFormat')
             else:
-                templatesCurrent = TemplateVersion.objects(isDeleted=False).distinct(field="current")
-                templates = Template.objects(pk__in=templatesCurrent)
+                metadataFormats = OaiMyMetadataFormat.objects().all()
 
-            if len(templates) == 0:
+            if len(metadataFormats) == 0:
                 raise noMetadataFormat
             else:
                 url = self.request.build_absolute_uri(self.request.path)
-                for template in templates:
+                for metadataFormat in metadataFormats:
                     item_info = {
-                        'metadataNamespace': url + template.title,
-                        'metadataPrefix':  template.title,
-                        'schema':  url + 'XSD/' + template.filename
+                        'metadataNamespace': metadataFormat.metadataNamespace,
+                        'metadataPrefix':  metadataFormat.metadataPrefix,
+                        'schema':  metadataFormat.schema
                     }
                     items.append(item_info)
 
@@ -218,12 +216,13 @@ class OAIProvider(TemplateView):
             if len(date_errors) > 0:
                 raise OAIExceptions(date_errors)
             try:
-                templatesVersionID = Template.objects(title=self.metadataPrefix).distinct(field="templateVersion")
-                templateID = TemplateVersion.objects(pk__in=templatesVersionID, isDeleted=False).distinct(field="current")
-                templates = Template.objects.get(pk__in=templateID)
+                myMetadataFormat = OaiMyMetadataFormat.objects.get(metadataPrefix=self.metadataPrefix)
+                templates = OaiTemplMfXslt.objects(myMetadataFormat=myMetadataFormat, activated=True).distinct(field="template")
+                templatesID = [str(x.id) for x in templates]
             except:
                 raise cannotDisseminateFormat(self.metadataPrefix)
-            query['schema'] = str(templates.id)
+
+            query['schema'] = { "$in" : templatesID}
             items = []
             data = XMLdata.executeQueryFullResult(query)
             if len(data) == 0:
@@ -268,12 +267,6 @@ class OAIProvider(TemplateView):
             else:
                 raise idDoesNotExist(self.identifier)
             self.template_name = 'oai_pmh/xml/get_record.xml'
-            try:
-                templatesVersionID = Template.objects(title=self.metadataPrefix).distinct(field="templateVersion")
-                templateID = TemplateVersion.objects(pk__in=templatesVersionID, isDeleted=False).distinct(field="current")
-                templates = Template.objects.get(pk__in=templateID)
-            except:
-                raise cannotDisseminateFormat(self.metadataPrefix)
             query = dict()
             try:
                 query['_id'] = ObjectId(id)
@@ -283,25 +276,27 @@ class OAIProvider(TemplateView):
             #This id doesn't exist
             if len(data) == 0:
                 raise idDoesNotExist(self.identifier)
-            query['schema'] = str(templates.id)
-            data = XMLdata.executeQueryFullResult(query)
-            #The metadataForm at doesn't match with the id
-            if len(data) == 0:
+            data = data[0]
+            template = data['schema']
+            #Retrieve the XSLT for the transformation
+            try:
+                myMetadataFormat = OaiMyMetadataFormat.objects.get(metadataPrefix=self.metadataPrefix)
+                objTempMfXslt = OaiTemplMfXslt.objects(myMetadataFormat=myMetadataFormat, template=template, activated=True).get()
+                if not objTempMfXslt.xslt:
+                    raise cannotDisseminateFormat(self.metadataPrefix)
+                else:
+                    xslt = objTempMfXslt.xslt
+            except:
                 raise cannotDisseminateFormat(self.metadataPrefix)
-            else:
-                data = data[0]
-            xml = xmltodict.unparse(data['content'])
-            clean_parser = etree.XMLParser(remove_blank_text=True,remove_comments=True,remove_pis=True)
-            # set the parser
-            etree.set_default_parser(parser=clean_parser)
-            # load the XML tree from the text
-            xmlEncoding = etree.XML(str(xml.encode('utf-8')))
-            xmlStr = etree.tostring(xmlEncoding)
+
+            #Transform all XML data
+            dataToTransform = [{'title': data['_id'], 'content': self.cleanXML(xmltodict.unparse(data['content']))}]
+            dataXML = self.getXMLTranformXSLT(dataToTransform, xslt)
             record_info = {
                 'identifier': self.identifier,
                 'last_modified': datestamp.datetime_to_datestamp(data['publicationdate']) if 'publicationdate' in data else datestamp.datetime_to_datestamp(datetime.datetime.min),
                 'sets': '',
-                'XML': xmlStr
+                'XML': dataXML[0]['content']
             }
             return self.render_to_response(record_info)
         except OAIExceptions, e:
@@ -344,32 +339,38 @@ class OAIProvider(TemplateView):
             if len(date_errors) > 0:
                 raise OAIExceptions(date_errors)
             try:
-                templatesVersionID = Template.objects(title=self.metadataPrefix).distinct(field="templateVersion")
-                templateID = TemplateVersion.objects(pk__in=templatesVersionID, isDeleted=False).distinct(field="current")
-                templates = Template.objects.get(pk__in=templateID)
+                myMetadataFormat = OaiMyMetadataFormat.objects.get(metadataPrefix=self.metadataPrefix)
+                objTempMfXslt = OaiTemplMfXslt.objects(myMetadataFormat=myMetadataFormat, activated=True).all()
+                templatesID = [str(x.template.id) for x in objTempMfXslt]
             except:
                 raise cannotDisseminateFormat(self.metadataPrefix)
-            query['schema'] = str(templates.id)
-            data = XMLdata.executeQueryFullResult(query)
-            if len(data) == 0:
+            #For each template
+            for template in templatesID:
+                query['schema'] = template
+                data = XMLdata.executeQueryFullResult(query)
+                if len(data) == 0:
+                    continue
+                #Get the XSLT file
+                xslt = objTempMfXslt(template=template).get().xslt
+                #Transform all XML data
+                dataToTransform = [{'title': x['_id'], 'content': self.cleanXML(xmltodict.unparse(x['content']))} for x in data]
+                dataXML = self.getXMLTranformXSLT(dataToTransform, xslt)
+                #Add each record
+                for elt in data:
+                    identifier = '%s:%s:id/%s' % (settings.OAI_SCHEME, settings.OAI_REPO_IDENTIFIER,
+                          elt['_id'])
+                    xmlStr = filter(lambda xml: xml['title'] == elt['_id'], dataXML)[0]
+                    record_info = {
+                        'identifier': identifier,
+                        'last_modified': datestamp.datetime_to_datestamp(elt['publicationdate']) if 'publicationdate' in elt else datestamp.datetime_to_datestamp(datetime.datetime.min),
+                        'sets': '',
+                        'XML': xmlStr['content']
+                    }
+                    items.append(record_info)
+
+            if len(items) == 0:
                 raise noRecordsMatch
-            for elt in data:
-                xml = xmltodict.unparse(elt['content'])
-                identifier = '%s:%s:id/%s' % (settings.OAI_SCHEME, settings.OAI_REPO_IDENTIFIER,
-                      elt['_id'])
-                clean_parser = etree.XMLParser(remove_blank_text=True,remove_comments=True,remove_pis=True)
-                # set the parser
-                etree.set_default_parser(parser=clean_parser)
-                # load the XML tree from the text
-                xmlEncoding = etree.XML(str(xml.encode('utf-8')))
-                xmlStr = etree.tostring(xmlEncoding)
-                record_info = {
-                    'identifier': identifier,
-                    'last_modified': datestamp.datetime_to_datestamp(elt['publicationdate']) if 'publicationdate' in elt else datestamp.datetime_to_datestamp(datetime.datetime.min),
-                    'sets': '',
-                    'XML': xmlStr
-                }
-                items.append(record_info)
+
             return self.render_to_response({'items': items})
         except OAIExceptions, e:
             return self.errors(e.errors)
@@ -551,6 +552,42 @@ class OAIProvider(TemplateView):
             return self.error(e)
         except Exception, e:
             return self.error(e.code, e.message)
+
+################################################################################
+#
+# Function Name: getTranformXSLT(request)
+# Inputs:        request -
+# Outputs:       A list of dict
+# Exceptions:    None
+# Description:   Transform XSLT
+#
+################################################################################
+    def getXMLTranformXSLT(self, dataXML, xslt):
+        #Declare XSLTExporter
+        exporter = XSLTExporter()
+        exporter._setXslt(xslt.content)
+        #Transformation
+        contentRes = exporter._transform(dataXML)
+        #Return the transformed XMLs
+        return contentRes
+
+################################################################################
+#
+# Function Name: cleanXML(request)
+# Inputs:        request -
+# Outputs:       XML
+# Exceptions:    None
+# Description:   Clean XML
+#
+################################################################################
+    def cleanXML(self, xml):
+        clean_parser = etree.XMLParser(remove_blank_text=True,remove_comments=True,remove_pis=True)
+        # set the parser
+        etree.set_default_parser(parser=clean_parser)
+        # load the XML tree from the text
+        xmlEncoding = etree.XML(str(xml.encode('utf-8')))
+        xmlStr = etree.tostring(xmlEncoding)
+        return xmlStr
 
 
 ################################################################################

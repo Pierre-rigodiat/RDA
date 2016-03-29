@@ -219,6 +219,7 @@
 	background-position: -60px -200px;
 }
 
+<<<<<<< HEAD
 .icon.publish
 {
 	background-position: 0px -300px;
@@ -228,8 +229,9 @@
 {
 	background-position: -60px -396px;
 }
-
+=======
 .icon.oaiPmh
 {
 	background-position: -180px -420px;
 }
+>>>>>>> e3ecc9b... Manage Metadata Format and XSLT for OAI-PMH: Add/Edit/Remove MF, Associate XSLT for each MF to a template

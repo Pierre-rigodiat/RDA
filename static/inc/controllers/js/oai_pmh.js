@@ -720,3 +720,236 @@ init = function(){
         showMeridian: 1
     });
 }
+
+
+clearAddMF = function ()
+{
+    clearAddMFError();
+    $( "#form_add_MF" )[0].reset();
+}
+
+clearAddMFError = function ()
+{
+    $("#banner_add_MF_errors").hide()
+    $("#form_add_MF_errors").html("");
+}
+
+validateMetadataFormat = function()
+{
+    errors = ""
+
+    if ($( "#id_metadataPrefix" ).val().trim() == ""){
+        errors += "<li>Please enter a Metadata Prefix.</li>"
+    }
+
+    if ($( "#id_schema" ).val().trim() == ""){
+        errors += "<li>Please enter a schema.</li>"
+    }
+
+    if ($( "#id_metadataNamespace" ).val().trim() == ""){
+        errors += "<li>Please enter a namespace.</li>"
+    }
+
+        if ($( "#id_xmlSchema" ).val().trim() == ""){
+        errors += "<li>Please provide an XML file.</li>"
+    }
+
+	if (errors != ""){
+	    error = "<ul>";
+	    error += errors
+	    error += "</ul>";
+		$("#form_add_MF_errors").html(errors);
+		$("#banner_add_MF_errors").show(200)
+		return (false);
+	}else{
+		return (true)
+	}
+    return true;
+}
+
+displayAddMetadataFormat = function()
+{
+ $(function() {
+    clearAddMF();
+//    $('#duration').durationPicker();
+
+    $( "#dialog-add-metadataformat" ).dialog({
+      modal: true,
+      width: 550,
+      height: 'auto',
+      buttons:
+      [
+       {
+           text: "Add",
+           click: function() {
+                clearAddMFError();
+                if(validateMetadataFormat())
+                {
+//                       $("#banner_add_wait").show(200);
+                   var formData = new FormData($( "#form_add_MF" )[0]);
+                   $.ajax({
+                        url: "add/my-metadataFormat",
+                        type: 'POST',
+                        data: formData,
+                        cache: false,
+                        contentType: false,
+                        processData: false,
+                        async:true,
+                        success: function(data){
+                            window.location = 'oai-pmh-my-infos'
+                        },
+                        error:function(data){
+//	            	            $("#banner_add_wait").hide(200);
+                            $("#form_add_MF_errors").html(data.responseText);
+                            $("#banner_add_MF_errors").show(200)
+                        },
+                    })
+                    ;
+                }
+           }
+       }
+      ]
+    });
+  });
+}
+
+deleteMetadataFormat = function(metadataformat_id)
+{
+ $(function() {
+    $( "#dialog-mf-confirm-delete" ).dialog({
+      modal: true,
+      buttons:{
+            	Delete: function() {
+            		delete_metadata_format(metadataformat_id);
+            		},
+				Cancel: function() {
+	                $( this ).dialog( "close" );
+		          },
+		    }
+    });
+  });
+}
+
+/**
+ * AJAX call, deletes one of my Metadata format
+ * @param registry_id id of the registry
+ */
+delete_metadata_format = function(metadataformat_id){
+    $("#banner_mf_delete_wait").show(200);
+    $.ajax({
+        url : 'delete/my-metadataFormat',
+        type : "POST",
+        dataType: "json",
+        data : {
+        	MetadataFormatId : metadataformat_id,
+        },
+        success: function(data){
+            window.location = 'oai-pmh-my-infos'
+        },
+        error:function(data){
+            $("#banner_mf_delete_wait").hide(200);
+            $("#form_mf_delete_errors").html(data.responseText);
+            $("#banner_mf_delete_errors").show(200);
+	    }
+    });
+}
+
+
+clearMFEditError = function ()
+{
+    $("#banner_edit_mf_errors").hide()
+    $("#form_edit_mf_errors").html("");
+}
+
+validateMetadataFormatEdit = function()
+{
+    errors = ""
+
+    if ($( "#form_edit_mf_current #id_metadataPrefix" ).val().trim() == ""){
+        errors += "<li>Please enter a Metadata Prefix.</li>"
+    }
+
+    if ($( "#form_edit_mf_current #id_schema" ).val().trim() == ""){
+        errors += "<li>Please enter a schema.</li>"
+    }
+
+    if ($( "#form_edit_mf_current #id_metadataNamespace" ).val().trim() == ""){
+        errors += "<li>Please enter a namespace.</li>"
+    }
+
+
+	if (errors != ""){
+	    error = "<ul>";
+	    error += errors
+	    error += "</ul>";
+		$("#form_edit_mf_errors").html(errors);
+		$("#banner_edit_mf_errors").show(200)
+		return (false);
+	}else{
+		return (true)
+	}
+    return true;
+}
+
+
+/**
+ * Show a dialog when a result is selected
+ */
+editMetadataFormat = function(metadataFormatId)
+{
+    clearMFEditError()
+    exist = load_mf_edit_form(metadataFormatId);
+    $(function() {
+        $( "#dialog-mf-edit" ).dialog({
+          modal: true,
+          width: 400,
+          height: 'auto',
+          buttons:
+              [
+               {
+                   text: "Edit",
+                   click: function() {
+                        clearMFEditError();
+                        if(validateMetadataFormatEdit())
+                        {
+                            var formData = new FormData($( "#form_edit_mf" )[0]);
+                            $.ajax({
+                                url: "update/my-metadataFormat",
+                                type: 'POST',
+                                data: formData,
+                                cache: false,
+                                contentType: false,
+                                processData: false,
+                                async:false,
+                                success: function(data){
+                                    window.location = 'oai-pmh-my-infos'
+                                },
+                                error:function(data){
+                                    $("#form_edit_mf_errors").html(data.responseText);
+                                    $("#banner_edit_mf_errors").show(200)
+                                },
+                            })
+                            ;
+                        }
+                   }
+               }
+              ]
+        });
+    });
+}
+
+
+load_mf_edit_form = function(metadataFormatId){
+	$.ajax({
+        url : "update/my-metadataFormat",
+        type : "GET",
+        dataType: "json",
+        data : {
+            metadata_format_id : metadataFormatId,
+        },
+        success: function(data){
+            $("#form_edit_mf_errors").html("");
+            $("#form_edit_mf_current").html(data.template);
+        }
+    });
+}
