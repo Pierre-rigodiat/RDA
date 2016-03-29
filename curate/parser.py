@@ -610,7 +610,9 @@ def generate_element(request, element, xml_tree, choice_info=None, full_path="",
     # XSD xpath: /element/complexType/sequence
     xsd_xpath = xml_tree.getpath(element)
 
+    db_element['options']['name'] = text_capitalized
     db_element['options']['xpath']['xsd'] = xsd_xpath
+    db_element['options']['xpath']['xml'] = full_path
 
     # init variables for buttons management
     add_button = False
@@ -1398,10 +1400,8 @@ def generate_choice(request, element, xml_tree, choice_info=None, full_path="", 
 
         # 'occurs' key contains the tuple (minOccurs, nbOccurs, maxOccurs)
         # db_element['options'] = (min_occurs, nb_occurrences_data, max_occurs)
-        db_element['options'] = {
-            'min': min_occurs,
-            'max': max_occurs
-        }
+        db_element['options']['min'] = min_occurs
+        db_element['options']['max'] = max_occurs
 
     # keeps track of elements to display depending on the selected choice
     if choice_info:
