@@ -46,7 +46,7 @@ class ParserCreateSequenceTestSuite(TestCase):
         xsd_element = xsd_tree.xpath(xsd_xpath,
                                      namespaces=self.request.session['namespaces'])[0]
 
-        result_string = generate_sequence(self.request, xsd_element, xsd_tree, self.namespace, full_path='')
+        result_string = generate_sequence(self.request, xsd_element, xsd_tree, full_path='')
 
         expected_element = self.sequence_data_handler.get_json(xsd_files)
 
@@ -63,7 +63,7 @@ class ParserCreateSequenceTestSuite(TestCase):
         xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence',
                                      namespaces=self.request.session['namespaces'])[0]
 
-        result_string = generate_sequence(self.request, xsd_element, xsd_tree, self.namespace, full_path='')
+        result_string = generate_sequence(self.request, xsd_element, xsd_tree, full_path='')
 
         expected_element = self.sequence_data_handler.get_json(xsd_files)
 
@@ -104,7 +104,7 @@ class ParserCreateSequenceTestSuite(TestCase):
         xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence',
                                      namespaces=self.request.session['namespaces'])[0]
 
-        result_string = generate_sequence(self.request, xsd_element, xsd_tree, self.namespace, full_path='')
+        result_string = generate_sequence(self.request, xsd_element, xsd_tree, full_path='')
         # print result_string
 
         expected_element = self.sequence_data_handler.get_json(xsd_files)
@@ -122,7 +122,7 @@ class ParserCreateSequenceTestSuite(TestCase):
         xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence',
                                      namespaces=self.request.session['namespaces'])[0]
 
-        result_string = generate_sequence(self.request, xsd_element, xsd_tree, self.namespace, full_path='')
+        result_string = generate_sequence(self.request, xsd_element, xsd_tree, full_path='')
         # print result_string
 
         expected_element = self.sequence_data_handler.get_json(xsd_files)
@@ -139,7 +139,7 @@ class ParserCreateSequenceTestSuite(TestCase):
         xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence',
                                      namespaces=self.request.session['namespaces'])[0]
 
-        result_string = generate_sequence(self.request, xsd_element, xsd_tree, self.namespace, full_path='')
+        result_string = generate_sequence(self.request, xsd_element, xsd_tree, full_path='')
         # print result_string
 
         expected_element = self.sequence_data_handler.get_json(xsd_files)
@@ -157,7 +157,7 @@ class ParserCreateSequenceTestSuite(TestCase):
         xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence',
                                      namespaces=self.request.session['namespaces'])[0]
 
-        result_string = generate_sequence(self.request, xsd_element, xsd_tree, self.namespace, full_path='')
+        result_string = generate_sequence(self.request, xsd_element, xsd_tree, full_path='')
         # print result_string
 
         expected_element = self.sequence_data_handler.get_json(xsd_files)
@@ -196,7 +196,7 @@ class ParserCreateSequenceTestSuite(TestCase):
         xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence',
                                      namespaces=self.request.session['namespaces'])[0]
 
-        result_string = generate_sequence(self.request, xsd_element, xsd_tree, self.namespace, full_path='')
+        result_string = generate_sequence(self.request, xsd_element, xsd_tree, full_path='')
 
         expected_element = self.sequence_data_handler.get_json(xsd_files)
 
@@ -215,7 +215,7 @@ class ParserCreateSequenceTestSuite(TestCase):
         xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence',
                                      namespaces=self.request.session['namespaces'])[0]
 
-        result_string = generate_sequence(self.request, xsd_element, xsd_tree, self.namespace, full_path='')
+        result_string = generate_sequence(self.request, xsd_element, xsd_tree, full_path='')
         # print result_string
 
         expected_element = self.sequence_data_handler.get_json(xsd_files)
@@ -269,7 +269,7 @@ class ParserReloadSequenceTestSuite(TestCase):
         etree.set_default_parser(parser=clean_parser)
         # load the XML tree from the text
         edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
-        result_string = generate_sequence(self.request, xsd_element, xsd_tree, self.namespace, full_path='/root',
+        result_string = generate_sequence(self.request, xsd_element, xsd_tree, full_path='/root',
                                           edit_data_tree=edit_data_tree)
         # print result_string
 
@@ -297,7 +297,7 @@ class ParserReloadSequenceTestSuite(TestCase):
         etree.set_default_parser(parser=clean_parser)
         # load the XML tree from the text
         edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
-        result_string = generate_sequence(self.request, xsd_element, xsd_tree, self.namespace, full_path='/root',
+        result_string = generate_sequence(self.request, xsd_element, xsd_tree, full_path='/root',
                                           edit_data_tree=edit_data_tree)
         # print result_string
 
@@ -372,7 +372,7 @@ class ParserReloadSequenceTestSuite(TestCase):
         etree.set_default_parser(parser=clean_parser)
         # load the XML tree from the text
         edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
-        result_string = generate_sequence(self.request, xsd_element, xsd_tree, self.namespace, full_path='/root',
+        result_string = generate_sequence(self.request, xsd_element, xsd_tree, full_path='/root',
                                           edit_data_tree=edit_data_tree)
         # print result_string
 
@@ -399,7 +399,7 @@ class ParserReloadSequenceTestSuite(TestCase):
         etree.set_default_parser(parser=clean_parser)
         # load the XML tree from the text
         edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
-        result_string = generate_sequence(self.request, xsd_element, xsd_tree, self.namespace, full_path='/root',
+        result_string = generate_sequence(self.request, xsd_element, xsd_tree, full_path='/root',
                                           edit_data_tree=edit_data_tree)
         # print result_string
 
@@ -427,7 +427,7 @@ class ParserReloadSequenceTestSuite(TestCase):
         etree.set_default_parser(parser=clean_parser)
         # load the XML tree from the text
         edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
-        result_string = generate_sequence(self.request, xsd_element, xsd_tree, self.namespace, full_path='/root',
+        result_string = generate_sequence(self.request, xsd_element, xsd_tree, full_path='/root',
                                           edit_data_tree=edit_data_tree)
         # print result_string
 
@@ -455,7 +455,7 @@ class ParserReloadSequenceTestSuite(TestCase):
         etree.set_default_parser(parser=clean_parser)
         # load the XML tree from the text
         edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
-        result_string = generate_sequence(self.request, xsd_element, xsd_tree, self.namespace, full_path='/root',
+        result_string = generate_sequence(self.request, xsd_element, xsd_tree, full_path='/root',
                                           edit_data_tree=edit_data_tree)
         # print result_string
 
@@ -530,7 +530,7 @@ class ParserReloadSequenceTestSuite(TestCase):
         etree.set_default_parser(parser=clean_parser)
         # load the XML tree from the text
         edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
-        result_string = generate_sequence(self.request, xsd_element, xsd_tree, self.namespace, full_path='/root',
+        result_string = generate_sequence(self.request, xsd_element, xsd_tree, full_path='/root',
                                           edit_data_tree=edit_data_tree)
 
         expected_element = self.sequence_data_handler.get_json(xsd_files + '.reload')
@@ -559,7 +559,7 @@ class ParserReloadSequenceTestSuite(TestCase):
         etree.set_default_parser(parser=clean_parser)
         # load the XML tree from the text
         edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
-        result_string = generate_sequence(self.request, xsd_element, xsd_tree, self.namespace, full_path='/root',
+        result_string = generate_sequence(self.request, xsd_element, xsd_tree, full_path='/root',
                                           edit_data_tree=edit_data_tree)
 
         expected_element = self.sequence_data_handler.get_json(xsd_files + '.reload')

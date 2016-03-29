@@ -108,7 +108,7 @@ class LoadFormToXML(TestCase):
                         self.execute_test(file_id)
                     except Exception, e:
                         print '{} FAILED'.format(filename)
-                        print e.message
+                        print e
                         errors.append(str(e.message))
 
         except Exception, e:

@@ -437,23 +437,9 @@ def generate_form(request):
 
         return root_element.pk
     except Exception as e:
-        # form_string = render_form_error(e.message)
-        logger.fatal("Form generation failed: " + str(e))
+        print ">>> " + str(e)
+        # logger.fatal("Form generation failed: " + str(e))
         return -1
-
-    # # save the list of elements for the form
-    # form_data.elements = request.session['mapTagID']
-    # # save data for the current form
-    # form_data.save()
-    #
-    # # delete temporary data structure for forms elements
-    # # TODO: use mongodb ids to avoid mapping
-    # del request.session['mapTagID']
-
-    # # data are loaded, switch Edit to False, we don't need to look at the original data anymore
-    # request.session['curate_edit'] = False
-    #
-    # return form_string
 
 
 def generate_element(request, element, xml_tree, choice_info=None, full_path="",
@@ -503,6 +489,23 @@ def generate_element(request, element, xml_tree, choice_info=None, full_path="",
     # get schema namespaces
     xml_tree_str = etree.tostring(xml_tree)
     namespaces = common.get_namespaces(BytesIO(str(xml_tree_str)))
+
+    db_element = {
+        'tag': element_tag,  # 'element' or 'attribute'
+        'options': {
+            'name': text_capitalized,
+            'min': min_occurs,
+            'max': max_occurs,
+            'module': None if not _has_module else True,
+            'xpath': {
+                'xsd': None,
+                'xml': full_path
+            },
+            'schema_location': schema_location
+        },
+        'value': None,
+        'children': []
+    }
 
     # get the name of the element, go find the reference if there's one
     if 'ref' in element.attrib:  # type is a reference included in the document
@@ -564,7 +567,8 @@ def generate_element(request, element, xml_tree, choice_info=None, full_path="",
             # the element was not found where it was supposed to be
             # could be a use case too complex for the current parser
             print "Ref element not found" + str(element.attrib)
-            return form_string
+
+            return form_string, db_element
     else:
         text_capitalized = element.attrib.get('name')
 
@@ -605,6 +609,8 @@ def generate_element(request, element, xml_tree, choice_info=None, full_path="",
 
     # XSD xpath: /element/complexType/sequence
     xsd_xpath = xml_tree.getpath(element)
+
+    db_element['options']['xpath']['xsd'] = xsd_xpath
 
     # init variables for buttons management
     add_button = False
@@ -669,23 +675,6 @@ def generate_element(request, element, xml_tree, choice_info=None, full_path="",
     xml_element = XMLElement(xsd_xpath=xsd_xpath, nbOccurs=nb_occurrences_data, minOccurs=min_occurs,
                              maxOccurs=max_occurs, schema_location=schema_location)
     xml_element.save()
-
-    db_element = {
-        'tag': element_tag,  # 'element' or 'attribute'
-        'options': {
-            'name': text_capitalized,
-            'min': min_occurs,
-            'max': max_occurs,
-            'module': None if not _has_module else True,
-            'xpath': {
-                'xsd': xsd_xpath,
-                'xml': full_path
-            },
-            'schema_location': schema_location
-        },
-        'value': None,
-        'children': []
-    }
 
     # management of elements inside a choice (don't display if not part of the currently selected choice)
     if choice_info:
@@ -1221,7 +1210,10 @@ def generate_sequence(request, element, xml_tree, choice_info=None, full_path=""
                         form_element = FormElement(html_id=choice_id, xml_element=xml_element, xml_xpath=full_path).save()
                         request.session['mapTagID'][choice_id] = str(form_element.id)
                         form_string += "</ul>"
-                        return form_string
+
+                        db_element['children'].append(db_elem_iter)
+
+                        return form_string, db_element
                 else:
                     form_string += "<ul id=\"" + choice_id + "\" >"
             else:
@@ -1231,7 +1223,10 @@ def generate_sequence(request, element, xml_tree, choice_info=None, full_path=""
                         form_element = FormElement(html_id=choice_id, xml_element=xml_element, xml_xpath=full_path).save()
                         request.session['mapTagID'][choice_id] = str(form_element.id)
                         form_string += "</ul>"
-                        return form_string
+
+                        db_element['children'].append(db_elem_iter)
+
+                        return form_string, db_element
                 else:
                     form_string += "<ul id=\"" + choice_id + "\" >"
 
@@ -1364,7 +1359,7 @@ def generate_choice(request, element, xml_tree, choice_info=None, full_path="", 
         # XSD xpath: don't need it when multiple root (can't duplicate a root)
         xsd_xpath = xml_tree.getpath(element)
 
-        db_element['xpath']['xsd'] = xsd_xpath
+        db_element['options']['xpath']['xsd'] = xsd_xpath
 
         # get element's min/max occurs attributes
         min_occurs, max_occurs = manage_occurences(element)
@@ -1464,6 +1459,7 @@ def generate_choice(request, element, xml_tree, choice_info=None, full_path="", 
         li_content = ''
         nb_sequence = 1
         options = []
+        entry = None
 
         # FIXME list of children is read twice (could be parsed in one pass)
         # generates the choice
@@ -1589,6 +1585,10 @@ def generate_simple_type(request, element, xml_tree, full_path, edit_data_tree=N
             db_child = restriction[1]
         elif child.tag == "{0}list".format(LXML_SCHEMA_NAMESPACE):
             # TODO list can contain a restriction/enumeration
+            # FIXME None default value
+            if default_value is None:
+                default_value = ''
+
             form_string += render_input(default_value, '', '')
 
             db_child = {
@@ -1808,7 +1808,7 @@ def generate_complex_content(request, element, xml_tree, full_path, edit_data_tr
             form_string += extension_result[0]
             db_element['children'].append(extension_result[1])
 
-    return form_string
+    return form_string, db_element
 
 
 def generate_module(request, element, xsd_xpath=None, xml_xpath=None, xml_tree=None, edit_data_tree=None):
@@ -2005,6 +2005,10 @@ def generate_restriction(request, element, xml_tree, full_path="", edit_data_tre
             form_string += simple_type_result[0]
             db_child = simple_type_result[1]
         else:
+            # FIXME temp fix default value shouldn't be None
+            if default_value is None:
+                default_value = ''
+
             form_string += render_input(default_value, '', '')
             db_child = {
                 'tag': 'input',

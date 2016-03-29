@@ -40,7 +40,7 @@ class ParserCreateComplexContentTestSuite(TestCase):
         xsd_element = xsd_tree.xpath('/xs:schema/xs:element/xs:complexType/xs:complexContent',
                                      namespaces=self.request.session['namespaces'])[0]
 
-        result_string = generate_complex_content(self.request, xsd_element, xsd_tree, self.namespace, full_path='')
+        result_string = generate_complex_content(self.request, xsd_element, xsd_tree, full_path='')
         # print result_string
 
         expected_dict = self.extension_data_handler.get_json(xsd_files)
@@ -59,7 +59,7 @@ class ParserCreateComplexContentTestSuite(TestCase):
         xsd_element = xsd_tree.xpath('/xs:schema/xs:element/xs:complexType/xs:complexContent',
                                      namespaces=self.request.session['namespaces'])[0]
 
-        result_string = generate_complex_content(self.request, xsd_element, xsd_tree, self.namespace, full_path='')
+        result_string = generate_complex_content(self.request, xsd_element, xsd_tree, full_path='')
         # print result_string
 
         expected_dict = self.extension_data_handler.get_json(xsd_files)
@@ -116,8 +116,8 @@ class ParserReloadComplexContentTestSuite(TestCase):
         # load the XML tree from the text
         edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
 
-        result_string = generate_complex_content(self.request, xsd_element, xsd_tree, self.namespace,
-                                                 full_path='/root', edit_data_tree=edit_data_tree)
+        result_string = generate_complex_content(self.request, xsd_element, xsd_tree, full_path='/root',
+                                                 edit_data_tree=edit_data_tree)
         # print result_string
         # result_string = '<div>' + result_string + '</div>'
 
@@ -147,8 +147,8 @@ class ParserReloadComplexContentTestSuite(TestCase):
         # load the XML tree from the text
         edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
 
-        result_string = generate_complex_content(self.request, xsd_element, xsd_tree, self.namespace,
-                                                 full_path='/root', edit_data_tree=edit_data_tree)
+        result_string = generate_complex_content(self.request, xsd_element, xsd_tree, full_path='/root',
+                                                 edit_data_tree=edit_data_tree)
         # print result_string
         # result_string = '<div>' + result_string + '</div>'
 

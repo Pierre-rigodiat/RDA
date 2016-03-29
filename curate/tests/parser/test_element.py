@@ -38,7 +38,7 @@ class ParserGenerateElementTestSuite(TestCase):
         xsd_tree = etree.ElementTree(self.element_data_handler.get_xsd2(xsd_files))
         xsd_element = xsd_tree.xpath('/xs:schema/xs:element', namespaces=self.request.session['namespaces'])[0]
 
-        result_string = generate_element(self.request, xsd_element, xsd_tree, self.namespace, full_path='')
+        result_string = generate_element(self.request, xsd_element, xsd_tree, full_path='')
 
         expected_element = self.element_data_handler.get_json(xsd_files)
 
@@ -55,7 +55,7 @@ class ParserGenerateElementTestSuite(TestCase):
         xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence/xs:element',
                                      namespaces=self.request.session['namespaces'])[0]
 
-        result_string = generate_element(self.request, xsd_element, xsd_tree, self.namespace, full_path='')
+        result_string = generate_element(self.request, xsd_element, xsd_tree, full_path='')
 
         expected_element = self.element_data_handler.get_json(xsd_files)
 
@@ -71,7 +71,7 @@ class ParserGenerateElementTestSuite(TestCase):
         xsd_tree = etree.ElementTree(self.element_data_handler.get_xsd2(xsd_files))
         xsd_element = xsd_tree.xpath('/xs:schema/xs:element', namespaces=self.request.session['namespaces'])[0]
 
-        result_string = generate_element(self.request, xsd_element, xsd_tree, self.namespace, full_path='')
+        result_string = generate_element(self.request, xsd_element, xsd_tree, full_path='')
 
         expected_element = self.element_data_handler.get_json(xsd_files)
 
@@ -88,7 +88,7 @@ class ParserGenerateElementTestSuite(TestCase):
         xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence/xs:element',
                                      namespaces=self.request.session['namespaces'])[0]
 
-        result_string = generate_element(self.request, xsd_element, xsd_tree, self.namespace, full_path='')
+        result_string = generate_element(self.request, xsd_element, xsd_tree, full_path='')
 
         expected_element = self.element_data_handler.get_json(xsd_files)
         self.assertDictEqual(result_string[1], expected_element)
@@ -393,7 +393,7 @@ class ParserReloadElementTestSuite(TestCase):
         # load the XML tree from the text
         edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
 
-        result_string = generate_element(self.request, xsd_element, xsd_tree, self.namespace, full_path='',
+        result_string = generate_element(self.request, xsd_element, xsd_tree, full_path='',
                                          edit_data_tree=edit_data_tree)
 
         expected_element = self.element_data_handler.get_json(xsd_files + '.reload')
@@ -420,7 +420,7 @@ class ParserReloadElementTestSuite(TestCase):
         etree.set_default_parser(parser=clean_parser)
         edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
 
-        result_string = generate_element(self.request, xsd_element, xsd_tree, self.namespace, full_path='/root',
+        result_string = generate_element(self.request, xsd_element, xsd_tree, full_path='/root',
                                          edit_data_tree=edit_data_tree)
 
         expected_element = self.element_data_handler.get_json(xsd_files + '.reload')
@@ -447,7 +447,7 @@ class ParserReloadElementTestSuite(TestCase):
         # load the XML tree from the text
         edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
 
-        result_string = generate_element(self.request, xsd_element, xsd_tree, self.namespace, full_path='',
+        result_string = generate_element(self.request, xsd_element, xsd_tree, full_path='',
                                          edit_data_tree=edit_data_tree)
 
         expected_element = self.element_data_handler.get_json(xsd_files + '.reload')
@@ -475,7 +475,7 @@ class ParserReloadElementTestSuite(TestCase):
         # load the XML tree from the text
         edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
 
-        result_string = generate_element(self.request, xsd_element, xsd_tree, self.namespace, full_path='/root',
+        result_string = generate_element(self.request, xsd_element, xsd_tree, full_path='/root',
                                          edit_data_tree=edit_data_tree)
 
         expected_element = self.element_data_handler.get_json(xsd_files + '.reload')

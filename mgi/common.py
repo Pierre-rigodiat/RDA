@@ -268,6 +268,7 @@ def get_namespaces(file):
 
     if SCHEMA_NAMESPACE not in ns.values():
         ns['xs'] = SCHEMA_NAMESPACE
+
     return ns
 
 

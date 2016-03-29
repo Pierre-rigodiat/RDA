@@ -39,7 +39,7 @@ class ParserCreateChoiceTestSuite(TestCase):
         xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:choice',
                                      namespaces=self.request.session['namespaces'])[0]
 
-        result_string = generate_choice(self.request, xsd_element, xsd_tree, self.namespace, full_path='')
+        result_string = generate_choice(self.request, xsd_element, xsd_tree, full_path='')
         # print result_string
 
         expected_element = self.choice_data_handler.get_json(xsd_files)
@@ -57,7 +57,7 @@ class ParserCreateChoiceTestSuite(TestCase):
         xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:choice',
                                      namespaces=self.request.session['namespaces'])[0]
 
-        result_string = generate_choice(self.request, xsd_element, xsd_tree, self.namespace, full_path='')
+        result_string = generate_choice(self.request, xsd_element, xsd_tree, full_path='')
         # print result_string
 
         expected_element = self.choice_data_handler.get_json(xsd_files)
@@ -129,7 +129,7 @@ class ParserCreateChoiceTestSuite(TestCase):
         xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:choice',
                                      namespaces=self.request.session['namespaces'])[0]
 
-        result_string = generate_choice(self.request, xsd_element, xsd_tree, self.namespace, full_path='')
+        result_string = generate_choice(self.request, xsd_element, xsd_tree, full_path='')
         # print result_string
 
         expected_element = self.choice_data_handler.get_json(xsd_files)
@@ -146,7 +146,7 @@ class ParserCreateChoiceTestSuite(TestCase):
         xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:choice',
                                      namespaces=self.request.session['namespaces'])[0]
 
-        result_string = generate_choice(self.request, xsd_element, xsd_tree, self.namespace, full_path='')
+        result_string = generate_choice(self.request, xsd_element, xsd_tree, full_path='')
         # print result_string
 
         expected_element = self.choice_data_handler.get_json(xsd_files)
@@ -207,7 +207,7 @@ class ParserReloadChoiceTestSuite(TestCase):
         etree.set_default_parser(parser=clean_parser)
         # load the XML tree from the text
         edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
-        result_string = generate_choice(self.request, xsd_element, xsd_tree, self.namespace, full_path='/root',
+        result_string = generate_choice(self.request, xsd_element, xsd_tree, full_path='/root',
                                         edit_data_tree=edit_data_tree)
         # print result_string
 
@@ -236,7 +236,7 @@ class ParserReloadChoiceTestSuite(TestCase):
         etree.set_default_parser(parser=clean_parser)
         # load the XML tree from the text
         edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
-        result_string = generate_choice(self.request, xsd_element, xsd_tree, self.namespace, full_path='/root',
+        result_string = generate_choice(self.request, xsd_element, xsd_tree, full_path='/root',
                                         edit_data_tree=edit_data_tree)
         # print result_string
 
@@ -357,7 +357,7 @@ class ParserReloadChoiceTestSuite(TestCase):
         etree.set_default_parser(parser=clean_parser)
         # load the XML tree from the text
         edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
-        result_string = generate_choice(self.request, xsd_element, xsd_tree, self.namespace, full_path='/root',
+        result_string = generate_choice(self.request, xsd_element, xsd_tree, full_path='/root',
                                         edit_data_tree=edit_data_tree)
         # print result_string
 
@@ -386,7 +386,7 @@ class ParserReloadChoiceTestSuite(TestCase):
         etree.set_default_parser(parser=clean_parser)
         # load the XML tree from the text
         edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
-        result_string = generate_choice(self.request, xsd_element, xsd_tree, self.namespace, full_path='/root',
+        result_string = generate_choice(self.request, xsd_element, xsd_tree, full_path='/root',
                                         edit_data_tree=edit_data_tree)
         # print result_string
 

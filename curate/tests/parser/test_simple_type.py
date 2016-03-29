@@ -41,7 +41,7 @@ class ParserCreateSimpleTypeTestSuite(TestCase):
         xsd_tree = etree.ElementTree(self.simple_type_data_handler.get_xsd2(xsd_files))
         xsd_element = xsd_tree.xpath('/xs:schema/xs:simpleType', namespaces=self.request.session['namespaces'])[0]
 
-        result_string = generate_simple_type(self.request, xsd_element, xsd_tree, self.namespace, full_path='')
+        result_string = generate_simple_type(self.request, xsd_element, xsd_tree, full_path='')
         # print result_string
 
         expected_dict = self.simple_type_data_handler.get_json(xsd_files)
@@ -58,7 +58,7 @@ class ParserCreateSimpleTypeTestSuite(TestCase):
         xsd_tree = etree.ElementTree(self.simple_type_data_handler.get_xsd2(xsd_files))
         xsd_element = xsd_tree.xpath('/xs:schema/xs:simpleType', namespaces=self.request.session['namespaces'])[0]
 
-        result_string = generate_simple_type(self.request, xsd_element, xsd_tree, self.namespace, full_path='')
+        result_string = generate_simple_type(self.request, xsd_element, xsd_tree, full_path='')
         # print result_string
 
         expected_dict = self.simple_type_data_handler.get_json(xsd_files)
@@ -125,7 +125,7 @@ class ParserReloadSimpleTypeTestSuite(TestCase):
         etree.set_default_parser(parser=clean_parser)
         # load the XML tree from the text
         edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
-        result_string = generate_simple_type(self.request, xsd_element, xsd_tree, self.namespace, full_path='/root',
+        result_string = generate_simple_type(self.request, xsd_element, xsd_tree, full_path='/root',
                                              edit_data_tree=edit_data_tree)
         # print result_string
 
@@ -153,7 +153,7 @@ class ParserReloadSimpleTypeTestSuite(TestCase):
         etree.set_default_parser(parser=clean_parser)
         # load the XML tree from the text
         edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
-        result_string = generate_simple_type(self.request, xsd_element, xsd_tree, self.namespace, full_path='/root',
+        result_string = generate_simple_type(self.request, xsd_element, xsd_tree, full_path='/root',
                                              edit_data_tree=edit_data_tree)
         # print result_string
 

@@ -7,7 +7,7 @@
     <xs:element name="test5">
         <xs:complexType>
             <xs:simpleContent>
-                <xs:extension base="string">
+                <xs:extension base="xs:string">
                     <xs:attributeGroup ref="ag0"/>
                 </xs:extension>
             </xs:simpleContent>
