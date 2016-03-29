@@ -192,41 +192,43 @@ def clean_namespaces(element, namespace=None):
 ################################################################################
 def getXSDTypes(prefix):
     # FIXME Some datatypes are missing (https://www.w3.org/TR/xmlschema-2/#built-in-datatypes)
-    return ["{0}:string".format(prefix), 
-            "{0}:normalizedString".format(prefix),
-            "{0}:token".format(prefix),
-            "{0}:date".format(prefix),
-            "{0}:dateTime".format(prefix),
-            "{0}:duration".format(prefix),
-            "{0}:gDay".format(prefix),
-            "{0}:gMonth".format(prefix),
-            "{0}:gMonthDay".format(prefix),
-            "{0}:gYear".format(prefix),
-            "{0}:gYearMonth".format(prefix),
-            "{0}:gYearMonth".format(prefix),
-            "{0}:time".format(prefix), 
-            "{0}:byte".format(prefix),
-            "{0}:decimal".format(prefix),
-            "{0}:int".format(prefix),
-            "{0}:integer".format(prefix),
-            "{0}:long".format(prefix),
-            "{0}:negativeInteger".format(prefix),
-            "{0}:nonNegativeInteger".format(prefix),
-            "{0}:nonPositiveInteger".format(prefix),
-            "{0}:positiveInteger".format(prefix), 
-            "{0}:short".format(prefix), 
-            "{0}:unsignedLong".format(prefix), 
-            "{0}:unsignedInt".format(prefix), 
-            "{0}:unsignedShort".format(prefix), 
-            "{0}:unsignedByte".format(prefix), 
-            "{0}:anyURI".format(prefix), 
-            "{0}:base64Binary".format(prefix), 
-            "{0}:boolean".format(prefix), 
-            "{0}:double".format(prefix),  
-            "{0}:float".format(prefix),
-            "{0}:hexBinary".format(prefix),
-            "{0}:QName".format(prefix),
-            "{0}:anyType".format(prefix)]
+    if prefix != '':
+        prefix += ':'
+    return ["{0}string".format(prefix),
+            "{0}normalizedString".format(prefix),
+            "{0}token".format(prefix),
+            "{0}date".format(prefix),
+            "{0}dateTime".format(prefix),
+            "{0}duration".format(prefix),
+            "{0}gDay".format(prefix),
+            "{0}gMonth".format(prefix),
+            "{0}gMonthDay".format(prefix),
+            "{0}gYear".format(prefix),
+            "{0}gYearMonth".format(prefix),
+            "{0}gYearMonth".format(prefix),
+            "{0}time".format(prefix),
+            "{0}byte".format(prefix),
+            "{0}decimal".format(prefix),
+            "{0}int".format(prefix),
+            "{0}integer".format(prefix),
+            "{0}long".format(prefix),
+            "{0}negativeInteger".format(prefix),
+            "{0}nonNegativeInteger".format(prefix),
+            "{0}nonPositiveInteger".format(prefix),
+            "{0}positiveInteger".format(prefix),
+            "{0}short".format(prefix),
+            "{0}unsignedLong".format(prefix),
+            "{0}unsignedInt".format(prefix),
+            "{0}unsignedShort".format(prefix),
+            "{0}unsignedByte".format(prefix),
+            "{0}anyURI".format(prefix),
+            "{0}base64Binary".format(prefix),
+            "{0}boolean".format(prefix),
+            "{0}double".format(prefix),
+            "{0}float".format(prefix),
+            "{0}hexBinary".format(prefix),
+            "{0}QName".format(prefix),
+            "{0}anyType".format(prefix)]
     
     
 ################################################################################
@@ -266,8 +268,8 @@ def get_namespaces(file):
         elif event == "start":
             break
 
-    if SCHEMA_NAMESPACE not in ns.values():
-        ns['xs'] = SCHEMA_NAMESPACE
+    # if SCHEMA_NAMESPACE not in ns.values():
+    #     ns['xs'] = SCHEMA_NAMESPACE
 
     return ns
 
