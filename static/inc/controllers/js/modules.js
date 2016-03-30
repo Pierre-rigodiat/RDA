@@ -26,11 +26,10 @@ loadModuleResources = function(moduleURLList) {
             for(var modIndex=0; modIndex<neededURLList.length; modIndex++) {
                 loadedModules.push(neededURLList[modIndex]);
             }
-
-            //console.log(loadedModules);
         },
         error: function() {
             // Raise error
+            console.error('An error occured when loading the modules');
         }
     });
 }
@@ -41,7 +40,8 @@ saveModuleData = function($module, modData, asyncOpt) {
     }
 
     //TODO: test if id always class element (could it be choice or sequence?)
-	var moduleId = $module.parents('.element').attr('id');
+	//var moduleId = $module.parents('.element').attr('id');
+	var moduleId = $module.attr('id');
     var moduleURL = $module.find('.moduleURL').text();
 
     if(moduleURL === '') {
@@ -49,7 +49,7 @@ saveModuleData = function($module, modData, asyncOpt) {
         return;
     }
 
-    modData['htmlId'] = moduleId;
+    modData['module_id'] = moduleId;
 
     var ajaxOptions = {
         url : '/modules'+moduleURL,
@@ -75,7 +75,7 @@ saveModuleData = function($module, modData, asyncOpt) {
             }
         },
         error: function(data) {
-            console.error("Error when saving data");
+            console.error("An error occured when saving module data");
         }
     }
 

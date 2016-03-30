@@ -1,12 +1,16 @@
 """
 """
+import requests
 from types import *
+
+from django.http.request import HttpRequest
 from django.template import loader
 
 from os.path import join
 
-from curate.renderer import render_select, render_li, render_buttons, render_collapse_button, \
+from curate.renderer import render_li, render_buttons, render_collapse_button, \
     DefaultRenderer
+from modules import get_module_view
 
 
 class AbstractListRenderer(DefaultRenderer):
@@ -20,7 +24,7 @@ class AbstractListRenderer(DefaultRenderer):
 
         super(AbstractListRenderer, self).__init__(xsd_data, templates)
 
-    def _render_ul(self, content, element_id, chosen):
+    def _render_ul(self, content, element_id, is_hidden=False):
         # FIXME Django SafeText type cause the test to fail
         # if type(content) not in [str, unicode]:
         #     raise TypeError('First param (content) should be a str (' + str(type(content)) + ' given)')
@@ -28,13 +32,13 @@ class AbstractListRenderer(DefaultRenderer):
         if type(element_id) not in [str, unicode, NoneType]:
             raise TypeError('Second param (element_id) should be a str or None (' + str(type(element_id)) + ' given)')
 
-        if type(chosen) != bool:
-            raise TypeError('Third param (chosen) should be a bool (' + str(type(chosen)) + ' given)')
+        if type(is_hidden) != bool:
+            raise TypeError('Third param (chosen) should be a bool (' + str(type(is_hidden)) + ' given)')
 
         data = {
             'content': content,
             'element_id': element_id,
-            'chosen': chosen
+            'is_hidden': is_hidden
         }
 
         return self._load_template('ul', data)
@@ -66,7 +70,7 @@ class ListRenderer(AbstractListRenderer):
             print self.data.tag + ' not handled (render_data)'
 
         if not partial:
-            return self._render_ul(html_content, '', True)
+            return self._render_ul(html_content, str(self.data.pk))
         else:
             return html_content
 
@@ -86,8 +90,8 @@ class ListRenderer(AbstractListRenderer):
                 if len(child.children) > 0:
                     children_number += 1
             else:
-                print '>> ' + child.tag + ' forwarded (re_elem pre)'
-                print '>> ' + str(child) + ' forwarded (re_elem pre)'
+                print '>> ' + child.tag + ' forwarded (rend_elem pre)'
+                print '>> ' + str(child) + ' forwarded (rend_elem pre)'
 
         final_html = ''
 
@@ -117,14 +121,17 @@ class ListRenderer(AbstractListRenderer):
                 if child.tag == 'complex_type':
                     sub_elements.append(self.render_complex_type(child))
                     sub_inputs.append(False)
-                elif child.tag == 'input':
-                    sub_elements.append(self._render_input(child.pk, child.value, '', ''))
-                    sub_inputs.append(True)
                 elif child.tag == 'simple_type':
                     sub_elements.append(self.render_simple_type(child))
                     sub_inputs.append(False)
+                elif child.tag == 'input':
+                    sub_elements.append(self._render_input(child.pk, child.value, '', ''))
+                    sub_inputs.append(True)
+                elif child.tag == 'module':
+                    sub_elements.append(self.render_module(child))
+                    sub_inputs.append(False)
                 else:
-                    print child.tag + ' not handled (re_elem)'
+                    print child.tag + ' not handled (rend_elem)'
 
             if children_number == 0:
                 html_content = element.options["name"] + buttons
@@ -136,7 +143,7 @@ class ListRenderer(AbstractListRenderer):
                         html_content += element.options["name"] + sub_elements[child_index] + buttons
                     else:
                         html_content += render_collapse_button() + element.options["name"] + buttons
-                        html_content += self._render_ul(sub_elements[child_index], 'ulid', True)
+                        html_content += self._render_ul(sub_elements[child_index], None)
 
             final_html += render_li(html_content, li_class, child_key)
 
@@ -219,28 +226,41 @@ class ListRenderer(AbstractListRenderer):
         :return:
         """
         html_content = ''
-        children = []
+        children = {}
+        choice_values = {}
 
         for child in element.children:
             if child.tag == 'choice-iter':
-                children += child.children
+                children[child.pk] = child.children
+
+                choice_values[child.pk] = child.value
             else:
                 print child.tag + '  not handled (rend_choice_pre)'
 
         sub_content = ''
         options = []
 
-        for child in children:
-            if child.tag == 'element':
-                options.append((child.options['name'], child.options['name'], False))
-                sub_content += self.render_element(child)
-            else:
-                print child.tag + ' not handled (rend_choice)'
+        for iter_element in children.keys():
+            for child in children[iter_element]:
+                element_html = ''
+                is_selected_element = (str(child.pk) == choice_values[iter_element])
 
-        html_content += 'Choice ' + self._render_select(str(element.pk), options)
-        html_content += self._render_ul(sub_content, '', True)
+                if child.tag == 'element':
+                    options.append((str(child.pk), child.options['name'], is_selected_element))
+                    element_html = self.render_element(child)
+                elif child.tag == 'sequence':
+                    options.append((str(child.pk), 'sequence', is_selected_element))
+                    element_html = self.render_sequence(child)
+                else:
+                    print child.tag + ' not handled (rend_choice)'
 
-        return render_li(html_content, '', '')
+                if element_html != '':
+                    sub_content += self._render_ul(element_html, str(child.pk), (not is_selected_element))
+
+            html_content += 'Choice ' + self._render_select(str(iter_element), 'choice', options)
+            html_content += sub_content
+
+        return html_content
 
     def render_simple_content(self, element):
         """
@@ -307,14 +327,39 @@ class ListRenderer(AbstractListRenderer):
 
         for child in element.children:
             if child.tag == 'enumeration':
-                options.append((child.value, child.value, False))
+                options.append((child.value, child.value, child.value == element.value))
             elif child.tag == 'input':
                 subhtml += self._render_input(child.pk, child.value, '', '')
             else:
                 print child.tag + ' not handled (rend_ext)'
 
         if subhtml == '' or len(options) != 0:
-            return render_select('restr', options)
+            return self._render_select(str(element.pk), 'restriction', options)
         else:
             return subhtml
 
+    def render_module(self, element):
+        module_options = element.options
+        module_url = module_options['url']
+
+        module_view = get_module_view(module_url)
+
+        module_request = HttpRequest()
+        module_request.method = 'GET'
+
+        module_request.GET = {
+            'module_id': element.pk,
+            'url': module_url,
+            'xsd_xpath': module_options['xpath']['xsd'],
+            'xml_xpath': module_options['xpath']['xsd']
+        }
+
+        # if the loaded doc has data, send them to the module for initialization
+        if module_options['data'] is not None:
+            module_request.GET['data'] = module_options['data']
+
+        if module_options['attributes'] is not None:
+            module_request.GET['attributes'] = module_options['attributes']
+
+        # renders the module
+        return module_view(module_request).content.decode("utf-8")

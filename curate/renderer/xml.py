@@ -77,6 +77,8 @@ class XmlRenderer(AbstractXmlRenderer):
                     content[1] = child.value if child.value is not None else ''
                 elif child.tag == 'simple_type':
                     content = self.render_simple_type(child)
+                elif child.tag == 'module':
+                    content[1] = self.render_module(child)
                 else:
                     print child.tag + ' not handled (re_elem)'
 
@@ -130,7 +132,7 @@ class XmlRenderer(AbstractXmlRenderer):
                 if 'xmlns' in parent.options and parent.options['xmlns'] is not None and \
                                 parent.options['xmlns'] == element.options['xmlns']:
                         xmlns = ''
-                else: # parent element is in a different namespace
+                else:  # parent element is in a different namespace
                     if element.options['xmlns'] != '':
                         ns_prefix = element.options['ns_prefix'] if element.options['ns_prefix'] is not None else 'ns0'
                         if ns_prefix != '':
@@ -166,6 +168,8 @@ class XmlRenderer(AbstractXmlRenderer):
                 tmp_content = self.render_simple_content(child)
             elif child.tag == 'attribute':
                 tmp_content[0] = self.render_attribute(child)
+            elif child.tag == 'choice':
+                tmp_content = self.render_choice(child)
             else:
                 print child.tag + ' not handled (rend_ct)'
 
@@ -215,6 +219,43 @@ class XmlRenderer(AbstractXmlRenderer):
 
             content[0] = ' '.join([content[0], tmp_content[0]]).strip()
             content[1] += tmp_content[1]
+
+        return content
+
+    def render_choice(self, element):
+        """
+
+        :param element:
+        :return:
+        """
+        content = ['', '']
+        children = {}
+        choice_values = {}
+
+        for child in element.children:
+            if child.tag == 'choice-iter':
+                children[child.pk] = child.children
+
+                choice_values[child.pk] = child.value
+            else:
+                print child.tag + '  not handled (rend_choice_pre)'
+
+        for iter_element in children.keys():
+            for child in children[iter_element]:
+                tmp_content = ['', '']
+
+                # FIXME change orders of conditions
+                if child.tag == 'element':
+                    if str(child.pk) == choice_values[iter_element]:
+                        tmp_content[1] = self.render_element(child)
+                elif child.tag == 'sequence':
+                    if str(child.pk) == choice_values[iter_element]:
+                        tmp_content = self.render_sequence(child)
+                else:
+                    print child.tag + ' not handled (rend_choice)'
+
+                content[0] = ' '.join([content[0], tmp_content[0]]).strip()
+                content[1] += tmp_content[1]
 
         return content
 
@@ -287,3 +328,6 @@ class XmlRenderer(AbstractXmlRenderer):
             content[1] += tmp_content[1]
 
         return content
+
+    def render_module(self, element):
+        return element.options['data']

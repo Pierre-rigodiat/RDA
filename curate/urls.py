@@ -31,7 +31,13 @@ urlpatterns = patterns(
     url(r'^generate_xsd_form', 'curate.ajax.generate_xsd_form'),
     url(r'^init_curate', 'curate.ajax.init_curate'),
     url(r'^clear_fields', 'curate.ajax.clear_fields'),
+
+    url(r'^generate_choice$', ajax.generate_choice),
+
+    url(r'^element_value', ajax.get_element_value),
+    url(r'^save_element', 'curate.ajax.save_element'),
     url(r'^save_form', 'curate.ajax.save_form'),
+
     url(r'^view_data', 'curate.ajax.view_data'),
     url(r'^validate_xml_data', 'curate.ajax.validate_xml_data'),
     url(r'^verify_template_is_selected', 'curate.ajax.verify_template_is_selected'),

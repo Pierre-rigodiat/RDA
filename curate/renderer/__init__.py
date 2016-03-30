@@ -296,7 +296,7 @@ class DefaultRenderer(object):
 
         return self._load_template('input', data)
 
-    def _render_select(self, select_id, option_list):
+    def _render_select(self, select_id, select_class, option_list):
         if type(select_id) not in [str, unicode, NoneType]:
             raise TypeError('First param (select_id) should be a str or None (' + str(type(select_id)) + ' given)')
 
@@ -321,6 +321,7 @@ class DefaultRenderer(object):
 
         data = {
             'select_id': select_id,
+            'select_class': select_class,
             'option_list': option_list
         }
 

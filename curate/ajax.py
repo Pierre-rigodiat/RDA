@@ -946,34 +946,71 @@ def remove(request):
     return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
 
 
-################################################################################
-#
-# Function Name: save_form(request)
-# Inputs:        request -
-# Outputs:
-# Exceptions:    None
-# Description:   Save the current form in MongoDB
-#
-#
-################################################################################
-def save_form(request):
-    # xmlString = request.POST['xmlString']
-    #
-    # form_data_id = request.session['curateFormData']
-    # form_data = FormData.objects.get(id=form_data_id)
-    # form_data.xml_data = xmlString
-    # form_data.save()
-    #
-    # return HttpResponse(json.dumps({}), content_type='application/javascript')
+def get_element_value(request):
+    """ Returns the value of an element
 
+    :param request:
+    :return:
+    """
+    if 'id' not in request.POST:
+        return HttpResponse(status=HTTP_400_BAD_REQUEST)
+
+    element = SchemaElement.objects.get(pk=request.POST['id'])
+    return HttpResponse(json.dumps({'value': element.value}), content_type='application/json')
+
+
+def save_element(request):
+    """
+
+    :param request:
+    :return:
+    """
     if 'id' not in request.POST or 'value' not in request.POST:
         return HttpResponse(status=HTTP_400_BAD_REQUEST)
 
-    # print request.POST['inputs']
-
     input_element = SchemaElement.objects.get(pk=request.POST['id'])
+
+    input_previous_value = input_element.value
     input_element.value = request.POST['value']
     input_element.save()
+
+    return HttpResponse(json.dumps({'replaced': input_previous_value}), content_type='application/json')
+
+
+def save_module(request):
+    """
+
+    :param request:
+    :return:
+    """
+    if 'id' not in request.POST or 'value' not in request.POST:
+        return HttpResponse(status=HTTP_400_BAD_REQUEST)
+
+    input_element = SchemaElement.objects.get(pk=request.POST['id'])
+
+    input_previous_value = input_element.value
+    input_element.value = request.POST['value']
+    input_element.save()
+
+    return HttpResponse(json.dumps({'replaced': input_previous_value}), content_type='application/json')
+
+
+def save_form(request):
+    """Save the current form in MongoDB
+
+    :param request:
+    :return:
+    """
+    form_id = request.session['form_id']
+    root_element = SchemaElement.objects.get(pk=form_id)
+
+    xml_renderer = XmlRenderer(root_element)
+    xml_data = xml_renderer.render()
+
+    form_data_id = request.session['curateFormData']
+    form_data = FormData.objects.get(pk=form_data_id)
+    form_data.xml_data = xml_data
+    form_data.save()
 
     return HttpResponse(json.dumps({}), content_type='application/json')
 
@@ -1220,7 +1257,86 @@ def gen_abs(request):
     rendering_element.delete()
 
     return HttpResponse(html_form)
-    # return HttpResponse()
+
+
+def generate_choice(request):
+    element_id = request.POST['id']
+    element = SchemaElement.objects.get(pk=element_id)
+    parents = SchemaElement.objects(children=element_id)
+
+    if len(parents) == 0:
+        raise ValueError("No SchemaElement found")
+    elif len(parents) > 1:
+        raise ValueError("More than one SchemaElement found")
+
+    parent = parents[0]
+
+    # namespaces = request.session['namespaces']
+    # default_prefix = request.session['defaultPrefix']
+    xml_doc_tree_str = request.session['xmlDocTree']
+    xml_doc_tree = etree.ElementTree(etree.fromstring(xml_doc_tree_str))
+
+    schema_location = None
+    if 'schema_location' in element.options:
+        schema_location = element.options['schema_location']
+
+    # if the xml element is from an imported schema
+    if schema_location is not None:
+        # open the imported file
+        ref_xml_schema_file = urllib2.urlopen(element.options['schema_location'])
+        # get the content of the file
+        ref_xml_schema_content = ref_xml_schema_file.read()
+        # build the XML tree
+        # xmlDocTree = etree.parse(BytesIO(ref_xml_schema_content.encode('utf-8')))
+        # get the namespaces from the imported schema
+        namespaces = common.get_namespaces(BytesIO(str(ref_xml_schema_content)))
+    else:
+        # get the content of the XML tree
+        # xmlDocTreeStr = request.session['xmlDocTree']
+        # # build the XML tree
+        # xmlDocTree = etree.ElementTree(etree.fromstring(xmlDocTreeStr))
+        # get the namespaces
+        namespaces = common.get_namespaces(BytesIO(str(xml_doc_tree_str)))
+
+    # render element
+    # namespace = "{" + namespaces[default_prefix] + "}"
+
+    xpath_element = element.options['xpath']
+    xsd_xpath = xpath_element['xsd']
+
+    xml_xpath = None
+    if 'xml' in xpath_element:
+        xml_xpath = xpath_element['xml']
+
+    xml_element = xml_doc_tree.xpath(xsd_xpath, namespaces=namespaces)[0]
+
+    if element.tag == 'element':
+        form_string = generate_element(request, xml_element, xml_doc_tree, full_path=xml_xpath)
+    elif element.tag == 'sequence':
+        form_string = generate_sequence(request, xml_element, xml_doc_tree, full_path=xml_xpath)
+
+    db_tree = form_string[1]
+
+    # Saving the tree in MongoDB
+    tree_root = load_schema_data_in_db(db_tree)
+
+    parent.update(add_to_set__children=[tree_root])
+    parent.update(pull__children=element_id)
+    parent.update(set__value=str(tree_root.pk))
+
+    parent.reload()
+
+    rendering_element = SchemaElement()
+    rendering_element.tag = 'choice'
+    rendering_element.children = [parent]
+    rendering_element.save()
+
+    renderer = ListRenderer(None)
+    html_form = renderer.render_choice(rendering_element)
+
+    rendering_element.delete()
+
+    return HttpResponse(renderer._render_ul(html_form, ''))
 
 
 def rem_bis(request):
