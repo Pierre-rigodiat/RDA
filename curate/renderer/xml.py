@@ -3,6 +3,8 @@
 from django.template import loader
 from os.path import join
 from curate.renderer import render_select, render_li, render_collapse_button, DefaultRenderer
+from curate.models import SchemaElement
+from bson.objectid import ObjectId
 
 
 class AbstractXmlRenderer(DefaultRenderer):
@@ -121,9 +123,27 @@ class XmlRenderer(AbstractXmlRenderer):
 
             # namespaces
             if 'xmlns' in element.options and element.options['xmlns'] is not None:
-                xmlns = ' xmlns="{}"'.format(element.options['xmlns'])
-                ns_prefix = element.options['ns_prefix'] if element.options['ns_prefix'] is not None else 'ns0'
-                attr_list.append(xmlns + ' ' + ns_prefix + ':' + attr_key + '="' + attr_value + '"')
+                # check that element isn't declaring the same namespace xmlns=""
+                parent = SchemaElement.objects().get(children__contains=ObjectId(element.id))
+                while parent.tag != 'element':
+                    parent = SchemaElement.objects().get(children__contains=ObjectId(parent.id))
+                if 'xmlns' in parent.options and parent.options['xmlns'] is not None and \
+                                parent.options['xmlns'] == element.options['xmlns']:
+                        xmlns = ''
+                else: # parent element is in a different namespace
+                    if element.options['xmlns'] != '':
+                        ns_prefix = element.options['ns_prefix'] if element.options['ns_prefix'] is not None else 'ns0'
+                        if ns_prefix != '':
+                            xmlns = ' xmlns{0}="{1}"'.format(':' + ns_prefix, element.options['xmlns'])
+                            attr_key = "{0}:{1}".format(ns_prefix, attr_key)
+                        else:
+                            xmlns = ' xmlns="{0}"'.format(element.options['xmlns'])
+                    else:
+                        xmlns = ''
+
+                attr_list.append("{0} {1}='{2}'".format(xmlns, attr_key, attr_value))
+                # TODO: check that element isn't declaring the same namespace xmlns=""
+                # TODO: check that sibling attributes are not declaring the same namespaces
             else:
                 attr_list.append(attr_key + '="' + attr_value + '"')
 
