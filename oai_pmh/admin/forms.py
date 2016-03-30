@@ -26,6 +26,17 @@ class FormDataModelChoiceField(forms.ModelChoiceField):
         return obj.name
 
 class AssociateXSLT(forms.Form):
+
+    def clean(self):
+        cleaned_data = super(AssociateXSLT, self).clean()
+        name = cleaned_data.get("oai_name")
+        activated = cleaned_data.get("activated")
+        xslt_file = cleaned_data.get("oai_pmh_xslt_file")
+
+        if activated and not xslt_file:
+            # Only do something if both fields are valid so far.
+            raise forms.ValidationError("Please provide an XSLT File for the '%s' Metadata Format." % name)
+
     """
     Form to upload a new XSLT for OAI-PMH purpose
     """
