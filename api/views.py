@@ -760,6 +760,10 @@ def select_schema(request):
         if len(q_list) > 0:
             try:
                 templates = Template.objects(reduce(operator.and_, q_list)).all()
+                #If no templates available
+                if len(templates) == 0:
+                    content = {'message':'No template found with the given parameters.'}
+                    return Response(content, status=status.HTTP_404_NOT_FOUND)
             except Exception, e:
                 content = {'message':'No template found with the given parameters.'}
                 return Response(content, status=status.HTTP_404_NOT_FOUND)
