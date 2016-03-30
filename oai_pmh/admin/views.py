@@ -35,6 +35,9 @@ from django.utils.dateformat import DateFormat
 import lxml.etree as etree
 from lxml.etree import XMLSyntaxError
 from mongoengine import NotUniqueError, OperationError
+from django.forms import formset_factory
+from oai_pmh.admin.forms import AssociateXSLT
+
 
 ################################################################################
 #
@@ -596,8 +599,6 @@ def check_harvest_data(request):
             return HttpResponseBadRequest('An error occurred. Please contact your administrator.')
 
 
-from django.forms import formset_factory
-from oai_pmh.admin.forms import AssociateXSLT
 ################################################################################
 #
 # Function Name: oai_pmh_conf_xslt(request)
@@ -621,6 +622,8 @@ def oai_pmh_conf_xslt(request):
                 xslt = cd.get('oai_pmh_xslt_file')
                 if xslt: xslt = xslt.id
                 OaiTemplMfXslt.objects.filter(myMetadataFormat=myMetadataFormat, template=template).update(set__myMetadataFormat = myMetadataFormat, set__template = template, set__xslt = xslt,  set__activated = activated, upsert=True)
+        else:
+            return HttpResponseBadRequest([x['__all__'] for x in article_formset.errors if '__all__' in x], content_type='application/javascript')
 
         return HttpResponse(json.dumps({}), content_type='application/javascript')
     else:

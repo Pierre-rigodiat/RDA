@@ -190,25 +190,26 @@ InitOai = function(){
 
 saveMyTemplate = function ()
 {
-    if (validateSaveTemplate()){
-       var formData = new FormData($( "#form_start" )[0]);
-       $.ajax({
-            url: "oai-pmh-conf-xslt",
-            type: 'POST',
-            data: formData,
-            cache: false,
-            contentType: false,
-            processData: false,
-            async:false,
-            success: function(data){
-                saveTemplateCallback();
-            },
-            error:function(data){
-                $("#form_start_errors").html(data.responseText);
-            },
-        })
-        ;
-   }
+   $("#form_start_errors").html('');
+   $("#banner_errors").hide(200)
+   var formData = new FormData($( "#form_start" )[0]);
+   $.ajax({
+        url: "oai-pmh-conf-xslt",
+        type: 'POST',
+        data: formData,
+        cache: false,
+        contentType: false,
+        processData: false,
+        async:false,
+        success: function(data){
+            saveTemplateCallback();
+        },
+        error:function(data){
+            $("#banner_errors").show(200)
+            $("#form_start_errors").html(data.responseText);
+        },
+    })
+    ;
 }
 
 /**
@@ -229,49 +230,4 @@ saveTemplateCallback = function(){
 	  });
 
 	console.log('END [saveTemplate]');
-}
-
-/**
- * Validate fields of the start curate form
- */
-validateSaveTemplate = function(){
-//	errors = ""
-//
-//	$("#banner_errors").hide()
-//
-//	$("#").find("input:checked").each(function() {
-//		  values.push($(this).val());
-//	});
-//
-//	// check if an option has been selected
-//	selected_option = $( "#form_start" ).find("input:radio[name='curate_form']:checked").val()
-//	if (selected_option == undefined){
-//		errors = "No option selected. Please check one radio button."
-//		$("#form_start_errors").html(errors);
-//		$("#banner_errors").show(500)
-//		return (false);
-//	}else{
-//		if (selected_option == "new"){
-//			if ($( "#id_document_name" ).val().trim() == ""){
-//				errors = "You selected the option 'Create a new document'. Please provide a name for the document."
-//			}
-//		}else if (selected_option == "open"){
-//			if ($( "#id_forms" ).val() == ""){
-//				errors = "You selected the option 'Open a Form'. Please select an existing form from the list."
-//			}
-//		}else if (selected_option == "upload"){
-//			if ($( "#id_file" ).val() == ""){
-//				errors = "You selected the option 'Upload a File'. Please select an XML file."
-//			}
-//		}
-//	}
-//
-//	if (errors != ""){
-//		$("#form_start_errors").html(errors);
-//		$("#banner_errors").show(500)
-//		return (false);
-//	}else{
-//		return (true)
-//	}
-    return true;
 }
