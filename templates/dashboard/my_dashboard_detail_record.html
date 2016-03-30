@@ -20,9 +20,15 @@
 ################################################################################
 -->
 {% endcomment %}
-{% block title %}<h1><span>My Record: {{title}}</span></h1>{% endblock %}
+{% block title %}<h1><span>My {{type}}: {{title}}</span></h1>{% endblock %}
 {% block menu %}{% include 'mdcs/menus/main.html' with active_tab='profile' %}{% endblock %}
-{% block submenu %}{% include 'mdcs/menus/submenu/dashboard.html' with active_tab='tab1' %}{% endblock %}
+{% block submenu %}
+{% if type == "record" %}
+	{% include 'mdcs/menus/submenu/dashboard.html' with active_tab='tab1' %}
+{% elif type == "form" %}
+	{% include 'mdcs/menus/submenu/dashboard.html' with active_tab='tab2' %}
+{% endif%}
+{% endblock %}
 
 
 {% block extrastyle %}
@@ -33,7 +39,7 @@
 {% block content %}
 <div class="toolbar">
 	<div class="btn-group pull-right">
-    	<span class="btn" onclick="backToResults();" style="text-decoration:none">Back to Records</span>
+    	<span class="btn" onclick="backToResults();" style="text-decoration:none">Back to {{type}}s</span>
   	</div>
 	<br/><br/>
 </div>

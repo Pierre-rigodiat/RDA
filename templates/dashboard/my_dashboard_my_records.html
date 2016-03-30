@@ -71,7 +71,7 @@
                         <td>
                             {% with XMLdata|get:"_id" as XMLdata_id %}
                             {% autoescape on %}
-                            <a href="/dashboard/detail?id={{XMLdata_id}}"><span class="icon legend result">
+                            <a href="/dashboard/detail?type=record&id={{XMLdata_id}}"><span class="icon legend result">
                                 View
                             </span></a>
                             {% endautoescape %}

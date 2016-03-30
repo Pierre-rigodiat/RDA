@@ -49,6 +49,9 @@ You can review all forms you have created. You can either delete your form or ch
                 <td>{{ form.form.name }}</td>
                 <td>{{ form.template_name}}</td>
                 <td>
+                    <a href="/dashboard/detail?type=form&id={{form.form.id}}"><span class="icon legend result">
+                                View
+                    </span></a>
                     <a href="/curate/edit-form?id={{form.form.id}}"><span class="icon legend edit">
                                 Edit
                     </span></a>
