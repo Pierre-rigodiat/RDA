@@ -296,8 +296,35 @@ class DefaultRenderer(object):
 
         return self._load_template('input', data)
 
-    def _render_select(self, select_id, options_list):
-        pass
+    def _render_select(self, select_id, option_list):
+        if type(select_id) not in [str, unicode, NoneType]:
+            raise TypeError('First param (select_id) should be a str or None (' + str(type(select_id)) + ' given)')
+
+        if not isinstance(option_list, types.ListType):
+            raise TypeError('First param (option_list) should be a list (' + str(type(option_list)) + ' given)')
+
+        for option in option_list:
+            if not isinstance(option, types.TupleType):
+                raise TypeError('Malformed param (option_list): type of item not good')
+
+            if len(option) != 3:
+                raise TypeError('Malformed param (option_list): Length of item not good')
+
+            if type(option[0]) not in [str, unicode]:
+                raise TypeError('Malformed param (option_list): item[0] should be a str')
+
+            if type(option[1]) not in [str, unicode]:
+                raise TypeError('Malformed param (option_list): item[1] should be a str')
+
+            if type(option[2]) != bool:
+                raise TypeError('Malformed param (option_list): item[2] should be a bool')
+
+        data = {
+            'select_id': select_id,
+            'option_list': option_list
+        }
+
+        return self._load_template('select', data)
 
     def _render_buttons(self, min_occurs, max_occurs, occurence_count):
         """

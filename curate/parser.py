@@ -605,7 +605,7 @@ def generate_element(request, element, xml_tree, choice_info=None, full_path="",
         else:
             full_path += "/@{0}".format(text_capitalized)
 
-    # print full_path
+    print full_path
 
     # XSD xpath: /element/complexType/sequence
     xsd_xpath = xml_tree.getpath(element)
@@ -857,7 +857,7 @@ def get_attribute_form_default(xsd_tree):
     return attribute_form_default
 
 
-def get_element_namespace(element, xsd_tree):
+def  get_element_namespace(element, xsd_tree):
     """
     get_element_tag
     :param element:

@@ -157,6 +157,8 @@ class ListRenderer(AbstractListRenderer):
                 html_content += self.render_simple_content(child)
             elif child.tag == 'attribute':
                 html_content += self.render_attribute(child)
+            elif child.tag == 'choice':
+                html_content += self.render_choice(child)
             else:
                 print child.tag + ' not handled (rend_ct)'
 
@@ -209,6 +211,36 @@ class ListRenderer(AbstractListRenderer):
                 print child.tag + '  not handled (rend_seq)'
 
         return html_content
+
+    def render_choice(self, element):
+        """
+
+        :param element:
+        :return:
+        """
+        html_content = ''
+        children = []
+
+        for child in element.children:
+            if child.tag == 'choice-iter':
+                children += child.children
+            else:
+                print child.tag + '  not handled (rend_choice_pre)'
+
+        sub_content = ''
+        options = []
+
+        for child in children:
+            if child.tag == 'element':
+                options.append((child.options['name'], child.options['name'], False))
+                sub_content += self.render_element(child)
+            else:
+                print child.tag + ' not handled (rend_choice)'
+
+        html_content += 'Choice ' + self._render_select(str(element.pk), options)
+        html_content += self._render_ul(sub_content, '', True)
+
+        return render_li(html_content, '', '')
 
     def render_simple_content(self, element):
         """
