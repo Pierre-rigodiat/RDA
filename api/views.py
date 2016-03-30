@@ -726,16 +726,9 @@ def select_schema(request):
     hash = request.QUERY_PARAMS.get('hash', None)
     
     try:        
-        # create a connection                                                                                                                                                                                                 
-        client = MongoClient(MONGODB_URI)
-        # connect to the db 'mgi'
-        db = client['mgi']
-        # get the xmldata collection
-        template = db['template']
         query = dict()
-        if id is not None:            
-            query['_id'] = ObjectId(id)
-            # query['id'] = ObjectId(id)
+        if id is not None:
+            query['id'] = ObjectId(id)
         if filename is not None:
             if len(filename) >= 2 and filename[0] == '/' and filename[-1] == '/':
                 query['filename'] = re.compile(filename[1:-1])
@@ -763,27 +756,16 @@ def select_schema(request):
                 query['hash'] = re.compile(hash[1:-1])
             else:
                 query['hash'] = hash
-        if len(query.keys()) == 0:
-            content = {'message':'No parameters given.'}
-            return Response(content, status=status.HTTP_400_BAD_REQUEST)
+        q_list = {Q(**({key:value})) for key, value in query.iteritems()}
+        if len(q_list) > 0:
+            try:
+                templates = Template.objects(reduce(operator.and_, q_list)).all()
+            except Exception, e:
+                content = {'message':'No template found with the given parameters.'}
+                return Response(content, status=status.HTTP_404_NOT_FOUND)
         else:
-            cursor = template.find(query)
-            templates = []
-            for resultTemplate in cursor:
-                resultTemplate['id'] = resultTemplate['_id']
-                del resultTemplate['_id']
-                templates.append(resultTemplate)
-
-        # q_list = {Q(**({key:value})) for key, value in query.iteritems()}
-        # if len(q_list) > 0:
-        #     try:
-        #         templates = Template.objects.get(reduce(operator.and_, q_list))
-        #     except Exception, e:
-        #         content = {'message':'No template found with the given parameters.'}
-        #         return Response(content, status=status.HTTP_404_NOT_FOUND)
-        # else:
-        #    content = {'message':'No parameters given.'}
-        #    return Response(content, status=status.HTTP_400_BAD_REQUEST)
+           content = {'message':'No parameters given.'}
+           return Response(content, status=status.HTTP_400_BAD_REQUEST)
 
 
         serializer = templateSerializer(templates)
