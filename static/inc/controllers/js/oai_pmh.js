@@ -30,6 +30,12 @@ displayAddRegistry = function()
       height: 'auto',
       buttons:
     	  [
+    	  {
+               text: "Cancel",
+               click: function() {
+                        $( this ).dialog( "close" );
+                    }
+           },
            {
                text: "Add",
                click: function() {
@@ -523,6 +529,12 @@ editMyRegistry = function()
       height: 'auto',
       buttons:
     	  [
+    	  {
+               text: "Cancel",
+               click: function() {
+                        $( this ).dialog( "close" );
+                    }
+           },
            {
                text: "Edit",
                click: function() {
@@ -746,13 +758,13 @@ validateMetadataFormat = function()
         errors += "<li>Please enter a schema.</li>"
     }
 
-    if ($( "#id_metadataNamespace" ).val().trim() == ""){
-        errors += "<li>Please enter a namespace.</li>"
-    }
-
-        if ($( "#id_xmlSchema" ).val().trim() == ""){
-        errors += "<li>Please provide an XML file.</li>"
-    }
+//    if ($( "#id_metadataNamespace" ).val().trim() == ""){
+//        errors += "<li>Please enter a namespace.</li>"
+//    }
+//
+//        if ($( "#id_xmlSchema" ).val().trim() == ""){
+//        errors += "<li>Please provide an XML file.</li>"
+//    }
 
 	if (errors != ""){
 	    error = "<ul>";
@@ -779,6 +791,12 @@ displayAddMetadataFormat = function()
       height: 'auto',
       buttons:
       [
+      {
+           text: "Cancel",
+           click: function() {
+                    $( this ).dialog( "close" );
+                }
+       },
        {
            text: "Add",
            click: function() {
@@ -906,6 +924,12 @@ editMetadataFormat = function(metadataFormatId)
           height: 'auto',
           buttons:
               [
+               {
+                   text: "Cancel",
+                   click: function() {
+                            $( this ).dialog( "close" );
+                        }
+               },
                {
                    text: "Edit",
                    click: function() {
