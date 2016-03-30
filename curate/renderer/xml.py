@@ -130,7 +130,7 @@ class XmlRenderer(AbstractXmlRenderer):
                 if 'xmlns' in parent.options and parent.options['xmlns'] is not None and \
                                 parent.options['xmlns'] == element.options['xmlns']:
                         xmlns = ''
-                else: # parent element is in a different namespace
+                else:  # parent element is in a different namespace
                     if element.options['xmlns'] != '':
                         ns_prefix = element.options['ns_prefix'] if element.options['ns_prefix'] is not None else 'ns0'
                         if ns_prefix != '':

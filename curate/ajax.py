@@ -956,7 +956,7 @@ def remove(request):
 #
 #
 ################################################################################
-def save_form(request):
+def save_element(request):
     # xmlString = request.POST['xmlString']
     #
     # form_data_id = request.session['curateFormData']
@@ -969,11 +969,25 @@ def save_form(request):
     if 'id' not in request.POST or 'value' not in request.POST:
         return HttpResponse(status=HTTP_400_BAD_REQUEST)
 
-    # print request.POST['inputs']
-
     input_element = SchemaElement.objects.get(pk=request.POST['id'])
+
     input_element.value = request.POST['value']
     input_element.save()
+
+    return HttpResponse(json.dumps({'type': input_element.tag}), content_type='application/json')
+
+
+def save_form(request):
+    form_id = request.session['form_id']
+    root_element = SchemaElement.objects.get(pk=form_id)
+
+    xml_renderer = XmlRenderer(root_element)
+    xml_data = xml_renderer.render()
+
+    form_data_id = request.session['curateFormData']
+    form_data = FormData.objects.get(pk=form_data_id)
+    form_data.xml_data = xml_data
+    form_data.save()
 
     return HttpResponse(json.dumps({}), content_type='application/json')
 

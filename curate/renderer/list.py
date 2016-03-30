@@ -5,7 +5,7 @@ from django.template import loader
 
 from os.path import join
 
-from curate.renderer import render_select, render_li, render_buttons, render_collapse_button, \
+from curate.renderer import render_li, render_buttons, render_collapse_button, \
     DefaultRenderer
 
 
@@ -219,28 +219,29 @@ class ListRenderer(AbstractListRenderer):
         :return:
         """
         html_content = ''
-        children = []
+        children = {}
 
         for child in element.children:
             if child.tag == 'choice-iter':
-                children += child.children
+                children[child.pk] = child.children
             else:
                 print child.tag + '  not handled (rend_choice_pre)'
 
         sub_content = ''
         options = []
 
-        for child in children:
-            if child.tag == 'element':
-                options.append((child.options['name'], child.options['name'], False))
-                sub_content += self.render_element(child)
-            else:
-                print child.tag + ' not handled (rend_choice)'
+        for iter_element in children.keys():
+            for child in children[iter_element]:
+                if child.tag == 'element':
+                    options.append((child.options['name'], child.options['name'], False))
+                    sub_content += self.render_element(child)
+                else:
+                    print child.tag + ' not handled (rend_choice)'
 
-        html_content += 'Choice ' + self._render_select(str(element.pk), options)
-        html_content += self._render_ul(sub_content, '', True)
+            html_content += 'Choice ' + self._render_select(str(iter_element.pk), 'choice', options)
+            html_content += self._render_ul(sub_content, '', True)
 
-        return render_li(html_content, '', '')
+        return render_li(html_content, '', str(element.pk))
 
     def render_simple_content(self, element):
         """
@@ -307,14 +308,14 @@ class ListRenderer(AbstractListRenderer):
 
         for child in element.children:
             if child.tag == 'enumeration':
-                options.append((child.value, child.value, False))
+                options.append((child.value, child.value, child.value == element.value))
             elif child.tag == 'input':
                 subhtml += self._render_input(child.pk, child.value, '', '')
             else:
                 print child.tag + ' not handled (rend_ext)'
 
         if subhtml == '' or len(options) != 0:
-            return render_select('restr', options)
+            return self._render_select(str(element.pk), 'restriction', options)
         else:
             return subhtml
 
