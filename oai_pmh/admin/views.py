@@ -137,27 +137,27 @@ def add_my_metadataFormat(request):
                 if 'schema' in request.POST:
                     schema = request.POST.get('schema')
 
-                if 'metadataNamespace' in request.POST:
-                    namespace = request.POST.get('metadataNamespace')
-
-                if 'xmlSchema' in request.FILES:
-                    xml_schema = request.FILES.get('xmlSchema')
-                    # put the cursor at the beginning of the file
-                    xml_schema.seek(0)
-                    # read the content of the file
-                    xml_data = xml_schema.read()
-                    # check XML data or not?
-                    try:
-                        etree.fromstring(xml_data)
-                    except XMLSyntaxError:
-                        return HttpResponseBadRequest('Uploaded File is not well formed XML.')
+                # if 'metadataNamespace' in request.POST:
+                #     namespace = request.POST.get('metadataNamespace')
+                #
+                # if 'xmlSchema' in request.FILES:
+                #     xml_schema = request.FILES.get('xmlSchema')
+                #     # put the cursor at the beginning of the file
+                #     xml_schema.seek(0)
+                #     # read the content of the file
+                #     xml_data = xml_schema.read()
+                #     # check XML data or not?
+                #     try:
+                #         etree.fromstring(xml_data)
+                #     except XMLSyntaxError:
+                #         return HttpResponseBadRequest('Uploaded File is not well formed XML.')
 
                 #Call to the API to add the registry
                 try:
                     req = requests.post(uri, {"metadataPrefix": metadataprefix,
-                                              "schema": schema,
-                                              "metadataNamespace": namespace,
-                                              "xmlSchema": xml_data},
+                                              "schema": schema},#,
+                                              #"metadataNamespace": namespace,
+                                              #"xmlSchema": xml_data},
                                         auth=(OAI_USER, OAI_PASS))
 
                     #If the status is OK, sucess message
@@ -630,6 +630,7 @@ def oai_pmh_conf_xslt(request):
         template = loader.get_template('oai_pmh/admin/oai_pmh_conf_xslt.html')
         template_id = request.GET.get('id', None)
         if template_id is not None:
+            templateName = Template.objects.only('title').get(pk=template_id).title
             allXsltFiles = OaiXslt.objects.all()
             myMetadataFormats = OaiMyMetadataFormat.objects().all()
 
@@ -649,6 +650,7 @@ def oai_pmh_conf_xslt(request):
                 'metadataFormats': myMetadataFormats,
                 'xsltFiles': allXsltFiles,
                 'formSet': formset,
+                'templateName': templateName
             })
 
             return HttpResponse(template.render(context))

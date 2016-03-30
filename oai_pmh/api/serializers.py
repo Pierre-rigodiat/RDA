@@ -103,9 +103,9 @@ class UpdateMyRegistrySerializer(MongoEngineModelSerializer):
 
 class MyMetadataFormatSerializer(serializers.Serializer):
     metadataPrefix = serializers.CharField()
-    metadataNamespace = serializers.CharField()
+    # metadataNamespace = serializers.CharField()
     schema = serializers.CharField()
-    xmlSchema = serializers.CharField()
+    # xmlSchema = serializers.CharField()
 
 class DeleteMyMetadataFormatSerializer(serializers.Serializer):
     MetadataFormatId  = serializers.CharField(required=True)

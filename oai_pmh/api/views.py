@@ -36,6 +36,7 @@ import xmltodict
 import requests
 from utils.XSDhash import XSDhash
 from lxml import etree
+from lxml.etree import XMLSyntaxError
 import datetime
 from oai_pmh import datestamp
 
@@ -1430,15 +1431,25 @@ def add_my_metadataFormat(request):
                 metadataprefix = request.DATA['metadataPrefix']
             if 'schema' in request.POST:
                 schema = request.DATA['schema']
-            if 'metadataNamespace' in request.POST:
-                namespace = request.DATA['metadataNamespace']
+            # if 'metadataNamespace' in request.POST:
+            #     namespace = request.DATA['metadataNamespace']
+            #
+            # if 'xmlSchema' in request.POST:
+            #     xml_schema = request.DATA['xmlSchema']
 
-            if 'xmlSchema' in request.POST:
-                xml_schema = request.DATA['xmlSchema']
-
+            #Try to get the schema
+            http_response = requests.get(schema)
+            if str(http_response.status_code) == "200":
+                #Check if the XML is well formed
+                try:
+                    xml_schema = http_response.text
+                    dom = etree.fromstring(xml_schema)
+                    metadataNamespace = dom.find(".").attrib['targetNamespace']
+                except XMLSyntaxError:
+                    return Response({'message':'Unable to add the new metadata format.'}, status=status.HTTP_400_BAD_REQUEST)
             try:
                 #Add in database
-               OaiMyMetadataFormat(metadataPrefix=metadataprefix, schema=schema, metadataNamespace=namespace, xmlSchema=xml_schema, isDefault=False).save()
+               OaiMyMetadataFormat(metadataPrefix=metadataprefix, schema=schema, metadataNamespace=metadataNamespace, xmlSchema=xml_schema, isDefault=False).save()
             except Exception as e:
                 return Response({'message':'Unable to add the new metadata format. \n%s'%e.message}, status=status.HTTP_400_BAD_REQUEST)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
