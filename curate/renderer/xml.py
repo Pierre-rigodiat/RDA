@@ -131,12 +131,15 @@ class XmlRenderer(AbstractXmlRenderer):
                                 parent.options['xmlns'] == element.options['xmlns']:
                         xmlns = ''
                 else: # parent element is in a different namespace
-                    ns_prefix = element.options['ns_prefix'] if element.options['ns_prefix'] is not None else 'ns0'
-                    if ns_prefix != '':
-                        xmlns = ' xmlns{0}="{1}"'.format(':' + ns_prefix, element.options['xmlns'])
-                        attr_key = "{1}:{2}".format(ns_prefix, attr_key)
+                    if element.options['xmlns'] != '':
+                        ns_prefix = element.options['ns_prefix'] if element.options['ns_prefix'] is not None else 'ns0'
+                        if ns_prefix != '':
+                            xmlns = ' xmlns{0}="{1}"'.format(':' + ns_prefix, element.options['xmlns'])
+                            attr_key = "{0}:{1}".format(ns_prefix, attr_key)
+                        else:
+                            xmlns = ' xmlns="{0}"'.format(element.options['xmlns'])
                     else:
-                        xmlns = ' xmlns="{1}"'.format(element.options['xmlns'])
+                        xmlns = ''
 
                 attr_list.append("{0} {1}='{2}'".format(xmlns, attr_key, attr_value))
                 # TODO: check that element isn't declaring the same namespace xmlns=""
