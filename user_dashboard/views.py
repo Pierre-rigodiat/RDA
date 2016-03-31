@@ -257,15 +257,15 @@ def dashboard_detail_resource(request) :
 
 ################################################################################
 #
-# Function Name: dashboard_my_forms(request)
+# Function Name: dashboard_my_drafts(request)
 # Inputs:        request -
 # Outputs:       Review forms page
 # Exceptions:    None
-# Description:   Page that allows to review user forms
+# Description:   Page that allows to review user forms (draft)
 #
 ################################################################################
 @login_required(login_url='/login')
-def dashboard_my_forms(request):
+def dashboard_my_drafts(request):
     forms = FormData.objects(user=str(request.user.id), xml_data_id__exists=False).order_by('template') # xml_data_id False if document not curated
     detailed_forms = []
     for form in forms:

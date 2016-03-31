@@ -25,7 +25,7 @@
 <link rel="stylesheet" type="text/css" href="{% static 'resources/css/exploreTabs.css' %}"  media="screen" />
 {% endblock %}
 
-{% block title %}<h3><span>My Forms</span></h3>{% endblock %}
+{% block title %}<h3><span>My Drafts</span></h3>{% endblock %}
 {% block menu %}{% include 'nmrr/menus/main.html' with active_tab='profile' %}{% endblock %}
 
 {% block content%}
@@ -35,7 +35,7 @@
 </div>
 {% if forms %}
 <span>
-You can review all forms you have created and delete the ones you don't need.
+You can review all drafts you have created and delete the ones you don't need.
 </span>
 <br/><br/>
 
@@ -62,7 +62,7 @@ You can review all forms you have created and delete the ones you don't need.
     </table>
 {% else %}
     <br/>
-        There are no forms saved for now.
+        There are no drafts saved for now.
     <br/>
 </div>
 {% endif %}
@@ -71,7 +71,7 @@ You can review all forms you have created and delete the ones you don't need.
 
 {% block popups %}
 <div id="dialog-delete-form" title="Delete Form" style="display:none;">
-Are you sure you want to delete this form?
+Are you sure you want to delete this draft?
 </div>
 
 <div id="dialog-change-owner-form" title="Change Form Owner" style="display:none;">
