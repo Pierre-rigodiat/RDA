@@ -627,7 +627,7 @@ harvestData = function(registry_id){
     $("#banner"+registry_id).show(200);
     $("#harvest"+registry_id).hide(200);
     $.ajax({
-        url : 'update/all/records',
+        url : 'harvest',
         type : "POST",
         dataType: "json",
         async: true,

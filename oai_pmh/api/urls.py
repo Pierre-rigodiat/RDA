@@ -14,29 +14,32 @@ from django.conf.urls import patterns, url
 
 urlpatterns = patterns(
     'oai_pmh.api.views',
+    #OAI-PMH Verbs
+    url(r'^listobjectallrecords$', 'listObjectAllRecords'), #ListRecords
+    url(r'^objectidentify$', 'objectIdentify'), #Identify
+    url(r'^listobjectmetadataformats$', 'listObjectMetadataFormats'), #ListMF
+    url(r'^listobjectsets$', 'listObjectSets'), #List Set
+    url(r'^listidentifiers$', 'listIdentifiers'), #List Identify
+    url(r'^getrecord', 'getRecord'), #GetRecord
+    #Manage Data Providers
+    url(r'^select/registry$', 'select_registry'),
     url(r'^add/registry$', 'add_registry'),
+    url(r'^update/registry$', 'update_registry'),
+    url(r'^delete/registry$', 'delete_registry'),
+    #Manage my server
+    url(r'^update/my-registry$', 'update_my_registry'),
+    #Manage my server's metadata formats
     url(r'^add/my-metadataFormat$', 'add_my_metadataFormat'),
+    url(r'^update/my-metadataFormat$', 'update_my_metadataFormat'),
+    url(r'^delete/my-metadataFormat$', 'delete_my_metadataFormat'),
+    #Get data
+    url(r'^getdata/$', 'getData'),
+    #Harvest data
+    url(r'^harvest$', 'harvest'),
+
     url(r'^select/all/registries$', 'select_all_registries'),
     url(r'^select/all/records', 'select_all_records'),
-    url(r'^select/registry$', 'select_registry'),
     url(r'^select/record$', 'select_record'),
-    url(r'^update/registry$', 'update_registry'),
-    url(r'^update/my-registry$', 'update_my_registry'),
     url(r'^update/record$', 'update_record'),
-    url(r'^update/my-metadataFormat$', 'update_my_metadataFormat'),
-    url(r'^delete/registry$', 'delete_registry'),
-    url(r'^delete/my-metadataFormat$', 'delete_my_metadataFormat'),
     url(r'^delete/record$', 'delete_record'),
-    url(r'^(?i)listobjectallrecords$', 'listObjectAllRecords'),
-    url(r'^(?i)identify$', 'identify'),
-    url(r'^(?i)objectidentify$', 'objectIdentify'),
-    url(r'^(?i)listmetadataformats$', 'listMetadataFormats'),
-    url(r'^(?i)listobjectmetadataformats$', 'listObjectMetadataFormats'),
-    url(r'^(?i)listsets$', 'listSets'),
-    url(r'^(?i)listobjectsets$', 'listObjectSets'),
-    url(r'^(?i)listidentifiers$', 'listIdentifiers'),
-    url(r'^(?i)getrecord', 'getRecord'),
-    url(r'^getdata/$', 'getData'),
-
-    url(r'^update/all/records$', 'update_all_records'),
 )

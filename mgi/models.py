@@ -666,9 +666,3 @@ class SelectRecord(Document):
         A record object
     """
     identifier = StringField(required=True)
-
-class DeleteRegistry(Document):
-    """
-        Delete registry model
-    """
-    id = StringField(required=True)

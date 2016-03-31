@@ -263,7 +263,7 @@ def oai_pmh_detail_registry(request):
 
 ################################################################################
 #
-# Function Name: update_all_records(request)
+# Function Name: harvest(request)
 # Inputs:        request -
 # Outputs:
 # Exceptions:    None
@@ -271,12 +271,12 @@ def oai_pmh_detail_registry(request):
 #
 # ################################################################################
 @login_required(login_url='/login')
-def update_all_records(request):
+def harvest(request):
     if request.method == 'POST':
         try:
             #Get the ID
             registry_id = request.POST['registry_id']
-            uri = OAI_HOST_URI + "/oai_pmh/api/update/all/records"
+            uri = OAI_HOST_URI + "/oai_pmh/api/harvest"
 
             #Call the API to update all records for this registry
             try:
