@@ -15,7 +15,6 @@ from django.conf.urls import patterns, url
 urlpatterns = patterns(
     'oai_pmh.api.views',
     url(r'^add/registry$', 'add_registry'),
-    url(r'^add/record$', 'add_record'),
     url(r'^add/my-metadataFormat$', 'add_my_metadataFormat'),
     url(r'^select/all/registries$', 'select_all_registries'),
     url(r'^select/all/records', 'select_all_records'),

@@ -45,18 +45,19 @@ def index_keyword(request):
 
 ################################################################################
 #
-# Function Name: index(request)
+# Function Name: get_metadata_formats(request)
 # Inputs:        request -
-# Outputs:       Data Exploration by keyword homepage
+# Outputs:       Metadata Formats
 # Exceptions:    None
-# Description:   renders the data exploration by keyword home page from template
-#                (index.html)
+# Description:   Return a form with common metadata formats for registries given in parameter
 #
 ################################################################################
 @login_required(login_url='/login')
 def get_metadata_formats(request):
     template = loader.get_template('oai_pmh/explore/explore_metadata_formats.html')
+    #Get registries
     listRegistriesId = request.GET.getlist('registries[]')
+    #Create the form
     metadata_formats_Form = MetadataFormatsForm(listRegistriesId)
     context = RequestContext(request, {
         'metadata_formats_Form':metadata_formats_Form,
@@ -67,18 +68,18 @@ def get_metadata_formats(request):
 
 ################################################################################
 #
-# Function Name: index(request)
+# Function Name: get_metadata_formats_detail(request)
 # Inputs:        request -
-# Outputs:       Data Exploration by keyword homepage
+# Outputs:       Metadata formats information
 # Exceptions:    None
-# Description:   renders the data exploration by keyword home page from template
-#                (index.html)
+# Description:   Return information about metadata format given in parameter
 #
 ################################################################################
 @login_required(login_url='/login')
 def get_metadata_formats_detail(request):
     template = loader.get_template('oai_pmh/explore/explore_metadata_formats_detail.html')
     try:
+        #Get metadata formats
         infos = json.loads(request.GET['metadataFormats'])
         metadataFormats = infos['oai-pmh']
         if 'local' in infos:
@@ -130,19 +131,6 @@ def explore_detail_result_keyword(request) :
     xslt = etree.parse(xsltPath)
     transform = etree.XSLT(xslt)
     dom = etree.fromstring(str(xmlString))
-    # #Check if a custom detailed result XSLT has to be used
-    # try:
-    #     if (xmlString != ""):
-    #         dom = etree.fromstring(str(xmlString))
-    #         schema = Template.objects.get(pk=schemaId)
-    #         if schema.ResultXsltDetailed:
-    #             shortXslt = etree.parse(BytesIO(schema.ResultXsltDetailed.content.encode('utf-8')))
-    #             shortTransform = etree.XSLT(shortXslt)
-    #             newdom = shortTransform(dom)
-    #         else:
-    #             newdom = transform(dom)
-    # except Exception, e:
-    #We use the default one
     newdom = transform(dom)
 
     result = str(newdom)

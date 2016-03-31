@@ -19,7 +19,9 @@ def init_settings():
     Set the name, identifier and the harvesting information
     """
     try:
+        #Get OAI-PMH settings information about this server
         information = OaiSettings.objects.all()
+        #If we don't have settings in database, we have to initialize them
         if not information:
             OaiSettings(repositoryName = settings.OAI_NAME, repositoryIdentifier = settings.OAI_REPO_IDENTIFIER,
                         enableHarvesting= False).save()

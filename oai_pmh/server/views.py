@@ -11,15 +11,14 @@
 #
 ################################################################################
 
-from django.http import HttpResponse, HttpResponseNotFound
+from django.http import HttpResponseNotFound
 from django.conf import settings
 from django.views.generic import TemplateView
-from mgi.models import Template, TemplateVersion, XMLdata, OaiSettings, OaiMyMetadataFormat, OaiTemplMfXslt
+from mgi.models import XMLdata, OaiSettings, OaiMyMetadataFormat, OaiTemplMfXslt
 import os
 from oai_pmh.server.exceptions import *
 import xmltodict
 from bson.objectid import ObjectId
-from StringIO import StringIO
 import lxml.etree as etree
 import re
 from oai_pmh import datestamp
@@ -31,10 +30,6 @@ RESOURCES_PATH = os.path.join(settings.SITE_ROOT, 'oai_pmh/server/resources/')
 class OAIProvider(TemplateView):
     content_type = 'text/xml'
 
-    def last_modified(self, obj):
-        # datetime object was last modified
-        pass
-
 ################################################################################
 #
 # Function Name: render_to_response(request)
@@ -45,7 +40,7 @@ class OAIProvider(TemplateView):
 #
 ################################################################################
     def render_to_response(self, context, **response_kwargs):
-        # all OAI responses should be xml
+        # all OAI responses should be XML
         if 'content_type' not in response_kwargs:
             response_kwargs['content_type'] = self.content_type
 
@@ -59,14 +54,24 @@ class OAIProvider(TemplateView):
             'from': self.From,
             'until': self.until,
         })
-
+        #Render the template with the context information
         return super(TemplateView, self) \
             .render_to_response(context, **response_kwargs)
 
-
-    def getEarliestDate(self):
+################################################################################
+#
+# Function Name: get_earliest_date(request)
+# Inputs:        request -
+# Outputs:       A datetime date
+# Exceptions:    None
+# Description:   Get the earliest date of publication
+#
+################################################################################
+    def get_earliest_date(self):
         try:
+            #Get the earliest publication date for the identify request response
             data = XMLdata.getMinValue('publicationdate')
+            #If we have a date
             if data != None:
                 return datestamp.datetime_to_datestamp(data)
             else:
@@ -84,20 +89,24 @@ class OAIProvider(TemplateView):
 #
 ################################################################################
     def identify(self):
+        #Template name
         self.template_name = 'oai_pmh/xml/identify.xml'
+        #Get settings information from database
         information = OaiSettings.objects.get()
+        #If we have information
         if information:
             name = information.repositoryName
             repoIdentifier = information.repositoryIdentifier
+        #If not, we use information from the settings file
         else:
             name = settings.OAI_NAME
             repoIdentifier = settings.OAI_REPO_IDENTIFIER
-
+        #Fill the identify response
         identify_data = {
             'name': name,
             'protocole_version': settings.OAI_PROTOCOLE_VERSION,
             'admins': (email for name, email in settings.OAI_ADMINS),
-            'earliest_date': self.getEarliestDate(),   # placeholder
+            'earliest_date': self.get_earliest_date(),   # placeholder
             'deleted': settings.OAI_DELETED_RECORD,  # no, transient, persistent
             'granularity': settings.OAI_GRANULARITY,  # or YYYY-MM-DD
             'identifier_scheme': settings.OAI_SCHEME,
@@ -119,6 +128,7 @@ class OAIProvider(TemplateView):
     def list_sets(self):
         # self.template_name = 'admin/oai_pmh/xml/list_sets.xml'
         # items = []
+        #For the moment, we don't support sets
         try:
             raise noSetHierarchy
         except OAIExceptions, e:
@@ -142,9 +152,10 @@ class OAIProvider(TemplateView):
 ################################################################################
     def list_metadata_formats(self):
         try:
+            #Template name
             self.template_name = 'oai_pmh/xml/list_metadata_formats.xml'
             items = []
-            # If an identifier is provided, with look for its metaformats
+            # If an identifier is provided, with look for its metadataformats
             if self.identifier != None:
                 #Check if the identifier pattern is OK
                 p = re.compile("%s:%s:id/(.*)" % (settings.OAI_SCHEME, settings.OAI_REPO_IDENTIFIER))
@@ -154,20 +165,23 @@ class OAIProvider(TemplateView):
                     id = idMatch.group(1)
                 else:
                     raise idDoesNotExist(self.identifier)
-                #We retrieve all schema id for this record
+                #We retrieve the template id for this record
                 listId = []
                 listId.append(id)
                 listSchemaIds = XMLdata.getByIDsAndDistinctBy(listId, 'schema')
                 if len(listSchemaIds) == 0:
                     raise idDoesNotExist(self.identifier)
+                #Get metadata formats information for this template. The metadata formats must be activated
                 metadataFormats = OaiTemplMfXslt.objects(template__in=listSchemaIds, activated=True).distinct(field='myMetadataFormat')
             else:
+                #No identifier provided. We return all metadata formats available
                 metadataFormats = OaiMyMetadataFormat.objects().all()
 
+            #If there is no metadata formats, we raise noMetadataFormat
             if len(metadataFormats) == 0:
                 raise noMetadataFormat
             else:
-                url = self.request.build_absolute_uri(self.request.path)
+                #Fill the response
                 for metadataFormat in metadataFormats:
                     item_info = {
                         'metadataNamespace': metadataFormat.metadataNamespace,
@@ -195,10 +209,12 @@ class OAIProvider(TemplateView):
 ################################################################################
     def list_identifiers(self):
         try:
+            #Template name
             self.template_name = 'oai_pmh/xml/list_identifiers.xml'
             query = dict()
-            #FROM AND UNTIL
+            #To store errors
             date_errors = []
+            #Handle FROM and UNTIL
             if self.until:
                 try:
                     endDate = datestamp.datestamp_to_datetime(self.until)
@@ -213,21 +229,28 @@ class OAIProvider(TemplateView):
                 except:
                     error = 'Illegal date/time for "from" (%s)' % self.From
                     date_errors.append(badArgument(error))
+            #Return possible errors
             if len(date_errors) > 0:
                 raise OAIExceptions(date_errors)
             try:
+                #Get the metadata format thanks to the prefix
                 myMetadataFormat = OaiMyMetadataFormat.objects.get(metadataPrefix=self.metadataPrefix)
+                #Get all template using it (activated True)
                 templates = OaiTemplMfXslt.objects(myMetadataFormat=myMetadataFormat, activated=True).distinct(field="template")
+                #Ids
                 templatesID = [str(x.id) for x in templates]
             except:
+                #The metadata format doesn't exist
                 raise cannotDisseminateFormat(self.metadataPrefix)
-
+            #Get all templates records
             query['schema'] = { "$in" : templatesID}
             items = []
             data = XMLdata.executeQueryFullResult(query)
+            #If no records
             if len(data) == 0:
                 raise noRecordsMatch
             for i in data:
+                #Fill the response
                 identifier = '%s:%s:id/%s' % (settings.OAI_SCHEME, settings.OAI_REPO_IDENTIFIER, str(i['_id']))
                 item_info = {
                     'identifier': identifier,
@@ -266,8 +289,10 @@ class OAIProvider(TemplateView):
                 id = idMatch.group(1)
             else:
                 raise idDoesNotExist(self.identifier)
+            #Template name
             self.template_name = 'oai_pmh/xml/get_record.xml'
             query = dict()
+            #Convert id to ObjectId
             try:
                 query['_id'] = ObjectId(id)
             except Exception:
@@ -277,21 +302,27 @@ class OAIProvider(TemplateView):
             if len(data) == 0:
                 raise idDoesNotExist(self.identifier)
             data = data[0]
+            #Get the template for the identifier
             template = data['schema']
             #Retrieve the XSLT for the transformation
             try:
+                #Get the metadataformat for the provided prefix
                 myMetadataFormat = OaiMyMetadataFormat.objects.get(metadataPrefix=self.metadataPrefix)
+                #Get information about the XSLT for the MF and the template
                 objTempMfXslt = OaiTemplMfXslt.objects(myMetadataFormat=myMetadataFormat, template=template, activated=True).get()
+                #If no information or desactivated
                 if not objTempMfXslt.xslt:
                     raise cannotDisseminateFormat(self.metadataPrefix)
                 else:
+                    #Get the XSLT for the transformation
                     xslt = objTempMfXslt.xslt
             except:
                 raise cannotDisseminateFormat(self.metadataPrefix)
 
-            #Transform all XML data
+            #Transform XML data
             dataToTransform = [{'title': data['_id'], 'content': self.cleanXML(xmltodict.unparse(data['content']))}]
             dataXML = self.getXMLTranformXSLT(dataToTransform, xslt)
+            #Fill the response
             record_info = {
                 'identifier': self.identifier,
                 'last_modified': datestamp.datetime_to_datestamp(data['publicationdate']) if 'publicationdate' in data else datestamp.datetime_to_datestamp(datetime.datetime.min),
@@ -318,10 +349,12 @@ class OAIProvider(TemplateView):
     def list_records(self):
         try:
             items = []
+            #Template name
             self.template_name = 'oai_pmh/xml/list_records.xml'
             query = dict()
-            #FROM AND UNTIL
+            #To store errors
             date_errors = []
+            #Handle FROM and UNTIL
             if self.until:
                 try:
                     endDate = datestamp.datestamp_to_datetime(self.until)
@@ -336,23 +369,29 @@ class OAIProvider(TemplateView):
                 except:
                     error = 'Illegal date/time for "from" (%s)' % self.From
                     date_errors.append(badArgument(error))
+            #Return possible errors
             if len(date_errors) > 0:
                 raise OAIExceptions(date_errors)
             try:
+                 #Get the metadataformat for the provided prefix
                 myMetadataFormat = OaiMyMetadataFormat.objects.get(metadataPrefix=self.metadataPrefix)
+                #Get information about templates using this MF
                 objTempMfXslt = OaiTemplMfXslt.objects(myMetadataFormat=myMetadataFormat, activated=True).all()
+                 #Ids
                 templatesID = [str(x.template.id) for x in objTempMfXslt]
             except:
                 raise cannotDisseminateFormat(self.metadataPrefix)
-            #For each template
+            #For each template found
             for template in templatesID:
                 query['schema'] = template
+                #Get all records for this template
                 data = XMLdata.executeQueryFullResult(query)
+                #IF no records, go to the next template
                 if len(data) == 0:
                     continue
                 #Get the XSLT file
                 xslt = objTempMfXslt(template=template).get().xslt
-                #Transform all XML data
+                #Transform all XML data (1 call)
                 dataToTransform = [{'title': x['_id'], 'content': self.cleanXML(xmltodict.unparse(x['content']))} for x in data]
                 dataXML = self.getXMLTranformXSLT(dataToTransform, xslt)
                 #Add each record
@@ -368,6 +407,7 @@ class OAIProvider(TemplateView):
                     }
                     items.append(record_info)
 
+            #If there is no records
             if len(items) == 0:
                 raise noRecordsMatch
 
@@ -389,7 +429,7 @@ class OAIProvider(TemplateView):
 # Inputs:        request -
 # Outputs:       An XML Schema
 # Exceptions:    None
-# Description:   Error response
+# Description:   Error response. Just one error
 #
 ################################################################################
     def error(self, error):
@@ -401,7 +441,7 @@ class OAIProvider(TemplateView):
 # Inputs:        request -
 # Outputs:       An XML Schema
 # Exceptions:    None
-# Description:   Errors response
+# Description:   Errors response. Several errors
 #
 ################################################################################
     def errors(self, errors):
@@ -413,42 +453,44 @@ class OAIProvider(TemplateView):
 
 ################################################################################
 #
-# Function Name: checkIllegalAndRequired(request)
+# Function Name: check_illegal_and_required(request)
 # Inputs:        request -
 # Outputs:       An XML Schema
 # Exceptions:    None
 # Description:   Check OAI Error and Exception - Illegal and required arguments
 #
 ################################################################################
-    def checkIllegalAndRequired(self, legal, required, data):
+    def check_illegal_and_required(self, legal, required, data):
         errors = []
+        #Check if a parameter doesn't have to be in the request
         illegal = [arg for arg in data if arg not in legal]
+        #If yes, add error
         if len(illegal) > 0:
             for arg in illegal:
                 error = 'Arguments ("%s") was passed that was not valid for ' \
                             'this verb' % arg
                 errors.append(badArgument(error))
-
+        #Check if a parameter is missing for the request
         missing = [arg for arg in required if arg not in data]
         if len(missing) > 0:
             for arg in missing:
                 error = 'Missing required argument - %s' % arg
                 errors.append(badArgument(error))
-
+        #Raise exception.
         if len(errors) > 0:
             raise OAIExceptions(errors)
 
 
 ################################################################################
 #
-# Function Name: checkBadArgument(request)
+# Function Name: check_bad_argument(request)
 # Inputs:        request -
 # Outputs:       An XML Schema
 # Exceptions:    None
 # Description:   Check OAI Error and Exception - Bad Argument in request
 #
 ################################################################################
-    def checkBadArgument(self, data):
+    def check_bad_argument(self, data):
         #Check if we have duplicate arguments
         duplicates = [arg for arg in data if len(data.getlist(arg)) > 1]
         if len(duplicates) > 0:
@@ -456,7 +498,7 @@ class OAIProvider(TemplateView):
                         'this verb' % ', '.join(duplicates)
             raise badArgument(error_msg)
 
-        #Check illegal and required arguments
+        #Build the illegal and required arguments depending of the verb
         if self.oai_verb != None:
             if self.oai_verb == 'Identify':
                 legal = ['verb']
@@ -483,7 +525,8 @@ class OAIProvider(TemplateView):
             error_msg = 'The request did not provide any verb.'
             raise badVerb(error_msg)
 
-        self.checkIllegalAndRequired(legal, required, data)
+        #Check
+        self.check_illegal_and_required(legal, required, data)
 
 
 ################################################################################
@@ -497,9 +540,11 @@ class OAIProvider(TemplateView):
 ################################################################################
     def get(self, request, *args, **kwargs):
         try:
+            #Check if the server is enabled for providing information
             information = OaiSettings.objects.get()
             if information and not information.enableHarvesting:
                 return HttpResponseNotFound('<h1>OAI-PMH not available for harvesting</h1>')
+            #Get the verb
             self.oai_verb = request.GET.get('verb', None)
             if self.oai_verb is None:
                 error_msg = 'The request did not provide any verb.'
@@ -513,9 +558,9 @@ class OAIProvider(TemplateView):
             self.sets = None
             self.resumptionToken = None
             #Check entry
-            self.checkBadArgument(request.GET)
+            self.check_bad_argument(request.GET)
 
-            #Verb treatment
+            #Verb processing. Get informations depending of the verb
             if self.oai_verb == 'Identify':
                 return self.identify()
             elif self.oai_verb == 'ListIdentifiers':
@@ -563,7 +608,8 @@ class OAIProvider(TemplateView):
 #
 ################################################################################
     def getXMLTranformXSLT(self, dataXML, xslt):
-        #Declare XSLTExporter
+        #Use the exporter to transform record thanks to an XSLT
+        #Declare XSLTExporter.
         exporter = XSLTExporter()
         exporter._setXslt(xslt.content)
         #Transformation
@@ -599,19 +645,19 @@ class OAIProvider(TemplateView):
 # Description:   Page that allows to retrieve an XML Schema by its name
 #
 ################################################################################
-def get_xsd(request, schema):
-    #TODO Available if publication ok and no user template
-    #We retrieve the schema filename in the schema attribute
-    #Get the templateVersion ID
-    templatesVersionID = Template.objects(filename=schema).distinct(field="templateVersion")
-    templateID = TemplateVersion.objects(pk__in=templatesVersionID, isDeleted=False).distinct(field="current")
-
-    templates = Template.objects.get(pk__in=templateID)
-    #Get the XML schema
-    contentEncoded = templates.content.encode('utf-8')
-    fileObj = StringIO(contentEncoded)
-    #Return the XML
-    response = HttpResponse(fileObj)
-    response['Content-Type'] = 'text/xml'
-
-    return response
+# def get_xsd(request, schema):
+#     #TODO Available if publication ok and no user template
+#     #We retrieve the schema filename in the schema attribute
+#     #Get the templateVersion ID
+#     templatesVersionID = Template.objects(filename=schema).distinct(field="templateVersion")
+#     templateID = TemplateVersion.objects(pk__in=templatesVersionID, isDeleted=False).distinct(field="current")
+#
+#     templates = Template.objects.get(pk__in=templateID)
+#     #Get the XML schema
+#     contentEncoded = templates.content.encode('utf-8')
+#     fileObj = StringIO(contentEncoded)
+#     #Return the XML
+#     response = HttpResponse(fileObj)
+#     response['Content-Type'] = 'text/xml'
+#
+#     return response

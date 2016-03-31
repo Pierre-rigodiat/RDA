@@ -22,32 +22,27 @@ class UploadOaiPmhXSLTForm(forms.Form):
 
 
 class FormDataModelChoiceField(forms.ModelChoiceField):
+    #Used to return the name of the xslt file
     def label_from_instance(self, obj):
         return obj.name
 
 class AssociateXSLT(forms.Form):
+    """
+    Associate XSLTs to a metadata formats (per template)
+    """
 
     def clean(self):
+        #Check if an XSLT file is provided when the Metadata Format is activated
         cleaned_data = super(AssociateXSLT, self).clean()
         name = cleaned_data.get("oai_name")
         activated = cleaned_data.get("activated")
         xslt_file = cleaned_data.get("oai_pmh_xslt_file")
-
+        #If not, raise validation error
         if activated and not xslt_file:
-            # Only do something if both fields are valid so far.
             raise forms.ValidationError("Please provide an XSLT File for the '%s' Metadata Format." % name)
 
-    """
-    Form to upload a new XSLT for OAI-PMH purpose
-    """
     template_id = forms.CharField(widget=forms.HiddenInput(), required=False)
     oai_my_mf_id = forms.CharField(widget=forms.HiddenInput(), required=False)
     oai_name = forms.CharField(label='Enter XSLT name', max_length=100, required=True, widget=forms.TextInput(attrs={'readonly':'readonly', 'style': 'background-color:transparent;border:none'}))
     oai_pmh_xslt_file = FormDataModelChoiceField(queryset=OaiXslt.objects().all(), required=False, widget=forms.Select(attrs={'style':'width:500px'}))
     activated = forms.BooleanField(widget=forms.CheckboxInput(attrs={'class':'cmn-toggle cmn-toggle-round'}), required=False)
-
-
-class MyArticleForm(AssociateXSLT):
-     def __init__(self, *args, **kwargs):
-         self.user = kwargs.pop('user')
-         super(MyArticleForm, self).__init__(*args, **kwargs)

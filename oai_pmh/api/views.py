@@ -17,7 +17,7 @@ from rest_framework import status
 from rest_framework.response import Response
 # OAI-PMH
 from sickle import Sickle
-from sickle.models import Set, MetadataFormat, Identify, Record
+from sickle.models import Set, MetadataFormat, Record
 from sickle.oaiexceptions import NoSetHierarchy, NoMetadataFormat
 # Serializers
 from oai_pmh.api.serializers import IdentifyObjectSerializer, MetadataFormatSerializer, SetSerializer,\
@@ -40,243 +40,6 @@ from lxml.etree import XMLSyntaxError
 import datetime
 from oai_pmh import datestamp
 
-################################################################################
-#
-# Function Name: add_record(request)
-# Inputs:        request -
-# Outputs:       200 Record added
-# Exceptions:    400 Error connecting to database.
-#                400 Error getting content.
-#                400 An error occurred when trying to save document. [Document content]
-#                401 Unauthorized.
-#                500 An error occurred when attempting to identify resource.
-# Description:   OAI-PMH Add Record
-#
-################################################################################
-@api_view(['POST'])
-def add_record(request):
-    """
-    POST http://localhost/oai_pmh/add/record
-    """
-    if request.user.is_authenticated():
-        try:
-            # serializer = SaveRecordSerializer(data=request.DATA)
-            # if serializer.is_valid():
-                try:
-                    rec_collection = MongoClient(MONGODB_URI)[MGI_DB]['records']
-                except Exception:
-                    return Response({'message':'Error connecting to database.'}, status=status.HTTP_400_BAD_REQUEST)
-
-                try:
-                    content = request.DATA['content']
-                except ValueError:
-                    return Response({'message':'Error getting content.'}, status=status.HTTP_400_BAD_REQUEST)
-
-                try:
-                    rec_collection.insert(content)
-                except Exception as e:
-                    return Response({'message':'An error occured when trying to save document. %s'%e.message}, status=status.HTTP_400_BAD_REQUEST)
-                # return Response({'message':'Record Added. %s'%serializer.data}, status=status.HTTP_200_OK)
-        except Exception as e:
-            content = {'message':'An error occurred when attempting to identify resource: %s'%e.message}
-            return Response(content, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-    else:
-        content = {'message':'Only an administrator can use this feature.'}
-        return Response(content, status=status.HTTP_401_UNAUTHORIZED)
-
-################################################################################
-#
-# Function Name: select_record(request)
-# Inputs:        request -
-# Outputs:       200 Found record.
-# Exceptions:    400 Error connecting to database.
-#                400 Error getting content.
-#                400 No record found matching the identifier: [identifier]
-#                400 Serializer failed validation.
-#                401 Unauthorized.
-#                500 An error occurred when attempting to identify resource.
-# Description:   Select OAI-PMH Record
-#
-################################################################################
-@api_view(['POST'])
-def select_record(request):
-    """
-    POST http://localhost/oai_pmh/select/record
-    """
-    if request.user.is_authenticated():
-        try:
-            serializer = RecordSerializer(data=request.DATA)
-            if serializer.is_valid():
-                try:
-                    rec_collection = MongoClient(MONGODB_URI)[MGI_DB]['records']
-                except Exception:
-                    return Response({'message':'Error connecting to database.'}, status=status.HTTP_400_BAD_REQUEST)
-
-                try:
-                    identifier = request.DATA['identifier']
-                except ValueError:
-                    return Response({'message':'Error getting content.'}, status=status.HTTP_400_BAD_REQUEST)
-
-                record = rec_collection.find_one({"identifier":identifier}, {"_id":False}) # Exclude ObjectID from result
-
-                if record is 'null':
-                    return Response({'message':'No record found matching the identifier: %s'%identifier}, status=status.HTTP_400_BAD_REQUEST)
-                return Response(record, status=status.HTTP_200_OK)
-            else:
-                return Response({'message':'Serializer failed validation.'}, status=status.HTTP_400_BAD_REQUEST)
-        except Exception as e:
-            content = {'message':'An error occurred when attempting to identify resource: %s'%e.message}
-            return Response(content, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-    else:
-        content = {'message':'Only an administrator can use this feature.'}
-        return Response(content, status=status.HTTP_401_UNAUTHORIZED)
-
-################################################################################
-#
-# Function Name: select_all_records(request)
-# Inputs:        request -
-# Outputs:       200 Found records.
-# Exceptions:    400 Error connecting to database.
-#                401 Unauthorized.
-#                500 An error occurred when attempting to identify resource.
-# Description:   Select All OAI-PMH Records
-#
-################################################################################
-@api_view(['GET'])
-def select_all_records(request):
-    """
-    POST http://localhost/oai_pmh/select/all/records
-    """
-    if request.user.is_authenticated():
-        try:
-            try:
-                rec_collection = MongoClient(MONGODB_URI)[MGI_DB]['records']
-            except Exception:
-                return Response({'message':'Error connecting to database.'}, status=status.HTTP_400_BAD_REQUEST)
-
-            records = rec_collection.find({}, {"_id":False}) # Exclude ObjectID from result
-            rsp = {}
-            for r in records:
-                rsp.update(r)
-            return Response(rsp, status=status.HTTP_200_OK)
-        except Exception as e:
-            content = {'message':'An error occurred when attempting to identify resource: %s'%e.message}
-            return Response(content, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-    else:
-        content = {'message':'Only an administrator can use this feature.'}
-        return Response(content, status=status.HTTP_401_UNAUTHORIZED)
-
-################################################################################
-#
-# Function Name: update_record(request)
-# Inputs:        request -
-# Outputs:       201 Record updated.
-# Exceptions:    400 Error connecting to database.
-#                400 [Identifier] not found in request.
-#                400 [Content] not found in request.
-#                400 Unable to update record.
-#                400 Serializer failed validation.
-#                401 Unauthorized.
-#                404 No record found with the given identity.
-# Description:   Update OAI-PMH Record
-#
-################################################################################
-@api_view(['PUT'])
-def update_record(request):
-    """
-    PUT http://localhost/oai_pmh/update/record
-    """
-    if request.user.is_authenticated():
-        serializer = UpdateRecordSerializer(data=request.DATA)
-        if serializer.is_valid():
-            try:
-                rec_collection = MongoClient(MONGODB_URI)[MGI_DB]['records']
-            except Exception:
-                return Response({'message':'Error connecting to database.'}, status=status.HTTP_400_BAD_REQUEST)
-
-            try:
-                identifier = request.DATA['identifier']
-            except:
-                rsp = {'message':'\'Identifier\' not found in request.'}
-                return Response(rsp, status=status.HTTP_400_BAD_REQUEST)
-
-            try:
-                content = request.DATA['content']
-            except:
-                rsp = {'message':'\'Content\' not found in request.'}
-                return Response(rsp, status=status.HTTP_400_BAD_REQUEST)
-
-            try:
-                record = rec_collection.find_one({"identifier":identifier})
-                if record is "null":
-                    pass
-            except:
-                rsp = {'message':'No record found with the given identity.'}
-                return Response(rsp, status=status.HTTP_404_NOT_FOUND)
-
-            try:
-
-                rec_collection.update({"identifier":identifier}, { "$set": {"content":content} })
-            except:
-                return Response({'message':'Unable to update record.'}, status=status.HTTP_400_BAD_REQUEST)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        else:
-            return Response({'message':'Serializer failed validation.'}, status=status.HTTP_400_BAD_REQUEST)
-    else:
-        return Response({'message':'Only an administrator can use this feature.'}, status=status.HTTP_401_UNAUTHORIZED)
-
-################################################################################
-#
-# Function Name: delete_record(request)
-# Inputs:        request -
-# Outputs:       204 Record deleted.
-# Exceptions:    400 Error connecting to database.
-#                400 [Identifier] not found in request.
-#                400 [Content] not found in request.
-#                400 Unspecified.
-#                400 Serializer failed validation.
-#                401 Unauthorized.
-#                404 No record found with the given identity.
-# Description:   Delete OAI-PMH Registry
-#
-################################################################################
-@api_view(['POST'])
-def delete_record(request):
-    """
-    POST http://localhost/oai_pmh/delete/record
-    """
-    if request.user.is_authenticated():
-        try:
-            serializer = DeleteRecordSerializer(data=request.DATA)
-        except Exception as e:
-            return Response({"message":e.message}, status=status.HTTP_400_BAD_REQUEST)
-        if serializer.is_valid():
-            try:
-                rec_collection = MongoClient(MONGODB_URI)[MGI_DB]['records']
-            except:
-                return Response({'message':'Unable to connect to database.'}, status=status.HTTP_400_BAD_REQUEST)
-            try:
-                identifier = request.DATA['identifier']
-            except:
-                rsp = {'message':'\'Identifier\' not found in request.'}
-                return Response(rsp, status=status.HTTP_400_BAD_REQUEST)
-            try:
-                record = rec_collection.find_one({"identifier":identifier})
-                if record is not 'null':
-                    rec_collection.remove({"identifier":identifier})
-                    content = {'message':"Deleted record %s with success."%identifier}
-                    return Response(content, status=status.HTTP_204_NO_CONTENT)
-            except ValueError as e:
-                Response({"message":e.message}, status=status.HTTP_400_BAD_REQUEST)
-
-        else:
-            return Response({'message':'Serializer failed validation.'}, status=status.HTTP_400_BAD_REQUEST)
-    else:
-        content = {'message':'Only an administrator can use this feature.'}
-        return Response(content, status=status.HTTP_401_UNAUTHORIZED)
 
 ################################################################################
 #
@@ -538,7 +301,6 @@ def select_registry(request):
 #
 ################################################################################
 @api_view(['PUT'])
-# TODO Take care of sets and metadataformats
 def update_registry(request):
     """
     PUT http://localhost/oai_pmh/update/registry
@@ -791,8 +553,6 @@ def identify(request):
 
                 sickle = Sickle(url)
                 idResponse = sickle.Identify()
-                rsp = dict(idResponse)
-                #id = Identify(idResponse.xml)
 
                 return Response({'message':str(idResponse.xml)}, status=status.HTTP_200_OK)
         except Exception:
@@ -1571,6 +1331,201 @@ def update_my_metadataFormat(request):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
             return Response({'message':'Serializer failed validation. '}, status=status.HTTP_400_BAD_REQUEST)
+    else:
+        content = {'message':'Only an administrator can use this feature.'}
+        return Response(content, status=status.HTTP_401_UNAUTHORIZED)
+
+
+
+################################################################################
+#
+# Function Name: select_record(request)
+# Inputs:        request -
+# Outputs:       200 Found record.
+# Exceptions:    400 Error connecting to database.
+#                400 Error getting content.
+#                400 No record found matching the identifier: [identifier]
+#                400 Serializer failed validation.
+#                401 Unauthorized.
+#                500 An error occurred when attempting to identify resource.
+# Description:   Select OAI-PMH Record
+#
+################################################################################
+@api_view(['POST'])
+def select_record(request):
+    """
+    POST http://localhost/oai_pmh/select/record
+    """
+    if request.user.is_authenticated():
+        try:
+            serializer = RecordSerializer(data=request.DATA)
+            if serializer.is_valid():
+                try:
+                    rec_collection = MongoClient(MONGODB_URI)[MGI_DB]['records']
+                except Exception:
+                    return Response({'message':'Error connecting to database.'}, status=status.HTTP_400_BAD_REQUEST)
+
+                try:
+                    identifier = request.DATA['identifier']
+                except ValueError:
+                    return Response({'message':'Error getting content.'}, status=status.HTTP_400_BAD_REQUEST)
+
+                record = rec_collection.find_one({"identifier":identifier}, {"_id":False}) # Exclude ObjectID from result
+
+                if record is 'null':
+                    return Response({'message':'No record found matching the identifier: %s'%identifier}, status=status.HTTP_400_BAD_REQUEST)
+                return Response(record, status=status.HTTP_200_OK)
+            else:
+                return Response({'message':'Serializer failed validation.'}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            content = {'message':'An error occurred when attempting to identify resource: %s'%e.message}
+            return Response(content, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    else:
+        content = {'message':'Only an administrator can use this feature.'}
+        return Response(content, status=status.HTTP_401_UNAUTHORIZED)
+
+################################################################################
+#
+# Function Name: select_all_records(request)
+# Inputs:        request -
+# Outputs:       200 Found records.
+# Exceptions:    400 Error connecting to database.
+#                401 Unauthorized.
+#                500 An error occurred when attempting to identify resource.
+# Description:   Select All OAI-PMH Records
+#
+################################################################################
+@api_view(['GET'])
+def select_all_records(request):
+    """
+    POST http://localhost/oai_pmh/select/all/records
+    """
+    if request.user.is_authenticated():
+        try:
+            try:
+                rec_collection = MongoClient(MONGODB_URI)[MGI_DB]['records']
+            except Exception:
+                return Response({'message':'Error connecting to database.'}, status=status.HTTP_400_BAD_REQUEST)
+
+            records = rec_collection.find({}, {"_id":False}) # Exclude ObjectID from result
+            rsp = {}
+            for r in records:
+                rsp.update(r)
+            return Response(rsp, status=status.HTTP_200_OK)
+        except Exception as e:
+            content = {'message':'An error occurred when attempting to identify resource: %s'%e.message}
+            return Response(content, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    else:
+        content = {'message':'Only an administrator can use this feature.'}
+        return Response(content, status=status.HTTP_401_UNAUTHORIZED)
+
+################################################################################
+#
+# Function Name: update_record(request)
+# Inputs:        request -
+# Outputs:       201 Record updated.
+# Exceptions:    400 Error connecting to database.
+#                400 [Identifier] not found in request.
+#                400 [Content] not found in request.
+#                400 Unable to update record.
+#                400 Serializer failed validation.
+#                401 Unauthorized.
+#                404 No record found with the given identity.
+# Description:   Update OAI-PMH Record
+#
+################################################################################
+@api_view(['PUT'])
+def update_record(request):
+    """
+    PUT http://localhost/oai_pmh/update/record
+    """
+    if request.user.is_authenticated():
+        serializer = UpdateRecordSerializer(data=request.DATA)
+        if serializer.is_valid():
+            try:
+                rec_collection = MongoClient(MONGODB_URI)[MGI_DB]['records']
+            except Exception:
+                return Response({'message':'Error connecting to database.'}, status=status.HTTP_400_BAD_REQUEST)
+
+            try:
+                identifier = request.DATA['identifier']
+            except:
+                rsp = {'message':'\'Identifier\' not found in request.'}
+                return Response(rsp, status=status.HTTP_400_BAD_REQUEST)
+
+            try:
+                content = request.DATA['content']
+            except:
+                rsp = {'message':'\'Content\' not found in request.'}
+                return Response(rsp, status=status.HTTP_400_BAD_REQUEST)
+
+            try:
+                record = rec_collection.find_one({"identifier":identifier})
+                if record is "null":
+                    pass
+            except:
+                rsp = {'message':'No record found with the given identity.'}
+                return Response(rsp, status=status.HTTP_404_NOT_FOUND)
+
+            try:
+
+                rec_collection.update({"identifier":identifier}, { "$set": {"content":content} })
+            except:
+                return Response({'message':'Unable to update record.'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response({'message':'Serializer failed validation.'}, status=status.HTTP_400_BAD_REQUEST)
+    else:
+        return Response({'message':'Only an administrator can use this feature.'}, status=status.HTTP_401_UNAUTHORIZED)
+
+################################################################################
+#
+# Function Name: delete_record(request)
+# Inputs:        request -
+# Outputs:       204 Record deleted.
+# Exceptions:    400 Error connecting to database.
+#                400 [Identifier] not found in request.
+#                400 [Content] not found in request.
+#                400 Unspecified.
+#                400 Serializer failed validation.
+#                401 Unauthorized.
+#                404 No record found with the given identity.
+# Description:   Delete OAI-PMH Registry
+#
+################################################################################
+@api_view(['POST'])
+def delete_record(request):
+    """
+    POST http://localhost/oai_pmh/delete/record
+    """
+    if request.user.is_authenticated():
+        try:
+            serializer = DeleteRecordSerializer(data=request.DATA)
+        except Exception as e:
+            return Response({"message":e.message}, status=status.HTTP_400_BAD_REQUEST)
+        if serializer.is_valid():
+            try:
+                rec_collection = MongoClient(MONGODB_URI)[MGI_DB]['records']
+            except:
+                return Response({'message':'Unable to connect to database.'}, status=status.HTTP_400_BAD_REQUEST)
+            try:
+                identifier = request.DATA['identifier']
+            except:
+                rsp = {'message':'\'Identifier\' not found in request.'}
+                return Response(rsp, status=status.HTTP_400_BAD_REQUEST)
+            try:
+                record = rec_collection.find_one({"identifier":identifier})
+                if record is not 'null':
+                    rec_collection.remove({"identifier":identifier})
+                    content = {'message':"Deleted record %s with success."%identifier}
+                    return Response(content, status=status.HTTP_204_NO_CONTENT)
+            except ValueError as e:
+                Response({"message":e.message}, status=status.HTTP_400_BAD_REQUEST)
+
+        else:
+            return Response({'message':'Serializer failed validation.'}, status=status.HTTP_400_BAD_REQUEST)
     else:
         content = {'message':'Only an administrator can use this feature.'}
         return Response(content, status=status.HTTP_401_UNAUTHORIZED)
