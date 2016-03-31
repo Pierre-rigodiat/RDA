@@ -30,7 +30,7 @@ def harvest(registryId):
         #If we need to harvest
         if registry.harvest:
             #Get the uri
-            uri = OAI_HOST_URI + "/oai_pmh/api/update/all/records"
+            uri = OAI_HOST_URI + "/oai_pmh/api/harvest"
             # Call the API to update all records for this registry
             req = requests.post(uri,
                                {"registry_id": registryId},

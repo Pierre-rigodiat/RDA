@@ -12,7 +12,7 @@
 
 from rest_framework import serializers
 from rest_framework_mongoengine.serializers import MongoEngineModelSerializer
-from mgi.models import OaiRegistry, UpdateRecord, DeleteRecord, SelectRecord, DeleteRegistry, OaiSettings,\
+from mgi.models import OaiRegistry, UpdateRecord, DeleteRecord, SelectRecord, OaiSettings,\
 OaiMyMetadataFormat
 
 class RegistrySerializer(MongoEngineModelSerializer):
@@ -24,10 +24,6 @@ class UpdateRegistrySerializer(MongoEngineModelSerializer):
     class Meta:
         model = OaiRegistry
         exclude = (['identity','sets', 'metadataformats', 'name', 'url'])
-
-class DeleteRegistrySerializer(MongoEngineModelSerializer):
-    class Meta:
-        model = DeleteRegistry
 
 class ListRecordsSerializer(serializers.Serializer):
     url  = serializers.URLField(required=True)
@@ -52,6 +48,11 @@ class RecordSerializer(serializers.Serializer):
     metadataPrefix = serializers.CharField()
     metadata = serializers.CharField()
     raw = serializers.CharField()
+
+class GetRecordSerializer(serializers.Serializer):
+    url = serializers.URLField(required=True)
+    identifier = serializers.CharField(required=True)
+    metadataprefix = serializers.CharField()
 
 class IdentifySerializer(serializers.Serializer):
     url = serializers.URLField(required=True)
@@ -110,7 +111,6 @@ class MyMetadataFormatSerializer(serializers.Serializer):
 class DeleteMyMetadataFormatSerializer(serializers.Serializer):
     MetadataFormatId  = serializers.CharField(required=True)
 
-class UpdateMyMetadataFormatSerializer(MongoEngineModelSerializer):
-    class Meta:
-        model = OaiMyMetadataFormat
-        exclude = (['xmlSchema'])
+class UpdateMyMetadataFormatSerializer(serializers.Serializer):
+    id = serializers.CharField(required=True)
+    metadataPrefix = serializers.CharField(required=True)
