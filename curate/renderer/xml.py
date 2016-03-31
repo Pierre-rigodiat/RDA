@@ -28,6 +28,19 @@ class AbstractXmlRenderer(DefaultRenderer):
         return self._load_template('xml', data)
 
 
+def get_parent_element(element):
+    """
+    Get the parent element (tag is element, not direct parent) of the current element.
+    """
+    try:
+        parent = SchemaElement.objects().get(children__contains=ObjectId(element.id))
+        while parent.tag != 'element':
+            parent = SchemaElement.objects().get(children__contains=ObjectId(parent.id))
+        return parent
+    except:
+        return None
+
+
 class XmlRenderer(AbstractXmlRenderer):
     """
     """
@@ -82,8 +95,11 @@ class XmlRenderer(AbstractXmlRenderer):
 
                 # namespaces
                 if 'xmlns' in element.options and element.options['xmlns'] is not None:
-                    xmlns = ' xmlns="{}"'.format(element.options['xmlns'])
-                    content[0] += xmlns
+                    parent = get_parent_element(element)
+                    if parent is None or ('xmlns' in parent.options and
+                                          element.options['xmlns'] != parent.options['xmlns']):
+                        xmlns = ' xmlns="{}"'.format(element.options['xmlns'])
+                        content[0] += xmlns
 
                 xml_string += self._render_xml(element_name, content[0], content[1])
 
@@ -124,9 +140,7 @@ class XmlRenderer(AbstractXmlRenderer):
             # namespaces
             if 'xmlns' in element.options and element.options['xmlns'] is not None:
                 # check that element isn't declaring the same namespace xmlns=""
-                parent = SchemaElement.objects().get(children__contains=ObjectId(element.id))
-                while parent.tag != 'element':
-                    parent = SchemaElement.objects().get(children__contains=ObjectId(parent.id))
+                parent = get_parent_element(element)
                 if 'xmlns' in parent.options and parent.options['xmlns'] is not None and \
                                 parent.options['xmlns'] == element.options['xmlns']:
                         xmlns = ''

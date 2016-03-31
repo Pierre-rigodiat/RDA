@@ -679,6 +679,7 @@ def generate_element(request, element, xml_tree, choice_info=None, full_path="",
                              maxOccurs=max_occurs, schema_location=schema_location)
     xml_element.save()
 
+    db_element['options']['schema_location'] = schema_location
     db_element['options']['xmlns'] = element_ns
     db_element['options']['ns_prefix'] = ns_prefix
 
