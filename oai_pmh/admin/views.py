@@ -11,11 +11,8 @@
 #
 ################################################################################
 
-# Responses
 from rest_framework import status
 from django.http.response import HttpResponseBadRequest
-# Requests
-import requests
 from oai_pmh.forms import UpdateRegistryForm, MyMetadataFormatForm, RegistryForm, MyRegistryForm, UpdateMyMetadataFormatForm
 import json
 from mgi.settings import OAI_HOST_URI, OAI_USER, OAI_PASS
@@ -25,6 +22,7 @@ from django.conf import settings
 # Responses
 from django.http import HttpResponse
 # Requests
+import requests
 from django.template import RequestContext, loader
 from mgi.models import OaiRegistry, OaiSettings, OaiMyMetadataFormat, OaiXslt, OaiTemplMfXslt, Template
 from django.contrib.admin.views.decorators import staff_member_required
@@ -41,22 +39,47 @@ from oai_pmh.admin.forms import AssociateXSLT
 
 ################################################################################
 #
+# Function Name: oai_pmh(request)
+# Inputs:        request -
+# Outputs:       OAI-PMH Page
+# Exceptions:    None
+# Description:   Page that allows to manage OAI-PMH
+#
+################################################################################
+@staff_member_required
+def oai_pmh(request):
+    template = loader.get_template('oai_pmh/admin/oai_pmh.html')
+
+    registry_form = RegistryForm();
+    registries = OaiRegistry.objects.all()
+    context = RequestContext(request, {
+        'contacts': Message.objects,
+        'registry_form': registry_form,
+        'registries': registries,
+    })
+
+    return HttpResponse(template.render(context))
+
+
+################################################################################
+#
 # Function Name: check_registry(request)
 # Inputs:        request -
 # Outputs:
 # Exceptions:    None
-# Description:   OAI-PMH Check if the Registry is available
+# Description:   OAI-PMH Check if the Data Provider is available
 #
 ################################################################################
 @login_required(login_url='/login')
 def check_registry(request):
     try:
+        #Get the data provider URL
         form = Url(request.POST)
         if form.is_valid():
             #Call the identify function from the API.
             uri= OAI_HOST_URI + "/oai_pmh/api/identify"
             req = requests.post(uri, {"url":request.POST.get("url")}, auth=(OAI_USER, OAI_PASS))
-            #IF the return status is HTTP_200_OK, the registry is available
+            #If the return status is HTTP_200_OK, the data provider is available
             isAvailable = req.status_code == status.HTTP_200_OK
         else:
             isAvailable = False
@@ -74,12 +97,11 @@ def check_registry(request):
 # Description:   OAI-PMH Client add registry page
 #
 ################################################################################
-
 @login_required(login_url='/login')
 def add_registry(request):
     if request.method == 'POST':
         form = RegistryForm(request.POST)
-
+        #Check the Form
         if form.is_valid():
             try:
                 #We add the registry
@@ -119,161 +141,6 @@ def add_registry(request):
                 return HttpResponseBadRequest('An error occurred. Please contact your administrator.')
         else:
             return HttpResponseBadRequest('Bad entries. Please enter a valid URL and a positive integer')
-
-
-@login_required(login_url='/login')
-def add_my_metadataFormat(request):
-    if request.method == 'POST':
-        form = MyMetadataFormatForm(request.POST, request.FILES)
-
-        if form.is_valid():
-            try:
-                #We add the metadata Format
-                uri = OAI_HOST_URI + "/oai_pmh/api/add/my-metadataFormat"
-                #We retrieve information from the form
-                if 'metadataPrefix' in request.POST:
-                    metadataprefix = request.POST.get('metadataPrefix')
-
-                if 'schema' in request.POST:
-                    schema = request.POST.get('schema')
-
-                # if 'metadataNamespace' in request.POST:
-                #     namespace = request.POST.get('metadataNamespace')
-                #
-                # if 'xmlSchema' in request.FILES:
-                #     xml_schema = request.FILES.get('xmlSchema')
-                #     # put the cursor at the beginning of the file
-                #     xml_schema.seek(0)
-                #     # read the content of the file
-                #     xml_data = xml_schema.read()
-                #     # check XML data or not?
-                #     try:
-                #         etree.fromstring(xml_data)
-                #     except XMLSyntaxError:
-                #         return HttpResponseBadRequest('Uploaded File is not well formed XML.')
-
-                #Call to the API to add the registry
-                try:
-                    req = requests.post(uri, {"metadataPrefix": metadataprefix,
-                                              "schema": schema},#,
-                                              #"metadataNamespace": namespace,
-                                              #"xmlSchema": xml_data},
-                                        auth=(OAI_USER, OAI_PASS))
-
-                    #If the status is OK, sucess message
-                    if req.status_code == status.HTTP_201_CREATED:
-                        messages.add_message(request, messages.SUCCESS, 'Metadata Format added with success.')
-                        return HttpResponse('CREATED')
-                    #Else, we return a bad request response with the message provided by the API
-                    else:
-                        data = json.loads(req.text)
-                        return HttpResponseBadRequest(data['message'])
-                except Exception as e:
-                    return HttpResponseBadRequest('An error occurred. Please contact your administrator.')
-            except Exception as e:
-                return HttpResponseBadRequest('An error occurred. Please contact your administrator.')
-        else:
-            return HttpResponseBadRequest('Bad entries. Check your entry')
-
-
-
-################################################################################
-#
-# Function Name: delete_my_metadataFormat(request)
-# Inputs:        request -
-# Outputs:
-# Exceptions:    None
-# Description:   OAI-PMH Delete MyMetadata format
-#
-################################################################################
-@login_required(login_url='/login')
-def delete_my_metadataFormat(request):
-    uri = OAI_HOST_URI+"/oai_pmh/api/delete/my-metadataFormat"
-    try:
-        id = request.POST.get('MetadataFormatId')
-    except ValueError:
-        return HttpResponseBadRequest('Please provide an ID in order to delete the metadata format.')
-    try:
-        req = requests.post(uri, {"MetadataFormatId":id}, auth=(OAI_USER, OAI_PASS))
-
-        #If the status is OK, sucess message
-        if req.status_code == status.HTTP_200_OK:
-            messages.add_message(request, messages.INFO, 'Metadata Format deleted with success.')
-            return HttpResponse(json.dumps({}), content_type='application/javascript')
-        #Else, we return a bad request response with the message provided by the API
-        else:
-            data = json.loads(req.text)
-            return HttpResponseBadRequest(data['message'])
-    except Exception as e:
-        return HttpResponseBadRequest('An error occurred. Please contact your administrator.')
-
-
-
-################################################################################
-#
-# Function Name: update_my_metadataFormat(request)
-# Inputs:        request -
-# Outputs:
-# Exceptions:    None
-# Description:   OAI-PMH update my metadata format
-#
-# ################################################################################
-@login_required(login_url='/login')
-def update_my_metadataFormat(request):
-    if request.method == 'POST':
-        #UPDATE the registry
-        try:
-            uri = OAI_HOST_URI + "/oai_pmh/api/update/my-metadataFormat"
-            #Get all form information
-            if 'id' in request.POST:
-                id = request.POST.get('id')
-
-            if 'metadataPrefix' in request.POST:
-                metadataprefix = request.POST.get('metadataPrefix')
-
-            if 'schema' in request.POST:
-                schema = request.POST.get('schema')
-
-            if 'metadataNamespace' in request.POST:
-                namespace = request.POST.get('metadataNamespace')
-
-            #Call the API to update my metadataFormat
-            try:
-                req = requests.put(uri, { "id": id,
-                                          "metadataPrefix": metadataprefix,
-                                          "schema": schema,
-                                          "metadataNamespace": namespace},
-                                        auth=(OAI_USER, OAI_PASS))
-
-                #If the status is OK, sucess message
-                if req.status_code == status.HTTP_201_CREATED:
-                    messages.add_message(request, messages.INFO, 'Metadata Format edited with success.')
-                    return HttpResponse(json.dumps({}), content_type='application/javascript')
-                #Else, we return a bad request response with the message provided by the API
-                else:
-                    data = json.loads(req.text)
-                    return HttpResponseBadRequest(data['message'])
-            except Exception as e:
-                return HttpResponseBadRequest('An error occurred. Please contact your administrator.')
-        except Exception as e:
-            return HttpResponseBadRequest('An error occurred. Please contact your administrator.')
-    elif request.method == 'GET':
-        #Build the template to render for the metadata format edition
-        template = loader.get_template('oai_pmh/admin/form_my_metadata_format_edit.html')
-        metadata_format_id = request.GET['metadata_format_id']
-        try:
-            information = OaiMyMetadataFormat.objects.get(pk=metadata_format_id)
-            data = {'id': metadata_format_id, 'metadataPrefix': information.metadataPrefix, 'schema': information.schema,
-                    'metadataNamespace': information.metadataNamespace}
-            metadataformat_form = UpdateMyMetadataFormatForm(data)
-        except:
-            metadataformat_form = UpdateMyMetadataFormatForm()
-
-        context = RequestContext(request, {
-            'metadataformat_form': metadataformat_form,
-        })
-
-        return HttpResponse(json.dumps({'template': template.render(context)}), content_type='application/javascript')
 
 ################################################################################
 #
@@ -374,85 +241,11 @@ def delete_registry(request):
 
 ################################################################################
 #
-# Function Name: oai_pmh(request)
+# Function Name: oai_pmh_detail_registry(request)
 # Inputs:        request -
 # Outputs:       OAI-PMH Page
 # Exceptions:    None
-# Description:   Page that allows to manage OAI-PMH
-#
-################################################################################
-@staff_member_required
-def oai_pmh(request):
-    template = loader.get_template('oai_pmh/admin/oai_pmh.html')
-
-    registry_form = RegistryForm();
-    registries = OaiRegistry.objects.all()
-    context = RequestContext(request, {
-        'contacts': Message.objects,
-        'registry_form': registry_form,
-        'registries': registries,
-    })
-
-    return HttpResponse(template.render(context))
-
-
-################################################################################
-#
-# Function Name: oai_pmh(request)
-# Inputs:        request -
-# Outputs:       OAI-PMH Page
-# Exceptions:    None
-# Description:   Page that allows to manage OAI-PMH
-#
-################################################################################
-@staff_member_required
-def oai_pmh_my_infos(request):
-    template = loader.get_template('oai_pmh/admin/oai_pmh_my_infos.html')
-    information = OaiSettings.objects.get()
-    if information:
-        name = information.repositoryName
-        repoIdentifier = information.repositoryIdentifier
-        enableHarvesting = information.enableHarvesting
-    else:
-        name = settings.OAI_NAME
-        repoIdentifier = settings.OAI_REPO_IDENTIFIER
-        enableHarvesting = False
-
-    data_provider = {
-            'name': name,
-            'baseURL': settings.OAI_HOST_URI +"/oai_pmh/server/",
-            'protocole_version': settings.OAI_PROTOCOLE_VERSION,
-            'admins': (email for name, email in settings.OAI_ADMINS),
-            # 'earliest_date': self.getEarliestDate(),   # placeholder
-            'deleted': settings.OAI_DELETED_RECORD,  # no, transient, persistent
-            'granularity': settings.OAI_GRANULARITY,  # or YYYY-MM-DD
-            'identifier_scheme': settings.OAI_SCHEME,
-            'repository_identifier': repoIdentifier,
-            'identifier_delimiter': settings.OAI_DELIMITER,
-            'sample_identifier': settings.OAI_SAMPLE_IDENTIFIER,
-            'enable_harvesting': enableHarvesting,
-        }
-
-    metadataformat_form = MyMetadataFormatForm()
-    metadataFormats = OaiMyMetadataFormat.objects(isDefault=False).all()
-    defaultMetadataFormats = OaiMyMetadataFormat.objects(isDefault=True).all()
-    context = RequestContext(request, {
-        'data_provider': data_provider,
-        'metadataformat_form': metadataformat_form,
-        'metadataFormats': metadataFormats,
-        'defaultMetadataFormats': defaultMetadataFormats,
-    })
-
-    return HttpResponse(template.render(context))
-
-
-################################################################################
-#
-# Function Name: oai_pmh(request)
-# Inputs:        request -
-# Outputs:       OAI-PMH Page
-# Exceptions:    None
-# Description:   Page that allows to manage OAI-PMH
+# Description:   Page that allows to get information about a Data provider
 #
 ################################################################################
 @staff_member_required
@@ -465,6 +258,125 @@ def oai_pmh_detail_registry(request):
         'sets': OaiSet.objects(registry=result_id),
         'nbRecords': OaiRecord.objects(registry=result_id).count(),
     })
+    return HttpResponse(template.render(context))
+
+
+################################################################################
+#
+# Function Name: update_all_records(request)
+# Inputs:        request -
+# Outputs:
+# Exceptions:    None
+# Description:   OAI-PMH -  Harvest Data from a Data Provider
+#
+# ################################################################################
+@login_required(login_url='/login')
+def update_all_records(request):
+    if request.method == 'POST':
+        try:
+            #Get the ID
+            registry_id = request.POST['registry_id']
+            uri = OAI_HOST_URI + "/oai_pmh/api/update/all/records"
+
+            #Call the API to update all records for this registry
+            try:
+                requests.post(uri,
+                                   {"registry_id": registry_id},
+                                   auth=(OAI_USER, OAI_PASS))
+                return HttpResponse(json.dumps({}), content_type='application/javascript')
+            except Exception as e:
+                return HttpResponseBadRequest('An error occurred. Please contact your administrator.')
+        except Exception as e:
+            return HttpResponseBadRequest('An error occurred. Please contact your administrator.')
+
+
+################################################################################
+#
+# Function Name: check_harvest_data(request)
+# Inputs:        request -
+# Outputs:
+# Exceptions:    None
+# Description:   OAI-PMH Return the state of the registries (isHarvesting), if we are harvesting data from them
+#                and the last update date
+#
+# ################################################################################
+@login_required(login_url='/login')
+def check_harvest_data(request):
+    if request.method == 'POST':
+        try:
+            resultsByKeyword = []
+            #Get all registries
+            registries = OaiRegistry.objects.only('id', 'isHarvesting', 'lastUpdate').all()
+            #Build array with registry id and isHarvesting value
+            for registry in registries:
+                result_json = {}
+                result_json['registry_id'] = str(registry.id)
+                result_json['isHarvesting'] = registry.isHarvesting
+                #If we have a last update date, format the date
+                if registry.lastUpdate:
+                    df =  DateFormat(registry.lastUpdate)
+                    lastUpdate = df.format('F j, Y, g:i a')
+                else:
+                    lastUpdate = ''
+                result_json['lastUpdate'] = lastUpdate
+                resultsByKeyword.append(result_json)
+
+            return HttpResponse(json.dumps(resultsByKeyword), content_type='application/javascript')
+        except Exception as e:
+            return HttpResponseBadRequest('An error occurred. Please contact your administrator.')
+
+
+################################################################################
+#
+# Function Name: oai_pmh_my_infos(request)
+# Inputs:        request -
+# Outputs:       OAI-PMH Page
+# Exceptions:    None
+# Description:   Page that allows to manage my server's information (OAI-PMH)
+#
+################################################################################
+@staff_member_required
+def oai_pmh_my_infos(request):
+    #Template name
+    template = loader.get_template('oai_pmh/admin/oai_pmh_my_infos.html')
+    #Get settings information in database
+    information = OaiSettings.objects.get()
+    if information:
+        name = information.repositoryName
+        repoIdentifier = information.repositoryIdentifier
+        enableHarvesting = information.enableHarvesting
+    else:
+        name = settings.OAI_NAME
+        repoIdentifier = settings.OAI_REPO_IDENTIFIER
+        enableHarvesting = False
+    #Fill the information
+    data_provider = {
+            'name': name,
+            'baseURL': settings.OAI_HOST_URI +"/oai_pmh/server/",
+            'protocole_version': settings.OAI_PROTOCOLE_VERSION,
+            'admins': (email for name, email in settings.OAI_ADMINS),
+            # 'earliest_date': self.getEarliestDate(),   # placeholder
+            'deleted': settings.OAI_DELETED_RECORD,
+            'granularity': settings.OAI_GRANULARITY,
+            'identifier_scheme': settings.OAI_SCHEME,
+            'repository_identifier': repoIdentifier,
+            'identifier_delimiter': settings.OAI_DELIMITER,
+            'sample_identifier': settings.OAI_SAMPLE_IDENTIFIER,
+            'enable_harvesting': enableHarvesting,
+        }
+    #Form to manage MF
+    metadataformat_form = MyMetadataFormatForm()
+    #Get my server's MF
+    metadataFormats = OaiMyMetadataFormat.objects(isDefault=False).all()
+    #Get my server's default MF
+    defaultMetadataFormats = OaiMyMetadataFormat.objects(isDefault=True).all()
+    context = RequestContext(request, {
+        'data_provider': data_provider,
+        'metadataformat_form': metadataformat_form,
+        'metadataFormats': metadataFormats,
+        'defaultMetadataFormats': defaultMetadataFormats,
+    })
+
     return HttpResponse(template.render(context))
 
 
@@ -531,72 +443,165 @@ def update_my_registry(request):
 
 ################################################################################
 #
-# Function Name: update_my_registry(request)
+# Function Name: add_my_metadataFormat(request)
 # Inputs:        request -
 # Outputs:
 # Exceptions:    None
-# Description:   OAI-PMH update my registry
+# Description:   Add a new Metadata Format for the server
+#
+################################################################################
+@login_required(login_url='/login')
+def add_my_metadataFormat(request):
+    if request.method == 'POST':
+        form = MyMetadataFormatForm(request.POST, request.FILES)
+
+        if form.is_valid():
+            try:
+                #We add the metadata Format
+                uri = OAI_HOST_URI + "/oai_pmh/api/add/my-metadataFormat"
+                #We retrieve information from the form
+                if 'metadataPrefix' in request.POST:
+                    metadataprefix = request.POST.get('metadataPrefix')
+
+                if 'schema' in request.POST:
+                    schema = request.POST.get('schema')
+
+                # if 'metadataNamespace' in request.POST:
+                #     namespace = request.POST.get('metadataNamespace')
+                #
+                # if 'xmlSchema' in request.FILES:
+                #     xml_schema = request.FILES.get('xmlSchema')
+                #     # put the cursor at the beginning of the file
+                #     xml_schema.seek(0)
+                #     # read the content of the file
+                #     xml_data = xml_schema.read()
+                #     # check XML data or not?
+                #     try:
+                #         etree.fromstring(xml_data)
+                #     except XMLSyntaxError:
+                #         return HttpResponseBadRequest('Uploaded File is not well formed XML.')
+
+                #Call to the API to add the registry
+                try:
+                    req = requests.post(uri, {"metadataPrefix": metadataprefix,
+                                              "schema": schema},#,
+                                              #"metadataNamespace": namespace,
+                                              #"xmlSchema": xml_data},
+                                        auth=(OAI_USER, OAI_PASS))
+
+                    #If the status is OK, sucess message
+                    if req.status_code == status.HTTP_201_CREATED:
+                        messages.add_message(request, messages.SUCCESS, 'Metadata Format added with success.')
+                        return HttpResponse('CREATED')
+                    #Else, we return a bad request response with the message provided by the API
+                    else:
+                        data = json.loads(req.text)
+                        return HttpResponseBadRequest(data['message'])
+                except Exception as e:
+                    return HttpResponseBadRequest('An error occurred. Please contact your administrator.')
+            except Exception as e:
+                return HttpResponseBadRequest('An error occurred. Please contact your administrator.')
+        else:
+            return HttpResponseBadRequest('Bad entries. Check your entry')
+
+
+################################################################################
+#
+# Function Name: delete_my_metadataFormat(request)
+# Inputs:        request -
+# Outputs:
+# Exceptions:    None
+# Description:   OAI-PMH Delete MyMetadata format
+#
+################################################################################
+@login_required(login_url='/login')
+def delete_my_metadataFormat(request):
+    uri = OAI_HOST_URI+"/oai_pmh/api/delete/my-metadataFormat"
+    try:
+        id = request.POST.get('MetadataFormatId')
+    except ValueError:
+        return HttpResponseBadRequest('Please provide an ID in order to delete the metadata format.')
+    try:
+        req = requests.post(uri, {"MetadataFormatId":id}, auth=(OAI_USER, OAI_PASS))
+
+        #If the status is OK, sucess message
+        if req.status_code == status.HTTP_200_OK:
+            messages.add_message(request, messages.INFO, 'Metadata Format deleted with success.')
+            return HttpResponse(json.dumps({}), content_type='application/javascript')
+        #Else, we return a bad request response with the message provided by the API
+        else:
+            data = json.loads(req.text)
+            return HttpResponseBadRequest(data['message'])
+    except Exception as e:
+        return HttpResponseBadRequest('An error occurred. Please contact your administrator.')
+
+
+################################################################################
+#
+# Function Name: update_my_metadataFormat(request)
+# Inputs:        request -
+# Outputs:
+# Exceptions:    None
+# Description:   OAI-PMH update my metadata format
 #
 # ################################################################################
 @login_required(login_url='/login')
-def update_all_records(request):
+def update_my_metadataFormat(request):
     if request.method == 'POST':
+        #UPDATE the registry
         try:
-            #Get the ID
-            registry_id = request.POST['registry_id']
-            uri = OAI_HOST_URI + "/oai_pmh/api/update/all/records"
+            uri = OAI_HOST_URI + "/oai_pmh/api/update/my-metadataFormat"
+            #Get all form information
+            if 'id' in request.POST:
+                id = request.POST.get('id')
 
-            #Call the API to update all records for this registry
+            if 'metadataPrefix' in request.POST:
+                metadataprefix = request.POST.get('metadataPrefix')
+
+            if 'schema' in request.POST:
+                schema = request.POST.get('schema')
+
+            if 'metadataNamespace' in request.POST:
+                namespace = request.POST.get('metadataNamespace')
+
+            #Call the API to update my metadataFormat
             try:
-                req = requests.post(uri,
-                                   {"registry_id": registry_id},
-                                   auth=(OAI_USER, OAI_PASS))
+                req = requests.put(uri, { "id": id,
+                                          "metadataPrefix": metadataprefix,
+                                          "schema": schema,
+                                          "metadataNamespace": namespace},
+                                        auth=(OAI_USER, OAI_PASS))
+
                 #If the status is OK, sucess message
-                # if req.status_code == status.HTTP_201_CREATED:
-                #     messages.add_message(request, messages.INFO, 'Data provider edited with success.')
-                #     return HttpResponse(json.dumps({}), content_type='application/javascript')
-                # #Else, we return a bad request response with the message provided by the API
-                # else:
-                #     data = json.loads(req.text)
-                #     return HttpResponseBadRequest(data['message'])
-                return HttpResponse(json.dumps({}), content_type='application/javascript')
+                if req.status_code == status.HTTP_201_CREATED:
+                    messages.add_message(request, messages.INFO, 'Metadata Format edited with success.')
+                    return HttpResponse(json.dumps({}), content_type='application/javascript')
+                #Else, we return a bad request response with the message provided by the API
+                else:
+                    data = json.loads(req.text)
+                    return HttpResponseBadRequest(data['message'])
             except Exception as e:
                 return HttpResponseBadRequest('An error occurred. Please contact your administrator.')
         except Exception as e:
             return HttpResponseBadRequest('An error occurred. Please contact your administrator.')
-
-################################################################################
-#
-# Function Name: check_harvest_data(request)
-# Inputs:        request -
-# Outputs:
-# Exceptions:    None
-# Description:   OAI-PMH Return the state of the registries (isHarvesting)
-#
-# ################################################################################
-@login_required(login_url='/login')
-def check_harvest_data(request):
-    if request.method == 'POST':
+    elif request.method == 'GET':
+        #Build the template to render for the metadata format edition
+        template = loader.get_template('oai_pmh/admin/form_my_metadata_format_edit.html')
+        metadata_format_id = request.GET['metadata_format_id']
         try:
-            resultsByKeyword = []
-            #Get all registries
-            registries = OaiRegistry.objects.only('id', 'isHarvesting', 'lastUpdate').all()
-            #Build array with registry id and isHarvesting value
-            for registry in registries:
-                result_json = {}
-                result_json['registry_id'] = str(registry.id)
-                result_json['isHarvesting'] = registry.isHarvesting
-                if registry.lastUpdate:
-                    df =  DateFormat(registry.lastUpdate)
-                    lastUpdate = df.format('F j, Y, g:i a')
-                else:
-                    lastUpdate = ''
-                result_json['lastUpdate'] = lastUpdate
-                resultsByKeyword.append(result_json)
+            information = OaiMyMetadataFormat.objects.get(pk=metadata_format_id)
+            data = {'id': metadata_format_id, 'metadataPrefix': information.metadataPrefix, 'schema': information.schema,
+                    'metadataNamespace': information.metadataNamespace}
+            metadataformat_form = UpdateMyMetadataFormatForm(data)
+        except:
+            metadataformat_form = UpdateMyMetadataFormatForm()
 
-            return HttpResponse(json.dumps(resultsByKeyword), content_type='application/javascript')
-        except Exception as e:
-            return HttpResponseBadRequest('An error occurred. Please contact your administrator.')
+        context = RequestContext(request, {
+            'metadataformat_form': metadataformat_form,
+        })
+
+        return HttpResponse(json.dumps({'template': template.render(context)}), content_type='application/javascript')
+
 
 
 ################################################################################

@@ -24,6 +24,9 @@ class OAIPMHConfig(AppConfig):
     verbose_name = "oai_pmh"
 
     def ready(self):
+        #Settings Initialization
         discover.init_settings()
+        #Add indexes for the keyword research
         OaiRecord.initIndexes()
+        #Launch background tasks
         tasks.init_harvest()

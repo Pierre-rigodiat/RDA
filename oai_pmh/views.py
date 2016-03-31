@@ -34,18 +34,20 @@ from StringIO import StringIO
 
 ################################################################################
 #
-# Function Name: oai_pmh_downloadxml(request)
+# Function Name: download_xml_build_req(request)
 # Inputs:        request -
 # Outputs:       XML representation of the current build request
 # Exceptions:    None
 # Description:   Returns an XML representation of the current build request.
-#                Used when user wants to download the XML file.
+#                Used when user wants to download the OAI-PMH XML file.
 #
 ################################################################################
 @login_required(login_url='/login')
 def download_xml_build_req(request):
+    #POST request
     if request.method == 'POST':
         if 'xmlStringOAIPMH' in request.session:
+            #We retrieve the XML file in session
             xmlDataObject = request.session['xmlStringOAIPMH']
             try:
                 # Load a parser able to clean the XML from blanks, comments and processing instructions
@@ -58,26 +60,34 @@ def download_xml_build_req(request):
             except:
                 xmlStringEncoded = xmlDataObject
 
+            #Get the date to append it to the file title
             i = datetime.datetime.now()
             title = "OAI_PMH_BUILD_REQ_%s_.xml" % i.isoformat()
+            #Use the XML2Download collection to save the XML to download. We can't directly return the XML
+            #because this method is called via Ajax. We need to save the XML and call the GET request of this function
+            #in the success part of the Ajax call
             xml2download = XML2Download(title=title, xml=xmlStringEncoded).save()
             xml2downloadID = str(xml2download.id)
-
+            #Return the ID to call the GET request with it
             response_dict = {"xml2downloadID": xml2downloadID}
             return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
         else:
             return HttpResponseBadRequest('An error occured. Please reload the page and try again.')
     else:
+        #Get the XML2Download ID
         xml2downloadID = request.GET.get('id', None)
-
         if xml2downloadID is not None:
+            #Get the XML
             xmlDataObject = XML2Download.objects.get(pk=xml2downloadID)
+            #Encode the XML
             xmlStringEncoded = xmlDataObject.xml.encode('utf-8')
             fileObj = StringIO(xmlStringEncoded)
+            #Delete the record
             xmlDataObject.delete()
+            #Check that the file is ending by .xml
             if not xmlDataObject.title.lower().endswith('.xml'):
                 xmlDataObject.title += ".xml"
-
+            #Return the XML file
             response = HttpResponse(FileWrapper(fileObj), content_type='application/xml')
             response['Content-Disposition'] = 'attachment; filename=' + xmlDataObject.title
             request.session['xmlStringOAIPMH'] = xmlStringEncoded
@@ -99,6 +109,7 @@ def download_xml_build_req(request):
 @login_required(login_url='/login')
 def all_sets(request, registry):
     sets = []
+    #Get all sets information
     registrySets = OaiSet.objects(registry=registry).order_by("setName")
     for set in registrySets:
         sets.append({'key': set.setName, 'value': set.setSpec})
@@ -116,6 +127,7 @@ def all_sets(request, registry):
 @login_required(login_url='/login')
 def all_metadataprefix(request, registry):
     prefix = []
+    #Get all metadataprefix information
     metadataformats = OaiMetadataFormat.objects(registry=registry).order_by("metadataPrefix")
     for format in metadataformats:
         prefix.append(format.metadataPrefix)
@@ -167,7 +179,9 @@ def getData(request):
 ################################################################################
 @login_required(login_url='/login')
 def oai_pmh_build_request(request):
+    #Get the template
     template = loader.get_template('oai_pmh/oai_pmh_build_request.html')
+    #Build the form
     requestForm = RequestForm();
     context = RequestContext(request, {'request_form': requestForm})
     return HttpResponse(template.render(context))

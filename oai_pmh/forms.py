@@ -12,11 +12,7 @@
 ################################################################################
 from django import forms
 from django.core.validators import MinValueValidator
-from mgi.models import OaiRegistry, OaiMetadataFormat
-from django.forms.extras.widgets import SelectDateWidget
-
-PROTOCOLS = (('http', 'HTTP'),
-            ('https', 'HTTPS'))
+from mgi.models import OaiRegistry
 
 VERBS = (('0', 'Pick one'),
          ('1', 'Identify'),
@@ -73,50 +69,11 @@ class UpdateMyMetadataFormatForm(forms.Form):
     # schema = forms.CharField(label='Schema', required=True)
     # metadataNamespace = forms.CharField(label='Namespace', required=True)
 
-class AddRecord(forms.Form):
-    """
-        Add record form
-    """
-    content = forms.CharField(label='content', required=True)
-
-class Record(forms.Form):
-    """
-        A record form
-    """
-    identifier = forms.CharField(label='identifier', required=True)
-
-class GetRecord(forms.Form):
-    """
-        A record form
-    """
-    url = forms.URLField(label='identifier', required=True)
-    identifier = forms.CharField(label='identifier', required=True)
-    metadataprefix = forms.CharField(label='metadataprefix', required=True)
-
 class Url(forms.Form):
     """
         A record form
     """
     url = forms.URLField(label='url', required=True)
-
-class IdentifierForm(forms.Form):
-    """
-        A registry form
-    """
-    url = forms.CharField(label='url', required=True)
-    metadataprefix = forms.CharField(label='metadataprefix', required=True)
-    sets = forms.CharField(label='sets', required=False)
-
-class ListRecordForm(forms.Form):
-    """
-        A registry form
-    """
-    url = forms.CharField(label='url', required=True)
-    metadataprefix = forms.CharField(label='metadataprefix', required=True)
-    sets = forms.CharField(label='sets', required=False)
-    resumptionToken = forms.CharField(label='resumptiontoken', required=False)
-    fromDate = forms.DateField(label='fromdate', required=False)
-    untilDate = forms.DateField(label='untildate', required=False)
 
 class RequestForm(forms.Form):
     """

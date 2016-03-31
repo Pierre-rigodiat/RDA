@@ -14,7 +14,6 @@ from django.db import models
 import mgi.rights as RIGHTS
 
 class OAIPMH(models.Model):
-    # model stuff here
     class Meta:
         default_permissions = ()
         permissions = (

@@ -63,17 +63,19 @@ class MetadataFormatsForm(forms.Form):
         for k, g in groupby(schemas, lambda x: x.hash):
             groups.append(list(g))      # Store group iterator as a list
 
+        #For each group
         for group in groups:
+            #Get metadata prefix
             name = group[0].metadataPrefix
+            #Get template name
             template = group[0].template
             listValues = []
             for elt in group:
                 listValues.append((str(elt.id)))
-
+            #Provide information about the number of registries using this MF
             if len(listValues) == 1: name = format_html(name + "<br> (in 1 Registry)")
             else: name = format_html(name + "<br> (in %s Registries)" % len(listValues))
-
-            templateId = ''
+            #If it's linked to a template
             if template != None:
                 name += format_html(" <text class='local'> + Local </text>")
                 template = Template.objects.only('id', 'title').get(pk=template.id)
