@@ -32,7 +32,7 @@ from io import BytesIO
 import os
 import xmltodict
 from django.conf import settings
-
+from bson.objectid import ObjectId
 
 ################################################################################
 #
@@ -222,11 +222,20 @@ def dashboard_resources(request):
 def dashboard_detail_resource(request) :
     template = loader.get_template('dashboard/my_dashboard_detail_resource.html')
     result_id = request.GET['id']
-    xmlString = XMLdata.get(result_id)
-    title = xmlString['title']
-    schemaId = xmlString['schema']
+    type = request.GET['type']
 
-    xmlString = xmltodict.unparse(xmlString['content']).encode('utf-8')
+    if type=='form':
+        form_data = FormData.objects.get(pk=ObjectId(result_id))
+        xmlString = form_data.xml_data
+        title = form_data.name
+        schemaId = form_data.template
+    elif type=='record':
+        xmlString = XMLdata.get(result_id)
+        title = xmlString['title']
+        schemaId = xmlString['schema']
+        xmlString = xmltodict.unparse(xmlString['content']).encode('utf-8')
+
+
     xsltPath = os.path.join(settings.SITE_ROOT, 'static', 'resources', 'xsl', 'xml2html.xsl')
     xslt = etree.parse(xsltPath)
     transform = etree.XSLT(xslt)
@@ -249,7 +258,8 @@ def dashboard_detail_resource(request) :
     result = str(newdom)
     context = RequestContext(request, {
         'XMLHolder': result,
-        'title': title
+        'title': title,
+        'type': type
     })
 
     return HttpResponse(template.render(context))

@@ -20,7 +20,7 @@
 ################################################################################
 -->
 {% endcomment %}
-{% block title %}<h1><span>My Resource: {{title}}</span></h1>{% endblock %}
+{% block title %}<h1><span>My {% if type == "record" %}{{type}} {%else%} draft {% endif%}: {{title}}</span></h1>{% endblock %}
 {% block menu %}{% include 'nmrr/menus/main.html' with active_tab='profile' %}{% endblock %}
 
 
@@ -32,7 +32,7 @@
 {% block content %}
 <div class="toolbar">
 	<div class="btn-group pull-right">
-    	<span class="btn" onclick="backToResults();" style="text-decoration:none">Back to Resources</span>
+    	<span class="btn" onclick="backToResults();" style="text-decoration:none">Back to {% if type == "record" %}{{type}}s {%else%} drafts {% endif%}</span>
   	</div>
 	<br/><br/>
 </div>

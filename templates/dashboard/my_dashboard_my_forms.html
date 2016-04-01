@@ -42,9 +42,9 @@ You can review all drafts you have created and delete the ones you don't need.
 <div id="my-forms">
     <table class="data-table">
         <tr>
-        	<th width="100em">Name</th>
-        	<th width="175em">Template</th>
-            <th width="100em">Actions</th>
+        	<th width="175em">Name</th>
+        	<th width="100em">Template</th>
+            <th width="160em">Actions</th>
         </tr>
         {% for form in forms %}
             {% cycle 'even' '' as rowcolors silent %}
@@ -52,6 +52,9 @@ You can review all drafts you have created and delete the ones you don't need.
                 <td style="word-break: break-all;">{{ form.form.name }}</td>
                 <td style="word-break: break-all;">{{ form.template_name}}</td>
                 <td>
+                    <a href="/dashboard/detail?type=form&id={{form.form.id}}"><span class="icon legend result">
+                                View
+                    </span></a>
                     <a href="/curate/edit-form?id={{form.form.id}}"><span class="icon legend edit">
                                 Edit
                     </span></a>
