@@ -303,7 +303,7 @@ def get_element_type(element, xml_tree, namespaces, default_prefix, target_names
             elif element.attrib.get(attr) is not None:  # FIXME is it possible?
                 # TODO: manage namespaces
                 # test if type of the element is a simpleType
-                type_name = element.attrib.get('type')
+                type_name = element.attrib.get(attr)
                 if ':' in type_name:
                     type_ns_prefix = type_name.split(":")[0]
                     type_name = type_name.split(":")[1]
