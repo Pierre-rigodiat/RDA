@@ -72,14 +72,17 @@ def get_nodes_xpath(elements, xml_tree):
             if 'name' in element.attrib:
                 xpaths.append({'name': element.attrib['name'], 'element': element})
             elif 'ref' in element.attrib:
+                # check if XML element or attribute
+                if element.tag == "{0}element".format(LXML_SCHEMA_NAMESPACE):
+                    element_tag = 'element'
+                elif element.tag == "{0}attribute".format(LXML_SCHEMA_NAMESPACE):
+                    element_tag = 'attribute'
+
+                # get schema namespaces
+                xml_tree_str = etree.tostring(xml_tree)
+                namespaces = common.get_namespaces(BytesIO(str(xml_tree_str)))
                 ref = element.attrib['ref']
-                # ref_element = None
-                if ':' in ref:
-                    ref_split = ref.split(":")
-                    ref_name = ref_split[1]
-                    ref_element = xml_tree.find("./{0}element[@name='{1}']".format(LXML_SCHEMA_NAMESPACE, ref_name))
-                else:
-                    ref_element = xml_tree.find("./{0}element[@name='{1}']".format(LXML_SCHEMA_NAMESPACE, ref))
+                ref_element, ref_tree, schema_location = get_ref_element(xml_tree, ref, namespaces, element_tag)
                 if ref_element is not None:
                     xpaths.append({'name': ref_element.attrib.get('name'), 'element': ref_element})
         else:
@@ -255,7 +258,8 @@ def get_xml_element_data(xsd_element, xml_element):
     return reload_data
 
 
-def get_element_type(element, xml_tree, namespaces, default_prefix, target_namespace_prefix, schema_location=None):
+def get_element_type(element, xml_tree, namespaces, default_prefix, target_namespace_prefix, schema_location=None,
+                     attr='type'):
     """get XSD type to render. Returns the tree where the type was found.
 
     Parameters:
@@ -280,7 +284,7 @@ def get_element_type(element, xml_tree, namespaces, default_prefix, target_names
 
     element_type = None
     try:
-        if 'type' not in element.attrib:  # element with type declared below it
+        if attr not in element.attrib:  # element with type declared below it
             # if tag not closed:  <element/>
             if len(list(element)) == 1:
                 if element[0].tag == "{0}annotation".format(LXML_SCHEMA_NAMESPACE):
@@ -294,9 +298,9 @@ def get_element_type(element, xml_tree, namespaces, default_prefix, target_names
             else:
                 element_type = None
         else:  # element with type attribute
-            if element.attrib.get('type') in common.getXSDTypes(default_prefix):
+            if element.attrib.get(attr) in common.getXSDTypes(default_prefix):
                 element_type = None
-            elif element.attrib.get('type') is not None:  # FIXME is it possible?
+            elif element.attrib.get(attr) is not None:  # FIXME is it possible?
                 # TODO: manage namespaces
                 # test if type of the element is a simpleType
                 type_name = element.attrib.get('type')
@@ -442,6 +446,69 @@ def generate_form(request):
         return -1
 
 
+def get_ref_element(xml_tree, ref, namespaces, element_tag):
+    """
+
+    :param xml_tree:
+    :param ref:
+    :param namespaces:
+    :param element_tag:
+    :return:
+        - ref_element: ref element when found
+        - xml_tree: xml tree where element was found
+        - schema_location: location of the schema where the element was found
+    """
+    # refElement = None
+    if ':' in ref:
+        # split the ref element
+        ref_split = ref.split(":")
+        # get the namespace prefix
+        ref_namespace_prefix = ref_split[0]
+        # get the element name
+        ref_name = ref_split[1]
+        # test if referencing element within the same schema (same target namespace)
+        target_namespace_prefix = common.get_target_namespace_prefix(namespaces, xml_tree)
+        # ref is in the same file
+        if target_namespace_prefix == ref_namespace_prefix:
+            ref_element = xml_tree.find("./{0}{1}[@name='{2}']".format(LXML_SCHEMA_NAMESPACE,
+                                                                       element_tag, ref_name))
+        else:# the ref might be in one of the imports
+            # get all import elements
+            imports = xml_tree.findall('//{}import'.format(LXML_SCHEMA_NAMESPACE))
+            # find the referred document using the prefix
+            for el_import in imports:
+                import_ns = el_import.attrib['namespace']
+                if namespaces[ref_namespace_prefix] == import_ns:
+                    # get the location of the schema
+                    ref_xml_schema_url = el_import.attrib['schemaLocation']
+                    # set the schema location to save in database
+                    schema_location = ref_xml_schema_url
+                    # download the file
+                    ref_xml_schema_file = urllib2.urlopen(ref_xml_schema_url)
+                    # read the content of the file
+                    ref_xml_schema_content = ref_xml_schema_file.read()
+                    # build the tree
+                    xml_tree = etree.parse(BytesIO(ref_xml_schema_content.encode('utf-8')))
+                    # look for includes
+                    includes = xml_tree.findall('//{}include'.format(LXML_SCHEMA_NAMESPACE))
+                    # if includes are present
+                    if len(includes) > 0:
+                        # create a flattener with the file content
+                        flattener = XSDFlattenerURL(ref_xml_schema_content)
+                        # flatten the includes
+                        ref_xml_schema_content = flattener.get_flat()
+                        # build the tree
+                        xml_tree = etree.parse(BytesIO(ref_xml_schema_content.encode('utf-8')))
+
+                    ref_element = xml_tree.find("./{0}{1}[@name='{2}']".format(LXML_SCHEMA_NAMESPACE,
+                                                                               element_tag, ref_name))
+                    break
+    else:
+        ref_element = xml_tree.find("./{0}{1}[@name='{2}']".format(LXML_SCHEMA_NAMESPACE, element_tag, ref))
+
+    return ref_element, xml_tree, schema_location
+
+
 def generate_element(request, element, xml_tree, choice_info=None, full_path="",
                      edit_data_tree=None, schema_location=None):
     """Generate an HTML string that represents an XML element.
@@ -501,7 +568,7 @@ def generate_element(request, element, xml_tree, choice_info=None, full_path="",
                 'xsd': None,
                 'xml': full_path
             },
-            'schema_location': schema_location
+            'schema_location': schema_location,
         },
         'value': None,
         'children': []
@@ -510,54 +577,7 @@ def generate_element(request, element, xml_tree, choice_info=None, full_path="",
     # get the name of the element, go find the reference if there's one
     if 'ref' in element.attrib:  # type is a reference included in the document
         ref = element.attrib['ref']
-        # refElement = None
-        if ':' in ref:
-            # split the ref element
-            ref_split = ref.split(":")
-            # get the namespace prefix
-            ref_namespace_prefix = ref_split[0]
-            # get the element name
-            ref_name = ref_split[1]
-            # test if referencing element within the same schema (same target namespace)
-            target_namespace_prefix = common.get_target_namespace_prefix(namespaces, xml_tree)
-            if target_namespace_prefix == ref_namespace_prefix:
-                ref_element = xml_tree.find("./{0}{1}[@name='{2}']".format(LXML_SCHEMA_NAMESPACE,
-                                                                           element_tag, ref_name))
-            else:
-                # TODO: manage ref to imported elements (different target namespace)
-                # get all import elements
-                imports = xml_tree.findall('//{}import'.format(LXML_SCHEMA_NAMESPACE))
-                # find the referred document using the prefix
-                for el_import in imports:
-                    import_ns = el_import.attrib['namespace']
-                    if namespaces[ref_namespace_prefix] == import_ns:
-                        # get the location of the schema
-                        ref_xml_schema_url = el_import.attrib['schemaLocation']
-                        # set the schema location to save in database
-                        schema_location = ref_xml_schema_url
-                        # download the file
-                        ref_xml_schema_file = urllib2.urlopen(ref_xml_schema_url)
-                        # read the content of the file
-                        ref_xml_schema_content = ref_xml_schema_file.read()
-                        # build the tree
-                        xml_tree = etree.parse(BytesIO(ref_xml_schema_content.encode('utf-8')))
-                        # look for includes
-                        includes = xml_tree.findall('//{}include'.format(LXML_SCHEMA_NAMESPACE))
-                        # if includes are present
-                        if len(includes) > 0:
-                            # create a flattener with the file content
-                            flattener = XSDFlattenerURL(ref_xml_schema_content)
-                            # flatten the includes
-                            ref_xml_schema_content = flattener.get_flat()
-                            # build the tree
-                            xml_tree = etree.parse(BytesIO(ref_xml_schema_content.encode('utf-8')))
-
-                        ref_element = xml_tree.find("./{0}{1}[@name='{2}']".format(LXML_SCHEMA_NAMESPACE,
-                                                                                   element_tag, ref_name))
-                        break
-        else:
-            ref_element = xml_tree.find("./{0}{1}[@name='{2}']".format(LXML_SCHEMA_NAMESPACE, element_tag, ref))
-
+        ref_element, xml_tree, schema_location = get_ref_element(xml_tree, ref, namespaces, element_tag)
         if ref_element is not None:
             text_capitalized = ref_element.attrib.get('name')
             element = ref_element
@@ -567,7 +587,6 @@ def generate_element(request, element, xml_tree, choice_info=None, full_path="",
             # the element was not found where it was supposed to be
             # could be a use case too complex for the current parser
             print "Ref element not found" + str(element.attrib)
-
             return form_string, db_element
     else:
         text_capitalized = element.attrib.get('name')
@@ -808,6 +827,7 @@ def generate_element(request, element, xml_tree, choice_info=None, full_path="",
                         complex_type_result = generate_complex_type(request, element_type, xml_tree,
                                                                     full_path=full_path+'[' + str(x+1) + ']',
                                                                     edit_data_tree=edit_data_tree,
+                                                                    default_value=default_value,
                                                                     schema_location=schema_location)
 
                         li_content += complex_type_result[0]
@@ -1621,7 +1641,8 @@ def generate_simple_type(request, element, xml_tree, full_path, edit_data_tree=N
     # return form_string
 
 
-def generate_complex_type(request, element, xml_tree, full_path, edit_data_tree=None, schema_location=None):
+def generate_complex_type(request, element, xml_tree, full_path, edit_data_tree=None, default_value='',
+                          schema_location=None):
     """Generates a section of the form that represents an XML complexType
 
     Parameters:
@@ -1674,8 +1695,11 @@ def generate_complex_type(request, element, xml_tree, full_path, edit_data_tree=
     # is it a simple content?
     complexTypeChild = element.find('{0}simpleContent'.format(LXML_SCHEMA_NAMESPACE))
     if complexTypeChild is not None:
-        result_simple_content = generate_simple_content(request, complexTypeChild, xml_tree, full_path=full_path,
-                                                        edit_data_tree=edit_data_tree, schema_location=schema_location)
+        result_simple_content = generate_simple_content(request, complexTypeChild, xml_tree,
+                                                        full_path=full_path,
+                                                        edit_data_tree=edit_data_tree,
+                                                        default_value=default_value,
+                                                        schema_location=schema_location)
 
         form_string += result_simple_content[0]
         db_element['children'].append(result_simple_content[1])
@@ -1685,8 +1709,11 @@ def generate_complex_type(request, element, xml_tree, full_path, edit_data_tree=
     # is it a complex content?
     complexTypeChild = element.find('{0}complexContent'.format(LXML_SCHEMA_NAMESPACE))
     if complexTypeChild is not None:
-        complex_content_result = generate_complex_content(request, complexTypeChild, xml_tree, full_path=full_path,
-                                               edit_data_tree=edit_data_tree, schema_location=schema_location)
+        complex_content_result = generate_complex_content(request, complexTypeChild, xml_tree,
+                                                          full_path=full_path,
+                                                          edit_data_tree=edit_data_tree,
+                                                          default_value=default_value,
+                                                          schema_location=schema_location)
         form_string += complex_content_result[0]
         db_element['children'].append(complex_content_result[1])
 
@@ -1771,7 +1798,8 @@ def generate_complex_type(request, element, xml_tree, full_path, edit_data_tree=
     return form_string, db_element
 
 
-def generate_complex_content(request, element, xml_tree, full_path, edit_data_tree=None, schema_location=None):
+def generate_complex_content(request, element, xml_tree, full_path, edit_data_tree=None, default_value='',
+                             schema_location=None):
     """
     Inputs:        request -
                    element - XML element
@@ -1803,13 +1831,17 @@ def generate_complex_content(request, element, xml_tree, full_path, edit_data_tr
         child = element[0]
         if child.tag == "{0}restriction".format(LXML_SCHEMA_NAMESPACE):
             restriction_result = generate_restriction(request, child, xml_tree, full_path,
-                                                      edit_data_tree=edit_data_tree, schema_location=schema_location)
+                                                      edit_data_tree=edit_data_tree,
+                                                      default_value=default_value,
+                                                      schema_location=schema_location)
 
             form_string += restriction_result[0]
             db_element['children'].append(restriction_result[1])
         elif child.tag == "{0}extension".format(LXML_SCHEMA_NAMESPACE):
             extension_result = generate_extension(request, child, xml_tree, full_path,
-                                                  edit_data_tree=edit_data_tree, schema_location=schema_location)
+                                                  edit_data_tree=edit_data_tree,
+                                                  default_value=default_value,
+                                                  schema_location=schema_location)
 
             form_string += extension_result[0]
             db_element['children'].append(extension_result[1])
@@ -1889,7 +1921,8 @@ def generate_module(request, element, xsd_xpath=None, xml_xpath=None, xml_tree=N
     return form_string
 
 
-def generate_simple_content(request, element, xml_tree, full_path='', edit_data_tree=None, schema_location=None):
+def generate_simple_content(request, element, xml_tree, full_path='', edit_data_tree=None, default_value='',
+                            schema_location=None):
     """Generates a section of the form that represents an XML simple content
 
     Parameters:
@@ -1921,14 +1954,14 @@ def generate_simple_content(request, element, xml_tree, full_path='', edit_data_
         child = element[0]
 
         if child.tag == "{0}restriction".format(LXML_SCHEMA_NAMESPACE):
-            restriction_result = generate_restriction(request, child, xml_tree, full_path,
-                                                      edit_data_tree=edit_data_tree, schema_location=schema_location)
+            restriction_result = generate_restriction(request, child, xml_tree, full_path, edit_data_tree=edit_data_tree,
+                                                      default_value=default_value, schema_location=schema_location)
 
             form_string += restriction_result[0]
             db_element['children'].append(restriction_result[1])
         elif child.tag == "{0}extension".format(LXML_SCHEMA_NAMESPACE):
-            extension_result = generate_extension(request, child, xml_tree, full_path,
-                                                  edit_data_tree=edit_data_tree, schema_location=schema_location)
+            extension_result = generate_extension(request, child, xml_tree, full_path, edit_data_tree=edit_data_tree,
+                                                  default_value=default_value, schema_location=schema_location)
 
             form_string += extension_result[0]
             db_element['children'].append(extension_result[1])
@@ -2053,7 +2086,8 @@ def generate_restriction(request, element, xml_tree, full_path="", edit_data_tre
 #     return custom_type_extensions
 
 
-def generate_extension(request, element, xml_tree, full_path="", edit_data_tree=None, schema_location=None):
+def generate_extension(request, element, xml_tree, full_path="", edit_data_tree=None, default_value='',
+                       schema_location=None):
     """Generates a section of the form that represents an XML extension
 
     Parameters:
@@ -2089,15 +2123,12 @@ def generate_extension(request, element, xml_tree, full_path="", edit_data_tree=
         namespaces = common.get_namespaces(BytesIO(str(xml_tree_str)))
         default_prefix = common.get_default_prefix(namespaces)
 
-        # test if base is a built-in data types
-        if base in common.getXSDTypes(default_prefix):
-            # TODO Get default value from the element
-            if request.session['curate_edit']:
-                elem = edit_data_tree.xpath(full_path)[0]
-                default_value = elem.text
-            else:
-                default_value = ''
+        target_namespace_prefix = common.get_target_namespace_prefix(namespaces, xml_tree)
+        base_type, xml_tree, schema_location = get_element_type(element, xml_tree, namespaces, default_prefix,
+                                                                target_namespace_prefix, schema_location, 'base')
 
+        # test if base is a built-in data types
+        if base is None:
             db_element['children'].append(
                 {
                     'tag': 'input',
@@ -2105,35 +2136,25 @@ def generate_extension(request, element, xml_tree, full_path="", edit_data_tree=
                 }
             )
         else:  # not a built-in data type
-            if ':' in base:
-                splitted_base = base.split(":")
-                # base_ns_prefix = splitted_base[0]
-                base_name = splitted_base[1]
-                # namespaces = request.session['namespaces']
-                # TODO: look at namespaces, target namespaces
-                # base_ns = namespaces[baseNSPrefix]
-                # base_ns = namespace
-            else:
-                base_name = base
-                # base_ns = namespace
+            if base_type.tag == "{0}complexType".format(LXML_SCHEMA_NAMESPACE):
+                complex_type_result = generate_complex_type(request, base_type, xml_tree,
+                                                            full_path=full_path,
+                                                            edit_data_tree=edit_data_tree,
+                                                            default_value=default_value,
+                                                            schema_location=schema_location)
 
-            # test if base is a simple type
-            baseType = xml_tree.find(".//{0}simpleType[@name='{1}']".format(LXML_SCHEMA_NAMESPACE, base_name))
-            if baseType is not None:
-                simple_type_result = generate_simple_type(request, baseType, xml_tree, full_path,
-                                                          edit_data_tree, schema_location=schema_location)
+                form_string += complex_type_result[0]
+                db_element['children'].append(complex_type_result[1])
+            elif base_type.tag == "{0}simpleType".format(LXML_SCHEMA_NAMESPACE):
+                simple_type_result = generate_simple_type(request, base_type, xml_tree,
+                                                          full_path=full_path,
+                                                          edit_data_tree=edit_data_tree,
+                                                          default_value=default_value,
+                                                          schema_location=schema_location)
 
                 form_string += simple_type_result[0]
                 db_element['children'].append(simple_type_result[1])
-            else:
-                # test if base is a complex type
-                baseType = xml_tree.find(".//{0}complexType[@name='{1}']".format(LXML_SCHEMA_NAMESPACE, base_name))
-                if baseType is not None:
-                    complex_type_result = generate_complex_type(request, baseType, xml_tree, full_path,
-                                                                edit_data_tree, schema_location=schema_location)
 
-                    form_string += complex_type_result[0]
-                    db_element['children'].append(complex_type_result[1])
 
     ##################################################
     # Parsing children

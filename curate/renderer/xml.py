@@ -156,7 +156,6 @@ class XmlRenderer(AbstractXmlRenderer):
                         xmlns = ''
 
                 attr_list.append("{0} {1}='{2}'".format(xmlns, attr_key, attr_value))
-                # TODO: check that element isn't declaring the same namespace xmlns=""
                 # TODO: check that sibling attributes are not declaring the same namespaces
             else:
                 attr_list.append(attr_key + '="' + attr_value + '"')
