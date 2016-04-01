@@ -470,8 +470,18 @@ def getRecord(request):
                 metadataprefix = request.DATA['metadataprefix']
                 sickle = Sickle(url)
                 grResponse = sickle.GetRecord(metadataPrefix=metadataprefix, identifier=identifier)
-                rsp = dict(grResponse)
-                return Response({'message':rsp}, status=status.HTTP_200_OK)
+                record = Record(grResponse.xml)
+                rtn=[]
+                rtn.append({"identifier": record.header.identifier,
+                          "datestamp": record.header.datestamp,
+                          "deleted": record.deleted,
+                          "sets": record.header.setSpecs,
+                          "metadataPrefix": metadataprefix,
+                          "metadata": etree.tostring(record.xml.find('.//' + '{http://www.openarchives.org/OAI/2.0/}' + 'metadata/')),
+                          "raw": record.raw})
+
+                serializer = RecordSerializer(rtn)
+                return Response(serializer.data, status=status.HTTP_200_OK)
             else:
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
