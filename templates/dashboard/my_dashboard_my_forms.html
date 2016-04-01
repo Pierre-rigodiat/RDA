@@ -5,15 +5,15 @@
 <!--
 ################################################################################
 #
-# File Name: my_profile_change_password.html
+# File Name: my_dashboard_my_forms.html
 # Application: templates
 # Description: 
 #
 # Author: Sharief Youssef
 #         sharief.youssef@nist.gov
 #
-#		  Guillaume SOUSA AMARAL
-#		  guillaume.sousa@nist.gov
+#		  Xavier SCHMITT
+#		  xavier.schmitt@nist.gov
 #
 # Sponsor: National Institute of Standards and Technology
 #
@@ -52,10 +52,11 @@ You can review all drafts you have created and delete the ones you don't need.
                 <td style="word-break: break-all;">{{ form.form.name }}</td>
                 <td style="word-break: break-all;">{{ form.template_name}}</td>
                 <td>
-                    <div style="text-align:center;">
-                        <div style="float:left" class="icon legend changeOwner" onclick='changeOwnerForm("{{form.form.id}}")'>Change Owner</div>
-                        <div class="icon legend delete" onclick='deleteForm("{{form.form.id}}")'>Delete</div>
-                    </div>
+                    <a href="/curate/edit-form?id={{form.form.id}}"><span class="icon legend edit">
+                                Edit
+                    </span></a>
+                    <div class="icon legend delete" onclick='deleteForm("{{form.form.id}}")'>Delete</div>
+                    <div class="icon legend changeOwner" onclick='changeOwnerForm("{{form.form.id}}")'>Change Owner</div>
                 </td>
             </tr>
         {% endfor %}
