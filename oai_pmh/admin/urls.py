@@ -25,6 +25,10 @@ urlpatterns = patterns(
     url(r'^add/my-metadataFormat', 'add_my_metadataFormat'),
     url(r'^update/my-metadataFormat$', 'update_my_metadataFormat'),
     url(r'^delete/my-metadataFormat', 'delete_my_metadataFormat'),
+    #Manage my server's sets
+    url(r'^add/my-set', 'add_my_set'),
+    url(r'^update/my-set$', 'update_my_set'),
+    url(r'^delete/my-set', 'delete_my_set'),
     #Manage my server
     url(r'^oai-pmh-my-infos', 'oai_pmh_my_infos', name='oai_pmh_my_infos'),
     url(r'^update/my-registry$', 'update_my_registry'),

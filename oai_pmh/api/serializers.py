@@ -111,6 +111,18 @@ class MyMetadataFormatSerializer(serializers.Serializer):
 class DeleteMyMetadataFormatSerializer(serializers.Serializer):
     MetadataFormatId  = serializers.CharField(required=True)
 
+class MySetSerializer(serializers.Serializer):
+    setSpec = serializers.CharField(required=True)
+    setName = serializers.CharField(required=True)
+
+class DeleteMySetSerializer(serializers.Serializer):
+    set_id  = serializers.CharField(required=True)
+
 class UpdateMyMetadataFormatSerializer(serializers.Serializer):
     id = serializers.CharField(required=True)
     metadataPrefix = serializers.CharField(required=True)
+
+class UpdateMySetSerializer(serializers.Serializer):
+    id = serializers.CharField(required=True)
+    setSpec = serializers.CharField(required=True)
+    setName = serializers.CharField(required=True)

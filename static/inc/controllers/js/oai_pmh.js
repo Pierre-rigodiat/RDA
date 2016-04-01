@@ -977,3 +977,236 @@ load_mf_edit_form = function(metadataFormatId){
         }
     });
 }
+
+
+
+//////////////////////////// SETS
+
+clearAddSet = function ()
+{
+    clearAddMFError();
+    $( "#form_add_set" )[0].reset();
+}
+
+clearAddSetError = function ()
+{
+    $("#banner_add_set_errors").hide()
+    $("#form_add_set_errors").html("");
+}
+
+validateSet = function()
+{
+    errors = ""
+
+    if ($( "#id_setSpec" ).val().trim() == ""){
+        errors += "<li>Please enter a set spec.</li>"
+    }
+
+    if ($( "#id_setName" ).val().trim() == ""){
+        errors += "<li>Please enter a set name.</li>"
+    }
+
+	if (errors != ""){
+	    error = "<ul>";
+	    error += errors
+	    error += "</ul>";
+		$("#form_add_set_errors").html(errors);
+		$("#banner_add_set_errors").show(200)
+		return (false);
+	}else{
+		return (true)
+	}
+    return true;
+}
+
+displayAddSet = function()
+{
+ $(function() {
+    clearAddSet();
+    $( "#dialog-add-set" ).dialog({
+      modal: true,
+      width: 550,
+      height: 'auto',
+      buttons:
+      [
+      {
+           text: "Cancel",
+           click: function() {
+                    $( this ).dialog( "close" );
+                }
+       },
+       {
+           text: "Add",
+           click: function() {
+                clearAddSetError();
+                if(validateSet())
+                {
+//                       $("#banner_add_wait").show(200);
+                   var formData = new FormData($( "#form_add_set" )[0]);
+                   $.ajax({
+                        url: "add/my-set",
+                        type: 'POST',
+                        data: formData,
+                        cache: false,
+                        contentType: false,
+                        processData: false,
+                        async:true,
+                        success: function(data){
+                            window.location = 'oai-pmh-my-infos'
+                        },
+                        error:function(data){
+//	            	            $("#banner_add_wait").hide(200);
+                            $("#form_add_set_errors").html(data.responseText);
+                            $("#banner_add_set_errors").show(200)
+                        },
+                    })
+                    ;
+                }
+           }
+       }
+      ]
+    });
+  });
+}
+
+deleteSet = function(set_id)
+{
+ $(function() {
+    $( "#dialog-set-confirm-delete" ).dialog({
+      modal: true,
+      buttons:{
+            	Delete: function() {
+            		delete_set(set_id);
+            		},
+				Cancel: function() {
+	                $( this ).dialog( "close" );
+		          },
+		    }
+    });
+  });
+}
+
+/**
+ * AJAX call, deletes one of my set
+ * @param set_id id of the set
+ */
+delete_set = function(set_id){
+    $("#banner_set_delete_wait").show(200);
+    $.ajax({
+        url : 'delete/my-set',
+        type : "POST",
+        dataType: "json",
+        data : {
+        	set_id : set_id,
+        },
+        success: function(data){
+            window.location = 'oai-pmh-my-infos'
+        },
+        error:function(data){
+            $("#banner_set_delete_wait").hide(200);
+            $("#form_set_delete_errors").html(data.responseText);
+            $("#banner_set_delete_errors").show(200);
+	    }
+    });
+}
+
+
+clearSetEditError = function ()
+{
+    $("#banner_edit_set_errors").hide()
+    $("#form_edit_set_errors").html("");
+}
+
+validateSetEdit = function()
+{
+    errors = ""
+
+    if ($( "#form_edit_set_current #id_setSpec" ).val().trim() == ""){
+        errors += "<li>Please enter a set spec.</li>"
+    }
+
+    if ($( "#form_edit_set_current #id_setName" ).val().trim() == ""){
+        errors += "<li>Please enter a set name.</li>"
+    }
+
+	if (errors != ""){
+	    error = "<ul>";
+	    error += errors
+	    error += "</ul>";
+		$("#form_edit_set_errors").html(errors);
+		$("#banner_edit_set_errors").show(200)
+		return (false);
+	}else{
+		return (true)
+	}
+    return true;
+}
+
+
+/**
+ * Show a dialog when a result is selected
+ */
+editSet = function(setId)
+{
+    clearSetEditError()
+    exist = load_set_edit_form(setId);
+    $(function() {
+        $( "#dialog-set-edit" ).dialog({
+          modal: true,
+          width: 400,
+          height: 'auto',
+          buttons:
+              [
+               {
+                   text: "Cancel",
+                   click: function() {
+                            $( this ).dialog( "close" );
+                        }
+               },
+               {
+                   text: "Edit",
+                   click: function() {
+                        clearSetEditError();
+                        if(validateSetEdit())
+                        {
+                            var formData = new FormData($( "#form_edit_set" )[0]);
+                            $.ajax({
+                                url: "update/my-set",
+                                type: 'POST',
+                                data: formData,
+                                cache: false,
+                                contentType: false,
+                                processData: false,
+                                async:false,
+                                success: function(data){
+                                    window.location = 'oai-pmh-my-infos'
+                                },
+                                error:function(data){
+                                    $("#form_edit_set_errors").html(data.responseText);
+                                    $("#banner_edit_set_errors").show(200)
+                                },
+                            })
+                            ;
+                        }
+                   }
+               }
+              ]
+        });
+    });
+}
+
+
+load_set_edit_form = function(setId){
+	$.ajax({
+        url : "update/my-set",
+        type : "GET",
+        dataType: "json",
+        data : {
+            set_id : setId,
+        },
+        success: function(data){
+            $("#form_edit_set_errors").html("");
+            $("#form_edit_set_current").html(data.template);
+        }
+    });
+}

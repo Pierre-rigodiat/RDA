@@ -564,6 +564,13 @@ class OaiMyMetadataFormat(Document):
     # isTemplate = BooleanField()
     # template = ReferenceField(Template, reverse_delete_rule=CASCADE)
 
+class OaiMySet(Document):
+    """
+        A set object
+    """
+    setSpec  = StringField(required=True, unique=True)
+    setName = StringField(required=True, unique=True)
+
 class OaiRecord(Document):
     """
         A record object

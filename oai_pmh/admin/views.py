@@ -13,7 +13,7 @@
 
 from rest_framework import status
 from django.http.response import HttpResponseBadRequest
-from oai_pmh.forms import UpdateRegistryForm, MyMetadataFormatForm, RegistryForm, MyRegistryForm, UpdateMyMetadataFormatForm
+from oai_pmh.forms import UpdateRegistryForm, MyMetadataFormatForm, RegistryForm, MyRegistryForm, UpdateMyMetadataFormatForm, MySetForm, UpdateMySetForm
 import json
 from mgi.settings import OAI_HOST_URI, OAI_USER, OAI_PASS
 from django.contrib import messages
@@ -24,7 +24,7 @@ from django.http import HttpResponse
 # Requests
 import requests
 from django.template import RequestContext, loader
-from mgi.models import OaiRegistry, OaiSettings, OaiMyMetadataFormat, OaiXslt, OaiTemplMfXslt, Template
+from mgi.models import OaiRegistry, OaiSettings, OaiMyMetadataFormat, OaiXslt, OaiTemplMfXslt, Template, OaiMySet
 from django.contrib.admin.views.decorators import staff_member_required
 from mgi.models import Message, OaiMetadataFormat, OaiSet, OaiRecord
 from oai_pmh.forms import Url
@@ -368,12 +368,18 @@ def oai_pmh_my_infos(request):
     metadataformat_form = MyMetadataFormatForm()
     #Get my server's MF
     metadataFormats = OaiMyMetadataFormat.objects(isDefault=False).all()
+    #Form to manage set
+    set_form = MySetForm()
+    #Get my server's Set
+    sets = OaiMySet.objects.all()
     #Get my server's default MF
     defaultMetadataFormats = OaiMyMetadataFormat.objects(isDefault=True).all()
     context = RequestContext(request, {
         'data_provider': data_provider,
         'metadataformat_form': metadataformat_form,
         'metadataFormats': metadataFormats,
+        'set_form': set_form,
+        'sets': sets,
         'defaultMetadataFormats': defaultMetadataFormats,
     })
 
@@ -600,6 +606,140 @@ def update_my_metadataFormat(request):
             'metadataformat_form': metadataformat_form,
         })
 
+        return HttpResponse(json.dumps({'template': template.render(context)}), content_type='application/javascript')
+
+################################################################################
+#
+# Function Name: add_my_set(request)
+# Inputs:        request -
+# Outputs:
+# Exceptions:    None
+# Description:   Add a new set for the server
+#
+################################################################################
+@login_required(login_url='/login')
+def add_my_set(request):
+    if request.method == 'POST':
+        form = MySetForm(request.POST)
+        if form.is_valid():
+            try:
+                #We add the set
+                uri = OAI_HOST_URI + "/oai_pmh/api/add/my-set"
+                #We retrieve information from the form
+                if 'setSpec' in request.POST:
+                    setSpec = request.POST.get('setSpec')
+
+                if 'setName' in request.POST:
+                    setName = request.POST.get('setName')
+
+                #Call to the API to add the set
+                try:
+                    req = requests.post(uri, {"setSpec": setSpec,
+                                              "setName": setName},
+                                        auth=(OAI_USER, OAI_PASS))
+                    #If the status is OK, sucess message
+                    if req.status_code == status.HTTP_201_CREATED:
+                        messages.add_message(request, messages.SUCCESS, 'Set added with success.')
+                        return HttpResponse('CREATED')
+                    #Else, we return a bad request response with the message provided by the API
+                    else:
+                        data = json.loads(req.text)
+                        return HttpResponseBadRequest(data['message'])
+                except Exception as e:
+                    return HttpResponseBadRequest('An error occurred. Please contact your administrator.')
+            except Exception as e:
+                return HttpResponseBadRequest('An error occurred. Please contact your administrator.')
+        else:
+            return HttpResponseBadRequest('Bad entries. Check your entry')
+
+
+################################################################################
+#
+# Function Name: delete_my_set(request)
+# Inputs:        request -
+# Outputs:
+# Exceptions:    None
+# Description:   OAI-PMH Delete MySet
+#
+################################################################################
+@login_required(login_url='/login')
+def delete_my_set(request):
+    uri = OAI_HOST_URI+"/oai_pmh/api/delete/my-set"
+    try:
+        id = request.POST.get('set_id')
+    except ValueError:
+        return HttpResponseBadRequest('Please provide an ID in order to delete the set.')
+    try:
+        req = requests.post(uri, {"set_id":id}, auth=(OAI_USER, OAI_PASS))
+
+        #If the status is OK, sucess message
+        if req.status_code == status.HTTP_200_OK:
+            messages.add_message(request, messages.INFO, 'Set deleted with success.')
+            return HttpResponse(json.dumps({}), content_type='application/javascript')
+        #Else, we return a bad request response with the message provided by the API
+        else:
+            data = json.loads(req.text)
+            return HttpResponseBadRequest(data['message'])
+    except Exception as e:
+        return HttpResponseBadRequest('An error occurred. Please contact your administrator.')
+
+
+################################################################################
+#
+# Function Name: update_my_set(request)
+# Inputs:        request -
+# Outputs:
+# Exceptions:    None
+# Description:   OAI-PMH update my set
+#
+# ################################################################################
+@login_required(login_url='/login')
+def update_my_set(request):
+    if request.method == 'POST':
+        #UPDATE the set
+        try:
+            uri = OAI_HOST_URI + "/oai_pmh/api/update/my-set"
+            #Get all form information
+            if 'id' in request.POST:
+                id = request.POST.get('id')
+            if 'setSpec' in request.POST:
+                setSpec = request.POST.get('setSpec')
+            if 'setName' in request.POST:
+                setName = request.POST.get('setName')
+
+            #Call the API to update my set
+            try:
+                req = requests.put(uri, { "id": id,
+                                          "setSpec": setSpec,
+                                          "setName": setName},
+                                        auth=(OAI_USER, OAI_PASS))
+
+                #If the status is OK, sucess message
+                if req.status_code == status.HTTP_201_CREATED:
+                    messages.add_message(request, messages.INFO, 'Set edited with success.')
+                    return HttpResponse(json.dumps({}), content_type='application/javascript')
+                #Else, we return a bad request response with the message provided by the API
+                else:
+                    data = json.loads(req.text)
+                    return HttpResponseBadRequest(data['message'])
+            except Exception as e:
+                return HttpResponseBadRequest('An error occurred. Please contact your administrator.')
+        except Exception as e:
+            return HttpResponseBadRequest('An error occurred. Please contact your administrator.')
+    elif request.method == 'GET':
+        #Build the template to render for the set edition
+        template = loader.get_template('oai_pmh/admin/form_my_set_edit.html')
+        set_id = request.GET['set_id']
+        try:
+            information = OaiMySet.objects.get(pk=set_id)
+            data = {'id': set_id, 'setSpec': information.setSpec, 'setName': information.setName}
+            set_form = UpdateMySetForm(data)
+        except:
+            set_form = UpdateMySetForm()
+
+        context = RequestContext(request, {
+            'set_form': set_form,
+        })
         return HttpResponse(json.dumps({'template': template.render(context)}), content_type='application/javascript')
 
 

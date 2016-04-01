@@ -24,10 +24,10 @@ from oai_pmh.api.serializers import IdentifyObjectSerializer, MetadataFormatSeri
     RegistrySerializer, ListRecordsSerializer, RegistryURLSerializer, RecordSerializer, \
     IdentifySerializer, UpdateRecordSerializer, DeleteRecordSerializer, UpdateRegistrySerializer, \
     UpdateMyRegistrySerializer, MyMetadataFormatSerializer, DeleteMyMetadataFormatSerializer,\
-    UpdateMyMetadataFormatSerializer, GetRecordSerializer
+    UpdateMyMetadataFormatSerializer, GetRecordSerializer, UpdateMySetSerializer, DeleteMySetSerializer, MySetSerializer
 # Models
 from mgi.models import OaiRegistry, OaiSet, OaiMetadataFormat, OaiIdentify, OaiSettings, Template, OaiRecord,\
-OaiMyMetadataFormat
+OaiMyMetadataFormat, OaiMySet
 # DB Connection
 from pymongo import MongoClient
 from mgi.settings import MONGODB_URI, MGI_DB
@@ -1019,7 +1019,7 @@ def add_my_metadataFormat(request):
             #We retrieve all information
             if 'metadataPrefix' in request.POST:
                 metadataprefix = request.DATA['metadataPrefix']
-            if '' in request.POST:
+            if 'schema' in request.POST:
                 schema = request.DATA['schema']
             # if 'metadataNamespace' in request.POST:
             #     namespace = request.DATA['metadataNamespace']
@@ -1110,7 +1110,7 @@ def delete_my_metadataFormat(request):
 @api_view(['PUT'])
 def update_my_metadataFormat(request):
     """
-    PUT http://localhost/oai_pmh/update/my-registry
+    PUT http://localhost/oai_pmh/update/my-metadataFormat
     PUT data query="{'id':'value', 'metadataPrefix':'value'}"
     """
     if request.user.is_authenticated():
@@ -1154,6 +1154,157 @@ def update_my_metadataFormat(request):
                  metadataFormat.save()
             except Exception as e:
                 return Response({'message':'Unable to update the metadata format. \n%s'%e.message}, status=status.HTTP_400_BAD_REQUEST)
+
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    else:
+        content = {'message':'Only an administrator can use this feature.'}
+        return Response(content, status=status.HTTP_401_UNAUTHORIZED)
+
+
+################################################################################
+#
+# Function Name: add_my_set(request)
+# Inputs:        request -
+# Outputs:       201 Registry updated.
+# Exceptions:    400 Error connecting to database.
+#                400 [Identifier] not found in request.
+#                400 Unable to update record.
+#                400 Serializer failed validation.
+#                401 Unauthorized.
+#                404 No registry found with the given identity.
+# Description:   OAI-PMH Update my_metadataFormat
+#
+################################################################################
+@api_view(['POST'])
+def add_my_set(request):
+    """
+    PUT http://localhost/oai_pmh/add/my-set
+    PUT data query="{'setSpec':'value', 'setName':'value'}"
+    """
+    if request.user.is_authenticated():
+        #Serialization of the input data
+        serializer = MySetSerializer(data=request.DATA)
+        #If it's valid
+        if serializer.is_valid():
+            #We retrieve all information
+            if 'setSpec' in request.POST:
+                setSpec = request.DATA['setSpec']
+            if 'setName' in request.POST:
+                setName = request.DATA['setName']
+            try:
+                #Add in databases
+               OaiMySet(setSpec=setSpec, setName=setName).save()
+            except Exception as e:
+                return Response({'message':'Unable to add the new set. \n%s'%e.message}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    else:
+        content = {'message':'Only an administrator can use this feature.'}
+        return Response(content, status=status.HTTP_401_UNAUTHORIZED)
+
+
+################################################################################
+#
+# Function Name: delete_my_set(request)
+# Inputs:        request -
+# Outputs:       204 Record deleted.
+# Exceptions:    400 Error connecting to database.
+#                400 [Name] not found in request.
+#                400 Unspecified.
+#                400 Serializer failed validation.
+#                401 Unauthorized.
+#                404 No record found with the given identity.
+# Description:   OAI-PMH Delete my_set
+#
+################################################################################
+@api_view(['POST'])
+def delete_my_set(request):
+    """
+    POST http://localhost/oai_pmh/delete/my-set
+    POST data query="{'set_id':'value'}"
+    """
+    if request.user.is_authenticated():
+        try:
+            serializer = DeleteMySetSerializer(data=request.DATA)
+            if serializer.is_valid():
+                #Get the ID
+                id = request.DATA['set_id']
+                try:
+                    set = OaiMySet.objects.get(pk=id)
+                except Exception as e:
+                    content = {'message':'No set found with the given id.'}
+                    return Response(content, status=status.HTTP_400_BAD_REQUEST)
+                #We can now delete the set for my server
+                set.delete()
+                content = {'message':"Deleted set with success."}
+                return Response(content, status=status.HTTP_200_OK)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({"message":e.message}, status=status.HTTP_400_BAD_REQUEST)
+    else:
+        content = {'message':'Only an administrator can use this feature.'}
+        return Response(content, status=status.HTTP_401_UNAUTHORIZED)
+
+
+################################################################################
+#
+# Function Name: update_my_set(request)
+# Inputs:        request -
+# Outputs:       201 Registry updated.
+# Exceptions:    400 Error connecting to database.
+#                400 [Identifier] not found in request.
+#                400 Unable to update record.
+#                400 Serializer failed validation.
+#                401 Unauthorized.
+#                404 No registry found with the given identity.
+# Description:   OAI-PMH Update my_metadataFormat
+#
+################################################################################
+@api_view(['PUT'])
+def update_my_set(request):
+    """
+    PUT http://localhost/oai_pmh/update/my-set
+    PUT data query="{'id':'value', 'setSpec':'value','setName':'value'}"
+    """
+    if request.user.is_authenticated():
+        #Serialization of the input data
+        serializer = UpdateMySetSerializer(data=request.DATA)
+        #If it's valid
+        if serializer.is_valid():
+            #We retrieve all information
+            try:
+                try:
+                    if 'id' in request.DATA:
+                        id = request.DATA['id']
+                        set = OaiMySet.objects.get(pk=id)
+                    else:
+                        rsp = {'id':'\'Id\' not found in request.'}
+                        return Response(rsp, status=status.HTTP_400_BAD_REQUEST)
+                except:
+                    content = {'message':'No set found with the given id.'}
+                    return Response(content, status=status.HTTP_404_NOT_FOUND)
+
+                if 'setSpec' in request.DATA:
+                    setSpec = request.DATA['setSpec']
+                    if setSpec:
+                        set.setSpec = setSpec
+
+                if 'setName' in request.DATA:
+                    setName = request.DATA['setName']
+                    if setName:
+                        set.setName = setName
+            except:
+                content = {'message':'Error while retrieving information.'}
+                return Response(content, status=status.HTTP_404_NOT_FOUND)
+            try:
+                #Save the modifications
+                 set.save()
+            except Exception as e:
+                return Response({'message':'Unable to update the set. \n%s'%e.message}, status=status.HTTP_400_BAD_REQUEST)
 
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:

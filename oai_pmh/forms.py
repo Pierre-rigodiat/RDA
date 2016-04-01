@@ -60,6 +60,14 @@ class MyMetadataFormatForm(forms.Form):
     # metadataNamespace = forms.CharField(label='Namespace URL', required=True)
     # xmlSchema = forms.FileField(label='Select a file')
 
+
+class MySetForm(forms.Form):
+    """
+        A MyMetadataFormatForm form
+    """
+    setSpec = forms.CharField(label='Set spec', required=True)
+    setName = forms.CharField(label='Set name', required=True)
+
 class UpdateMyMetadataFormatForm(forms.Form):
     """
         A UpdateMyMetadataFormatForm update form
@@ -68,6 +76,14 @@ class UpdateMyMetadataFormatForm(forms.Form):
     metadataPrefix = forms.CharField(label='Metadata Prefix', required=True)
     # schema = forms.CharField(label='Schema', required=True)
     # metadataNamespace = forms.CharField(label='Namespace', required=True)
+
+class UpdateMySetForm(forms.Form):
+    """
+        A UpdateMySetForm update form
+    """
+    id = forms.CharField(widget=forms.HiddenInput(), required=False)
+    setSpec = forms.CharField(label='Set spec', required=True)
+    setName = forms.CharField(label='Set name', required=True)
 
 class Url(forms.Form):
     """
