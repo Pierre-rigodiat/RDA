@@ -129,5 +129,5 @@ saveElement = function(event) {
 
 $(document).on('click', '.add', addElement);
 $(document).on('click', '.remove', removeElement);
-$(document).on('blur', 'input', saveElement);
+$(document).on('blur', 'input.default', saveElement);
 $(document).on('change', 'select.restriction', saveElement);

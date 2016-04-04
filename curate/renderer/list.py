@@ -168,6 +168,8 @@ class ListRenderer(AbstractListRenderer):
                 html_content += self.render_attribute(child)
             elif child.tag == 'choice':
                 html_content += self.render_choice(child)
+            elif child.tag == 'module':
+                html_content += self.render_module(child)
             else:
                 print child.tag + ' not handled (rend_ct)'
 
@@ -309,6 +311,8 @@ class ListRenderer(AbstractListRenderer):
                 html_content += self.render_restriction(child)
             elif child.tag == 'attribute':
                 html_content += self.render_attribute(child)
+            elif child.tag == 'module':
+                html_content += self.render_module(child)
             else:
                 print child.tag + '  not handled (rend_stype)'
 

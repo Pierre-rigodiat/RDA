@@ -77,12 +77,8 @@ class Module(object):
             template_data['display'] = self._post_display(request)
             # template_data['result'] = sanitize(self._post_result(request))
             options = module_element.options
-            xml_data = self._post_result(request)
-            xml_data = sanitize(xml_data)
-            xml_data = xml_data.lstrip()
-            xml_data = xml_data.rstrip()
 
-            options['data'] = xml_data
+            options['data'] = self._post_result(request)
             module_element.update(set__options=options)
 
             module_element.reload()

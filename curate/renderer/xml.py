@@ -185,8 +185,10 @@ class XmlRenderer(AbstractXmlRenderer):
                 tmp_content[0] = self.render_attribute(child)
             elif child.tag == 'choice':
                 tmp_content = self.render_choice(child)
+            elif child.tag == 'module':
+                tmp_content[1] = self.render_module(child)
             else:
-                print child.tag + ' not handled (rend_ct)'
+                print child.tag + ' not handled (rend_complex_type)'
 
             content[0] = ' '.join([content[0], tmp_content[0]]).strip()
             content[1] += tmp_content[1]
@@ -310,8 +312,10 @@ class XmlRenderer(AbstractXmlRenderer):
                 tmp_content = self.render_restriction(child)
             elif child.tag == 'attribute':
                 tmp_content[0] = self.render_attribute(child)
+            elif child.tag == 'module':
+                tmp_content[1] = self.render_module(child)
             else:
-                print child.tag + '  not handled (rend_stype)'
+                print child.tag + '  not handled (rend_simple_type)'
 
             content[0] = ' '.join([content[0], tmp_content[0]]).strip()
             content[1] += tmp_content[1]
@@ -368,4 +372,4 @@ class XmlRenderer(AbstractXmlRenderer):
         return content
 
     def render_module(self, element):
-        return element.options['data']
+        return element.options['data'] if element.options['data'] is not None else ''
