@@ -90,6 +90,8 @@ class XmlRenderer(AbstractXmlRenderer):
                     content[1] = child.value if child.value is not None else ''
                 elif child.tag == 'simple_type':
                     content = self.render_simple_type(child)
+                elif child.tag == 'module':
+                    content[1] = self.render_module(child)
                 else:
                     print child.tag + ' not handled (re_elem)'
 
@@ -177,10 +179,16 @@ class XmlRenderer(AbstractXmlRenderer):
                 tmp_content = self.render_sequence(child)
             elif child.tag == 'simple_content':
                 tmp_content = self.render_simple_content(child)
+            elif child.tag == 'complex_content':
+                tmp_content = self.render_complex_content(child)
             elif child.tag == 'attribute':
                 tmp_content[0] = self.render_attribute(child)
+            elif child.tag == 'choice':
+                tmp_content = self.render_choice(child)
+            elif child.tag == 'module':
+                tmp_content[1] = self.render_module(child)
             else:
-                print child.tag + ' not handled (rend_ct)'
+                print child.tag + ' not handled (rend_complex_type)'
 
             content[0] = ' '.join([content[0], tmp_content[0]]).strip()
             content[1] += tmp_content[1]
@@ -231,6 +239,64 @@ class XmlRenderer(AbstractXmlRenderer):
 
         return content
 
+    def render_complex_content(self, element):
+        """
+
+        :param element:
+        :return:
+        """
+        content = ['', '']
+
+        for child in element.children:
+            tmp_content = ['', '']
+
+            if child.tag == 'extension':
+                tmp_content = self.render_extension(child)
+            else:
+                print child.tag + '  not handled (rend_comp_cont)'
+
+            content[0] = ' '.join([content[0], tmp_content[0]]).strip()
+            content[1] += tmp_content[1]
+
+        return content
+
+    def render_choice(self, element):
+        """
+
+        :param element:
+        :return:
+        """
+        content = ['', '']
+        children = {}
+        choice_values = {}
+
+        for child in element.children:
+            if child.tag == 'choice-iter':
+                children[child.pk] = child.children
+
+                choice_values[child.pk] = child.value
+            else:
+                print child.tag + '  not handled (rend_choice_pre)'
+
+        for iter_element in children.keys():
+            for child in children[iter_element]:
+                tmp_content = ['', '']
+
+                # FIXME change orders of conditions
+                if child.tag == 'element':
+                    if str(child.pk) == choice_values[iter_element]:
+                        tmp_content[1] = self.render_element(child)
+                elif child.tag == 'sequence':
+                    if str(child.pk) == choice_values[iter_element]:
+                        tmp_content = self.render_sequence(child)
+                else:
+                    print child.tag + ' not handled (rend_choice)'
+
+                content[0] = ' '.join([content[0], tmp_content[0]]).strip()
+                content[1] += tmp_content[1]
+
+        return content
+
     def render_simple_type(self, element):
         """
 
@@ -246,8 +312,10 @@ class XmlRenderer(AbstractXmlRenderer):
                 tmp_content = self.render_restriction(child)
             elif child.tag == 'attribute':
                 tmp_content[0] = self.render_attribute(child)
+            elif child.tag == 'module':
+                tmp_content[1] = self.render_module(child)
             else:
-                print child.tag + '  not handled (rend_stype)'
+                print child.tag + '  not handled (rend_simple_type)'
 
             content[0] = ' '.join([content[0], tmp_content[0]]).strip()
             content[1] += tmp_content[1]
@@ -267,7 +335,7 @@ class XmlRenderer(AbstractXmlRenderer):
             elif child.tag == 'input':
                 tmp_content[1] = child.value if child.value is not None else ''
             elif child.tag == 'simple_type':
-                tmp_content = self.render_simple_type()
+                tmp_content = self.render_simple_type(child)
             else:
                 print child.tag + '  not handled (rend_restriction)'
 
@@ -293,6 +361,8 @@ class XmlRenderer(AbstractXmlRenderer):
                 tmp_content[0] = self.render_attribute(child)
             elif child.tag == 'simple_type':
                 tmp_content = self.render_simple_type(child)
+            elif child.tag == 'complex_type':
+                tmp_content = self.render_complex_type(child)
             else:
                 print child.tag + ' not handled (rend_ext)'
 
@@ -300,3 +370,6 @@ class XmlRenderer(AbstractXmlRenderer):
             content[1] += tmp_content[1]
 
         return content
+
+    def render_module(self, element):
+        return element.options['data'] if element.options['data'] is not None else ''

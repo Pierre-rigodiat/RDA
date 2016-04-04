@@ -12,6 +12,7 @@ TEMPLATES_PATH = os.path.join(RESOURCES_PATH, 'html')
 SCRIPTS_PATH = os.path.join(RESOURCES_PATH, 'js')
 STYLES_PATH = os.path.join(RESOURCES_PATH, 'css')
 
+
 class PositiveIntegerInputModule(InputModule):
     def __init__(self):
         InputModule.__init__(self, label='Enter positive integer', default_value=1)

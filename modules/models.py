@@ -3,6 +3,8 @@ from django.conf import settings
 from django.http import HttpResponse
 import json
 from rest_framework.status import HTTP_200_OK
+
+from curate.models import SchemaElement
 from exceptions import ModuleError
 from abc import ABCMeta, abstractmethod
 from modules.utils import sanitize
@@ -40,6 +42,7 @@ class Module(object):
 
     def _get(self, request):
         template_data = {
+            'module_id': request.GET['module_id'],
             'module': '',
             'display': '',
             'result': '',
@@ -70,8 +73,15 @@ class Module(object):
         }
 
         try:
+            module_element = SchemaElement.objects.get(pk=request.POST['module_id'])
             template_data['display'] = self._post_display(request)
-            template_data['result'] = sanitize(self._post_result(request))
+            # template_data['result'] = sanitize(self._post_result(request))
+            options = module_element.options
+
+            options['data'] = self._post_result(request)
+            module_element.update(set__options=options)
+
+            module_element.reload()
         except Exception, e:
             raise ModuleError('Something went wrong during module update: ' + e.message)
 

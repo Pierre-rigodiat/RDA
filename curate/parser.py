@@ -34,9 +34,20 @@ logger = logging.getLogger(__name__)
 def load_schema_data_in_db(xsd_data):
     xsd_element = SchemaElement()
     xsd_element.tag = xsd_data['tag']
+
+    if xsd_data['value'] is not None:
+        element_value = str(xsd_data['value'])
+        element_value = element_value.lstrip()
+        xsd_data['value'] = element_value.rstrip()
+
     xsd_element.value = xsd_data['value']
 
     if 'options' in xsd_data:
+        if xsd_element.tag == 'module' and xsd_data['options']['data'] is not None:
+            module_data = str(xsd_data['options']['data'])
+            module_data = module_data.lstrip()
+            xsd_data['options']['data'] = module_data.rstrip()
+
         xsd_element.options = xsd_data['options']
 
     if 'children' in xsd_data:
@@ -48,6 +59,13 @@ def load_schema_data_in_db(xsd_data):
 
         if len(children) > 0:
             xsd_element.children = children
+
+    if xsd_element.tag == 'choice-iter':
+        if xsd_element.value is None:
+            xsd_element.value = str(xsd_element.children[0].pk)
+        else:  # Value set => Put the pk of the displayed child
+            child_index = int(xsd_element.value)
+            xsd_element.value = str(xsd_element.children[child_index].pk)
 
     xsd_element.save()
     return xsd_element
@@ -437,10 +455,12 @@ def generate_form(request):
 
         root_element = load_schema_data_in_db(form_content[1])
 
+        request.session['curate_edit'] = False
         return root_element.pk
     except Exception as e:
-        print ">>> " + str(e)
-        # logger.fatal("Form generation failed: " + str(e))
+        logger.fatal("Form generation failed: " + str(e))
+
+        request.session['curate_edit'] = False
         return -1
 
 
@@ -622,7 +642,7 @@ def generate_element(request, element, xml_tree, choice_info=None, full_path="",
         else:
             full_path += "/@{0}".format(text_capitalized)
 
-    print full_path
+    # print full_path
 
     # XSD xpath: /element/complexType/sequence
     xsd_xpath = xml_tree.getpath(element)
@@ -802,8 +822,11 @@ def generate_element(request, element, xml_tree, choice_info=None, full_path="",
         if not removed:
             # if module is present, replace default input by module
             if _has_module:
-                form_string += generate_module(request, element, xsd_xpath, full_path, xml_tree=xml_tree,
-                                               edit_data_tree=edit_data_tree)
+                module = generate_module(request, element, xsd_xpath, full_path, xml_tree=xml_tree,
+                                         edit_data_tree=edit_data_tree)
+
+                form_string += module[0]
+                db_elem_iter['children'].append(module[1])
             else:  # generate the type
                 if element_type is None:  # no complex/simple type
                     placeholder = app_info['placeholder'] if 'placeholder' in app_info else ''
@@ -971,10 +994,12 @@ def generate_element_absent(request, element, xml_doc_tree, form_element, schema
             _has_module = has_module(element)
 
     if _has_module:
-        form_string += generate_module(request, element, form_element.xml_element.xsd_xpath,
-                                       form_element.xml_xpath)
+        module = generate_module(request, element, form_element.xml_element.xsd_xpath,
+                                 form_element.xml_xpath)
 
-        db_element['module'] = True
+        form_string += module[0]
+        # db_element['module'] = True
+        db_element['children'].append(module[1])
     else:
         xml_tree_str = etree.tostring(xml_doc_tree)
         namespaces = common.get_namespaces(BytesIO(str(xml_tree_str)))
@@ -1478,63 +1503,82 @@ def generate_choice(request, element, xml_tree, choice_info=None, full_path="", 
 
         request.session['nbChoicesID'] = str(nb_choices_id)
 
-        is_removed = (nb_occurrences == 0)
+        # is_removed = (nb_occurrences == 0)
         li_content = ''
-        nb_sequence = 1
-        options = []
-        entry = None
+        # nb_sequence = 1
+        # options = []
+        # entry = None
 
         # FIXME list of children is read twice (could be parsed in one pass)
         # generates the choice
         # if len(list(element)) != 0:
-        for child in element:
-            entry = None
-
-            if child.tag == "{0}element".format(LXML_SCHEMA_NAMESPACE):
-                if child.attrib.get('name') is not None:
-                    opt_value = opt_label = child.attrib.get('name')
-                else:
-                    opt_value = opt_label = child.attrib.get('ref')
-
-                    if ':' in child.attrib.get('ref'):
-                        opt_label = opt_label.split(':')[1]
-
-                # look for active choice when editing
-                element_path = full_path + '/' + opt_label
-                entry = (opt_label, opt_value)
-
-                if request.session['curate_edit']:
-                    # get the schema namespaces
-                    xml_tree_str = etree.tostring(xml_tree)
-                    namespaces = common.get_namespaces(BytesIO(str(xml_tree_str)))
-                    if len(edit_data_tree.xpath(element_path, namespaces=namespaces)) == 0:
-                        entry += (True,)
-                    else:
-                        entry += (False,)
-                else:
-                    entry += (False,)
-
-            elif child.tag == "{0}group".format(LXML_SCHEMA_NAMESPACE):
-                pass
-            elif child.tag == "{0}choice".format(LXML_SCHEMA_NAMESPACE):
-                pass
-            elif child.tag == "{0}sequence".format(LXML_SCHEMA_NAMESPACE):
-                entry = ('sequence' + str(nb_sequence), 'Sequence ' + str(nb_sequence), False)
-                nb_sequence += 1
-            elif child.tag == "{0}any".format(LXML_SCHEMA_NAMESPACE):
-                pass
-
-        if entry is not None:
-            options.append(entry)
-
-        li_content += render_select(choose_id_str, options)
-        li_content += render_buttons(add_button, delete_button)
+        # for child in element:
+        #     entry = None
+        #
+        #     if child.tag == "{0}element".format(LXML_SCHEMA_NAMESPACE):
+        #         if child.attrib.get('name') is not None:
+        #             opt_value = opt_label = child.attrib.get('name')
+        #         else:
+        #             opt_value = opt_label = child.attrib.get('ref')
+        #
+        #             if ':' in child.attrib.get('ref'):
+        #                 opt_label = opt_label.split(':')[1]
+        #
+        #         # look for active choice when editing
+        #         element_path = full_path + '/' + opt_label
+        #         entry = (opt_label, opt_value)
+        #
+        #         if request.session['curate_edit']:
+        #             # get the schema namespaces
+        #             xml_tree_str = etree.tostring(xml_tree)
+        #             namespaces = common.get_namespaces(BytesIO(str(xml_tree_str)))
+        #             if len(edit_data_tree.xpath(element_path, namespaces=namespaces)) == 0:
+        #                 entry += (True,)
+        #             else:
+        #                 entry += (False,)
+        #         else:
+        #             entry += (False,)
+        #
+        #     elif child.tag == "{0}group".format(LXML_SCHEMA_NAMESPACE):
+        #         pass
+        #     elif child.tag == "{0}choice".format(LXML_SCHEMA_NAMESPACE):
+        #         pass
+        #     elif child.tag == "{0}sequence".format(LXML_SCHEMA_NAMESPACE):
+        #         entry = ('sequence' + str(nb_sequence), 'Sequence ' + str(nb_sequence), False)
+        #         nb_sequence += 1
+        #     elif child.tag == "{0}any".format(LXML_SCHEMA_NAMESPACE):
+        #         pass
+        #
+        # if entry is not None:
+        #     options.append(entry)
+        #
+        # li_content += render_select(choose_id_str, options)
+        # li_content += render_buttons(add_button, delete_button)
 
         for (counter, choiceChild) in enumerate(list(element)):
             if choiceChild.tag == "{0}element".format(LXML_SCHEMA_NAMESPACE):
                 element_result = generate_element(request, choiceChild, xml_tree,
                                                   common.ChoiceInfo(choose_id_str, counter), full_path=full_path,
                                                   edit_data_tree=edit_data_tree, schema_location=schema_location)
+
+                # Find the default element
+                if choiceChild.attrib.get('name') is not None:
+                    opt_label = choiceChild.attrib.get('name')
+                else:
+                    opt_label = choiceChild.attrib.get('ref')
+
+                    if ':' in choiceChild.attrib.get('ref'):
+                        opt_label = opt_label.split(':')[1]
+
+                # look for active choice when editing
+                element_path = full_path + '/' + opt_label
+
+                if request.session['curate_edit']:
+                    # get the schema namespaces
+                    xml_tree_str = etree.tostring(xml_tree)
+                    namespaces = common.get_namespaces(BytesIO(str(xml_tree_str)))
+                    if len(edit_data_tree.xpath(element_path, namespaces=namespaces)) != 0:
+                        db_child['value'] = counter
 
                 li_content += element_result[0]
                 db_child_0 = element_result[1]
@@ -1591,9 +1635,12 @@ def generate_simple_type(request, element, xml_tree, full_path, edit_data_tree=N
     if has_module(element):
         # XSD xpath: /element/complexType/sequence
         xsd_xpath = xml_tree.getpath(element)
-        form_string += generate_module(request, element, xsd_xpath, full_path, xml_tree=xml_tree,
-                                       edit_data_tree=edit_data_tree)
-        db_element['module'] = True
+        module = generate_module(request, element, xsd_xpath, full_path, xml_tree=xml_tree,
+                                 edit_data_tree=edit_data_tree)
+
+        form_string += module[0]
+        db_element['children'].append(module[1])
+        # db_element['module'] = True
 
         return form_string, db_element
 
@@ -1681,12 +1728,14 @@ def generate_complex_type(request, element, xml_tree, full_path, edit_data_tree=
     if has_module(element):
         # XSD xpath: /element/complexType/sequence
         xsd_xpath = xml_tree.getpath(element)
-        form_string += generate_module(request, element, xsd_xpath, full_path, xml_tree=xml_tree,
-                                       edit_data_tree=edit_data_tree)
+        module = generate_module(request, element, xsd_xpath, full_path, xml_tree=xml_tree,
+                                 edit_data_tree=edit_data_tree)
 
-        db_element['options'] = {
-            'mod': True
-        }
+        form_string += module[0]
+        # db_element['options'] = {
+        #     'mod': True
+        # }
+        db_element['children'].append(module[1])
 
         return form_string, db_element
 
@@ -1998,11 +2047,22 @@ def generate_module(request, element, xsd_xpath=None, xml_xpath=None, xml_tree=N
         element:
         xsd_xpath:
         xml_xpath:
+        xml_tree:
         edit_data_tree:
 
     Returns:
         Module
     """
+    db_element = {
+        'tag': 'module',
+        'value': None,
+        'options': {
+            'data': None,
+            'attributes': None
+        },
+        'children': []
+    }
+
     form_string = ""
     reload_data = None
     reload_attrib = None
@@ -2056,10 +2116,20 @@ def generate_module(request, element, xsd_xpath=None, xml_xpath=None, xml_tree=N
             if reload_attrib is not None:
                 mod_req.GET['attributes'] = reload_attrib
 
-            # renders the module
-            form_string += view(mod_req).content.decode("utf-8")
+            db_element['options']['xpath'] = {
+                'xsd': xsd_xpath,
+                'xml': xml_xpath
+            }
 
-    return form_string
+            db_element['options']['url'] = url
+            db_element['options']['data'] = reload_data
+            db_element['options']['attributes'] = reload_attrib
+
+            # renders the module
+            # form_string += view(mod_req).content.decode("utf-8")
+            form_string += ''
+
+    return form_string, db_element
 
 
 def generate_simple_content(request, element, xml_tree, full_path='', edit_data_tree=None, default_value='',

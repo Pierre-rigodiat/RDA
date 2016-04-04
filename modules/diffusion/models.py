@@ -13,6 +13,7 @@ TEMPLATES_PATH = os.path.join(RESOURCES_PATH, 'html')
 SCRIPTS_PATH = os.path.join(RESOURCES_PATH, 'js')
 STYLES_PATH = os.path.join(RESOURCES_PATH, 'css')
 
+
 class PeriodicTableModule(PopupModule):
     
     def __init__(self):

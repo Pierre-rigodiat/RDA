@@ -6,7 +6,6 @@ hideButton = function($data, buttonClass) {
     $data.find('.' + buttonClass + ':first').addClass('hidden');
 };
 
-
 addElement = function(event) {
     event.preventDefault();
 
@@ -121,10 +120,6 @@ saveElement = function(event) {
         },
         success: function(data) {
             console.log('Element ' + inputId + ' saved');
-
-            if(data.type === 'choice') {
-                console.log('Regenerate')
-            }
         },
         error: function(data) {
             console.error('An error occured when saving element ' + inputId);
@@ -134,6 +129,5 @@ saveElement = function(event) {
 
 $(document).on('click', '.add', addElement);
 $(document).on('click', '.remove', removeElement);
-$(document).on('blur', 'input', saveElement);
+$(document).on('blur', 'input.default', saveElement);
 $(document).on('change', 'select.restriction', saveElement);
-$(document).on('change', 'select.choice', saveElement); // FIXME choice shouldn't be used that way

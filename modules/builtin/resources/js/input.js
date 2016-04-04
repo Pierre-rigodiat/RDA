@@ -1,4 +1,6 @@
 $('body').on('blur', '.mod_input input[type="text"]', function(event) {
+    event.stopPropagation();
+
     // Collect data
     var data = {
         'data': $(this).val()
