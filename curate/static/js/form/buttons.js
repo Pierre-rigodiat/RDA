@@ -102,7 +102,7 @@ removeElement = function(event) {
     });
 };
 
-saveElement = function(event) {
+/*saveElement = function(event) {
     event.preventDefault();
 
     var $input = $(this);
@@ -125,9 +125,9 @@ saveElement = function(event) {
             console.error('An error occured when saving element ' + inputId);
         }
     });
-};
+};*/
 
 $(document).on('click', '.add', addElement);
 $(document).on('click', '.remove', removeElement);
-$(document).on('blur', 'input.default', saveElement);
-$(document).on('change', 'select.restriction', saveElement);
+//$(document).on('blur', 'input.default', saveElement);
+//$(document).on('change', 'select.restriction', saveElement);

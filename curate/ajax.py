@@ -1030,29 +1030,34 @@ def save_form(request):
 #
 ################################################################################
 def validate_xml_data(request):
-
-    template_id = request.session['currentTemplateID']
+    # template_id = request.session['currentTemplateID']
     request.session['xmlString'] = ""
     try:
         xsd_tree_str = str(request.session['xmlDocTree'])
 
         # set namespaces information in the XML document
-        xmlString = request.POST['xmlString']
+        # xmlString = request.POST['xmlString']
+        form_id = request.session['form_id']
+        root_element = SchemaElement.objects.get(pk=form_id)
+
+        xml_renderer = XmlRenderer(root_element)
+        xml_data = xml_renderer.render()
+
         # xmlString = request.POST['xmlString']
         # validate XML document
-        common.validateXMLDocument(xmlString, xsd_tree_str)
-    except etree.XMLSyntaxError, xse:
-        #xmlParseEntityRef exception: use of & < > forbidden
-        message= "Validation Failed. </br> May be caused by : </br> - Syntax problem </br> - Use of forbidden symbols : '&' or '<' or '>'"
+        common.validateXMLDocument(xml_data, xsd_tree_str)
+    except etree.XMLSyntaxError as xse:
+        # xmlParseEntityRef exception: use of & < > forbidden
+        message = "Validation Failed. </br> May be caused by : </br> - Syntax problem </br> - Use of forbidden symbols : '&' or '<' or '>'"
         response_dict = {'errors': message}
         return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
-    except Exception, e:
-        message= e.message.replace('"', '\'')
+    except Exception as e:
+        message = e.message.replace('"', '\'')
         response_dict = {'errors': message}
         return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
 
-    request.session['xmlString'] = xmlString
-    request.session['formString'] = request.POST['xsdForm']
+    # request.session['xmlString'] = xmlString
+    # request.session['formString'] = request.POST['xsdForm']
 
     return HttpResponse(json.dumps({}), content_type='application/javascript')
 
@@ -1208,9 +1213,6 @@ def gen_abs(request):
         # get the namespaces
         namespaces = common.get_namespaces(BytesIO(str(xml_doc_tree_str)))
 
-    # render element
-    # namespace = "{" + namespaces[default_prefix] + "}"
-
     # flatten the includes
     flattener = XSDFlattenerURL(etree.tostring(xml_doc_tree))
     xml_doc_tree_str = flattener.get_flat()
@@ -1241,14 +1243,20 @@ def gen_abs(request):
     # Saving the tree in MongoDB
     tree_root = load_schema_data_in_db(db_tree)
 
-    # Updating the elements
-    rendering_element.children = [tree_root]
-    schema_element.update(add_to_set__children=[tree_root])
+    # Updating the schema element
+    children = schema_element.children
+    element_index = children.index(sub_element)
+
+    children.insert(element_index+1, tree_root)
+    schema_element.update(set__children=children)
 
     if len(sub_element.children) == 0:
         schema_element.update(pull__children=element_id)
 
     schema_element.reload()
+
+    # Updating the rendering element
+    rendering_element.children = [tree_root]
     rendering_element.save(force_insert=True)
 
     # Rendering the generated element
@@ -1322,8 +1330,13 @@ def generate_choice(request):
     # Saving the tree in MongoDB
     tree_root = load_schema_data_in_db(db_tree)
 
-    parent.update(add_to_set__children=[tree_root])
-    parent.update(pull__children=element_id)
+    # Replacing the children with the generated branch
+    children = parent.children
+    element_index = children.index(element)
+
+    children[element_index] = tree_root
+
+    parent.update(set__children=children)
     parent.update(set__value=str(tree_root.pk))
 
     parent.reload()

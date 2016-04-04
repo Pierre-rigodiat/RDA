@@ -1,6 +1,4 @@
-saveForm = function(event) {
-    event.preventDefault();
-
+sendSaveRequest = function() {
     console.log('Saving form...')
 
     $.ajax({
@@ -19,5 +17,25 @@ saveForm = function(event) {
         }
     });
 };
+
+saveForm = function(event)
+{
+    event.preventDefault();
+
+    $(function() {
+        $( "#dialog-save-form-message" ).dialog({
+            modal: true,
+            buttons: {
+				Save: function() {
+				    sendSaveRequest()
+					$( this ).dialog( "close" );
+                },
+                Cancel: function() {
+                    $( this ).dialog( "close" );
+                }
+            }
+        });
+    });
+}
 
 $(document).on('click', '.btn.save-form', saveForm);

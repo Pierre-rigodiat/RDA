@@ -81,11 +81,13 @@ class ListRenderer(AbstractListRenderer):
         :return:
         """
         children = {}
+        child_keys = []
         children_number = 0
 
         for child in element.children:
             if child.tag == 'elem-iter':
                 children[child.pk] = child.children
+                child_keys.append(child.pk)
 
                 if len(child.children) > 0:
                     children_number += 1
@@ -107,12 +109,9 @@ class ListRenderer(AbstractListRenderer):
             if children_number > element.options["min"]:
                 del_button = True
 
-            # if children_number < element.options["min"]:
-            #     add_button = True
-
         buttons = render_buttons(add_button, del_button)
 
-        for child_key in children.keys():
+        for child_key in child_keys:
             li_class = ''
             sub_elements = []
             sub_inputs = []
@@ -231,11 +230,13 @@ class ListRenderer(AbstractListRenderer):
         """
         html_content = ''
         children = {}
+        child_keys = []
         choice_values = {}
 
         for child in element.children:
             if child.tag == 'choice-iter':
                 children[child.pk] = child.children
+                child_keys.append(child.pk)
 
                 choice_values[child.pk] = child.value
             else:
@@ -244,7 +245,7 @@ class ListRenderer(AbstractListRenderer):
         sub_content = ''
         options = []
 
-        for iter_element in children.keys():
+        for iter_element in child_keys:
             for child in children[iter_element]:
                 element_html = ''
                 is_selected_element = (str(child.pk) == choice_values[iter_element])

@@ -66,11 +66,13 @@ class XmlRenderer(AbstractXmlRenderer):
         """
         xml_string = ''
         children = {}
+        child_keys = []
         children_number = 0
 
         for child in element.children:
             if child.tag == 'elem-iter':
                 children[child.pk] = child.children
+                child_keys.append(child.pk)
 
                 if len(child.children) > 0:
                     children_number += 1
@@ -80,7 +82,7 @@ class XmlRenderer(AbstractXmlRenderer):
 
         element_name = element.options['name']
 
-        for child_key in children.keys():
+        for child_key in child_keys:
             for child in children[child_key]:
                 content = ['', '']
 
@@ -268,17 +270,19 @@ class XmlRenderer(AbstractXmlRenderer):
         """
         content = ['', '']
         children = {}
+        child_keys = []
         choice_values = {}
 
         for child in element.children:
             if child.tag == 'choice-iter':
                 children[child.pk] = child.children
+                child_keys.append(child.pk)
 
                 choice_values[child.pk] = child.value
             else:
                 print child.tag + '  not handled (rend_choice_pre)'
 
-        for iter_element in children.keys():
+        for iter_element in child_keys:
             for child in children[iter_element]:
                 tmp_content = ['', '']
 
