@@ -179,6 +179,8 @@ class XmlRenderer(AbstractXmlRenderer):
                 tmp_content = self.render_sequence(child)
             elif child.tag == 'simple_content':
                 tmp_content = self.render_simple_content(child)
+            elif child.tag == 'complex_content':
+                tmp_content = self.render_complex_content(child)
             elif child.tag == 'attribute':
                 tmp_content[0] = self.render_attribute(child)
             elif child.tag == 'choice':
@@ -229,6 +231,27 @@ class XmlRenderer(AbstractXmlRenderer):
                 tmp_content = self.render_extension(child)
             else:
                 print child.tag + '  not handled (rend_scont)'
+
+            content[0] = ' '.join([content[0], tmp_content[0]]).strip()
+            content[1] += tmp_content[1]
+
+        return content
+
+    def render_complex_content(self, element):
+        """
+
+        :param element:
+        :return:
+        """
+        content = ['', '']
+
+        for child in element.children:
+            tmp_content = ['', '']
+
+            if child.tag == 'extension':
+                tmp_content = self.render_extension(child)
+            else:
+                print child.tag + '  not handled (rend_comp_cont)'
 
             content[0] = ' '.join([content[0], tmp_content[0]]).strip()
             content[1] += tmp_content[1]
@@ -308,7 +331,7 @@ class XmlRenderer(AbstractXmlRenderer):
             elif child.tag == 'input':
                 tmp_content[1] = child.value if child.value is not None else ''
             elif child.tag == 'simple_type':
-                tmp_content = self.render_simple_type()
+                tmp_content = self.render_simple_type(child)
             else:
                 print child.tag + '  not handled (rend_restriction)'
 
@@ -334,6 +357,8 @@ class XmlRenderer(AbstractXmlRenderer):
                 tmp_content[0] = self.render_attribute(child)
             elif child.tag == 'simple_type':
                 tmp_content = self.render_simple_type(child)
+            elif child.tag == 'complex_type':
+                tmp_content = self.render_complex_type(child)
             else:
                 print child.tag + ' not handled (rend_ext)'
 

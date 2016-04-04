@@ -162,6 +162,8 @@ class ListRenderer(AbstractListRenderer):
                 html_content += self.render_sequence(child)
             elif child.tag == 'simple_content':
                 html_content += self.render_simple_content(child)
+            elif child.tag == 'complex_content':
+                html_content += self.render_complex_content(child)
             elif child.tag == 'attribute':
                 html_content += self.render_attribute(child)
             elif child.tag == 'choice':
@@ -278,6 +280,22 @@ class ListRenderer(AbstractListRenderer):
 
         return html_content
 
+    def render_complex_content(self, element):
+        """
+
+        :param element:
+        :return:
+        """
+        html_content = ''
+
+        for child in element.children:
+            if child.tag == 'extension':
+                html_content += self.render_extension(child)
+            else:
+                print child.tag + '  not handled (rend_complex_cont)'
+
+        return html_content
+
     def render_simple_type(self, element):
         """
 
@@ -311,6 +329,8 @@ class ListRenderer(AbstractListRenderer):
                 html_content += self.render_attribute(child)
             elif child.tag == 'simple_type':
                 html_content += self.render_simple_type(child)
+            elif child.tag == 'complex_type':
+                html_content += self.render_complex_type(child)
             else:
                 print child.tag + ' not handled (rend_ext)'
 
