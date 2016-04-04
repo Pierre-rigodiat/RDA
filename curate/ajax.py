@@ -1289,19 +1289,24 @@ def generate_choice(request):
         # get the content of the file
         ref_xml_schema_content = ref_xml_schema_file.read()
         # build the XML tree
-        # xmlDocTree = etree.parse(BytesIO(ref_xml_schema_content.encode('utf-8')))
+        xml_doc_tree = etree.parse(BytesIO(ref_xml_schema_content.encode('utf-8')))
         # get the namespaces from the imported schema
         namespaces = common.get_namespaces(BytesIO(str(ref_xml_schema_content)))
     else:
         # get the content of the XML tree
-        # xmlDocTreeStr = request.session['xmlDocTree']
+        xml_doc_tree_str = request.session['xmlDocTree']
         # # build the XML tree
-        # xmlDocTree = etree.ElementTree(etree.fromstring(xmlDocTreeStr))
+        xml_doc_tree = etree.ElementTree(etree.fromstring(xml_doc_tree_str))
         # get the namespaces
         namespaces = common.get_namespaces(BytesIO(str(xml_doc_tree_str)))
 
     # render element
     # namespace = "{" + namespaces[default_prefix] + "}"
+
+    # flatten the includes
+    flattener = XSDFlattenerURL(etree.tostring(xml_doc_tree))
+    xml_doc_tree_str = flattener.get_flat()
+    xml_doc_tree = etree.parse(BytesIO(xml_doc_tree_str.encode('utf-8')))
 
     xpath_element = element.options['xpath']
     xsd_xpath = xpath_element['xsd']
