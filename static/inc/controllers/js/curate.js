@@ -847,7 +847,7 @@ XMLDataSavedToPublish = function()
     $( "#dialog-save-redirect-dashboard-message" ).dialog({
         modal: true,
         width: 390,
-        height: 295,
+        autoResize: 'auto',
         close: function(){
             window.location = "/"
         },
@@ -868,7 +868,7 @@ XMLDataUpdated = function(){
     $( "#dialog-update-redirect-dashboard-message" ).dialog({
         modal: true,
         width: 390,
-        height: 240,
+        autoResize: 'auto',
         close: function(){
             window.location = "/"
         },
