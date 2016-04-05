@@ -333,4 +333,3 @@ class HandleModule(PopupModule):
 
     def _post_result(self, request):
         return self.handle
-    

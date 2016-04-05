@@ -402,6 +402,8 @@ def generate_form(request):
         template_object = Template.objects.get(pk=template_id)
         xml_doc_data = template_object.content
 
+    request.session['implicit_extension'] = True
+
     # flatten the includes
     flattener = XSDFlattenerURL(xml_doc_data)
     xml_doc_tree_str = flattener.get_flat()
@@ -436,10 +438,6 @@ def generate_form(request):
             edit_data_tree = etree.XML(str(form_data.xml_data.encode('utf-8')))
         else:  # no data found, not editing
             request.session['curate_edit'] = False
-
-    # TODO: commented extensions Registry
-    # # find extensions
-    # request.session['extensions'] = get_extensions(request, xml_doc_tree, namespace, default_prefix)
 
     # find all root elements
     elements = xml_doc_tree.findall("./{0}element".format(LXML_SCHEMA_NAMESPACE))
@@ -1628,7 +1626,10 @@ def generate_simple_type(request, element, xml_tree, full_path, edit_data_tree=N
     db_element = {
         'tag': 'simple_type',
         'value': None,
-        'children': []
+        'children': [],
+        'options': {
+            'name': element.attrib['name'] if 'name' in element.attrib else '',
+        },
     }
 
     # remove the annotations
@@ -1645,6 +1646,20 @@ def generate_simple_type(request, element, xml_tree, full_path, edit_data_tree=N
         # db_element['module'] = True
 
         return form_string, db_element
+
+    # TODO: check that it's not already extending a base
+    # check if the type has a name (can be referenced by an extension)
+    if 'name' in element.attrib and request.session['implicit_extension']:
+        # check if types extend this one
+        extensions = get_extensions(xml_tree, element.attrib['name'])
+
+        # the type has some possible extensions
+        if len(extensions) > 0:
+            choice_content = generate_choice_extensions(request, extensions, xml_tree, None, full_path, edit_data_tree,
+                                                        schema_location)
+            form_string += choice_content[0]
+            db_element['children'].append(choice_content[1])
+            return form_string, db_element
 
     if list(element) != 0:
         child = element[0]
@@ -1721,7 +1736,10 @@ def generate_complex_type(request, element, xml_tree, full_path, edit_data_tree=
     db_element = {
         'tag': 'complex_type',
         'value': None,
-        'children': []
+        'children': [],
+        'options': {
+            'name': element.attrib['name'] if 'name' in element.attrib else '',
+        },
     }
 
     # remove the annotations
@@ -1740,6 +1758,20 @@ def generate_complex_type(request, element, xml_tree, full_path, edit_data_tree=
         db_element['children'].append(module[1])
 
         return form_string, db_element
+
+    # TODO: check that it's not already extending a base
+    # check if the type has a name (can be referenced by an extension)
+    if 'name' in element.attrib and request.session['implicit_extension']:
+        # check if types extend this one
+        extensions = get_extensions(xml_tree, element.attrib['name'])
+
+        # the type has some possible extensions
+        if len(extensions) > 0:
+            choice_content = generate_choice_extensions(request, extensions, xml_tree, None, full_path, edit_data_tree,
+                                                        schema_location)
+            form_string += choice_content[0]
+            db_element['children'].append(choice_content[1])
+            return form_string, db_element
 
     # is it a simple content?
     complexTypeChild = element.find('{0}simpleContent'.format(LXML_SCHEMA_NAMESPACE))
@@ -1803,47 +1835,155 @@ def generate_complex_type(request, element, xml_tree, full_path, edit_data_tree=
                 form_string += choice_result[0]
                 db_element['children'].append(choice_result[1])
 
-    # TODO: commented extensions Registry
-    # # check if the type has a name (for reference)
-    # if 'name' in element.attrib:
-    #     # check if types extend this one
-    #     extensions = request.session['extensions']
-    #
-    #     # the complextype has some possible extensions
-    #     if element.attrib['name'] in extensions.keys():
-    #         # get all extensions associated with the type
-    #         current_type_extensions = extensions[element.attrib['name']]
-    #
-    #         # build namesapces to use with xpath
-    #         xpath_namespaces = {}
-    #         for prefix, ns in request.session['namespaces'].iteritems() :
-    #             xpath_namespaces[prefix] = ns[1:-1]
-    #
-    #         # get extension types using XPath
-    #         extension_types = []
-    #         for current_type_extension in current_type_extensions:
-    #             # get the extension using its xpath
-    #             extension_element = xml_tree.xpath(current_type_extension, namespaces=xpath_namespaces)[0]
-    #             extension_types.append(extension_element)
-    #
-    #
-    #         formString += '<div class="extension">'
-    #         formString += 'Extend <select onchange="changeExtension()">'
-    #         formString += '<option> --------- </option>'
-    #
-    #         # browse extension types
-    #         for extension_type in extension_types:
-    #             formString += '<option>'
-    #             # get the closest type name: parent -> xxxContent, parent -> xxxType
-    #             formString += extension_type.getparent().getparent().attrib['name']
-    #             formString += '</option>'
-    #
-    #         formString += '</select>'
-    #         formString += '</div>'
-    #         # if extension_element.tag == "{0}complexType".format(namespace):
-    #         #     pass
-    #         # elif extension_element.tag == "{0}simpleType".format(namespace):
-    #         #     pass
+    return form_string, db_element
+
+
+def generate_choice_extensions(request, element, xml_tree, choice_info=None, full_path="", edit_data_tree=None, schema_location=None):
+    """Generates a section of the form that represents an implicit extension
+
+    Parameters:
+        request:
+        element: XML element
+        xml_tree: XML Tree
+        choice_info: to keep track of branches to display (chosen ones) when going recursively down the tree
+        full_path: XML xpath being built
+        edit_data_tree: XML tree of data being edited
+
+    Returns:       HTML string representing a sequence
+    """
+
+    form_string = ""
+    db_element = {
+        'tag': 'choice',
+        'options': {
+            'xpath': {
+                'xsd': None,
+                'xml': full_path
+            },
+            'schema_location': schema_location
+        },
+        'value': None,
+        'children': []
+    }
+
+    # remove the annotations
+    remove_annotations(element)
+
+    # init variables for buttons management
+    add_button = False
+    delete_button = False
+    nb_occurrences = 1  # nb of occurrences to render (can't be 0 or the user won't see this element at all)
+    # nb_occurrences_data = 1
+    xml_element = None
+
+    # keeps track of elements to display depending on the selected choice
+    if choice_info:
+        choice_id = choice_info.chooseIDStr + "-" + str(choice_info.counter)
+        chosen = True
+
+        if request.session['curate_edit']:
+            if nb_occurrences == 0:
+                chosen = False
+
+                if CURATE_MIN_TREE:
+                    form_element = FormElement(html_id=choice_id, xml_element=xml_element, xml_xpath=full_path).save()
+                    request.session['mapTagID'][choice_id] = str(form_element.id)
+
+                    form_string += render_ul('', choice_id, chosen)
+                    return form_string, db_element
+        else:
+            if choice_info.counter > 0:
+                chosen = False
+
+                if CURATE_MIN_TREE:
+                    form_element = FormElement(html_id=choice_id, xml_element=xml_element, xml_xpath=full_path).save()
+                    request.session['mapTagID'][choice_id] = str(form_element.id)
+
+                    form_string += render_ul('', choice_id, chosen)
+                    return form_string, db_element
+    else:
+        choice_id = ''
+        chosen = True
+
+    ul_content = ''
+
+    for x in range(0, int(nb_occurrences)):
+        db_child = {
+            'tag': 'choice-iter',
+            'value': None,
+            'children': [],
+            'options': {},
+        }
+
+        nb_html_tags = int(request.session['nb_html_tags'])
+        tag_id = "element" + str(nb_html_tags)
+        nb_html_tags += 1
+        request.session['nb_html_tags'] = str(nb_html_tags)
+
+        form_element = FormElement(html_id=tag_id, xml_element=xml_element,
+                                   xml_xpath=full_path + '[' + str(x+1) + ']')
+        form_element.save()
+
+        request.session['mapTagID'][tag_id] = str(form_element.pk)
+
+        nb_choices_id = int(request.session['nbChoicesID'])
+        choose_id = nb_choices_id
+        choose_id_str = 'choice' + str(choose_id)
+        nb_choices_id += 1
+
+        request.session['nbChoicesID'] = str(nb_choices_id)
+
+        # is_removed = (nb_occurrences == 0)
+        li_content = ''
+
+        request.session['implicit_extension'] = False
+        for (counter, choiceChild) in enumerate(list(element)):
+            if choiceChild.tag == "{0}simpleType".format(LXML_SCHEMA_NAMESPACE) or \
+               choiceChild.tag == "{0}complexType".format(LXML_SCHEMA_NAMESPACE):
+
+                if choiceChild.tag == "{0}complexType".format(LXML_SCHEMA_NAMESPACE):
+                    result = generate_complex_type(request, choiceChild, xml_tree,
+                                                            full_path=full_path,
+                                                            edit_data_tree=edit_data_tree,
+                                                            schema_location=schema_location)
+
+                elif choiceChild.tag == "{0}simpleType".format(LXML_SCHEMA_NAMESPACE):
+                    result = generate_simple_type(request, choiceChild, xml_tree,
+                                                          full_path=full_path,
+                                                          edit_data_tree=edit_data_tree,
+                                                          schema_location=schema_location)
+
+                # Find the default element
+                if choiceChild.attrib.get('name') is not None:
+                    opt_label = choiceChild.attrib.get('name')
+                else:
+                    opt_label = choiceChild.attrib.get('ref')
+
+                    if ':' in choiceChild.attrib.get('ref'):
+                        opt_label = opt_label.split(':')[1]
+
+                db_child['options']['name'] = opt_label
+
+                # look for active choice when editing
+                # FIXME: fix path
+                element_path = full_path + '/' + opt_label
+
+                if request.session['curate_edit']:
+                    # get the schema namespaces
+                    xml_tree_str = etree.tostring(xml_tree)
+                    namespaces = common.get_namespaces(BytesIO(str(xml_tree_str)))
+                    if len(edit_data_tree.xpath(element_path, namespaces=namespaces)) != 0:
+                        db_child['value'] = counter
+
+                li_content += result[0]
+                db_child_0 = result[1]
+                db_child['children'].append(db_child_0)
+
+        # ul_content += render_li('Choose'+li_content, tag_id, 'choice', 'removed' if is_removed else None)
+        db_element['children'].append(db_child)
+
+    request.session['implicit_extension'] = True
+    form_string += render_ul(ul_content, choice_id, chosen)
     return form_string, db_element
 
 
@@ -2128,32 +2268,39 @@ def generate_restriction(request, element, xml_tree, full_path="", edit_data_tre
 
     return form_string, db_element
 
+
 # TODO: commented extensions Registry
-# def get_extensions(request, xml_doc_tree, default_prefix):
-#     """Get all XML extensions of the XML Schema
-#
-#     Parameters:
-#         request:
-#         element:
-#         xml_tree:
-#         full_path:
-#         edit_data_tree:
-#
-#     Returns:
-#         HTML string representing an extension
-#     """
-#     # get all extensions of the document
-#     extensions = xml_doc_tree.findall(".//{0}extension".format(LXML_SCHEMA_NAMESPACE))
-#     # keep only simple/complex type extensions, no built-in types
-#     custom_type_extensions = {}
-#     for extension in extensions:
-#         base = extension.attrib['base']
-#         if base not in common.getXSDTypes(default_prefix):
-#             if base not in custom_type_extensions.keys():
-#                 custom_type_extensions[base] = []
-#             custom_type_extensions[base].append(etree.ElementTree(xml_doc_tree).getpath(extension))
-#
-#     return custom_type_extensions
+def get_extensions(xml_doc_tree, base_type_name):
+    """Get all XML extensions of the XML Schema
+
+    Parameters:
+        request:
+        element:
+        xml_tree:
+        full_path:
+        edit_data_tree:
+
+    Returns:
+        list of extensions
+    """
+    #TODO: look for extensions in imported documents
+    # get all extensions of the document
+    extensions = xml_doc_tree.findall(".//{0}extension".format(LXML_SCHEMA_NAMESPACE))
+    # keep only simple/complex type extensions, no built-in types
+    custom_type_extensions = []
+    for extension in extensions:
+        base = extension.attrib['base']
+        # TODO: manage namespaces
+        if ":" in base:
+            base = base.split(':')[1]
+        if base_type_name == base:
+            # get parent type that contains the extension
+            type_extension = extension.getparent()
+            while 'simpleType' not in type_extension.tag and 'complexType' not in type_extension.tag:
+                type_extension = type_extension.getparent()
+            custom_type_extensions.append(type_extension)
+
+    return custom_type_extensions
 
 
 def generate_extension(request, element, xml_tree, full_path="", edit_data_tree=None, default_value='',
@@ -2181,6 +2328,8 @@ def generate_extension(request, element, xml_tree, full_path="", edit_data_tree=
 
     remove_annotations(element)
 
+    request.session['implicit_extension'] = False
+
     ##################################################
     # Parsing attributes
     #
@@ -2198,7 +2347,7 @@ def generate_extension(request, element, xml_tree, full_path="", edit_data_tree=
                                                                 target_namespace_prefix, schema_location, 'base')
 
         # test if base is a built-in data types
-        if base is None:
+        if base_type is None:
             db_element['children'].append(
                 {
                     'tag': 'input',
@@ -2272,5 +2421,7 @@ def generate_extension(request, element, xml_tree, full_path="", edit_data_tree=
 
                 form_string += choice_result[0]
                 extended_element.append(choice_result[1])
+
+    request.session['implicit_extension'] = True
 
     return form_string, db_element
