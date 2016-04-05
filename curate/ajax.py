@@ -31,6 +31,7 @@ from curate.models import SchemaElement
 from curate.parser import generate_form, generate_element, generate_sequence_absent, generate_element_absent, has_module, \
     get_element_type, generate_module, generate_complex_type, generate_simple_type, generate_sequence, generate_choice, \
     get_element_namespace, load_schema_data_in_db
+from curate.renderer import DefaultRenderer
 from curate.renderer.xml import XmlRenderer
 from mgi.common import LXML_SCHEMA_NAMESPACE
 # from mgi.models import Template, XML2Download
@@ -290,51 +291,31 @@ def init_curate(request):
     return HttpResponse(json.dumps({}), content_type='application/javascript')
 
 
-################################################################################
-#
-# Function Name: generateXSDTreeForEnteringData(request)
-# Inputs:        request -
-# Outputs:
-# Exceptions:    None
-# Description:   Renders HTMl form for display.
-#
-################################################################################
 def generate_xsd_form(request):
-    print 'BEGIN def generate_xsd_form(request)'
+    """ Renders HTMl form for display.
 
-    # get the form when going back and forth with review step
-    # if 'formString' in request.session:
-    #     form_string = request.session['formString']
-    # else:
-    #     form_string = ''
-    #
-    # # if the form is not generated
-    # if form_string == "":
-    #     # this form was not created, generates it from the schema
-    #     form_string += generate_form(request)
-    #
-    # # set the response
-    # response_dict = {'xsdForm': form_string}
-    # # save the form in the session
-    # request.session['formString'] = form_string
+    Parameters:
+        request:
 
-    if 'form_id' in request.session:
-        root_element_id = request.session['form_id']
-    else:  # If this is a new form, generate it and store the root ID
-        root_element_id = generate_form(request)
-        request.session['form_id'] = str(root_element_id)
+    Returns:
+        str: HTML form
+    """
+    try:
+        if 'form_id' in request.session:
+            root_element_id = request.session['form_id']
+        else:  # If this is a new form, generate it and store the root ID
+            root_element_id = generate_form(request)
+            request.session['form_id'] = str(root_element_id)
 
-    root_element = SchemaElement.objects.get(pk=root_element_id)
+        root_element = SchemaElement.objects.get(pk=root_element_id)
 
-    renderer = ListRenderer(root_element)
-    form_string = renderer.render()
+        renderer = ListRenderer(root_element)
+        html_form = renderer.render()
+    except Exception as e:
+        renderer = DefaultRenderer(None, {})
+        html_form = renderer._render_form_error(e.message)
 
-    # set the response
-    response_dict = {'xsdForm': form_string}
-    # save the form in the session
-    # request.session['formString'] = form_string
-
-    return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
+    return HttpResponse(json.dumps({'xsdForm': html_form}), content_type='application/javascript')
 
 
 ################################################################################

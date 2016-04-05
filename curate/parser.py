@@ -458,10 +458,12 @@ def generate_form(request):
         request.session['curate_edit'] = False
         return root_element.pk
     except Exception as e:
-        logger.fatal("Form generation failed: " + str(e))
+        # Adding information to the Exception message
+        exception_message = "Schema parsing failed: " + str(e)
+        logger.fatal(exception_message)
 
         request.session['curate_edit'] = False
-        return -1
+        raise Exception(exception_message)
 
 
 def get_ref_element(xml_tree, ref, namespaces, element_tag):
@@ -899,7 +901,7 @@ def get_attribute_form_default(xsd_tree):
     return attribute_form_default
 
 
-def  get_element_namespace(element, xsd_tree):
+def get_element_namespace(element, xsd_tree):
     """
     get_element_tag
     :param element:
@@ -2242,6 +2244,8 @@ def generate_restriction(request, element, xml_tree, full_path="", edit_data_tre
                 option_list.append(entry)
 
                 db_element['children'].append(db_child)
+
+            db_element['value'] = db_element['children'][0]['value']
 
         form_string += render_select(None, option_list)
     else:
