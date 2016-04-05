@@ -1,9 +1,6 @@
 """
 """
-from pprint import pprint
-
-from curate.renderer import render_select, render_ul, render_input, render_li, render_buttons, render_collapse_button, \
-    load_template
+from curate.renderer import render_select, render_input, render_buttons, load_template, DefaultRenderer
 
 
 def render_table(content):
@@ -32,12 +29,13 @@ def render_top(title, content):
     return load_template('wrap.html', data, 'table')
 
 
-class TableRenderer(object):
+class TableRenderer(DefaultRenderer):
     """
     """
+    # FIXME create the class AbstractTableRenderer to store additional list
 
     def __init__(self, xsd_data):
-        self.data = xsd_data
+        super(self, TableRenderer).__init__(xsd_data, {})
 
     def _render_data(self, element):
         html_content = ''
@@ -45,7 +43,8 @@ class TableRenderer(object):
         if element['tag'] == 'element':
             html_content += self._render_element(element, no_name=True)
         else:
-            print element['tag'] + ' not handled'
+            message = 'render_data: ' + element.tag + ' not handled'
+            self.warnings.append(message)
 
         # return render_ul(html_content, '', True)
         return render_top(element['options']['name'], html_content)
@@ -60,7 +59,8 @@ class TableRenderer(object):
             if child['tag'] == 'elem-iter':
                 children += child['children']
             else:
-                print '>> ' + child['tag'] + ' forwarded (re_elem pre)'
+                message = 'render_element (iteration): ' + child.tag + ' not handled'
+                self.warnings.append(message)
 
         add_button = False
         del_button = False

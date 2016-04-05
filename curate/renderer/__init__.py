@@ -237,9 +237,12 @@ class DefaultRenderer(object):
 
     def __init__(self, xsd_data, template_list):
         self.data = xsd_data
+        self.warnings = []
 
         default_renderer_path = join('renderer', 'default')
         self.templates = {
+            'form_error': loader.get_template(join(default_renderer_path, 'form-error.html')),
+
             'input': loader.get_template(join(default_renderer_path, 'inputs', 'input.html')),
             'select': loader.get_template(join(default_renderer_path, 'inputs', 'select.html')),
             'btn_add': loader.get_template(join(default_renderer_path, 'buttons', 'add.html')),
@@ -267,7 +270,13 @@ class DefaultRenderer(object):
         pass
 
     def _render_form_error(self, err_message):
-        pass
+        context = RequestContext(HttpRequest())
+        data = {
+            'message': err_message
+        }
+
+        context.update(data)
+        return self.templates['form_error'].render(context)
 
     def _render_input(self, input_id, value, placeholder, title):
         """

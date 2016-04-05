@@ -1,5 +1,6 @@
 """
 """
+import logging
 import requests
 from types import *
 
@@ -11,6 +12,8 @@ from os.path import join
 from curate.renderer import render_li, render_buttons, render_collapse_button, \
     DefaultRenderer
 from modules import get_module_view
+
+logger = logging.getLogger(__name__)
 
 
 class AbstractListRenderer(DefaultRenderer):
@@ -66,8 +69,11 @@ class ListRenderer(AbstractListRenderer):
 
         if self.data.tag == 'element':
             html_content += self.render_element(self.data)
+        elif self.data.tag == 'choice':
+            html_content += self.render_choice(self.data)
         else:
-            print self.data.tag + ' not handled (render_data)'
+            message = 'render: ' + self.data.tag + ' not handled'
+            self.warnings.append(message)
 
         if not partial:
             return self._render_ul(html_content, str(self.data.pk))
@@ -92,8 +98,8 @@ class ListRenderer(AbstractListRenderer):
                 if len(child.children) > 0:
                     children_number += 1
             else:
-                print '>> ' + child.tag + ' forwarded (rend_elem pre)'
-                print '>> ' + str(child) + ' forwarded (rend_elem pre)'
+                message = 'render_element (iteration): ' + child.tag + ' not handled'
+                self.warnings.append(message)
 
         final_html = ''
 
@@ -130,7 +136,8 @@ class ListRenderer(AbstractListRenderer):
                     sub_elements.append(self.render_module(child))
                     sub_inputs.append(False)
                 else:
-                    print child.tag + ' not handled (rend_elem)'
+                    message = 'render_element: ' + child.tag + ' not handled'
+                    self.warnings.append(message)
 
             if children_number == 0:
                 html_content = element.options["name"] + buttons
@@ -170,7 +177,8 @@ class ListRenderer(AbstractListRenderer):
             elif child.tag == 'module':
                 html_content += self.render_module(child)
             else:
-                print child.tag + ' not handled (rend_ct)'
+                message = 'render_complex_type: ' + child.tag + ' not handled'
+                self.warnings.append(message)
 
         return html_content
 
@@ -187,7 +195,8 @@ class ListRenderer(AbstractListRenderer):
             if child.tag == 'elem-iter':
                 children += child.children
             else:
-                print child.tag + 'not handled (rend_attr base)'
+                message = 'render_attribute (iteration): ' + child.tag + ' not handled'
+                self.warnings.append(message)
 
         for child in children:
             if child.tag == 'simple_type':
@@ -195,7 +204,8 @@ class ListRenderer(AbstractListRenderer):
             elif child.tag == 'input':
                 html_content += self._render_input(child.pk, child.value, '', '')
             else:
-                print child.tag + ' not handled (rend_attr)'
+                message = 'render_attribute: ' + child.tag + ' not handled'
+                self.warnings.append(message)
 
         return render_li(html_content, '', element.pk)
 
@@ -212,13 +222,19 @@ class ListRenderer(AbstractListRenderer):
             if child.tag == 'sequence-iter':
                 children += child.children
             else:
-                print child.tag + '  not handled (rend_seq_pre)'
+                message = 'render_sequence (iteration): ' + child.tag + ' not handled'
+                self.warnings.append(message)
 
         for child in children:
             if child.tag == 'element':
                 html_content += self.render_element(child)
+            elif child.tag == 'sequence':
+                html_content += self.render_sequence(child)
+            elif child.tag == 'choice':
+                html_content += self.render_choice(child)
             else:
-                print child.tag + '  not handled (rend_seq)'
+                message = 'render_sequence: ' + child.tag + ' not handled'
+                self.warnings.append(message)
 
         return html_content
 
@@ -240,7 +256,8 @@ class ListRenderer(AbstractListRenderer):
 
                 choice_values[child.pk] = child.value
             else:
-                print child.tag + '  not handled (rend_choice_pre)'
+                message = 'render_choice (iteration): ' + child.tag + ' not handled'
+                self.warnings.append(message)
 
         sub_content = ''
         options = []
@@ -263,7 +280,8 @@ class ListRenderer(AbstractListRenderer):
                     options.append((str(child.pk), child.options['name'], is_selected_element))
                     element_html = self.render_complex_type(child)
                 else:
-                    print child.tag + ' not handled (rend_choice)'
+                    message = 'render_choice: ' + child.tag + ' not handled'
+                    self.warnings.append(message)
 
                 if element_html != '':
                     sub_content += self._render_ul(element_html, str(child.pk), (not is_selected_element))
@@ -284,8 +302,11 @@ class ListRenderer(AbstractListRenderer):
         for child in element.children:
             if child.tag == 'extension':
                 html_content += self.render_extension(child)
+            elif child.tag == 'restriction':
+                html_content += self.render_restriction(child)
             else:
-                print child.tag + '  not handled (rend_scont)'
+                message = 'render_simple_content: ' + child.tag + ' not handled'
+                self.warnings.append(message)
 
         return html_content
 
@@ -300,8 +321,11 @@ class ListRenderer(AbstractListRenderer):
         for child in element.children:
             if child.tag == 'extension':
                 html_content += self.render_extension(child)
+            elif child.tag == 'restriction':
+                html_content += self.render_extension(child)
             else:
-                print child.tag + '  not handled (rend_complex_cont)'
+                message = 'render_complex_content: ' + child.tag + ' not handled'
+                self.warnings.append(message)
 
         return html_content
 
@@ -316,12 +340,15 @@ class ListRenderer(AbstractListRenderer):
         for child in element.children:
             if child.tag == 'restriction':
                 html_content += self.render_restriction(child)
+            elif child.tag == 'list':
+                html_content += self._render_input(child.pk, child.value, '', '')
             elif child.tag == 'attribute':
                 html_content += self.render_attribute(child)
             elif child.tag == 'module':
                 html_content += self.render_module(child)
             else:
-                print child.tag + '  not handled (rend_stype)'
+                message = 'render_simple_type: ' + child.tag + ' not handled'
+                self.warnings.append(message)
 
         return html_content
 
@@ -343,7 +370,8 @@ class ListRenderer(AbstractListRenderer):
             elif child.tag == 'complex_type':
                 html_content += self.render_complex_type(child)
             else:
-                print child.tag + ' not handled (rend_ext)'
+                message = 'render_extension: ' + child.tag + ' not handled'
+                self.warnings.append(message)
 
         return html_content
 
@@ -359,10 +387,13 @@ class ListRenderer(AbstractListRenderer):
         for child in element.children:
             if child.tag == 'enumeration':
                 options.append((child.value, child.value, child.value == element.value))
+            elif child.tag == 'simple_type':
+                subhtml += self.render_simple_type(child)
             elif child.tag == 'input':
                 subhtml += self._render_input(child.pk, child.value, '', '')
             else:
-                print child.tag + ' not handled (rend_ext)'
+                message = 'render_restriction: ' + child.tag + ' not handled'
+                self.warnings.append(message)
 
         if subhtml == '' or len(options) != 0:
             return self._render_select(str(element.pk), 'restriction', options)

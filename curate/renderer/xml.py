@@ -56,7 +56,14 @@ class XmlRenderer(AbstractXmlRenderer):
 
         :return:
         """
-        return self.render_element(self.data)
+        if self.data.tag == 'element':
+            return self.render_element(self.data)
+        elif self.data.tag == 'choice':
+            return self.render_choice(self.data)
+        else:
+            message = 'render: ' + self.data.tag + ' not handled'
+            self.warnings.append(message)
+            return ''
 
     def render_element(self, element):
         """
@@ -77,8 +84,8 @@ class XmlRenderer(AbstractXmlRenderer):
                 if len(child.children) > 0:
                     children_number += 1
             else:
-                print '>> ' + child.tag + ' forwarded (re_elem pre)'
-                print '>> ' + str(child) + ' forwarded (re_elem pre)'
+                message = 'render_element (iteration): ' + child.tag + ' not handled'
+                self.warnings.append(message)
 
         element_name = element.options['name']
 
@@ -95,7 +102,8 @@ class XmlRenderer(AbstractXmlRenderer):
                 elif child.tag == 'module':
                     content[1] = self.render_module(child)
                 else:
-                    print child.tag + ' not handled (re_elem)'
+                    message = 'render_element: ' + child.tag + ' not handled'
+                    self.warnings.append(message)
 
                 # namespaces
                 if 'xmlns' in element.options and element.options['xmlns'] is not None:
@@ -123,7 +131,8 @@ class XmlRenderer(AbstractXmlRenderer):
             if child.tag == 'elem-iter':
                 children += child.children
             else:
-                print child.tag + 'not handled (rend_attr base)'
+                message = 'render_attribute (iteration): ' + child.tag + ' not handled'
+                self.warnings.append(message)
 
         for child in children:
             attr_value = ''
@@ -134,19 +143,14 @@ class XmlRenderer(AbstractXmlRenderer):
             elif child.tag == 'input':
                 attr_value = child.value if child.value is not None else ''
             else:
-                print child.tag + ' not handled (rend_attr)'
-
-            # if attr_value == '':
-            #     attr_list.append(attr_key)
-            # else:
-            #     attr_list.append(attr_key + '="' + attr_value + '"')
+                message = 'render_attribute: ' + child.tag + ' not handled'
+                self.warnings.append(message)
 
             # namespaces
             if 'xmlns' in element.options and element.options['xmlns'] is not None:
                 # check that element isn't declaring the same namespace xmlns=""
                 parent = get_parent_element(element)
-                if 'xmlns' in parent.options and parent.options['xmlns'] is not None and \
-                                parent.options['xmlns'] == element.options['xmlns']:
+                if 'xmlns' in parent.options and parent.options['xmlns'] is not None and parent.options['xmlns'] == element.options['xmlns']:
                         xmlns = ''
                 else:  # parent element is in a different namespace
                     if element.options['xmlns'] != '':
@@ -190,7 +194,8 @@ class XmlRenderer(AbstractXmlRenderer):
             elif child.tag == 'module':
                 tmp_content[1] = self.render_module(child)
             else:
-                print child.tag + ' not handled (rend_complex_type)'
+                message = 'render_complex_type: ' + child.tag + ' not handled'
+                self.warnings.append(message)
 
             content[0] = ' '.join([content[0], tmp_content[0]]).strip()
             content[1] += tmp_content[1]
@@ -210,13 +215,24 @@ class XmlRenderer(AbstractXmlRenderer):
             if child.tag == 'sequence-iter':
                 children += child.children
             else:
-                print child.tag + '  not handled (rend_seq_pre)'
+                message = 'render_sequence (iteration): ' + child.tag + ' not handled'
+                self.warnings.append(message)
 
         for child in children:
+            tmp_content = ['', '']
+
             if child.tag == 'element':
-                content[1] += self.render_element(child)
+                tmp_content[1] += self.render_element(child)
+            elif child.tag == 'sequence':
+                tmp_content += self.render_sequence(child)
+            elif child.tag == 'choice':
+                tmp_content += self.render_choice(child)
             else:
-                print child.tag + '  not handled (rend_seq)'
+                message = 'render_sequence: ' + child.tag + ' not handled'
+                self.warnings.append(message)
+
+            content[0] = ' '.join([content[0], tmp_content[0]]).strip()
+            content[1] += tmp_content[1]
 
         return content
 
@@ -233,8 +249,11 @@ class XmlRenderer(AbstractXmlRenderer):
 
             if child.tag == 'extension':
                 tmp_content = self.render_extension(child)
+            elif child.tag == 'restriction':
+                tmp_content = self.render_restriction(child)
             else:
-                print child.tag + '  not handled (rend_scont)'
+                message = 'render_simple_content: ' + child.tag + ' not handled'
+                self.warnings.append(message)
 
             content[0] = ' '.join([content[0], tmp_content[0]]).strip()
             content[1] += tmp_content[1]
@@ -254,8 +273,11 @@ class XmlRenderer(AbstractXmlRenderer):
 
             if child.tag == 'extension':
                 tmp_content = self.render_extension(child)
+            elif child.tag == 'restriction':
+                tmp_content = self.render_restriction(child)
             else:
-                print child.tag + '  not handled (rend_comp_cont)'
+                message = 'render_complex_content: ' + child.tag + ' not handled'
+                self.warnings.append(message)
 
             content[0] = ' '.join([content[0], tmp_content[0]]).strip()
             content[1] += tmp_content[1]
@@ -280,7 +302,8 @@ class XmlRenderer(AbstractXmlRenderer):
 
                 choice_values[child.pk] = child.value
             else:
-                print child.tag + '  not handled (rend_choice_pre)'
+                message = 'render_choice (iteration): ' + child.tag + ' not handled'
+                self.warnings.append(message)
 
         for iter_element in child_keys:
             for child in children[iter_element]:
@@ -294,7 +317,8 @@ class XmlRenderer(AbstractXmlRenderer):
                     if str(child.pk) == choice_values[iter_element]:
                         tmp_content = self.render_sequence(child)
                 else:
-                    print child.tag + ' not handled (rend_choice)'
+                    message = 'render_choice: ' + child.tag + ' not handled'
+                    self.warnings.append(message)
 
                 content[0] = ' '.join([content[0], tmp_content[0]]).strip()
                 content[1] += tmp_content[1]
@@ -316,10 +340,13 @@ class XmlRenderer(AbstractXmlRenderer):
                 tmp_content = self.render_restriction(child)
             elif child.tag == 'attribute':
                 tmp_content[0] = self.render_attribute(child)
+            elif child.tag == 'list':
+                tmp_content[1] = child.value if child.value is not None else ''
             elif child.tag == 'module':
                 tmp_content[1] = self.render_module(child)
             else:
-                print child.tag + '  not handled (rend_simple_type)'
+                message = 'render_simple_type: ' + child.tag + ' not handled'
+                self.warnings.append(message)
 
             content[0] = ' '.join([content[0], tmp_content[0]]).strip()
             content[1] += tmp_content[1]
@@ -341,7 +368,8 @@ class XmlRenderer(AbstractXmlRenderer):
             elif child.tag == 'simple_type':
                 tmp_content = self.render_simple_type(child)
             else:
-                print child.tag + '  not handled (rend_restriction)'
+                message = 'render_restriction: ' + child.tag + ' not handled'
+                self.warnings.append(message)
 
             content[0] = ' '.join([content[0], tmp_content[0]]).strip()
             content[1] += tmp_content[1]
@@ -368,7 +396,8 @@ class XmlRenderer(AbstractXmlRenderer):
             elif child.tag == 'complex_type':
                 tmp_content = self.render_complex_type(child)
             else:
-                print child.tag + ' not handled (rend_ext)'
+                message = 'render_extension: ' + child.tag + ' not handled'
+                self.warnings.append(message)
 
             content[0] = ' '.join([content[0], tmp_content[0]]).strip()
             content[1] += tmp_content[1]
