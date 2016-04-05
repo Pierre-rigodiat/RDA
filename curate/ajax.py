@@ -1273,11 +1273,6 @@ def generate_choice(request):
 
     parent = parents[0]
 
-    # namespaces = request.session['namespaces']
-    # default_prefix = request.session['defaultPrefix']
-    xml_doc_tree_str = request.session['xmlDocTree']
-    xml_doc_tree = etree.ElementTree(etree.fromstring(xml_doc_tree_str))
-
     schema_location = None
     if 'schema_location' in element.options:
         schema_location = element.options['schema_location']

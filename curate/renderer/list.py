@@ -255,6 +255,12 @@ class ListRenderer(AbstractListRenderer):
                 elif child.tag == 'sequence':
                     options.append((str(child.pk), 'sequence', is_selected_element))
                     element_html = self.render_sequence(child)
+                elif child.tag == 'simple_type':
+                    options.append((str(child.pk), child.options['name'], is_selected_element))
+                    element_html = self.render_simple_type(child)
+                elif child.tag == 'complex_type':
+                    options.append((str(child.pk), child.options['name'], is_selected_element))
+                    element_html = self.render_complex_type(child)
                 else:
                     print child.tag + ' not handled (rend_choice)'
 

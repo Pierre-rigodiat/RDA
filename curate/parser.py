@@ -1626,7 +1626,10 @@ def generate_simple_type(request, element, xml_tree, full_path, edit_data_tree=N
     db_element = {
         'tag': 'simple_type',
         'value': None,
-        'children': []
+        'children': [],
+        'options': {
+            'name': element.attrib['name'] if 'name' in element.attrib else '',
+        },
     }
 
     # remove the annotations
@@ -1643,6 +1646,20 @@ def generate_simple_type(request, element, xml_tree, full_path, edit_data_tree=N
         # db_element['module'] = True
 
         return form_string, db_element
+
+    # TODO: check that it's not already extending a base
+    # check if the type has a name (can be referenced by an extension)
+    if 'name' in element.attrib and request.session['implicit_extension']:
+        # check if types extend this one
+        extensions = get_extensions(xml_tree, element.attrib['name'])
+
+        # the type has some possible extensions
+        if len(extensions) > 0:
+            choice_content = generate_choice_extensions(request, extensions, xml_tree, None, full_path, edit_data_tree,
+                                                        schema_location)
+            form_string += choice_content[0]
+            db_element['children'].append(choice_content[1])
+            return form_string, db_element
 
     if list(element) != 0:
         child = element[0]
@@ -1719,7 +1736,10 @@ def generate_complex_type(request, element, xml_tree, full_path, edit_data_tree=
     db_element = {
         'tag': 'complex_type',
         'value': None,
-        'children': []
+        'children': [],
+        'options': {
+            'name': element.attrib['name'] if 'name' in element.attrib else '',
+        },
     }
 
     # remove the annotations
@@ -1891,7 +1911,8 @@ def generate_choice_extensions(request, element, xml_tree, choice_info=None, ful
         db_child = {
             'tag': 'choice-iter',
             'value': None,
-            'children': []
+            'children': [],
+            'options': {},
         }
 
         nb_html_tags = int(request.session['nb_html_tags'])
@@ -1912,80 +1933,58 @@ def generate_choice_extensions(request, element, xml_tree, choice_info=None, ful
 
         request.session['nbChoicesID'] = str(nb_choices_id)
 
-        is_removed = (nb_occurrences == 0)
+        # is_removed = (nb_occurrences == 0)
         li_content = ''
-        nb_sequence = 1
-        options = []
 
-        # Option to not extend the type
-        # entry = ('--------------', 'None')
-        # options.append(entry)
-        # FIXME list of children is read twice (could be parsed in one pass)
-        # generates the choice
-        for child in element:
-            entry = None
+        request.session['implicit_extension'] = False
+        for (counter, choiceChild) in enumerate(list(element)):
+            if choiceChild.tag == "{0}simpleType".format(LXML_SCHEMA_NAMESPACE) or \
+               choiceChild.tag == "{0}complexType".format(LXML_SCHEMA_NAMESPACE):
 
-            if child.tag == "{0}simpleType".format(LXML_SCHEMA_NAMESPACE) or \
-               child.tag == "{0}complexType".format(LXML_SCHEMA_NAMESPACE):
+                if choiceChild.tag == "{0}complexType".format(LXML_SCHEMA_NAMESPACE):
+                    result = generate_complex_type(request, choiceChild, xml_tree,
+                                                            full_path=full_path,
+                                                            edit_data_tree=edit_data_tree,
+                                                            schema_location=schema_location)
 
-                if child.attrib.get('name') is not None:
-                    opt_value = opt_label = child.attrib.get('name')
+                elif choiceChild.tag == "{0}simpleType".format(LXML_SCHEMA_NAMESPACE):
+                    result = generate_simple_type(request, choiceChild, xml_tree,
+                                                          full_path=full_path,
+                                                          edit_data_tree=edit_data_tree,
+                                                          schema_location=schema_location)
+
+                # Find the default element
+                if choiceChild.attrib.get('name') is not None:
+                    opt_label = choiceChild.attrib.get('name')
                 else:
-                    opt_value = opt_label = child.attrib.get('ref')
+                    opt_label = choiceChild.attrib.get('ref')
 
-                    if ':' in child.attrib.get('ref'):
+                    if ':' in choiceChild.attrib.get('ref'):
                         opt_label = opt_label.split(':')[1]
 
+                db_child['options']['name'] = opt_label
+
                 # look for active choice when editing
+                # FIXME: fix path
                 element_path = full_path + '/' + opt_label
-                entry = (opt_label, opt_value)
 
                 if request.session['curate_edit']:
                     # get the schema namespaces
                     xml_tree_str = etree.tostring(xml_tree)
                     namespaces = common.get_namespaces(BytesIO(str(xml_tree_str)))
-                    if len(edit_data_tree.xpath(element_path, namespaces=namespaces)) == 0:
-                        entry += (True,)
-                    else:
-                        entry += (False,)
-                else:
-                    entry += (False,)
+                    if len(edit_data_tree.xpath(element_path, namespaces=namespaces)) != 0:
+                        db_child['value'] = counter
 
-        if entry is not None:
-            options.append(entry)
-
-        li_content += render_select(choose_id_str, options)
-        li_content += render_buttons(add_button, delete_button)
-
-        request.session['implicit_extension'] = False
-        for (counter, choiceChild) in enumerate(list(element)):
-            if choiceChild.tag == "{0}complexType".format(LXML_SCHEMA_NAMESPACE):
-                complex_type_result = generate_complex_type(request, choiceChild, xml_tree,
-                                                            full_path=full_path,
-                                                            edit_data_tree=edit_data_tree,
-                                                            schema_location=schema_location)
-
-                form_string += complex_type_result[0]
-                db_element['children'].append(complex_type_result[1])
-            elif choiceChild.tag == "{0}simpleType".format(LXML_SCHEMA_NAMESPACE):
-                simple_type_result = generate_simple_type(request, choiceChild, xml_tree,
-                                                          full_path=full_path,
-                                                          edit_data_tree=edit_data_tree,
-                                                          schema_location=schema_location)
-
-                form_string += simple_type_result[0]
-                db_element['children'].append(simple_type_result[1])
+                li_content += result[0]
+                db_child_0 = result[1]
+                db_child['children'].append(db_child_0)
 
         # ul_content += render_li('Choose'+li_content, tag_id, 'choice', 'removed' if is_removed else None)
         db_element['children'].append(db_child)
 
-        request.session['implicit_extension'] = True
-
+    request.session['implicit_extension'] = True
     form_string += render_ul(ul_content, choice_id, chosen)
     return form_string, db_element
-
-
-
 
 
 def generate_complex_content(request, element, xml_tree, full_path, edit_data_tree=None, default_value='',
@@ -2329,6 +2328,8 @@ def generate_extension(request, element, xml_tree, full_path="", edit_data_tree=
 
     remove_annotations(element)
 
+    request.session['implicit_extension'] = False
+
     ##################################################
     # Parsing attributes
     #
@@ -2420,5 +2421,7 @@ def generate_extension(request, element, xml_tree, full_path="", edit_data_tree=
 
                 form_string += choice_result[0]
                 extended_element.append(choice_result[1])
+
+    request.session['implicit_extension'] = True
 
     return form_string, db_element
