@@ -55,6 +55,8 @@ class ListRenderer(AbstractListRenderer):
     """
 
     def __init__(self, xsd_data):
+        self.warnings = []
+
         super(ListRenderer, self).__init__(xsd_data)
 
     def render(self, partial=False):
