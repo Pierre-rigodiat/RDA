@@ -1,4 +1,4 @@
-{% extends "mdcs/extra/one_column.html" %}
+{% extends "nmrr/extra/small_intro.html" %}
 {% load staticfiles %}
 
 {% comment %}
@@ -22,14 +22,15 @@
 {% endcomment %}
 
 {% block extrastyle %}
+
 <link rel="stylesheet" type="text/css" href="{% static 'resources/css/XMLTree.css' %}" media="screen" />
 <link rel="stylesheet" type="text/css" href="{% static 'resources/css/oai_pmh.css' %}" media="screen" />
 {% endblock %}
 
 {% block title %}<h1>Data Providers</h1>{% endblock %}
 
-{% block menu %}{% include 'admin/menu/main.html' with active_tab='tab6' %}{% endblock %}
-{% block submenu %}{% include 'admin/menu/submenu/oai-pmh.html' with active_tab='tab2' %}{% endblock %}
+{% block admin_menu %}{% include 'admin/menu/main.html' with active_tab='tab6' %}{% endblock %}
+{% block admin_submenu %}{% include 'admin/menu/submenu/oai-pmh.html' with active_tab='tab2' %}{% endblock %}
 
 {% block content%}
 <div class="clearer">&nbsp;</div>
@@ -85,7 +86,7 @@
                 <td width="100em;">
                     <span class="icon legend result" onclick="viewRegistry('{{ registry.id }}')">View</span>
                     <span class="icon legend edit" onclick="editRegistry('{{ registry.id }}')">Edit</span>
-                    <span class="icon legend edit" onclick="editRegistry('{{ registry.id }}')">Edit harvest</span>
+                    <!--<span class="icon legend edit" onclick="editRegistry('{{ registry.id }}')">Edit harvest</span>-->
                     <span class="icon legend delete" onclick="deleteRegistry('{{ registry.id }}')">Delete</span>
                     {% if not registry.isHarvesting %}
                     <span id="harvest{{registry.id}}" registryID="{{registry.id}}"  class="icon legend refresh" onclick="harvestData('{{ registry.id }}')">Harvest data</span>

@@ -1,4 +1,4 @@
-{% extends "mdcs/extra/one_column.html" %}
+{% extends "nmrr/extra/small_intro.html" %}
 {% load staticfiles %}
 {% load dictionary_extras %}
 
@@ -36,8 +36,8 @@ Select Metadata Formats you want to associate with the template and provide an X
 </p>
 {% endblock %}
 
-{% block menu %}{% include 'admin/menu/main.html' with active_tab='tab3' %}{% endblock %}
-{% block submenu %}{% include 'admin/menu/submenu/template.html' with active_tab='tab1' %}{% endblock %}
+{% block admin_menu %}{% include 'admin/menu/main.html' with active_tab='tab3' %}{% endblock %}
+{% block admin_submenu %}{% include 'admin/menu/submenu/template.html' with active_tab='tab1' %}{% endblock %}
 
 {% block content%}
 <div class="alert alert-error" id="banner_errors" style="display: none;">
@@ -62,7 +62,7 @@ Select Metadata Formats you want to associate with the template and provide an X
 					<td>{{ form.oai_name }}</td>
 					<td>{{ form.oai_pmh_xslt_file }}</td>
 					<td id="ButtonSet{{form.oai_my_mf_id.value}}">
-						{{form.activated}}<label for="{{form.activated.id_for_label}}">vv</label>
+						{{form.activated}}<label for="{{form.activated.id_for_label}}"></label>
 					</td>
 				</tr>
 			{% endfor %}

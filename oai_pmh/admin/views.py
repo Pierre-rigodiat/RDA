@@ -77,7 +77,7 @@ def check_registry(request):
         form = Url(request.POST)
         if form.is_valid():
             #Call the identify function from the API.
-            uri= OAI_HOST_URI + "/oai_pmh/api/identify"
+            uri= OAI_HOST_URI + "/oai_pmh/api/objectidentify"
             req = requests.post(uri, {"url":request.POST.get("url")}, auth=(OAI_USER, OAI_PASS))
             #If the return status is HTTP_200_OK, the data provider is available
             isAvailable = req.status_code == status.HTTP_200_OK

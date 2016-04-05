@@ -1,4 +1,4 @@
-{% extends "mdcs/extra/one_column.html" %}
+{% extends "nmrr/extra/small_intro.html" %}
 {% load staticfiles %}
 
 {% comment %}
@@ -23,13 +23,14 @@
 
 {% block extrastyle %}
 <link rel="stylesheet" type="text/css" href="{% static 'resources/css/XMLTree.css' %}" media="screen" />
+<link rel="stylesheet" type="text/css" href="{% static 'css/nmrr/admin.css' %}" />
 <link rel="stylesheet" type="text/css" href="{% static 'libs/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css' %}" media="screen" />
 {% endblock %}
 
 {% block title %}<h1>Build Request</h1>{% endblock %}
 
-{% block menu %}{% include 'admin/menu/main.html' with active_tab='tab6' %}{% endblock %}
-{% block submenu %}{% include 'admin/menu/submenu/oai-pmh.html' with active_tab='tab1' %}{% endblock %}
+{% block admin_menu %}{% include 'admin/menu/main.html' with active_tab='tab5' %}{% endblock %}
+{% block admin_submenu %}{% include 'admin/menu/submenu/oai-pmh.html' with active_tab='tab1' %}{% endblock %}
 
 {% block content%}
 <div class="clearer">&nbsp;</div>

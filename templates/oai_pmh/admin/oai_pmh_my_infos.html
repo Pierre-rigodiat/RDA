@@ -1,4 +1,4 @@
-{% extends "mdcs/extra/one_column.html" %}
+{% extends "nmrr/extra/small_intro.html" %}
 {% load staticfiles %}
 
 {% comment %}
@@ -29,8 +29,8 @@
 
 {% block title %}<h1>My Server's configuration</h1>{% endblock %}
 
-{% block menu %}{% include 'admin/menu/main.html' with active_tab='tab6' %}{% endblock %}
-{% block submenu %}{% include 'admin/menu/submenu/oai-pmh.html' with active_tab='tab3' %}{% endblock %}
+{% block admin_menu %}{% include 'admin/menu/main.html' with active_tab='tab6' %}{% endblock %}
+{% block admin_submenu %}{% include 'admin/menu/submenu/oai-pmh.html' with active_tab='tab3' %}{% endblock %}
 
 {% block content%}
 
@@ -153,7 +153,6 @@
                     <input id="56cddd02a530af58332ad554" class="cmn-toggle cmn-toggle-round ui-helper-hidden-accessible" disabled="" type="checkbox">
                 {% endif %}
                 <label for="56cddd02a530af58332ad554">
-                    tt
                 </label>
             </td>
         </tr>
@@ -202,7 +201,8 @@
         {% else %}
             No information available.
         {% endif %}
-
+        <hr>
+        <br><br>
         <div class="tpl-title">Other Metadata Formats</div>
         <div class="toolbar">
             <div class="btn-group pull-right">

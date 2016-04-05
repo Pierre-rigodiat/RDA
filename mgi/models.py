@@ -20,7 +20,7 @@ from mongoengine import *
 from collections import OrderedDict
 from bson.objectid import ObjectId
 import xmltodict
-from pymongo import MongoClient, TEXT, ASCENDING
+from pymongo import MongoClient, TEXT, ASCENDING, DESCENDING
 
 from mgi.settings import MONGODB_URI
 import re
