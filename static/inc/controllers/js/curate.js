@@ -1349,10 +1349,10 @@ delete_form = function(formID){
         	formID: formID,
         },
 		success: function(data){
-			window.location = "/dashboard/forms"
+			window.location = "/dashboard/drafts"
 	    },
         error:function(data){
-        	window.location = "/dashboard/forms"
+        	window.location = "/dashboard/drafts"
         }
     });
 }
@@ -1420,10 +1420,10 @@ change_owner_form = function(formID){
         	userID: userId,
         },
 		success: function(data){
-			window.location = "/dashboard/forms"
+			window.location = "/dashboard/drafts"
 	    },
         error:function(data){
-        	window.location = "/dashboard/forms"
+        	window.location = "/dashboard/drafts"
         }
     });
 }
