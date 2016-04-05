@@ -164,7 +164,7 @@ def dashboard_records(request):
 ################################################################################
 @login_required(login_url='/login')
 def dashboard_my_forms(request):
-    forms = FormData.objects(user=str(request.user.id), xml_data_id__exists=False).order_by('template') # xml_data_id False if document not curated
+    forms = FormData.objects(user=str(request.user.id), xml_data_id__exists=False, xml_data__exists=True).order_by('template') # xml_data_id False if document not curated
     detailed_forms = []
     for form in forms:
         detailed_forms.append({'form': form, 'template_name': Template.objects().get(pk=form.template).title})
