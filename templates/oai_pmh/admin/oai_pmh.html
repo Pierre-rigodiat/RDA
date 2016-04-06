@@ -85,7 +85,7 @@
                 <td width="100em;">
                     <span class="icon legend result" onclick="viewRegistry('{{ registry.id }}')">View</span>
                     <span class="icon legend edit" onclick="editRegistry('{{ registry.id }}')">Edit</span>
-                    <span class="icon legend edit" onclick="editRegistry('{{ registry.id }}')">Edit harvest</span>
+                    <span class="icon legend edit" onclick="editHarvestRegistry('{{ registry.id }}')">Edit harvest</span>
                     <span class="icon legend delete" onclick="deleteRegistry('{{ registry.id }}')">Delete</span>
                     {% if not registry.isHarvesting %}
                     <span id="harvest{{registry.id}}" registryID="{{registry.id}}"  class="icon legend refresh" onclick="harvestData('{{ registry.id }}')">Harvest data</span>
@@ -139,6 +139,18 @@
     <form id="form_edit"  action="/oai_pmh/update/registry" method="put" enctype="multipart/form-data">
         {% csrf_token %}
         <div id="form_edit_current"></div>
+    </form>
+</div>
+
+<div id="dialog-edit-harvest" title="Edit Harvest" style="display:none;">
+    <div class="alert alert-error" id="banner_edit_harvest_errors" style="display: none;">
+        <h4><i class="fa fa-exclamation-circle fa-1x"></i> Error</h4>
+        <div id="form_edit_harvest_errors">
+        </div>
+    </div>
+    <form id="form_edit_harvest"  action="/oai_pmh/update/registry-harvest" method="put" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div id="form_edit_harvest_current"></div>
     </form>
 </div>
 

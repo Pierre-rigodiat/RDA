@@ -40,6 +40,8 @@ urlpatterns = patterns(
     url(r'^getdata/$', 'getData'),
     #Harvest data
     url(r'^harvest$', 'harvest'),
+    #Harvest configuration
+    url(r'^update/registry-harvest$', 'update_registry_harvest'),
 
     url(r'^select/all/registries$', 'select_all_registries'),
     url(r'^select/all/records', 'select_all_records'),

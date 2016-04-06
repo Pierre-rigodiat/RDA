@@ -697,7 +697,6 @@ Reinit = function(){
     enterKeyPressSubscription();
 }
 
-
 init = function(){
     populateSelect();
     $("select").on('change', function() {
@@ -1209,4 +1208,102 @@ load_set_edit_form = function(setId){
             $("#form_edit_set_current").html(data.template);
         }
     });
+}
+
+
+//////////////////////HARVEST
+
+validateRegistryEditHarvest = function()
+{
+    errors = ""
+
+    harvest = $( "#form_edit_harvest_current #id_harvestrate" ).val();
+    if (harvest.trim() == ''){
+        errors += "<li>Please enter an  harvest rate.</li>"
+    }
+
+    if (errors != ""){
+	    error = "<ul>";
+	    error += errors
+	    error += "</ul>";
+		$("#form_edit_harvest_errors").html(errors);
+		$("#banner_edit_harvest_errors").show(200)
+		return (false);
+	}else{
+		return (true)
+	}
+    return true;
+}
+
+
+/**
+ * Show a dialog when a result is selected
+ */
+editHarvestRegistry = function(registry_id)
+{
+    $("#form_edit_harvest_current").html("");
+    exist = load_edit_harvest_form(registry_id);
+    $(function() {
+        $( "#dialog-edit-harvest" ).dialog({
+          modal: true,
+          width: 700,
+          height: 600,
+          buttons:
+              [
+               {
+                   text: "Edit",
+                   click: function() {
+                        clearEditError();
+//                        if(validateRegistryEdit())
+                        if(true)
+                        {
+                            var formData = new FormData($( "#form_edit_harvest" )[0]);
+                            $.ajax({
+                                url: "update/registry-harvest",
+                                type: 'POST',
+                                data: formData,
+                                cache: false,
+                                contentType: false,
+                                processData: false,
+                                async:false,
+                                success: function(data){
+                                    window.location = 'oai-pmh'
+                                },
+                                error:function(data){
+                                    $("#form_edit_harvest_errors").html(data.responseText);
+                                    $("#banner_edit_harvest_errors").show(200)
+                                },
+                            })
+                            ;
+                        }
+                   }
+               }
+              ]
+        });
+    });
+}
+
+
+load_edit_harvest_form = function(registry_id){
+	$.ajax({
+        url : "update/registry-harvest",
+        type : "GET",
+        dataType: "json",
+        data : {
+            registry_id : registry_id,
+        },
+        success: function(data){
+            $("#form_edit_harvest_errors").html("");
+            $("#form_edit_harvest_current").html(data.template);
+            HarvestButton();
+        }
+    });
+}
+
+HarvestButton = function(){
+    var buttonsetElts = $("#form_edit_harvest td[id^=ButtonSet]")
+    $.each(buttonsetElts, function(index, props) {
+         $("#"+props.id).buttonset();
+    });
+    enterKeyPressSubscription();
 }

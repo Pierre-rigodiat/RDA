@@ -807,32 +807,34 @@ def harvest(request):
             registry.save()
             records = []
             #Get all available metadata formats
-            metadataformats = OaiMetadataFormat.objects(registry=registry_id)
+            metadataformats = OaiMetadataFormat.objects(registry=registry_id, harvest=True)
             #Get all sets
             registrySets = OaiSet.objects(registry=registry_id).order_by("setName")
             for metadataFormat in metadataformats:
-                dataLeft = True
-                resumptionToken = None
-                #Get all records. Use of the resumption token
-                while dataLeft:
-                    #Get the list of records
-                    http_response, resumptionToken = getListRecords(url=url, metadataPrefix=metadataFormat.metadataPrefix, fromDate=lastUpdate, resumptionToken=resumptionToken)
-                    if http_response.status_code == status.HTTP_200_OK:
-                        rtn = http_response.data
-                        for info in rtn:
-                            #Get corresponding sets
-                            sets = [x for x in registrySets if x.setSpec in info['sets']]
-                            raw = xmltodict.parse(info['raw'])
-                            metadata = xmltodict.parse(info['metadata'])
-                            obj = OaiRecord(identifier=info['identifier'], datestamp=info['datestamp'], deleted=info['deleted'],
-                                   metadataformat=metadataFormat, metadata=metadata, sets=sets, raw=raw, registry=registry_id).save()
-                            records.append(obj)
-                    #There is more records if we have a resumption token.
-                    dataLeft = resumptionToken != None and resumptionToken != ''
-                    # #Else, we return a bad request response with the message provided by the API
-                    # else:
-                    #     content = http_response.data['error']
-                    #     return Response(content, status=http_response.status_code)
+                # for set in registrySets:
+                    dataLeft = True
+                    resumptionToken = None
+                    #Get all records. Use of the resumption token
+                    while dataLeft:
+                        #Get the list of records
+                        # http_response, resumptionToken = getListRecords(url=url, metadataPrefix=metadataFormat.metadataPrefix, set=set, fromDate=lastUpdate, resumptionToken=resumptionToken)
+                        http_response, resumptionToken = getListRecords(url=url, metadataPrefix=metadataFormat.metadataPrefix, fromDate=lastUpdate, resumptionToken=resumptionToken)
+                        if http_response.status_code == status.HTTP_200_OK:
+                            rtn = http_response.data
+                            for info in rtn:
+                                #Get corresponding sets
+                                sets = [x for x in registrySets if x.setSpec in info['sets']]
+                                raw = xmltodict.parse(info['raw'])
+                                metadata = xmltodict.parse(info['metadata'])
+                                obj = OaiRecord(identifier=info['identifier'], datestamp=info['datestamp'], deleted=info['deleted'],
+                                       metadataformat=metadataFormat, metadata=metadata, sets=sets, raw=raw, registry=registry_id).save()
+                                records.append(obj)
+                        #There is more records if we have a resumption token.
+                        dataLeft = resumptionToken != None and resumptionToken != ''
+                        # #Else, we return a bad request response with the message provided by the API
+                        # else:
+                        #     content = http_response.data['error']
+                        #     return Response(content, status=http_response.status_code)
             #Stop harvesting
             registry.isHarvesting = False
             registry.save()
@@ -845,6 +847,73 @@ def harvest(request):
             content = {'message':'An error occurred when attempting to identify resource: %s'%e.message}
             return Response(content, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+    else:
+        content = {'message':'Only an administrator can use this feature.'}
+        return Response(content, status=status.HTTP_401_UNAUTHORIZED)
+
+
+
+
+################################################################################
+#
+# Function Name: update_registry_harvest(request)
+# Inputs:        request -
+# Outputs:       201 Registry updated.
+# Exceptions:    400 Error connecting to database.
+#                400 [Identifier] not found in request.
+#                400 Unable to update record.
+#                400 Serializer failed validation.
+#                401 Unauthorized.
+#                404 No registry found with the given identity.
+# Description:   OAI-PMH Update Registry Harvest configuration.
+#                Harvest records for the metadata formats and sets provided
+#
+################################################################################
+@api_view(['PUT'])
+def update_registry_harvest(request):
+    """
+    PUT http://localhost/oai_pmh/update/registry-harvest
+    PUT data query="{'id':'value', metadataFormats:['id1', 'id2'..], sets:['id1', 'id2'..]}"
+    id: string
+    """
+    if request.user.is_authenticated():
+        #Serialization of the input data
+        serializer = UpdateRegistrySerializer(data=request.DATA)
+        #If it's valid
+        if serializer.is_valid():
+            #We retrieve all information
+            try:
+                if 'id' in request.DATA:
+                    id = request.DATA['id']
+                else:
+                    rsp = {'id':['This field is required.']}
+                    return Response(rsp, status=status.HTTP_400_BAD_REQUEST)
+            except:
+                content = {'message':'No registry found with the given id.'}
+                return Response(content, status=status.HTTP_404_NOT_FOUND)
+
+            try:
+                #Set harvest=False for all
+                OaiMetadataFormat.objects(registry=id).update(set__harvest=False)
+                #For each metadataFormats selected, set harvest=True
+                if 'metadataFormats' in request.DATA:
+                    metadataFormats = request.DATA.getlist('metadataFormats')
+                    if len(metadataFormats):
+                        OaiMetadataFormat.objects(pk__in=metadataFormats).update(set__harvest=True)
+
+                #Set harvest=False for all
+                OaiSet.objects(registry=id).update(set__harvest=False)
+                #For each sets selected, set harvest=True
+                if 'sets' in request.DATA:
+                    sets = request.DATA.getlist('sets')
+                    if len(sets):
+                        OaiSet.objects(pk__in=sets).update(set__harvest=True)
+
+            except Exception as e:
+                return Response({'message':'Unable to update the harvest configuration for the registry.'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response({'message':'Serializer failed validation. '}, status=status.HTTP_400_BAD_REQUEST)
     else:
         content = {'message':'Only an administrator can use this feature.'}
         return Response(content, status=status.HTTP_401_UNAUTHORIZED)

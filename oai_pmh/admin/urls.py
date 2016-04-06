@@ -40,5 +40,7 @@ urlpatterns = patterns(
     url(r'^manage-xslt', 'manage_oai_pmh_xslt', name='manage_oai_pmh_xslt'),
     url(r'^delete-xslt', 'delete_oai_pmh_xslt', name='delete_oai_pmh_xslt'),
     url(r'^edit-xslt', 'edit_oai_pmh_xslt', name='edit_oai_pmh_xslt'),
+    #Harvest configuration
+    url(r'^update/registry-harvest$', 'update_registry_harvest'),
 )
 
