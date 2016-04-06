@@ -170,8 +170,7 @@ def delete_result(request):
     result_id = request.GET['result_id']
 
     try:
-        if request.user.is_superuser:
-            XMLdata.delete(result_id)
+        XMLdata.delete(result_id)
     except:
         # XML can't be found
         pass
