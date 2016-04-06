@@ -12,7 +12,7 @@
 ################################################################################
 from django import forms
 from django.core.validators import MinValueValidator
-from mgi.models import OaiRegistry
+from mgi.models import OaiRegistry, OaiMetadataFormat, OaiSet
 
 VERBS = (('0', 'Pick one'),
          ('1', 'Identify'),
@@ -84,6 +84,46 @@ class UpdateMySetForm(forms.Form):
     id = forms.CharField(widget=forms.HiddenInput(), required=False)
     setSpec = forms.CharField(label='Set spec', required=True)
     setName = forms.CharField(label='Set name', required=True)
+
+
+class FormDataModelChoiceFieldMF(forms.ModelChoiceField):
+    #Used to return the name of the xslt file
+    def label_from_instance(self, obj):
+        return obj.metadataPrefix
+
+
+class FormDataModelChoiceFieldSet(forms.ModelChoiceField):
+    #Used to return the name of the xslt file
+    def label_from_instance(self, obj):
+        return obj.setName
+
+
+from django.contrib.admin.widgets import FilteredSelectMultiple
+
+class SettingHarvestForm(forms.Form):
+    """
+        A UpdateMySetForm update form
+    """
+    id = forms.CharField(widget=forms.HiddenInput(), required=False)
+    metadataFormats = FormDataModelChoiceFieldMF(label='Metadata Formats', queryset=[], widget=forms.CheckboxSelectMultiple(attrs={'class':'cmn-toggle cmn-toggle-round'}), empty_label=None, required=False)
+    sets = FormDataModelChoiceFieldSet(label='Sets', queryset=[], required=False, widget=forms.CheckboxSelectMultiple(attrs={'class':'cmn-toggle cmn-toggle-round'}), empty_label=None)
+
+    def __init__(self, *args, **kwargs):
+        if 'id' in kwargs:
+            registryId = kwargs.pop('id')
+
+        metadataFormats = OaiMetadataFormat.objects(registry=str(registryId)).all()
+        sets = OaiSet.objects(registry=str(registryId)).all()
+
+        super(SettingHarvestForm, self).__init__(*args, **kwargs)
+        self.fields['id'].initial = registryId
+        self.fields['metadataFormats'].initial = [mf.id for mf in metadataFormats if mf.harvest]
+        self.fields['metadataFormats'].queryset = []
+        self.fields['metadataFormats'].queryset = metadataFormats
+        self.fields['sets'].initial = [set.id for set in sets if set.harvest]
+        self.fields['sets'].queryset = []
+        self.fields['sets'].queryset = sets
+
 
 class Url(forms.Form):
     """

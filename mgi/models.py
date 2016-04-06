@@ -541,6 +541,7 @@ class OaiSet(Document):
     setName = StringField(required=True, unique=True)
     raw = DictField(required=True)
     registry = StringField(required=False)
+    harvest = BooleanField()
 
 class OaiMetadataFormat(Document):
     """
@@ -554,7 +555,7 @@ class OaiMetadataFormat(Document):
     template = ReferenceField(Template, reverse_delete_rule=PULL)
     registry = StringField(required=False)
     hash = StringField(required=True)
-
+    harvest = BooleanField()
 
 class OaiMyMetadataFormat(Document):
     """

@@ -27,7 +27,7 @@ from django.template import RequestContext, loader
 from mgi.models import OaiRegistry, OaiSettings, OaiMyMetadataFormat, OaiXslt, OaiTemplMfXslt, Template, OaiMySet
 from django.contrib.admin.views.decorators import staff_member_required
 from mgi.models import Message, OaiMetadataFormat, OaiSet, OaiRecord
-from oai_pmh.forms import Url
+from oai_pmh.forms import Url, SettingHarvestForm
 from oai_pmh.admin.forms import UploadOaiPmhXSLTForm
 from django.utils.dateformat import DateFormat
 import lxml.etree as etree
@@ -886,3 +886,64 @@ def edit_oai_pmh_xslt(request, id=None):
 
         messages.add_message(request, messages.INFO, 'XSLT edited with success.')
         return HttpResponse(json.dumps({}), content_type='application/javascript')
+
+
+
+################################################################################
+#
+# Function Name: update_registry_harvest(request)
+# Inputs:        request -
+# Outputs:
+# Exceptions:    None
+# Description:   OAI-PMH update harvest configuration
+#                Harvest records for the metadata formats and sets provided
+#
+# ################################################################################
+@login_required(login_url='/login')
+def update_registry_harvest(request):
+    if request.method == 'POST':
+        try:
+            uri = OAI_HOST_URI + "/oai_pmh/api/update/registry-harvest"
+            #Get all form information
+            if 'id' in request.POST:
+                id = request.POST.get('id')
+            if 'metadataFormats' in request.POST:
+                metadataFormats = request.POST.getlist('metadataFormats')
+            else:
+                metadataFormats = []
+            if 'sets' in request.POST:
+                sets = request.POST.getlist('sets')
+            else:
+                sets = []
+            #Call the API to update the harvest configuration
+            try:
+                req = requests.put(uri, { "id": id,
+                                          "metadataFormats": metadataFormats,
+                                          "sets": sets},
+                                        auth=(OAI_USER, OAI_PASS))
+                #If the status is OK, sucess message
+                if req.status_code == status.HTTP_201_CREATED:
+                    messages.add_message(request, messages.INFO, 'Data provider edited with success.')
+                    return HttpResponse(json.dumps({}), content_type='application/javascript')
+                #Else, we return a bad request response with the message provided by the API
+                else:
+                    data = json.loads(req.text)
+                    return HttpResponseBadRequest(data['message'])
+            except Exception as e:
+                return HttpResponseBadRequest('An error occurred. Please contact your administrator.')
+        except Exception as e:
+            return HttpResponseBadRequest('An error occurred. Please contact your administrator.')
+    elif request.method == 'GET':
+        #Build the template to render for the harvest configuration
+        template = loader.get_template('oai_pmh/admin/form_harvest.html')
+        registry_id = request.GET['registry_id']
+        try:
+            #Configure if we have to harvest all metadataFormats and all sets
+            harvest_form = SettingHarvestForm(id=registry_id)
+        except:
+            harvest_form = SettingHarvestForm()
+
+        context = RequestContext(request, {
+            'harvest_form': harvest_form,
+        })
+        return HttpResponse(json.dumps({'template': template.render(context)}), content_type='application/javascript')

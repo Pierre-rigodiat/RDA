@@ -86,7 +86,11 @@
                 <td width="100em;">
                     <span class="icon legend result" onclick="viewRegistry('{{ registry.id }}')">View</span>
                     <span class="icon legend edit" onclick="editRegistry('{{ registry.id }}')">Edit</span>
+<<<<<<< HEAD
+                    <!--<span class="icon legend edit" onclick="editRegistry('{{ registry.id }}')">Edit harvest</span>-->
+=======
                     <span class="icon legend edit" onclick="editHarvestRegistry('{{ registry.id }}')">Edit harvest</span>
+>>>>>>> 50dd872... Management of Sets and Metadata Formats. Configure such MF and Sets you would like to harvest during the harvest process
                     <span class="icon legend delete" onclick="deleteRegistry('{{ registry.id }}')">Delete</span>
                     {% if not registry.isHarvesting %}
                     <span id="harvest{{registry.id}}" registryID="{{registry.id}}"  class="icon legend refresh" onclick="harvestData('{{ registry.id }}')">Harvest data</span>
