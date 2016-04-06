@@ -812,29 +812,29 @@ def harvest(request):
             registrySets = OaiSet.objects(registry=registry_id).order_by("setName")
             for metadataFormat in metadataformats:
                 # for set in registrySets:
-                    dataLeft = True
-                    resumptionToken = None
-                    #Get all records. Use of the resumption token
-                    while dataLeft:
-                        #Get the list of records
-                        # http_response, resumptionToken = getListRecords(url=url, metadataPrefix=metadataFormat.metadataPrefix, set=set, fromDate=lastUpdate, resumptionToken=resumptionToken)
-                        http_response, resumptionToken = getListRecords(url=url, metadataPrefix=metadataFormat.metadataPrefix, fromDate=lastUpdate, resumptionToken=resumptionToken)
-                        if http_response.status_code == status.HTTP_200_OK:
-                            rtn = http_response.data
-                            for info in rtn:
-                                #Get corresponding sets
-                                sets = [x for x in registrySets if x.setSpec in info['sets']]
-                                raw = xmltodict.parse(info['raw'])
-                                metadata = xmltodict.parse(info['metadata'])
-                                obj = OaiRecord(identifier=info['identifier'], datestamp=info['datestamp'], deleted=info['deleted'],
-                                       metadataformat=metadataFormat, metadata=metadata, sets=sets, raw=raw, registry=registry_id).save()
-                                records.append(obj)
-                        #There is more records if we have a resumption token.
-                        dataLeft = resumptionToken != None and resumptionToken != ''
-                        # #Else, we return a bad request response with the message provided by the API
-                        # else:
-                        #     content = http_response.data['error']
-                        #     return Response(content, status=http_response.status_code)
+                dataLeft = True
+                resumptionToken = None
+                #Get all records. Use of the resumption token
+                while dataLeft:
+                    #Get the list of records
+                    # http_response, resumptionToken = getListRecords(url=url, metadataPrefix=metadataFormat.metadataPrefix, set=set, fromDate=lastUpdate, resumptionToken=resumptionToken)
+                    http_response, resumptionToken = getListRecords(url=url, metadataPrefix=metadataFormat.metadataPrefix, fromDate=lastUpdate, resumptionToken=resumptionToken)
+                    if http_response.status_code == status.HTTP_200_OK:
+                        rtn = http_response.data
+                        for info in rtn:
+                            #Get corresponding sets
+                            sets = [x for x in registrySets if x.setSpec in info['sets']]
+                            raw = xmltodict.parse(info['raw'])
+                            metadata = xmltodict.parse(info['metadata'])
+                            obj = OaiRecord(identifier=info['identifier'], datestamp=info['datestamp'], deleted=info['deleted'],
+                                   metadataformat=metadataFormat, metadata=metadata, sets=sets, raw=raw, registry=registry_id).save()
+                            records.append(obj)
+                    #There is more records if we have a resumption token.
+                    dataLeft = resumptionToken != None and resumptionToken != ''
+                    # #Else, we return a bad request response with the message provided by the API
+                    # else:
+                    #     content = http_response.data['error']
+                    #     return Response(content, status=http_response.status_code)
             #Stop harvesting
             registry.isHarvesting = False
             registry.save()
@@ -1102,7 +1102,7 @@ def add_my_metadataFormat(request):
                 #Check if the XML is well formed
                 try:
                     xml_schema = http_response.text
-                    dom = etree.fromstring(xml_schema)
+                    dom = etree.fromstring(xml_schema.encode('utf-8'))
                     metadataNamespace = dom.find(".").attrib['targetNamespace']
                 except XMLSyntaxError:
                     return Response({'message':'Unable to add the new metadata format.'}, status=status.HTTP_400_BAD_REQUEST)

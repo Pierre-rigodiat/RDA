@@ -14,7 +14,7 @@
 from django.http import HttpResponseNotFound
 from django.conf import settings
 from django.views.generic import TemplateView
-from mgi.models import XMLdata, OaiSettings, OaiMyMetadataFormat, OaiTemplMfXslt
+from mgi.models import XMLdata, OaiSettings, OaiMyMetadataFormat, OaiTemplMfXslt, Template, TemplateVersion
 import os
 from oai_pmh.server.exceptions import *
 import xmltodict
@@ -24,6 +24,8 @@ import re
 from oai_pmh import datestamp
 import datetime
 from exporter.builtin.models import XSLTExporter
+from django.shortcuts import HttpResponse
+from StringIO import StringIO
 
 RESOURCES_PATH = os.path.join(settings.SITE_ROOT, 'oai_pmh/server/resources/')
 
@@ -645,19 +647,19 @@ class OAIProvider(TemplateView):
 # Description:   Page that allows to retrieve an XML Schema by its name
 #
 ################################################################################
-# def get_xsd(request, schema):
-#     #TODO Available if publication ok and no user template
-#     #We retrieve the schema filename in the schema attribute
-#     #Get the templateVersion ID
-#     templatesVersionID = Template.objects(filename=schema).distinct(field="templateVersion")
-#     templateID = TemplateVersion.objects(pk__in=templatesVersionID, isDeleted=False).distinct(field="current")
-#
-#     templates = Template.objects.get(pk__in=templateID)
-#     #Get the XML schema
-#     contentEncoded = templates.content.encode('utf-8')
-#     fileObj = StringIO(contentEncoded)
-#     #Return the XML
-#     response = HttpResponse(fileObj)
-#     response['Content-Type'] = 'text/xml'
-#
-#     return response
+def get_xsd(request, schema):
+    #TODO Available if publication ok and no user template
+    #We retrieve the schema filename in the schema attribute
+    #Get the templateVersion ID
+    templatesVersionID = Template.objects(filename=schema).distinct(field="templateVersion")
+    templateID = TemplateVersion.objects(pk__in=templatesVersionID, isDeleted=False).distinct(field="current")
+
+    templates = Template.objects.get(pk__in=templateID)
+    #Get the XML schema
+    contentEncoded = templates.content.encode('utf-8')
+    fileObj = StringIO(contentEncoded)
+    #Return the XML
+    response = HttpResponse(fileObj)
+    response['Content-Type'] = 'text/xml'
+
+    return response
