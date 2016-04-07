@@ -71,6 +71,8 @@ class ListRenderer(AbstractListRenderer):
 
         if self.data.tag == 'element':
             html_content += self.render_element(self.data)
+        elif self.data.tag == 'attribute':
+            html_content += self.render_attribute(self.data)
         elif self.data.tag == 'choice':
             html_content += self.render_choice(self.data)
         else:
@@ -190,26 +192,89 @@ class ListRenderer(AbstractListRenderer):
         :param element:
         :return:
         """
-        html_content = element.options["name"]
-        children = []
+        # html_content = element.options["name"]
+        # children = []
+        #
+        # for child in element.children:
+        #     if child.tag == 'elem-iter':
+        #         children += child.children
+        #     else:
+        #         message = 'render_attribute (iteration): ' + child.tag + ' not handled'
+        #         self.warnings.append(message)
+        #
+        # for child in children:
+        #     if child.tag == 'simple_type':
+        #         html_content += self.render_simple_type(child)
+        #     elif child.tag == 'input':
+        #         html_content += self._render_input(child.pk, child.value, '', '')
+        #     else:
+        #         message = 'render_attribute: ' + child.tag + ' not handled'
+        #         self.warnings.append(message)
+        #
+        # return render_li(html_content, '', element.pk)
+
+        children = {}
+        child_keys = []
+        children_number = 0
 
         for child in element.children:
             if child.tag == 'elem-iter':
-                children += child.children
+                children[child.pk] = child.children
+                child_keys.append(child.pk)
+
+                if len(child.children) > 0:
+                    children_number += 1
             else:
                 message = 'render_attribute (iteration): ' + child.tag + ' not handled'
                 self.warnings.append(message)
 
-        for child in children:
-            if child.tag == 'simple_type':
-                html_content += self.render_simple_type(child)
-            elif child.tag == 'input':
-                html_content += self._render_input(child.pk, child.value, '', '')
-            else:
-                message = 'render_attribute: ' + child.tag + ' not handled'
-                self.warnings.append(message)
+        final_html = ''
 
-        return render_li(html_content, '', element.pk)
+        # Buttons generation (render once, reused many times)
+        add_button = False
+        del_button = False
+
+        if 'max' in element.options:
+            if children_number < element.options["max"] or element.options["max"] == -1:
+                add_button = True
+
+        if 'min' in element.options:
+            if children_number > element.options["min"]:
+                del_button = True
+
+        buttons = render_buttons(add_button, del_button)
+
+        for child_key in child_keys:
+            li_class = ''
+            sub_elements = []
+            sub_inputs = []
+
+            for child in children[child_key]:
+                if child.tag == 'simple_type':
+                    sub_elements.append(self.render_simple_type(child))
+                    sub_inputs.append(False)
+                elif child.tag == 'input':
+                    sub_elements.append(self._render_input(child.pk, child.value, '', ''))
+                    sub_inputs.append(True)
+                else:
+                    message = 'render_attribute: ' + child.tag + ' not handled'
+                    self.warnings.append(message)
+
+            if children_number == 0:
+                html_content = element.options["name"] + buttons
+                li_class = 'removed'
+            else:
+                html_content = ''
+                for child_index in xrange(len(sub_elements)):
+                    if sub_inputs[child_index]:
+                        html_content += element.options["name"] + sub_elements[child_index] + buttons
+                    else:
+                        html_content += render_collapse_button() + element.options["name"] + buttons
+                        html_content += self._render_ul(sub_elements[child_index], None)
+
+            final_html += render_li(html_content, li_class, child_key)
+
+        return final_html
 
     def render_sequence(self, element):
         """

@@ -32,7 +32,7 @@ urlpatterns = patterns(
     url(r'^init_curate', 'curate.ajax.init_curate'),
     url(r'^clear_fields', 'curate.ajax.clear_fields'),
 
-    url(r'^generate_choice$', ajax.generate_choice),
+    url(r'^generate_choice$', ajax.generate_choice_branch),
 
     url(r'^element_value', ajax.get_element_value),
     url(r'^save_element', 'curate.ajax.save_element'),

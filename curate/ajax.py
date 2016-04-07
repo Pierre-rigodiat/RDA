@@ -1216,8 +1216,8 @@ def gen_abs(request):
         form_string = generate_sequence_absent(request, xml_element, xml_doc_tree)
     else:
         # can't directly use generate_element because only need the body of the element not its title
-        form_string = generate_element_absent(request, xml_element, xml_doc_tree, schema_element)
-        # form_string = generate_element(request, xml_element, xml_doc_tree, schema_element)
+        # form_string = generate_element_absent(request, xml_element, xml_doc_tree, schema_element)
+        form_string = generate_element(request, xml_element, xml_doc_tree, full_path=xml_xpath)
 
     db_tree = form_string[1]
 
@@ -1225,15 +1225,17 @@ def gen_abs(request):
     tree_root = load_schema_data_in_db(db_tree)
 
     # Updating the schema element
-    children = schema_element.children
-    element_index = children.index(sub_element)
-
-    children.insert(element_index+1, tree_root)
-    schema_element.update(set__children=children)
-
-    if len(sub_element.children) == 0:
-        schema_element.update(pull__children=element_id)
-
+    # children = schema_element.children
+    # element_index = children.index(sub_element)
+    #
+    # children.insert(element_index+1, tree_root)
+    # schema_element.update(set__children=children)
+    #
+    # if len(sub_element.children) == 0:
+    #     schema_element.update(pull__children=element_id)
+    #
+    # schema_element.reload()
+    schema_element.update(set__children=tree_root.children)
     schema_element.reload()
 
     # Updating the rendering element
@@ -1241,8 +1243,8 @@ def gen_abs(request):
     rendering_element.save(force_insert=True)
 
     # Rendering the generated element
-    # FIXME add the ability to render just a subelement (only one elem-iter)
-    renderer = ListRenderer(rendering_element)
+    # renderer = ListRenderer(rendering_element)
+    renderer = ListRenderer(tree_root)
     html_form = renderer.render(True)
 
     rendering_element.delete()
@@ -1250,7 +1252,7 @@ def gen_abs(request):
     return HttpResponse(html_form)
 
 
-def generate_choice(request):
+def generate_choice_branch(request):
     element_id = request.POST['id']
     element = SchemaElement.objects.get(pk=element_id)
     parents = SchemaElement.objects(children=element_id)
