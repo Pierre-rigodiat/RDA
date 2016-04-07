@@ -530,7 +530,7 @@ def get_ref_element(xml_tree, ref, namespaces, element_tag):
 
 
 def generate_element(request, element, xml_tree, choice_info=None, full_path="",
-                     edit_data_tree=None, schema_location=None):
+                     edit_data_tree=None, schema_location=None, force_generation=False):
     """Generate an HTML string that represents an XML element.
 
     Parameters:
@@ -754,6 +754,10 @@ def generate_element(request, element, xml_tree, choice_info=None, full_path="",
         choice_id = ''
 
     ul_content = ''
+
+    if force_generation:
+        nb_occurrences = 1
+        removed = False
 
     for x in range(0, int(nb_occurrences)):
         db_elem_iter = {

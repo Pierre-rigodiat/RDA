@@ -40,7 +40,15 @@ addElement = function(event) {
             if ( $element.hasClass('removed') ) {
                 $element.remove();
             } else {
-                showButton($element, 'remove');
+                var elementClass = $element.attr('class');
+
+                $.each($('.'+elementClass), function(index, occurence) {
+                    showButton($(occurence), 'remove');
+                });
+
+                // Updating the class with the good parent
+                $data.removeClass();
+                $data.addClass(elementClass);
             }
 
             console.log("Element " + elementId + " successfully created");
@@ -70,30 +78,24 @@ removeElement = function(event) {
     $.ajax({
         url : "/curate/remove-bis",
         type : "POST",
-        dataType: "html",
+        dataType: "json",
         data : {
             id: elementId
         },
         success: function(data){
-            if ( data !== '' ) {  // Some of the data needs to be rewritten
-                var $data = $(data);
+            if ( data.code === 1 ) {  // Remove buttons need to be hidden
+                console.log('Buttons for ' + elementId + ' need to be hidden');
+                var elementClass = $element.attr('class');
 
-                $.each($data, function(index, value) {
-                    var selector = "[id=" + $(value).attr('id') + "]",
-                        searchResults = $(document).find(selector);
-
-                    if ( searchResults.size() > 0 ) {
-                        $.each(searchResults, function(index, value) {
-                            $(value).remove();
-                        });
-                    }
+                $.each($('.'+elementClass), function(index, occurence) {
+                    hideButton($(occurence), 'remove');
                 });
-
-                $element.after(data);
+            } else if ( data.code === 2 ) {  // Elements need to be rewritten
+                console.log('Element ' + elementId + ' need to be rewritten');
+                $element.after(data.html);
             }
 
             $element.remove();
-
             console.log("Element " + elementId + " successfully removed");
         },
         error: function() {
@@ -102,32 +104,5 @@ removeElement = function(event) {
     });
 };
 
-/*saveElement = function(event) {
-    event.preventDefault();
-
-    var $input = $(this);
-    var inputId = $input.attr('id');
-
-    console.log('Saving element ' + inputId + '...');
-
-    $.ajax({
-        'url': '/curate/save_element',
-        'type': 'POST',
-        'dataType': 'json',
-        'data': {
-            'id': inputId,
-            'value': $input.val()
-        },
-        success: function(data) {
-            console.log('Element ' + inputId + ' saved');
-        },
-        error: function(data) {
-            console.error('An error occured when saving element ' + inputId);
-        }
-    });
-};*/
-
 $(document).on('click', '.add', addElement);
 $(document).on('click', '.remove', removeElement);
-//$(document).on('blur', 'input.default', saveElement);
-//$(document).on('change', 'select.restriction', saveElement);
