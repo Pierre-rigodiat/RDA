@@ -1213,7 +1213,8 @@ def gen_abs(request):
         # can use generate_element to generate a choice never generated
         form_string = generate_element(request, xml_element, xml_doc_tree, full_path=xml_xpath)
     elif schema_element.tag == 'sequence':
-        form_string = generate_sequence_absent(request, xml_element, xml_doc_tree)
+        # form_string = generate_sequence_absent(request, xml_element, xml_doc_tree)
+        form_string = generate_sequence(request, xml_element, xml_doc_tree, full_path=xml_xpath, force_generation=True)
     else:
         # can't directly use generate_element because only need the body of the element not its title
         # form_string = generate_element_absent(request, xml_element, xml_doc_tree, schema_element)
@@ -1229,7 +1230,7 @@ def gen_abs(request):
     children = schema_element.children
     element_index = children.index(sub_element)
 
-    children.insert(element_index+1, generated_element)
+    children.insert(element_index + 1, generated_element)
     schema_element.update(set__children=children)
 
     if len(sub_element.children) == 0:

@@ -75,6 +75,8 @@ class ListRenderer(AbstractListRenderer):
             html_content += self.render_attribute(self.data)
         elif self.data.tag == 'choice':
             html_content += self.render_choice(self.data)
+        elif self.data.tag == 'sequence':
+            html_content += self.render_sequence(self.data)
         else:
             message = 'render: ' + self.data.tag + ' not handled'
             self.warnings.append(message)

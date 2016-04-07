@@ -1055,7 +1055,7 @@ def generate_element_absent(request, element, xml_doc_tree, form_element, schema
 
 
 def generate_sequence(request, element, xml_tree, choice_info=None, full_path="", edit_data_tree=None,
-                      schema_location=None):
+                      schema_location=None, force_generation=False):
     """Generates a section of the form that represents an XML sequence
 
     Parameters:
@@ -1183,6 +1183,9 @@ def generate_sequence(request, element, xml_tree, choice_info=None, full_path=""
         #
         #     # ul_content += render_li(li_content, tag_id, 'sequence', 'removed')
         # else:
+        if force_generation:
+            nb_occurrences = 1
+
         for x in range(0, int(nb_occurrences)):
             db_elem_iter = {
                 'tag': 'sequence-iter',
