@@ -124,7 +124,7 @@ class ListRenderer(AbstractListRenderer):
         buttons = render_buttons(add_button, del_button)
 
         for child_key in child_keys:
-            li_class = ''
+            # li_class = ''
             sub_elements = []
             sub_inputs = []
 
@@ -354,21 +354,40 @@ class ListRenderer(AbstractListRenderer):
         children = {}
         child_keys = []
         choice_values = {}
+        children_number = 0
 
         for child in element.children:
             if child.tag == 'choice-iter':
                 children[child.pk] = child.children
                 child_keys.append(child.pk)
+                children_number += 1
 
                 choice_values[child.pk] = child.value
             else:
                 message = 'render_choice (iteration): ' + child.tag + ' not handled'
                 self.warnings.append(message)
 
-        sub_content = ''
-        options = []
+        # Buttons generation (render once, reused many times)
+        add_button = False
+        del_button = False
+
+        if 'max' in element.options:
+            if children_number < element.options["max"] or element.options["max"] == -1:
+                add_button = True
+
+        if 'min' in element.options:
+            if children_number > element.options["min"]:
+                del_button = True
+
+        buttons = render_buttons(add_button, del_button)
+
+        final_html = ''
 
         for iter_element in child_keys:
+            sub_content = ''
+            html_content = ''
+            options = []
+
             for child in children[iter_element]:
                 element_html = ''
                 is_selected_element = (str(child.pk) == choice_values[iter_element])
@@ -392,10 +411,12 @@ class ListRenderer(AbstractListRenderer):
                 if element_html != '':
                     sub_content += self._render_ul(element_html, str(child.pk), (not is_selected_element))
 
-            html_content += 'Choice ' + self._render_select(str(iter_element), 'choice', options)
+            html_content += 'Choice ' + self._render_select('', 'choice', options) + buttons
             html_content += sub_content
 
-        return html_content
+            final_html += render_li(html_content, element.pk, iter_element)
+
+        return final_html
 
     def render_simple_content(self, element):
         """

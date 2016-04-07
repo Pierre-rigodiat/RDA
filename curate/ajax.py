@@ -1211,7 +1211,7 @@ def gen_abs(request):
     # generating a choice, generate the parent element
     if schema_element.tag == "choice":
         # can use generate_element to generate a choice never generated
-        form_string = generate_element(request, xml_element, xml_doc_tree, full_path=xml_xpath)
+        form_string = generate_choice(request, xml_element, xml_doc_tree, full_path=xml_xpath, force_generation=True)
     elif schema_element.tag == 'sequence':
         # form_string = generate_sequence_absent(request, xml_element, xml_doc_tree)
         form_string = generate_sequence(request, xml_element, xml_doc_tree, full_path=xml_xpath, force_generation=True)
@@ -1328,17 +1328,19 @@ def generate_choice_branch(request):
 
     parent.reload()
 
-    rendering_element = SchemaElement()
-    rendering_element.tag = 'choice'
-    rendering_element.children = [parent]
-    rendering_element.save()
+    choice_element = SchemaElement.objects(children=parent.pk)[0]
+    choice_original_children = choice_element.children
 
-    renderer = ListRenderer(None)
-    html_form = renderer.render_choice(rendering_element)
+    choice_element.update(set__children=[parent])
+    choice_element.reload()
 
-    rendering_element.delete()
+    renderer = ListRenderer(choice_element)
+    html_form = renderer.render(True)
 
-    return HttpResponse(renderer._render_ul(html_form, ''))
+    choice_element.update(set__children=choice_original_children)
+    choice_element.reload()
+
+    return HttpResponse(html_form)
 
 
 def rem_bis(request):
