@@ -444,23 +444,15 @@ def generate_form(request):
     elements = xml_doc_tree.findall("./{0}element".format(LXML_SCHEMA_NAMESPACE))
 
     try:
-        if len(elements) > 0:
-            # one root
-            if len(elements) == 1:
-                form_content = generate_element(request, elements[0], xml_doc_tree,
-                                                edit_data_tree=edit_data_tree)
-            # multiple roots
-            elif len(elements) > 1:
-                form_content = generate_choice(request, elements, xml_doc_tree, edit_data_tree=edit_data_tree)
-            else:  # No root element detected
-                raise Exception("No root element detected")
-        else:
-            # find all complex types
-            # TODO: does it make sense to get all simple types too?
-            # complex_types = xml_doc_tree.findall("./{0}complexType[@name='Resource']".format(LXML_SCHEMA_NAMESPACE))
-            complex_types = xml_doc_tree.findall("./{0}complexType".format(LXML_SCHEMA_NAMESPACE))
-            if len(complex_types) > 0:
-                form_content = generate_choice_extensions(request, complex_types, xml_doc_tree, None)
+        # one root
+        if len(elements) == 1:
+            form_content = generate_element(request, elements[0], xml_doc_tree,
+                                            edit_data_tree=edit_data_tree)
+        # multiple roots
+        elif len(elements) > 1:
+            form_content = generate_choice(request, elements, xml_doc_tree, edit_data_tree=edit_data_tree)
+        else:  # No root element detected
+            raise Exception("No root element detected")
 
         root_element = load_schema_data_in_db(form_content[1])
 
@@ -1755,18 +1747,6 @@ def generate_complex_type(request, element, xml_tree, full_path, edit_data_tree=
             'xmlns': get_element_namespace(element, xml_tree),
         },
     }
-    # get namespace prefix to reference extension in xsi:type
-    xml_tree_str = etree.tostring(xml_tree)
-    namespaces = common.get_namespaces(BytesIO(str(xml_tree_str)))
-    target_namespace, target_namespace_prefix = common.get_target_namespace(namespaces, xml_tree)
-    ns_prefix = None
-    if target_namespace is not None:
-        for prefix, ns in namespaces.iteritems():
-            if ns == target_namespace:
-                ns_prefix = prefix
-                break
-    db_element['options']['ns_prefix'] = ns_prefix
-
     # remove the annotations
     remove_annotations(element)
 
@@ -1989,8 +1969,6 @@ def generate_choice_extensions(request, element, xml_tree, choice_info=None, ful
 
                     if ':' in choiceChild.attrib.get('ref'):
                         opt_label = opt_label.split(':')[1]
-
-                # db_child['options']['name'] = opt_label
 
                 # look for active choice when editing
                 # FIXME: fix path
