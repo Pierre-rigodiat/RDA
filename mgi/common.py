@@ -264,10 +264,11 @@ def update_dependencies(xsd_tree, dependencies):
     xsd_includes = xsd_tree.findall("{}include".format(LXML_SCHEMA_NAMESPACE))
 
     for schema_location, dependency_id in dependencies.iteritems():
-        for xsd_include in xsd_includes:
-            if schema_location == xsd_include.attrib['schemaLocation']:
-                xsd_include.attrib['schemaLocation'] = getSchemaLocation(dependency_id)
+        if dependency_id != 'None':
+            for xsd_include in xsd_includes:
+                if schema_location == xsd_include.attrib['schemaLocation']:
+                    xsd_include.attrib['schemaLocation'] = getSchemaLocation(dependency_id)
 
-        for xsd_import in xsd_imports:
-            if schema_location == xsd_import.attrib['schemaLocation']:
-                xsd_import.attrib['schemaLocation'] = getSchemaLocation(dependency_id)
+            for xsd_import in xsd_imports:
+                if schema_location == xsd_import.attrib['schemaLocation']:
+                    xsd_import.attrib['schemaLocation'] = getSchemaLocation(dependency_id)

@@ -106,12 +106,16 @@ class XmlRenderer(AbstractXmlRenderer):
                     self.warnings.append(message)
 
                 # namespaces
+                parent = get_parent_element(element)
                 if 'xmlns' in element.options and element.options['xmlns'] is not None:
-                    parent = get_parent_element(element)
                     if parent is None or ('xmlns' in parent.options and
                                           element.options['xmlns'] != parent.options['xmlns']):
                         xmlns = ' xmlns="{}"'.format(element.options['xmlns'])
                         content[0] += xmlns
+                # add XML Schema instance prefix if root
+                if parent is None:
+                    xsi = ' xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"'
+                    content[0] += xsi
 
                 xml_string += self._render_xml(element_name, content[0], content[1])
 
@@ -299,7 +303,6 @@ class XmlRenderer(AbstractXmlRenderer):
             if child.tag == 'choice-iter':
                 children[child.pk] = child.children
                 child_keys.append(child.pk)
-
                 choice_values[child.pk] = child.value
             else:
                 message = 'render_choice (iteration): ' + child.tag + ' not handled'
@@ -316,6 +319,14 @@ class XmlRenderer(AbstractXmlRenderer):
                 elif child.tag == 'sequence':
                     if str(child.pk) == choice_values[iter_element]:
                         tmp_content = self.render_sequence(child)
+                elif child.tag == 'simple_type': # implicit extension
+                    if str(child.pk) == choice_values[iter_element]:
+                        tmp_content = self.render_simple_type(child)
+                        tmp_content[0] += ' xsi:type="{}"'.format(child.options['name'])
+                elif child.tag == 'complex_type': # implicit extension
+                    if str(child.pk) == choice_values[iter_element]:
+                        tmp_content = self.render_complex_type(child)
+                        tmp_content[0] += ' xsi:type="{}"'.format(child.options['name'])
                 else:
                     message = 'render_choice: ' + child.tag + ' not handled'
                     self.warnings.append(message)

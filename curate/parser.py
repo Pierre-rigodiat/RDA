@@ -1657,6 +1657,8 @@ def generate_simple_type(request, element, xml_tree, full_path, edit_data_tree=N
 
         # the type has some possible extensions
         if len(extensions) > 0:
+            # add the base type that can be rendered alone without extensions
+            extensions.insert(0, element)
             choice_content = generate_choice_extensions(request, extensions, xml_tree, None, full_path, edit_data_tree,
                                                         schema_location)
             form_string += choice_content[0]
@@ -1769,6 +1771,8 @@ def generate_complex_type(request, element, xml_tree, full_path, edit_data_tree=
 
         # the type has some possible extensions
         if len(extensions) > 0:
+            # add the base type that can be rendered alone without extensions
+            extensions.insert(0, element)
             choice_content = generate_choice_extensions(request, extensions, xml_tree, None, full_path, edit_data_tree,
                                                         schema_location)
             form_string += choice_content[0]
@@ -1832,7 +1836,7 @@ def generate_complex_type(request, element, xml_tree, full_path, edit_data_tree=
             complexTypeChild = element.find('{0}choice'.format(LXML_SCHEMA_NAMESPACE))
             if complexTypeChild is not None:
                 choice_result = generate_choice(request, complexTypeChild, xml_tree, full_path=full_path,
-                                              edit_data_tree=edit_data_tree, schema_location=schema_location)
+                                                edit_data_tree=edit_data_tree, schema_location=schema_location)
 
                 form_string += choice_result[0]
                 db_element['children'].append(choice_result[1])
@@ -1840,7 +1844,8 @@ def generate_complex_type(request, element, xml_tree, full_path, edit_data_tree=
     return form_string, db_element
 
 
-def generate_choice_extensions(request, element, xml_tree, choice_info=None, full_path="", edit_data_tree=None, schema_location=None):
+def generate_choice_extensions(request, element, xml_tree, choice_info=None, full_path="",
+                               edit_data_tree=None, schema_location=None):
     """Generates a section of the form that represents an implicit extension
 
     Parameters:
@@ -1968,12 +1973,14 @@ def generate_choice_extensions(request, element, xml_tree, choice_info=None, ful
 
                 # look for active choice when editing
                 # FIXME: fix path
-                element_path = full_path + '/' + opt_label
+                element_path = '{0}[@xsi:type="{1}"]'.format(full_path, opt_label)
 
                 if request.session['curate_edit']:
                     # get the schema namespaces
                     xml_tree_str = etree.tostring(xml_tree)
                     namespaces = common.get_namespaces(BytesIO(str(xml_tree_str)))
+                    # add the XSI prefix used by extensions
+                    namespaces['xsi'] = "http://www.w3.org/2001/XMLSchema-instance"
                     if len(edit_data_tree.xpath(element_path, namespaces=namespaces)) != 0:
                         db_child['value'] = counter
 
