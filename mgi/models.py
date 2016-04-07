@@ -601,7 +601,7 @@ class OaiRecord(Document):
         xmldata.create_index([('$**', TEXT)], default_language="en", language_override="en")
 
     @staticmethod
-    def executeFullTextQuery(text, listMetadataFormatId):
+    def executeFullTextQuery(text, listMetadataFormatId, refinements={}):
         """
         Execute a full text query with possible refinements
         """
@@ -620,6 +620,9 @@ class OaiRecord(Document):
             full_text_query = {'$text': {'$search': wordList}, 'metadataformat' : {'$in': listMetadataFormatObjectId}, }
         else:
             full_text_query = {'metadataformat' : {'$in': listMetadataFormatObjectId} }
+
+        if len(refinements.keys()) > 0:
+            full_text_query.update(refinements)
 
         cursor = xmlrecord.find(full_text_query, as_class = OrderedDict)
 

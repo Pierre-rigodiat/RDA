@@ -29,6 +29,7 @@ import lxml.etree as etree
 from mgi.models import Template, SavedQuery, XMLdata, Instance, MetaSchema, TemplateVersion
 from mgi import common
 from django.template import loader, Context, RequestContext
+from oai_pmh.explore import ajax as OAIExplore
 #Class definition
 
 ################################################################################
@@ -1028,7 +1029,17 @@ def get_results_by_instance_keyword(request):
     request.session[sessionName] = results
     print 'END def getResultsKeyword(request)'
 
-    return HttpResponse(json.dumps({'resultsByKeyword' : resultsByKeyword, 'resultString' : resultString, 'count' : len(instanceResults)}), content_type='application/javascript')
+    #Call to OAI-PMH keyword search
+    try:
+        dumpJson = OAIExplore.get_results_by_instance_keyword(request)
+        info = json.loads(dumpJson)
+        resultsByKeyword.append(info['resultsByKeyword'])
+        resultString = resultString + info['resultString']
+        nbOAI = info['count']
+    except Exception, e:
+        pass
+
+    return HttpResponse(json.dumps({'resultsByKeyword' : resultsByKeyword, 'resultString' : resultString, 'count' : len(instanceResults) + nbOAI}), content_type='application/javascript')
 
 
 

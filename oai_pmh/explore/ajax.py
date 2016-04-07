@@ -70,29 +70,61 @@ def get_results_by_instance_keyword(request):
     sessionName = "resultsExplore" + instance['name']
 
 
+    # try:
+    #     keyword = request.GET['keyword']
+    #     schemas = request.GET.getlist('schemas[]')
+    #     mergedSchemas = []
+    #     for schema in schemas:
+    #         t = json.loads(schema)
+    #         mergedSchemas += t['oai-pmh']
+    #     onlySuggestions = json.loads(request.GET['onlySuggestions'])
+    # except:
+    #     keyword = ''
+    #     schemas = []
+    #     onlySuggestions = True
+
     try:
         keyword = request.GET['keyword']
         schemas = request.GET.getlist('schemas[]')
-        mergedSchemas = []
-        for schema in schemas:
-            t = json.loads(schema)
-            mergedSchemas += t['oai-pmh']
+        userSchemas = request.GET.getlist('userSchemas[]')
+        refinements = refinements_to_mongo(request.GET.getlist('refinements[]'))
         onlySuggestions = json.loads(request.GET['onlySuggestions'])
     except:
         keyword = ''
         schemas = []
+        userSchemas = []
+        refinements = {}
         onlySuggestions = True
 
-    instanceResults = OaiRecord.executeFullTextQuery(keyword, mergedSchemas)
+
+    #We get all template versions for the given schemas
+    #First, we take care of user defined schema
+    templatesIDUser = Template.objects(title__in=userSchemas).distinct(field="id")
+    templatesIDUser = [str(x) for x in templatesIDUser]
+
+    #Take care of the rest, with versions
+    templatesVersions = Template.objects(title__in=schemas).distinct(field="templateVersion")
+
+    #We get all templates ID, for all versions
+    allTemplatesIDCommon = TemplateVersion.objects(pk__in=templatesVersions, isDeleted=False).distinct(field="versions")
+    #We remove the removed version
+    allTemplatesIDCommonRemoved = TemplateVersion.objects(pk__in=templatesVersions, isDeleted=False).distinct(field="deletedVersions")
+    templatesIDCommon = list(set(allTemplatesIDCommon) - set(allTemplatesIDCommonRemoved))
+
+    templatesID = templatesIDUser + templatesIDCommon
+    metadataFormatsID = OaiMetadataFormat.objects(template__in=templatesID).distinct(field="id")
+
+    instanceResults = OaiRecord.executeFullTextQuery(keyword, metadataFormatsID, refinements)
     if len(instanceResults) > 0:
         if not onlySuggestions:
             xsltPath = os.path.join(settings.SITE_ROOT, 'static/resources/xsl/xml2html.xsl')
             xslt = etree.parse(xsltPath)
             transform = etree.XSLT(xslt)
+            template = loader.get_template('oai_pmh/explore/explore_result_keyword.html')
 
         #Retrieve schema and registries. Avoid to retrieve the information for each result
         registriesName = {}
-        schemasName = {}
+        objMetadataFormats = {}
         listRegistriesID = set([x['registry'] for x in instanceResults])
         for registryId in listRegistriesID:
             obj = OaiRegistry.objects(pk=registryId).get()
@@ -100,7 +132,7 @@ def get_results_by_instance_keyword(request):
         listSchemaId = set([x['metadataformat'] for x in instanceResults])
         for schemaId in listSchemaId:
             obj = OaiMetadataFormat.objects(pk=schemaId).get()
-            schemasName[str(schemaId)] = obj
+            objMetadataFormats[str(schemaId)] = obj
 
         listItems = []
         xmltodictunparse = xmltodict.unparse
@@ -115,9 +147,9 @@ def get_results_by_instance_keyword(request):
                 dom = toXML(str(xmltodictunparse(instanceResult['metadata']).encode('utf-8')))
                 #Check if a custom list result XSLT has to be used
                 try:
-                    schema = schemasName[str(instanceResult['metadataformat'])]
-                    if schema.ResultXsltList:
-                        listXslt = parse(BytesIO(schema.ResultXsltList.content.encode('utf-8')))
+                    metadataFormat = objMetadataFormats[str(instanceResult['metadataformat'])]
+                    if metadataFormat.template.ResultXsltList:
+                        listXslt = parse(BytesIO(metadataFormat.template.ResultXsltList.content.encode('utf-8')))
                         listTransform = XSLT(listXslt)
                         newdom = listTransform(dom)
                         custom_xslt = True
@@ -128,15 +160,15 @@ def get_results_by_instance_keyword(request):
                     newdom = transform(dom)
                     custom_xslt = False
 
-                item = {'id':str(instanceResult['_id']),
+                context = RequestContext(request, {'id':str(instanceResult['_id']),
                                    'xml': str(newdom),
                                    'title': instanceResult['identifier'],
                                    'custom_xslt': custom_xslt,
-                                   'schema_name': schema.metadataPrefix,
-                                   'registry_name': registriesName[instanceResult['registry']]}
+                                   'schema_name': metadataFormat.metadataPrefix,
+                                   'registry_name': registriesName[instanceResult['registry']]})
 
-                listItems.append(item)
-                context = RequestContext(request, {'list_results': listItems})
+
+                resultString+= template.render(context)
 
         else:
             for instanceResult in instanceResults[:20]:
@@ -154,14 +186,44 @@ def get_results_by_instance_keyword(request):
                     if not result_json in resultsByKeyword:
                         resultsByKeyword.append(result_json)
 
-        if not onlySuggestions:
-            template = loader.get_template('oai_pmh/explore/explore_result_keyword.html')
-            resultString+= template.render(context)
-            # result_json = {}
-            # result_json['resultString'] = resultString
-
 
     request.session[sessionName] = results
     print 'END def getResultsKeyword(request)'
 
-    return HttpResponse(json.dumps({'resultsByKeyword' : resultsByKeyword, 'resultString' : resultString, 'count' : len(instanceResults)}), content_type='application/javascript')
+    # return HttpResponse(json.dumps({'resultsByKeyword' : resultsByKeyword, 'resultString' : resultString, 'count' : len(instanceResults)}), content_type='application/javascript')
+    return json.dumps({'resultsByKeyword' : resultsByKeyword, 'resultString' : resultString, 'count' : len(instanceResults)})
+
+
+
+################################################################################
+#
+# Function Name: refinements_to_mongo(request)
+# Inputs:        request -
+# Outputs:
+# Exceptions:    None
+# Description:   Build a refined mongo query (AND between types + OR between values of the same type)
+#
+################################################################################
+def refinements_to_mongo(refinements):
+    try:
+        # transform the refinement in mongo query
+        mongo_queries = dict()
+        mongo_in = {}
+        for refinement in refinements:
+            splited_refinement = refinement.split(':')
+            dot_notation = splited_refinement[0]
+            value = splited_refinement[1]
+            if dot_notation in mongo_queries:
+                mongo_queries[dot_notation].append(value)
+            else:
+                mongo_queries[dot_notation] = [value]
+
+        for query in mongo_queries:
+            key = query
+            values = ({ '$in' : mongo_queries[query]})
+            mongo_in[key] = values
+
+        mongo_or = {'$and' : [mongo_in]}
+        return mongo_or
+    except:
+        return []
