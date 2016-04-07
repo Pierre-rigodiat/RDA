@@ -1103,7 +1103,11 @@ def add_my_metadataFormat(request):
                 try:
                     xml_schema = http_response.text
                     dom = etree.fromstring(xml_schema.encode('utf-8'))
-                    metadataNamespace = dom.find(".").attrib['targetNamespace']
+                    if 'targetNamespace' in dom.find(".").attrib:
+                        metadataNamespace = dom.find(".").attrib['targetNamespace'] or "namespace"
+                    else:
+                        metadataNamespace = "http://www.w3.org/2001/XMLSchema"
+
                 except XMLSyntaxError:
                     return Response({'message':'Unable to add the new metadata format.'}, status=status.HTTP_400_BAD_REQUEST)
             try:
