@@ -1657,6 +1657,8 @@ def generate_simple_type(request, element, xml_tree, full_path, edit_data_tree=N
 
         # the type has some possible extensions
         if len(extensions) > 0:
+            # add the base type that can be rendered alone without extensions
+            extensions.insert(0, element)
             choice_content = generate_choice_extensions(request, extensions, xml_tree, None, full_path, edit_data_tree,
                                                         schema_location)
             form_string += choice_content[0]
@@ -1769,6 +1771,8 @@ def generate_complex_type(request, element, xml_tree, full_path, edit_data_tree=
 
         # the type has some possible extensions
         if len(extensions) > 0:
+            # add the base type that can be rendered alone without extensions
+            extensions.insert(0, element)
             choice_content = generate_choice_extensions(request, extensions, xml_tree, None, full_path, edit_data_tree,
                                                         schema_location)
             form_string += choice_content[0]
