@@ -530,7 +530,7 @@ def get_ref_element(xml_tree, ref, namespaces, element_tag, schema_location=None
 
 
 def generate_element(request, element, xml_tree, choice_info=None, full_path="",
-                     edit_data_tree=None, schema_location=None):
+                     edit_data_tree=None, schema_location=None, force_generation=False):
     """Generate an HTML string that represents an XML element.
 
     Parameters:
@@ -754,6 +754,10 @@ def generate_element(request, element, xml_tree, choice_info=None, full_path="",
         choice_id = ''
 
     ul_content = ''
+
+    if force_generation:
+        nb_occurrences = 1
+        removed = False
 
     for x in range(0, int(nb_occurrences)):
         db_elem_iter = {
@@ -1051,7 +1055,7 @@ def generate_element_absent(request, element, xml_doc_tree, form_element, schema
 
 
 def generate_sequence(request, element, xml_tree, choice_info=None, full_path="", edit_data_tree=None,
-                      schema_location=None):
+                      schema_location=None, force_generation=False):
     """Generates a section of the form that represents an XML sequence
 
     Parameters:
@@ -1179,6 +1183,9 @@ def generate_sequence(request, element, xml_tree, choice_info=None, full_path=""
         #
         #     # ul_content += render_li(li_content, tag_id, 'sequence', 'removed')
         # else:
+        if force_generation:
+            nb_occurrences = 1
+
         for x in range(0, int(nb_occurrences)):
             db_elem_iter = {
                 'tag': 'sequence-iter',
@@ -1365,7 +1372,8 @@ def generate_sequence_absent(request, element, xml_tree, schema_location=None):
     return form_string, db_element
 
 
-def generate_choice(request, element, xml_tree, choice_info=None, full_path="", edit_data_tree=None, schema_location=None):
+def generate_choice(request, element, xml_tree, choice_info=None, full_path="", edit_data_tree=None,
+                    schema_location=None, force_generation=False):
     """Generates a section of the form that represents an XML choice
 
     Parameters:
@@ -1479,6 +1487,9 @@ def generate_choice(request, element, xml_tree, choice_info=None, full_path="", 
         chosen = True
 
     ul_content = ''
+
+    if force_generation:
+        nb_occurrences = 1
 
     for x in range(0, int(nb_occurrences)):
         db_child = {

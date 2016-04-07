@@ -26,7 +26,7 @@ from cStringIO import StringIO
 
 # from cStringIO import StringIO
 # from mgi.models import Template, XMLdata, XML2Download, Module, MetaSchema
-from rest_framework.status import HTTP_404_NOT_FOUND, HTTP_400_BAD_REQUEST
+from rest_framework.status import HTTP_404_NOT_FOUND, HTTP_400_BAD_REQUEST, HTTP_200_OK
 from curate.models import SchemaElement
 from curate.parser import generate_form, generate_element, generate_sequence_absent, generate_element_absent, has_module, \
     get_element_type, generate_module, generate_complex_type, generate_simple_type, generate_sequence, generate_choice, \
@@ -1167,10 +1167,10 @@ def gen_abs(request):
 
     schema_element = element_list[0]
 
-    rendering_element = SchemaElement()
-    rendering_element.tag = schema_element.tag
-    rendering_element.options = schema_element.options
-    rendering_element.value = schema_element.value
+    # rendering_element = SchemaElement()
+    # rendering_element.tag = schema_element.tag
+    # rendering_element.options = schema_element.options
+    # rendering_element.value = schema_element.value
 
     schema_location = None
     if 'schema_location' in schema_element.options:
@@ -1211,43 +1211,47 @@ def gen_abs(request):
     # generating a choice, generate the parent element
     if schema_element.tag == "choice":
         # can use generate_element to generate a choice never generated
-        form_string = generate_element(request, xml_element, xml_doc_tree, full_path=xml_xpath)
+        form_string = generate_choice(request, xml_element, xml_doc_tree, full_path=xml_xpath, force_generation=True)
     elif schema_element.tag == 'sequence':
-        form_string = generate_sequence_absent(request, xml_element, xml_doc_tree)
+        # form_string = generate_sequence_absent(request, xml_element, xml_doc_tree)
+        form_string = generate_sequence(request, xml_element, xml_doc_tree, full_path=xml_xpath, force_generation=True)
     else:
         # can't directly use generate_element because only need the body of the element not its title
         # form_string = generate_element_absent(request, xml_element, xml_doc_tree, schema_element)
-        form_string = generate_element(request, xml_element, xml_doc_tree, full_path=xml_xpath)
+        form_string = generate_element(request, xml_element, xml_doc_tree, full_path=xml_xpath, force_generation=True)
 
     db_tree = form_string[1]
 
     # Saving the tree in MongoDB
     tree_root = load_schema_data_in_db(db_tree)
+    generated_element = tree_root.children[0]
 
     # Updating the schema element
-    # children = schema_element.children
-    # element_index = children.index(sub_element)
-    #
-    # children.insert(element_index+1, tree_root)
-    # schema_element.update(set__children=children)
-    #
-    # if len(sub_element.children) == 0:
-    #     schema_element.update(pull__children=element_id)
-    #
-    # schema_element.reload()
-    schema_element.update(set__children=tree_root.children)
+    children = schema_element.children
+    element_index = children.index(sub_element)
+
+    children.insert(element_index + 1, generated_element)
+    schema_element.update(set__children=children)
+
+    if len(sub_element.children) == 0:
+        schema_element.update(pull__children=element_id)
+
     schema_element.reload()
+    # schema_element.update(set__children=tree_root.children)
+    # schema_element.reload()
 
     # Updating the rendering element
-    rendering_element.children = [tree_root]
-    rendering_element.save(force_insert=True)
+    # rendering_element.children = [tree_root]
+    # rendering_element.save(force_insert=True)
 
     # Rendering the generated element
     # renderer = ListRenderer(rendering_element)
     renderer = ListRenderer(tree_root)
     html_form = renderer.render(True)
 
-    rendering_element.delete()
+    tree_root.delete()
+
+    # rendering_element.delete()
 
     return HttpResponse(html_form)
 
@@ -1324,17 +1328,19 @@ def generate_choice_branch(request):
 
     parent.reload()
 
-    rendering_element = SchemaElement()
-    rendering_element.tag = 'choice'
-    rendering_element.children = [parent]
-    rendering_element.save()
+    choice_element = SchemaElement.objects(children=parent.pk)[0]
+    choice_original_children = choice_element.children
 
-    renderer = ListRenderer(None)
-    html_form = renderer.render_choice(rendering_element)
+    choice_element.update(set__children=[parent])
+    choice_element.reload()
 
-    rendering_element.delete()
+    renderer = ListRenderer(choice_element)
+    html_form = renderer.render(True)
 
-    return HttpResponse(renderer._render_ul(html_form, ''))
+    choice_element.update(set__children=choice_original_children)
+    choice_element.reload()
+
+    return HttpResponse(html_form)
 
 
 def rem_bis(request):
@@ -1371,11 +1377,22 @@ def rem_bis(request):
         schema_element.update(add_to_set__children=[elem_iter])
         schema_element.reload()
 
-    if children_number > schema_element.options['min']:
-        return HttpResponse()
-    else:  # len(schema_element.children) == schema_element.options['min']
-        renderer = ListRenderer(schema_element)
-        html_form = renderer.render(True)
+    response = {
+        'code': 0,
+        'html': ""
+    }
 
-        return HttpResponse(html_form)
+    if children_number > schema_element.options['min']:
+        return HttpResponse(json.dumps(response), status=HTTP_200_OK)
+    else:  # len(schema_element.children) == schema_element.options['min']
+        if schema_element.options['min'] != 0:
+            response['code'] = 1
+        else:  # schema_element.options['min'] == 0
+            renderer = ListRenderer(schema_element)
+            html_form = renderer.render(True)
+
+            response['code'] = 2
+            response['html'] = html_form
+
+        return HttpResponse(json.dumps(response))
 

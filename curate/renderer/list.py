@@ -75,6 +75,8 @@ class ListRenderer(AbstractListRenderer):
             html_content += self.render_attribute(self.data)
         elif self.data.tag == 'choice':
             html_content += self.render_choice(self.data)
+        elif self.data.tag == 'sequence':
+            html_content += self.render_sequence(self.data)
         else:
             message = 'render: ' + self.data.tag + ' not handled'
             self.warnings.append(message)
@@ -122,7 +124,7 @@ class ListRenderer(AbstractListRenderer):
         buttons = render_buttons(add_button, del_button)
 
         for child_key in child_keys:
-            li_class = ''
+            # li_class = ''
             sub_elements = []
             sub_inputs = []
 
@@ -147,6 +149,7 @@ class ListRenderer(AbstractListRenderer):
                 html_content = element.options["name"] + buttons
                 li_class = 'removed'
             else:
+                li_class = str(element.pk)
                 html_content = ''
                 for child_index in xrange(len(sub_elements)):
                     if sub_inputs[child_index]:
@@ -282,28 +285,64 @@ class ListRenderer(AbstractListRenderer):
         :param element:
         :return:
         """
-        html_content = ''
-        children = []
+        children = {}
+        child_keys = []
+        children_number = 0
 
         for child in element.children:
             if child.tag == 'sequence-iter':
-                children += child.children
+                children[child.pk] = child.children
+                child_keys.append(child.pk)
+
+                if len(child.children) > 0:
+                    children_number += 1
             else:
                 message = 'render_sequence (iteration): ' + child.tag + ' not handled'
                 self.warnings.append(message)
 
-        for child in children:
-            if child.tag == 'element':
-                html_content += self.render_element(child)
-            elif child.tag == 'sequence':
-                html_content += self.render_sequence(child)
-            elif child.tag == 'choice':
-                html_content += self.render_choice(child)
-            else:
-                message = 'render_sequence: ' + child.tag + ' not handled'
-                self.warnings.append(message)
+        final_html = ''
 
-        return html_content
+        # Buttons generation (render once, reused many times)
+        add_button = False
+        del_button = False
+
+        if 'max' in element.options:
+            if children_number < element.options["max"] or element.options["max"] == -1:
+                add_button = True
+
+        if 'min' in element.options:
+            if children_number > element.options["min"]:
+                del_button = True
+
+        buttons = render_buttons(add_button, del_button)
+
+        for child_key in child_keys:
+            # li_class = ''
+            sub_elements = []
+
+            for child in children[child_key]:
+                if child.tag == 'element':
+                    sub_elements.append(self.render_element(child))
+                elif child.tag == 'sequence':
+                    sub_elements.append(self.render_sequence(child))
+                elif child.tag == 'choice':
+                    sub_elements.append(self.render_choice(child))
+                else:
+                    message = 'render_attribute: ' + child.tag + ' not handled'
+                    self.warnings.append(message)
+
+            if children_number == 0:
+                html_content = element.options["name"] + buttons
+                li_class = 'removed'
+            else:
+                li_class = str(element.pk)
+                html_content = render_collapse_button() + 'Sequence ' + buttons
+                for child_index in xrange(len(sub_elements)):
+                    html_content += self._render_ul(sub_elements[child_index], None)
+
+            final_html += render_li(html_content, li_class, child_key)
+
+        return final_html
 
     def render_choice(self, element):
         """
@@ -315,21 +354,40 @@ class ListRenderer(AbstractListRenderer):
         children = {}
         child_keys = []
         choice_values = {}
+        children_number = 0
 
         for child in element.children:
             if child.tag == 'choice-iter':
                 children[child.pk] = child.children
                 child_keys.append(child.pk)
+                children_number += 1
 
                 choice_values[child.pk] = child.value
             else:
                 message = 'render_choice (iteration): ' + child.tag + ' not handled'
                 self.warnings.append(message)
 
-        sub_content = ''
-        options = []
+        # Buttons generation (render once, reused many times)
+        add_button = False
+        del_button = False
+
+        if 'max' in element.options:
+            if children_number < element.options["max"] or element.options["max"] == -1:
+                add_button = True
+
+        if 'min' in element.options:
+            if children_number > element.options["min"]:
+                del_button = True
+
+        buttons = render_buttons(add_button, del_button)
+
+        final_html = ''
 
         for iter_element in child_keys:
+            sub_content = ''
+            html_content = ''
+            options = []
+
             for child in children[iter_element]:
                 element_html = ''
                 is_selected_element = (str(child.pk) == choice_values[iter_element])
@@ -358,10 +416,12 @@ class ListRenderer(AbstractListRenderer):
                 html_content += sub_content
             # the contains a list
             else:
-                html_content += 'Choice ' + self._render_select(str(iter_element), 'choice', options)
+                html_content += 'Choice ' + self._render_select('', 'choice', options) + buttons
                 html_content += sub_content
 
-        return html_content
+            final_html += render_li(html_content, element.pk, iter_element)
+
+        return final_html
 
     def render_simple_content(self, element):
         """

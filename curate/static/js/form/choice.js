@@ -46,14 +46,15 @@ updateChoiceBranch = function($choice, previousChoiceValue) {
 
         $.ajax({
             'url': '/curate/generate_choice',
+            //'url': '/curate/generate-bis',
             'type': 'POST',
             'datatype': 'html',
             'data': {
                 'id': currentChoiceValue
             },
             'success': function(data) {
-                var $formPart = $(data);
-                $choiceParent.replaceWith($formPart);
+                var $generatedForm = $(data);
+                $choiceParent.replaceWith($generatedForm);
 
                 // If new modules are included, we need to load the resources
                 initModules();
@@ -76,7 +77,8 @@ selectChoice = function(event) {
     event.preventDefault();
 
     var $choice = $(this);
-    var choiceId = $choice.attr('id');
+    var choiceId = $choice.parent().attr('id');
+    //var choiceId = $choice.attr('id');
 
     var previousChoiceValue = null;
 
