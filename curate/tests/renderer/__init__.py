@@ -1,10 +1,11 @@
-from importlib import import_module
+"""
+"""
+from django.utils.importlib import import_module
 from os import walk
 from django.http.request import HttpRequest
 from django.test.testcases import TestCase
 from os.path import join, splitext
 from lxml import etree
-
 from curate.models import SchemaElement
 from curate.parser import generate_form
 from curate.renderer.list import ListRenderer

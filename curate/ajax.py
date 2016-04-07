@@ -26,7 +26,7 @@ from cStringIO import StringIO
 
 # from cStringIO import StringIO
 # from mgi.models import Template, XMLdata, XML2Download, Module, MetaSchema
-from rest_framework.status import HTTP_404_NOT_FOUND, HTTP_400_BAD_REQUEST, HTTP_200_OK
+from rest_framework.status import HTTP_404_NOT_FOUND, HTTP_400_BAD_REQUEST, HTTP_200_OK, HTTP_501_NOT_IMPLEMENTED
 from curate.models import SchemaElement
 from curate.parser import generate_form, generate_element, generate_sequence_absent, generate_element_absent, has_module, \
     get_element_type, generate_module, generate_complex_type, generate_simple_type, generate_sequence, generate_choice, \
@@ -220,9 +220,24 @@ def download_xml(request):
     #
     # xml2download = XML2Download(title=form_data.name, xml=xmlString).save()
     # xml2downloadID = str(xml2download.id)
-    xml_renderer = XmlRenderer(request.session['form_id'])
-    response_dict = {"xml2downloadID": xml_renderer.render()}
-    return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
+
+    # xml_renderer = XmlRenderer(request.session['form_id'])
+    # response_dict = {
+    #     'xml2downloadID': xml_renderer.render()
+    # }
+    # return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
+
+    form_data_id = request.session['curateFormData']
+    form_data = FormData.objects.get(pk=ObjectId(form_data_id))
+
+    form_id = request.session['form_id']
+    xml_root_element = SchemaElement.objects.get(pk=form_id)
+    xml_renderer = XmlRenderer(xml_root_element)
+    xml_data = StringIO(xml_renderer.render())
+
+    response = HttpResponse(FileWrapper(xml_data), content_type='application/xml')
+    response['Content-Disposition'] = 'attachment; filename=' + form_data.name + '.xml'
+    return response
 
 
 ################################################################################
@@ -979,7 +994,7 @@ def save_module(request):
 
 
 def save_form(request):
-    """Save the current form in MongoDB
+    """Save the current form in MongoDB. Convert it to XML format first.
 
     :param request:
     :return:
@@ -1053,12 +1068,8 @@ def validate_xml_data(request):
 #
 ################################################################################
 def view_data(request):
-    print 'BEGIN def saveXMLData(request)'
-
     request.session['formString'] = request.POST['form_content']
     return HttpResponse(json.dumps({}), content_type='application/javascript')
-
-    print 'END def saveXMLData(request)'
 
 
 ################################################################################
@@ -1311,6 +1322,8 @@ def generate_choice_branch(request):
         form_string = generate_element(request, xml_element, xml_doc_tree, full_path=xml_xpath)
     elif element.tag == 'sequence':
         form_string = generate_sequence(request, xml_element, xml_doc_tree, full_path=xml_xpath)
+    else:
+        return HttpResponse(status=HTTP_501_NOT_IMPLEMENTED)
 
     db_tree = form_string[1]
 

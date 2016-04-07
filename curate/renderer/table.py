@@ -1,131 +1,189 @@
 """
 """
+from os.path import join
+from django.template import loader
+
 from curate.renderer import render_select, render_input, render_buttons, load_template, DefaultRenderer
 
 
-def render_table(content):
-    data = {
-        'content': content
-    }
+# def render_table(content):
+#     data = {
+#         'content': content
+#     }
+#
+#     return load_template('table.html', data, 'table')
+#
+#
+# def render_tr(name, content):
+#     data = {
+#         'name': name,
+#         'content': content
+#     }
+#
+#     return load_template('tr.html', data, 'table')
+#
+#
+# def render_top(title, content):
+#     data = {
+#         'title': title,
+#         'content': content
+#     }
+#
+#     return load_template('wrap.html', data, 'table')
 
-    return load_template('table.html', data, 'table')
 
-
-def render_tr(name, content):
-    data = {
-        'name': name,
-        'content': content
-    }
-
-    return load_template('tr.html', data, 'table')
-
-
-def render_top(title, content):
-    data = {
-        'title': title,
-        'content': content
-    }
-
-    return load_template('wrap.html', data, 'table')
-
-
-class TableRenderer(DefaultRenderer):
-    """
-    """
-    # FIXME create the class AbstractTableRenderer to store additional list
+class AbstractTableRenderer(DefaultRenderer):
 
     def __init__(self, xsd_data):
-        super(self, TableRenderer).__init__(xsd_data, {})
+        table_renderer_path = join('renderer', 'table')
+        table_templates = {
+            'top': loader.get_template(join(table_renderer_path, 'wrap.html')),
+            'table': loader.get_template(join(table_renderer_path, 'table.html')),
+            'tr': loader.get_template(join(table_renderer_path, 'tr.html')),
+        }
 
-    def _render_data(self, element):
+        super(AbstractTableRenderer, self).__init__(xsd_data, table_templates)
+
+    def _render_table(self, content):
+        data = {
+            'content': content
+        }
+
+        return self._load_template('table', data)
+
+    def _render_tr(self, name, content):
+        data = {
+            'name': name,
+            'content': content
+        }
+
+        return self._load_template('tr', data)
+
+    def _render_top(self, title, content):
+        data = {
+            'title': title,
+            'content': content
+        }
+
+        return self._load_template('top', data)
+
+
+class TableRenderer(AbstractTableRenderer):
+    """
+    """
+
+    def __init__(self, xsd_data):
+        super(TableRenderer, self).__init__(xsd_data)
+
+    def render(self):
         html_content = ''
 
-        if element['tag'] == 'element':
-            html_content += self._render_element(element, no_name=True)
+        if self.data.tag == 'element':
+            html_content += self.render_element(self.data, no_name=True)
         else:
-            message = 'render_data: ' + element.tag + ' not handled'
+            message = 'render_data: ' + self.data.tag + ' not handled'
             self.warnings.append(message)
 
-        # return render_ul(html_content, '', True)
-        return render_top(element['options']['name'], html_content)
+        return self._render_top(self.data.options['name'], html_content)
 
-    def _render_element(self, element, no_name=False):
-        print "elem"
-        children = []
-        # html_content = element["options"]["name"]
-        html_content = ''
+    def render_element(self, element, no_name=False):
+        children = {}
+        child_keys = []
+        children_number = 0
 
-        for child in element['children']:
-            if child['tag'] == 'elem-iter':
-                children += child['children']
+        for child in element.children:
+            if child.tag == 'elem-iter':
+                children[child.pk] = child.children
+                child_keys.append(child.pk)
+
+                if len(child.children) > 0:
+                    children_number += 1
             else:
                 message = 'render_element (iteration): ' + child.tag + ' not handled'
                 self.warnings.append(message)
 
+        final_html = ''
+
+        # Buttons generation (render once, reused many times)
         add_button = False
         del_button = False
 
-        # if 'max' in element["options"] and element["options"]['max'] != 1:
-        if 'max' in element["options"]:
-            # if len(element['children']) < element["options"]["max"] or element["options"]["max"] == -1:
-            if len(children) < element["options"]["max"] or element["options"]["max"] == -1:
+        if 'max' in element.options:
+            if children_number < element.options["max"] or element.options["max"] == -1:
                 add_button = True
 
-        # if 'min' in element["options"] and element["options"]['min'] != 1:
-        if 'min' in element["options"]:
-            # if len(element['children']) > element["options"]["min"]:
-            if len(children) > element["options"]["min"]:
+        if 'min' in element.options:
+            if children_number > element.options["min"]:
                 del_button = True
 
-            if len(children) < element["options"]["min"]:
-                add_button = True
+        buttons = render_buttons(add_button, del_button)
 
-        buttons = render_buttons(add_button, del_button, '')
+        for child_key in child_keys:
+            # FIXME Use tuples instead
+            sub_elements = []
+            sub_inputs = []
 
-        subhtml = ''
+            for child in children[child_key]:
+                if child.tag == 'complex_type':
+                    sub_elements.append(self.render_complex_type(child))
+                    sub_inputs.append(False)
+                elif child.tag == 'simple_type':
+                    sub_elements.append(self.render_simple_type(child))
+                    sub_inputs.append(False)
+                elif child.tag == 'input':
+                    sub_elements.append(self._render_input(child.pk, child.value, '', ''))
+                    sub_inputs.append(True)
+                elif child.tag == 'module':
+                    sub_elements.append(self.render_module(child))
+                    sub_inputs.append(False)
+                else:
+                    message = 'render_element: ' + child.tag + ' not handled'
+                    self.warnings.append(message)
 
-        for child in children:
-            if child['tag'] == 'complex_type':
-                subhtml += self._render_complex_type(child)
-            elif child['tag'] == 'input':
-                subhtml += self._render_input(child)
-            elif child['tag'] == 'attribute':
-                subhtml += self._render_attribute(child)
+            if children_number == 0:
+                # FIXME Find a way to make the label grey
+                html_content = ''
+                # li_class = 'removed'
             else:
-                print child['tag'] + ' not handled (re_eleme)'
+                html_content = ''
+                for child_index in xrange(len(sub_elements)):
+                    if sub_inputs[child_index]:  # Element is an input
+                        html_content += element.options["name"] + sub_elements[child_index] + buttons
+                    else:  # Element is not an input
+                        html_content += self._render_collapse_button() + element.options["name"] + buttons
+                        # html_content += self._render_ul(sub_elements[child_index], None)
 
-        if len(children) > 1 or (len(children) == 1 and children[0]['tag'] != 'input'):
-            # html_content = render_collapse_button() + html_content + buttons
-            # html_content = html_content + buttons
-            # html_content += render_ul(subhtml, 'ulid', True)
-            html_content += render_table(subhtml)
-        else:
-            # html_content += subhtml + buttons
-            html_content += subhtml
+            final_html += self._render_tr(element["options"]["name"] + buttons, html_content)
 
-        # return render_li(html_content, '', '', None, element["options"]["name"])
-        if no_name:
-            return html_content
+        # if len(children) > 1 or (len(children) == 1 and children[0]['tag'] != 'input'):
+        #     html_content += self._render_table(subhtml)
+        # else:
+        #     # html_content += subhtml + buttons
+        #     html_content += subhtml
+        #
+        # # return render_li(html_content, '', '', None, element["options"]["name"])
+        # if no_name:
+        #     return html_content
 
-        return render_tr(element["options"]["name"] + buttons, html_content)
+        return final_html
 
-    def _render_complex_type(self, element):
+    def render_complex_type(self, element):
         print "ct"
         html_content = ''
 
         for child in element['children']:
             if child['tag'] == 'sequence':
-                html_content += self._render_sequence(child)
+                html_content += self.render_sequence(child)
             elif child['tag'] == 'simple_content':
-                html_content += self._render_simple_content(child)
+                html_content += self.render_simple_content(child)
             elif child['tag'] == 'attribute':
-                html_content += self._render_attribute(child)
+                html_content += self.render_attribute(child)
             else:
                 print child['tag'] + ' not handled (rend_ct)'
 
         return html_content
 
-    def _render_attribute(self, element):
+    def render_attribute(self, element):
         print "attr"
         # html_content = element["options"]["name"]
         html_content = ''
@@ -139,7 +197,7 @@ class TableRenderer(DefaultRenderer):
 
         for child in children:
             if child['tag'] == 'simple_type':
-                html_content += self._render_simple_type(child)
+                html_content += self.render_simple_type(child)
             elif child['tag'] == 'input':
                 html_content += self._render_input(child)
             else:
@@ -147,40 +205,35 @@ class TableRenderer(DefaultRenderer):
             # print child['tag'] + ' not handled (rend_attr)'
 
         # return render_li(html_content, '', '')
-        return render_tr(element['options']['name'], html_content)
+        return self._render_tr(element['options']['name'], html_content)
 
-    def _render_sequence(self, element):
+    def render_sequence(self, element):
         print "seq"
         html_content = ''
 
         for child in element['children']:
             if child['tag'] == 'element':
-                html_content += self._render_element(child)
+                html_content += self.render_element(child)
             else:
                 print child['tag'] + '  not handled (rend_seq)'
 
         return html_content
 
-    @staticmethod
-    def _render_input(element):
-        print "inp"
-        return render_input(element['value'], '', '')
-
-    def _render_simple_content(self, element):
+    def render_simple_content(self, element):
         print "sc"
         html_content = ''
 
         for child in element['children']:
             if child['tag'] == 'element':
-                html_content += self._render_element(child)
+                html_content += self.render_element(child)
             elif child['tag'] == 'extension':
-                html_content += self._render_extension(child)
+                html_content += self.render_extension(child)
             else:
                 print child['tag'] + '  not handled (rend_scont)'
 
         return html_content
 
-    def _render_simple_type(self, element):
+    def render_simple_type(self, element):
         print "st"
         html_content = ''
 
@@ -188,13 +241,13 @@ class TableRenderer(DefaultRenderer):
             # if child['tag'] == 'element':
             #     self._render_element(child)
             if child['tag'] == 'restriction':
-                html_content += self._render_restriction(child)
+                html_content += self.render_restriction(child)
             else:
                 print child['tag'] + '  not handled (rend_stype)'
 
         return html_content
 
-    def _render_extension(self, element):
+    def render_extension(self, element):
         print "ext"
         html_content = ''
 
@@ -202,14 +255,14 @@ class TableRenderer(DefaultRenderer):
             if child['tag'] == 'input':
                 html_content += self._render_input(child)
             elif child['tag'] == 'attribute':
-                html_content += self._render_attribute(child)
+                html_content += self.render_attribute(child)
             else:
                 print child['tag'] + ' not handled (rend_ext)'
             # print child['tag'] + '  not handled (rend_ext)'
 
         return html_content
 
-    def _render_restriction(self, element):
+    def render_restriction(self, element):
         print "rest"
         options = []
         subhtml = ''
@@ -227,21 +280,8 @@ class TableRenderer(DefaultRenderer):
         else:
             return subhtml
 
-    def render(self):
-        # print "================="
-        #
-        # try:
-        #     s = self._render_data(self.data)
-        # except Exception as exc:
-        #     print "***********"
-        #     print ">> " + str(exc)
-        #     return exc.message
-        #
-        # print "================="
-        # print s
-        #
-        # return s
-        return self._render_data(self.data)
+    def render_module(self, element):
+        return ''
 
 
 

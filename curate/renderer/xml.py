@@ -2,7 +2,7 @@
 """
 from django.template import loader
 from os.path import join
-from curate.renderer import render_select, render_li, render_collapse_button, DefaultRenderer
+from curate.renderer import DefaultRenderer
 from curate.models import SchemaElement
 from bson.objectid import ObjectId
 

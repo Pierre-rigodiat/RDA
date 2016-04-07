@@ -4,7 +4,7 @@ import logging
 from os.path import join
 
 from curate.models import SchemaElement
-from curate.renderer import render_buttons, render_collapse_button, \
+from curate.renderer import render_buttons, \
     render_input, render_ul, \
     render_select
 from mgi.models import FormElement, XMLElement, FormData, Module, Template
@@ -791,7 +791,8 @@ def generate_element(request, element, xml_tree, choice_info=None, full_path="",
         if CURATE_COLLAPSE:
             # the type is complex, can be collapsed
             if element_type is not None and element_type.tag == "{0}complexType".format(LXML_SCHEMA_NAMESPACE):
-                li_content += render_collapse_button()
+                # li_content += render_collapse_button()
+                li_content += ''
 
         label = app_info['label'] if 'label' in app_info else text_capitalized
         label = label if label is not None else ''
@@ -1206,7 +1207,8 @@ def generate_sequence(request, element, xml_tree, choice_info=None, full_path=""
             li_content = ''
 
             if len(list(element)) > 0 and CURATE_COLLAPSE:
-                li_content += render_collapse_button()
+                # li_content += render_collapse_button()
+                li_content += ''
 
             li_content += text
             li_content += render_buttons(add_button, delete_button)

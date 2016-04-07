@@ -10,7 +10,14 @@ sendSaveRequest = function() {
             'value': $input.val()
         },*/
         success: function(data) {
-
+            $( "#dialog-saved-message" ).dialog({
+                modal: true,
+                buttons: {
+                    Ok: function() {
+                        $( this ).dialog( "close" );
+                    }
+                }
+            });
         },
         error: function(data) {
 

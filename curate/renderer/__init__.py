@@ -225,17 +225,15 @@ def render_buttons(add_button, delete_button):
     return form_string
 
 
-def render_collapse_button():
-    """
-
-    :return:
-    """
-    return load_template('buttons/collapse.html')
-
-
 class DefaultRenderer(object):
 
-    def __init__(self, xsd_data, template_list):
+    def __init__(self, xsd_data, template_list=None):
+        """ Default renderer for the HTML form
+
+        Parameters:
+            - xsd_data:
+            - template_list:
+        """
         self.data = xsd_data
         self.warnings = []
 
@@ -245,11 +243,14 @@ class DefaultRenderer(object):
 
             'input': loader.get_template(join(default_renderer_path, 'inputs', 'input.html')),
             'select': loader.get_template(join(default_renderer_path, 'inputs', 'select.html')),
+
             'btn_add': loader.get_template(join(default_renderer_path, 'buttons', 'add.html')),
-            'btn_del': loader.get_template(join(default_renderer_path, 'buttons', 'delete.html'))
+            'btn_del': loader.get_template(join(default_renderer_path, 'buttons', 'delete.html')),
+            'btn_collapse': loader.get_template(join(default_renderer_path, 'buttons', 'collapse.html'))
         }
 
-        self.templates.update(template_list)
+        if template_list is not None:
+            self.templates.update(template_list)
 
     def _load_template(self, tpl_key, tpl_data=None):
         context = RequestContext(HttpRequest())
@@ -382,4 +383,4 @@ class DefaultRenderer(object):
         return form_string
 
     def _render_collapse_button(self):
-        pass
+        return self._load_template('btn_collapse')

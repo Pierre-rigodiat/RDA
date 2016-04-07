@@ -692,14 +692,15 @@ downloadXML = function()
  * AJAX call, get XML data and redirects to download view
  */
 download_xml = function(){
-    $.ajax({
+    /*$.ajax({
         url : "/curate/download_xml",
         type : "GET",
         dataType: "json",
         success : function(data) {
             window.location = "/curate/view-data/download-XML?id="+ data.xml2downloadID
         }
-    });
+    });*/
+    window.location = '/curate/download_xml';
 }
 
 
