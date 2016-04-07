@@ -62,10 +62,6 @@ def resolve_dependencies(request):
     etree.set_default_parser(parser=clean_parser)
 
     xsd_tree = etree.XML(str(object_content.encode('utf-8')))
-    # get the imports
-    imports = xsd_tree.findall("{}import".format(LXML_SCHEMA_NAMESPACE))
-    # get the includes
-    includes = xsd_tree.findall("{}include".format(LXML_SCHEMA_NAMESPACE))
 
     # replace includes/imports by API calls (get dependencies starting by the imports)
     update_dependencies(xsd_tree, dict(zip(schema_locations, dependencies)))
