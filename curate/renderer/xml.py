@@ -30,7 +30,7 @@ class AbstractXmlRenderer(DefaultRenderer):
 
 def get_parent_element(element):
     """
-    Get the parent element (tag is element, not direct parent) of the current element.
+    Get the parent element (tag is element not direct parent) of the current element.
     """
     try:
         parent = SchemaElement.objects().get(children__contains=ObjectId(element.id))
@@ -46,6 +46,7 @@ class XmlRenderer(AbstractXmlRenderer):
     """
 
     def __init__(self, xsd_data):
+        self.isRoot = True;
         super(XmlRenderer, self).__init__(xsd_data)
 
     def render(self, partial=False):
@@ -107,15 +108,15 @@ class XmlRenderer(AbstractXmlRenderer):
 
                 # namespaces
                 parent = get_parent_element(element)
-                if 'xmlns' in element.options and element.options['xmlns'] is not None:
-                    if parent is None or ('xmlns' in parent.options and
-                                          element.options['xmlns'] != parent.options['xmlns']):
+                if parent is not None:
+                    if 'xmlns' in element.options and element.options['xmlns'] is not None:
+                        if 'xmlns' in parent.options and element.options['xmlns'] != parent.options['xmlns']:
+                            xmlns = ' xmlns="{}"'.format(element.options['xmlns'])
+                            content[0] += xmlns
+                else:
+                    if 'xmlns' in element.options and element.options['xmlns'] is not None:
                         xmlns = ' xmlns="{}"'.format(element.options['xmlns'])
                         content[0] += xmlns
-                # add XML Schema instance prefix if root
-                if parent is None:
-                    xsi = ' xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"'
-                    content[0] += xsi
 
                 xml_string += self._render_xml(element_name, content[0], content[1])
 
@@ -154,10 +155,13 @@ class XmlRenderer(AbstractXmlRenderer):
             if 'xmlns' in element.options and element.options['xmlns'] is not None:
                 # check that element isn't declaring the same namespace xmlns=""
                 parent = get_parent_element(element)
-                if 'xmlns' in parent.options and parent.options['xmlns'] is not None and parent.options['xmlns'] == element.options['xmlns']:
+                if 'xmlns' in parent.options \
+                    and parent.options['xmlns'] is not None \
+                    and parent.options['xmlns'] == element.options['xmlns']:
                         xmlns = ''
                 else:  # parent element is in a different namespace
                     if element.options['xmlns'] != '':
+                        # TODO: test ns0 not taken and increment if needed
                         ns_prefix = element.options['ns_prefix'] if element.options['ns_prefix'] is not None else 'ns0'
                         if ns_prefix != '':
                             xmlns = ' xmlns{0}="{1}"'.format(':' + ns_prefix, element.options['xmlns'])
@@ -201,8 +205,16 @@ class XmlRenderer(AbstractXmlRenderer):
                 message = 'render_complex_type: ' + child.tag + ' not handled'
                 self.warnings.append(message)
 
+            # add XML Schema instance prefix if root
+            if self.isRoot:
+                xsi = ' xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"'
+                content[0] += xsi
+                self.isRoot = False
+
             content[0] = ' '.join([content[0], tmp_content[0]]).strip()
             content[1] += tmp_content[1]
+
+
 
         return content
 
@@ -326,7 +338,14 @@ class XmlRenderer(AbstractXmlRenderer):
                 elif child.tag == 'complex_type': # implicit extension
                     if str(child.pk) == choice_values[iter_element]:
                         tmp_content = self.render_complex_type(child)
-                        tmp_content[0] += ' xsi:type="{}"'.format(child.options['name'])
+                        if 'ns_prefix' in child.options and child.options['ns_prefix'] is not None:
+                            ns_prefix = child.options['ns_prefix']
+                            xmlns = ' xmlns{0}="{1}"'.format(':' + ns_prefix, child.options['xmlns'])
+                            ns_prefix += ":"
+                        else:
+                            ns_prefix = ''
+                            xmlns = ''
+                        tmp_content[0] += ' xsi:type="{0}{1}" {2}'.format(ns_prefix, child.options['name'], xmlns)
                 else:
                     message = 'render_choice: ' + child.tag + ' not handled'
                     self.warnings.append(message)

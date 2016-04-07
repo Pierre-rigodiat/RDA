@@ -100,7 +100,8 @@ def get_nodes_xpath(elements, xml_tree):
                 xml_tree_str = etree.tostring(xml_tree)
                 namespaces = common.get_namespaces(BytesIO(str(xml_tree_str)))
                 ref = element.attrib['ref']
-                ref_element, ref_tree, schema_location = get_ref_element(xml_tree, ref, namespaces, element_tag)
+                ref_element, ref_tree, schema_location = get_ref_element(xml_tree, ref, namespaces,
+                                                                         element_tag, schema_location)
                 if ref_element is not None:
                     xpaths.append({'name': ref_element.attrib.get('name'), 'element': ref_element})
         else:
@@ -466,7 +467,7 @@ def generate_form(request):
         raise Exception(exception_message)
 
 
-def get_ref_element(xml_tree, ref, namespaces, element_tag):
+def get_ref_element(xml_tree, ref, namespaces, element_tag, schema_location=None):
     """
 
     :param xml_tree:
@@ -478,7 +479,6 @@ def get_ref_element(xml_tree, ref, namespaces, element_tag):
         - xml_tree: xml tree where element was found
         - schema_location: location of the schema where the element was found
     """
-    # refElement = None
     if ':' in ref:
         # split the ref element
         ref_split = ref.split(":")
@@ -597,7 +597,8 @@ def generate_element(request, element, xml_tree, choice_info=None, full_path="",
     # get the name of the element, go find the reference if there's one
     if 'ref' in element.attrib:  # type is a reference included in the document
         ref = element.attrib['ref']
-        ref_element, xml_tree, schema_location = get_ref_element(xml_tree, ref, namespaces, element_tag)
+        ref_element, xml_tree, schema_location = get_ref_element(xml_tree, ref, namespaces,
+                                                                 element_tag, schema_location)
         if ref_element is not None:
             text_capitalized = ref_element.attrib.get('name')
             element = ref_element
@@ -704,7 +705,6 @@ def generate_element(request, element, xml_tree, choice_info=None, full_path="",
     if element_tag == "attribute" and target_namespace is not None:
         for prefix, ns in namespaces.iteritems():
             if ns == target_namespace:
-                # tag_ns_prefix = ' ns_prefix="{0}" '.format(prefix)
                 ns_prefix = prefix
                 break
 
@@ -1644,6 +1644,7 @@ def generate_simple_type(request, element, xml_tree, full_path, edit_data_tree=N
         'children': [],
         'options': {
             'name': element.attrib['name'] if 'name' in element.attrib else '',
+            'xmlns': get_element_namespace(element, xml_tree),
         },
     }
 
@@ -1756,9 +1757,9 @@ def generate_complex_type(request, element, xml_tree, full_path, edit_data_tree=
         'children': [],
         'options': {
             'name': element.attrib['name'] if 'name' in element.attrib else '',
+            'xmlns': get_element_namespace(element, xml_tree),
         },
     }
-
     # remove the annotations
     remove_annotations(element)
 
@@ -1981,8 +1982,6 @@ def generate_choice_extensions(request, element, xml_tree, choice_info=None, ful
 
                     if ':' in choiceChild.attrib.get('ref'):
                         opt_label = opt_label.split(':')[1]
-
-                db_child['options']['name'] = opt_label
 
                 # look for active choice when editing
                 # FIXME: fix path

@@ -408,8 +408,13 @@ class ListRenderer(AbstractListRenderer):
                 if element_html != '':
                     sub_content += self._render_ul(element_html, str(child.pk), (not is_selected_element))
 
-            html_content += 'Choice ' + self._render_select('', 'choice', options) + buttons
-            html_content += sub_content
+            # the choice contains only one element
+            if len(children[iter_element]) == 1:
+                html_content += sub_content
+            # the contains a list
+            else:
+                html_content += 'Choice ' + self._render_select('', 'choice', options) + buttons
+                html_content += sub_content
 
             final_html += render_li(html_content, element.pk, iter_element)
 
