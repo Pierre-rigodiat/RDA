@@ -2286,6 +2286,8 @@ def generate_restriction(request, element, xml_tree, full_path="", edit_data_tre
                     'value': enum.attrib.get('value')
                 }
 
+                # remove extra white spaces
+                default_value = default_value.strip()
                 if default_value is not None and enum.attrib.get('value') == default_value:
                     entry = (enum.attrib.get('value'), enum.attrib.get('value'), True)
                     # db_child['tag'] = 'enumeration/selected'
