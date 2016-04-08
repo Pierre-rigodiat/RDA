@@ -279,27 +279,23 @@ class DefaultRenderer(object):
         context.update(data)
         return self.templates['form_error'].render(context)
 
-    def _render_input(self, input_id, value, placeholder, title):
+    def _render_input(self, element):
         """
 
-        :param value:
-        :param placeholder:
-        :param title:
+        :param element
         :return:
         """
+        placeholder = ''
+        if 'placeholder' in element.options:
+            placeholder = element.options['placeholder']
 
-        if type(value) not in [str, unicode]:
-            raise TypeError('First param (value) should be a str (' + str(type(value)) + ' given)')
-
-        if type(placeholder) not in [str, unicode]:
-            raise TypeError('Second param (placeholder) should be a str (' + str(type(value)) + ' given)')
-
-        if type(title) not in [str, unicode]:
-            raise TypeError('Third param (title) should be a str (' + str(type(value)) + ' given)')
+        title = ''
+        if 'title' in element.options:
+            title = element.options['title']
 
         data = {
-            'id': input_id,
-            'value': value,
+            'id': element.pk,
+            'value': element.value,
             'placeholder': placeholder,
             'title': title
         }
