@@ -2026,15 +2026,16 @@ def generate_choice_extensions(request, element, xml_tree, choice_info=None, ful
                         opt_label = opt_label.split(':')[1]
 
                 # look for active choice when editing
-                # FIXME: fix path
-                element_path = '{0}[@xsi:type="{1}"]'.format(full_path, opt_label)
-
                 if request.session['curate_edit']:
                     # get the schema namespaces
                     xml_tree_str = etree.tostring(xml_tree)
                     namespaces = common.get_namespaces(BytesIO(str(xml_tree_str)))
                     # add the XSI prefix used by extensions
                     namespaces['xsi'] = "http://www.w3.org/2001/XMLSchema-instance"
+                    target_namespace, target_namespace_prefix = common.get_target_namespace(namespaces, xml_tree)
+                    # TODO: create prefix if no prefix?
+                    ns_prefix = target_namespace_prefix + ":" if target_namespace is not None else ""
+                    element_path = '{0}[@xsi:type="{1}{2}"]'.format(full_path, ns_prefix, opt_label)
                     if len(edit_data_tree.xpath(element_path, namespaces=namespaces)) != 0:
                         db_child['value'] = counter
 

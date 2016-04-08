@@ -46,15 +46,20 @@ def getValidityErrorsForMDCS(xmlTree, type):
             elif ' ' in el_include.attrib['schemaLocation']:
                 errors.append("The use of namespace in include elements is not supported.")
 
-    # Templates Tests
+    # TargetNamespace test
+    root = xmlTree.getroot()
+    if 'targetNamespace' in root.attrib:
+        target_namespace = root.attrib['targetNamespace']
+        if target_namespace not in root.nsmap.values():
+            errors.append("The use of a targetNamespace without an associated prefix is not supported.")
 
+    # Templates Tests
     if type == "Template":
         # Tests for templates
-        if len(elements) < 1 :
+        if len(elements) < 1:
             errors.append("Only templates with at least one root element are supported.")
 
     # Types Tests
-    
     elif type == "Type":        
         elements = xmlTree.findall("*")
         if len(elements) > 0:
