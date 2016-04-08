@@ -69,7 +69,7 @@ class ListRenderer(AbstractListRenderer):
         elif self.data.tag == 'choice':
             html_content += self.render_choice(self.data)
         elif self.data.tag == 'sequence':
-            html_content += self.render_sequence(self.data)
+            html_content += self.render_sequence(self.data, partial)
         else:
             message = 'render: ' + self.data.tag + ' not handled'
             self.warnings.append(message)
@@ -252,10 +252,13 @@ class ListRenderer(AbstractListRenderer):
 
         return final_html
 
-    def render_sequence(self, element):
+    def render_sequence(self, element, force_full_display=False):
         """
 
-        :param element:
+        Parameters:
+            element:
+            force_full_display:
+
         :return:
         """
         children = {}
@@ -306,18 +309,17 @@ class ListRenderer(AbstractListRenderer):
                     self.warnings.append(message)
 
             if children_number == 0:
-                html_content = element.options["name"] + buttons
                 li_class = 'removed'
             else:
                 li_class = str(element.pk)
 
                 for child_index in xrange(len(sub_elements)):
-                    if children_number > 1:
+                    if children_number > 1 or force_full_display:
                         html_content += self._render_ul(sub_elements[child_index], None)
                     else:
                         html_content += sub_elements[child_index]
 
-            if children_number != 1:
+            if children_number != 1 or force_full_display:
                 final_html += render_li(
                     self._render_collapse_button() + 'Sequence ' + buttons + html_content,
                     li_class,
