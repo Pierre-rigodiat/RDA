@@ -26,6 +26,7 @@ import json
 import xmltodict
 from django.contrib import messages
 
+from curate.models import SchemaElement
 from curate.renderer.xml import XmlRenderer
 from mgi.models import Template, TemplateVersion, XML2Download, FormData,\
     XMLdata, FormElement, XMLElement
@@ -419,7 +420,12 @@ def start_curate(request):
 def save_xml_data_to_db(request):
     form_data_id = request.session['curateFormData']
     form_data = FormData.objects.get(pk=form_data_id)
-    xml_string = form_data.xml_data
+
+    form_id = request.session['form_id']
+    root_element = SchemaElement.objects.get(pk=form_id)
+
+    xml_renderer = XmlRenderer(root_element)
+    xml_string = xml_renderer.render()
 
     # xmlString = request.session['xmlString']
     # template_id = request.session['currentTemplateID']
@@ -460,5 +466,3 @@ def save_xml_data_to_db(request):
     except Exception, e:
         message = e.message.replace('"', '\'')
         return HttpResponseBadRequest(message)
-
-    
