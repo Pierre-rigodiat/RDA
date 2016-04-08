@@ -2,7 +2,7 @@
 """
 from django.template import loader
 from os.path import join
-from curate.renderer import render_select, render_li, render_collapse_button, DefaultRenderer
+from curate.renderer import DefaultRenderer
 from curate.models import SchemaElement
 from bson.objectid import ObjectId
 
@@ -29,8 +29,10 @@ class AbstractXmlRenderer(DefaultRenderer):
 
 
 def get_parent_element(element):
-    """
-    Get the parent element (tag is element not direct parent) of the current element.
+    """Get the parent element (tag is element not direct parent) of the current element.
+
+    Parameters:
+        element:
     """
     try:
         parent = SchemaElement.objects().get(children__contains=ObjectId(element.id))
@@ -46,7 +48,7 @@ class XmlRenderer(AbstractXmlRenderer):
     """
 
     def __init__(self, xsd_data):
-        self.isRoot = True;
+        self.isRoot = True
         super(XmlRenderer, self).__init__(xsd_data)
 
     def render(self, partial=False):

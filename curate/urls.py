@@ -15,9 +15,7 @@
 ################################################################################
 
 from django.conf.urls import patterns, url
-
-from curate import views
-from curate import ajax
+from curate import views, ajax
 
 urlpatterns = patterns(
     '',
@@ -55,6 +53,7 @@ urlpatterns = patterns(
     url(r'^delete-form', 'curate.ajax.delete_form'),
     url(r'^cancel-form', 'curate.ajax.cancel_form'),
     url(r'^change-owner-form', 'curate.ajax.change_owner_form'),
+
     url(r'^generate-bis', ajax.gen_abs),
     url(r'^remove-bis', ajax.rem_bis)
 )

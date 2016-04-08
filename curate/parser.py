@@ -4,7 +4,7 @@ import logging
 from os.path import join
 
 from curate.models import SchemaElement
-from curate.renderer import render_buttons, render_collapse_button, \
+from curate.renderer import render_buttons, \
     render_input, render_ul, \
     render_select
 from mgi.models import FormElement, XMLElement, FormData, Module, Template
@@ -541,6 +541,7 @@ def generate_element(request, element, xml_tree, choice_info=None, full_path="",
         full_path:
         edit_data_tree:
         schema_location:
+        force_generation:
 
     Returns:
         JSON data
@@ -791,7 +792,8 @@ def generate_element(request, element, xml_tree, choice_info=None, full_path="",
         if CURATE_COLLAPSE:
             # the type is complex, can be collapsed
             if element_type is not None and element_type.tag == "{0}complexType".format(LXML_SCHEMA_NAMESPACE):
-                li_content += render_collapse_button()
+                # li_content += render_collapse_button()
+                li_content += ''
 
         label = app_info['label'] if 'label' in app_info else text_capitalized
         label = label if label is not None else ''
@@ -844,6 +846,10 @@ def generate_element(request, element, xml_tree, choice_info=None, full_path="",
 
                     db_child = {
                         'tag': 'input',
+                        'options': {
+                            'placeholder': placeholder,
+                            'tooltip': tooltip
+                        },
                         'value': default_value
                     }
                     db_elem_iter['children'].append(db_child)
@@ -1030,7 +1036,11 @@ def generate_element_absent(request, element, xml_doc_tree, form_element, schema
 
             db_child = {
                 'tag': 'input',
-                'value': ''
+                'options': {
+                    'placeholder': placeholder,
+                    'tooltip': tooltip
+                },
+                'value': default_value
             }
 
             db_element['children'].append(db_child)
@@ -1066,6 +1076,7 @@ def generate_sequence(request, element, xml_tree, choice_info=None, full_path=""
         full_path:
         edit_data_tree:
         schema_location:
+        force_generation:
 
     Returns:       HTML string representing a sequence
     """
@@ -1206,7 +1217,8 @@ def generate_sequence(request, element, xml_tree, choice_info=None, full_path=""
             li_content = ''
 
             if len(list(element)) > 0 and CURATE_COLLAPSE:
-                li_content += render_collapse_button()
+                # li_content += render_collapse_button()
+                li_content += ''
 
             li_content += text
             li_content += render_buttons(add_button, delete_button)
@@ -1696,7 +1708,7 @@ def generate_simple_type(request, element, xml_tree, full_path, edit_data_tree=N
 
             db_child = {
                 'tag': 'list',
-                'value': '',
+                'value': default_value,
                 'children': []
             }
         elif child.tag == "{0}union".format(LXML_SCHEMA_NAMESPACE):
@@ -1705,7 +1717,7 @@ def generate_simple_type(request, element, xml_tree, full_path, edit_data_tree=N
 
             db_child = {
                 'tag': 'union',
-                'value': None,
+                'value': default_value,
                 'children': []
             }
         else:

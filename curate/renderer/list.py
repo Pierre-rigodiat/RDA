@@ -1,16 +1,11 @@
 """
 """
 import logging
-import requests
 from types import *
-
 from django.http.request import HttpRequest
 from django.template import loader
-
 from os.path import join
-
-from curate.renderer import render_li, render_buttons, render_collapse_button, \
-    DefaultRenderer
+from curate.renderer import render_li, render_buttons, DefaultRenderer
 from modules import get_module_view
 
 logger = logging.getLogger(__name__)
@@ -55,8 +50,6 @@ class ListRenderer(AbstractListRenderer):
     """
 
     def __init__(self, xsd_data):
-        self.warnings = []
-
         super(ListRenderer, self).__init__(xsd_data)
 
     def render(self, partial=False):
@@ -125,6 +118,7 @@ class ListRenderer(AbstractListRenderer):
 
         for child_key in child_keys:
             # li_class = ''
+            # FIXME Use tuples instead
             sub_elements = []
             sub_inputs = []
 
@@ -136,7 +130,7 @@ class ListRenderer(AbstractListRenderer):
                     sub_elements.append(self.render_simple_type(child))
                     sub_inputs.append(False)
                 elif child.tag == 'input':
-                    sub_elements.append(self._render_input(child.pk, child.value, '', ''))
+                    sub_elements.append(self._render_input(child))
                     sub_inputs.append(True)
                 elif child.tag == 'module':
                     sub_elements.append(self.render_module(child))
@@ -155,7 +149,7 @@ class ListRenderer(AbstractListRenderer):
                     if sub_inputs[child_index]:
                         html_content += element.options["name"] + sub_elements[child_index] + buttons
                     else:
-                        html_content += render_collapse_button() + element.options["name"] + buttons
+                        html_content += self._render_collapse_button() + element.options["name"] + buttons
                         html_content += self._render_ul(sub_elements[child_index], None)
 
             final_html += render_li(html_content, li_class, child_key)
@@ -257,7 +251,7 @@ class ListRenderer(AbstractListRenderer):
                     sub_elements.append(self.render_simple_type(child))
                     sub_inputs.append(False)
                 elif child.tag == 'input':
-                    sub_elements.append(self._render_input(child.pk, child.value, '', ''))
+                    sub_elements.append(self._render_input(child))
                     sub_inputs.append(True)
                 else:
                     message = 'render_attribute: ' + child.tag + ' not handled'
@@ -272,7 +266,7 @@ class ListRenderer(AbstractListRenderer):
                     if sub_inputs[child_index]:
                         html_content += element.options["name"] + sub_elements[child_index] + buttons
                     else:
-                        html_content += render_collapse_button() + element.options["name"] + buttons
+                        html_content += self._render_collapse_button() + element.options["name"] + buttons
                         html_content += self._render_ul(sub_elements[child_index], None)
 
             final_html += render_li(html_content, li_class, child_key)
@@ -336,7 +330,7 @@ class ListRenderer(AbstractListRenderer):
                 li_class = 'removed'
             else:
                 li_class = str(element.pk)
-                html_content = render_collapse_button() + 'Sequence ' + buttons
+                html_content = self._render_collapse_button() + 'Sequence ' + buttons
                 for child_index in xrange(len(sub_elements)):
                     html_content += self._render_ul(sub_elements[child_index], None)
 
@@ -350,7 +344,7 @@ class ListRenderer(AbstractListRenderer):
         :param element:
         :return:
         """
-        html_content = ''
+        # html_content = ''
         children = {}
         child_keys = []
         choice_values = {}
@@ -473,7 +467,7 @@ class ListRenderer(AbstractListRenderer):
             if child.tag == 'restriction':
                 html_content += self.render_restriction(child)
             elif child.tag == 'list':
-                html_content += self._render_input(child.pk, child.value, '', '')
+                html_content += self._render_input(child)
             elif child.tag == 'attribute':
                 html_content += self.render_attribute(child)
             elif child.tag == 'module':
@@ -494,7 +488,7 @@ class ListRenderer(AbstractListRenderer):
 
         for child in element.children:
             if child.tag == 'input':
-                html_content += self._render_input(child.pk, child.value, '', '')
+                html_content += self._render_input(child)
             elif child.tag == 'attribute':
                 html_content += self.render_attribute(child)
             elif child.tag == 'simple_type':
@@ -522,7 +516,7 @@ class ListRenderer(AbstractListRenderer):
             elif child.tag == 'simple_type':
                 subhtml += self.render_simple_type(child)
             elif child.tag == 'input':
-                subhtml += self._render_input(child.pk, child.value, '', '')
+                subhtml += self._render_input(child)
             else:
                 message = 'render_restriction: ' + child.tag + ' not handled'
                 self.warnings.append(message)

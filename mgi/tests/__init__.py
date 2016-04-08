@@ -60,16 +60,26 @@ class VariableTypesGenerator(object):
         ]
 
 
-# FIXME Correct this object before commiting
 class DataHandler(object):
+    """
+    """
 
-    def __init__(self, filename):
-        # FIXME only use dirname
-        self.dirname = join(SITE_ROOT, filename)
-        self.filename = join(SITE_ROOT, filename)
+    def __init__(self, dirname):
+        """
 
-    @staticmethod
-    def _get_file_content_as_xml(filename):
+        Parameters:
+             - dirname:
+        """
+        self.dirname = join(SITE_ROOT, dirname)
+
+    def get_xml(self, filename, extension='xml'):
+        """
+
+        :param filename:
+        :param extension:
+        :return:
+        """
+        filename = join(self.dirname, filename + '.' + extension)
         file_string = ''
         is_in_tag = False
 
@@ -92,32 +102,31 @@ class DataHandler(object):
 
         return etree.fromstring(file_string)
 
-    def get_xsd(self):
-        xsd_name = self.filename + '.xsd'
-        return self._get_file_content_as_xml(xsd_name)
+    def get_xsd(self, filename):
+        """
 
-    def get_xsd2(self, filename):
-        self.filename = join(self.dirname, filename)
-        return self.get_xsd()
+        :param filename:
+        :return:
+        """
+        return self.get_xml(filename, 'xsd')
 
-    def get_xml(self, filename):
-        self.filename = join(self.dirname, filename)
-        xml_name = self.filename + '.xml'
-        return self._get_file_content_as_xml(xml_name)
+    def get_html(self, filename):
+        """
 
-    def get_html(self):
-        html_name = self.filename + '.html'
-        return self._get_file_content_as_xml(html_name)
+        :param filename:
+        :return:
+        """
+        return self.get_xml(filename, 'html')
 
-    def get_html2(self, filename):
-        self.filename = join(self.dirname, filename)
-        return self.get_html()
+    def get_json(self, filename):
+        """
 
-    def get_json(self, filename=''):
-        self.filename = join(self.dirname, filename)
-        html_name = self.filename + '.json'
+        :param filename:
+        :return:
+        """
+        filename = join(self.dirname, filename + '.json')
 
-        with open(html_name, 'r') as json_file:
+        with open(filename, 'r') as json_file:
             json_data = json.load(json_file, encoding='utf-8')
 
         return convert(json_data)

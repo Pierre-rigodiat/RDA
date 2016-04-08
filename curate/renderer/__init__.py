@@ -225,17 +225,15 @@ def render_buttons(add_button, delete_button):
     return form_string
 
 
-def render_collapse_button():
-    """
-
-    :return:
-    """
-    return load_template('buttons/collapse.html')
-
-
 class DefaultRenderer(object):
 
-    def __init__(self, xsd_data, template_list):
+    def __init__(self, xsd_data, template_list=None):
+        """ Default renderer for the HTML form
+
+        Parameters:
+            - xsd_data:
+            - template_list:
+        """
         self.data = xsd_data
         self.warnings = []
 
@@ -245,11 +243,14 @@ class DefaultRenderer(object):
 
             'input': loader.get_template(join(default_renderer_path, 'inputs', 'input.html')),
             'select': loader.get_template(join(default_renderer_path, 'inputs', 'select.html')),
+
             'btn_add': loader.get_template(join(default_renderer_path, 'buttons', 'add.html')),
-            'btn_del': loader.get_template(join(default_renderer_path, 'buttons', 'delete.html'))
+            'btn_del': loader.get_template(join(default_renderer_path, 'buttons', 'delete.html')),
+            'btn_collapse': loader.get_template(join(default_renderer_path, 'buttons', 'collapse.html'))
         }
 
-        self.templates.update(template_list)
+        if template_list is not None:
+            self.templates.update(template_list)
 
     def _load_template(self, tpl_key, tpl_data=None):
         context = RequestContext(HttpRequest())
@@ -278,27 +279,23 @@ class DefaultRenderer(object):
         context.update(data)
         return self.templates['form_error'].render(context)
 
-    def _render_input(self, input_id, value, placeholder, title):
+    def _render_input(self, element):
         """
 
-        :param value:
-        :param placeholder:
-        :param title:
+        :param element
         :return:
         """
+        placeholder = ''
+        if 'placeholder' in element.options:
+            placeholder = element.options['placeholder']
 
-        if type(value) not in [str, unicode]:
-            raise TypeError('First param (value) should be a str (' + str(type(value)) + ' given)')
-
-        if type(placeholder) not in [str, unicode]:
-            raise TypeError('Second param (placeholder) should be a str (' + str(type(value)) + ' given)')
-
-        if type(title) not in [str, unicode]:
-            raise TypeError('Third param (title) should be a str (' + str(type(value)) + ' given)')
+        title = ''
+        if 'title' in element.options:
+            title = element.options['title']
 
         data = {
-            'id': input_id,
-            'value': value,
+            'id': element.pk,
+            'value': element.value,
             'placeholder': placeholder,
             'title': title
         }
@@ -382,4 +379,4 @@ class DefaultRenderer(object):
         return form_string
 
     def _render_collapse_button(self):
-        pass
+        return self._load_template('btn_collapse')
