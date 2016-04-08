@@ -62,7 +62,7 @@ class XmlRenderer(AbstractXmlRenderer):
         if self.data.tag == 'element':
             return self.render_element(self.data)
         elif self.data.tag == 'choice':
-            return self.render_choice(self.data)
+            return ''.join(self.render_choice(self.data))
         else:
             message = 'render: ' + self.data.tag + ' not handled'
             self.warnings.append(message)
