@@ -96,14 +96,26 @@ class XmlRenderer(AbstractXmlRenderer):
             for child in children[child_key]:
                 content = ['', '']
 
+                # add XML Schema instance prefix if root
+                if self.isRoot:
+                    xsi = ' xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"'
+                    content[0] += xsi
+                    self.isRoot = False
+
                 if child.tag == 'complex_type':
-                    content = self.render_complex_type(child)
+                    tmp_content = self.render_complex_type(child)
+                    content[0] += tmp_content[0]
+                    content[1] += tmp_content[1]
                 elif child.tag == 'input':
-                    content[1] = child.value if child.value is not None else ''
+                    tmp_content = child.value if child.value is not None else ''
+                    content[1] += tmp_content
                 elif child.tag == 'simple_type':
-                    content = self.render_simple_type(child)
+                    tmp_content = self.render_simple_type(child)
+                    content[0] += tmp_content[0]
+                    content[1] += tmp_content[1]
                 elif child.tag == 'module':
-                    content[1] = self.render_module(child)
+                    tmp_content = self.render_module(child)
+                    content[1] += tmp_content
                 else:
                     message = 'render_element: ' + child.tag + ' not handled'
                     self.warnings.append(message)
@@ -206,12 +218,6 @@ class XmlRenderer(AbstractXmlRenderer):
             else:
                 message = 'render_complex_type: ' + child.tag + ' not handled'
                 self.warnings.append(message)
-
-            # add XML Schema instance prefix if root
-            if self.isRoot:
-                xsi = ' xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"'
-                content[0] += xsi
-                self.isRoot = False
 
             content[0] = ' '.join([content[0], tmp_content[0]]).strip()
             content[1] += tmp_content[1]
@@ -336,7 +342,14 @@ class XmlRenderer(AbstractXmlRenderer):
                 elif child.tag == 'simple_type': # implicit extension
                     if str(child.pk) == choice_values[iter_element]:
                         tmp_content = self.render_simple_type(child)
-                        tmp_content[0] += ' xsi:type="{}"'.format(child.options['name'])
+                        if 'ns_prefix' in child.options and child.options['ns_prefix'] is not None:
+                            ns_prefix = child.options['ns_prefix']
+                            xmlns = ' xmlns{0}="{1}"'.format(':' + ns_prefix, child.options['xmlns'])
+                            ns_prefix += ":"
+                        else:
+                            ns_prefix = ''
+                            xmlns = ''
+                        tmp_content[0] += ' xsi:type="{0}{1}" {2}'.format(ns_prefix, child.options['name'], xmlns)
                 elif child.tag == 'complex_type': # implicit extension
                     if str(child.pk) == choice_values[iter_element]:
                         tmp_content = self.render_complex_type(child)
