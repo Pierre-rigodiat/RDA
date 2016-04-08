@@ -240,6 +240,7 @@ class DefaultRenderer(object):
         default_renderer_path = join('renderer', 'default')
         self.templates = {
             'form_error': loader.get_template(join(default_renderer_path, 'form-error.html')),
+            'warning': loader.get_template(join(default_renderer_path, 'warning.html')),
 
             'input': loader.get_template(join(default_renderer_path, 'inputs', 'input.html')),
             'select': loader.get_template(join(default_renderer_path, 'inputs', 'select.html')),
@@ -278,6 +279,18 @@ class DefaultRenderer(object):
 
         context.update(data)
         return self.templates['form_error'].render(context)
+
+    def _render_warnings(self):
+        html_content = ''
+
+        for warning in self.warnings:
+            data = {
+                'message': warning
+            }
+
+            html_content += self._load_template('warning', data)
+
+        return html_content
 
     def _render_input(self, element):
         """

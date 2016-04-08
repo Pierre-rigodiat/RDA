@@ -75,7 +75,7 @@ class ListRenderer(AbstractListRenderer):
             self.warnings.append(message)
 
         if not partial:
-            return self._render_ul(html_content, str(self.data.pk))
+            return self._render_warnings() + self._render_ul(html_content, str(self.data.pk))
         else:
             return html_content
 
@@ -189,27 +189,6 @@ class ListRenderer(AbstractListRenderer):
         :param element:
         :return:
         """
-        # html_content = element.options["name"]
-        # children = []
-        #
-        # for child in element.children:
-        #     if child.tag == 'elem-iter':
-        #         children += child.children
-        #     else:
-        #         message = 'render_attribute (iteration): ' + child.tag + ' not handled'
-        #         self.warnings.append(message)
-        #
-        # for child in children:
-        #     if child.tag == 'simple_type':
-        #         html_content += self.render_simple_type(child)
-        #     elif child.tag == 'input':
-        #         html_content += self._render_input(child.pk, child.value, '', '')
-        #     else:
-        #         message = 'render_attribute: ' + child.tag + ' not handled'
-        #         self.warnings.append(message)
-        #
-        # return render_li(html_content, '', element.pk)
-
         children = {}
         child_keys = []
         children_number = 0

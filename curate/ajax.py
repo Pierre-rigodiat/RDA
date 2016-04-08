@@ -1219,6 +1219,15 @@ def gen_abs(request):
 
     xml_element = xml_doc_tree.xpath(xsd_xpath, namespaces=namespaces)[0]
 
+    if 'min' in schema_element.options:
+        xml_element.attrib['minOccurs'] = str(schema_element.options['min'])
+
+    if 'max' in schema_element.options:
+        if schema_element.options['max'] != -1:
+            xml_element.attrib['maxOccurs'] = str(schema_element.options['max'])
+        else:
+            xml_element.attrib['maxOccurs'] = "unbounded"
+
     # generating a choice, generate the parent element
     if schema_element.tag == "choice":
         # can use generate_element to generate a choice never generated
