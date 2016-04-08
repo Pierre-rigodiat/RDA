@@ -1669,6 +1669,18 @@ def generate_simple_type(request, element, xml_tree, full_path, edit_data_tree=N
     # remove the annotations
     remove_annotations(element)
 
+    # get namespace prefix to reference extension in xsi:type
+    xml_tree_str = etree.tostring(xml_tree)
+    namespaces = common.get_namespaces(BytesIO(str(xml_tree_str)))
+    target_namespace, target_namespace_prefix = common.get_target_namespace(namespaces, xml_tree)
+    ns_prefix = None
+    if target_namespace is not None:
+        for prefix, ns in namespaces.iteritems():
+            if ns == target_namespace:
+                ns_prefix = prefix
+                break
+    db_element['options']['ns_prefix'] = ns_prefix
+
     if has_module(element):
         # XSD xpath: /element/complexType/sequence
         xsd_xpath = xml_tree.getpath(element)
@@ -1780,6 +1792,18 @@ def generate_complex_type(request, element, xml_tree, full_path, edit_data_tree=
     }
     # remove the annotations
     remove_annotations(element)
+
+    # get namespace prefix to reference extension in xsi:type
+    xml_tree_str = etree.tostring(xml_tree)
+    namespaces = common.get_namespaces(BytesIO(str(xml_tree_str)))
+    target_namespace, target_namespace_prefix = common.get_target_namespace(namespaces, xml_tree)
+    ns_prefix = None
+    if target_namespace is not None:
+        for prefix, ns in namespaces.iteritems():
+            if ns == target_namespace:
+                ns_prefix = prefix
+                break
+    db_element['options']['ns_prefix'] = ns_prefix
 
     if has_module(element):
         # XSD xpath: /element/complexType/sequence
