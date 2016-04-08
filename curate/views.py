@@ -403,6 +403,7 @@ def start_curate(request):
                 })
                 return HttpResponse(template.render(context))
 
+
 ################################################################################
 #
 # Function Name: save_xml_data_to_db(request)
@@ -416,54 +417,48 @@ def start_curate(request):
 ################################################################################
 @permission_required(content_type=RIGHTS.curate_content_type, permission=RIGHTS.curate_access, login_url='/login')
 def save_xml_data_to_db(request):
-    xmlString = request.session['xmlString']
-    templateID = request.session['currentTemplateID']
+    form_data_id = request.session['curateFormData']
+    form_data = FormData.objects.get(pk=form_data_id)
+    xml_string = form_data.xml_data
 
+    # xmlString = request.session['xmlString']
+    # template_id = request.session['currentTemplateID']
+    template_id = form_data.template
+
+    # Parse data from form
     form = SaveDataForm(request.POST)
+    if not form.data['title'].lower().endswith('.xml'):
+        form.data['title'] += ".xml"
 
-    if form.is_valid():
-        if xmlString != "":
-            try:
-                # get form data from the database
-                form_data_id = request.session['curateFormData']
-                form_data = FormData.objects.get(pk=ObjectId(form_data_id))
-                if not form.data['title'].lower().endswith('.xml'):
-                    form.data['title'] += ".xml"
-                # update data if id is present
-                if form_data.xml_data_id is not None:
-                    XMLdata.update_content(form_data.xml_data_id, xmlString, title=form.data['title'])
-                else:
-                    #create new data otherwise
-                    newJSONData = XMLdata(schemaID=templateID, xml=xmlString, title=form.data['title'], iduser=str(request.user.id))
-                    newJSONData.save()
-                # delete form data
-                try:
-                    form_data = FormData.objects().get(pk=form_data_id)
-                    # cascade delete references
-                    for form_element_id in form_data.elements.values():
-                        try:
-                            form_element = FormElement.objects().get(pk=form_element_id)
-                            if form_element.xml_element is not None:
-                                try:
-                                    xml_element = XMLElement.objects().get(pk=str(form_element.xml_element.id))
-                                    xml_element.delete()
-                                except:
-                                    # raise an exception when element not found
-                                    pass
-                            form_element.delete()
-                        except:
-                            # raise an exception when element not found
-                            pass
-                    form_data.delete()
-                except Exception, e:
-                    return HttpResponseBadRequest('Unable to save data.')
-                return HttpResponse('ok')
-            except Exception, e:
-                message = e.message.replace('"', '\'')
-                return HttpResponseBadRequest(message)
+    if not form.is_valid():
+        return HttpResponseBadRequest('Invalid form name')
+
+    if xml_string == "":
+        return HttpResponseBadRequest('No XML data found')
+
+    try:
+        # update data if id is present
+        if form_data.xml_data_id is not None:
+            XMLdata.update_content(
+                form_data.xml_data_id,
+                xml_string,
+                title=form.data['title']
+            )
         else:
-            return HttpResponseBadRequest('No data to save.')
-    else:
-        return HttpResponseBadRequest('Invalid title.')
+            # create new data otherwise
+            xml_data = XMLdata(
+                schemaID=template_id,
+                xml=xml_string,
+                title=form.data['title'],
+                iduser=str(request.user.id)
+            )
+            xml_data.save()
+
+        form_data.delete()
+
+        return HttpResponse('ok')
+    except Exception, e:
+        message = e.message.replace('"', '\'')
+        return HttpResponseBadRequest(message)
 
     
