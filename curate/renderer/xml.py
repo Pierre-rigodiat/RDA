@@ -98,7 +98,7 @@ class XmlRenderer(AbstractXmlRenderer):
 
                 # add XML Schema instance prefix if root
                 if self.isRoot:
-                    xsi = ' xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"'
+                    xsi = ' xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
                     content[0] += xsi
                     self.isRoot = False
 
