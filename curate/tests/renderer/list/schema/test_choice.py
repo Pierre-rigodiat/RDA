@@ -22,8 +22,6 @@ class ChoiceCreateSchemaTestSuite(SimpleTestCase):
         html_files_path = join(HTML_FILES_PATH, 'choice')
         self.html_handler = DataHandler(html_files_path)
 
-        # self.client = Client()
-
         engine = import_module('django.contrib.sessions.backends.db')
         session = engine.SessionStore()
         session.save()
@@ -40,6 +38,10 @@ class ChoiceCreateSchemaTestSuite(SimpleTestCase):
         form_data.save()
 
         session['curateFormData'] = str(form_data.pk)
+        session['nb_html_tags'] = 0
+        session['implicit_extension'] = True
+        session['mapTagID'] = {}
+        session['nbChoicesID'] = 0
         session.save()
 
     # def test_any_basic(self):

@@ -292,6 +292,7 @@ class ListRenderer(AbstractListRenderer):
         for child_key in child_keys:
             # li_class = ''
             sub_elements = []
+            html_content = ''
 
             for child in children[child_key]:
                 if child.tag == 'element':
@@ -309,11 +310,21 @@ class ListRenderer(AbstractListRenderer):
                 li_class = 'removed'
             else:
                 li_class = str(element.pk)
-                html_content = self._render_collapse_button() + 'Sequence ' + buttons
-                for child_index in xrange(len(sub_elements)):
-                    html_content += self._render_ul(sub_elements[child_index], None)
 
-            final_html += render_li(html_content, li_class, child_key)
+                for child_index in xrange(len(sub_elements)):
+                    if children_number > 1:
+                        html_content += self._render_ul(sub_elements[child_index], None)
+                    else:
+                        html_content += sub_elements[child_index]
+
+            if children_number != 1:
+                final_html += render_li(
+                    self._render_collapse_button() + 'Sequence ' + buttons + html_content,
+                    li_class,
+                    child_key
+                )
+            else:
+                final_html += html_content
 
         return final_html
 

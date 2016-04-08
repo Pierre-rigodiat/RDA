@@ -1,5 +1,5 @@
 saveCurrentChoiceValue = function($choice) {
-    var choiceId = $choice.attr('id');
+    var choiceId = $choice.parent().attr('id');
     var choiceValue = $choice.val();
 
     $.ajax({
