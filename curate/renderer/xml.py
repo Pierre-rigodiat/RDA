@@ -342,24 +342,30 @@ class XmlRenderer(AbstractXmlRenderer):
                 elif child.tag == 'simple_type': # implicit extension
                     if str(child.pk) == choice_values[iter_element]:
                         tmp_content = self.render_simple_type(child)
+                        ns_prefix = ''
+                        xmlns = ''
                         if 'ns_prefix' in child.options and child.options['ns_prefix'] is not None:
-                            ns_prefix = child.options['ns_prefix']
-                            xmlns = ' xmlns{0}="{1}"'.format(':' + ns_prefix, child.options['xmlns'])
-                            ns_prefix += ":"
-                        else:
-                            ns_prefix = ''
-                            xmlns = ''
+                            parent = get_parent_element(child)
+                            if parent is not None:
+                                if 'xmlns' in parent.options and child.options['xmlns'] != parent.options['xmlns']:
+                                    ns_prefix = child.options['ns_prefix']
+                                    xmlns = ' xmlns{0}="{1}"'.format(':' + ns_prefix, child.options['xmlns'])
+                                    ns_prefix += ":"
+
                         tmp_content[0] += ' xsi:type="{0}{1}" {2}'.format(ns_prefix, child.options['name'], xmlns)
                 elif child.tag == 'complex_type': # implicit extension
                     if str(child.pk) == choice_values[iter_element]:
                         tmp_content = self.render_complex_type(child)
+                        ns_prefix = ''
+                        xmlns = ''
                         if 'ns_prefix' in child.options and child.options['ns_prefix'] is not None:
-                            ns_prefix = child.options['ns_prefix']
-                            xmlns = ' xmlns{0}="{1}"'.format(':' + ns_prefix, child.options['xmlns'])
-                            ns_prefix += ":"
-                        else:
-                            ns_prefix = ''
-                            xmlns = ''
+                            parent = get_parent_element(child)
+                            if parent is not None:
+                                if 'xmlns' in parent.options and child.options['xmlns'] != parent.options['xmlns']:
+                                    ns_prefix = child.options['ns_prefix']
+                                    xmlns = ' xmlns{0}="{1}"'.format(':' + ns_prefix, child.options['xmlns'])
+                                    ns_prefix += ":"
+
                         tmp_content[0] += ' xsi:type="{0}{1}" {2}'.format(ns_prefix, child.options['name'], xmlns)
                 else:
                     message = 'render_choice: ' + child.tag + ' not handled'

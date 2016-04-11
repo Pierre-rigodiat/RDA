@@ -834,6 +834,8 @@ def generate_element(request, element, xml_tree, choice_info=None, full_path="",
             # if the default attribute is present
             default_value = element.attrib['default']
 
+        default_value = default_value.strip()
+
         # if element not removed
         if not removed:
             # if module is present, replace default input by module
@@ -2035,8 +2037,10 @@ def generate_choice_extensions(request, element, xml_tree, choice_info=None, ful
                     target_namespace, target_namespace_prefix = common.get_target_namespace(namespaces, xml_tree)
                     # TODO: create prefix if no prefix?
                     ns_prefix = target_namespace_prefix + ":" if target_namespace is not None else ""
-                    element_path = '{0}[@xsi:type="{1}{2}"]'.format(full_path, ns_prefix, opt_label)
-                    if len(edit_data_tree.xpath(element_path, namespaces=namespaces)) != 0:
+                    ns_element_path = '{0}[@xsi:type="{1}{2}"]'.format(full_path, ns_prefix, opt_label)
+                    element_path = '{0}[@xsi:type="{1}"]'.format(full_path, opt_label)
+                    if len(edit_data_tree.xpath(ns_element_path, namespaces=namespaces)) != 0\
+                        or len(edit_data_tree.xpath(element_path, namespaces=namespaces)) != 0:
                         db_child['value'] = counter
 
                 li_content += result[0]
@@ -2285,9 +2289,6 @@ def generate_restriction(request, element, xml_tree, full_path="", edit_data_tre
                     'tag': 'enumeration',
                     'value': enum.attrib.get('value')
                 }
-
-                # remove extra white spaces
-                default_value = default_value.strip()
                 if default_value is not None and enum.attrib.get('value') == default_value:
                     entry = (enum.attrib.get('value'), enum.attrib.get('value'), True)
                     # db_child['tag'] = 'enumeration/selected'
