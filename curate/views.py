@@ -439,7 +439,7 @@ def save_xml_data_to_db(request):
     if not form.is_valid():
         return HttpResponseBadRequest('Invalid form name')
 
-    if xml_string == "":
+    if xml_string == "" or xml_string is None:
         return HttpResponseBadRequest('No XML data found')
 
     try:
