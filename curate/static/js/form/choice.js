@@ -46,7 +46,6 @@ updateChoiceBranch = function($choice, previousChoiceValue) {
 
         $.ajax({
             'url': '/curate/generate_choice',
-            //'url': '/curate/generate-bis',
             'type': 'POST',
             'datatype': 'html',
             'data': {
@@ -78,7 +77,6 @@ selectChoice = function(event) {
 
     var $choice = $(this);
     var choiceId = $choice.parent().attr('id');
-    //var choiceId = $choice.attr('id');
 
     var previousChoiceValue = null;
 
@@ -96,9 +94,7 @@ selectChoice = function(event) {
     });
 
     // --------------------------------------------------
-    // Success case:
-    //      * Save new value
-    //      * Update form
+    // Success case: Update the form
     var getPreviousValueSuccess = function(data) {
         previousChoiceValue = data.value;
         console.log('Choice ' + choiceId + ' had value: ' + previousChoiceValue);

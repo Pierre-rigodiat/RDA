@@ -659,7 +659,7 @@ def generate_element(request, element, xml_tree, choice_info=None, full_path="",
     # XSD xpath: /element/complexType/sequence
     xsd_xpath = xml_tree.getpath(element)
 
-    db_element['options']['name'] = text_capitalized
+    db_element['options']['name'] = element.attrib.get('name')
     db_element['options']['xpath']['xsd'] = xsd_xpath
     db_element['options']['xpath']['xml'] = full_path
 
@@ -805,6 +805,8 @@ def generate_element(request, element, xml_tree, choice_info=None, full_path="",
 
         label = app_info['label'] if 'label' in app_info else text_capitalized
         label = label if label is not None else ''
+
+        db_element['options']['label'] = label
 
         li_content += label
 
@@ -1290,7 +1292,7 @@ def generate_sequence(request, element, xml_tree, choice_info=None, full_path=""
                         request.session['mapTagID'][choice_id] = str(form_element.id)
                         form_string += "</ul>"
 
-                        db_element['children'].append(db_elem_iter)
+                        # db_element['children'].append(db_elem_iter)
 
                         return form_string, db_element
                 else:
@@ -1303,7 +1305,7 @@ def generate_sequence(request, element, xml_tree, choice_info=None, full_path=""
                         request.session['mapTagID'][choice_id] = str(form_element.id)
                         form_string += "</ul>"
 
-                        db_element['children'].append(db_elem_iter)
+                        # db_element['children'].append(db_elem_iter)
 
                         return form_string, db_element
                 else:

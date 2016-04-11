@@ -66,7 +66,7 @@ removeElement = function(event) {
 
     // The element has to have a parent
     if ( $parents.size() == 0 ) {
-        console.error('No element to duplicate');
+        console.error('No element to remove');
         return;
     }
 

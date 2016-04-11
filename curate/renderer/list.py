@@ -116,6 +116,11 @@ class ListRenderer(AbstractListRenderer):
 
         buttons = render_buttons(add_button, del_button)
 
+        element_name = element.options['name']
+
+        if 'label' in element.options and element.options['label'] != '':
+            element_name = element.options['label']
+
         for child_key in child_keys:
             # li_class = ''
             # FIXME Use tuples instead
@@ -140,16 +145,16 @@ class ListRenderer(AbstractListRenderer):
                     self.warnings.append(message)
 
             if children_number == 0:
-                html_content = element.options["name"] + buttons
+                html_content = element_name + buttons
                 li_class = 'removed'
             else:
                 li_class = str(element.pk)
                 html_content = ''
                 for child_index in xrange(len(sub_elements)):
                     if sub_inputs[child_index]:
-                        html_content += element.options["name"] + sub_elements[child_index] + buttons
+                        html_content += element_name + sub_elements[child_index] + buttons
                     else:
-                        html_content += self._render_collapse_button() + element.options["name"] + buttons
+                        html_content += self._render_collapse_button() + element_name + buttons
                         html_content += self._render_ul(sub_elements[child_index], None)
 
             final_html += render_li(html_content, li_class, child_key)
@@ -281,6 +286,7 @@ class ListRenderer(AbstractListRenderer):
         # Buttons generation (render once, reused many times)
         add_button = False
         del_button = False
+        empty = False
 
         if 'max' in element.options:
             if children_number < element.options["max"] or element.options["max"] == -1:
@@ -289,6 +295,13 @@ class ListRenderer(AbstractListRenderer):
         if 'min' in element.options:
             if children_number > element.options["min"]:
                 del_button = True
+
+            # Case of an empty sequence (no children => nb < min)
+            if children_number < element.options["min"]:
+                empty = True
+
+        if empty:  # Empty sequence string (no need to go further)
+            return ''
 
         buttons = render_buttons(add_button, del_button)
 
@@ -314,12 +327,12 @@ class ListRenderer(AbstractListRenderer):
                 li_class = str(element.pk)
 
                 for child_index in xrange(len(sub_elements)):
-                    if children_number > 1 or force_full_display:
+                    if children_number != 1 or element.options["min"] != 1 or force_full_display:
                         html_content += self._render_ul(sub_elements[child_index], None)
                     else:
                         html_content += sub_elements[child_index]
 
-            if children_number != 1 or force_full_display:
+            if children_number != 1 or element.options["min"] != 1 or force_full_display:
                 final_html += render_li(
                     self._render_collapse_button() + 'Sequence ' + buttons + html_content,
                     li_class,
@@ -346,7 +359,9 @@ class ListRenderer(AbstractListRenderer):
             if child.tag == 'choice-iter':
                 children[child.pk] = child.children
                 child_keys.append(child.pk)
-                children_number += 1
+
+                if len(child.children) > 0:
+                    children_number += 1
 
                 choice_values[child.pk] = child.value
             else:
@@ -368,6 +383,7 @@ class ListRenderer(AbstractListRenderer):
         buttons = render_buttons(add_button, del_button)
 
         final_html = ''
+        item_number = 1
 
         for iter_element in child_keys:
             sub_content = ''
@@ -382,7 +398,9 @@ class ListRenderer(AbstractListRenderer):
                     options.append((str(child.pk), child.options['name'], is_selected_element))
                     element_html = self.render_element(child)
                 elif child.tag == 'sequence':
-                    options.append((str(child.pk), 'sequence', is_selected_element))
+                    options.append((str(child.pk), 'Sequence '+str(item_number), is_selected_element))
+                    item_number += 1
+
                     element_html = self.render_sequence(child)
                 elif child.tag == 'simple_type':
                     options.append((str(child.pk), child.options['name'], is_selected_element))
@@ -397,15 +415,20 @@ class ListRenderer(AbstractListRenderer):
                 if element_html != '':
                     sub_content += self._render_ul(element_html, str(child.pk), (not is_selected_element))
 
-            # the choice contains only one element
-            if len(children[iter_element]) == 1:
-                html_content += sub_content
-            # the contains a list
-            else:
-                html_content += 'Choice ' + self._render_select('', 'choice', options) + buttons
-                html_content += sub_content
+            if children_number == 0:  # Choice has no child
+                li_class = 'removed'
+                html_content = 'Choice ' + buttons
+            else:  # Choice has children
+                li_class = str(element.pk)
 
-            final_html += render_li(html_content, element.pk, iter_element)
+                # Choice contains only one element, we don't generate the select
+                if len(children[iter_element]) == 1:
+                    html_content += sub_content
+                else: # Choice contains a list
+                    html_content += 'Choice ' + self._render_select('', 'choice', options) + buttons
+                    html_content += sub_content
+
+            final_html += render_li(html_content, li_class, iter_element)
 
         return final_html
 
