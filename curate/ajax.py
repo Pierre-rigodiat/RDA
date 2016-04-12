@@ -1238,7 +1238,8 @@ def gen_abs(request):
     else:
         # can't directly use generate_element because only need the body of the element not its title
         # form_string = generate_element_absent(request, xml_element, xml_doc_tree, schema_element)
-        form_string = generate_element(request, xml_element, xml_doc_tree, full_path=xml_xpath, force_generation=True)
+        # provide xpath without element name because already generated in generate_element
+        form_string = generate_element(request, xml_element, xml_doc_tree, full_path=xml_xpath.rsplit('/', 1)[0], force_generation=True)
 
     db_tree = form_string[1]
 
