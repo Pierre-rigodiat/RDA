@@ -50,6 +50,7 @@ class ListRenderer(AbstractListRenderer):
     """
 
     def __init__(self, xsd_data):
+        self.partial = False
         super(ListRenderer, self).__init__(xsd_data)
 
     def render(self, partial=False):
@@ -61,6 +62,7 @@ class ListRenderer(AbstractListRenderer):
         :return:
         """
         html_content = ''
+        self.partial = partial
 
         if self.data.tag == 'element':
             html_content += self.render_element(self.data)
@@ -133,7 +135,7 @@ class ListRenderer(AbstractListRenderer):
                     sub_inputs.append(False)
                 elif child.tag == 'simple_type':
                     sub_elements.append(self.render_simple_type(child))
-                    sub_inputs.append(False)
+                    sub_inputs.append(True)
                 elif child.tag == 'input':
                     sub_elements.append(self._render_input(child))
                     sub_inputs.append(True)
@@ -156,6 +158,10 @@ class ListRenderer(AbstractListRenderer):
                     else:
                         html_content += self._render_collapse_button() + element_name + buttons
                         html_content += self._render_ul(sub_elements[child_index], None)
+
+            # FIXME temp fix, do it in a cleaner way
+            if self.partial and 'real_root' in element.options:
+                li_class = element.options['real_root']
 
             final_html += render_li(html_content, li_class, child_key)
 
@@ -224,6 +230,7 @@ class ListRenderer(AbstractListRenderer):
                 del_button = True
 
         buttons = render_buttons(add_button, del_button)
+        element_name = element.options['name']
 
         for child_key in child_keys:
             li_class = ''
@@ -233,7 +240,7 @@ class ListRenderer(AbstractListRenderer):
             for child in children[child_key]:
                 if child.tag == 'simple_type':
                     sub_elements.append(self.render_simple_type(child))
-                    sub_inputs.append(False)
+                    sub_inputs.append(True)
                 elif child.tag == 'input':
                     sub_elements.append(self._render_input(child))
                     sub_inputs.append(True)
@@ -242,16 +249,21 @@ class ListRenderer(AbstractListRenderer):
                     self.warnings.append(message)
 
             if children_number == 0:
-                html_content = element.options["name"] + buttons
+                html_content = element_name + buttons
                 li_class = 'removed'
             else:
+                li_class = str(element.pk)
                 html_content = ''
                 for child_index in xrange(len(sub_elements)):
                     if sub_inputs[child_index]:
-                        html_content += element.options["name"] + sub_elements[child_index] + buttons
+                        html_content += element_name + sub_elements[child_index] + buttons
                     else:
-                        html_content += self._render_collapse_button() + element.options["name"] + buttons
+                        html_content += self._render_collapse_button() + element_name + buttons
                         html_content += self._render_ul(sub_elements[child_index], None)
+
+            # FIXME temp fix, do it in a cleaner way
+            if self.partial and 'real_root' in element.options:
+                li_class = element.options['real_root']
 
             final_html += render_li(html_content, li_class, child_key)
 
@@ -331,6 +343,10 @@ class ListRenderer(AbstractListRenderer):
                         html_content += self._render_ul(sub_elements[child_index], None)
                     else:
                         html_content += sub_elements[child_index]
+
+            # FIXME temp fix, do it in a cleaner way
+            if self.partial and 'real_root' in element.options:
+                li_class = element.options['real_root']
 
             if children_number != 1 or element.options["min"] != 1 or force_full_display:
                 final_html += render_li(
@@ -428,6 +444,10 @@ class ListRenderer(AbstractListRenderer):
                     html_content += 'Choice ' + self._render_select('', 'choice', options) + buttons
                     html_content += sub_content
 
+            # FIXME temp fix, do it in a cleaner way
+            if self.partial and 'real_root' in element.options:
+                li_class = element.options['real_root']
+
             final_html += render_li(html_content, li_class, iter_element)
 
         return final_html
@@ -482,6 +502,8 @@ class ListRenderer(AbstractListRenderer):
             if child.tag == 'restriction':
                 html_content += self.render_restriction(child)
             elif child.tag == 'list':
+                html_content += self._render_input(child)
+            elif child.tag == 'union':
                 html_content += self._render_input(child)
             elif child.tag == 'attribute':
                 html_content += self.render_attribute(child)

@@ -222,8 +222,6 @@ class XmlRenderer(AbstractXmlRenderer):
             content[0] = ' '.join([content[0], tmp_content[0]]).strip()
             content[1] += tmp_content[1]
 
-
-
         return content
 
     def render_sequence(self, element):
@@ -248,9 +246,9 @@ class XmlRenderer(AbstractXmlRenderer):
             if child.tag == 'element':
                 tmp_content[1] += self.render_element(child)
             elif child.tag == 'sequence':
-                tmp_content += self.render_sequence(child)
+                tmp_content = self.render_sequence(child)
             elif child.tag == 'choice':
-                tmp_content += self.render_choice(child)
+                tmp_content = self.render_choice(child)
             else:
                 message = 'render_sequence: ' + child.tag + ' not handled'
                 self.warnings.append(message)
