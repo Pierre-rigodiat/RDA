@@ -564,18 +564,19 @@ def update_my_metadataFormat(request):
             if 'metadataPrefix' in request.POST:
                 metadataprefix = request.POST.get('metadataPrefix')
 
-            if 'schema' in request.POST:
-                schema = request.POST.get('schema')
-
-            if 'metadataNamespace' in request.POST:
-                namespace = request.POST.get('metadataNamespace')
+            # if 'schema' in request.POST:
+            #     schema = request.POST.get('schema')
+            #
+            # if 'metadataNamespace' in request.POST:
+            #     namespace = request.POST.get('metadataNamespace')
 
             #Call the API to update my metadataFormat
             try:
                 req = requests.put(uri, { "id": id,
-                                          "metadataPrefix": metadataprefix,
-                                          "schema": schema,
-                                          "metadataNamespace": namespace},
+                                          "metadataPrefix": metadataprefix#,
+                                          # "schema": schema,
+                                          # "metadataNamespace": namespace
+                                          },
                                         auth=(OAI_USER, OAI_PASS))
 
                 #If the status is OK, sucess message

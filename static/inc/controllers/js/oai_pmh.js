@@ -886,15 +886,6 @@ validateMetadataFormatEdit = function()
         errors += "<li>Please enter a Metadata Prefix.</li>"
     }
 
-    if ($( "#form_edit_mf_current #id_schema" ).val().trim() == ""){
-        errors += "<li>Please enter a schema.</li>"
-    }
-
-    if ($( "#form_edit_mf_current #id_metadataNamespace" ).val().trim() == ""){
-        errors += "<li>Please enter a namespace.</li>"
-    }
-
-
 	if (errors != ""){
 	    error = "<ul>";
 	    error += errors
