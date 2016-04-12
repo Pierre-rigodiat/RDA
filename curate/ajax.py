@@ -30,7 +30,7 @@ from rest_framework.status import HTTP_404_NOT_FOUND, HTTP_400_BAD_REQUEST, HTTP
 from curate.models import SchemaElement
 from curate.parser import generate_form, generate_element, generate_sequence_absent, generate_element_absent, has_module, \
     get_element_type, generate_module, generate_complex_type, generate_simple_type, generate_sequence, generate_choice, \
-    get_element_namespace, load_schema_data_in_db
+    get_element_namespace, load_schema_data_in_db, delete_branch_from_db
 from curate.renderer import DefaultRenderer
 from curate.renderer.xml import XmlRenderer
 from mgi.common import LXML_SCHEMA_NAMESPACE
@@ -1370,6 +1370,9 @@ def rem_bis(request):
     schema_element.update(pull__children=element_id)
 
     schema_element.reload()
+
+    # Deleting the branch from the database
+    delete_branch_from_db(element_id)
 
     children_number = len(schema_element.children)
 
