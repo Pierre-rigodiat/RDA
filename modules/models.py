@@ -80,9 +80,20 @@ class Module(object):
             # template_data['result'] = sanitize(self._post_result(request))
             options = module_element.options
 
-            options['data'] = self._post_result(request)
-            module_element.update(set__options=options)
+            # FIXME temporary solution
+            post_result = self._post_result(request)
 
+            if type(post_result) == dict:
+                options['data'] = self._post_result(request)['data']
+                options['attributes'] = self._post_result(request)['attributes']
+            else:
+                options['data'] = self._post_result(request)
+
+            # TODO Implement this system instead
+            # options['content'] = self._get_content(request)
+            # options['attributes'] = self._get_attributes(request)
+
+            module_element.update(set__options=options)
             module_element.reload()
         except Exception, e:
             raise ModuleError('Something went wrong during module update: ' + e.message)
