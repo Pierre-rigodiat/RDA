@@ -6,4 +6,6 @@ urlpatterns = patterns('',
     url(r'^advanced-blob-hoster', 'modules.curator.views.advanced_blob_hoster', name='Advanced BLOB Hoster'),
     url(r'^raw-xml', 'modules.curator.views.raw_xml', name='Raw XML'),
     url(r'^handle', 'modules.curator.views.handle', name='Handle'),
+    url(r'^auto-keyref', 'modules.curator.views.auto_keyref', name='_auto_keyref'),
+    url(r'^get-updated-keys', 'modules.curator.views.get_updated_keys', name='_get_updated_keys'),
 )

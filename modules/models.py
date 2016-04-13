@@ -52,7 +52,17 @@ class Module(object):
         try:
             template_data['module'] = self._get_module(request)
             template_data['display'] = self._get_display(request)
-            template_data['result'] = sanitize(self._get_result(request))
+
+            result = sanitize(self._get_result(request))
+            template_data['result'] = result
+
+            module_element = SchemaElement.objects.get(pk=request.GET['module_id'])
+            options = module_element.options
+
+            options['data'] = result
+            module_element.update(set__options=options)
+
+            module_element.save()
         except Exception, e:
             raise ModuleError('Something went wrong during module initialization: ' + e.message)
 

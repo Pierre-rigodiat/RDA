@@ -1,5 +1,7 @@
 from HTMLParser import HTMLParser
-from modules.builtin.models import PopupModule, TextAreaModule, InputModule
+
+from curate.models import SchemaElement
+from modules.builtin.models import PopupModule, TextAreaModule, InputModule, OptionsModule
 from modules.exceptions import ModuleError
 from modules.curator.forms import BLOBHosterForm, URLForm
 from django.template import Context, Template
@@ -330,6 +332,52 @@ class HandleModule(PopupModule):
         else:
             return ''
 
-
     def _post_result(self, request):
         return self.handle
+
+
+class AutoKeyRefModule(OptionsModule):
+    def __init__(self):
+        OptionsModule.__init__(self, options={})
+
+    def _get_module(self, request):
+        # look for existing values
+        try:
+            keyrefId = request.GET['keyref']
+            module_id = request.GET['module_id']
+            # register the module id in the structure
+            if module_id not in request.session['keyrefs'][keyrefId]['module_ids']:
+                request.session['keyrefs'][keyrefId]['module_ids'].append(str(module_id))
+
+            # get the list of values for this key
+            keyId = request.session['keyrefs'][keyrefId]['refer']
+            values = []
+            modules_ids = request.session['keys'][keyId]['module_ids']
+            for module_id in modules_ids:
+                module = SchemaElement.objects().get(pk=module_id)
+                if module.options['data'] is not None:
+                    values.append(module.options['data'])
+
+            for value in values:
+                self.options.update({str(value): str(value)})
+            if 'data' in request.GET:
+                self.selected = request.GET['data']
+        except Exception:
+            self.options = {}
+        return OptionsModule.get_module(self, request)
+
+    def _get_display(self, request):
+        return ''
+
+    def _get_result(self, request):
+        if 'data' in request.GET:
+            return request.GET['data']
+        return ''
+
+    def _post_display(self, request):
+        return ''
+
+    def _post_result(self, request):
+        if 'data' in request.POST:
+            return request.POST['data']
+        return ''

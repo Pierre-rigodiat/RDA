@@ -49,8 +49,9 @@ class ListRenderer(AbstractListRenderer):
     """
     """
 
-    def __init__(self, xsd_data):
+    def __init__(self, xsd_data, request):
         super(ListRenderer, self).__init__(xsd_data)
+        self.request = request
 
     def render(self, partial=False):
         """
@@ -237,6 +238,9 @@ class ListRenderer(AbstractListRenderer):
                 elif child.tag == 'input':
                     sub_elements.append(self._render_input(child))
                     sub_inputs.append(True)
+                elif child.tag == 'module':
+                    sub_elements.append(self.render_module(child))
+                    sub_inputs.append(False)
                 else:
                     message = 'render_attribute: ' + child.tag + ' not handled'
                     self.warnings.append(message)
@@ -547,7 +551,7 @@ class ListRenderer(AbstractListRenderer):
 
         module_view = get_module_view(module_url)
 
-        module_request = HttpRequest()
+        module_request = self.request
         module_request.method = 'GET'
 
         module_request.GET = {
@@ -560,6 +564,10 @@ class ListRenderer(AbstractListRenderer):
         # if the loaded doc has data, send them to the module for initialization
         if module_options['data'] is not None:
             module_request.GET['data'] = module_options['data']
+
+        # add extra parameters coming from url parameters
+        if module_options['params'] is not None:
+            module_request.GET.update(module_options['params'])
 
         if module_options['attributes'] is not None:
             module_request.GET['attributes'] = module_options['attributes']

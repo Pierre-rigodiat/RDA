@@ -5,6 +5,8 @@ import traceback
 from os.path import join
 
 import sys
+import re
+from urlparse import urlparse, parse_qsl
 
 from curate.models import SchemaElement
 from curate.renderer import render_buttons, \
@@ -14,7 +16,7 @@ from mgi.models import FormElement, XMLElement, FormData, Module, Template
 # from curate.renderer.list import ListRenderer
 # from curate.renderer.table import TableRenderer
 # from mgi.models import FormElement, XMLElement, FormData, Module, Template, MetaSchema
-from mgi.settings import CURATE_MIN_TREE, CURATE_COLLAPSE
+from mgi.settings import CURATE_MIN_TREE, CURATE_COLLAPSE, AUTO_KEY_KEYREF
 from bson.objectid import ObjectId
 from mgi import common
 from lxml import etree
@@ -233,6 +235,8 @@ def has_module(element):
         # get the url of the module
         url = element.attrib['{http://mdcs.ns}_mod_mdcs_']
 
+        url = urlparse(url).path
+
         # check that the url is registered in the system
         if url in Module.objects.all().values_list('url'):
             _has_module = True
@@ -418,6 +422,13 @@ def generate_form(request):
     # init counters
     request.session['nbChoicesID'] = '0'
     request.session['nb_html_tags'] = '0'
+
+    if 'keys' in request.session:
+        del request.session['keys']
+    request.session['keys'] = {}
+    if 'keyrefs' in request.session:
+        del request.session['keyrefs']
+    request.session['keyrefs'] = {}
 
     # init id mapping structure (html/mongo)
     if 'mapTagID' in request.session:
@@ -654,7 +665,7 @@ def generate_element(request, element, xml_tree, choice_info=None, full_path="",
         else:
             full_path += "/@{0}".format(text_capitalized)
 
-    # print full_path
+    print full_path
 
     # XSD xpath: /element/complexType/sequence
     xsd_xpath = xml_tree.getpath(element)
@@ -767,6 +778,21 @@ def generate_element(request, element, xml_tree, choice_info=None, full_path="",
     if force_generation:
         nb_occurrences = 1
         removed = False
+
+    # if auto key/keyref is True, go find keys/keyrefs in element scope
+    if AUTO_KEY_KEYREF:
+        # TODO: for now, support key/keyref for attributes only
+        if element_tag == 'attribute':
+            pass
+            if is_key(request, element, full_path):
+                _has_module = True
+                db_element['options']['module'] = None if not _has_module else True
+            elif is_key_ref(request, element, db_element, full_path):
+                _has_module = True
+                db_element['options']['module'] = None if not _has_module else True
+        if element_tag == 'element':
+            # look if key/keyrefs are defined for the scope of this element
+            manage_key_keyref(request, element, full_path, xml_tree)
 
     for x in range(0, int(nb_occurrences)):
         db_elem_iter = {
@@ -897,6 +923,81 @@ def generate_element(request, element, xml_tree, choice_info=None, full_path="",
 
     form_string += render_ul(ul_content, choice_id, chosen)
     return form_string, db_element
+
+
+def is_key(request, element, full_path):
+    # remove indexes from the xpath
+    xpath = re.sub(r'\[[0-9]+\]', '', full_path)
+    for key in request.session['keys'].keys():
+        if request.session['keys'][key]['xpath'] == xpath:
+            element.attrib['{http://mdcs.ns}_mod_mdcs_'] = '/examples/auto-key-seqint?key={}'.format(key)
+            return True
+            # formString = generate_module(request, element, namespace, xsd_xpath, fullPath, edit_data_tree, extra_data={'key': key})
+    return False
+
+
+def is_key_ref(request, element, db_element, full_path):
+    # remove indexes from the xpath
+    xpath = re.sub(r'\[[0-9]+\]', '', full_path)
+    for keyref in request.session['keyrefs'].keys():
+        if request.session['keyrefs'][keyref]['xpath'] == xpath:
+            element.attrib['{http://mdcs.ns}_mod_mdcs_'] = '/curator/auto-keyref?keyref={}'.format(keyref)
+            return True
+            # save the element in db to get an id
+            # element_id = db_element.save()
+            # request.session['keyrefs'][keyref]['tagIDs'].append(xpath)
+            # formString = generate_module(request, element, namespace, xsd_xpath, fullPath, edit_data_tree, extra_data={'keyref': keyref})
+    return False
+
+
+def manage_key_keyref(request, element, fullPath, xmlTree):
+    # get keys in element scope
+    list_key = element.findall('{0}key'.format(LXML_SCHEMA_NAMESPACE))
+    # get keyrefs in element scope
+    list_keyref = element.findall('{0}keyref'.format(LXML_SCHEMA_NAMESPACE))
+
+    # remove indexes from the xpath
+    fullPath = re.sub(r'\[[0-9]+\]', '', fullPath)
+
+    if len(list_key) > 0:
+        for key in list_key:
+            key_name = key.attrib['name']
+            # print key_name
+
+            selector = key.find('{0}selector'.format(LXML_SCHEMA_NAMESPACE))
+            selector_xpath = selector.attrib['xpath']
+            key_selector = fullPath + '/' + selector_xpath
+            # print key_selector
+
+            # FIXME: manage multiple fields
+            fields = key.findall('{0}field'.format(LXML_SCHEMA_NAMESPACE))
+            for field in fields:
+                field_xpath = field.attrib['xpath']
+                key_field = key_selector + '/' + field_xpath
+                # print key_field
+
+            request.session['keys'][key_name] = {'xpath': key_field, 'module_ids': []}
+
+        for keyref in list_keyref:
+            keyref_name = keyref.attrib['name']
+            keyref_refer = keyref.attrib['refer']
+            if ':' in keyref_refer:
+                keyref_refer = keyref_refer.split(':')[1]
+            # print keyref_name
+
+            selector = keyref.find('{0}selector'.format(LXML_SCHEMA_NAMESPACE))
+            selector_xpath = selector.attrib['xpath']
+            keyref_selector = fullPath + '/' + selector_xpath
+            # print keyref_selector
+
+            # FIXME: manage multiple fields
+            fields = keyref.findall('{0}field'.format(LXML_SCHEMA_NAMESPACE))
+            for field in fields:
+                field_xpath = field.attrib['xpath']
+                keyref_field = keyref_selector + '/' + field_xpath
+                # print keyref_field
+
+            request.session['keyrefs'][keyref_name] = {'xpath': keyref_field, 'refer': keyref_refer, 'module_ids': []}
 
 
 def get_element_form_default(xsd_tree):
@@ -2127,7 +2228,8 @@ def generate_module(request, element, xsd_xpath=None, xml_xpath=None, xml_tree=N
         'value': None,
         'options': {
             'data': None,
-            'attributes': None
+            'attributes': None,
+            'params': None,
         },
         'children': []
     }
@@ -2164,6 +2266,9 @@ def generate_module(request, element, xsd_xpath=None, xml_xpath=None, xml_tree=N
         # get the url of the module
         url = element.attrib['{http://mdcs.ns}_mod_mdcs_']
 
+        parsed_url = urlparse(url)
+        url = parsed_url.path
+
         # check that the url is registered in the system
         if url in Module.objects.all().values_list('url'):
             view = get_module_view(url)
@@ -2181,6 +2286,10 @@ def generate_module(request, element, xsd_xpath=None, xml_xpath=None, xml_tree=N
             # if the loaded doc has data, send them to the module for initialization
             if reload_data is not None:
                 mod_req.GET['data'] = reload_data
+
+            # add extra parameters coming from url parameters
+            if parsed_url.query != '':
+                db_element['options']['params'] = dict(parse_qsl(parsed_url.query))
 
             if reload_attrib is not None:
                 mod_req.GET['attributes'] = reload_attrib

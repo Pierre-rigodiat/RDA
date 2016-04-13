@@ -50,7 +50,8 @@ addElement = function(event) {
                 $data.removeClass();
                 $data.addClass(elementClass);
             }
-
+            // If new modules are included, we need to load the resources
+            initModules();
             console.log("Element " + elementId + " successfully created");
         },
         error: function() {

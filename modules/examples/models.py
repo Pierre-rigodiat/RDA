@@ -334,4 +334,3 @@ class ChemicalElementCheckboxesModule(CheckboxesModule):
     def _post_result(self, request):
         if 'data[]' in request.POST:
             return str(request.POST['data[]'])
-    

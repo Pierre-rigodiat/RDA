@@ -198,7 +198,8 @@ def clear_fields(request):
     # form = generate_form(request)
     # response_dict = {'xsdForm': form}
     # return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
-    del request.session['form_id']
+    if 'form_id' in request.session:
+        del request.session['form_id']
 
     return generate_xsd_form(request)
 
@@ -324,7 +325,7 @@ def generate_xsd_form(request):
 
         root_element = SchemaElement.objects.get(pk=root_element_id)
 
-        renderer = ListRenderer(root_element)
+        renderer = ListRenderer(root_element, request)
         html_form = renderer.render()
     except Exception as e:
         renderer = DefaultRenderer(None, {})
@@ -1267,7 +1268,7 @@ def gen_abs(request):
 
     # Rendering the generated element
     # renderer = ListRenderer(rendering_element)
-    renderer = ListRenderer(tree_root)
+    renderer = ListRenderer(tree_root, request)
     html_form = renderer.render(True)
 
     tree_root.delete()
@@ -1329,7 +1330,8 @@ def generate_choice_branch(request):
     xml_element = xml_doc_tree.xpath(xsd_xpath, namespaces=namespaces)[0]
 
     if element.tag == 'element':
-        form_string = generate_element(request, xml_element, xml_doc_tree, full_path=xml_xpath)
+        # provide xpath without element name because already generated in generate_element
+        form_string = generate_element(request, xml_element, xml_doc_tree, full_path=xml_xpath.rsplit('/', 1)[0])
     elif element.tag == 'sequence':
         form_string = generate_sequence(request, xml_element, xml_doc_tree, full_path=xml_xpath)
     else:
@@ -1357,7 +1359,7 @@ def generate_choice_branch(request):
     choice_element.update(set__children=[parent])
     choice_element.reload()
 
-    renderer = ListRenderer(choice_element)
+    renderer = ListRenderer(choice_element, request)
     html_form = renderer.render(True)
 
     choice_element.update(set__children=choice_original_children)
@@ -1411,7 +1413,7 @@ def rem_bis(request):
         if schema_element.options['min'] != 0:
             response['code'] = 1
         else:  # schema_element.options['min'] == 0
-            renderer = ListRenderer(schema_element)
+            renderer = ListRenderer(schema_element, request)
             html_form = renderer.render(True)
 
             response['code'] = 2
