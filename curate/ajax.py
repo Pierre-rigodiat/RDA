@@ -30,7 +30,7 @@ from rest_framework.status import HTTP_404_NOT_FOUND, HTTP_400_BAD_REQUEST, HTTP
 from curate.models import SchemaElement
 from curate.parser import generate_form, generate_element, generate_sequence_absent, generate_element_absent, has_module, \
     get_element_type, generate_module, generate_complex_type, generate_simple_type, generate_sequence, generate_choice, \
-    get_element_namespace, load_schema_data_in_db
+    get_element_namespace, load_schema_data_in_db, delete_branch_from_db
 from curate.renderer import DefaultRenderer
 from curate.renderer.xml import XmlRenderer
 from mgi.common import LXML_SCHEMA_NAMESPACE
@@ -1179,11 +1179,6 @@ def gen_abs(request):
 
     schema_element = element_list[0]
 
-    # rendering_element = SchemaElement()
-    # rendering_element.tag = schema_element.tag
-    # rendering_element.options = schema_element.options
-    # rendering_element.value = schema_element.value
-
     schema_location = None
     if 'schema_location' in schema_element.options:
         schema_location = schema_element.options['schema_location']
@@ -1259,22 +1254,17 @@ def gen_abs(request):
         schema_element.update(pull__children=element_id)
 
     schema_element.reload()
-    # schema_element.update(set__children=tree_root.children)
-    # schema_element.reload()
 
-    # Updating the rendering element
-    # rendering_element.children = [tree_root]
-    # rendering_element.save(force_insert=True)
+    tree_root_options = tree_root.options
+    tree_root_options['real_root'] = str(schema_element.pk)
 
-    # Rendering the generated element
-    # renderer = ListRenderer(rendering_element)
+    tree_root.update(set__options=tree_root_options)
+    tree_root.reload()
+
     renderer = ListRenderer(tree_root, request)
     html_form = renderer.render(True)
 
     tree_root.delete()
-
-    # rendering_element.delete()
-
     return HttpResponse(html_form)
 
 
@@ -1383,6 +1373,9 @@ def rem_bis(request):
     schema_element.update(pull__children=element_id)
 
     schema_element.reload()
+
+    # Deleting the branch from the database
+    delete_branch_from_db(element_id)
 
     children_number = len(schema_element.children)
 

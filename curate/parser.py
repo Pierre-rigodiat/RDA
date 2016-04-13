@@ -2605,3 +2605,16 @@ def generate_extension(request, element, xml_tree, full_path="", edit_data_tree=
     request.session['implicit_extension'] = True
 
     return form_string, db_element
+
+
+def delete_branch_from_db(element_id):
+    """
+    :param element_id:
+    :return:
+    """
+    element = SchemaElement.objects.get(pk=element_id)
+
+    for child in element.children:
+        delete_branch_from_db(str(child.pk))
+
+    element.delete()

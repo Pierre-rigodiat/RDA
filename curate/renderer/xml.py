@@ -115,7 +115,8 @@ class XmlRenderer(AbstractXmlRenderer):
                     content[1] += tmp_content[1]
                 elif child.tag == 'module':
                     tmp_content = self.render_module(child)
-                    content[1] += tmp_content
+                    content[0] += tmp_content[0]
+                    content[1] += tmp_content[1]
                 else:
                     message = 'render_element: ' + child.tag + ' not handled'
                     self.warnings.append(message)
@@ -214,15 +215,13 @@ class XmlRenderer(AbstractXmlRenderer):
             elif child.tag == 'choice':
                 tmp_content = self.render_choice(child)
             elif child.tag == 'module':
-                tmp_content[1] = self.render_module(child)
+                tmp_content = self.render_module(child)
             else:
                 message = 'render_complex_type: ' + child.tag + ' not handled'
                 self.warnings.append(message)
 
             content[0] = ' '.join([content[0], tmp_content[0]]).strip()
             content[1] += tmp_content[1]
-
-
 
         return content
 
@@ -248,9 +247,9 @@ class XmlRenderer(AbstractXmlRenderer):
             if child.tag == 'element':
                 tmp_content[1] += self.render_element(child)
             elif child.tag == 'sequence':
-                tmp_content += self.render_sequence(child)
+                tmp_content = self.render_sequence(child)
             elif child.tag == 'choice':
-                tmp_content += self.render_choice(child)
+                tmp_content = self.render_choice(child)
             else:
                 message = 'render_sequence: ' + child.tag + ' not handled'
                 self.warnings.append(message)
@@ -394,7 +393,7 @@ class XmlRenderer(AbstractXmlRenderer):
             elif child.tag == 'list':
                 tmp_content[1] = child.value if child.value is not None else ''
             elif child.tag == 'module':
-                tmp_content[1] = self.render_module(child)
+                tmp_content = self.render_module(child)
             else:
                 message = 'render_simple_type: ' + child.tag + ' not handled'
                 self.warnings.append(message)
@@ -456,4 +455,7 @@ class XmlRenderer(AbstractXmlRenderer):
         return content
 
     def render_module(self, element):
-        return element.options['data'] if element.options['data'] is not None else ''
+        return [
+            element.options['attributes'] if element.options['attributes'] is not None else '',
+            element.options['data'] if element.options['data'] is not None else ''
+        ]

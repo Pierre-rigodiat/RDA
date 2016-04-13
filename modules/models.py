@@ -2,8 +2,7 @@ import os
 from django.conf import settings
 from django.http import HttpResponse
 import json
-from rest_framework.status import HTTP_200_OK
-
+from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
 from curate.models import SchemaElement
 from exceptions import ModuleError
 from abc import ABCMeta, abstractmethod
@@ -83,14 +82,28 @@ class Module(object):
         }
 
         try:
+            if 'module_id' not in request.POST:
+                return HttpResponse({'error': 'No "module_id" parameter provided'}, status=HTTP_400_BAD_REQUEST)
+
             module_element = SchemaElement.objects.get(pk=request.POST['module_id'])
             template_data['display'] = self._post_display(request)
             # template_data['result'] = sanitize(self._post_result(request))
             options = module_element.options
 
-            options['data'] = self._post_result(request)
-            module_element.update(set__options=options)
+            # FIXME temporary solution
+            post_result = self._post_result(request)
 
+            if type(post_result) == dict:
+                options['data'] = self._post_result(request)['data']
+                options['attributes'] = self._post_result(request)['attributes']
+            else:
+                options['data'] = self._post_result(request)
+
+            # TODO Implement this system instead
+            # options['content'] = self._get_content(request)
+            # options['attributes'] = self._get_attributes(request)
+
+            module_element.update(set__options=options)
             module_element.reload()
         except Exception, e:
             raise ModuleError('Something went wrong during module update: ' + e.message)

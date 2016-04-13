@@ -49,7 +49,13 @@ saveModuleData = function($module, modData, asyncOpt) {
         return;
     }
 
-    modData['module_id'] = moduleId;
+    if ( modData instanceof FormData ) {
+        modData.append("module_id", moduleId);
+    } else {
+        modData['module_id'] = moduleId;
+    }
+
+
 
     var ajaxOptions = {
         url : '/modules'+moduleURL,
