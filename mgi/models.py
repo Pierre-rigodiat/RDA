@@ -581,9 +581,25 @@ class OaiRecord(Document):
     deleted = BooleanField()
     sets = ListField(ReferenceField(OaiSet, reverse_delete_rule=PULL))
     metadataformat = ReferenceField(OaiMetadataFormat, reverse_delete_rule=PULL)
-    metadata = DictField(required=True)
+    metadata = DictField(required=False)
     raw = DictField(required=True)
     registry = StringField(required=False)
+
+    @staticmethod
+    def update_metadaformat(recordID, metadata=None):
+        """
+            Update the object with the given id
+        """
+        # create a connection
+        client = MongoClient(MONGODB_URI)
+        # connect to the db 'mgi'
+        db = client['mgi']
+        # get the xmldata collection
+        xmldata = db['oai_record']
+        json = {'metadata': metadata}
+
+        xmldata.update({'_id': ObjectId(recordID)}, {"$set":json}, upsert=False)
+
 
     @staticmethod
     def initIndexes():

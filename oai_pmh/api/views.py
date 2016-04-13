@@ -827,7 +827,8 @@ def harvest(request):
                             raw = xmltodict.parse(info['raw'])
                             metadata = xmltodict.parse(info['metadata'])
                             obj = OaiRecord(identifier=info['identifier'], datestamp=info['datestamp'], deleted=info['deleted'],
-                                   metadataformat=metadataFormat, metadata=metadata, sets=sets, raw=raw, registry=registry_id).save()
+                                   metadataformat=metadataFormat, sets=sets, raw=raw, registry=registry_id).save()
+                            OaiRecord.update_metadaformat(obj.id, metadata)
                             records.append(obj)
                     #There is more records if we have a resumption token.
                     dataLeft = resumptionToken != None and resumptionToken != ''
