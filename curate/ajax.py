@@ -1353,17 +1353,18 @@ def generate_choice_branch(request):
 
     parent.reload()
 
-    choice_element = SchemaElement.objects(children=parent.pk)[0]
-    choice_original_children = choice_element.children
+    # choice_element = SchemaElement.objects(children=parent.pk)[0]
+    # choice_original_children = choice_element.children
+    #
+    # choice_element.update(set__children=[parent])
+    # choice_element.reload()
 
-    choice_element.update(set__children=[parent])
-    choice_element.reload()
+    # renderer = ListRenderer(choice_element, request)
+    renderer = ListRenderer(tree_root, request)
+    html_form = renderer.render(False)
 
-    renderer = ListRenderer(choice_element, request)
-    html_form = renderer.render(True)
-
-    choice_element.update(set__children=choice_original_children)
-    choice_element.reload()
+    # choice_element.update(set__children=choice_original_children)
+    # choice_element.reload()
 
     return HttpResponse(html_form)
 
