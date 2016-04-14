@@ -2618,3 +2618,27 @@ def delete_branch_from_db(element_id):
         delete_branch_from_db(str(child.pk))
 
     element.delete()
+
+
+def update_branch_xpath(element):
+    element_xpath = element.options['xpath']['xml']
+    xpath_index = 1
+
+    for child in element.children:
+        update_root_xpath(child, element_xpath, xpath_index)
+        xpath_index += 1
+
+
+def update_root_xpath(element, xpath, index):
+    element_options = element.options
+
+    if 'xpath' in element_options:
+        xml_xpath = element_options['xpath']['xml']
+        element_options['xpath']['xml'] = xml_xpath.replace(xpath+'[1]', xpath + '[' + str(index) + ']', 1)
+
+        element.update(set__options=element_options)
+        element.reload()
+
+    for child in element.children:
+        update_root_xpath(child, xpath, index)
+

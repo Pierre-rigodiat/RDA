@@ -51,7 +51,7 @@ class ListRenderer(AbstractListRenderer):
 
     def __init__(self, xsd_data, request):
         super(ListRenderer, self).__init__(xsd_data)
-        self.request = request
+        self.request = request  # FIXME Find a way to avoid the use of request
         self.partial = False
 
     def render(self, partial=False):
