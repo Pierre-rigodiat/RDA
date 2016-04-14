@@ -55,7 +55,7 @@ saveModuleData = function($module, modData, asyncOpt) {
         modData['module_id'] = moduleId;
     }
 
-
+    console.log(modData)
 
     var ajaxOptions = {
         url : '/modules'+moduleURL,
@@ -76,9 +76,9 @@ saveModuleData = function($module, modData, asyncOpt) {
             $module.find('.moduleResult').html(moduleResult);     
             
             /* look at extra data received from the server */
-            if ('xpath_accessor' in data){
+            /*if ('xpath_accessor' in data){
             	xpath_accessor(data.xpath_accessor);
-            }
+            }*/
         },
         error: function(data) {
             console.error("An error occured when saving module data");
@@ -115,18 +115,18 @@ initModules = function() {
 
 
 // set sibling nodes with values from the server
-xpath_accessor = function(data){
-	for (id in data){
-		console.log(id + " -> " + data[id]);
-		if ($("#" + id).children("input").length == 1){ /* input */
-			$("#" + id).children("input").val(data[id]);
-		}else if($("#" + id).children("select").length == 1){ /* select */
-			$("#" + id).children("select").val(data[id]);
-		}else if($("#" + id).children("div.module").length == 1){ /* module */
-			var module = $("#" + id).children("div.module");		
-			saveModuleData(module, data[id]);
-		}else{ /* other */
-			console.log("Unable to set " + id + " with value " + data[id]);
-		}
-	}
-}
+//xpath_accessor = function(data){
+//	for (id in data){
+//		console.log(id + " -> " + data[id]);
+//		if ($("#" + id).children("input").length == 1){ /* input */
+//			$("#" + id).children("input").val(data[id]);
+//		}else if($("#" + id).children("select").length == 1){ /* select */
+//			$("#" + id).children("select").val(data[id]);
+//		}else if($("#" + id).children("div.module").length == 1){ /* module */
+//			var module = $("#" + id).children("div.module");
+//			saveModuleData(module, data[id]);
+//		}else{ /* other */
+//			console.log("Unable to set " + id + " with value " + data[id]);
+//		}
+//	}
+//}

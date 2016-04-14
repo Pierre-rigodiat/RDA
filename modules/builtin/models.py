@@ -52,6 +52,12 @@ class OptionsModule(Module):
         template = os.path.join(TEMPLATES_PATH, 'options.html')
         options_html = ""
 
+        if 'data' in request.GET:
+            self.selected = request.GET['data']
+
+        if self.selected not in self.options.keys():
+            self.selected = None
+
         for key, val in self.options.items():
             if self.selected is not None and key == self.selected:
                 options_html += "<option value='" + key + "' selected>" + val + "</option>"
