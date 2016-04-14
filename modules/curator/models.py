@@ -343,10 +343,12 @@ class AutoKeyRefModule(OptionsModule):
     def _get_module(self, request):
         # look for existing values
         try:
-            keyrefId = request.GET['keyref']
+            # keyrefId = request.GET['keyref'] if 'keyref' in request.GET else None
             module_id = request.GET['module_id']
+            module = SchemaElement.objects().get(pk=module_id)
+            keyrefId = module.options['params']['keyref']
             # register the module id in the structure
-            if module_id not in request.session['keyrefs'][keyrefId]['module_ids']:
+            if str(module_id) not in request.session['keyrefs'][keyrefId]['module_ids']:
                 request.session['keyrefs'][keyrefId]['module_ids'].append(str(module_id))
 
             # get the list of values for this key
