@@ -18,42 +18,33 @@ function autoKeyHandler (mutationRecords) {
 	console.log('current: ' + current_nbAutoKey);
 	// number of keys has changed
 	if (current_nbAutoKey != nbAutoKey){
-		// a key has been added (or more)
-		if (current_nbAutoKey > nbAutoKey){
-			console.log('Keys have been added.')
-			nbAutoKey = current_nbAutoKey;
-		    $.ajax({
-		        url : "/modules/curator/get-updated-keys",
-		        type : "GET",
-		        dataType: "json",
-		        success: function(data){
-		        	console.log(data);
-		        	for (key_name in data){
-		        		console.log(key_name);
-		        		console.log(data[key_name]['tagIDs']);
-		        		var i;
-		        		for (i = 0; i < data[key_name]['tagIDs'].length; ++i) {
-		        		    tagID = data[key_name]['tagIDs'][i];
-		        		    console.log(tagID);
-		        		    // build the new options
-		        		    options = ''
-		        		    for (j = 0; j < data[key_name]['ids'].length; ++j) {
-		        		    	id = data[key_name]['ids'][j]
-		        		    	console.log(id);
-		        		    	options += "<option value='" + id + "'>" + id + "</option>"
-		        		    }
-		        		    console.log(options)
-		        			var select = $("#" + tagID).children("div.module").children(".moduleContent").find("select");
-		        		    selectedOption = select.val();
-		        		    // set the new options
-		        		    select.html(options);
-		        		    select.val(selectedOption);
-				        }
-		    		}
-		    	}
-		    });
-		} else { // a key has been removed (or more)
-			console.log('Keys have been removed.')
-		}
+        console.log('Number of Keys has changed.')
+        nbAutoKey = current_nbAutoKey;
+        $.ajax({
+            url : "/modules/curator/get-updated-keys",
+            type : "GET",
+            dataType: "json",
+            success: function(data){
+                console.log(data);
+                var i;
+                for (i = 0; i < data.length; ++i) {
+                    var module_id = data[i];
+                    console.log(module_id);
+                    $.ajax({
+                        url : "/modules/curator/auto-keyref?module_id=" + data[i],
+                        type : "GET",
+                        async : false,
+                        success: function(response){
+                            console.log("Replace refs " + module_id);
+                            console.log(response);
+                            $("#" + module_id ).replaceWith(response);
+                        },
+                        error: function(){
+                            console.log("Error");
+                        }
+                    });
+                }
+            }
+        });
 	} 
 }

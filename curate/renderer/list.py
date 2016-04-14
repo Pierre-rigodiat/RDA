@@ -587,10 +587,6 @@ class ListRenderer(AbstractListRenderer):
         if module_options['data'] is not None:
             module_request.GET['data'] = module_options['data']
 
-        # add extra parameters coming from url parameters
-        if module_options['params'] is not None:
-            module_request.GET.update(module_options['params'])
-
         if module_options['attributes'] is not None:
             module_request.GET['attributes'] = module_options['attributes']
 

@@ -239,32 +239,34 @@ class AutoKeyModule(SyncInputModule):
                                  disabled=True)
 
     def _get_module(self, request):
-        if 'key' in request.GET:
-            # get the name of the key
-            keyId = request.GET['key']
 
-            module_id = request.GET['module_id']
-            # register the module id in the structure
-            if module_id not in request.session['keys'][keyId]['module_ids']:
-                request.session['keys'][keyId]['module_ids'].append(str(module_id))
+        # get the name of the key
+        # keyId = request.GET['key']
+        module_id = request.GET['module_id']
+        module = SchemaElement.objects().get(pk=module_id)
+        keyId = module.options['params']['key']
 
-            # get the list of values for this key
-            values = []
-            modules_ids = request.session['keys'][keyId]['module_ids']
-            for module_id in modules_ids:
-                module = SchemaElement.objects().get(pk=module_id)
-                if module.options['data'] is not None:
-                    values.append(module.options.data)
+        # register the module id in the structure
+        if str(module_id) not in request.session['keys'][keyId]['module_ids']:
+            request.session['keys'][keyId]['module_ids'].append(str(module_id))
 
-            # if data are present
-            if 'data' in request.GET:
-                # set the key coming from data
-                key = request.GET['data']
-            else:
-                # generate a unique key
-                key = self.generateKey(values)
-            # set the value of the module with the key
-            self.default_value = key
+        # get the list of values for this key
+        values = []
+        modules_ids = request.session['keys'][keyId]['module_ids']
+        for module_id in modules_ids:
+            module = SchemaElement.objects().get(pk=module_id)
+            if module.options['data'] is not None:
+                values.append(module.options['data'])
+
+        # if data are present
+        if 'data' in request.GET:
+            # set the key coming from data
+            key = request.GET['data']
+        else:
+            # generate a unique key
+            key = self.generateKey(values)
+        # set the value of the module with the key
+        self.default_value = key
 
         return SyncInputModule.get_module(self, request)
 

@@ -40,12 +40,13 @@ class Module(object):
             raise ModuleError('Only GET and POST methods can be used to communicate with a module.')
 
     def _get(self, request):
+        module_id = request.GET['module_id']
         template_data = {
-            'module_id': request.GET['module_id'],
+            'module_id': module_id,
             'module': '',
             'display': '',
             'result': '',
-            'url': request.GET['url']
+            'url': SchemaElement.objects().get(pk=module_id).options['url']
         }
 
         try:
