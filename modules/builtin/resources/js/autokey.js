@@ -36,7 +36,6 @@ function autoKeyHandler (mutationRecords) {
                         async : false,
                         success: function(response){
                             console.log("Replace refs " + module_id);
-                            console.log(response);
                             $("#" + module_id ).replaceWith(response);
                         },
                         error: function(){
