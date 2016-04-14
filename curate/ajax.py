@@ -1329,6 +1329,7 @@ def generate_choice_branch(request):
 
     xml_element = xml_doc_tree.xpath(xsd_xpath, namespaces=namespaces)[0]
 
+    # FIXME: Support all possibilities
     if element.tag == 'element':
         # provide xpath without element name because already generated in generate_element
         form_string = generate_element(request, xml_element, xml_doc_tree, full_path=xml_xpath.rsplit('/', 1)[0])

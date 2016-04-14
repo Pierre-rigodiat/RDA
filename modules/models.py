@@ -41,12 +41,13 @@ class Module(object):
 
     def _get(self, request):
         module_id = request.GET['module_id']
+        url = request.GET['url'] if 'url' in request.GET else SchemaElement.objects().get(pk=module_id).options['url']
         template_data = {
             'module_id': module_id,
             'module': '',
             'display': '',
             'result': '',
-            'url': SchemaElement.objects().get(pk=module_id).options['url']
+            'url': url
         }
 
         try:
@@ -62,7 +63,7 @@ class Module(object):
             options['data'] = result
             module_element.update(set__options=options)
 
-            module_element.save()
+            module_element.reload()
         except Exception, e:
             raise ModuleError('Something went wrong during module initialization: ' + e.message)
 
@@ -98,7 +99,7 @@ class Module(object):
                 options['data'] = self._post_result(request)['data']
                 options['attributes'] = self._post_result(request)['attributes']
             else:
-                options['data'] = self._post_result(request)
+                options['data'] = post_result
 
             # TODO Implement this system instead
             # options['content'] = self._get_content(request)

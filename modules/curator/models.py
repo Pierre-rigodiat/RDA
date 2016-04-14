@@ -360,10 +360,16 @@ class AutoKeyRefModule(OptionsModule):
                 if module.options['data'] is not None:
                     values.append(module.options['data'])
 
+            # add empty value
+            self.options.update({'': ''})
             for value in values:
                 self.options.update({str(value): str(value)})
+
+            self.selected = ''
             if 'data' in request.GET:
                 self.selected = request.GET['data']
+            elif 'data' in module.options['params'] and module.options['params']['data'] is not None:
+                self.selected = module.options['params']['data']
         except Exception:
             self.options = {}
         return OptionsModule.get_module(self, request)
@@ -372,9 +378,7 @@ class AutoKeyRefModule(OptionsModule):
         return ''
 
     def _get_result(self, request):
-        if 'data' in request.GET:
-            return request.GET['data']
-        return ''
+        return self.selected
 
     def _post_display(self, request):
         return ''
