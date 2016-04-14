@@ -355,10 +355,10 @@ class AutoKeyRefModule(OptionsModule):
             keyId = request.session['keyrefs'][keyrefId]['refer']
             values = []
             modules_ids = request.session['keys'][keyId]['module_ids']
-            for module_id in modules_ids:
-                module = SchemaElement.objects().get(pk=module_id)
-                if module.options['data'] is not None:
-                    values.append(module.options['data'])
+            for key_module_id in modules_ids:
+                key_module = SchemaElement.objects().get(pk=key_module_id)
+                if key_module.options['data'] is not None:
+                    values.append(key_module.options['data'])
 
             # add empty value
             self.options.update({'': ''})
@@ -368,8 +368,8 @@ class AutoKeyRefModule(OptionsModule):
             self.selected = ''
             if 'data' in request.GET:
                 self.selected = request.GET['data']
-            elif 'data' in module.options['params'] and module.options['params']['data'] is not None:
-                self.selected = module.options['params']['data']
+            elif 'data' in module.options and module.options['data'] is not None:
+                self.selected = str(module.options['data'])
         except Exception:
             self.options = {}
         return OptionsModule.get_module(self, request)

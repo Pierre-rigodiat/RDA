@@ -52,9 +52,6 @@ class OptionsModule(Module):
         template = os.path.join(TEMPLATES_PATH, 'options.html')
         options_html = ""
 
-        if 'data' in request.GET:
-            self.selected = request.GET['data']
-
         if self.selected not in self.options.keys():
             self.selected = None
 
@@ -259,10 +256,10 @@ class AutoKeyModule(SyncInputModule):
         # get the list of values for this key
         values = []
         modules_ids = request.session['keys'][keyId]['module_ids']
-        for module_id in modules_ids:
-            module = SchemaElement.objects().get(pk=module_id)
-            if module.options['data'] is not None:
-                values.append(module.options['data'])
+        for key_module_id in modules_ids:
+            key_module = SchemaElement.objects().get(pk=key_module_id)
+            if key_module.options['data'] is not None:
+                values.append(key_module.options['data'])
 
         # if data are present
         if 'data' in request.GET:
