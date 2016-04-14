@@ -1,10 +1,9 @@
 import json
 from rest_framework import status
 from modules.utils import sanitize
-# from mgi.models import Module
 from modules import get_module_view
-# from models import ModuleManager
 from django.http import HttpResponse
+
 
 def load_resources_view(request):
     """ Load resources for a given list of modules
@@ -36,11 +35,6 @@ def load_resources_view(request):
         'scripts': [],
         'styles': []
     }
-
-    # loaded_resources = {
-    #     'scripts': [],
-    #     'styles': []
-    # }
 
     # Add all resources from requested modules
     for url in mod_urls:
@@ -77,7 +71,6 @@ def load_resources_view(request):
                     i = resources[key].index(resource)
                     del resources[key][i]
 
-
     # Build response content
     response = {
         'scripts': "",
@@ -87,23 +80,22 @@ def load_resources_view(request):
     # Aggregate scripts
     for script in resources['scripts']:
         if script.startswith('http://') or script.startswith('https://'):
-            script_tag = '<script src="' + script + '"></script>'
+            script_tag = '<script class="module" src="' + script + '"></script>'
         else:
             with open(script, 'r') as script_file:
-                script_tag = '<script>' + script_file.read() + '</script>'
+                script_tag = '<script class="module">' + script_file.read() + '</script>'
 
         response['scripts'] += script_tag
 
     # Aggregate styles
     for style in resources['styles']:
         if style.startswith('http://') or style.startswith('https://'):
-            script_tag = '<link rel="stylesheet" type="text/css" href="' + style + '"></link>'
+            script_tag = '<link class="module" rel="stylesheet" type="text/css" href="' + style + '"></link>'
         else:
             with open(style, 'r') as script_file:
-                script_tag = '<style>' + script_file.read() + '</style>'
+                script_tag = '<style class="module">' + script_file.read() + '</style>'
 
         response['styles'] += script_tag
 
     # Send response
     return HttpResponse(json.dumps(response), status=status.HTTP_200_OK)
-

@@ -1,6 +1,8 @@
 updateForm = function(event) {
     event.preventDefault();
 
+    var $changedModule = $(this);
+
     $('input').each(function(index, item) {
         var $input = $(item);
 
@@ -38,11 +40,14 @@ updateForm = function(event) {
 
             }
         });
-
     });
 
     $('.module').each(function(index, item) {
         var $module = $(item);
+
+        if ( $changedModule.attr('id') == $module.attr('id') ) {
+            return;
+        }
 
         $.ajax({
             'url': '/curate/element_value',
@@ -58,7 +63,6 @@ updateForm = function(event) {
 
             }
         });
-
     });
 };
 

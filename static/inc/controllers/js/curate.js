@@ -156,6 +156,16 @@ clear_fields = function(){
         dataType: "json",
         success: function(data){
             $("#xsdForm").html(data.xsdForm);
+
+            $('link.module').each(function(index, item) {
+                item.remove();
+            });
+
+            $('script.module').each(function(index, item) {
+                item.remove();
+            });
+
+            initModules();
         }
     });
 }

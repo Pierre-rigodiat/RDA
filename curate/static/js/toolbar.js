@@ -5,10 +5,6 @@ sendSaveRequest = function() {
         'url': '/curate/save_form',
         'type': 'POST',
         'dataType': 'json',
-        /*'data': {
-            'id': inputId,
-            'value': $input.val()
-        },*/
         success: function(data) {
             $( "#dialog-saved-message" ).dialog({
                 modal: true,
