@@ -745,7 +745,7 @@ def getData(request):
 
         if str(url).__contains__('?'):
             registryURl = str(url).split('?')[0]
-            #Check if the data provider is available
+            #Check if the OAI Registry is available
             try:
                 sickle = Sickle(registryURl)
                 sickle.Identify()
@@ -837,7 +837,7 @@ def harvest(request):
                             objOaiMFSets.save()
                         else:
                             allErrors.append(errors)
-            #If we don't have to search by set or the data provider doesn't support sets
+            #If we don't have to search by set or the OAI Registry doesn't support sets
             else:
                 for metadataFormat in metadataformats:
                     try:

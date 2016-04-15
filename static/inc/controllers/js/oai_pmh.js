@@ -1,29 +1,43 @@
 var emptyEntry = '----------'
 
+////////////////////////////////////////////////
+///////// OAI Data Provider Management /////////
+////////////////////////////////////////////////
+
+/**
+ * Clear DP add form
+ */
 clearAdd = function ()
 {
     clearAddError();
     $( "#form_add" )[0].reset();
 }
 
+/**
+ * Clear DP add error banner
+ */
 clearAddError = function ()
 {
     $("#banner_add_errors").hide()
     $("#form_add_errors").html("");
 }
 
+/**
+ * Clear DP edit error banner
+ */
 clearEditError = function ()
 {
     $("#banner_edit_errors").hide()
     $("#form_edit_errors").html("");
 }
 
+/**
+ * Display the add form
+ */
 displayAddRegistry = function()
 {
  $(function() {
     clearAdd();
-//    $('#duration').durationPicker();
-
     $( "#dialog-registry" ).dialog({
       modal: true,
       width: 550,
@@ -70,20 +84,19 @@ displayAddRegistry = function()
   });
 }
 
-
+/**
+ * Validate add registry entries
+ */
 validateRegistry = function()
 {
     errors = ""
-
     if ($( "#id_url" ).val().trim() == ""){
         errors += "<li>Please enter a URL.</li>"
     }
-
     harvest = $( "#id_harvestrate" ).val();
     if (!(Math.floor(harvest) == harvest && $.isNumeric(harvest) && harvest > 0)){
         errors += "<li>Please enter a positive integer.</li>"
     }
-
 	if (errors != ""){
 	    error = "<ul>";
 	    error += errors
@@ -97,6 +110,9 @@ validateRegistry = function()
     return true;
 }
 
+/**
+ * Validate edit registry entries
+ */
 validateRegistryEdit = function()
 {
     errors = ""
@@ -124,7 +140,7 @@ validateRegistryEdit = function()
 
 
 /**
- * Show a dialog when a result is selected
+ * AJAX call, Show a dialog for editing DP values
  */
 editRegistry = function(registryId)
 {
@@ -168,7 +184,10 @@ editRegistry = function(registryId)
     });
 }
 
-
+/**
+ * AJAX call, Load the edit form
+ * @param registry Id
+ */
 load_edit_form = function(registryId){
 	$.ajax({
         url : "update/registry",
@@ -180,12 +199,15 @@ load_edit_form = function(registryId){
         success: function(data){
             $("#form_edit_errors").html("");
             $("#form_edit_current").html(data.template);
-//            $('#id_harvestrate').durationPicker();
             Reinit();
         }
     });
 }
 
+/**
+ * Delete the registry
+ * @param registry_id Registry Id
+ */
 deleteRegistry = function(registry_id)
 {
  $(function() {
@@ -227,31 +249,10 @@ delete_registry = function(registry_id){
     });
 }
 
-enterKeyPressSubscription = function ()
-{
-    $('#id_name').keypress(function(event) {
-        if(event.which == $.ui.keyCode.ENTER){
-            event.preventDefault();
-            event.stopPropagation();
-        }
-    });
 
-    $('#id_result_name').keypress(function(event) {
-        if(event.which == $.ui.keyCode.ENTER){
-            event.preventDefault();
-            event.stopPropagation();
-        }
-    });
-
-    $('#id_name').keypress(function(event) {
-        if(event.which == $.ui.keyCode.ENTER){
-            event.preventDefault();
-            event.stopPropagation();
-        }
-    });
-}
-
-
+/**
+ * AJAX call, Check all status
+ */
 checkAllStatus = function ()
 {
     var registriesCheck = $("td[id^=Status]")
@@ -261,6 +262,10 @@ checkAllStatus = function ()
     });
 }
 
+/**
+ * AJAX call, check status of a registry
+ * @param registry_id id of the registry
+ */
 checkStatus = function (registry_id, url)
 {
     $("#Status"+registry_id).css("color", "#000000");
@@ -292,10 +297,14 @@ checkStatus = function (registry_id, url)
     });
 }
 
+/**
+ * AJAX call, view registry's information
+ * @param registry_id of the registry
+ */
 viewRegistry = function(id){
     $( "#pleaseWaitDialog").show();
 	$.ajax({
-        url : "oai-pmh-detail-registry?id=" + id,
+        url : "oai-pmh-detail-registry?id=" + registry_id,
         type : "GET",
         success: function(data){
             $( "#pleaseWaitDialog").hide();
@@ -318,22 +327,85 @@ viewRegistry = function(id){
 }
 
 /**
- * Show/hide
- * @param event
+ * AJAX call, harvest all data
  */
-showhide = function(event){
-	console.log('BEGIN [showhide]');
-	button = event.target
-	parent = $(event.target).parent()
-	$(parent.children()[2]).toggle("blind",500);
-	if ($(button).attr("class") == "expand"){
-		$(button).attr("class","collapse");
-	}else{
-		$(button).attr("class","expand");
-	}
+harvestAllData = function ()
+{
+    var registriesCheck = $("span[id^=harvest]:visible")
 
-	console.log('END [showhide]');
+    $.each(registriesCheck, function(index, props) {
+         harvestData($(props).attr('registryID'));
+    });
 }
+
+
+/**
+ * AJAX call, harvest data for a Registry
+ * @param registry_id id of the registry
+ */
+harvestData = function(registry_id){
+    $("#banner"+registry_id).show(200);
+    $("#harvest"+registry_id).hide(200);
+    $.ajax({
+        url : 'harvest',
+        type : "POST",
+        dataType: "json",
+        async: true,
+        data : {
+        	registry_id : registry_id,
+        },
+        success: function(data){
+            checkHarvestData();
+        },
+        error:function(data){
+	    }
+    });
+}
+
+/**
+ * AJAX call, check harvest data for all Registries
+ */
+checkHarvestData = function()
+{
+    $.ajax({
+        url : 'check/harvest-data',
+        type : "POST",
+        dataType: "json",
+        async: true,
+        data : {
+        },
+        success: function(data){
+            $.map(data, function (item) {
+                if(item.isHarvesting)
+                {
+                    $("#harvest" + item.registry_id).hide(200);
+                    $("#banner"+ item.registry_id).show(200);
+                }
+                else
+                {
+                    $("#banner"+ item.registry_id).hide(200);
+                    $("#harvest" + item.registry_id).show(200);
+                    if(item.lastUpdate != '')
+                        $("#lastUpdate"+ item.registry_id).html(item.lastUpdate);
+                }
+             });
+        },
+        error:function(data){
+	    }
+    });
+//    Refresh every 30 seconds
+    setTimeout(checkHarvestData, 30000);
+}
+
+////////////////////////////////////////////////
+////////////////////////////////////////////////
+////////////////////////////////////////////////
+
+
+
+////////////////////////////////////////////////
+/////////////// Build Request //////////////////
+////////////////////////////////////////////////
 
 /**
 * Perform check before submit
@@ -368,14 +440,6 @@ checkSubmit = function() {
     if (label == '') {
         submit();
     } else {
-//        $( "#alert" ).html(label);
-//        $( "#dialogError" ).dialog({
-//            buttons : {
-//                'Ok': function() {
-//                    $(this).dialog("close");
-//                }
-//            }
-//        });
         $("#banner_build_errors").show(200);
         $("#build_errors").html(label);
     }
@@ -512,6 +576,18 @@ downloadXmlBuildReq = function(){
 }
 
 
+////////////////////////////////////////////////
+////////////////////////////////////////////////
+////////////////////////////////////////////////
+
+
+////////////////////////////////////////////////
+////////// My server's Information /////////////
+////////////////////////////////////////////////
+
+/**
+ * Clear edit errors banner
+ */
 clearMyEditError = function ()
 {
     $("#banner_edit_my_errors").hide()
@@ -568,7 +644,10 @@ editMyRegistry = function()
   });
 }
 
-
+/**
+* Load edit form for my registry
+*/
+checkSubmit
 load_edit_my_registry_form = function(registryId){
 	$.ajax({
         url : "update/my-registry",
@@ -584,14 +663,16 @@ load_edit_my_registry_form = function(registryId){
     });
 }
 
+/**
+* Validate edit form entries
+*/
+checkSubmit
 validateEditMyRegistry = function()
 {
     errors = ""
-
     if ($( "#id_name" ).val().trim() == ""){
         errors += "<li>Please enter a name.</li>"
     }
-
 	if (errors != ""){
 	    error = "<ul>";
 	    error += errors
@@ -605,146 +686,29 @@ validateEditMyRegistry = function()
     return true;
 }
 
-
 /**
- * AJAX call, harvest all data
- */
-harvestAllData = function ()
-{
-    var registriesCheck = $("span[id^=harvest]:visible")
-
-    $.each(registriesCheck, function(index, props) {
-         harvestData($(props).attr('registryID'));
-    });
-}
-
-
-/**
- * AJAX call, harvest data for a Registry
- * @param registry_id id of the registry
- */
-harvestData = function(registry_id){
-    $("#banner"+registry_id).show(200);
-    $("#harvest"+registry_id).hide(200);
-    $.ajax({
-        url : 'harvest',
-        type : "POST",
-        dataType: "json",
-        async: true,
-        data : {
-        	registry_id : registry_id,
-        },
-        success: function(data){
-            checkHarvestData();
-        },
-        error:function(data){
-	    }
-    });
-}
-
-/**
- * AJAX call, check harvest data for all Registries
- */
-checkHarvestData = function()
-{
-    $.ajax({
-        url : 'check/harvest-data',
-        type : "POST",
-        dataType: "json",
-        async: true,
-        data : {
-        },
-        success: function(data){
-            $.map(data, function (item) {
-                if(item.isHarvesting)
-                {
-                    $("#harvest" + item.registry_id).hide(200);
-                    $("#banner"+ item.registry_id).show(200);
-                }
-                else
-                {
-                    $("#banner"+ item.registry_id).hide(200);
-                    $("#harvest" + item.registry_id).show(200);
-                    if(item.lastUpdate != '')
-                        $("#lastUpdate"+ item.registry_id).html(item.lastUpdate);
-                }
-             });
-        },
-        error:function(data){
-	    }
-    });
-//    Refresh every 30 seconds
-    setTimeout(checkHarvestData, 30000);
-}
-
-
-
-
-
-Init = function(){
-    var buttonsetElts = $("td[id^=ButtonSet]")
-    $.each(buttonsetElts, function(index, props) {
-         $("#"+props.id).buttonset();
-    });
-    checkHarvestData();
-}
-
-Reinit = function(){
-    var buttonsetElts = $("#form_edit_current td[id^=ButtonSet]")
-    $.each(buttonsetElts, function(index, props) {
-         $("#"+props.id).buttonset();
-    });
-    enterKeyPressSubscription();
-}
-
-init = function(){
-    populateSelect();
-    $("select").on('change', function() {
-      $("#build_errors").html("");
-      $("#banner_build_errors").hide(200);
-    });
-    $("input").on('change', function() {
-      $("#build_errors").html("");
-      $("#banner_build_errors").hide(200);
-    });
-
-    $("select#id_dataProvider").on('change', function() {
-      populateSelect();
-    });
-
-    $('#id_until').datetimepicker({
-        weekStart: 1,
-        todayBtn:  1,
-		autoclose: 1,
-		todayHighlight: 1,
-		startView: 2,
-		forceParse: 0,
-        showMeridian: 1
-    });
-    $('#id_From').datetimepicker({
-        weekStart: 1,
-        todayBtn:  1,
-		autoclose: 1,
-		todayHighlight: 1,
-		startView: 2,
-		forceParse: 0,
-        showMeridian: 1
-    });
-}
-
-
+* Clear add my metadata format form
+*/
+checkSubmit
 clearAddMF = function ()
 {
     clearAddMFError();
     $( "#form_add_MF" )[0].reset();
 }
 
+/**
+* Clear add my metadata format error banner
+*/
+checkSubmit
 clearAddMFError = function ()
 {
     $("#banner_add_MF_errors").hide()
     $("#form_add_MF_errors").html("");
 }
 
+/**
+* Validate add my metadata format form
+*/
 validateMetadataFormat = function()
 {
     errors = ""
@@ -778,6 +742,9 @@ validateMetadataFormat = function()
     return true;
 }
 
+/**
+* Disaply add my metadata format form
+*/
 displayAddMetadataFormat = function()
 {
  $(function() {
@@ -830,6 +797,9 @@ displayAddMetadataFormat = function()
   });
 }
 
+/**
+* Delete my metadata format form
+*/
 deleteMetadataFormat = function(metadataformat_id)
 {
  $(function() {
@@ -872,20 +842,24 @@ delete_metadata_format = function(metadataformat_id){
 }
 
 
+/**
+* Clear edit my metadata format form
+*/
 clearMFEditError = function ()
 {
     $("#banner_edit_mf_errors").hide()
     $("#form_edit_mf_errors").html("");
 }
 
+/**
+* Validate edit my metadata format form
+*/
 validateMetadataFormatEdit = function()
 {
     errors = ""
-
     if ($( "#form_edit_mf_current #id_metadataPrefix" ).val().trim() == ""){
         errors += "<li>Please enter a Metadata Prefix.</li>"
     }
-
 	if (errors != ""){
 	    error = "<ul>";
 	    error += errors
@@ -953,6 +927,9 @@ editMetadataFormat = function(metadataFormatId)
 }
 
 
+/**
+* Load edit my metadata format form
+*/
 load_mf_edit_form = function(metadataFormatId){
 	$.ajax({
         url : "update/my-metadataFormat",
@@ -964,6 +941,7 @@ load_mf_edit_form = function(metadataFormatId){
         success: function(data){
             $("#form_edit_mf_errors").html("");
             $("#form_edit_mf_current").html(data.template);
+            enterKeyPressSubscription();
         }
     });
 }
@@ -972,18 +950,27 @@ load_mf_edit_form = function(metadataFormatId){
 
 //////////////////////////// SETS
 
+/**
+* Clear add my set form
+*/
 clearAddSet = function ()
 {
     clearAddMFError();
     $( "#form_add_set" )[0].reset();
 }
 
+/**
+* Clear add my set error banner
+*/
 clearAddSetError = function ()
 {
     $("#banner_add_set_errors").hide()
     $("#form_add_set_errors").html("");
 }
 
+/**
+* Validate add my set form
+*/
 validateSet = function()
 {
     errors = ""
@@ -1009,6 +996,9 @@ validateSet = function()
     return true;
 }
 
+/**
+* Display add my set form
+*/
 displayAddSet = function()
 {
  $(function() {
@@ -1059,6 +1049,9 @@ displayAddSet = function()
   });
 }
 
+/**
+* Delete one of my set
+*/
 deleteSet = function(set_id)
 {
  $(function() {
@@ -1100,21 +1093,24 @@ delete_set = function(set_id){
     });
 }
 
-
+/**
+* Clear edit my set error banner
+*/
 clearSetEditError = function ()
 {
     $("#banner_edit_set_errors").hide()
     $("#form_edit_set_errors").html("");
 }
 
+/**
+* Validate edit my set form
+*/
 validateSetEdit = function()
 {
     errors = ""
-
     if ($( "#form_edit_set_current #id_setSpec" ).val().trim() == ""){
         errors += "<li>Please enter a set spec.</li>"
     }
-
     if ($( "#form_edit_set_current #id_setName" ).val().trim() == ""){
         errors += "<li>Please enter a set name.</li>"
     }
@@ -1185,7 +1181,9 @@ editSet = function(setId)
     });
 }
 
-
+/**
+* Load edit my set form
+*/
 load_set_edit_form = function(setId){
 	$.ajax({
         url : "update/my-set",
@@ -1204,6 +1202,9 @@ load_set_edit_form = function(setId){
 
 //////////////////////HARVEST
 
+/**
+* Validate registry-edit-harvest my set form
+*/
 validateRegistryEditHarvest = function()
 {
     errors = ""
@@ -1228,7 +1229,8 @@ validateRegistryEditHarvest = function()
 
 
 /**
- * Show a dialog when a result is selected
+ * Show a dialog to edit harvest registry configuration
+ * @param registry_id Registry ID
  */
 editHarvestRegistry = function(registry_id)
 {
@@ -1241,11 +1243,17 @@ editHarvestRegistry = function(registry_id)
           height: 600,
           buttons:
               [
-               {
+                {
+                   text: "Cancel",
+                   click: function() {
+                            $( this ).dialog( "close" );
+                    }
+                },
+                {
                    text: "Edit",
                    click: function() {
                         clearEditError();
-//                        if(validateRegistryEdit())
+//                      if(validateRegistryEdit())
                         if(true)
                         {
                             var formData = new FormData($( "#form_edit_harvest" )[0]);
@@ -1268,13 +1276,15 @@ editHarvestRegistry = function(registry_id)
                             ;
                         }
                    }
-               }
+                }
               ]
         });
     });
 }
 
-
+/**
+* Load edit-harvest form
+*/
 load_edit_harvest_form = function(registry_id){
 	$.ajax({
         url : "update/registry-harvest",
@@ -1291,10 +1301,123 @@ load_edit_harvest_form = function(registry_id){
     });
 }
 
+/**
+* Init buttonset
+*/
 HarvestButton = function(){
     var buttonsetElts = $("#form_edit_harvest td[id^=ButtonSet]")
     $.each(buttonsetElts, function(index, props) {
          $("#"+props.id).buttonset();
     });
     enterKeyPressSubscription();
+}
+
+////////////////////////////////////////////////
+////////////////////////////////////////////////
+////////////////////////////////////////////////
+
+
+
+Init = function(){
+    var buttonsetElts = $("td[id^=ButtonSet]")
+    $.each(buttonsetElts, function(index, props) {
+         $("#"+props.id).buttonset();
+    });
+    enterKeyPressSubscription();
+}
+
+Reinit = function(){
+    var buttonsetElts = $("#form_edit_current td[id^=ButtonSet]")
+    $.each(buttonsetElts, function(index, props) {
+         $("#"+props.id).buttonset();
+    });
+    enterKeyPressSubscription();
+}
+
+init = function(){
+    populateSelect();
+    $("select").on('change', function() {
+      $("#build_errors").html("");
+      $("#banner_build_errors").hide(200);
+    });
+    $("input").on('change', function() {
+      $("#build_errors").html("");
+      $("#banner_build_errors").hide(200);
+    });
+
+    $("select#id_dataProvider").on('change', function() {
+      populateSelect();
+    });
+
+    $('#id_until').datetimepicker({
+        weekStart: 1,
+        todayBtn:  1,
+		autoclose: 1,
+		todayHighlight: 1,
+		startView: 2,
+		forceParse: 0,
+        showMeridian: 1
+    });
+    $('#id_From').datetimepicker({
+        weekStart: 1,
+        todayBtn:  1,
+		autoclose: 1,
+		todayHighlight: 1,
+		startView: 2,
+		forceParse: 0,
+        showMeridian: 1
+    });
+}
+
+
+/**
+ * Show/hide
+ * @param event
+ */
+showhide = function(event){
+	console.log('BEGIN [showhide]');
+	button = event.target
+	parent = $(event.target).parent()
+	$(parent.children()[2]).toggle("blind",500);
+	if ($(button).attr("class") == "expand"){
+		$(button).attr("class","collapse");
+	}else{
+		$(button).attr("class","expand");
+	}
+
+	console.log('END [showhide]');
+}
+
+/**
+ * Avoid errors when the enter key is pressed
+ */
+enterKeyPressSubscription = function ()
+{
+    $('#id_name').keypress(function(event) {
+        if(event.which == $.ui.keyCode.ENTER){
+            event.preventDefault();
+            event.stopPropagation();
+        }
+    });
+
+    $('#id_result_name').keypress(function(event) {
+        if(event.which == $.ui.keyCode.ENTER){
+            event.preventDefault();
+            event.stopPropagation();
+        }
+    });
+
+    $('#id_name').keypress(function(event) {
+        if(event.which == $.ui.keyCode.ENTER){
+            event.preventDefault();
+            event.stopPropagation();
+        }
+    });
+
+    $('#form_edit_mf_current #id_metadataPrefix').keypress(function(event) {
+        if(event.which == $.ui.keyCode.ENTER){
+            event.preventDefault();
+            event.stopPropagation();
+        }
+    });
 }
