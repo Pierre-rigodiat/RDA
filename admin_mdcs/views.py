@@ -226,8 +226,9 @@ def manage_schemas(request):
         currentTemplates = dict()
         for tpl_version in currentTemplateVersions:
             tpl = Template.objects.get(pk=tpl_version)
-            templateVersions = TemplateVersion.objects.get(pk=tpl.templateVersion)
-            currentTemplates[tpl] = templateVersions.isDeleted
+            if tpl.user is None:
+                templateVersions = TemplateVersion.objects.get(pk=tpl.templateVersion)
+                currentTemplates[tpl] = templateVersions.isDeleted
 
         context = RequestContext(request, {
             'objects':currentTemplates,
@@ -256,8 +257,9 @@ def manage_types(request):
     currentTypes = dict()
     for type_version in currentTypeVersions:
         type = Type.objects.get(pk=type_version)
-        typeVersions = TypeVersion.objects.get(pk=type.typeVersion)
-        currentTypes[type] = typeVersions.isDeleted
+        if type.user is None:
+            typeVersions = TypeVersion.objects.get(pk=type.typeVersion)
+            currentTypes[type] = typeVersions.isDeleted
 
     context = RequestContext(request, {
         'objects':currentTypes,
