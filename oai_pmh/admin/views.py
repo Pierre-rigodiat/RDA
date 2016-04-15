@@ -67,19 +67,19 @@ def oai_pmh(request):
 # Inputs:        request -
 # Outputs:
 # Exceptions:    None
-# Description:   OAI-PMH Check if the Data Provider is available
+# Description:   OAI-PMH Check if the Registry is available
 #
 ################################################################################
 @login_required(login_url='/login')
 def check_registry(request):
     try:
-        #Get the data provider URL
+        #Get the oai registry URL
         form = Url(request.POST)
         if form.is_valid():
             #Call the identify function from the API.
             uri= OAI_HOST_URI + "/oai_pmh/api/objectidentify"
             req = requests.post(uri, {"url":request.POST.get("url")}, auth=(OAI_USER, OAI_PASS))
-            #If the return status is HTTP_200_OK, the data provider is available
+            #If the return status is HTTP_200_OK, the OAI Registry is available
             isAvailable = req.status_code == status.HTTP_200_OK
         else:
             isAvailable = False
@@ -245,7 +245,7 @@ def delete_registry(request):
 # Inputs:        request -
 # Outputs:       OAI-PMH Page
 # Exceptions:    None
-# Description:   Page that allows to get information about a Data provider
+# Description:   Page that allows to get information about a OAI Registry
 #
 ################################################################################
 @staff_member_required
@@ -267,7 +267,7 @@ def oai_pmh_detail_registry(request):
 # Inputs:        request -
 # Outputs:
 # Exceptions:    None
-# Description:   OAI-PMH -  Harvest Data from a Data Provider
+# Description:   OAI-PMH -  Harvest Data from a OAI Registry
 #
 # ################################################################################
 @login_required(login_url='/login')
