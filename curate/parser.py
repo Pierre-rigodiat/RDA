@@ -266,7 +266,7 @@ def get_xml_element_data(xsd_element, xml_element):
         else:  # branch: get the whole branch
             reload_data = etree.tostring(xml_element)
     elif xsd_element.tag == prefix + "attribute":
-        pass
+        return str(xml_element)
     elif xsd_element.tag == prefix + "complexType" or xsd_element.tag == prefix + "simpleType":
         # leaf: get the value
         if len(list(xml_element)) == 0:
