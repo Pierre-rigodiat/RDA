@@ -301,7 +301,7 @@ checkStatus = function (registry_id, url)
  * AJAX call, view registry's information
  * @param registry_id of the registry
  */
-viewRegistry = function(id){
+viewRegistry = function(registry_id){
     $( "#pleaseWaitDialog").show();
 	$.ajax({
         url : "oai-pmh-detail-registry?id=" + registry_id,
