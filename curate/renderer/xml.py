@@ -51,7 +51,7 @@ class XmlRenderer(AbstractXmlRenderer):
         self.isRoot = True
         super(XmlRenderer, self).__init__(xsd_data)
 
-    def render(self, partial=False):
+    def render(self):
         """
 
         Parameters:
@@ -162,6 +162,8 @@ class XmlRenderer(AbstractXmlRenderer):
                 attr_value = content[1]
             elif child.tag == 'input':
                 attr_value = child.value if child.value is not None else ''
+            elif child.tag == 'module':
+                attr_value = self.render_module(child)[1]
             else:
                 message = 'render_attribute: ' + child.tag + ' not handled'
                 self.warnings.append(message)
