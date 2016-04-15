@@ -15,12 +15,13 @@
 ################################################################################
 
 from mongoengine import *
+import json
 
 # Specific to MongoDB ordered inserts
 from collections import OrderedDict
 from bson.objectid import ObjectId
 import xmltodict
-from pymongo import MongoClient, TEXT, ASCENDING
+from pymongo import MongoClient, TEXT, ASCENDING, errors
 
 from mgi.settings import MONGODB_URI
 import re
@@ -552,6 +553,7 @@ class OaiMetadataFormat(Document):
     registry = StringField(required=False)
     hash = StringField(required=True)
     harvest = BooleanField()
+    lastUpdate = DateTimeField(required=False)
 
 class OaiMyMetadataFormat(Document):
     """
@@ -572,6 +574,7 @@ class OaiMySet(Document):
     setSpec  = StringField(required=True, unique=True)
     setName = StringField(required=True, unique=True)
 
+
 class OaiRecord(Document):
     """
         A record object
@@ -585,21 +588,127 @@ class OaiRecord(Document):
     raw = DictField(required=True)
     registry = StringField(required=False)
 
-    @staticmethod
-    def update_metadaformat(recordID, metadata=None):
-        """
-            Update the object with the given id
-        """
-        # create a connection
-        client = MongoClient(MONGODB_URI)
-        # connect to the db 'mgi'
-        db = client['mgi']
-        # get the xmldata collection
-        xmldata = db['oai_record']
-        json = {'metadata': metadata}
+    def save(self, metadata=None, force_insert=False, validate=True, clean=True,
+             write_concern=None,  cascade=None, cascade_kwargs=None,
+             _refs=None, **kwargs):
+        """Save the :class:`~mongoengine.Document` to the database. If the
+        document already exists, it will be updated, otherwise it will be
+        created.
 
-        xmldata.update({'_id': ObjectId(recordID)}, {"$set":json}, upsert=False)
+        :param force_insert: only try to create a new document, don't allow
+            updates of existing documents
+        :param validate: validates the document; set to ``False`` to skip.
+        :param clean: call the document clean method, requires `validate` to be
+            True.
+        :param write_concern: Extra keyword arguments are passed down to
+            :meth:`~pymongo.collection.Collection.save` OR
+            :meth:`~pymongo.collection.Collection.insert`
+            which will be used as options for the resultant
+            ``getLastError`` command.  For example,
+            ``save(..., write_concern={w: 2, fsync: True}, ...)`` will
+            wait until at least two servers have recorded the write and
+            will force an fsync on the primary server.
+        :param cascade: Sets the flag for cascading saves.  You can set a
+            default by setting "cascade" in the document __meta__
+        :param cascade_kwargs: (optional) kwargs dictionary to be passed throw
+            to cascading saves.  Implies ``cascade=True``.
+        :param _refs: A list of processed references used in cascading saves
 
+        .. versionchanged:: 0.5
+            In existing documents it only saves changed fields using
+            set / unset.  Saves are cascaded and any
+            :class:`~bson.dbref.DBRef` objects that have changes are
+            saved as well.
+        .. versionchanged:: 0.6
+            Added cascading saves
+        .. versionchanged:: 0.8
+            Cascade saves are optional and default to False.  If you want
+            fine grain control then you can turn off using document
+            meta['cascade'] = True.  Also you can pass different kwargs to
+            the cascade save using cascade_kwargs which overwrites the
+            existing kwargs with custom values.
+        """
+        if validate:
+            self.validate(clean=clean)
+
+        if write_concern is None:
+            write_concern = {"w": 1}
+
+        doc = self.to_mongo()
+        doc['metadata'] = metadata
+
+        created = ('_id' not in doc or self._created or force_insert)
+
+        try:
+            collection = self._get_collection()
+
+            if created:
+                if force_insert:
+                    object_id = collection.insert(doc, **write_concern)
+                else:
+                    object_id = collection.save(doc, **write_concern)
+            else:
+                object_id = doc['_id']
+                updates, removals = self._delta()
+                # Need to add shard key to query, or you get an error
+                select_dict = {'_id': object_id}
+                shard_key = self.__class__._meta.get('shard_key', tuple())
+                for k in shard_key:
+                    actual_key = self._db_field_map.get(k, k)
+                    select_dict[actual_key] = doc[actual_key]
+
+                def is_new_object(last_error):
+                    if last_error is not None:
+                        updated = last_error.get("updatedExisting")
+                        if updated is not None:
+                            return not updated
+                    return created
+
+                update_query = {}
+
+                if updates:
+                    #Always modified the metadata to have the lastest version. 'self._delta' not working with metadata field
+                    updates['metadata'] = metadata
+                    update_query["$set"] = updates
+                if removals:
+                    update_query["$unset"] = removals
+                if updates or removals:
+                    last_error = collection.update(select_dict, update_query,
+                                                   upsert=True, **write_concern)
+                    created = is_new_object(last_error)
+
+            if cascade is None:
+                cascade = self._meta.get('cascade', False) or cascade_kwargs is not None
+
+            if cascade:
+                kwargs = {
+                    "force_insert": force_insert,
+                    "validate": validate,
+                    "write_concern": write_concern,
+                    "cascade": cascade
+                }
+                if cascade_kwargs:  # Allow granular control over cascades
+                    kwargs.update(cascade_kwargs)
+                kwargs['_refs'] = _refs
+                self.cascade_save(**kwargs)
+        except errors.DuplicateKeyError, err:
+            message = u'Tried to save duplicate unique keys (%s)'
+            raise NotUniqueError(message % unicode(err))
+        except errors.OperationFailure, err:
+            message = 'Could not save document (%s)'
+            if re.match('^E1100[01] duplicate key', unicode(err)):
+                # E11000 - duplicate key error index
+                # E11001 - duplicate key on update
+                message = u'Tried to save duplicate unique keys (%s)'
+                raise NotUniqueError(message % unicode(err))
+            raise OperationError(message % unicode(err))
+        id_field = self._meta['id_field']
+        if id_field not in self._meta.get('shard_key', []):
+            self[id_field] = self._fields[id_field].to_python(object_id)
+
+        self._clear_changed_fields()
+        self._created = False
+        return self
 
     @staticmethod
     def initIndexes():
@@ -665,6 +774,14 @@ class OaiTemplMfXslt(Document):
     myMetadataFormat = ReferenceField(OaiMyMetadataFormat, reverse_delete_rule=CASCADE)
     xslt = ReferenceField(OaiXslt, reverse_delete_rule=CASCADE, unique_with=['template', 'myMetadataFormat'])
     activated = BooleanField()
+
+class OaiMetadataformatSet(Document):
+    """
+        A record object
+    """
+    set = ReferenceField(OaiSet, reverse_delete_rule=PULL)
+    metadataformat = ReferenceField(OaiMetadataFormat, reverse_delete_rule=PULL)
+    lastUpdate = DateTimeField(required=False)
 
 # class Sets(Document):
 #     """

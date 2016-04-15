@@ -27,7 +27,7 @@ from oai_pmh.api.serializers import IdentifyObjectSerializer, MetadataFormatSeri
     UpdateMyMetadataFormatSerializer, GetRecordSerializer, UpdateMySetSerializer, DeleteMySetSerializer, MySetSerializer
 # Models
 from mgi.models import OaiRegistry, OaiSet, OaiMetadataFormat, OaiIdentify, OaiSettings, Template, OaiRecord,\
-OaiMyMetadataFormat, OaiMySet
+OaiMyMetadataFormat, OaiMySet, OaiMetadataformatSet
 # DB Connection
 from pymongo import MongoClient
 from mgi.settings import MONGODB_URI, MGI_DB
@@ -783,6 +783,8 @@ def harvest(request):
     POST data query="{'registry_id':'value'}"
     """
     if request.user.is_authenticated():
+        #List of errors
+        allErrors = []
         try:
             try:
                 registry_id = request.DATA['registry_id']
@@ -796,10 +798,6 @@ def harvest(request):
             except:
                 content = {'message':'No registry found with the given parameters.'}
                 return Response(content, status=status.HTTP_404_NOT_FOUND)
-            try:
-                lastUpdate = datestamp.datetime_to_datestamp(registry.lastUpdate)
-            except:
-                lastUpdate = None
             #Set the last update date
             registry.lastUpdate = datetime.datetime.now()
             #We are harvesting
@@ -809,48 +807,126 @@ def harvest(request):
             #Get all available metadata formats
             metadataformats = OaiMetadataFormat.objects(registry=registry_id, harvest=True)
             #Get all sets
-            registrySets = OaiSet.objects(registry=registry_id).order_by("setName")
-            for metadataFormat in metadataformats:
-                # for set in registrySets:
-                dataLeft = True
-                resumptionToken = None
-                #Get all records. Use of the resumption token
-                while dataLeft:
-                    #Get the list of records
-                    # http_response, resumptionToken = getListRecords(url=url, metadataPrefix=metadataFormat.metadataPrefix, set=set, fromDate=lastUpdate, resumptionToken=resumptionToken)
-                    http_response, resumptionToken = getListRecords(url=url, metadataPrefix=metadataFormat.metadataPrefix, fromDate=lastUpdate, resumptionToken=resumptionToken)
-                    if http_response.status_code == status.HTTP_200_OK:
-                        rtn = http_response.data
-                        for info in rtn:
-                            #Get corresponding sets
-                            sets = [x for x in registrySets if x.setSpec in info['sets']]
-                            raw = xmltodict.parse(info['raw'])
-                            metadata = xmltodict.parse(info['metadata'])
-                            obj = OaiRecord(identifier=info['identifier'], datestamp=info['datestamp'], deleted=info['deleted'],
-                                   metadataformat=metadataFormat, sets=sets, raw=raw, registry=registry_id).save()
-                            OaiRecord.update_metadaformat(obj.id, metadata)
-                            records.append(obj)
-                    #There is more records if we have a resumption token.
-                    dataLeft = resumptionToken != None and resumptionToken != ''
-                    # #Else, we return a bad request response with the message provided by the API
-                    # else:
-                    #     content = http_response.data['error']
-                    #     return Response(content, status=http_response.status_code)
+            registryAllSets = OaiSet.objects(registry=registry_id).order_by("setName")
+            #Get all available  sets
+            registrySetsToHarvest = OaiSet.objects(registry=registry_id, harvest=True).order_by("setName")
+            #Check if we have to retrieve all sets or not. If all sets, no need to provide the set parameter in the
+            #harvest request. Avoid to retrieve same records for nothing (If records are in many sets).
+            searchBySets = len(registryAllSets) != len(registrySetsToHarvest)
+            #Search by sets
+            if searchBySets or len(registryAllSets) != 0:
+                for set in registrySetsToHarvest:
+                    for metadataFormat in metadataformats:
+                        currentDate = datetime.datetime.now()
+                        try:
+                            #Retrieve the last update for this metadata format and this set
+                            objOaiMFSets = OaiMetadataformatSet.objects(metadataformat=metadataFormat, set=set).get()
+                            lastUpdate = datestamp.datetime_to_datestamp(objOaiMFSets.lastUpdate)
+                            #Set the new date
+                            objOaiMFSets.lastUpdate = currentDate
+                        except:
+                            lastUpdate = None
+                            #Set the new date
+                            objOaiMFSets = OaiMetadataformatSet(metadataformat=metadataFormat, set=set, lastUpdate=currentDate)
+                        errors = harvestRecords(url, registry_id, metadataFormat, lastUpdate, registryAllSets, set)
+                        #If no exceptions was thrown and no errors occured, we can update the lastUpdate date
+                        if len(errors) == 0:
+                            #Set the last update date
+                            metadataFormat.lastUpdate = datetime.datetime.now()
+                            metadataFormat.save()
+                            objOaiMFSets.save()
+                        else:
+                            allErrors.append(errors)
+            #If we don't have to search by set or the data provider doesn't support sets
+            else:
+                for metadataFormat in metadataformats:
+                    try:
+                        #Retrieve the last update for this metadata format
+                        lastUpdate = datestamp.datetime_to_datestamp(metadataFormat.lastUpdate)
+                    except:
+                        lastUpdate = None
+                    #Update the new date for the metadataFormat
+                    currentDate = datetime.datetime.now()
+                    errors = harvestRecords(url, registry_id, metadataFormat, lastUpdate, registryAllSets)
+                    #If no exceptions was thrown and no errors occured, we can update the lastUpdate date
+                    if errors and len(errors) == 0:
+                        #Update the update date for all sets
+                        if len(registrySetsToHarvest) != 0:
+                            for set in registrySetsToHarvest:
+                                set.lastUpdate = currentDate
+                                set.save()
+                        #Update the update date
+                        metadataFormat.lastUpdate = currentDate
+                        metadataFormat.save()
+                    else:
+                        allErrors.append(errors)
             #Stop harvesting
             registry.isHarvesting = False
             registry.save()
-            #Return last harvested records
-            serializer = RecordSerializer(rtn)
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            #Return the harvest status
+            if len(allErrors) == 0:
+                content = {'message':'Harvest data succeeded without errors.'}
+            else:
+                content = {'message': errors}
+
+            return Response(content, status=status.HTTP_200_OK)
         except Exception as e:
             registry.isHarvesting = False
             registry.save()
-            content = {'message':'An error occurred when attempting to identify resource: %s'%e.message}
+            content = {'message':'An error occurred during the harvest process: %s'%e.message}
             return Response(content, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     else:
         content = {'message':'Only an administrator can use this feature.'}
         return Response(content, status=status.HTTP_401_UNAUTHORIZED)
+
+################################################################################
+#
+# Function Name: harvestRecords(request)
+# Inputs:        url, registry_id, metadataFormat, lastUpdate, registryAllSets, set=None -
+# Outputs:       List of errors.
+# Description:   Save OAI-PMH ListRecords (retrieved via OAI-PMH request) in Database
+#
+################################################################################
+def harvestRecords(url, registry_id, metadataFormat, lastUpdate, registryAllSets, set=None):
+    errors = []
+    dataLeft = True
+    resumptionToken = None
+    #Get all records. Use of the resumption token
+    while dataLeft:
+        #Get the list of records
+        if set != None:
+            http_response, resumptionToken = getListRecords(url=url, metadataPrefix=metadataFormat.metadataPrefix, set_h=set.setSpec, fromDate=lastUpdate, resumptionToken=resumptionToken)
+        else:
+            http_response, resumptionToken = getListRecords(url=url, metadataPrefix=metadataFormat.metadataPrefix, fromDate=lastUpdate, resumptionToken=resumptionToken)
+        if http_response.status_code == status.HTTP_200_OK:
+            rtn = http_response.data
+            for info in rtn:
+                #Get corresponding sets
+                sets = [x for x in registryAllSets if x.setSpec in info['sets']]
+                raw = xmltodict.parse(info['raw'])
+                metadata = xmltodict.parse(info['metadata'])
+                try:
+                    obj = OaiRecord.objects.filter(identifier=info['identifier'], metadataformat=metadataFormat).get()
+                except:
+                    obj = OaiRecord()
+                obj.identifier=info['identifier']
+                obj.datestamp=info['datestamp']
+                obj.deleted=info['deleted']
+                obj.metadataformat=metadataFormat
+                obj.sets=sets
+                obj.raw=raw
+                obj.registry=registry_id
+                #Custom Save to keep the order of metadata's XML
+                obj.save(metadata=metadata)
+        #Else, we get the status code with the error message provided by the http_response
+        else:
+            error = {'status_code': http_response.status_code, 'error': http_response.data['error']}
+            errors.append(error)
+        #There is more records if we have a resumption token.
+        dataLeft = resumptionToken != None and resumptionToken != ''
+
+    return errors
 
 
 
