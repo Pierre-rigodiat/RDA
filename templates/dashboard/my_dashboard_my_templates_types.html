@@ -5,7 +5,7 @@
 ################################################################################
 #
 # File Name: my_profile_dashboard_my_templates_types.html
-# Application: templates/admin
+# Application: user dashboard
 # Description:
 #
 # Author: Sharief Youssef
@@ -53,7 +53,7 @@
             <td>{{ object.filename }}</td>
                 <td>
                     {% autoescape on %}
-                    <span class="icon legend view" objectType="{{ objectType }}" objectid="{{ object.id }}"  content="{{ object.content|escape }}" >
+                    <span class="icon legend result" objectType="{{ objectType }}" objectid="{{ object.id }}"  content="{{ object.content|escape }}" >
                         View
                     </span>
                     {% endautoescape %}

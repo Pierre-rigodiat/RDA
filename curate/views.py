@@ -471,4 +471,47 @@ def save_xml_data_to_db(request):
     else:
         return HttpResponseBadRequest('Invalid title.')
 
-    
+
+################################################################################
+#
+# Function Name: curate_edit_form(request)
+# Inputs:        request -
+# Exceptions:    None
+# Description:   Load forms to start curation
+#
+################################################################################
+@permission_required(content_type=RIGHTS.curate_content_type, permission=RIGHTS.curate_access, login_url='/login')
+def curate_edit_form(request):
+    try:
+        if request.method == 'GET':
+            if 'id' in request.GET:
+                form_data_id = request.GET['id']
+                try:
+                    form_data = FormData.objects.get(pk=ObjectId(form_data_id))
+                except:
+                    raise MDCSError("The form you are looking for doesn't exist.")
+                # parameters to build FormData object in db
+                request.session['currentTemplateID'] = form_data.template
+                request.session['curate_edit'] = True
+                request.session['curate_edit_data'] = form_data.xml_data
+                # parameters that will be used during curation
+                request.session['curateFormData'] = str(form_data.id)
+
+                if 'formString' in request.session:
+                    del request.session['formString']
+                if 'xmlDocTree' in request.session:
+                    del request.session['xmlDocTree']
+
+                context = RequestContext(request, {
+                })
+                template = loader.get_template('curate/curate_enter_data.html')
+
+                return HttpResponse(template.render(context))
+            else:
+                raise MDCSError("The form ID is missing.")
+    except MDCSError, e:
+        template = loader.get_template('curate/errors.html')
+        context = RequestContext(request, {
+            'errors': e.message,
+        })
+        return HttpResponse(template.render(context))

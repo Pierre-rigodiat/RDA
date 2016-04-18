@@ -49,13 +49,21 @@ You can review all forms you have created. You can either delete your form or ch
                 <td>{{ form.form.name }}</td>
                 <td>{{ form.template_name}}</td>
                 <td>
+                    <a href="/dashboard/detail?type=form&id={{form.form.id}}"><span class="icon legend result">
+                                View
+                    </span></a>
+                    <a href="/curate/edit-form?id={{form.form.id}}"><span class="icon legend edit">
+                                Edit
+                    </span></a>
                     <div class="icon legend delete" onclick='deleteForm("{{form.form.id}}")'>Delete</div>
                     <div class="icon legend changeOwner" onclick='changeOwnerForm("{{form.form.id}}")'>Change Owner</div>
                 </td>
             </tr>
         {% endfor %}
     </table>
+</div>
 {% else %}
+<div>
     <br/>
         There are no forms saved for now.
     <br/>
@@ -70,14 +78,14 @@ Are you sure you want to delete this form?
 </div>
 
 <div id="dialog-change-owner-form" title="Change Form Owner" style="display:none;">
-<div class="alert alert-danger" id="banner_errors" style="display: none;">
-    <a href="#" class="close" data-hide="alert" aria-label="close">&times;</a>
-    <h4><i class="fa fa-exclamation-circle fa-1x"></i> Error</h4>
-    <div id="form_start_errors">
+    <div class="alert alert-danger" id="banner_errors" style="display: none;">
+        <a href="#" class="close" data-hide="alert" aria-label="close">&times;</a>
+        <h4><i class="fa fa-exclamation-circle fa-1x"></i> Error</h4>
+        <div id="form_start_errors">
+        </div>
     </div>
-</div>
-Please select the new owner:
-   {{user_form}}
+    Please select the new owner:
+       {{user_form}}
 </div>
 {% endblock %}
 

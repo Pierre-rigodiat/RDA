@@ -32,6 +32,7 @@ from io import BytesIO
 from mgi import common
 import os
 import xmltodict
+from bson.objectid import ObjectId
 
 ################################################################################
 #
@@ -122,16 +123,16 @@ def my_profile_change_password(request):
 
 ################################################################################
 #
-# Function Name: dashboard_resources(request)
+# Function Name: dashboard_records(request)
 # Inputs:        request -
-# Outputs:       Dashboard - Resources
+# Outputs:       Dashboard - Records
 # Exceptions:    None
-# Description:   Dashboard - Resources
+# Description:   Dashboard - Records
 #
 ################################################################################
 @login_required(login_url='/login')
-def dashboard_resources(request):
-    template = loader.get_template('dashboard/my_dashboard_my_resources.html')
+def dashboard_records(request):
+    template = loader.get_template('dashboard/my_dashboard_my_records.html')
     if 'ispublished' in request.GET:
         ispublished = request.GET['ispublished']
         if ispublished == 'true':
@@ -146,8 +147,7 @@ def dashboard_resources(request):
                     })
     else:
         context = RequestContext(request, {
-            'XMLdatas': sorted(XMLdata.find({'iduser': str(request.user.id), 'ispublished': False}), key=lambda data: data['lastmodificationdate'], reverse=True)
-                        + sorted(XMLdata.find({'iduser': str(request.user.id), 'ispublished': True}), key=lambda data: data['lastmodificationdate'], reverse=True),
+            'XMLdatas': sorted(XMLdata.find({'iduser': str(request.user.id)}), key=lambda data: data['lastmodificationdate'], reverse=True)
         })
 
     return HttpResponse(template.render(context))
@@ -164,7 +164,7 @@ def dashboard_resources(request):
 ################################################################################
 @login_required(login_url='/login')
 def dashboard_my_forms(request):
-    forms = FormData.objects(user=str(request.user.id), xml_data_id__exists=False).order_by('template') # xml_data_id False if document not curated
+    forms = FormData.objects(user=str(request.user.id), xml_data_id__exists=False, xml_data__exists=True).order_by('template') # xml_data_id False if document not curated
     detailed_forms = []
     for form in forms:
         detailed_forms.append({'form': form, 'template_name': Template.objects().get(pk=form.template).title})
@@ -301,22 +301,31 @@ def dashboard_files(request):
 
 ################################################################################
 #
-# Function Name: dashboard_detail_resource
+# Function Name: dashboard_detail_record
 # Inputs:        request -
-# Outputs:       Detail of a resource
+# Outputs:       Detail of a record
 # Exceptions:    None
-# Description:   Page that allows to see detail resource from a selected resource
+# Description:   Page that allows to see detail record from a selected record
 #
 ################################################################################
 @login_required(login_url='/login')
-def dashboard_detail_resource(request) :
-    template = loader.get_template('dashboard/my_dashboard_detail_resource.html')
+def dashboard_detail_record(request) :
+    template = loader.get_template('dashboard/my_dashboard_detail_record.html')
     result_id = request.GET['id']
-    xmlString = XMLdata.get(result_id)
-    title = xmlString['title']
-    schemaId = xmlString['schema']
+    type = request.GET['type']
 
-    xmlString = xmltodict.unparse(xmlString['content']).encode('utf-8')
+    if type=='form':
+        form_data = FormData.objects.get(pk=ObjectId(result_id))
+        xmlString = form_data.xml_data
+        title = form_data.name
+        schemaId = form_data.template
+    elif type=='record':
+        xmlString = XMLdata.get(result_id)
+        title = xmlString['title']
+        schemaId = xmlString['schema']
+        xmlString = xmltodict.unparse(xmlString['content']).encode('utf-8')
+
+
     xsltPath = os.path.join(settings.SITE_ROOT, 'static', 'resources', 'xsl', 'xml2html.xsl')
     xslt = etree.parse(xsltPath)
     transform = etree.XSLT(xslt)
@@ -339,7 +348,8 @@ def dashboard_detail_resource(request) :
     result = str(newdom)
     context = RequestContext(request, {
         'XMLHolder': result,
-        'title': title
+        'title': title,
+        'type': type
     })
 
     return HttpResponse(template.render(context))
