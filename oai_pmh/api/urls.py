@@ -25,6 +25,7 @@ urlpatterns = patterns(
     url(r'^select/registry$', 'select_registry'),
     url(r'^add/registry$', 'add_registry'),
     url(r'^update/registry$', 'update_registry'),
+    url(r'^update/registry-info$', 'update_registry_info'),
     url(r'^delete/registry$', 'delete_registry'),
     #Manage my server
     url(r'^update/my-registry$', 'update_my_registry'),

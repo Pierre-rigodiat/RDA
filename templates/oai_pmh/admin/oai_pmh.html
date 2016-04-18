@@ -50,7 +50,7 @@
             <th>Harvest Rate</th>
             <th>Status</th>
             <th>Harvest</th>
-            <th>Last update</th>
+            <th>Last harvest</th>
             <!--<th>Harvested records</th>-->
             <th>Actions</th>
         </tr>
@@ -63,11 +63,20 @@
             <tr id="banner{{registry.id}}" class="alertTr" style="display: none;">
             {% endif %}
                 <td class="alert alert-warning" colspan="7">
-                    <h4><i class='fa fa-circle-o-notch fa-spin fa-1x'></i>  </i>&nbsp;&nbsp;Data harvesting ...</h4>
+                    <h4><i class='fa fa-circle-o-notch fa-spin fa-1x'></i>&nbsp;&nbsp;Data harvesting ...</h4>
+                </td>
+            </tr>
+            {% if registry.isUpdating %}
+            <tr id="bannerUpdate{{registry.id}}"  class="alertTr">
+            {% else %}
+            <tr id="bannerUpdate{{registry.id}}" class="alertTr" style="display: none;">
+            {% endif %}
+                <td class="alert alert-warning" colspan="7">
+                    <h4><i class='fa fa-circle-o-notch fa-spin fa-1x'></i>&nbsp;&nbsp;Updating Data Provider information ...</h4>
                 </td>
             </tr>
             <tr class="{{ rowcolors }}">
-                <td width="200em;">{{ registry.name }}</td>
+                <td width="200em;" id="name{{registry.id}}">{{ registry.name }}</td>
                 <td>{{ registry.url }}</td>
                 <td>{{ registry.harvestrate }}</td>
                 <td style="text-align:center;" url="{{registry.url}}" registryID="{{registry.id}}" id="Status{{registry.id}}">
@@ -84,6 +93,11 @@
                 <td width="100em;" id="lastUpdate{{registry.id}}">{{ registry.lastUpdate }}</td>
                 <!--<td>{{ registry.records|length }}</td>-->
                 <td width="100em;">
+                    {% if not registry.isUpdating %}
+                    <span id="update{{registry.id}}" class="icon legend update" onclick="updateRegistryInfos('{{ registry.id }}')">Update info</span>
+                    {% else %}
+                    <span id="update{{registry.id}}" class="icon legend update" onclick="updateRegistryInfos('{{ registry.id }}')" style="display: none;">Update</span>
+                    {% endif %}
                     <span class="icon legend result" onclick="viewRegistry('{{ registry.id }}')">View</span>
                     <span class="icon legend edit" onclick="editRegistry('{{ registry.id }}')">Edit</span>
                     <span class="icon legend edit" onclick="editHarvestRegistry('{{ registry.id }}')">Edit harvest</span>

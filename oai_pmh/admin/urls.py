@@ -19,8 +19,10 @@ urlpatterns = patterns(
     url(r'^check/registry$', 'check_registry'),
     url(r'^add/registry', 'add_registry'),
     url(r'^update/registry$', 'update_registry'),
+    url(r'^update/registry-info$', 'update_registry_info'),
     url(r'^delete/registry$', 'delete_registry'),
     url(r'^oai-pmh-detail-registry$', 'oai_pmh_detail_registry', name='oai_pmh_detail_registry'),
+    url(r'^check/update-info', 'check_update_info', name='check_update_info'),
     #Manage my server's metadata formats
     url(r'^add/my-metadataFormat', 'add_my_metadataFormat'),
     url(r'^update/my-metadataFormat$', 'update_my_metadataFormat'),
