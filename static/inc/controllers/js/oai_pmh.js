@@ -393,8 +393,61 @@ checkHarvestData = function()
         error:function(data){
 	    }
     });
-//    Refresh every 30 seconds
-    setTimeout(checkHarvestData, 30000);
+}
+
+/**
+ * AJAX call, Show a dialog for editing DP values
+ */
+updateRegistryInfos = function(registry_id)
+{
+    $("#bannerUpdate"+registry_id).show(200);
+    $("#update"+registry_id).hide(200);
+    $.ajax({
+        url: "update/registry-info",
+        type : "POST",
+        dataType: "json",
+        async: true,
+        data : {
+        	registry_id : registry_id,
+        },
+        success: function(data){
+            checkUpdateData();
+        },
+        error:function(data){
+        },
+    });
+}
+
+/**
+ * AJAX call, check update data for all Registries
+ */
+checkUpdateData = function()
+{
+    $.ajax({
+        url : 'check/update-info',
+        type : "POST",
+        dataType: "json",
+        async: true,
+        data : {
+        },
+        success: function(data){
+            $.map(data, function (item) {
+                if(item.isUpdating)
+                {
+                    $("#update" + item.registry_id).hide(200);
+                    $("#bannerUpdate"+ item.registry_id).show(200);
+                }
+                else
+                {
+                    $("#bannerUpdate"+ item.registry_id).hide(200);
+                    $("#update" + item.registry_id).show(200);
+                    $("#name"+ item.registry_id).html(item.name);
+                }
+             });
+        },
+        error:function(data){
+	    }
+    });
 }
 
 ////////////////////////////////////////////////
@@ -1324,6 +1377,11 @@ Init = function(){
          $("#"+props.id).buttonset();
     });
     enterKeyPressSubscription();
+
+    //    Refresh every 30 seconds
+    setTimeout(checkHarvestData, 30000);
+    //    Refresh every 30 seconds
+    setTimeout(checkUpdateData, 30000);
 }
 
 Reinit = function(){

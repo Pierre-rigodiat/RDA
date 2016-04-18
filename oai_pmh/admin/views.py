@@ -304,7 +304,7 @@ def harvest(request):
 def check_harvest_data(request):
     if request.method == 'POST':
         try:
-            resultsByKeyword = []
+            harvestDataInfo = []
             #Get all registries
             registries = OaiRegistry.objects.only('id', 'isHarvesting', 'lastUpdate').all()
             #Build array with registry id and isHarvesting value
@@ -319,9 +319,9 @@ def check_harvest_data(request):
                 else:
                     lastUpdate = ''
                 result_json['lastUpdate'] = lastUpdate
-                resultsByKeyword.append(result_json)
+                harvestDataInfo.append(result_json)
 
-            return HttpResponse(json.dumps(resultsByKeyword), content_type='application/javascript')
+            return HttpResponse(json.dumps(harvestDataInfo), content_type='application/javascript')
         except Exception as e:
             return HttpResponseBadRequest('An error occurred. Please contact your administrator.')
 
@@ -948,3 +948,61 @@ def update_registry_harvest(request):
             'harvest_form': harvest_form,
         })
         return HttpResponse(json.dumps({'template': template.render(context)}), content_type='application/javascript')
+
+
+################################################################################
+#
+# Function Name: update_registry_info(request)
+# Inputs:        request -
+# Outputs:
+# Exceptions:    None
+# Description:   OAI-PMH update Data Provider information
+#
+# ################################################################################
+@login_required(login_url='/login')
+def update_registry_info(request):
+    if request.method == 'POST':
+        try:
+            #Get the ID
+            registry_id = request.POST['registry_id']
+            uri = OAI_HOST_URI + "/oai_pmh/api/update/registry-info"
+            #Call the API to update information
+            try:
+                requests.put(uri,
+                                   {"registry_id": registry_id},
+                                   auth=(OAI_USER, OAI_PASS))
+                return HttpResponse(json.dumps({}), content_type='application/javascript')
+            except Exception as e:
+                return HttpResponseBadRequest('An error occurred. Please contact your administrator.')
+        except Exception as e:
+            return HttpResponseBadRequest('An error occurred. Please contact your administrator.')
+
+
+################################################################################
+#
+# Function Name: check_harvest_data(request)
+# Inputs:        request -
+# Outputs:
+# Exceptions:    None
+# Description:   OAI-PMH Return the state of the registries (isUpdating), if we
+#                updating Data Provider information
+#
+# ################################################################################
+@login_required(login_url='/login')
+def check_update_info(request):
+    if request.method == 'POST':
+        try:
+            updateInfo = []
+            #Get all registries
+            registries = OaiRegistry.objects.only('id', 'isUpdating', 'name').all()
+            #Build array with registry id and isHarvesting value
+            for registry in registries:
+                result_json = {}
+                result_json['registry_id'] = str(registry.id)
+                result_json['isHarvesting'] = registry.isUpdating
+                result_json['name'] = registry.name
+                updateInfo.append(result_json)
+
+            return HttpResponse(json.dumps(updateInfo), content_type='application/javascript')
+        except Exception as e:
+            return HttpResponseBadRequest('An error occurred. Please contact your administrator.')
