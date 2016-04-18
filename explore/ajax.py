@@ -1124,14 +1124,17 @@ def get_results_by_instance(request):
             result = r.text
             instanceResults = json.loads(result,object_pairs_hook=OrderedDict)
             if len(instanceResults) > 0:
-                template = loader.get_template('explore_result.html')
-                xsltPath = os.path.join(settings.SITE_ROOT, 'static', 'resources', 'xsl', 'xml2html.xsl')
+                template = loader.get_template('explore/explore_result.html')
+                xsltPath = os.path.join(settings.SITE_ROOT, 'static/resources/xsl/xml2html.xsl')
+
+                # template = loader.get_template(os.path.join('explore','explore_result.html'))
+                # xsltPath = os.path.join(settings.SITE_ROOT, 'static', 'resources', 'xsl', 'xml2html.xsl')
                 xslt = etree.parse(xsltPath)
                 transform = etree.XSLT(xslt)
                 for instanceResult in instanceResults:
                     custom_xslt = False
                     results.append({'title':instanceResult['title'], 'content':instanceResult['content'],'id':str(instanceResult['_id'])})
-                    dom = etree.XML(str(xmltodict.unparse(instanceResult['content']).encode('utf-8')))
+                    dom = etree.XML(instanceResult['content'].encode('utf-8'))
                     #Check if a custom list result XSLT has to be used
                     try:
                         schema = Template.objects.get(pk=instanceResult['schema'])
@@ -1147,10 +1150,10 @@ def get_results_by_instance(request):
                         newdom = transform(dom)
                         custom_xslt = False
 
-                    context = Context({'id':str(instanceResult['_id']),
-                                       'xml': str(newdom),
-                                       'title': instanceResult['title'],
-                                       'custom_xslt': custom_xslt})
+                    context = RequestContext(request, {'id':str(instanceResult['_id']),
+                                                       'xml': str(newdom),
+                                                       'title': instanceResult['title'],
+                                                       'custom_xslt': custom_xslt})
 
                     resultString+= template.render(context)
                 resultString += "<br/>"
