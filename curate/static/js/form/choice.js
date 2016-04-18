@@ -59,7 +59,15 @@
                 'success': function(data) {
                     // Add the selected branch to the form
                     var $generatedForm = $(data);
-                    $choice.after($generatedForm);
+                    var $choiceSiblings = $choice.siblings();
+
+                    if($choiceSiblings.size() > 1) {
+                        var $sibling = $($choiceSiblings[1]);
+                        $sibling.after($generatedForm);
+                    } else {
+                        $choice.after($generatedForm);
+                    }
+
 
                     // Update the id of the current option (new branch has a different id due to re-generation)
                     $choice.find("option:selected").attr('value', $generatedForm.attr('id'));
