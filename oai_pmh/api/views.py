@@ -426,11 +426,11 @@ def delete_registry(request):
                 return Response(content, status=status.HTTP_404_NOT_FOUND)
             #Delete all ReferenceFields
             #Identify
-            # registry.identify.delete()
-            #Sets
-            OaiSet.objects(registry=id).delete()
+            registry.identify.delete()
             #Records
             OaiRecord.objects(registry=id).delete()
+            #Sets
+            OaiSet.objects(registry=id).delete()
             #Metadata formats
             OaiMetadataFormat.objects(registry=id).delete()
             #We can now delete the registry
