@@ -96,7 +96,7 @@
                     {% if not registry.isUpdating %}
                     <span id="update{{registry.id}}" class="icon legend update" onclick="updateRegistryInfos('{{ registry.id }}')">Update info</span>
                     {% else %}
-                    <span id="update{{registry.id}}" class="icon legend update" onclick="updateRegistryInfos('{{ registry.id }}')" style="display: none;">Update</span>
+                    <span id="update{{registry.id}}" class="icon legend update" onclick="updateRegistryInfos('{{ registry.id }}')" style="display: none;">Update info</span>
                     {% endif %}
                     <span class="icon legend result" onclick="viewRegistry('{{ registry.id }}')">View</span>
                     <span class="icon legend edit" onclick="editRegistry('{{ registry.id }}')">Edit</span>

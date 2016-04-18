@@ -214,12 +214,13 @@ deleteRegistry = function(registry_id)
     $( "#dialog-confirm-delete" ).dialog({
       modal: true,
       buttons:{
+                Cancel: function() {
+	                $( this ).dialog( "close" );
+                },
             	Delete: function() {
             		delete_registry(registry_id);
-            		},
-				Cancel: function() {
-	                $( this ).dialog( "close" );
-		          },
+                },
+
 		    }
     });
   });
@@ -859,12 +860,13 @@ deleteMetadataFormat = function(metadataformat_id)
     $( "#dialog-mf-confirm-delete" ).dialog({
       modal: true,
       buttons:{
+                Cancel: function() {
+	                $( this ).dialog( "close" );
+                },
             	Delete: function() {
             		delete_metadata_format(metadataformat_id);
-            		},
-				Cancel: function() {
-	                $( this ).dialog( "close" );
-		          },
+                },
+
 		    }
     });
   });
@@ -1111,12 +1113,13 @@ deleteSet = function(set_id)
     $( "#dialog-set-confirm-delete" ).dialog({
       modal: true,
       buttons:{
+                Cancel: function() {
+	                $( this ).dialog( "close" );
+                },
             	Delete: function() {
             		delete_set(set_id);
-            		},
-				Cancel: function() {
-	                $( this ).dialog( "close" );
-		          },
+                },
+
 		    }
     });
   });
