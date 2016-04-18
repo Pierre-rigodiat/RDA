@@ -66,4 +66,4 @@ def generateKey_int_sequence(values):
         return 1
     else:
         value_max = max(values)
-        return value_max + 1
+        return int(value_max) + 1
