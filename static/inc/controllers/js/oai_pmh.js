@@ -775,14 +775,6 @@ validateMetadataFormat = function()
         errors += "<li>Please enter a schema.</li>"
     }
 
-//    if ($( "#id_metadataNamespace" ).val().trim() == ""){
-//        errors += "<li>Please enter a namespace.</li>"
-//    }
-//
-//        if ($( "#id_xmlSchema" ).val().trim() == ""){
-//        errors += "<li>Please provide an XML file.</li>"
-//    }
-
 	if (errors != ""){
 	    error = "<ul>";
 	    error += errors
@@ -849,6 +841,105 @@ displayAddMetadataFormat = function()
       ]
     });
   });
+}
+
+/**
+* Display add template metadata format form
+*/
+displayAddTemplateMetadataFormat = function()
+{
+ $(function() {
+    clearAddTemplateMF();
+    $( "#dialog-add-template-metadataformat" ).dialog({
+      modal: true,
+      width: 550,
+      height: 'auto',
+      buttons:
+      [
+      {
+           text: "Cancel",
+           click: function() {
+                $( this ).dialog( "close" );
+            }
+       },
+       {
+           text: "Add",
+           click: function() {
+                clearAddTemplateMFError();
+                if(validateTemplateMetadataFormat())
+                {
+//                       $("#banner_add_wait").show(200);
+                   var formData = new FormData($( "#form_add_template_MF" )[0]);
+                   $.ajax({
+                        url: "add/my-template-metadataFormat",
+                        type: 'POST',
+                        data: formData,
+                        cache: false,
+                        contentType: false,
+                        processData: false,
+                        async:true,
+                        success: function(data){
+                            window.location = 'oai-pmh-my-infos'
+                        },
+                        error:function(data){
+//	            	            $("#banner_add_wait").hide(200);
+                            $("#form_add_template_MF_errors").html(data.responseText);
+                            $("#banner_add_template_MF_errors").show(200)
+                        },
+                    })
+                    ;
+                }
+           }
+       }
+      ]
+    });
+  });
+}
+
+/**
+* Clear add my template metadata format form
+*/
+clearAddTemplateMF = function ()
+{
+    clearAddMFError();
+    $( "#form_add_template_MF" )[0].reset();
+}
+
+/**
+* Clear add my template metadata format error banner
+*/
+clearAddTemplateMFError = function ()
+{
+    $("#banner_add_template_MF_errors").hide()
+    $("#form_add_template_MF_errors").html("");
+}
+
+/**
+* Validate add template my metadata format form
+*/
+validateTemplateMetadataFormat = function()
+{
+    errors = ""
+
+    if ($( "#form_add_template_MF #id_metadataPrefix" ).val().trim() == ""){
+        errors += "<li>Please enter a Metadata Prefix.</li>"
+    }
+
+    if ($( "#form_add_template_MF  #id_template" ).val().trim() == ""){
+        errors += "<li>Please choose a template.</li>"
+    }
+
+	if (errors != ""){
+	    error = "<ul>";
+	    error += errors
+	    error += "</ul>";
+		$("#form_add_template_MF_errors").html(errors);
+		$("#banner_add_template_MF_errors").show(200)
+		return (false);
+	}else{
+		return (true)
+	}
+    return true;
 }
 
 /**
@@ -1364,6 +1455,7 @@ HarvestButton = function(){
     var buttonsetElts = $("#form_edit_harvest td[id^=ButtonSet]")
     $.each(buttonsetElts, function(index, props) {
          $("#"+props.id).buttonset();
+         $(props).css("visibility", "visible");
     });
     enterKeyPressSubscription();
 }
@@ -1378,6 +1470,7 @@ Init = function(){
     var buttonsetElts = $("td[id^=ButtonSet]")
     $.each(buttonsetElts, function(index, props) {
          $("#"+props.id).buttonset();
+         $(props).css("visibility", "visible");
     });
     enterKeyPressSubscription();
 
@@ -1391,6 +1484,7 @@ Reinit = function(){
     var buttonsetElts = $("#form_edit_current td[id^=ButtonSet]")
     $.each(buttonsetElts, function(index, props) {
          $("#"+props.id).buttonset();
+         $(props).css("visibility", "visible");
     });
     enterKeyPressSubscription();
 }

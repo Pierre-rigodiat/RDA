@@ -24,7 +24,8 @@ from oai_pmh.api.serializers import IdentifyObjectSerializer, MetadataFormatSeri
     RegistrySerializer, ListRecordsSerializer, RegistryURLSerializer, RecordSerializer, \
     IdentifySerializer, UpdateRecordSerializer, DeleteRecordSerializer, UpdateRegistrySerializer, \
     UpdateMyRegistrySerializer, MyMetadataFormatSerializer, DeleteMyMetadataFormatSerializer,\
-    UpdateMyMetadataFormatSerializer, GetRecordSerializer, UpdateMySetSerializer, DeleteMySetSerializer, MySetSerializer
+    UpdateMyMetadataFormatSerializer, GetRecordSerializer, UpdateMySetSerializer, DeleteMySetSerializer,\
+    MySetSerializer, MyTemplateMetadataFormatSerializer
 # Models
 from mgi.models import OaiRegistry, OaiSet, OaiMetadataFormat, OaiIdentify, OaiSettings, Template, OaiRecord,\
 OaiMyMetadataFormat, OaiMySet, OaiMetadataformatSet
@@ -176,7 +177,6 @@ def add_registry(request):
                         obj = OaiMetadataFormat(metadataPrefix=metadataformat['metadataPrefix'],
                                                 metadataNamespace=metadataformat['metadataNamespace'],
                                                 schema=metadataformat['schema'], raw= raw, registry=str(registry.id))
-                        # TODO: Hash the schema and see if a template corresponds
                         http_response = requests.get(obj.schema)
                         if str(http_response.status_code) == "200":
                             xmlSchema = xmltodict.parse(http_response.text)
@@ -354,7 +354,6 @@ def update_registry(request):
 #
 ################################################################################
 @api_view(['PUT'])
-# TODO Take care of sets and metadataformats
 def update_my_registry(request):
     """
     PUT http://localhost/oai_pmh/update/my-registry
@@ -1369,7 +1368,7 @@ def getListRecords(url, metadataPrefix=None, resumptionToken=None, set_h=None, f
 
 ################################################################################
 #
-# Function Name: update_registry(request)
+# Function Name: add_my_metadataFormat(request)
 # Inputs:        request -
 # Outputs:       201 Registry updated.
 # Exceptions:    400 Error connecting to database.
@@ -1378,14 +1377,14 @@ def getListRecords(url, metadataPrefix=None, resumptionToken=None, set_h=None, f
 #                400 Serializer failed validation.
 #                401 Unauthorized.
 #                404 No registry found with the given identity.
-# Description:   OAI-PMH Update my_metadataFormat
+# Description:   OAI-PMH Add a new my_metadataFormat
 #
 ################################################################################
 @api_view(['POST'])
 def add_my_metadataFormat(request):
     """
-    PUT http://localhost/oai_pmh/add/my-metadataformat
-    PUT data query="{'metadataPrefix':'value', 'schema':'schemaURL'}"
+    POST http://localhost/oai_pmh/add/my-metadataformat
+    POST data query="{'metadataPrefix':'value', 'schema':'schemaURL'}"
     """
     if request.user.is_authenticated():
         try:
@@ -1430,6 +1429,71 @@ def add_my_metadataFormat(request):
         content = {'message':'Only an administrator can use this feature.'}
         return Response(content, status=status.HTTP_401_UNAUTHORIZED)
 
+
+################################################################################
+#
+# Function Name: add_my_template_metadataFormat(request)
+# Inputs:        request -
+# Outputs:       201 Registry updated.
+# Exceptions:    400 Error connecting to database.
+#                400 [Identifier] not found in request.
+#                400 Unable to update record.
+#                400 Serializer failed validation.
+#                401 Unauthorized.
+#                404 No registry found with the given identity.
+# Description:   OAI-PMH Add a new template_my_metadataFormat
+#
+################################################################################
+@api_view(['POST'])
+def add_my_template_metadataFormat(request):
+    """
+    POST http://localhost/oai_pmh/add/my-template-metadataformat
+    POST data query="{'metadataPrefix':'value', 'template':'templateID'}"
+    """
+    if request.user.is_authenticated():
+        try:
+        #Serialization of the input data
+            serializer = MyTemplateMetadataFormatSerializer(data=request.DATA)
+            #If it's valid
+            if serializer.is_valid():
+                #We retrieve all information
+                if 'metadataPrefix' in request.POST:
+                    metadataprefix = request.DATA['metadataPrefix']
+                if 'template' in request.POST:
+                    template = request.DATA['template']
+
+                #Try to get the template
+                try:
+                    template = Template.objects.get(pk=template)
+                    #Check if the XML is well formed
+                    try:
+                        xml_schema = template.content
+                        dom = etree.fromstring(xml_schema.encode('utf-8'))
+                        if 'targetNamespace' in dom.find(".").attrib:
+                            metadataNamespace = dom.find(".").attrib['targetNamespace'] or "namespace"
+                        else:
+                            metadataNamespace = "http://www.w3.org/2001/XMLSchema"
+                    except XMLSyntaxError:
+                        return Response({'message':'Unable to add the new metadata format. XML Synthax error.'}, status=status.HTTP_400_BAD_REQUEST)
+                except Exception, e:
+                    return Response({'message':'Unable to add the new metadata format. Impossible to retrieve the template with the given template'}, status=status.HTTP_400_BAD_REQUEST)
+                try:
+                    #Add in database
+                   OaiMyMetadataFormat(metadataPrefix=metadataprefix,
+                                       schema='http://127.0.0.1:8000/oai_pmh/server/XSD/'+template.filename,
+                                       metadataNamespace=metadataNamespace, xmlSchema='', isDefault=False,
+                                       isTemplate=True, template=template).save()
+                except Exception as e:
+                    return Response({'message':'Unable to add the new metadata format. \n%s'%e.message}, status=status.HTTP_400_BAD_REQUEST)
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Exception, e:
+            return Response({'message':'Unable to add the new metadata format. \n%s'%e.message}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(content, status=status.HTTP_401_UNAUTHORIZED)
+    else:
+        content = {'message':'Only an administrator can use this feature.'}
+        return Response(content, status=status.HTTP_401_UNAUTHORIZED)
 
 ################################################################################
 #
@@ -1516,16 +1580,6 @@ def update_my_metadataFormat(request):
                     metadataprefix = request.DATA['metadataPrefix']
                     if metadataprefix:
                         metadataFormat.metadataPrefix = metadataprefix
-
-                # if 'schema' in request.DATA:
-                #     schema = request.DATA['schema']
-                #     if schema:
-                #         metadataFormat.schema = schema
-                #
-                # if 'metadataNamespace' in request.DATA:
-                #     namespace = request.DATA['metadataNamespace']
-                #     if namespace:
-                #         metadataFormat.metadataNamespace = namespace
             except:
                 content = {'message':'Error while retrieving information.'}
                 return Response(content, status=status.HTTP_404_NOT_FOUND)

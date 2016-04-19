@@ -564,8 +564,8 @@ class OaiMyMetadataFormat(Document):
     metadataNamespace  = StringField(required=True)
     xmlSchema = StringField(required=True)
     isDefault = BooleanField(required=False)
-    # isTemplate = BooleanField()
-    # template = ReferenceField(Template, reverse_delete_rule=CASCADE)
+    isTemplate = BooleanField()
+    template = ReferenceField(Template, reverse_delete_rule=CASCADE)
 
 class OaiMySet(Document):
     """

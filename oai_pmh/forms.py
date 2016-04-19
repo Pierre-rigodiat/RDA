@@ -12,7 +12,7 @@
 ################################################################################
 from django import forms
 from django.core.validators import MinValueValidator
-from mgi.models import OaiRegistry, OaiMetadataFormat, OaiSet
+from mgi.models import OaiRegistry, OaiMetadataFormat, OaiSet, Template, TemplateVersion
 
 VERBS = (('0', 'Pick one'),
          ('1', 'Identify'),
@@ -29,7 +29,7 @@ class MyRegistryForm(forms.Form):
     """
     name = forms.CharField(label='Name', required=True)
     repo_identifier = forms.CharField(label='Repository Identifier', required=True)
-    enable_harvesting = forms.BooleanField(label='Enable Harvesting ?', widget=forms.CheckboxInput(attrs={'class':'cmn-toggle cmn-toggle-round'}), required=False, initial=False)
+    enable_harvesting = forms.BooleanField(label='Enable Harvesting ?', widget=forms.CheckboxInput(attrs={'class':'cmn-toggle cmn-toggle-round', 'visibility': 'hidden'}), required=False, initial=False)
     id = forms.CharField(widget=forms.HiddenInput(), required=False)
 
 class RegistryForm(forms.Form):
@@ -39,7 +39,7 @@ class RegistryForm(forms.Form):
     name = forms.CharField(widget=forms.HiddenInput(), required=False)
     url = forms.URLField(label='URL', required=True)
     harvestrate = forms.IntegerField(label='Harvestrate (seconds)', required=False, validators=[MinValueValidator(0)])
-    harvest = forms.BooleanField(label='Harvest ?', widget=forms.CheckboxInput(attrs={'class':'cmn-toggle cmn-toggle-round'}), required=False, initial=True)
+    harvest = forms.BooleanField(label='Harvest ?', widget=forms.CheckboxInput(attrs={'class':'cmn-toggle cmn-toggle-round', 'visibility': 'hidden'}), required=False, initial=True)
     id = forms.CharField(widget=forms.HiddenInput(), required=False)
 
 class UpdateRegistryForm(forms.Form):
@@ -60,6 +60,27 @@ class MyMetadataFormatForm(forms.Form):
     # metadataNamespace = forms.CharField(label='Namespace URL', required=True)
     # xmlSchema = forms.FileField(label='Select a file')
 
+
+class FormDataModelChoiceFieldTemplateMF(forms.ModelChoiceField):
+    #Used to return the name of the xslt file
+    def label_from_instance(self, obj):
+        return obj.title
+
+
+class MyTemplateMetadataFormatForm(forms.Form):
+    """
+        A MyTemplateMetadataFormatForm form
+    """
+    metadataPrefix = forms.CharField(label='Metadata Prefix', required=True, widget=forms.TextInput(attrs={'placeholder': 'example: oai_dc'}))
+    template = FormDataModelChoiceFieldTemplateMF(label='Template', queryset=[])
+
+    def __init__(self, *args, **kwargs):
+        templatesVersionID = Template.objects.distinct(field="templateVersion")
+        templatesID = TemplateVersion.objects(pk__in=templatesVersionID, isDeleted=False).distinct(field="current")
+        templates = Template.objects(pk__in=templatesID).all()
+        super(MyTemplateMetadataFormatForm, self).__init__(*args, **kwargs)
+        self.fields['template'].queryset = []
+        self.fields['template'].queryset = templates
 
 class MySetForm(forms.Form):
     """

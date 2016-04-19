@@ -31,6 +31,7 @@ urlpatterns = patterns(
     url(r'^update/my-registry$', 'update_my_registry'),
     #Manage my server's metadata formats
     url(r'^add/my-metadataFormat$', 'add_my_metadataFormat'),
+    url(r'^add/my-template-metadataFormat', 'add_my_template_metadataFormat'),
     url(r'^update/my-metadataFormat$', 'update_my_metadataFormat'),
     url(r'^delete/my-metadataFormat$', 'delete_my_metadataFormat'),
     #Manage my server's sets

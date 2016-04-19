@@ -25,6 +25,7 @@ urlpatterns = patterns(
     url(r'^check/update-info', 'check_update_info', name='check_update_info'),
     #Manage my server's metadata formats
     url(r'^add/my-metadataFormat', 'add_my_metadataFormat'),
+    url(r'^add/my-template-metadataFormat', 'add_my_template_metadataFormat'),
     url(r'^update/my-metadataFormat$', 'update_my_metadataFormat'),
     url(r'^delete/my-metadataFormat', 'delete_my_metadataFormat'),
     #Manage my server's sets

@@ -139,7 +139,6 @@ class OAIProvider(TemplateView):
             return self.error(e)
         except Exception, e:
             return self.error(e.code, e.message)
-        #TODO
         except badResumptionToken, e:
             return self.error(badResumptionToken.code, badResumptionToken.message)
 
@@ -268,7 +267,6 @@ class OAIProvider(TemplateView):
             return self.error(e)
         except Exception, e:
             return self.error(e.code, e.message)
-        #TODO
         except badResumptionToken, e:
             return self.error(badResumptionToken.code, badResumptionToken.message)
 
@@ -283,6 +281,8 @@ class OAIProvider(TemplateView):
 ################################################################################
     def get_record(self):
         try:
+            #Bool if we need to transform the XML via XSLT
+            hasToBeTransformed = False
             #Check if the identifier pattern is OK
             p = re.compile("%s:%s:id/(.*)" % (settings.OAI_SCHEME, settings.OAI_REPO_IDENTIFIER))
             idMatch = p.search(self.identifier)
@@ -310,20 +310,26 @@ class OAIProvider(TemplateView):
             try:
                 #Get the metadataformat for the provided prefix
                 myMetadataFormat = OaiMyMetadataFormat.objects.get(metadataPrefix=self.metadataPrefix)
-                #Get information about the XSLT for the MF and the template
-                objTempMfXslt = OaiTemplMfXslt.objects(myMetadataFormat=myMetadataFormat, template=template, activated=True).get()
-                #If no information or desactivated
-                if not objTempMfXslt.xslt:
-                    raise cannotDisseminateFormat(self.metadataPrefix)
-                else:
-                    #Get the XSLT for the transformation
-                    xslt = objTempMfXslt.xslt
+                #If this metadata prefix is not associated to a template, we need to retrieve the XSLT to do the transformation
+                if not myMetadataFormat.isTemplate:
+                    hasToBeTransformed = True
+                    #Get information about the XSLT for the MF and the template
+                    objTempMfXslt = OaiTemplMfXslt.objects(myMetadataFormat=myMetadataFormat, template=template, activated=True).get()
+                    #If no information or desactivated
+                    if not objTempMfXslt.xslt:
+                        raise cannotDisseminateFormat(self.metadataPrefix)
+                    else:
+                        #Get the XSLT for the transformation
+                        xslt = objTempMfXslt.xslt
             except:
                 raise cannotDisseminateFormat(self.metadataPrefix)
 
             #Transform XML data
             dataToTransform = [{'title': data['_id'], 'content': self.cleanXML(xmltodict.unparse(data['content']))}]
-            dataXML = self.getXMLTranformXSLT(dataToTransform, xslt)
+            if hasToBeTransformed:
+                dataXML = self.getXMLTranformXSLT(dataToTransform, xslt)
+            else:
+                dataXML = dataToTransform
             #Fill the response
             record_info = {
                 'identifier': self.identifier,
@@ -375,12 +381,16 @@ class OAIProvider(TemplateView):
             if len(date_errors) > 0:
                 raise OAIExceptions(date_errors)
             try:
-                 #Get the metadataformat for the provided prefix
+                #Get the metadataformat for the provided prefix
                 myMetadataFormat = OaiMyMetadataFormat.objects.get(metadataPrefix=self.metadataPrefix)
-                #Get information about templates using this MF
-                objTempMfXslt = OaiTemplMfXslt.objects(myMetadataFormat=myMetadataFormat, activated=True).all()
-                 #Ids
-                templatesID = [str(x.template.id) for x in objTempMfXslt]
+                if myMetadataFormat.isTemplate:
+                    #GEt the corresponding template
+                    templatesID = [str(myMetadataFormat.template.id)]
+                else:
+                    #Get information about templates using this MF
+                    objTempMfXslt = OaiTemplMfXslt.objects(myMetadataFormat=myMetadataFormat, activated=True).all()
+                     #Ids
+                    templatesID = [str(x.template.id) for x in objTempMfXslt]
             except:
                 raise cannotDisseminateFormat(self.metadataPrefix)
             #For each template found
@@ -391,11 +401,15 @@ class OAIProvider(TemplateView):
                 #IF no records, go to the next template
                 if len(data) == 0:
                     continue
-                #Get the XSLT file
-                xslt = objTempMfXslt(template=template).get().xslt
-                #Transform all XML data (1 call)
                 dataToTransform = [{'title': x['_id'], 'content': self.cleanXML(xmltodict.unparse(x['content']))} for x in data]
-                dataXML = self.getXMLTranformXSLT(dataToTransform, xslt)
+                if myMetadataFormat.isTemplate:
+                    #No transformation needed
+                    dataXML = dataToTransform
+                else:
+                    #Get the XSLT file
+                    xslt = objTempMfXslt(template=template).get().xslt
+                    #Transform all XML data (1 call)
+                    dataXML = self.getXMLTranformXSLT(dataToTransform, xslt)
                 #Add each record
                 for elt in data:
                     identifier = '%s:%s:id/%s' % (settings.OAI_SCHEME, settings.OAI_REPO_IDENTIFIER,
@@ -420,8 +434,6 @@ class OAIProvider(TemplateView):
             return self.error(e)
         except Exception, e:
             return self.error(e.code, e.message)
-        #TODO
-        #Illegal date/time for "until" (55)
         except badResumptionToken, e:
             return self.error(badResumptionToken.code, badResumptionToken.message)
 

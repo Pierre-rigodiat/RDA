@@ -101,12 +101,13 @@ class UpdateMyRegistrySerializer(MongoEngineModelSerializer):
         model = OaiSettings
         exclude = (['repositoryIdentifier'])
 
-
 class MyMetadataFormatSerializer(serializers.Serializer):
     metadataPrefix = serializers.CharField()
-    # metadataNamespace = serializers.CharField()
     schema = serializers.CharField()
-    # xmlSchema = serializers.CharField()
+
+class MyTemplateMetadataFormatSerializer(serializers.Serializer):
+    metadataPrefix = serializers.CharField()
+    template = serializers.CharField()
 
 class DeleteMyMetadataFormatSerializer(serializers.Serializer):
     MetadataFormatId  = serializers.CharField(required=True)
