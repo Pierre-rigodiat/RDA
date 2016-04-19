@@ -13,7 +13,8 @@
 
 from rest_framework import status
 from django.http.response import HttpResponseBadRequest
-from oai_pmh.forms import UpdateRegistryForm, MyMetadataFormatForm, RegistryForm, MyRegistryForm, UpdateMyMetadataFormatForm, MySetForm, UpdateMySetForm
+from oai_pmh.forms import UpdateRegistryForm, MyMetadataFormatForm, RegistryForm, MyRegistryForm, UpdateMyMetadataFormatForm, MySetForm, UpdateMySetForm, \
+MyTemplateMetadataFormatForm
 import json
 from mgi.settings import OAI_HOST_URI, OAI_USER, OAI_PASS
 from django.contrib import messages
@@ -366,21 +367,27 @@ def oai_pmh_my_infos(request):
         }
     #Form to manage MF
     metadataformat_form = MyMetadataFormatForm()
-    #Get my server's MF
-    metadataFormats = OaiMyMetadataFormat.objects(isDefault=False).all()
+    #Form to manage template MF
+    template_metadataformat_form = MyTemplateMetadataFormatForm()
     #Form to manage set
     set_form = MySetForm()
     #Get my server's Set
     sets = OaiMySet.objects.all()
+    #Get my server's MF
+    metadataFormats = OaiMyMetadataFormat.objects(isDefault=False, isTemplate=False or None).all()
     #Get my server's default MF
     defaultMetadataFormats = OaiMyMetadataFormat.objects(isDefault=True).all()
+    #Get my server's template MF
+    templateMetadataFormats = OaiMyMetadataFormat.objects(isTemplate=True).all()
     context = RequestContext(request, {
         'data_provider': data_provider,
         'metadataformat_form': metadataformat_form,
+        'template_metadataformat_form' : template_metadataformat_form,
         'metadataFormats': metadataFormats,
         'set_form': set_form,
         'sets': sets,
         'defaultMetadataFormats': defaultMetadataFormats,
+        'templateMetadataFormats': templateMetadataFormats
     })
 
     return HttpResponse(template.render(context))
@@ -472,21 +479,6 @@ def add_my_metadataFormat(request):
                 if 'schema' in request.POST:
                     schema = request.POST.get('schema')
 
-                # if 'metadataNamespace' in request.POST:
-                #     namespace = request.POST.get('metadataNamespace')
-                #
-                # if 'xmlSchema' in request.FILES:
-                #     xml_schema = request.FILES.get('xmlSchema')
-                #     # put the cursor at the beginning of the file
-                #     xml_schema.seek(0)
-                #     # read the content of the file
-                #     xml_data = xml_schema.read()
-                #     # check XML data or not?
-                #     try:
-                #         etree.fromstring(xml_data)
-                #     except XMLSyntaxError:
-                #         return HttpResponseBadRequest('Uploaded File is not well formed XML.')
-
                 #Call to the API to add the registry
                 try:
                     req = requests.post(uri, {"metadataPrefix": metadataprefix,
@@ -495,6 +487,55 @@ def add_my_metadataFormat(request):
                                               #"xmlSchema": xml_data},
                                         auth=(OAI_USER, OAI_PASS))
 
+                    #If the status is OK, sucess message
+                    if req.status_code == status.HTTP_201_CREATED:
+                        messages.add_message(request, messages.SUCCESS, 'Metadata Format added with success.')
+                        return HttpResponse('CREATED')
+                    #Else, we return a bad request response with the message provided by the API
+                    else:
+                        data = json.loads(req.text)
+                        return HttpResponseBadRequest(data['message'])
+                except Exception as e:
+                    return HttpResponseBadRequest('An error occurred. Please contact your administrator.')
+            except Exception as e:
+                return HttpResponseBadRequest('An error occurred. Please contact your administrator.')
+        else:
+            return HttpResponseBadRequest('Bad entries. Check your entry')
+
+
+################################################################################
+#
+# Function Name: add_my_template_metadataFormat(request)
+# Inputs:        request -
+# Outputs:
+# Exceptions:    None
+# Description:   Add a new template Metadata Format for the server
+#
+################################################################################
+@login_required(login_url='/login')
+def add_my_template_metadataFormat(request):
+    if request.method == 'POST':
+        form = MyTemplateMetadataFormatForm(request.POST)
+        if form.is_valid():
+            try:
+                #We add the tempalte metadata Format
+                uri = OAI_HOST_URI + "/oai_pmh/api/add/my-template-metadataFormat"
+                #We retrieve information from the form
+                if 'metadataPrefix' in request.POST:
+                    metadataprefix = request.POST.get('metadataPrefix')
+                else:
+                    return HttpResponseBadRequest('Please enter a metadata prefix.')
+
+                if 'template' in request.POST:
+                    template = request.POST.get('template')
+                else:
+                    return HttpResponseBadRequest('Please choose a template.')
+
+                #Call to the API to add the template metadata prefix
+                try:
+                    req = requests.post(uri, {"metadataPrefix": metadataprefix,
+                                              "template": template},
+                                        auth=(OAI_USER, OAI_PASS))
                     #If the status is OK, sucess message
                     if req.status_code == status.HTTP_201_CREATED:
                         messages.add_message(request, messages.SUCCESS, 'Metadata Format added with success.')

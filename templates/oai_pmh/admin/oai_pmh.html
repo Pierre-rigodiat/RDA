@@ -92,16 +92,17 @@
                 </td>
                 <td width="100em;" id="lastUpdate{{registry.id}}">{{ registry.lastUpdate }}</td>
                 <!--<td>{{ registry.records|length }}</td>-->
-                <td width="100em;">
-                    {% if not registry.isUpdating %}
-                    <span id="update{{registry.id}}" class="icon legend update" onclick="updateRegistryInfos('{{ registry.id }}')">Update info</span>
-                    {% else %}
-                    <span id="update{{registry.id}}" class="icon legend update" onclick="updateRegistryInfos('{{ registry.id }}')" style="display: none;">Update info</span>
-                    {% endif %}
+                <td width="140em;">
                     <span class="icon legend result" onclick="viewRegistry('{{ registry.id }}')">View</span>
                     <span class="icon legend edit" onclick="editRegistry('{{ registry.id }}')">Edit</span>
                     <span class="icon legend edit" onclick="editHarvestRegistry('{{ registry.id }}')">Edit harvest</span>
                     <span class="icon legend delete" onclick="deleteRegistry('{{ registry.id }}')">Delete</span>
+                    <hr class="action">
+                    {% if not registry.isUpdating %}
+                    <span id="update{{registry.id}}" class="icon legend update" onclick="updateRegistryInfos('{{ registry.id }}')">Update information</span>
+                    {% else %}
+                    <span id="update{{registry.id}}" class="icon legend update" onclick="updateRegistryInfos('{{ registry.id }}')" style="display: none;">Update information</span>
+                    {% endif %}
                     {% if not registry.isHarvesting %}
                     <span id="harvest{{registry.id}}" registryID="{{registry.id}}"  class="icon legend refresh" onclick="harvestData('{{ registry.id }}')">Harvest data</span>
                     {% else %}

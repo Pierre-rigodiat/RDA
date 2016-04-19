@@ -38,7 +38,7 @@
   <div class="tabbable tabs-left">
   <ul class="nav nav-tabs no-decoration" role="tablist">
   	<li role="presentation" class="active"><a href="#identity" id="tab_results" aria-controls="profile" role="tab" data-toggle="tab">My Identity</a></li>
-    <li role="presentation" style="display: block;"><a href="#metadataformats" id="tab_results_local" aria-controls="home" role="tab" data-toggle="tab">My Metadata Formats</a></li>
+    <li role="presentation" style="display: block;"><a href="#metadataformats" id="tab_results_local" aria-controls="home" role="tab" data-toggle="tab">My Metadata Prefixes</a></li>
     <li role="presentation" style="display: block;"><a href="#sets" id="tab_results_local" aria-controls="home" role="tab" data-toggle="tab">My Sets</a></li>
   </ul>
 
@@ -172,11 +172,11 @@
     </div>
 
     <div role="tabpanel" class="tab-pane" id="metadataformats">
-        <h3>My Metadata Formats</h3>
+        <h3>My Metadata Prefixes</h3>
+        <div class="tpl-title">Metadata Prefixes by Default</div>
         <p>
-            You will need to configure an XSLT file for each Template under the Template configuration to perform the mapping between the templates and those metadata formats.
+            Metadata Prefixes provided by default along with this instance. You will need to configure an XSLT file for each Template under the Template configuration to perform the mapping between the templates and those metadata prefixes.
         </p>
-        <div class="tpl-title">Metadata Formats by Default</div>
         {% if defaultMetadataFormats %}
          <table class="data-table myinfos">
             <tr>
@@ -201,12 +201,15 @@
         {% else %}
             No information available.
         {% endif %}
-        <hr>
-        <br><br>
-        <div class="tpl-title">Other Metadata Formats</div>
+
+        <div class="tpl-title">Other Metadata Prefixes</div>
+        <p>
+            Add other metadata prefixes by providing a URL.
+            You will need to configure an XSLT file for each Template under the Template configuration to perform the mapping between the templates and those metadata prefixes.
+        </p>
         <div class="toolbar">
             <div class="btn-group pull-right">
-                <span class="btn" onclick="displayAddMetadataFormat();" style="text-decoration:none"><i class="fa fa-plus-circle"></i> Add Metadata Format</span>
+                <span class="btn" onclick="displayAddMetadataFormat();" style="text-decoration:none"><i class="fa fa-plus-circle"></i> Add Metadata Prefix</span>
             </div>
         </div>
         <br/><br/><br/>
@@ -232,6 +235,46 @@
             {% endfor %}
         </table>
         {% else %}
+            There are currently no other metadata prefixes. Please click "Add Metadata Prefixe" to the right to add new metadata prefixe.
+        {% endif %}
+
+
+        <div class="tpl-title">Templates as Metadata Prefixes</div>
+        <p>
+           Add templates as metadata prefixes in order to exchange directly metadata thanks to the template schema.<br>
+           Please note metadata prefix will be associated only to the template that you select.<br>
+        </p>
+        <div class="toolbar">
+            <div class="btn-group pull-right">
+                <span class="btn" onclick="displayAddTemplateMetadataFormat();" style="text-decoration:none"><i class="fa fa-plus-circle"></i> Add Metadata Prefix</span>
+            </div>
+        </div>
+        <br/><br/><br/>
+         {% if templateMetadataFormats %}
+         <table class="data-table myinfos">
+            <tr>
+                <th>Metadata Prefix</th>
+                <th>Template</th>
+                <th>Schema</th>
+                <th>Namespace</th>
+                <th>Actions</th>
+            </tr>
+            {% cycle 'even' '' as rowcolors silent %}
+            {% for metadataFormat in templateMetadataFormats %}
+            <tr class='{{rowcolors}}'>
+                <td width="100em;">{{metadataFormat.metadataPrefix}}</td>
+                <td width="250em;">{{metadataFormat.template.title}}</td>
+                <td width="250em;">{{metadataFormat.schema}}</td>
+                <td width="250em;">{{metadataFormat.metadataNamespace}}</td>
+                <td>
+                    <span class="icon legend edit" onclick="editMetadataFormat('{{ metadataFormat.id }}')">Edit</span>
+                    <span class="icon legend delete" onclick="deleteMetadataFormat('{{ metadataFormat.id }}')">Delete</span>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+        {% else %}
+            There are currently no templates as metadata prefixes. Please click "Add Metadata Prefix" to the right to add new metadata format.
             No information available.
         {% endif %}
 
@@ -310,17 +353,31 @@
             <td>{{metadataformat_form.schema.label}}</td>
             <td>{{metadataformat_form.schema}}</td>
         </tr>
-        <!--<tr>-->
-            <!--<td>{{metadataformat_form.metadataNamespace.label}}</td>-->
-            <!--<td>{{metadataformat_form.metadataNamespace}}</td>-->
-        <!--</tr>-->
-        <!--<tr>-->
-            <!--<td>{{metadataformat_form.xmlSchema.label}}</td>-->
-            <!--<td>{{metadataformat_form.xmlSchema}}</td>-->
-        <!--</tr>-->
     </table>
 	</form>
 </div>
+
+<div id="dialog-add-template-metadataformat" title="Add template as Metadata Format" style="display:none;">
+    <div class="alert alert-error" id="banner_add_template_MF_errors" style="display: none;">
+        <h4><i class="fa fa-exclamation-circle fa-1x"></i> Error</h4>
+        <div id="form_add_template_MF_errors">
+        </div>
+    </div>
+    <form id="form_add_template_MF"  enctype="multipart/form-data">
+		{% csrf_token %}
+    <table>
+        <tr>
+            <td>{{template_metadataformat_form.metadataPrefix.label}}</td>
+            <td>{{template_metadataformat_form.metadataPrefix}}</td>
+        </tr>
+        <tr>
+            <td>{{template_metadataformat_form.template.label}}</td>
+            <td>{{template_metadataformat_form.template}}</td>
+        </tr>
+    </table>
+	</form>
+</div>
+
 
 
 <div id="dialog-mf-edit" title="Edit" style="display:none;">

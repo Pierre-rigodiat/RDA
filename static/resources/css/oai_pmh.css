@@ -191,3 +191,12 @@ font-weight:normal;
 .selector h2 {
 margin-bottom:0; /*override dojo style*/
 }
+
+hr.action {
+	margin-top:0.5em;
+	margin-bottom:0.5em;
+}
+
+td[id^=ButtonSet] {
+	visibility: hidden;
+}
