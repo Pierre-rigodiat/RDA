@@ -3,9 +3,12 @@
 import types
 from types import NoneType
 from django.http.request import HttpRequest
+from django.template.base import Template
 from django.template.context import RequestContext
 from django.template import loader
 from os.path import join
+
+from curate.models import SchemaElement
 
 
 def load_template(template_path, template_data=None, template_dir='default'):
@@ -225,15 +228,31 @@ def render_buttons(add_button, delete_button):
     return form_string
 
 
-class DefaultRenderer(object):
+class BaseRenderer(object):
+    """ Base renderer containing useful data and function for every renderer
+    """
 
     def __init__(self, xsd_data, template_list=None):
-        """ Default renderer for the HTML form
+        """ Init function
 
         Parameters:
-            - xsd_data:
-            - template_list:
+            xsd_data:
+            template_list:
         """
+        # Parameters test
+        if not isinstance(xsd_data, SchemaElement):
+            raise TypeError("xsd_data type should be a SchemaElement")
+
+        if template_list is not None:
+            if type(template_list) != dict:
+                raise TypeError("template_list type is wrong (" + str(type(template_list)) + " received, dict needed")
+
+            for template in template_list.values():
+                if not isinstance(template, Template):
+                    template_type = str(type(template_list))
+                    raise TypeError("template value type is wrong (" + template_type + " received, dict needed")
+
+        # Data initialization
         self.data = xsd_data
         self.warnings = []
 
@@ -261,7 +280,204 @@ class DefaultRenderer(object):
                              str(self.templates.keys()))
 
         if tpl_data is not None and type(tpl_data) != dict:
-            raise TypeError('Second parameter should be a dict (' + str(type(tpl_data)) + ' given)')
+            raise TypeError('Data parameter should be a dict (' + str(type(tpl_data)) + ' given)')
+
+        if tpl_data is not None:
+            context.update(tpl_data)
+
+        return self.templates[tpl_key].render(context)
+
+
+class HtmlRenderer(BaseRenderer):
+    """ Renderer for HTML forms
+    """
+
+    def __init__(self, xsd_data, template_list=None):
+        """ Init function
+
+        Parameters:
+            xsd_data:
+            template_list:
+        """
+        super(HtmlRenderer, self).__init__(xsd_data, template_list)
+
+    def _render_form(self, content):
+        pass
+
+    def _render_form_error(self, err_message):
+        context = RequestContext(HttpRequest())
+        data = {
+            'message': err_message
+        }
+
+        context.update(data)
+        return self.templates['form_error'].render(context)
+
+    def _render_warnings(self):
+        html_content = ''
+
+        for warning in self.warnings:
+            data = {
+                'message': warning
+            }
+
+            html_content += self._load_template('warning', data)
+
+        return html_content
+
+    def _render_input(self, element):
+        """
+
+        :param element
+        :return:
+        """
+        placeholder = ''
+        if 'placeholder' in element.options:
+            placeholder = element.options['placeholder']
+
+        title = ''
+        if 'title' in element.options:
+            title = element.options['title']
+
+        data = {
+            'id': element.pk,
+            'value': element.value,
+            'placeholder': placeholder,
+            'title': title
+        }
+
+        return self._load_template('input', data)
+
+    def _render_select(self, select_id, select_class, option_list):
+        if type(select_id) not in [str, unicode, NoneType]:
+            raise TypeError('First param (select_id) should be a str or None (' + str(type(select_id)) + ' given)')
+
+        if not isinstance(option_list, types.ListType):
+            raise TypeError('First param (option_list) should be a list (' + str(type(option_list)) + ' given)')
+
+        for option in option_list:
+            if not isinstance(option, types.TupleType):
+                raise TypeError('Malformed param (option_list): type of item not good')
+
+            if len(option) != 3:
+                raise TypeError('Malformed param (option_list): Length of item not good')
+
+            if type(option[0]) not in [str, unicode]:
+                raise TypeError('Malformed param (option_list): item[0] should be a str')
+
+            if type(option[1]) not in [str, unicode]:
+                raise TypeError('Malformed param (option_list): item[1] should be a str')
+
+            if type(option[2]) != bool:
+                raise TypeError('Malformed param (option_list): item[2] should be a bool')
+
+        data = {
+            'select_id': select_id,
+            'select_class': select_class,
+            'option_list': option_list
+        }
+
+        return self._load_template('select', data)
+
+    def _render_buttons(self, min_occurs, max_occurs, occurence_count):
+        """
+
+        :param min_occurs:
+        :param max_occurs:
+        :param occurence_count:
+        :return:
+        """
+        add_button = False
+        del_button = False
+
+        if occurence_count < max_occurs or max_occurs == -1:
+            add_button = True
+
+        if occurence_count > min_occurs:
+            del_button = True
+
+        if occurence_count < min_occurs:
+            pass
+
+        add_button_type = type(add_button)
+        del_button_type = type(del_button)
+
+        if add_button_type is not bool:
+            raise TypeError('add_button type is wrong (' + str(add_button_type) + 'received, bool needed')
+
+        if del_button_type is not bool:
+            raise TypeError('add_button type is wrong (' + str(del_button_type) + 'received, bool needed')
+
+        form_string = ""
+
+        # Fixed number of occurences, don't need buttons
+        if add_button or del_button:
+            if add_button:
+                form_string += self._load_template('btn_add', {'is_hidden': False})
+            else:
+                form_string += self._load_template('btn_add', {'is_hidden': True})
+
+            if del_button:
+                form_string += self._load_template('btn_del', {'is_hidden': False})
+            else:
+                form_string += self._load_template('btn_del', {'is_hidden': True})
+
+        return form_string
+
+    def _render_collapse_button(self):
+        return self._load_template('btn_collapse')
+
+
+class DefaultRenderer(object):
+
+    def __init__(self, xsd_data, template_list=None):
+        """ Default renderer for the HTML form
+
+        Parameters:
+            - xsd_data:
+            - template_list:
+        """
+
+        if not isinstance(xsd_data, SchemaElement):
+            raise TypeError("xsd_data type should be a SchemaElement")
+
+        if template_list is not None:
+            if type(template_list) != dict:
+                raise TypeError("template_list type is wrong (" + str(type(template_list)) + " received, dict needed")
+
+            for template in template_list.values():
+                if not isinstance(template, Template):
+                    template_type = str(type(template_list))
+                    raise TypeError("template value type is wrong (" + template_type + " received, dict needed")
+
+        self.data = xsd_data
+        self.warnings = []
+
+        default_renderer_path = join('renderer', 'default')
+        self.templates = {
+            'form_error': loader.get_template(join(default_renderer_path, 'form-error.html')),
+            'warning': loader.get_template(join(default_renderer_path, 'warning.html')),
+
+            'input': loader.get_template(join(default_renderer_path, 'inputs', 'input.html')),
+            'select': loader.get_template(join(default_renderer_path, 'inputs', 'select.html')),
+
+            'btn_add': loader.get_template(join(default_renderer_path, 'buttons', 'add.html')),
+            'btn_del': loader.get_template(join(default_renderer_path, 'buttons', 'delete.html')),
+            'btn_collapse': loader.get_template(join(default_renderer_path, 'buttons', 'collapse.html'))
+        }
+
+        if template_list is not None:
+            self.templates.update(template_list)
+
+    def _load_template(self, tpl_key, tpl_data=None):
+        context = RequestContext(HttpRequest())
+
+        if tpl_key not in self.templates.keys():
+            raise IndexError('Template "' + tpl_key + '" not found in registered templates ' +
+                             str(self.templates.keys()))
+
+        if tpl_data is not None and type(tpl_data) != dict:
+            raise TypeError('Data parameter should be a dict (' + str(type(tpl_data)) + ' given)')
 
         if tpl_data is not None:
             context.update(tpl_data)

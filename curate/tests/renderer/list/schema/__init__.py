@@ -10,7 +10,7 @@ HTML_FILES_PATH = join('curate', 'tests', 'data', 'renderer', 'list')
 
 
 def retrieve_rendered_form(request):
-    """
+    """Retrieve a form
 
     :param request:
     :return:

@@ -2,7 +2,6 @@
 """
 import logging
 from types import *
-from django.http.request import HttpRequest
 from django.template import loader
 from os.path import join
 from curate.renderer import render_li, render_buttons, DefaultRenderer
