@@ -187,6 +187,13 @@ InitOai = function(){
     enterKeyPressSubscriptionOAI();
 }
 
+InitConfXSLT = function() {
+    var buttonsetElts = $("td[id^=ButtonSet]")
+    $.each(buttonsetElts, function(index, props) {
+         $("#"+props.id).buttonset();
+         $(props).css("visibility", "visible");
+    });
+}
 
 saveMyTemplate = function ()
 {

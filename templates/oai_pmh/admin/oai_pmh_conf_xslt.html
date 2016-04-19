@@ -87,9 +87,8 @@ Select Metadata Formats you want to associate with the template and provide an X
 {% endblock %}
 
 {% block extrajs %}
-<script src="{% static 'inc/controllers/js/exporter_mgr.js' %}"></script>
 <script src="{% static 'inc/controllers/js/oai_pmh_xslt_mgr.js' %}"></script>
 <script>
-Init();
+InitConfXSLT();
 </script>
 {% endblock %}
