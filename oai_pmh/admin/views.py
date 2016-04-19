@@ -819,7 +819,7 @@ def oai_pmh_conf_xslt(request):
         if template_id is not None:
             templateName = Template.objects.only('title').get(pk=template_id).title
             allXsltFiles = OaiXslt.objects.all()
-            myMetadataFormats = OaiMyMetadataFormat.objects().all()
+            myMetadataFormats = OaiMyMetadataFormat.objects(isTemplate=False or None).all()
 
             infos= dict()
             for myMetadataFormat in myMetadataFormats:
