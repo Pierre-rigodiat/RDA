@@ -767,11 +767,11 @@ validateMetadataFormat = function()
 {
     errors = ""
 
-    if ($( "#id_metadataPrefix" ).val().trim() == ""){
+    if ($( "#form_add_MF #id_metadataPrefix" ).val().trim() == ""){
         errors += "<li>Please enter a Metadata Prefix.</li>"
     }
 
-    if ($( "#id_schema" ).val().trim() == ""){
+    if ($( "#form_add_MF #id_schema" ).val().trim() == ""){
         errors += "<li>Please enter a schema.</li>"
     }
 
