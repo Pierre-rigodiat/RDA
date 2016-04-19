@@ -198,3 +198,5 @@ crashlytics-build.properties
 # tests
 curate/tests
 
+#Source tree orig files (diff)
+*.orig
