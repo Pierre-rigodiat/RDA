@@ -30,3 +30,5 @@ class OAIPMHConfig(AppConfig):
         OaiRecord.initIndexes()
         #Launch background tasks
         tasks.init_harvest()
+        #Load metadata prefixes
+        discover.load_metadata_prefixes()

@@ -10,8 +10,11 @@
 #
 ################################################################################
 from django.conf import settings
-from mgi.models import OaiSettings
-
+from mgi.models import OaiSettings, OaiMyMetadataFormat
+from lxml import etree
+from lxml.etree import XMLSyntaxError
+import os
+from mgi.settings import SITE_ROOT
 
 def init_settings():
     """
@@ -29,4 +32,25 @@ def init_settings():
     except Exception, e:
         print('ERROR : Impossible to init the settings : ' + e.message)
 
+
+def load_metadata_prefixes():
+    """
+    Load default metadata prefixes for OAI-PMH
+    """
+    metadataPrefixes = OaiMyMetadataFormat.objects.all()
+    if len(metadataPrefixes) == 0:
+        #Add OAI_DC metadata prefix
+        schemaURL = "http://www.openarchives.org/OAI/2.0/oai_dc.xsd"
+        file = open(os.path.join(SITE_ROOT, 'oai_pmh', 'resources', 'xsd', 'oai_dc.xsd'),'r')
+        xsdContent = file.read()
+        dom = etree.fromstring(xsdContent.encode('utf-8'))
+        if 'targetNamespace' in dom.find(".").attrib:
+            metadataNamespace = dom.find(".").attrib['targetNamespace'] or "namespace"
+        else:
+            metadataNamespace = "http://www.w3.org/2001/XMLSchema"
+        OaiMyMetadataFormat(metadataPrefix='oai_dc',
+                            schema=schemaURL,
+                            metadataNamespace=metadataNamespace,
+                            xmlSchema=xsdContent,
+                            isDefault=True).save()
 
