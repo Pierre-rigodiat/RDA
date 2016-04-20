@@ -22,6 +22,6 @@ urlpatterns = patterns(
     url(r'^admin/', include('oai_pmh.admin.urls')),
     url(r'^api/', include('oai_pmh.api.urls')),
     url(r'^explore/', include('oai_pmh.explore.urls')),
-    url(r'^server/', include('oai_pmh.server.urls')),
+    url(r'^server/', include('oai_pmh.server.urls'), name='oai_server'),
 )
 

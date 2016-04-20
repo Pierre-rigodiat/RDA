@@ -36,6 +36,7 @@ from lxml.etree import XMLSyntaxError
 from mongoengine import NotUniqueError, OperationError
 from django.forms import formset_factory
 from oai_pmh.admin.forms import AssociateXSLT
+from django.core.urlresolvers import reverse
 
 
 ################################################################################
@@ -78,7 +79,7 @@ def check_registry(request):
         form = Url(request.POST)
         if form.is_valid():
             #Call the identify function from the API.
-            uri= OAI_HOST_URI + "/oai_pmh/api/objectidentify"
+            uri= OAI_HOST_URI + reverse("api_objectIdentify")
             req = requests.post(uri, {"url":request.POST.get("url")}, auth=(OAI_USER, OAI_PASS))
             #If the return status is HTTP_200_OK, the OAI Registry is available
             isAvailable = req.status_code == status.HTTP_200_OK
@@ -106,7 +107,7 @@ def add_registry(request):
         if form.is_valid():
             try:
                 #We add the registry
-                uri = OAI_HOST_URI + "/oai_pmh/api/add/registry"
+                uri = OAI_HOST_URI + reverse("api_add_registry")
                 try:
                     url = request.POST.get('url')
                 except ValueError:
@@ -157,7 +158,7 @@ def update_registry(request):
     if request.method == 'POST':
         #UPDATE the registry
         try:
-            uri = OAI_HOST_URI + "/oai_pmh/api/update/registry"
+            uri = OAI_HOST_URI + reverse("api_update_registry")
             #Get the ID
             if 'id' in request.POST:
                 id = request.POST.get('id')
@@ -220,7 +221,7 @@ def update_registry(request):
 ################################################################################
 @login_required(login_url='/login')
 def delete_registry(request):
-    uri = OAI_HOST_URI+"/oai_pmh/api/delete/registry"
+    uri = OAI_HOST_URI + reverse("api_delete_registry")
     try:
         id = request.POST.get('RegistryId')
     except ValueError:
@@ -277,7 +278,7 @@ def harvest(request):
         try:
             #Get the ID
             registry_id = request.POST['registry_id']
-            uri = OAI_HOST_URI + "/oai_pmh/api/harvest"
+            uri = OAI_HOST_URI + reverse("api_harvest")
 
             #Call the API to update all records for this registry
             try:
@@ -353,7 +354,7 @@ def oai_pmh_my_infos(request):
     #Fill the information
     data_provider = {
             'name': name,
-            'baseURL': settings.OAI_HOST_URI +"/oai_pmh/server/",
+            'baseURL': settings.OAI_HOST_URI + "/oai_pmh/server/",
             'protocole_version': settings.OAI_PROTOCOLE_VERSION,
             'admins': (email for name, email in settings.OAI_ADMINS),
             # 'earliest_date': self.getEarliestDate(),   # placeholder
@@ -407,7 +408,7 @@ def update_my_registry(request):
     if request.method == 'POST':
         #UPDATE the registry
         try:
-            uri = OAI_HOST_URI + "/oai_pmh/api/update/my-registry"
+            uri = OAI_HOST_URI + reverse("api_update_my_registry")
             #Get all form information
             if 'name' in request.POST:
                 name = request.POST.get('name')
@@ -471,7 +472,7 @@ def add_my_metadataFormat(request):
         if form.is_valid():
             try:
                 #We add the metadata Format
-                uri = OAI_HOST_URI + "/oai_pmh/api/add/my-metadataFormat"
+                uri = OAI_HOST_URI + reverse("api_add_my_metadataFormat")
                 #We retrieve information from the form
                 if 'metadataPrefix' in request.POST:
                     metadataprefix = request.POST.get('metadataPrefix')
@@ -519,7 +520,7 @@ def add_my_template_metadataFormat(request):
         if form.is_valid():
             try:
                 #We add the tempalte metadata Format
-                uri = OAI_HOST_URI + "/oai_pmh/api/add/my-template-metadataFormat"
+                uri = OAI_HOST_URI + reverse("api_add_my_template_metadataFormat")
                 #We retrieve information from the form
                 if 'metadataPrefix' in request.POST:
                     metadataprefix = request.POST.get('metadataPrefix')
@@ -563,7 +564,7 @@ def add_my_template_metadataFormat(request):
 ################################################################################
 @login_required(login_url='/login')
 def delete_my_metadataFormat(request):
-    uri = OAI_HOST_URI+"/oai_pmh/api/delete/my-metadataFormat"
+    uri = OAI_HOST_URI + reverse("api_delete_my_metadataFormat")
     try:
         id = request.POST.get('MetadataFormatId')
     except ValueError:
@@ -597,7 +598,7 @@ def update_my_metadataFormat(request):
     if request.method == 'POST':
         #UPDATE the registry
         try:
-            uri = OAI_HOST_URI + "/oai_pmh/api/update/my-metadataFormat"
+            uri = OAI_HOST_URI + reverse("api_update_my_metadataFormat")
             #Get all form information
             if 'id' in request.POST:
                 id = request.POST.get('id')
@@ -666,7 +667,7 @@ def add_my_set(request):
         if form.is_valid():
             try:
                 #We add the set
-                uri = OAI_HOST_URI + "/oai_pmh/api/add/my-set"
+                uri = OAI_HOST_URI + reverse("api_add_my_set")
                 #We retrieve information from the form
                 if 'setSpec' in request.POST:
                     setSpec = request.POST.get('setSpec')
@@ -706,7 +707,7 @@ def add_my_set(request):
 ################################################################################
 @login_required(login_url='/login')
 def delete_my_set(request):
-    uri = OAI_HOST_URI+"/oai_pmh/api/delete/my-set"
+    uri = OAI_HOST_URI + reverse("api_delete_my_set")
     try:
         id = request.POST.get('set_id')
     except ValueError:
@@ -740,7 +741,7 @@ def update_my_set(request):
     if request.method == 'POST':
         #UPDATE the set
         try:
-            uri = OAI_HOST_URI + "/oai_pmh/api/update/my-set"
+            uri = OAI_HOST_URI + reverse("api_update_my_set")
             #Get all form information
             if 'id' in request.POST:
                 id = request.POST.get('id')
@@ -945,7 +946,7 @@ def edit_oai_pmh_xslt(request, id=None):
 def update_registry_harvest(request):
     if request.method == 'POST':
         try:
-            uri = OAI_HOST_URI + "/oai_pmh/api/update/registry-harvest"
+            uri = OAI_HOST_URI + reverse("api_update_registry_harvest")
             #Get all form information
             if 'id' in request.POST:
                 id = request.POST.get('id')
@@ -1006,7 +1007,7 @@ def update_registry_info(request):
         try:
             #Get the ID
             registry_id = request.POST['registry_id']
-            uri = OAI_HOST_URI + "/oai_pmh/api/update/registry-info"
+            uri = OAI_HOST_URI + reverse("api_update_registry_info")
             #Call the API to update information
             try:
                 requests.put(uri,
