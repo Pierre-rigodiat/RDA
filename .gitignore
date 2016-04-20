@@ -206,3 +206,6 @@ apache
 
 # mongodb
 conf/my-mongodb.conf
+
+# redis server
+*.rdb

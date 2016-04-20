@@ -1,6 +1,20 @@
+
+import os
 from os.path import join
+from time import sleep
+from pymongo import MongoClient
+from mgi.settings import MONGODB_URI
+from mgi.settings import BASE_DIR
+from pymongo.errors import OperationFailure
+from django.test.testcases import TestCase
 from lxml import etree
 from mgi.settings import SITE_ROOT
+from selenium import webdriver
+from modules.discover import discover_modules
+
+
+TESTS_RESOURCES_PATH = os.path.join(BASE_DIR, 'static', 'resources', 'tests')
+XSD_TEST_PATH = os.path.join(BASE_DIR, 'static', 'xsd', 'tests')
 
 
 class VariableTypesGenerator(object):
@@ -146,3 +160,83 @@ def are_equals(xml_tree_a, xml_tree_b):
             return False
 
     return tag_a == tag_b and attrib_a == attrib_b and text_a == text_b
+
+
+class SeleniumTestCase(TestCase):
+
+    def setUp(self):
+        self.driver = webdriver.Firefox()
+        self.driver.implicitly_wait(30)
+        self.base_url = "http://localhost:8000/"
+
+        self.pages = {
+            "select": "curate/select-template",
+        }
+
+        self.template = "countries"
+
+        self.verificationErrors = []
+        self.accept_next_alert = True
+
+        # Clean the database
+        self.clean_db()
+        discover_modules()
+
+        # Login to MDCS
+        self.login(self.base_url, "admin", "admin")
+
+        # Upload the correct schema
+        countries_enum_xsd_path = join('modules', 'curator', 'EnumAutoCompleteModule', 'countries-enum.xsd')
+        self.upload_xsd(self.template, countries_enum_xsd_path)
+        sleep(1)
+
+        self.check_uploaded(self.template)
+
+    def upload_xsd(self, name, file_path):
+        self.driver.get("http://localhost:8000/admin/xml-schemas/manage-schemas")
+
+        self.driver.find_element_by_xpath("//div[@id='model_selection']/div/span/div").click()
+
+        self.driver.find_element_by_id("object_name").clear()
+        self.driver.find_element_by_id("object_name").send_keys(name)
+
+        self.driver.find_element_by_id("files").clear()
+        self.driver.find_element_by_id("files").send_keys(os.path.join(XSD_TEST_PATH, file_path))
+
+        self.driver.find_element_by_id("uploadFile").click()
+        self.driver.find_element_by_xpath("//div[@id='objectUploadErrorMessage']/span[@class='btn']").click()
+
+    def check_uploaded(self, name):
+        self.driver.get("http://localhost:8000/admin/xml-schemas/manage-schemas")
+
+        elements = self.driver.find_elements_by_xpath("//div[@id='model_selection']/table/tbody/tr/td[1]")
+        elements = [el.text for el in elements]
+
+        if name not in elements:
+            raise IndexError("Template "+name+" has not been uploaded")
+
+    def login(self, base_url, user, password):
+        self.driver.get(base_url)
+        self.driver.find_element_by_link_text("Login").click()
+        self.driver.find_element_by_id("id_username").clear()
+        self.driver.find_element_by_id("id_username").send_keys(user)
+        self.driver.find_element_by_id("id_password").clear()
+        self.driver.find_element_by_id("id_password").send_keys(password)
+        self.driver.find_element_by_css_selector("button.btn").click()
+
+    def clean_db(self):
+        # create a connection
+        client = MongoClient(MONGODB_URI)
+        # connect to the db 'mgi.test'
+        db = client['mgi_test']
+        # clear all collections
+        for collection in db.collection_names():
+            try:
+                if collection != 'system.indexes':
+                    db.drop_collection(collection)
+            except OperationFailure:
+                pass
+
+    def tearDown(self):
+        self.driver.quit()
+        self.clean_db()
