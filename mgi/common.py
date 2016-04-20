@@ -167,7 +167,7 @@ class ChoiceInfo:
         
     def __init__(self, chooseIDStr, counter):
         self.chooseIDStr = chooseIDStr
-        self.counter = counter        
+        self.counter = counter
         
         
 ################################################################################
