@@ -87,14 +87,14 @@ MDCS_URI = 'http://127.0.0.1:8000'
 
 # OAI_PMH parameters
 OAI_ADMINS = (
-    ('Administrator', 'admin@curator.com'),
+    ('Administrator', 'admin@nmrr.com'),
 )
 OAI_HOST_URI = 'http://127.0.0.1:8000'
 OAI_USER = 'admin'
 OAI_PASS = 'admin'
-OAI_NAME = 'MDCS Admin 127.0.0.1 '
+OAI_NAME = 'NMRR 127.0.0.1'
 OAI_DELIMITER = ':'
-OAI_DESCRIPTION = 'OAI-PMH CURATOR'
+OAI_DESCRIPTION = 'OAI-PMH NMRR'
 OAI_GRANULARITY = 'YYYY-MM-DDThh:mm:ssZ' #the finest harvesting granularity supported by the repository
 OAI_PROTOCOLE_VERSION = '2.0' #the version of the OAI-PMH supported by the repository
 OAI_SCHEME = 'oai'
