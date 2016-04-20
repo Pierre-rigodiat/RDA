@@ -12,8 +12,8 @@
 # Author: Sharief Youssef
 #         sharief.youssef@nist.gov
 #
-#		  Guillaume SOUSA AMARAL
-#		  guillaume.sousa@nist.gov
+#		  Pierre Francois RIGODIAT
+#		  pierre-francois.rigodiat@nist.gov
 #
 # Sponsor: National Institute of Standards and Technology (NIST)
 #
@@ -54,14 +54,13 @@
     </div>
     <br/><br/><br/>
     {% if data_provider %}
-    <table id="data-provider-my-info" class="data-table">
+    <table id="data-provider-my-info" class="data-table font-medium">
         <tr>
             <td>Status</td>
             <td style="text-align:center;" url="{{data_provider.baseURL}}" id="Status">
                 ---
             </td>
         </tr>
-        <tr class="invisible"><td></td><td></td></tr>
         <tr>
             <td>Name</td>
             <td>
@@ -173,8 +172,9 @@
 
     <div role="tabpanel" class="tab-pane" id="metadataformats">
         <h3>My Metadata Prefixes</h3>
+
         <div class="tpl-title">Metadata Prefixes by Default</div>
-        <p>
+        <p class="font-medium">
             Metadata Prefixes provided by default along with this instance. You will need to configure an XSLT file for each Template under the Template configuration to perform the mapping between the templates and those metadata prefixes.
         </p>
         {% if defaultMetadataFormats %}
@@ -199,11 +199,13 @@
             {% endfor %}
         </table>
         {% else %}
-            No information available.
+            <p class="font-medium">
+                No information available.
+            </p>
         {% endif %}
 
         <div class="tpl-title">Other Metadata Prefixes</div>
-        <p>
+        <p class="font-medium">
             Add other metadata prefixes by providing a URL.
             You will need to configure an XSLT file for each Template under the Template configuration to perform the mapping between the templates and those metadata prefixes.
         </p>
@@ -235,12 +237,14 @@
             {% endfor %}
         </table>
         {% else %}
-            There are currently no other metadata prefixes. Please click "Add Metadata Prefixe" to the right to add new metadata prefixe.
+            <p class="font-medium">
+                There are currently no other metadata prefixes. Please click "Add Metadata Prefixe" to the right to add new metadata prefixe.
+            </p>
         {% endif %}
 
 
         <div class="tpl-title">Templates as Metadata Prefixes</div>
-        <p>
+        <p class="font-medium">
            Add templates as metadata prefixes in order to exchange meatdata records directly.<br>
            Please note metadata prefix will be associated only to the template that you select.<br>
         </p>
@@ -262,7 +266,7 @@
             {% cycle 'even' '' as rowcolors silent %}
             {% for metadataFormat in templateMetadataFormats %}
             <tr class='{{rowcolors}}'>
-                <td width="100em;">{{metadataFormat.metadataPrefix}}</td>
+                <td width="140em;">{{metadataFormat.metadataPrefix}}</td>
                 <td width="250em;">{{metadataFormat.template.title}}</td>
                 <td width="250em;">{{metadataFormat.schema}}</td>
                 <td width="250em;">{{metadataFormat.metadataNamespace}}</td>
@@ -274,8 +278,10 @@
             {% endfor %}
         </table>
         {% else %}
-            There are currently no templates as metadata prefixes. Please click "Add Metadata Prefix" to the right to add new metadata format.
-            No information available.
+            <p class="font-medium">
+                There are currently no templates as metadata prefixes. Please click "Add Metadata Prefix" to the right to add new metadata format.
+                No information available.
+            </p>
         {% endif %}
 
     </div>
@@ -307,7 +313,9 @@
             {% endfor %}
         </table>
         {% else %}
-            No information available.
+            <p class="font-medium">
+                No information available.
+            </p>
         {% endif %}
 
 

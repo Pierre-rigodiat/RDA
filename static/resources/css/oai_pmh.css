@@ -63,8 +63,8 @@ tr.alertTr td {
 
 .myinfos td{
 	word-break: break-all;
+	font-size: medium;
 }
-
 
 
 /*css for admin widgets*/
@@ -199,4 +199,8 @@ hr.action {
 
 td[id^=ButtonSet] {
 	visibility: hidden;
+}
+
+.font-medium {
+	font-size: medium;
 }

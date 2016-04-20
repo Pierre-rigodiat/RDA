@@ -43,7 +43,7 @@
 </div>
 <br/><br/><br/>
     {% if registries %}
-    <table class="data-table">
+    <table class="data-table font-medium">
         <tr>
             <th>Name</th>
             <th>URL</th>
@@ -52,7 +52,7 @@
             <th>Harvest</th>
             <th>Last harvest</th>
             <!--<th>Harvested records</th>-->
-            <th>Actions</th>
+            <th width="150em;">Actions</th>
         </tr>
 
         {% for registry in registries %}
@@ -92,7 +92,7 @@
                 </td>
                 <td width="100em;" id="lastUpdate{{registry.id}}">{{ registry.lastUpdate }}</td>
                 <!--<td>{{ registry.records|length }}</td>-->
-                <td width="140em;">
+                <td width="150em;">
                     <span class="icon legend result" onclick="viewRegistry('{{ registry.id }}')">View</span>
                     <span class="icon legend edit" onclick="editRegistry('{{ registry.id }}')">Edit</span>
                     <span class="icon legend edit" onclick="editHarvestRegistry('{{ registry.id }}')">Edit harvest</span>

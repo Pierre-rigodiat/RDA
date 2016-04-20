@@ -1,14 +1,14 @@
 {{harvest_form.id}}
 <!--{{harvest_form.metadataFormats}}-->
 <!--{{harvest_form.sets}}-->
-{% block title %}<h1>Edit Harvest</h1>{% endblock %}
-<p>
+{% block title %}<h3>Edit Harvest</h3>{% endblock %}
+<p class="font-medium">
     Please select metadata formats and sets you would like to retrieve during the Harvest process for this Data Provider.
 </p>
 
 
 {% if harvest_form.metadataFormats %}
-    <table class="data-table">
+    <table class="data-table font-medium">
         <thead>
             <tr>
                 <th>{{harvest_form.metadataFormats.label}}</th>
@@ -33,7 +33,7 @@
 {% endif %}
 
 {% if harvest_form.sets %}
-    <table class="data-table">
+    <table class="data-table oai-nmrr-table">
         <thead>
             <tr>
                 <th>{{harvest_form.sets.label}}</th>
