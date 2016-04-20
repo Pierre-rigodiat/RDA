@@ -1,5 +1,4 @@
 from curate.models import SchemaElement
-from mgi.models import FormData, FormElement
 from abc import ABCMeta, abstractmethod
 
 

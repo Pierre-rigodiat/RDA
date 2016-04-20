@@ -9,7 +9,7 @@ from curate.models import SchemaElement
 from curate.renderer import render_buttons, \
     render_input, render_ul, \
     render_select
-from mgi.models import FormElement, XMLElement, FormData, Module, Template
+from mgi.models import FormData, Module, Template
 from mgi.settings import CURATE_MIN_TREE, CURATE_COLLAPSE, AUTO_KEY_KEYREF
 from bson.objectid import ObjectId
 from mgi import common

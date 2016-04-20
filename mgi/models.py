@@ -242,26 +242,6 @@ class Bucket(Document):
     types = ListField()
 
 
-class XMLElement(Document):
-    """
-        Stores information about an XML element and its occurrences
-    """
-    xsd_xpath = StringField()
-    schema_location = StringField()
-    nbOccurs = IntField()
-    minOccurs = FloatField()
-    maxOccurs = FloatField()
-
-
-class FormElement(Document):
-    """
-        Stores information about an element in the HTML form
-    """
-    html_id = StringField()
-    xml_xpath = StringField()
-    xml_element = ReferenceField(XMLElement)
-
-
 class FormData(Document):
     """Stores data being entered and not yet curated"""
     user = StringField(required=True)
@@ -274,7 +254,7 @@ class FormData(Document):
 
 def postprocessor(path, key, value):
     """Called after XML to JSON transformation"""
-    if(key == "#text"):
+    if key == "#text":
         return key, str(value)
     try:
         return key, int(value)

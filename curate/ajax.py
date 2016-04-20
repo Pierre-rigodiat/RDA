@@ -27,8 +27,7 @@ from curate.parser import generate_form, generate_element, generate_sequence, ge
 from curate.renderer import DefaultRenderer
 from curate.renderer.xml import XmlRenderer
 from curate.renderer.list import ListRenderer
-from mgi.models import Template
-from mgi.models import FormElement, XMLElement, FormData
+from mgi.models import Template, FormData
 import json
 from mgi import common
 import lxml.etree as etree
@@ -78,21 +77,7 @@ def cancel_form(request):
     try:
         form_data_id = request.session['curateFormData']
         form_data = FormData.objects().get(pk=form_data_id)
-        # cascade delete references
-        for form_element_id in form_data.elements.values():
-            try:
-                form_element = FormElement.objects().get(pk=form_element_id)
-                if form_element.xml_element is not None:
-                    try:
-                        xml_element = XMLElement.objects().get(pk=str(form_element.xml_element.id))
-                        xml_element.delete()
-                    except:
-                        # raise an exception when element not found
-                        pass
-                form_element.delete()
-            except:
-                # raise an exception when element not found
-                pass
+        # TODO: check if need to delete all schema elements
         form_data.delete()
         messages.add_message(request, messages.INFO, 'Form deleted with success.')
         return HttpResponse({},status=204)
@@ -114,21 +99,7 @@ def delete_form(request):
         form_data_id = request.GET['id']
         try:
             form_data = FormData.objects().get(pk=form_data_id)
-            # cascade delete references
-            for form_element_id in form_data.elements.values():
-                try:
-                    form_element = FormElement.objects().get(pk=form_element_id)
-                    if form_element.xml_element is not None:
-                        try:
-                            xml_element = XMLElement.objects().get(pk=str(form_element.xml_element.id))
-                            xml_element.delete()
-                        except:
-                            # raise an exception when element not found
-                            pass
-                    form_element.delete()
-                except:
-                    # raise an exception when element not found
-                    pass
+            # TODO: check if need to delete all SchemaElements
             form_data.delete()
             messages.add_message(request, messages.INFO, 'Form deleted with success.')
         except Exception, e:

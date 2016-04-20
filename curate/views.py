@@ -28,8 +28,7 @@ from django.contrib import messages
 
 from curate.models import SchemaElement
 from curate.renderer.xml import XmlRenderer
-from mgi.models import Template, TemplateVersion, XML2Download, FormData,\
-    XMLdata, FormElement, XMLElement
+from mgi.models import Template, TemplateVersion, XML2Download, FormData, XMLdata
 from curate.forms import NewForm, OpenForm, UploadForm, SaveDataForm
 from django.http.response import HttpResponseBadRequest
 from admin_mdcs.models import permission_required
@@ -108,21 +107,7 @@ def curate_edit_data(request):
         # remove previously created forms when editing a new one
         previous_forms = FormData.objects(user=str(request.user.id), xml_data_id__exists=True)
         for previous_form in previous_forms:
-            # cascade delete references
-            for form_element_id in previous_form.elements.values():
-                try:
-                    form_element = FormElement.objects().get(pk=form_element_id)
-                    if form_element.xml_element is not None:
-                        try:
-                            xml_element = XMLElement.objects().get(pk=str(form_element.xml_element.id))
-                            xml_element.delete()
-                        except:
-                            # raise an exception when element not found
-                            pass
-                    form_element.delete()
-                except:
-                    # raise an exception when element not found
-                    pass
+            # TODO: check if need to delete all SchemaElements
             previous_form.delete()
         form_data = FormData(user=str(request.user.id), template=xml_data['schema'], name=xml_data['title'], xml_data=xml_content, xml_data_id=xml_data_id).save()
         request.session['curateFormData'] = str(form_data.id)
