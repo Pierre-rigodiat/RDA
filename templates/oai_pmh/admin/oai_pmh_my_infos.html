@@ -183,7 +183,7 @@
                 <th>Metadata Prefix</th>
                 <th>Schema</th>
                 <th>Namespace</th>
-                <th>Actions</th>
+                <!--<th>Actions</th>-->
             </tr>
             {% cycle 'even' '' as rowcolors silent %}
             {% for metadataFormat in defaultMetadataFormats %}
@@ -191,10 +191,10 @@
                 <td width="100em;">{{metadataFormat.metadataPrefix}}</td>
                 <td width="250em;">{{metadataFormat.schema}}</td>
                 <td width="250em;">{{metadataFormat.metadataNamespace}}</td>
-                <td>
-                    <span class="icon legend edit" onclick="editMetadataFormat('{{ metadataFormat.id }}')">Edit</span>
-                    <span class="icon legend delete" onclick="deleteMetadataFormat('{{ metadataFormat.id }}')">Delete</span>
-                </td>
+                <!--<td>-->
+                    <!--<span class="icon legend edit" onclick="editMetadataFormat('{{ metadataFormat.id }}')">Edit</span>-->
+                    <!--<span class="icon legend delete" onclick="deleteMetadataFormat('{{ metadataFormat.id }}')">Delete</span>-->
+                <!--</td>-->
             </tr>
             {% endfor %}
         </table>
