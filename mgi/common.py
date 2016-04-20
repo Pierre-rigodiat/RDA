@@ -165,8 +165,7 @@ def getXSDTypes(prefix):
 class ChoiceInfo:
     "Class that stores information about a choice being rendered"
         
-    def __init__(self, chooseIDStr, counter):
-        self.chooseIDStr = chooseIDStr
+    def __init__(self, counter):
         self.counter = counter
         
         
@@ -215,11 +214,6 @@ def get_target_namespace_prefix(namespaces, xsd_tree):
         for prefix, url in namespaces.items():
             if url == target_namespace:
                 target_namespace_prefix = prefix
-        # no target prefix found
-        # TODO: check local conflict
-        # if target_namespace_prefix == '':
-        #     target_namespace_prefix = 'local'
-        #     namespaces[target_namespace_prefix] = target_namespace
 
     return target_namespace_prefix
 
@@ -232,11 +226,6 @@ def get_target_namespace(namespaces, xsd_tree):
         for prefix, url in namespaces.items():
             if url == target_namespace:
                 target_namespace_prefix = prefix
-        # no target prefix found
-        # TODO: check local conflict
-        # if target_namespace_prefix == '':
-        #      target_namespace_prefix = 'local'
-        #      namespaces[target_namespace_prefix] = target_namespace
 
     return target_namespace, target_namespace_prefix
 

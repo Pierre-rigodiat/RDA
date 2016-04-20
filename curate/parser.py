@@ -2,30 +2,21 @@
 """
 import logging
 import traceback
-from os.path import join
-
 import sys
 import re
 from urlparse import urlparse, parse_qsl
-
 from curate.models import SchemaElement
 from curate.renderer import render_buttons, \
     render_input, render_ul, \
     render_select
 from mgi.models import FormElement, XMLElement, FormData, Module, Template
-# from curate.renderer.list import ListRenderer
-# from curate.renderer.table import TableRenderer
-# from mgi.models import FormElement, XMLElement, FormData, Module, Template, MetaSchema
 from mgi.settings import CURATE_MIN_TREE, CURATE_COLLAPSE, AUTO_KEY_KEYREF
 from bson.objectid import ObjectId
 from mgi import common
 from lxml import etree
-# import django.utils.html
 from io import BytesIO
 from modules import get_module_view
 import urllib2
-
-# from mgi.common import LXML_SCHEMA_NAMESPACE, SCHEMA_NAMESPACE
 from mgi.common import LXML_SCHEMA_NAMESPACE
 from utils.XSDflattener.XSDflattener import XSDFlattenerURL
 
@@ -150,20 +141,6 @@ def lookup_occurs(request, element, xml_tree, full_path, edit_data_tree):
     for xpath in xpaths:
         edit_elements = edit_data_tree.xpath(full_path + '/' + target_namespace_prefix + xpath['name'], namespaces=namespaces)
         elements_found.extend(edit_elements)
-        # max_occurs_found += len(edit_elements)
-        # if len(edit_elements) > max_occurs_found:
-        #     max_occurs_found = 1
-        #
-        #     if 'maxOccurs' in xpath['element'].attrib:
-        #         if xpath['element'].attrib != "unbounded":
-        #             if xpath['element'].attrib < len(edit_elements):
-        #                 # FIXME this part of code is not reachable (hence commented)
-        #                 # max_occurs_found = len(edit_elements)
-        #
-        #                 exc_mess = "These data can't be loaded for now, because of the following element: "
-        #                 exc_mess += join(full_path, xpath['name'])  # XPath of the current element
-        #
-        #                 raise Exception(exc_mess)
 
     return elements_found
 
@@ -420,21 +397,12 @@ def generate_form(request):
 
     request.session['xmlDocTree'] = xml_doc_tree_str
 
-    # init counters
-    request.session['nbChoicesID'] = '0'
-    request.session['nb_html_tags'] = '0'
-
     if 'keys' in request.session:
         del request.session['keys']
     request.session['keys'] = {}
     if 'keyrefs' in request.session:
         del request.session['keyrefs']
     request.session['keyrefs'] = {}
-
-    # init id mapping structure (html/mongo)
-    if 'mapTagID' in request.session:
-        del request.session['mapTagID']
-    request.session['mapTagID'] = {}
 
     # get form data from the database (empty one or existing one)
     form_data_id = request.session['curateFormData']
@@ -472,7 +440,6 @@ def generate_form(request):
         else:
             # find all complex types
             # TODO: does it make sense to get all simple types too?
-            # complex_types = xml_doc_tree.findall("./{0}complexType[@name='Resource']".format(LXML_SCHEMA_NAMESPACE))
             complex_types = xml_doc_tree.findall("./{0}complexType".format(LXML_SCHEMA_NAMESPACE))
             if len(complex_types) > 0:
                 form_content = generate_choice_extensions(request, complex_types, xml_doc_tree, None)
@@ -688,7 +655,6 @@ def generate_element(request, element, xml_tree, choice_info=None, full_path="",
     delete_button = False
     nb_occurrences = 1  # nb of occurrences to render (can't be 0 or the user won't see this element at all)
     nb_occurrences_data = min_occurs  # nb of occurrences in loaded data or in form being rendered (can be 0)
-    # xml_element = None
     use = ""
     removed = False
 
@@ -751,17 +717,13 @@ def generate_element(request, element, xml_tree, choice_info=None, full_path="",
                                                                default_prefix, target_namespace_prefix,
                                                                schema_location)
 
-    # xml_element = XMLElement(xsd_xpath=xsd_xpath, nbOccurs=nb_occurrences_data, minOccurs=min_occurs,
-    #                          maxOccurs=max_occurs, schema_location=schema_location)
-    # xml_element.save()
-
     db_element['options']['schema_location'] = schema_location
     db_element['options']['xmlns'] = element_ns
     db_element['options']['ns_prefix'] = ns_prefix
 
+    choice_id = ''
     # management of elements inside a choice (don't display if not part of the currently selected choice)
     if choice_info:
-        choice_id = choice_info.chooseIDStr + "-" + str(choice_info.counter)
         chosen = True
 
         if request.session['curate_edit']:
@@ -769,26 +731,15 @@ def generate_element(request, element, xml_tree, choice_info=None, full_path="",
                 chosen = False
 
                 if CURATE_MIN_TREE:
-                    # form_element = FormElement(html_id=choice_id, xml_element=xml_element, xml_xpath=full_path).save()
-
-                    # request.session['mapTagID'][choice_id] = str(form_element.id)
-
-                    form_string += render_ul('', choice_id, chosen)
                     return form_string, db_element
         else:
             if choice_info.counter > 0:
                 chosen = False
 
                 if CURATE_MIN_TREE:
-                    # form_element = FormElement(html_id=choice_id, xml_element=xml_element, xml_xpath=full_path).save()
-                    #
-                    # request.session['mapTagID'][choice_id] = str(form_element.id)
-
-                    form_string += render_ul('', choice_id, chosen)
                     return form_string, db_element
     else:
         chosen = True
-        choice_id = ''
 
     ul_content = ''
 
@@ -817,26 +768,11 @@ def generate_element(request, element, xml_tree, choice_info=None, full_path="",
             'children': []
         }
 
-        nb_html_tags = int(request.session['nb_html_tags'])
-        tag_id = "element" + str(nb_html_tags)
-        nb_html_tags += 1
-        request.session['nb_html_tags'] = str(nb_html_tags)
-        # form_element = FormElement(html_id=tag_id, xml_element=xml_element, xml_xpath=full_path + '[' + str(x+1) + ']',
-        #                            name=text_capitalized).save()
-
-        # if 'mapTagID' in request.session:
-        #     request.session['mapTagID'][tag_id] = str(form_element.id)
-
         # get the use from app info element
         app_info_use = app_info['use'] if 'use' in app_info else ''
         app_info_use = app_info_use if app_info_use is not None else ''
         use += ' ' + app_info_use
 
-        # renders the name of the element
-        # form_string += "<li class='" + element_tag + ' ' + use + "' id='" + str(tag_id) + "' "
-        # form_string += 'tag="{0}" {1} {2}>'.format(django.utils.html.escape(text_capitalized),
-        #                                            tag_ns,
-        #                                            tag_ns_prefix)
         li_content = ''
 
         if CURATE_COLLAPSE:
@@ -932,7 +868,6 @@ def generate_element(request, element, xml_tree, choice_info=None, full_path="",
             li_content += buttons
 
         # renders the name of the element
-        # ul_content += render_li(li_content, tag_id, element_tag, use, text_capitalized)
 
         # if len(db_elem_iter['children']) > 0:
         db_element['children'].append(db_elem_iter)
@@ -1092,113 +1027,6 @@ def get_element_namespace(element, xsd_tree):
     return element_ns
 
 
-def generate_element_absent(request, element, xml_doc_tree, form_element, schema_location=None):
-    """
-    # Inputs:        request -
-    # Outputs:       JSON data
-    # Exceptions:    None
-    # Description:   Generate XML element for which the element is absent from the form
-
-    Parameters:
-        request:
-        element:
-        xml_doc_tree:
-        form_element:
-        schema_location:
-
-    Returns:
-    """
-    # TODO see if it is possibe to group with generate_element
-    form_string = ""
-
-    db_element = {
-        'tag': 'elem-iter',
-        'value': None,
-        'children': []
-    }
-
-    # get appinfo elements
-    app_info = common.getAppInfo(element)
-
-    # check if the element has a module
-    _has_module = has_module(element)
-
-    # type is a reference included in the document
-    if 'ref' in element.attrib:
-        ref = element.attrib['ref']
-        # refElement = None
-
-        if ':' in ref:
-            ref_split = ref.split(":")
-            ref_name = ref_split[1]
-            ref_element = xml_doc_tree.find("./{0}element[@name='{1}']".format(LXML_SCHEMA_NAMESPACE, ref_name))
-        else:
-            ref_element = xml_doc_tree.find("./{0}element[@name='{1}']".format(LXML_SCHEMA_NAMESPACE, ref))
-
-        if ref_element is not None:
-            element = ref_element
-            # check if the element has a module
-            _has_module = has_module(element)
-
-    if _has_module:
-        module = generate_module(request, element, form_element.xml_element.xsd_xpath,
-                                 form_element.xml_xpath)
-
-        form_string += module[0]
-        # db_element['module'] = True
-        db_element['children'].append(module[1])
-    else:
-        xml_tree_str = etree.tostring(xml_doc_tree)
-        namespaces = common.get_namespaces(BytesIO(str(xml_tree_str)))
-        default_prefix = common.get_default_prefix(namespaces)
-        target_namespace_prefix = common.get_target_namespace_prefix(namespaces, xml_doc_tree)
-        element_type, xml_doc_tree, schema_location = get_element_type(element, xml_doc_tree, namespaces,
-                                                                       default_prefix, target_namespace_prefix,
-                                                                       schema_location)
-
-        # render the type
-        if element_type is None:  # no complex/simple type
-            default_value = ""
-
-            if 'default' in element.attrib:
-                # if the default attribute is present
-                default_value = element.attrib['default']
-
-            placeholder = app_info['placeholder'] if 'placeholder' in app_info else ''
-            tooltip = app_info['tooltip'] if 'tooltip' in app_info else ''
-
-            form_string += render_input(default_value, placeholder, tooltip)
-
-            db_child = {
-                'tag': 'input',
-                'options': {
-                    'placeholder': placeholder,
-                    'tooltip': tooltip
-                },
-                'value': default_value
-            }
-
-            db_element['children'].append(db_child)
-        else:  # complex/simple type
-            if element_type.tag == "{0}complexType".format(LXML_SCHEMA_NAMESPACE):
-                complex_type_result = generate_complex_type(request, element_type, xml_doc_tree,
-                                                            full_path=form_element.options['xpath']['xml'],
-                                                            schema_location=schema_location)
-
-                form_string += complex_type_result[0]
-                db_element['children'].append(complex_type_result[1])
-            elif element_type.tag == "{0}simpleType".format(LXML_SCHEMA_NAMESPACE):
-                simple_type_result = generate_simple_type(request, element_type, xml_doc_tree,
-                                                          full_path=form_element.options['xpath']['xml'],
-                                                          schema_location=schema_location)
-
-                form_string += simple_type_result[0]
-                db_element['children'].append(simple_type_result[1])
-
-    # return form_string, db_element
-    return form_string, db_element
-
-
 def generate_sequence(request, element, xml_tree, choice_info=None, full_path="", edit_data_tree=None,
                       schema_location=None, force_generation=False):
     """Generates a section of the form that represents an XML sequence
@@ -1250,7 +1078,6 @@ def generate_sequence(request, element, xml_tree, choice_info=None, full_path=""
         delete_button = False
         nb_occurrences = 1  # nb of occurrences to render (can't be 0 or the user won't see this element at all)
         nb_occurrences_data = min_occurs  # nb of occurrences in loaded data or in form being rendered (can be 0)
-        # xml_element = None
 
         # loading data in the form
         if request.session['curate_edit']:
@@ -1281,33 +1108,20 @@ def generate_sequence(request, element, xml_tree, choice_info=None, full_path=""
         if nb_occurrences_data > nb_occurrences:
             nb_occurrences = nb_occurrences_data
 
-        # xml_element = XMLElement(xsd_xpath=xsd_xpath, nbOccurs=nb_occurrences_data, minOccurs=min_occurs,
-        #                          maxOccurs=max_occurs, schema_location=schema_location).save()
-
         # keeps track of elements to display depending on the selected choice
         if choice_info:
             chosen = True
-            choice_id = choice_info.chooseIDStr + "-" + str(choice_info.counter)
-
             if request.session['curate_edit']:
                 if nb_occurrences == 0:
                     chosen = False
 
                     if CURATE_MIN_TREE:
-                        # form_element = FormElement(html_id=choice_id, xml_element=xml_element, xml_xpath=full_path).save()
-                        # request.session['mapTagID'][choice_id] = str(form_element.id)
-
-                        form_string += render_ul('', choice_id, chosen)
                         return form_string, db_element
             else:
                 if choice_info.counter > 0:
                     chosen = False
 
                     if CURATE_MIN_TREE:
-                        # form_element = FormElement(html_id=choice_id, xml_element=xml_element, xml_xpath=full_path).save()
-                        # request.session['mapTagID'][choice_id] = str(form_element.id)
-
-                        form_string += render_ul('', choice_id, chosen)
                         return form_string, db_element
         else:
             chosen = True
@@ -1315,25 +1129,6 @@ def generate_sequence(request, element, xml_tree, choice_info=None, full_path=""
 
         ul_content = ''
 
-        # editing data and sequence not found in data
-        # if nb_occurrences_data == 0:
-        #     nb_html_tags = int(request.session['nb_html_tags'])
-        #     tag_id = "element" + str(nb_html_tags)
-        #     nb_html_tags += 1
-        #     request.session['nb_html_tags'] = str(nb_html_tags)
-        #     form_element = FormElement(html_id=tag_id, xml_element=xml_element, xml_xpath=full_path + '[1]').save()
-        #     request.session['mapTagID'][tag_id] = str(form_element.id)
-        #
-        #     li_content = ''
-        #
-        #     if CURATE_COLLAPSE:
-        #         li_content += render_collapse_button()
-        #
-        #     li_content += text
-        #     li_content += render_buttons(True, False, str(tag_id[7:]))
-        #
-        #     # ul_content += render_li(li_content, tag_id, 'sequence', 'removed')
-        # else:
         if force_generation:
             nb_occurrences = 1
 
@@ -1343,16 +1138,6 @@ def generate_sequence(request, element, xml_tree, choice_info=None, full_path=""
                 'value': None,
                 'children': []
             }
-
-            nb_html_tags = int(request.session['nb_html_tags'])
-            tag_id = "element" + str(nb_html_tags)
-            nb_html_tags += 1
-            request.session['nb_html_tags'] = str(nb_html_tags)
-#                 if (minOccurs != 1) or (maxOccurs != 1):
-#             form_element = FormElement(html_id=tag_id, xml_element=xml_element,
-#                                        xml_xpath=full_path + '[' + str(x+1) + ']')
-#             form_element.save()
-#             request.session['mapTagID'][tag_id] = str(form_element.pk)
 
             li_content = ''
 
@@ -1392,7 +1177,6 @@ def generate_sequence(request, element, xml_tree, choice_info=None, full_path=""
                     pass
 
             db_element['children'].append(db_elem_iter)
-            # ul_content += render_li(li_content, tag_id, 'sequence')
 
         form_string += render_ul(ul_content, choice_id, chosen)
     else:  # min_occurs == 1 and max_occurs == 1
@@ -1409,37 +1193,21 @@ def generate_sequence(request, element, xml_tree, choice_info=None, full_path=""
         nb_occurrences = 1  # nb of occurrences to render (can't be 0 or the user won't see this element at all)
         nb_occurrences_data = min_occurs  # nb of occurrences in loaded data or in form being rendered (can be 0)
 
-        # xml_element = XMLElement(xsd_xpath=xsd_xpath, nbOccurs=nb_occurrences_data, minOccurs=min_occurs,
-        #                          maxOccurs=max_occurs, schema_location=schema_location).save()
-
         if choice_info:
-            choice_id = choice_info.chooseIDStr + "-" + str(choice_info.counter)
             if request.session['curate_edit']:
                 if nb_occurrences == 0:
-                    form_string += "<ul id=\"" + choice_id + "\" class=\"notchosen\">"
                     if CURATE_MIN_TREE:
-                        # form_element = FormElement(html_id=choice_id, xml_element=xml_element, xml_xpath=full_path).save()
-                        # request.session['mapTagID'][choice_id] = str(form_element.id)
-                        form_string += "</ul>"
-
                         # db_element['children'].append(db_elem_iter)
-
                         return form_string, db_element
                 else:
-                    form_string += "<ul id=\"" + choice_id + "\" >"
+                    pass
             else:
                 if choice_info.counter > 0:
-                    form_string += "<ul id=\"" + choice_id + "\" class=\"notchosen\">"
                     if CURATE_MIN_TREE:
-                        # form_element = FormElement(html_id=choice_id, xml_element=xml_element, xml_xpath=full_path).save()
-                        # request.session['mapTagID'][choice_id] = str(form_element.id)
-                        form_string += "</ul>"
-
                         # db_element['children'].append(db_elem_iter)
-
                         return form_string, db_element
                 else:
-                    form_string += "<ul id=\"" + choice_id + "\" >"
+                    pass
 
         # generates the sequence
         for child in element:
@@ -1608,10 +1376,6 @@ def generate_choice(request, element, xml_tree, choice_info=None, full_path="", 
         if nb_occurrences_data > nb_occurrences:
             nb_occurrences = nb_occurrences_data
 
-        # xml_element = XMLElement(xsd_xpath=xsd_xpath, nbOccurs=nb_occurrences_data, minOccurs=min_occurs,
-        #                          maxOccurs=max_occurs,schema_location=schema_location)
-        # xml_element.save()
-
         # 'occurs' key contains the tuple (minOccurs, nbOccurs, maxOccurs)
         # db_element['options'] = (min_occurs, nb_occurrences_data, max_occurs)
         db_element['options']['min'] = min_occurs
@@ -1619,7 +1383,6 @@ def generate_choice(request, element, xml_tree, choice_info=None, full_path="", 
 
     # keeps track of elements to display depending on the selected choice
     if choice_info:
-        choice_id = choice_info.chooseIDStr + "-" + str(choice_info.counter)
         chosen = True
 
         if request.session['curate_edit']:
@@ -1627,20 +1390,12 @@ def generate_choice(request, element, xml_tree, choice_info=None, full_path="", 
                 chosen = False
 
                 if CURATE_MIN_TREE:
-                    # form_element = FormElement(html_id=choice_id, xml_element=xml_element, xml_xpath=full_path).save()
-                    # request.session['mapTagID'][choice_id] = str(form_element.id)
-
-                    form_string += render_ul('', choice_id, chosen)
                     return form_string, db_element
         else:
             if choice_info.counter > 0:
                 chosen = False
 
                 if CURATE_MIN_TREE:
-                    # form_element = FormElement(html_id=choice_id, xml_element=xml_element, xml_xpath=full_path).save()
-                    # request.session['mapTagID'][choice_id] = str(form_element.id)
-
-                    form_string += render_ul('', choice_id, chosen)
                     return form_string, db_element
     else:
         choice_id = ''
@@ -1657,24 +1412,6 @@ def generate_choice(request, element, xml_tree, choice_info=None, full_path="", 
             'value': None,
             'children': []
         }
-
-        nb_html_tags = int(request.session['nb_html_tags'])
-        tag_id = "element" + str(nb_html_tags)
-        nb_html_tags += 1
-        request.session['nb_html_tags'] = str(nb_html_tags)
-
-        # form_element = FormElement(html_id=tag_id, xml_element=xml_element,
-        #                            xml_xpath=full_path + '[' + str(x+1) + ']')
-        # form_element.save()
-
-        # request.session['mapTagID'][tag_id] = str(form_element.pk)
-
-        nb_choices_id = int(request.session['nbChoicesID'])
-        choose_id = nb_choices_id
-        choose_id_str = 'choice' + str(choose_id)
-        nb_choices_id += 1
-
-        request.session['nbChoicesID'] = str(nb_choices_id)
 
         # is_removed = (nb_occurrences == 0)
         li_content = ''
@@ -1721,7 +1458,7 @@ def generate_choice(request, element, xml_tree, choice_info=None, full_path="", 
                         if len(edit_data_tree.xpath(element_path, namespaces=namespaces)) != 0:
                             db_child['value'] = counter
                 element_result = generate_element(request, choiceChild, xml_tree,
-                                                  common.ChoiceInfo(choose_id_str, counter),
+                                                  common.ChoiceInfo(counter),
                                                   full_path=full_path,
                                                   edit_data_tree=edit_data_tree,
                                                   schema_location=schema_location,
@@ -1741,7 +1478,7 @@ def generate_choice(request, element, xml_tree, choice_info=None, full_path="", 
                 #             db_child['value'] = counter
                 #             break
                 choice = generate_choice(request, choiceChild, xml_tree,
-                                         common.ChoiceInfo(choose_id_str, counter), full_path=full_path,
+                                         common.ChoiceInfo(counter), full_path=full_path,
                                          edit_data_tree=edit_data_tree, schema_location=schema_location)
 
                 db_child['children'].append(choice[1])
@@ -1754,7 +1491,7 @@ def generate_choice(request, element, xml_tree, choice_info=None, full_path="", 
                 #             db_child['value'] = counter
                 #             break
                 sequence = generate_sequence(request, choiceChild, xml_tree,
-                                             common.ChoiceInfo(choose_id_str, counter), full_path=full_path,
+                                             common.ChoiceInfo(counter), full_path=full_path,
                                              edit_data_tree=edit_data_tree, schema_location=schema_location)
 
                 li_content += sequence[0]
@@ -1763,7 +1500,6 @@ def generate_choice(request, element, xml_tree, choice_info=None, full_path="", 
             elif choiceChild.tag == "{0}any".format(LXML_SCHEMA_NAMESPACE):
                 pass
 
-        # ul_content += render_li('Choose'+li_content, tag_id, 'choice', 'removed' if is_removed else None)
         db_element['children'].append(db_child)
 
     form_string += render_ul(ul_content, choice_id, chosen)
@@ -2081,9 +1817,6 @@ def generate_choice_extensions(request, element, xml_tree, choice_info=None, ful
                 chosen = False
 
                 if CURATE_MIN_TREE:
-                    form_element = FormElement(html_id=choice_id, xml_element=xml_element, xml_xpath=full_path).save()
-                    request.session['mapTagID'][choice_id] = str(form_element.id)
-
                     form_string += render_ul('', choice_id, chosen)
                     return form_string, db_element
         else:
@@ -2091,9 +1824,6 @@ def generate_choice_extensions(request, element, xml_tree, choice_info=None, ful
                 chosen = False
 
                 if CURATE_MIN_TREE:
-                    form_element = FormElement(html_id=choice_id, xml_element=xml_element, xml_xpath=full_path).save()
-                    request.session['mapTagID'][choice_id] = str(form_element.id)
-
                     form_string += render_ul('', choice_id, chosen)
                     return form_string, db_element
     else:
@@ -2110,25 +1840,6 @@ def generate_choice_extensions(request, element, xml_tree, choice_info=None, ful
             'options': {},
         }
 
-        nb_html_tags = int(request.session['nb_html_tags'])
-        tag_id = "element" + str(nb_html_tags)
-        nb_html_tags += 1
-        request.session['nb_html_tags'] = str(nb_html_tags)
-
-        form_element = FormElement(html_id=tag_id, xml_element=xml_element,
-                                   xml_xpath=full_path + '[' + str(x+1) + ']')
-        form_element.save()
-
-        request.session['mapTagID'][tag_id] = str(form_element.pk)
-
-        nb_choices_id = int(request.session['nbChoicesID'])
-        choose_id = nb_choices_id
-        choose_id_str = 'choice' + str(choose_id)
-        nb_choices_id += 1
-
-        request.session['nbChoicesID'] = str(nb_choices_id)
-
-        # is_removed = (nb_occurrences == 0)
         li_content = ''
 
         request.session['implicit_extension'] = False
@@ -2177,7 +1888,6 @@ def generate_choice_extensions(request, element, xml_tree, choice_info=None, ful
                 db_child_0 = result[1]
                 db_child['children'].append(db_child_0)
 
-        # ul_content += render_li('Choose'+li_content, tag_id, 'choice', 'removed' if is_removed else None)
         db_element['children'].append(db_child)
 
     request.session['implicit_extension'] = True
