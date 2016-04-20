@@ -887,7 +887,7 @@ rename_element = function(xpath, newName){
  * Insert an element in the XML tree
  * @param event
  */
-insertElementSequence = function(event){	
+insertElementSequence = function(event){
 	// change the sequence style
 	parent = $(target).parent()
 	if ($(parent).attr('class') == "element"){
@@ -902,7 +902,6 @@ insertElementSequence = function(event){
 	namespace = $(target).text().split(":")[0];
 	
 	nbElement = $(parent).parent().find("ul").children().length;
-	
 	console.log(nbElement)
 	if (nbElement == 0){
 		path = namespace + ":element";
@@ -914,9 +913,10 @@ insertElementSequence = function(event){
 	}	
 	
 	xpath = getXPath();
-	
+
+	console.log($(parent).parent().find("ul"));
 	// add the new element
-	$(parent).parent().find("ul").append("<li>" +
+	$(parent).parent().children("ul").append("<li>" +
 											"<div class='element-wrapper'>" +
 												"<span class='path'>"+
 												 path +
