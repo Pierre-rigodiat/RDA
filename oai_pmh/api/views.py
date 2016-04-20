@@ -31,7 +31,7 @@ from mgi.models import OaiRegistry, OaiSet, OaiMetadataFormat, OaiIdentify, OaiS
 OaiMyMetadataFormat, OaiMySet, OaiMetadataformatSet
 # DB Connection
 from pymongo import MongoClient
-from mgi.settings import MONGODB_URI, MGI_DB
+from mgi.settings import MONGODB_URI, MGI_DB, OAI_HOST_URI
 from mongoengine import NotUniqueError
 import xmltodict
 import requests
@@ -40,6 +40,7 @@ from lxml import etree
 from lxml.etree import XMLSyntaxError
 import datetime
 from oai_pmh import datestamp
+from django.core.urlresolvers import reverse
 
 
 ################################################################################
@@ -1478,9 +1479,11 @@ def add_my_template_metadataFormat(request):
                 except Exception, e:
                     return Response({'message':'Unable to add the new metadata format. Impossible to retrieve the template with the given template'}, status=status.HTTP_400_BAD_REQUEST)
                 try:
-                    #Add in database
+                   #Create a schema URL
+                   schemaURL = OAI_HOST_URI + reverse('getXSD', args=[template.filename])
+                   #Add in database
                    OaiMyMetadataFormat(metadataPrefix=metadataprefix,
-                                       schema='http://127.0.0.1:8000/oai_pmh/server/XSD/'+template.filename,
+                                       schema=schemaURL,
                                        metadataNamespace=metadataNamespace, xmlSchema='', isDefault=False,
                                        isTemplate=True, template=template).save()
                 except Exception as e:
