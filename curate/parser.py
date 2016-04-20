@@ -800,7 +800,6 @@ def generate_element(request, element, xml_tree, choice_info=None, full_path="",
     if AUTO_KEY_KEYREF:
         # TODO: for now, support key/keyref for attributes only
         if element_tag == 'attribute':
-            pass
             if is_key(request, element, full_path):
                 _has_module = True
                 db_element['options']['module'] = None if not _has_module else True
@@ -947,9 +946,9 @@ def is_key(request, element, full_path):
     xpath = re.sub(r'\[[0-9]+\]', '', full_path)
     for key in request.session['keys'].keys():
         if request.session['keys'][key]['xpath'] == xpath:
-            element.attrib['{http://mdcs.ns}_mod_mdcs_'] = '/examples/auto-key-seqint?key={}'.format(key)
-            return True
-            # formString = generate_module(request, element, namespace, xsd_xpath, fullPath, edit_data_tree, extra_data={'key': key})
+            if request.session['keys'][key]['module'] is not None:
+                element.attrib['{http://mdcs.ns}_mod_mdcs_'] = request.session['keys'][key]['module']
+                return True
     return False
 
 
@@ -960,10 +959,6 @@ def is_key_ref(request, element, db_element, full_path):
         if request.session['keyrefs'][keyref]['xpath'] == xpath:
             element.attrib['{http://mdcs.ns}_mod_mdcs_'] = '/curator/auto-keyref?keyref={}'.format(keyref)
             return True
-            # save the element in db to get an id
-            # element_id = db_element.save()
-            # request.session['keyrefs'][keyref]['tagIDs'].append(xpath)
-            # formString = generate_module(request, element, namespace, xsd_xpath, fullPath, edit_data_tree, extra_data={'keyref': keyref})
     return False
 
 
@@ -993,7 +988,17 @@ def manage_key_keyref(request, element, fullPath, xmlTree):
                 key_field = key_selector + '/' + field_xpath
                 # print key_field
 
-            request.session['keys'][key_name] = {'xpath': key_field, 'module_ids': []}
+            # look if a module is attached to the key
+            module = None
+            if '{http://mdcs.ns}_mod_mdcs_' in key.attrib:
+                # get the url of the module
+                url = key.attrib['{http://mdcs.ns}_mod_mdcs_']
+                url = urlparse(url).path
+                # check that the url is registered in the system
+                if url in Module.objects.all().values_list('url'):
+                    module = "{0}?key={1}".format(url, key_name)
+
+            request.session['keys'][key_name] = {'xpath': key_field, 'module_ids': [], 'module': module}
 
         for keyref in list_keyref:
             keyref_name = keyref.attrib['name']
