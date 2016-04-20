@@ -901,7 +901,7 @@ insertElementSequence = function(event){
 	typeID = $(insertButton).parent().siblings(':first').attr('templateid');
 	namespace = $(target).text().split(":")[0];
 	
-	nbElement = $(parent).parent().find("ul").children().length;
+	nbElement = $(parent).parent().children("ul").children().length;
 	console.log(nbElement)
 	if (nbElement == 0){
 		path = namespace + ":element";
