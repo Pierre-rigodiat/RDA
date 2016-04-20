@@ -1,28 +1,33 @@
-saveElement = function(event) {
-    event.preventDefault();
+(function() {
+    "use strict";
 
-    var $input = $(this);
-    var inputId = $input.attr('id');
+    // Save the value of one (default) element in the database
+    var saveElement = function(event) {
+        event.preventDefault();
 
-    console.log('Saving element ' + inputId + '...');
+        var $input = $(this);
+        var inputId = $input.attr('id');
 
-    $.ajax({
-        'url': '/curate/save_element',
-        'type': 'POST',
-        'dataType': 'json',
-        'data': {
-            'id': inputId,
-            'value': $input.val()
-        },
-        success: function(data) {
-            console.log('Element ' + inputId + ' saved');
-        },
-        error: function(data) {
-            console.error('An error occured when saving element ' + inputId);
-        }
-    });
-};
+        console.log('Saving element ' + inputId + '...');
 
-// Save events
-$(document).on('blur', 'input.default', saveElement);
-$(document).on('change', 'select.restriction', saveElement);
+        $.ajax({
+            'url': '/curate/save_element',
+            'type': 'POST',
+            'dataType': 'json',
+            'data': {
+                'id': inputId,
+                'value': $input.val()
+            },
+            success: function() {
+                console.log('Element ' + inputId + ' saved');
+            },
+            error: function() {
+                console.error('An error occured when saving element ' + inputId);
+            }
+        });
+    };
+
+    // Save events
+    $(document).on('blur', 'input.default', saveElement);
+    $(document).on('change', 'select.restriction', saveElement); 
+})();

@@ -1,7 +1,7 @@
 var loadedModules = [];
 
-loadModuleResources = function(moduleURLList) {
-    neededURLList = [];
+var loadModuleResources = function(moduleURLList) {    
+    var neededURLList = [];
 
     for(var modIndex=0; modIndex<moduleURLList.length; modIndex++) {
         var moduleURL = moduleURLList[modIndex];
@@ -32,16 +32,16 @@ loadModuleResources = function(moduleURLList) {
             console.error('An error occured when loading the modules');
         }
     });
-}
+};
 
-saveModuleData = function($module, modData, asyncOpt) {
+var saveModuleData = function($module, modData, asyncOpt) {
     if(typeof asyncOpt === 'undefined') {
         asyncOpt = true;
     }
 
     //TODO: test if id always class element (could it be choice or sequence?)
-	//var moduleId = $module.parents('.element').attr('id');
-	var moduleId = $module.attr('id');
+    //var moduleId = $module.parents('.element').attr('id');
+    var moduleId = $module.attr('id');
     var moduleURL = $module.find('.moduleURL').text();
 
     if(moduleURL === '') {
@@ -55,7 +55,7 @@ saveModuleData = function($module, modData, asyncOpt) {
         modData['module_id'] = moduleId;
     }
 
-    console.log(modData)
+    console.log(modData);
 
     var ajaxOptions = {
         url : '/modules'+moduleURL,
@@ -80,10 +80,10 @@ saveModuleData = function($module, modData, asyncOpt) {
             	xpath_accessor(data.xpath_accessor);
             }*/
         },
-        error: function(data) {
+        error: function() {
             console.error("An error occured when saving module data");
         }
-    }
+    };
 
     if(modData instanceof FormData) {
         ajaxOptions.processData = false;
@@ -94,14 +94,14 @@ saveModuleData = function($module, modData, asyncOpt) {
 };
 
 // Modules initialisation
-initModules = function() {
+var initModules = function() {
     var moduleList = $('.module');
     var moduleURLList = [];
     console.log(moduleList);
 
     $.each(moduleList, function(index, value) {
-//        console.log($(value));
-//        loadModule($(value));
+        // console.log($(value));
+        // loadModule($(value));
 
         var moduleURL = $(value).find('.moduleURL').text();
         if(moduleURL !== "" && moduleURLList.indexOf(moduleURL) === -1) {
@@ -110,7 +110,7 @@ initModules = function() {
     });
 
     console.log(moduleURLList);
-    loadModuleResources(moduleURLList)
+    loadModuleResources(moduleURLList);
 };
 
 

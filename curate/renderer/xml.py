@@ -410,6 +410,8 @@ class XmlRenderer(AbstractXmlRenderer):
                 tmp_content = self.render_restriction(child)
             elif child.tag == 'attribute':
                 tmp_content[0] = self.render_attribute(child)
+            elif child.tag == 'union':
+                tmp_content[1] = child.value if child.value is not None else ''
             elif child.tag == 'list':
                 tmp_content[1] = child.value if child.value is not None else ''
             elif child.tag == 'module':
