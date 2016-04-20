@@ -21,6 +21,7 @@
 ################################################################################
 
 import os
+import sys
 
 VERSION = "1.3"
 
@@ -74,9 +75,12 @@ else:
 from mongoengine import connect
 MONGO_MGI_USER = "mgi_user"
 MONGO_MGI_PASSWORD = "mgi_password"
-MGI_DB = 'mgi'
-MONGODB_URI = "mongodb://" + MONGO_MGI_USER + ":" + MONGO_MGI_PASSWORD + "@localhost/mgi"
-connect("mgi", host=MONGODB_URI)
+if 'test' in sys.argv:
+    MGI_DB = "mgi_test"
+else:
+    MGI_DB = "mgi"
+MONGODB_URI = "mongodb://" + MONGO_MGI_USER + ":" + MONGO_MGI_PASSWORD + "@localhost/" + MGI_DB
+connect(MGI_DB, host=MONGODB_URI)
 
 # BLOB Hoster module parameters
 BLOB_HOSTER = 'GridFS'
