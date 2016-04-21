@@ -103,17 +103,10 @@ def add_registry(request):
             elif sets.status_code != status.HTTP_204_NO_CONTENT:
                 return Response({'message': sets.data['message']}, status=sets.status_code)
 
-            #Get the metadata formats information for the given URL
             metadataformats = listObjectMetadataFormats(request)
             metadataformatsData = []
-            #If status OK, we try to serialize data and check if it's valid
             if metadataformats.status_code == status.HTTP_200_OK:
                 metadataformatsData = metadataformats.data
-                serializerMetadataFormat = MetadataFormatSerializer(data=metadataformatsData)
-                #If it's not valid, return with a bad request
-                if not serializerMetadataFormat.is_valid():
-                    return Response(serializerMetadataFormat.errors, status=status.HTTP_400_BAD_REQUEST)
-             #Return a response with the status_code and the message provided by the called function
             elif metadataformats.status_code != status.HTTP_204_NO_CONTENT:
                 return Response({'message': metadataformats.data['message']}, status=metadataformats.status_code)
 
@@ -621,9 +614,14 @@ def listObjectMetadataFormats(request):
                 url = request.DATA['url']
                 req = sickleListObjectMetadataFormats(url)
                 if req.status_code == status.HTTP_200_OK:
-                    return Response(req.data, status=status.HTTP_200_OK)
+                    metadataformatsData = req.data
+                    serializerMetadataFormat = MetadataFormatSerializer(data=metadataformatsData)
+                    if not serializerMetadataFormat.is_valid():
+                        return Response(serializerMetadataFormat.errors, status=status.HTTP_400_BAD_REQUEST)
+                    else:
+                        return Response(req.data, status=status.HTTP_200_OK)
                 else:
-                   return Response({'message':req.data['message']}, status=req.status_code)
+                    return Response({'message': req.data['message']}, status=req.status_code)
             else:
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
