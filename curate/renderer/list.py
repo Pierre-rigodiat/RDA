@@ -4,7 +4,7 @@ import logging
 from types import *
 from django.template import loader
 from os.path import join
-from curate.renderer import render_li, render_buttons, DefaultRenderer
+from curate.renderer import DefaultRenderer
 from modules import get_module_view
 
 logger = logging.getLogger(__name__)
@@ -16,7 +16,8 @@ class AbstractListRenderer(DefaultRenderer):
         list_renderer_path = join('renderer', 'list')
 
         templates = {
-            'ul': loader.get_template(join(list_renderer_path, 'ul.html'))
+            'ul': loader.get_template(join(list_renderer_path, 'ul.html')),
+            'li': loader.get_template(join(list_renderer_path, 'li.html'))
         }
 
         super(AbstractListRenderer, self).__init__(xsd_data, templates)
@@ -40,8 +41,16 @@ class AbstractListRenderer(DefaultRenderer):
 
         return self._load_template('ul', data)
 
-    def _render_li(self):
-        pass
+    def _render_li(self, content, li_class, li_id):
+        data = {
+            'li_class': li_class,
+            # 'tag_id': tag_id,
+            'li_id': str(li_id),
+            # 'text': text,
+            'content': content
+        }
+
+        return self._load_template('li', data)
 
 
 class ListRenderer(AbstractListRenderer):
@@ -116,7 +125,7 @@ class ListRenderer(AbstractListRenderer):
             if children_number > element.options["min"]:
                 del_button = True
 
-        buttons = render_buttons(add_button, del_button)
+        buttons = self._render_buttons(add_button, del_button)
 
         element_name = element.options['name']
 
@@ -163,7 +172,7 @@ class ListRenderer(AbstractListRenderer):
             if self.partial and 'real_root' in element.options:
                 li_class = element.options['real_root']
 
-            final_html += render_li(html_content, li_class, child_key)
+            final_html += self._render_li(html_content, li_class, child_key)
 
         return final_html
 
@@ -229,11 +238,11 @@ class ListRenderer(AbstractListRenderer):
             if children_number > element.options["min"]:
                 del_button = True
 
-        buttons = render_buttons(add_button, del_button)
+        buttons = self._render_buttons(add_button, del_button)
         element_name = element.options['name']
 
         for child_key in child_keys:
-            li_class = ''
+            # li_class = ''
             sub_elements = []
             sub_inputs = []
 
@@ -268,7 +277,7 @@ class ListRenderer(AbstractListRenderer):
             if self.partial and 'real_root' in element.options:
                 li_class = element.options['real_root']
 
-            final_html += render_li(html_content, li_class, child_key)
+            final_html += self._render_li(html_content, li_class, child_key)
 
         return final_html
 
@@ -318,7 +327,7 @@ class ListRenderer(AbstractListRenderer):
         if empty:  # Empty sequence string (no need to go further)
             return ''
 
-        buttons = render_buttons(add_button, del_button)
+        buttons = self._render_buttons(add_button, del_button)
 
         for child_key in child_keys:
             # li_class = ''
@@ -352,7 +361,7 @@ class ListRenderer(AbstractListRenderer):
                 li_class = element.options['real_root']
 
             if children_number != 1 or element.options["min"] != 1 or force_full_display:
-                final_html += render_li(
+                final_html += self._render_li(
                     self._render_collapse_button() + 'Sequence ' + buttons + html_content,
                     li_class,
                     child_key
@@ -399,7 +408,7 @@ class ListRenderer(AbstractListRenderer):
             if children_number > element.options["min"]:
                 del_button = True
 
-        buttons = render_buttons(add_button, del_button)
+        buttons = self._render_buttons(add_button, del_button)
 
         final_html = ''
         item_number = 1
@@ -443,7 +452,7 @@ class ListRenderer(AbstractListRenderer):
                 # Choice contains only one element, we don't generate the select
                 if len(children[iter_element]) == 1:
                     html_content += sub_content
-                else: # Choice contains a list
+                else:  # Choice contains a list
                     html_content += 'Choice ' + self._render_select('', 'choice', options) + buttons
                     html_content += sub_content
 
@@ -451,7 +460,7 @@ class ListRenderer(AbstractListRenderer):
             if self.partial and 'real_root' in element.options:
                 li_class = element.options['real_root']
 
-            final_html += render_li(html_content, li_class, iter_element)
+            final_html += self._render_li(html_content, li_class, iter_element)
 
         return final_html
 

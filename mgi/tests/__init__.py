@@ -19,8 +19,8 @@ class VariableTypesGenerator(object):
             'long': 1L,
             'complex': 1.0j,
             'tuples': (1, 2),
-            'list': [],
-            'dict': {},
+            'list': [1, 2, 3],
+            'dict': {'a': 1, 'b': 2},
             'func': lambda x: x,
             # Generator type
             'code': compile('print "compile"', 'test', 'exec'),

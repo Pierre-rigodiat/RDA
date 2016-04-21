@@ -3,29 +3,18 @@
 import logging
 import traceback
 from os.path import join
-
 import sys
 import re
 from urlparse import urlparse, parse_qsl
-
 from curate.models import SchemaElement
-from curate.renderer import render_buttons, \
-    render_input, render_ul, \
-    render_select
 from mgi.models import FormElement, XMLElement, FormData, Module, Template
-# from curate.renderer.list import ListRenderer
-# from curate.renderer.table import TableRenderer
-# from mgi.models import FormElement, XMLElement, FormData, Module, Template, MetaSchema
 from mgi.settings import CURATE_MIN_TREE, CURATE_COLLAPSE, AUTO_KEY_KEYREF
 from bson.objectid import ObjectId
 from mgi import common
 from lxml import etree
-# import django.utils.html
 from io import BytesIO
 from modules import get_module_view
 import urllib2
-
-# from mgi.common import LXML_SCHEMA_NAMESPACE, SCHEMA_NAMESPACE
 from mgi.common import LXML_SCHEMA_NAMESPACE
 from utils.XSDflattener.XSDflattener import XSDFlattenerURL
 
@@ -756,7 +745,7 @@ def generate_element(request, element, xml_tree, choice_info=None, full_path="",
 
                     request.session['mapTagID'][choice_id] = str(form_element.id)
 
-                    form_string += render_ul('', choice_id, chosen)
+                    # form_string += render_ul('', choice_id, chosen)
                     return form_string, db_element
         else:
             if choice_info.counter > 0:
@@ -767,7 +756,7 @@ def generate_element(request, element, xml_tree, choice_info=None, full_path="",
 
                     request.session['mapTagID'][choice_id] = str(form_element.id)
 
-                    form_string += render_ul('', choice_id, chosen)
+                    # form_string += render_ul('', choice_id, chosen)
                     return form_string, db_element
     else:
         chosen = True
@@ -839,7 +828,8 @@ def generate_element(request, element, xml_tree, choice_info=None, full_path="",
         # add buttons to add/remove elements
         buttons = ""
         if not (add_button is False and delete_button is False):
-            buttons = render_buttons(add_button, delete_button)
+            pass
+            # buttons = render_buttons(add_button, delete_button)
 
         # get the default value (from xsd or from loaded xml)
         default_value = ""
@@ -879,7 +869,7 @@ def generate_element(request, element, xml_tree, choice_info=None, full_path="",
                     tooltip = app_info['tooltip'] if 'tooltip' in app_info else ''
 
                     li_content += ' '
-                    li_content += render_input(default_value, placeholder, tooltip)
+                    # li_content += render_input(default_value, placeholder, tooltip)
                     li_content += buttons
 
                     db_child = {
@@ -921,7 +911,7 @@ def generate_element(request, element, xml_tree, choice_info=None, full_path="",
         # if len(db_elem_iter['children']) > 0:
         db_element['children'].append(db_elem_iter)
 
-    form_string += render_ul(ul_content, choice_id, chosen)
+    # form_string += render_ul(ul_content, choice_id, chosen)
     return form_string, db_element
 
 
@@ -1145,7 +1135,7 @@ def generate_element_absent(request, element, xml_doc_tree, form_element, schema
             placeholder = app_info['placeholder'] if 'placeholder' in app_info else ''
             tooltip = app_info['tooltip'] if 'tooltip' in app_info else ''
 
-            form_string += render_input(default_value, placeholder, tooltip)
+            # form_string += render_input(default_value, placeholder, tooltip)
 
             db_child = {
                 'tag': 'input',
@@ -1270,7 +1260,7 @@ def generate_sequence(request, element, xml_tree, choice_info=None, full_path=""
                         form_element = FormElement(html_id=choice_id, xml_element=xml_element, xml_xpath=full_path).save()
                         request.session['mapTagID'][choice_id] = str(form_element.id)
 
-                        form_string += render_ul('', choice_id, chosen)
+                        # form_string += render_ul('', choice_id, chosen)
                         return form_string, db_element
             else:
                 if choice_info.counter > 0:
@@ -1280,7 +1270,7 @@ def generate_sequence(request, element, xml_tree, choice_info=None, full_path=""
                         form_element = FormElement(html_id=choice_id, xml_element=xml_element, xml_xpath=full_path).save()
                         request.session['mapTagID'][choice_id] = str(form_element.id)
 
-                        form_string += render_ul('', choice_id, chosen)
+                        # form_string += render_ul('', choice_id, chosen)
                         return form_string, db_element
         else:
             chosen = True
@@ -1334,7 +1324,7 @@ def generate_sequence(request, element, xml_tree, choice_info=None, full_path=""
                 li_content += ''
 
             li_content += text
-            li_content += render_buttons(add_button, delete_button)
+            # li_content += render_buttons(add_button, delete_button)
 
             # generates the sequence
             for child in element:
@@ -1367,7 +1357,7 @@ def generate_sequence(request, element, xml_tree, choice_info=None, full_path=""
             db_element['children'].append(db_elem_iter)
             # ul_content += render_li(li_content, tag_id, 'sequence')
 
-        form_string += render_ul(ul_content, choice_id, chosen)
+        # form_string += render_ul(ul_content, choice_id, chosen)
     else:  # min_occurs == 1 and max_occurs == 1
         db_elem_iter = {
             'tag': 'sequence-iter',
@@ -1595,7 +1585,7 @@ def generate_choice(request, element, xml_tree, choice_info=None, full_path="", 
                     form_element = FormElement(html_id=choice_id, xml_element=xml_element, xml_xpath=full_path).save()
                     request.session['mapTagID'][choice_id] = str(form_element.id)
 
-                    form_string += render_ul('', choice_id, chosen)
+                    # form_string += render_ul('', choice_id, chosen)
                     return form_string, db_element
         else:
             if choice_info.counter > 0:
@@ -1605,7 +1595,7 @@ def generate_choice(request, element, xml_tree, choice_info=None, full_path="", 
                     form_element = FormElement(html_id=choice_id, xml_element=xml_element, xml_xpath=full_path).save()
                     request.session['mapTagID'][choice_id] = str(form_element.id)
 
-                    form_string += render_ul('', choice_id, chosen)
+                    # form_string += render_ul('', choice_id, chosen)
                     return form_string, db_element
     else:
         choice_id = ''
@@ -1742,7 +1732,7 @@ def generate_choice(request, element, xml_tree, choice_info=None, full_path="", 
         # ul_content += render_li('Choose'+li_content, tag_id, 'choice', 'removed' if is_removed else None)
         db_element['children'].append(db_child)
 
-    form_string += render_ul(ul_content, choice_id, chosen)
+    # form_string += render_ul(ul_content, choice_id, chosen)
     return form_string, db_element
 
 
@@ -1832,7 +1822,7 @@ def generate_simple_type(request, element, xml_tree, full_path, edit_data_tree=N
             if default_value is None:
                 default_value = ''
 
-            form_string += render_input(default_value, '', '')
+            # form_string += render_input(default_value, '', '')
 
             db_child = {
                 'tag': 'list',
@@ -1841,7 +1831,7 @@ def generate_simple_type(request, element, xml_tree, full_path, edit_data_tree=N
             }
         elif child.tag == "{0}union".format(LXML_SCHEMA_NAMESPACE):
             # TODO: provide UI for unions
-            form_string += render_input(default_value, '', '')
+            # form_string += render_input(default_value, '', '')
 
             db_child = {
                 'tag': 'union',
@@ -2060,7 +2050,7 @@ def generate_choice_extensions(request, element, xml_tree, choice_info=None, ful
                     form_element = FormElement(html_id=choice_id, xml_element=xml_element, xml_xpath=full_path).save()
                     request.session['mapTagID'][choice_id] = str(form_element.id)
 
-                    form_string += render_ul('', choice_id, chosen)
+                    # form_string += render_ul('', choice_id, chosen)
                     return form_string, db_element
         else:
             if choice_info.counter > 0:
@@ -2070,7 +2060,7 @@ def generate_choice_extensions(request, element, xml_tree, choice_info=None, ful
                     form_element = FormElement(html_id=choice_id, xml_element=xml_element, xml_xpath=full_path).save()
                     request.session['mapTagID'][choice_id] = str(form_element.id)
 
-                    form_string += render_ul('', choice_id, chosen)
+                    # form_string += render_ul('', choice_id, chosen)
                     return form_string, db_element
     else:
         choice_id = ''
@@ -2157,7 +2147,7 @@ def generate_choice_extensions(request, element, xml_tree, choice_info=None, ful
         db_element['children'].append(db_child)
 
     request.session['implicit_extension'] = True
-    form_string += render_ul(ul_content, choice_id, chosen)
+    # form_string += render_ul(ul_content, choice_id, chosen)
     return form_string, db_element
 
 
@@ -2426,7 +2416,7 @@ def generate_restriction(request, element, xml_tree, full_path="", edit_data_tre
 
             db_element['value'] = db_element['children'][0]['value']
 
-        form_string += render_select(None, option_list)
+        # form_string += render_select(None, option_list)
     else:
         simple_type = element.find('{0}simpleType'.format(LXML_SCHEMA_NAMESPACE))
         if simple_type is not None:
@@ -2441,7 +2431,7 @@ def generate_restriction(request, element, xml_tree, full_path="", edit_data_tre
             if default_value is None:
                 default_value = ''
 
-            form_string += render_input(default_value, '', '')
+            # form_string += render_input(default_value, '', '')
             db_child = {
                 'tag': 'input',
                 'value': default_value
