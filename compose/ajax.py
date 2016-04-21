@@ -26,7 +26,6 @@ import lxml.etree as etree
 from io import BytesIO
 
 from utils.XMLValidation.xml_schema import validate_xml_schema
-from utils.XSDhash import XSDhash
 from utils.APIschemaLocator.APIschemaLocator import getSchemaLocation
 from urlparse import urlparse
 from mgi import common
@@ -236,15 +235,14 @@ def insert_element_sequence(request):
     # add the element to the sequence
     dom.find(xpath).append(etree.Element(namespace+"element", attrib={'type': type, 'name':type_name}))
     
-    includeURL = getSchemaLocation(request, str(type_id))
+    includeURL = getSchemaLocation(str(type_id))
     # add the id of the type if not already present
     if includeURL not in request.session['includedTypesCompose']:
         request.session['includedTypesCompose'].append(includeURL)        
         dom.getroot().insert(0,etree.Element(namespace+"include", attrib={'schemaLocation':includeURL}))
     
     # save the tree in the session
-    request.session['newXmlTemplateCompose'] = etree.tostring(dom) 
-    print etree.tostring(dom)
+    request.session['newXmlTemplateCompose'] = etree.tostring(dom)
     
     return HttpResponse(json.dumps({}), content_type='application/javascript')
 

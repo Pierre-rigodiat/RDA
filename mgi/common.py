@@ -54,10 +54,10 @@ def getValidityErrorsForMDCS(xmlTree, type):
             errors.append("The use of a targetNamespace without an associated prefix is not supported.")
 
     # Templates Tests
-    if type == "Template":
-        # Tests for templates
-        if len(elements) < 1:
-            errors.append("Only templates with at least one root element are supported.")
+    # if type == "Template":
+    #     # Tests for templates
+    #     if len(elements) < 1:
+    #         errors.append("Only templates with at least one root element are supported.")
 
     # Types Tests
     elif type == "Type":        
@@ -165,9 +165,8 @@ def getXSDTypes(prefix):
 class ChoiceInfo:
     "Class that stores information about a choice being rendered"
         
-    def __init__(self, chooseIDStr, counter):
-        self.chooseIDStr = chooseIDStr
-        self.counter = counter        
+    def __init__(self, counter):
+        self.counter = counter
         
         
 ################################################################################
@@ -215,11 +214,6 @@ def get_target_namespace_prefix(namespaces, xsd_tree):
         for prefix, url in namespaces.items():
             if url == target_namespace:
                 target_namespace_prefix = prefix
-        # no target prefix found
-        # TODO: check local conflict
-        # if target_namespace_prefix == '':
-        #     target_namespace_prefix = 'local'
-        #     namespaces[target_namespace_prefix] = target_namespace
 
     return target_namespace_prefix
 
@@ -232,11 +226,6 @@ def get_target_namespace(namespaces, xsd_tree):
         for prefix, url in namespaces.items():
             if url == target_namespace:
                 target_namespace_prefix = prefix
-        # no target prefix found
-        # TODO: check local conflict
-        # if target_namespace_prefix == '':
-        #      target_namespace_prefix = 'local'
-        #      namespaces[target_namespace_prefix] = target_namespace
 
     return target_namespace, target_namespace_prefix
 

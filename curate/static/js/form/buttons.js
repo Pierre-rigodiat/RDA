@@ -29,7 +29,7 @@
         console.log("Adding " + elementId + "...");
 
         $.ajax({
-            url : "/curate/generate-bis",
+            url : "/curate/generate-absent",
             type : "POST",
             dataType: "html",
             data : {
@@ -86,7 +86,7 @@
         console.log("Removing " + elementId + "...");
 
         $.ajax({
-            url : "/curate/remove-bis",
+            url : "/curate/remove-element",
             type : "POST",
             dataType: "json",
             data : {

@@ -338,7 +338,7 @@ class HandleModule(PopupModule):
 
 class AutoKeyRefModule(OptionsModule):
     def __init__(self):
-        OptionsModule.__init__(self, options={})
+        OptionsModule.__init__(self, options={}, scripts=[os.path.join(SCRIPTS_PATH, 'autokey.js')])
 
     def _get_module(self, request):
         # look for existing values

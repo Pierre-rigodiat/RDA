@@ -238,8 +238,7 @@ class AutoKeyModule(SyncInputModule):
             raise ModuleError('A function for the generation of the keys should be provided (generateKey is None).')
 
         self.generateKey = generateKey
-        SyncInputModule.__init__(self, modclass='mod_auto_key', scripts=[os.path.join(SCRIPTS_PATH, 'autokey.js')],
-                                 disabled=True)
+        SyncInputModule.__init__(self, modclass='mod_auto_key', disabled=True)
 
     def _get_module(self, request):
 

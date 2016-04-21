@@ -52,8 +52,9 @@ def index(request):
     currentTemplates = dict()
     for tpl_version in currentTemplateVersions:
         tpl = Template.objects.get(pk=tpl_version)
-        templateVersions = TemplateVersion.objects.get(pk=tpl.templateVersion)
-        currentTemplates[tpl] = templateVersions.isDeleted
+        if tpl.user is None:
+            templateVersions = TemplateVersion.objects.get(pk=tpl.templateVersion)
+            currentTemplates[tpl] = templateVersions.isDeleted
 
     template = loader.get_template('explore/explore.html')
     context = RequestContext(request, {

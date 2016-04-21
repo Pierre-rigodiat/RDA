@@ -62,7 +62,17 @@ class XmlRenderer(AbstractXmlRenderer):
         if self.data.tag == 'element':
             return self.render_element(self.data)
         elif self.data.tag == 'choice':
-            return ''.join(self.render_choice(self.data))
+            content = self.render_choice(self.data)
+            root = self.data.children[0]
+            root_elem_id = root.value
+            root_elem = SchemaElement.objects().get(pk=root_elem_id)
+            root_name = root_elem.options['name']
+
+            if 'xmlns' in root_elem.options and root_elem.options['xmlns'] is not None:
+                xmlns = ' xmlns="{}"'.format(root_elem.options['xmlns'])
+                content[0] += xmlns
+
+            return self._render_xml(root_name, content[0], content[1])
         else:
             message = 'render: ' + self.data.tag + ' not handled'
             self.warnings.append(message)
@@ -172,21 +182,23 @@ class XmlRenderer(AbstractXmlRenderer):
             if 'xmlns' in element.options and element.options['xmlns'] is not None:
                 # check that element isn't declaring the same namespace xmlns=""
                 parent = get_parent_element(element)
-                if 'xmlns' in parent.options \
-                    and parent.options['xmlns'] is not None \
-                    and parent.options['xmlns'] == element.options['xmlns']:
-                        xmlns = ''
-                else:  # parent element is in a different namespace
-                    if element.options['xmlns'] != '':
-                        # TODO: test ns0 not taken and increment if needed
-                        ns_prefix = element.options['ns_prefix'] if element.options['ns_prefix'] is not None else 'ns0'
-                        if ns_prefix != '':
-                            xmlns = ' xmlns{0}="{1}"'.format(':' + ns_prefix, element.options['xmlns'])
-                            attr_key = "{0}:{1}".format(ns_prefix, attr_key)
+                xmlns = ''
+                if parent is not None:
+                    if 'xmlns' in parent.options \
+                        and parent.options['xmlns'] is not None \
+                        and parent.options['xmlns'] == element.options['xmlns']:
+                            xmlns = ''
+                    else:  # parent element is in a different namespace
+                        if element.options['xmlns'] != '':
+                            # TODO: test ns0 not taken and increment if needed
+                            ns_prefix = element.options['ns_prefix'] if element.options['ns_prefix'] is not None else 'ns0'
+                            if ns_prefix != '':
+                                xmlns = ' xmlns{0}="{1}"'.format(':' + ns_prefix, element.options['xmlns'])
+                                attr_key = "{0}:{1}".format(ns_prefix, attr_key)
+                            else:
+                                xmlns = ' xmlns="{0}"'.format(element.options['xmlns'])
                         else:
-                            xmlns = ' xmlns="{0}"'.format(element.options['xmlns'])
-                    else:
-                        xmlns = ''
+                            xmlns = ''
 
                 attr_list.append("{0} {1}='{2}'".format(xmlns, attr_key, attr_value))
                 # TODO: check that sibling attributes are not declaring the same namespaces
@@ -205,6 +217,12 @@ class XmlRenderer(AbstractXmlRenderer):
 
         for child in element.children:
             tmp_content = ['', '']
+
+            # add XML Schema instance prefix if root
+            if self.isRoot:
+                xsi = ' xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+                content[0] += xsi
+                self.isRoot = False
 
             if child.tag == 'sequence':
                 tmp_content = self.render_sequence(child)
