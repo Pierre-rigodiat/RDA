@@ -92,14 +92,8 @@ def add_registry(request):
 
             #Get the identify information for the given URL
             identify = objectIdentify(request)
-            #If status OK, we try to serialize data and check if it's valid
             if identify.status_code == status.HTTP_200_OK:
                 identifyData = identify.data
-                serializerIdentify = IdentifyObjectSerializer(data=identifyData)
-                #If it's not valid, return with a bad request
-                if not serializerIdentify.is_valid():
-                    return Response(serializerIdentify.errors, status=status.HTTP_400_BAD_REQUEST)
-            #Return a response with the status_code and the message provided by the called function
             else:
                 return Response({'message': identify.data['message']}, status=identify.status_code)
 
@@ -556,9 +550,16 @@ def objectIdentify(request):
                 url = request.DATA['url']
                 req = sickleObjectIdentify(url)
                 if req.status_code == status.HTTP_200_OK:
-                    return Response(req.data, status=status.HTTP_200_OK)
+                    identifyData = req.data
+                    serializerIdentify = IdentifyObjectSerializer(data=identifyData)
+                    # If it's not valid, return with a bad request
+                    if not serializerIdentify.is_valid():
+                        return Response(serializerIdentify.errors, status=status.HTTP_400_BAD_REQUEST)
+                    else:
+                        return Response(req.data, status=status.HTTP_200_OK)
+                # Return a response with the status_code and the message provided by the called function
                 else:
-                    return Response({'message':req.data['message']}, status=req.status_code)
+                    return Response({'message': req.data['message']}, status=req.status_code)
             else:
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         except Exception:
