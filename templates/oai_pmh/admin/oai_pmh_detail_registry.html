@@ -163,21 +163,21 @@
                 </td>
             </tr>
             <tr>
-                <!--<div class="panel panel-default">-->
-                    <!--<div class="panel-heading" role="tab" id="IdentifyHeadingOne">-->
-                        <!--<h4 class="panel-title">-->
-                            <!--<td>-->
-                                <!--<a style=""class="collapsed" role="button" data-toggle="collapse" data-parent="#IdentifyAccordion" href="#Identify" aria-expanded="false" aria-controls="collapseOne">-->
-                                  <!--RAW-->
-                                <!--</a>-->
-                           <!--</td>-->
-                        <!--</h4>-->
-                    <!--</div>-->
-                <!--</div>-->
-                <!--<td>-->
-                    <!--<span class='value'>-->
-                    <!--</span>-->
-                <!--</td>-->
+                <td>
+                    <div class="panel panel-default">
+                        <div class="panel-heading" role="tab" id="IdentifyHeadingOne">
+                            <h4 class="panel-title">
+                                <a style=""class="collapsed font-medium" role="button" data-toggle="collapse" data-parent="#IdentifyAccordion" href="#Identify" aria-expanded="false" aria-controls="collapseOne">
+                                  RAW
+                                </a>
+                            </h4>
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <span class='value'>
+                    </span>
+                </td>
             </tr>
             <tr>
                 <td colspan="2">
@@ -204,22 +204,22 @@
             {% for object in metadataformats %}
             {% with xml=object.raw %}
                 <tr>
-                    <!--<div class="panel panel-default">-->
-                        <!--<div class="panel-heading" role="tab" id="MetadataheadingOne{{object.id}}">-->
-                            <!--<h4 class="panel-title">-->
-                                <!--<td>-->
-                                    <!--<a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#{{object.id}}" aria-expanded="false" aria-controls="collapseOne">-->
-                                      <!--{{object.metadataPrefix}}-->
-                                    <!--</a>-->
-                               <!--</td>-->
-                            <!--</h4>-->
-                        <!--</div>-->
-                    <!--</div>-->
-                    <!--<td>-->
-                        <!--<span class='value'>-->
-                            <!--{{object.metadataNamespace}}-->
-                        <!--</span>-->
-                    <!--</td>-->
+                    <td>
+                        <div class="panel panel-default">
+                            <div class="panel-heading" role="tab" id="MetadataheadingOne{{object.id}}">
+                                <h4 class="panel-title">
+                                    <a class="collapsed font-medium" role="button" data-toggle="collapse" data-parent="#accordion" href="#{{object.id}}" aria-expanded="false" aria-controls="collapseOne">
+                                      {{object.metadataPrefix}}
+                                    </a>
+                                </h4>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <span class='value'>
+                            {{object.metadataNamespace}}
+                        </span>
+                    </td>
                 </tr>
                 <tr>
                     <td colspan="2">
@@ -248,17 +248,17 @@
             {% for object in sets %}
             {% with xml=object.raw %}
                 <tr>
-                    <div class="panel panel-default">
-                        <div class="panel-heading" role="tab" id="SetHeadingOne{{object.id}}">
-                            <h4 class="panel-title">
-                                <td>
-                                    <a class="collapsed" role="button" data-toggle="collapse" data-parent="#SetAccordion" href="#Set{{object.id}}" aria-expanded="false" aria-controls="collapseOne">
+                    <td>
+                        <div class="panel panel-default">
+                            <div class="panel-heading" role="tab" id="SetHeadingOne{{object.id}}">
+                                <h4 class="panel-title">
+                                    <a class="collapsed font-medium" role="button" data-toggle="collapse" data-parent="#SetAccordion" href="#Set{{object.id}}" aria-expanded="false" aria-controls="collapseOne">
                                       {{object.setSpec}}
                                     </a>
-                               </td>
-                            </h4>
+                                </h4>
+                            </div>
                         </div>
-                    </div>
+                    </td>
                     <td>
                         <span class='value'>
                             {{object.setName}}

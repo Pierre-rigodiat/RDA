@@ -26,9 +26,13 @@ div.collapse{
 	word-break: break-all;
 }
 
+table.data {
+	font-size: medium;
+}
+
 table.data td:first-child {
 	width: 380px;
-	word-break: break-all;
+	word-break: normal;
 }
 
 #pleaseWaitDialog {
