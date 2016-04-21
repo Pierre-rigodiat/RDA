@@ -41,6 +41,7 @@ from lxml.etree import XMLSyntaxError
 import datetime
 from oai_pmh import datestamp
 from django.core.urlresolvers import reverse
+import mongoengine.errors as MONGO_ERRORS
 
 
 ################################################################################
@@ -187,13 +188,17 @@ def add_registry(request):
                             #TODO: Find a better solution to retrieve the corresponding template. The hash is not fully working because we can have different metadata prefixes with the same hash
                             #We check if we have this metadata prefix in our server configuration.
                             #If yes, we compare the xml hash with the related template hash. If it's a match, we retrieve the template
-                            myMetadataFormat = OaiMyMetadataFormat.objects.get(metadataPrefix=metadataformat['metadataPrefix'])
                             template = None
-                            if myMetadataFormat and myMetadataFormat.template:
-                                if hash == myMetadataFormat.template.hash:
-                                    template = myMetadataFormat.template
-                            #If we haven't find a template, we check directly in the template collection thanks to the hash
-                            if template == None:
+                            try:
+                                myMetadataFormat = OaiMyMetadataFormat.objects.get(metadataPrefix=metadataformat['metadataPrefix'])
+                                if myMetadataFormat.template:
+                                    if hash == myMetadataFormat.template.hash:
+                                        template = myMetadataFormat.template
+                                    else:
+                                        #We check in the template collection thanks to the hash
+                                        template = Template.objects(hash=hash).first()
+                            except MONGO_ERRORS.DoesNotExist, e:
+                                #We check in the template collection thanks to the hash
                                 template = Template.objects(hash=hash).first()
                             if template != None:
                                 obj.template = template
@@ -1215,8 +1220,22 @@ def update_registry_info(request):
                         obj.xmlSchema = xmlSchema
                         hash = XSDhash.get_hash(http_response.text)
                         obj.hash = hash
-                        template = Template.objects(hash=hash).first()
-                        if template:
+                        #TODO: Find a better solution to retrieve the corresponding template. The hash is not fully working because we can have different metadata prefixes with the same hash
+                        #We check if we have this metadata prefix in our server configuration.
+                        #If yes, we compare the xml hash with the related template hash. If it's a match, we retrieve the template
+                        template = None
+                        try:
+                            myMetadataFormat = OaiMyMetadataFormat.objects.get(metadataPrefix=metadataformat['metadataPrefix'])
+                            if myMetadataFormat.template:
+                                if hash == myMetadataFormat.template.hash:
+                                    template = myMetadataFormat.template
+                                else:
+                                    #We check in the template collection thanks to the hash
+                                    template = Template.objects(hash=hash).first()
+                        except MONGO_ERRORS.DoesNotExist, e:
+                            #We check in the template collection thanks to the hash
+                            template = Template.objects(hash=hash).first()
+                        if template != None:
                             obj.template = template
                     obj.save()
                 except:
