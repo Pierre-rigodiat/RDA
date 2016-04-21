@@ -90,24 +90,16 @@ def add_registry(request):
             else:
                 harvest = False
 
-            #Get the identify information for the given URL
             identify = objectIdentify(request)
             if identify.status_code == status.HTTP_200_OK:
                 identifyData = identify.data
             else:
                 return Response({'message': identify.data['message']}, status=identify.status_code)
 
-            #Get the sets information for the given URL
             sets = listObjectSets(request)
             setsData = []
-            #If status OK, we try to serialize data and check if it's valid
             if sets.status_code == status.HTTP_200_OK:
                 setsData = sets.data
-                serializerSet = SetSerializer(data=setsData)
-                #If it's not valid, return with a bad request
-                if not serializerSet.is_valid():
-                    return Response(serializerSet.errors, status=status.HTTP_400_BAD_REQUEST)
-             #Return a response with the status_code and the message provided by the called function
             elif sets.status_code != status.HTTP_204_NO_CONTENT:
                 return Response({'message': sets.data['message']}, status=sets.status_code)
 
@@ -704,9 +696,14 @@ def listObjectSets(request):
                 url = request.DATA['url']
                 req = sickleListObjectSets(url)
                 if req.status_code == status.HTTP_200_OK:
-                    return Response(req.data, status=status.HTTP_200_OK)
+                    setsData = req.data
+                    serializerSet = SetSerializer(data=setsData)
+                    if not serializerSet.is_valid():
+                        return Response(serializerSet.errors, status=status.HTTP_400_BAD_REQUEST)
+                    else:
+                        return Response(req.data, status=status.HTTP_200_OK)
                 else:
-                   return Response({'message':req.data['message']}, status=req.status_code)
+                    return Response({'message': req.data['message']}, status=req.status_code)
             else:
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
