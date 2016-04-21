@@ -90,11 +90,11 @@ def add_registry(request):
             else:
                 harvest = False
 
-            identify = objectIdentify(request)
-            if identify.status_code == status.HTTP_200_OK:
-                identifyData = identify.data
+            identifyResponse = objectIdentify(request)
+            if identifyResponse.status_code == status.HTTP_200_OK:
+                identifyData = identifyResponse.data
             else:
-                return Response({'message': identify.data['message']}, status=identify.status_code)
+                return Response({'message': identifyResponse.data['message']}, status=identifyResponse.status_code)
 
             sets = listObjectSets(request)
             setsData = []
@@ -111,80 +111,9 @@ def add_registry(request):
                 return Response({'message': metadataformats.data['message']}, status=metadataformats.status_code)
 
             try:
-                #Creation of the registry
-                registry = OaiRegistry()
-                #Get the raw XML from a dictionary
-                try:
-                    identifyRaw = xmltodict.parse(identifyData['raw'])
-                except:
-                    identifyRaw = {}
-                #Constructor if Identity
-                identify = OaiIdentify(adminEmail=identifyData['adminEmail'],
-                                          baseURL=identifyData['baseURL'],
-                                          repositoryName=identifyData['repositoryName'],
-                                          deletedRecord=identifyData['deletedRecord'],
-                                          delimiter=identifyData['delimiter'],
-                                          description=identifyData['description'],
-                                          earliestDatestamp=identifyData['earliestDatestamp'],
-                                          granularity=identifyData['granularity'],
-                                          oai_identifier=identifyData['oai_identifier'],
-                                          protocolVersion=identifyData['protocolVersion'],
-                                          repositoryIdentifier=identifyData['repositoryIdentifier'],
-                                          sampleIdentifier=identifyData['sampleIdentifier'],
-                                          scheme=identifyData['scheme'],
-                                          raw=identifyRaw).save()
-                #Add identity
-                registry.identify = identify
-                registry.name = identify.repositoryName
-                registry.url = url
-                registry.harvestrate = harvestrate
-                registry.description = identify.description
-                registry.harvest = harvest
-                #Save the registry
-                registry.save()
-                #Creation of each set
-                for set in setsData:
-                    try:
-                        raw = xmltodict.parse(set['raw'])
-                        obj = OaiSet(setName=set['setName'], setSpec=set['setSpec'], raw= raw,
-                                     registry=str(registry.id))
-                        obj.save()
-                    except:
-                        pass
-                #Creation of each metadata format
-                for metadataformat in metadataformatsData:
-                    try:
-                        raw = xmltodict.parse(metadataformat['raw'])
-                        obj = OaiMetadataFormat(metadataPrefix=metadataformat['metadataPrefix'],
-                                                metadataNamespace=metadataformat['metadataNamespace'],
-                                                schema=metadataformat['schema'], raw= raw, registry=str(registry.id))
-                        http_response = requests.get(obj.schema)
-                        if str(http_response.status_code) == "200":
-                            xmlSchema = xmltodict.parse(http_response.text)
-                            obj.xmlSchema = xmlSchema
-                            hash = XSDhash.get_hash(http_response.text)
-                            obj.hash = hash
-                            #TODO: Find a better solution to retrieve the corresponding template. The hash is not fully working because we can have different metadata prefixes with the same hash
-                            #We check if we have this metadata prefix in our server configuration.
-                            #If yes, we compare the xml hash with the related template hash. If it's a match, we retrieve the template
-                            template = None
-                            try:
-                                myMetadataFormat = OaiMyMetadataFormat.objects.get(metadataPrefix=metadataformat['metadataPrefix'])
-                                if myMetadataFormat.template:
-                                    if hash == myMetadataFormat.template.hash:
-                                        template = myMetadataFormat.template
-                                    else:
-                                        #We check in the template collection thanks to the hash
-                                        template = Template.objects(hash=hash).first()
-                            except MONGO_ERRORS.DoesNotExist, e:
-                                #We check in the template collection thanks to the hash
-                                template = Template.objects(hash=hash).first()
-                            if template != None:
-                                obj.template = template
-                        obj.save()
-                    except:
-                        pass
-                #Save the registry
+                identify, registry = createRegistry(harvest, harvestrate, identifyData, url)
+                createSetsForRegistry(registry, setsData)
+                createMetadataformatsForRegistry(metadataformatsData, registry)
                 registry.save()
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             except NotUniqueError as e:
@@ -205,6 +134,136 @@ def add_registry(request):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     else:
         return Response({}, status=status.HTTP_401_UNAUTHORIZED)
+
+
+################################################################################
+#
+# Function Name: createRegistry
+# Inputs:        harvest, harvestrate, identifyData, url
+# Outputs:       identify and registry
+# Exceptions:
+# Description:   OAI-PMH create registry
+#
+################################################################################
+def createRegistry(harvest, harvestrate, identifyData, url):
+    registry = OaiRegistry()
+    # Get the raw XML from a dictionary
+    try:
+        identifyRaw = xmltodict.parse(identifyData['raw'])
+    except:
+        identifyRaw = {}
+    identify = createOaiIdentify(identifyData, identifyRaw)
+    setDataToRegistry(harvest, harvestrate, identify, registry, url)
+    registry.save()
+    return identify, registry
+
+
+################################################################################
+#
+# Function Name: createMetadataformatsForRegistry
+# Inputs:        metadataformatsData, registry
+# Outputs:
+# Exceptions:
+# Description:   OAI-PMH save each metadataformat
+#
+################################################################################
+def createMetadataformatsForRegistry(metadataformatsData, registry):
+    for metadataformat in metadataformatsData:
+        try:
+            raw = xmltodict.parse(metadataformat['raw'])
+            obj = OaiMetadataFormat(metadataPrefix=metadataformat['metadataPrefix'],
+                                    metadataNamespace=metadataformat['metadataNamespace'],
+                                    schema=metadataformat['schema'], raw=raw, registry=str(registry.id))
+            http_response = requests.get(obj.schema)
+            if str(http_response.status_code) == "200":
+                xmlSchema = xmltodict.parse(http_response.text)
+                obj.xmlSchema = xmlSchema
+                hash = XSDhash.get_hash(http_response.text)
+                obj.hash = hash
+                # TODO: Find a better solution to retrieve the corresponding template. The hash is not fully working because we can have different metadata prefixes with the same hash
+                # We check if we have this metadata prefix in our server configuration.
+                # If yes, we compare the xml hash with the related template hash. If it's a match, we retrieve the template
+                template = None
+                try:
+                    myMetadataFormat = OaiMyMetadataFormat.objects.get(metadataPrefix=metadataformat['metadataPrefix'])
+                    if myMetadataFormat.template:
+                        if hash == myMetadataFormat.template.hash:
+                            template = myMetadataFormat.template
+                        else:
+                            # We check in the template collection thanks to the hash
+                            template = Template.objects(hash=hash).first()
+                except MONGO_ERRORS.DoesNotExist, e:
+                    # We check in the template collection thanks to the hash
+                    template = Template.objects(hash=hash).first()
+                if template != None:
+                    obj.template = template
+            obj.save()
+        except:
+            pass
+
+
+################################################################################
+#
+# Function Name: createSetsForRegistry
+# Inputs:        registry, setsData
+# Outputs:
+# Exceptions:
+# Description:   OAI-PMH save each sets
+#
+################################################################################
+def createSetsForRegistry(registry, setsData):
+    for set in setsData:
+        try:
+            raw = xmltodict.parse(set['raw'])
+            obj = OaiSet(setName=set['setName'], setSpec=set['setSpec'], raw=raw,
+                         registry=str(registry.id))
+            obj.save()
+        except:
+            pass
+
+
+################################################################################
+#
+# Function Name: setDataToRegistry
+# Inputs:        harvest, harvestrate, identify, registry, url
+# Outputs:
+# Exceptions:
+# Description:   OAI-PMH set data in parameter to the registry
+#
+################################################################################
+def setDataToRegistry(harvest, harvestrate, identify, registry, url):
+    registry.identify = identify
+    registry.name = identify.repositoryName
+    registry.url = url
+    registry.harvestrate = harvestrate
+    registry.description = identify.description
+    registry.harvest = harvest
+
+
+################################################################################
+#
+# Function Name: createOaiIdentify
+# Inputs:        identifyData, identifyRaw
+# Outputs:       OaiIdentify object.
+# Exceptions:
+# Description:   OAI-PMH create OaiIdentify object
+#
+################################################################################
+def createOaiIdentify(identifyData, identifyRaw):
+    return OaiIdentify(adminEmail=identifyData['adminEmail'],
+                           baseURL=identifyData['baseURL'],
+                           repositoryName=identifyData['repositoryName'],
+                           deletedRecord=identifyData['deletedRecord'],
+                           delimiter=identifyData['delimiter'],
+                           description=identifyData['description'],
+                           earliestDatestamp=identifyData['earliestDatestamp'],
+                           granularity=identifyData['granularity'],
+                           oai_identifier=identifyData['oai_identifier'],
+                           protocolVersion=identifyData['protocolVersion'],
+                           repositoryIdentifier=identifyData['repositoryIdentifier'],
+                           sampleIdentifier=identifyData['sampleIdentifier'],
+                           scheme=identifyData['scheme'],
+                           raw=identifyRaw).save()
 
 ################################################################################
 #
