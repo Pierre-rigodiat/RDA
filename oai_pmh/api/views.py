@@ -184,8 +184,18 @@ def add_registry(request):
                             obj.xmlSchema = xmlSchema
                             hash = XSDhash.get_hash(http_response.text)
                             obj.hash = hash
-                            template = Template.objects(hash=hash).first()
-                            if template:
+                            #TODO: Find a better solution to retrieve the corresponding template. The hash is not fully working because we can have different metadata prefixes with the same hash
+                            #We check if we have this metadata prefix in our server configuration.
+                            #If yes, we compare the xml hash with the related template hash. If it's a match, we retrieve the template
+                            myMetadataFormat = OaiMyMetadataFormat.objects.get(metadataPrefix=metadataformat['metadataPrefix'])
+                            template = None
+                            if myMetadataFormat and myMetadataFormat.template:
+                                if hash == myMetadataFormat.template.hash:
+                                    template = myMetadataFormat.template
+                            #If we haven't find a template, we check directly in the template collection thanks to the hash
+                            if template == None:
+                                template = Template.objects(hash=hash).first()
+                            if template != None:
                                 obj.template = template
                         obj.save()
                     except:
