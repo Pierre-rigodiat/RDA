@@ -22,11 +22,12 @@ from django.core.servers.basehttp import FileWrapper
 from cStringIO import StringIO
 from rest_framework.status import HTTP_404_NOT_FOUND, HTTP_400_BAD_REQUEST, HTTP_200_OK, HTTP_501_NOT_IMPLEMENTED
 from curate.models import SchemaElement
-from curate.parser import generate_form, generate_element, generate_sequence, generate_choice, load_schema_data_in_db, \
-    delete_branch_from_db, update_branch_xpath
+from curate.parser import generate_form, generate_element, generate_sequence, load_schema_data_in_db, \
+    delete_branch_from_db, update_branch_xpath, generate_element_absent, generate_choice_absent
 from curate.renderer import DefaultRenderer
 from curate.renderer.xml import XmlRenderer
 from curate.renderer.list import ListRenderer
+from mgi.exceptions import MDCSError
 from mgi.models import Template, FormData
 import json
 from mgi import common
@@ -514,207 +515,29 @@ def verify_template_is_selected(request):
     return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
 
 
-def gen_abs(request):
+def generate_absent(request):
     """
 
     :param request:
     :return:
     """
-    # TODO Most of the function can be moved to the parser core
     element_id = request.POST['id']
-    sub_element = SchemaElement.objects.get(pk=element_id)
-    element_list = SchemaElement.objects(children=element_id)
-
-    if len(element_list) == 0:
-        raise ValueError("No SchemaElement found")
-    elif len(element_list) > 1:
-        raise ValueError("More than one SchemaElement found")
-
-    schema_element = element_list[0]
-
-    schema_location = None
-    if 'schema_location' in schema_element.options:
-        schema_location = schema_element.options['schema_location']
-
-    # if the xml element is from an imported schema
-    if schema_location is not None:
-        # open the imported file
-        ref_xml_schema_file = urllib2.urlopen(schema_element.options['schema_location'])
-        # get the content of the file
-        ref_xml_schema_content = ref_xml_schema_file.read()
-        # build the XML tree
-        xml_doc_tree = etree.parse(BytesIO(ref_xml_schema_content.encode('utf-8')))
-        # get the namespaces from the imported schema
-        namespaces = common.get_namespaces(BytesIO(str(ref_xml_schema_content)))
-    else:
-        # get the content of the XML tree
-        xml_doc_tree_str = request.session['xmlDocTree']
-        # # build the XML tree
-        xml_doc_tree = etree.ElementTree(etree.fromstring(xml_doc_tree_str))
-        # get the namespaces
-        namespaces = common.get_namespaces(BytesIO(str(xml_doc_tree_str)))
-
-    # flatten the includes
-    flattener = XSDFlattenerURL(etree.tostring(xml_doc_tree))
-    xml_doc_tree_str = flattener.get_flat()
-    xml_doc_tree = etree.parse(BytesIO(xml_doc_tree_str.encode('utf-8')))
-
-    xpath_element = schema_element.options['xpath']
-    xsd_xpath = xpath_element['xsd']
-
-    xml_xpath = None
-    if 'xml' in xpath_element:
-        xml_xpath = xpath_element['xml']
-
-    xml_element = xml_doc_tree.xpath(xsd_xpath, namespaces=namespaces)[0]
-
-    if 'min' in schema_element.options:
-        xml_element.attrib['minOccurs'] = str(schema_element.options['min'])
-
-    if 'max' in schema_element.options:
-        if schema_element.options['max'] != -1:
-            xml_element.attrib['maxOccurs'] = str(schema_element.options['max'])
-        else:
-            xml_element.attrib['maxOccurs'] = "unbounded"
-
-    # generating a choice, generate the parent element
-    if schema_element.tag == "choice":
-        # can use generate_element to generate a choice never generated
-        form_string = generate_choice(request, xml_element, xml_doc_tree, full_path=xml_xpath, force_generation=True)
-    elif schema_element.tag == 'sequence':
-        # form_string = generate_sequence_absent(request, xml_element, xml_doc_tree)
-        form_string = generate_sequence(request, xml_element, xml_doc_tree, full_path=xml_xpath, force_generation=True)
-    else:
-        # can't directly use generate_element because only need the body of the element not its title
-        # provide xpath without element name because already generated in generate_element
-        form_string = generate_element(request, xml_element, xml_doc_tree, full_path=xml_xpath.rsplit('/', 1)[0],
-                                       force_generation=True)
-
-    db_tree = form_string[1]
-
-    # Saving the tree in MongoDB
-    tree_root = load_schema_data_in_db(db_tree)
-    generated_element = tree_root.children[0]
-
-    # Updating the schema element
-    children = schema_element.children
-    element_index = children.index(sub_element)
-
-    children.insert(element_index + 1, generated_element)
-    schema_element.update(set__children=children)
-
-    if len(sub_element.children) == 0:
-        schema_element.update(pull__children=element_id)
-
-    schema_element.reload()
-    update_branch_xpath(schema_element)
-
-    tree_root_options = tree_root.options
-    tree_root_options['real_root'] = str(schema_element.pk)
-
-    tree_root.update(set__options=tree_root_options)
-    tree_root.reload()
-
-    renderer = ListRenderer(tree_root, request)
-    html_form = renderer.render(True)
-
-    tree_root.delete()
+    html_form = generate_element_absent(request, element_id)
     return HttpResponse(html_form)
 
 
 def generate_choice_branch(request):
     element_id = request.POST['id']
-    element = SchemaElement.objects.get(pk=element_id)
-    parents = SchemaElement.objects(children=element_id)
 
-    if len(parents) == 0:
-        raise ValueError("No SchemaElement found")
-    elif len(parents) > 1:
-        raise ValueError("More than one SchemaElement found")
-
-    parent = parents[0]
-
-    schema_location = None
-    if 'schema_location' in element.options:
-        schema_location = element.options['schema_location']
-
-    # if the xml element is from an imported schema
-    if schema_location is not None:
-        # open the imported file
-        ref_xml_schema_file = urllib2.urlopen(element.options['schema_location'])
-        # get the content of the file
-        ref_xml_schema_content = ref_xml_schema_file.read()
-        # build the XML tree
-        xml_doc_tree = etree.parse(BytesIO(ref_xml_schema_content.encode('utf-8')))
-        # get the namespaces from the imported schema
-        namespaces = common.get_namespaces(BytesIO(str(ref_xml_schema_content)))
-    else:
-        # get the content of the XML tree
-        xml_doc_tree_str = request.session['xmlDocTree']
-        # # build the XML tree
-        xml_doc_tree = etree.ElementTree(etree.fromstring(xml_doc_tree_str))
-        # get the namespaces
-        namespaces = common.get_namespaces(BytesIO(str(xml_doc_tree_str)))
-
-    # render element
-    # namespace = "{" + namespaces[default_prefix] + "}"
-
-    # flatten the includes
-    flattener = XSDFlattenerURL(etree.tostring(xml_doc_tree))
-    xml_doc_tree_str = flattener.get_flat()
-    xml_doc_tree = etree.parse(BytesIO(xml_doc_tree_str.encode('utf-8')))
-
-    xpath_element = element.options['xpath']
-    xsd_xpath = xpath_element['xsd']
-
-    xml_xpath = None
-    if 'xml' in xpath_element:
-        xml_xpath = xpath_element['xml']
-
-    xml_element = xml_doc_tree.xpath(xsd_xpath, namespaces=namespaces)[0]
-
-    # FIXME: Support all possibilities
-    if element.tag == 'element':
-        # provide xpath without element name because already generated in generate_element
-        form_string = generate_element(request, xml_element, xml_doc_tree, full_path=xml_xpath.rsplit('/', 1)[0])
-    elif element.tag == 'sequence':
-        form_string = generate_sequence(request, xml_element, xml_doc_tree, full_path=xml_xpath)
-    else:
+    try:
+        html_form = generate_choice_absent(request, element_id)
+    except MDCSError:
         return HttpResponse(status=HTTP_501_NOT_IMPLEMENTED)
-
-    db_tree = form_string[1]
-
-    # Saving the tree in MongoDB
-    tree_root = load_schema_data_in_db(db_tree)
-
-    # Replacing the children with the generated branch
-    children = parent.children
-    element_index = children.index(element)
-
-    children[element_index] = tree_root
-
-    parent.update(set__children=children)
-    parent.update(set__value=str(tree_root.pk))
-
-    parent.reload()
-
-    # choice_element = SchemaElement.objects(children=parent.pk)[0]
-    # choice_original_children = choice_element.children
-    #
-    # choice_element.update(set__children=[parent])
-    # choice_element.reload()
-
-    # renderer = ListRenderer(choice_element, request)
-    renderer = ListRenderer(tree_root, request)
-    html_form = renderer.render(False)
-
-    # choice_element.update(set__children=choice_original_children)
-    # choice_element.reload()
 
     return HttpResponse(html_form)
 
 
-def rem_bis(request):
+def remove_element(request):
     element_id = request.POST['id']
     # sub_element = SchemaElement.objects.get(pk=element_id)
     element_list = SchemaElement.objects(children=element_id)
