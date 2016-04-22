@@ -451,7 +451,7 @@ class ListRenderer(AbstractListRenderer):
 
                 # Choice contains only one element, we don't generate the select
                 if len(children[iter_element]) == 1:
-                    html_content += sub_content
+                    html_content += options[0][1] + sub_content
                 else:  # Choice contains a list
                     html_content += 'Choice ' + self._render_select('', 'choice', options) + buttons
                     html_content += sub_content

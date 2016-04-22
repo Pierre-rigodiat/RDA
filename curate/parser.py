@@ -16,7 +16,7 @@ from lxml import etree
 from io import BytesIO
 from modules import get_module_view
 import urllib2
-from mgi.common import LXML_SCHEMA_NAMESPACE
+from mgi.common import LXML_SCHEMA_NAMESPACE, getAppInfo
 from utils.XSDflattener.XSDflattener import XSDFlattenerURL
 
 logger = logging.getLogger(__name__)
@@ -725,30 +725,32 @@ def generate_form(request):
         if len(elements) == 1:  # One root
             form_content = generate_element(request, elements[0], xml_doc_tree, edit_data_tree=edit_data_tree)
         elif len(elements) > 1:  # Several root
-            form_content = generate_choice(request, elements, xml_doc_tree, edit_data_tree=edit_data_tree)
+            # look if a default choice to render is defined
+            default_choice = False
+            for element in elements:
+                app_info = getAppInfo(element)
+                if 'default' in app_info:
+                    form_content = generate_element(request, element, xml_doc_tree, edit_data_tree=edit_data_tree)
+                    default_choice = True
+                    break
+            if not default_choice:
+                form_content = generate_choice(request, elements, xml_doc_tree, edit_data_tree=edit_data_tree)
         else:  # len(elements) == 0 (no root element)
             # TODO: does it make sense to get all simple types too?
             complex_types = xml_doc_tree.findall("./{0}complexType".format(LXML_SCHEMA_NAMESPACE))
             if len(complex_types) > 0:
-                form_content = generate_choice_extensions(request, complex_types, xml_doc_tree, None)
+                # look if a default choice to render is defined
+                default_choice = False
+                for complex_type in complex_types:
+                    app_info = getAppInfo(complex_type)
+                    if 'default' in app_info:
+                        form_content = generate_choice_extensions(request, [complex_type], xml_doc_tree, None)
+                        default_choice = True
+                        break
+                if not default_choice:
+                    form_content = generate_choice_extensions(request, complex_types, xml_doc_tree, None)
             else:  # len(complex_types) == 0
                 raise Exception("No possible root element detected")
-
-        # if len(elements) > 0:  # positive
-        #     # one root
-        #     if len(elements) == 1:
-        #         form_content = generate_element(request, elements[0], xml_doc_tree,
-        #                                         edit_data_tree=edit_data_tree)
-        #     # multiple roots
-        #     elif len(elements) > 1:
-        #         form_content = generate_choice(request, elements, xml_doc_tree, edit_data_tree=edit_data_tree)
-        #     else:  # No root element detected
-        #         raise Exception("No root element detected")
-        # else:  # == 0
-        #     # find all complex types
-        #     complex_types = xml_doc_tree.findall("./{0}complexType".format(LXML_SCHEMA_NAMESPACE))
-        #     if len(complex_types) > 0:
-        #         form_content = generate_choice_extensions(request, complex_types, xml_doc_tree, None)
 
         root_element = load_schema_data_in_db(form_content[1])
 
