@@ -165,7 +165,8 @@ def get_results_by_instance_keyword(request):
                                    'title': instanceResult['identifier'],
                                    'custom_xslt': custom_xslt,
                                    'schema_name': metadataFormat.metadataPrefix,
-                                   'registry_name': registriesName[instanceResult['registry']]})
+                                   'registry_name': registriesName[instanceResult['registry']],
+                                   'oai_pmh': True})
 
 
                 resultString+= template.render(context)

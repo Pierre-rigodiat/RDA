@@ -592,6 +592,19 @@ class OaiRecord(Document):
     raw = DictField(required=True)
     registry = StringField(required=False)
 
+    def getMetadataOrdered(self):
+        """
+            Returns the object with the given id
+        """
+        # create a connection
+        client = MongoClient(MONGODB_URI)
+        # connect to the db 'mgi'
+        db = client['mgi']
+        # get the xmldata collection
+        xmldata = db['oai_record']
+        data =  xmldata.find_one({'_id': ObjectId(self.id)}, as_class = OrderedDict)
+        return data['metadata']
+
     def save(self, metadata=None, force_insert=False, validate=True, clean=True,
              write_concern=None,  cascade=None, cascade_kwargs=None,
              _refs=None, **kwargs):

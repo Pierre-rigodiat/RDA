@@ -22,6 +22,8 @@ import json
 import os
 from mgi import settings
 from lxml import etree
+from io import BytesIO
+from collections import OrderedDict
 
 ################################################################################
 #
@@ -126,17 +128,31 @@ def explore_detail_result_keyword(request) :
         title = request.GET['title']
     else:
         title = record.identifier
-    xmlString = xmltodict.unparse(record.metadata).encode('utf-8')
+    xmlString = xmltodict.unparse(record.getMetadataOrdered()).encode('utf-8')
     xsltPath = os.path.join(settings.SITE_ROOT, 'static', 'resources', 'xsl', 'xml2html.xsl')
     xslt = etree.parse(xsltPath)
     transform = etree.XSLT(xslt)
     dom = etree.fromstring(str(xmlString))
-    newdom = transform(dom)
+
+    #Check if a custom list result XSLT has to be used
+    try:
+        metadataFormat = record.metadataformat
+        if metadataFormat.template.ResultXsltDetailed:
+            listXslt = etree.parse(BytesIO(metadataFormat.template.ResultXsltDetailed.content.encode('utf-8')))
+            transform = etree.XSLT(listXslt)
+            newdom = transform(dom)
+        else:
+            newdom = transform(dom)
+    except Exception, e:
+        #We use the default one
+        newdom = transform(dom)
+
 
     result = str(newdom)
     context = RequestContext(request, {
         'XMLHolder': result,
-        'title': title
+        'title': title,
+        'oai_pmh': True,
     })
 
     return HttpResponse(template.render(context))
