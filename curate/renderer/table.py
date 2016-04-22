@@ -3,7 +3,7 @@
 from os.path import join
 from django.template import loader
 
-from curate.renderer import render_select, render_input, render_buttons, load_template, DefaultRenderer
+from curate.renderer import DefaultRenderer
 
 
 # def render_table(content):
@@ -116,7 +116,7 @@ class TableRenderer(AbstractTableRenderer):
             if children_number > element.options["min"]:
                 del_button = True
 
-        buttons = render_buttons(add_button, del_button)
+        buttons = self._render_buttons(add_button, del_button)
 
         for child_key in child_keys:
             # FIXME Use tuples instead
@@ -131,7 +131,7 @@ class TableRenderer(AbstractTableRenderer):
                     sub_elements.append(self.render_simple_type(child))
                     sub_inputs.append(False)
                 elif child.tag == 'input':
-                    sub_elements.append(self._render_input(child.pk, child.value, '', ''))
+                    sub_elements.append(self._render_input(child.pk))
                     sub_inputs.append(True)
                 elif child.tag == 'module':
                     sub_elements.append(self.render_module(child))
@@ -276,19 +276,9 @@ class TableRenderer(AbstractTableRenderer):
                 print child['tag'] + ' not handled (rend_ext)'
 
         if subhtml == '' or len(options) != 0:
-            return render_select('restr', options)
+            return self._render_select(str(element.pk), 'restriction', options)
         else:
             return subhtml
 
     def render_module(self, element):
         return ''
-
-
-
-
-
-
-
-
-
-
