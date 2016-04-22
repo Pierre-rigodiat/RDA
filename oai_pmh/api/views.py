@@ -173,7 +173,7 @@ def createMetadataformatsForRegistry(metadataformatsData, registry):
             raw = xmltodict.parse(metadataformat['raw'])
             obj = OaiMetadataFormat(metadataPrefix=metadataformat['metadataPrefix'],
                                     metadataNamespace=metadataformat['metadataNamespace'],
-                                    schema=metadataformat['schema'], raw=raw, registry=str(registry.id))
+                                    schema=metadataformat['schema'], raw=raw, registry=str(registry.id), harvest=True)
             http_response = requests.get(obj.schema)
             if str(http_response.status_code) == "200":
                 xmlSchema = xmltodict.parse(http_response.text)
@@ -216,7 +216,7 @@ def createSetsForRegistry(registry, setsData):
         try:
             raw = xmltodict.parse(set['raw'])
             obj = OaiSet(setName=set['setName'], setSpec=set['setSpec'], raw=raw,
-                         registry=str(registry.id))
+                         registry=str(registry.id), harvest=True)
             obj.save()
         except:
             pass
