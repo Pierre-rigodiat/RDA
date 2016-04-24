@@ -21,10 +21,17 @@ from mgi.models import Instance
 from pymongo import MongoClient
 from mgi.settings import MONGODB_URI
 from pymongo.errors import OperationFailure
+from mgi.models import XMLdata
+
+URL_TEST = "http://127.0.0.1:8000"
+
 
 class tests_token(TestCase):
 
     def tearDown(self):
+        #todo delete when we will use only the test database
+        Instance.drop_collection()
+
         self.clean_db()
 
     def clean_db(self):
@@ -56,6 +63,7 @@ class tests_token(TestCase):
                 now = datetime.now()
                 delta = timedelta(seconds=int(eval(r.content)["expires_in"]))
                 expires = now + delta
+
                 token = Instance(name='remote_mdcs', protocol='http', address='127.0.0.1', port='8000', access_token=eval(r.content)["access_token"], refresh_token=eval(r.content)["refresh_token"], expires=expires).save()
                 return token
             else:
@@ -78,7 +86,7 @@ class tests_token(TestCase):
     def select_all_schema(self, token, result):
         if token == '':
             self.assertTrue(False)
-        url = "http://127.0.0.1:8000" + "/rest/templates/select/all"
+        url = URL_TEST + "/rest/templates/select/all"
         headers = {'Authorization': 'Bearer ' + token.access_token}
         r = requests.get(url, data='', headers=headers)
         if r.status_code == 200:
@@ -87,3 +95,50 @@ class tests_token(TestCase):
             self.assertTrue(result)
         else:
             self.assertFalse(False)
+
+    def test_explore_error(self):
+        token = self.get_token_admin()
+        if token == '':
+            self.assertTrue(False)
+        url = URL_TEST + "/rest/explore/select/all"
+        data = {'dataformat': 'error'}
+        headers = {'Authorization': 'Bearer ' + token.access_token}
+        r = requests.get(url, params=data, headers=headers)
+        if r.status_code == 400:
+            self.assertTrue(True)
+        else:
+            self.assertTrue(False)
+
+    def createXMLData(self):
+        return XMLdata(schemaID='', xml='<test>test xmldata</test>', title='test', iduser=1).save()
+
+    def test_explore_admin(self):
+        #TODO create XMLData when we will use the test database
+        self.createXMLData()
+
+        token = self.get_token_admin()
+        if token == '':
+            self.assertTrue(False)
+        url = URL_TEST + "/rest/explore/select/all"
+        headers = {'Authorization': 'Bearer ' + token.access_token}
+        r = requests.get(url, params='', headers=headers)
+        if r.status_code == 200:
+            self.assertTrue(True)
+        else:
+            self.assertTrue(False)
+
+    def test_explore_user(self):
+        #TODO create XMLData when we will use the test database
+        id = str(self.createXMLData())
+        print('id: '+id)
+
+        token = self.get_token_user()
+        if token == '':
+            self.assertTrue(False)
+        url = URL_TEST + "/rest/explore/select/all"
+        headers = {'Authorization': 'Bearer ' + token.access_token}
+        r = requests.get(url, params='', headers=headers)
+        if r.status_code == 200:
+            self.assertTrue(True)
+        else:
+            self.assertTrue(False)
