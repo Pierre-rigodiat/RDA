@@ -142,3 +142,69 @@ class tests_token(TestCase):
             self.assertTrue(True)
         else:
             self.assertTrue(False)
+
+
+    def test_explore_delete_error_no_param(self):
+        # TODO create XMLData when we will use the test database
+        id = str(self.createXMLData())
+
+        token = self.get_token_admin()
+        if token == '':
+            self.assertTrue(False)
+        url = URL_TEST + "/rest/explore/delete"
+        headers = {'Authorization': 'Bearer ' + token.access_token}
+        r = requests.get(url, params='', headers=headers)
+        print('status code: ' + str(r.status_code))
+        if r.status_code == 400:
+            self.assertTrue(True)
+        else:
+            self.assertTrue(False)
+
+    def test_explore_delete_error_wrong_id(self):
+        # TODO create XMLData when we will use the test database
+        id = str(self.createXMLData())
+
+        token = self.get_token_admin()
+        if token == '':
+            self.assertTrue(False)
+        url = URL_TEST + "/rest/explore/delete"
+        headers = {'Authorization': 'Bearer ' + token.access_token}
+        params = {'id': 'test'}
+        r = requests.get(url, params=params, headers=headers)
+        print('status code: ' + str(r.status_code))
+        if r.status_code == 404:
+            self.assertTrue(True)
+        else:
+            self.assertTrue(False)
+
+
+    def test_explore_delete_error_user(self):
+        token = self.get_token_user()
+        if token == '':
+            self.assertTrue(False)
+        url = URL_TEST + "/rest/explore/delete"
+        headers = {'Authorization': 'Bearer ' + token.access_token}
+        params = {'id': 'test'}
+        r = requests.get(url, params=params, headers=headers)
+        if r.status_code == 401:
+            self.assertTrue(True)
+        else:
+            self.assertTrue(False)
+
+    def test_explore_delete_admin(self):
+        # TODO create XMLData when we will use the test database
+        id = str(self.createXMLData())
+
+        token = self.get_token_admin()
+        if token == '':
+            self.assertTrue(False)
+        url = URL_TEST + "/rest/explore/delete"
+        headers = {'Authorization': 'Bearer ' + token.access_token}
+        params = {'id': id}
+        r = requests.get(url, params=params, headers=headers)
+        if r.status_code == 204:
+            self.assertTrue(True)
+        else:
+            self.assertTrue(False)
+
+
