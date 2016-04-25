@@ -1,10 +1,16 @@
 from django.test import TestCase
 from pymongo import MongoClient
-from mgi.settings import MONGODB_URI
 from pymongo.errors import OperationFailure
 import requests
 from datetime import datetime, timedelta
 from mgi.models import Instance, XMLdata
+
+from django.utils.importlib import import_module
+import os
+settings_file = os.environ.get("DJANGO_SETTINGS_MODULE")
+settings = import_module(settings_file)
+MONGODB_URI = settings.MONGODB_URI
+MGI_DB = settings.MGI_DB
 
 URL_TEST = "http://127.0.0.1:8000"
 OPERATION_GET = "get"
@@ -23,7 +29,7 @@ class RegressionTest(TestCase):
         # create a connection
         client = MongoClient(MONGODB_URI)
         # connect to the db 'mgi.test'
-        db = client['mgi_test']
+        db = client[MGI_DB]
         # clear all collections
         for collection in db.collection_names():
             try:
@@ -34,14 +40,10 @@ class RegressionTest(TestCase):
 
 
 class TokenTest(RegressionTest):
-    def tearDown(self):
-        super(RegressionTest, self).tearDown()
-        # todo delete when we will use only the test database
-        Instance.drop_collection()
 
     def get_token(self, username, password, client_id, client_secret):
         try:
-            url = "http://127.0.0.1:8000" + "/o/token/"
+            url = URL_TEST + "/o/token/"
             headers = {'content-type': 'application/x-www-form-urlencoded'}
             data = {
                 'grant_type': 'password',
