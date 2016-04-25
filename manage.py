@@ -3,7 +3,7 @@ import os
 import sys
 
 if __name__ == "__main__":
-    if '-t' in sys.argv or 'test' in sys.argv:
+    if '-t' in sys.argv or 'test' in sys.argv or len(sys.argv) > 4:
         os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mgi.settings_test")
         if '-t' in sys.argv:
             sys.argv = sys.argv[:-1]
