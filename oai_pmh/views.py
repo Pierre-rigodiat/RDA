@@ -7,6 +7,9 @@
 # Author: Pierre Francois RIGODIAT
 #         pierre-francois.rigodiat@nist.gov
 #
+#         Xavier SCHMITT
+#         xavier.schmitt@nist.gov
+#
 # Sponsor: National Institute of Standards and Technology (NIST)
 #
 ################################################################################
@@ -149,7 +152,7 @@ def getData(request):
     uri= OAI_HOST_URI + "/oai_pmh/api/getdata/"
     req = requests.post(uri, {"url":url}, auth=(OAI_USER, OAI_PASS))
 
-    if (req.status_code == status.HTTP_200_OK):
+    if req.status_code == status.HTTP_200_OK:
         data = json.load(StringIO(req.content))
 
         xsltPath = os.path.join(settings.SITE_ROOT, 'static', 'resources', 'xsl', 'xml2html.xsl')

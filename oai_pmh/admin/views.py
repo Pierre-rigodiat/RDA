@@ -13,8 +13,8 @@
 
 from rest_framework import status
 from django.http.response import HttpResponseBadRequest
-from oai_pmh.forms import UpdateRegistryForm, MyMetadataFormatForm, RegistryForm, MyRegistryForm, UpdateMyMetadataFormatForm, MySetForm, UpdateMySetForm, \
-MyTemplateMetadataFormatForm
+from oai_pmh.admin.forms import UpdateRegistryForm, MyMetadataFormatForm, RegistryForm, MyRegistryForm, UpdateMyMetadataFormatForm, MySetForm, UpdateMySetForm, \
+MyTemplateMetadataFormatForm, SettingHarvestForm
 import json
 from mgi.settings import OAI_HOST_URI, OAI_USER, OAI_PASS
 from django.contrib import messages
@@ -28,7 +28,7 @@ from django.template import RequestContext, loader
 from mgi.models import OaiRegistry, OaiSettings, OaiMyMetadataFormat, OaiXslt, OaiTemplMfXslt, Template, OaiMySet
 from django.contrib.admin.views.decorators import staff_member_required
 from mgi.models import Message, OaiMetadataFormat, OaiSet, OaiRecord
-from oai_pmh.forms import Url, SettingHarvestForm
+from oai_pmh.forms import Url
 from oai_pmh.admin.forms import UploadOaiPmhXSLTForm
 from django.utils.dateformat import DateFormat
 import lxml.etree as etree

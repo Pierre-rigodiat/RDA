@@ -3,15 +3,12 @@
 <!--
 ################################################################################
 #
-# File Name: website.html
-# Application: templates/admin
+# File Name: oai_manage_xslt.html
+# Application: templates/oai_pmh/admin
 # Description:
 #
-# Author: Sharief Youssef
-#         sharief.youssef@nist.gov
-#
-#		  Guillaume SOUSA AMARAL
-#		  guillaume.sousa@nist.gov
+# Author: Pierre Francois RIGODIAT
+#		  pierre-francois.rigodiat@nist.gov
 #
 # Sponsor: National Institute of Standards and Technology (NIST)
 #
@@ -49,22 +46,16 @@
     	<div class="icon legend delete" objectid="{{ object.id }}" typeXSLT="OAI-PMH" onclick="deleteOaiXSLT(this)">Delete</div>
 	</td>
   </tr>
-
 {% endfor %}
-
 </table>
-
 {% else %}
 <br>
 	There are currently no OAI-PMH XSLT uploaded.  Please click "Upload XSLT" to the right to add OAI-PMH XSLT files.
 	<br>
 	<br>
 {% endif %}
-
 {% endblock %}
-
 {% block popups %}
-
 <div id="dialog-oai-pmh-message" title="Upload OAI-PMH XSLT" style="display: none;">
 	<form id="form_oai_pmh_start" action="admin/xml-schemas/manage-xslt" method="post" enctype="multipart/form-data">
 		{% csrf_token %}
@@ -112,9 +103,7 @@
     An XSLT with this filename already exists.
   </p>
 </div>
-
 {% endblock %}
-
 {% block extrajs %}
 <script src="{% static 'inc/controllers/js/oai_pmh_xslt_mgr.js' %}"></script>
 <script>

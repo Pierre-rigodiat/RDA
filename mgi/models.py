@@ -805,8 +805,8 @@ class OaiMetadataformatSet(Document):
     """
         A record object
     """
-    set = ReferenceField(OaiSet, reverse_delete_rule=PULL)
-    metadataformat = ReferenceField(OaiMetadataFormat, reverse_delete_rule=PULL)
+    set = ReferenceField(OaiSet, reverse_delete_rule=CASCADE)
+    metadataformat = ReferenceField(OaiMetadataFormat, reverse_delete_rule=CASCADE)
     lastUpdate = DateTimeField(required=False)
 
 # class Sets(Document):
