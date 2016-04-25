@@ -1078,16 +1078,17 @@ def generate_element(request, element, xml_tree, choice_info=None, full_path="",
                 if element_type is None:  # no complex/simple type
                     placeholder = app_info['placeholder'] if 'placeholder' in app_info else ''
                     tooltip = app_info['tooltip'] if 'tooltip' in app_info else ''
+                    use = app_info['use'] if 'use' in app_info else ''
 
                     li_content += ' '
-                    # li_content += render_input(default_value, placeholder, tooltip)
                     li_content += buttons
 
                     db_child = {
                         'tag': 'input',
                         'options': {
                             'placeholder': placeholder,
-                            'tooltip': tooltip
+                            'tooltip': tooltip,
+                            'use': use,
                         },
                         'value': default_value
                     }

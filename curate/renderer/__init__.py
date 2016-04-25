@@ -118,6 +118,7 @@ class HtmlRenderer(BaseRenderer):
 
         placeholder = ''
         tooltip = ''
+        use = ''
 
         if 'placeholder' in element.options:
             placeholder = element.options['placeholder']
@@ -125,11 +126,15 @@ class HtmlRenderer(BaseRenderer):
         if 'tooltip' in element.options:
             tooltip = element.options['tooltip']
 
+        if 'use' in element.options:
+            use = element.options['use']
+
         data = {
             'id': element.pk,
             'value': element.value,
             'placeholder': placeholder,
             'tooltip': tooltip,
+            'use': use,
         }
 
         return self._load_template('input', data)
@@ -330,6 +335,7 @@ class DefaultRenderer(object):
         """
         placeholder = ''
         tooltip = ''
+        use = ''
 
         if 'placeholder' in element.options:
             placeholder = element.options['placeholder']
@@ -337,11 +343,15 @@ class DefaultRenderer(object):
         if 'tooltip' in element.options:
             tooltip = element.options['tooltip']
 
+        if 'use' in element.options:
+            use = element.options['use']
+
         data = {
             'id': element.pk,
             'value': element.value,
             'placeholder': placeholder,
             'tooltip': tooltip,
+            'use': use,
         }
 
         return self._load_template('input', data)
