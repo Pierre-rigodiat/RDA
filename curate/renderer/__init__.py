@@ -117,19 +117,19 @@ class HtmlRenderer(BaseRenderer):
             raise TypeError('element should be SchemaElement (' + str(type(element)) + ' given)')
 
         placeholder = ''
-        title = ''
+        tooltip = ''
 
         if 'placeholder' in element.options:
             placeholder = element.options['placeholder']
 
-        if 'title' in element.options:
-            title = element.options['title']
+        if 'tooltip' in element.options:
+            tooltip = element.options['tooltip']
 
         data = {
             'id': element.pk,
             'value': element.value,
             'placeholder': placeholder,
-            'title': title
+            'tooltip': tooltip,
         }
 
         return self._load_template('input', data)
@@ -329,18 +329,19 @@ class DefaultRenderer(object):
         :return:
         """
         placeholder = ''
+        tooltip = ''
+
         if 'placeholder' in element.options:
             placeholder = element.options['placeholder']
 
-        title = ''
-        if 'title' in element.options:
-            title = element.options['title']
+        if 'tooltip' in element.options:
+            tooltip = element.options['tooltip']
 
         data = {
             'id': element.pk,
             'value': element.value,
             'placeholder': placeholder,
-            'title': title
+            'tooltip': tooltip,
         }
 
         return self._load_template('input', data)
