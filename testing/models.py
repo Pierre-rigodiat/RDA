@@ -1,5 +1,3 @@
-
-
 from django.test import TestCase
 from pymongo import MongoClient
 from mgi.settings import MONGODB_URI
@@ -9,6 +7,9 @@ from datetime import datetime, timedelta
 from mgi.models import Instance, XMLdata
 
 URL_TEST = "http://127.0.0.1:8000"
+OPERATION_GET = "get"
+OPERATION_POST = "post"
+OPERATION_DELETE = "delete"
 
 class RegressionTest(TestCase):
 
@@ -70,8 +71,11 @@ class TokenTest(RegressionTest):
     def get_token_user(self):
         return self.get_token('user', 'user', 'client_id_user', 'client_secret_user')
 
-    def doRequest(self, token, url, data, params):
+    def doRequest(self, token, url, data, params, operation):
         if token == '':
             self.assertTrue(False)
         headers = {'Authorization': 'Bearer ' + token.access_token}
-        return requests.get(URL_TEST + url, data=data, params=params, headers=headers)
+        if operation == OPERATION_GET:
+            return requests.get(URL_TEST + url, data=data, params=params, headers=headers)
+        elif operation == OPERATION_DELETE:
+            return requests.delete(URL_TEST + url, data=data, params=params, headers=headers)
