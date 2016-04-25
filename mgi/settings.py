@@ -170,6 +170,7 @@ INSTALLED_APPS = (
     'compose',
     'modules',
     'oai_pmh',
+    'testing',
 
 )
 
