@@ -166,6 +166,7 @@ INSTALLED_APPS = (
     'modules',
     'user_dashboard',
     'oai_pmh',
+    'testing',
 
 )
 
