@@ -14,7 +14,7 @@
 #
 ################################################################################
 
-from testing.models import TokenTest
+from testing.models import TokenTest, OPERATION_GET, OPERATION_DELETE
 
 class tests_token(TokenTest):
     def test_select_all_schema_admin(self):
@@ -24,7 +24,7 @@ class tests_token(TokenTest):
         self.select_all_schema(self.get_token_user(), True)
 
     def select_all_schema(self, token, result):
-        r = self.doRequest(token, "/rest/templates/select/all", '', '')
+        r = self.doRequest(token, "/rest/templates/select/all", '', '', OPERATION_GET)
         if r.status_code == 200:
             self.assertTrue(r.text != '')
         elif r.status_code == 401:
@@ -33,7 +33,7 @@ class tests_token(TokenTest):
             self.assertFalse(False)
 
     def test_explore_error(self):
-        r = self.doRequest(self.get_token_admin(), "/rest/explore/select/all", '', {'dataformat': 'error'})
+        r = self.doRequest(self.get_token_admin(), "/rest/explore/select/all", '', {'dataformat': 'error'}, OPERATION_GET)
         if r.status_code == 400:
             self.assertTrue(True)
         else:
@@ -43,7 +43,7 @@ class tests_token(TokenTest):
         #TODO create XMLData when we will use the test database
         self.createXMLData()
 
-        r = self.doRequest(self.get_token_admin(), "/rest/explore/select/all", '', '')
+        r = self.doRequest(self.get_token_admin(), "/rest/explore/select/all", '', '', OPERATION_GET)
         if r.status_code == 200:
             self.assertTrue(True)
         else:
@@ -52,9 +52,8 @@ class tests_token(TokenTest):
     def test_explore_user(self):
         #TODO create XMLData when we will use the test database
         id = str(self.createXMLData())
-        print('id: '+id)
 
-        r = self.doRequest(self.get_token_user(), "/rest/explore/select/all", '', '')
+        r = self.doRequest(self.get_token_user(), "/rest/explore/select/all", '', '', OPERATION_GET)
         if r.status_code == 200:
             self.assertTrue(True)
         else:
@@ -65,8 +64,7 @@ class tests_token(TokenTest):
         # TODO create XMLData when we will use the test database
         id = str(self.createXMLData())
 
-        r = self.doRequest(self.get_token_admin(), "/rest/explore/delete", '', '')
-        print('status code: ' + str(r.status_code))
+        r = self.doRequest(self.get_token_admin(), "/rest/explore/delete", '', '', OPERATION_DELETE)
         if r.status_code == 400:
             self.assertTrue(True)
         else:
@@ -76,8 +74,7 @@ class tests_token(TokenTest):
         # TODO create XMLData when we will use the test database
         id = str(self.createXMLData())
 
-        r = self.doRequest(self.get_token_admin(), "/rest/explore/delete", '', {'id': 'test'})
-        print('status code: ' + str(r.status_code))
+        r = self.doRequest(self.get_token_admin(), "/rest/explore/delete", '', {'id': 'test'}, OPERATION_DELETE)
         if r.status_code == 404:
             self.assertTrue(True)
         else:
@@ -85,7 +82,7 @@ class tests_token(TokenTest):
 
 
     def test_explore_delete_error_user(self):
-        r = self.doRequest(self.get_token_user(), "/rest/explore/delete", '', {'id': 'test'})
+        r = self.doRequest(self.get_token_user(), "/rest/explore/delete", '', {'id': 'test'}, OPERATION_DELETE)
         if r.status_code == 401:
             self.assertTrue(True)
         else:
@@ -95,7 +92,7 @@ class tests_token(TokenTest):
         # TODO create XMLData when we will use the test database
         id = str(self.createXMLData())
 
-        r = self.doRequest(self.get_token_admin(), "/rest/explore/delete", '', {'id': id})
+        r = self.doRequest(self.get_token_admin(), "/rest/explore/delete", '', {'id': id}, OPERATION_DELETE)
         if r.status_code == 204:
             self.assertTrue(True)
         else:
