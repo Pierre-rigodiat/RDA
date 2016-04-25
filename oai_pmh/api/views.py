@@ -7,6 +7,9 @@
 # Author: Pierre Francois RIGODIAT
 #         pierre-francois.rigodiat@nist.gov
 #
+#         Xavier SCHMITT
+#         xavier.schmitt@nist.gov
+#
 # Sponsor: National Institute of Standards and Technology (NIST)
 #
 ################################################################################
