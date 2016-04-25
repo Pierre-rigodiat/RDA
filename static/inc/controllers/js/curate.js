@@ -1169,32 +1169,18 @@ cancelForm = function(){
  */
 checkElementUse = function(){
     required_count = 0
-    $(".required input:visible").each(function(){
+    $(".required:visible").each(function(){
         if (!$(this).closest("li").hasClass("removed")){
           if($(this).val().trim() == ""){
-            required_count += 1;
-          }
-        }
-    });
-    $(".required textarea:visible").each(function(){
-        if (!$(this).closest("li").hasClass("removed")){
-            if($(this).val().trim() == ""){
             required_count += 1;
           }
         }
     });
 
     recommended_count = 0
-    $(".recommended input:visible").each(function(){
+    $(".recommended:visible").each(function(){
         if (!$(this).closest("li").hasClass("removed")){
           if($(this).val().trim() == ""){
-              recommended_count += 1;
-          }
-        }
-    });
-    $(".recommended textarea:visible").each(function(){
-        if (!$(this).closest("li").hasClass("removed")){
-            if($(this).val().trim() == ""){
               recommended_count += 1;
           }
         }
