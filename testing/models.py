@@ -6,12 +6,14 @@ from datetime import datetime, timedelta
 from mgi.models import Instance, XMLdata, Template, TemplateVersion
 from utils.XSDhash import XSDhash
 
-from django.utils.importlib import import_module
 import os
+from django.utils.importlib import import_module
 settings_file = os.environ.get("DJANGO_SETTINGS_MODULE")
 settings = import_module(settings_file)
 MONGODB_URI = settings.MONGODB_URI
 MGI_DB = settings.MGI_DB
+
+#from mgi.settings_test import MGI_DB, MONGODB_URI
 
 URL_TEST = "http://127.0.0.1:8000"
 OPERATION_GET = "get"

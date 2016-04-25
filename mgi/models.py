@@ -23,11 +23,15 @@ from bson.objectid import ObjectId
 import xmltodict
 from pymongo import MongoClient, TEXT, ASCENDING, DESCENDING, errors
 
-from mgi.settings import MONGODB_URI, MGI_DB
+import os
+from django.utils.importlib import import_module
+settings_file = os.environ.get("DJANGO_SETTINGS_MODULE")
+settings = import_module(settings_file)
+MONGODB_URI = settings.MONGODB_URI
+MGI_DB = settings.MGI_DB
 import re
 import datetime
-from mgi import settings
-import datetime
+
 
 class Request(Document):
     """Represents a request sent by an user to get an account"""
