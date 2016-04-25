@@ -89,3 +89,33 @@ class TokenTest(RegressionTest):
             return requests.get(URL_TEST + url, data=data, params=params, headers=headers)
         elif operation == OPERATION_DELETE:
             return requests.delete(URL_TEST + url, data=data, params=params, headers=headers)
+
+    def isStatusOK(self, r):
+        if r.status_code == 200:
+            self.assertTrue(True)
+        else:
+            self.assertTrue(False)
+
+    def isStatusNotFound(self, r):
+        if r.status_code == 404:
+            self.assertTrue(True)
+        else:
+            self.assertTrue(False)
+
+    def isStatusBadRequest(self, r):
+        if r.status_code == 400:
+            self.assertTrue(True)
+        else:
+            self.assertTrue(False)
+
+    def isStatusUnauthorized(self, r):
+        if r.status_code == 401:
+            self.assertTrue(True)
+        else:
+            self.assertTrue(False)
+
+    def isStatusNoContent(self, r):
+        if r.status_code == 204:
+            self.assertTrue(True)
+        else:
+            self.assertTrue(False)
