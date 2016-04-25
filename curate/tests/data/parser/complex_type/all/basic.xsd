@@ -1,10 +1,10 @@
-<schema>
-    <element name="root" type="complex"/>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:element name="root" type="complex"/>
 
-    <complexType name="complex">
-        <all>
-            <element name="child0" type="string"/>
-            <element name="child1" type="string"/>
-        </all>
-    </complexType>
-</schema>
+    <xs:complexType name="complex">
+        <xs:all>
+            <xs:element name="child0" type="xs:string"/>
+            <xs:element name="child1" type="xs:string"/>
+        </xs:all>
+    </xs:complexType>
+</xs:schema>

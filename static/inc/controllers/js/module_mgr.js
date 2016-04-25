@@ -34,6 +34,7 @@ var target;
 
 var showModuleManager = function(event){
 	target = event.target;
+	hideAutoKeys();
 	$( "#dialog-modules" ).dialog({
       modal: true,
       width: 600,
@@ -45,6 +46,47 @@ var showModuleManager = function(event){
       }
     });
 };		
+
+/**
+ * hideAutoKeys
+ * Hide modules for generation of automatic keys
+ */
+hideAutoKeys = function(){
+    $("#dialog-modules").find("table").find("tr:not(:first)").each(function(){
+      $(this).show();
+      if ($($(this).children("td")[1]).html().indexOf('auto-key') > 0){
+        $(this).hide();
+      }
+    });
+}
+
+var showAutoKeyManager=function(event){
+	target = event.target;
+	showAutoKeys();
+	$( "#dialog-modules" ).dialog({
+      modal: true,
+      width: 600,
+      height: 400,
+      buttons: {
+        Cancel: function() {
+          $( this ).dialog( "close" );
+        }
+      }
+    });
+};
+
+/**
+ * showAutoKeys
+ * Show only modules for generation of automatic keys
+ */
+showAutoKeys = function(){
+    $("#dialog-modules").find("table").find("tr:not(:first)").each(function(){
+      $(this).show();
+      if ($($(this).children("td")[1]).html().indexOf('auto-key') < 0){
+        $(this).hide();
+      }
+    });
+}
 
 
 /**

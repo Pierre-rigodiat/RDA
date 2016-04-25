@@ -1,3 +1,4 @@
+<!-- root element can't have minOccurs and maxOccurs -->
 <schema>
     <element minOccurs="2" maxOccurs="unbounded" name="id10">
         <complexType>

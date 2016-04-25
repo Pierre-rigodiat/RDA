@@ -1,5 +1,9 @@
-<complexType name="parent">
-    <element name="child_0" type="xsd:string"/>
-    <element name="child_1" type="xsd:string"/>
-    <element name="child_2" type="xsd:string"/>
-</complexType>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:complexType name="root">
+    <xs:sequence>
+      <xs:element name="a" type="xs:string"/>
+      <xs:element name="b" type="xs:string"/>
+      <xs:element name="c" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+</xs:schema>

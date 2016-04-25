@@ -1,5 +1,8 @@
-<schema>
-    <complexType name="id6">
-        <attribute name="child0" type="string"/>
-    </complexType>
-</schema>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:element name="root" type="complex" />
+
+    <xs:complexType name="complex">
+        <xs:attribute name="id" type="xs:string"/>
+    </xs:complexType>
+</xs:schema>
+

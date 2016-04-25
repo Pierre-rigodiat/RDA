@@ -7,4 +7,4 @@ urlpatterns = patterns('',
     url(r'^examples/', include('modules.examples.urls')),
 )
 
-excluded = ['load_resources']
+excluded = ['load_resources', '_get_updated_keys']

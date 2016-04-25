@@ -1,4 +1,6 @@
 from __future__ import division
+
+from curate.models import SchemaElement
 from modules.models import Module, ModuleError
 from django.conf import settings
 import os
@@ -9,6 +11,7 @@ RESOURCES_PATH = os.path.join(settings.SITE_ROOT, 'modules/builtin/resources/')
 TEMPLATES_PATH = os.path.join(RESOURCES_PATH, 'html')
 SCRIPTS_PATH = os.path.join(RESOURCES_PATH, 'js')
 STYLES_PATH = os.path.join(RESOURCES_PATH, 'css')
+
 
 class InputModule(Module):
     def __init__(self, scripts=list(), styles=list(), label=None, default_value=None, disabled=False):
@@ -34,11 +37,9 @@ class InputModule(Module):
 
         return render_module(template, params)
 
-class OptionsModule(Module):
-    def __init__(self, scripts=list(), styles=list(), label=None, options=None, disabled=False, selected=None):
-        if options is None:
-            options = dict()
 
+class OptionsModule(Module):
+    def __init__(self, scripts=list(), styles=list(), label=None, options={}, disabled=False, selected=None):
         scripts = [os.path.join(SCRIPTS_PATH, 'options.js')] + scripts
         Module.__init__(self, scripts=scripts, styles=styles)
 
@@ -46,11 +47,13 @@ class OptionsModule(Module):
         self.label = label
         self.disabled = disabled
         self.selected = selected
-        
 
     def get_module(self, request):
         template = os.path.join(TEMPLATES_PATH, 'options.html')
         options_html = ""
+
+        if self.selected not in self.options.keys():
+            self.selected = None
 
         for key, val in self.options.items():
             if self.selected is not None and key == self.selected:
@@ -90,7 +93,7 @@ class PopupModule(Module):
 
 
 class SyncInputModule(Module):
-    def __init__(self, scripts=list(), styles=list(), label=None, default_value=None, modclass=None):
+    def __init__(self, scripts=[], styles=[], label=None, default_value=None, modclass=None, disabled=False):
         scripts = [os.path.join(SCRIPTS_PATH, 'sync_input.js')] + scripts
         Module.__init__(self, scripts=scripts, styles=styles)
 
@@ -100,6 +103,7 @@ class SyncInputModule(Module):
         self.modclass = modclass
         self.label = label
         self.default_value = default_value
+        self.disabled = disabled
 
     def get_module(self, request):
         template = os.path.join(TEMPLATES_PATH, 'sync_input.html')
@@ -108,6 +112,8 @@ class SyncInputModule(Module):
             params.update({"label": self.label})
         if self.default_value is not None:
             params.update({"default_value": self.default_value})
+        if self.disabled is not None:
+            params.update({"disabled": self.disabled})
         return render_module(template, params)
     
 
@@ -244,3 +250,60 @@ class CheckboxesModule(Module):
             params.update({"label": self.label})
 
         return render_module(template, params)
+
+
+class AutoKeyModule(SyncInputModule):
+
+    def __init__(self, generateKey=None):
+
+        if generateKey is None:
+            raise ModuleError('A function for the generation of the keys should be provided (generateKey is None).')
+
+        self.generateKey = generateKey
+        SyncInputModule.__init__(self, modclass='mod_auto_key', disabled=True)
+
+    def _get_module(self, request):
+
+        # get the name of the key
+        # keyId = request.GET['key']
+        module_id = request.GET['module_id']
+        module = SchemaElement.objects().get(pk=module_id)
+        keyId = module.options['params']['key']
+
+        # register the module id in the structure
+        if str(module_id) not in request.session['keys'][keyId]['module_ids']:
+            request.session['keys'][keyId]['module_ids'].append(str(module_id))
+
+        # get the list of values for this key
+        values = []
+        modules_ids = request.session['keys'][keyId]['module_ids']
+        for key_module_id in modules_ids:
+            key_module = SchemaElement.objects().get(pk=key_module_id)
+            if key_module.options['data'] is not None:
+                values.append(key_module.options['data'])
+
+        # if data are present
+        if 'data' in request.GET:
+            # set the key coming from data
+            key = request.GET['data']
+        else:
+            # generate a unique key
+            key = self.generateKey(values)
+        # set the value of the module with the key
+        self.default_value = key
+
+        return SyncInputModule.get_module(self, request)
+
+    def _get_display(self, request):
+        return ''
+
+    def _get_result(self, request):
+        if 'data' in request.GET:
+            return request.GET['data']
+        return self.default_value
+
+    def _post_display(self, request):
+        pass
+
+    def _post_result(self, request):
+        pass

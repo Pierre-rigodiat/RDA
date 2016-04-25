@@ -1,11 +1,11 @@
-<schema>
-    <complexType name="id2">
-        <group ref="grp0"/>
-    </complexType>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:complexType name="id2">
+        <xs:group ref="grp0"/>
+    </xs:complexType>
 
-    <group name="grp0">
-        <sequence>
-            <element name="id1" type="string"/>
-        </sequence>
-    </group>
-</schema>
+    <xs:group name="grp0">
+        <xs:sequence>
+            <xs:element name="id1" type="xs:string"/>
+        </xs:sequence>
+    </xs:group>
+</xs:schema>

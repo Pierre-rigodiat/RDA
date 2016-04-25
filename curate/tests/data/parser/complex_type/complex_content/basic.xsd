@@ -1,18 +1,20 @@
-<schema>
-    <complexType name="id1">
-        <complexContent>
-            <extension base="person">
-                <sequence>
-                    <element name="address" type="string"/>
-                </sequence>
-            </extension>
-        </complexContent>
-    </complexType>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:element name="root" type="complex"/>
 
-    <complexType name="person">
-        <sequence>
-            <element name="firstname" type="string"/>
-            <element name="lastname" type="string"/>
-        </sequence>
-    </complexType>
-</schema>
+    <xs:complexType name="complex">
+        <xs:complexContent>
+            <xs:extension base="rootBase">
+                <xs:sequence>
+                    <xs:element name="child2" type="xs:string"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="rootBase">
+        <xs:sequence>
+            <xs:element name="child0" type="xs:string"/>
+            <xs:element name="child1" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+</xs:schema>

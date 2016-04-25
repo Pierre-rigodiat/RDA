@@ -1,13 +1,16 @@
-<schema>
-    <complexType name="id1">
-        <choice>
-            <group ref="grp0" />
-        </choice>
-    </complexType>
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:element name="root" type="id1"/>
 
-    <group name="grp0">
-        <sequence>
-            <element name="id1" type="string"/>
-        </sequence>
-    </group>
-</schema>
+    <xs:complexType name="id1">
+        <xs:choice>
+            <xs:group ref="grp0" />
+        </xs:choice>
+    </xs:complexType>
+
+    <xs:group name="grp0">
+        <xs:sequence>
+            <xs:element name="id1" type="xs:string"/>
+        </xs:sequence>
+    </xs:group>
+</xs:schema>

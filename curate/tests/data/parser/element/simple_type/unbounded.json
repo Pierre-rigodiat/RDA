@@ -1,0 +1,77 @@
+{
+  "tag": "element",
+  "options": {
+    "xpath": {
+      "xml": "/child",
+      "xsd": "/xs:schema/xs:complexType/xs:sequence/xs:element"
+    },
+    "max": -1,
+    "name": "child",
+    "module": null,
+    "min": 2,
+    "ns_prefix": null,
+    "xmlns": null,
+    "schema_location": null
+  },
+  "value": null,
+  "children": [
+    {
+      "tag": "elem-iter",
+      "children": [
+        {
+          "tag": "simple_type",
+          "children": [
+            {
+              "tag": "restriction",
+              "options": {
+                "base": "xs:string"
+              },
+              "value": null,
+              "children": [
+                {
+                  "tag": "enumeration",
+                  "value": "child0"
+                },
+                {
+                  "tag": "enumeration",
+                  "value": "child1"
+                }
+              ]
+            }
+          ],
+          "value": null
+        }
+      ],
+      "value": null
+    },
+    {
+      "tag": "elem-iter",
+      "children": [
+        {
+          "tag": "simple_type",
+          "children": [
+            {
+              "tag": "restriction",
+              "options": {
+                "base": "xs:string"
+              },
+              "value": null,
+              "children": [
+                {
+                  "tag": "enumeration",
+                  "value": "child0"
+                },
+                {
+                  "tag": "enumeration",
+                  "value": "child1"
+                }
+              ]
+            }
+          ],
+          "value": null
+        }
+      ],
+      "value": null
+    }
+  ]
+}

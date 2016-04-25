@@ -1,5 +1,4 @@
-
-import os
+import json
 from os.path import join
 from time import sleep
 from pymongo import MongoClient
@@ -15,6 +14,7 @@ from modules.discover import discover_modules
 
 TESTS_RESOURCES_PATH = os.path.join(BASE_DIR, 'static', 'resources', 'tests')
 XSD_TEST_PATH = os.path.join(BASE_DIR, 'static', 'xsd', 'tests')
+import collections
 
 
 class VariableTypesGenerator(object):
@@ -31,8 +31,8 @@ class VariableTypesGenerator(object):
             'long': 1L,
             'complex': 1.0j,
             'tuples': (1, 2),
-            'list': [],
-            'dict': {},
+            'list': [1, 2, 3],
+            'dict': {'a': 1, 'b': 2},
             'func': lambda x: x,
             # Generator type
             'code': compile('print "compile"', 'test', 'exec'),
@@ -72,16 +72,26 @@ class VariableTypesGenerator(object):
         ]
 
 
-# FIXME Correct this object before commiting
 class DataHandler(object):
+    """
+    """
 
-    def __init__(self, filename):
-        # FIXME only use dirname
-        self.dirname = join(SITE_ROOT, filename)
-        self.filename = join(SITE_ROOT, filename)
+    def __init__(self, dirname):
+        """
 
-    @staticmethod
-    def _get_file_content_as_xml(filename):
+        Parameters:
+             - dirname:
+        """
+        self.dirname = join(SITE_ROOT, dirname)
+
+    def get_xml(self, filename, extension='xml'):
+        """
+
+        :param filename:
+        :param extension:
+        :return:
+        """
+        filename = join(self.dirname, filename + '.' + extension)
         file_string = ''
         is_in_tag = False
 
@@ -104,26 +114,34 @@ class DataHandler(object):
 
         return etree.fromstring(file_string)
 
-    def get_xsd(self):
-        xsd_name = self.filename + '.xsd'
-        return self._get_file_content_as_xml(xsd_name)
+    def get_xsd(self, filename):
+        """
 
-    def get_xsd2(self, filename):
-        self.filename = join(self.dirname, filename)
-        return self.get_xsd()
+        :param filename:
+        :return:
+        """
+        return etree.ElementTree(self.get_xml(filename, 'xsd'))
 
-    def get_xml(self, filename):
-        self.filename = join(self.dirname, filename)
-        xml_name = self.filename + '.xml'
-        return self._get_file_content_as_xml(xml_name)
+    def get_html(self, filename):
+        """
 
-    def get_html(self):
-        html_name = self.filename + '.html'
-        return self._get_file_content_as_xml(html_name)
+        :param filename:
+        :return:
+        """
+        return self.get_xml(filename, 'html')
 
-    def get_html2(self, filename):
-        self.filename = join(self.dirname, filename)
-        return self.get_html()
+    def get_json(self, filename):
+        """
+
+        :param filename:
+        :return:
+        """
+        filename = join(self.dirname, filename + '.json')
+
+        with open(filename, 'r') as json_file:
+            json_data = json.load(json_file, encoding='utf-8')
+
+        return convert(json_data)
 
 
 def are_equals(xml_tree_a, xml_tree_b):
@@ -134,7 +152,22 @@ def are_equals(xml_tree_a, xml_tree_b):
     attrib_b = xml_tree_b.attrib
 
     text_a = xml_tree_a.text
+
+    if type(text_a) == str:
+        text_a = text_a.lstrip('\r\n\t ')
+        text_a = text_a.rstrip('\r\n')
+
+        if text_a == '':
+            text_a = None
+
     text_b = xml_tree_b.text
+
+    if type(text_b) == str:
+        text_b = text_b.lstrip('\r\n\t ')
+        text_b = text_b.rstrip('\r\n')
+
+        if text_b == '':
+            text_b = None
 
     children_a = xml_tree_a.getchildren()
     children_b = xml_tree_b.getchildren()
@@ -160,6 +193,17 @@ def are_equals(xml_tree_a, xml_tree_b):
             return False
 
     return tag_a == tag_b and attrib_a == attrib_b and text_a == text_b
+
+
+def convert(data):
+    if isinstance(data, basestring):
+        return str(data)
+    elif isinstance(data, collections.Mapping):
+        return dict(map(convert, data.iteritems()))
+    elif isinstance(data, collections.Iterable):
+        return type(data)(map(convert, data))
+    else:
+        return data
 
 
 class SeleniumTestCase(TestCase):

@@ -1,6 +1,0 @@
-<complexType name="complex">
-    <sequence>
-        <element name="id" type="string"/>
-        <element name="title" type="string"/>
-    </sequence>
-</complexType>

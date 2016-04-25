@@ -26,7 +26,9 @@ import os
 import json
 import copy
 import lxml.etree as etree
-from mgi.models import Template, QueryResults, SavedQuery, XMLdata, Instance, MetaSchema, TemplateVersion
+
+from mgi.common import SCHEMA_NAMESPACE, LXML_SCHEMA_NAMESPACE
+from mgi.models import Template, QueryResults, SavedQuery, XMLdata, Instance, TemplateVersion
 from mgi import common
 from django.template import loader, Context, RequestContext
 from django.contrib.auth.models import Group
@@ -147,12 +149,8 @@ def setCurrentTemplate(request, template_id):
     request.session['exploreCurrentTemplateID'] = template_id
     request.session.modified = True
 
-    if template_id in MetaSchema.objects.all().values_list('schemaId'):
-        meta = MetaSchema.objects.get(schemaId=template_id)
-        xmlDocData = meta.flat_content
-    else:
-        templateObject = Template.objects.get(pk=template_id)
-        xmlDocData = templateObject.content
+    templateObject = Template.objects.get(pk=template_id)
+    xmlDocData = templateObject.content
 
     XMLtree = etree.parse(BytesIO(xmlDocData.encode('utf-8')))
     request.session['xmlDocTreeExplore'] = etree.tostring(XMLtree)
@@ -183,13 +181,8 @@ def set_current_user_template(request):
     request.session.modified = True
 
     templateObject = Template.objects.get(pk=template_id)
-    
-    if template_id in MetaSchema.objects.all().values_list('schemaId'):
-        meta = MetaSchema.objects.get(schemaId=template_id)
-        xmlDocData = meta.flat_content
-    else:
-        xmlDocData = templateObject.content
 
+    xmlDocData = templateObject.content
 
     XMLtree = etree.parse(BytesIO(xmlDocData.encode('utf-8')))
     request.session['xmlDocTreeExplore'] = etree.tostring(XMLtree)
@@ -222,20 +215,19 @@ def verify_template_is_selected(request):
 
 ################################################################################
 # 
-# Function Name: removeAnnotations(element, namespace)
-# Inputs:        element - XML element 
-#                namespace - namespace
+# Function Name: removeAnnotations(element)
+# Inputs:        element - XML element
 # Outputs:       None
 # Exceptions:    None
 # Description:   Remove annotations of an element if present
 # 
 ################################################################################
-def removeAnnotations(element, namespace):
+def removeAnnotations(element):
     "Remove annotations of the current element"
     
     #check if the first child is an annotation and delete it
     if(len(list(element)) != 0):
-        if (element[0].tag == "{0}annotation".format(namespace)):
+        if (element[0].tag == "{0}annotation".format(LXML_SCHEMA_NAMESPACE)):
             element.remove(element[0])
 
 
@@ -253,12 +245,11 @@ def removeAnnotations(element, namespace):
 ################################################################################
 def generateSequence(request, element, fullPath, xmlTree, choiceInfo=None):
     #(annotation?,(element|group|choice|sequence|any)*)
-    defaultNamespace = request.session['defaultNamespaceExplore']
     
     formString = ""
     
     # remove the annotations
-    removeAnnotations(element, defaultNamespace)
+    removeAnnotations(element)
     
     if choiceInfo:
         if (choiceInfo.counter > 0):
@@ -269,17 +260,17 @@ def generateSequence(request, element, fullPath, xmlTree, choiceInfo=None):
         formString += "<ul>"
     
     # generates the sequence
-    if(len(list(element)) != 0):
+    if len(list(element)) != 0:
         for child in element:
-            if (child.tag == "{0}element".format(defaultNamespace)):            
+            if child.tag == "{0}element".format(LXML_SCHEMA_NAMESPACE):
                 formString += generateElement(request, child, fullPath, xmlTree, choiceInfo)
-            elif (child.tag == "{0}sequence".format(defaultNamespace)):
+            elif child.tag == "{0}sequence".format(LXML_SCHEMA_NAMESPACE):
                 formString += generateSequence(request, child, fullPath, xmlTree, choiceInfo)
-            elif (child.tag == "{0}choice".format(defaultNamespace)):
+            elif child.tag == "{0}choice".format(LXML_SCHEMA_NAMESPACE):
                 formString += generateChoice(request, child, fullPath, xmlTree, choiceInfo)
-            elif (child.tag == "{0}any".format(defaultNamespace)):
+            elif child.tag == "{0}any".format(LXML_SCHEMA_NAMESPACE):
                 pass
-            elif (child.tag == "{0}group".format(defaultNamespace)):
+            elif child.tag == "{0}group".format(LXML_SCHEMA_NAMESPACE):
                 pass
     
     formString += "</ul>"
@@ -303,12 +294,10 @@ def generateChoice(request, element, fullPath, xmlTree, choiceInfo=None):
     #(annotation?,(element|group|choice|sequence|any)*)
     nbChoicesID = int(request.session['nbChoicesIDExplore'])
     
-    defaultNamespace = request.session['defaultNamespaceExplore']    
-    
     formString = ""
     
     #remove the annotations
-    removeAnnotations(element, defaultNamespace) 
+    removeAnnotations(element)
     
     if choiceInfo:
         if (choiceInfo.counter > 0):
@@ -326,42 +315,42 @@ def generateChoice(request, element, fullPath, xmlTree, choiceInfo=None):
     
     nbSequence = 1
     # generates the choice
-    if(len(list(element)) != 0):
+    if len(list(element)) != 0:
         for child in element:
-            if (child.tag == "{0}element".format(defaultNamespace)):            
+            if child.tag == "{0}element".format(LXML_SCHEMA_NAMESPACE):
                 name = child.attrib.get('name')
                 if name is None:
                     name = child.attrib.get('ref')
                 formString += "<option value='" + name + "'>" + name + "</option></b><br>"
-            elif (child.tag == "{0}group".format(defaultNamespace)):
+            elif child.tag == "{0}group".format(LXML_SCHEMA_NAMESPACE):
                 pass
-            elif (child.tag == "{0}choice".format(defaultNamespace)):
+            elif child.tag == "{0}choice".format(LXML_SCHEMA_NAMESPACE):
                 pass
-            elif (child.tag == "{0}sequence".format(defaultNamespace)):
+            elif child.tag == "{0}sequence".format(LXML_SCHEMA_NAMESPACE):
                 formString += "<option value='sequence" + str(nbSequence) + "'>Sequence " + str(nbSequence) + "</option></b><br>"
                 nbSequence += 1
-            elif (child.tag == "{0}any".format(defaultNamespace)):
+            elif child.tag == "{0}any".format(LXML_SCHEMA_NAMESPACE):
                 pass
 
     formString += "</select>"
     
     for (counter, choiceChild) in enumerate(list(element)):
-        if choiceChild.tag == "{0}element".format(defaultNamespace):
+        if choiceChild.tag == "{0}element".format(LXML_SCHEMA_NAMESPACE):
             formString += generateElement(request, choiceChild, fullPath, xmlTree, common.ChoiceInfo(chooseIDStr,counter))
-        elif (choiceChild.tag == "{0}group".format(defaultNamespace)):
+        elif choiceChild.tag == "{0}group".format(LXML_SCHEMA_NAMESPACE):
             pass
-        elif (choiceChild.tag == "{0}choice".format(defaultNamespace)):
+        elif choiceChild.tag == "{0}choice".format(LXML_SCHEMA_NAMESPACE):
             pass
-        elif (choiceChild.tag == "{0}sequence".format(defaultNamespace)):
+        elif choiceChild.tag == "{0}sequence".format(LXML_SCHEMA_NAMESPACE):
             formString += generateSequence(request, choiceChild, fullPath, xmlTree, common.ChoiceInfo(chooseIDStr,counter))
-        elif (choiceChild.tag == "{0}any".format(defaultNamespace)):
+        elif choiceChild.tag == "{0}any".format(LXML_SCHEMA_NAMESPACE):
             pass
-                                  
-    
+
     formString += "</li>"
     formString += "</ul>"
     
     return formString
+
 
 ################################################################################
 # 
@@ -371,7 +360,6 @@ def generateChoice(request, element, fullPath, xmlTree, choiceInfo=None):
 #                elementName - name of the XML element
 #                elementType - type of the XML element
 #                xmlTree - XML Tree
-#                namespace - namespace
 # Outputs:       HTML string representing a sequence
 # Exceptions:    None
 # Description:   Generates a section of the form that represents an XML choice
@@ -379,27 +367,26 @@ def generateChoice(request, element, fullPath, xmlTree, choiceInfo=None):
 ################################################################################
 def generateSimpleType(request, element, elementName, elementType, fullPath, xmlTree):
     #(annotation?,(restriction|list|union))
-    
-    defaultNamespace = request.session['defaultNamespaceExplore']  
-    
+
     # build the path to element to be used in the query
     fullPath += "." + elementName
     
     formString = ""
 
     # remove the annotations
-    removeAnnotations(elementType, defaultNamespace)    
+    removeAnnotations(elementType)
     
     if(len(list(elementType)) != 0):
         child = elementType[0] 
-        if child.tag == "{0}restriction".format(defaultNamespace):
+        if child.tag == "{0}restriction".format(LXML_SCHEMA_NAMESPACE):
             formString += generateRestriction(request, child, fullPath, elementName, xmlTree)
-        elif child.tag == "{0}list".format(defaultNamespace):
+        elif child.tag == "{0}list".format(LXML_SCHEMA_NAMESPACE):
             formString += "<li>" + elementName + "</li>"
-        elif child.tag == "{0}union".format(defaultNamespace):
+        elif child.tag == "{0}union".format(LXML_SCHEMA_NAMESPACE):
             pass
     
     return formString 
+
 
 ################################################################################
 # 
@@ -414,14 +401,13 @@ def generateSimpleType(request, element, elementName, elementType, fullPath, xml
 # 
 ################################################################################
 def generateRestriction(request, element, fullPath, elementName, xmlTree):
-    defaultNamespace = request.session['defaultNamespaceExplore']  
     mapTagIDElementInfo = request.session['mapTagIDElementInfoExplore']
     
     elementID = len(mapTagIDElementInfo.keys()) 
     
     formString = ""
     
-    enumChildren = element.findall("{0}enumeration".format(defaultNamespace))
+    enumChildren = element.findall("{0}enumeration".format(LXML_SCHEMA_NAMESPACE))
     if len(enumChildren) > 0:
         formString += "<li id='" + str(elementID) + "'>" + elementName + " <input type='checkbox'>" + "</li>"
         elementInfo = ElementInfo("enum",fullPath[1:])
@@ -432,7 +418,7 @@ def generateRestriction(request, element, fullPath, elementName, xmlTree):
             listChoices.append(enumChild.attrib['value'])
         request.session['mapEnumIDChoicesExplore'][elementID] = listChoices
     else:
-        simpleType = element.find('{0}simpleType'.format(defaultNamespace))
+        simpleType = element.find('{0}simpleType'.format(LXML_SCHEMA_NAMESPACE))
         if simpleType is not None:
             formString += generateSimpleType(request, element, elementName, simpleType, fullPath, xmlTree)
         else:
@@ -486,40 +472,38 @@ def generateExtension(request, element, fullPath, elementName):
 # 
 ################################################################################
 def generateComplexType(request, elementType, elementName, fullPath, xmlTree):
-    defaultNamespace = request.session['defaultNamespaceExplore']    
-    
     # build the path to element to be used in the query
     fullPath += "." + elementName
     
     formString = ""
     
     # remove the annotations
-    removeAnnotations(elementType, defaultNamespace)
+    removeAnnotations(elementType)
     
     # TODO: does it contain attributes ?
     
     # does it contain sequence or all?
-    complexTypeChild = elementType.find('{0}sequence'.format(defaultNamespace))
+    complexTypeChild = elementType.find('{0}sequence'.format(LXML_SCHEMA_NAMESPACE))
     if complexTypeChild is not None:
         formString += "<li>" + elementName
         formString += generateSequence(request, complexTypeChild, fullPath, xmlTree)
         formString += "</li>"
     else:
-        complexTypeChild = elementType.find('{0}all'.format(defaultNamespace))
+        complexTypeChild = elementType.find('{0}all'.format(LXML_SCHEMA_NAMESPACE))
         if complexTypeChild is not None:
             formString += "<li>" + elementName
             formString += generateSequence(request, complexTypeChild, fullPath, xmlTree)
             formString += "</li>"
         else:
             # does it contain choice ?
-            complexTypeChild = elementType.find('{0}choice'.format(defaultNamespace))
+            complexTypeChild = elementType.find('{0}choice'.format(LXML_SCHEMA_NAMESPACE))
             if complexTypeChild is not None:
                 formString += "<li>" + elementName
                 formString += generateChoice(request, complexTypeChild, fullPath, xmlTree)
                 formString += "</li>"
             else:
                 # does it contain a simple content ?
-                complexTypeChild = elementType.find('{0}simpleContent'.format(defaultNamespace))
+                complexTypeChild = elementType.find('{0}simpleContent'.format(LXML_SCHEMA_NAMESPACE))
                 if complexTypeChild is not None:
                     return generateSimpleContent(request, complexTypeChild, fullPath, elementName)
                 else:
@@ -543,19 +527,17 @@ def generateComplexType(request, elementType, elementName, fullPath, xmlTree):
 def generateSimpleContent(request, element, fullPath, elementName):
     #(annotation?,(restriction|extension))
     
-    defaultNamespace = request.session['defaultNamespaceExplore']
-    
     formString = ""
     
     # remove the annotations
-    removeAnnotations(element, defaultNamespace)
+    removeAnnotations(element)
     
     # generates the sequence
     if(len(list(element)) != 0):
         child = element[0]    
-        if (child.tag == "{0}restriction".format(defaultNamespace)):            
+        if (child.tag == "{0}restriction".format(LXML_SCHEMA_NAMESPACE)):
             formString += generateRestriction(request, child, fullPath, elementName)
-        elif (child.tag == "{0}extension".format(defaultNamespace)):
+        elif (child.tag == "{0}extension".format(LXML_SCHEMA_NAMESPACE)):
             formString += generateExtension(request, child, fullPath, elementName)
     
     return formString
@@ -574,13 +556,12 @@ def generateSimpleContent(request, element, fullPath, elementName):
 ################################################################################
 def generateElement(request, element, fullPath, xmlTree, choiceInfo=None):
     # get the variables in session
-    defaultNamespace = request.session['defaultNamespaceExplore']    
     defaultPrefix = request.session['defaultPrefixExplore']
     
     formString = ""
 
     # remove the annotations
-    removeAnnotations(element, defaultNamespace)
+    removeAnnotations(element)
 
     # type is a reference included in the document
     if 'ref' in element.attrib: 
@@ -590,19 +571,19 @@ def generateElement(request, element, fullPath, xmlTree, choiceInfo=None):
             refSplit = ref.split(":")
             refNamespacePrefix = refSplit[0]
             refName = refSplit[1]
-            namespaces = request.session['namespaces']
+            # namespaces = request.session['namespaces']
             # refNamespace = namespaces[refNamespacePrefix]
             # TODO: manage namespaces/targetNamespaces, composed schema with different target namespaces
             # element = xmlTree.findall("./{0}element[@name='"+refName+"']".format(refNamespace))
-            refElement = xmlTree.find("./{0}element[@name='{1}']".format(defaultNamespace, refName))
+            refElement = xmlTree.find("./{0}element[@name='{1}']".format(LXML_SCHEMA_NAMESPACE, refName))
         else:
-            refElement = xmlTree.find("./{0}element[@name='{1}']".format(defaultNamespace, ref))
+            refElement = xmlTree.find("./{0}element[@name='{1}']".format(LXML_SCHEMA_NAMESPACE, ref))
                 
         if refElement is not None:
             textCapitalized = refElement.attrib.get('name')            
             element = refElement
             # remove the annotations
-            removeAnnotations(element, defaultNamespace)
+            removeAnnotations(element)
     else:
         textCapitalized = element.attrib.get('name')
         
@@ -618,7 +599,7 @@ def generateElement(request, element, fullPath, xmlTree, choiceInfo=None):
     if 'type' not in element.attrib:           
         # if tag not closed:  <element/>
         if len(list(element)) > 0 :
-            if (element[0].tag == "{0}complexType".format(defaultNamespace)):
+            if (element[0].tag == "{0}complexType".format(LXML_SCHEMA_NAMESPACE)):
                 formString += generateComplexType(request, element[0], textCapitalized, fullPath, xmlTree)
             else:                     
                 formString += generateSimpleType(request, element, textCapitalized, element[0], fullPath, xmlTree)
@@ -638,16 +619,16 @@ def generateElement(request, element, fullPath, xmlTree, choiceInfo=None):
         typeName = element.attrib.get('type')
         if ':' in typeName:
             typeName = typeName.split(":")[1]
-        xpath = "./{0}complexType[@name='{1}']".format(defaultNamespace,typeName)
+        xpath = "./{0}complexType[@name='{1}']".format(LXML_SCHEMA_NAMESPACE, typeName)
         elementType = xmlTree.find(xpath)
         if elementType is None:
             # type of the element is simple
-            xpath = "./{0}simpleType[@name='{1}']".format(defaultNamespace,typeName)
+            xpath = "./{0}simpleType[@name='{1}']".format(LXML_SCHEMA_NAMESPACE, typeName)
             elementType = xmlTree.find(xpath)                        
         if elementType is not None:
-            if elementType.tag == "{0}complexType".format(defaultNamespace):
+            if elementType.tag == "{0}complexType".format(LXML_SCHEMA_NAMESPACE):
                 formString += generateComplexType(request, elementType, textCapitalized, fullPath, xmlTree) 
-            elif elementType.tag == "{0}simpleType".format(defaultNamespace):                
+            elif elementType.tag == "{0}simpleType".format(LXML_SCHEMA_NAMESPACE):
                 formString += generateSimpleType(request, element, textCapitalized, elementType, fullPath, xmlTree)
 
     formString += "</ul>"
@@ -664,7 +645,6 @@ def generateElement(request, element, fullPath, xmlTree, choiceInfo=None):
 ################################################################################
 def generateForm(request):
     print 'BEGIN def generateForm(request)'    
-    
 
     xmlDocTreeStr = request.session['xmlDocTreeExplore']
     xmlDocTree = etree.fromstring(xmlDocTreeStr)
@@ -678,9 +658,8 @@ def generateForm(request):
     request.session['nbChoicesIDExplore'] = '0'
     
     formString = ""   
-        
-    defaultNamespace = request.session['defaultNamespaceExplore'] 
-    elements = xmlDocTree.findall("./{0}element".format(defaultNamespace))
+
+    elements = xmlDocTree.findall("./{0}element".format(LXML_SCHEMA_NAMESPACE))
 
     try:
         if len(elements) == 1:
@@ -720,13 +699,11 @@ def generate_xsd_tree_for_querying_data(request):
     
     # get the namespaces of the schema and the default prefix
     xmlDocTree = etree.fromstring(xmlDocTreeStr)
-    defaultNamespace = "http://www.w3.org/2001/XMLSchema"
+
     for prefix, url in xmlDocTree.nsmap.iteritems():
-        if (url == defaultNamespace):            
+        if url == SCHEMA_NAMESPACE:
             request.session['defaultPrefixExplore'] = prefix
             break
-    defaultNamespace = "{" + defaultNamespace + "}"
-    request.session['defaultNamespaceExplore'] = defaultNamespace
     
     if xmlDocTreeStr == "":
         setCurrentTemplate(request, templateID)        
@@ -1498,19 +1475,17 @@ def checkQueryForm(request, htmlTree):
     else:
         xmlDocTreeStr = request.session['xmlDocTreeExplore']
         xmlDocTree = etree.fromstring(xmlDocTreeStr)
-        
-        defaultNamespace = "http://www.w3.org/2001/XMLSchema"
+
         for prefix, url in xmlDocTree.nsmap.iteritems():
-            if (url == defaultNamespace):            
+            if url == SCHEMA_NAMESPACE:
                 request.session['defaultPrefixExplore'] = prefix
                 defaultPrefix = prefix
                 break
-        
-    
+
     # check if there are no errors in the query
     errors = []
     fields = htmlTree.findall("./p")
-    if (len(mapCriterias) != len(fields)):
+    if len(mapCriterias) != len(fields):
         errors.append("Some fields are empty !")
     else:
         for field in fields:

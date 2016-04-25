@@ -1,0 +1,27 @@
+{
+  "tag": "simple_type",
+  "value": null,
+  "children": [
+    {
+      "tag": "restriction",
+      "options": {
+        "base": "xs:string"
+      },
+      "value": "child_1",
+      "children": [
+        {
+          "tag": "enumeration",
+          "value": "child_0"
+        },
+        {
+          "tag": "enumeration",
+          "value": "child_1"
+        },
+        {
+          "tag": "enumeration",
+          "value": "child_2"
+        }
+      ]
+    }
+  ]
+}

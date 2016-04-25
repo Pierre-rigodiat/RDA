@@ -1,7 +1,0 @@
-<simpleType name="element0">
-    <restriction base="string">
-        <enumeration value="child_0"/>
-        <enumeration value="child_1"/>
-        <enumeration value="child_2"/>
-    </restriction>
-</simpleType>

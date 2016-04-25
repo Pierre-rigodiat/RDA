@@ -1,5 +1,5 @@
 <root>
-    <child_0>string0</child_0>
-    <child_0>string1</child_0>
-    <child_0>string2</child_0>
+    <a>str0</a>
+    <a>str1</a>
+    <a>str2</a>
 </root>

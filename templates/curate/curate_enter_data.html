@@ -51,8 +51,8 @@
     	<button class="btn save-form"><i class="icon-hdd"></i> Save Form </button>
     	<button class="btn download"><i class="icon-arrow-down"></i> Download </button>
 	</div>
-<br/><br/>
-<div id="xsdForm"></div>
+    <br/><br/>
+    <div id="xsdForm"></div>
 </div>
 {% endblock %}
 
@@ -105,10 +105,10 @@
 
 <div id="dialog-saved-message" title="Form Saved" style="display:none;">
 <p></p>
-  <p>
-    <span class="ui-icon ui-icon-circle-check" style="float:left; margin:0 7px 10px 0;"></span>
-    Form saved with success.
-  </p>
+    <p>
+        <i class="fa fa-check-circle"></i>
+        Form saved with success.
+    </p>
 </div>
 
 <div id="dialog-download-options" title="Download Options" style="display:none;">
@@ -146,6 +146,11 @@ Some <span style="color:red;">required</span> or <span style="color:blue;">recom
 <script src="{% static 'inc/controllers/js/XMLTreeCurator.js' %}"></script>
 <script src="{% static 'inc/controllers/js/modules.js' %}"></script>
 <script src="{% static 'inc/controllers/js/curate.js' %}"></script>
+{# New curate javascript for adding / removing element #}
+<script src="{% static 'js/form/buttons.js' %}"></script>
+<script src="{% static 'js/form/autosave.js' %}"></script>
+<script src="{% static 'js/form/choice.js' %}"></script>
+<script src="{% static 'js/toolbar.js' %}"></script>
 <script>
 verifyTemplateIsSelectedCurateEnterData();
 </script>

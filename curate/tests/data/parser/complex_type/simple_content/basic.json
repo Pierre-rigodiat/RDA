@@ -1,0 +1,51 @@
+{
+  "tag": "complex_type",
+  "children": [
+    {
+      "tag": "simple_content",
+      "children": [
+        {
+          "tag": "extension",
+          "children": [
+            {
+              "tag": "attribute",
+              "options": {
+                "xpath": {
+                  "xml": "/@attr0",
+                  "xsd": "/xs:schema/xs:complexType/xs:simpleContent/xs:extension/xs:attribute"
+                },
+                "max": 1,
+                "name": "attr0",
+                "module": null,
+                "min": 1,
+                "ns_prefix": null,
+                "xmlns": null,
+                "schema_location": null
+              },
+              "value": null,
+              "children": [
+                {
+                  "tag": "elem-iter",
+                  "children": [
+                    {
+                      "tag": "input",
+                      "value": ""
+                    }
+                  ],
+                  "value": null
+                }
+              ]
+            },
+            {
+              "tag": "input",
+              "value": ""
+            }
+          ],
+          "value": null
+        }
+      ],
+      "value": null
+    }
+  ],
+  "value": null
+}

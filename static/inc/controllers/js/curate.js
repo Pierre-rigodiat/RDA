@@ -2,7 +2,7 @@
  * 
  * File Name: curate.js
  * Author: Sharief Youssef
- * 		   sharief.youssef@nist.gov
+ *            sharief.youssef@nist.gov
  *
  *        Guillaume SOUSA AMARAL
  *        guillaume.sousa@nist.gov
@@ -69,7 +69,7 @@ enterDataError = function()
         $( "#dialog-enter-error-message" ).dialog({
             modal: true,
             buttons: {
-            	Ok: function() {
+                Ok: function() {
                     $( this ).dialog( "close" );
                 }
             }
@@ -86,7 +86,7 @@ viewDataError = function()
         $( "#dialog-view-error-message" ).dialog({
             modal: true,
             buttons: {
-            	Ok: function() {
+                Ok: function() {
                     $( this ).dialog( "close" );
                 }
             }
@@ -131,17 +131,17 @@ clearFields = function()
         $( "#dialog-cleared-message" ).dialog({
             modal: true,
             buttons: {
-            	Clear: function() {
-            		clear_fields();
+                Clear: function() {
+                    clear_fields();
                     $( this ).dialog( "close" );
                 },
                 Cancel: function() {
                     $( this ).dialog( "close" );
                 }
-	    }
+        }
         });
     });
-	
+
     console.log('END [clearFields]');
 }
 
@@ -156,65 +156,19 @@ clear_fields = function(){
         dataType: "json",
         success: function(data){
             $("#xsdForm").html(data.xsdForm);
-        }
-    });
-}
 
-
-/**
- * Save the current form. Show the window.
- */
-saveForm = function()
-{
-    console.log('BEGIN [saveForm]');
-
-    $(function() {
-        $( "#dialog-save-form-message" ).dialog({
-            modal: true,
-            buttons: {
-				Save: function() {				 
-					$( this ).dialog( "close" );
-					var rootElement = document.getElementsByName("xsdForm")[0];
-					var xmlString = '';
-				    xmlString = generateXMLString (rootElement);
-					save_form(xmlString);
-                },
-			Cancel: function() {
-                    $( this ).dialog( "close" );
-                }
-            }
-        });
-    });
-	
-    console.log('END [saveForm]');
-}
-
-
-/**
- * AJAX call, saves the current form 
- * @param xmlString xml string to save
- */
-save_form = function(xmlString){
-    $.ajax({
-        url : "/curate/save_form",
-        type : "POST",
-        dataType: "json",
-        data : {
-        	xmlString : xmlString,
-        },
-        success: function(data){
-        	$( "#dialog-saved-message" ).dialog({
-            modal: true,
-            buttons: {
-    		Ok: function() {
-                        $( this ).dialog( "close" );
-                    }
-    	    	}
+            $('link.module').each(function(index, item) {
+                item.remove();
             });
+
+            $('script.module').each(function(index, item) {
+                item.remove();
+            });
+
+            initModules();
         }
     });
 }
-
 
 /**
  * Displays the current data to be curated
@@ -222,15 +176,6 @@ save_form = function(xmlString){
 viewData = function()
 {
     console.log('BEGIN [viewData]');
-
-    var rootElement = document.getElementsByName("xsdForm")[0];
-
-    // Need to Set input values explicitiy before sending innerHTML for save
-    var elems = document.getElementsByName("xsdForm")[0].getElementsByTagName("input");
-    for(var i = 0; i < elems.length; i++) {
-	// sent attribute to property value
-	elems[i].setAttribute("value", elems[i].value);
-    }
 
     formContent = document.getElementById('xsdForm').innerHTML
     view_data(formContent);
@@ -263,159 +208,35 @@ view_data = function(formContent){
  */
 validateXML = function()
 {
-	var rootElement = document.getElementsByName("xsdForm")[0];
-	var xmlString = '';
-
-    xmlString = generateXMLString (rootElement);
-    
-    $("input:text").each(function(){
-	    $(this).attr("value", $(this).val());
-	});
-	$('select option').each(function(){ this.defaultSelected = this.selected; });
-	$("input:checkbox:not(:checked)").each(function(){
-	    
-	    $(this).removeAttr("checked");
-	});
-	$("input:checkbox:checked").each(function(){
-    
-	    $(this).attr("checked", true);
-	});
-	$("textarea").each(function(){
-	    $(this).text($(this).val());
-	});
-
-	
-    xsdForm = $('#xsdForm').html();
-    validate_xml_data(xmlString, xsdForm);
-}
-
-
-/**
- * AJAX call, send the XML String to the server for validation
- * @param xmlString XML String generated from the HTML form
- * @param xsdForm HTML form
- */
-validate_xml_data = function(xmlString, xsdForm){
     $.ajax({
         url : "/curate/validate_xml_data",
         type : "POST",
         dataType: "json",
-        data : {
+        /*data : {
             xmlString : xmlString,
             xsdForm: xsdForm
-        },
+        },*/
         success: function(data){
             if ('errors' in data){
                  $("#saveErrorMessage").html(data.errors);
                 saveXMLDataToDBError();
-            }else{
-            	useErrors = checkElementUse();
-            	if (useErrors.length > 0){
-            		useErrosAndView(useErrors);
-            	}else{
-            		viewData();
-            	}
+            } else {
+                useErrors = checkElementUse();
+
+                if (useErrors.length > 0) {
+                    useErrosAndView(useErrors);
+                } else {
+                    viewData();
+                }
             }
         }
     });
 }
 
 
-/**
- * Generate an XML String from values entered in the form.
- * @param elementObj
- * @returns {String}
- */
-generateXMLString = function(elementObj)
-{
-    var xmlString="";
-
-    var children = $(elementObj).children();
-    for(var i = 0; i < children.length; i++) {
-	    if (children[i].tagName == "UL") {
-	    	// don't generate branches not chosen
-	    	if (! $(children[i]).hasClass("notchosen") ) {
-	    		xmlString += generateXMLString(children[i]);
-	    	}
-		} else if (children[i].tagName == "LI") {
-			// don't generate removed branches/leaves
-			if (! $(children[i]).hasClass("removed") ) {
-				if($(children[i]).hasClass("choice") ) { // the node is a choice
-					xmlString += generateXMLString(children[i]);
-				}else if ($(children[i]).hasClass("sequence") ) { // the node is a sequence
-					xmlString += generateXMLString(children[i]);
-				}else if ($(children[i]).hasClass("element") ){ // the node is an element				
-					var tag = $(children[i]).attr('tag');
-					
-					// get attributes
-					var attributes = ""
-					$(children[i]).children("ul").children("li.attribute:not(.removed)").each(function(){
-						var attr_tag = $(this).attr('tag');
-										
-						attrChildren = $(this).children();					
- 
-						var value= ""
-						for(var j = 0; j < attrChildren.length; j++) {
-							if (attrChildren[j].tagName == "SELECT") {
-							    // get the index of the selected option 
-							    var idx = attrChildren[j].selectedIndex;
-							    if (idx >= 0){
-								    // get the value of the selected option 		    
-								    value = attrChildren[j].options[idx].value; 
-							    }
-							} else if (attrChildren[j].tagName == "INPUT") {
-								value = attrChildren[j].value;
-							} else if (attrChildren[j].tagName == "DIV" && $(attrChildren[j]).hasClass("module") ){
-								value += $($(attrChildren[j]).parent()).find(".moduleResult").text();		
-							} 
-						}						
-						attributes += " " + attr_tag + "='" + value + "'";
-					});
-										
-					// build the tag with its value
-					xml_value = generateXMLString(children[i]);
-					if ($(children[i]).children('div.module').length != 0 && xml_value.match("^<" + tag)){
-						// if the module returns the tag, replace the tag
-						xmlString += xml_value;
-					}else{
-						// build opening tag with potential attributes
-						xmlString += "<" + tag + attributes + ">";
-						// build opening tag with potential attributes
-						xmlString += xml_value;
-						// build the closing tag
-					    xmlString += "</" + tag + ">";
-					}
-				}			    	
-			}
-		} else if (children[i].tagName == "DIV" && $(children[i]).hasClass("module") ){
-//			console.log(children[i]);
-			xmlString += $($(children[i]).parent()).find(".moduleResult").text();
-		} else if (children[i].tagName == "SELECT") {
-		    // get the index of the selected option 
-		    var idx = children[i].selectedIndex; 
-		    
-		    if (idx >= 0){
-			    // get the value of the selected option 		    
-			    var which = children[i].options[idx].value;
-			    
-			    if (children[i].getAttribute("id") != null && children[i].getAttribute("id").indexOf("choice") > -1){
-				    // choice
-			    	xmlString += generateXMLString(children[i]);
-			    }else { 
-			    	// enumeration
-			    	xmlString += which;
-			    }
-		    }
-		} else if (children[i].tagName == "INPUT") { // the node is an input
-		    xmlString += children[i].value;
-		}  else {
-		    xmlString += generateXMLString(children[i]);
-		}
-    }
-
-    return xmlString    
+function onlyUnique(value, index, self) {
+    return self.indexOf(value) === index;
 }
-
 
 
 /**
@@ -431,31 +252,31 @@ changeChoice = function(selectObj)
 
     // change the displayed choice
     for (i=0; i < selectObj.options.length;i++) {
-    	if (i == idx){
-    		$("#" + selectObj.id + "-" + i).removeAttr("class");
-		} else {
-			$("#" + selectObj.id + "-" + i).attr("class","notchosen");
-		}
+        if (i == idx){
+            $("#" + selectObj.id + "-" + i).removeAttr("class");
+        } else {
+            $("#" + selectObj.id + "-" + i).attr("class","notchosen");
+        }
     }
     // the choice is not yet generated
     if ($("#" + selectObj.id + "-" + idx).children().length == 0){
         // save values in the form
         $("input:text").each(function(){
-    	    $(this).attr("value", $(this).val());
-    	});
-    	$('select option').each(function(){ this.defaultSelected = this.selected; });
-    	$("input:checkbox:not(:checked)").each(function(){
-    	    
-    	    $(this).removeAttr("checked");
-    	});
-    	$("input:checkbox:checked").each(function(){
+            $(this).attr("value", $(this).val());
+        });
+        $('select option').each(function(){ this.defaultSelected = this.selected; });
+        $("input:checkbox:not(:checked)").each(function(){
+
+            $(this).removeAttr("checked");
+        });
+        $("input:checkbox:checked").each(function(){
         
-    	    $(this).attr("checked", true);
-    	});
-    	$("textarea").each(function(){
-    	    $(this).text($(this).val());
-    	});
-	    // generate selected choice
+            $(this).attr("checked", true);
+        });
+        $("textarea").each(function(){
+            $(this).text($(this).val());
+        });
+        // generate selected choice
         generate(selectObj.id.substr(6) + "-" + idx, "choice");
     }
 
@@ -468,20 +289,17 @@ changeChoice = function(selectObj)
  */
 displayTemplateSelectedDialog = function()
 {
- $(function() {
-    $( "#dialog-message" ).dialog({
-      modal: true,
-      buttons:
-    	  [
-           {
-               text: "Start",
-               click: function() {            	   
-            	   displayTemplateProcess();
-               }
-           }
-          ]
+    $(function() {
+        $( "#dialog-message" ).dialog({
+            modal: true,
+            buttons: [{
+                text: "Start",
+                click: function() {
+                    displayTemplateProcess();
+                }
+            }]
+        });
     });
-  });
 }
 
 /**
@@ -508,7 +326,7 @@ displayTemplateProcess = function ()
                     $("#banner_errors").show(500)
                     return (false);
                 }else{
-                    return (true)
+                    return (true);
                 }
             },
         })
@@ -556,7 +374,7 @@ verifyTemplateIsSelectedCurateEnterDataCallback = function(templateSelected)
     if (templateSelected == 'no') {
         location.href = "/curate";
     }else{
-    	loadCurrentTemplateFormForCuration();
+        loadCurrentTemplateFormForCuration();
     }
 
     console.log('END [verifyTemplateIsSelectedCallback]');
@@ -571,7 +389,7 @@ loadCurrentTemplateFormForCuration = function()
     console.log('BEGIN [loadCurrentTemplateFormForCuration]');
 
     $('.btn.clear-fields').on('click', clearFields);
-    $('.btn.save-form').on('click', saveForm);
+    //$('.btn.save-form').on('click', saveForm);
     $('.btn.download').on('click', downloadOptions);
 
     generate_xsd_form();
@@ -623,8 +441,8 @@ verifyTemplateIsSelectedViewDataCallback = function(data)
     if (data.templateSelected == 'no') {
         location.href = "/curate";
     }else{
-    	loadCurrentTemplateView();
-    	load_xml();
+        loadCurrentTemplateView();
+        load_xml();
     }
 
     console.log('END [verifyTemplateIsSelectedCallback]');
@@ -697,14 +515,7 @@ downloadXML = function()
  * AJAX call, get XML data and redirects to download view
  */
 download_xml = function(){
-    $.ajax({
-        url : "/curate/download_xml",
-        type : "GET",
-        dataType: "json",
-        success : function(data) {
-            window.location = "/curate/view-data/download-XML?id="+ data.xml2downloadID
-        }
-    });
+    window.location = '/curate/download_xml';
 }
 
 
@@ -733,33 +544,9 @@ downloadCurrentXML = function()
 {
     console.log('BEGIN [downloadCurrentXML]');
 
-	var rootElement = document.getElementsByName("xsdForm")[0];
-	var xmlString = '';
-
-    xmlString = generateXMLString (rootElement);   
-    
-    download_current_xml(xmlString);
+    window.location = '/curate/enter-data/download_current_xml'
 
     console.log('END [downloadCurrentXML]');
-}
-
-
-/**
- * AJAX call, download XML document in its current form
- */
-download_current_xml = function(xmlString){
-    $.ajax({
-        url : "/curate/enter-data/download_current_xml",
-        type : "POST",
-        dataType: "json",
-        data:{
-        	xmlString: xmlString
-        },
-        success : function(data) {
-        	window.location = "/curate/view-data/download-XML?id="+ data.xml2downloadID
-        	$("#dialog-download-options").dialog("close");
-        }
-    });
 }
 
 
@@ -775,7 +562,7 @@ saveToRepository = function()
         $( "#dialog-save-data-message" ).dialog({
           modal: true,
           buttons:
-        	  [
+              [
                {
                    text: "Save",
                    click: function() {            	   
@@ -787,7 +574,7 @@ saveToRepository = function()
         });
       });
     
-	
+
     console.log('END [saveToRepository]');
 }
 
@@ -833,13 +620,13 @@ XMLDataSaved = function()
         $( "#dialog-saved-message" ).dialog({
             modal: true,
             close: function(){
-            	window.location = "/curate"
+                window.location = "/curate"
             },
             buttons: {
-            	Ok: function() {
+                Ok: function() {
                     $( this ).dialog( "close" );                    
                 }
-	    }
+            }
         });
     });
     
@@ -858,9 +645,9 @@ saveXMLDataToDBError = function()
         $( "#dialog-save-error-message" ).dialog({
             modal: true,
             buttons: {
-            	Ok: function(){
-            		$(this).dialog("close");
-            	}
+                Ok: function(){
+                    $(this).dialog("close");
+                }
             }
         });
     });
@@ -881,20 +668,20 @@ changeHTMLForm = function(operation, tagID)
     
     // save values in the form
     $("input:text").each(function(){
-	    $(this).attr("value", $(this).val());
-	});
-	$('select option').each(function(){ this.defaultSelected = this.selected; });
-	$("input:checkbox:not(:checked)").each(function(){
-	    
-	    $(this).removeAttr("checked");
-	});
-	$("input:checkbox:checked").each(function(){
+        $(this).attr("value", $(this).val());
+    });
+    $('select option').each(function(){ this.defaultSelected = this.selected; });
+    $("input:checkbox:not(:checked)").each(function(){
+
+        $(this).removeAttr("checked");
+    });
+    $("input:checkbox:checked").each(function(){
     
-	    $(this).attr("checked", true);
-	});
-	$("textarea").each(function(){
-	    $(this).text($(this).val());
-	});
+        $(this).attr("checked", true);
+    });
+    $("textarea").each(function(){
+        $(this).text($(this).val());
+    });
 
     if (operation == 'add') {
         // the element has to be created
@@ -910,8 +697,8 @@ changeHTMLForm = function(operation, tagID)
             duplicate(tagID);
         }
     } else if (operation == 'remove') {
-    	$("#element"+tagID).children(".collapse").attr("class","expand");
-		remove(tagID);
+        $("#element"+tagID).children(".collapse").attr("class","expand");
+        remove(tagID);
     }
 
     console.log('END [changeHTMLForm(' + operation + ')]');
@@ -960,35 +747,35 @@ duplicate = function(tagID){
             tagID : tagID,
         },
         success: function(data){
-        	if ('occurs' in data){
-        		if (data.occurs == "zero"){
-		            $('#add' + data.id).attr('style', data.styleAdd);
-		            $('#remove' + data.id).attr('style','');
-		            $("#" + data.tagID).prop("disabled",false);
-		            $("#" + data.tagID).children('select').prop("disabled",false);
-		            $("#" + data.tagID).removeClass("removed");
-		            $("#" + data.tagID).children("ul").attr('style','');
-		            if($("#element"+tagID).attr("class").split(" ").indexOf("choice") > -1 && $("#element"+tagID).children("ul").children().length == 0){ // choice element not generated
-		            	changeChoice($("#element"+tagID).children("select")[0]);
-		            }
-	            }
-	            else{
-	            	var xsdForm = $("#xsdForm").html();
-	            	
-	            	$.ajax({
-				        url : "/curate/duplicate",
-				        type : "POST",
-				        dataType: "json",
-				        data : {
-				            tagID : tagID,
-				            xsdForm: xsdForm
-				        },
-				        success: function(data){
-				        	$("#xsdForm").html(data.xsdForm);
-				        }
-        			});
-	            }
-        	}
+            if ('occurs' in data){
+                if (data.occurs == "zero"){
+                    $('#add' + data.id).attr('style', data.styleAdd);
+                    $('#remove' + data.id).attr('style','');
+                    $("#" + data.tagID).prop("disabled",false);
+                    $("#" + data.tagID).children('select').prop("disabled",false);
+                    $("#" + data.tagID).removeClass("removed");
+                    $("#" + data.tagID).children("ul").attr('style','');
+                    if($("#element"+tagID).attr("class").split(" ").indexOf("choice") > -1 && $("#element"+tagID).children("ul").children().length == 0){ // choice element not generated
+                        changeChoice($("#element"+tagID).children("select")[0]);
+                    }
+                }
+                else{
+                    var xsdForm = $("#xsdForm").html();
+
+                    $.ajax({
+                        url : "/curate/duplicate",
+                        type : "POST",
+                        dataType: "json",
+                        data : {
+                            tagID : tagID,
+                            xsdForm: xsdForm
+                        },
+                        success: function(data){
+                            $("#xsdForm").html(data.xsdForm);
+                        }
+                    });
+                }
+            }
         }
     });
 }
@@ -998,8 +785,8 @@ duplicate = function(tagID){
  * @param tagID HTML id of the element to disable
  */
 disable_element = function(tagID){
-	$("#" + tagID).children(".collapse").attr("class","expand");
-	$('#add' + tagID.substring(7)).attr('style','');
+    $("#" + tagID).children(".collapse").attr("class","expand");
+    $('#add' + tagID.substring(7)).attr('style','');
     $('#remove' + tagID.substring(7)).attr('style','display:none');
     $("#" + tagID).prop("disabled",true);
     $("#" + tagID).children('select').prop("disabled",true);
@@ -1011,9 +798,9 @@ disable_element = function(tagID){
  * @param tagID HTML id of the element to disable
  */
 disable_elements = function(){
-	$("#xsdForm").find(".removed").each(function(){
-		disable_element($(this).attr('id'));
-	});
+    $("#xsdForm").find(".removed").each(function(){
+        disable_element($(this).attr('id'));
+    });
 }
 
 /**
@@ -1029,30 +816,30 @@ $.ajax({
             tagID : tagID,
         },
         success: function(data){
-        	if ('occurs' in data){
-        		if (data.occurs == "zero"){
+            if ('occurs' in data){
+                if (data.occurs == "zero"){
                     $("#" + data.tagID).addClass("removed");
                     $('#add' + data.tagID.substring(7)).attr('style','');
                     $('#remove' + data.tagID.substring(7)).attr('style','display:none');
                     $("#" + data.tagID).prop("disabled",true);
                     $("#" + data.tagID).children('select').prop("disabled",true);
                     $("#" + data.tagID).children("ul").hide(500);
-        		}else{
-        			var xsdForm = $("#xsdForm").html();     			
-        			$.ajax({
-				        url : "/curate/remove",
-				        type : "POST",
-				        dataType: "json",
-				        data : {
-				            tagID : tagID,
-				            xsdForm: xsdForm
-				        },
-				        success: function(data){
-				        	$("#xsdForm").html(data.xsdForm);
-				        }
-        			});
-        		}
-        	}
+                }else{
+                    var xsdForm = $("#xsdForm").html();
+                    $.ajax({
+                        url : "/curate/remove",
+                        type : "POST",
+                        dataType: "json",
+                        data : {
+                            tagID : tagID,
+                            xsdForm: xsdForm
+                        },
+                        success: function(data){
+                            $("#xsdForm").html(data.xsdForm);
+                        }
+                    });
+                }
+            }
         }
     });
 }
@@ -1064,12 +851,12 @@ $.ajax({
  */
 setCurrentTemplate = function()
 {
-	var templateID = $(this).parent().parent().children(':first').attr('templateID');
-	var tdElement = $(this).parent();
-		
-	tdElement.html('<img src="/static/resources/img/ajax-loader.gif" alt="Loading..."/>');
-	$('.btn.set-template').off('click');
-	
+    var templateID = $(this).parent().parent().children(':first').attr('templateID');
+    var tdElement = $(this).parent();
+
+    tdElement.html('<img src="/static/resources/img/ajax-loader.gif" alt="Loading..."/>');
+    $('.btn.set-template').off('click');
+
     set_current_template(templateID);
 
     return false;
@@ -1102,12 +889,12 @@ set_current_template = function(templateID){
  */
 setCurrentUserTemplate = function()
 {
-	var templateName = $(this).parent().parent().children(':first').text();
-	var templateID = $(this).parent().parent().children(':first').attr('templateID');
-	var tdElement = $(this).parent();
-		
-	tdElement.html('<img src="/static/resources/img/ajax-loader.gif" alt="Loading..."/>');
-	$('.btn.set-template').off('click');
+    var templateName = $(this).parent().parent().children(':first').text();
+    var templateID = $(this).parent().parent().children(':first').attr('templateID');
+    var tdElement = $(this).parent();
+
+    tdElement.html('<img src="/static/resources/img/ajax-loader.gif" alt="Loading..."/>');
+    $('.btn.set-template').off('click');
 
     set_current_user_template(templateID);
 
@@ -1138,12 +925,12 @@ set_current_user_template = function(templateID){
  * AJAX call, loads the start curate form
  */
 load_start_form = function(){
-	$.ajax({
+    $.ajax({
         url : "/curate/start_curate",
         type : "GET",
         dataType: "json",
         data : {
-        	
+
         },
         success: function(data){
             $("#banner_errors").hide()
@@ -1181,7 +968,7 @@ enterKeyPressSubscription = function ()
  * Validate fields of the start curate form
  */
 validateStartCurate = function(){
-	errors = ""
+    var errors = "";
 
 	$("#banner_errors").hide()
 	// check if an option has been selected
@@ -1226,8 +1013,8 @@ setCurrentTemplateCallback = function()
     console.log('BEGIN [setCurrentTemplateCallback]');
 
     $('#template_selection').load(document.URL +  ' #template_selection', function() {
-    	loadTemplateSelectionControllers();
-    	displayTemplateSelectedDialog();
+        loadTemplateSelectionControllers();
+        displayTemplateSelectedDialog();
     });
 
     load_start_form();
@@ -1241,14 +1028,14 @@ setCurrentTemplateCallback = function()
  * @param formID
  */
 deleteForm = function(formID){
-	$(function() {
+    $(function() {
         $( "#dialog-delete-form" ).dialog({
             modal: true,
             buttons: {
-            	Cancel: function() {
+                Cancel: function() {
                     $( this ).dialog( "close" );
                 },
-            	Delete: function() {
+                Delete: function() {
                     delete_form(formID);
                     $( this ).dialog( "close" );
                 },
@@ -1263,12 +1050,12 @@ deleteForm = function(formID){
  * @param formID
  */
 delete_form = function(formID){
-	$.ajax({
+    $.ajax({
         url : "/curate/delete-form?id=" + formID,
         type : "GET",
         dataType: "json",
         data : {
-        	formID: formID,
+            formID: formID,
         },
 		success: function(data){
 			window.location = "/dashboard/forms"
@@ -1286,15 +1073,15 @@ delete_form = function(formID){
  */
 changeOwnerForm = function(formID){
     $("#banner_errors").hide();
-	$(function() {
+    $(function() {
         $( "#dialog-change-owner-form" ).dialog({
             modal: true,
             buttons: {
-            	Cancel: function() {
+                Cancel: function() {
                     $( this ).dialog( "close" );
                 },
-            	"Change": function() {
-            	    if (validateChangeOwner()){
+                "Change": function() {
+                    if (validateChangeOwner()){
                         var formData = new FormData($( "#form_start" )[0]);
                         change_owner_form(formID);
                         $( this ).dialog( "close" );
@@ -1309,21 +1096,21 @@ changeOwnerForm = function(formID){
  * Validate fields of the start curate form
  */
 validateChangeOwner = function(){
-	errors = ""
+    errors = ""
 
-	$("#banner_errors").hide()
-	// check if a user has been selected
+    $("#banner_errors").hide()
+    // check if a user has been selected
     if ($( "#id_users" ).val().trim() == ""){
         errors = "Please provide a user."
     }
 
-	if (errors != ""){
-		$("#form_start_errors").html(errors);
-		$("#banner_errors").show(500)
-		return (false);
-	}else{
-		return (true);
-	}
+    if (errors != ""){
+        $("#form_start_errors").html(errors);
+        $("#banner_errors").show(500)
+        return (false);
+    }else{
+        return (true);
+    }
 }
 
 
@@ -1333,13 +1120,13 @@ validateChangeOwner = function(){
  */
 change_owner_form = function(formID){
     var userId = $( "#id_users" ).val().trim();
-	$.ajax({
+    $.ajax({
         url : "/curate/change-owner-form",
         type : "POST",
         dataType: "json",
         data : {
-        	formID: formID,
-        	userID: userId,
+            formID: formID,
+            userID: userId,
         },
 		success: function(data){
 			window.location = "/dashboard/forms"
@@ -1354,22 +1141,22 @@ change_owner_form = function(formID){
  * AJAX call, cancel a form currently being entered
  */
 cancelForm = function(){
-	$(function() {
+    $(function() {
         $( "#dialog-cancel-message" ).dialog({
             modal: true,
             buttons: {
-            	Cancel: function() {
+                Cancel: function() {
                     $( this ).dialog( "close" );
                 },
-            	Confirm: function() {
-            		$.ajax({
-            	        url : "/curate/cancel-form",
-            	        type : "GET",
-            	        dataType: "json",
-            			success: function(data){
-            				window.location = "/curate"
-            		    },
-            	    });
+                Confirm: function() {
+                    $.ajax({
+                        url : "/curate/cancel-form",
+                        type : "GET",
+                        dataType: "json",
+                        success: function(data){
+                            window.location = "/curate"
+                        },
+                    });
                 },
             }
         });
@@ -1381,55 +1168,55 @@ cancelForm = function(){
  * Check required, recommended elements
  */
 checkElementUse = function(){
-	required_count = 0
-	$(".required input:visible").each(function(){
-		if (!$(this).closest("li").hasClass("removed")){
-		  if($(this).val().trim() == ""){
-		    required_count += 1;
-		  }
-		}
-	});
-	$(".required textarea:visible").each(function(){
-		if (!$(this).closest("li").hasClass("removed")){
-			if($(this).val().trim() == ""){
-		    required_count += 1;
-		  }
-		}
-	});
-	
-	recommended_count = 0
-	$(".recommended input:visible").each(function(){
-		if (!$(this).closest("li").hasClass("removed")){
-		  if($(this).val().trim() == ""){
-			  recommended_count += 1;
-		  }
-		}
-	});
-	$(".recommended textarea:visible").each(function(){
-		if (!$(this).closest("li").hasClass("removed")){
-			if($(this).val().trim() == ""){
-			  recommended_count += 1;
-		  }
-		}
-	});
-	
-	errors = ""
-	if (required_count > 0 || recommended_count > 0){
-		errors = "<ul>"
-		errors += "<li>" + required_count.toString() + " required element(s) are empty.</li>"
-		errors += "<li>" + recommended_count.toString() + " recommended element(s) are empty.</li>"
-		errors += "</ul>"
-	}
-	
-	return errors;
+    required_count = 0
+    $(".required input:visible").each(function(){
+        if (!$(this).closest("li").hasClass("removed")){
+          if($(this).val().trim() == ""){
+            required_count += 1;
+          }
+        }
+    });
+    $(".required textarea:visible").each(function(){
+        if (!$(this).closest("li").hasClass("removed")){
+            if($(this).val().trim() == ""){
+            required_count += 1;
+          }
+        }
+    });
+
+    recommended_count = 0
+    $(".recommended input:visible").each(function(){
+        if (!$(this).closest("li").hasClass("removed")){
+          if($(this).val().trim() == ""){
+              recommended_count += 1;
+          }
+        }
+    });
+    $(".recommended textarea:visible").each(function(){
+        if (!$(this).closest("li").hasClass("removed")){
+            if($(this).val().trim() == ""){
+              recommended_count += 1;
+          }
+        }
+    });
+
+    errors = ""
+    if (required_count > 0 || recommended_count > 0){
+        errors = "<ul>"
+        errors += "<li>" + required_count.toString() + " required element(s) are empty.</li>"
+        errors += "<li>" + recommended_count.toString() + " recommended element(s) are empty.</li>"
+        errors += "</ul>"
+    }
+
+    return errors;
 }
 
 /**
  * Displays use error before viewing data
  */
 useErrosAndView = function(errors){
-	$("#useErrorMessage").html(errors);
-	$(function() {
+    $("#useErrorMessage").html(errors);
+    $(function() {
         $( "#dialog-use-message" ).dialog({
             modal: true,
             height: 250,
@@ -1443,7 +1230,7 @@ useErrosAndView = function(errors){
                 },
             },
             close: function(){
-            	$("#useErrorMessage").html("");
+                $("#useErrorMessage").html("");
             }
         });
     });
