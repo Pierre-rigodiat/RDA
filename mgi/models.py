@@ -23,7 +23,7 @@ from bson.objectid import ObjectId
 import xmltodict
 from pymongo import MongoClient, TEXT, ASCENDING, errors
 
-from mgi.settings import MONGODB_URI
+from mgi.settings import MONGODB_URI, MGI_DB
 import re
 from mgi import settings
 import datetime
@@ -217,7 +217,7 @@ class XMLdata():
         # create a connection                                                                                                                                                                                                 
         client = MongoClient(MONGODB_URI)
         # connect to the db 'mgi'
-        db = client['mgi']
+        db = client[MGI_DB]
         # get the xmldata collection
         self.xmldata = db['xmldata']
         # create a new dict to keep the mongoengine order                                                                                                                                                                     
@@ -245,7 +245,7 @@ class XMLdata():
         #create a connection
         client = MongoClient(MONGODB_URI)
         # connect to the db 'mgi'
-        db = client['mgi']
+        db = client[MGI_DB]
         # get the xmldata collection
         xmldata = db['xmldata']
         # create the full text index
@@ -268,7 +268,7 @@ class XMLdata():
         # create a connection
         client = MongoClient(MONGODB_URI)
         # connect to the db 'mgi'
-        db = client['mgi']
+        db = client[MGI_DB]
         # get the xmldata collection
         xmldata = db['xmldata']
         # find all objects of the collection
@@ -289,7 +289,7 @@ class XMLdata():
         # create a connection
         client = MongoClient(MONGODB_URI)
         # connect to the db 'mgi'
-        db = client['mgi']
+        db = client[MGI_DB]
         # get the xmldata collection
         xmldata = db['xmldata']
         # find all objects of the collection
@@ -307,7 +307,7 @@ class XMLdata():
         # create a connection
         client = MongoClient(MONGODB_URI)
         # connect to the db 'mgi'
-        db = client['mgi']
+        db = client[MGI_DB]
         # get the xmldata collection
         xmldata = db['xmldata']
         # query mongo db
@@ -325,7 +325,7 @@ class XMLdata():
         # create a connection
         client = MongoClient(MONGODB_URI)
         # connect to the db 'mgi'
-        db = client['mgi']
+        db = client[MGI_DB]
         # get the xmldata collection
         xmldata = db['xmldata']
         # query mongo db
@@ -345,7 +345,7 @@ class XMLdata():
         # create a connection
         client = MongoClient(MONGODB_URI)
         # connect to the db 'mgi'
-        db = client['mgi']
+        db = client[MGI_DB]
         # get the xmldata collection
         xmldata = db['xmldata']
         return xmldata.find_one({'_id': ObjectId(postID)}, as_class = OrderedDict)
@@ -359,7 +359,7 @@ class XMLdata():
         # create a connection
         client = MongoClient(MONGODB_URI)
         # connect to the db 'mgi'
-        db = client['mgi']
+        db = client[MGI_DB]
         # get the xmldata collection
         xmldata = db['xmldata']
         listIDs = [ObjectId(x) for x in listIDs]
@@ -373,7 +373,7 @@ class XMLdata():
         # create a connection
         client = MongoClient(MONGODB_URI)
         # connect to the db 'mgi'
-        db = client['mgi']
+        db = client[MGI_DB]
         # get the xmldata collection
         xmldata = db['xmldata']
         cursor  = xmldata.aggregate(
@@ -403,7 +403,7 @@ class XMLdata():
         # create a connection
         client = MongoClient(MONGODB_URI)
         # connect to the db 'mgi'
-        db = client['mgi']
+        db = client[MGI_DB]
         # get the xmldata collection
         xmldata = db['xmldata']
         xmldata.remove({'_id': ObjectId(postID)})
@@ -417,7 +417,7 @@ class XMLdata():
 #         # create a connection
 #         client = MongoClient(MONGODB_URI)
 #         # connect to the db 'mgi'
-#         db = client['mgi']
+#         db = client[MGI_DB]
 #         # get the xmldata collection
 #         xmldata = db['xmldata']
 #         
@@ -440,7 +440,7 @@ class XMLdata():
         # create a connection
         client = MongoClient(MONGODB_URI)
         # connect to the db 'mgi'
-        db = client['mgi']
+        db = client[MGI_DB]
         # get the xmldata collection
         xmldata = db['xmldata']
                 
@@ -457,7 +457,7 @@ class XMLdata():
         # create a connection
         client = MongoClient(MONGODB_URI)
         # connect to the db 'mgi'
-        db = client['mgi']
+        db = client[MGI_DB]
         # get the xmldata collection
         xmldata = db['xmldata']
         xmldata.update({'_id': ObjectId(postID)}, {'$set':{'publicationdate': datetime.datetime.now(), 'ispublished': True}}, upsert=False)
@@ -470,7 +470,7 @@ class XMLdata():
         # create a connection
         client = MongoClient(MONGODB_URI)
         # connect to the db 'mgi'
-        db = client['mgi']
+        db = client[MGI_DB]
         # get the xmldata collection
         xmldata = db['xmldata']
         xmldata.update({'_id': ObjectId(postID)}, {'$set':{'ispublished': False}}, upsert=False)
@@ -483,7 +483,7 @@ class XMLdata():
         #create a connection
         client = MongoClient(MONGODB_URI)
         # connect to the db 'mgi'
-        db = client['mgi']
+        db = client[MGI_DB]
         # get the xmldata collection
         xmldata = db['xmldata']
         wordList = re.sub("[^\w]", " ",  text).split()
@@ -716,7 +716,7 @@ class OaiRecord(Document):
         #create a connection
         client = MongoClient(MONGODB_URI)
         # connect to the db 'mgi'
-        db = client['mgi']
+        db = client[MGI_DB]
         # get the xmldata collection
         xmldata = db['oai_record']
         # create the full text index
@@ -730,7 +730,7 @@ class OaiRecord(Document):
         #create a connection
         client = MongoClient(MONGODB_URI)
         # connect to the db 'mgi'
-        db = client['mgi']
+        db = client[MGI_DB]
         # get the xmldata collection
         xmlrecord = db['oai_record']
         wordList = re.sub("[^\w]", " ",  text).split()
