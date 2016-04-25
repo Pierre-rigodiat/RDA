@@ -13,17 +13,15 @@
 # Sponsor: National Institute of Standards and Technology (NIST)
 #
 ################################################################################
-
 from mongoengine import *
 
 # Specific to MongoDB ordered inserts
 from collections import OrderedDict
 from bson.objectid import ObjectId
 import xmltodict
-from pymongo import MongoClient, TEXT, ASCENDING, DESCENDING
-from mgi.settings import MONGODB_URI
+from pymongo import MongoClient, TEXT
+from mgi.settings import MONGODB_URI, MGI_DB
 import re
-from mgi import settings
 import datetime
 from utils.XSDhash import XSDhash
 
@@ -265,10 +263,11 @@ def postprocessor(path, key, value):
             return key, value
 
 
-class XMLdata():
+class XMLdata(object):
     """Wrapper to manage JSON Documents, like mongoengine would have manage them (but with ordered data)"""
 
-    def __init__(self, schemaID=None, xml=None, json=None, title="", iduser=None, ispublished=False, publicationdate=None):
+    def __init__(self, schemaID=None, xml=None, json=None, title="", iduser=None, ispublished=False,
+                 publicationdate=None):
         """                                                                                                                                                                                                                   
             initialize the object                                                                                                                                                                                             
             schema = ref schema (Document)                                                                                                                                                                                    
@@ -278,7 +277,7 @@ class XMLdata():
         # create a connection                                                                                                                                                                                                 
         client = MongoClient(MONGODB_URI)
         # connect to the db 'mgi'
-        db = client['mgi']
+        db = client[MGI_DB]
         # get the xmldata collection
         self.xmldata = db['xmldata']
         # create a new dict to keep the mongoengine order                                                                                                                                                                     
@@ -306,12 +305,11 @@ class XMLdata():
         #create a connection
         client = MongoClient(MONGODB_URI)
         # connect to the db 'mgi'
-        db = client['mgi']
+        db = client[MGI_DB]
         # get the xmldata collection
         xmldata = db['xmldata']
         # create the full text index
         xmldata.create_index([('$**', TEXT)], default_language="en", language_override="en")
-
 
     def save(self):
         """save into mongo db"""
@@ -319,7 +317,6 @@ class XMLdata():
         self.content['lastmodificationdate'] = datetime.datetime.now()
         docID = self.xmldata.insert(self.content)
         return docID
-    
     
     @staticmethod
     def objects():        
@@ -341,7 +338,6 @@ class XMLdata():
             results.append(result)
         return results
     
-    
     @staticmethod
     def find(params):        
         """
@@ -362,7 +358,6 @@ class XMLdata():
             results.append(result)
         return results
     
-    
     @staticmethod
     def executeQuery(query):
         """queries mongo db and returns results data"""
@@ -379,7 +374,6 @@ class XMLdata():
         for result in cursor:
             queryResults.append(result['content'])
         return queryResults
-    
     
     @staticmethod
     def executeQueryFullResult(query):
@@ -411,7 +405,6 @@ class XMLdata():
         xmldata = db['xmldata']
         return xmldata.find_one({'_id': ObjectId(postID)}, as_class = OrderedDict)
 
-
     @staticmethod
     def getByIDsAndDistinctBy(listIDs, distinctBy=None):
         """
@@ -425,7 +418,6 @@ class XMLdata():
         xmldata = db['xmldata']
         listIDs = [ObjectId(x) for x in listIDs]
         return xmldata.find({'_id': { '$in': listIDs }}, as_class = OrderedDict).distinct(distinctBy)
-
     
     @staticmethod
     def delete(postID):
@@ -441,28 +433,6 @@ class XMLdata():
         xmldata.remove({'_id': ObjectId(postID)})
     
     # TODO: to be tested
-#     @staticmethod
-#     def update(postID, json=None, xml=None):
-#         """
-#             Update the object with the given id
-#         """
-#         # create a connection
-#         client = MongoClient(MONGODB_URI)
-#         # connect to the db 'mgi'
-#         db = client['mgi']publi
-#         # get the xmldata collection
-#         xmldata = db['xmldata']
-#         
-#         data = None
-#         if (json is not None):                                                                                                                                                                                       
-#             data = json
-#             if '_id' in json:
-#                 del json['_id']
-#         else:            
-#             data = xmltodict.parse(xml, postprocessor=postprocessor)
-#             
-#         if data is not None:
-#             xmldata.update({'_id': ObjectId(postID)}, {"$set":data}, upsert=False)
             
     @staticmethod
     def update_content(postID, content=None, title=None):

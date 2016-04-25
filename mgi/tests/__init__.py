@@ -1,3 +1,4 @@
+import collections
 import json
 from os.path import join
 from time import sleep
@@ -12,9 +13,8 @@ from selenium import webdriver
 from modules.discover import discover_modules
 
 
-TESTS_RESOURCES_PATH = os.path.join(BASE_DIR, 'static', 'resources', 'tests')
-XSD_TEST_PATH = os.path.join(BASE_DIR, 'static', 'xsd', 'tests')
-import collections
+TESTS_RESOURCES_PATH = join(BASE_DIR, 'static', 'resources', 'tests')
+XSD_TEST_PATH = join(BASE_DIR, 'static', 'xsd', 'tests')
 
 
 class VariableTypesGenerator(object):
@@ -245,7 +245,7 @@ class SeleniumTestCase(TestCase):
         self.driver.find_element_by_id("object_name").send_keys(name)
 
         self.driver.find_element_by_id("files").clear()
-        self.driver.find_element_by_id("files").send_keys(os.path.join(XSD_TEST_PATH, file_path))
+        self.driver.find_element_by_id("files").send_keys(join(XSD_TEST_PATH, file_path))
 
         self.driver.find_element_by_id("uploadFile").click()
         self.driver.find_element_by_xpath("//div[@id='objectUploadErrorMessage']/span[@class='btn']").click()

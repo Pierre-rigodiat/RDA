@@ -71,13 +71,14 @@ else:
     # }
 
 # Replace by your own values
-
 MONGO_MGI_USER = "mgi_user"
 MONGO_MGI_PASSWORD = "mgi_password"
+
 if 'test' in sys.argv:
     MGI_DB = "mgi_test"
 else:
     MGI_DB = "mgi"
+
 MONGODB_URI = "mongodb://" + MONGO_MGI_USER + ":" + MONGO_MGI_PASSWORD + "@localhost/" + MGI_DB
 connect(MGI_DB, host=MONGODB_URI)
 

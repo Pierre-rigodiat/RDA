@@ -14,6 +14,26 @@ class ParserGenerateFormTestSuite(TestCase):
     """
     """
 
+    @classmethod
+    def setUpClass(cls):
+        super(ParserGenerateFormTestSuite, cls).setUpClass()
+
+        form_data = FormData()
+        form_data.name = 'generate_form_test'
+        form_data.user = 'test'
+        form_data.template = 'none'
+
+        form_data.save()
+
+        cls.form_id = form_data.pk
+
+    @classmethod
+    def tearDownClass(cls):
+        form_data = FormData.objects.get(pk=cls.form_id)
+        form_data.delete()
+
+        super(ParserGenerateFormTestSuite, cls).tearDownClass()
+
     def setUp(self):
         schema_data = join('curate', 'tests', 'data', 'parser')
         self.schema_data_handler = DataHandler(schema_data)
@@ -24,15 +44,10 @@ class ParserGenerateFormTestSuite(TestCase):
         self.request.session = engine.SessionStore(session_key)
 
         self.request.session['curate_edit'] = False  # Data edition
+        self.request.session['curateFormData'] = self.form_id
 
-        form_data = FormData()
-        form_data.name = ''
-        form_data.user = ''
-        form_data.template = ''
-
-        form_data.save()
-
-        self.request.session['curateFormData'] = form_data.pk
+    def tearDown(self):
+        pass
 
     def test_schema_generation(self):
         main_directory = self.schema_data_handler.dirname
